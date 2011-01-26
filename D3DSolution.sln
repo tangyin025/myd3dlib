@@ -3,6 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 10.00
 # Visual Studio 2008
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "DXUTCore", "DXUTCore\scripts\DXUTCore.vcproj", "{E16ED7DD-E0E5-45FB-8F44-F097D20C254F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo2_1", "demo2_1\demo2_1.vcproj", "{A03D34A9-98E0-4FF2-8193-AAEFEAA7BCAA}"
+	ProjectSection(ProjectDependencies) = postProject
+		{E16ED7DD-E0E5-45FB-8F44-F097D20C254F} = {E16ED7DD-E0E5-45FB-8F44-F097D20C254F}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -13,6 +18,10 @@ Global
 		{E16ED7DD-E0E5-45FB-8F44-F097D20C254F}.Debug|Win32.Build.0 = Debug|Win32
 		{E16ED7DD-E0E5-45FB-8F44-F097D20C254F}.Release|Win32.ActiveCfg = Release|Win32
 		{E16ED7DD-E0E5-45FB-8F44-F097D20C254F}.Release|Win32.Build.0 = Release|Win32
+		{A03D34A9-98E0-4FF2-8193-AAEFEAA7BCAA}.Debug|Win32.ActiveCfg = Debug|Win32
+		{A03D34A9-98E0-4FF2-8193-AAEFEAA7BCAA}.Debug|Win32.Build.0 = Debug|Win32
+		{A03D34A9-98E0-4FF2-8193-AAEFEAA7BCAA}.Release|Win32.ActiveCfg = Release|Win32
+		{A03D34A9-98E0-4FF2-8193-AAEFEAA7BCAA}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
