@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="DXUTCore"
-	ProjectGUID="{E16ED7DD-E0E5-45FB-8F44-F097D20C254F}"
-	RootNamespace="DXUTCore"
+	Name="dxut"
+	ProjectGUID="{840589CD-DB4B-4FFB-959E-98B2CFADF848}"
+	RootNamespace="dxut"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -62,7 +62,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib comctl32.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -127,7 +126,6 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib comctl32.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -175,11 +173,55 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath="..\src\DXUTcamera.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\DXUTenum.cpp"
 				>
 			</File>
 			<File
+				RelativePath="..\src\DXUTgui.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DXUTguiIME.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\DXUTmisc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DXUTres.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DXUTsettingsdlg.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\DXUTShapes.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\ImeUi.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDKmesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDKmisc.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDKsound.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\SDKwavefile.cpp"
 				>
 			</File>
 		</Filter>
@@ -193,11 +235,55 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\DXUTcamera.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\DXUTenum.h"
 				>
 			</File>
 			<File
+				RelativePath="..\include\DXUTgui.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DXUTguiIME.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\DXUTmisc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DXUTres.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DXUTsettingsdlg.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\DXUTShapes.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ImeUi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SDKmesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SDKmisc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SDKsound.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\SDKwavefile.h"
 				>
 			</File>
 		</Filter>

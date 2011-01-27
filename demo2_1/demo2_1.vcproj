@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxutcore\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -61,7 +61,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib d3dx10d.lib winmm.lib comctl32.lib"
 				LinkIncremental="2"
+				DelayLoadDLLs="d3dx10d_35.dll"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -115,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxutcore\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -134,7 +136,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib d3dx10.lib winmm.lib comctl32.lib"
 				LinkIncremental="1"
+				DelayLoadDLLs="d3dx10_35.dll"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
