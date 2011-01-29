@@ -8,6 +8,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo2_1", "demo2_1\demo2_1.
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "dxut", "dxut\scripts\dxut.vcproj", "{840589CD-DB4B-4FFB-959E-98B2CFADF848}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo2_2", "demo2_2\demo2_2.vcproj", "{75F896A5-F6F2-410E-8E47-00D18993B766}"
+	ProjectSection(ProjectDependencies) = postProject
+		{840589CD-DB4B-4FFB-959E-98B2CFADF848} = {840589CD-DB4B-4FFB-959E-98B2CFADF848}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -22,6 +27,10 @@ Global
 		{840589CD-DB4B-4FFB-959E-98B2CFADF848}.Debug|Win32.Build.0 = Debug|Win32
 		{840589CD-DB4B-4FFB-959E-98B2CFADF848}.Release|Win32.ActiveCfg = Release|Win32
 		{840589CD-DB4B-4FFB-959E-98B2CFADF848}.Release|Win32.Build.0 = Release|Win32
+		{75F896A5-F6F2-410E-8E47-00D18993B766}.Debug|Win32.ActiveCfg = Debug|Win32
+		{75F896A5-F6F2-410E-8E47-00D18993B766}.Debug|Win32.Build.0 = Debug|Win32
+		{75F896A5-F6F2-410E-8E47-00D18993B766}.Release|Win32.ActiveCfg = Release|Win32
+		{75F896A5-F6F2-410E-8E47-00D18993B766}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
