@@ -1,4 +1,7 @@
 
+#include <atlbase.h>
+#include <atlstr.h>
+#include <boost/shared_ptr.hpp>
 #include <DXUT.h>
 #include <DXUTgui.h>
 #include <SDKmisc.h>
@@ -9,8 +12,13 @@
 //--------------------------------------------------------------------------------------
 
 CDXUTDialogResourceManager		g_DialogResourceMgr;
-CDXUTDialog						g_HUD;
 CD3DSettingsDlg					g_SettingsDlg;
+CDXUTDialog						g_HUD;
+CComPtr<ID3DXFont>				g_Font9;
+CComPtr<ID3DXSprite>			g_Sprite9;
+typedef boost::shared_ptr<CDXUTTextHelper> CDXUTTextHelperPtr;
+CDXUTTextHelperPtr				g_TxtHelper;
+
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -80,6 +88,9 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
+	V_RETURN(D3DXCreateFont(
+		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
+	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 	return S_OK;
 }
 
@@ -95,6 +106,9 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
 	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
+	V_RETURN(g_Font9->OnResetDevice());
+	V_RETURN(g_Sprite9->OnResetDevice());
+	g_TxtHelper.reset(new CDXUTTextHelper(g_Font9, g_Sprite9, NULL, NULL, 15));
 
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
@@ -110,6 +124,9 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 	// 在这里处理在reset中创建的资源
 	g_DialogResourceMgr.OnD3D9LostDevice();
 	g_SettingsDlg.OnD3D9LostDevice();
+	g_Font9->OnLostDevice();
+	g_Sprite9->OnLostDevice();
+	g_TxtHelper.reset();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -121,6 +138,8 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 	// 在这里销毁在create中创建的资源
 	g_DialogResourceMgr.OnD3D9DestroyDevice();
 	g_SettingsDlg.OnD3D9DestroyDevice();
+	g_Font9.Release();
+	g_Sprite9.Release();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -155,6 +174,12 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		g_TxtHelper->Begin();
+		g_TxtHelper->SetInsertionPos(5, 5);
+		g_TxtHelper->SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+		g_TxtHelper->DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
+		g_TxtHelper->DrawTextLine(DXUTGetDeviceStats());
+		g_TxtHelper->End();
 		V(g_HUD.OnRender(fElapsedTime));
 		V(pd3dDevice->EndScene());
 	}
@@ -263,13 +288,13 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTSetCallbackKeyboard(OnKeyboard);
 
 	// 全局初始化工作
+	g_SettingsDlg.Init(&g_DialogResourceMgr);
 	g_HUD.Init(&g_DialogResourceMgr);
 	g_HUD.SetCallback(OnGUIEvent);
 	int nY = 10;
 	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
 	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
 	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
-	g_SettingsDlg.Init(&g_DialogResourceMgr);
 
 	// 启动DXUT
 	DXUTInit(true, true, NULL);
