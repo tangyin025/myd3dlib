@@ -1,6 +1,20 @@
 
 #include "DXUT.h"
+#include "DXUTgui.h"
 #include "SDKmisc.h"
+
+//--------------------------------------------------------------------------------------
+// Global variables
+//--------------------------------------------------------------------------------------
+
+CDXUTDialogResourceManager g_DialogResourceMgr;
+CDXUTDialog g_HUD;
+
+//--------------------------------------------------------------------------------------
+// UI control IDs
+//--------------------------------------------------------------------------------------
+
+#define IDC_TOGGLEFULLSCREEN 1
 
 // ------------------------------------------------------------------------------------------
 // IsD3D9DeviceAcceptable
@@ -59,6 +73,8 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 									void * pUserContext)
 {
 	// 在这里创建d3d9资源，但这些资源应该不受device reset限制的
+	HRESULT hr;
+	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 	return S_OK;
 }
 
@@ -71,6 +87,11 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 								   void * pUserContext)
 {
 	// 在这里创建d3d9资源，但这些资源将受到device reset限制
+	HRESULT hr;
+	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
+
+	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
+	g_HUD.SetSize(170, 170);
 	return S_OK;
 }
 
@@ -81,6 +102,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 void CALLBACK OnD3D9LostDevice(void * pUserContext)
 {
 	// 在这里处理在reset中创建的资源
+	g_DialogResourceMgr.OnD3D9LostDevice();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -90,6 +112,83 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 {
 	// 在这里销毁在create中创建的资源
+	g_DialogResourceMgr.OnD3D9DestroyDevice();
+}
+
+// ------------------------------------------------------------------------------------------
+// OnFrameMove
+// ------------------------------------------------------------------------------------------
+
+void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
+{
+	// 在这里更新场景
+}
+
+// ------------------------------------------------------------------------------------------
+// OnD3D9FrameRender
+// ------------------------------------------------------------------------------------------
+
+void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
+								double fTime,
+								float fElapsedTime,
+								void * pUserContext)
+{
+	// 在这里渲染场景
+	HRESULT hr;
+
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
+
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(g_HUD.OnRender(fElapsedTime));
+		V(pd3dDevice->EndScene());
+	}
+}
+
+// ------------------------------------------------------------------------------------------
+// OnGUIEvent
+// ------------------------------------------------------------------------------------------
+
+void CALLBACK OnGUIEvent(UINT nEvent,
+						 int nControlID,
+						 CDXUTControl * pControl,
+						 void * pUserContext)
+{
+	// 在这里处理ui事件
+	switch(nControlID)
+	{
+	case IDC_TOGGLEFULLSCREEN:
+		DXUTToggleFullScreen();
+		break;
+	}
+}
+
+// ------------------------------------------------------------------------------------------
+// MsgProc
+// ------------------------------------------------------------------------------------------
+
+LRESULT CALLBACK MsgProc(HWND hWnd,
+						 UINT uMsg,
+						 WPARAM wParam,
+						 LPARAM lParam,
+						 bool * pbNoFurtherProcessing,
+						 void * pUserContext)
+{
+	// 在这里进行消息处理
+	*pbNoFurtherProcessing = g_DialogResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
+	if(*pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+
+	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
+	if(*pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+
+	return 0;
 }
 
 // ------------------------------------------------------------------------------------------
@@ -105,6 +204,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
+	// 设置DXUT资源管理的回调函数
 	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable);
 	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings);
 	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice);
@@ -112,9 +212,23 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice);
 	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice);
 
+	// 设置渲染的回调函数
+	DXUTSetCallbackFrameMove(OnFrameMove);
+	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender);
+
+	// 设置消息回调函数
+	DXUTSetCallbackMsgProc(MsgProc);
+
+	// 全局初始化工作
+	g_HUD.Init(&g_DialogResourceMgr);
+	g_HUD.SetCallback(OnGUIEvent);
+	int nY = 10;
+	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
+
+	// 启动DXUT
 	DXUTInit(true, true, NULL);
 	DXUTSetCursorSettings(true, true);
-	DXUTCreateWindow(L"demo2_1");
+	DXUTCreateWindow(L"demo2_2");
 	DXUTCreateDevice(true, 800, 600);
 	DXUTMainLoop();
 
