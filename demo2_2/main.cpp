@@ -1,20 +1,24 @@
 
-#include "DXUT.h"
-#include "DXUTgui.h"
-#include "SDKmisc.h"
+#include <DXUT.h>
+#include <DXUTgui.h>
+#include <SDKmisc.h>
+#include <DXUTSettingsDlg.h>
 
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
 
-CDXUTDialogResourceManager g_DialogResourceMgr;
-CDXUTDialog g_HUD;
+CDXUTDialogResourceManager		g_DialogResourceMgr;
+CDXUTDialog						g_HUD;
+CD3DSettingsDlg					g_SettingsDlg;
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
 //--------------------------------------------------------------------------------------
 
-#define IDC_TOGGLEFULLSCREEN 1
+#define IDC_TOGGLEFULLSCREEN	1
+#define IDC_TOGGLEREF			2
+#define IDC_CHANGEDEVICE		3
 
 // ------------------------------------------------------------------------------------------
 // IsD3D9DeviceAcceptable
@@ -75,6 +79,7 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	// 在这里创建d3d9资源，但这些资源应该不受device reset限制的
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
+	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
 	return S_OK;
 }
 
@@ -89,6 +94,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	// 在这里创建d3d9资源，但这些资源将受到device reset限制
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
+	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
 
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
@@ -103,6 +109,7 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 {
 	// 在这里处理在reset中创建的资源
 	g_DialogResourceMgr.OnD3D9LostDevice();
+	g_SettingsDlg.OnD3D9LostDevice();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -113,6 +120,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 {
 	// 在这里销毁在create中创建的资源
 	g_DialogResourceMgr.OnD3D9DestroyDevice();
+	g_SettingsDlg.OnD3D9DestroyDevice();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -139,6 +147,12 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
 
+	if(g_SettingsDlg.IsActive())
+	{
+		g_SettingsDlg.OnRender(fElapsedTime);
+		return;
+	}
+
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		V(g_HUD.OnRender(fElapsedTime));
@@ -161,6 +175,14 @@ void CALLBACK OnGUIEvent(UINT nEvent,
 	case IDC_TOGGLEFULLSCREEN:
 		DXUTToggleFullScreen();
 		break;
+
+	case IDC_TOGGLEREF:
+		DXUTToggleREF();
+		break;
+
+	case IDC_CHANGEDEVICE:
+		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
+		break;
 	}
 }
 
@@ -182,6 +204,12 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 		return 0;
 	}
 
+	if(g_SettingsDlg.IsActive())
+	{
+		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+		return 0;
+	}
+
 	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
@@ -189,6 +217,20 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 	}
 
 	return 0;
+}
+
+// ------------------------------------------------------------------------------------------
+// OnKeyboard
+// ------------------------------------------------------------------------------------------
+
+void CALLBACK OnKeyboard(UINT nChar,
+						 bool bKeyDown,
+						 bool bAltDown,
+						 void * pUserContext)
+{
+	// 在这里进行键盘事件处理
+	// 更具DXUT的源代码可以看出，如果要阻止Escape推出窗口，应当
+	// 在MsgProc处理WM_KEYDOWN中的VK_ESCAPE，并给出bNoFurtherProcessing结果即可
 }
 
 // ------------------------------------------------------------------------------------------
@@ -218,12 +260,16 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 
 	// 设置消息回调函数
 	DXUTSetCallbackMsgProc(MsgProc);
+	DXUTSetCallbackKeyboard(OnKeyboard);
 
 	// 全局初始化工作
 	g_HUD.Init(&g_DialogResourceMgr);
 	g_HUD.SetCallback(OnGUIEvent);
 	int nY = 10;
 	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
+	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
+	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
+	g_SettingsDlg.Init(&g_DialogResourceMgr);
 
 	// 启动DXUT
 	DXUTInit(true, true, NULL);
