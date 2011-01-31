@@ -412,7 +412,7 @@ namespace OgreMayaExporter
 
 		// Write bone hierarchy
 		params.outSkeleton << "\t<bonehierarchy>\n";
-		for (i=0; i<m_joints.size(); i++)
+		for (int i=0; i<m_joints.size(); i++)
 		{
 			if (m_joints[i].parentIndex>=0)
 			{
@@ -427,7 +427,7 @@ namespace OgreMayaExporter
 		{
 			params.outSkeleton << "\t<animations>\n";
 			// For every animation
-			for (i=0; i<m_animations.size(); i++)
+			for (int i=0; i<m_animations.size(); i++)
 			{
 				// Write animation info
 				params.outSkeleton << "\t\t<animation name=\"" << m_animations[i].name.asChar() << "\" length=\"" << 

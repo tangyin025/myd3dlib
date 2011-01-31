@@ -169,7 +169,7 @@ namespace OgreMayaExporter
 		{
 			std::cout << "Get vbas\n";
 			MItGeometry iterGeom(meshDag);
-			for (i=0; !iterGeom.isDone(); iterGeom.next(), i++)
+			for (int i=0; !iterGeom.isDone(); iterGeom.next(), i++)
 			{
 				MObject component = iterGeom.component();
 				MFloatArray vertexWeights;
@@ -384,14 +384,14 @@ namespace OgreMayaExporter
 								}
 								// save joint ids
 								vtx.jointIds.resize(jointIds[vtxIdx].length());
-								for (j=0; j<jointIds[vtxIdx].length(); j++)
+								for (int j=0; j<jointIds[vtxIdx].length(); j++)
 								{
 									vtx.jointIds[j] = (jointIds[vtxIdx])[j];
 								}
 								// save vertex texture coordinates
 								vtx.u.resize(uvsets.length());
 								vtx.v.resize(uvsets.length());
-								for (j=0; j<uvsets.length(); j++)
+								for (int j=0; j<uvsets.length(); j++)
 								{
 									float2 uv;
 									stat = faceIter.getUV(triVertexIdx[i],uv,&uvsets[j]);
@@ -428,7 +428,7 @@ namespace OgreMayaExporter
 		if (params.useSharedGeom)
 		{
 			std::cout << "Create list of shared vertices\n";
-			for (i=0; i<vertices.size(); i++)
+			for (int i=0; i<vertices.size(); i++)
 			{
 				vertex v;
 				vertexInfo vInfo = vertices[i];
@@ -464,7 +464,7 @@ namespace OgreMayaExporter
 					v.vbas.push_back(newVba);
 				}
 				// save texture coordinates
-				for (k=0; k<vInfo.u.size(); k++)
+				for (int k=0; k<vInfo.u.size(); k++)
 				{
 					texcoords newTexCoords;
 					newTexCoords.u = vInfo.u[k];
@@ -479,7 +479,7 @@ namespace OgreMayaExporter
 		}
 
 		// create a submesh for every different shader linked to the mesh
-		for (i=0; i<shaders.length(); i++)
+		for (int i=0; i<shaders.length(); i++)
 		{
 			// check if the submesh has at least 1 triangle
 			if (polygonSets[i].size() > 0)
@@ -630,7 +630,7 @@ namespace OgreMayaExporter
 		}
 		// write submesh names
 		params.outMesh << "\t<submeshnames>\n";
-		for (i=0; i<m_submeshes.size(); i++)
+		for (int i=0; i<m_submeshes.size(); i++)
 		{
 			if (m_submeshes[i]->name() != "")
 				params.outMesh << "\t\t<submeshname name=\"" << m_submeshes[i]->name().asChar() << "\" index=\"" << i << "\"/>\n";

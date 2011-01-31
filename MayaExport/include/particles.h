@@ -81,7 +81,7 @@ struct SParticleData
 	SParticleData(): nFrame( 0 ), nSprite( 0 ), pos( 0, 0, 0 ), color( 1, 1, 1, 1 ), scale( 1, 1 ), fRotation( 0 ) {}
 };
 typedef std::vector<SParticleData> CParticlesTrack;
-typedef std::hash_map<int, CParticlesTrack> CParticlesData;
+typedef stdext::hash_map<int, CParticlesTrack> CParticlesData;
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 template <class T>
 inline void Interpolate( const T &v1, const T &v2, float fCoeff, T *pRes )

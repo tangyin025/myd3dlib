@@ -97,7 +97,7 @@ namespace OgreMayaExporter
 			m_uvsets.push_back(uv);
 		}
 		//iterate over faces array, to retrieve vertices info
-		for (i=0; i<faces.size(); i++)
+		for (int i=0; i<faces.size(); i++)
 		{
 			face newFace;
 			// if we are using shared geometry, indexes refer to the vertex buffer of the whole mesh
@@ -155,7 +155,7 @@ namespace OgreMayaExporter
 						v.vbas.push_back(newVba);
 					}
 					// save texture coordinates
-					for (k=0; k<vInfo.u.size(); k++)
+					for (int k=0; k<vInfo.u.size(); k++)
 					{
 						texcoords newTexCoords;
 						newTexCoords.u = vInfo.u[k];
@@ -234,7 +234,7 @@ namespace OgreMayaExporter
 			else
 				params.outMesh << 0 << "\">\n";
 			//write vertex data
-			for (i=0; i<m_vertices.size(); i++)
+			for (int i=0; i<m_vertices.size(); i++)
 			{
 				params.outMesh << "\t\t\t\t\t<vertex>\n";
 				//write vertex position
@@ -284,7 +284,7 @@ namespace OgreMayaExporter
 			if (params.exportVBA)
 			{
 				params.outMesh << "\t\t\t<boneassignments>\n";
-				for (i=0; i<m_vertices.size(); i++)
+				for (int i=0; i<m_vertices.size(); i++)
 				{
 					for (int j=0; j<m_vertices[i].vbas.size(); j++)
 					{

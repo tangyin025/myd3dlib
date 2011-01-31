@@ -130,7 +130,7 @@ namespace OgreMayaExporter
 				// Get layered texture node
 				MFnDependencyNode* pLayeredTexNode = NULL;
 				pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
-				for (i=0; i<colorSrcPlugs.length(); i++)
+				for (int i=0; i<colorSrcPlugs.length(); i++)
 				{
 					if (colorSrcPlugs[i].node().hasFn(MFn::kLayeredTexture))
 					{
@@ -143,7 +143,7 @@ namespace OgreMayaExporter
 				MPlug inputsPlug = pLayeredTexNode->findPlug("inputs");
 
 				// Scan inputs and export textures
-				for (i=inputsPlug.numElements()-1; i>=0; i--)
+				for (int i=inputsPlug.numElements()-1; i>=0; i--)
 				{
 					MFnDependencyNode* pTextureNode = NULL;
 					// Search for a connected texture
@@ -201,7 +201,7 @@ namespace OgreMayaExporter
 				// Get texture node
 				MFnDependencyNode* pTextureNode = NULL;
 				pShader->findPlug("color").connectedTo(colorSrcPlugs,true,false);
-				for (i=0; i<colorSrcPlugs.length(); i++)
+				for (int i=0; i<colorSrcPlugs.length(); i++)
 				{
 					if (colorSrcPlugs[i].node().hasFn(MFn::kFileTexture))
 					{
@@ -269,7 +269,7 @@ namespace OgreMayaExporter
 		{
 			MPlugArray placetexSrcPlugs;
 			pPlace2dTexNode->findPlug("uvCoord").connectedTo(placetexSrcPlugs,true,false);
-			for (j=0; j<placetexSrcPlugs.length(); j++)
+			for (int j=0; j<placetexSrcPlugs.length(); j++)
 			{
 				if (placetexSrcPlugs[j].node().hasFn(MFn::kUvChooser))
 				{
@@ -288,7 +288,7 @@ namespace OgreMayaExporter
 			for (int i=0; i<uvsetsPlug.evaluateNumElements() && !foundMesh; i++)
 			{
 				uvsetsPlug[i].connectedTo(uvsetsSrcPlugs,true,false);
-				for (j=0; j<uvsetsSrcPlugs.length() && !foundMesh; j++)
+				for (int j=0; j<uvsetsSrcPlugs.length() && !foundMesh; j++)
 				{
 					if (uvsetsSrcPlugs[j].node().hasFn(MFn::kMesh))
 					{

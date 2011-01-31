@@ -286,7 +286,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i < srcplugarray.length(); i++)
+			for (unsigned int i=0; i < srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
@@ -313,7 +313,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i< srcplugarray.length(); i++)
+			for (unsigned int i=0; i< srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
@@ -340,7 +340,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i< srcplugarray.length(); i++)
+			for (unsigned int i=0; i< srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
@@ -372,7 +372,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i< srcplugarray.length(); i++)
+			for (unsigned int i=0; i< srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
@@ -399,7 +399,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i< srcplugarray.length(); i++)
+			for (unsigned int i=0; i< srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
@@ -426,7 +426,7 @@ namespace OgreMayaExporter
 		if (plug.isConnected() && m_params.exportCamerasAnim)
 		{
 			plug.connectedTo(srcplugarray,true,false,&stat);
-			for (i=0; i< srcplugarray.length(); i++)
+			for (unsigned int i=0; i< srcplugarray.length(); i++)
 			{
 				if (srcplugarray[i].node().hasFn(MFn::kAnimCurve))
 				{
