@@ -1,7 +1,6 @@
 
 #include <atlbase.h>
 #include <atlstr.h>
-#include <boost/shared_ptr.hpp>
 #include <DXUT.h>
 #include <DXUTgui.h>
 #include <SDKmisc.h>
@@ -16,9 +15,6 @@ CD3DSettingsDlg					g_SettingsDlg;
 CDXUTDialog						g_HUD;
 CComPtr<ID3DXFont>				g_Font9;
 CComPtr<ID3DXSprite>			g_Sprite9;
-typedef boost::shared_ptr<CDXUTTextHelper> CDXUTTextHelperPtr;
-CDXUTTextHelperPtr				g_TxtHelper;
-
 
 //--------------------------------------------------------------------------------------
 // UI control IDs
@@ -51,11 +47,11 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 		return false;
 	}
 
-	// 至少要支持ps2.0，这还是要看实际使用情况
-	if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-	{
-		return false;
-	}
+	//// 至少要支持ps2.0，这还是要看实际使用情况
+	//if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+	//{
+	//	return false;
+	//}
 	return true;
 }
 
@@ -108,7 +104,6 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
 	V_RETURN(g_Font9->OnResetDevice());
 	V_RETURN(g_Sprite9->OnResetDevice());
-	g_TxtHelper.reset(new CDXUTTextHelper(g_Font9, g_Sprite9, NULL, NULL, 15));
 
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
@@ -126,7 +121,6 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 	g_SettingsDlg.OnD3D9LostDevice();
 	g_Font9->OnLostDevice();
 	g_Sprite9->OnLostDevice();
-	g_TxtHelper.reset();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -174,12 +168,13 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		g_TxtHelper->Begin();
-		g_TxtHelper->SetInsertionPos(5, 5);
-		g_TxtHelper->SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
-		g_TxtHelper->DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
-		g_TxtHelper->DrawTextLine(DXUTGetDeviceStats());
-		g_TxtHelper->End();
+		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
+		txtHelper.Begin();
+		txtHelper.SetInsertionPos(5, 5);
+		txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+		txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
+		txtHelper.DrawTextLine(DXUTGetDeviceStats());
+		txtHelper.End();
 		V(g_HUD.OnRender(fElapsedTime));
 		V(pd3dDevice->EndScene());
 	}
