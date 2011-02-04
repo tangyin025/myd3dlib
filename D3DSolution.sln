@@ -17,6 +17,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MayaExport_fg", "MayaExport
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\scripts\zlib.vcproj", "{4B104248-0F92-4516-8D50-E87D5E9BB6B6}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zziplib", "zziplib\scripts\zziplib.vcproj", "{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4B104248-0F92-4516-8D50-E87D5E9BB6B6} = {4B104248-0F92-4516-8D50-E87D5E9BB6B6}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -43,6 +48,10 @@ Global
 		{4B104248-0F92-4516-8D50-E87D5E9BB6B6}.Debug|Win32.Build.0 = Debug|Win32
 		{4B104248-0F92-4516-8D50-E87D5E9BB6B6}.Release|Win32.ActiveCfg = Release|Win32
 		{4B104248-0F92-4516-8D50-E87D5E9BB6B6}.Release|Win32.Build.0 = Release|Win32
+		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|Win32.ActiveCfg = Debug|Win32
+		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Debug|Win32.Build.0 = Debug|Win32
+		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|Win32.ActiveCfg = Release|Win32
+		{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
