@@ -1,302 +1,153 @@
-﻿
-#include <atlbase.h>
-#include <atlstr.h>
-#include <DXUT.h>
-#include <DXUTgui.h>
-#include <SDKmisc.h>
-#include <DXUTSettingsDlg.h>
+/*
+ * Author:
+ *	Guido Draheim <guidod@gmx.de>
+ *	Tomi Ollila <Tomi.Ollila@iki.fi>
+ *
+ *	Copyright (c) 1999,2000,2001,2002,2003 Guido Draheim
+ * 	    All rights reserved,
+ *	    use under the restrictions of the
+ *	    Lesser GNU General Public License
+ *          or alternatively the restrictions
+ *          of the Mozilla Public License 1.1
+ */
 
-// ------------------------------------------------------------------------------------------
-// Global variables
-// ------------------------------------------------------------------------------------------
+#include <stdio.h>
+#include <string.h>
 
-CDXUTDialogResourceManager		g_DialogResourceMgr;
-CD3DSettingsDlg					g_SettingsDlg;
-CDXUTDialog						g_HUD;
-CComPtr<ID3DXFont>				g_Font9;
-CComPtr<ID3DXSprite>			g_Sprite9;
+#include <zzip/lib.h>
 
-// ------------------------------------------------------------------------------------------
-// UI control IDs
-// ------------------------------------------------------------------------------------------
-
-#define IDC_TOGGLEFULLSCREEN	1
-#define IDC_TOGGLEREF			2
-#define IDC_CHANGEDEVICE		3
-
-// ------------------------------------------------------------------------------------------
-// IsD3D9DeviceAcceptable
-// ------------------------------------------------------------------------------------------
-
-bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
-									 D3DFORMAT AdapterFormat,
-									 D3DFORMAT BackBufferFormat,
-									 bool bWindowed,
-									 void * pUserContext)
-{
-	// 跳过不支持alpha blending的后缓存
-	IDirect3D9 * pD3D = DXUTGetD3D9Object();
-	if(FAILED((pD3D->CheckDeviceFormat(
-		pCaps->AdapterOrdinal,
-		pCaps->DeviceType,
-		AdapterFormat,
-		D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
-		D3DRTYPE_TEXTURE,
-		BackBufferFormat))))
-	{
-		return false;
-	}
-
-	//// 至少要支持ps2.0，这还是要看实际使用情况
-	//if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-	//{
-	//	return false;
-	//}
-	return true;
-}
-
-// ------------------------------------------------------------------------------------------
-// ModifyDeviceSettings
-// ------------------------------------------------------------------------------------------
-
-bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
-								   void * pUserContext)
-{
-	// 如果创建一个ref设备（即软件模拟），则应该给出一个警告
-	if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
-		&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
-	{
-		DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
-	}
-
-	return true;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9CreateDevice
-// ------------------------------------------------------------------------------------------
-
-HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
-									const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-									void * pUserContext)
-{
-	// 在这里创建d3d9资源，但这些资源应该不受device reset限制的
-	HRESULT hr;
-	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
-	V_RETURN(D3DXCreateFont(
-		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
-	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
-	return S_OK;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9ResetDevice
-// ------------------------------------------------------------------------------------------
-
-HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
-								   const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-								   void * pUserContext)
-{
-	// 在这里创建d3d9资源，但这些资源将受到device reset限制
-	HRESULT hr;
-	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
-	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
-	V_RETURN(g_Font9->OnResetDevice());
-	V_RETURN(g_Sprite9->OnResetDevice());
-
-	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
-	g_HUD.SetSize(170, 170);
-	return S_OK;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9LostDevice
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9LostDevice(void * pUserContext)
-{
-	// 在这里处理在reset中创建的资源
-	g_DialogResourceMgr.OnD3D9LostDevice();
-	g_SettingsDlg.OnD3D9LostDevice();
-	g_Font9->OnLostDevice();
-	g_Sprite9->OnLostDevice();
-}
-
-// ------------------------------------------------------------------------------------------
-// wWinMain
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
-{
-	// 在这里销毁在create中创建的资源
-	g_DialogResourceMgr.OnD3D9DestroyDevice();
-	g_SettingsDlg.OnD3D9DestroyDevice();
-	g_Font9.Release();
-	g_Sprite9.Release();
-}
-
-// ------------------------------------------------------------------------------------------
-// OnFrameMove
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
-{
-	// 在这里更新场景
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9FrameRender
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
-								double fTime,
-								float fElapsedTime,
-								void * pUserContext)
-{
-	// 在这里渲染场景
-	HRESULT hr;
-
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
-
-	if(g_SettingsDlg.IsActive())
-	{
-		g_SettingsDlg.OnRender(fElapsedTime);
-		return;
-	}
-
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
-		txtHelper.Begin();
-		txtHelper.SetInsertionPos(5, 5);
-		txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
-		txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
-		txtHelper.DrawTextLine(DXUTGetDeviceStats());
-		txtHelper.End();
-		V(g_HUD.OnRender(fElapsedTime));
-		V(pd3dDevice->EndScene());
-	}
-}
-
-// ------------------------------------------------------------------------------------------
-// OnGUIEvent
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnGUIEvent(UINT nEvent,
-						 int nControlID,
-						 CDXUTControl * pControl,
-						 void * pUserContext)
-{
-	// 在这里处理ui事件
-	switch(nControlID)
-	{
-	case IDC_TOGGLEFULLSCREEN:
-		DXUTToggleFullScreen();
-		break;
-
-	case IDC_TOGGLEREF:
-		DXUTToggleREF();
-		break;
-
-	case IDC_CHANGEDEVICE:
-		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
-		break;
-	}
-}
-
-// ------------------------------------------------------------------------------------------
-// MsgProc
-// ------------------------------------------------------------------------------------------
-
-LRESULT CALLBACK MsgProc(HWND hWnd,
-						 UINT uMsg,
-						 WPARAM wParam,
-						 LPARAM lParam,
-						 bool * pbNoFurtherProcessing,
-						 void * pUserContext)
-{
-	// 在这里进行消息处理
-	*pbNoFurtherProcessing = g_DialogResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-
-	if(g_SettingsDlg.IsActive())
-	{
-		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-		return 0;
-	}
-
-	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-
-	return 0;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnKeyboard
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnKeyboard(UINT nChar,
-						 bool bKeyDown,
-						 bool bAltDown,
-						 void * pUserContext)
-{
-	// 在这里进行键盘事件处理
-	// 更具DXUT的源代码可以看出，如果要阻止Escape推出窗口，应当
-	// 在MsgProc处理WM_KEYDOWN中的VK_ESCAPE，并给出bNoFurtherProcessing结果即可
-}
-
-// ------------------------------------------------------------------------------------------
-// wWinMain
-// ------------------------------------------------------------------------------------------
-
-int WINAPI wWinMain(HINSTANCE hInstance,
-					HINSTANCE hPrevInstance,
-					LPWSTR lpCmdLine,
-					int nCmdShow)
-{
-#if defined(DEBUG) | defined(_DEBUG)
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#if defined ZZIP_HAVE_WINDOWS_H
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+#define sleep Sleep
 #endif
 
-	// 设置DXUT资源管理的回调函数
-	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable);
-	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings);
-	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice);
-	DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice);
-	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice);
-	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice);
+#ifdef ZZIP_HAVE_UNISTD_H
+#include <unistd.h> /* sleep */
+#endif
 
-	// 设置渲染的回调函数
-	DXUTSetCallbackFrameMove(OnFrameMove);
-	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender);
+#ifndef O_BINARY
+#define O_BINARY 0
+#endif
 
-	// 设置消息回调函数
-	DXUTSetCallbackMsgProc(MsgProc);
-	DXUTSetCallbackKeyboard(OnKeyboard);
+#if __GNUC__+0 >= 3 && __GNUC_MINOR__+0 >= 3
+# ifdef DEBUG
+# warning suppress a warning where the compiler should have optimized instead.
+# endif
+#define I_(_T,_L,_R) do { _T _l = (_T) _L; \
+                          _l _R; _L = (typeof(_L)) _l; } while(0)
+#else
+#define I_(_T,_L,_R) _L _R
+#endif
 
-	// 全局初始化工作
-	g_SettingsDlg.Init(&g_DialogResourceMgr);
-	g_HUD.Init(&g_DialogResourceMgr);
-	g_HUD.SetCallback(OnGUIEvent);
-	int nY = 10;
-	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
-	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
-	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
+int main(int argc, char ** argv)
+{
+    ZZIP_DIR * dir;
+    const char * name = "test.zip";
+    zzip_error_t rv;
+    int i;
 
-	// 启动DXUT
-	DXUTInit(true, true, NULL);
-	DXUTSetCursorSettings(true, true);
-	DXUTCreateWindow(L"demo2_2");
-	DXUTCreateDevice(true, 800, 600);
-	DXUTMainLoop();
+    if (argc > 1 && argv[1] != NULL)
+    {
+	if (! strcmp (argv[1], "--help")) {
+	    printf ("zziptest [testfile]\n - selftest defaults to 'test.zip'");
+	    return 0;
+	}else if (! strcmp (argv[1], "--version")) {
+	    printf (__FILE__" version "ZZIP_PACKAGE" "ZZIP_VERSION"\n");
+	    return 0;
+	}else{
+	    name = argv[1];
+	    argv++; argc--;
+	}
+    }
 
-	return DXUTGetExitCode();
+    printf("Opening zip file `%s'... ", name);
+    { 	int fd = open (name, O_RDONLY|O_BINARY);
+        if (fd == -1) { perror ("could not open input file"); return 0; }
+        if (! (dir = zzip_dir_fdopen(fd, &rv)))
+        {
+            printf("error %d.\n", rv);
+            return 0;
+        }
+    } printf("OK.\n");
+
+#if 1
+    printf("{check...\n");
+    { struct zzip_dir_hdr * hdr = dir->hdr0;
+
+        if (hdr == NULL)
+          { printf ("could not find first header in dir_hdr"); }
+        else
+        {
+            while (1)
+            {
+                printf("\ncompression method: %d", hdr->d_compr);
+                if (hdr->d_compr == 0) printf(" (stored)");
+                else if (hdr->d_compr == 8) printf(" (deflated)");
+                else printf(" (unknown)");
+                printf("\ncrc32: %x\n", hdr->d_crc32);
+                printf("compressed size: %d\n", hdr->d_csize);
+                printf("uncompressed size: %d\n", hdr->d_usize);
+                printf("offset of file in archive: %d\n", hdr->d_off);
+                printf("filename: %s\n\n", hdr->d_name);
+
+                if (hdr->d_reclen == 0) break;
+                I_(char *, hdr, += hdr->d_reclen);
+                sleep(1);
+            }
+        }
+    } printf ("\n}\n");
+#endif
+#if 1
+    { 	printf("{contents...\n");
+        for (i = 0; i < 2; i++)
+        {
+            ZZIP_DIRENT* d;
+
+            while((d=zzip_readdir(dir)))
+            {
+                printf(" name \"%s\", compr %d, size %d, ratio %2d\n",
+                    d->d_name, d->d_compr, d->st_size,
+                    100 - (d->d_csize|1)*100/(d->st_size|1));
+            }
+            printf(" %d. time ---------------\n", i + 1);
+            zzip_rewinddir(dir);
+        }
+        printf("}...OK\n");
+    }
+#endif
+
+    {   ZZIP_FILE * fp;
+        char buf[17];
+        const char * name = argv[1]? argv[1]: "README";
+
+
+        printf("Opening file `%s' in zip archive... ", name);
+        fp = zzip_file_open(dir, (char *)name, ZZIP_CASEINSENSITIVE);
+
+        if (! fp)
+          { printf("error %d: %s\n", zzip_error(dir), zzip_strerror_of(dir)); }
+        else
+        {
+            printf("OK.\n");
+            printf("Contents of the file:\n");
+
+            while (0 < (i = zzip_file_read(fp, buf, 16)))
+            {
+                buf[i] = '\0';
+                /*printf("\n*** read %d ***\n", i); fflush(stdout); */
+                printf("%s", buf);
+                /*write(1, buf, i);*/ /* Windows does not have write !!! */
+            }
+            if (i < 0) printf("error %d\n", zzip_error(dir));
+        }
+    }
+
+    return 0;
 }
+
+/*
+ * Local variables:
+ * c-file-style: "stroustrup"
+ * End:
+ */

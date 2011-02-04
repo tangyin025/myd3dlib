@@ -159,6 +159,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\fetch.c"
+				>
+			</File>
+			<File
 				RelativePath="..\src\file.c"
 				>
 			</File>
