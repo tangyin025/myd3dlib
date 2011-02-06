@@ -263,6 +263,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 					int nCmdShow)
 {
 #if defined(DEBUG) | defined(_DEBUG)
+	// 设置crtdbg监视内存泄漏
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
@@ -298,5 +299,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTCreateDevice(true, 800, 600);
 	DXUTMainLoop();
 
+	// 获取并返回DXUT退出值
 	return DXUTGetExitCode();
 }
