@@ -5,6 +5,7 @@
 #include <DXUTgui.h>
 #include <SDKmisc.h>
 #include <DXUTSettingsDlg.h>
+#include <DXUTCamera.h>
 
 // ------------------------------------------------------------------------------------------
 // Global variables
@@ -15,6 +16,8 @@ CD3DSettingsDlg					g_SettingsDlg;
 CDXUTDialog						g_HUD;
 CComPtr<ID3DXFont>				g_Font9;
 CComPtr<ID3DXSprite>			g_Sprite9;
+CComPtr<ID3DXEffect>			g_Effect9;
+CModelViewerCamera				g_Camera;
 
 // ------------------------------------------------------------------------------------------
 // UI control IDs
@@ -87,6 +90,17 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(D3DXCreateFont(
 		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
+
+	// 读取D3DX Effect文件
+	WCHAR str[MAX_PATH];
+	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"SimpleSample.fx"));
+	V_RETURN(D3DXCreateEffectFromFile(
+		pd3dDevice, str, NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+
+	// 初始化相机
+	D3DXVECTOR3 vecEye(0.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
+	g_Camera.SetViewParams(&vecEye, &vecAt);
 	return S_OK;
 }
 
@@ -104,6 +118,12 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
 	V_RETURN(g_Font9->OnResetDevice());
 	V_RETURN(g_Sprite9->OnResetDevice());
+	V_RETURN(g_Effect9->OnResetDevice());
+
+	// 重新设置相机的投影
+	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
+	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
+	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
@@ -121,6 +141,7 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 	g_SettingsDlg.OnD3D9LostDevice();
 	g_Font9->OnLostDevice();
 	g_Sprite9->OnLostDevice();
+	g_Effect9->OnLostDevice();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -134,6 +155,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 	g_SettingsDlg.OnD3D9DestroyDevice();
 	g_Font9.Release();
 	g_Sprite9.Release();
+	g_Effect9.Release();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -143,6 +165,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
 {
 	// 在这里更新场景
+	g_Camera.FrameMove(fElapsedTime);
 }
 
 // ------------------------------------------------------------------------------------------
@@ -158,7 +181,7 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 	HRESULT hr;
 
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 45, 50, 170), 1.0f, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
 
 	if(g_SettingsDlg.IsActive())
 	{
@@ -168,6 +191,17 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		// 获得相机投影矩阵
+		D3DXMATRIXA16 mWorld = *g_Camera.GetWorldMatrix();
+		D3DXMATRIXA16 mProj = *g_Camera.GetProjMatrix();
+		D3DXMATRIXA16 mView = *g_Camera.GetViewMatrix();
+		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
+
+		// 更新D3DX Effect值
+		V(g_Effect9->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
+		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
+		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
+
 		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
 		txtHelper.Begin();
 		txtHelper.SetInsertionPos(5, 5);
