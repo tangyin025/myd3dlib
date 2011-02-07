@@ -1,4 +1,4 @@
-ï»¿
+
 #include <atlbase.h>
 #include <atlstr.h>
 #include <DXUT.h>
@@ -37,7 +37,7 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 									 bool bWindowed,
 									 void * pUserContext)
 {
-	// è·³è¿‡ä¸æ”¯æŒalpha blendingçš„åç¼“å­˜
+	// Ìø¹ı²»Ö§³Öalpha blendingµÄºó»º´æ
 	IDirect3D9 * pD3D = DXUTGetD3D9Object();
 	if(FAILED((pD3D->CheckDeviceFormat(
 		pCaps->AdapterOrdinal,
@@ -50,7 +50,7 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 		return false;
 	}
 
-	//// è‡³å°‘è¦æ”¯æŒps2.0ï¼Œè¿™è¿˜æ˜¯è¦çœ‹å®é™…ä½¿ç”¨æƒ…å†µ
+	//// ÖÁÉÙÒªÖ§³Öps2.0£¬Õâ»¹ÊÇÒª¿´Êµ¼ÊÊ¹ÓÃÇé¿ö
 	//if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
 	//{
 	//	return false;
@@ -65,7 +65,7 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
 								   void * pUserContext)
 {
-	// å¦‚æœåˆ›å»ºä¸€ä¸ªrefè®¾å¤‡ï¼ˆå³è½¯ä»¶æ¨¡æ‹Ÿï¼‰ï¼Œåˆ™åº”è¯¥ç»™å‡ºä¸€ä¸ªè­¦å‘Š
+	// Èç¹û´´½¨Ò»¸örefÉè±¸£¨¼´Èí¼şÄ£Äâ£©£¬ÔòÓ¦¸Ã¸ø³öÒ»¸ö¾¯¸æ
 	if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
 		&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
 	{
@@ -83,7 +83,7 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 									const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 									void * pUserContext)
 {
-	// åœ¨è¿™é‡Œåˆ›å»ºd3d9èµ„æºï¼Œä½†è¿™äº›èµ„æºåº”è¯¥ä¸å—device reseté™åˆ¶çš„
+	// ÔÚÕâÀï´´½¨d3d9×ÊÔ´£¬µ«ÕâĞ©×ÊÔ´Ó¦¸Ã²»ÊÜdevice resetÏŞÖÆµÄ
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
@@ -91,13 +91,13 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 
-	// è¯»å–D3DX Effectæ–‡ä»¶
+	// ¶ÁÈ¡D3DX EffectÎÄ¼ş
 	WCHAR str[MAX_PATH];
 	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"SimpleSample.fx"));
 	V_RETURN(D3DXCreateEffectFromFile(
 		pd3dDevice, str, NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
 
-	// åˆå§‹åŒ–ç›¸æœº
+	// ³õÊ¼»¯Ïà»ú
 	D3DXVECTOR3 vecEye(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
 	g_Camera.SetViewParams(&vecEye, &vecAt);
@@ -112,7 +112,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 								   const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 								   void * pUserContext)
 {
-	// åœ¨è¿™é‡Œåˆ›å»ºd3d9èµ„æºï¼Œä½†è¿™äº›èµ„æºå°†å—åˆ°device reseté™åˆ¶
+	// ÔÚÕâÀï´´½¨d3d9×ÊÔ´£¬µ«ÕâĞ©×ÊÔ´½«ÊÜµ½device resetÏŞÖÆ
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
 	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
@@ -120,7 +120,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(g_Sprite9->OnResetDevice());
 	V_RETURN(g_Effect9->OnResetDevice());
 
-	// é‡æ–°è®¾ç½®ç›¸æœºçš„æŠ•å½±
+	// ÖØĞÂÉèÖÃÏà»úµÄÍ¶Ó°
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
 	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
 	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
@@ -136,7 +136,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 
 void CALLBACK OnD3D9LostDevice(void * pUserContext)
 {
-	// åœ¨è¿™é‡Œå¤„ç†åœ¨resetä¸­åˆ›å»ºçš„èµ„æº
+	// ÔÚÕâÀï´¦ÀíÔÚresetÖĞ´´½¨µÄ×ÊÔ´
 	g_DialogResourceMgr.OnD3D9LostDevice();
 	g_SettingsDlg.OnD3D9LostDevice();
 	g_Font9->OnLostDevice();
@@ -150,7 +150,7 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 
 void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 {
-	// åœ¨è¿™é‡Œé”€æ¯åœ¨createä¸­åˆ›å»ºçš„èµ„æº
+	// ÔÚÕâÀïÏú»ÙÔÚcreateÖĞ´´½¨µÄ×ÊÔ´
 	g_DialogResourceMgr.OnD3D9DestroyDevice();
 	g_SettingsDlg.OnD3D9DestroyDevice();
 	g_Font9.Release();
@@ -164,7 +164,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 
 void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
 {
-	// åœ¨è¿™é‡Œæ›´æ–°åœºæ™¯
+	// ÔÚÕâÀï¸üĞÂ³¡¾°
 	g_Camera.FrameMove(fElapsedTime);
 }
 
@@ -177,7 +177,7 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 								float fElapsedTime,
 								void * pUserContext)
 {
-	// åœ¨è¿™é‡Œæ¸²æŸ“åœºæ™¯
+	// ÔÚÕâÀïäÖÈ¾³¡¾°
 	HRESULT hr;
 
 	V(pd3dDevice->Clear(
@@ -191,13 +191,13 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		// è·å¾—ç›¸æœºæŠ•å½±çŸ©é˜µ
+		// »ñµÃÏà»úÍ¶Ó°¾ØÕó
 		D3DXMATRIXA16 mWorld = *g_Camera.GetWorldMatrix();
 		D3DXMATRIXA16 mProj = *g_Camera.GetProjMatrix();
 		D3DXMATRIXA16 mView = *g_Camera.GetViewMatrix();
 		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
 
-		// æ›´æ–°D3DX Effectå€¼
+		// ¸üĞÂD3DX EffectÖµ
 		V(g_Effect9->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
 		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
 		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
@@ -223,7 +223,7 @@ void CALLBACK OnGUIEvent(UINT nEvent,
 						 CDXUTControl * pControl,
 						 void * pUserContext)
 {
-	// åœ¨è¿™é‡Œå¤„ç†uiäº‹ä»¶
+	// ÔÚÕâÀï´¦ÀíuiÊÂ¼ş
 	switch(nControlID)
 	{
 	case IDC_TOGGLEFULLSCREEN:
@@ -251,7 +251,7 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 						 bool * pbNoFurtherProcessing,
 						 void * pUserContext)
 {
-	// åœ¨è¿™é‡Œè¿›è¡Œæ¶ˆæ¯å¤„ç†
+	// ÔÚÕâÀï½øĞĞÏûÏ¢´¦Àí
 	*pbNoFurtherProcessing = g_DialogResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
@@ -282,9 +282,9 @@ void CALLBACK OnKeyboard(UINT nChar,
 						 bool bAltDown,
 						 void * pUserContext)
 {
-	// åœ¨è¿™é‡Œè¿›è¡Œé”®ç›˜äº‹ä»¶å¤„ç†
-	// æ›´å…·DXUTçš„æºä»£ç å¯ä»¥çœ‹å‡ºï¼Œå¦‚æœè¦é˜»æ­¢Escapeæ¨å‡ºçª—å£ï¼Œåº”å½“
-	// åœ¨MsgProcå¤„ç†WM_KEYDOWNä¸­çš„VK_ESCAPEï¼Œå¹¶ç»™å‡ºbNoFurtherProcessingç»“æœå³å¯
+	// ÔÚÕâÀï½øĞĞ¼üÅÌÊÂ¼ş´¦Àí
+	// ¸ü¾ßDXUTµÄÔ´´úÂë¿ÉÒÔ¿´³ö£¬Èç¹ûÒª×èÖ¹EscapeÍÆ³ö´°¿Ú£¬Ó¦µ±
+	// ÔÚMsgProc´¦ÀíWM_KEYDOWNÖĞµÄVK_ESCAPE£¬²¢¸ø³öbNoFurtherProcessing½á¹û¼´¿É
 }
 
 // ------------------------------------------------------------------------------------------
@@ -297,11 +297,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 					int nCmdShow)
 {
 #if defined(DEBUG) | defined(_DEBUG)
-	// è®¾ç½®crtdbgç›‘è§†å†…å­˜æ³„æ¼
+	// ÉèÖÃcrtdbg¼àÊÓÄÚ´æĞ¹Â©
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	// è®¾ç½®DXUTèµ„æºç®¡ç†çš„å›è°ƒå‡½æ•°
+	// ÉèÖÃDXUT×ÊÔ´¹ÜÀíµÄ»Øµ÷º¯Êı
 	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable);
 	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings);
 	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice);
@@ -309,15 +309,15 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice);
 	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice);
 
-	// è®¾ç½®æ¸²æŸ“çš„å›è°ƒå‡½æ•°
+	// ÉèÖÃäÖÈ¾µÄ»Øµ÷º¯Êı
 	DXUTSetCallbackFrameMove(OnFrameMove);
 	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender);
 
-	// è®¾ç½®æ¶ˆæ¯å›è°ƒå‡½æ•°
+	// ÉèÖÃÏûÏ¢»Øµ÷º¯Êı
 	DXUTSetCallbackMsgProc(MsgProc);
 	DXUTSetCallbackKeyboard(OnKeyboard);
 
-	// å…¨å±€åˆå§‹åŒ–å·¥ä½œ
+	// È«¾Ö³õÊ¼»¯¹¤×÷
 	g_SettingsDlg.Init(&g_DialogResourceMgr);
 	g_HUD.Init(&g_DialogResourceMgr);
 	g_HUD.SetCallback(OnGUIEvent);
@@ -326,7 +326,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
 	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
 
-	// å¯åŠ¨DXUT
+	// Æô¶¯DXUT
 	DXUTInit(true, true, NULL);
 	DXUTSetCursorSettings(true, true);
 	WCHAR szPath[MAX_PATH];
@@ -335,6 +335,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTCreateDevice(true, 800, 600);
 	DXUTMainLoop();
 
-	// è·å–å¹¶è¿”å›DXUTé€€å‡ºå€¼
+	// »ñÈ¡²¢·µ»ØDXUTÍË³öÖµ
 	return DXUTGetExitCode();
 }
