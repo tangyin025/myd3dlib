@@ -1,11 +1,13 @@
-
+ï»¿
 #include <atlbase.h>
 #include <atlstr.h>
+#include <vector>
 #include <DXUT.h>
 #include <DXUTgui.h>
 #include <SDKmisc.h>
 #include <DXUTSettingsDlg.h>
 #include <DXUTCamera.h>
+#include "rapidxml.hpp"
 
 // ------------------------------------------------------------------------------------------
 // Global variables
@@ -18,6 +20,12 @@ CComPtr<ID3DXFont>				g_Font9;
 CComPtr<ID3DXSprite>			g_Sprite9;
 CComPtr<ID3DXEffect>			g_Effect9;
 CModelViewerCamera				g_Camera;
+
+// è‡ªå®šä¹‰æ¸²æŸ“èµ„æº
+CComPtr<ID3DXMesh>				g_Mesh;
+std::vector<D3DMATERIAL9>		g_MeshMaterials;
+typedef CComPtr<IDirect3DTexture9> IDirect3DTexture9Ptr;
+std::vector<IDirect3DTexture9Ptr> g_MeshTextures;
 
 // ------------------------------------------------------------------------------------------
 // UI control IDs
@@ -37,7 +45,7 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 									 bool bWindowed,
 									 void * pUserContext)
 {
-	// Ìø¹ı²»Ö§³Öalpha blendingµÄºó»º´æ
+	// è·³è¿‡ä¸æ”¯æŒalpha blendingçš„åç¼“å­˜
 	IDirect3D9 * pD3D = DXUTGetD3D9Object();
 	if(FAILED((pD3D->CheckDeviceFormat(
 		pCaps->AdapterOrdinal,
@@ -50,11 +58,11 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 		return false;
 	}
 
-	//// ÖÁÉÙÒªÖ§³Öps2.0£¬Õâ»¹ÊÇÒª¿´Êµ¼ÊÊ¹ÓÃÇé¿ö
-	//if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-	//{
-	//	return false;
-	//}
+	// è‡³å°‘è¦æ”¯æŒps2.0ï¼Œè¿™è¿˜æ˜¯è¦çœ‹å®é™…ä½¿ç”¨æƒ…å†µ
+	if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -65,7 +73,7 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
 								   void * pUserContext)
 {
-	// Èç¹û´´½¨Ò»¸örefÉè±¸£¨¼´Èí¼şÄ£Äâ£©£¬ÔòÓ¦¸Ã¸ø³öÒ»¸ö¾¯¸æ
+	// å¦‚æœåˆ›å»ºä¸€ä¸ªrefè®¾å¤‡ï¼ˆå³è½¯ä»¶æ¨¡æ‹Ÿï¼‰ï¼Œåˆ™åº”è¯¥ç»™å‡ºä¸€ä¸ªè­¦å‘Š
 	if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
 		&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
 	{
@@ -76,6 +84,184 @@ bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
 }
 
 // ------------------------------------------------------------------------------------------
+// LoadMeshFromOgreMesh
+// ------------------------------------------------------------------------------------------
+
+template <typename T>
+T getMinFromArray(int nStart, int nCount, T * list, T maximize)
+{
+	T tmp = maximize;
+	for(int i = nStart; i < nStart + nCount; i++)
+	{
+		if(list[i] < tmp)
+		{
+			tmp = list[i];
+		}
+	}
+	return tmp;
+}
+
+template <typename T>
+T getMaxFromArray(int nStart, int nCount, T * list, T minimize)
+{
+	T tmp = minimize;
+	for(int i = nStart; i < nStart + nCount; i++)
+	{
+		if(list[i] > tmp)
+		{
+			tmp = list[i];
+		}
+	}
+	return tmp;
+}
+
+HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
+							 LPDIRECT3DDEVICE9 pd3dDevice,
+							 DWORD * pNumSubMeshes,
+							 LPD3DXMESH * ppMesh)
+{
+	using namespace rapidxml;
+
+	// æ‰“å¼€æŒ‡å®šçš„æ–‡ä»¶
+	FILE * fp;
+	errno_t err = _wfopen_s(&fp, pFilename, L"r");
+	if(0 != err)
+	{
+		return D3DERR_INVALIDCALL;
+	}
+
+	// è·å–æ–‡ä»¶é•¿åº¦
+	if(0 != fseek(fp, 0, SEEK_END))
+	{
+		return D3DERR_INVALIDCALL;
+	}
+	long len = ftell(fp);
+	fseek(fp, 0, SEEK_SET);
+
+	// åˆ†é…å­—ç¬¦ä¸²
+	std::string strXml;
+	strXml.resize(len + 1);
+	strXml.resize(fread_s(&strXml[0], strXml.size(), sizeof(char), len, fp));
+	fclose(fp);
+
+	// åˆ†æxmlæ–‡ä»¶
+	xml_document<char> doc;
+	doc.parse<0>(const_cast<char *>(strXml.c_str()));
+
+	// è·å–vertexæ€»æ•°ï¼Œæ³¨æ„ï¼šè¿™é‡Œç•¥è¿‡è§£æé”™è¯¯
+	xml_node<char> * node_mesh = doc.first_node("mesh");
+	xml_node<char> * node_sharedgeometry = node_mesh->first_node("sharedgeometry");
+	xml_attribute<char> * attr_vertexcount = node_sharedgeometry->first_attribute("vertexcount");
+	int vertexcount = atoi(attr_vertexcount->value());
+
+	// è·å–submeshesçš„faceæ€»æ•°
+	xml_node<char> * node_submeshes = node_mesh->first_node("submeshes");
+	int facecount = 0;
+	xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
+	for(; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+	{
+		xml_node<char> * node_faces = node_submesh->first_node("faces");
+		xml_attribute<char> * attr_count = node_faces->first_attribute("count");
+		facecount += atoi(attr_count->value());
+	}
+
+	// è‡ªå®šä¹‰é¡¶ç‚¹æ ¼å¼
+	struct CUSTOMVERTEX
+	{
+		D3DXVECTOR3 position;
+		D3DXVECTOR3 normal;
+		FLOAT tu;
+		FLOAT tv;
+	};
+	const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
+
+	// å“ˆå“ˆï¼Œæ•°æ®æ”¶é½ï¼Œå¯ä»¥åˆ›å»ºD3DX Mesh
+	CComPtr<ID3DXMesh> ret_mesh;
+	HRESULT hres;
+	if(FAILED(hres = D3DXCreateMeshFVF(
+		facecount, vertexcount, D3DXMESH_SYSTEMMEM, D3DFVF_CUSTOMVERTEX, pd3dDevice, &ret_mesh)))
+	{
+		return hres;
+	}
+
+	// è·å–é¡¶ç‚¹ç¼“å­˜
+	CUSTOMVERTEX * pVertices;
+	if(FAILED(hres = ret_mesh->LockVertexBuffer(0, (VOID **)&pVertices)))
+	{
+		return hres;
+	}
+
+	// èµ‹å€¼é¡¶ç‚¹æ•°æ®ï¼Œç”±äºæ˜¯D3DXMESH_SYSTEMMEMï¼Œæ‰€ä»¥è¿™ä¸ªè¿‡ç¨‹åº”è¯¥æ˜¯å†…å­˜åˆ°æ˜¾å­˜çš„ä¼ è¾“ï¼ˆAGPæˆ–PCIEæ¥å£ï¼‰
+	xml_node<char> * node_vertexbuffer = node_sharedgeometry->first_node("vertexbuffer");
+	xml_node<char> * node_vertex = node_vertexbuffer->first_node("vertex");
+	for(int i = 0; i < vertexcount && node_vertex != NULL; i++, node_vertex = node_vertex->next_sibling())
+	{
+		xml_node<char> * node_position = node_vertex->first_node("position");
+		xml_node<char> * node_normal = node_vertex->first_node("normal");
+		xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
+
+		pVertices[i].position.x = atof(node_position->first_attribute("x")->value());
+		pVertices[i].position.y = atof(node_position->first_attribute("y")->value()) - 15.0f;
+		pVertices[i].position.z = atof(node_position->first_attribute("z")->value());
+
+		pVertices[i].normal.x = atof(node_position->first_attribute("x")->value());
+		pVertices[i].normal.y = atof(node_position->first_attribute("y")->value());
+		pVertices[i].normal.z = atof(node_position->first_attribute("z")->value());
+
+		pVertices[i].tu = atof(node_texcoord->first_attribute("u")->value());
+		pVertices[i].tv = atof(node_texcoord->first_attribute("v")->value());
+	}
+
+	// è§£é”é¡¶ç‚¹ç¼“å­˜
+	ret_mesh->UnlockVertexBuffer();
+
+	// è·å–ç´¢å¼•ç¼“å­˜
+	WORD * pIndices;
+	if(FAILED(hres = ret_mesh->LockIndexBuffer(0, (VOID **)&pIndices)))
+	{
+		return hres;
+	}
+
+	// èµ‹å€¼ç´¢å¼•æ•°æ®
+	std::vector<D3DXATTRIBUTERANGE> d3dxAttrList;
+	int face_i = 0;
+	node_submesh = node_submeshes->first_node("submesh");
+	for(int i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), i++)
+	{
+		xml_node<char> * node_faces = node_submesh->first_node("faces");
+		D3DXATTRIBUTERANGE attr;
+		attr.AttribId = i;
+		attr.FaceStart = face_i;
+		attr.FaceCount = atoi(node_faces->first_attribute("count")->value());
+		xml_node<char> * node_face = node_faces->first_node("face");
+		for(; face_i < facecount && node_face != NULL; node_face = node_face->next_sibling())
+		{
+			pIndices[i++] = atoi(node_face->first_attribute("v1")->value());
+			pIndices[i++] = atoi(node_face->first_attribute("v2")->value());
+			pIndices[i++] = atoi(node_face->first_attribute("v3")->value());
+		}
+		attr.VertexStart = getMinFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, USHRT_MAX);
+		attr.VertexCount = getMaxFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, 0) - attr.VertexStart;
+		d3dxAttrList.push_back(attr);
+	}
+
+	// è§£é”ç´¢å¼•ç¼“å­˜
+	ret_mesh->UnlockIndexBuffer();
+
+	// è®¾ç½®D3DX Mesh Attribute Table
+	if(FAILED(hres = ret_mesh->SetAttributeTable(&d3dxAttrList[0], d3dxAttrList.size())))
+	{
+		return hres;
+	}
+
+	// ä¿å­˜pNumSubMeshesåŠppMesh
+	_ASSERT(NULL != pNumSubMeshes);
+	*pNumSubMeshes = d3dxAttrList.size();
+	*ppMesh = ret_mesh.Detach();
+	return D3D_OK;
+}
+
+// ------------------------------------------------------------------------------------------
 // OnD3D9CreateDevice
 // ------------------------------------------------------------------------------------------
 
@@ -83,7 +269,7 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 									const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 									void * pUserContext)
 {
-	// ÔÚÕâÀï´´½¨d3d9×ÊÔ´£¬µ«ÕâĞ©×ÊÔ´Ó¦¸Ã²»ÊÜdevice resetÏŞÖÆµÄ
+	// åœ¨è¿™é‡Œåˆ›å»ºd3d9èµ„æºï¼Œä½†è¿™äº›èµ„æºåº”è¯¥ä¸å—device reseté™åˆ¶çš„
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
@@ -91,16 +277,44 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 
-	// ¶ÁÈ¡D3DX EffectÎÄ¼ş
-	WCHAR str[MAX_PATH];
-	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"SimpleSample.fx"));
+	// è¯»å–D3DX Effectæ–‡ä»¶
 	V_RETURN(D3DXCreateEffectFromFile(
-		pd3dDevice, str, NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+		pd3dDevice, L"SimpleSample.fx", NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+	V_RETURN(g_Effect9->SetTechnique("RenderScene"));
 
-	// ³õÊ¼»¯Ïà»ú
+	// åˆå§‹åŒ–ç›¸æœº
 	D3DXVECTOR3 vecEye(0.0f, 0.0f, -5.0f);
 	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
 	g_Camera.SetViewParams(&vecEye, &vecAt);
+
+	//// è¯»å–D3DX Mesh
+	//CComPtr<ID3DXBuffer> d3dxMaterialBuf;
+	DWORD dwNumMaterials;
+	//V_RETURN(D3DXLoadMeshFromX(
+	//	L"Tiger.x", D3DXMESH_SYSTEMMEM, pd3dDevice, NULL, &d3dxMaterialBuf, NULL, &dwNumMaterials, &g_Mesh));
+
+	// ä»ogre meshæ–‡ä»¶è¯»å–åˆ°D3DX Mesh
+	V_RETURN(LoadMeshFromOgreMesh(L"jack_hres.mesh.xml", pd3dDevice, &dwNumMaterials, &g_Mesh));
+
+	//D3DXMATERIAL * d3dxMaterials = (D3DXMATERIAL *)d3dxMaterialBuf->GetBufferPointer();
+	g_MeshMaterials.resize(dwNumMaterials);
+	g_MeshTextures.resize(dwNumMaterials);
+	for(DWORD i = 0; i < dwNumMaterials; i++)
+	{
+		//// æ‹·è´æè´¨ä¿¡æ¯ï¼ŒåŠè®¾ç½®ç¯å¢ƒå…‰åå°„å±æ€§
+		//g_MeshMaterials[i] = d3dxMaterials[i].MatD3D;
+		//g_MeshMaterials[i].Ambient = g_MeshMaterials[i].Diffuse;
+		g_MeshMaterials[i].Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+		g_MeshMaterials[i].Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// åˆ›å»ºè´´å›¾
+		//if(d3dxMaterials[i].pTextureFilename != NULL
+		//	&& lstrlenA(d3dxMaterials[i].pTextureFilename) > 0)
+		//{
+		//	V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, d3dxMaterials[i].pTextureFilename, &g_MeshTextures[i]));
+		//}
+		V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, "jack_texture.jpg", &g_MeshTextures[i]));
+	}
 	return S_OK;
 }
 
@@ -112,7 +326,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 								   const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 								   void * pUserContext)
 {
-	// ÔÚÕâÀï´´½¨d3d9×ÊÔ´£¬µ«ÕâĞ©×ÊÔ´½«ÊÜµ½device resetÏŞÖÆ
+	// åœ¨è¿™é‡Œåˆ›å»ºd3d9èµ„æºï¼Œä½†è¿™äº›èµ„æºå°†å—åˆ°device reseté™åˆ¶
 	HRESULT hr;
 	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
 	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
@@ -120,11 +334,12 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(g_Sprite9->OnResetDevice());
 	V_RETURN(g_Effect9->OnResetDevice());
 
-	// ÖØĞÂÉèÖÃÏà»úµÄÍ¶Ó°
+	// é‡æ–°è®¾ç½®ç›¸æœºçš„æŠ•å½±
 	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
 	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
 	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
+	// æ›´æ–°HUDåæ ‡
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
 	return S_OK;
@@ -136,7 +351,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 
 void CALLBACK OnD3D9LostDevice(void * pUserContext)
 {
-	// ÔÚÕâÀï´¦ÀíÔÚresetÖĞ´´½¨µÄ×ÊÔ´
+	// åœ¨è¿™é‡Œå¤„ç†åœ¨resetä¸­åˆ›å»ºçš„èµ„æº
 	g_DialogResourceMgr.OnD3D9LostDevice();
 	g_SettingsDlg.OnD3D9LostDevice();
 	g_Font9->OnLostDevice();
@@ -150,12 +365,14 @@ void CALLBACK OnD3D9LostDevice(void * pUserContext)
 
 void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 {
-	// ÔÚÕâÀïÏú»ÙÔÚcreateÖĞ´´½¨µÄ×ÊÔ´
+	// åœ¨è¿™é‡Œé”€æ¯åœ¨createä¸­åˆ›å»ºçš„èµ„æº
 	g_DialogResourceMgr.OnD3D9DestroyDevice();
 	g_SettingsDlg.OnD3D9DestroyDevice();
 	g_Font9.Release();
 	g_Sprite9.Release();
 	g_Effect9.Release();
+	g_Mesh.Release();
+	g_MeshTextures.clear();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -164,7 +381,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 
 void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
 {
-	// ÔÚÕâÀï¸üĞÂ³¡¾°
+	// åœ¨è¿™é‡Œæ›´æ–°åœºæ™¯
 	g_Camera.FrameMove(fElapsedTime);
 }
 
@@ -177,12 +394,14 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 								float fElapsedTime,
 								void * pUserContext)
 {
-	// ÔÚÕâÀïäÖÈ¾³¡¾°
+	// åœ¨è¿™é‡Œæ¸²æŸ“åœºæ™¯
 	HRESULT hr;
 
+	// æ¸…ç†back buffer
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
 
+	// å¦‚æœæ˜¯è®¾ç½®æ¨¡å¼ï¼Œåˆ™æ¸²æŸ“è®¾ç½®å¯¹è¯æ¡†ï¼Œç„¶åè·³è¿‡å…¶ä»–æ¸²æŸ“
 	if(g_SettingsDlg.IsActive())
 	{
 		g_SettingsDlg.OnRender(fElapsedTime);
@@ -191,17 +410,38 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		// »ñµÃÏà»úÍ¶Ó°¾ØÕó
+		// è·å¾—ç›¸æœºæŠ•å½±çŸ©é˜µ
 		D3DXMATRIXA16 mWorld = *g_Camera.GetWorldMatrix();
 		D3DXMATRIXA16 mProj = *g_Camera.GetProjMatrix();
 		D3DXMATRIXA16 mView = *g_Camera.GetViewMatrix();
 		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
 
-		// ¸üĞÂD3DX EffectÖµ
+		// æ›´æ–°D3DX Effectå€¼
 		V(g_Effect9->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
 		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
 		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
 
+		// æ¸²æŸ“D3DX Mesh
+		for(DWORD i = 0; i < g_MeshMaterials.size(); i++)
+		{
+			V(g_Effect9->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&g_MeshMaterials[i].Ambient));
+			V(g_Effect9->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&g_MeshMaterials[i].Diffuse));
+			V(g_Effect9->SetTexture("g_MeshTexture", g_MeshTextures[i]));
+			g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3);
+			g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			UINT cPasses;
+			V(g_Effect9->Begin(&cPasses, 0));
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				V(g_Effect9->BeginPass(p));
+				V(g_Mesh->DrawSubset(i));
+				V(g_Effect9->EndPass());
+			}
+			V(g_Effect9->End());
+		}
+
+		// è¾“å‡ºæ¸²æŸ“è®¾å¤‡ä¿¡æ¯
 		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
 		txtHelper.Begin();
 		txtHelper.SetInsertionPos(5, 5);
@@ -223,18 +463,21 @@ void CALLBACK OnGUIEvent(UINT nEvent,
 						 CDXUTControl * pControl,
 						 void * pUserContext)
 {
-	// ÔÚÕâÀï´¦ÀíuiÊÂ¼ş
+	// åœ¨è¿™é‡Œå¤„ç†uiäº‹ä»¶
 	switch(nControlID)
 	{
 	case IDC_TOGGLEFULLSCREEN:
+		// åˆ‡æ¢å…¨å±çª—å£æ¨¡å¼
 		DXUTToggleFullScreen();
 		break;
 
 	case IDC_TOGGLEREF:
+		// è½¯ç¡¬ä»¶æ¸²æŸ“æ¨¡å¼
 		DXUTToggleREF();
 		break;
 
 	case IDC_CHANGEDEVICE:
+		// æ˜¾ç¤ºè®¾ç½®å¯¹è¯æ¡†
 		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
 		break;
 	}
@@ -251,24 +494,29 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 						 bool * pbNoFurtherProcessing,
 						 void * pUserContext)
 {
-	// ÔÚÕâÀï½øĞĞÏûÏ¢´¦Àí
+	// åœ¨è¿™é‡Œè¿›è¡Œæ¶ˆæ¯å¤„ç†
 	*pbNoFurtherProcessing = g_DialogResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
 		return 0;
 	}
 
+	// å¦‚æœå½“å‰æ˜¯è®¾ç½®æ¨¡å¼ï¼Œåˆ™åªå°†æ¶ˆæ¯å‘é€åˆ°è®¾ç½®å¯¹è¯æ¡†
 	if(g_SettingsDlg.IsActive())
 	{
 		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
 		return 0;
 	}
 
+	// HUDå¤„ç†æ¶ˆæ¯
 	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
 		return 0;
 	}
+
+	// ç›¸æœºæ¶ˆæ¯å¤„ç†
+	g_Camera.HandleMessages(hWnd, uMsg, wParam, lParam);
 
 	return 0;
 }
@@ -282,9 +530,9 @@ void CALLBACK OnKeyboard(UINT nChar,
 						 bool bAltDown,
 						 void * pUserContext)
 {
-	// ÔÚÕâÀï½øĞĞ¼üÅÌÊÂ¼ş´¦Àí
-	// ¸ü¾ßDXUTµÄÔ´´úÂë¿ÉÒÔ¿´³ö£¬Èç¹ûÒª×èÖ¹EscapeÍÆ³ö´°¿Ú£¬Ó¦µ±
-	// ÔÚMsgProc´¦ÀíWM_KEYDOWNÖĞµÄVK_ESCAPE£¬²¢¸ø³öbNoFurtherProcessing½á¹û¼´¿É
+	// åœ¨è¿™é‡Œè¿›è¡Œé”®ç›˜äº‹ä»¶å¤„ç†
+	// æ›´å…·DXUTçš„æºä»£ç å¯ä»¥çœ‹å‡ºï¼Œå¦‚æœè¦é˜»æ­¢Escapeæ¨å‡ºçª—å£ï¼Œåº”å½“
+	// åœ¨MsgProcå¤„ç†WM_KEYDOWNä¸­çš„VK_ESCAPEï¼Œå¹¶ç»™å‡ºbNoFurtherProcessingç»“æœå³å¯
 }
 
 // ------------------------------------------------------------------------------------------
@@ -297,11 +545,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 					int nCmdShow)
 {
 #if defined(DEBUG) | defined(_DEBUG)
-	// ÉèÖÃcrtdbg¼àÊÓÄÚ´æĞ¹Â©
+	// è®¾ç½®crtdbgç›‘è§†å†…å­˜æ³„æ¼
     _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	// ÉèÖÃDXUT×ÊÔ´¹ÜÀíµÄ»Øµ÷º¯Êı
+	// è®¾ç½®DXUTèµ„æºç®¡ç†çš„å›è°ƒå‡½æ•°
 	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable);
 	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings);
 	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice);
@@ -309,15 +557,15 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice);
 	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice);
 
-	// ÉèÖÃäÖÈ¾µÄ»Øµ÷º¯Êı
+	// è®¾ç½®æ¸²æŸ“çš„å›è°ƒå‡½æ•°
 	DXUTSetCallbackFrameMove(OnFrameMove);
 	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender);
 
-	// ÉèÖÃÏûÏ¢»Øµ÷º¯Êı
+	// è®¾ç½®æ¶ˆæ¯å›è°ƒå‡½æ•°
 	DXUTSetCallbackMsgProc(MsgProc);
 	DXUTSetCallbackKeyboard(OnKeyboard);
 
-	// È«¾Ö³õÊ¼»¯¹¤×÷
+	// å…¨å±€åˆå§‹åŒ–å·¥ä½œ
 	g_SettingsDlg.Init(&g_DialogResourceMgr);
 	g_HUD.Init(&g_DialogResourceMgr);
 	g_HUD.SetCallback(OnGUIEvent);
@@ -326,7 +574,10 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
 	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
 
-	// Æô¶¯DXUT
+	// è®¾ç½®ç›¸æœºæ“ä½œæŒ‰é”®
+    g_Camera.SetButtonMasks(MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON);
+
+	// å¯åŠ¨DXUT
 	DXUTInit(true, true, NULL);
 	DXUTSetCursorSettings(true, true);
 	WCHAR szPath[MAX_PATH];
@@ -335,6 +586,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	DXUTCreateDevice(true, 800, 600);
 	DXUTMainLoop();
 
-	// »ñÈ¡²¢·µ»ØDXUTÍË³öÖµ
+	// è·å–å¹¶è¿”å›DXUTé€€å‡ºå€¼
 	return DXUTGetExitCode();
 }

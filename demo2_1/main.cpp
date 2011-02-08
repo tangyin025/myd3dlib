@@ -50,11 +50,11 @@ bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
 		return false;
 	}
 
-	//// 至少要支持ps2.0，这还是要看实际使用情况
-	//if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-	//{
-	//	return false;
-	//}
+	// 至少要支持ps2.0，这还是要看实际使用情况
+	if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+	{
+		return false;
+	}
 	return true;
 }
 
@@ -92,10 +92,9 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 
 	// 读取D3DX Effect文件
-	WCHAR str[MAX_PATH];
-	V_RETURN(DXUTFindDXSDKMediaFileCch(str, MAX_PATH, L"SimpleSample.fx"));
 	V_RETURN(D3DXCreateEffectFromFile(
-		pd3dDevice, str, NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+		pd3dDevice, L"SimpleSample.fx", NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+	V_RETURN(g_Effect9->SetTechnique("RenderScene"));
 
 	// 初始化相机
 	D3DXVECTOR3 vecEye(0.0f, 0.0f, -5.0f);
@@ -125,6 +124,7 @@ HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
 	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
 	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
+	// 更新HUD坐标
 	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 	g_HUD.SetSize(170, 170);
 	return S_OK;
@@ -180,9 +180,11 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 	// 在这里渲染场景
 	HRESULT hr;
 
+	// 清理back buffer
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
 
+	// 如果是设置模式，则渲染设置对话框，然后跳过其他渲染
 	if(g_SettingsDlg.IsActive())
 	{
 		g_SettingsDlg.OnRender(fElapsedTime);
@@ -202,6 +204,9 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
 		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
 
+		// 在这里渲染模型，注意submesh的light diffuse及texture的D3DX Effect设置
+
+		// 输出渲染设备信息
 		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
 		txtHelper.Begin();
 		txtHelper.SetInsertionPos(5, 5);
@@ -227,14 +232,17 @@ void CALLBACK OnGUIEvent(UINT nEvent,
 	switch(nControlID)
 	{
 	case IDC_TOGGLEFULLSCREEN:
+		// 切换全屏窗口模式
 		DXUTToggleFullScreen();
 		break;
 
 	case IDC_TOGGLEREF:
+		// 软硬件渲染模式
 		DXUTToggleREF();
 		break;
 
 	case IDC_CHANGEDEVICE:
+		// 显示设置对话框
 		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
 		break;
 	}
@@ -258,17 +266,22 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 		return 0;
 	}
 
+	// 如果当前是设置模式，则只将消息发送到设置对话框
 	if(g_SettingsDlg.IsActive())
 	{
 		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
 		return 0;
 	}
 
+	// HUD处理消息
 	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
 		return 0;
 	}
+
+	// 相机消息处理
+	g_Camera.HandleMessages(hWnd, uMsg, wParam, lParam);
 
 	return 0;
 }
@@ -325,6 +338,9 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
 	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
 	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
+
+	// 设置相机操作按键
+    g_Camera.SetButtonMasks(MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON);
 
 	// 启动DXUT
 	DXUTInit(true, true, NULL);
