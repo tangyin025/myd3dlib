@@ -29,9 +29,9 @@ sampler MeshTextureSampler =
 sampler_state
 {
     Texture = <g_MeshTexture>;
-    MipFilter = LINEAR;
     MinFilter = LINEAR;
     MagFilter = LINEAR;
+    MipFilter = NONE;
 };
 
 
@@ -63,7 +63,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_mWorld)); // normal (world space)
 
     // Calc diffuse color    
-    Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0,dot(vNormalWorldSpace, g_LightDir)) + 
+    Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0, -dot(vNormalWorldSpace, g_LightDir)) + 
                          g_MaterialAmbientColor;   
     Output.Diffuse.a = 1.0f; 
     

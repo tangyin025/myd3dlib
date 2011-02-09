@@ -200,13 +200,14 @@ HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
 		xml_node<char> * node_normal = node_vertex->first_node("normal");
 		xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
 
-		pVertices[i].position.x = atof(node_position->first_attribute("x")->value());
-		pVertices[i].position.y = atof(node_position->first_attribute("y")->value()) - 15.0f;
+		// 注意：x轴是反的，因为原始模型是从Maya导出的，其内部使用的是opengl右手系
+		pVertices[i].position.x = -atof(node_position->first_attribute("x")->value());
+		pVertices[i].position.y = atof(node_position->first_attribute("y")->value());
 		pVertices[i].position.z = atof(node_position->first_attribute("z")->value());
 
-		pVertices[i].normal.x = atof(node_position->first_attribute("x")->value());
-		pVertices[i].normal.y = atof(node_position->first_attribute("y")->value());
-		pVertices[i].normal.z = atof(node_position->first_attribute("z")->value());
+		pVertices[i].normal.x = -atof(node_normal->first_attribute("x")->value());
+		pVertices[i].normal.y = atof(node_normal->first_attribute("y")->value());
+		pVertices[i].normal.z = atof(node_normal->first_attribute("z")->value());
 
 		pVertices[i].tu = atof(node_texcoord->first_attribute("u")->value());
 		pVertices[i].tv = atof(node_texcoord->first_attribute("v")->value());
@@ -236,9 +237,10 @@ HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
 		xml_node<char> * node_face = node_faces->first_node("face");
 		for(; face_i < facecount && node_face != NULL; node_face = node_face->next_sibling())
 		{
+			// 同理，三角形也应当是右手系转为左手系
 			pIndices[i++] = atoi(node_face->first_attribute("v1")->value());
-			pIndices[i++] = atoi(node_face->first_attribute("v2")->value());
 			pIndices[i++] = atoi(node_face->first_attribute("v3")->value());
+			pIndices[i++] = atoi(node_face->first_attribute("v2")->value());
 		}
 		attr.VertexStart = getMinFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, USHRT_MAX);
 		attr.VertexCount = getMaxFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, 0) - attr.VertexStart;
@@ -283,9 +285,10 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(g_Effect9->SetTechnique("RenderScene"));
 
 	// 初始化相机
-	D3DXVECTOR3 vecEye(0.0f, 0.0f, -5.0f);
+	D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
 	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
 	g_Camera.SetViewParams(&vecEye, &vecAt);
+	g_Camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
 	//// 读取D3DX Mesh
 	//CComPtr<ID3DXBuffer> d3dxMaterialBuf;
