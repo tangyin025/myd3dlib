@@ -6,6 +6,7 @@
 #include <SDKmisc.h>
 #include <DXUTSettingsDlg.h>
 #include <DXUTCamera.h>
+#include "resource.h"
 
 // ------------------------------------------------------------------------------------------
 // Global variables
@@ -92,8 +93,8 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 
 	// 读取D3DX Effect文件
-	V_RETURN(D3DXCreateEffectFromFile(
-		pd3dDevice, L"SimpleSample.fx", NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+	V_RETURN(D3DXCreateEffectFromResource(
+		pd3dDevice, NULL, MAKEINTRESOURCE(IDR_RCDATA1), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
 	V_RETURN(g_Effect9->SetTechnique("RenderScene"));
 
 	// 初始化相机

@@ -7,7 +7,8 @@
 #include <SDKmisc.h>
 #include <DXUTSettingsDlg.h>
 #include <DXUTCamera.h>
-#include "rapidxml.hpp"
+#include <myMesh.h>
+#include <myException.h>
 
 // ------------------------------------------------------------------------------------------
 // Global variables
@@ -23,9 +24,8 @@ CModelViewerCamera				g_Camera;
 
 // 自定义渲染资源
 CComPtr<ID3DXMesh>				g_Mesh;
-std::vector<D3DMATERIAL9>		g_MeshMaterials;
-typedef CComPtr<IDirect3DTexture9> IDirect3DTexture9Ptr;
-std::vector<IDirect3DTexture9Ptr> g_MeshTextures;
+D3DMATERIAL9					g_MeshMaterial;
+CComPtr<IDirect3DTexture9>		g_MeshTexture;
 
 // ------------------------------------------------------------------------------------------
 // UI control IDs
@@ -87,41 +87,11 @@ bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
 // LoadMeshFromOgreMesh
 // ------------------------------------------------------------------------------------------
 
-template <typename T>
-T getMinFromArray(int nStart, int nCount, T * list, T maximize)
-{
-	T tmp = maximize;
-	for(int i = nStart; i < nStart + nCount; i++)
-	{
-		if(list[i] < tmp)
-		{
-			tmp = list[i];
-		}
-	}
-	return tmp;
-}
-
-template <typename T>
-T getMaxFromArray(int nStart, int nCount, T * list, T minimize)
-{
-	T tmp = minimize;
-	for(int i = nStart; i < nStart + nCount; i++)
-	{
-		if(list[i] > tmp)
-		{
-			tmp = list[i];
-		}
-	}
-	return tmp;
-}
-
 HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
 							 LPDIRECT3DDEVICE9 pd3dDevice,
 							 DWORD * pNumSubMeshes,
 							 LPD3DXMESH * ppMesh)
 {
-	using namespace rapidxml;
-
 	// 打开指定的文件
 	FILE * fp;
 	errno_t err = _wfopen_s(&fp, pFilename, L"r");
@@ -144,122 +114,16 @@ HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
 	strXml.resize(fread_s(&strXml[0], strXml.size(), sizeof(char), len, fp));
 	fclose(fp);
 
-	// 分析xml文件
-	xml_document<char> doc;
-	doc.parse<0>(const_cast<char *>(strXml.c_str()));
-
-	// 获取vertex总数，注意：这里略过解析错误
-	xml_node<char> * node_mesh = doc.first_node("mesh");
-	xml_node<char> * node_sharedgeometry = node_mesh->first_node("sharedgeometry");
-	xml_attribute<char> * attr_vertexcount = node_sharedgeometry->first_attribute("vertexcount");
-	int vertexcount = atoi(attr_vertexcount->value());
-
-	// 获取submeshes的face总数
-	xml_node<char> * node_submeshes = node_mesh->first_node("submeshes");
-	int facecount = 0;
-	xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
-	for(; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+	// 使用myd3dlib中的函数进行分析
+	try
 	{
-		xml_node<char> * node_faces = node_submesh->first_node("faces");
-		xml_attribute<char> * attr_count = node_faces->first_attribute("count");
-		facecount += atoi(attr_count->value());
+		my::LoadMeshFromOgreMesh(strXml, pd3dDevice, pNumSubMeshes, ppMesh);
 	}
-
-	// 自定义顶点格式
-	struct CUSTOMVERTEX
+	catch(const my::Exception & e)
 	{
-		D3DXVECTOR3 position;
-		D3DXVECTOR3 normal;
-		FLOAT tu;
-		FLOAT tv;
-	};
-	const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1;
-
-	// 哈哈，数据收齐，可以创建D3DX Mesh
-	CComPtr<ID3DXMesh> ret_mesh;
-	HRESULT hres;
-	if(FAILED(hres = D3DXCreateMeshFVF(
-		facecount, vertexcount, D3DXMESH_SYSTEMMEM, D3DFVF_CUSTOMVERTEX, pd3dDevice, &ret_mesh)))
-	{
-		return hres;
+		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription(), _T("Exception"), MB_OK);
+		return D3DERR_INVALIDCALL;
 	}
-
-	// 获取顶点缓存
-	CUSTOMVERTEX * pVertices;
-	if(FAILED(hres = ret_mesh->LockVertexBuffer(0, (VOID **)&pVertices)))
-	{
-		return hres;
-	}
-
-	// 赋值顶点数据，由于是D3DXMESH_SYSTEMMEM，所以这个过程应该是内存到显存的传输（AGP或PCIE接口）
-	xml_node<char> * node_vertexbuffer = node_sharedgeometry->first_node("vertexbuffer");
-	xml_node<char> * node_vertex = node_vertexbuffer->first_node("vertex");
-	for(int i = 0; i < vertexcount && node_vertex != NULL; i++, node_vertex = node_vertex->next_sibling())
-	{
-		xml_node<char> * node_position = node_vertex->first_node("position");
-		xml_node<char> * node_normal = node_vertex->first_node("normal");
-		xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
-
-		// 注意：x轴是反的，因为原始模型是从Maya导出的，其内部使用的是opengl右手系
-		pVertices[i].position.x = -atof(node_position->first_attribute("x")->value());
-		pVertices[i].position.y = atof(node_position->first_attribute("y")->value());
-		pVertices[i].position.z = atof(node_position->first_attribute("z")->value());
-
-		pVertices[i].normal.x = -atof(node_normal->first_attribute("x")->value());
-		pVertices[i].normal.y = atof(node_normal->first_attribute("y")->value());
-		pVertices[i].normal.z = atof(node_normal->first_attribute("z")->value());
-
-		pVertices[i].tu = atof(node_texcoord->first_attribute("u")->value());
-		pVertices[i].tv = atof(node_texcoord->first_attribute("v")->value());
-	}
-
-	// 解锁顶点缓存
-	ret_mesh->UnlockVertexBuffer();
-
-	// 获取索引缓存
-	WORD * pIndices;
-	if(FAILED(hres = ret_mesh->LockIndexBuffer(0, (VOID **)&pIndices)))
-	{
-		return hres;
-	}
-
-	// 赋值索引数据
-	std::vector<D3DXATTRIBUTERANGE> d3dxAttrList;
-	int face_i = 0;
-	node_submesh = node_submeshes->first_node("submesh");
-	for(int i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), i++)
-	{
-		xml_node<char> * node_faces = node_submesh->first_node("faces");
-		D3DXATTRIBUTERANGE attr;
-		attr.AttribId = i;
-		attr.FaceStart = face_i;
-		attr.FaceCount = atoi(node_faces->first_attribute("count")->value());
-		xml_node<char> * node_face = node_faces->first_node("face");
-		for(; face_i < facecount && node_face != NULL; node_face = node_face->next_sibling())
-		{
-			// 同理，三角形也应当是右手系转为左手系
-			pIndices[i++] = atoi(node_face->first_attribute("v1")->value());
-			pIndices[i++] = atoi(node_face->first_attribute("v3")->value());
-			pIndices[i++] = atoi(node_face->first_attribute("v2")->value());
-		}
-		attr.VertexStart = getMinFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, USHRT_MAX);
-		attr.VertexCount = getMaxFromArray<WORD>(face_i, attr.FaceCount * 3, pIndices, 0) - attr.VertexStart;
-		d3dxAttrList.push_back(attr);
-	}
-
-	// 解锁索引缓存
-	ret_mesh->UnlockIndexBuffer();
-
-	// 设置D3DX Mesh Attribute Table
-	if(FAILED(hres = ret_mesh->SetAttributeTable(&d3dxAttrList[0], d3dxAttrList.size())))
-	{
-		return hres;
-	}
-
-	// 保存pNumSubMeshes及ppMesh
-	_ASSERT(NULL != pNumSubMeshes);
-	*pNumSubMeshes = d3dxAttrList.size();
-	*ppMesh = ret_mesh.Detach();
 	return D3D_OK;
 }
 
@@ -291,33 +155,18 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 	g_Camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
 	//// 读取D3DX Mesh
-	//CComPtr<ID3DXBuffer> d3dxMaterialBuf;
 	DWORD dwNumMaterials;
-	//V_RETURN(D3DXLoadMeshFromX(
-	//	L"Tiger.x", D3DXMESH_SYSTEMMEM, pd3dDevice, NULL, &d3dxMaterialBuf, NULL, &dwNumMaterials, &g_Mesh));
 
 	// 从ogre mesh文件读取到D3DX Mesh
-	V_RETURN(LoadMeshFromOgreMesh(L"jack_hres.mesh.xml", pd3dDevice, &dwNumMaterials, &g_Mesh));
+	V_RETURN(LoadMeshFromOgreMesh(L"jack_hres_all.mesh.xml", pd3dDevice, &dwNumMaterials, &g_Mesh));
 
-	//D3DXMATERIAL * d3dxMaterials = (D3DXMATERIAL *)d3dxMaterialBuf->GetBufferPointer();
-	g_MeshMaterials.resize(dwNumMaterials);
-	g_MeshTextures.resize(dwNumMaterials);
-	for(DWORD i = 0; i < dwNumMaterials; i++)
-	{
-		//// 拷贝材质信息，及设置环境光反射属性
-		//g_MeshMaterials[i] = d3dxMaterials[i].MatD3D;
-		//g_MeshMaterials[i].Ambient = g_MeshMaterials[i].Diffuse;
-		g_MeshMaterials[i].Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
-		g_MeshMaterials[i].Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+	// 所有的mesh使用同一种材质，同一张贴图
+	g_MeshMaterial.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+	g_MeshMaterial.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
-		// 创建贴图
-		//if(d3dxMaterials[i].pTextureFilename != NULL
-		//	&& lstrlenA(d3dxMaterials[i].pTextureFilename) > 0)
-		//{
-		//	V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, d3dxMaterials[i].pTextureFilename, &g_MeshTextures[i]));
-		//}
-		V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, "jack_texture.jpg", &g_MeshTextures[i]));
-	}
+	// 创建贴图
+	V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, "jack_texture.jpg", &g_MeshTexture));
+
 	return S_OK;
 }
 
@@ -375,7 +224,7 @@ void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
 	g_Sprite9.Release();
 	g_Effect9.Release();
 	g_Mesh.Release();
-	g_MeshTextures.clear();
+	g_MeshTexture.Release();
 }
 
 // ------------------------------------------------------------------------------------------
@@ -424,25 +273,25 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
 		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
 
-		// 渲染D3DX Mesh
-		for(DWORD i = 0; i < g_MeshMaterials.size(); i++)
-		{
-			V(g_Effect9->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&g_MeshMaterials[i].Ambient));
-			V(g_Effect9->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&g_MeshMaterials[i].Diffuse));
-			V(g_Effect9->SetTexture("g_MeshTexture", g_MeshTextures[i]));
-			g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3);
-			g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		V(g_Effect9->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&g_MeshMaterial.Ambient));
+		V(g_Effect9->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&g_MeshMaterial.Diffuse));
+		V(g_Effect9->SetTexture("g_MeshTexture", g_MeshTexture));
+		g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3);
+		g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			UINT cPasses;
-			V(g_Effect9->Begin(&cPasses, 0));
-			for(UINT p = 0; p < cPasses; ++p)
-			{
-				V(g_Effect9->BeginPass(p));
-				V(g_Mesh->DrawSubset(i));
-				V(g_Effect9->EndPass());
-			}
-			V(g_Effect9->End());
+		// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+		UINT cPasses;
+		V(g_Effect9->Begin(&cPasses, 0));
+		for(UINT p = 0; p < cPasses; ++p)
+		{
+			V(g_Effect9->BeginPass(p));
+			pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+			V(g_Mesh->DrawSubset(1));
+			pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+			V(g_Mesh->DrawSubset(0));
+			V(g_Effect9->EndPass());
 		}
+		V(g_Effect9->End());
 
 		// 输出渲染设备信息
 		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
