@@ -1,10 +1,7 @@
 
 #include "myMesh.h"
 #include <boost/property_tree/detail/rapidxml.hpp>
-#include <boost/lexical_cast.hpp>
 #include <atlbase.h>
-#include <vector>
-#include <algorithm>
 #include "myException.h"
 
 namespace my
@@ -29,10 +26,7 @@ namespace my
 
 #define DEFINE_XML_ATTRIBUIT_INT(decl_v, attr_v, node_p, attr_s) \
 	DEFINE_XML_ATTRIBUTE(attr_v, node_p, attr_s); \
-	try { \
-		decl_v = boost::lexical_cast<int>(attr_v->value()); \
-	} catch(boost::bad_lexical_cast &) { \
-	THROW_CUSEXCEPTION(_T("cannot convert ") _T(#attr_s) _T(" to int")); }
+	decl_v = atoi(attr_v->value())
 
 #define DEFINE_XML_ATTRIBUIT_INT_SIMPLE(attr_s, parent_s) \
 	int attr_s; \
@@ -41,10 +35,7 @@ namespace my
 
 #define DEFINE_XML_ATTRIBUIT_FLOAT(decl_v, attr_v, node_p, attr_s) \
 	DEFINE_XML_ATTRIBUTE(attr_v, node_p, attr_s); \
-	try { \
-		decl_v = boost::lexical_cast<float>(attr_v->value()); \
-	} catch(boost::bad_lexical_cast &) { \
-	THROW_CUSEXCEPTION(_T("cannot convert ") _T(#attr_s) _T(" to float")); }
+	decl_v = (float)atof(attr_v->value())
 
 #define DEFINE_XML_ATTRIBUIT_FLOAT_SIMPLE(attr_s, parent_s) \
 	float attr_s; \
@@ -135,27 +126,12 @@ namespace my
 			DEFINE_XML_NODE_SIMPLE(face, faces);
 			for(; node_face != NULL && face_i < facecount; node_face = node_face->next_sibling(), face_i++)
 			{
-				DEFINE_XML_ATTRIBUIT_INT_SIMPLE(v1, face);
-				if(v1 >= vertexcount)
-				{
-					THROW_CUSEXCEPTION(_T("valid index number of face"));
-				}
-
-				DEFINE_XML_ATTRIBUIT_INT_SIMPLE(v2, face);
-				if(v2 >= vertexcount)
-				{
-					THROW_CUSEXCEPTION(_T("valid index number of face"));
-				}
-
-				DEFINE_XML_ATTRIBUIT_INT_SIMPLE(v3, face);
-				if(v3 >= vertexcount)
-				{
-					THROW_CUSEXCEPTION(_T("valid index number of face"));
-				}
-
-				pIndices[face_i * 3 + 0] = v1;
-				pIndices[face_i * 3 + 1] = v3;
-				pIndices[face_i * 3 + 2] = v2;
+				rapidxml::xml_attribute<std::string::value_type> * attr_v1;
+				DEFINE_XML_ATTRIBUIT_INT(pIndices[face_i * 3 + 0], attr_v1, node_face, v1);
+				rapidxml::xml_attribute<std::string::value_type> * attr_v2;
+				DEFINE_XML_ATTRIBUIT_INT(pIndices[face_i * 3 + 2], attr_v2, node_face, v2);
+				rapidxml::xml_attribute<std::string::value_type> * attr_v3;
+				DEFINE_XML_ATTRIBUIT_INT(pIndices[face_i * 3 + 1], attr_v3, node_face, v3);
 
 				pAttrBuffer[face_i] = submesh_i;
 			}

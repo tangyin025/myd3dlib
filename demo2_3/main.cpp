@@ -117,7 +117,15 @@ HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
 	// 使用myd3dlib中的函数进行分析
 	try
 	{
+		//// 测试一下load数度
+		//LARGE_INTEGER time;
+		//QueryPerformanceCounter(&time);
+		//LONGLONG lastCount = time.QuadPart;
 		my::LoadMeshFromOgreMesh(strXml, pd3dDevice, pNumSubMeshes, ppMesh);
+		//QueryPerformanceCounter(&time);
+		//CString info;
+		//info.Format(_T("Performance Count: %ld"), time.QuadPart - lastCount);
+		//::MessageBox(DXUTGetHWND(), info, _T("Performance Count"), MB_OK);
 	}
 	catch(const my::Exception & e)
 	{
