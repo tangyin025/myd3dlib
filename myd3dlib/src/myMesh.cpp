@@ -13,7 +13,7 @@ namespace my
 		THROW_CUSEXCEPTION(_T("cannot find ") _T(#node_s))
 
 #define DEFINE_XML_NODE_SIMPLE(node_s, parent_s) \
-	rapidxml::xml_node<std::string::value_type> * node_##node_s; \
+	rapidxml::xml_node<char> * node_##node_s; \
 	DEFINE_XML_NODE(node_##node_s, node_##parent_s, node_s)
 
 #define DEFINE_XML_ATTRIBUTE(attr_v, node_p, attr_s) \
@@ -22,7 +22,7 @@ namespace my
 		THROW_CUSEXCEPTION(_T("cannot find ") _T(#attr_s))
 
 #define DEFINE_XML_ATTRIBUTE_SIMPLE(attr_s, parent_s) \
-	rapidxml::xml_attribute<std::string::value_type> * attr_##attr_s; \
+	rapidxml::xml_attribute<char> * attr_##attr_s; \
 	DEFINE_XML_ATTRIBUTE(attr_##attr_s, node_##parent_s, attr_s)
 
 #define DEFINE_XML_ATTRIBUTE_INT(decl_v, attr_v, node_p, attr_s) \
@@ -31,7 +31,7 @@ namespace my
 
 #define DEFINE_XML_ATTRIBUTE_INT_SIMPLE(attr_s, parent_s) \
 	int attr_s; \
-	rapidxml::xml_attribute<std::string::value_type> * attr_##attr_s; \
+	rapidxml::xml_attribute<char> * attr_##attr_s; \
 	DEFINE_XML_ATTRIBUTE_INT(attr_s, attr_##attr_s, node_##parent_s, attr_s)
 
 #define DEFINE_XML_ATTRIBUTE_FLOAT(decl_v, attr_v, node_p, attr_s) \
@@ -40,7 +40,7 @@ namespace my
 
 #define DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(attr_s, parent_s) \
 	float attr_s; \
-	rapidxml::xml_attribute<std::string::value_type> * attr_##attr_s; \
+	rapidxml::xml_attribute<char> * attr_##attr_s; \
 	DEFINE_XML_ATTRIBUTE_FLOAT(attr_s, attr_##attr_s, node_##parent_s, attr_s)
 
 #define DEFINE_XML_ATTRIBUTE_BOOL(decl_v, attr_v, node_p, attr_s) \
@@ -49,7 +49,7 @@ namespace my
 
 #define DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(attr_s, parent_s) \
 	bool attr_s; \
-	rapidxml::xml_attribute<std::string::value_type> * attr_##attr_s; \
+	rapidxml::xml_attribute<char> * attr_##attr_s; \
 	DEFINE_XML_ATTRIBUTE_BOOL(attr_s, attr_##attr_s, node_##parent_s, attr_s)
 
 	static WORD CalculateD3DDeclTypeSize(D3DDECLTYPE type)
@@ -98,39 +98,39 @@ namespace my
 
 	static void FillPositionFromOgreVertexPosition(
 		D3DXVECTOR3 * pPosition,
-		rapidxml::xml_node<std::string::value_type> * node_position)
+		rapidxml::xml_node<char> * node_position)
 	{
 		float tmp;
-		rapidxml::xml_attribute<std::string::value_type> * position_x;
+		rapidxml::xml_attribute<char> * position_x;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, position_x, node_position, x);
 		pPosition->x = -tmp;
-		rapidxml::xml_attribute<std::string::value_type> * position_y;
+		rapidxml::xml_attribute<char> * position_y;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, position_y, node_position, y);
 		pPosition->y = tmp;
-		rapidxml::xml_attribute<std::string::value_type> * position_z;
+		rapidxml::xml_attribute<char> * position_z;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, position_z, node_position, z);
 		pPosition->z = tmp;
 	}
 
 	static void FillNormalFromOgreVertexNormal(
 		D3DXVECTOR3 * pNormal,
-		rapidxml::xml_node<std::string::value_type> * node_normal)
+		rapidxml::xml_node<char> * node_normal)
 	{
 		float tmp;
-		rapidxml::xml_attribute<std::string::value_type> * normal_x;
+		rapidxml::xml_attribute<char> * normal_x;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, normal_x, node_normal, x);
 		pNormal->x = -tmp;
-		rapidxml::xml_attribute<std::string::value_type> * normal_y;
+		rapidxml::xml_attribute<char> * normal_y;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, normal_y, node_normal, y);
 		pNormal->y = tmp;
-		rapidxml::xml_attribute<std::string::value_type> * normal_z;
+		rapidxml::xml_attribute<char> * normal_z;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, normal_z, node_normal, z);
 		pNormal->z = tmp;
 	}
 
 	static void FillColorFromOgreVertexColorDiffuse(
 		D3DXCOLOR * pColor,
-		rapidxml::xml_node<std::string::value_type> * node_colour_diffuse)
+		rapidxml::xml_node<char> * node_colour_diffuse)
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
 		sscanf_s(attr_value->value(), "%f %f %f %f", &pColor->r, &pColor->g, &pColor->b,  &pColor->a);
@@ -138,13 +138,13 @@ namespace my
 
 	static void FillTexCoordFromOgreVertexTexCoord(
 		D3DXVECTOR2 * pTexCoord,
-		rapidxml::xml_node<std::string::value_type> * node_texcoord)
+		rapidxml::xml_node<char> * node_texcoord)
 	{
 		float tmp;
-		rapidxml::xml_attribute<std::string::value_type> * texcoord_u;
+		rapidxml::xml_attribute<char> * texcoord_u;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, texcoord_u, node_texcoord, u);
 		pTexCoord->x = tmp;
-		rapidxml::xml_attribute<std::string::value_type> * texcoord_v;
+		rapidxml::xml_attribute<char> * texcoord_v;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, texcoord_v, node_texcoord, v);
 		pTexCoord->y = tmp;
 	}
@@ -152,7 +152,7 @@ namespace my
 	static void FillVertexDataFromOgreVertex(
 		const D3DVERTEXELEMENT9 & d3dvertelem,
 		VOID * pVertex,
-		rapidxml::xml_node<std::string::value_type> * node_vertex)
+		rapidxml::xml_node<char> * node_vertex)
 	{
 		switch(d3dvertelem.Usage)
 		{
@@ -203,15 +203,15 @@ namespace my
 	}
 
 	void LoadMeshFromOgreMesh(
-		std::string & strOgreMeshXml,
+		std::basic_string<char> & strOgreMeshXml,
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		DWORD * pNumSubMeshes,
 		LPD3DXMESH * ppMesh,
 		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/)
 	{
-		rapidxml::xml_document<std::string::value_type> doc;
+		rapidxml::xml_document<char> doc;
 		doc.parse<0>(&strOgreMeshXml[0]);
-		rapidxml::xml_node<std::string::value_type> * node_mesh = doc.first_node("mesh");
+		rapidxml::xml_node<char> * node_mesh = doc.first_node("mesh");
 
 		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, sharedgeometry);
@@ -347,11 +347,11 @@ namespace my
 			DEFINE_XML_NODE_SIMPLE(face, faces);
 			for(; node_face != NULL && face_i < facecount; node_face = node_face->next_sibling(), face_i++)
 			{
-				rapidxml::xml_attribute<std::string::value_type> * attr_v1;
+				rapidxml::xml_attribute<char> * attr_v1;
 				DEFINE_XML_ATTRIBUTE_INT(pIndices[face_i * 3 + 0], attr_v1, node_face, v1);
-				rapidxml::xml_attribute<std::string::value_type> * attr_v2;
+				rapidxml::xml_attribute<char> * attr_v2;
 				DEFINE_XML_ATTRIBUTE_INT(pIndices[face_i * 3 + 2], attr_v2, node_face, v2);
-				rapidxml::xml_attribute<std::string::value_type> * attr_v3;
+				rapidxml::xml_attribute<char> * attr_v3;
 				DEFINE_XML_ATTRIBUTE_INT(pIndices[face_i * 3 + 1], attr_v3, node_face, v3);
 
 				pAttrBuffer[face_i] = submesh_i;

@@ -1,10 +1,11 @@
 
 #include "myException.h"
+#include <sstream>
 #include <d3d9.h>
 
 namespace my
 {
-	Exception::Exception(LPCTSTR file, int line)
+	Exception::Exception(const std::basic_string<_TCHAR> & file, int line)
 		: m_file(file)
 		, m_line(line)
 	{
@@ -15,20 +16,20 @@ namespace my
 	{
 	}
 
-	CString Exception::GetFullDescription(void) const
+	std::basic_string<_TCHAR> Exception::GetFullDescription(void) const
 	{
-		CString strRes;
-		strRes.Format(_T("%s (%d): %s"), m_file, m_line, GetDescription());
-		return strRes;
+		std::basic_stringstream<_TCHAR> osstr;
+		osstr << m_file << _T(" (") << m_line << _T("): ") << GetDescription();
+		return osstr.str();
 	}
 
-	ComException::ComException(HRESULT hres, LPCTSTR file, int line)
+	ComException::ComException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line)
 		: Exception(file, line)
 		, m_hres(hres)
 	{
 	}
 
-	LPCTSTR ComException::GetDescription(void) const throw()
+	std::basic_string<_TCHAR> ComException::GetDescription(void) const throw()
 	{
 		switch(m_hres)
 		{
@@ -104,12 +105,12 @@ namespace my
 		return _T("unknown error result");
 	}
 
-	D3DException::D3DException(HRESULT hres, LPCTSTR file, int line)
+	D3DException::D3DException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line)
 		: ComException(hres, file, line)
 	{
 	}
 
-	LPCTSTR D3DException::GetDescription(void) const throw()
+	std::basic_string<_TCHAR> D3DException::GetDescription(void) const throw()
 	{
 		switch(m_hres)
 		{
@@ -150,13 +151,34 @@ namespace my
 		return ComException::GetDescription();
 	}
 
-	CustomException::CustomException(LPCTSTR desc, LPCTSTR file, int line)
+	WinException::WinException(DWORD code, const std::basic_string<_TCHAR> & file, int line)
+		: Exception(file, line)
+		, m_code(code)
+	{
+	}
+
+	std::basic_string<_TCHAR> WinException::GetDescription(void) const throw()
+	{
+		std::basic_string<_TCHAR> ret;
+		ret.resize(MAX_PATH);
+		ret.resize(::FormatMessage(
+			FORMAT_MESSAGE_FROM_SYSTEM, NULL, m_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), &ret[0], ret.size(), NULL));
+
+		if(ret.empty())
+		{
+			return _T("unknown windows error");
+		}
+
+		return ret;
+	}
+
+	CustomException::CustomException(const std::basic_string<_TCHAR> & desc, const std::basic_string<_TCHAR> & file, int line)
 		: Exception(file, line)
 		, m_desc(desc)
 	{
 	}
 
-	LPCTSTR CustomException::GetDescription(void) const throw()
+	std::basic_string<_TCHAR> CustomException::GetDescription(void) const throw()
 	{
 		return m_desc;
 	}

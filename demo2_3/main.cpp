@@ -9,6 +9,7 @@
 #include <DXUTCamera.h>
 #include <myMesh.h>
 #include <myException.h>
+#include <myResource.h>
 
 // ------------------------------------------------------------------------------------------
 // Global variables
@@ -84,58 +85,6 @@ bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
 }
 
 // ------------------------------------------------------------------------------------------
-// LoadMeshFromOgreMesh
-// ------------------------------------------------------------------------------------------
-
-HRESULT LoadMeshFromOgreMesh(LPCWSTR pFilename,
-							 LPDIRECT3DDEVICE9 pd3dDevice,
-							 DWORD * pNumSubMeshes,
-							 LPD3DXMESH * ppMesh)
-{
-	// 打开指定的文件
-	FILE * fp;
-	errno_t err = _wfopen_s(&fp, pFilename, L"r");
-	if(0 != err)
-	{
-		return D3DERR_INVALIDCALL;
-	}
-
-	// 获取文件长度
-	if(0 != fseek(fp, 0, SEEK_END))
-	{
-		return D3DERR_INVALIDCALL;
-	}
-	long len = ftell(fp);
-	fseek(fp, 0, SEEK_SET);
-
-	// 分配字符串
-	std::string strXml;
-	strXml.resize(len + 1);
-	strXml.resize(fread_s(&strXml[0], strXml.size(), sizeof(char), len, fp));
-	fclose(fp);
-
-	// 使用myd3dlib中的函数进行分析
-	try
-	{
-		//// 测试一下load数度
-		//LARGE_INTEGER time;
-		//QueryPerformanceCounter(&time);
-		//LONGLONG lastCount = time.QuadPart;
-		my::LoadMeshFromOgreMesh(strXml, pd3dDevice, pNumSubMeshes, ppMesh);
-		//QueryPerformanceCounter(&time);
-		//CString info;
-		//info.Format(_T("Performance Count: %ld"), time.QuadPart - lastCount);
-		//::MessageBox(DXUTGetHWND(), info, _T("Performance Count"), MB_OK);
-	}
-	catch(const my::Exception & e)
-	{
-		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription(), _T("Exception"), MB_OK);
-		return D3DERR_INVALIDCALL;
-	}
-	return D3D_OK;
-}
-
-// ------------------------------------------------------------------------------------------
 // OnD3D9CreateDevice
 // ------------------------------------------------------------------------------------------
 
@@ -151,29 +100,41 @@ HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
 		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
 	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
 
-	// 读取D3DX Effect文件
-	V_RETURN(D3DXCreateEffectFromFile(
-		pd3dDevice, L"SimpleSample.fx", NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
-	V_RETURN(g_Effect9->SetTechnique("RenderScene"));
-
 	// 初始化相机
 	D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
 	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
 	g_Camera.SetViewParams(&vecEye, &vecAt);
 	g_Camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
-	//// 读取D3DX Mesh
-	DWORD dwNumMaterials;
+	try
+	{
+		// 读取D3DX Effect文件
+		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateEffect(
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
+		FAILED_THROW_D3DEXCEPTION(g_Effect9->SetTechnique("RenderScene"));
 
-	// 从ogre mesh文件读取到D3DX Mesh
-	V_RETURN(LoadMeshFromOgreMesh(L"jack_hres_all.mesh.xml", pd3dDevice, &dwNumMaterials, &g_Mesh));
+		// 从资源管理器中读出模型文件
+		DWORD dwNumSubMeshes;
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_hres_all.mesh.xml")));
+		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &g_Mesh);
+
+		// 创建贴图
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &g_MeshTexture));
+	}
+	catch(const my::Exception & e)
+	{
+		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		return D3DERR_INVALIDCALL;
+	}
 
 	// 所有的mesh使用同一种材质，同一张贴图
 	g_MeshMaterial.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
 	g_MeshMaterial.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-	// 创建贴图
-	V_RETURN(D3DXCreateTextureFromFileA(pd3dDevice, "jack_texture.jpg", &g_MeshTexture));
 
 	return S_OK;
 }
@@ -284,8 +245,8 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 		V(g_Effect9->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&g_MeshMaterial.Ambient));
 		V(g_Effect9->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&g_MeshMaterial.Diffuse));
 		V(g_Effect9->SetTexture("g_MeshTexture", g_MeshTexture));
-		g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3);
-		g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f));
+		V(g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
+		V(g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 		// 渲染模型的两个部分，注意，头发的部分不要背面剔除
 		UINT cPasses;
@@ -293,9 +254,9 @@ void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
 		for(UINT p = 0; p < cPasses; ++p)
 		{
 			V(g_Effect9->BeginPass(p));
-			pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 			V(g_Mesh->DrawSubset(1));
-			pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW);
+			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
 			V(g_Mesh->DrawSubset(0));
 			V(g_Effect9->EndPass());
 		}
@@ -424,6 +385,17 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	// 设置消息回调函数
 	DXUTSetCallbackMsgProc(MsgProc);
 	DXUTSetCallbackKeyboard(OnKeyboard);
+
+	// 初始化全局资源组
+	try
+	{
+		my::ResourceMgr::getSingleton().RegisterZipArchive(_T("data.zip"));
+	}
+	catch(const my::Exception & e)
+	{
+		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		return 0;
+	}
 
 	// 全局初始化工作
 	g_SettingsDlg.Init(&g_DialogResourceMgr);

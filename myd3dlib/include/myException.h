@@ -1,26 +1,27 @@
 
 #pragma once
 
+#include <string>
 #include <tchar.h>
-#include <atlstr.h>
+#include <windows.h>
 
 namespace my
 {
 	class Exception
 	{
 	protected:
-		CString m_file;
+		std::basic_string<_TCHAR> m_file;
 
 		int m_line;
 
 	public:
-		Exception(LPCTSTR file, int line);
+		Exception(const std::basic_string<_TCHAR> & file, int line);
 
 		virtual ~Exception(void);
 
-		virtual LPCTSTR GetDescription(void) const throw() = 0;
+		virtual std::basic_string<_TCHAR> GetDescription(void) const throw() = 0;
 
-		CString GetFullDescription(void) const;
+		std::basic_string<_TCHAR> GetFullDescription(void) const;
 	};
 
 	class ComException : public Exception
@@ -29,34 +30,47 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		ComException(HRESULT hres, LPCTSTR file, int line);
+		ComException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line);
 
-		LPCTSTR GetDescription(void) const throw();
+		std::basic_string<_TCHAR> GetDescription(void) const throw();
 	};
 
 	class D3DException : public ComException
 	{
 	public:
-		D3DException(HRESULT hres, LPCTSTR file, int line);
+		D3DException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line);
 
-		LPCTSTR GetDescription(void) const throw();
+		std::basic_string<_TCHAR> GetDescription(void) const throw();
+	};
+
+	class WinException : public Exception
+	{
+	protected:
+		DWORD m_code;
+
+	public:
+		WinException(DWORD code, const std::basic_string<_TCHAR> & file, int line);
+
+		std::basic_string<_TCHAR> GetDescription(void) const throw();
 	};
 
 	class CustomException : public Exception
 	{
 	protected:
-		CString m_desc;
+		std::basic_string<_TCHAR> m_desc;
 
 	public:
-		CustomException(LPCTSTR desc, LPCTSTR file, int line);
+		CustomException(const std::basic_string<_TCHAR> & desc, const std::basic_string<_TCHAR> & file, int line);
 
-		LPCTSTR GetDescription(void) const throw();
+		std::basic_string<_TCHAR> GetDescription(void) const throw();
 	};
 };
 
 #define THROW_COMEXCEPTION(hres) throw my::ComException((hres), _T(__FILE__), __LINE__)
 
 #define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), _T(__FILE__), __LINE__)
+
+#define THROW_WINEXCEPTION(code) throw my::WinException((code), _T(__FILE__), __LINE__)
 
 #define THROW_CUSEXCEPTION(info) throw my::CustomException((info), _T(__FILE__), __LINE__)
 
@@ -75,5 +89,13 @@ namespace my
 		if(FAILED(hres = (expr))) \
 		{ \
 			THROW_D3DEXCEPTION(hres); \
+		} \
+	}
+
+#define FAILED_THROW_CUSEXCEPTION(expr) \
+	{ \
+		if(!(expr)) \
+		{ \
+			THROW_CUSEXCEPTION(_T(#expr)); \
 		} \
 	}

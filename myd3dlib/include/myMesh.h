@@ -8,7 +8,7 @@
 namespace my
 {
 	void LoadMeshFromOgreMesh(
-		std::string & strOgreMeshXml,
+		std::basic_string<char> & strOgreMeshXml,
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		DWORD * pNumSubMeshes,
 		LPD3DXMESH * ppMesh,
