@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "mySingleton.h"
+//#include "mySingleton.h"
 #include <atlbase.h>
 #include <DXUT.h>
 #include <DXUTgui.h>
@@ -9,30 +9,15 @@
 
 namespace my
 {
-	class DxutApp : public Singleton<DxutApp>
+	class DxutAppBase //: public Singleton<DxutAppBase>
 	{
-	protected:
-		CDXUTDialogResourceManager m_dlgResourceMgr;
-
-		CD3DSettingsDlg m_settingsDlg;
-
-		CDXUTDialog m_hudDlg;
-
-		CComPtr<ID3DXFont> m_txtFont;
-
-		CComPtr<ID3DXSprite> m_txtSprite;
-
 	public:
 		static bool CALLBACK IsD3D9DeviceAcceptable_s(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
 			D3DFORMAT BackBufferFormat,
 			bool bWindowed,
-			void * pUserContext)
-		{
-			return reinterpret_cast<DxutApp *>(pUserContext)->IsD3D9DeviceAcceptable(
-				pCaps, AdapterFormat, BackBufferFormat, bWindowed);
-		}
+			void * pUserContext);
 
 		virtual bool IsD3D9DeviceAcceptable(
 			D3DCAPS9 * pCaps,
@@ -42,11 +27,7 @@ namespace my
 
 		static bool CALLBACK ModifyDeviceSettings_s(
 			DXUTDeviceSettings * pDeviceSettings,
-			void * pUserContext)
-		{
-			return reinterpret_cast<DxutApp *>(pUserContext)->ModifyDeviceSettings(
-				pDeviceSettings);
-		}
+			void * pUserContext);
 
 		virtual bool ModifyDeviceSettings(
 			DXUTDeviceSettings * pDeviceSettings);
@@ -54,11 +35,7 @@ namespace my
 		static HRESULT CALLBACK OnD3D9CreateDevice_s(
 			IDirect3DDevice9 * pd3dDevice,
 			const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-			void * pUserContext)
-		{
-			return reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9CreateDevice(
-				pd3dDevice, pBackBufferSurfaceDesc);
-		}
+			void * pUserContext);
 
 		virtual HRESULT OnD3D9CreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
@@ -67,40 +44,26 @@ namespace my
 		static HRESULT CALLBACK OnD3D9ResetDevice_s(
 			IDirect3DDevice9 * pd3dDevice,
 			const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-			void * pUserContext)
-		{
-			return reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9ResetDevice(
-				pd3dDevice, pBackBufferSurfaceDesc);
-		}
+			void * pUserContext);
 
 		virtual HRESULT OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
 			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
 		static void CALLBACK OnD3D9LostDevice_s(
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9LostDevice();
-		}
+			void * pUserContext);
 
 		virtual void OnD3D9LostDevice(void);
 
 		static void CALLBACK OnD3D9DestroyDevice_s(
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9DestroyDevice();
-		}
+			void * pUserContext);
 
 		virtual void OnD3D9DestroyDevice(void);
 
 		static void CALLBACK OnFrameMove_s(
 			double fTime,
 			float fElapsedTime,
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnFrameMove(
-				fTime, fElapsedTime);
-		}
+			void * pUserContext);
 
 		virtual void OnFrameMove(
 			double fTime,
@@ -110,31 +73,12 @@ namespace my
 			IDirect3DDevice9 * pd3dDevice,
 			double fTime,
 			float fElapsedTime,
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9FrameRender(
-				pd3dDevice, fTime, fElapsedTime);
-		}
+			void * pUserContext);
 
 		virtual void OnD3D9FrameRender(
 			IDirect3DDevice9 * pd3dDevice,
 			double fTime,
 			float fElapsedTime);
-
-		static void CALLBACK OnGUIEvent_s(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl,
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnGUIEvent(
-				nEvent, nControlID, pControl);
-		}
-
-		virtual void OnGUIEvent(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl);
 
 		static LRESULT CALLBACK MsgProc_s(
 			HWND hWnd,
@@ -142,11 +86,7 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing,
-			void * pUserContext)
-		{
-			return reinterpret_cast<DxutApp *>(pUserContext)->MsgProc(
-				hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-		}
+			void * pUserContext);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
@@ -159,11 +99,7 @@ namespace my
 			UINT nChar,
 			bool bKeyDown,
 			bool bAltDown,
-			void * pUserContext)
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnKeyboard(
-				nChar, bKeyDown, bAltDown);
-		}
+			void * pUserContext);
 
 		virtual void OnKeyboard(
 			UINT nChar,
@@ -171,9 +107,93 @@ namespace my
 			bool bAltDown);
 
 	public:
-		DxutApp(void);
+		DxutAppBase(void);
+
+		virtual ~DxutAppBase(void);
 
 		int Run(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
+
+		virtual void OnInit(void);
+	};
+
+	class DxutApp : public DxutAppBase
+	{
+	protected:
+		enum
+		{
+			IDC_TOGGLEFULLSCREEN,
+			IDC_TOGGLEREF,
+			IDC_CHANGEDEVICE
+		};
+
+		CDXUTDialogResourceManager m_dlgResourceMgr;
+
+		CD3DSettingsDlg m_settingsDlg;
+
+		CDXUTDialog m_hudDlg;
+
+		CComPtr<ID3DXFont> m_txtFont;
+
+		CComPtr<ID3DXSprite> m_txtSprite;
+
+	public:
+		virtual bool IsD3D9DeviceAcceptable(
+			D3DCAPS9 * pCaps,
+			D3DFORMAT AdapterFormat,
+			D3DFORMAT BackBufferFormat,
+			bool bWindowed);
+
+		virtual bool ModifyDeviceSettings(
+			DXUTDeviceSettings * pDeviceSettings);
+
+		virtual HRESULT OnD3D9CreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual HRESULT OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual void OnD3D9LostDevice(void);
+
+		virtual void OnD3D9DestroyDevice(void);
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime);
+
+		virtual void OnD3D9FrameRender(
+			IDirect3DDevice9 * pd3dDevice,
+			double fTime,
+			float fElapsedTime);
+
+		virtual void RenderFrame(
+			IDirect3DDevice9 * pd3dDevice,
+			double fTime,
+			float fElapsedTime);
+
+		static void CALLBACK OnGUIEvent_s(
+			UINT nEvent,
+			int nControlID,
+			CDXUTControl * pControl,
+			void * pUserContext);
+
+		virtual void OnGUIEvent(
+			UINT nEvent,
+			int nControlID,
+			CDXUTControl * pControl);
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing);
+
+		virtual void OnKeyboard(
+			UINT nChar,
+			bool bKeyDown,
+			bool bAltDown);
 
 		virtual void OnInit(void);
 	};

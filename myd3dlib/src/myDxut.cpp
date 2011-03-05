@@ -1,16 +1,30 @@
 
+#include "myException.h"
 #include "myDxut.h"
 #include <SDKmisc.h>
 
-#define IDC_TOGGLEFULLSCREEN	1
-#define IDC_TOGGLEREF			2
-#define IDC_CHANGEDEVICE		3
-
 namespace my
 {
-	Singleton<DxutApp>::DrivedClassPtr DxutApp::s_ptr;
+	bool CALLBACK DxutAppBase::IsD3D9DeviceAcceptable_s(
+		D3DCAPS9 * pCaps,
+		D3DFORMAT AdapterFormat,
+		D3DFORMAT BackBufferFormat,
+		bool bWindowed,
+		void * pUserContext)
+	{
+		try
+		{
+			return reinterpret_cast<DxutAppBase *>(pUserContext)->IsD3D9DeviceAcceptable(
+				pCaps, AdapterFormat, BackBufferFormat, bWindowed);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+		return false;
+	}
 
-	bool DxutApp::IsD3D9DeviceAcceptable(
+	bool DxutAppBase::IsD3D9DeviceAcceptable(
 		D3DCAPS9 * pCaps,
 		D3DFORMAT AdapterFormat,
 		D3DFORMAT BackBufferFormat,
@@ -35,7 +49,23 @@ namespace my
 		return true;
 	}
 
-	bool DxutApp::ModifyDeviceSettings(
+	bool CALLBACK DxutAppBase::ModifyDeviceSettings_s(
+		DXUTDeviceSettings * pDeviceSettings,
+		void * pUserContext)
+	{
+		try
+		{
+			return reinterpret_cast<DxutAppBase *>(pUserContext)->ModifyDeviceSettings(
+				pDeviceSettings);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+		return false;
+	}
+
+	bool DxutAppBase::ModifyDeviceSettings(
 		DXUTDeviceSettings * pDeviceSettings)
 	{
 		if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
@@ -46,16 +76,258 @@ namespace my
 		return true;
 	}
 
+	HRESULT CALLBACK DxutAppBase::OnD3D9CreateDevice_s(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		void * pUserContext)
+	{
+		try
+		{
+			return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9CreateDevice(
+				pd3dDevice, pBackBufferSurfaceDesc);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+		return D3DERR_INVALIDCALL;
+	}
+
+	HRESULT DxutAppBase::OnD3D9CreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	HRESULT CALLBACK DxutAppBase::OnD3D9ResetDevice_s(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		void * pUserContext)
+	{
+		try
+		{
+			return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9ResetDevice(
+				pd3dDevice, pBackBufferSurfaceDesc);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+		return D3DERR_INVALIDCALL;
+	}
+
+	HRESULT DxutAppBase::OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	void CALLBACK DxutAppBase::OnD3D9LostDevice_s(
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9LostDevice();
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutAppBase::OnD3D9LostDevice(void)
+	{
+	}
+
+	void CALLBACK DxutAppBase::OnD3D9DestroyDevice_s(
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9DestroyDevice();
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutAppBase::OnD3D9DestroyDevice(void)
+	{
+	}
+
+	void CALLBACK DxutAppBase::OnFrameMove_s(
+		double fTime,
+		float fElapsedTime,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutAppBase *>(pUserContext)->OnFrameMove(
+				fTime, fElapsedTime);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutAppBase::OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+	}
+
+	void CALLBACK DxutAppBase::OnD3D9FrameRender_s(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9FrameRender(
+				pd3dDevice, fTime, fElapsedTime);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutAppBase::OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+	}
+
+	LRESULT CALLBACK DxutAppBase::MsgProc_s(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing,
+		void * pUserContext)
+	{
+		try
+		{
+			return reinterpret_cast<DxutAppBase *>(pUserContext)->MsgProc(
+				hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+		return 0;
+	}
+
+	LRESULT DxutAppBase::MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+
+	void CALLBACK DxutAppBase::OnKeyboard_s(
+		UINT nChar,
+		bool bKeyDown,
+		bool bAltDown,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutAppBase *>(pUserContext)->OnKeyboard(
+				nChar, bKeyDown, bAltDown);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutAppBase::OnKeyboard(
+		UINT nChar,
+		bool bKeyDown,
+		bool bAltDown)
+	{
+	}
+
+	DxutAppBase::DxutAppBase(void)
+	{
+		DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable_s, this);
+		DXUTSetCallbackDeviceChanging(ModifyDeviceSettings_s, this);
+		DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice_s, this);
+		DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice_s, this);
+		DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice_s, this);
+		DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice_s, this);
+		DXUTSetCallbackFrameMove(OnFrameMove_s, this);
+		DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender_s, this);
+		DXUTSetCallbackMsgProc(MsgProc_s, this);
+		DXUTSetCallbackKeyboard(OnKeyboard_s, this);
+	}
+
+	DxutAppBase::~DxutAppBase(void)
+	{
+	}
+
+	int DxutAppBase::Run(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
+	{
+		try
+		{
+			OnInit();
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(GetDesktopWindow(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			return 0;
+		}
+
+		DXUTInit(true, true, NULL);
+		DXUTSetCursorSettings(true, true);
+		WCHAR szPath[MAX_PATH];
+		GetModuleFileName(GetModuleHandle(NULL), szPath, MAX_PATH);
+		DXUTCreateWindow(szPath);
+		DXUTCreateDevice(bWindowed, nSuggestedWidth, nSuggestedHeight);
+		DXUTMainLoop();
+
+		return DXUTGetExitCode();
+	}
+
+	void DxutAppBase::OnInit(void)
+	{
+	}
+
+	bool DxutApp::IsD3D9DeviceAcceptable(
+		D3DCAPS9 * pCaps,
+		D3DFORMAT AdapterFormat,
+		D3DFORMAT BackBufferFormat,
+		bool bWindowed)
+	{
+		return DxutAppBase::IsD3D9DeviceAcceptable(
+			pCaps, AdapterFormat, BackBufferFormat, bWindowed);
+	}
+
+	bool DxutApp::ModifyDeviceSettings(
+		DXUTDeviceSettings * pDeviceSettings)
+	{
+		return DxutAppBase::ModifyDeviceSettings(pDeviceSettings);
+	}
+
 	HRESULT DxutApp::OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		HRESULT hr;
-		V_RETURN(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-		V_RETURN(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
-		V_RETURN(D3DXCreateFont(
+		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
+		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateFont(
 			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_txtFont));
-		V_RETURN(D3DXCreateSprite(pd3dDevice, &m_txtSprite));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateSprite(pd3dDevice, &m_txtSprite));
 
 		return S_OK;
 	}
@@ -64,11 +336,10 @@ namespace my
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		HRESULT hr;
-		V_RETURN(m_dlgResourceMgr.OnD3D9ResetDevice());
-		V_RETURN(m_settingsDlg.OnD3D9ResetDevice());
-		V_RETURN(m_txtFont->OnResetDevice());
-		V_RETURN(m_txtSprite->OnResetDevice());
+		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9ResetDevice());
+		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9ResetDevice());
+		FAILED_THROW_D3DEXCEPTION(m_txtFont->OnResetDevice());
+		FAILED_THROW_D3DEXCEPTION(m_txtSprite->OnResetDevice());
 
 		m_hudDlg.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
 		m_hudDlg.SetSize(170, 170);
@@ -103,15 +374,15 @@ namespace my
 		double fTime,
 		float fElapsedTime)
 	{
-		HRESULT hr;
-		V(pd3dDevice->Clear(
-			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
-
 		if(m_settingsDlg.IsActive())
 		{
 			m_settingsDlg.OnRender(fElapsedTime);
 			return;
 		}
+
+		HRESULT hr;
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
 
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
@@ -122,8 +393,36 @@ namespace my
 			txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
 			txtHelper.DrawTextLine(DXUTGetDeviceStats());
 			txtHelper.End();
+
+			RenderFrame(pd3dDevice, fTime, fElapsedTime);
+
 			V(m_hudDlg.OnRender(fElapsedTime));
+
 			V(pd3dDevice->EndScene());
+		}
+	}
+
+	void DxutApp::RenderFrame(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+	}
+
+	void CALLBACK DxutApp::OnGUIEvent_s(
+		UINT nEvent,
+		int nControlID,
+		CDXUTControl * pControl,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutApp *>(pUserContext)->OnGUIEvent(
+				nEvent, nControlID, pControl);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
 		}
 	}
 
@@ -172,7 +471,6 @@ namespace my
 		{
 			return 0;
 		}
-
 		return 0;
 	}
 
@@ -181,35 +479,6 @@ namespace my
 		bool bKeyDown,
 		bool bAltDown)
 	{
-	}
-
-	DxutApp::DxutApp(void)
-	{
-		DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable_s, this);
-		DXUTSetCallbackDeviceChanging(ModifyDeviceSettings_s, this);
-		DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice_s, this);
-		DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice_s, this);
-		DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice_s, this);
-		DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice_s, this);
-		DXUTSetCallbackFrameMove(OnFrameMove_s, this);
-		DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender_s, this);
-		DXUTSetCallbackMsgProc(MsgProc_s, this);
-		DXUTSetCallbackKeyboard(OnKeyboard_s, this);
-	}
-
-	int DxutApp::Run(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
-	{
-		OnInit();
-
-		DXUTInit(true, true, NULL);
-		DXUTSetCursorSettings(true, true);
-		WCHAR szPath[MAX_PATH];
-		GetModuleFileName(GetModuleHandle(NULL), szPath, MAX_PATH);
-		DXUTCreateWindow(szPath);
-		DXUTCreateDevice(bWindowed, nSuggestedWidth, nSuggestedHeight);
-		DXUTMainLoop();
-
-		return DXUTGetExitCode();
 	}
 
 	void DxutApp::OnInit(void)

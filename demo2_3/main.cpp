@@ -1,360 +1,185 @@
 ﻿
-#include <atlbase.h>
-#include <atlstr.h>
-#include <vector>
-#include <DXUT.h>
-#include <DXUTgui.h>
-#include <SDKmisc.h>
-#include <DXUTSettingsDlg.h>
+#include <mySingleton.h>
+#include <myDxut.h>
 #include <DXUTCamera.h>
-#include <myMesh.h>
 #include <myException.h>
 #include <myResource.h>
+#include <myMesh.h>
 
 // ------------------------------------------------------------------------------------------
-// Global variables
+// MyDemo
 // ------------------------------------------------------------------------------------------
 
-CDXUTDialogResourceManager		g_DialogResourceMgr;
-CD3DSettingsDlg					g_SettingsDlg;
-CDXUTDialog						g_HUD;
-CComPtr<ID3DXFont>				g_Font9;
-CComPtr<ID3DXSprite>			g_Sprite9;
-CComPtr<ID3DXEffect>			g_Effect9;
-CModelViewerCamera				g_Camera;
-
-// 自定义渲染资源
-CComPtr<ID3DXMesh>				g_Mesh;
-D3DMATERIAL9					g_MeshMaterial;
-CComPtr<IDirect3DTexture9>		g_MeshTexture;
-
-// ------------------------------------------------------------------------------------------
-// UI control IDs
-// ------------------------------------------------------------------------------------------
-
-#define IDC_TOGGLEFULLSCREEN	1
-#define IDC_TOGGLEREF			2
-#define IDC_CHANGEDEVICE		3
-
-// ------------------------------------------------------------------------------------------
-// IsD3D9DeviceAcceptable
-// ------------------------------------------------------------------------------------------
-
-bool CALLBACK IsD3D9DeviceAcceptable(D3DCAPS9 * pCaps,
-									 D3DFORMAT AdapterFormat,
-									 D3DFORMAT BackBufferFormat,
-									 bool bWindowed,
-									 void * pUserContext)
+class MyDemo : public my::DxutApp, public my::Singleton<MyDemo>
 {
-	// 跳过不支持alpha blending的后缓存
-	IDirect3D9 * pD3D = DXUTGetD3D9Object();
-	if(FAILED((pD3D->CheckDeviceFormat(
-		pCaps->AdapterOrdinal,
-		pCaps->DeviceType,
-		AdapterFormat,
-		D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
-		D3DRTYPE_TEXTURE,
-		BackBufferFormat))))
+protected:
+	CModelViewerCamera m_camera;
+
+	CComPtr<ID3DXEffect> m_effect;
+
+	CComPtr<ID3DXMesh> m_mesh;
+
+	D3DMATERIAL9 m_material;
+
+	CComPtr<IDirect3DTexture9> m_texture;
+
+	void OnInit(void)
 	{
-		return false;
+		my::DxutApp::OnInit();
+
+		// 初始化全局资源组
+		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
 	}
 
-	// 至少要支持ps2.0，这还是要看实际使用情况
-	if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+	HRESULT OnD3D9CreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		return false;
-	}
-	return true;
-}
+		HRESULT hres;
+		if(FAILED(hres = my::DxutApp::OnD3D9CreateDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
 
-// ------------------------------------------------------------------------------------------
-// ModifyDeviceSettings
-// ------------------------------------------------------------------------------------------
+		// 初始化相机
+		D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
+		D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
+		m_camera.SetViewParams(&vecEye, &vecAt);
+		m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
-bool CALLBACK ModifyDeviceSettings(DXUTDeviceSettings * pDeviceSettings,
-								   void * pUserContext)
-{
-	// 如果创建一个ref设备（即软件模拟），则应该给出一个警告
-	if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
-		&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
-	{
-		DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
-	}
-
-	return true;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9CreateDevice
-// ------------------------------------------------------------------------------------------
-
-HRESULT CALLBACK OnD3D9CreateDevice(IDirect3DDevice9 * pd3dDevice,
-									const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-									void * pUserContext)
-{
-	// 在这里创建d3d9资源，但这些资源应该不受device reset限制的
-	HRESULT hr;
-	V_RETURN(g_DialogResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
-	V_RETURN(D3DXCreateFont(
-		pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_Font9));
-	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_Sprite9));
-
-	// 初始化相机
-	D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
-	D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
-	g_Camera.SetViewParams(&vecEye, &vecAt);
-	g_Camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
-
-	try
-	{
 		// 读取D3DX Effect文件
 		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
 		FAILED_THROW_D3DEXCEPTION(D3DXCreateEffect(
-			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &g_Effect9, NULL));
-		FAILED_THROW_D3DEXCEPTION(g_Effect9->SetTechnique("RenderScene"));
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, NULL));
+		FAILED_THROW_D3DEXCEPTION(m_effect->SetTechnique("RenderScene"));
 
 		// 从资源管理器中读出模型文件
 		DWORD dwNumSubMeshes;
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_hres_all.mesh.xml")));
-		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &g_Mesh);
+		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &m_mesh);
+
+		// 所有的mesh使用同一种材质，同一张贴图
+		m_material.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+		m_material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// 创建贴图
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &g_MeshTexture));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &m_texture));
+
+		return S_OK;
 	}
-	catch(const my::Exception & e)
+
+	HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
-		return D3DERR_INVALIDCALL;
+		HRESULT hres;
+		if(FAILED(hres = my::DxutApp::OnD3D9ResetDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
+
+		// 重新设置相机的投影
+		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
+		m_camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
+		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+
+		FAILED_THROW_D3DEXCEPTION(m_effect->OnResetDevice());
+
+		return S_OK;
 	}
 
-	// 所有的mesh使用同一种材质，同一张贴图
-	g_MeshMaterial.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
-	g_MeshMaterial.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-	return S_OK;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9ResetDevice
-// ------------------------------------------------------------------------------------------
-
-HRESULT CALLBACK OnD3D9ResetDevice(IDirect3DDevice9 * pd3dDevice,
-								   const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-								   void * pUserContext)
-{
-	// 在这里创建d3d9资源，但这些资源将受到device reset限制
-	HRESULT hr;
-	V_RETURN(g_DialogResourceMgr.OnD3D9ResetDevice());
-	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
-	V_RETURN(g_Font9->OnResetDevice());
-	V_RETURN(g_Sprite9->OnResetDevice());
-	V_RETURN(g_Effect9->OnResetDevice());
-
-	// 重新设置相机的投影
-	float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
-	g_Camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
-	g_Camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
-
-	// 更新HUD坐标
-	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
-	g_HUD.SetSize(170, 170);
-	return S_OK;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9LostDevice
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9LostDevice(void * pUserContext)
-{
-	// 在这里处理在reset中创建的资源
-	g_DialogResourceMgr.OnD3D9LostDevice();
-	g_SettingsDlg.OnD3D9LostDevice();
-	g_Font9->OnLostDevice();
-	g_Sprite9->OnLostDevice();
-	g_Effect9->OnLostDevice();
-}
-
-// ------------------------------------------------------------------------------------------
-// wWinMain
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9DestroyDevice(void * pUserContext)
-{
-	// 在这里销毁在create中创建的资源
-	g_DialogResourceMgr.OnD3D9DestroyDevice();
-	g_SettingsDlg.OnD3D9DestroyDevice();
-	g_Font9.Release();
-	g_Sprite9.Release();
-	g_Effect9.Release();
-	g_Mesh.Release();
-	g_MeshTexture.Release();
-}
-
-// ------------------------------------------------------------------------------------------
-// OnFrameMove
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnFrameMove(double fTime, float fElapsedTime, void * pUserContext)
-{
-	// 在这里更新场景
-	g_Camera.FrameMove(fElapsedTime);
-}
-
-// ------------------------------------------------------------------------------------------
-// OnD3D9FrameRender
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnD3D9FrameRender(IDirect3DDevice9 * pd3dDevice,
-								double fTime,
-								float fElapsedTime,
-								void * pUserContext)
-{
-	// 在这里渲染场景
-	HRESULT hr;
-
-	// 清理back buffer
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
-
-	// 如果是设置模式，则渲染设置对话框，然后跳过其他渲染
-	if(g_SettingsDlg.IsActive())
+	void OnD3D9LostDevice(void)
 	{
-		g_SettingsDlg.OnRender(fElapsedTime);
-		return;
+		my::DxutApp::OnD3D9LostDevice();
+
+		// 在这里处理在reset中创建的资源
+		m_effect->OnLostDevice();
 	}
 
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	void OnD3D9DestroyDevice(void)
+	{
+		my::DxutApp::OnD3D9DestroyDevice();
+
+		// 在这里销毁在create中创建的资源
+		m_effect.Release();
+		m_mesh.Release();
+		m_texture.Release();
+	}
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+		my::DxutApp::OnFrameMove(fTime, fElapsedTime);
+
+		// 在这里更新场景
+		m_camera.FrameMove(fElapsedTime);
+	}
+
+	void RenderFrame(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
 	{
 		// 获得相机投影矩阵
-		D3DXMATRIXA16 mWorld = *g_Camera.GetWorldMatrix();
-		D3DXMATRIXA16 mProj = *g_Camera.GetProjMatrix();
-		D3DXMATRIXA16 mView = *g_Camera.GetViewMatrix();
+		D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
+		D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
+		D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
 		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
 
 		// 更新D3DX Effect值
-		V(g_Effect9->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
-		V(g_Effect9->SetMatrix("g_mWorld", &mWorld));
-		V(g_Effect9->SetFloat("g_fTime", (float)fTime));
+		HRESULT hr;
+		V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
+		V(m_effect->SetMatrix("g_mWorld", &mWorld));
+		V(m_effect->SetFloat("g_fTime", (float)fTime));
 
-		V(g_Effect9->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&g_MeshMaterial.Ambient));
-		V(g_Effect9->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&g_MeshMaterial.Diffuse));
-		V(g_Effect9->SetTexture("g_MeshTexture", g_MeshTexture));
-		V(g_Effect9->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
-		V(g_Effect9->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
+		V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
+		V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
+		V(m_effect->SetTexture("g_MeshTexture", m_texture));
+		V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
+		V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
 
 		// 渲染模型的两个部分，注意，头发的部分不要背面剔除
 		UINT cPasses;
-		V(g_Effect9->Begin(&cPasses, 0));
+		V(m_effect->Begin(&cPasses, 0));
 		for(UINT p = 0; p < cPasses; ++p)
 		{
-			V(g_Effect9->BeginPass(p));
+			V(m_effect->BeginPass(p));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-			V(g_Mesh->DrawSubset(1));
+			V(m_mesh->DrawSubset(1));
 			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-			V(g_Mesh->DrawSubset(0));
-			V(g_Effect9->EndPass());
+			V(m_mesh->DrawSubset(0));
+			V(m_effect->EndPass());
 		}
-		V(g_Effect9->End());
-
-		// 输出渲染设备信息
-		CDXUTTextHelper txtHelper(g_Font9, g_Sprite9, 15);
-		txtHelper.Begin();
-		txtHelper.SetInsertionPos(5, 5);
-		txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
-		txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
-		txtHelper.DrawTextLine(DXUTGetDeviceStats());
-		txtHelper.End();
-		V(g_HUD.OnRender(fElapsedTime));
-		V(pd3dDevice->EndScene());
+		V(m_effect->End());
 	}
-}
 
-// ------------------------------------------------------------------------------------------
-// OnGUIEvent
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnGUIEvent(UINT nEvent,
-						 int nControlID,
-						 CDXUTControl * pControl,
-						 void * pUserContext)
-{
-	// 在这里处理ui事件
-	switch(nControlID)
+	LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
 	{
-	case IDC_TOGGLEFULLSCREEN:
-		// 切换全屏窗口模式
-		DXUTToggleFullScreen();
-		break;
+		LRESULT hres;
+		if(FAILED(hres = my::DxutApp::MsgProc(
+			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
+		{
+			return hres;
+		}
 
-	case IDC_TOGGLEREF:
-		// 软硬件渲染模式
-		DXUTToggleREF();
-		break;
-
-	case IDC_CHANGEDEVICE:
-		// 显示设置对话框
-		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
-		break;
+		// 相机消息处理
+		return m_camera.HandleMessages(hWnd, uMsg, wParam, lParam);
 	}
-}
+};
 
-// ------------------------------------------------------------------------------------------
-// MsgProc
-// ------------------------------------------------------------------------------------------
-
-LRESULT CALLBACK MsgProc(HWND hWnd,
-						 UINT uMsg,
-						 WPARAM wParam,
-						 LPARAM lParam,
-						 bool * pbNoFurtherProcessing,
-						 void * pUserContext)
-{
-	// 在这里进行消息处理
-	*pbNoFurtherProcessing = g_DialogResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-
-	// 如果当前是设置模式，则只将消息发送到设置对话框
-	if(g_SettingsDlg.IsActive())
-	{
-		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-		return 0;
-	}
-
-	// HUD处理消息
-	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-
-	// 相机消息处理
-	g_Camera.HandleMessages(hWnd, uMsg, wParam, lParam);
-
-	return 0;
-}
-
-// ------------------------------------------------------------------------------------------
-// OnKeyboard
-// ------------------------------------------------------------------------------------------
-
-void CALLBACK OnKeyboard(UINT nChar,
-						 bool bKeyDown,
-						 bool bAltDown,
-						 void * pUserContext)
-{
-	// 在这里进行键盘事件处理
-	// 更具DXUT的源代码可以看出，如果要阻止Escape推出窗口，应当
-	// 在MsgProc处理WM_KEYDOWN中的VK_ESCAPE，并给出bNoFurtherProcessing结果即可
-}
+my::Singleton<MyDemo>::DrivedClassPtr my::Singleton<MyDemo>::s_ptr;
 
 // ------------------------------------------------------------------------------------------
 // wWinMain
@@ -367,57 +192,8 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 {
 #if defined(DEBUG) | defined(_DEBUG)
 	// 设置crtdbg监视内存泄漏
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	// 设置DXUT资源管理的回调函数
-	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable);
-	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings);
-	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice);
-	DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice);
-	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice);
-	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice);
-
-	// 设置渲染的回调函数
-	DXUTSetCallbackFrameMove(OnFrameMove);
-	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender);
-
-	// 设置消息回调函数
-	DXUTSetCallbackMsgProc(MsgProc);
-	DXUTSetCallbackKeyboard(OnKeyboard);
-
-	// 初始化全局资源组
-	try
-	{
-		my::ResourceMgr::getSingleton().RegisterZipArchive(_T("data.zip"));
-	}
-	catch(const my::Exception & e)
-	{
-		::MessageBoxW(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
-		return 0;
-	}
-
-	// 全局初始化工作
-	g_SettingsDlg.Init(&g_DialogResourceMgr);
-	g_HUD.Init(&g_DialogResourceMgr);
-	g_HUD.SetCallback(OnGUIEvent);
-	int nY = 10;
-	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
-	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
-	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
-
-	// 设置相机操作按键
-    g_Camera.SetButtonMasks(MOUSE_LEFT_BUTTON, MOUSE_WHEEL, MOUSE_RIGHT_BUTTON);
-
-	// 启动DXUT
-	DXUTInit(true, true, NULL);
-	DXUTSetCursorSettings(true, true);
-	WCHAR szPath[MAX_PATH];
-	GetModuleFileName(GetModuleHandle(NULL), szPath, MAX_PATH);
-	DXUTCreateWindow(szPath);
-	DXUTCreateDevice(true, 800, 600);
-	DXUTMainLoop();
-
-	// 获取并返回DXUT退出值
-	return DXUTGetExitCode();
+	return MyDemo::getSingleton().Run(true, 800, 600);
 }
