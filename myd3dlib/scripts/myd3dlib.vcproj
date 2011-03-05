@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;D:\Program Files (2)\boost_1_43_0&quot;;&quot;$(SolutionDir)zziplib\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;D:\Program Files (2)\boost_1_43_0&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)dxut\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\include;&quot;D:\Program Files (2)\boost_1_43_0&quot;;&quot;$(SolutionDir)zziplib\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;D:\Program Files (2)\boost_1_43_0&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)dxut\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -155,6 +155,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myDxut.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myException.cpp"
 				>
 			</File>
@@ -178,6 +182,10 @@
 			>
 			<File
 				RelativePath="..\include\libc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myDxut.h"
 				>
 			</File>
 			<File
