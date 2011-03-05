@@ -106,6 +106,4 @@ namespace my
 	typedef boost::shared_ptr<ArchiveCache> ArchiveCachePtr;
 
 	ArchiveCachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream);
-
-	std::basic_string<char> ReadWholeStringFromStream(ArchiveStreamPtr stream);
 };

@@ -159,17 +159,17 @@ namespace my
 
 	std::basic_string<_TCHAR> WinException::GetDescription(void) const throw()
 	{
-		std::basic_string<_TCHAR> ret;
-		ret.resize(MAX_PATH);
-		ret.resize(::FormatMessage(
-			FORMAT_MESSAGE_FROM_SYSTEM, NULL, m_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), &ret[0], ret.size(), NULL));
+		std::basic_string<_TCHAR> desc;
+		desc.resize(MAX_PATH);
+		desc.resize(::FormatMessage(
+			FORMAT_MESSAGE_FROM_SYSTEM, NULL, m_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), &desc[0], desc.size(), NULL));
 
-		if(ret.empty())
+		if(desc.empty())
 		{
 			return _T("unknown windows error");
 		}
 
-		return ret;
+		return desc;
 	}
 
 	CustomException::CustomException(const std::basic_string<_TCHAR> & desc, const std::basic_string<_TCHAR> & file, int line)
