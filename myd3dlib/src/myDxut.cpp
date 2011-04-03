@@ -14,6 +14,18 @@ namespace my
 	{
 		try
 		{
+			IDirect3D9 * pD3D = DXUTGetD3D9Object();
+			if(FAILED((pD3D->CheckDeviceFormat(
+				pCaps->AdapterOrdinal,
+				pCaps->DeviceType,
+				AdapterFormat,
+				D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
+				D3DRTYPE_TEXTURE,
+				BackBufferFormat))))
+			{
+				return false;
+			}
+
 			return reinterpret_cast<DxutAppBase *>(pUserContext)->IsD3D9DeviceAcceptable(
 				pCaps, AdapterFormat, BackBufferFormat, bWindowed);
 		}
@@ -22,31 +34,6 @@ namespace my
 			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
 		}
 		return false;
-	}
-
-	bool DxutAppBase::IsD3D9DeviceAcceptable(
-		D3DCAPS9 * pCaps,
-		D3DFORMAT AdapterFormat,
-		D3DFORMAT BackBufferFormat,
-		bool bWindowed)
-	{
-		IDirect3D9 * pD3D = DXUTGetD3D9Object();
-		if(FAILED((pD3D->CheckDeviceFormat(
-			pCaps->AdapterOrdinal,
-			pCaps->DeviceType,
-			AdapterFormat,
-			D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
-			D3DRTYPE_TEXTURE,
-			BackBufferFormat))))
-		{
-			return false;
-		}
-
-		if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-		{
-			return false;
-		}
-		return true;
 	}
 
 	bool CALLBACK DxutAppBase::ModifyDeviceSettings_s(
@@ -68,11 +55,6 @@ namespace my
 	bool DxutAppBase::ModifyDeviceSettings(
 		DXUTDeviceSettings * pDeviceSettings)
 	{
-		if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
-			&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
-		{
-			DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
-		}
 		return true;
 	}
 
@@ -93,13 +75,6 @@ namespace my
 		return D3DERR_INVALIDCALL;
 	}
 
-	HRESULT DxutAppBase::OnD3D9CreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
 	HRESULT CALLBACK DxutAppBase::OnD3D9ResetDevice_s(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
@@ -117,13 +92,6 @@ namespace my
 		return D3DERR_INVALIDCALL;
 	}
 
-	HRESULT DxutAppBase::OnD3D9ResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
 	void CALLBACK DxutAppBase::OnD3D9LostDevice_s(
 		void * pUserContext)
 	{
@@ -137,10 +105,6 @@ namespace my
 		}
 	}
 
-	void DxutAppBase::OnD3D9LostDevice(void)
-	{
-	}
-
 	void CALLBACK DxutAppBase::OnD3D9DestroyDevice_s(
 		void * pUserContext)
 	{
@@ -152,10 +116,6 @@ namespace my
 		{
 			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
 		}
-	}
-
-	void DxutAppBase::OnD3D9DestroyDevice(void)
-	{
 	}
 
 	void CALLBACK DxutAppBase::OnFrameMove_s(
@@ -174,12 +134,6 @@ namespace my
 		}
 	}
 
-	void DxutAppBase::OnFrameMove(
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
 	void CALLBACK DxutAppBase::OnD3D9FrameRender_s(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
@@ -195,13 +149,6 @@ namespace my
 		{
 			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
 		}
-	}
-
-	void DxutAppBase::OnD3D9FrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
 	}
 
 	LRESULT CALLBACK DxutAppBase::MsgProc_s(
@@ -224,16 +171,6 @@ namespace my
 		return 0;
 	}
 
-	LRESULT DxutAppBase::MsgProc(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam,
-		bool * pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-
 	void CALLBACK DxutAppBase::OnKeyboard_s(
 		UINT nChar,
 		bool bKeyDown,
@@ -249,13 +186,6 @@ namespace my
 		{
 			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
 		}
-	}
-
-	void DxutAppBase::OnKeyboard(
-		UINT nChar,
-		bool bKeyDown,
-		bool bAltDown)
-	{
 	}
 
 	DxutAppBase::DxutAppBase(void)
@@ -309,14 +239,22 @@ namespace my
 		D3DFORMAT BackBufferFormat,
 		bool bWindowed)
 	{
-		return DxutAppBase::IsD3D9DeviceAcceptable(
-			pCaps, AdapterFormat, BackBufferFormat, bWindowed);
+		if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+		{
+			return false;
+		}
+		return true;
 	}
 
 	bool DxutApp::ModifyDeviceSettings(
 		DXUTDeviceSettings * pDeviceSettings)
 	{
-		return DxutAppBase::ModifyDeviceSettings(pDeviceSettings);
+		if(DXUT_D3D9_DEVICE == pDeviceSettings->ver
+			&& D3DDEVTYPE_REF == pDeviceSettings->d3d9.DeviceType)
+		{
+			DXUTDisplaySwitchingToREFWarning(pDeviceSettings->ver);
+		}
+		return true;
 	}
 
 	HRESULT DxutApp::OnD3D9CreateDevice(

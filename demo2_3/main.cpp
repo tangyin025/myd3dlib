@@ -25,7 +25,7 @@ protected:
 
 	void OnInit(void)
 	{
-		my::DxutApp::OnInit();
+		DxutApp::OnInit();
 
 		// 初始化全局资源组
 		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
@@ -36,7 +36,7 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = my::DxutApp::OnD3D9CreateDevice(
+		if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
@@ -78,7 +78,7 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = my::DxutApp::OnD3D9ResetDevice(
+		if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
@@ -96,7 +96,7 @@ protected:
 
 	void OnD3D9LostDevice(void)
 	{
-		my::DxutApp::OnD3D9LostDevice();
+		DxutApp::OnD3D9LostDevice();
 
 		// 在这里处理在reset中创建的资源
 		m_effect->OnLostDevice();
@@ -104,7 +104,7 @@ protected:
 
 	void OnD3D9DestroyDevice(void)
 	{
-		my::DxutApp::OnD3D9DestroyDevice();
+		DxutApp::OnD3D9DestroyDevice();
 
 		// 在这里销毁在create中创建的资源
 		m_effect.Release();
@@ -116,7 +116,7 @@ protected:
 		double fTime,
 		float fElapsedTime)
 	{
-		my::DxutApp::OnFrameMove(fTime, fElapsedTime);
+		DxutApp::OnFrameMove(fTime, fElapsedTime);
 
 		// 在这里更新场景
 		m_camera.FrameMove(fElapsedTime);
@@ -168,7 +168,7 @@ protected:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT hres;
-		if(FAILED(hres = my::DxutApp::MsgProc(
+		if(FAILED(hres = DxutApp::MsgProc(
 			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 		{
 			return hres;

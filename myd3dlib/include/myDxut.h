@@ -23,14 +23,14 @@ namespace my
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
 			D3DFORMAT BackBufferFormat,
-			bool bWindowed);
+			bool bWindowed) = 0;
 
 		static bool CALLBACK ModifyDeviceSettings_s(
 			DXUTDeviceSettings * pDeviceSettings,
 			void * pUserContext);
 
 		virtual bool ModifyDeviceSettings(
-			DXUTDeviceSettings * pDeviceSettings);
+			DXUTDeviceSettings * pDeviceSettings) = 0;
 
 		static HRESULT CALLBACK OnD3D9CreateDevice_s(
 			IDirect3DDevice9 * pd3dDevice,
@@ -39,7 +39,7 @@ namespace my
 
 		virtual HRESULT OnD3D9CreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
 
 		static HRESULT CALLBACK OnD3D9ResetDevice_s(
 			IDirect3DDevice9 * pd3dDevice,
@@ -48,17 +48,17 @@ namespace my
 
 		virtual HRESULT OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
 
 		static void CALLBACK OnD3D9LostDevice_s(
 			void * pUserContext);
 
-		virtual void OnD3D9LostDevice(void);
+		virtual void OnD3D9LostDevice(void) = 0;
 
 		static void CALLBACK OnD3D9DestroyDevice_s(
 			void * pUserContext);
 
-		virtual void OnD3D9DestroyDevice(void);
+		virtual void OnD3D9DestroyDevice(void) = 0;
 
 		static void CALLBACK OnFrameMove_s(
 			double fTime,
@@ -67,7 +67,7 @@ namespace my
 
 		virtual void OnFrameMove(
 			double fTime,
-			float fElapsedTime);
+			float fElapsedTime) = 0;
 
 		static void CALLBACK OnD3D9FrameRender_s(
 			IDirect3DDevice9 * pd3dDevice,
@@ -78,7 +78,7 @@ namespace my
 		virtual void OnD3D9FrameRender(
 			IDirect3DDevice9 * pd3dDevice,
 			double fTime,
-			float fElapsedTime);
+			float fElapsedTime) = 0;
 
 		static LRESULT CALLBACK MsgProc_s(
 			HWND hWnd,
@@ -93,7 +93,7 @@ namespace my
 			UINT uMsg,
 			WPARAM wParam,
 			LPARAM lParam,
-			bool * pbNoFurtherProcessing);
+			bool * pbNoFurtherProcessing) = 0;
 
 		static void CALLBACK OnKeyboard_s(
 			UINT nChar,
@@ -104,7 +104,7 @@ namespace my
 		virtual void OnKeyboard(
 			UINT nChar,
 			bool bKeyDown,
-			bool bAltDown);
+			bool bAltDown) = 0;
 
 	public:
 		DxutAppBase(void);
