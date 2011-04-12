@@ -155,7 +155,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\myDxut.cpp"
+				RelativePath="..\src\myDxutApp.cpp"
 				>
 			</File>
 			<File
@@ -185,7 +185,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\myDxut.h"
+				RelativePath="..\include\myDxutApp.h"
 				>
 			</File>
 			<File

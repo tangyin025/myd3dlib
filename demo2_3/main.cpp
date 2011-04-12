@@ -1,6 +1,6 @@
 ﻿
 #include <mySingleton.h>
-#include <myDxut.h>
+#include <myDxutApp.h>
 #include <DXUTCamera.h>
 #include <myException.h>
 #include <myResource.h>
@@ -127,37 +127,46 @@ protected:
 		double fTime,
 		float fElapsedTime)
 	{
-		// 获得相机投影矩阵
-		D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
-		D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
-		D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
-		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
-
-		// 更新D3DX Effect值
 		HRESULT hr;
-		V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
-		V(m_effect->SetMatrix("g_mWorld", &mWorld));
-		V(m_effect->SetFloat("g_fTime", (float)fTime));
-
-		V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
-		V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
-		V(m_effect->SetTexture("g_MeshTexture", m_texture));
-		V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
-		V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-		// 渲染模型的两个部分，注意，头发的部分不要背面剔除
-		UINT cPasses;
-		V(m_effect->Begin(&cPasses, 0));
-		for(UINT p = 0; p < cPasses; ++p)
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
-			V(m_effect->BeginPass(p));
-			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-			V(m_mesh->DrawSubset(1));
-			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-			V(m_mesh->DrawSubset(0));
-			V(m_effect->EndPass());
+			// 清理缓存背景及depth stencil
+			V(pd3dDevice->Clear(
+				0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+
+			// 获得相机投影矩阵
+			D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
+			D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
+			D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
+			D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
+
+			// 更新D3DX Effect值
+			V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
+			V(m_effect->SetMatrix("g_mWorld", &mWorld));
+			V(m_effect->SetFloat("g_fTime", (float)fTime));
+
+			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
+			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
+			V(m_effect->SetTexture("g_MeshTexture", m_texture));
+			V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
+			V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+			UINT cPasses;
+			V(m_effect->Begin(&cPasses, 0));
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				V(m_effect->BeginPass(p));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+				V(m_mesh->DrawSubset(1));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				V(m_mesh->DrawSubset(0));
+				V(m_effect->EndPass());
+			}
+			V(m_effect->End());
+
+			V(pd3dDevice->EndScene());
 		}
-		V(m_effect->End());
 	}
 
 	LRESULT MsgProc(

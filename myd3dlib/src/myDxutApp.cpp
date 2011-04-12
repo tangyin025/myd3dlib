@@ -1,6 +1,6 @@
 
 #include "myException.h"
-#include "myDxut.h"
+#include "myDxutApp.h"
 #include <SDKmisc.h>
 
 namespace my
@@ -318,10 +318,9 @@ namespace my
 			return;
 		}
 
-		HRESULT hr;
-		V(pd3dDevice->Clear(
-			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 66, 75, 121), 1.0f, 0));
+		RenderFrame(pd3dDevice, fTime, fElapsedTime);
 
+		HRESULT hr;
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			CDXUTTextHelper txtHelper(m_txtFont, m_txtSprite, 15);
@@ -331,8 +330,6 @@ namespace my
 			txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
 			txtHelper.DrawTextLine(DXUTGetDeviceStats());
 			txtHelper.End();
-
-			RenderFrame(pd3dDevice, fTime, fElapsedTime);
 
 			V(m_hudDlg.OnRender(fElapsedTime));
 
