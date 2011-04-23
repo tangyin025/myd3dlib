@@ -29,6 +29,7 @@ protected:
 
 		// 初始化全局资源组
 		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
+		my::ResourceMgr::getSingleton().RegisterFileDir(L"..\\..\\Common\\medias");
 	}
 
 	HRESULT OnD3D9CreateDevice(

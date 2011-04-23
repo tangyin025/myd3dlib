@@ -36,12 +36,14 @@ namespace my
 
 	typedef boost::shared_ptr<ArchiveStream> ArchiveStreamPtr;
 
-	class ZipArchiveStream : public ArchiveStream
+	class ZipArchiveStream
+		: public ArchiveStream
 	{
 	protected:
 		ZZIP_FILE * m_fp;
 
-		int ToZipSeekType(SeekType origin);
+	public:
+		static int ToZipSeekType(SeekType origin);
 
 	public:
 		ZipArchiveStream(ZZIP_FILE * fp);
@@ -57,12 +59,35 @@ namespace my
 		long Tell(void);
 	};
 
+	class FileArchiveStream
+		: public ArchiveStream
+	{
+	protected:
+		FILE * m_fp;
+
+	public:
+		FileArchiveStream(FILE * fp);
+
+		~FileArchiveStream(void);
+
+		size_t Read(void * buffer, size_t size, size_t count);
+
+		size_t Write(void * buffer, size_t size, size_t count);
+
+		long Seek(long offset, SeekType origin);
+
+		long Tell(void);
+	};
+
 	class ResourceDir
 	{
+	protected:
+		std::basic_string<_TCHAR> m_dir;
+
 	public:
-		virtual ~ResourceDir(void)
-		{
-		}
+		ResourceDir(const std::basic_string<_TCHAR> & dir);
+
+		virtual ~ResourceDir(void);
 
 		virtual bool CheckArchivePath(const std::basic_string<_TCHAR> & path) = 0;
 
@@ -73,30 +98,41 @@ namespace my
 
 	typedef std::vector<ResourceDirPtr> ResourceDirPtrList;
 
-	class ZipArchiveDir : public ResourceDir
+	class ZipArchiveDir
+		: public ResourceDir
 	{
-	protected:
-		ZZIP_DIR * m_dir;
-
 	public:
-		ZipArchiveDir(ZZIP_DIR * dir);
-
-		~ZipArchiveDir(void);
+		ZipArchiveDir(const std::basic_string<_TCHAR> & dir);
 
 		bool CheckArchivePath(const std::basic_string<_TCHAR> & path);
 
 		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
 	};
 
-	typedef std::vector<std::basic_string<_TCHAR>> StringList;
+	class FileArchiveDir
+		: public ResourceDir
+	{
+	protected:
+		std::basic_string<_TCHAR> GetFullPath(const std::basic_string<_TCHAR> & path);
 
-	class ResourceMgr : public Singleton<ResourceMgr>
+	public:
+		FileArchiveDir(const std::basic_string<_TCHAR> & dir);
+
+		bool CheckArchivePath(const std::basic_string<_TCHAR> & path);
+
+		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
+	};
+
+	class ResourceMgr
+		: public Singleton<ResourceMgr>
 	{
 	protected:
 		ResourceDirPtrList m_dirList;
 
 	public:
-		void RegisterZipArchive(const std::basic_string<_TCHAR> & path);
+		void RegisterZipArchive(const std::basic_string<_TCHAR> & zip_path);
+
+		void RegisterFileDir(const std::basic_string<_TCHAR> & dir);
 
 		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
 	};
