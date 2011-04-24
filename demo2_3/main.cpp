@@ -5,6 +5,7 @@
 #include <myException.h>
 #include <myResource.h>
 #include <myMesh.h>
+#include <libc.h>
 
 // ------------------------------------------------------------------------------------------
 // MyDemo
@@ -52,8 +53,14 @@ protected:
 		// 读取D3DX Effect文件
 		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateEffect(
-			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, NULL));
+		CComPtr<ID3DXBuffer> d3dxbuffer;
+		hres = D3DXCreateEffect(
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer);
+		if(FAILED(hres))
+		{
+			THROW_CUSEXCEPTION(
+				str_printf(_T("compilation errors: \n%s"), mstringToWString((LPCSTR)d3dxbuffer->GetBufferPointer()).c_str()));
+		}
 		FAILED_THROW_D3DEXCEPTION(m_effect->SetTechnique("RenderScene"));
 
 		// 从资源管理器中读出模型文件
