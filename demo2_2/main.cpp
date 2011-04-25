@@ -1,163 +1,216 @@
 ﻿
-#include <crtdbg.h>
-#include <string.h>
-#include <stdio.h>
-#include <share.h>
-#include <zzip/lib.h>
+#include <mySingleton.h>
+#include <myDxutApp.h>
+#include <DXUTCamera.h>
+#include <myException.h>
+#include <myResource.h>
+#include <myMesh.h>
+#include <libc.h>
 
 // ------------------------------------------------------------------------------------------
-// main
+// MyDemo
 // ------------------------------------------------------------------------------------------
 
-int main(int argc, char ** argv)
+class MyDemo : public my::DxutApp, public my::Singleton<MyDemo>
 {
+protected:
+	CModelViewerCamera m_camera;
+
+	CComPtr<ID3DXEffect> m_effect;
+
+	CComPtr<ID3DXMesh> m_mesh;
+
+	D3DMATERIAL9 m_material;
+
+	CComPtr<IDirect3DTexture9> m_texture;
+
+	void OnInit(void)
+	{
+		DxutApp::OnInit();
+
+		// 初始化全局资源组
+		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
+		my::ResourceMgr::getSingleton().RegisterFileDir(L"..\\..\\Common\\medias");
+	}
+
+	HRESULT OnD3D9CreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		HRESULT hres;
+		if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
+
+		// 初始化相机
+		D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
+		D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
+		m_camera.SetViewParams(&vecEye, &vecAt);
+		m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
+
+		// 读取D3DX Effect文件
+		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
+		CComPtr<ID3DXBuffer> d3dxbuffer;
+		hres = D3DXCreateEffect(
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer);
+		if(FAILED(hres))
+		{
+			THROW_CUSEXCEPTION(
+				str_printf(_T("compilation errors: \n%s"), mstringToWString((LPCSTR)d3dxbuffer->GetBufferPointer()).c_str()));
+		}
+		FAILED_THROW_D3DEXCEPTION(m_effect->SetTechnique("RenderScene"));
+
+		// 从资源管理器中读出模型文件
+		DWORD dwNumSubMeshes;
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_hres_all.mesh.xml")));
+		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &m_mesh);
+
+		// 所有的mesh使用同一种材质，同一张贴图
+		m_material.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+		m_material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
+
+		// 创建贴图
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &m_texture));
+
+		return S_OK;
+	}
+
+	HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		HRESULT hres;
+		if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
+
+		// 重新设置相机的投影
+		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
+		m_camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
+		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+
+		FAILED_THROW_D3DEXCEPTION(m_effect->OnResetDevice());
+
+		return S_OK;
+	}
+
+	void OnD3D9LostDevice(void)
+	{
+		DxutApp::OnD3D9LostDevice();
+
+		// 在这里处理在reset中创建的资源
+		m_effect->OnLostDevice();
+	}
+
+	void OnD3D9DestroyDevice(void)
+	{
+		DxutApp::OnD3D9DestroyDevice();
+
+		// 在这里销毁在create中创建的资源
+		m_effect.Release();
+		m_mesh.Release();
+		m_texture.Release();
+	}
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+		DxutApp::OnFrameMove(fTime, fElapsedTime);
+
+		// 在这里更新场景
+		m_camera.FrameMove(fElapsedTime);
+	}
+
+	void RenderFrame(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+		HRESULT hr;
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			// 清理缓存背景及depth stencil
+			V(pd3dDevice->Clear(
+				0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+
+			// 获得相机投影矩阵
+			D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
+			D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
+			D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
+			D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
+
+			// 更新D3DX Effect值
+			V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
+			V(m_effect->SetMatrix("g_mWorld", &mWorld));
+			V(m_effect->SetFloat("g_fTime", (float)fTime));
+
+			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
+			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
+			V(m_effect->SetTexture("g_MeshTexture", m_texture));
+			V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
+			V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+			UINT cPasses;
+			V(m_effect->Begin(&cPasses, 0));
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				V(m_effect->BeginPass(p));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+				V(m_mesh->DrawSubset(1));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				V(m_mesh->DrawSubset(0));
+				V(m_effect->EndPass());
+			}
+			V(m_effect->End());
+
+			V(pd3dDevice->EndScene());
+		}
+	}
+
+	LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
+	{
+		LRESULT hres;
+		if(FAILED(hres = DxutApp::MsgProc(
+			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
+		{
+			return hres;
+		}
+
+		// 相机消息处理
+		return m_camera.HandleMessages(hWnd, uMsg, wParam, lParam);
+	}
+};
+
+my::Singleton<MyDemo>::DrivedClassPtr my::Singleton<MyDemo>::s_ptr;
+
+// ------------------------------------------------------------------------------------------
+// wWinMain
+// ------------------------------------------------------------------------------------------
+
+int WINAPI wWinMain(HINSTANCE hInstance,
+					HINSTANCE hPrevInstance,
+					LPWSTR lpCmdLine,
+					int nCmdShow)
+{
+#if defined(DEBUG) | defined(_DEBUG)
 	// 设置crtdbg监视内存泄漏
-    _CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
+#endif
 
-	// 用以测试的ZIP文件
-	const char * name = "test2.zip";
-
-	// 分析输入命令
-	if(argc > 1 && argv[1] != NULL)
-	{
-		if(!strcmp(argv[1], "--help"))
-		{
-			printf("zziptest [testfile]\n - selftest defaults to 'test.zip'");
-			return 0;
-		}
-		else if(!strcmp(argv[1], "--version"))
-		{
-			printf(__FILE__ " version " ZZIP_PACKAGE " " ZZIP_VERSION " \n");
-			return 0;
-		}
-		else
-		{
-			name = argv[1];
-			argv++;
-			argc--;
-		}
-	}
-
-	// 打开指定的输入文件
-	printf("Opening zip file `%s'... ", name);
-	int fd;
-	errno_t open_err = _sopen_s(&fd, name, O_RDONLY | O_BINARY, _SH_DENYWR, 0);
-	if(0 != open_err)
-	{
-		printf("\n");
-		perror("could not open input file");
-		return 0;
-	}
-
-	// 从打开的文件转换为ZIP目录
-	zzip_error_t rv;
-	ZZIP_DIR * dir = zzip_dir_fdopen(fd, &rv);
-	if(!dir)
-	{
-		printf("\n");
-		printf("zzip_dir_fdopen error %d. \n", rv);
-		return 0;
-	}
-	printf("OK. \n");
-
-	// 检测ZIP文件的目录结构
-	printf("{check ... \n");
-	struct zzip_dir_hdr * hdr = dir->hdr0;
-	if(NULL == hdr)
-	{
-		printf("could not find first header in dir_hdr \n");
-	}
-	else
-	{
-		while(1)
-		{
-			// 读取文件信息
-			printf("compression method: %d ", hdr->d_compr);
-			switch(hdr->d_compr)
-			{
-			case 0:
-				printf("(stored)");
-				break;
-			case 8:
-				printf("(deflated)");
-				break;
-			default:
-				printf("(unknown)");
-				break;
-			}
-			printf(" \n");
-			printf("crc32: %x \n", hdr->d_crc32);
-			printf("compressed size: %d \n", hdr->d_csize);
-			printf("uncompressed size: %d \n", hdr->d_usize);
-			printf("offset of file in archive: %d \n", hdr->d_off);
-			printf("filename: %s \n", hdr->d_name);
-
-			if(0 == hdr->d_reclen)
-			{
-				break;
-			}
-
-			// 定位到下一个文件
-			char * tmp = (char *)hdr;
-			tmp += hdr->d_reclen;
-			hdr = (zzip_dir_hdr *)tmp;
-			printf("\n");
-		}
-	}
-	printf("} \n");
-
-	// 检测ZIP文件的目录结构
-	printf("\n");
-	printf("{contents ... \n");
-	for(int i = 0; i < 2; i++)
-	{
-		ZZIP_DIRENT * ent;
-		while(ent = zzip_readdir(dir))
-		{
-			printf("name \"%s\", compr %d, size %d, ratio %2d\n",
-				ent->d_name,
-				ent->d_compr,
-				ent->st_size,
-				100 - (ent->d_csize | 1) * 100 / (ent->st_size | 1));
-		}
-		printf("%d. time ---------------\n", i + 1);
-		zzip_rewinddir(dir);
-	}
-	printf("} \n");
-
-	// 读取指定文件并输出
-	name = argv[1] ? argv[1] : "README";
-	printf("Opening file '%s' in zip archive ... ", name);
-	ZZIP_FILE * fp = zzip_file_open(dir, name, ZZIP_CASEINSENSITIVE);
-	if(!fp)
-	{
-		printf("\n");
-		printf("zzip_file_open error %d: %s \n", zzip_error(dir), zzip_strerror_of(dir));
-	}
-	else
-	{
-		printf("OK. \n");
-		printf("Contents of the file: \n");
-
-		// 从文件中读取内容
-		int i;
-		char buf[17];
-		while((i = zzip_file_read(fp, buf, sizeof(buf) - 1)) > 0)
-		{
-			buf[i] = '\0';
-			printf("%s", buf);
-		}
-		if(i < 0)
-		{
-			printf("zzip_file_read error %d: %s \n", zzip_error(dir), zzip_strerror_of(dir));
-		}
-	}
-
-	// 关闭文件
-	zzip_file_close(fp);
-
-	// 关闭目录（不再需要_close(fd)）
-	zzip_dir_close(dir);
-
-	return 0;
+	return MyDemo::getSingleton().Run(true, 800, 600);
 }
