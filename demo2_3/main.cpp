@@ -24,13 +24,42 @@ protected:
 
 	CComPtr<IDirect3DTexture9> m_texture;
 
+	static const unsigned int SHADOWMAP_SIZE = 1024;
+
+	CComPtr<IDirect3DTexture9> m_shadowMapRT;
+
+	CComPtr<IDirect3DSurface9> m_shadowMapDS;
+
+	bool IsD3D9DeviceAcceptable(
+		D3DCAPS9 * pCaps,
+		D3DFORMAT AdapterFormat,
+		D3DFORMAT BackBufferFormat,
+		bool bWindowed)
+	{
+		if(!DxutApp::IsD3D9DeviceAcceptable(
+			pCaps, AdapterFormat, BackBufferFormat, bWindowed))
+		{
+			return false;
+		}
+
+		IDirect3D9 * pD3D = DXUTGetD3D9Object();
+		if(FAILED(pD3D->CheckDeviceFormat(
+			pCaps->AdapterOrdinal, pCaps->DeviceType, AdapterFormat, D3DUSAGE_RENDERTARGET, D3DRTYPE_CUBETEXTURE, D3DFMT_R32F)))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
 	void OnInit(void)
 	{
 		DxutApp::OnInit();
 
 		// 初始化全局资源组
-		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
-		my::ResourceMgr::getSingleton().RegisterFileDir(L"..\\..\\Common\\medias");
+		my::ResourceMgr::getSingleton().RegisterZipArchive(_T("Data.zip"));
+		my::ResourceMgr::getSingleton().RegisterFileDir(_T("."));
+		my::ResourceMgr::getSingleton().RegisterFileDir(_T("..\\..\\Common\\medias"));
 	}
 
 	HRESULT OnD3D9CreateDevice(
@@ -54,14 +83,12 @@ protected:
 		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
 		CComPtr<ID3DXBuffer> d3dxbuffer;
-		hres = D3DXCreateEffect(
-			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer);
-		if(FAILED(hres))
+		if(FAILED(hres = D3DXCreateEffect(
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer)))
 		{
 			THROW_CUSEXCEPTION(
 				str_printf(_T("compilation errors: \n%s"), mstringToWString((LPCSTR)d3dxbuffer->GetBufferPointer()).c_str()));
 		}
-		FAILED_THROW_D3DEXCEPTION(m_effect->SetTechnique("RenderScene"));
 
 		// 从资源管理器中读出模型文件
 		DWORD dwNumSubMeshes;
@@ -70,12 +97,13 @@ protected:
 		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &m_mesh);
 
 		// 所有的mesh使用同一种材质，同一张贴图
-		m_material.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
+		m_material.Ambient = D3DXCOLOR(0.27f, 0.27f, 0.27f, 1.0f);
 		m_material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// 创建贴图
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
+			//my::ResourceMgr::getSingleton().OpenArchiveStream(_T("無題.bmp")));
 		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &m_texture));
 
 		return S_OK;
@@ -99,6 +127,29 @@ protected:
 
 		FAILED_THROW_D3DEXCEPTION(m_effect->OnResetDevice());
 
+		// 创建shadow map render target
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateTexture(
+			pd3dDevice,
+			SHADOWMAP_SIZE,
+			SHADOWMAP_SIZE,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_R32F,
+			D3DPOOL_DEFAULT,
+			&m_shadowMapRT));
+
+		// 创建shadow map depth scentil
+		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
+		FAILED_THROW_D3DEXCEPTION(pd3dDevice->CreateDepthStencilSurface(
+			SHADOWMAP_SIZE,
+			SHADOWMAP_SIZE,
+			d3dSettings.d3d9.pp.AutoDepthStencilFormat,
+			D3DMULTISAMPLE_NONE,
+			0,
+			TRUE,
+			&m_shadowMapDS,
+			NULL));
+
 		return S_OK;
 	}
 
@@ -108,6 +159,8 @@ protected:
 
 		// 在这里处理在reset中创建的资源
 		m_effect->OnLostDevice();
+		m_shadowMapRT.Release();
+		m_shadowMapDS.Release();
 	}
 
 	void OnD3D9DestroyDevice(void)
@@ -135,29 +188,40 @@ protected:
 		double fTime,
 		float fElapsedTime)
 	{
+		// 获得相机投影矩阵
+		D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
+		D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
+		D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
+		D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
+
+		// 计算光照的透视变换
+		D3DXMATRIXA16 mViewLight;
+		D3DXMatrixLookAtLH(
+			&mViewLight,
+			&D3DXVECTOR3(0.0f, 0.0f, 50.0f),
+			&D3DXVECTOR3(0.0f, 0.0f, 0.0f),
+			&D3DXVECTOR3(0.0f, 1.0f, 0.0f));
+		D3DXMATRIXA16 mProjLight;
+		D3DXMatrixOrthoLH(&mProjLight, 50, 50, 25, 75);
+		D3DXMATRIXA16 mWorldViewProjLight = mWorld * mViewLight * mProjLight;
+
 		HRESULT hr;
+		LPDIRECT3DSURFACE9 pOldRT = NULL;
+		V(pd3dDevice->GetRenderTarget(0, &pOldRT));
+		LPDIRECT3DSURFACE9 pShadowSurf;
+		V(m_shadowMapRT->GetSurfaceLevel(0, &pShadowSurf));
+		V(pd3dDevice->SetRenderTarget(0, pShadowSurf));
+		SAFE_RELEASE(pShadowSurf);
+		LPDIRECT3DSURFACE9 pOldDS = NULL;
+		V(pd3dDevice->GetDepthStencilSurface(&pOldDS));
+		V(pd3dDevice->SetDepthStencilSurface(m_shadowMapDS));
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
-			// 清理缓存背景及depth stencil
-			V(pd3dDevice->Clear(
-				0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
-
-			// 获得相机投影矩阵
-			D3DXMATRIXA16 mWorld = *m_camera.GetWorldMatrix();
-			D3DXMATRIXA16 mProj = *m_camera.GetProjMatrix();
-			D3DXMATRIXA16 mView = *m_camera.GetViewMatrix();
-			D3DXMATRIXA16 mWorldViewProjection = mWorld * mView * mProj;
-
-			// 更新D3DX Effect值
-			V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
-			V(m_effect->SetMatrix("g_mWorld", &mWorld));
-			V(m_effect->SetFloat("g_fTime", (float)fTime));
-
-			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
-			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
-			V(m_effect->SetTexture("g_MeshTexture", m_texture));
-			V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
-			V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
+			// 更新d3dx effect变量
+			V(m_effect->SetMatrix("g_mWorldViewProjectionLight", &mWorldViewProjLight));
+			V(m_effect->SetTechnique("RenderShadow"));
 
 			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
 			UINT cPasses;
@@ -169,6 +233,66 @@ protected:
 				V(m_mesh->DrawSubset(1));
 				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
 				V(m_mesh->DrawSubset(0));
+				V(m_effect->EndPass());
+			}
+			V(m_effect->End());
+
+			V(pd3dDevice->EndScene());
+		}
+		V(pd3dDevice->SetRenderTarget(0, pOldRT));
+		V(pd3dDevice->SetDepthStencilSurface(pOldDS));
+		SAFE_RELEASE(pOldRT);
+		SAFE_RELEASE(pOldDS);
+
+		// 清理缓存背景及depth stencil
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			// 更新D3DX Effect值
+			V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
+			V(m_effect->SetMatrix("g_mWorld", &mWorld));
+			V(m_effect->SetFloat("g_fTime", (float)fTime));
+
+			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
+			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
+			V(m_effect->SetTexture("g_MeshTexture", m_texture));
+			V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
+			V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
+
+			V(m_effect->SetTexture("g_ShadowTexture", m_shadowMapRT));
+			V(m_effect->SetMatrix("g_mWorldViewProjectionLight", &mWorldViewProjLight));
+			V(m_effect->SetTechnique("RenderScene"));
+
+			//struct
+			//{
+			//	D3DXVECTOR3 pos;
+			//	D3DXVECTOR3 normal;
+			//	D3DXVECTOR2 tex;
+			//} vertices[6] =
+			//{
+			//	{ D3DXVECTOR3(-10,  10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(0, 0) },
+			//	{ D3DXVECTOR3( 10,  10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(1, 0) },
+			//	{ D3DXVECTOR3(-10, -10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(0, 1) },
+			//	{ D3DXVECTOR3( 10,  10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(1, 0) },
+			//	{ D3DXVECTOR3( 10, -10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(1, 1) },
+			//	{ D3DXVECTOR3(-10, -10, 0), D3DXVECTOR3(0, 0, 1), D3DXVECTOR2(0, 1) },
+			//};
+
+			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+			UINT cPasses;
+			V(m_effect->Begin(&cPasses, 0));
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				V(m_effect->BeginPass(p));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+				V(m_mesh->DrawSubset(1));
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				V(m_mesh->DrawSubset(0));
+				//V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+				//V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1));
+				//V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, 2, vertices, sizeof(vertices[0])));
 				V(m_effect->EndPass());
 			}
 			V(m_effect->End());
