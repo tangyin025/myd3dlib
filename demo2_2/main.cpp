@@ -18,19 +18,13 @@ protected:
 
 	CComPtr<ID3DXEffect> m_effect;
 
-	CComPtr<ID3DXMesh> m_mesh;
-
-	D3DMATERIAL9 m_material;
-
-	CComPtr<IDirect3DTexture9> m_texture;
-
 	void OnInit(void)
 	{
 		DxutApp::OnInit();
 
-		// 初始化全局资源组
-		my::ResourceMgr::getSingleton().RegisterZipArchive(L"Data.zip");
-		my::ResourceMgr::getSingleton().RegisterFileDir(L"..\\..\\Common\\medias");
+		// 初始化资源管理器收索路径
+		my::ResourceMgr::getSingleton().RegisterFileDir(_T("."));
+		my::ResourceMgr::getSingleton().RegisterFileDir(_T("..\\..\\Common\\medias"));
 	}
 
 	HRESULT OnD3D9CreateDevice(
@@ -54,29 +48,12 @@ protected:
 		my::ArchiveCachePtr cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
 		CComPtr<ID3DXBuffer> d3dxbuffer;
-		hres = D3DXCreateEffect(
-			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer);
-		if(FAILED(hres))
+		if(FAILED(hres = D3DXCreateEffect(
+			pd3dDevice, &(*cache)[0], cache->size(), NULL, NULL, D3DXFX_NOT_CLONEABLE, NULL, &m_effect, &d3dxbuffer)))
 		{
 			THROW_CUSEXCEPTION(
 				str_printf(_T("compilation errors: \n%s"), mstringToWString((LPCSTR)d3dxbuffer->GetBufferPointer()).c_str()));
 		}
-		FAILED_THROW_D3DEXCEPTION(m_effect->SetTechnique("RenderScene"));
-
-		// 从资源管理器中读出模型文件
-		DWORD dwNumSubMeshes;
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_hres_all.mesh.xml")));
-		my::LoadMeshFromOgreMesh(std::string((char *)&(*cache)[0], cache->size()), pd3dDevice, &dwNumSubMeshes, &m_mesh);
-
-		// 所有的mesh使用同一种材质，同一张贴图
-		m_material.Ambient = D3DXCOLOR(0.3f, 0.3f, 0.3f, 0.3f);
-		m_material.Diffuse = D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f);
-
-		// 创建贴图
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), &m_texture));
 
 		return S_OK;
 	}
@@ -97,6 +74,7 @@ protected:
 		m_camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
 		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
+		// 重置d3dx effect
 		FAILED_THROW_D3DEXCEPTION(m_effect->OnResetDevice());
 
 		return S_OK;
@@ -116,8 +94,6 @@ protected:
 
 		// 在这里销毁在create中创建的资源
 		m_effect.Release();
-		m_mesh.Release();
-		m_texture.Release();
 	}
 
 	void OnFrameMove(
@@ -152,26 +128,12 @@ protected:
 			V(m_effect->SetMatrix("g_mWorldViewProjection", &mWorldViewProjection));
 			V(m_effect->SetMatrix("g_mWorld", &mWorld));
 			V(m_effect->SetFloat("g_fTime", (float)fTime));
-
-			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&m_material.Ambient));
-			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&m_material.Diffuse));
-			V(m_effect->SetTexture("g_MeshTexture", m_texture));
+			V(m_effect->SetVector("g_MaterialAmbientColor", (D3DXVECTOR4 *)&D3DXCOLOR(0.3f, 0.3f, 0.3f, 1.0f)));
+			V(m_effect->SetVector("g_MaterialDiffuseColor", (D3DXVECTOR4 *)&D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f)));
+			V(m_effect->SetTexture("g_MeshTexture", CComPtr<IDirect3DTexture9>()));
 			V(m_effect->SetFloatArray("g_LightDir", (float *)&D3DXVECTOR3(0.0f, 0.0f, -1.0f), 3));
 			V(m_effect->SetVector("g_LightDiffuse", &D3DXVECTOR4(1.0f, 1.0f, 1.0f, 1.0f)));
-
-			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
-			UINT cPasses;
-			V(m_effect->Begin(&cPasses, 0));
-			for(UINT p = 0; p < cPasses; ++p)
-			{
-				V(m_effect->BeginPass(p));
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-				V(m_mesh->DrawSubset(1));
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-				V(m_mesh->DrawSubset(0));
-				V(m_effect->EndPass());
-			}
-			V(m_effect->End());
+			V(m_effect->SetTechnique("RenderScene"));
 
 			V(pd3dDevice->EndScene());
 		}
