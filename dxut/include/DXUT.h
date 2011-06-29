@@ -26,6 +26,11 @@
 //
 #endif
 
+#include "dxsdkver.h"
+#if ( _DXSDK_PRODUCT_MAJOR < 9 || _DXSDK_BUILD_MAJOR < 1455 )
+#error The installed DXSDK is out of date.
+#endif
+
 #ifndef STRICT
 #define STRICT
 #endif
@@ -71,6 +76,7 @@
 
 // Standard Windows includes
 #include <windows.h>
+#include <initguid.h>
 #include <assert.h>
 #include <wchar.h>
 #include <mmsystem.h>
@@ -93,6 +99,7 @@
 
 // Direct3D10 includes
 #include <dxgi.h>
+#include <d3d10_1.h>
 #include <d3d10.h>
 #include <d3dx10.h>
 
@@ -102,22 +109,6 @@
 // HRESULT translation for Direct3D10 and other APIs 
 #include <dxerr.h>
 
-// strsafe.h deprecates old unsecure string functions.  If you 
-// really do not want to it to (not recommended), then uncomment the next line 
-//#define STRSAFE_NO_DEPRECATE
-
-#ifndef STRSAFE_NO_DEPRECATE
-#pragma deprecated("strncpy")
-#pragma deprecated("wcsncpy")
-#pragma deprecated("_tcsncpy")
-#pragma deprecated("wcsncat")
-#pragma deprecated("strncat")
-#pragma deprecated("_tcsncat")
-#endif
-
-#pragma warning( disable : 4996 ) // disable deprecated warning 
-#include <strsafe.h>
-#pragma warning( default : 4996 ) 
 
 #if defined(DEBUG) || defined(_DEBUG)
 #ifndef V
@@ -254,12 +245,15 @@ void WINAPI DXUTSetCallbackD3D10DeviceDestroyed( LPDXUTCALLBACKD3D10DEVICEDESTRO
 //--------------------------------------------------------------------------------------
 // Initialization
 //--------------------------------------------------------------------------------------
-HRESULT WINAPI DXUTInit( bool bParseCommandLine = true, bool bShowMsgBoxOnError = true, WCHAR* strExtraCommandLineParams = NULL, bool bThreadSafeDXUT = false );
+HRESULT WINAPI DXUTInit( bool bParseCommandLine = true, 
+                        bool bShowMsgBoxOnError = true, 
+                        __in_opt WCHAR* strExtraCommandLineParams = NULL, 
+                        bool bThreadSafeDXUT = false );
 
 // Choose either DXUTCreateWindow or DXUTSetWindow.  If using DXUTSetWindow, consider using DXUTStaticWndProc
 HRESULT WINAPI DXUTCreateWindow( const WCHAR* strWindowTitle = L"Direct3D Window", 
-                          HINSTANCE hInstance = NULL, HICON hIcon = NULL, HMENU hMenu = NULL,
-                          int x = CW_USEDEFAULT, int y = CW_USEDEFAULT );
+                                HINSTANCE hInstance = NULL, HICON hIcon = NULL, HMENU hMenu = NULL,
+                                int x = CW_USEDEFAULT, int y = CW_USEDEFAULT );
 HRESULT WINAPI DXUTSetWindow( HWND hWndFocus, HWND hWndDeviceFullScreen, HWND hWndDeviceWindowed, bool bHandleMessages = true );
 LRESULT CALLBACK DXUTStaticWndProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -281,6 +275,7 @@ void WINAPI DXUTRender3DEnvironment();
 //--------------------------------------------------------------------------------------
 HRESULT WINAPI DXUTToggleFullScreen();
 HRESULT WINAPI DXUTToggleREF();
+HRESULT WINAPI DXUTToggleWARP();
 void    WINAPI DXUTPause( bool bPauseTime, bool bPauseRendering );
 void    WINAPI DXUTSetConstantFrameTime( bool bConstantFrameTime, float fTimePerFrame = 0.0333f );
 void    WINAPI DXUTSetCursorSettings( bool bShowCursorWhenFullScreen = false, bool bClipCursorWhenFullScreen = false );
@@ -293,6 +288,7 @@ HRESULT WINAPI DXUTSetTimer( LPDXUTCALLBACKTIMER pCallbackTimer, float fTimeoutI
 HRESULT WINAPI DXUTKillTimer( UINT nIDEvent );
 void    WINAPI DXUTResetFrameworkState();
 void    WINAPI DXUTShutdown( int nExitCode = 0 );
+void    WINAPI DXUTSetIsInGammaCorrectMode( bool bGammaCorrect );
 
 
 //--------------------------------------------------------------------------------------
@@ -313,6 +309,7 @@ bool                     WINAPI DXUTIsAppRenderingWithD3D9();
 bool                     WINAPI DXUTIsD3D10Available(); // If D3D10 APIs are availible
 IDXGIFactory*            WINAPI DXUTGetDXGIFactory(); // Does not addref unlike typical Get* APIs
 ID3D10Device*            WINAPI DXUTGetD3D10Device(); // Does not addref unlike typical Get* APIs
+ID3D10Device1*           WINAPI DXUTGetD3D10Device1(); // Does not addref unlike typical Get* APIs
 IDXGISwapChain*          WINAPI DXUTGetDXGISwapChain(); // Does not addref unlike typical Get* APIs
 ID3D10RenderTargetView*  WINAPI DXUTGetD3D10RenderTargetView(); // Does not addref unlike typical Get* APIs
 ID3D10DepthStencilView*  WINAPI DXUTGetD3D10DepthStencilView(); // Does not addref unlike typical Get* APIs
@@ -328,11 +325,14 @@ HWND      WINAPI DXUTGetHWNDFocus();
 HWND      WINAPI DXUTGetHWNDDeviceFullScreen();
 HWND      WINAPI DXUTGetHWNDDeviceWindowed();
 RECT      WINAPI DXUTGetWindowClientRect();
+LONG      WINAPI DXUTGetWindowWidth();
+LONG      WINAPI DXUTGetWindowHeight();
 RECT      WINAPI DXUTGetWindowClientRectAtModeChange(); // Useful for returning to windowed mode with the same resolution as before toggle to full screen mode
 RECT      WINAPI DXUTGetFullsceenClientRectAtModeChange(); // Useful for returning to full screen mode with the same resolution as before toggle to windowed mode
 double    WINAPI DXUTGetTime();
 float     WINAPI DXUTGetElapsedTime();
 bool      WINAPI DXUTIsWindowed();
+bool	  WINAPI DXUTIsInGammaCorrectMode();
 float     WINAPI DXUTGetFPS();
 LPCWSTR   WINAPI DXUTGetWindowTitle();
 LPCWSTR   WINAPI DXUTGetFrameStats( bool bIncludeFPS = false );
@@ -346,10 +346,10 @@ int       WINAPI DXUTGetExitCode();
 bool      WINAPI DXUTGetShowMsgBoxOnError();
 bool      WINAPI DXUTGetAutomation();  // Returns true if -automation parameter is used to launch the app
 bool      WINAPI DXUTIsKeyDown( BYTE vKey ); // Pass a virtual-key code, ex. VK_F1, 'A', VK_RETURN, VK_LSHIFT, etc
+bool      WINAPI DXUTWasKeyPressed( BYTE vKey );  // Like DXUTIsKeyDown() but return true only if the key was just pressed
 bool      WINAPI DXUTIsMouseButtonDown( BYTE vButton ); // Pass a virtual-key code: VK_LBUTTON, VK_RBUTTON, VK_MBUTTON, VK_XBUTTON1, VK_XBUTTON2
 HRESULT   WINAPI DXUTCreateState(); // Optional method to create DXUT's memory.  If its not called by the application it will be automatically called when needed
 void      WINAPI DXUTDestroyState(); // Optional method to destroy DXUT's memory.  If its not called by the application it will be automatically called after the application exits WinMain 
-
 
 //--------------------------------------------------------------------------------------
 // DXUT core layer includes

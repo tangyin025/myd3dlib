@@ -42,10 +42,10 @@ CSoundManager::~CSoundManager()
 // Desc: Initializes the IDirectSound object and also sets the primary buffer
 //       format.  This function must be called before any others.
 //-----------------------------------------------------------------------------
-HRESULT CSoundManager::Initialize( HWND  hWnd,
+HRESULT CSoundManager::Initialize( HWND hWnd,
                                    DWORD dwCoopLevel )
 {
-    HRESULT             hr;
+    HRESULT hr;
 
     SAFE_RELEASE( m_pDS );
 
@@ -76,7 +76,7 @@ HRESULT CSoundManager::SetPrimaryBufferFormat( DWORD dwPrimaryChannels,
                                                DWORD dwPrimaryFreq,
                                                DWORD dwPrimaryBitRate )
 {
-    HRESULT             hr;
+    HRESULT hr;
     LPDIRECTSOUNDBUFFER pDSBPrimary = NULL;
 
     if( m_pDS == NULL )
@@ -84,25 +84,25 @@ HRESULT CSoundManager::SetPrimaryBufferFormat( DWORD dwPrimaryChannels,
 
     // Get the primary buffer
     DSBUFFERDESC dsbd;
-    ZeroMemory( &dsbd, sizeof(DSBUFFERDESC) );
-    dsbd.dwSize        = sizeof(DSBUFFERDESC);
-    dsbd.dwFlags       = DSBCAPS_PRIMARYBUFFER;
+    ZeroMemory( &dsbd, sizeof( DSBUFFERDESC ) );
+    dsbd.dwSize = sizeof( DSBUFFERDESC );
+    dsbd.dwFlags = DSBCAPS_PRIMARYBUFFER;
     dsbd.dwBufferBytes = 0;
-    dsbd.lpwfxFormat   = NULL;
+    dsbd.lpwfxFormat = NULL;
 
     if( FAILED( hr = m_pDS->CreateSoundBuffer( &dsbd, &pDSBPrimary, NULL ) ) )
         return DXUT_ERR( L"CreateSoundBuffer", hr );
 
     WAVEFORMATEX wfx;
-    ZeroMemory( &wfx, sizeof(WAVEFORMATEX) );
-    wfx.wFormatTag      = (WORD) WAVE_FORMAT_PCM;
-    wfx.nChannels       = (WORD) dwPrimaryChannels;
-    wfx.nSamplesPerSec  = (DWORD) dwPrimaryFreq;
-    wfx.wBitsPerSample  = (WORD) dwPrimaryBitRate;
-    wfx.nBlockAlign     = (WORD) (wfx.wBitsPerSample / 8 * wfx.nChannels);
-    wfx.nAvgBytesPerSec = (DWORD) (wfx.nSamplesPerSec * wfx.nBlockAlign);
+    ZeroMemory( &wfx, sizeof( WAVEFORMATEX ) );
+    wfx.wFormatTag = ( WORD )WAVE_FORMAT_PCM;
+    wfx.nChannels = ( WORD )dwPrimaryChannels;
+    wfx.nSamplesPerSec = ( DWORD )dwPrimaryFreq;
+    wfx.wBitsPerSample = ( WORD )dwPrimaryBitRate;
+    wfx.nBlockAlign = ( WORD )( wfx.wBitsPerSample / 8 * wfx.nChannels );
+    wfx.nAvgBytesPerSec = ( DWORD )( wfx.nSamplesPerSec * wfx.nBlockAlign );
 
-    if( FAILED( hr = pDSBPrimary->SetFormat(&wfx) ) )
+    if( FAILED( hr = pDSBPrimary->SetFormat( &wfx ) ) )
         return DXUT_ERR( L"SetFormat", hr );
 
     SAFE_RELEASE( pDSBPrimary );
@@ -117,8 +117,8 @@ HRESULT CSoundManager::SetPrimaryBufferFormat( DWORD dwPrimaryChannels,
 //-----------------------------------------------------------------------------
 HRESULT CSoundManager::Get3DListenerInterface( LPDIRECTSOUND3DLISTENER* ppDSListener )
 {
-    HRESULT             hr;
-    DSBUFFERDESC        dsbdesc;
+    HRESULT hr;
+    DSBUFFERDESC dsbdesc;
     LPDIRECTSOUNDBUFFER pDSBPrimary = NULL;
 
     if( ppDSListener == NULL )
@@ -129,14 +129,14 @@ HRESULT CSoundManager::Get3DListenerInterface( LPDIRECTSOUND3DLISTENER* ppDSList
     *ppDSListener = NULL;
 
     // Obtain primary buffer, asking it for 3D control
-    ZeroMemory( &dsbdesc, sizeof(DSBUFFERDESC) );
-    dsbdesc.dwSize = sizeof(DSBUFFERDESC);
+    ZeroMemory( &dsbdesc, sizeof( DSBUFFERDESC ) );
+    dsbdesc.dwSize = sizeof( DSBUFFERDESC );
     dsbdesc.dwFlags = DSBCAPS_CTRL3D | DSBCAPS_PRIMARYBUFFER;
     if( FAILED( hr = m_pDS->CreateSoundBuffer( &dsbdesc, &pDSBPrimary, NULL ) ) )
         return DXUT_ERR( L"CreateSoundBuffer", hr );
 
     if( FAILED( hr = pDSBPrimary->QueryInterface( IID_IDirectSound3DListener,
-                                                  (VOID**)ppDSListener ) ) )
+                                                  ( VOID** )ppDSListener ) ) )
     {
         SAFE_RELEASE( pDSBPrimary );
         return DXUT_ERR( L"QueryInterface", hr );
@@ -161,10 +161,10 @@ HRESULT CSoundManager::Create( CSound** ppSound,
 {
     HRESULT hr;
     HRESULT hrRet = S_OK;
-    DWORD   i;
-    LPDIRECTSOUNDBUFFER* apDSBuffer     = NULL;
-    DWORD                dwDSBufferSize = NULL;
-    CWaveFile*           pWaveFile      = NULL;
+    DWORD i;
+    LPDIRECTSOUNDBUFFER* apDSBuffer = NULL;
+    DWORD dwDSBufferSize = NULL;
+    CWaveFile* pWaveFile = NULL;
 
     if( m_pDS == NULL )
         return CO_E_NOTINITIALIZED;
@@ -201,12 +201,12 @@ HRESULT CSoundManager::Create( CSound** ppSound,
     // since each requires some overhead and limits if the buffer can
     // be hardware accelerated
     DSBUFFERDESC dsbd;
-    ZeroMemory( &dsbd, sizeof(DSBUFFERDESC) );
-    dsbd.dwSize          = sizeof(DSBUFFERDESC);
-    dsbd.dwFlags         = dwCreationFlags;
-    dsbd.dwBufferBytes   = dwDSBufferSize;
+    ZeroMemory( &dsbd, sizeof( DSBUFFERDESC ) );
+    dsbd.dwSize = sizeof( DSBUFFERDESC );
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = dwDSBufferSize;
     dsbd.guid3DAlgorithm = guid3DAlgorithm;
-    dsbd.lpwfxFormat     = pWaveFile->m_pwfx;
+    dsbd.lpwfxFormat = pWaveFile->m_pwfx;
 
     // DirectSound is only guarenteed to play PCM data.  Other
     // formats may or may not work depending the sound card driver.
@@ -217,7 +217,7 @@ HRESULT CSoundManager::Create( CSound** ppSound,
     if( hr == DS_NO_VIRTUALIZATION )
         hrRet = DS_NO_VIRTUALIZATION;
 
-    if( FAILED(hr) )
+    if( FAILED( hr ) )
     {
         // DSERR_BUFFERTOOSMALL will be returned if the buffer is
         // less than DSBSIZE_FX_MIN and the buffer is created
@@ -233,9 +233,9 @@ HRESULT CSoundManager::Create( CSound** ppSound,
     // Default to use DuplicateSoundBuffer() when created extra buffers since always
     // create a buffer that uses the same memory however DuplicateSoundBuffer() will fail if
     // DSBCAPS_CTRLFX is used, so use CreateSoundBuffer() instead in this case.
-    if( (dwCreationFlags & DSBCAPS_CTRLFX) == 0 )
+    if( ( dwCreationFlags & DSBCAPS_CTRLFX ) == 0 )
     {
-        for( i=1; i<dwNumBuffers; i++ )
+        for( i = 1; i < dwNumBuffers; i++ )
         {
             if( FAILED( hr = m_pDS->DuplicateSoundBuffer( apDSBuffer[0], &apDSBuffer[i] ) ) )
             {
@@ -246,16 +246,16 @@ HRESULT CSoundManager::Create( CSound** ppSound,
     }
     else
     {
-        for( i=1; i<dwNumBuffers; i++ )
+        for( i = 1; i < dwNumBuffers; i++ )
         {
             hr = m_pDS->CreateSoundBuffer( &dsbd, &apDSBuffer[i], NULL );
-            if( FAILED(hr) )
+            if( FAILED( hr ) )
             {
                 DXUT_ERR( L"CreateSoundBuffer", hr );
                 goto LFail;
             }
         }
-   }
+    }
 
     // Create the sound
     *ppSound = new CSound( apDSBuffer, dwDSBufferSize, dwNumBuffers, pWaveFile, dwCreationFlags );
@@ -276,18 +276,18 @@ LFail:
 // Desc:
 //-----------------------------------------------------------------------------
 HRESULT CSoundManager::CreateFromMemory( CSound** ppSound,
-                                        BYTE* pbData,
-                                        ULONG  ulDataSize,
-                                        LPWAVEFORMATEX pwfx,
-                                        DWORD dwCreationFlags,
-                                        GUID guid3DAlgorithm,
-                                        DWORD dwNumBuffers )
+                                         BYTE* pbData,
+                                         ULONG ulDataSize,
+                                         LPWAVEFORMATEX pwfx,
+                                         DWORD dwCreationFlags,
+                                         GUID guid3DAlgorithm,
+                                         DWORD dwNumBuffers )
 {
     HRESULT hr;
-    DWORD   i;
-    LPDIRECTSOUNDBUFFER* apDSBuffer     = NULL;
-    DWORD                dwDSBufferSize = NULL;
-    CWaveFile*           pWaveFile      = NULL;
+    DWORD i;
+    LPDIRECTSOUNDBUFFER* apDSBuffer = NULL;
+    DWORD dwDSBufferSize = NULL;
+    CWaveFile* pWaveFile = NULL;
 
     if( m_pDS == NULL )
         return CO_E_NOTINITIALIZED;
@@ -308,7 +308,7 @@ HRESULT CSoundManager::CreateFromMemory( CSound** ppSound,
         goto LFail;
     }
 
-    pWaveFile->OpenFromMemory( pbData,ulDataSize, pwfx, WAVEFILE_READ );
+    pWaveFile->OpenFromMemory( pbData, ulDataSize, pwfx, WAVEFILE_READ );
 
 
     // Make the DirectSound buffer the same size as the wav file
@@ -318,12 +318,12 @@ HRESULT CSoundManager::CreateFromMemory( CSound** ppSound,
     // since each requires some overhead and limits if the buffer can
     // be hardware accelerated
     DSBUFFERDESC dsbd;
-    ZeroMemory( &dsbd, sizeof(DSBUFFERDESC) );
-    dsbd.dwSize          = sizeof(DSBUFFERDESC);
-    dsbd.dwFlags         = dwCreationFlags;
-    dsbd.dwBufferBytes   = dwDSBufferSize;
+    ZeroMemory( &dsbd, sizeof( DSBUFFERDESC ) );
+    dsbd.dwSize = sizeof( DSBUFFERDESC );
+    dsbd.dwFlags = dwCreationFlags;
+    dsbd.dwBufferBytes = dwDSBufferSize;
     dsbd.guid3DAlgorithm = guid3DAlgorithm;
-    dsbd.lpwfxFormat     = pwfx;
+    dsbd.lpwfxFormat = pwfx;
 
     if( FAILED( hr = m_pDS->CreateSoundBuffer( &dsbd, &apDSBuffer[0], NULL ) ) )
     {
@@ -334,9 +334,9 @@ HRESULT CSoundManager::CreateFromMemory( CSound** ppSound,
     // Default to use DuplicateSoundBuffer() when created extra buffers since always
     // create a buffer that uses the same memory however DuplicateSoundBuffer() will fail if
     // DSBCAPS_CTRLFX is used, so use CreateSoundBuffer() instead in this case.
-    if( (dwCreationFlags & DSBCAPS_CTRLFX) == 0 )
+    if( ( dwCreationFlags & DSBCAPS_CTRLFX ) == 0 )
     {
-        for( i=1; i<dwNumBuffers; i++ )
+        for( i = 1; i < dwNumBuffers; i++ )
         {
             if( FAILED( hr = m_pDS->DuplicateSoundBuffer( apDSBuffer[0], &apDSBuffer[i] ) ) )
             {
@@ -347,16 +347,16 @@ HRESULT CSoundManager::CreateFromMemory( CSound** ppSound,
     }
     else
     {
-        for( i=1; i<dwNumBuffers; i++ )
+        for( i = 1; i < dwNumBuffers; i++ )
         {
             hr = m_pDS->CreateSoundBuffer( &dsbd, &apDSBuffer[i], NULL );
-            if( FAILED(hr) )
+            if( FAILED( hr ) )
             {
                 DXUT_ERR( L"CreateSoundBuffer", hr );
                 goto LFail;
             }
         }
-   }
+    }
 
     // Create the sound
     *ppSound = new CSound( apDSBuffer, dwDSBufferSize, dwNumBuffers, pWaveFile, dwCreationFlags );
@@ -391,11 +391,11 @@ HRESULT CSoundManager::CreateStreaming( CStreamingSound** ppStreamingSound,
     if( strWaveFileName == NULL || ppStreamingSound == NULL || hNotifyEvent == NULL )
         return E_INVALIDARG;
 
-    LPDIRECTSOUNDBUFFER pDSBuffer      = NULL;
-    DWORD               dwDSBufferSize = NULL;
-    CWaveFile*          pWaveFile      = NULL;
-    DSBPOSITIONNOTIFY*  aPosNotify     = NULL;
-    LPDIRECTSOUNDNOTIFY pDSNotify      = NULL;
+    LPDIRECTSOUNDBUFFER pDSBuffer = NULL;
+    DWORD dwDSBufferSize = NULL;
+    CWaveFile* pWaveFile = NULL;
+    DSBPOSITIONNOTIFY* aPosNotify = NULL;
+    LPDIRECTSOUNDNOTIFY pDSNotify = NULL;
 
     pWaveFile = new CWaveFile();
     if( pWaveFile == NULL )
@@ -409,14 +409,14 @@ HRESULT CSoundManager::CreateStreaming( CStreamingSound** ppStreamingSound,
     // that we are notified as the sound buffer plays.  Note, that using this flag
     // may limit the amount of hardware acceleration that can occur.
     DSBUFFERDESC dsbd;
-    ZeroMemory( &dsbd, sizeof(DSBUFFERDESC) );
-    dsbd.dwSize          = sizeof(DSBUFFERDESC);
-    dsbd.dwFlags         = dwCreationFlags |
-                           DSBCAPS_CTRLPOSITIONNOTIFY |
-                           DSBCAPS_GETCURRENTPOSITION2;
-    dsbd.dwBufferBytes   = dwDSBufferSize;
+    ZeroMemory( &dsbd, sizeof( DSBUFFERDESC ) );
+    dsbd.dwSize = sizeof( DSBUFFERDESC );
+    dsbd.dwFlags = dwCreationFlags |
+        DSBCAPS_CTRLPOSITIONNOTIFY |
+        DSBCAPS_GETCURRENTPOSITION2;
+    dsbd.dwBufferBytes = dwDSBufferSize;
     dsbd.guid3DAlgorithm = guid3DAlgorithm;
-    dsbd.lpwfxFormat     = pWaveFile->m_pwfx;
+    dsbd.lpwfxFormat = pWaveFile->m_pwfx;
 
     if( FAILED( hr = m_pDS->CreateSoundBuffer( &dsbd, &pDSBuffer, NULL ) ) )
     {
@@ -431,7 +431,7 @@ HRESULT CSoundManager::CreateStreaming( CStreamingSound** ppStreamingSound,
     // Create the notification events, so that we know when to fill
     // the buffer as the sound plays.
     if( FAILED( hr = pDSBuffer->QueryInterface( IID_IDirectSoundNotify,
-                                                (VOID**)&pDSNotify ) ) )
+                                                ( VOID** )&pDSNotify ) ) )
     {
         SAFE_DELETE_ARRAY( aPosNotify );
         return DXUT_ERR( L"QueryInterface", hr );
@@ -443,7 +443,7 @@ HRESULT CSoundManager::CreateStreaming( CStreamingSound** ppStreamingSound,
 
     for( DWORD i = 0; i < dwNotifyCount; i++ )
     {
-        aPosNotify[i].dwOffset     = (dwNotifySize * i) + dwNotifySize - 1;
+        aPosNotify[i].dwOffset = ( dwNotifySize * i ) + dwNotifySize - 1;
         aPosNotify[i].hEventNotify = hNotifyEvent;
     }
 
@@ -482,12 +482,12 @@ CSound::CSound( LPDIRECTSOUNDBUFFER* apDSBuffer, DWORD dwDSBufferSize,
     m_apDSBuffer = new LPDIRECTSOUNDBUFFER[dwNumBuffers];
     if( NULL != m_apDSBuffer )
     {
-        for( i=0; i<dwNumBuffers; i++ )
+        for( i = 0; i < dwNumBuffers; i++ )
             m_apDSBuffer[i] = apDSBuffer[i];
 
         m_dwDSBufferSize = dwDSBufferSize;
-        m_dwNumBuffers   = dwNumBuffers;
-        m_pWaveFile      = pWaveFile;
+        m_dwNumBuffers = dwNumBuffers;
+        m_pWaveFile = pWaveFile;
         m_dwCreationFlags = dwCreationFlags;
 
         FillBufferWithSound( m_apDSBuffer[0], FALSE );
@@ -501,7 +501,7 @@ CSound::CSound( LPDIRECTSOUNDBUFFER* apDSBuffer, DWORD dwDSBufferSize,
 //-----------------------------------------------------------------------------
 CSound::~CSound()
 {
-    for( DWORD i=0; i<m_dwNumBuffers; i++ )
+    for( DWORD i = 0; i < m_dwNumBuffers; i++ )
     {
         SAFE_RELEASE( m_apDSBuffer[i] );
     }
@@ -518,9 +518,9 @@ CSound::~CSound()
 HRESULT CSound::FillBufferWithSound( LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIfBufferLarger )
 {
     HRESULT hr;
-    VOID*   pDSLockedBuffer      = NULL; // Pointer to locked buffer memory
-    DWORD   dwDSLockedBufferSize = 0;    // Size of the locked DirectSound buffer
-    DWORD   dwWavDataRead        = 0;    // Amount of data read from the wav file
+    VOID* pDSLockedBuffer = NULL; // Pointer to locked buffer memory
+    DWORD dwDSLockedBufferSize = 0;    // Size of the locked DirectSound buffer
+    DWORD dwWavDataRead = 0;    // Amount of data read from the wav file
 
     if( pDSB == NULL )
         return CO_E_NOTINITIALIZED;
@@ -539,7 +539,7 @@ HRESULT CSound::FillBufferWithSound( LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIf
     // Reset the wave file to the beginning
     m_pWaveFile->ResetFile();
 
-    if( FAILED( hr = m_pWaveFile->Read( (BYTE*) pDSLockedBuffer,
+    if( FAILED( hr = m_pWaveFile->Read( ( BYTE* )pDSLockedBuffer,
                                         dwDSLockedBufferSize,
                                         &dwWavDataRead ) ) )
         return DXUT_ERR( L"Read", hr );
@@ -547,9 +547,9 @@ HRESULT CSound::FillBufferWithSound( LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIf
     if( dwWavDataRead == 0 )
     {
         // Wav is blank, so just fill with silence
-        FillMemory( (BYTE*) pDSLockedBuffer,
+        FillMemory( ( BYTE* )pDSLockedBuffer,
                     dwDSLockedBufferSize,
-                    (BYTE)(m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
+                    ( BYTE )( m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
     }
     else if( dwWavDataRead < dwDSLockedBufferSize )
     {
@@ -566,10 +566,10 @@ HRESULT CSound::FillBufferWithSound( LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIf
                 if( FAILED( hr = m_pWaveFile->ResetFile() ) )
                     return DXUT_ERR( L"ResetFile", hr );
 
-                hr = m_pWaveFile->Read( (BYTE*)pDSLockedBuffer + dwReadSoFar,
+                hr = m_pWaveFile->Read( ( BYTE* )pDSLockedBuffer + dwReadSoFar,
                                         dwDSLockedBufferSize - dwReadSoFar,
                                         &dwWavDataRead );
-                if( FAILED(hr) )
+                if( FAILED( hr ) )
                     return DXUT_ERR( L"Read", hr );
 
                 dwReadSoFar += dwWavDataRead;
@@ -578,9 +578,9 @@ HRESULT CSound::FillBufferWithSound( LPDIRECTSOUNDBUFFER pDSB, BOOL bRepeatWavIf
         else
         {
             // Don't repeat the wav file, just fill in silence
-            FillMemory( (BYTE*) pDSLockedBuffer + dwWavDataRead,
+            FillMemory( ( BYTE* )pDSLockedBuffer + dwWavDataRead,
                         dwDSLockedBufferSize - dwWavDataRead,
-                        (BYTE)(m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
+                        ( BYTE )( m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
         }
     }
 
@@ -620,8 +620,7 @@ HRESULT CSound::RestoreBuffer( LPDIRECTSOUNDBUFFER pDSB, BOOL* pbWasRestored )
             hr = pDSB->Restore();
             if( hr == DSERR_BUFFERLOST )
                 Sleep( 10 );
-        }
-        while( ( hr = pDSB->Restore() ) == DSERR_BUFFERLOST );
+        } while( ( hr = pDSB->Restore() ) == DSERR_BUFFERLOST );
 
         if( pbWasRestored != NULL )
             *pbWasRestored = TRUE;
@@ -646,13 +645,13 @@ LPDIRECTSOUNDBUFFER CSound::GetFreeBuffer()
         return FALSE;
 
     DWORD i;
-    for( i=0; i<m_dwNumBuffers; i++ )
+    for( i = 0; i < m_dwNumBuffers; i++ )
     {
         if( m_apDSBuffer[i] )
         {
             DWORD dwStatus = 0;
             m_apDSBuffer[i]->GetStatus( &dwStatus );
-            if ( ( dwStatus & DSBSTATUS_PLAYING ) == 0 )
+            if( ( dwStatus & DSBSTATUS_PLAYING ) == 0 )
                 break;
         }
     }
@@ -693,7 +692,7 @@ HRESULT CSound::Get3DBufferInterface( DWORD dwIndex, LPDIRECTSOUND3DBUFFER* ppDS
     *ppDS3DBuffer = NULL;
 
     return m_apDSBuffer[dwIndex]->QueryInterface( IID_IDirectSound3DBuffer,
-                                                  (VOID**)ppDS3DBuffer );
+                                                  ( VOID** )ppDS3DBuffer );
 }
 
 
@@ -705,7 +704,7 @@ HRESULT CSound::Get3DBufferInterface( DWORD dwIndex, LPDIRECTSOUND3DBUFFER* ppDS
 HRESULT CSound::Play( DWORD dwPriority, DWORD dwFlags, LONG lVolume, LONG lFrequency, LONG lPan )
 {
     HRESULT hr;
-    BOOL    bRestored;
+    BOOL bRestored;
 
     if( m_apDSBuffer == NULL )
         return CO_E_NOTINITIALIZED;
@@ -732,7 +731,7 @@ HRESULT CSound::Play( DWORD dwPriority, DWORD dwFlags, LONG lVolume, LONG lFrequ
     }
 
     if( lFrequency != -1 &&
-        (m_dwCreationFlags & DSBCAPS_CTRLFREQUENCY) )
+        ( m_dwCreationFlags & DSBCAPS_CTRLFREQUENCY ) )
     {
         pDSB->SetFrequency( lFrequency );
     }
@@ -754,8 +753,8 @@ HRESULT CSound::Play( DWORD dwPriority, DWORD dwFlags, LONG lVolume, LONG lFrequ
 HRESULT CSound::Play3D( LPDS3DBUFFER p3DBuffer, DWORD dwPriority, DWORD dwFlags, LONG lFrequency )
 {
     HRESULT hr;
-    BOOL    bRestored;
-    DWORD   dwBaseFrequency;
+    BOOL bRestored;
+    DWORD dwBaseFrequency;
 
     if( m_apDSBuffer == NULL )
         return CO_E_NOTINITIALIZED;
@@ -783,7 +782,7 @@ HRESULT CSound::Play3D( LPDS3DBUFFER p3DBuffer, DWORD dwPriority, DWORD dwFlags,
 
     // QI for the 3D buffer
     LPDIRECTSOUND3DBUFFER pDS3DBuffer;
-    hr = pDSB->QueryInterface( IID_IDirectSound3DBuffer, (VOID**) &pDS3DBuffer );
+    hr = pDSB->QueryInterface( IID_IDirectSound3DBuffer, ( VOID** )&pDS3DBuffer );
     if( SUCCEEDED( hr ) )
     {
         hr = pDS3DBuffer->SetAllParameters( p3DBuffer, DS3D_IMMEDIATE );
@@ -810,7 +809,7 @@ HRESULT CSound::Stop()
 
     HRESULT hr = 0;
 
-    for( DWORD i=0; i<m_dwNumBuffers; i++ )
+    for( DWORD i = 0; i < m_dwNumBuffers; i++ )
         hr |= m_apDSBuffer[i]->Stop();
 
     return hr;
@@ -828,7 +827,7 @@ HRESULT CSound::Reset()
 
     HRESULT hr = 0;
 
-    for( DWORD i=0; i<m_dwNumBuffers; i++ )
+    for( DWORD i = 0; i < m_dwNumBuffers; i++ )
         hr |= m_apDSBuffer[i]->SetCurrentPosition( 0 );
 
     return hr;
@@ -846,7 +845,7 @@ BOOL CSound::IsSoundPlaying()
     if( m_apDSBuffer == NULL )
         return FALSE;
 
-    for( DWORD i=0; i<m_dwNumBuffers; i++ )
+    for( DWORD i = 0; i < m_dwNumBuffers; i++ )
     {
         if( m_apDSBuffer[i] )
         {
@@ -869,12 +868,12 @@ BOOL CSound::IsSoundPlaying()
 //       is written into the buffer by calling HandleWaveStreamNotification()
 //-----------------------------------------------------------------------------
 CStreamingSound::CStreamingSound( LPDIRECTSOUNDBUFFER pDSBuffer, DWORD dwDSBufferSize,
-                                  CWaveFile* pWaveFile, DWORD dwNotifySize )
-                : CSound( &pDSBuffer, dwDSBufferSize, 1, pWaveFile, 0 )
+                                  CWaveFile* pWaveFile, DWORD dwNotifySize ) : CSound( &pDSBuffer, dwDSBufferSize, 1,
+                                                                                       pWaveFile, 0 )
 {
-    m_dwLastPlayPos     = 0;
-    m_dwPlayProgress    = 0;
-    m_dwNotifySize      = dwNotifySize;
+    m_dwLastPlayPos = 0;
+    m_dwPlayProgress = 0;
+    m_dwNotifySize = dwNotifySize;
     m_dwNextWriteOffset = 0;
     m_bFillNextNotificationWithSilence = FALSE;
 }
@@ -897,13 +896,13 @@ CStreamingSound::~CStreamingSound()
 HRESULT CStreamingSound::HandleWaveStreamNotification( BOOL bLoopedPlay )
 {
     HRESULT hr;
-    DWORD   dwCurrentPlayPos;
-    DWORD   dwPlayDelta;
-    DWORD   dwBytesWrittenToBuffer;
-    VOID*   pDSLockedBuffer = NULL;
-    VOID*   pDSLockedBuffer2 = NULL;
-    DWORD   dwDSLockedBufferSize;
-    DWORD   dwDSLockedBufferSize2;
+    DWORD dwCurrentPlayPos;
+    DWORD dwPlayDelta;
+    DWORD dwBytesWrittenToBuffer;
+    VOID* pDSLockedBuffer = NULL;
+    VOID* pDSLockedBuffer2 = NULL;
+    DWORD dwDSLockedBufferSize;
+    DWORD dwDSLockedBufferSize2;
 
     if( m_apDSBuffer == NULL || m_pWaveFile == NULL )
         return CO_E_NOTINITIALIZED;
@@ -935,16 +934,16 @@ HRESULT CStreamingSound::HandleWaveStreamNotification( BOOL bLoopedPlay )
     if( !m_bFillNextNotificationWithSilence )
     {
         // Fill the DirectSound buffer with wav data
-        if( FAILED( hr = m_pWaveFile->Read( (BYTE*) pDSLockedBuffer,
-                                                  dwDSLockedBufferSize,
-                                                  &dwBytesWrittenToBuffer ) ) )
+        if( FAILED( hr = m_pWaveFile->Read( ( BYTE* )pDSLockedBuffer,
+                                            dwDSLockedBufferSize,
+                                            &dwBytesWrittenToBuffer ) ) )
             return DXUT_ERR( L"Read", hr );
     }
     else
     {
         // Fill the DirectSound buffer with silence
         FillMemory( pDSLockedBuffer, dwDSLockedBufferSize,
-                    (BYTE)( m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
+                    ( BYTE )( m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
         dwBytesWrittenToBuffer = dwDSLockedBufferSize;
     }
 
@@ -955,9 +954,9 @@ HRESULT CStreamingSound::HandleWaveStreamNotification( BOOL bLoopedPlay )
         if( !bLoopedPlay )
         {
             // Fill in silence for the rest of the buffer.
-            FillMemory( (BYTE*) pDSLockedBuffer + dwBytesWrittenToBuffer,
+            FillMemory( ( BYTE* )pDSLockedBuffer + dwBytesWrittenToBuffer,
                         dwDSLockedBufferSize - dwBytesWrittenToBuffer,
-                        (BYTE)(m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
+                        ( BYTE )( m_pWaveFile->m_pwfx->wBitsPerSample == 8 ? 128 : 0 ) );
 
             // Any future notifications should just fill the buffer with silence
             m_bFillNextNotificationWithSilence = TRUE;
@@ -972,9 +971,9 @@ HRESULT CStreamingSound::HandleWaveStreamNotification( BOOL bLoopedPlay )
                 if( FAILED( hr = m_pWaveFile->ResetFile() ) )
                     return DXUT_ERR( L"ResetFile", hr );
 
-                if( FAILED( hr = m_pWaveFile->Read( (BYTE*)pDSLockedBuffer + dwReadSoFar,
-                                                          dwDSLockedBufferSize - dwReadSoFar,
-                                                          &dwBytesWrittenToBuffer ) ) )
+                if( FAILED( hr = m_pWaveFile->Read( ( BYTE* )pDSLockedBuffer + dwReadSoFar,
+                                                    dwDSLockedBufferSize - dwReadSoFar,
+                                                    &dwBytesWrittenToBuffer ) ) )
                     return DXUT_ERR( L"Read", hr );
 
                 dwReadSoFar += dwBytesWrittenToBuffer;
@@ -1031,8 +1030,8 @@ HRESULT CStreamingSound::Reset()
     if( m_apDSBuffer[0] == NULL || m_pWaveFile == NULL )
         return CO_E_NOTINITIALIZED;
 
-    m_dwLastPlayPos     = 0;
-    m_dwPlayProgress    = 0;
+    m_dwLastPlayPos = 0;
+    m_dwPlayProgress = 0;
     m_dwNextWriteOffset = 0;
     m_bFillNextNotificationWithSilence = FALSE;
 
@@ -1052,4 +1051,3 @@ HRESULT CStreamingSound::Reset()
 
     return m_apDSBuffer[0]->SetCurrentPosition( 0L );
 }
-

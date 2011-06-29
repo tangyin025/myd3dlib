@@ -29,78 +29,127 @@
 struct DXUT_GAMEPAD
 {
     // From XINPUT_GAMEPAD
-    WORD    wButtons;
-    BYTE    bLeftTrigger;
-    BYTE    bRightTrigger;
-    SHORT   sThumbLX;
-    SHORT   sThumbLY;
-    SHORT   sThumbRX;
-    SHORT   sThumbRY;
+    WORD wButtons;
+    BYTE bLeftTrigger;
+    BYTE bRightTrigger;
+    SHORT sThumbLX;
+    SHORT sThumbLY;
+    SHORT sThumbRX;
+    SHORT sThumbRY;
 
     // Device properties
     XINPUT_CAPABILITIES caps;
-    bool    bConnected; // If the controller is currently connected
-    bool    bInserted;  // If the controller was inserted this frame
-    bool    bRemoved;   // If the controller was removed this frame
+    bool bConnected; // If the controller is currently connected
+    bool bInserted;  // If the controller was inserted this frame
+    bool bRemoved;   // If the controller was removed this frame
 
     // Thumb stick values converted to range [-1,+1]
-    float   fThumbRX;
-    float   fThumbRY;
-    float   fThumbLX;
-    float   fThumbLY;
+    float fThumbRX;
+    float fThumbRY;
+    float fThumbLX;
+    float fThumbLY;
 
     // Records which buttons were pressed this frame.
     // These are only set on the first frame that the button is pressed
-    WORD    wPressedButtons;
-    bool    bPressedLeftTrigger;
-    bool    bPressedRightTrigger;
+    WORD wPressedButtons;
+    bool bPressedLeftTrigger;
+    bool bPressedRightTrigger;
 
     // Last state of the buttons
-    WORD    wLastButtons;
-    bool    bLastLeftTrigger;
-    bool    bLastRightTrigger;
+    WORD wLastButtons;
+    bool bLastLeftTrigger;
+    bool bLastRightTrigger;
 };
 
-HRESULT DXUTGetGamepadState( DWORD dwPort, DXUT_GAMEPAD* pGamePad, bool bThumbstickDeadZone = true, bool bSnapThumbstickToCardinals = true );
+HRESULT DXUTGetGamepadState( DWORD dwPort, DXUT_GAMEPAD* pGamePad, bool bThumbstickDeadZone = true,
+                             bool bSnapThumbstickToCardinals = true );
 HRESULT DXUTStopRumbleOnAllControllers();
-void    DXUTEnableXInput( bool bEnable );
+void DXUTEnableXInput( bool bEnable );
 
 //--------------------------------------------------------------------------------------
 // A growable array
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-class CGrowableArray
+template<typename TYPE> class CGrowableArray
 {
 public:
-    CGrowableArray()  { m_pData = NULL; m_nSize = 0; m_nMaxSize = 0; }
-    CGrowableArray( const CGrowableArray<TYPE>& a ) { for( int i=0; i < a.m_nSize; i++ ) Add( a.m_pData[i] ); }
-    ~CGrowableArray() { RemoveAll(); }
+            CGrowableArray()
+            {
+                m_pData = NULL; m_nSize = 0; m_nMaxSize = 0;
+            }
+            CGrowableArray( const CGrowableArray <TYPE>& a )
+            {
+                for( int i = 0; i < a.m_nSize; i++ ) Add( a.m_pData[i] );
+            }
+            ~CGrowableArray()
+            {
+                RemoveAll();
+            }
 
-    const TYPE& operator[]( int nIndex ) const { return GetAt( nIndex ); }
-    TYPE& operator[]( int nIndex ) { return GetAt( nIndex ); }
-   
-    CGrowableArray& operator=( const CGrowableArray<TYPE>& a ) { if( this == &a ) return *this; RemoveAll(); for( int i=0; i < a.m_nSize; i++ ) Add( a.m_pData[i] ); return *this; }
+    const TYPE& operator[]( int nIndex ) const
+    {
+        return GetAt( nIndex );
+    }
+    TYPE& operator[]( int nIndex )
+    {
+        return GetAt( nIndex );
+    }
+
+    CGrowableArray& operator=( const CGrowableArray <TYPE>& a )
+    {
+        if( this == &a ) return *this; RemoveAll(); for( int i = 0; i < a.m_nSize;
+                                                         i++ ) Add( a.m_pData[i] ); return *this;
+    }
 
     HRESULT SetSize( int nNewMaxSize );
     HRESULT Add( const TYPE& value );
     HRESULT Insert( int nIndex, const TYPE& value );
     HRESULT SetAt( int nIndex, const TYPE& value );
-    TYPE&   GetAt( int nIndex ) const { assert( nIndex >= 0 && nIndex < m_nSize ); return m_pData[nIndex]; }
-    int     GetSize() const { return m_nSize; }
-    TYPE*   GetData() { return m_pData; }
-    bool    Contains( const TYPE& value ){ return ( -1 != IndexOf( value ) ); }
+    TYPE& GetAt( int nIndex ) const
+    {
+        assert( nIndex >= 0 && nIndex < m_nSize ); return m_pData[nIndex];
+    }
+    int     GetSize() const
+    {
+        return m_nSize;
+    }
+    TYPE* GetData()
+    {
+        return m_pData;
+    }
+    bool    Contains( const TYPE& value )
+    {
+        return ( -1 != IndexOf( value ) );
+    }
 
-    int     IndexOf( const TYPE& value ) { return ( m_nSize > 0 ) ? IndexOf( value, 0, m_nSize ) : -1; }
-    int     IndexOf( const TYPE& value, int iStart ) { return IndexOf( value, iStart, m_nSize - iStart ); }
+    int     IndexOf( const TYPE& value )
+    {
+        return ( m_nSize > 0 ) ? IndexOf( value, 0, m_nSize ) : -1;
+    }
+    int     IndexOf( const TYPE& value, int iStart )
+    {
+        return IndexOf( value, iStart, m_nSize - iStart );
+    }
     int     IndexOf( const TYPE& value, int nIndex, int nNumElements );
 
-    int     LastIndexOf( const TYPE& value ) { return ( m_nSize > 0 ) ? LastIndexOf( value, m_nSize-1, m_nSize ) : -1; }
-    int     LastIndexOf( const TYPE& value, int nIndex ) { return LastIndexOf( value, nIndex, nIndex+1 ); }
+    int     LastIndexOf( const TYPE& value )
+    {
+        return ( m_nSize > 0 ) ? LastIndexOf( value, m_nSize - 1, m_nSize ) : -1;
+    }
+    int     LastIndexOf( const TYPE& value, int nIndex )
+    {
+        return LastIndexOf( value, nIndex, nIndex + 1 );
+    }
     int     LastIndexOf( const TYPE& value, int nIndex, int nNumElements );
 
     HRESULT Remove( int nIndex );
-    void    RemoveAll() { SetSize(0); }
-    void	Reset() { m_nSize = 0; }
+    void    RemoveAll()
+    {
+        SetSize( 0 );
+    }
+    void    Reset()
+    {
+        m_nSize = 0;
+    }
 
 protected:
     TYPE* m_pData;      // the actual array of data
@@ -118,24 +167,24 @@ protected:
 class CDXUTTimer
 {
 public:
-    CDXUTTimer();
+                    CDXUTTimer();
 
-    void Reset(); // resets the timer
-    void Start(); // starts the timer
-    void Stop();  // stop (or pause) the timer
-    void Advance(); // advance the timer by 0.1 seconds
-    double GetAbsoluteTime(); // get the absolute system time
-    double GetTime(); // get the current time
-    float GetElapsedTime(); // get the time that elapsed between Get*ElapsedTime() calls
-    void GetTimeValues( double* pfTime, double* pfAbsoluteTime, float* pfElapsedTime ); // get all time values at once
-    bool IsStopped(); // returns true if timer stopped
+    void            Reset(); // resets the timer
+    void            Start(); // starts the timer
+    void            Stop();  // stop (or pause) the timer
+    void            Advance(); // advance the timer by 0.1 seconds
+    double          GetAbsoluteTime(); // get the absolute system time
+    double          GetTime(); // get the current time
+    float           GetElapsedTime(); // get the time that elapsed between Get*ElapsedTime() calls
+    void            GetTimeValues( double* pfTime, double* pfAbsoluteTime, float* pfElapsedTime ); // get all time values at once
+    bool            IsStopped(); // returns true if timer stopped
 
     // Limit the current thread to one processor (the current one). This ensures that timing code runs
     // on only one processor, and will not suffer any ill effects from power management.
-    void LimitThreadAffinityToCurrentProc();
+    void            LimitThreadAffinityToCurrentProc();
 
 protected:
-    LARGE_INTEGER GetAdjustedCurrentTime();
+    LARGE_INTEGER   GetAdjustedCurrentTime();
 
     bool m_bUsingQPF;
     bool m_bTimerStopped;
@@ -146,7 +195,7 @@ protected:
     LONGLONG m_llBaseTime;
 };
 
-CDXUTTimer* WINAPI DXUTGetGlobalTimer();
+CDXUTTimer*                 WINAPI DXUTGetGlobalTimer();
 
 
 //--------------------------------------------------------------------------------------
@@ -180,10 +229,10 @@ void WINAPI DXUTOutputDebugStringW( LPCWSTR strMsg, ... );
 void WINAPI DXUTOutputDebugStringA( LPCSTR strMsg, ... );
 HRESULT WINAPI DXUTTrace( const CHAR* strFile, DWORD dwLine, HRESULT hr, const WCHAR* strMsg, bool bPopMsgBox );
 void WINAPI DXUTTraceDecl( D3DVERTEXELEMENT9 decl[MAX_FVF_DECL_SIZE] );
-WCHAR* WINAPI DXUTTraceD3DDECLUSAGEtoString( BYTE u );
-WCHAR* WINAPI DXUTTraceD3DDECLMETHODtoString( BYTE m );
-WCHAR* WINAPI DXUTTraceD3DDECLTYPEtoString( BYTE t );
-WCHAR* WINAPI DXUTTraceWindowsMessage( UINT uMsg );
+WCHAR*                      WINAPI DXUTTraceD3DDECLUSAGEtoString( BYTE u );
+WCHAR*                      WINAPI DXUTTraceD3DDECLMETHODtoString( BYTE m );
+WCHAR*                      WINAPI DXUTTraceD3DDECLTYPEtoString( BYTE t );
+WCHAR*                      WINAPI DXUTTraceWindowsMessage( UINT uMsg );
 
 #ifdef UNICODE
 #define DXUTOutputDebugString DXUTOutputDebugStringW
@@ -209,7 +258,7 @@ WCHAR* WINAPI DXUTTraceWindowsMessage( UINT uMsg );
 // failure if APIs are not present.
 //--------------------------------------------------------------------------------------
 
-IDirect3D9 * WINAPI DXUT_Dynamic_Direct3DCreate9(UINT SDKVersion);
+IDirect3D9*                 WINAPI DXUT_Dynamic_Direct3DCreate9( UINT SDKVersion );
 int WINAPI DXUT_Dynamic_D3DPERF_BeginEvent( D3DCOLOR col, LPCWSTR wszName );
 int WINAPI DXUT_Dynamic_D3DPERF_EndEvent( void );
 void WINAPI DXUT_Dynamic_D3DPERF_SetMarker( D3DCOLOR col, LPCWSTR wszName );
@@ -217,22 +266,39 @@ void WINAPI DXUT_Dynamic_D3DPERF_SetRegion( D3DCOLOR col, LPCWSTR wszName );
 BOOL WINAPI DXUT_Dynamic_D3DPERF_QueryRepeatFrame( void );
 void WINAPI DXUT_Dynamic_D3DPERF_SetOptions( DWORD dwOptions );
 DWORD WINAPI DXUT_Dynamic_D3DPERF_GetStatus( void );
-HRESULT WINAPI DXUT_Dynamic_CreateDXGIFactory( REFIID rInterface, void ** ppOut );
+HRESULT WINAPI DXUT_Dynamic_CreateDXGIFactory( REFIID rInterface, void** ppOut );
+HRESULT WINAPI DXUT_Dynamic_D3D10CreateDevice1( IDXGIAdapter* pAdapter,
+                                                D3D10_DRIVER_TYPE DriverType,
+                                                HMODULE Software,
+                                                UINT Flags,
+                                                D3D10_FEATURE_LEVEL1 HardwareLevel,
+                                                UINT SDKVersion,
+                                                ID3D10Device1** ppDevice );
 HRESULT WINAPI DXUT_Dynamic_D3D10CreateDevice( IDXGIAdapter* pAdapter,
                                                D3D10_DRIVER_TYPE DriverType,
+                                               HMODULE Software,
                                                UINT32 Flags,
                                                CONST void* pExtensions,
                                                UINT32 SDKVersion,
                                                ID3D10Device** ppDevice );
-HRESULT WINAPI DXUT_Dynamic_D3D10CreateStateBlock( ID3D10Device *pDevice, D3D10_STATE_BLOCK_MASK *pStateBlockMask, ID3D10StateBlock **ppStateBlock );
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskUnion(D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB, D3D10_STATE_BLOCK_MASK *pResult);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskIntersect(D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB, D3D10_STATE_BLOCK_MASK *pResult);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDifference(D3D10_STATE_BLOCK_MASK *pA, D3D10_STATE_BLOCK_MASK *pB, D3D10_STATE_BLOCK_MASK *pResult);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskEnableCapture(D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType, UINT RangeStart, UINT RangeLength);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDisableCapture(D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType, UINT RangeStart, UINT RangeLength);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskEnableAll(D3D10_STATE_BLOCK_MASK *pMask);
-HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDisableAll(D3D10_STATE_BLOCK_MASK *pMask);
-BOOL WINAPI DXUT_Dynamic_D3D10StateBlockMaskGetSetting(D3D10_STATE_BLOCK_MASK *pMask, D3D10_DEVICE_STATE_TYPES StateType, UINT Entry);
+HRESULT WINAPI DXUT_Dynamic_D3D10CreateStateBlock( ID3D10Device* pDevice, D3D10_STATE_BLOCK_MASK* pStateBlockMask,
+                                                   ID3D10StateBlock** ppStateBlock );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskUnion( D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+                                                      D3D10_STATE_BLOCK_MASK* pResult );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskIntersect( D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+                                                          D3D10_STATE_BLOCK_MASK* pResult );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDifference( D3D10_STATE_BLOCK_MASK* pA, D3D10_STATE_BLOCK_MASK* pB,
+                                                           D3D10_STATE_BLOCK_MASK* pResult );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskEnableCapture( D3D10_STATE_BLOCK_MASK* pMask,
+                                                              D3D10_DEVICE_STATE_TYPES StateType, UINT RangeStart,
+                                                              UINT RangeLength );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDisableCapture( D3D10_STATE_BLOCK_MASK* pMask,
+                                                               D3D10_DEVICE_STATE_TYPES StateType, UINT RangeStart,
+                                                               UINT RangeLength );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskEnableAll( D3D10_STATE_BLOCK_MASK* pMask );
+HRESULT WINAPI DXUT_Dynamic_D3D10StateBlockMaskDisableAll( D3D10_STATE_BLOCK_MASK* pMask );
+BOOL WINAPI DXUT_Dynamic_D3D10StateBlockMaskGetSetting( D3D10_STATE_BLOCK_MASK* pMask,
+                                                        D3D10_DEVICE_STATE_TYPES StateType, UINT Entry );
 
 
 //--------------------------------------------------------------------------------------
@@ -244,9 +310,9 @@ BOOL WINAPI DXUT_Dynamic_D3D10StateBlockMaskGetSetting(D3D10_STATE_BLOCK_MASK *p
 // performance analysis tools.  The following constants are provided for your 
 // convenience, but you can use any colors you like.
 //--------------------------------------------------------------------------------------
-const D3DCOLOR DXUT_PERFEVENTCOLOR  = D3DCOLOR_XRGB(200,100,100);
-const D3DCOLOR DXUT_PERFEVENTCOLOR2 = D3DCOLOR_XRGB(100,200,100);
-const D3DCOLOR DXUT_PERFEVENTCOLOR3 = D3DCOLOR_XRGB(100,100,200);
+const D3DCOLOR              DXUT_PERFEVENTCOLOR = D3DCOLOR_XRGB( 200, 100, 100 );
+const D3DCOLOR              DXUT_PERFEVENTCOLOR2 = D3DCOLOR_XRGB( 100, 200, 100 );
+const D3DCOLOR              DXUT_PERFEVENTCOLOR3 = D3DCOLOR_XRGB( 100, 100, 200 );
 
 //--------------------------------------------------------------------------------------
 // The following macros provide a convenient way for your code to call the D3DPERF 
@@ -280,8 +346,14 @@ const D3DCOLOR DXUT_PERFEVENTCOLOR3 = D3DCOLOR_XRGB(100,100,200);
 class CDXUTPerfEventGenerator
 {
 public:
-    CDXUTPerfEventGenerator( D3DCOLOR color, LPCWSTR pstrMessage ) { DXUT_BeginPerfEvent( color, pstrMessage ); }
-    ~CDXUTPerfEventGenerator( void ) { DXUT_EndPerfEvent(); }
+CDXUTPerfEventGenerator( D3DCOLOR color, LPCWSTR pstrMessage )
+{
+    DXUT_BeginPerfEvent( color, pstrMessage );
+}
+~CDXUTPerfEventGenerator( void )
+{
+    DXUT_EndPerfEvent();
+}
 };
 
 
@@ -291,29 +363,29 @@ public:
 // COMPILE_MULTIMON_STUBS and cause complication with MFC or other users of multimon.h
 //--------------------------------------------------------------------------------------
 #ifndef MONITOR_DEFAULTTOPRIMARY
-    #define MONITORINFOF_PRIMARY        0x00000001
-    #define MONITOR_DEFAULTTONULL       0x00000000
-    #define MONITOR_DEFAULTTOPRIMARY    0x00000001
-    #define MONITOR_DEFAULTTONEAREST    0x00000002
-    typedef struct tagMONITORINFO
-    {
-        DWORD   cbSize;
-        RECT    rcMonitor;
-        RECT    rcWork;
-        DWORD   dwFlags;
-    } MONITORINFO, *LPMONITORINFO;
-    typedef struct tagMONITORINFOEXW : public tagMONITORINFO
-    {
-        WCHAR       szDevice[CCHDEVICENAME];
-    } MONITORINFOEXW, *LPMONITORINFOEXW;
-    typedef MONITORINFOEXW MONITORINFOEX;
-    typedef LPMONITORINFOEXW LPMONITORINFOEX;
+#define MONITORINFOF_PRIMARY        0x00000001
+#define MONITOR_DEFAULTTONULL       0x00000000
+#define MONITOR_DEFAULTTOPRIMARY    0x00000001
+#define MONITOR_DEFAULTTONEAREST    0x00000002
+typedef struct tagMONITORINFO
+{
+    DWORD cbSize;
+    RECT rcMonitor;
+    RECT rcWork;
+    DWORD dwFlags;
+}                           MONITORINFO, *LPMONITORINFO;
+typedef struct tagMONITORINFOEXW : public tagMONITORINFO
+{
+    WCHAR szDevice[CCHDEVICENAME];
+}                           MONITORINFOEXW, *LPMONITORINFOEXW;
+typedef MONITORINFOEXW      MONITORINFOEX;
+typedef LPMONITORINFOEXW    LPMONITORINFOEX;
 #endif
 
 HMONITOR WINAPI DXUTMonitorFromWindow( HWND hWnd, DWORD dwFlags );
-HMONITOR WINAPI DXUTMonitorFromRect(LPCRECT lprcScreenCoords, DWORD dwFlags);
-BOOL     WINAPI DXUTGetMonitorInfo( HMONITOR hMonitor, LPMONITORINFO lpMonitorInfo );
-void     WINAPI DXUTGetDesktopResolution( UINT AdapterOrdinal, UINT* pWidth, UINT* pHeight );
+HMONITOR WINAPI DXUTMonitorFromRect( LPCRECT lprcScreenCoords, DWORD dwFlags );
+BOOL WINAPI DXUTGetMonitorInfo( HMONITOR hMonitor, LPMONITORINFO lpMonitorInfo );
+void WINAPI DXUTGetDesktopResolution( UINT AdapterOrdinal, UINT* pWidth, UINT* pHeight );
 
 
 //--------------------------------------------------------------------------------------
@@ -321,10 +393,9 @@ void     WINAPI DXUTGetDesktopResolution( UINT AdapterOrdinal, UINT* pWidth, UIN
 //--------------------------------------------------------------------------------------
 
 // This version doesn't call ctor or dtor.
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::SetSizeInternal( int nNewMaxSize )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::SetSizeInternal( int nNewMaxSize )
 {
-    if( nNewMaxSize < 0 )
+    if( nNewMaxSize < 0 || ( nNewMaxSize > INT_MAX / sizeof( TYPE ) ) )
     {
         assert( false );
         return E_INVALIDARG;
@@ -348,16 +419,16 @@ HRESULT CGrowableArray<TYPE>::SetSizeInternal( int nNewMaxSize )
         int nGrowBy = ( m_nMaxSize == 0 ) ? 16 : m_nMaxSize;
 
         // Limit nGrowBy to keep m_nMaxSize less than INT_MAX
-        if( (UINT)m_nMaxSize + (UINT)nGrowBy > (UINT)INT_MAX )
+        if( ( UINT )m_nMaxSize + ( UINT )nGrowBy > ( UINT )INT_MAX )
             nGrowBy = INT_MAX - m_nMaxSize;
 
         nNewMaxSize = __max( nNewMaxSize, m_nMaxSize + nGrowBy );
 
         // Verify that (nNewMaxSize * sizeof(TYPE)) is not greater than UINT_MAX or the realloc will overrun
-        if( sizeof(TYPE) > UINT_MAX / (UINT)nNewMaxSize )
+        if( sizeof( TYPE ) > UINT_MAX / ( UINT )nNewMaxSize )
             return E_INVALIDARG;
 
-        TYPE* pDataNew = (TYPE*) realloc( m_pData, nNewMaxSize * sizeof(TYPE) );
+        TYPE* pDataNew = ( TYPE* )realloc( m_pData, nNewMaxSize * sizeof( TYPE ) );
         if( pDataNew == NULL )
             return E_OUTOFMEMORY;
 
@@ -370,17 +441,20 @@ HRESULT CGrowableArray<TYPE>::SetSizeInternal( int nNewMaxSize )
 
 
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::SetSize( int nNewMaxSize )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::SetSize( int nNewMaxSize )
 {
     int nOldSize = m_nSize;
 
     if( nOldSize > nNewMaxSize )
     {
-        // Removing elements. Call dtor.
+        assert( m_pData );
+        if( m_pData )
+        {
+            // Removing elements. Call dtor.
 
-        for( int i = nNewMaxSize; i < nOldSize; ++i )
-            m_pData[i].~TYPE();
+            for( int i = nNewMaxSize; i < nOldSize; ++i )
+                m_pData[i].~TYPE();
+        }
     }
 
     // Adjust buffer.  Note that there's no need to check for error
@@ -389,10 +463,14 @@ HRESULT CGrowableArray<TYPE>::SetSize( int nNewMaxSize )
 
     if( nOldSize < nNewMaxSize )
     {
-        // Adding elements. Call ctor.
+        assert( m_pData );
+        if( m_pData )
+        {
+            // Adding elements. Call ctor.
 
-        for( int i = nOldSize; i < nNewMaxSize; ++i )
-            ::new (&m_pData[i]) TYPE;
+            for( int i = nOldSize; i < nNewMaxSize; ++i )
+                ::new ( &m_pData[i] ) TYPE;
+        }
     }
 
     return hr;
@@ -400,15 +478,14 @@ HRESULT CGrowableArray<TYPE>::SetSize( int nNewMaxSize )
 
 
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::Add( const TYPE& value )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::Add( const TYPE& value )
 {
     HRESULT hr;
     if( FAILED( hr = SetSizeInternal( m_nSize + 1 ) ) )
         return hr;
 
     // Construct the new element
-    ::new (&m_pData[m_nSize]) TYPE;
+    ::new ( &m_pData[m_nSize] ) TYPE;
 
     // Assign
     m_pData[m_nSize] = value;
@@ -419,13 +496,12 @@ HRESULT CGrowableArray<TYPE>::Add( const TYPE& value )
 
 
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::Insert( int nIndex, const TYPE& value )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::Insert( int nIndex, const TYPE& value )
 {
     HRESULT hr;
 
     // Validate index
-    if( nIndex < 0 || 
+    if( nIndex < 0 ||
         nIndex > m_nSize )
     {
         assert( false );
@@ -437,10 +513,10 @@ HRESULT CGrowableArray<TYPE>::Insert( int nIndex, const TYPE& value )
         return hr;
 
     // Shift the array
-    MoveMemory( &m_pData[nIndex+1], &m_pData[nIndex], sizeof(TYPE) * (m_nSize - nIndex) );
+    MoveMemory( &m_pData[nIndex + 1], &m_pData[nIndex], sizeof( TYPE ) * ( m_nSize - nIndex ) );
 
     // Construct the new element
-    ::new (&m_pData[nIndex]) TYPE;
+    ::new ( &m_pData[nIndex] ) TYPE;
 
     // Set the value and increase the size
     m_pData[nIndex] = value;
@@ -451,8 +527,7 @@ HRESULT CGrowableArray<TYPE>::Insert( int nIndex, const TYPE& value )
 
 
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::SetAt( int nIndex, const TYPE& value )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::SetAt( int nIndex, const TYPE& value )
 {
     // Validate arguments
     if( nIndex < 0 ||
@@ -473,11 +548,10 @@ HRESULT CGrowableArray<TYPE>::SetAt( int nIndex, const TYPE& value )
 // specified number of elements. Returns -1 if value is not found within the given 
 // section.
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-int CGrowableArray<TYPE>::IndexOf( const TYPE& value, int iStart, int nNumElements )
+template<typename TYPE> int CGrowableArray <TYPE>::IndexOf( const TYPE& value, int iStart, int nNumElements )
 {
     // Validate arguments
-    if( iStart < 0 || 
+    if( iStart < 0 ||
         iStart >= m_nSize ||
         nNumElements < 0 ||
         iStart + nNumElements > m_nSize )
@@ -487,7 +561,7 @@ int CGrowableArray<TYPE>::IndexOf( const TYPE& value, int iStart, int nNumElemen
     }
 
     // Search
-    for( int i = iStart; i < (iStart + nNumElements); i++ )
+    for( int i = iStart; i < ( iStart + nNumElements ); i++ )
     {
         if( value == m_pData[i] )
             return i;
@@ -503,11 +577,10 @@ int CGrowableArray<TYPE>::IndexOf( const TYPE& value, int iStart, int nNumElemen
 // within the section of the data array that contains the specified number of elements
 // and ends at iEnd. Returns -1 if value is not found within the given section.
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-int CGrowableArray<TYPE>::LastIndexOf( const TYPE& value, int iEnd, int nNumElements )
+template<typename TYPE> int CGrowableArray <TYPE>::LastIndexOf( const TYPE& value, int iEnd, int nNumElements )
 {
     // Validate arguments
-    if( iEnd < 0 || 
+    if( iEnd < 0 ||
         iEnd >= m_nSize ||
         nNumElements < 0 ||
         iEnd - nNumElements < 0 )
@@ -517,7 +590,7 @@ int CGrowableArray<TYPE>::LastIndexOf( const TYPE& value, int iEnd, int nNumElem
     }
 
     // Search
-    for( int i = iEnd; i > (iEnd - nNumElements); i-- )
+    for( int i = iEnd; i > ( iEnd - nNumElements ); i-- )
     {
         if( value == m_pData[i] )
             return i;
@@ -530,10 +603,9 @@ int CGrowableArray<TYPE>::LastIndexOf( const TYPE& value, int iEnd, int nNumElem
 
 
 //--------------------------------------------------------------------------------------
-template< typename TYPE >
-HRESULT CGrowableArray<TYPE>::Remove( int nIndex )
+template<typename TYPE> HRESULT CGrowableArray <TYPE>::Remove( int nIndex )
 {
-    if( nIndex < 0 || 
+    if( nIndex < 0 ||
         nIndex >= m_nSize )
     {
         assert( false );
@@ -544,7 +616,7 @@ HRESULT CGrowableArray<TYPE>::Remove( int nIndex )
     m_pData[nIndex].~TYPE();
 
     // Compact the array and decrease the size
-    MoveMemory( &m_pData[nIndex], &m_pData[nIndex+1], sizeof(TYPE) * (m_nSize - (nIndex+1)) );
+    MoveMemory( &m_pData[nIndex], &m_pData[nIndex + 1], sizeof( TYPE ) * ( m_nSize - ( nIndex + 1 ) ) );
     --m_nSize;
 
     return S_OK;
@@ -554,17 +626,23 @@ HRESULT CGrowableArray<TYPE>::Remove( int nIndex )
 // Creates a REF or NULLREF D3D9 device and returns that device.  The caller should call
 // Release() when done with the device.
 //--------------------------------------------------------------------------------------
-IDirect3DDevice9* WINAPI DXUTCreateRefDevice9( HWND hWnd, bool bNullRef = true );
+IDirect3DDevice9*           WINAPI DXUTCreateRefDevice9( HWND hWnd, bool bNullRef = true );
 
 //--------------------------------------------------------------------------------------
 // Creates a REF or NULLREF D3D10 device and returns the device.  The caller should call
 // Release() when done with the device.
 //--------------------------------------------------------------------------------------
-ID3D10Device* WINAPI DXUTCreateRefDevice10( bool bNullRef = true );
+ID3D10Device*               WINAPI DXUTCreateRefDevice10( bool bNullRef = true );
 
 //--------------------------------------------------------------------------------------
 // Helper function to launch the Media Center UI after the program terminates
 //--------------------------------------------------------------------------------------
 bool DXUTReLaunchMediaCenter();
+
+//--------------------------------------------------------------------------------------
+// Helper functions to create SRGB formats from typeless formats and vice versa
+//--------------------------------------------------------------------------------------
+DXGI_FORMAT MAKE_SRGB( DXGI_FORMAT format );
+DXGI_FORMAT MAKE_TYPELESS( DXGI_FORMAT format );
 
 #endif

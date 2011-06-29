@@ -13,13 +13,14 @@
 #include "SDKMisc.h"
 
 //--------------------------------------------------------------------------------------
-void CDXUTSDKMesh::LoadMaterials( ID3D10Device* pd3dDevice, SDKMESH_MATERIAL* pMaterials, UINT numMaterials, SDKMESH_CALLBACKS10* pLoaderCallbacks )
+void CDXUTSDKMesh::LoadMaterials( ID3D10Device* pd3dDevice, SDKMESH_MATERIAL* pMaterials, UINT numMaterials,
+                                  SDKMESH_CALLBACKS10* pLoaderCallbacks )
 {
     char strPath[MAX_PATH];
 
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateTextureFromFile )
     {
-        for( UINT m=0; m<numMaterials; m++ )
+        for( UINT m = 0; m < numMaterials; m++ )
         {
             pMaterials[m].pDiffuseTexture10 = NULL;
             pMaterials[m].pNormalTexture10 = NULL;
@@ -31,21 +32,27 @@ void CDXUTSDKMesh::LoadMaterials( ID3D10Device* pd3dDevice, SDKMESH_MATERIAL* pM
             // load textures
             if( pMaterials[m].DiffuseTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].DiffuseTexture, &pMaterials[m].pDiffuseRV10, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].DiffuseTexture, &pMaterials[m].pDiffuseRV10,
+                                                          pLoaderCallbacks->pContext );
             }
             if( pMaterials[m].NormalTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].NormalTexture, &pMaterials[m].pNormalRV10, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].NormalTexture, &pMaterials[m].pNormalRV10,
+                                                          pLoaderCallbacks->pContext );
             }
             if( pMaterials[m].SpecularTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].SpecularTexture, &pMaterials[m].pSpecularRV10, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].SpecularTexture, &pMaterials[m].pSpecularRV10,
+                                                          pLoaderCallbacks->pContext );
             }
         }
     }
     else
     {
-        for( UINT m=0; m<numMaterials; m++ )
+        for( UINT m = 0; m < numMaterials; m++ )
         {
             pMaterials[m].pDiffuseTexture10 = NULL;
             pMaterials[m].pNormalTexture10 = NULL;
@@ -57,35 +64,42 @@ void CDXUTSDKMesh::LoadMaterials( ID3D10Device* pd3dDevice, SDKMESH_MATERIAL* pM
             // load textures
             if( pMaterials[m].DiffuseTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].DiffuseTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pDiffuseRV10 ) ) )
-                    pMaterials[m].pDiffuseRV10 = (ID3D10ShaderResourceView*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].DiffuseTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath, &pMaterials[m].pDiffuseRV10,
+                                                                                true ) ) )
+                    pMaterials[m].pDiffuseRV10 = ( ID3D10ShaderResourceView* )ERROR_RESOURCE_VALUE;
 
             }
             if( pMaterials[m].NormalTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].NormalTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pNormalRV10 ) ) )
-                    pMaterials[m].pNormalRV10 = (ID3D10ShaderResourceView*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].NormalTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath,
+                                                                                &pMaterials[m].pNormalRV10 ) ) )
+                    pMaterials[m].pNormalRV10 = ( ID3D10ShaderResourceView* )ERROR_RESOURCE_VALUE;
             }
             if( pMaterials[m].SpecularTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].SpecularTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pSpecularRV10 ) ) )
-                    pMaterials[m].pSpecularRV10 = (ID3D10ShaderResourceView*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].SpecularTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath,
+                                                                                &pMaterials[m].pSpecularRV10 ) ) )
+                    pMaterials[m].pSpecularRV10 = ( ID3D10ShaderResourceView* )ERROR_RESOURCE_VALUE;
             }
         }
     }
 }
 
 //--------------------------------------------------------------------------------------
-void CDXUTSDKMesh::LoadMaterials( IDirect3DDevice9* pd3dDevice, SDKMESH_MATERIAL* pMaterials, UINT numMaterials, SDKMESH_CALLBACKS9* pLoaderCallbacks )
+void CDXUTSDKMesh::LoadMaterials( IDirect3DDevice9* pd3dDevice, SDKMESH_MATERIAL* pMaterials, UINT numMaterials,
+                                  SDKMESH_CALLBACKS9* pLoaderCallbacks )
 {
     char strPath[MAX_PATH];
 
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateTextureFromFile )
     {
-        for( UINT m=0; m<numMaterials; m++ )
+        for( UINT m = 0; m < numMaterials; m++ )
         {
             pMaterials[m].pDiffuseTexture9 = NULL;
             pMaterials[m].pNormalTexture9 = NULL;
@@ -97,21 +111,29 @@ void CDXUTSDKMesh::LoadMaterials( IDirect3DDevice9* pd3dDevice, SDKMESH_MATERIAL
             // load textures
             if( pMaterials[m].DiffuseTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].DiffuseTexture, &pMaterials[m].pDiffuseTexture9, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].DiffuseTexture,
+                                                          &pMaterials[m].pDiffuseTexture9,
+                                                          pLoaderCallbacks->pContext );
             }
             if( pMaterials[m].NormalTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].NormalTexture, &pMaterials[m].pNormalTexture9, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].NormalTexture, &pMaterials[m].pNormalTexture9,
+                                                          pLoaderCallbacks->pContext );
             }
             if( pMaterials[m].SpecularTexture[0] != 0 )
             {
-                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice, pMaterials[m].SpecularTexture, &pMaterials[m].pSpecularTexture9, pLoaderCallbacks->pContext );
+                pLoaderCallbacks->pCreateTextureFromFile( pd3dDevice,
+                                                          pMaterials[m].SpecularTexture,
+                                                          &pMaterials[m].pSpecularTexture9,
+                                                          pLoaderCallbacks->pContext );
             }
         }
     }
     else
     {
-        for( UINT m=0; m<numMaterials; m++ )
+        for( UINT m = 0; m < numMaterials; m++ )
         {
             pMaterials[m].pDiffuseTexture9 = NULL;
             pMaterials[m].pNormalTexture9 = NULL;
@@ -123,21 +145,27 @@ void CDXUTSDKMesh::LoadMaterials( IDirect3DDevice9* pd3dDevice, SDKMESH_MATERIAL
             // load textures
             if( pMaterials[m].DiffuseTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].DiffuseTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pDiffuseTexture9 ) ) )
-                    pMaterials[m].pDiffuseTexture9 = (IDirect3DTexture9*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].DiffuseTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath,
+                                                                                &pMaterials[m].pDiffuseTexture9 ) ) )
+                    pMaterials[m].pDiffuseTexture9 = ( IDirect3DTexture9* )ERROR_RESOURCE_VALUE;
             }
             if( pMaterials[m].NormalTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].NormalTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pNormalTexture9 ) ) )
-                    pMaterials[m].pNormalTexture9 = (IDirect3DTexture9*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].NormalTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath,
+                                                                                &pMaterials[m].pNormalTexture9 ) ) )
+                    pMaterials[m].pNormalTexture9 = ( IDirect3DTexture9* )ERROR_RESOURCE_VALUE;
             }
             if( pMaterials[m].SpecularTexture[0] != 0 )
             {
-                StringCchPrintfA( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].SpecularTexture );
-                if( FAILED(DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice, strPath, &pMaterials[m].pSpecularTexture9 ) ) )
-                    pMaterials[m].pSpecularTexture9 = (IDirect3DTexture9*)ERROR_RESOURCE_VALUE;
+                sprintf_s( strPath, MAX_PATH, "%s%s", m_strPath, pMaterials[m].SpecularTexture );
+                if( FAILED( DXUTGetGlobalResourceCache().CreateTextureFromFile( pd3dDevice,
+                                                                                strPath,
+                                                                                &pMaterials[m].pSpecularTexture9 ) ) )
+                    pMaterials[m].pSpecularTexture9 = ( IDirect3DTexture9* )ERROR_RESOURCE_VALUE;
             }
 
         }
@@ -145,21 +173,23 @@ void CDXUTSDKMesh::LoadMaterials( IDirect3DDevice9* pd3dDevice, SDKMESH_MATERIAL
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateVertexBuffer( ID3D10Device* pd3dDevice, SDKMESH_VERTEX_BUFFER_HEADER* pHeader, void* pVertices, SDKMESH_CALLBACKS10* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::CreateVertexBuffer( ID3D10Device* pd3dDevice, SDKMESH_VERTEX_BUFFER_HEADER* pHeader,
+                                          void* pVertices, SDKMESH_CALLBACKS10* pLoaderCallbacks )
 {
     HRESULT hr = S_OK;
     pHeader->DataOffset = 0;
     //Vertex Buffer
     D3D10_BUFFER_DESC bufferDesc;
-    bufferDesc.ByteWidth = (UINT)(pHeader->SizeBytes);
+    bufferDesc.ByteWidth = ( UINT )( pHeader->SizeBytes );
     bufferDesc.Usage = D3D10_USAGE_DEFAULT;
     bufferDesc.BindFlags = D3D10_BIND_VERTEX_BUFFER;
     bufferDesc.CPUAccessFlags = 0;
     bufferDesc.MiscFlags = 0;
 
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateVertexBuffer )
-    { 
-        pLoaderCallbacks->pCreateVertexBuffer( pd3dDevice, &pHeader->pVB10, bufferDesc, pVertices, pLoaderCallbacks->pContext );
+    {
+        pLoaderCallbacks->pCreateVertexBuffer( pd3dDevice, &pHeader->pVB10, bufferDesc, pVertices,
+                                               pLoaderCallbacks->pContext );
     }
     else
     {
@@ -172,13 +202,14 @@ HRESULT CDXUTSDKMesh::CreateVertexBuffer( ID3D10Device* pd3dDevice, SDKMESH_VERT
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateIndexBuffer( ID3D10Device* pd3dDevice, SDKMESH_INDEX_BUFFER_HEADER* pHeader, void* pIndices, SDKMESH_CALLBACKS10* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::CreateIndexBuffer( ID3D10Device* pd3dDevice, SDKMESH_INDEX_BUFFER_HEADER* pHeader,
+                                         void* pIndices, SDKMESH_CALLBACKS10* pLoaderCallbacks )
 {
     HRESULT hr = S_OK;
     pHeader->DataOffset = 0;
     //Index Buffer
     D3D10_BUFFER_DESC bufferDesc;
-    bufferDesc.ByteWidth = (UINT)(pHeader->SizeBytes);
+    bufferDesc.ByteWidth = ( UINT )( pHeader->SizeBytes );
     bufferDesc.Usage = D3D10_USAGE_DEFAULT;
     bufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
     bufferDesc.CPUAccessFlags = 0;
@@ -186,7 +217,8 @@ HRESULT CDXUTSDKMesh::CreateIndexBuffer( ID3D10Device* pd3dDevice, SDKMESH_INDEX
 
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateVertexBuffer )
     {
-        pLoaderCallbacks->pCreateIndexBuffer( pd3dDevice, &pHeader->pIB10, bufferDesc, pIndices, pLoaderCallbacks->pContext );
+        pLoaderCallbacks->pCreateIndexBuffer( pd3dDevice, &pHeader->pIB10, bufferDesc, pIndices,
+                                              pLoaderCallbacks->pContext );
     }
     else
     {
@@ -199,30 +231,33 @@ HRESULT CDXUTSDKMesh::CreateIndexBuffer( ID3D10Device* pd3dDevice, SDKMESH_INDEX
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateVertexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_VERTEX_BUFFER_HEADER* pHeader, void* pVertices, SDKMESH_CALLBACKS9* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::CreateVertexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_VERTEX_BUFFER_HEADER* pHeader,
+                                          void* pVertices, SDKMESH_CALLBACKS9* pLoaderCallbacks )
 {
     HRESULT hr = S_OK;
 
     pHeader->DataOffset = 0;
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateVertexBuffer )
     {
-        pLoaderCallbacks->pCreateVertexBuffer( pd3dDevice, &pHeader->pVB9, (UINT)pHeader->SizeBytes, D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, pVertices, pLoaderCallbacks->pContext );
+        pLoaderCallbacks->pCreateVertexBuffer( pd3dDevice, &pHeader->pVB9, ( UINT )pHeader->SizeBytes,
+                                               D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, pVertices,
+                                               pLoaderCallbacks->pContext );
     }
     else
     {
-        hr = pd3dDevice->CreateVertexBuffer(   (UINT)pHeader->SizeBytes,
-                                                    D3DUSAGE_WRITEONLY,
-                                                    0,
-                                                    D3DPOOL_DEFAULT,
-                                                    &pHeader->pVB9,
-                                                    NULL );
+        hr = pd3dDevice->CreateVertexBuffer( ( UINT )pHeader->SizeBytes,
+                                             D3DUSAGE_WRITEONLY,
+                                             0,
+                                             D3DPOOL_DEFAULT,
+                                             &pHeader->pVB9,
+                                             NULL );
 
         //lock
-        if( SUCCEEDED(hr) )
+        if( SUCCEEDED( hr ) )
         {
             void* pLockedVerts = NULL;
             V_RETURN( pHeader->pVB9->Lock( 0, 0, &pLockedVerts, 0 ) );
-            CopyMemory( pLockedVerts, pVertices, (size_t)pHeader->SizeBytes );
+            CopyMemory( pLockedVerts, pVertices, ( size_t )pHeader->SizeBytes );
             pHeader->pVB9->Unlock();
         }
     }
@@ -231,7 +266,8 @@ HRESULT CDXUTSDKMesh::CreateVertexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateIndexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_INDEX_BUFFER_HEADER* pHeader, void* pIndices, SDKMESH_CALLBACKS9* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::CreateIndexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_INDEX_BUFFER_HEADER* pHeader,
+                                         void* pIndices, SDKMESH_CALLBACKS9* pLoaderCallbacks )
 {
     HRESULT hr = S_OK;
 
@@ -240,32 +276,34 @@ HRESULT CDXUTSDKMesh::CreateIndexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_I
     D3DFORMAT ibFormat = D3DFMT_INDEX16;
     switch( pHeader->IndexType )
     {
-    case IT_16BIT:
-        ibFormat = D3DFMT_INDEX16;
-        break;
-    case IT_32BIT:
-        ibFormat = D3DFMT_INDEX32;
-        break;
+        case IT_16BIT:
+            ibFormat = D3DFMT_INDEX16;
+            break;
+        case IT_32BIT:
+            ibFormat = D3DFMT_INDEX32;
+            break;
     };
 
     if( pLoaderCallbacks && pLoaderCallbacks->pCreateIndexBuffer )
     {
-        pLoaderCallbacks->pCreateIndexBuffer( pd3dDevice, &pHeader->pIB9, (UINT)pHeader->SizeBytes, D3DUSAGE_WRITEONLY, ibFormat, D3DPOOL_DEFAULT, pIndices, pLoaderCallbacks->pContext );
+        pLoaderCallbacks->pCreateIndexBuffer( pd3dDevice, &pHeader->pIB9, ( UINT )pHeader->SizeBytes,
+                                              D3DUSAGE_WRITEONLY, ibFormat, D3DPOOL_DEFAULT, pIndices,
+                                              pLoaderCallbacks->pContext );
     }
     else
     {
-        hr = pd3dDevice->CreateIndexBuffer(   (UINT)(pHeader->SizeBytes),
-                                                    D3DUSAGE_WRITEONLY,
-                                                    ibFormat,
-                                                    D3DPOOL_DEFAULT,
-                                                    &pHeader->pIB9,
-                                                    NULL );
+        hr = pd3dDevice->CreateIndexBuffer( ( UINT )( pHeader->SizeBytes ),
+                                            D3DUSAGE_WRITEONLY,
+                                            ibFormat,
+                                            D3DPOOL_DEFAULT,
+                                            &pHeader->pIB9,
+                                            NULL );
 
-        if( SUCCEEDED(hr) )
+        if( SUCCEEDED( hr ) )
         {
             void* pLockedIndices = NULL;
             V_RETURN( pHeader->pIB9->Lock( 0, 0, &pLockedIndices, 0 ) );
-            CopyMemory( pLockedIndices, pIndices, (size_t)(pHeader->SizeBytes) );
+            CopyMemory( pLockedIndices, pIndices, ( size_t )( pHeader->SizeBytes ) );
             pHeader->pIB9->Unlock();
         }
     }
@@ -274,26 +312,26 @@ HRESULT CDXUTSDKMesh::CreateIndexBuffer( IDirect3DDevice9* pd3dDevice, SDKMESH_I
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateFromFile( ID3D10Device *pDev10, IDirect3DDevice9* pDev9, 
-                                      LPCTSTR szFileName, 
-                                      bool bOptimize, 
-                                      bool bCreateAdjacencyIndices, 
-                                      SDKMESH_CALLBACKS10* pLoaderCallbacks10, SDKMESH_CALLBACKS9* pLoaderCallbacks9  )
+HRESULT CDXUTSDKMesh::CreateFromFile( ID3D10Device* pDev10, IDirect3DDevice9* pDev9,
+                                      LPCTSTR szFileName,
+                                      bool bCreateAdjacencyIndices,
+                                      SDKMESH_CALLBACKS10* pLoaderCallbacks10, SDKMESH_CALLBACKS9* pLoaderCallbacks9 )
 {
     HRESULT hr = S_OK;
 
     // Find the path for the file
-    V_RETURN( DXUTFindDXSDKMediaFileCch( m_strPathW, sizeof(m_strPathW) / sizeof(WCHAR), szFileName ) );
+    V_RETURN( DXUTFindDXSDKMediaFileCch( m_strPathW, sizeof( m_strPathW ) / sizeof( WCHAR ), szFileName ) );
 
     // Open the file
-    m_hFile = CreateFile( m_strPathW, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL );
+    m_hFile = CreateFile( m_strPathW, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN,
+                          NULL );
     if( INVALID_HANDLE_VALUE == m_hFile )
         return DXUTERR_MEDIANOTFOUND;
 
     // Change the path to just the directory
-    WCHAR *pLastBSlash = wcsrchr( m_strPathW, L'\\' );
+    WCHAR* pLastBSlash = wcsrchr( m_strPathW, L'\\' );
     if( pLastBSlash )
-        *(pLastBSlash + 1) = L'\0';
+        *( pLastBSlash + 1 ) = L'\0';
     else
         *m_strPathW = L'\0';
 
@@ -319,34 +357,34 @@ HRESULT CDXUTSDKMesh::CreateFromFile( ID3D10Device *pDev10, IDirect3DDevice9* pD
 
     CloseHandle( m_hFile );
 
-    if( SUCCEEDED(hr) )
+    if( SUCCEEDED( hr ) )
     {
-        hr = CreateFromMemory(  pDev10, 
-                                pDev9, 
-                                m_pStaticMeshData,
-                                cBytes,
-                                bOptimize, 
-                                bCreateAdjacencyIndices, 
-                                false,
-                                pLoaderCallbacks10, pLoaderCallbacks9 );
-        if( FAILED(hr) )
+        hr = CreateFromMemory( pDev10,
+                               pDev9,
+                               m_pStaticMeshData,
+                               cBytes,
+                               bCreateAdjacencyIndices,
+                               false,
+                               pLoaderCallbacks10, pLoaderCallbacks9 );
+        if( FAILED( hr ) )
             delete []m_pStaticMeshData;
     }
 
     return hr;
 }
 
-HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device *pDev10, 
-                                        IDirect3DDevice9* pDev9, 
+HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device* pDev10,
+                                        IDirect3DDevice9* pDev9,
                                         BYTE* pData,
                                         UINT DataBytes,
-                                        bool bOptimize, 
-                                        bool bCreateAdjacencyIndices, 
+                                        bool bCreateAdjacencyIndices,
                                         bool bCopyStatic,
-                                        SDKMESH_CALLBACKS10* pLoaderCallbacks10, SDKMESH_CALLBACKS9* pLoaderCallbacks9 )
+                                        SDKMESH_CALLBACKS10* pLoaderCallbacks10,
+                                        SDKMESH_CALLBACKS9* pLoaderCallbacks9 )
 {
     HRESULT hr = E_FAIL;
-
+    D3DXVECTOR3 lower; 
+    D3DXVECTOR3 upper; 
     m_pDev9 = pDev9;
     m_pDev10 = pDev10;
 
@@ -355,9 +393,9 @@ HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device *pDev10,
 
     if( bCopyStatic )
     {
-        SDKMESH_HEADER* pHeader = (SDKMESH_HEADER*)pData;
+        SDKMESH_HEADER* pHeader = ( SDKMESH_HEADER* )pData;
 
-        SIZE_T StaticSize = (SIZE_T)(pHeader->HeaderSize + pHeader->NonBufferDataSize);
+        SIZE_T StaticSize = ( SIZE_T )( pHeader->HeaderSize + pHeader->NonBufferDataSize );
         m_pHeapData = new BYTE[ StaticSize ];
         if( !m_pHeapData )
             return hr;
@@ -373,19 +411,21 @@ HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device *pDev10,
     }
 
     // Pointer fixup
-    m_pMeshHeader = (SDKMESH_HEADER*)m_pStaticMeshData;
-    m_pVertexBufferArray = (SDKMESH_VERTEX_BUFFER_HEADER*)(m_pStaticMeshData + m_pMeshHeader->VertexStreamHeadersOffset);
-    m_pIndexBufferArray = (SDKMESH_INDEX_BUFFER_HEADER*)(m_pStaticMeshData + m_pMeshHeader->IndexStreamHeadersOffset);
-    m_pMeshArray = (SDKMESH_MESH*)(m_pStaticMeshData + m_pMeshHeader->MeshDataOffset);
-    m_pSubsetArray = (SDKMESH_SUBSET*)(m_pStaticMeshData + m_pMeshHeader->SubsetDataOffset);
-    m_pFrameArray = (SDKMESH_FRAME*)(m_pStaticMeshData + m_pMeshHeader->FrameDataOffset);
-    m_pMaterialArray = (SDKMESH_MATERIAL*)(m_pStaticMeshData + m_pMeshHeader->MaterialDataOffset);
+    m_pMeshHeader = ( SDKMESH_HEADER* )m_pStaticMeshData;
+    m_pVertexBufferArray = ( SDKMESH_VERTEX_BUFFER_HEADER* )( m_pStaticMeshData +
+                                                              m_pMeshHeader->VertexStreamHeadersOffset );
+    m_pIndexBufferArray = ( SDKMESH_INDEX_BUFFER_HEADER* )( m_pStaticMeshData +
+                                                            m_pMeshHeader->IndexStreamHeadersOffset );
+    m_pMeshArray = ( SDKMESH_MESH* )( m_pStaticMeshData + m_pMeshHeader->MeshDataOffset );
+    m_pSubsetArray = ( SDKMESH_SUBSET* )( m_pStaticMeshData + m_pMeshHeader->SubsetDataOffset );
+    m_pFrameArray = ( SDKMESH_FRAME* )( m_pStaticMeshData + m_pMeshHeader->FrameDataOffset );
+    m_pMaterialArray = ( SDKMESH_MATERIAL* )( m_pStaticMeshData + m_pMeshHeader->MaterialDataOffset );
 
     // Setup subsets
-    for( UINT i=0; i<m_pMeshHeader->NumMeshes; i++ )
+    for( UINT i = 0; i < m_pMeshHeader->NumMeshes; i++ )
     {
-        m_pMeshArray[i].pSubsets = (UINT*)(m_pStaticMeshData + m_pMeshArray[i].SubsetOffset);
-        m_pMeshArray[i].pFrameInfluences = (UINT*)(m_pStaticMeshData + m_pMeshArray[i].FrameInfluenceOffset);
+        m_pMeshArray[i].pSubsets = ( UINT* )( m_pStaticMeshData + m_pMeshArray[i].SubsetOffset );
+        m_pMeshArray[i].pFrameInfluences = ( UINT* )( m_pStaticMeshData + m_pMeshArray[i].FrameInfluenceOffset );
     }
 
     // error condition
@@ -406,27 +446,33 @@ HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device *pDev10,
         CreateAdjacencyIndices( pDev10, 0.001f, pBufferData - BufferDataStart );
 
     // Create VBs
-    for( UINT i=0; i<m_pMeshHeader->NumVertexBuffers; i++ )
+    m_ppVertices = new BYTE*[m_pMeshHeader->NumVertexBuffers];
+    for( UINT i = 0; i < m_pMeshHeader->NumVertexBuffers; i++ )
     {
         BYTE* pVertices = NULL;
-        pVertices = (BYTE*)( pBufferData + ( m_pVertexBufferArray[i].DataOffset - BufferDataStart ) );
+        pVertices = ( BYTE* )( pBufferData + ( m_pVertexBufferArray[i].DataOffset - BufferDataStart ) );
 
         if( pDev10 )
             CreateVertexBuffer( pDev10, &m_pVertexBufferArray[i], pVertices, pLoaderCallbacks10 );
         else if( pDev9 )
             CreateVertexBuffer( pDev9, &m_pVertexBufferArray[i], pVertices, pLoaderCallbacks9 );
+
+        m_ppVertices[i] = pVertices;
     }
 
     // Create IBs
-    for( UINT i=0; i<m_pMeshHeader->NumIndexBuffers; i++ )
+    m_ppIndices = new BYTE*[m_pMeshHeader->NumIndexBuffers];
+    for( UINT i = 0; i < m_pMeshHeader->NumIndexBuffers; i++ )
     {
         BYTE* pIndices = NULL;
-        pIndices = (BYTE*)( pBufferData + ( m_pIndexBufferArray[i].DataOffset - BufferDataStart ) );
+        pIndices = ( BYTE* )( pBufferData + ( m_pIndexBufferArray[i].DataOffset - BufferDataStart ) );
 
         if( pDev10 )
             CreateIndexBuffer( pDev10, &m_pIndexBufferArray[i], pIndices, pLoaderCallbacks10 );
         else if( pDev9 )
             CreateIndexBuffer( pDev9, &m_pIndexBufferArray[i], pIndices, pLoaderCallbacks9 );
+
+        m_ppIndices[i] = pIndices;
     }
 
     // Load Materials
@@ -446,6 +492,99 @@ HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device *pDev10,
         goto Error;
 
     hr = S_OK;
+
+    SDKMESH_SUBSET* pSubset = NULL;
+    D3D10_PRIMITIVE_TOPOLOGY PrimType;
+
+    // update bounding volume 
+    SDKMESH_MESH* currentMesh = &m_pMeshArray[0];
+    int tris = 0;
+    for (UINT meshi=0; meshi < m_pMeshHeader->NumMeshes; ++meshi) {
+        lower.x = FLT_MAX; lower.y = FLT_MAX; lower.z = FLT_MAX;
+        upper.x = -FLT_MAX; upper.y = -FLT_MAX; upper.z = -FLT_MAX;
+        currentMesh = GetMesh( meshi );
+        INT indsize;
+        if (m_pIndexBufferArray[currentMesh->IndexBuffer].IndexType == IT_16BIT ) {
+            indsize = 2;
+        }else {
+            indsize = 4;        
+        }
+
+        for( UINT subset = 0; subset < currentMesh->NumSubsets; subset++ )
+        {
+            pSubset = GetSubset( meshi, subset ); //&m_pSubsetArray[ currentMesh->pSubsets[subset] ];
+
+            PrimType = GetPrimitiveType10( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
+            assert( PrimType == D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST );// only triangle lists are handled.
+
+            UINT IndexCount = ( UINT )pSubset->IndexCount;
+            UINT IndexStart = ( UINT )pSubset->IndexStart;
+
+            /*if( bAdjacent )
+            {
+                IndexCount *= 2;
+                IndexStart *= 2;
+            }*/
+     
+        //BYTE* pIndices = NULL;
+            //m_ppIndices[i]
+            UINT *ind = ( UINT * )m_ppIndices[currentMesh->IndexBuffer];
+            FLOAT *verts =  ( FLOAT* )m_ppVertices[currentMesh->VertexBuffers[0]];
+            UINT stride = (UINT)m_pVertexBufferArray[currentMesh->VertexBuffers[0]].StrideBytes;
+            assert (stride % 4 == 0);
+            stride /=4;
+            for (UINT vertind = IndexStart; vertind < IndexStart + IndexCount; ++vertind) { //TODO: test 16 bit and 32 bit
+                UINT current_ind=0;
+                if (indsize == 2) {
+                    UINT ind_div2 = vertind / 2;
+                    current_ind = ind[ind_div2];
+                    if (vertind %2 ==0) {
+                        current_ind = current_ind << 16;
+                        current_ind = current_ind >> 16;
+                    }else {
+                        current_ind = current_ind >> 16;
+                    }
+                }else {
+                    current_ind = ind[vertind];
+                }
+                tris++;
+                D3DXVECTOR3 *pt = (D3DXVECTOR3*)&(verts[stride * current_ind]);
+                if (pt->x < lower.x) {
+                    lower.x = pt->x;
+                }
+                if (pt->y < lower.y) {
+                    lower.y = pt->y;
+                }
+                if (pt->z < lower.z) {
+                    lower.z = pt->z;
+                }
+                if (pt->x > upper.x) {
+                    upper.x = pt->x;
+                }
+                if (pt->y > upper.y) {
+                    upper.y = pt->y;
+                }
+                if (pt->z > upper.z) {
+                    upper.z = pt->z;
+                }
+                //BYTE** m_ppVertices;
+                //BYTE** m_ppIndices;
+            }
+            //pd3dDeviceContext->DrawIndexed( IndexCount, IndexStart, VertexStart );
+        }
+
+        D3DXVECTOR3 half = upper - lower;
+        half *=0.5f;
+
+        currentMesh->BoundingBoxCenter = lower + half;
+        currentMesh->BoundingBoxExtents = half;
+
+    }
+    // Update 
+        
+
+
+
 Error:
 
     if( !pLoaderCallbacks10 && !pLoaderCallbacks9 )
@@ -471,7 +610,7 @@ void CDXUTSDKMesh::TransformBindPoseFrame( UINT iFrame, D3DXMATRIX* pParentWorld
 
     // Transform our siblings
     if( m_pFrameArray[iFrame].SiblingFrame != INVALID_FRAME )
-        TransformBindPoseFrame( m_pFrameArray[iFrame].SiblingFrame, pParentWorld);
+        TransformBindPoseFrame( m_pFrameArray[iFrame].SiblingFrame, pParentWorld );
 
     // Transform our children
     if( m_pFrameArray[iFrame].ChildFrame != INVALID_FRAME )
@@ -496,7 +635,7 @@ void CDXUTSDKMesh::TransformFrame( UINT iFrame, D3DXMATRIX* pParentWorld, double
         D3DXVECTOR3 parentPos = pData->Translation;
         D3DXMATRIX mTranslate;
         D3DXMatrixTranslation( &mTranslate, parentPos.x, parentPos.y, parentPos.z );
-        
+
         D3DXQUATERNION quat;
         D3DXMATRIX mQuat;
         quat.w = pData->Orientation.w;
@@ -552,11 +691,11 @@ void CDXUTSDKMesh::TransformFrameAbsolute( UINT iFrame, double fTime )
         SDKANIMATION_DATA* pDataOrig = &pFrameData->pAnimationData[ 0 ];
 
         D3DXMatrixTranslation( &mTrans1, -pDataOrig->Translation.x,
-                                        -pDataOrig->Translation.y,
-                                        -pDataOrig->Translation.z );
+                               -pDataOrig->Translation.y,
+                               -pDataOrig->Translation.z );
         D3DXMatrixTranslation( &mTrans2, pData->Translation.x,
-                                         pData->Translation.y,
-                                         pData->Translation.z );
+                               pData->Translation.y,
+                               pData->Translation.z );
 
         quat1.x = pDataOrig->Orientation.x;
         quat1.y = pDataOrig->Orientation.y;
@@ -580,15 +719,14 @@ void CDXUTSDKMesh::TransformFrameAbsolute( UINT iFrame, double fTime )
 
 //--------------------------------------------------------------------------------------
 #define MAX_D3D10_VERTEX_STREAMS D3D10_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT
+
+
 void CDXUTSDKMesh::RenderMesh( UINT iMesh,
                                bool bAdjacent,
-                               ID3D10Device* pd3dDevice, 
-                               ID3D10EffectTechnique* pTechnique, 
-                               ID3D10EffectShaderResourceVariable* ptxDiffuse,
-                               ID3D10EffectShaderResourceVariable* ptxNormal,
-                               ID3D10EffectShaderResourceVariable* ptxSpecular,
-                               ID3D10EffectVectorVariable* pvDiffuse, 
-                               ID3D10EffectVectorVariable* pvSpecular )
+                               ID3D10Device* pd3dDevice,
+                               UINT iDiffuseSlot,
+                               UINT iNormalSlot,
+                               UINT iSpecularSlot )
 {
     if( 0 < GetOutstandingBufferResources() )
         return;
@@ -602,10 +740,10 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
     if( pMesh->NumVertexBuffers > MAX_D3D10_VERTEX_STREAMS )
         return;
 
-    for( UINT64 i=0; i<pMesh->NumVertexBuffers; i++ )
+    for( UINT64 i = 0; i < pMesh->NumVertexBuffers; i++ )
     {
         pVB[i] = m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].pVB10;
-        Strides[i] = (UINT)m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].StrideBytes;
+        Strides[i] = ( UINT )m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].StrideBytes;
         Offsets[i] = 0;
     }
 
@@ -630,6 +768,108 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
     pd3dDevice->IASetVertexBuffers( 0, pMesh->NumVertexBuffers, pVB, Strides, Offsets );
     pd3dDevice->IASetIndexBuffer( pIB, ibFormat, 0 );
 
+    SDKMESH_SUBSET* pSubset = NULL;
+    SDKMESH_MATERIAL* pMat = NULL;
+    D3D10_PRIMITIVE_TOPOLOGY PrimType;
+
+    for( UINT subset = 0; subset < pMesh->NumSubsets; subset++ )
+    {
+        pSubset = &m_pSubsetArray[ pMesh->pSubsets[subset] ];
+
+        PrimType = GetPrimitiveType10( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
+        if( bAdjacent )
+        {
+            switch( PrimType )
+            {
+            case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+                PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+                break;
+            case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+                PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+                break;
+            case D3D10_PRIMITIVE_TOPOLOGY_LINELIST:
+                PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+                break;
+            case D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP:
+                PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+                break;
+            }
+        }
+
+        pd3dDevice->IASetPrimitiveTopology( PrimType );
+
+        pMat = &m_pMaterialArray[ pSubset->MaterialID ];
+        if( iDiffuseSlot != INVALID_SAMPLER_SLOT && !IsErrorResource( pMat->pDiffuseRV10 ) )
+            pd3dDevice->PSSetShaderResources( iDiffuseSlot, 1, &pMat->pDiffuseRV10 );
+        if( iNormalSlot != INVALID_SAMPLER_SLOT && !IsErrorResource( pMat->pNormalRV10 ) )
+            pd3dDevice->PSSetShaderResources( iNormalSlot, 1, &pMat->pNormalRV10 );
+        if( iSpecularSlot != INVALID_SAMPLER_SLOT && !IsErrorResource( pMat->pSpecularRV10 ) )
+            pd3dDevice->PSSetShaderResources( iSpecularSlot, 1, &pMat->pSpecularRV10 );
+
+        UINT IndexCount = ( UINT )pSubset->IndexCount;
+        UINT IndexStart = ( UINT )pSubset->IndexStart;
+        UINT VertexStart = ( UINT )pSubset->VertexStart;
+        if( bAdjacent )
+        {
+            IndexCount *= 2;
+            IndexStart *= 2;
+        }
+
+        pd3dDevice->DrawIndexed( IndexCount, IndexStart, VertexStart );
+    }
+}
+
+
+void CDXUTSDKMesh::RenderMesh( UINT iMesh,
+                               bool bAdjacent,
+                               ID3D10Device* pd3dDevice,
+                               ID3D10EffectTechnique* pTechnique,
+                               ID3D10EffectShaderResourceVariable* ptxDiffuse,
+                               ID3D10EffectShaderResourceVariable* ptxNormal,
+                               ID3D10EffectShaderResourceVariable* ptxSpecular,
+                               ID3D10EffectVectorVariable* pvDiffuse,
+                               ID3D10EffectVectorVariable* pvSpecular )
+{
+    if( 0 < GetOutstandingBufferResources() )
+        return;
+
+    SDKMESH_MESH* pMesh = &m_pMeshArray[iMesh];
+
+    UINT Strides[MAX_D3D10_VERTEX_STREAMS];
+    UINT Offsets[MAX_D3D10_VERTEX_STREAMS];
+    ID3D10Buffer* pVB[MAX_D3D10_VERTEX_STREAMS];
+
+    if( pMesh->NumVertexBuffers > MAX_D3D10_VERTEX_STREAMS )
+        return;
+
+    for( UINT64 i = 0; i < pMesh->NumVertexBuffers; i++ )
+    {
+        pVB[i] = m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].pVB10;
+        Strides[i] = ( UINT )m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].StrideBytes;
+        Offsets[i] = 0;
+    }
+
+    SDKMESH_INDEX_BUFFER_HEADER* pIndexBufferArray;
+    if( bAdjacent )
+        pIndexBufferArray = m_pAdjacencyIndexBufferArray;
+    else
+        pIndexBufferArray = m_pIndexBufferArray;
+
+    ID3D10Buffer* pIB = pIndexBufferArray[ pMesh->IndexBuffer ].pIB10;
+    DXGI_FORMAT ibFormat = DXGI_FORMAT_R16_UINT;
+    switch( pIndexBufferArray[ pMesh->IndexBuffer ].IndexType )
+    {
+        case IT_16BIT:
+            ibFormat = DXGI_FORMAT_R16_UINT;
+            break;
+        case IT_32BIT:
+            ibFormat = DXGI_FORMAT_R32_UINT;
+            break;
+    };
+
+    pd3dDevice->IASetVertexBuffers( 0, pMesh->NumVertexBuffers, pVB, Strides, Offsets );
+    pd3dDevice->IASetIndexBuffer( pIB, ibFormat, 0 );
+
     D3D10_TECHNIQUE_DESC techDesc;
     pTechnique->GetDesc( &techDesc );
     SDKMESH_SUBSET* pSubset = NULL;
@@ -643,45 +883,45 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
         {
             pSubset = &m_pSubsetArray[ pMesh->pSubsets[subset] ];
 
-            PrimType = GetPrimitiveType10( (SDKMESH_PRIMITIVE_TYPE)pSubset->PrimitiveType );
+            PrimType = GetPrimitiveType10( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
             if( bAdjacent )
             {
                 switch( PrimType )
                 {
-                case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
-                    PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
-                    break;
-                case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
-                    PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
-                    break;
-                case D3D10_PRIMITIVE_TOPOLOGY_LINELIST:
-                    PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-                    break;
-                case D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP:
-                    PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
-                    break;
+                    case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST:
+                        PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+                        break;
+                    case D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP:
+                        PrimType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+                        break;
+                    case D3D10_PRIMITIVE_TOPOLOGY_LINELIST:
+                        PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+                        break;
+                    case D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP:
+                        PrimType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+                        break;
                 }
             }
 
             pd3dDevice->IASetPrimitiveTopology( PrimType );
 
             pMat = &m_pMaterialArray[ pSubset->MaterialID ];
-            if( ptxDiffuse && !IsErrorResource(pMat->pDiffuseRV10) )
+            if( ptxDiffuse && !IsErrorResource( pMat->pDiffuseRV10 ) )
                 ptxDiffuse->SetResource( pMat->pDiffuseRV10 );
-            if( ptxNormal && !IsErrorResource(pMat->pNormalRV10) )
+            if( ptxNormal && !IsErrorResource( pMat->pNormalRV10 ) )
                 ptxNormal->SetResource( pMat->pNormalRV10 );
-            if( ptxSpecular && !IsErrorResource(pMat->pSpecularRV10) )
+            if( ptxSpecular && !IsErrorResource( pMat->pSpecularRV10 ) )
                 ptxSpecular->SetResource( pMat->pSpecularRV10 );
             if( pvDiffuse )
                 pvDiffuse->SetFloatVector( pMat->Diffuse );
             if( pvSpecular )
                 pvSpecular->SetFloatVector( pMat->Specular );
 
-            pTechnique->GetPassByIndex( p )->Apply(0);
+            pTechnique->GetPassByIndex( p )->Apply( 0 );
 
-            UINT IndexCount = (UINT)pSubset->IndexCount;
-            UINT IndexStart = (UINT)pSubset->IndexStart;
-            UINT VertexStart = (UINT)pSubset->VertexStart;
+            UINT IndexCount = ( UINT )pSubset->IndexCount;
+            UINT IndexStart = ( UINT )pSubset->IndexStart;
+            UINT VertexStart = ( UINT )pSubset->VertexStart;
             if( bAdjacent )
             {
                 IndexCount *= 2;
@@ -695,12 +935,44 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
 //--------------------------------------------------------------------------------------
 void CDXUTSDKMesh::RenderFrame( UINT iFrame,
                                 bool bAdjacent,
-                                ID3D10Device* pd3dDevice, 
-                                ID3D10EffectTechnique* pTechnique, 
+                                ID3D10Device* pd3dDevice,
+                                UINT iDiffuseSlot,
+                                UINT iNormalSlot,
+                                UINT iSpecularSlot )
+{
+    if( !m_pStaticMeshData || !m_pFrameArray )
+        return;
+
+    if( m_pFrameArray[iFrame].Mesh != INVALID_MESH )
+    {
+        RenderMesh( m_pFrameArray[iFrame].Mesh,
+                    bAdjacent,
+                    pd3dDevice,
+                    iDiffuseSlot,
+                    iNormalSlot,
+                    iSpecularSlot );
+    }
+
+    // Render our children
+    if( m_pFrameArray[iFrame].ChildFrame != INVALID_FRAME )
+        RenderFrame( m_pFrameArray[iFrame].ChildFrame, bAdjacent, pd3dDevice, iDiffuseSlot, 
+                     iNormalSlot, iSpecularSlot );
+
+    // Render our siblings
+    if( m_pFrameArray[iFrame].SiblingFrame != INVALID_FRAME )
+        RenderFrame( m_pFrameArray[iFrame].SiblingFrame, bAdjacent, pd3dDevice, iDiffuseSlot, 
+                     iNormalSlot, iSpecularSlot );
+}
+
+//--------------------------------------------------------------------------------------
+void CDXUTSDKMesh::RenderFrame( UINT iFrame,
+                                bool bAdjacent,
+                                ID3D10Device* pd3dDevice,
+                                ID3D10EffectTechnique* pTechnique,
                                 ID3D10EffectShaderResourceVariable* ptxDiffuse,
                                 ID3D10EffectShaderResourceVariable* ptxNormal,
                                 ID3D10EffectShaderResourceVariable* ptxSpecular,
-                                ID3D10EffectVectorVariable* pvDiffuse, 
+                                ID3D10EffectVectorVariable* pvDiffuse,
                                 ID3D10EffectVectorVariable* pvSpecular )
 {
     if( !m_pStaticMeshData || !m_pFrameArray )
@@ -709,23 +981,25 @@ void CDXUTSDKMesh::RenderFrame( UINT iFrame,
     if( m_pFrameArray[iFrame].Mesh != INVALID_MESH )
     {
         RenderMesh( m_pFrameArray[iFrame].Mesh,
-                   bAdjacent, 
-                   pd3dDevice, 
-                   pTechnique, 
-                   ptxDiffuse,
-                   ptxNormal,
-                   ptxSpecular,
-                   pvDiffuse, 
-                   pvSpecular );
+                    bAdjacent,
+                    pd3dDevice,
+                    pTechnique,
+                    ptxDiffuse,
+                    ptxNormal,
+                    ptxSpecular,
+                    pvDiffuse,
+                    pvSpecular );
     }
 
     // Render our children
     if( m_pFrameArray[iFrame].ChildFrame != INVALID_FRAME )
-        RenderFrame( m_pFrameArray[iFrame].ChildFrame, bAdjacent, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal, ptxSpecular, pvDiffuse, pvSpecular );
+        RenderFrame( m_pFrameArray[iFrame].ChildFrame, bAdjacent, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal,
+                     ptxSpecular, pvDiffuse, pvSpecular );
 
     // Render our siblings
     if( m_pFrameArray[iFrame].SiblingFrame != INVALID_FRAME )
-        RenderFrame( m_pFrameArray[iFrame].SiblingFrame, bAdjacent, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal, ptxSpecular, pvDiffuse, pvSpecular );
+        RenderFrame( m_pFrameArray[iFrame].SiblingFrame, bAdjacent, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal,
+                     ptxSpecular, pvDiffuse, pvSpecular );
 }
 
 //--------------------------------------------------------------------------------------
@@ -743,12 +1017,12 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
     SDKMESH_MESH* pMesh = &m_pMeshArray[iMesh];
 
     // set vb streams
-    for( UINT i=0; i<(UINT)pMesh->NumVertexBuffers; i++ )
+    for( UINT i = 0; i < ( UINT )pMesh->NumVertexBuffers; i++ )
     {
-        pd3dDevice->SetStreamSource( i, 
-                                     m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].pVB9, 
-                                     0, 
-                                     (UINT)m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].StrideBytes );
+        pd3dDevice->SetStreamSource( i,
+                                     m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].pVB9,
+                                     0,
+                                     ( UINT )m_pVertexBufferArray[ pMesh->VertexBuffers[i] ].StrideBytes );
     }
 
     // Set our index buffer as well
@@ -761,41 +1035,41 @@ void CDXUTSDKMesh::RenderMesh( UINT iMesh,
     SDKMESH_MATERIAL* pMat = NULL;
     D3DPRIMITIVETYPE PrimType;
     UINT cPasses = 0;
-    pEffect->Begin(&cPasses, 0);
+    pEffect->Begin( &cPasses, 0 );
 
     for( UINT p = 0; p < cPasses; ++p )
     {
-        pEffect->BeginPass(p);
+        pEffect->BeginPass( p );
 
         for( UINT subset = 0; subset < pMesh->NumSubsets; subset++ )
         {
             pSubset = &m_pSubsetArray[ pMesh->pSubsets[subset] ];
 
-            PrimType = GetPrimitiveType9( (SDKMESH_PRIMITIVE_TYPE)pSubset->PrimitiveType );
+            PrimType = GetPrimitiveType9( ( SDKMESH_PRIMITIVE_TYPE )pSubset->PrimitiveType );
 
             if( INVALID_MATERIAL != pSubset->MaterialID && m_pMeshHeader->NumMaterials > 0 )
             {
                 pMat = &m_pMaterialArray[ pSubset->MaterialID ];
-                if( htxDiffuse && !IsErrorResource(pMat->pDiffuseTexture9) )
+                if( htxDiffuse && !IsErrorResource( pMat->pDiffuseTexture9 ) )
                     pEffect->SetTexture( htxDiffuse, pMat->pDiffuseTexture9 );
-                if( htxNormal && !IsErrorResource(pMat->pNormalTexture9)  )
+                if( htxNormal && !IsErrorResource( pMat->pNormalTexture9 ) )
                     pEffect->SetTexture( htxNormal, pMat->pNormalTexture9 );
-                if( htxSpecular && !IsErrorResource(pMat->pSpecularTexture9) )
+                if( htxSpecular && !IsErrorResource( pMat->pSpecularTexture9 ) )
                     pEffect->SetTexture( htxSpecular, pMat->pSpecularTexture9 );
             }
 
             pEffect->CommitChanges();
 
-            UINT PrimCount = (UINT)pSubset->IndexCount;
-            UINT IndexStart = (UINT)pSubset->IndexStart;
-            UINT VertexStart = (UINT)pSubset->VertexStart;
-            UINT VertexCount = (UINT)pSubset->VertexCount;
+            UINT PrimCount = ( UINT )pSubset->IndexCount;
+            UINT IndexStart = ( UINT )pSubset->IndexStart;
+            UINT VertexStart = ( UINT )pSubset->VertexStart;
+            UINT VertexCount = ( UINT )pSubset->VertexCount;
             if( D3DPT_TRIANGLELIST == PrimType )
                 PrimCount /= 3;
             if( D3DPT_LINELIST == PrimType )
                 PrimCount /= 2;
             if( D3DPT_TRIANGLESTRIP == PrimType )
-                PrimCount = (PrimCount-3) + 1;
+                PrimCount = ( PrimCount - 3 ) + 1;
             if( D3DPT_LINESTRIP == PrimType )
                 PrimCount -= 1;
 
@@ -823,39 +1097,42 @@ void CDXUTSDKMesh::RenderFrame( UINT iFrame,
     if( m_pFrameArray[iFrame].Mesh != INVALID_MESH )
     {
         RenderMesh( m_pFrameArray[iFrame].Mesh,
-                   pd3dDevice, 
-                   pEffect,
-                   hTechnique, 
-                   htxDiffuse,
-                   htxNormal,
-                   htxSpecular );
+                    pd3dDevice,
+                    pEffect,
+                    hTechnique,
+                    htxDiffuse,
+                    htxNormal,
+                    htxSpecular );
     }
 
     // Render our children
     if( m_pFrameArray[iFrame].ChildFrame != INVALID_FRAME )
-        RenderFrame( m_pFrameArray[iFrame].ChildFrame, pd3dDevice, pEffect, hTechnique, htxDiffuse, htxNormal, htxSpecular );
+        RenderFrame( m_pFrameArray[iFrame].ChildFrame, pd3dDevice, pEffect, hTechnique, htxDiffuse, htxNormal,
+                     htxSpecular );
 
     // Render our siblings
     if( m_pFrameArray[iFrame].SiblingFrame != INVALID_FRAME )
-        RenderFrame( m_pFrameArray[iFrame].SiblingFrame, pd3dDevice, pEffect, hTechnique, htxDiffuse, htxNormal, htxSpecular );
+        RenderFrame( m_pFrameArray[iFrame].SiblingFrame, pd3dDevice, pEffect, hTechnique, htxDiffuse, htxNormal,
+                     htxSpecular );
 }
 
 
 //--------------------------------------------------------------------------------------
-CDXUTSDKMesh::CDXUTSDKMesh() :
-m_NumOutstandingResources(0),
-m_bLoading(false),
-m_hFile(0),
-m_hFileMappingObject(0),
-m_pMeshHeader(NULL),
-m_pStaticMeshData(NULL),
-m_pHeapData(NULL),
-m_pAdjacencyIndexBufferArray(NULL),
-m_pAnimationData(NULL),
-m_pBindPoseFrameMatrices(NULL),
-m_pTransformedFrameMatrices(NULL),
-m_pDev9(NULL),
-m_pDev10(NULL)
+CDXUTSDKMesh::CDXUTSDKMesh() : m_NumOutstandingResources( 0 ),
+                               m_bLoading( false ),
+                               m_hFile( 0 ),
+                               m_hFileMappingObject( 0 ),
+                               m_pMeshHeader( NULL ),
+                               m_pStaticMeshData( NULL ),
+                               m_pHeapData( NULL ),
+                               m_pAdjacencyIndexBufferArray( NULL ),
+                               m_pAnimationData( NULL ),
+                               m_ppVertices( NULL ),
+                               m_ppIndices( NULL ),
+                               m_pBindPoseFrameMatrices( NULL ),
+                               m_pTransformedFrameMatrices( NULL ),
+                               m_pDev9( NULL ),
+                               m_pDev10( NULL )
 {
 }
 
@@ -867,27 +1144,33 @@ CDXUTSDKMesh::~CDXUTSDKMesh()
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::Create( ID3D10Device *pDev10, LPCTSTR szFileName, bool bOptimize, bool bCreateAdjacencyIndices, SDKMESH_CALLBACKS10* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::Create( ID3D10Device* pDev10, LPCTSTR szFileName, bool bCreateAdjacencyIndices,
+                              SDKMESH_CALLBACKS10* pLoaderCallbacks )
 {
-    return CreateFromFile( pDev10, NULL, szFileName, bOptimize, bCreateAdjacencyIndices, pLoaderCallbacks, NULL );
+    return CreateFromFile( pDev10, NULL, szFileName, bCreateAdjacencyIndices, pLoaderCallbacks, NULL );
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::Create( IDirect3DDevice9* pDev9, LPCTSTR szFileName, bool bOptimize, bool bCreateAdjacencyIndices, SDKMESH_CALLBACKS9* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::Create( IDirect3DDevice9* pDev9, LPCTSTR szFileName, bool bCreateAdjacencyIndices,
+                              SDKMESH_CALLBACKS9* pLoaderCallbacks )
 {
-    return CreateFromFile( NULL, pDev9, szFileName, bOptimize, bCreateAdjacencyIndices, NULL, pLoaderCallbacks );
+    return CreateFromFile( NULL, pDev9, szFileName, bCreateAdjacencyIndices, NULL, pLoaderCallbacks );
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::Create( ID3D10Device *pDev10, BYTE* pData, UINT DataBytes, bool bOptimize, bool bCreateAdjacencyIndices, bool bCopyStatic, SDKMESH_CALLBACKS10* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::Create( ID3D10Device* pDev10, BYTE* pData, UINT DataBytes, bool bCreateAdjacencyIndices,
+                              bool bCopyStatic, SDKMESH_CALLBACKS10* pLoaderCallbacks )
 {
-    return CreateFromMemory( pDev10, NULL, pData, DataBytes, bOptimize, bCreateAdjacencyIndices, bCopyStatic, pLoaderCallbacks, NULL );
+    return CreateFromMemory( pDev10, NULL, pData, DataBytes, bCreateAdjacencyIndices, bCopyStatic, pLoaderCallbacks,
+                             NULL );
 }
 
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::Create( IDirect3DDevice9* pDev9, BYTE* pData, UINT DataBytes, bool bOptimize, bool bCreateAdjacencyIndices, bool bCopyStatic, SDKMESH_CALLBACKS9* pLoaderCallbacks )
+HRESULT CDXUTSDKMesh::Create( IDirect3DDevice9* pDev9, BYTE* pData, UINT DataBytes, bool bCreateAdjacencyIndices,
+                              bool bCopyStatic, SDKMESH_CALLBACKS9* pLoaderCallbacks )
 {
-    return CreateFromMemory( NULL, pDev9, pData, DataBytes, bOptimize, bCreateAdjacencyIndices, bCopyStatic, NULL, pLoaderCallbacks );
+    return CreateFromMemory( NULL, pDev9, pData, DataBytes, bCreateAdjacencyIndices, bCopyStatic, NULL,
+                             pLoaderCallbacks );
 }
 
 //--------------------------------------------------------------------------------------
@@ -902,18 +1185,19 @@ HRESULT CDXUTSDKMesh::LoadAnimation( WCHAR* szFileName )
     V_RETURN( DXUTFindDXSDKMediaFileCch( strPath, MAX_PATH, szFileName ) );
 
     // Open the file
-    HANDLE hFile = CreateFile( strPath, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_FLAG_SEQUENTIAL_SCAN, NULL );
+    HANDLE hFile = CreateFile( strPath, FILE_READ_DATA, FILE_SHARE_READ, NULL, OPEN_EXISTING,
+                               FILE_FLAG_SEQUENTIAL_SCAN, NULL );
     if( INVALID_HANDLE_VALUE == hFile )
         return DXUTERR_MEDIANOTFOUND;
 
     /////////////////////////
     // Header
     SDKANIMATION_FILE_HEADER fileheader;
-    if(!ReadFile( hFile, &fileheader, sizeof(SDKANIMATION_FILE_HEADER), &dwBytesRead, NULL ) )
+    if( !ReadFile( hFile, &fileheader, sizeof( SDKANIMATION_FILE_HEADER ), &dwBytesRead, NULL ) )
         goto Error;
 
     //allocate
-    m_pAnimationData = new BYTE[ (size_t)(sizeof(SDKANIMATION_FILE_HEADER) + fileheader.AnimationDataSize) ];
+    m_pAnimationData = new BYTE[ ( size_t )( sizeof( SDKANIMATION_FILE_HEADER ) + fileheader.AnimationDataSize ) ];
     if( !m_pAnimationData )
     {
         hr = E_OUTOFMEMORY;
@@ -924,17 +1208,20 @@ HRESULT CDXUTSDKMesh::LoadAnimation( WCHAR* szFileName )
     liMove.QuadPart = 0;
     if( !SetFilePointerEx( hFile, liMove, NULL, FILE_BEGIN ) )
         goto Error;
-    if(!ReadFile( hFile, m_pAnimationData, (DWORD)(sizeof(SDKANIMATION_FILE_HEADER) + fileheader.AnimationDataSize), &dwBytesRead, NULL ) )
+    if( !ReadFile( hFile, m_pAnimationData, ( DWORD )( sizeof( SDKANIMATION_FILE_HEADER ) +
+                                                       fileheader.AnimationDataSize ), &dwBytesRead, NULL ) )
         goto Error;
 
     // pointer fixup
-    m_pAnimationHeader = (SDKANIMATION_FILE_HEADER*)m_pAnimationData;
-    m_pAnimationFrameData = (SDKANIMATION_FRAME_DATA*)(m_pAnimationData + m_pAnimationHeader->AnimationDataOffset);
+    m_pAnimationHeader = ( SDKANIMATION_FILE_HEADER* )m_pAnimationData;
+    m_pAnimationFrameData = ( SDKANIMATION_FRAME_DATA* )( m_pAnimationData + m_pAnimationHeader->AnimationDataOffset );
 
-    UINT64 BaseOffset = sizeof(SDKANIMATION_FILE_HEADER);
-    for( UINT i=0; i<m_pAnimationHeader->NumFrames; i++ )
+    UINT64 BaseOffset = sizeof( SDKANIMATION_FILE_HEADER );
+    for( UINT i = 0; i < m_pAnimationHeader->NumFrames; i++ )
     {
-        m_pAnimationFrameData[i].pAnimationData = (SDKANIMATION_DATA*)(m_pAnimationData + m_pAnimationFrameData[i].DataOffset + BaseOffset);
+        m_pAnimationFrameData[i].pAnimationData = ( SDKANIMATION_DATA* )( m_pAnimationData +
+                                                                          m_pAnimationFrameData[i].DataOffset +
+                                                                          BaseOffset );
         SDKMESH_FRAME* pFrame = FindFrame( m_pAnimationFrameData[i].FrameName );
         if( pFrame )
         {
@@ -958,7 +1245,7 @@ void CDXUTSDKMesh::Destroy()
     {
         if( m_pMaterialArray )
         {
-            for( UINT64 m=0; m<m_pMeshHeader->NumMaterials; m++ )
+            for( UINT64 m = 0; m < m_pMeshHeader->NumMaterials; m++ )
             {
                 if( m_pDev9 )
                 {
@@ -980,7 +1267,7 @@ void CDXUTSDKMesh::Destroy()
 
                         SAFE_RELEASE( m_pMaterialArray[m].pDiffuseRV10 );
                     }
-                    if( m_pMaterialArray[m].pNormalRV10 && !IsErrorResource( m_pMaterialArray[m].pNormalRV10 )  )
+                    if( m_pMaterialArray[m].pNormalRV10 && !IsErrorResource( m_pMaterialArray[m].pNormalRV10 ) )
                     {
                         m_pMaterialArray[m].pNormalRV10->GetResource( &pRes );
                         SAFE_RELEASE( pRes );
@@ -1000,13 +1287,13 @@ void CDXUTSDKMesh::Destroy()
             }
         }
 
-        for( UINT64 i=0; i<m_pMeshHeader->NumVertexBuffers; i++ )
+        for( UINT64 i = 0; i < m_pMeshHeader->NumVertexBuffers; i++ )
         {
             if( !IsErrorResource( m_pVertexBufferArray[i].pVB9 ) )
                 SAFE_RELEASE( m_pVertexBufferArray[i].pVB9 );
         }
 
-        for( UINT64 i=0; i<m_pMeshHeader->NumIndexBuffers; i++ )
+        for( UINT64 i = 0; i < m_pMeshHeader->NumIndexBuffers; i++ )
         {
             if( !IsErrorResource( m_pIndexBufferArray[i].pIB9 ) )
                 SAFE_RELEASE( m_pIndexBufferArray[i].pIB9 );
@@ -1015,7 +1302,7 @@ void CDXUTSDKMesh::Destroy()
 
     if( m_pAdjacencyIndexBufferArray )
     {
-        for( UINT64 i=0; i<m_pMeshHeader->NumIndexBuffers; i++ )
+        for( UINT64 i = 0; i < m_pMeshHeader->NumIndexBuffers; i++ )
         {
             SAFE_RELEASE( m_pAdjacencyIndexBufferArray[i].pIB10 );
         }
@@ -1027,6 +1314,9 @@ void CDXUTSDKMesh::Destroy()
     SAFE_DELETE_ARRAY( m_pAnimationData );
     SAFE_DELETE_ARRAY( m_pBindPoseFrameMatrices );
     SAFE_DELETE_ARRAY( m_pTransformedFrameMatrices );
+
+    SAFE_DELETE_ARRAY( m_ppVertices );
+    SAFE_DELETE_ARRAY( m_ppIndices );
 
     m_pMeshHeader = NULL;
     m_pVertexBufferArray = NULL;
@@ -1065,7 +1355,7 @@ void CDXUTSDKMesh::TransformMesh( D3DXMATRIX* pWorld, double fTime )
         // move it to the final position
         D3DXMATRIX mInvBindPose;
         D3DXMATRIX mFinal;
-        for( UINT i=0; i<m_pMeshHeader->NumFrames; i++ )
+        for( UINT i = 0; i < m_pMeshHeader->NumFrames; i++ )
         {
             D3DXMatrixInverse( &mInvBindPose, NULL, &m_pBindPoseFrameMatrices[i] );
             mFinal = mInvBindPose * m_pTransformedFrameMatrices[i];
@@ -1074,7 +1364,7 @@ void CDXUTSDKMesh::TransformMesh( D3DXMATRIX* pWorld, double fTime )
     }
     else if( FTT_ABSOLUTE == m_pAnimationHeader->FrameTransformType )
     {
-        for( UINT i=0; i<m_pAnimationHeader->NumFrames; i++ )
+        for( UINT i = 0; i < m_pAnimationHeader->NumFrames; i++ )
             TransformFrameAbsolute( i, fTime );
     }
 }
@@ -1082,7 +1372,7 @@ void CDXUTSDKMesh::TransformMesh( D3DXMATRIX* pWorld, double fTime )
 //--------------------------------------------------------------------------------------
 // Generate an adjacency index buffer for each mesh
 //--------------------------------------------------------------------------------------
-HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device *pd3dDevice, float fEpsilon, BYTE* pBufferData )
+HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device* pd3dDevice, float fEpsilon, BYTE* pBufferData )
 {
     HRESULT hr = S_OK;
     UINT IBIndex = 0;
@@ -1092,46 +1382,46 @@ HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device *pd3dDevice, float fE
     if( !m_pAdjacencyIndexBufferArray )
         return E_OUTOFMEMORY;
 
-    for( UINT i=0; i<m_pMeshHeader->NumMeshes; i++ )
+    for( UINT i = 0; i < m_pMeshHeader->NumMeshes; i++ )
     {
         VBIndex = m_pMeshArray[i].VertexBuffers[0];
         IBIndex = m_pMeshArray[i].IndexBuffer;
 
-        BYTE* pVertices = (BYTE*)( pBufferData + m_pVertexBufferArray[VBIndex].DataOffset );
-        BYTE* pIndices = (BYTE*)( pBufferData + m_pIndexBufferArray[IBIndex].DataOffset );
+        BYTE* pVertices = ( BYTE* )( pBufferData + m_pVertexBufferArray[VBIndex].DataOffset );
+        BYTE* pIndices = ( BYTE* )( pBufferData + m_pIndexBufferArray[IBIndex].DataOffset );
 
-        UINT stride = (UINT)m_pVertexBufferArray[VBIndex].StrideBytes;
+        UINT stride = ( UINT )m_pVertexBufferArray[VBIndex].StrideBytes;
 
         D3D10_INPUT_ELEMENT_DESC layout[2] =
-        {
-            { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
-            { "END", 0, DXGI_FORMAT_R8_UINT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
-        };
+            {
+                { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+                { "END", 0, DXGI_FORMAT_R8_UINT, 0, 0, D3D10_INPUT_PER_VERTEX_DATA, 0 },
+            };
 
         layout[1].AlignedByteOffset = stride - 1;
 
         // create the mesh 
-        UINT NumVertices = (UINT)GetNumVertices( i, 0 );
-        UINT NumIndices = (UINT)GetNumIndices( i );
+        UINT NumVertices = ( UINT )GetNumVertices( i, 0 );
+        UINT NumIndices = ( UINT )GetNumIndices( i );
         UINT Options = 0;
         ID3DX10Mesh* pMesh = NULL;
 
-        if( DXGI_FORMAT_R32_UINT == GetIBFormat10(i) )
+        if( DXGI_FORMAT_R32_UINT == GetIBFormat10( i ) )
             Options |= D3DX10_MESH_32_BIT;
         V_RETURN( D3DX10CreateMesh( pd3dDevice,
-                                    layout, 
+                                    layout,
                                     2,
                                     layout[0].SemanticName,
                                     NumVertices,
-                                    NumIndices/3,
-                                    Options, 
+                                    NumIndices / 3,
+                                    Options,
                                     &pMesh ) );
 
         //set the VB
-        pMesh->SetVertexData( 0, (void*)pVertices );
+        pMesh->SetVertexData( 0, ( void* )pVertices );
 
         //set the IB
-        pMesh->SetIndexData( (void*)pIndices, NumIndices );
+        pMesh->SetIndexData( ( void* )pIndices, NumIndices );
 
         //generate adjacency
         pMesh->GenerateAdjacencyAndPointReps( fEpsilon );
@@ -1144,15 +1434,15 @@ HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device *pd3dDevice, float fE
         BYTE* pAdjIndices = NULL;
         SIZE_T Size = 0;
         V_RETURN( pMesh->GetIndexBuffer( &pIndexBuffer ) );
-        V_RETURN( pIndexBuffer->Map( (void**)&pAdjIndices, &Size ) );
-        
+        V_RETURN( pIndexBuffer->Map( ( void** )&pAdjIndices, &Size ) );
+
         //Copy info about the original IB with a few modifications
         m_pAdjacencyIndexBufferArray[IBIndex] = m_pIndexBufferArray[IBIndex];
         m_pAdjacencyIndexBufferArray[IBIndex].SizeBytes *= 2;
 
         //create a new adjacency IB
         D3D10_BUFFER_DESC bufferDesc;
-        bufferDesc.ByteWidth = (UINT)(Size);
+        bufferDesc.ByteWidth = ( UINT )( Size );
         bufferDesc.Usage = D3D10_USAGE_IMMUTABLE;
         bufferDesc.BindFlags = D3D10_BIND_INDEX_BUFFER;
         bufferDesc.CPUAccessFlags = 0;
@@ -1173,37 +1463,47 @@ HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device *pd3dDevice, float fE
     return hr;
 }
 
+
 //--------------------------------------------------------------------------------------
-void CDXUTSDKMesh::Render(  ID3D10Device* pd3dDevice, 
-                            ID3D10EffectTechnique* pTechnique, 
-                            ID3D10EffectShaderResourceVariable* ptxDiffuse,
-                            ID3D10EffectShaderResourceVariable* ptxNormal,
-                            ID3D10EffectShaderResourceVariable* ptxSpecular,
-                            ID3D10EffectVectorVariable* pvDiffuse, 
-                            ID3D10EffectVectorVariable* pvSpecular )
+void CDXUTSDKMesh::Render( ID3D10Device* pd3dDevice,
+                           UINT iDiffuseSlot,
+                           UINT iNormalSlot,
+                           UINT iSpecularSlot )
+{
+    RenderFrame( 0, false, pd3dDevice, iDiffuseSlot, iNormalSlot, iSpecularSlot );
+}
+
+//--------------------------------------------------------------------------------------
+void CDXUTSDKMesh::Render( ID3D10Device* pd3dDevice,
+                           ID3D10EffectTechnique* pTechnique,
+                           ID3D10EffectShaderResourceVariable* ptxDiffuse,
+                           ID3D10EffectShaderResourceVariable* ptxNormal,
+                           ID3D10EffectShaderResourceVariable* ptxSpecular,
+                           ID3D10EffectVectorVariable* pvDiffuse,
+                           ID3D10EffectVectorVariable* pvSpecular )
 {
     RenderFrame( 0, false, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal, ptxSpecular, pvDiffuse, pvSpecular );
 }
 
 //--------------------------------------------------------------------------------------
-void CDXUTSDKMesh::RenderAdjacent(  ID3D10Device* pd3dDevice, 
-                                    ID3D10EffectTechnique* pTechnique, 
-                                    ID3D10EffectShaderResourceVariable* ptxDiffuse,
-                                    ID3D10EffectShaderResourceVariable* ptxNormal,
-                                    ID3D10EffectShaderResourceVariable* ptxSpecular,
-                                    ID3D10EffectVectorVariable* pvDiffuse, 
-                                    ID3D10EffectVectorVariable* pvSpecular )
+void CDXUTSDKMesh::RenderAdjacent( ID3D10Device* pd3dDevice,
+                                   ID3D10EffectTechnique* pTechnique,
+                                   ID3D10EffectShaderResourceVariable* ptxDiffuse,
+                                   ID3D10EffectShaderResourceVariable* ptxNormal,
+                                   ID3D10EffectShaderResourceVariable* ptxSpecular,
+                                   ID3D10EffectVectorVariable* pvDiffuse,
+                                   ID3D10EffectVectorVariable* pvSpecular )
 {
     RenderFrame( 0, true, pd3dDevice, pTechnique, ptxDiffuse, ptxNormal, ptxSpecular, pvDiffuse, pvSpecular );
 }
 
 //--------------------------------------------------------------------------------------
-void CDXUTSDKMesh::Render(	LPDIRECT3DDEVICE9 pd3dDevice,
-                            LPD3DXEFFECT pEffect,
-                            D3DXHANDLE hTechnique,
-                            D3DXHANDLE htxDiffuse,
-                            D3DXHANDLE htxNormal,
-                            D3DXHANDLE htxSpecular )
+void CDXUTSDKMesh::Render( LPDIRECT3DDEVICE9 pd3dDevice,
+                           LPD3DXEFFECT pEffect,
+                           D3DXHANDLE hTechnique,
+                           D3DXHANDLE htxDiffuse,
+                           D3DXHANDLE htxNormal,
+                           D3DXHANDLE htxSpecular )
 {
     RenderFrame( 0, pd3dDevice, pEffect, hTechnique, htxDiffuse, htxNormal, htxSpecular );
 }
@@ -1213,35 +1513,35 @@ D3D10_PRIMITIVE_TOPOLOGY CDXUTSDKMesh::GetPrimitiveType10( SDKMESH_PRIMITIVE_TYP
 {
     D3D10_PRIMITIVE_TOPOLOGY retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 
-    switch(PrimType)
+    switch( PrimType )
     {
-    case PT_TRIANGLE_LIST:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
-        break;
-    case PT_TRIANGLE_STRIP:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
-        break;
-    case PT_LINE_LIST:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST;
-        break;
-    case PT_LINE_STRIP:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP;
-        break;
-    case PT_POINT_LIST:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;
-        break;
-    case PT_TRIANGLE_LIST_ADJ:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
-        break;
-    case PT_TRIANGLE_STRIP_ADJ:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
-        break;
-    case PT_LINE_LIST_ADJ:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
-        break;
-    case PT_LINE_STRIP_ADJ:
-        retType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
-        break;
+        case PT_TRIANGLE_LIST:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+            break;
+        case PT_TRIANGLE_STRIP:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP;
+            break;
+        case PT_LINE_LIST:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST;
+            break;
+        case PT_LINE_STRIP:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP;
+            break;
+        case PT_POINT_LIST:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_POINTLIST;
+            break;
+        case PT_TRIANGLE_LIST_ADJ:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLELIST_ADJ;
+            break;
+        case PT_TRIANGLE_STRIP_ADJ:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP_ADJ;
+            break;
+        case PT_LINE_LIST_ADJ:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_LINELIST_ADJ;
+            break;
+        case PT_LINE_STRIP_ADJ:
+            retType = D3D10_PRIMITIVE_TOPOLOGY_LINESTRIP_ADJ;
+            break;
     };
 
     return retType;
@@ -1252,10 +1552,10 @@ DXGI_FORMAT CDXUTSDKMesh::GetIBFormat10( UINT iMesh )
 {
     switch( m_pIndexBufferArray[ m_pMeshArray[ iMesh ].IndexBuffer ].IndexType )
     {
-    case IT_16BIT:
-        return DXGI_FORMAT_R16_UINT;
-    case IT_32BIT:
-        return DXGI_FORMAT_R32_UINT;
+        case IT_16BIT:
+            return DXGI_FORMAT_R16_UINT;
+        case IT_32BIT:
+            return DXGI_FORMAT_R32_UINT;
     };
     return DXGI_FORMAT_R16_UINT;
 }
@@ -1272,6 +1572,11 @@ ID3D10Buffer* CDXUTSDKMesh::GetIB10( UINT iMesh )
     return m_pIndexBufferArray[ m_pMeshArray[ iMesh ].IndexBuffer ].pIB10;
 }
 
+SDKMESH_INDEX_TYPE CDXUTSDKMesh::GetIndexType( UINT iMesh ) 
+{
+    return ( SDKMESH_INDEX_TYPE ) m_pIndexBufferArray[m_pMeshArray[ iMesh ].IndexBuffer].IndexType;
+}
+
 //--------------------------------------------------------------------------------------
 ID3D10Buffer* CDXUTSDKMesh::GetAdjIB10( UINT iMesh )
 {
@@ -1283,23 +1588,23 @@ D3DPRIMITIVETYPE CDXUTSDKMesh::GetPrimitiveType9( SDKMESH_PRIMITIVE_TYPE PrimTyp
 {
     D3DPRIMITIVETYPE retType = D3DPT_TRIANGLELIST;
 
-     switch(PrimType)
+    switch( PrimType )
     {
-    case PT_TRIANGLE_LIST:
-        retType = D3DPT_TRIANGLELIST;
-        break;
-    case PT_TRIANGLE_STRIP:
-        retType = D3DPT_TRIANGLESTRIP;
-        break;
-    case PT_LINE_LIST:
-        retType = D3DPT_LINELIST;
-        break;
-    case PT_LINE_STRIP:
-        retType = D3DPT_LINESTRIP;
-        break;
-    case PT_POINT_LIST:
-        retType = D3DPT_POINTLIST;
-        break;
+        case PT_TRIANGLE_LIST:
+            retType = D3DPT_TRIANGLELIST;
+            break;
+        case PT_TRIANGLE_STRIP:
+            retType = D3DPT_TRIANGLESTRIP;
+            break;
+        case PT_LINE_LIST:
+            retType = D3DPT_LINELIST;
+            break;
+        case PT_LINE_STRIP:
+            retType = D3DPT_LINESTRIP;
+            break;
+        case PT_POINT_LIST:
+            retType = D3DPT_POINTLIST;
+            break;
     };
 
     return retType;
@@ -1310,10 +1615,10 @@ D3DFORMAT CDXUTSDKMesh::GetIBFormat9( UINT iMesh )
 {
     switch( m_pIndexBufferArray[ m_pMeshArray[ iMesh ].IndexBuffer ].IndexType )
     {
-    case IT_16BIT:
-        return D3DFMT_INDEX16;
-    case IT_32BIT:
-        return D3DFMT_INDEX32;
+        case IT_16BIT:
+            return D3DFMT_INDEX16;
+        case IT_32BIT:
+            return D3DFMT_INDEX32;
     };
     return D3DFMT_INDEX16;
 }
@@ -1399,6 +1704,18 @@ ID3D10Buffer* CDXUTSDKMesh::GetIB10At( UINT iIB )
 }
 
 //--------------------------------------------------------------------------------------
+BYTE* CDXUTSDKMesh::GetRawVerticesAt( UINT iVB )
+{
+    return m_ppVertices[iVB];
+}
+
+//--------------------------------------------------------------------------------------
+BYTE* CDXUTSDKMesh::GetRawIndicesAt( UINT iIB )
+{
+    return m_ppIndices[iIB];
+}
+
+//--------------------------------------------------------------------------------------
 SDKMESH_MATERIAL* CDXUTSDKMesh::GetMaterial( UINT iMaterial )
 {
     return &m_pMaterialArray[ iMaterial ];
@@ -1425,13 +1742,13 @@ SDKMESH_SUBSET* CDXUTSDKMesh::GetSubset( UINT iMesh, UINT iSubset )
 //--------------------------------------------------------------------------------------
 UINT CDXUTSDKMesh::GetVertexStride( UINT iMesh, UINT iVB )
 {
-    return (UINT)m_pVertexBufferArray[ m_pMeshArray[ iMesh ].VertexBuffers[iVB] ].StrideBytes;
+    return ( UINT )m_pVertexBufferArray[ m_pMeshArray[ iMesh ].VertexBuffers[iVB] ].StrideBytes;
 }
 
 //--------------------------------------------------------------------------------------
 SDKMESH_FRAME* CDXUTSDKMesh::FindFrame( char* pszName )
 {
-    for( UINT i=0; i<m_pMeshHeader->NumFrames; i++ )
+    for( UINT i = 0; i < m_pMeshHeader->NumFrames; i++ )
     {
         if( _stricmp( m_pFrameArray[i].Name, pszName ) == 0 )
         {
@@ -1476,7 +1793,7 @@ UINT CDXUTSDKMesh::GetOutstandingResources()
 
     if( m_pDev10 )
     {
-        for( UINT i=0; i<m_pMeshHeader->NumMaterials; i++ )
+        for( UINT i = 0; i < m_pMeshHeader->NumMaterials; i++ )
         {
             if( m_pMaterialArray[i].DiffuseTexture[0] != 0 )
             {
@@ -1499,7 +1816,7 @@ UINT CDXUTSDKMesh::GetOutstandingResources()
     }
     else
     {
-        for( UINT i=0; i<m_pMeshHeader->NumMaterials; i++ )
+        for( UINT i = 0; i < m_pMeshHeader->NumMaterials; i++ )
         {
             if( m_pMaterialArray[i].DiffuseTexture[0] != 0 )
             {
@@ -1515,7 +1832,8 @@ UINT CDXUTSDKMesh::GetOutstandingResources()
 
             if( m_pMaterialArray[i].SpecularTexture[0] != 0 )
             {
-                if( !m_pMaterialArray[i].pSpecularTexture9 && !IsErrorResource( m_pMaterialArray[i].pSpecularTexture9 ) )
+                if( !m_pMaterialArray[i].pSpecularTexture9 &&
+                    !IsErrorResource( m_pMaterialArray[i].pSpecularTexture9 ) )
                     outstandingResources ++;
             }
         }
@@ -1531,13 +1849,13 @@ UINT CDXUTSDKMesh::GetOutstandingBufferResources()
     if( !m_pMeshHeader )
         return 1;
 
-    for( UINT i=0; i<m_pMeshHeader->NumVertexBuffers; i++ )
+    for( UINT i = 0; i < m_pMeshHeader->NumVertexBuffers; i++ )
     {
         if( !m_pVertexBufferArray[i].pVB9 && !IsErrorResource( m_pVertexBufferArray[i].pVB9 ) )
             outstandingResources ++;
     }
 
-    for( UINT i=0; i<m_pMeshHeader->NumIndexBuffers; i++ )
+    for( UINT i = 0; i < m_pMeshHeader->NumIndexBuffers; i++ )
     {
         if( !m_pIndexBufferArray[i].pIB9 && !IsErrorResource( m_pIndexBufferArray[i].pIB9 ) )
             outstandingResources ++;
@@ -1586,13 +1904,13 @@ BOOL CDXUTSDKMesh::HadLoadingError()
 {
     if( m_pMeshHeader )
     {
-        for( UINT i=0; i<m_pMeshHeader->NumVertexBuffers; i++ )
+        for( UINT i = 0; i < m_pMeshHeader->NumVertexBuffers; i++ )
         {
             if( IsErrorResource( m_pVertexBufferArray[i].pVB9 ) )
                 return TRUE;
         }
 
-        for( UINT i=0; i<m_pMeshHeader->NumIndexBuffers; i++ )
+        for( UINT i = 0; i < m_pMeshHeader->NumIndexBuffers; i++ )
         {
             if( IsErrorResource( m_pIndexBufferArray[i].pIB9 ) )
                 return TRUE;
@@ -1609,7 +1927,7 @@ UINT CDXUTSDKMesh::GetNumInfluences( UINT iMesh )
 }
 
 //--------------------------------------------------------------------------------------
-D3DXMATRIX* CDXUTSDKMesh::GetMeshInfluenceMatrix( UINT iMesh, UINT iInfluence )
+const D3DXMATRIX* CDXUTSDKMesh::GetMeshInfluenceMatrix( UINT iMesh, UINT iInfluence )
 {
     UINT iFrame = m_pMeshArray[iMesh].pFrameInfluences[ iInfluence ];
     return &m_pTransformedFrameMatrices[iFrame];
@@ -1618,9 +1936,9 @@ D3DXMATRIX* CDXUTSDKMesh::GetMeshInfluenceMatrix( UINT iMesh, UINT iInfluence )
 //--------------------------------------------------------------------------------------
 UINT CDXUTSDKMesh::GetAnimationKeyFromTime( double fTime )
 {
-    UINT iTick = (UINT)(m_pAnimationHeader->AnimationFPS * fTime);
+    UINT iTick = ( UINT )( m_pAnimationHeader->AnimationFPS * fTime );
 
-    iTick = iTick % (m_pAnimationHeader->NumAnimationKeys-1);
+    iTick = iTick % ( m_pAnimationHeader->NumAnimationKeys - 1 );
     iTick ++;
 
     return iTick;
@@ -1634,19 +1952,19 @@ UINT CDXUTSDKMesh::GetAnimationKeyFromTime( double fTime )
 //-----------------------------------------------------------------------------
 CDXUTXFileMesh::CDXUTXFileMesh( LPCWSTR strName )
 {
-    StringCchCopy( m_strName, 512, strName );
-    m_pMesh              = NULL;
-    m_pMaterials         = NULL;
-    m_pTextures          = NULL;
-    m_bUseMaterials      = TRUE;
-    m_pVB                = NULL;
-    m_pIB                = NULL;
-    m_pDecl              = NULL;
-    m_strMaterials       = NULL;
-    m_dwNumMaterials     = 0;
-    m_dwNumVertices      = 0;
-    m_dwNumFaces         = 0;
-    m_dwBytesPerVertex   = 0;
+    wcscpy_s( m_strName, 512, strName );
+    m_pMesh = NULL;
+    m_pMaterials = NULL;
+    m_pTextures = NULL;
+    m_bUseMaterials = TRUE;
+    m_pVB = NULL;
+    m_pIB = NULL;
+    m_pDecl = NULL;
+    m_strMaterials = NULL;
+    m_dwNumMaterials = 0;
+    m_dwNumVertices = 0;
+    m_dwNumFaces = 0;
+    m_dwBytesPerVertex = 0;
 }
 
 
@@ -1664,19 +1982,19 @@ CDXUTXFileMesh::~CDXUTXFileMesh()
 //-----------------------------------------------------------------------------
 HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, LPCWSTR strFilename )
 {
-    WCHAR        strPath[MAX_PATH];
+    WCHAR strPath[MAX_PATH];
     LPD3DXBUFFER pAdjacencyBuffer = NULL;
     LPD3DXBUFFER pMtrlBuffer = NULL;
-    HRESULT      hr;
+    HRESULT hr;
 
     // Cleanup previous mesh if any
     Destroy();
 
     // Find the path for the file, and convert it to ANSI (for the D3DX API)
-    DXUTFindDXSDKMediaFileCch( strPath, sizeof(strPath) / sizeof(WCHAR), strFilename );
+    DXUTFindDXSDKMediaFileCch( strPath, sizeof( strPath ) / sizeof( WCHAR ), strFilename );
 
     // Load the mesh
-    if( FAILED( hr = D3DXLoadMeshFromX( strPath, D3DXMESH_MANAGED, pd3dDevice, 
+    if( FAILED( hr = D3DXLoadMeshFromX( strPath, D3DXMESH_MANAGED, pd3dDevice,
                                         &pAdjacencyBuffer, &pMtrlBuffer, NULL,
                                         &m_dwNumMaterials, &m_pMesh ) ) )
     {
@@ -1685,8 +2003,8 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, LPCWSTR strFilenam
 
     // Optimize the mesh for performance
     if( FAILED( hr = m_pMesh->OptimizeInplace(
-                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-                        (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                ( DWORD* )pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
     {
         SAFE_RELEASE( pAdjacencyBuffer );
         SAFE_RELEASE( pMtrlBuffer );
@@ -1694,13 +2012,13 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, LPCWSTR strFilenam
     }
 
     // Set strPath to the path of the mesh file
-    WCHAR *pLastBSlash = wcsrchr( strPath, L'\\' );
+    WCHAR* pLastBSlash = wcsrchr( strPath, L'\\' );
     if( pLastBSlash )
-        *(pLastBSlash + 1) = L'\0';
+        *( pLastBSlash + 1 ) = L'\0';
     else
         *strPath = L'\0';
 
-    D3DXMATERIAL* d3dxMtrls = (D3DXMATERIAL*)pMtrlBuffer->GetBufferPointer();
+    D3DXMATERIAL* d3dxMtrls = ( D3DXMATERIAL* )pMtrlBuffer->GetBufferPointer();
     hr = CreateMaterials( strPath, pd3dDevice, d3dxMtrls, m_dwNumMaterials );
 
     SAFE_RELEASE( pAdjacencyBuffer );
@@ -1708,8 +2026,8 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, LPCWSTR strFilenam
 
     // Extract data from m_pMesh for easy access
     D3DVERTEXELEMENT9 decl[MAX_FVF_DECL_SIZE];
-    m_dwNumVertices    = m_pMesh->GetNumVertices();
-    m_dwNumFaces       = m_pMesh->GetNumFaces();
+    m_dwNumVertices = m_pMesh->GetNumVertices();
+    m_dwNumFaces = m_pMesh->GetNumFaces();
     m_dwBytesPerVertex = m_pMesh->GetNumBytesPerVertex();
     m_pMesh->GetIndexBuffer( &m_pIB );
     m_pMesh->GetVertexBuffer( &m_pVB );
@@ -1722,11 +2040,11 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, LPCWSTR strFilenam
 
 //-----------------------------------------------------------------------------
 HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice,
-                           LPD3DXFILEDATA pFileData )
+                                LPD3DXFILEDATA pFileData )
 {
     LPD3DXBUFFER pMtrlBuffer = NULL;
     LPD3DXBUFFER pAdjacencyBuffer = NULL;
-    HRESULT      hr;
+    HRESULT hr;
 
     // Cleanup previous mesh if any
     Destroy();
@@ -1741,15 +2059,15 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice,
 
     // Optimize the mesh for performance
     if( FAILED( hr = m_pMesh->OptimizeInplace(
-                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-                        (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                ( DWORD* )pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
     {
         SAFE_RELEASE( pAdjacencyBuffer );
         SAFE_RELEASE( pMtrlBuffer );
         return hr;
     }
 
-    D3DXMATERIAL* d3dxMtrls = (D3DXMATERIAL*)pMtrlBuffer->GetBufferPointer();
+    D3DXMATERIAL* d3dxMtrls = ( D3DXMATERIAL* )pMtrlBuffer->GetBufferPointer();
     hr = CreateMaterials( L"", pd3dDevice, d3dxMtrls, m_dwNumMaterials );
 
     SAFE_RELEASE( pAdjacencyBuffer );
@@ -1757,8 +2075,8 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice,
 
     // Extract data from m_pMesh for easy access
     D3DVERTEXELEMENT9 decl[MAX_FVF_DECL_SIZE];
-    m_dwNumVertices    = m_pMesh->GetNumVertices();
-    m_dwNumFaces       = m_pMesh->GetNumFaces();
+    m_dwNumVertices = m_pMesh->GetNumVertices();
+    m_dwNumFaces = m_pMesh->GetNumFaces();
     m_dwBytesPerVertex = m_pMesh->GetNumBytesPerVertex();
     m_pMesh->GetIndexBuffer( &m_pIB );
     m_pMesh->GetVertexBuffer( &m_pVB );
@@ -1770,24 +2088,24 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice,
 
 
 //-----------------------------------------------------------------------------
-HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, ID3DXMesh* pInMesh, 
-                           D3DXMATERIAL* pd3dxMaterials, DWORD dwMaterials )
+HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, ID3DXMesh* pInMesh,
+                                D3DXMATERIAL* pd3dxMaterials, DWORD dwMaterials )
 {
     // Cleanup previous mesh if any
     Destroy();
 
     // Optimize the mesh for performance
-    DWORD *rgdwAdjacency = NULL;
+    DWORD* rgdwAdjacency = NULL;
     rgdwAdjacency = new DWORD[pInMesh->GetNumFaces() * 3];
     if( rgdwAdjacency == NULL )
         return E_OUTOFMEMORY;
-    pInMesh->GenerateAdjacency(1e-6f,rgdwAdjacency);
+    pInMesh->GenerateAdjacency( 1e-6f, rgdwAdjacency );
 
     D3DVERTEXELEMENT9 decl[MAX_FVF_DECL_SIZE];
     pInMesh->GetDeclaration( decl );
 
     DWORD dwOptions = pInMesh->GetOptions();
-    dwOptions &= ~(D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM | D3DXMESH_WRITEONLY);
+    dwOptions &= ~( D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM | D3DXMESH_WRITEONLY );
     dwOptions |= D3DXMESH_MANAGED;
     dwOptions |= D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE;
 
@@ -1806,8 +2124,8 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, ID3DXMesh* pInMesh
     hr = CreateMaterials( L"", pd3dDevice, pd3dxMaterials, dwMaterials );
 
     // Extract data from m_pMesh for easy access
-    m_dwNumVertices    = m_pMesh->GetNumVertices();
-    m_dwNumFaces       = m_pMesh->GetNumFaces();
+    m_dwNumVertices = m_pMesh->GetNumVertices();
+    m_dwNumFaces = m_pMesh->GetNumFaces();
     m_dwBytesPerVertex = m_pMesh->GetNumBytesPerVertex();
     m_pMesh->GetIndexBuffer( &m_pIB );
     m_pMesh->GetVertexBuffer( &m_pVB );
@@ -1819,7 +2137,8 @@ HRESULT CDXUTXFileMesh::Create( LPDIRECT3DDEVICE9 pd3dDevice, ID3DXMesh* pInMesh
 
 
 //-----------------------------------------------------------------------------
-HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3dDevice, D3DXMATERIAL* d3dxMtrls, DWORD dwNumMaterials )
+HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9* pd3dDevice, D3DXMATERIAL* d3dxMtrls,
+                                         DWORD dwNumMaterials )
 {
     // Get material info for the mesh
     // Get the array of materials out of the buffer
@@ -1838,16 +2157,16 @@ HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3d
             return E_OUTOFMEMORY;
 
         // Copy each material and create its texture
-        for( DWORD i=0; i<m_dwNumMaterials; i++ )
+        for( DWORD i = 0; i < m_dwNumMaterials; i++ )
         {
             // Copy the material
-            m_pMaterials[i]         = d3dxMtrls[i].MatD3D;
-            m_pTextures[i]          = NULL;
+            m_pMaterials[i] = d3dxMtrls[i].MatD3D;
+            m_pTextures[i] = NULL;
 
             // Create a texture
             if( d3dxMtrls[i].pTextureFilename )
             {
-                StringCchCopyA( m_strMaterials[i], MAX_PATH, d3dxMtrls[i].pTextureFilename );
+                strcpy_s( m_strMaterials[i], MAX_PATH, d3dxMtrls[i].pTextureFilename );
 
                 WCHAR strTexture[MAX_PATH];
                 WCHAR strTextureTemp[MAX_PATH];
@@ -1855,10 +2174,10 @@ HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3d
 
                 // First attempt to look for texture in the same folder as the input folder.
                 MultiByteToWideChar( CP_ACP, 0, d3dxMtrls[i].pTextureFilename, -1, strTextureTemp, MAX_PATH );
-                strTextureTemp[MAX_PATH-1] = 0;
+                strTextureTemp[MAX_PATH - 1] = 0;
 
-                StringCchCopy( strTexture, MAX_PATH, strPath );
-                StringCchCat( strTexture, MAX_PATH, strTextureTemp );
+                wcscpy_s( strTexture, MAX_PATH, strPath );
+                wcscat_s( strTexture, MAX_PATH, strTextureTemp );
 
                 // Inspect the texture file to determine the texture type.
                 if( FAILED( D3DXGetImageInfoFromFile( strTexture, &ImgInfo ) ) )
@@ -1875,11 +2194,11 @@ HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3d
                 {
                     case D3DRTYPE_TEXTURE:
                     {
-                        IDirect3DTexture9 *pTex;
+                        IDirect3DTexture9* pTex;
                         if( SUCCEEDED( D3DXCreateTextureFromFile( pd3dDevice, strTexture, &pTex ) ) )
                         {
                             // Obtain the base texture interface
-                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, (LPVOID*)&m_pTextures[i] );
+                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, ( LPVOID* )&m_pTextures[i] );
                             // Release the specialized instance
                             pTex->Release();
                         }
@@ -1887,11 +2206,11 @@ HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3d
                     }
                     case D3DRTYPE_CUBETEXTURE:
                     {
-                        IDirect3DCubeTexture9 *pTex;
+                        IDirect3DCubeTexture9* pTex;
                         if( SUCCEEDED( D3DXCreateCubeTextureFromFile( pd3dDevice, strTexture, &pTex ) ) )
                         {
                             // Obtain the base texture interface
-                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, (LPVOID*)&m_pTextures[i] );
+                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, ( LPVOID* )&m_pTextures[i] );
                             // Release the specialized instance
                             pTex->Release();
                         }
@@ -1899,11 +2218,11 @@ HRESULT CDXUTXFileMesh::CreateMaterials( LPCWSTR strPath, IDirect3DDevice9 *pd3d
                     }
                     case D3DRTYPE_VOLUMETEXTURE:
                     {
-                        IDirect3DVolumeTexture9 *pTex;
+                        IDirect3DVolumeTexture9* pTex;
                         if( SUCCEEDED( D3DXCreateVolumeTextureFromFile( pd3dDevice, strTexture, &pTex ) ) )
                         {
                             // Obtain the base texture interface
-                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, (LPVOID*)&m_pTextures[i] );
+                            pTex->QueryInterface( IID_IDirect3DBaseTexture9, ( LPVOID* )&m_pTextures[i] );
                             // Release the specialized instance
                             pTex->Release();
                         }
@@ -1938,7 +2257,7 @@ HRESULT CDXUTXFileMesh::SetFVF( LPDIRECT3DDEVICE9 pd3dDevice, DWORD dwFVF )
 
         // Compute normals if they are being requested and
         // the old mesh does not have them.
-        if( !(dwOldFVF & D3DFVF_NORMAL) && dwFVF & D3DFVF_NORMAL )
+        if( !( dwOldFVF & D3DFVF_NORMAL ) && dwFVF & D3DFVF_NORMAL )
         {
             D3DXComputeNormals( m_pMesh, NULL );
         }
@@ -1953,9 +2272,9 @@ HRESULT CDXUTXFileMesh::SetFVF( LPDIRECT3DDEVICE9 pd3dDevice, DWORD dwFVF )
 //-----------------------------------------------------------------------------
 // Convert the mesh to the format specified by the given vertex declarations.
 //-----------------------------------------------------------------------------
-HRESULT CDXUTXFileMesh::SetVertexDecl( LPDIRECT3DDEVICE9 pd3dDevice, const D3DVERTEXELEMENT9 *pDecl, 
-                                  bool bAutoComputeNormals, bool bAutoComputeTangents, 
-                                  bool bSplitVertexForOptimalTangents )
+HRESULT CDXUTXFileMesh::SetVertexDecl( LPDIRECT3DDEVICE9 pd3dDevice, const D3DVERTEXELEMENT9* pDecl,
+                                       bool bAutoComputeNormals, bool bAutoComputeTangents,
+                                       bool bSplitVertexForOptimalTangents )
 {
     LPD3DXMESH pTempMesh = NULL;
 
@@ -2025,11 +2344,11 @@ HRESULT CDXUTXFileMesh::SetVertexDecl( LPDIRECT3DDEVICE9 pd3dDevice, const D3DVE
             ID3DXMesh* pNewMesh;
             HRESULT hr;
 
-            DWORD *rgdwAdjacency = NULL;
+            DWORD* rgdwAdjacency = NULL;
             rgdwAdjacency = new DWORD[m_pMesh->GetNumFaces() * 3];
             if( rgdwAdjacency == NULL )
                 return E_OUTOFMEMORY;
-            V( m_pMesh->GenerateAdjacency(1e-6f,rgdwAdjacency) );
+            V( m_pMesh->GenerateAdjacency( 1e-6f, rgdwAdjacency ) );
 
             float fPartialEdgeThreshold;
             float fSingularPointThreshold;
@@ -2048,17 +2367,17 @@ HRESULT CDXUTXFileMesh::SetVertexDecl( LPDIRECT3DDEVICE9 pd3dDevice, const D3DVE
             }
 
             // Compute tangents, which are required for normal mapping
-            hr = D3DXComputeTangentFrameEx( m_pMesh, 
-                                            D3DDECLUSAGE_TEXCOORD, 0, 
+            hr = D3DXComputeTangentFrameEx( m_pMesh,
+                                            D3DDECLUSAGE_TEXCOORD, 0,
                                             D3DDECLUSAGE_TANGENT, 0,
-                                            D3DX_DEFAULT, 0, 
+                                            D3DX_DEFAULT, 0,
                                             D3DDECLUSAGE_NORMAL, 0,
-                                            0, rgdwAdjacency, 
-                                            fPartialEdgeThreshold, fSingularPointThreshold, fNormalEdgeThreshold, 
+                                            0, rgdwAdjacency,
+                                            fPartialEdgeThreshold, fSingularPointThreshold, fNormalEdgeThreshold,
                                             &pNewMesh, NULL );
 
             SAFE_DELETE_ARRAY( rgdwAdjacency );
-            if( FAILED(hr) )
+            if( FAILED( hr ) )
                 return hr;
 
             SAFE_RELEASE( m_pMesh );
@@ -2098,7 +2417,7 @@ HRESULT CDXUTXFileMesh::InvalidateDeviceObjects()
 HRESULT CDXUTXFileMesh::Destroy()
 {
     InvalidateDeviceObjects();
-    for( UINT i=0; i<m_dwNumMaterials; i++ )
+    for( UINT i = 0; i < m_dwNumMaterials; i++ )
         SAFE_RELEASE( m_pTextures[i] );
     SAFE_DELETE_ARRAY( m_pTextures );
     SAFE_DELETE_ARRAY( m_pMaterials );
@@ -2116,7 +2435,7 @@ HRESULT CDXUTXFileMesh::Destroy()
 
 //-----------------------------------------------------------------------------
 HRESULT CDXUTXFileMesh::Render( LPDIRECT3DDEVICE9 pd3dDevice, bool bDrawOpaqueSubsets,
-                          bool bDrawAlphaSubsets )
+                                bool bDrawAlphaSubsets )
 {
     if( NULL == m_pMesh )
         return E_FAIL;
@@ -2124,7 +2443,7 @@ HRESULT CDXUTXFileMesh::Render( LPDIRECT3DDEVICE9 pd3dDevice, bool bDrawOpaqueSu
     // Frist, draw the subsets without alpha
     if( bDrawOpaqueSubsets )
     {
-        for( DWORD i=0; i<m_dwNumMaterials; i++ )
+        for( DWORD i = 0; i < m_dwNumMaterials; i++ )
         {
             if( m_bUseMaterials )
             {
@@ -2140,7 +2459,7 @@ HRESULT CDXUTXFileMesh::Render( LPDIRECT3DDEVICE9 pd3dDevice, bool bDrawOpaqueSu
     // Then, draw the subsets with alpha
     if( bDrawAlphaSubsets && m_bUseMaterials )
     {
-        for( DWORD i=0; i<m_dwNumMaterials; i++ )
+        for( DWORD i = 0; i < m_dwNumMaterials; i++ )
         {
             if( m_pMaterials[i].Diffuse.a == 1.0f )
                 continue;
@@ -2159,15 +2478,15 @@ HRESULT CDXUTXFileMesh::Render( LPDIRECT3DDEVICE9 pd3dDevice, bool bDrawOpaqueSu
 
 
 //-----------------------------------------------------------------------------
-HRESULT CDXUTXFileMesh::Render( ID3DXEffect *pEffect,
-                           D3DXHANDLE hTexture,
-                           D3DXHANDLE hDiffuse,
-                           D3DXHANDLE hAmbient,
-                           D3DXHANDLE hSpecular,
-                           D3DXHANDLE hEmissive,
-                           D3DXHANDLE hPower,
-                           bool bDrawOpaqueSubsets,
-                           bool bDrawAlphaSubsets )
+HRESULT CDXUTXFileMesh::Render( ID3DXEffect* pEffect,
+                                D3DXHANDLE hTexture,
+                                D3DXHANDLE hDiffuse,
+                                D3DXHANDLE hAmbient,
+                                D3DXHANDLE hSpecular,
+                                D3DXHANDLE hEmissive,
+                                D3DXHANDLE hPower,
+                                bool bDrawOpaqueSubsets,
+                                bool bDrawAlphaSubsets )
 {
     if( NULL == m_pMesh )
         return E_FAIL;
@@ -2180,7 +2499,7 @@ HRESULT CDXUTXFileMesh::Render( ID3DXEffect *pEffect,
         for( UINT p = 0; p < cPasses; ++p )
         {
             pEffect->BeginPass( p );
-            for( DWORD i=0; i<m_dwNumMaterials; i++ )
+            for( DWORD i = 0; i < m_dwNumMaterials; i++ )
             {
                 if( m_bUseMaterials )
                 {
@@ -2191,13 +2510,13 @@ HRESULT CDXUTXFileMesh::Render( ID3DXEffect *pEffect,
                     // D3DCOLORVALUE and D3DXVECTOR4 are data-wise identical.
                     // No conversion is needed.
                     if( hDiffuse )
-                        pEffect->SetVector( hDiffuse, (D3DXVECTOR4*)&m_pMaterials[i].Diffuse );
+                        pEffect->SetVector( hDiffuse, ( D3DXVECTOR4* )&m_pMaterials[i].Diffuse );
                     if( hAmbient )
-                        pEffect->SetVector( hAmbient, (D3DXVECTOR4*)&m_pMaterials[i].Ambient );
+                        pEffect->SetVector( hAmbient, ( D3DXVECTOR4* )&m_pMaterials[i].Ambient );
                     if( hSpecular )
-                        pEffect->SetVector( hSpecular, (D3DXVECTOR4*)&m_pMaterials[i].Specular );
+                        pEffect->SetVector( hSpecular, ( D3DXVECTOR4* )&m_pMaterials[i].Specular );
                     if( hEmissive )
-                        pEffect->SetVector( hEmissive, (D3DXVECTOR4*)&m_pMaterials[i].Emissive );
+                        pEffect->SetVector( hEmissive, ( D3DXVECTOR4* )&m_pMaterials[i].Emissive );
                     if( hPower )
                         pEffect->SetFloat( hPower, m_pMaterials[i].Power );
                     pEffect->CommitChanges();
@@ -2216,7 +2535,7 @@ HRESULT CDXUTXFileMesh::Render( ID3DXEffect *pEffect,
         for( UINT p = 0; p < cPasses; ++p )
         {
             pEffect->BeginPass( p );
-            for( DWORD i=0; i<m_dwNumMaterials; i++ )
+            for( DWORD i = 0; i < m_dwNumMaterials; i++ )
             {
                 if( m_bUseMaterials )
                 {
@@ -2227,13 +2546,13 @@ HRESULT CDXUTXFileMesh::Render( ID3DXEffect *pEffect,
                     // D3DCOLORVALUE and D3DXVECTOR4 are data-wise identical.
                     // No conversion is needed.
                     if( hDiffuse )
-                        pEffect->SetVector( hDiffuse, (D3DXVECTOR4*)&m_pMaterials[i].Diffuse );
+                        pEffect->SetVector( hDiffuse, ( D3DXVECTOR4* )&m_pMaterials[i].Diffuse );
                     if( hAmbient )
-                        pEffect->SetVector( hAmbient, (D3DXVECTOR4*)&m_pMaterials[i].Ambient );
+                        pEffect->SetVector( hAmbient, ( D3DXVECTOR4* )&m_pMaterials[i].Ambient );
                     if( hSpecular )
-                        pEffect->SetVector( hSpecular, (D3DXVECTOR4*)&m_pMaterials[i].Specular );
+                        pEffect->SetVector( hSpecular, ( D3DXVECTOR4* )&m_pMaterials[i].Specular );
                     if( hEmissive )
-                        pEffect->SetVector( hEmissive, (D3DXVECTOR4*)&m_pMaterials[i].Emissive );
+                        pEffect->SetVector( hEmissive, ( D3DXVECTOR4* )&m_pMaterials[i].Emissive );
                     if( hPower )
                         pEffect->SetFloat( hPower, m_pMaterials[i].Power );
                     pEffect->CommitChanges();

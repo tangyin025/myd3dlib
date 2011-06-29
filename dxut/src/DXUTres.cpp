@@ -8291,9 +8291,18 @@ HRESULT WINAPI DXUTCreateGUITextureFromInternalArray9( LPDIRECT3DDEVICE9 pd3dDev
                                                 D3DX_DEFAULT, D3DX_DEFAULT, 0, pInfo, NULL, ppTexture );
 }
 
+
+//--------------------------------------------------------------------------------------
 HRESULT WINAPI DXUTCreateGUITextureFromInternalArray10( ID3D10Device *pd3dDevice, ID3D10Texture2D** ppTexture, D3DX10_IMAGE_INFO* pInfo )
 {
     HRESULT hr;
+
+    D3DX10_IMAGE_INFO SrcInfo;
+    if( !pInfo )
+    {
+        D3DX10GetImageInfoFromMemory( g_DXUTGUITextureSrcData, g_DXUTGUITextureSrcDataSizeInBytes, NULL, &SrcInfo, NULL );
+        pInfo = &SrcInfo;
+    }
 
     ID3D10Resource *pRes;
     D3DX10_IMAGE_LOAD_INFO loadInfo;
@@ -8306,7 +8315,7 @@ HRESULT WINAPI DXUTCreateGUITextureFromInternalArray10( ID3D10Device *pd3dDevice
     loadInfo.BindFlags = D3D10_BIND_SHADER_RESOURCE;
     loadInfo.CpuAccessFlags = 0;
     loadInfo.MiscFlags = 0;
-    loadInfo.Format = DXGI_FORMAT_FROM_FILE;
+    loadInfo.Format = MAKE_TYPELESS( pInfo->Format );
     loadInfo.Filter = D3DX10_FILTER_NONE;
     loadInfo.MipFilter = D3DX10_FILTER_NONE;
     loadInfo.pSrcInfo = pInfo;

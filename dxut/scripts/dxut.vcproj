@@ -251,6 +251,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\DXUTLockFreePipe.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\DXUTmisc.h"
 				>
 			</File>
