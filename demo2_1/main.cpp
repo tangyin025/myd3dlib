@@ -328,11 +328,11 @@ HRESULT CALLBACK OnCreateDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_
 
     // Read the D3DX effect file
     WCHAR str[MAX_PATH];
-    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"SimpleSample.fx" ) );
+    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"CustomUI.fx" ) );
     V_RETURN( D3DXCreateEffectFromFile( pd3dDevice, str, NULL, NULL, dwShaderFlags,
                                         NULL, &g_pEffect, NULL ) );
 
-    g_Mesh.Create( pd3dDevice, L"misc\\cell.x" );
+    g_Mesh.Create( pd3dDevice, L"cell.x" );
 
     // Setup the camera's view parameters
     D3DXVECTOR3 vecEye( 0.0f, 1.5f, -7.0f );
