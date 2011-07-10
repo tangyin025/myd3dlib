@@ -6,16 +6,26 @@
 #include <dxut.h>
 #include <dxutgui.h>
 #include <sdkmisc.h>
+#include <DXUTsettingsdlg.h>
+#include <atlbase.h>
 
 // --------------------------------------------------------------------------------------
 // Global variables
 // --------------------------------------------------------------------------------------
 
-CDXUTDialogResourceManager g_DialogResourceManager;
+CDXUTDialogResourceManager	g_DialogResourceManager;
+CD3DSettingsDlg				g_SettingsDlg;
+CDXUTDialog					g_HUD;
+CComPtr<ID3DXFont>			g_font;
+CComPtr<ID3DXSprite>		g_sprite;
 
 // --------------------------------------------------------------------------------------
 // UI control IDs
 // --------------------------------------------------------------------------------------
+
+#define IDC_TOGGLEFULLSCREEN	1
+#define IDC_TOGGLEREF			3
+#define IDC_CHANGEDEVICE		4
 
 // --------------------------------------------------------------------------------------
 // Forward declarations 
@@ -74,6 +84,12 @@ INT WINAPI wWinMain(HINSTANCE, HINSTANCE, LPWSTR, int)
 
 void InitApp(void)
 {
+	g_SettingsDlg.Init(&g_DialogResourceManager);
+	g_HUD.Init(&g_DialogResourceManager);
+	g_HUD.SetCallback(OnGUIEvent);
+	g_HUD.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, 10, 125, 22);
+	g_HUD.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, 34, 125, 22);
+	g_HUD.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, 58, 125, 22, VK_F2);
 }
 
 // --------------------------------------------------------------------------------------
@@ -147,6 +163,9 @@ HRESULT CALLBACK OnCreateDevice(IDirect3DDevice9 * pd3dDevice,
 {
 	HRESULT hr;
 	V_RETURN(g_DialogResourceManager.OnD3D9CreateDevice(pd3dDevice));
+	V_RETURN(g_SettingsDlg.OnD3D9CreateDevice(pd3dDevice));
+	V_RETURN(D3DXCreateFont(pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET,
+		OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &g_font));
 	return S_OK;
 }
 
@@ -160,6 +179,11 @@ HRESULT CALLBACK OnResetDevice(IDirect3DDevice9 * pd3dDevice,
 {
 	HRESULT hr;
 	V_RETURN(g_DialogResourceManager.OnD3D9ResetDevice());
+	V_RETURN(g_SettingsDlg.OnD3D9ResetDevice());
+	g_HUD.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
+	g_HUD.SetSize(170, 170);
+	V_RETURN(g_font->OnResetDevice());
+	V_RETURN(D3DXCreateSprite(pd3dDevice, &g_sprite));
 	return S_OK;
 }
 
@@ -182,11 +206,27 @@ void CALLBACK OnFrameRender(IDirect3DDevice9 * pd3dDevice,
 							float fElapsedTime,
 							void * pUserContext)
 {
+	if(g_SettingsDlg.IsActive())
+	{
+		g_SettingsDlg.OnRender(fElapsedTime);
+		return;
+	}
+
 	HRESULT hr;
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 76, 76, 76), 1.0f, 0));
 
 	if(SUCCEEDED(pd3dDevice->BeginScene()))
 	{
+		V(g_HUD.OnRender(fElapsedTime));
+	    CDXUTTextHelper txtHelper(g_font, g_sprite, 15);
+		txtHelper.Begin();
+		txtHelper.SetInsertionPos(5, 5);
+		txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+		txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
+		txtHelper.DrawTextLine(DXUTGetDeviceStats());
+		txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 1.0f, 1.0f));
+		txtHelper.DrawTextLine(L"Press ESC to quit");
+		txtHelper.End();
 		V(pd3dDevice->EndScene());
 	}
 }
@@ -203,6 +243,18 @@ LRESULT CALLBACK MsgProc(HWND hWnd,
 						 void * pUserContext)
 {
     *pbNoFurtherProcessing = g_DialogResourceManager.MsgProc(hWnd, uMsg, wParam, lParam);
+	if(*pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+
+	if(g_SettingsDlg.IsActive())
+	{
+		g_SettingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+		return 0;
+	}
+
+	*pbNoFurtherProcessing = g_HUD.MsgProc(hWnd, uMsg, wParam, lParam);
 	if(*pbNoFurtherProcessing)
 	{
 		return 0;
@@ -229,6 +281,9 @@ void CALLBACK KeyboardProc(UINT nChar,
 void CALLBACK OnLostDevice(void * pUserContext)
 {
 	g_DialogResourceManager.OnD3D9LostDevice();
+	g_SettingsDlg.OnD3D9LostDevice();
+	g_font->OnLostDevice();
+	g_sprite.Release();
 }
 
 // --------------------------------------------------------------------------------------
@@ -238,6 +293,8 @@ void CALLBACK OnLostDevice(void * pUserContext)
 void CALLBACK OnDestroyDevice(void * pUserContext)
 {
 	g_DialogResourceManager.OnD3D9DestroyDevice();
+	g_SettingsDlg.OnD3D9DestroyDevice();
+	g_font.Release();
 }
 
 // --------------------------------------------------------------------------------------
@@ -249,4 +306,16 @@ void CALLBACK OnGUIEvent(UINT nEvent,
 						 CDXUTControl * pControl,
 						 void * pUserContext)
 {
+	switch(nControlID)
+	{
+	case IDC_TOGGLEFULLSCREEN:
+		DXUTToggleFullScreen();
+		break;
+	case IDC_TOGGLEREF:
+		DXUTToggleREF();
+		break;
+	case IDC_CHANGEDEVICE:
+		g_SettingsDlg.SetActive(!g_SettingsDlg.IsActive());
+		break;
+	}
 }
