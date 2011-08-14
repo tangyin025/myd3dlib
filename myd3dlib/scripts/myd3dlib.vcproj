@@ -178,6 +178,10 @@
 				RelativePath="..\src\mySingleton.cpp"
 				>
 			</File>
+			<File
+				RelativePath="..\src\stdafx.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -210,6 +214,10 @@
 			</File>
 			<File
 				RelativePath="..\include\mySingleton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\stdafx.h"
 				>
 			</File>
 		</Filter>

@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "myMesh.h"
 #include <boost/property_tree/detail/rapidxml.hpp>
 #include <atlbase.h>

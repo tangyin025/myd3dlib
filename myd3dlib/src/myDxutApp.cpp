@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "myException.h"
 #include "myDxutApp.h"
 #include <SDKmisc.h>

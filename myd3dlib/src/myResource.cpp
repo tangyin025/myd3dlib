@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "myResource.h"
 #include "myException.h"
 #include "libc.h"

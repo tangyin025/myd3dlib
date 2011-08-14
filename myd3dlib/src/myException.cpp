@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "myException.h"
 #include <sstream>
 #include <d3d9.h>

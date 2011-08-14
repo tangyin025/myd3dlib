@@ -1,4 +1,5 @@
 
+#include "stdafx.h"
 #include "libc.h"
 #include <cstdio>
 #include <stdarg.h>
