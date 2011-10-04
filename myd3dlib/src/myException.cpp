@@ -20,7 +20,8 @@ namespace my
 	std::basic_string<_TCHAR> Exception::GetFullDescription(void) const
 	{
 		std::basic_stringstream<_TCHAR> osstr;
-		osstr << m_file << _T(" (") << m_line << _T("): ") << GetDescription();
+		osstr << m_file << _T(" (") << m_line << _T("):") << std::endl;
+		osstr << GetDescription();
 		return osstr.str();
 	}
 

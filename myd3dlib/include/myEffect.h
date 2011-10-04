@@ -13,9 +13,12 @@ namespace my
 
 		ID3DXConstantTable * m_pConstantTable;
 
+		CComPtr<IDirect3DDevice9> m_Device;
+
 	protected:
-		ConstantTable(ID3DXConstantTable * pConstantTable)
+		ConstantTable(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
 			: m_pConstantTable(pConstantTable)
+			, m_Device(pDevice)
 		{
 			_ASSERT(NULL != m_pConstantTable);
 		}
@@ -68,84 +71,84 @@ namespace my
 			return m_pConstantTable->GetSamplerIndex(hConstant);
 		}
 
-		void SetBool(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, BOOL b)
+		void SetBool(D3DXHANDLE hConstant, BOOL b)
 		{
-			V(m_pConstantTable->SetBool(pDevice, hConstant, b));
+			V(m_pConstantTable->SetBool(m_Device, hConstant, b));
 		}
 
-		void SetBoolArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, CONST BOOL* pB, UINT Count)
+		void SetBoolArray(D3DXHANDLE hConstant, CONST BOOL* pB, UINT Count)
 		{
-			V(m_pConstantTable->SetBoolArray(pDevice, hConstant, pB, Count));
+			V(m_pConstantTable->SetBoolArray(m_Device, hConstant, pB, Count));
 		}
 
-		void SetDefaults(LPDIRECT3DDEVICE9 pDevice)
+		void SetDefaults(void)
 		{
-			V(m_pConstantTable->SetDefaults(pDevice));
+			V(m_pConstantTable->SetDefaults(m_Device));
 		}
 
-		void SetFloat(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, FLOAT f)
+		void SetFloat(D3DXHANDLE hConstant, FLOAT f)
 		{
-			V(m_pConstantTable->SetFloat(pDevice, hConstant, f));
+			V(m_pConstantTable->SetFloat(m_Device, hConstant, f));
 		}
 
-		void SetFloatArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, CONST FLOAT * pf, UINT Count)
+		void SetFloatArray(D3DXHANDLE hConstant, CONST FLOAT * pf, UINT Count)
 		{
-			V(m_pConstantTable->SetFloatArray(pDevice, hConstant, pf, Count));
+			V(m_pConstantTable->SetFloatArray(m_Device, hConstant, pf, Count));
 		}
 
-		void SetInt(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, INT n)
+		void SetInt(D3DXHANDLE hConstant, INT n)
 		{
-			V(m_pConstantTable->SetInt(pDevice, hConstant, n));
+			V(m_pConstantTable->SetInt(m_Device, hConstant, n));
 		}
 
-		void SetIntArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, CONST INT * pn, UINT Count)
+		void SetIntArray(D3DXHANDLE hConstant, CONST INT * pn, UINT Count)
 		{
-			V(m_pConstantTable->SetIntArray(pDevice, hConstant, pn, Count));
+			V(m_pConstantTable->SetIntArray(m_Device, hConstant, pn, Count));
 		}
 
-		void SetMatrix(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 & Matrix)
+		void SetMatrix(D3DXHANDLE hConstant, const Matrix4 & Matrix)
 		{
-			V(m_pConstantTable->SetMatrix(pDevice, hConstant, (D3DXMATRIX *)&Matrix));
+			V(m_pConstantTable->SetMatrix(m_Device, hConstant, (D3DXMATRIX *)&Matrix));
 		}
 
-		void SetMatrixArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
+		void SetMatrixArray(D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
 		{
-			V(m_pConstantTable->SetMatrixArray(pDevice, hConstant, (D3DXMATRIX *)pMatrix, Count));
+			V(m_pConstantTable->SetMatrixArray(m_Device, hConstant, (D3DXMATRIX *)pMatrix, Count));
 		}
 
-		void SetMatrixPointerArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
+		void SetMatrixPointerArray(D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
 		{
-			V(m_pConstantTable->SetMatrixPointerArray(pDevice, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
+			V(m_pConstantTable->SetMatrixPointerArray(m_Device, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
 		}
 
-		void SetMatrixTranspose(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 & Matrix)
+		void SetMatrixTranspose(D3DXHANDLE hConstant, const Matrix4 & Matrix)
 		{
-			V(m_pConstantTable->SetMatrixTranspose(pDevice, hConstant, (D3DXMATRIX *)&Matrix));
+			V(m_pConstantTable->SetMatrixTranspose(m_Device, hConstant, (D3DXMATRIX *)&Matrix));
 		}
 
-		void SetMatrixTransposeArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
+		void SetMatrixTransposeArray(D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
 		{
-			V(m_pConstantTable->SetMatrixTransposeArray(pDevice, hConstant, (D3DXMATRIX *)pMatrix, Count));
+			V(m_pConstantTable->SetMatrixTransposeArray(m_Device, hConstant, (D3DXMATRIX *)pMatrix, Count));
 		}
 
-		void SetMatrixTransposePointerArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
+		void SetMatrixTransposePointerArray(D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
 		{
-			V(m_pConstantTable->SetMatrixTransposePointerArray(pDevice, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
+			V(m_pConstantTable->SetMatrixTransposePointerArray(m_Device, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
 		}
 
-		void SetValue(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, LPCVOID pData, UINT Bytes)
+		void SetValue(D3DXHANDLE hConstant, LPCVOID pData, UINT Bytes)
 		{
-			V(m_pConstantTable->SetValue(pDevice, hConstant, pData, Bytes));
+			V(m_pConstantTable->SetValue(m_Device, hConstant, pData, Bytes));
 		}
 
-		void SetVector(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Vector4 & Vector)
+		void SetVector(D3DXHANDLE hConstant, const Vector4 & Vector)
 		{
-			V(m_pConstantTable->SetVector(pDevice, hConstant, (D3DXVECTOR4 *)&Vector));
+			V(m_pConstantTable->SetVector(m_Device, hConstant, (D3DXVECTOR4 *)&Vector));
 		}
 
-		void SetVectorArray(LPDIRECT3DDEVICE9 pDevice, D3DXHANDLE hConstant, const Vector4 * pVector, UINT Count)
+		void SetVectorArray(D3DXHANDLE hConstant, const Vector4 * pVector, UINT Count)
 		{
-			V(m_pConstantTable->SetVectorArray(pDevice, hConstant, (D3DXVECTOR4 *)pVector, Count));
+			V(m_pConstantTable->SetVectorArray(m_Device, hConstant, (D3DXVECTOR4 *)pVector, Count));
 		}
 	};
 
@@ -160,10 +163,11 @@ namespace my
 	protected:
 		HRESULT hr;
 
-		VertexShader(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable)
-			: ConstantTable(pConstantTable)
+		VertexShader(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+			: ConstantTable(pConstantTable, pDevice)
 			, DeviceRelatedObject(ptr)
 		{
+			_ASSERT(m_Device == GetDevice());
 		}
 
 		void OnD3D9DestroyDevice(void);
@@ -213,10 +217,11 @@ namespace my
 	protected:
 		HRESULT hr;
 
-		PixelShader(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable)
-			: ConstantTable(pConstantTable)
+		PixelShader(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+			: ConstantTable(pConstantTable, pDevice)
 			, DeviceRelatedObject(ptr)
 		{
+			_ASSERT(m_Device == GetDevice());
 		}
 
 		void OnD3D9DestroyDevice(void);

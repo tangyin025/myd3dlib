@@ -1,6 +1,8 @@
 ﻿
 #include <mySingleton.h>
 #include <myDxutApp.h>
+#include "DXUTgui.h"
+#include "DXUTsettingsdlg.h"
 #include <DXUTCamera.h>
 #include <myException.h>
 #include <myResource.h>
@@ -17,6 +19,25 @@
 class MyDemo : public my::DxutApp
 {
 protected:
+	enum
+	{
+		IDC_TOGGLEFULLSCREEN,
+		IDC_TOGGLEREF,
+		IDC_CHANGEDEVICE
+	};
+
+	CDXUTDialogResourceManager m_dlgResourceMgr;
+
+	CD3DSettingsDlg m_settingsDlg;
+
+	CDXUTDialog m_hudDlg;
+
+	my::PixelShaderPtr m_ps;
+
+	my::FontPtr m_font;
+
+	my::SpritePtr m_sprite;
+
 	CModelViewerCamera m_camera;
 
 	my::EffectPtr m_effect;
@@ -30,12 +51,6 @@ protected:
 	my::TexturePtr m_shadowMapRT;
 
 	my::SurfacePtr m_shadowMapDS;
-
-	my::FontPtr m_font;
-
-	my::SpritePtr m_sprite;
-
-	my::PixelShaderPtr m_ps;
 
 	bool IsD3D9DeviceAcceptable(
 		D3DCAPS9 * pCaps,
@@ -64,10 +79,13 @@ protected:
 	{
 		DxutApp::OnInit();
 
-		// 初始化资源管理器收索路径
-		my::ResourceMgr::getSingleton().RegisterFileDir(_T("."));
-		my::ResourceMgr::getSingleton().RegisterFileDir(_T("..\\..\\Common\\medias"));
-		my::ResourceMgr::getSingleton().RegisterZipArchive(_T("Data.zip"));
+		m_settingsDlg.Init(&m_dlgResourceMgr);
+		m_hudDlg.Init(&m_dlgResourceMgr);
+		m_hudDlg.SetCallback(OnGUIEvent_s, this);
+		int nY = 10;
+		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
+		m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
+		m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
 	}
 
 	HRESULT OnD3D9CreateDevice(
@@ -80,6 +98,9 @@ protected:
 		{
 			return hres;
 		}
+
+		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
+		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 		// 初始化相机
 		D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
@@ -105,7 +126,7 @@ protected:
 		// 读取字体文件
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("wqy-microhei.ttc")));
-		m_font = my::Font::CreateFontFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), 32);
+		m_font = my::Font::CreateFontFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), 13);
 
 		// 创建精灵
 		m_sprite = my::Sprite::CreateSprite(pd3dDevice);
@@ -133,6 +154,12 @@ protected:
 		{
 			return hres;
 		}
+
+		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9ResetDevice());
+		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9ResetDevice());
+		m_hudDlg.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
+		m_hudDlg.SetSize(170, 170);
+
 
 		// 重新设置相机的投影
 		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
@@ -164,6 +191,9 @@ protected:
 	{
 		DxutApp::OnD3D9LostDevice();
 
+		m_dlgResourceMgr.OnD3D9LostDevice();
+		m_settingsDlg.OnD3D9LostDevice();
+
 		// 在这里处理在reset中创建的资源
 		m_shadowMapRT = my::TexturePtr();
 		m_shadowMapDS = my::SurfacePtr();
@@ -174,6 +204,8 @@ protected:
 		DxutApp::OnD3D9DestroyDevice();
 
 		// 在这里销毁在create中创建的资源
+		m_dlgResourceMgr.OnD3D9DestroyDevice();
+		m_settingsDlg.OnD3D9DestroyDevice();
 	}
 
 	void OnFrameMove(
@@ -184,6 +216,35 @@ protected:
 
 		// 在这里更新场景
 		m_camera.FrameMove(fElapsedTime);
+	}
+
+	void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+		if(m_settingsDlg.IsActive())
+		{
+			m_settingsDlg.OnRender(fElapsedTime);
+			return;
+		}
+
+		RenderFrame(pd3dDevice, fTime, fElapsedTime);
+
+		HRESULT hr;
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
+			V(pd3dDevice->SetPixelShader(m_ps->m_ptr));
+			m_ps->SetFloatArray("Color", (FLOAT *)&my::Vector4(1, 1, 0, 1), 4);
+			m_font->DrawString(m_sprite, DXUTGetFrameStats(DXUTIsVsyncEnabled()), my::Rectangle::LeftTop(5, 5, 0, 0));
+			m_font->DrawString(m_sprite, DXUTGetDeviceStats(), my::Rectangle::LeftTop(5, 20, 0, 0));
+			m_sprite->End();
+
+			V(m_hudDlg.OnRender(fElapsedTime));
+
+			V(pd3dDevice->EndScene());
+		}
 	}
 
 	void RenderFrame(
@@ -277,14 +338,52 @@ protected:
 			}
 			m_effect->End();
 
-			// 画一些字体吧
-			m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
-			V(pd3dDevice->SetPixelShader(m_ps->m_ptr));
-			m_ps->SetFloatArray(pd3dDevice, "Color", (FLOAT *)&my::Vector4(1, 1, 0, 1), 4);
-			m_font->DrawString(m_sprite, L"tangyin &*^是×&2 =+◎●▲★好人efin\n打完俄方inwe囧寄蓁豟\n嗯，怎么说呢，我可是很勇敢的，我告诉你。\n你们要是再hold不住，哥我就不客气了的说！", my::Rectangle::LeftTop(50, 50, 0, 0));
-			m_sprite->End();
+			//// 画一些字体吧
+			//m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
+			//V(pd3dDevice->SetPixelShader(m_ps->m_ptr));
+			//m_ps->SetFloatArray("Color", (FLOAT *)&my::Vector4(1, 1, 0, 1), 4);
+			//m_font->DrawString(m_sprite, L"tangyin &*^是×&2 =+◎●▲★好人efin\n打完俄方inwe囧寄蓁豟\n嗯，怎么说呢，我可是很勇敢的，我告诉你。\n你们要是再hold不住，哥我就不客气了的说！", my::Rectangle::LeftTop(50, 50, 0, 0));
+			//m_sprite->End();
 
 			V(pd3dDevice->EndScene());
+		}
+	}
+
+	static void CALLBACK OnGUIEvent_s(
+		UINT nEvent,
+		int nControlID,
+		CDXUTControl * pControl,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<MyDemo *>(pUserContext)->OnGUIEvent(
+				nEvent, nControlID, pControl);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void OnGUIEvent(
+		UINT nEvent,
+		int nControlID,
+		CDXUTControl * pControl)
+	{
+		switch(nControlID)
+		{
+		case IDC_TOGGLEFULLSCREEN:
+			DXUTToggleFullScreen();
+			break;
+
+		case IDC_TOGGLEREF:
+			DXUTToggleREF();
+			break;
+
+		case IDC_CHANGEDEVICE:
+			m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
+			break;
 		}
 	}
 
@@ -300,6 +399,25 @@ protected:
 			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 		{
 			return hres;
+		}
+
+		// ui messages
+		*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
+		if(*pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		if(m_settingsDlg.IsActive())
+		{
+			m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+			return 0;
+		}
+
+		*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+		if(*pbNoFurtherProcessing)
+		{
+			return 0;
 		}
 
 		// 相机消息处理
@@ -320,6 +438,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	// 设置crtdbg监视内存泄漏
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+
+	// 初始化资源管理器收索路径
+	my::ResourceMgr::getSingleton().RegisterFileDir(_T("."));
+	my::ResourceMgr::getSingleton().RegisterFileDir(_T("..\\..\\Common\\medias"));
+	my::ResourceMgr::getSingleton().RegisterZipArchive(_T("Data.zip"));
 
 	return MyDemo().Run(true, 800, 600);
 }

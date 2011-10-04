@@ -156,9 +156,9 @@ namespace my
 		FT_Error err = FT_Done_FreeType(m_library);
 	}
 
-	Font::Font(LPDIRECT3DDEVICE9 pDevice, FT_Face face, int height)
-		: m_d3dDevice(pDevice)
-		, m_face(face)
+	Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
+		: m_face(face)
+		, m_Device(pDevice)
 	{
 		_ASSERT(m_face);
 
@@ -194,7 +194,7 @@ namespace my
 
 	void Font::OnD3D9DestroyDevice(void)
 	{
-		m_d3dDevice.Release();
+		m_Device.Release();
 	}
 
 	FontPtr Font::CreateFontFromFile(
@@ -210,7 +210,7 @@ namespace my
 			THROW_CUSEXCEPTION(_T("FT_New_Face failed"));
 		}
 
-		FontPtr font(new Font(pDevice, face, height));
+		FontPtr font(new Font(face, height, pDevice));
 		return font;
 	}
 
@@ -231,7 +231,7 @@ namespace my
 			THROW_CUSEXCEPTION(_T("FT_New_Memory_Face failed"));
 		}
 
-		FontPtr font(new Font(pDevice, face, height));
+		FontPtr font(new Font(face, height, pDevice));
 		font->m_cache = cache;
 		return font;
 	}
@@ -243,7 +243,7 @@ namespace my
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{
 			m_texture = TexturePtr();
-			m_texture = Texture::CreateTexture(m_d3dDevice, desc.Width * 2, desc.Height * 2, 0, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+			m_texture = Texture::CreateTexture(m_Device, desc.Width * 2, desc.Height * 2, 0, 0, D3DFMT_A8, D3DPOOL_MANAGED);
 			m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width * 2, desc.Height * 2)));
 
 			if(!m_textureRectRoot->AssignRect(size, outRect))

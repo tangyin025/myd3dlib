@@ -14,7 +14,7 @@ namespace my
 		LPD3DXMESH * ppMesh,
 		DWORD * pNumSubMeshes = NULL,
 		DWORD dwMeshOptions = D3DXMESH_SYSTEMMEM,
-		LPD3DXBUFFER * ppErrorMsgs = NULL) throw();
+		LPD3DXBUFFER * ppErrorMsgs = NULL);
 
 	class Mesh;
 
@@ -23,20 +23,31 @@ namespace my
 	class Mesh : public DeviceRelatedObject<ID3DXMesh>
 	{
 	protected:
-		DWORD m_NumSubMeshes;
-
-		Mesh(ID3DXMesh * pMesh, DWORD NumSubMeshes = 0)
+		Mesh(ID3DXMesh * pMesh)
 			: DeviceRelatedObject(pMesh)
-			, m_NumSubMeshes(NumSubMeshes)
 		{
 		}
 
 	public:
+		static MeshPtr CreateMesh(
+			LPDIRECT3DDEVICE9 pD3DDevice,
+			DWORD NumFaces,
+			DWORD NumVertices,
+			CONST LPD3DVERTEXELEMENT9 pDeclaration,
+			DWORD Options = D3DXMESH_MANAGED);
+
+		static MeshPtr CreateMeshFVF(
+			LPDIRECT3DDEVICE9 pD3DDevice,
+			DWORD NumFaces,
+			DWORD NumVertices,
+			DWORD FVF,
+			DWORD Options = D3DXMESH_MANAGED);
+
 		static MeshPtr CreateMeshFromOgreMesh(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
-			DWORD dwMeshOptions = D3DXMESH_SYSTEMMEM);
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
 		{

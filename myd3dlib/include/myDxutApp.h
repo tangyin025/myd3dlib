@@ -4,8 +4,6 @@
 #include "mySingleton.h"
 #include <atlbase.h>
 #include <DXUT.h>
-#include <DXUTgui.h>
-#include <DXUTSettingsDlg.h>
 #include <set>
 
 namespace my
@@ -188,24 +186,6 @@ namespace my
 
 	class DxutApp : public DxutAppBase, public SingleInstance<DxutApp>
 	{
-	protected:
-		enum
-		{
-			IDC_TOGGLEFULLSCREEN,
-			IDC_TOGGLEREF,
-			IDC_CHANGEDEVICE
-		};
-
-		CDXUTDialogResourceManager m_dlgResourceMgr;
-
-		CD3DSettingsDlg m_settingsDlg;
-
-		CDXUTDialog m_hudDlg;
-
-		CComPtr<ID3DXFont> m_txtFont;
-
-		CComPtr<ID3DXSprite> m_txtSprite;
-
 	public:
 		virtual bool IsD3D9DeviceAcceptable(
 			D3DCAPS9 * pCaps,
@@ -236,22 +216,6 @@ namespace my
 			IDirect3DDevice9 * pd3dDevice,
 			double fTime,
 			float fElapsedTime);
-
-		virtual void RenderFrame(
-			IDirect3DDevice9 * pd3dDevice,
-			double fTime,
-			float fElapsedTime);
-
-		static void CALLBACK OnGUIEvent_s(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl,
-			void * pUserContext);
-
-		virtual void OnGUIEvent(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,

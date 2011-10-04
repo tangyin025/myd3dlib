@@ -294,12 +294,6 @@ namespace my
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateFont(
-			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_txtFont));
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateSprite(pd3dDevice, &m_txtSprite));
-
 		return S_OK;
 	}
 
@@ -307,14 +301,6 @@ namespace my
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9ResetDevice());
-		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9ResetDevice());
-		FAILED_THROW_D3DEXCEPTION(m_txtFont->OnResetDevice());
-		FAILED_THROW_D3DEXCEPTION(m_txtSprite->OnResetDevice());
-
-		m_hudDlg.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
-		m_hudDlg.SetSize(170, 170);
-
 		DeviceRelatedObjectBaseSet::getSingleton().OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
@@ -322,21 +308,11 @@ namespace my
 
 	void DxutApp::OnD3D9LostDevice(void)
 	{
-		m_dlgResourceMgr.OnD3D9LostDevice();
-		m_settingsDlg.OnD3D9LostDevice();
-		m_txtFont->OnLostDevice();
-		m_txtSprite->OnLostDevice();
-
 		DeviceRelatedObjectBaseSet::getSingleton().OnD3D9LostDevice();
 	}
 
 	void DxutApp::OnD3D9DestroyDevice(void)
 	{
-		m_dlgResourceMgr.OnD3D9DestroyDevice();
-		m_settingsDlg.OnD3D9DestroyDevice();
-		m_txtFont.Release();
-		m_txtSprite.Release();
-
 		DeviceRelatedObjectBaseSet::getSingleton().OnD3D9DestroyDevice();
 	}
 
@@ -351,74 +327,6 @@ namespace my
 		double fTime,
 		float fElapsedTime)
 	{
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.OnRender(fElapsedTime);
-			return;
-		}
-
-		RenderFrame(pd3dDevice, fTime, fElapsedTime);
-
-		HRESULT hr;
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			CDXUTTextHelper txtHelper(m_txtFont, m_txtSprite, 15);
-			txtHelper.Begin();
-			txtHelper.SetInsertionPos(5, 5);
-			txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
-			txtHelper.DrawTextLine(DXUTGetFrameStats(DXUTIsVsyncEnabled()));
-			txtHelper.DrawTextLine(DXUTGetDeviceStats());
-			txtHelper.End();
-
-			V(m_hudDlg.OnRender(fElapsedTime));
-
-			V(pd3dDevice->EndScene());
-		}
-	}
-
-	void DxutApp::RenderFrame(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
-	void CALLBACK DxutApp::OnGUIEvent_s(
-		UINT nEvent,
-		int nControlID,
-		CDXUTControl * pControl,
-		void * pUserContext)
-	{
-		try
-		{
-			reinterpret_cast<DxutApp *>(pUserContext)->OnGUIEvent(
-				nEvent, nControlID, pControl);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
-		}
-	}
-
-	void DxutApp::OnGUIEvent(
-		UINT nEvent,
-		int nControlID,
-		CDXUTControl * pControl)
-	{
-		switch(nControlID)
-		{
-		case IDC_TOGGLEFULLSCREEN:
-			DXUTToggleFullScreen();
-			break;
-
-		case IDC_TOGGLEREF:
-			DXUTToggleREF();
-			break;
-
-		case IDC_CHANGEDEVICE:
-			m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
-			break;
-		}
 	}
 
 	LRESULT DxutApp::MsgProc(
@@ -428,23 +336,6 @@ namespace my
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing)
 	{
-		*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
-		if(*pbNoFurtherProcessing)
-		{
-			return 0;
-		}
-
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-			return 0;
-		}
-
-		*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-		if(*pbNoFurtherProcessing)
-		{
-			return 0;
-		}
 		return 0;
 	}
 
@@ -457,13 +348,6 @@ namespace my
 
 	void DxutApp::OnInit(void)
 	{
-		m_settingsDlg.Init(&m_dlgResourceMgr);
-		m_hudDlg.Init(&m_dlgResourceMgr);
-		m_hudDlg.SetCallback(OnGUIEvent_s, this);
-		int nY = 10;
-		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
-		m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
-		m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
 	}
 
 	int DxutApp::Run(

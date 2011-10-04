@@ -152,9 +152,9 @@ namespace my
 		};
 
 	protected:
-		CComPtr<IDirect3DDevice9> m_d3dDevice;
-
 		FT_Face m_face;
+
+		CComPtr<IDirect3DDevice9> m_Device;
 
 		CachePtr m_cache;
 
@@ -168,7 +168,7 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(LPDIRECT3DDEVICE9 pDevice, FT_Face face, int height);
+		Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 
 		virtual void OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,

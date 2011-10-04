@@ -230,7 +230,7 @@ namespace my
 		LPD3DXMESH * ppMesh,
 		DWORD * pNumSubMeshes /*= NULL*/,
 		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/,
-		LPD3DXBUFFER * ppErrorMsgs /*= NULL*/) throw()
+		LPD3DXBUFFER * ppErrorMsgs /*= NULL*/)
 	{
 		rapidxml::xml_document<char> doc;
 		try
@@ -426,11 +426,45 @@ namespace my
 		return S_OK;
 	}
 
+	MeshPtr Mesh::CreateMesh(
+		LPDIRECT3DDEVICE9 pD3DDevice,
+		DWORD NumFaces,
+		DWORD NumVertices,
+		CONST LPD3DVERTEXELEMENT9 pDeclaration,
+		DWORD Options /*= D3DXMESH_MANAGED*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, pD3DDevice, &pMesh);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateMeshFVF(
+		LPDIRECT3DDEVICE9 pD3DDevice,
+		DWORD NumFaces,
+		DWORD NumVertices,
+		DWORD FVF,
+		DWORD Options /*= D3DXMESH_MANAGED*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, pD3DDevice, &pMesh);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
 	MeshPtr Mesh::CreateMeshFromOgreMesh(
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pSrcData,
 		UINT srcDataLen,
-		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/)
+		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
 	{
 		std::string str(pSrcData, srcDataLen);
 		LPD3DXMESH pMesh = NULL;
@@ -443,6 +477,6 @@ namespace my
 			THROW_CUSEXCEPTION(mstringToTString(info));
 		}
 
-		return MeshPtr(new Mesh(pMesh, NumSubMeshes));
+		return MeshPtr(new Mesh(pMesh));
 	}
 };

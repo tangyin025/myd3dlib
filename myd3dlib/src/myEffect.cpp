@@ -15,6 +15,7 @@ namespace my
 	{
 		SAFE_RELEASE(m_pConstantTable);
 		SAFE_RELEASE(m_ptr);
+		m_Device.Release();
 	}
 
 	VertexShaderPtr VertexShader::CreateVertexShader(
@@ -46,7 +47,7 @@ namespace my
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		return VertexShaderPtr(new VertexShader(pVS, pConstantTable));
+		return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
 	}
 
 	VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
@@ -77,13 +78,14 @@ namespace my
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		return VertexShaderPtr(new VertexShader(pVS, pConstantTable));
+		return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
 	}
 
 	void PixelShader::OnD3D9DestroyDevice(void)
 	{
 		SAFE_RELEASE(m_pConstantTable);
 		SAFE_RELEASE(m_ptr);
+		m_Device.Release();
 	}
 
 	PixelShaderPtr PixelShader::CreatePixelShader(
@@ -115,7 +117,7 @@ namespace my
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		return PixelShaderPtr(new PixelShader(pPS, pConstantTable));
+		return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
 	}
 
 	PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
@@ -146,7 +148,7 @@ namespace my
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		return PixelShaderPtr(new PixelShader(pPS, pConstantTable));
+		return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
 	}
 
 	void Effect::OnD3D9ResetDevice(
