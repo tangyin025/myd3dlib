@@ -5,13 +5,25 @@
 #include <atlbase.h>
 #include <vector>
 #include "myException.h"
+#include "libc.h"
 
 namespace my
 {
+#define RETURN_COM_ERROR(hres, info) \
+	{ \
+		if(NULL != ppErrorMsgs) \
+		{ \
+			std::basic_string<char> str(info); \
+			D3DXCreateBuffer(str.length() + 1, ppErrorMsgs); \
+			memcpy((*ppErrorMsgs)->GetBufferPointer(), &str[0], (*ppErrorMsgs)->GetBufferSize()); \
+		} \
+		return hres; \
+	}
+
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
 	node_v = node_p->first_node(#node_s); \
 	if(NULL == node_v) \
-		THROW_CUSEXCEPTION(_T("cannot find ") _T(#node_s))
+		RETURN_COM_ERROR(E_FAIL, "cannot find " #node_s)
 
 #define DEFINE_XML_NODE_SIMPLE(node_s, parent_s) \
 	rapidxml::xml_node<char> * node_##node_s; \
@@ -20,7 +32,7 @@ namespace my
 #define DEFINE_XML_ATTRIBUTE(attr_v, node_p, attr_s) \
 	attr_v = node_p->first_attribute(#attr_s); \
 	if(NULL == attr_v) \
-		THROW_CUSEXCEPTION(_T("cannot find ") _T(#attr_s))
+		RETURN_COM_ERROR(E_FAIL, "cannot find " #attr_s)
 
 #define DEFINE_XML_ATTRIBUTE_SIMPLE(attr_s, parent_s) \
 	rapidxml::xml_attribute<char> * attr_##attr_s; \
@@ -97,9 +109,10 @@ namespace my
 		return 0;
 	}
 
-	static void FillPositionFromOgreVertexPosition(
+	static HRESULT FillPositionFromOgreVertexPosition(
 		D3DXVECTOR3 * pPosition,
-		rapidxml::xml_node<char> * node_position)
+		rapidxml::xml_node<char> * node_position,
+		LPD3DXBUFFER * ppErrorMsgs)
 	{
 		float tmp;
 		rapidxml::xml_attribute<char> * position_x;
@@ -111,11 +124,14 @@ namespace my
 		rapidxml::xml_attribute<char> * position_z;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, position_z, node_position, z);
 		pPosition->z = tmp;
+
+		return S_OK;
 	}
 
-	static void FillNormalFromOgreVertexNormal(
+	static HRESULT FillNormalFromOgreVertexNormal(
 		D3DXVECTOR3 * pNormal,
-		rapidxml::xml_node<char> * node_normal)
+		rapidxml::xml_node<char> * node_normal,
+		LPD3DXBUFFER * ppErrorMsgs)
 	{
 		float tmp;
 		rapidxml::xml_attribute<char> * normal_x;
@@ -127,19 +143,25 @@ namespace my
 		rapidxml::xml_attribute<char> * normal_z;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, normal_z, node_normal, z);
 		pNormal->z = tmp;
+
+		return S_OK;
 	}
 
-	static void FillColorFromOgreVertexColorDiffuse(
+	static HRESULT FillColorFromOgreVertexColorDiffuse(
 		D3DXCOLOR * pColor,
-		rapidxml::xml_node<char> * node_colour_diffuse)
+		rapidxml::xml_node<char> * node_colour_diffuse,
+		LPD3DXBUFFER * ppErrorMsgs)
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
 		sscanf_s(attr_value->value(), "%f %f %f %f", &pColor->r, &pColor->g, &pColor->b,  &pColor->a);
+
+		return S_OK;
 	}
 
-	static void FillTexCoordFromOgreVertexTexCoord(
+	static HRESULT FillTexCoordFromOgreVertexTexCoord(
 		D3DXVECTOR2 * pTexCoord,
-		rapidxml::xml_node<char> * node_texcoord)
+		rapidxml::xml_node<char> * node_texcoord,
+		LPD3DXBUFFER * ppErrorMsgs)
 	{
 		float tmp;
 		rapidxml::xml_attribute<char> * texcoord_u;
@@ -148,28 +170,29 @@ namespace my
 		rapidxml::xml_attribute<char> * texcoord_v;
 		DEFINE_XML_ATTRIBUTE_FLOAT(tmp, texcoord_v, node_texcoord, v);
 		pTexCoord->y = tmp;
+
+		return S_OK;
 	}
 
-	static void FillVertexDataFromOgreVertex(
+	static HRESULT FillVertexDataFromOgreVertex(
 		const D3DVERTEXELEMENT9 & d3dvertelem,
 		VOID * pVertex,
-		rapidxml::xml_node<char> * node_vertex)
+		rapidxml::xml_node<char> * node_vertex,
+		LPD3DXBUFFER * ppErrorMsgs)
 	{
 		switch(d3dvertelem.Usage)
 		{
 		case D3DDECLUSAGE_POSITION:
 			{
 				DEFINE_XML_NODE_SIMPLE(position, vertex);
-				FillPositionFromOgreVertexPosition(
-					(D3DXVECTOR3 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_position);
-				return;
+				return FillPositionFromOgreVertexPosition(
+					(D3DXVECTOR3 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_position, ppErrorMsgs);
 			}
 		case D3DDECLUSAGE_NORMAL:
 			{
 				DEFINE_XML_NODE_SIMPLE(normal, vertex);
-				FillNormalFromOgreVertexNormal(
-					(D3DXVECTOR3 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_normal);
-				return;
+				return FillNormalFromOgreVertexNormal(
+					(D3DXVECTOR3 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_normal, ppErrorMsgs);
 			}
 		case D3DDECLUSAGE_TEXCOORD:
 			{
@@ -180,9 +203,8 @@ namespace my
 				{
 					if(d3dvertelem.UsageIndex == texcoord_i)
 					{
-						FillTexCoordFromOgreVertexTexCoord(
-							(D3DXVECTOR2 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_texcoord);
-						return;
+						return FillTexCoordFromOgreVertexTexCoord(
+							(D3DXVECTOR2 *)((unsigned char *)pVertex + d3dvertelem.Offset), node_texcoord, ppErrorMsgs);
 					}
 				}
 				break;
@@ -192,26 +214,33 @@ namespace my
 				if(0 == d3dvertelem.UsageIndex)
 				{
 					DEFINE_XML_NODE_SIMPLE(colour_diffuse, vertex);
-					FillColorFromOgreVertexColorDiffuse(
-						(D3DXCOLOR *)((unsigned char *)pVertex + d3dvertelem.Offset), node_colour_diffuse);
-					return;
+					return FillColorFromOgreVertexColorDiffuse(
+						(D3DXCOLOR *)((unsigned char *)pVertex + d3dvertelem.Offset), node_colour_diffuse, ppErrorMsgs);
 				}
 				break;
 			}
 		}
 
-		THROW_CUSEXCEPTION(_T("unknown vertex data type"));
+		RETURN_COM_ERROR(E_FAIL, "unknown vertex data type");
 	}
 
-	void LoadMeshFromOgreMesh(
+	HRESULT LoadMeshFromOgreMesh(
 		std::basic_string<char> & strOgreMeshXml,
 		LPDIRECT3DDEVICE9 pd3dDevice,
-		DWORD * pNumSubMeshes,
 		LPD3DXMESH * ppMesh,
-		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/)
+		DWORD * pNumSubMeshes /*= NULL*/,
+		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/,
+		LPD3DXBUFFER * ppErrorMsgs /*= NULL*/) throw()
 	{
 		rapidxml::xml_document<char> doc;
-		doc.parse<0>(&strOgreMeshXml[0]);
+		try
+		{
+			doc.parse<0>(&strOgreMeshXml[0]);
+		}
+		catch(rapidxml::parse_error & e)
+		{
+			RETURN_COM_ERROR(E_FAIL, e.what());
+		}
 		rapidxml::xml_node<char> * node_mesh = doc.first_node("mesh");
 
 		DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
@@ -293,7 +322,7 @@ namespace my
 
 		if(d3dvertelemList.empty())
 		{
-			THROW_CUSEXCEPTION(_T("cannot create d3d vertex element list"));
+			RETURN_COM_ERROR(E_FAIL, "cannot create d3d vertex element list");
 		}
 		else
 		{
@@ -312,31 +341,51 @@ namespace my
 		}
 
 		CComPtr<ID3DXMesh> mesh;
-		FAILED_THROW_D3DEXCEPTION(D3DXCreateMesh(
-			facecount, vertexcount, dwMeshOptions, &d3dvertelemList[0], pd3dDevice, &mesh));
+		HRESULT hres;
+		if(FAILED(hres = D3DXCreateMesh(
+			facecount, vertexcount, dwMeshOptions, &d3dvertelemList[0], pd3dDevice, &mesh)))
+		{
+			RETURN_COM_ERROR(hres, "D3DXCreateMesh failed");
+		}
 
 		VOID * pVertices;
-		FAILED_THROW_D3DEXCEPTION(mesh->LockVertexBuffer(0, &pVertices));
+		if(FAILED(hres = mesh->LockVertexBuffer(0, &pVertices)))
+		{
+			RETURN_COM_ERROR(hres, "mesh->LockVertexBuffer failed");
+		}
 
 		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 		for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
 		{
 			for(size_t elem_i = 0; elem_i < d3dvertelemList.size() - 1; elem_i++)
 			{
-				FillVertexDataFromOgreVertex(
+				if(FAILED(hres = FillVertexDataFromOgreVertex(
 					d3dvertelemList[elem_i],
 					(unsigned char *)pVertices + vertex_i * Offset,
-					node_vertex);
+					node_vertex,
+					ppErrorMsgs)))
+				{
+					return hres;
+				}
 			}
 		}
 
-		FAILED_THROW_D3DEXCEPTION(mesh->UnlockVertexBuffer());
+		if(FAILED(hres = mesh->UnlockVertexBuffer()))
+		{
+			RETURN_COM_ERROR(hres, "mesh->UnlockVertexBuffer failed");
+		}
 
 		WORD * pIndices;
-		FAILED_THROW_D3DEXCEPTION(mesh->LockIndexBuffer(0, (VOID **)&pIndices));
+		if(FAILED(hres = mesh->LockIndexBuffer(0, (VOID **)&pIndices)))
+		{
+			RETURN_COM_ERROR(hres, "mesh->LockIndexBuffer failed");
+		}
 
 		DWORD * pAttrBuffer;
-		FAILED_THROW_D3DEXCEPTION(mesh->LockAttributeBuffer(0, &pAttrBuffer));
+		if(FAILED(mesh->LockAttributeBuffer(0, &pAttrBuffer)))
+		{
+			RETURN_COM_ERROR(hres, "mesh->LockAttributeBuffer failed");
+		}
 
 		int submesh_i = 0;
 		node_submesh = node_submeshes->first_node("submesh");
@@ -359,14 +408,41 @@ namespace my
 			}
 		}
 
-		FAILED_THROW_D3DEXCEPTION(mesh->UnlockAttributeBuffer());
+		if(FAILED(hres = mesh->UnlockAttributeBuffer()))
+		{
+			RETURN_COM_ERROR(hres, "mesh->UnlockAttributeBuffer failed");
+		}
 
-		FAILED_THROW_D3DEXCEPTION(mesh->UnlockIndexBuffer());
+		if(FAILED(hres = mesh->UnlockIndexBuffer()))
+		{
+			RETURN_COM_ERROR(hres, "mesh->UnlockIndexBuffer failed");
+		}
 
-		_ASSERT(NULL != pNumSubMeshes);
-		*pNumSubMeshes = submesh_i;
+		if(NULL != pNumSubMeshes)
+			*pNumSubMeshes = submesh_i;
 
 		_ASSERT(NULL != ppMesh);
 		*ppMesh = mesh.Detach();
+		return S_OK;
+	}
+
+	MeshPtr Mesh::CreateMeshFromOgreMesh(
+		LPDIRECT3DDEVICE9 pd3dDevice,
+		LPCSTR pSrcData,
+		UINT srcDataLen,
+		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/)
+	{
+		std::string str(pSrcData, srcDataLen);
+		LPD3DXMESH pMesh = NULL;
+		DWORD NumSubMeshes = 0;
+		CComPtr<ID3DXBuffer> ErrorMsgs;
+		HRESULT hres = LoadMeshFromOgreMesh(str, pd3dDevice, &pMesh, &NumSubMeshes, dwMeshOptions, &ErrorMsgs);
+		if(FAILED(hres))
+		{
+			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
+			THROW_CUSEXCEPTION(mstringToTString(info));
+		}
+
+		return MeshPtr(new Mesh(pMesh, NumSubMeshes));
 	}
 };

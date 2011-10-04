@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)boost\include&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -117,7 +117,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)boost\include&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"

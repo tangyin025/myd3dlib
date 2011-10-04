@@ -4,6 +4,10 @@
 #include "myException.h"
 #include "libc.h"
 
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
+
 namespace my
 {
 	int ZipArchiveStream::ToZipSeekType(SeekType origin)
@@ -207,13 +211,13 @@ namespace my
 		THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), path.c_str()));
 	}
 
-	ArchiveCachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream)
+	CachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream)
 	{
 		stream->Seek(0, my::ArchiveStream::END);
 		long len = stream->Tell();
 		stream->Seek(0, my::ArchiveStream::SET);
-		ArchiveCachePtr cache(new ArchiveCache(len));
-		size_t ret_size = stream->Read(&(*cache)[0], sizeof(ArchiveCache::value_type), cache->size());
+		CachePtr cache(new Cache(len));
+		size_t ret_size = stream->Read(&(*cache)[0], sizeof(Cache::value_type), cache->size());
 		_ASSERT(ret_size == cache->size());
 		return cache;
 	}

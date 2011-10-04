@@ -3,6 +3,8 @@
 
 #include <d3dx9math.h>
 
+#define cot(x)	tan(1.0f / (x))
+
 namespace my
 {
 	class Vector4;
@@ -28,6 +30,11 @@ namespace my
 		}
 
 	public:
+		Vector2 operator - (void) const
+		{
+			return Vector2(-x, -y);
+		}
+
 		Vector2 operator + (const Vector2 & rhs) const
 		{
 			return Vector2(x + rhs.x, y + rhs.y);
@@ -65,7 +72,9 @@ namespace my
 
 		Vector2 operator / (float scaler) const
 		{
-			return Vector2(x / scaler, y / scaler);
+			float invScaler = 1 / scaler;
+
+			return Vector2(x * invScaler, y * invScaler);
 		}
 
 		Vector2 & operator += (const Vector2 & rhs)
@@ -119,12 +128,18 @@ namespace my
 
 		Vector2 & operator /= (float scaler)
 		{
-			x /= scaler;
-			y /= scaler;
+			float invScaler = 1 / scaler;
+			x *= invScaler;
+			y *= invScaler;
 			return *this;
 		}
 
 	public:
+		float cross(const Vector2 & rhs) const
+		{
+			return x * rhs.y - y * rhs.x;
+		}
+
 		float dot(const Vector2 & rhs) const
 		{
 			return x * rhs.x + y * rhs.y;
@@ -149,16 +164,16 @@ namespace my
 
 		Vector2 normalize(void) const
 		{
-			float l = length();
+			float invLength = 1 / length();
 
-			return Vector2(x / l, y / l);
+			return Vector2(x * invLength, y * invLength);
 		}
 
 		Vector2 & normalizeSelf(void)
 		{
-			float l = length();
-			x = x / l;
-			y = y / l;
+			float invLength = 1 / length();
+			x *= invLength;
+			y *= invLength;
 			return *this;
 		}
 
@@ -170,6 +185,341 @@ namespace my
 		static const Vector2 unitX;
 
 		static const Vector2 unitY;
+	};
+
+	class Rectangle
+	{
+	public:
+		float l, t, r, b;
+
+	public:
+		Rectangle(float left, float top, float right, float bottom)
+			: l(left)
+			, t(top)
+			, r(right)
+			, b(bottom)
+		{
+		}
+
+		Rectangle(const Vector2 & leftTop, const Vector2 & rightBottom)
+			: l(leftTop.x)
+			, t(leftTop.y)
+			, r(rightBottom.x)
+			, b(rightBottom.y)
+		{
+		}
+
+	public:
+		Rectangle intersect(const Rectangle & rhs) const
+		{
+			return Rectangle(
+				max(l, rhs.l),
+				max(t, rhs.t),
+				min(r, rhs.r),
+				min(b, rhs.b));
+		}
+
+		Rectangle & intersectSelf(const Rectangle & rhs)
+		{
+			l = max(l, rhs.l);
+			t = max(t, rhs.t);
+			r = min(r, rhs.r);
+			b = min(b, rhs.b);
+			return *this;
+		}
+
+		Rectangle Union(const Rectangle & rhs) const
+		{
+			return Rectangle(
+				min(l, rhs.l),
+				min(t, rhs.t),
+				max(r, rhs.r),
+				max(b, rhs.b));
+		}
+
+		Rectangle unionSelf(const Rectangle & rhs)
+		{
+			l = min(l, rhs.l);
+			t = min(t, rhs.t);
+			r = max(r, rhs.r);
+			b = max(b, rhs.b);
+			return *this;
+		}
+
+		Rectangle offset(const Vector2 & v) const
+		{
+			return Rectangle(
+				l + v.x,
+				t + v.y,
+				r + v.x,
+				b + v.y);
+		}
+
+		Rectangle & offsetSelf(const Vector2 & v)
+		{
+			l += v.x;
+			t += v.y;
+			r += v.x;
+			b += v.y;
+			return *this;
+		}
+
+		Rectangle inflate(const Vector2 & v) const
+		{
+			return Rectangle(
+				l,
+				t,
+				r + v.x,
+				b + v.y);
+		}
+
+		Rectangle & inflateSelf(const Vector2 & v)
+		{
+			r += v.x;
+			b += v.y;
+			return *this;
+		}
+
+		Rectangle shrink(const Vector2 & v) const
+		{
+			return Rectangle(
+				l + v.x,
+				t + v.y,
+				r - v.x,
+				b - v.y);
+		}
+
+		Rectangle & shrinkSelf(const Vector2 & v)
+		{
+			l += v.x;
+			t += v.y;
+			r -= v.x;
+			b -= v.y;
+			return *this;
+		}
+
+		Rectangle expand(const Vector2 & v) const
+		{
+			return Rectangle(
+				l - v.x,
+				t - v.y,
+				r + v.x,
+				b + v.y);
+		}
+
+		Rectangle & expandSelf(const Vector2 & v)
+		{
+			l -= v.x;
+			t -= v.y;
+			r += v.x;
+			b += v.y;
+			return *this;
+		}
+
+	public:
+		Vector2 LeftTop(void) const
+		{
+			return Vector2(l, t);
+		}
+
+		Vector2 RightBottom(void) const
+		{
+			return Vector2(r, b);
+		}
+
+		Vector2 Center(void) const
+		{
+			return Vector2(l + (r - l) * 0.5f, t + (b - t) * 0.5f);
+		}
+
+		Vector2 Extent(void) const
+		{
+			return Vector2(r - l, b - t);
+		}
+
+		static Rectangle LeftTop(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x,
+				y,
+				x + width,
+				y + height);
+		}
+
+		static Rectangle LeftTop(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x,
+				point.y,
+				point.x + size.x,
+				point.y + size.y);
+		}
+
+		static Rectangle LeftMiddle(float x, float y, float width, float height)
+		{
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x,
+				y - hh,
+				x + width,
+				y + hh);
+		}
+
+		static Rectangle LeftMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x,
+				point.y - hh,
+				point.x + size.x,
+				point.y + hh);
+		}
+
+		static Rectangle LeftBottom(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x,
+				y - height,
+				x + width,
+				y);
+		}
+
+		static Rectangle LeftBottom(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x,
+				point.y - size.y,
+				point.x + size.x,
+				point.y);
+		}
+
+		static Rectangle CenterTop(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y,
+				x + hw,
+				y + height);
+		}
+
+		static Rectangle CenterTop(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y,
+				point.x + hw,
+				point.y + size.y);
+		}
+
+		static Rectangle CenterMiddle(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y - hh,
+				x + hw,
+				y + hh);
+		}
+
+		static Rectangle CenterMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y - hh,
+				point.x + hw,
+				point.y + hh);
+		}
+
+		static Rectangle CenterBottom(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y - height,
+				x + hw,
+				y);
+		}
+
+		static Rectangle CenterBottom(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y - size.y,
+				point.x + hw,
+				point.y);
+		}
+
+		static Rectangle RightTop(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x - width,
+				y,
+				x,
+				y + height);
+		}
+
+		static Rectangle RightTop(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x - size.x,
+				point.y,
+				point.x,
+				point.y + size.y);
+		}
+
+		static Rectangle RightMiddle(float x, float y, float width, float height)
+		{
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x - width,
+				y - hh,
+				x,
+				y + hh);
+		}
+
+		static Rectangle RightMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x - size.x,
+				point.y - hh,
+				point.x,
+				point.y + hh);
+		}
+
+		static Rectangle RightBottom(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x - width,
+				y - height,
+				x,
+				y);
+		}
+
+		static Rectangle RightBottom(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x - size.x,
+				point.y - size.y,
+				point.x,
+				point.y);
+		}
 	};
 
 	class Vector3
@@ -193,6 +543,11 @@ namespace my
 		}
 
 	public:
+		Vector3 operator - (void) const
+		{
+			return Vector3(-x, -y, -z);
+		}
+
 		Vector3 operator + (const Vector3 & rhs) const
 		{
 			return Vector3(x + rhs.x, y + rhs.y, z + rhs.z);
@@ -230,7 +585,9 @@ namespace my
 
 		Vector3 operator / (float scaler) const
 		{
-			return Vector3(x / scaler, y / scaler, z / scaler);
+			float invScaler = 1 / scaler;
+
+			return Vector3(x * invScaler, y * invScaler, z * invScaler);
 		}
 
 		Vector3 & operator += (const Vector3 & rhs)
@@ -291,9 +648,10 @@ namespace my
 
 		Vector3 & operator /= (float scaler)
 		{
-			x /= scaler;
-			y /= scaler;
-			z /= scaler;
+			float invScaler = 1 / scaler;
+			x *= invScaler;
+			y *= invScaler;
+			z *= invScaler;
 			return *this;
 		}
 
@@ -331,17 +689,17 @@ namespace my
 
 		Vector3 normalize(void) const
 		{
-			float l = length();
+			float invLength = 1 / length();
 
-			return Vector3(x / l, y / l, z / l);
+			return Vector3(x * invLength, y * invLength, z * invLength);
 		}
 
 		Vector3 & normalizeSelf(void)
 		{
-			float l = length();
-			x = x / l;
-			y = y / l;
-			z = z / l;
+			float invLength = 1 / length();
+			x *= invLength;
+			y *= invLength;
+			z *= invLength;
 			return *this;
 		}
 
@@ -371,15 +729,7 @@ namespace my
 		{
 		}
 
-		Vector4(float _x, float _y, float _z)
-			: x(_x)
-			, y(_y)
-			, z(_z)
-			, w(1)
-		{
-		}
-
-		Vector4(float _x, float _y, float _z, float _w)
+		Vector4(float _x, float _y, float _z, float _w = 1)
 			: x(_x)
 			, y(_y)
 			, z(_z)
@@ -388,6 +738,11 @@ namespace my
 		}
 
 	public:
+		Vector4 operator - (void) const
+		{
+			return Vector4(-x, -y, -z, -w);
+		}
+
 		Vector4 operator + (const Vector4 & rhs) const
 		{
 			return Vector4(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
@@ -425,7 +780,9 @@ namespace my
 
 		Vector4 operator / (float scaler) const
 		{
-			return Vector4(x / scaler, y / scaler, z / scaler, w / scaler);
+			float invScaler = 1 / scaler;
+
+			return Vector4(x * invScaler, y * invScaler, z * invScaler, w * invScaler);
 		}
 
 		Vector4 & operator += (const Vector4 & rhs)
@@ -493,14 +850,22 @@ namespace my
 
 		Vector4 & operator /= (float scaler)
 		{
-			x /= scaler;
-			y /= scaler;
-			z /= scaler;
-			w /= scaler;
+			float invScaler = 1 / scaler;
+			x *= invScaler;
+			y *= invScaler;
+			z *= invScaler;
+			w *= invScaler;
 			return *this;
 		}
 
 	public:
+		Vector4 cross(const Vector4 & rhs, const Vector4 & srd) const
+		{
+			Vector4 ret;
+			D3DXVec4Cross((D3DXVECTOR4 *)&ret, (D3DXVECTOR4 *)this, (D3DXVECTOR4 *)&rhs, (D3DXVECTOR4 *)&srd);
+			return ret;
+		}
+
 		float dot(const Vector4 & rhs) const
 		{
 			return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
@@ -527,18 +892,18 @@ namespace my
 
 		Vector4 normalize(void) const
 		{
-			float l = length();
+			float invLength = 1 / length();
 
-			return Vector4(x / l, y / l, z / l, w / l);
+			return Vector4(x * invLength, y * invLength, z * invLength, w * invLength);
 		}
 
 		Vector4 & normalizeSelf(void)
 		{
-			float l = length();
-			x = x / l;
-			y = y / l;
-			z = z / l;
-			w = w / l;
+			float invLength = 1 / length();
+			x *= invLength;
+			y *= invLength;
+			z *= invLength;
+			w *= invLength;
 			return *this;
 		}
 
@@ -554,6 +919,239 @@ namespace my
 		static const Vector4 unitZ;
 
 		static const Vector4 unitW;
+	};
+
+	class Quaternion
+	{
+	public:
+		float x, y, z, w;
+
+	public:
+		Quaternion(void)
+			: x(0)
+			, y(0)
+			, z(0)
+			, w(0)
+		{
+		}
+
+		Quaternion(float _x, float _y, float _z, float _w)
+			: x(_x)
+			, y(_y)
+			, z(_z)
+			, w(_w)
+		{
+		}
+
+	public:
+		Quaternion operator - (void) const
+		{
+			return Quaternion(-x, -y, -z, -w);
+		}
+
+		Quaternion operator + (const Quaternion & rhs) const
+		{
+			return Quaternion(x + rhs.x, y + rhs.y, z + rhs.z, w + rhs.w);
+		}
+
+		Quaternion operator + (float scaler) const
+		{
+			return Quaternion(x + scaler, y + scaler, z + scaler, w + scaler);
+		}
+
+		Quaternion operator - (const Quaternion & rhs) const
+		{
+			return Quaternion(x - rhs.x, y - rhs.y, z - rhs.z, w - rhs.w);
+		}
+
+		Quaternion operator - (float scaler) const
+		{
+			return Quaternion(x - scaler, y - scaler, z - scaler, w - scaler);
+		}
+
+		Quaternion operator * (const Quaternion & rhs) const
+		{
+			return Quaternion(
+				rhs.w * x + rhs.x * w + rhs.y * z - rhs.z * y,
+				rhs.w * y + rhs.y * w + rhs.z * x - rhs.x * z,
+				rhs.w * z + rhs.z * w + rhs.x * y - rhs.y * x,
+				rhs.w * w - rhs.x * x - rhs.y * y - rhs.z * z);
+		}
+
+		Quaternion operator * (float scaler) const
+		{
+			return Quaternion(x * scaler, y * scaler, z * scaler, w * scaler);
+		}
+
+		Quaternion operator / (const Quaternion & rhs) const
+		{
+			return *this * rhs.inverse();
+		}
+
+		Quaternion operator / (float scaler) const
+		{
+			float invScaler = 1 / scaler;
+
+			return Quaternion(x * invScaler, y * invScaler, z * invScaler, w * invScaler);
+		}
+
+		Quaternion & operator += (const Quaternion & rhs)
+		{
+			x += rhs.x;
+			y += rhs.y;
+			z += rhs.z;
+			w += rhs.w;
+			return *this;
+		}
+
+		Quaternion & operator += (float scaler)
+		{
+			x += scaler;
+			y += scaler;
+			z += scaler;
+			w += scaler;
+			return *this;
+		}
+
+		Quaternion & operator -= (const Quaternion & rhs)
+		{
+			x -= rhs.x;
+			y -= rhs.y;
+			z -= rhs.z;
+			w -= rhs.w;
+			return *this;
+		}
+
+		Quaternion & operator -= (float scaler)
+		{
+			x -= scaler;
+			y -= scaler;
+			z -= scaler;
+			w -= scaler;
+			return *this;
+		}
+
+		Quaternion & operator *= (const Quaternion & rhs)
+		{
+			return *this = *this * rhs;
+		}
+
+		Quaternion & operator *= (float scaler)
+		{
+			x *= scaler;
+			y *= scaler;
+			z *= scaler;
+			w *= scaler;
+			return *this;
+		}
+
+		Quaternion & operator /= (const Quaternion & rhs)
+		{
+			return *this = *this / rhs;
+		}
+
+		Quaternion & operator /= (float scaler)
+		{
+			float invScaler = 1 / scaler;
+			x *= invScaler;
+			y *= invScaler;
+			z *= invScaler;
+			w *= invScaler;
+			return *this;
+		}
+
+	public:
+		float dot(const Quaternion & rhs) const
+		{
+			return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
+		}
+
+		static Quaternion Identity(void)
+		{
+			return Quaternion(0, 0, 0, 1);
+		}
+
+		Quaternion inverse(void) const
+		{
+			float invNorm = 1 / dot(*this);
+
+			return Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
+		}
+
+		float length(void) const
+		{
+			return sqrt(lengthSq());
+		}
+
+		float lengthSq(void) const
+		{
+			return x * x + y * y + z * z + w * w;
+		}
+
+		Quaternion ln(void) const
+		{
+			Quaternion ret;
+			D3DXQuaternionLn((D3DXQUATERNION *)&ret, (D3DXQUATERNION *)this);
+			return ret;
+		}
+
+		Quaternion multiply(const Quaternion & rhs) const
+		{
+			return *this * rhs;
+		}
+
+		Quaternion normalize(void) const
+		{
+			float invLength = 1 / length();
+
+			return Quaternion(x * invLength, y * invLength, z * invLength, w * invLength);
+		}
+
+		Quaternion & normalizeSelf(void)
+		{
+			float invLength = 1 / length();
+			x *= invLength;
+			y *= invLength;
+			z *= invLength;
+			w *= invLength;
+			return *this;
+		}
+
+		static Quaternion RotationAxis(const Vector3 & v, float angle)
+		{
+			float c = cos(angle / 2);
+			float s = sin(angle / 2);
+
+			return Quaternion(v.x * s, v.y * s, v.z * s, c);
+		}
+
+		static Quaternion RotationMatrix(const Matrix4 & m);
+
+		static Quaternion RotationYawPitchRoll(float yaw, float pitch, float roll)
+		{
+			Quaternion ret;
+			D3DXQuaternionRotationYawPitchRoll((D3DXQUATERNION *)&ret, yaw, pitch, roll);
+			return ret;
+		}
+
+		Quaternion slerp(const Quaternion & rhs, float t) const
+		{
+			Quaternion ret;
+			D3DXQuaternionSlerp((D3DXQUATERNION *)&ret, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&rhs, t);
+			return ret;
+		}
+
+		Quaternion squad(const Quaternion & a, const Quaternion & b, const Quaternion & c, float t) const
+		{
+			Quaternion ret;
+			D3DXQuaternionSquad((D3DXQUATERNION *)&ret, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&a, (D3DXQUATERNION *)&b, (D3DXQUATERNION *)&c, t);
+			return ret;
+		}
+
+		void ToAxisAngle(Vector3 & outAxis, float & outAngle) const
+		{
+			D3DXQuaternionToAxisAngle((D3DXQUATERNION *)this, (D3DXVECTOR3 *)&outAxis, &outAngle);
+		}
 	};
 
 	class Matrix4
@@ -593,6 +1191,15 @@ namespace my
 		}
 
 	public:
+		Matrix4 operator - (void) const
+		{
+			return Matrix4(
+				-_11, -_12, -_13, -_14,
+				-_21, -_22, -_23, -_24,
+				-_31, -_32, -_33, -_34,
+				-_41, -_42, -_43, -_44);
+		}
+
 		Matrix4 operator + (const Matrix4 & rhs) const
 		{
 			return Matrix4(
@@ -631,9 +1238,26 @@ namespace my
 
 		Matrix4 operator * (const Matrix4 & rhs) const
 		{
-			Matrix4 ret;
-			D3DXMatrixMultiply((D3DXMATRIX *)&ret, (D3DXMATRIX *)this, (D3DXMATRIX *)&rhs);
-			return ret;
+			return Matrix4(
+				_11 * rhs._11 + _12 * rhs._21 + _13 * rhs._31 + _14 * rhs._41,
+				_11 * rhs._12 + _12 * rhs._22 + _13 * rhs._32 + _14 * rhs._42,
+				_11 * rhs._13 + _12 * rhs._23 + _13 * rhs._33 + _14 * rhs._43,
+				_11 * rhs._14 + _12 * rhs._24 + _13 * rhs._34 + _14 * rhs._44,
+
+				_21 * rhs._11 + _22 * rhs._21 + _23 * rhs._31 + _24 * rhs._41,
+				_21 * rhs._12 + _22 * rhs._22 + _23 * rhs._32 + _24 * rhs._42,
+				_21 * rhs._13 + _22 * rhs._23 + _23 * rhs._33 + _24 * rhs._43,
+				_21 * rhs._14 + _22 * rhs._24 + _23 * rhs._34 + _24 * rhs._44,
+
+				_31 * rhs._11 + _32 * rhs._21 + _33 * rhs._31 + _34 * rhs._41,
+				_31 * rhs._12 + _32 * rhs._22 + _33 * rhs._32 + _34 * rhs._42,
+				_31 * rhs._13 + _32 * rhs._23 + _33 * rhs._33 + _34 * rhs._43,
+				_31 * rhs._14 + _32 * rhs._24 + _33 * rhs._34 + _34 * rhs._44,
+
+				_41 * rhs._11 + _42 * rhs._21 + _43 * rhs._31 + _44 * rhs._41,
+				_41 * rhs._12 + _42 * rhs._22 + _43 * rhs._32 + _44 * rhs._42,
+				_41 * rhs._13 + _42 * rhs._23 + _43 * rhs._33 + _44 * rhs._43,
+				_41 * rhs._14 + _42 * rhs._24 + _43 * rhs._34 + _44 * rhs._44);
 		}
 
 		Matrix4 operator * (float scaler) const
@@ -647,17 +1271,18 @@ namespace my
 
 		Matrix4 operator / (const Matrix4 & rhs) const
 		{
-			Matrix4 ret;
 			return *this * rhs.inverse();
 		}
 
 		Matrix4 operator / (float scaler) const
 		{
+			float invScaler = 1 / scaler;
+
 			return Matrix4(
-				_11 / scaler, _12 / scaler, _13 / scaler, _14 / scaler,
-				_21 / scaler, _22 / scaler, _23 / scaler, _24 / scaler,
-				_31 / scaler, _32 / scaler, _33 / scaler, _34 / scaler,
-				_41 / scaler, _42 / scaler, _43 / scaler, _44 / scaler);
+				_11 * invScaler, _12 * invScaler, _13 * invScaler, _14 * invScaler,
+				_21 * invScaler, _22 * invScaler, _23 * invScaler, _24 * invScaler,
+				_31 * invScaler, _32 * invScaler, _33 * invScaler, _34 * invScaler,
+				_41 * invScaler, _42 * invScaler, _43 * invScaler, _44 * invScaler);
 		}
 
 		Matrix4 & operator += (const Matrix4 & rhs)
@@ -717,10 +1342,11 @@ namespace my
 
 		Matrix4 & operator /= (float scaler)
 		{
-			_11 /= scaler; _12 /= scaler; _13 /= scaler; _14 /= scaler;
-			_21 /= scaler; _22 /= scaler; _23 /= scaler; _24 /= scaler;
-			_31 /= scaler; _32 /= scaler; _33 /= scaler; _34 /= scaler;
-			_41 /= scaler; _42 /= scaler; _43 /= scaler; _44 /= scaler;
+			float invScaler = 1 / scaler;
+			_11 *= invScaler; _12 *= invScaler; _13 *= invScaler; _14 *= invScaler;
+			_21 *= invScaler; _22 *= invScaler; _23 *= invScaler; _24 *= invScaler;
+			_31 *= invScaler; _32 *= invScaler; _33 *= invScaler; _34 *= invScaler;
+			_41 *= invScaler; _42 *= invScaler; _43 *= invScaler; _44 *= invScaler;
 			return *this;
 		}
 
@@ -894,20 +1520,19 @@ namespace my
 				-a14(),  a24(), -a34(),  a44());
 		}
 
-		//void Decompose(Vector3 & outScale, Quaternion & outRotation, Vector3 & outTranslation)
-		//{
-		//	D3DXMatrixDecompose((D3DXVECTOR3 *)&outScale, (D3DXVECTOR3 *)&outRotation, (D3DXVECTOR3 *)&outTranslation, (D3DXMATRIX *)this);
-		//}
+		void Decompose(Vector3 & outScale, Quaternion & outRotation, Vector3 & outTranslation)
+		{
+			D3DXMatrixDecompose((D3DXVECTOR3 *)&outScale, (D3DXQUATERNION *)&outRotation, (D3DXVECTOR3 *)&outTranslation, (D3DXMATRIX *)this);
+		}
 
 		float determinant(void) const
 		{
 			return _11 * a11() - _12 * a12() + _13 * a13() - _14 * a14();
 		}
 
-		Matrix4 & SetIdentity(void)
+		static Matrix4 Identity(void)
 		{
-			D3DXMatrixIdentity((D3DXMATRIX *)this);
-			return *this;
+			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 		}
 
 		Matrix4 inverse(void) const
@@ -915,10 +1540,30 @@ namespace my
 			return adjoint() / determinant();
 		}
 
-		Matrix4 & SetLookAtLH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)
+		static Matrix4 LookAtLH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)
 		{
-			D3DXMatrixLookAtLH((D3DXMATRIX *)this, (D3DXVECTOR3 *)&eye, (D3DXVECTOR3 *)&at, (D3DXVECTOR3 *)&up);
-			return *this;
+			Vector3 zaxis = (at - eye).normalize();
+			Vector3 xaxis = up.cross(zaxis).normalize();
+			Vector3 yaxis = zaxis.cross(xaxis);
+
+			return Matrix4(
+				xaxis.x,			yaxis.x,			zaxis.x,			0,
+				xaxis.y,			yaxis.y,			zaxis.y,			0,
+				xaxis.z,			yaxis.z,			zaxis.z,			0,
+				-xaxis.dot(eye),	-yaxis.dot(eye),	-zaxis.dot(eye),	1);
+		}
+
+		static Matrix4 LookAtRH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)
+		{
+			Vector3 zaxis = (eye - at).normalize();
+			Vector3 xaxis = up.cross(zaxis).normalize();
+			Vector3 yaxis = zaxis.cross(xaxis);
+
+			return Matrix4(
+				xaxis.x,			yaxis.x,			zaxis.x,			0,
+				xaxis.y,			yaxis.y,			zaxis.y,			0,
+				xaxis.z,			yaxis.z,			zaxis.z,			0,
+				-xaxis.dot(eye),	-yaxis.dot(eye),	-zaxis.dot(eye),	1);
 		}
 
 		Matrix4 multiply(const Matrix4 & rhs) const
@@ -931,128 +1576,186 @@ namespace my
 			return multiply(rhs).transpose();
 		}
 
-		Matrix4 & SetLookAtRH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)
+		static Matrix4 OrthoLH(float w, float h, float zn, float zf)
 		{
-			D3DXMatrixLookAtRH((D3DXMATRIX *)this, (D3DXVECTOR3 *)&eye, (D3DXVECTOR3 *)&at, (D3DXVECTOR3 *)&up);
-			return *this;
+			return Matrix4(
+				2 / w,	0,		0,					0,
+				0,		2 / h,	0,					0,
+				0,		0,		1 / (zf - zn),		0,
+				0,		0,		-zn / (zf - zn),	1);
 		}
 
-		Matrix4 & SetOrthoLH(float w, float h, float zn, float zf)
+		static Matrix4 OrthoRH(float w, float h, float zn, float zf)
 		{
-			D3DXMatrixOrthoLH((D3DXMATRIX *)this, w, h, zn, zf);
-			return *this;
+			return Matrix4(
+				2 / w,	0,		0,					0,
+				0,		2 / h,	0,					0,
+				0,		0,		1 / (zn - zf),		0,
+				0,		0,		zn / (zn - zf),		1);
 		}
 
-		Matrix4 & SetOrthoRH(float w, float h, float zn, float zf)
+		static Matrix4 OrthoOffCenterLH(float l, float r, float b, float t, float zn, float zf)
 		{
-			D3DXMatrixOrthoRH((D3DXMATRIX *)this, w, h, zn, zf);
-			return *this;
+			return Matrix4(
+				2 / (r - l),		0,					0,					0,
+				0,					2 / (t - b),		0,					0,
+				0,					0,					1 / (zf - zn),		0,
+				(l + r) / (l - r),	(t + b) / (b - t),	zn / (zn - zf),		1);
 		}
 
-		Matrix4 & SetOrthoOffCenterLH(float l, float r, float b, float t, float zn, float zf)
+		static Matrix4 OrthoOffCenterRH(float l, float r, float b, float t, float zn, float zf)
 		{
-			D3DXMatrixOrthoOffCenterLH((D3DXMATRIX *)this, l, r, b, t, zn, zf);
-			return *this;
+			return Matrix4(
+				2 / (r - l),		0,					0,					0,
+				0,					2 / (t - b),		0,					0,
+				0,					0,					1 / (zn - zf),		0,
+				(l + r) / (l - r),	(t + b) / (b - t),	zn / (zn - zf),		1);
 		}
 
-		Matrix4 & SetOrthoOffCenterRH(float l, float r, float b, float t, float zn, float zf)
+		static Matrix4 PerspectiveFovLH(float fovy, float aspect, float zn, float zf)
 		{
-			D3DXMatrixOrthoOffCenterRH((D3DXMATRIX *)this, l, r, b, t, zn, zf);
-			return *this;
+			float yScale = cot(fovy / 2);
+			float xScale = yScale / aspect;
+
+			return Matrix4(
+				xScale,	0,		0,						0,
+				0,		yScale,	0,						0,
+				0,		0,		zf / (zf - zn),			1,
+				0,		0,		-zn * zf / (zf - zn),	0);
+
 		}
 
-		Matrix4 & SetPerspectiveFovLH(float fovy, float aspect, float zn, float zf)
+		static Matrix4 PerspectiveFovRH(float fovy, float aspect, float zn, float zf)
 		{
-			D3DXMatrixPerspectiveFovLH((D3DXMATRIX *)this, fovy, aspect, zn, zf);
-			return *this;
+			float yScale = cot(fovy / 2);
+			float xScale = yScale / aspect;
+
+			return Matrix4(
+				xScale,	0,		0,						0,
+				0,		yScale,	0,						0,
+				0,		0,		zf / (zn - zf),			-1,
+				0,		0,		zn * zf / (zn - zf),	0);
 		}
 
-		Matrix4 & SetPerspectiveFovRH(float fovy, float aspect, float zn, float zf)
+		static Matrix4 PerspectiveLH(float w, float h, float zn, float zf)
 		{
-			D3DXMatrixPerspectiveFovRH((D3DXMATRIX *)this, fovy, aspect, zn, zf);
-			return *this;
+			return Matrix4(
+				2 * zn / w,	0,			0,						0,
+				0,			2 * zn / h,	0,						0,
+				0,			0,			zf / (zf - zn),			1,
+				0,			0,			zn * zf / (zn - zf),	0);
 		}
 
-		Matrix4 & SetPerspectiveLH(float w, float h, float zn, float zf)
+		static Matrix4 PerspectiveRH(float w, float h, float zn, float zf)
 		{
-			D3DXMatrixPerspectiveLH((D3DXMATRIX *)this, w, h, zn, zf);
-			return *this;
+			return Matrix4(
+				2 * zn / w,	0,			0,						0,
+				0,			2 * zn / h,	0,						0,
+				0,			0,			zf / (zn - zf),			-1,
+				0,			0,			zn * zf / (zn - zf),	0);
 		}
 
-		Matrix4 & SetPerspectiveRH(float w, float h, float zn, float zf)
+		static Matrix4 PerspectiveOffCenterLH(float l, float r, float b, float t, float zn, float zf)
 		{
-			D3DXMatrixPerspectiveRH((D3DXMATRIX *)this, w, h, zn, zf);
-			return *this;
+			return Matrix4(
+				2 * zn / (r - l),	0,					0,						0,
+				0,					2 * zn / (t - b),	0,						0,
+				(l + r) / (l - r),	(t + b) / (b - t),	zf / (zf - zn),			1,
+				0,					0,					zn * zf / (zn - zf),	0);
 		}
 
-		Matrix4 & SetPerspectiveOffCenterLH(float l, float r, float b, float t, float zn, float zf)
+		static Matrix4 PerspectiveOffCenterRH(float l, float r, float b, float t, float zn, float zf)
 		{
-			D3DXMatrixPerspectiveOffCenterLH((D3DXMATRIX *)this, l, r, b, t, zn, zf);
-			return *this;
+			return Matrix4(
+				2 * zn / (r - l),	0,					0,						0,
+				0,					2 * zn / (t - b),	0,						0,
+				(l + r) / (r - l),	(t + b) / (t - b),	zf / (zn - zf),			-1,
+				0,					0,					zn * zf / (zn - zf),	0);
 		}
 
-		Matrix4 & SetRotationAxis(const Vector3 & v, float angle)
+		static Matrix4 RotationAxis(const Vector3 & v, float angle)
 		{
-			D3DXMatrixRotationAxis((D3DXMATRIX *)this, (D3DXVECTOR3 *)&v, angle);
-			return *this;
+			Matrix4 ret;
+			D3DXMatrixRotationAxis((D3DXMATRIX *)&ret, (D3DXVECTOR3 *)&v, angle);
+			return ret;
 		}
 
-		//Matrix4 & SetRotationQuaternion(const Quaternion & q)
-		//{
-		//	D3DXMatrixQuaternion((D3DXMATRIX *)this, (D3DXQUATERNION *)&q);
-		//	return *this;
-		//}
-
-		Matrix4 & SetRotationX(float angle)
+		static Matrix4 RotationQuaternion(const Quaternion & q)
 		{
-			D3DXMatrixRotationX((D3DXMATRIX *)this, angle);
-			return *this;
+			Matrix4 ret;
+			D3DXMatrixRotationQuaternion((D3DXMATRIX *)&ret, (D3DXQUATERNION *)&q);
+			return ret;
 		}
 
-		Matrix4 & SetRotationY(float angle)
+		static Matrix4 RotationX(float angle)
 		{
-			D3DXMatrixRotationY((D3DXMATRIX *)this, angle);
-			return *this;
+			float c = cos(angle);
+			float s = sin(angle);
+
+			return Matrix4(1, 0, 0, 0, 0, c, s, 0, 0, -s, c, 0, 0, 0, 0, 1);
 		}
 
-		Matrix4 & SetRotationZ(float angle)
+		static Matrix4 RotationY(float angle)
 		{
-			D3DXMatrixRotationZ((D3DXMATRIX *)this, angle);
-			return *this;
+			float c = cos(angle);
+			float s = sin(angle);
+
+			return Matrix4(c, 0, -s, 0, 0, 1, 0, 0, s, 0, c, 0, 0, 0, 0, 1);
 		}
 
-		Matrix4 & SetRotationYawPitchRoll(float yaw, float pitch, float roll)
+		static Matrix4 RotationZ(float angle)
 		{
-			D3DXMatrixRotationYawPitchRoll((D3DXMATRIX *)this, yaw, pitch, roll);
-			return *this;
+			float c = cos(angle);
+			float s = sin(angle);
+
+			return Matrix4(c, s, 0, 0, -s, c, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 		}
 
-		Matrix4 & SetScaling(float sx, float sy, float sz)
+		static Matrix4 RotationYawPitchRoll(float yaw, float pitch, float roll)
 		{
-			D3DXMatrixScaling((D3DXMATRIX *)this, sx, sy, sz);
-			return *this;
+			return RotationZ(roll).rotateX(pitch).rotateY(yaw);
 		}
 
-		//Matrix4 & SetTransformation(
-		//	const Vector3 & scalingCenter,
-		//	const Quaternion & scalingRotation,
-		//	const Vector3 & scaling,
-		//	const Vector3 & rotationCenter,
-		//	const Vector3 & rotation,
-		//	const Vector3 & translation)
-		//{
-		//	D3DXMatrixTransformation(
-		//		(D3DXMATRIX *)this,
-		//		(D3DXVECTOR3 *)&scalingCenter,
-		//		(D3DXQUATERNION *)&scalingRotation,
-		//		(D3DXVECTOR3 *)&scaling,
-		//		(D3DXVECTOR3 *)&rotationCenter,
-		//		(D3DXVECTOR3 *)&rotation,
-		//		(D3DXVECTOR3 *)&translation);
-		//	return *this;
-		//}
+		static Matrix4 Scaling(const Vector3 & v)
+		{
+			return Matrix4(v.x, 0, 0, 0, 0, v.y, 0, 0, 0, 0, v.z, 0, 0, 0, 0, 1);
+		}
 
-		Matrix4 & SetTransformation2D(
+		static Matrix4 Transformation(
+			const Vector3 & scalingCenter,
+			const Quaternion & scalingRotation,
+			const Vector3 & scaling,
+			const Vector3 & rotationCenter,
+			const Quaternion & rotation,
+			const Vector3 & translation)
+		{
+			Matrix4 msc(Matrix4::Translation(scalingCenter));
+			Matrix4 msr(Matrix4::RotationQuaternion(scalingRotation));
+			Matrix4 mrc(Matrix4::Translation(rotationCenter));
+
+			return msc.inverse()
+				* msr.inverse()
+				* Scaling(scaling)
+				* msr
+				* msc
+				* mrc.inverse()
+				* RotationQuaternion(rotation)
+				* mrc
+				* Translation(translation);
+
+			//Matrix4 ret;
+			//D3DXMatrixTransformation(
+			//	(D3DXMATRIX *)&ret,
+			//	(D3DXVECTOR3 *)&scalingCenter,
+			//	(D3DXQUATERNION *)&scalingRotation,
+			//	(D3DXVECTOR3 *)&scaling,
+			//	(D3DXVECTOR3 *)&rotationCenter,
+			//	(D3DXQUATERNION *)&rotation,
+			//	(D3DXVECTOR3 *)&translation);
+			//return ret;
+		}
+
+		static Matrix4 Transformation2D(
 			const Vector2 & scalingCenter,
 			float scalingRotation,
 			const Vector2 & scaling,
@@ -1060,32 +1763,34 @@ namespace my
 			float rotation,
 			const Vector2 & translation)
 		{
+			Matrix4 ret;
 			D3DXMatrixTransformation2D(
-				(D3DXMATRIX *)this,
+				(D3DXMATRIX *)&ret,
 				(D3DXVECTOR2 *)&scalingCenter,
 				scalingRotation,
 				(D3DXVECTOR2 *)&scaling,
 				(D3DXVECTOR2 *)&rotationCenter,
 				rotation,
 				(D3DXVECTOR2 *)&translation);
-			return *this;
+			return ret;
 		}
 
-		Matrix4 & SetTranslation(float x, float y, float z)
+		static Matrix4 Translation(const Vector3 & v)
 		{
-			D3DXMatrixTranslation((D3DXMATRIX *)this, x, y, z);
-			return *this;
+			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z, 1);
 		}
 
 		Matrix4 transpose(void)
 		{
-			Matrix4 ret;
-			D3DXMatrixTranspose((D3DXMATRIX *)&ret, (D3DXMATRIX *)this);
-			return ret;
+			return Matrix4(
+				_11, _21, _31, _41,
+				_12, _22, _32, _42,
+				_13, _23, _33, _43,
+				_14, _24, _34, _44);
 		}
 
 	public:
-		Matrix4 scaling(const Vector3 & scaling) const
+		Matrix4 scale(const Vector3 & scaling) const
 		{
 			return Matrix4(
 				_11 * scaling.x, _12 * scaling.y, _13 * scaling.z, _14 * 1,
@@ -1094,7 +1799,7 @@ namespace my
 				_41 * scaling.x, _42 * scaling.y, _43 * scaling.z, _44 * 1);
 		}
 
-		Matrix4 & scalingSelf(const Vector3 & scaling)
+		Matrix4 & scaleSelf(const Vector3 & scaling)
 		{
 			_11 = _11 * scaling.x; _12 = _12 * scaling.y; _13 = _13 * scaling.z; _14 = _14 * 1;
 			_21 = _21 * scaling.x; _22 = _22 * scaling.y; _23 = _23 * scaling.z; _24 = _24 * 1;
@@ -1103,7 +1808,7 @@ namespace my
 			return *this;
 		}
 
-		Matrix4 rotationX(float angle) const
+		Matrix4 rotateX(float angle) const
 		{
 			float c = cos(angle);
 			float s = sin(angle);
@@ -1115,12 +1820,12 @@ namespace my
 				_41, _42 * c - _43 * s, _42 * s + _43 * c, _44);
 		}
 
-		Matrix4 & rotationXSelf(float angle)
+		Matrix4 & rotateXSelf(float angle)
 		{
-			return *this = rotationX(angle);
+			return *this = rotateX(angle);
 		}
 
-		Matrix4 rotationY(float angle) const
+		Matrix4 rotateY(float angle) const
 		{
 			float c = cos(angle);
 			float s = sin(angle);
@@ -1132,12 +1837,12 @@ namespace my
 				_41 * c + _43 * s, _42, _43 * s - _41 * c, 14);
 		}
 
-		Matrix4 & rotationYSelf(float angle)
+		Matrix4 & rotateYSelf(float angle)
 		{
-			return *this = rotationY(angle);
+			return *this = rotateY(angle);
 		}
 
-		Matrix4 rotationZ(float angle) const
+		Matrix4 rotateZ(float angle) const
 		{
 			float c = cos(angle);
 			float s = sin(angle);
@@ -1151,10 +1856,20 @@ namespace my
 
 		Matrix4 & rotationZSelf(float angle)
 		{
-			return *this = rotationZ(angle);
+			return *this = rotateZ(angle);
 		}
 
-		Matrix4 translation(const Vector3 & v) const
+		Matrix4 rotate(const Quaternion & q) const
+		{
+			return *this * RotationQuaternion(q);
+		}
+
+		Matrix4 & rotateSelf(const Quaternion & q)
+		{
+			return *this = rotate(q);
+		}
+
+		Matrix4 translate(const Vector3 & v) const
 		{
 			return Matrix4(
 				_11 + _14 * v.x, _12 + _14 * v.y, _13 + _14 * v.z, _14,
@@ -1163,7 +1878,7 @@ namespace my
 				_41 + _44 * v.x, _42 + _44 * v.y, _43 + _44 * v.z, _44);
 		}
 
-		Matrix4 & translationSelf(const Vector3 & v)
+		Matrix4 & translateSelf(const Vector3 & v)
 		{
 			_11 = _11 + _14 * v.x; _12 = _12 + 14 * v.y; _13 = _13 + _14 * v.z;
 			_21 = _21 + _24 * v.x; _22 = _22 + 14 * v.y; _23 = _23 + _24 * v.z;
@@ -1193,5 +1908,12 @@ namespace my
 			x * m._12 + y * m._22 + z * m._32 + w * m._42,
 			x * m._13 + y * m._23 + z * m._33 + w * m._43,
 			x * m._14 + y * m._24 + z * m._34 + w * m._44);
+	}
+
+	inline Quaternion Quaternion::RotationMatrix(const Matrix4 & m)
+	{
+		Quaternion ret;
+		D3DXQuaternionRotationMatrix((D3DXQUATERNION *)&ret, (D3DXMATRIX *)&m);
+		return ret;
 	}
 };

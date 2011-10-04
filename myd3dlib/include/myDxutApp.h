@@ -1,15 +1,84 @@
 
 #pragma once
 
-//#include "mySingleton.h"
+#include "mySingleton.h"
 #include <atlbase.h>
 #include <DXUT.h>
 #include <DXUTgui.h>
 #include <DXUTSettingsDlg.h>
+#include <set>
 
 namespace my
 {
-	class DxutAppBase //: public Singleton<DxutAppBase>
+	class DeviceRelatedObjectBase
+	{
+	public:
+		DeviceRelatedObjectBase(void);
+
+		virtual ~DeviceRelatedObjectBase(void);
+
+		virtual void OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+
+		virtual void OnD3D9LostDevice(void) = 0;
+
+		virtual void OnD3D9DestroyDevice(void) = 0;
+	};
+
+	class DeviceRelatedObjectBaseSet
+		: public std::set<DeviceRelatedObjectBase *>
+		, public Singleton<DeviceRelatedObjectBaseSet>
+	{
+	public:
+		void OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		void OnD3D9LostDevice(void);
+
+		void OnD3D9DestroyDevice(void);
+	};
+
+	template <class DrivedClass> 
+	class DeviceRelatedObject
+		: public DeviceRelatedObjectBase
+	{
+	protected:
+		HRESULT hr;
+
+	public:
+		DrivedClass * m_ptr;
+
+	public:
+		DeviceRelatedObject(DrivedClass * ptr)
+			: m_ptr(ptr)
+		{
+			_ASSERT(NULL != m_ptr);
+		}
+
+		virtual ~DeviceRelatedObject(void)
+		{
+			SAFE_RELEASE(m_ptr);
+		}
+
+		void OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+		{
+		}
+
+		void OnD3D9LostDevice(void)
+		{
+		}
+
+		void OnD3D9DestroyDevice(void)
+		{
+			SAFE_RELEASE(m_ptr);
+		}
+	};
+
+	class DxutAppBase
 	{
 	public:
 		static bool CALLBACK IsD3D9DeviceAcceptable_s(
@@ -111,12 +180,13 @@ namespace my
 
 		virtual ~DxutAppBase(void);
 
-		int Run(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
-
-		virtual void OnInit(void);
+		virtual int Run(
+			bool bWindowed = true,
+			int nSuggestedWidth = 800,
+			int nSuggestedHeight = 600);
 	};
 
-	class DxutApp : public DxutAppBase
+	class DxutApp : public DxutAppBase, public SingleInstance<DxutApp>
 	{
 	protected:
 		enum
@@ -196,5 +266,10 @@ namespace my
 			bool bAltDown);
 
 		virtual void OnInit(void);
+
+		virtual int Run(
+			bool bWindowed = true,
+			int nSuggestedWidth = 800,
+			int nSuggestedHeight = 600);
 	};
 };

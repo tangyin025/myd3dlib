@@ -41,12 +41,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;$(SolutionDir)boost\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)dxut\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -105,11 +105,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\include;&quot;$(SolutionDir)boost\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)dxut\include&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -159,7 +159,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myEffect.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myException.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\myFont.cpp"
 				>
 			</File>
 			<File
@@ -175,12 +183,28 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\mySingleton.cpp"
+				RelativePath="..\src\myTexture.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\src\stdafx.cpp"
 				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
 			</File>
 		</Filter>
 		<Filter
@@ -197,7 +221,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\myEffect.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\myException.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myFont.h"
 				>
 			</File>
 			<File
@@ -214,6 +246,10 @@
 			</File>
 			<File
 				RelativePath="..\include\mySingleton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myTexture.h"
 				>
 			</File>
 			<File

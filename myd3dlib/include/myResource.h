@@ -137,9 +137,9 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
 	};
 
-	typedef std::vector<unsigned char> ArchiveCache;
+	typedef std::vector<unsigned char> Cache;
 
-	typedef boost::shared_ptr<ArchiveCache> ArchiveCachePtr;
+	typedef boost::shared_ptr<Cache> CachePtr;
 
-	ArchiveCachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream);
+	CachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream);
 };
