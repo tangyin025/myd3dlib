@@ -103,7 +103,7 @@ protected:
 		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 		// 初始化相机
-		D3DXVECTOR3 vecEye(0.0f, 0.0f, 50.0f);
+		D3DXVECTOR3 vecEye(0.0f, 0.0f, -50.0f);
 		D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
 		m_camera.SetViewParams(&vecEye, &vecAt);
 		m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
@@ -260,7 +260,7 @@ protected:
 
 		// 计算光照的透视变换
 		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
-			my::Vector3(0.0f, 0.0f, 50.0f),
+			my::Vector3(0.0f, 0.0f, -50.0f),
 			my::Vector3(0.0f, 0.0f, 0.0f),
 			my::Vector3(0.0f, 1.0f, 0.0f)));
 		my::Matrix4 mProjLight(my::Matrix4::OrthoLH(50, 50, 25, 75));
@@ -317,7 +317,7 @@ protected:
 			m_effect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 			m_effect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			m_effect->SetTexture("g_MeshTexture", m_texture->m_ptr);
-			m_effect->SetFloatArray("g_LightDir", (float *)&my::Vector3(0.0f, 0.0f, -1.0f), 3);
+			m_effect->SetFloatArray("g_LightDir", (float *)&my::Vector3(0.0f, 0.0f, 1.0f), 3);
 			m_effect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			// 设置阴影贴图，及光源变换
