@@ -229,7 +229,7 @@ namespace my
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPD3DXMESH * ppMesh,
 		DWORD * pNumSubMeshes /*= NULL*/,
-		DWORD dwMeshOptions /*= D3DXMESH_SYSTEMMEM*/,
+		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/,
 		LPD3DXBUFFER * ppErrorMsgs /*= NULL*/)
 	{
 		rapidxml::xml_document<char> doc;
@@ -338,6 +338,11 @@ namespace my
 			DEFINE_XML_NODE_SIMPLE(faces, submesh);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
 			facecount += count;
+		}
+
+		if(facecount >= 65535)
+		{
+			RETURN_COM_ERROR(E_FAIL, "facecount overflow ( >= 65535 )");
 		}
 
 		CComPtr<ID3DXMesh> mesh;
@@ -473,6 +478,11 @@ namespace my
 		HRESULT hres = LoadMeshFromOgreMesh(str, pd3dDevice, &pMesh, &NumSubMeshes, dwMeshOptions, &ErrorMsgs);
 		if(FAILED(hres))
 		{
+			if(hres != E_FAIL)
+			{
+				THROW_D3DEXCEPTION(hres);
+			}
+
 			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
 			THROW_CUSEXCEPTION(mstringToTString(info));
 		}

@@ -13,7 +13,7 @@ namespace my
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPD3DXMESH * ppMesh,
 		DWORD * pNumSubMeshes = NULL,
-		DWORD dwMeshOptions = D3DXMESH_SYSTEMMEM,
+		DWORD dwMeshOptions = D3DXMESH_MANAGED,
 		LPD3DXBUFFER * ppErrorMsgs = NULL);
 
 	class Mesh;
