@@ -172,7 +172,7 @@ namespace my
 
 		m_maxAdvance = m_face->size->metrics.max_advance >> 6;
 
-		m_texture = Texture::CreateTexture(pDevice, m_maxAdvance, m_lineHeight, 0, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+		m_texture = CreateFontTexture(pDevice, m_maxAdvance, m_lineHeight);
 
 		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_maxAdvance, m_lineHeight)));
 	}
@@ -195,6 +195,11 @@ namespace my
 	void Font::OnD3D9DestroyDevice(void)
 	{
 		m_Device.Release();
+	}
+
+	TexturePtr Font::CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height)
+	{
+		return Texture::CreateTexture(pDevice, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
 	}
 
 	FontPtr Font::CreateFontFromFile(
@@ -243,7 +248,7 @@ namespace my
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{
 			m_texture = TexturePtr();
-			m_texture = Texture::CreateTexture(m_Device, desc.Width * 2, desc.Height * 2, 0, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+			m_texture = CreateFontTexture(m_Device, desc.Width * 2, desc.Height * 2);
 			m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width * 2, desc.Height * 2)));
 
 			if(!m_textureRectRoot->AssignRect(size, outRect))
@@ -253,6 +258,37 @@ namespace my
 
 			m_characterMap.clear();
 		}
+	}
+
+	void Font::InsertCharacter(
+		int character,
+		int horiAdvance,
+		int horiBearingX,
+		int horiBearingY,
+		const unsigned char * bmpBuffer,
+		int bmpWidth,
+		int bmpHeight,
+		int bmpPitch)
+	{
+		_ASSERT(m_characterMap.end() == m_characterMap.find(character));
+
+		CharacterInfo cm;
+		AssignTextureRect(CSize(bmpWidth, bmpHeight), cm.textureRect);
+		cm.horiAdvance = horiAdvance;
+		cm.horiBearingX = horiBearingX;
+		cm.horiBearingY = horiBearingY;
+
+		D3DLOCKED_RECT lr = m_texture->LockRect(cm.textureRect);
+		for(int y = 0; y < bmpHeight; y++)
+		{
+			memcpy(
+				(unsigned char *)lr.pBits + y * lr.Pitch,
+				bmpBuffer + y * bmpPitch,
+				bmpWidth * sizeof(unsigned char));
+		}
+		m_texture->UnlockRect();
+
+		m_characterMap.insert(std::make_pair(character, cm));
 	}
 
 	void Font::LoadCharacter(int character)
@@ -272,27 +308,18 @@ namespace my
 			THROW_CUSEXCEPTION(_T("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode"));
 		}
 
-		CharacterInfo info;
-		info.first = character;
-		CSize textureSize(m_face->glyph->bitmap.width, m_face->glyph->bitmap.rows);
-		AssignTextureRect(textureSize, info.second.textureRect);
-		info.second.horiAdvance = m_face->glyph->metrics.horiAdvance >> 6;
-		info.second.horiBearingX = m_face->glyph->metrics.horiBearingX >> 6;
-		info.second.horiBearingY = m_face->glyph->metrics.horiBearingY >> 6;
-
-		D3DLOCKED_RECT lr = m_texture->LockRect(0, &info.second.textureRect, 0);
-		for(int y = 0; y < textureSize.cy; y++)
-		{
-			void * src = m_face->glyph->bitmap.buffer + y * m_face->glyph->bitmap.pitch;
-			void * dst = (unsigned char *)lr.pBits + y * lr.Pitch;
-			memcpy(dst, src, textureSize.cx * sizeof(unsigned char));
-		}
-		m_texture->UnlockRect(0);
-
-		m_characterMap.insert(info);
+		InsertCharacter(
+			character,
+			m_face->glyph->metrics.horiAdvance >> 6,
+			m_face->glyph->metrics.horiBearingX >> 6,
+			m_face->glyph->metrics.horiBearingY >> 6,
+			m_face->glyph->bitmap.buffer,
+			m_face->glyph->bitmap.width,
+			m_face->glyph->bitmap.rows,
+			m_face->glyph->bitmap.pitch);
 	}
 
-	CharacterMap::const_iterator Font::GetCharacterInfoIter(int character)
+	const Font::CharacterInfo & Font::GetCharacterInfo(int character)
 	{
 		CharacterMap::const_iterator char_info_iter = m_characterMap.find(character);
 		if(m_characterMap.end() == char_info_iter)
@@ -302,7 +329,7 @@ namespace my
 		}
 
 		_ASSERT(m_characterMap.end() != char_info_iter);
-		return char_info_iter;
+		return (*char_info_iter).second;
 	}
 
 	void Font::DrawString(
@@ -328,10 +355,10 @@ namespace my
 
 			default:
 				{
-					CharacterMap::const_iterator c_iter = GetCharacterInfoIter(c);
+					const CharacterInfo & info = GetCharacterInfo(c);
 					sprite->Draw(
-						m_texture, c_iter->second.textureRect, Vector3(0, 0, 0), Vector3(pen.x + c_iter->second.horiBearingX, pen.y - c_iter->second.horiBearingY, 0), Color);
-					pen.x += c_iter->second.horiAdvance;
+						m_texture, info.textureRect, Vector3(0, 0, 0), Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0), Color);
+					pen.x += info.horiAdvance;
 				}
 				break;
 			}
