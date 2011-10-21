@@ -1,8 +1,6 @@
 
 #include "stdafx.h"
-#include "myException.h"
-#include "myDxutApp.h"
-#include <SDKmisc.h>
+#include "myd3dlib.h"
 
 namespace my
 {

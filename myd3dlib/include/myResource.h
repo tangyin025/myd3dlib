@@ -1,13 +1,6 @@
 
 #pragma once
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <string>
-#include <tchar.h>
-#include <zzip/lib.h>
-#include "mySingleton.h"
-
 namespace my
 {
 	class ArchiveStream

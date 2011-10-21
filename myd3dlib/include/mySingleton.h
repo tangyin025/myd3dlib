@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include <boost/shared_ptr.hpp>
-#include <crtdbg.h>
-
 namespace my
 {
 	template <class DrivedClass>

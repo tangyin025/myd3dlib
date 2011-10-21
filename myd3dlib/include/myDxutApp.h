@@ -1,11 +1,6 @@
 
 #pragma once
 
-#include "mySingleton.h"
-#include <atlbase.h>
-#include <DXUT.h>
-#include <set>
-
 namespace my
 {
 	class DeviceRelatedObjectBase

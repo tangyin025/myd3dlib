@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include "myDxutApp.h"
-#include <atlbase.h>
-
 namespace my
 {
 	class Surface;

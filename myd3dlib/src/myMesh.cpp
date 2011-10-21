@@ -1,11 +1,6 @@
 
 #include "stdafx.h"
-#include "myMesh.h"
-#include <boost/property_tree/detail/rapidxml.hpp>
-#include <atlbase.h>
-#include <vector>
-#include "myException.h"
-#include "libc.h"
+#include "myd3dlib.h"
 
 namespace my
 {

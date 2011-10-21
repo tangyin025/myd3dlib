@@ -1,11 +1,6 @@
 
 #pragma once
 
-#include <d3d9.h>
-#include <d3dx9mesh.h>
-#include <string>
-#include "myDxutApp.h"
-
 namespace my
 {
 	HRESULT LoadMeshFromOgreMesh(

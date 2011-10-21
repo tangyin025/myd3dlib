@@ -1,14 +1,6 @@
 
 #pragma once
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include "mySingleton.h"
-#include "myResource.h"
-#include "myTexture.h"
-#include <map>
-#include "myMath.h"
-
 namespace my
 {
 	class Sprite;

@@ -1,10 +1,6 @@
 
 #include "stdafx.h"
-#include "myFont.h"
-#include "myException.h"
-#include FT_SIZES_H
-#include "libc.h"
-#include <atltypes.h>
+#include "myd3dlib.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )

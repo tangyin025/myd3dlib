@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "myMath.h"
+#include "myd3dlib.h"
 
 namespace my
 {

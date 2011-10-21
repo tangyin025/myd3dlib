@@ -1,8 +1,6 @@
 
 #pragma once
 
-#include <d3dx9math.h>
-
 #define cot(x)	tan(1.0f / (x))
 
 namespace my

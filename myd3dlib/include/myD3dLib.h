@@ -1,0 +1,12 @@
+
+#include "stdafx.h"
+#include "libc.h"
+#include "myException.h"
+#include "mySingleton.h"
+#include "myResource.h"
+#include "myDxutApp.h"
+#include "myTexture.h"
+#include "myMath.h"
+#include "myFont.h"
+#include "myMesh.h"
+#include "myEffect.h"

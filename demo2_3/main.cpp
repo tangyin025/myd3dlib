@@ -1,16 +1,8 @@
 ﻿
-#include <mySingleton.h>
-#include <myDxutApp.h>
-#include "DXUTgui.h"
-#include "DXUTsettingsdlg.h"
+#include "myd3dlib.h"
+#include <DXUTgui.h>
+#include <DXUTsettingsdlg.h>
 #include <DXUTCamera.h>
-#include <myException.h>
-#include <myResource.h>
-#include <myMesh.h>
-#include <myTexture.h>
-#include <myEffect.h>
-#include <libc.h>
-#include <myFont.h>
 
 // ------------------------------------------------------------------------------------------
 // MyDemo
@@ -337,13 +329,6 @@ protected:
 				m_effect->EndPass();
 			}
 			m_effect->End();
-
-			//// 画一些字体吧
-			//m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
-			//V(pd3dDevice->SetPixelShader(m_ps->m_ptr));
-			//m_ps->SetFloatArray("Color", (FLOAT *)&my::Vector4(1, 1, 0, 1), 4);
-			//m_font->DrawString(m_sprite, L"tangyin &*^是×&2 =+◎●▲★好人efin\n打完俄方inwe囧寄蓁豟\n嗯，怎么说呢，我可是很勇敢的，我告诉你。\n你们要是再hold不住，哥我就不客气了的说！", my::Rectangle::LeftTop(50, 50, 0, 0));
-			//m_sprite->End();
 
 			V(pd3dDevice->EndScene());
 		}

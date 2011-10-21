@@ -1,9 +1,6 @@
 
 #pragma once
 
-#include "myDxutApp.h"
-#include "myMath.h"
-
 namespace my
 {
 	class ConstantTable

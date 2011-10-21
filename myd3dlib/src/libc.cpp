@@ -1,10 +1,6 @@
 
 #include "stdafx.h"
-#include "libc.h"
-#include <cstdio>
-#include <stdarg.h>
-#include <crtdbg.h>
-#include "myException.h"
+#include "myd3dlib.h"
 
 char * asprintf(const char * format, ...)
 {

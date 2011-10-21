@@ -1,10 +1,6 @@
 
 #pragma once
 
-#include <string>
-#include <tchar.h>
-#include <windows.h>
-
 namespace my
 {
 	class Exception
