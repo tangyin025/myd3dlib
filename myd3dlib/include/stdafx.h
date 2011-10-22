@@ -35,5 +35,7 @@
 #include <boost/property_tree/detail/rapidxml.hpp>
 #include <atlbase.h>
 #include <vector>
+#include <DXUTgui.h>
+#include <DXUTsettingsdlg.h>
 
 #pragma warning(error : 172)

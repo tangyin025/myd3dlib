@@ -270,10 +270,6 @@ namespace my
 		D3DFORMAT BackBufferFormat,
 		bool bWindowed)
 	{
-		if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-		{
-			return false;
-		}
 		return true;
 	}
 
@@ -364,5 +360,228 @@ namespace my
 		}
 
 		return DxutAppBase::Run(bWindowed, nSuggestedWidth, nSuggestedHeight);
+	}
+
+	bool DxutSample::IsD3D9DeviceAcceptable(
+		D3DCAPS9 * pCaps,
+		D3DFORMAT AdapterFormat,
+		D3DFORMAT BackBufferFormat,
+		bool bWindowed)
+	{
+		if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	void DxutSample::OnInit(void)
+	{
+		DxutApp::OnInit();
+
+		m_settingsDlg.Init(&m_dlgResourceMgr);
+		m_hudDlg.Init(&m_dlgResourceMgr);
+		m_hudDlg.SetCallback(OnGUIEvent_s, this);
+
+		int nY = 10;
+		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
+		m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
+		m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
+	}
+
+	HRESULT DxutSample::OnD3D9CreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		HRESULT hres;
+		if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
+
+		V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
+
+		V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
+
+		FAILED_THROW_D3DEXCEPTION(D3DXCreateFont(
+			pd3dDevice, 15, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font));
+
+		V(D3DXCreateSprite(pd3dDevice, &m_sprite));
+
+		return S_OK;
+	}
+
+	HRESULT DxutSample::OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		HRESULT hres;
+		if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
+			pd3dDevice, pBackBufferSurfaceDesc)))
+		{
+			return hres;
+		}
+
+		V(m_dlgResourceMgr.OnD3D9ResetDevice());
+
+		V(m_settingsDlg.OnD3D9ResetDevice());
+
+		m_hudDlg.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
+
+		m_hudDlg.SetSize(170, 170);
+
+		V(m_font->OnResetDevice());
+
+		V(m_sprite->OnResetDevice());
+
+		return S_OK;
+	}
+
+	void DxutSample::OnD3D9LostDevice(void)
+	{
+		DxutApp::OnD3D9LostDevice();
+
+		m_dlgResourceMgr.OnD3D9LostDevice();
+
+		m_settingsDlg.OnD3D9LostDevice();
+
+		m_font->OnLostDevice();
+
+		m_sprite->OnLostDevice();
+	}
+
+	void DxutSample::OnD3D9DestroyDevice(void)
+	{
+		DxutApp::OnD3D9DestroyDevice();
+
+		m_dlgResourceMgr.OnD3D9DestroyDevice();
+
+		m_settingsDlg.OnD3D9DestroyDevice();
+
+		m_font.Release();
+
+		m_sprite.Release();
+	}
+
+	void DxutSample::OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+		DxutApp::OnFrameMove(fTime, fElapsedTime);
+	}
+
+	void DxutSample::OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+		if(m_settingsDlg.IsActive())
+		{
+			m_settingsDlg.OnRender(fElapsedTime);
+			return;
+		}
+
+		OnRender(pd3dDevice, fTime, fElapsedTime);
+
+		HRESULT hr;
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			CDXUTTextHelper txtHelper(m_font, m_sprite, 15);
+			txtHelper.Begin();
+			txtHelper.SetInsertionPos(5, 5);
+			txtHelper.SetForegroundColor(D3DXCOLOR(1.0f, 1.0f, 0.0f, 1.0f));
+			txtHelper.DrawTextLine(DXUTGetFrameStats( DXUTIsVsyncEnabled()));
+			txtHelper.DrawTextLine(DXUTGetDeviceStats());
+			txtHelper.End();
+
+			V(m_hudDlg.OnRender(fElapsedTime));
+
+			V(pd3dDevice->EndScene());
+		}
+	}
+
+	void DxutSample::OnRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+		HRESULT hr;
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+	}
+
+	void CALLBACK DxutSample::OnGUIEvent_s(
+		UINT nEvent,
+		int nControlID,
+		CDXUTControl * pControl,
+		void * pUserContext)
+	{
+		try
+		{
+			reinterpret_cast<DxutSample *>(pUserContext)->OnGUIEvent(
+				nEvent, nControlID, pControl);
+		}
+		catch(const my::Exception & e)
+		{
+			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+		}
+	}
+
+	void DxutSample::OnGUIEvent(
+		UINT nEvent,
+		int nControlID,
+		CDXUTControl * pControl)
+	{
+		switch(nControlID)
+		{
+		case IDC_TOGGLEFULLSCREEN:
+			DXUTToggleFullScreen();
+			break;
+
+		case IDC_TOGGLEREF:
+			DXUTToggleREF();
+			break;
+
+		case IDC_CHANGEDEVICE:
+			m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
+			break;
+		}
+	}
+
+	LRESULT DxutSample::MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
+	{
+		LRESULT hres;
+		if(FAILED(hres = DxutApp::MsgProc(
+			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
+		{
+			return hres;
+		}
+
+		*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
+		if(*pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		if(m_settingsDlg.IsActive())
+		{
+			m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+			return 0;
+		}
+
+		*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+		if(*pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		return 0;
 	}
 };

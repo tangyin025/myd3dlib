@@ -1,35 +1,14 @@
 ﻿
 #include "myd3dlib.h"
-#include <DXUTgui.h>
-#include <DXUTsettingsdlg.h>
 #include <DXUTCamera.h>
 
 // ------------------------------------------------------------------------------------------
 // MyDemo
 // ------------------------------------------------------------------------------------------
 
-class MyDemo : public my::DxutApp
+class MyDemo : public my::DxutSample
 {
 protected:
-	enum
-	{
-		IDC_TOGGLEFULLSCREEN,
-		IDC_TOGGLEREF,
-		IDC_CHANGEDEVICE
-	};
-
-	CDXUTDialogResourceManager m_dlgResourceMgr;
-
-	CD3DSettingsDlg m_settingsDlg;
-
-	CDXUTDialog m_hudDlg;
-
-	my::PixelShaderPtr m_ps;
-
-	my::FontPtr m_font;
-
-	my::SpritePtr m_sprite;
-
 	CModelViewerCamera m_camera;
 
 	my::EffectPtr m_effect;
@@ -44,55 +23,16 @@ protected:
 
 	my::SurfacePtr m_shadowMapDS;
 
-	bool IsD3D9DeviceAcceptable(
-		D3DCAPS9 * pCaps,
-		D3DFORMAT AdapterFormat,
-		D3DFORMAT BackBufferFormat,
-		bool bWindowed)
-	{
-		if(!DxutApp::IsD3D9DeviceAcceptable(
-			pCaps, AdapterFormat, BackBufferFormat, bWindowed))
-		{
-			return false;
-		}
-
-		//// 判断是否支持32位浮点贴图
-		//IDirect3D9 * pD3D = DXUTGetD3D9Object();
-		//if(FAILED(pD3D->CheckDeviceFormat(
-		//	pCaps->AdapterOrdinal, pCaps->DeviceType, AdapterFormat, D3DUSAGE_RENDERTARGET, D3DRTYPE_CUBETEXTURE, D3DFMT_R32F)))
-		//{
-		//	return false;
-		//}
-
-		return true;
-	}
-
-	void OnInit(void)
-	{
-		DxutApp::OnInit();
-
-		m_settingsDlg.Init(&m_dlgResourceMgr);
-		m_hudDlg.Init(&m_dlgResourceMgr);
-		m_hudDlg.SetCallback(OnGUIEvent_s, this);
-		int nY = 10;
-		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
-		m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
-		m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
-	}
-
 	HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
+		if(FAILED(hres = DxutSample::OnD3D9CreateDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
 		}
-
-		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 		// 初始化相机
 		D3DXVECTOR3 vecEye(0.0f, 0.0f, -50.0f);
@@ -115,24 +55,6 @@ protected:
 			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
 		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
-		// 读取字体文件
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("wqy-microhei.ttc")));
-		m_font = my::Font::CreateFontFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), 13);
-
-		// 创建精灵
-		m_sprite = my::Sprite::CreateSprite(pd3dDevice);
-
-		// 创建用以绘制字体的ps
-		std::string psData(
-			"sampler2D input : register(s0);"
-			"float4 Color;"
-			"float4 pixelShader(float2 uv : TEXCOORD) : COLOR"
-			"{"
-			"    return float4(Color.r, Color.g, Color.b, Color.a * tex2D(input, uv).a);"
-			"}");
-		m_ps = my::PixelShader::CreatePixelShader(pd3dDevice, &psData[0], psData.length() + 1, "pixelShader", "ps_2_0");
-
 		return S_OK;
 	}
 
@@ -141,17 +63,11 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
+		if(FAILED(hres = DxutSample::OnD3D9ResetDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
 		}
-
-		FAILED_THROW_D3DEXCEPTION(m_dlgResourceMgr.OnD3D9ResetDevice());
-		FAILED_THROW_D3DEXCEPTION(m_settingsDlg.OnD3D9ResetDevice());
-		m_hudDlg.SetLocation(pBackBufferSurfaceDesc->Width - 170, 0);
-		m_hudDlg.SetSize(170, 170);
-
 
 		// 重新设置相机的投影
 		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
@@ -181,10 +97,7 @@ protected:
 
 	void OnD3D9LostDevice(void)
 	{
-		DxutApp::OnD3D9LostDevice();
-
-		m_dlgResourceMgr.OnD3D9LostDevice();
-		m_settingsDlg.OnD3D9LostDevice();
+		DxutSample::OnD3D9LostDevice();
 
 		// 在这里处理在reset中创建的资源
 		m_shadowMapRT = my::TexturePtr();
@@ -193,53 +106,20 @@ protected:
 
 	void OnD3D9DestroyDevice(void)
 	{
-		DxutApp::OnD3D9DestroyDevice();
-
-		// 在这里销毁在create中创建的资源
-		m_dlgResourceMgr.OnD3D9DestroyDevice();
-		m_settingsDlg.OnD3D9DestroyDevice();
+		DxutSample::OnD3D9DestroyDevice();
 	}
 
 	void OnFrameMove(
 		double fTime,
 		float fElapsedTime)
 	{
-		DxutApp::OnFrameMove(fTime, fElapsedTime);
+		DxutSample::OnFrameMove(fTime, fElapsedTime);
 
 		// 在这里更新场景
 		m_camera.FrameMove(fElapsedTime);
 	}
 
-	void OnD3D9FrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.OnRender(fElapsedTime);
-			return;
-		}
-
-		RenderFrame(pd3dDevice, fTime, fElapsedTime);
-
-		HRESULT hr;
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
-			V(pd3dDevice->SetPixelShader(m_ps->m_ptr));
-			m_ps->SetFloatArray("Color", (FLOAT *)&my::Vector4(1, 1, 0, 1), 4);
-			m_font->DrawString(m_sprite, DXUTGetFrameStats(DXUTIsVsyncEnabled()), my::Rectangle::LeftTop(5, 5, 0, 0));
-			m_font->DrawString(m_sprite, DXUTGetDeviceStats(), my::Rectangle::LeftTop(5, 20, 0, 0));
-			m_sprite->End();
-
-			V(m_hudDlg.OnRender(fElapsedTime));
-
-			V(pd3dDevice->EndScene());
-		}
-	}
-
-	void RenderFrame(
+	void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime)
@@ -289,6 +169,8 @@ protected:
 
 			V(pd3dDevice->EndScene());
 		}
+
+		// 注意恢复原来的render target
 		V(pd3dDevice->SetRenderTarget(0, oldRt));
 		V(pd3dDevice->SetDepthStencilSurface(oldDs));
 		oldRt.Release();
@@ -334,44 +216,6 @@ protected:
 		}
 	}
 
-	static void CALLBACK OnGUIEvent_s(
-		UINT nEvent,
-		int nControlID,
-		CDXUTControl * pControl,
-		void * pUserContext)
-	{
-		try
-		{
-			reinterpret_cast<MyDemo *>(pUserContext)->OnGUIEvent(
-				nEvent, nControlID, pControl);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
-		}
-	}
-
-	void OnGUIEvent(
-		UINT nEvent,
-		int nControlID,
-		CDXUTControl * pControl)
-	{
-		switch(nControlID)
-		{
-		case IDC_TOGGLEFULLSCREEN:
-			DXUTToggleFullScreen();
-			break;
-
-		case IDC_TOGGLEREF:
-			DXUTToggleREF();
-			break;
-
-		case IDC_CHANGEDEVICE:
-			m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
-			break;
-		}
-	}
-
 	LRESULT MsgProc(
 		HWND hWnd,
 		UINT uMsg,
@@ -380,29 +224,10 @@ protected:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT hres;
-		if(FAILED(hres = DxutApp::MsgProc(
+		if(FAILED(hres = DxutSample::MsgProc(
 			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 		{
 			return hres;
-		}
-
-		// ui messages
-		*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
-		if(*pbNoFurtherProcessing)
-		{
-			return 0;
-		}
-
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-			return 0;
-		}
-
-		*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-		if(*pbNoFurtherProcessing)
-		{
-			return 0;
 		}
 
 		// 相机消息处理

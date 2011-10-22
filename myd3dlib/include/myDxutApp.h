@@ -231,4 +231,79 @@ namespace my
 			int nSuggestedWidth = 800,
 			int nSuggestedHeight = 600);
 	};
+
+	class DxutSample : public DxutApp
+	{
+	protected:
+		enum
+		{
+			IDC_TOGGLEFULLSCREEN,
+			IDC_TOGGLEREF,
+			IDC_CHANGEDEVICE
+		};
+
+		HRESULT hr;
+
+		CDXUTDialogResourceManager m_dlgResourceMgr;
+
+		CD3DSettingsDlg m_settingsDlg;
+
+		CDXUTDialog m_hudDlg;
+
+		CComPtr<ID3DXFont> m_font;
+
+		CComPtr<ID3DXSprite> m_sprite;
+
+		virtual bool IsD3D9DeviceAcceptable(
+			D3DCAPS9 * pCaps,
+			D3DFORMAT AdapterFormat,
+			D3DFORMAT BackBufferFormat,
+			bool bWindowed);
+
+		virtual void OnInit(void);
+
+		virtual HRESULT OnD3D9CreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual HRESULT OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual void OnD3D9LostDevice(void);
+
+		virtual void OnD3D9DestroyDevice(void);
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime);
+
+		virtual void OnD3D9FrameRender(
+			IDirect3DDevice9 * pd3dDevice,
+			double fTime,
+			float fElapsedTime);
+
+		virtual void OnRender(
+			IDirect3DDevice9 * pd3dDevice,
+			double fTime,
+			float fElapsedTime);
+
+		static void CALLBACK OnGUIEvent_s(
+			UINT nEvent,
+			int nControlID,
+			CDXUTControl * pControl,
+			void * pUserContext);
+
+		virtual void OnGUIEvent(
+			UINT nEvent,
+			int nControlID,
+			CDXUTControl * pControl);
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing);
+	};
 };
