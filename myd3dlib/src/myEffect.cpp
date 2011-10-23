@@ -32,8 +32,7 @@ namespace my
 			pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
 		}
 
 		LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -63,8 +62,7 @@ namespace my
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
 		}
 
 		LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -102,8 +100,7 @@ namespace my
 			pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
 		}
 
 		LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -133,8 +130,7 @@ namespace my
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
 		}
 
 		LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -175,8 +171,7 @@ namespace my
 			pDevice, pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
 		}
 
 		return EffectPtr(new Effect(pEffect));
@@ -196,8 +191,7 @@ namespace my
 			pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 		if(FAILED(hres))
 		{
-			std::basic_string<char> info((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
 		}
 
 		return EffectPtr(new Effect(pEffect));

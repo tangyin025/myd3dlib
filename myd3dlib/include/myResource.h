@@ -75,16 +75,16 @@ namespace my
 	class ResourceDir
 	{
 	protected:
-		std::basic_string<_TCHAR> m_dir;
+		std::string m_dir;
 
 	public:
-		ResourceDir(const std::basic_string<_TCHAR> & dir);
+		ResourceDir(const std::string & dir);
 
 		virtual ~ResourceDir(void);
 
-		virtual bool CheckArchivePath(const std::basic_string<_TCHAR> & path) = 0;
+		virtual bool CheckArchivePath(const std::string & path) = 0;
 
-		virtual ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path) = 0;
+		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
 	};
 
 	typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
@@ -95,25 +95,25 @@ namespace my
 		: public ResourceDir
 	{
 	public:
-		ZipArchiveDir(const std::basic_string<_TCHAR> & dir);
+		ZipArchiveDir(const std::string & dir);
 
-		bool CheckArchivePath(const std::basic_string<_TCHAR> & path);
+		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	class FileArchiveDir
 		: public ResourceDir
 	{
 	protected:
-		std::basic_string<_TCHAR> GetFullPath(const std::basic_string<_TCHAR> & path);
+		std::string GetFullPath(const std::string & path);
 
 	public:
-		FileArchiveDir(const std::basic_string<_TCHAR> & dir);
+		FileArchiveDir(const std::string & dir);
 
-		bool CheckArchivePath(const std::basic_string<_TCHAR> & path);
+		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	class ResourceMgr
@@ -123,11 +123,11 @@ namespace my
 		ResourceDirPtrList m_dirList;
 
 	public:
-		void RegisterZipArchive(const std::basic_string<_TCHAR> & zip_path);
+		void RegisterZipArchive(const std::string & zip_path);
 
-		void RegisterFileDir(const std::basic_string<_TCHAR> & dir);
+		void RegisterFileDir(const std::string & dir);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::basic_string<_TCHAR> & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	typedef std::vector<unsigned char> Cache;

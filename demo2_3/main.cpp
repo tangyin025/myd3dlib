@@ -42,17 +42,17 @@ protected:
 
 		// 读取D3DX Effect文件
 		my::CachePtr cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("SimpleSample.fx")));
+			my::ResourceMgr::getSingleton().OpenArchiveStream("SimpleSample.fx"));
 		m_effect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 从资源管理器中读出模型文件
 		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_hres_all.mesh.xml")));
+			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
 		m_mesh = my::Mesh::CreateMeshFromOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
 		// 创建贴图
 		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream(_T("jack_texture.jpg")));
+			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg"));
 		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		return S_OK;
@@ -250,9 +250,9 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 #endif
 
 	// 初始化资源管理器收索路径
-	my::ResourceMgr::getSingleton().RegisterFileDir(_T("."));
-	my::ResourceMgr::getSingleton().RegisterFileDir(_T("..\\..\\Common\\medias"));
-	my::ResourceMgr::getSingleton().RegisterZipArchive(_T("Data.zip"));
+	my::ResourceMgr::getSingleton().RegisterFileDir(".");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("Data.zip");
 
 	return MyDemo().Run(true, 800, 600);
 }

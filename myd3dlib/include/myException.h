@@ -6,18 +6,18 @@ namespace my
 	class Exception
 	{
 	protected:
-		std::basic_string<_TCHAR> m_file;
+		std::string m_file;
 
 		int m_line;
 
 	public:
-		Exception(const std::basic_string<_TCHAR> & file, int line);
+		Exception(const std::string & file, int line);
 
 		virtual ~Exception(void);
 
-		virtual std::basic_string<_TCHAR> GetDescription(void) const throw() = 0;
+		virtual std::string GetDescription(void) const throw() = 0;
 
-		std::basic_string<_TCHAR> GetFullDescription(void) const;
+		std::string GetFullDescription(void) const;
 	};
 
 	class ComException : public Exception
@@ -26,17 +26,17 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		ComException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line);
+		ComException(HRESULT hres, const std::string & file, int line);
 
-		std::basic_string<_TCHAR> GetDescription(void) const throw();
+		std::string GetDescription(void) const throw();
 	};
 
 	class D3DException : public ComException
 	{
 	public:
-		D3DException(HRESULT hres, const std::basic_string<_TCHAR> & file, int line);
+		D3DException(HRESULT hres, const std::string & file, int line);
 
-		std::basic_string<_TCHAR> GetDescription(void) const throw();
+		std::string GetDescription(void) const throw();
 	};
 
 	class WinException : public Exception
@@ -45,30 +45,30 @@ namespace my
 		DWORD m_code;
 
 	public:
-		WinException(DWORD code, const std::basic_string<_TCHAR> & file, int line);
+		WinException(DWORD code, const std::string & file, int line);
 
-		std::basic_string<_TCHAR> GetDescription(void) const throw();
+		std::string GetDescription(void) const throw();
 	};
 
 	class CustomException : public Exception
 	{
 	protected:
-		std::basic_string<_TCHAR> m_desc;
+		std::string m_desc;
 
 	public:
-		CustomException(const std::basic_string<_TCHAR> & desc, const std::basic_string<_TCHAR> & file, int line);
+		CustomException(const std::string & desc, const std::string & file, int line);
 
-		std::basic_string<_TCHAR> GetDescription(void) const throw();
+		std::string GetDescription(void) const throw();
 	};
 };
 
-#define THROW_COMEXCEPTION(hres) throw my::ComException((hres), _T(__FILE__), __LINE__)
+#define THROW_COMEXCEPTION(hres) throw my::ComException((hres), __FILE__, __LINE__)
 
-#define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), _T(__FILE__), __LINE__)
+#define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), __FILE__, __LINE__)
 
-#define THROW_WINEXCEPTION(code) throw my::WinException((code), _T(__FILE__), __LINE__)
+#define THROW_WINEXCEPTION(code) throw my::WinException((code), __FILE__, __LINE__)
 
-#define THROW_CUSEXCEPTION(info) throw my::CustomException((info), _T(__FILE__), __LINE__)
+#define THROW_CUSEXCEPTION(info) throw my::CustomException((info), __FILE__, __LINE__)
 
 #define FAILED_THROW_COMEXCEPTION(expr) \
 	{ \
@@ -92,6 +92,6 @@ namespace my
 	{ \
 		if(!(expr)) \
 		{ \
-			THROW_CUSEXCEPTION(_T(#expr)); \
+			THROW_CUSEXCEPTION((#expr)); \
 		} \
 	}

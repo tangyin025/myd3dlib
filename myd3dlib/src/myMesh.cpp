@@ -478,8 +478,7 @@ namespace my
 				THROW_D3DEXCEPTION(hres);
 			}
 
-			std::basic_string<char> info((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize());
-			THROW_CUSEXCEPTION(mstringToTString(info));
+			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
 		}
 
 		return MeshPtr(new Mesh(pMesh));

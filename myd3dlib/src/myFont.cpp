@@ -143,7 +143,7 @@ namespace my
 		FT_Error err = FT_Init_FreeType(&m_library);
 		if(err)
 		{
-			THROW_CUSEXCEPTION(_T("FT_Init_FreeType failed"));
+			THROW_CUSEXCEPTION("FT_Init_FreeType failed");
 		}
 	}
 
@@ -161,7 +161,7 @@ namespace my
 		FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
 		if(err)
 		{
-			THROW_CUSEXCEPTION(_T("FT_Set_Pixel_Sizes failed"));
+			THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
 		}
 
 		m_lineHeight = m_face->size->metrics.height >> 6;
@@ -208,7 +208,7 @@ namespace my
 		FT_Error err = FT_New_Face(FontMgr::getSingleton().m_library, filepathname, face_index, &face);
 		if(err)
 		{
-			THROW_CUSEXCEPTION(_T("FT_New_Face failed"));
+			THROW_CUSEXCEPTION("FT_New_Face failed");
 		}
 
 		FontPtr font(new Font(face, height, pDevice));
@@ -229,7 +229,7 @@ namespace my
 		FT_Error err = FT_New_Memory_Face(FontMgr::getSingleton().m_library, &(*cache)[0], cache->size(), face_index, &face);
 		if(err)
 		{
-			THROW_CUSEXCEPTION(_T("FT_New_Memory_Face failed"));
+			THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
 		}
 
 		FontPtr font(new Font(face, height, pDevice));
@@ -249,7 +249,7 @@ namespace my
 
 			if(!m_textureRectRoot->AssignRect(size, outRect))
 			{
-				THROW_CUSEXCEPTION(_T("m_textureRectRoot->AssignRect failed"));
+				THROW_CUSEXCEPTION("m_textureRectRoot->AssignRect failed");
 			}
 
 			m_characterMap.clear();
@@ -296,12 +296,12 @@ namespace my
 		FT_Error err = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_RENDER);
 		if(err)
 		{
-			THROW_CUSEXCEPTION(wstringToTString(str_printf(L"FT_Load_Glyph \"%c\" failed", character)));
+			THROW_CUSEXCEPTION(str_printf("FT_Load_Glyph \"%c\" failed", character));
 		}
 
 		if(FT_PIXEL_MODE_GRAY != m_face->glyph->bitmap.pixel_mode)
 		{
-			THROW_CUSEXCEPTION(_T("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode"));
+			THROW_CUSEXCEPTION("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode");
 		}
 
 		InsertCharacter(

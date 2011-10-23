@@ -76,7 +76,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 		return false;
 	}
@@ -92,7 +92,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 		return false;
 	}
@@ -109,7 +109,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 		return D3DERR_INVALIDCALL;
 	}
@@ -126,7 +126,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 		return D3DERR_INVALIDCALL;
 	}
@@ -140,7 +140,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
@@ -153,7 +153,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
@@ -169,7 +169,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
@@ -186,7 +186,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
@@ -205,7 +205,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 		return 0;
 	}
@@ -223,7 +223,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
@@ -355,7 +355,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(GetDesktopWindow(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(GetDesktopWindow(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 			return 0;
 		}
 
@@ -525,7 +525,7 @@ namespace my
 		}
 		catch(const my::Exception & e)
 		{
-			MessageBox(DXUTGetHWND(), e.GetFullDescription().c_str(), _T("Exception"), MB_OK);
+			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
 		}
 	}
 
