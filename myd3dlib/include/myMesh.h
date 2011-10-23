@@ -3,14 +3,6 @@
 
 namespace my
 {
-	HRESULT LoadMeshFromOgreMesh(
-		std::basic_string<char> & strOgreMeshXml,
-		LPDIRECT3DDEVICE9 pd3dDevice,
-		LPD3DXMESH * ppMesh,
-		DWORD * pNumSubMeshes = NULL,
-		DWORD dwMeshOptions = D3DXMESH_MANAGED,
-		LPD3DXBUFFER * ppErrorMsgs = NULL);
-
 	class Mesh;
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
@@ -37,12 +29,6 @@ namespace my
 			DWORD NumVertices,
 			DWORD FVF,
 			DWORD Options = D3DXMESH_MANAGED);
-
-		static MeshPtr CreateMeshFromOgreMesh(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCSTR pSrcData,
-			UINT srcDataLen,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
 		{
@@ -134,14 +120,18 @@ namespace my
 			return VertexBuffer;
 		}
 
-		void LockIndexBuffer(DWORD Flags, LPVOID * ppData)
+		LPVOID LockIndexBuffer(DWORD Flags = 0)
 		{
-			V(m_ptr->LockIndexBuffer(Flags, ppData));
+			LPVOID pData = NULL;
+			V(m_ptr->LockIndexBuffer(Flags, &pData));
+			return pData;
 		}
 
-		void LockVertexBuffer(DWORD Flags, LPVOID * ppData)
+		LPVOID LockVertexBuffer(DWORD Flags = 0)
 		{
-			V(m_ptr->LockVertexBuffer(Flags, ppData));
+			LPVOID pData = NULL;
+			V(m_ptr->LockVertexBuffer(Flags, &pData));
+			return pData;
 		}
 
 		void UnlockIndexBuffer(void)
@@ -159,9 +149,11 @@ namespace my
 			V(m_ptr->UpdateSemantics(Declaration));
 		}
 
-		void LockAttributeBuffer(DWORD Flags, DWORD ** ppData)
+		DWORD * LockAttributeBuffer(DWORD Flags = 0)
 		{
-			V(m_ptr->LockAttributeBuffer(Flags, ppData));
+			DWORD * pData = NULL;
+			V(m_ptr->LockAttributeBuffer(Flags, &pData));
+			return pData;
 		}
 
 		CComPtr<ID3DXMesh> Optimize(
@@ -194,5 +186,91 @@ namespace my
 		{
 			V(m_ptr->UnlockAttributeBuffer());
 		}
+	};
+
+	class VertexElement
+	{
+	public:
+		WORD Stream;
+		WORD Offset;
+		BYTE Type;
+		BYTE Method;
+		BYTE Usage;
+		BYTE UsageIndex;
+
+	public:
+		VertexElement(WORD _Stream, WORD _Offset, BYTE _Type, BYTE _Method, BYTE _Usage, BYTE _UsageIndex)
+			: Stream(_Stream)
+			, Offset(_Offset)
+			, Type(_Type)
+			, Method(_Method)
+			, Usage(_Usage)
+			, UsageIndex(_UsageIndex)
+		{
+		}
+
+		static VertexElement End(WORD _Stream = 0xFF, WORD _Offset = 0, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0);
+		}
+
+		static VertexElement Position(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, _UsageIndex);
+		}
+
+		static VertexElement Normal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, _UsageIndex);
+		}
+
+		static VertexElement Tangent(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT, _UsageIndex);
+		}
+
+		static VertexElement Binormal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL, _UsageIndex);
+		}
+
+		static VertexElement Color(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, _UsageIndex);
+		}
+
+		static VertexElement Texcoord(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, _UsageIndex);
+		}
+	};
+
+	typedef std::vector<VertexElement> VertexElementList;
+
+	class OgreMesh;
+
+	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
+
+	class OgreMesh : public Mesh
+	{
+	protected:
+		OgreMesh(ID3DXMesh * pMesh)
+			: Mesh(pMesh)
+		{
+		}
+
+		static WORD CalculateD3DDeclTypeSize(int type);
+
+	public:
+		static OgreMeshPtr CreateOgreMesh(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			LPCSTR pSrcData,
+			UINT srcDataLen,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		static OgreMeshPtr CreateOgreMeshFromFile(
+			LPDIRECT3DDEVICE9 pDevice,
+			LPCTSTR pFilename,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 	};
 };

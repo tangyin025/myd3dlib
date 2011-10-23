@@ -48,7 +48,7 @@ protected:
 		// 从资源管理器中读出模型文件
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
-		m_mesh = my::Mesh::CreateMeshFromOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size());
+		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
 		// 创建贴图
 		cache = my::ReadWholeCacheFromStream(
