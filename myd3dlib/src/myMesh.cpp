@@ -184,7 +184,7 @@ namespace my
 			offset += CalculateD3DDeclTypeSize(elems.back().Type);
 		}
 
-		if(dwMeshOptions & ~D3DXMESH_32BIT && texture_coords > MAXBYTE)
+		if(texture_coords > MAXBYTE)
 		{
 			THROW_CUSEXCEPTION("texture coords overflow ( > 255 )");
 		}
@@ -207,7 +207,7 @@ namespace my
 			facecount += count;
 		}
 
-		if(facecount >= 65535)
+		if(dwMeshOptions & ~D3DXMESH_32BIT && facecount >= 65535)
 		{
 			THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 		}
