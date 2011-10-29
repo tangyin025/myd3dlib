@@ -9,4 +9,5 @@
 #include "myMath.h"
 #include "myFont.h"
 #include "myMesh.h"
+#include "mySkeleton.h"
 #include "myEffect.h"

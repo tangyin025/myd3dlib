@@ -677,7 +677,7 @@ namespace my
 			return x * x + y * y + z * z;
 		}
 
-		Vector3 lerp(const Vector3 & rhs, float s)
+		Vector3 lerp(const Vector3 & rhs, float s) const
 		{
 			return Vector3(
 				x + s * (rhs.x - x),
@@ -879,7 +879,7 @@ namespace my
 			return x * x + y * y + z * z + w * w;
 		}
 
-		Vector4 lerp(const Vector4 & rhs, float s)
+		Vector4 lerp(const Vector4 & rhs, float s) const
 		{
 			return Vector4(
 				x + s * (rhs.x - x),
