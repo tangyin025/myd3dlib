@@ -62,53 +62,53 @@ namespace my
 		return boneList;
 	}
 
-	BoneTransformList & BuildBoneTransformList(
+	BoneTransformList & BoneList::BuildBoneTransformList(
 		BoneTransformList & boneTransformList,
-		const BoneList & boneList,
 		const BoneHierarchy & boneHierarchy,
 		int root_i,
 		const Matrix4 & rootTransform /*= Matrix4::identity*/)
 	{
-		_ASSERT(boneList.size() == boneTransformList.size());
-		_ASSERT(boneList.size() == boneHierarchy.size());
+		_ASSERT(boneTransformList.size() == size());
+		_ASSERT(boneTransformList.size() == boneHierarchy.size());
 
 		BoneHierarchy::const_reference node = boneHierarchy[root_i];
-		boneTransformList[root_i] = Matrix4::Translation(boneList[root_i].m_position) * Matrix4::RotationQuaternion(boneList[root_i].m_rotation) * rootTransform;
+		const_reference bone = operator[](root_i);
+		boneTransformList[root_i] = Matrix4::Translation(bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation) * rootTransform;
 
 		if(node.m_sibling >= 0)
 		{
-			BuildBoneTransformList(boneTransformList, boneList, boneHierarchy, node.m_sibling, rootTransform);
+			BuildBoneTransformList(boneTransformList, boneHierarchy, node.m_sibling, rootTransform);
 		}
 
 		if(node.m_child >= 0)
 		{
-			BuildBoneTransformList(boneTransformList, boneList, boneHierarchy, node.m_child, boneTransformList[root_i]);
+			BuildBoneTransformList(boneTransformList, boneHierarchy, node.m_child, boneTransformList[root_i]);
 		}
 
 		return boneTransformList;
 	}
 
-	BoneTransformList & BuildInverseBoneTransformList(
+	BoneTransformList & BoneList::BuildInverseBoneTransformList(
 		BoneTransformList & boneTransformList,
-		const BoneList & boneList,
 		const BoneHierarchy & boneHierarchy,
 		int root_i,
 		const Matrix4 & inverseRootTransform /*= Matrix4::identity*/)
 	{
-		_ASSERT(boneList.size() == boneTransformList.size());
-		_ASSERT(boneList.size() == boneHierarchy.size());
+		_ASSERT(boneTransformList.size() == size());
+		_ASSERT(boneTransformList.size() == boneHierarchy.size());
 
 		BoneHierarchy::const_reference node = boneHierarchy[root_i];
-		boneTransformList[root_i] = inverseRootTransform * Matrix4::Translation(-boneList[root_i].m_position) * Matrix4::RotationQuaternion(boneList[root_i].m_rotation.inverse());
+		const_reference bone = operator[](root_i);
+		boneTransformList[root_i] = inverseRootTransform * Matrix4::Translation(-bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation.inverse());
 
 		if(node.m_sibling >= 0)
 		{
-			BuildInverseBoneTransformList(boneTransformList, boneList, boneHierarchy, node.m_sibling, inverseRootTransform);
+			BuildInverseBoneTransformList(boneTransformList, boneHierarchy, node.m_sibling, inverseRootTransform);
 		}
 
 		if(node.m_child >= 0)
 		{
-			BuildInverseBoneTransformList(boneTransformList, boneList, boneHierarchy, node.m_child, boneTransformList[root_i]);
+			BuildInverseBoneTransformList(boneTransformList, boneHierarchy, node.m_child, boneTransformList[root_i]);
 		}
 
 		return boneTransformList;

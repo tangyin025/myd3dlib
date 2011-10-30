@@ -73,6 +73,10 @@ namespace my
 		}
 	};
 
+	class BoneTransformList : public std::vector<Matrix4>
+	{
+	};
+
 	class BoneList : public std::vector<Bone>
 	{
 	public:
@@ -82,25 +86,19 @@ namespace my
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			float t) const;
+
+		BoneTransformList & BuildBoneTransformList(
+			BoneTransformList & boneTransformList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			const Matrix4 & rootTransform = Matrix4::identity);
+
+		BoneTransformList & BuildInverseBoneTransformList(
+			BoneTransformList & boneTransformList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			const Matrix4 & inverseRootTransform = Matrix4::identity);
 	};
-
-	class BoneTransformList : public std::vector<Matrix4>
-	{
-	};
-
-	BoneTransformList & BuildBoneTransformList(
-		BoneTransformList & boneTransformList,
-		const BoneList & boneList,
-		const BoneHierarchy & boneHierarchy,
-		int root_i,
-		const Matrix4 & rootTransform = Matrix4::identity);
-
-	BoneTransformList & BuildInverseBoneTransformList(
-		BoneTransformList & boneTransformList,
-		const BoneList & boneList,
-		const BoneHierarchy & boneHierarchy,
-		int root_i,
-		const Matrix4 & inverseRootTransform = Matrix4::identity);
 
 	class BoneKeyframe : public Bone
 	{
