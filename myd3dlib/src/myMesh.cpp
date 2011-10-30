@@ -149,6 +149,25 @@ namespace my
 			offset += CalculateD3DDeclTypeSize(elems.back().Type);
 		}
 
+		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
+		WORD indicesOffset = 0, weightsOffset = 0;
+		if(node_boneassignments != NULL)
+		{
+			indicesOffset = offset;
+			for(int i = 0; i < MAX_BONE_INDICES; i++)
+			{
+				elems.push_back(VertexElement::BlendIndices(0, offset, i));
+				offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			}
+
+			weightsOffset = offset;
+			for(int i = 0; i < MAX_BONE_INDICES; i++)
+			{
+				elems.push_back(VertexElement::BlendWeights(0, offset, i));
+				offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			}
+		}
+
 		elems.push_back(VertexElement::End());
 
 		DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
@@ -244,6 +263,57 @@ namespace my
 						pTexcoord->y = tmp;
 					}
 					break;
+				}
+			}
+		}
+
+		if(node_boneassignments != NULL)
+		{
+			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
+			for(int vertex_i = 0; vertex_i < vertexcount; vertex_i++)
+			{
+				unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * offset;
+				unsigned int * pIndices = (unsigned int *)(pVertex + indicesOffset);
+				float * pWeights = (float *)(pVertex + weightsOffset);
+
+				memset(pIndices, 0, sizeof(*pIndices) * MAX_BONE_INDICES);
+				memset(pWeights, 0, sizeof(*pWeights) * MAX_BONE_INDICES);
+			}
+
+			for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
+			{
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(boneindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(weight, vertexboneassignment);
+
+				if(vertexindex >= vertexcount)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				}
+
+				if(boneindex >= 0xff)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				}
+
+				unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
+				unsigned int * pIndices = (unsigned int *)(pVertex + indicesOffset);
+				float * pWeights = (float *)(pVertex + weightsOffset);
+
+				int i = 0;
+				for(; i < MAX_BONE_INDICES; i++)
+				{
+					if(pWeights[i] == 0)
+					{
+						pIndices[i] = boneindex;
+						pWeights[i] = weight;
+						break;
+					}
+				}
+
+				if(i >= MAX_BONE_INDICES)
+				{
+					THROW_CUSEXCEPTION("too much bone assignment");
 				}
 			}
 		}

@@ -243,6 +243,16 @@ namespace my
 		{
 			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, _UsageIndex);
 		}
+
+		static VertexElement BlendIndices(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_UBYTE4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, _UsageIndex);
+		}
+
+		static VertexElement BlendWeights(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		{
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT1, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
+		}
 	};
 
 	typedef std::vector<VertexElement> VertexElementList;
@@ -254,12 +264,14 @@ namespace my
 	class OgreMesh : public Mesh
 	{
 	protected:
+		static const int MAX_BONE_INDICES = 5;
+
+		static WORD CalculateD3DDeclTypeSize(int type);
+
 		OgreMesh(ID3DXMesh * pMesh)
 			: Mesh(pMesh)
 		{
 		}
-
-		static WORD CalculateD3DDeclTypeSize(int type);
 
 	public:
 		static OgreMeshPtr CreateOgreMesh(
