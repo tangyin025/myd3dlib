@@ -137,7 +137,7 @@ namespace my
 		return *key_iter;
 	}
 
-	BoneList & BoneAnimation::GetPose(
+	BoneList & BoneTrackList::GetPose(
 		BoneList & boneList,
 		const BoneHierarchy & boneHierarchy,
 		int root_i,
@@ -160,5 +160,161 @@ namespace my
 		}
 
 		return boneList;
+	}
+
+	OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
+		LPCSTR pSrcData,
+		UINT srcDataLen)
+	{
+		std::string xmlStr(pSrcData, srcDataLen);
+
+		rapidxml::xml_document<char> doc;
+		try
+		{
+			doc.parse<0>(&xmlStr[0]);
+		}
+		catch(rapidxml::parse_error & e)
+		{
+			THROW_CUSEXCEPTION(e.what());
+		}
+
+		rapidxml::xml_node<char> * node_root = &doc;
+		DEFINE_XML_NODE_SIMPLE(skeleton, root);
+		DEFINE_XML_NODE_SIMPLE(bones, skeleton);
+		DEFINE_XML_NODE_SIMPLE(bone, bones);
+
+		int bone_i = 0;
+		OgreSkeletonAnimationPtr ogre_skel_anim(new OgreSkeletonAnimation());
+		for(; node_bone != NULL; node_bone = node_bone->next_sibling(), bone_i++)
+		{
+			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
+			if(id != bone_i)
+			{
+				THROW_CUSEXCEPTION(str_printf("invalid bone id: %d", id));
+			}
+
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
+			if(ogre_skel_anim->m_boneNameMap.end() != ogre_skel_anim->m_boneNameMap.find(attr_name->value()))
+			{
+				THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
+			}
+
+			ogre_skel_anim->m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
+
+			DEFINE_XML_NODE_SIMPLE(position, bone);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, position);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, position);
+
+			DEFINE_XML_NODE_SIMPLE(rotation, bone);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotation);
+			DEFINE_XML_NODE_SIMPLE(axis, rotation);
+			float axis_x, axis_y, axis_z;
+			rapidxml::xml_attribute<char> * attr_axis_x, * attr_axis_y, * attr_axis_z;
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+			DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+
+			ogre_skel_anim->m_boneBindPose.push_back(
+				Bone(Vector3(x, y, z), Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle)));
+
+			_ASSERT(id == ogre_skel_anim->m_boneBindPose.size() - 1);
+		}
+
+		DEFINE_XML_NODE_SIMPLE(bonehierarchy, skeleton);
+		DEFINE_XML_NODE_SIMPLE(boneparent, bonehierarchy);
+
+		ogre_skel_anim->m_boneHierarcy.resize(ogre_skel_anim->m_boneBindPose.size());
+		for(; node_boneparent != NULL; node_boneparent = node_boneparent->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, boneparent);
+			if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_bone->value()))
+			{
+				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
+			}
+
+			DEFINE_XML_ATTRIBUTE_SIMPLE(parent, boneparent);
+			if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_parent->value()))
+			{
+				THROW_CUSEXCEPTION(str_printf("invalid bone parent name: %s", attr_parent->value()));
+			}
+
+			ogre_skel_anim->m_boneHierarcy.InsertChild(
+				ogre_skel_anim->m_boneNameMap[attr_parent->value()], ogre_skel_anim->m_boneNameMap[attr_bone->value()]);
+		}
+
+		DEFINE_XML_NODE_SIMPLE(animations, skeleton);
+		DEFINE_XML_NODE_SIMPLE(animation, animations);
+		DEFINE_XML_NODE_SIMPLE(tracks, animation);
+
+		for(; node_animation != NULL; node_animation = node_animation->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
+			if(ogre_skel_anim->m_animationMap.end() != ogre_skel_anim->m_animationMap.find(attr_name->value()))
+			{
+				THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
+			}
+
+			ogre_skel_anim->m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
+			OgreAnimation & anim = ogre_skel_anim->m_animationMap[attr_name->value()];
+
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
+			anim.m_time = length;
+			anim.resize(ogre_skel_anim->m_boneBindPose.size());
+
+			DEFINE_XML_NODE_SIMPLE(track, tracks);
+			for(; node_track != NULL; node_track = node_track->next_sibling())
+			{
+				DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
+				if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_bone->value()))
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
+				}
+
+				BoneTrack & bone_track = anim[ogre_skel_anim->m_boneNameMap[attr_bone->value()]];
+
+				DEFINE_XML_NODE_SIMPLE(keyframes, track);
+				DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
+
+				rapidxml::xml_attribute<char> * attr_translate_x, * attr_translate_y, * attr_translate_z;
+				float translate_x, translate_y, translate_z;
+				DEFINE_XML_NODE_SIMPLE(translate, keyframe);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
+
+				DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
+
+				rapidxml::xml_attribute<char> * attr_axis_x, * attr_axis_y, * attr_axis_z;
+				float axis_x, axis_y, axis_z;
+				DEFINE_XML_NODE_SIMPLE(axis, rotate);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+
+				bone_track.push_back(
+					BoneKeyframe(Vector3(translate_x, translate_y, translate_z), Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), time));
+			}
+		}
+
+		return ogre_skel_anim;
+	}
+
+	OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
+		LPCTSTR pFilename)
+	{
+		FILE * fp;
+		if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+		{
+			THROW_CUSEXCEPTION(tstringToMString(str_printf(_T("cannot open file archive: %s"), pFilename)));
+		}
+		
+		ArchiveStreamPtr stream(new FileArchiveStream(fp));
+
+		CachePtr cache = ReadWholeCacheFromStream(stream);
+
+		return CreateOgreSkeletonAnimation((LPCSTR)&(*cache)[0], cache->size());
 	}
 }

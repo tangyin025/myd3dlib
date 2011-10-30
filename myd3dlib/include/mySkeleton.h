@@ -124,7 +124,7 @@ namespace my
 		Bone GetPoseBone(float time);
 	};
 
-	class BoneAnimation : public std::vector<BoneTrack>
+	class BoneTrackList : public std::vector<BoneTrack>
 	{
 	public:
 		BoneList & GetPose(
@@ -132,5 +132,48 @@ namespace my
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			float time);
+	};
+
+	class OgreAnimation : public BoneTrackList
+	{
+	public:
+		float m_time;
+	};
+
+	class OgreSkeleton
+	{
+	protected:
+		std::map<std::string, int> m_boneNameMap;
+
+		BoneList m_boneBindPose;
+
+		BoneHierarchy m_boneHierarcy;
+
+	public:
+		OgreSkeleton(void)
+		{
+		}
+	};
+
+	class OgreSkeletonAnimation;
+
+	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
+
+	class OgreSkeletonAnimation : public OgreSkeleton
+	{
+	protected:
+		std::map<std::string, OgreAnimation> m_animationMap;
+
+		OgreSkeletonAnimation(void)
+		{
+		}
+
+	public:
+		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimation(
+			LPCSTR pSrcData,
+			UINT srcDataLen);
+
+		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimationFromFile(
+			LPCTSTR pFilename);
 	};
 }

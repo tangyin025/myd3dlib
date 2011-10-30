@@ -13,6 +13,8 @@ protected:
 
 	my::EffectPtr m_effect;
 
+	my::OgreSkeletonAnimationPtr m_skeleton;
+
 	my::MeshPtr m_mesh;
 
 	my::TexturePtr m_texture;
@@ -45,7 +47,12 @@ protected:
 			my::ResourceMgr::getSingleton().OpenArchiveStream("SimpleSample.fx"));
 		m_effect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
-		// 从资源管理器中读出模型文件
+		// 读取骨骼动画
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml"));
+		m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+
+		// 读取模型文件
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
 		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size());
