@@ -65,27 +65,76 @@ namespace my
 			return m_rotation;
 		}
 
+		Bone Increment(const Bone & rhs) const
+		{
+			return Bone(
+				m_position + rhs.m_position,
+				m_rotation * rhs.m_rotation);
+		}
+
+		Bone IncrementSelf(const Bone & rhs)
+		{
+			m_position += rhs.m_position;
+			m_rotation *= rhs.m_rotation;
+			return *this;
+		}
+
 		Bone Lerp(const Bone & rhs, float t) const
 		{
 			return Bone(
 				m_position.lerp(rhs.m_position, t),
 				m_rotation.slerp(rhs.m_rotation, t));
 		}
+
+		Bone LerpSelf(const Bone & rhs, float t)
+		{
+			m_position.lerpSelf(rhs.m_position, t);
+			m_rotation.slerpSelf(rhs.m_rotation, t);
+			return *this;
+		}
 	};
 
 	class BoneTransformList : public std::vector<Matrix4>
 	{
+	public:
+		BoneTransformList & Transform(
+			BoneTransformList & boneTransformList,
+			const BoneTransformList & rhs,
+			const BoneHierarchy & boneHierarchy,
+			int root_i) const;
+
+		BoneTransformList & TransformSelf(
+			const BoneTransformList & rhs,
+			const BoneHierarchy & boneHierarchy,
+			int root_i);
 	};
 
 	class BoneList : public std::vector<Bone>
 	{
 	public:
+		BoneList & Increment(
+			BoneList & boneList,
+			const BoneList & rhs,
+			const BoneHierarchy & boneHierarchy,
+			int root_i) const;
+
+		BoneList & IncrementSelf(
+			const BoneList & rhs,
+			const BoneHierarchy & boneHierarchy,
+			int root_i);
+
 		BoneList & Lerp(
 			BoneList & boneList,
 			const BoneList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			float t) const;
+
+		BoneList & LerpSelf(
+			const BoneList & rhs,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			float t);
 
 		BoneTransformList & BuildBoneTransformList(
 			BoneTransformList & boneTransformList,
@@ -121,7 +170,7 @@ namespace my
 	class BoneTrack : public std::vector<BoneKeyframe>
 	{
 	public:
-		Bone GetPoseBone(float time);
+		Bone GetPoseBone(float time) const;
 	};
 
 	class BoneTrackList : public std::vector<BoneTrack>
@@ -131,7 +180,7 @@ namespace my
 			BoneList & boneList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
-			float time);
+			float time) const;
 	};
 
 	class OgreAnimation : public BoneTrackList
@@ -142,12 +191,14 @@ namespace my
 
 	class OgreSkeleton
 	{
-	protected:
+	public:
 		std::map<std::string, int> m_boneNameMap;
 
 		BoneList m_boneBindPose;
 
-		BoneHierarchy m_boneHierarcy;
+		BoneHierarchy m_boneHierarchy;
+
+		int GetBoneIndex(const std::string & bone_name) const;
 
 	public:
 		OgreSkeleton(void)
@@ -162,11 +213,16 @@ namespace my
 	class OgreSkeletonAnimation : public OgreSkeleton
 	{
 	protected:
-		std::map<std::string, OgreAnimation> m_animationMap;
-
 		OgreSkeletonAnimation(void)
 		{
 		}
+
+	public:
+		std::map<std::string, OgreAnimation> m_animationMap;
+
+		const OgreAnimation & GetAnimation(const std::string & anim_name) const;
+
+		BoneList & BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const;
 
 	public:
 		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimation(

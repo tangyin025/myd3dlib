@@ -36,6 +36,102 @@ namespace my
 		}
 	}
 
+	BoneTransformList & BoneTransformList::Transform(
+		BoneTransformList & boneTransformList,
+		const BoneTransformList & rhs,
+		const BoneHierarchy & boneHierarchy,
+		int root_i) const
+	{
+		_ASSERT(boneTransformList.size() == size());
+		_ASSERT(boneTransformList.size() == rhs.size());
+
+		boneTransformList[root_i] = operator[](root_i) * rhs[root_i];
+
+		BoneHierarchy::const_reference node = boneHierarchy[root_i];
+		if(node.m_sibling >= 0)
+		{
+			Transform(boneTransformList, rhs, boneHierarchy, node.m_sibling);
+		}
+
+		if(node.m_child >= 0)
+		{
+			Transform(boneTransformList, rhs, boneHierarchy, node.m_child);
+		}
+
+		return boneTransformList;
+	}
+
+	BoneTransformList & BoneTransformList::TransformSelf(
+		const BoneTransformList & rhs,
+		const BoneHierarchy & boneHierarchy,
+		int root_i)
+	{
+		_ASSERT(size() == rhs.size());
+
+		operator[](root_i) *= rhs[root_i];
+
+		BoneHierarchy::const_reference node = boneHierarchy[root_i];
+		if(node.m_sibling >= 0)
+		{
+			TransformSelf(rhs, boneHierarchy, node.m_sibling);
+		}
+
+		if(node.m_child >= 0)
+		{
+			TransformSelf(rhs, boneHierarchy, node.m_child);
+		}
+
+		return *this;
+	}
+
+	BoneList & BoneList::Increment(
+		BoneList & boneList,
+		const BoneList & rhs,
+		const BoneHierarchy & boneHierarchy,
+		int root_i) const
+	{
+		_ASSERT(boneList.size() == size());
+		_ASSERT(boneList.size() == rhs.size());
+
+		boneList[root_i] = operator[](root_i).Increment(rhs[root_i]);
+
+		BoneHierarchy::const_reference node = boneHierarchy[root_i];
+		if(node.m_sibling >= 0)
+		{
+			Increment(boneList, rhs, boneHierarchy, node.m_sibling);
+		}
+
+		if(node.m_child >= 0)
+		{
+			Increment(boneList, rhs, boneHierarchy, node.m_child);
+		}
+
+		return boneList;
+	}
+
+	BoneList & BoneList::IncrementSelf(
+		const BoneList & rhs,
+		const BoneHierarchy & boneHierarchy,
+		int root_i)
+	{
+		_ASSERT(size() == rhs.size());
+
+		operator[](root_i).IncrementSelf(rhs[root_i]);
+
+		BoneHierarchy::const_reference node = boneHierarchy[root_i];
+		if(node.m_sibling >= 0)
+		{
+			IncrementSelf(rhs, boneHierarchy, node.m_sibling);
+		}
+
+		if(node.m_child >= 0)
+		{
+			IncrementSelf(rhs, boneHierarchy, node.m_child);
+		}
+
+		return *this;
+	}
+
 	BoneList & BoneList::Lerp(
 		BoneList & boneList,
 		const BoneList & rhs,
@@ -62,6 +158,30 @@ namespace my
 		return boneList;
 	}
 
+	BoneList & BoneList::LerpSelf(
+		const BoneList & rhs,
+		const BoneHierarchy & boneHierarchy,
+		int root_i,
+		float t)
+	{
+		_ASSERT(size() == rhs.size());
+
+		operator[](root_i).LerpSelf(rhs[root_i], t);
+
+		BoneHierarchy::const_reference node = boneHierarchy[root_i];
+		if(node.m_sibling >= 0)
+		{
+			LerpSelf(rhs, boneHierarchy, node.m_sibling, t);
+		}
+
+		if(node.m_child >= 0)
+		{
+			LerpSelf(rhs, boneHierarchy, node.m_child, t);
+		}
+
+		return *this;
+	}
+
 	BoneTransformList & BoneList::BuildBoneTransformList(
 		BoneTransformList & boneTransformList,
 		const BoneHierarchy & boneHierarchy,
@@ -73,7 +193,7 @@ namespace my
 
 		BoneHierarchy::const_reference node = boneHierarchy[root_i];
 		const_reference bone = operator[](root_i);
-		boneTransformList[root_i] = Matrix4::Translation(bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation) * rootTransform;
+		boneTransformList[root_i] = Matrix4::RotationQuaternion(bone.m_rotation) * Matrix4::Translation(bone.m_position) * rootTransform;
 
 		if(node.m_sibling >= 0)
 		{
@@ -114,7 +234,7 @@ namespace my
 		return boneTransformList;
 	}
 
-	Bone BoneTrack::GetPoseBone(float time)
+	Bone BoneTrack::GetPoseBone(float time) const
 	{
 		_ASSERT(!empty());
 
@@ -134,14 +254,14 @@ namespace my
 			}
 		}
 
-		return *key_iter;
+		return back();
 	}
 
 	BoneList & BoneTrackList::GetPose(
 		BoneList & boneList,
 		const BoneHierarchy & boneHierarchy,
 		int root_i,
-		float time)
+		float time) const
 	{
 		_ASSERT(boneList.size() == size());
 		_ASSERT(boneList.size() == boneHierarchy.size());
@@ -160,6 +280,25 @@ namespace my
 		}
 
 		return boneList;
+	}
+
+	int OgreSkeleton::GetBoneIndex(const std::string & bone_name) const
+	{
+		_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
+
+		return m_boneNameMap.find(bone_name)->second;
+	}
+
+	const OgreAnimation & OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
+	{
+		_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
+
+		return m_animationMap.find(anim_name)->second;
+	}
+
+	BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const
+	{
+		return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, GetBoneIndex(bone_name), time);
 	}
 
 	OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
@@ -224,7 +363,7 @@ namespace my
 		DEFINE_XML_NODE_SIMPLE(bonehierarchy, skeleton);
 		DEFINE_XML_NODE_SIMPLE(boneparent, bonehierarchy);
 
-		ogre_skel_anim->m_boneHierarcy.resize(ogre_skel_anim->m_boneBindPose.size());
+		ogre_skel_anim->m_boneHierarchy.resize(ogre_skel_anim->m_boneBindPose.size());
 		for(; node_boneparent != NULL; node_boneparent = node_boneparent->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, boneparent);
@@ -239,7 +378,7 @@ namespace my
 				THROW_CUSEXCEPTION(str_printf("invalid bone parent name: %s", attr_parent->value()));
 			}
 
-			ogre_skel_anim->m_boneHierarcy.InsertChild(
+			ogre_skel_anim->m_boneHierarchy.InsertChild(
 				ogre_skel_anim->m_boneNameMap[attr_parent->value()], ogre_skel_anim->m_boneNameMap[attr_bone->value()]);
 		}
 

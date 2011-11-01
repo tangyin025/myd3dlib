@@ -160,6 +160,13 @@ namespace my
 				y + s * (rhs.y - y));
 		}
 
+		Vector2 lerpSelf(const Vector2 & rhs, float s)
+		{
+			x = x + s * (rhs.x - x);
+			y = y + s * (rhs.y - y);
+			return *this;
+		}
+
 		Vector2 normalize(void) const
 		{
 			float invLength = 1 / length();
@@ -685,6 +692,14 @@ namespace my
 				z + s * (rhs.z - z));
 		}
 
+		Vector3 lerpSelf(const Vector3 & rhs, float s)
+		{
+			x = x + s * (rhs.x - x);
+			y = y + s * (rhs.y - y);
+			z = z + s * (rhs.z - z);
+			return *this;
+		}
+
 		Vector3 normalize(void) const
 		{
 			float invLength = 1 / length();
@@ -886,6 +901,14 @@ namespace my
 				y + s * (rhs.y - y),
 				z + s * (rhs.z - z),
 				w + s * (rhs.w - w));
+		}
+
+		Vector4 lerpSelf(const Vector4 & rhs, float s)
+		{
+			x = x + s * (rhs.x - x);
+			y = y + s * (rhs.y - y);
+			z = z + s * (rhs.z - z);
+			w = w + s * (rhs.w - w);
 		}
 
 		Vector4 normalize(void) const
@@ -1137,6 +1160,12 @@ namespace my
 			Quaternion ret;
 			D3DXQuaternionSlerp((D3DXQUATERNION *)&ret, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&rhs, t);
 			return ret;
+		}
+
+		Quaternion slerpSelf(const Quaternion & rhs, float t)
+		{
+			D3DXQuaternionSlerp((D3DXQUATERNION *)this, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&rhs, t);
+			return *this;
 		}
 
 		Quaternion squad(const Quaternion & a, const Quaternion & b, const Quaternion & c, float t) const
