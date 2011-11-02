@@ -251,7 +251,7 @@ namespace my
 
 		static VertexElement BlendWeights(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT1, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
+			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
 		}
 	};
 
@@ -264,7 +264,7 @@ namespace my
 	class OgreMesh : public Mesh
 	{
 	protected:
-		static const int MAX_BONE_INDICES = 5;
+		static const int MAX_BONE_INDICES = 4;
 
 		static WORD CalculateD3DDeclTypeSize(int type);
 

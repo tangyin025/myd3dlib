@@ -154,18 +154,12 @@ namespace my
 		if(node_boneassignments != NULL)
 		{
 			indicesOffset = offset;
-			for(int i = 0; i < MAX_BONE_INDICES; i++)
-			{
-				elems.push_back(VertexElement::BlendIndices(0, offset, i));
-				offset += CalculateD3DDeclTypeSize(elems.back().Type);
-			}
+			elems.push_back(VertexElement::BlendIndices(0, offset, 0));
+			offset += CalculateD3DDeclTypeSize(elems.back().Type);
 
 			weightsOffset = offset;
-			for(int i = 0; i < MAX_BONE_INDICES; i++)
-			{
-				elems.push_back(VertexElement::BlendWeights(0, offset, i));
-				offset += CalculateD3DDeclTypeSize(elems.back().Type);
-			}
+			elems.push_back(VertexElement::BlendWeights(0, offset, 0));
+			offset += CalculateD3DDeclTypeSize(elems.back().Type);
 		}
 
 		elems.push_back(VertexElement::End());
@@ -195,7 +189,7 @@ namespace my
 
 		OgreMeshPtr mesh(new OgreMesh(pMesh));
 
-		VOID * pVertices = mesh->LockVertexBuffer();
+		const VOID * pVertices = mesh->LockVertexBuffer();
 		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 		for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
 		{
@@ -269,17 +263,17 @@ namespace my
 
 		if(node_boneassignments != NULL)
 		{
-			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
 			for(int vertex_i = 0; vertex_i < vertexcount; vertex_i++)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * offset;
-				unsigned int * pIndices = (unsigned int *)(pVertex + indicesOffset);
+				unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
 				float * pWeights = (float *)(pVertex + weightsOffset);
 
 				memset(pIndices, 0, sizeof(*pIndices) * MAX_BONE_INDICES);
 				memset(pWeights, 0, sizeof(*pWeights) * MAX_BONE_INDICES);
 			}
 
+			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
 			for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
 			{
 				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
@@ -297,7 +291,7 @@ namespace my
 				}
 
 				unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
-				unsigned int * pIndices = (unsigned int *)(pVertex + indicesOffset);
+				unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
 				float * pWeights = (float *)(pVertex + weightsOffset);
 
 				int i = 0;
