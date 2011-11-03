@@ -368,12 +368,49 @@ namespace my
 		D3DFORMAT BackBufferFormat,
 		bool bWindowed)
 	{
-		if(pCaps->PixelShaderVersion < D3DPS_VERSION(2, 0))
-		{
+		// Skip backbuffer formats that don't support alpha blending
+		IDirect3D9* pD3D = DXUTGetD3D9Object();
+		if( FAILED( pD3D->CheckDeviceFormat( pCaps->AdapterOrdinal, pCaps->DeviceType,
+			AdapterFormat, D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
+			D3DRTYPE_TEXTURE, BackBufferFormat ) ) )
 			return false;
+
+		// Need to support ps 2.0
+		if( pCaps->PixelShaderVersion < D3DPS_VERSION( 2, 0 ) )
+			return false;
+
+		return DxutApp::IsD3D9DeviceAcceptable(pCaps, AdapterFormat, BackBufferFormat, bWindowed);
+	}
+
+	bool DxutSample::ModifyDeviceSettings(
+		DXUTDeviceSettings * pDeviceSettings)
+	{
+		IDirect3D9 * pD3D = DXUTGetD3D9Object();
+		D3DCAPS9 caps;
+		V(pD3D->GetDeviceCaps(pDeviceSettings->d3d9.AdapterOrdinal, pDeviceSettings->d3d9.DeviceType, &caps));
+
+		// If device doesn't support HW T&L or doesn't support 1.1 vertex shaders in HW
+		// then switch to SWVP.
+		if( ( caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT ) == 0 ||
+			caps.VertexShaderVersion < D3DVS_VERSION( 1, 1 ) )
+		{
+			pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 		}
 
-		return true;
+		// If the hardware cannot do vertex blending, use software vertex processing.
+		if( caps.MaxVertexBlendMatrices < OgreMesh::MAX_BONE_INDICES )
+		{
+			pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		}
+
+		//// If using hardware vertex processing, change to mixed vertex processing
+		//// so there is a fallback.
+		//if( pDeviceSettings->d3d9.BehaviorFlags & D3DCREATE_HARDWARE_VERTEXPROCESSING )
+		//{
+		//	pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		//}
+
+		return DxutApp::ModifyDeviceSettings(pDeviceSettings);
 	}
 
 	void DxutSample::OnInit(void)

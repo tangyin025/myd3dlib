@@ -263,9 +263,10 @@ namespace my
 
 	class OgreMesh : public Mesh
 	{
-	protected:
+	public:
 		static const int MAX_BONE_INDICES = 4;
 
+	protected:
 		static WORD CalculateD3DDeclTypeSize(int type);
 
 		OgreMesh(ID3DXMesh * pMesh)

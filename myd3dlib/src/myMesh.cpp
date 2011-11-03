@@ -257,22 +257,32 @@ namespace my
 						pTexcoord->y = tmp;
 					}
 					break;
+
+				case D3DDECLUSAGE_BLENDINDICES:
+					{
+						unsigned char * pIndices = (unsigned char *)(pVertex + elems[elem_i].Offset);
+						pIndices[0] = 0;
+						pIndices[1] = 0;
+						pIndices[2] = 0;
+						pIndices[3] = 0;
+					}
+					break;
+
+				case D3DDECLUSAGE_BLENDWEIGHT:
+					{
+						float * pWeights = (float *)(pVertex + elems[elem_i].Offset);
+						pWeights[0] = 0;
+						pWeights[1] = 0;
+						pWeights[2] = 0;
+						pWeights[3] = 0;
+					}
+					break;
 				}
 			}
 		}
 
 		if(node_boneassignments != NULL)
 		{
-			for(int vertex_i = 0; vertex_i < vertexcount; vertex_i++)
-			{
-				unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * offset;
-				unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
-				float * pWeights = (float *)(pVertex + weightsOffset);
-
-				memset(pIndices, 0, sizeof(*pIndices) * MAX_BONE_INDICES);
-				memset(pWeights, 0, sizeof(*pWeights) * MAX_BONE_INDICES);
-			}
-
 			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
 			for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
 			{

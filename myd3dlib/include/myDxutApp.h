@@ -260,6 +260,9 @@ namespace my
 			D3DFORMAT BackBufferFormat,
 			bool bWindowed);
 
+		virtual bool ModifyDeviceSettings(
+			DXUTDeviceSettings * pDeviceSettings);
+
 		virtual void OnInit(void);
 
 		virtual HRESULT OnD3D9CreateDevice(
