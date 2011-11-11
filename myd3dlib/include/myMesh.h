@@ -3,6 +3,169 @@
 
 namespace my
 {
+	class VertexElement
+	{
+	protected:
+		WORD Stream;
+		D3DDECLTYPE Type;
+		D3DDECLMETHOD Method;
+		D3DDECLUSAGE Usage;
+		BYTE UsageIndex;
+		WORD ElementSize;
+
+	public:
+		VertexElement(WORD _Stream, D3DDECLTYPE _Type, D3DDECLMETHOD _Method, D3DDECLUSAGE _Usage, BYTE _UsageIndex, WORD _ElementSize)
+			: Stream(_Stream)
+			, Type(_Type)
+			, Method(_Method)
+			, Usage(_Usage)
+			, UsageIndex(_UsageIndex)
+			, ElementSize(_ElementSize)
+		{
+		}
+
+		D3DVERTEXELEMENT9 BuildD3DVertexElement(WORD Offset) const
+		{
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, Type, Method, Usage, UsageIndex};
+			return ret;
+		}
+
+		virtual WORD GetElementSize(void) const
+		{
+			return ElementSize;
+		}
+
+	public:
+		typedef Vector3 PositionType;
+
+		static VertexElement CreatePositionElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return VertexElement(_Stream, D3DDECLTYPE_FLOAT3, _Method, D3DDECLUSAGE_POSITION, _UsageIndex, sizeof(PositionType));
+		}
+
+		typedef Vector3 NormalType;
+
+		static VertexElement CreateNormalElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return VertexElement(_Stream, D3DDECLTYPE_FLOAT3, _Method, D3DDECLUSAGE_NORMAL, _UsageIndex, sizeof(NormalType));
+		}
+
+		typedef Vector2 TexcoordType;
+
+		static VertexElement CreateTexcoordElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return VertexElement(_Stream, D3DDECLTYPE_FLOAT2, _Method, D3DDECLUSAGE_TEXCOORD, _UsageIndex, sizeof(TexcoordType));
+		}
+
+		typedef unsigned char IndicesType[4];
+
+		static VertexElement CreateIndicesElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return VertexElement(_Stream, D3DDECLTYPE_UBYTE4, _Method, D3DDECLUSAGE_BLENDINDICES, _UsageIndex, sizeof(IndicesType));
+		}
+
+		typedef float WeightsType[4];
+
+		static VertexElement CreateWeightsElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return VertexElement(_Stream, D3DDECLTYPE_FLOAT4, _Method, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex, sizeof(WeightsType));
+		}
+	};
+
+	class VertexElementList : public std::vector<VertexElement>
+	{
+	};
+
+	class VertexBuffer : public DeviceRelatedObjectBase
+	{
+	public:
+		struct D3DVERTEXELEMENT9Less
+		{
+			bool operator ()(const D3DVERTEXELEMENT9 & lhs, const D3DVERTEXELEMENT9 & rhs) const
+			{
+				if(lhs.Usage == rhs.Usage)
+				{
+					return lhs.UsageIndex < rhs.UsageIndex;
+				}
+				return lhs.Usage < rhs.Usage;
+			}
+		};
+
+		typedef std::set<D3DVERTEXELEMENT9, D3DVERTEXELEMENT9Less> D3DVERTEXELEMENT9Set;
+
+		CComPtr<IDirect3DDevice9> m_Device;
+
+		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
+
+		std::vector<unsigned char> m_MemVertexBuffer;
+
+		D3DVERTEXELEMENT9Set m_VertexElemSet;
+
+		CComPtr<IDirect3DVertexDeclaration9> m_VertexDecl;
+
+		WORD m_vertexStride;
+
+		UINT m_NumVertices;
+
+	public:
+		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const VertexElementList & vertexElemList);
+
+		void OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		void OnD3D9LostDevice(void);
+
+		void OnD3D9DestroyDevice(void);
+
+		void UpdateVertexBuffer(void);
+
+		void ResizeVertexBufferLength(UINT NumVertices);
+
+		void SetPosition(int Index, const VertexElement::PositionType & Position, BYTE UsageIndex = 0);
+
+		void SetNormal(int Index, const VertexElement::NormalType & Position, BYTE UsageIndex = 0);
+
+		void SetTexcoord(int Index, const VertexElement::TexcoordType & Texcoord, BYTE UsageIndex = 0);
+
+		void SetBlendIndices(int Index, int SubIndex, unsigned char BlendIndex, BYTE UsageIndex = 0);
+
+		void SetBlendWeights(int Index, int SubIndex, float BlendWeight, BYTE UsageIndex = 0);
+	};
+
+	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
+
+	class IndexBuffer : public DeviceRelatedObjectBase
+	{
+	public:
+		typedef std::vector<unsigned int> UIntList;
+
+		UIntList m_MemIndexBuffer;
+
+		CComPtr<IDirect3DDevice9> m_Device;
+
+		CComPtr<IDirect3DIndexBuffer9> m_IndexBuffer;
+
+	public:
+		IndexBuffer(LPDIRECT3DDEVICE9 pDevice);
+
+		void OnD3D9ResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		void OnD3D9LostDevice(void);
+
+		void OnD3D9DestroyDevice(void);
+
+		void UpdateIndexBuffer(void);
+
+		void ResizeIndexBufferLength(UINT NumIndices);
+
+		void SetIndex(int Index, unsigned int IndexValue);
+	};
+
+	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
+
 	class Mesh;
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
@@ -188,7 +351,7 @@ namespace my
 		}
 	};
 
-	class VertexElement
+	class OgreVertexElement
 	{
 	public:
 		WORD Stream;
@@ -199,7 +362,7 @@ namespace my
 		BYTE UsageIndex;
 
 	public:
-		VertexElement(WORD _Stream, WORD _Offset, BYTE _Type, BYTE _Method, BYTE _Usage, BYTE _UsageIndex)
+		OgreVertexElement(WORD _Stream, WORD _Offset, BYTE _Type, BYTE _Method, BYTE _Usage, BYTE _UsageIndex)
 			: Stream(_Stream)
 			, Offset(_Offset)
 			, Type(_Type)
@@ -209,53 +372,55 @@ namespace my
 		{
 		}
 
-		static VertexElement End(WORD _Stream = 0xFF, WORD _Offset = 0, BYTE _UsageIndex = 0)
+		static OgreVertexElement End(WORD _Stream = 0xFF, WORD _Offset = 0, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0);
+			return OgreVertexElement(0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0);
 		}
 
-		static VertexElement Position(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Position(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, _UsageIndex);
 		}
 
-		static VertexElement Normal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Normal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, _UsageIndex);
 		}
 
-		static VertexElement Tangent(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Tangent(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT, _UsageIndex);
 		}
 
-		static VertexElement Binormal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Binormal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL, _UsageIndex);
 		}
 
-		static VertexElement Color(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Color(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, _UsageIndex);
 		}
 
-		static VertexElement Texcoord(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement Texcoord(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, _UsageIndex);
 		}
 
-		static VertexElement BlendIndices(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement BlendIndices(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_UBYTE4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_UBYTE4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, _UsageIndex);
 		}
 
-		static VertexElement BlendWeights(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
+		static OgreVertexElement BlendWeights(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
 		{
-			return VertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
+			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
 		}
 	};
 
-	typedef std::vector<VertexElement> VertexElementList;
+	typedef std::vector<OgreVertexElement> OgreVertexElementList;
+
+	typedef std::vector<D3DXBONECOMBINATION> BoneCombinationList;
 
 	class OgreMesh;
 
@@ -268,6 +433,10 @@ namespace my
 
 	protected:
 		static WORD CalculateD3DDeclTypeSize(int type);
+
+		BoneCombinationList m_boneCombinationList;
+
+		CComPtr<ID3DXSkinInfo> m_skinInfo;
 
 		OgreMesh(ID3DXMesh * pMesh)
 			: Mesh(pMesh)

@@ -375,21 +375,32 @@ namespace my
 			D3DRTYPE_TEXTURE, BackBufferFormat ) ) )
 			return false;
 
-		// Need to support ps 2.0
+		// No fallback defined by this app, so reject any device that 
+		// doesn't support at least ps2.0
 		if( pCaps->PixelShaderVersion < D3DPS_VERSION( 2, 0 ) )
 			return false;
 
-		return DxutApp::IsD3D9DeviceAcceptable(pCaps, AdapterFormat, BackBufferFormat, bWindowed);
+		return true;
 	}
 
 	bool DxutSample::ModifyDeviceSettings(
 		DXUTDeviceSettings * pDeviceSettings)
 	{
-		IDirect3D9 * pD3D = DXUTGetD3D9Object();
-		D3DCAPS9 caps;
-		V(pD3D->GetDeviceCaps(pDeviceSettings->d3d9.AdapterOrdinal, pDeviceSettings->d3d9.DeviceType, &caps));
+		assert( DXUT_D3D9_DEVICE == pDeviceSettings->ver );
 
-		// If device doesn't support HW T&L or doesn't support 1.1 vertex shaders in HW
+		HRESULT hr;
+		IDirect3D9* pD3D = DXUTGetD3D9Object();
+		D3DCAPS9 caps;
+
+		V( pD3D->GetDeviceCaps( pDeviceSettings->d3d9.AdapterOrdinal,
+			pDeviceSettings->d3d9.DeviceType,
+			&caps ) );
+
+		// Turn vsync off
+		pDeviceSettings->d3d9.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		m_settingsDlg.GetDialogControl()->GetComboBox( DXUTSETTINGSDLG_PRESENT_INTERVAL )->SetEnabled( false );
+
+		// If device doesn't support HW T&L or doesn't support 1.1 vertex shaders in HW 
 		// then switch to SWVP.
 		if( ( caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT ) == 0 ||
 			caps.VertexShaderVersion < D3DVS_VERSION( 1, 1 ) )
@@ -398,19 +409,37 @@ namespace my
 		}
 
 		// If the hardware cannot do vertex blending, use software vertex processing.
-		if( caps.MaxVertexBlendMatrices < OgreMesh::MAX_BONE_INDICES )
-		{
+		if( caps.MaxVertexBlendMatrices < 2 )
 			pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-		}
 
 		//// If using hardware vertex processing, change to mixed vertex processing
 		//// so there is a fallback.
 		//if( pDeviceSettings->d3d9.BehaviorFlags & D3DCREATE_HARDWARE_VERTEXPROCESSING )
-		//{
-		//	pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-		//}
+		//    pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_MIXED_VERTEXPROCESSING;
 
-		return DxutApp::ModifyDeviceSettings(pDeviceSettings);
+		// Debugging vertex shaders requires either REF or software vertex processing 
+		// and debugging pixel shaders requires REF.  
+#ifdef DEBUG_VS
+		if( pDeviceSettings->d3d9.DeviceType != D3DDEVTYPE_REF )
+		{
+			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_HARDWARE_VERTEXPROCESSING;
+			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_PUREDEVICE;
+			pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		}
+#endif
+#ifdef DEBUG_PS
+		pDeviceSettings->d3d9.DeviceType = D3DDEVTYPE_REF;
+#endif
+		// For the first device created if its a REF device, optionally display a warning dialog box
+		static bool s_bFirstTime = true;
+		if( s_bFirstTime )
+		{
+			s_bFirstTime = false;
+			if( pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF )
+				DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
+		}
+
+		return true;
 	}
 
 	void DxutSample::OnInit(void)
@@ -420,6 +449,9 @@ namespace my
 		m_settingsDlg.Init(&m_dlgResourceMgr);
 		m_hudDlg.Init(&m_dlgResourceMgr);
 		m_hudDlg.SetCallback(OnGUIEvent_s, this);
+
+		// Supports all types of vertex processing, including mixed.
+		DXUTGetD3D9Enumeration()->SetPossibleVertexProcessingList( true, true, true, true );
 
 		int nY = 10;
 		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
