@@ -420,8 +420,6 @@ namespace my
 
 	typedef std::vector<OgreVertexElement> OgreVertexElementList;
 
-	typedef std::vector<D3DXBONECOMBINATION> BoneCombinationList;
-
 	class OgreMesh;
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
@@ -433,10 +431,6 @@ namespace my
 
 	protected:
 		static WORD CalculateD3DDeclTypeSize(int type);
-
-		BoneCombinationList m_boneCombinationList;
-
-		CComPtr<ID3DXSkinInfo> m_skinInfo;
 
 		OgreMesh(ID3DXMesh * pMesh)
 			: Mesh(pMesh)

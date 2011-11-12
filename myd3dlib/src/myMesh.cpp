@@ -469,51 +469,46 @@ namespace my
 			}
 		}
 
-		//typedef std::map<int, std::pair<std::vector<DWORD>, std::vector<float> > > BoneVertexWeigthsMap;
-		//BoneVertexWeigthsMap boneVertexWeightsMap;
-		//if(node_boneassignments != NULL)
-		//{
-		//	DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
-		//	for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
-		//	{
-		//		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
-		//		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(boneindex, vertexboneassignment);
-		//		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(weight, vertexboneassignment);
+		if(node_boneassignments != NULL)
+		{
+			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
+			for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
+			{
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(boneindex, vertexboneassignment);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(weight, vertexboneassignment);
 
-		//		if(vertexindex >= vertexcount)
-		//		{
-		//			THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
-		//		}
+				if(vertexindex >= vertexcount)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				}
 
-		//		if(boneindex >= 0xff)
-		//		{
-		//			THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
-		//		}
+				if(boneindex >= 0xff)
+				{
+					THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				}
 
-		//		unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
-		//		unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
-		//		float * pWeights = (float *)(pVertex + weightsOffset);
+				unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
+				unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
+				float * pWeights = (float *)(pVertex + weightsOffset);
 
-		//		int i = 0;
-		//		for(; i < MAX_BONE_INDICES; i++)
-		//		{
-		//			if(pWeights[i] == 0)
-		//			{
-		//				pIndices[i] = boneindex;
-		//				pWeights[i] = weight;
-		//				break;
-		//			}
-		//		}
+				int i = 0;
+				for(; i < MAX_BONE_INDICES; i++)
+				{
+					if(pWeights[i] == 0)
+					{
+						pIndices[i] = boneindex;
+						pWeights[i] = weight;
+						break;
+					}
+				}
 
-		//		if(i >= MAX_BONE_INDICES)
-		//		{
-		//			THROW_CUSEXCEPTION("too much bone assignment");
-		//		}
-
-		//		//boneVertexWeightsMap[boneindex].first.push_back(vertexindex);
-		//		//boneVertexWeightsMap[boneindex].second.push_back(weight);
-		//	}
-		//}
+				if(i >= MAX_BONE_INDICES)
+				{
+					THROW_CUSEXCEPTION("too much bone assignment");
+				}
+			}
+		}
 		mesh->UnlockVertexBuffer();
 
 		VOID * pIndices = mesh->LockIndexBuffer();
@@ -549,40 +544,6 @@ namespace my
 		}
 		mesh->UnlockAttributeBuffer();
 		mesh->UnlockIndexBuffer();
-
-		//// convert to skined mesh
-		//if(node_boneassignments != NULL)
-		//{
-		//	CComPtr<ID3DXSkinInfo> skinInfo;
-		//	hres = D3DXCreateSkinInfo(vertexcount, (D3DVERTEXELEMENT9 *)&elems[0], boneVertexWeightsMap.size(), &skinInfo);
-		//	if(FAILED(hres))
-		//	{
-		//		THROW_D3DEXCEPTION(hres);
-		//	}
-
-		//	BoneVertexWeigthsMap::const_iterator b_iter = boneVertexWeightsMap.begin();
-		//	for(; b_iter != boneVertexWeightsMap.end(); b_iter++)
-		//	{
-		//		skinInfo->SetBoneInfluence(b_iter->first, b_iter->second.first.size(), &b_iter->second.first[0], &b_iter->second.second[0]);
-		//	}
-
-		//	std::vector<DWORD> rgdwAdjacency(mesh->GetNumFaces() * 3);
-		//	mesh->GenerateAdjacency(1e-6f, &rgdwAdjacency[0]);
-		//	DWORD MaxVertexInfl, NumBoneCombination;
-		//	CComPtr<ID3DXBuffer> BoneCombinationTable;
-		//	LPD3DXMESH pNewMesh;
-		//	hres = skinInfo->ConvertToIndexedBlendedMesh(
-		//		pMesh, dwMeshOptions, 3, &rgdwAdjacency[0], NULL, NULL, NULL, &MaxVertexInfl, &NumBoneCombination, &BoneCombinationTable, &pNewMesh);
-		//	if(FAILED(hres))
-		//	{
-		//		THROW_D3DEXCEPTION(hres);
-		//	}
-
-		//	mesh = OgreMeshPtr(new OgreMesh(pNewMesh));
-		//	mesh->m_skinInfo = skinInfo;
-		//	mesh->m_boneCombinationList.resize(NumBoneCombination);
-		//	memcpy(&mesh->m_boneCombinationList[0], BoneCombinationTable->GetBufferPointer(), sizeof(BoneCombinationList::value_type) * mesh->m_boneCombinationList.size());
-		//}
 
 		return mesh;
 	}
