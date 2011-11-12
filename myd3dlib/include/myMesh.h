@@ -3,95 +3,168 @@
 
 namespace my
 {
-	class VertexElement
+	struct D3DVERTEXELEMENT9Less
 	{
-	protected:
-		WORD Stream;
-		D3DDECLTYPE Type;
-		D3DDECLMETHOD Method;
-		D3DDECLUSAGE Usage;
-		BYTE UsageIndex;
-		WORD ElementSize;
-
-	public:
-		VertexElement(WORD _Stream, D3DDECLTYPE _Type, D3DDECLMETHOD _Method, D3DDECLUSAGE _Usage, BYTE _UsageIndex, WORD _ElementSize)
-			: Stream(_Stream)
-			, Type(_Type)
-			, Method(_Method)
-			, Usage(_Usage)
-			, UsageIndex(_UsageIndex)
-			, ElementSize(_ElementSize)
+		bool operator ()(const D3DVERTEXELEMENT9 & lhs, const D3DVERTEXELEMENT9 & rhs) const
 		{
+			if(lhs.Usage == rhs.Usage)
+			{
+				return lhs.UsageIndex < rhs.UsageIndex;
+			}
+			return lhs.Usage < rhs.Usage;
 		}
+	};
 
-		D3DVERTEXELEMENT9 BuildD3DVertexElement(WORD Offset) const
-		{
-			D3DVERTEXELEMENT9 ret = {Stream, Offset, Type, Method, Usage, UsageIndex};
-			return ret;
-		}
-
-		virtual WORD GetElementSize(void) const
-		{
-			return ElementSize;
-		}
-
+	class D3DVERTEXELEMENT9Set : public std::set<D3DVERTEXELEMENT9, D3DVERTEXELEMENT9Less>
+	{
 	public:
 		typedef Vector3 PositionType;
 
-		static VertexElement CreatePositionElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		static D3DVERTEXELEMENT9 CreatePositionElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
 		{
-			return VertexElement(_Stream, D3DDECLTYPE_FLOAT3, _Method, D3DDECLUSAGE_POSITION, _UsageIndex, sizeof(PositionType));
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_POSITION, UsageIndex};
+			return ret;
+		}
+
+		PositionType & GetPosition(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreatePositionElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(PositionType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetPosition(void * pVertex, const PositionType & Position, BYTE UsageIndex = 0) const
+		{
+			GetPosition(pVertex, UsageIndex) = Position;
 		}
 
 		typedef Vector3 NormalType;
 
-		static VertexElement CreateNormalElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		static D3DVERTEXELEMENT9 CreateNormalElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
 		{
-			return VertexElement(_Stream, D3DDECLTYPE_FLOAT3, _Method, D3DDECLUSAGE_NORMAL, _UsageIndex, sizeof(NormalType));
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_NORMAL, UsageIndex};
+			return ret;
+		}
+
+		NormalType & GetNormal(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreateNormalElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(NormalType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetNormal(void * pVertex, const NormalType & Normal, BYTE UsageIndex = 0) const
+		{
+			GetNormal(pVertex, UsageIndex) = Normal;
 		}
 
 		typedef Vector2 TexcoordType;
 
-		static VertexElement CreateTexcoordElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		static D3DVERTEXELEMENT9 CreateTexcoordElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
 		{
-			return VertexElement(_Stream, D3DDECLTYPE_FLOAT2, _Method, D3DDECLUSAGE_TEXCOORD, _UsageIndex, sizeof(TexcoordType));
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_TEXCOORD, UsageIndex};
+			return ret;
 		}
 
-		typedef unsigned char IndicesType[4];
-
-		static VertexElement CreateIndicesElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		TexcoordType & GetTexcoord(void * pVertex, BYTE UsageIndex = 0) const
 		{
-			return VertexElement(_Stream, D3DDECLTYPE_UBYTE4, _Method, D3DDECLUSAGE_BLENDINDICES, _UsageIndex, sizeof(IndicesType));
+			const_iterator elem_iter = find(CreateTexcoordElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(TexcoordType *)((unsigned char *)pVertex + elem_iter->Offset);
 		}
 
-		typedef float WeightsType[4];
-
-		static VertexElement CreateWeightsElement(WORD _Stream = 0, BYTE _UsageIndex = 0, D3DDECLMETHOD _Method = D3DDECLMETHOD_DEFAULT)
+		void SetTexcoord(void * pVertex, const TexcoordType & Texcoord, BYTE UsageIndex = 0) const
 		{
-			return VertexElement(_Stream, D3DDECLTYPE_FLOAT4, _Method, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex, sizeof(WeightsType));
+			GetTexcoord(pVertex, UsageIndex) = Texcoord;
 		}
-	};
 
-	class VertexElementList : public std::vector<VertexElement>
-	{
+		typedef D3DCOLOR BlendIndicesType;
+
+		static D3DVERTEXELEMENT9 CreateBlendIndicesElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
+		{
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_UBYTE4, Method, D3DDECLUSAGE_BLENDINDICES, UsageIndex};
+			return ret;
+		}
+
+		BlendIndicesType & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreateBlendIndicesElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(BlendIndicesType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetBlendIndices(void * pVertex, const BlendIndicesType & BlendIndices, BYTE UsageIndex = 0) const
+		{
+			GetBlendIndices(pVertex, UsageIndex) = BlendIndices;
+		}
+
+		typedef Vector4 BlendWeightsType;
+
+		static D3DVERTEXELEMENT9 CreateBlendWeightsElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
+		{
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT4, Method, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex};
+			return ret;
+		}
+
+		BlendWeightsType & GetBlendWeights(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreateBlendWeightsElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(BlendWeightsType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetBlendWeights(void * pVertex, const BlendWeightsType & BlendWeights, BYTE UsageIndex = 0) const
+		{
+			GetBlendWeights(pVertex, UsageIndex) = BlendWeights;
+		}
+
+		static WORD CalculateElementUsageSize(BYTE Usage)
+		{
+			switch(Usage)
+			{
+			case D3DDECLUSAGE_POSITION:
+				return sizeof(PositionType);
+
+			case D3DDECLUSAGE_NORMAL:
+				return sizeof(NormalType);
+
+			case D3DDECLUSAGE_TEXCOORD:
+				return sizeof(TexcoordType);
+
+			case D3DDECLUSAGE_BLENDINDICES:
+				return sizeof(BlendIndicesType);
+
+			case D3DDECLUSAGE_BLENDWEIGHT:
+				return sizeof(BlendWeightsType);
+			}
+
+			_ASSERT(false);
+			return 0;
+		}
+
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(void)
+		{
+			std::vector<D3DVERTEXELEMENT9> ret;
+			const_iterator elem_iter = begin();
+			for(; elem_iter != end(); elem_iter++)
+			{
+				ret.push_back(*elem_iter);
+			}
+
+			D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
+			ret.push_back(elem_end);
+			return ret;
+		}
 	};
 
 	class VertexBuffer : public DeviceRelatedObjectBase
 	{
 	public:
-		struct D3DVERTEXELEMENT9Less
-		{
-			bool operator ()(const D3DVERTEXELEMENT9 & lhs, const D3DVERTEXELEMENT9 & rhs) const
-			{
-				if(lhs.Usage == rhs.Usage)
-				{
-					return lhs.UsageIndex < rhs.UsageIndex;
-				}
-				return lhs.Usage < rhs.Usage;
-			}
-		};
-
-		typedef std::set<D3DVERTEXELEMENT9, D3DVERTEXELEMENT9Less> D3DVERTEXELEMENT9Set;
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
@@ -108,7 +181,7 @@ namespace my
 		UINT m_NumVertices;
 
 	public:
-		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const VertexElementList & vertexElemList);
+		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet);
 
 		void OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
@@ -122,15 +195,15 @@ namespace my
 
 		void ResizeVertexBufferLength(UINT NumVertices);
 
-		void SetPosition(int Index, const VertexElement::PositionType & Position, BYTE UsageIndex = 0);
+		void SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
 
-		void SetNormal(int Index, const VertexElement::NormalType & Position, BYTE UsageIndex = 0);
+		void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Position, BYTE UsageIndex = 0);
 
-		void SetTexcoord(int Index, const VertexElement::TexcoordType & Texcoord, BYTE UsageIndex = 0);
+		void SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
 
-		void SetBlendIndices(int Index, int SubIndex, unsigned char BlendIndex, BYTE UsageIndex = 0);
+		void SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
 
-		void SetBlendWeights(int Index, int SubIndex, float BlendWeight, BYTE UsageIndex = 0);
+		void SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
 	};
 
 	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
@@ -430,8 +503,6 @@ namespace my
 		static const int MAX_BONE_INDICES = 4;
 
 	protected:
-		static WORD CalculateD3DDeclTypeSize(int type);
-
 		OgreMesh(ID3DXMesh * pMesh)
 			: Mesh(pMesh)
 		{

@@ -4,32 +4,20 @@
 
 namespace my
 {
-	VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const VertexElementList & vertexElemList)
+	VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet)
 		: m_Device(pDevice)
+		, m_VertexElemSet(VertexElemSet)
 		, m_NumVertices(0)
 	{
-		WORD Offset = 0;
-		std::vector<D3DVERTEXELEMENT9> VEList;
-		VertexElementList::const_iterator vert_elem_iter = vertexElemList.begin();
-		for(; vert_elem_iter != vertexElemList.end(); vert_elem_iter++)
-		{
-			D3DVERTEXELEMENT9 elem = vert_elem_iter->BuildD3DVertexElement(Offset);
-			_ASSERT(m_VertexElemSet.end() == m_VertexElemSet.find(elem));
-
-			m_VertexElemSet.insert(elem);
-			VEList.push_back(elem);
-			Offset += vert_elem_iter->GetElementSize();
-		}
-
-		D3DVERTEXELEMENT9 elem = {0xFF,0,D3DDECLTYPE_UNUSED,0,0,0};
-		VEList.push_back(elem);
+		std::vector<D3DVERTEXELEMENT9> VEList = m_VertexElemSet.BuildVertexElementList();
 		HRESULT hres = m_Device->CreateVertexDeclaration(&VEList[0], &m_VertexDecl);
 		if(FAILED(hres))
 		{
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		m_vertexStride = Offset;
+		D3DVERTEXELEMENT9 & last_elem = *(VEList.end() - 2);
+		m_vertexStride = last_elem.Offset + D3DVERTEXELEMENT9Set::CalculateElementUsageSize(last_elem.Usage);
 	}
 
 	void VertexBuffer::OnD3D9ResetDevice(
@@ -81,58 +69,29 @@ namespace my
 		m_NumVertices = NumVertices;
 	}
 
-	void VertexBuffer::SetPosition(int Index, const VertexElement::PositionType & Position, BYTE UsageIndex /*= 0*/)
+	void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
 	{
-		D3DVERTEXELEMENT9 elem_finder = VertexElement::CreatePositionElement(0, UsageIndex).BuildD3DVertexElement(0);
-		D3DVERTEXELEMENT9Set::const_iterator vert_elem_iter = m_VertexElemSet.find(elem_finder);
-		_ASSERT(m_VertexElemSet.end() != vert_elem_iter);
-
-		unsigned char * pVertex = &m_MemVertexBuffer[Index * m_vertexStride];
-		*(VertexElement::PositionType *)(pVertex + vert_elem_iter->Offset) = Position;
+		m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, UsageIndex);
 	}
 
-	void VertexBuffer::SetNormal(int Index, const VertexElement::NormalType & Normal, BYTE UsageIndex /*= 0*/)
+	void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)
 	{
-		D3DVERTEXELEMENT9 elem_finder = VertexElement::CreateNormalElement(0, UsageIndex).BuildD3DVertexElement(0);
-		D3DVERTEXELEMENT9Set::const_iterator vert_elem_iter = m_VertexElemSet.find(elem_finder);
-		_ASSERT(m_VertexElemSet.end() != vert_elem_iter);
-
-		unsigned char * pVertex = &m_MemVertexBuffer[Index * m_vertexStride];
-		*(VertexElement::NormalType *)(pVertex + vert_elem_iter->Offset) = Normal;
+		m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, UsageIndex);
 	}
 
-	void VertexBuffer::SetTexcoord(int Index, const VertexElement::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
+	void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
 	{
-		D3DVERTEXELEMENT9 elem_finder = VertexElement::CreateTexcoordElement(0, UsageIndex).BuildD3DVertexElement(0);
-		D3DVERTEXELEMENT9Set::const_iterator vert_elem_iter = m_VertexElemSet.find(elem_finder);
-		_ASSERT(m_VertexElemSet.end() != vert_elem_iter);
-
-		unsigned char * pVertex = &m_MemVertexBuffer[Index * m_vertexStride];
-		*(VertexElement::TexcoordType *)(pVertex + vert_elem_iter->Offset) = Texcoord;
+		m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, UsageIndex);
 	}
 
-	void VertexBuffer::SetBlendIndices(int Index, int SubIndex, unsigned char BlendIndex, BYTE UsageIndex /*= 0*/)
+	void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex /*= 0*/)
 	{
-		_ASSERT(SubIndex < 4);
-
-		D3DVERTEXELEMENT9 elem_finder = VertexElement::CreateIndicesElement(0, UsageIndex).BuildD3DVertexElement(0);
-		D3DVERTEXELEMENT9Set::const_iterator vert_elem_iter = m_VertexElemSet.find(elem_finder);
-		_ASSERT(m_VertexElemSet.end() != vert_elem_iter);
-
-		unsigned char * pVertex = &m_MemVertexBuffer[Index * m_vertexStride];
-		((unsigned char *)(pVertex + vert_elem_iter->Offset))[SubIndex] = BlendIndex;
+		m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, UsageIndex);
 	}
 
-	void VertexBuffer::SetBlendWeights(int Index, int SubIndex, float BlendWeight, BYTE UsageIndex /*= 0*/)
+	void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex /*= 0*/)
 	{
-		_ASSERT(SubIndex < 4);
-
-		D3DVERTEXELEMENT9 elem_finder = VertexElement::CreateWeightsElement(0, UsageIndex).BuildD3DVertexElement(0);
-		D3DVERTEXELEMENT9Set::const_iterator vert_elem_iter = m_VertexElemSet.find(elem_finder);
-		_ASSERT(m_VertexElemSet.end() != vert_elem_iter);
-
-		unsigned char * pVertex = &m_MemVertexBuffer[Index * m_vertexStride];
-		((float *)(pVertex + vert_elem_iter->Offset))[SubIndex] = BlendWeight;
+		m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, UsageIndex);
 	}
 
 	IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
@@ -226,50 +185,6 @@ namespace my
 		return MeshPtr(new Mesh(pMesh));
 	}
 
-	WORD OgreMesh::CalculateD3DDeclTypeSize(int type)
-	{
-		switch(type)
-		{
-		case D3DDECLTYPE_FLOAT1:
-			return 1 * sizeof(float);
-		case D3DDECLTYPE_FLOAT2:
-			return 2 * sizeof(float);
-		case D3DDECLTYPE_FLOAT3:
-			return 3 * sizeof(float);
-		case D3DDECLTYPE_FLOAT4:
-			return 4 * sizeof(float);
-		case D3DDECLTYPE_D3DCOLOR:
-			return sizeof(D3DCOLOR); // RGBA ?
-		case D3DDECLTYPE_UBYTE4:
-			return 4 * sizeof(unsigned char);
-		case D3DDECLTYPE_SHORT2:
-			return 2 * sizeof(short);
-		case D3DDECLTYPE_SHORT4:
-			return 4 * sizeof(short);
-		case D3DDECLTYPE_UBYTE4N:
-			return 4 * sizeof(unsigned char);
-		case D3DDECLTYPE_SHORT2N:
-			return 2 * sizeof(short);
-		case D3DDECLTYPE_SHORT4N:
-			return 4 * sizeof(short);
-		case D3DDECLTYPE_USHORT2N:
-			return 2 * sizeof(unsigned short);
-		case D3DDECLTYPE_USHORT4N:
-			return 4 * sizeof(unsigned short);
-		case D3DDECLTYPE_UDEC3:
-			return 3 * sizeof(unsigned short);
-		case D3DDECLTYPE_DEC3N:
-			return 3 * sizeof(short);
-		case D3DDECLTYPE_FLOAT16_2:
-			return sizeof(float);
-		case D3DDECLTYPE_FLOAT16_4:
-			return 2 * sizeof(float);
-			//case D3DDECLTYPE_UNUSED:
-		}
-
-		return 0;
-	}
-
 	OgreMeshPtr OgreMesh::CreateOgreMesh(
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pSrcData,
@@ -304,26 +219,14 @@ namespace my
 			THROW_CUSEXCEPTION("cannot process non-position vertex");
 		}
 
-		OgreVertexElementList elems;
-		elems.push_back(OgreVertexElement::Position(0, 0));
-		int offset = CalculateD3DDeclTypeSize(elems.back().Type);
+		D3DVERTEXELEMENT9Set elems;
+		elems.insert(D3DVERTEXELEMENT9Set::CreatePositionElement(0, 0));
+		WORD offset = sizeof(D3DVERTEXELEMENT9Set::PositionType);
 
 		if(normals)
 		{
-			elems.push_back(OgreVertexElement::Normal(0, offset));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
-		}
-
-		if(colours_diffuse)
-		{
-			elems.push_back(OgreVertexElement::Color(0, offset, 0));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
-		}
-
-		if(colours_specular)
-		{
-			elems.push_back(OgreVertexElement::Color(0, offset, 1));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			elems.insert(D3DVERTEXELEMENT9Set::CreateNormalElement(0, offset));
+			offset += sizeof(D3DVERTEXELEMENT9Set::NormalType);
 		}
 
 		if(texture_coords > MAXBYTE)
@@ -333,24 +236,20 @@ namespace my
 
 		for(int i = 0; i < texture_coords; i++)
 		{
-			elems.push_back(OgreVertexElement::Texcoord(0, offset, i));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			elems.insert(D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, offset, i));
+			offset += sizeof(D3DVERTEXELEMENT9Set::TexcoordType);
 		}
 
 		rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
 		WORD indicesOffset = 0, weightsOffset = 0;
 		if(node_boneassignments != NULL)
 		{
-			indicesOffset = offset;
-			elems.push_back(OgreVertexElement::BlendIndices(0, offset, 0));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendIndicesElement(0, offset));
+			offset += sizeof(D3DVERTEXELEMENT9Set::BlendIndicesType);
 
-			weightsOffset = offset;
-			elems.push_back(OgreVertexElement::BlendWeights(0, offset, 0));
-			offset += CalculateD3DDeclTypeSize(elems.back().Type);
+			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendWeightsElement(0, offset));
+			offset += sizeof(D3DVERTEXELEMENT9Set::BlendWeightsType);
 		}
-
-		elems.push_back(OgreVertexElement::End());
 
 		DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
 		DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
@@ -369,7 +268,7 @@ namespace my
 
 		LPD3DXMESH pMesh = NULL;
 		HRESULT hres = D3DXCreateMesh(
-			facecount, vertexcount, dwMeshOptions, (D3DVERTEXELEMENT9 *)&elems[0], pd3dDevice, &pMesh);
+			facecount, vertexcount, dwMeshOptions, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
 		if(FAILED(hres))
 		{
 			THROW_D3DEXCEPTION(hres);
@@ -382,90 +281,50 @@ namespace my
 		for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
 		{
 			unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * offset;
-			for(size_t elem_i = 0; elem_i < elems.size() - 1; elem_i++)
+			if(positions)
 			{
-				switch(elems[elem_i].Usage)
-				{
-				case D3DDECLUSAGE_POSITION:
-					{
-						DEFINE_XML_NODE_SIMPLE(position, vertex);
-						Vector3 * pPosition = (Vector3 *)(pVertex + elems[elem_i].Offset);
-						float tmp;
-						rapidxml::xml_attribute<char> * attr_tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, x);
-						pPosition->x = tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, y);
-						pPosition->y = tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, z);
-						pPosition->z = -tmp;
-					}
-					break;
+				DEFINE_XML_NODE_SIMPLE(position, vertex);
+				D3DVERTEXELEMENT9Set::PositionType & Position = elems.GetPosition(pVertex);
+				float tmp;
+				rapidxml::xml_attribute<char> * attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, x);
+				Position.x = tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, y);
+				Position.y = tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, z);
+				Position.z = -tmp;
+			}
 
-				case D3DDECLUSAGE_NORMAL:
-					{
-						DEFINE_XML_NODE_SIMPLE(normal, vertex);
-						Vector3 * pNormal = (Vector3 *)(pVertex + elems[elem_i].Offset);
-						float tmp;
-						rapidxml::xml_attribute<char> * attr_tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, x);
-						pNormal->x = tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, y);
-						pNormal->y = tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, z);
-						pNormal->z = -tmp;
-					}
-					break;
+			if(normals)
+			{
+				DEFINE_XML_NODE_SIMPLE(normal, vertex);
+				D3DVERTEXELEMENT9Set::NormalType & Normal = elems.GetNormal(pVertex);
+				float tmp;
+				rapidxml::xml_attribute<char> * attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, x);
+				Normal.x = tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, y);
+				Normal.y = tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, z);
+				Normal.z = -tmp;
+			}
 
-				case D3DDECLUSAGE_COLOR:
-					{
-						if(0 == elems[elem_i].UsageIndex)
-						{
-							DEFINE_XML_NODE_SIMPLE(colour_diffuse, vertex);
-							DEFINE_XML_ATTRIBUTE_SIMPLE(value, colour_diffuse);
-							float r, g, b, a;
-							sscanf_s(attr_value->value(), "%f %f %f %f", &r, &g, &b, &a);
-							DWORD * pColor = (DWORD *)(pVertex + elems[elem_i].Offset);
-							*pColor = D3DCOLOR_RGBA((int)(255 * r), (int)(255 * g), (int)(255 * b), (int)(255 * a));
-						}
-						else if(1 == elems[elem_i].UsageIndex)
-						{
-						}
-					}
-					break;
+			rapidxml::xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
+			for(int i = 0; i < texture_coords && node_texcoord != NULL; i++, node_texcoord = node_texcoord->next_sibling())
+			{
+				D3DVERTEXELEMENT9Set::TexcoordType & Texcoord = elems.GetTexcoord(pVertex, i);
+				float tmp;
+				rapidxml::xml_attribute<char> * attr_tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, u);
+				Texcoord.x = tmp;
+				DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, v);
+				Texcoord.y = tmp;
+			}
 
-				case D3DDECLUSAGE_TEXCOORD:
-					{
-						DEFINE_XML_NODE_SIMPLE(texcoord, vertex);
-						Vector2 * pTexcoord = (Vector2 *)(pVertex + elems[elem_i].Offset);
-						float tmp;
-						rapidxml::xml_attribute<char> * attr_tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, u);
-						pTexcoord->x = tmp;
-						DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, v);
-						pTexcoord->y = tmp;
-					}
-					break;
-
-				case D3DDECLUSAGE_BLENDINDICES:
-					{
-						unsigned char * pIndices = (unsigned char *)(pVertex + elems[elem_i].Offset);
-						pIndices[0] = 0;
-						pIndices[1] = 0;
-						pIndices[2] = 0;
-						pIndices[3] = 0;
-					}
-					break;
-
-				case D3DDECLUSAGE_BLENDWEIGHT:
-					{
-						float * pWeights = (float *)(pVertex + elems[elem_i].Offset);
-						pWeights[0] = 0;
-						pWeights[1] = 0;
-						pWeights[2] = 0;
-						pWeights[3] = 0;
-					}
-					break;
-				}
+			if(node_boneassignments != NULL)
+			{
+				elems.SetBlendIndices(pVertex, D3DCOLOR_ARGB(0, 0, 0, 0));
+				elems.SetBlendWeights(pVertex, Vector4::zero);
 			}
 		}
 
@@ -489,8 +348,8 @@ namespace my
 				}
 
 				unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
-				unsigned char * pIndices = (unsigned char *)(pVertex + indicesOffset);
-				float * pWeights = (float *)(pVertex + weightsOffset);
+				unsigned char * pIndices = (unsigned char *)&elems.GetBlendIndices(pVertex);
+				float * pWeights = (float *)&elems.GetBlendWeights(pVertex);
 
 				int i = 0;
 				for(; i < MAX_BONE_INDICES; i++)
