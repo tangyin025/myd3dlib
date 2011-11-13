@@ -160,7 +160,7 @@ namespace my
 				y + s * (rhs.y - y));
 		}
 
-		Vector2 lerpSelf(const Vector2 & rhs, float s)
+		Vector2 & lerpSelf(const Vector2 & rhs, float s)
 		{
 			x = x + s * (rhs.x - x);
 			y = y + s * (rhs.y - y);
@@ -242,7 +242,7 @@ namespace my
 				max(b, rhs.b));
 		}
 
-		Rectangle unionSelf(const Rectangle & rhs)
+		Rectangle & unionSelf(const Rectangle & rhs)
 		{
 			l = min(l, rhs.l);
 			t = min(t, rhs.t);
@@ -692,7 +692,7 @@ namespace my
 				z + s * (rhs.z - z));
 		}
 
-		Vector3 lerpSelf(const Vector3 & rhs, float s)
+		Vector3 & lerpSelf(const Vector3 & rhs, float s)
 		{
 			x = x + s * (rhs.x - x);
 			y = y + s * (rhs.y - y);
@@ -903,7 +903,7 @@ namespace my
 				w + s * (rhs.w - w));
 		}
 
-		Vector4 lerpSelf(const Vector4 & rhs, float s)
+		Vector4 & lerpSelf(const Vector4 & rhs, float s)
 		{
 			x = x + s * (rhs.x - x);
 			y = y + s * (rhs.y - y);
@@ -1169,6 +1169,24 @@ namespace my
 			return ret;
 		}
 
+		Quaternion lerp(const Quaternion & rhs, float t) const
+		{
+			return Quaternion(
+				x + t * (rhs.x - x),
+				y + t * (rhs.y - y),
+				z + t * (rhs.z - z),
+				w + t * (rhs.w - w));
+		}
+
+		Quaternion & lerpSelf(const Quaternion & rhs, float t)
+		{
+			x = x + t * (rhs.x - x);
+			y = y + t * (rhs.y - y);
+			z = z + t * (rhs.z - z);
+			w = w + t * (rhs.w - w);
+			return *this;
+		}
+
 		Quaternion slerp(const Quaternion & rhs, float t) const
 		{
 			Quaternion ret;
@@ -1176,7 +1194,7 @@ namespace my
 			return ret;
 		}
 
-		Quaternion slerpSelf(const Quaternion & rhs, float t)
+		Quaternion & slerpSelf(const Quaternion & rhs, float t)
 		{
 			D3DXQuaternionSlerp((D3DXQUATERNION *)this, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&rhs, t);
 			return *this;
@@ -1187,6 +1205,12 @@ namespace my
 			Quaternion ret;
 			D3DXQuaternionSquad((D3DXQUATERNION *)&ret, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&a, (D3DXQUATERNION *)&b, (D3DXQUATERNION *)&c, t);
 			return ret;
+		}
+
+		Quaternion & squadSelf(const Quaternion & a, const Quaternion & b, const Quaternion & c, float t)
+		{
+			D3DXQuaternionSquad((D3DXQUATERNION *)this, (D3DXQUATERNION *)this, (D3DXQUATERNION *)&a, (D3DXQUATERNION *)&b, (D3DXQUATERNION *)&c, t);
+			return *this;
 		}
 
 		void ToAxisAngle(Vector3 & outAxis, float & outAngle) const
@@ -1723,6 +1747,12 @@ namespace my
 
 		static Matrix4 RotationQuaternion(const Quaternion & q)
 		{
+			//return Matrix4(
+			//	1 - 2 * (q.y * q.y + q.z * q.z), 2 * (q.x * q.y + q.w * q.z), 2 * (q.x * q.z - q.w * q.y), 0,
+			//	2 * (q.x * q.y - q.w * q.z), 1 - 2 * (q.x * q.x + q.z * q.z), 2 * (q.y * q.z + q.w * q.x), 0,
+			//	2 * (q.x * q.z + q.w * q.y), 2 * (q.y * q.z - q.w * q.x), 1 - 2 * (q.x * q.x + q.y * q.y), 0,
+			//	0, 0, 0, 1);
+
 			Matrix4 ret;
 			D3DXMatrixRotationQuaternion((D3DXMATRIX *)&ret, (D3DXQUATERNION *)&q);
 			return ret;
@@ -1770,30 +1800,30 @@ namespace my
 			const Quaternion & rotation,
 			const Vector3 & translation)
 		{
-			Matrix4 msc(Matrix4::Translation(scalingCenter));
-			Matrix4 msr(Matrix4::RotationQuaternion(scalingRotation));
-			Matrix4 mrc(Matrix4::Translation(rotationCenter));
+			//Matrix4 msc(Matrix4::Translation(scalingCenter));
+			//Matrix4 msr(Matrix4::RotationQuaternion(scalingRotation));
+			//Matrix4 mrc(Matrix4::Translation(rotationCenter));
 
-			return msc.inverse()
-				* msr.inverse()
-				* Scaling(scaling)
-				* msr
-				* msc
-				* mrc.inverse()
-				* RotationQuaternion(rotation)
-				* mrc
-				* Translation(translation);
+			//return msc.inverse()
+			//	* msr.inverse()
+			//	* Scaling(scaling)
+			//	* msr
+			//	* msc
+			//	* mrc.inverse()
+			//	* RotationQuaternion(rotation)
+			//	* mrc
+			//	* Translation(translation);
 
-			//Matrix4 ret;
-			//D3DXMatrixTransformation(
-			//	(D3DXMATRIX *)&ret,
-			//	(D3DXVECTOR3 *)&scalingCenter,
-			//	(D3DXQUATERNION *)&scalingRotation,
-			//	(D3DXVECTOR3 *)&scaling,
-			//	(D3DXVECTOR3 *)&rotationCenter,
-			//	(D3DXQUATERNION *)&rotation,
-			//	(D3DXVECTOR3 *)&translation);
-			//return ret;
+			Matrix4 ret;
+			D3DXMatrixTransformation(
+				(D3DXMATRIX *)&ret,
+				(D3DXVECTOR3 *)&scalingCenter,
+				(D3DXQUATERNION *)&scalingRotation,
+				(D3DXVECTOR3 *)&scaling,
+				(D3DXVECTOR3 *)&rotationCenter,
+				(D3DXQUATERNION *)&rotation,
+				(D3DXVECTOR3 *)&translation);
+			return ret;
 		}
 
 		static Matrix4 Transformation2D(
