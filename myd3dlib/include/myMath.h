@@ -1082,6 +1082,20 @@ namespace my
 		}
 
 	public:
+		Quaternion conjugate(void) const
+		{
+			return Quaternion(-x, -y, -z, -w);
+		}
+
+		Quaternion & conjugateSelf(void)
+		{
+			x = -x;
+			y = -y;
+			z = -z;
+			w = -w;
+			return *this;
+		}
+
 		float dot(const Quaternion & rhs) const
 		{
 			return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
