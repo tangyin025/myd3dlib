@@ -165,6 +165,16 @@ namespace my
 			, m_time(time)
 		{
 		}
+
+		void SetTime(float time)
+		{
+			m_time = time;
+		}
+
+		float GetTime(void) const
+		{
+			return m_time;
+		}
 	};
 
 	class BoneTrack : public std::vector<BoneKeyframe>
@@ -187,6 +197,22 @@ namespace my
 	{
 	public:
 		float m_time;
+
+	public:
+		OgreAnimation(void)
+			: m_time(0)
+		{
+		}
+
+		void SetTime(float time)
+		{
+			m_time = time;
+		}
+
+		float GetTime(void) const
+		{
+			return m_time;
+		}
 	};
 
 	class OgreSkeleton
@@ -198,7 +224,12 @@ namespace my
 
 		BoneHierarchy m_boneHierarchy;
 
-		int GetBoneIndex(const std::string & bone_name) const;
+		int GetBoneIndex(const std::string & bone_name) const
+		{
+			_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
+
+			return m_boneNameMap.find(bone_name)->second;
+		}
 
 	public:
 		OgreSkeleton(void)
@@ -220,9 +251,17 @@ namespace my
 	public:
 		std::map<std::string, OgreAnimation> m_animationMap;
 
-		const OgreAnimation & GetAnimation(const std::string & anim_name) const;
+		const OgreAnimation & GetAnimation(const std::string & anim_name) const
+		{
+			_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
 
-		BoneList & BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const;
+			return m_animationMap.find(anim_name)->second;
+		}
+
+		BoneList & BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const
+		{
+			return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, GetBoneIndex(bone_name), time);
+		}
 
 	public:
 		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimation(

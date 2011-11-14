@@ -282,25 +282,6 @@ namespace my
 		return boneList;
 	}
 
-	int OgreSkeleton::GetBoneIndex(const std::string & bone_name) const
-	{
-		_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
-
-		return m_boneNameMap.find(bone_name)->second;
-	}
-
-	const OgreAnimation & OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
-	{
-		_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
-
-		return m_animationMap.find(anim_name)->second;
-	}
-
-	BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const
-	{
-		return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, GetBoneIndex(bone_name), time);
-	}
-
 	OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		LPCSTR pSrcData,
 		UINT srcDataLen)

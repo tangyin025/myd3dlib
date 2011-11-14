@@ -1084,7 +1084,7 @@ namespace my
 	public:
 		Quaternion conjugate(void) const
 		{
-			return Quaternion(-x, -y, -z, -w);
+			return Quaternion(-x, -y, -z, w);
 		}
 
 		Quaternion & conjugateSelf(void)
@@ -1092,7 +1092,6 @@ namespace my
 			x = -x;
 			y = -y;
 			z = -z;
-			w = -w;
 			return *this;
 		}
 
@@ -1175,7 +1174,7 @@ namespace my
 				x + t * (rhs.x - x),
 				y + t * (rhs.y - y),
 				z + t * (rhs.z - z),
-				w + t * (rhs.w - w));
+				w + t * (rhs.w - w)).normalize();
 		}
 
 		Quaternion & lerpSelf(const Quaternion & rhs, float t)
@@ -1184,7 +1183,7 @@ namespace my
 			y = y + t * (rhs.y - y);
 			z = z + t * (rhs.z - z);
 			w = w + t * (rhs.w - w);
-			return *this;
+			return this->normalizeSelf();
 		}
 
 		Quaternion slerp(const Quaternion & rhs, float t) const
