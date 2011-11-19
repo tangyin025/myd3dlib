@@ -4,38 +4,6 @@
 
 namespace my
 {
-	void BoneHierarchy::InsertSibling(int root_i, int sibling_i)
-	{
-		_ASSERT(root_i >= 0 && root_i < (int)size());
-		_ASSERT(sibling_i >= 0 && sibling_i < (int)size());
-
-		reference node = operator[](root_i);
-		if(node.m_sibling >= 0)
-		{
-			InsertSibling(node.m_sibling, sibling_i);
-		}
-		else
-		{
-			node.m_sibling = sibling_i;
-		}
-	}
-
-	void BoneHierarchy::InsertChild(int root_i, int child_i)
-	{
-		_ASSERT(root_i >= 0 && root_i < (int)size());
-		_ASSERT(child_i >= 0 && child_i < (int)size());
-
-		reference node = operator[](root_i);
-		if(node.m_child >= 0)
-		{
-			InsertSibling(node.m_child, child_i);
-		}
-		else
-		{
-			node.m_child = child_i;
-		}
-	}
-
 	TransformList & TransformList::Transform(
 		TransformList & hierarchyTransformList,
 		const TransformList & rhs,
