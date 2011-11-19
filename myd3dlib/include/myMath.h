@@ -7,6 +7,8 @@ namespace my
 {
 	class Vector4;
 
+	class Quaternion;
+
 	class Matrix4;
 
 	class Vector2
@@ -716,6 +718,8 @@ namespace my
 			return *this;
 		}
 
+		Vector3 transform(const Quaternion & q) const;
+
 		Vector4 transform(const Matrix4 & m) const;
 
 	public:
@@ -1107,9 +1111,7 @@ namespace my
 
 		Quaternion inverse(void) const
 		{
-			float invNorm = 1 / dot(*this);
-
-			return Quaternion(-x * invNorm, -y * invNorm, -z * invNorm, w * invNorm);
+			return conjugate() / dot(*this);
 		}
 
 		float length(void) const
@@ -1964,6 +1966,13 @@ namespace my
 	inline Vector4 Vector2::transform(const Matrix4 & m) const
 	{
 		return Vector4(x, y, 0, 1).transform(m);
+	}
+
+	inline Vector3 Vector3::transform(const Quaternion & q) const
+	{
+		Quaternion ret(q.conjugate() * Quaternion(x, y, z, 0) * q);
+
+		return Vector3(ret.x, ret.y, ret.z);
 	}
 
 	inline Vector4 Vector3::transform(const Matrix4 & m) const

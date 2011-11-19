@@ -29,32 +29,22 @@ namespace my
 	class Bone
 	{
 	public:
-		Vector3 m_position;
-
 		Quaternion m_rotation;
+
+		Vector3 m_position;
 
 	public:
 		Bone(void)
 		{
 		}
 
-		Bone(const Vector3 & position, const Quaternion & rotation)
-			: m_position(position)
-			, m_rotation(rotation)
+		Bone(const Quaternion & rotation, const Vector3 & position)
+			: m_rotation(rotation)
+			, m_position(position)
 		{
 		}
 
 	public:
-		void SetPosition(const Vector3 & position)
-		{
-			m_position = position;
-		}
-
-		const Vector3 & GetPosition(void) const
-		{
-			return m_position;
-		}
-
 		void SetRotation(const Quaternion & rotation)
 		{
 			m_rotation = rotation;
@@ -65,48 +55,66 @@ namespace my
 			return m_rotation;
 		}
 
+		void SetPosition(const Vector3 & position)
+		{
+			m_position = position;
+		}
+
+		const Vector3 & GetPosition(void) const
+		{
+			return m_position;
+		}
+
 		Bone Increment(const Bone & rhs) const
 		{
 			return Bone(
-				m_position + rhs.m_position,
-				m_rotation * rhs.m_rotation);
+				m_rotation * rhs.m_rotation,
+				m_position + rhs.m_position);
 		}
 
 		Bone IncrementSelf(const Bone & rhs)
 		{
-			m_position += rhs.m_position;
 			m_rotation *= rhs.m_rotation;
+			m_position += rhs.m_position;
 			return *this;
 		}
 
 		Bone Lerp(const Bone & rhs, float t) const
 		{
 			return Bone(
-				m_position.lerp(rhs.m_position, t),
-				m_rotation.slerp(rhs.m_rotation, t));
+				m_rotation.slerp(rhs.m_rotation, t),
+				m_position.lerp(rhs.m_position, t));
 		}
 
 		Bone LerpSelf(const Bone & rhs, float t)
 		{
-			m_position.lerpSelf(rhs.m_position, t);
 			m_rotation.slerpSelf(rhs.m_rotation, t);
+			m_position.lerpSelf(rhs.m_position, t);
 			return *this;
 		}
 	};
 
-	class BoneTransformList : public std::vector<Matrix4>
+	class TransformList : public std::vector<Matrix4>
 	{
 	public:
-		BoneTransformList & Transform(
-			BoneTransformList & boneTransformList,
-			const BoneTransformList & rhs,
+		TransformList & Transform(
+			TransformList & hierarchyTransformList,
+			const TransformList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i) const;
 
-		BoneTransformList & TransformSelf(
-			const BoneTransformList & rhs,
+		TransformList & TransformSelf(
+			const TransformList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i);
+	};
+
+	class HierarchyBoneList : public std::vector<Bone>
+	{
+	public:
+		TransformList & BuildTransformList(TransformList & transformList) const;
+
+		TransformList & BuildInverseTransformList(TransformList & inverseTransformList) const;
 	};
 
 	class BoneList : public std::vector<Bone>
@@ -136,14 +144,21 @@ namespace my
 			int root_i,
 			float t);
 
-		BoneTransformList & BuildBoneTransformList(
-			BoneTransformList & boneTransformList,
+		HierarchyBoneList & BuildHierarchyBoneList(
+			HierarchyBoneList & hierarchyBoneList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
+			const Vector3 & rootPosition = Vector3::zero);
+
+		TransformList & BuildHierarchyTransformList(
+			TransformList & hierarchyTransformList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Matrix4 & rootTransform = Matrix4::identity);
 
-		BoneTransformList & BuildInverseBoneTransformList(
-			BoneTransformList & boneTransformList,
+		TransformList & BuildInverseHierarchyTransformList(
+			TransformList & inverseHierarchyTransformList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Matrix4 & inverseRootTransform = Matrix4::identity);
@@ -160,8 +175,8 @@ namespace my
 		{
 		}
 
-		BoneKeyframe(const Vector3 & position, const Quaternion & rotation, float time)
-			: Bone(position, rotation)
+		BoneKeyframe(const Quaternion & rotation, const Vector3 & position, float time)
+			: Bone(rotation, position)
 			, m_time(time)
 		{
 		}
@@ -258,9 +273,9 @@ namespace my
 			return m_animationMap.find(anim_name)->second;
 		}
 
-		BoneList & BuildAnimationPose(BoneList & pose, const std::string & bone_name, const std::string & anim_name, float time) const
+		BoneList & BuildAnimationPose(BoneList & pose, int root_i, const std::string & anim_name, float time) const
 		{
-			return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, GetBoneIndex(bone_name), time);
+			return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, root_i, time);
 		}
 
 	public:

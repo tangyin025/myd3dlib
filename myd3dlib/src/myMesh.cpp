@@ -261,9 +261,9 @@ namespace my
 			facecount += count;
 		}
 
-		if(dwMeshOptions & ~D3DXMESH_32BIT && facecount >= 65535)
+		if((dwMeshOptions & ~D3DXMESH_32BIT) && facecount >= USHRT_MAX)
 		{
-			THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
+			THROW_CUSEXCEPTION("facecount overflow ( >= 2^16 - 1 )");
 		}
 
 		LPD3DXMESH pMesh = NULL;
