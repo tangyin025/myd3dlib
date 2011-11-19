@@ -109,14 +109,6 @@ namespace my
 			int root_i);
 	};
 
-	class HierarchyBoneList : public std::vector<Bone>
-	{
-	public:
-		TransformList & BuildTransformList(TransformList & transformList) const;
-
-		TransformList & BuildInverseTransformList(TransformList & inverseTransformList) const;
-	};
-
 	class BoneList : public std::vector<Bone>
 	{
 	public:
@@ -144,12 +136,25 @@ namespace my
 			int root_i,
 			float t);
 
-		HierarchyBoneList & BuildHierarchyBoneList(
-			HierarchyBoneList & hierarchyBoneList,
+		BoneList & BuildHierarchyBoneList(
+			BoneList & hierarchyBoneList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
 			const Vector3 & rootPosition = Vector3::zero);
+
+		//BoneList & BuildInverseHierarchyBoneList(
+		//	BoneList & inverseHierarchyBoneList,
+		//	const BoneHierarchy & boneHierarchy,
+		//	int root_i,
+		//	const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
+		//	const Vector3 & inverseRootPosition = Vector3::zero);
+
+		TransformList & BuildTransformList(
+			TransformList & transformList) const;
+
+		TransformList & BuildInverseTransformList(
+			TransformList & inverseTransformList) const;
 
 		TransformList & BuildHierarchyTransformList(
 			TransformList & hierarchyTransformList,
