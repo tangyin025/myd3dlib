@@ -171,15 +171,18 @@ namespace my
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
 			const Vector3 & rootPosition = Vector3::zero);
 
-		//BoneList & BuildInverseHierarchyBoneList(
-		//	BoneList & inverseHierarchyBoneList,
-		//	const BoneHierarchy & boneHierarchy,
-		//	int root_i,
-		//	const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
-		//	const Vector3 & inverseRootPosition = Vector3::zero);
+		BoneList & BuildInverseHierarchyBoneList(
+			BoneList & inverseHierarchyBoneList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
+			const Vector3 & inverseRootPosition = Vector3::zero);
 
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;
+
+		TransformList & BuildTransformListTF(
+			TransformList & inverseTransformList) const;
 
 		TransformList & BuildInverseTransformList(
 			TransformList & inverseTransformList) const;
