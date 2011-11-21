@@ -120,6 +120,16 @@ namespace my
 			m_position.lerpSelf(rhs.m_position, t);
 			return *this;
 		}
+
+		Matrix4 BuildTransform(void) const
+		{
+			return Matrix4::RotationQuaternion(m_rotation) * Matrix4::Translation(m_position);
+		}
+
+		Matrix4 BuildInverseTransform(void) const
+		{
+			return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
+		}
 	};
 
 	class TransformList : public std::vector<Matrix4>
@@ -171,21 +181,25 @@ namespace my
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
 			const Vector3 & rootPosition = Vector3::zero);
 
-		BoneList & BuildInverseHierarchyBoneList(
-			BoneList & inverseHierarchyBoneList,
-			const BoneHierarchy & boneHierarchy,
-			int root_i,
-			const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
-			const Vector3 & inverseRootPosition = Vector3::zero);
+		//BoneList & BuildInverseHierarchyBoneList(
+		//	BoneList & inverseHierarchyBoneList,
+		//	const BoneHierarchy & boneHierarchy,
+		//	int root_i,
+		//	const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
+		//	const Vector3 & inverseRootPosition = Vector3::zero);
 
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;
 
-		TransformList & BuildTransformListTF(
-			TransformList & inverseTransformList) const;
+		//TransformList & BuildTransformListTF(
+		//	TransformList & inverseTransformList) const;
 
 		TransformList & BuildInverseTransformList(
 			TransformList & inverseTransformList) const;
+
+		TransformList & BuildDualQuaternionList(
+			TransformList & dualQuaternionList,
+			const BoneList & rhs) const;
 
 		TransformList & BuildHierarchyTransformList(
 			TransformList & hierarchyTransformList,
