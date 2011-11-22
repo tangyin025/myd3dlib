@@ -13,17 +13,74 @@ protected:
 
 	my::EffectPtr m_effect;
 
-	my::OgreSkeletonAnimationPtr m_skeleton;
-
 	my::MeshPtr m_mesh;
 
 	my::TexturePtr m_texture;
 
-	static const unsigned int SHADOWMAP_SIZE = 1024;
+	my::OgreSkeletonAnimationPtr m_skeleton;
 
-	my::TexturePtr m_shadowMapRT;
+	my::BoneList m_animPose;
 
-	my::SurfacePtr m_shadowMapDS;
+	my::BoneList m_incrementedPose;
+
+	my::BoneList m_hierarchyBoneList;
+
+	my::BoneList m_hierarchyBoneList2;
+
+	my::TransformList m_inverseTransformList;
+
+	my::TransformList m_TransformList;
+
+	my::TransformList m_dualQuaternionList;
+
+	class AnimationTimeMgr
+	{
+	public:
+		float m_time;
+
+		std::string m_anim;
+
+		typedef std::map<std::string, std::pair<float, std::string> > AnimTimeMap;
+
+		AnimTimeMap m_animTime;
+
+		AnimationTimeMgr(void)
+			: m_time(0)
+		{
+		}
+
+		void SetAnimationTime(const std::string & anim, float time, const std::string & next_anim)
+		{
+			//_ASSERT(m_animTime.end() == m_animTime.find(anim));
+
+			m_animTime[anim] = std::make_pair(time, next_anim);
+
+			if(m_anim.empty())
+			{
+				m_anim = anim;
+			}
+		}
+
+		void AddAnimationTime(float fElapsedTime)
+		{
+			AnimTimeMap::const_iterator anim_time_iter = m_animTime.find(m_anim);
+			_ASSERT(m_animTime.end() != anim_time_iter);
+
+			float time = m_time + fElapsedTime;
+			if(time < anim_time_iter->second.first)
+			{
+				m_time = time;
+			}
+			else
+			{
+				m_anim = anim_time_iter->second.second;
+				m_time = 0;
+				AddAnimationTime(time - anim_time_iter->second.first);
+			}
+		}
+	};
+
+	AnimationTimeMgr m_animTimeMgr;
 
 	HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -44,23 +101,30 @@ protected:
 
 		// 读取D3DX Effect文件
 		my::CachePtr cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("SimpleSample.fx"));
+			my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh.fx"));
 		m_effect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
+
+		// 读取模型文件
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
+		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size(), D3DXMESH_MANAGED);
+
+		// 创建贴图
+		cache = my::ReadWholeCacheFromStream(
+			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg"));
+		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 读取骨骼动画
 		cache = my::ReadWholeCacheFromStream(
 			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml"));
 		m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
 
-		// 读取模型文件
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
-		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size());
+		// 初始化动画控制器
+		m_animTimeMgr.SetAnimationTime("clip1", m_skeleton->GetAnimation("clip1").m_time, "clip2");
+		m_animTimeMgr.SetAnimationTime("clip2", m_skeleton->GetAnimation("clip1").m_time, "clip1");
 
-		// 创建贴图
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg"));
-		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+		D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE];
+		m_mesh->GetDeclaration(Declaration);
 
 		return S_OK;
 	}
@@ -81,34 +145,12 @@ protected:
 		m_camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
 		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
-		// 创建用于shadow map的render target，使用D3DXCreateTexture可以为不支持设备创建兼容贴图
-		m_shadowMapRT = my::Texture::CreateAdjustedTexture(
-			pd3dDevice,
-			SHADOWMAP_SIZE,
-			SHADOWMAP_SIZE,
-			1,
-			D3DUSAGE_RENDERTARGET,
-			D3DFMT_R32F,
-			D3DPOOL_DEFAULT);
-
-		// 创建用于shadow map的depth scentil
-		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
-		m_shadowMapDS = my::Surface::CreateDepthStencilSurface(
-			pd3dDevice,
-			SHADOWMAP_SIZE,
-			SHADOWMAP_SIZE,
-			d3dSettings.d3d9.pp.AutoDepthStencilFormat);
-
 		return S_OK;
 	}
 
 	void OnD3D9LostDevice(void)
 	{
 		DxutSample::OnD3D9LostDevice();
-
-		// 在这里处理在reset中创建的资源
-		m_shadowMapRT = my::TexturePtr();
-		m_shadowMapDS = my::SurfacePtr();
 	}
 
 	void OnD3D9DestroyDevice(void)
@@ -124,6 +166,56 @@ protected:
 
 		// 在这里更新场景
 		m_camera.FrameMove(fElapsedTime);
+
+		// 获取骨骼动画的某一帧
+		//float time = (float)DXUTGetTime();
+		//time = fmod(time, m_skeleton->GetAnimation("clip1").m_time);
+		m_animTimeMgr.AddAnimationTime(fElapsedTime);
+		int root_i = m_skeleton->GetBoneIndex("jack_loBackA");
+		m_animPose.clear();
+		m_animPose.resize(m_skeleton->m_boneBindPose.size());
+		m_skeleton->BuildAnimationPose(m_animPose, root_i, m_animTimeMgr.m_anim, m_animTimeMgr.m_time);
+
+		// 将动画和绑定动作叠加
+		m_incrementedPose.clear();
+		m_incrementedPose.resize(m_skeleton->m_boneBindPose.size());
+		m_animPose.Increment(
+			m_incrementedPose, m_skeleton->m_boneBindPose, m_skeleton->m_boneHierarchy, root_i);
+
+		// 计算绑定动作的逆变换
+		m_hierarchyBoneList.clear();
+		m_hierarchyBoneList.resize(m_skeleton->m_boneBindPose.size());
+		m_inverseTransformList.clear();
+		m_inverseTransformList.resize(m_skeleton->m_boneBindPose.size());
+		//m_skeleton->m_boneBindPose.BuildInverseHierarchyTransformList(
+		//	m_inverseTransformList, m_skeleton->m_boneHierarchy, root_i, my::Matrix4::identity);
+		m_skeleton->m_boneBindPose.BuildHierarchyBoneList(
+			m_hierarchyBoneList, m_skeleton->m_boneHierarchy, root_i);
+		//m_hierarchyBoneList.BuildInverseTransformList(m_inverseTransformList);
+
+		// 计算目标动画的正变换，注意，还要加上world空间变换
+		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
+		my::Vector3 camPos, camScale; my::Quaternion camRot;
+		mWorld.Decompose(camScale, camRot, camPos);
+		m_hierarchyBoneList2.clear();
+		m_hierarchyBoneList2.resize(m_skeleton->m_boneBindPose.size());
+		m_TransformList.clear();
+		m_TransformList.resize(m_skeleton->m_boneBindPose.size());
+		//m_incrementedPose.BuildHierarchyTransformList(
+		//	m_TransformList, m_skeleton->m_boneHierarchy, root_i, mWorld);
+		m_incrementedPose.BuildHierarchyBoneList(
+			m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i, camRot, camPos);
+		//m_hierarchyBoneList2.BuildTransformList(m_TransformList);
+
+		// 合并所有的顶点变换，把结果保存到 m_inverseTransformList
+		//m_inverseTransformList.TransformSelf(
+		//	m_TransformList, m_skeleton->m_boneHierarchy, root_i);
+		//m_hierarchyBoneList.IncrementSelf(
+		//	m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i).BuildTransformList(m_inverseTransformList);
+		m_dualQuaternionList.clear();
+		m_dualQuaternionList.resize(m_skeleton->m_boneBindPose.size());
+		m_hierarchyBoneList.BuildDualQuaternionList(
+			m_dualQuaternionList, m_hierarchyBoneList2);
 	}
 
 	void OnRender(
@@ -135,53 +227,8 @@ protected:
 		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
 		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
 		my::Matrix4 mView = *(my::Matrix4 *)m_camera.GetViewMatrix();
-		my::Matrix4 mWorldViewProjection = mWorld * mView * mProj;
-
-		// 计算光照的透视变换
-		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
-			my::Vector3(0.0f, 0.0f, -50.0f),
-			my::Vector3(0.0f, 0.0f, 0.0f),
-			my::Vector3(0.0f, 1.0f, 0.0f)));
-		my::Matrix4 mProjLight(my::Matrix4::OrthoLH(50, 50, 25, 75));
-		my::Matrix4 mWorldViewProjLight = mWorld * mViewLight * mProjLight;
-
-		// 将shadow map作为render target，注意保存恢复原来的render target
-		HRESULT hr;
-		CComPtr<IDirect3DSurface9> oldRt;
-		V(pd3dDevice->GetRenderTarget(0, &oldRt));
-		V(pd3dDevice->SetRenderTarget(0, m_shadowMapRT->GetSurfaceLevel(0)));
-		CComPtr<IDirect3DSurface9> oldDs = NULL;
-		V(pd3dDevice->GetDepthStencilSurface(&oldDs));
-		V(pd3dDevice->SetDepthStencilSurface(m_shadowMapDS->m_ptr));
-		V(pd3dDevice->Clear(
-			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			// 更新d3dx effect变量
-			m_effect->SetMatrix("g_mWorldViewProjectionLight", mWorldViewProjLight);
-			m_effect->SetTechnique("RenderShadow");
-
-			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
-			UINT cPasses = m_effect->Begin();
-			for(UINT p = 0; p < cPasses; ++p)
-			{
-				m_effect->BeginPass(p);
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-				m_mesh->DrawSubset(1);
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-				m_mesh->DrawSubset(0);
-				m_effect->EndPass();
-			}
-			m_effect->End();
-
-			V(pd3dDevice->EndScene());
-		}
-
-		// 注意恢复原来的render target
-		V(pd3dDevice->SetRenderTarget(0, oldRt));
-		V(pd3dDevice->SetDepthStencilSurface(oldDs));
-		oldRt.Release();
-		oldDs.Release();
+		my::Matrix4 mViewProj = mView * mProj;
+		my::Matrix4 mWorldViewProjection = mWorld * mViewProj;
 
 		// 清理缓存背景及depth stencil
 		V(pd3dDevice->Clear(
@@ -201,12 +248,13 @@ protected:
 			m_effect->SetFloatArray("g_LightDir", (float *)&my::Vector3(0.0f, 0.0f, 1.0f), 3);
 			m_effect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			// 设置阴影贴图，及光源变换
-			m_effect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);
-			m_effect->SetMatrix("g_mWorldViewProjectionLight", mWorldViewProjLight);
-			m_effect->SetTechnique("RenderScene");
+			// 初始化骨骼变换列表
+			//m_effect->SetMatrixArray("mWorldMatrixArray", &m_inverseTransformList[0], m_inverseTransformList.size());
+			m_effect->SetMatrixArray("g_dualquat", &m_dualQuaternionList[0], m_dualQuaternionList.size());
+			m_effect->SetMatrix("mViewProj", mViewProj);
 
 			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+			m_effect->SetTechnique("RenderScene");
 			UINT cPasses = m_effect->Begin();
 			for(UINT p = 0; p < cPasses; ++p)
 			{
@@ -258,8 +306,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 
 	// 初始化资源管理器收索路径
 	my::ResourceMgr::getSingleton().RegisterFileDir(".");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_1");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_2");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("Data.zip");
+	my::ResourceMgr::getSingleton().RegisterFileDir("data.zip");
 
 	return MyDemo().Run(true, 800, 600);
 }

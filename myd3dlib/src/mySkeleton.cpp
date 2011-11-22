@@ -460,7 +460,6 @@ namespace my
 
 		DEFINE_XML_NODE_SIMPLE(animations, skeleton);
 		DEFINE_XML_NODE_SIMPLE(animation, animations);
-		DEFINE_XML_NODE_SIMPLE(tracks, animation);
 
 		for(; node_animation != NULL; node_animation = node_animation->next_sibling())
 		{
@@ -477,6 +476,7 @@ namespace my
 			anim.m_time = length;
 			anim.resize(ogre_skel_anim->m_boneBindPose.size());
 
+			DEFINE_XML_NODE_SIMPLE(tracks, animation);
 			DEFINE_XML_NODE_SIMPLE(track, tracks);
 			for(; node_track != NULL; node_track = node_track->next_sibling())
 			{

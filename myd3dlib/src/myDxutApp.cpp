@@ -396,9 +396,9 @@ namespace my
 			pDeviceSettings->d3d9.DeviceType,
 			&caps ) );
 
-		// Turn vsync off
-		pDeviceSettings->d3d9.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-		m_settingsDlg.GetDialogControl()->GetComboBox( DXUTSETTINGSDLG_PRESENT_INTERVAL )->SetEnabled( false );
+		//// Turn vsync off
+		//pDeviceSettings->d3d9.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+		//m_settingsDlg.GetDialogControl()->GetComboBox( DXUTSETTINGSDLG_PRESENT_INTERVAL )->SetEnabled( false );
 
 		// If device doesn't support HW T&L or doesn't support 1.1 vertex shaders in HW 
 		// then switch to SWVP.
@@ -416,20 +416,20 @@ namespace my
 		//// so there is a fallback.
 		//if( pDeviceSettings->d3d9.BehaviorFlags & D3DCREATE_HARDWARE_VERTEXPROCESSING )
 		//    pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_MIXED_VERTEXPROCESSING;
-
-		// Debugging vertex shaders requires either REF or software vertex processing 
-		// and debugging pixel shaders requires REF.  
-#ifdef DEBUG_VS
-		if( pDeviceSettings->d3d9.DeviceType != D3DDEVTYPE_REF )
-		{
-			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_HARDWARE_VERTEXPROCESSING;
-			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_PUREDEVICE;
-			pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-		}
-#endif
-#ifdef DEBUG_PS
-		pDeviceSettings->d3d9.DeviceType = D3DDEVTYPE_REF;
-#endif
+//
+//		// Debugging vertex shaders requires either REF or software vertex processing 
+//		// and debugging pixel shaders requires REF.  
+//#ifdef DEBUG_VS
+//		if( pDeviceSettings->d3d9.DeviceType != D3DDEVTYPE_REF )
+//		{
+//			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_HARDWARE_VERTEXPROCESSING;
+//			pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_PUREDEVICE;
+//			pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+//		}
+//#endif
+//#ifdef DEBUG_PS
+//		pDeviceSettings->d3d9.DeviceType = D3DDEVTYPE_REF;
+//#endif
 		// For the first device created if its a REF device, optionally display a warning dialog box
 		static bool s_bFirstTime = true;
 		if( s_bFirstTime )
@@ -450,8 +450,8 @@ namespace my
 		m_hudDlg.Init(&m_dlgResourceMgr);
 		m_hudDlg.SetCallback(OnGUIEvent_s, this);
 
-		// Supports all types of vertex processing, including mixed.
-		DXUTGetD3D9Enumeration()->SetPossibleVertexProcessingList( true, true, true, true );
+		//// Supports all types of vertex processing, including mixed.
+		//DXUTGetD3D9Enumeration()->SetPossibleVertexProcessingList( true, true, true, true );
 
 		int nY = 10;
 		m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
