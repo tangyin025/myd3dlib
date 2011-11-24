@@ -121,10 +121,11 @@ protected:
 
 		// 初始化动画控制器
 		m_animTimeMgr.SetAnimationTime("clip1", m_skeleton->GetAnimation("clip1").m_time, "clip2");
-		m_animTimeMgr.SetAnimationTime("clip2", m_skeleton->GetAnimation("clip1").m_time, "clip1");
-
-		D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE];
-		m_mesh->GetDeclaration(Declaration);
+		m_animTimeMgr.SetAnimationTime("clip2", m_skeleton->GetAnimation("clip2").m_time, "clip1");
+		m_animTimeMgr.SetAnimationTime("clip3", m_skeleton->GetAnimation("clip3").m_time, "clip4");
+		m_animTimeMgr.SetAnimationTime("clip4", m_skeleton->GetAnimation("clip4").m_time, "clip3");
+		m_animTimeMgr.m_anim = "clip1";
+		m_animTimeMgr.m_time = 0.0f;
 
 		return S_OK;
 	}
@@ -310,7 +311,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_2");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
-	my::ResourceMgr::getSingleton().RegisterFileDir("data.zip");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
 
 	return MyDemo().Run(true, 800, 600);
 }
