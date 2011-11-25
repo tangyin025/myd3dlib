@@ -49,8 +49,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya7.0\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NT_PLUGIN"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2008\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
@@ -81,7 +81,7 @@
 				OutputFile="$(OutDir)\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya7.0\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2008\lib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ogreExporter.pdb"
 				SubSystem="2"
@@ -147,8 +147,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Alias\Maya7.0\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2008\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -179,7 +179,7 @@
 				OutputFile="$(OutDir)\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Alias\Maya7.0\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2008\lib&quot;"
 				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -239,7 +239,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="0"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"
+						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;$(NOINHERIT)"
 						BasicRuntimeChecks="3"
 					/>
 				</FileConfiguration>
@@ -250,7 +250,7 @@
 						Name="VCCLCompilerTool"
 						Optimization="2"
 						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;$(NoInherit)"
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;$(NOINHERIT)"
 					/>
 				</FileConfiguration>
 			</File>
