@@ -39,6 +39,48 @@ namespace my
 			GetPosition(pVertex, UsageIndex) = Position;
 		}
 
+		typedef Vector3 BinormalType;
+
+		static D3DVERTEXELEMENT9 CreateBinormalElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
+		{
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_BINORMAL, UsageIndex};
+			return ret;
+		}
+
+		BinormalType & GetBinormal(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreateBinormalElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(BinormalType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetBinormal(void * pVertex, const BinormalType & Binormal, BYTE UsageIndex = 0) const
+		{
+			GetBinormal(pVertex, UsageIndex) = Binormal;
+		}
+
+		typedef Vector3 TangentType;
+
+		static D3DVERTEXELEMENT9 CreateTangentElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
+		{
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_TANGENT, UsageIndex};
+			return ret;
+		}
+
+		TangentType & GetTangent(void * pVertex, BYTE UsageIndex = 0) const
+		{
+			const_iterator elem_iter = find(CreateTangentElement(0, 0, UsageIndex));
+			_ASSERT(elem_iter != end());
+
+			return *(TangentType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		void SetTangent(void * pVertex, const TangentType & Tangent, BYTE UsageIndex = 0) const
+		{
+			GetTangent(pVertex, UsageIndex) = Tangent;
+		}
+
 		typedef Vector3 NormalType;
 
 		static D3DVERTEXELEMENT9 CreateNormalElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
@@ -422,80 +464,52 @@ namespace my
 		{
 			V(m_ptr->UnlockAttributeBuffer());
 		}
-	};
 
-	class OgreVertexElement
-	{
-	public:
-		WORD Stream;
-		WORD Offset;
-		BYTE Type;
-		BYTE Method;
-		BYTE Usage;
-		BYTE UsageIndex;
-
-	public:
-		OgreVertexElement(WORD _Stream, WORD _Offset, BYTE _Type, BYTE _Method, BYTE _Usage, BYTE _UsageIndex)
-			: Stream(_Stream)
-			, Offset(_Offset)
-			, Type(_Type)
-			, Method(_Method)
-			, Usage(_Usage)
-			, UsageIndex(_UsageIndex)
+		void ComputeTangentFrameEx(
+			DWORD dwTextureInSemantic,
+			DWORD dwTextureInIndex,
+			DWORD dwUPartialOutSemantic,
+			DWORD dwUPartialOutIndex,
+			DWORD dwVPartialOutSemantic,
+			DWORD dwVPartialOutIndex,
+			DWORD dwNormalOutSemantic,
+			DWORD dwNormalOutIndex,
+			DWORD dwOptions,
+			CONST DWORD * pdwAdjacency,
+			FLOAT fPartialEdgeThreshold,
+			FLOAT fSingularPointThreshold,
+			FLOAT fNormalEdgeThreshold,
+			ID3DXMesh ** ppMeshOut,
+			ID3DXBuffer ** ppVertexMapping)
 		{
-		}
-
-		static OgreVertexElement End(WORD _Stream = 0xFF, WORD _Offset = 0, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0);
-		}
-
-		static OgreVertexElement Position(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_POSITION, _UsageIndex);
-		}
-
-		static OgreVertexElement Normal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_NORMAL, _UsageIndex);
-		}
-
-		static OgreVertexElement Tangent(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TANGENT, _UsageIndex);
-		}
-
-		static OgreVertexElement Binormal(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT3, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BINORMAL, _UsageIndex);
-		}
-
-		static OgreVertexElement Color(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_COLOR, _UsageIndex);
-		}
-
-		static OgreVertexElement Texcoord(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT2, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_TEXCOORD, _UsageIndex);
-		}
-
-		static OgreVertexElement BlendIndices(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_UBYTE4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDINDICES, _UsageIndex);
-		}
-
-		static OgreVertexElement BlendWeights(WORD _Stream, WORD _Offset, BYTE _UsageIndex = 0)
-		{
-			return OgreVertexElement(_Stream, _Offset, D3DDECLTYPE_FLOAT4, D3DDECLMETHOD_DEFAULT, D3DDECLUSAGE_BLENDWEIGHT, _UsageIndex);
+			V(D3DXComputeTangentFrameEx(
+				m_ptr,
+				dwTextureInSemantic,
+				dwTextureInIndex,
+				dwUPartialOutSemantic,
+				dwUPartialOutIndex,
+				dwVPartialOutSemantic,
+				dwVPartialOutIndex,
+				dwNormalOutSemantic,
+				dwNormalOutIndex,
+				dwOptions,
+				pdwAdjacency,
+				fPartialEdgeThreshold,
+				fSingularPointThreshold,
+				fNormalEdgeThreshold,
+				ppMeshOut,
+				ppVertexMapping));
 		}
 	};
-
-	typedef std::vector<OgreVertexElement> OgreVertexElementList;
 
 	class OgreMesh;
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
+
+	enum _OGREMESH
+	{
+		OGREMESH_COMPUTE_TANGENT_FRAME = D3DXMESH_USEHWONLY,
+	};
 
 	class OgreMesh : public Mesh
 	{

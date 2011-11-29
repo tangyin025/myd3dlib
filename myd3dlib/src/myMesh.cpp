@@ -225,13 +225,22 @@ namespace my
 		}
 
 		D3DVERTEXELEMENT9Set elems;
-		elems.insert(D3DVERTEXELEMENT9Set::CreatePositionElement(0, 0));
+		elems.insert(D3DVERTEXELEMENT9Set::CreatePositionElement(0, 0, 0));
 		WORD offset = sizeof(D3DVERTEXELEMENT9Set::PositionType);
 
-		if(normals)
+		if(normals || dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
 		{
-			elems.insert(D3DVERTEXELEMENT9Set::CreateNormalElement(0, offset));
+			elems.insert(D3DVERTEXELEMENT9Set::CreateNormalElement(0, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::NormalType);
+		}
+
+		if(dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
+		{
+			elems.insert(D3DVERTEXELEMENT9Set::CreateBinormalElement(0, offset, 0));
+			offset += sizeof(D3DVERTEXELEMENT9Set::BinormalType);
+
+			elems.insert(D3DVERTEXELEMENT9Set::CreateTangentElement(0, offset, 0));
+			offset += sizeof(D3DVERTEXELEMENT9Set::TangentType);
 		}
 
 		if(texture_coords > MAXBYTE)
@@ -249,10 +258,10 @@ namespace my
 		WORD indicesOffset = 0, weightsOffset = 0;
 		if(node_boneassignments != NULL)
 		{
-			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendIndicesElement(0, offset));
+			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendIndicesElement(0, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::BlendIndicesType);
 
-			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendWeightsElement(0, offset));
+			elems.insert(D3DVERTEXELEMENT9Set::CreateBlendWeightsElement(0, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::BlendWeightsType);
 		}
 
@@ -268,7 +277,7 @@ namespace my
 
 		LPD3DXMESH pMesh = NULL;
 		HRESULT hres = D3DXCreateMesh(
-			facecount, vertexcount, dwMeshOptions, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
+			facecount, vertexcount, dwMeshOptions & ~OGREMESH_COMPUTE_TANGENT_FRAME, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
 		if(FAILED(hres))
 		{
 			THROW_D3DEXCEPTION(hres);
@@ -403,6 +412,16 @@ namespace my
 		}
 		mesh->UnlockAttributeBuffer();
 		mesh->UnlockIndexBuffer();
+
+		std::vector<DWORD> rgdwAdjacency(mesh->GetNumFaces() * 3);
+		mesh->GenerateAdjacency(1e-6f, &rgdwAdjacency[0]);
+		mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
+
+		if(dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
+		{
+			mesh->ComputeTangentFrameEx(
+				D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, D3DXTANGENT_GENERATE_IN_PLACE, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		}
 
 		return mesh;
 	}
