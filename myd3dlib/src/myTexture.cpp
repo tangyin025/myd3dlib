@@ -137,4 +137,93 @@ namespace my
 
 		return TexturePtr(new Texture(pTexture));
 	}
+
+	CubeTexturePtr CubeTexture::CreateCubeTexture(
+		LPDIRECT3DDEVICE9 pDevice,
+		UINT EdgeLength,
+		UINT Levels,
+		DWORD Usage /*= 0*/,
+		D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
+		D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	{
+		LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
+		HRESULT hres = pDevice->CreateCubeTexture(
+			EdgeLength, Levels, Usage, Format, Pool, &pCubeTexture, NULL);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	}
+
+	CubeTexturePtr CubeTexture::CubeAdjustedTexture(
+		LPDIRECT3DDEVICE9 pDevice,
+		UINT Size,
+		UINT MipLevels /*= D3DX_DEFAULT*/,
+		DWORD Usage /*= 0*/,
+		D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
+		D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	{
+		LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
+		HRESULT hres = D3DXCreateCubeTexture(
+			pDevice, Size, MipLevels, Usage, Format, Pool, &pCubeTexture);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	}
+
+	CubeTexturePtr CubeTexture::CreateTextureFromFile(
+		LPDIRECT3DDEVICE9 pDevice,
+		LPCTSTR pSrcFile,
+		UINT Size /*= D3DX_DEFAULT*/,
+		UINT MipLevels /*= D3DX_DEFAULT*/,
+		DWORD Usage /*= 0*/,
+		D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
+		D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
+		DWORD Filter /*= D3DX_DEFAULT*/,
+		DWORD MipFilter /*= D3DX_DEFAULT*/,
+		D3DCOLOR ColorKey /*= 0*/,
+		D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
+		PALETTEENTRY * pPalette /*= NULL*/)
+	{
+		LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
+		HRESULT hres = D3DXCreateCubeTextureFromFileEx(
+			pDevice, pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	}
+
+	CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
+		LPDIRECT3DDEVICE9 pDevice,
+		LPCVOID pSrcData,
+		UINT SrcDataSize,
+		UINT Size /*= D3DX_DEFAULT*/,
+		UINT MipLevels /*= D3DX_DEFAULT*/,
+		DWORD Usage /*= 0*/,
+		D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
+		D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
+		DWORD Filter /*= D3DX_DEFAULT*/,
+		DWORD MipFilter /*= D3DX_DEFAULT*/,
+		D3DCOLOR ColorKey /*= 0*/,
+		D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
+		PALETTEENTRY * pPalette /*= NULL*/)
+	{
+		LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
+		HRESULT hres = D3DXCreateCubeTextureFromFileInMemoryEx(
+			pDevice, pSrcData, SrcDataSize, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	}
 }

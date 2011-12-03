@@ -99,7 +99,11 @@ namespace my
 		bool AssignLeftRect(const SIZE & size, RECT & outRect);
 
 	public:
-		RectAssignmentNode(const RECT & rect);
+		RectAssignmentNode(const RECT & rect)
+			: m_used(false)
+			, m_rect(rect)
+		{
+		}
 
 		bool AssignRect(const SIZE & size, RECT & outRect);
 	};

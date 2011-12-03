@@ -187,6 +187,7 @@ namespace my
 		catch(const my::Exception & e)
 		{
 			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
+			DXUTShutdown();
 		}
 	}
 

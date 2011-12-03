@@ -32,12 +32,6 @@ namespace my
 		return SpritePtr(new Sprite(pSprite));
 	}
 
-	RectAssignmentNode::RectAssignmentNode(const RECT & rect)
-		: m_used(false)
-		, m_rect(rect)
-	{
-	}
-
 	bool RectAssignmentNode::AssignTopRect(const SIZE & size, RECT & outRect)
 	{
 		_ASSERT(size.cx <= m_rect.right - m_rect.left);

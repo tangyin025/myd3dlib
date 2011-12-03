@@ -211,4 +211,63 @@ namespace my
 			V(static_cast<IDirect3DTexture9 *>(m_ptr)->UnlockRect(Level));
 		}
 	};
+
+	class CubeTexture;
+
+	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;
+
+	class CubeTexture : public BaseTexture
+	{
+	public:
+		CubeTexture(IDirect3DCubeTexture9 * pd3dCubeTexture)
+			: BaseTexture(pd3dCubeTexture)
+		{
+		}
+
+	public:
+		static CubeTexturePtr CreateCubeTexture(
+			LPDIRECT3DDEVICE9 pDevice,
+			UINT EdgeLength,
+			UINT Levels,
+			DWORD Usage = 0,
+			D3DFORMAT Format = D3DFMT_UNKNOWN,
+			D3DPOOL Pool = D3DPOOL_MANAGED);
+
+		static CubeTexturePtr CubeAdjustedTexture(
+			LPDIRECT3DDEVICE9 pDevice,
+			UINT Size,
+			UINT MipLevels = D3DX_DEFAULT,
+			DWORD Usage = 0,
+			D3DFORMAT Format = D3DFMT_UNKNOWN,
+			D3DPOOL Pool = D3DPOOL_MANAGED);
+
+		static CubeTexturePtr CreateTextureFromFile(
+			LPDIRECT3DDEVICE9 pDevice,
+			LPCTSTR pSrcFile,
+			UINT Size = D3DX_DEFAULT,
+			UINT MipLevels = D3DX_DEFAULT,
+			DWORD Usage = 0,
+			D3DFORMAT Format = D3DFMT_UNKNOWN,
+			D3DPOOL Pool = D3DPOOL_MANAGED,
+			DWORD Filter = D3DX_DEFAULT,
+			DWORD MipFilter = D3DX_DEFAULT,
+			D3DCOLOR ColorKey = 0,
+			D3DXIMAGE_INFO * pSrcInfo = NULL,
+			PALETTEENTRY * pPalette = NULL);
+
+		static CubeTexturePtr CreateCubeTextureFromFileInMemory(
+			LPDIRECT3DDEVICE9 pDevice,
+			LPCVOID pSrcData,
+			UINT SrcDataSize,
+			UINT Size = D3DX_DEFAULT,
+			UINT MipLevels = D3DX_DEFAULT,
+			DWORD Usage = 0,
+			D3DFORMAT Format = D3DFMT_UNKNOWN,
+			D3DPOOL Pool = D3DPOOL_MANAGED,
+			DWORD Filter = D3DX_DEFAULT,
+			DWORD MipFilter = D3DX_DEFAULT,
+			D3DCOLOR ColorKey = 0,
+			D3DXIMAGE_INFO * pSrcInfo = NULL,
+			PALETTEENTRY * pPalette = NULL);
+	};
 }
