@@ -308,6 +308,25 @@ namespace my
 			DWORD FVF,
 			DWORD Options = D3DXMESH_MANAGED);
 
+		static MeshPtr CreateMeshFromX(
+			LPDIRECT3DDEVICE9 pD3DDevice,
+			LPCTSTR pFilename,
+			DWORD Options = D3DXMESH_MANAGED,
+			LPD3DXBUFFER * ppAdjacency = NULL,
+			LPD3DXBUFFER * ppMaterials = NULL,
+			LPD3DXBUFFER * ppEffectInstances = NULL,
+			DWORD * pNumMaterials = NULL);
+
+		static MeshPtr CreateMeshFromXInMemory(
+			LPDIRECT3DDEVICE9 pD3DDevice,
+			LPCVOID Memory,
+			DWORD SizeOfMemory,
+			DWORD Options = D3DXMESH_MANAGED,
+			LPD3DXBUFFER * ppAdjacency = NULL,
+			LPD3DXBUFFER * ppMaterials = NULL,
+			LPD3DXBUFFER * ppEffectInstances = NULL,
+			DWORD * pNumMaterials = NULL);
+
 		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
 		{
 			CComPtr<ID3DXMesh> CloneMesh;

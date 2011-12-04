@@ -185,6 +185,47 @@ namespace my
 		return MeshPtr(new Mesh(pMesh));
 	}
 
+	MeshPtr Mesh::CreateMeshFromX(
+		LPDIRECT3DDEVICE9 pD3DDevice,
+		LPCTSTR pFilename,
+		DWORD Options /*= D3DXMESH_MANAGED*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/,
+		LPD3DXBUFFER * ppMaterials /*= NULL*/,
+		LPD3DXBUFFER * ppEffectInstances /*= NULL*/,
+		DWORD * pNumMaterials /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXLoadMeshFromX(
+			pFilename, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateMeshFromXInMemory(
+		LPDIRECT3DDEVICE9 pD3DDevice,
+		LPCVOID Memory,
+		DWORD SizeOfMemory,
+		DWORD Options /*= D3DXMESH_MANAGED*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/,
+		LPD3DXBUFFER * ppMaterials /*= NULL*/,
+		LPD3DXBUFFER * ppEffectInstances /*= NULL*/,
+		DWORD * pNumMaterials /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXLoadMeshFromXInMemory(
+			Memory, SizeOfMemory, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
 	OgreMeshPtr OgreMesh::CreateOgreMesh(
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pSrcData,
@@ -339,7 +380,7 @@ namespace my
 
 		if(node_boneassignments != NULL)
 		{
-			DEFINE_XML_NODE_SIMPLE(vertexboneassignment, boneassignments);
+			rapidxml::xml_node<char> * node_vertexboneassignment = node_boneassignments->first_node("vertexboneassignment");
 			for(; node_vertexboneassignment != NULL; node_vertexboneassignment = node_vertexboneassignment->next_sibling())
 			{
 				DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexindex, vertexboneassignment);
@@ -415,13 +456,12 @@ namespace my
 
 		std::vector<DWORD> rgdwAdjacency(mesh->GetNumFaces() * 3);
 		mesh->GenerateAdjacency(1e-6f, &rgdwAdjacency[0]);
-		mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
-
 		if(dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
 		{
 			mesh->ComputeTangentFrameEx(
 				D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, D3DXTANGENT_GENERATE_IN_PLACE, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
 		}
+		mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 
 		return mesh;
 	}
