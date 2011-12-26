@@ -106,7 +106,7 @@ namespace my
 
 		static D3DVERTEXELEMENT9 CreateTexcoordElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, BYTE Method = D3DDECLMETHOD_DEFAULT)
 		{
-			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT3, Method, D3DDECLUSAGE_TEXCOORD, UsageIndex};
+			D3DVERTEXELEMENT9 ret = {Stream, Offset, D3DDECLTYPE_FLOAT2, Method, D3DDECLUSAGE_TEXCOORD, UsageIndex};
 			return ret;
 		}
 
@@ -204,10 +204,14 @@ namespace my
 		}
 	};
 
+	class VertexBuffer;
+
+	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
+
 	class VertexBuffer : public DeviceRelatedObjectBase
 	{
+	//protected:
 	public:
-
 		CComPtr<IDirect3DDevice9> m_Device;
 
 		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
@@ -222,8 +226,12 @@ namespace my
 
 		UINT m_NumVertices;
 
-	public:
 		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet);
+
+	public:
+		static VertexBufferPtr CreateVertexBuffer(
+			LPDIRECT3DDEVICE9 pD3DDevice,
+			const D3DVERTEXELEMENT9Set & VertexElemSet);
 
 		void OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
@@ -248,11 +256,13 @@ namespace my
 		void SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
 	};
 
-	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
+	class IndexBuffer;
+
+	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
 	class IndexBuffer : public DeviceRelatedObjectBase
 	{
-	public:
+	protected:
 		typedef std::vector<unsigned int> UIntList;
 
 		UIntList m_MemIndexBuffer;
@@ -261,8 +271,10 @@ namespace my
 
 		CComPtr<IDirect3DIndexBuffer9> m_IndexBuffer;
 
-	public:
 		IndexBuffer(LPDIRECT3DDEVICE9 pDevice);
+
+	public:
+		static IndexBufferPtr CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
 
 		void OnD3D9ResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
@@ -278,8 +290,6 @@ namespace my
 
 		void SetIndex(int Index, unsigned int IndexValue);
 	};
-
-	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
 	class Mesh;
 
@@ -383,7 +393,7 @@ namespace my
 			return m_ptr->GetFVF();
 		}
 
-		CComPtr<IDirect3DIndexBuffer9> GetIndexBuffer(LPDIRECT3DINDEXBUFFER9 * ppIB)
+		CComPtr<IDirect3DIndexBuffer9> GetIndexBuffer(void)
 		{
 			CComPtr<IDirect3DIndexBuffer9> IndexBuffer;
 			V(m_ptr->GetIndexBuffer(&IndexBuffer));

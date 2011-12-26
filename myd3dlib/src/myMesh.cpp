@@ -20,6 +20,13 @@ namespace my
 		m_vertexStride = last_elem.Offset + D3DVERTEXELEMENT9Set::CalculateElementUsageSize(last_elem.Usage);
 	}
 
+	VertexBufferPtr VertexBuffer::CreateVertexBuffer(
+		LPDIRECT3DDEVICE9 pD3DDevice,
+		const D3DVERTEXELEMENT9Set & VertexElemSet)
+	{
+		return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet));
+	}
+
 	void VertexBuffer::OnD3D9ResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -97,6 +104,11 @@ namespace my
 	IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
 		: m_Device(pDevice)
 	{
+	}
+
+	IndexBufferPtr IndexBuffer::CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice)
+	{
+		return IndexBufferPtr(new IndexBuffer(pD3DDevice));
 	}
 
 	void IndexBuffer::OnD3D9ResetDevice(
