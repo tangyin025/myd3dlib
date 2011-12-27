@@ -4,27 +4,52 @@
 
 namespace my
 {
-	VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet)
-		: m_Device(pDevice)
-		, m_VertexElemSet(VertexElemSet)
-		, m_NumVertices(0)
+	std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void)
 	{
-		std::vector<D3DVERTEXELEMENT9> VEList = m_VertexElemSet.BuildVertexElementList();
-		HRESULT hres = m_Device->CreateVertexDeclaration(&VEList[0], &m_VertexDecl);
+		std::vector<D3DVERTEXELEMENT9> ret;
+		const_iterator elem_iter = begin();
+		for(; elem_iter != end(); elem_iter++)
+		{
+			ret.push_back(*elem_iter);
+		}
+
+		D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
+		ret.push_back(elem_end);
+		return ret;
+	}
+
+	CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice)
+	{
+		CComPtr<IDirect3DVertexDeclaration9> ret;
+
+		HRESULT hres = pDevice->CreateVertexDeclaration((D3DVERTEXELEMENT9 *)&BuildVertexElementList()[0], &ret);
 		if(FAILED(hres))
 		{
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		D3DVERTEXELEMENT9 & last_elem = *(VEList.end() - 2);
-		m_vertexStride = last_elem.Offset + D3DVERTEXELEMENT9Set::CalculateElementUsageSize(last_elem.Usage);
+		return ret;
+	}
+
+	VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream /*= 0*/)
+		: m_Device(pDevice)
+		, m_VertexElemSet(VertexElemSet)
+		, m_vertexStride(D3DXGetDeclVertexSize((D3DVERTEXELEMENT9 *)&m_VertexElemSet.BuildVertexElementList()[0], Stream))
+		, m_NumVertices(0)
+		, m_Stream(Stream)
+	{
+		if(0 == m_vertexStride)
+		{
+			THROW_CUSEXCEPTION("Invalid Vertex Stride (m_vertexStride == 0)");
+		}
 	}
 
 	VertexBufferPtr VertexBuffer::CreateVertexBuffer(
 		LPDIRECT3DDEVICE9 pD3DDevice,
-		const D3DVERTEXELEMENT9Set & VertexElemSet)
+		const D3DVERTEXELEMENT9Set & VertexElemSet,
+		WORD Stream /*= 0*/)
 	{
-		return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet));
+		return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
 	}
 
 	void VertexBuffer::OnD3D9ResetDevice(
@@ -52,7 +77,6 @@ namespace my
 	{
 		_ASSERT(!m_VertexBuffer);
 
-		m_VertexDecl.Release();
 		m_Device.Release();
 	}
 
@@ -78,27 +102,27 @@ namespace my
 
 	void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
 	{
-		m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, UsageIndex);
+		m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
 	}
 
 	void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)
 	{
-		m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, UsageIndex);
+		m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, m_Stream, UsageIndex);
 	}
 
 	void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
 	{
-		m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, UsageIndex);
+		m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, m_Stream, UsageIndex);
 	}
 
 	void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex /*= 0*/)
 	{
-		m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, UsageIndex);
+		m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, m_Stream, UsageIndex);
 	}
 
 	void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex /*= 0*/)
 	{
-		m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, UsageIndex);
+		m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, m_Stream, UsageIndex);
 	}
 
 	IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
