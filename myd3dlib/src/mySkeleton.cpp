@@ -1,6 +1,7 @@
 
 #include "StdAfx.h"
 #include "myD3dlib.h"
+#include "rapidxml.hpp"
 
 namespace my
 {

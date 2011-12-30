@@ -1,10 +1,11 @@
 
 #include "stdafx.h"
 #include "myd3dlib.h"
+#include "rapidxml.hpp"
 
 namespace my
 {
-	std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void)
+	std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void) const
 	{
 		std::vector<D3DVERTEXELEMENT9> ret;
 		const_iterator elem_iter = begin();
@@ -18,7 +19,12 @@ namespace my
 		return ret;
 	}
 
-	CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice)
+	UINT D3DVERTEXELEMENT9Set::GetVertexStride(DWORD Stream) const
+	{
+		return D3DXGetDeclVertexSize(&BuildVertexElementList()[0], Stream);
+	}
+
+	CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const
 	{
 		CComPtr<IDirect3DVertexDeclaration9> ret;
 
@@ -34,7 +40,7 @@ namespace my
 	VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream /*= 0*/)
 		: m_Device(pDevice)
 		, m_VertexElemSet(VertexElemSet)
-		, m_vertexStride(D3DXGetDeclVertexSize((D3DVERTEXELEMENT9 *)&m_VertexElemSet.BuildVertexElementList()[0], Stream))
+		, m_vertexStride(VertexElemSet.GetVertexStride(Stream))
 		, m_NumVertices(0)
 		, m_Stream(Stream)
 	{
@@ -103,6 +109,16 @@ namespace my
 	void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
 	{
 		m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
+	}
+
+	void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex /*= 0*/)
+	{
+		m_VertexElemSet.SetBinormal(&m_MemVertexBuffer[Index * m_vertexStride], Binormal, m_Stream, UsageIndex);
+	}
+
+	void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex /*= 0*/)
+	{
+		m_VertexElemSet.SetTangent(&m_MemVertexBuffer[Index * m_vertexStride], Tangent, m_Stream, UsageIndex);
 	}
 
 	void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)

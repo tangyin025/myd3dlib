@@ -32,7 +32,7 @@
 #include <sstream>
 #include <d3d9.h>
 #include <atltypes.h>
-#include <boost/property_tree/detail/rapidxml.hpp>
+//#include <boost/property_tree/detail/rapidxml.hpp>
 #include <atlbase.h>
 #include <vector>
 #include <DXUTgui.h>

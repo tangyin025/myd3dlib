@@ -22,7 +22,14 @@ namespace my
 	class D3DVERTEXELEMENT9Set : public std::set<D3DVERTEXELEMENT9, D3DVERTEXELEMENT9Less>
 	{
 	public:
-		static D3DVERTEXELEMENT9 CreateCustomElement(WORD Stream, D3DDECLUSAGE Usage, BYTE UsageIndex = 0, WORD Offset = 0, D3DDECLTYPE Type = D3DDECLTYPE_UNUSED, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		std::pair<iterator, bool> insert(const value_type & val)
+		{
+			_ASSERT(end() == find(val));
+
+			return std::set<D3DVERTEXELEMENT9, D3DVERTEXELEMENT9Less>::insert(val);
+		}
+
+		static D3DVERTEXELEMENT9 CreateCustomElement(WORD Stream, D3DDECLUSAGE Usage, BYTE UsageIndex, WORD Offset = 0, D3DDECLTYPE Type = D3DDECLTYPE_UNUSED, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			D3DVERTEXELEMENT9 ret = {Stream, Offset, Type, Method, Usage, UsageIndex};
 			return ret;
@@ -35,6 +42,12 @@ namespace my
 			_ASSERT(elem_iter != end());
 
 			return *(ElementType *)((unsigned char *)pVertex + elem_iter->Offset);
+		}
+
+		template <typename ElementType>
+		ElementType & SetCustomType(void * pVertex, WORD Stream, D3DDECLUSAGE Usage, BYTE UsageIndex, const ElementType & value) const
+		{
+			return GetCustomType<ElementType>(pVertex, Stream, Usage, UsageIndex) = value;
 		}
 
 		typedef Vector3 PositionType;
@@ -180,9 +193,11 @@ namespace my
 			return 0;
 		}
 
-		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(void);
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(void) const;
 
-		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice);
+		UINT GetVertexStride(DWORD Stream) const;
+
+		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
 
 	class VertexBuffer;
@@ -227,9 +242,19 @@ namespace my
 
 		void ResizeVertexBufferLength(UINT NumVertices);
 
+		template <typename ElementType>
+		void SetCustomType(int Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
+		{
+			m_VertexElemSet.SetCustomType<ElementType>(&m_MemVertexBuffer[Index * m_vertexStride], m_Stream, Usage, UsageIndex, Value);
+		}
+
 		void SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
 
-		void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Position, BYTE UsageIndex = 0);
+		void SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
+
+		void SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
+
+		void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
 
 		void SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
 
