@@ -111,7 +111,14 @@ namespace my
 			THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
 		}
 
-		ret = unzOpenCurrentFilePassword(zFile, password.c_str());
+		if(!password.empty())
+		{
+			ret = unzOpenCurrentFilePassword(zFile, password.c_str());
+		}
+		else
+		{
+			ret = unzOpenCurrentFile(zFile);
+		}
 		if(UNZ_OK != ret)
 		{
 			unzClose(zFile);

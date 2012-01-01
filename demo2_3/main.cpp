@@ -257,9 +257,9 @@ protected:
 			{
 				m_effect->BeginPass(p);
 				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-				m_mesh->DrawSubset(0);
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
 				m_mesh->DrawSubset(1);
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				m_mesh->DrawSubset(0);
 				m_effect->EndPass();
 			}
 			m_effect->End();
