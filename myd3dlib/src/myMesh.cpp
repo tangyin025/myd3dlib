@@ -529,9 +529,7 @@ namespace my
 			THROW_CUSEXCEPTION(tstringToMString(str_printf(_T("cannot open file archive: %s"), pFilename)));
 		}
 
-		ArchiveStreamPtr stream(new FileArchiveStream(fp));
-
-		CachePtr cache = ReadWholeCacheFromStream(stream);
+		CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 
 		return CreateOgreMesh(pDevice, (LPCSTR)&(*cache)[0], cache->size(), dwMeshOptions);
 	}

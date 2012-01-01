@@ -20,7 +20,8 @@
 #include <boost/shared_ptr.hpp>
 #include <string>
 #include <tchar.h>
-#include <zzip/lib.h>
+#include <unzip.h>
+//#include <zzip/lib.h>
 #include <boost/shared_ptr.hpp>
 #include <crtdbg.h>
 #include <atlbase.h>

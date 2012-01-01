@@ -199,11 +199,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\ioapi.c"
+				>
+			</File>
+			<File
 				RelativePath="..\src\trees.c"
 				>
 			</File>
 			<File
 				RelativePath="..\src\uncompr.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\unzip.c"
 				>
 			</File>
 			<File
@@ -245,7 +253,15 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\ioapi.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\trees.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\unzip.h"
 				>
 			</File>
 			<File

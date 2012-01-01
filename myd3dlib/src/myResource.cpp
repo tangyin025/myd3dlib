@@ -8,50 +8,34 @@
 
 namespace my
 {
-	int ZipArchiveStream::ToZipSeekType(SeekType origin)
+	ZipArchiveStream::ZipArchiveStream(unzFile zFile)
+		: m_zFile(zFile)
 	{
-		switch(origin)
+		_ASSERT(NULL != m_zFile);
+
+		int ret = unzGetCurrentFileInfo(m_zFile, &m_zFileInfo, NULL, 0, NULL, 0, NULL, 0);
+		if(UNZ_OK != ret)
 		{
-		case CUR:
-			return SEEK_CUR;
-		case END:
-			return SEEK_END;
-		case SET:
-			return SEEK_SET;
+			unzClose(m_zFile);
+			THROW_CUSEXCEPTION("cannot get file info from zip file");
 		}
-
-		_ASSERT("unkwon seek type"); return 0;
-	}
-
-	ZipArchiveStream::ZipArchiveStream(ZZIP_FILE * fp)
-		: m_fp(fp)
-	{
-		_ASSERT(NULL != m_fp);
 	}
 
 	ZipArchiveStream::~ZipArchiveStream(void)
 	{
-		zzip_file_close(m_fp);
+		unzCloseCurrentFile(m_zFile);
+		unzClose(m_zFile);
 	}
 
-	size_t ZipArchiveStream::Read(void * buffer, size_t size, size_t count)
+	CachePtr ZipArchiveStream::GetWholeCache(void)
 	{
-		return zzip_file_read(m_fp, buffer, size * count);
-	}
-
-	size_t ZipArchiveStream::Write(void * buffer, size_t size, size_t count)
-	{
-		_ASSERT("unsupport writing zip stream"); return 0;
-	}
-
-	long ZipArchiveStream::Seek(long offset, SeekType origin)
-	{
-		return zzip_seek(m_fp, offset, ToZipSeekType(origin));
-	}
-
-	long ZipArchiveStream::Tell(void)
-	{
-		return zzip_tell(m_fp);
+		CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
+		int ret = unzReadCurrentFile(m_zFile, &(*cache)[0], cache->size());
+		if(ret != cache->size())
+		{
+			THROW_CUSEXCEPTION("read zip file cache failed");
+		}
+		return cache;
 	}
 
 	FileArchiveStream::FileArchiveStream(FILE * fp)
@@ -65,24 +49,18 @@ namespace my
 		fclose(m_fp);
 	}
 
-	size_t FileArchiveStream::Read(void * buffer, size_t size, size_t count)
+	CachePtr FileArchiveStream::GetWholeCache(void)
 	{
-		return fread(buffer, size, count, m_fp);
-	}
-
-	size_t FileArchiveStream::Write(void * buffer, size_t size, size_t count)
-	{
-		return fwrite(buffer, size, count, m_fp);
-	}
-
-	long FileArchiveStream::Seek(long offset, SeekType origin)
-	{
-		return fseek(m_fp, offset, ZipArchiveStream::ToZipSeekType(origin));
-	}
-
-	long FileArchiveStream::Tell(void)
-	{
-		return ftell(m_fp);
+		fseek(m_fp, 0, SEEK_END);
+		long len = ftell(m_fp);
+		fseek(m_fp, 0, SEEK_SET);
+		CachePtr cache(new Cache(len));
+		size_t ret = fread(&(*cache)[0], 1, cache->size(), m_fp);
+		if(ret != cache->size())
+		{
+			THROW_CUSEXCEPTION("read file cache failed");
+		}
+		return cache;
 	}
 
 	ResourceDir::ResourceDir(const std::string & dir)
@@ -101,43 +79,45 @@ namespace my
 
 	bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 	{
-		zzip_error_t rv;
-		ZZIP_DIR * zdir = zzip_dir_open(m_dir.c_str(), &rv);
-		if(NULL == zdir)
+		unzFile zFile = unzOpen(m_dir.c_str());
+		if(NULL == zFile)
 		{
 			return false;
 		}
 
-		ZZIP_FILE * zfile = zzip_file_open(zdir, path.c_str(), ZZIP_CASEINSENSITIVE);
-		if(NULL == zfile)
+		int ret = unzLocateFile(zFile, path.c_str(), 0);
+		if(UNZ_OK != ret)
 		{
-			zzip_dir_close(zdir);
+			unzClose(zFile);
 			return false;
 		}
 
-		zzip_dir_close(zdir);
-		zzip_file_close(zfile);
+		unzClose(zFile);
 		return true;
 	}
 
-	ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
+	ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path, const std::string & password)
 	{
-		zzip_error_t rv;
-		ZZIP_DIR * zdir = zzip_dir_open(m_dir.c_str(), &rv);
-		if(NULL == zdir)
+		unzFile zFile = unzOpen(m_dir.c_str());
+		if(NULL == zFile)
 		{
 			THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
 		}
 
-		ZZIP_FILE * zfile = zzip_file_open(zdir, path.c_str(), ZZIP_CASEINSENSITIVE);
-		if(NULL == zfile)
+		int ret = unzLocateFile(zFile, path.c_str(), 0);
+		if(UNZ_OK != ret)
 		{
-			zzip_dir_close(zdir);
+			unzClose(zFile);
 			THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
 		}
 
-		zzip_dir_close(zdir);
-		return ArchiveStreamPtr(new ZipArchiveStream(zfile));
+		ret = unzOpenCurrentFilePassword(zFile, password.c_str());
+		if(UNZ_OK != ret)
+		{
+			unzClose(zFile);
+			THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
+		}
+		return ArchiveStreamPtr(new ZipArchiveStream(zFile));
 	}
 
 	std::string FileArchiveDir::GetFullPath(const std::string & path)
@@ -166,7 +146,7 @@ namespace my
 		return !GetFullPath(path).empty();
 	}
 
-	ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
+	ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path, const std::string & password)
 	{
 		std::string fullPath = GetFullPath(path);
 		if(fullPath.empty())
@@ -195,28 +175,17 @@ namespace my
 		m_dirList.push_back(ResourceDirPtr(new FileArchiveDir(dir)));
 	}
 
-	ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
+	ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path, const std::string & password /*= ""*/)
 	{
 		ResourceDirPtrList::iterator dir_iter = m_dirList.begin();
 		for(; dir_iter != m_dirList.end(); dir_iter++)
 		{
 			if((*dir_iter)->CheckArchivePath(path))
 			{
-				return (*dir_iter)->OpenArchiveStream(path);
+				return (*dir_iter)->OpenArchiveStream(path, password);
 			}
 		}
 
 		THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
-	}
-
-	CachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream)
-	{
-		stream->Seek(0, my::ArchiveStream::END);
-		long len = stream->Tell();
-		stream->Seek(0, my::ArchiveStream::SET);
-		CachePtr cache(new Cache(len));
-		size_t ret_size = stream->Read(&(*cache)[0], sizeof(Cache::value_type), cache->size());
-		_ASSERT(ret_size == cache->size());
-		return cache;
 	}
 };

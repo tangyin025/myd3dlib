@@ -3,6 +3,10 @@
 
 namespace my
 {
+	typedef std::vector<unsigned char> Cache;
+
+	typedef boost::shared_ptr<Cache> CachePtr;
+
 	class ArchiveStream
 	{
 	public:
@@ -18,13 +22,7 @@ namespace my
 		{
 		}
 
-		virtual size_t Read(void * buffer, size_t size, size_t count) = 0;
-
-		virtual size_t Write(void * buffer, size_t size, size_t count) = 0;
-
-		virtual long Seek(long offset, SeekType origin) = 0;
-
-		virtual long Tell(void) = 0;
+		virtual CachePtr GetWholeCache(void) = 0;
 	};
 
 	typedef boost::shared_ptr<ArchiveStream> ArchiveStreamPtr;
@@ -33,23 +31,16 @@ namespace my
 		: public ArchiveStream
 	{
 	protected:
-		ZZIP_FILE * m_fp;
+		unzFile m_zFile;
+
+		unz_file_info m_zFileInfo;
 
 	public:
-		static int ToZipSeekType(SeekType origin);
-
-	public:
-		ZipArchiveStream(ZZIP_FILE * fp);
+		ZipArchiveStream(unzFile zFile);
 
 		~ZipArchiveStream(void);
 
-		size_t Read(void * buffer, size_t size, size_t count);
-
-		size_t Write(void * buffer, size_t size, size_t count);
-
-		long Seek(long offset, SeekType origin);
-
-		long Tell(void);
+		virtual CachePtr GetWholeCache(void);
 	};
 
 	class FileArchiveStream
@@ -63,13 +54,7 @@ namespace my
 
 		~FileArchiveStream(void);
 
-		size_t Read(void * buffer, size_t size, size_t count);
-
-		size_t Write(void * buffer, size_t size, size_t count);
-
-		long Seek(long offset, SeekType origin);
-
-		long Tell(void);
+		virtual CachePtr GetWholeCache(void);
 	};
 
 	class ResourceDir
@@ -84,7 +69,7 @@ namespace my
 
 		virtual bool CheckArchivePath(const std::string & path) = 0;
 
-		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
+		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password) = 0;
 	};
 
 	typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
@@ -99,7 +84,7 @@ namespace my
 
 		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password);
 	};
 
 	class FileArchiveDir
@@ -113,7 +98,7 @@ namespace my
 
 		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password);
 	};
 
 	class ResourceMgr
@@ -127,12 +112,6 @@ namespace my
 
 		void RegisterFileDir(const std::string & dir);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password = "");
 	};
-
-	typedef std::vector<unsigned char> Cache;
-
-	typedef boost::shared_ptr<Cache> CachePtr;
-
-	CachePtr ReadWholeCacheFromStream(ArchiveStreamPtr stream);
 };

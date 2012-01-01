@@ -100,23 +100,19 @@ protected:
 		m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
 		// 读取D3DX Effect文件
-		my::CachePtr cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh.fx"));
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh.fx")->GetWholeCache();
 		m_effect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 读取模型文件
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml"));
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
 		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size(), D3DXMESH_MANAGED);
 
 		// 创建贴图
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg"));
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
 		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 读取骨骼动画
-		cache = my::ReadWholeCacheFromStream(
-			my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml"));
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
 		m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
 
 		// 初始化动画控制器
@@ -261,9 +257,9 @@ protected:
 			{
 				m_effect->BeginPass(p);
 				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-				m_mesh->DrawSubset(1);
-				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
 				m_mesh->DrawSubset(0);
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				m_mesh->DrawSubset(1);
 				m_effect->EndPass();
 			}
 			m_effect->End();
@@ -307,11 +303,9 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 
 	// 初始化资源管理器收索路径
 	my::ResourceMgr::getSingleton().RegisterFileDir(".");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_1");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_2");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 
 	return MyDemo().Run(true, 800, 600);
 }
