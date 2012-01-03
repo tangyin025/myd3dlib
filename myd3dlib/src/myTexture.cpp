@@ -87,7 +87,7 @@ namespace my
 
 	TexturePtr Texture::CreateTextureFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pSrcFile,
+		LPCSTR pSrcFile,
 		UINT Width /*= D3DX_DEFAULT*/,
 		UINT Height /*= D3DX_DEFAULT*/,
 		UINT MipLevels /*= D3DX_DEFAULT*/,
@@ -101,7 +101,7 @@ namespace my
 		PALETTEENTRY * pPalette /*= NULL*/)
 	{
 		LPDIRECT3DTEXTURE9 pTexture = NULL;
-		HRESULT hres = D3DXCreateTextureFromFileEx(
+		HRESULT hres = D3DXCreateTextureFromFileExA(
 			pDevice, pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 		if(FAILED(hres))
 		{
@@ -176,9 +176,9 @@ namespace my
 		return CubeTexturePtr(new CubeTexture(pCubeTexture));
 	}
 
-	CubeTexturePtr CubeTexture::CreateTextureFromFile(
+	CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pSrcFile,
+		LPCSTR pSrcFile,
 		UINT Size /*= D3DX_DEFAULT*/,
 		UINT MipLevels /*= D3DX_DEFAULT*/,
 		DWORD Usage /*= 0*/,
@@ -191,7 +191,7 @@ namespace my
 		PALETTEENTRY * pPalette /*= NULL*/)
 	{
 		LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-		HRESULT hres = D3DXCreateCubeTextureFromFileEx(
+		HRESULT hres = D3DXCreateCubeTextureFromFileExA(
 			pDevice, pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
 		if(FAILED(hres))
 		{

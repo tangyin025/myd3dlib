@@ -150,7 +150,7 @@ namespace my
 
 		static TexturePtr CreateTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pSrcFile,
+			LPCSTR pSrcFile,
 			UINT Width = D3DX_DEFAULT,
 			UINT Height = D3DX_DEFAULT,
 			UINT MipLevels = D3DX_DEFAULT,
@@ -241,9 +241,9 @@ namespace my
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		static CubeTexturePtr CreateTextureFromFile(
+		static CubeTexturePtr CreateCubeTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pSrcFile,
+			LPCSTR pSrcFile,
 			UINT Size = D3DX_DEFAULT,
 			UINT MipLevels = D3DX_DEFAULT,
 			DWORD Usage = 0,

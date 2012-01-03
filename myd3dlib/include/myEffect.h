@@ -182,7 +182,7 @@ namespace my
 
 		static VertexShaderPtr CreateVertexShaderFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pSrcFile,
+			LPCSTR pSrcFile,
 			LPCSTR pFunctionName,
 			LPCSTR pProfile,
 			CONST D3DXMACRO * pDefines = NULL,
@@ -236,7 +236,7 @@ namespace my
 
 		static PixelShaderPtr CreatePixelShaderFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pSrcFile,
+			LPCSTR pSrcFile,
 			LPCSTR pFunctionName,
 			LPCSTR pProfile,
 			CONST D3DXMACRO * pDefines = NULL,
@@ -626,7 +626,7 @@ namespace my
 
 		static EffectPtr CreateEffectFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pSrcFile,
+			LPCSTR pSrcFile,
 			CONST D3DXMACRO * pDefines = NULL,
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0,

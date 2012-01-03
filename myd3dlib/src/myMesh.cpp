@@ -239,7 +239,7 @@ namespace my
 
 	MeshPtr Mesh::CreateMeshFromX(
 		LPDIRECT3DDEVICE9 pD3DDevice,
-		LPCTSTR pFilename,
+		LPCSTR pFilename,
 		DWORD Options /*= D3DXMESH_MANAGED*/,
 		LPD3DXBUFFER * ppAdjacency /*= NULL*/,
 		LPD3DXBUFFER * ppMaterials /*= NULL*/,
@@ -247,7 +247,7 @@ namespace my
 		DWORD * pNumMaterials /*= NULL*/)
 	{
 		LPD3DXMESH pMesh = NULL;
-		HRESULT hres = D3DXLoadMeshFromX(
+		HRESULT hres = D3DXLoadMeshFromXA(
 			pFilename, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
 		if(FAILED(hres))
 		{
@@ -520,13 +520,13 @@ namespace my
 
 	OgreMeshPtr OgreMesh::CreateOgreMeshFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pFilename,
+		LPCSTR pFilename,
 		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
 	{
 		FILE * fp;
-		if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+		if(0 != fopen_s(&fp, pFilename, "rb"))
 		{
-			THROW_CUSEXCEPTION(tstringToMString(str_printf(_T("cannot open file archive: %s"), pFilename)));
+			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 		}
 
 		CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();

@@ -194,12 +194,12 @@ namespace my
 
 	FontPtr Font::CreateFontFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		const char * filepathname,
+		LPCSTR pFilename,
 		int height,
 		FT_Long face_index /*= 0*/)
 	{
 		FT_Face face;
-		FT_Error err = FT_New_Face(FontMgr::getSingleton().m_library, filepathname, face_index, &face);
+		FT_Error err = FT_New_Face(FontMgr::getSingleton().m_library, pFilename, face_index, &face);
 		if(err)
 		{
 			THROW_CUSEXCEPTION("FT_New_Face failed");

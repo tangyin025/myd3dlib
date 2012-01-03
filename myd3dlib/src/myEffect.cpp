@@ -48,7 +48,7 @@ namespace my
 
 	VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pSrcFile,
+		LPCSTR pSrcFile,
 		LPCSTR pFunctionName,
 		LPCSTR pProfile,
 		CONST D3DXMACRO * pDefines /*= NULL*/,
@@ -58,7 +58,7 @@ namespace my
 		CComPtr<ID3DXBuffer> Shader;
 		CComPtr<ID3DXBuffer> ErrorMsgs;
 		LPD3DXCONSTANTTABLE pConstantTable = NULL;
-		HRESULT hres = D3DXCompileShaderFromFile(
+		HRESULT hres = D3DXCompileShaderFromFileA(
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
@@ -116,7 +116,7 @@ namespace my
 
 	PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pSrcFile,
+		LPCSTR pSrcFile,
 		LPCSTR pFunctionName,
 		LPCSTR pProfile,
 		CONST D3DXMACRO * pDefines /*= NULL*/,
@@ -126,7 +126,7 @@ namespace my
 		CComPtr<ID3DXBuffer> Shader;
 		CComPtr<ID3DXBuffer> ErrorMsgs;
 		LPD3DXCONSTANTTABLE pConstantTable = NULL;
-		HRESULT hres = D3DXCompileShaderFromFile(
+		HRESULT hres = D3DXCompileShaderFromFileA(
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
@@ -179,7 +179,7 @@ namespace my
 
 	EffectPtr Effect::CreateEffectFromFile(
 		LPDIRECT3DDEVICE9 pDevice,
-		LPCTSTR pSrcFile,
+		LPCSTR pSrcFile,
 		CONST D3DXMACRO * pDefines /*= NULL*/,
 		LPD3DXINCLUDE pInclude /*= NULL*/,
 		DWORD Flags /*= 0*/,
@@ -187,7 +187,7 @@ namespace my
 	{
 		LPD3DXEFFECT pEffect = NULL;
 		CComPtr<ID3DXBuffer> CompilationErrors;
-		HRESULT hres = D3DXCreateEffectFromFile(
+		HRESULT hres = D3DXCreateEffectFromFileA(
 			pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 		if(FAILED(hres))
 		{

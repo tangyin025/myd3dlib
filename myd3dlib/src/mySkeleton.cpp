@@ -522,12 +522,12 @@ namespace my
 	}
 
 	OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
-		LPCTSTR pFilename)
+		LPCSTR pFilename)
 	{
 		FILE * fp;
-		if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+		if(0 != fopen_s(&fp, pFilename, "rb"))
 		{
-			THROW_CUSEXCEPTION(tstringToMString(str_printf(_T("cannot open file archive: %s"), pFilename)));
+			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 		}
 		
 		CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();

@@ -177,7 +177,7 @@ namespace my
 
 		static FontPtr CreateFontFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			const char * filepathname,
+			LPCSTR pFilename,
 			int height,
 			FT_Long face_index = 0);
 

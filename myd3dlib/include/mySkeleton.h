@@ -334,6 +334,6 @@ namespace my
 			UINT srcDataLen);
 
 		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimationFromFile(
-			LPCTSTR pFilename);
+			LPCSTR pFilename);
 	};
 }

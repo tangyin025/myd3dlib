@@ -10,14 +10,6 @@ namespace my
 	class ArchiveStream
 	{
 	public:
-		enum SeekType
-		{
-			CUR,
-			END,
-			SET
-		};
-
-	public:
 		virtual ~ArchiveStream(void)
 		{
 		}

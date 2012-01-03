@@ -327,7 +327,7 @@ namespace my
 
 		static MeshPtr CreateMeshFromX(
 			LPDIRECT3DDEVICE9 pD3DDevice,
-			LPCTSTR pFilename,
+			LPCSTR pFilename,
 			DWORD Options = D3DXMESH_MANAGED,
 			LPD3DXBUFFER * ppAdjacency = NULL,
 			LPD3DXBUFFER * ppMaterials = NULL,
@@ -567,7 +567,7 @@ namespace my
 
 		static OgreMeshPtr CreateOgreMeshFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCTSTR pFilename,
+			LPCSTR pFilename,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 	};
 };
