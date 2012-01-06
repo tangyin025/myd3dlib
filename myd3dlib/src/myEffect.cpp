@@ -32,7 +32,12 @@ namespace my
 			pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			if(ErrorMsgs)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create vertex shader from: %p", pSrcData));
 		}
 
 		LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -62,7 +67,12 @@ namespace my
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			if(ErrorMsgs)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create vertex shader from: %s", pSrcFile));
 		}
 
 		LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -100,7 +110,12 @@ namespace my
 			pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			if(ErrorMsgs)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create pixel shader from: %p", pSrcData));
 		}
 
 		LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -130,7 +145,12 @@ namespace my
 			pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			if(ErrorMsgs)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create pixel shader from: %s", pSrcFile));
 		}
 
 		LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -171,7 +191,12 @@ namespace my
 			pDevice, pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			if(CompilationErrors)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create effect from: %p", pSrcData));
 		}
 
 		return EffectPtr(new Effect(pEffect));
@@ -191,7 +216,12 @@ namespace my
 			pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 		if(FAILED(hres))
 		{
-			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			if(CompilationErrors)
+			{
+				THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			}
+
+			THROW_CUSEXCEPTION(str_printf("cannot create effect from: %s", pSrcFile));
 		}
 
 		return EffectPtr(new Effect(pEffect));

@@ -30,6 +30,11 @@ namespace my
 	CachePtr ZipArchiveStream::GetWholeCache(void)
 	{
 		CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
+		if(0 == cache->size())
+		{
+			THROW_CUSEXCEPTION("read zip file cache failed");
+		}
+
 		int ret = unzReadCurrentFile(m_zFile, &(*cache)[0], cache->size());
 		if(ret != cache->size())
 		{
@@ -53,8 +58,13 @@ namespace my
 	{
 		fseek(m_fp, 0, SEEK_END);
 		long len = ftell(m_fp);
-		fseek(m_fp, 0, SEEK_SET);
 		CachePtr cache(new Cache(len));
+		if(0 == cache->size())
+		{
+			THROW_CUSEXCEPTION("read file cache failed");
+		}
+
+		fseek(m_fp, 0, SEEK_SET);
 		size_t ret = fread(&(*cache)[0], 1, cache->size(), m_fp);
 		if(ret != cache->size())
 		{
