@@ -966,7 +966,7 @@ void CModelViewerCamera::SetDragRect( RECT& rc )
 //--------------------------------------------------------------------------------------
 VOID CModelViewerCamera::Reset()
 {
-    //CBaseCamera::Reset();
+    CBaseCamera::Reset();
 
     D3DXMatrixIdentity( &m_mWorld );
     D3DXMatrixIdentity( &m_mModelRot );
@@ -976,8 +976,6 @@ VOID CModelViewerCamera::Reset()
     m_fRadius = m_fDefaultRadius;
     m_WorldArcBall.Reset();
     m_ViewArcBall.Reset();
-
-	CBaseCamera::Reset();
 }
 
 
@@ -1184,7 +1182,12 @@ HRESULT CDXUTDirectionWidget::StaticOnD3D9CreateDevice( IDirect3DDevice9* pd3dDe
 
     UINT dwBufferSize = ( UINT )strlen( g_strBuffer ) + 1;
 
-    V_RETURN( D3DXCreateEffect( s_pd3d9Device, g_strBuffer, dwBufferSize, NULL, NULL, D3DXFX_NOT_CLONEABLE,
+    DWORD Flags = D3DXFX_NOT_CLONEABLE;
+#ifdef D3DXFX_LARGEADDRESS_HANDLE
+    Flags |= D3DXFX_LARGEADDRESSAWARE;
+#endif
+
+    V_RETURN( D3DXCreateEffect( s_pd3d9Device, g_strBuffer, dwBufferSize, NULL, NULL, Flags,
                                 NULL, &s_pD3D9Effect, NULL ) );
 
     // Save technique handles for use when rendering
@@ -1314,8 +1317,7 @@ HRESULT CDXUTDirectionWidget::StaticOnD3D10CreateDevice( ID3D10Device* pd3dDevic
     V_RETURN( s_pRenderTech->GetPassByIndex( 0 )->GetDesc( &PassDesc ) );
     V_RETURN( pd3dDevice->CreateInputLayout( layout, 2, PassDesc.pIAInputSignature,
                                              PassDesc.IAInputSignatureSize, &s_pVertexLayout ) );
-
-    //TODO:  Add loading code here
+    DXUT_SetDebugName( s_pVertexLayout, "CDXUTDirectionWidget" );
 
     return S_OK;
 }
@@ -1358,7 +1360,7 @@ HRESULT CDXUTDirectionWidget::OnRender10( D3DXCOLOR color, const D3DXMATRIX* pmV
 
     s_pd3d10Device->IASetInputLayout( s_pVertexLayout );
 
-    //TODO:  Add rendering code here
+    // Add rendering code here
 
     return S_OK;
 }

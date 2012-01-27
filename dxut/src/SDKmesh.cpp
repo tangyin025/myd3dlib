@@ -196,6 +196,7 @@ HRESULT CDXUTSDKMesh::CreateVertexBuffer( ID3D10Device* pd3dDevice, SDKMESH_VERT
         D3D10_SUBRESOURCE_DATA InitData;
         InitData.pSysMem = pVertices;
         hr = pd3dDevice->CreateBuffer( &bufferDesc, &InitData, &pHeader->pVB10 );
+        DXUT_SetDebugName( pHeader->pVB10, "CDXUTSDKMesh" );
     }
 
     return hr;
@@ -225,6 +226,7 @@ HRESULT CDXUTSDKMesh::CreateIndexBuffer( ID3D10Device* pd3dDevice, SDKMESH_INDEX
         D3D10_SUBRESOURCE_DATA InitData;
         InitData.pSysMem = pIndices;
         hr = pd3dDevice->CreateBuffer( &bufferDesc, &InitData, &pHeader->pIB10 );
+        DXUT_SetDebugName( pHeader->pIB10, "CDXUTSDKMesh" );
     }
 
     return hr;
@@ -533,7 +535,7 @@ HRESULT CDXUTSDKMesh::CreateFromMemory( ID3D10Device* pDev10,
             UINT stride = (UINT)m_pVertexBufferArray[currentMesh->VertexBuffers[0]].StrideBytes;
             assert (stride % 4 == 0);
             stride /=4;
-            for (UINT vertind = IndexStart; vertind < IndexStart + IndexCount; ++vertind) { //TODO: test 16 bit and 32 bit
+            for (UINT vertind = IndexStart; vertind < IndexStart + IndexCount; ++vertind) {
                 UINT current_ind=0;
                 if (indsize == 2) {
                     UINT ind_div2 = vertind / 2;
@@ -1451,6 +1453,7 @@ HRESULT CDXUTSDKMesh::CreateAdjacencyIndices( ID3D10Device* pd3dDevice, float fE
         D3D10_SUBRESOURCE_DATA InitData;
         InitData.pSysMem = pAdjIndices;
         V_RETURN( pd3dDevice->CreateBuffer( &bufferDesc, &InitData, &m_pAdjacencyIndexBufferArray[IBIndex].pIB10 ) );
+        DXUT_SetDebugName( m_pAdjacencyIndexBufferArray[IBIndex].pIB10, "CDXUTSDKMesh" );
 
         //cleanup
         pIndexBuffer->Unmap();

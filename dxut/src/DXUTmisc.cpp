@@ -1339,6 +1339,7 @@ void WINAPI DXUTGetDesktopResolution( UINT AdapterOrdinal, UINT* pWidth, UINT* p
     if( DeviceSettings.ver == DXUT_D3D9_DEVICE )
     {
         CD3D9Enumeration* pd3dEnum = DXUTGetD3D9Enumeration();
+        assert( pd3dEnum != NULL );
         CD3D9EnumAdapterInfo* pAdapterInfo = pd3dEnum->GetAdapterInfo( AdapterOrdinal );
         if( pAdapterInfo )
         {
@@ -1349,6 +1350,7 @@ void WINAPI DXUTGetDesktopResolution( UINT AdapterOrdinal, UINT* pWidth, UINT* p
     else
     {
         CD3D10Enumeration* pd3dEnum = DXUTGetD3D10Enumeration();
+        assert( pd3dEnum != NULL );
         CD3D10EnumOutputInfo* pOutputInfo = pd3dEnum->GetOutputInfo( AdapterOrdinal, DeviceSettings.d3d10.Output );
         if( pOutputInfo )
         {

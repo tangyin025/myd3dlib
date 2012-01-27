@@ -122,7 +122,11 @@ HRESULT WINAPI DXUTFindValidDeviceSettings( DXUTDeviceSettings* pOut, DXUTDevice
     bool bFoundValidD3D9 = false;
 
     DXUTDeviceSettings validDeviceSettings;
-    CopyMemory( &validDeviceSettings, pIn, sizeof( DXUTDeviceSettings ) );
+    if (pIn)
+        CopyMemory( &validDeviceSettings, pIn, sizeof( DXUTDeviceSettings ) );
+    else
+        memset( &validDeviceSettings, 0, sizeof(DXUTDeviceSettings) );
+
     DXUTDeviceSettings optimalDeviceSettings;
 
     if( bAppSupportsD3D10 && !bPreferD3D9 && !bAvoidD3D10 )
@@ -1165,6 +1169,7 @@ HRESULT DXUTFindValidD3D9DeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3D9D
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
     IDirect3D9* pD3D = DXUTGetD3D9Object();
+    assert( pD3D != NULL );
     CD3D9Enumeration* pd3dEnum = DXUTGetD3D9Enumeration( false );
     CGrowableArray <CD3D9EnumAdapterInfo*>* pAdapterList = pd3dEnum->GetAdapterInfoList();
     for( int iAdapter = 0; iAdapter < pAdapterList->GetSize(); iAdapter++ )
@@ -1235,6 +1240,7 @@ void DXUTBuildOptimalD3D9DeviceSettings( DXUTD3D9DeviceSettings* pOptimalDeviceS
                                          DXUTMatchOptions* pMatchOptions )
 {
     IDirect3D9* pD3D = DXUTGetD3D9Object();
+    assert( pD3D != NULL );
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
     ZeroMemory( pOptimalDeviceSettings, sizeof( DXUTD3D9DeviceSettings ) );
@@ -1805,6 +1811,7 @@ void DXUTBuildValidD3D9DeviceSettings( DXUTD3D9DeviceSettings* pValidDeviceSetti
                                        DXUTMatchOptions* pMatchOptions )
 {
     IDirect3D9* pD3D = DXUTGetD3D9Object();
+    assert( pD3D != NULL );
     D3DDISPLAYMODE adapterDesktopDisplayMode;
     pD3D->GetAdapterDisplayMode( pBestDeviceSettingsCombo->AdapterOrdinal, &adapterDesktopDisplayMode );
 
@@ -2977,7 +2984,11 @@ void CD3D10Enumeration::BuildMultiSampleQualityList( DXGI_FORMAT fmt, CD3D10Enum
     ID3D10Device* pd3dDevice = NULL;
     IDXGIAdapter* pAdapter = NULL;
     if( pDeviceCombo->DeviceType == D3D10_DRIVER_TYPE_HARDWARE )
-        DXUTGetDXGIFactory()->EnumAdapters( pDeviceCombo->pAdapterInfo->AdapterOrdinal, &pAdapter );
+    {
+        IDXGIFactory* factory = DXUTGetDXGIFactory();
+        assert( factory != NULL );
+        factory->EnumAdapters( pDeviceCombo->pAdapterInfo->AdapterOrdinal, &pAdapter );
+    }
 
     if( FAILED( DXUT_Dynamic_D3D10CreateDevice( pAdapter, pDeviceCombo->DeviceType, ( HMODULE )0, 0, NULL,
                                                 D3D10_SDK_VERSION, &pd3dDevice ) ) )
@@ -3179,6 +3190,7 @@ HRESULT DXUTFindValidD3D10DeviceSettings( DXUTD3D10DeviceSettings* pOut, DXUTD3D
     float fBestRanking = -1.0f;
     CD3D10EnumDeviceSettingsCombo* pBestDeviceSettingsCombo = NULL;
     DXGI_MODE_DESC adapterDisplayMode;
+    memset( &adapterDisplayMode, 0, sizeof(adapterDisplayMode) );
 
     CD3D10Enumeration* pd3dEnum = DXUTGetD3D10Enumeration();
     CGrowableArray <CD3D10EnumAdapterInfo*>* pAdapterList = pd3dEnum->GetAdapterInfoList();
@@ -3711,6 +3723,8 @@ void DXUTBuildValidD3D10DeviceSettings( DXUTD3D10DeviceSettings* pValidDeviceSet
                                         DXUTMatchOptions* pMatchOptions )
 {
     DXGI_MODE_DESC adapterDisplayMode;
+    memset( &adapterDisplayMode, 0, sizeof(adapterDisplayMode) );
+
     DXUTGetD3D10AdapterDisplayMode( pBestDeviceSettingsCombo->AdapterOrdinal,
                                     pBestDeviceSettingsCombo->Output, &adapterDisplayMode );
 
@@ -3897,6 +3911,7 @@ void DXUTBuildValidD3D10DeviceSettings( DXUTD3D10DeviceSettings* pValidDeviceSet
     }
     else
     {
+        assert( pDeviceSettingsIn != NULL );
         bestEnableAutoDepthStencil = pDeviceSettingsIn->AutoCreateDepthStencil;
         bestDepthStencilFormat = pDeviceSettingsIn->AutoDepthStencilFormat;
     }
@@ -4105,6 +4120,7 @@ HRESULT WINAPI DXUTGetD3D10AdapterDisplayMode( UINT AdapterOrdinal, UINT nOutput
         return E_INVALIDARG;
 
     CD3D10Enumeration* pD3DEnum = DXUTGetD3D10Enumeration();
+    assert( pD3DEnum != NULL );
     CD3D10EnumOutputInfo* pOutputInfo = pD3DEnum->GetOutputInfo( AdapterOrdinal, nOutput );
     if( pOutputInfo )
     {
@@ -4122,7 +4138,6 @@ HRESULT WINAPI DXUTGetD3D10AdapterDisplayMode( UINT AdapterOrdinal, UINT nOutput
         pModeDesc->Height = Desc.DesktopCoordinates.bottom - Desc.DesktopCoordinates.top;
     }
 
-    // TODO: verify this is needed
     if( pModeDesc->Format == DXGI_FORMAT_B8G8R8A8_UNORM )
         pModeDesc->Format = DXGI_FORMAT_R8G8B8A8_UNORM;
 
