@@ -165,8 +165,6 @@ HRESULT CWaveFile::ReadMMIO()
     MMCKINFO ckIn;           // chunk info. for general use.
     PCMWAVEFORMAT pcmWaveFormat;  // Temp PCM structure to load in.
 
-    memset( &ckIn, 0, sizeof(ckIn) );
-
     m_pwfx = NULL;
 
     if( ( 0 != mmioDescend( m_hmmio, &m_ckRiff, NULL, 0 ) ) )
@@ -384,11 +382,8 @@ HRESULT CWaveFile::Close()
 {
     if( m_dwFlags == WAVEFILE_READ )
     {
-        if ( m_hmmio != NULL )
-        {
-            mmioClose( m_hmmio, 0 );
-            m_hmmio = NULL;
-        }
+        mmioClose( m_hmmio, 0 );
+        m_hmmio = NULL;
         SAFE_DELETE_ARRAY( m_pResourceBuffer );
     }
     else
@@ -448,8 +443,6 @@ HRESULT CWaveFile::WriteMMIO( WAVEFORMATEX* pwfxDest )
 {
     DWORD dwFactChunk; // Contains the actual fact chunk. Garbage until WaveCloseWriteFile.
     MMCKINFO ckOut1;
-
-    memset( &ckOut1, 0, sizeof(ckOut1) );
 
     dwFactChunk = ( DWORD )-1;
 

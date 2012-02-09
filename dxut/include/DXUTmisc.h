@@ -305,34 +305,6 @@ BOOL WINAPI DXUT_Dynamic_D3D10StateBlockMaskGetSetting( D3D10_STATE_BLOCK_MASK* 
 // Profiling/instrumentation support
 //--------------------------------------------------------------------------------------
 
-// Use DXUT_SetDebugName() to attach names to D3D objects for use by 
-// SDKDebugLayer, PIX's object table, etc.
-#if defined(PROFILE) || defined(DEBUG)
-inline void DXUT_SetDebugName( IDirect3DResource9* pObj, const CHAR* pstrName )
-{
-    if ( pObj )
-        pObj->SetPrivateData( WKPDID_D3DDebugObjectName, pstrName, lstrlenA(pstrName), 0 );
-}
-inline void DXUT_SetDebugName( IDXGIObject* pObj, const CHAR* pstrName )
-{
-    if ( pObj )
-        pObj->SetPrivateData( WKPDID_D3DDebugObjectName, lstrlenA(pstrName), pstrName );
-}
-inline void DXUT_SetDebugName( ID3D10Device* pObj, const CHAR* pstrName )
-{
-    if ( pObj )
-        pObj->SetPrivateData( WKPDID_D3DDebugObjectName, lstrlenA(pstrName), pstrName );
-}
-inline void DXUT_SetDebugName( ID3D10DeviceChild* pObj, const CHAR* pstrName )
-{
-    if ( pObj )
-        pObj->SetPrivateData( WKPDID_D3DDebugObjectName, lstrlenA(pstrName), pstrName );
-}
-#else
-#define DXUT_SetDebugName( pObj, pstrName )
-#endif
-
-
 //--------------------------------------------------------------------------------------
 // Some D3DPERF APIs take a color that can be used when displaying user events in 
 // performance analysis tools.  The following constants are provided for your 
@@ -511,8 +483,6 @@ template<typename TYPE> HRESULT CGrowableArray <TYPE>::Add( const TYPE& value )
     HRESULT hr;
     if( FAILED( hr = SetSizeInternal( m_nSize + 1 ) ) )
         return hr;
-
-    assert( m_pData != NULL );
 
     // Construct the new element
     ::new ( &m_pData[m_nSize] ) TYPE;

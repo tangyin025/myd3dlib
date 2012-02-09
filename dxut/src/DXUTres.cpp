@@ -8323,8 +8323,6 @@ HRESULT WINAPI DXUTCreateGUITextureFromInternalArray10( ID3D10Device *pd3dDevice
     hr = D3DX10CreateTextureFromMemory( pd3dDevice, g_DXUTGUITextureSrcData, g_DXUTGUITextureSrcDataSizeInBytes, &loadInfo, NULL, &pRes, NULL );
     if( FAILED( hr ) )
         return hr;
-    DXUT_SetDebugName( pRes, "DXUT" );
-
     hr = pRes->QueryInterface( __uuidof( ID3D10Texture2D ), (LPVOID*)ppTexture );
     SAFE_RELEASE( pRes );
 

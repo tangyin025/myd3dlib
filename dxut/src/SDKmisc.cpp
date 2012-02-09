@@ -25,13 +25,13 @@ CDXUTResourceCache& WINAPI DXUTGetGlobalResourceCache()
 //--------------------------------------------------------------------------------------
 // Internal functions forward declarations
 //--------------------------------------------------------------------------------------
-bool DXUTFindMediaSearchTypicalDirs( __out_ecount(cchSearch) WCHAR* strSearchPath, 
-                                     __in int cchSearch, 
-                                     __in LPCWSTR strLeaf, 
-                                     __in WCHAR* strExePath,
-                                     __in WCHAR* strExeName );
-bool DXUTFindMediaSearchParentDirs( __out_ecount(cchSearch) WCHAR* strSearchPath, 
-                                    __in int cchSearch, 
+bool DXUTFindMediaSearchTypicalDirs( __in_ecount(cchSearch) WCHAR* strSearchPath, 
+                                    int cchSearch, 
+                                    __in LPCWSTR strLeaf, 
+                                    __in WCHAR* strExePath,
+                                    __in WCHAR* strExeName );
+bool DXUTFindMediaSearchParentDirs( __in_ecount(cchSearch) WCHAR* strSearchPath, 
+                                    int cchSearch, 
                                     __in WCHAR* strStartAt, 
                                     __in WCHAR* strLeafName );
 
@@ -216,8 +216,9 @@ HRESULT WINAPI DXUTSetMediaSearchPath( LPCWSTR strPath )
 //       cchDest is the size in WCHARs of strDestPath.  Be careful not to 
 //       pass in sizeof(strDest) on UNICODE builds.
 //--------------------------------------------------------------------------------------
-HRESULT WINAPI DXUTFindDXSDKMediaFileCch( WCHAR* strDestPath, int cchDest, 
-                                          LPCWSTR strFilename )
+HRESULT WINAPI DXUTFindDXSDKMediaFileCch( __in_ecount(cchDest) WCHAR* strDestPath,
+                                          int cchDest, 
+                                          __in LPCWSTR strFilename )
 {
     bool bFound;
     WCHAR strSearchFor[MAX_PATH];
@@ -300,8 +301,11 @@ HRESULT WINAPI DXUTFindDXSDKMediaFileCch( WCHAR* strDestPath, int cchDest,
 //--------------------------------------------------------------------------------------
 // Search a set of typical directories
 //--------------------------------------------------------------------------------------
-bool DXUTFindMediaSearchTypicalDirs( WCHAR* strSearchPath, int cchSearch, LPCWSTR strLeaf,
-                                     WCHAR* strExePath, WCHAR* strExeName )
+bool DXUTFindMediaSearchTypicalDirs( __in_ecount(cchSearch) WCHAR* strSearchPath, 
+                                    int cchSearch, 
+                                    __in LPCWSTR strLeaf, 
+                                    __in WCHAR* strExePath,
+                                    __in WCHAR* strExeName )
 {
     // Typical directories:
     //      .\
@@ -377,8 +381,10 @@ bool DXUTFindMediaSearchTypicalDirs( WCHAR* strSearchPath, int cchSearch, LPCWST
 // Search parent directories starting at strStartAt, and appending strLeafName
 // at each parent directory.  It stops at the root directory.
 //--------------------------------------------------------------------------------------
-bool DXUTFindMediaSearchParentDirs( WCHAR* strSearchPath, int cchSearch, WCHAR* strStartAt,
-                                    WCHAR* strLeafName )
+bool DXUTFindMediaSearchParentDirs( __in_ecount(cchSearch) WCHAR* strSearchPath, 
+                                    int cchSearch, 
+                                    __in WCHAR* strStartAt, 
+                                    __in WCHAR* strLeafName )
 {
     WCHAR strFullPath[MAX_PATH] = {0};
     WCHAR strFullFileName[MAX_PATH] = {0};
@@ -484,16 +490,6 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( LPDIRECT3DDEVICE9 pDevice, 
         }
     }
 
-#if defined(PROFILE) || defined(DEBUG)
-    CHAR strFileA[MAX_PATH];
-    WideCharToMultiByte( CP_ACP, 0, pSrcFile, -1, strFileA, MAX_PATH, NULL, FALSE );
-    CHAR* pstrName = strrchr( strFileA, '\\' );
-    if( pstrName == NULL )
-        pstrName = strFileA;
-    else
-        pstrName++;
-#endif
-
     HRESULT hr;
 
     // No matching entry.  Load the resource and create a new entry.
@@ -513,8 +509,6 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( LPDIRECT3DDEVICE9 pDevice, 
     NewEntry.Pool9 = Pool;
     NewEntry.Type9 = D3DRTYPE_TEXTURE;
     ( *ppTexture )->QueryInterface( IID_IDirect3DBaseTexture9, ( LPVOID* )&NewEntry.pTexture9 );
-
-    DXUT_SetDebugName( *ppTexture, pstrName );
 
     m_TextureCache.Add( NewEntry );
     return S_OK;
@@ -562,16 +556,6 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( ID3D10Device* pDevice, LPCT
         }
     }
 
-#if defined(PROFILE) || defined(DEBUG)
-    CHAR strFileA[MAX_PATH];
-    WideCharToMultiByte( CP_ACP, 0, pSrcFile, -1, strFileA, MAX_PATH, NULL, FALSE );
-    CHAR* pstrName = strrchr( strFileA, '\\' );
-    if( pstrName == NULL )
-        pstrName = strFileA;
-    else
-        pstrName++;
-#endif
-
     //Ready a new entry to the texture cache
     //Do this before creating the texture since pLoadInfo may be volatile
     DXUTCache_Texture NewEntry;
@@ -586,7 +570,7 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( ID3D10Device* pDevice, LPCT
     NewEntry.BindFlags = pLoadInfo->BindFlags;
     NewEntry.MiscFlags = pLoadInfo->MiscFlags;
 
-    //Create the texture
+    //Create the rexture
     ID3D10Texture2D* pRes = NULL;
     hr = D3DX10CreateTextureFromFile( pDevice, pSrcFile, pLoadInfo, pPump, ( ID3D10Resource** )&pRes, NULL );
     if( FAILED( hr ) )
@@ -617,7 +601,6 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( ID3D10Device* pDevice, LPCT
             bSRGB = false;
         }
     }
-    DXUT_SetDebugName( pRes, pstrName );
 
     D3D10_SHADER_RESOURCE_VIEW_DESC SRVDesc;
     if( bSRGB )
@@ -656,8 +639,6 @@ HRESULT CDXUTResourceCache::CreateTextureFromFileEx( ID3D10Device* pDevice, LPCT
         return hr;
 
     ( *ppOutputRV )->QueryInterface( __uuidof( ID3D10ShaderResourceView ), ( LPVOID* )&NewEntry.pSRV10 );
-
-    DXUT_SetDebugName( *ppOutputRV, pstrName );
 
     m_TextureCache.Add( NewEntry );
 
@@ -1075,10 +1056,6 @@ HRESULT CDXUTResourceCache::CreateEffectFromFile( LPDIRECT3DDEVICE9 pDevice, LPC
     HRESULT hr;
 
     // No matching entry.  Load the resource and create a new entry.
-#ifdef D3DXFX_LARGEADDRESS_HANDLE
-    Flags |= D3DXFX_LARGEADDRESSAWARE;
-#endif
-
     hr = D3DXCreateEffectFromFile( pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, ppEffect,
                                    ppCompilationErrors );
     if( FAILED( hr ) )
@@ -1122,10 +1099,6 @@ HRESULT CDXUTResourceCache::CreateEffectFromResource( LPDIRECT3DDEVICE9 pDevice,
     HRESULT hr;
 
     // No matching entry.  Load the resource and create a new entry.
-#ifdef D3DXFX_LARGEADDRESS_HANDLE
-    Flags |= D3DXFX_LARGEADDRESSAWARE;
-#endif
-
     hr = D3DXCreateEffectFromResource( pDevice, hSrcModule, pSrcResource, pDefines, pInclude, Flags,
                                        pPool, ppEffect, ppCompilationErrors );
     if( FAILED( hr ) )
@@ -1559,7 +1532,6 @@ void CDXUTTextHelper::Init( ID3DXFont* pFont9, ID3DXSprite* pSprite9, ID3DX10Fon
             StateDesc.BlendOpAlpha = D3D10_BLEND_OP_ADD;
             StateDesc.RenderTargetWriteMask[0] = 0xf;
             pDev->CreateBlendState( &StateDesc, &m_pFontBlendState10 );
-            DXUT_SetDebugName( m_pFontBlendState10, "CDXUTTextHelper" );
 
             pDev->Release();
         }

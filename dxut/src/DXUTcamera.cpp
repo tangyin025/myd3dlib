@@ -1182,12 +1182,7 @@ HRESULT CDXUTDirectionWidget::StaticOnD3D9CreateDevice( IDirect3DDevice9* pd3dDe
 
     UINT dwBufferSize = ( UINT )strlen( g_strBuffer ) + 1;
 
-    DWORD Flags = D3DXFX_NOT_CLONEABLE;
-#ifdef D3DXFX_LARGEADDRESS_HANDLE
-    Flags |= D3DXFX_LARGEADDRESSAWARE;
-#endif
-
-    V_RETURN( D3DXCreateEffect( s_pd3d9Device, g_strBuffer, dwBufferSize, NULL, NULL, Flags,
+    V_RETURN( D3DXCreateEffect( s_pd3d9Device, g_strBuffer, dwBufferSize, NULL, NULL, D3DXFX_NOT_CLONEABLE,
                                 NULL, &s_pD3D9Effect, NULL ) );
 
     // Save technique handles for use when rendering
@@ -1317,7 +1312,8 @@ HRESULT CDXUTDirectionWidget::StaticOnD3D10CreateDevice( ID3D10Device* pd3dDevic
     V_RETURN( s_pRenderTech->GetPassByIndex( 0 )->GetDesc( &PassDesc ) );
     V_RETURN( pd3dDevice->CreateInputLayout( layout, 2, PassDesc.pIAInputSignature,
                                              PassDesc.IAInputSignatureSize, &s_pVertexLayout ) );
-    DXUT_SetDebugName( s_pVertexLayout, "CDXUTDirectionWidget" );
+
+    //TODO:  Add loading code here
 
     return S_OK;
 }
@@ -1360,7 +1356,7 @@ HRESULT CDXUTDirectionWidget::OnRender10( D3DXCOLOR color, const D3DXMATRIX* pmV
 
     s_pd3d10Device->IASetInputLayout( s_pVertexLayout );
 
-    // Add rendering code here
+    //TODO:  Add rendering code here
 
     return S_OK;
 }
