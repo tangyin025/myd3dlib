@@ -303,8 +303,9 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 
 	// 初始化资源管理器收索路径
 	my::ResourceMgr::getSingleton().RegisterFileDir(".");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
 	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 
 	return MyDemo().Run(true, 800, 600);
