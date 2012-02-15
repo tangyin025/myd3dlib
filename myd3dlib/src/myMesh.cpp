@@ -278,10 +278,28 @@ namespace my
 		return MeshPtr(new Mesh(pMesh));
 	}
 
-	OgreMeshPtr OgreMesh::CreateOgreMesh(
+	MeshPtr Mesh::CreateMeshFromOgreXml(
+		LPDIRECT3DDEVICE9 pd3dDevice,
+		LPCSTR pFilename,
+		bool bComputeTangentFrame /*= false*/,
+		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
+	{
+		FILE * fp;
+		if(0 != fopen_s(&fp, pFilename, "rb"))
+		{
+			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
+		}
+
+		CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
+
+		return CreateMeshFromOgreXmlInMemory(pd3dDevice, (LPCSTR)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	}
+
+	MeshPtr Mesh::CreateMeshFromOgreXmlInMemory(
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pSrcData,
 		UINT srcDataLen,
+		bool bComputeTangentFrame /*= false*/,
 		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
 	{
 		std::string xmlStr(pSrcData, srcDataLen);
@@ -321,13 +339,13 @@ namespace my
 		elems.insert(D3DVERTEXELEMENT9Set::CreatePositionElement(0, 0, 0));
 		WORD offset = sizeof(D3DVERTEXELEMENT9Set::PositionType);
 
-		if(normals || dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
+		if(normals || bComputeTangentFrame)
 		{
 			elems.insert(D3DVERTEXELEMENT9Set::CreateNormalElement(0, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::NormalType);
 		}
 
-		if(dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
+		if(bComputeTangentFrame)
 		{
 			elems.insert(D3DVERTEXELEMENT9Set::CreateBinormalElement(0, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::BinormalType);
@@ -370,13 +388,13 @@ namespace my
 
 		LPD3DXMESH pMesh = NULL;
 		HRESULT hres = D3DXCreateMesh(
-			facecount, vertexcount, dwMeshOptions & ~OGREMESH_COMPUTE_TANGENT_FRAME, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
+			facecount, vertexcount, dwMeshOptions, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
 		if(FAILED(hres))
 		{
 			THROW_D3DEXCEPTION(hres);
 		}
 
-		OgreMeshPtr mesh(new OgreMesh(pMesh));
+		MeshPtr mesh(new Mesh(pMesh));
 
 		const VOID * pVertices = mesh->LockVertexBuffer();
 		DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
@@ -454,7 +472,7 @@ namespace my
 				float * pWeights = (float *)&elems.GetBlendWeights(pVertex);
 
 				int i = 0;
-				for(; i < MAX_BONE_INDICES; i++)
+				for(; i < D3DVERTEXELEMENT9Set::MAX_BONE_INDICES; i++)
 				{
 					if(pWeights[i] == 0)
 					{
@@ -464,7 +482,7 @@ namespace my
 					}
 				}
 
-				if(i >= MAX_BONE_INDICES)
+				if(i >= D3DVERTEXELEMENT9Set::MAX_BONE_INDICES)
 				{
 					THROW_CUSEXCEPTION("too much bone assignment");
 				}
@@ -508,29 +526,14 @@ namespace my
 
 		std::vector<DWORD> rgdwAdjacency(mesh->GetNumFaces() * 3);
 		mesh->GenerateAdjacency(1e-6f, &rgdwAdjacency[0]);
-		if(dwMeshOptions | OGREMESH_COMPUTE_TANGENT_FRAME)
+		if(bComputeTangentFrame)
 		{
+			DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE | (normals ? 0 : D3DXTANGENT_CALCULATE_NORMALS);
 			mesh->ComputeTangentFrameEx(
-				D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, D3DXTANGENT_GENERATE_IN_PLACE, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+				D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
 		}
 		mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 
 		return mesh;
-	}
-
-	OgreMeshPtr OgreMesh::CreateOgreMeshFromFile(
-		LPDIRECT3DDEVICE9 pDevice,
-		LPCSTR pFilename,
-		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
-	{
-		FILE * fp;
-		if(0 != fopen_s(&fp, pFilename, "rb"))
-		{
-			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
-		}
-
-		CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
-
-		return CreateOgreMesh(pDevice, (LPCSTR)&(*cache)[0], cache->size(), dwMeshOptions);
 	}
 };

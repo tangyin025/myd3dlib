@@ -105,7 +105,7 @@ protected:
 
 		// 读取模型文件
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
-		m_mesh = my::OgreMesh::CreateOgreMesh(pd3dDevice, (char *)&(*cache)[0], cache->size(), D3DXMESH_MANAGED);
+		m_mesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false, D3DXMESH_MANAGED);
 
 		// 创建贴图
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
