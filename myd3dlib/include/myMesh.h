@@ -351,14 +351,14 @@ namespace my
 		static MeshPtr CreateMeshFromOgreXml(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCSTR pFilename,
-			bool bComputeTangentFrame = false,
+			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		static MeshPtr CreateMeshFromOgreXmlInMemory(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
-			bool bComputeTangentFrame = false,
+			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
@@ -516,42 +516,6 @@ namespace my
 		void UnlockAttributeBuffer(void)
 		{
 			V(m_ptr->UnlockAttributeBuffer());
-		}
-
-		void ComputeTangentFrameEx(
-			DWORD dwTextureInSemantic,
-			DWORD dwTextureInIndex,
-			DWORD dwUPartialOutSemantic,
-			DWORD dwUPartialOutIndex,
-			DWORD dwVPartialOutSemantic,
-			DWORD dwVPartialOutIndex,
-			DWORD dwNormalOutSemantic,
-			DWORD dwNormalOutIndex,
-			DWORD dwOptions,
-			CONST DWORD * pdwAdjacency,
-			FLOAT fPartialEdgeThreshold,
-			FLOAT fSingularPointThreshold,
-			FLOAT fNormalEdgeThreshold,
-			ID3DXMesh ** ppMeshOut,
-			ID3DXBuffer ** ppVertexMapping)
-		{
-			V(D3DXComputeTangentFrameEx(
-				m_ptr,
-				dwTextureInSemantic,
-				dwTextureInIndex,
-				dwUPartialOutSemantic,
-				dwUPartialOutIndex,
-				dwVPartialOutSemantic,
-				dwVPartialOutIndex,
-				dwNormalOutSemantic,
-				dwNormalOutIndex,
-				dwOptions,
-				pdwAdjacency,
-				fPartialEdgeThreshold,
-				fSingularPointThreshold,
-				fNormalEdgeThreshold,
-				ppMeshOut,
-				ppVertexMapping));
 		}
 	};
 };

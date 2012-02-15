@@ -281,7 +281,7 @@ namespace my
 	MeshPtr Mesh::CreateMeshFromOgreXml(
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pFilename,
-		bool bComputeTangentFrame /*= false*/,
+		bool bComputeTangentFrame /*= true*/,
 		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
 	{
 		FILE * fp;
@@ -299,7 +299,7 @@ namespace my
 		LPDIRECT3DDEVICE9 pd3dDevice,
 		LPCSTR pSrcData,
 		UINT srcDataLen,
-		bool bComputeTangentFrame /*= false*/,
+		bool bComputeTangentFrame /*= true*/,
 		DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
 	{
 		std::string xmlStr(pSrcData, srcDataLen);
@@ -529,8 +529,12 @@ namespace my
 		if(bComputeTangentFrame)
 		{
 			DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE | (normals ? 0 : D3DXTANGENT_CALCULATE_NORMALS);
-			mesh->ComputeTangentFrameEx(
-				D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+			HRESULT hres = D3DXComputeTangentFrameEx(
+				mesh->m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DDECLUSAGE_BINORMAL, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+			if(FAILED(hres))
+			{
+				THROW_D3DEXCEPTION(hres);
+			}
 		}
 		mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 
