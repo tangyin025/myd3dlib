@@ -540,4 +540,105 @@ namespace my
 
 		return mesh;
 	}
+
+	MeshPtr Mesh::CreateBox(
+		LPDIRECT3DDEVICE9 pd3dDevice,
+		FLOAT Width /*= 1.0f*/,
+		FLOAT Height /*= 1.0f*/,
+		FLOAT Depth /*= 1.0f*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateCylinder(
+		LPDIRECT3DDEVICE9 pd3dDevice,
+		FLOAT Radius1 /*= 1.0f*/,
+		FLOAT Radius2 /*= 1.0f*/,
+		FLOAT Length /*= 2.0f*/,
+		UINT Slices /*= 20*/,
+		UINT Stacks /*= 1*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreatePolygon(
+		LPDIRECT3DDEVICE9 pDevice,
+		FLOAT Length /*= 1.0f*/,
+		UINT Sides /*= 5*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateSphere(
+		LPDIRECT3DDEVICE9 pDevice,
+		FLOAT Radius /*= 1.0f*/,
+		UINT Slices /*= 20*/,
+		UINT Stacks /*= 20*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateTeapot(
+		LPDIRECT3DDEVICE9 pDevice,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
+
+	MeshPtr Mesh::CreateTorus(
+		LPDIRECT3DDEVICE9 pDevice,
+		FLOAT InnerRadius /*= 0.5f*/,
+		FLOAT OuterRadius /*= 1.5f*/,
+		UINT Sides /*= 20*/,
+		UINT Rings /*= 20*/,
+		LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	{
+		LPD3DXMESH pMesh = NULL;
+		HRESULT hres = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
+		if(FAILED(hres))
+		{
+			THROW_D3DEXCEPTION(hres);
+		}
+
+		return MeshPtr(new Mesh(pMesh));
+	}
 };
