@@ -966,8 +966,6 @@ void CModelViewerCamera::SetDragRect( RECT& rc )
 //--------------------------------------------------------------------------------------
 VOID CModelViewerCamera::Reset()
 {
-    CBaseCamera::Reset();
-
     D3DXMatrixIdentity( &m_mWorld );
     D3DXMatrixIdentity( &m_mModelRot );
     D3DXMatrixIdentity( &m_mModelLastRot );
@@ -976,6 +974,8 @@ VOID CModelViewerCamera::Reset()
     m_fRadius = m_fDefaultRadius;
     m_WorldArcBall.Reset();
     m_ViewArcBall.Reset();
+
+	CBaseCamera::Reset();
 }
 
 

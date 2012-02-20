@@ -3,6 +3,10 @@
 #include "myD3dlib.h"
 #include "rapidxml.hpp"
 
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
+
 namespace my
 {
 	TransformList & TransformList::Transform(

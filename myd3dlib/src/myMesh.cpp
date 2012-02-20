@@ -3,6 +3,10 @@
 #include "myd3dlib.h"
 #include "rapidxml.hpp"
 
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
+
 namespace my
 {
 	std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void) const
@@ -496,6 +500,15 @@ namespace my
 		node_submesh = node_submeshes->first_node("submesh");
 		for(int face_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
 		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
+			DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
+			DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh);
+			if(!usesharedvertices || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+			{
+				THROW_CUSEXCEPTION("!usesharedvertices || !triangle_list");
+			}
+
 			DEFINE_XML_NODE_SIMPLE(faces, submesh);
 			DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
 

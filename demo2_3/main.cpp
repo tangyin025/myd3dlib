@@ -1,6 +1,7 @@
 ﻿
 #include "myd3dlib.h"
 #include <DXUTCamera.h>
+#include "btBulletDynamicsCommon.h"
 
 // ------------------------------------------------------------------------------------------
 // MyDemo
@@ -8,79 +9,161 @@
 
 class MyDemo : public my::DxutSample
 {
-protected:
-	CModelViewerCamera m_camera;
-
-	my::EffectPtr m_effect;
-
-	my::MeshPtr m_mesh;
-
-	my::TexturePtr m_texture;
-
-	my::OgreSkeletonAnimationPtr m_skeleton;
-
-	my::BoneList m_animPose;
-
-	my::BoneList m_incrementedPose;
-
-	my::BoneList m_hierarchyBoneList;
-
-	my::BoneList m_hierarchyBoneList2;
-
-	my::TransformList m_inverseTransformList;
-
-	my::TransformList m_TransformList;
-
-	my::TransformList m_dualQuaternionList;
-
-	class AnimationTimeMgr
+	class AnimationMgr
 	{
 	public:
-		float m_time;
+		float m_currentTime;
 
-		std::string m_anim;
+		std::string m_currentAnim;
 
 		typedef std::map<std::string, std::pair<float, std::string> > AnimTimeMap;
 
-		AnimTimeMap m_animTime;
+		AnimTimeMap m_animTimeMap;
 
-		AnimationTimeMgr(void)
-			: m_time(0)
+		my::OgreSkeletonAnimationPtr m_skeleton;
+
+		my::BoneList m_animPose;
+
+		my::BoneList m_incrementedPose;
+
+		my::BoneList m_hierarchyBoneList;
+
+		my::BoneList m_hierarchyBoneList2;
+
+		my::TransformList m_inverseTransformList;
+
+		my::TransformList m_TransformList;
+
+		my::TransformList m_dualQuaternionList;
+
+		AnimationMgr(LPCSTR pSrcData, UINT srcDataLen)
+			: m_currentTime(0)
 		{
+			m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation(pSrcData, srcDataLen);
 		}
 
 		void SetAnimationTime(const std::string & anim, float time, const std::string & next_anim)
 		{
-			//_ASSERT(m_animTime.end() == m_animTime.find(anim));
+			//_ASSERT(m_animTimeMap.end() == m_animTimeMap.find(anim));
 
-			m_animTime[anim] = std::make_pair(time, next_anim);
+			m_animTimeMap[anim] = std::make_pair(time, next_anim);
 
-			if(m_anim.empty())
+			if(m_currentAnim.empty())
 			{
-				m_anim = anim;
+				m_currentAnim = anim;
 			}
 		}
 
 		void AddAnimationTime(float fElapsedTime)
 		{
-			AnimTimeMap::const_iterator anim_time_iter = m_animTime.find(m_anim);
-			_ASSERT(m_animTime.end() != anim_time_iter);
+			AnimTimeMap::const_iterator anim_time_iter = m_animTimeMap.find(m_currentAnim);
 
-			float time = m_time + fElapsedTime;
+			_ASSERT(m_animTimeMap.end() != anim_time_iter);
+
+			float time = m_currentTime + fElapsedTime;
 			if(time < anim_time_iter->second.first)
 			{
-				m_time = time;
+				m_currentTime = time;
 			}
 			else
 			{
-				m_anim = anim_time_iter->second.second;
-				m_time = 0;
+				m_currentAnim = anim_time_iter->second.second;
+				m_currentTime = 0;
 				AddAnimationTime(time - anim_time_iter->second.first);
 			}
 		}
+
+		void OnFrameMove(double fTime, float fElapsedTime)
+		{
+			// 叠加时间
+			AddAnimationTime(fElapsedTime);
+
+			// 获取当前动画
+			int root_i = m_skeleton->GetBoneIndex("jack_loBackA");
+			m_animPose.clear();
+			m_animPose.resize(m_skeleton->m_boneBindPose.size());
+			m_skeleton->BuildAnimationPose(m_animPose, root_i, m_currentAnim, m_currentTime);
+
+			// 将当前动画和绑定动作叠加
+			m_incrementedPose.clear();
+			m_incrementedPose.resize(m_skeleton->m_boneBindPose.size());
+			m_animPose.Increment(
+				m_incrementedPose, m_skeleton->m_boneBindPose, m_skeleton->m_boneHierarchy, root_i);
+
+			// 为绑定动作生成层次化的骨骼列表（列表中子骨骼的数据将包含父骨骼的变换）
+			m_hierarchyBoneList.clear();
+			m_hierarchyBoneList.resize(m_skeleton->m_boneBindPose.size());
+			m_inverseTransformList.clear();
+			m_inverseTransformList.resize(m_skeleton->m_boneBindPose.size());
+			m_skeleton->m_boneBindPose.BuildHierarchyBoneList(
+				m_hierarchyBoneList, m_skeleton->m_boneHierarchy, root_i);
+
+			// 为目标动作生成层次化的骨骼列表
+			m_hierarchyBoneList2.clear();
+			m_hierarchyBoneList2.resize(m_skeleton->m_boneBindPose.size());
+			m_TransformList.clear();
+			m_TransformList.resize(m_skeleton->m_boneBindPose.size());
+			m_incrementedPose.BuildHierarchyBoneList(
+				m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i, my::Quaternion::Identity(), my::Vector3::zero);
+
+			// 将绑定动作及目标动作的骨骼列表生成双四元式（绑定动作不再需要逆变换，双四元式会进行处理）
+			m_dualQuaternionList.clear();
+			m_dualQuaternionList.resize(m_skeleton->m_boneBindPose.size());
+			m_hierarchyBoneList.BuildDualQuaternionList(
+				m_dualQuaternionList, m_hierarchyBoneList2);
+		}
 	};
 
-	AnimationTimeMgr m_animTimeMgr;
+	typedef boost::shared_ptr<AnimationMgr> AnimationMgrPtr;
+
+protected:
+	CModelViewerCamera m_camera;
+
+	my::MeshPtr m_characterMesh;
+
+	my::TexturePtr m_characterTexture;
+
+	my::EffectPtr m_characterEffect;
+
+	AnimationMgrPtr m_characterAnimMgr;
+
+	my::MeshPtr m_sceneMesh;
+
+	my::TexturePtr m_sceneTexture;
+
+	static const unsigned int SHADOWMAP_SIZE = 1024;
+
+	my::TexturePtr m_shadowMapRT;
+
+	my::SurfacePtr m_shadowMapDS;
+
+	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
+
+	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
+
+	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
+
+	boost::shared_ptr<btSequentialImpulseConstraintSolver> m_solver;
+
+	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
+
+	boost::shared_ptr<btCollisionShape> m_groundShape;
+
+	boost::shared_ptr<btMotionState> m_groundMotionState;
+
+	boost::shared_ptr<btRigidBody> m_groundBody;
+
+	my::MeshPtr m_groundMesh;
+
+	boost::shared_ptr<btCollisionShape> m_sphereShape;
+
+	boost::shared_ptr<btMotionState> m_sphereMotionState;
+
+	boost::shared_ptr<btRigidBody> m_sphereBody;
+
+	my::MeshPtr m_sphereMesh;
+
+	my::EffectPtr m_wireEffect;
 
 	HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -94,34 +177,90 @@ protected:
 		}
 
 		// 初始化相机
-		D3DXVECTOR3 vecEye(0.0f, 0.0f, -50.0f);
-		D3DXVECTOR3 vecAt(0.0f, 0.0f, -0.0f);
+		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
+		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
 		m_camera.SetViewParams(&vecEye, &vecAt);
-		m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
+		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
-		// 读取D3DX Effect文件
-		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh.fx")->GetWholeCache();
-		m_effect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
+		// 初始化角色资源
+		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
+		m_characterMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
-		// 读取模型文件
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
-		m_mesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
-
-		// 创建贴图
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
-		m_texture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+		m_characterTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
-		// 读取骨骼动画
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
+		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
+
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
-		m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+		m_characterAnimMgr = AnimationMgrPtr(new AnimationMgr((char *)&(*cache)[0], cache->size()));
+		m_characterAnimMgr->SetAnimationTime("clip1", m_characterAnimMgr->m_skeleton->GetAnimation("clip1").m_time, "clip2");
+		m_characterAnimMgr->SetAnimationTime("clip2", m_characterAnimMgr->m_skeleton->GetAnimation("clip2").m_time, "clip1");
+		m_characterAnimMgr->SetAnimationTime("clip3", m_characterAnimMgr->m_skeleton->GetAnimation("clip3").m_time, "clip4");
+		m_characterAnimMgr->SetAnimationTime("clip4", m_characterAnimMgr->m_skeleton->GetAnimation("clip4").m_time, "clip3");
+		m_characterAnimMgr->m_currentAnim = "clip1";
+		m_characterAnimMgr->m_currentTime = 0.0f;
 
-		// 初始化动画控制器
-		m_animTimeMgr.SetAnimationTime("clip1", m_skeleton->GetAnimation("clip1").m_time, "clip2");
-		m_animTimeMgr.SetAnimationTime("clip2", m_skeleton->GetAnimation("clip2").m_time, "clip1");
-		m_animTimeMgr.SetAnimationTime("clip3", m_skeleton->GetAnimation("clip3").m_time, "clip4");
-		m_animTimeMgr.SetAnimationTime("clip4", m_skeleton->GetAnimation("clip4").m_time, "clip3");
-		m_animTimeMgr.m_anim = "clip1";
-		m_animTimeMgr.m_time = 0.0f;
+		// 初始化场景资源
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
+		m_sceneMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
+
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("scene.texture.jpg")->GetWholeCache();
+		m_sceneTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+
+		// 初始化物理引擎及相关资源
+		m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+
+		m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+
+		m_overlappingPairCache.reset(new btDbvtBroadphase());
+
+		m_solver.reset(new btSequentialImpulseConstraintSolver());
+
+		m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
+			m_dispatcher.get(), m_overlappingPairCache.get(), m_solver.get(), m_collisionConfiguration.get()));
+
+		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
+
+		// 创建物理地面
+		const my::Vector3 boxHalfExtents(50.0f, 50.0f, 50.0f);
+		m_groundShape.reset(new btBoxShape(btVector3(boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z)));
+
+		btTransform transform;
+		transform.setIdentity();
+		transform.setOrigin(btVector3(0, -boxHalfExtents.y, 0));
+		m_groundMotionState.reset(new btDefaultMotionState(transform));
+
+		btVector3 localInertia(0, 0, 0);
+		m_groundBody.reset(new btRigidBody(
+			btRigidBody::btRigidBodyConstructionInfo(0.0f, m_groundMotionState.get(), m_groundShape.get(), localInertia)));
+		m_groundBody->setRestitution(1.0f);
+
+		m_groundMesh = my::Mesh::CreateBox(pd3dDevice, boxHalfExtents.x * 2, boxHalfExtents.z * 2, boxHalfExtents.y * 2);
+
+		// 创建物里球体（用于角色碰撞）
+		const float sphereRadius = 5.0f;
+		m_sphereShape.reset(new btSphereShape(sphereRadius));
+
+		transform.setOrigin(btVector3(0, 10, 0));
+		m_sphereMotionState.reset(new btDefaultMotionState(transform));
+
+		const float sphereMass = 3.0f / 4.0f * 3.14159f * 1.0f;
+		m_sphereShape->calculateLocalInertia(sphereMass, localInertia);
+		m_sphereBody.reset(new btRigidBody(
+			btRigidBody::btRigidBodyConstructionInfo(sphereMass, m_sphereMotionState.get(), m_sphereShape.get(), localInertia)));
+		m_sphereBody->setRestitution(0.0f);
+
+		m_sphereMesh = my::Mesh::CreateSphere(pd3dDevice, sphereRadius);
+
+		// 将地面和角色球加入物理场景
+		m_dynamicsWorld->addRigidBody(m_groundBody.get());
+
+		m_dynamicsWorld->addRigidBody(m_sphereBody.get());
+
+		// 创建用于渲染物理物体的线框模式 shader
+		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("WireEffect.fx")->GetWholeCache();
+		m_wireEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		return S_OK;
 	}
@@ -139,8 +278,26 @@ protected:
 
 		// 重新设置相机的投影
 		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
-		m_camera.SetProjParams(D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f);
+		m_camera.SetProjParams(D3DXToRadian(90.0f), fAspectRatio, 0.1f, 10000.0f);
 		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+
+		// 创建用于shadow map的render target，使用D3DXCreateTexture可以为不支持设备创建兼容贴图
+		m_shadowMapRT = my::Texture::CreateAdjustedTexture(
+			pd3dDevice,
+			SHADOWMAP_SIZE,
+			SHADOWMAP_SIZE,
+			1,
+			D3DUSAGE_RENDERTARGET,
+			D3DFMT_R32F,
+			D3DPOOL_DEFAULT);
+
+		// 创建用于shadow map的depth scentil
+		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
+		m_shadowMapDS = my::Surface::CreateDepthStencilSurface(
+			pd3dDevice,
+			SHADOWMAP_SIZE,
+			SHADOWMAP_SIZE,
+			d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
 		return S_OK;
 	}
@@ -148,11 +305,18 @@ protected:
 	void OnD3D9LostDevice(void)
 	{
 		DxutSample::OnD3D9LostDevice();
+
+		// 在这里处理在reset中创建的资源
+		m_shadowMapRT = my::TexturePtr();
+		m_shadowMapDS = my::SurfacePtr();
 	}
 
 	void OnD3D9DestroyDevice(void)
 	{
 		DxutSample::OnD3D9DestroyDevice();
+
+		// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
+		m_dynamicsWorld.reset();
 	}
 
 	void OnFrameMove(
@@ -162,57 +326,18 @@ protected:
 		DxutSample::OnFrameMove(fTime, fElapsedTime);
 
 		// 在这里更新场景
+		btTransform transform;
+		m_sphereMotionState->getWorldTransform(transform);
+		const btVector3 & origin = transform.getOrigin();
+		m_camera.m_bDragSinceLastUpdate = true;
+		m_camera.SetModelCenter(D3DXVECTOR3(origin[0], origin[1] + 20.0f, origin[2]));
 		m_camera.FrameMove(fElapsedTime);
 
-		// 获取骨骼动画的某一帧
-		//float time = (float)DXUTGetTime();
-		//time = fmod(time, m_skeleton->GetAnimation("clip1").m_time);
-		m_animTimeMgr.AddAnimationTime(fElapsedTime);
-		int root_i = m_skeleton->GetBoneIndex("jack_loBackA");
-		m_animPose.clear();
-		m_animPose.resize(m_skeleton->m_boneBindPose.size());
-		m_skeleton->BuildAnimationPose(m_animPose, root_i, m_animTimeMgr.m_anim, m_animTimeMgr.m_time);
+		// 更新骨骼动画
+		m_characterAnimMgr->OnFrameMove(fTime, fElapsedTime);
 
-		// 将动画和绑定动作叠加
-		m_incrementedPose.clear();
-		m_incrementedPose.resize(m_skeleton->m_boneBindPose.size());
-		m_animPose.Increment(
-			m_incrementedPose, m_skeleton->m_boneBindPose, m_skeleton->m_boneHierarchy, root_i);
-
-		// 计算绑定动作的逆变换
-		m_hierarchyBoneList.clear();
-		m_hierarchyBoneList.resize(m_skeleton->m_boneBindPose.size());
-		m_inverseTransformList.clear();
-		m_inverseTransformList.resize(m_skeleton->m_boneBindPose.size());
-		//m_skeleton->m_boneBindPose.BuildInverseHierarchyTransformList(
-		//	m_inverseTransformList, m_skeleton->m_boneHierarchy, root_i, my::Matrix4::identity);
-		m_skeleton->m_boneBindPose.BuildHierarchyBoneList(
-			m_hierarchyBoneList, m_skeleton->m_boneHierarchy, root_i);
-		//m_hierarchyBoneList.BuildInverseTransformList(m_inverseTransformList);
-
-		// 计算目标动画的正变换，注意，还要加上world空间变换
-		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
-		my::Vector3 camPos, camScale; my::Quaternion camRot;
-		mWorld.Decompose(camScale, camRot, camPos);
-		m_hierarchyBoneList2.clear();
-		m_hierarchyBoneList2.resize(m_skeleton->m_boneBindPose.size());
-		m_TransformList.clear();
-		m_TransformList.resize(m_skeleton->m_boneBindPose.size());
-		//m_incrementedPose.BuildHierarchyTransformList(
-		//	m_TransformList, m_skeleton->m_boneHierarchy, root_i, mWorld);
-		m_incrementedPose.BuildHierarchyBoneList(
-			m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i, camRot, camPos);
-		//m_hierarchyBoneList2.BuildTransformList(m_TransformList);
-
-		// 合并所有的顶点变换，把结果保存到 m_inverseTransformList
-		//m_inverseTransformList.TransformSelf(
-		//	m_TransformList, m_skeleton->m_boneHierarchy, root_i);
-		//m_hierarchyBoneList.IncrementSelf(
-		//	m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i).BuildTransformList(m_inverseTransformList);
-		m_dualQuaternionList.clear();
-		m_dualQuaternionList.resize(m_skeleton->m_boneBindPose.size());
-		m_hierarchyBoneList.BuildDualQuaternionList(
-			m_dualQuaternionList, m_hierarchyBoneList2);
+		// 更新物理引擎
+		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 	}
 
 	void OnRender(
@@ -225,7 +350,86 @@ protected:
 		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
 		my::Matrix4 mView = *(my::Matrix4 *)m_camera.GetViewMatrix();
 		my::Matrix4 mViewProj = mView * mProj;
-		my::Matrix4 mWorldViewProjection = mWorld * mViewProj;
+		//my::Matrix4 mWorldViewProjection = mWorld * mViewProj;
+
+		// 计算物理地面的变换
+		btTransform transform;
+		m_groundMotionState->getWorldTransform(transform);
+		const btVector3 & ground_origin = transform.getOrigin();
+		const btMatrix3x3 & ground_basis = transform.getBasis();
+
+		my::Matrix4 mGroundLocal(
+			ground_basis[0][0], ground_basis[0][1], ground_basis[0][2], 0,
+			ground_basis[1][0], ground_basis[1][1], ground_basis[1][2], 0,
+			ground_basis[2][0], ground_basis[2][1], ground_basis[2][2], 0,
+			ground_origin[0], ground_origin[1], ground_origin[2], 1);
+
+		// 计算角色球的变换
+		m_sphereMotionState->getWorldTransform(transform);
+		const btVector3 & sphere_origin = transform.getOrigin();
+		const btMatrix3x3 & sphere_basis = transform.getBasis();
+
+		my::Vector4 vSpherePos(sphere_origin[0], sphere_origin[1], sphere_origin[2]);
+
+		my::Matrix4 mSphereLocal(
+			sphere_basis[0][0], sphere_basis[0][1], sphere_basis[0][2], 0,
+			sphere_basis[1][0], sphere_basis[1][1], sphere_basis[1][2], 0,
+			sphere_basis[2][0], sphere_basis[2][1], sphere_basis[2][2], 0,
+			sphere_origin[0], sphere_origin[1], sphere_origin[2], 1);
+
+		my::Matrix4 mSphereWorld(mSphereLocal * mWorld);
+
+		my::Matrix4 mCharacterLocal = my::Matrix4::Translation(my::Vector3(0.0f, -5.0f, 0.0f));
+
+		// 计算光源位置，处在相机的相对位置上
+		my::Vector4 vLightPos(30, 30, 30, 1);
+
+		// 计算光照的透视变换
+		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
+			my::Vector3(vLightPos.x, vLightPos.y, vLightPos.z),
+			my::Vector3(vSpherePos.x, vSpherePos.y, vSpherePos.z),
+			my::Vector3(0.0f, 1.0f, 0.0f)));
+		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovLH(D3DXToRadian(110), 1.0f, 1.0f, 200.0f));
+		my::Matrix4 mViewProjLight = mViewLight * mProjLight;
+
+		// 将shadow map作为render target，注意保存恢复原来的render target
+		HRESULT hr;
+		CComPtr<IDirect3DSurface9> oldRt;
+		V(pd3dDevice->GetRenderTarget(0, &oldRt));
+		V(pd3dDevice->SetRenderTarget(0, m_shadowMapRT->GetSurfaceLevel(0)));
+		CComPtr<IDirect3DSurface9> oldDs = NULL;
+		V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+		V(pd3dDevice->SetDepthStencilSurface(m_shadowMapDS->m_ptr));
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			// 更新d3dx effect变量
+			m_characterEffect->SetMatrix("g_mWorldViewProjectionLight", mCharacterLocal * mSphereLocal * mWorld * mViewProjLight);
+			m_characterEffect->SetTechnique("RenderShadow");
+
+			// 角色动画要求使用双四元式列表
+			m_characterEffect->SetMatrixArray("g_dualquat", &m_characterAnimMgr->m_dualQuaternionList[0], m_characterAnimMgr->m_dualQuaternionList.size());
+
+			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+			UINT cPasses = m_characterEffect->Begin();
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				m_characterEffect->BeginPass(p);
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+				m_characterMesh->DrawSubset(1);
+				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
+				m_characterMesh->DrawSubset(0);
+				m_characterEffect->EndPass();
+			}
+			m_characterEffect->End();
+
+			V(pd3dDevice->EndScene());
+		}
+		V(pd3dDevice->SetRenderTarget(0, oldRt));
+		V(pd3dDevice->SetDepthStencilSurface(oldDs));
+		oldRt.Release();
+		oldDs.Release();
 
 		// 清理缓存背景及depth stencil
 		V(pd3dDevice->Clear(
@@ -233,36 +437,89 @@ protected:
 
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
-			// 更新D3DX Effect值
-			m_effect->SetMatrix("g_mWorldViewProjection", mWorldViewProjection);
-			m_effect->SetMatrix("g_mWorld", mWorld);
-			m_effect->SetFloat("g_fTime", (float)fTime);
+			UINT cPasses;
+			//// 渲染物理地面
+			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mGroundLocal * mWorld * mViewProj);
+			//m_wireEffect->SetMatrix("g_mWorld", mGroundLocal * mWorld);
+			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			// 所有的mesh使用同一种材质，同一张贴图
-			m_effect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
-			m_effect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
-			m_effect->SetTexture("g_MeshTexture", m_texture->m_ptr);
-			m_effect->SetFloatArray("g_LightDir", (float *)&my::Vector3(0.0f, 0.0f, 1.0f), 3);
-			m_effect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+			//m_characterEffect->SetTechnique("RenderScene");
+			//cPasses = m_wireEffect->Begin();
+			//for(UINT p = 0; p < cPasses; ++p)
+			//{
+			//	m_wireEffect->BeginPass(p);
+			//	m_groundMesh->DrawSubset(0);
+			//	m_wireEffect->EndPass();
+			//}
+			//m_wireEffect->End();
 
-			// 初始化骨骼变换列表
-			//m_effect->SetMatrixArray("mWorldMatrixArray", &m_inverseTransformList[0], m_inverseTransformList.size());
-			m_effect->SetMatrixArray("g_dualquat", &m_dualQuaternionList[0], m_dualQuaternionList.size());
-			m_effect->SetMatrix("mViewProj", mViewProj);
+			//// 渲染角色球
+			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mSphereLocal * mWorld * mViewProj);
+			//m_wireEffect->SetMatrix("g_mWorld", mSphereLocal * mWorld);
+			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
-			// 渲染模型的两个部分，注意，头发的部分不要背面剔除
-			m_effect->SetTechnique("RenderScene");
-			UINT cPasses = m_effect->Begin();
+			//m_characterEffect->SetTechnique("RenderScene");
+			//cPasses = m_wireEffect->Begin();
+			//for(UINT p = 0; p < cPasses; ++p)
+			//{
+			//	m_wireEffect->BeginPass(p);
+			//	m_sphereMesh->DrawSubset(0);
+			//	m_wireEffect->EndPass();
+			//}
+			//m_wireEffect->End();
+
+			// 渲染角色模型
+			m_characterEffect->SetMatrix("g_mWorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
+			m_characterEffect->SetMatrix("g_mWorld", mCharacterLocal * mSphereLocal * mWorld);
+			m_characterEffect->SetFloat("g_fTime", (float)fTime);
+
+			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
+			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+			m_characterEffect->SetTexture("g_MeshTexture", m_characterTexture->m_ptr);
+			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPos, 3);
+			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			// 角色动画要求使用双四元式列表
+			m_characterEffect->SetMatrixArray("g_dualquat", &m_characterAnimMgr->m_dualQuaternionList[0], m_characterAnimMgr->m_dualQuaternionList.size());
+
+			m_characterEffect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);
+			m_characterEffect->SetMatrix("g_mWorldViewProjectionLight", mCharacterLocal * mSphereLocal * mWorld * mViewProjLight);
+			m_characterEffect->SetTechnique("RenderCharacter");
+			cPasses = m_characterEffect->Begin();
 			for(UINT p = 0; p < cPasses; ++p)
 			{
-				m_effect->BeginPass(p);
+				// 渲染模型的两个部分，注意，头发的部分不要背面剔除
+				m_characterEffect->BeginPass(p);
 				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-				m_mesh->DrawSubset(1);
+				m_characterMesh->DrawSubset(1);
 				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CCW));
-				m_mesh->DrawSubset(0);
-				m_effect->EndPass();
+				m_characterMesh->DrawSubset(0);
+				m_characterEffect->EndPass();
 			}
-			m_effect->End();
+			m_characterEffect->End();
+
+			// 渲染场景
+			m_characterEffect->SetMatrix("g_mWorldViewProjection", mWorld * mViewProj);
+			m_characterEffect->SetMatrix("g_mWorld", mWorld);
+			m_characterEffect->SetFloat("g_fTime", (float)fTime);
+
+			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
+			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+			m_characterEffect->SetTexture("g_MeshTexture", m_sceneTexture->m_ptr);
+			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPos, 3);
+			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
+
+			m_characterEffect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);
+			m_characterEffect->SetMatrix("g_mWorldViewProjectionLight", mWorld * mViewProjLight);
+			m_characterEffect->SetTechnique("RenderScene");
+			cPasses = m_characterEffect->Begin();
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				m_characterEffect->BeginPass(p);
+				m_sceneMesh->DrawSubset(0);
+				m_characterEffect->EndPass();
+			}
+			m_characterEffect->End();
 
 			V(pd3dDevice->EndScene());
 		}

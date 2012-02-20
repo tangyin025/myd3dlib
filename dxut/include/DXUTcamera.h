@@ -262,7 +262,8 @@ public:
     const D3DXMATRIX* GetWorldMatrix() const { return &m_mWorld; }
     void SetWorldMatrix( D3DXMATRIX &mWorld ) { m_mWorld = mWorld; m_bDragSinceLastUpdate = true; }
 
-protected:
+//protected:
+public:
     CD3DArcBall m_WorldArcBall;
     CD3DArcBall m_ViewArcBall;
     D3DXVECTOR3 m_vModelCenter;
