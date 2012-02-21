@@ -57,44 +57,28 @@ namespace my
 		bool bWindowed,
 		void * pUserContext)
 	{
-		try
+		IDirect3D9 * pD3D = DXUTGetD3D9Object();
+		if(FAILED((pD3D->CheckDeviceFormat(
+			pCaps->AdapterOrdinal,
+			pCaps->DeviceType,
+			AdapterFormat,
+			D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
+			D3DRTYPE_TEXTURE,
+			BackBufferFormat))))
 		{
-			IDirect3D9 * pD3D = DXUTGetD3D9Object();
-			if(FAILED((pD3D->CheckDeviceFormat(
-				pCaps->AdapterOrdinal,
-				pCaps->DeviceType,
-				AdapterFormat,
-				D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
-				D3DRTYPE_TEXTURE,
-				BackBufferFormat))))
-			{
-				return false;
-			}
+			return false;
+		}
 
-			return reinterpret_cast<DxutAppBase *>(pUserContext)->IsD3D9DeviceAcceptable(
-				pCaps, AdapterFormat, BackBufferFormat, bWindowed);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
-		return false;
+		return reinterpret_cast<DxutAppBase *>(pUserContext)->IsD3D9DeviceAcceptable(
+			pCaps, AdapterFormat, BackBufferFormat, bWindowed);
 	}
 
 	bool CALLBACK DxutAppBase::ModifyDeviceSettings_s(
 		DXUTDeviceSettings * pDeviceSettings,
 		void * pUserContext)
 	{
-		try
-		{
-			return reinterpret_cast<DxutAppBase *>(pUserContext)->ModifyDeviceSettings(
-				pDeviceSettings);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
-		return false;
+		return reinterpret_cast<DxutAppBase *>(pUserContext)->ModifyDeviceSettings(
+			pDeviceSettings);
 	}
 
 	HRESULT CALLBACK DxutAppBase::OnD3D9CreateDevice_s(
@@ -102,16 +86,8 @@ namespace my
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		void * pUserContext)
 	{
-		try
-		{
-			return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9CreateDevice(
-				pd3dDevice, pBackBufferSurfaceDesc);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
-		return D3DERR_INVALIDCALL;
+		return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9CreateDevice(
+			pd3dDevice, pBackBufferSurfaceDesc);
 	}
 
 	HRESULT CALLBACK DxutAppBase::OnD3D9ResetDevice_s(
@@ -119,42 +95,20 @@ namespace my
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		void * pUserContext)
 	{
-		try
-		{
-			return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9ResetDevice(
-				pd3dDevice, pBackBufferSurfaceDesc);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
-		return D3DERR_INVALIDCALL;
+		return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9ResetDevice(
+			pd3dDevice, pBackBufferSurfaceDesc);
 	}
 
 	void CALLBACK DxutAppBase::OnD3D9LostDevice_s(
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9LostDevice();
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
+		reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9LostDevice();
 	}
 
 	void CALLBACK DxutAppBase::OnD3D9DestroyDevice_s(
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9DestroyDevice();
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
+		reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9DestroyDevice();
 	}
 
 	void CALLBACK DxutAppBase::OnFrameMove_s(
@@ -162,15 +116,8 @@ namespace my
 		float fElapsedTime,
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutAppBase *>(pUserContext)->OnFrameMove(
-				fTime, fElapsedTime);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
+		reinterpret_cast<DxutAppBase *>(pUserContext)->OnFrameMove(
+			fTime, fElapsedTime);
 	}
 
 	void CALLBACK DxutAppBase::OnD3D9FrameRender_s(
@@ -179,16 +126,8 @@ namespace my
 		float fElapsedTime,
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9FrameRender(
-				pd3dDevice, fTime, fElapsedTime);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-			DXUTShutdown();
-		}
+		reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9FrameRender(
+			pd3dDevice, fTime, fElapsedTime);
 	}
 
 	LRESULT CALLBACK DxutAppBase::MsgProc_s(
@@ -199,16 +138,8 @@ namespace my
 		bool * pbNoFurtherProcessing,
 		void * pUserContext)
 	{
-		try
-		{
-			return reinterpret_cast<DxutAppBase *>(pUserContext)->MsgProc(
-				hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
-		return 0;
+		return reinterpret_cast<DxutAppBase *>(pUserContext)->MsgProc(
+			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
 	}
 
 	void CALLBACK DxutAppBase::OnKeyboard_s(
@@ -217,15 +148,8 @@ namespace my
 		bool bAltDown,
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutAppBase *>(pUserContext)->OnKeyboard(
-				nChar, bKeyDown, bAltDown);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
+		reinterpret_cast<DxutAppBase *>(pUserContext)->OnKeyboard(
+			nChar, bKeyDown, bAltDown);
 	}
 
 	DxutAppBase::DxutAppBase(void)
@@ -244,6 +168,8 @@ namespace my
 
 	DxutAppBase::~DxutAppBase(void)
 	{
+		//DXUTDestroyState();
+		// cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
 	}
 
 	int DxutAppBase::Run(
@@ -258,9 +184,7 @@ namespace my
 		DXUTCreateWindow(szPath);
 		DXUTCreateDevice(bWindowed, nSuggestedWidth, nSuggestedHeight);
 		DXUTMainLoop();
-		int nExitCode = DXUTGetExitCode();
-		DXUTDestroyState();
-		return nExitCode;
+		return DXUTGetExitCode();
 	}
 
 	SingleInstance<DxutApp> * DxutApp::s_ptr = NULL;
@@ -353,14 +277,16 @@ namespace my
 		try
 		{
 			OnInit();
+			int nExitCode = DxutAppBase::Run(bWindowed, nSuggestedWidth, nSuggestedHeight);
+			DXUTDestroyState();
+			return nExitCode;
 		}
 		catch(const my::Exception & e)
 		{
 			MessageBoxA(GetDesktopWindow(), e.GetFullDescription().c_str(), "Exception", MB_OK);
+			DXUTDestroyState();
 			return 0;
 		}
-
-		return DxutAppBase::Run(bWindowed, nSuggestedWidth, nSuggestedHeight);
 	}
 
 	bool DxutSample::IsD3D9DeviceAcceptable(
@@ -588,15 +514,8 @@ namespace my
 		CDXUTControl * pControl,
 		void * pUserContext)
 	{
-		try
-		{
-			reinterpret_cast<DxutSample *>(pUserContext)->OnGUIEvent(
-				nEvent, nControlID, pControl);
-		}
-		catch(const my::Exception & e)
-		{
-			MessageBoxA(DXUTGetHWND(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		}
+		reinterpret_cast<DxutSample *>(pUserContext)->OnGUIEvent(
+			nEvent, nControlID, pControl);
 	}
 
 	void DxutSample::OnGUIEvent(
