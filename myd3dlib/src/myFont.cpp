@@ -326,8 +326,8 @@ namespace my
 		SpritePtr sprite,
 		const std::basic_string<wchar_t> & str,
 		const Rectangle & rect,
-		Align align /*= alignLeftTop*/,
-		D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/)
+		D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
+		Align align /*= alignLeftTop*/)
 	{
 		Vector3 pen(rect.l, rect.t + m_lineHeight, 0);
 		for(size_t i = 0; i < str.length(); i++)

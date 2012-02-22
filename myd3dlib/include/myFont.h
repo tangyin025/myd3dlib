@@ -24,7 +24,7 @@ namespace my
 	public:
 		static SpritePtr CreateSprite(LPDIRECT3DDEVICE9 pDevice);
 
-		void Begin(DWORD Flags)
+		void Begin(DWORD Flags = D3DXSPRITE_ALPHABLEND)
 		{
 			V(m_ptr->Begin(Flags));
 		}
@@ -210,7 +210,7 @@ namespace my
 			SpritePtr sprite,
 			const std::basic_string<wchar_t> & str,
 			const Rectangle & rect,
-			Align align = alignLeftTop,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255));
+			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
+			Align align = alignLeftTop);
 	};
 }
