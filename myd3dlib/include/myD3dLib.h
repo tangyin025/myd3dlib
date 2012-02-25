@@ -11,6 +11,7 @@
 #include "myMesh.h"
 #include "mySkeleton.h"
 #include "myEffect.h"
+#include "myGuiPlatform.h"
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
 	node_v = node_p->first_node(#node_s); \

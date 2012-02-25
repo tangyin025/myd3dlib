@@ -104,6 +104,8 @@ namespace my
 
 		void RegisterFileDir(const std::string & dir);
 
+		bool CheckArchivePath(const std::string & path);
+
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password = "");
 	};
 };

@@ -165,12 +165,6 @@ protected:
 
 	my::EffectPtr m_wireEffect;
 
-	my::FontPtr m_font;
-
-	my::SpritePtr m_sprite;
-
-	my::PixelShaderPtr m_fontPS;
-
 	HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -268,22 +262,6 @@ protected:
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("WireEffect.fx")->GetWholeCache();
 		m_wireEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
-		// 读取字体文件
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei.ttc")->GetWholeCache();
-		m_font = my::Font::CreateFontFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size(), 13);
-
-		// 创建精灵用以绘制字体
-		m_sprite = my::Sprite::CreateSprite(pd3dDevice);
-
-		// 创建用以字体绘制的ps
-		std::string psData(	"sampler2D input : register(s0);"
-							"float4 Color;"
-							"float4 pixelShader(float2 uv : TEXCOORD) : COLOR"
-							"{"
-							"    return float4(Color.r, Color.g, Color.b, Color.a * tex2D(input, uv).a);"
-							"}");
-		m_fontPS = my::PixelShader::CreatePixelShader(pd3dDevice, &psData[0], psData.length() + 1, "pixelShader", "ps_2_0");
-
 		return S_OK;
 	}
 
@@ -362,17 +340,11 @@ protected:
 		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 	}
 
-	void OnD3D9FrameRender(
+	void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime)
 	{
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.OnRender(fElapsedTime);
-			return;
-		}
-
 		// 获得相机投影矩阵
 		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
 		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
@@ -548,21 +520,6 @@ protected:
 				m_characterEffect->EndPass();
 			}
 			m_characterEffect->End();
-
-			V(pd3dDevice->EndScene());
-		}
-
-		// 绘制 HUD 信息
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			m_sprite->Begin(D3DXSPRITE_ALPHABLEND);
-			V(pd3dDevice->SetPixelShader(m_fontPS->m_ptr));
-			m_fontPS->SetVector("Color", my::Vector4(1, 1, 0, 1));
-			m_font->DrawString(m_sprite, DXUTGetFrameStats(DXUTIsVsyncEnabled()), my::Rectangle::LeftTop(5, 5, 1, 1));
-			m_font->DrawString(m_sprite, DXUTGetDeviceStats(), my::Rectangle::LeftTop(5, 20, 1, 1));
-			m_sprite->End();
-
-			V(m_hudDlg.OnRender(fElapsedTime));
 
 			V(pd3dDevice->EndScene());
 		}

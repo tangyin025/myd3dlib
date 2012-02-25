@@ -171,6 +171,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myGuiPlatform.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myMath.cpp"
 				>
 			</File>
@@ -238,6 +242,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myFont.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myGuiPlatform.h"
 				>
 			</File>
 			<File

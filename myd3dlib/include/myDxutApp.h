@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <SDKmisc.h>
+#include <DXUTgui.h>
+#include <DXUTsettingsdlg.h>
+
 namespace my
 {
 	class DeviceRelatedObjectBase
