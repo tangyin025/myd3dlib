@@ -89,9 +89,9 @@ namespace MyGUI
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 		// берем имя нашего экзешника
 		char buf[MAX_PATH];
-		GetModuleFileName(0, (LPCH)&buf, MAX_PATH);
+		GetModuleFileNameA(0, (LPCH)&buf, MAX_PATH);
 		// берем инстанс нашего модуля
-		HINSTANCE instance = GetModuleHandle(buf);
+		HINSTANCE instance = GetModuleHandleA(buf);
 
 		EnumChildWindows(GetDesktopWindow(), (WNDENUMPROC)EnumWindowProc, (LPARAM)instance);
 		mHwnd = (size_t)g_hWnd;

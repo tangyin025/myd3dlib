@@ -30,7 +30,7 @@
 
 #if MYGUI_PLATFORM == MYGUI_PLATFORM_WIN32
 #    define MYGUI_DYNLIB_HANDLE hInstance
-#    define MYGUI_DYNLIB_LOAD( a ) LoadLibrary( a )
+#    define MYGUI_DYNLIB_LOAD( a ) LoadLibraryA( a )
 #    define MYGUI_DYNLIB_GETSYM( a, b ) GetProcAddress( a, b )
 #    define MYGUI_DYNLIB_UNLOAD( a ) !FreeLibrary( a )
 

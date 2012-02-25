@@ -34,6 +34,8 @@
 #define MYGUI_COMPILER_MSVC 1
 #define MYGUI_COMPILER_GNUC 2
 
+#define MYGUI_STATIC
+#define MYGUI_USE_FREETYPE
 
 // Find platform
 #if defined (__WIN32__) || defined (_WIN32)
