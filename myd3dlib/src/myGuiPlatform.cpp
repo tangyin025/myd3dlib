@@ -81,7 +81,7 @@ void DirectXRenderManager::doRender(IVertexBuffer* _buffer, ITexture* _texture, 
 	DirectXVertexBuffer* dxVB = static_cast<DirectXVertexBuffer*>(_buffer);
 	dxVB->setToStream(0);
 	// count in vertexes, triangle_list = vertexes / 3
-	mpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, _count / 3);
+	mpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, _count / 3); // Microsoft C++ exception: long at memory location 0x0014d36c..
 }
 
 void DirectXRenderManager::drawOneFrame()
@@ -394,7 +394,7 @@ const size_t RENDER_ITEM_STEEP_REALLOCK = 5 * VERTEX_IN_QUAD;
 
 DirectXVertexBuffer::DirectXVertexBuffer(IDirect3DDevice9* _device, DirectXRenderManager* _pRenderManager) :
 	mNeedVertexCount(0),
-	mVertexCount(RENDER_ITEM_STEEP_REALLOCK),
+	//mVertexCount(RENDER_ITEM_STEEP_REALLOCK),
 	mpD3DDevice(_device),
 	pRenderManager(_pRenderManager),
 	mpBuffer(NULL)

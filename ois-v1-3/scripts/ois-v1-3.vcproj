@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="myd3dlib"
-	ProjectGUID="{1F5CF866-21B8-4F4B-B9D1-6159003E468F}"
-	RootNamespace="myd3dlib"
+	Name="ois-v1-3"
+	ProjectGUID="{2CCA38FB-35C8-4168-B03B-58F0D85CEB3E}"
+	RootNamespace="oisv13"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -41,12 +41,12 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;;&quot;$(SolutionDir)MyGUIEngine\include&quot;;&quot;$(SolutionDir)ois-v1-3\include&quot;"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="1"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -61,6 +61,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="dxguid.lib dinput8.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -83,7 +84,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
-			CharacterSet="1"
+			CharacterSet="2"
 			WholeProgramOptimization="1"
 			>
 			<Tool
@@ -105,11 +106,11 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;;&quot;$(SolutionDir)MyGUIEngine\include&quot;;&quot;$(SolutionDir)ois-v1-3\include&quot;"
+				AdditionalIncludeDirectories="..\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="2"
+				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -124,6 +125,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
+				AdditionalDependencies="dxguid.lib dinput8.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -151,69 +153,57 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\libc.cpp"
+				RelativePath="..\src\OISEffect.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myDxutApp.cpp"
+				RelativePath="..\src\OISException.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myEffect.cpp"
+				RelativePath="..\src\OISForceFeedback.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myException.cpp"
+				RelativePath="..\src\OISInputManager.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myFont.cpp"
+				RelativePath="..\src\OISJoyStick.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myGuiPlatform.cpp"
+				RelativePath="..\src\OISKeyboard.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\myMath.cpp"
+				RelativePath="..\src\OISObject.cpp"
 				>
 			</File>
-			<File
-				RelativePath="..\src\myMesh.cpp"
+			<Filter
+				Name="win32"
 				>
-			</File>
-			<File
-				RelativePath="..\src\myResource.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\mySkeleton.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\myTexture.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\src\stdafx.cpp"
-				>
-				<FileConfiguration
-					Name="Debug|Win32"
+				<File
+					RelativePath="..\src\win32\Win32ForceFeedback.cpp"
 					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32"
+				</File>
+				<File
+					RelativePath="..\src\win32\Win32InputManager.cpp"
 					>
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"
-					/>
-				</FileConfiguration>
-			</File>
+				</File>
+				<File
+					RelativePath="..\src\win32\Win32JoyStick.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\win32\Win32KeyBoard.cpp"
+					>
+				</File>
+				<File
+					RelativePath="..\src\win32\Win32Mouse.cpp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -221,61 +211,93 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\include\libc.h"
+				RelativePath="..\include\OIS.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myD3dLib.h"
+				RelativePath="..\include\OISConfig.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myDxutApp.h"
+				RelativePath="..\include\OISEffect.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myEffect.h"
+				RelativePath="..\include\OISEvents.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myException.h"
+				RelativePath="..\include\OISException.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myFont.h"
+				RelativePath="..\include\OISFactoryCreator.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myGuiPlatform.h"
+				RelativePath="..\include\OISForceFeedback.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myMath.h"
+				RelativePath="..\include\OISInputManager.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myMesh.h"
+				RelativePath="..\include\OISInterface.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myResource.h"
+				RelativePath="..\include\OISJoyStick.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\mySingleton.h"
+				RelativePath="..\include\OISKeyboard.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\mySkeleton.h"
+				RelativePath="..\include\OISMouse.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\myTexture.h"
+				RelativePath="..\include\OISMultiTouch.h"
 				>
 			</File>
 			<File
-				RelativePath="..\include\stdafx.h"
+				RelativePath="..\include\OISObject.h"
 				>
 			</File>
+			<File
+				RelativePath="..\include\OISPrereqs.h"
+				>
+			</File>
+			<Filter
+				Name="win32"
+				>
+				<File
+					RelativePath="..\include\win32\Win32ForceFeedback.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\win32\Win32InputManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\win32\Win32JoyStick.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\win32\Win32KeyBoard.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\win32\Win32Mouse.h"
+					>
+				</File>
+				<File
+					RelativePath="..\include\win32\Win32Prereqs.h"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="Resource Files"

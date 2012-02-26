@@ -181,7 +181,7 @@ namespace my
 
 		DirectXRenderManager* pRenderManager;
 
-		size_t mVertexCount;
+		//size_t mVertexCount;
 
 		size_t mNeedVertexCount;
 	};
