@@ -644,7 +644,7 @@ int DirectXTexture::getHeight()
 void* DirectXTexture::lock(TextureUsage _access)
 {
 	D3DLOCKED_RECT d3dlr;
-	int lockFlag = (_access == TextureUsage::Write) ? D3DLOCK_DISCARD : D3DLOCK_READONLY;
+	int lockFlag = (_access == TextureUsage::Write) ? 0/*D3DLOCK_DISCARD*/ : D3DLOCK_READONLY;
 
 	HRESULT result = mpTexture->LockRect(0, &d3dlr, NULL, lockFlag);
 	//if (FAILED(result))

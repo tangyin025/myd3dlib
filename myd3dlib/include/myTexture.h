@@ -58,7 +58,10 @@ namespace my
 		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0)
 		{
 			D3DLOCKED_RECT lr;
-			V(m_ptr->LockRect(&lr, &rect, Flags));
+			if(FAILED(hr = m_ptr->LockRect(&lr, &rect, Flags)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 			return lr;
 		}
 
@@ -202,7 +205,10 @@ namespace my
 		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0, UINT Level = 0)
 		{
 			D3DLOCKED_RECT LockedRect;
-			V(static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, &rect, Flags));
+			if(FAILED(hr = static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, &rect, Flags)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 			return LockedRect;
 		}
 

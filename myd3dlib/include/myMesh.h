@@ -204,103 +204,102 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
 
-	class VertexBuffer;
+	//class VertexBuffer;
 
-	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
+	//typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
 
-	class VertexBuffer : public DeviceRelatedObjectBase
-	{
-		//protected:
-	public:
-		CComPtr<IDirect3DDevice9> m_Device;
+	//class VertexBuffer : public DeviceRelatedObjectBase
+	//{
+	//protected:
+	//	CComPtr<IDirect3DDevice9> m_Device;
 
-		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
+	//	CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
 
-		std::vector<unsigned char> m_MemVertexBuffer;
+	//	std::vector<unsigned char> m_MemVertexBuffer;
 
-		D3DVERTEXELEMENT9Set m_VertexElemSet;
+	//	D3DVERTEXELEMENT9Set m_VertexElemSet;
 
-		WORD m_vertexStride;
+	//	WORD m_vertexStride;
 
-		UINT m_NumVertices;
+	//	UINT m_NumVertices;
 
-		WORD m_Stream;
+	//	WORD m_Stream;
 
-		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0);
+	//	VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0);
 
-	public:
-		static VertexBufferPtr CreateVertexBuffer(
-			LPDIRECT3DDEVICE9 pD3DDevice,
-			const D3DVERTEXELEMENT9Set & VertexElemSet,
-			WORD Stream = 0);
+	//public:
+	//	static VertexBufferPtr CreateVertexBuffer(
+	//		LPDIRECT3DDEVICE9 pD3DDevice,
+	//		const D3DVERTEXELEMENT9Set & VertexElemSet,
+	//		WORD Stream = 0);
 
-		void OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	//	void OnD3D9ResetDevice(
+	//		IDirect3DDevice9 * pd3dDevice,
+	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-		void OnD3D9LostDevice(void);
+	//	void OnD3D9LostDevice(void);
 
-		void OnD3D9DestroyDevice(void);
+	//	void OnD3D9DestroyDevice(void);
 
-		void UpdateVertexBuffer(void);
+	//	void UpdateVertexBuffer(void);
 
-		void ResizeVertexBufferLength(UINT NumVertices);
+	//	void ResizeVertexBufferLength(UINT NumVertices);
 
-		template <typename ElementType>
-		void SetCustomType(int Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
-		{
-			m_VertexElemSet.SetCustomType<ElementType>(&m_MemVertexBuffer[Index * m_vertexStride], m_Stream, Usage, UsageIndex, Value);
-		}
+	//	template <typename ElementType>
+	//	void SetCustomType(int Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
+	//	{
+	//		m_VertexElemSet.SetCustomType<ElementType>(&m_MemVertexBuffer[Index * m_vertexStride], m_Stream, Usage, UsageIndex, Value);
+	//	}
 
-		void SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
+	//	void SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
 
-		void SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
+	//	void SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
 
-		void SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
+	//	void SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
 
-		void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
+	//	void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
 
-		void SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
+	//	void SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
 
-		void SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
+	//	void SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
 
-		void SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
-	};
+	//	void SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
+	//};
 
-	class IndexBuffer;
+	//class IndexBuffer;
 
-	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
+	//typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
-	class IndexBuffer : public DeviceRelatedObjectBase
-	{
-	protected:
-		typedef std::vector<unsigned int> UIntList;
+	//class IndexBuffer : public DeviceRelatedObjectBase
+	//{
+	//protected:
+	//	typedef std::vector<unsigned int> UIntList;
 
-		UIntList m_MemIndexBuffer;
+	//	UIntList m_MemIndexBuffer;
 
-		CComPtr<IDirect3DDevice9> m_Device;
+	//	CComPtr<IDirect3DDevice9> m_Device;
 
-		CComPtr<IDirect3DIndexBuffer9> m_IndexBuffer;
+	//	CComPtr<IDirect3DIndexBuffer9> m_IndexBuffer;
 
-		IndexBuffer(LPDIRECT3DDEVICE9 pDevice);
+	//	IndexBuffer(LPDIRECT3DDEVICE9 pDevice);
 
-	public:
-		static IndexBufferPtr CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
+	//public:
+	//	static IndexBufferPtr CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
 
-		void OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	//	void OnD3D9ResetDevice(
+	//		IDirect3DDevice9 * pd3dDevice,
+	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-		void OnD3D9LostDevice(void);
+	//	void OnD3D9LostDevice(void);
 
-		void OnD3D9DestroyDevice(void);
+	//	void OnD3D9DestroyDevice(void);
 
-		void UpdateIndexBuffer(void);
+	//	void UpdateIndexBuffer(void);
 
-		void ResizeIndexBufferLength(UINT NumIndices);
+	//	void ResizeIndexBufferLength(UINT NumIndices);
 
-		void SetIndex(int Index, unsigned int IndexValue);
-	};
+	//	void SetIndex(int Index, unsigned int IndexValue);
+	//};
 
 	class Mesh;
 
@@ -495,14 +494,20 @@ namespace my
 		LPVOID LockIndexBuffer(DWORD Flags = 0)
 		{
 			LPVOID pData = NULL;
-			V(m_ptr->LockIndexBuffer(Flags, &pData));
+			if(FAILED(hr = m_ptr->LockIndexBuffer(Flags, &pData)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 			return pData;
 		}
 
 		LPVOID LockVertexBuffer(DWORD Flags = 0)
 		{
 			LPVOID pData = NULL;
-			V(m_ptr->LockVertexBuffer(Flags, &pData));
+			if(FAILED(hr = m_ptr->LockVertexBuffer(Flags, &pData)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 			return pData;
 		}
 
@@ -524,7 +529,10 @@ namespace my
 		DWORD * LockAttributeBuffer(DWORD Flags = 0)
 		{
 			DWORD * pData = NULL;
-			V(m_ptr->LockAttributeBuffer(Flags, &pData));
+			if(FAILED(hr = m_ptr->LockAttributeBuffer(Flags, &pData)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 			return pData;
 		}
 
