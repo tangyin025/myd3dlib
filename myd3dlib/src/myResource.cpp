@@ -82,8 +82,9 @@ ResourceDir::~ResourceDir(void)
 {
 }
 
-ZipArchiveDir::ZipArchiveDir(const std::string & dir)
+ZipArchiveDir::ZipArchiveDir(const std::string & dir, const std::string & password /*= ""*/)
 	: ResourceDir(dir)
+	, m_password(password)
 {
 }
 
@@ -106,7 +107,7 @@ bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 	return true;
 }
 
-ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path, const std::string & password)
+ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
@@ -121,9 +122,9 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path, cons
 		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
 	}
 
-	if(!password.empty())
+	if(!m_password.empty())
 	{
-		ret = unzOpenCurrentFilePassword(zFile, password.c_str());
+		ret = unzOpenCurrentFilePassword(zFile, m_password.c_str());
 	}
 	else
 	{
@@ -163,7 +164,7 @@ bool FileArchiveDir::CheckArchivePath(const std::string & path)
 	return !GetFullPath(path).empty();
 }
 
-ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path, const std::string & password)
+ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 {
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
@@ -182,9 +183,9 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path, con
 
 ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
-void ResourceMgr::RegisterZipArchive(const std::string & zip_path)
+void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password /*= ""*/)
 {
-	m_dirList.push_back(ResourceDirPtr(new ZipArchiveDir(zip_path)));
+	m_dirList.push_back(ResourceDirPtr(new ZipArchiveDir(zip_path, password)));
 }
 
 void ResourceMgr::RegisterFileDir(const std::string & dir)
@@ -206,14 +207,14 @@ bool ResourceMgr::CheckArchivePath(const std::string & path)
 	return false;
 }
 
-ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path, const std::string & password /*= ""*/)
+ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
 {
 	ResourceDirPtrList::iterator dir_iter = m_dirList.begin();
 	for(; dir_iter != m_dirList.end(); dir_iter++)
 	{
 		if((*dir_iter)->CheckArchivePath(path))
 		{
-			return (*dir_iter)->OpenArchiveStream(path, password);
+			return (*dir_iter)->OpenArchiveStream(path);
 		}
 	}
 

@@ -61,7 +61,7 @@ namespace my
 
 		virtual bool CheckArchivePath(const std::string & path) = 0;
 
-		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password) = 0;
+		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
 	};
 
 	typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
@@ -71,12 +71,15 @@ namespace my
 	class ZipArchiveDir
 		: public ResourceDir
 	{
+	protected:
+		std::string m_password;
+
 	public:
-		ZipArchiveDir(const std::string & dir);
+		ZipArchiveDir(const std::string & dir, const std::string & password = "");
 
 		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	class FileArchiveDir
@@ -90,7 +93,7 @@ namespace my
 
 		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password);
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	class ResourceMgr
@@ -100,12 +103,12 @@ namespace my
 		ResourceDirPtrList m_dirList;
 
 	public:
-		void RegisterZipArchive(const std::string & zip_path);
+		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 
 		void RegisterFileDir(const std::string & dir);
 
 		bool CheckArchivePath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path, const std::string & password = "");
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 };

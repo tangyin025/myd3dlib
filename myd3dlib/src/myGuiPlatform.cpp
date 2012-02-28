@@ -84,20 +84,13 @@ void DirectXRenderManager::doRender(IVertexBuffer* _buffer, ITexture* _texture, 
 	mpD3DDevice->DrawPrimitive(D3DPT_TRIANGLELIST, 0, _count / 3); // Microsoft C++ exception: long at memory location 0x0014d36c..
 }
 
-void DirectXRenderManager::drawOneFrame()
+void DirectXRenderManager::drawOneFrame(float _time)
 {
 	Gui* gui = Gui::getInstancePtr();
 	if (gui == nullptr)
 		return;
 
-	static Timer timer;
-	static unsigned long last_time = timer.getMilliseconds();
-	unsigned long now_time = timer.getMilliseconds();
-	unsigned long time = now_time - last_time;
-
-	onFrameEvent((float)((double)(time) / (double)1000));
-
-	last_time = now_time;
+	onFrameEvent(_time);
 
 	begin();
 	onRenderToTarget(this, mUpdate);
@@ -323,7 +316,7 @@ IDataStream* DirectXDataManager::getData(const std::string& _name)
 	if(!isDataExist(_name))
 		return nullptr;
 
-	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(_name, "")->GetWholeCache();
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(_name)->GetWholeCache();
 	std::stringstream * stream = new std::stringstream(std::ios_base::in | std::ios_base::out | std::ios_base::binary);
 	stream->write((char *)&(*cache)[0], cache->size());
 	stream->seekg(0);

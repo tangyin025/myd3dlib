@@ -64,7 +64,7 @@ namespace my
 		}
 
 
-		void drawOneFrame();
+		void drawOneFrame(float _time);
 
 		void setViewSize(int _width, int _height);
 
