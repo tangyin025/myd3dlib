@@ -356,6 +356,7 @@ void Font::DrawString(
 		default:
 			{
 				const CharacterInfo & info = GetCharacterInfo(c);
+				V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
 				sprite->Draw(
 					m_texture, info.textureRect, Vector3(0, 0, 0), Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0), Color);
 				pen.x += info.horiAdvance;

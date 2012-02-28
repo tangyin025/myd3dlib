@@ -146,6 +146,8 @@ namespace my
 		typedef std::map<int, CharacterInfo> CharacterMap;
 
 	protected:
+		HRESULT hr;
+
 		FT_Face m_face;
 
 		CComPtr<IDirect3DDevice9> m_Device;
