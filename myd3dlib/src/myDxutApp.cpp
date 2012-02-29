@@ -19,6 +19,8 @@ DeviceRelatedObjectBase::~DeviceRelatedObjectBase(void)
 	set.erase(this_iter);
 }
 
+DeviceRelatedObjectBaseSet::DrivedClassPtr Singleton<DeviceRelatedObjectBaseSet>::s_ptr;
+
 void DeviceRelatedObjectBaseSet::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -29,8 +31,6 @@ void DeviceRelatedObjectBaseSet::OnD3D9ResetDevice(
 		(*obj_iter)->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 	}
 }
-
-DeviceRelatedObjectBaseSet::DrivedClassPtr Singleton<DeviceRelatedObjectBaseSet>::s_ptr;
 
 void DeviceRelatedObjectBaseSet::OnD3D9LostDevice(void)
 {

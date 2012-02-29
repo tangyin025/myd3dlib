@@ -28,7 +28,7 @@
 #include <cstdio>
 #include <stdarg.h>
 #include <crtdbg.h>
-//#include <SDKmisc.h>
+#include <SDKmisc.h>
 #include <atlbase.h>
 #include <sstream>
 #include <d3d9.h>
@@ -36,7 +36,7 @@
 //#include <boost/property_tree/detail/rapidxml.hpp>
 #include <atlbase.h>
 #include <vector>
-//#include <DXUTgui.h>
-//#include <DXUTsettingsdlg.h>
+#include <DXUTgui.h>
+#include <DXUTsettingsdlg.h>
 
 #pragma warning(error : 172)
