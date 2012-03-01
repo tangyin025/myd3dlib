@@ -167,7 +167,7 @@ namespace my
 			_ASSERT(m_Device == GetDevice());
 		}
 
-		void OnD3D9DestroyDevice(void);
+		void OnDestroyDevice(void);
 
 	public:
 		static VertexShaderPtr CreateVertexShader(
@@ -221,7 +221,7 @@ namespace my
 			_ASSERT(m_Device == GetDevice());
 		}
 
-		void OnD3D9DestroyDevice(void);
+		void OnDestroyDevice(void);
 
 	public:
 		static PixelShaderPtr CreatePixelShader(
@@ -608,12 +608,6 @@ namespace my
 		{
 		}
 
-		virtual void OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual void OnD3D9LostDevice(void);
-
 	public:
 		static EffectPtr CreateEffect(
 			LPDIRECT3DDEVICE9 pDevice,
@@ -631,6 +625,16 @@ namespace my
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0,
 			LPD3DXEFFECTPOOL pPool = NULL);
+
+		virtual void OnResetDevice(void)
+		{
+			V(static_cast<ID3DXEffect *>(m_ptr)->OnResetDevice());
+		}
+
+		virtual void OnLostDevice(void)
+		{
+			V(static_cast<ID3DXEffect *>(m_ptr)->OnLostDevice());
+		}
 
 	public:
 		void ApplyParameterBlock(D3DXHANDLE hParameterBlock)
@@ -727,16 +731,6 @@ namespace my
 		BOOL IsParameterUsed(D3DXHANDLE hParameter, D3DXHANDLE hTechnique)
 		{
 			return static_cast<ID3DXEffect *>(m_ptr)->IsParameterUsed(hParameter, hTechnique);
-		}
-
-		void OnLostDevice(void)
-		{
-			V(static_cast<ID3DXEffect *>(m_ptr)->OnLostDevice());
-		}
-
-		void OnResetDevice(void)
-		{
-			V(static_cast<ID3DXEffect *>(m_ptr)->OnResetDevice());
 		}
 
 		void SetRawValue(D3DXHANDLE Handle, void * pData, DWORD OffsetInBytes, DWORD Bytes)

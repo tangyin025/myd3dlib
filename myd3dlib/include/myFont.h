@@ -15,11 +15,15 @@ namespace my
 		{
 		}
 
-		virtual void OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+		virtual void OnResetDevice(void)
+		{
+			V(m_ptr->OnResetDevice());
+		}
 
-		virtual void OnD3D9LostDevice(void);
+		virtual void OnLostDevice(void)
+		{
+			V(m_ptr->OnLostDevice());
+		}
 
 	public:
 		static SpritePtr CreateSprite(LPDIRECT3DDEVICE9 pDevice);
@@ -51,16 +55,6 @@ namespace my
 			Matrix4 ret;
 			V(m_ptr->GetTransform((D3DXMATRIX *)&ret));
 			return ret;
-		}
-
-		void OnLostDevice(void)
-		{
-			V(m_ptr->OnLostDevice());
-		}
-
-		void OnResetDevice(void)
-		{
-			V(m_ptr->OnResetDevice());
 		}
 
 		void SetTransform(const Matrix4 & Transform)
@@ -166,14 +160,6 @@ namespace my
 
 		Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 
-		virtual void OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual void OnD3D9LostDevice(void);
-
-		virtual void OnD3D9DestroyDevice(void);
-
 	public:
 		virtual ~Font(void);
 
@@ -192,6 +178,12 @@ namespace my
 
 		static TexturePtr CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height);
 
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
 		void AssignTextureRect(const SIZE & size, RECT & outRect);
 
 		void InsertCharacter(
@@ -209,8 +201,8 @@ namespace my
 		const CharacterInfo & GetCharacterInfo(int character);
 
 		void DrawString(
-			SpritePtr sprite,
-			const std::basic_string<wchar_t> & str,
+			LPD3DXSPRITE pSprite,
+			LPCWSTR pString,
 			const Rectangle & rect,
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
 			Align align = alignLeftTop);

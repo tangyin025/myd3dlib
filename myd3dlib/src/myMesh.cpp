@@ -62,9 +62,7 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 //	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
 //}
 //
-//void VertexBuffer::OnD3D9ResetDevice(
-//	IDirect3DDevice9 * pd3dDevice,
-//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+//void VertexBuffer::OnResetDevice(void)
 //{
 //	_ASSERT(!m_VertexBuffer);
 //	_ASSERT(!m_MemVertexBuffer.empty());
@@ -78,12 +76,12 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 //	UpdateVertexBuffer();
 //}
 //
-//void VertexBuffer::OnD3D9LostDevice(void)
+//void VertexBuffer::OnLostDevice(void)
 //{
 //	m_VertexBuffer.Release();
 //}
 //
-//void VertexBuffer::OnD3D9DestroyDevice(void)
+//void VertexBuffer::OnDestroyDevice(void)
 //{
 //	_ASSERT(!m_VertexBuffer);
 //
@@ -155,9 +153,7 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 //	return IndexBufferPtr(new IndexBuffer(pD3DDevice));
 //}
 //
-//void IndexBuffer::OnD3D9ResetDevice(
-//	IDirect3DDevice9 * pd3dDevice,
-//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+//void IndexBuffer::OnResetDevice(void)
 //{
 //	_ASSERT(!m_IndexBuffer);
 //
@@ -170,12 +166,12 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 //	UpdateIndexBuffer();
 //}
 //
-//void IndexBuffer::OnD3D9LostDevice(void)
+//void IndexBuffer::OnLostDevice(void)
 //{
 //	m_IndexBuffer.Release();
 //}
 //
-//void IndexBuffer::OnD3D9DestroyDevice(void)
+//void IndexBuffer::OnDestroyDevice(void)
 //{
 //	_ASSERT(!m_IndexBuffer);
 //	m_IndexBuffer.Release();

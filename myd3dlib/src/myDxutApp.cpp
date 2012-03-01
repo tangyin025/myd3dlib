@@ -4,52 +4,6 @@
 
 using namespace my;
 
-DeviceRelatedObjectBase::DeviceRelatedObjectBase(void)
-{
-	DeviceRelatedObjectBaseSet & set = DeviceRelatedObjectBaseSet::getSingleton();
-	_ASSERT(set.end() == set.find(this));
-	set.insert(this);
-}
-
-DeviceRelatedObjectBase::~DeviceRelatedObjectBase(void)
-{
-	DeviceRelatedObjectBaseSet & set = DeviceRelatedObjectBaseSet::getSingleton();
-	DeviceRelatedObjectBaseSet::iterator this_iter = set.find(this);
-	_ASSERT(set.end() != this_iter);
-	set.erase(this_iter);
-}
-
-DeviceRelatedObjectBaseSet::DrivedClassPtr Singleton<DeviceRelatedObjectBaseSet>::s_ptr;
-
-void DeviceRelatedObjectBaseSet::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	iterator obj_iter = begin();
-	for(; obj_iter != end(); obj_iter++)
-	{
-		(*obj_iter)->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
-	}
-}
-
-void DeviceRelatedObjectBaseSet::OnD3D9LostDevice(void)
-{
-	iterator obj_iter = begin();
-	for(; obj_iter != end(); obj_iter++)
-	{
-		(*obj_iter)->OnD3D9LostDevice();
-	}
-}
-
-void DeviceRelatedObjectBaseSet::OnD3D9DestroyDevice(void)
-{
-	iterator obj_iter = begin();
-	for(; obj_iter != end(); obj_iter++)
-	{
-		(*obj_iter)->OnD3D9DestroyDevice();
-	}
-}
-
 bool CALLBACK DxutAppBase::IsD3D9DeviceAcceptable_s(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
@@ -220,19 +174,15 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	DeviceRelatedObjectBaseSet::getSingleton().OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
-
 	return S_OK;
 }
 
 void DxutApp::OnD3D9LostDevice(void)
 {
-	DeviceRelatedObjectBaseSet::getSingleton().OnD3D9LostDevice();
 }
 
 void DxutApp::OnD3D9DestroyDevice(void)
 {
-	DeviceRelatedObjectBaseSet::getSingleton().OnD3D9DestroyDevice();
 }
 
 void DxutApp::OnFrameMove(

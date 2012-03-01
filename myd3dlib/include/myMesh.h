@@ -233,13 +233,11 @@ namespace my
 	//		const D3DVERTEXELEMENT9Set & VertexElemSet,
 	//		WORD Stream = 0);
 
-	//	void OnD3D9ResetDevice(
-	//		IDirect3DDevice9 * pd3dDevice,
-	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	//	void OnResetDevice(void);
 
-	//	void OnD3D9LostDevice(void);
+	//	void OnLostDevice(void);
 
-	//	void OnD3D9DestroyDevice(void);
+	//	void OnDestroyDevice(void);
 
 	//	void UpdateVertexBuffer(void);
 
@@ -286,13 +284,11 @@ namespace my
 	//public:
 	//	static IndexBufferPtr CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
 
-	//	void OnD3D9ResetDevice(
-	//		IDirect3DDevice9 * pd3dDevice,
-	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	//	void OnResetDevice(void);
 
-	//	void OnD3D9LostDevice(void);
+	//	void OnLostDevice(void);
 
-	//	void OnD3D9DestroyDevice(void);
+	//	void OnDestroyDevice(void);
 
 	//	void UpdateIndexBuffer(void);
 

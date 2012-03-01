@@ -8,7 +8,7 @@
 
 using namespace my;
 
-void VertexShader::OnD3D9DestroyDevice(void)
+void VertexShader::OnDestroyDevice(void)
 {
 	SAFE_RELEASE(m_pConstantTable);
 	SAFE_RELEASE(m_ptr);
@@ -86,7 +86,7 @@ VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
 	return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
 }
 
-void PixelShader::OnD3D9DestroyDevice(void)
+void PixelShader::OnDestroyDevice(void)
 {
 	SAFE_RELEASE(m_pConstantTable);
 	SAFE_RELEASE(m_ptr);
@@ -162,18 +162,6 @@ PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
 	}
 
 	return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
-}
-
-void Effect::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	OnResetDevice();
-}
-
-void Effect::OnD3D9LostDevice(void)
-{
-	OnLostDevice();
 }
 
 EffectPtr Effect::CreateEffect(

@@ -8,18 +8,6 @@
 
 using namespace my;
 
-void Sprite::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	OnResetDevice();
-}
-
-void Sprite::OnD3D9LostDevice(void)
-{
-	OnLostDevice();
-}
-
 SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 {
 	LPD3DXSPRITE pSprite = NULL;
@@ -172,21 +160,6 @@ Font::~Font(void)
 	FT_Done_Face(m_face);
 }
 
-void Font::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-}
-
-void Font::OnD3D9LostDevice(void)
-{
-}
-
-void Font::OnD3D9DestroyDevice(void)
-{
-	m_Device.Release();
-}
-
 TexturePtr Font::CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height)
 {
 	DXUTDeviceSettings settings = DXUTGetDeviceSettings();
@@ -241,13 +214,29 @@ FontPtr Font::CreateFontFromFileInMemory(
 	return font;
 }
 
+void Font::OnResetDevice(void)
+{
+	m_texture->OnResetDevice();
+}
+
+void Font::OnLostDevice(void)
+{
+	m_texture->OnLostDevice();
+}
+
+void Font::OnDestroyDevice(void)
+{
+	m_texture->OnDestroyDevice();
+	m_Device.Release();
+}
+
 void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
 {
 	D3DSURFACE_DESC desc = m_texture->GetLevelDesc(0);
 
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{
-		m_texture = TexturePtr();
+		m_texture.reset();
 		m_texture = CreateFontTexture(m_Device, desc.Width * 2, desc.Height * 2);
 		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width * 2, desc.Height * 2)));
 
@@ -333,16 +322,16 @@ const Font::CharacterInfo & Font::GetCharacterInfo(int character)
 }
 
 void Font::DrawString(
-	SpritePtr sprite,
-	const std::basic_string<wchar_t> & str,
+	LPD3DXSPRITE pSprite,
+	LPCWSTR pString,
 	const my::Rectangle & rect,
 	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
 	Align align /*= alignLeftTop*/)
 {
 	Vector3 pen(rect.l, rect.t + m_lineHeight, 0);
-	for(size_t i = 0; i < str.length(); i++)
+	wchar_t c;
+	while((c = *pString++))
 	{
-		wchar_t c = str[i];
 		switch(c)
 		{
 		case L'\r':
@@ -357,8 +346,8 @@ void Font::DrawString(
 			{
 				const CharacterInfo & info = GetCharacterInfo(c);
 				V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-				sprite->Draw(
-					m_texture, info.textureRect, Vector3(0, 0, 0), Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0), Color);
+				V(pSprite->Draw(
+					(IDirect3DTexture9 *)m_texture->m_ptr, &info.textureRect, (D3DXVECTOR3 *)&Vector3(0, 0, 0), (D3DXVECTOR3 *)&Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0), Color));
 				pen.x += info.horiAdvance;
 			}
 			break;

@@ -299,6 +299,16 @@ protected:
 			SHADOWMAP_SIZE,
 			d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
+		// TODO：在这里重置设备相关资源
+		m_characterMesh->OnResetDevice();
+		m_characterTexture->OnResetDevice();
+		m_characterEffect->OnResetDevice();
+		m_sceneMesh->OnResetDevice();
+		m_sceneTexture->OnResetDevice();
+		m_groundMesh->OnResetDevice();
+		m_sphereMesh->OnResetDevice();
+		m_wireEffect->OnResetDevice();
+
 		return S_OK;
 	}
 
@@ -307,8 +317,18 @@ protected:
 		DxutSample::OnD3D9LostDevice();
 
 		// 在这里处理在reset中创建的资源
-		m_shadowMapRT = my::TexturePtr();
-		m_shadowMapDS = my::SurfacePtr();
+		m_shadowMapRT.reset();
+		m_shadowMapDS.reset();
+
+		// TODO：在这里处理设备丢失事件
+		m_characterMesh->OnLostDevice();
+		m_characterTexture->OnLostDevice();
+		m_characterEffect->OnLostDevice();
+		m_sceneMesh->OnLostDevice();
+		m_sceneTexture->OnLostDevice();
+		m_groundMesh->OnLostDevice();
+		m_sphereMesh->OnLostDevice();
+		m_wireEffect->OnLostDevice();
 	}
 
 	void OnD3D9DestroyDevice(void)
@@ -317,6 +337,16 @@ protected:
 
 		// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
 		m_dynamicsWorld.reset();
+
+		// TODO：在这里处理设备销毁事件
+		m_characterMesh->OnDestroyDevice();
+		m_characterTexture->OnDestroyDevice();
+		m_characterEffect->OnDestroyDevice();
+		m_sceneMesh->OnDestroyDevice();
+		m_sceneTexture->OnDestroyDevice();
+		m_groundMesh->OnDestroyDevice();
+		m_sphereMesh->OnDestroyDevice();
+		m_wireEffect->OnDestroyDevice();
 	}
 
 	void OnFrameMove(
