@@ -299,7 +299,6 @@ protected:
 			SHADOWMAP_SIZE,
 			d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
-		// TODO：在这里重置设备相关资源
 		m_characterMesh->OnResetDevice();
 		m_characterTexture->OnResetDevice();
 		m_characterEffect->OnResetDevice();
@@ -320,7 +319,6 @@ protected:
 		m_shadowMapRT.reset();
 		m_shadowMapDS.reset();
 
-		// TODO：在这里处理设备丢失事件
 		m_characterMesh->OnLostDevice();
 		m_characterTexture->OnLostDevice();
 		m_characterEffect->OnLostDevice();
@@ -338,7 +336,6 @@ protected:
 		// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
 		m_dynamicsWorld.reset();
 
-		// TODO：在这里处理设备销毁事件
 		m_characterMesh->OnDestroyDevice();
 		m_characterTexture->OnDestroyDevice();
 		m_characterEffect->OnDestroyDevice();

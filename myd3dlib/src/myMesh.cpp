@@ -40,168 +40,168 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 
 	return ret;
 }
-//
-//VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream /*= 0*/)
-//	: m_Device(pDevice)
-//	, m_VertexElemSet(VertexElemSet)
-//	, m_vertexStride(VertexElemSet.GetVertexStride(Stream))
-//	, m_NumVertices(0)
-//	, m_Stream(Stream)
-//{
-//	if(0 == m_vertexStride)
-//	{
-//		THROW_CUSEXCEPTION("Invalid Vertex Stride (m_vertexStride == 0)");
-//	}
-//}
-//
-//VertexBufferPtr VertexBuffer::CreateVertexBuffer(
-//	LPDIRECT3DDEVICE9 pD3DDevice,
-//	const D3DVERTEXELEMENT9Set & VertexElemSet,
-//	WORD Stream /*= 0*/)
-//{
-//	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
-//}
-//
-//void VertexBuffer::OnResetDevice(void)
-//{
-//	_ASSERT(!m_VertexBuffer);
-//	_ASSERT(!m_MemVertexBuffer.empty());
-//
-//	HRESULT hres = m_Device->CreateVertexBuffer(m_MemVertexBuffer.size(), 0, 0, D3DPOOL_DEFAULT, &m_VertexBuffer, NULL);
-//	if(FAILED(hres))
-//	{
-//		THROW_D3DEXCEPTION(hres);
-//	}
-//
-//	UpdateVertexBuffer();
-//}
-//
-//void VertexBuffer::OnLostDevice(void)
-//{
-//	m_VertexBuffer.Release();
-//}
-//
-//void VertexBuffer::OnDestroyDevice(void)
-//{
-//	_ASSERT(!m_VertexBuffer);
-//
-//	m_Device.Release();
-//}
-//
-//void VertexBuffer::UpdateVertexBuffer(void)
-//{
-//	_ASSERT(m_VertexBuffer);
-//
-//	void * pVertices;
-//	UINT LockSize = m_MemVertexBuffer.size();
-//	if(SUCCEEDED(m_VertexBuffer->Lock(0, LockSize, &pVertices, 0)))
-//	{
-//		memcpy(pVertices, &m_MemVertexBuffer[0], LockSize);
-//		m_VertexBuffer->Unlock();
-//	}
-//}
-//
-//void VertexBuffer::ResizeVertexBufferLength(UINT NumVertices)
-//{
-//	m_MemVertexBuffer.resize(NumVertices * m_vertexStride, 0);
-//
-//	m_NumVertices = NumVertices;
-//}
-//
-//void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetBinormal(&m_MemVertexBuffer[Index * m_vertexStride], Binormal, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetTangent(&m_MemVertexBuffer[Index * m_vertexStride], Tangent, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, m_Stream, UsageIndex);
-//}
-//
-//void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex /*= 0*/)
-//{
-//	m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, m_Stream, UsageIndex);
-//}
-//
-//IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
-//	: m_Device(pDevice)
-//{
-//}
-//
-//IndexBufferPtr IndexBuffer::CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice)
-//{
-//	return IndexBufferPtr(new IndexBuffer(pD3DDevice));
-//}
-//
-//void IndexBuffer::OnResetDevice(void)
-//{
-//	_ASSERT(!m_IndexBuffer);
-//
-//	HRESULT hres = m_Device->CreateIndexBuffer(m_MemIndexBuffer.size() * sizeof(UIntList::value_type), 0, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &m_IndexBuffer, NULL);
-//	if(FAILED(hres))
-//	{
-//		THROW_D3DEXCEPTION(hres);
-//	}
-//
-//	UpdateIndexBuffer();
-//}
-//
-//void IndexBuffer::OnLostDevice(void)
-//{
-//	m_IndexBuffer.Release();
-//}
-//
-//void IndexBuffer::OnDestroyDevice(void)
-//{
-//	_ASSERT(!m_IndexBuffer);
-//	m_IndexBuffer.Release();
-//	m_Device.Release();
-//}
-//
-//void IndexBuffer::UpdateIndexBuffer(void)
-//{
-//	_ASSERT(m_IndexBuffer);
-//
-//	void * pIndices;
-//	UINT LockSize = m_MemIndexBuffer.size() * sizeof(UIntList::value_type);
-//	if(SUCCEEDED(m_IndexBuffer->Lock(0, LockSize, &pIndices, 0)))
-//	{
-//		memcpy(pIndices, &m_MemIndexBuffer[0], LockSize);
-//		m_IndexBuffer->Unlock();
-//	}
-//}
-//
-//void IndexBuffer::ResizeIndexBufferLength(UINT NumIndices)
-//{
-//	m_MemIndexBuffer.resize(NumIndices, 0);
-//}
-//
-//void IndexBuffer::SetIndex(int Index, unsigned int IndexValue)
-//{
-//	_ASSERT(Index < (int)m_MemIndexBuffer.size());
-//
-//	m_MemIndexBuffer[Index] = IndexValue;
-//}
+
+VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream /*= 0*/)
+	: m_Device(pDevice)
+	, m_VertexElemSet(VertexElemSet)
+	, m_vertexStride(VertexElemSet.GetVertexStride(Stream))
+	, m_NumVertices(0)
+	, m_Stream(Stream)
+{
+	if(0 == m_vertexStride)
+	{
+		THROW_CUSEXCEPTION("Invalid Vertex Stride (m_vertexStride == 0)");
+	}
+}
+
+VertexBufferPtr VertexBuffer::CreateVertexBuffer(
+	LPDIRECT3DDEVICE9 pD3DDevice,
+	const D3DVERTEXELEMENT9Set & VertexElemSet,
+	WORD Stream /*= 0*/)
+{
+	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
+}
+
+void VertexBuffer::OnResetDevice(void)
+{
+	_ASSERT(!m_VertexBuffer);
+	_ASSERT(!m_MemVertexBuffer.empty());
+
+	HRESULT hres = m_Device->CreateVertexBuffer(m_MemVertexBuffer.size(), 0, 0, D3DPOOL_DEFAULT, &m_VertexBuffer, NULL);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	UpdateVertexBuffer();
+}
+
+void VertexBuffer::OnLostDevice(void)
+{
+	m_VertexBuffer.Release();
+}
+
+void VertexBuffer::OnDestroyDevice(void)
+{
+	_ASSERT(!m_VertexBuffer);
+
+	m_Device.Release();
+}
+
+void VertexBuffer::UpdateVertexBuffer(void)
+{
+	_ASSERT(m_VertexBuffer);
+
+	void * pVertices;
+	UINT LockSize = m_MemVertexBuffer.size();
+	if(SUCCEEDED(m_VertexBuffer->Lock(0, LockSize, &pVertices, 0)))
+	{
+		memcpy(pVertices, &m_MemVertexBuffer[0], LockSize);
+		m_VertexBuffer->Unlock();
+	}
+}
+
+void VertexBuffer::ResizeVertexBufferLength(UINT NumVertices)
+{
+	m_MemVertexBuffer.resize(NumVertices * m_vertexStride, 0);
+
+	m_NumVertices = NumVertices;
+}
+
+void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetBinormal(&m_MemVertexBuffer[Index * m_vertexStride], Binormal, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetTangent(&m_MemVertexBuffer[Index * m_vertexStride], Tangent, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, m_Stream, UsageIndex);
+}
+
+void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex /*= 0*/)
+{
+	m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, m_Stream, UsageIndex);
+}
+
+IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
+	: m_Device(pDevice)
+{
+}
+
+IndexBufferPtr IndexBuffer::CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice)
+{
+	return IndexBufferPtr(new IndexBuffer(pD3DDevice));
+}
+
+void IndexBuffer::OnResetDevice(void)
+{
+	_ASSERT(!m_IndexBuffer);
+
+	HRESULT hres = m_Device->CreateIndexBuffer(m_MemIndexBuffer.size() * sizeof(UIntList::value_type), 0, D3DFMT_INDEX32, D3DPOOL_DEFAULT, &m_IndexBuffer, NULL);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	UpdateIndexBuffer();
+}
+
+void IndexBuffer::OnLostDevice(void)
+{
+	m_IndexBuffer.Release();
+}
+
+void IndexBuffer::OnDestroyDevice(void)
+{
+	_ASSERT(!m_IndexBuffer);
+	m_IndexBuffer.Release();
+	m_Device.Release();
+}
+
+void IndexBuffer::UpdateIndexBuffer(void)
+{
+	_ASSERT(m_IndexBuffer);
+
+	void * pIndices;
+	UINT LockSize = m_MemIndexBuffer.size() * sizeof(UIntList::value_type);
+	if(SUCCEEDED(m_IndexBuffer->Lock(0, LockSize, &pIndices, 0)))
+	{
+		memcpy(pIndices, &m_MemIndexBuffer[0], LockSize);
+		m_IndexBuffer->Unlock();
+	}
+}
+
+void IndexBuffer::ResizeIndexBufferLength(UINT NumIndices)
+{
+	m_MemIndexBuffer.resize(NumIndices, 0);
+}
+
+void IndexBuffer::SetIndex(int Index, unsigned int IndexValue)
+{
+	_ASSERT(Index < (int)m_MemIndexBuffer.size());
+
+	m_MemIndexBuffer[Index] = IndexValue;
+}
 
 MeshPtr Mesh::CreateMesh(
 	LPDIRECT3DDEVICE9 pD3DDevice,
