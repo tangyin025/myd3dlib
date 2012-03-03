@@ -30,10 +30,6 @@ class MyDemo : public my::DxutSample
 
 		my::BoneList m_hierarchyBoneList2;
 
-		my::TransformList m_inverseTransformList;
-
-		my::TransformList m_TransformList;
-
 		my::TransformList m_dualQuaternionList;
 
 		AnimationMgr(LPCSTR pSrcData, UINT srcDataLen)
@@ -93,18 +89,14 @@ class MyDemo : public my::DxutSample
 			// 为绑定动作生成层次化的骨骼列表（列表中子骨骼的数据将包含父骨骼的变换）
 			m_hierarchyBoneList.clear();
 			m_hierarchyBoneList.resize(m_skeleton->m_boneBindPose.size());
-			m_inverseTransformList.clear();
-			m_inverseTransformList.resize(m_skeleton->m_boneBindPose.size());
 			m_skeleton->m_boneBindPose.BuildHierarchyBoneList(
 				m_hierarchyBoneList, m_skeleton->m_boneHierarchy, root_i);
 
 			// 为目标动作生成层次化的骨骼列表
 			m_hierarchyBoneList2.clear();
 			m_hierarchyBoneList2.resize(m_skeleton->m_boneBindPose.size());
-			m_TransformList.clear();
-			m_TransformList.resize(m_skeleton->m_boneBindPose.size());
 			m_incrementedPose.BuildHierarchyBoneList(
-				m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i, my::Quaternion::Identity(), my::Vector3::zero);
+				m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i);
 
 			// 将绑定动作及目标动作的骨骼列表生成双四元式（绑定动作不再需要逆变换，双四元式会进行处理）
 			m_dualQuaternionList.clear();

@@ -79,6 +79,8 @@ namespace my
 
 	class RectAssignmentNode
 	{
+		friend class Font;
+
 	protected:
 		bool m_used;
 
@@ -121,25 +123,54 @@ namespace my
 	class Font : public DeviceRelatedObjectBase
 	{
 	public:
+		struct CUSTOMVERTEX
+		{
+			FLOAT x, y, z, w;
+			DWORD color;
+			FLOAT u, v;
+		};
+
+		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+
 		enum Align
 		{
-			alignLeftTop,
+			AlignLeft			= 0x000001,
+			AlignCenter			= 0x000010,
+			AlignRight			= 0x000100,
+			AlignTop			= 0x001000,
+			AlignMiddle			= 0x010000,
+			AlignBottom			= 0x100000,
+			AlignLeftTop		= AlignLeft | AlignTop,
+			AlignCenterTop		= AlignCenter | AlignTop,
+			AlignRightTop		= AlignRight | AlignTop,
+			AlignLeftMiddle		= AlignLeft | AlignMiddle,
+			AlignCenterMiddle	= AlignCenter | AlignMiddle,
+			AlignRightMiddle	= AlignRight | AlignMiddle,
+			AlignLeftBottom		= AlignLeft | AlignBottom,
+			AlignCenterBottom	= AlignCenter | AlignBottom,
+			AlignRightBottom	= AlignRight | AlignBottom,
 		};
 
 		struct CharacterInfo
 		{
+			float width;
+
+			float height;
+
+			float horiBearingX;
+
+			float horiBearingY;
+
+			float horiAdvance;
+
 			RECT textureRect;
 
-			int horiAdvance;
-
-			int horiBearingX;
-
-			int horiBearingY;
+			Rectangle uvRect;
 		};
 
 		typedef std::map<int, CharacterInfo> CharacterMap;
 
-	protected:
+	//protected:
 		HRESULT hr;
 
 		FT_Face m_face;
@@ -148,9 +179,9 @@ namespace my
 
 		CachePtr m_cache;
 
-		int m_lineHeight;
+		float m_LineHeight;
 
-		int m_maxAdvance;
+		float m_maxAdvance;
 
 		CharacterMap m_characterMap;
 
@@ -158,7 +189,7 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
+		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice);
 
 	public:
 		virtual ~Font(void);
@@ -166,14 +197,14 @@ namespace my
 		static FontPtr CreateFontFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
-			int height,
+			float height,
 			FT_Long face_index = 0);
 
 		static FontPtr CreateFontFromFileInMemory(
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
-			int height,
+			float height,
 			long face_index = 0);
 
 		static TexturePtr CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height);
@@ -188,9 +219,11 @@ namespace my
 
 		void InsertCharacter(
 			int character,
-			int horiAdvance,
-			int horiBearingX,
-			int horiBearingY,
+			float width,
+			float height,
+			float horiBearingX,
+			float horiBearingY,
+			float horiAdvance,
 			const unsigned char * bmpBuffer,
 			int bmpWidth,
 			int bmpHeight,
@@ -200,11 +233,28 @@ namespace my
 
 		const CharacterInfo & GetCharacterInfo(int character);
 
+		Vector2 CalculateStringExtent(LPCWSTR pString);
+
+		static size_t BuildQuadrangle(
+			CUSTOMVERTEX * pBuffer,
+			size_t bufferSize,
+			const Rectangle & rect,
+			DWORD color,
+			const Rectangle & uvRect);
+
+		size_t BuildVertexList(
+			CUSTOMVERTEX * pBuffer,
+			size_t bufferSize,
+			LPCWSTR pString,
+			const Rectangle & rect,
+			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
+			Align align = AlignLeftTop);
+
 		void DrawString(
 			LPD3DXSPRITE pSprite,
 			LPCWSTR pString,
 			const Rectangle & rect,
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
-			Align align = alignLeftTop);
+			Align align = AlignLeftTop);
 	};
 }

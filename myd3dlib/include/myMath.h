@@ -18,8 +18,8 @@ namespace my
 
 	public:
 		Vector2(void)
-			: x(0)
-			, y(0)
+			//: x(0)
+			//, y(0)
 		{
 		}
 
@@ -200,6 +200,14 @@ namespace my
 		float l, t, r, b;
 
 	public:
+		Rectangle(void)
+			//: l(0)
+			//, t(0)
+			//, r(0)
+			//, b(0)
+		{
+		}
+
 		Rectangle(float left, float top, float right, float bottom)
 			: l(left)
 			, t(top)
@@ -536,9 +544,9 @@ namespace my
 
 	public:
 		Vector3(void)
-			: x(0)
-			, y(0)
-			, z(0)
+			//: x(0)
+			//, y(0)
+			//, z(0)
 		{
 		}
 
@@ -739,10 +747,10 @@ namespace my
 
 	public:
 		Vector4(void)
-			: x(0)
-			, y(0)
-			, z(0)
-			, w(0)
+			//: x(0)
+			//, y(0)
+			//, z(0)
+			//, w(0)
 		{
 		}
 
@@ -953,10 +961,10 @@ namespace my
 
 	public:
 		Quaternion(void)
-			: x(0)
-			, y(0)
-			, z(0)
-			, w(1)
+			//: x(0)
+			//, y(0)
+			//, z(0)
+			//, w(1)
 		{
 		}
 
@@ -1238,10 +1246,10 @@ namespace my
 
 	public:
 		Matrix4(void)
-			: _11(0), _12(0), _13(0), _14(0)
-			, _21(0), _22(0), _23(0), _24(0)
-			, _31(0), _32(0), _33(0), _34(0)
-			, _41(0), _42(0), _43(0), _44(0)
+			//: _11(0), _12(0), _13(0), _14(0)
+			//, _21(0), _22(0), _23(0), _24(0)
+			//, _31(0), _32(0), _33(0), _34(0)
+			//, _41(0), _42(0), _43(0), _44(0)
 		{
 		}
 
