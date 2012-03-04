@@ -125,12 +125,14 @@ namespace my
 	public:
 		struct CUSTOMVERTEX
 		{
-			FLOAT x, y, z, w;
+			FLOAT x, y, z;
 			DWORD color;
 			FLOAT u, v;
 		};
 
-		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZRHW | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+
+		static std::vector<CUSTOMVERTEX> vertex_list;
 
 		enum Align
 		{
@@ -245,6 +247,12 @@ namespace my
 		size_t BuildVertexList(
 			CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,
+			LPCWSTR pString,
+			const Rectangle & rect,
+			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
+			Align align = AlignLeftTop);
+
+		void DrawStringVertices(
 			LPCWSTR pString,
 			const Rectangle & rect,
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),

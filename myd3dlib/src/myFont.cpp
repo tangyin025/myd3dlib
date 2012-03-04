@@ -134,6 +134,8 @@ FontMgr::~FontMgr(void)
 	FT_Error err = FT_Done_FreeType(m_library);
 }
 
+std::vector<Font::CUSTOMVERTEX> Font::vertex_list(1024);
+
 Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice)
 	: m_face(face)
 	, m_Device(pDevice)
@@ -436,6 +438,38 @@ size_t Font::BuildVertexList(
 	}
 
 	return i;
+}
+
+void Font::DrawStringVertices(
+	LPCWSTR pString,
+	const my::Rectangle & rect,
+	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
+	Align align /*= AlignLeftTop*/)
+{
+	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
+	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+	V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+
+	V(m_Device->SetTexture(0, m_texture->m_ptr));
+	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+
+	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+
+	size_t numVerts = BuildVertexList(&vertex_list[0], vertex_list.size(), pString, rect, Color, align);
+
+	V(m_Device->SetFVF(Font::D3DFVF_CUSTOMVERTEX));
+
+	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, &vertex_list[0], sizeof(my::Font::CUSTOMVERTEX)));
 }
 
 void Font::DrawString(
