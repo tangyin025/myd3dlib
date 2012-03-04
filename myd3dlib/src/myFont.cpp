@@ -411,8 +411,30 @@ size_t Font::BuildVertexList(
 	Vector2 extent = CalculateStringExtent(pString);
 
 	Vector2 pen;
-	pen.x = align & AlignLeft ? rect.l : align & AlignCenter ? rect.l + (rect.r - rect.l - extent.x) * 0.5f : rect.r - extent.x;
-	pen.y = align & AlignTop ? rect.t : align & AlignMiddle ? rect.t + (rect.b - rect.t - extent.y) * 0.5f : rect.b - extent.y;
+	if(align & AlignLeft)
+	{
+		pen.x = rect.l;
+	}
+	else if(align & AlignCenter)
+	{
+		pen.x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
+	}
+	else
+	{
+		pen.x = rect.r - extent.x;
+	}
+	if(align & AlignTop)
+	{
+		pen.y = rect.t;
+	}
+	else if(align & AlignMiddle)
+	{
+		pen.y = rect.t + (rect.b - rect.t - extent.y) * 0.5f;
+	}
+	else
+	{
+		pen.y = rect.b - extent.y;
+	}
 	pen.y += m_LineHeight;
 
 	size_t i = 0;
@@ -465,11 +487,19 @@ void Font::DrawStringVertices(
 	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 
+	D3DVIEWPORT9 vp;
+	V(m_Device->GetViewport(&vp));
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
+
 	size_t numVerts = BuildVertexList(&vertex_list[0], vertex_list.size(), pString, rect, Color, align);
 
 	V(m_Device->SetFVF(Font::D3DFVF_CUSTOMVERTEX));
 
 	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, &vertex_list[0], sizeof(my::Font::CUSTOMVERTEX)));
+
+	//V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 }
 
 void Font::DrawString(
@@ -482,8 +512,30 @@ void Font::DrawString(
 	Vector2 extent = CalculateStringExtent(pString);
 
 	Vector2 pen;
-	pen.x = align & AlignLeft ? rect.l : align & AlignCenter ? rect.l + (rect.r - rect.l - extent.x) * 0.5f : rect.r - extent.x;
-	pen.y = align & AlignTop ? rect.t : align & AlignMiddle ? rect.t + (rect.b - rect.t - extent.y) * 0.5f : rect.b - extent.y;
+	if(align & AlignLeft)
+	{
+		pen.x = rect.l;
+	}
+	else if(align & AlignCenter)
+	{
+		pen.x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
+	}
+	else
+	{
+		pen.x = rect.r - extent.x;
+	}
+	if(align & AlignTop)
+	{
+		pen.y = rect.t;
+	}
+	else if(align & AlignMiddle)
+	{
+		pen.y = rect.t + (rect.b - rect.t - extent.y) * 0.5f;
+	}
+	else
+	{
+		pen.y = rect.b - extent.y;
+	}
 	pen.y += m_LineHeight;
 
 	wchar_t c;
