@@ -134,11 +134,10 @@ FontMgr::~FontMgr(void)
 	FT_Error err = FT_Done_FreeType(m_library);
 }
 
-std::vector<Font::CUSTOMVERTEX> Font::vertex_list(1024);
-
-Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice)
+Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap /*= 0*/)
 	: m_face(face)
 	, m_Device(pDevice)
+	, FONT_PIXEL_GAP(pixel_gap)
 {
 	_ASSERT(m_face);
 
@@ -161,7 +160,6 @@ Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice)
 	m_texture = CreateFontTexture(pDevice, (UINT)ceil(m_maxAdvance), (UINT)ceil(m_LineHeight));
 
 	D3DSURFACE_DESC desc = m_texture->GetLevelDesc(0);
-
 	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width, desc.Height)));
 }
 
@@ -248,7 +246,9 @@ void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
 	{
 		m_texture.reset();
 		m_texture = CreateFontTexture(m_Device, desc.Width * 2, desc.Height * 2);
-		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width * 2, desc.Height * 2)));
+
+		desc = m_texture->GetLevelDesc(0);
+		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width, desc.Height)));
 
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{
@@ -274,7 +274,9 @@ void Font::InsertCharacter(
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
 	CharacterInfo info;
-	AssignTextureRect(CSize(bmpWidth, bmpHeight), info.textureRect);
+	// add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
+	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
+	::InflateRect(&info.textureRect, -FONT_PIXEL_GAP, -FONT_PIXEL_GAP);
 
 	info.width = width;
 	info.height = height;
@@ -493,11 +495,12 @@ void Font::DrawStringVertices(
 	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
 
-	size_t numVerts = BuildVertexList(&vertex_list[0], vertex_list.size(), pString, rect, Color, align);
+	CUSTOMVERTEX vertex_list[1024];
+	size_t numVerts = BuildVertexList(&vertex_list[0], _countof(vertex_list), pString, rect, Color, align);
 
 	V(m_Device->SetFVF(Font::D3DFVF_CUSTOMVERTEX));
 
-	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, &vertex_list[0], sizeof(my::Font::CUSTOMVERTEX)));
+	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(my::Font::CUSTOMVERTEX)));
 
 	//V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 }

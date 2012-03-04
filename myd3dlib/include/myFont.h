@@ -132,8 +132,6 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
-		static std::vector<CUSTOMVERTEX> vertex_list;
-
 		enum Align
 		{
 			AlignLeft			= 0x000001,
@@ -179,6 +177,8 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		const int FONT_PIXEL_GAP;
+
 		CachePtr m_cache;
 
 		float m_LineHeight;
@@ -191,7 +191,7 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice);
+		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap = 0);
 
 	public:
 		virtual ~Font(void);
@@ -252,6 +252,7 @@ namespace my
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
 			Align align = AlignLeftTop);
 
+		// Example of using BuildVertexList
 		void DrawStringVertices(
 			LPCWSTR pString,
 			const Rectangle & rect,
