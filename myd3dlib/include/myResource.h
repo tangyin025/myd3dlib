@@ -98,11 +98,29 @@ namespace my
 
 	class ResourceMgr
 		: public Singleton<ResourceMgr>
+		, public DeviceRelatedObjectBase
 	{
+	public:
+		FT_Library m_library;
+
+		CComPtr<IDirect3DStateBlock9> m_stateBlock;
+
 	protected:
 		ResourceDirPtrList m_dirList;
 
+		friend Singleton;
+
+		ResourceMgr(void);
+
 	public:
+		~ResourceMgr(void);
+
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
 		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 
 		void RegisterFileDir(const std::string & dir);

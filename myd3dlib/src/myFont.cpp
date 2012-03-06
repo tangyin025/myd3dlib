@@ -118,22 +118,6 @@ bool RectAssignmentNode::AssignRect(const SIZE & size, RECT & outRect)
 	return false;
 }
 
-FontMgr::DrivedClassPtr Singleton<FontMgr>::s_ptr;
-
-FontMgr::FontMgr(void)
-{
-	FT_Error err = FT_Init_FreeType(&m_library);
-	if(err)
-	{
-		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
-	}
-}
-
-FontMgr::~FontMgr(void)
-{
-	FT_Error err = FT_Done_FreeType(m_library);
-}
-
 Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap /*= 0*/)
 	: m_face(face)
 	, m_Device(pDevice)
@@ -170,6 +154,7 @@ Font::~Font(void)
 
 TexturePtr Font::CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height)
 {
+	// ! DXUT dependency
 	DXUTDeviceSettings settings = DXUTGetDeviceSettings();
 	D3DPOOL Pool;
 	if(settings.d3d9.DeviceType != D3DDEVTYPE_REF)
@@ -190,7 +175,7 @@ FontPtr Font::CreateFontFromFile(
 	FT_Long face_index /*= 0*/)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Face(FontMgr::getSingleton().m_library, pFilename, face_index, &face);
+	FT_Error err = FT_New_Face(ResourceMgr::getSingleton().m_library, pFilename, face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Face failed");
@@ -211,7 +196,7 @@ FontPtr Font::CreateFontFromFileInMemory(
 	memcpy(&(*cache)[0], file_base, cache->size());
 
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(FontMgr::getSingleton().m_library, &(*cache)[0], cache->size(), face_index, &face);
+	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, &(*cache)[0], cache->size(), face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
@@ -357,53 +342,8 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
-size_t Font::BuildQuadrangle(
-	CUSTOMVERTEX * pBuffer,
-	size_t bufferSize,
-	const my::Rectangle & rect,
-	DWORD color,
-	const my::Rectangle & uvRect)
-{
-	if(bufferSize >= 6)
-	{
-		pBuffer[0].x = rect.l;
-		pBuffer[0].y = rect.t;
-		pBuffer[0].z = 0;
-		pBuffer[0].color = color;
-		pBuffer[0].u = uvRect.l;
-		pBuffer[0].v = uvRect.t;
-
-		pBuffer[1].x = rect.r;
-		pBuffer[1].y = rect.t;
-		pBuffer[1].z = 0;
-		pBuffer[1].color = color;
-		pBuffer[1].u = uvRect.r;
-		pBuffer[1].v = uvRect.t;
-
-		pBuffer[2].x = rect.l;
-		pBuffer[2].y = rect.b;
-		pBuffer[2].z = 0;
-		pBuffer[2].color = color;
-		pBuffer[2].u = uvRect.l;
-		pBuffer[2].v = uvRect.b;
-
-		pBuffer[3].x = rect.r;
-		pBuffer[3].y = rect.b;
-		pBuffer[3].z = 0;
-		pBuffer[3].color = color;
-		pBuffer[3].u = uvRect.r;
-		pBuffer[3].v = uvRect.b;
-
-		pBuffer[4] = pBuffer[2];
-		pBuffer[5] = pBuffer[1];
-
-		return 6;
-	}
-	return 0;
-}
-
 size_t Font::BuildVertexList(
-	CUSTOMVERTEX * pBuffer,
+	UIElement::CUSTOMVERTEX * pBuffer,
 	size_t bufferSize,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
@@ -445,10 +385,10 @@ size_t Font::BuildVertexList(
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
-		size_t used = BuildQuadrangle(
+		size_t used = UIElement::BuildQuadrangleVertices(
 			&pBuffer[i],
 			bufferSize - i,
-			my::Rectangle::LeftTop(Vector2(pen.x + info.horiBearingX, pen.y - info.horiBearingY) - 0.5f, Vector2(info.width, info.height)),
+			my::Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height),
 			Color,
 			info.uvRect);
 
@@ -470,11 +410,7 @@ void Font::DrawStringVertices(
 	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
 	Align align /*= AlignLeftTop*/)
 {
-	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
-	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-	V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-	V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+	UIElement::Begin(m_Device);
 
 	V(m_Device->SetTexture(0, m_texture->m_ptr));
 	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
@@ -485,24 +421,18 @@ void Font::DrawStringVertices(
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
 
-	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+	//V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
+	//V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
+	//V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 
-	D3DVIEWPORT9 vp;
-	V(m_Device->GetViewport(&vp));
-	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
-	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
+	UIElement::CUSTOMVERTEX vertex_list[1024];
+	size_t numVerts = BuildVertexList(vertex_list, _countof(vertex_list), pString, rect, Color, align);
 
-	CUSTOMVERTEX vertex_list[1024];
-	size_t numVerts = BuildVertexList(&vertex_list[0], _countof(vertex_list), pString, rect, Color, align);
+	V(m_Device->SetFVF(UIElement::D3DFVF_CUSTOMVERTEX));
 
-	V(m_Device->SetFVF(Font::D3DFVF_CUSTOMVERTEX));
+	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
 
-	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(my::Font::CUSTOMVERTEX)));
-
-	//V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+	UIElement::End(m_Device);
 }
 
 void Font::DrawString(
@@ -547,6 +477,7 @@ void Font::DrawString(
 		const CharacterInfo & info = GetCharacterInfo(c);
 
 		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+
 		V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
 		V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
 		V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));

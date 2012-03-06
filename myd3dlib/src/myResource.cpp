@@ -183,6 +183,42 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 
 ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
+ResourceMgr::ResourceMgr(void)
+{
+	FT_Error err = FT_Init_FreeType(&m_library);
+	if(err)
+	{
+		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
+	}
+}
+
+ResourceMgr::~ResourceMgr(void)
+{
+	FT_Error err = FT_Done_FreeType(m_library);
+}
+
+void ResourceMgr::OnResetDevice(void)
+{
+	// ! DXUT dependency
+	LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
+	_ASSERT(NULL != pd3dDevice);
+
+	HRESULT hres = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_stateBlock);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+}
+
+void ResourceMgr::OnLostDevice(void)
+{
+	m_stateBlock.Release();
+}
+
+void ResourceMgr::OnDestroyDevice(void)
+{
+}
+
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password /*= ""*/)
 {
 	m_dirList.push_back(ResourceDirPtr(new ZipArchiveDir(zip_path, password)));

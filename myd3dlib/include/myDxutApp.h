@@ -53,7 +53,7 @@ namespace my
 
 	class DxutAppBase
 	{
-	public:
+	protected:
 		static bool CALLBACK IsD3D9DeviceAcceptable_s(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
@@ -161,7 +161,7 @@ namespace my
 
 	class DxutApp : public DxutAppBase, public SingleInstance<DxutApp>
 	{
-	public:
+	protected:
 		virtual bool IsD3D9DeviceAcceptable(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
@@ -206,6 +206,7 @@ namespace my
 
 		virtual void OnInit(void);
 
+	public:
 		virtual int Run(
 			bool bWindowed = true,
 			int nSuggestedWidth = 800,

@@ -104,18 +104,6 @@ namespace my
 		bool AssignRect(const SIZE & size, RECT & outRect);
 	};
 
-	class FontMgr
-		: public Singleton<FontMgr>
-	{
-	public:
-		FT_Library m_library;
-
-	public:
-		FontMgr(void);
-
-		~FontMgr(void);
-	};
-
 	class Font;
 
 	typedef boost::shared_ptr<Font> FontPtr;
@@ -123,15 +111,6 @@ namespace my
 	class Font : public DeviceRelatedObjectBase
 	{
 	public:
-		struct CUSTOMVERTEX
-		{
-			FLOAT x, y, z;
-			DWORD color;
-			FLOAT u, v;
-		};
-
-		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
-
 		enum Align
 		{
 			AlignLeft			= 0x000001,
@@ -237,15 +216,8 @@ namespace my
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
-		static size_t BuildQuadrangle(
-			CUSTOMVERTEX * pBuffer,
-			size_t bufferSize,
-			const Rectangle & rect,
-			DWORD color,
-			const Rectangle & uvRect);
-
 		size_t BuildVertexList(
-			CUSTOMVERTEX * pBuffer,
+			UIElement::CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,
 			LPCWSTR pString,
 			const Rectangle & rect,
