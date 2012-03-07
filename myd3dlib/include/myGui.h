@@ -3,7 +3,7 @@
 
 namespace my
 {
-	class UIElement
+	class UIRender
 	{
 	public:
 		struct CUSTOMVERTEX
@@ -15,17 +15,27 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
-		static size_t BuildQuadrangleVertices(
-			CUSTOMVERTEX * pBuffer,
-			size_t bufferSize,
-			const Rectangle & rect,
-			DWORD color,
-			const Rectangle & uvRect);
-
 		static void Begin(IDirect3DDevice9 * pd3dDevice);
 
 		static void End(IDirect3DDevice9 * pd3dDevice);
 
+		static size_t BuildRectangleVertices(
+			CUSTOMVERTEX * pBuffer,
+			size_t bufferSize,
+			const Rectangle & rect,
+			const Rectangle & uvRect,
+			DWORD color);
+
+		// Example of Draw BuildRectangleVertices
+		static void DrawRectangle(
+			IDirect3DDevice9 * pd3dDevice,
+			const Rectangle & rect,
+			const Rectangle & uvRect,
+			DWORD color);
+	};
+
+	class UIElement
+	{
 	public:
 		UIElement(void)
 		{

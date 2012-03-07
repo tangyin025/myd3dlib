@@ -127,9 +127,9 @@ DxutAppBase::~DxutAppBase(void)
 }
 
 int DxutAppBase::Run(
-	bool bWindowed /*= true*/,
-	int nSuggestedWidth /*= 800*/,
-	int nSuggestedHeight /*= 600*/)
+	bool bWindowed,
+	int nSuggestedWidth,
+	int nSuggestedHeight)
 {
 	DXUTInit(true, true, NULL);
 	DXUTSetCursorSettings(true, true);
@@ -223,9 +223,9 @@ void DxutApp::OnInit(void)
 }
 
 int DxutApp::Run(
-	bool bWindowed /*= true*/,
-	int nSuggestedWidth /*= 800*/,
-	int nSuggestedHeight /*= 600*/)
+	bool bWindowed,
+	int nSuggestedWidth,
+	int nSuggestedHeight)
 {
 	try
 	{

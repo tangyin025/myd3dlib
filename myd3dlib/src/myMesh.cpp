@@ -41,7 +41,7 @@ CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclarati
 	return ret;
 }
 
-VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream /*= 0*/)
+VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream)
 	: m_Device(pDevice)
 	, m_VertexElemSet(VertexElemSet)
 	, m_vertexStride(VertexElemSet.GetVertexStride(Stream))
@@ -57,7 +57,7 @@ VertexBuffer::VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set
 VertexBufferPtr VertexBuffer::CreateVertexBuffer(
 	LPDIRECT3DDEVICE9 pD3DDevice,
 	const D3DVERTEXELEMENT9Set & VertexElemSet,
-	WORD Stream /*= 0*/)
+	WORD Stream)
 {
 	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
 }
@@ -108,37 +108,37 @@ void VertexBuffer::ResizeVertexBufferLength(UINT NumVertices)
 	m_NumVertices = NumVertices;
 }
 
-void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetBinormal(&m_MemVertexBuffer[Index * m_vertexStride], Binormal, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetTangent(&m_MemVertexBuffer[Index * m_vertexStride], Tangent, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex /*= 0*/)
+void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex)
 {
 	m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, m_Stream, UsageIndex);
 }
@@ -208,7 +208,7 @@ MeshPtr Mesh::CreateMesh(
 	DWORD NumFaces,
 	DWORD NumVertices,
 	CONST LPD3DVERTEXELEMENT9 pDeclaration,
-	DWORD Options /*= D3DXMESH_MANAGED*/)
+	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, pD3DDevice, &pMesh);
@@ -225,7 +225,7 @@ MeshPtr Mesh::CreateMeshFVF(
 	DWORD NumFaces,
 	DWORD NumVertices,
 	DWORD FVF,
-	DWORD Options /*= D3DXMESH_MANAGED*/)
+	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, pD3DDevice, &pMesh);
@@ -240,11 +240,11 @@ MeshPtr Mesh::CreateMeshFVF(
 MeshPtr Mesh::CreateMeshFromX(
 	LPDIRECT3DDEVICE9 pD3DDevice,
 	LPCSTR pFilename,
-	DWORD Options /*= D3DXMESH_MANAGED*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/,
-	LPD3DXBUFFER * ppMaterials /*= NULL*/,
-	LPD3DXBUFFER * ppEffectInstances /*= NULL*/,
-	DWORD * pNumMaterials /*= NULL*/)
+	DWORD Options,
+	LPD3DXBUFFER * ppAdjacency,
+	LPD3DXBUFFER * ppMaterials,
+	LPD3DXBUFFER * ppEffectInstances,
+	DWORD * pNumMaterials)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXLoadMeshFromXA(
@@ -261,11 +261,11 @@ MeshPtr Mesh::CreateMeshFromXInMemory(
 	LPDIRECT3DDEVICE9 pD3DDevice,
 	LPCVOID Memory,
 	DWORD SizeOfMemory,
-	DWORD Options /*= D3DXMESH_MANAGED*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/,
-	LPD3DXBUFFER * ppMaterials /*= NULL*/,
-	LPD3DXBUFFER * ppEffectInstances /*= NULL*/,
-	DWORD * pNumMaterials /*= NULL*/)
+	DWORD Options,
+	LPD3DXBUFFER * ppAdjacency,
+	LPD3DXBUFFER * ppMaterials,
+	LPD3DXBUFFER * ppEffectInstances,
+	DWORD * pNumMaterials)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXLoadMeshFromXInMemory(
@@ -281,8 +281,8 @@ MeshPtr Mesh::CreateMeshFromXInMemory(
 MeshPtr Mesh::CreateMeshFromOgreXml(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCSTR pFilename,
-	bool bComputeTangentFrame /*= true*/,
-	DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
 {
 	FILE * fp;
 	if(0 != fopen_s(&fp, pFilename, "rb"))
@@ -299,8 +299,8 @@ MeshPtr Mesh::CreateMeshFromOgreXmlInMemory(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
-	bool bComputeTangentFrame /*= true*/,
-	DWORD dwMeshOptions /*= D3DXMESH_MANAGED*/)
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
 {
 	std::string xmlStr(pSrcData, srcDataLen);
 
@@ -552,10 +552,10 @@ MeshPtr Mesh::CreateMeshFromOgreXmlInMemory(
 
 MeshPtr Mesh::CreateBox(
 	LPDIRECT3DDEVICE9 pd3dDevice,
-	FLOAT Width /*= 1.0f*/,
-	FLOAT Height /*= 1.0f*/,
-	FLOAT Depth /*= 1.0f*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	FLOAT Width,
+	FLOAT Height,
+	FLOAT Depth,
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
@@ -569,12 +569,12 @@ MeshPtr Mesh::CreateBox(
 
 MeshPtr Mesh::CreateCylinder(
 	LPDIRECT3DDEVICE9 pd3dDevice,
-	FLOAT Radius1 /*= 1.0f*/,
-	FLOAT Radius2 /*= 1.0f*/,
-	FLOAT Length /*= 2.0f*/,
-	UINT Slices /*= 20*/,
-	UINT Stacks /*= 1*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	FLOAT Radius1,
+	FLOAT Radius2,
+	FLOAT Length,
+	UINT Slices,
+	UINT Stacks,
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
@@ -588,9 +588,9 @@ MeshPtr Mesh::CreateCylinder(
 
 MeshPtr Mesh::CreatePolygon(
 	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT Length /*= 1.0f*/,
-	UINT Sides /*= 5*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	FLOAT Length,
+	UINT Sides,
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
@@ -604,10 +604,10 @@ MeshPtr Mesh::CreatePolygon(
 
 MeshPtr Mesh::CreateSphere(
 	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT Radius /*= 1.0f*/,
-	UINT Slices /*= 20*/,
-	UINT Stacks /*= 20*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	FLOAT Radius,
+	UINT Slices,
+	UINT Stacks,
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
@@ -621,7 +621,7 @@ MeshPtr Mesh::CreateSphere(
 
 MeshPtr Mesh::CreateTeapot(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
@@ -635,11 +635,11 @@ MeshPtr Mesh::CreateTeapot(
 
 MeshPtr Mesh::CreateTorus(
 	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT InnerRadius /*= 0.5f*/,
-	FLOAT OuterRadius /*= 1.5f*/,
-	UINT Sides /*= 20*/,
-	UINT Rings /*= 20*/,
-	LPD3DXBUFFER * ppAdjacency /*= NULL*/)
+	FLOAT InnerRadius,
+	FLOAT OuterRadius,
+	UINT Sides,
+	UINT Rings,
+	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
 	HRESULT hres = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);

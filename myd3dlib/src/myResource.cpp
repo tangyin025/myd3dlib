@@ -82,7 +82,7 @@ ResourceDir::~ResourceDir(void)
 {
 }
 
-ZipArchiveDir::ZipArchiveDir(const std::string & dir, const std::string & password /*= ""*/)
+ZipArchiveDir::ZipArchiveDir(const std::string & dir, const std::string & password)
 	: ResourceDir(dir)
 	, m_password(password)
 {
@@ -219,7 +219,7 @@ void ResourceMgr::OnDestroyDevice(void)
 {
 }
 
-void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password /*= ""*/)
+void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
 {
 	m_dirList.push_back(ResourceDirPtr(new ZipArchiveDir(zip_path, password)));
 }

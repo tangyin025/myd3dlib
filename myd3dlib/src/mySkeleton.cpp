@@ -159,8 +159,8 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	BoneList & hierarchyBoneList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
-	const Quaternion & rootRotation /*= Quaternion(0, 0, 0, 1)*/,
-	const Vector3 & rootPosition /*= Vector3::zero)*/)
+	const Quaternion & rootRotation,
+	const Vector3 & rootPosition)
 {
 	_ASSERT(hierarchyBoneList.size() == size());
 	_ASSERT(hierarchyBoneList.size() == boneHierarchy.size());
@@ -188,8 +188,8 @@ BoneList & BoneList::BuildHierarchyBoneList(
 //	BoneList & inverseHierarchyBoneList,
 //	const BoneHierarchy & boneHierarchy,
 //	int root_i,
-//	const Quaternion & inverseRootRotation /*= Quaternion(0, 0, 0, 1)*/,
-//	const Vector3 & inverseRootPosition /*= Vector3::zero*/)
+//	const Quaternion & inverseRootRotation,
+//	const Vector3 & inverseRootPosition)
 //{
 //	_ASSERT(inverseHierarchyBoneList.size() == size());
 //	_ASSERT(inverseHierarchyBoneList.size() == boneHierarchy.size());
@@ -286,7 +286,7 @@ TransformList & BoneList::BuildHierarchyTransformList(
 	TransformList & hierarchyTransformList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
-	const Matrix4 & rootTransform /*= Matrix4::identity*/)
+	const Matrix4 & rootTransform)
 {
 	_ASSERT(hierarchyTransformList.size() == size());
 	_ASSERT(hierarchyTransformList.size() == boneHierarchy.size());
@@ -312,7 +312,7 @@ TransformList & BoneList::BuildInverseHierarchyTransformList(
 	TransformList & inverseHierarchyTransformList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
-	const Matrix4 & inverseRootTransform /*= Matrix4::identity*/)
+	const Matrix4 & inverseRootTransform)
 {
 	_ASSERT(inverseHierarchyTransformList.size() == size());
 	_ASSERT(inverseHierarchyTransformList.size() == boneHierarchy.size());

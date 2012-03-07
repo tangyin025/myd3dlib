@@ -13,9 +13,9 @@ SurfacePtr Surface::CreateDepthStencilSurface(
 	UINT Width,
 	UINT Height,
 	D3DFORMAT Format,
-	D3DMULTISAMPLE_TYPE MultiSample /*= D3DMULTISAMPLE_NONE*/,
-	DWORD MultisampleQuality /*= 0*/,
-	BOOL Discard /*= TRUE*/)
+	D3DMULTISAMPLE_TYPE MultiSample,
+	DWORD MultisampleQuality,
+	BOOL Discard)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
 	HRESULT hres = pDevice->CreateDepthStencilSurface(
@@ -33,7 +33,7 @@ SurfacePtr Surface::CreateOffscreenPlainSurface(
 	UINT Width,
 	UINT Height,
 	D3DFORMAT Format,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	D3DPOOL Pool)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
 	HRESULT hres = pDevice->CreateOffscreenPlainSurface(Width, Height, Format, Pool, &pSurface, NULL);
@@ -49,10 +49,10 @@ TexturePtr Texture::CreateTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
-	UINT MipLevels /*= 0*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
 	HRESULT hres = pDevice->CreateTexture(
@@ -69,10 +69,10 @@ TexturePtr Texture::CreateAdjustedTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
 	HRESULT hres = D3DXCreateTexture(
@@ -88,17 +88,17 @@ TexturePtr Texture::CreateAdjustedTexture(
 TexturePtr Texture::CreateTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
-	UINT Width /*= D3DX_DEFAULT*/,
-	UINT Height /*= D3DX_DEFAULT*/,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
-	DWORD Filter /*= D3DX_DEFAULT*/,
-	DWORD MipFilter /*= D3DX_DEFAULT*/,
-	D3DCOLOR ColorKey /*= 0*/,
-	D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
-	PALETTEENTRY * pPalette /*= NULL*/)
+	UINT Width,
+	UINT Height,
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool,
+	DWORD Filter,
+	DWORD MipFilter,
+	D3DCOLOR ColorKey,
+	D3DXIMAGE_INFO * pSrcInfo,
+	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
 	HRESULT hres = D3DXCreateTextureFromFileExA(
@@ -115,17 +115,17 @@ TexturePtr Texture::CreateTextureFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
-	UINT Width /*= D3DX_DEFAULT*/,
-	UINT Height /*= D3DX_DEFAULT*/,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
-	DWORD Filter /*= D3DX_DEFAULT*/,
-	DWORD MipFilter /*= D3DX_DEFAULT*/,
-	D3DCOLOR ColorKey /*= 0*/,
-	D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
-	PALETTEENTRY * pPalette /*= NULL*/)
+	UINT Width,
+	UINT Height,
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool,
+	DWORD Filter,
+	DWORD MipFilter,
+	D3DCOLOR ColorKey,
+	D3DXIMAGE_INFO * pSrcInfo,
+	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
 	HRESULT hres = D3DXCreateTextureFromFileInMemoryEx(
@@ -142,9 +142,9 @@ CubeTexturePtr CubeTexture::CreateCubeTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT EdgeLength,
 	UINT Levels,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
 	HRESULT hres = pDevice->CreateCubeTexture(
@@ -160,10 +160,10 @@ CubeTexturePtr CubeTexture::CreateCubeTexture(
 CubeTexturePtr CubeTexture::CubeAdjustedTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Size,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/)
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
 	HRESULT hres = D3DXCreateCubeTexture(
@@ -179,16 +179,16 @@ CubeTexturePtr CubeTexture::CubeAdjustedTexture(
 CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
-	UINT Size /*= D3DX_DEFAULT*/,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
-	DWORD Filter /*= D3DX_DEFAULT*/,
-	DWORD MipFilter /*= D3DX_DEFAULT*/,
-	D3DCOLOR ColorKey /*= 0*/,
-	D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
-	PALETTEENTRY * pPalette /*= NULL*/)
+	UINT Size,
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool,
+	DWORD Filter,
+	DWORD MipFilter,
+	D3DCOLOR ColorKey,
+	D3DXIMAGE_INFO * pSrcInfo,
+	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
 	HRESULT hres = D3DXCreateCubeTextureFromFileExA(
@@ -205,16 +205,16 @@ CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
-	UINT Size /*= D3DX_DEFAULT*/,
-	UINT MipLevels /*= D3DX_DEFAULT*/,
-	DWORD Usage /*= 0*/,
-	D3DFORMAT Format /*= D3DFMT_UNKNOWN*/,
-	D3DPOOL Pool /*= D3DPOOL_MANAGED*/,
-	DWORD Filter /*= D3DX_DEFAULT*/,
-	DWORD MipFilter /*= D3DX_DEFAULT*/,
-	D3DCOLOR ColorKey /*= 0*/,
-	D3DXIMAGE_INFO * pSrcInfo /*= NULL*/,
-	PALETTEENTRY * pPalette /*= NULL*/)
+	UINT Size,
+	UINT MipLevels,
+	DWORD Usage,
+	D3DFORMAT Format,
+	D3DPOOL Pool,
+	DWORD Filter,
+	DWORD MipFilter,
+	D3DCOLOR ColorKey,
+	D3DXIMAGE_INFO * pSrcInfo,
+	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
 	HRESULT hres = D3DXCreateCubeTextureFromFileInMemoryEx(

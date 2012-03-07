@@ -21,9 +21,9 @@ VertexShaderPtr VertexShader::CreateVertexShader(
 	UINT srcDataLen,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags)
 {
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
@@ -56,9 +56,9 @@ VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
 	LPCSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags)
 {
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
@@ -99,9 +99,9 @@ PixelShaderPtr PixelShader::CreatePixelShader(
 	UINT srcDataLen,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags)
 {
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
@@ -134,9 +134,9 @@ PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
 	LPCSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags)
 {
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
@@ -168,10 +168,10 @@ EffectPtr Effect::CreateEffect(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataLen,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/,
-	LPD3DXEFFECTPOOL pPool /*= NULL*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags,
+	LPD3DXEFFECTPOOL pPool)
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
@@ -193,10 +193,10 @@ EffectPtr Effect::CreateEffect(
 EffectPtr Effect::CreateEffectFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
-	CONST D3DXMACRO * pDefines /*= NULL*/,
-	LPD3DXINCLUDE pInclude /*= NULL*/,
-	DWORD Flags /*= 0*/,
-	LPD3DXEFFECTPOOL pPool /*= NULL*/)
+	CONST D3DXMACRO * pDefines,
+	LPD3DXINCLUDE pInclude,
+	DWORD Flags,
+	LPD3DXEFFECTPOOL pPool)
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;

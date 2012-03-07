@@ -118,7 +118,7 @@ bool RectAssignmentNode::AssignRect(const SIZE & size, RECT & outRect)
 	return false;
 }
 
-Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap /*= 0*/)
+Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap)
 	: m_face(face)
 	, m_Device(pDevice)
 	, FONT_PIXEL_GAP(pixel_gap)
@@ -172,7 +172,7 @@ FontPtr Font::CreateFontFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	float height,
-	FT_Long face_index /*= 0*/)
+	FT_Long face_index)
 {
 	FT_Face face;
 	FT_Error err = FT_New_Face(ResourceMgr::getSingleton().m_library, pFilename, face_index, &face);
@@ -190,7 +190,7 @@ FontPtr Font::CreateFontFromFileInMemory(
 	const void * file_base,
 	long file_size,
 	float height,
-	long face_index /*= 0*/)
+	long face_index)
 {
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
@@ -342,13 +342,13 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
-size_t Font::BuildVertexList(
-	UIElement::CUSTOMVERTEX * pBuffer,
+size_t Font::BuildStringVertices(
+	UIRender::CUSTOMVERTEX * pBuffer,
 	size_t bufferSize,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
-	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
-	Align align /*= AlignLeftTop*/)
+	D3DCOLOR Color,
+	Align align)
 {
 	Vector2 extent = CalculateStringExtent(pString);
 
@@ -385,12 +385,12 @@ size_t Font::BuildVertexList(
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
-		size_t used = UIElement::BuildQuadrangleVertices(
+		size_t used = UIRender::BuildRectangleVertices(
 			&pBuffer[i],
 			bufferSize - i,
 			my::Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height),
-			Color,
-			info.uvRect);
+			info.uvRect,
+			Color);
 
 		if(0 == used)
 		{
@@ -404,13 +404,13 @@ size_t Font::BuildVertexList(
 	return i;
 }
 
-void Font::DrawStringVertices(
+void Font::DrawString(
 	LPCWSTR pString,
 	const my::Rectangle & rect,
-	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
-	Align align /*= AlignLeftTop*/)
+	D3DCOLOR Color,
+	Align align)
 {
-	UIElement::Begin(m_Device);
+	UIRender::Begin(m_Device);
 
 	V(m_Device->SetTexture(0, m_texture->m_ptr));
 	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
@@ -425,22 +425,22 @@ void Font::DrawStringVertices(
 	//V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
 	//V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 
-	UIElement::CUSTOMVERTEX vertex_list[1024];
-	size_t numVerts = BuildVertexList(vertex_list, _countof(vertex_list), pString, rect, Color, align);
+	UIRender::CUSTOMVERTEX vertex_list[1024];
+	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);
 
-	V(m_Device->SetFVF(UIElement::D3DFVF_CUSTOMVERTEX));
+	V(m_Device->SetFVF(UIRender::D3DFVF_CUSTOMVERTEX));
 
 	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
 
-	UIElement::End(m_Device);
+	UIRender::End(m_Device);
 }
 
 void Font::DrawString(
 	LPD3DXSPRITE pSprite,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
-	D3DCOLOR Color /*= D3DCOLOR_ARGB(255, 255, 255, 255)*/,
-	Align align /*= AlignLeftTop*/)
+	D3DCOLOR Color,
+	Align align)
 {
 	Vector2 extent = CalculateStringExtent(pString);
 
