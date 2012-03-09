@@ -141,7 +141,7 @@ Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short
 
 	m_maxAdvance = m_face->size->metrics.max_advance / 64.0f;
 
-	m_texture = CreateFontTexture(pDevice, (UINT)ceil(m_maxAdvance), (UINT)ceil(m_LineHeight));
+	m_texture = CreateFontTexture(pDevice, 256, 256);
 
 	D3DSURFACE_DESC desc = m_texture->GetLevelDesc(0);
 	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width, desc.Height)));

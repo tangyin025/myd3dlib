@@ -15,6 +15,7 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
+		// Rendering UI under Fixed Pipeline is not recommended
 		static void Begin(IDirect3DDevice9 * pd3dDevice);
 
 		static void End(IDirect3DDevice9 * pd3dDevice);

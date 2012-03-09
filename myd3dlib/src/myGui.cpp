@@ -14,11 +14,12 @@ void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 
 	HRESULT hr;
 
-	//D3DVIEWPORT9 vp;
-	//V(pd3dDevice->GetViewport(&vp));
-	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
-	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
+	D3DVIEWPORT9 vp;
+	V(pd3dDevice->GetViewport(&vp));
+	// subtract 0.5 units to correctly align texels with pixels
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::Translation(my::Vector3(-0.5f, -0.5f, 0.0f))));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
 
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
@@ -45,30 +46,29 @@ size_t UIRender::BuildRectangleVertices(
 {
 	if(bufferSize >= 6)
 	{
-		// subtract 0.5 units to correctly align texels with pixels
-		pBuffer[0].x = rect.l - 0.5f;
-		pBuffer[0].y = rect.t - 0.5f;
+		pBuffer[0].x = rect.l;
+		pBuffer[0].y = rect.t;
 		pBuffer[0].z = 0;
 		pBuffer[0].color = color;
 		pBuffer[0].u = uvRect.l;
 		pBuffer[0].v = uvRect.t;
 
-		pBuffer[1].x = rect.r - 0.5f;
-		pBuffer[1].y = rect.t - 0.5f;
+		pBuffer[1].x = rect.r;
+		pBuffer[1].y = rect.t;
 		pBuffer[1].z = 0;
 		pBuffer[1].color = color;
 		pBuffer[1].u = uvRect.r;
 		pBuffer[1].v = uvRect.t;
 
-		pBuffer[2].x = rect.l - 0.5f;
-		pBuffer[2].y = rect.b - 0.5f;
+		pBuffer[2].x = rect.l;
+		pBuffer[2].y = rect.b;
 		pBuffer[2].z = 0;
 		pBuffer[2].color = color;
 		pBuffer[2].u = uvRect.l;
 		pBuffer[2].v = uvRect.b;
 
-		pBuffer[3].x = rect.r - 0.5f;
-		pBuffer[3].y = rect.b - 0.5f;
+		pBuffer[3].x = rect.r;
+		pBuffer[3].y = rect.b;
 		pBuffer[3].z = 0;
 		pBuffer[3].color = color;
 		pBuffer[3].u = uvRect.r;
