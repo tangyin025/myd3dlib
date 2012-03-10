@@ -109,22 +109,14 @@ void UIRender::DrawRectangle(
 	End(pd3dDevice);
 }
 
-void UIControl::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void UIControl::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
-		my::Vector2 Location = Offset + m_Location;
-
-		if(m_Color & D3DCOLOR_ARGB(255,0,0,0) && m_Elem)
+		if(m_Color & D3DCOLOR_ARGB(255,0,0,0) && m_Skin && m_Skin->m_Texture)
 		{
-			V(pd3dDevice->SetTexture(0, m_Elem->m_Texture->m_ptr));
-			UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(Location, m_Size), m_Elem->m_TextureUV, m_Color);
-		}
-
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
-		{
-			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime, Location);
+			V(pd3dDevice->SetTexture(0, m_Skin->m_Texture->m_ptr));
+			UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), m_Skin->m_TextureUV, m_Color);
 		}
 	}
 }
@@ -170,7 +162,7 @@ void UIControl::OnHotkey(void)
 
 bool UIControl::ContainsPoint(const Vector2 & pt)
 {
-	return false;
+	return pt.x >= m_Location.x && pt.x < m_Location.x + m_Size.x && pt.y >= m_Location.y && pt.y < m_Location.y + m_Size.y;
 }
 
 void UIControl::SetEnabled(bool bEnabled)
@@ -193,28 +185,13 @@ bool UIControl::GetVisible(void)
 	return m_bVisible;
 }
 
-void UIStatic::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void UIStatic::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
-		my::Vector2 Location = Offset + m_Location;
-		my::Rectangle Rect(my::Rectangle::LeftTop(Location, m_Size));
-
-		if(m_Color & D3DCOLOR_ARGB(255,0,0,0) && m_Elem)
+		if(m_Skin && m_Skin->m_Font)
 		{
-			V(pd3dDevice->SetTexture(0, m_Elem->m_Texture->m_ptr));
-			UIRender::DrawRectangle(pd3dDevice, Rect, m_Elem->m_TextureUV, m_Color);
-		}
-
-		if(m_Elem && m_Elem->m_Font)
-		{
-			m_Elem->m_Font->DrawString(m_Text.c_str(), Rect, m_TextColor, m_TextAlign);
-		}
-
-		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
-		{
-			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime, Location);
+			m_Skin->m_Font->DrawString(m_Text.c_str(), my::Rectangle::LeftTop(m_Location, m_Size), m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -222,4 +199,110 @@ void UIStatic::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const
 bool UIStatic::ContainsPoint(const Vector2 & pt)
 {
 	return false;
+}
+
+void UIButton::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	if(m_bVisible)
+	{
+		UIButtonSkinPtr Skin = boost::dynamic_pointer_cast<UIButtonSkin, UIControlSkin>(m_Skin);
+
+		if(Skin && Skin->m_Texture)
+		{
+			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
+			if(!m_bEnabled)
+			{
+				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_DisabledTexUV, m_Color);
+			}
+			else if(m_bPressed)
+			{
+				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_PressedTexUV, m_Color);
+			}
+			else if(m_bMouseOver)
+			{
+				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_MouseOverTexUV, m_Color);
+			}
+			else
+			{
+				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_TextureUV, m_Color);
+			}
+		}
+	}
+}
+
+bool UIButton::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		switch(uMsg)
+		{
+		case WM_KEYDOWN:
+			switch(wParam)
+			{
+			case VK_SPACE:
+				m_bPressed = true;
+				return true;
+			}
+			break;
+
+		case WM_KEYUP:
+			switch(wParam)
+			{
+			case VK_SPACE:
+				if(m_bPressed)
+				{
+					m_bPressed = false;
+
+					if(EventClick)
+						EventClick(this);
+				}
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+bool UIButton::HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		switch(uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if(ContainsPoint(Vector2(pt.x, pt.y)))
+			{
+				m_bPressed = true;
+				// ! DXUT dependency
+				SetCapture(DXUTGetHWND());
+
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if(m_bPressed)
+			{
+				m_bPressed = false;
+				ReleaseCapture();
+
+				if(ContainsPoint(Vector2(pt.x, pt.y)))
+				{
+					if(EventClick)
+						EventClick(this);
+				}
+
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+bool UIButton::ContainsPoint(const Vector2 & pt)
+{
+	return UIControl::ContainsPoint(pt);
 }
