@@ -111,6 +111,15 @@ namespace my
 	class Font : public DeviceRelatedObjectBase
 	{
 	public:
+		struct CUSTOMVERTEX
+		{
+			FLOAT x, y, z;
+			DWORD color;
+			FLOAT u, v;
+		};
+
+		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
+
 		enum Align
 		{
 			AlignLeft			= 0x000001,
@@ -170,7 +179,7 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap = 0);
+		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap);
 
 	public:
 		virtual ~Font(void);
@@ -179,6 +188,7 @@ namespace my
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
 			float height,
+			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
 		static FontPtr CreateFontFromFileInMemory(
@@ -186,7 +196,8 @@ namespace my
 			const void * file_base,
 			long file_size,
 			float height,
-			long face_index = 0);
+			unsigned short pixel_gap = 0,
+			FT_Long face_index = 0);
 
 		static TexturePtr CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height);
 
@@ -217,7 +228,7 @@ namespace my
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
 		size_t BuildStringVertices(
-			UIRender::CUSTOMVERTEX * pBuffer,
+			CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,
 			LPCWSTR pString,
 			const Rectangle & rect,

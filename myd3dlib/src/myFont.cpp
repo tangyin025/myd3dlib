@@ -172,6 +172,7 @@ FontPtr Font::CreateFontFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	float height,
+	unsigned short pixel_gap,
 	FT_Long face_index)
 {
 	FT_Face face;
@@ -181,7 +182,7 @@ FontPtr Font::CreateFontFromFile(
 		THROW_CUSEXCEPTION("FT_New_Face failed");
 	}
 
-	FontPtr font(new Font(face, height, pDevice));
+	FontPtr font(new Font(face, height, pDevice, pixel_gap));
 	return font;
 }
 
@@ -190,7 +191,8 @@ FontPtr Font::CreateFontFromFileInMemory(
 	const void * file_base,
 	long file_size,
 	float height,
-	long face_index)
+	unsigned short pixel_gap,
+	FT_Long face_index)
 {
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
@@ -202,7 +204,7 @@ FontPtr Font::CreateFontFromFileInMemory(
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
 	}
 
-	FontPtr font(new Font(face, height, pDevice));
+	FontPtr font(new Font(face, height, pDevice, pixel_gap));
 	font->m_cache = cache;
 	return font;
 }
@@ -343,7 +345,7 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 }
 
 size_t Font::BuildStringVertices(
-	UIRender::CUSTOMVERTEX * pBuffer,
+	CUSTOMVERTEX * pBuffer,
 	size_t bufferSize,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
@@ -378,6 +380,9 @@ size_t Font::BuildStringVertices(
 		pen.y = rect.b - extent.y;
 	}
 	pen.y += m_LineHeight;
+
+	//pen.x = floor(pen.x);
+	//pen.y = floor(pen.y);
 
 	size_t i = 0;
 	wchar_t c;
@@ -425,10 +430,10 @@ void Font::DrawString(
 	//V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
 	//V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 
-	UIRender::CUSTOMVERTEX vertex_list[1024];
+	CUSTOMVERTEX vertex_list[1024];
 	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);
 
-	V(m_Device->SetFVF(UIRender::D3DFVF_CUSTOMVERTEX));
+	V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 
 	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
 
