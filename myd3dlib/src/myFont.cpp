@@ -261,7 +261,7 @@ void Font::InsertCharacter(
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
 	CharacterInfo info;
-	// add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
+	// Add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
 	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
 	::InflateRect(&info.textureRect, -FONT_PIXEL_GAP, -FONT_PIXEL_GAP);
 
@@ -418,17 +418,9 @@ void Font::DrawString(
 	UIRender::Begin(m_Device);
 
 	V(m_Device->SetTexture(0, m_texture->m_ptr));
-	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
-	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
 
-	//V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
-	//V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
-	//V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+	// ! D3DFMT_A8
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
 
 	CUSTOMVERTEX vertex_list[1024];
 	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);

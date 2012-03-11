@@ -12,6 +12,9 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = Font::D3DFVF_CUSTOMVERTEX;
 
+		// Resolution-Dependent UI Transforms
+		static void SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DWORD Height);
+
 		// Rendering UI under Fixed Pipeline is not recommended
 		static void Begin(IDirect3DDevice9 * pd3dDevice);
 
@@ -44,6 +47,14 @@ namespace my
 		D3DCOLOR m_TextColor;
 
 		Font::Align m_TextAlign;
+
+	public:
+		UIControlSkin(void)
+			: m_TextureUV(0,0,1,1)
+			, m_TextColor(D3DCOLOR_ARGB(255,255,255,255))
+			, m_TextAlign(my::Font::AlignLeftTop)
+		{
+		}
 
 		virtual ~UIControlSkin(void)
 		{
@@ -98,7 +109,7 @@ namespace my
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		virtual bool HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam);
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual bool CanHaveFocus(void);
 
@@ -149,16 +160,26 @@ namespace my
 		Rectangle m_PressedTexUV;
 
 		Rectangle m_MouseOverTexUV;
+
+	public:
+		UIButtonSkin(void)
+			: m_DisabledTexUV(0,0,1,1)
+			, m_PressedTexUV(0,0,1,1)
+			, m_MouseOverTexUV(0,0,1,1)
+		{
+		}
 	};
 
 	typedef boost::shared_ptr<UIButtonSkin> UIButtonSkinPtr;
+
+	typedef fastdelegate::FastDelegate1<UIControl *> UIEvent;
 
 	class UIButton : public UIStatic
 	{
 	public:
 		bool m_bPressed;
 
-		fastdelegate::FastDelegate1<UIButton *> EventClick;
+		UIEvent EventClick;
 
 	public:
 		UIButton(void)
@@ -170,7 +191,7 @@ namespace my
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
-		virtual bool HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam);
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};

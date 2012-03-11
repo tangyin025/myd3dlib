@@ -8,19 +8,20 @@
 
 using namespace my;
 
+void UIRender::SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DWORD Height)
+{
+	HRESULT hr;
+	// subtract 0.5 units to correctly align texels with pixels
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::Translation(my::Vector3(-0.5f, -0.5f, 0.0f))));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, Width, -(float)Height, 0, -50, 50)));
+}
+
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 {
 	ResourceMgr::getSingleton().m_stateBlock->Capture();
 
 	HRESULT hr;
-
-	//D3DVIEWPORT9 vp;
-	//V(pd3dDevice->GetViewport(&vp));
-	//// subtract 0.5 units to correctly align texels with pixels
-	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::Translation(my::Vector3(-0.5f, -0.5f, 0.0f))));
-	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
-	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, vp.Width, -(float)vp.Height, 0, -50, 50)));
-
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
@@ -131,7 +132,7 @@ bool UIControl::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-bool UIControl::HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam)
+bool UIControl::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
 	return false;
 }
@@ -264,7 +265,7 @@ bool UIButton::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-bool UIButton::HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam)
+bool UIButton::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
@@ -272,7 +273,7 @@ bool UIButton::HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam)
 		{
 		case WM_LBUTTONDOWN:
 		case WM_LBUTTONDBLCLK:
-			if(ContainsPoint(Vector2(pt.x, pt.y)))
+			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
 				// ! DXUT dependency
@@ -288,7 +289,7 @@ bool UIButton::HandleMouse(UINT uMsg, POINT pt, WPARAM wParam, LPARAM lParam)
 				m_bPressed = false;
 				ReleaseCapture();
 
-				if(ContainsPoint(Vector2(pt.x, pt.y)))
+				if(ContainsPoint(pt))
 				{
 					if(EventClick)
 						EventClick(this);
