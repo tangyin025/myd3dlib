@@ -227,6 +227,8 @@ namespace my
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
+		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
+
 		size_t BuildStringVertices(
 			CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,

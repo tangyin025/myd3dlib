@@ -344,13 +344,7 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
-size_t Font::BuildStringVertices(
-	CUSTOMVERTEX * pBuffer,
-	size_t bufferSize,
-	LPCWSTR pString,
-	const my::Rectangle & rect,
-	D3DCOLOR Color,
-	Align align)
+Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, Align align)
 {
 	Vector2 extent = CalculateStringExtent(pString);
 
@@ -381,8 +375,22 @@ size_t Font::BuildStringVertices(
 	}
 	pen.y += m_LineHeight;
 
-	//pen.x = floor(pen.x);
-	//pen.y = floor(pen.y);
+	// ! Align pen to pixel/UI unit
+	pen.x = floor(pen.x);
+	pen.y = floor(pen.y);
+
+	return pen;
+}
+
+size_t Font::BuildStringVertices(
+	CUSTOMVERTEX * pBuffer,
+	size_t bufferSize,
+	LPCWSTR pString,
+	const my::Rectangle & rect,
+	D3DCOLOR Color,
+	Align align)
+{
+	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
 	size_t i = 0;
 	wchar_t c;
@@ -439,34 +447,7 @@ void Font::DrawString(
 	D3DCOLOR Color,
 	Align align)
 {
-	Vector2 extent = CalculateStringExtent(pString);
-
-	Vector2 pen;
-	if(align & AlignLeft)
-	{
-		pen.x = rect.l;
-	}
-	else if(align & AlignCenter)
-	{
-		pen.x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
-	}
-	else
-	{
-		pen.x = rect.r - extent.x;
-	}
-	if(align & AlignTop)
-	{
-		pen.y = rect.t;
-	}
-	else if(align & AlignMiddle)
-	{
-		pen.y = rect.t + (rect.b - rect.t - extent.y) * 0.5f;
-	}
-	else
-	{
-		pen.y = rect.b - extent.y;
-	}
-	pen.y += m_LineHeight;
+	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
 	wchar_t c;
 	while((c = *pString++))

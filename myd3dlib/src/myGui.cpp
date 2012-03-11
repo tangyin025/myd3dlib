@@ -14,7 +14,7 @@ void UIRender::SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DW
 	// subtract 0.5 units to correctly align texels with pixels
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::Translation(my::Vector3(-0.5f, -0.5f, 0.0f))));
 	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, Width, -(float)Height, 0, -50, 50)));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, (float)Width, -(float)Height, 0, -50, 50)));
 }
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
@@ -208,25 +208,32 @@ void UIButton::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	{
 		UIButtonSkinPtr Skin = boost::dynamic_pointer_cast<UIButtonSkin, UIControlSkin>(m_Skin);
 
+		my::Rectangle Rect(my::Rectangle::LeftTop(m_Location, m_Size));
+
 		if(Skin && Skin->m_Texture)
 		{
 			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
 			if(!m_bEnabled)
 			{
-				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_DisabledTexUV, m_Color);
+				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_DisabledTexUV, m_Color);
 			}
 			else if(m_bPressed)
 			{
-				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_PressedTexUV, m_Color);
+				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_PressedTexUV, m_Color);
 			}
 			else if(m_bMouseOver)
 			{
-				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_MouseOverTexUV, m_Color);
+				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_MouseOverTexUV, m_Color);
 			}
 			else
 			{
-				UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), Skin->m_TextureUV, m_Color);
+				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_TextureUV, m_Color);
 			}
+		}
+
+		if(m_Skin && m_Skin->m_Font)
+		{
+			m_Skin->m_Font->DrawString(m_Text.c_str(), Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
