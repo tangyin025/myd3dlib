@@ -375,10 +375,6 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	}
 	pen.y += m_LineHeight;
 
-	// ! Align pen to pixel/UI unit
-	pen.x = floor(pen.x);
-	pen.y = floor(pen.y);
-
 	return pen;
 }
 
