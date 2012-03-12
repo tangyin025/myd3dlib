@@ -346,8 +346,6 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 
 Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, Align align)
 {
-	Vector2 extent = CalculateStringExtent(pString);
-
 	Vector2 pen;
 	if(align & AlignLeft)
 	{
@@ -355,22 +353,27 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	}
 	else if(align & AlignCenter)
 	{
+		Vector2 extent = CalculateStringExtent(pString);
 		pen.x = rect.l + (rect.r - rect.l - extent.x) * 0.5f;
 	}
 	else
 	{
+		Vector2 extent = CalculateStringExtent(pString);
 		pen.x = rect.r - extent.x;
 	}
+
 	if(align & AlignTop)
 	{
 		pen.y = rect.t;
 	}
 	else if(align & AlignMiddle)
 	{
+		Vector2 extent = CalculateStringExtent(pString);
 		pen.y = rect.t + (rect.b - rect.t - extent.y) * 0.5f;
 	}
 	else
 	{
+		Vector2 extent = CalculateStringExtent(pString);
 		pen.y = rect.b - extent.y;
 	}
 	pen.y += m_LineHeight;

@@ -11,9 +11,9 @@ using namespace my;
 void UIRender::SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DWORD Height)
 {
 	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0,0,1), my::Vector3(0,0,0), my::Vector3(0,-1,0))));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoOffCenterLH(0, (float)Width, -(float)Height, 0, -50, 50)));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, -(float)Width * 0.5f, (float)Height * 0.5f, 0, 1)));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0, 0, -1), my::Vector3(0, 0, 0), my::Vector3(0, 1, 0))));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoLH((float)Width, (float)Height, -50, 50)));
 }
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
@@ -46,7 +46,7 @@ void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 }
 
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) (floor(v) + 0.5f)
+#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
 
 size_t UIRender::BuildRectangleVertices(
 	CUSTOMVERTEX * pBuffer,
@@ -233,9 +233,9 @@ void UIButton::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 			}
 		}
 
-		if(m_Skin && m_Skin->m_Font)
+		if(Skin && Skin->m_Font)
 		{
-			m_Skin->m_Font->DrawString(m_Text.c_str(), Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->m_Font->DrawString(m_Text.c_str(), m_bPressed ? Rect.offset(Skin->m_PressedOffset) : Rect, Skin->m_TextColor, Skin->m_TextAlign);
 		}
 	}
 }

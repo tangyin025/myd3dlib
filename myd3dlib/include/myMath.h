@@ -261,6 +261,15 @@ namespace my
 			return *this;
 		}
 
+		Rectangle offset(float x, float y) const
+		{
+			return Rectangle(
+				l + x,
+				t + y,
+				r + x,
+				b + y);
+		}
+
 		Rectangle offset(const Vector2 & v) const
 		{
 			return Rectangle(
@@ -268,6 +277,15 @@ namespace my
 				t + v.y,
 				r + v.x,
 				b + v.y);
+		}
+
+		Rectangle & offsetSelf(float x, float y)
+		{
+			l += x;
+			t += y;
+			r += x;
+			b += y;
+			return *this;
 		}
 
 		Rectangle & offsetSelf(const Vector2 & v)
@@ -279,41 +297,16 @@ namespace my
 			return *this;
 		}
 
+		Rectangle inflate(float x, float y) const
+		{
+			return Rectangle(
+				l - x,
+				t - y,
+				r + x,
+				b + y);
+		}
+
 		Rectangle inflate(const Vector2 & v) const
-		{
-			return Rectangle(
-				l,
-				t,
-				r + v.x,
-				b + v.y);
-		}
-
-		Rectangle & inflateSelf(const Vector2 & v)
-		{
-			r += v.x;
-			b += v.y;
-			return *this;
-		}
-
-		Rectangle shrink(const Vector2 & v) const
-		{
-			return Rectangle(
-				l + v.x,
-				t + v.y,
-				r - v.x,
-				b - v.y);
-		}
-
-		Rectangle & shrinkSelf(const Vector2 & v)
-		{
-			l += v.x;
-			t += v.y;
-			r -= v.x;
-			b -= v.y;
-			return *this;
-		}
-
-		Rectangle expand(const Vector2 & v) const
 		{
 			return Rectangle(
 				l - v.x,
@@ -322,7 +315,16 @@ namespace my
 				b + v.y);
 		}
 
-		Rectangle & expandSelf(const Vector2 & v)
+		Rectangle & inflateSelf(float x, float y)
+		{
+			l -= x;
+			t -= y;
+			r += x;
+			b += y;
+			return *this;
+		}
+
+		Rectangle & inflateSelf(const Vector2 & v)
 		{
 			l -= v.x;
 			t -= v.y;
@@ -1226,6 +1228,9 @@ namespace my
 		{
 			D3DXQuaternionToAxisAngle((D3DXQUATERNION *)this, (D3DXVECTOR3 *)&outAxis, &outAngle);
 		}
+
+	public:
+		static const Quaternion identity;
 	};
 
 	class Matrix4
@@ -1796,6 +1801,11 @@ namespace my
 			return RotationZ(roll).rotateX(pitch).rotateY(yaw);
 		}
 
+		static Matrix4 Scaling(float x, float y, float z)
+		{
+			return Matrix4(x, 0, 0, 0, 0, y, 0, 0, 0, 0, z, 0, 0, 0, 0, 1);
+		}
+
 		static Matrix4 Scaling(const Vector3 & v)
 		{
 			return Matrix4(v.x, 0, 0, 0, 0, v.y, 0, 0, 0, 0, v.z, 0, 0, 0, 0, 1);
@@ -1809,20 +1819,6 @@ namespace my
 			const Quaternion & rotation,
 			const Vector3 & translation)
 		{
-			//Matrix4 msc(Matrix4::Translation(scalingCenter));
-			//Matrix4 msr(Matrix4::RotationQuaternion(scalingRotation));
-			//Matrix4 mrc(Matrix4::Translation(rotationCenter));
-
-			//return msc.inverse()
-			//	* msr.inverse()
-			//	* Scaling(scaling)
-			//	* msr
-			//	* msc
-			//	* mrc.inverse()
-			//	* RotationQuaternion(rotation)
-			//	* mrc
-			//	* Translation(translation);
-
 			Matrix4 ret;
 			D3DXMatrixTransformation(
 				(D3DXMATRIX *)&ret,
@@ -1855,6 +1851,11 @@ namespace my
 			return ret;
 		}
 
+		static Matrix4 Translation(float x, float y, float z)
+		{
+			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, x, y, z, 1);
+		}
+
 		static Matrix4 Translation(const Vector3 & v)
 		{
 			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z, 1);
@@ -1870,6 +1871,15 @@ namespace my
 		}
 
 	public:
+		Matrix4 scale(float x, float y, float z) const
+		{
+			return Matrix4(
+				_11 * x, _12 * y, _13 * z, _14 * 1,
+				_21 * x, _22 * y, _23 * z, _24 * 1,
+				_31 * x, _32 * y, _33 * z, _34 * 1,
+				_41 * x, _42 * y, _43 * z, _44 * 1);
+		}
+
 		Matrix4 scale(const Vector3 & scaling) const
 		{
 			return Matrix4(
@@ -1877,6 +1887,15 @@ namespace my
 				_21 * scaling.x, _22 * scaling.y, _23 * scaling.z, _24 * 1,
 				_31 * scaling.x, _32 * scaling.y, _33 * scaling.z, _34 * 1,
 				_41 * scaling.x, _42 * scaling.y, _43 * scaling.z, _44 * 1);
+		}
+
+		Matrix4 & scaleSelf(float x, float y, float z)
+		{
+			_11 = _11 * x; _12 = _12 * y; _13 = _13 * z; _14 = _14 * 1;
+			_21 = _21 * x; _22 = _22 * y; _23 = _23 * z; _24 = _24 * 1;
+			_31 = _31 * x; _32 = _32 * y; _33 = _33 * z; _34 = _34 * 1;
+			_41 = _41 * x; _42 = _42 * y; _43 = _43 * z; _44 = _44 * 1;
+			return *this;
 		}
 
 		Matrix4 & scaleSelf(const Vector3 & scaling)
@@ -1949,6 +1968,15 @@ namespace my
 			return *this = rotate(q);
 		}
 
+		Matrix4 translate(float x, float y, float z) const
+		{
+			return Matrix4(
+				_11 + _14 * x, _12 + _14 * y, _13 + _14 * z, _14,
+				_21 + _24 * x, _22 + _24 * y, _23 + _24 * z, _24,
+				_31 + _34 * x, _32 + _34 * y, _33 + _34 * z, _34,
+				_41 + _44 * x, _42 + _44 * y, _43 + _44 * z, _44);
+		}
+
 		Matrix4 translate(const Vector3 & v) const
 		{
 			return Matrix4(
@@ -1956,6 +1984,15 @@ namespace my
 				_21 + _24 * v.x, _22 + _24 * v.y, _23 + _24 * v.z, _24,
 				_31 + _34 * v.x, _32 + _34 * v.y, _33 + _34 * v.z, _34,
 				_41 + _44 * v.x, _42 + _44 * v.y, _43 + _44 * v.z, _44);
+		}
+
+		Matrix4 & translateSelf(float x, float y, float z)
+		{
+			_11 = _11 + _14 * x; _12 = _12 + 14 * y; _13 = _13 + _14 * z;
+			_21 = _21 + _24 * x; _22 = _22 + 14 * y; _23 = _23 + _24 * z;
+			_31 = _31 + _34 * x; _32 = _32 + 14 * y; _33 = _33 + _34 * z;
+			_41 = _41 + _44 * x; _42 = _42 + 14 * y; _43 = _43 + _44 * z;
+			return *this;
 		}
 
 		Matrix4 & translateSelf(const Vector3 & v)

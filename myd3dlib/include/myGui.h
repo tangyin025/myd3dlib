@@ -161,11 +161,14 @@ namespace my
 
 		Rectangle m_MouseOverTexUV;
 
+		Vector2 m_PressedOffset;
+
 	public:
 		UIButtonSkin(void)
 			: m_DisabledTexUV(0,0,1,1)
 			, m_PressedTexUV(0,0,1,1)
 			, m_MouseOverTexUV(0,0,1,1)
+			, m_PressedOffset(0,0)
 		{
 		}
 	};

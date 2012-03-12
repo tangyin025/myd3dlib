@@ -28,4 +28,6 @@ const Vector4 Vector4::unitZ(0, 0, 1, 0);
 
 const Vector4 Vector4::unitW(0, 0, 0, 1);
 
-const Matrix4 Matrix4::identity(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+const Quaternion Quaternion::identity(Quaternion::Identity());
+
+const Matrix4 Matrix4::identity(Matrix4::Identity());
