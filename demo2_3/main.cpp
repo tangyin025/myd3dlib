@@ -401,14 +401,16 @@ protected:
 		my::Matrix4 mCharacterLocal = my::Matrix4::Translation(my::Vector3(0.0f, -5.0f, 0.0f));
 
 		// 计算光源位置，处在相机的相对位置上
-		my::Vector4 vLightPos(30, 30, 30, 1);
+		my::Vector4 vLightPosLocal(30, 30, 30, 1);
+
+		//my::Vector4 vLightPosWorld(vLightPosLocal.transform(mWorld));
 
 		// 计算光照的透视变换
 		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
-			my::Vector3(vLightPos.x, vLightPos.y, vLightPos.z),
-			my::Vector3(vSpherePos.x, vSpherePos.y, vSpherePos.z),
+			my::Vector3(vLightPosLocal.x, vLightPosLocal.y, vLightPosLocal.z),
+			my::Vector3(mSphereWorld._41, mSphereWorld._42, mSphereWorld._43),
 			my::Vector3(0.0f, 1.0f, 0.0f)));
-		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovLH(D3DXToRadian(110), 1.0f, 1.0f, 200.0f));
+		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovLH(D3DXToRadian(75.0f), 1.0f, 1.0f, 200.0f));
 		my::Matrix4 mViewProjLight = mViewLight * mProjLight;
 
 		// 将shadow map作为render target，注意保存恢复原来的render target
@@ -495,7 +497,7 @@ protected:
 			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			m_characterEffect->SetTexture("g_MeshTexture", m_characterTexture->m_ptr);
-			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPos, 3);
+			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPosLocal, 3);
 			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			// 角色动画要求使用双四元式列表
@@ -525,7 +527,7 @@ protected:
 			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			m_characterEffect->SetTexture("g_MeshTexture", m_sceneTexture->m_ptr);
-			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPos, 3);
+			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPosLocal, 3);
 			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 
 			m_characterEffect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);

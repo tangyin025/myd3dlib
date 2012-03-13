@@ -1,7 +1,7 @@
 
 #pragma once
 
-#define cot(x)	tan(1.0f / (x))
+#define cot(x)	(1.0f / tan(x))
 
 namespace my
 {

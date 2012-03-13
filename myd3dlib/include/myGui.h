@@ -12,8 +12,9 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = Font::D3DFVF_CUSTOMVERTEX;
 
-		// Resolution-Dependent UI Transforms
-		static void SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DWORD Height);
+		static void BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
+
+		static void BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
 
 		// Rendering UI under Fixed Pipeline is not recommended
 		static void Begin(IDirect3DDevice9 * pd3dDevice);

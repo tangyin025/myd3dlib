@@ -8,12 +8,26 @@
 
 using namespace my;
 
-void UIRender::SetupOrthoMatrices(IDirect3DDevice9 * pd3dDevice, DWORD Width, DWORD Height)
+void UIRender::BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
 {
-	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4(1, 0, 0, 0, 0, -1, 0, 0, 0, 0, 1, 0, -(float)Width * 0.5f, (float)Height * 0.5f, 0, 1)));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::LookAtLH(my::Vector3(0, 0, -1), my::Vector3(0, 0, 0), my::Vector3(0, 1, 0))));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::OrthoLH((float)Width, (float)Height, -50, 50)));
+	outView = Matrix4::LookAtLH(
+		my::Vector3(Width * 0.5f, Height * 0.5f, 1),
+		my::Vector3(Width * 0.5f, Height * 0.5f, 0),
+		my::Vector3(0, -1, 0));
+
+	outProj = Matrix4::OrthoLH((float)Width, (float)Height, -50.0f, 50.0f);
+}
+
+void UIRender::BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
+{
+	float Dist = Height * 0.5f * cot(fovy / 2);
+
+	outView = Matrix4::LookAtLH(
+		my::Vector3(Width * 0.5f, Height * 0.5f, Dist),
+		my::Vector3(Width * 0.5f, Height * 0.5f, 0),
+		my::Vector3(0, -1, 0));
+
+	outProj = Matrix4::PerspectiveFovLH(fovy, (float)Width / Height, 0.1f, 3000.0f);
 }
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
@@ -26,6 +40,8 @@ void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
 	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
