@@ -155,6 +155,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myCollision.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myDxutApp.cpp"
 				>
 			</File>
@@ -180,6 +184,10 @@
 			</File>
 			<File
 				RelativePath="..\src\myMesh.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\myPhysics.cpp"
 				>
 			</File>
 			<File
@@ -229,6 +237,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\myCollision.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\myD3dLib.h"
 				>
 			</File>
@@ -258,6 +270,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myPhysics.h"
 				>
 			</File>
 			<File

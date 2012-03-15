@@ -1,8 +1,6 @@
 
 #include "stdafx.h"
-#include "myPhysics.h"
-#include "myGame.h"
-#include "libc.h"
+#include "myd3dlib.h"
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -16,9 +14,9 @@ namespace my
 
 	Particle::Particle(void)
 	{
-		setPosition(my::Vec4<real>::ZERO);
-		setVelocity(my::Vec4<real>::ZERO);
-		setAcceleration(my::Vec4<real>::ZERO);
+		setPosition(Vector3::zero);
+		setVelocity(Vector3::zero);
+		setAcceleration(Vector3::zero);
 		clearAccumulator();
 		setDamping(1);
 		setInverseMass(1);
@@ -29,17 +27,17 @@ namespace my
 		return inverseMass > 0.0f;
 	}
 
-	void Particle::integrate(real duration)
+	void Particle::integrate(float duration)
 	{
 		_ASSERT(duration >= 0);
 
-		t3d::Vec4<real> resultingAcc = t3d::vec3Add(acceleration, t3d::vec3Mul(forceAccum, inverseMass));
+		Vector3 resultingAcc = acceleration + forceAccum * inverseMass;
 
-		addVelocity(t3d::vec3Mul(resultingAcc, duration));		
+		addVelocity(resultingAcc * duration);		
 
-		t3d::vec3MulSelf(velocity, pow(damping, duration));
+		velocity *= pow(damping, duration);
 
-		addPosition(t3d::vec3Mul(velocity, duration));
+		addPosition(velocity * duration);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -76,7 +74,7 @@ namespace my
 		forceRegistrationList.clear();
 	}
 
-	void ParticleForceRegistry::updateForces(real duration)
+	void ParticleForceRegistry::updateForces(float duration)
 	{
 		ParticleForceRegistrationList::iterator f_iter = forceRegistrationList.begin();
 		for(; f_iter != forceRegistrationList.end(); f_iter++)
@@ -97,17 +95,17 @@ namespace my
 	// ParticleGravity
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleGravity::ParticleGravity(const t3d::Vec4<real> & _gravity)
+	ParticleGravity::ParticleGravity(const Vector3 & _gravity)
 		: gravity(_gravity)
 	{
 	}
 
-	void ParticleGravity::updateForce(Particle * particle, real duration)
+	void ParticleGravity::updateForce(Particle * particle, float duration)
 	{
 		if(!particle->hasFiniteMass())
 			return;
 
-		particle->addForce(t3d::vec3Mul(gravity, particle->getMass()));
+		particle->addForce(gravity * particle->getMass());
 
 		UNREFERENCED_PARAMETER(duration);
 	}
@@ -116,21 +114,21 @@ namespace my
 	// ParticleDrag
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleDrag::ParticleDrag(real _k1, real _k2)
+	ParticleDrag::ParticleDrag(float _k1, float _k2)
 		: k1(_k1)
 		, k2(_k2)
 	{
 	}
 
-	void ParticleDrag::updateForce(Particle * particle, real duration)
+	void ParticleDrag::updateForce(Particle * particle, float duration)
 	{
-		t3d::Vec4<real> velocity = particle->getVelocity();
+		Vector3 velocity = particle->getVelocity();
 
-		real len = t3d::vec3Length(velocity);
+		float len = velocity.length();
 
-		real coefficient = k1 * len + k2 * len * len;
+		float coefficient = k1 * len + k2 * len * len;
 
-		particle->addForce(t3d::vec3Mul(t3d::vec3Normalize(velocity), -coefficient));
+		particle->addForce(velocity.normalize() * -coefficient);
 
 		UNREFERENCED_PARAMETER(duration);
 	}
@@ -139,20 +137,20 @@ namespace my
 	// ParticleSpring
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleSpring::ParticleSpring(Particle * _other, real _springConstant, real _restLength)
+	ParticleSpring::ParticleSpring(Particle * _other, float _springConstant, float _restLength)
 		: other(_other)
 		, springConstant(_springConstant)
 		, restLength(_restLength)
 	{
 	}
 
-	void ParticleSpring::updateForce(Particle * particle, real duration)
+	void ParticleSpring::updateForce(Particle * particle, float duration)
 	{
-		t3d::Vec4<real> distance = t3d::vec3Sub(particle->getPosition(), other->getPosition());
+		Vector3 distance = particle->getPosition() - other->getPosition();
 
-		real length = t3d::vec3Length(distance);
+		float length = distance.length();
 
-		particle->addForce(t3d::vec3Mul(t3d::vec3Normalize(distance), -springConstant * (length - restLength)));
+		particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 
 		UNREFERENCED_PARAMETER(duration);
 	}
@@ -161,20 +159,20 @@ namespace my
 	// ParticleAnchoredSpring
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleAnchoredSpring::ParticleAnchoredSpring(const t3d::Vec4<real> & _anchor, real _springConstant, real _restLength)
+	ParticleAnchoredSpring::ParticleAnchoredSpring(const Vector3 & _anchor, float _springConstant, float _restLength)
 		: anchor(_anchor)
 		, springConstant(_springConstant)
 		, restLength(_restLength)
 	{
 	}
 
-	void ParticleAnchoredSpring::updateForce(Particle * particle, real duration)
+	void ParticleAnchoredSpring::updateForce(Particle * particle, float duration)
 	{
-		t3d::Vec4<real> distance = t3d::vec3Sub(particle->getPosition(), anchor);
+		Vector3 distance = particle->getPosition() - anchor;
 
-		real length = t3d::vec3Length(distance);
+		float length = distance.length();
 
-		particle->addForce(t3d::vec3Mul(t3d::vec3Normalize(distance), -springConstant * (length - restLength)));
+		particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 
 		UNREFERENCED_PARAMETER(duration);
 	}
@@ -183,22 +181,22 @@ namespace my
 	// ParticleBungee
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleBungee::ParticleBungee(Particle * _other, real _springConstant, real _restLength)
+	ParticleBungee::ParticleBungee(Particle * _other, float _springConstant, float _restLength)
 		: other(_other)
 		, springConstant(_springConstant)
 		, restLength(_restLength)
 	{
 	}
 
-	void ParticleBungee::updateForce(Particle * particle, real duration)
+	void ParticleBungee::updateForce(Particle * particle, float duration)
 	{
-		t3d::Vec4<real> distance = t3d::vec3Sub(particle->getPosition(), other->getPosition());
+		Vector3 distance = particle->getPosition() - other->getPosition();
 
-		real length = t3d::vec3Length(distance);
+		float length = distance.length();
 
 		if(length > restLength)
 		{
-			particle->addForce(t3d::vec3Mul(t3d::vec3Normalize(distance), -springConstant * (length - restLength)));
+			particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 		}
 
 		UNREFERENCED_PARAMETER(duration);
@@ -208,22 +206,22 @@ namespace my
 	// ParticleAnchoredBungee
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleAnchoredBungee::ParticleAnchoredBungee(const t3d::Vec4<real> & _anchor, real _springConstant, real _restLength)
+	ParticleAnchoredBungee::ParticleAnchoredBungee(const Vector3 & _anchor, float _springConstant, float _restLength)
 		: anchor(_anchor)
 		, springConstant(_springConstant)
 		, restLength(_restLength)
 	{
 	}
 
-	void ParticleAnchoredBungee::updateForce(Particle * particle, real duration)
+	void ParticleAnchoredBungee::updateForce(Particle * particle, float duration)
 	{
-		t3d::Vec4<real> distance = t3d::vec3Sub(particle->getPosition(), anchor);
+		Vector3 distance = particle->getPosition() - anchor;
 
-		real length = t3d::vec3Length(distance);
+		float length = distance.length();
 
 		if(length > restLength)
 		{
-			particle->addForce(t3d::vec3Mul(t3d::vec3Normalize(distance), -springConstant * (length - restLength)));
+			particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 		}
 
 		UNREFERENCED_PARAMETER(duration);
@@ -233,7 +231,7 @@ namespace my
 	// ParticleBuoyancy
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleBuoyancy::ParticleBuoyancy(real _maxDepth, real _volumn, real _waterHeight, real _liquidDensity /*= 1000.0f*/)
+	ParticleBuoyancy::ParticleBuoyancy(float _maxDepth, float _volumn, float _waterHeight, float _liquidDensity /*= 1000.0f*/)
 		: maxDepth(_maxDepth)
 		, volumn(_volumn)
 		, waterHeight(_waterHeight)
@@ -241,9 +239,9 @@ namespace my
 	{
 	}
 
-	void ParticleBuoyancy::updateForce(Particle * particle, real duration)
+	void ParticleBuoyancy::updateForce(Particle * particle, float duration)
 	{
-		real depth = particle->getPosition().y;
+		float depth = particle->getPosition().y;
 
 		if(depth >= waterHeight + maxDepth)
 		{
@@ -252,11 +250,11 @@ namespace my
 
 		if(depth <= waterHeight - maxDepth)
 		{
-			particle->addForce(my::Vec4<real>(0, volumn * liquidDensity, 0));
+			particle->addForce(Vector3(0, volumn * liquidDensity, 0));
 			return;
 		}
 
-		particle->addForce(my::Vec4<real>(0, (depth - maxDepth - waterHeight) / (2 * maxDepth) * volumn * liquidDensity, 0));
+		particle->addForce(Vector3(0, (depth - maxDepth - waterHeight) / (2 * maxDepth) * volumn * liquidDensity, 0));
 
 		UNREFERENCED_PARAMETER(duration);
 	}
@@ -265,33 +263,30 @@ namespace my
 	// ParticleFakeSpring
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleFakeSpring::ParticleFakeSpring(const t3d::Vec4<real> & _anchor, real _springConstant, real _damping)
+	ParticleFakeSpring::ParticleFakeSpring(const Vector3 & _anchor, float _springConstant, float _damping)
 		: anchor(_anchor)
 		, springConstant(_springConstant)
 		, damping(_damping)
 	{
 	}
 
-	void ParticleFakeSpring::updateForce(Particle * particle, real duration)
+	void ParticleFakeSpring::updateForce(Particle * particle, float duration)
 	{
-		real gamma = 0.5f * sqrt(4 * springConstant - damping * damping);
+		float gamma = 0.5f * sqrt(4 * springConstant - damping * damping);
 
 		if(gamma != 0)
 		{
-			t3d::Vec4<real> position = t3d::vec3Sub(particle->getPosition(), anchor);
+			Vector3 position = particle->getPosition() - anchor;
 
-			t3d::Vec4<real> C = t3d::vec3Add(
-				t3d::vec3Mul(position, damping / (2 * gamma)), t3d::vec3Mul(particle->getVelocity(), 1 / gamma));
+			Vector3 C = position * (damping / (2 * gamma)) + particle->getVelocity() / gamma;
 
-			t3d::Vec4<real> target = t3d::vec3Add(
-				t3d::vec3Mul(position, cos(gamma * duration)), t3d::vec3Mul(C, sin(gamma * duration)));
+			Vector3 target = position * cos(gamma * duration) + C * sin(gamma * duration);
 
-			t3d::vec3MulSelf(target, exp(-0.5f * damping * duration));
+			target *= exp(-0.5f * damping * duration);
 
-			t3d::Vec4<real> accel = t3d::vec3Sub(
-				t3d::vec3Mul(t3d::vec3Sub(target, position), 1 / (duration * duration)), particle->getVelocity() /** duration*/);
+			Vector3 accel = (target - position) / (duration * duration) - particle->getVelocity() /** duration*/;
 
-			particle->addForce(t3d::vec3Mul(accel, particle->getMass()));
+			particle->addForce(accel * particle->getMass());
 		}
 	}
 
@@ -299,52 +294,52 @@ namespace my
 	// ParticleContact
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	void ParticleContact::resolve(real duration)
+	void ParticleContact::resolve(float duration)
 	{
 		resolveVelocity(duration);
 
 		resolveInterpenetration(duration);
 	}
 
-	real ParticleContact::calculateSeparatingVelocity(void) const
+	float ParticleContact::calculateSeparatingVelocity(void) const
 	{
 		_ASSERT(NULL != particles[0]);
 
-		t3d::Vec4<real> relativeVelocity = particles[0]->getVelocity();
+		Vector3 relativeVelocity = particles[0]->getVelocity();
 
 		if(NULL != particles[1])
 		{
-			t3d::vec3SubSelf(relativeVelocity, particles[2]->getVelocity());
+			relativeVelocity -= particles[2]->getVelocity();
 		}
 
-		return t3d::vec3Dot(relativeVelocity, contactNormal);
+		return relativeVelocity.dot(contactNormal);
 	}
 
-	void ParticleContact::resolveVelocity(real duration) // ***
+	void ParticleContact::resolveVelocity(float duration) // ***
 	{
 		_ASSERT(NULL != particles[0]);
 
-		real separatingVelocity = calculateSeparatingVelocity();
+		float separatingVelocity = calculateSeparatingVelocity();
 
 		if(separatingVelocity >= 0)
 		{
 			return;
 		}
 
-		real newSeparatingVelocity = -restitution * separatingVelocity;
+		float newSeparatingVelocity = -restitution * separatingVelocity;
 
 		/*
 		 * NOTE: the accCausedSeparatingVelocity is used to solve the resting contact
 		 */
 
-		t3d::Vec4<real> accCausedVelocity = particles[0]->getAcceleration();
+		Vector3 accCausedVelocity = particles[0]->getAcceleration();
 
 		if(NULL != particles[1])
 		{
-			t3d::vec3AddSelf(accCausedVelocity, particles[1]->getAcceleration());
+			accCausedVelocity += particles[1]->getAcceleration();
 		}
 
-		real accCausedSeparatingVelocity = t3d::vec3Dot(accCausedVelocity, contactNormal) * duration;
+		float accCausedSeparatingVelocity = accCausedVelocity.dot(contactNormal) * duration;
 
 		if(accCausedSeparatingVelocity < 0)
 		{
@@ -356,9 +351,9 @@ namespace my
 			}
 		}
 
-		real deltaVelocity = newSeparatingVelocity - separatingVelocity; // ***
+		float deltaVelocity = newSeparatingVelocity - separatingVelocity; // ***
 
-		real totalInverseMass = particles[0]->getInverseMass();
+		float totalInverseMass = particles[0]->getInverseMass();
 
 		if(NULL != particles[1])
 		{
@@ -370,28 +365,28 @@ namespace my
 			return;
 		}
 
-		real impulse = deltaVelocity / totalInverseMass;
+		float impulse = deltaVelocity / totalInverseMass;
 
-		t3d::Vec4<real> impulsePerInverseMass = t3d::vec3Mul(contactNormal, impulse);
+		Vector3 impulsePerInverseMass = contactNormal * impulse;
 
-		particles[0]->addVelocity(t3d::vec3Mul(impulsePerInverseMass, particles[0]->getInverseMass()));
+		particles[0]->addVelocity(impulsePerInverseMass * particles[0]->getInverseMass());
 
 		if(NULL != particles[1])
 		{
-			particles[1]->addVelocity(t3d::vec3Mul(impulsePerInverseMass, -particles[1]->getInverseMass()));
+			particles[1]->addVelocity(impulsePerInverseMass * -particles[1]->getInverseMass());
 		}
 
 		UNREFERENCED_PARAMETER(duration);
 	}
 
-	void ParticleContact::resolveInterpenetration(real duration)
+	void ParticleContact::resolveInterpenetration(float duration)
 	{
 		if(penetration <= 0)
 		{
 			return;
 		}
 
-		real totalMass = particles[0]->getMass();
+		float totalMass = particles[0]->getMass();
 
 		if(NULL != particles[1])
 		{
@@ -403,15 +398,13 @@ namespace my
 			return;
 		}
 
-		t3d::Vec4<real> movePerMass = t3d::vec3Mul(contactNormal, penetration * (1 / totalMass));
+		Vector3 movePerMass = contactNormal * (penetration / totalMass);
 
-		particles[0]->setPosition(t3d::vec3Add(
-			particles[0]->getPosition(), t3d::vec3Mul(movePerMass, particles[0]->getMass())));
+		particles[0]->setPosition(particles[0]->getPosition() + movePerMass * particles[0]->getMass());
 
 		if(NULL != particles[1])
 		{
-			particles[1]->setPosition(t3d::vec3Add(
-				particles[1]->getPosition(), t3d::vec3Mul(movePerMass, -particles[1]->getMass())));
+			particles[1]->setPosition(particles[1]->getPosition() + movePerMass * -particles[1]->getMass());
 		}
 
 		UNREFERENCED_PARAMETER(duration);
@@ -436,17 +429,17 @@ namespace my
 		return iterations;
 	}
 
-	void ParticleContactResolver::resolveContacts(ParticleContact * contactArray, unsigned numContacts, real duration)
+	void ParticleContactResolver::resolveContacts(ParticleContact * contactArray, unsigned numContacts, float duration)
 	{
 		for(iterationsUsed = 0; iterationsUsed < iterations; iterationsUsed++)
 		{
-			real min = REAL_MAX; // ***
+			float min = FLT_MAX; // ***
 
 			unsigned minIndex = numContacts;
 
 			for(unsigned i = 0; i < numContacts; i++)
 			{
-				real separatingVelocity = contactArray[i].calculateSeparatingVelocity();
+				float separatingVelocity = contactArray[i].calculateSeparatingVelocity();
 
 				if(separatingVelocity < min)
 				{
@@ -490,19 +483,19 @@ namespace my
 		_ASSERT(NULL != particles[1]);
 	}
 
-	real ParticleLink::currentLength() const
+	float ParticleLink::currentLength() const
 	{
 		_ASSERT(NULL != particles[0]);
 		_ASSERT(NULL != particles[1]);
 
-		return t3d::vec3Length(t3d::vec3Sub(particles[0]->getPosition(), particles[1]->getPosition()));
+		return (particles[0]->getPosition() - particles[1]->getPosition()).length();
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// ParticleCable
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleCable::ParticleCable(Particle * particle0, Particle * particle1, real _maxLength, real _restitution)
+	ParticleCable::ParticleCable(Particle * particle0, Particle * particle1, float _maxLength, float _restitution)
 		: ParticleLink(particle0, particle1)
 		, maxLength(_maxLength)
 		, restitution(_restitution)
@@ -513,7 +506,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		real length = currentLength();
+		float length = currentLength();
 
 		if(length < maxLength)
 		{
@@ -523,8 +516,7 @@ namespace my
 		contacts->particles[0] = particles[0];
 		contacts->particles[1] = particles[1];
 
-		contacts->contactNormal = t3d::vec3Normalize(
-			t3d::vec3Sub(particles[1]->getPosition(), particles[0]->getPosition()));
+		contacts->contactNormal = (particles[1]->getPosition() - particles[0]->getPosition()).normalize();
 		contacts->penetration = length - maxLength;
 		contacts->restitution = restitution;
 		return 1;
@@ -534,7 +526,7 @@ namespace my
 	// ParticleRod
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleRod::ParticleRod(Particle * particle0, Particle * particle1, real _length)
+	ParticleRod::ParticleRod(Particle * particle0, Particle * particle1, float _length)
 		: ParticleLink(particle0, particle1)
 		, length(_length)
 	{
@@ -544,7 +536,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		real currentLength = ParticleRod::currentLength();
+		float currentLength = ParticleRod::currentLength();
 
 		if(currentLength == length)
 		{
@@ -556,14 +548,12 @@ namespace my
 
 		if(currentLength > length)
 		{
-			contacts->contactNormal = t3d::vec3Normalize(
-				t3d::vec3Sub(particles[1]->getPosition(), particles[0]->getPosition()));
+			contacts->contactNormal = (particles[1]->getPosition() - particles[0]->getPosition()).normalize();
 			contacts->penetration = currentLength - length;
 		}
 		else
 		{
-			contacts->contactNormal = t3d::vec3Normalize(
-				t3d::vec3Sub(particles[0]->getPosition(), particles[1]->getPosition()));
+			contacts->contactNormal = (particles[0]->getPosition() - particles[1]->getPosition()).normalize();
 			contacts->penetration = length - currentLength;
 		}
 
@@ -575,25 +565,25 @@ namespace my
 	// ParticleConstraint
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleConstraint::ParticleConstraint(const t3d::Vec4<real> & _anchor, Particle * _particle)
+	ParticleConstraint::ParticleConstraint(const Vector3 & _anchor, Particle * _particle)
 		: anchor(_anchor)
 		, particle(_particle)
 	{
 		_ASSERT(NULL != particle);
 	}
 
-	real ParticleConstraint::currentLength(void) const
+	float ParticleConstraint::currentLength(void) const
 	{
 		_ASSERT(NULL != particle);
 
-		return t3d::vec3Length(t3d::vec3Sub(particle->getPosition(), anchor));
+		return (particle->getPosition() - anchor).length();
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// ParticleCableConstraint
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleCableConstraint::ParticleCableConstraint(const t3d::Vec4<real> & _anchor, Particle * particle, real _maxLength, real _restitution)
+	ParticleCableConstraint::ParticleCableConstraint(const Vector3 & _anchor, Particle * particle, float _maxLength, float _restitution)
 		: ParticleConstraint(_anchor, particle)
 		, maxLength(_maxLength)
 		, restitution(_restitution)
@@ -604,7 +594,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		real length = currentLength();
+		float length = currentLength();
 
 		if(length < maxLength)
 		{
@@ -614,8 +604,7 @@ namespace my
 		contacts->particles[0] = particle;
 		contacts->particles[1] = NULL;
 
-		contacts->contactNormal = t3d::vec3Normalize(
-			t3d::vec3Sub(anchor, particle->getPosition()));
+		contacts->contactNormal = (anchor - particle->getPosition()).normalize();
 		contacts->penetration = length - maxLength;
 		contacts->restitution = restitution;
 		return 1;
@@ -625,7 +614,7 @@ namespace my
 	// ParticleRodConstraint
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleRodConstraint::ParticleRodConstraint(const t3d::Vec4<real> & _anchor, Particle * particle, real _length)
+	ParticleRodConstraint::ParticleRodConstraint(const Vector3 & _anchor, Particle * particle, float _length)
 		: ParticleConstraint(_anchor, particle)
 		, length(_length)
 	{
@@ -635,7 +624,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		real currentLength = ParticleRodConstraint::currentLength();
+		float currentLength = ParticleRodConstraint::currentLength();
 
 		if(currentLength == length)
 		{
@@ -647,14 +636,12 @@ namespace my
 
 		if(currentLength > length)
 		{
-			contacts->contactNormal = t3d::vec3Normalize(
-				t3d::vec3Sub(anchor, particle->getPosition()));
+			contacts->contactNormal = (anchor - particle->getPosition()).normalize();
 			contacts->penetration = currentLength - length;
 		}
 		else
 		{
-			contacts->contactNormal = t3d::vec3Normalize(
-				t3d::vec3Sub(particle->getPosition(), anchor));
+			contacts->contactNormal = (particle->getPosition() - anchor).normalize();
 			contacts->penetration = length - currentLength;
 		}
 
@@ -688,7 +675,7 @@ namespace my
 		}
 	}
 
-	void ParticleWorld::integrate(real duration)
+	void ParticleWorld::integrate(float duration)
 	{
 		ParticlePtrList::iterator p_iter = particleList.begin();
 		for(; p_iter != particleList.end(); p_iter++)
@@ -714,7 +701,7 @@ namespace my
 		return used;
 	}
 
-	void ParticleWorld::runPhysics(real duration)
+	void ParticleWorld::runPhysics(float duration)
 	{
 		startFrame();
 
@@ -736,89 +723,89 @@ namespace my
 	RigidBody::RigidBody(void)
 	{
 		setInverseMass(1);
-		setPosition(my::Vec4<real>::ZERO);
-		setOrientation(my::Quat<real>::IDENTITY);
-		setVelocity(my::Vec4<real>::ZERO);
-		setRotation(my::Vec4<real>::ZERO);
-		//t3d::Mat4<real> transform;
-		//t3d::Mat4<real> rotationTransform;
-		setInverseInertialTensor(my::Mat4<real>::IDENTITY);
-		//t3d::Mat4<real> inverseInertiaTensorWorld;
-		setAcceleration(my::Vec4<real>::ZERO);
+		setPosition(Vector3::zero);
+		setOrientation(Quaternion::Identity());
+		setVelocity(Vector3::zero);
+		setRotation(Vector3::zero);
+		//Matrix4 transform;
+		//Matrix4 rotationTransform;
+		setInverseInertialTensor(Matrix4::Identity());
+		//Matrix4 inverseInertiaTensorWorld;
+		setAcceleration(Vector3::zero);
 		clearAccumulator();
 		clearTorqueAccumulator();
-		//t3d::Vec4<real> resultingAcc;
-		//t3d::Vec4<real> resultingAngularAcc;
+		//Vector3 resultingAcc;
+		//Vector3 resultingAngularAcc;
 		setDamping(1);
 		setAngularDamping(1);
 		setSleepEpsilon(0.3);
-		//real motion;
+		//float motion;
 		setAwake(true);
 		setCanSleep(true);
 		calculateDerivedData();
 	}
 
-	static t3d::Mat4<real> _transformInertiaTensor(
-		const t3d::Mat4<real> & inertiaTensor,
-		const t3d::Mat4<real> & transformMat)
+	static Matrix4 _transformInertiaTensor(
+		const Matrix4 & inertiaTensor,
+		const Matrix4 & transformMat)
 	{
-		real t4 =
-			transformMat.m00 * inertiaTensor.m00 +
-			transformMat.m10 * inertiaTensor.m01 +
-			transformMat.m20 * inertiaTensor.m02;
+		float t4 =
+			transformMat._11 * inertiaTensor._11 +
+			transformMat._21 * inertiaTensor._12 +
+			transformMat._31 * inertiaTensor._13;
 
-		real t9 =
-			transformMat.m00 * inertiaTensor.m10 +
-			transformMat.m10 * inertiaTensor.m11 +
-			transformMat.m20 * inertiaTensor.m12;
+		float t9 =
+			transformMat._11 * inertiaTensor._21 +
+			transformMat._21 * inertiaTensor._22 +
+			transformMat._31 * inertiaTensor._23;
 
-		real t14 =
-			transformMat.m00 * inertiaTensor.m20 +
-			transformMat.m10 * inertiaTensor.m21 +
-			transformMat.m20 * inertiaTensor.m22;
+		float t14 =
+			transformMat._11 * inertiaTensor._31 +
+			transformMat._21 * inertiaTensor._32 +
+			transformMat._31 * inertiaTensor._33;
 
-		real t28 =
-			transformMat.m01 * inertiaTensor.m00 +
-			transformMat.m11 * inertiaTensor.m01 +
-			transformMat.m21 * inertiaTensor.m02;
+		float t28 =
+			transformMat._12 * inertiaTensor._11 +
+			transformMat._22 * inertiaTensor._12 +
+			transformMat._32 * inertiaTensor._13;
 
-		real t33 =
-			transformMat.m01 * inertiaTensor.m10 +
-			transformMat.m11 * inertiaTensor.m11 +
-			transformMat.m21 * inertiaTensor.m12;
+		float t33 =
+			transformMat._12 * inertiaTensor._21 +
+			transformMat._22 * inertiaTensor._22 +
+			transformMat._32 * inertiaTensor._23;
 
-		real t38 =
-			transformMat.m01 * inertiaTensor.m20 +
-			transformMat.m11 * inertiaTensor.m21 +
-			transformMat.m21 * inertiaTensor.m22;
+		float t38 =
+			transformMat._12 * inertiaTensor._31 +
+			transformMat._22 * inertiaTensor._32 +
+			transformMat._32 * inertiaTensor._33;
 
-		real t52 =
-			transformMat.m02 * inertiaTensor.m00 +
-			transformMat.m12 * inertiaTensor.m01 +
-			transformMat.m22 * inertiaTensor.m02;
+		float t52 =
+			transformMat._13 * inertiaTensor._11 +
+			transformMat._23 * inertiaTensor._12 +
+			transformMat._33 * inertiaTensor._13;
 
-		real t57 =
-			transformMat.m02 * inertiaTensor.m10 +
-			transformMat.m12 * inertiaTensor.m11 +
-			transformMat.m22 * inertiaTensor.m12;
+		float t57 =
+			transformMat._13 * inertiaTensor._21 +
+			transformMat._23 * inertiaTensor._22 +
+			transformMat._33 * inertiaTensor._23;
 
-		real t62 =
-			transformMat.m02 * inertiaTensor.m20 +
-			transformMat.m12 * inertiaTensor.m21 +
-			transformMat.m22 * inertiaTensor.m22;
+		float t62 =
+			transformMat._13 * inertiaTensor._31 +
+			transformMat._23 * inertiaTensor._32 +
+			transformMat._33 * inertiaTensor._33;
 
-		return t3d::Mat4<real>(
-			t4 * transformMat.m00 + t9 * transformMat.m10 + t14 * transformMat.m20, t28 * transformMat.m00 + t33 * transformMat.m10 + t38 * transformMat.m20, t52 * transformMat.m00 + t57 * transformMat.m10 + t62 * transformMat.m20, 0,
-			t4 * transformMat.m01 + t9 * transformMat.m11 + t14 * transformMat.m21, t28 * transformMat.m01 + t33 * transformMat.m11 + t38 * transformMat.m21, t52 * transformMat.m01 + t57 * transformMat.m11 + t62 * transformMat.m21, 0,
-			t4 * transformMat.m02 + t9 * transformMat.m12 + t14 * transformMat.m22, t28 * transformMat.m02 + t33 * transformMat.m12 + t38 * transformMat.m22, t52 * transformMat.m02 + t57 * transformMat.m12 + t62 * transformMat.m22, 0,
+		return Matrix4(
+			t4 * transformMat._11 + t9 * transformMat._21 + t14 * transformMat._31, t28 * transformMat._11 + t33 * transformMat._21 + t38 * transformMat._31, t52 * transformMat._11 + t57 * transformMat._21 + t62 * transformMat._31, 0,
+			t4 * transformMat._12 + t9 * transformMat._22 + t14 * transformMat._32, t28 * transformMat._12 + t33 * transformMat._22 + t38 * transformMat._32, t52 * transformMat._12 + t57 * transformMat._22 + t62 * transformMat._32, 0,
+			t4 * transformMat._13 + t9 * transformMat._23 + t14 * transformMat._33, t28 * transformMat._13 + t33 * transformMat._23 + t38 * transformMat._33, t52 * transformMat._13 + t57 * transformMat._23 + t62 * transformMat._33, 0,
 			0, 0, 0, 1);
 	}
 
 	void RigidBody::calculateDerivedData(void)
 	{
-		rotationTransform = t3d::buildRotationMatrixFromQuatLH(orientation.normalizeSelf()); // ***
+		rotationTransform = Matrix4::RotationQuaternion(orientation.normalizeSelf()); // ***
 
-		transform = rotationTransform * t3d::mat3Mov(position);
+		transform = rotationTransform.translate(position);
 
 		inverseInertiaTensorWorld = _transformInertiaTensor(inverseInertiaTensor, transform); // ***
 	}
@@ -833,9 +820,9 @@ namespace my
 		}
 		else
 		{
-			setVelocity(my::Vec4<real>::ZERO);
+			setVelocity(Vector3::zero);
 
-			setRotation(my::Vec4<real>::ZERO);
+			setRotation(Vector3::zero);
 		}
 	}
 
@@ -859,11 +846,11 @@ namespace my
 		return canSleep;
 	}
 
-	void RigidBody::addForceAtPoint(const t3d::Vec4<real> & force, const t3d::Vec4<real> & point)
+	void RigidBody::addForceAtPoint(const Vector3 & force, const Vector3 & point)
 	{
 		addForce(force);
 
-		addTorque(t3d::vec3Cross(t3d::vec3Sub(point, position), force));
+		addTorque((point - position).cross(force));
 	}
 
 	bool RigidBody::hasFiniteMass(void) const
@@ -871,7 +858,7 @@ namespace my
 		return inverseMass > 0.0f;
 	}
 
-	void RigidBody::integrate(real duration)
+	void RigidBody::integrate(float duration)
 	{
 		_ASSERT(duration >= 0);
 
@@ -881,27 +868,27 @@ namespace my
 		}
 
 		// Calculate linear acceleration from force inputs.
-		resultingAcc = t3d::vec3Add(acceleration, t3d::vec3Mul(forceAccum, inverseMass));
+		resultingAcc = acceleration + forceAccum * inverseMass;
 
 		// Calculate angular acceleration from torque inputs.
-		resultingAngularAcc = torqueAccum * inverseInertiaTensorWorld;
+		resultingAngularAcc = torqueAccum.transform(inverseInertiaTensorWorld);
 
 		// Update linear velocity from both acceleration and impulse.
-		addVelocity(t3d::vec3Mul(resultingAcc, duration));
+		addVelocity(resultingAcc * duration);
 
 		// Update angular velocity from both acceleration and impulse.
-		addRotation(t3d::vec3Mul(resultingAngularAcc, duration));
+		addRotation(resultingAngularAcc * duration);
 
 		// Impose drag.
-		t3d::vec3MulSelf(velocity, pow(damping, duration));
+		velocity *= pow(damping, duration);
 
-		t3d::vec3MulSelf(rotation, pow(angularDamping, duration));
+		rotation *= pow(angularDamping, duration);
 
 		// Update linear position.
-		addPosition(t3d::vec3Mul(velocity, duration));
+		addPosition(velocity * duration);
 
 		// Update angular position.
-		addOrientation(t3d::vec3Mul(rotation, duration));
+		addOrientation(rotation * duration);
 
 		// Normalise the orientation, and update the matrices with the new
 		// position and orientation
@@ -911,9 +898,9 @@ namespace my
 		// sleep.
 		if(getCanSleep())
 		{
-			real currentMotion = t3d::vec3LengthSquare(velocity) + t3d::vec3LengthSquare(rotation);
+			float currentMotion = velocity.lengthSq() + rotation.lengthSq();
 
-			real bias = pow((real)0.5, duration);
+			float bias = pow(0.5f, duration);
 
 			motion = bias * motion + (1 - bias) * currentMotion;
 
@@ -964,7 +951,7 @@ namespace my
 		forceRegistrationList.clear();
 	}
 
-	void ForceRegistry::updateForces(real duration)
+	void ForceRegistry::updateForces(float duration)
 	{
 		ForceRegistrationList::iterator f_iter = forceRegistrationList.begin();
 		for(; f_iter != forceRegistrationList.end(); f_iter++)
@@ -985,17 +972,17 @@ namespace my
 	// Gravity
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	Gravity::Gravity(const t3d::Vec4<real> & _gravity)
+	Gravity::Gravity(const Vector3 & _gravity)
 		: gravity(_gravity)
 	{
 	}
 
-	void Gravity::updateForce(RigidBody * body, real duration)
+	void Gravity::updateForce(RigidBody * body, float duration)
 	{
 		if(!body->hasFiniteMass())
 			return;
 
-		body->addForce(t3d::vec3Mul(gravity, body->getMass()));
+		body->addForce(gravity * body->getMass());
 
 		body->setAwake();
 
@@ -1007,11 +994,11 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 
 	Spring::Spring(
-		const t3d::Vec4<real> & _connectionPoint,
+		const Vector3 & _connectionPoint,
 		RigidBody * _other,
-		const t3d::Vec4<real> & _otherConnectionPoint,
-		real _springConstant,
-		real _restLength)
+		const Vector3 & _otherConnectionPoint,
+		float _springConstant,
+		float _restLength)
 		: connectionPoint(_connectionPoint)
 		, other(_other)
 		, otherConnectionPoint(_otherConnectionPoint)
@@ -1020,17 +1007,17 @@ namespace my
 	{
 	}
 
-	void Spring::updateForce(RigidBody * body, real duration)
+	void Spring::updateForce(RigidBody * body, float duration)
 	{
-		t3d::Vec4<real> connectionPointWorld = connectionPoint * body->getTransform();
+		Vector3 connectionPointWorld = connectionPoint.transform(body->getTransform());
 
-		t3d::Vec4<real> otherConnectionPointWorld = otherConnectionPoint * other->getTransform();
+		Vector3 otherConnectionPointWorld = otherConnectionPoint.transform(other->getTransform());
 
-		t3d::Vec4<real> distance = t3d::vec3Sub(connectionPointWorld, otherConnectionPointWorld);
+		Vector3 distance = connectionPointWorld - otherConnectionPointWorld;
 
-		real length = t3d::vec3Length(distance);
+		float length = distance.length();
 
-		body->addForceAtPoint(t3d::vec3Mul(t3d::vec3Normalize(distance), -springConstant * (length - restLength)), connectionPointWorld);
+		body->addForceAtPoint(distance.normalize() * (-springConstant * (length - restLength)), connectionPointWorld);
 
 		body->setAwake();
 
@@ -1042,31 +1029,31 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 
 	Aero::Aero(
-		const t3d::Mat4<real> & _tensor,
-		const t3d::Vec4<real> & _position,
-		const t3d::Vec4<real> * _pwindSpeed)
+		const Matrix4 & _tensor,
+		const Vector3 & _position,
+		const Vector3 * _pwindSpeed)
 		: tensor(_tensor)
 		, position(_position)
 		, pwindSpeed(_pwindSpeed)
 	{
 	}
 
-	void Aero::updateForce(RigidBody * body, real duration)
+	void Aero::updateForce(RigidBody * body, float duration)
 	{
 		updateForceFromTensor(body, duration, tensor);
 	}
 
-	void Aero::updateForceFromTensor(RigidBody * body, real duration, const t3d::Mat4<real> & _tensor)
+	void Aero::updateForceFromTensor(RigidBody * body, float duration, const Matrix4 & _tensor)
 	{
-		t3d::Vec4<real> velocity = t3d::vec3Add(body->getVelocity(), *pwindSpeed);
+		Vector3 velocity = body->getVelocity() + *pwindSpeed;
 
-		t3d::Vec4<real> localVelocity = velocity * body->getInverseRotationTransform();
+		Vector3 localVelocity = velocity.transform(body->getInverseRotationTransform());
 
-		t3d::Vec4<real> localForce = localVelocity * _tensor;
+		Vector3 localForce = localVelocity.transform(_tensor);
 
-		t3d::Vec4<real> force = localForce * body->getRotationTransform();
+		Vector3 force = localForce.transform(body->getRotationTransform());
 
-		body->addForceAtPoint(force, position * body->getTransform());
+		body->addForceAtPoint(force, position.transform(body->getTransform()));
 
 		body->setAwake();
 
@@ -1077,41 +1064,39 @@ namespace my
 	// AeroControl
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	void AeroControl::setControl(real value)
+	void AeroControl::setControl(float value)
 	{
 		controlSetting = value;
 	}
 
 	AeroControl::AeroControl(
-		const t3d::Mat4<real> & _tensor,
-		const t3d::Mat4<real> & _minTensor,
-		const t3d::Mat4<real> & _maxTensor,
-		const t3d::Vec4<real> & _position,
-		const t3d::Vec4<real> * _pwindSpeed)
+		const Matrix4 & _tensor,
+		const Matrix4 & _minTensor,
+		const Matrix4 & _maxTensor,
+		const Vector3 & _position,
+		const Vector3 * _pwindSpeed)
 		: Aero(_tensor, _position, _pwindSpeed)
 		, minTensor(_minTensor)
 		, maxTensor(_maxTensor)
 	{
 	}
 
-	void AeroControl::updateForce(RigidBody * body, real duration)
+	void AeroControl::updateForce(RigidBody * body, float duration)
 	{
 		updateForceFromControl(body, duration, controlSetting);
 	}
 
-	void AeroControl::updateForceFromControl(RigidBody * body, real duration, real _controlSetting)
+	void AeroControl::updateForceFromControl(RigidBody * body, float duration, float _controlSetting)
 	{
 		_ASSERT(_controlSetting >= -1 && _controlSetting <= 1);
 
 		if(_controlSetting < 0)
 		{
-			updateForceFromTensor(
-				body, duration, t3d::mat4Intersect(minTensor, tensor, (real)-1, (real)0, _controlSetting));
+			updateForceFromTensor(body, duration, minTensor.lerp(tensor, 1 + _controlSetting));
 		}
 		else
 		{
-			updateForceFromTensor(
-				body, duration, t3d::mat4Intersect(tensor, maxTensor, (real) 0, (real)1, _controlSetting));
+			updateForceFromTensor(body, duration, tensor.lerp(maxTensor, _controlSetting));
 		}
 	}
 
@@ -1120,14 +1105,14 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 
 	AngledAero::AngledAero(
-		const t3d::Mat4<real> & _tensor,
-		const t3d::Vec4<real> & _position,
-		const t3d::Vec4<real> * _pwindSpeed)
+		const Matrix4 & _tensor,
+		const Vector3 & _position,
+		const Vector3 * _pwindSpeed)
 		: Aero(_tensor, _position, _pwindSpeed)
 	{
 	}
 
-	void AngledAero::updateForce(RigidBody * body, real duration)
+	void AngledAero::updateForce(RigidBody * body, float duration)
 	{
 		_ASSERT(false);
 
@@ -1140,11 +1125,11 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 
 	Buoyancy::Buoyancy(
-		const t3d::Vec4<real> & _centerOfBuoyancy,
-		real _maxDepth,
-		real _volume,
-		real _waterHeight,
-		real _liquidDensity /*= 1000.0f*/)
+		const Vector3 & _centerOfBuoyancy,
+		float _maxDepth,
+		float _volume,
+		float _waterHeight,
+		float _liquidDensity /*= 1000.0f*/)
 		: centerOfBuoyancy(_centerOfBuoyancy)
 		, maxDepth(_maxDepth)
 		, volume(_volume)
@@ -1153,7 +1138,7 @@ namespace my
 	{
 	}
 
-	void Buoyancy::updateForce(RigidBody * body, real duration)
+	void Buoyancy::updateForce(RigidBody * body, float duration)
 	{
 		_ASSERT(false);
 
@@ -1167,7 +1152,7 @@ namespace my
 
 	void Contact::swapBodies(void)
 	{
-		t3d::vec3NegSelf(contactNormal);
+		contactNormal = -contactNormal;
 
 		std::swap(bodys[0], bodys[1]);
 	}
@@ -1199,53 +1184,56 @@ namespace my
 
 	void Contact::calculateContactBasis(void)
 	{
-		_ASSERT(IS_ZERO_FLOAT(t3d::vec3Length(contactNormal) - 1));
+		_ASSERT(abs(contactNormal.length() - 1) < EPSILON_E6);
 
-		t3d::Vec4<real> contantTangents[2];
+		Vector3 contantTangents[2];
 
 		// Check whether the Z-axis is nearer to the X or Y axis
 		if(abs(contactNormal.x) > abs(contactNormal.y))
 		{
 			// Scaling factor to ensure the results are normalised
-			real s_inv = 1.0f / sqrt(contactNormal.x * contactNormal.x + contactNormal.z * contactNormal.z);
+			float s_inv = 1.0f / sqrt(contactNormal.x * contactNormal.x + contactNormal.z * contactNormal.z);
 
 			// The new X-axis is at right angles to the world Y-axis
-			contantTangents[0] = my::Vec4<real>(contactNormal.z * s_inv, 0, -contactNormal.x * s_inv);
+			contantTangents[0] = Vector3(contactNormal.z * s_inv, 0, -contactNormal.x * s_inv);
 
 			// The new Y-axis is at right angles to the new X- and Z- axes
-			contantTangents[1] = t3d::vec3Cross(contactNormal, contantTangents[0]);
+			contantTangents[1] = contactNormal.cross(contantTangents[0]);
 		}
 		else
 		{
 			// Scaling factor to ensure the results are normalised
-			real s_inv = 1.0f / sqrt(contactNormal.y * contactNormal.y + contactNormal.z * contactNormal.z);
+			float s_inv = 1.0f / sqrt(contactNormal.y * contactNormal.y + contactNormal.z * contactNormal.z);
 
 			// The new X-axis is at right angles to the world X-axis
-			contantTangents[0] = my::Vec4<real>(0, -contactNormal.z * s_inv, contactNormal.y * s_inv);
+			contantTangents[0] = Vector3(0, -contactNormal.z * s_inv, contactNormal.y * s_inv);
 
 			// The new Y-axis is at right angles to the new X- and Z- axes
-			contantTangents[1] = t3d::vec3Cross(contactNormal, contantTangents[0]);
+			contantTangents[1] = contactNormal.cross(contantTangents[0]);
 		}
 
 		// Make a matrix from the three vectors.
-		contactToWorld = t3d::mat3TransposUvn(contactNormal, contantTangents[0], contantTangents[1]);
+		contactToWorld = Matrix4(
+			contactNormal.x,		contactNormal.y,		contactNormal.z,		0,
+			contantTangents[0].x,	contantTangents[0].y,	contantTangents[0].z,	0,
+			contantTangents[1].x,	contantTangents[1].y,	contantTangents[1].z,	0,
+			0,						0,						0,						1);
 	}
 
-	t3d::Vec4<real> Contact::calculateLocalVelocity(const RigidBody & body, const t3d::Vec4<real> & relativeContactPosition, real duration) const // ***
+	Vector3 Contact::calculateLocalVelocity(const RigidBody & body, const Vector3 & relativeContactPosition, float duration) const // ***
 	{
 		// Work out the velocity of the contact point.
-		t3d::Vec4<real> velocity = t3d::vec3Add(
-			t3d::vec3Cross(body.getRotation(), relativeContactPosition), body.getVelocity());
+		Vector3 velocity = body.getRotation().cross(relativeContactPosition) + body.getVelocity();
 
 		// Turn the velocity into contact-coordinates.
-		t3d::Vec4<real> velocityLocal = velocity.transformTranspose(contactToWorld);
+		Vector3 velocityLocal = velocity.transformTranspose(contactToWorld);
 
 		// Calculate the ammount of velocity that is due to forces without
 		// reactions.
-		t3d::Vec4<real> accVelocity = body.getResultingAcc() * duration;
+		Vector3 accVelocity = body.getResultingAcc() * duration;
 
 		// Calculate the velocity in contact-coordinates.
-		t3d::Vec4<real> accVelocityLocal = accVelocity.transformTranspose(contactToWorld);
+		Vector3 accVelocityLocal = accVelocity.transformTranspose(contactToWorld);
 
 		// We ignore any component of acceleration in the contact normal
 		// direction, we are only interested in planar acceleration
@@ -1253,40 +1241,40 @@ namespace my
 
 		// Add the planar velocities - if there's enough friction they will
 		// be removed during velocity resolution
-		t3d::vec3AddSelf(velocityLocal, accVelocityLocal);
+		velocityLocal += accVelocityLocal;
 
 		// And return it
 		return velocityLocal;
 	}
 
-	void Contact::calculateDesiredDeltaVelocity(real duration) // ***
+	void Contact::calculateDesiredDeltaVelocity(float duration) // ***
 	{
 		_ASSERT(NULL != bodys[0]);
 
-		const real velocityLimit = (real)0.25f;
+		const float velocityLimit = 0.25f;
 
 		// Calculate the acceleration induced velocity accumulated this frame
-		real velocityFromAcc = 0;
+		float velocityFromAcc = 0;
 
 		if(bodys[0]->getAwake())
 		{
-			velocityFromAcc = t3d::vec3Dot(t3d::vec3Mul(bodys[0]->getResultingAcc(), duration), contactNormal);
+			velocityFromAcc = (bodys[0]->getResultingAcc() * duration).dot(contactNormal);
 		}
 
 		if(NULL != bodys[1] && bodys[1]->getAwake())
 		{
-			velocityFromAcc -= t3d::vec3Dot(t3d::vec3Mul(bodys[1]->getResultingAcc(), duration), contactNormal);
+			velocityFromAcc -= (bodys[1]->getResultingAcc() * duration).dot(contactNormal);
 		}
 
 		// If the velocity is very slow, limit the restitution
-		real thisRestitution = abs(contactVelocity.x) < velocityLimit ? 0.0f : restitution;
+		float thisRestitution = abs(contactVelocity.x) < velocityLimit ? 0.0f : restitution;
 
 		// Combine the bounce velocity with the removed
 		// acceleration velocity.
 		desiredDeltaVelocity = -contactVelocity.x - thisRestitution * (contactVelocity.x - velocityFromAcc);
 	}
 
-	void Contact::calculateInternals(real duration)
+	void Contact::calculateInternals(float duration)
 	{
 		// Check if the first object is NULL, and swap if it is.
 		if(NULL == bodys[0])
@@ -1300,11 +1288,11 @@ namespace my
 		calculateContactBasis();
 
 		// Store the relative position of the contact relative to each body
-		relativeContactPositions[0] = t3d::vec3Sub(contactPoint, bodys[0]->getPosition());
+		relativeContactPositions[0] = contactPoint - bodys[0]->getPosition();
 
 		if(NULL != bodys[1])
 		{
-			relativeContactPositions[1] = t3d::vec3Sub(contactPoint, bodys[1]->getPosition());
+			relativeContactPositions[1] = contactPoint - bodys[1]->getPosition();
 		}
 
 		// Find the relative velocity of the bodies at the contact point.
@@ -1312,24 +1300,24 @@ namespace my
 
 		if(NULL != bodys[1])
 		{
-			t3d::vec3SubSelf(contactVelocity, calculateLocalVelocity(*bodys[1], relativeContactPositions[1], duration));
+			contactVelocity -= calculateLocalVelocity(*bodys[1], relativeContactPositions[1], duration);
 		}
 
 		// Calculate the desired change in velocity for resolution
 		calculateDesiredDeltaVelocity(duration);
 	}
 
-	t3d::Vec4<real> Contact::calculateFrictionlessImpulse(const t3d::Mat4<real> inverseInertialTensors[]) const
+	Vector3 Contact::calculateFrictionlessImpulse(const Matrix4 inverseInertialTensors[]) const
 	{
 		_ASSERT(NULL != bodys[0]);
 
 		// Build a vector that shows the change in velocity in
 		// world space for a unit impulse in the direction of the contact
 		// normal.
-		t3d::Vec4<real> deltaVelocityWorld = t3d::vec3Cross(t3d::vec3Cross(relativeContactPositions[0], contactNormal) * inverseInertialTensors[0], relativeContactPositions[0]);
+		Vector3 deltaVelocityWorld = relativeContactPositions[0].cross(contactNormal).transform(inverseInertialTensors[0]).cross(relativeContactPositions[0]);
 
 		// Work out the change in velocity in contact coordiantes.
-		real deltaVelocity = t3d::vec3Dot(deltaVelocityWorld, contactNormal);
+		float deltaVelocity = deltaVelocityWorld.dot(contactNormal);
 
 		// Add the linear component of velocity change
 		deltaVelocity += bodys[0]->getInverseMass();
@@ -1338,39 +1326,49 @@ namespace my
 		if(NULL != bodys[1])
 		{
 			// Go through the same transformation sequence again
-			deltaVelocityWorld = t3d::vec3Cross(t3d::vec3Cross(relativeContactPositions[1], contactNormal) * inverseInertialTensors[1], relativeContactPositions[1]);
+			deltaVelocityWorld = relativeContactPositions[1].cross(contactNormal).transform(inverseInertialTensors[1]).cross(relativeContactPositions[1]);
 
 			// Add the change in velocity due to rotation
-			deltaVelocity += t3d::vec3Dot(deltaVelocityWorld, contactNormal);
+			deltaVelocity += deltaVelocityWorld.dot(contactNormal);
 
 			// Add the change in velocity due to linear motion
 			deltaVelocity += bodys[1]->getInverseMass();
 		}
 
 		// Calculate the required size of the impulse
-		return my::Vec4<real>(desiredDeltaVelocity / deltaVelocity, 0, 0);
+		return Vector3(desiredDeltaVelocity / deltaVelocity, 0, 0);
 	}
 
-	t3d::Vec4<real> Contact::calculateFrictionImpulse(const t3d::Mat4<real> inverseInertialTensors[]) const // ***
+	static inline Matrix4 buildSkewSymmetricMatrxi(const Vector3 & rhs)
+	{
+		return Matrix4(
+			 0,		 rhs.z,	-rhs.y,	0,
+			-rhs.z,	 0,		 rhs.x,	0,
+			 rhs.y,	-rhs.x,	 0,		0,
+			 0,		 0,		 0,		1);
+
+	}
+
+	Vector3 Contact::calculateFrictionImpulse(const Matrix4 inverseInertialTensors[]) const // ***
 	{
 		_ASSERT(NULL != bodys[0]);
 
 		// The equivalent of a cross product in matrices is multiplication
 		// by a skew symmetric matrix - we build the matrix for converting
 		// between linear and angular quantities.
-		t3d::Mat4<real> impulseToTorque = t3d::buildSkewSymmetricMatrxi(relativeContactPositions[0]);
+		Matrix4 impulseToTorque = buildSkewSymmetricMatrxi(relativeContactPositions[0]);
 
 		// Build the matrix to convert contact impulse to change in velocity
 		// in world coordinates.
-		t3d::Mat4<real> deltaVelocityWorld = - (impulseToTorque * inverseInertialTensors[0] * impulseToTorque);
+		Matrix4 deltaVelocityWorld = - (impulseToTorque * inverseInertialTensors[0] * impulseToTorque);
 
-		real inverseMass = bodys[0]->getInverseMass();
+		float inverseMass = bodys[0]->getInverseMass();
 
 		// Check if we need to add body two's data
 		if(NULL != bodys[1])
 		{
 			// Set the cross product matrix
-			impulseToTorque = t3d::buildSkewSymmetricMatrxi(relativeContactPositions[1]);
+			impulseToTorque = buildSkewSymmetricMatrxi(relativeContactPositions[1]);
 
 			// Calculate the velocity change matrix
 			// Add to the total delta velocity.
@@ -1381,24 +1379,24 @@ namespace my
 		}
 
 		// Do a change of basis to convert into contact coordinates.
-		t3d::Mat4<real> deltaVelocity = (contactToWorld * deltaVelocityWorld).transformTranspose(contactToWorld); // ***
+		Matrix4 deltaVelocity = (contactToWorld * deltaVelocityWorld).transformTranspose(contactToWorld); // ***
 
 		// Add in the linear velocity change
-		deltaVelocity.m00 += inverseMass;
-		deltaVelocity.m11 += inverseMass;
-		deltaVelocity.m22 += inverseMass;
+		deltaVelocity._11 += inverseMass;
+		deltaVelocity._22 += inverseMass;
+		deltaVelocity._33 += inverseMass;
 
 		// Invert to get the impulse needed per unit velocity
-		t3d::Mat4<real> impulseMatrix = deltaVelocity.inverse();
+		Matrix4 impulseMatrix = deltaVelocity.inverse();
 
 		// Find the target velocities to kill
-		my::Vec4<real> velKill(desiredDeltaVelocity, -contactVelocity.y, -contactVelocity.z);
+		Vector3 velKill(desiredDeltaVelocity, -contactVelocity.y, -contactVelocity.z);
 
 		// Find the impulse to kill target velocities
-		t3d::Vec4<real> impulseContact = velKill * impulseMatrix;
+		Vector3 impulseContact = velKill.transform(impulseMatrix);
 
 		// Check for exceeding friction
-		real planarImpulse = sqrt(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
+		float planarImpulse = sqrt(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
 
 		if (planarImpulse > impulseContact.x * friction)
 		{
@@ -1407,9 +1405,9 @@ namespace my
 			impulseContact.z /= planarImpulse;
 
 			impulseContact.x =
-				deltaVelocity.m00 +
-				deltaVelocity.m10 * friction * impulseContact.y +
-				deltaVelocity.m20 * friction * impulseContact.z;
+				deltaVelocity._11 +
+				deltaVelocity._21 * friction * impulseContact.y +
+				deltaVelocity._31 * friction * impulseContact.z;
 
 			impulseContact.x = desiredDeltaVelocity / impulseContact.x;
 			impulseContact.y *= friction * impulseContact.x;
@@ -1419,18 +1417,18 @@ namespace my
 		return impulseContact;
 	}
 
-	static real _calculateBodyInertias(
+	static float _calculateBodyInertias(
 		const RigidBody & body,
-		const t3d::Vec4<real> & relativeContactPosition,
-		const t3d::Vec4<real> & contactNormal,
-		real & linearInertia,
-		real & angularInertia)
+		const Vector3 & relativeContactPosition,
+		const Vector3 & contactNormal,
+		float & linearInertia,
+		float & angularInertia)
 	{
 		// Use the same procedure as for calculating frictionless
 		// velocity change to work out the angular inertia.
-		t3d::Vec4<real> angularInertiaWorld = t3d::vec3Cross(t3d::vec3Cross(relativeContactPosition, contactNormal) * body.getInverseInertialTensor(), relativeContactPosition);
+		Vector3 angularInertiaWorld = relativeContactPosition.cross(contactNormal).transform(body.getInverseInertialTensor()).cross(relativeContactPosition);
 
-		angularInertia = t3d::vec3Dot(angularInertiaWorld, contactNormal);
+		angularInertia = angularInertiaWorld.dot(contactNormal);
 
 		// The linear component is simply the inverse mass
 		linearInertia = body.getInverseMass();
@@ -1440,42 +1438,42 @@ namespace my
 	}
 
 	static void _limitAngularMove(
-		const t3d::Vec4<real> & relativeContactPosition,
-		const t3d::Vec4<real> & contactNormal,
-		real & linearMove,
-		real & angularMove)
+		const Vector3 & relativeContactPosition,
+		const Vector3 & contactNormal,
+		float & linearMove,
+		float & angularMove)
 	{
-		const real angularLimit = 2.0f;
+		const float angularLimit = 2.0f;
 
 		// To avoid angular projections that are too great (when mass is large
 		// but inertia tensor is small) limit the angular move.
-		t3d::Vec4<real> projection = t3d::vec3Add(relativeContactPosition, t3d::vec3Mul(contactNormal, -t3d::vec3Dot(relativeContactPosition, contactNormal))); // ***
+		Vector3 projection = relativeContactPosition + contactNormal * -relativeContactPosition.dot(contactNormal); // ***
 
 		// Use the small angle approximation for the sine of the angle (i.e.
 		// the magnitude would be sine(angularLimit) * projection.magnitude
 		// but we approximate sine(angularLimit) to angularLimit).
-		real maxMagnitude = angularLimit * t3d::vec3Length(projection);
+		float maxMagnitude = angularLimit * projection.length();
 
-		real totalMove = linearMove + angularMove;
+		float totalMove = linearMove + angularMove;
 
-		angularMove = std::min(maxMagnitude, std::max(-maxMagnitude, angularMove));
+		angularMove = Min(maxMagnitude, Max(-maxMagnitude, angularMove));
 
 		linearMove = totalMove - angularMove;
 	}
 
 	static void _applyInertiaToBody(
 		RigidBody & body,
-		const t3d::Vec4<real> & relativeContactPosition,
-		const t3d::Vec4<real> & contactNormal,
-		real linearMove,
-		real angularMove,
-		real angularInertia,
-		t3d::Vec4<real> & linearChange,
-		t3d::Vec4<real> & angularChange) // ***
+		const Vector3 & relativeContactPosition,
+		const Vector3 & contactNormal,
+		float linearMove,
+		float angularMove,
+		float angularInertia,
+		Vector3 & linearChange,
+		Vector3 & angularChange) // ***
 	{
 		// Velocity change is easier - it is just the linear movement
 		// along the contact normal.
-		linearChange = t3d::vec3Mul(contactNormal, linearMove);
+		linearChange = contactNormal * linearMove;
 
 		// We have the linear amount of movement required by turning
 		// the rigid body (in angularMove[i]). We now need to
@@ -1483,15 +1481,15 @@ namespace my
 		if(0 == angularMove || 0 == body.getAngularDamping()) // *** angularDamping
 		{
 			// Easy case - no angular movement means no rotation.
-			angularChange = my::Vec4<real>::ZERO;
+			angularChange = Vector3::zero;
 		}
 		else
 		{
 			// Work out the direction we'd like to rotate in.
-			t3d::Vec4<real> angularPerMove = t3d::vec3Div(t3d::vec3Cross(relativeContactPosition, contactNormal) * body.getInverseInertialTensor(), angularInertia); // ***
+			Vector3 angularPerMove = relativeContactPosition.cross(contactNormal).transform(body.getInverseInertialTensor()) / angularInertia; // ***
 
 			// Work out the direction we'd need to rotate to achieve that
-			angularChange = t3d::vec3Mul(angularPerMove, angularMove);
+			angularChange = angularPerMove * angularMove;
 		}
 
 		// Now we can start to apply the values we've calculated.
@@ -1517,16 +1515,16 @@ namespace my
 		}
 	}
 
-	void Contact::applyPositionChange(t3d::Vec4<real> linearChanges[2], t3d::Vec4<real> angularChanges[2])
+	void Contact::applyPositionChange(Vector3 linearChanges[2], Vector3 angularChanges[2])
 	{
 		_ASSERT(NULL != bodys[0]);
 
-		real linearInertias[2];
-		real angularInertias[2];
+		float linearInertias[2];
+		float angularInertias[2];
 
 		// We need to work out the inertia of each object in the direction
 		// of the contact normal, due to angular inertia only.
-		real totalInertia = _calculateBodyInertias(*bodys[0], relativeContactPositions[0], contactNormal, linearInertias[0], angularInertias[0]);
+		float totalInertia = _calculateBodyInertias(*bodys[0], relativeContactPositions[0], contactNormal, linearInertias[0], angularInertias[0]);
 
 		if(NULL != bodys[1])
 		{
@@ -1535,8 +1533,8 @@ namespace my
 
 		// The linear and angular movements required are in proportion to
 		// the two inverse inertias.
-		real linearMoves[2];
-		real angularMoves[2];
+		float linearMoves[2];
+		float angularMoves[2];
 		linearMoves[0] = penetration * linearInertias[0] / totalInertia;
 		angularMoves[0] = penetration * angularInertias[0] / totalInertia;
 
@@ -1558,13 +1556,13 @@ namespace my
 		}
 	}
 
-	void Contact::applyVelocityChange(t3d::Vec4<real> velocityChanges[2], t3d::Vec4<real> rotationChanges[2])
+	void Contact::applyVelocityChange(Vector3 velocityChanges[2], Vector3 rotationChanges[2])
 	{
 		_ASSERT(NULL != bodys[0]);
 
 		// Get hold of the inverse mass and inverse inertia tensor, both in
 		// world coordinates.
-		t3d::Mat4<real> inverseInertiaTensors[2];
+		Matrix4 inverseInertiaTensors[2];
 
 		inverseInertiaTensors[0] = bodys[0]->getInverseInertialTensor();
 
@@ -1574,7 +1572,7 @@ namespace my
 		}
 
 		// We will calculate the impulse for each contact axis
-		t3d::Vec4<real> impulseContact;
+		Vector3 impulseContact;
 		
 		if(0 == friction)
 		{
@@ -1589,12 +1587,12 @@ namespace my
 		}
 
 		// Convert impulse to world coordinates
-		t3d::Vec4<real> impulse = impulseContact * contactToWorld;
+		Vector3 impulse = impulseContact.transform(contactToWorld);
 
 		// Split in the impulse into linear and rotational components
-		velocityChanges[0] = t3d::vec3Mul(impulse, bodys[0]->getInverseMass());
+		velocityChanges[0] = impulse * bodys[0]->getInverseMass();
 
-		rotationChanges[0] = t3d::vec3Cross(relativeContactPositions[0], impulse) * inverseInertiaTensors[0];
+		rotationChanges[0] = relativeContactPositions[0].cross(impulse).transform(inverseInertiaTensors[0]);
 
 		// Apply the changes
 		bodys[0]->addVelocity(velocityChanges[0]);
@@ -1604,9 +1602,9 @@ namespace my
 		if(NULL != bodys[1])
 		{
 			// Work out body one's linear and angular changes
-			velocityChanges[1] = t3d::vec3Mul(impulse, -bodys[1]->getInverseMass());
+			velocityChanges[1] = impulse * -bodys[1]->getInverseMass();
 
-			rotationChanges[1] = t3d::vec3Cross(impulse, relativeContactPositions[1]) * inverseInertiaTensors[1];
+			rotationChanges[1] = impulse.cross(relativeContactPositions[1]).transform(inverseInertiaTensors[1]);
 
 			// And apply them.
 			bodys[1]->addVelocity(velocityChanges[1]);
@@ -1639,22 +1637,22 @@ namespace my
 		return velocityIterations;
 	}
 
-	void ContactResolver::setPositionEpsilon(real value)
+	void ContactResolver::setPositionEpsilon(float value)
 	{
 		positionEpsilon = value;
 	}
 
-	real ContactResolver::getPositionEpsilon(void) const
+	float ContactResolver::getPositionEpsilon(void) const
 	{
 		return positionEpsilon;
 	}
 
-	void ContactResolver::setVelocityEpsilon(real value)
+	void ContactResolver::setVelocityEpsilon(float value)
 	{
 		velocityEpsilon = value;
 	}
 
-	real ContactResolver::getVelocityEpsilon(void) const
+	float ContactResolver::getVelocityEpsilon(void) const
 	{
 		return velocityEpsilon;
 	}
@@ -1662,8 +1660,8 @@ namespace my
 	ContactResolver::ContactResolver(
 		unsigned _positionIterations /*= 0*/,
 		unsigned _velocityIterations /*= 0*/,
-		real _positionEpsilon /*= 0.01f*/,
-		real _velocityEpsilon /*= 0.01f*/)
+		float _positionEpsilon /*= 0.01f*/,
+		float _velocityEpsilon /*= 0.01f*/)
 		: positionIterations(_positionIterations)
 		, velocityIterations(_velocityIterations)
 		, positionEpsilon(_positionEpsilon)
@@ -1674,7 +1672,7 @@ namespace my
 	void ContactResolver::prepareContacts(
 		Contact * contacts,
 		unsigned numContacts,
-		real duration)
+		float duration)
 	{
 		for(unsigned i = 0; i < numContacts; i++)
 		{
@@ -1684,18 +1682,18 @@ namespace my
 
 	void ContactResolver::_updateContactPenetration(
 		Contact & contact,
-		const t3d::Vec4<real> & relativeContactPosition,
-		const t3d::Vec4<real> & linearChange,
-		const t3d::Vec4<real> & angularChange,
+		const Vector3 & relativeContactPosition,
+		const Vector3 & linearChange,
+		const Vector3 & angularChange,
 		unsigned bodyIndex)
 	{
-		t3d::Vec4<real> deltaPosition = t3d::vec3Add(linearChange, t3d::vec3Cross(angularChange, relativeContactPosition));
+		Vector3 deltaPosition = linearChange + angularChange.cross(relativeContactPosition);
 
-		_ASSERT(IS_ZERO_FLOAT(vec3Length(contact.contactNormal) - 1));
+		_ASSERT(abs(contact.contactNormal.length() - 1) < EPSILON_E6);
 
 		if(0 == bodyIndex)
 		{
-			contact.penetration -= t3d::vec3Dot(deltaPosition, contact.contactNormal);
+			contact.penetration -= deltaPosition.dot(contact.contactNormal);
 		}
 		else
 		{
@@ -1704,21 +1702,21 @@ namespace my
 			// and negative otherwise (because we're
 			// subtracting the resolution)..
 			_ASSERT(1 == bodyIndex);
-			contact.penetration += t3d::vec3Dot(deltaPosition, contact.contactNormal);
+			contact.penetration += deltaPosition.dot(contact.contactNormal);
 		}
 	}
 
 	void ContactResolver::adjustPositions(
 		Contact * contacts,
 		unsigned numContacts,
-		real duration)
+		float duration)
 	{
 		// iteratively resolve interpenetrations in order of severity
 		positionIterationsUsed = 0;
 		while(positionIterationsUsed < positionIterations)
 		{
 			// Find biggest penetration
-			real maxPenetration = positionEpsilon;
+			float maxPenetration = positionEpsilon;
 			unsigned maxPenetrationIndex = numContacts;
 			for(unsigned i = 0; i < numContacts; i++)
 			{
@@ -1738,8 +1736,8 @@ namespace my
 			contacts[maxPenetrationIndex].matchAwakeState();
 
 			// Resolve the penetration
-			t3d::Vec4<real> linearChanges[2];
-			t3d::Vec4<real> angularChanges[2];
+			Vector3 linearChanges[2];
+			Vector3 angularChanges[2];
 			contacts[maxPenetrationIndex].applyPositionChange(
 				linearChanges,
 				angularChanges);
@@ -1785,24 +1783,24 @@ namespace my
 
 	void ContactResolver::_updateContactVelocity(
 		Contact & contact,
-		const t3d::Vec4<real> & relativeContactPosition,
-		const t3d::Vec4<real> & velocityChange,
-		const t3d::Vec4<real> & rotationChange,
+		const Vector3 & relativeContactPosition,
+		const Vector3 & velocityChange,
+		const Vector3 & rotationChange,
 		unsigned bodyIndex,
-		real duration)
+		float duration)
 	{
-		t3d::Vec4<real> deltaVelocity = t3d::vec3Add(velocityChange, t3d::vec3Cross(rotationChange, relativeContactPosition));
+		Vector3 deltaVelocity = velocityChange + rotationChange.cross(relativeContactPosition);
 
 		if(0 == bodyIndex)
 		{
-			t3d::vec3AddSelf(contact.contactVelocity, deltaVelocity.transformTranspose(contact.contactToWorld));
+			contact.contactVelocity += deltaVelocity.transformTranspose(contact.contactToWorld);
 		}
 		else
 		{
 			// The sign of the change is negative if we're dealing
 			// with the second body in a contact.
 			_ASSERT(1 == bodyIndex);
-			t3d::vec3SubSelf(contact.contactVelocity, deltaVelocity.transformTranspose(contact.contactToWorld));
+			contact.contactVelocity -= deltaVelocity.transformTranspose(contact.contactToWorld);
 		}
 
 		contact.calculateDesiredDeltaVelocity(duration);
@@ -1811,14 +1809,14 @@ namespace my
 	void ContactResolver::adjustVelocities(
 		Contact * contacts,
 		unsigned numContacts,
-		real duration)
+		float duration)
 	{
 		// iteratively handle impacts in order of severity
 		velocityIterationsUsed = 0;
 		while(velocityIterationsUsed < velocityIterations)
 		{
 			// Find contact with maximum magnitude of probable velocity change
-			real maxVelocity = velocityEpsilon;
+			float maxVelocity = velocityEpsilon;
 			unsigned maxVelocityIndex = numContacts;
 			for(unsigned i = 0; i < numContacts; i++)
 			{
@@ -1838,8 +1836,8 @@ namespace my
 			contacts[maxVelocityIndex].matchAwakeState();
 
 			// Do the resolution on the contact that came out top
-			t3d::Vec4<real> velocityChanges[2];
-			t3d::Vec4<real> rotationChanges[2];
+			Vector3 velocityChanges[2];
+			Vector3 rotationChanges[2];
 			contacts[maxVelocityIndex].applyVelocityChange(
 				velocityChanges,
 				rotationChanges);
@@ -1893,7 +1891,7 @@ namespace my
 	void ContactResolver::resolveContacts(
 		Contact * contacts,
 		unsigned numContacts,
-		real duration)
+		float duration)
 	{
 		if(numContacts > 0)
 		{
@@ -1933,7 +1931,7 @@ namespace my
 		}
 	}
 
-	void World::integrate(real duration)
+	void World::integrate(float duration)
 	{
 		RigidBodyPtrList::iterator b_iter = bodyList.begin();
 		for(; b_iter != bodyList.end(); b_iter++)
@@ -1949,7 +1947,7 @@ namespace my
 		return 0;
 	}
 
-	void World::runPhysics(real duration)
+	void World::runPhysics(float duration)
 	{
 		startFrame();
 

@@ -1,10 +1,27 @@
 
 #pragma once
 
+#define EPSILON_E3			(1.0e-3)
+#define EPSILON_E4			(1.0e-4)
+#define EPSILON_E5			(1.0e-5)
+#define EPSILON_E6			(1.0e-6)
+
 #define cot(x)	(1.0f / tan(x))
 
 namespace my
 {
+	template <typename T>
+	T Min(const T & a, const T & b)
+	{
+		return a < b ? a : b;
+	}
+
+	template <typename T>
+	T Max(const T & a, const T & b)
+	{
+		return a > b ? a : b;
+	}
+
 	class Vector4;
 
 	class Quaternion;
@@ -184,7 +201,9 @@ namespace my
 			return *this;
 		}
 
-		Vector4 transform(const Matrix4 & m) const;
+		Vector2 transform(const Matrix4 & m) const;
+
+		Vector2 transformTranspose(const Matrix4 & m) const;
 
 	public:
 		static const Vector2 zero;
@@ -730,7 +749,9 @@ namespace my
 
 		Vector3 transform(const Quaternion & q) const;
 
-		Vector4 transform(const Matrix4 & m) const;
+		Vector3 transform(const Matrix4 & m) const;
+
+		Vector3 transformTranspose(const Matrix4 & m) const;
 
 	public:
 		static const Vector3 zero;
@@ -943,6 +964,8 @@ namespace my
 		}
 
 		Vector4 transform(const Matrix4 & m) const;
+
+		Vector4 transformTranspose(const Matrix4 & m) const;
 
 	public:
 		static const Vector4 zero;
@@ -1870,6 +1893,30 @@ namespace my
 				_14, _24, _34, _44);
 		}
 
+		Matrix4 transformTranspose(const Matrix4 & rhs)
+		{
+			return Matrix4(
+				_11 * rhs._11 + _12 * rhs._12 + _13 * rhs._13 + _14 * rhs._14,
+				_11 * rhs._21 + _12 * rhs._22 + _13 * rhs._23 + _14 * rhs._24,
+				_11 * rhs._31 + _12 * rhs._32 + _13 * rhs._33 + _14 * rhs._34,
+				_11 * rhs._41 + _12 * rhs._42 + _13 * rhs._43 + _14 * rhs._44,
+
+				_21 * rhs._11 + _22 * rhs._12 + _23 * rhs._13 + _24 * rhs._14,
+				_21 * rhs._21 + _22 * rhs._22 + _23 * rhs._23 + _24 * rhs._24,
+				_21 * rhs._31 + _22 * rhs._32 + _23 * rhs._33 + _24 * rhs._34,
+				_21 * rhs._41 + _22 * rhs._42 + _23 * rhs._43 + _24 * rhs._44,
+
+				_31 * rhs._11 + _32 * rhs._12 + _33 * rhs._13 + _34 * rhs._14,
+				_31 * rhs._21 + _32 * rhs._22 + _33 * rhs._23 + _34 * rhs._24,
+				_31 * rhs._31 + _32 * rhs._32 + _33 * rhs._33 + _34 * rhs._34,
+				_31 * rhs._41 + _32 * rhs._42 + _33 * rhs._43 + _34 * rhs._44,
+
+				_41 * rhs._11 + _42 * rhs._12 + _43 * rhs._13 + _44 * rhs._14,
+				_41 * rhs._21 + _42 * rhs._22 + _43 * rhs._23 + _44 * rhs._24,
+				_41 * rhs._31 + _42 * rhs._32 + _43 * rhs._33 + _44 * rhs._34,
+				_41 * rhs._41 + _42 * rhs._42 + _43 * rhs._43 + _44 * rhs._44);
+		}
+
 	public:
 		Matrix4 scale(float x, float y, float z) const
 		{
@@ -2004,13 +2051,40 @@ namespace my
 			return *this;
 		}
 
+		Matrix4 lerp(const Matrix4 & rhs, float s) const
+		{
+			return Matrix4(
+				_11 + s * (rhs._11 - _11), _12 + s * (rhs._12 - _12), _13 + s * (rhs._13 - _13), _14 + s * (rhs._14 - _14),
+				_21 + s * (rhs._21 - _21), _22 + s * (rhs._22 - _22), _23 + s * (rhs._23 - _23), _24 + s * (rhs._24 - _24),
+				_31 + s * (rhs._31 - _31), _32 + s * (rhs._32 - _32), _33 + s * (rhs._33 - _33), _34 + s * (rhs._34 - _34),
+				_41 + s * (rhs._41 - _41), _42 + s * (rhs._42 - _42), _43 + s * (rhs._43 - _43), _44 + s * (rhs._44 - _44));
+		}
+
+		Matrix4 & lerpSelf(const Matrix4 & rhs, float s)
+		{
+			_11 = _11 + s * (rhs._11 - _11); _12 = _12 + s * (rhs._12 - _12); _13 = _13 + s * (rhs._13 - _13); _14 = _14 + s * (rhs._14 - _14);
+			_21 = _21 + s * (rhs._21 - _21); _22 = _22 + s * (rhs._22 - _22); _23 = _23 + s * (rhs._23 - _23); _24 = _24 + s * (rhs._24 - _24);
+			_31 = _31 + s * (rhs._31 - _31); _32 = _32 + s * (rhs._32 - _32); _33 = _33 + s * (rhs._33 - _33); _34 = _34 + s * (rhs._34 - _34);
+			_41 = _41 + s * (rhs._41 - _41); _42 = _42 + s * (rhs._42 - _42); _43 = _43 + s * (rhs._43 - _43); _44 = _44 + s * (rhs._44 - _44);
+			return *this;
+		}
+
 	public:
 		static const Matrix4 identity;
 	};
 
-	inline Vector4 Vector2::transform(const Matrix4 & m) const
+	inline Vector2 Vector2::transform(const Matrix4 & m) const
 	{
-		return Vector4(x, y, 0, 1).transform(m);
+		Vector4 ret(Vector4(x, y, 0, 1).transform(m));
+
+		return Vector2(ret.x, ret.y);
+	}
+
+	inline Vector2 Vector2::transformTranspose(const Matrix4 & m) const
+	{
+		Vector4 ret(Vector4(x, y, 0, 1).transformTranspose(m));
+
+		return Vector2(ret.x, ret.y);
 	}
 
 	inline Vector3 Vector3::transform(const Quaternion & q) const
@@ -2020,9 +2094,18 @@ namespace my
 		return Vector3(ret.x, ret.y, ret.z);
 	}
 
-	inline Vector4 Vector3::transform(const Matrix4 & m) const
+	inline Vector3 Vector3::transform(const Matrix4 & m) const
 	{
-		return Vector4(x, y, z, 1).transform(m);
+		Vector4 ret(Vector4(x, y, z, 1).transform(m));
+
+		return Vector3(ret.x, ret.y, ret.z);
+	}
+
+	inline Vector3 Vector3::transformTranspose(const Matrix4 & m) const
+	{
+		Vector4 ret(Vector4(x, y, z, 1).transformTranspose(m));
+
+		return Vector3(ret.x, ret.y, ret.z);
 	}
 
 	inline Vector4 Vector4::transform(const Matrix4 & m) const
@@ -2032,6 +2115,15 @@ namespace my
 			x * m._12 + y * m._22 + z * m._32 + w * m._42,
 			x * m._13 + y * m._23 + z * m._33 + w * m._43,
 			x * m._14 + y * m._24 + z * m._34 + w * m._44);
+	}
+
+	inline Vector4 Vector4::transformTranspose(const Matrix4 & m) const
+	{
+		return Vector4(
+			x * m._11 + y * m._12 + z * m._13 + w * m._14,
+			x * m._21 + y * m._22 + z * m._23 + w * m._24,
+			x * m._31 + y * m._32 + z * m._33 + w * m._34,
+			x * m._41 + y * m._42 + z * m._43 + w * m._44);
 	}
 
 	inline Quaternion Quaternion::RotationMatrix(const Matrix4 & m)

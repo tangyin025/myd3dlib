@@ -2,12 +2,7 @@
 #ifndef __MYPHYSICS_H__
 #define __MYPHYSICS_H__
 
-//#include "myCommon.h"
-#include <cmath>
 #include <list>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-//#include "myMath.h"
 
 namespace my
 {
@@ -18,106 +13,106 @@ namespace my
 	class Particle
 	{
 	protected:
-		t3d::Vec4<real> position;
+		Vector3 position;
 
-		t3d::Vec4<real> velocity;
+		Vector3 velocity;
 
-		t3d::Vec4<real> acceleration;
+		Vector3 acceleration;
 
-		t3d::Vec4<real> forceAccum;
+		Vector3 forceAccum;
 
-		real damping;
+		float damping;
 
-		real inverseMass;
+		float inverseMass;
 
 	public:
-		void setPosition(const t3d::Vec4<real> & _position)
+		void setPosition(const Vector3 & _position)
 		{
 			position = _position;
 		}
 
-		void addPosition(const t3d::Vec4<real> & _position)
+		void addPosition(const Vector3 & _position)
 		{
-			t3d::vec3AddSelf(position, _position);
+			position += _position;
 		}
 
-		const t3d::Vec4<real> & getPosition(void) const
+		const Vector3 & getPosition(void) const
 		{
 			return position;
 		}
 
-		void setVelocity(const t3d::Vec4<real> & _velocity)
+		void setVelocity(const Vector3 & _velocity)
 		{
 			velocity = _velocity;
 		}
 
-		void addVelocity(const t3d::Vec4<real> & _velocity)
+		void addVelocity(const Vector3 & _velocity)
 		{
-			t3d::vec3AddSelf(velocity, _velocity);
+			velocity += _velocity;
 		}
 
-		const t3d::Vec4<real> & getVelocity(void) const
+		const Vector3 & getVelocity(void) const
 		{
 			return velocity;
 		}
 
-		void setAcceleration(const t3d::Vec4<real> & _acceleration)
+		void setAcceleration(const Vector3 & _acceleration)
 		{
 			acceleration = _acceleration;
 		}
 
-		const t3d::Vec4<real> & getAcceleration(void) const
+		const Vector3 & getAcceleration(void) const
 		{
 			return acceleration;
 		}
 
-		void addForce(const t3d::Vec4<real> & force)
+		void addForce(const Vector3 & force)
 		{
-			t3d::vec3AddSelf(forceAccum, force);
+			forceAccum += force;
 		}
 
-		const t3d::Vec4<real> & getAccumlator(void) const
+		const Vector3 & getAccumlator(void) const
 		{
 			return forceAccum;
 		}
 
 		void clearAccumulator(void)
 		{
-			forceAccum = my::Vec4<real>::ZERO;
+			forceAccum = Vector3::zero;
 		}
 
-		void setDamping(real _damping)
+		void setDamping(float _damping)
 		{
 			damping = _damping;
 		}
 
-		real getDamping(void) const
+		float getDamping(void) const
 		{
 			return damping;
 		}
 
-		void setInverseMass(real _inverseMass)
+		void setInverseMass(float _inverseMass)
 		{
 			inverseMass = _inverseMass;
 		}
 
-		real getInverseMass(void) const
+		float getInverseMass(void) const
 		{
 			return inverseMass;
 		}
 
-		void setMass(real mass)
+		void setMass(float mass)
 		{
-			_ASSERT(!IS_ZERO_FLOAT(mass));
+			_ASSERT(0 != mass);
 
 			inverseMass = 1 / mass;
 		}
 
-		real getMass(void) const
+		float getMass(void) const
 		{
 			if(inverseMass == 0)
 			{
-				return REAL_MAX;
+				return FLT_MAX;
 			}
 
 			return 1 / inverseMass;
@@ -128,7 +123,7 @@ namespace my
 
 		bool hasFiniteMass(void) const;
 
-		void integrate(real duration);
+		void integrate(float duration);
 	};
 
 	typedef boost::shared_ptr<Particle> ParticlePtr;
@@ -164,7 +159,7 @@ namespace my
 
 		void clear(void);
 
-		void updateForces(real duration);
+		void updateForces(float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleForceRegistry> ParticleForceRegistryPtr;
@@ -179,7 +174,7 @@ namespace my
 		virtual ~ParticleForceGenerator(void);
 
 	public:
-		virtual void updateForce(Particle * particle, real duration) = 0;
+		virtual void updateForce(Particle * particle, float duration) = 0;
 	};
 
 	typedef boost::shared_ptr<ParticleForceGenerator> ParticleForceGeneratorPtr;
@@ -191,12 +186,12 @@ namespace my
 	class ParticleGravity : public ParticleForceGenerator
 	{
 	protected:
-		t3d::Vec4<real> gravity;
+		Vector3 gravity;
 
 	public:
-		ParticleGravity(const t3d::Vec4<real> & _gravity);
+		ParticleGravity(const Vector3 & _gravity);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleGravity> ParticleGravityPtr;
@@ -208,14 +203,14 @@ namespace my
 	class ParticleDrag : public ParticleForceGenerator
 	{
 	protected:
-		real k1;
+		float k1;
 
-		real k2;
+		float k2;
 
 	public:
-		ParticleDrag(real _k1, real _k2);
+		ParticleDrag(float _k1, float _k2);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleDrag> ParticleDragPtr;
@@ -229,14 +224,14 @@ namespace my
 	protected:
 		Particle * other;
 
-		real springConstant;
+		float springConstant;
 
-		real restLength;
+		float restLength;
 
 	public:
-		ParticleSpring(Particle * _other, real _springConstant, real _restLength);
+		ParticleSpring(Particle * _other, float _springConstant, float _restLength);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleSpring> ParticleSpringPtr;
@@ -248,16 +243,16 @@ namespace my
 	class ParticleAnchoredSpring : public ParticleForceGenerator
 	{
 	protected:
-		const t3d::Vec4<real> & anchor;
+		const Vector3 & anchor;
 
-		real springConstant;
+		float springConstant;
 
-		real restLength;
+		float restLength;
 
 	public:
-		ParticleAnchoredSpring(const t3d::Vec4<real> & _anchor, real _springConstant, real _restLength);
+		ParticleAnchoredSpring(const Vector3 & _anchor, float _springConstant, float _restLength);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleAnchoredSpring> ParticleAnchoredSpringPtr;
@@ -271,14 +266,14 @@ namespace my
 	protected:
 		Particle * other;
 
-		real springConstant;
+		float springConstant;
 
-		real restLength;
+		float restLength;
 
 	public:
-		ParticleBungee(Particle * _other, real _springConstant, real _restLength);
+		ParticleBungee(Particle * _other, float _springConstant, float _restLength);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleBungee> ParticleBungeePtr;
@@ -290,16 +285,16 @@ namespace my
 	class ParticleAnchoredBungee : public ParticleForceGenerator
 	{
 	protected:
-		const t3d::Vec4<real> & anchor;
+		const Vector3 & anchor;
 
-		real springConstant;
+		float springConstant;
 
-		real restLength;
+		float restLength;
 
 	public:
-		ParticleAnchoredBungee(const t3d::Vec4<real> & _anchor, real _springConstant, real _restLength);
+		ParticleAnchoredBungee(const Vector3 & _anchor, float _springConstant, float _restLength);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -309,18 +304,18 @@ namespace my
 	class ParticleBuoyancy : public ParticleForceGenerator
 	{
 	protected:
-		real maxDepth;
+		float maxDepth;
 
-		real volumn;
+		float volumn;
 
-		real waterHeight;
+		float waterHeight;
 
-		real liquidDensity;
+		float liquidDensity;
 
 	public:
-		ParticleBuoyancy(real _maxDepth, real _volumn, real _waterHeight, real _liquidDensity = 1000.0f);
+		ParticleBuoyancy(float _maxDepth, float _volumn, float _waterHeight, float _liquidDensity = 1000.0f);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleBuoyancy> ParticleBuoyancyPtr;
@@ -332,16 +327,16 @@ namespace my
 	class ParticleFakeSpring : public ParticleForceGenerator
 	{
 	protected:
-		const t3d::Vec4<real> & anchor;
+		const Vector3 & anchor;
 
-		real springConstant;
+		float springConstant;
 
-		real damping;
+		float damping;
 
 	public:
-		ParticleFakeSpring(const t3d::Vec4<real> & _anchor, real _springConstant, real _damping);
+		ParticleFakeSpring(const Vector3 & _anchor, float _springConstant, float _damping);
 
-		void updateForce(Particle * particle, real duration);
+		void updateForce(Particle * particle, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleFakeSpring> ParticleFakeSpringPtr;
@@ -355,20 +350,20 @@ namespace my
 	public:
 		Particle * particles[2];
 
-		real restitution;
+		float restitution;
 
-		t3d::Vec4<real> contactNormal;
+		Vector3 contactNormal;
 
-		real penetration;
+		float penetration;
 
 	public:
-		void resolve(real duration);
+		void resolve(float duration);
 
-		real calculateSeparatingVelocity(void) const;
+		float calculateSeparatingVelocity(void) const;
 
-		void resolveVelocity(real duration);
+		void resolveVelocity(float duration);
 
-		void resolveInterpenetration(real duration);
+		void resolveInterpenetration(float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleContact> ParticleContactPtr;
@@ -391,7 +386,7 @@ namespace my
 
 		unsigned getIterations(void) const;
 
-		void resolveContacts(ParticleContact * contactArray, unsigned numContacts, real duration);
+		void resolveContacts(ParticleContact * contactArray, unsigned numContacts, float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleContactResolver> ParticleContactResolverPtr;
@@ -424,7 +419,7 @@ namespace my
 		ParticleLink(Particle * particle0, Particle * particle1);
 
 	protected:
-		real currentLength() const;
+		float currentLength() const;
 	};
 
 	typedef boost::shared_ptr<ParticleLink> ParticleLinkPtr;
@@ -436,12 +431,12 @@ namespace my
 	class ParticleCable : public ParticleLink
 	{
 	protected:
-		real maxLength;
+		float maxLength;
 
-		real restitution;
+		float restitution;
 
 	public:
-		ParticleCable(Particle * particle0, Particle * particle1, real _maxLength, real _restitution);
+		ParticleCable(Particle * particle0, Particle * particle1, float _maxLength, float _restitution);
 
 		unsigned addContact(ParticleContact * contacts, unsigned limits) const;
 	};
@@ -455,10 +450,10 @@ namespace my
 	class ParticleRod : public ParticleLink
 	{
 	protected:
-		real length;
+		float length;
 
 	public:
-		ParticleRod(Particle * particle0, Particle * particle1, real _length);
+		ParticleRod(Particle * particle0, Particle * particle1, float _length);
 
 		unsigned addContact(ParticleContact * contacts, unsigned limits) const;
 	};
@@ -472,15 +467,15 @@ namespace my
 	class ParticleConstraint : public ParticleContactGenerator
 	{
 	protected:
-		const t3d::Vec4<real> & anchor;
+		const Vector3 & anchor;
 
 		Particle * particle;
 
 	public:
-		ParticleConstraint(const t3d::Vec4<real> & _anchor, Particle * _particle);
+		ParticleConstraint(const Vector3 & _anchor, Particle * _particle);
 
 	protected:
-		real currentLength() const;
+		float currentLength() const;
 	};
 
 	typedef boost::shared_ptr<ParticleConstraint> ParticleConstraintPtr;
@@ -492,12 +487,12 @@ namespace my
 	class ParticleCableConstraint : public ParticleConstraint
 	{
 	protected:
-		real maxLength;
+		float maxLength;
 
-		real restitution;
+		float restitution;
 
 	public:
-		ParticleCableConstraint(const t3d::Vec4<real> & _anchor, Particle * particle, real _maxLength, real _restitution);
+		ParticleCableConstraint(const Vector3 & _anchor, Particle * particle, float _maxLength, float _restitution);
 
 		unsigned addContact(ParticleContact * contacts, unsigned limits) const;
 	};
@@ -511,10 +506,10 @@ namespace my
 	class ParticleRodConstraint : public ParticleConstraint
 	{
 	protected:
-		real length;
+		float length;
 
 	public:
-		ParticleRodConstraint(const t3d::Vec4<real> & _anchor, Particle * particle, real _length);
+		ParticleRodConstraint(const Vector3 & _anchor, Particle * particle, float _length);
 
 		unsigned addContact(ParticleContact * contacts, unsigned limits) const;
 	};
@@ -553,11 +548,11 @@ namespace my
 
 		virtual void startFrame(void);
 
-		virtual void integrate(real duration);
+		virtual void integrate(float duration);
 
 		virtual unsigned generateContacts(ParticleContact * contacts, unsigned limits);
 
-		void runPhysics(real duration);
+		void runPhysics(float duration);
 	};
 
 	typedef boost::shared_ptr<ParticleWorld> ParticleWorldPtr;
@@ -569,254 +564,254 @@ namespace my
 	class RigidBody
 	{
 	protected:
-		real inverseMass;
+		float inverseMass;
 
-		t3d::Vec4<real> position;
+		Vector3 position;
 
-		t3d::Quat<real> orientation;
+		Quaternion orientation;
 
-		t3d::Vec4<real> velocity;
+		Vector3 velocity;
 
-		t3d::Vec4<real> rotation;
+		Vector3 rotation;
 
-		t3d::Mat4<real> transform;
+		Matrix4 transform;
 
-		t3d::Mat4<real> rotationTransform;
+		Matrix4 rotationTransform;
 
-		t3d::Mat4<real> inverseInertiaTensor;
+		Matrix4 inverseInertiaTensor;
 
-		t3d::Mat4<real> inverseInertiaTensorWorld;
+		Matrix4 inverseInertiaTensorWorld;
 
-		t3d::Vec4<real> acceleration;
+		Vector3 acceleration;
 
-		t3d::Vec4<real> forceAccum;
+		Vector3 forceAccum;
 
-		t3d::Vec4<real> torqueAccum;
+		Vector3 torqueAccum;
 
-		t3d::Vec4<real> resultingAcc;
+		Vector3 resultingAcc;
 
-		t3d::Vec4<real> resultingAngularAcc;
+		Vector3 resultingAngularAcc;
 
-		real damping;
+		float damping;
 
-		real angularDamping;
+		float angularDamping;
 
-		real sleepEpsilon;
+		float sleepEpsilon;
 
-		real motion;
+		float motion;
 
 		bool isAwake;
 
 		bool canSleep;
 
 	public:
-		void setMass(real mass)
+		void setMass(float mass)
 		{
-			_ASSERT(!IS_ZERO_FLOAT(mass));
+			_ASSERT(0 != mass);
 
 			inverseMass = 1 / mass;
 		}
 
-		real getMass(void) const
+		float getMass(void) const
 		{
 			if(inverseMass == 0)
 			{
-				return REAL_MAX;
+				return FLT_MAX;
 			}
 
 			return 1 / inverseMass;
 		}
 
-		void setInverseMass(real _inverseMass)
+		void setInverseMass(float _inverseMass)
 		{
 			inverseMass = _inverseMass;
 		}
 
-		real getInverseMass(void) const
+		float getInverseMass(void) const
 		{
 			return inverseMass;
 		}
 
-		void setPosition(const t3d::Vec4<real> & _position)
+		void setPosition(const Vector3 & _position)
 		{
 			position = _position;
 		}
 
-		void addPosition(const t3d::Vec4<real> & _position)
+		void addPosition(const Vector3 & _position)
 		{
-			t3d::vec3AddSelf(position, _position);
+			position += _position;
 		}
 
-		const t3d::Vec4<real> & getPosition(void) const
+		const Vector3 & getPosition(void) const
 		{
 			return position;
 		}
 
-		void setOrientation(const t3d::Quat<real> & _orientation)
+		void setOrientation(const Quaternion & _orientation)
 		{
 			orientation = _orientation;
 		}
 
-		void addOrientation(const t3d::Vec4<real> & _rotation) // ***
+		void addOrientation(const Vector3 & _rotation)
 		{
-			t3d::quatAddAngularVelocitySelf(orientation, _rotation);
+			orientation += Quaternion(_rotation.x, _rotation.y, _rotation.z, 0) * orientation * 0.5f; // ***
 		}
 
-		const t3d::Quat<real> & getOrientation(void) const
+		const Quaternion & getOrientation(void) const
 		{
 			return orientation;
 		}
 
-		void setVelocity(const t3d::Vec4<real> & _velocity)
+		void setVelocity(const Vector3 & _velocity)
 		{
 			velocity = _velocity;
 		}
 
-		const t3d::Vec4<real> & getVelocity(void) const
+		const Vector3 & getVelocity(void) const
 		{
 			return velocity;
 		}
 
-		void addVelocity(const t3d::Vec4<real> & _velocity)
+		void addVelocity(const Vector3 & _velocity)
 		{
-			t3d::vec3AddSelf(velocity, _velocity);
+			velocity += _velocity;
 		}
 
-		void setRotation(const t3d::Vec4<real> & _rotation)
+		void setRotation(const Vector3 & _rotation)
 		{
 			rotation = _rotation;
 		}
 
-		const t3d::Vec4<real> & getRotation(void) const
+		const Vector3 & getRotation(void) const
 		{
 			return rotation;
 		}
 
-		void addRotation(const t3d::Vec4<real> & _rotation)
+		void addRotation(const Vector3 & _rotation)
 		{
-			t3d::vec3AddSelf(rotation, _rotation);
+			rotation += _rotation;
 		}
 
-		const t3d::Mat4<real> & getTransform(void) const
+		const Matrix4 & getTransform(void) const
 		{
 			return transform;
 		}
 
-		t3d::Mat4<real> getInverseTransform(void) const
+		Matrix4 getInverseTransform(void) const
 		{
 			return transform.inverse();
 		}
 
-		const t3d::Mat4<real> & getRotationTransform(void) const
+		const Matrix4 & getRotationTransform(void) const
 		{
 			return rotationTransform;
 		}
 
-		t3d::Mat4<real> getInverseRotationTransform(void) const
+		Matrix4 getInverseRotationTransform(void) const
 		{
 			return rotationTransform.inverse();
 		}
 
-		void setInertialTensor(const t3d::Mat4<real> & inertialTensor)
+		void setInertialTensor(const Matrix4 & inertialTensor)
 		{
-			_ASSERT(!IS_ZERO_FLOAT(inertialTensor.determinant()));
+			_ASSERT(0 != inertialTensor.determinant());
 
 			inverseInertiaTensor = inertialTensor.inverse();
 		}
 
-		t3d::Mat4<real> getInertialTensor(void) const
+		Matrix4 getInertialTensor(void) const
 		{
-			_ASSERT(!IS_ZERO_FLOAT(inverseInertiaTensor.determinant()));
+			_ASSERT(0 != inverseInertiaTensor.determinant());
 
 			return inverseInertiaTensor.inverse();
 		}
 
-		void setInverseInertialTensor(const t3d::Mat4<real> & _inverseInertiaTensor)
+		void setInverseInertialTensor(const Matrix4 & _inverseInertiaTensor)
 		{
 			inverseInertiaTensor = _inverseInertiaTensor;
 		}
 
-		const t3d::Mat4<real> & getInverseInertialTensor(void) const
+		const Matrix4 & getInverseInertialTensor(void) const
 		{
 			return inverseInertiaTensor;
 		}
 
-		void setAcceleration(const t3d::Vec4<real> & _acceleration)
+		void setAcceleration(const Vector3 & _acceleration)
 		{
 			acceleration = _acceleration;
 		}
 
-		const t3d::Vec4<real> & getAcceleration(void) const
+		const Vector3 & getAcceleration(void) const
 		{
 			return acceleration;
 		}
 
-		void addForce(const t3d::Vec4<real> & force)
+		void addForce(const Vector3 & force)
 		{
-			t3d::vec3AddSelf(forceAccum, force);
+			forceAccum += force;
 		}
 
-		const t3d::Vec4<real> & getAccumulator(void) const
+		const Vector3 & getAccumulator(void) const
 		{
 			return forceAccum;
 		}
 
 		void clearAccumulator(void)
 		{
-			forceAccum = my::Vec4<real>::ZERO;
+			forceAccum = Vector3::zero;
 		}
 
-		void addTorque(const t3d::Vec4<real> & torque)
+		void addTorque(const Vector3 & torque)
 		{
-			t3d::vec3AddSelf(torqueAccum, torque);
+			torqueAccum += torque;
 		}
 
-		const t3d::Vec4<real> & getTorqueAccumulator(void) const
+		const Vector3 & getTorqueAccumulator(void) const
 		{
 			return torqueAccum;
 		}
 
 		void clearTorqueAccumulator(void)
 		{
-			torqueAccum = my::Vec4<real>::ZERO;
+			torqueAccum = Vector3::zero;
 		}
 
-		const t3d::Vec4<real> & getResultingAcc(void) const
+		const Vector3 & getResultingAcc(void) const
 		{
 			return resultingAcc;
 		}
 
-		const t3d::Vec4<real> & getResultingAngularAcc(void) const
+		const Vector3 & getResultingAngularAcc(void) const
 		{
 			return resultingAngularAcc;
 		}
 
-		void setDamping(real _damping)
+		void setDamping(float _damping)
 		{
 			damping = _damping;
 		}
 
-		real getDamping(void) const
+		float getDamping(void) const
 		{
 			return damping;
 		}
 
-		void setAngularDamping(real _angularDamping)
+		void setAngularDamping(float _angularDamping)
 		{
 			angularDamping = _angularDamping;
 		}
 
-		real getAngularDamping(void) const
+		float getAngularDamping(void) const
 		{
 			return angularDamping;
 		}
 
-		void setSleepEpsilon(real _sleepEpsilon)
+		void setSleepEpsilon(float _sleepEpsilon)
 		{
 			sleepEpsilon = _sleepEpsilon;
 		}
 
-		real getSleepEpsilon(void) const
+		float getSleepEpsilon(void) const
 		{
 			return sleepEpsilon;
 		}
@@ -834,11 +829,11 @@ namespace my
 
 		bool getCanSleep(void) const;
 
-		void addForceAtPoint(const t3d::Vec4<real> & force, const t3d::Vec4<real> & point);
+		void addForceAtPoint(const Vector3 & force, const Vector3 & point);
 
 		bool hasFiniteMass(void) const;
 
-		void integrate(real duration);
+		void integrate(float duration);
 	};
 
 	typedef boost::shared_ptr<RigidBody> RigidBodyPtr;
@@ -874,7 +869,7 @@ namespace my
 
 		void clear(void);
 
-		void updateForces(real duration);
+		void updateForces(float duration);
 	};
 
 	typedef boost::shared_ptr<ForceRegistry> ForceRegistryPtr;
@@ -888,7 +883,7 @@ namespace my
 	public:
 		virtual ~ForceGenerator(void);
 
-		virtual void updateForce(RigidBody * body, real duration) = 0;
+		virtual void updateForce(RigidBody * body, float duration) = 0;
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -898,12 +893,12 @@ namespace my
 	class Gravity : public ForceGenerator
 	{
 	protected:
-		t3d::Vec4<real> gravity;
+		Vector3 gravity;
 
 	public:
-		Gravity(const t3d::Vec4<real> & _gravity);
+		Gravity(const Vector3 & _gravity);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -913,25 +908,25 @@ namespace my
 	class Spring : public ForceGenerator
 	{
 	protected:
-		t3d::Vec4<real> connectionPoint;
+		Vector3 connectionPoint;
 
 		RigidBody * other;
 
-		t3d::Vec4<real> otherConnectionPoint;
+		Vector3 otherConnectionPoint;
 
-		real springConstant;
+		float springConstant;
 
-		real restLength;
+		float restLength;
 
 	public:
 		Spring(
-			const t3d::Vec4<real> & _connectionPoint,
+			const Vector3 & _connectionPoint,
 			RigidBody * _other,
-			const t3d::Vec4<real> & _otherConnectionPoint,
-			real _springConstant,
-			real _restLength);
+			const Vector3 & _otherConnectionPoint,
+			float _springConstant,
+			float _restLength);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -941,21 +936,21 @@ namespace my
 	class Aero : public ForceGenerator
 	{
 	protected:
-		t3d::Mat4<real> tensor;
+		Matrix4 tensor;
 
-		t3d::Vec4<real> position;
+		Vector3 position;
 
-		const t3d::Vec4<real> * pwindSpeed;
+		const Vector3 * pwindSpeed;
 
 	public:
 		Aero(
-			const t3d::Mat4<real> & _tensor,
-			const t3d::Vec4<real> & _position,
-			const t3d::Vec4<real> * _pwindSpeed);
+			const Matrix4 & _tensor,
+			const Vector3 & _position,
+			const Vector3 * _pwindSpeed);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 
-		void updateForceFromTensor(RigidBody * body, real duration, const t3d::Mat4<real> & _tensor);
+		void updateForceFromTensor(RigidBody * body, float duration, const Matrix4 & _tensor);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -965,26 +960,26 @@ namespace my
 	class AeroControl : public Aero
 	{
 	protected:
-		t3d::Mat4<real> minTensor;
+		Matrix4 minTensor;
 
-		t3d::Mat4<real> maxTensor;
+		Matrix4 maxTensor;
 
-		real controlSetting;
+		float controlSetting;
 
 	public:
-		void setControl(real value);
+		void setControl(float value);
 
 	public:
 		AeroControl(
-			const t3d::Mat4<real> & _tensor,
-			const t3d::Mat4<real> & _minTensor,
-			const t3d::Mat4<real> & _maxTensor,
-			const t3d::Vec4<real> & _position,
-			const t3d::Vec4<real> * _pwindSpeed);
+			const Matrix4 & _tensor,
+			const Matrix4 & _minTensor,
+			const Matrix4 & _maxTensor,
+			const Vector3 & _position,
+			const Vector3 * _pwindSpeed);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 
-		void updateForceFromControl(RigidBody * body, real duration, real _controlSetting);
+		void updateForceFromControl(RigidBody * body, float duration, float _controlSetting);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -994,20 +989,20 @@ namespace my
 	class AngledAero : public Aero
 	{
 	protected:
-		t3d::Quat<real> orientation;
+		Quaternion orientation;
 
 	public:
-		void setOrientation(const t3d::Quat<real> & _orientation);
+		void setOrientation(const Quaternion & _orientation);
 
-		const t3d::Quat<real> & getOrientation(void) const;
+		const Quaternion & getOrientation(void) const;
 
 	public:
 		AngledAero(
-			const t3d::Mat4<real> & _tensor,
-			const t3d::Vec4<real> & _position,
-			const t3d::Vec4<real> * _pwindSpeed);
+			const Matrix4 & _tensor,
+			const Vector3 & _position,
+			const Vector3 * _pwindSpeed);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -1017,25 +1012,25 @@ namespace my
 	class Buoyancy : public ForceGenerator
 	{
 	protected:
-		real maxDepth;
+		float maxDepth;
 
-		real volume;
+		float volume;
 
-		real waterHeight;
+		float waterHeight;
 
-		real liquidDensity;
+		float liquidDensity;
 
-		t3d::Vec4<real> centerOfBuoyancy;
+		Vector3 centerOfBuoyancy;
 
 	public:
 		Buoyancy(
-			const t3d::Vec4<real> & _centerOfBuoyancy,
-			real _maxDepth,
-			real _volume,
-			real _waterHeight,
-			real _liquidDensity = 1000.0f);
+			const Vector3 & _centerOfBuoyancy,
+			float _maxDepth,
+			float _volume,
+			float _waterHeight,
+			float _liquidDensity = 1000.0f);
 
-		void updateForce(RigidBody * body, real duration);
+		void updateForce(RigidBody * body, float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -1047,24 +1042,24 @@ namespace my
 	public:
 		RigidBody * bodys[2];
 
-		real friction;
+		float friction;
 
-		real restitution;
+		float restitution;
 
-		t3d::Vec4<real> contactPoint;
+		Vector3 contactPoint;
 
-		t3d::Vec4<real> contactNormal;
+		Vector3 contactNormal;
 
-		real penetration;
+		float penetration;
 
 	public:
-		t3d::Mat4<real> contactToWorld;
+		Matrix4 contactToWorld;
 
-		t3d::Vec4<real> contactVelocity;
+		Vector3 contactVelocity;
 
-		real desiredDeltaVelocity;
+		float desiredDeltaVelocity;
 
-		t3d::Vec4<real> relativeContactPositions[2];
+		Vector3 relativeContactPositions[2];
 
 	public:
 		void swapBodies(void);
@@ -1073,19 +1068,19 @@ namespace my
 
 		void calculateContactBasis(void);
 
-		t3d::Vec4<real> calculateLocalVelocity(const RigidBody & body, const t3d::Vec4<real> & relativeContactPosition, real duration) const;
+		Vector3 calculateLocalVelocity(const RigidBody & body, const Vector3 & relativeContactPosition, float duration) const;
 
-		void calculateDesiredDeltaVelocity(real duration);
+		void calculateDesiredDeltaVelocity(float duration);
 
-		void calculateInternals(real duration);
+		void calculateInternals(float duration);
 
-		t3d::Vec4<real> calculateFrictionlessImpulse(const t3d::Mat4<real> inverseInertialTensors[]) const;
+		Vector3 calculateFrictionlessImpulse(const Matrix4 inverseInertialTensors[]) const;
 
-		t3d::Vec4<real> calculateFrictionImpulse(const t3d::Mat4<real> inverseInertialTensors[]) const;
+		Vector3 calculateFrictionImpulse(const Matrix4 inverseInertialTensors[]) const;
 
-		void applyPositionChange(t3d::Vec4<real> linearChanges[2], t3d::Vec4<real> angularChanges[2]);
+		void applyPositionChange(Vector3 linearChanges[2], Vector3 angularChanges[2]);
 
-		void applyVelocityChange(t3d::Vec4<real> velocityChanges[2], t3d::Vec4<real> rotationChanges[2]);
+		void applyVelocityChange(Vector3 velocityChanges[2], Vector3 rotationChanges[2]);
 	};
 
 	typedef std::vector<Contact> ContactList;
@@ -1101,9 +1096,9 @@ namespace my
 
 		unsigned velocityIterations;
 
-		real positionEpsilon;
+		float positionEpsilon;
 
-		real velocityEpsilon;
+		float velocityEpsilon;
 
 		unsigned positionIterationsUsed;
 
@@ -1118,57 +1113,57 @@ namespace my
 
 		unsigned getVelocityIterations(void) const;
 
-		void setPositionEpsilon(real value);
+		void setPositionEpsilon(float value);
 
-		real getPositionEpsilon(void) const;
+		float getPositionEpsilon(void) const;
 
-		void setVelocityEpsilon(real value);
+		void setVelocityEpsilon(float value);
 
-		real getVelocityEpsilon(void) const;
+		float getVelocityEpsilon(void) const;
 
 	public:
 		ContactResolver(
 			unsigned _positionIterations = 0,
 			unsigned _velocityIterations = 0,
-			real _positionEpsilon = 0.01f,
-			real _velocityEpsilon = 0.01f);
+			float _positionEpsilon = 0.01f,
+			float _velocityEpsilon = 0.01f);
 
 	protected:
 		void prepareContacts(
 			Contact * contacts,
 			unsigned numContacts,
-			real duration);
+			float duration);
 
 		static void _updateContactPenetration(
 			Contact & contact,
-			const t3d::Vec4<real> & relativeContactPosition,
-			const t3d::Vec4<real> & linearChange,
-			const t3d::Vec4<real> & angularChange,
+			const Vector3 & relativeContactPosition,
+			const Vector3 & linearChange,
+			const Vector3 & angularChange,
 			unsigned bodyIndex);
 
 		void adjustPositions(
 			Contact * contacts,
 			unsigned numContacts,
-			real duration);
+			float duration);
 
 		static void _updateContactVelocity(
 			Contact & contact,
-			const t3d::Vec4<real> & relativeContactPosition,
-			const t3d::Vec4<real> & velocityChange,
-			const t3d::Vec4<real> & rotationChange,
+			const Vector3 & relativeContactPosition,
+			const Vector3 & velocityChange,
+			const Vector3 & rotationChange,
 			unsigned bodyIndex,
-			real duration);
+			float duration);
 
 		void adjustVelocities(
 			Contact * contacts,
 			unsigned numContacts,
-			real duration);
+			float duration);
 
 	public:
 		void resolveContacts(
 			Contact * contacts,
 			unsigned numContacts,
-			real duration);
+			float duration);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -1197,11 +1192,11 @@ namespace my
 
 		virtual void startFrame(void);
 
-		virtual void integrate(real duration);
+		virtual void integrate(float duration);
 
 		virtual unsigned generateContacts(Contact * contacts, unsigned limits);
 
-		void runPhysics(real duration);
+		void runPhysics(float duration);
 	};
 
 	typedef boost::shared_ptr<World> WorldPtr;

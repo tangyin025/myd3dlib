@@ -2,11 +2,6 @@
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__
 
-#include "myCommon.h"
-#include <vector>
-#include "myMath.h"
-#include "myPhysics.h"
-
 namespace my
 {
 	//// /////////////////////////////////////////////////////////////////////////////////////
@@ -16,27 +11,27 @@ namespace my
 	//class BoundingSphere
 	//{
 	//protected:
-	//	t3d::Vec4<real> center;
+	//	Vector3 center;
 
-	//	real radius;
-
-	//public:
-	//	const t3d::Vec4<real> & getCenter(void) const;
-
-	//	void setCenter(const t3d::Vec4<real> & _center);
-
-	//	const real getRadius(void) const;
-
-	//	void setRadius(real _radius);
+	//	float radius;
 
 	//public:
-	//	BoundingSphere(const t3d::Vec4<real> & _center, real _radius);
+	//	const Vector3 & getCenter(void) const;
+
+	//	void setCenter(const Vector3 & _center);
+
+	//	const float getRadius(void) const;
+
+	//	void setRadius(float _radius);
+
+	//public:
+	//	BoundingSphere(const Vector3 & _center, float _radius);
 
 	//	bool overlaps(const BoundingSphere & other) const;
 
-	//	real getGrowth(const BoundingSphere & other) const;
+	//	float getGrowth(const BoundingSphere & other) const;
 
-	//	real getVolumn(void) const;
+	//	float getVolumn(void) const;
 	//};
 
 	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
@@ -239,13 +234,13 @@ namespace my
 	protected:
 		RigidBody * body;
 
-		t3d::Mat4<real> offset;
+		Matrix4 offset;
 
-		t3d::Mat4<real> rotationOffset;
+		Matrix4 rotationOffset;
 
-		t3d::Mat4<real> transform;
+		Matrix4 transform;
 
-		t3d::Mat4<real> rotationTransform;
+		Matrix4 rotationTransform;
 
 	public:
 		void setRigidBody(RigidBody * _body)
@@ -258,67 +253,81 @@ namespace my
 			return body;
 		}
 
-		void setOffset(const t3d::Mat4<real> & _offset)
+		void setOffset(const Matrix4 & _offset)
 		{
 			offset = _offset;
 		}
 
-		const t3d::Mat4<real> & getOffset(void) const
+		const Matrix4 & getOffset(void) const
 		{
 			return offset;
 		}
 
-		void setRotationOffset(const t3d::Mat4<real> & _rotationOffset)
+		void setRotationOffset(const Matrix4 & _rotationOffset)
 		{
 			rotationOffset = _rotationOffset;
 		}
 
-		const t3d::Mat4<real> & getRotationOffset(void) const
+		const Matrix4 & getRotationOffset(void) const
 		{
 			return rotationOffset;
 		}
 
-		void setTransform(const t3d::Mat4<real> & _transform)
+		void setTransform(const Matrix4 & _transform)
 		{
 			transform = _transform;
 		}
 
-		const t3d::Mat4<real> & getTransform(void) const
+		const Matrix4 & getTransform(void) const
 		{
 			return transform;
 		}
 
-		t3d::Vec4<real> getTransformAxis0(void) const
+		Vector3 getTransformAxis0(void) const
 		{
-			return t3d::mat3GetRow0(transform);
+			return Vector3(transform._11, transform._12, transform._13);
 		}
 
-		t3d::Vec4<real> getTransformAxis1(void) const
+		Vector3 getTransformAxis1(void) const
 		{
-			return t3d::mat3GetRow1(transform);
+			return Vector3(transform._21, transform._22, transform._23);
 		}
 
-		t3d::Vec4<real> getTransformAxis2(void) const
+		Vector3 getTransformAxis2(void) const
 		{
-			return t3d::mat3GetRow2(transform);
+			return Vector3(transform._31, transform._32, transform._33);
 		}
 
-		t3d::Vec4<real> getTransformAxis3(void) const
+		Vector3 getTransformAxis3(void) const
 		{
-			return t3d::mat3GetRow3(transform);
+			return Vector3(transform._41, transform._42, transform._43);
 		}
 
-		t3d::Vec4<real> getTransformAxisN(size_t axis_i) const
+		Vector3 getTransformAxisN(size_t axis_i) const
 		{
-			return t3d::mat3GetRowN(transform, axis_i);
+			switch(axis_i)
+			{
+			case 0:
+				return getTransformAxis0();
+
+			case 1:
+				return getTransformAxis1();
+
+			case 2:
+				return getTransformAxis2();
+
+			case 3:
+				return getTransformAxis3();
+			}
+			_ASSERT(false); return Vector3::zero;
 		}
 
-		void setRotationTransform(const t3d::Mat4<real> & _rotationTransform)
+		void setRotationTransform(const Matrix4 & _rotationTransform)
 		{
 			rotationTransform = _rotationTransform;
 		}
 
-		const t3d::Mat4<real> & getRotationTransform(void) const
+		const Matrix4 & getRotationTransform(void) const
 		{
 			return rotationTransform;
 		}
@@ -326,8 +335,8 @@ namespace my
 	public:
 		CollisionPrimitive(
 			RigidBody * _body,
-			const t3d::Mat4<real> & _offset = my::Mat4<real>::IDENTITY,
-			const t3d::Mat4<real> & _rotationOffset = my::Mat4<real>::IDENTITY);
+			const Matrix4 & _offset = Matrix4::Identity(),
+			const Matrix4 & _rotationOffset = Matrix4::Identity());
 
 		virtual ~CollisionPrimitive(void);
 
@@ -346,25 +355,25 @@ namespace my
 		friend CollisionDetector;
 
 	protected:
-		real radius;
+		float radius;
 
 	public:
-		void setRadius(real _radius)
+		void setRadius(float _radius)
 		{
 			radius = _radius;
 		}
 
-		real getRadius(void) const
+		float getRadius(void) const
 		{
 			return radius;
 		}
 
 	public:
 		CollisionSphere(
-			real _radius,
+			float _radius,
 			RigidBody * _body,
-			const t3d::Mat4<real> & _offset = my::Mat4<real>::IDENTITY,
-			const t3d::Mat4<real> & _rotationOffset = my::Mat4<real>::IDENTITY);
+			const Matrix4 & _offset = Matrix4::Identity(),
+			const Matrix4 & _rotationOffset = Matrix4::Identity());
 
 		CollisionSphere(void);
 	};
@@ -380,25 +389,25 @@ namespace my
 		friend CollisionDetector;
 
 	protected:
-		t3d::Vec4<real> halfSize;
+		Vector3 halfSize;
 
 	public:
-		void setHalfSize(const t3d::Vec4<real> & _halfSize)
+		void setHalfSize(const Vector3 & _halfSize)
 		{
 			halfSize = _halfSize;
 		}
 
-		const t3d::Vec4<real> & getHalfSize(void) const
+		const Vector3 & getHalfSize(void) const
 		{
 			return halfSize;
 		}
 
 	public:
 		CollisionBox(
-			const t3d::Vec4<real> & _halfSize,
+			const Vector3 & _halfSize,
 			RigidBody * _body,
-			const t3d::Mat4<real> & _offset = my::Mat4<real>::IDENTITY,
-			const t3d::Mat4<real> & _rotationOffset = my::Mat4<real>::IDENTITY);
+			const Matrix4 & _offset = Matrix4::Identity(),
+			const Matrix4 & _rotationOffset = Matrix4::Identity());
 
 		CollisionBox(void);
 	};
@@ -410,37 +419,37 @@ namespace my
 	class CollisionPlane //: public CollisionPrimitive
 	{
 	protected:
-		t3d::Vec4<real> normal;
+		Vector3 normal;
 
-		real distance;
+		float distance;
 
 	public:
-		void setNormal(const t3d::Vec4<real> _normal)
+		void setNormal(const Vector3 _normal)
 		{
-			_ASSERT(t3d::vec3IsNormalized(_normal));
+			_ASSERT(abs(_normal.length() - 1) < EPSILON_E6);
 
 			normal = _normal;
 		}
 
-		const t3d::Vec4<real> & getNormal(void) const
+		const Vector3 & getNormal(void) const
 		{
 			return normal;
 		}
 
-		void setDistance(real _distance)
+		void setDistance(float _distance)
 		{
 			distance = _distance;
 		}
 
-		real getDistance(void) const
+		float getDistance(void) const
 		{
 			return distance;
 		}
 
 	public:
 		CollisionPlane(
-			const t3d::Vec4<real> & direction,
-			real _distance);
+			const Vector3 & direction,
+			float _distance);
 
 		CollisionPlane(void);
 	};
@@ -454,43 +463,43 @@ namespace my
 	public:
 		static bool sphereAndHalfSpace(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance);
+			const Vector3 & planeNormal,
+			float planeDistance);
 
 		static bool sphereAndSphere(
 			const CollisionSphere & sphere0,
 			const CollisionSphere & sphere1);
 
-		static real calculateBoxAxisHalfProjection(const CollisionBox & box, const t3d::Vec4<real> & axis);
+		static float calculateBoxAxisHalfProjection(const CollisionBox & box, const Vector3 & axis);
 
 		static bool boxAndHalfSpace(
 			const CollisionBox & box,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance);
+			const Vector3 & planeNormal,
+			float planeDistance);
 
 		static bool _overlapOnAxis(
 			const CollisionBox & box0,
 			const CollisionBox & box1,
-			const t3d::Vec4<real> & axis,
-			const t3d::Vec4<real> & toCentre);
+			const Vector3 & axis,
+			const Vector3 & toCentre);
 
 		static bool _zeroAxisOrOverlapOnAxis(
 			const CollisionBox & box0,
 			const CollisionBox & box1,
-			const t3d::Vec4<real> & axis,
-			const t3d::Vec4<real> & toCentre);
+			const Vector3 & axis,
+			const Vector3 & toCentre);
 
 		static bool boxAndBox(
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
-		static std::pair<bool, real> rayAndHalfTriangle(
-			const t3d::Vec4<real> & pos,
-			const t3d::Vec4<real> & dir,
-			real radius,
-			const t3d::Vec4<real> & v0,
-			const t3d::Vec4<real> & v1,
-			const t3d::Vec4<real> & v2);
+		static std::pair<bool, float> rayAndHalfTriangle(
+			const Vector3 & pos,
+			const Vector3 & dir,
+			float radius,
+			const Vector3 & v0,
+			const Vector3 & v1,
+			const Vector3 & v2);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -506,38 +515,38 @@ namespace my
 	public:
 		static unsigned sphereAndHalfSpace(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance,
+			const Vector3 & planeNormal,
+			float planeDistance,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned sphereAndTruePlane(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance,
+			const Vector3 & planeNormal,
+			float planeDistance,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned sphereAndPoint(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & point,
+			const Vector3 & point,
 			RigidBody * bodyForPoint,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned sphereAndLine(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & v0,
-			const t3d::Vec4<real> & v1,
+			const Vector3 & v0,
+			const Vector3 & v1,
 			RigidBody * bodyForLine,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned sphereAndTriangle(
 			const CollisionSphere & sphere,
-			const t3d::Vec4<real> & v0,
-			const t3d::Vec4<real> & v1,
-			const t3d::Vec4<real> & v2,
+			const Vector3 & v0,
+			const Vector3 & v1,
+			const Vector3 & v2,
 			RigidBody * bodyForTriangle,
 			Contact * contacts,
 			unsigned limits);
@@ -549,17 +558,17 @@ namespace my
 			unsigned limits);
 
 		static unsigned pointAndHalfSpace(
-			const t3d::Vec4<real> & point,
+			const Vector3 & point,
 			RigidBody * body,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance,
+			const Vector3 & planeNormal,
+			float planeDistance,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned boxAndHalfSpace(
 			const CollisionBox & box,
-			const t3d::Vec4<real> & planeNormal,
-			real planeDistance,
+			const Vector3 & planeNormal,
+			float planeDistance,
 			Contact * contacts,
 			unsigned limits);
 
@@ -571,39 +580,39 @@ namespace my
 
 		static unsigned boxAndPointAways(
 			const CollisionBox & box,
-			const t3d::Vec4<real> & point,
+			const Vector3 & point,
 			RigidBody * bodyForPoint,
 			Contact * contacts,
 			unsigned limits);
 
-		static real calculateBoxAxisAndBoxPenetration(
+		static float calculateBoxAxisAndBoxPenetration(
 			const CollisionBox & box0,
-			const t3d::Vec4<real> & axis,
+			const Vector3 & axis,
 			const CollisionBox & box1);
 
-		static t3d::Vec4<real> findPointFromBoxByDirection(const CollisionBox & box, const t3d::Vec4<real> & dir);
+		static Vector3 findPointFromBoxByDirection(const CollisionBox & box, const Vector3 & dir);
 
 		static bool _tryBoxAxisAndBox(
 			const CollisionBox & box0,
-			const t3d::Vec4<real> & axis,
+			const Vector3 & axis,
 			const CollisionBox & box1,
 			unsigned index,
-			real & smallestPenetration,
+			float & smallestPenetration,
 			unsigned & smallestIndex);
 
 		static bool _zeroAxisOrTryBoxAxisAndBox(
 			const CollisionBox & box0,
-			const t3d::Vec4<real> & axis,
+			const Vector3 & axis,
 			const CollisionBox & box1,
 			unsigned index,
-			real & smallestPenetration,
+			float & smallestPenetration,
 			unsigned & smallestIndex);
 
 		static unsigned _detectorBoxAxisAndBoxPoint(
 			const CollisionBox & box0,
-			const t3d::Vec4<real> & axis,
+			const Vector3 & axis,
 			const CollisionBox & box1,
-			real penetration,
+			float penetration,
 			Contact * contacts,
 			unsigned limits);
 
@@ -615,9 +624,9 @@ namespace my
 
 		//static unsigned boxAndTriangle(
 		//	const CollisionBox & box,
-		//	const t3d::Vec4<real> & v0,
-		//	const t3d::Vec4<real> & v1,
-		//	const t3d::Vec4<real> & v2,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
 		//	RigidBody * bodyForTriangle,
 		//	Contact * contacts,
 		//	unsigned limits);

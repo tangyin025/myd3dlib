@@ -8,10 +8,12 @@
 #include "myTexture.h"
 #include "myMath.h"
 #include "myMesh.h"
-#include "myFont.h"
-#include "myGui.h"
 #include "mySkeleton.h"
 #include "myEffect.h"
+#include "myFont.h"
+#include "myPhysics.h"
+#include "myCollision.h"
+#include "myGui.h"
 //#include "myGuiPlatform.h"
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
