@@ -36,7 +36,7 @@ namespace my
 			DWORD color);
 	};
 
-	class UIControlSkin
+	class ControlSkin
 	{
 	public:
 		TexturePtr m_Texture;
@@ -50,21 +50,21 @@ namespace my
 		Font::Align m_TextAlign;
 
 	public:
-		UIControlSkin(void)
+		ControlSkin(void)
 			: m_TextureUV(0,0,1,1)
 			, m_TextColor(D3DCOLOR_ARGB(255,255,255,255))
 			, m_TextAlign(my::Font::AlignLeftTop)
 		{
 		}
 
-		virtual ~UIControlSkin(void)
+		virtual ~ControlSkin(void)
 		{
 		}
 	};
 
-	typedef boost::shared_ptr<UIControlSkin> UIControlSkinPtr;
+	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
-	class UIControl
+	class Control
 	{
 	public:
 		bool m_bEnabled;
@@ -83,12 +83,12 @@ namespace my
 
 		D3DCOLOR m_Color;
 
-		UIControlSkinPtr m_Skin;
+		ControlSkinPtr m_Skin;
 
 		HRESULT hr;
 
 	public:
-		UIControl(void)
+		Control(void)
 			: m_bEnabled(true)
 			, m_bVisible(true)
 			, m_bMouseOver(false)
@@ -100,7 +100,7 @@ namespace my
 		{
 		}
 
-		virtual ~UIControl(void)
+		virtual ~Control(void)
 		{
 		}
 
@@ -116,11 +116,13 @@ namespace my
 
 		virtual void OnFocusIn(void);
 
+		virtual void OnFocusOut(void);
+
 		virtual void OnMouseEnter(void);
 
 		virtual void OnMouseLeave(void);
 
-		virtual void OnHotkey(void);
+		virtual bool OnHotkey(void);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 
@@ -133,15 +135,15 @@ namespace my
 		virtual bool GetVisible(void);
 	};
 
-	typedef boost::shared_ptr<UIControl> UIControlPtr;
+	typedef boost::shared_ptr<Control> ControlPtr;
 
-	class UIStatic : public UIControl
+	class Static : public Control
 	{
 	public:
 		std::wstring m_Text;
 
 	public:
-		UIStatic(void)
+		Static(void)
 			: m_Text(L"")
 		{
 		}
@@ -151,9 +153,9 @@ namespace my
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
 
-	typedef boost::shared_ptr<UIStatic> UIStaticPtr;
+	typedef boost::shared_ptr<Static> StaticPtr;
 
-	class UIButtonSkin : public UIControlSkin
+	class ButtonSkin : public ControlSkin
 	{
 	public:
 		Rectangle m_DisabledTexUV;
@@ -165,7 +167,7 @@ namespace my
 		Vector2 m_PressedOffset;
 
 	public:
-		UIButtonSkin(void)
+		ButtonSkin(void)
 			: m_DisabledTexUV(0,0,1,1)
 			, m_PressedTexUV(0,0,1,1)
 			, m_MouseOverTexUV(0,0,1,1)
@@ -174,19 +176,19 @@ namespace my
 		}
 	};
 
-	typedef boost::shared_ptr<UIButtonSkin> UIButtonSkinPtr;
+	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
 
-	typedef fastdelegate::FastDelegate1<UIControl *> UIEvent;
+	typedef fastdelegate::FastDelegate1<Control *> ControlEvent;
 
-	class UIButton : public UIStatic
+	class Button : public Static
 	{
 	public:
 		bool m_bPressed;
 
-		UIEvent EventClick;
+		ControlEvent EventClick;
 
 	public:
-		UIButton(void)
+		Button(void)
 			: m_bPressed(false)
 		{
 		}
@@ -197,8 +199,56 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
+		virtual bool CanHaveFocus(void);
+
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
 
-	typedef boost::shared_ptr<UIButton> UIButtonPtr;
+	typedef boost::shared_ptr<Button> ButtonPtr;
+
+	class Dialog : public Control
+	{
+	public:
+		typedef std::vector<ControlPtr> ControlPtrList;
+
+		ControlPtrList m_Controls;
+
+		ControlPtr m_ControlMouseOver;
+
+		DWORD m_ViewWidth;
+
+		DWORD m_ViewHeight;
+
+		float m_ViewFovy;
+
+		Matrix4 m_World;
+
+		Matrix4 m_View;
+
+		Matrix4 m_Proj;
+
+	public:
+		Dialog(void)
+			: m_ViewWidth(800)
+			, m_ViewHeight(600)
+			, m_ViewFovy(D3DXToRadian(75.0f))
+			, m_World(Matrix4::Identity())
+		{
+			my::UIRender::BuildPerspectiveMatrices(m_ViewFovy, m_ViewWidth, m_ViewHeight, m_View, m_Proj);
+		}
+
+		virtual ~Dialog(void)
+		{
+		}
+
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		ControlPtr GetControlAtPoint(const Vector2 & pt);
+
+		void RequestFocus(ControlPtr control);
+	};
+
+	typedef boost::shared_ptr<Dialog> DialogPtr;
 }

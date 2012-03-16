@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <boost/weak_ptr.hpp>
+
 namespace my
 {
 	typedef std::vector<unsigned char> Cache;
@@ -104,6 +106,8 @@ namespace my
 		FT_Library m_library;
 
 		CComPtr<IDirect3DStateBlock9> m_stateBlock;
+
+		boost::weak_ptr<Control> m_ControlFocus;
 
 	protected:
 		ResourceDirPtrList m_dirList;

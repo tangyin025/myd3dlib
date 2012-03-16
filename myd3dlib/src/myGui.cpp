@@ -128,7 +128,7 @@ void UIRender::DrawRectangle(
 	End(pd3dDevice);
 }
 
-void UIControl::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
@@ -140,71 +140,77 @@ void UIControl::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	}
 }
 
-bool UIControl::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool Control::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return false;
 }
 
-bool UIControl::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool Control::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	return false;
 }
 
-bool UIControl::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+bool Control::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
 	return false;
 }
 
-bool UIControl::CanHaveFocus(void)
+bool Control::CanHaveFocus(void)
 {
 	return false;
 }
 
-void UIControl::OnFocusIn(void)
+void Control::OnFocusIn(void)
+{
+	m_bHasFocus = true;
+}
+
+void Control::OnFocusOut(void)
 {
 	m_bHasFocus = false;
 }
 
-void UIControl::OnMouseEnter(void)
+void Control::OnMouseEnter(void)
 {
 	m_bMouseOver = true;
 }
 
-void UIControl::OnMouseLeave(void)
+void Control::OnMouseLeave(void)
 {
 	m_bMouseOver = false;
 }
 
-void UIControl::OnHotkey(void)
+bool Control::OnHotkey(void)
 {
+	return false;
 }
 
-bool UIControl::ContainsPoint(const Vector2 & pt)
+bool Control::ContainsPoint(const Vector2 & pt)
 {
 	return pt.x >= m_Location.x && pt.x < m_Location.x + m_Size.x && pt.y >= m_Location.y && pt.y < m_Location.y + m_Size.y;
 }
 
-void UIControl::SetEnabled(bool bEnabled)
+void Control::SetEnabled(bool bEnabled)
 {
 	m_bEnabled = bEnabled;
 }
 
-bool UIControl::GetEnabled(void)
+bool Control::GetEnabled(void)
 {
 	return m_bEnabled;
 }
 
-void UIControl::SetVisible(bool bVisible)
+void Control::SetVisible(bool bVisible)
 {
 	m_bVisible = bVisible;
 }
 
-bool UIControl::GetVisible(void)
+bool Control::GetVisible(void)
 {
 	return m_bVisible;
 }
 
-void UIStatic::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Static::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
@@ -215,16 +221,16 @@ void UIStatic::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	}
 }
 
-bool UIStatic::ContainsPoint(const Vector2 & pt)
+bool Static::ContainsPoint(const Vector2 & pt)
 {
 	return false;
 }
 
-void UIButton::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
-		UIButtonSkinPtr Skin = boost::dynamic_pointer_cast<UIButtonSkin, UIControlSkin>(m_Skin);
+		ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin, ControlSkin>(m_Skin);
 
 		my::Rectangle Rect(my::Rectangle::LeftTop(m_Location, m_Size));
 
@@ -251,12 +257,19 @@ void UIButton::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 
 		if(Skin && Skin->m_Font)
 		{
-			Skin->m_Font->DrawString(m_Text.c_str(), m_bPressed ? Rect.offset(Skin->m_PressedOffset) : Rect, Skin->m_TextColor, Skin->m_TextAlign);
+			if(m_bPressed)
+			{
+				Skin->m_Font->DrawString(m_Text.c_str(), Rect.offset(Skin->m_PressedOffset), Skin->m_TextColor, Skin->m_TextAlign);
+			}
+			else
+			{
+				Skin->m_Font->DrawString(m_Text.c_str(), Rect, Skin->m_TextColor, Skin->m_TextAlign);
+			}
 		}
 	}
 }
 
-bool UIButton::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
@@ -290,7 +303,7 @@ bool UIButton::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return false;
 }
 
-bool UIButton::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
@@ -328,7 +341,139 @@ bool UIButton::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	return false;
 }
 
-bool UIButton::ContainsPoint(const Vector2 & pt)
+bool Button::CanHaveFocus(void)
 {
-	return UIControl::ContainsPoint(pt);
+	return m_bVisible && m_bEnabled;
+}
+
+bool Button::ContainsPoint(const Vector2 & pt)
+{
+	return Control::ContainsPoint(pt);
+}
+
+void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	HRESULT hr;
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_View));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Proj));
+
+	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime);
+	}
+}
+
+bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
+
+	if(ControlFocus && ControlFocus->GetEnabled()
+		&& ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+	{
+		return true;
+	}
+
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if(ControlFocus && ControlFocus->GetEnabled())
+		{
+			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+				return true;
+		}
+
+		if(uMsg == WM_KEYDOWN && !ControlFocus)
+		{
+			ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+			{
+				if((*ctrl_iter)->OnHotkey())
+				{
+					return true;
+				}
+			}
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+		{
+			Vector2 pt(LOWORD(lParam), HIWORD(lParam));
+			if(ControlFocus && ControlFocus->GetEnabled())
+			{
+				if(ControlFocus->HandleMouse(uMsg, pt, wParam, lParam))
+					return true;
+			}
+
+			ControlPtr ControlPtd = GetControlAtPoint(pt);
+			if(ControlPtd && ControlPtd->GetEnabled())
+			{
+				if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
+				{
+					RequestFocus(ControlPtd);
+					return true;
+				}
+			}
+
+			if(ControlPtd != m_ControlMouseOver)
+			{
+				if(m_ControlMouseOver)
+					m_ControlMouseOver->OnMouseLeave();
+
+				m_ControlMouseOver = ControlPtd;
+				if(ControlPtd)
+					ControlPtd->OnMouseEnter();
+			}
+		}
+		break;
+	}
+	return false;
+}
+
+ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
+{
+	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	{
+		if((*ctrl_iter)->ContainsPoint(pt) && (*ctrl_iter)->GetVisible() && (*ctrl_iter)->GetEnabled())
+		{
+			return *ctrl_iter;
+		}
+	}
+	return ControlPtr();
+}
+
+void Dialog::RequestFocus(ControlPtr control)
+{
+	if(!control->CanHaveFocus())
+		return;
+
+	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
+	if(ControlFocus)
+	{
+		if(ControlFocus == control)
+			return;
+
+		ControlFocus->OnFocusOut();
+	}
+
+	control->OnFocusIn();
+	ResourceMgr::getSingleton().m_ControlFocus = control;
 }

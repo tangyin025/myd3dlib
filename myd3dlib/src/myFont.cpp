@@ -194,11 +194,11 @@ FontPtr Font::CreateFontFromFileInMemory(
 	unsigned short pixel_gap,
 	FT_Long face_index)
 {
-	CachePtr cache(new Cache(file_size));
-	memcpy(&(*cache)[0], file_base, cache->size());
+	boost::shared_array<unsigned char> cache(new unsigned char[file_size]);
+	memcpy(cache.get(), file_base, file_size);
 
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, &(*cache)[0], cache->size(), face_index, &face);
+	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, cache.get(), file_size, face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");

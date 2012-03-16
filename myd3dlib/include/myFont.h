@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include <boost/shared_array.hpp>
+
 namespace my
 {
 	class Sprite;
@@ -167,7 +169,7 @@ namespace my
 
 		const int FONT_PIXEL_GAP;
 
-		CachePtr m_cache;
+		boost::shared_array<unsigned char> m_cache;
 
 		float m_LineHeight;
 
