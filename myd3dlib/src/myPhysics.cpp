@@ -231,7 +231,7 @@ namespace my
 	// ParticleBuoyancy
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleBuoyancy::ParticleBuoyancy(float _maxDepth, float _volumn, float _waterHeight, float _liquidDensity /*= 1000.0f*/)
+	ParticleBuoyancy::ParticleBuoyancy(float _maxDepth, float _volumn, float _waterHeight, float _liquidDensity)
 		: maxDepth(_maxDepth)
 		, volumn(_volumn)
 		, waterHeight(_waterHeight)
@@ -414,7 +414,7 @@ namespace my
 	// ParticleContactResolver
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleContactResolver::ParticleContactResolver(unsigned _iterations /*= 0*/)
+	ParticleContactResolver::ParticleContactResolver(unsigned _iterations)
 		: iterations(_iterations)
 	{
 	}
@@ -653,7 +653,7 @@ namespace my
 	// ParticleWorld
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleWorld::ParticleWorld(unsigned _maxContacts /*= 256*/, unsigned _iterations /*= 0*/)
+	ParticleWorld::ParticleWorld(unsigned _maxContacts, unsigned _iterations)
 		: resolver(_iterations)
 		, particleContactArray(_maxContacts)
 		, maxContacts(_maxContacts)
@@ -810,7 +810,7 @@ namespace my
 		inverseInertiaTensorWorld = _transformInertiaTensor(inverseInertiaTensor, transform); // ***
 	}
 
-	void RigidBody::setAwake(bool _isAwake /*= true*/)
+	void RigidBody::setAwake(bool _isAwake)
 	{
 		isAwake = _isAwake;
 
@@ -831,7 +831,7 @@ namespace my
 		return isAwake;
 	}
 
-	void RigidBody::setCanSleep(bool _canSleep /*= true*/)
+	void RigidBody::setCanSleep(bool _canSleep)
 	{
 		canSleep = _canSleep;
 
@@ -1129,7 +1129,7 @@ namespace my
 		float _maxDepth,
 		float _volume,
 		float _waterHeight,
-		float _liquidDensity /*= 1000.0f*/)
+		float _liquidDensity)
 		: centerOfBuoyancy(_centerOfBuoyancy)
 		, maxDepth(_maxDepth)
 		, volume(_volume)
@@ -1658,10 +1658,10 @@ namespace my
 	}
 
 	ContactResolver::ContactResolver(
-		unsigned _positionIterations /*= 0*/,
-		unsigned _velocityIterations /*= 0*/,
-		float _positionEpsilon /*= 0.01f*/,
-		float _velocityEpsilon /*= 0.01f*/)
+		unsigned _positionIterations,
+		unsigned _velocityIterations,
+		float _positionEpsilon,
+		float _velocityEpsilon)
 		: positionIterations(_positionIterations)
 		, velocityIterations(_velocityIterations)
 		, positionEpsilon(_positionEpsilon)
@@ -1907,7 +1907,7 @@ namespace my
 	// World
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	World::World(unsigned _maxContacts /*= 256*/)
+	World::World(unsigned _maxContacts)
 		: resolver(0, 0, 0.01f, 0.01f)
 		, maxContacts(_maxContacts)
 	{

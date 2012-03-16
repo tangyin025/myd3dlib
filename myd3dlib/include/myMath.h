@@ -31,7 +31,15 @@ namespace my
 	class Vector2
 	{
 	public:
-		float x, y;
+		union
+		{
+			struct
+			{
+				float x, y;
+			};
+
+			float _m[2];
+		};
 
 	public:
 		Vector2(void)
@@ -149,6 +157,16 @@ namespace my
 			x *= invScaler;
 			y *= invScaler;
 			return *this;
+		}
+
+		__forceinline float & operator [](int i)
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+		}
+
+		__forceinline const float & operator [](int i) const
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
 		}
 
 	public:
@@ -561,7 +579,15 @@ namespace my
 	class Vector3
 	{
 	public:
-		float x, y, z;
+		union
+		{
+			struct
+			{
+				float x, y, z;
+			};
+
+			float _m[3];
+		};
 
 	public:
 		Vector3(void)
@@ -691,6 +717,16 @@ namespace my
 			return *this;
 		}
 
+		__forceinline float & operator [](int i)
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+		}
+
+		__forceinline const float & operator [](int i) const
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+		}
+
 	public:
 		Vector3 cross(const Vector3 & rhs) const
 		{
@@ -766,7 +802,15 @@ namespace my
 	class Vector4
 	{
 	public:
-		float x, y, z, w;
+		union
+		{
+			struct
+			{
+				float x, y, z, w;
+			};
+
+			float _m[4];
+		};
 
 	public:
 		Vector4(void)
@@ -904,6 +948,16 @@ namespace my
 			z *= invScaler;
 			w *= invScaler;
 			return *this;
+		}
+
+		__forceinline float & operator [](int i)
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+		}
+
+		__forceinline const float & operator [](int i) const
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
 		}
 
 	public:
@@ -1269,7 +1323,10 @@ namespace my
 				float _41, _42, _43, _44;
 			};
 
-			float m[4][4];
+			struct
+			{
+				Vector4 _m[4];
+			};
 		};
 
 	public:
@@ -1450,6 +1507,16 @@ namespace my
 			_31 *= invScaler; _32 *= invScaler; _33 *= invScaler; _34 *= invScaler;
 			_41 *= invScaler; _42 *= invScaler; _43 *= invScaler; _44 *= invScaler;
 			return *this;
+		}
+
+		__forceinline Vector4 & operator [](int i)
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+		}
+
+		__forceinline const Vector4 & operator [](int i) const
+		{
+			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
 		}
 
 	public:
@@ -1966,11 +2033,6 @@ namespace my
 				_41, _42 * c - _43 * s, _42 * s + _43 * c, _44);
 		}
 
-		Matrix4 & rotateXSelf(float angle)
-		{
-			return *this = rotateX(angle);
-		}
-
 		Matrix4 rotateY(float angle) const
 		{
 			float c = cos(angle);
@@ -1981,11 +2043,6 @@ namespace my
 				_21 * c + _23 * s, _22, _23 * s - _21 * c, 14,
 				_31 * c + _33 * s, _32, _33 * s - _31 * c, 14,
 				_41 * c + _43 * s, _42, _43 * s - _41 * c, 14);
-		}
-
-		Matrix4 & rotateYSelf(float angle)
-		{
-			return *this = rotateY(angle);
 		}
 
 		Matrix4 rotateZ(float angle) const
@@ -2000,19 +2057,9 @@ namespace my
 				_41 * c - _42 * s, _41 * s + _42 * c, _43, _44);
 		}
 
-		Matrix4 & rotationZSelf(float angle)
-		{
-			return *this = rotateZ(angle);
-		}
-
 		Matrix4 rotate(const Quaternion & q) const
 		{
 			return *this * RotationQuaternion(q);
-		}
-
-		Matrix4 & rotateSelf(const Quaternion & q)
-		{
-			return *this = rotate(q);
 		}
 
 		Matrix4 translate(float x, float y, float z) const
@@ -2075,16 +2122,16 @@ namespace my
 
 	inline Vector2 Vector2::transform(const Matrix4 & m) const
 	{
-		Vector4 ret(Vector4(x, y, 0, 1).transform(m));
-
-		return Vector2(ret.x, ret.y);
+		return Vector2(
+			x * m._11 + y * m._21,
+			x * m._12 + y * m._22);
 	}
 
 	inline Vector2 Vector2::transformTranspose(const Matrix4 & m) const
 	{
-		Vector4 ret(Vector4(x, y, 0, 1).transformTranspose(m));
-
-		return Vector2(ret.x, ret.y);
+		return Vector2(
+			x * m._11 + y * m._12,
+			x * m._21 + y * m._22);
 	}
 
 	inline Vector3 Vector3::transform(const Quaternion & q) const
@@ -2096,16 +2143,18 @@ namespace my
 
 	inline Vector3 Vector3::transform(const Matrix4 & m) const
 	{
-		Vector4 ret(Vector4(x, y, z, 1).transform(m));
-
-		return Vector3(ret.x, ret.y, ret.z);
+		return Vector3(
+			x * m._11 + y * m._21 + z * m._31,
+			x * m._12 + y * m._22 + z * m._32,
+			x * m._13 + y * m._23 + z * m._33);
 	}
 
 	inline Vector3 Vector3::transformTranspose(const Matrix4 & m) const
 	{
-		Vector4 ret(Vector4(x, y, z, 1).transformTranspose(m));
-
-		return Vector3(ret.x, ret.y, ret.z);
+		return Vector3(
+			x * m._11 + y * m._12 + z * m._13,
+			x * m._21 + y * m._22 + z * m._23,
+			x * m._31 + y * m._32 + z * m._33);
 	}
 
 	inline Vector4 Vector4::transform(const Matrix4 & m) const

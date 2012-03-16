@@ -84,8 +84,8 @@ namespace my
 
 	CollisionPrimitive::CollisionPrimitive(
 		RigidBody * _body,
-		const Matrix4 & _offset /*= Matrix4::Identity()*/,
-		const Matrix4 & _rotationOffset /*= Matrix4::Identity()*/)
+		const Matrix4 & _offset,
+		const Matrix4 & _rotationOffset)
 		: body(_body)
 		, offset(_offset)
 		, rotationOffset(_rotationOffset)
@@ -112,8 +112,8 @@ namespace my
 	CollisionSphere::CollisionSphere(
 		float _radius,
 		RigidBody * _body,
-		const Matrix4 & _offset /*= Matrix4::Identity()*/,
-		const Matrix4 & _rotationOffset /*= Matrix4::Identity()*/)
+		const Matrix4 & _offset,
+		const Matrix4 & _rotationOffset)
 		: CollisionPrimitive(_body, _offset, _rotationOffset)
 		, radius(_radius)
 	{
@@ -131,8 +131,8 @@ namespace my
 	CollisionBox::CollisionBox(
 		const Vector3 & _halfSize,
 		RigidBody * _body,
-		const Matrix4 & _offset /*= Matrix4::Identity()*/,
-		const Matrix4 & _rotationOffset /*= Matrix4::Identity()*/)
+		const Matrix4 & _offset,
+		const Matrix4 & _rotationOffset)
 		: CollisionPrimitive(_body, _offset, _rotationOffset)
 		, halfSize(_halfSize)
 	{
@@ -170,14 +170,14 @@ namespace my
 	{
 		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
 
-		return sphere.getTransformAxis3().dot(planeNormal) - sphere.radius < planeDistance;
+		return sphere.getTransformAxis(3).dot(planeNormal) - sphere.radius < planeDistance;
 	}
 
 	bool IntersectionTests::sphereAndSphere(
 		const CollisionSphere & sphere0,
 		const CollisionSphere & sphere1)
 	{
-		return (sphere0.getTransformAxis3() - sphere1.getTransformAxis3()).lengthSq() < (sphere0.radius + sphere1.radius) * (sphere0.radius + sphere1.radius);
+		return (sphere0.getTransformAxis(3) - sphere1.getTransformAxis(3)).lengthSq() < (sphere0.radius + sphere1.radius) * (sphere0.radius + sphere1.radius);
 	}
 
 	float IntersectionTests::calculateBoxAxisHalfProjection(const CollisionBox & box, const Vector3 & axis)
@@ -185,9 +185,9 @@ namespace my
 		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
 		return
-			box.halfSize.x * abs(axis.dot(box.getTransformAxis0())) +
-			box.halfSize.y * abs(axis.dot(box.getTransformAxis1())) +
-			box.halfSize.z * abs(axis.dot(box.getTransformAxis2())); // ***
+			box.halfSize.x * abs(axis.dot(box.getTransformAxis(0))) +
+			box.halfSize.y * abs(axis.dot(box.getTransformAxis(1))) +
+			box.halfSize.z * abs(axis.dot(box.getTransformAxis(2))); // ***
 	}
 
 	bool IntersectionTests::boxAndHalfSpace(
@@ -197,7 +197,7 @@ namespace my
 	{
 		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
 
-		return box.getTransformAxis3().dot(planeNormal) - calculateBoxAxisHalfProjection(box, planeNormal) < planeDistance;
+		return box.getTransformAxis(3).dot(planeNormal) - calculateBoxAxisHalfProjection(box, planeNormal) < planeDistance;
 	}
 
 	bool IntersectionTests::_overlapOnAxis(
@@ -228,16 +228,16 @@ namespace my
 		const CollisionBox & box0,
 		const CollisionBox & box1)
 	{
-		Vector3 toCentre = box1.getTransformAxis3() - box0.getTransformAxis3();
+		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
 		return
-			_overlapOnAxis(box0, box1, box0.getTransformAxis0(), toCentre) &&
-			_overlapOnAxis(box0, box1, box0.getTransformAxis1(), toCentre) &&
-			_overlapOnAxis(box0, box1, box0.getTransformAxis2(), toCentre) &&
+			_overlapOnAxis(box0, box1, box0.getTransformAxis(0), toCentre) &&
+			_overlapOnAxis(box0, box1, box0.getTransformAxis(1), toCentre) &&
+			_overlapOnAxis(box0, box1, box0.getTransformAxis(2), toCentre) &&
 
-			_overlapOnAxis(box0, box1, box1.getTransformAxis0(), toCentre) &&
-			_overlapOnAxis(box0, box1, box1.getTransformAxis1(), toCentre) &&
-			_overlapOnAxis(box0, box1, box1.getTransformAxis2(), toCentre) &&
+			_overlapOnAxis(box0, box1, box1.getTransformAxis(0), toCentre) &&
+			_overlapOnAxis(box0, box1, box1.getTransformAxis(1), toCentre) &&
+			_overlapOnAxis(box0, box1, box1.getTransformAxis(2), toCentre) &&
 
 			/*
 			 * NOTE:
@@ -245,17 +245,17 @@ namespace my
 			 *	only one axis should be checked, and have alread checked, so just continue
 			 */
 
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis0().cross(box1.getTransformAxis0()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis0().cross(box1.getTransformAxis1()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis0().cross(box1.getTransformAxis2()), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(0).cross(box1.getTransformAxis(0)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(0).cross(box1.getTransformAxis(1)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(0).cross(box1.getTransformAxis(2)), toCentre) &&
 
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis1().cross(box1.getTransformAxis0()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis1().cross(box1.getTransformAxis1()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis1().cross(box1.getTransformAxis2()), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(1).cross(box1.getTransformAxis(0)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(1).cross(box1.getTransformAxis(1)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(1).cross(box1.getTransformAxis(2)), toCentre) &&
 
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis2().cross(box1.getTransformAxis0()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis2().cross(box1.getTransformAxis1()), toCentre) &&
-			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis2().cross(box1.getTransformAxis2()), toCentre); // ***
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(2).cross(box1.getTransformAxis(0)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(2).cross(box1.getTransformAxis(1)), toCentre) &&
+			_zeroAxisOrOverlapOnAxis(box0, box1, box0.getTransformAxis(2).cross(box1.getTransformAxis(2)), toCentre); // ***
 	}
 
 	//static float _caculateInternalAngles(
@@ -397,7 +397,7 @@ namespace my
 
 		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
 
-		Vector3 spherePosition = sphere.getTransformAxis3();
+		Vector3 spherePosition = sphere.getTransformAxis(3);
 
 		float penetration = sphere.radius + planeDistance - spherePosition.dot(planeNormal);
 
@@ -426,7 +426,7 @@ namespace my
 
 		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
 
-		Vector3 spherePosition = sphere.getTransformAxis3();
+		Vector3 spherePosition = sphere.getTransformAxis(3);
 
 		float centreDistance = spherePosition.dot(planeNormal) - planeDistance;
 
@@ -466,7 +466,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 direction = sphere.getTransformAxis3() - point;
+		Vector3 direction = sphere.getTransformAxis(3) - point;
 
 		float distance = direction.length();
 
@@ -496,7 +496,7 @@ namespace my
 
 		Vector3 u = v1 - v0;
 
-		float offset = (sphere.getTransformAxis3() - v0).dot(u) / u.length();
+		float offset = (sphere.getTransformAxis(3) - v0).dot(u) / u.length();
 
 		Vector3 closestPoint;
 		if(offset <= 0)
@@ -548,14 +548,14 @@ namespace my
 
 		Vector3 direction = CalculateTriangleNormal(v0, v1, v2);
 
-		float distance = abs(CalculatePointPlaneDistance(sphere.getTransformAxis3(), v0, direction));
+		float distance = abs(CalculatePointPlaneDistance(sphere.getTransformAxis(3), v0, direction));
 
 		if(distance >= sphere.radius)
 		{
 			return 0;
 		}
 
-		Vector3 intersection = sphere.getTransformAxis3() - direction * distance;
+		Vector3 intersection = sphere.getTransformAxis(3) - direction * distance;
 
 		if(IsInsideTriangle(intersection, v0, v1, v2))
 		{
@@ -591,9 +591,9 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 position0 = sphere0.getTransformAxis3();
+		Vector3 position0 = sphere0.getTransformAxis(3);
 
-		Vector3 position1 = sphere1.getTransformAxis3();
+		Vector3 position1 = sphere1.getTransformAxis(3);
 
 		Vector3 midline = position0 - position1;
 
@@ -749,7 +749,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 centre = sphere.getTransformAxis3();
+		Vector3 centre = sphere.getTransformAxis(3);
 
 		Vector3 relCentre = centre.transform(box.getTransform().inverse());
 
@@ -848,12 +848,12 @@ namespace my
 		{
 			if(xDepth < zDepth)
 			{
-				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis0() : box.getTransformAxis0();
+				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis(0) : box.getTransformAxis(0);
 				contacts->penetration = xDepth;
 			}
 			else
 			{
-				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis2() : box.getTransformAxis2();
+				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis(2) : box.getTransformAxis(2);
 				contacts->penetration = zDepth;
 			}
 		}
@@ -861,12 +861,12 @@ namespace my
 		{
 			if(yDepth < zDepth)
 			{
-				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis1() : box.getTransformAxis1();
+				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis(1) : box.getTransformAxis(1);
 				contacts->penetration = yDepth;
 			}
 			else
 			{
-				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis2() : box.getTransformAxis2();
+				contacts->contactNormal = relPoint.x < 0 ? -box.getTransformAxis(2) : box.getTransformAxis(2);
 				contacts->penetration = zDepth;
 			}
 		}
@@ -936,13 +936,13 @@ namespace my
 	//	switch(index)
 	//	{
 	//	case 0:
-	//		return box.getTransformAxis0();
+	//		return box.getTransformAxis(0);
 
 	//	case 1:
-	//		return box.getTransformAxis1();
+	//		return box.getTransformAxis(1);
 
 	//	case 2:
-	//		return box.getTransformAxis2();
+	//		return box.getTransformAxis(2);
 	//	}
 
 	//	_ASSERT(false); return Vector3::ZERO;
@@ -966,13 +966,13 @@ namespace my
 	//	contacts->contactNormal = normal;
 	//	contacts->penetration = penetration;
 	//	contacts->contactPoint = Vector3(
-	//		t3d::vec3Dot(box1.getTransformAxis0(), normal) < 0 ? -box1.halfSize.x : box1.halfSize.x,
-	//		t3d::vec3Dot(box1.getTransformAxis1(), normal) < 0 ? -box1.halfSize.y : box1.halfSize.y,
-	//		t3d::vec3Dot(box1.getTransformAxis2(), normal) < 0 ? -box1.halfSize.z : box1.halfSize.z) * box1.getTransform();
+	//		t3d::vec3Dot(box1.getTransformAxis(0), normal) < 0 ? -box1.halfSize.x : box1.halfSize.x,
+	//		t3d::vec3Dot(box1.getTransformAxis(1), normal) < 0 ? -box1.halfSize.y : box1.halfSize.y,
+	//		t3d::vec3Dot(box1.getTransformAxis(2), normal) < 0 ? -box1.halfSize.z : box1.halfSize.z) * box1.getTransform();
 	//	//contacts->contactPoint = Vector3(
-	//	//	t3d::vec3Dot(box1.getTransformAxis0(), toCentre) > 0 ? -box1.halfSize.x : box1.halfSize.x,
-	//	//	t3d::vec3Dot(box1.getTransformAxis1(), toCentre) > 0 ? -box1.halfSize.y : box1.halfSize.y,
-	//	//	t3d::vec3Dot(box1.getTransformAxis2(), toCentre) > 0 ? -box1.halfSize.z : box1.halfSize.z) * box1.getTransform(); // ***
+	//	//	t3d::vec3Dot(box1.getTransformAxis(0), toCentre) > 0 ? -box1.halfSize.x : box1.halfSize.x,
+	//	//	t3d::vec3Dot(box1.getTransformAxis(1), toCentre) > 0 ? -box1.halfSize.y : box1.halfSize.y,
+	//	//	t3d::vec3Dot(box1.getTransformAxis(2), toCentre) > 0 ? -box1.halfSize.z : box1.halfSize.z) * box1.getTransform(); // ***
 
 	//	contacts->bodys[0] = box0.body;
 	//	contacts->bodys[1] = box1.body;
@@ -1035,7 +1035,7 @@ namespace my
 		const Vector3 & axis,
 		const CollisionBox & box1)
 	{
-		Vector3 toCentre = box1.getTransformAxis3() - box0.getTransformAxis3();
+		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
 		return IntersectionTests::calculateBoxAxisHalfProjection(box0, axis)
 			+ IntersectionTests::calculateBoxAxisHalfProjection(box1, axis) - abs(toCentre.dot(axis)); // ***
@@ -1056,9 +1056,9 @@ namespace my
 	Vector3 CollisionDetector::findPointFromBoxByDirection(const CollisionBox & box, const Vector3 & dir)
 	{
 		return Vector3(
-			box.getTransformAxis0().dot(dir) >= 0 ? box.halfSize.x : -box.halfSize.x,
-			box.getTransformAxis1().dot(dir) >= 0 ? box.halfSize.y : -box.halfSize.y,
-			box.getTransformAxis2().dot(dir) >= 0 ? box.halfSize.z : -box.halfSize.z).transform(box.getTransform());
+			box.getTransformAxis(0).dot(dir) >= 0 ? box.halfSize.x : -box.halfSize.x,
+			box.getTransformAxis(1).dot(dir) >= 0 ? box.halfSize.y : -box.halfSize.y,
+			box.getTransformAxis(2).dot(dir) >= 0 ? box.halfSize.z : -box.halfSize.z).transform(box.getTransform());
 	}
 
 	bool CollisionDetector::_tryBoxAxisAndBox(
@@ -1115,7 +1115,7 @@ namespace my
 
 		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
-		Vector3 toCentre = box1.getTransformAxis3() - box0.getTransformAxis3();
+		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
 		contacts->contactNormal = axis.dot(toCentre) > 0 ? -axis : axis;
 		contacts->penetration = penetration;
@@ -1133,7 +1133,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 toCentre = box1.getTransformAxis3() - box0.getTransformAxis3();
+		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
 		float smallestPenetration = FLT_MAX;
 
@@ -1146,39 +1146,39 @@ namespace my
 		 *	why the algorithm for this funciton could not be understund by me ???
 		 */
 
-		//if(!_tryAxis(box0, box1, box0.getTransformAxis0(), toCentre, 0, smallestPenetration, smallestIndex)
-		//	|| !_tryAxis(box0, box1, box0.getTransformAxis1(), toCentre, 1, smallestPenetration, smallestIndex)
-		//	|| !_tryAxis(box0, box1, box0.getTransformAxis2(), toCentre, 2, smallestPenetration, smallestIndex)
-		//	|| !_tryAxis(box0, box1, box1.getTransformAxis0(), toCentre, 3, smallestPenetration, smallestIndex)
-		//	|| !_tryAxis(box0, box1, box1.getTransformAxis1(), toCentre, 4, smallestPenetration, smallestIndex)
-		//	|| !_tryAxis(box0, box1, box1.getTransformAxis2(), toCentre, 5, smallestPenetration, smallestIndex)
+		//if(!_tryAxis(box0, box1, box0.getTransformAxis(0), toCentre, 0, smallestPenetration, smallestIndex)
+		//	|| !_tryAxis(box0, box1, box0.getTransformAxis(1), toCentre, 1, smallestPenetration, smallestIndex)
+		//	|| !_tryAxis(box0, box1, box0.getTransformAxis(2), toCentre, 2, smallestPenetration, smallestIndex)
+		//	|| !_tryAxis(box0, box1, box1.getTransformAxis(0), toCentre, 3, smallestPenetration, smallestIndex)
+		//	|| !_tryAxis(box0, box1, box1.getTransformAxis(1), toCentre, 4, smallestPenetration, smallestIndex)
+		//	|| !_tryAxis(box0, box1, box1.getTransformAxis(2), toCentre, 5, smallestPenetration, smallestIndex)
 		//	|| (smallestSingleAxis = smallestIndex, false)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis0(), box1.getTransformAxis0()), toCentre, 6, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis0(), box1.getTransformAxis1()), toCentre, 7, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis0(), box1.getTransformAxis2()), toCentre, 8, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis1(), box1.getTransformAxis0()), toCentre, 9, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis1(), box1.getTransformAxis1()), toCentre, 10, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis1(), box1.getTransformAxis2()), toCentre, 11, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis2(), box1.getTransformAxis0()), toCentre, 12, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis2(), box1.getTransformAxis1()), toCentre, 13, smallestPenetration, smallestIndex)
-		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis2(), box1.getTransformAxis2()), toCentre, 14, smallestPenetration, smallestIndex))
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(0), box1.getTransformAxis(0)), toCentre, 6, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(0), box1.getTransformAxis(1)), toCentre, 7, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(0), box1.getTransformAxis(2)), toCentre, 8, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(1), box1.getTransformAxis(0)), toCentre, 9, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(1), box1.getTransformAxis(1)), toCentre, 10, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(1), box1.getTransformAxis(2)), toCentre, 11, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(2), box1.getTransformAxis(0)), toCentre, 12, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(2), box1.getTransformAxis(1)), toCentre, 13, smallestPenetration, smallestIndex)
+		//	|| !_zeroAxisOrTryAxis(box0, box1, t3d::vec3Cross(box0.getTransformAxis(2), box1.getTransformAxis(2)), toCentre, 14, smallestPenetration, smallestIndex))
 
-		if(!_tryBoxAxisAndBox(box0, box0.getTransformAxis0(), box1, 0, smallestPenetration, smallestIndex)
-			|| !_tryBoxAxisAndBox(box0, box0.getTransformAxis1(), box1, 1, smallestPenetration, smallestIndex)
-			|| !_tryBoxAxisAndBox(box0, box0.getTransformAxis2(), box1, 2, smallestPenetration, smallestIndex)
-			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis0(), box1, 3, smallestPenetration, smallestIndex)
-			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis1(), box1, 4, smallestPenetration, smallestIndex)
-			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis2(), box1, 5, smallestPenetration, smallestIndex)
+		if(!_tryBoxAxisAndBox(box0, box0.getTransformAxis(0), box1, 0, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndBox(box0, box0.getTransformAxis(1), box1, 1, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndBox(box0, box0.getTransformAxis(2), box1, 2, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis(0), box1, 3, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis(1), box1, 4, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndBox(box0, box1.getTransformAxis(2), box1, 5, smallestPenetration, smallestIndex)
 			|| (smallestSingleAxis = smallestIndex, false)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis0().cross(box1.getTransformAxis0()), box1, 6, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis0().cross(box1.getTransformAxis1()), box1, 7, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis0().cross(box1.getTransformAxis2()), box1, 8, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis1().cross(box1.getTransformAxis0()), box1, 9, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis1().cross(box1.getTransformAxis1()), box1, 10, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis1().cross(box1.getTransformAxis2()), box1, 11, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis2().cross(box1.getTransformAxis0()), box1, 12, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis2().cross(box1.getTransformAxis1()), box1, 13, smallestPenetration, smallestIndex)
-			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis2().cross(box1.getTransformAxis2()), box1, 14, smallestPenetration, smallestIndex))
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(0).cross(box1.getTransformAxis(0)), box1, 6, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(0).cross(box1.getTransformAxis(1)), box1, 7, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(0).cross(box1.getTransformAxis(2)), box1, 8, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(1).cross(box1.getTransformAxis(0)), box1, 9, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(1).cross(box1.getTransformAxis(1)), box1, 10, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(1).cross(box1.getTransformAxis(2)), box1, 11, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(2).cross(box1.getTransformAxis(0)), box1, 12, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(2).cross(box1.getTransformAxis(1)), box1, 13, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndBox(box0, box0.getTransformAxis(2).cross(box1.getTransformAxis(2)), box1, 14, smallestPenetration, smallestIndex))
 		{
 //REPORT_ERROR(_T("aaa"));
 			return 0;
@@ -1190,13 +1190,13 @@ namespace my
 		{
 //REPORT_ERROR(_T("bbb"));
 			//return _detectorPointFaceBoxAndBox(box0, box1, _getBoxAxisByIndex(box0, smallestIndex), toCentre, smallestPenetration, contacts, limits);
-			return _detectorBoxAxisAndBoxPoint(box0, box0.getTransformAxisN(smallestIndex), box1, smallestPenetration, contacts, limits);
+			return _detectorBoxAxisAndBoxPoint(box0, box0.getTransformAxis(smallestIndex), box1, smallestPenetration, contacts, limits);
 		}
 		else if(smallestIndex < 6)
 		{
 //REPORT_ERROR(_T("ccc - reverse"));
 			//return _detectorPointFaceBoxAndBox(box1, box0, _getBoxAxisByIndex(box1, smallestIndex - 3), t3d::vec3Neg(toCentre), smallestPenetration, contacts, limits);
-			return _detectorBoxAxisAndBoxPoint(box1, box1.getTransformAxisN(smallestIndex - 3), box0, smallestPenetration, contacts, limits);
+			return _detectorBoxAxisAndBoxPoint(box1, box1.getTransformAxis(smallestIndex - 3), box0, smallestPenetration, contacts, limits);
 		}
 
 		smallestIndex -= 6;
@@ -1204,8 +1204,8 @@ namespace my
 		unsigned box0AxisIndex = smallestIndex / 3;
 		unsigned box1AxisIndex = smallestIndex % 3;
 
-		Vector3 box0Axis = box0.getTransformAxisN(box0AxisIndex);
-		Vector3 box1Axis = box1.getTransformAxisN(box1AxisIndex);
+		Vector3 box0Axis = box0.getTransformAxis(box0AxisIndex);
+		Vector3 box1Axis = box1.getTransformAxis(box1AxisIndex);
 
 		Vector3 axis = box0Axis.cross(box1Axis).normalize();
 
@@ -1215,24 +1215,24 @@ namespace my
 		}
 
 		Vector3 pointOnBox0Edge = Vector3(
-			0 == box0AxisIndex ? 0 : (box0.getTransformAxis0().dot(axis) > 0 ? -box0.halfSize.x : box0.halfSize.x),
-			1 == box0AxisIndex ? 0 : (box0.getTransformAxis1().dot(axis) > 0 ? -box0.halfSize.y : box0.halfSize.y),
-			2 == box0AxisIndex ? 0 : (box0.getTransformAxis2().dot(axis) > 0 ? -box0.halfSize.z : box0.halfSize.z)).transform(box0.getTransform());
+			0 == box0AxisIndex ? 0 : (box0.getTransformAxis(0).dot(axis) > 0 ? -box0.halfSize.x : box0.halfSize.x),
+			1 == box0AxisIndex ? 0 : (box0.getTransformAxis(1).dot(axis) > 0 ? -box0.halfSize.y : box0.halfSize.y),
+			2 == box0AxisIndex ? 0 : (box0.getTransformAxis(2).dot(axis) > 0 ? -box0.halfSize.z : box0.halfSize.z)).transform(box0.getTransform());
 
 		Vector3 pointOnBox1Edge = Vector3(
-			0 == box1AxisIndex ? 0 : (box1.getTransformAxis0().dot(axis) < 0 ? -box1.halfSize.x : box1.halfSize.x),
-			1 == box1AxisIndex ? 0 : (box1.getTransformAxis1().dot(axis) < 0 ? -box1.halfSize.y : box1.halfSize.y),
-			2 == box1AxisIndex ? 0 : (box1.getTransformAxis2().dot(axis) < 0 ? -box1.halfSize.z : box1.halfSize.z)).transform(box1.getTransform());
+			0 == box1AxisIndex ? 0 : (box1.getTransformAxis(0).dot(axis) < 0 ? -box1.halfSize.x : box1.halfSize.x),
+			1 == box1AxisIndex ? 0 : (box1.getTransformAxis(1).dot(axis) < 0 ? -box1.halfSize.y : box1.halfSize.y),
+			2 == box1AxisIndex ? 0 : (box1.getTransformAxis(2).dot(axis) < 0 ? -box1.halfSize.z : box1.halfSize.z)).transform(box1.getTransform());
 
 		contacts->contactNormal = axis;
 		contacts->penetration = smallestPenetration;
 		contacts->contactPoint = _contactPoint(
 			pointOnBox0Edge,
 			box0Axis,
-			((float *)&box0.halfSize)[box0AxisIndex], // ! Unsupported operator
+			box0.halfSize[box0AxisIndex],
 			pointOnBox1Edge,
 			box1Axis,
-			((float *)&box1.halfSize)[box1AxisIndex],
+			box1.halfSize[box1AxisIndex],
 			smallestSingleAxis > 2); // ***
 
 		contacts->bodys[0] = box0.body;
@@ -1252,9 +1252,9 @@ namespace my
 	//	Vector3 planeNormal = t3d::vec3Neg(axis);
 
 	//	float smallestDistance = t3d::min(
-	//		calculatePointPlaneDistance(box.getTransformAxis3(), v0, planeNormal),
-	//		calculatePointPlaneDistance(box.getTransformAxis3(), v1, planeNormal),
-	//		calculatePointPlaneDistance(box.getTransformAxis3(), v2, planeNormal));
+	//		calculatePointPlaneDistance(box.getTransformAxis(3), v0, planeNormal),
+	//		calculatePointPlaneDistance(box.getTransformAxis(3), v1, planeNormal),
+	//		calculatePointPlaneDistance(box.getTransformAxis(3), v2, planeNormal));
 
 	//	return calculateBoxAxisHalfProjection(box, axis) - smallestDistance;
 	//}
@@ -1351,18 +1351,18 @@ namespace my
 	//	unsigned smallestSingleAxis;
 
 	//	if(!_tryBoxAxisAndTriangle(box, calculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis0(), v0, v1, v2, 1, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis1(), v0, v1, v2, 2, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis2(), v0, v1, v2, 3, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis0(), t3d::vec3Sub(v1, v0)), v0, v1, v2, 4, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis0(), t3d::vec3Sub(v2, v1)), v0, v1, v2, 5, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis0(), t3d::vec3Sub(v0, v2)), v0, v1, v2, 6, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis1(), t3d::vec3Sub(v1, v0)), v0, v1, v2, 7, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis1(), t3d::vec3Sub(v2, v1)), v0, v1, v2, 8, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis1(), t3d::vec3Sub(v0, v2)), v0, v1, v2, 9, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis2(), t3d::vec3Sub(v1, v0)), v0, v1, v2, 10, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis2(), t3d::vec3Sub(v2, v1)), v0, v1, v2, 11, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis2(), t3d::vec3Sub(v0, v2)), v0, v1, v2, 12, smallestPenetration, smallestIndex))
+	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(0), v0, v1, v2, 1, smallestPenetration, smallestIndex)
+	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(1), v0, v1, v2, 2, smallestPenetration, smallestIndex)
+	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(2), v0, v1, v2, 3, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v1, v0)), v0, v1, v2, 4, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v2, v1)), v0, v1, v2, 5, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v0, v2)), v0, v1, v2, 6, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v1, v0)), v0, v1, v2, 7, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v2, v1)), v0, v1, v2, 8, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v0, v2)), v0, v1, v2, 9, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v1, v0)), v0, v1, v2, 10, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v2, v1)), v0, v1, v2, 11, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v0, v2)), v0, v1, v2, 12, smallestPenetration, smallestIndex))
 	//	{
 	//		return 0;
 	//	}
@@ -1379,7 +1379,7 @@ namespace my
 
 	//	if(smallestIndex < 4)
 	//	{
-	//		contacts->contactNormal = t3d::vec3Neg(box.getTransformAxisN(smallestIndex - 1));
+	//		contacts->contactNormal = t3d::vec3Neg(box.getTransformAxis(smallestIndex - 1));
 	//		contacts->penetration = smallestPenetration;
 	//		contacts->contactPoint = findPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
 	//		contacts->bodys[0] = box.body;
