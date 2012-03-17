@@ -61,6 +61,15 @@ void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 	ResourceMgr::getSingleton().m_stateBlock->Apply();
 }
 
+my::Rectangle UIRender::CalculateUVRect(const SIZE & textureSize, const RECT & textureRect)
+{
+	return Rectangle(
+		(float)textureRect.left / textureSize.cx,
+		(float)textureRect.top / textureSize.cy,
+		(float)textureRect.right / textureSize.cx,
+		(float)textureRect.bottom / textureSize.cy);
+}
+
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
 #define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
 
@@ -135,7 +144,8 @@ void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 		if(m_Color & D3DCOLOR_ARGB(255,0,0,0) && m_Skin && m_Skin->m_Texture)
 		{
 			V(pd3dDevice->SetTexture(0, m_Skin->m_Texture->m_ptr));
-			UIRender::DrawRectangle(pd3dDevice, my::Rectangle::LeftTop(m_Location, m_Size), m_Skin->m_TextureUV, m_Color);
+			UIRender::DrawRectangle(
+				pd3dDevice, Rectangle::LeftTop(m_Location, m_Size), UIRender::CalculateUVRect(m_Skin->m_TextureSize, m_Skin->m_TextureRect), m_Color);
 		}
 	}
 }
@@ -226,6 +236,18 @@ bool Static::ContainsPoint(const Vector2 & pt)
 	return false;
 }
 
+Dialog::Dialog(void)
+	: m_Transform(my::Matrix4::Identity())
+{
+	m_Viewport.Width = 800;
+	m_Viewport.Height = 600;
+	m_Viewport.Fovy = D3DXToRadian(75.0f);
+
+	UIRender::BuildPerspectiveMatrices(m_Viewport.Fovy, m_Viewport.Width, m_Viewport.Height, m_Camera.View, m_Camera.Proj);
+
+	m_Camera.World = m_Camera.View.inverse();
+}
+
 void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
@@ -239,19 +261,23 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
 			if(!m_bEnabled)
 			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_DisabledTexUV, m_Color);
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_DisabledTexRect), m_Color);
 			}
 			else if(m_bPressed)
 			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_PressedTexUV, m_Color);
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_PressedTexRect), m_Color);
 			}
 			else if(m_bMouseOver)
 			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_MouseOverTexUV, m_Color);
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_MouseOverTexRect), m_Color);
 			}
 			else
 			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, Skin->m_TextureUV, m_Color);
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_TextureRect), m_Color);
 			}
 		}
 
@@ -354,14 +380,19 @@ bool Button::ContainsPoint(const Vector2 & pt)
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_View));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Proj));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.View));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.Proj));
 
-	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	if(m_bVisible)
 	{
-		(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime);
+		Control::OnRender(pd3dDevice, fElapsedTime);
+
+		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime);
+		}
 	}
 }
 
@@ -415,31 +446,52 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
-			Vector2 pt(LOWORD(lParam), HIWORD(lParam));
-			if(ControlFocus && ControlFocus->GetEnabled())
-			{
-				if(ControlFocus->HandleMouse(uMsg, pt, wParam, lParam))
-					return true;
-			}
+			// ! DXUT dependency
+			LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
+			_ASSERT(NULL != pd3dDevice);
+			D3DVIEWPORT9 vp;
+			pd3dDevice->GetViewport(&vp);
 
-			ControlPtr ControlPtd = GetControlAtPoint(pt);
-			if(ControlPtd && ControlPtd->GetEnabled())
+			Vector2 ptScreen(LOWORD(lParam) + 0.5f, HIWORD(lParam) + 0.5f);
+			Vector3 ptAt(
+				(ptScreen.x - vp.X) / vp.Width * m_Viewport.Width,
+				(ptScreen.y - vp.Y) / vp.Height * m_Viewport.Height, 0);
+			const Vector3 & ptEye = m_Camera.World[3];
+			Vector3 dir = (ptAt - ptEye).normalize();
+
+			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);
+			float dialogDistance = ((Vector3 &)m_Transform[3]).dot(dialogNormal);
+			IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
+
+			if(result.first)
 			{
-				if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
+				Vector3 ptInt(ptEye + dir * result.second);
+				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
+				if(ControlFocus && ControlFocus->GetEnabled())
 				{
-					RequestFocus(ControlPtd);
-					return true;
+					if(ControlFocus->HandleMouse(uMsg, pt, wParam, lParam))
+						return true;
 				}
-			}
 
-			if(ControlPtd != m_ControlMouseOver)
-			{
-				if(m_ControlMouseOver)
-					m_ControlMouseOver->OnMouseLeave();
+				ControlPtr ControlPtd = GetControlAtPoint(pt);
+				if(ControlPtd && ControlPtd->GetEnabled())
+				{
+					if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
+					{
+						RequestFocus(ControlPtd);
+						return true;
+					}
+				}
 
-				m_ControlMouseOver = ControlPtd;
-				if(ControlPtd)
-					ControlPtd->OnMouseEnter();
+				if(ControlPtd != m_ControlMouseOver)
+				{
+					if(m_ControlMouseOver)
+						m_ControlMouseOver->OnMouseLeave();
+
+					m_ControlMouseOver = ControlPtd;
+					if(ControlPtd)
+						ControlPtd->OnMouseEnter();
+				}
 			}
 		}
 		break;

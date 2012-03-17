@@ -21,6 +21,8 @@ namespace my
 
 		static void End(IDirect3DDevice9 * pd3dDevice);
 
+		static Rectangle CalculateUVRect(const SIZE & textureSize, const RECT & textureRect);
+
 		static size_t BuildRectangleVertices(
 			CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,
@@ -41,7 +43,9 @@ namespace my
 	public:
 		TexturePtr m_Texture;
 
-		Rectangle m_TextureUV;
+		SIZE m_TextureSize;
+
+		RECT m_TextureRect;
 
 		FontPtr m_Font;
 
@@ -51,7 +55,8 @@ namespace my
 
 	public:
 		ControlSkin(void)
-			: m_TextureUV(0,0,1,1)
+			: m_TextureRect(CRect(0,0,0,0))
+			, m_TextureSize(CSize(0,0))
 			, m_TextColor(D3DCOLOR_ARGB(255,255,255,255))
 			, m_TextAlign(my::Font::AlignLeftTop)
 		{
@@ -158,19 +163,19 @@ namespace my
 	class ButtonSkin : public ControlSkin
 	{
 	public:
-		Rectangle m_DisabledTexUV;
+		RECT m_DisabledTexRect;
 
-		Rectangle m_PressedTexUV;
+		RECT m_PressedTexRect;
 
-		Rectangle m_MouseOverTexUV;
+		RECT m_MouseOverTexRect;
 
 		Vector2 m_PressedOffset;
 
 	public:
 		ButtonSkin(void)
-			: m_DisabledTexUV(0,0,1,1)
-			, m_PressedTexUV(0,0,1,1)
-			, m_MouseOverTexUV(0,0,1,1)
+			: m_DisabledTexRect(CRect(0,0,0,0))
+			, m_PressedTexRect(CRect(0,0,0,0))
+			, m_MouseOverTexRect(CRect(0,0,0,0))
 			, m_PressedOffset(0,0)
 		{
 		}
@@ -215,27 +220,32 @@ namespace my
 
 		ControlPtr m_ControlMouseOver;
 
-		DWORD m_ViewWidth;
+		struct Viewport
+		{
+			DWORD Width;
 
-		DWORD m_ViewHeight;
+			DWORD Height;
 
-		float m_ViewFovy;
+			float Fovy;
+		};
 
-		Matrix4 m_World;
+		Viewport m_Viewport;
 
-		Matrix4 m_View;
+		struct Camera
+		{
+			Matrix4 World;
 
-		Matrix4 m_Proj;
+			Matrix4 View;
+
+			Matrix4 Proj;
+		};
+
+		Camera m_Camera;
+
+		Matrix4 m_Transform;
 
 	public:
-		Dialog(void)
-			: m_ViewWidth(800)
-			, m_ViewHeight(600)
-			, m_ViewFovy(D3DXToRadian(75.0f))
-			, m_World(Matrix4::Identity())
-		{
-			my::UIRender::BuildPerspectiveMatrices(m_ViewFovy, m_ViewWidth, m_ViewHeight, m_View, m_Proj);
-		}
+		Dialog(void);
 
 		virtual ~Dialog(void)
 		{

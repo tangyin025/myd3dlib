@@ -352,7 +352,25 @@ namespace my
 			&& planeDir.dot(CalculateTriangleDirection(point, v2, v0)) >= 0;
 	}
 
-	std::pair<bool, float> IntersectionTests::rayAndHalfTriangle(
+	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
+		const Vector3 & pos,
+		const Vector3 & dir,
+		const Vector3 & planeNormal,
+		float planeDistance)
+	{
+		_ASSERT(abs(dir.length() - 1) < EPSILON_E6);
+
+		float denom = planeNormal.dot(dir);
+
+		if(abs(denom) < EPSILON_E6)
+		{
+			return TestResult(false, FLT_MAX);
+		}
+
+		return TestResult(true, -(planeNormal.dot(pos) - planeDistance) / denom);
+	}
+
+	IntersectionTests::TestResult IntersectionTests::rayAndTriangle(
 		const Vector3 & pos,
 		const Vector3 & dir,
 		float radius,
@@ -368,14 +386,14 @@ namespace my
 
 		if(denom > -EPSILON_E6)
 		{
-			return std::pair<bool, float>(false, FLT_MAX);
+			return TestResult(false, FLT_MAX);
 		}
 
 		float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
 
 		Vector3 intersection = pos + dir * t;
 
-		return std::pair<bool, float>(
+		return TestResult(
 			IsInsideTriangle(intersection, v0, v1, v2)
 			|| abs(_caculateNearestDistance(intersection, v0, v1)) <= radius
 			|| abs(_caculateNearestDistance(intersection, v1, v2)) <= radius
@@ -656,7 +674,7 @@ namespace my
 		unsigned res = 0;
 
 		if((res += pointAndHalfSpace(
-			Vector3( box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transform(box.getTransform()),
+			Vector3( box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -667,7 +685,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3(-box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transform(box.getTransform()),
+			Vector3(-box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -678,7 +696,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3( box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transform(box.getTransform()),
+			Vector3( box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -689,7 +707,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3( box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transform(box.getTransform()),
+			Vector3( box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -700,7 +718,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3(-box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transform(box.getTransform()),
+			Vector3(-box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -711,7 +729,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3( box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transform(box.getTransform()),
+			Vector3( box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -722,7 +740,7 @@ namespace my
 		}
 
 		if((res += pointAndHalfSpace(
-			Vector3(-box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transform(box.getTransform()),
+			Vector3(-box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -733,7 +751,7 @@ namespace my
 		}
 
 		return res += pointAndHalfSpace(
-			Vector3(-box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transform(box.getTransform()),
+			Vector3(-box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
 			planeNormal,
 			planeDistance,
@@ -751,7 +769,7 @@ namespace my
 
 		Vector3 centre = sphere.getTransformAxis(3);
 
-		Vector3 relCentre = centre.transform(box.getTransform().inverse());
+		Vector3 relCentre = centre.transformCoord(box.getTransform().inverse());
 
 		if(abs(relCentre.x) > box.halfSize.x + sphere.radius
 			|| abs(relCentre.y) > box.halfSize.y + sphere.radius
@@ -789,7 +807,7 @@ namespace my
 			return used;
 		}
 
-		Vector3 closestPointWorld = closestPoint.transform(box.getTransform());
+		Vector3 closestPointWorld = closestPoint.transformCoord(box.getTransform());
 
 		contacts->contactNormal = (closestPointWorld - centre).normalize();
 		contacts->penetration = sphere.radius - sqrt(distanceSquare);
@@ -809,7 +827,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 relPoint = point.transform(box.getTransform().inverse());
+		Vector3 relPoint = point.transformCoord(box.getTransform().inverse());
 
 		///*
 		// * NOTE:
@@ -1058,7 +1076,7 @@ namespace my
 		return Vector3(
 			box.getTransformAxis(0).dot(dir) >= 0 ? box.halfSize.x : -box.halfSize.x,
 			box.getTransformAxis(1).dot(dir) >= 0 ? box.halfSize.y : -box.halfSize.y,
-			box.getTransformAxis(2).dot(dir) >= 0 ? box.halfSize.z : -box.halfSize.z).transform(box.getTransform());
+			box.getTransformAxis(2).dot(dir) >= 0 ? box.halfSize.z : -box.halfSize.z).transformCoord(box.getTransform());
 	}
 
 	bool CollisionDetector::_tryBoxAxisAndBox(
@@ -1217,12 +1235,12 @@ namespace my
 		Vector3 pointOnBox0Edge = Vector3(
 			0 == box0AxisIndex ? 0 : (box0.getTransformAxis(0).dot(axis) > 0 ? -box0.halfSize.x : box0.halfSize.x),
 			1 == box0AxisIndex ? 0 : (box0.getTransformAxis(1).dot(axis) > 0 ? -box0.halfSize.y : box0.halfSize.y),
-			2 == box0AxisIndex ? 0 : (box0.getTransformAxis(2).dot(axis) > 0 ? -box0.halfSize.z : box0.halfSize.z)).transform(box0.getTransform());
+			2 == box0AxisIndex ? 0 : (box0.getTransformAxis(2).dot(axis) > 0 ? -box0.halfSize.z : box0.halfSize.z)).transformCoord(box0.getTransform());
 
 		Vector3 pointOnBox1Edge = Vector3(
 			0 == box1AxisIndex ? 0 : (box1.getTransformAxis(0).dot(axis) < 0 ? -box1.halfSize.x : box1.halfSize.x),
 			1 == box1AxisIndex ? 0 : (box1.getTransformAxis(1).dot(axis) < 0 ? -box1.halfSize.y : box1.halfSize.y),
-			2 == box1AxisIndex ? 0 : (box1.getTransformAxis(2).dot(axis) < 0 ? -box1.halfSize.z : box1.halfSize.z)).transform(box1.getTransform());
+			2 == box1AxisIndex ? 0 : (box1.getTransformAxis(2).dot(axis) < 0 ? -box1.halfSize.z : box1.halfSize.z)).transformCoord(box1.getTransform());
 
 		contacts->contactNormal = axis;
 		contacts->penetration = smallestPenetration;

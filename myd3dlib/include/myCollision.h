@@ -283,9 +283,9 @@ namespace my
 			return transform;
 		}
 
-		Vector3 getTransformAxis(unsigned i) const
+		const Vector3 & getTransformAxis(unsigned i) const
 		{
-			return Vector3(transform[i][0], transform[i][1], transform[i][2]);
+			return transform[i];
 		}
 
 		void setRotationTransform(const Matrix4 & _rotationTransform)
@@ -459,7 +459,15 @@ namespace my
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
-		static std::pair<bool, float> rayAndHalfTriangle(
+		typedef std::pair<bool, float> TestResult;
+
+		static TestResult rayAndHalfSpace(
+			const Vector3 & pos,
+			const Vector3 & dir,
+			const Vector3 & planeNormal,
+			float planeDistance);
+
+		static TestResult rayAndTriangle(
 			const Vector3 & pos,
 			const Vector3 & dir,
 			float radius,

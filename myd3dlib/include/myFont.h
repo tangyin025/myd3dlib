@@ -154,8 +154,6 @@ namespace my
 			float horiAdvance;
 
 			RECT textureRect;
-
-			Rectangle uvRect;
 		};
 
 		typedef std::map<int, CharacterInfo> CharacterMap;
@@ -178,6 +176,8 @@ namespace my
 		CharacterMap m_characterMap;
 
 		TexturePtr m_texture;
+
+		D3DSURFACE_DESC m_textureDesc;
 
 		RectAssignmentNodePtr m_textureRectRoot;
 

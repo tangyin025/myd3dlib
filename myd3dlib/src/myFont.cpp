@@ -142,9 +142,9 @@ Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short
 	m_maxAdvance = m_face->size->metrics.max_advance / 64.0f;
 
 	m_texture = CreateFontTexture(pDevice, 256, 256);
+	m_textureDesc = m_texture->GetLevelDesc(0);
 
-	D3DSURFACE_DESC desc = m_texture->GetLevelDesc(0);
-	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width, desc.Height)));
+	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 }
 
 Font::~Font(void)
@@ -227,15 +227,15 @@ void Font::OnDestroyDevice(void)
 
 void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
 {
-	D3DSURFACE_DESC desc = m_texture->GetLevelDesc(0);
-
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{
-		m_texture.reset();
-		m_texture = CreateFontTexture(m_Device, desc.Width * 2, desc.Height * 2);
+		_ASSERT(m_textureDesc.Width > 0 && m_textureDesc.Height > 0);
 
-		desc = m_texture->GetLevelDesc(0);
-		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, desc.Width, desc.Height)));
+		m_texture.reset();
+		m_texture = CreateFontTexture(m_Device, m_textureDesc.Width * 2, m_textureDesc.Height * 2);
+		m_textureDesc = m_texture->GetLevelDesc(0);
+
+		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{
@@ -270,10 +270,6 @@ void Font::InsertCharacter(
 	info.horiBearingX = horiBearingX;
 	info.horiBearingY = horiBearingY;
 	info.horiAdvance = horiAdvance;
-	info.uvRect.l = (float)info.textureRect.left / m_textureRectRoot->m_rect.right;
-	info.uvRect.t = (float)info.textureRect.top / m_textureRectRoot->m_rect.bottom;
-	info.uvRect.r = (float)info.textureRect.right / m_textureRectRoot->m_rect.right;
-	info.uvRect.b = (float)info.textureRect.bottom / m_textureRectRoot->m_rect.bottom;
 
 	D3DLOCKED_RECT lr = m_texture->LockRect(info.textureRect);
 	for(int y = 0; y < bmpHeight; y++)
@@ -397,11 +393,12 @@ size_t Font::BuildStringVertices(
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
+		// ! CalculateUVRect can be optimized
 		size_t used = UIRender::BuildRectangleVertices(
 			&pBuffer[i],
 			bufferSize - i,
-			my::Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height),
-			info.uvRect,
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height),
+			UIRender::CalculateUVRect(CSize(m_textureDesc.Width, m_textureDesc.Height), info.textureRect),
 			Color);
 
 		if(0 == used)

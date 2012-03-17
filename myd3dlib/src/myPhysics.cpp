@@ -871,7 +871,7 @@ namespace my
 		resultingAcc = acceleration + forceAccum * inverseMass;
 
 		// Calculate angular acceleration from torque inputs.
-		resultingAngularAcc = torqueAccum.transform(inverseInertiaTensorWorld);
+		resultingAngularAcc = torqueAccum.transformCoord(inverseInertiaTensorWorld);
 
 		// Update linear velocity from both acceleration and impulse.
 		addVelocity(resultingAcc * duration);
@@ -1009,9 +1009,9 @@ namespace my
 
 	void Spring::updateForce(RigidBody * body, float duration)
 	{
-		Vector3 connectionPointWorld = connectionPoint.transform(body->getTransform());
+		Vector3 connectionPointWorld = connectionPoint.transformCoord(body->getTransform());
 
-		Vector3 otherConnectionPointWorld = otherConnectionPoint.transform(other->getTransform());
+		Vector3 otherConnectionPointWorld = otherConnectionPoint.transformCoord(other->getTransform());
 
 		Vector3 distance = connectionPointWorld - otherConnectionPointWorld;
 
@@ -1047,13 +1047,13 @@ namespace my
 	{
 		Vector3 velocity = body->getVelocity() + *pwindSpeed;
 
-		Vector3 localVelocity = velocity.transform(body->getInverseRotationTransform());
+		Vector3 localVelocity = velocity.transformCoord(body->getInverseRotationTransform());
 
-		Vector3 localForce = localVelocity.transform(_tensor);
+		Vector3 localForce = localVelocity.transformCoord(_tensor);
 
-		Vector3 force = localForce.transform(body->getRotationTransform());
+		Vector3 force = localForce.transformCoord(body->getRotationTransform());
 
-		body->addForceAtPoint(force, position.transform(body->getTransform()));
+		body->addForceAtPoint(force, position.transformCoord(body->getTransform()));
 
 		body->setAwake();
 
@@ -1226,14 +1226,14 @@ namespace my
 		Vector3 velocity = body.getRotation().cross(relativeContactPosition) + body.getVelocity();
 
 		// Turn the velocity into contact-coordinates.
-		Vector3 velocityLocal = velocity.transformTranspose(contactToWorld);
+		Vector3 velocityLocal = velocity.transformCoordTranspose(contactToWorld);
 
 		// Calculate the ammount of velocity that is due to forces without
 		// reactions.
 		Vector3 accVelocity = body.getResultingAcc() * duration;
 
 		// Calculate the velocity in contact-coordinates.
-		Vector3 accVelocityLocal = accVelocity.transformTranspose(contactToWorld);
+		Vector3 accVelocityLocal = accVelocity.transformCoordTranspose(contactToWorld);
 
 		// We ignore any component of acceleration in the contact normal
 		// direction, we are only interested in planar acceleration
@@ -1314,7 +1314,7 @@ namespace my
 		// Build a vector that shows the change in velocity in
 		// world space for a unit impulse in the direction of the contact
 		// normal.
-		Vector3 deltaVelocityWorld = relativeContactPositions[0].cross(contactNormal).transform(inverseInertialTensors[0]).cross(relativeContactPositions[0]);
+		Vector3 deltaVelocityWorld = relativeContactPositions[0].cross(contactNormal).transformCoord(inverseInertialTensors[0]).cross(relativeContactPositions[0]);
 
 		// Work out the change in velocity in contact coordiantes.
 		float deltaVelocity = deltaVelocityWorld.dot(contactNormal);
@@ -1326,7 +1326,7 @@ namespace my
 		if(NULL != bodys[1])
 		{
 			// Go through the same transformation sequence again
-			deltaVelocityWorld = relativeContactPositions[1].cross(contactNormal).transform(inverseInertialTensors[1]).cross(relativeContactPositions[1]);
+			deltaVelocityWorld = relativeContactPositions[1].cross(contactNormal).transformCoord(inverseInertialTensors[1]).cross(relativeContactPositions[1]);
 
 			// Add the change in velocity due to rotation
 			deltaVelocity += deltaVelocityWorld.dot(contactNormal);
@@ -1393,7 +1393,7 @@ namespace my
 		Vector3 velKill(desiredDeltaVelocity, -contactVelocity.y, -contactVelocity.z);
 
 		// Find the impulse to kill target velocities
-		Vector3 impulseContact = velKill.transform(impulseMatrix);
+		Vector3 impulseContact = velKill.transformCoord(impulseMatrix);
 
 		// Check for exceeding friction
 		float planarImpulse = sqrt(impulseContact.y * impulseContact.y + impulseContact.z * impulseContact.z);
@@ -1426,7 +1426,7 @@ namespace my
 	{
 		// Use the same procedure as for calculating frictionless
 		// velocity change to work out the angular inertia.
-		Vector3 angularInertiaWorld = relativeContactPosition.cross(contactNormal).transform(body.getInverseInertialTensor()).cross(relativeContactPosition);
+		Vector3 angularInertiaWorld = relativeContactPosition.cross(contactNormal).transformCoord(body.getInverseInertialTensor()).cross(relativeContactPosition);
 
 		angularInertia = angularInertiaWorld.dot(contactNormal);
 
@@ -1486,7 +1486,7 @@ namespace my
 		else
 		{
 			// Work out the direction we'd like to rotate in.
-			Vector3 angularPerMove = relativeContactPosition.cross(contactNormal).transform(body.getInverseInertialTensor()) / angularInertia; // ***
+			Vector3 angularPerMove = relativeContactPosition.cross(contactNormal).transformCoord(body.getInverseInertialTensor()) / angularInertia; // ***
 
 			// Work out the direction we'd need to rotate to achieve that
 			angularChange = angularPerMove * angularMove;
@@ -1587,12 +1587,12 @@ namespace my
 		}
 
 		// Convert impulse to world coordinates
-		Vector3 impulse = impulseContact.transform(contactToWorld);
+		Vector3 impulse = impulseContact.transformCoord(contactToWorld);
 
 		// Split in the impulse into linear and rotational components
 		velocityChanges[0] = impulse * bodys[0]->getInverseMass();
 
-		rotationChanges[0] = relativeContactPositions[0].cross(impulse).transform(inverseInertiaTensors[0]);
+		rotationChanges[0] = relativeContactPositions[0].cross(impulse).transformCoord(inverseInertiaTensors[0]);
 
 		// Apply the changes
 		bodys[0]->addVelocity(velocityChanges[0]);
@@ -1604,7 +1604,7 @@ namespace my
 			// Work out body one's linear and angular changes
 			velocityChanges[1] = impulse * -bodys[1]->getInverseMass();
 
-			rotationChanges[1] = impulse.cross(relativeContactPositions[1]).transform(inverseInertiaTensors[1]);
+			rotationChanges[1] = impulse.cross(relativeContactPositions[1]).transformCoord(inverseInertiaTensors[1]);
 
 			// And apply them.
 			bodys[1]->addVelocity(velocityChanges[1]);
@@ -1793,14 +1793,14 @@ namespace my
 
 		if(0 == bodyIndex)
 		{
-			contact.contactVelocity += deltaVelocity.transformTranspose(contact.contactToWorld);
+			contact.contactVelocity += deltaVelocity.transformCoordTranspose(contact.contactToWorld);
 		}
 		else
 		{
 			// The sign of the change is negative if we're dealing
 			// with the second body in a contact.
 			_ASSERT(1 == bodyIndex);
-			contact.contactVelocity -= deltaVelocity.transformTranspose(contact.contactToWorld);
+			contact.contactVelocity -= deltaVelocity.transformCoordTranspose(contact.contactToWorld);
 		}
 
 		contact.calculateDesiredDeltaVelocity(duration);
