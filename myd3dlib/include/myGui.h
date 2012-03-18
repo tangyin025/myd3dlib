@@ -185,6 +185,7 @@ namespace my
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
 
+	// http://www.boost.org/doc/libs/1_49_0/libs/smart_ptr/sp_techniques.html#from_this
 	typedef fastdelegate::FastDelegate1<Control *> ControlEvent;
 
 	class Button : public Static
@@ -261,6 +262,14 @@ namespace my
 
 		bool m_bMouseDrag;
 
+		int m_nSelStart;
+
+		bool m_bInsertMode;
+
+		ControlEvent EventChange;
+
+		ControlEvent EventEnter;
+
 	public:
 		EditBox(void)
 			: m_nCaret(0)
@@ -270,6 +279,8 @@ namespace my
 			, m_nFirstVisible(0)
 			, m_Border(0,0,0,0)
 			, m_bMouseDrag(false)
+			, m_nSelStart(0)
+			, m_bInsertMode(true)
 		{
 		}
 
@@ -283,9 +294,17 @@ namespace my
 
 		virtual bool CanHaveFocus(void);
 
+		virtual void OnFocusIn(void);
+
 		void PlaceCaret(int nCP);
 
 		void ResetCaretBlink(void);
+
+		void DeleteSelectionText(void);
+
+		void CopyToClipboard(void);
+
+		void PasteFromClipboard(void);
 	};
 
 	typedef boost::shared_ptr<EditBox> EditBoxPtr;

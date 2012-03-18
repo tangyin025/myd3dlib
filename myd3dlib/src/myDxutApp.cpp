@@ -515,6 +515,7 @@ LRESULT DxutSample::MsgProc(
 	if(m_settingsDlg.IsActive())
 	{
 		m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+		//*pbNoFurtherProcessing = true;
 		return 0;
 	}
 

@@ -284,6 +284,7 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 			D3DSURFACE_DESC desc = Skin->m_Texture->GetLevelDesc();
 			CSize TextureSize(desc.Width, desc.Height);
 			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
+
 			if(!m_bEnabled)
 			{
 				UIRender::DrawRectangle(
@@ -417,6 +418,7 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 			D3DSURFACE_DESC desc = Skin->m_Texture->GetLevelDesc();
 			CSize TextureSize(desc.Width, desc.Height);
 			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
+
 			if(!m_bEnabled)
 			{
 				UIRender::DrawRectangle(
@@ -439,9 +441,9 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 			}
 		}
 
-		// ! DXUT dependency
 		if(DXUTGetGlobalTimer()->GetAbsoluteTime() - m_dfLastBlink >= m_dfBlink )
 		{
+			// ! DXUT dependency
 			m_bCaretOn = !m_bCaretOn;
 			m_dfLastBlink = DXUTGetGlobalTimer()->GetAbsoluteTime();
 		}
@@ -450,15 +452,48 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 		{
 			Rectangle TextRect(Rect.l + m_Border.x, Rect.t + m_Border.y, Rect.r - m_Border.z, Rect.b - m_Border.w);
 
-			Skin->m_Font->DrawString(m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
-
 			float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-
 			float caret_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+			if(m_nSelStart != m_nCaret)
+			{
+				float sel_start_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nSelStart);
+				float sel_left_x = __min(caret_x, sel_start_x) - x1st;
+				float sel_right_x = __max(caret_x, sel_start_x) - x1st;
+
+				Rectangle SelRect(
+					Max(TextRect.l, TextRect.l + sel_left_x),
+					TextRect.t,
+					Min(TextRect.r, TextRect.l + sel_right_x),
+					TextRect.b);
+
+				UIRender::DrawRectangle(pd3dDevice, SelRect, Skin->m_SelBkColor);
+			}
+
+			Skin->m_Font->DrawString(m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
 			if(m_bHasFocus && m_bCaretOn)
 			{
-				Rectangle CaretRect(TextRect.l + caret_x - x1st - 1, TextRect.t, TextRect.l + caret_x - x1st + 1, TextRect.b);
+				Rectangle CaretRect(
+					TextRect.l + caret_x - x1st - 1,
+					TextRect.t,
+					TextRect.l + caret_x - x1st + 1,
+					TextRect.b);
+
+				if(!m_bInsertMode)
+				{
+					float charWidth;
+					if(m_nCaret < m_Text.length())
+					{
+						const my::Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+						charWidth = info.horiAdvance;
+					}
+					else
+					{
+						const my::Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(L'_');
+						charWidth = info.horiAdvance;
+					}
+					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
+				}
 
 				UIRender::DrawRectangle(pd3dDevice, CaretRect, Skin->m_CaretColor);
 			}
@@ -470,6 +505,109 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
+		switch(uMsg)
+		{
+		case WM_CHAR:
+			{
+				switch((WCHAR)wParam)
+				{
+				case VK_BACK:
+					if(m_nCaret != m_nSelStart)
+					{
+						DeleteSelectionText();
+						if(EventChange)
+							EventChange(this);
+					}
+					else if(m_nCaret > 0)
+					{
+						PlaceCaret(m_nCaret - 1);
+						m_nSelStart = m_nCaret;
+						m_Text.erase(m_nCaret, 1);
+						if(EventChange)
+							EventChange(this);
+					}
+					ResetCaretBlink();
+					break;
+
+                case 24:        // Ctrl-X Cut
+                case VK_CANCEL: // Ctrl-C Copy
+					CopyToClipboard();
+					if((WCHAR)wParam == 24)
+					{
+						DeleteSelectionText();
+						if(EventChange)
+							EventChange(this);
+					}
+					break;
+
+				case 22:		// Ctrl-V Paste
+					PasteFromClipboard();
+					if(EventChange)
+						EventChange(this);
+					break;
+
+				case 1:
+					//if(m_nSelStart == m_nCaret)
+					{
+						m_nSelStart = 0;
+						PlaceCaret(m_Text.length());
+					}
+					break;
+
+				case VK_RETURN:
+					if(EventEnter)
+						EventEnter(this);
+					break;
+
+				// Junk characters we don't want in the string
+				case 26:  // Ctrl Z
+				case 2:   // Ctrl B
+				case 14:  // Ctrl N
+				case 19:  // Ctrl S
+				case 4:   // Ctrl D
+				case 6:   // Ctrl F
+				case 7:   // Ctrl G
+				case 10:  // Ctrl J
+				case 11:  // Ctrl K
+				case 12:  // Ctrl L
+				case 17:  // Ctrl Q
+				case 23:  // Ctrl W
+				case 5:   // Ctrl E
+				case 18:  // Ctrl R
+				case 20:  // Ctrl T
+				case 25:  // Ctrl Y
+				case 21:  // Ctrl U
+				case 9:   // Ctrl I
+				case 15:  // Ctrl O
+				case 16:  // Ctrl P
+				case 27:  // Ctrl [
+				case 29:  // Ctrl ]
+				case 28:  // Ctrl \ 
+					break;
+
+				default:
+					if(m_nCaret != m_nSelStart)
+						DeleteSelectionText();
+
+					if(!m_bInsertMode && m_nCaret < m_Text.length())
+					{
+						m_Text[m_nCaret] = (WCHAR)wParam;
+						PlaceCaret(m_nCaret + 1);
+						m_nSelStart = m_nCaret;
+					}
+					else
+					{
+						m_Text.insert(m_nCaret, 1, (WCHAR)wParam);
+						PlaceCaret(m_nCaret + 1);
+						m_nSelStart = m_nCaret;
+					}
+					ResetCaretBlink();
+					if(EventChange)
+						EventChange(this);
+				}
+			}
+			return true;
+		}
 	}
 	return false;
 }
@@ -488,33 +626,63 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			case VK_HOME:
 				PlaceCaret(0);
+				if(GetKeyState(VK_SHIFT) >= 0)
+					m_nSelStart = m_nCaret;
 				ResetCaretBlink();
 				return true;
 
 			case VK_END:
 				PlaceCaret(m_Text.length());
+				if(GetKeyState(VK_SHIFT) >= 0)
+					m_nSelStart = m_nCaret;
 				ResetCaretBlink();
 				return true;
 
 			case VK_INSERT:
+				if(GetKeyState(VK_CONTROL) < 0)
+				{
+					CopyToClipboard();
+				}
+				else if(GetKeyState(VK_SHIFT) < 0)
+				{
+					PasteFromClipboard();
+				}
+				else
+				{
+					m_bInsertMode = !m_bInsertMode;
+				}
+				ResetCaretBlink();
 				break;
 
 			case VK_DELETE:
-				break;
+				if(m_nCaret != m_nSelStart)
+				{
+					DeleteSelectionText();
+					if(EventChange)
+						EventChange(this);
+				}
+				else
+				{
+					m_Text.erase(m_nCaret, 1);
+					if(EventChange)
+						EventChange(this);
+				}
+				ResetCaretBlink();
+				return true;
 
 			case VK_LEFT:
 				if(m_nCaret > 0)
-				{
 					PlaceCaret(m_nCaret - 1);
-				}
+				if(GetKeyState(VK_SHIFT) >= 0)
+					m_nSelStart = m_nCaret;
 				ResetCaretBlink();
 				return true;
 
 			case VK_RIGHT:
 				if(m_nCaret < m_Text.length())
-				{
 					PlaceCaret(m_nCaret + 1);
-				}
+				if(GetKeyState(VK_SHIFT) >= 0)
+					m_nSelStart = m_nCaret;
 				ResetCaretBlink();
 				return true;
 
@@ -547,17 +715,12 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 				if(m_Skin && m_Skin->m_Font)
 				{
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-
 					float x = pt.x - m_Location.x - m_Border.x + x1st;
-
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
-
 					if(nCP < m_Text.length())
 					{
 						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
-
 						const my::Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
-
 						if(x > xLeft + info.horiAdvance * 0.5f)
 						{
 							nCP += 1;
@@ -565,6 +728,8 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					}
 
 					PlaceCaret(nCP);
+
+					m_nSelStart = m_nCaret;
 
 					ResetCaretBlink();
 				}
@@ -576,8 +741,30 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if(m_bMouseDrag)
 			{
 				ReleaseCapture();
-
 				m_bMouseDrag = false;
+			}
+			break;
+
+		case WM_MOUSEMOVE:
+			if(m_bMouseDrag)
+			{
+				if(m_Skin && m_Skin->m_Font)
+				{
+					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+					float x = pt.x - m_Location.x - m_Border.x + x1st;
+					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
+					if(nCP < m_Text.length())
+					{
+						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
+						const my::Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+						if(x > xLeft + info.horiAdvance * 0.5f)
+						{
+							nCP += 1;
+						}
+					}
+
+					PlaceCaret(nCP);
+				}
 			}
 			break;
 		}
@@ -590,6 +777,13 @@ bool EditBox::CanHaveFocus(void)
 	return m_bVisible && m_bEnabled;
 }
 
+void EditBox::OnFocusIn(void)
+{
+	Control::OnFocusIn();
+
+	ResetCaretBlink();
+}
+
 void EditBox::PlaceCaret(int nCP)
 {
 	m_nCaret = nCP;
@@ -597,15 +791,16 @@ void EditBox::PlaceCaret(int nCP)
 	if(m_Skin && m_Skin->m_Font)
 	{
 		float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-
 		float x = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
-
-		float x2 = x;
-
+		float x2;
 		if(m_nCaret < m_Text.length())
 		{
 			const my::Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
 			x2 = x + info.horiAdvance;
+		}
+		else
+		{
+			x2 = x;
 		}
 
 		if(x < x1st)
@@ -618,14 +813,11 @@ void EditBox::PlaceCaret(int nCP)
 			if(xNewLeft > x1st)
 			{
 				int nCPNew1st = m_Skin->m_Font->XtoCP(m_Text.c_str(), xNewLeft);
-
 				float xNew1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCPNew1st);
-
 				if(xNew1st < xNewLeft)
 				{
 					nCPNew1st++;
 				}
-
 				m_nFirstVisible = nCPNew1st;
 			}
 		}
@@ -637,6 +829,68 @@ void EditBox::ResetCaretBlink(void)
 	// ! DXUT dependency
 	m_bCaretOn = true;
 	m_dfLastBlink = DXUTGetGlobalTimer()->GetAbsoluteTime();
+}
+
+void EditBox::DeleteSelectionText(void)
+{
+	int nFirst = __min(m_nCaret, m_nSelStart);
+	int nLast = __max(m_nCaret, m_nSelStart);
+	PlaceCaret(nFirst);
+	m_nSelStart = m_nCaret;
+	m_Text.erase(nFirst, nLast - nFirst);
+}
+
+void EditBox::CopyToClipboard(void)
+{
+	if(m_nCaret != m_nSelStart && OpenClipboard(NULL))
+	{
+		EmptyClipboard();
+
+        HGLOBAL hBlock = GlobalAlloc( GMEM_MOVEABLE, sizeof( WCHAR ) * ( m_Text.length() + 1 ) );
+        if( hBlock )
+        {
+            WCHAR* pwszText = ( WCHAR* )GlobalLock( hBlock );
+            if( pwszText )
+            {
+                int nFirst = __min( m_nCaret, m_nSelStart );
+                int nLast = __max( m_nCaret, m_nSelStart );
+                if( nLast - nFirst > 0 )
+                    CopyMemory( pwszText, m_Text.c_str() + nFirst, ( nLast - nFirst ) * sizeof( WCHAR ) );
+                pwszText[nLast - nFirst] = L'\0';  // Terminate it
+                GlobalUnlock( hBlock );
+            }
+            SetClipboardData( CF_UNICODETEXT, hBlock );
+        }
+        CloseClipboard();
+        // We must not free the object until CloseClipboard is called.
+        if( hBlock )
+            GlobalFree( hBlock );
+	}
+}
+
+void EditBox::PasteFromClipboard(void)
+{
+	DeleteSelectionText();
+
+    if( OpenClipboard( NULL ) )
+    {
+        HANDLE handle = GetClipboardData( CF_UNICODETEXT );
+        if( handle )
+        {
+            // Convert the ANSI string to Unicode, then
+            // insert to our buffer.
+            WCHAR* pwszText = ( WCHAR* )GlobalLock( handle );
+            if( pwszText )
+            {
+                // Copy all characters up to null.
+				m_Text.insert(m_nCaret, pwszText);
+				PlaceCaret( m_nCaret + lstrlenW( pwszText ) );
+                m_nSelStart = m_nCaret;
+                GlobalUnlock( handle );
+            }
+        }
+        CloseClipboard();
+    }
 }
 
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
@@ -714,7 +968,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			D3DVIEWPORT9 vp;
 			pd3dDevice->GetViewport(&vp);
 
-			Vector2 ptScreen(LOWORD(lParam) + 0.5f, HIWORD(lParam) + 0.5f);
+			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
 			Vector3 ptAt(
 				(ptScreen.x - vp.X) / vp.Width * m_Viewport.Width,
 				(ptScreen.y - vp.Y) / vp.Height * m_Viewport.Height, 0);
