@@ -118,31 +118,24 @@ bool RectAssignmentNode::AssignRect(const SIZE & size, RECT & outRect)
 	return false;
 }
 
-Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap)
+Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap)
 	: m_face(face)
 	, m_Device(pDevice)
 	, FONT_PIXEL_GAP(pixel_gap)
 {
 	_ASSERT(m_face);
 
-	FT_Size_RequestRec_ req;
-	req.type = FT_SIZE_REQUEST_TYPE_NOMINAL;
-	req.width = (FT_Long)(height * 64.0f);
-	req.height = (FT_Long)(height * 64.0f);
-	req.horiResolution = 0;
-	req.vertResolution = 0;
-	FT_Error err = FT_Request_Size(m_face, &req);
+	FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
 	}
 
-	m_LineHeight = m_face->size->metrics.height / 64.0f;
+	m_LineHeight = m_face->size->metrics.height >> 6;
 
-	m_maxAdvance = m_face->size->metrics.max_advance / 64.0f;
+	m_maxAdvance = m_face->size->metrics.max_advance >> 6;
 
-	m_texture = CreateFontTexture(pDevice, 256, 256);
-	m_textureDesc = m_texture->GetLevelDesc(0);
+	CreateFontTexture(256, 256);
 
 	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 }
@@ -150,22 +143,6 @@ Font::Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short
 Font::~Font(void)
 {
 	FT_Done_Face(m_face);
-}
-
-TexturePtr Font::CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height)
-{
-	// ! DXUT dependency
-	DXUTDeviceSettings settings = DXUTGetDeviceSettings();
-	D3DPOOL Pool;
-	if(settings.d3d9.DeviceType != D3DDEVTYPE_REF)
-	{
-		Pool = D3DPOOL_MANAGED;
-	}
-	else
-	{
-		Pool = D3DPOOL_SYSTEMMEM;
-	}
-	return Texture::CreateTexture(pDevice, Width, Height, 1, 0, D3DFMT_A8, Pool);
 }
 
 FontPtr Font::CreateFontFromFile(
@@ -225,15 +202,32 @@ void Font::OnDestroyDevice(void)
 	m_Device.Release();
 }
 
+void Font::CreateFontTexture(UINT Width, UINT Height)
+{
+	// ! DXUT dependency
+	DXUTDeviceSettings settings = DXUTGetDeviceSettings();
+	D3DPOOL Pool;
+	if(settings.d3d9.DeviceType != D3DDEVTYPE_REF)
+	{
+		Pool = D3DPOOL_MANAGED;
+	}
+	else
+	{
+		Pool = D3DPOOL_SYSTEMMEM;
+	}
+
+	m_texture.reset();
+	m_texture = Texture::CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, Pool);
+	m_textureDesc = m_texture->GetLevelDesc();
+}
+
 void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
 {
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{
 		_ASSERT(m_textureDesc.Width > 0 && m_textureDesc.Height > 0);
 
-		m_texture.reset();
-		m_texture = CreateFontTexture(m_Device, m_textureDesc.Width * 2, m_textureDesc.Height * 2);
-		m_textureDesc = m_texture->GetLevelDesc(0);
+		CreateFontTexture(m_textureDesc.Width * 2, m_textureDesc.Height * 2);
 
 		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 
@@ -248,11 +242,9 @@ void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
 
 void Font::InsertCharacter(
 	int character,
-	float width,
-	float height,
-	float horiBearingX,
-	float horiBearingY,
-	float horiAdvance,
+	int horiBearingX,
+	int horiBearingY,
+	int horiAdvance,
 	const unsigned char * bmpBuffer,
 	int bmpWidth,
 	int bmpHeight,
@@ -261,12 +253,12 @@ void Font::InsertCharacter(
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
 	CharacterInfo info;
+
 	// Add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
 	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
+
 	::InflateRect(&info.textureRect, -FONT_PIXEL_GAP, -FONT_PIXEL_GAP);
 
-	info.width = width;
-	info.height = height;
 	info.horiBearingX = horiBearingX;
 	info.horiBearingY = horiBearingY;
 	info.horiAdvance = horiAdvance;
@@ -303,11 +295,9 @@ void Font::LoadCharacter(int character)
 
 	InsertCharacter(
 		character,
-		m_face->glyph->metrics.width / 64.0f,
-		m_face->glyph->metrics.height / 64.0f,
-		m_face->glyph->metrics.horiBearingX / 64.0f,
-		m_face->glyph->metrics.horiBearingY / 64.0f,
-		m_face->glyph->metrics.horiAdvance / 64.0f,
+		m_face->glyph->metrics.horiBearingX >> 6,
+		m_face->glyph->metrics.horiBearingY >> 6,
+		m_face->glyph->metrics.horiAdvance >> 6,
 		m_face->glyph->bitmap.buffer,
 		m_face->glyph->bitmap.width,
 		m_face->glyph->bitmap.rows,
@@ -364,13 +354,11 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	}
 	else if(align & AlignMiddle)
 	{
-		Vector2 extent = CalculateStringExtent(pString);
-		pen.y = rect.t + (rect.b - rect.t - extent.y) * 0.5f;
+		pen.y = rect.t + (rect.b - rect.t - m_LineHeight) * 0.5f;
 	}
 	else
 	{
-		Vector2 extent = CalculateStringExtent(pString);
-		pen.y = rect.b - extent.y;
+		pen.y = rect.b - m_LineHeight;
 	}
 	pen.y += m_LineHeight;
 
@@ -389,17 +377,21 @@ size_t Font::BuildStringVertices(
 
 	size_t i = 0;
 	wchar_t c;
-	while((c = *pString++))
+	while((c = *pString++) && pen.x < rect.r)
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
+
+		int CharWidth = info.textureRect.right - info.textureRect.left;
+
+		int CharHeight = info.textureRect.bottom - info.textureRect.top;
 
 		// ! CalculateUVRect can be optimized
 		size_t used = UIRender::BuildRectangleVertices(
 			&pBuffer[i],
 			bufferSize - i,
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height),
-			UIRender::CalculateUVRect(CSize(m_textureDesc.Width, m_textureDesc.Height), info.textureRect),
-			Color);
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, CharWidth, CharHeight),
+			Color,
+			UIRender::CalculateUVRect(CSize(m_textureDesc.Width, m_textureDesc.Height), info.textureRect));
 
 		if(0 == used)
 		{
@@ -446,7 +438,7 @@ void Font::DrawString(
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
 	wchar_t c;
-	while((c = *pString++))
+	while((c = *pString++) && pen.x < rect.r)
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
@@ -465,4 +457,34 @@ void Font::DrawString(
 
 		pen.x += info.horiAdvance;
 	}
+}
+
+float Font::CPtoX(LPCWSTR pString, int nCP)
+{
+	float x = 0;
+	int i = 0;
+	wchar_t c;
+	for(; (c = *pString++) && i < nCP; i++)
+	{
+		const CharacterInfo & info = GetCharacterInfo(c);
+		x += info.horiAdvance;
+	}
+	return x;
+}
+
+int Font::XtoCP(LPCWSTR pString, float _x)
+{
+	float x = 0;
+	int i = 0;
+	wchar_t c;
+	for(; (c = *pString++); i++)
+	{
+		const CharacterInfo & info = GetCharacterInfo(c);
+		if(x + info.horiAdvance > _x)
+		{
+			break;
+		}
+		x += info.horiAdvance;
+	}
+	return i;
 }

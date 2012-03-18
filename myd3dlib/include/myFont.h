@@ -143,22 +143,20 @@ namespace my
 
 		struct CharacterInfo
 		{
-			float width;
+			int horiBearingX;
 
-			float height;
+			int horiBearingY;
 
-			float horiBearingX;
-
-			float horiBearingY;
-
-			float horiAdvance;
+			int horiAdvance;
 
 			RECT textureRect;
 		};
 
 		typedef std::map<int, CharacterInfo> CharacterMap;
 
-	//protected:
+		int m_LineHeight;
+
+	protected:
 		HRESULT hr;
 
 		FT_Face m_face;
@@ -169,9 +167,7 @@ namespace my
 
 		boost::shared_array<unsigned char> m_cache;
 
-		float m_LineHeight;
-
-		float m_maxAdvance;
+		int m_maxAdvance;
 
 		CharacterMap m_characterMap;
 
@@ -181,7 +177,7 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(FT_Face face, float height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap);
+		Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap);
 
 	public:
 		virtual ~Font(void);
@@ -201,23 +197,21 @@ namespace my
 			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
-		static TexturePtr CreateFontTexture(LPDIRECT3DDEVICE9 pDevice, UINT Width, UINT Height);
-
 		virtual void OnResetDevice(void);
 
 		virtual void OnLostDevice(void);
 
 		virtual void OnDestroyDevice(void);
 
+		void CreateFontTexture(UINT Width, UINT Height);
+
 		void AssignTextureRect(const SIZE & size, RECT & outRect);
 
 		void InsertCharacter(
 			int character,
-			float width,
-			float height,
-			float horiBearingX,
-			float horiBearingY,
-			float horiAdvance,
+			int horiBearingX,
+			int horiBearingY,
+			int horiAdvance,
 			const unsigned char * bmpBuffer,
 			int bmpWidth,
 			int bmpHeight,
@@ -252,5 +246,9 @@ namespace my
 			const Rectangle & rect,
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
 			Align align = AlignLeftTop);
+
+		float CPtoX(LPCWSTR pString, int nCP);
+
+		int XtoCP(LPCWSTR pString, float x);
 	};
 }

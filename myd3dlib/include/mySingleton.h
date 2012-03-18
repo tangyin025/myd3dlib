@@ -32,7 +32,7 @@ namespace my
 			_ASSERT(NULL == s_ptr);
 		}
 
-		~Singleton(void)
+		virtual ~Singleton(void)
 		{
 			_ASSERT(NULL != s_ptr);
 		}
@@ -48,7 +48,7 @@ namespace my
 		static DrivedClass * getSingletonPtr(void)
 		{
 			_ASSERT(NULL != s_ptr);
-			return s_ptr;
+			return dynamic_cast<DrivedClass *>(s_ptr);
 		}
 
 		static DrivedClass & getSingleton(void)
@@ -63,7 +63,7 @@ namespace my
 			s_ptr = this;
 		}
 
-		~SingleInstance(void)
+		virtual ~SingleInstance(void)
 		{
 			_ASSERT(this == s_ptr);
 			s_ptr = NULL;

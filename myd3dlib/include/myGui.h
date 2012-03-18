@@ -27,14 +27,19 @@ namespace my
 			CUSTOMVERTEX * pBuffer,
 			size_t bufferSize,
 			const Rectangle & rect,
-			const Rectangle & uvRect,
-			DWORD color);
+			DWORD color,
+			const Rectangle & uvRect);
 
 		// Example of Draw BuildRectangleVertices
 		static void DrawRectangle(
 			IDirect3DDevice9 * pd3dDevice,
 			const Rectangle & rect,
-			const Rectangle & uvRect,
+			DWORD color,
+			const Rectangle & uvRect);
+
+		static void DrawRectangle(
+			IDirect3DDevice9 * pd3dDevice,
+			const Rectangle & rect,
 			DWORD color);
 	};
 
@@ -42,8 +47,6 @@ namespace my
 	{
 	public:
 		TexturePtr m_Texture;
-
-		SIZE m_TextureSize;
 
 		RECT m_TextureRect;
 
@@ -56,8 +59,7 @@ namespace my
 	public:
 		ControlSkin(void)
 			: m_TextureRect(CRect(0,0,0,0))
-			, m_TextureSize(CSize(0,0))
-			, m_TextColor(D3DCOLOR_ARGB(255,255,255,255))
+			, m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
 			, m_TextAlign(my::Font::AlignLeftTop)
 		{
 		}
@@ -101,7 +103,7 @@ namespace my
 			, m_bIsDefault(false)
 			, m_Location(100, 100)
 			, m_Size(100, 100)
-			, m_Color(D3DCOLOR_ARGB(0,0,0,0))
+			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 		{
 		}
 
@@ -210,6 +212,83 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
+
+	class EditBoxSkin : public ControlSkin
+	{
+	public:
+		RECT m_DisabledTexRect;
+
+		RECT m_FocusedTexRect;
+
+		RECT m_MouseOverTexRect;
+
+		D3DCOLOR m_SelTextColor;
+
+		D3DCOLOR m_SelBkColor;
+
+		D3DCOLOR m_CaretColor;
+
+	public:
+		EditBoxSkin(void)
+			: m_DisabledTexRect(CRect(0,0,0,0))
+			, m_FocusedTexRect(CRect(0,0,0,0))
+			, m_MouseOverTexRect(CRect(0,0,0,0))
+			, m_SelTextColor(D3DCOLOR_ARGB(255,255,255,255))
+			, m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
+			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<EditBoxSkin> EditBoxSkinPtr;
+
+	class EditBox : public Control
+	{
+	public:
+		std::wstring m_Text;
+
+		int m_nCaret;
+
+		bool m_bCaretOn;
+    
+		double m_dfBlink;
+
+		double m_dfLastBlink;
+
+		int m_nFirstVisible;
+
+		Vector4 m_Border;
+
+		bool m_bMouseDrag;
+
+	public:
+		EditBox(void)
+			: m_nCaret(0)
+			, m_bCaretOn(true)
+			, m_dfBlink(GetCaretBlinkTime() * 0.001f)
+			, m_dfLastBlink(0)
+			, m_nFirstVisible(0)
+			, m_Border(0,0,0,0)
+			, m_bMouseDrag(false)
+		{
+		}
+
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
+
+		virtual bool CanHaveFocus(void);
+
+		void PlaceCaret(int nCP);
+
+		void ResetCaretBlink(void);
+	};
+
+	typedef boost::shared_ptr<EditBox> EditBoxPtr;
 
 	class Dialog : public Control
 	{

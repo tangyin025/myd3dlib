@@ -77,8 +77,8 @@ size_t UIRender::BuildRectangleVertices(
 	CUSTOMVERTEX * pBuffer,
 	size_t bufferSize,
 	const my::Rectangle & rect,
-	const my::Rectangle & uvRect,
-	DWORD color)
+	DWORD color,
+	const my::Rectangle & uvRect)
 {
 	if(bufferSize >= 6)
 	{
@@ -121,13 +121,34 @@ size_t UIRender::BuildRectangleVertices(
 void UIRender::DrawRectangle(
 	IDirect3DDevice9 * pd3dDevice,
 	const my::Rectangle & rect,
-	const my::Rectangle & uvRect,
+	DWORD color,
+	const my::Rectangle & uvRect)
+{
+	CUSTOMVERTEX vertex_list[6];
+	size_t vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, uvRect);
+
+	Begin(pd3dDevice);
+
+	HRESULT hr;
+	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
+
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(*vertex_list)));
+
+	End(pd3dDevice);
+}
+
+void UIRender::DrawRectangle(
+	IDirect3DDevice9 * pd3dDevice,
+	const my::Rectangle & rect,
 	DWORD color)
 {
 	CUSTOMVERTEX vertex_list[6];
-	size_t vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, uvRect, color);
+	size_t vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, Rectangle(0,0,1,1));
 
 	Begin(pd3dDevice);
+
+    pd3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG2 );
+    pd3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2 );
 
 	HRESULT hr;
 	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
@@ -141,11 +162,13 @@ void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	if(m_bVisible)
 	{
-		if(m_Color & D3DCOLOR_ARGB(255,0,0,0) && m_Skin && m_Skin->m_Texture)
+		if(m_Skin && m_Skin->m_Texture)
 		{
+			D3DSURFACE_DESC desc = m_Skin->m_Texture->GetLevelDesc();
+			CSize TextureSize(desc.Width, desc.Height);
 			V(pd3dDevice->SetTexture(0, m_Skin->m_Texture->m_ptr));
 			UIRender::DrawRectangle(
-				pd3dDevice, Rectangle::LeftTop(m_Location, m_Size), UIRender::CalculateUVRect(m_Skin->m_TextureSize, m_Skin->m_TextureRect), m_Color);
+				pd3dDevice, Rectangle::LeftTop(m_Location, m_Size), m_Color, UIRender::CalculateUVRect(TextureSize, m_Skin->m_TextureRect));
 		}
 	}
 }
@@ -258,26 +281,28 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 
 		if(Skin && Skin->m_Texture)
 		{
+			D3DSURFACE_DESC desc = Skin->m_Texture->GetLevelDesc();
+			CSize TextureSize(desc.Width, desc.Height);
 			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
 			if(!m_bEnabled)
 			{
 				UIRender::DrawRectangle(
-					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_DisabledTexRect), m_Color);
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_DisabledTexRect));
 			}
 			else if(m_bPressed)
 			{
 				UIRender::DrawRectangle(
-					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_PressedTexRect), m_Color);
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_PressedTexRect));
 			}
 			else if(m_bMouseOver)
 			{
 				UIRender::DrawRectangle(
-					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_MouseOverTexRect), m_Color);
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_MouseOverTexRect));
 			}
 			else
 			{
 				UIRender::DrawRectangle(
-					pd3dDevice, Rect, UIRender::CalculateUVRect(Skin->m_TextureSize, Skin->m_TextureRect), m_Color);
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_TextureRect));
 			}
 		}
 
@@ -340,6 +365,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
+
 				// ! DXUT dependency
 				SetCapture(DXUTGetHWND());
 
@@ -350,8 +376,9 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if(m_bPressed)
 			{
-				m_bPressed = false;
 				ReleaseCapture();
+
+				m_bPressed = false;
 
 				if(ContainsPoint(pt))
 				{
@@ -375,6 +402,241 @@ bool Button::CanHaveFocus(void)
 bool Button::ContainsPoint(const Vector2 & pt)
 {
 	return Control::ContainsPoint(pt);
+}
+
+void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	if(m_bVisible)
+	{
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
+
+		my::Rectangle Rect(my::Rectangle::LeftTop(m_Location, m_Size));
+
+		if(Skin && Skin->m_Texture)
+		{
+			D3DSURFACE_DESC desc = Skin->m_Texture->GetLevelDesc();
+			CSize TextureSize(desc.Width, desc.Height);
+			V(pd3dDevice->SetTexture(0, Skin->m_Texture->m_ptr));
+			if(!m_bEnabled)
+			{
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_DisabledTexRect));
+			}
+			else if(m_bHasFocus)
+			{
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_FocusedTexRect));
+			}
+			else if(m_bMouseOver)
+			{
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_MouseOverTexRect));
+			}
+			else
+			{
+				UIRender::DrawRectangle(
+					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_TextureRect));
+			}
+		}
+
+		// ! DXUT dependency
+		if(DXUTGetGlobalTimer()->GetAbsoluteTime() - m_dfLastBlink >= m_dfBlink )
+		{
+			m_bCaretOn = !m_bCaretOn;
+			m_dfLastBlink = DXUTGetGlobalTimer()->GetAbsoluteTime();
+		}
+
+		if(Skin && Skin->m_Font)
+		{
+			Rectangle TextRect(Rect.l + m_Border.x, Rect.t + m_Border.y, Rect.r - m_Border.z, Rect.b - m_Border.w);
+
+			Skin->m_Font->DrawString(m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+
+			float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+
+			float caret_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+
+			if(m_bHasFocus && m_bCaretOn)
+			{
+				Rectangle CaretRect(TextRect.l + caret_x - x1st - 1, TextRect.t, TextRect.l + caret_x - x1st + 1, TextRect.b);
+
+				UIRender::DrawRectangle(pd3dDevice, CaretRect, Skin->m_CaretColor);
+			}
+		}
+	}
+}
+
+bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+	}
+	return false;
+}
+
+bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		switch(uMsg)
+		{
+		case WM_KEYDOWN:
+			switch(wParam)
+			{
+			case VK_TAB:
+				break;
+
+			case VK_HOME:
+				PlaceCaret(0);
+				ResetCaretBlink();
+				return true;
+
+			case VK_END:
+				PlaceCaret(m_Text.length());
+				ResetCaretBlink();
+				return true;
+
+			case VK_INSERT:
+				break;
+
+			case VK_DELETE:
+				break;
+
+			case VK_LEFT:
+				if(m_nCaret > 0)
+				{
+					PlaceCaret(m_nCaret - 1);
+				}
+				ResetCaretBlink();
+				return true;
+
+			case VK_RIGHT:
+				if(m_nCaret < m_Text.length())
+				{
+					PlaceCaret(m_nCaret + 1);
+				}
+				ResetCaretBlink();
+				return true;
+
+			case VK_UP:
+			case VK_DOWN:
+				ResetCaretBlink();
+				return true;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		switch(uMsg)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if(ContainsPoint(pt))
+			{
+				m_bMouseDrag = true;
+
+				// ! DXUT dependency
+				SetCapture(DXUTGetHWND());
+
+				if(m_Skin && m_Skin->m_Font)
+				{
+					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+
+					float x = pt.x - m_Location.x - m_Border.x + x1st;
+
+					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
+
+					if(nCP < m_Text.length())
+					{
+						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
+
+						const my::Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
+
+						if(x > xLeft + info.horiAdvance * 0.5f)
+						{
+							nCP += 1;
+						}
+					}
+
+					PlaceCaret(nCP);
+
+					ResetCaretBlink();
+				}
+				return true;
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if(m_bMouseDrag)
+			{
+				ReleaseCapture();
+
+				m_bMouseDrag = false;
+			}
+			break;
+		}
+	}
+	return false;
+}
+
+bool EditBox::CanHaveFocus(void)
+{
+	return m_bVisible && m_bEnabled;
+}
+
+void EditBox::PlaceCaret(int nCP)
+{
+	m_nCaret = nCP;
+
+	if(m_Skin && m_Skin->m_Font)
+	{
+		float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+
+		float x = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+
+		float x2 = x;
+
+		if(m_nCaret < m_Text.length())
+		{
+			const my::Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+			x2 = x + info.horiAdvance;
+		}
+
+		if(x < x1st)
+		{
+			m_nFirstVisible = m_nCaret;
+		}
+		else
+		{
+			float xNewLeft = x2 - (m_Size.x - m_Border.x - m_Border.z);
+			if(xNewLeft > x1st)
+			{
+				int nCPNew1st = m_Skin->m_Font->XtoCP(m_Text.c_str(), xNewLeft);
+
+				float xNew1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCPNew1st);
+
+				if(xNew1st < xNewLeft)
+				{
+					nCPNew1st++;
+				}
+
+				m_nFirstVisible = nCPNew1st;
+			}
+		}
+	}
+}
+
+void EditBox::ResetCaretBlink(void)
+{
+	// ! DXUT dependency
+	m_bCaretOn = true;
+	m_dfLastBlink = DXUTGetGlobalTimer()->GetAbsoluteTime();
 }
 
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
