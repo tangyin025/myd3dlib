@@ -14,6 +14,12 @@ namespace my
 
 		static void BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
 
+		static Vector3 GetDefaultPerspectiveEyePt(float fovy, DWORD Width, DWORD Height);
+
+		static Vector3 GetDefaultPerspectiveLookAtPt(float fovy, DWORD Width, DWORD Height);
+
+		static Vector3 GetDefaultPerspectiveUp(float fovy, DWORD Width, DWORD Height);
+
 		static void BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
 
 		// Rendering UI under Fixed Pipeline is not recommended
@@ -305,6 +311,10 @@ namespace my
 		void CopyToClipboard(void);
 
 		void PasteFromClipboard(void);
+
+		int GetPriorItemPos(int nCP);
+
+		int GetNextItemPos(int nCP);
 	};
 
 	typedef boost::shared_ptr<EditBox> EditBoxPtr;
@@ -331,8 +341,6 @@ namespace my
 
 		struct Camera
 		{
-			Matrix4 World;
-
 			Matrix4 View;
 
 			Matrix4 Proj;
