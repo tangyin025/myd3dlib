@@ -22,6 +22,12 @@ namespace my
 		return a > b ? a : b;
 	}
 
+	template <typename T>
+	T Lerp(const T & a, const T & b, float s)
+	{
+		return a + s * (b - a);
+	}
+
 	class Vector4;
 
 	class Quaternion;
@@ -237,351 +243,6 @@ namespace my
 		static const Vector2 unitX;
 
 		static const Vector2 unitY;
-	};
-
-	class Rectangle
-	{
-	public:
-		float l, t, r, b;
-
-	public:
-		Rectangle(void)
-			//: l(0)
-			//, t(0)
-			//, r(0)
-			//, b(0)
-		{
-		}
-
-		Rectangle(float left, float top, float right, float bottom)
-			: l(left)
-			, t(top)
-			, r(right)
-			, b(bottom)
-		{
-		}
-
-		Rectangle(const Vector2 & leftTop, const Vector2 & rightBottom)
-			: l(leftTop.x)
-			, t(leftTop.y)
-			, r(rightBottom.x)
-			, b(rightBottom.y)
-		{
-		}
-
-	public:
-		Rectangle intersect(const Rectangle & rhs) const
-		{
-			return Rectangle(
-				max(l, rhs.l),
-				max(t, rhs.t),
-				min(r, rhs.r),
-				min(b, rhs.b));
-		}
-
-		Rectangle & intersectSelf(const Rectangle & rhs)
-		{
-			l = max(l, rhs.l);
-			t = max(t, rhs.t);
-			r = min(r, rhs.r);
-			b = min(b, rhs.b);
-			return *this;
-		}
-
-		Rectangle Union(const Rectangle & rhs) const
-		{
-			return Rectangle(
-				min(l, rhs.l),
-				min(t, rhs.t),
-				max(r, rhs.r),
-				max(b, rhs.b));
-		}
-
-		Rectangle & unionSelf(const Rectangle & rhs)
-		{
-			l = min(l, rhs.l);
-			t = min(t, rhs.t);
-			r = max(r, rhs.r);
-			b = max(b, rhs.b);
-			return *this;
-		}
-
-		Rectangle offset(float x, float y) const
-		{
-			return Rectangle(
-				l + x,
-				t + y,
-				r + x,
-				b + y);
-		}
-
-		Rectangle offset(const Vector2 & v) const
-		{
-			return Rectangle(
-				l + v.x,
-				t + v.y,
-				r + v.x,
-				b + v.y);
-		}
-
-		Rectangle & offsetSelf(float x, float y)
-		{
-			l += x;
-			t += y;
-			r += x;
-			b += y;
-			return *this;
-		}
-
-		Rectangle & offsetSelf(const Vector2 & v)
-		{
-			l += v.x;
-			t += v.y;
-			r += v.x;
-			b += v.y;
-			return *this;
-		}
-
-		Rectangle inflate(float x, float y) const
-		{
-			return Rectangle(
-				l - x,
-				t - y,
-				r + x,
-				b + y);
-		}
-
-		Rectangle inflate(const Vector2 & v) const
-		{
-			return Rectangle(
-				l - v.x,
-				t - v.y,
-				r + v.x,
-				b + v.y);
-		}
-
-		Rectangle & inflateSelf(float x, float y)
-		{
-			l -= x;
-			t -= y;
-			r += x;
-			b += y;
-			return *this;
-		}
-
-		Rectangle & inflateSelf(const Vector2 & v)
-		{
-			l -= v.x;
-			t -= v.y;
-			r += v.x;
-			b += v.y;
-			return *this;
-		}
-
-	public:
-		Vector2 LeftTop(void) const
-		{
-			return Vector2(l, t);
-		}
-
-		Vector2 RightBottom(void) const
-		{
-			return Vector2(r, b);
-		}
-
-		Vector2 Center(void) const
-		{
-			return Vector2(l + (r - l) * 0.5f, t + (b - t) * 0.5f);
-		}
-
-		Vector2 Extent(void) const
-		{
-			return Vector2(r - l, b - t);
-		}
-
-		static Rectangle LeftTop(float x, float y, float width, float height)
-		{
-			return Rectangle(
-				x,
-				y,
-				x + width,
-				y + height);
-		}
-
-		static Rectangle LeftTop(const Vector2 & point, const Vector2 & size)
-		{
-			return Rectangle(
-				point.x,
-				point.y,
-				point.x + size.x,
-				point.y + size.y);
-		}
-
-		static Rectangle LeftMiddle(float x, float y, float width, float height)
-		{
-			float hh = height * 0.5f;
-
-			return Rectangle(
-				x,
-				y - hh,
-				x + width,
-				y + hh);
-		}
-
-		static Rectangle LeftMiddle(const Vector2 & point, const Vector2 & size)
-		{
-			float hh = size.y * 0.5f;
-
-			return Rectangle(
-				point.x,
-				point.y - hh,
-				point.x + size.x,
-				point.y + hh);
-		}
-
-		static Rectangle LeftBottom(float x, float y, float width, float height)
-		{
-			return Rectangle(
-				x,
-				y - height,
-				x + width,
-				y);
-		}
-
-		static Rectangle LeftBottom(const Vector2 & point, const Vector2 & size)
-		{
-			return Rectangle(
-				point.x,
-				point.y - size.y,
-				point.x + size.x,
-				point.y);
-		}
-
-		static Rectangle CenterTop(float x, float y, float width, float height)
-		{
-			float hw = width * 0.5f;
-
-			return Rectangle(
-				x - hw,
-				y,
-				x + hw,
-				y + height);
-		}
-
-		static Rectangle CenterTop(const Vector2 & point, const Vector2 & size)
-		{
-			float hw = size.x * 0.5f;
-
-			return Rectangle(
-				point.x - hw,
-				point.y,
-				point.x + hw,
-				point.y + size.y);
-		}
-
-		static Rectangle CenterMiddle(float x, float y, float width, float height)
-		{
-			float hw = width * 0.5f;
-			float hh = height * 0.5f;
-
-			return Rectangle(
-				x - hw,
-				y - hh,
-				x + hw,
-				y + hh);
-		}
-
-		static Rectangle CenterMiddle(const Vector2 & point, const Vector2 & size)
-		{
-			float hw = size.x * 0.5f;
-			float hh = size.y * 0.5f;
-
-			return Rectangle(
-				point.x - hw,
-				point.y - hh,
-				point.x + hw,
-				point.y + hh);
-		}
-
-		static Rectangle CenterBottom(float x, float y, float width, float height)
-		{
-			float hw = width * 0.5f;
-
-			return Rectangle(
-				x - hw,
-				y - height,
-				x + hw,
-				y);
-		}
-
-		static Rectangle CenterBottom(const Vector2 & point, const Vector2 & size)
-		{
-			float hw = size.x * 0.5f;
-
-			return Rectangle(
-				point.x - hw,
-				point.y - size.y,
-				point.x + hw,
-				point.y);
-		}
-
-		static Rectangle RightTop(float x, float y, float width, float height)
-		{
-			return Rectangle(
-				x - width,
-				y,
-				x,
-				y + height);
-		}
-
-		static Rectangle RightTop(const Vector2 & point, const Vector2 & size)
-		{
-			return Rectangle(
-				point.x - size.x,
-				point.y,
-				point.x,
-				point.y + size.y);
-		}
-
-		static Rectangle RightMiddle(float x, float y, float width, float height)
-		{
-			float hh = height * 0.5f;
-
-			return Rectangle(
-				x - width,
-				y - hh,
-				x,
-				y + hh);
-		}
-
-		static Rectangle RightMiddle(const Vector2 & point, const Vector2 & size)
-		{
-			float hh = size.y * 0.5f;
-
-			return Rectangle(
-				point.x - size.x,
-				point.y - hh,
-				point.x,
-				point.y + hh);
-		}
-
-		static Rectangle RightBottom(float x, float y, float width, float height)
-		{
-			return Rectangle(
-				x - width,
-				y - height,
-				x,
-				y);
-		}
-
-		static Rectangle RightBottom(const Vector2 & point, const Vector2 & size)
-		{
-			return Rectangle(
-				point.x - size.x,
-				point.y - size.y,
-				point.x,
-				point.y);
-		}
 	};
 
 	class Vector3
@@ -1067,6 +728,387 @@ namespace my
 		static const Vector4 unitZ;
 
 		static const Vector4 unitW;
+	};
+
+	class Rectangle
+	{
+	public:
+		float l, t, r, b;
+
+	public:
+		Rectangle(void)
+			//: l(0)
+			//, t(0)
+			//, r(0)
+			//, b(0)
+		{
+		}
+
+		Rectangle(float left, float top, float right, float bottom)
+			: l(left)
+			, t(top)
+			, r(right)
+			, b(bottom)
+		{
+		}
+
+		Rectangle(const Vector2 & leftTop, const Vector2 & rightBottom)
+			: l(leftTop.x)
+			, t(leftTop.y)
+			, r(rightBottom.x)
+			, b(rightBottom.y)
+		{
+		}
+
+	public:
+		Rectangle intersect(const Rectangle & rhs) const
+		{
+			return Rectangle(
+				max(l, rhs.l),
+				max(t, rhs.t),
+				min(r, rhs.r),
+				min(b, rhs.b));
+		}
+
+		Rectangle & intersectSelf(const Rectangle & rhs)
+		{
+			l = max(l, rhs.l);
+			t = max(t, rhs.t);
+			r = min(r, rhs.r);
+			b = min(b, rhs.b);
+			return *this;
+		}
+
+		Rectangle Union(const Rectangle & rhs) const
+		{
+			return Rectangle(
+				min(l, rhs.l),
+				min(t, rhs.t),
+				max(r, rhs.r),
+				max(b, rhs.b));
+		}
+
+		Rectangle & unionSelf(const Rectangle & rhs)
+		{
+			l = min(l, rhs.l);
+			t = min(t, rhs.t);
+			r = max(r, rhs.r);
+			b = max(b, rhs.b);
+			return *this;
+		}
+
+		Rectangle offset(float x, float y) const
+		{
+			return Rectangle(
+				l + x,
+				t + y,
+				r + x,
+				b + y);
+		}
+
+		Rectangle & offsetSelf(float x, float y)
+		{
+			l += x;
+			t += y;
+			r += x;
+			b += y;
+			return *this;
+		}
+
+		Rectangle offset(const Vector2 & v) const
+		{
+			return Rectangle(
+				l + v.x,
+				t + v.y,
+				r + v.x,
+				b + v.y);
+		}
+
+		Rectangle & offsetSelf(const Vector2 & v)
+		{
+			l += v.x;
+			t += v.y;
+			r += v.x;
+			b += v.y;
+			return *this;
+		}
+
+		Rectangle shrink(float x, float y) const
+		{
+			return Rectangle(
+				l + x,
+				t + y,
+				r - x,
+				b - y);
+		}
+
+		Rectangle & shrinkSelf(float x, float y)
+		{
+			l += x;
+			t += y;
+			r -= x;
+			b -= y;
+			return *this;
+		}
+
+		Rectangle shrink(const Vector2 & v) const
+		{
+			return Rectangle(
+				l + v.x,
+				t + v.y,
+				r - v.x,
+				b - v.y);
+		}
+
+		Rectangle & shrinkSelf(const Vector2 & v)
+		{
+			l += v.x;
+			t += v.y;
+			r -= v.x;
+			b -= v.y;
+			return *this;
+		}
+
+		Rectangle shrink(float x, float y, float z, float w)
+		{
+			return Rectangle(
+				l + x,
+				t + y,
+				r - z,
+				b - w);
+		}
+
+		Rectangle shrinkSelf(float x, float y, float z, float w)
+		{
+			l += x;
+			t += y;
+			r -= z;
+			b -= w;
+			return *this;
+		}
+
+		Rectangle shrink(const Vector4 & v)
+		{
+			return Rectangle(
+				l + v.x,
+				t + v.y,
+				r - v.z,
+				b - v.w);
+		}
+
+		Rectangle shrinkSelf(const Vector4 & v)
+		{
+			l += v.x;
+			t += v.y;
+			r -= v.z;
+			b -= v.w;
+			return *this;
+		}
+
+	public:
+		Vector2 LeftTop(void) const
+		{
+			return Vector2(l, t);
+		}
+
+		Vector2 RightBottom(void) const
+		{
+			return Vector2(r, b);
+		}
+
+		Vector2 Center(void) const
+		{
+			return Vector2(l + (r - l) * 0.5f, t + (b - t) * 0.5f);
+		}
+
+		Vector2 Extent(void) const
+		{
+			return Vector2(r - l, b - t);
+		}
+
+		static Rectangle LeftTop(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x,
+				y,
+				x + width,
+				y + height);
+		}
+
+		static Rectangle LeftTop(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x,
+				point.y,
+				point.x + size.x,
+				point.y + size.y);
+		}
+
+		static Rectangle LeftMiddle(float x, float y, float width, float height)
+		{
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x,
+				y - hh,
+				x + width,
+				y + hh);
+		}
+
+		static Rectangle LeftMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x,
+				point.y - hh,
+				point.x + size.x,
+				point.y + hh);
+		}
+
+		static Rectangle LeftBottom(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x,
+				y - height,
+				x + width,
+				y);
+		}
+
+		static Rectangle LeftBottom(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x,
+				point.y - size.y,
+				point.x + size.x,
+				point.y);
+		}
+
+		static Rectangle CenterTop(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y,
+				x + hw,
+				y + height);
+		}
+
+		static Rectangle CenterTop(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y,
+				point.x + hw,
+				point.y + size.y);
+		}
+
+		static Rectangle CenterMiddle(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y - hh,
+				x + hw,
+				y + hh);
+		}
+
+		static Rectangle CenterMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y - hh,
+				point.x + hw,
+				point.y + hh);
+		}
+
+		static Rectangle CenterBottom(float x, float y, float width, float height)
+		{
+			float hw = width * 0.5f;
+
+			return Rectangle(
+				x - hw,
+				y - height,
+				x + hw,
+				y);
+		}
+
+		static Rectangle CenterBottom(const Vector2 & point, const Vector2 & size)
+		{
+			float hw = size.x * 0.5f;
+
+			return Rectangle(
+				point.x - hw,
+				point.y - size.y,
+				point.x + hw,
+				point.y);
+		}
+
+		static Rectangle RightTop(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x - width,
+				y,
+				x,
+				y + height);
+		}
+
+		static Rectangle RightTop(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x - size.x,
+				point.y,
+				point.x,
+				point.y + size.y);
+		}
+
+		static Rectangle RightMiddle(float x, float y, float width, float height)
+		{
+			float hh = height * 0.5f;
+
+			return Rectangle(
+				x - width,
+				y - hh,
+				x,
+				y + hh);
+		}
+
+		static Rectangle RightMiddle(const Vector2 & point, const Vector2 & size)
+		{
+			float hh = size.y * 0.5f;
+
+			return Rectangle(
+				point.x - size.x,
+				point.y - hh,
+				point.x,
+				point.y + hh);
+		}
+
+		static Rectangle RightBottom(float x, float y, float width, float height)
+		{
+			return Rectangle(
+				x - width,
+				y - height,
+				x,
+				y);
+		}
+
+		static Rectangle RightBottom(const Vector2 & point, const Vector2 & size)
+		{
+			return Rectangle(
+				point.x - size.x,
+				point.y - size.y,
+				point.x,
+				point.y);
+		}
 	};
 
 	class Quaternion

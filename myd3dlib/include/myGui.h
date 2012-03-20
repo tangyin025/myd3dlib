@@ -14,12 +14,6 @@ namespace my
 
 		static void BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
 
-		static Vector3 GetDefaultPerspectiveEyePt(float fovy, DWORD Width, DWORD Height);
-
-		static Vector3 GetDefaultPerspectiveLookAtPt(float fovy, DWORD Width, DWORD Height);
-
-		static Vector3 GetDefaultPerspectiveUp(float fovy, DWORD Width, DWORD Height);
-
 		static void BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
 
 		// Rendering UI under Fixed Pipeline is not recommended
@@ -328,30 +322,25 @@ namespace my
 
 		ControlPtr m_ControlMouseOver;
 
-		struct Viewport
-		{
-			DWORD Width;
-
-			DWORD Height;
-
-			float Fovy;
-		};
-
-		Viewport m_Viewport;
-
-		struct Camera
-		{
-			Matrix4 View;
-
-			Matrix4 Proj;
-		};
-
-		Camera m_Camera;
-
 		Matrix4 m_Transform;
 
+		Matrix4 m_ViewMatrix;
+
+		Matrix4 m_ProjMatrix;
+
+		D3DVIEWPORT9 m_vp;
+
 	public:
-		Dialog(void);
+		Dialog(void)
+			: m_Transform(Matrix4::Identity())
+		{
+			// ! DXUT dependency
+			LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
+			_ASSERT(NULL != pd3dDevice);
+			V(pd3dDevice->GetViewport(&m_vp));
+
+			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_ViewMatrix, m_ProjMatrix);
+		}
 
 		virtual ~Dialog(void)
 		{

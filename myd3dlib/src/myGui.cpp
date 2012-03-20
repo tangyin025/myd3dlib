@@ -18,29 +18,14 @@ void UIRender::BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, 
 	outProj = Matrix4::OrthoLH((float)Width, (float)Height, -50.0f, 50.0f);
 }
 
-Vector3 UIRender::GetDefaultPerspectiveEyePt(float fovy, DWORD Width, DWORD Height)
+void UIRender::BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
 {
 	float Dist = Height * 0.5f * cot(fovy / 2);
 
-	return Vector3(Width * 0.5f, Height * 0.5f, Dist);
-}
-
-Vector3 UIRender::GetDefaultPerspectiveLookAtPt(float fovy, DWORD Width, DWORD Height)
-{
-	return Vector3(Width * 0.5f, Height * 0.5f, 0);
-}
-
-Vector3 UIRender::GetDefaultPerspectiveUp(float fovy, DWORD Width, DWORD Height)
-{
-	return Vector3(0, -1, 0);
-}
-
-void UIRender::BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
-{
 	outView = Matrix4::LookAtLH(
-		GetDefaultPerspectiveEyePt(fovy, Width, Height),
-		GetDefaultPerspectiveLookAtPt(fovy, Width, Height),
-		GetDefaultPerspectiveUp(fovy, Width, Height));
+		Vector3(Width * 0.5f, Height * 0.5f, Dist),
+		Vector3(Width * 0.5f, Height * 0.5f, 0),
+		Vector3(0, -1, 0));
 
 	outProj = Matrix4::PerspectiveFovLH(fovy, (float)Width / Height, 0.1f, 3000.0f);
 }
@@ -142,14 +127,13 @@ void UIRender::DrawRectangle(
 	CUSTOMVERTEX vertex_list[6];
 	size_t vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, uvRect);
 
-	Begin(pd3dDevice);
+	//Begin(pd3dDevice);
 
 	HRESULT hr;
 	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
-
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(*vertex_list)));
 
-	End(pd3dDevice);
+	//End(pd3dDevice);
 }
 
 void UIRender::DrawRectangle(
@@ -160,17 +144,20 @@ void UIRender::DrawRectangle(
 	CUSTOMVERTEX vertex_list[6];
 	size_t vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, Rectangle(0,0,1,1));
 
-	Begin(pd3dDevice);
+	//Begin(pd3dDevice);
 
-    pd3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG2 );
-    pd3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2 );
+    //pd3dDevice->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_SELECTARG2 );
+    //pd3dDevice->SetTextureStageState( 0, D3DTSS_ALPHAOP, D3DTOP_SELECTARG2 );
 
 	HRESULT hr;
+	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
-
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(*vertex_list)));
 
-	End(pd3dDevice);
+	//V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+	//V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+
+	//End(pd3dDevice);
 }
 
 void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
@@ -272,16 +259,6 @@ void Static::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 bool Static::ContainsPoint(const Vector2 & pt)
 {
 	return false;
-}
-
-Dialog::Dialog(void)
-	: m_Transform(Matrix4::Identity())
-{
-	m_Viewport.Width = 800;
-	m_Viewport.Height = 600;
-	m_Viewport.Fovy = D3DXToRadian(75.0f);
-
-	UIRender::BuildPerspectiveMatrices(m_Viewport.Fovy, m_Viewport.Width, m_Viewport.Height, m_Camera.View, m_Camera.Proj);
 }
 
 void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
@@ -494,8 +471,8 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 
 				if(!m_bInsertMode)
 				{
-					float charWidth;
-					if(m_nCaret < m_Text.length())
+					int charWidth;
+					if(m_nCaret < (int)m_Text.length())
 					{
 						const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
 						charWidth = info.horiAdvance;
@@ -602,7 +579,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					if(m_nCaret != m_nSelStart)
 						DeleteSelectionText();
 
-					if(!m_bInsertMode && m_nCaret < m_Text.length())
+					if(!m_bInsertMode && m_nCaret < (int)m_Text.length())
 					{
 						m_Text[m_nCaret] = (WCHAR)wParam;
 						PlaceCaret(m_nCaret + 1);
@@ -711,7 +688,7 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					PlaceCaret(GetNextItemPos(m_nCaret));
 				}
-				else if(m_nCaret < m_Text.length())
+				else if(m_nCaret < (int)m_Text.length())
 				{
 					PlaceCaret(m_nCaret + 1);
 				}
@@ -753,7 +730,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = pt.x - m_Location.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
-					if(nCP < m_Text.length())
+					if(nCP < (int)m_Text.length())
 					{
 						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
 						const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
@@ -798,7 +775,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 					float x = pt.x - m_Location.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
-					if(nCP < m_Text.length())
+					if(nCP < (int)m_Text.length())
 					{
 						float xLeft = m_Skin->m_Font->CPtoX(m_Text.c_str(), nCP);
 						const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[nCP]);
@@ -838,7 +815,7 @@ void EditBox::PlaceCaret(int nCP)
 		float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
 		float x = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
 		float x2;
-		if(m_nCaret < m_Text.length())
+		if(m_nCaret < (int)m_Text.length())
 		{
 			const Font::CharacterInfo & info = m_Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
 			x2 = x + info.horiAdvance;
@@ -977,7 +954,7 @@ int EditBox::GetNextItemPos(int nCP)
 {
 	int i = Max(Min(nCP, (int)m_Text.length() - 1), 0);
 	int state = 0;
-	for(; i < m_Text.length(); i++)
+	for(; i < (int)m_Text.length(); i++)
 	{
 		switch(state)
 		{
@@ -1016,10 +993,9 @@ int EditBox::GetNextItemPos(int nCP)
 
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.View));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.Proj));
+	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
+	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
+	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
 
 	if(m_bVisible)
 	{
@@ -1083,18 +1059,15 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
-			// ! DXUT dependency
-			LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
-			_ASSERT(NULL != pd3dDevice);
-			D3DVIEWPORT9 vp;
-			pd3dDevice->GetViewport(&vp);
+			Matrix4 invViewMatrix = m_ViewMatrix.inverse();
+			const Vector3 & viewX = invViewMatrix[0];
+			const Vector3 & viewY = invViewMatrix[1];
+			const Vector3 & viewZ = invViewMatrix[2];
+			const Vector3 & ptEye = invViewMatrix[3];
 
 			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector3 ptAt(
-				(ptScreen.x - vp.X) / vp.Width * m_Viewport.Width,
-				(ptScreen.y - vp.Y) / vp.Height * m_Viewport.Height, 0);
-			const Vector3 & ptEye = m_Camera.View.inverse()[3];
-			Vector3 dir = (ptAt - ptEye).normalize();
+			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / m_vp.Width) / m_ProjMatrix._11, Lerp(1.0f, -1.0f, ptScreen.y / m_vp.Height) / m_ProjMatrix._22);
+			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
 
 			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);
 			float dialogDistance = ((Vector3 &)m_Transform[3]).dot(dialogNormal);

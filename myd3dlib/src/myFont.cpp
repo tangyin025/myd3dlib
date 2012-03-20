@@ -411,7 +411,7 @@ void Font::DrawString(
 	D3DCOLOR Color,
 	Align align)
 {
-	UIRender::Begin(m_Device);
+	//UIRender::Begin(m_Device);
 
 	V(m_Device->SetTexture(0, m_texture->m_ptr));
 
@@ -425,7 +425,9 @@ void Font::DrawString(
 
 	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
 
-	UIRender::End(m_Device);
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+
+	//UIRender::End(m_Device);
 }
 
 void Font::DrawString(
