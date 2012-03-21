@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <boost/weak_ptr.hpp>
 #include "FastDelegate.h"
 
 namespace my
@@ -94,6 +95,8 @@ namespace my
 
 		HRESULT hr;
 
+		boost::weak_ptr<Control> this_ptr;
+
 	public:
 		Control(void)
 			: m_bEnabled(true)
@@ -185,8 +188,7 @@ namespace my
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
 
-	// http://www.boost.org/doc/libs/1_49_0/libs/smart_ptr/sp_techniques.html#from_this
-	typedef fastdelegate::FastDelegate1<Control *> ControlEvent;
+	typedef fastdelegate::FastDelegate1<ControlPtr> ControlEvent;
 
 	class Button : public Static
 	{
@@ -313,6 +315,48 @@ namespace my
 
 	typedef boost::shared_ptr<EditBox> EditBoxPtr;
 
+	class ImeEditBox : public EditBox
+	{
+	public:
+		static bool s_bHideCaret;
+
+		static std::wstring s_CompString;
+
+		D3DCOLOR m_CompWinColor;        // Composition string window color
+
+	public:
+		ImeEditBox(void)
+			: m_CompWinColor(D3DCOLOR_ARGB(197,0,0,0))
+		{
+		}
+
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
+
+		virtual void OnFocusIn(void);
+
+		virtual void OnFocusOut(void);
+
+		static void Initialize(HWND hWnd);
+
+		static void Uninitialize(void);
+
+		static bool StaticMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		static void ResetCompositionString(void);
+
+		void RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+
+		void RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+
+		void RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+	};
+
+	typedef boost::shared_ptr<ImeEditBox> ImeEditBoxPtr;
+
 	class Dialog : public Control
 	{
 	public:
@@ -328,17 +372,10 @@ namespace my
 
 		Matrix4 m_ProjMatrix;
 
-		D3DVIEWPORT9 m_vp;
-
 	public:
 		Dialog(void)
 			: m_Transform(Matrix4::Identity())
 		{
-			// ! DXUT dependency
-			LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
-			_ASSERT(NULL != pd3dDevice);
-			V(pd3dDevice->GetViewport(&m_vp));
-
 			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_ViewMatrix, m_ProjMatrix);
 		}
 

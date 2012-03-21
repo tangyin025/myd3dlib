@@ -764,36 +764,36 @@ namespace my
 		Rectangle intersect(const Rectangle & rhs) const
 		{
 			return Rectangle(
-				max(l, rhs.l),
-				max(t, rhs.t),
-				min(r, rhs.r),
-				min(b, rhs.b));
+				__max(l, rhs.l),
+				__max(t, rhs.t),
+				__min(r, rhs.r),
+				__min(b, rhs.b));
 		}
 
 		Rectangle & intersectSelf(const Rectangle & rhs)
 		{
-			l = max(l, rhs.l);
-			t = max(t, rhs.t);
-			r = min(r, rhs.r);
-			b = min(b, rhs.b);
+			l = __max(l, rhs.l);
+			t = __max(t, rhs.t);
+			r = __min(r, rhs.r);
+			b = __min(b, rhs.b);
 			return *this;
 		}
 
 		Rectangle Union(const Rectangle & rhs) const
 		{
 			return Rectangle(
-				min(l, rhs.l),
-				min(t, rhs.t),
-				max(r, rhs.r),
-				max(b, rhs.b));
+				__min(l, rhs.l),
+				__min(t, rhs.t),
+				__max(r, rhs.r),
+				__max(b, rhs.b));
 		}
 
 		Rectangle & unionSelf(const Rectangle & rhs)
 		{
-			l = min(l, rhs.l);
-			t = min(t, rhs.t);
-			r = max(r, rhs.r);
-			b = max(b, rhs.b);
+			l = __min(l, rhs.l);
+			t = __min(t, rhs.t);
+			r = __max(r, rhs.r);
+			b = __max(b, rhs.b);
 			return *this;
 		}
 
@@ -921,9 +921,19 @@ namespace my
 			return Vector2(l + (r - l) * 0.5f, t + (b - t) * 0.5f);
 		}
 
+		float Width(void) const
+		{
+			return r - l;
+		}
+
+		float Height(void) const
+		{
+			return b - t;
+		}
+
 		Vector2 Extent(void) const
 		{
-			return Vector2(r - l, b - t);
+			return Vector2(Width(), Height());
 		}
 
 		static Rectangle LeftTop(float x, float y, float width, float height)

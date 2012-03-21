@@ -185,7 +185,7 @@ namespace my
 		static FontPtr CreateFontFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
-			float height,
+			int height,
 			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
@@ -193,7 +193,7 @@ namespace my
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
-			float height,
+			int height,
 			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 

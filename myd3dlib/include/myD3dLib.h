@@ -12,7 +12,7 @@
 #include "myFont.h"
 #include "myPhysics.h"
 #include "myCollision.h"
-#include "myGui.h"
+#include "myUi.h"
 #include "myResource.h"
 //#include "myGuiPlatform.h"
 

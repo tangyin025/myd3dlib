@@ -148,7 +148,7 @@ Font::~Font(void)
 FontPtr Font::CreateFontFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
-	float height,
+	int height,
 	unsigned short pixel_gap,
 	FT_Long face_index)
 {
@@ -167,7 +167,7 @@ FontPtr Font::CreateFontFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	const void * file_base,
 	long file_size,
-	float height,
+	int height,
 	unsigned short pixel_gap,
 	FT_Long face_index)
 {
@@ -319,7 +319,7 @@ const Font::CharacterInfo & Font::GetCharacterInfo(int character)
 
 Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 {
-	Vector2 extent(0, m_LineHeight);
+	Vector2 extent(0, (float)m_LineHeight);
 	wchar_t c;
 	while((c = *pString++))
 	{
@@ -389,7 +389,7 @@ size_t Font::BuildStringVertices(
 		size_t used = UIRender::BuildRectangleVertices(
 			&pBuffer[i],
 			bufferSize - i,
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, CharWidth, CharHeight),
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight),
 			Color,
 			UIRender::CalculateUVRect(CSize(m_textureDesc.Width, m_textureDesc.Height), info.textureRect));
 
