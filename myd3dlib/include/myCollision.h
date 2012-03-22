@@ -4,218 +4,218 @@
 
 namespace my
 {
-	//// /////////////////////////////////////////////////////////////////////////////////////
-	//// BoundingSphere
-	//// /////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// BoundingSphere
+	// /////////////////////////////////////////////////////////////////////////////////////
 
-	//class BoundingSphere
-	//{
-	//protected:
-	//	Vector3 center;
+	class BoundingSphere
+	{
+	protected:
+		Vector3 center;
 
-	//	float radius;
+		float radius;
 
-	//public:
-	//	const Vector3 & getCenter(void) const;
+	public:
+		const Vector3 & getCenter(void) const;
 
-	//	void setCenter(const Vector3 & _center);
+		void setCenter(const Vector3 & _center);
 
-	//	const float getRadius(void) const;
+		const float getRadius(void) const;
 
-	//	void setRadius(float _radius);
+		void setRadius(float _radius);
 
-	//public:
-	//	BoundingSphere(const Vector3 & _center, float _radius);
+	public:
+		BoundingSphere(const Vector3 & _center, float _radius);
 
-	//	bool overlaps(const BoundingSphere & other) const;
+		bool overlaps(const BoundingSphere & other) const;
 
-	//	float getGrowth(const BoundingSphere & other) const;
+		float getGrowth(const BoundingSphere & other) const;
 
-	//	float getVolumn(void) const;
-	//};
+		float getVolumn(void) const;
+	};
 
-	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
+	BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
 
-	//// /////////////////////////////////////////////////////////////////////////////////////
-	//// PotentialContact
-	//// /////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// PotentialContact
+	// /////////////////////////////////////////////////////////////////////////////////////
 
-	//class RigidBody;
+	class RigidBody;
 
-	//struct PotentialContact
-	//{
-	//	RigidBody * body0;
+	struct PotentialContact
+	{
+		RigidBody * body0;
 
-	//	RigidBody * body1;
-	//};
+		RigidBody * body1;
+	};
 
-	//// /////////////////////////////////////////////////////////////////////////////////////
-	//// BVHNode
-	//// /////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// BVHNode
+	// /////////////////////////////////////////////////////////////////////////////////////
 
-	//template <class BoundingVolumeClass>
-	//class BVHNode
-	//{
-	//protected:
-	//	class BoundingVolumeLt
-	//	{
-	//	protected:
-	//		BoundingVolumeClass volume;
+	template <class BoundingVolumeClass>
+	class BVHNode
+	{
+	protected:
+		class BoundingVolumeLt
+		{
+		protected:
+			BoundingVolumeClass volume;
 
-	//	public:
-	//		BoundingVolumeLt(const BoundingVolumeClass & _volume)
-	//			: volume(_volume)
-	//		{
-	//		}
+		public:
+			BoundingVolumeLt(const BoundingVolumeClass & _volume)
+				: volume(_volume)
+			{
+			}
 
-	//		bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
-	//		{
-	//			return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
-	//		}
-	//	};
+			bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
+			{
+				return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
+			}
+		};
 
-	//protected:
-	//	typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
+	protected:
+		typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
 
-	//	BVHNodeList childs;
+		BVHNodeList childs;
 
-	//	BoundingVolumeClass volume;
+		BoundingVolumeClass volume;
 
-	//	RigidBody * body;
+		RigidBody * body;
 
-	//protected:
-	//	bool overlaps(const BVHNode<BoundingVolumeClass> & other) const;
+	protected:
+		bool overlaps(const BVHNode<BoundingVolumeClass> & other) const;
 
-	//	unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const;
+		unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const;
 
-	//	void recalculateBoundingVolume(void);
+		void recalculateBoundingVolume(void);
 
-	//public:
-	//	BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL);
+	public:
+		BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL);
 
-	//	bool isLeaf(void) const;
+		bool isLeaf(void) const;
 
-	//	unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const;
+		unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const;
 
-	//	void insert(RigidBody * _body, const BoundingVolumeClass & _volume);
-	//};
+		void insert(RigidBody * _body, const BoundingVolumeClass & _volume);
+	};
 
-	//template <class BoundingVolumeClass>
-	//bool BVHNode<BoundingVolumeClass>::overlaps(const BVHNode<BoundingVolumeClass> & other) const
-	//{
-	//	return volume.overlap(other.volume);
-	//}
+	template <class BoundingVolumeClass>
+	bool BVHNode<BoundingVolumeClass>::overlaps(const BVHNode<BoundingVolumeClass> & other) const
+	{
+		return volume.overlap(other.volume);
+	}
 
-	//template <class BoundingVolumeClass>
-	//unsigned BVHNode<BoundingVolumeClass>::getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
-	//{
-	//	if(limit > 0)
-	//	{
-	//		if(overlaps(other))
-	//		{
-	//			if(isLeaf())
-	//			{
-	//				if(other.isLeaf())
-	//				{
-	//					contacts[0].body0 = body;
-	//					contacts[0].body1 = other.body;
-	//					return 1;
-	//				}
+	template <class BoundingVolumeClass>
+	unsigned BVHNode<BoundingVolumeClass>::getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
+	{
+		if(limit > 0)
+		{
+			if(overlaps(other))
+			{
+				if(isLeaf())
+				{
+					if(other.isLeaf())
+					{
+						contacts[0].body0 = body;
+						contacts[0].body1 = other.body;
+						return 1;
+					}
 
-	//				return other.getPotentialContactsWith(*this, contants, limit);
-	//			}
+					return other.getPotentialContactsWith(*this, contants, limit);
+				}
 
-	//			unsigned nret = 0;
-	//			BVHNodeList::constant_iterator child_iter = childs.begin();
-	//			for(; child_iter != childs.end(); child_iter++)
-	//			{
-	//				nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
-	//			}
-	//			return nret;
-	//		}
-	//	}
-	//	return 0;
-	//}
+				unsigned nret = 0;
+				BVHNodeList::constant_iterator child_iter = childs.begin();
+				for(; child_iter != childs.end(); child_iter++)
+				{
+					nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
+				}
+				return nret;
+			}
+		}
+		return 0;
+	}
 
-	//template <class BoundingVolumeClass>
-	//void BVHNode<BoundingVolumeClass>::recalculateBoundingVolume(void)
-	//{
-	//	_ASSERT(!childs.empty());
+	template <class BoundingVolumeClass>
+	void BVHNode<BoundingVolumeClass>::recalculateBoundingVolume(void)
+	{
+		_ASSERT(!childs.empty());
 
-	//	BVHNodeList::const_iterator child_iter = childs.begin();
-	//	volume = child_iter->volume;
-	//	child_iter++;
-	//	for(; child_iter != childs.end(); child_iter++)
-	//	{
-	//		volume = buildBoundingSphere(volume, child_iter->volume);
-	//	}
-	//}
+		BVHNodeList::const_iterator child_iter = childs.begin();
+		volume = child_iter->volume;
+		child_iter++;
+		for(; child_iter != childs.end(); child_iter++)
+		{
+			volume = buildBoundingSphere(volume, child_iter->volume);
+		}
+	}
 
-	//template <class BoundingVolumeClass>
-	//BVHNode<BoundingVolumeClass>::BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
-	//	: volume(_volume)
-	//	, body(_body)
-	//{
-	//}
+	template <class BoundingVolumeClass>
+	BVHNode<BoundingVolumeClass>::BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
+		: volume(_volume)
+		, body(_body)
+	{
+	}
 
-	//template <class BoundingVolumeClass>
-	//bool BVHNode<BoundingVolumeClass>::isLeaf(void) const
-	//{
-	//	if(NULL == body)
-	//	{
-	//		_ASSERT(childs.empty());
+	template <class BoundingVolumeClass>
+	bool BVHNode<BoundingVolumeClass>::isLeaf(void) const
+	{
+		if(NULL == body)
+		{
+			_ASSERT(childs.empty());
 
-	//		return true;
-	//	}
+			return true;
+		}
 
-	//	_ASSERT(!childs.empty());
+		_ASSERT(!childs.empty());
 
-	//	return false;
-	//}
+		return false;
+	}
 
-	//template <class BoundingVolumeClass>
-	//unsigned BVHNode<BoundingVolumeClass>::getPotentialContacts(PotentialContact * contacts, unsigned limit) const
-	//{
-	//	if(limit > 0)
-	//	{
-	//		if(!isLeaf())
-	//		{
-	//			unsigned nret = 0;
-	//			BVHNodeList::constant_iterator child_iter = childs.begin();
-	//			for(; child_iter != childs.end(); child_iter++)
-	//			{
-	//				BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
-	//				for(; other_child_iter != childs.end(); other_child_iter++)
-	//				{
-	//					nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
-	//				}
-	//			}
-	//			return nret;
-	//		}
-	//	}
-	//	return 0;
-	//}
+	template <class BoundingVolumeClass>
+	unsigned BVHNode<BoundingVolumeClass>::getPotentialContacts(PotentialContact * contacts, unsigned limit) const
+	{
+		if(limit > 0)
+		{
+			if(!isLeaf())
+			{
+				unsigned nret = 0;
+				BVHNodeList::constant_iterator child_iter = childs.begin();
+				for(; child_iter != childs.end(); child_iter++)
+				{
+					BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
+					for(; other_child_iter != childs.end(); other_child_iter++)
+					{
+						nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
+					}
+				}
+				return nret;
+			}
+		}
+		return 0;
+	}
 
-	//template <class BoundingVolumeClass>
-	//void BVHNode<BoundingVolumeClass>::insert(RigidBody * _body, const BoundingVolumeClass & _volume)
-	//{
-	//	if(isLeaf())
-	//	{
-	//		childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
+	template <class BoundingVolumeClass>
+	void BVHNode<BoundingVolumeClass>::insert(RigidBody * _body, const BoundingVolumeClass & _volume)
+	{
+		if(isLeaf())
+		{
+			childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
 
-	//		childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
+			childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
 
-	//		body = NULL;
-	//	}
-	//	else
-	//	{
-	//		BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
+			body = NULL;
+		}
+		else
+		{
+			BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
 
-	//		child_iter->insert(_body, _volume);
-	//	}
+			child_iter->insert(_body, _volume);
+		}
 
-	//	recalculateBoundingVolume();
-	//}
+		recalculateBoundingVolume();
+	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionPrimitive
@@ -236,11 +236,7 @@ namespace my
 
 		Matrix4 offset;
 
-		Matrix4 rotationOffset;
-
 		Matrix4 transform;
-
-		Matrix4 rotationTransform;
 
 	public:
 		void setRigidBody(RigidBody * _body)
@@ -263,16 +259,6 @@ namespace my
 			return offset;
 		}
 
-		void setRotationOffset(const Matrix4 & _rotationOffset)
-		{
-			rotationOffset = _rotationOffset;
-		}
-
-		const Matrix4 & getRotationOffset(void) const
-		{
-			return rotationOffset;
-		}
-
 		void setTransform(const Matrix4 & _transform)
 		{
 			transform = _transform;
@@ -288,21 +274,10 @@ namespace my
 			return transform[i];
 		}
 
-		void setRotationTransform(const Matrix4 & _rotationTransform)
-		{
-			rotationTransform = _rotationTransform;
-		}
-
-		const Matrix4 & getRotationTransform(void) const
-		{
-			return rotationTransform;
-		}
-
 	public:
 		CollisionPrimitive(
 			RigidBody * _body,
-			const Matrix4 & _offset = Matrix4::Identity(),
-			const Matrix4 & _rotationOffset = Matrix4::Identity());
+			const Matrix4 & _offset = Matrix4::Identity());
 
 		virtual ~CollisionPrimitive(void);
 
@@ -338,8 +313,7 @@ namespace my
 		CollisionSphere(
 			float _radius,
 			RigidBody * _body,
-			const Matrix4 & _offset = Matrix4::Identity(),
-			const Matrix4 & _rotationOffset = Matrix4::Identity());
+			const Matrix4 & _offset = Matrix4::Identity());
 
 		CollisionSphere(void);
 	};
@@ -372,8 +346,7 @@ namespace my
 		CollisionBox(
 			const Vector3 & _halfSize,
 			RigidBody * _body,
-			const Matrix4 & _offset = Matrix4::Identity(),
-			const Matrix4 & _rotationOffset = Matrix4::Identity());
+			const Matrix4 & _offset = Matrix4::Identity());
 
 		CollisionBox(void);
 	};

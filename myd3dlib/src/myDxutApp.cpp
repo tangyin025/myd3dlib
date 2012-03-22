@@ -359,6 +359,10 @@ HRESULT DxutSample::OnD3D9CreateDevice(
 
 	V(D3DXCreateSprite(pd3dDevice, &m_sprite));
 
+	my::ImeEditBox::Initialize(DXUTGetHWND());
+
+	my::ImeEditBox::EnableImeSystem(false);
+
 	return S_OK;
 }
 
@@ -412,6 +416,8 @@ void DxutSample::OnD3D9DestroyDevice(void)
 	m_font.Release();
 
 	m_sprite.Release();
+
+	my::ImeEditBox::Uninitialize();
 }
 
 void DxutSample::OnFrameMove(
@@ -506,8 +512,12 @@ LRESULT DxutSample::MsgProc(
 		return hres;
 	}
 
-	*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
+	if((*pbNoFurtherProcessing = my::ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam)))
+	{
+		return 0;
+	}
+
+	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
@@ -519,8 +529,7 @@ LRESULT DxutSample::MsgProc(
 		return 0;
 	}
 
-	*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-	if(*pbNoFurtherProcessing)
+	if((*pbNoFurtherProcessing = m_hudDlg.MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}

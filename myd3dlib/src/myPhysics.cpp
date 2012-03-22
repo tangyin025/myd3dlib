@@ -728,7 +728,6 @@ namespace my
 		setVelocity(Vector3::zero);
 		setRotation(Vector3::zero);
 		//Matrix4 transform;
-		//Matrix4 rotationTransform;
 		setInverseInertialTensor(Matrix4::Identity());
 		//Matrix4 inverseInertiaTensorWorld;
 		setAcceleration(Vector3::zero);
@@ -738,7 +737,7 @@ namespace my
 		//Vector3 resultingAngularAcc;
 		setDamping(1);
 		setAngularDamping(1);
-		setSleepEpsilon(0.3);
+		setSleepEpsilon(0.3f);
 		//float motion;
 		setAwake(true);
 		setCanSleep(true);
@@ -803,7 +802,7 @@ namespace my
 
 	void RigidBody::calculateDerivedData(void)
 	{
-		rotationTransform = Matrix4::RotationQuaternion(orientation.normalizeSelf()); // ***
+		Matrix4 rotationTransform = Matrix4::RotationQuaternion(orientation.normalizeSelf()); // ***
 
 		transform = rotationTransform.translate(position);
 
@@ -1047,11 +1046,11 @@ namespace my
 	{
 		Vector3 velocity = body->getVelocity() + *pwindSpeed;
 
-		Vector3 localVelocity = velocity.transformCoord(body->getInverseRotationTransform());
+		Vector3 localVelocity = velocity.transformNormalTranspose(body->getTransform());
 
 		Vector3 localForce = localVelocity.transformCoord(_tensor);
 
-		Vector3 force = localForce.transformCoord(body->getRotationTransform());
+		Vector3 force = localForce.transformNormal(body->getTransform());
 
 		body->addForceAtPoint(force, position.transformCoord(body->getTransform()));
 

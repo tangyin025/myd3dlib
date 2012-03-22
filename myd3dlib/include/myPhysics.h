@@ -576,8 +576,6 @@ namespace my
 
 		Matrix4 transform;
 
-		Matrix4 rotationTransform;
-
 		Matrix4 inverseInertiaTensor;
 
 		Matrix4 inverseInertiaTensorWorld;
@@ -695,21 +693,6 @@ namespace my
 		const Matrix4 & getTransform(void) const
 		{
 			return transform;
-		}
-
-		Matrix4 getInverseTransform(void) const
-		{
-			return transform.inverse();
-		}
-
-		const Matrix4 & getRotationTransform(void) const
-		{
-			return rotationTransform;
-		}
-
-		Matrix4 getInverseRotationTransform(void) const
-		{
-			return rotationTransform.inverse();
 		}
 
 		void setInertialTensor(const Matrix4 & inertialTensor)

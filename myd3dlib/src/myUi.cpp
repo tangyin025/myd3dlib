@@ -420,11 +420,6 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 				UIRender::DrawRectangle(
 					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_FocusedTexRect));
 			}
-			else if(m_bMouseOver)
-			{
-				UIRender::DrawRectangle(
-					pd3dDevice, Rect, m_Color, UIRender::CalculateUVRect(TextureSize, Skin->m_MouseOverTexRect));
-			}
 			else
 			{
 				UIRender::DrawRectangle(
@@ -992,131 +987,6 @@ int EditBox::GetNextItemPos(int nCP)
 	return m_Text.length();
 }
 
-void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
-{
-	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
-	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
-	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
-
-	if(m_bVisible)
-	{
-		Control::OnRender(pd3dDevice, fElapsedTime);
-
-		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-		{
-			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime);
-		}
-	}
-}
-
-bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
-
-	if(ControlFocus && ControlFocus->GetEnabled()
-		&& ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
-	{
-		return true;
-	}
-
-	switch(uMsg)
-	{
-	case WM_KEYDOWN:
-	case WM_SYSKEYDOWN:
-	case WM_KEYUP:
-	case WM_SYSKEYUP:
-		if(ControlFocus && ControlFocus->GetEnabled())
-		{
-			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
-				return true;
-		}
-
-		if(uMsg == WM_KEYDOWN && !ControlFocus)
-		{
-			ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-			{
-				if((*ctrl_iter)->OnHotkey())
-				{
-					return true;
-				}
-			}
-		}
-		break;
-
-	case WM_MOUSEMOVE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_XBUTTONDOWN:
-	case WM_XBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDBLCLK:
-	case WM_RBUTTONDBLCLK:
-	case WM_XBUTTONDBLCLK:
-	case WM_MOUSEWHEEL:
-		{
-			Matrix4 invViewMatrix = m_ViewMatrix.inverse();
-			const Vector3 & viewX = invViewMatrix[0];
-			const Vector3 & viewY = invViewMatrix[1];
-			const Vector3 & viewZ = invViewMatrix[2];
-			const Vector3 & ptEye = invViewMatrix[3];
-
-			RECT ClientRect;
-			GetClientRect(hWnd, &ClientRect);
-			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_ProjMatrix._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_ProjMatrix._22);
-			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
-
-			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);
-			float dialogDistance = ((Vector3 &)m_Transform[3]).dot(dialogNormal);
-			IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
-
-			if(result.first)
-			{
-				Vector3 ptInt(ptEye + dir * result.second);
-				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
-				if(ControlFocus && ControlFocus->GetEnabled())
-				{
-					if(ControlFocus->HandleMouse(uMsg, pt, wParam, lParam))
-						return true;
-				}
-
-				ControlPtr ControlPtd = GetControlAtPoint(pt);
-				if(ControlPtd && ControlPtd->GetEnabled())
-				{
-					if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
-					{
-						RequestFocus(ControlPtd);
-						return true;
-					}
-				}
-				else if(uMsg == WM_LBUTTONDOWN && ControlFocus)
-				{
-					ControlFocus->OnFocusOut();
-					ResourceMgr::getSingleton().m_ControlFocus.reset();
-				}
-
-				if(ControlPtd != m_ControlMouseOver)
-				{
-					if(m_ControlMouseOver)
-						m_ControlMouseOver->OnMouseLeave();
-
-					m_ControlMouseOver = ControlPtd;
-					if(ControlPtd)
-						ControlPtd->OnMouseEnter();
-				}
-			}
-		}
-		break;
-	}
-	return false;
-}
-
 bool ImeEditBox::s_bHideCaret = false;
 
 std::wstring ImeEditBox::s_CompString;
@@ -1242,25 +1112,30 @@ void ImeEditBox::ResetCompositionString(void)
 	s_CompString.clear();
 }
 
+void ImeEditBox::EnableImeSystem(bool bEnable)
+{
+	ImeUi_EnableIme(bEnable);
+}
+
 void ImeEditBox::RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 }
 
 void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	s_CompString = ImeUi_GetCompositionString();
-
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
 	if(Skin)
 	{
+		s_CompString = ImeUi_GetCompositionString();
+
 		Rectangle Rect(Rectangle::LeftTop(m_Location, m_Size));
 
 		Rectangle TextRect = Rect.shrink(m_Border);
 
-		float x, x1st; Vector2 extent;
+		float x, x1st;
 		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
 		x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-		extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
+		Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
 
 		Rectangle rc(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
 		if(rc.r > TextRect.r)
@@ -1282,7 +1157,166 @@ void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsed
 
 void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	;
+	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
+	if(Skin)
+	{
+		Rectangle Rect(Rectangle::LeftTop(m_Location, m_Size));
+
+		Rectangle TextRect = Rect.shrink(m_Border);
+
+		float x, x1st, comp_x;
+		x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+		x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+		Vector2 extent = Skin->m_Font->CalculateStringExtent(s_CompString.c_str());
+
+		Rectangle CompRect(TextRect.l + x - x1st, TextRect.t, TextRect.l + x - x1st + extent.x, TextRect.b);
+		if(CompRect.r > TextRect.r)
+			CompRect.offsetSelf(TextRect.l - CompRect.l, TextRect.Height());
+
+		comp_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
+
+		float WidthRequired = 0;
+		float HeightRequired = 0;
+		float SingleLineHeight = 0;
+
+		std::wstring horizontalText;
+		for(UINT i = 0; i < MAX_CANDLIST && *ImeUi_GetCandidate(i) != L'\0'; i++)
+		{
+			horizontalText += ImeUi_GetCandidate(i);
+		}
+		extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
+
+		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
+
+		UIRender::DrawRectangle(pd3dDevice, CandRect, m_CandidateWinColor);
+
+		Skin->m_Font->DrawString(horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+	}
+}
+
+void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
+	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
+	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
+
+	if(m_bVisible)
+	{
+		Control::OnRender(pd3dDevice, fElapsedTime);
+
+		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime);
+		}
+	}
+}
+
+bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
+
+	if(ControlFocus && ControlFocus->GetEnabled()
+		&& ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+	{
+		return true;
+	}
+
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if(ControlFocus && ControlFocus->GetEnabled())
+		{
+			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+				return true;
+		}
+
+		if(uMsg == WM_KEYDOWN && !ControlFocus)
+		{
+			ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+			{
+				if((*ctrl_iter)->OnHotkey())
+				{
+					return true;
+				}
+			}
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+		{
+			Matrix4 invViewMatrix = m_ViewMatrix.inverse();
+			const Vector3 & viewX = invViewMatrix[0];
+			const Vector3 & viewY = invViewMatrix[1];
+			const Vector3 & viewZ = invViewMatrix[2];
+			const Vector3 & ptEye = invViewMatrix[3];
+
+			RECT ClientRect;
+			GetClientRect(hWnd, &ClientRect);
+			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
+			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_ProjMatrix._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_ProjMatrix._22);
+			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
+
+			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);
+			float dialogDistance = ((Vector3 &)m_Transform[3]).dot(dialogNormal);
+			IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
+
+			if(result.first)
+			{
+				Vector3 ptInt(ptEye + dir * result.second);
+				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
+				if(ControlFocus && ControlFocus->GetEnabled())
+				{
+					if(ControlFocus->HandleMouse(uMsg, pt, wParam, lParam))
+						return true;
+				}
+
+				ControlPtr ControlPtd = GetControlAtPoint(pt);
+				if(ControlPtd && ControlPtd->GetEnabled())
+				{
+					if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
+					{
+						RequestFocus(ControlPtd);
+						return true;
+					}
+				}
+				else if(uMsg == WM_LBUTTONDOWN && ControlFocus)
+				{
+					ControlFocus->OnFocusOut();
+					ResourceMgr::getSingleton().m_ControlFocus.reset();
+				}
+
+				if(ControlPtd != m_ControlMouseOver)
+				{
+					if(m_ControlMouseOver)
+						m_ControlMouseOver->OnMouseLeave();
+
+					m_ControlMouseOver = ControlPtd;
+					if(ControlPtd)
+						ControlPtd->OnMouseEnter();
+				}
+			}
+		}
+		break;
+	}
+	return false;
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)

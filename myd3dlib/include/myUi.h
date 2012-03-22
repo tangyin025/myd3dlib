@@ -223,8 +223,6 @@ namespace my
 
 		RECT m_FocusedTexRect;
 
-		RECT m_MouseOverTexRect;
-
 		D3DCOLOR m_SelTextColor;
 
 		D3DCOLOR m_SelBkColor;
@@ -235,7 +233,6 @@ namespace my
 		EditBoxSkin(void)
 			: m_DisabledTexRect(CRect(0,0,0,0))
 			, m_FocusedTexRect(CRect(0,0,0,0))
-			, m_MouseOverTexRect(CRect(0,0,0,0))
 			, m_SelTextColor(D3DCOLOR_ARGB(255,255,255,255))
 			, m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
 			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
@@ -322,11 +319,14 @@ namespace my
 
 		static std::wstring s_CompString;
 
-		D3DCOLOR m_CompWinColor;        // Composition string window color
+		D3DCOLOR m_CompWinColor;
+
+		D3DCOLOR m_CandidateWinColor;
 
 	public:
 		ImeEditBox(void)
 			: m_CompWinColor(D3DCOLOR_ARGB(197,0,0,0))
+			, m_CandidateWinColor(D3DCOLOR_ARGB(197,0,0,0))
 		{
 		}
 
@@ -347,6 +347,8 @@ namespace my
 		static bool StaticMsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		static void ResetCompositionString(void);
+
+		static void EnableImeSystem(bool bEnable);
 
 		void RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
 
