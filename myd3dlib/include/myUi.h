@@ -36,12 +36,8 @@ namespace my
 			IDirect3DDevice9 * pd3dDevice,
 			const Rectangle & rect,
 			DWORD color,
-			const Rectangle & uvRect);
-
-		static void DrawRectangle(
-			IDirect3DDevice9 * pd3dDevice,
-			const Rectangle & rect,
-			DWORD color);
+			TexturePtr texture = TexturePtr(),
+			const RECT & SrcRect = CRect(0,0,0,0));
 	};
 
 	class ControlSkin
@@ -114,7 +110,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -158,7 +154,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
@@ -203,7 +199,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -283,7 +279,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -330,7 +326,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -350,11 +346,11 @@ namespace my
 
 		static void EnableImeSystem(bool bEnable);
 
-		void RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		void RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
-		void RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		void RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
-		void RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		void RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 	};
 
 	typedef boost::shared_ptr<ImeEditBox> ImeEditBoxPtr;
@@ -374,9 +370,15 @@ namespace my
 
 		Matrix4 m_ProjMatrix;
 
+		bool m_bMouseDrag;
+
+		Vector2 m_MouseOffset;
+
 	public:
 		Dialog(void)
 			: m_Transform(Matrix4::Identity())
+			, m_bMouseDrag(false)
+			, m_MouseOffset(0,0)
 		{
 			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_ViewMatrix, m_ProjMatrix);
 		}
@@ -388,6 +390,8 @@ namespace my
 		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 
