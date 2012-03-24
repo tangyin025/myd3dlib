@@ -446,9 +446,9 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		typedef std::vector<ControlPtr> ControlPtrList;
+		typedef std::set<ControlPtr> ControlPtrSet;
 
-		ControlPtrList m_Controls;
+		ControlPtrSet m_Controls;
 
 		ControlPtr m_ControlMouseOver;
 
@@ -484,6 +484,8 @@ namespace my
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 
 		void RequestFocus(ControlPtr control);
+
+		bool ContainsControl(ControlPtr control);
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;

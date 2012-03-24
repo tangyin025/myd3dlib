@@ -1380,7 +1380,7 @@ void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	{
 		Control::OnRender(pd3dDevice, fElapsedTime, Vector2(0,0));
 
-		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
 			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime, m_Location);
@@ -1392,10 +1392,12 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
 
-	if(ControlFocus && ControlFocus->GetEnabled()
-		&& ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+	if(ControlFocus
+		&& ContainsControl(ControlFocus)
+		&& ControlFocus->GetEnabled())
 	{
-		return true;
+		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+			return true;
 	}
 
 	switch(uMsg)
@@ -1404,7 +1406,9 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SYSKEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		if(ControlFocus && ControlFocus->GetEnabled())
+		if(ControlFocus
+			&& ContainsControl(ControlFocus)
+			&& ControlFocus->GetEnabled())
 		{
 			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
 				return true;
@@ -1412,7 +1416,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 		if(uMsg == WM_KEYDOWN && !ControlFocus)
 		{
-			ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+			ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 			{
 				if((*ctrl_iter)->OnHotkey())
@@ -1459,7 +1463,9 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				Vector3 ptInt(ptEye + dir * result.second);
 				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
 				Vector2 ptLocal = Vector2(pt.x - m_Location.x, pt.y - m_Location.y);
-				if(ControlFocus && ControlFocus->GetEnabled())
+				if(ControlFocus
+					&& ContainsControl(ControlFocus)
+					&& ControlFocus->GetEnabled())
 				{
 					if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
 						return true;
@@ -1538,7 +1544,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
 {
-	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
+	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 	{
 		if((*ctrl_iter)->ContainsPoint(pt) && (*ctrl_iter)->GetVisible() && (*ctrl_iter)->GetEnabled())
@@ -1565,4 +1571,9 @@ void Dialog::RequestFocus(ControlPtr control)
 
 	control->OnFocusIn();
 	ResourceMgr::getSingleton().m_ControlFocus = control;
+}
+
+bool Dialog::ContainsControl(ControlPtr control)
+{
+	return m_Controls.end() != m_Controls.find(control);
 }

@@ -217,6 +217,7 @@ void ResourceMgr::OnLostDevice(void)
 
 void ResourceMgr::OnDestroyDevice(void)
 {
+	m_ControlFocus.reset();
 }
 
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
