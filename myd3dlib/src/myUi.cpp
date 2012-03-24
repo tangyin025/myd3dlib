@@ -209,7 +209,7 @@ bool Control::OnHotkey(void)
 
 bool Control::ContainsPoint(const Vector2 & pt)
 {
-	return pt.x >= m_Location.x && pt.x < m_Location.x + m_Size.x && pt.y >= m_Location.y && pt.y < m_Location.y + m_Size.y;
+	return Rectangle::LeftTop(m_Location, m_Size).PtInRect(pt);
 }
 
 void Control::SetEnabled(bool bEnabled)
@@ -371,7 +371,7 @@ bool Button::CanHaveFocus(void)
 
 bool Button::ContainsPoint(const Vector2 & pt)
 {
-	return Control::ContainsPoint(pt);
+	return Rectangle::LeftTop(m_Location, m_Size).PtInRect(pt);
 }
 
 void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
@@ -1165,6 +1165,211 @@ void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fEla
 	}
 }
 
+void ScrollBar::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+{
+    // Check if the arrow button has been held for a while.
+    // If so, update the thumb position to simulate repeated
+    // scroll.
+	if(m_Arrow != CLEAR)
+	{
+		double dCurrTime = DXUTGetTime();
+		switch(m_Arrow)
+		{
+		case CLICKED_UP:
+			if(0.33 < dCurrTime - m_dArrowTS)
+			{
+				Scroll(-1);
+				m_Arrow = HELD_UP;
+				m_dArrowTS = dCurrTime;
+			}
+			break;
+
+		case HELD_UP:
+			if(0.05 < dCurrTime - m_dArrowTS)
+			{
+				Scroll(-1);
+				m_dArrowTS = dCurrTime;
+			}
+			break;
+
+		case CLICKED_DOWN:
+			if(0.33 < dCurrTime - m_dArrowTS)
+			{
+				Scroll( 1);
+				m_Arrow = HELD_DOWN;
+				m_dArrowTS = dCurrTime;
+			}
+			break;
+
+		case HELD_DOWN:
+			if(0.05 < dCurrTime - m_dArrowTS)
+			{
+				Scroll( 1);
+				m_dArrowTS = dCurrTime;
+			}
+			break;
+		}
+	}
+
+	if(m_bEnabled && m_bVisible)
+	{
+		ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin, ControlSkin>(m_Skin);
+
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
+		if(Skin)
+		{
+			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
+
+			Rectangle DownButtonRect(Rectangle::RightBottom(Rect.r, Rect.b, m_Size.x, m_UpDownButtonHeight));
+
+			if(m_nEnd - m_nStart > m_nPageSize)
+			{
+				UIRender::DrawRectangle(pd3dDevice, UpButtonRect, m_Color, Skin->m_Texture, Skin->m_UpBtnNormalTexRect);
+
+				UIRender::DrawRectangle(pd3dDevice, DownButtonRect, m_Color, Skin->m_Texture, Skin->m_DownBtnNormalTexRect);
+
+				float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+				int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+				float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+				Rectangle ThumbButtonRect(Rect.l, fThumbTop, Rect.r, fThumbTop + fThumbHeight);
+
+				UIRender::DrawRectangle(pd3dDevice, ThumbButtonRect, m_Color, Skin->m_Texture, Skin->m_ThumbBtnNormalTexRect);
+			}
+			else
+			{
+				UIRender::DrawRectangle(pd3dDevice, UpButtonRect, m_Color, Skin->m_Texture, Skin->m_UpBtnDisabledTexRect);
+
+				UIRender::DrawRectangle(pd3dDevice, DownButtonRect, m_Color, Skin->m_Texture, Skin->m_DownBtnDisabledTexRect);
+			}
+		}
+	}
+}
+
+bool ScrollBar::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(WM_CAPTURECHANGED == uMsg)
+	{
+		// ! DXUT dependency
+		if((HWND)lParam != DXUTGetHWND())
+			m_bDrag = false;
+	}
+	return false;
+}
+
+bool ScrollBar::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONDBLCLK:
+		{
+			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
+			if(UpButtonRect.PtInRect(pt))
+			{
+				SetCapture(DXUTGetHWND());
+				if(m_nPosition > m_nStart)
+					--m_nPosition;
+				m_Arrow = CLICKED_UP;
+				m_dArrowTS = DXUTGetTime();
+				return true;
+			}
+
+			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
+			if(DownButtonRect.PtInRect(pt))
+			{
+				SetCapture(DXUTGetHWND());
+				if(m_nPosition + m_nPageSize < m_nEnd)
+					++m_nPosition;
+				m_Arrow = CLICKED_DOWN;
+				m_dArrowTS = DXUTGetTime();
+				return true;
+			}
+
+			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+			float fMaxThumb = fTrackHeight - fThumbHeight;
+			float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
+			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
+			if(ThumbButtonRect.PtInRect(pt))
+			{
+				SetCapture(DXUTGetHWND());
+				m_bDrag = true;
+				m_fThumbOffsetY = pt.y - fThumbTop;
+				return true;
+			}
+
+			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
+			{
+				SetCapture(DXUTGetHWND());
+				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
+				{
+					Scroll(-m_nPageSize);
+					return true;
+				}
+				else if(pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
+				{
+					Scroll( m_nPageSize);
+					return true;
+				}
+			}
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		{
+			m_bDrag = false;
+			ReleaseCapture();
+			m_Arrow = CLEAR;
+			break;
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+		if(m_bDrag)
+		{
+			Rectangle TrackRect(
+				m_Location.x,
+				m_Location.y + m_UpDownButtonHeight,
+				m_Location.x + m_Size.x,
+				m_Location.y + m_Size.y - m_UpDownButtonHeight);
+
+			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
+			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
+			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
+			float fMaxThumb = fTrackHeight - fThumbHeight;
+			float fThumbTop = pt.y - m_fThumbOffsetY;
+
+			if(fThumbTop < TrackRect.t)
+				fThumbTop = TrackRect.t;
+			else if(fThumbTop + fThumbHeight > TrackRect.b)
+				fThumbTop = TrackRect.b - fThumbHeight;
+
+			m_nPosition = (int)(m_nStart + (fThumbTop - TrackRect.t + fMaxThumb / (nMaxPosition * 2)) * nMaxPosition / fMaxThumb);
+			return true;
+		}
+		break;
+	}
+	return false;
+}
+
+bool ScrollBar::CanHaveFocus(void)
+{
+	return m_bVisible && m_bEnabled;
+}
+
+void ScrollBar::Scroll(int nDelta)
+{
+	m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, m_nPosition + nDelta));
+}
+
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
@@ -1269,7 +1474,8 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						return true;
 					}
 				}
-				else if(uMsg == WM_LBUTTONDOWN && ControlFocus)
+
+				if(uMsg == WM_LBUTTONDOWN && ControlFocus)
 				{
 					ControlFocus->OnFocusOut();
 					ResourceMgr::getSingleton().m_ControlFocus.reset();

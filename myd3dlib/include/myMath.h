@@ -936,6 +936,11 @@ namespace my
 			return Vector2(Width(), Height());
 		}
 
+		bool PtInRect(const Vector2 & pt)
+		{
+			return pt.x >= l && pt.x < r && pt.y >= t && pt.y < b;
+		}
+
 		static Rectangle LeftTop(float x, float y, float width, float height)
 		{
 			return Rectangle(

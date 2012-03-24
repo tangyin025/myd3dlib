@@ -110,7 +110,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -154,7 +154,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
@@ -199,7 +199,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -279,7 +279,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -326,7 +326,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -354,6 +354,94 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ImeEditBox> ImeEditBoxPtr;
+
+	class ScrollBarSkin : public ControlSkin
+	{
+	public:
+		RECT m_UpBtnNormalTexRect;
+
+		RECT m_UpBtnDisabledTexRect;
+
+		RECT m_DownBtnNormalTexRect;
+
+		RECT m_DownBtnDisabledTexRect;
+
+		RECT m_ThumbBtnNormalTexRect;
+
+		RECT m_ThumbBtnDisabledTexRect;
+
+	public:
+		ScrollBarSkin(void)
+			: m_UpBtnNormalTexRect(CRect(0,0,0,0))
+			, m_UpBtnDisabledTexRect(CRect(0,0,0,0))
+			, m_DownBtnNormalTexRect(CRect(0,0,0,0))
+			, m_DownBtnDisabledTexRect(CRect(0,0,0,0))
+			, m_ThumbBtnNormalTexRect(CRect(0,0,0,0))
+			, m_ThumbBtnDisabledTexRect(CRect(0,0,0,0))
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<ScrollBarSkin> ScrollBarSkinPtr;
+
+	class ScrollBar : public Control
+	{
+	public:
+		bool m_bDrag;
+
+		float m_UpDownButtonHeight;
+
+		int m_nPosition;
+
+		int m_nPageSize;
+
+		int m_nStart;
+
+		int m_nEnd;
+
+		enum ARROWSTATE
+		{
+			CLEAR,
+			CLICKED_UP,
+			CLICKED_DOWN,
+			HELD_UP,
+			HELD_DOWN,
+		};
+
+		ARROWSTATE m_Arrow;
+
+		double m_dArrowTS;
+
+		float m_fThumbOffsetY;
+
+	public:
+		ScrollBar(void)
+			: m_bDrag(false)
+			, m_UpDownButtonHeight(20)
+			, m_nPosition(0)
+			, m_nPageSize(1)
+			, m_nStart(0)
+			, m_nEnd(10)
+			, m_Arrow(CLEAR)
+			, m_dArrowTS(0)
+			, m_fThumbOffsetY(0)
+		{
+		}
+
+		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
+
+		virtual bool CanHaveFocus(void);
+
+		void Scroll(int nDelta);
+	};
+
+	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
 
 	class Dialog : public Control
 	{
