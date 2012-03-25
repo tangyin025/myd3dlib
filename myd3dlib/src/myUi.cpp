@@ -202,9 +202,8 @@ void Control::OnMouseLeave(void)
 	m_bMouseOver = false;
 }
 
-bool Control::OnHotkey(void)
+void Control::OnHotkey(void)
 {
-	return false;
 }
 
 bool Control::ContainsPoint(const Vector2 & pt)
@@ -230,6 +229,16 @@ void Control::SetVisible(bool bVisible)
 bool Control::GetVisible(void)
 {
 	return m_bVisible;
+}
+
+void Control::SetHotkey(UINT nHotkey)
+{
+	m_nHotkey = nHotkey;
+}
+
+UINT Control::GetHotkey(void)
+{
+	return m_nHotkey;
 }
 
 void Static::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
@@ -262,17 +271,24 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const V
 			{
 				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_DisabledTexRect);
 			}
-			else if(m_bPressed)
-			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_PressedTexRect);
-			}
-			else if(m_bMouseOver || m_bHasFocus)
-			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_MouseOverTexRect);
-			}
 			else
 			{
-				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_TextureRect);
+				if(m_bPressed)
+				{
+					UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_PressedTexRect);
+				}
+				else
+				{
+					D3DXCOLOR DstColor(m_Color);
+					if(!m_bMouseOver /*&& !m_bHasFocus*/)
+					{
+						DstColor.a = 0;
+					}
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+					UIRender::DrawRectangle(pd3dDevice, Rect,
+						D3DXCOLOR(m_BlendColor.r, m_BlendColor.g, m_BlendColor.b, 1.0f - m_BlendColor.a), Skin->m_Texture, Skin->m_TextureRect);
+					UIRender::DrawRectangle(pd3dDevice, Rect, m_BlendColor, Skin->m_Texture, Skin->m_MouseOverTexRect);
+				}
 			}
 		}
 
@@ -367,6 +383,12 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 bool Button::CanHaveFocus(void)
 {
 	return m_bVisible && m_bEnabled;
+}
+
+void Button::OnHotkey(void)
+{
+	if(EventClick)
+		EventClick(this_ptr.lock());
 }
 
 bool Button::ContainsPoint(const Vector2 & pt)
@@ -1422,8 +1444,9 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 			{
-				if((*ctrl_iter)->OnHotkey())
+				if((*ctrl_iter)->GetHotkey() == wParam)
 				{
+					(*ctrl_iter)->OnHotkey();
 					return true;
 				}
 			}

@@ -81,6 +81,8 @@ namespace my
 
 		bool m_bIsDefault;
 
+		UINT m_nHotkey;
+
 		Vector2 m_Location;
 
 		Vector2 m_Size;
@@ -100,6 +102,7 @@ namespace my
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
 			, m_bIsDefault(false)
+			, m_nHotkey(0)
 			, m_Location(100, 100)
 			, m_Size(100, 100)
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
@@ -128,7 +131,7 @@ namespace my
 
 		virtual void OnMouseLeave(void);
 
-		virtual bool OnHotkey(void);
+		virtual void OnHotkey(void);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 
@@ -139,6 +142,10 @@ namespace my
 		virtual void SetVisible(bool bVisible);
 
 		virtual bool GetVisible(void);
+
+		void SetHotkey(UINT nHotkey);
+
+		UINT GetHotkey(void);
 	};
 
 	typedef boost::shared_ptr<Control> ControlPtr;
@@ -191,11 +198,14 @@ namespace my
 	public:
 		bool m_bPressed;
 
+		D3DXCOLOR m_BlendColor;
+
 		ControlEvent EventClick;
 
 	public:
 		Button(void)
 			: m_bPressed(false)
+			, m_BlendColor(m_Color)
 		{
 		}
 
@@ -206,6 +216,8 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual bool CanHaveFocus(void);
+
+		virtual void OnHotkey(void);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};

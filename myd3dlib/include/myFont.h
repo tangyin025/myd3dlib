@@ -165,7 +165,7 @@ namespace my
 
 		const int FONT_PIXEL_GAP;
 
-		boost::shared_array<unsigned char> m_cache;
+		boost::shared_ptr<std::vector<unsigned char> > m_cache;
 
 		int m_maxAdvance;
 
@@ -193,6 +193,13 @@ namespace my
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
+			int height,
+			unsigned short pixel_gap = 0,
+			FT_Long face_index = 0);
+
+		static FontPtr CreateFontFromFileInCache(
+			LPDIRECT3DDEVICE9 pDevice,
+			boost::shared_ptr<std::vector<unsigned char> > cache_ptr,
 			int height,
 			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);

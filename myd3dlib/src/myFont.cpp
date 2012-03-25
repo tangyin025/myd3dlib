@@ -171,18 +171,28 @@ FontPtr Font::CreateFontFromFileInMemory(
 	unsigned short pixel_gap,
 	FT_Long face_index)
 {
-	boost::shared_array<unsigned char> cache(new unsigned char[file_size]);
-	memcpy(cache.get(), file_base, file_size);
+	CachePtr cache(new Cache(file_size));
+	memcpy(&(*cache)[0], file_base, cache->size());
 
+	return CreateFontFromFileInCache(pDevice, cache, height, pixel_gap, face_index);
+}
+
+FontPtr Font::CreateFontFromFileInCache(
+	LPDIRECT3DDEVICE9 pDevice,
+	CachePtr cache_ptr,
+	int height,
+	unsigned short pixel_gap,
+	FT_Long face_index)
+{
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, cache.get(), file_size, face_index, &face);
+	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
 	}
 
 	FontPtr font(new Font(face, height, pDevice, pixel_gap));
-	font->m_cache = cache;
+	font->m_cache = cache_ptr;
 	return font;
 }
 
