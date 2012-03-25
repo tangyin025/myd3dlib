@@ -38,5 +38,7 @@
 #include <vector>
 #include <DXUTgui.h>
 #include <DXUTsettingsdlg.h>
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
 
 #pragma warning(error : 172)

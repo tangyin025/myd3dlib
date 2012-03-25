@@ -266,7 +266,7 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const V
 			{
 				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_PressedTexRect);
 			}
-			else if(m_bMouseOver)
+			else if(m_bMouseOver || m_bHasFocus)
 			{
 				UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_MouseOverTexRect);
 			}
@@ -1390,6 +1390,9 @@ void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 
 bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	if(!m_bEnabled || !m_bVisible)
+		return false;
+
 	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
 
 	if(ControlFocus

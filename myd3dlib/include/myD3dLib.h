@@ -4,8 +4,8 @@
 #include "myException.h"
 #include "mySingleton.h"
 #include "myDxutApp.h"
-#include "myTexture.h"
 #include "myMath.h"
+#include "myTexture.h"
 #include "myMesh.h"
 #include "mySkeleton.h"
 #include "myEffect.h"
@@ -14,7 +14,7 @@
 #include "myCollision.h"
 #include "myUi.h"
 #include "myResource.h"
-//#include "myGuiPlatform.h"
+#include "myInput.h"
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
 	node_v = node_p->first_node(#node_s); \

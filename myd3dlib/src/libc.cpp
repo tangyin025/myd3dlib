@@ -2,6 +2,14 @@
 #include "stdafx.h"
 #include "myd3dlib.h"
 
+#define FAILED_THROW_CUSEXCEPTION(expr) \
+	{ \
+		if(!(expr)) \
+		{ \
+			THROW_CUSEXCEPTION((#expr)); \
+		} \
+	}
+
 char * asprintf(const char * format, ...)
 {
 	static const size_t def_size = 512;

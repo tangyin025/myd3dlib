@@ -11,9 +11,16 @@ namespace my
 		int m_line;
 
 	public:
-		Exception(const std::string & file, int line);
+		Exception(const std::string & file, int line)
+			: m_file(file)
+			, m_line(line)
+		{
+			_ASSERT(false);
+		}
 
-		virtual ~Exception(void);
+		virtual ~Exception(void)
+		{
+		}
 
 		virtual std::string GetDescription(void) const throw() = 0;
 
@@ -26,7 +33,11 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		ComException(HRESULT hres, const std::string & file, int line);
+		ComException(HRESULT hres, const std::string & file, int line)
+			: Exception(file, line)
+			, m_hres(hres)
+		{
+		}
 
 		std::string GetDescription(void) const throw();
 	};
@@ -34,7 +45,21 @@ namespace my
 	class D3DException : public ComException
 	{
 	public:
-		D3DException(HRESULT hres, const std::string & file, int line);
+		D3DException(HRESULT hres, const std::string & file, int line)
+			: ComException(hres, file, line)
+		{
+		}
+
+		std::string GetDescription(void) const throw();
+	};
+
+	class DInputException : public ComException
+	{
+	public:
+		DInputException(HRESULT hres, const std::string & file, int line)
+			: ComException(hres, file, line)
+		{
+		}
 
 		std::string GetDescription(void) const throw();
 	};
@@ -45,7 +70,11 @@ namespace my
 		DWORD m_code;
 
 	public:
-		WinException(DWORD code, const std::string & file, int line);
+		WinException(DWORD code, const std::string & file, int line)
+			: Exception(file, line)
+			, m_code(code)
+		{
+		}
 
 		std::string GetDescription(void) const throw();
 	};
@@ -56,7 +85,11 @@ namespace my
 		std::string m_desc;
 
 	public:
-		CustomException(const std::string & desc, const std::string & file, int line);
+		CustomException(const std::string & desc, const std::string & file, int line)
+			: Exception(file, line)
+			, m_desc(desc)
+		{
+		}
 
 		std::string GetDescription(void) const throw();
 	};
@@ -66,32 +99,8 @@ namespace my
 
 #define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), __FILE__, __LINE__)
 
+#define THROW_DINPUTEXCEPTION(hres) throw my::DInputException((hres), __FILE__, __LINE__)
+
 #define THROW_WINEXCEPTION(code) throw my::WinException((code), __FILE__, __LINE__)
 
 #define THROW_CUSEXCEPTION(info) throw my::CustomException((info), __FILE__, __LINE__)
-
-#define FAILED_THROW_COMEXCEPTION(expr) \
-	{ \
-		HRESULT hres; \
-		if(FAILED(hres = (expr))) \
-		{ \
-			THROW_COMEXCEPTION(hres); \
-		} \
-	}
-
-#define FAILED_THROW_D3DEXCEPTION(expr) \
-	{ \
-		HRESULT hres; \
-		if(FAILED(hres = (expr))) \
-		{ \
-			THROW_D3DEXCEPTION(hres); \
-		} \
-	}
-
-#define FAILED_THROW_CUSEXCEPTION(expr) \
-	{ \
-		if(!(expr)) \
-		{ \
-			THROW_CUSEXCEPTION((#expr)); \
-		} \
-	}

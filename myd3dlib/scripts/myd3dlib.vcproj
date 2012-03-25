@@ -175,6 +175,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myInput.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myMath.cpp"
 				>
 			</File>
@@ -258,6 +262,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myFont.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myInput.h"
 				>
 			</File>
 			<File

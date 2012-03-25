@@ -354,8 +354,11 @@ HRESULT DxutSample::OnD3D9CreateDevice(
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	FAILED_THROW_D3DEXCEPTION(D3DXCreateFont(
-		pd3dDevice, 15, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font));
+	if(FAILED(hres = D3DXCreateFont(
+		pd3dDevice, 15, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font)))
+	{
+		return hres;
+	}
 
 	V(D3DXCreateSprite(pd3dDevice, &m_sprite));
 
