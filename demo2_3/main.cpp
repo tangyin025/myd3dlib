@@ -1,13 +1,14 @@
 ﻿
-#include "myd3dlib.h"
+#include <myd3dlib.h>
 #include <DXUTCamera.h>
-#include "btBulletDynamicsCommon.h"
+#include <btBulletDynamicsCommon.h>
+#include "Game.h"
 
 // ------------------------------------------------------------------------------------------
 // MyDemo
 // ------------------------------------------------------------------------------------------
 
-class MyDemo : public my::DxutSample
+class MyDemo : public Game
 {
 	class AnimationMgr
 	{
@@ -162,7 +163,7 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = DxutSample::OnD3D9CreateDevice(
+		if(FAILED(hres = Game::OnD3D9CreateDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
@@ -262,7 +263,7 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = DxutSample::OnD3D9ResetDevice(
+		if(FAILED(hres = Game::OnD3D9ResetDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
@@ -305,7 +306,7 @@ protected:
 
 	void OnD3D9LostDevice(void)
 	{
-		DxutSample::OnD3D9LostDevice();
+		Game::OnD3D9LostDevice();
 
 		// 在这里处理在reset中创建的资源
 		m_shadowMapRT.reset();
@@ -323,7 +324,7 @@ protected:
 
 	void OnD3D9DestroyDevice(void)
 	{
-		DxutSample::OnD3D9DestroyDevice();
+		Game::OnD3D9DestroyDevice();
 
 		// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
 		m_dynamicsWorld.reset();
@@ -342,7 +343,7 @@ protected:
 		double fTime,
 		float fElapsedTime)
 	{
-		DxutSample::OnFrameMove(fTime, fElapsedTime);
+		Game::OnFrameMove(fTime, fElapsedTime);
 
 		// 在这里更新场景
 		btTransform transform;
@@ -359,11 +360,20 @@ protected:
 		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 	}
 
-	void OnRender(
+	void OnD3D9FrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime)
 	{
+		if(m_settingsDlg.IsActive())
+		{
+			m_settingsDlg.OnRender(fElapsedTime);
+			return;
+		}
+
+		V(pd3dDevice->Clear(
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+
 		// 获得相机投影矩阵
 		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
 		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
@@ -544,6 +554,22 @@ protected:
 
 			V(pd3dDevice->EndScene());
 		}
+
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			my::UIRender::Begin(pd3dDevice);
+			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_hudDlg->m_Transform));
+			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_hudDlg->m_ViewMatrix));
+			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_hudDlg->m_ProjMatrix));
+			m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
+				my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+			m_uiFnt->DrawString(DXUTGetDeviceStats(),
+				my::Rectangle::LeftTop(5,5 + m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+			m_hudDlg->OnRender(pd3dDevice, fElapsedTime);
+			my::UIRender::End(pd3dDevice);
+
+			V(pd3dDevice->EndScene());
+		}
 	}
 
 	LRESULT MsgProc(
@@ -554,7 +580,7 @@ protected:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT hres;
-		if(FAILED(hres = DxutSample::MsgProc(
+		if(FAILED(hres = Game::MsgProc(
 			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 		{
 			return hres;

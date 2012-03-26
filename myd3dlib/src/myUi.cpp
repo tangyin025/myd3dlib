@@ -153,7 +153,7 @@ void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const 
 {
 	if(m_bVisible)
 	{
-		if(m_Skin)
+		if(m_Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
 		{
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
@@ -231,6 +231,10 @@ bool Control::GetVisible(void)
 	return m_bVisible;
 }
 
+void Control::Refresh(void)
+{
+}
+
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -280,13 +284,14 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const V
 				else
 				{
 					D3DXCOLOR DstColor(m_Color);
+					float BaseAlpha = DstColor.a;
 					if(!m_bMouseOver /*&& !m_bHasFocus*/)
 					{
 						DstColor.a = 0;
 					}
-					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.75f, 30 * fElapsedTime));
 					UIRender::DrawRectangle(pd3dDevice, Rect,
-						D3DXCOLOR(m_BlendColor.r, m_BlendColor.g, m_BlendColor.b, 1.0f - m_BlendColor.a), Skin->m_Texture, Skin->m_TextureRect);
+						D3DXCOLOR(m_BlendColor.r, m_BlendColor.g, m_BlendColor.b, BaseAlpha - m_BlendColor.a), Skin->m_Texture, Skin->m_TextureRect);
 					UIRender::DrawRectangle(pd3dDevice, Rect, m_BlendColor, Skin->m_Texture, Skin->m_MouseOverTexRect);
 				}
 			}
@@ -396,6 +401,11 @@ bool Button::ContainsPoint(const Vector2 & pt)
 	return Rectangle::LeftTop(m_Location, m_Size).PtInRect(pt);
 }
 
+void Button::Refresh(void)
+{
+	m_BlendColor = D3DXCOLOR(0,0,0,0);
+}
+
 void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
@@ -404,7 +414,7 @@ void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const 
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if(Skin)
+		if(Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
 		{
 			if(!m_bEnabled)
 			{
@@ -1239,7 +1249,7 @@ void ScrollBar::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, cons
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if(Skin)
+		if(Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
 		{
 			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
 
@@ -1439,7 +1449,8 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				return true;
 		}
 
-		if(uMsg == WM_KEYDOWN && !ControlFocus)
+		if(uMsg == WM_KEYDOWN
+			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox, Control>(ControlFocus)))
 		{
 			ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
@@ -1566,6 +1577,15 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		}
 	}
 	return false;
+}
+
+void Dialog::Refresh(void)
+{
+	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->Refresh();
+	}
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
