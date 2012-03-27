@@ -11,11 +11,19 @@ protected:
 
 	CD3DSettingsDlg m_settingsDlg;
 
+	my::ResourceMgrPtr m_resMgr;
+
 	my::TexturePtr m_uiTex;
 
 	my::FontPtr m_uiFnt;
 
 	my::DialogPtr m_hudDlg;
+
+	my::InputPtr m_input;
+
+	my::KeyboardPtr m_keyboard;
+
+	my::MousePtr m_mouse;
 
 public:
 	Game(void);

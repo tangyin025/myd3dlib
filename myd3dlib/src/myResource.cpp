@@ -181,7 +181,7 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
-ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
+ResourceMgr::SingleInstance * SingleInstance<ResourceMgr>::s_ptr;
 
 ResourceMgr::ResourceMgr(void)
 {
@@ -190,10 +190,16 @@ ResourceMgr::ResourceMgr(void)
 	{
 		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
 	}
+
+	ImeEditBox::Initialize(DXUTGetHWND());
+
+	ImeEditBox::EnableImeSystem(false);
 }
 
 ResourceMgr::~ResourceMgr(void)
 {
+	ImeEditBox::Uninitialize();
+
 	FT_Error err = FT_Done_FreeType(m_library);
 }
 
@@ -218,6 +224,11 @@ void ResourceMgr::OnLostDevice(void)
 void ResourceMgr::OnDestroyDevice(void)
 {
 	m_ControlFocus.reset();
+}
+
+bool ResourceMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam);
 }
 
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)

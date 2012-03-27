@@ -99,7 +99,7 @@ namespace my
 	};
 
 	class ResourceMgr
-		: public Singleton<ResourceMgr>
+		: public SingleInstance<ResourceMgr>
 		, public DeviceRelatedObjectBase
 	{
 	public:
@@ -109,14 +109,11 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
-	protected:
 		ResourceDirPtrList m_dirList;
 
-		friend Singleton;
-
+	public:
 		ResourceMgr(void);
 
-	public:
 		~ResourceMgr(void);
 
 		virtual void OnResetDevice(void);
@@ -124,6 +121,8 @@ namespace my
 		virtual void OnLostDevice(void);
 
 		virtual void OnDestroyDevice(void);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 
@@ -133,4 +132,6 @@ namespace my
 
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
+
+	typedef boost::shared_ptr<ResourceMgr> ResourceMgrPtr;
 };

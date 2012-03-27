@@ -81,9 +81,13 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	my::ImeEditBox::Initialize(DXUTGetHWND());
+	m_resMgr = my::ResourceMgrPtr(new my::ResourceMgr());
 
-	my::ImeEditBox::EnableImeSystem(false);
+	my::ResourceMgr::getSingleton().RegisterFileDir(".");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 
 	my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("Untitled-1.png")->GetWholeCache();
 	m_uiTex = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
@@ -138,6 +142,12 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
+	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
+
+	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
+
+	m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
+
 	return S_OK;
 }
 
@@ -155,6 +165,8 @@ HRESULT Game::OnD3D9ResetDevice(
 	V(m_dlgResourceMgr.OnD3D9ResetDevice());
 
 	V(m_settingsDlg.OnD3D9ResetDevice());
+
+	m_resMgr->OnResetDevice();
 
 	m_uiTex->OnResetDevice();
 
@@ -182,6 +194,8 @@ void Game::OnD3D9LostDevice(void)
 
 	m_settingsDlg.OnD3D9LostDevice();
 
+	m_resMgr->OnLostDevice();
+
 	m_uiTex->OnLostDevice();
 
 	m_uiFnt->OnLostDevice();
@@ -189,17 +203,25 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
-	DxutApp::OnD3D9DestroyDevice();
+	m_mouse.reset();
 
-	m_dlgResourceMgr.OnD3D9DestroyDevice();
+	m_keyboard.reset();
+
+	m_input.reset();
+
+	m_hudDlg.reset();
+
+	m_uiFnt.reset();
+
+	m_uiTex.reset();
+
+	m_resMgr.reset();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
-	m_uiTex->OnDestroyDevice();
+	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
-	m_uiFnt->OnDestroyDevice();
-
-	my::ImeEditBox::Uninitialize();
+	DxutApp::OnD3D9DestroyDevice();
 }
 
 void Game::OnFrameMove(
@@ -207,6 +229,10 @@ void Game::OnFrameMove(
 	float fElapsedTime)
 {
 	DxutApp::OnFrameMove(fTime, fElapsedTime);
+
+	m_keyboard->Capture();
+
+	m_mouse->Capture();
 }
 
 void Game::OnD3D9FrameRender(
@@ -254,12 +280,12 @@ LRESULT Game::MsgProc(
 		return hres;
 	}
 
-	if((*pbNoFurtherProcessing = my::ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam)))
+	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
 
-	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
+	if(m_resMgr && (*pbNoFurtherProcessing = m_resMgr->MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
