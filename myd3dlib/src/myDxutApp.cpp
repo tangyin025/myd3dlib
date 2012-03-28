@@ -4,7 +4,9 @@
 
 using namespace my;
 
-bool CALLBACK DxutAppBase::IsD3D9DeviceAcceptable_s(
+DxutApp::SingleInstance * SingleInstance<DxutApp>::s_ptr = NULL;
+
+bool CALLBACK DxutApp::IsD3D9DeviceAcceptable_s(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
 	D3DFORMAT BackBufferFormat,
@@ -23,68 +25,68 @@ bool CALLBACK DxutAppBase::IsD3D9DeviceAcceptable_s(
 		return false;
 	}
 
-	return reinterpret_cast<DxutAppBase *>(pUserContext)->IsD3D9DeviceAcceptable(
+	return reinterpret_cast<DxutApp *>(pUserContext)->IsD3D9DeviceAcceptable(
 		pCaps, AdapterFormat, BackBufferFormat, bWindowed);
 }
 
-bool CALLBACK DxutAppBase::ModifyDeviceSettings_s(
+bool CALLBACK DxutApp::ModifyDeviceSettings_s(
 	DXUTDeviceSettings * pDeviceSettings,
 	void * pUserContext)
 {
-	return reinterpret_cast<DxutAppBase *>(pUserContext)->ModifyDeviceSettings(
+	return reinterpret_cast<DxutApp *>(pUserContext)->ModifyDeviceSettings(
 		pDeviceSettings);
 }
 
-HRESULT CALLBACK DxutAppBase::OnD3D9CreateDevice_s(
+HRESULT CALLBACK DxutApp::OnD3D9CreateDevice_s(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 	void * pUserContext)
 {
-	return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9CreateDevice(
+	return reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9CreateDevice(
 		pd3dDevice, pBackBufferSurfaceDesc);
 }
 
-HRESULT CALLBACK DxutAppBase::OnD3D9ResetDevice_s(
+HRESULT CALLBACK DxutApp::OnD3D9ResetDevice_s(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 	void * pUserContext)
 {
-	return reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9ResetDevice(
+	return reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9ResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc);
 }
 
-void CALLBACK DxutAppBase::OnD3D9LostDevice_s(
+void CALLBACK DxutApp::OnD3D9LostDevice_s(
 	void * pUserContext)
 {
-	reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9LostDevice();
+	reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9LostDevice();
 }
 
-void CALLBACK DxutAppBase::OnD3D9DestroyDevice_s(
+void CALLBACK DxutApp::OnD3D9DestroyDevice_s(
 	void * pUserContext)
 {
-	reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9DestroyDevice();
+	reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9DestroyDevice();
 }
 
-void CALLBACK DxutAppBase::OnFrameMove_s(
+void CALLBACK DxutApp::OnFrameMove_s(
 	double fTime,
 	float fElapsedTime,
 	void * pUserContext)
 {
-	reinterpret_cast<DxutAppBase *>(pUserContext)->OnFrameMove(
+	reinterpret_cast<DxutApp *>(pUserContext)->OnFrameMove(
 		fTime, fElapsedTime);
 }
 
-void CALLBACK DxutAppBase::OnD3D9FrameRender_s(
+void CALLBACK DxutApp::OnD3D9FrameRender_s(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime,
 	void * pUserContext)
 {
-	reinterpret_cast<DxutAppBase *>(pUserContext)->OnD3D9FrameRender(
+	reinterpret_cast<DxutApp *>(pUserContext)->OnD3D9FrameRender(
 		pd3dDevice, fTime, fElapsedTime);
 }
 
-LRESULT CALLBACK DxutAppBase::MsgProc_s(
+LRESULT CALLBACK DxutApp::MsgProc_s(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
@@ -92,56 +94,19 @@ LRESULT CALLBACK DxutAppBase::MsgProc_s(
 	bool * pbNoFurtherProcessing,
 	void * pUserContext)
 {
-	return reinterpret_cast<DxutAppBase *>(pUserContext)->MsgProc(
+	return reinterpret_cast<DxutApp *>(pUserContext)->MsgProc(
 		hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
 }
 
-void CALLBACK DxutAppBase::OnKeyboard_s(
+void CALLBACK DxutApp::OnKeyboard_s(
 	UINT nChar,
 	bool bKeyDown,
 	bool bAltDown,
 	void * pUserContext)
 {
-	reinterpret_cast<DxutAppBase *>(pUserContext)->OnKeyboard(
+	reinterpret_cast<DxutApp *>(pUserContext)->OnKeyboard(
 		nChar, bKeyDown, bAltDown);
 }
-
-DxutAppBase::DxutAppBase(void)
-{
-	DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable_s, this);
-	DXUTSetCallbackDeviceChanging(ModifyDeviceSettings_s, this);
-	DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice_s, this);
-	DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice_s, this);
-	DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice_s, this);
-	DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice_s, this);
-	DXUTSetCallbackFrameMove(OnFrameMove_s, this);
-	DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender_s, this);
-	DXUTSetCallbackMsgProc(MsgProc_s, this);
-	DXUTSetCallbackKeyboard(OnKeyboard_s, this);
-}
-
-DxutAppBase::~DxutAppBase(void)
-{
-	//DXUTDestroyState();
-	// cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
-}
-
-int DxutAppBase::Run(
-	bool bWindowed,
-	int nSuggestedWidth,
-	int nSuggestedHeight)
-{
-	DXUTInit(true, true, NULL);
-	DXUTSetCursorSettings(true, true);
-	WCHAR szPath[MAX_PATH];
-	GetModuleFileName(GetModuleHandle(NULL), szPath, MAX_PATH);
-	DXUTCreateWindow(szPath);
-	DXUTCreateDevice(bWindowed, nSuggestedWidth, nSuggestedHeight);
-	DXUTMainLoop();
-	return DXUTGetExitCode();
-}
-
-SingleInstance<DxutApp> * SingleInstance<DxutApp>::s_ptr = NULL;
 
 bool DxutApp::IsD3D9DeviceAcceptable(
 	D3DCAPS9 * pCaps,
@@ -167,6 +132,10 @@ HRESULT DxutApp::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	ImeEditBox::Initialize(GetHWND());
+
+	ImeEditBox::EnableImeSystem(false);
+
 	return S_OK;
 }
 
@@ -174,15 +143,21 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	m_ResourceMgr->OnResetDevice();
+
 	return S_OK;
 }
 
 void DxutApp::OnD3D9LostDevice(void)
 {
+	m_ResourceMgr->OnLostDevice();
 }
 
 void DxutApp::OnD3D9DestroyDevice(void)
 {
+	m_ResourceMgr->OnDestroyDevice();
+
+	ImeEditBox::Uninitialize();
 }
 
 void DxutApp::OnFrameMove(
@@ -205,6 +180,11 @@ LRESULT DxutApp::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
+	if((*pbNoFurtherProcessing = ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam)))
+	{
+		return 0;
+	}
+
 	return 0;
 }
 
@@ -217,6 +197,17 @@ void DxutApp::OnKeyboard(
 
 void DxutApp::OnInit(void)
 {
+	m_ResourceMgr = ResourceMgrPtr(new ResourceMgr());
+}
+
+DxutApp::DxutApp(void)
+{
+}
+
+DxutApp::~DxutApp(void)
+{
+	//DXUTDestroyState();
+	// cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
 }
 
 int DxutApp::Run(
@@ -226,8 +217,28 @@ int DxutApp::Run(
 {
 	try
 	{
+		DXUTSetCallbackD3D9DeviceAcceptable(IsD3D9DeviceAcceptable_s, this);
+		DXUTSetCallbackDeviceChanging(ModifyDeviceSettings_s, this);
+		DXUTSetCallbackD3D9DeviceCreated(OnD3D9CreateDevice_s, this);
+		DXUTSetCallbackD3D9DeviceReset(OnD3D9ResetDevice_s, this);
+		DXUTSetCallbackD3D9DeviceLost(OnD3D9LostDevice_s, this);
+		DXUTSetCallbackD3D9DeviceDestroyed(OnD3D9DestroyDevice_s, this);
+		DXUTSetCallbackFrameMove(OnFrameMove_s, this);
+		DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender_s, this);
+		DXUTSetCallbackMsgProc(MsgProc_s, this);
+		DXUTSetCallbackKeyboard(OnKeyboard_s, this);
+
 		OnInit();
-		int nExitCode = DxutAppBase::Run(bWindowed, nSuggestedWidth, nSuggestedHeight);
+
+		DXUTInit(true, true, NULL);
+		DXUTSetCursorSettings(true, true);
+		WCHAR szPath[MAX_PATH];
+		GetModuleFileName(GetModuleHandle(NULL), szPath, MAX_PATH);
+		DXUTCreateWindow(szPath);
+		DXUTCreateDevice(bWindowed, nSuggestedWidth, nSuggestedHeight);
+
+		DXUTMainLoop();
+		int nExitCode = DXUTGetExitCode();
 		DXUTDestroyState();
 		return nExitCode;
 	}
@@ -238,6 +249,26 @@ int DxutApp::Run(
 		DXUTDestroyState();
 		return 0;
 	}
+}
+
+HWND DxutApp::GetHWND(void)
+{
+	return DXUTGetHWND();
+}
+
+IDirect3DDevice9 * DxutApp::GetD3D9Device(void)
+{
+	return DXUTGetD3D9Device();
+}
+
+double DxutApp::GetAbsoluteTime(void)
+{
+	return DXUTGetGlobalTimer()->GetAbsoluteTime();
+}
+
+double DxutApp::GetTime(void)
+{
+	return DXUTGetTime();
 }
 
 bool DxutSample::IsD3D9DeviceAcceptable(
@@ -360,10 +391,6 @@ HRESULT DxutSample::OnD3D9CreateDevice(
 
 	V(D3DXCreateSprite(pd3dDevice, &m_sprite));
 
-	my::ImeEditBox::Initialize(DXUTGetHWND());
-
-	my::ImeEditBox::EnableImeSystem(false);
-
 	return S_OK;
 }
 
@@ -417,8 +444,6 @@ void DxutSample::OnD3D9DestroyDevice(void)
 	m_font.Release();
 
 	m_sprite.Release();
-
-	my::ImeEditBox::Uninitialize();
 }
 
 void DxutSample::OnFrameMove(
@@ -511,11 +536,6 @@ LRESULT DxutSample::MsgProc(
 		hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 	{
 		return hres;
-	}
-
-	if((*pbNoFurtherProcessing = my::ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam)))
-	{
-		return 0;
 	}
 
 	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))

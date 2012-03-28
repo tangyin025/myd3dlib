@@ -69,4 +69,52 @@ namespace my
 			s_ptr = NULL;
 		}
 	};
+
+	class DeviceRelatedObjectBase
+	{
+	public:
+		virtual ~DeviceRelatedObjectBase(void)
+		{
+		}
+
+		virtual void OnResetDevice(void)
+		{
+		}
+
+		virtual void OnLostDevice(void)
+		{
+		}
+
+		virtual void OnDestroyDevice(void)
+		{
+		}
+	};
+
+	template <class DrivedClass> 
+	class DeviceRelatedObject
+		: public DeviceRelatedObjectBase
+	{
+	protected:
+		HRESULT hr;
+
+	public:
+		DrivedClass * m_ptr;
+
+	public:
+		DeviceRelatedObject(DrivedClass * ptr)
+			: m_ptr(ptr)
+		{
+			_ASSERT(NULL != m_ptr);
+		}
+
+		virtual ~DeviceRelatedObject(void)
+		{
+			SAFE_RELEASE(m_ptr);
+		}
+
+		void OnDestroyDevice(void)
+		{
+			SAFE_RELEASE(m_ptr);
+		}
+	};
 };

@@ -122,8 +122,6 @@ namespace my
 
 		virtual void OnDestroyDevice(void);
 
-		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-
 		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 
 		void RegisterFileDir(const std::string & dir);

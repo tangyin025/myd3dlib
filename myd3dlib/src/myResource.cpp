@@ -190,23 +190,17 @@ ResourceMgr::ResourceMgr(void)
 	{
 		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
 	}
-
-	ImeEditBox::Initialize(DXUTGetHWND());
-
-	ImeEditBox::EnableImeSystem(false);
 }
 
 ResourceMgr::~ResourceMgr(void)
 {
-	ImeEditBox::Uninitialize();
-
 	FT_Error err = FT_Done_FreeType(m_library);
 }
 
 void ResourceMgr::OnResetDevice(void)
 {
-	// ! DXUT dependency
-	LPDIRECT3DDEVICE9 pd3dDevice = DXUTGetD3D9Device();
+	LPDIRECT3DDEVICE9 pd3dDevice = DxutApp::getSingleton().GetD3D9Device();
+
 	_ASSERT(NULL != pd3dDevice);
 
 	HRESULT hres = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_stateBlock);
@@ -224,11 +218,6 @@ void ResourceMgr::OnLostDevice(void)
 void ResourceMgr::OnDestroyDevice(void)
 {
 	m_ControlFocus.reset();
-}
-
-bool ResourceMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-{
-	return ImeEditBox::StaticMsgProc(hWnd, uMsg, wParam, lParam);
 }
 
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)

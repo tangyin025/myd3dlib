@@ -3,7 +3,6 @@
 #include "libc.h"
 #include "myException.h"
 #include "mySingleton.h"
-#include "myDxutApp.h"
 #include "myMath.h"
 #include "myTexture.h"
 #include "myMesh.h"
@@ -15,6 +14,7 @@
 #include "myUi.h"
 #include "myResource.h"
 #include "myInput.h"
+#include "myDxutApp.h"
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
 	node_v = node_p->first_node(#node_s); \

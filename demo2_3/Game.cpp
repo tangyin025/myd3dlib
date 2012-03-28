@@ -81,8 +81,6 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	m_resMgr = my::ResourceMgrPtr(new my::ResourceMgr());
-
 	my::ResourceMgr::getSingleton().RegisterFileDir(".");
 	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
@@ -166,8 +164,6 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	V(m_settingsDlg.OnD3D9ResetDevice());
 
-	m_resMgr->OnResetDevice();
-
 	m_uiTex->OnResetDevice();
 
 	m_uiFnt->OnResetDevice();
@@ -179,7 +175,7 @@ HRESULT Game::OnD3D9ResetDevice(
 		m_hudDlg->m_ViewMatrix,
 		m_hudDlg->m_ProjMatrix);
 
-	m_hudDlg->m_Location = my::Vector2(pBackBufferSurfaceDesc->Width - 170, 0);
+	m_hudDlg->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
 
 	m_hudDlg->m_Size = my::Vector2(170, 170);
 
@@ -193,8 +189,6 @@ void Game::OnD3D9LostDevice(void)
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
 	m_settingsDlg.OnD3D9LostDevice();
-
-	m_resMgr->OnLostDevice();
 
 	m_uiTex->OnLostDevice();
 
@@ -214,8 +208,6 @@ void Game::OnD3D9DestroyDevice(void)
 	m_uiFnt.reset();
 
 	m_uiTex.reset();
-
-	m_resMgr.reset();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
@@ -258,7 +250,7 @@ void Game::OnD3D9FrameRender(
 		m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
 			my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 		m_uiFnt->DrawString(DXUTGetDeviceStats(),
-			my::Rectangle::LeftTop(5,5 + m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+			my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 		m_hudDlg->OnRender(pd3dDevice, fElapsedTime);
 		my::UIRender::End(pd3dDevice);
 
@@ -281,11 +273,6 @@ LRESULT Game::MsgProc(
 	}
 
 	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
-		return 0;
-	}
-
-	if(m_resMgr && (*pbNoFurtherProcessing = m_resMgr->MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}

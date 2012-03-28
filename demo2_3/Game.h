@@ -11,8 +11,6 @@ protected:
 
 	CD3DSettingsDlg m_settingsDlg;
 
-	my::ResourceMgrPtr m_resMgr;
-
 	my::TexturePtr m_uiTex;
 
 	my::FontPtr m_uiFnt;
