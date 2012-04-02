@@ -57,6 +57,8 @@ namespace my
 
 		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0)
 		{
+			_ASSERT(!IsRectEmpty(&rect));
+
 			D3DLOCKED_RECT lr;
 			if(FAILED(hr = m_ptr->LockRect(&lr, &rect, Flags)))
 			{
@@ -204,6 +206,8 @@ namespace my
 
 		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0, UINT Level = 0)
 		{
+			_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
+
 			D3DLOCKED_RECT LockedRect;
 			if(FAILED(hr = static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, &rect, Flags)))
 			{

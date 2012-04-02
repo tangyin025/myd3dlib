@@ -94,14 +94,17 @@ HRESULT Game::OnD3D9CreateDevice(
 	cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei-lite.ttc")->GetWholeCache();
 	m_uiFnt = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
 
-	my::ControlSkinPtr defDlgSkin(new my::ControlSkin());
-	defDlgSkin->m_Font = m_uiFnt;
-	defDlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	defDlgSkin->m_TextAlign = my::Font::AlignLeftTop;
+	m_dlgSet.clear();
+
+	m_defDlgSkin = my::ControlSkinPtr(new my::ControlSkin());
+	m_defDlgSkin->m_Font = m_uiFnt;
+	m_defDlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+	m_defDlgSkin->m_TextAlign = my::Font::AlignLeftTop;
 
 	m_hudDlg = my::DialogPtr(new my::Dialog());
 	m_hudDlg->m_Color = D3DCOLOR_ARGB(0,255,0,0);
-	m_hudDlg->m_Skin = defDlgSkin;
+	m_hudDlg->m_Skin = m_defDlgSkin;
+	m_dlgSet.insert(m_hudDlg);
 
 	my::ButtonSkinPtr defBtnSkin(new my::ButtonSkin());
 	defBtnSkin->m_Texture = m_uiTex;
@@ -140,6 +143,9 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
+	m_console = ConsolePtr(new Console());
+	m_dlgSet.insert(m_console);
+
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
 
 	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
@@ -168,12 +174,16 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	m_uiFnt->OnResetDevice();
 
-	my::UIRender::BuildPerspectiveMatrices(
-		D3DXToRadian(75.0f),
-		pBackBufferSurfaceDesc->Width,
-		pBackBufferSurfaceDesc->Height,
-		m_hudDlg->m_ViewMatrix,
-		m_hudDlg->m_ProjMatrix);
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	{
+		my::UIRender::BuildPerspectiveMatrices(
+			D3DXToRadian(75.0f),
+			pBackBufferSurfaceDesc->Width,
+			pBackBufferSurfaceDesc->Height,
+			(*dlg_iter)->m_ViewMatrix,
+			(*dlg_iter)->m_ProjMatrix);
+	}
 
 	m_hudDlg->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
 
@@ -197,21 +207,19 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
-	m_mouse.reset();
-
-	m_keyboard.reset();
-
-	m_input.reset();
-
-	m_hudDlg.reset();
-
-	m_uiFnt.reset();
-
-	m_uiTex.reset();
+	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
-	m_dlgResourceMgr.OnD3D9DestroyDevice();
+	m_uiTex->OnDestroyDevice();
+
+	m_uiFnt->OnDestroyDevice();
+
+	m_input.reset();
+
+	m_keyboard.reset();
+
+	m_mouse.reset();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -244,14 +252,25 @@ void Game::OnD3D9FrameRender(
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		my::UIRender::Begin(pd3dDevice);
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_hudDlg->m_Transform));
-		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_hudDlg->m_ViewMatrix));
-		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_hudDlg->m_ProjMatrix));
+
+		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+		for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+		{
+			(*dlg_iter)->OnRender(pd3dDevice, fElapsedTime);
+		}
+
+		my::Matrix4 View, Proj;
+		D3DVIEWPORT9 vp;
+		pd3dDevice->GetViewport(&vp);
+		my::UIRender::BuildPerspectiveMatrices(
+			D3DXToRadian(75.0f), vp.Width, vp.Height, View, Proj);
+		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
+		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 		m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
 			my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 		m_uiFnt->DrawString(DXUTGetDeviceStats(),
 			my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-		m_hudDlg->OnRender(pd3dDevice, fElapsedTime);
+
 		my::UIRender::End(pd3dDevice);
 
 		V(pd3dDevice->EndScene());
@@ -283,8 +302,17 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if(m_hudDlg && (*pbNoFurtherProcessing = m_hudDlg->MsgProc(hWnd, uMsg, wParam, lParam)))
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
+		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
+			return 0;
+	}
+
+	if(m_ResourceMgr && !my::ResourceMgr::getSingleton().m_ControlFocus.lock() && uMsg == WM_KEYDOWN && wParam == VK_OEM_3)
+	{
+		m_console->SetEnabled(!m_console->GetEnabled());
+		*pbNoFurtherProcessing = true;
 		return 0;
 	}
 
@@ -304,5 +332,9 @@ void Game::OnToggleRef(my::ControlPtr ctrl)
 void Game::OnChangeDevice(my::ControlPtr ctrl)
 {
 	m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
-	m_hudDlg->Refresh();
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	{
+		(*dlg_iter)->Refresh();
+	}
 }

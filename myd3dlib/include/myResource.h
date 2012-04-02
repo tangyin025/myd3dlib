@@ -100,7 +100,6 @@ namespace my
 
 	class ResourceMgr
 		: public SingleInstance<ResourceMgr>
-		, public DeviceRelatedObjectBase
 	{
 	public:
 		FT_Library m_library;
@@ -116,11 +115,11 @@ namespace my
 
 		~ResourceMgr(void);
 
-		virtual void OnResetDevice(void);
+		void OnResetDevice(void);
 
-		virtual void OnLostDevice(void);
+		void OnLostDevice(void);
 
-		virtual void OnDestroyDevice(void);
+		void OnDestroyDevice(void);
 
 		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 

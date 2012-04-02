@@ -142,7 +142,11 @@ Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short p
 
 Font::~Font(void)
 {
-	FT_Done_Face(m_face);
+	if(m_face)
+	{
+		FT_Done_Face(m_face);
+		m_face = NULL;
+	}
 }
 
 FontPtr Font::CreateFontFromFile(
@@ -210,24 +214,17 @@ void Font::OnDestroyDevice(void)
 {
 	m_texture->OnDestroyDevice();
 	m_Device.Release();
+	if(m_face)
+	{
+		FT_Done_Face(m_face);
+		m_face = NULL;
+	}
 }
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
-	// ! DXUT dependency
-	DXUTDeviceSettings settings = DXUTGetDeviceSettings();
-	D3DPOOL Pool;
-	if(settings.d3d9.DeviceType != D3DDEVTYPE_REF)
-	{
-		Pool = D3DPOOL_MANAGED;
-	}
-	else
-	{
-		Pool = D3DPOOL_SYSTEMMEM;
-	}
-
 	m_texture.reset();
-	m_texture = Texture::CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, Pool);
+	m_texture = Texture::CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
 	m_textureDesc = m_texture->GetLevelDesc();
 }
 
@@ -273,15 +270,18 @@ void Font::InsertCharacter(
 	info.horiBearingY = horiBearingY;
 	info.horiAdvance = horiAdvance;
 
-	D3DLOCKED_RECT lr = m_texture->LockRect(info.textureRect);
-	for(int y = 0; y < bmpHeight; y++)
+	if(!IsRectEmpty(&info.textureRect))
 	{
-		memcpy(
-			(unsigned char *)lr.pBits + y * lr.Pitch,
-			bmpBuffer + y * bmpPitch,
-			bmpWidth * sizeof(unsigned char));
+		D3DLOCKED_RECT lr = m_texture->LockRect(info.textureRect);
+		for(int y = 0; y < bmpHeight; y++)
+		{
+			memcpy(
+				(unsigned char *)lr.pBits + y * lr.Pitch,
+				bmpBuffer + y * bmpPitch,
+				bmpWidth * sizeof(unsigned char));
+		}
+		m_texture->UnlockRect();
 	}
-	m_texture->UnlockRect();
 
 	m_characterMap.insert(std::make_pair(character, info));
 }

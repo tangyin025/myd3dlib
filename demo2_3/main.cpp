@@ -169,6 +169,9 @@ protected:
 			return hres;
 		}
 
+		// 默认关闭控制台
+		m_console->SetEnabled(false);
+
 		// 初始化相机
 		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
 		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
@@ -558,14 +561,25 @@ protected:
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			my::UIRender::Begin(pd3dDevice);
-			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_hudDlg->m_Transform));
-			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_hudDlg->m_ViewMatrix));
-			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_hudDlg->m_ProjMatrix));
+
+			DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+			for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+			{
+				(*dlg_iter)->OnRender(pd3dDevice, fElapsedTime);
+			}
+
+			my::Matrix4 View, Proj;
+			D3DVIEWPORT9 vp;
+			pd3dDevice->GetViewport(&vp);
+			my::UIRender::BuildPerspectiveMatrices(
+				D3DXToRadian(75.0f), vp.Width, vp.Height, View, Proj);
+			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
+			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 			m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
 				my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 			m_uiFnt->DrawString(DXUTGetDeviceStats(),
-				my::Rectangle::LeftTop(5,5 + m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-			m_hudDlg->OnRender(pd3dDevice, fElapsedTime);
+				my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+
 			my::UIRender::End(pd3dDevice);
 
 			V(pd3dDevice->EndScene());

@@ -1,10 +1,11 @@
 #pragma once
 
 #include <myd3dlib.h>
+#include "Console.h"
 
 class Game : public my::DxutApp
 {
-protected:
+public:
 	HRESULT hr;
 
 	CDXUTDialogResourceManager m_dlgResourceMgr;
@@ -15,7 +16,15 @@ protected:
 
 	my::FontPtr m_uiFnt;
 
+	my::ControlSkinPtr m_defDlgSkin;
+
+	typedef std::set<my::DialogPtr> DialogPtrSet;
+
+	DialogPtrSet m_dlgSet;
+
 	my::DialogPtr m_hudDlg;
+
+	ConsolePtr m_console;
 
 	my::InputPtr m_input;
 

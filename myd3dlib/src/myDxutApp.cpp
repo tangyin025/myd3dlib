@@ -132,9 +132,8 @@ HRESULT DxutApp::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	ImeEditBox::Initialize(GetHWND());
-
-	ImeEditBox::EnableImeSystem(false);
+	m_ResourceMgr.reset();
+	m_ResourceMgr = ResourceMgrPtr(new ResourceMgr());
 
 	return S_OK;
 }
@@ -156,8 +155,6 @@ void DxutApp::OnD3D9LostDevice(void)
 void DxutApp::OnD3D9DestroyDevice(void)
 {
 	m_ResourceMgr->OnDestroyDevice();
-
-	ImeEditBox::Uninitialize();
 }
 
 void DxutApp::OnFrameMove(
@@ -197,7 +194,6 @@ void DxutApp::OnKeyboard(
 
 void DxutApp::OnInit(void)
 {
-	m_ResourceMgr = ResourceMgrPtr(new ResourceMgr());
 }
 
 DxutApp::DxutApp(void)
@@ -245,7 +241,7 @@ int DxutApp::Run(
 	catch(const my::Exception & e)
 	{
 		MessageBoxA(GetDesktopWindow(), e.GetFullDescription().c_str(), "Exception", MB_OK);
-		OnD3D9DestroyDevice();
+		//OnD3D9DestroyDevice();
 		DXUTDestroyState();
 		return 0;
 	}

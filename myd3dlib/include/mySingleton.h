@@ -90,6 +90,8 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
+
 	template <class DrivedClass> 
 	class DeviceRelatedObject
 		: public DeviceRelatedObjectBase

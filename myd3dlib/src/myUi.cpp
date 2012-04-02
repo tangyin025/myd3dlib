@@ -144,7 +144,7 @@ void UIRender::DrawRectangle(
 		V(pd3dDevice->SetTexture(0, NULL));
 	}
 	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(*vertex_list)));
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(CUSTOMVERTEX)));
 
 	//End(pd3dDevice);
 }
@@ -746,7 +746,10 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 					{
 						PlaceCaret(nCP);
 
-						m_nSelStart = m_nCaret;
+						if(GetKeyState(VK_SHIFT) >= 0)
+						{
+							m_nSelStart = m_nCaret;
+						}
 					}
 
 					ResetCaretBlink();
@@ -1399,9 +1402,9 @@ void ScrollBar::Scroll(int nDelta)
 
 void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	//V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
-	//V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
-	//V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
 
 	if(m_bEnabled && m_bVisible)
 	{
