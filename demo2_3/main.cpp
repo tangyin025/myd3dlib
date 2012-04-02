@@ -620,4 +620,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 #endif
 
 	return MyDemo().Run(true, 800, 600);
+
+	//return Game().Run(true, 800, 600);
 }
