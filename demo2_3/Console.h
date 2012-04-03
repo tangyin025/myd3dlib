@@ -2,8 +2,13 @@
 #pragma once
 
 #include <myD3dLib.h>
-#define BOOST_TR1_USE_OLD_TUPLE
-#include <boost/tr1/array.hpp>
+
+extern "C"
+{
+#include <lua.h>
+#include <lauxlib.h>
+#include <lualib.h>
+}
 
 class MessagePanel
 	: public my::Control
@@ -16,9 +21,7 @@ public:
 		D3DCOLOR m_Color;
 	};
 
-	typedef boost::array<Line, 256> LineArray;
-
-	LineArray m_lines;
+	Line m_lines[256];
 
 	int m_lbegin;
 
@@ -33,17 +36,26 @@ public:
 
 	virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset);
 
-	static int MoveLineIndex(int index, int step);
+	int MoveLineIndex(int index, int step);
 
-	static int LineIndexDistance(int start, int end);
+	int LineIndexDistance(int start, int end);
+
+	void _update_scrollbar(void);
+
+	void _push_enter(void);
+
+	void _push_sline(LPCWSTR pString, D3DCOLOR Color);
 
 	void AddLine(LPCWSTR pString, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
+
+	void puts(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 };
 
 typedef boost::shared_ptr<MessagePanel> MessagePanelPtr;
 
 class Console
 	: public my::Dialog
+	, public my::SingleInstance<Console>
 {
 protected:
 	my::Vector4 m_Border;
@@ -54,12 +66,20 @@ protected:
 
 	MessagePanelPtr m_panel;
 
+	lua_State * m_luaState;
+
+	int m_luaFLine;
+
 public:
 	Console(void);
 
 	~Console(void);
 
 	void OnExecute(my::ControlPtr ctrl);
+
+	void AddLine(LPCWSTR pString, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
+
+	void puts(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 };
 
 typedef boost::shared_ptr<Console> ConsolePtr;

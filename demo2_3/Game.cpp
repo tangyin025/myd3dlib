@@ -143,6 +143,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
+	m_console.reset();
 	m_console = ConsolePtr(new Console());
 	m_dlgSet.insert(m_console);
 
@@ -302,8 +303,8 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
+	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
 	{
 		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
 			return 0;

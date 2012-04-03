@@ -34,7 +34,7 @@ void MessagePanel::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, c
 
 int MessagePanel::MoveLineIndex(int index, int step)
 {
-	return (index + step) % LineArray::size();
+	return (index + step) % _countof(m_lines);
 }
 
 int MessagePanel::LineIndexDistance(int start, int end)
@@ -42,41 +42,104 @@ int MessagePanel::LineIndexDistance(int start, int end)
 	if(end >= start)
 		return end - start;
 
-	return LineArray::size() - start + end;
+	return _countof(m_lines) - start + end;
+}
+
+void MessagePanel::_update_scrollbar(void)
+{
+	_ASSERT(m_Skin && m_Skin->m_Font);
+	my::ScrollBarPtr scrollbar = m_scrollbar.lock();
+	_ASSERT(scrollbar);
+	scrollbar->m_nStart = 0;
+	scrollbar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
+	scrollbar->m_nPageSize = (int)(m_Size.y / m_Skin->m_Font->m_LineHeight);
+	scrollbar->m_nPosition = scrollbar->m_nEnd - scrollbar->m_nPageSize;
+}
+
+void MessagePanel::_push_enter(void)
+{
+	m_lend = MoveLineIndex(m_lend, 1);
+	if(m_lend == m_lbegin)
+	{
+		m_lbegin = MoveLineIndex(m_lbegin, 1);
+	}
+	_update_scrollbar();
+}
+
+void MessagePanel::_push_sline(LPCWSTR pString, D3DCOLOR Color)
+{
+	// _push_sline 只是在 lend 处插入字符串，但由于 lend 位于 message panel 底部之后，
+	// 所以如果没有 _push_enter，lend 是不会显示出来的
+	_ASSERT(m_Skin && m_Skin->m_Font);
+	std::wstring & lend_str = m_lines[m_lend].m_Text;
+	float lend_x = m_Skin->m_Font->CPtoX(lend_str.c_str(), lend_str.length());
+	float remain_x = m_Size.x - lend_x;
+	int nCP = m_Skin->m_Font->XtoCP(pString, remain_x);
+	lend_str.insert(lend_str.length(), pString, nCP);
+	m_lines[m_lend].m_Color = Color;
+
+	if(pString[nCP])
+	{
+		_push_enter();
+		_push_sline(&pString[nCP], Color);
+	}
 }
 
 void MessagePanel::AddLine(LPCWSTR pString, D3DCOLOR Color)
 {
 	if(*pString && m_Skin && m_Skin->m_Font)
 	{
-		int nCP = m_Skin->m_Font->XtoCP(pString, m_Size.x);
-
-		m_lines[m_lend].m_Text.resize(nCP);
-		memcpy(&m_lines[m_lend].m_Text[0], pString, nCP * sizeof(wchar_t));
-		m_lines[m_lend].m_Color = Color;
-
-		m_lend = MoveLineIndex(m_lend, 1);
-		if(m_lend == m_lbegin)
-		{
-			m_lbegin = MoveLineIndex(m_lbegin, 1);
-		}
-
-		my::ScrollBarPtr scrollbar = m_scrollbar.lock();
-		_ASSERT(scrollbar);
-		scrollbar->m_nStart = 0;
-		scrollbar->m_nEnd = LineIndexDistance(m_lbegin, m_lend);
-		scrollbar->m_nPageSize = (int)(m_Size.y / m_Skin->m_Font->m_LineHeight);
-		scrollbar->m_nPosition = scrollbar->m_nEnd - scrollbar->m_nPageSize;
-
-		AddLine(pString + nCP, Color);
+		_push_sline(pString, Color);
+		_push_enter();
 	}
+}
+
+void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
+{
+	std::wstring::size_type lpos = 0;
+	for(; lpos < str.length(); )
+	{
+		std::wstring::size_type rpos = str.find(L'\n', lpos);
+		if(std::wstring::npos == rpos)
+		{
+			_push_sline(str.substr(lpos).c_str(), Color);
+			break;
+		}
+		_push_sline(str.substr(lpos, rpos - lpos).c_str(), Color);
+		_push_enter();
+		lpos = rpos + 1;
+	}
+}
+
+Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
+
+static int lua_print(lua_State * L)
+{
+	int n = lua_gettop(L);  /* number of arguments */
+	int i;
+	lua_getglobal(L, "tostring");
+	for (i=1; i<=n; i++) {
+		const char *s;
+		lua_pushvalue(L, -1);  /* function to be called */
+		lua_pushvalue(L, i);   /* value to print */
+		lua_call(L, 1, 1);
+		s = lua_tostring(L, -1);  /* get result */
+		if (s == NULL)
+			return luaL_error(L, LUA_QL("tostring") " must return a string to "
+			LUA_QL("print"));
+		if (i>1) Console::getSingleton().puts(L"\t");
+		Console::getSingleton().puts(mstringToWString(s));
+		lua_pop(L, 1);  /* pop result */
+	}
+	Console::getSingleton().puts(L"\n");
+	return 0;
 }
 
 Console::Console(void)
 {
 	m_Color = D3DCOLOR_ARGB(197,0,0,0);
-	m_Location = my::Vector2(50,100);
-	m_Size = my::Vector2(700,400);
+	m_Location = my::Vector2(50,95);
+	m_Size = my::Vector2(700,410);
 	m_Border = my::Vector4(5,5,5,5);
 
 	Game * game = dynamic_cast<Game *>(my::DxutApp::getSingletonPtr());
@@ -86,7 +149,7 @@ Console::Console(void)
 
 	const my::Vector2 edit_size(m_Size.x - m_Border.x - m_Border.z, 20);
 	m_edit = my::ImeEditBoxPtr(new my::ImeEditBox());
-	m_edit->m_Color = D3DCOLOR_ARGB(35,0,255,0);
+	m_edit->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_edit->m_Location = my::Vector2(m_Border.x, m_Size.y - m_Border.w - edit_size.y);
 	m_edit->m_Size = edit_size;
 	m_edit->m_Border = my::Vector4(0,0,0,0);
@@ -101,7 +164,7 @@ Console::Console(void)
 
 	const my::Vector2 scroll_size(20, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
 	m_scrollbar = my::ScrollBarPtr(new my::ScrollBar());
-	m_scrollbar->m_Color = D3DCOLOR_ARGB(35,255,0,0);
+	m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
 	m_scrollbar->m_Location = my::Vector2(m_Size.x - m_Border.z - scroll_size.x, m_Border.y);
 	m_scrollbar->m_Size = scroll_size;
 	m_scrollbar->m_nPageSize = 3;
@@ -112,15 +175,26 @@ Console::Console(void)
 		m_Size.x - m_Border.x - m_scrollbar->m_Size.x - m_Border.z, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
 	m_panel = MessagePanelPtr(new MessagePanel());
 	m_panel->m_scrollbar = m_scrollbar;
-	m_panel->m_Color = D3DCOLOR_ARGB(35,0,0,255);
+	m_panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
 	m_panel->m_Location = my::Vector2(m_Border.x, m_Border.y);
 	m_panel->m_Size = panel_size;
 	m_panel->m_Skin = m_Skin;
 	m_Controls.insert(m_panel);
+
+	m_luaState = lua_open();
+	lua_gc(m_luaState, LUA_GCSTOP, 0);  /* stop collector during initialization */
+	luaL_openlibs(m_luaState);
+	lua_gc(m_luaState, LUA_GCRESTART, 0);
+	lua_pushcfunction(m_luaState, lua_print);
+	lua_setglobal(m_luaState, "print");
+	lua_settop(m_luaState, 0);
+
+	m_luaFLine = 0;
 }
 
 Console::~Console(void)
 {
+	lua_close(m_luaState);
 }
 
 void Console::OnExecute(my::ControlPtr ctrl)
@@ -128,9 +202,56 @@ void Console::OnExecute(my::ControlPtr ctrl)
 	my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox, my::Control>(ctrl);
 	_ASSERT(edit);
 
-	m_panel->AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
+	AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
+
+	std::string buff = wstringToMString(edit->m_Text.c_str());
+	if(buff[buff.length()-1] == '\n')
+	{
+		buff[buff.length()-1] = '\0';
+	}
+	lua_pushstring(m_luaState, buff.c_str());
+	m_luaFLine++;
+	if(m_luaFLine > 1)
+	{
+		lua_pushliteral(m_luaState, "\n");
+		lua_insert(m_luaState, -2);
+		lua_concat(m_luaState, 3);
+	}
+	int error = luaL_loadbuffer(m_luaState, lua_tostring(m_luaState, 1), lua_strlen(m_luaState, 1), "line") || lua_pcall(m_luaState, 0, 0, 0);
+	if(error == LUA_ERRSYNTAX)
+	{
+		size_t lmsg;
+		const char *msg = lua_tolstring(m_luaState, -1, &lmsg);
+		const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
+		if (strstr(msg, LUA_QL("<eof>")) == tp)
+		{
+			lua_pop(m_luaState, 1);
+		}
+	}
+	else if(error)
+	{
+		AddLine(mstringToWString(lua_tostring(m_luaState, -1)).c_str());
+		lua_pop(m_luaState, 1);
+		lua_remove(m_luaState, 1);
+		m_luaFLine = 0;
+	}
+	else
+	{
+		lua_remove(m_luaState, 1);
+		m_luaFLine = 0;
+	}
 
 	edit->m_Text.clear();
 	edit->m_nCaret = 0;
 	edit->m_nFirstVisible = 0;
+}
+
+void Console::AddLine(LPCWSTR pString, D3DCOLOR Color)
+{
+	m_panel->AddLine(pString, Color);
+}
+
+void Console::puts(const std::wstring & str, D3DCOLOR Color)
+{
+	m_panel->puts(str, Color);
 }

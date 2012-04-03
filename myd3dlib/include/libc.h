@@ -19,9 +19,9 @@ std::basic_string<char> str_printf(const char * format, ...);
 
 std::basic_string<wchar_t> str_printf(const wchar_t * format, ...);
 
-std::basic_string<wchar_t> mstringToWString(const std::basic_string<char> & mstr);
+std::basic_string<wchar_t> mstringToWString(const char * mstr);
 
-std::basic_string<char> wstringToMString(const std::basic_string<wchar_t> & wstr);
+std::basic_string<char> wstringToMString(const wchar_t * wstr);
 
 #ifdef _UNICODE
 #define mstringToTString(str) mstringToWString(str)

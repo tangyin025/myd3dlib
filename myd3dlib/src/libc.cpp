@@ -130,17 +130,17 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	return ret;
 }
 
-std::basic_string<wchar_t> mstringToWString(const std::basic_string<char> & mstr)
+std::basic_string<wchar_t> mstringToWString(const char * mstr)
 {
 	int nLen;
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr.c_str(), -1, NULL, 0)))
+	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr, -1, NULL, 0)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<wchar_t> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr.c_str(), -1, &ret[0], nLen)))
+	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr, -1, &ret[0], nLen)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -149,17 +149,17 @@ std::basic_string<wchar_t> mstringToWString(const std::basic_string<char> & mstr
 	return ret;
 }
 
-std::basic_string<char> wstringToMString(const std::basic_string<wchar_t> & wstr)
+std::basic_string<char> wstringToMString(const wchar_t * wstr)
 {
 	int nLen;
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr.c_str(), -1, NULL, 0, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr, -1, NULL, 0, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<char> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr.c_str(), -1, &ret[0], nLen, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr, -1, &ret[0], nLen, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
