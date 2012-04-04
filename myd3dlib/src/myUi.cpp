@@ -1030,7 +1030,7 @@ bool ImeEditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		bool trapped = false;
 		ImeUi_ProcessMessage(hWnd, uMsg, wParam, lParam, &trapped);
 		if(!trapped)
-			EditBox::MsgProc(hWnd, uMsg, wParam, lParam);
+			trapped = EditBox::MsgProc(hWnd, uMsg, wParam, lParam); // ! Toggle trapped if processed this msg
 
 		return trapped;
 	}

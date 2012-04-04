@@ -111,8 +111,6 @@ void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
 	}
 }
 
-Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
-
 static int lua_print(lua_State * L)
 {
 	int n = lua_gettop(L);  /* number of arguments */
@@ -134,6 +132,24 @@ static int lua_print(lua_State * L)
 	Console::getSingleton().puts(L"\n");
 	return 0;
 }
+
+static int lua_incomplete(lua_State * L, int status)
+{
+	if (status == LUA_ERRSYNTAX)
+	{
+		size_t lmsg;
+		const char *msg = lua_tolstring(L, -1, &lmsg);
+		const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
+		if (strstr(msg, LUA_QL("<eof>")) == tp)
+		{
+			lua_pop(L, 1);
+			return 1;
+		}
+	}
+	return 0;  /* else... */
+}
+
+Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
 
 Console::Console(void)
 {
@@ -205,38 +221,22 @@ void Console::OnExecute(my::ControlPtr ctrl)
 	AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
 	std::string buff = wstringToMString(edit->m_Text.c_str());
-	if(buff[buff.length()-1] == '\n')
-	{
-		buff[buff.length()-1] = '\0';
-	}
 	lua_pushstring(m_luaState, buff.c_str());
 	m_luaFLine++;
 	if(m_luaFLine > 1)
 	{
-		lua_pushliteral(m_luaState, "\n");
+		lua_pushstring(m_luaState, "\n");
 		lua_insert(m_luaState, -2);
 		lua_concat(m_luaState, 3);
 	}
-	int error = luaL_loadbuffer(m_luaState, lua_tostring(m_luaState, 1), lua_strlen(m_luaState, 1), "line") || lua_pcall(m_luaState, 0, 0, 0);
-	if(error == LUA_ERRSYNTAX)
+	int status = luaL_loadbuffer(m_luaState, lua_tostring(m_luaState, 1), lua_strlen(m_luaState, 1), "Console");
+	if(!lua_incomplete(m_luaState, status))
 	{
-		size_t lmsg;
-		const char *msg = lua_tolstring(m_luaState, -1, &lmsg);
-		const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
-		if (strstr(msg, LUA_QL("<eof>")) == tp)
+		if(0 != status || (status = lua_pcall(m_luaState, 0, 0, 0)))
 		{
+			AddLine(mstringToWString(lua_tostring(m_luaState, -1)).c_str());
 			lua_pop(m_luaState, 1);
 		}
-	}
-	else if(error)
-	{
-		AddLine(mstringToWString(lua_tostring(m_luaState, -1)).c_str());
-		lua_pop(m_luaState, 1);
-		lua_remove(m_luaState, 1);
-		m_luaFLine = 0;
-	}
-	else
-	{
 		lua_remove(m_luaState, 1);
 		m_luaFLine = 0;
 	}
