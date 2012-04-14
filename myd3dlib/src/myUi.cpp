@@ -279,7 +279,7 @@ void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const V
 			{
 				if(m_bPressed)
 				{
-					UIRender::DrawRectangle(pd3dDevice, Rect, m_Color, Skin->m_Texture, Skin->m_PressedTexRect);
+					UIRender::DrawRectangle(pd3dDevice, Rect.offset(Skin->m_PressedOffset), m_Color, Skin->m_Texture, Skin->m_PressedTexRect);
 				}
 				else
 				{

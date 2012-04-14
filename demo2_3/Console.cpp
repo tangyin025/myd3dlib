@@ -172,7 +172,7 @@ Console::Console(void)
 	m_edit->m_Text = L"在这里输入命令";
 	m_edit->m_Skin = my::EditBoxSkinPtr(new my::EditBoxSkin());
 	m_edit->m_Skin->m_Font = m_Skin->m_Font;
-	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
 	m_Controls.insert(m_edit);
 
 	m_edit->this_ptr = m_edit;
