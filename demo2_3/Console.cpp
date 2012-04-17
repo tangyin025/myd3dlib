@@ -197,20 +197,19 @@ Console::Console(void)
 	m_panel->m_Skin = m_Skin;
 	m_Controls.insert(m_panel);
 
-	m_luaState = lua_open();
-	lua_gc(m_luaState, LUA_GCSTOP, 0);  /* stop collector during initialization */
-	luaL_openlibs(m_luaState);
-	lua_gc(m_luaState, LUA_GCRESTART, 0);
-	lua_pushcfunction(m_luaState, lua_print);
-	lua_setglobal(m_luaState, "print");
-	lua_settop(m_luaState, 0);
+	m_lua = my::LuaContextPtr(new my::LuaContext());
+	lua_State * L = m_lua->GetState();
+	lua_pushcfunction(L, lua_print);
+	lua_setglobal(L, "print");
+
+	m_lua->writeVariable("game",Game::getSingleton().this_ptr.lock());
+	m_lua->registerFunction("exit", &Game::exit);
 
 	m_luaFLine = 0;
 }
 
 Console::~Console(void)
 {
-	lua_close(m_luaState);
 }
 
 void Console::OnExecute(my::ControlPtr ctrl)
@@ -220,30 +219,23 @@ void Console::OnExecute(my::ControlPtr ctrl)
 
 	AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
-	std::string buff = wstringToMString(edit->m_Text.c_str());
-	lua_pushstring(m_luaState, buff.c_str());
-	m_luaFLine++;
-	if(m_luaFLine > 1)
-	{
-		lua_pushstring(m_luaState, "\n");
-		lua_insert(m_luaState, -2);
-		lua_concat(m_luaState, 3);
-	}
-	int status = luaL_loadbuffer(m_luaState, lua_tostring(m_luaState, 1), lua_strlen(m_luaState, 1), "Console");
-	if(!lua_incomplete(m_luaState, status))
-	{
-		if(0 != status || (status = lua_pcall(m_luaState, 0, 0, 0)))
-		{
-			AddLine(mstringToWString(lua_tostring(m_luaState, -1)).c_str());
-			lua_pop(m_luaState, 1);
-		}
-		lua_remove(m_luaState, 1);
-		m_luaFLine = 0;
-	}
+	Execute(wstringToMString(edit->m_Text.c_str()));
 
 	edit->m_Text.clear();
 	edit->m_nCaret = 0;
 	edit->m_nFirstVisible = 0;
+}
+
+void Console::Execute(const std::string & cmd)
+{
+	try
+	{
+		m_lua->executeCode(cmd);
+	}
+	catch(const std::runtime_error & e)
+	{
+		AddLine(mstringToWString(e.what()).c_str());
+	}
 }
 
 void Console::AddLine(LPCWSTR pString, D3DCOLOR Color)

@@ -94,8 +94,6 @@ HRESULT Game::OnD3D9CreateDevice(
 	cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei-lite.ttc")->GetWholeCache();
 	m_uiFnt = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
 
-	m_dlgSet.clear();
-
 	m_defDlgSkin = my::ControlSkinPtr(new my::ControlSkin());
 	m_defDlgSkin->m_Font = m_uiFnt;
 	m_defDlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
@@ -143,7 +141,6 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
-	m_console.reset();
 	m_console = ConsolePtr(new Console());
 	m_dlgSet.insert(m_console);
 
@@ -215,6 +212,10 @@ void Game::OnD3D9DestroyDevice(void)
 	m_uiTex->OnDestroyDevice();
 
 	m_uiFnt->OnDestroyDevice();
+
+	m_dlgSet.clear();
+
+	m_console.reset();
 
 	m_input.reset();
 
@@ -338,4 +339,9 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	{
 		(*dlg_iter)->Refresh();
 	}
+}
+
+void Game::exit(void)
+{
+	::SendMessage(GetHWND(), WM_CLOSE, 0, 0);
 }

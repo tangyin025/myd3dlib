@@ -25,15 +25,16 @@ ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 */
 
+#include "StdAfx.h"
 #include "LuaContext.h"
 
-Lua::LuaContext::LuaContext() {
+my::LuaContext::LuaContext() {
 	_state = luaL_newstate();
 	luaL_openlibs(_state);
 }
 
-void Lua::LuaContext::executeCode(std::istream& code) {
-	std::lock_guard<std::mutex> stateLock(_stateMutex);
+void my::LuaContext::executeCode(std::istream& code) {
+	//std::lock_guard<std::mutex> stateLock(_stateMutex);
 
 	// since the lua_load function requires a static function, we use this structure
 	// the Reader structure is at the same time an object storing an istream and a buffer,
@@ -45,10 +46,10 @@ void Lua::LuaContext::executeCode(std::istream& code) {
 
 		// read function ; "data" must be an instance of Reader
 		static const char* read(lua_State* l, void* data, size_t* size) {
-			assert(size != nullptr);
-			assert(data != nullptr);
+			assert(size != NULL);
+			assert(data != NULL);
 			Reader& me = *((Reader*)data);
-			if (me.stream.eof())	{ *size = 0; return nullptr; }
+			if (me.stream.eof())	{ *size = 0; return NULL; }
 
 			me.stream.read(me.buffer, sizeof(me.buffer));
 			*size = size_t(me.stream.gcount());		// gcount could return a value larger than a size_t, but its maximum is sizeof(me.buffer) so there's no problem
@@ -57,8 +58,8 @@ void Lua::LuaContext::executeCode(std::istream& code) {
 	};
 
 	// we create an instance of Reader, and we call lua_load
-	std::unique_ptr<Reader> reader(new Reader(code));
-	auto loadReturnValue = lua_load(_state, &Reader::read, reader.get(), "chunk");
+	boost::shared_ptr<Reader> reader(new Reader(code));
+	int loadReturnValue = lua_load(_state, &Reader::read, reader.get(), "chunk");
 
 	// now we have to check return value
 	if (loadReturnValue != 0) {
@@ -70,18 +71,18 @@ void Lua::LuaContext::executeCode(std::istream& code) {
 
 	} else {
 		// calling the loaded function
-		_call<std::tuple<>>(std::tuple<>());
+		_call<boost::tuple<>>(boost::tuple<>());
 	}
 }
 
-void Lua::LuaContext::_getGlobal(const std::string& variableName) const {
+void my::LuaContext::_getGlobal(const std::string& variableName) const {
 	// variableName is split by dots '.' in arrays and subarrays
 	// the nextVar variable contains a pointer to the next part to proceed
-	auto nextVar = variableName.begin();
+	std::string::const_iterator nextVar = variableName.begin();
 
 	do {
 		// since we are going to modify nextVar, we store its value here
-		auto currentVar = nextVar;
+		std::string::const_iterator currentVar = nextVar;
 
 		// first we extract the part between currentVar and the next dot we encounter
 		nextVar = std::find(currentVar, variableName.end(), '.');
@@ -122,7 +123,7 @@ void Lua::LuaContext::_getGlobal(const std::string& variableName) const {
 	} while (nextVar != variableName.end());
 }
 
-void Lua::LuaContext::_setGlobal(const std::string& variable) {
+void my::LuaContext::_setGlobal(const std::string& variable) {
 	try {
 		assert(lua_gettop(_state) >= 1);		// making sure there's something on the stack (ie. the value to set)
 
@@ -133,7 +134,7 @@ void Lua::LuaContext::_setGlobal(const std::string& variable) {
 			lua_setglobal(_state, variable.c_str());
 
 		} else {
-			const auto tableName = variable.substr(0, lastDot);
+			const std::string tableName = variable.substr(0, lastDot);
 
 			// in the second case, we call _getGlobal on the table name
 			_getGlobal(tableName);
@@ -157,31 +158,45 @@ void Lua::LuaContext::_setGlobal(const std::string& variable) {
 	}
 }
 
-bool Lua::LuaContext::isVariableArray(const std::string& variableName) const {
-	std::lock_guard<std::mutex> lock(_stateMutex);
+bool my::LuaContext::isVariableArray(const std::string& variableName) const {
+	//std::lock_guard<std::mutex> lock(_stateMutex);
 	_getGlobal(variableName);
 	bool answer = lua_istable(_state, -1);
 	lua_pop(_state, 1);
 	return answer;
 }
 
-void Lua::LuaContext::writeArrayIntoVariable(const std::string& variableName) {
-	std::lock_guard<std::mutex> lock(_stateMutex);
+void my::LuaContext::writeArrayIntoVariable(const std::string& variableName) {
+	//std::lock_guard<std::mutex> lock(_stateMutex);
 	lua_newtable(_state);
 	_setGlobal(variableName);
 }
 
-int Lua::LuaContext::_push(std::function<int (lua_State*)> fn) {
+bool my::LuaContext::doesVariableExist(const std::string& variableName) const {
+	//std::lock_guard<std::mutex> lock(_stateMutex);
+	_getGlobal(variableName);
+	bool answer = lua_isnil(_state, -1);
+	lua_pop(_state, 1);
+	return answer;
+}
+
+void my::LuaContext::clearVariable(const std::string& variableName) {
+	//std::lock_guard<std::mutex> lock(_stateMutex);
+	lua_pushnil(_state);
+	_setGlobal(variableName);
+}
+
+int my::LuaContext::_push(boost::function<int (lua_State*)> fn) {
 	if (!fn)	throw(std::runtime_error("Trying to write an empty function to a lua variable"));
 
 	// when the lua script calls the thing we will push on the stack, we want "fn" to be executed
 	// if we used lua's cfunctions system, we could not detect when the function is no longer in use, which could cause problems
 
 	// so we use userdata instead
-	// we will create a userdata which contains a copy of our std::function<int (lua_State*)>
+	// we will create a userdata which contains a copy of our boost::function<int (lua_State*)>
 
-	// first we typedef the std::function so it's easier to use
-	typedef std::function<int (lua_State*)>	FunctionType;
+	// first we typedef the boost::function so it's easier to use
+	typedef boost::function<int (lua_State*)>	FunctionType;
 
 	// this is a structure providing static C-like functions that we can feed to lua
 	struct Callback {
@@ -197,7 +212,7 @@ int Lua::LuaContext::_push(std::function<int (lua_State*)> fn) {
 		}
 
 		// this one is called when lua's garbage collector no longer needs our custom data type
-		// we call std::function<int (lua_State*)>'s destructor
+		// we call boost::function<int (lua_State*)>'s destructor
 		static int garbage(lua_State* lua) {
 			assert(lua_gettop(lua) == 1);
 			FunctionType* function = (FunctionType*)lua_touserdata(lua, 1);
@@ -212,7 +227,7 @@ int Lua::LuaContext::_push(std::function<int (lua_State*)> fn) {
 	// lua_newuserdata allocates memory in the internals of the lua library and returns it so we can fill it
 	//   and that's what we do with placement-new
 	FunctionType* functionLocation = (FunctionType*)lua_newuserdata(_state, sizeof(FunctionType));
-	new (functionLocation) FunctionType(std::move(fn));
+	new (functionLocation) FunctionType(fn);
 
 	// creating the metatable (over the object on the stack)
 	// lua_settable pops the key and value we just pushed, so stack management is easy
@@ -222,7 +237,7 @@ int Lua::LuaContext::_push(std::function<int (lua_State*)> fn) {
 	lua_pushcfunction(_state, &Callback::call);
 	lua_settable(_state, -3);
 	lua_pushstring(_state, "_typeid");
-	lua_pushstring(_state, typeid(FunctionType).name());
+	lua_pushstring(_state, typeid(FunctionType).raw_name());
 	lua_settable(_state, -3);
 	lua_pushstring(_state, "__gc");
 	lua_pushcfunction(_state, &Callback::garbage);

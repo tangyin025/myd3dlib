@@ -32,10 +32,17 @@ public:
 
 	my::MousePtr m_mouse;
 
+	boost::weak_ptr<Game> this_ptr;
+
 public:
 	Game(void);
 
 	virtual ~Game(void);
+
+	static Game & getSingleton(void)
+	{
+		return *dynamic_cast<Game *>(getSingletonPtr());
+	}
 
 	virtual bool IsD3D9DeviceAcceptable(
 		D3DCAPS9 * pCaps,
@@ -81,4 +88,8 @@ public:
 	void OnToggleRef(my::ControlPtr ctrl);
 
 	void OnChangeDevice(my::ControlPtr ctrl);
+
+	void exit(void);
 };
+
+typedef boost::shared_ptr<Game> GamePtr;

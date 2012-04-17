@@ -2,13 +2,7 @@
 #pragma once
 
 #include <myD3dLib.h>
-
-extern "C"
-{
-#include <lua.h>
-#include <lauxlib.h>
-#include <lualib.h>
-}
+#include <LuaContext.h>
 
 class MessagePanel
 	: public my::Control
@@ -66,7 +60,7 @@ protected:
 
 	MessagePanelPtr m_panel;
 
-	lua_State * m_luaState;
+	my::LuaContextPtr m_lua;
 
 	int m_luaFLine;
 
@@ -76,6 +70,8 @@ public:
 	~Console(void);
 
 	void OnExecute(my::ControlPtr ctrl);
+
+	void Execute(const std::string & cmd);
 
 	void AddLine(LPCWSTR pString, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 
