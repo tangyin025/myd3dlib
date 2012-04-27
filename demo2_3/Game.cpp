@@ -340,8 +340,3 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 		(*dlg_iter)->Refresh();
 	}
 }
-
-void Game::exit(void)
-{
-	::SendMessage(GetHWND(), WM_CLOSE, 0, 0);
-}

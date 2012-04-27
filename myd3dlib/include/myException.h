@@ -64,6 +64,17 @@ namespace my
 		std::string GetDescription(void) const throw();
 	};
 
+	class DSoundException : public ComException
+	{
+	public:
+		DSoundException(HRESULT hres, const std::string & file, int line)
+			: ComException(hres, file, line)
+		{
+		}
+
+		std::string GetDescription(void) const throw();
+	};
+
 	class WinException : public Exception
 	{
 	protected:
@@ -100,6 +111,8 @@ namespace my
 #define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), __FILE__, __LINE__)
 
 #define THROW_DINPUTEXCEPTION(hres) throw my::DInputException((hres), __FILE__, __LINE__)
+
+#define THROW_DSOUNDEXCEPTION(hres) throw my::DSoundException((hres), __FILE__, __LINE__)
 
 #define THROW_WINEXCEPTION(code) throw my::WinException((code), __FILE__, __LINE__)
 

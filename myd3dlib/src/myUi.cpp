@@ -1515,8 +1515,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						return true;
 					}
 				}
-
-				if(uMsg == WM_LBUTTONDOWN && ControlFocus)
+				else if(uMsg == WM_LBUTTONDOWN && ControlFocus)
 				{
 					ControlFocus->OnFocusOut();
 					ResourceMgr::getSingleton().m_ControlFocus.reset();

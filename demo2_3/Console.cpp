@@ -133,20 +133,12 @@ static int lua_print(lua_State * L)
 	return 0;
 }
 
-static int lua_incomplete(lua_State * L, int status)
+static int lua_exit(lua_State * L)
 {
-	if (status == LUA_ERRSYNTAX)
-	{
-		size_t lmsg;
-		const char *msg = lua_tolstring(L, -1, &lmsg);
-		const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
-		if (strstr(msg, LUA_QL("<eof>")) == tp)
-		{
-			lua_pop(L, 1);
-			return 1;
-		}
-	}
-	return 0;  /* else... */
+	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
+	_ASSERT(NULL != hwnd);
+	SendMessage(hwnd, WM_CLOSE, 0, 0);
+	return 0;
 }
 
 Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
@@ -198,12 +190,11 @@ Console::Console(void)
 	m_Controls.insert(m_panel);
 
 	m_lua = my::LuaContextPtr(new my::LuaContext());
-	lua_State * L = m_lua->GetState();
-	lua_pushcfunction(L, lua_print);
-	lua_setglobal(L, "print");
+	lua_pushcfunction(m_lua->_state, lua_print);
+	lua_setglobal(m_lua->_state, "print");
 
-	m_lua->writeVariable("game",Game::getSingleton().this_ptr.lock());
-	m_lua->registerFunction("exit", &Game::exit);
+	lua_pushcfunction(m_lua->_state, lua_exit);
+	lua_setglobal(m_lua->_state, "exit");
 
 	m_luaFLine = 0;
 }

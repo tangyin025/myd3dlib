@@ -40,5 +40,6 @@
 #include <DXUTsettingsdlg.h>
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
+#include <dsound.h>
 
-#pragma warning(error : 172)
+//#pragma warning(error : 172)

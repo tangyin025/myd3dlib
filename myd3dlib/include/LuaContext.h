@@ -63,8 +63,6 @@ namespace my
 		 //LuaContext(LuaContext&& s) : _state(s._state) { s._state = NULL; }
 		 //LuaContext& operator=(LuaContext&& s) { std::swap(_state, s._state); return *this; }
 		~LuaContext()							{ if (_state != NULL) lua_close(_state); }
-
-		lua_State * GetState()					{ return _state; }
 		
 
 		/// \brief Thrown when an error happens during execution (like not enough parameters for a function)
@@ -203,61 +201,61 @@ namespace my
 		R callLuaFunction(const std::string& variableName) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::tuple<>());
+			return _call<R>(boost::tuple<>());
 		}
 		template<typename R, typename T1>
 		R callLuaFunction(const std::string& variableName, const T1& t1) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1));
+			return _call<R>(boost::make_tuple(t1));
 		}
 		template<typename R, typename T1, typename T2>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2));
+			return _call<R>(boost::make_tuple(t1,t2));
 		}
 		template<typename R, typename T1, typename T2, typename T3>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3));
+			return _call<R>(boost::make_tuple(t1,t2,t3));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4,t5));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4,t5));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4,t5,t6));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4,t5,t6));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6, const T7& t7) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4,t5,t6,t7));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4,t5,t6,t7));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6, const T7& t7, const T8& t8) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4,t5,t6,t7,t8));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4,t5,t6,t7,t8));
 		}
 		template<typename R, typename T1, typename T2, typename T3, typename T4, typename T5, typename T6, typename T7, typename T8, typename T9>
 		R callLuaFunction(const std::string& variableName, const T1& t1, const T2& t2, const T3& t3, const T4& t4, const T5& t5, const T6& t6, const T7& t7, const T8& t8, const T9& t9) {
 			//std::lock_guard<std::mutex> stateLock(_stateMutex);
 			_getGlobal(variableName);
-			return _call<R>(std::make_tuple(t1,t2,t3,t4,t5,t6,t7,t8,t9));
+			return _call<R>(boost::make_tuple(t1,t2,t3,t4,t5,t6,t7,t8,t9));
 		}
 		
 
@@ -291,7 +289,7 @@ namespace my
 
 
 
-	private:
+	//private:
 		// forbidding copy
 		LuaContext(const LuaContext&);
 		LuaContext& operator=(const LuaContext&);

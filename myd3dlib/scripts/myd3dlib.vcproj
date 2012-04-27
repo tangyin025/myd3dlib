@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\mySound.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myTexture.cpp"
 				>
 			</File>
@@ -298,6 +302,10 @@
 			</File>
 			<File
 				RelativePath="..\include\mySkeleton.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\mySound.h"
 				>
 			</File>
 			<File

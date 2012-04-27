@@ -14,6 +14,7 @@
 #include "myUi.h"
 #include "myResource.h"
 #include "myInput.h"
+#include "mySound.h"
 #include "myDxutApp.h"
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \

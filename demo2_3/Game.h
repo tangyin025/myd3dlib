@@ -32,8 +32,6 @@ public:
 
 	my::MousePtr m_mouse;
 
-	boost::weak_ptr<Game> this_ptr;
-
 public:
 	Game(void);
 
@@ -88,8 +86,4 @@ public:
 	void OnToggleRef(my::ControlPtr ctrl);
 
 	void OnChangeDevice(my::ControlPtr ctrl);
-
-	void exit(void);
 };
-
-typedef boost::shared_ptr<Game> GamePtr;

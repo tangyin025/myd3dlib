@@ -619,7 +619,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	GamePtr game(new MyDemo());
-	game->this_ptr = game;
-	return game->Run(true, 800, 600);
+	return MyDemo().Run(true, 800, 600);
+
+	//return Game().Run(true, 800, 600);
 }
