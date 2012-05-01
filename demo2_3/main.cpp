@@ -8,7 +8,7 @@
 // MyDemo
 // ------------------------------------------------------------------------------------------
 
-class MyDemo : public Game
+class MyDemo : public my::DxutSample
 {
 	class AnimationMgr
 	{
@@ -163,20 +163,24 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = Game::OnD3D9CreateDevice(
+		if(FAILED(hres = my::DxutSample::OnD3D9CreateDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
 		}
-
-		// 默认关闭控制台
-		m_console->SetEnabled(false);
 
 		// 初始化相机
 		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
 		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
 		m_camera.SetViewParams(&vecEye, &vecAt);
 		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
+
+		// 设置资源读取路径
+		my::ResourceMgr::getSingleton().RegisterFileDir(".");
+		my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
+		my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
+		my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
+		my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 
 		// 初始化角色资源
 		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
@@ -266,7 +270,7 @@ protected:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		HRESULT hres;
-		if(FAILED(hres = Game::OnD3D9ResetDevice(
+		if(FAILED(hres = my::DxutSample::OnD3D9ResetDevice(
 			pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hres;
@@ -309,7 +313,7 @@ protected:
 
 	void OnD3D9LostDevice(void)
 	{
-		Game::OnD3D9LostDevice();
+		my::DxutSample::OnD3D9LostDevice();
 
 		// 在这里处理在reset中创建的资源
 		m_shadowMapRT.reset();
@@ -327,7 +331,7 @@ protected:
 
 	void OnD3D9DestroyDevice(void)
 	{
-		Game::OnD3D9DestroyDevice();
+		my::DxutSample::OnD3D9DestroyDevice();
 
 		// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
 		m_dynamicsWorld.reset();
@@ -346,7 +350,7 @@ protected:
 		double fTime,
 		float fElapsedTime)
 	{
-		Game::OnFrameMove(fTime, fElapsedTime);
+		my::DxutSample::OnFrameMove(fTime, fElapsedTime);
 
 		// 在这里更新场景
 		btTransform transform;
@@ -363,17 +367,11 @@ protected:
 		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 	}
 
-	void OnD3D9FrameRender(
+	void OnRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime)
 	{
-		if(m_settingsDlg.IsActive())
-		{
-			m_settingsDlg.OnRender(fElapsedTime);
-			return;
-		}
-
 		V(pd3dDevice->Clear(
 			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 
@@ -557,33 +555,6 @@ protected:
 
 			V(pd3dDevice->EndScene());
 		}
-
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			my::UIRender::Begin(pd3dDevice);
-
-			DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-			for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-			{
-				(*dlg_iter)->OnRender(pd3dDevice, fElapsedTime);
-			}
-
-			my::Matrix4 View, Proj;
-			D3DVIEWPORT9 vp;
-			pd3dDevice->GetViewport(&vp);
-			my::UIRender::BuildPerspectiveMatrices(
-				D3DXToRadian(75.0f), vp.Width, vp.Height, View, Proj);
-			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
-			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-			m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
-				my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-			m_uiFnt->DrawString(DXUTGetDeviceStats(),
-				my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-
-			my::UIRender::End(pd3dDevice);
-
-			V(pd3dDevice->EndScene());
-		}
 	}
 
 	LRESULT MsgProc(
@@ -594,7 +565,7 @@ protected:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT hres;
-		if(FAILED(hres = Game::MsgProc(
+		if(FAILED(hres = my::DxutSample::MsgProc(
 			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 		{
 			return hres;

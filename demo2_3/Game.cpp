@@ -82,7 +82,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 	my::ResourceMgr::getSingleton().RegisterFileDir(".");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
 	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
@@ -149,6 +149,9 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
 
 	m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
+
+	m_sound = my::Sound::CreateSound();
+	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 
 	return S_OK;
 }
@@ -217,11 +220,13 @@ void Game::OnD3D9DestroyDevice(void)
 
 	m_console.reset();
 
-	m_input.reset();
-
 	m_keyboard.reset();
 
 	m_mouse.reset();
+
+	m_input.reset();
+
+	m_sound.reset();
 
 	DxutApp::OnD3D9DestroyDevice();
 }

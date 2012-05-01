@@ -32,6 +32,8 @@ public:
 
 	my::MousePtr m_mouse;
 
+	my::SoundPtr m_sound;
+
 public:
 	Game(void);
 

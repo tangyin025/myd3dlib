@@ -30,6 +30,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 #include <string>
 #include <sstream>
+#pragma warning(disable: 4819)
 #include <boost/function.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/utility/enable_if.hpp>
@@ -38,6 +39,7 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <boost/type_traits/is_same.hpp>
 #include <limits>
 #include <boost/static_assert.hpp>
+#pragma warning(default: 4819)
 
 extern "C"
 {
