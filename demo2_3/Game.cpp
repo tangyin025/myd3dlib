@@ -145,13 +145,13 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_dlgSet.insert(m_console);
 
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
-
 	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
-
 	m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
 
 	m_sound = my::Sound::CreateSound();
 	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
+
+	m_skyBox = SkyBoxPtr(new SkyBox(pd3dDevice));
 
 	return S_OK;
 }
@@ -190,6 +190,8 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	m_hudDlg->m_Size = my::Vector2(170, 170);
 
+	m_skyBox->OnResetDevice();
+
 	return S_OK;
 }
 
@@ -204,6 +206,8 @@ void Game::OnD3D9LostDevice(void)
 	m_uiTex->OnLostDevice();
 
 	m_uiFnt->OnLostDevice();
+
+	m_skyBox->OnLostDevice();
 }
 
 void Game::OnD3D9DestroyDevice(void)
@@ -227,6 +231,8 @@ void Game::OnD3D9DestroyDevice(void)
 	m_input.reset();
 
 	m_sound.reset();
+
+	m_skyBox->OnDestroyDevice();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -258,6 +264,8 @@ void Game::OnD3D9FrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		m_skyBox->Render(fElapsedTime, my::Matrix4::Identity());
+
 		my::UIRender::Begin(pd3dDevice);
 
 		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();

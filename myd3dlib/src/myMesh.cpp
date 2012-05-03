@@ -67,7 +67,7 @@ void VertexBuffer::OnResetDevice(void)
 	_ASSERT(!m_VertexBuffer);
 	_ASSERT(!m_MemVertexBuffer.empty());
 
-	HRESULT hres = m_Device->CreateVertexBuffer(m_MemVertexBuffer.size(), 0, 0, D3DPOOL_DEFAULT, &m_VertexBuffer, NULL);
+	HRESULT hres = m_Device->CreateVertexBuffer(m_MemVertexBuffer.size(), D3DUSAGE_WRITEONLY, 0, D3DPOOL_DEFAULT, &m_VertexBuffer, NULL);
 	if(FAILED(hres))
 	{
 		THROW_D3DEXCEPTION(hres);

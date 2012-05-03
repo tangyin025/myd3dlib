@@ -210,15 +210,15 @@ namespace my
 
 	class VertexBuffer : public DeviceRelatedObjectBase
 	{
+	//protected:
 	public:
-		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
-
-		D3DVERTEXELEMENT9Set m_VertexElemSet;
-
-	protected:
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
+
 		std::vector<unsigned char> m_MemVertexBuffer;
+
+		D3DVERTEXELEMENT9Set m_VertexElemSet;
 
 		WORD m_vertexStride;
 
