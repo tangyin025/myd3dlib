@@ -2,6 +2,10 @@
 
 #include <myD3dLib.h>
 
+class SkyBox;
+
+typedef boost::shared_ptr<SkyBox> SkyBoxPtr;
+
 class SkyBox : public my::DeviceRelatedObjectBase
 {
 protected:
@@ -15,10 +19,12 @@ protected:
 
 	my::EffectPtr m_effect;
 
-public:
 	SkyBox(LPDIRECT3DDEVICE9 pD3DDevice);
 
+public:
 	virtual ~SkyBox(void);
+
+	static SkyBoxPtr CreateSkyBox(LPDIRECT3DDEVICE9 pD3DDevice);
 
 	void OnResetDevice(void);
 
@@ -28,5 +34,3 @@ public:
 
 	void Render(float fElapsedTime, const my::Matrix4 & mWorldViewProj);
 };
-
-typedef boost::shared_ptr<SkyBox> SkyBoxPtr;

@@ -66,10 +66,6 @@ namespace my
 		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
 	};
 
-	typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
-
-	typedef std::vector<ResourceDirPtr> ResourceDirPtrList;
-
 	class ZipArchiveDir
 		: public ResourceDir
 	{
@@ -99,7 +95,7 @@ namespace my
 	};
 
 	class ResourceMgr
-		: public SingleInstance<ResourceMgr>
+		: public Singleton<ResourceMgr>
 	{
 	public:
 		FT_Library m_library;
@@ -108,7 +104,27 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
-		ResourceDirPtrList m_dirList;
+		typedef boost::weak_ptr<DeviceRelatedObjectBase> WeakDeviceRelatedObjectBasePtr;
+
+		typedef std::set<WeakDeviceRelatedObjectBasePtr> WeakDeviceRelatedObjectBasePtrSet;
+
+		WeakDeviceRelatedObjectBasePtrSet m_DeviceRelatedObjs;
+
+		typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
+
+		typedef std::map<std::string, ResourceDirPtr> ResourceDirPtrMap;
+
+		ResourceDirPtrMap m_dirMap;
+
+		template <typename T>
+		boost::shared_ptr<T> RegisterDeviceRelatedObject(boost::shared_ptr<T> obj_ptr)
+		{
+			_ASSERT(m_DeviceRelatedObjs.end() == m_DeviceRelatedObjs.find(obj_ptr));
+
+			m_DeviceRelatedObjs.insert(obj_ptr);
+
+			return obj_ptr;
+		}
 
 	public:
 		ResourceMgr(void);

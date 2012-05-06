@@ -132,9 +132,6 @@ HRESULT DxutApp::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_ResourceMgr.reset();
-	m_ResourceMgr = ResourceMgrPtr(new ResourceMgr());
-
 	return S_OK;
 }
 
@@ -142,19 +139,19 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_ResourceMgr->OnResetDevice();
+	my::ResourceMgr::getSingleton().OnResetDevice();
 
 	return S_OK;
 }
 
 void DxutApp::OnD3D9LostDevice(void)
 {
-	m_ResourceMgr->OnLostDevice();
+	my::ResourceMgr::getSingleton().OnLostDevice();
 }
 
 void DxutApp::OnD3D9DestroyDevice(void)
 {
-	m_ResourceMgr->OnDestroyDevice();
+	my::ResourceMgr::getSingleton().OnDestroyDevice();
 }
 
 void DxutApp::OnFrameMove(

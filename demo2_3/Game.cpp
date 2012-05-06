@@ -151,7 +151,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_sound = my::Sound::CreateSound();
 	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 
-	m_skyBox = SkyBoxPtr(new SkyBox(pd3dDevice));
+	m_skyBox = SkyBox::CreateSkyBox(pd3dDevice);
 
 	return S_OK;
 }
@@ -171,10 +171,6 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	V(m_settingsDlg.OnD3D9ResetDevice());
 
-	m_uiTex->OnResetDevice();
-
-	m_uiFnt->OnResetDevice();
-
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
@@ -190,24 +186,16 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	m_hudDlg->m_Size = my::Vector2(170, 170);
 
-	m_skyBox->OnResetDevice();
-
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
-	DxutApp::OnD3D9LostDevice();
-
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
 	m_settingsDlg.OnD3D9LostDevice();
 
-	m_uiTex->OnLostDevice();
-
-	m_uiFnt->OnLostDevice();
-
-	m_skyBox->OnLostDevice();
+	DxutApp::OnD3D9LostDevice();
 }
 
 void Game::OnD3D9DestroyDevice(void)
@@ -215,10 +203,6 @@ void Game::OnD3D9DestroyDevice(void)
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
-
-	m_uiTex->OnDestroyDevice();
-
-	m_uiFnt->OnDestroyDevice();
 
 	m_dlgSet.clear();
 
@@ -231,8 +215,6 @@ void Game::OnD3D9DestroyDevice(void)
 	m_input.reset();
 
 	m_sound.reset();
-
-	m_skyBox->OnDestroyDevice();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -317,18 +299,18 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
+	if(m_console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
+	{
+		m_console->SetEnabled(!m_console->GetEnabled());
+		*pbNoFurtherProcessing = true;
+		return 0;
+	}
+
 	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
 	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
 	{
 		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
 			return 0;
-	}
-
-	if(m_ResourceMgr && !my::ResourceMgr::getSingleton().m_ControlFocus.lock() && uMsg == WM_KEYDOWN && wParam == VK_OEM_3)
-	{
-		m_console->SetEnabled(!m_console->GetEnabled());
-		*pbNoFurtherProcessing = true;
-		return 0;
 	}
 
 	return 0;

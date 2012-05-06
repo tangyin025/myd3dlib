@@ -59,8 +59,6 @@ namespace my
 			void * pUserContext);
 
 	protected:
-		ResourceMgrPtr m_ResourceMgr;
-
 		virtual bool IsD3D9DeviceAcceptable(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,

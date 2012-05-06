@@ -17,7 +17,7 @@ SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SpritePtr(new Sprite(pSprite));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SpritePtr(new Sprite(pSprite)));
 }
 
 bool RectAssignmentNode::AssignTopRect(const SIZE & size, RECT & outRect)
@@ -164,7 +164,7 @@ FontPtr Font::CreateFontFromFile(
 	}
 
 	FontPtr font(new Font(face, height, pDevice, pixel_gap));
-	return font;
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(font);
 }
 
 FontPtr Font::CreateFontFromFileInMemory(
@@ -197,22 +197,19 @@ FontPtr Font::CreateFontFromFileInCache(
 
 	FontPtr font(new Font(face, height, pDevice, pixel_gap));
 	font->m_cache = cache_ptr;
-	return font;
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(font);
 }
 
 void Font::OnResetDevice(void)
 {
-	m_texture->OnResetDevice();
 }
 
 void Font::OnLostDevice(void)
 {
-	m_texture->OnLostDevice();
 }
 
 void Font::OnDestroyDevice(void)
 {
-	m_texture->OnDestroyDevice();
 	m_Device.Release();
 	if(m_face)
 	{

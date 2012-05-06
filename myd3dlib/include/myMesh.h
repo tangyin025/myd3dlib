@@ -245,24 +245,26 @@ namespace my
 		void ResizeVertexBufferLength(UINT NumVertices);
 
 		template <typename ElementType>
-		void SetCustomType(int Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
+		void SetCustomType(UINT Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
 		{
+			_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 			m_VertexElemSet.SetCustomType<ElementType>(&m_MemVertexBuffer[Index * m_vertexStride], m_Stream, Usage, UsageIndex, Value);
 		}
 
-		void SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
+		void SetPosition(UINT Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
 
-		void SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
+		void SetBinormal(UINT Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
 
-		void SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
+		void SetTangent(UINT Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
 
-		void SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
+		void SetNormal(UINT Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
 
-		void SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
+		void SetTexcoord(UINT Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
 
-		void SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
+		void SetBlendIndices(UINT Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
 
-		void SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
+		void SetBlendWeights(UINT Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
 	};
 
 	class IndexBuffer;
@@ -296,7 +298,7 @@ namespace my
 
 		void ResizeIndexBufferLength(UINT NumIndices);
 
-		void SetIndex(int Index, unsigned int IndexValue);
+		void SetIndex(UINT Index, unsigned int IndexValue);
 	};
 
 	class Mesh;

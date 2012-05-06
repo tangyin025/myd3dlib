@@ -1,4 +1,4 @@
-#include "SkyBox.h"
+﻿#include "SkyBox.h"
 
 SkyBox::SkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 	: m_Device(pD3DDevice)
@@ -8,7 +8,10 @@ SkyBox::SkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 
 	my::D3DVERTEXELEMENT9Set elems;
 	elems.insert(my::D3DVERTEXELEMENT9Set::CreateCustomElement(0, D3DDECLUSAGE_POSITION, 0, 0, D3DDECLTYPE_FLOAT4));
-	m_vertBuffer = my::VertexBuffer::CreateVertexBuffer(pD3DDevice, elems, 0);
+	//m_vertBuffer = my::VertexBuffer::CreateVertexBuffer(pD3DDevice, elems, 0);
+
+	// 直接使用构造函数创建，用以跳过 my::ResourceMgr 的自动 OnDeviceReset 管理
+	m_vertBuffer = my::VertexBufferPtr(new my::VertexBuffer(pD3DDevice, elems, 0));
 
 	m_vertDecl = elems.CreateVertexDeclaration(pD3DDevice);
 
@@ -20,10 +23,13 @@ SkyBox::~SkyBox(void)
 {
 }
 
+SkyBoxPtr SkyBox::CreateSkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
+{
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SkyBoxPtr(new SkyBox(pD3DDevice)));
+}
+
 void SkyBox::OnResetDevice(void)
 {
-	m_cubeTexture->OnResetDevice();
-
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
     float fHighW = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Width );
     float fHighH = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Height );
@@ -35,27 +41,19 @@ void SkyBox::OnResetDevice(void)
 	m_vertBuffer->SetCustomType(1, my::Vector4(fLowW,  fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
 	m_vertBuffer->SetCustomType(2, my::Vector4(fHighW, fLowH,  1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
 	m_vertBuffer->SetCustomType(3, my::Vector4(fHighW, fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
-	m_vertBuffer->OnResetDevice();
 
-	m_effect->OnResetDevice();
+	// 手动 OnDeviceReset 管理
+	m_vertBuffer->OnResetDevice();
 }
 
 void SkyBox::OnLostDevice(void)
 {
-	m_cubeTexture->OnLostDevice();
-
 	m_vertBuffer->OnLostDevice();
-
-	m_effect->OnLostDevice();
 }
 
 void SkyBox::OnDestroyDevice(void)
 {
-	m_cubeTexture->OnDestroyDevice();
-
 	m_vertBuffer->OnDestroyDevice();
-
-	m_effect->OnDestroyDevice();
 
 	m_vertDecl.Release();
 

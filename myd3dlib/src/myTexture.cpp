@@ -25,7 +25,7 @@ SurfacePtr Surface::CreateDepthStencilSurface(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SurfacePtr(new Surface(pSurface));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SurfacePtr(new Surface(pSurface)));
 }
 
 SurfacePtr Surface::CreateOffscreenPlainSurface(
@@ -42,7 +42,7 @@ SurfacePtr Surface::CreateOffscreenPlainSurface(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SurfacePtr(new Surface(pSurface));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SurfacePtr(new Surface(pSurface)));
 }
 
 TexturePtr Texture::CreateTexture(
@@ -62,7 +62,7 @@ TexturePtr Texture::CreateTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(TexturePtr(new Texture(pTexture)));
 }
 
 TexturePtr Texture::CreateAdjustedTexture(
@@ -82,7 +82,7 @@ TexturePtr Texture::CreateAdjustedTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(TexturePtr(new Texture(pTexture)));
 }
 
 TexturePtr Texture::CreateTextureFromFile(
@@ -108,7 +108,7 @@ TexturePtr Texture::CreateTextureFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(TexturePtr(new Texture(pTexture)));
 }
 
 TexturePtr Texture::CreateTextureFromFileInMemory(
@@ -135,7 +135,7 @@ TexturePtr Texture::CreateTextureFromFileInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(TexturePtr(new Texture(pTexture)));
 }
 
 CubeTexturePtr CubeTexture::CreateCubeTexture(
@@ -154,7 +154,7 @@ CubeTexturePtr CubeTexture::CreateCubeTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(CubeTexturePtr(new CubeTexture(pCubeTexture)));
 }
 
 CubeTexturePtr CubeTexture::CubeAdjustedTexture(
@@ -173,7 +173,7 @@ CubeTexturePtr CubeTexture::CubeAdjustedTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(CubeTexturePtr(new CubeTexture(pCubeTexture)));
 }
 
 CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
@@ -198,7 +198,7 @@ CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(CubeTexturePtr(new CubeTexture(pCubeTexture)));
 }
 
 CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
@@ -224,5 +224,5 @@ CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(CubeTexturePtr(new CubeTexture(pCubeTexture)));
 }

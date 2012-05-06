@@ -181,7 +181,7 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
-ResourceMgr::SingleInstance * SingleInstance<ResourceMgr>::s_ptr;
+ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
 ResourceMgr::ResourceMgr(void)
 {
@@ -214,34 +214,79 @@ void ResourceMgr::OnResetDevice(void)
 	{
 		THROW_D3DEXCEPTION(hres);
 	}
+
+	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
+	for(; obj_iter != m_DeviceRelatedObjs.end(); )
+	{
+		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
+		if(obj_ptr)
+		{
+			obj_ptr->OnResetDevice();
+			obj_iter++;
+		}
+		else
+		{
+			m_DeviceRelatedObjs.erase(obj_iter++);
+		}
+	}
 }
 
 void ResourceMgr::OnLostDevice(void)
 {
 	m_stateBlock.Release();
+
+	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
+	for(; obj_iter != m_DeviceRelatedObjs.end(); )
+	{
+		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
+		if(obj_ptr)
+		{
+			obj_ptr->OnLostDevice();
+			obj_iter++;
+		}
+		else
+		{
+			m_DeviceRelatedObjs.erase(obj_iter++);
+		}
+	}
 }
 
 void ResourceMgr::OnDestroyDevice(void)
 {
-	m_ControlFocus.reset();
+	//m_ControlFocus.reset();
+
+	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
+	for(; obj_iter != m_DeviceRelatedObjs.end(); )
+	{
+		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
+		if(obj_ptr)
+		{
+			obj_ptr->OnDestroyDevice();
+			obj_iter++;
+		}
+		else
+		{
+			m_DeviceRelatedObjs.erase(obj_iter++);
+		}
+	}
 }
 
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
 {
-	m_dirList.push_back(ResourceDirPtr(new ZipArchiveDir(zip_path, password)));
+	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
 }
 
 void ResourceMgr::RegisterFileDir(const std::string & dir)
 {
-	m_dirList.push_back(ResourceDirPtr(new FileArchiveDir(dir)));
+	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
 }
 
 bool ResourceMgr::CheckArchivePath(const std::string & path)
 {
-	ResourceDirPtrList::iterator dir_iter = m_dirList.begin();
-	for(; dir_iter != m_dirList.end(); dir_iter++)
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
 	{
-		if((*dir_iter)->CheckArchivePath(path))
+		if(dir_iter->second->CheckArchivePath(path))
 		{
 			return true;
 		}
@@ -252,12 +297,12 @@ bool ResourceMgr::CheckArchivePath(const std::string & path)
 
 ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
 {
-	ResourceDirPtrList::iterator dir_iter = m_dirList.begin();
-	for(; dir_iter != m_dirList.end(); dir_iter++)
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
 	{
-		if((*dir_iter)->CheckArchivePath(path))
+		if(dir_iter->second->CheckArchivePath(path))
 		{
-			return (*dir_iter)->OpenArchiveStream(path);
+			return dir_iter->second->OpenArchiveStream(path);
 		}
 	}
 

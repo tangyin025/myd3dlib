@@ -48,7 +48,7 @@ VertexShaderPtr VertexShader::CreateVertexShader(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice)));
 }
 
 VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
@@ -83,7 +83,7 @@ VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice)));
 }
 
 void PixelShader::OnDestroyDevice(void)
@@ -126,7 +126,7 @@ PixelShaderPtr PixelShader::CreatePixelShader(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice)));
 }
 
 PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
@@ -161,7 +161,7 @@ PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice)));
 }
 
 EffectPtr Effect::CreateEffect(
@@ -187,7 +187,7 @@ EffectPtr Effect::CreateEffect(
 		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %p", pSrcData));
 	}
 
-	return EffectPtr(new Effect(pEffect));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(EffectPtr(new Effect(pEffect)));
 }
 
 EffectPtr Effect::CreateEffectFromFile(
@@ -212,5 +212,5 @@ EffectPtr Effect::CreateEffectFromFile(
 		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %s", pSrcFile));
 	}
 
-	return EffectPtr(new Effect(pEffect));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(EffectPtr(new Effect(pEffect)));
 }

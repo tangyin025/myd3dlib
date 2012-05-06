@@ -59,7 +59,7 @@ VertexBufferPtr VertexBuffer::CreateVertexBuffer(
 	const D3DVERTEXELEMENT9Set & VertexElemSet,
 	WORD Stream)
 {
-	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream)));
 }
 
 void VertexBuffer::OnResetDevice(void)
@@ -108,38 +108,52 @@ void VertexBuffer::ResizeVertexBufferLength(UINT NumVertices)
 	m_NumVertices = NumVertices;
 }
 
-void VertexBuffer::SetPosition(int Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex)
+void VertexBuffer::SetPosition(UINT Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetPosition(&m_MemVertexBuffer[Index * m_vertexStride], Position, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBinormal(int Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex)
+void VertexBuffer::SetBinormal(UINT Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetBinormal(&m_MemVertexBuffer[Index * m_vertexStride], Binormal, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetTangent(int Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex)
+void VertexBuffer::SetTangent(UINT Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetTangent(&m_MemVertexBuffer[Index * m_vertexStride], Tangent, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetNormal(int Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex)
+void VertexBuffer::SetNormal(UINT Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetNormal(&m_MemVertexBuffer[Index * m_vertexStride], Normal, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetTexcoord(int Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex)
+void VertexBuffer::SetTexcoord(UINT Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetTexcoord(&m_MemVertexBuffer[Index * m_vertexStride], Texcoord, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBlendIndices(int Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex)
+void VertexBuffer::SetBlendIndices(UINT Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetBlendIndices(&m_MemVertexBuffer[Index * m_vertexStride], BlendIndices, m_Stream, UsageIndex);
 }
 
-void VertexBuffer::SetBlendWeights(int Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex)
+void VertexBuffer::SetBlendWeights(UINT Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex)
 {
+	_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
+
 	m_VertexElemSet.SetBlendWeights(&m_MemVertexBuffer[Index * m_vertexStride], BlendWeights, m_Stream, UsageIndex);
 }
 
@@ -150,7 +164,7 @@ IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
 
 IndexBufferPtr IndexBuffer::CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice)
 {
-	return IndexBufferPtr(new IndexBuffer(pD3DDevice));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(IndexBufferPtr(new IndexBuffer(pD3DDevice)));
 }
 
 void IndexBuffer::OnResetDevice(void)
@@ -196,9 +210,9 @@ void IndexBuffer::ResizeIndexBufferLength(UINT NumIndices)
 	m_MemIndexBuffer.resize(NumIndices, 0);
 }
 
-void IndexBuffer::SetIndex(int Index, unsigned int IndexValue)
+void IndexBuffer::SetIndex(UINT Index, unsigned int IndexValue)
 {
-	_ASSERT(Index < (int)m_MemIndexBuffer.size());
+	_ASSERT(Index < m_MemIndexBuffer.size());
 
 	m_MemIndexBuffer[Index] = IndexValue;
 }
@@ -217,7 +231,7 @@ MeshPtr Mesh::CreateMesh(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateMeshFVF(
@@ -234,7 +248,7 @@ MeshPtr Mesh::CreateMeshFVF(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateMeshFromX(
@@ -254,7 +268,7 @@ MeshPtr Mesh::CreateMeshFromX(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateMeshFromXInMemory(
@@ -275,7 +289,7 @@ MeshPtr Mesh::CreateMeshFromXInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateMeshFromOgreXml(
@@ -547,7 +561,7 @@ MeshPtr Mesh::CreateMeshFromOgreXmlInMemory(
 	}
 	mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 
-	return mesh;
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(mesh);
 }
 
 MeshPtr Mesh::CreateBox(
@@ -564,7 +578,7 @@ MeshPtr Mesh::CreateBox(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateCylinder(
@@ -583,7 +597,7 @@ MeshPtr Mesh::CreateCylinder(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreatePolygon(
@@ -599,7 +613,7 @@ MeshPtr Mesh::CreatePolygon(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateSphere(
@@ -616,7 +630,7 @@ MeshPtr Mesh::CreateSphere(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateTeapot(
@@ -630,7 +644,7 @@ MeshPtr Mesh::CreateTeapot(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
 
 MeshPtr Mesh::CreateTorus(
@@ -648,5 +662,5 @@ MeshPtr Mesh::CreateTorus(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return MeshPtr(new Mesh(pMesh));
+	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
 }
