@@ -3,8 +3,46 @@
 #include <myd3dlib.h>
 #include "Console.h"
 #include "SkyBox.h"
+#pragma warning(disable: 4819)
+#include <boost/statechart/event.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/transition.hpp>
+#pragma warning(default: 4819)
 
-class Game : public my::DxutApp
+class IGameStateBase
+{
+public:
+	HRESULT hr;
+
+	virtual HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+
+	virtual void OnD3D9LostDevice(void) = 0;
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime) = 0;
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime) = 0;
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing) = 0;
+};
+
+class GameLoad;
+
+class Game
+	: public my::DxutApp
+	, public boost::statechart::state_machine<Game, GameLoad>
 {
 public:
 	HRESULT hr;
@@ -34,8 +72,6 @@ public:
 	my::MousePtr m_mouse;
 
 	my::SoundPtr m_sound;
-
-	SkyBoxPtr m_skyBox;
 
 public:
 	Game(void);
@@ -91,4 +127,84 @@ public:
 	void OnToggleRef(my::ControlPtr ctrl);
 
 	void OnChangeDevice(my::ControlPtr ctrl);
+
+	IGameStateBase * CurrentState(void)
+	{
+		return const_cast<IGameStateBase *>(state_cast<const IGameStateBase *>());
+	}
+};
+
+class EvLoadOver : public boost::statechart::event<EvLoadOver>
+{
+};
+
+class GamePlay;
+
+class GameLoad
+	: public IGameStateBase
+	, public boost::statechart::simple_state<GameLoad, Game>
+{
+public:
+	GameLoad(void);
+
+	~GameLoad(void);
+
+	typedef boost::statechart::transition<EvLoadOver, GamePlay> reactions;
+
+	virtual HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnD3D9LostDevice(void);
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
+};
+
+class GamePlay
+	: public IGameStateBase
+	, public boost::statechart::simple_state<GamePlay, Game>
+{
+public:
+	SkyBoxPtr m_skyBox;
+
+public:
+	GamePlay(void);
+
+	~GamePlay(void);
+
+	virtual HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnD3D9LostDevice(void);
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
 };

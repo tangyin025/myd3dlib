@@ -151,7 +151,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_sound = my::Sound::CreateSound();
 	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 
-	m_skyBox = SkyBox::CreateSkyBox(pd3dDevice);
+	initiate();
 
 	return S_OK;
 }
@@ -186,11 +186,15 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	m_hudDlg->m_Size = my::Vector2(170, 170);
 
+	CurrentState()->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
+	CurrentState()->OnD3D9LostDevice();
+
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
 	m_settingsDlg.OnD3D9LostDevice();
@@ -200,6 +204,8 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
+	terminate();
+
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
@@ -228,6 +234,8 @@ void Game::OnFrameMove(
 	m_keyboard->Capture();
 
 	m_mouse->Capture();
+
+	CurrentState()->OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnD3D9FrameRender(
@@ -241,13 +249,10 @@ void Game::OnD3D9FrameRender(
 		return;
 	}
 
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+	CurrentState()->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		m_skyBox->Render(fElapsedTime, my::Matrix4::Identity());
-
 		my::UIRender::Begin(pd3dDevice);
 
 		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
@@ -313,6 +318,12 @@ LRESULT Game::MsgProc(
 			return 0;
 	}
 
+	if(!terminated() &&
+		(FAILED(hres = CurrentState()->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing))
+	{
+		return hres;
+	}
+
 	return 0;
 }
 
@@ -334,4 +345,119 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	{
 		(*dlg_iter)->Refresh();
 	}
+}
+
+HRESULT GameLoad::OnD3D9ResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+GameLoad::GameLoad(void)
+{
+	Console::getSingleton().AddLine(L"Enter Game Load State");
+}
+
+GameLoad::~GameLoad(void)
+{
+	Console::getSingleton().AddLine(L"Leave Game Load State");
+}
+
+void GameLoad::OnD3D9LostDevice(void)
+{
+}
+
+void GameLoad::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	double fAbsTime = Game::getSingleton().GetAbsoluteTime();
+	wchar_t buff[256];
+	swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
+	Console::getSingleton().AddLine(buff);
+
+	if(fTime > 3.0f)
+	{
+		// 当内部状态发生变化，新旧资源会被重新创建，
+		// 所以就需要在切换状态时重新 Lost/Reset 一遍“相关”（目前还做不到只更新“相关”)资源
+		my::ResourceMgr::getSingleton().OnLostDevice();
+		Game::getSingleton().process_event(EvLoadOver());
+		my::ResourceMgr::getSingleton().OnResetDevice();
+	}
+}
+
+void GameLoad::OnD3D9FrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+}
+
+LRESULT GameLoad::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
+GamePlay::GamePlay(void)
+{
+	Console::getSingleton().AddLine(L"Enter Game Play State");
+
+	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
+	m_skyBox = SkyBox::CreateSkyBox(pd3dDevice);
+}
+
+GamePlay::~GamePlay(void)
+{
+	Console::getSingleton().AddLine(L"Leave Game Play State");
+}
+
+HRESULT GamePlay::OnD3D9ResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+void GamePlay::OnD3D9LostDevice(void)
+{
+}
+
+void GamePlay::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+}
+
+void GamePlay::OnD3D9FrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		m_skyBox->Render(fElapsedTime, my::Matrix4::Identity());
+
+		V(pd3dDevice->EndScene());
+	}
+}
+
+LRESULT GamePlay::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
 }

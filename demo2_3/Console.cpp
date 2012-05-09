@@ -63,6 +63,7 @@ void MessagePanel::_push_enter(void)
 	{
 		m_lbegin = MoveLineIndex(m_lbegin, 1);
 	}
+	m_lines[m_lend].m_Text.clear();
 	_update_scrollbar();
 }
 
@@ -75,6 +76,7 @@ void MessagePanel::_push_sline(LPCWSTR pString, D3DCOLOR Color)
 	float lend_x = m_Skin->m_Font->CPtoX(lend_str.c_str(), lend_str.length());
 	float remain_x = m_Size.x - lend_x;
 	int nCP = m_Skin->m_Font->XtoCP(pString, remain_x);
+	_ASSERT(nCP > 0);
 	lend_str.insert(lend_str.length(), pString, nCP);
 	m_lines[m_lend].m_Color = Color;
 

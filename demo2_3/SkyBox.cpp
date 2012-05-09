@@ -30,17 +30,7 @@ SkyBoxPtr SkyBox::CreateSkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 
 void SkyBox::OnResetDevice(void)
 {
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
-    float fHighW = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Width );
-    float fHighH = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Height );
-    float fLowW = 1.0f + ( 1.0f / ( float )pBackBufferSurfaceDesc->Width );
-    float fLowH = 1.0f + ( 1.0f / ( float )pBackBufferSurfaceDesc->Height );
-
-	m_vertBuffer->ResizeVertexBufferLength(4);
-	m_vertBuffer->SetCustomType(0, my::Vector4(fLowW,  fLowH,  1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
-	m_vertBuffer->SetCustomType(1, my::Vector4(fLowW,  fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
-	m_vertBuffer->SetCustomType(2, my::Vector4(fHighW, fLowH,  1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
-	m_vertBuffer->SetCustomType(3, my::Vector4(fHighW, fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
+	UpdateVertexBuffer();
 
 	// 手动 OnDeviceReset 管理
 	m_vertBuffer->OnResetDevice();
@@ -60,6 +50,21 @@ void SkyBox::OnDestroyDevice(void)
 	m_Device.Release();
 }
 
+void SkyBox::UpdateVertexBuffer(void)
+{
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
+    float fHighW = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Width );
+    float fHighH = -1.0f - ( 1.0f / ( float )pBackBufferSurfaceDesc->Height );
+    float fLowW = 1.0f + ( 1.0f / ( float )pBackBufferSurfaceDesc->Width );
+    float fLowH = 1.0f + ( 1.0f / ( float )pBackBufferSurfaceDesc->Height );
+
+	m_vertBuffer->ResizeVertexBufferLength(4);
+	m_vertBuffer->SetCustomType(0, my::Vector4(fLowW,  fLowH,  1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
+	m_vertBuffer->SetCustomType(1, my::Vector4(fLowW,  fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
+	m_vertBuffer->SetCustomType(2, my::Vector4(fHighW, fLowH,  1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
+	m_vertBuffer->SetCustomType(3, my::Vector4(fHighW, fHighH, 1.0f, 1.0f), D3DDECLUSAGE_POSITION, 0);
+}
+
 void SkyBox::Render(float fElapsedTime, const my::Matrix4 & mWorldViewProj)
 {
 	m_effect->SetMatrix("g_mInvWorldViewProjection", mWorldViewProj.inverse());
@@ -69,11 +74,12 @@ void SkyBox::Render(float fElapsedTime, const my::Matrix4 & mWorldViewProj)
 	m_Device->SetStreamSource(m_vertBuffer->m_Stream, m_vertBuffer->m_VertexBuffer, 0, m_vertBuffer->m_vertexStride);
 	m_Device->SetVertexDeclaration(m_vertDecl);
 
+	HRESULT hr;
     UINT uiNumPasses = m_effect->Begin();
 	for(UINT uiPass = 0; uiPass < uiNumPasses; uiPass++)
 	{
 		m_effect->BeginPass(uiPass);
-		m_Device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2);
+		V(m_Device->DrawPrimitive(D3DPT_TRIANGLESTRIP, 0, 2));
 		m_effect->EndPass();
 	}
 	m_effect->End();

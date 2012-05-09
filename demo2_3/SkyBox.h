@@ -32,5 +32,7 @@ public:
 
 	void OnDestroyDevice(void);
 
+	void UpdateVertexBuffer(void);
+
 	void Render(float fElapsedTime, const my::Matrix4 & mWorldViewProj);
 };
