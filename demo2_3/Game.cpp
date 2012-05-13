@@ -1,4 +1,4 @@
-#include "Game.h"
+﻿#include "Game.h"
 
 Game::Game(void)
 {
@@ -193,7 +193,10 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	CurrentState()->OnD3D9LostDevice();
+	// 当状态切换时发生异常会导致新状态没有被创建
+	// 然而 DXUTDestroyState 依然会尝试 OnD3D9LostDevice，所以有必要判断之
+	if(!terminated())
+		CurrentState()->OnD3D9LostDevice();
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -379,8 +382,8 @@ void GameLoad::OnFrameMove(
 
 	if(fTime > 3.0f)
 	{
-		// ���ڲ�״̬�����仯���¾���Դ�ᱻ���´�����
-		// ���Ծ���Ҫ���л�״̬ʱ���� Lost/Reset һ�顰��ء���Ŀǰ��������ֻ���¡���ء�)��Դ
+		// 当内部状态发生变化，新旧资源会被重新创建，
+		// 所以就需要在切换状态时重新 Lost/Reset 一遍“相关”（目前还做不到只更新“相关”)资源
 		my::ResourceMgr::getSingleton().OnLostDevice();
 		Game::getSingleton().process_event(EvLoadOver());
 		my::ResourceMgr::getSingleton().OnResetDevice();
@@ -410,8 +413,11 @@ GamePlay::GamePlay(void)
 {
 	Console::getSingleton().AddLine(L"Enter Game Play State");
 
+	// 雷人的环境球构造方式！将来还是要扩展成使用 6个 jpg来创建比较省资源空间
 	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
 	m_skyBox = SkyBox::CreateSkyBox(pd3dDevice);
+
+	//THROW_CUSEXCEPTION("aaa");
 }
 
 GamePlay::~GamePlay(void)

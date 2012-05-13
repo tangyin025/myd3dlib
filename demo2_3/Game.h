@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <myd3dlib.h>
 #include "Console.h"
@@ -14,6 +14,11 @@ class IGameStateBase
 {
 public:
 	HRESULT hr;
+
+	// 这里设计成直接使用构造函数创建，不再需要 OnCreateDevice
+	//virtual HRESULT OnD3D9CreateDevice(
+	//	IDirect3DDevice9 * pd3dDevice,
+	//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
 
 	virtual HRESULT OnD3D9ResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
