@@ -160,6 +160,8 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Console::getSingleton().AddLine(L"Game::OnD3D9ResetDevice");
+
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
@@ -193,6 +195,8 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
+	Console::getSingleton().AddLine(L"Game::OnD3D9LostDevice");
+
 	// 当状态切换时发生异常会导致新状态没有被创建
 	// 然而 DXUTDestroyState 依然会尝试 OnD3D9LostDevice，所以有必要判断之
 	if(!terminated())
@@ -350,21 +354,76 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	}
 }
 
-HRESULT GameLoad::OnD3D9ResetDevice(
+GameMenu::GameMenu(void)
+{
+	Console::getSingleton().AddLine(L"GameMenu::GameMenu");
+}
+
+GameMenu::~GameMenu(void)
+{
+	Console::getSingleton().AddLine(L"GameMenu::~GameMenu");
+}
+
+HRESULT GameMenu::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	return S_OK;
 }
 
+void GameMenu::OnD3D9LostDevice(void)
+{
+}
+
+void GameMenu::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	double fAbsTime = Game::getSingleton().GetAbsoluteTime();
+	wchar_t buff[256];
+	swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
+	Console::getSingleton().AddLine(buff);
+
+	if(fTime > 1.0f)
+	{
+		Game::getSingleton().process_event(EvMenuOver());
+	}
+}
+
+void GameMenu::OnD3D9FrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 255, 72, 72), 1, 0));
+}
+
+LRESULT GameMenu::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 GameLoad::GameLoad(void)
 {
-	Console::getSingleton().AddLine(L"Enter Game Load State");
+	Console::getSingleton().AddLine(L"GameLoad::GameLoad");
 }
 
 GameLoad::~GameLoad(void)
 {
-	Console::getSingleton().AddLine(L"Leave Game Load State");
+	Console::getSingleton().AddLine(L"GameLoad::~GameLoad");
+}
+
+HRESULT GameLoad::OnD3D9ResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
 }
 
 void GameLoad::OnD3D9LostDevice(void)
@@ -380,13 +439,9 @@ void GameLoad::OnFrameMove(
 	swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
 	Console::getSingleton().AddLine(buff);
 
-	if(fTime > 3.0f)
+	if(fTime > 2.0f)
 	{
-		// 当内部状态发生变化，新旧资源会被重新创建，
-		// 所以就需要在切换状态时重新 Lost/Reset 一遍“相关”（目前还做不到只更新“相关”)资源
-		my::ResourceMgr::getSingleton().OnLostDevice();
 		Game::getSingleton().process_event(EvLoadOver());
-		my::ResourceMgr::getSingleton().OnResetDevice();
 	}
 }
 
@@ -396,7 +451,7 @@ void GameLoad::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 255, 72), 1, 0));
 }
 
 LRESULT GameLoad::MsgProc(
@@ -411,7 +466,7 @@ LRESULT GameLoad::MsgProc(
 
 GamePlay::GamePlay(void)
 {
-	Console::getSingleton().AddLine(L"Enter Game Play State");
+	Console::getSingleton().AddLine(L"GamePlay::GamePlay");
 
 	// 雷人的环境球构造方式！将来还是要扩展成使用 6个 jpg来创建比较省资源空间
 	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
@@ -422,7 +477,7 @@ GamePlay::GamePlay(void)
 
 GamePlay::~GamePlay(void)
 {
-	Console::getSingleton().AddLine(L"Leave Game Play State");
+	Console::getSingleton().AddLine(L"GamePlay::~GamePlay");
 }
 
 HRESULT GamePlay::OnD3D9ResetDevice(
@@ -448,7 +503,7 @@ void GamePlay::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{

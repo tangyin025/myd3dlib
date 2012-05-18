@@ -43,11 +43,11 @@ public:
 		bool * pbNoFurtherProcessing) = 0;
 };
 
-class GameLoad;
+class GameMenu;
 
 class Game
 	: public my::DxutApp
-	, public boost::statechart::state_machine<Game, GameLoad>
+	, public boost::statechart::state_machine<Game, GameMenu>
 {
 public:
 	HRESULT hr;
@@ -139,8 +139,69 @@ public:
 	}
 };
 
-class EvLoadOver : public boost::statechart::event<EvLoadOver>
+template <class DrivedClass>
+class GameEvent : public boost::statechart::event<DrivedClass>
 {
+public:
+	GameEvent(void)
+	{
+		// 当内部状态发生变化，新旧资源会被重新创建，
+		// 所以就需要在切换状态时重新 Lost/Reset 一遍“相关”（目前还做不到只更新“相关”)资源
+		Game::getSingleton().OnD3D9LostDevice();
+	}
+
+	virtual ~GameEvent(void)
+	{
+		Game::getSingleton().OnD3D9ResetDevice(DXUTGetD3D9Device(), DXUTGetD3D9BackBufferSurfaceDesc());
+	}
+};
+
+class EvMenuOver : public GameEvent<EvMenuOver>
+{
+};
+
+class EvLoadOver : public GameEvent<EvLoadOver>
+{
+};
+
+class EvGameOver : public GameEvent<EvGameOver>
+{
+};
+
+class GameLoad;
+
+class GameMenu
+	: public IGameStateBase
+	, public boost::statechart::simple_state<GameMenu, Game>
+{
+public:
+	typedef boost::statechart::transition<EvMenuOver, GameLoad> reactions;
+
+	GameMenu(void);
+
+	~GameMenu(void);
+
+	virtual HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnD3D9LostDevice(void);
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
 };
 
 class GamePlay;
@@ -150,11 +211,11 @@ class GameLoad
 	, public boost::statechart::simple_state<GameLoad, Game>
 {
 public:
+	typedef boost::statechart::transition<EvLoadOver, GamePlay> reactions;
+
 	GameLoad(void);
 
 	~GameLoad(void);
-
-	typedef boost::statechart::transition<EvLoadOver, GamePlay> reactions;
 
 	virtual HRESULT OnD3D9ResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -187,6 +248,8 @@ public:
 	SkyBoxPtr m_skyBox;
 
 public:
+	typedef boost::statechart::transition<EvGameOver, GameMenu> reactions;
+
 	GamePlay(void);
 
 	~GamePlay(void);
