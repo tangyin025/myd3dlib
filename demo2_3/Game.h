@@ -43,11 +43,11 @@ public:
 		bool * pbNoFurtherProcessing) = 0;
 };
 
-class GameMenu;
+class GameLoad;
 
 class Game
 	: public my::DxutApp
-	, public boost::statechart::state_machine<Game, GameMenu>
+	, public boost::statechart::state_machine<Game, GameLoad>
 {
 public:
 	HRESULT hr;
@@ -156,52 +156,8 @@ public:
 	}
 };
 
-class EvMenuOver : public GameEvent<EvMenuOver>
-{
-};
-
 class EvLoadOver : public GameEvent<EvLoadOver>
 {
-};
-
-class EvGameOver : public GameEvent<EvGameOver>
-{
-};
-
-class GameLoad;
-
-class GameMenu
-	: public IGameStateBase
-	, public boost::statechart::simple_state<GameMenu, Game>
-{
-public:
-	typedef boost::statechart::transition<EvMenuOver, GameLoad> reactions;
-
-	GameMenu(void);
-
-	~GameMenu(void);
-
-	virtual HRESULT OnD3D9ResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-	virtual void OnD3D9LostDevice(void);
-
-	virtual void OnFrameMove(
-		double fTime,
-		float fElapsedTime);
-
-	virtual void OnD3D9FrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime);
-
-	virtual LRESULT MsgProc(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam,
-		bool * pbNoFurtherProcessing);
 };
 
 class GamePlay;
@@ -248,8 +204,6 @@ public:
 	SkyBoxPtr m_skyBox;
 
 public:
-	typedef boost::statechart::transition<EvGameOver, GameMenu> reactions;
-
 	GamePlay(void);
 
 	~GamePlay(void);

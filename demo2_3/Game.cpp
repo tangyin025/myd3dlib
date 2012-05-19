@@ -354,61 +354,6 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	}
 }
 
-GameMenu::GameMenu(void)
-{
-	Console::getSingleton().AddLine(L"GameMenu::GameMenu");
-}
-
-GameMenu::~GameMenu(void)
-{
-	Console::getSingleton().AddLine(L"GameMenu::~GameMenu");
-}
-
-HRESULT GameMenu::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
-
-void GameMenu::OnD3D9LostDevice(void)
-{
-}
-
-void GameMenu::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	double fAbsTime = Game::getSingleton().GetAbsoluteTime();
-	wchar_t buff[256];
-	swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
-	Console::getSingleton().AddLine(buff);
-
-	if(fTime > 1.0f)
-	{
-		Game::getSingleton().process_event(EvMenuOver());
-	}
-}
-
-void GameMenu::OnD3D9FrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
-{
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 255, 72, 72), 1, 0));
-}
-
-LRESULT GameMenu::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
 GameLoad::GameLoad(void)
 {
 	Console::getSingleton().AddLine(L"GameLoad::GameLoad");
