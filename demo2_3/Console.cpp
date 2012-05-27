@@ -192,13 +192,12 @@ Console::Console(void)
 	m_Controls.insert(m_panel);
 
 	m_lua = my::LuaContextPtr(new my::LuaContext());
+
 	lua_pushcfunction(m_lua->_state, lua_print);
 	lua_setglobal(m_lua->_state, "print");
 
 	lua_pushcfunction(m_lua->_state, lua_exit);
 	lua_setglobal(m_lua->_state, "exit");
-
-	m_luaFLine = 0;
 }
 
 Console::~Console(void)

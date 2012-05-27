@@ -3,6 +3,7 @@
 
 #include <myD3dLib.h>
 #include <LuaContext.h>
+#include <luabind/luabind.hpp>
 
 class MessagePanel
 	: public my::Control
@@ -61,8 +62,6 @@ protected:
 	MessagePanelPtr m_panel;
 
 	my::LuaContextPtr m_lua;
-
-	int m_luaFLine;
 
 public:
 	Console(void);
