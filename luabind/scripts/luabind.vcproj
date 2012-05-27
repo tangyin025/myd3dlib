@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="demo2_2"
-	ProjectGUID="{75F896A5-F6F2-410E-8E47-00D18993B766}"
-	RootNamespace="demo2_2"
+	Name="luabind"
+	ProjectGUID="{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}"
+	RootNamespace="luabind"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -20,7 +20,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,11 +41,11 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -60,19 +60,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib d3dx10d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
-				LinkIncremental="2"
-				DelayLoadDLLs="d3dx10d_42.dll"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -84,9 +75,6 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -94,7 +82,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -117,9 +105,9 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE"
-				RuntimeLibrary="0"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
@@ -135,21 +123,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib d3dx10.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
-				LinkIncremental="1"
-				DelayLoadDLLs="d3dx10_42.dll"
-				GenerateDebugInformation="true"
-				SubSystem="1"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -159,9 +136,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -177,7 +151,71 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath="..\src\class.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\class_info.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\class_registry.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\class_rep.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\create_class.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\error.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\exception_handler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\function.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\inheritance.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\link_compatibility.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\object_rep.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\open.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\pcall.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\scope.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\stack_content_by_name.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\weak_ref.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\wrapper_base.cpp"
 				>
 			</File>
 		</Filter>
