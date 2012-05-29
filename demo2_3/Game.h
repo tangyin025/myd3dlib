@@ -9,6 +9,7 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/transition.hpp>
 #pragma warning(default: 4819)
+#include <LuaContext.h>
 
 class IGameStateBase
 {
@@ -78,6 +79,8 @@ public:
 
 	my::SoundPtr m_sound;
 
+	my::LuaContextPtr m_lua;
+
 public:
 	Game(void);
 
@@ -132,6 +135,8 @@ public:
 	void OnToggleRef(my::ControlPtr ctrl);
 
 	void OnChangeDevice(my::ControlPtr ctrl);
+
+	void OnConsoleExecute(my::ControlPtr ctrl);
 
 	IGameStateBase * CurrentState(void)
 	{

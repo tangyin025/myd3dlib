@@ -113,36 +113,6 @@ void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
 	}
 }
 
-static int lua_print(lua_State * L)
-{
-	int n = lua_gettop(L);  /* number of arguments */
-	int i;
-	lua_getglobal(L, "tostring");
-	for (i=1; i<=n; i++) {
-		const char *s;
-		lua_pushvalue(L, -1);  /* function to be called */
-		lua_pushvalue(L, i);   /* value to print */
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);  /* get result */
-		if (s == NULL)
-			return luaL_error(L, LUA_QL("tostring") " must return a string to "
-			LUA_QL("print"));
-		if (i>1) Console::getSingleton().puts(L"\t");
-		Console::getSingleton().puts(mstringToWString(s));
-		lua_pop(L, 1);  /* pop result */
-	}
-	Console::getSingleton().puts(L"\n");
-	return 0;
-}
-
-static int lua_exit(lua_State * L)
-{
-	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
-	_ASSERT(NULL != hwnd);
-	SendMessage(hwnd, WM_CLOSE, 0, 0);
-	return 0;
-}
-
 Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
 
 Console::Console(void)
@@ -169,9 +139,6 @@ Console::Console(void)
 	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
 	m_Controls.insert(m_edit);
 
-	m_edit->this_ptr = m_edit;
-	m_edit->EventEnter = fastdelegate::MakeDelegate(this, &Console::OnExecute);
-
 	const my::Vector2 scroll_size(20, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
 	m_scrollbar = my::ScrollBarPtr(new my::ScrollBar());
 	m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
@@ -190,44 +157,10 @@ Console::Console(void)
 	m_panel->m_Size = panel_size;
 	m_panel->m_Skin = m_Skin;
 	m_Controls.insert(m_panel);
-
-	m_lua = my::LuaContextPtr(new my::LuaContext());
-
-	lua_pushcfunction(m_lua->_state, lua_print);
-	lua_setglobal(m_lua->_state, "print");
-
-	lua_pushcfunction(m_lua->_state, lua_exit);
-	lua_setglobal(m_lua->_state, "exit");
 }
 
 Console::~Console(void)
 {
-}
-
-void Console::OnExecute(my::ControlPtr ctrl)
-{
-	my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox, my::Control>(ctrl);
-	_ASSERT(edit);
-
-	AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
-
-	Execute(wstringToMString(edit->m_Text.c_str()));
-
-	edit->m_Text.clear();
-	edit->m_nCaret = 0;
-	edit->m_nFirstVisible = 0;
-}
-
-void Console::Execute(const std::string & cmd)
-{
-	try
-	{
-		m_lua->executeCode(cmd);
-	}
-	catch(const std::runtime_error & e)
-	{
-		AddLine(mstringToWString(e.what()).c_str());
-	}
 }
 
 void Console::AddLine(LPCWSTR pString, D3DCOLOR Color)

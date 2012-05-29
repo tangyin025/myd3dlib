@@ -1,4 +1,5 @@
 ﻿#include "Game.h"
+#include <luabind/luabind.hpp>
 
 Game::Game(void)
 {
@@ -64,6 +65,36 @@ void Game::OnInit(void)
 	DxutApp::OnInit();
 
 	m_settingsDlg.Init(&m_dlgResourceMgr);
+}
+
+static int lua_print(lua_State * L)
+{
+	int n = lua_gettop(L);  /* number of arguments */
+	int i;
+	lua_getglobal(L, "tostring");
+	for (i=1; i<=n; i++) {
+		const char *s;
+		lua_pushvalue(L, -1);  /* function to be called */
+		lua_pushvalue(L, i);   /* value to print */
+		lua_call(L, 1, 1);
+		s = lua_tostring(L, -1);  /* get result */
+		if (s == NULL)
+			return luaL_error(L, LUA_QL("tostring") " must return a string to "
+			LUA_QL("print"));
+		if (i>1) Console::getSingleton().puts(L"\t");
+		Console::getSingleton().puts(mstringToWString(s));
+		lua_pop(L, 1);  /* pop result */
+	}
+	Console::getSingleton().puts(L"\n");
+	return 0;
+}
+
+static int lua_exit(lua_State * L)
+{
+	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
+	_ASSERT(NULL != hwnd);
+	SendMessage(hwnd, WM_CLOSE, 0, 0);
+	return 0;
 }
 
 HRESULT Game::OnD3D9CreateDevice(
@@ -142,6 +173,8 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_hudDlg->m_Controls.insert(btn);
 
 	m_console = ConsolePtr(new Console());
+	m_console->m_edit->this_ptr = m_console->m_edit;
+	m_console->m_edit->EventEnter = fastdelegate::MakeDelegate(this, &Game::OnConsoleExecute);
 	m_dlgSet.insert(m_console);
 
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
@@ -150,6 +183,24 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_sound = my::Sound::CreateSound();
 	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
+
+	m_lua = my::LuaContextPtr(new my::LuaContext());
+
+	lua_pushcfunction(m_lua->_state, lua_print);
+	lua_setglobal(m_lua->_state, "print");
+
+	lua_pushcfunction(m_lua->_state, lua_exit);
+	lua_setglobal(m_lua->_state, "exit");
+
+	luabind::open(m_lua->_state);
+	luabind::module(m_lua->_state)
+	[
+		luabind::class_<my::Vector3>("Vector3")
+			.def(luabind::constructor<float, float, float>())
+			.def_readwrite("x", &my::Vector3::x)
+			.def_readwrite("y", &my::Vector3::y)
+			.def_readwrite("z", &my::Vector3::z)
+	];
 
 	initiate();
 
@@ -228,6 +279,8 @@ void Game::OnD3D9DestroyDevice(void)
 	m_input.reset();
 
 	m_sound.reset();
+
+	m_lua.reset();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -354,6 +407,27 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	}
 }
 
+void Game::OnConsoleExecute(my::ControlPtr ctrl)
+{
+	my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox, my::Control>(ctrl);
+	_ASSERT(edit);
+
+	m_console->AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
+
+	try
+	{
+		m_lua->executeCode(wstringToMString(edit->m_Text.c_str()));
+	}
+	catch(const std::runtime_error & e)
+	{
+		m_console->AddLine(mstringToWString(e.what()).c_str());
+	}
+
+	edit->m_Text.clear();
+	edit->m_nCaret = 0;
+	edit->m_nFirstVisible = 0;
+}
+
 GameLoad::GameLoad(void)
 {
 	Console::getSingleton().AddLine(L"GameLoad::GameLoad");
@@ -396,7 +470,7 @@ void GameLoad::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 255, 72), 1, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 }
 
 LRESULT GameLoad::MsgProc(

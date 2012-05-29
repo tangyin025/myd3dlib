@@ -2,8 +2,6 @@
 #pragma once
 
 #include <myD3dLib.h>
-#include <LuaContext.h>
-#include <luabind/luabind.hpp>
 
 class MessagePanel
 	: public my::Control
@@ -52,7 +50,7 @@ class Console
 	: public my::Dialog
 	, public my::SingleInstance<Console>
 {
-protected:
+public:
 	my::Vector4 m_Border;
 
 	my::ImeEditBoxPtr m_edit;
@@ -61,16 +59,10 @@ protected:
 
 	MessagePanelPtr m_panel;
 
-	my::LuaContextPtr m_lua;
-
 public:
 	Console(void);
 
 	~Console(void);
-
-	void OnExecute(my::ControlPtr ctrl);
-
-	void Execute(const std::string & cmd);
 
 	void AddLine(LPCWSTR pString, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 
