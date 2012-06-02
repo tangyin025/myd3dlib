@@ -37,8 +37,10 @@ void Export2Lua(lua_State * L)
 	lua_pushcfunction(L, lua_print);
 	lua_setglobal(L, "print");
 
-	lua_pushcfunction(L, lua_exit);
-	lua_setglobal(L, "exit");
+	lua_getglobal(L, "os");
+	lua_pushcclosure(L, lua_exit, 0);
+	lua_setfield(L, -2, "exit");
+	lua_pop(L, 1);
 
 	luabind::open(L);
 
