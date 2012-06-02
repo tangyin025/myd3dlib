@@ -113,8 +113,6 @@ void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
 	}
 }
 
-Console::SingleInstance * my::SingleInstance<Console>::s_ptr = NULL;
-
 Console::Console(void)
 {
 	m_Color = D3DCOLOR_ARGB(197,0,0,0);
@@ -122,10 +120,10 @@ Console::Console(void)
 	m_Size = my::Vector2(700,410);
 	m_Border = my::Vector4(5,5,5,5);
 
-	Game * game = dynamic_cast<Game *>(my::DxutApp::getSingletonPtr());
-	_ASSERT(game);
-
-	m_Skin = game->m_defDlgSkin;
+	m_Skin = my::ControlSkinPtr(new my::ControlSkin());
+	m_Skin->m_Font = Game::getSingleton().m_uiFont;
+	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+	m_Skin->m_TextAlign = my::Font::AlignLeftTop;
 
 	const my::Vector2 edit_size(m_Size.x - m_Border.x - m_Border.z, 20);
 	m_edit = my::ImeEditBoxPtr(new my::ImeEditBox());

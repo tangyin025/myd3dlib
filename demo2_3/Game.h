@@ -59,9 +59,7 @@ public:
 
 	my::TexturePtr m_uiTex;
 
-	my::FontPtr m_uiFnt;
-
-	my::ControlSkinPtr m_defDlgSkin;
+	my::FontPtr m_uiFont;
 
 	typedef std::set<my::DialogPtr> DialogPtrSet;
 
@@ -88,7 +86,12 @@ public:
 
 	static Game & getSingleton(void)
 	{
-		return *dynamic_cast<Game *>(getSingletonPtr());
+		return *getSingletonPtr();
+	}
+
+	static Game * getSingletonPtr(void)
+	{
+		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
 	virtual bool IsD3D9DeviceAcceptable(
@@ -142,6 +145,10 @@ public:
 	{
 		return const_cast<IGameStateBase *>(state_cast<const IGameStateBase *>());
 	}
+
+	void UpdateDlgPerspective(my::DialogPtr dlg);
+
+	void InsertDlg(my::DialogPtr dlg);
 };
 
 template <class DrivedClass>

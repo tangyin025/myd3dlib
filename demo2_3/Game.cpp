@@ -1,5 +1,5 @@
 ﻿#include "Game.h"
-#include <luabind/luabind.hpp>
+#include "LuaExporter.h"
 
 Game::Game(void)
 {
@@ -81,11 +81,11 @@ static int lua_print(lua_State * L)
 		if (s == NULL)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 			LUA_QL("print"));
-		if (i>1) Console::getSingleton().puts(L"\t");
-		Console::getSingleton().puts(mstringToWString(s));
+		if (i>1) Game::getSingleton().m_console->puts(L"\t");
+		Game::getSingleton().m_console->puts(mstringToWString(s));
 		lua_pop(L, 1);  /* pop result */
 	}
-	Console::getSingleton().puts(L"\n");
+	Game::getSingleton().m_console->puts(L"\n");
 	return 0;
 }
 
@@ -123,34 +123,34 @@ HRESULT Game::OnD3D9CreateDevice(
 	D3DSURFACE_DESC uiTexDesc = m_uiTex->GetLevelDesc(0);
 
 	cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei-lite.ttc")->GetWholeCache();
-	m_uiFnt = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
+	m_uiFont = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
 
-	m_defDlgSkin = my::ControlSkinPtr(new my::ControlSkin());
-	m_defDlgSkin->m_Font = m_uiFnt;
-	m_defDlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	m_defDlgSkin->m_TextAlign = my::Font::AlignLeftTop;
+	my::ControlSkinPtr dlgSkin(new my::ControlSkin());
+	dlgSkin->m_Font = m_uiFont;
+	dlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+	dlgSkin->m_TextAlign = my::Font::AlignLeftTop;
 
 	m_hudDlg = my::DialogPtr(new my::Dialog());
 	m_hudDlg->m_Color = D3DCOLOR_ARGB(0,255,0,0);
-	m_hudDlg->m_Skin = m_defDlgSkin;
+	m_hudDlg->m_Skin = dlgSkin;
 	m_dlgSet.insert(m_hudDlg);
 
-	my::ButtonSkinPtr defBtnSkin(new my::ButtonSkin());
-	defBtnSkin->m_Texture = m_uiTex;
-	defBtnSkin->m_TextureRect = CRect(CPoint(10,10), CSize(125,22));
-	defBtnSkin->m_Font = m_uiFnt;
-	defBtnSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	defBtnSkin->m_TextAlign = my::Font::AlignCenterMiddle;
-	defBtnSkin->m_DisabledTexRect = CRect(CPoint(10,100), CSize(125,22));
-	defBtnSkin->m_PressedTexRect = CRect(CPoint(10,70), CSize(125,22));
-	defBtnSkin->m_MouseOverTexRect = CRect(CPoint(10,40), CSize(125,22));
-	defBtnSkin->m_PressedOffset = my::Vector2(1,1);
+	my::ButtonSkinPtr btnSkin(new my::ButtonSkin());
+	btnSkin->m_Texture = m_uiTex;
+	btnSkin->m_TextureRect = CRect(CPoint(10,10), CSize(125,22));
+	btnSkin->m_Font = m_uiFont;
+	btnSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+	btnSkin->m_TextAlign = my::Font::AlignCenterMiddle;
+	btnSkin->m_DisabledTexRect = CRect(CPoint(10,100), CSize(125,22));
+	btnSkin->m_PressedTexRect = CRect(CPoint(10,70), CSize(125,22));
+	btnSkin->m_MouseOverTexRect = CRect(CPoint(10,40), CSize(125,22));
+	btnSkin->m_PressedOffset = my::Vector2(1,1);
 
 	my::ButtonPtr btn = my::ButtonPtr(new my::Button());
 	btn->m_Text = L"Toggle full screen";
 	btn->m_Location = my::Vector2(35,10);
 	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = defBtnSkin;
+	btn->m_Skin = btnSkin;
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnToggleFullScreen);
 	m_hudDlg->m_Controls.insert(btn);
 
@@ -159,7 +159,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->SetHotkey(VK_F3);
 	btn->m_Location = my::Vector2(35,35);
 	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = defBtnSkin;
+	btn->m_Skin = btnSkin;
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnToggleRef);
 	m_hudDlg->m_Controls.insert(btn);
 
@@ -168,7 +168,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->SetHotkey(VK_F2);
 	btn->m_Location = my::Vector2(35,60);
 	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = defBtnSkin;
+	btn->m_Skin = btnSkin;
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
@@ -192,15 +192,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	lua_pushcfunction(m_lua->_state, lua_exit);
 	lua_setglobal(m_lua->_state, "exit");
 
-	luabind::open(m_lua->_state);
-	luabind::module(m_lua->_state)
-	[
-		luabind::class_<my::Vector3>("Vector3")
-			.def(luabind::constructor<float, float, float>())
-			.def_readwrite("x", &my::Vector3::x)
-			.def_readwrite("y", &my::Vector3::y)
-			.def_readwrite("z", &my::Vector3::z)
-	];
+	Export2Lua(m_lua->_state);
 
 	initiate();
 
@@ -211,7 +203,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Console::getSingleton().AddLine(L"Game::OnD3D9ResetDevice");
+	Game::getSingleton().m_console->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -227,12 +219,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		my::UIRender::BuildPerspectiveMatrices(
-			D3DXToRadian(75.0f),
-			pBackBufferSurfaceDesc->Width,
-			pBackBufferSurfaceDesc->Height,
-			(*dlg_iter)->m_ViewMatrix,
-			(*dlg_iter)->m_ProjMatrix);
+		UpdateDlgPerspective((*dlg_iter));
 	}
 
 	m_hudDlg->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
@@ -246,7 +233,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	Console::getSingleton().AddLine(L"Game::OnD3D9LostDevice");
+	Game::getSingleton().m_console->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	// 当状态切换时发生异常会导致新状态没有被创建
 	// 然而 DXUTDestroyState 依然会尝试 OnD3D9LostDevice，所以有必要判断之
@@ -325,13 +312,13 @@ void Game::OnD3D9FrameRender(
 		D3DVIEWPORT9 vp;
 		pd3dDevice->GetViewport(&vp);
 		my::UIRender::BuildPerspectiveMatrices(
-			D3DXToRadian(75.0f), vp.Width, vp.Height, View, Proj);
+			D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-		m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
+		m_uiFont->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
 			my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-		m_uiFnt->DrawString(DXUTGetDeviceStats(),
-			my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+		m_uiFont->DrawString(DXUTGetDeviceStats(),
+			my::Rectangle::LeftTop(5,5 + (float)m_uiFont->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 
 		my::UIRender::End(pd3dDevice);
 
@@ -428,14 +415,34 @@ void Game::OnConsoleExecute(my::ControlPtr ctrl)
 	edit->m_nFirstVisible = 0;
 }
 
+void Game::UpdateDlgPerspective(my::DialogPtr dlg)
+{
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
+
+	float aspect = pBackBufferSurfaceDesc->Width / (float)pBackBufferSurfaceDesc->Height;
+
+	float height = (float)pBackBufferSurfaceDesc->Height;
+
+	my::Vector2 vp(height * aspect, height);
+
+	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_ViewMatrix, dlg->m_ProjMatrix);
+}
+
+void Game::InsertDlg(my::DialogPtr dlg)
+{
+	UpdateDlgPerspective(dlg);
+
+	m_dlgSet.insert(dlg);
+}
+
 GameLoad::GameLoad(void)
 {
-	Console::getSingleton().AddLine(L"GameLoad::GameLoad");
+	Game::getSingleton().m_console->AddLine(L"GameLoad::GameLoad", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 GameLoad::~GameLoad(void)
 {
-	Console::getSingleton().AddLine(L"GameLoad::~GameLoad");
+	Game::getSingleton().m_console->AddLine(L"GameLoad::~GameLoad", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 HRESULT GameLoad::OnD3D9ResetDevice(
@@ -453,15 +460,15 @@ void GameLoad::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	double fAbsTime = Game::getSingleton().GetAbsoluteTime();
-	wchar_t buff[256];
-	swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
-	Console::getSingleton().AddLine(buff);
+	//double fAbsTime = Game::getSingleton().GetAbsoluteTime();
+	//wchar_t buff[256];
+	//swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
+	//Game::getSingleton().m_console->AddLine(buff);
 
-	if(fTime > 2.0f)
-	{
-		Game::getSingleton().process_event(EvLoadOver());
-	}
+	//if(fTime > 2.0f)
+	//{
+	//	Game::getSingleton().process_event(EvLoadOver());
+	//}
 }
 
 void GameLoad::OnD3D9FrameRender(
@@ -485,7 +492,7 @@ LRESULT GameLoad::MsgProc(
 
 GamePlay::GamePlay(void)
 {
-	Console::getSingleton().AddLine(L"GamePlay::GamePlay");
+	Game::getSingleton().m_console->AddLine(L"GamePlay::GamePlay", D3DCOLOR_ARGB(255,255,255,0));
 
 	// 雷人的环境球构造方式！将来还是要扩展成使用 6个 jpg来创建比较省资源空间
 	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
@@ -496,7 +503,7 @@ GamePlay::GamePlay(void)
 
 GamePlay::~GamePlay(void)
 {
-	Console::getSingleton().AddLine(L"GamePlay::~GamePlay");
+	Game::getSingleton().m_console->AddLine(L"GamePlay::~GamePlay", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 HRESULT GamePlay::OnD3D9ResetDevice(

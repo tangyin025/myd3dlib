@@ -9,17 +9,17 @@
 
 using namespace my;
 
-void UIRender::BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
+void UIRender::BuildOrthoMatrices(float Width, float Height, Matrix4 & outView, Matrix4 & outProj)
 {
 	outView = Matrix4::LookAtLH(
 		Vector3(Width * 0.5f, Height * 0.5f, 1),
 		Vector3(Width * 0.5f, Height * 0.5f, 0),
 		Vector3(0, -1, 0));
 
-	outProj = Matrix4::OrthoLH((float)Width, (float)Height, -50.0f, 50.0f);
+	outProj = Matrix4::OrthoLH(Width, Height, -50.0f, 50.0f);
 }
 
-void UIRender::BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj)
+void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, Matrix4 & outView, Matrix4 & outProj)
 {
 	float Dist = Height * 0.5f * cot(fovy / 2);
 
@@ -28,7 +28,7 @@ void UIRender::BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, M
 		Vector3(Width * 0.5f, Height * 0.5f, 0),
 		Vector3(0, -1, 0));
 
-	outProj = Matrix4::PerspectiveFovLH(fovy, (float)Width / Height, 0.1f, 3000.0f);
+	outProj = Matrix4::PerspectiveFovLH(fovy, Width / Height, 0.1f, 3000.0f);
 }
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)

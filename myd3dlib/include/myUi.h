@@ -13,9 +13,9 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = Font::D3DFVF_CUSTOMVERTEX;
 
-		static void BuildOrthoMatrices(DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
+		static void BuildOrthoMatrices(float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
 
-		static void BuildPerspectiveMatrices(float fovy, DWORD Width, DWORD Height, Matrix4 & outView, Matrix4 & outProj);
+		static void BuildPerspectiveMatrices(float fovy, float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
 
 		// Rendering UI under Fixed Pipeline is not recommended
 		static void Begin(IDirect3DDevice9 * pd3dDevice);
@@ -106,6 +106,7 @@ namespace my
 			, m_Location(100, 100)
 			, m_Size(100, 100)
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
+			, m_Skin(new ControlSkin())
 		{
 		}
 
@@ -209,6 +210,7 @@ namespace my
 			: m_bPressed(false)
 			, m_BlendColor(m_Color)
 		{
+			m_Skin = ButtonSkinPtr(new ButtonSkin());
 		}
 
 		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
@@ -293,6 +295,7 @@ namespace my
 			, m_nSelStart(0)
 			, m_bInsertMode(true)
 		{
+			m_Skin = EditBoxSkinPtr(new EditBoxSkin());
 		}
 
 		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
@@ -442,6 +445,7 @@ namespace my
 			, m_dArrowTS(0)
 			, m_fThumbOffsetY(0)
 		{
+			m_Skin = ScrollBarSkinPtr(new ScrollBarSkin());
 		}
 
 		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);

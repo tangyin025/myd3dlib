@@ -48,7 +48,6 @@ typedef boost::shared_ptr<MessagePanel> MessagePanelPtr;
 
 class Console
 	: public my::Dialog
-	, public my::SingleInstance<Console>
 {
 public:
 	my::Vector4 m_Border;
