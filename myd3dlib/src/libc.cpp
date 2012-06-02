@@ -130,7 +130,7 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	return ret;
 }
 
-std::basic_string<wchar_t> mstringToWString(const char * mstr)
+std::basic_string<wchar_t> ms2ws(const char * mstr)
 {
 	int nLen;
 	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr, -1, NULL, 0)))
@@ -149,7 +149,7 @@ std::basic_string<wchar_t> mstringToWString(const char * mstr)
 	return ret;
 }
 
-std::basic_string<char> wstringToMString(const wchar_t * wstr)
+std::basic_string<char> ws2ms(const wchar_t * wstr)
 {
 	int nLen;
 	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr, -1, NULL, 0, NULL, NULL)))

@@ -67,36 +67,6 @@ void Game::OnInit(void)
 	m_settingsDlg.Init(&m_dlgResourceMgr);
 }
 
-static int lua_print(lua_State * L)
-{
-	int n = lua_gettop(L);  /* number of arguments */
-	int i;
-	lua_getglobal(L, "tostring");
-	for (i=1; i<=n; i++) {
-		const char *s;
-		lua_pushvalue(L, -1);  /* function to be called */
-		lua_pushvalue(L, i);   /* value to print */
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);  /* get result */
-		if (s == NULL)
-			return luaL_error(L, LUA_QL("tostring") " must return a string to "
-			LUA_QL("print"));
-		if (i>1) Game::getSingleton().m_console->puts(L"\t");
-		Game::getSingleton().m_console->puts(mstringToWString(s));
-		lua_pop(L, 1);  /* pop result */
-	}
-	Game::getSingleton().m_console->puts(L"\n");
-	return 0;
-}
-
-static int lua_exit(lua_State * L)
-{
-	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
-	_ASSERT(NULL != hwnd);
-	SendMessage(hwnd, WM_CLOSE, 0, 0);
-	return 0;
-}
-
 HRESULT Game::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -172,9 +142,22 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
 	m_hudDlg->m_Controls.insert(btn);
 
+	struct Callback
+	{
+		static void OnEventEnter(my::ControlPtr ctrl)
+		{
+			my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox>(ctrl);
+			_ASSERT(edit);
+			Game::getSingleton().ExecuteCode(ws2ms(edit->m_Text.c_str()).c_str());
+			edit->m_Text.clear();
+			edit->m_nCaret = 0;
+			edit->m_nFirstVisible = 0;
+		}
+	};
+
 	m_console = ConsolePtr(new Console());
 	m_console->m_edit->this_ptr = m_console->m_edit;
-	m_console->m_edit->EventEnter = fastdelegate::MakeDelegate(this, &Game::OnConsoleExecute);
+	m_console->m_edit->EventEnter = Callback::OnEventEnter;
 	m_dlgSet.insert(m_console);
 
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
@@ -186,15 +169,9 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_lua = my::LuaContextPtr(new my::LuaContext());
 
-	lua_pushcfunction(m_lua->_state, lua_print);
-	lua_setglobal(m_lua->_state, "print");
-
-	lua_pushcfunction(m_lua->_state, lua_exit);
-	lua_setglobal(m_lua->_state, "exit");
-
 	Export2Lua(m_lua->_state);
 
-	initiate();
+	ExecuteCode("dofile(\"demo2_3.lua\")");
 
 	return S_OK;
 }
@@ -226,19 +203,12 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	m_hudDlg->m_Size = my::Vector2(170, 170);
 
-	CurrentState()->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
-
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
 	Game::getSingleton().m_console->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	// 当状态切换时发生异常会导致新状态没有被创建
-	// 然而 DXUTDestroyState 依然会尝试 OnD3D9LostDevice，所以有必要判断之
-	if(!terminated())
-		CurrentState()->OnD3D9LostDevice();
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -249,8 +219,6 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
-	terminate();
-
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
@@ -281,8 +249,6 @@ void Game::OnFrameMove(
 	m_keyboard->Capture();
 
 	m_mouse->Capture();
-
-	CurrentState()->OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnD3D9FrameRender(
@@ -296,7 +262,8 @@ void Game::OnD3D9FrameRender(
 		return;
 	}
 
-	CurrentState()->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -365,12 +332,6 @@ LRESULT Game::MsgProc(
 			return 0;
 	}
 
-	if(!terminated() &&
-		(FAILED(hres = CurrentState()->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing))
-	{
-		return hres;
-	}
-
 	return 0;
 }
 
@@ -394,25 +355,18 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	}
 }
 
-void Game::OnConsoleExecute(my::ControlPtr ctrl)
+void Game::ExecuteCode(const char * code)
 {
-	my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox, my::Control>(ctrl);
-	_ASSERT(edit);
-
-	m_console->AddLine(edit->m_Text.c_str(), D3DCOLOR_ARGB(255,63,188,239));
+	m_console->AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
 	try
 	{
-		m_lua->executeCode(wstringToMString(edit->m_Text.c_str()));
+		m_lua->executeCode(code);
 	}
 	catch(const std::runtime_error & e)
 	{
-		m_console->AddLine(mstringToWString(e.what()).c_str());
+		m_console->AddLine(ms2ws(e.what()).c_str());
 	}
-
-	edit->m_Text.clear();
-	edit->m_nCaret = 0;
-	edit->m_nFirstVisible = 0;
 }
 
 void Game::UpdateDlgPerspective(my::DialogPtr dlg)
@@ -433,118 +387,4 @@ void Game::InsertDlg(my::DialogPtr dlg)
 	UpdateDlgPerspective(dlg);
 
 	m_dlgSet.insert(dlg);
-}
-
-GameLoad::GameLoad(void)
-{
-	Game::getSingleton().m_console->AddLine(L"GameLoad::GameLoad", D3DCOLOR_ARGB(255,255,255,0));
-}
-
-GameLoad::~GameLoad(void)
-{
-	Game::getSingleton().m_console->AddLine(L"GameLoad::~GameLoad", D3DCOLOR_ARGB(255,255,255,0));
-}
-
-HRESULT GameLoad::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
-
-void GameLoad::OnD3D9LostDevice(void)
-{
-}
-
-void GameLoad::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	//double fAbsTime = Game::getSingleton().GetAbsoluteTime();
-	//wchar_t buff[256];
-	//swprintf_s(buff, _countof(buff), L"%f, %f, %f", fTime, fAbsTime, fElapsedTime);
-	//Game::getSingleton().m_console->AddLine(buff);
-
-	//if(fTime > 2.0f)
-	//{
-	//	Game::getSingleton().process_event(EvLoadOver());
-	//}
-}
-
-void GameLoad::OnD3D9FrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
-{
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
-}
-
-LRESULT GameLoad::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
-GamePlay::GamePlay(void)
-{
-	Game::getSingleton().m_console->AddLine(L"GamePlay::GamePlay", D3DCOLOR_ARGB(255,255,255,0));
-
-	// 雷人的环境球构造方式！将来还是要扩展成使用 6个 jpg来创建比较省资源空间
-	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
-	m_skyBox = SkyBox::CreateSkyBox(pd3dDevice);
-
-	//THROW_CUSEXCEPTION("aaa");
-}
-
-GamePlay::~GamePlay(void)
-{
-	Game::getSingleton().m_console->AddLine(L"GamePlay::~GamePlay", D3DCOLOR_ARGB(255,255,255,0));
-}
-
-HRESULT GamePlay::OnD3D9ResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
-
-void GamePlay::OnD3D9LostDevice(void)
-{
-}
-
-void GamePlay::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-}
-
-void GamePlay::OnD3D9FrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
-{
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
-
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		m_skyBox->Render(fElapsedTime, my::Matrix4::Identity());
-
-		V(pd3dDevice->EndScene());
-	}
-}
-
-LRESULT GamePlay::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
 }

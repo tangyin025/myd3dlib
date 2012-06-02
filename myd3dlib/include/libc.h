@@ -19,20 +19,20 @@ std::basic_string<char> str_printf(const char * format, ...);
 
 std::basic_string<wchar_t> str_printf(const wchar_t * format, ...);
 
-std::basic_string<wchar_t> mstringToWString(const char * mstr);
+std::basic_string<wchar_t> ms2ws(const char * mstr);
 
-std::basic_string<char> wstringToMString(const wchar_t * wstr);
+std::basic_string<char> ws2ms(const wchar_t * wstr);
 
 #ifdef _UNICODE
-#define mstringToTString(str) mstringToWString(str)
-#define wstringToTString(str) (str)
-#define tstringToMString(str) wstringToMString(str)
-#define tstringToWString(str) (str)
+#define ms2ts(str) ms2ws(str)
+#define ws2ts(str) (str)
+#define ts2ms(str) ws2ms(str)
+#define ts2ws(str) (str)
 #else
-#define mstringToTString(str) (str)
-#define wstringToTString(str) wstringToMString(str)
-#define tstringToMString(str) (str)
-#define tstringToWString(str) mstringToWString(str)
+#define ms2ts(str) (str)
+#define ws2ts(str) ws2ms(str)
+#define ts2ms(str) (str)
+#define ts2ws(str) ms2ws(str)
 #endif
 
 #endif // __LIBC_H__
