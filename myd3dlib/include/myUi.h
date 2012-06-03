@@ -256,11 +256,9 @@ namespace my
 
 	typedef boost::shared_ptr<EditBoxSkin> EditBoxSkinPtr;
 
-	class EditBox : public Control
+	class EditBox : public Static
 	{
 	public:
-		std::wstring m_Text;
-
 		int m_nCaret;
 
 		bool m_bCaretOn;
@@ -309,6 +307,8 @@ namespace my
 		virtual bool CanHaveFocus(void);
 
 		virtual void OnFocusIn(void);
+
+		virtual bool ContainsPoint(const Vector2 & pt);
 
 		void PlaceCaret(int nCP);
 

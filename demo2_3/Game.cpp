@@ -1,5 +1,6 @@
 ﻿#include "Game.h"
 #include "LuaExporter.h"
+#include <luabind/luabind.hpp>
 
 Game::Game(void)
 {
@@ -93,10 +94,10 @@ HRESULT Game::OnD3D9CreateDevice(
 	D3DSURFACE_DESC uiTexDesc = m_uiTex->GetLevelDesc(0);
 
 	cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei-lite.ttc")->GetWholeCache();
-	m_uiFont = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
+	m_uiFnt = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
 
 	my::ControlSkinPtr dlgSkin(new my::ControlSkin());
-	dlgSkin->m_Font = m_uiFont;
+	dlgSkin->m_Font = m_uiFnt;
 	dlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
 	dlgSkin->m_TextAlign = my::Font::AlignLeftTop;
 
@@ -108,7 +109,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	my::ButtonSkinPtr btnSkin(new my::ButtonSkin());
 	btnSkin->m_Texture = m_uiTex;
 	btnSkin->m_TextureRect = CRect(CPoint(10,10), CSize(125,22));
-	btnSkin->m_Font = m_uiFont;
+	btnSkin->m_Font = m_uiFnt;
 	btnSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
 	btnSkin->m_TextAlign = my::Font::AlignCenterMiddle;
 	btnSkin->m_DisabledTexRect = CRect(CPoint(10,100), CSize(125,22));
@@ -155,10 +156,10 @@ HRESULT Game::OnD3D9CreateDevice(
 		}
 	};
 
-	m_console = ConsolePtr(new Console());
-	m_console->m_edit->this_ptr = m_console->m_edit;
-	m_console->m_edit->EventEnter = Callback::OnEventEnter;
-	m_dlgSet.insert(m_console);
+	//m_console = ConsolePtr(new Console());
+	//m_console->m_edit->this_ptr = m_console->m_edit;
+	//m_console->m_edit->EventEnter = Callback::OnEventEnter;
+	//m_dlgSet.insert(m_console);
 
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
 	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
@@ -171,7 +172,11 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	Export2Lua(m_lua->_state);
 
-	ExecuteCode("dofile(\"demo2_3.lua\")");
+	ExecuteCode("dofile(\"console.lua\")");
+
+	m_console = luabind::object_cast<my::DialogPtr>(luabind::globals(m_lua->_state)["console"]);
+
+	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(luabind::globals(m_lua->_state)["panel"]));
 
 	return S_OK;
 }
@@ -180,7 +185,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().m_console->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -208,7 +213,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	Game::getSingleton().m_console->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -223,9 +228,11 @@ void Game::OnD3D9DestroyDevice(void)
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
-	m_dlgSet.clear();
+	m_panel.reset();
 
 	m_console.reset();
+
+	m_dlgSet.clear();
 
 	m_keyboard.reset();
 
@@ -282,10 +289,10 @@ void Game::OnD3D9FrameRender(
 			D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-		m_uiFont->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
+		m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
 			my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
-		m_uiFont->DrawString(DXUTGetDeviceStats(),
-			my::Rectangle::LeftTop(5,5 + (float)m_uiFont->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+		m_uiFnt->DrawString(DXUTGetDeviceStats(),
+			my::Rectangle::LeftTop(5,5 + (float)m_uiFnt->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 
 		my::UIRender::End(pd3dDevice);
 
@@ -357,7 +364,7 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 
 void Game::ExecuteCode(const char * code)
 {
-	m_console->AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
+	AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
 	try
 	{
@@ -365,7 +372,7 @@ void Game::ExecuteCode(const char * code)
 	}
 	catch(const std::runtime_error & e)
 	{
-		m_console->AddLine(ms2ws(e.what()).c_str());
+		AddLine(ms2ws(e.what()).c_str());
 	}
 }
 
@@ -387,4 +394,16 @@ void Game::InsertDlg(my::DialogPtr dlg)
 	UpdateDlgPerspective(dlg);
 
 	m_dlgSet.insert(dlg);
+}
+
+void Game::AddLine(LPCWSTR pString, D3DCOLOR Color)
+{
+	if(m_panel)
+		m_panel->AddLine(pString, Color);
+}
+
+void Game::puts(const std::wstring & str, D3DCOLOR Color)
+{
+	if(m_panel)
+		m_panel->puts(str, Color);
 }

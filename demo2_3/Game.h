@@ -16,7 +16,7 @@ public:
 
 	my::TexturePtr m_uiTex;
 
-	my::FontPtr m_uiFont;
+	my::FontPtr m_uiFnt;
 
 	typedef std::set<my::DialogPtr> DialogPtrSet;
 
@@ -24,7 +24,9 @@ public:
 
 	my::DialogPtr m_hudDlg;
 
-	ConsolePtr m_console;
+	my::DialogPtr m_console;
+
+	MessagePanelPtr m_panel;
 
 	my::InputPtr m_input;
 
@@ -101,4 +103,8 @@ public:
 	void UpdateDlgPerspective(my::DialogPtr dlg);
 
 	void InsertDlg(my::DialogPtr dlg);
+
+	void AddLine(LPCWSTR pString, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
+
+	void puts(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 };

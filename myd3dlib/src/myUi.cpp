@@ -397,7 +397,7 @@ void Button::OnHotkey(void)
 
 bool Button::ContainsPoint(const Vector2 & pt)
 {
-	return Rectangle::LeftTop(m_Location, m_Size).PtInRect(pt);
+	return Control::ContainsPoint(pt);
 }
 
 void Button::Refresh(void)
@@ -803,6 +803,11 @@ void EditBox::OnFocusIn(void)
 	Control::OnFocusIn();
 
 	ResetCaretBlink();
+}
+
+bool EditBox::ContainsPoint(const Vector2 & pt)
+{
+	return Control::ContainsPoint(pt);
 }
 
 void EditBox::PlaceCaret(int nCP)
