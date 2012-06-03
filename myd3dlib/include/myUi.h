@@ -2,7 +2,7 @@
 #pragma once
 
 #include <boost/weak_ptr.hpp>
-#include "FastDelegate.h"
+#include <boost/function.hpp>
 
 namespace my
 {
@@ -194,7 +194,7 @@ namespace my
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
 
-	typedef fastdelegate::FastDelegate1<ControlPtr> ControlEvent;
+	typedef boost::function<void (ControlPtr)> ControlEvent;
 
 	class Button : public Static
 	{
@@ -507,7 +507,15 @@ namespace my
 
 		void RequestFocus(ControlPtr control);
 
-		bool ContainsControl(ControlPtr control);
+		bool ContainsControl(ControlPtr control)
+		{
+			return m_Controls.end() != m_Controls.find(control);
+		}
+
+		void InsertControl(ControlPtr control)
+		{
+			m_Controls.insert(control);
+		}
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;

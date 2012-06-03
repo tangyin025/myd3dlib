@@ -1614,8 +1614,3 @@ void Dialog::RequestFocus(ControlPtr control)
 	control->OnFocusIn();
 	ResourceMgr::getSingleton().m_ControlFocus = control;
 }
-
-bool Dialog::ContainsControl(ControlPtr control)
-{
-	return m_Controls.end() != m_Controls.find(control);
-}

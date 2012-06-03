@@ -121,7 +121,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->m_Location = my::Vector2(35,10);
 	btn->m_Size = my::Vector2(125,22);
 	btn->m_Skin = btnSkin;
-	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnToggleFullScreen);
+	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnToggleFullScreen), this);
 	m_hudDlg->m_Controls.insert(btn);
 
 	btn = my::ButtonPtr(new my::Button());
@@ -130,7 +130,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->m_Location = my::Vector2(35,35);
 	btn->m_Size = my::Vector2(125,22);
 	btn->m_Skin = btnSkin;
-	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnToggleRef);
+	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnToggleRef), this);
 	m_hudDlg->m_Controls.insert(btn);
 
 	btn = my::ButtonPtr(new my::Button());
@@ -139,7 +139,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	btn->m_Location = my::Vector2(35,60);
 	btn->m_Size = my::Vector2(125,22);
 	btn->m_Skin = btnSkin;
-	btn->EventClick = fastdelegate::MakeDelegate(this, &Game::OnChangeDevice);
+	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnChangeDevice), this);
 	m_hudDlg->m_Controls.insert(btn);
 
 	struct Callback

@@ -135,7 +135,7 @@ Console::Console(void)
 	m_edit->m_Skin = my::EditBoxSkinPtr(new my::EditBoxSkin());
 	m_edit->m_Skin->m_Font = m_Skin->m_Font;
 	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
-	m_Controls.insert(m_edit);
+	InsertControl(m_edit);
 
 	const my::Vector2 scroll_size(20, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
 	m_scrollbar = my::ScrollBarPtr(new my::ScrollBar());
@@ -144,7 +144,7 @@ Console::Console(void)
 	m_scrollbar->m_Size = scroll_size;
 	m_scrollbar->m_nPageSize = 3;
 	m_scrollbar->m_Skin = my::ScrollBarSkinPtr(new my::ScrollBarSkin());
-	m_Controls.insert(m_scrollbar);
+	InsertControl(m_scrollbar);
 
 	const my::Vector2 panel_size(
 		m_Size.x - m_Border.x - m_scrollbar->m_Size.x - m_Border.z, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
@@ -154,7 +154,7 @@ Console::Console(void)
 	m_panel->m_Location = my::Vector2(m_Border.x, m_Border.y);
 	m_panel->m_Size = panel_size;
 	m_panel->m_Skin = m_Skin;
-	m_Controls.insert(m_panel);
+	InsertControl(m_panel);
 }
 
 Console::~Console(void)
