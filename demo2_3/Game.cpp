@@ -89,77 +89,24 @@ HRESULT Game::OnD3D9CreateDevice(
 	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
 	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
 
-	my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("Untitled-1.png")->GetWholeCache();
-	m_uiTex = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
-	D3DSURFACE_DESC uiTexDesc = m_uiTex->GetLevelDesc(0);
+	m_lua = my::LuaContextPtr(new my::LuaContext());
 
-	cache = my::ResourceMgr::getSingleton().OpenArchiveStream("wqy-microhei-lite.ttc")->GetWholeCache();
-	m_uiFnt = my::Font::CreateFontFromFileInCache(pd3dDevice, cache, 13, 1);
+	Export2Lua(m_lua->_state);
 
-	my::ControlSkinPtr dlgSkin(new my::ControlSkin());
-	dlgSkin->m_Font = m_uiFnt;
-	dlgSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	dlgSkin->m_TextAlign = my::Font::AlignLeftTop;
+	// 必须保证这个脚本没有错误，负责将看不到控制台
+	if(!ExecuteCode("dofile(\"demo2_3.lua\")"))
+		THROW_CUSEXCEPTION("demo2_3.lua must be correctly loaded");
 
-	m_hudDlg = my::DialogPtr(new my::Dialog());
-	m_hudDlg->m_Color = D3DCOLOR_ARGB(0,255,0,0);
-	m_hudDlg->m_Skin = dlgSkin;
-	m_dlgSet.insert(m_hudDlg);
+	// 获取主控制台（用以[`]符号控制），并获取默认字体，及默认输出面板
+	luabind::object obj = luabind::globals(m_lua->_state);
+	m_console = luabind::object_cast<my::DialogPtr>(obj["console"]);
+	m_uiFnt = m_console->m_Skin->m_Font;
+	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(obj["panel"]));
 
-	my::ButtonSkinPtr btnSkin(new my::ButtonSkin());
-	btnSkin->m_Texture = m_uiTex;
-	btnSkin->m_TextureRect = CRect(CPoint(10,10), CSize(125,22));
-	btnSkin->m_Font = m_uiFnt;
-	btnSkin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	btnSkin->m_TextAlign = my::Font::AlignCenterMiddle;
-	btnSkin->m_DisabledTexRect = CRect(CPoint(10,100), CSize(125,22));
-	btnSkin->m_PressedTexRect = CRect(CPoint(10,70), CSize(125,22));
-	btnSkin->m_MouseOverTexRect = CRect(CPoint(10,40), CSize(125,22));
-	btnSkin->m_PressedOffset = my::Vector2(1,1);
-
-	my::ButtonPtr btn = my::ButtonPtr(new my::Button());
-	btn->m_Text = L"Toggle full screen";
-	btn->m_Location = my::Vector2(35,10);
-	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = btnSkin;
-	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnToggleFullScreen), this);
-	m_hudDlg->m_Controls.insert(btn);
-
-	btn = my::ButtonPtr(new my::Button());
-	btn->m_Text = L"Toggle REF (F3)";
-	btn->SetHotkey(VK_F3);
-	btn->m_Location = my::Vector2(35,35);
-	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = btnSkin;
+	// 获取dxut面板（用以对齐左上角）
+	m_hudDlg = luabind::object_cast<my::DialogPtr>(obj["hud"]);
+	my::ButtonPtr btn = boost::dynamic_pointer_cast<my::Button>(luabind::object_cast<my::ControlPtr>(obj["toggle_ref_btn"]));
 	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnToggleRef), this);
-	m_hudDlg->m_Controls.insert(btn);
-
-	btn = my::ButtonPtr(new my::Button());
-	btn->m_Text = L"Change device (F2)";
-	btn->SetHotkey(VK_F2);
-	btn->m_Location = my::Vector2(35,60);
-	btn->m_Size = my::Vector2(125,22);
-	btn->m_Skin = btnSkin;
-	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnChangeDevice), this);
-	m_hudDlg->m_Controls.insert(btn);
-
-	struct Callback
-	{
-		static void OnEventEnter(my::ControlPtr ctrl)
-		{
-			my::EditBoxPtr edit = boost::dynamic_pointer_cast<my::EditBox>(ctrl);
-			_ASSERT(edit);
-			Game::getSingleton().ExecuteCode(ws2ms(edit->m_Text.c_str()).c_str());
-			edit->m_Text.clear();
-			edit->m_nCaret = 0;
-			edit->m_nFirstVisible = 0;
-		}
-	};
-
-	//m_console = ConsolePtr(new Console());
-	//m_console->m_edit->this_ptr = m_console->m_edit;
-	//m_console->m_edit->EventEnter = Callback::OnEventEnter;
-	//m_dlgSet.insert(m_console);
 
 	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
 	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
@@ -167,16 +114,6 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_sound = my::Sound::CreateSound();
 	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
-
-	m_lua = my::LuaContextPtr(new my::LuaContext());
-
-	Export2Lua(m_lua->_state);
-
-	ExecuteCode("dofile(\"console.lua\")");
-
-	m_console = luabind::object_cast<my::DialogPtr>(luabind::globals(m_lua->_state)["console"]);
-
-	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(luabind::globals(m_lua->_state)["panel"]));
 
 	return S_OK;
 }
@@ -227,6 +164,11 @@ void Game::OnD3D9DestroyDevice(void)
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
+
+	// 所有由lua创建的资源都必须在销毁lua之前销毁
+	// 这是由于部分Event对象其内部保存了luabind::object，其析构还会访问lua
+	// 且要注意这些对象在class Game中声明的位置，防止异常退出时的不正确销毁顺序
+	m_hudDlg.reset();
 
 	m_panel.reset();
 
@@ -342,17 +284,17 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::OnToggleFullScreen(my::ControlPtr ctrl)
+void Game::ToggleFullScreen(void)
 {
 	DXUTToggleFullScreen();
 }
 
-void Game::OnToggleRef(my::ControlPtr ctrl)
+void Game::OnToggleRef(my::ControlPtr control)
 {
 	DXUTToggleREF();
 }
 
-void Game::OnChangeDevice(my::ControlPtr ctrl)
+void Game::ChangeDevice(void)
 {
 	m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
@@ -362,7 +304,7 @@ void Game::OnChangeDevice(my::ControlPtr ctrl)
 	}
 }
 
-void Game::ExecuteCode(const char * code)
+bool Game::ExecuteCode(const char * code)
 {
 	AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
@@ -373,7 +315,10 @@ void Game::ExecuteCode(const char * code)
 	catch(const std::runtime_error & e)
 	{
 		AddLine(ms2ws(e.what()).c_str());
+		return false;
 	}
+
+	return true;
 }
 
 void Game::UpdateDlgPerspective(my::DialogPtr dlg)

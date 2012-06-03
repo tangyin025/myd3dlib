@@ -107,6 +107,11 @@ bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 	return true;
 }
 
+std::string ZipArchiveDir::GetFullPath(const std::string & path)
+{
+	return std::string();
+}
+
 ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
@@ -138,6 +143,16 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new ZipArchiveStream(zFile));
 }
 
+FileArchiveDir::FileArchiveDir(const std::string & dir)
+	: ResourceDir(dir)
+{
+}
+
+bool FileArchiveDir::CheckArchivePath(const std::string & path)
+{
+	return !GetFullPath(path).empty();
+}
+
 std::string FileArchiveDir::GetFullPath(const std::string & path)
 {
 	std::string fullPath;
@@ -152,16 +167,6 @@ std::string FileArchiveDir::GetFullPath(const std::string & path)
 
 	fullPath.resize(dwLen);
 	return fullPath;
-}
-
-FileArchiveDir::FileArchiveDir(const std::string & dir)
-	: ResourceDir(dir)
-{
-}
-
-bool FileArchiveDir::CheckArchivePath(const std::string & path)
-{
-	return !GetFullPath(path).empty();
 }
 
 ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
@@ -293,6 +298,21 @@ bool ResourceMgr::CheckArchivePath(const std::string & path)
 	}
 
 	return false;
+}
+
+std::string ResourceMgr::GetFullPath(const std::string & path)
+{
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	{
+		std::string ret = dir_iter->second->GetFullPath(path);
+		if(!ret.empty())
+		{
+			return ret;
+		}
+	}
+
+	return std::string();
 }
 
 ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)

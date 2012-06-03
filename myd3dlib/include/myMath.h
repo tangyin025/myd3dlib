@@ -28,6 +28,12 @@ namespace my
 		return a + s * (b - a);
 	}
 
+	template <typename T>
+	T Clamp(const T & v, const T & min, const T & max)
+	{
+		return Max(min, Min(max, v));
+	}
+
 	class Vector4;
 
 	class Quaternion;

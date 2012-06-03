@@ -63,6 +63,8 @@ namespace my
 
 		virtual bool CheckArchivePath(const std::string & path) = 0;
 
+		virtual std::string GetFullPath(const std::string & path) = 0;
+
 		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
 	};
 
@@ -77,19 +79,20 @@ namespace my
 
 		bool CheckArchivePath(const std::string & path);
 
+		std::string GetFullPath(const std::string & path);
+
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	class FileArchiveDir
 		: public ResourceDir
 	{
-	protected:
-		std::string GetFullPath(const std::string & path);
-
 	public:
 		FileArchiveDir(const std::string & dir);
 
 		bool CheckArchivePath(const std::string & path);
+
+		std::string GetFullPath(const std::string & path);
 
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
@@ -142,6 +145,8 @@ namespace my
 		void RegisterFileDir(const std::string & dir);
 
 		bool CheckArchivePath(const std::string & path);
+
+		std::string GetFullPath(const std::string & path);
 
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};

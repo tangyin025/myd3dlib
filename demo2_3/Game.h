@@ -14,19 +14,19 @@ public:
 
 	CD3DSettingsDlg m_settingsDlg;
 
-	my::TexturePtr m_uiTex;
-
-	my::FontPtr m_uiFnt;
+	my::LuaContextPtr m_lua;
 
 	typedef std::set<my::DialogPtr> DialogPtrSet;
 
 	DialogPtrSet m_dlgSet;
 
-	my::DialogPtr m_hudDlg;
+	my::FontPtr m_uiFnt;
 
 	my::DialogPtr m_console;
 
 	MessagePanelPtr m_panel;
+
+	my::DialogPtr m_hudDlg;
 
 	my::InputPtr m_input;
 
@@ -35,8 +35,6 @@ public:
 	my::MousePtr m_mouse;
 
 	my::SoundPtr m_sound;
-
-	my::LuaContextPtr m_lua;
 
 public:
 	Game(void);
@@ -92,13 +90,13 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	void OnToggleFullScreen(my::ControlPtr ctrl);
+	void ToggleFullScreen(void);
 
-	void OnToggleRef(my::ControlPtr ctrl);
+	void OnToggleRef(my::ControlPtr control);
 
-	void OnChangeDevice(my::ControlPtr ctrl);
+	void ChangeDevice(void);
 
-	void ExecuteCode(const char * code);
+	bool ExecuteCode(const char * code);
 
 	void UpdateDlgPerspective(my::DialogPtr dlg);
 

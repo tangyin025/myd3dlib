@@ -1,4 +1,4 @@
-#include "LuaExporter.h"
+﻿#include "LuaExporter.h"
 #include "Game.h"
 #include <luabind/luabind.hpp>
 
@@ -31,6 +31,25 @@ static int lua_exit(lua_State * L)
 	SendMessage(hwnd, WM_CLOSE, 0, 0);
 	return 0;
 }
+//
+//static int lua_error_pcall(lua_State * L)
+//{
+//   lua_Debug d;
+//   lua_getstack(L, 1, &d);
+//   lua_getinfo(L, "Sln", &d);
+//   std::string err = lua_tostring(L, -1);
+//   lua_pop(L, 1);
+//   std::stringstream msg;
+//   msg << d.short_src << ":" << d.currentline;
+//
+//   if (d.name != 0)
+//   {
+//      msg << "(" << d.namewhat << " " << d.name << ")";
+//   }
+//   msg << " " << err;
+//   lua_pushstring(L, msg.str().c_str());
+//   return 1;
+//}
 
 namespace luabind
 {
@@ -104,13 +123,56 @@ void Export2Lua(lua_State * L)
 		{
 			return D3DCOLOR_ARGB(a,r,g,b);
 		}
+
+		static my::TexturePtr LoadTexture(const char * path)
+		{
+			try
+			{
+				LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
+				std::string full_path = my::ResourceMgr::getSingleton().GetFullPath(path);
+				if(!full_path.empty())
+					return my::Texture::CreateTextureFromFile(pDevice, full_path.c_str());
+
+				my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+				return my::Texture::CreateTextureFromFileInMemory(pDevice, &(*cache)[0], cache->size());
+			}
+			catch(const my::Exception & e)
+			{
+				throw my::LuaContext::ExecutionErrorException(e.GetDescription());
+			}
+		}
+
+		static my::FontPtr LoadFont(const char * path, int height)
+		{
+			try
+			{
+				LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
+				std::string full_path = my::ResourceMgr::getSingleton().GetFullPath(path);
+				if(!full_path.empty())
+					return my::Font::CreateFontFromFile(pDevice, full_path.c_str(), height);
+
+				my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+				return my::Font::CreateFontFromFileInCache(pDevice, cache, height);
+			}
+			catch(const my::Exception & e)
+			{
+				throw my::LuaContext::ExecutionErrorException(e.GetDescription());
+			}
+		}
 	};
 
 	luabind::open(L);
 
+	// 木有用？
+	//luabind::set_pcall_callback(lua_error_pcall);
+
 	luabind::module(L)
 	[
 		luabind::def("ARGB", &HelpFunc::ARGB)
+
+		, luabind::def("LoadTexture", &HelpFunc::LoadTexture)
+
+		, luabind::def("LoadFont", &HelpFunc::LoadFont)
 
 		, luabind::class_<my::Vector2, boost::shared_ptr<my::Vector2> >("Vector2")
 			.def(luabind::constructor<float, float>())
@@ -201,6 +263,7 @@ void Export2Lua(lua_State * L)
 		, luabind::class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
 			.def(luabind::constructor<>())
 			.def_readwrite("EventClick", &my::Button::EventClick)
+			.def("SetHotkey", &my::Button::SetHotkey)
 
 		, luabind::class_<my::EditBoxSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("EditBoxSkin")
 			.def(luabind::constructor<>())
@@ -251,9 +314,12 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<Game>("Game")
 			.def_readonly("uiFnt", &Game::m_uiFnt)
-			.def_readonly("uiTex", &Game::m_uiTex)
+			.def("ToggleFullScreen", &Game::ToggleFullScreen)
+			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
+			.def("AddLine", &Game::AddLine)
+			.def("puts", &Game::puts)
 	];
 
 	luabind::globals(L)["game"] = Game::getSingletonPtr();
