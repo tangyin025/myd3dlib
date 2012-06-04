@@ -50,6 +50,10 @@ bool Game::ModifyDeviceSettings(
 	if( caps.MaxVertexBlendMatrices < 2 )
 		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
+	// ! Fix lua bug: print(255*256*256*256+255*256*256+255*256+255)
+	// ! ref: http://www.lua.org/bugs.html
+	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
+
 	static bool s_bFirstTime = true;
 	if( s_bFirstTime )
 	{
@@ -93,9 +97,8 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	Export2Lua(m_lua->_state);
 
-	// 必须保证这个脚本没有错误，负责将看不到控制台
-	if(!ExecuteCode("dofile(\"demo2_3.lua\")"))
-		THROW_CUSEXCEPTION("demo2_3.lua must be correctly loaded");
+	// 必须保证这个脚本没有错误，否则将看不到控制台
+	ExecuteCode("dofile(\"demo2_3.lua\")");
 
 	// 获取主控制台（用以[`]符号控制），并获取默认字体，及默认输出面板
 	luabind::object obj = luabind::globals(m_lua->_state);
@@ -304,7 +307,7 @@ void Game::ChangeDevice(void)
 	}
 }
 
-bool Game::ExecuteCode(const char * code)
+void Game::ExecuteCode(const char * code)
 {
 	AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
 
@@ -314,11 +317,11 @@ bool Game::ExecuteCode(const char * code)
 	}
 	catch(const std::runtime_error & e)
 	{
-		AddLine(ms2ws(e.what()).c_str());
-		return false;
-	}
+		if(!m_panel)
+			THROW_CUSEXCEPTION(e.what());
 
-	return true;
+		AddLine(ms2ws(e.what()).c_str());
+	}
 }
 
 void Game::UpdateDlgPerspective(my::DialogPtr dlg)

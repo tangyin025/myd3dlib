@@ -27,6 +27,11 @@ ZipArchiveStream::~ZipArchiveStream(void)
 	unzClose(m_zFile);
 }
 
+int ZipArchiveStream::read(void * buff, unsigned read_size)
+{
+	return unzReadCurrentFile(m_zFile, buff, read_size);
+}
+
 CachePtr ZipArchiveStream::GetWholeCache(void)
 {
 	CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
@@ -35,7 +40,7 @@ CachePtr ZipArchiveStream::GetWholeCache(void)
 		THROW_CUSEXCEPTION("read zip file cache failed");
 	}
 
-	int ret = unzReadCurrentFile(m_zFile, &(*cache)[0], cache->size());
+	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
 		THROW_CUSEXCEPTION("read zip file cache failed");
@@ -54,6 +59,11 @@ FileArchiveStream::~FileArchiveStream(void)
 	fclose(m_fp);
 }
 
+int FileArchiveStream::read(void * buff, unsigned read_size)
+{
+	return fread(buff, 1, read_size, m_fp);
+}
+
 CachePtr FileArchiveStream::GetWholeCache(void)
 {
 	fseek(m_fp, 0, SEEK_END);
@@ -65,7 +75,7 @@ CachePtr FileArchiveStream::GetWholeCache(void)
 	}
 
 	fseek(m_fp, 0, SEEK_SET);
-	size_t ret = fread(&(*cache)[0], 1, cache->size(), m_fp);
+	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
 		THROW_CUSEXCEPTION("read file cache failed");

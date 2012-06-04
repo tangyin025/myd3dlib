@@ -96,7 +96,7 @@ public:
 
 	void ChangeDevice(void);
 
-	bool ExecuteCode(const char * code);
+	void ExecuteCode(const char * code);
 
 	void UpdateDlgPerspective(my::DialogPtr dlg);
 

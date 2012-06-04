@@ -16,6 +16,8 @@ namespace my
 		{
 		}
 
+		virtual int read(void * buff, unsigned read_size) = 0;
+
 		virtual CachePtr GetWholeCache(void) = 0;
 	};
 
@@ -34,6 +36,8 @@ namespace my
 
 		~ZipArchiveStream(void);
 
+		virtual int read(void * buff, unsigned read_size);
+
 		virtual CachePtr GetWholeCache(void);
 	};
 
@@ -47,6 +51,8 @@ namespace my
 		FileArchiveStream(FILE * fp);
 
 		~FileArchiveStream(void);
+
+		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
 	};
