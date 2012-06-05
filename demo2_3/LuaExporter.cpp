@@ -4,6 +4,10 @@
 
 static int lua_print(lua_State * L)
 {
+	MessagePanelPtr panel = Game::getSingleton().m_panel;
+	if(!panel)
+		return luaL_error(L, "must have game.panel to output");
+
 	int n = lua_gettop(L);  /* number of arguments */
 	int i;
 	lua_getglobal(L, "tostring");
@@ -16,11 +20,11 @@ static int lua_print(lua_State * L)
 		if (s == NULL)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 			LUA_QL("print"));
-		if (i>1) Game::getSingleton().puts(L"\t");
-		Game::getSingleton().puts(ms2ws(s));
+		if (i>1) panel->puts(L"\t");
+		panel->puts(ms2ws(s));
 		lua_pop(L, 1);  /* pop result */
 	}
-	Game::getSingleton().puts(L"\n");
+	panel->puts(L"\n");
 	return 0;
 }
 
@@ -179,7 +183,26 @@ namespace luabind
 
 		my::ControlEvent from(lua_State * L, int index)
 		{
-			return luabind::object(luabind::from_stack(L, index));
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(my::ControlPtr control)
+				{
+					try
+					{
+						obj(control);
+					}
+					catch(const luabind::error & e)
+					{
+						Game::getSingleton().m_panel->AddLine(ms2ws(lua_tostring(e.state(), -1)));
+					}
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
 		}
 
 		void to(lua_State * L, my::ControlEvent const & e)
@@ -406,11 +429,10 @@ void Export2Lua(lua_State * L)
 		, luabind::class_<Game>("Game")
 			.def_readonly("uiFnt", &Game::m_uiFnt)
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)
+			//.def("ToggleRef", &Game::ToggleRef)
 			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
-			.def("AddLine", &Game::AddLine)
-			.def("puts", &Game::puts)
 	];
 
 	luabind::globals(L)["game"] = Game::getSingletonPtr();

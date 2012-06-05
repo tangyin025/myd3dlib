@@ -31,10 +31,12 @@ panel.scrollbar.Skin=ScrollBarSkin()
 console:InsertControl(panel)
 
 e.EventEnter=function()
-	game:ExecuteCode(e.Text)
+	local t=e.Text
 	e.Text=""
 	e.nCaret=0
 	e.nFirstVisible=0
+	panel:AddLine(t, e.Skin.TextColor)
+	game:ExecuteCode(t)
 end
 
 game:InsertDlg(console)

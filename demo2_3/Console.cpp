@@ -117,11 +117,11 @@ void MessagePanel::_push_sline(LPCWSTR pString, D3DCOLOR Color)
 	}
 }
 
-void MessagePanel::AddLine(LPCWSTR pString, D3DCOLOR Color)
+void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
-	if(*pString && m_Skin && m_Skin->m_Font)
+	if(m_Skin && m_Skin->m_Font)
 	{
-		_push_sline(pString, Color);
+		_push_sline(str.c_str(), Color);
 		_push_enter();
 	}
 }

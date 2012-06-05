@@ -50,8 +50,7 @@ bool Game::ModifyDeviceSettings(
 	if( caps.MaxVertexBlendMatrices < 2 )
 		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-	// ! Fix lua bug: print(255*256*256*256+255*256*256+255*256+255)
-	// ! ref: http://www.lua.org/bugs.html
+	// ! Fix lua bug: print(0xffffffff), ref: http://www.lua.org/bugs.html
 	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	static bool s_bFirstTime = true;
@@ -125,7 +124,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().m_panel->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -153,7 +152,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	Game::getSingleton().AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().m_panel->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -309,8 +308,6 @@ void Game::ChangeDevice(void)
 
 void Game::ExecuteCode(const char * code)
 {
-	AddLine(ms2ws(code).c_str(), D3DCOLOR_ARGB(255,63,188,239));
-
 	try
 	{
 		m_lua->executeCode(code);
@@ -320,7 +317,7 @@ void Game::ExecuteCode(const char * code)
 		if(!m_panel)
 			THROW_CUSEXCEPTION(e.what());
 
-		AddLine(ms2ws(e.what()).c_str());
+		m_panel->AddLine(ms2ws(e.what()));
 	}
 }
 
@@ -342,16 +339,4 @@ void Game::InsertDlg(my::DialogPtr dlg)
 	UpdateDlgPerspective(dlg);
 
 	m_dlgSet.insert(dlg);
-}
-
-void Game::AddLine(LPCWSTR pString, D3DCOLOR Color)
-{
-	if(m_panel)
-		m_panel->AddLine(pString, Color);
-}
-
-void Game::puts(const std::wstring & str, D3DCOLOR Color)
-{
-	if(m_panel)
-		m_panel->puts(str, Color);
 }
