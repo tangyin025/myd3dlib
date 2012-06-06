@@ -306,19 +306,13 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("z", &my::Vector4::z)
 			.def_readwrite("w", &my::Vector4::w)
 		
-		, luabind::class_<RECT, boost::shared_ptr<RECT> >("RECT")
-			.def_readwrite("left", &RECT::left)
-			.def_readwrite("top", &RECT::top)
-			.def_readwrite("right", &RECT::right)
-			.def_readwrite("bottom", &RECT::bottom)
-
 		, luabind::class_<CPoint, boost::shared_ptr<CPoint> >("CPoint")
 			.def(luabind::constructor<int, int>())
 
 		, luabind::class_<CSize, boost::shared_ptr<CSize> >("CSize")
 			.def(luabind::constructor<int, int>())
 
-		, luabind::class_<CRect, RECT, boost::shared_ptr<RECT> >("CRect")
+		, luabind::class_<CRect, boost::shared_ptr<CRect> >("CRect")
 			.def(luabind::constructor<int, int, int, int>())
 			.def(luabind::constructor<CPoint, CSize>())
 

@@ -55,7 +55,7 @@ namespace my
 			return desc;
 		}
 
-		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0)
+		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0)
 		{
 			_ASSERT(!IsRectEmpty(&rect));
 
@@ -185,7 +185,7 @@ namespace my
 			PALETTEENTRY * pPalette = NULL);
 
 	public:
-		void AddDirtyRect(CONST RECT * pDirtyRect = NULL)
+		void AddDirtyRect(CONST CRect * pDirtyRect = NULL)
 		{
 			V(static_cast<IDirect3DTexture9 *>(m_ptr)->AddDirtyRect(pDirtyRect));
 		}
@@ -204,7 +204,7 @@ namespace my
 			return Surface;
 		}
 
-		D3DLOCKED_RECT LockRect(const RECT & rect, DWORD Flags = 0, UINT Level = 0)
+		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0, UINT Level = 0)
 		{
 			_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
 

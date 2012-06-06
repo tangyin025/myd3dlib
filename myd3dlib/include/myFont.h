@@ -35,7 +35,7 @@ namespace my
 			V(m_ptr->Begin(Flags));
 		}
 
-		void Draw(TexturePtr texture, const RECT & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
+		void Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
 		{
 			V(m_ptr->Draw(static_cast<IDirect3DTexture9 *>(texture->m_ptr), &SrcRect, (D3DXVECTOR3 *)&Center, (D3DXVECTOR3 *)&Position, Color));
 		}
@@ -86,24 +86,24 @@ namespace my
 	protected:
 		bool m_used;
 
-		RECT m_rect;
+		CRect m_rect;
 
 		RectAssignmentNodePtr m_lchild;
 
 		RectAssignmentNodePtr m_rchild;
 
-		bool AssignTopRect(const SIZE & size, RECT & outRect);
+		bool AssignTopRect(const CSize & size, CRect & outRect);
 
-		bool AssignLeftRect(const SIZE & size, RECT & outRect);
+		bool AssignLeftRect(const CSize & size, CRect & outRect);
 
 	public:
-		RectAssignmentNode(const RECT & rect)
+		RectAssignmentNode(const CRect & rect)
 			: m_used(false)
 			, m_rect(rect)
 		{
 		}
 
-		bool AssignRect(const SIZE & size, RECT & outRect);
+		bool AssignRect(const CSize & size, CRect & outRect);
 	};
 
 	class Font;
@@ -149,7 +149,7 @@ namespace my
 
 			int horiAdvance;
 
-			RECT textureRect;
+			CRect textureRect;
 		};
 
 		typedef std::map<int, CharacterInfo> CharacterMap;
@@ -212,7 +212,7 @@ namespace my
 
 		void CreateFontTexture(UINT Width, UINT Height);
 
-		void AssignTextureRect(const SIZE & size, RECT & outRect);
+		void AssignTextureRect(const CSize & size, CRect & outRect);
 
 		void InsertCharacter(
 			int character,

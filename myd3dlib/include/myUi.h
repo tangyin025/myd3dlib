@@ -2,7 +2,9 @@
 #pragma once
 
 #include <boost/weak_ptr.hpp>
+#pragma warning(disable: 4819)
 #include <boost/function.hpp>
+#pragma warning(default: 4819)
 
 namespace my
 {
@@ -22,7 +24,7 @@ namespace my
 
 		static void End(IDirect3DDevice9 * pd3dDevice);
 
-		static Rectangle CalculateUVRect(const SIZE & textureSize, const RECT & textureRect);
+		static Rectangle CalculateUVRect(const CSize & textureSize, const CRect & textureRect);
 
 		static size_t BuildRectangleVertices(
 			CUSTOMVERTEX * pBuffer,
@@ -37,7 +39,7 @@ namespace my
 			const Rectangle & rect,
 			DWORD color,
 			TexturePtr texture = TexturePtr(),
-			const RECT & SrcRect = CRect(0,0,0,0));
+			const CRect & SrcRect = CRect(0,0,0,0));
 	};
 
 	class ControlSkin
@@ -45,7 +47,7 @@ namespace my
 	public:
 		TexturePtr m_Texture;
 
-		RECT m_TextureRect;
+		CRect m_TextureRect;
 
 		FontPtr m_Font;
 
@@ -55,7 +57,7 @@ namespace my
 
 	public:
 		ControlSkin(void)
-			: m_TextureRect(CRect(0,0,0,0))
+			: m_TextureRect(0,0,0,0)
 			, m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
 			, m_TextAlign(my::Font::AlignLeftTop)
 		{
@@ -174,19 +176,19 @@ namespace my
 	class ButtonSkin : public ControlSkin
 	{
 	public:
-		RECT m_DisabledTexRect;
+		CRect m_DisabledTexRect;
 
-		RECT m_PressedTexRect;
+		CRect m_PressedTexRect;
 
-		RECT m_MouseOverTexRect;
+		CRect m_MouseOverTexRect;
 
 		Vector2 m_PressedOffset;
 
 	public:
 		ButtonSkin(void)
-			: m_DisabledTexRect(CRect(0,0,0,0))
-			, m_PressedTexRect(CRect(0,0,0,0))
-			, m_MouseOverTexRect(CRect(0,0,0,0))
+			: m_DisabledTexRect(0,0,0,0)
+			, m_PressedTexRect(0,0,0,0)
+			, m_MouseOverTexRect(0,0,0,0)
 			, m_PressedOffset(0,0)
 		{
 		}
@@ -233,9 +235,9 @@ namespace my
 	class EditBoxSkin : public ControlSkin
 	{
 	public:
-		RECT m_DisabledTexRect;
+		CRect m_DisabledTexRect;
 
-		RECT m_FocusedTexRect;
+		CRect m_FocusedTexRect;
 
 		D3DCOLOR m_SelTextColor;
 
@@ -245,8 +247,8 @@ namespace my
 
 	public:
 		EditBoxSkin(void)
-			: m_DisabledTexRect(CRect(0,0,0,0))
-			, m_FocusedTexRect(CRect(0,0,0,0))
+			: m_DisabledTexRect(0,0,0,0)
+			, m_FocusedTexRect(0,0,0,0)
 			, m_SelTextColor(D3DCOLOR_ARGB(255,255,255,255))
 			, m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
 			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
@@ -377,26 +379,26 @@ namespace my
 	class ScrollBarSkin : public ControlSkin
 	{
 	public:
-		RECT m_UpBtnNormalTexRect;
+		CRect m_UpBtnNormalTexRect;
 
-		RECT m_UpBtnDisabledTexRect;
+		CRect m_UpBtnDisabledTexRect;
 
-		RECT m_DownBtnNormalTexRect;
+		CRect m_DownBtnNormalTexRect;
 
-		RECT m_DownBtnDisabledTexRect;
+		CRect m_DownBtnDisabledTexRect;
 
-		RECT m_ThumbBtnNormalTexRect;
+		CRect m_ThumbBtnNormalTexRect;
 
-		RECT m_ThumbBtnDisabledTexRect;
+		CRect m_ThumbBtnDisabledTexRect;
 
 	public:
 		ScrollBarSkin(void)
-			: m_UpBtnNormalTexRect(CRect(0,0,0,0))
-			, m_UpBtnDisabledTexRect(CRect(0,0,0,0))
-			, m_DownBtnNormalTexRect(CRect(0,0,0,0))
-			, m_DownBtnDisabledTexRect(CRect(0,0,0,0))
-			, m_ThumbBtnNormalTexRect(CRect(0,0,0,0))
-			, m_ThumbBtnDisabledTexRect(CRect(0,0,0,0))
+			: m_UpBtnNormalTexRect(0,0,0,0)
+			, m_UpBtnDisabledTexRect(0,0,0,0)
+			, m_DownBtnNormalTexRect(0,0,0,0)
+			, m_DownBtnDisabledTexRect(0,0,0,0)
+			, m_ThumbBtnNormalTexRect(0,0,0,0)
+			, m_ThumbBtnDisabledTexRect(0,0,0,0)
 		{
 		}
 	};

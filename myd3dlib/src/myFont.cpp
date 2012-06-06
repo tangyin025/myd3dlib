@@ -20,15 +20,14 @@ SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SpritePtr(new Sprite(pSprite)));
 }
 
-bool RectAssignmentNode::AssignTopRect(const SIZE & size, RECT & outRect)
+bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
 {
-	_ASSERT(size.cx <= m_rect.right - m_rect.left);
-	_ASSERT(size.cy < m_rect.bottom - m_rect.top);
+	_ASSERT(size.cx <= m_rect.Width());
+	_ASSERT(size.cy < m_rect.Height());
 
-	RECT rectUp, rectDown;
 	int y = m_rect.top + size.cy;
-	SetRect(&rectUp, m_rect.left, m_rect.top, m_rect.right, y);
-	SetRect(&rectDown, m_rect.left, y, m_rect.right, m_rect.bottom);
+	CRect rectUp(m_rect.left, m_rect.top, m_rect.right, y);
+	CRect rectDown(m_rect.left, y, m_rect.right, m_rect.bottom);
 
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
@@ -41,15 +40,14 @@ bool RectAssignmentNode::AssignTopRect(const SIZE & size, RECT & outRect)
 	return true;
 }
 
-bool RectAssignmentNode::AssignLeftRect(const SIZE & size, RECT & outRect)
+bool RectAssignmentNode::AssignLeftRect(const CSize & size, CRect & outRect)
 {
-	_ASSERT(size.cx < m_rect.right - m_rect.left);
-	_ASSERT(size.cy <= m_rect.bottom - m_rect.top);
+	_ASSERT(size.cx < m_rect.Width());
+	_ASSERT(size.cy <= m_rect.Height());
 
-	RECT rectLeft, rectRight;
 	int x = m_rect.left + size.cx;
-	SetRect(&rectLeft, m_rect.left, m_rect.top, x, m_rect.bottom);
-	SetRect(&rectRight, x, m_rect.top, m_rect.right, m_rect.bottom);
+	CRect rectLeft(m_rect.left, m_rect.top, x, m_rect.bottom);
+	CRect rectRight(x, m_rect.top, m_rect.right, m_rect.bottom);
 
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
@@ -62,7 +60,7 @@ bool RectAssignmentNode::AssignLeftRect(const SIZE & size, RECT & outRect)
 	return true;
 }
 
-bool RectAssignmentNode::AssignRect(const SIZE & size, RECT & outRect)
+bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 {
 	//_ASSERT(size.cx > 0 && size.cy > 0);
 
@@ -81,8 +79,8 @@ bool RectAssignmentNode::AssignRect(const SIZE & size, RECT & outRect)
 		return true;
 	}
 
-	int width = m_rect.right - m_rect.left;
-	int height = m_rect.bottom - m_rect.top;
+	int width = m_rect.Width();
+	int height = m_rect.Height();
 	if(width == size.cx)
 	{
 		if(height == size.cy)
@@ -225,7 +223,7 @@ void Font::CreateFontTexture(UINT Width, UINT Height)
 	m_textureDesc = m_texture->GetLevelDesc();
 }
 
-void Font::AssignTextureRect(const SIZE & size, RECT & outRect)
+void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 {
 	if(!m_textureRectRoot->AssignRect(size, outRect))
 	{

@@ -62,7 +62,7 @@ void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 	ResourceMgr::getSingleton().m_stateBlock->Apply();
 }
 
-my::Rectangle UIRender::CalculateUVRect(const SIZE & textureSize, const RECT & textureRect)
+my::Rectangle UIRender::CalculateUVRect(const CSize & textureSize, const CRect & textureRect)
 {
 	return Rectangle(
 		(float)textureRect.left / textureSize.cx,
@@ -124,7 +124,7 @@ void UIRender::DrawRectangle(
 	const my::Rectangle & rect,
 	DWORD color,
 	TexturePtr texture,
-	const RECT & SrcRect)
+	const CRect & SrcRect)
 {
 	//Begin(pd3dDevice);
 
@@ -1488,7 +1488,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			const Vector3 & viewZ = invViewMatrix[2];
 			const Vector3 & ptEye = invViewMatrix[3];
 
-			RECT ClientRect;
+			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
 			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
 			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_ProjMatrix._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_ProjMatrix._22);
