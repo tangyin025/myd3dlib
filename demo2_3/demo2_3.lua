@@ -52,14 +52,15 @@ hud.Skin.TextColor=ARGB(255,255,255,255)
 hud.Skin.TextAlign=Font.AlignLeftTop
 
 btn_skin=ButtonSkin()
-btn_skin.Texture=ui_tex
+btn_skin.Image=ControlImage(LoadTexture("button_normal.png"), Vector4(7,7,7,7))
 btn_skin.TextureRect=CRect(CPoint(10,10),CSize(125,22))
 btn_skin.Font=ui_fnt
 btn_skin.TextColor=ARGB(255,255,255,255)
 btn_skin.TextAlign=Font.AlignCenterMiddle
-btn_skin.DisabledTexRect=CRect(CPoint(10,100),CSize(125,22))
-btn_skin.PressedTexRect=CRect(CPoint(10,70),CSize(125,22))
-btn_skin.MouseOverTexRect=CRect(CPoint(10,40),CSize(125,22))
+btn_skin.DisabledImage=ControlImage(LoadTexture("button_disable.png"), Vector4(7,7,7,7))
+btn_skin.PressedImage=ControlImage(LoadTexture("button_down.png"), Vector4(7,7,7,7))
+btn_skin.MouseOverImage=ControlImage(LoadTexture("button_hover.png"), Vector4(7,7,7,7))
+btn_skin.PressedOffset=Vector2(1,2)
 
 local btn=Button()
 btn.Text="Toggle full screen"
