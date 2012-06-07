@@ -41,8 +41,6 @@ end
 
 game:InsertDlg(console)
 
-ui_tex=LoadTexture("Untitled-1.png")
-
 hud=Dialog()
 hud.Color=ARGB(0,0,0,0)
 hud.Location=Vector2(800-170,0)
@@ -51,9 +49,8 @@ hud.Skin.Font=ui_fnt
 hud.Skin.TextColor=ARGB(255,255,255,255)
 hud.Skin.TextAlign=Font.AlignLeftTop
 
-btn_skin=ButtonSkin()
+local btn_skin=ButtonSkin()
 btn_skin.Image=ControlImage(LoadTexture("button_normal.png"), Vector4(7,7,7,7))
-btn_skin.TextureRect=CRect(CPoint(10,10),CSize(125,22))
 btn_skin.Font=ui_fnt
 btn_skin.TextColor=ARGB(255,255,255,255)
 btn_skin.TextAlign=Font.AlignCenterMiddle

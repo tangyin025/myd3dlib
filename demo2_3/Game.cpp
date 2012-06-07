@@ -101,8 +101,8 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	// 获取主控制台（用以[`]符号控制），并获取默认字体，及默认输出面板
 	luabind::object obj = luabind::globals(m_lua->_state);
+	m_uiFnt = luabind::object_cast<my::FontPtr>(obj["ui_fnt"]);;
 	m_console = luabind::object_cast<my::DialogPtr>(obj["console"]);
-	m_uiFnt = m_console->m_Skin->m_Font;
 	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(obj["panel"]));
 
 	// 获取dxut面板（用以对齐左上角）
@@ -231,6 +231,7 @@ void Game::OnD3D9FrameRender(
 		pd3dDevice->GetViewport(&vp);
 		my::UIRender::BuildPerspectiveMatrices(
 			D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 		m_uiFnt->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),

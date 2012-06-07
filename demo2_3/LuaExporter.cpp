@@ -305,16 +305,20 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("y", &my::Vector4::y)
 			.def_readwrite("z", &my::Vector4::z)
 			.def_readwrite("w", &my::Vector4::w)
-		
-		, luabind::class_<CPoint, boost::shared_ptr<CPoint> >("CPoint")
-			.def(luabind::constructor<int, int>())
 
-		, luabind::class_<CSize, boost::shared_ptr<CSize> >("CSize")
-			.def(luabind::constructor<int, int>())
+		, luabind::class_<my::Quaternion, boost::shared_ptr<my::Quaternion> >("Quaternion")
+			.scope
+			[
+				luabind::def("Identity", &my::Quaternion::Identity)
+				, luabind::def("RotationAxis", &my::Quaternion::RotationAxis)
+			]
 
-		, luabind::class_<CRect, boost::shared_ptr<CRect> >("CRect")
-			.def(luabind::constructor<int, int, int, int>())
-			.def(luabind::constructor<CPoint, CSize>())
+		, luabind::class_<my::Matrix4, boost::shared_ptr<my::Matrix4> >("Matrix4")
+			.scope
+			[
+				luabind::def("Identity", &my::Matrix4::Identity)
+				, luabind::def("Transformation", &my::Matrix4::Transformation)
+			]
 
 		, luabind::class_<my::Texture, boost::shared_ptr<my::Texture> >("Texture")
 
@@ -411,6 +415,7 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(luabind::constructor<>())
+			.def_readwrite("Transform", &my::Dialog::m_Transform)
 			.def("InsertControl", &my::Dialog::InsertControl)
 
 		, luabind::class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
