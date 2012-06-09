@@ -53,6 +53,21 @@ public:
 };
 
 typedef boost::shared_ptr<MessagePanel> MessagePanelPtr;
+
+class ConsoleImeEditBox
+	: public my::ImeEditBox
+{
+public:
+	my::ControlEvent EventPrevLine;
+
+	my::ControlEvent EventNextLine;
+
+	ConsoleImeEditBox(void);
+
+	~ConsoleImeEditBox(void);
+
+	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+};
 //
 //class Console
 //	: public my::Dialog

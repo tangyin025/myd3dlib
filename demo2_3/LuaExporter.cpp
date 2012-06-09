@@ -273,6 +273,20 @@ void Export2Lua(lua_State * L)
 				throw my::LuaContext::ExecutionErrorException(e.GetDescription());
 			}
 		}
+
+		static void SetEditBoxText(boost::shared_ptr<my::Control> control, const std::wstring & text)
+		{
+			my::EditBoxPtr edit = boost::static_pointer_cast<my::EditBox>(control);
+			edit->m_Text = text;
+			edit->PlaceCaret(text.length());
+			edit->m_nSelStart = edit->m_nCaret;
+		}
+
+		static const std::wstring & GetEditBoxText(boost::shared_ptr<my::Control> control)
+		{
+			my::EditBoxPtr edit = boost::static_pointer_cast<my::EditBox>(control);
+			return edit->m_Text;
+		}
 	};
 
 	luabind::open(L);
@@ -391,8 +405,7 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<my::EditBox, my::Static, boost::shared_ptr<my::Control> >("EditBox")
 			.def(luabind::constructor<>())
-			.def_readwrite("nCaret", &my::EditBox::m_nCaret) // ! should be removed
-			.def_readwrite("nFirstVisible", &my::EditBox::m_nFirstVisible) // ! should be removed
+			.property("Text", &HelpFunc::GetEditBoxText, &HelpFunc::SetEditBoxText)
 			.def_readwrite("Border", &my::EditBox::m_Border)
 			.def_readwrite("EventChange", &my::EditBox::EventChange)
 			.def_readwrite("EventEnter", &my::EditBox::EventEnter)
@@ -427,6 +440,11 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
 			.def("AddLine", &MessagePanel::AddLine)
 			.def("puts", &MessagePanel::puts)
+
+		, luabind::class_<ConsoleImeEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleImeEditBox")
+			.def(luabind::constructor<>())
+			.def_readwrite("EventPrevLine", &ConsoleImeEditBox::EventPrevLine)
+			.def_readwrite("EventNextLine", &ConsoleImeEditBox::EventNextLine)
 
 		, luabind::class_<Game>("Game")
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)

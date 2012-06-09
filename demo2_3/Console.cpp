@@ -142,6 +142,41 @@ void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
 		lpos = rpos + 1;
 	}
 }
+
+ConsoleImeEditBox::ConsoleImeEditBox(void)
+{
+}
+
+ConsoleImeEditBox::~ConsoleImeEditBox(void)
+{
+}
+
+bool ConsoleImeEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		switch(uMsg)
+		{
+		case WM_KEYDOWN:
+			switch(wParam)
+			{
+			case VK_UP:
+				if(EventPrevLine)
+					EventPrevLine(my::EventArgsPtr(new my::EventArgs));
+				ResetCaretBlink();
+				return true;
+
+			case VK_DOWN:
+				if(EventNextLine)
+					EventNextLine(my::EventArgsPtr(new my::EventArgs));
+				ResetCaretBlink();
+				return true;
+			}
+			break;
+		}
+	}
+	return ImeEditBox::HandleKeyboard(uMsg, wParam, lParam);
+}
 //
 //Console::Console(void)
 //{

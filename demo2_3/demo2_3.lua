@@ -8,16 +8,6 @@ console.Skin.Font=ui_fnt
 console.Skin.TextColor=ARGB(255,255,255,255)
 console.Skin.TextAlign=Font.AlignLeftTop
 
-local e=ImeEditBox()
-e.Color=ARGB(15,255,255,255)
-e.Location=Vector2(5, 410-5-20)
-e.Size=Vector2(700-5-5,20)
-e.Border=Vector4(0,0,0,0)
-e.Text="在这里输入命令"
-e.Skin.Font=ui_fnt
-e.Skin.TextColor=ARGB(255,63,188,239)
-console:InsertControl(e)
-
 panel=MessagePanel()
 panel.Color=ARGB(0,0,0,0)
 panel.Location=Vector2(5,5)
@@ -30,14 +20,36 @@ panel.scrollbar.nPageSize=3
 panel.scrollbar.Skin=ScrollBarSkin()
 console:InsertControl(panel)
 
+local e_texts={}
+local e_texts_idx=0
+local e=ConsoleImeEditBox()
+e.Color=ARGB(15,255,255,255)
+e.Location=Vector2(5, 410-5-20)
+e.Size=Vector2(700-5-5,20)
+e.Border=Vector4(0,0,0,0)
+e.Text="在这里输入命令"
+e.Skin.Font=ui_fnt
+e.Skin.TextColor=ARGB(255,63,188,239)
 e.EventEnter=function()
 	local t=e.Text
 	e.Text=""
-	e.nCaret=0
-	e.nFirstVisible=0
 	panel:AddLine(t, e.Skin.TextColor)
+	table.insert(e_texts, t)
+	if #e_texts > 16 then
+		table.remove(e_texts,1)
+	end
+	e_texts_idx=#e_texts+1
 	game:ExecuteCode(t)
 end
+e.EventPrevLine=function()
+	e_texts_idx=math.max(1,e_texts_idx-1)
+	e.Text=e_texts[e_texts_idx]
+end
+e.EventNextLine=function()
+	e_texts_idx=math.min(#e_texts,e_texts_idx+1)
+	e.Text=e_texts[e_texts_idx]
+end
+console:InsertControl(e)
 
 game:InsertDlg(console)
 
