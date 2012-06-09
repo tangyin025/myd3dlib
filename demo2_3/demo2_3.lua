@@ -69,18 +69,16 @@ btn.EventClick=function()
 end
 hud:InsertControl(btn)
 
-toggle_ref_btn=Button()
-toggle_ref_btn.Text="Toggle REF (F3)"
-toggle_ref_btn:SetHotkey(114) -- VK_F3
-toggle_ref_btn.Location=Vector2(35,35)
-toggle_ref_btn.Size=Vector2(125,22)
-toggle_ref_btn.Skin=btn_skin
--- toggle_ref_btn.EventClick=function()
-	-- 不能在这里调用ToggleRef，会导致lua被中途销毁，
-	-- 参见Game::OnD3D9DestroyDevice
-	-- game:ToggleRef()
--- end
-hud:InsertControl(toggle_ref_btn)
+local btn=Button()
+btn.Text="Toggle REF (F3)"
+btn:SetHotkey(114) -- VK_F3
+btn.Location=Vector2(35,35)
+btn.Size=Vector2(125,22)
+btn.Skin=btn_skin
+btn.EventClick=function()
+	game:ToggleRef()
+end
+hud:InsertControl(btn)
 
 local btn=Button()
 btn.Text="Change device (F2)"

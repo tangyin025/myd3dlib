@@ -190,11 +190,11 @@ namespace luabind
 					: obj(_obj)
 				{
 				}
-				void operator()(my::ControlPtr control)
+				void operator()(my::EventArgsPtr args)
 				{
 					try
 					{
-						obj(control);
+						obj(args);
 					}
 					catch(const luabind::error & e)
 					{
@@ -263,10 +263,10 @@ void Export2Lua(lua_State * L)
 				LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
 				std::string full_path = my::ResourceMgr::getSingleton().GetFullPath(path);
 				if(!full_path.empty())
-					return my::Font::CreateFontFromFile(pDevice, full_path.c_str(), height);
+					return my::Font::CreateFontFromFile(pDevice, full_path.c_str(), height, 1);
 
 				my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-				return my::Font::CreateFontFromFileInCache(pDevice, cache, height);
+				return my::Font::CreateFontFromFileInCache(pDevice, cache, height, 1);
 			}
 			catch(const my::Exception & e)
 			{
@@ -342,6 +342,10 @@ void Export2Lua(lua_State * L)
 				, luabind::value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
 
+		, luabind::class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
+
+		, luabind::class_<my::ControlEvent>("ControlEvent")
+
 		, luabind::class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
 			.def(luabind::constructor<boost::shared_ptr<my::Texture>, const my::Vector4 &>())
 
@@ -371,8 +375,6 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("PressedImage", &my::ButtonSkin::m_PressedImage)
 			.def_readwrite("MouseOverImage", &my::ButtonSkin::m_MouseOverImage)
 			.def_readwrite("PressedOffset", &my::ButtonSkin::m_PressedOffset)
-
-		, luabind::class_<my::ControlEvent>("ControlEvent")
 
 		, luabind::class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
 			.def(luabind::constructor<>())
@@ -427,9 +429,8 @@ void Export2Lua(lua_State * L)
 			.def("puts", &MessagePanel::puts)
 
 		, luabind::class_<Game>("Game")
-			.def_readonly("uiFnt", &Game::m_uiFnt)
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)
-			//.def("ToggleRef", &Game::ToggleRef)
+			.def("ToggleRef", &Game::ToggleRef)
 			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)

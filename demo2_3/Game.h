@@ -26,7 +26,7 @@ public:
 
 	MessagePanelPtr m_panel;
 
-	my::DialogPtr m_hudDlg;
+	my::DialogPtr m_hud;
 
 	my::InputPtr m_input;
 
@@ -60,8 +60,6 @@ public:
 	virtual bool ModifyDeviceSettings(
 		DXUTDeviceSettings * pDeviceSettings);
 
-	virtual void OnInit(void);
-
 	virtual HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
@@ -92,7 +90,7 @@ public:
 
 	void ToggleFullScreen(void);
 
-	void OnToggleRef(my::ControlPtr control);
+	void ToggleRef(void);
 
 	void ChangeDevice(void);
 

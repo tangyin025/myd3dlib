@@ -4,10 +4,16 @@
 
 Game::Game(void)
 {
+	m_settingsDlg.Init(&m_dlgResourceMgr);
+
+	m_lua = my::LuaContextPtr(new my::LuaContext());
+
+	Export2Lua(m_lua->_state);
 }
 
 Game::~Game(void)
 {
+	my::ImeEditBox::Uninitialize();
 }
 
 bool Game::IsD3D9DeviceAcceptable(
@@ -64,13 +70,6 @@ bool Game::ModifyDeviceSettings(
 	return true;
 }
 
-void Game::OnInit(void)
-{
-	DxutApp::OnInit();
-
-	m_settingsDlg.Init(&m_dlgResourceMgr);
-}
-
 HRESULT Game::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -82,40 +81,40 @@ HRESULT Game::OnD3D9CreateDevice(
 		return hres;
 	}
 
+	my::ImeEditBox::Initialize(DxutApp::getSingleton().GetHWND());
+
+	my::ImeEditBox::EnableImeSystem(false);
+
 	V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
-
-	my::ResourceMgr::getSingleton().RegisterFileDir(".");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
-
-	m_lua = my::LuaContextPtr(new my::LuaContext());
-
-	Export2Lua(m_lua->_state);
 
 	// 必须保证这个脚本没有错误，否则将看不到控制台
 	ExecuteCode("dofile(\"demo2_3.lua\")");
 
 	// 获取主控制台（用以[`]符号控制），并获取默认字体，及默认输出面板
 	luabind::object obj = luabind::globals(m_lua->_state);
-	m_uiFnt = luabind::object_cast<my::FontPtr>(obj["ui_fnt"]);;
+	m_uiFnt = luabind::object_cast<my::FontPtr>(obj["ui_fnt"]);
 	m_console = luabind::object_cast<my::DialogPtr>(obj["console"]);
 	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(obj["panel"]));
 
 	// 获取dxut面板（用以对齐左上角）
-	m_hudDlg = luabind::object_cast<my::DialogPtr>(obj["hud"]);
-	my::ButtonPtr btn = boost::dynamic_pointer_cast<my::Button>(luabind::object_cast<my::ControlPtr>(obj["toggle_ref_btn"]));
-	btn->EventClick = std::bind1st(std::mem_fun(&Game::OnToggleRef), this);
+	m_hud = luabind::object_cast<my::DialogPtr>(obj["hud"]);
 
-	m_input = my::Input::CreateInput(GetModuleHandle(NULL));
-	m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
-	m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
+	if(!m_input)
+	{
+		m_input = my::Input::CreateInput(GetModuleHandle(NULL));
+		m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
+		m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
+	}
 
-	m_sound = my::Sound::CreateSound();
-	m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
+	if(!m_sound)
+	{
+		m_sound = my::Sound::CreateSound();
+		m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
+	}
+
+	//THROW_CUSEXCEPTION("aaa");
 
 	return S_OK;
 }
@@ -143,9 +142,9 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgPerspective((*dlg_iter));
 	}
 
-	m_hudDlg->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
+	m_hud->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
 
-	m_hudDlg->m_Size = my::Vector2(170, 170);
+	m_hud->m_Size = my::Vector2(170, 170);
 
 	return S_OK;
 }
@@ -167,26 +166,9 @@ void Game::OnD3D9DestroyDevice(void)
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
-	// 所有由lua创建的资源都必须在销毁lua之前销毁
-	// 这是由于部分Event对象其内部保存了luabind::object，其析构还会访问lua
-	// 且要注意这些对象在class Game中声明的位置，防止异常退出时的不正确销毁顺序
-	m_hudDlg.reset();
-
-	m_panel.reset();
-
-	m_console.reset();
-
 	m_dlgSet.clear();
 
-	m_keyboard.reset();
-
-	m_mouse.reset();
-
-	m_input.reset();
-
-	m_sound.reset();
-
-	m_lua.reset();
+	my::ImeEditBox::Uninitialize();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -292,7 +274,7 @@ void Game::ToggleFullScreen(void)
 	DXUTToggleFullScreen();
 }
 
-void Game::OnToggleRef(my::ControlPtr control)
+void Game::ToggleRef(void)
 {
 	DXUTToggleREF();
 }

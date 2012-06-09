@@ -189,10 +189,6 @@ void DxutApp::OnKeyboard(
 {
 }
 
-void DxutApp::OnInit(void)
-{
-}
-
 DxutApp::DxutApp(void)
 {
 }
@@ -220,8 +216,6 @@ int DxutApp::Run(
 		DXUTSetCallbackD3D9FrameRender(OnD3D9FrameRender_s, this);
 		DXUTSetCallbackMsgProc(MsgProc_s, this);
 		DXUTSetCallbackKeyboard(OnKeyboard_s, this);
-
-		OnInit();
 
 		DXUTInit(true, true, NULL);
 		DXUTSetCursorSettings(true, true);
@@ -342,23 +336,6 @@ bool DxutSample::ModifyDeviceSettings(
 	}
 
 	return true;
-}
-
-void DxutSample::OnInit(void)
-{
-	DxutApp::OnInit();
-
-	m_settingsDlg.Init(&m_dlgResourceMgr);
-	m_hudDlg.Init(&m_dlgResourceMgr);
-	m_hudDlg.SetCallback(OnGUIEvent_s, this);
-
-	//// Supports all types of vertex processing, including mixed.
-	//DXUTGetD3D9Enumeration()->SetPossibleVertexProcessingList( true, true, true, true );
-
-	int nY = 10;
-	m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
-	m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
-	m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
 }
 
 HRESULT DxutSample::OnD3D9CreateDevice(
@@ -549,4 +526,23 @@ LRESULT DxutSample::MsgProc(
 	}
 
 	return 0;
+}
+
+DxutSample::DxutSample(void)
+{
+	m_settingsDlg.Init(&m_dlgResourceMgr);
+	m_hudDlg.Init(&m_dlgResourceMgr);
+	m_hudDlg.SetCallback(OnGUIEvent_s, this);
+
+	//// Supports all types of vertex processing, including mixed.
+	//DXUTGetD3D9Enumeration()->SetPossibleVertexProcessingList( true, true, true, true );
+
+	int nY = 10;
+	m_hudDlg.AddButton(IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, nY, 125, 22);
+	m_hudDlg.AddButton(IDC_TOGGLEREF, L"Toggle REF (F3)", 35, nY += 24, 125, 22, VK_F3);
+	m_hudDlg.AddButton(IDC_CHANGEDEVICE, L"Change device (F2)", 35, nY += 24, 125, 22, VK_F2);
+}
+
+DxutSample::~DxutSample(void)
+{
 }

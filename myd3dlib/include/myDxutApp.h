@@ -101,8 +101,6 @@ namespace my
 			bool bKeyDown,
 			bool bAltDown);
 
-		virtual void OnInit(void);
-
 	public:
 		DxutApp(void);
 
@@ -153,8 +151,6 @@ namespace my
 		virtual bool ModifyDeviceSettings(
 			DXUTDeviceSettings * pDeviceSettings);
 
-		virtual void OnInit(void);
-
 		virtual HRESULT OnD3D9CreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
 			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
@@ -198,5 +194,10 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+
+	public:
+		DxutSample(void);
+
+		~DxutSample(void);
 	};
 };

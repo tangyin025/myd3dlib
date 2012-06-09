@@ -366,7 +366,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_bPressed = false;
 
 					if(EventClick)
-						EventClick(this_ptr.lock());
+						EventClick(EventArgsPtr(new EventArgs));
 				}
 				return true;
 			}
@@ -404,7 +404,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				if(ContainsPoint(pt))
 				{
 					if(EventClick)
-						EventClick(this_ptr.lock());
+						EventClick(EventArgsPtr(new EventArgs));
 				}
 
 				return true;
@@ -423,7 +423,7 @@ bool Button::CanHaveFocus(void)
 void Button::OnHotkey(void)
 {
 	if(EventClick)
-		EventClick(this_ptr.lock());
+		EventClick(EventArgsPtr(new EventArgs));
 }
 
 bool Button::ContainsPoint(const Vector2 & pt)
@@ -534,7 +534,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						DeleteSelectionText();
 						if(EventChange)
-							EventChange(this_ptr.lock());
+							EventChange(EventArgsPtr(new EventArgs));
 					}
 					else if(m_nCaret > 0)
 					{
@@ -542,7 +542,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						m_nSelStart = m_nCaret;
 						m_Text.erase(m_nCaret, 1);
 						if(EventChange)
-							EventChange(this_ptr.lock());
+							EventChange(EventArgsPtr(new EventArgs));
 					}
 					ResetCaretBlink();
 					break;
@@ -554,14 +554,14 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						DeleteSelectionText();
 						if(EventChange)
-							EventChange(this_ptr.lock());
+							EventChange(EventArgsPtr(new EventArgs));
 					}
 					break;
 
 				case 22:		// Ctrl-V Paste
 					PasteFromClipboard();
 					if(EventChange)
-						EventChange(this_ptr.lock());
+						EventChange(EventArgsPtr(new EventArgs));
 					break;
 
 				case 1:
@@ -574,7 +574,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				case VK_RETURN:
 					if(EventEnter)
-						EventEnter(this_ptr.lock());
+						EventEnter(EventArgsPtr(new EventArgs));
 					break;
 
 				// Junk characters we don't want in the string
@@ -621,7 +621,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					ResetCaretBlink();
 					if(EventChange)
-						EventChange(this_ptr.lock());
+						EventChange(EventArgsPtr(new EventArgs));
 				}
 			}
 			return true;
@@ -681,13 +681,13 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					DeleteSelectionText();
 					if(EventChange)
-						EventChange(this_ptr.lock());
+						EventChange(EventArgsPtr(new EventArgs));
 				}
 				else
 				{
 					m_Text.erase(m_nCaret, 1);
 					if(EventChange)
-						EventChange(this_ptr.lock());
+						EventChange(EventArgsPtr(new EventArgs));
 				}
 				ResetCaretBlink();
 				return true;

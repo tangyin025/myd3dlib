@@ -205,17 +205,11 @@ ResourceMgr::ResourceMgr(void)
 	{
 		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
 	}
-
-	ImeEditBox::Initialize(DxutApp::getSingleton().GetHWND());
-
-	ImeEditBox::EnableImeSystem(false);
 }
 
 ResourceMgr::~ResourceMgr(void)
 {
 	FT_Error err = FT_Done_FreeType(m_library);
-
-	ImeEditBox::Uninitialize();
 }
 
 void ResourceMgr::OnResetDevice(void)

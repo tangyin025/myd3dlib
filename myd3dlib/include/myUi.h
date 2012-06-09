@@ -37,6 +37,18 @@ namespace my
 		static void DrawRectangle(IDirect3DDevice9 * pd3dDevice, const Rectangle & rect, DWORD color);
 	};
 
+	class EventArgs
+	{
+	public:
+		virtual ~EventArgs(void)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<EventArgs> EventArgsPtr;
+
+	typedef boost::function<void (EventArgsPtr)> ControlEvent;
+
 	class ControlImage
 	{
 	public:
@@ -208,8 +220,6 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
-
-	typedef boost::function<void (ControlPtr)> ControlEvent;
 
 	class Button : public Static
 	{
