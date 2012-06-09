@@ -98,9 +98,6 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_console = luabind::object_cast<my::DialogPtr>(obj["console"]);
 	m_panel = boost::dynamic_pointer_cast<MessagePanel>(luabind::object_cast<my::ControlPtr>(obj["panel"]));
 
-	// 获取dxut面板（用以对齐左上角）
-	m_hud = luabind::object_cast<my::DialogPtr>(obj["hud"]);
-
 	if(!m_input)
 	{
 		m_input = my::Input::CreateInput(GetModuleHandle(NULL));
@@ -141,10 +138,6 @@ HRESULT Game::OnD3D9ResetDevice(
 	{
 		UpdateDlgPerspective((*dlg_iter));
 	}
-
-	m_hud->m_Location = my::Vector2((float)pBackBufferSurfaceDesc->Width - 170, 0);
-
-	m_hud->m_Size = my::Vector2(170, 170);
 
 	return S_OK;
 }
@@ -315,6 +308,9 @@ void Game::UpdateDlgPerspective(my::DialogPtr dlg)
 	my::Vector2 vp(height * aspect, height);
 
 	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_ViewMatrix, dlg->m_ProjMatrix);
+
+	if(dlg->EventAlign)
+		dlg->EventAlign(my::EventArgsPtr(new my::AlignEventArgs(vp)));
 }
 
 void Game::InsertDlg(my::DialogPtr dlg)

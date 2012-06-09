@@ -428,9 +428,13 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should be removed
 			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should be removed
 
+		, luabind::class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
+			.def_readonly("vp", &my::AlignEventArgs::vp)
+
 		, luabind::class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(luabind::constructor<>())
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
+			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def("InsertControl", &my::Dialog::InsertControl)
 
 		, luabind::class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")

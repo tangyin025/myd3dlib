@@ -31,15 +31,14 @@ e.Text="在这里输入命令"
 e.Skin.Font=ui_fnt
 e.Skin.TextColor=ARGB(255,63,188,239)
 e.EventEnter=function()
-	local t=e.Text
-	e.Text=""
-	panel:AddLine(t, e.Skin.TextColor)
-	table.insert(e_texts, t)
+	panel:AddLine(e.Text, e.Skin.TextColor)
+	table.insert(e_texts, e.Text)
 	if #e_texts > 16 then
 		table.remove(e_texts,1)
 	end
 	e_texts_idx=#e_texts+1
-	game:ExecuteCode(t)
+	game:ExecuteCode(e.Text)
+	e.Text=""
 end
 e.EventPrevLine=function()
 	e_texts_idx=math.max(1,e_texts_idx-1)
@@ -53,13 +52,16 @@ console:InsertControl(e)
 
 game:InsertDlg(console)
 
-hud=Dialog()
+local hud=Dialog()
 hud.Color=ARGB(0,0,0,0)
 hud.Location=Vector2(800-170,0)
 hud.Size=Vector2(170,170)
 hud.Skin.Font=ui_fnt
 hud.Skin.TextColor=ARGB(255,255,255,255)
 hud.Skin.TextAlign=Font.AlignLeftTop
+hud.EventAlign=function(e)
+	hud.Location=Vector2(e.vp.x-170,0)
+end
 
 local btn_skin=ButtonSkin()
 btn_skin.Image=ControlImage(LoadTexture("button_normal.png"), Vector4(7,7,7,7))

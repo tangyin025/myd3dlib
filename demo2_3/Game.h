@@ -26,8 +26,6 @@ public:
 
 	MessagePanelPtr m_panel;
 
-	my::DialogPtr m_hud;
-
 	my::InputPtr m_input;
 
 	my::KeyboardPtr m_keyboard;
