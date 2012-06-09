@@ -176,13 +176,6 @@ protected:
 		m_camera.SetViewParams(&vecEye, &vecAt);
 		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
-		// 设置资源读取路径
-		my::ResourceMgr::getSingleton().RegisterFileDir(".");
-		my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
-		my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
-		my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
-		my::ResourceMgr::getSingleton().RegisterFileDir("..\\..\\Common\\medias");
-
 		// 初始化角色资源
 		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
 		m_characterMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
@@ -563,6 +556,11 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	// 设置crtdbg监视内存泄漏
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
+
+	my::ResourceMgr::getSingleton().RegisterFileDir(".");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
+	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
+	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
 
 	return MyDemo().Run(true, 800, 600);
 
