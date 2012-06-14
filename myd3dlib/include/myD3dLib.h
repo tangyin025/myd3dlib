@@ -4,6 +4,7 @@
 #include "myException.h"
 #include "mySingleton.h"
 #include "myMath.h"
+#include "mySpline.h"
 #include "myTexture.h"
 #include "myMesh.h"
 #include "mySkeleton.h"

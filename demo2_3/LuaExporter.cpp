@@ -334,6 +334,11 @@ void Export2Lua(lua_State * L)
 				, luabind::def("Transformation", &my::Matrix4::Transformation)
 			]
 
+		, luabind::class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
+			.def(luabind::constructor<>())
+			.def("AddNode", (void(my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
+			.def("Interpolate", &my::Spline::Interpolate)
+
 		, luabind::class_<my::Texture, boost::shared_ptr<my::Texture> >("Texture")
 
 		, luabind::class_<my::Font, boost::shared_ptr<my::Font> >("Font")

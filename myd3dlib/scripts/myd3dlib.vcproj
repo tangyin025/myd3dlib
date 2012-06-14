@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\mySpline.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myTexture.cpp"
 				>
 			</File>
@@ -306,6 +310,10 @@
 			</File>
 			<File
 				RelativePath="..\include\mySound.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\mySpline.h"
 				>
 			</File>
 			<File
