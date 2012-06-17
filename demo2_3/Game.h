@@ -3,6 +3,18 @@
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include "Console.h"
+#include "Scene.h"
+
+class AlignEventArgs : public my::EventArgs
+{
+public:
+	my::Vector2 vp;
+
+	AlignEventArgs(const my::Vector2 & _vp)
+		: vp(_vp)
+	{
+	}
+};
 
 class Game
 	: public my::DxutApp
@@ -16,13 +28,19 @@ public:
 
 	my::LuaContextPtr m_lua;
 
-	typedef std::set<my::DialogPtr> DialogPtrSet;
+	typedef std::map<int, my::DialogPtr> DialogPtrSet;
 
 	DialogPtrSet m_dlgSet;
 
-	my::FontPtr m_uiFnt;
+	typedef std::map<int, BaseScenePtr> BaseScenePtrSet;
 
-	my::DialogPtr m_console;
+	BaseScenePtrSet m_sceneSet;
+
+	my::ControlEvent EventAlign;
+
+	my::ControlEvent EventConsole;
+
+	my::FontPtr m_font;
 
 	MessagePanelPtr m_panel;
 
@@ -33,6 +51,17 @@ public:
 	my::MousePtr m_mouse;
 
 	my::SoundPtr m_sound;
+
+public:
+	my::ControlPtr GetPanel(void) const
+	{
+		return m_panel;
+	}
+
+	void SetPanel(my::ControlPtr panel)
+	{
+		m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
+	}
 
 public:
 	Game(void);
@@ -94,7 +123,7 @@ public:
 
 	void ExecuteCode(const char * code);
 
-	void UpdateDlgPerspective(my::DialogPtr dlg);
+	void InsertDlg(int id, my::DialogPtr dlg);
 
-	void InsertDlg(my::DialogPtr dlg);
+	void InsertScene(int id, BaseScenePtr scene);
 };

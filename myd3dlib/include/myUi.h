@@ -478,17 +478,6 @@ namespace my
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
 
-	class AlignEventArgs : public EventArgs
-	{
-	public:
-		Vector2 vp;
-
-		AlignEventArgs(const Vector2 & _vp)
-			: vp(_vp)
-		{
-		}
-	};
-
 	class Dialog : public Control
 	{
 	public:
@@ -507,8 +496,6 @@ namespace my
 		bool m_bMouseDrag;
 
 		Vector2 m_MouseOffset;
-
-		ControlEvent EventAlign;
 
 	public:
 		Dialog(void)
