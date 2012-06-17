@@ -2,6 +2,7 @@
 #pragma once
 
 #include <boost/shared_array.hpp>
+#include <hash_map>
 
 namespace my
 {
@@ -152,7 +153,7 @@ namespace my
 			CRect textureRect;
 		};
 
-		typedef std::map<int, CharacterInfo> CharacterMap;
+		typedef stdext::hash_map<int, CharacterInfo> CharacterMap;
 
 		int m_LineHeight;
 
