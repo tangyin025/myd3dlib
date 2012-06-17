@@ -56,7 +56,7 @@ static const char *getF (lua_State *L, void *ud, size_t *size) {
 //	return LUA_ERRFILE;
 //}
 
-static int lua_loadfile (lua_State *L, const char *filename)
+static int luaL_loadfile (lua_State *L, const char *filename)
 {
 	LoadF lf;
 	//int status, readstatus;
@@ -107,16 +107,30 @@ static int lua_loadfile (lua_State *L, const char *filename)
 	return status;
 }
 
-static int lua_dofile(lua_State * L)
-{
+static int load_aux (lua_State *L, int status) {
+	if (status == 0)  /* OK? */
+		return 1;
+	else {
+		lua_pushnil(L);
+		lua_insert(L, -2);  /* put before error message */
+		return 2;  /* return nil plus error message */
+	}
+}
+
+static int luaB_loadfile (lua_State *L) {
+	const char *fname = luaL_optstring(L, 1, NULL);
+	return load_aux(L, luaL_loadfile(L, fname));
+}
+
+static int luaB_dofile (lua_State *L) {
 	const char *fname = luaL_optstring(L, 1, NULL);
 	int n = lua_gettop(L);
-	if (lua_loadfile(L, fname) != 0) lua_error(L);
+	if (luaL_loadfile(L, fname) != 0) lua_error(L);
 	lua_call(L, 0, LUA_MULTRET);
 	return lua_gettop(L) - n;
 }
 
-static int lua_exit(lua_State * L)
+static int os_exit(lua_State * L)
 {
 	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
 	_ASSERT(NULL != hwnd);
@@ -223,11 +237,14 @@ void Export2Lua(lua_State * L)
 	lua_pushcfunction(L, lua_print);
 	lua_setglobal(L, "print");
 
-	lua_pushcfunction(L, lua_dofile);
+	lua_pushcfunction(L, luaB_loadfile);
+	lua_setglobal(L, "loadfile");
+
+	lua_pushcfunction(L, luaB_dofile);
 	lua_setglobal(L, "dofile");
 
 	lua_getglobal(L, "os");
-	lua_pushcclosure(L, lua_exit, 0);
+	lua_pushcclosure(L, os_exit, 0);
 	lua_setfield(L, -2, "exit");
 	lua_pop(L, 1);
 

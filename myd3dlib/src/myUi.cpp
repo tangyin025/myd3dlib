@@ -860,7 +860,7 @@ void EditBox::PlaceCaret(int nCP)
 			x2 = x;
 		}
 
-		if(x < x1st)
+		if(x <= x1st) // ! '=' to rewrite 1st visible, if it was large than caret
 		{
 			m_nFirstVisible = m_nCaret;
 		}
