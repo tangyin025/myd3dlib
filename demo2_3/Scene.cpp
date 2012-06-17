@@ -16,12 +16,12 @@ void Scene::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	if(m_camera)
+	if(m_Camera)
 	{
-		m_camera->UpdateViewProj();
+		m_Camera->UpdateViewProj();
 
 		HRESULT hr;
 		V(pd3dDevice->Clear(
-			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 255, 72, 72), 1, 0));
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
 	}
 }

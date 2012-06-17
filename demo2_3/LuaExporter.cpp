@@ -361,13 +361,6 @@ void Export2Lua(lua_State * L)
 				, luabind::value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
 
-		, luabind::class_<my::UIRender, boost::shared_ptr<my::UIRender> >("UIRender")
-			.scope
-			[
-				luabind::def("BuildOrthoMatrices", &my::UIRender::BuildOrthoMatrices)
-				, luabind::def("BuildPerspectiveMatrices", &my::UIRender::BuildPerspectiveMatrices)
-			]
-
 		, luabind::class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
 
 		, luabind::class_<my::ControlEvent>("ControlEvent")
@@ -443,8 +436,7 @@ void Export2Lua(lua_State * L)
 		, luabind::class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(luabind::constructor<>())
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
-			.def_readwrite("ViewMatrix", &my::Dialog::m_ViewMatrix)
-			.def_readwrite("ProjMatrix", &my::Dialog::m_ProjMatrix)
+			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def("InsertControl", &my::Dialog::InsertControl)
 
 		, luabind::class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
@@ -475,14 +467,13 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")
 			.def(luabind::constructor<>())
-			.property("Camera", &Scene::GetCamera, &Scene::SetCamera)
+			.def_readwrite("Camera", &Scene::m_Camera)
 
 		, luabind::class_<AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
 			.def_readonly("vp", &AlignEventArgs::vp)
 
 		, luabind::class_<Game>("Game")
-			.def_readwrite("EventAlign", &Game::EventAlign)
-			.def_readwrite("EventConsole", &Game::EventConsole)
+			.def_readwrite("EventToggleConsole", &Game::EventToggleConsole)
 			.def_readwrite("font", &Game::m_font)
 			.property("Panel", &Game::GetPanel, &Game::SetPanel)
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)

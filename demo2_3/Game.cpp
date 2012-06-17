@@ -128,9 +128,10 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	V(m_settingsDlg.OnD3D9ResetDevice());
 
-	if(EventAlign)
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		EventAlign(my::EventArgsPtr(new AlignEventArgs(my::Vector2(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height))));
+		UpdateDlgViewProj(dlg_iter->second);
 	}
 
 	return S_OK;
@@ -255,9 +256,9 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if(EventConsole && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
+	if(EventToggleConsole && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
-		EventConsole(my::EventArgsPtr(new my::EventArgs()));
+		EventToggleConsole(my::EventArgsPtr(new my::EventArgs()));
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}
@@ -307,8 +308,26 @@ void Game::ExecuteCode(const char * code)
 	}
 }
 
+void Game::UpdateDlgViewProj(my::DialogPtr dlg)
+{
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
+
+	float aspect = pBackBufferSurfaceDesc->Width / (float)pBackBufferSurfaceDesc->Height;
+
+	float height = (float)pBackBufferSurfaceDesc->Height;
+
+	my::Vector2 vp(height * aspect, height);
+
+	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_ViewMatrix, dlg->m_ProjMatrix);
+
+	if(dlg->EventAlign)
+		dlg->EventAlign(my::EventArgsPtr(new AlignEventArgs(vp)));
+}
+
 void Game::InsertDlg(int id, my::DialogPtr dlg)
 {
+	UpdateDlgViewProj(dlg);
+
 	m_dlgSet.insert(std::make_pair(id, dlg));
 }
 

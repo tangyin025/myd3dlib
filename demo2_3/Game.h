@@ -36,9 +36,7 @@ public:
 
 	BaseScenePtrSet m_sceneSet;
 
-	my::ControlEvent EventAlign;
-
-	my::ControlEvent EventConsole;
+	my::ControlEvent EventToggleConsole;
 
 	my::FontPtr m_font;
 
@@ -122,6 +120,8 @@ public:
 	void ChangeDevice(void);
 
 	void ExecuteCode(const char * code);
+
+	void UpdateDlgViewProj(my::DialogPtr dlg);
 
 	void InsertDlg(int id, my::DialogPtr dlg);
 

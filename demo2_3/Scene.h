@@ -25,23 +25,7 @@ typedef boost::shared_ptr<BaseScene> BaseScenePtr;
 class Scene : public BaseScene
 {
 public:
-	my::MeshPtr m_mesh;
-
-	my::TexturePtr m_texture;
-
-	my::EffectPtr m_effect;
-
-	BaseCameraPtr m_camera;
-
-	BaseCameraPtr GetCamera(void) const
-	{
-		return m_camera;
-	}
-
-	void SetCamera(BaseCameraPtr camera)
-	{
-		m_camera = camera;
-	}
+	BaseCameraPtr m_Camera;
 
 public:
 	Scene(void);

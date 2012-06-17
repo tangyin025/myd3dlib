@@ -59,6 +59,9 @@ hud.Size=Vector2(170,170)
 hud.Skin.Font=font
 hud.Skin.TextColor=ARGB(255,255,255,255)
 hud.Skin.TextAlign=Font.AlignLeftTop
+hud.EventAlign=function(args)
+	hud.Location=Vector2(args.vp.x-170,0)
+end
 
 local btn_skin=ButtonSkin()
 btn_skin.Image=ControlImage(LoadTexture("button_normal.png"), Vector4(7,7,7,7))
@@ -104,15 +107,8 @@ hud:InsertControl(btn)
 
 game:InsertDlg(2, hud)
 
-game.EventConsole=function(args)
+game.EventToggleConsole=function(args)
 	console.Visible=not console.Visible
-end
-
-game.EventAlign=function(args)
-	local vp=args.vp
-	UIRender.BuildPerspectiveMatrices(math.rad(75), vp.x, vp.y, console.ViewMatrix, console.ProjMatrix)
-	UIRender.BuildPerspectiveMatrices(math.rad(75), vp.x, vp.y, hud.ViewMatrix, hud.ProjMatrix)
-	hud.Location=Vector2(args.vp.x-170,0)
 end
 
 game.font=font

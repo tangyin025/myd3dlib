@@ -497,6 +497,8 @@ namespace my
 
 		Vector2 m_MouseOffset;
 
+		ControlEvent EventAlign;
+
 	public:
 		Dialog(void)
 			: m_Transform(Matrix4::Identity())
