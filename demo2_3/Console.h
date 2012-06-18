@@ -54,7 +54,7 @@ public:
 
 typedef boost::shared_ptr<MessagePanel> MessagePanelPtr;
 
-class ConsoleImeEditBox
+class ConsoleEditBox
 	: public my::ImeEditBox
 {
 public:
@@ -62,9 +62,9 @@ public:
 
 	my::ControlEvent EventNextLine;
 
-	ConsoleImeEditBox(void);
+	ConsoleEditBox(void);
 
-	~ConsoleImeEditBox(void);
+	~ConsoleEditBox(void);
 
 	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };

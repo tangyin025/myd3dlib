@@ -464,10 +464,10 @@ void Export2Lua(lua_State * L)
 			.def("AddLine", &MessagePanel::AddLine)
 			.def("puts", &MessagePanel::puts)
 
-		, luabind::class_<ConsoleImeEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleImeEditBox")
+		, luabind::class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
 			.def(luabind::constructor<>())
-			.def_readwrite("EventPrevLine", &ConsoleImeEditBox::EventPrevLine)
-			.def_readwrite("EventNextLine", &ConsoleImeEditBox::EventNextLine)
+			.def_readwrite("EventPrevLine", &ConsoleEditBox::EventPrevLine)
+			.def_readwrite("EventNextLine", &ConsoleEditBox::EventNextLine)
 
 		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 			.def_readwrite("aspect", &BaseCamera::m_aspect)

@@ -143,15 +143,15 @@ void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
 	}
 }
 
-ConsoleImeEditBox::ConsoleImeEditBox(void)
+ConsoleEditBox::ConsoleEditBox(void)
 {
 }
 
-ConsoleImeEditBox::~ConsoleImeEditBox(void)
+ConsoleEditBox::~ConsoleEditBox(void)
 {
 }
 
-bool ConsoleImeEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
