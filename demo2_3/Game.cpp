@@ -192,8 +192,8 @@ void Game::OnD3D9FrameRender(
 		return;
 	}
 
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00484848, 1, 0));
+	//V(pd3dDevice->Clear(
+	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00484848, 1, 0));
 
 	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
 	for(; scene_iter != m_sceneSet.end(); scene_iter++)
@@ -330,10 +330,10 @@ void Game::InsertDlg(int id, my::DialogPtr dlg)
 {
 	UpdateDlgViewProj(dlg);
 
-	m_dlgSet.insert(std::make_pair(id, dlg));
+	m_dlgSet[id] = dlg;
 }
 
 void Game::InsertScene(int id, BaseScenePtr scene)
 {
-	m_sceneSet.insert(std::make_pair(id, scene));
+	m_sceneSet[id] = scene;
 }

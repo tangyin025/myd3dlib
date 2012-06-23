@@ -1252,34 +1252,34 @@ namespace my
 		return 1;
 	}
 
-	//static float calculateBoxAxisAndTrianglePenetration(
+	//static float CalculateBoxAxisAndTrianglePenetration(
 	//	const CollisionBox & box,
 	//	const Vector3 & axis,
 	//	const Vector3 & v0,
 	//	const Vector3 & v1,
 	//	const Vector3 & v2)
 	//{
-	//	_ASSERT(t3d::vec3IsNormalized(axis));
+	//	_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
-	//	Vector3 planeNormal = t3d::vec3Neg(axis);
+	//	Vector3 planeNormal = -axis;
 
-	//	float smallestDistance = t3d::min(
-	//		calculatePointPlaneDistance(box.getTransformAxis(3), v0, planeNormal),
-	//		calculatePointPlaneDistance(box.getTransformAxis(3), v1, planeNormal),
-	//		calculatePointPlaneDistance(box.getTransformAxis(3), v2, planeNormal));
+	//	float smallestDistance = Min(
+	//		CalculatePointPlaneDistance(box.getTransformAxis(3), v0, planeNormal), Min(
+	//			CalculatePointPlaneDistance(box.getTransformAxis(3), v1, planeNormal),
+	//			CalculatePointPlaneDistance(box.getTransformAxis(3), v2, planeNormal)));
 
-	//	return calculateBoxAxisHalfProjection(box, axis) - smallestDistance;
+	//	return IntersectionTests::calculateBoxAxisHalfProjection(box, axis) - smallestDistance;
 	//}
 
-	//static Vector3 findPointFromTriangleByDirection(
+	//static Vector3 FindPointFromTriangleByDirection(
 	//	const Vector3 & v0,
 	//	const Vector3 & v1,
 	//	const Vector3 & v2,
 	//	const Vector3 & dir)
 	//{
-	//	float proj0 = t3d::vec3Dot(v0, dir);
-	//	float proj1 = t3d::vec3Dot(v1, dir);
-	//	float proj2 = t3d::vec3Dot(v2, dir);
+	//	float proj0 = v0.dot(dir);
+	//	float proj1 = v1.dot(dir);
+	//	float proj2 = v2.dot(dir);
 
 	//	if(proj0 > proj1)
 	//	{
@@ -1309,9 +1309,9 @@ namespace my
 	//	float & smallestPenetration,
 	//	unsigned & smallestIndex)
 	//{
-	//	_ASSERT(t3d::vec3IsNormalized(axis));
+	//	_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
-	//	float penetration = calculateBoxAxisAndTrianglePenetration(box, axis, v0, v1, v2);
+	//	float penetration = CalculateBoxAxisAndTrianglePenetration(box, axis, v0, v1, v2);
 
 	//	if(penetration <= 0)
 	//	{
@@ -1337,12 +1337,12 @@ namespace my
 	//	float & smallestPenetration,
 	//	unsigned & smallestIndex)
 	//{
-	//	if(t3d::vec3IsZero(axis))
+	//	if(axis.length() < EPSILON_E6)
 	//	{
 	//		return true;
 	//	}
 
-	//	return _tryBoxAxisAndTriangle(box, t3d::vec3Normalize(axis), v0, v1, v2, index, smallestPenetration, smallestIndex);
+	//	return _tryBoxAxisAndTriangle(box, axis.normalize(), v0, v1, v2, index, smallestPenetration, smallestIndex);
 	//}
 
 	//unsigned CollisionDetector::boxAndTriangle(
@@ -1356,32 +1356,32 @@ namespace my
 	//{
 	//	_ASSERT(limits > 0);
 
-	//	float smallestPenetration = REAL_MAX;
+	//	float smallestPenetration = FLT_MAX;
 
 	//	unsigned smallestIndex = UINT_MAX;
 
-	//	unsigned smallestSingleAxis;
+	//	//unsigned smallestSingleAxis;
 
-	//	if(!_tryBoxAxisAndTriangle(box, calculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
+	//	if(!_tryBoxAxisAndTriangle(box, CalculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(0), v0, v1, v2, 1, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(1), v0, v1, v2, 2, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(2), v0, v1, v2, 3, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v1, v0)), v0, v1, v2, 4, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v2, v1)), v0, v1, v2, 5, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(0), t3d::vec3Sub(v0, v2)), v0, v1, v2, 6, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v1, v0)), v0, v1, v2, 7, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v2, v1)), v0, v1, v2, 8, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(1), t3d::vec3Sub(v0, v2)), v0, v1, v2, 9, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v1, v0)), v0, v1, v2, 10, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v2, v1)), v0, v1, v2, 11, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, t3d::vec3Cross(box.getTransformAxis(2), t3d::vec3Sub(v0, v2)), v0, v1, v2, 12, smallestPenetration, smallestIndex))
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v1 - v0), v0, v1, v2, 4, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v2 - v1), v0, v1, v2, 5, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v0 - v2), v0, v1, v2, 6, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v1 - v0), v0, v1, v2, 7, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v2 - v1), v0, v1, v2, 8, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v0 - v2), v0, v1, v2, 9, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v1 - v0), v0, v1, v2, 10, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v2 - v1), v0, v1, v2, 11, smallestPenetration, smallestIndex)
+	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v0 - v2), v0, v1, v2, 12, smallestPenetration, smallestIndex))
 	//	{
 	//		return 0;
 	//	}
 
 	//	if(0 == smallestIndex)
 	//	{
-	//		contacts->contactNormal = t3d::vec3Neg(calculateTriangleNormal(v0, v1, v2));
+	//		contacts->contactNormal = -CalculateTriangleNormal(v0, v1, v2);
 	//		contacts->penetration = smallestPenetration;
 	//		contacts->contactPoint = findPointFromBoxByDirection(box, contacts->contactNormal);
 	//		contacts->bodys[0] = box.body;
@@ -1391,9 +1391,9 @@ namespace my
 
 	//	if(smallestIndex < 4)
 	//	{
-	//		contacts->contactNormal = t3d::vec3Neg(box.getTransformAxis(smallestIndex - 1));
+	//		contacts->contactNormal = -box.getTransformAxis(smallestIndex - 1);
 	//		contacts->penetration = smallestPenetration;
-	//		contacts->contactPoint = findPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
+	//		contacts->contactPoint = FindPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
 	//		contacts->bodys[0] = box.body;
 	//		contacts->bodys[1] = bodyForTriangle;
 	//		return 1;
