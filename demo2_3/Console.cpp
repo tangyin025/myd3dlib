@@ -1,4 +1,5 @@
-﻿#include "Console.h"
+﻿#include "stdafx.h"
+#include "Console.h"
 #include "Game.h"
 
 MessagePanel::MessagePanel(void)
@@ -12,9 +13,9 @@ MessagePanel::~MessagePanel(void)
 {
 }
 
-void MessagePanel::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset)
+void MessagePanel::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset)
 {
-	my::Control::OnRender(pd3dDevice, fElapsedTime, Offset);
+	my::Control::Draw(pd3dDevice, fElapsedTime, Offset);
 
 	if(m_Skin && m_Skin->m_Font)
 	{
@@ -29,7 +30,7 @@ void MessagePanel::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, c
 		}
 	}
 
-	m_scrollbar->OnRender(pd3dDevice, fElapsedTime, m_Location + Offset);
+	m_scrollbar->Draw(pd3dDevice, fElapsedTime, m_Location + Offset);
 }
 
 bool MessagePanel::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)

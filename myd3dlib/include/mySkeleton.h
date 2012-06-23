@@ -1,6 +1,11 @@
 
 #pragma once
 
+#include <vector>
+#include "myMath.h"
+#include <map>
+#include <boost/shared_ptr.hpp>
+
 namespace my
 {
 	class BoneHierarchyNode

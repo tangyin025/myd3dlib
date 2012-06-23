@@ -1,4 +1,5 @@
-﻿#include "LuaExporter.h"
+﻿#include "stdafx.h"
+#include "LuaExtension.h"
 #include "Game.h"
 #include <luabind/luabind.hpp>
 
@@ -170,13 +171,13 @@ namespace luabind
 
 		std::wstring from(lua_State * L, int index)
 		{
-			return ms2ws(lua_tostring(L, index));
+			return u8tows(lua_tostring(L, index));
 		}
 
-		void to(lua_State * L, std::wstring const & s)
+		void to(lua_State * L, std::wstring const & str)
 		{
-			std::string t(ws2ms(s.c_str()));
-			lua_pushlstring(L, t.c_str(), t.size());
+			std::string res(wstou8(str.c_str()));
+			lua_pushlstring(L, res.c_str(), res.size());
 		}
 	};
 

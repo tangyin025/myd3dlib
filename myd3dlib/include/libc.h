@@ -2,6 +2,9 @@
 #ifndef __LIBC_H__
 #define __LIBC_H__
 
+#include <stdlib.h>
+#include <string>
+
 #if _MSC_VER < 1400
 #define vsnprintf _vsnprintf
 #define vswprintf _vsnwprintf
@@ -19,9 +22,13 @@ std::basic_string<char> str_printf(const char * format, ...);
 
 std::basic_string<wchar_t> str_printf(const wchar_t * format, ...);
 
-std::basic_string<wchar_t> ms2ws(const char * mstr);
+std::basic_string<wchar_t> ms2ws(const char * str);
 
-std::basic_string<char> ws2ms(const wchar_t * wstr);
+std::basic_string<char> ws2ms(const wchar_t * str);
+
+std::basic_string<wchar_t> u8tows(const char * str);
+
+std::basic_string<char> wstou8(const wchar_t * str);
 
 #ifdef _UNICODE
 #define ms2ts(str) ms2ws(str)

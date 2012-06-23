@@ -1,45 +1,88 @@
 
 #pragma once
-
+//Find all "#include <", Match case, Whole word, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
+#include <memory.h> // to allow <,> comparisons
+#include <stdlib.h>
 #include <string>
-#include <atlbase.h>
-#include <DXUT.h>
-#include <set>
 #include <string>
-#include <tchar.h>
-#include <windows.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_SIZES_H
-#include <map>
-#include <d3dx9math.h>
-#include <d3d9.h>
-#include <d3dx9mesh.h>
-#include <string>
-#include <vector>
-#include <boost/shared_ptr.hpp>
-#include <string>
-#include <tchar.h>
-#include <unzip.h>
-//#include <zzip/lib.h>
-#include <boost/shared_ptr.hpp>
-#include <crtdbg.h>
-#include <atlbase.h>
-#include <cstdio>
-#include <stdarg.h>
-#include <crtdbg.h>
-#include <SDKmisc.h>
-#include <atlbase.h>
 #include <sstream>
-#include <d3d9.h>
-#include <atltypes.h>
-//#include <boost/property_tree/detail/rapidxml.hpp>
-#include <atlbase.h>
+#include <boost/function.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/utility/enable_if.hpp>
+#include <boost/shared_ptr.hpp>
+#include <boost/type_traits/is_void.hpp>
+#include <boost/type_traits/is_same.hpp>
+#include <limits>
+#include <boost/static_assert.hpp>
+//#include <lua.h>
+//#include <lauxlib.h>
+//#include <lualib.h>
 #include <vector>
+#include <d3d9.h>
+#include <DXUT.h>
 #include <DXUTgui.h>
 #include <DXUTsettingsdlg.h>
-#define DIRECTINPUT_VERSION 0x0800
+#include <atlbase.h>
+#include <d3dx9.h>
+#include <atlbase.h>
+#include <DXUT.h>
+#include <boost/shared_ptr.hpp>
+#include <string>
+#include <Windows.h>
+#include <boost/shared_ptr.hpp>
+#include <d3dx9.h>
+#include <atltypes.h>
+#include <hash_map>
+#include <ft2build.h>
+#include <boost/shared_ptr.hpp>
+#include <dinput.h>
+#include <atlbase.h>
+#include <DXUT.h>
+#include <crtdbg.h>
+#include <d3dx9.h>
+#include <d3d9.h>
+#include <set>
+#include <myMath.h>
+#include <vector>
+#include <atlbase.h>
+#include <boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <list>
+#include <vector>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <unzip.h>
+#include <ft2build.h>
+#include <atlbase.h>
+#include <d3d9.h>
+#include <map>
+#include <boost/shared_ptr.hpp>
+#include <Windows.h>
+#include <DXUT.h>
+#include <vector>
+#include <map>
+#include <boost/shared_ptr.hpp>
+#include <boost/shared_ptr.hpp>
+#include <dsound.h>
+#include <DXUT.h>
+#include <boost/shared_ptr.hpp>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <d3d9.h>
+#include <atlbase.h>
+#include <atltypes.h>
+#include <DXUT.h>
+#include <boost/function.hpp>
+#include <boost/weak_ptr.hpp>
+#include <set>
+#include <cstdlib>      // For std::size_t
+#include <cassert>      // For assert
+#include <new>          // For placement new
+#include <exception>    // For std::exception
+#include <SDKmisc.h>
+#include <sstream>
+#include <d3d9.h>
 #include <dinput.h>
 #include <dsound.h>
-
-//#pragma warning(error : 172)
+#include <ImeUi.h>
+  //Matching lines: 84    Matching files: 23    Total files searched: 39

@@ -1,6 +1,9 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myEffect.h"
+#include "myException.h"
+#include "libc.h"
+#include "myResource.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )

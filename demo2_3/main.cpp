@@ -1,4 +1,5 @@
 ﻿
+#include "stdafx.h"
 #include <myd3dlib.h>
 #include <DXUTCamera.h>
 #include <btBulletDynamicsCommon.h>

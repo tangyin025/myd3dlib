@@ -2,7 +2,10 @@
 #ifndef __MYPHYSICS_H__
 #define __MYPHYSICS_H__
 
+#include "myMath.h"
+#include <boost/shared_ptr.hpp>
 #include <list>
+#include <vector>
 
 namespace my
 {

@@ -1,6 +1,13 @@
 
 #pragma once
 
+#include "mySingleton.h"
+#include <d3d9.h>
+#include <DXUT.h>
+#include <DXUTgui.h>
+#include <DXUTsettingsdlg.h>
+#include <atlbase.h>
+
 namespace my
 {
 	class DxutApp : public SingleInstance<DxutApp>

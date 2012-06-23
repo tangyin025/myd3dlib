@@ -1,4 +1,5 @@
-﻿#include "SkyBox.h"
+﻿#include "stdafx.h"
+#include "SkyBox.h"
 
 SkyBox::SkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 	: m_Device(pD3DDevice)

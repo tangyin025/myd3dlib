@@ -1,6 +1,13 @@
 
 #pragma once
 
+#include <d3dx9.h>
+#include <atlbase.h>
+#include "myMath.h"
+#include <DXUT.h>
+#include <boost/shared_ptr.hpp>
+#include "mySingleton.h"
+
 namespace my
 {
 	class ConstantTable

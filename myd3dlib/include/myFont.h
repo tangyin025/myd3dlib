@@ -1,8 +1,15 @@
 
 #pragma once
 
-#include <boost/shared_array.hpp>
+#include <boost/shared_ptr.hpp>
+#include "mySingleton.h"
+#include <d3dx9.h>
+#include "myTexture.h"
+#include <atltypes.h>
+#include "myMath.h"
 #include <hash_map>
+#include <ft2build.h>
+#include FT_FREETYPE_H
 
 namespace my
 {

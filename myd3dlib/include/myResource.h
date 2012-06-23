@@ -1,7 +1,16 @@
 
 #pragma once
 
-#include <boost/weak_ptr.hpp>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <unzip.h>
+#include "mySingleton.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include <atlbase.h>
+#include <d3d9.h>
+#include "myUi.h"
+#include <map>
 
 namespace my
 {

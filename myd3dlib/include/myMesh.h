@@ -1,6 +1,15 @@
 
 #pragma once
 
+#include <d3d9.h>
+#include <set>
+#include <myMath.h>
+#include <vector>
+#include <atlbase.h>
+#include <boost/shared_ptr.hpp>
+#include "mySingleton.h"
+#include "myException.h"
+
 namespace my
 {
 	struct D3DVERTEXELEMENT9Less

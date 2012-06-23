@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myCollision.h"
 
 namespace my
 {

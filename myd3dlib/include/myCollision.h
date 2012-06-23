@@ -2,6 +2,10 @@
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__
 
+#include "myMath.h"
+#include <vector>
+#include "myPhysics.h"
+
 namespace my
 {
 	// /////////////////////////////////////////////////////////////////////////////////////

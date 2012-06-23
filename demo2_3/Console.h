@@ -27,7 +27,7 @@ public:
 
 	~MessagePanel(void);
 
-	virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset);
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset);
 
 	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

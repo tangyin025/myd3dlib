@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include <crtdbg.h>
+#include <d3dx9.h>
+
 #define EPSILON_E3			(1.0e-3)
 #define EPSILON_E4			(1.0e-4)
 #define EPSILON_E5			(1.0e-5)

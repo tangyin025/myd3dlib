@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Scene.h"
 #include "Game.h"
 
@@ -11,7 +12,7 @@ void Scene::OnFrameMove(
 {
 }
 
-void Scene::OnFrameRender(
+void Scene::OnRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)

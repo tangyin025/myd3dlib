@@ -1,6 +1,10 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myException.h"
+#include <sstream>
+#include <d3d9.h>
+#include <dinput.h>
+#include <dsound.h>
 
 using namespace my;
 

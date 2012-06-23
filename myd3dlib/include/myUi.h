@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include <boost/weak_ptr.hpp>
-#pragma warning(disable: 4819)
+#include "myFont.h"
 #include <boost/function.hpp>
-#pragma warning(default: 4819)
+#include <boost/weak_ptr.hpp>
+#include <set>
 
 namespace my
 {
@@ -144,7 +144,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -194,7 +194,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
@@ -238,7 +238,7 @@ namespace my
 			m_Skin = ButtonSkinPtr(new ButtonSkin());
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -319,7 +319,7 @@ namespace my
 			m_Skin = EditBoxSkinPtr(new EditBoxSkin());
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -368,7 +368,7 @@ namespace my
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -463,7 +463,7 @@ namespace my
 			m_Skin = ScrollBarSkinPtr(new ScrollBarSkin());
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -489,9 +489,9 @@ namespace my
 
 		Matrix4 m_Transform;
 
-		Matrix4 m_ViewMatrix;
+		Matrix4 m_View;
 
-		Matrix4 m_ProjMatrix;
+		Matrix4 m_Proj;
 
 		bool m_bMouseDrag;
 
@@ -505,14 +505,14 @@ namespace my
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
-			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_ViewMatrix, m_ProjMatrix);
+			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_View, m_Proj);
 		}
 
 		virtual ~Dialog(void)
 		{
 		}
 
-		virtual void OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

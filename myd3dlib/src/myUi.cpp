@@ -1,7 +1,10 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myUi.h"
+#include "myResource.h"
+#include "myDxutApp.h"
 #include <ImeUi.h>
+#include "myCollision.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -186,7 +189,7 @@ void ControlSkin::DrawString(LPCWSTR pString, const my::Rectangle & rect, DWORD 
 	}
 }
 
-void Control::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Control::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -282,7 +285,7 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
-void Static::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Static::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -298,7 +301,7 @@ bool Static::ContainsPoint(const Vector2 & pt)
 	return false;
 }
 
-void Button::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -436,7 +439,7 @@ void Button::Refresh(void)
 	m_BlendColor = D3DXCOLOR(0,0,0,0);
 }
 
-void EditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -1029,11 +1032,11 @@ bool ImeEditBox::s_bHideCaret = false;
 
 std::wstring ImeEditBox::s_CompString;
 
-void ImeEditBox::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
-		EditBox::OnRender(pd3dDevice, fElapsedTime, Offset);
+		EditBox::Draw(pd3dDevice, fElapsedTime, Offset);
 
 	    ImeUi_RenderUI();
 
@@ -1232,7 +1235,7 @@ void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fEla
 	}
 }
 
-void ScrollBar::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
     // Check if the arrow button has been held for a while.
     // If so, update the thumb position to simulate repeated
@@ -1436,20 +1439,20 @@ void ScrollBar::Scroll(int nDelta)
 	m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, m_nPosition + nDelta));
 }
 
-void Dialog::OnRender(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Dialog::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_ViewMatrix));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_ProjMatrix));
+	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_View));
+	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Proj));
 
 	if(m_bEnabled && m_bVisible)
 	{
-		Control::OnRender(pd3dDevice, fElapsedTime, Vector2(0,0));
+		Control::Draw(pd3dDevice, fElapsedTime, Vector2(0,0));
 
 		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->OnRender(pd3dDevice, fElapsedTime, m_Location);
+			(*ctrl_iter)->Draw(pd3dDevice, fElapsedTime, m_Location);
 		}
 	}
 }
@@ -1513,7 +1516,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
-			Matrix4 invViewMatrix = m_ViewMatrix.inverse();
+			Matrix4 invViewMatrix = m_View.inverse();
 			const Vector3 & viewX = invViewMatrix[0];
 			const Vector3 & viewY = invViewMatrix[1];
 			const Vector3 & viewZ = invViewMatrix[2];
@@ -1522,7 +1525,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
 			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_ProjMatrix._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_ProjMatrix._22);
+			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
 			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
 
 			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);

@@ -1,6 +1,8 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myDxutApp.h"
+#include <SDKmisc.h>
+#include "myResource.h"
 
 using namespace my;
 

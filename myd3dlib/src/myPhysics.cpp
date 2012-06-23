@@ -1,6 +1,6 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "myPhysics.h"
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(P) (P)

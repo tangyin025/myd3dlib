@@ -1,6 +1,8 @@
-﻿#include "Game.h"
-#include "LuaExporter.h"
+﻿#include "stdafx.h"
+#include "Game.h"
+#include "LuaExtension.h"
 #include <luabind/luabind.hpp>
+#include <SDKmisc.h>
 
 Game::Game(void)
 {
@@ -196,7 +198,7 @@ void Game::OnD3D9FrameRender(
 	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
 	for(; scene_iter != m_sceneSet.end(); scene_iter++)
 	{
-		scene_iter->second->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+		scene_iter->second->OnRender(pd3dDevice, fTime, fElapsedTime);
 	}
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -206,7 +208,7 @@ void Game::OnD3D9FrameRender(
 		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 		for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 		{
-			dlg_iter->second->OnRender(pd3dDevice, fElapsedTime);
+			dlg_iter->second->Draw(pd3dDevice, fElapsedTime);
 		}
 
 		if(m_font)
@@ -318,7 +320,7 @@ void Game::UpdateDlgViewProj(my::DialogPtr dlg)
 
 	my::Vector2 vp(height * aspect, height);
 
-	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_ViewMatrix, dlg->m_ProjMatrix);
+	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
 
 	if(dlg->EventAlign)
 		dlg->EventAlign(my::EventArgsPtr(new AlignEventArgs(vp)));

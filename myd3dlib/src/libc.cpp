@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
-#include "myd3dlib.h"
+#include "libc.h"
+#include "myException.h"
 
 #define FAILED_THROW_CUSEXCEPTION(expr) \
 	{ \
@@ -130,17 +131,17 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	return ret;
 }
 
-std::basic_string<wchar_t> ms2ws(const char * mstr)
+std::basic_string<wchar_t> ms2ws(const char * str)
 {
 	int nLen;
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr, -1, NULL, 0)))
+	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, NULL, 0)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<wchar_t> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, mstr, -1, &ret[0], nLen)))
+	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, &ret[0], nLen)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -149,17 +150,55 @@ std::basic_string<wchar_t> ms2ws(const char * mstr)
 	return ret;
 }
 
-std::basic_string<char> ws2ms(const wchar_t * wstr)
+std::basic_string<char> ws2ms(const wchar_t * str)
 {
 	int nLen;
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr, -1, NULL, 0, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, NULL, 0, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<char> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, wstr, -1, &ret[0], nLen, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, &ret[0], nLen, NULL, NULL)))
+	{
+		THROW_WINEXCEPTION(::GetLastError());
+	}
+
+	ret.resize(nLen - 1);
+	return ret;
+}
+
+std::basic_string<wchar_t> u8tows(const char * str)
+{
+	int nLen;
+	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0)))
+	{
+		THROW_WINEXCEPTION(::GetLastError());
+	}
+
+	std::basic_string<wchar_t> ret;
+	ret.resize(nLen - 1);
+	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, 0, str, -1, &ret[0], nLen)))
+	{
+		THROW_WINEXCEPTION(::GetLastError());
+	}
+
+	ret.resize(nLen - 1);
+	return ret;
+}
+
+std::basic_string<char> wstou8(const wchar_t * str)
+{
+	int nLen;
+	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL)))
+	{
+		THROW_WINEXCEPTION(::GetLastError());
+	}
+
+	std::basic_string<char> ret;
+	ret.resize(nLen - 1);
+	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, 0, str, -1, &ret[0], nLen, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}

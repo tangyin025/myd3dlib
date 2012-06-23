@@ -1,6 +1,10 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+#include <Windows.h>
+#include <DXUT.h>
+
 namespace my
 {
 	template <class DrivedClass>

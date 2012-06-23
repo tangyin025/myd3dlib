@@ -1,6 +1,11 @@
 
 #pragma once
 
+#include <boost/shared_ptr.hpp>
+#include <dsound.h>
+#include <DXUT.h>
+#include "myMath.h"
+
 namespace my
 {
 	class Sound;
