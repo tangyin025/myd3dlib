@@ -1,82 +1,82 @@
-
+﻿
 #include "stdafx.h"
 #include "myCollision.h"
 
 namespace my
 {
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// BoundingSphere
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// BoundingSphere
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	const Vector3 & BoundingSphere::getCenter(void) const
-	{
-		return center;
-	}
+	//const Vector3 & BoundingSphere::getCenter(void) const
+	//{
+	//	return center;
+	//}
 
-	void BoundingSphere::setCenter(const Vector3 & _center)
-	{
-		center = _center;
-	}
+	//void BoundingSphere::setCenter(const Vector3 & _center)
+	//{
+	//	center = _center;
+	//}
 
-	const float BoundingSphere::getRadius(void) const
-	{
-		return radius;
-	}
+	//const float BoundingSphere::getRadius(void) const
+	//{
+	//	return radius;
+	//}
 
-	void BoundingSphere::setRadius(float _radius)
-	{
-		radius = _radius;
-	}
+	//void BoundingSphere::setRadius(float _radius)
+	//{
+	//	radius = _radius;
+	//}
 
-	BoundingSphere::BoundingSphere(const Vector3 & _center, float _radius)
-		: center(_center)
-		, radius(_radius)
-	{
-	}
+	//BoundingSphere::BoundingSphere(const Vector3 & _center, float _radius)
+	//	: center(_center)
+	//	, radius(_radius)
+	//{
+	//}
 
-	bool BoundingSphere::overlaps(const BoundingSphere & other) const
-	{
-		return (center - other.center).lengthSq() < (radius + other.radius) * (radius + other.radius);
-	}
+	//bool BoundingSphere::overlaps(const BoundingSphere & other) const
+	//{
+	//	return (center - other.center).lengthSq() < (radius + other.radius) * (radius + other.radius);
+	//}
 
-	float BoundingSphere::getGrowth(const BoundingSphere & other) const
-	{
-		BoundingSphere newSphere = buildBoundingSphere(*this, other);
+	//float BoundingSphere::getGrowth(const BoundingSphere & other) const
+	//{
+	//	BoundingSphere newSphere = buildBoundingSphere(*this, other);
 
-		return newSphere.getRadius() * newSphere.getRadius() - radius * radius;
-	}
+	//	return newSphere.getRadius() * newSphere.getRadius() - radius * radius;
+	//}
 
-	float BoundingSphere::getVolumn(void) const
-	{
-		return (float)4.0 / (float)3.0 * (float)D3DX_PI * radius * radius * radius;
-	}
+	//float BoundingSphere::getVolumn(void) const
+	//{
+	//	return (float)4.0 / (float)3.0 * (float)D3DX_PI * radius * radius * radius;
+	//}
 
-	BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs)
-	{
-		Vector3 centerOffset = lhs.getCenter() - rhs.getCenter();
-		float distanceSquare = centerOffset.lengthSq();
-		float radiusDiff = lhs.getRadius() - rhs.getRadius();
+	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs)
+	//{
+	//	Vector3 centerOffset = lhs.getCenter() - rhs.getCenter();
+	//	float distanceSquare = centerOffset.lengthSq();
+	//	float radiusDiff = lhs.getRadius() - rhs.getRadius();
 
-		if(radiusDiff * radiusDiff >= distanceSquare)
-		{
-			if(lhs.getRadius() >= rhs.getRadius())
-			{
-				return BoundingSphere(lhs.getCenter(), lhs.getRadius());
-			}
-			else
-			{
-				return BoundingSphere(rhs.getCenter(), rhs.getRadius());
-			}
-		}
-		else
-		{
-			float distance = sqrt(distanceSquare);
-			float newRadius = (lhs.getRadius() + distance + rhs.getRadius()) / 2;
-			Vector3 newCenter = lhs.getCenter() + centerOffset * ((newRadius - lhs.getRadius()) / distance);
+	//	if(radiusDiff * radiusDiff >= distanceSquare)
+	//	{
+	//		if(lhs.getRadius() >= rhs.getRadius())
+	//		{
+	//			return BoundingSphere(lhs.getCenter(), lhs.getRadius());
+	//		}
+	//		else
+	//		{
+	//			return BoundingSphere(rhs.getCenter(), rhs.getRadius());
+	//		}
+	//	}
+	//	else
+	//	{
+	//		float distance = sqrt(distanceSquare);
+	//		float newRadius = (lhs.getRadius() + distance + rhs.getRadius()) / 2;
+	//		Vector3 newCenter = lhs.getCenter() + centerOffset * ((newRadius - lhs.getRadius()) / distance);
 
-			return BoundingSphere(newCenter, newRadius);
-		}
-	}
+	//		return BoundingSphere(newCenter, newRadius);
+	//	}
+	//}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionPrimitive
@@ -114,11 +114,6 @@ namespace my
 	{
 	}
 
-	CollisionSphere::CollisionSphere(void)
-		: CollisionPrimitive(NULL)
-	{
-	}
-
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionBox
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -129,27 +124,6 @@ namespace my
 		const Matrix4 & _offset)
 		: CollisionPrimitive(_body, _offset)
 		, halfSize(_halfSize)
-	{
-	}
-
-	CollisionBox::CollisionBox(void)
-		: CollisionPrimitive(NULL)
-	{
-	}
-
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// CollisionPlane
-	// /////////////////////////////////////////////////////////////////////////////////////
-
-	CollisionPlane::CollisionPlane(
-		const Vector3 & direction,
-		float _distance)
-		: normal(direction.normalize())
-		, distance(_distance)
-	{
-	}
-
-	CollisionPlane::CollisionPlane(void)
 	{
 	}
 
@@ -1004,7 +978,7 @@ namespace my
 	{
 		/*
 		 * NOTE:
-		 *	why the algorithm for this funciton could not be understund by me ???
+		 *	看不懂啊？（其实看懂了-_-b）
 		 */
 
 		float smOne = dOne.lengthSq();
@@ -1155,7 +1129,7 @@ namespace my
 
 		/*
 		 * NOTE:
-		 *	why the algorithm for this funciton could not be understund by me ???
+		 *	intersection test for project from each axis, and determine whether point to face or edge to edge
 		 */
 
 		//if(!_tryAxis(box0, box1, box0.getTransformAxis(0), toCentre, 0, smallestPenetration, smallestIndex)
@@ -1252,153 +1226,197 @@ namespace my
 		return 1;
 	}
 
-	//static float CalculateBoxAxisAndTrianglePenetration(
-	//	const CollisionBox & box,
-	//	const Vector3 & axis,
-	//	const Vector3 & v0,
-	//	const Vector3 & v1,
-	//	const Vector3 & v2)
-	//{
-	//	_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
+	float CollisionDetector::calculateBoxAxisAndTrianglePenetration(
+		const CollisionBox & box,
+		const Vector3 & axis,
+		const Vector3 & v0,
+		const Vector3 & v1,
+		const Vector3 & v2)
+	{
+		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
-	//	Vector3 planeNormal = -axis;
+		float smallestDistance = Min(
+			(v0 - box.getTransformAxis(3)).dot(axis), Min(
+				(v1 - box.getTransformAxis(3)).dot(axis), (v2 - box.getTransformAxis(3)).dot(axis)));
 
-	//	float smallestDistance = Min(
-	//		CalculatePointPlaneDistance(box.getTransformAxis(3), v0, planeNormal), Min(
-	//			CalculatePointPlaneDistance(box.getTransformAxis(3), v1, planeNormal),
-	//			CalculatePointPlaneDistance(box.getTransformAxis(3), v2, planeNormal)));
+		return IntersectionTests::calculateBoxAxisHalfProjection(box, axis) - smallestDistance;
+	}
 
-	//	return IntersectionTests::calculateBoxAxisHalfProjection(box, axis) - smallestDistance;
-	//}
+	Vector3 CollisionDetector::findPointFromTriangleByDirection(
+		const Vector3 & v0,
+		const Vector3 & v1,
+		const Vector3 & v2,
+		const Vector3 & dir)
+	{
+		float proj0 = v0.dot(dir);
+		float proj1 = v1.dot(dir);
+		float proj2 = v2.dot(dir);
 
-	//static Vector3 FindPointFromTriangleByDirection(
-	//	const Vector3 & v0,
-	//	const Vector3 & v1,
-	//	const Vector3 & v2,
-	//	const Vector3 & dir)
-	//{
-	//	float proj0 = v0.dot(dir);
-	//	float proj1 = v1.dot(dir);
-	//	float proj2 = v2.dot(dir);
+		if(proj0 > proj1)
+		{
+			if(proj0 > proj2)
+			{
+				return v0;
+			}
+		}
+		else
+		{
+			if(proj1 > proj2)
+			{
+				return v1;
+			}
+		}
 
-	//	if(proj0 > proj1)
-	//	{
-	//		if(proj0 > proj2)
-	//		{
-	//			return v0;
-	//		}
-	//	}
-	//	else
-	//	{
-	//		if(proj1 > proj2)
-	//		{
-	//			return v1;
-	//		}
-	//	}
+		return v2;
+	}
 
-	//	return v2;
-	//}
+	bool CollisionDetector::_tryBoxAxisAndTriangle(
+		const CollisionBox & box,
+		const Vector3 & axis,
+		const Vector3 & v0,
+		const Vector3 & v1,
+		const Vector3 & v2,
+		unsigned index,
+		float & smallestPenetration,
+		unsigned & smallestIndex)
+	{
+		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
 
-	//static bool _tryBoxAxisAndTriangle(
-	//	const CollisionBox & box,
-	//	const Vector3 & axis,
-	//	const Vector3 & v0,
-	//	const Vector3 & v1,
-	//	const Vector3 & v2,
-	//	unsigned index,
-	//	float & smallestPenetration,
-	//	unsigned & smallestIndex)
-	//{
-	//	_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
+		float penetration = calculateBoxAxisAndTrianglePenetration(box, axis, v0, v1, v2);
 
-	//	float penetration = CalculateBoxAxisAndTrianglePenetration(box, axis, v0, v1, v2);
+		if(penetration <= 0)
+		{
+			return false;
+		}
 
-	//	if(penetration <= 0)
-	//	{
-	//		return false;
-	//	}
+		if(penetration < smallestPenetration)
+		{
+			smallestPenetration = penetration;
+			smallestIndex = index;
+		}
 
-	//	if(penetration < smallestPenetration)
-	//	{
-	//		smallestPenetration = penetration;
-	//		smallestIndex = index;
-	//	}
+		return true;
+	}
 
-	//	return true;
-	//}
+	bool CollisionDetector::_zeroAxisOrTryBoxAxisAndTriangle(
+		const CollisionBox & box,
+		const Vector3 & axis,
+		const Vector3 & v0,
+		const Vector3 & v1,
+		const Vector3 & v2,
+		unsigned index,
+		float & smallestPenetration,
+		unsigned & smallestIndex)
+	{
+		if(axis.length() < EPSILON_E6)
+		{
+			return true;
+		}
 
-	//static bool _zeroAxisOrTryBoxAxisAndTriangle(
-	//	const CollisionBox & box,
-	//	const Vector3 & axis,
-	//	const Vector3 & v0,
-	//	const Vector3 & v1,
-	//	const Vector3 & v2,
-	//	unsigned index,
-	//	float & smallestPenetration,
-	//	unsigned & smallestIndex)
-	//{
-	//	if(axis.length() < EPSILON_E6)
-	//	{
-	//		return true;
-	//	}
+		return _tryBoxAxisAndTriangle(box, axis.normalize(), v0, v1, v2, index, smallestPenetration, smallestIndex);
+	}
 
-	//	return _tryBoxAxisAndTriangle(box, axis.normalize(), v0, v1, v2, index, smallestPenetration, smallestIndex);
-	//}
+	unsigned CollisionDetector::boxAndTriangle(
+		const CollisionBox & box,
+		const Vector3 & v0,
+		const Vector3 & v1,
+		const Vector3 & v2,
+		RigidBody * bodyForTriangle,
+		Contact * contacts,
+		unsigned limits)
+	{
+		_ASSERT(limits > 0);
 
-	//unsigned CollisionDetector::boxAndTriangle(
-	//	const CollisionBox & box,
-	//	const Vector3 & v0,
-	//	const Vector3 & v1,
-	//	const Vector3 & v2,
-	//	RigidBody * bodyForTriangle,
-	//	Contact * contacts,
-	//	unsigned limits)
-	//{
-	//	_ASSERT(limits > 0);
+		float smallestPenetration = FLT_MAX;
 
-	//	float smallestPenetration = FLT_MAX;
+		unsigned smallestIndex = UINT_MAX;
 
-	//	unsigned smallestIndex = UINT_MAX;
+		unsigned smallestSingleAxis;
 
-	//	//unsigned smallestSingleAxis;
+		if(!_tryBoxAxisAndTriangle(box, CalculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(0), v0, v1, v2, 1, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(1), v0, v1, v2, 2, smallestPenetration, smallestIndex)
+			|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(2), v0, v1, v2, 3, smallestPenetration, smallestIndex)
+			|| (smallestSingleAxis = smallestIndex, false)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v1 - v0), v0, v1, v2, 4, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v2 - v1), v0, v1, v2, 5, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v0 - v2), v0, v1, v2, 6, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v1 - v0), v0, v1, v2, 7, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v2 - v1), v0, v1, v2, 8, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v0 - v2), v0, v1, v2, 9, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v1 - v0), v0, v1, v2, 10, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v2 - v1), v0, v1, v2, 11, smallestPenetration, smallestIndex)
+			|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v0 - v2), v0, v1, v2, 12, smallestPenetration, smallestIndex))
+		{
+			return 0;
+		}
 
-	//	if(!_tryBoxAxisAndTriangle(box, CalculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(0), v0, v1, v2, 1, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(1), v0, v1, v2, 2, smallestPenetration, smallestIndex)
-	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(2), v0, v1, v2, 3, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v1 - v0), v0, v1, v2, 4, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v2 - v1), v0, v1, v2, 5, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(0).cross(v0 - v2), v0, v1, v2, 6, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v1 - v0), v0, v1, v2, 7, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v2 - v1), v0, v1, v2, 8, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(1).cross(v0 - v2), v0, v1, v2, 9, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v1 - v0), v0, v1, v2, 10, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v2 - v1), v0, v1, v2, 11, smallestPenetration, smallestIndex)
-	//		|| !_zeroAxisOrTryBoxAxisAndTriangle(box, box.getTransformAxis(2).cross(v0 - v2), v0, v1, v2, 12, smallestPenetration, smallestIndex))
-	//	{
-	//		return 0;
-	//	}
+		if(0 == smallestIndex)
+		{
+			contacts->contactNormal = -CalculateTriangleNormal(v0, v1, v2);
+			contacts->penetration = smallestPenetration;
+			contacts->contactPoint = findPointFromBoxByDirection(box, contacts->contactNormal);
+			contacts->bodys[0] = box.body;
+			contacts->bodys[1] = bodyForTriangle;
+			return 1;
+		}
 
-	//	if(0 == smallestIndex)
-	//	{
-	//		contacts->contactNormal = -CalculateTriangleNormal(v0, v1, v2);
-	//		contacts->penetration = smallestPenetration;
-	//		contacts->contactPoint = findPointFromBoxByDirection(box, contacts->contactNormal);
-	//		contacts->bodys[0] = box.body;
-	//		contacts->bodys[1] = bodyForTriangle;
-	//		return 1;
-	//	}
+		if(smallestIndex < 4)
+		{
+			contacts->contactNormal = -box.getTransformAxis(smallestIndex - 1);
+			contacts->penetration = smallestPenetration;
+			contacts->contactPoint = findPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
+			contacts->bodys[0] = box.body;
+			contacts->bodys[1] = bodyForTriangle;
+			return 1;
+		}
 
-	//	if(smallestIndex < 4)
-	//	{
-	//		contacts->contactNormal = -box.getTransformAxis(smallestIndex - 1);
-	//		contacts->penetration = smallestPenetration;
-	//		contacts->contactPoint = FindPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
-	//		contacts->bodys[0] = box.body;
-	//		contacts->bodys[1] = bodyForTriangle;
-	//		return 1;
-	//	}
+		smallestIndex -= 4;
 
-	//	_ASSERT(false); return 0;
-	//}
+		unsigned boxAxisIndex = smallestIndex / 3;
+		unsigned triAxisIndex = smallestIndex % 3;
+
+		Vector3 boxAxis = box.getTransformAxis(boxAxisIndex);
+		Vector3 triEdge;
+		Vector3 triVert;
+		switch(triAxisIndex)
+		{
+		case 0:
+			triEdge = v1 - v0;
+			triVert = v0;
+			break;
+		case 1:
+			triEdge = v2 - v1;
+			triVert = v1;
+			break;
+		case 2:
+			triEdge = v0 - v2;
+			triVert = v2;
+			break;
+		default:
+			_ASSERT(false); return 0;
+		}
+
+		Vector3 axis = boxAxis.cross(triEdge).normalize();
+
+		Vector3 pointOnBoxEdge = Vector3(
+			0 == boxAxisIndex ? 0 : (box.getTransformAxis(0).dot(axis) > 0 ? -box.halfSize.x : box.halfSize.x),
+			1 == boxAxisIndex ? 0 : (box.getTransformAxis(1).dot(axis) > 0 ? -box.halfSize.y : box.halfSize.y),
+			2 == boxAxisIndex ? 0 : (box.getTransformAxis(2).dot(axis) > 0 ? -box.halfSize.z : box.halfSize.z)).transformCoord(box.getTransform());
+
+		contacts->contactNormal = axis;
+		contacts->penetration = smallestPenetration;
+		contacts->contactPoint = _contactPoint(
+			pointOnBoxEdge,
+			boxAxis,
+			box.halfSize[boxAxisIndex],
+			triVert,
+			triEdge.normalize(),
+			triEdge.length() * 0.5f,
+			smallestSingleAxis > 0);
+
+		contacts->bodys[0] = box.body;
+		contacts->bodys[1] = bodyForTriangle;
+		return 1;
+	}
 }
