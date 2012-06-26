@@ -4,79 +4,79 @@
 
 namespace my
 {
-	//// /////////////////////////////////////////////////////////////////////////////////////
-	//// BoundingSphere
-	//// /////////////////////////////////////////////////////////////////////////////////////
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// BoundingSphere
+	// /////////////////////////////////////////////////////////////////////////////////////
 
-	//const Vector3 & BoundingSphere::getCenter(void) const
-	//{
-	//	return center;
-	//}
+	const Vector3 & BoundingSphere::getCenter(void) const
+	{
+		return center;
+	}
 
-	//void BoundingSphere::setCenter(const Vector3 & _center)
-	//{
-	//	center = _center;
-	//}
+	void BoundingSphere::setCenter(const Vector3 & _center)
+	{
+		center = _center;
+	}
 
-	//const float BoundingSphere::getRadius(void) const
-	//{
-	//	return radius;
-	//}
+	const float BoundingSphere::getRadius(void) const
+	{
+		return radius;
+	}
 
-	//void BoundingSphere::setRadius(float _radius)
-	//{
-	//	radius = _radius;
-	//}
+	void BoundingSphere::setRadius(float _radius)
+	{
+		radius = _radius;
+	}
 
-	//BoundingSphere::BoundingSphere(const Vector3 & _center, float _radius)
-	//	: center(_center)
-	//	, radius(_radius)
-	//{
-	//}
+	BoundingSphere::BoundingSphere(const Vector3 & _center, float _radius)
+		: center(_center)
+		, radius(_radius)
+	{
+	}
 
-	//bool BoundingSphere::overlaps(const BoundingSphere & other) const
-	//{
-	//	return (center - other.center).lengthSq() < (radius + other.radius) * (radius + other.radius);
-	//}
+	bool BoundingSphere::overlaps(const BoundingSphere & other) const
+	{
+		return (center - other.center).lengthSq() < (radius + other.radius) * (radius + other.radius);
+	}
 
-	//float BoundingSphere::getGrowth(const BoundingSphere & other) const
-	//{
-	//	BoundingSphere newSphere = buildBoundingSphere(*this, other);
+	float BoundingSphere::getGrowth(const BoundingSphere & other) const
+	{
+		BoundingSphere newSphere = buildBoundingSphere(*this, other);
 
-	//	return newSphere.getRadius() * newSphere.getRadius() - radius * radius;
-	//}
+		return newSphere.getRadius() * newSphere.getRadius() - radius * radius;
+	}
 
-	//float BoundingSphere::getVolumn(void) const
-	//{
-	//	return (float)4.0 / (float)3.0 * (float)D3DX_PI * radius * radius * radius;
-	//}
+	float BoundingSphere::getVolumn(void) const
+	{
+		return (float)4.0 / (float)3.0 * (float)D3DX_PI * radius * radius * radius;
+	}
 
-	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs)
-	//{
-	//	Vector3 centerOffset = lhs.getCenter() - rhs.getCenter();
-	//	float distanceSquare = centerOffset.lengthSq();
-	//	float radiusDiff = lhs.getRadius() - rhs.getRadius();
+	BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs)
+	{
+		Vector3 centerOffset = lhs.getCenter() - rhs.getCenter();
+		float distanceSquare = centerOffset.lengthSq();
+		float radiusDiff = lhs.getRadius() - rhs.getRadius();
 
-	//	if(radiusDiff * radiusDiff >= distanceSquare)
-	//	{
-	//		if(lhs.getRadius() >= rhs.getRadius())
-	//		{
-	//			return BoundingSphere(lhs.getCenter(), lhs.getRadius());
-	//		}
-	//		else
-	//		{
-	//			return BoundingSphere(rhs.getCenter(), rhs.getRadius());
-	//		}
-	//	}
-	//	else
-	//	{
-	//		float distance = sqrt(distanceSquare);
-	//		float newRadius = (lhs.getRadius() + distance + rhs.getRadius()) / 2;
-	//		Vector3 newCenter = lhs.getCenter() + centerOffset * ((newRadius - lhs.getRadius()) / distance);
+		if(radiusDiff * radiusDiff >= distanceSquare)
+		{
+			if(lhs.getRadius() >= rhs.getRadius())
+			{
+				return BoundingSphere(lhs.getCenter(), lhs.getRadius());
+			}
+			else
+			{
+				return BoundingSphere(rhs.getCenter(), rhs.getRadius());
+			}
+		}
+		else
+		{
+			float distance = sqrt(distanceSquare);
+			float newRadius = (lhs.getRadius() + distance + rhs.getRadius()) / 2;
+			Vector3 newCenter = lhs.getCenter() + centerOffset * ((newRadius - lhs.getRadius()) / distance);
 
-	//		return BoundingSphere(newCenter, newRadius);
-	//	}
-	//}
+			return BoundingSphere(newCenter, newRadius);
+		}
+	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionPrimitive
@@ -978,7 +978,7 @@ namespace my
 	{
 		/*
 		 * NOTE:
-		 *	看不懂啊？（其实看懂了-_-b）
+		 *	计算两个edge之间的contact point
 		 */
 
 		float smOne = dOne.lengthSq();
