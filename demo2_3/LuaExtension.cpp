@@ -2,6 +2,7 @@
 #include "LuaExtension.h"
 #include "Game.h"
 #include <luabind/luabind.hpp>
+#include <luabind/operator.hpp>
 
 static int lua_print(lua_State * L)
 {
@@ -344,6 +345,7 @@ void Export2Lua(lua_State * L)
 				luabind::def("Identity", &my::Quaternion::Identity)
 				, luabind::def("RotationAxis", &my::Quaternion::RotationAxis)
 			]
+			.def(luabind::self * luabind::other<const my::Quaternion &>())
 
 		, luabind::class_<my::Matrix4, boost::shared_ptr<my::Matrix4> >("Matrix4")
 			.scope
@@ -351,6 +353,7 @@ void Export2Lua(lua_State * L)
 				luabind::def("Identity", &my::Matrix4::Identity)
 				, luabind::def("Transformation", &my::Matrix4::Transformation)
 			]
+			.def(luabind::self * luabind::other<const my::Matrix4 &>())
 
 		, luabind::class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
 			.def(luabind::constructor<>())

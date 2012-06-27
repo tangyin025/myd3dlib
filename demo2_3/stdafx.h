@@ -10,6 +10,7 @@
 #include <myd3dlib.h>
 #include <myD3dLib.h>
 #include <luabind/luabind.hpp>
+#include <luabind/operator.hpp>
 #include <SDKmisc.h>
 #include <luabind/luabind.hpp>
 #include <myd3dlib.h>

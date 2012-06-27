@@ -6,6 +6,26 @@
 class BaseScene
 {
 public:
+	static void DrawLine(
+		IDirect3DDevice9 * pd3dDevice,
+		const my::Vector3 & v0,
+		const my::Vector3 & v1,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
+	static void DrawSphere(
+		IDirect3DDevice9 * pd3dDevice,
+		float radius,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
+	static void DrawBox(
+		IDirect3DDevice9 * pd3dDevice,
+		const my::Vector3 & halfSize,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
+public:
 	virtual ~BaseScene(void)
 	{
 	}
