@@ -474,15 +474,15 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventNextLine", &ConsoleEditBox::EventNextLine)
 
 		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
-			.def_readwrite("aspect", &BaseCamera::m_aspect)
-			.def_readwrite("nz", &BaseCamera::m_nz)
-			.def_readwrite("fz", &BaseCamera::m_fz)
+			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
+			.def_readwrite("Nz", &BaseCamera::m_Nz)
+			.def_readwrite("Fz", &BaseCamera::m_Fz)
 
 		, luabind::class_<Camera, BaseCamera, boost::shared_ptr<BaseCamera> >("Camera")
 			.def(luabind::constructor<float, float, float, float>())
-			.def_readwrite("pos", &Camera::m_pos)
-			.def_readwrite("ori", &Camera::m_ori)
-			.def_readwrite("fovy", &Camera::m_fovy)
+			.def_readwrite("Position", &Camera::m_Position)
+			.def_readwrite("Orientation", &Camera::m_Orientation)
+			.def_readwrite("Fovy", &Camera::m_Fovy)
 
 		, luabind::class_<BaseScene, boost::shared_ptr<BaseScene> >("BaseScene")
 

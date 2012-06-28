@@ -5,23 +5,23 @@
 class BaseCamera
 {
 public:
-	float m_aspect;
+	float m_Aspect;
 
-	float m_nz;
+	float m_Nz;
 
-	float m_fz;
+	float m_Fz;
 
-	my::Matrix4 m_view;
+	my::Matrix4 m_View;
 
-	my::Matrix4 m_proj;
+	my::Matrix4 m_Proj;
 
 public:
-	BaseCamera(float aspect, float nz, float fz)
-		: m_aspect(aspect)
-		, m_nz(nz)
-		, m_fz(fz)
-		, m_view(my::Matrix4::identity)
-		, m_proj(my::Matrix4::identity)
+	BaseCamera(float Aspect, float Nz, float Fz)
+		: m_Aspect(Aspect)
+		, m_Nz(Nz)
+		, m_Fz(Fz)
+		, m_View(my::Matrix4::identity)
+		, m_Proj(my::Matrix4::identity)
 	{
 	}
 
@@ -29,12 +29,14 @@ public:
 	{
 	}
 
-	void UpdateAspect(float aspect)
+	void UpdateAspect(float Aspect)
 	{
-		m_aspect = aspect;
+		m_Aspect = Aspect;
 	}
 
-	virtual void UpdateViewProj(void) = 0;
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime) = 0;
 };
 
 typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
@@ -43,20 +45,22 @@ class Camera
 	: public BaseCamera
 {
 public:
-	my::Vector3 m_pos;
+	my::Vector3 m_Position;
 
-	my::Quaternion m_ori;
+	my::Quaternion m_Orientation;
 
-	float m_fovy;
+	float m_Fovy;
 
 public:
-	Camera(float fovy = D3DXToRadian(75.0f), float aspect = 1.333333f, float nz = 0.1f, float fz = 3000.0f)
-		: BaseCamera(aspect, nz, fz)
-		, m_pos(my::Vector3::zero)
-		, m_ori(my::Quaternion::identity)
-		, m_fovy(fovy)
+	Camera(float Fovy = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+		: BaseCamera(Aspect, Nz, Fz)
+		, m_Position(my::Vector3::zero)
+		, m_Orientation(my::Quaternion::identity)
+		, m_Fovy(Fovy)
 	{
 	}
 
-	virtual void UpdateViewProj(void);
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
 };

@@ -1,9 +1,11 @@
 #include "stdafx.h"
 #include "Camera.h"
 
-void Camera::UpdateViewProj(void)
+void Camera::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
 {
-	m_view = (my::Matrix4::RotationQuaternion(m_ori) * my::Matrix4::Translation(m_pos)).inverse();
+	m_View = (my::Matrix4::RotationQuaternion(m_Orientation) * my::Matrix4::Translation(m_Position)).inverse();
 
-	m_proj = my::Matrix4::PerspectiveFovLH(m_fovy, m_aspect, m_nz, m_fz);
+	m_Proj = my::Matrix4::PerspectiveFovLH(m_Fovy, m_Aspect, m_Nz, m_Fz);
 }

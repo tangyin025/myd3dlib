@@ -80,6 +80,58 @@ void BaseScene::DrawBox(
 	D3DCOLOR Color,
 	const Matrix4 & world)
 {
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+	};
+
+	Vertex v[8];
+	v[0].x = -halfSize.x; v[0].y = -halfSize.y; v[0].z = -halfSize.z; v[0].color = Color;
+	v[1].x =  halfSize.x; v[1].y = -halfSize.y; v[1].z = -halfSize.z; v[1].color = Color;
+	v[2].x = -halfSize.x; v[2].y =  halfSize.y; v[2].z = -halfSize.z; v[2].color = Color;
+	v[3].x =  halfSize.x; v[3].y =  halfSize.y; v[3].z = -halfSize.z; v[3].color = Color;
+	v[4].x = -halfSize.x; v[4].y =  halfSize.y; v[4].z =  halfSize.z; v[4].color = Color;
+	v[5].x =  halfSize.x; v[5].y =  halfSize.y; v[5].z =  halfSize.z; v[5].color = Color;
+	v[6].x = -halfSize.x; v[6].y = -halfSize.y; v[6].z =  halfSize.z; v[6].color = Color;
+	v[7].x =  halfSize.x; v[7].y = -halfSize.y; v[7].z =  halfSize.z; v[7].color = Color;
+
+	unsigned short idx[12 * 2];
+	int i = 0;
+	idx[i++] = 0; idx[i++] = 1; idx[i++] = 1; idx[i++] = 3; idx[i++] = 3; idx[i++] = 2; idx[i++] = 2; idx[i++] = 0;
+	idx[i++] = 0; idx[i++] = 6; idx[i++] = 1; idx[i++] = 7; idx[i++] = 3; idx[i++] = 5; idx[i++] = 2; idx[i++] = 4;
+	idx[i++] = 6; idx[i++] = 7; idx[i++] = 7; idx[i++] = 5; idx[i++] = 5; idx[i++] = 4; idx[i++] = 4; idx[i++] = 6;
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawIndexedPrimitiveUP(D3DPT_LINELIST, 0, _countof(v), _countof(idx) / 2, idx, D3DFMT_INDEX16, v, sizeof(v[0]));
+}
+
+void BaseScene::DrawTriangle(
+	IDirect3DDevice9 * pd3dDevice,
+	const my::Vector3 & v0,
+	const my::Vector3 & v1,
+	const my::Vector3 & v2,
+	D3DCOLOR Color,
+	const my::Matrix4 & world)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+	};
+
+	Vertex v[4];
+	v[0].x = v0.x; v[0].y = v0.y; v[0].z = v0.z; v[0].color = Color;
+	v[1].x = v1.x; v[1].y = v1.y; v[1].z = v1.z; v[1].color = Color;
+	v[2].x = v2.x; v[2].y = v2.y; v[2].z = v2.z; v[2].color = Color;
+	v[3] = v[0];
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, _countof(v) - 1, v, sizeof(v[0]));
 }
 
 Scene::Scene(void)
@@ -90,6 +142,10 @@ void Scene::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
+	if(m_Camera)
+	{
+		m_Camera->OnFrameMove(fTime, fElapsedTime);
+	}
 }
 
 void Scene::OnRender(
@@ -99,20 +155,24 @@ void Scene::OnRender(
 {
 	if(m_Camera)
 	{
-		m_Camera->UpdateViewProj();
-
 		HRESULT hr;
 		V(pd3dDevice->Clear(
-			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
+			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 
 		if(SUCCEEDED(pd3dDevice->BeginScene()))
 		{
-			pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_view);
-			pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_proj);
+			pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+			pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
-			DrawLine(pd3dDevice, Vector3(-1,0,0), Vector3(1,0,0), D3DCOLOR_ARGB(255,255,0,0));
-			DrawLine(pd3dDevice, Vector3(0,-1,0), Vector3(0,1,0), D3DCOLOR_ARGB(255,0,255,0));
-			DrawLine(pd3dDevice, Vector3(0,0,-1), Vector3(0,0,1), D3DCOLOR_ARGB(255,0,0,255));
+			DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+			DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+			for(int i = 1; i <= 10; i++)
+			{
+				DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			}
 
 			pd3dDevice->EndScene();
 		}

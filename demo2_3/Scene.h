@@ -25,6 +25,14 @@ public:
 		D3DCOLOR Color,
 		const my::Matrix4 & world = my::Matrix4::identity);
 
+	static void DrawTriangle(
+		IDirect3DDevice9 * pd3dDevice,
+		const my::Vector3 & v0,
+		const my::Vector3 & v1,
+		const my::Vector3 & v2,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
 public:
 	virtual ~BaseScene(void)
 	{
