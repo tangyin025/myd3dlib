@@ -181,11 +181,20 @@ namespace my
 
 		virtual void Capture(void);
 
-		BYTE IsKeyDown(DWORD dwIndex);
+		BYTE IsKeyDown(DWORD dwIndex)
+		{
+			return m_CurState[dwIndex];
+		}
 
-		bool IsKeyPressed(DWORD dwIndex);
+		bool IsKeyPressed(DWORD dwIndex)
+		{
+			return !m_PreState[dwIndex] && m_CurState[dwIndex];
+		}
 
-		bool IsKeyReleased(DWORD dwIndex);
+		bool IsKeyReleased(DWORD dwIndex)
+		{
+			return m_PreState[dwIndex] && !m_CurState[dwIndex];
+		}
 	};
 
 	class Mouse;
@@ -206,10 +215,34 @@ namespace my
 
 		virtual void Capture(void);
 
-		unsigned char IsButtonDown(DWORD dwIndex);
+		LONG GetX(void)
+		{
+			return m_CurState.lX;
+		}
 
-		bool IsButtonPressed(DWORD dwIndex);
+		LONG GetY(void)
+		{
+			return m_CurState.lY;
+		}
 
-		bool IsButtonReleased(DWORD dwIndex);
+		LONG GetZ(void)
+		{
+			return m_CurState.lZ;
+		}
+
+		unsigned char IsButtonDown(DWORD dwIndex)
+		{
+			return m_CurState.rgbButtons[dwIndex];
+		}
+
+		bool IsButtonPressed(DWORD dwIndex)
+		{
+			return !m_PreState.rgbButtons[dwIndex] && m_CurState.rgbButtons[dwIndex];
+		}
+
+		bool IsButtonReleased(DWORD dwIndex)
+		{
+			return m_PreState.rgbButtons[dwIndex] && !m_CurState.rgbButtons[dwIndex];
+		}
 	};
 }

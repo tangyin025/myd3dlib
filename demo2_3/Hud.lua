@@ -2,7 +2,7 @@ module("Hud", package.seeall)
 
 local hud=Dialog()
 hud.Color=ARGB(0,0,0,0)
-hud.Location=Vector2(800-170,0)
+-- hud.Location=Vector2(800-170,0)
 hud.Size=Vector2(170,170)
 hud.Skin.Font=font
 hud.Skin.TextColor=ARGB(255,255,255,255)

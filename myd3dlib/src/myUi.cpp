@@ -1,4 +1,4 @@
-
+﻿
 #include "stdafx.h"
 #include "myUi.h"
 #include "myResource.h"
@@ -1465,7 +1465,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
 
 	if(ControlFocus
-		&& ContainsControl(ControlFocus)
+		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
 		&& ControlFocus->GetEnabled())
 	{
 		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
@@ -1479,7 +1479,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		if(ControlFocus
-			&& ContainsControl(ControlFocus)
+			&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
 			&& ControlFocus->GetEnabled())
 		{
 			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
@@ -1538,7 +1538,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
 				Vector2 ptLocal = Vector2(pt.x - m_Location.x, pt.y - m_Location.y);
 				if(ControlFocus
-					&& ContainsControl(ControlFocus)
+					&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
 					&& ControlFocus->GetEnabled())
 				{
 					if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
@@ -1554,14 +1554,20 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						return true;
 					}
 				}
-				else if(uMsg == WM_LBUTTONDOWN && ControlFocus)
+
+				// ! 补丁，用以解决对话框控件丢失焦点
+				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt))
 				{
 					ControlFocus->OnFocusOut();
 					ResourceMgr::getSingleton().m_ControlFocus.reset();
 				}
 
 				if(HandleMouse(uMsg, pt, wParam, lParam))
+				{
+					// ! 补丁，强制让自己具有 FocusControl
+					ForceFocusControl();
 					return true;
+				}
 
 				if(ControlPtd != m_ControlMouseOver)
 				{
@@ -1596,6 +1602,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				m_MouseOffset = pt - m_Location;
 				return true;
 			}
+			break;
 
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
@@ -1603,12 +1610,14 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				ReleaseCapture();
 				m_bMouseDrag = false;
 			}
+			break;
 
 		case WM_MOUSEMOVE:
 			if(m_bMouseDrag)
 			{
 				m_Location = pt - m_MouseOffset;
 			}
+			break;
 		}
 	}
 	return false;
@@ -1652,4 +1661,16 @@ void Dialog::RequestFocus(ControlPtr control)
 
 	control->OnFocusIn();
 	ResourceMgr::getSingleton().m_ControlFocus = control;
+}
+
+void Dialog::ForceFocusControl(void)
+{
+	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	{
+		if((*ctrl_iter)->CanHaveFocus())
+		{
+			RequestFocus(*ctrl_iter);
+		}
+	}
 }

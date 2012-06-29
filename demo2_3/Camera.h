@@ -41,8 +41,7 @@ public:
 
 typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
 
-class Camera
-	: public BaseCamera
+class Camera : public BaseCamera
 {
 public:
 	my::Vector3 m_Position;
@@ -57,6 +56,32 @@ public:
 		, m_Position(my::Vector3::zero)
 		, m_Orientation(my::Quaternion::identity)
 		, m_Fovy(Fovy)
+	{
+	}
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+};
+
+class ModuleViewCamera : public BaseCamera
+{
+public:
+	my::Vector3 m_LookAt;
+
+	my::Vector3 m_Rotation;
+
+	float m_Fovy;
+
+	float m_Distance;
+
+public:
+	ModuleViewCamera(float Fovy = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+		: BaseCamera(Aspect, Nz, Fz)
+		, m_LookAt(my::Vector3::zero)
+		, m_Rotation(my::Vector3::zero)
+		, m_Fovy(Fovy)
+		, m_Distance(0)
 	{
 	}
 

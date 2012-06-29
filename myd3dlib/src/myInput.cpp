@@ -47,21 +47,6 @@ void Keyboard::Capture(void)
 	}
 }
 
-BYTE Keyboard::IsKeyDown(DWORD dwIndex)
-{
-	return m_CurState[dwIndex];
-}
-
-bool Keyboard::IsKeyPressed(DWORD dwIndex)
-{
-	return !m_PreState[dwIndex] && m_CurState[dwIndex];
-}
-
-bool Keyboard::IsKeyReleased(DWORD dwIndex)
-{
-	return m_PreState[dwIndex] && !m_CurState[dwIndex];
-}
-
 Mouse::Mouse(LPDIRECTINPUTDEVICE8W device)
 	: InputDevice(device)
 {
@@ -88,19 +73,4 @@ void Mouse::Capture(void)
 
 		GetDeviceState(sizeof(m_CurState), &m_CurState);
 	}
-}
-
-unsigned char Mouse::IsButtonDown(DWORD dwIndex)
-{
-	return m_CurState.rgbButtons[dwIndex];
-}
-
-bool Mouse::IsButtonPressed(DWORD dwIndex)
-{
-	return !m_PreState.rgbButtons[dwIndex] && m_CurState.rgbButtons[dwIndex];
-}
-
-bool Mouse::IsButtonReleased(DWORD dwIndex)
-{
-	return m_PreState.rgbButtons[dwIndex] && !m_CurState.rgbButtons[dwIndex];
 }

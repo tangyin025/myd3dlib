@@ -524,6 +524,8 @@ namespace my
 
 		void RequestFocus(ControlPtr control);
 
+		void ForceFocusControl(void);
+
 		bool ContainsControl(ControlPtr control)
 		{
 			return m_Controls.end() != m_Controls.find(control);

@@ -1990,7 +1990,11 @@ namespace my
 
 		static Matrix4 RotationYawPitchRoll(float yaw, float pitch, float roll)
 		{
-			return RotationZ(roll).rotateX(pitch).rotateY(yaw);
+			//return RotationZ(roll).rotateX(pitch).rotateY(yaw);
+
+			Matrix4 ret;
+			D3DXMatrixRotationYawPitchRoll((D3DXMATRIX *)&ret, yaw, pitch, roll);
+			return ret;
 		}
 
 		static Matrix4 Scaling(float x, float y, float z)
@@ -2141,10 +2145,10 @@ namespace my
 			float s = sin(angle);
 
 			return Matrix4(
-				_11 * c + _13 * s, _12, _13 * s - _11 * c, 14,
-				_21 * c + _23 * s, _22, _23 * s - _21 * c, 14,
-				_31 * c + _33 * s, _32, _33 * s - _31 * c, 14,
-				_41 * c + _43 * s, _42, _43 * s - _41 * c, 14);
+				_11 * c + _13 * s, _12, _13 * c - _11 * s, _14,
+				_21 * c + _23 * s, _22, _23 * c - _21 * s, _24,
+				_31 * c + _33 * s, _32, _33 * c - _31 * s, _34,
+				_41 * c + _43 * s, _42, _43 * c - _41 * s, _44);
 		}
 
 		Matrix4 rotateZ(float angle) const

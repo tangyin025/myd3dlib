@@ -170,15 +170,15 @@ void Game::OnFrameMove(
 {
 	DxutApp::OnFrameMove(fTime, fElapsedTime);
 
+	m_keyboard->Capture();
+
+	m_mouse->Capture();
+
 	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
 	for(; scene_iter != m_sceneSet.end(); scene_iter++)
 	{
 		scene_iter->second->OnFrameMove(fTime, fElapsedTime);
 	}
-
-	m_keyboard->Capture();
-
-	m_mouse->Capture();
 }
 
 void Game::OnD3D9FrameRender(

@@ -484,6 +484,13 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Orientation", &Camera::m_Orientation)
 			.def_readwrite("Fovy", &Camera::m_Fovy)
 
+		, luabind::class_<ModuleViewCamera, BaseCamera, boost::shared_ptr<BaseCamera> >("ModuleViewCamera")
+			.def(luabind::constructor<float, float, float, float>())
+			.def_readwrite("LookAt", &ModuleViewCamera::m_LookAt)
+			.def_readwrite("Rotation", &ModuleViewCamera::m_Rotation)
+			.def_readwrite("Fovy", &ModuleViewCamera::m_Fovy)
+			.def_readwrite("Distance", &ModuleViewCamera::m_Distance)
+
 		, luabind::class_<BaseScene, boost::shared_ptr<BaseScene> >("BaseScene")
 
 		, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")

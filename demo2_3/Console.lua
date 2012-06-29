@@ -2,11 +2,14 @@ module("Console", package.seeall)
 
 local console=Dialog()
 console.Color=ARGB(197,0,0,0)
-console.Location=Vector2(50,95)
+-- console.Location=Vector2(50,95)
 console.Size=Vector2(700,410)
 console.Skin.Font=font
 console.Skin.TextColor=ARGB(255,255,255,255)
 console.Skin.TextAlign=Font.AlignLeftTop
+console.EventAlign=function(args)
+	console.Location=Vector2(50,95)
+end
 
 local panel=MessagePanel()
 panel.Color=ARGB(0,0,0,0)
