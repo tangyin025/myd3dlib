@@ -64,7 +64,7 @@ int MessagePanel::MoveLineIndex(int index, int step)
 
 bool MessagePanel::CanHaveFocus(void)
 {
-	return m_bVisible && m_bEnabled;
+	return false;//return m_bVisible && m_bEnabled;
 }
 
 int MessagePanel::LineIndexDistance(int start, int end)

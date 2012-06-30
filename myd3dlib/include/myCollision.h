@@ -377,6 +377,14 @@ namespace my
 			const Vector3 & planeNormal,
 			float planeDistance);
 
+		static Vector3 calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+
+		static bool isValidTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+
+		static Vector3 calculateTriangleNormal(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+
+		static float isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+
 		static TestResult rayAndTriangle(
 			const Vector3 & pos,
 			const Vector3 & dir,
@@ -425,6 +433,16 @@ namespace my
 			RigidBody * bodyForLine,
 			Contact * contacts,
 			unsigned limits);
+
+		static float calculatePointPlaneDistance(
+			const Vector3 & point,
+			const Vector3 & planePoint,
+			const Vector3 & planeNormal);
+
+		static float calculatePointPlaneDistance(
+			const Vector3 & point,
+			const Vector3 & planeNormal,
+			float planeDistance);
 
 		static unsigned sphereAndTriangle(
 			const CollisionSphere & sphere,

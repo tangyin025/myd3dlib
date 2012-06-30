@@ -1671,6 +1671,7 @@ void Dialog::ForceFocusControl(void)
 		if((*ctrl_iter)->CanHaveFocus())
 		{
 			RequestFocus(*ctrl_iter);
+			break;
 		}
 	}
 }

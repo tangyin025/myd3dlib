@@ -126,7 +126,7 @@ namespace my
 
 		virtual void Capture(void) = 0;
 
-		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_BACKGROUND)
+		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)
 		{
 			V(m_ptr->SetCooperativeLevel(hwnd, dwFlags));
 		}

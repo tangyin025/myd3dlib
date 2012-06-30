@@ -25,33 +25,33 @@ console:InsertControl(panel)
 
 local e_texts={}
 local e_texts_idx=0
-local e=ConsoleEditBox()
-e.Color=ARGB(15,255,255,255)
-e.Location=Vector2(5, 410-5-20)
-e.Size=Vector2(700-5-5,20)
-e.Border=Vector4(0,0,0,0)
-e.Text="在这里输入命令"
-e.Skin.Font=font
-e.Skin.TextColor=ARGB(255,63,188,239)
-e.EventEnter=function()
-	panel:AddLine(e.Text, e.Skin.TextColor)
-	table.insert(e_texts, e.Text)
+local edit=ConsoleEditBox()
+edit.Color=ARGB(15,255,255,255)
+edit.Location=Vector2(5, 410-5-20)
+edit.Size=Vector2(700-5-5,20)
+edit.Border=Vector4(0,0,0,0)
+edit.Text="在这里输入命令"
+edit.Skin.Font=font
+edit.Skin.TextColor=ARGB(255,63,188,239)
+edit.EventEnter=function()
+	panel:AddLine(edit.Text, edit.Skin.TextColor)
+	table.insert(e_texts, edit.Text)
 	if #e_texts > 16 then
 		table.remove(e_texts,1)
 	end
 	e_texts_idx=#e_texts+1
-	game:ExecuteCode(e.Text)
-	e.Text=""
+	game:ExecuteCode(edit.Text)
+	edit.Text=""
 end
-e.EventPrevLine=function()
+edit.EventPrevLine=function()
 	e_texts_idx=math.max(1,e_texts_idx-1)
-	e.Text=e_texts[e_texts_idx]
+	edit.Text=e_texts[e_texts_idx]
 end
-e.EventNextLine=function()
+edit.EventNextLine=function()
 	e_texts_idx=math.min(#e_texts,e_texts_idx+1)
-	e.Text=e_texts[e_texts_idx]
+	edit.Text=e_texts[e_texts_idx]
 end
-console:InsertControl(e)
+console:InsertControl(edit)
 
 game:InsertDlg(1, console)
 
