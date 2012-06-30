@@ -1,4 +1,4 @@
-
+﻿
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__
 
@@ -557,6 +557,7 @@ namespace my
 			const Vector3 & v2,
 			const Vector3 & dir);
 
+		// ! 还不能正确工作
 		static unsigned boxAndTriangle(
 			const CollisionBox & box,
 			const Vector3 & v0,

@@ -50,7 +50,8 @@ public:
 
 typedef boost::shared_ptr<BaseScene> BaseScenePtr;
 
-class Scene : public BaseScene
+class Scene
+	: public BaseScene
 {
 public:
 	BaseCameraPtr m_Camera;

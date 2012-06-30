@@ -58,7 +58,7 @@ bool Game::ModifyDeviceSettings(
 	if( caps.MaxVertexBlendMatrices < 2 )
 		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-	// ! Fix lua bug: print(0xffffffff), ref: http://www.lua.org/bugs.html
+	// ! Fix lua print(0xffffffff), ref: http://www.lua.org/bugs.html
 	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	static bool s_bFirstTime = true;

@@ -20,10 +20,14 @@ void ModuleViewCamera::OnFrameMove(
 	Mouse * mouse = Game::getSingleton().m_mouse.get();
 	_ASSERT(mouse);
 
-	if(!my::ResourceMgr::getSingleton().m_ControlFocus.lock() && mouse->IsButtonDown(0))
+	if(!my::ResourceMgr::getSingleton().m_ControlFocus.lock())
 	{
-		m_Rotation.x -= D3DXToRadian(mouse->GetY());
-		m_Rotation.y -= D3DXToRadian(mouse->GetX());
+		if(mouse->IsButtonDown(0))
+		{
+			m_Rotation.x -= D3DXToRadian(mouse->GetY());
+			m_Rotation.y -= D3DXToRadian(mouse->GetX());
+		}
+		m_Distance -= mouse->GetZ() / 120.0f;
 	}
 
 	m_View = Matrix4::Translation(-m_LookAt)

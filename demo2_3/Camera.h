@@ -41,7 +41,8 @@ public:
 
 typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
 
-class Camera : public BaseCamera
+class Camera
+	: public BaseCamera
 {
 public:
 	my::Vector3 m_Position;
@@ -64,7 +65,8 @@ public:
 		float fElapsedTime);
 };
 
-class ModuleViewCamera : public BaseCamera
+class ModuleViewCamera
+	: public BaseCamera
 {
 public:
 	my::Vector3 m_LookAt;
