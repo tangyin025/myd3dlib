@@ -120,10 +120,12 @@ namespace my
 	unsigned CollisionSphere::collideHalfSpace(
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits) const
 	{
-		return CollisionDetector::sphereAndHalfSpace(*this, planeNormal, planeDistance, contacts, limits);
+		return CollisionDetector::sphereAndHalfSpace(*this, planeNormal, planeDistance, planeFriction, planeRestitution, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -157,10 +159,12 @@ namespace my
 	unsigned CollisionBox::collideHalfSpace(
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits) const
 	{
-		return CollisionDetector::boxAndHalfSpace(*this, planeNormal, planeDistance, contacts, limits);
+		return CollisionDetector::boxAndHalfSpace(*this, planeNormal, planeDistance, planeFriction, planeRestitution, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -412,6 +416,8 @@ namespace my
 		const CollisionSphere & sphere,
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -431,9 +437,10 @@ namespace my
 		contacts->contactNormal = planeNormal;
 		contacts->penetration = penetration;
 		contacts->contactPoint = spherePosition - planeNormal * (sphere.radius - penetration);
-
 		contacts->bodys[0] = sphere.body;
 		contacts->bodys[1] = NULL;
+		contacts->friction = sphere.friction * planeFriction;
+		contacts->restitution = sphere.restitution * planeRestitution;
 		return 1;
 	}
 
@@ -441,6 +448,8 @@ namespace my
 		const CollisionSphere & sphere,
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -472,17 +481,21 @@ namespace my
 			contacts->contactNormal = -planeNormal;
 			contacts->penetration = sphere.radius + centreDistance;
 		}
-		contacts->contactPoint = spherePosition - planeNormal * centreDistance;
 
+		contacts->contactPoint = spherePosition - planeNormal * centreDistance;
 		contacts->bodys[0] = sphere.body;
 		contacts->bodys[1] = NULL;
+		contacts->friction = sphere.friction * planeFriction;
+		contacts->restitution = sphere.restitution * planeRestitution;
 		return 1;
 	}
 
 	unsigned CollisionDetector::sphereAndPoint(
 		const CollisionSphere & sphere,
 		const Vector3 & point,
-		RigidBody * bodyForPoint,
+		RigidBody * pointBody,
+		float pointFriction,
+		float pointRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -500,9 +513,10 @@ namespace my
 		contacts->contactNormal = direction.normalize();
 		contacts->penetration = sphere.radius - distance;
 		contacts->contactPoint = point;
-
 		contacts->bodys[0] = sphere.body;
-		contacts->bodys[1] = bodyForPoint;
+		contacts->bodys[1] = pointBody;
+		contacts->friction = sphere.friction * pointFriction;
+		contacts->restitution = sphere.restitution * pointRestitution;
 		return 1;
 	}
 
@@ -510,7 +524,9 @@ namespace my
 		const CollisionSphere & sphere,
 		const Vector3 & v0,
 		const Vector3 & v1,
-		RigidBody * bodyForLine,
+		RigidBody * lineBody,
+		float lineFriction,
+		float lineRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -534,7 +550,7 @@ namespace my
 			closestPoint = v0 + u.normalize() * offset;
 		}
 
-		return sphereAndPoint(sphere, closestPoint, bodyForLine, contacts, limits);
+		return sphereAndPoint(sphere, closestPoint, lineBody, lineFriction, lineRestitution, contacts, limits);
 	}
 
 	float CollisionDetector::calculatePointPlaneDistance(
@@ -562,7 +578,9 @@ namespace my
 		const Vector3 & v0,
 		const Vector3 & v1,
 		const Vector3 & v2,
-		RigidBody * bodyForTriangle,
+		RigidBody * triangleBody,
+		float triangleFriction,
+		float triangleResitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -586,20 +604,20 @@ namespace my
 			contacts->contactPoint = intersection;
 
 			contacts->bodys[0] = sphere.body;
-			contacts->bodys[1] = bodyForTriangle;
+			contacts->bodys[1] = triangleBody;
 			return 1;
 		}
 
-		unsigned res = sphereAndLine(sphere, v0, v1, bodyForTriangle, contacts, limits);
+		unsigned res = sphereAndLine(sphere, v0, v1, triangleBody, triangleFriction, triangleResitution, contacts, limits);
 
 		if(0 == res)
 		{
-			res = sphereAndLine(sphere, v1, v2, bodyForTriangle, contacts, limits);
+			res = sphereAndLine(sphere, v1, v2, triangleBody, triangleFriction, triangleResitution, contacts, limits);
 		}
 
 		if(0 == res)
 		{
-			res = sphereAndLine(sphere, v2, v0, bodyForTriangle, contacts, limits);
+			res = sphereAndLine(sphere, v2, v0, triangleBody, triangleFriction, triangleResitution, contacts, limits);
 		}
 
 		return res;
@@ -636,17 +654,22 @@ namespace my
 		contacts->penetration = sphere0.radius + sphere1.radius - distance;
 		//contacts->contactPoint = t3d::vec3Add(position0, t3d::vec3Mul(midline, (float)0.5));
 		contacts->contactPoint = position0 - midline * 0.5f; // ***
-
 		contacts->bodys[0] = sphere0.body;
 		contacts->bodys[1] = sphere1.body;
+		contacts->friction = sphere0.friction * sphere1.friction;
+		contacts->restitution = sphere0.restitution * sphere1.restitution;
 		return 1;
 	}
 
 	unsigned CollisionDetector::pointAndHalfSpace(
 		const Vector3 & point,
-		RigidBody * body,
+		RigidBody * pointBody,
+		float pointFriction,
+		float pointRestitution,
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -662,9 +685,10 @@ namespace my
 		contacts->contactNormal = planeNormal;
 		contacts->penetration = penetration;
 		contacts->contactPoint = point + planeNormal * (penetration * 0.5f); // ***
-
-		contacts->bodys[0] = body;
+		contacts->bodys[0] = pointBody;
 		contacts->bodys[1] = NULL;
+		contacts->friction = pointFriction * planeFriction;
+		contacts->restitution = pointRestitution * planeRestitution;
 		return 1;
 	}
 
@@ -672,6 +696,8 @@ namespace my
 		const CollisionBox & box,
 		const Vector3 & planeNormal,
 		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -680,8 +706,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3( box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -691,8 +721,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3(-box.halfSize.x,  box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -702,8 +736,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3( box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -713,8 +751,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3( box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -724,8 +766,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3(-box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -735,8 +781,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3( box.halfSize.x, -box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -746,8 +796,12 @@ namespace my
 		if((res += pointAndHalfSpace(
 			Vector3(-box.halfSize.x,  box.halfSize.y, -box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res)) >= limits)
 		{
@@ -757,8 +811,12 @@ namespace my
 		return res += pointAndHalfSpace(
 			Vector3(-box.halfSize.x, -box.halfSize.y,  box.halfSize.z).transformCoord(box.getTransform()),
 			box.body,
+			box.friction,
+			box.restitution,
 			planeNormal,
 			planeDistance,
+			planeFriction,
+			planeRestitution,
 			&contacts[res],
 			limits - res);
 	}
@@ -802,7 +860,7 @@ namespace my
 
 		if(abs(distanceSquare) < EPSILON_E6) // ***
 		{
-			unsigned used = boxAndPointAways(box, centre, sphere.body, contacts, limits);
+			unsigned used = boxAndPointAways(box, centre, sphere.body, sphere.friction, sphere.restitution, contacts, limits);
 
 			_ASSERT(1 == used && contacts->penetration >= -EPSILON_E3);
 
@@ -816,16 +874,19 @@ namespace my
 		contacts->contactNormal = (closestPointWorld - centre).normalize();
 		contacts->penetration = sphere.radius - sqrt(distanceSquare);
 		contacts->contactPoint = closestPointWorld;
-
 		contacts->bodys[0] = box.body;
 		contacts->bodys[1] = sphere.body;
+		contacts->friction = box.friction * sphere.friction;
+		contacts->restitution = box.restitution * sphere.restitution;
 		return 1;
 	}
 
 	unsigned CollisionDetector::boxAndPointAways(
 		const CollisionBox & box,
 		const Vector3 & point,
-		RigidBody * bodyForPoint,
+		RigidBody * pointBody,
+		float pointFriction,
+		float pointResitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -894,9 +955,10 @@ namespace my
 		}
 
 		contacts->contactPoint = point;
-
 		contacts->bodys[0] = box.body;
-		contacts->bodys[1] = bodyForPoint;
+		contacts->bodys[1] = pointBody;
+		contacts->friction = box.friction * pointFriction;
+		contacts->restitution = box.restitution * pointResitution;
 		return 1;
 	}
 
@@ -1144,6 +1206,8 @@ namespace my
 		contacts->contactPoint = findPointFromBoxByDirection(box1, contacts->contactNormal);
 		contacts->bodys[0] = box0.body;
 		contacts->bodys[1] = box1.body;
+		contacts->friction = box0.friction * box1.friction;
+		contacts->restitution = box0.restitution * box1.restitution;
 		return 1;
 	}
 
@@ -1259,6 +1323,8 @@ namespace my
 
 		contacts->bodys[0] = box0.body;
 		contacts->bodys[1] = box1.body;
+		contacts->friction = box0.friction * box1.friction;
+		contacts->restitution = box0.restitution * box1.restitution;
 		return 1;
 	}
 
@@ -1368,7 +1434,9 @@ namespace my
 		const Vector3 & v0,
 		const Vector3 & v1,
 		const Vector3 & v2,
-		RigidBody * bodyForTriangle,
+		RigidBody * triangleBody,
+		float triangleFriction,
+		float triangleRestitution,
 		Contact * contacts,
 		unsigned limits)
 	{
@@ -1404,7 +1472,7 @@ namespace my
 			contacts->penetration = smallestPenetration;
 			contacts->contactPoint = findPointFromBoxByDirection(box, contacts->contactNormal);
 			contacts->bodys[0] = box.body;
-			contacts->bodys[1] = bodyForTriangle;
+			contacts->bodys[1] = triangleBody;
 			return 1;
 		}
 
@@ -1414,7 +1482,7 @@ namespace my
 			contacts->penetration = smallestPenetration;
 			contacts->contactPoint = findPointFromTriangleByDirection(v0, v1, v2, contacts->contactNormal);
 			contacts->bodys[0] = box.body;
-			contacts->bodys[1] = bodyForTriangle;
+			contacts->bodys[1] = triangleBody;
 			return 1;
 		}
 
@@ -1472,7 +1540,9 @@ namespace my
 			smallestSingleAxis > 0);
 
 		contacts->bodys[0] = box.body;
-		contacts->bodys[1] = bodyForTriangle;
+		contacts->bodys[1] = triangleBody;
+		contacts->friction = box.friction * triangleFriction;
+		contacts->restitution = box.restitution * triangleRestitution;
 		return 1;
 	}
 }

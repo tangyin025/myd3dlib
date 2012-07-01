@@ -223,6 +223,10 @@ namespace my
 
 		Matrix4 offset;
 
+		float friction;
+
+		float restitution;
+
 		Matrix4 transform;
 
 	public:
@@ -244,6 +248,26 @@ namespace my
 		const Matrix4 & getOffset(void) const
 		{
 			return offset;
+		}
+
+		void setFriction(float _friction)
+		{
+			friction = _friction;
+		}
+
+		float getFriction(void) const
+		{
+			return friction;
+		}
+
+		void setResitution(float _restitution)
+		{
+			restitution = _restitution;
+		}
+
+		float getRestitution(void) const
+		{
+			return restitution;
 		}
 
 		void setTransform(const Matrix4 & _transform)
@@ -287,13 +311,17 @@ namespace my
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const = 0;
 
 	protected:
-		CollisionPrimitive(void)
+		CollisionPrimitive(const Matrix4 & _offset, float _friction, float _restitution)
 			: body(NULL)
-			, offset(Matrix4::Identity())
+			, offset(_offset)
+			, friction(_friction)
+			, restitution(_restitution)
 		{
 		}
 
@@ -354,13 +382,20 @@ namespace my
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const;
 
 	public:
 		CollisionSphere(
-			float _radius)
-			: radius(_radius)
+			float _radius,
+			const Matrix4 & _offset = my::Matrix4::Identity(),
+			float _friction = 0,
+			float _restitution = 0)
+
+			: CollisionPrimitive(_offset, _friction, _restitution)
+			, radius(_radius)
 		{
 		}
 	};
@@ -412,13 +447,20 @@ namespace my
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const;
 
 	public:
 		CollisionBox(
-			const Vector3 & _halfSize)
-			: halfSize(_halfSize)
+			const Vector3 & _halfSize,
+			const Matrix4 & _offset = my::Matrix4::Identity(),
+			float _friction = 0,
+			float _restitution = 0)
+
+			: CollisionPrimitive(_offset, _friction, _restitution)
+			, halfSize(_halfSize)
 		{
 		}
 	};
@@ -502,6 +544,8 @@ namespace my
 			const CollisionSphere & sphere,
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -509,13 +553,17 @@ namespace my
 			const CollisionSphere & sphere,
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits);
 
 		static unsigned sphereAndPoint(
 			const CollisionSphere & sphere,
 			const Vector3 & point,
-			RigidBody * bodyForPoint,
+			RigidBody * pointBody,
+			float pointFriction,
+			float pointRestitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -523,7 +571,9 @@ namespace my
 			const CollisionSphere & sphere,
 			const Vector3 & v0,
 			const Vector3 & v1,
-			RigidBody * bodyForLine,
+			RigidBody * lineBody,
+			float lineFriction,
+			float lineRestitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -542,7 +592,9 @@ namespace my
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2,
-			RigidBody * bodyForTriangle,
+			RigidBody * triangleBody,
+			float triangleFriction,
+			float triangleResitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -554,9 +606,13 @@ namespace my
 
 		static unsigned pointAndHalfSpace(
 			const Vector3 & point,
-			RigidBody * body,
+			RigidBody * pointBody,
+			float pointFriction,
+			float pointRestitution,
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -564,6 +620,8 @@ namespace my
 			const CollisionBox & box,
 			const Vector3 & planeNormal,
 			float planeDistance,
+			float planeFriction,
+			float planeRestitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -576,7 +634,9 @@ namespace my
 		static unsigned boxAndPointAways(
 			const CollisionBox & box,
 			const Vector3 & point,
-			RigidBody * bodyForPoint,
+			RigidBody * pointBody,
+			float pointFriction,
+			float pointResitution,
 			Contact * contacts,
 			unsigned limits);
 
@@ -656,7 +716,9 @@ namespace my
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2,
-			RigidBody * bodyForTriangle,
+			RigidBody * triangleBody,
+			float triangleFriction,
+			float triangleRestitution,
 			Contact * contacts,
 			unsigned limits);
 	};

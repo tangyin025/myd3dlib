@@ -544,6 +544,8 @@ namespace my
 
 		ParticleForceRegistry registry;
 
+		unsigned resolveIteration;
+
 		ParticleContactResolver resolver;
 
 		ParticleContactGeneratorPtrList particleContactGeneratorList;
@@ -551,9 +553,16 @@ namespace my
 		ParticleContactArray particleContactArray;
 
 	public:
-		ParticleWorld(unsigned _maxContacts = 256, unsigned _iterations = 0);
+		ParticleWorld(unsigned _maxContacts = 256, unsigned _resolveIterations = 16)
+			: resolveIteration(_resolveIterations)
+			, resolver(_resolveIterations)
+			, particleContactArray(_maxContacts)
+		{
+		}
 
-		virtual ~ParticleWorld(void);
+		virtual ~ParticleWorld(void)
+		{
+		}
 
 		virtual void startFrame(void);
 
@@ -826,7 +835,7 @@ namespace my
 			//Vector3 resultingAngularAcc;
 			setDamping(1);
 			setAngularDamping(1);
-			setSleepEpsilon(0.3f);
+			setSleepEpsilon(0.0f);
 			//float motion;
 			setAwake(true);
 			setCanSleep(true);
@@ -1195,12 +1204,30 @@ namespace my
 
 		ContactList contactList;
 
+		unsigned resolvePositionIteration;
+
+		unsigned resolveVelocityIteration;
+
 		ContactResolver resolver;
 
 	public:
-		World(unsigned _maxContacts = 256);
+		World(
+			unsigned _maxContacts = 256,
+			unsigned _resolvePositionIteration = 16,
+			unsigned _resolveVelocityIteration = 16,
+			float resolvePositionEpsilon = 0.01f,
+			float resolveVelocityEpsilon = 0.01f)
 
-		virtual ~World(void);
+			: resolvePositionIteration(_resolvePositionIteration)
+			, resolveVelocityIteration(_resolveVelocityIteration)
+			, resolver(_resolvePositionIteration, _resolveVelocityIteration, resolvePositionEpsilon, resolveVelocityEpsilon)
+			, contactList(_maxContacts)
+		{
+		}
+
+		virtual ~World(void)
+		{
+		}
 
 		virtual void startFrame(void);
 

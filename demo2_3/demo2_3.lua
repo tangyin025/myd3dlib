@@ -18,4 +18,17 @@ d.EventAlign=function(args)
 end
 game:InsertDlg(3,d)
 
-local sphere = CollisionSphere(1);local body = RigidBody();body.Acceleration=Vector3(0.1,-1,0);body.Position=Vector3(0,5,0);body:InsertShape(sphere);scene:InsertBody(body)
+for x = -5,5,2 do
+	for z = -5,5,2 do
+		local box = CollisionBox(Vector3(0.5,0.5,0.5),Matrix4.Identity(),0.9,0.6)
+		local body = RigidBody()
+		body.Mass=4
+		body.Acceleration=Vector3(0,-9.8*2,0)
+		body.Position=Vector3(x,5,z)
+		body.Damping=0.95
+		body.AngularDamping=0.8
+		body.InertialTensor=RigidBody.CalculateBlockInertiaTensor(box.HalfSize, body.Mass)
+		body:InsertShape(box)
+		scene:InsertBody(body)
+	end
+end

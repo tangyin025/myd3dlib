@@ -59,6 +59,37 @@ protected:
 	CollisionPrimitivePtrSet m_shapes;
 
 public:
+	static my::Matrix4 CalculateInertiaTensor(float Ixx, float Iyy, float Izz, float Ixy = 0, float Ixz = 0, float Iyz = 0)
+	{
+		return my::Matrix4(
+			 Ixx,			-Ixy,			-Ixz,			0,
+			-Ixy,			 Iyy,			-Iyz,			0,
+			-Ixz,			-Iyz,			 Izz,			0,
+			0,				0,				0,				1);
+	}
+
+	static my::Matrix4 CalculateSphereInertiaTensor(float radius, float mass)
+	{
+		float coeff = 0.4f * mass * radius * radius;
+
+		return CalculateInertiaTensor(coeff, coeff, coeff);
+	}
+
+	static my::Matrix4 CalculateBlockInertiaTensor(const my::Vector3 & halfSizes, float mass)
+	{
+		my::Vector3 squares = halfSizes * halfSizes;
+
+		return CalculateInertiaTensor(
+			0.3f * mass * (squares.y + squares.z),
+			0.3f * mass * (squares.x + squares.z),
+			0.3f * mass * (squares.x + squares.y));
+	}
+
+public:
+	RigidBody(void)
+	{
+	}
+
 	void InsertShape(my::CollisionPrimitivePtr shape)
 	{
 		shape->setRigidBody(this);
@@ -84,24 +115,36 @@ public:
 			CollisionPrimitivePtrSet::const_iterator rhs_iter = rhs->m_shapes.begin();
 			for(; rhs_iter != rhs->m_shapes.end(); rhs_iter++)
 			{
-				used += (*lhs_iter)->collide((*rhs_iter).get(), contacts + used, limits - used);
+				if(limits > used)
+					used += (*lhs_iter)->collide((*rhs_iter).get(), contacts + used, limits - used);
+				else
+					return used;
 			}
 		}
 		return used;
 	}
 
-	unsigned collideHalfSpace(const my::Vector3 & planeNormal, float planeDistance, my::Contact * contacts, unsigned limits)
+	unsigned collideHalfSpace(
+		const my::Vector3 & planeNormal,
+		float planeDistance,
+		float planeFriction,
+		float planeRestitution,
+		my::Contact * contacts,
+		unsigned limits)
 	{
 		unsigned used = 0;
 		CollisionPrimitivePtrSet::const_iterator lhs_iter = m_shapes.begin();
 		for(; lhs_iter != m_shapes.end(); lhs_iter++)
 		{
-			used += (*lhs_iter)->collideHalfSpace(planeNormal, planeDistance, contacts + used, limits - used);
+			if(limits > used)
+				used += (*lhs_iter)->collideHalfSpace(planeNormal, planeDistance, planeFriction, planeRestitution, contacts + used, limits - used);
+			else
+				return used;
 		}
 		return used;
 	}
 
-	void DrawShapes(IDirect3DDevice9 * pd3dDevice, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,0))
+	void DrawShapes(IDirect3DDevice9 * pd3dDevice, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255), D3DCOLOR SleepColor = D3DCOLOR_ARGB(255,213,213,213))
 	{
 		CollisionPrimitivePtrSet::const_iterator lhs_iter = m_shapes.begin();
 		for(; lhs_iter != m_shapes.end(); lhs_iter++)
@@ -111,13 +154,13 @@ public:
 			case my::CollisionPrimitive::PrimitiveTypeShere:
 				{
 					my::CollisionSphere * sphere = static_cast<my::CollisionSphere *>((*lhs_iter).get());
-					BaseScene::DrawSphere(pd3dDevice, sphere->getRadius(), Color, sphere->getTransform());
+					BaseScene::DrawSphere(pd3dDevice, sphere->getRadius(), getAwake() ? Color : SleepColor, sphere->getTransform());
 				}
 				break;
 			case my::CollisionPrimitive::PrimitiveTypeBox:
 				{
 					my::CollisionBox * box = static_cast<my::CollisionBox *>((*lhs_iter).get());
-					BaseScene::DrawBox(pd3dDevice, box->getHalfSize(), Color, box->getTransform());
+					BaseScene::DrawBox(pd3dDevice, box->getHalfSize(), getAwake() ? Color : SleepColor, box->getTransform());
 				}
 				break;
 			}
@@ -134,8 +177,13 @@ class Scene
 public:
 	BaseCameraPtr m_Camera;
 
+	unsigned used;
+
 public:
-	Scene(void);
+	Scene(void)
+		: my::World(1024,4,4)
+	{
+	}
 
 	virtual void OnFrameMove(
 		double fTime,

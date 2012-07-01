@@ -134,10 +134,6 @@ void BaseScene::DrawTriangle(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, _countof(v) - 1, v, sizeof(v[0]));
 }
 
-Scene::Scene(void)
-{
-}
-
 void Scene::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -182,6 +178,12 @@ void Scene::OnRender(
 				static_cast<::RigidBody *>((*body_iter).get())->DrawShapes(pd3dDevice); 
 			}
 
+			//for(unsigned i = 0; i < used; i++)
+			//{
+			//	DrawSphere(pd3dDevice, 0.1f, D3DCOLOR_ARGB(255,255,0,0), Matrix4::Translation(contactList[i].contactPoint));
+			//	DrawLine(pd3dDevice, contactList[i].contactPoint, contactList[i].contactPoint + contactList[i].contactNormal, D3DCOLOR_ARGB(255,255,255,0));
+			//}
+
 			pd3dDevice->EndScene();
 		}
 	}
@@ -189,29 +191,27 @@ void Scene::OnRender(
 
 unsigned Scene::generateContacts(my::Contact * contacts, unsigned limits)
 {
-	// 每一个CollisionPrimitive要求在RigidBody Dirty时，需要更新其calculateInternals
+	// ! 每一个CollisionPrimitive要求在RigidBody Dirty时，需要更新其calculateInternals
 	for(size_t i = 0; i < bodyList.size(); i++)
 	{
 		static_cast<::RigidBody *>(bodyList[i].get())->UpdateShapes();
 	}
 
-	unsigned used = 0;
+	used = 0;
 	for(size_t i = 0; i < bodyList.size(); i++)
 	{
 		::RigidBody * lhs = static_cast<::RigidBody *>(bodyList[i].get());
 		for(size_t j = i + 1; j < bodyList.size(); j++)
 		{
-			used += lhs->collide(
-				static_cast<::RigidBody *>(bodyList[j].get()), contacts + used, limits - used);
+			if(limits > used)
+				used += lhs->collide(static_cast<::RigidBody *>(bodyList[j].get()), contacts + used, limits - used);
+			else
+				return used;
 		}
-		used += lhs->collideHalfSpace(Vector3(0,1,0), 0, contacts + used, limits - used);
-	}
-
-	// 再次更新摩擦力和弹性系数
-	for(unsigned i = 0; i < used; i++)
-	{
-		contacts[i].friction = 0.9f;
-		contacts[i].restitution = 0.6f;
+		if(limits > used)
+			used += lhs->collideHalfSpace(Vector3(0,1,0), 0, 1.0f, 1.0f, contacts + used, limits - used);
+		else
+			return used;
 	}
 	return used;
 }

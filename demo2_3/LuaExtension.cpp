@@ -517,11 +517,11 @@ void Export2Lua(lua_State * L)
 			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
 
 		, luabind::class_<my::CollisionSphere, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionSphere")
-			.def(luabind::constructor<float>())
+		.def(luabind::constructor<float, const my::Matrix4 &, float, float>())
 			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
 
 		, luabind::class_<my::CollisionBox, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionBox")
-			.def(luabind::constructor<const my::Vector3 &>())
+			.def(luabind::constructor<const my::Vector3 &, const my::Matrix4 &, float, float>())
 			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
 
 		, luabind::class_<RigidBody, boost::shared_ptr<RigidBody> >("RigidBody")
@@ -537,6 +537,11 @@ void Export2Lua(lua_State * L)
 			.property("AngularDamping", &RigidBody::getAngularDamping, &RigidBody::setAngularDamping)
 			.property("SleepEpsilon", &RigidBody::getSleepEpsilon, &RigidBody::setSleepEpsilon)
 			.property("Awake", &RigidBody::getAwake, &RigidBody::setAwake)
+			.scope
+			[
+				luabind::def("CalculateSphereInertiaTensor", &RigidBody::CalculateSphereInertiaTensor)
+				, luabind::def("CalculateBlockInertiaTensor", &RigidBody::CalculateBlockInertiaTensor)
+			]
 			.def("InsertShape", &RigidBody::InsertShape)
 	];
 

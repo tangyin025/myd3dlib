@@ -643,16 +643,6 @@ namespace my
 	// ParticleWorld
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	ParticleWorld::ParticleWorld(unsigned _maxContacts, unsigned _iterations)
-		: resolver(_iterations)
-		, particleContactArray(_maxContacts)
-	{
-	}
-
-	ParticleWorld::~ParticleWorld(void)
-	{
-	}
-
 	void ParticleWorld::startFrame(void)
 	{
 		ParticlePtrList::iterator p_iter = particleList.begin();
@@ -698,11 +688,11 @@ namespace my
 
 		integrate(duration);
 
-		unsigned used = generateContacts(&particleContactArray[0], particleContactArray.size());
+		unsigned usedContacts = generateContacts(&particleContactArray[0], particleContactArray.size());
 
-		resolver.setIterations(used * 2);
+		resolver.setIterations(usedContacts * resolveIteration);
 
-		resolver.resolveContacts(&particleContactArray[0], used, duration);
+		resolver.resolveContacts(&particleContactArray[0], usedContacts, duration);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -1871,16 +1861,6 @@ namespace my
 	// World
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	World::World(unsigned _maxContacts)
-		: resolver(0, 0, 0.01f, 0.01f)
-		, contactList(_maxContacts)
-	{
-	}
-
-	World::~World(void)
-	{
-	}
-
 	void World::startFrame(void)
 	{
 		RigidBodyPtrList::iterator b_iter = bodyList.begin();
@@ -1920,9 +1900,9 @@ namespace my
 
 		unsigned usedContacts = generateContacts(&contactList[0], contactList.size());
 
-		resolver.setPositionIterations(usedContacts * 4);
+		resolver.setPositionIterations(usedContacts * resolvePositionIteration);
 
-		resolver.setVelocityIterations(usedContacts * 4);
+		resolver.setVelocityIterations(usedContacts * resolveVelocityIteration);
 
 		resolver.resolveContacts(&contactList[0], usedContacts, duration);
 	}
