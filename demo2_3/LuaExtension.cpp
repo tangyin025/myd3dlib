@@ -473,6 +473,20 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventPrevLine", &ConsoleEditBox::EventPrevLine)
 			.def_readwrite("EventNextLine", &ConsoleEditBox::EventNextLine)
 
+		, luabind::class_<AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
+			.def_readonly("vp", &AlignEventArgs::vp)
+
+		, luabind::class_<Game>("Game")
+			.def_readwrite("EventToggleConsole", &Game::EventToggleConsole)
+			.def_readwrite("font", &Game::m_font)
+			.property("Panel", &Game::GetPanel, &Game::SetPanel)
+			.def("ToggleFullScreen", &Game::ToggleFullScreen)
+			.def("ToggleRef", &Game::ToggleRef)
+			.def("ChangeDevice", &Game::ChangeDevice)
+			.def("ExecuteCode", &Game::ExecuteCode)
+			.def("InsertDlg", &Game::InsertDlg)
+			.def("InsertScene", &Game::InsertScene)
+
 		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
 			.def_readwrite("Nz", &BaseCamera::m_Nz)
@@ -496,20 +510,34 @@ void Export2Lua(lua_State * L)
 		, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")
 			.def(luabind::constructor<>())
 			.def_readwrite("Camera", &Scene::m_Camera)
+			.def("runPhysics", &Scene::runPhysics)
+			.def("InsertBody", &Scene::InsertBody)
 
-		, luabind::class_<AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
-			.def_readonly("vp", &AlignEventArgs::vp)
+		, luabind::class_<my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionPrimitive")
+			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
 
-		, luabind::class_<Game>("Game")
-			.def_readwrite("EventToggleConsole", &Game::EventToggleConsole)
-			.def_readwrite("font", &Game::m_font)
-			.property("Panel", &Game::GetPanel, &Game::SetPanel)
-			.def("ToggleFullScreen", &Game::ToggleFullScreen)
-			.def("ToggleRef", &Game::ToggleRef)
-			.def("ChangeDevice", &Game::ChangeDevice)
-			.def("ExecuteCode", &Game::ExecuteCode)
-			.def("InsertDlg", &Game::InsertDlg)
-			.def("InsertScene", &Game::InsertScene)
+		, luabind::class_<my::CollisionSphere, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionSphere")
+			.def(luabind::constructor<float>())
+			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
+
+		, luabind::class_<my::CollisionBox, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionBox")
+			.def(luabind::constructor<const my::Vector3 &>())
+			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
+
+		, luabind::class_<RigidBody, boost::shared_ptr<RigidBody> >("RigidBody")
+			.def(luabind::constructor<>())
+			.property("Mass", &RigidBody::getMass, &RigidBody::setMass)
+			.property("Position", &RigidBody::getPosition, &RigidBody::setPosition)
+			.property("Oritation", &RigidBody::getOrientation, &RigidBody::setOrientation)
+			.property("Velocity", &RigidBody::getVelocity, &RigidBody::setVelocity)
+			.property("Rotation", &RigidBody::getRotation, &RigidBody::setRotation) // 角速度
+			.property("InertialTensor", &RigidBody::getInertialTensor, &RigidBody::setInertialTensor) // 转动惯量
+			.property("Acceleration", &RigidBody::getAcceleration, &RigidBody::setAcceleration)
+			.property("Damping", &RigidBody::getDamping, &RigidBody::setDamping) // 衰减
+			.property("AngularDamping", &RigidBody::getAngularDamping, &RigidBody::setAngularDamping)
+			.property("SleepEpsilon", &RigidBody::getSleepEpsilon, &RigidBody::setSleepEpsilon)
+			.property("Awake", &RigidBody::getAwake, &RigidBody::setAwake)
+			.def("InsertShape", &RigidBody::InsertShape)
 	];
 
 	luabind::globals(L)["game"] = Game::getSingletonPtr();

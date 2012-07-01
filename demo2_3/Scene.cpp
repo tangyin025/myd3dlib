@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "Scene.h"
 #include "Game.h"
 
@@ -146,6 +146,8 @@ void Scene::OnFrameMove(
 	{
 		m_Camera->OnFrameMove(fTime, fElapsedTime);
 	}
+
+	runPhysics(fElapsedTime);
 }
 
 void Scene::OnRender(
@@ -174,7 +176,42 @@ void Scene::OnRender(
 				DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 			}
 
+			my::RigidBodyPtrList::const_iterator body_iter = bodyList.begin();
+			for(; body_iter != bodyList.end(); body_iter++)
+			{
+				static_cast<::RigidBody *>((*body_iter).get())->DrawShapes(pd3dDevice); 
+			}
+
 			pd3dDevice->EndScene();
 		}
 	}
+}
+
+unsigned Scene::generateContacts(my::Contact * contacts, unsigned limits)
+{
+	// 每一个CollisionPrimitive要求在RigidBody Dirty时，需要更新其calculateInternals
+	for(size_t i = 0; i < bodyList.size(); i++)
+	{
+		static_cast<::RigidBody *>(bodyList[i].get())->UpdateShapes();
+	}
+
+	unsigned used = 0;
+	for(size_t i = 0; i < bodyList.size(); i++)
+	{
+		::RigidBody * lhs = static_cast<::RigidBody *>(bodyList[i].get());
+		for(size_t j = i + 1; j < bodyList.size(); j++)
+		{
+			used += lhs->collide(
+				static_cast<::RigidBody *>(bodyList[j].get()), contacts + used, limits - used);
+		}
+		used += lhs->collideHalfSpace(Vector3(0,1,0), 0, contacts + used, limits - used);
+	}
+
+	// 再次更新摩擦力和弹性系数
+	for(unsigned i = 0; i < used; i++)
+	{
+		contacts[i].friction = 0.9f;
+		contacts[i].restitution = 0.6f;
+	}
+	return used;
 }

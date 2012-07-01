@@ -17,3 +17,5 @@ d.EventAlign=function(args)
 	camera.Aspect=args.vp.x/args.vp.y
 end
 game:InsertDlg(3,d)
+
+local sphere = CollisionSphere(1);local body = RigidBody();body.Acceleration=Vector3(0.1,-1,0);body.Position=Vector3(0,5,0);body:InsertShape(sphere);scene:InsertBody(body)

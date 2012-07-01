@@ -122,7 +122,15 @@ namespace my
 		}
 
 	public:
-		Particle(void);
+		Particle(void)
+		{
+			setPosition(Vector3::zero);
+			setVelocity(Vector3::zero);
+			setAcceleration(Vector3::zero);
+			clearAccumulator();
+			setDamping(1);
+			setInverseMass(1);
+		}
 
 		bool hasFiniteMass(void) const;
 
@@ -542,8 +550,6 @@ namespace my
 
 		ParticleContactArray particleContactArray;
 
-		unsigned maxContacts;
-
 	public:
 		ParticleWorld(unsigned _maxContacts = 256, unsigned _iterations = 0);
 
@@ -803,7 +809,29 @@ namespace my
 		}
 
 	public:
-		RigidBody(void);
+		RigidBody(void)
+		{
+			setInverseMass(1);
+			setPosition(Vector3::zero);
+			setOrientation(Quaternion::Identity());
+			setVelocity(Vector3::zero);
+			setRotation(Vector3::zero);
+			//Matrix4 transform;
+			setInverseInertialTensor(Matrix4::Identity());
+			//Matrix4 inverseInertiaTensorWorld;
+			setAcceleration(Vector3::zero);
+			clearAccumulator();
+			clearTorqueAccumulator();
+			//Vector3 resultingAcc;
+			//Vector3 resultingAngularAcc;
+			setDamping(1);
+			setAngularDamping(1);
+			setSleepEpsilon(0.3f);
+			//float motion;
+			setAwake(true);
+			setCanSleep(true);
+			calculateDerivedData();
+		}
 
 		void calculateDerivedData(void);
 
@@ -1166,8 +1194,6 @@ namespace my
 		ForceRegistry registry;
 
 		ContactList contactList;
-
-		unsigned maxContacts;
 
 		ContactResolver resolver;
 

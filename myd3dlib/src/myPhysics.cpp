@@ -12,16 +12,6 @@ namespace my
 	// Particle
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	Particle::Particle(void)
-	{
-		setPosition(Vector3::zero);
-		setVelocity(Vector3::zero);
-		setAcceleration(Vector3::zero);
-		clearAccumulator();
-		setDamping(1);
-		setInverseMass(1);
-	}
-
 	bool Particle::hasFiniteMass(void) const
 	{
 		return inverseMass > 0.0f;
@@ -656,7 +646,6 @@ namespace my
 	ParticleWorld::ParticleWorld(unsigned _maxContacts, unsigned _iterations)
 		: resolver(_iterations)
 		, particleContactArray(_maxContacts)
-		, maxContacts(_maxContacts)
 	{
 	}
 
@@ -709,7 +698,7 @@ namespace my
 
 		integrate(duration);
 
-		unsigned used = generateContacts(&particleContactArray[0], maxContacts);
+		unsigned used = generateContacts(&particleContactArray[0], particleContactArray.size());
 
 		resolver.setIterations(used * 2);
 
@@ -719,30 +708,6 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// RigidBody
 	// /////////////////////////////////////////////////////////////////////////////////////
-
-	RigidBody::RigidBody(void)
-	{
-		setInverseMass(1);
-		setPosition(Vector3::zero);
-		setOrientation(Quaternion::Identity());
-		setVelocity(Vector3::zero);
-		setRotation(Vector3::zero);
-		//Matrix4 transform;
-		setInverseInertialTensor(Matrix4::Identity());
-		//Matrix4 inverseInertiaTensorWorld;
-		setAcceleration(Vector3::zero);
-		clearAccumulator();
-		clearTorqueAccumulator();
-		//Vector3 resultingAcc;
-		//Vector3 resultingAngularAcc;
-		setDamping(1);
-		setAngularDamping(1);
-		setSleepEpsilon(0.3f);
-		//float motion;
-		setAwake(true);
-		setCanSleep(true);
-		calculateDerivedData();
-	}
 
 	static Matrix4 _transformInertiaTensor(
 		const Matrix4 & inertiaTensor,
@@ -1908,9 +1873,8 @@ namespace my
 
 	World::World(unsigned _maxContacts)
 		: resolver(0, 0, 0.01f, 0.01f)
-		, maxContacts(_maxContacts)
+		, contactList(_maxContacts)
 	{
-		contactList.resize(maxContacts);
 	}
 
 	World::~World(void)
@@ -1954,7 +1918,7 @@ namespace my
 
 		integrate(duration);
 
-		unsigned usedContacts = generateContacts(&contactList[0], maxContacts);
+		unsigned usedContacts = generateContacts(&contactList[0], contactList.size());
 
 		resolver.setPositionIterations(usedContacts * 4);
 

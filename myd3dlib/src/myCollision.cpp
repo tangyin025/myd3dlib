@@ -82,18 +82,6 @@ namespace my
 	// CollisionPrimitive
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	CollisionPrimitive::CollisionPrimitive(
-		RigidBody * _body,
-		const Matrix4 & _offset)
-		: body(_body)
-		, offset(_offset)
-	{
-	}
-
-	CollisionPrimitive::~CollisionPrimitive(void)
-	{
-	}
-
 	void CollisionPrimitive::calculateInternals(void)
 	{
 		_ASSERT(NULL != body);
@@ -105,26 +93,74 @@ namespace my
 	// CollisionSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	CollisionSphere::CollisionSphere(
-		float _radius,
-		RigidBody * _body,
-		const Matrix4 & _offset)
-		: CollisionPrimitive(_body, _offset)
-		, radius(_radius)
+	unsigned CollisionSphere::collide(
+		const CollisionPrimitive * rhs,
+		Contact * contacts,
+		unsigned limits) const
 	{
+		return rhs->collideSphere(this, contacts, limits);
+	}
+
+	unsigned CollisionSphere::collideSphere(
+		const CollisionSphere * sphere,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::sphereAndSphere(*this, *sphere, contacts, limits);
+	}
+
+	unsigned CollisionSphere::collideBox(
+		const CollisionBox * box,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::boxAndSphere(*box, *this, contacts, limits);
+	}
+
+	unsigned CollisionSphere::collideHalfSpace(
+		const Vector3 & planeNormal,
+		float planeDistance,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::sphereAndHalfSpace(*this, planeNormal, planeDistance, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionBox
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	CollisionBox::CollisionBox(
-		const Vector3 & _halfSize,
-		RigidBody * _body,
-		const Matrix4 & _offset)
-		: CollisionPrimitive(_body, _offset)
-		, halfSize(_halfSize)
+	unsigned CollisionBox::collide(
+		const CollisionPrimitive * rhs,
+		Contact * contacts,
+		unsigned limits) const
 	{
+		return rhs->collideBox(this, contacts, limits);
+	}
+
+	unsigned CollisionBox::collideSphere(
+		const CollisionSphere * sphere,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::boxAndSphere(*this, *sphere, contacts, limits);
+	}
+
+	unsigned CollisionBox::collideBox(
+		const CollisionBox * box,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::boxAndBox(*this, *box, contacts, limits);
+	}
+
+	unsigned CollisionBox::collideHalfSpace(
+		const Vector3 & planeNormal,
+		float planeDistance,
+		Contact * contacts,
+		unsigned limits) const
+	{
+		return CollisionDetector::boxAndHalfSpace(*this, planeNormal, planeDistance, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////

@@ -50,8 +50,86 @@ public:
 
 typedef boost::shared_ptr<BaseScene> BaseScenePtr;
 
+class RigidBody
+	: public my::RigidBody
+{
+protected:
+	typedef std::vector<my::CollisionPrimitivePtr> CollisionPrimitivePtrSet;
+
+	CollisionPrimitivePtrSet m_shapes;
+
+public:
+	void InsertShape(my::CollisionPrimitivePtr shape)
+	{
+		shape->setRigidBody(this);
+
+		m_shapes.push_back(shape);
+	}
+
+	void UpdateShapes(void)
+	{
+		CollisionPrimitivePtrSet::iterator lhs_iter = m_shapes.begin();
+		for(; lhs_iter != m_shapes.end(); lhs_iter++)
+		{
+			(*lhs_iter)->calculateInternals();
+		}
+	}
+
+	unsigned collide(const RigidBody * rhs, my::Contact * contacts, unsigned limits)
+	{
+		unsigned used = 0;
+		CollisionPrimitivePtrSet::const_iterator lhs_iter = m_shapes.begin();
+		for(; lhs_iter != m_shapes.end(); lhs_iter++)
+		{
+			CollisionPrimitivePtrSet::const_iterator rhs_iter = rhs->m_shapes.begin();
+			for(; rhs_iter != rhs->m_shapes.end(); rhs_iter++)
+			{
+				used += (*lhs_iter)->collide((*rhs_iter).get(), contacts + used, limits - used);
+			}
+		}
+		return used;
+	}
+
+	unsigned collideHalfSpace(const my::Vector3 & planeNormal, float planeDistance, my::Contact * contacts, unsigned limits)
+	{
+		unsigned used = 0;
+		CollisionPrimitivePtrSet::const_iterator lhs_iter = m_shapes.begin();
+		for(; lhs_iter != m_shapes.end(); lhs_iter++)
+		{
+			used += (*lhs_iter)->collideHalfSpace(planeNormal, planeDistance, contacts + used, limits - used);
+		}
+		return used;
+	}
+
+	void DrawShapes(IDirect3DDevice9 * pd3dDevice, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,0))
+	{
+		CollisionPrimitivePtrSet::const_iterator lhs_iter = m_shapes.begin();
+		for(; lhs_iter != m_shapes.end(); lhs_iter++)
+		{
+			switch((*lhs_iter)->getPrimitiveType())
+			{
+			case my::CollisionPrimitive::PrimitiveTypeShere:
+				{
+					my::CollisionSphere * sphere = static_cast<my::CollisionSphere *>((*lhs_iter).get());
+					BaseScene::DrawSphere(pd3dDevice, sphere->getRadius(), Color, sphere->getTransform());
+				}
+				break;
+			case my::CollisionPrimitive::PrimitiveTypeBox:
+				{
+					my::CollisionBox * box = static_cast<my::CollisionBox *>((*lhs_iter).get());
+					BaseScene::DrawBox(pd3dDevice, box->getHalfSize(), Color, box->getTransform());
+				}
+				break;
+			}
+		}
+	}
+};
+
+typedef boost::shared_ptr<RigidBody> RigidBodyPtr;
+
 class Scene
 	: public BaseScene
+	, public my::World
 {
 public:
 	BaseCameraPtr m_Camera;
@@ -67,4 +145,12 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
+
+	void InsertBody(RigidBodyPtr body)
+	{
+		body->calculateDerivedData();
+		bodyList.push_back(body);
+	}
+
+	unsigned generateContacts(my::Contact * contacts, unsigned limits);
 };

@@ -208,6 +208,10 @@ namespace my
 
 	class CollisionDetector;
 
+	class CollisionSphere;
+
+	class CollisionBox;
+
 	class CollisionPrimitive
 	{
 		friend IntersectionTests;
@@ -257,16 +261,51 @@ namespace my
 			return transform[i];
 		}
 
+		enum PrimitiveType
+		{
+			PrimitiveTypeShere,
+			PrimitiveTypeBox,
+		};
+
+		virtual PrimitiveType getPrimitiveType(void) const = 0;
+
+		virtual unsigned collide(
+			const CollisionPrimitive * rhs,
+			Contact * contacts,
+			unsigned limits) const = 0;
+
+		virtual unsigned collideSphere(
+			const CollisionSphere * sphere,
+			Contact * contacts,
+			unsigned limits) const = 0;
+
+		virtual unsigned collideBox(
+			const CollisionBox * box,
+			Contact * contacts,
+			unsigned limits) const = 0;
+
+		virtual unsigned collideHalfSpace(
+			const Vector3 & planeNormal,
+			float planeDistance,
+			Contact * contacts,
+			unsigned limits) const = 0;
+
 	protected:
-		CollisionPrimitive(
-			RigidBody * _body,
-			const Matrix4 & _offset);
+		CollisionPrimitive(void)
+			: body(NULL)
+			, offset(Matrix4::Identity())
+		{
+		}
 
 	public:
-		virtual ~CollisionPrimitive(void);
+		virtual ~CollisionPrimitive(void)
+		{
+		}
 
 		void calculateInternals(void);
 	};
+
+	typedef boost::shared_ptr<CollisionPrimitive> CollisionPrimitivePtr;
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionSphere
@@ -292,11 +331,38 @@ namespace my
 			return radius;
 		}
 
+		PrimitiveType getPrimitiveType(void) const
+		{
+			return PrimitiveTypeShere;
+		}
+
+		virtual unsigned collide(
+			const CollisionPrimitive * rhs,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideSphere(
+			const CollisionSphere * sphere,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideBox(
+			const CollisionBox * box,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideHalfSpace(
+			const Vector3 & planeNormal,
+			float planeDistance,
+			Contact * contacts,
+			unsigned limits) const;
+
 	public:
 		CollisionSphere(
-			float _radius,
-			RigidBody * _body = NULL,
-			const Matrix4 & _offset = Matrix4::Identity());
+			float _radius)
+			: radius(_radius)
+		{
+		}
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -323,11 +389,38 @@ namespace my
 			return halfSize;
 		}
 
+		PrimitiveType getPrimitiveType(void) const
+		{
+			return PrimitiveTypeBox;
+		}
+
+		virtual unsigned collide(
+			const CollisionPrimitive * rhs,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideSphere(
+			const CollisionSphere * sphere,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideBox(
+			const CollisionBox * box,
+			Contact * contacts,
+			unsigned limits) const;
+
+		virtual unsigned collideHalfSpace(
+			const Vector3 & planeNormal,
+			float planeDistance,
+			Contact * contacts,
+			unsigned limits) const;
+
 	public:
 		CollisionBox(
-			const Vector3 & _halfSize,
-			RigidBody * _body = NULL,
-			const Matrix4 & _offset = Matrix4::Identity());
+			const Vector3 & _halfSize)
+			: halfSize(_halfSize)
+		{
+		}
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
