@@ -842,7 +842,7 @@ namespace my
 		addPosition(velocity * duration);
 
 		// Update angular position.
-		addOrientation(rotation * duration);
+		addOrientationLH(rotation * duration);
 
 		// Normalise the orientation, and update the matrices with the new
 		// position and orientation
@@ -1451,7 +1451,7 @@ namespace my
 		body.addPosition(linearChange);
 
 		// And the change in orientation
-		body.addOrientation(angularChange);
+		body.addOrientationLH(angularChange);
 
 		// BUG FIX:
 		// too much call RigidBody::addOrientation(...) to one body will lead float overflow

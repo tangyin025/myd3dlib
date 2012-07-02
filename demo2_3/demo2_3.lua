@@ -3,6 +3,8 @@ game.font=font
 dofile "Console.lua"
 dofile "Hud.lua"
 
+Console.console.Visible=false
+
 camera=ModuleViewCamera(math.rad(75),4/3,0.1,3000)
 camera.Rotation=Vector3(math.rad(-45),math.rad(45),0)
 camera.Distance=10
@@ -18,11 +20,11 @@ d.EventAlign=function(args)
 end
 game:InsertDlg(3,d)
 
-for x = -5,5,2 do
-	for z = -5,5,2 do
+for x = -5,5,1 do
+	for z = -5,5,1 do
 		local box = CollisionBox(Vector3(0.5,0.5,0.5),Matrix4.Identity(),0.9,0.6)
 		local body = RigidBody()
-		body.Mass=4
+		body.Mass=1
 		body.Acceleration=Vector3(0,-9.8*2,0)
 		body.Position=Vector3(x,5,z)
 		body.Damping=0.95

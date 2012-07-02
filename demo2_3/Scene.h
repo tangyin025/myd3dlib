@@ -197,6 +197,7 @@ public:
 	void InsertBody(RigidBodyPtr body)
 	{
 		body->calculateDerivedData();
+
 		bodyList.push_back(body);
 	}
 

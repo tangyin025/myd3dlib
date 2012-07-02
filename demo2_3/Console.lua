@@ -1,6 +1,6 @@
 module("Console", package.seeall)
 
-local console=Dialog()
+console=Dialog()
 console.Color=ARGB(197,0,0,0)
 -- console.Location=Vector2(50,95)
 console.Size=Vector2(700,410)

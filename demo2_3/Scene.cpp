@@ -143,7 +143,7 @@ void Scene::OnFrameMove(
 		m_Camera->OnFrameMove(fTime, fElapsedTime);
 	}
 
-	runPhysics(fElapsedTime);
+	runPhysics(1/60.0f);
 }
 
 void Scene::OnRender(
