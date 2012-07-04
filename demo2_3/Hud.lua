@@ -1,5 +1,3 @@
-module("Hud", package.seeall)
-
 hud=Dialog()
 hud.Color=ARGB(0,0,0,0)
 -- hud.Location=Vector2(800-170,0)

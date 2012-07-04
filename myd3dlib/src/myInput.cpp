@@ -23,6 +23,8 @@ Keyboard::Keyboard(LPDIRECTINPUTDEVICE8W device)
 	: InputDevice(device)
 {
 	SetDataFormat(&c_dfDIKeyboard);
+
+	ZeroMemory(&m_CurState, sizeof(m_CurState));
 }
 
 KeyboardPtr Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
@@ -38,12 +40,16 @@ KeyboardPtr Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
 
 void Keyboard::Capture(void)
 {
-	hr = m_ptr->Acquire();
-	if(SUCCEEDED(hr))
-	{
-		memcpy(m_PreState, m_CurState, sizeof(m_PreState));
+	memcpy(m_PreState, m_CurState, sizeof(m_PreState));
 
-		GetDeviceState(sizeof(m_CurState), m_CurState);
+	hr = m_ptr->GetDeviceState(sizeof(m_CurState), m_CurState);
+	if(FAILED(hr))
+	{
+		hr = m_ptr->Acquire();
+		if(SUCCEEDED(hr))
+		{
+			GetDeviceState(sizeof(m_CurState), m_CurState);
+		}
 	}
 }
 
@@ -51,6 +57,8 @@ Mouse::Mouse(LPDIRECTINPUTDEVICE8W device)
 	: InputDevice(device)
 {
 	SetDataFormat(&c_dfDIMouse);
+
+	ZeroMemory(&m_CurState, sizeof(m_CurState));
 }
 
 MousePtr Mouse::CreateMouse(LPDIRECTINPUT8W input)
@@ -66,11 +74,15 @@ MousePtr Mouse::CreateMouse(LPDIRECTINPUT8W input)
 
 void Mouse::Capture(void)
 {
-	hr = m_ptr->Acquire();
-	if(SUCCEEDED(hr))
-	{
-		memcpy(&m_PreState, &m_CurState, sizeof(m_PreState));
+	memcpy(&m_PreState, &m_CurState, sizeof(m_PreState));
 
-		GetDeviceState(sizeof(m_CurState), &m_CurState);
+	hr = m_ptr->GetDeviceState(sizeof(m_CurState), &m_CurState);
+	if(FAILED(hr))
+	{
+		hr = m_ptr->Acquire();
+		if(SUCCEEDED(hr))
+		{
+			GetDeviceState(sizeof(m_CurState), &m_CurState);
+		}
 	}
 }

@@ -1,5 +1,3 @@
-module("Console", package.seeall)
-
 console=Dialog()
 console.Color=ARGB(197,0,0,0)
 -- console.Location=Vector2(50,95)
