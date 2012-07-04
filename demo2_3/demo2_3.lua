@@ -22,15 +22,17 @@ game:InsertDlg(3,d)
 
 for x = -5,5,1 do
 	for z = -5,5,1 do
-		local box = CollisionBox(Vector3(0.5,0.5,0.5),Matrix4.Identity(),0.9,0.6)
-		local body = RigidBody()
-		body.Mass=1
-		body.Acceleration=Vector3(0,-9.8*2,0)
-		body.Position=Vector3(x,5,z)
-		body.Damping=0.95
-		body.AngularDamping=0.8
-		body.InertialTensor=RigidBody.CalculateBlockInertiaTensor(box.HalfSize, body.Mass)
-		body:InsertShape(box)
-		scene:InsertBody(body)
+		for y = 5,5,1 do
+			local box = CollisionBox(Vector3(0.5,0.5,0.5),Matrix4.Identity(),0.9,0.6)
+			local body = RigidBody()
+			body.Mass=1
+			body.Acceleration=Vector3(0,-9.8*2,0)
+			body.Position=Vector3(x,y,z)
+			body.Damping=0.95
+			body.AngularDamping=0.8
+			body.InertialTensor=RigidBody.CalculateBlockInertiaTensor(box.HalfSize, body.Mass)
+			body:InsertShape(box)
+			scene:InsertBody(body)
+		end
 	end
 end

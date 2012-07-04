@@ -553,10 +553,31 @@ namespace my
 		ParticleContactArray particleContactArray;
 
 	public:
-		ParticleWorld(unsigned _maxContacts = 256, unsigned _resolveIterations = 16)
+		void setMaxContacts(unsigned maxContacts)
+		{
+			particleContactArray.resize(maxContacts);
+		}
+
+		unsigned getMaxContacts(void) const
+		{
+			return particleContactArray.size();
+		}
+
+		void setIteration(unsigned iteration)
+		{
+			resolveIteration = iteration;
+		}
+
+		unsigned getIteration(void) const
+		{
+			return resolveIteration;
+		}
+
+	public:
+		ParticleWorld(unsigned maxContacts = 256, unsigned _resolveIterations = 16)
 			: resolveIteration(_resolveIterations)
 			, resolver(_resolveIterations)
-			, particleContactArray(_maxContacts)
+			, particleContactArray(maxContacts)
 		{
 		}
 
@@ -1128,21 +1149,45 @@ namespace my
 		unsigned velocityIterationsUsed;
 
 	public:
-		void setPositionIterations(unsigned iterations);
+		void setPositionIterations(unsigned iterations)
+		{
+			positionIterations = iterations;
+		}
 
-		unsigned getPositionIterations(void) const;
+		unsigned getPositionIterations(void) const
+		{
+			return positionIterations;
+		}
 
-		void setVelocityIterations(unsigned iterations);
+		void setVelocityIterations(unsigned iterations)
+		{
+			velocityIterations = iterations;
+		}
 
-		unsigned getVelocityIterations(void) const;
+		unsigned getVelocityIterations(void) const
+		{
+			return velocityIterations;
+		}
 
-		void setPositionEpsilon(float value);
+		void setPositionEpsilon(float value)
+		{
+			positionEpsilon = value;
+		}
 
-		float getPositionEpsilon(void) const;
+		float getPositionEpsilon(void) const
+		{
+			return positionEpsilon;
+		}
 
-		void setVelocityEpsilon(float value);
+		void setVelocityEpsilon(float value)
+		{
+			velocityEpsilon = value;
+		}
 
-		float getVelocityEpsilon(void) const;
+		float getVelocityEpsilon(void) const
+		{
+			return velocityEpsilon;
+		}
 
 	public:
 		ContactResolver(
@@ -1211,8 +1256,39 @@ namespace my
 		ContactResolver resolver;
 
 	public:
+		void setMaxContacts(unsigned maxContacts)
+		{
+			contactList.resize(maxContacts);
+		}
+
+		unsigned getMaxContacts(void) const
+		{
+			return contactList.size();
+		}
+
+		void setPositionIteration(unsigned posIteration)
+		{
+			resolvePositionIteration = posIteration;
+		}
+
+		unsigned getPositionIteration(void) const
+		{
+			return resolvePositionIteration;
+		}
+
+		void setVelocityIteration(unsigned velIteration)
+		{
+			resolveVelocityIteration = velIteration;
+		}
+
+		unsigned getVelocityIteration(void) const
+		{
+			return resolveVelocityIteration;
+		}
+
+	public:
 		World(
-			unsigned _maxContacts = 256,
+			unsigned maxContacts = 256,
 			unsigned _resolvePositionIteration = 16,
 			unsigned _resolveVelocityIteration = 16,
 			float resolvePositionEpsilon = 0.01f,
@@ -1221,7 +1297,7 @@ namespace my
 			: resolvePositionIteration(_resolvePositionIteration)
 			, resolveVelocityIteration(_resolveVelocityIteration)
 			, resolver(_resolvePositionIteration, _resolveVelocityIteration, resolvePositionEpsilon, resolveVelocityEpsilon)
-			, contactList(_maxContacts)
+			, contactList(maxContacts)
 		{
 		}
 

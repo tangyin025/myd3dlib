@@ -1571,46 +1571,6 @@ namespace my
 	// ContactResolver
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	void ContactResolver::setPositionIterations(unsigned iterations)
-	{
-		positionIterations = iterations;
-	}
-
-	unsigned ContactResolver::getPositionIterations(void) const
-	{
-		return positionIterations;
-	}
-
-	void ContactResolver::setVelocityIterations(unsigned iterations)
-	{
-		velocityIterations = iterations;
-	}
-
-	unsigned ContactResolver::getVelocityIterations(void) const
-	{
-		return velocityIterations;
-	}
-
-	void ContactResolver::setPositionEpsilon(float value)
-	{
-		positionEpsilon = value;
-	}
-
-	float ContactResolver::getPositionEpsilon(void) const
-	{
-		return positionEpsilon;
-	}
-
-	void ContactResolver::setVelocityEpsilon(float value)
-	{
-		velocityEpsilon = value;
-	}
-
-	float ContactResolver::getVelocityEpsilon(void) const
-	{
-		return velocityEpsilon;
-	}
-
 	ContactResolver::ContactResolver(
 		unsigned _positionIterations,
 		unsigned _velocityIterations,
