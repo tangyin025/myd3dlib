@@ -159,10 +159,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\BulletDynamics\Dynamics\btContinuousDynamicsWorld.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\include\BulletDynamics\Dynamics\btDiscreteDynamicsWorld.cpp"
 				>
 			</File>
@@ -258,10 +254,6 @@
 			</File>
 			<File
 				RelativePath="..\include\BulletDynamics\ConstraintSolver\btContactSolverInfo.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\BulletDynamics\Dynamics\btContinuousDynamicsWorld.h"
 				>
 			</File>
 			<File

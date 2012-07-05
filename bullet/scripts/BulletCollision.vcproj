@@ -271,6 +271,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\BulletCollision\CollisionShapes\btConvexPolyhedron.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\BulletCollision\CollisionShapes\btConvexShape.cpp"
 				>
 			</File>
@@ -388,6 +392,10 @@
 			</File>
 			<File
 				RelativePath="..\include\BulletCollision\NarrowPhaseCollision\btPersistentManifold.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\BulletCollision\NarrowPhaseCollision\btPolyhedralContactClipping.cpp"
 				>
 			</File>
 			<File
@@ -665,6 +673,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\BulletCollision\CollisionShapes\btConvexPolyhedron.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\BulletCollision\CollisionShapes\btConvexShape.h"
 				>
 			</File>
@@ -810,6 +822,10 @@
 			</File>
 			<File
 				RelativePath="..\include\BulletCollision\NarrowPhaseCollision\btPointCollector.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\BulletCollision\NarrowPhaseCollision\btPolyhedralContactClipping.h"
 				>
 			</File>
 			<File

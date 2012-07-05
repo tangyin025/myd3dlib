@@ -159,6 +159,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\LinearMath\btConvexHullComputer.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\LinearMath\btGeometryUtil.cpp"
 				>
 			</File>
@@ -193,11 +197,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\LinearMath\btConvexHullComputer.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\LinearMath\btDefaultMotionState.h"
 				>
 			</File>
 			<File
 				RelativePath="..\include\LinearMath\btGeometryUtil.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\LinearMath\btGrahamScan2dConvexHull.h"
 				>
 			</File>
 			<File
