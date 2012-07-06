@@ -271,10 +271,6 @@ bool Control::GetVisible(void)
 	return m_bVisible;
 }
 
-void Control::Refresh(void)
-{
-}
-
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -325,17 +321,16 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 				else
 				{
 					D3DXCOLOR DstColor(m_Color);
-					float BaseAlpha = DstColor.a;
-					if(!m_bMouseOver /*&& !m_bHasFocus*/)
-					{
-						DstColor.a = 0;
-					}
-					else
+					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
 						Rect = Rect.offset(-Skin->m_PressedOffset);
 					}
-					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.75f, 30 * fElapsedTime));
-					Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, D3DXCOLOR(m_BlendColor.r, m_BlendColor.g, m_BlendColor.b, BaseAlpha - m_BlendColor.a));
+					else
+					{
+						DstColor.a = 0;
+					}
+					Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
 					Skin->DrawImage(pd3dDevice, Skin->m_MouseOverImage, Rect, m_BlendColor);
 				}
 			}
@@ -432,11 +427,6 @@ void Button::OnHotkey(void)
 bool Button::ContainsPoint(const Vector2 & pt)
 {
 	return Control::ContainsPoint(pt);
-}
-
-void Button::Refresh(void)
-{
-	m_BlendColor = D3DXCOLOR(0,0,0,0);
 }
 
 void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
@@ -1621,15 +1611,6 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		}
 	}
 	return false;
-}
-
-void Dialog::Refresh(void)
-{
-	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
-	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-	{
-		(*ctrl_iter)->Refresh();
-	}
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)

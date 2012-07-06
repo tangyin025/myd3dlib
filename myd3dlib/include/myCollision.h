@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __MYCOLLISION_H__
 #define __MYCOLLISION_H__
 
@@ -8,197 +8,197 @@
 
 namespace my
 {
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// BoundingSphere
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// BoundingSphere
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	class BoundingSphere
-	{
-	protected:
-		Vector3 center;
+	//class BoundingSphere
+	//{
+	//protected:
+	//	Vector3 center;
 
-		float radius;
+	//	float radius;
 
-	public:
-		const Vector3 & getCenter(void) const;
+	//public:
+	//	const Vector3 & getCenter(void) const;
 
-		void setCenter(const Vector3 & _center);
+	//	void setCenter(const Vector3 & _center);
 
-		const float getRadius(void) const;
+	//	const float getRadius(void) const;
 
-		void setRadius(float _radius);
+	//	void setRadius(float _radius);
 
-	public:
-		BoundingSphere(const Vector3 & _center, float _radius);
+	//public:
+	//	BoundingSphere(const Vector3 & _center, float _radius);
 
-		bool overlaps(const BoundingSphere & other) const;
+	//	bool overlaps(const BoundingSphere & other) const;
 
-		float getGrowth(const BoundingSphere & other) const;
+	//	float getGrowth(const BoundingSphere & other) const;
 
-		float getVolumn(void) const;
-	};
+	//	float getVolumn(void) const;
+	//};
 
-	BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
+	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs);
 
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// PotentialContact
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// PotentialContact
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	class RigidBody;
+	//class RigidBody;
 
-	struct PotentialContact
-	{
-		RigidBody * body0;
+	//struct PotentialContact
+	//{
+	//	RigidBody * body0;
 
-		RigidBody * body1;
-	};
+	//	RigidBody * body1;
+	//};
 
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// BVHNode
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// BVHNode
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	template <class BoundingVolumeClass>
-	class BVHNode
-	{
-	protected:
-		class BoundingVolumeLt
-		{
-		protected:
-			BoundingVolumeClass volume;
+	//template <class BoundingVolumeClass>
+	//class BVHNode
+	//{
+	//protected:
+	//	class BoundingVolumeLt
+	//	{
+	//	protected:
+	//		BoundingVolumeClass volume;
 
-		public:
-			BoundingVolumeLt(const BoundingVolumeClass & _volume)
-				: volume(_volume)
-			{
-			}
+	//	public:
+	//		BoundingVolumeLt(const BoundingVolumeClass & _volume)
+	//			: volume(_volume)
+	//		{
+	//		}
 
-			bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
-			{
-				return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
-			}
-		};
+	//		bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
+	//		{
+	//			return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
+	//		}
+	//	};
 
-	protected:
-		typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
+	//protected:
+	//	typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
 
-		BVHNodeList childs;
+	//	BVHNodeList childs;
 
-		BoundingVolumeClass volume;
+	//	BoundingVolumeClass volume;
 
-		RigidBody * body;
+	//	RigidBody * body;
 
-	protected:
-		bool overlaps(const BVHNode<BoundingVolumeClass> & other) const
-		{
-			return volume.overlap(other.volume);
-		}
+	//protected:
+	//	bool overlaps(const BVHNode<BoundingVolumeClass> & other) const
+	//	{
+	//		return volume.overlap(other.volume);
+	//	}
 
-		unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
-		{
-			if(limit > 0)
-			{
-				if(overlaps(other))
-				{
-					if(isLeaf())
-					{
-						if(other.isLeaf())
-						{
-							contacts[0].body0 = body;
-							contacts[0].body1 = other.body;
-							return 1;
-						}
+	//	unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
+	//	{
+	//		if(limit > 0)
+	//		{
+	//			if(overlaps(other))
+	//			{
+	//				if(isLeaf())
+	//				{
+	//					if(other.isLeaf())
+	//					{
+	//						contacts[0].body0 = body;
+	//						contacts[0].body1 = other.body;
+	//						return 1;
+	//					}
 
-						return other.getPotentialContactsWith(*this, contants, limit);
-					}
+	//					return other.getPotentialContactsWith(*this, contants, limit);
+	//				}
 
-					unsigned nret = 0;
-					BVHNodeList::constant_iterator child_iter = childs.begin();
-					for(; child_iter != childs.end(); child_iter++)
-					{
-						nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
-					}
-					return nret;
-				}
-			}
-			return 0;
-		}
+	//				unsigned nret = 0;
+	//				BVHNodeList::constant_iterator child_iter = childs.begin();
+	//				for(; child_iter != childs.end(); child_iter++)
+	//				{
+	//					nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
+	//				}
+	//				return nret;
+	//			}
+	//		}
+	//		return 0;
+	//	}
 
-		void recalculateBoundingVolume(void)
-		{
-			_ASSERT(!childs.empty());
+	//	void recalculateBoundingVolume(void)
+	//	{
+	//		_ASSERT(!childs.empty());
 
-			BVHNodeList::const_iterator child_iter = childs.begin();
-			volume = child_iter->volume;
-			child_iter++;
-			for(; child_iter != childs.end(); child_iter++)
-			{
-				volume = buildBoundingSphere(volume, child_iter->volume);
-			}
-		}
+	//		BVHNodeList::const_iterator child_iter = childs.begin();
+	//		volume = child_iter->volume;
+	//		child_iter++;
+	//		for(; child_iter != childs.end(); child_iter++)
+	//		{
+	//			volume = buildBoundingSphere(volume, child_iter->volume);
+	//		}
+	//	}
 
-	public:
-		BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
-			: volume(_volume)
-			, body(_body)
-		{
-		}
+	//public:
+	//	BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
+	//		: volume(_volume)
+	//		, body(_body)
+	//	{
+	//	}
 
-		bool isLeaf(void) const
-		{
-			if(NULL == body)
-			{
-				_ASSERT(childs.empty());
+	//	bool isLeaf(void) const
+	//	{
+	//		if(NULL == body)
+	//		{
+	//			_ASSERT(childs.empty());
 
-				return true;
-			}
+	//			return true;
+	//		}
 
-			_ASSERT(!childs.empty());
+	//		_ASSERT(!childs.empty());
 
-			return false;
-		}
+	//		return false;
+	//	}
 
-		unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const
-		{
-			if(limit > 0)
-			{
-				if(!isLeaf())
-				{
-					unsigned nret = 0;
-					BVHNodeList::constant_iterator child_iter = childs.begin();
-					for(; child_iter != childs.end(); child_iter++)
-					{
-						BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
-						for(; other_child_iter != childs.end(); other_child_iter++)
-						{
-							nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
-						}
-					}
-					return nret;
-				}
-			}
-			return 0;
-		}
+	//	unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const
+	//	{
+	//		if(limit > 0)
+	//		{
+	//			if(!isLeaf())
+	//			{
+	//				unsigned nret = 0;
+	//				BVHNodeList::constant_iterator child_iter = childs.begin();
+	//				for(; child_iter != childs.end(); child_iter++)
+	//				{
+	//					BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
+	//					for(; other_child_iter != childs.end(); other_child_iter++)
+	//					{
+	//						nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
+	//					}
+	//				}
+	//				return nret;
+	//			}
+	//		}
+	//		return 0;
+	//	}
 
-		void insert(RigidBody * _body, const BoundingVolumeClass & _volume)
-		{
-			if(isLeaf())
-			{
-				childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
+	//	void insert(RigidBody * _body, const BoundingVolumeClass & _volume)
+	//	{
+	//		if(isLeaf())
+	//		{
+	//			childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
 
-				childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
+	//			childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
 
-				body = NULL;
-			}
-			else
-			{
-				BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
+	//			body = NULL;
+	//		}
+	//		else
+	//		{
+	//			BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
 
-				child_iter->insert(_body, _volume);
-			}
+	//			child_iter->insert(_body, _volume);
+	//		}
 
-			recalculateBoundingVolume();
-		}
-	};
+	//		recalculateBoundingVolume();
+	//	}
+	//};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionPrimitive
@@ -677,50 +677,50 @@ namespace my
 			Contact * contacts,
 			unsigned limits);
 
-		static bool _tryBoxAxisAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			unsigned index,
-			float & smallestPenetration,
-			unsigned & smallestIndex);
+		//static bool _tryBoxAxisAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	unsigned index,
+		//	float & smallestPenetration,
+		//	unsigned & smallestIndex);
 
-		static bool _zeroAxisOrTryBoxAxisAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			unsigned index,
-			float & smallestPenetration,
-			unsigned & smallestIndex);
+		//static bool _zeroAxisOrTryBoxAxisAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	unsigned index,
+		//	float & smallestPenetration,
+		//	unsigned & smallestIndex);
 
-		static float calculateBoxAxisAndTrianglePenetration(
-			const CollisionBox & box,
-			const Vector3 & axis,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2);
+		//static float calculateBoxAxisAndTrianglePenetration(
+		//	const CollisionBox & box,
+		//	const Vector3 & axis,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2);
 
-		static Vector3 findPointFromTriangleByDirection(
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			const Vector3 & dir);
+		//static Vector3 findPointFromTriangleByDirection(
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	const Vector3 & dir);
 
-		// ! 还不能正确工作
-		static unsigned boxAndTriangle(
-			const CollisionBox & box,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			RigidBody * triangleBody,
-			float triangleFriction,
-			float triangleRestitution,
-			Contact * contacts,
-			unsigned limits);
+		//// ! still can't work properly
+		//static unsigned boxAndTriangle(
+		//	const CollisionBox & box,
+		//	const Vector3 & v0,
+		//	const Vector3 & v1,
+		//	const Vector3 & v2,
+		//	RigidBody * triangleBody,
+		//	float triangleFriction,
+		//	float triangleRestitution,
+		//	Contact * contacts,
+		//	unsigned limits);
 	};
 }
 

@@ -510,42 +510,6 @@ void Export2Lua(lua_State * L)
 		, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")
 			.def(luabind::constructor<>())
 			.def_readwrite("Camera", &Scene::m_Camera)
-			.property("MaxContacts", &Scene::getMaxContacts, &Scene::setMaxContacts)
-			.property("PositionIteration", &Scene::getPositionIteration, &Scene::setPositionIteration)
-			.property("VelocityIteration", &Scene::getVelocityIteration, &Scene::setVelocityIteration)
-			.def("runPhysics", &Scene::runPhysics)
-			.def("InsertBody", &Scene::InsertBody)
-
-		, luabind::class_<my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionPrimitive")
-			.property("Offset", &my::CollisionPrimitive::getOffset, &my::CollisionPrimitive::setOffset)
-
-		, luabind::class_<my::CollisionSphere, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionSphere")
-		.def(luabind::constructor<float, const my::Matrix4 &, float, float>())
-			.property("Radius", &my::CollisionSphere::getRadius, &my::CollisionSphere::setRadius)
-
-		, luabind::class_<my::CollisionBox, my::CollisionPrimitive, boost::shared_ptr<my::CollisionPrimitive> >("CollisionBox")
-			.def(luabind::constructor<const my::Vector3 &, const my::Matrix4 &, float, float>())
-			.property("HalfSize", &my::CollisionBox::getHalfSize, &my::CollisionBox::setHalfSize)
-
-		, luabind::class_<RigidBody, boost::shared_ptr<RigidBody> >("RigidBody")
-			.def(luabind::constructor<>())
-			.property("Mass", &RigidBody::getMass, &RigidBody::setMass)
-			.property("Position", &RigidBody::getPosition, &RigidBody::setPosition)
-			.property("Oritation", &RigidBody::getOrientation, &RigidBody::setOrientation)
-			.property("Velocity", &RigidBody::getVelocity, &RigidBody::setVelocity)
-			.property("Rotation", &RigidBody::getRotation, &RigidBody::setRotation) // 角速度
-			.property("InertialTensor", &RigidBody::getInertialTensor, &RigidBody::setInertialTensor) // 转动惯量
-			.property("Acceleration", &RigidBody::getAcceleration, &RigidBody::setAcceleration)
-			.property("Damping", &RigidBody::getDamping, &RigidBody::setDamping) // 衰减
-			.property("AngularDamping", &RigidBody::getAngularDamping, &RigidBody::setAngularDamping)
-			.property("SleepEpsilon", &RigidBody::getSleepEpsilon, &RigidBody::setSleepEpsilon)
-			.property("Awake", &RigidBody::getAwake, &RigidBody::setAwake)
-			.scope
-			[
-				luabind::def("CalculateSphereInertiaTensor", &RigidBody::CalculateSphereInertiaTensor)
-				, luabind::def("CalculateBlockInertiaTensor", &RigidBody::CalculateBlockInertiaTensor)
-			]
-			.def("InsertShape", &RigidBody::InsertShape)
 	];
 
 	luabind::globals(L)["game"] = Game::getSingletonPtr();

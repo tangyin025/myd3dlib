@@ -290,11 +290,6 @@ void Game::ToggleRef(void)
 void Game::ChangeDevice(void)
 {
 	m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-	{
-		dlg_iter->second->Refresh();
-	}
 }
 
 void Game::ExecuteCode(const char * code)

@@ -1,4 +1,4 @@
-﻿
+
 #ifndef __MYPHYSICS_H__
 #define __MYPHYSICS_H__
 
@@ -691,7 +691,7 @@ namespace my
 
 		void addOrientationLH(const Vector3 & _rotation)
 		{
-			orientation += orientation * Quaternion(_rotation.x, _rotation.y, _rotation.z, 0) * 0.5f; // ! 当心左右手空间
+			orientation += orientation * Quaternion(_rotation.x, _rotation.y, _rotation.z, 0) * 0.5f; // ! left-handed coordinate
 		}
 
 		const Quaternion & getOrientation(void) const

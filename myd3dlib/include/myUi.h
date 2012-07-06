@@ -174,8 +174,6 @@ namespace my
 
 		virtual bool GetVisible(void);
 
-		virtual void Refresh(void);
-
 		void SetHotkey(UINT nHotkey);
 
 		UINT GetHotkey(void);
@@ -249,8 +247,6 @@ namespace my
 		virtual void OnHotkey(void);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
-
-		virtual void Refresh(void);
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
@@ -517,8 +513,6 @@ namespace my
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
-
-		virtual void Refresh(void);
 
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 
