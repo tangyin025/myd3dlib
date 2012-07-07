@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "myPhysics.h"
+#include "myCollision.h"
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -114,7 +115,7 @@ namespace my
 	{
 		Vector3 velocity = particle->getVelocity();
 
-		float len = velocity.length();
+		float len = velocity.magnitude();
 
 		float coefficient = k1 * len + k2 * len * len;
 
@@ -138,7 +139,7 @@ namespace my
 	{
 		Vector3 distance = particle->getPosition() - other->getPosition();
 
-		float length = distance.length();
+		float length = distance.magnitude();
 
 		particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 
@@ -160,7 +161,7 @@ namespace my
 	{
 		Vector3 distance = particle->getPosition() - anchor;
 
-		float length = distance.length();
+		float length = distance.magnitude();
 
 		particle->addForce(distance.normalize() * (-springConstant * (length - restLength)));
 
@@ -182,7 +183,7 @@ namespace my
 	{
 		Vector3 distance = particle->getPosition() - other->getPosition();
 
-		float length = distance.length();
+		float length = distance.magnitude();
 
 		if(length > restLength)
 		{
@@ -207,7 +208,7 @@ namespace my
 	{
 		Vector3 distance = particle->getPosition() - anchor;
 
-		float length = distance.length();
+		float length = distance.magnitude();
 
 		if(length > restLength)
 		{
@@ -478,7 +479,7 @@ namespace my
 		_ASSERT(NULL != particles[0]);
 		_ASSERT(NULL != particles[1]);
 
-		return (particles[0]->getPosition() - particles[1]->getPosition()).length();
+		return (particles[0]->getPosition() - particles[1]->getPosition()).magnitude();
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -566,7 +567,7 @@ namespace my
 	{
 		_ASSERT(NULL != particle);
 
-		return (particle->getPosition() - anchor).length();
+		return (particle->getPosition() - anchor).magnitude();
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -852,7 +853,7 @@ namespace my
 		// sleep.
 		if(getCanSleep())
 		{
-			float currentMotion = velocity.lengthSq() + rotation.lengthSq();
+			float currentMotion = velocity.magnitudeSq() + rotation.magnitudeSq();
 
 			float bias = pow(0.5f, duration);
 
@@ -969,7 +970,7 @@ namespace my
 
 		Vector3 distance = connectionPointWorld - otherConnectionPointWorld;
 
-		float length = distance.length();
+		float length = distance.magnitude();
 
 		body->addForceAtPoint(distance.normalize() * (-springConstant * (length - restLength)), connectionPointWorld);
 
@@ -1138,7 +1139,7 @@ namespace my
 
 	void Contact::calculateContactBasis(void)
 	{
-		_ASSERT(abs(contactNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IntersectionTests::IsNormalized(contactNormal));
 
 		Vector3 contantTangents[2];
 
@@ -1406,7 +1407,7 @@ namespace my
 		// Use the small angle approximation for the sine of the angle (i.e.
 		// the magnitude would be sine(angularLimit) * projection.magnitude
 		// but we approximate sine(angularLimit) to angularLimit).
-		float maxMagnitude = angularLimit * projection.length();
+		float maxMagnitude = angularLimit * projection.magnitude();
 
 		float totalMove = linearMove + angularMove;
 
@@ -1603,7 +1604,7 @@ namespace my
 	{
 		Vector3 deltaPosition = linearChange + angularChange.cross(relativeContactPosition);
 
-		_ASSERT(abs(contact.contactNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IntersectionTests::IsNormalized(contact.contactNormal));
 
 		if(0 == bodyIndex)
 		{

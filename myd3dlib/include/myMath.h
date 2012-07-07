@@ -8,6 +8,7 @@
 #define EPSILON_E4			(1.0e-4)
 #define EPSILON_E5			(1.0e-5)
 #define EPSILON_E6			(1.0e-6)
+#define EPSILON_E12			(1.0e-12)
 
 #define cot(x)	(1.0f / tan(x))
 
@@ -195,12 +196,12 @@ namespace my
 			return x * rhs.x + y * rhs.y;
 		}
 
-		float length(void) const
+		float magnitude(void) const
 		{
-			return sqrt(lengthSq());
+			return sqrt(magnitudeSq());
 		}
 
-		float lengthSq(void) const
+		float magnitudeSq(void) const
 		{
 			return x * x + y * y;
 		}
@@ -221,14 +222,14 @@ namespace my
 
 		Vector2 normalize(void) const
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 
 			return Vector2(x * invLength, y * invLength);
 		}
 
 		Vector2 & normalizeSelf(void)
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 			x *= invLength;
 			y *= invLength;
 			return *this;
@@ -429,12 +430,12 @@ namespace my
 			return x * rhs.x + y * rhs.y + z * rhs.z;
 		}
 
-		float length(void) const
+		float magnitude(void) const
 		{
-			return sqrt(lengthSq());
+			return sqrt(magnitudeSq());
 		}
 
-		float lengthSq(void) const
+		float magnitudeSq(void) const
 		{
 			return x * x + y * y + z * z;
 		}
@@ -457,14 +458,14 @@ namespace my
 
 		Vector3 normalize(void) const
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 
 			return Vector3(x * invLength, y * invLength, z * invLength);
 		}
 
 		Vector3 & normalizeSelf(void)
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 			x *= invLength;
 			y *= invLength;
 			z *= invLength;
@@ -679,12 +680,12 @@ namespace my
 			return x * rhs.x + y * rhs.y + z * rhs.z + w * rhs.w;
 		}
 
-		float length(void) const
+		float magnitude(void) const
 		{
-			return sqrt(lengthSq());
+			return sqrt(magnitudeSq());
 		}
 
-		float lengthSq(void) const
+		float magnitudeSq(void) const
 		{
 			return x * x + y * y + z * z + w * w;
 		}
@@ -708,14 +709,14 @@ namespace my
 
 		Vector4 normalize(void) const
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 
 			return Vector4(x * invLength, y * invLength, z * invLength, w * invLength);
 		}
 
 		Vector4 & normalizeSelf(void)
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 			x *= invLength;
 			y *= invLength;
 			z *= invLength;
@@ -1303,12 +1304,12 @@ namespace my
 			return conjugate() / dot(*this);
 		}
 
-		float length(void) const
+		float magnitude(void) const
 		{
-			return sqrt(lengthSq());
+			return sqrt(magnitudeSq());
 		}
 
-		float lengthSq(void) const
+		float magnitudeSq(void) const
 		{
 			return x * x + y * y + z * z + w * w;
 		}
@@ -1327,14 +1328,14 @@ namespace my
 
 		Quaternion normalize(void) const
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 
 			return Quaternion(x * invLength, y * invLength, z * invLength, w * invLength);
 		}
 
 		Quaternion & normalizeSelf(void)
 		{
-			float invLength = 1 / length();
+			float invLength = 1 / magnitude();
 			x *= invLength;
 			y *= invLength;
 			z *= invLength;

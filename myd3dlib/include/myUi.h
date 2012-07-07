@@ -497,7 +497,7 @@ namespace my
 
 	public:
 		Dialog(void)
-			: m_Transform(Matrix4::Identity())
+			: m_Transform(Matrix4::identity)
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{

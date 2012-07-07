@@ -843,11 +843,11 @@ namespace my
 		{
 			setInverseMass(1);
 			setPosition(Vector3::zero);
-			setOrientation(Quaternion::Identity());
+			setOrientation(Quaternion::identity);
 			setVelocity(Vector3::zero);
 			setRotation(Vector3::zero);
 			//Matrix4 transform;
-			setInverseInertialTensor(Matrix4::Identity());
+			setInverseInertialTensor(Matrix4::identity);
 			//Matrix4 inverseInertiaTensorWorld;
 			setAcceleration(Vector3::zero);
 			clearAccumulator();

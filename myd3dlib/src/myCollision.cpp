@@ -36,7 +36,7 @@ namespace my
 
 	//bool BoundingSphere::overlaps(const BoundingSphere & other) const
 	//{
-	//	return (center - other.center).lengthSq() < (radius + other.radius) * (radius + other.radius);
+	//	return (center - other.center).magnitudeSq() < (radius + other.radius) * (radius + other.radius);
 	//}
 
 	//float BoundingSphere::getGrowth(const BoundingSphere & other) const
@@ -54,7 +54,7 @@ namespace my
 	//BoundingSphere buildBoundingSphere(const BoundingSphere & lhs, const BoundingSphere & rhs)
 	//{
 	//	Vector3 centerOffset = lhs.getCenter() - rhs.getCenter();
-	//	float distanceSquare = centerOffset.lengthSq();
+	//	float distanceSquare = centerOffset.magnitudeSq();
 	//	float radiusDiff = lhs.getRadius() - rhs.getRadius();
 
 	//	if(radiusDiff * radiusDiff >= distanceSquare)
@@ -176,7 +176,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		return sphere.getTransformAxis(3).dot(planeNormal) - sphere.radius < planeDistance;
 	}
@@ -185,12 +185,12 @@ namespace my
 		const CollisionSphere & sphere0,
 		const CollisionSphere & sphere1)
 	{
-		return (sphere0.getTransformAxis(3) - sphere1.getTransformAxis(3)).lengthSq() < (sphere0.radius + sphere1.radius) * (sphere0.radius + sphere1.radius);
+		return (sphere0.getTransformAxis(3) - sphere1.getTransformAxis(3)).magnitudeSq() < (sphere0.radius + sphere1.radius) * (sphere0.radius + sphere1.radius);
 	}
 
 	float IntersectionTests::calculateBoxAxisHalfProjection(const CollisionBox & box, const Vector3 & axis)
 	{
-		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(axis));
 
 		return
 			box.halfSize.x * abs(axis.dot(box.getTransformAxis(0))) +
@@ -203,7 +203,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		return box.getTransformAxis(3).dot(planeNormal) - calculateBoxAxisHalfProjection(box, planeNormal) < planeDistance;
 	}
@@ -313,14 +313,14 @@ namespace my
 	{
 		Vector3 u = v1 - v0;
 
-		float offset = (point - v0).dot(u) / u.length();
+		float offset = (point - v0).dot(u) / u.magnitude();
 
 		Vector3 closestPoint;
 		if(offset <= 0)
 		{
 			closestPoint = v0;
 		}
-		else if(offset >= (v1 - v0).length())
+		else if(offset >= (v1 - v0).magnitude())
 		{
 			closestPoint = v1;
 		}
@@ -329,7 +329,7 @@ namespace my
 			closestPoint = v0 + u.normalize() * offset;
 		}
 
-		return (closestPoint - point).length();
+		return (closestPoint - point).magnitude();
 	}
 
 	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
@@ -338,7 +338,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(abs(dir.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(dir));
 
 		float denom = planeNormal.dot(dir);
 
@@ -357,7 +357,7 @@ namespace my
 
 	bool IntersectionTests::isValidTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
 	{
-		return abs(calculateTriangleDirection(v0, v1, v2).length()) > EPSILON_E6;
+		return abs(calculateTriangleDirection(v0, v1, v2).magnitude()) > EPSILON_E6;
 	}
 
 	Vector3 IntersectionTests::calculateTriangleNormal(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
@@ -386,7 +386,7 @@ namespace my
 		const Vector3 & v1,
 		const Vector3 & v2)
 	{
-		_ASSERT(abs(dir.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(dir));
 
 		Vector3 normal = calculateTriangleNormal(v0, v1, v2);
 
@@ -423,7 +423,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
@@ -455,7 +455,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
@@ -503,7 +503,7 @@ namespace my
 
 		Vector3 direction = sphere.getTransformAxis(3) - point;
 
-		float distance = direction.length();
+		float distance = direction.magnitude();
 
 		if(distance >= sphere.radius)
 		{
@@ -534,14 +534,14 @@ namespace my
 
 		Vector3 u = v1 - v0;
 
-		float offset = (sphere.getTransformAxis(3) - v0).dot(u) / u.length();
+		float offset = (sphere.getTransformAxis(3) - v0).dot(u) / u.magnitude();
 
 		Vector3 closestPoint;
 		if(offset <= 0)
 		{
 			closestPoint = v0;
 		}
-		else if(offset >= (v1 - v0).length())
+		else if(offset >= (v1 - v0).magnitude())
 		{
 			closestPoint = v1;
 		}
@@ -558,7 +558,7 @@ namespace my
 		const Vector3 & planePoint,
 		const Vector3 & planeNormal)
 	{
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		return (point - planePoint).dot(planeNormal);
 	}
@@ -568,7 +568,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(abs(planeNormal.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(planeNormal));
 
 		return point.dot(planeNormal) - planeDistance;
 	}
@@ -586,7 +586,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		Vector3 direction = IntersectionTests::calculateTriangleNormal(v0, v1, v2);
+		Vector3 direction = calculateTriangleNormal(v0, v1, v2);
 
 		float distance = abs(calculatePointPlaneDistance(sphere.getTransformAxis(3), v0, direction));
 
@@ -597,7 +597,7 @@ namespace my
 
 		Vector3 intersection = sphere.getTransformAxis(3) - direction * distance;
 
-		if(IntersectionTests::isInsideTriangle(intersection, v0, v1, v2))
+		if(isInsideTriangle(intersection, v0, v1, v2))
 		{
 			contacts->contactNormal = direction;
 			contacts->penetration = sphere.radius - distance;
@@ -637,7 +637,7 @@ namespace my
 
 		Vector3 midline = position0 - position1;
 
-		float distance = midline.length();
+		float distance = midline.magnitude();
 
 		/*
 		 * NOTE:
@@ -845,7 +845,7 @@ namespace my
 			relCentre.y > 0 ? Min(relCentre.y, box.halfSize.y) : Max(relCentre.y, -box.halfSize.y),
 			relCentre.z > 0 ? Min(relCentre.z, box.halfSize.z) : Max(relCentre.z, -box.halfSize.z));
 
-		float distanceSquare = (relCentre - closestPoint).lengthSq();
+		float distanceSquare = (relCentre - closestPoint).magnitudeSq();
 
 		if(/*IS_ZERO_FLOAT(distanceSquare) || */distanceSquare >= sphere.radius * sphere.radius)
 		{
@@ -1079,8 +1079,8 @@ namespace my
 		 *	calcuate contact point between edge and edge
 		 */
 
-		float smOne = dOne.lengthSq();
-		float smTwo = dTwo.lengthSq();
+		float smOne = dOne.magnitudeSq();
+		float smTwo = dTwo.magnitudeSq();
 		float dpOneTwo = dTwo.dot(dOne);
 
 		Vector3 toSt = pOne - pTwo;
@@ -1121,8 +1121,8 @@ namespace my
 	{
 		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
-		return IntersectionTests::calculateBoxAxisHalfProjection(box0, axis)
-			+ IntersectionTests::calculateBoxAxisHalfProjection(box1, axis) - abs(toCentre.dot(axis)); // ***
+		return calculateBoxAxisHalfProjection(box0, axis)
+			+ calculateBoxAxisHalfProjection(box1, axis) - abs(toCentre.dot(axis)); // ***
 	}
 
 	//template <typename elem_t>
@@ -1153,7 +1153,7 @@ namespace my
 		float & smallestPenetration,
 		unsigned & smallestIndex)
 	{
-		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(axis));
 
 		float penetration = calculateBoxAxisAndBoxPenetration(box0, axis, box1);
 
@@ -1179,7 +1179,7 @@ namespace my
 		float & smallestPenetration,
 		unsigned & smallestIndex)
 	{
-		if(axis.length() < EPSILON_E6)
+		if(axis.magnitude() < EPSILON_E6)
 		{
 			return true;
 		}
@@ -1197,7 +1197,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(abs(axis.length() - 1) < EPSILON_E6);
+		_ASSERT(IsNormalized(axis));
 
 		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
@@ -1398,7 +1398,7 @@ namespace my
 	//				(v1 - triCentor).dot(axis), (v2 - triCentor).dot(axis)));
 
 	//	return abs(triHalfProjection)
-	//		+ IntersectionTests::calculateBoxAxisHalfProjection(box, axis) - abs(toCentre.dot(axis));
+	//		+ calculateBoxAxisHalfProjection(box, axis) - abs(toCentre.dot(axis));
 	//}
 
 	//Vector3 CollisionDetector::findPointFromTriangleByDirection(
@@ -1448,7 +1448,7 @@ namespace my
 
 	//	unsigned smallestSingleAxis;
 
-	//	if(!_tryBoxAxisAndTriangle(box, IntersectionTests::calculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
+	//	if(!_tryBoxAxisAndTriangle(box, calculateTriangleNormal(v0, v1, v2), v0, v1, v2, 0, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(0), v0, v1, v2, 1, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(1), v0, v1, v2, 2, smallestPenetration, smallestIndex)
 	//		|| !_tryBoxAxisAndTriangle(box, box.getTransformAxis(2), v0, v1, v2, 3, smallestPenetration, smallestIndex)
@@ -1468,7 +1468,7 @@ namespace my
 
 	//	if(0 == smallestIndex)
 	//	{
-	//		contacts->contactNormal = -IntersectionTests::calculateTriangleNormal(v0, v1, v2);
+	//		contacts->contactNormal = -calculateTriangleNormal(v0, v1, v2);
 	//		contacts->penetration = smallestPenetration;
 	//		contacts->contactPoint = findPointFromBoxByDirection(box, contacts->contactNormal);
 	//		contacts->bodys[0] = box.body;

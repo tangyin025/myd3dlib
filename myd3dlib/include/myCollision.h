@@ -390,7 +390,7 @@ namespace my
 	public:
 		CollisionSphere(
 			float _radius,
-			const Matrix4 & _offset = my::Matrix4::Identity(),
+			const Matrix4 & _offset = my::Matrix4::identity,
 			float _friction = 0,
 			float _restitution = 0)
 
@@ -455,7 +455,7 @@ namespace my
 	public:
 		CollisionBox(
 			const Vector3 & _halfSize,
-			const Matrix4 & _offset = my::Matrix4::Identity(),
+			const Matrix4 & _offset = my::Matrix4::identity,
 			float _friction = 0,
 			float _restitution = 0)
 
@@ -471,6 +471,12 @@ namespace my
 
 	class IntersectionTests
 	{
+	public:
+		static bool IsNormalized(const Vector3 & vec)
+		{
+			return abs(vec.magnitude() - 1) < EPSILON_E6;
+		}
+
 	public:
 		static bool sphereAndHalfSpace(
 			const CollisionSphere & sphere,
@@ -537,7 +543,7 @@ namespace my
 
 	typedef std::vector<Contact> ContactList;
 
-	class CollisionDetector
+	class CollisionDetector : public IntersectionTests
 	{
 	public:
 		static unsigned sphereAndHalfSpace(
