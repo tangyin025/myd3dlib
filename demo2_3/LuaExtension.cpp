@@ -9,6 +9,7 @@ static int lua_print(lua_State * L)
 	MessagePanelPtr panel = Game::getSingleton().m_panel;
 	if(!panel)
 		return luaL_error(L, "must have game.panel to output");
+	panel->_push_enter(D3DCOLOR_ARGB(255,255,255,255));
 
 	int n = lua_gettop(L);  /* number of arguments */
 	int i;
@@ -26,7 +27,6 @@ static int lua_print(lua_State * L)
 		panel->puts(ms2ws(s));
 		lua_pop(L, 1);  /* pop result */
 	}
-	panel->puts(L"\n");
 	return 0;
 }
 

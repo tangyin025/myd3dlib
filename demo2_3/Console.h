@@ -43,13 +43,13 @@ public:
 
 	void _update_scrollbar(void);
 
-	void _push_enter(void);
+	void _push_enter(D3DCOLOR Color);
 
-	void _push_sline(LPCWSTR pString, D3DCOLOR Color);
+	void _push_line(const std::wstring & str, D3DCOLOR Color);
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 
-	void puts(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
+	void puts(const std::wstring & str);
 };
 
 typedef boost::shared_ptr<MessagePanel> MessagePanelPtr;

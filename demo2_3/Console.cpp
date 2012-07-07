@@ -84,37 +84,36 @@ void MessagePanel::_update_scrollbar(void)
 	m_scrollbar->m_nPosition = m_scrollbar->m_nEnd - m_scrollbar->m_nPageSize;
 }
 
-void MessagePanel::_push_enter(void)
+void MessagePanel::_push_enter(D3DCOLOR Color)
 {
+	m_lines[m_lend].m_Text.clear();
+	m_lines[m_lend].m_Color = Color;
 	m_lend = MoveLineIndex(m_lend, 1);
 	if(m_lend == m_lbegin)
 	{
 		m_lbegin = MoveLineIndex(m_lbegin, 1);
 	}
-	m_lines[m_lend].m_Text.clear();
 	_update_scrollbar();
 }
 
-void MessagePanel::_push_sline(LPCWSTR pString, D3DCOLOR Color)
+void MessagePanel::_push_line(const std::wstring & str, D3DCOLOR Color)
 {
-	// _push_sline 只是在 lend 处插入字符串，但由于 lend 位于 message panel 底部之后，
-	// 所以如果没有 _push_enter，lend 是不会显示出来的
 	_ASSERT(m_Skin && m_Skin->m_Font);
-	std::wstring & lend_str = m_lines[m_lend].m_Text;
-	float lend_x = m_Skin->m_Font->CPtoX(lend_str.c_str(), lend_str.length());
-	float remain_x = m_Size.x - m_scrollbar->m_Size.x - lend_x;
-	int nCP = m_Skin->m_Font->XtoCP(pString, remain_x);
-	//_ASSERT(wcslen(pString) == 0 || nCP > 0);
-	if(lend_str.empty() && nCP <= 0)
-		return;
 
-	lend_str.insert(lend_str.length(), pString, nCP);
-	m_lines[m_lend].m_Color = Color;
-
-	if(pString[nCP])
+	if(!str.empty())
 	{
-		_push_enter();
-		_push_sline(&pString[nCP], Color);
+		int last_line_idx = MoveLineIndex(m_lend, -1);
+		std::wstring & last_line_str = m_lines[last_line_idx].m_Text;
+		float lend_x = m_Skin->m_Font->CPtoX(last_line_str.c_str(), last_line_str.length());
+		float remain_x = m_Size.x - m_scrollbar->m_Size.x - lend_x;
+		int nCP = m_Skin->m_Font->XtoCP(str.c_str(), remain_x);
+		last_line_str.insert(last_line_str.length(), str.c_str(), nCP);
+
+		if(nCP < (int)str.length())
+		{
+			_push_enter(Color);
+			_push_line(str.substr(nCP), Color);
+		}
 	}
 }
 
@@ -122,25 +121,29 @@ void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
 	if(m_Skin && m_Skin->m_Font)
 	{
-		_push_sline(str.c_str(), Color);
-		_push_enter();
+		_push_enter(Color);
+		_push_line(str.c_str(), Color);
 	}
 }
 
-void MessagePanel::puts(const std::wstring & str, D3DCOLOR Color)
+void MessagePanel::puts(const std::wstring & str)
 {
-	std::wstring::size_type lpos = 0;
-	for(; lpos < str.length(); )
+	if(m_Skin && m_Skin->m_Font)
 	{
-		std::wstring::size_type rpos = str.find(L'\n', lpos);
-		if(std::wstring::npos == rpos)
+		D3DCOLOR Color = m_lines[MoveLineIndex(m_lend, -1)].m_Color;
+		std::wstring::size_type lpos = 0;
+		for(; lpos < str.length(); )
 		{
-			_push_sline(str.substr(lpos).c_str(), Color);
-			break;
+			std::wstring::size_type rpos = str.find(L'\n', lpos);
+			if(std::wstring::npos == rpos)
+			{
+				_push_line(str.substr(lpos).c_str(), Color);
+				break;
+			}
+			_push_line(str.substr(lpos, rpos - lpos).c_str(), Color);
+			_push_enter(Color);
+			lpos = rpos + 1;
 		}
-		_push_sline(str.substr(lpos, rpos - lpos).c_str(), Color);
-		_push_enter();
-		lpos = rpos + 1;
 	}
 }
 
