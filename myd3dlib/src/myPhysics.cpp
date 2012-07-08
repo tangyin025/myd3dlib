@@ -1411,7 +1411,7 @@ namespace my
 
 		float totalMove = linearMove + angularMove;
 
-		angularMove = Min(maxMagnitude, Max(-maxMagnitude, angularMove));
+		angularMove = Clamp(angularMove, -maxMagnitude, maxMagnitude);
 
 		linearMove = totalMove - angularMove;
 	}

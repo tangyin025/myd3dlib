@@ -3,7 +3,7 @@
 
 #include <vector>
 #include "myMath.h"
-#include <map>
+#include <hash_map>
 #include <boost/shared_ptr.hpp>
 
 namespace my
@@ -288,7 +288,7 @@ namespace my
 	class OgreSkeleton
 	{
 	public:
-		std::map<std::string, int> m_boneNameMap;
+		stdext::hash_map<std::string, int> m_boneNameMap;
 
 		BoneList m_boneBindPose;
 
@@ -319,7 +319,7 @@ namespace my
 		}
 
 	public:
-		std::map<std::string, OgreAnimation> m_animationMap;
+		stdext::hash_map<std::string, OgreAnimation> m_animationMap;
 
 		const OgreAnimation & GetAnimation(const std::string & anim_name) const
 		{

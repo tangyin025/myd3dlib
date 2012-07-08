@@ -209,4 +209,51 @@ namespace my
 			const SteeringOutput & drag,
 			float duration);
 	};
+
+	class SteeringBehaviour
+	{
+	public:
+		Kinematic * character;
+
+		virtual ~SteeringBehaviour(void) {}
+
+		virtual void getSteering(SteeringOutput * output) = 0;
+	};
+
+	class Seek : public SteeringBehaviour
+	{
+	public:
+		const Vector3 * target;
+
+		float maxAcceleration;
+
+		virtual void getSteering(SteeringOutput * output);
+	};
+
+	class Flee : public Seek
+	{
+	public:
+		virtual void getSteering(SteeringOutput * output);
+	};
+
+	class SeekWithInternalTarget : public Seek
+	{
+	protected:
+		Vector3 internal_target;
+
+		SeekWithInternalTarget(void)
+		{
+			target = &internal_target;
+		}
+	};
+
+	class Wander : public SeekWithInternalTarget
+	{
+	public:
+		float volatility;
+
+		float turnSpeed;
+
+		virtual void getSteering(SteeringOutput * output);
+	};
 }

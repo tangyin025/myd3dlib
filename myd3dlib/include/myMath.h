@@ -10,7 +10,7 @@
 #define EPSILON_E6			(1.0e-6)
 #define EPSILON_E12			(1.0e-12)
 
-#define cot(x)	(1.0f / tan(x))
+#define cot(x)	tan(D3DX_PI / 2 - (x))
 
 namespace my
 {
@@ -21,9 +21,21 @@ namespace my
 	}
 
 	template <typename T>
+	T Min(const T & a, const T & b, const T & c)
+	{
+		return a < b ? (a < c ? a : c) : (b < c ? b : c);
+	}
+
+	template <typename T>
 	T Max(const T & a, const T & b)
 	{
 		return a > b ? a : b;
+	}
+
+	template <typename T>
+	T Max(const T & a, const T & b, const T & c)
+	{
+		return a > b ? (a > c ? a : c) : (b > c ? b : c);
 	}
 
 	template <typename T>
@@ -35,7 +47,37 @@ namespace my
 	template <typename T>
 	T Clamp(const T & v, const T & min, const T & max)
 	{
-		return Max(min, Min(max, v));
+		return min > v ? min : (max < v ? max : v);
+	}
+
+	template <typename T>
+	T Random(const T & range);
+
+	template <>
+	int Random<int>(const int & range)
+	{
+		return rand() % range;
+	}
+
+	template <>
+	float Random<float>(const float & range)
+	{
+		return range * ((float)rand() / RAND_MAX);
+	}
+
+	template <typename T>
+	T Random(const T & min, const T & max);
+
+	template <>
+	int Random<int>(const int & min, const int & max)
+	{
+		return min + rand() % (max - min);
+	}
+
+	template <>
+	float Random<float>(const float & min, const float & max)
+	{
+		return min + (max - min) * ((float)rand() / RAND_MAX);
 	}
 
 	class Vector4;

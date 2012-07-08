@@ -21,7 +21,7 @@ void Location::integrate(const SteeringOutput & steer, float duration)
 
 void Location::setOrientationFromVelocityLH(const Vector3 & velocity)
 {
-	if(velocity.magnitudeSq() > EPSILON_E12)
+	if(velocity.magnitudeSq() < EPSILON_E12)
 	{
 		orientation = atan2(velocity.x, velocity.z);
 	}
@@ -79,4 +79,55 @@ void Kinematic::integrate(
 	velocity.y += steer.linear.y * duration;
 	velocity.z += steer.linear.z * duration;
 	rotation += steer.angular * duration;
+}
+
+void Seek::getSteering(SteeringOutput * output)
+{
+	output->linear = *target - character->position;
+
+	if(output->linear.magnitudeSq() < EPSILON_E12)
+	{
+		output->linear.normalizeSelf();
+		output->linear *= maxAcceleration;
+	}
+}
+
+void Flee::getSteering(SteeringOutput * output)
+{
+	output->linear = character->position - *target;
+
+	if(output->linear.magnitudeSq() < EPSILON_E12)
+	{
+		output->linear.normalizeSelf();
+		output->linear *= maxAcceleration;
+	}
+}
+
+void Wander::getSteering(SteeringOutput * output)
+{
+	if(target->magnitudeSq() < EPSILON_E12)
+	{
+		internal_target = character->position;
+		internal_target.x += volatility;
+	}
+
+	Vector3 offset = *target - character->position;
+	float angle;
+	if(offset.x * offset.x + offset.z * offset.z > 0)
+	{
+		angle = atan2(offset.z, offset.x);
+	}
+	else
+	{
+		angle = 0;
+	}
+
+	internal_target = character->position;
+	internal_target.x += volatility * cos(angle);
+	internal_target.z += volatility * sin(angle);
+
+	internal_target.x += Random(turnSpeed) - Random(turnSpeed);
+	internal_target.z += Random(turnSpeed) - Random(turnSpeed);
+
+	Seek::getSteering(output);
 }
