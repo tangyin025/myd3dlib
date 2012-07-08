@@ -54,13 +54,13 @@ namespace my
 	T Random(const T & range);
 
 	template <>
-	int Random<int>(const int & range)
+	inline int Random<int>(const int & range)
 	{
 		return rand() % range;
 	}
 
 	template <>
-	float Random<float>(const float & range)
+	inline float Random<float>(const float & range)
 	{
 		return range * ((float)rand() / RAND_MAX);
 	}
@@ -69,13 +69,13 @@ namespace my
 	T Random(const T & min, const T & max);
 
 	template <>
-	int Random<int>(const int & min, const int & max)
+	inline int Random<int>(const int & min, const int & max)
 	{
 		return min + rand() % (max - min);
 	}
 
 	template <>
-	float Random<float>(const float & min, const float & max)
+	inline float Random<float>(const float & min, const float & max)
 	{
 		return min + (max - min) * ((float)rand() / RAND_MAX);
 	}
