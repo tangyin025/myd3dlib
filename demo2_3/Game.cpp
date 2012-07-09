@@ -58,7 +58,7 @@ bool Game::ModifyDeviceSettings(
 	if( caps.MaxVertexBlendMatrices < 2 )
 		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-	// ! Fix lua print(0xffffffff), ref: http://www.lua.org/bugs.html
+	// ! 修正 lua print(0xffffffff)结果不正确的问题, 参见：http://www.lua.org/bugs.html
 	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	static bool s_bFirstTime = true;
@@ -305,6 +305,15 @@ void Game::ExecuteCode(const char * code)
 
 		m_panel->AddLine(ms2ws(e.what()));
 	}
+	// ! 很奇怪，如果在 EventEnter中调用并发生异常，luabind会遇到一个无效的解除目标
+	// 但如果直接在这个 EventEnter中调用 MustThrowException，就没有问题，怀疑是 executeCode和 luabind混用的问题
+	catch(const my::Exception & e)
+	{
+		if(!m_panel)
+			THROW_CUSEXCEPTION(e.GetFullDescription());
+
+		m_panel->AddLine(ms2ws(e.GetFullDescription().c_str()));
+	}
 }
 
 void Game::UpdateDlgViewProj(my::DialogPtr dlg)
@@ -333,4 +342,9 @@ void Game::InsertDlg(int id, my::DialogPtr dlg)
 void Game::InsertScene(int id, BaseScenePtr scene)
 {
 	m_sceneSet[id] = scene;
+}
+
+void Game::MustThrowException(void)
+{
+	THROW_CUSEXCEPTION("Game::MustThrowException");
 }

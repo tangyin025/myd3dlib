@@ -172,14 +172,14 @@ std::basic_string<char> ws2ms(const wchar_t * str)
 std::basic_string<wchar_t> u8tows(const char * str)
 {
 	int nLen;
-	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, 0, str, -1, NULL, 0)))
+	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<wchar_t> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, 0, str, -1, &ret[0], nLen)))
+	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, &ret[0], nLen)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -191,14 +191,14 @@ std::basic_string<wchar_t> u8tows(const char * str)
 std::basic_string<char> wstou8(const wchar_t * str)
 {
 	int nLen;
-	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, 0, str, -1, NULL, 0, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, NULL, 0, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
 
 	std::basic_string<char> ret;
 	ret.resize(nLen - 1);
-	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, 0, str, -1, &ret[0], nLen, NULL, NULL)))
+	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, &ret[0], nLen, NULL, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}

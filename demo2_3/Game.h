@@ -126,4 +126,6 @@ public:
 	void InsertDlg(int id, my::DialogPtr dlg);
 
 	void InsertScene(int id, BaseScenePtr scene);
+
+	void MustThrowException(void);
 };

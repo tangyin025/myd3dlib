@@ -3,6 +3,7 @@
 #include "Game.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
+#include <luabind/exception_handler.hpp>
 
 static int lua_print(lua_State * L)
 {
@@ -24,7 +25,7 @@ static int lua_print(lua_State * L)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 			LUA_QL("print"));
 		if (i>1) panel->puts(L"\t");
-		panel->puts(ms2ws(s));
+		panel->puts(u8tows(s));
 		lua_pop(L, 1);  /* pop result */
 	}
 	return 0;
@@ -158,6 +159,12 @@ static int os_exit(lua_State * L)
 //   lua_pushstring(L, msg.str().c_str());
 //   return 1;
 //}
+
+static void translate_my_exception(lua_State* L, my::Exception const & e)
+{
+	std::string s = e.GetFullDescription();
+	lua_pushlstring(L, s.c_str(), s.length());
+}
 
 namespace luabind
 {
@@ -309,6 +316,8 @@ void Export2Lua(lua_State * L)
 	};
 
 	luabind::open(L);
+
+	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
 
 	// 木有用？
 	//luabind::set_pcall_callback(lua_error_pcall);
@@ -486,6 +495,7 @@ void Export2Lua(lua_State * L)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("InsertScene", &Game::InsertScene)
+			.def("MustThrowException", &Game::MustThrowException)
 
 		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
