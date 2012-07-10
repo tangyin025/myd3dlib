@@ -32,22 +32,30 @@ edit.Text="在这里输入命令"
 edit.Skin.Font=font
 edit.Skin.TextColor=ARGB(255,63,188,239)
 edit.EventEnter=function()
-	panel:AddLine(edit.Text, edit.Skin.TextColor)
-	table.insert(e_texts, edit.Text)
-	if #e_texts > 16 then
-		table.remove(e_texts,1)
+	-- 使用临时变量可以减少 wstou8的转换次数
+	local code=tostring(edit.Text)
+	if string.len(code) > 0 then
+		edit.Text=""
+		table.insert(e_texts, code)
+		if #e_texts > 16 then
+			table.remove(e_texts,1)
+		end
+		e_texts_idx=#e_texts+1
+		panel:AddLine(code, edit.Skin.TextColor)
+		game:ExecuteCode(code)
 	end
-	e_texts_idx=#e_texts+1
-	game:ExecuteCode(edit.Text)
-	edit.Text=""
 end
 edit.EventPrevLine=function()
-	e_texts_idx=math.max(1,e_texts_idx-1)
-	edit.Text=e_texts[e_texts_idx]
+	if e_texts_idx > 1 then
+		e_texts_idx=e_texts_idx-1
+		edit.Text=e_texts[e_texts_idx]
+	end
 end
 edit.EventNextLine=function()
-	e_texts_idx=math.min(#e_texts,e_texts_idx+1)
-	edit.Text=e_texts[e_texts_idx]
+	if e_texts_idx < #e_texts then
+		e_texts_idx=e_texts_idx+1
+		edit.Text=e_texts[e_texts_idx]
+	end
 end
 console:InsertControl(edit)
 

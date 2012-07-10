@@ -7,7 +7,7 @@
 
 static int lua_print(lua_State * L)
 {
-	// u8tows 会抛异常，不要让 C++异常直接抛到 lua函数以外
+	// ! u8tows会抛异常，不要让 C++异常直接抛到 lua函数以外
 	try
 	{
 		MessagePanelPtr panel = Game::getSingleton().m_panel;
@@ -148,25 +148,25 @@ static int os_exit(lua_State * L)
 	SendMessage(hwnd, WM_CLOSE, 0, 0);
 	return 0;
 }
-//
-//static int lua_error_pcall(lua_State * L)
-//{
-//   lua_Debug d;
-//   lua_getstack(L, 1, &d);
-//   lua_getinfo(L, "Sln", &d);
-//   std::string err = lua_tostring(L, -1);
-//   lua_pop(L, 1);
-//   std::stringstream msg;
-//   msg << d.short_src << ":" << d.currentline;
-//
-//   if (d.name != 0)
-//   {
-//      msg << "(" << d.namewhat << " " << d.name << ")";
-//   }
-//   msg << " " << err;
-//   lua_pushstring(L, msg.str().c_str());
-//   return 1;
-//}
+
+static int lua_error_pcall(lua_State * L)
+{
+   lua_Debug d;
+   lua_getstack(L, 1, &d);
+   lua_getinfo(L, "Sln", &d);
+   std::string err = lua_tostring(L, -1);
+   lua_pop(L, 1);
+   std::stringstream msg;
+   msg << d.short_src << ":" << d.currentline;
+
+   if (d.name != 0)
+   {
+      msg << "(" << d.namewhat << " " << d.name << ")";
+   }
+   msg << " " << err;
+   lua_pushstring(L, msg.str().c_str());
+   return 1;
+}
 
 static void translate_my_exception(lua_State* L, my::Exception const & e)
 {
@@ -325,9 +325,10 @@ void Export2Lua(lua_State * L)
 
 	luabind::open(L);
 
-	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
+	//// ! will lead memory leak
+	//luabind::register_exception_handler<my::Exception>(&translate_my_exception);
 
-	// ! 为什么不起作用
+	//// ! 为什么不起作用
 	//luabind::set_pcall_callback(lua_error_pcall);
 
 	luabind::module(L)
@@ -337,6 +338,8 @@ void Export2Lua(lua_State * L)
 		, luabind::def("LoadTexture", &HelpFunc::LoadTexture)
 
 		, luabind::def("LoadFont", &HelpFunc::LoadFont)
+
+		//, luabind::class_<std::wstring>("wstring")
 
 		, luabind::class_<my::Vector2, boost::shared_ptr<my::Vector2> >("Vector2")
 			.def(luabind::constructor<float, float>())

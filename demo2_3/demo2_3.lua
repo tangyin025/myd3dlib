@@ -10,5 +10,5 @@ scene=Scene()
 scene.Camera=camera
 game:InsertScene(1, scene)
 
--- 利用EventAlign调整相机的Aspect
+-- 利用 EventAlign调整相机的 Aspect
 local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(3,d)
