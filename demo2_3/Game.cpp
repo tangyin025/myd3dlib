@@ -4,6 +4,10 @@
 #include <luabind/luabind.hpp>
 #include <SDKmisc.h>
 
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
+
 Game::Game(void)
 {
 	m_settingsDlg.Init(&m_dlgResourceMgr);
@@ -304,15 +308,6 @@ void Game::ExecuteCode(const char * code)
 			THROW_CUSEXCEPTION(e.what());
 
 		m_panel->AddLine(ms2ws(e.what()));
-	}
-	// ! 很奇怪，如果在 EventEnter中调用并发生异常，luabind会遇到一个无效的解除目标
-	// 但如果直接在这个 EventEnter中调用 MustThrowException，就没有问题，怀疑是 executeCode和 luabind混用的问题
-	catch(const my::Exception & e)
-	{
-		if(!m_panel)
-			THROW_CUSEXCEPTION(e.GetFullDescription());
-
-		m_panel->AddLine(ms2ws(e.GetFullDescription().c_str()));
 	}
 }
 

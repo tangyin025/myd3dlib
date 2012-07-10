@@ -7,28 +7,36 @@
 
 static int lua_print(lua_State * L)
 {
-	MessagePanelPtr panel = Game::getSingleton().m_panel;
-	if(!panel)
-		return luaL_error(L, "must have game.panel to output");
-	panel->_push_enter(D3DCOLOR_ARGB(255,255,255,255));
+	// u8tows 会抛异常，不要让 C++异常直接抛到 lua函数以外
+	try
+	{
+		MessagePanelPtr panel = Game::getSingleton().m_panel;
+		if(!panel)
+			return luaL_error(L, "must have game.panel to output");
 
-	int n = lua_gettop(L);  /* number of arguments */
-	int i;
-	lua_getglobal(L, "tostring");
-	for (i=1; i<=n; i++) {
-		const char *s;
-		lua_pushvalue(L, -1);  /* function to be called */
-		lua_pushvalue(L, i);   /* value to print */
-		lua_call(L, 1, 1);
-		s = lua_tostring(L, -1);  /* get result */
-		if (s == NULL)
-			return luaL_error(L, LUA_QL("tostring") " must return a string to "
-			LUA_QL("print"));
-		if (i>1) panel->puts(L"\t");
-		panel->puts(u8tows(s));
-		lua_pop(L, 1);  /* pop result */
+		int n = lua_gettop(L);  /* number of arguments */
+		int i;
+		lua_getglobal(L, "tostring");
+		for (i=1; i<=n; i++) {
+			const char *s;
+			lua_pushvalue(L, -1);  /* function to be called */
+			lua_pushvalue(L, i);   /* value to print */
+			lua_call(L, 1, 1);
+			s = lua_tostring(L, -1);  /* get result */
+			if (s == NULL)
+				return luaL_error(L, LUA_QL("tostring") " must return a string to "
+				LUA_QL("print"));
+			if (i>1) panel->puts(L"\t");
+			else panel->_push_enter(D3DCOLOR_ARGB(255,255,255,255));
+			panel->puts(u8tows(s));
+			lua_pop(L, 1);  /* pop result */
+		}
+		return 0;
 	}
-	return 0;
+	catch(const my::Exception & e)
+	{
+		return luaL_error(L, e.GetFullDescription().c_str());
+	}
 }
 
 typedef struct LoadF {
@@ -319,7 +327,7 @@ void Export2Lua(lua_State * L)
 
 	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
 
-	// 木有用？
+	// ! 为什么不起作用
 	//luabind::set_pcall_callback(lua_error_pcall);
 
 	luabind::module(L)
