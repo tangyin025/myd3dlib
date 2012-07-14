@@ -33,6 +33,30 @@ public:
 		D3DCOLOR Color,
 		const my::Matrix4 & world = my::Matrix4::identity);
 
+	static void DrawSpereStage(
+		IDirect3DDevice9 * pd3dDevice,
+		float radius,
+		int VSTAGE_BEGIN,
+		int VSTAGE_END,
+		float offsetY,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
+	static void DrawCylinderStage(
+		IDirect3DDevice9 * pd3dDevice,
+		float radius,
+		float y0,
+		float y1,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
+	static void DrawCapsule(
+		IDirect3DDevice9 * pd3dDevice,
+		float radius,
+		float height,
+		D3DCOLOR Color,
+		const my::Matrix4 & world = my::Matrix4::identity);
+
 public:
 	virtual ~BaseScene(void)
 	{
@@ -52,7 +76,6 @@ typedef boost::shared_ptr<BaseScene> BaseScenePtr;
 
 class Scene
 	: public BaseScene
-	, public my::World
 {
 public:
 	BaseCameraPtr m_Camera;

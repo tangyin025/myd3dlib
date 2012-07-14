@@ -9,7 +9,7 @@ void BaseScene::DrawLine(
 	const Vector3 & v0,
 	const Vector3 & v1,
 	D3DCOLOR Color,
-	const my::Matrix4 & world)
+	const Matrix4 & world)
 {
 	struct Vertex
 	{
@@ -33,45 +33,7 @@ void BaseScene::DrawSphere(
 	D3DCOLOR Color,
 	const Matrix4 & world)
 {
-	struct Vertex
-	{
-		float x, y, z;
-		D3DCOLOR color;
-	};
-
-	const int VSTAGE = 20;
-	const int HSTAGE = 20;
-	Vertex v[VSTAGE * HSTAGE * 4];
-	for(int j = 0; j < VSTAGE; j++)
-	{
-		for(int i = 0; i < HSTAGE; i++)
-		{
-			float Theta[2] = {2 * D3DX_PI / HSTAGE * i, 2 * D3DX_PI / HSTAGE * (i + 1)};
-			float Fi[2] = {D3DX_PI / VSTAGE * j, D3DX_PI / VSTAGE * (j + 1)};
-			Vertex * pv = &v[(j * HSTAGE + i) * 4];
-			pv[0].x = radius * sin(Fi[0]) * cos(Theta[0]);
-			pv[0].y = radius * cos(Fi[0]);
-			pv[0].z = radius * sin(Fi[0]) * sin(Theta[0]);
-			pv[0].color = Color;
-
-			pv[1].x = radius * sin(Fi[0]) * cos(Theta[1]);
-			pv[1].y = radius * cos(Fi[0]);
-			pv[1].z = radius * sin(Fi[0]) * sin(Theta[1]);
-			pv[1].color = Color;
-
-			pv[2] = pv[0];
-
-			pv[3].x = radius * sin(Fi[1]) * cos(Theta[0]);
-			pv[3].y = radius * cos(Fi[1]);
-			pv[3].z = radius * sin(Fi[1]) * sin(Theta[0]);
-			pv[3].color = Color;
-		}
-	}
-
-	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
-	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
-	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
+	DrawSpereStage(pd3dDevice, radius, 0, 20, 0, Color, world);
 }
 
 void BaseScene::DrawBox(
@@ -110,11 +72,11 @@ void BaseScene::DrawBox(
 
 void BaseScene::DrawTriangle(
 	IDirect3DDevice9 * pd3dDevice,
-	const my::Vector3 & v0,
-	const my::Vector3 & v1,
-	const my::Vector3 & v2,
+	const Vector3 & v0,
+	const Vector3 & v1,
+	const Vector3 & v2,
 	D3DCOLOR Color,
-	const my::Matrix4 & world)
+	const Matrix4 & world)
 {
 	struct Vertex
 	{
@@ -132,6 +94,114 @@ void BaseScene::DrawTriangle(
 	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
 	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, _countof(v) - 1, v, sizeof(v[0]));
+}
+
+void BaseScene::DrawSpereStage(
+	IDirect3DDevice9 * pd3dDevice,
+	float radius,
+	int VSTAGE_BEGIN,
+	int VSTAGE_END,
+	float offsetY,
+	D3DCOLOR Color,
+	const Matrix4 & world)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+	};
+
+	const int VSTAGE = 20;
+	const int HSTAGE = 20;
+	Vertex v[VSTAGE * HSTAGE * 4];
+	for(int j = VSTAGE_BEGIN; j < VSTAGE_END; j++)
+	{
+		for(int i = 0; i < HSTAGE; i++)
+		{
+			float Theta[2] = {2 * D3DX_PI / HSTAGE * i, 2 * D3DX_PI / HSTAGE * (i + 1)};
+			float Fi[2] = {D3DX_PI / VSTAGE * j, D3DX_PI / VSTAGE * (j + 1)};
+			Vertex * pv = &v[(j * HSTAGE + i) * 4];
+			pv[0].x = radius * sin(Fi[0]) * cos(Theta[0]);
+			pv[0].y = radius * cos(Fi[0]) + offsetY;
+			pv[0].z = radius * sin(Fi[0]) * sin(Theta[0]);
+			pv[0].color = Color;
+
+			pv[1].x = radius * sin(Fi[0]) * cos(Theta[1]);
+			pv[1].y = radius * cos(Fi[0]) + offsetY;
+			pv[1].z = radius * sin(Fi[0]) * sin(Theta[1]);
+			pv[1].color = Color;
+
+			pv[2] = pv[0];
+
+			pv[3].x = radius * sin(Fi[1]) * cos(Theta[0]);
+			pv[3].y = radius * cos(Fi[1]) + offsetY;
+			pv[3].z = radius * sin(Fi[1]) * sin(Theta[0]);
+			pv[3].color = Color;
+		}
+	}
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
+}
+
+void BaseScene::DrawCylinderStage(
+	IDirect3DDevice9 * pd3dDevice,
+	float radius,
+	float y0,
+	float y1,
+	D3DCOLOR Color,
+	const Matrix4 & world)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+	};
+
+	const int HSTAGE = 20;
+	Vertex v[HSTAGE * 4];
+	for(int i = 0; i < HSTAGE; i++)
+	{
+		float Theta[2] = {2 * D3DX_PI / HSTAGE * i, 2 * D3DX_PI / HSTAGE * (i + 1)};
+		Vertex * pv = &v[i * 4];
+		pv[0].x = radius * cos(Theta[0]);
+		pv[0].y = y0;
+		pv[0].z = radius * sin(Theta[0]);
+		pv[0].color = Color;
+
+		pv[1].x = radius * cos(Theta[1]);
+		pv[1].y = y0;
+		pv[1].z = radius * sin(Theta[1]);
+		pv[1].color = Color;
+
+		pv[2] = pv[0];
+
+		pv[3].x = radius * cos(Theta[0]);
+		pv[3].y = y1;
+		pv[3].z = radius * sin(Theta[0]);
+		pv[3].color = Color;
+	}
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
+}
+
+void BaseScene::DrawCapsule(
+	IDirect3DDevice9 * pd3dDevice,
+	float radius,
+	float height,
+	D3DCOLOR Color,
+	const Matrix4 & world)
+{
+	float y0 = height * 0.5f;
+	float y1 = -y0;
+	DrawSpereStage(pd3dDevice, radius, 0, 10, y0, Color, world);
+	DrawSpereStage(pd3dDevice, radius, 10, 20, y1, Color, world);
+	DrawCylinderStage(pd3dDevice, radius, y0, y1, Color, world);
 }
 
 void Scene::OnFrameMove(
