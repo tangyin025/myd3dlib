@@ -210,6 +210,8 @@ namespace my
 			float duration);
 	};
 
+	typedef boost::shared_ptr<Kinematic> KinematicPtr;
+
 	class SteeringBehaviour
 	{
 	public:

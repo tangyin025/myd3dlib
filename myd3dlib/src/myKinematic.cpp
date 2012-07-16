@@ -21,7 +21,7 @@ void Location::integrate(const SteeringOutput & steer, float duration)
 
 void Location::setOrientationFromVelocityLH(const Vector3 & velocity)
 {
-	if(velocity.magnitudeSq() < EPSILON_E12)
+	if(velocity.magnitudeSq() > EPSILON_E12)
 	{
 		orientation = atan2(velocity.x, velocity.z);
 	}
@@ -85,7 +85,7 @@ void Seek::getSteering(SteeringOutput * output)
 {
 	output->linear = *target - character->position;
 
-	if(output->linear.magnitudeSq() < EPSILON_E12)
+	if(output->linear.magnitudeSq() > EPSILON_E12)
 	{
 		output->linear.normalizeSelf();
 		output->linear *= maxAcceleration;
@@ -96,7 +96,7 @@ void Flee::getSteering(SteeringOutput * output)
 {
 	output->linear = character->position - *target;
 
-	if(output->linear.magnitudeSq() < EPSILON_E12)
+	if(output->linear.magnitudeSq() > EPSILON_E12)
 	{
 		output->linear.normalizeSelf();
 		output->linear *= maxAcceleration;
@@ -113,7 +113,7 @@ void Wander::getSteering(SteeringOutput * output)
 
 	Vector3 offset = *target - character->position;
 	float angle;
-	if(offset.x * offset.x + offset.z * offset.z > 0)
+	if(offset.x * offset.x + offset.z * offset.z > EPSILON_E12)
 	{
 		angle = atan2(offset.z, offset.x);
 	}

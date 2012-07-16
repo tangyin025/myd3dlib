@@ -265,6 +265,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\myD3dLib.h"
+				>
+			</File>
+			<File
 				RelativePath="..\include\myDxutApp.h"
 				>
 			</File>

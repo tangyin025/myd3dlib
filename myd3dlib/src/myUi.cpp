@@ -1271,7 +1271,7 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 		}
 	}
 
-	if(m_bEnabled && m_bVisible)
+	if(m_bVisible)
 	{
 		ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin, ControlSkin>(m_Skin);
 
@@ -1283,7 +1283,7 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 
 			Rectangle DownButtonRect(Rectangle::RightBottom(Rect.r, Rect.b, m_Size.x, m_UpDownButtonHeight));
 
-			if(m_nEnd - m_nStart > m_nPageSize)
+			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
 				Skin->DrawImage(pd3dDevice, Skin->m_UpBtnNormalImage, UpButtonRect, m_Color);
 
