@@ -28,11 +28,11 @@ public:
 
 	my::LuaContextPtr m_lua;
 
-	typedef std::map<int, my::DialogPtr> DialogPtrSet;
+	typedef std::vector<my::DialogPtr> DialogPtrSet;
 
 	DialogPtrSet m_dlgSet;
 
-	typedef std::map<int, BaseScenePtr> BaseScenePtrSet;
+	typedef std::vector<BaseScenePtr> BaseScenePtrSet;
 
 	BaseScenePtrSet m_sceneSet;
 
@@ -123,9 +123,17 @@ public:
 
 	void UpdateDlgViewProj(my::DialogPtr dlg);
 
-	void InsertDlg(int id, my::DialogPtr dlg);
+	void InsertDlg(my::DialogPtr dlg)
+	{
+		UpdateDlgViewProj(dlg);
 
-	void InsertScene(int id, BaseScenePtr scene);
+		m_dlgSet.push_back(dlg);
+	}
+
+	void InsertScene(BaseScenePtr scene)
+	{
+		m_sceneSet.push_back(scene);
+	}
 
 	void MustThrowException(void);
 };

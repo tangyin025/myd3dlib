@@ -59,7 +59,7 @@ edit.EventNextLine=function()
 end
 console:InsertControl(edit)
 
-game:InsertDlg(1, console)
+game:InsertDlg(console)
 
 game.EventToggleConsole=function(args)
 	console.Visible=not console.Visible

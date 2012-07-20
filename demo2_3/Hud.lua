@@ -51,4 +51,4 @@ btn.EventClick=function(args)
 end
 hud:InsertControl(btn)
 
-game:InsertDlg(2, hud)
+game:InsertDlg(hud)

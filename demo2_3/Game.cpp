@@ -139,7 +139,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		UpdateDlgViewProj(dlg_iter->second);
+		UpdateDlgViewProj(*dlg_iter);
 	}
 
 	return S_OK;
@@ -183,7 +183,7 @@ void Game::OnFrameMove(
 	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
 	for(; scene_iter != m_sceneSet.end(); scene_iter++)
 	{
-		scene_iter->second->OnFrameMove(fTime, fElapsedTime);
+		(*scene_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
 }
 
@@ -204,7 +204,7 @@ void Game::OnD3D9FrameRender(
 	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
 	for(; scene_iter != m_sceneSet.end(); scene_iter++)
 	{
-		scene_iter->second->OnRender(pd3dDevice, fTime, fElapsedTime);
+		(*scene_iter)->OnRender(pd3dDevice, fTime, fElapsedTime);
 	}
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -214,7 +214,7 @@ void Game::OnD3D9FrameRender(
 		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 		for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 		{
-			dlg_iter->second->Draw(pd3dDevice, fElapsedTime);
+			(*dlg_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
 		if(m_font)
@@ -274,7 +274,7 @@ LRESULT Game::MsgProc(
 	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
 	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
 	{
-		if((*pbNoFurtherProcessing = dlg_iter->second->MsgProc(hWnd, uMsg, wParam, lParam)))
+		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
 			return 0;
 	}
 
@@ -325,18 +325,6 @@ void Game::UpdateDlgViewProj(my::DialogPtr dlg)
 
 	if(dlg->EventAlign)
 		dlg->EventAlign(my::EventArgsPtr(new AlignEventArgs(vp)));
-}
-
-void Game::InsertDlg(int id, my::DialogPtr dlg)
-{
-	UpdateDlgViewProj(dlg);
-
-	m_dlgSet[id] = dlg;
-}
-
-void Game::InsertScene(int id, BaseScenePtr scene)
-{
-	m_sceneSet[id] = scene;
 }
 
 void Game::MustThrowException(void)
