@@ -208,11 +208,8 @@ namespace my
 
 		ControlImagePtr m_MouseOverImage;
 
-		Vector2 m_PressedOffset;
-
 	public:
 		ButtonSkin(void)
-			: m_PressedOffset(0,0)
 		{
 		}
 	};
@@ -226,12 +223,15 @@ namespace my
 
 		D3DXCOLOR m_BlendColor;
 
+		Vector2 m_PressedOffset;
+
 		ControlEvent EventClick;
 
 	public:
 		Button(void)
 			: m_bPressed(false)
 			, m_BlendColor(m_Color)
+			, m_PressedOffset(0,0)
 		{
 			m_Skin = ButtonSkinPtr(new ButtonSkin());
 		}

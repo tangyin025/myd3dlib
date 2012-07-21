@@ -17,13 +17,13 @@ btn_skin.TextAlign=Font.AlignCenterMiddle
 btn_skin.DisabledImage=ControlImage(LoadTexture("Hud_btn_disable.png"), Vector4(7,7,7,7))
 btn_skin.PressedImage=ControlImage(LoadTexture("Hud_btn_down.png"), Vector4(7,7,7,7))
 btn_skin.MouseOverImage=ControlImage(LoadTexture("Hud_btn_hover.png"), Vector4(7,7,7,7))
-btn_skin.PressedOffset=Vector2(1,2)
 
 local btn=Button()
 btn.Text="Toggle full screen"
 btn.Location=Vector2(35,10)
 btn.Size=Vector2(125,22)
 btn.Skin=btn_skin
+btn.PressedOffset=Vector2(1,2)
 btn.EventClick=function(args)
 	game:ToggleFullScreen()
 end
@@ -35,6 +35,7 @@ btn:SetHotkey(114) -- VK_F3
 btn.Location=Vector2(35,35)
 btn.Size=Vector2(125,22)
 btn.Skin=btn_skin
+btn.PressedOffset=Vector2(1,2)
 btn.EventClick=function(args)
 	game:ToggleRef()
 end
@@ -46,6 +47,7 @@ btn:SetHotkey(113) -- VK_F2
 btn.Location=Vector2(35,60)
 btn.Size=Vector2(125,22)
 btn.Skin=btn_skin
+btn.PressedOffset=Vector2(1,2)
 btn.EventClick=function(args)
 	game:ChangeDevice()
 end

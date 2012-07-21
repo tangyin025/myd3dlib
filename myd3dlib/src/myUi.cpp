@@ -315,7 +315,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 			{
 				if(m_bPressed)
 				{
-					Rect = Rect.offset(Skin->m_PressedOffset);
+					Rect = Rect.offset(m_PressedOffset);
 					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
 				}
 				else
@@ -323,7 +323,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 					D3DXCOLOR DstColor(m_Color);
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						Rect = Rect.offset(-Skin->m_PressedOffset);
+						Rect = Rect.offset(-m_PressedOffset);
 					}
 					else
 					{

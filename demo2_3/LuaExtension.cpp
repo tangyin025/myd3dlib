@@ -434,10 +434,10 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("DisabledImage", &my::ButtonSkin::m_DisabledImage)
 			.def_readwrite("PressedImage", &my::ButtonSkin::m_PressedImage)
 			.def_readwrite("MouseOverImage", &my::ButtonSkin::m_MouseOverImage)
-			.def_readwrite("PressedOffset", &my::ButtonSkin::m_PressedOffset)
 
 		, luabind::class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
 			.def(luabind::constructor<>())
+			.def_readwrite("PressedOffset", &my::Button::m_PressedOffset)
 			.def_readwrite("EventClick", &my::Button::EventClick)
 			.def("SetHotkey", &my::Button::SetHotkey)
 
