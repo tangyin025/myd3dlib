@@ -18,7 +18,6 @@ panel.scrollbar.Color=ARGB(15,255,255,255)
 panel.scrollbar.Location=Vector2(panel.Size.x - 20, 0)
 panel.scrollbar.Size=Vector2(20, panel.Size.y)
 panel.scrollbar.nPageSize=3
-panel.scrollbar.Skin=ScrollBarSkin()
 console:InsertControl(panel)
 
 local e_texts={}

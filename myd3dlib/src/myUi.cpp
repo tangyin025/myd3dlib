@@ -1155,7 +1155,7 @@ void ImeEditBox::RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTi
 void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
-	if(Skin)
+	if(Skin && Skin->m_Font)
 	{
 		s_CompString = ImeUi_GetCompositionString();
 
@@ -1189,7 +1189,7 @@ void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsed
 void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
-	if(Skin)
+	if(Skin && Skin->m_Font)
 	{
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
@@ -1435,7 +1435,7 @@ void Dialog::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_View));
 	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Proj));
 
-	if(m_bEnabled && m_bVisible)
+	if(m_bVisible)
 	{
 		Control::Draw(pd3dDevice, fElapsedTime, Vector2(0,0));
 

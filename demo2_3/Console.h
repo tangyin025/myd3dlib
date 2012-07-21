@@ -35,8 +35,6 @@ public:
 
 	virtual bool HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
-	virtual bool CanHaveFocus(void);
-
 	int MoveLineIndex(int index, int step);
 
 	int LineIndexDistance(int start, int end);
@@ -68,6 +66,8 @@ public:
 
 	virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
+
+typedef boost::shared_ptr<ConsoleEditBox> ConsoleEditBoxPtr;
 //
 //class Console
 //	: public my::Dialog
@@ -75,7 +75,7 @@ public:
 //public:
 //	my::Vector4 m_Border;
 //
-//	my::ImeEditBoxPtr m_edit;
+//	ConsoleEditBoxPtr m_edit;
 //
 //	MessagePanelPtr m_panel;
 //
@@ -83,6 +83,14 @@ public:
 //	Console(void);
 //
 //	~Console(void);
+//
+//	void OnEventAlign(my::EventArgsPtr args);
+//
+//	void OnEventEnter(my::EventArgsPtr args);
+//
+//	void OnEventPrevLine(my::EventArgsPtr args);
+//
+//	void OnEventNextLine(my::EventArgsPtr args);
 //};
 //
 //typedef boost::shared_ptr<Console> ConsolePtr;

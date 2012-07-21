@@ -2,24 +2,26 @@
 #include "Console.h"
 #include "Game.h"
 
+using namespace my;
+
 MessagePanel::MessagePanel(void)
 	: m_lbegin(0)
 	, m_lend(0)
 {
-	m_scrollbar = my::ScrollBarPtr(new my::ScrollBar());
+	m_scrollbar = ScrollBarPtr(new ScrollBar());
 }
 
 MessagePanel::~MessagePanel(void)
 {
 }
 
-void MessagePanel::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Vector2 & Offset)
+void MessagePanel::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
-	my::Control::Draw(pd3dDevice, fElapsedTime, Offset);
+	Control::Draw(pd3dDevice, fElapsedTime, Offset);
 
 	if(m_Skin && m_Skin->m_Font)
 	{
-		my::Rectangle Rect(my::Rectangle::LeftTop(m_Location + Offset, m_Size));
+		my::Rectangle Rect(Rectangle::LeftTop(m_Location + Offset, m_Size));
 
 		int i = MoveLineIndex(m_lbegin, m_scrollbar->m_nPosition);
 		float y = Rect.t;
@@ -49,7 +51,7 @@ bool MessagePanel::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	return Control::HandleKeyboard(uMsg, wParam, lParam);
 }
 
-bool MessagePanel::HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam)
+bool MessagePanel::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
 	if(m_scrollbar->HandleMouse(uMsg, pt, wParam, lParam))
 		return true;
@@ -60,11 +62,6 @@ bool MessagePanel::HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam,
 int MessagePanel::MoveLineIndex(int index, int step)
 {
 	return (index + step) % _countof(m_lines);
-}
-
-bool MessagePanel::CanHaveFocus(void)
-{
-	return false;//return m_bVisible && m_bEnabled;
 }
 
 int MessagePanel::LineIndexDistance(int start, int end)
@@ -166,13 +163,13 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_UP:
 				if(EventPrevLine)
-					EventPrevLine(my::EventArgsPtr(new my::EventArgs));
+					EventPrevLine(EventArgsPtr(new EventArgs));
 				ResetCaretBlink();
 				return true;
 
 			case VK_DOWN:
 				if(EventNextLine)
-					EventNextLine(my::EventArgsPtr(new my::EventArgs));
+					EventNextLine(EventArgsPtr(new EventArgs));
 				ResetCaretBlink();
 				return true;
 			}
@@ -185,40 +182,66 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 //Console::Console(void)
 //{
 //	m_Color = D3DCOLOR_ARGB(197,0,0,0);
-//	m_Location = my::Vector2(50,95);
-//	m_Size = my::Vector2(700,410);
-//	m_Border = my::Vector4(5,5,5,5);
-//
-//	m_Skin = my::ControlSkinPtr(new my::ControlSkin());
-//	m_Skin->m_Font = Game::getSingleton().m_uiFnt;
+//	m_Size = Vector2(700,410);
+//	m_Skin->m_Font = Game::getSingleton().m_font;
 //	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-//	m_Skin->m_TextAlign = my::Font::AlignLeftTop;
+//	m_Skin->m_TextAlign = Font::AlignLeftTop;
+//	EventAlign = boost::bind(&Console::OnEventAlign, this, _1);
 //
-//	const my::Vector2 edit_size(m_Size.x - m_Border.x - m_Border.z, 20);
-//	m_edit = my::ImeEditBoxPtr(new my::ImeEditBox());
+//	const Vector4 Border(5,5,5,5);
+//
+//	m_edit = ConsoleEditBoxPtr(new ConsoleEditBox());
 //	m_edit->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-//	m_edit->m_Location = my::Vector2(m_Border.x, m_Size.y - m_Border.w - edit_size.y);
-//	m_edit->m_Size = edit_size;
-//	m_edit->m_Border = my::Vector4(0,0,0,0);
+//	m_edit->m_Size = Vector2(m_Size.x - Border.x - Border.z, 20);
+//	m_edit->m_Location = Vector2(Border.x, m_Size.y - Border.w - m_edit->m_Size.y);
+//	m_edit->m_Border = Vector4(0,0,0,0);
 //	m_edit->m_Text = L"在这里输入命令";
-//	m_edit->m_Skin = my::EditBoxSkinPtr(new my::EditBoxSkin());
-//	m_edit->m_Skin->m_Font = m_Skin->m_Font;
+//	m_edit->m_Skin->m_Font = Game::getSingleton().m_font;
 //	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
+//	m_edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
+//	m_edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
+//	m_edit->EventPrevLine = boost::bind(&Console::OnEventPrevLine, this, _1);
+//	m_edit->EventNextLine = boost::bind(&Console::OnEventNextLine, this, _1);
 //	InsertControl(m_edit);
 //
 //	m_panel = MessagePanelPtr(new MessagePanel());
 //	m_panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
-//	m_panel->m_Location = my::Vector2(m_Border.x, m_Border.y);
-//	m_panel->m_Size = my::Vector2(m_Size.x - m_Border.x - m_Border.z, m_Size.y - m_Border.y - m_edit->m_Size.y - m_Border.w);
-//	m_panel->m_Skin = m_Skin;
+//	m_panel->m_Location = Vector2(Border.x, Border.y);
+//	m_panel->m_Size = Vector2(m_Size.x - Border.x - Border.z, m_Size.y - Border.y - Border.w - m_edit->m_Size.y);
+//	m_panel->m_Skin->m_Font = Game::getSingleton().m_font;
 //	m_panel->m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-//	m_panel->m_scrollbar->m_Location = my::Vector2(m_panel->m_Size.x - 20, 0);
-//	m_panel->m_scrollbar->m_Size = my::Vector2(20, m_panel->m_Size.y);
+//	m_panel->m_scrollbar->m_Size = Vector2(20, m_panel->m_Size.y);
+//	m_panel->m_scrollbar->m_Location = Vector2(m_panel->m_Size.x - m_panel->m_scrollbar->m_Size.x, 0);
 //	m_panel->m_scrollbar->m_nPageSize = 3;
-//	m_panel->m_scrollbar->m_Skin = my::ScrollBarSkinPtr(new my::ScrollBarSkin());
 //	InsertControl(m_panel);
 //}
 //
 //Console::~Console(void)
+//{
+//}
+//
+//void Console::OnEventAlign(EventArgsPtr args)
+//{
+//	m_Location = Vector2(50,95);
+//}
+//
+//void Console::OnEventEnter(my::EventArgsPtr args)
+//{
+//	std::wstring code = m_edit->m_Text;
+//	if(!code.empty())
+//	{
+//		m_edit->m_Text = L"";
+//		m_edit->PlaceCaret(0);
+//		m_edit->m_nSelStart = m_edit->m_nCaret;
+//		m_panel->AddLine(code, m_edit->m_Skin->m_TextColor);
+//		Game::getSingleton().ExecuteCode(wstou8(code.c_str()).c_str());
+//	}
+//}
+//
+//void Console::OnEventPrevLine(my::EventArgsPtr args)
+//{
+//}
+//
+//void Console::OnEventNextLine(my::EventArgsPtr args)
 //{
 //}
