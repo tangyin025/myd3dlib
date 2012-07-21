@@ -36,11 +36,11 @@ public:
 
 	BaseScenePtrSet m_sceneSet;
 
-	my::ControlEvent EventToggleConsole;
-
 	my::FontPtr m_font;
 
-	MessagePanelPtr m_panel;
+	//MessagePanelPtr m_panel;
+
+	ConsolePtr m_console;
 
 	my::InputPtr m_input;
 
@@ -51,15 +51,15 @@ public:
 	my::SoundPtr m_sound;
 
 public:
-	my::ControlPtr GetPanel(void) const
-	{
-		return m_panel;
-	}
+	//my::ControlPtr GetPanel(void) const
+	//{
+	//	return m_panel;
+	//}
 
-	void SetPanel(my::ControlPtr panel)
-	{
-		m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
-	}
+	//void SetPanel(my::ControlPtr panel)
+	//{
+	//	m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
+	//}
 
 public:
 	Game(void);
@@ -75,6 +75,10 @@ public:
 	{
 		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
 	}
+
+	static my::TexturePtr LoadTexture(const char * path);
+
+	static my::FontPtr LoadFont(const char * path, int height);
 
 	virtual bool IsD3D9DeviceAcceptable(
 		D3DCAPS9 * pCaps,
@@ -134,6 +138,4 @@ public:
 	{
 		m_sceneSet.push_back(scene);
 	}
-
-	void MustThrowException(void);
 };

@@ -56,9 +56,9 @@ class ConsoleEditBox
 	: public my::ImeEditBox
 {
 public:
-	my::ControlEvent EventPrevLine;
+	my::ControlEvent EventKeyUp;
 
-	my::ControlEvent EventNextLine;
+	my::ControlEvent EventKeyDown;
 
 	ConsoleEditBox(void);
 
@@ -68,29 +68,33 @@ public:
 };
 
 typedef boost::shared_ptr<ConsoleEditBox> ConsoleEditBoxPtr;
-//
-//class Console
-//	: public my::Dialog
-//{
-//public:
-//	my::Vector4 m_Border;
-//
-//	ConsoleEditBoxPtr m_edit;
-//
-//	MessagePanelPtr m_panel;
-//
-//public:
-//	Console(void);
-//
-//	~Console(void);
-//
-//	void OnEventAlign(my::EventArgsPtr args);
-//
-//	void OnEventEnter(my::EventArgsPtr args);
-//
-//	void OnEventPrevLine(my::EventArgsPtr args);
-//
-//	void OnEventNextLine(my::EventArgsPtr args);
-//};
-//
-//typedef boost::shared_ptr<Console> ConsolePtr;
+
+class Console
+	: public my::Dialog
+{
+public:
+	my::Vector4 m_Border;
+
+	ConsoleEditBoxPtr m_edit;
+
+	MessagePanelPtr m_panel;
+
+	std::list<std::wstring> m_strList;
+
+	std::list<std::wstring>::iterator m_strIter;
+
+public:
+	Console(void);
+
+	~Console(void);
+
+	void OnEventAlign(my::EventArgsPtr args);
+
+	void OnEventEnter(my::EventArgsPtr args);
+
+	void OnEventKeyUp(my::EventArgsPtr args);
+
+	void OnEventKeyDown(my::EventArgsPtr args);
+};
+
+typedef boost::shared_ptr<Console> ConsolePtr;

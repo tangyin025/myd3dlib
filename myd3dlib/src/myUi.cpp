@@ -834,6 +834,18 @@ bool EditBox::ContainsPoint(const Vector2 & pt)
 	return Control::ContainsPoint(pt);
 }
 
+void EditBox::SetText(const std::wstring & Text)
+{
+	m_Text = Text;
+	PlaceCaret(Text.length());
+	m_nSelStart = m_nCaret;
+}
+
+const std::wstring & EditBox::GetText(void) const
+{
+	return m_Text;
+}
+
 void EditBox::PlaceCaret(int nCP)
 {
 	m_nCaret = nCP;

@@ -329,6 +329,10 @@ namespace my
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 
+		virtual void SetText(const std::wstring & Text);
+
+		virtual const std::wstring & GetText(void) const;
+
 		void PlaceCaret(int nCP);
 
 		void ResetCaretBlink(void);

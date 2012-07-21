@@ -8,18 +8,42 @@
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
+using namespace my;
+
 Game::Game(void)
 {
 	m_settingsDlg.Init(&m_dlgResourceMgr);
 
-	m_lua = my::LuaContextPtr(new my::LuaContext());
+	m_lua = LuaContextPtr(new LuaContext());
 
 	Export2Lua(m_lua->_state);
 }
 
 Game::~Game(void)
 {
-	my::ImeEditBox::Uninitialize();
+	ImeEditBox::Uninitialize();
+}
+
+TexturePtr Game::LoadTexture(const char * path)
+{
+	LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Texture::CreateTextureFromFile(pDevice, full_path.c_str());
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Texture::CreateTextureFromFileInMemory(pDevice, &(*cache)[0], cache->size());
+}
+
+FontPtr Game::LoadFont(const char * path, int height)
+{
+	LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Font::CreateFontFromFile(pDevice, full_path.c_str(), height, 1);
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Font::CreateFontFromFileInCache(pDevice, cache, height, 1);
 }
 
 bool Game::IsD3D9DeviceAcceptable(
@@ -87,29 +111,34 @@ HRESULT Game::OnD3D9CreateDevice(
 		return hres;
 	}
 
-	my::ImeEditBox::Initialize(DxutApp::getSingleton().GetHWND());
+	ImeEditBox::Initialize(DxutApp::getSingleton().GetHWND());
 
-	my::ImeEditBox::EnableImeSystem(false);
+	ImeEditBox::EnableImeSystem(false);
 
 	V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	// 必须保证这个脚本没有错误，否则将看不到控制台
+	m_font = LoadFont("wqy-microhei.ttc", 13);
+
+	m_console = ConsolePtr(new Console());
+
+	UpdateDlgViewProj(m_console);
+
 	ExecuteCode("dofile(\"demo2_3.lua\")");
 
 	if(!m_input)
 	{
-		m_input = my::Input::CreateInput(GetModuleHandle(NULL));
-		m_keyboard = my::Keyboard::CreateKeyboard(m_input->m_ptr);
+		m_input = Input::CreateInput(GetModuleHandle(NULL));
+		m_keyboard = Keyboard::CreateKeyboard(m_input->m_ptr);
 		m_keyboard->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-		m_mouse = my::Mouse::CreateMouse(m_input->m_ptr);
+		m_mouse = Mouse::CreateMouse(m_input->m_ptr);
 		m_mouse->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 	}
 
 	if(!m_sound)
 	{
-		m_sound = my::Sound::CreateSound();
+		m_sound = Sound::CreateSound();
 		m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 	}
 
@@ -122,8 +151,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(m_panel)
-		m_panel->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_console->m_panel->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -136,6 +164,8 @@ HRESULT Game::OnD3D9ResetDevice(
 
 	V(m_settingsDlg.OnD3D9ResetDevice());
 
+	UpdateDlgViewProj(m_console);
+
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
@@ -147,8 +177,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	if(m_panel)
-		m_panel->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_console->m_panel->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -163,9 +192,11 @@ void Game::OnD3D9DestroyDevice(void)
 
 	m_settingsDlg.OnD3D9DestroyDevice();
 
+	m_console.reset();
+
 	m_dlgSet.clear();
 
-	my::ImeEditBox::Uninitialize();
+	ImeEditBox::Uninitialize();
 
 	DxutApp::OnD3D9DestroyDevice();
 }
@@ -209,7 +240,7 @@ void Game::OnD3D9FrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		my::UIRender::Begin(pd3dDevice);
+		UIRender::Begin(pd3dDevice);
 
 		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 		for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
@@ -217,23 +248,25 @@ void Game::OnD3D9FrameRender(
 			(*dlg_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
+		m_console->Draw(pd3dDevice, fElapsedTime);
+
 		if(m_font)
 		{
-			my::Matrix4 View, Proj;
+			Matrix4 View, Proj;
 			D3DVIEWPORT9 vp;
 			pd3dDevice->GetViewport(&vp);
-			my::UIRender::BuildPerspectiveMatrices(
+			UIRender::BuildPerspectiveMatrices(
 				D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&my::Matrix4::identity));
+			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 			m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
-				my::Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+				Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 			m_font->DrawString(DXUTGetDeviceStats(),
-				my::Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+				Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 		}
 
-		my::UIRender::End(pd3dDevice);
+		UIRender::End(pd3dDevice);
 
 		V(pd3dDevice->EndScene());
 	}
@@ -264,10 +297,15 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if(EventToggleConsole && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
+	if(m_console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
-		EventToggleConsole(my::EventArgsPtr(new my::EventArgs()));
+		m_console->SetVisible(!m_console->GetVisible());
 		*pbNoFurtherProcessing = true;
+		return 0;
+	}
+
+	if(m_console && (*pbNoFurtherProcessing = m_console->MsgProc(hWnd, uMsg, wParam, lParam)))
+	{
 		return 0;
 	}
 
@@ -304,14 +342,13 @@ void Game::ExecuteCode(const char * code)
 	}
 	catch(const std::runtime_error & e)
 	{
-		if(!m_panel)
-			THROW_CUSEXCEPTION(e.what());
+		_ASSERT(m_console);
 
-		m_panel->AddLine(ms2ws(e.what()));
+		m_console->m_panel->AddLine(ms2ws(e.what()));
 	}
 }
 
-void Game::UpdateDlgViewProj(my::DialogPtr dlg)
+void Game::UpdateDlgViewProj(DialogPtr dlg)
 {
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
 
@@ -319,15 +356,10 @@ void Game::UpdateDlgViewProj(my::DialogPtr dlg)
 
 	float height = (float)pBackBufferSurfaceDesc->Height;
 
-	my::Vector2 vp(height * aspect, height);
+	Vector2 vp(height * aspect, height);
 
-	my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
+	UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
 
 	if(dlg->EventAlign)
-		dlg->EventAlign(my::EventArgsPtr(new AlignEventArgs(vp)));
-}
-
-void Game::MustThrowException(void)
-{
-	THROW_CUSEXCEPTION("Game::MustThrowException");
+		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
 }

@@ -1,6 +1,6 @@
-font=LoadFont("wqy-microhei.ttc", 13)
-game.font=font
-dofile "Console.lua"
+-- font=Game.LoadFont("wqy-microhei.ttc", 13)
+-- game.font=font
+-- dofile "Console.lua"
 dofile "Hud.lua"
 
 camera=ModuleViewCamera(math.rad(75),4/3,0.1,3000)

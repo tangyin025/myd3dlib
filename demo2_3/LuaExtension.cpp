@@ -10,7 +10,7 @@ static int lua_print(lua_State * L)
 	// ! u8tows会抛异常，不要让 C++异常直接抛到 lua函数以外
 	try
 	{
-		MessagePanelPtr panel = Game::getSingleton().m_panel;
+		MessagePanel * panel = Game::getSingleton().m_console->m_panel.get();
 		if(!panel)
 			return luaL_error(L, "must have game.panel to output");
 
@@ -229,7 +229,7 @@ namespace luabind
 					}
 					catch(const luabind::error & e)
 					{
-						Game::getSingleton().m_panel->AddLine(ms2ws(lua_tostring(e.state(), -1)));
+						Game::getSingleton().m_console->m_panel->AddLine(ms2ws(lua_tostring(e.state(), -1)));
 					}
 				}
 			};
@@ -271,61 +271,11 @@ void Export2Lua(lua_State * L)
 		{
 			return D3DCOLOR_ARGB(a,r,g,b);
 		}
-
-		static my::TexturePtr LoadTexture(const char * path)
-		{
-			try
-			{
-				LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
-				std::string full_path = my::ResourceMgr::getSingleton().GetFullPath(path);
-				if(!full_path.empty())
-					return my::Texture::CreateTextureFromFile(pDevice, full_path.c_str());
-
-				my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-				return my::Texture::CreateTextureFromFileInMemory(pDevice, &(*cache)[0], cache->size());
-			}
-			catch(const my::Exception & e)
-			{
-				throw my::LuaContext::ExecutionErrorException(e.GetDescription());
-			}
-		}
-
-		static my::FontPtr LoadFont(const char * path, int height)
-		{
-			try
-			{
-				LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
-				std::string full_path = my::ResourceMgr::getSingleton().GetFullPath(path);
-				if(!full_path.empty())
-					return my::Font::CreateFontFromFile(pDevice, full_path.c_str(), height, 1);
-
-				my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-				return my::Font::CreateFontFromFileInCache(pDevice, cache, height, 1);
-			}
-			catch(const my::Exception & e)
-			{
-				throw my::LuaContext::ExecutionErrorException(e.GetDescription());
-			}
-		}
-
-		static void SetEditBoxText(boost::shared_ptr<my::Control> control, const std::wstring & text)
-		{
-			my::EditBoxPtr edit = boost::static_pointer_cast<my::EditBox>(control);
-			edit->m_Text = text;
-			edit->PlaceCaret(text.length());
-			edit->m_nSelStart = edit->m_nCaret;
-		}
-
-		static const std::wstring & GetEditBoxText(boost::shared_ptr<my::Control> control)
-		{
-			my::EditBoxPtr edit = boost::static_pointer_cast<my::EditBox>(control);
-			return edit->m_Text;
-		}
 	};
 
 	luabind::open(L);
 
-	//// ! will lead memory leak
+	//// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
 	//luabind::register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
@@ -334,10 +284,6 @@ void Export2Lua(lua_State * L)
 	luabind::module(L)
 	[
 		luabind::def("ARGB", &HelpFunc::ARGB)
-
-		, luabind::def("LoadTexture", &HelpFunc::LoadTexture)
-
-		, luabind::def("LoadFont", &HelpFunc::LoadFont)
 
 		//, luabind::class_<std::wstring>("wstring")
 
@@ -451,7 +397,7 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<my::EditBox, my::Static, boost::shared_ptr<my::Control> >("EditBox")
 			.def(luabind::constructor<>())
-			.property("Text", &HelpFunc::GetEditBoxText, &HelpFunc::SetEditBoxText)
+			.property("Text", &my::EditBox::GetText, &my::EditBox::SetText)
 			.def_readwrite("Border", &my::EditBox::m_Border)
 			.def_readwrite("EventChange", &my::EditBox::EventChange)
 			.def_readwrite("EventEnter", &my::EditBox::EventEnter)
@@ -490,23 +436,25 @@ void Export2Lua(lua_State * L)
 
 		, luabind::class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
 			.def(luabind::constructor<>())
-			.def_readwrite("EventPrevLine", &ConsoleEditBox::EventPrevLine)
-			.def_readwrite("EventNextLine", &ConsoleEditBox::EventNextLine)
+			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
+			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
 		, luabind::class_<AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
 			.def_readonly("vp", &AlignEventArgs::vp)
 
 		, luabind::class_<Game>("Game")
-			.def_readwrite("EventToggleConsole", &Game::EventToggleConsole)
 			.def_readwrite("font", &Game::m_font)
-			.property("Panel", &Game::GetPanel, &Game::SetPanel)
+			.scope
+			[
+				luabind::def("LoadTexture", &Game::LoadTexture)
+				, luabind::def("LoadFont", &Game::LoadFont)
+			]
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)
 			.def("ToggleRef", &Game::ToggleRef)
 			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("InsertScene", &Game::InsertScene)
-			.def("MustThrowException", &Game::MustThrowException)
 
 		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
