@@ -1656,3 +1656,8 @@ void Dialog::ForceFocusControl(void)
 		}
 	}
 }
+
+bool Dialog::ContainsControl(ControlPtr control)
+{
+	return m_Controls.end() != std::find(m_Controls.begin(), m_Controls.end(), control);
+}

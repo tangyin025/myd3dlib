@@ -477,7 +477,7 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		typedef std::set<ControlPtr> ControlPtrSet;
+		typedef std::vector<ControlPtr> ControlPtrSet;
 
 		ControlPtrSet m_Controls;
 
@@ -520,14 +520,11 @@ namespace my
 
 		void ForceFocusControl(void);
 
-		bool ContainsControl(ControlPtr control)
-		{
-			return m_Controls.end() != m_Controls.find(control);
-		}
+		bool ContainsControl(ControlPtr control);
 
 		void InsertControl(ControlPtr control)
 		{
-			m_Controls.insert(control);
+			m_Controls.push_back(control);
 		}
 	};
 
