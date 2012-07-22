@@ -87,7 +87,7 @@ bool Game::ModifyDeviceSettings(
 	if( caps.MaxVertexBlendMatrices < 2 )
 		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
-	// ! 修正 lua print(0xffffffff)结果不正确的问题, 参见：http://www.lua.org/bugs.html
+	// ! Fix lua print(0xffffffff) issue, ref: http://www.lua.org/bugs.html#5.1-3
 	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	static bool s_bFirstTime = true;
@@ -126,6 +126,8 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	UpdateDlgViewProj(m_console);
 
+	AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	if(!m_input)
 	{
 		m_input = Input::CreateInput(GetModuleHandle(NULL));
@@ -143,6 +145,9 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	initiate();
 
+	if(cs = CurrentState())
+		cs->OnD3D9CreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 	//THROW_CUSEXCEPTION("aaa");
 
 	return S_OK;
@@ -152,7 +157,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_console->m_panel->AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -182,7 +187,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	m_console->m_panel->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	if(cs = CurrentState())
 		cs->OnD3D9LostDevice();
@@ -196,6 +201,11 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
+	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	if(cs = CurrentState())
+		cs->OnD3D9DestroyDevice();
+
 	terminate();
 
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
@@ -220,7 +230,7 @@ void Game::OnFrameMove(
 	m_keyboard->Capture();
 
 	m_mouse->Capture();
-	
+
 	if(cs = CurrentState())
 		cs->OnFrameMove(fTime, fElapsedTime);
 }
@@ -352,9 +362,7 @@ void Game::ExecuteCode(const char * code)
 	}
 	catch(const std::runtime_error & e)
 	{
-		_ASSERT(m_console);
-
-		m_console->m_panel->AddLine(ms2ws(e.what()));
+		AddLine(ms2ws(e.what()));
 	}
 }
 

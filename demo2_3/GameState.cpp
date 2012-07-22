@@ -3,8 +3,6 @@
 
 GameStateLoad::GameStateLoad(void)
 {
-	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
-
 	//THROW_CUSEXCEPTION("aaa");
 }
 
@@ -12,15 +10,36 @@ GameStateLoad::~GameStateLoad(void)
 {
 }
 
+HRESULT GameStateLoad::OnD3D9CreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	Game::getSingleton().AddLine(L"GameStateLoad::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
+
+	//THROW_CUSEXCEPTION("aaa");
+
+	return S_OK;
+}
+
 HRESULT GameStateLoad::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Game::getSingleton().AddLine(L"GameStateLoad::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	return S_OK;
 }
 
 void GameStateLoad::OnD3D9LostDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStateLoad::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+}
+
+void GameStateLoad::OnD3D9DestroyDevice(void)
+{
+	Game::getSingleton().AddLine(L"GameStateLoad::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 void GameStateLoad::OnFrameMove(
@@ -62,15 +81,34 @@ GameStatePlay::~GameStatePlay(void)
 {
 }
 
+HRESULT GameStatePlay::OnD3D9CreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	Game::getSingleton().AddLine(L"GameStatePlay::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	//THROW_CUSEXCEPTION("aaa");
+
+	return S_OK;
+}
+
 HRESULT GameStatePlay::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Game::getSingleton().AddLine(L"GameStatePlay::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	return S_OK;
 }
 
 void GameStatePlay::OnD3D9LostDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStatePlay::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+}
+
+void GameStatePlay::OnD3D9DestroyDevice(void)
+{
+	Game::getSingleton().AddLine(L"GameStatePlay::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 void GameStatePlay::OnFrameMove(

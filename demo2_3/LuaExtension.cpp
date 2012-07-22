@@ -12,8 +12,7 @@ static int lua_print(lua_State * L)
 	try
 	{
 		MessagePanel * panel = Game::getSingleton().m_console->m_panel.get();
-		if(!panel)
-			return luaL_error(L, "must have game.panel to output");
+		_ASSERT(panel);
 
 		int n = lua_gettop(L);  /* number of arguments */
 		int i;
@@ -230,7 +229,7 @@ namespace luabind
 					}
 					catch(const luabind::error & e)
 					{
-						Game::getSingleton().m_console->m_panel->AddLine(ms2ws(lua_tostring(e.state(), -1)));
+						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
 					}
 				}
 			};

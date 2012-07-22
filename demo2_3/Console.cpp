@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Console.h"
 #include "Game.h"
+#include <boost/bind.hpp>
 
 using namespace my;
 

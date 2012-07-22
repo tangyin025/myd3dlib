@@ -15,16 +15,17 @@ class GameStateBase
 public:
 	HRESULT hr;
 
-	//// 这里设计成直接使用构造函数创建，不再需要 OnCreateDevice
-	//virtual HRESULT OnD3D9CreateDevice(
-	//	IDirect3DDevice9 * pd3dDevice,
-	//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+	virtual HRESULT OnD3D9CreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
 
 	virtual HRESULT OnD3D9ResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
 
 	virtual void OnD3D9LostDevice(void) = 0;
+
+	virtual void OnD3D9DestroyDevice(void) = 0;
 
 	virtual void OnFrameMove(
 		double fTime,
@@ -84,6 +85,33 @@ public:
 	GameStateBase * CurrentState(void)
 	{
 		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
+	}
+
+	void process_event(const event_base_type & evt)
+	{
+		if(cs = CurrentState())
+		{
+			cs->OnD3D9LostDevice();
+			cs->OnD3D9DestroyDevice();
+		}
+
+		state_machine::process_event(evt);
+
+		if(cs = CurrentState())
+		{
+			cs->OnD3D9CreateDevice(GetD3D9Device(), DXUTGetD3D9BackBufferSurfaceDesc());
+			cs->OnD3D9ResetDevice(GetD3D9Device(), DXUTGetD3D9BackBufferSurfaceDesc());
+		}
+	}
+
+	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
+	{
+		m_console->m_panel->AddLine(str, Color);
+	}
+
+	void puts(const std::wstring & str)
+	{
+		m_console->m_panel->puts(str);
 	}
 
 	static Game & getSingleton(void)
