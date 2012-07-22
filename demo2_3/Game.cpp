@@ -1,5 +1,6 @@
 ﻿#include "stdafx.h"
 #include "Game.h"
+#include "GameState.h"
 #include "LuaExtension.h"
 #include <luabind/luabind.hpp>
 #include <SDKmisc.h>
@@ -125,8 +126,6 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	UpdateDlgViewProj(m_console);
 
-	ExecuteCode("dofile(\"demo2_3.lua\")");
-
 	if(!m_input)
 	{
 		m_input = Input::CreateInput(GetModuleHandle(NULL));
@@ -141,6 +140,8 @@ HRESULT Game::OnD3D9CreateDevice(
 		m_sound = Sound::CreateSound();
 		m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 	}
+
+	initiate();
 
 	//THROW_CUSEXCEPTION("aaa");
 
@@ -172,12 +173,19 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
+	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
+	if(cs = CurrentState())
+		cs->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
 	m_console->m_panel->AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	if(cs = CurrentState())
+		cs->OnD3D9LostDevice();
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -188,6 +196,8 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
+	terminate();
+
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
@@ -210,12 +220,9 @@ void Game::OnFrameMove(
 	m_keyboard->Capture();
 
 	m_mouse->Capture();
-
-	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
-	for(; scene_iter != m_sceneSet.end(); scene_iter++)
-	{
-		(*scene_iter)->OnFrameMove(fTime, fElapsedTime);
-	}
+	
+	if(cs = CurrentState())
+		cs->OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnD3D9FrameRender(
@@ -232,11 +239,8 @@ void Game::OnD3D9FrameRender(
 	//V(pd3dDevice->Clear(
 	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00484848, 1, 0));
 
-	BaseScenePtrSet::iterator scene_iter = m_sceneSet.begin();
-	for(; scene_iter != m_sceneSet.end(); scene_iter++)
-	{
-		(*scene_iter)->OnRender(pd3dDevice, fTime, fElapsedTime);
-	}
+	if(cs = CurrentState())
+		cs->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -314,6 +318,12 @@ LRESULT Game::MsgProc(
 	{
 		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
 			return 0;
+	}
+
+	if((cs = CurrentState()) &&
+		(FAILED(hres = cs->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing))
+	{
+		return hres;
 	}
 
 	return 0;

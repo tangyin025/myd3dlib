@@ -478,6 +478,17 @@ namespace my
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
 
+	class AlignEventArgs : public my::EventArgs
+	{
+	public:
+		my::Vector2 vp;
+
+		AlignEventArgs(const my::Vector2 & _vp)
+			: vp(_vp)
+		{
+		}
+	};
+
 	class Dialog : public Control
 	{
 	public:

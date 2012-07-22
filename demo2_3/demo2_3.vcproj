@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GameState.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\LuaExtension.cpp"
 				>
 			</File>
@@ -242,6 +246,10 @@
 			</File>
 			<File
 				RelativePath=".\Game.h"
+				>
+			</File>
+			<File
+				RelativePath=".\GameState.h"
 				>
 			</File>
 			<File

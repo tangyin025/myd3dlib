@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "LuaExtension.h"
 #include "Game.h"
+#include "GameState.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
@@ -420,6 +421,9 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should be removed
 			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should be removed
 
+		, luabind::class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
+			.def_readonly("vp", &my::AlignEventArgs::vp)
+
 		, luabind::class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(luabind::constructor<>())
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
@@ -439,11 +443,10 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
 			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
-		, luabind::class_<AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
-			.def_readonly("vp", &AlignEventArgs::vp)
-
 		, luabind::class_<Game>("Game")
 			.def_readwrite("font", &Game::m_font)
+			.def("CurrentState", &Game::CurrentState)
+			.def("process_event", &Game::process_event)
 			.scope
 			[
 				luabind::def("LoadTexture", &Game::LoadTexture)
@@ -454,31 +457,41 @@ void Export2Lua(lua_State * L)
 			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
-			.def("InsertScene", &Game::InsertScene)
 
-		, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
-			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
-			.def_readwrite("Nz", &BaseCamera::m_Nz)
-			.def_readwrite("Fz", &BaseCamera::m_Fz)
+		, luabind::class_<GameStateBase>("GameStateBase")
 
-		, luabind::class_<Camera, BaseCamera, boost::shared_ptr<BaseCamera> >("Camera")
-			.def(luabind::constructor<float, float, float, float>())
-			.def_readwrite("Position", &Camera::m_Position)
-			.def_readwrite("Orientation", &Camera::m_Orientation)
-			.def_readwrite("Fovy", &Camera::m_Fovy)
+		, luabind::class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
 
-		, luabind::class_<ModuleViewCamera, BaseCamera, boost::shared_ptr<BaseCamera> >("ModuleViewCamera")
-			.def(luabind::constructor<float, float, float, float>())
-			.def_readwrite("LookAt", &ModuleViewCamera::m_LookAt)
-			.def_readwrite("Rotation", &ModuleViewCamera::m_Rotation)
-			.def_readwrite("Fovy", &ModuleViewCamera::m_Fovy)
-			.def_readwrite("Distance", &ModuleViewCamera::m_Distance)
-
-		, luabind::class_<BaseScene, boost::shared_ptr<BaseScene> >("BaseScene")
-
-		, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")
+		, luabind::class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
 			.def(luabind::constructor<>())
-			.def_readwrite("Camera", &Scene::m_Camera)
+
+		, luabind::class_<GameStateLoad, GameStateBase>("GameStateLoad")
+
+		, luabind::class_<GameStatePlay, GameStateBase>("GameStatePlay")
+
+		//, luabind::class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
+		//	.def_readwrite("Aspect", &BaseCamera::m_Aspect)
+		//	.def_readwrite("Nz", &BaseCamera::m_Nz)
+		//	.def_readwrite("Fz", &BaseCamera::m_Fz)
+
+		//, luabind::class_<Camera, BaseCamera, boost::shared_ptr<BaseCamera> >("Camera")
+		//	.def(luabind::constructor<float, float, float, float>())
+		//	.def_readwrite("Position", &Camera::m_Position)
+		//	.def_readwrite("Orientation", &Camera::m_Orientation)
+		//	.def_readwrite("Fovy", &Camera::m_Fovy)
+
+		//, luabind::class_<ModuleViewCamera, BaseCamera, boost::shared_ptr<BaseCamera> >("ModuleViewCamera")
+		//	.def(luabind::constructor<float, float, float, float>())
+		//	.def_readwrite("LookAt", &ModuleViewCamera::m_LookAt)
+		//	.def_readwrite("Rotation", &ModuleViewCamera::m_Rotation)
+		//	.def_readwrite("Fovy", &ModuleViewCamera::m_Fovy)
+		//	.def_readwrite("Distance", &ModuleViewCamera::m_Distance)
+
+		//, luabind::class_<BaseScene, boost::shared_ptr<BaseScene> >("BaseScene")
+
+		//, luabind::class_<Scene, BaseScene, boost::shared_ptr<BaseScene> >("Scene")
+		//	.def(luabind::constructor<>())
+		//	.def_readwrite("Camera", &Scene::m_Camera)
 	];
 
 	luabind::globals(L)["game"] = Game::getSingletonPtr();

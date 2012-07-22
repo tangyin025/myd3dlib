@@ -3,24 +3,56 @@
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include "Console.h"
-#include "Scene.h"
+#pragma warning(disable: 4819)
+#include <boost/statechart/event.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/transition.hpp>
+#pragma warning(default: 4819)
 
-class AlignEventArgs : public my::EventArgs
-{
-public:
-	my::Vector2 vp;
-
-	AlignEventArgs(const my::Vector2 & _vp)
-		: vp(_vp)
-	{
-	}
-};
-
-class Game
-	: public my::DxutApp
+class GameStateBase
 {
 public:
 	HRESULT hr;
+
+	//// 这里设计成直接使用构造函数创建，不再需要 OnCreateDevice
+	//virtual HRESULT OnD3D9CreateDevice(
+	//	IDirect3DDevice9 * pd3dDevice,
+	//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+
+	virtual HRESULT OnD3D9ResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+
+	virtual void OnD3D9LostDevice(void) = 0;
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime) = 0;
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime) = 0;
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing) = 0;
+};
+
+class GameStateLoad;
+
+class Game
+	: public my::DxutApp
+	, public boost::statechart::state_machine<Game, GameStateLoad>
+{
+public:
+	HRESULT hr;
+
+	GameStateBase * cs;
 
 	CDXUTDialogResourceManager m_dlgResourceMgr;
 
@@ -32,13 +64,7 @@ public:
 
 	DialogPtrSet m_dlgSet;
 
-	typedef std::vector<BaseScenePtr> BaseScenePtrSet;
-
-	BaseScenePtrSet m_sceneSet;
-
 	my::FontPtr m_font;
-
-	//MessagePanelPtr m_panel;
 
 	ConsolePtr m_console;
 
@@ -51,20 +77,14 @@ public:
 	my::SoundPtr m_sound;
 
 public:
-	//my::ControlPtr GetPanel(void) const
-	//{
-	//	return m_panel;
-	//}
-
-	//void SetPanel(my::ControlPtr panel)
-	//{
-	//	m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
-	//}
-
-public:
 	Game(void);
 
 	virtual ~Game(void);
+
+	GameStateBase * CurrentState(void)
+	{
+		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
+	}
 
 	static Game & getSingleton(void)
 	{
@@ -132,10 +152,5 @@ public:
 		UpdateDlgViewProj(dlg);
 
 		m_dlgSet.push_back(dlg);
-	}
-
-	void InsertScene(BaseScenePtr scene)
-	{
-		m_sceneSet.push_back(scene);
 	}
 };
