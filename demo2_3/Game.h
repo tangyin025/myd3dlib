@@ -89,6 +89,7 @@ public:
 
 	void process_event(const event_base_type & evt)
 	{
+		// ! 注意，不要在 GameStateBase::OnXxxDevice()中调用 process_event
 		if(cs = CurrentState())
 		{
 			cs->OnD3D9LostDevice();

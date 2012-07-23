@@ -1,15 +1,6 @@
 #include "StdAfx.h"
 #include "GameState.h"
 
-GameStateLoad::GameStateLoad(void)
-{
-	//THROW_CUSEXCEPTION("aaa");
-}
-
-GameStateLoad::~GameStateLoad(void)
-{
-}
-
 HRESULT GameStateLoad::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -17,8 +8,6 @@ HRESULT GameStateLoad::OnD3D9CreateDevice(
 	Game::getSingleton().AddLine(L"GameStateLoad::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
-
-	//THROW_CUSEXCEPTION("aaa");
 
 	return S_OK;
 }
@@ -46,6 +35,7 @@ void GameStateLoad::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
+	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
 }
 
 void GameStateLoad::OnD3D9FrameRender(
@@ -54,7 +44,7 @@ void GameStateLoad::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 255, 72), 1, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -70,15 +60,6 @@ LRESULT GameStateLoad::MsgProc(
 	bool * pbNoFurtherProcessing)
 {
 	return 0;
-}
-
-GameStatePlay::GameStatePlay(void)
-{
-	//THROW_CUSEXCEPTION("aaa");
-}
-
-GameStatePlay::~GameStatePlay(void)
-{
 }
 
 HRESULT GameStatePlay::OnD3D9CreateDevice(
@@ -123,7 +104,7 @@ void GameStatePlay::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{

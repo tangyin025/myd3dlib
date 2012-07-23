@@ -247,7 +247,7 @@ void Game::OnD3D9FrameRender(
 	}
 
 	//V(pd3dDevice->Clear(
-	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00484848, 1, 0));
+	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 
 	if(cs = CurrentState())
 		cs->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);

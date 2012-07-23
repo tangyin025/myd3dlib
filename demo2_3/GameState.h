@@ -20,9 +20,13 @@ class GameStateLoad
 public:
 	typedef boost::statechart::transition<GameEventLoadOver, GameStatePlay> reactions;
 
-	GameStateLoad(void);
+	GameStateLoad(void)
+	{
+	}
 
-	~GameStateLoad(void);
+	~GameStateLoad(void)
+	{
+	}
 
 	virtual HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -58,9 +62,13 @@ class GameStatePlay
 	, public boost::statechart::simple_state<GameStatePlay, Game>
 {
 public:
-	GameStatePlay(void);
+	GameStatePlay(void)
+	{
+	}
 
-	~GameStatePlay(void);
+	~GameStatePlay(void)
+	{
+	}
 
 	virtual HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
