@@ -367,7 +367,7 @@ protected:
 		const btVector3 & sphere_origin = transform.getOrigin();
 		const btMatrix3x3 & sphere_basis = transform.getBasis();
 
-		my::Vector4 vSpherePos(sphere_origin[0], sphere_origin[1], sphere_origin[2]);
+		my::Vector4 vSpherePos(sphere_origin[0], sphere_origin[1], sphere_origin[2], 1);
 
 		my::Matrix4 mSphereLocal(
 			sphere_basis[0][0], sphere_basis[0][1], sphere_basis[0][2], 0,

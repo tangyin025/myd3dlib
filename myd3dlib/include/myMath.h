@@ -89,15 +89,7 @@ namespace my
 	class Vector2
 	{
 	public:
-		union
-		{
-			struct
-			{
-				float x, y;
-			};
-
-			float _m[2];
-		};
+		float x, y;
 
 	public:
 		Vector2(void)
@@ -113,16 +105,17 @@ namespace my
 		}
 
 	public:
-		__forceinline float & operator [](int i)
+		float & operator [](size_t i)
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
-		__forceinline const float & operator [](int i) const
+		const float & operator [](size_t i) const
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
+	public:
 		Vector2 operator - (void) const
 		{
 			return Vector2(-x, -y);
@@ -297,18 +290,10 @@ namespace my
 		static const Vector2 unitY;
 	};
 
-	class Vector3
+	class Vector3 : public Vector2
 	{
 	public:
-		union
-		{
-			struct
-			{
-				float x, y, z;
-			};
-
-			float _m[3];
-		};
+		float z;
 
 	public:
 		Vector3(void)
@@ -319,33 +304,23 @@ namespace my
 		}
 
 		Vector3(float _x, float _y, float _z)
-			: x(_x)
-			, y(_y)
+			: Vector2(_x, _y)
 			, z(_z)
 		{
 		}
 
 	public:
-		__forceinline float & operator [](int i)
+		float & operator [](size_t i)
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
-		__forceinline const float & operator [](int i) const
+		const float & operator [](size_t i) const
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
-		__forceinline operator Vector2 &()
-		{
-			return *(Vector2 *)this;
-		}
-
-		__forceinline operator const Vector2 &() const
-		{
-			return *(const Vector2 *)this;
-		}
-
+	public:
 		Vector3 operator - (void) const
 		{
 			return Vector3(-x, -y, -z);
@@ -538,18 +513,10 @@ namespace my
 		static const Vector3 unitZ;
 	};
 
-	class Vector4
+	class Vector4 : public Vector3
 	{
 	public:
-		union
-		{
-			struct
-			{
-				float x, y, z, w;
-			};
-
-			float _m[4];
-		};
+		float w;
 
 	public:
 		Vector4(void)
@@ -560,35 +527,24 @@ namespace my
 		{
 		}
 
-		Vector4(float _x, float _y, float _z, float _w = 1)
-			: x(_x)
-			, y(_y)
-			, z(_z)
+		Vector4(float _x, float _y, float _z, float _w)
+			: Vector3(_x, _y, _z)
 			, w(_w)
 		{
 		}
 
 	public:
-		__forceinline float & operator [](int i)
+		float & operator [](size_t i)
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
-		__forceinline const float & operator [](int i) const
+		const float & operator [](size_t i) const
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
 		}
 
-		__forceinline operator Vector3 &()
-		{
-			return *(Vector3 *)this;
-		}
-
-		__forceinline operator const Vector3 &() const
-		{
-			return *(const Vector3 *)this;
-		}
-
+	public:
 		Vector4 operator - (void) const
 		{
 			return Vector4(-x, -y, -z, -w);
@@ -747,6 +703,7 @@ namespace my
 			y = y + s * (rhs.y - y);
 			z = z + s * (rhs.z - z);
 			w = w + s * (rhs.w - w);
+			return *this;
 		}
 
 		Vector4 normalize(void) const
@@ -1181,7 +1138,20 @@ namespace my
 	class Quaternion
 	{
 	public:
-		float x, y, z, w;
+		union
+		{
+			struct
+			{
+				float x, y, z;
+			};
+
+			struct
+			{
+				Vector3 v;
+			};
+		};
+
+		float w;
 
 	public:
 		Quaternion(void)
@@ -1402,6 +1372,11 @@ namespace my
 			return ret;
 		}
 
+		static Quaternion RotationFromTo(const Vector3 & from, const Vector3 & to)
+		{
+			Vector3 c = from.cross(to); return Quaternion(c.x, c.y, c.z, sqrt(from.magnitudeSq() * to.magnitudeSq()) + from.dot(to)).normalize();
+		}
+
 		Quaternion lerp(const Quaternion & rhs, float t) const
 		{
 			return Quaternion(
@@ -1458,20 +1433,12 @@ namespace my
 	class Matrix4
 	{
 	public:
-		union
+		struct
 		{
-			struct
-			{
-				float _11, _12, _13, _14;
-				float _21, _22, _23, _24;
-				float _31, _32, _33, _34;
-				float _41, _42, _43, _44;
-			};
-
-			struct
-			{
-				Vector4 _m[4];
-			};
+			float _11, _12, _13, _14;
+			float _21, _22, _23, _24;
+			float _31, _32, _33, _34;
+			float _41, _42, _43, _44;
 		};
 
 	public:
@@ -1495,16 +1462,17 @@ namespace my
 		}
 
 	public:
-		__forceinline Vector4 & operator [](int i)
+		Vector4 & operator [](size_t i)
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(Vector4)); return ((Vector4 *)&_11)[i];
 		}
 
-		__forceinline const Vector4 & operator [](int i) const
+		const Vector4 & operator [](size_t i) const
 		{
-			_ASSERT(0 <= i && i < _countof(_m)); return _m[i];
+			_ASSERT(i < sizeof(*this) / sizeof(Vector4)); return ((Vector4 *)&_11)[i];
 		}
 
+	public:
 		Matrix4 operator - (void) const
 		{
 			return Matrix4(

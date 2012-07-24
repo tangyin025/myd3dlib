@@ -317,14 +317,14 @@ TransformList & BoneList::BuildDualQuaternionList(
 		Quaternion quat = local_bone.m_rotation.conjugate() * trans_bone.m_rotation;
 		Vector3 tran = (-local_bone.m_position).transform(quat) + trans_bone.m_position;
 
-		dual[0][0] = quat.x ; 
-		dual[0][1] = quat.y ; 
-		dual[0][2] = quat.z ; 
-		dual[0][3] = quat.w ; 
-		dual[1][0] = 0.5f * ( tran.x * quat.w + tran.y * quat.z - tran.z * quat.y ) ; 
-		dual[1][1] = 0.5f * (-tran.x * quat.z + tran.y * quat.w + tran.z * quat.x ) ; 
-		dual[1][2] = 0.5f * ( tran.x * quat.y - tran.y * quat.x + tran.z * quat.w ) ; 
-		dual[1][3] = -0.5f * (tran.x * quat.x + tran.y * quat.y + tran.z * quat.z ) ; 
+		dual._11 = quat.x ; 
+		dual._12 = quat.y ; 
+		dual._13 = quat.z ; 
+		dual._14 = quat.w ; 
+		dual._21 = 0.5f * ( tran.x * quat.w + tran.y * quat.z - tran.z * quat.y ) ; 
+		dual._22 = 0.5f * (-tran.x * quat.z + tran.y * quat.w + tran.z * quat.x ) ; 
+		dual._23 = 0.5f * ( tran.x * quat.y - tran.y * quat.x + tran.z * quat.w ) ; 
+		dual._24 = -0.5f * (tran.x * quat.x + tran.y * quat.y + tran.z * quat.z ) ; 
 	}
 
 	return dualQuaternionList;
