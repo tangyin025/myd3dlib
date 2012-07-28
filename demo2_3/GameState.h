@@ -1,15 +1,9 @@
 #pragma once
 
 #include "Game.h"
-
-typedef boost::statechart::event_base GameEventBase;
-
-// ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
-template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
-
-class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
-{
-};
+#include <btBulletDynamicsCommon.h>
+#include <BulletDynamics/Character/btKinematicCharacterController.h>
+#include "Camera.h"
 
 class GameStatePlay;
 
@@ -61,6 +55,17 @@ class GameStatePlay
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStatePlay, Game>
 {
+protected:
+	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
+	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
+	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
+	boost::shared_ptr<btConstraintSolver> m_constraintSolver;
+	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
+
+	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
+
+	boost::shared_ptr<ModuleViewCamera> m_camera;
+
 public:
 	GameStatePlay(void)
 	{

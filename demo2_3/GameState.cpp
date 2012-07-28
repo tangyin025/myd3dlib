@@ -1,5 +1,12 @@
 #include "StdAfx.h"
 #include "GameState.h"
+#include "Scene.h"
+//
+//#ifdef _DEBUG
+//#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+//#endif
+
+using namespace my;
 
 HRESULT GameStateLoad::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
@@ -68,7 +75,18 @@ HRESULT GameStatePlay::OnD3D9CreateDevice(
 {
 	Game::getSingleton().AddLine(L"GameStatePlay::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	//THROW_CUSEXCEPTION("aaa");
+	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
+	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
+		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
+
+	m_collisionShapes;
+
+	m_camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
+	m_camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
+	m_camera->m_Distance = 10.0f;
 
 	return S_OK;
 }
@@ -96,6 +114,9 @@ void GameStatePlay::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
+	m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
+
+	m_camera->OnFrameMove(fTime, fElapsedTime);
 }
 
 void GameStatePlay::OnD3D9FrameRender(
@@ -108,6 +129,19 @@ void GameStatePlay::OnD3D9FrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_camera->m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_camera->m_Proj);
+
+		BaseScene::DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+		BaseScene::DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+		for(int i = 1; i <= 10; i++)
+		{
+			BaseScene::DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+			BaseScene::DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+			BaseScene::DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			BaseScene::DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		}
+
 		V(pd3dDevice->EndScene());
 	}
 }

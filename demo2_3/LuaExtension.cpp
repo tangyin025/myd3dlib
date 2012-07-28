@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "LuaExtension.h"
 #include "Game.h"
-#include "GameState.h"
+//#include "GameState.h"
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
@@ -610,9 +610,9 @@ void Export2Lua(lua_State * L)
 		, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
 			.def(constructor<>())
 
-		, class_<GameStateLoad, GameStateBase>("GameStateLoad")
+		//, class_<GameStateLoad, GameStateBase>("GameStateLoad")
 
-		, class_<GameStatePlay, GameStateBase>("GameStatePlay")
+		//, class_<GameStatePlay, GameStateBase>("GameStatePlay")
 
 		//, class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 		//	.def_readwrite("Aspect", &BaseCamera::m_Aspect)

@@ -198,6 +198,67 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
+ResourceMgrBase::ResourceMgrBase(void)
+{
+}
+
+ResourceMgrBase::~ResourceMgrBase(void)
+{
+}
+
+void ResourceMgrBase::RegisterZipArchive(const std::string & zip_path, const std::string & password)
+{
+	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
+}
+
+void ResourceMgrBase::RegisterFileDir(const std::string & dir)
+{
+	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
+}
+
+bool ResourceMgrBase::CheckArchivePath(const std::string & path)
+{
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	{
+		if(dir_iter->second->CheckArchivePath(path))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+std::string ResourceMgrBase::GetFullPath(const std::string & path)
+{
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	{
+		std::string ret = dir_iter->second->GetFullPath(path);
+		if(!ret.empty())
+		{
+			return ret;
+		}
+	}
+
+	return std::string();
+}
+
+ArchiveStreamPtr ResourceMgrBase::OpenArchiveStream(const std::string & path)
+{
+	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
+	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	{
+		if(dir_iter->second->CheckArchivePath(path))
+		{
+			return dir_iter->second->OpenArchiveStream(path);
+		}
+	}
+
+	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
+}
+
 ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
 ResourceMgr::ResourceMgr(void)
@@ -282,55 +343,40 @@ void ResourceMgr::OnDestroyDevice(void)
 	}
 }
 
-void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
+HRESULT IncludeFromResource::Open(
+	D3DXINCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID * ppData,
+	UINT * pBytes)
 {
-	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
-}
-
-void ResourceMgr::RegisterFileDir(const std::string & dir)
-{
-	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
-}
-
-bool ResourceMgr::CheckArchivePath(const std::string & path)
-{
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	switch(IncludeType)
 	{
-		if(dir_iter->second->CheckArchivePath(path))
+	case D3DXINC_SYSTEM:
+		if(CheckArchivePath(pFileName))
 		{
-			return true;
+			m_cache = OpenArchiveStream(pFileName)->GetWholeCache();
+			*ppData = &(*m_cache)[0];
+			*pBytes = m_cache->size();
+			return S_OK;
+		}
+
+	case D3DXINC_LOCAL:
+		if(ResourceMgr::getSingleton().CheckArchivePath(pFileName))
+		{
+			m_cache = ResourceMgr::getSingleton().OpenArchiveStream(pFileName)->GetWholeCache();
+			*ppData = &(*m_cache)[0];
+			*pBytes = m_cache->size();
+			return S_OK;
 		}
 	}
-
-	return false;
+	return E_FAIL;
 }
 
-std::string ResourceMgr::GetFullPath(const std::string & path)
+HRESULT IncludeFromResource::Close(
+	LPCVOID pData)
 {
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
-	{
-		std::string ret = dir_iter->second->GetFullPath(path);
-		if(!ret.empty())
-		{
-			return ret;
-		}
-	}
-
-	return std::string();
-}
-
-ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
-{
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
-	{
-		if(dir_iter->second->CheckArchivePath(path))
-		{
-			return dir_iter->second->OpenArchiveStream(path);
-		}
-	}
-
-	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
+	_ASSERT(m_cache && pData == &(*m_cache)[0]);
+	m_cache.reset();
+	return S_OK;
 }

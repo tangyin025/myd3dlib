@@ -183,3 +183,12 @@ public:
 		m_dlgSet.push_back(dlg);
 	}
 };
+
+typedef boost::statechart::event_base GameEventBase;
+
+// ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
+template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
+
+class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
+{
+};

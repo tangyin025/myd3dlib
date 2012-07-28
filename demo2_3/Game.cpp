@@ -126,7 +126,7 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	UpdateDlgViewProj(m_console);
 
-	AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	//AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	if(!m_input)
 	{
@@ -157,7 +157,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	//AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -187,7 +187,7 @@ HRESULT Game::OnD3D9ResetDevice(
 
 void Game::OnD3D9LostDevice(void)
 {
-	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	//AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	if(cs = CurrentState())
 		cs->OnD3D9LostDevice();
@@ -201,7 +201,7 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
-	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+	//AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	if(cs = CurrentState())
 		cs->OnD3D9DestroyDevice();

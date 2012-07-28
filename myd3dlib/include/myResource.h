@@ -112,8 +112,34 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
+	class ResourceMgrBase
+	{
+	protected:
+		typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
+
+		typedef std::map<std::string, ResourceDirPtr> ResourceDirPtrMap;
+
+		ResourceDirPtrMap m_dirMap;
+
+	public:
+		ResourceMgrBase(void);
+
+		virtual ~ResourceMgrBase(void);
+
+		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
+
+		void RegisterFileDir(const std::string & dir);
+
+		bool CheckArchivePath(const std::string & path);
+
+		std::string GetFullPath(const std::string & path);
+
+		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+	};
+
 	class ResourceMgr
-		: public Singleton<ResourceMgr>
+		: public ResourceMgrBase
+		, public Singleton<ResourceMgr>
 	{
 	public:
 		FT_Library m_library;
@@ -127,12 +153,6 @@ namespace my
 		typedef std::set<WeakDeviceRelatedObjectBasePtr> WeakDeviceRelatedObjectBasePtrSet;
 
 		WeakDeviceRelatedObjectBasePtrSet m_DeviceRelatedObjs;
-
-		typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
-
-		typedef std::map<std::string, ResourceDirPtr> ResourceDirPtrMap;
-
-		ResourceDirPtrMap m_dirMap;
 
 		template <typename T>
 		boost::shared_ptr<T> RegisterDeviceRelatedObject(boost::shared_ptr<T> obj_ptr)
@@ -154,17 +174,28 @@ namespace my
 		void OnLostDevice(void);
 
 		void OnDestroyDevice(void);
-
-		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
-
-		void RegisterFileDir(const std::string & dir);
-
-		bool CheckArchivePath(const std::string & path);
-
-		std::string GetFullPath(const std::string & path);
-
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
 	typedef boost::shared_ptr<ResourceMgr> ResourceMgrPtr;
+
+	class IncludeFromResource
+		: public ResourceMgrBase
+		, public ID3DXInclude
+	{
+	protected:
+		CachePtr m_cache;
+
+	public:
+		virtual __declspec(nothrow) HRESULT __stdcall Open(
+			D3DXINCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID * ppData,
+			UINT * pBytes);
+
+		virtual __declspec(nothrow) HRESULT __stdcall Close(
+			LPCVOID pData);
+	};
+
+	typedef boost::shared_ptr<IncludeFromResource> IncludeFromResourcePtr;
 };
