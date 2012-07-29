@@ -137,8 +137,29 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	class ResourceMgr
+	class IncludeFromResource
 		: public ResourceMgrBase
+		, public ID3DXInclude
+	{
+	protected:
+		std::map<LPCVOID, CachePtr> m_cacheSet;
+
+	public:
+		virtual __declspec(nothrow) HRESULT __stdcall Open(
+			D3DXINCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID * ppData,
+			UINT * pBytes);
+
+		virtual __declspec(nothrow) HRESULT __stdcall Close(
+			LPCVOID pData);
+	};
+
+	typedef boost::shared_ptr<IncludeFromResource> IncludeFromResourcePtr;
+
+	class ResourceMgr
+		: public IncludeFromResource
 		, public Singleton<ResourceMgr>
 	{
 	public:
@@ -177,25 +198,4 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ResourceMgr> ResourceMgrPtr;
-
-	class IncludeFromResource
-		: public ResourceMgrBase
-		, public ID3DXInclude
-	{
-	protected:
-		CachePtr m_cache;
-
-	public:
-		virtual __declspec(nothrow) HRESULT __stdcall Open(
-			D3DXINCLUDE_TYPE IncludeType,
-			LPCSTR pFileName,
-			LPCVOID pParentData,
-			LPCVOID * ppData,
-			UINT * pBytes);
-
-		virtual __declspec(nothrow) HRESULT __stdcall Close(
-			LPCVOID pData);
-	};
-
-	typedef boost::shared_ptr<IncludeFromResource> IncludeFromResourcePtr;
 };

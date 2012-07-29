@@ -16,13 +16,13 @@ namespace my
 		static DrivedClassPtr s_ptr;
 
 	public:
-		static DrivedClassPtr getSingletonPtr(void)
+		static DrivedClass * getSingletonPtr(void)
 		{
 			if(NULL == s_ptr)
 			{
 				s_ptr = DrivedClassPtr(new DrivedClass());
 			}
-			return s_ptr;
+			return s_ptr.get();
 		}
 
 		static DrivedClass & getSingleton(void)
@@ -38,7 +38,7 @@ namespace my
 
 		virtual ~Singleton(void)
 		{
-			_ASSERT(NULL != s_ptr);
+			_ASSERT(NULL != s_ptr); s_ptr.reset();
 		}
 	};
 

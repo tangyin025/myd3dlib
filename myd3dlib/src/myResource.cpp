@@ -259,6 +259,49 @@ ArchiveStreamPtr ResourceMgrBase::OpenArchiveStream(const std::string & path)
 	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
 }
 
+HRESULT IncludeFromResource::Open(
+	D3DXINCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID * ppData,
+	UINT * pBytes)
+{
+	CachePtr cache;
+	switch(IncludeType)
+	{
+	case D3DXINC_SYSTEM:
+		if(CheckArchivePath(pFileName))
+		{
+			cache = OpenArchiveStream(pFileName)->GetWholeCache();
+			*ppData = &(*cache)[0];
+			*pBytes = cache->size();
+			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
+			m_cacheSet[*ppData] = cache;
+			return S_OK;
+		}
+
+	case D3DXINC_LOCAL:
+		if(ResourceMgr::getSingleton().CheckArchivePath(pFileName))
+		{
+			cache = ResourceMgr::getSingleton().OpenArchiveStream(pFileName)->GetWholeCache();
+			*ppData = &(*cache)[0];
+			*pBytes = cache->size();
+			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
+			m_cacheSet[*ppData] = cache;
+			return S_OK;
+		}
+	}
+	return E_FAIL;
+}
+
+HRESULT IncludeFromResource::Close(
+	LPCVOID pData)
+{
+	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
+	m_cacheSet.erase(m_cacheSet.find(pData));
+	return S_OK;
+}
+
 ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
 ResourceMgr::ResourceMgr(void)
@@ -341,42 +384,4 @@ void ResourceMgr::OnDestroyDevice(void)
 			m_DeviceRelatedObjs.erase(obj_iter++);
 		}
 	}
-}
-
-HRESULT IncludeFromResource::Open(
-	D3DXINCLUDE_TYPE IncludeType,
-	LPCSTR pFileName,
-	LPCVOID pParentData,
-	LPCVOID * ppData,
-	UINT * pBytes)
-{
-	switch(IncludeType)
-	{
-	case D3DXINC_SYSTEM:
-		if(CheckArchivePath(pFileName))
-		{
-			m_cache = OpenArchiveStream(pFileName)->GetWholeCache();
-			*ppData = &(*m_cache)[0];
-			*pBytes = m_cache->size();
-			return S_OK;
-		}
-
-	case D3DXINC_LOCAL:
-		if(ResourceMgr::getSingleton().CheckArchivePath(pFileName))
-		{
-			m_cache = ResourceMgr::getSingleton().OpenArchiveStream(pFileName)->GetWholeCache();
-			*ppData = &(*m_cache)[0];
-			*pBytes = m_cache->size();
-			return S_OK;
-		}
-	}
-	return E_FAIL;
-}
-
-HRESULT IncludeFromResource::Close(
-	LPCVOID pData)
-{
-	_ASSERT(m_cache && pData == &(*m_cache)[0]);
-	m_cache.reset();
-	return S_OK;
 }
