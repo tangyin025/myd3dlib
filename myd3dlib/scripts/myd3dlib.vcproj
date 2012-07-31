@@ -219,6 +219,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myThread.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myUi.cpp"
 				>
 			</File>
@@ -326,6 +330,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myTexture.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myThread.h"
 				>
 			</File>
 			<File
