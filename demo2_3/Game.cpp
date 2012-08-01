@@ -15,7 +15,7 @@ Game::Game(void)
 {
 	m_settingsDlg.Init(&m_dlgResourceMgr);
 
-	m_lua = LuaContextPtr(new LuaContext());
+	m_lua.reset(new LuaContext());
 
 	Export2Lua(m_lua->_state);
 }
@@ -120,13 +120,18 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	m_font = LoadFont("wqy-microhei.ttc", 13);
+	ExecuteCode("dofile \"Font.lua\"");
 
-	m_console = ConsolePtr(new Console());
+	ExecuteCode("dofile \"Console.lua\"");
+
+	if(!m_font || !m_console || !m_panel)
+	{
+		THROW_CUSEXCEPTION("m_font, m_console, m_panel must be created");
+	}
 
 	UpdateDlgViewProj(m_console);
 
-	//AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	if(!m_input)
 	{
@@ -145,9 +150,6 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	initiate();
 
-	if(cs = CurrentState())
-		cs->OnD3D9CreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
-
 	//THROW_CUSEXCEPTION("aaa");
 
 	return S_OK;
@@ -157,7 +159,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	//AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
 	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
@@ -178,19 +180,12 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
-	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
-	if(cs = CurrentState())
-		cs->OnD3D9ResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
-
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
-	//AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	if(cs = CurrentState())
-		cs->OnD3D9LostDevice();
+	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -201,10 +196,7 @@ void Game::OnD3D9LostDevice(void)
 
 void Game::OnD3D9DestroyDevice(void)
 {
-	//AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	if(cs = CurrentState())
-		cs->OnD3D9DestroyDevice();
+	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	terminate();
 
@@ -249,6 +241,7 @@ void Game::OnD3D9FrameRender(
 	//V(pd3dDevice->Clear(
 	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 
+	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
 	if(cs = CurrentState())
 		cs->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);
 
@@ -264,21 +257,20 @@ void Game::OnD3D9FrameRender(
 
 		m_console->Draw(pd3dDevice, fElapsedTime);
 
-		if(m_font)
-		{
-			Matrix4 View, Proj;
-			D3DVIEWPORT9 vp;
-			pd3dDevice->GetViewport(&vp);
-			UIRender::BuildPerspectiveMatrices(
-				D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
-			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-			m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
-				Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
-			m_font->DrawString(DXUTGetDeviceStats(),
-				Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
-		}
+		_ASSERT(m_font);
+
+		Matrix4 View, Proj;
+		D3DVIEWPORT9 vp;
+		pd3dDevice->GetViewport(&vp);
+		UIRender::BuildPerspectiveMatrices(
+			D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
+		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
+		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
+		m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
+			Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
+		m_font->DrawString(DXUTGetDeviceStats(),
+			Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 
 		UIRender::End(pd3dDevice);
 
@@ -362,6 +354,9 @@ void Game::ExecuteCode(const char * code)
 	}
 	catch(const std::runtime_error & e)
 	{
+		if(!m_panel)
+			THROW_CUSEXCEPTION(e.what());
+
 		AddLine(ms2ws(e.what()));
 	}
 }

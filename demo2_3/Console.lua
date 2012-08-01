@@ -58,10 +58,6 @@ edit.EventKeyDown=function()
 end
 console:InsertControl(edit)
 
-game:InsertDlg(console)
+game.console=console
 
--- game.EventToggleConsole=function(args)
-	-- console.Visible=not console.Visible
--- end
-
--- game.Panel=panel
+game.panel=panel

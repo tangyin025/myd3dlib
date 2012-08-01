@@ -11,7 +11,7 @@ static int lua_print(lua_State * L)
 	// ! u8tows会抛异常，不要让 C++异常直接抛到 lua函数以外
 	try
 	{
-		MessagePanel * panel = Game::getSingleton().m_console->m_panel.get();
+		MessagePanel * panel = Game::getSingleton().m_panel.get();
 		_ASSERT(panel);
 
 		int n = lua_gettop(L);  /* number of arguments */
@@ -575,21 +575,23 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def("InsertControl", &my::Dialog::InsertControl)
 
-		//, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
-		//	.def(constructor<>())
-		//	.def_readwrite("lbegin", &MessagePanel::m_lbegin)
-		//	.def_readwrite("lend", &MessagePanel::m_lend)
-		//	.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
-		//	.def("AddLine", &MessagePanel::AddLine)
-		//	.def("puts", &MessagePanel::puts)
+		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
+			.def(constructor<>())
+			.def_readwrite("lbegin", &MessagePanel::m_lbegin)
+			.def_readwrite("lend", &MessagePanel::m_lend)
+			.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
+			.def("AddLine", &MessagePanel::AddLine)
+			.def("puts", &MessagePanel::puts)
 
-		//, class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
-		//	.def(constructor<>())
-		//	.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
-		//	.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
+		, class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
+			.def(constructor<>())
+			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
+			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
 		, class_<Game>("Game")
 			.def_readwrite("font", &Game::m_font)
+			.def_readwrite("console", &Game::m_console)
+			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
 			.def("CurrentState", &Game::CurrentState)
 			.def("process_event", &Game::process_event)
 			.scope
@@ -605,14 +607,14 @@ void Export2Lua(lua_State * L)
 
 		, class_<GameStateBase>("GameStateBase")
 
-		, class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
+		//, class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
 
-		, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
-			.def(constructor<>())
+		//, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
+		//	.def(constructor<>())
 
 		//, class_<GameStateLoad, GameStateBase>("GameStateLoad")
 
-		//, class_<GameStatePlay, GameStateBase>("GameStatePlay")
+		//, class_<GameStateMain, GameStateBase>("GameStateMain")
 
 		//, class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 		//	.def_readwrite("Aspect", &BaseCamera::m_Aspect)

@@ -12,7 +12,7 @@ SkyBox::SkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 	//m_vertBuffer = my::VertexBuffer::CreateVertexBuffer(pD3DDevice, elems, 0);
 
 	// 直接使用构造函数创建，用以跳过 my::ResourceMgr 的自动 OnDeviceReset 管理
-	m_vertBuffer = my::VertexBufferPtr(new my::VertexBuffer(pD3DDevice, elems, 0));
+	m_vertBuffer.reset(new my::VertexBuffer(pD3DDevice, elems, 0));
 
 	m_vertDecl = elems.CreateVertexDeclaration(pD3DDevice);
 

@@ -12,20 +12,17 @@
 
 class GameStateBase
 {
-public:
+protected:
 	HRESULT hr;
 
-	virtual HRESULT OnD3D9CreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
+public:
+	GameStateBase(void)
+	{
+	}
 
-	virtual HRESULT OnD3D9ResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc) = 0;
-
-	virtual void OnD3D9LostDevice(void) = 0;
-
-	virtual void OnD3D9DestroyDevice(void) = 0;
+	virtual ~GameStateBase(void)
+	{
+	}
 
 	virtual void OnFrameMove(
 		double fTime,
@@ -44,11 +41,16 @@ public:
 		bool * pbNoFurtherProcessing) = 0;
 };
 
-class GameStateLoad;
+class GameStateMain;
+
+typedef boost::statechart::event_base GameEventBase;
+
+// ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
+template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
 class Game
 	: public my::DxutApp
-	, public boost::statechart::state_machine<Game, GameStateLoad>
+	, public boost::statechart::state_machine<Game, GameStateMain>
 {
 public:
 	HRESULT hr;
@@ -67,7 +69,9 @@ public:
 
 	my::FontPtr m_font;
 
-	ConsolePtr m_console;
+	my::DialogPtr m_console;
+
+	MessagePanelPtr m_panel;
 
 	my::InputPtr m_input;
 
@@ -87,32 +91,24 @@ public:
 		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
 	}
 
-	void process_event(const event_base_type & evt)
+	my::ControlPtr GetPanel(void) const
 	{
-		// ! 注意，不要在 GameStateBase::OnXxxDevice()中调用 process_event
-		if(cs = CurrentState())
-		{
-			cs->OnD3D9LostDevice();
-			cs->OnD3D9DestroyDevice();
-		}
+		return m_panel;
+	}
 
-		state_machine::process_event(evt);
-
-		if(cs = CurrentState())
-		{
-			cs->OnD3D9CreateDevice(GetD3D9Device(), DXUTGetD3D9BackBufferSurfaceDesc());
-			cs->OnD3D9ResetDevice(GetD3D9Device(), DXUTGetD3D9BackBufferSurfaceDesc());
-		}
+	void SetPanel(my::ControlPtr panel)
+	{
+		m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
 	}
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
-		m_console->m_panel->AddLine(str, Color);
+		m_panel->AddLine(str, Color);
 	}
 
 	void puts(const std::wstring & str)
 	{
-		m_console->m_panel->puts(str);
+		m_panel->puts(str);
 	}
 
 	static Game & getSingleton(void)
@@ -182,13 +178,4 @@ public:
 
 		m_dlgSet.push_back(dlg);
 	}
-};
-
-typedef boost::statechart::event_base GameEventBase;
-
-// ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
-template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
-
-class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
-{
 };

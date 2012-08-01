@@ -34,8 +34,8 @@ bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
 
-	m_lchild = RectAssignmentNodePtr(new RectAssignmentNode(rectUp));
-	m_rchild = RectAssignmentNodePtr(new RectAssignmentNode(rectDown));
+	m_lchild.reset(new RectAssignmentNode(rectUp));
+	m_rchild.reset(new RectAssignmentNode(rectDown));
 	bool ret = m_lchild->AssignRect(size, outRect);
 	_ASSERT(ret);
 
@@ -54,8 +54,8 @@ bool RectAssignmentNode::AssignLeftRect(const CSize & size, CRect & outRect)
 	_ASSERT(NULL == m_lchild);
 	_ASSERT(NULL == m_rchild);
 
-	m_lchild = RectAssignmentNodePtr(new RectAssignmentNode(rectLeft));
-	m_rchild = RectAssignmentNodePtr(new RectAssignmentNode(rectRight));
+	m_lchild.reset(new RectAssignmentNode(rectLeft));
+	m_rchild.reset(new RectAssignmentNode(rectRight));
 	bool ret = m_lchild->AssignRect(size, outRect);
 	_ASSERT(ret);
 
@@ -137,7 +137,7 @@ Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short p
 
 	CreateFontTexture(256, 256);
 
-	m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 }
 
 Font::~Font(void)
@@ -233,7 +233,7 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 
 		CreateFontTexture(m_textureDesc.Width * 2, m_textureDesc.Height * 2);
 
-		m_textureRectRoot = RectAssignmentNodePtr(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+		m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{

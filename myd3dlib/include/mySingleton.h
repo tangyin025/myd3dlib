@@ -20,7 +20,7 @@ namespace my
 		{
 			if(NULL == s_ptr)
 			{
-				s_ptr = DrivedClassPtr(new DrivedClass());
+				s_ptr.reset(new DrivedClass());
 			}
 			return s_ptr.get();
 		}

@@ -188,7 +188,7 @@ protected:
 		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size(), NULL, my::ResourceMgr::getSingletonPtr());
 
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
-		m_characterAnimMgr = AnimationMgrPtr(new AnimationMgr((char *)&(*cache)[0], cache->size()));
+		m_characterAnimMgr.reset(new AnimationMgr((char *)&(*cache)[0], cache->size()));
 		m_characterAnimMgr->SetAnimationTime("clip1", m_characterAnimMgr->m_skeleton->GetAnimation("clip1").m_time, "clip2");
 		m_characterAnimMgr->SetAnimationTime("clip2", m_characterAnimMgr->m_skeleton->GetAnimation("clip2").m_time, "clip1");
 		m_characterAnimMgr->SetAnimationTime("clip3", m_characterAnimMgr->m_skeleton->GetAnimation("clip3").m_time, "clip4");

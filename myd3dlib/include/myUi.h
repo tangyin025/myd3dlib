@@ -233,7 +233,7 @@ namespace my
 			, m_BlendColor(m_Color)
 			, m_PressedOffset(0,0)
 		{
-			m_Skin = ButtonSkinPtr(new ButtonSkin());
+			m_Skin.reset(new ButtonSkin());
 		}
 
 		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
@@ -312,7 +312,7 @@ namespace my
 			, m_nSelStart(0)
 			, m_bInsertMode(true)
 		{
-			m_Skin = EditBoxSkinPtr(new EditBoxSkin());
+			m_Skin.reset(new EditBoxSkin());
 		}
 
 		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
@@ -460,7 +460,7 @@ namespace my
 			, m_dArrowTS(0)
 			, m_fThumbOffsetY(0)
 		{
-			m_Skin = ScrollBarSkinPtr(new ScrollBarSkin());
+			m_Skin.reset(new ScrollBarSkin());
 		}
 
 		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
