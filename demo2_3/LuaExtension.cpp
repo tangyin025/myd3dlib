@@ -474,6 +474,12 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::Texture, boost::shared_ptr<my::Texture> >("Texture")
 
+		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
+
+		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
+
+		, class_<my::Effect, boost::shared_ptr<my::Effect> >("Effect")
+
 		, class_<my::Font, boost::shared_ptr<my::Font> >("Font")
 			.enum_("constants")
 			[
@@ -588,17 +594,19 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
 			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
-		, class_<Game>("Game")
+		, class_<GameLoader>("GameLoader")
+			.def("LoadTexture", &GameLoader::LoadTexture)
+			.def("LoadMesh", &GameLoader::LoadMesh)
+			.def("LoadSkeletonAnimation", &GameLoader::LoadSkeletonAnimation)
+			.def("LoadEffect", &GameLoader::LoadEffect)
+			.def("LoadFont", &GameLoader::LoadFont)
+
+		, class_<Game, GameLoader>("Game")
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
 			.def("CurrentState", &Game::CurrentState)
 			.def("process_event", &Game::process_event)
-			.scope
-			[
-				def("LoadTexture", &Game::LoadTexture)
-				, def("LoadFont", &Game::LoadFont)
-			]
 			.def("ToggleFullScreen", &Game::ToggleFullScreen)
 			.def("ToggleRef", &Game::ToggleRef)
 			.def("ChangeDevice", &Game::ChangeDevice)
@@ -607,10 +615,10 @@ void Export2Lua(lua_State * L)
 
 		, class_<GameStateBase>("GameStateBase")
 
-		//, class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
+		, class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
 
-		//, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
-		//	.def(constructor<>())
+		, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
+			.def(constructor<>())
 
 		//, class_<GameStateLoad, GameStateBase>("GameStateLoad")
 

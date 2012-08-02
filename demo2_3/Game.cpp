@@ -11,6 +11,56 @@
 
 using namespace my;
 
+TexturePtr GameLoader::LoadTexture(const std::string & path)
+{
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Texture::CreateTextureFromFile(GetD3D9Device(), full_path.c_str());
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Texture::CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+}
+
+MeshPtr GameLoader::LoadMesh(const std::string & path)
+{
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Mesh::CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Mesh::CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+}
+
+OgreSkeletonAnimationPtr GameLoader::LoadSkeletonAnimation(const std::string & path)
+{
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(full_path.c_str());
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+}
+
+EffectPtr GameLoader::LoadEffect(const std::string & path)
+{
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Effect::CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL);
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Effect::CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, ResourceMgr::getSingletonPtr());
+}
+
+FontPtr GameLoader::LoadFont(const std::string & path, int height)
+{
+	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
+	if(!full_path.empty())
+		return Font::CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height, 1);
+
+	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
+	return Font::CreateFontFromFileInCache(GetD3D9Device(), cache, height, 1);
+}
+
 Game::Game(void)
 {
 	m_settingsDlg.Init(&m_dlgResourceMgr);
@@ -23,28 +73,6 @@ Game::Game(void)
 Game::~Game(void)
 {
 	ImeEditBox::Uninitialize();
-}
-
-TexturePtr Game::LoadTexture(const char * path)
-{
-	LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
-	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
-	if(!full_path.empty())
-		return Texture::CreateTextureFromFile(pDevice, full_path.c_str());
-
-	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Texture::CreateTextureFromFileInMemory(pDevice, &(*cache)[0], cache->size());
-}
-
-FontPtr Game::LoadFont(const char * path, int height)
-{
-	LPDIRECT3DDEVICE9 pDevice = Game::getSingleton().GetD3D9Device();
-	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
-	if(!full_path.empty())
-		return Font::CreateFontFromFile(pDevice, full_path.c_str(), height, 1);
-
-	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Font::CreateFontFromFileInCache(pDevice, cache, height, 1);
 }
 
 bool Game::IsD3D9DeviceAcceptable(

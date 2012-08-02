@@ -10,13 +10,13 @@ hud.EventAlign=function(args)
 end
 
 local btn_skin=ButtonSkin()
-btn_skin.Image=ControlImage(Game.LoadTexture("Hud_btn_normal.png"), Vector4(7,7,7,7))
+btn_skin.Image=ControlImage(game:LoadTexture("Hud_btn_normal.png"), Vector4(7,7,7,7))
 btn_skin.Font=game.font
 btn_skin.TextColor=ARGB(255,255,255,255)
 btn_skin.TextAlign=Font.AlignCenterMiddle
-btn_skin.DisabledImage=ControlImage(Game.LoadTexture("Hud_btn_disable.png"), Vector4(7,7,7,7))
-btn_skin.PressedImage=ControlImage(Game.LoadTexture("Hud_btn_down.png"), Vector4(7,7,7,7))
-btn_skin.MouseOverImage=ControlImage(Game.LoadTexture("Hud_btn_hover.png"), Vector4(7,7,7,7))
+btn_skin.DisabledImage=ControlImage(game:LoadTexture("Hud_btn_disable.png"), Vector4(7,7,7,7))
+btn_skin.PressedImage=ControlImage(game:LoadTexture("Hud_btn_down.png"), Vector4(7,7,7,7))
+btn_skin.MouseOverImage=ControlImage(game:LoadTexture("Hud_btn_hover.png"), Vector4(7,7,7,7))
 
 local btn=Button()
 btn.Text="Toggle full screen"

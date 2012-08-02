@@ -8,6 +8,40 @@
 
 using namespace my;
 
+GameStateLoad::GameStateLoad(void)
+{
+}
+
+GameStateLoad::~GameStateLoad(void)
+{
+}
+
+void GameStateLoad::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
+}
+
+void GameStateLoad::OnD3D9FrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
+}
+
+LRESULT GameStateLoad::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 GameStateMain::GameStateMain(void)
 {
 	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");

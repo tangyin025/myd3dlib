@@ -5,6 +5,36 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "Camera.h"
 
+class GameStateMain;
+
+class GameStateLoad
+	: public GameStateBase
+	, public boost::statechart::simple_state<GameStateLoad, Game>
+{
+public:
+	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
+
+	GameStateLoad(void);
+
+	~GameStateLoad(void);
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnD3D9FrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
+};
+
 class GameStateMain
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStateMain, Game>

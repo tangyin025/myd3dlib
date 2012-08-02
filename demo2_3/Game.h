@@ -41,16 +41,31 @@ public:
 		bool * pbNoFurtherProcessing) = 0;
 };
 
-class GameStateMain;
+class GameStateLoad;
 
 typedef boost::statechart::event_base GameEventBase;
 
 // ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
-class Game
+class GameLoader
 	: public my::DxutApp
-	, public boost::statechart::state_machine<Game, GameStateMain>
+{
+public:
+	my::TexturePtr LoadTexture(const std::string & path);
+
+	my::MeshPtr LoadMesh(const std::string & path);
+
+	my::OgreSkeletonAnimationPtr LoadSkeletonAnimation(const std::string & path);
+
+	my::EffectPtr LoadEffect(const std::string & path);
+
+	my::FontPtr LoadFont(const std::string & path, int height);
+};
+
+class Game
+	: public GameLoader
+	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:
 	HRESULT hr;
@@ -121,10 +136,6 @@ public:
 		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
-	static my::TexturePtr LoadTexture(const char * path);
-
-	static my::FontPtr LoadFont(const char * path, int height);
-
 	virtual bool IsD3D9DeviceAcceptable(
 		D3DCAPS9 * pCaps,
 		D3DFORMAT AdapterFormat,
@@ -178,4 +189,8 @@ public:
 
 		m_dlgSet.push_back(dlg);
 	}
+};
+
+class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
+{
 };
