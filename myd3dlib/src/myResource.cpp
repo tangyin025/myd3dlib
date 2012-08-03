@@ -306,82 +306,8 @@ ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
 
 ResourceMgr::ResourceMgr(void)
 {
-	FT_Error err = FT_Init_FreeType(&m_library);
-	if(err)
-	{
-		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
-	}
 }
 
 ResourceMgr::~ResourceMgr(void)
 {
-	FT_Error err = FT_Done_FreeType(m_library);
-}
-
-void ResourceMgr::OnResetDevice(void)
-{
-	LPDIRECT3DDEVICE9 pd3dDevice = DxutApp::getSingleton().GetD3D9Device();
-
-	_ASSERT(NULL != pd3dDevice);
-
-	HRESULT hres = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_stateBlock);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
-	for(; obj_iter != m_DeviceRelatedObjs.end(); )
-	{
-		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
-		if(obj_ptr)
-		{
-			obj_ptr->OnResetDevice();
-			obj_iter++;
-		}
-		else
-		{
-			m_DeviceRelatedObjs.erase(obj_iter++);
-		}
-	}
-}
-
-void ResourceMgr::OnLostDevice(void)
-{
-	m_stateBlock.Release();
-
-	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
-	for(; obj_iter != m_DeviceRelatedObjs.end(); )
-	{
-		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
-		if(obj_ptr)
-		{
-			obj_ptr->OnLostDevice();
-			obj_iter++;
-		}
-		else
-		{
-			m_DeviceRelatedObjs.erase(obj_iter++);
-		}
-	}
-}
-
-void ResourceMgr::OnDestroyDevice(void)
-{
-	//m_ControlFocus.reset();
-
-	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = m_DeviceRelatedObjs.begin();
-	for(; obj_iter != m_DeviceRelatedObjs.end(); )
-	{
-		DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock();
-		if(obj_ptr)
-		{
-			obj_ptr->OnDestroyDevice();
-			obj_iter++;
-		}
-		else
-		{
-			m_DeviceRelatedObjs.erase(obj_iter++);
-		}
-	}
 }

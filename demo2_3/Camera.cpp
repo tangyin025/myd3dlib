@@ -20,7 +20,7 @@ void ModuleViewCamera::OnFrameMove(
 	Mouse * mouse = Game::getSingleton().m_mouse.get();
 	_ASSERT(mouse);
 
-	if(!ResourceMgr::getSingleton().m_ControlFocus.lock())
+	if(!DxutApp::getSingleton().m_ControlFocus.lock())
 	{
 		if(mouse->IsButtonDown(0))
 		{

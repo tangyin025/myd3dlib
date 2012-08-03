@@ -6,7 +6,11 @@
 #include <DXUT.h>
 #include <DXUTgui.h>
 #include <DXUTsettingsdlg.h>
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "myUi.h"
 #include <atlbase.h>
+#include <hash_set>
 
 namespace my
 {
@@ -109,6 +113,31 @@ namespace my
 			bool bAltDown);
 
 	public:
+		FT_Library m_library;
+
+		CComPtr<IDirect3DStateBlock9> m_stateBlock;
+
+		boost::weak_ptr<Control> m_ControlFocus;
+
+		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
+
+		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs;
+
+		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
+
+			m_deviceRelatedObjs.insert(obj);
+		}
+
+		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			_ASSERT(m_deviceRelatedObjs.end() != m_deviceRelatedObjs.find(obj));
+
+			m_deviceRelatedObjs.erase(m_deviceRelatedObjs.find(obj));
+		}
+
+	public:
 		DxutApp(void);
 
 		virtual ~DxutApp(void);
@@ -118,13 +147,25 @@ namespace my
 			int nSuggestedWidth = 800,
 			int nSuggestedHeight = 600);
 
-		HWND GetHWND(void);
+		HWND GetHWND(void)
+		{
+			return DXUTGetHWND();
+		}
 
-		IDirect3DDevice9 * GetD3D9Device(void);
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return DXUTGetD3D9Device();
+		}
 
-		double GetAbsoluteTime(void);
+		double GetAbsoluteTime(void)
+		{
+			return DXUTGetGlobalTimer()->GetAbsoluteTime();
+		}
 
-		double GetTime(void);
+		double GetTime(void)
+		{
+			return DXUTGetTime();
+		}
 	};
 
 	class DxutSample : public DxutApp

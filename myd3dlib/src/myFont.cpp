@@ -1,6 +1,7 @@
 
 #include "stdafx.h"
 #include "myFont.h"
+#include "myDxutApp.h"
 #include "myResource.h"
 #include "libc.h"
 
@@ -19,7 +20,7 @@ SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SpritePtr(new Sprite(pSprite)));
+	return SpritePtr(new Sprite(pSprite));
 }
 
 bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
@@ -157,14 +158,13 @@ FontPtr Font::CreateFontFromFile(
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Face(ResourceMgr::getSingleton().m_library, pFilename, face_index, &face);
+	FT_Error err = FT_New_Face(DxutApp::getSingleton().m_library, pFilename, face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Face failed");
 	}
 
-	FontPtr font(new Font(face, height, pDevice, pixel_gap));
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(font);
+	return FontPtr(new Font(face, height, pDevice, pixel_gap));
 }
 
 FontPtr Font::CreateFontFromFileInMemory(
@@ -189,7 +189,7 @@ FontPtr Font::CreateFontFromFileInCache(
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(ResourceMgr::getSingleton().m_library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
+	FT_Error err = FT_New_Memory_Face(DxutApp::getSingleton().m_library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
@@ -197,7 +197,7 @@ FontPtr Font::CreateFontFromFileInCache(
 
 	FontPtr font(new Font(face, height, pDevice, pixel_gap));
 	font->m_cache = cache_ptr;
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(font);
+	return font;
 }
 
 void Font::OnResetDevice(void)

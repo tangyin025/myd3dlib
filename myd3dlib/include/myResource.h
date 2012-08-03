@@ -5,8 +5,6 @@
 #include <boost/shared_ptr.hpp>
 #include <unzip.h>
 #include "mySingleton.h"
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <atlbase.h>
 #include <d3d9.h>
 #include "myUi.h"
@@ -163,38 +161,9 @@ namespace my
 		, public Singleton<ResourceMgr>
 	{
 	public:
-		FT_Library m_library;
-
-		CComPtr<IDirect3DStateBlock9> m_stateBlock;
-
-		boost::weak_ptr<Control> m_ControlFocus;
-
-		typedef boost::weak_ptr<DeviceRelatedObjectBase> WeakDeviceRelatedObjectBasePtr;
-
-		typedef std::set<WeakDeviceRelatedObjectBasePtr> WeakDeviceRelatedObjectBasePtrSet;
-
-		WeakDeviceRelatedObjectBasePtrSet m_DeviceRelatedObjs;
-
-		template <typename T>
-		boost::shared_ptr<T> RegisterDeviceRelatedObject(boost::shared_ptr<T> obj_ptr)
-		{
-			_ASSERT(m_DeviceRelatedObjs.end() == m_DeviceRelatedObjs.find(obj_ptr));
-
-			m_DeviceRelatedObjs.insert(obj_ptr);
-
-			return obj_ptr;
-		}
-
-	public:
 		ResourceMgr(void);
 
 		~ResourceMgr(void);
-
-		void OnResetDevice(void);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
 	};
 
 	typedef boost::shared_ptr<ResourceMgr> ResourceMgrPtr;

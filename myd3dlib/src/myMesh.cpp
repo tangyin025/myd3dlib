@@ -106,7 +106,7 @@ VertexBufferPtr VertexBuffer::CreateVertexBuffer(
 	const D3DVERTEXELEMENT9Set & VertexElemSet,
 	WORD Stream)
 {
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream)));
+	return VertexBufferPtr(new VertexBuffer(pD3DDevice, VertexElemSet, Stream));
 }
 
 void VertexBuffer::OnResetDevice(void)
@@ -211,7 +211,7 @@ IndexBuffer::IndexBuffer(LPDIRECT3DDEVICE9 pDevice)
 
 IndexBufferPtr IndexBuffer::CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice)
 {
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(IndexBufferPtr(new IndexBuffer(pD3DDevice)));
+	return IndexBufferPtr(new IndexBuffer(pD3DDevice));
 }
 
 void IndexBuffer::OnResetDevice(void)
@@ -278,7 +278,7 @@ MeshPtr Mesh::CreateMesh(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateMeshFVF(
@@ -295,7 +295,7 @@ MeshPtr Mesh::CreateMeshFVF(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateMeshFromX(
@@ -315,7 +315,7 @@ MeshPtr Mesh::CreateMeshFromX(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateMeshFromXInMemory(
@@ -336,7 +336,7 @@ MeshPtr Mesh::CreateMeshFromXInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateMeshFromOgreXml(
@@ -608,7 +608,7 @@ MeshPtr Mesh::CreateMeshFromOgreXmlInMemory(
 	}
 	mesh->OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(mesh);
+	return mesh;
 }
 
 MeshPtr Mesh::CreateBox(
@@ -625,7 +625,7 @@ MeshPtr Mesh::CreateBox(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateCylinder(
@@ -644,7 +644,7 @@ MeshPtr Mesh::CreateCylinder(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreatePolygon(
@@ -660,7 +660,7 @@ MeshPtr Mesh::CreatePolygon(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateSphere(
@@ -677,7 +677,7 @@ MeshPtr Mesh::CreateSphere(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateTeapot(
@@ -691,7 +691,7 @@ MeshPtr Mesh::CreateTeapot(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }
 
 MeshPtr Mesh::CreateTorus(
@@ -709,5 +709,5 @@ MeshPtr Mesh::CreateTorus(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(MeshPtr(new Mesh(pMesh)));
+	return MeshPtr(new Mesh(pMesh));
 }

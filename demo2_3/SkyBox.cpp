@@ -26,7 +26,7 @@ SkyBox::~SkyBox(void)
 
 SkyBoxPtr SkyBox::CreateSkyBox(LPDIRECT3DDEVICE9 pD3DDevice)
 {
-	return my::ResourceMgr::getSingleton().RegisterDeviceRelatedObject(SkyBoxPtr(new SkyBox(pD3DDevice)));
+	return SkyBoxPtr(new SkyBox(pD3DDevice));
 }
 
 void SkyBox::OnResetDevice(void)

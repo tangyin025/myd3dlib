@@ -141,19 +141,39 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	my::ResourceMgr::getSingleton().OnResetDevice();
+	HRESULT hres = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_stateBlock);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnResetDevice();
+	}
 
 	return S_OK;
 }
 
 void DxutApp::OnD3D9LostDevice(void)
 {
-	my::ResourceMgr::getSingleton().OnLostDevice();
+	m_stateBlock.Release();
+
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnLostDevice();
+	}
 }
 
 void DxutApp::OnD3D9DestroyDevice(void)
 {
-	my::ResourceMgr::getSingleton().OnDestroyDevice();
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnDestroyDevice();
+	}
 }
 
 void DxutApp::OnFrameMove(
@@ -193,12 +213,21 @@ void DxutApp::OnKeyboard(
 
 DxutApp::DxutApp(void)
 {
+	FT_Error err = FT_Init_FreeType(&m_library);
+	if(err)
+	{
+		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
+	}
 }
 
 DxutApp::~DxutApp(void)
 {
 	//DXUTDestroyState();
-	// cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
+	// ! cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
+
+	FT_Error err = FT_Done_FreeType(m_library);
+
+	_ASSERT(m_deviceRelatedObjs.empty());
 }
 
 int DxutApp::Run(
@@ -238,26 +267,6 @@ int DxutApp::Run(
 		DXUTDestroyState();
 		return 0;
 	}
-}
-
-HWND DxutApp::GetHWND(void)
-{
-	return DXUTGetHWND();
-}
-
-IDirect3DDevice9 * DxutApp::GetD3D9Device(void)
-{
-	return DXUTGetD3D9Device();
-}
-
-double DxutApp::GetAbsoluteTime(void)
-{
-	return DXUTGetGlobalTimer()->GetAbsoluteTime();
-}
-
-double DxutApp::GetTime(void)
-{
-	return DXUTGetTime();
 }
 
 bool DxutSample::IsD3D9DeviceAcceptable(

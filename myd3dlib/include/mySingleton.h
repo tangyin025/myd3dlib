@@ -77,24 +77,16 @@ namespace my
 	class DeviceRelatedObjectBase
 	{
 	public:
-		virtual ~DeviceRelatedObjectBase(void)
-		{
-		}
+		DeviceRelatedObjectBase(void);
 
-		virtual void OnResetDevice(void)
-		{
-		}
+		virtual ~DeviceRelatedObjectBase(void);
 
-		virtual void OnLostDevice(void)
-		{
-		}
+		virtual void OnResetDevice(void) = 0;
 
-		virtual void OnDestroyDevice(void)
-		{
-		}
+		virtual void OnLostDevice(void) = 0;
+
+		virtual void OnDestroyDevice(void) = 0;
 	};
-
-	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
 
 	template <class DrivedClass> 
 	class DeviceRelatedObject
@@ -116,6 +108,14 @@ namespace my
 		virtual ~DeviceRelatedObject(void)
 		{
 			SAFE_RELEASE(m_ptr);
+		}
+
+		void OnResetDevice(void)
+		{
+		}
+
+		void OnLostDevice(void)
+		{
 		}
 
 		void OnDestroyDevice(void)

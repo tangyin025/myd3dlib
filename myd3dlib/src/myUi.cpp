@@ -36,7 +36,7 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 {
-	ResourceMgr::getSingleton().m_stateBlock->Capture();
+	DxutApp::getSingleton().m_stateBlock->Capture();
 
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
@@ -62,7 +62,7 @@ void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 
 void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 {
-	ResourceMgr::getSingleton().m_stateBlock->Apply();
+	DxutApp::getSingleton().m_stateBlock->Apply();
 }
 
 my::Rectangle UIRender::CalculateUVRect(const CSize & textureSize, const CRect & textureRect)
@@ -1464,7 +1464,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(!m_bEnabled || !m_bVisible)
 		return false;
 
-	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
 
 	if(ControlFocus
 		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
@@ -1561,7 +1561,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt))
 				{
 					ControlFocus->OnFocusOut();
-					ResourceMgr::getSingleton().m_ControlFocus.reset();
+					DxutApp::getSingleton().m_ControlFocus.reset();
 				}
 
 				if(HandleMouse(uMsg, pt, wParam, lParam))
@@ -1643,7 +1643,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	if(!control->CanHaveFocus())
 		return;
 
-	ControlPtr ControlFocus = ResourceMgr::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
 	if(ControlFocus)
 	{
 		if(ControlFocus == control)
@@ -1653,7 +1653,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	}
 
 	control->OnFocusIn();
-	ResourceMgr::getSingleton().m_ControlFocus = control;
+	DxutApp::getSingleton().m_ControlFocus = control;
 }
 
 void Dialog::ForceFocusControl(void)
