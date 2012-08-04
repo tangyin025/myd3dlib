@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "myResource.h"
 #include "libc.h"

@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "myDxutApp.h"
 #include <SDKmisc.h>
@@ -147,16 +146,33 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 		THROW_D3DEXCEPTION(hres);
 	}
 
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnResetDevice();
+	}
+
 	return S_OK;
 }
 
 void DxutApp::OnD3D9LostDevice(void)
 {
 	m_stateBlock.Release();
+
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnLostDevice();
+	}
 }
 
 void DxutApp::OnD3D9DestroyDevice(void)
 {
+	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->OnDestroyDevice();
+	}
 }
 
 void DxutApp::OnFrameMove(
@@ -209,6 +225,8 @@ DxutApp::~DxutApp(void)
 	// ! cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
 
 	FT_Error err = FT_Done_FreeType(m_library);
+
+	_ASSERT(m_deviceRelatedObjs.empty());
 }
 
 int DxutApp::Run(

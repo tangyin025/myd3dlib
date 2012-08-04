@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "mySound.h"
 #include "myException.h"

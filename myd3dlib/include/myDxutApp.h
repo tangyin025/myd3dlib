@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include "mySingleton.h"
@@ -113,11 +112,29 @@ namespace my
 			bool bAltDown);
 
 	public:
-		FT_Library m_library;
+		FT_Library m_library; // ! Font dependency
 
-		CComPtr<IDirect3DStateBlock9> m_stateBlock;
+		CComPtr<IDirect3DStateBlock9> m_stateBlock; // ! UI dependency
 
 		boost::weak_ptr<Control> m_ControlFocus;
+
+		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
+
+		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs; // ! DeviceRelatedObject dependency
+
+		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
+
+			m_deviceRelatedObjs.insert(obj);
+		}
+
+		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			_ASSERT(m_deviceRelatedObjs.end() != m_deviceRelatedObjs.find(obj));
+
+			m_deviceRelatedObjs.erase(m_deviceRelatedObjs.find(obj));
+		}
 
 	public:
 		DxutApp(void);

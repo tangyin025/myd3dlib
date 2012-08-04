@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <myD3dLib.h>

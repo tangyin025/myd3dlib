@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "libc.h"
 #include "myException.h"

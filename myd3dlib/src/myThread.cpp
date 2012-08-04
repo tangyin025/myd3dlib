@@ -1,4 +1,3 @@
-
 #include "StdAfx.h"
 #include "myThread.h"
 #include "myException.h"

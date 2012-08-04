@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\mySingleton.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\mySkeleton.cpp"
 				>
 			</File>

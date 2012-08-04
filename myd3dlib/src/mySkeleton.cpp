@@ -1,4 +1,3 @@
-
 #include "StdAfx.h"
 #include "mySkeleton.h"
 #include "rapidxml.hpp"

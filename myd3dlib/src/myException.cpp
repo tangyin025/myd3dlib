@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "myException.h"
 #include <sstream>

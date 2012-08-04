@@ -1,7 +1,5 @@
-﻿
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "myUi.h"
-#include "myResource.h"
 #include "myDxutApp.h"
 #include <ImeUi.h>
 #include "myCollision.h"

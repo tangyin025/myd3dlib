@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "myPhysics.h"
 #include "myCollision.h"

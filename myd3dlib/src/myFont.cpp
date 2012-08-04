@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "myFont.h"
 #include "myDxutApp.h"
@@ -202,20 +201,15 @@ FontPtr Font::CreateFontFromFileInCache(
 
 void Font::OnResetDevice(void)
 {
-	m_texture->OnResetDevice();
 }
 
 void Font::OnLostDevice(void)
 {
-	m_texture->OnLostDevice();
 }
 
 void Font::OnDestroyDevice(void)
 {
-	m_texture->OnDestroyDevice();
-
 	m_Device.Release();
-
 	if(m_face)
 	{
 		FT_Done_Face(m_face);

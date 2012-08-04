@@ -1,4 +1,3 @@
-
 #pragma once
 
 #include <boost/shared_ptr.hpp>
@@ -77,9 +76,9 @@ namespace my
 	class DeviceRelatedObjectBase
 	{
 	public:
-		virtual ~DeviceRelatedObjectBase(void)
-		{
-		}
+		DeviceRelatedObjectBase(void);
+
+		virtual ~DeviceRelatedObjectBase(void);
 
 		virtual void OnResetDevice(void) = 0;
 
@@ -87,8 +86,6 @@ namespace my
 
 		virtual void OnDestroyDevice(void) = 0;
 	};
-
-	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
 
 	template <class DrivedClass> 
 	class DeviceRelatedObject
