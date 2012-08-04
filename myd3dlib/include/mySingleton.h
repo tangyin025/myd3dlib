@@ -77,9 +77,9 @@ namespace my
 	class DeviceRelatedObjectBase
 	{
 	public:
-		DeviceRelatedObjectBase(void);
-
-		virtual ~DeviceRelatedObjectBase(void);
+		virtual ~DeviceRelatedObjectBase(void)
+		{
+		}
 
 		virtual void OnResetDevice(void) = 0;
 
@@ -87,6 +87,8 @@ namespace my
 
 		virtual void OnDestroyDevice(void) = 0;
 	};
+
+	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
 
 	template <class DrivedClass> 
 	class DeviceRelatedObject

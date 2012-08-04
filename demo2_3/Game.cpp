@@ -11,24 +11,59 @@
 
 using namespace my;
 
+#define SAFE_CALL_MEMBER(memfunc) \
+	WeakDeviceRelatedObjectBasePtrSet::iterator obj_iter = obj_base_list.begin(); \
+	for(; obj_iter != obj_base_list.end(); ) \
+	{ \
+		my::DeviceRelatedObjectBasePtr obj_ptr = obj_iter->lock(); \
+		if(obj_ptr) \
+		{ \
+			obj_ptr->memfunc(); \
+			obj_iter++; \
+		} \
+		else \
+		{ \
+			obj_base_list.erase(obj_iter++); \
+		} \
+	}
+
+void GameLoader::OnResetDevice(void)
+{
+	SAFE_CALL_MEMBER(OnResetDevice);
+}
+
+void GameLoader::OnLostDevice(void)
+{
+	SAFE_CALL_MEMBER(OnLostDevice);
+}
+
+void GameLoader::OnDestroyDevice(void)
+{
+	SAFE_CALL_MEMBER(OnDestroyDevice);
+}
+
 TexturePtr GameLoader::LoadTexture(const std::string & path)
 {
+	LPDIRECT3DDEVICE9 pDevice = DxutApp::getSingleton().GetD3D9Device();
+
 	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
 	if(!full_path.empty())
-		return Texture::CreateTextureFromFile(GetD3D9Device(), full_path.c_str());
+		return RegisterDeviceRelatedObject(Texture::CreateTextureFromFile(pDevice, full_path.c_str()));
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Texture::CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+	return RegisterDeviceRelatedObject(Texture::CreateTextureFromFileInMemory(pDevice, &(*cache)[0], cache->size()));
 }
 
 MeshPtr GameLoader::LoadMesh(const std::string & path)
 {
+	LPDIRECT3DDEVICE9 pDevice = DxutApp::getSingleton().GetD3D9Device();
+
 	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
 	if(!full_path.empty())
-		return Mesh::CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+		return RegisterDeviceRelatedObject(Mesh::CreateMeshFromOgreXml(pDevice, full_path.c_str(), true));
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Mesh::CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+	return RegisterDeviceRelatedObject(Mesh::CreateMeshFromOgreXmlInMemory(pDevice, (char *)&(*cache)[0], cache->size(), true));
 }
 
 OgreSkeletonAnimationPtr GameLoader::LoadSkeletonAnimation(const std::string & path)
@@ -43,22 +78,26 @@ OgreSkeletonAnimationPtr GameLoader::LoadSkeletonAnimation(const std::string & p
 
 EffectPtr GameLoader::LoadEffect(const std::string & path)
 {
+	LPDIRECT3DDEVICE9 pDevice = DxutApp::getSingleton().GetD3D9Device();
+
 	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
 	if(!full_path.empty())
-		return Effect::CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL);
+		return RegisterDeviceRelatedObject(Effect::CreateEffectFromFile(pDevice, full_path.c_str(), NULL, NULL));
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Effect::CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, ResourceMgr::getSingletonPtr());
+	return RegisterDeviceRelatedObject(Effect::CreateEffect(pDevice, &(*cache)[0], cache->size(), NULL, ResourceMgr::getSingletonPtr()));
 }
 
 FontPtr GameLoader::LoadFont(const std::string & path, int height)
 {
+	LPDIRECT3DDEVICE9 pDevice = DxutApp::getSingleton().GetD3D9Device();
+
 	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
 	if(!full_path.empty())
-		return Font::CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height, 1);
+		return RegisterDeviceRelatedObject(Font::CreateFontFromFile(pDevice, full_path.c_str(), height, 1));
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Font::CreateFontFromFileInCache(GetD3D9Device(), cache, height, 1);
+	return RegisterDeviceRelatedObject(Font::CreateFontFromFileInCache(pDevice, cache, height, 1));
 }
 
 Game::Game(void)
@@ -208,12 +247,16 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
+	GameLoader::OnResetDevice();
+
 	return S_OK;
 }
 
 void Game::OnD3D9LostDevice(void)
 {
 	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	GameLoader::OnLostDevice();
 
 	m_dlgResourceMgr.OnD3D9LostDevice();
 
@@ -225,6 +268,8 @@ void Game::OnD3D9LostDevice(void)
 void Game::OnD3D9DestroyDevice(void)
 {
 	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	GameLoader::OnDestroyDevice();
 
 	terminate();
 
@@ -357,6 +402,14 @@ LRESULT Game::MsgProc(
 	}
 
 	return 0;
+}
+
+void Game::OnKeyboard(
+	UINT nChar,
+	bool bKeyDown,
+	bool bAltDown)
+{
+	DxutApp::OnKeyboard(nChar, bKeyDown, bAltDown);
 }
 
 void Game::ToggleFullScreen(void)

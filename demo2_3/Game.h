@@ -49,8 +49,45 @@ typedef boost::statechart::event_base GameEventBase;
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
 class GameLoader
-	: public my::DxutApp
 {
+protected:
+	typedef boost::weak_ptr<my::DeviceRelatedObjectBase> WeakDeviceRelatedObjectBasePtr;
+
+	typedef std::list<WeakDeviceRelatedObjectBasePtr> WeakDeviceRelatedObjectBasePtrSet;
+
+	WeakDeviceRelatedObjectBasePtrSet obj_base_list;
+
+	template <typename T>
+	boost::shared_ptr<T> & RegisterDeviceRelatedObject(boost::shared_ptr<T> & obj)
+	{
+		struct CompareWeakPtrWithSharedPtr
+		{
+			const boost::shared_ptr<T> & sptr;
+
+			CompareWeakPtrWithSharedPtr(const boost::shared_ptr<T> & ___sptr)
+				: sptr(___sptr)
+			{
+			}
+
+			bool operator () (const WeakDeviceRelatedObjectBasePtr & wptr)
+			{
+				return sptr == wptr.lock();
+			}
+		};
+
+		_ASSERT(obj_base_list.end() == std::find_if(obj_base_list.begin(), obj_base_list.end(), CompareWeakPtrWithSharedPtr(obj)));
+	
+		obj_base_list.push_back(obj);
+	
+		return obj;
+	}
+
+	void OnResetDevice(void);
+
+	void OnLostDevice(void);
+
+	void OnDestroyDevice(void);
+
 public:
 	my::TexturePtr LoadTexture(const std::string & path);
 
@@ -64,7 +101,8 @@ public:
 };
 
 class Game
-	: public GameLoader
+	: public my::DxutApp
+	, public GameLoader
 	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:
@@ -172,6 +210,11 @@ public:
 		WPARAM wParam,
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
+
+	virtual void OnKeyboard(
+		UINT nChar,
+		bool bKeyDown,
+		bool bAltDown);
 
 	void ToggleFullScreen(void);
 

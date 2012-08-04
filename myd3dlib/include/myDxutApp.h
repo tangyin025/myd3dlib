@@ -119,24 +119,6 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
-		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
-
-		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs;
-
-		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
-
-			m_deviceRelatedObjs.insert(obj);
-		}
-
-		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			_ASSERT(m_deviceRelatedObjs.end() != m_deviceRelatedObjs.find(obj));
-
-			m_deviceRelatedObjs.erase(m_deviceRelatedObjs.find(obj));
-		}
-
 	public:
 		DxutApp(void);
 
