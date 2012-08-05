@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "GameState.h"
-#include "Scene.h"
 //
 //#ifdef _DEBUG
 //#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -44,8 +43,6 @@ LRESULT GameStateLoad::MsgProc(
 
 GameStateMain::GameStateMain(void)
 {
-	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
-
 	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
 	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
@@ -53,11 +50,13 @@ GameStateMain::GameStateMain(void)
 	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
 		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
-	m_collisionShapes;
+	m_Camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
+	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
+	m_Camera->m_Distance = 10.0f;
 
-	m_camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
-	m_camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
-	m_camera->m_Distance = 10.0f;
+	m_Effect = Game::getSingleton().LoadEffect("SimpleSample.fx");
+
+	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -70,7 +69,7 @@ void GameStateMain::OnFrameMove(
 {
 	m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 
-	m_camera->OnFrameMove(fTime, fElapsedTime);
+	m_Camera->OnFrameMove(fTime, fElapsedTime);
 }
 
 void GameStateMain::OnD3D9FrameRender(
@@ -83,17 +82,26 @@ void GameStateMain::OnD3D9FrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_camera->m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_camera->m_Proj);
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
-		BaseScene::DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
-		BaseScene::DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+		DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+		DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
 		for(int i = 1; i <= 10; i++)
 		{
-			BaseScene::DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
-			BaseScene::DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
-			BaseScene::DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-			BaseScene::DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		}
+
+		m_Effect->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
+		m_Effect->SetMatrix("g_mWorld", Matrix4::Identity());
+		m_Effect->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
+		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
+		{
+			(*effect_mesh_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
 		V(pd3dDevice->EndScene());

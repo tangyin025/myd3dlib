@@ -4,6 +4,7 @@
 #include <btBulletDynamicsCommon.h>
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "Camera.h"
+#include "EffectMesh.h"
 
 class GameStateMain;
 
@@ -39,16 +40,21 @@ class GameStateMain
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStateMain, Game>
 {
-protected:
+public:
 	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
 	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
 	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
 	boost::shared_ptr<btConstraintSolver> m_constraintSolver;
 	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
-
 	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
 
-	boost::shared_ptr<ModuleViewCamera> m_camera;
+	boost::shared_ptr<ModuleViewCamera> m_Camera;
+
+	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
+
+	EffectMeshPtrList m_staticMeshes;
+
+	my::EffectPtr m_Effect;
 
 public:
 	GameStateMain(void);
@@ -70,4 +76,9 @@ public:
 		WPARAM wParam,
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
+
+	void InsertStaticMesh(EffectMeshPtr effect_mesh)
+	{
+		m_staticMeshes.push_back(effect_mesh);
+	}
 };

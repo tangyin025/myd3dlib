@@ -187,6 +187,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EffectMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Game.cpp"
 				>
 			</File>
@@ -200,14 +204,6 @@
 			</File>
 			<File
 				RelativePath=".\main.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Scene.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SkyBox.cpp"
 				>
 			</File>
 			<File
@@ -245,6 +241,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EffectMesh.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Game.h"
 				>
 			</File>
@@ -254,14 +254,6 @@
 			</File>
 			<File
 				RelativePath=".\LuaExtension.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Scene.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SkyBox.h"
 				>
 			</File>
 			<File

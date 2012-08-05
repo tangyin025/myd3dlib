@@ -12,3 +12,5 @@ dofile "Hud.lua"
 
 -- -- 利用 EventAlign调整相机的 Aspect
 -- local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
+
+local state = game:CurrentState()
