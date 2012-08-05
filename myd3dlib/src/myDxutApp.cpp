@@ -133,6 +133,11 @@ HRESULT DxutApp::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
 	return S_OK;
 }
 
@@ -140,10 +145,9 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hres = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_stateBlock);
-	if(FAILED(hres))
+	if(FAILED(hr = pd3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
@@ -157,7 +161,7 @@ HRESULT DxutApp::OnD3D9ResetDevice(
 
 void DxutApp::OnD3D9LostDevice(void)
 {
-	m_stateBlock.Release();
+	m_StateBlock.Release();
 
 	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
 	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
@@ -173,6 +177,8 @@ void DxutApp::OnD3D9DestroyDevice(void)
 	{
 		(*obj_iter)->OnDestroyDevice();
 	}
+
+	m_EffectPool.Release();
 }
 
 void DxutApp::OnFrameMove(
@@ -212,7 +218,7 @@ void DxutApp::OnKeyboard(
 
 DxutApp::DxutApp(void)
 {
-	FT_Error err = FT_Init_FreeType(&m_library);
+	FT_Error err = FT_Init_FreeType(&m_Library);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
@@ -224,7 +230,7 @@ DxutApp::~DxutApp(void)
 	//DXUTDestroyState();
 	// ! cannot call DXUTDestroyState() at base class whose drived class'es interface have been destroyed
 
-	FT_Error err = FT_Done_FreeType(m_library);
+	FT_Error err = FT_Done_FreeType(m_Library);
 
 	_ASSERT(m_deviceRelatedObjs.empty());
 }
@@ -294,7 +300,6 @@ bool DxutSample::ModifyDeviceSettings(
 {
 	assert( DXUT_D3D9_DEVICE == pDeviceSettings->ver );
 
-	HRESULT hr;
 	IDirect3D9* pD3D = DXUTGetD3D9Object();
 	D3DCAPS9 caps;
 
@@ -352,21 +357,20 @@ HRESULT DxutSample::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hres;
-	if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
+	if(FAILED(hr = DxutApp::OnD3D9CreateDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
-		return hres;
+		return hr;
 	}
 
 	V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 
 	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
-	if(FAILED(hres = D3DXCreateFont(
+	if(FAILED(hr = D3DXCreateFont(
 		pd3dDevice, 15, 0, FW_BOLD, 0, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font)))
 	{
-		return hres;
+		return hr;
 	}
 
 	V(D3DXCreateSprite(pd3dDevice, &m_sprite));
@@ -378,11 +382,10 @@ HRESULT DxutSample::OnD3D9ResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hres;
-	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
+	if(FAILED(hr = DxutApp::OnD3D9ResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
-		return hres;
+		return hr;
 	}
 
 	V(m_dlgResourceMgr.OnD3D9ResetDevice());
@@ -446,7 +449,6 @@ void DxutSample::OnD3D9FrameRender(
 
 	OnRender(pd3dDevice, fTime, fElapsedTime);
 
-	HRESULT hr;
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		CDXUTTextHelper txtHelper(m_font, m_sprite, 15);
@@ -468,7 +470,6 @@ void DxutSample::OnRender(
 	double fTime,
 	float fElapsedTime)
 {
-	HRESULT hr;
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 }
@@ -511,11 +512,10 @@ LRESULT DxutSample::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	LRESULT hres;
-	if(FAILED(hres = DxutApp::MsgProc(
+	if(FAILED(hr = DxutApp::MsgProc(
 		hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 	{
-		return hres;
+		return hr;
 	}
 
 	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))

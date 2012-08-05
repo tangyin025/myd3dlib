@@ -119,8 +119,6 @@ class Game
 	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:
-	HRESULT hr;
-
 	GameStateBase * cs;
 
 	CDXUTDialogResourceManager m_dlgResourceMgr;

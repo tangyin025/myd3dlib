@@ -13,4 +13,20 @@ dofile "Hud.lua"
 -- -- 利用 EventAlign调整相机的 Aspect
 -- local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
 
-local state = game:CurrentState()
+local state=game:CurrentState()
+
+local effectMesh = EffectMesh()
+effectMesh.Mesh = game:LoadMesh("plane.mesh.xml")
+local effect = game:LoadEffect("SimpleSample.fx")
+local material = Material()
+material.Effect = effect
+local texture = game:LoadTexture("Checker.bmp")
+effect:SetTechnique("RenderScene")
+material:BeginParameterBlock()
+effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
+effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
+material:SetTexture("g_MeshTexture", texture)
+material:EndParameterBlock()
+effectMesh:InsertMaterial(material)
+
+state:InsertStaticMesh(effectMesh)

@@ -245,10 +245,10 @@ EffectPtr GameLoader::LoadEffect(const std::string & path)
 {
 	std::string full_path = ResourceMgr::getSingleton().GetFullPath(path);
 	if(!full_path.empty())
-		return Effect::CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL);
+		return Effect::CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
 
 	CachePtr cache = ResourceMgr::getSingleton().OpenArchiveStream(path)->GetWholeCache();
-	return Effect::CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, ResourceMgr::getSingletonPtr());
+	return Effect::CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, ResourceMgr::getSingletonPtr(), 0, m_EffectPool);
 }
 
 FontPtr GameLoader::LoadFont(const std::string & path, int height)

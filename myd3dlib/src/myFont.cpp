@@ -157,7 +157,7 @@ FontPtr Font::CreateFontFromFile(
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Face(DxutApp::getSingleton().m_library, pFilename, face_index, &face);
+	FT_Error err = FT_New_Face(DxutApp::getSingleton().m_Library, pFilename, face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Face failed");
@@ -188,7 +188,7 @@ FontPtr Font::CreateFontFromFileInCache(
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(DxutApp::getSingleton().m_library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
+	FT_Error err = FT_New_Memory_Face(DxutApp::getSingleton().m_Library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");

@@ -15,7 +15,9 @@ namespace my
 {
 	class DxutApp : public SingleInstance<DxutApp>
 	{
-	private:
+	protected:
+		HRESULT hr;
+
 		static bool CALLBACK IsD3D9DeviceAcceptable_s(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
@@ -112,11 +114,13 @@ namespace my
 			bool bAltDown);
 
 	public:
-		FT_Library m_library; // ! Font dependency
+		FT_Library m_Library; // ! Font dependency
 
-		CComPtr<IDirect3DStateBlock9> m_stateBlock; // ! UI dependency
+		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
 
 		boost::weak_ptr<Control> m_ControlFocus;
+
+		CComPtr<ID3DXEffectPool> m_EffectPool; // ! Effect dependency
 
 		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
 
@@ -176,8 +180,6 @@ namespace my
 			IDC_TOGGLEREF,
 			IDC_CHANGEDEVICE
 		};
-
-		HRESULT hr;
 
 		CDXUTDialogResourceManager m_dlgResourceMgr;
 

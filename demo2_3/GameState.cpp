@@ -20,6 +20,8 @@ void GameStateLoad::OnFrameMove(
 	float fElapsedTime)
 {
 	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
+
+	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
 }
 
 void GameStateLoad::OnD3D9FrameRender(
@@ -56,7 +58,7 @@ GameStateMain::GameStateMain(void)
 
 	m_Effect = Game::getSingleton().LoadEffect("SimpleSample.fx");
 
-	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
+	m_Texture = Game::getSingleton().LoadTexture("Checker.bmp");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -85,15 +87,15 @@ void GameStateMain::OnD3D9FrameRender(
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
-		DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
-		DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
-		for(int i = 1; i <= 10; i++)
-		{
-			DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-		}
+		//DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+		//DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+		//for(int i = 1; i <= 10; i++)
+		//{
+		//	DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+		//	DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+		//	DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		//	DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		//}
 
 		m_Effect->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
 		m_Effect->SetMatrix("g_mWorld", Matrix4::Identity());

@@ -34,7 +34,7 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 {
-	DxutApp::getSingleton().m_stateBlock->Capture();
+	DxutApp::getSingleton().m_StateBlock->Capture();
 
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
@@ -60,7 +60,7 @@ void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 
 void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 {
-	DxutApp::getSingleton().m_stateBlock->Apply();
+	DxutApp::getSingleton().m_StateBlock->Apply();
 }
 
 my::Rectangle UIRender::CalculateUVRect(const CSize & textureSize, const CRect & textureRect)

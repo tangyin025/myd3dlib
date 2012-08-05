@@ -185,7 +185,7 @@ protected:
 		m_characterTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
-		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size(), NULL, my::ResourceMgr::getSingletonPtr());
+		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size(), NULL, my::ResourceMgr::getSingletonPtr(), 0, m_EffectPool);
 
 		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
 		m_characterAnimMgr.reset(new AnimationMgr((char *)&(*cache)[0], cache->size()));

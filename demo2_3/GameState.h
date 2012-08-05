@@ -56,6 +56,8 @@ public:
 
 	my::EffectPtr m_Effect;
 
+	my::TexturePtr m_Texture;
+
 public:
 	GameStateMain(void);
 

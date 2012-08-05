@@ -9,7 +9,30 @@ public:
 
 public:
 	Material(void)
+		: m_Param(NULL)
 	{
+	}
+
+	~Material(void)
+	{
+		//m_Effect->DeleteParameterBlock(m_Param);
+	}
+
+	void SetTexture(const std::string & param, my::TexturePtr texture)
+	{
+		m_Effect->SetTexture(param.c_str(), texture->m_ptr);
+	}
+
+	void BeginParameterBlock(void)
+	{
+		_ASSERT(NULL == m_Param);
+
+		m_Effect->BeginParameterBlock();
+	}
+
+	void EndParameterBlock(void)
+	{
+		m_Param = m_Effect->EndParameterBlock();
 	}
 };
 
