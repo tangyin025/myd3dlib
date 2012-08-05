@@ -173,9 +173,11 @@ void DxutApp::OnD3D9LostDevice(void)
 void DxutApp::OnD3D9DestroyDevice(void)
 {
 	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
-	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+	while(obj_iter != m_deviceRelatedObjs.end())
 	{
 		(*obj_iter)->OnDestroyDevice();
+
+		UnregisterDeviceRelatedObject(*obj_iter++);
 	}
 
 	m_EffectPool.Release();

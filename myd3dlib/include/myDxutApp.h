@@ -135,9 +135,11 @@ namespace my
 
 		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
 		{
-			_ASSERT(m_deviceRelatedObjs.end() != m_deviceRelatedObjs.find(obj));
-
-			m_deviceRelatedObjs.erase(m_deviceRelatedObjs.find(obj));
+			DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.find(obj);
+			if(obj_iter != m_deviceRelatedObjs.end())
+			{
+				m_deviceRelatedObjs.erase(obj_iter);
+			}
 		}
 
 	public:
