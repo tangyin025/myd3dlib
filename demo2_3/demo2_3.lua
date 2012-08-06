@@ -25,7 +25,7 @@ effect:SetTechnique("RenderScene")
 material:BeginParameterBlock()
 effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
 effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
-material:SetTexture("g_MeshTexture", texture)
+effect:SetTexture("g_MeshTexture", texture)
 material:EndParameterBlock()
 effectMesh:InsertMaterial(material)
 

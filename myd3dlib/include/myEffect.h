@@ -2,10 +2,10 @@
 
 #include <d3dx9.h>
 #include <atlbase.h>
-#include "myMath.h"
 #include <DXUT.h>
-#include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
+#include "myMath.h"
+#include "myTexture.h"
 
 namespace my
 {
@@ -584,6 +584,11 @@ namespace my
 		void SetTexture(D3DXHANDLE hParameter, LPDIRECT3DBASETEXTURE9 pTexture)
 		{
 			V(m_ptr->SetTexture(hParameter, pTexture));
+		}
+
+		void SetTexture(D3DXHANDLE hParameter, const TexturePtr & pTexture)
+		{
+			V(m_ptr->SetTexture(hParameter, pTexture ? pTexture->m_ptr : NULL));
 		}
 
 		void SetValue(D3DXHANDLE hParameter, LPCVOID pData, UINT Bytes)

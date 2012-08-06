@@ -472,7 +472,9 @@ void Export2Lua(lua_State * L)
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
 			.def("Interpolate", &my::Spline::Interpolate)
 
-		, class_<my::Texture, boost::shared_ptr<my::Texture> >("Texture")
+		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
+
+		, class_<my::Texture, my::BaseTexture, boost::shared_ptr<my::Texture> >("Texture")
 
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
@@ -530,7 +532,7 @@ void Export2Lua(lua_State * L)
 			.def("SetMatrixTransposeArray", &my::BaseEffect::SetMatrixTransposeArray)
 			.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
 			.def("SetString", &my::BaseEffect::SetString)
-			.def("SetTexture", &my::BaseEffect::SetTexture)
+			.def("SetTexture", (void (my::BaseEffect::*)(D3DXHANDLE, const my::TexturePtr &))&my::BaseEffect::SetTexture)
 			.def("SetValue", &my::BaseEffect::SetValue)
 			.def("SetVector", &my::BaseEffect::SetVector)
 			.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
@@ -582,7 +584,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<boost::shared_ptr<my::Texture>, const my::Vector4 &>())
+			.def(constructor<my::TexturePtr, const my::Vector4 &>())
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())
@@ -726,7 +728,6 @@ void Export2Lua(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Effect", &Material::m_Effect)
 			.def_readwrite("Param", &Material::m_Param)
-			.def("SetTexture", &Material::SetTexture)
 			.def("BeginParameterBlock", &Material::BeginParameterBlock)
 			.def("EndParameterBlock", &Material::EndParameterBlock)
 

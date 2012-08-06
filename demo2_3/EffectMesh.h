@@ -15,17 +15,20 @@ public:
 
 	~Material(void)
 	{
-		//m_Effect->DeleteParameterBlock(m_Param);
+		SafeDeleteParam();
 	}
 
-	void SetTexture(const std::string & param, my::TexturePtr texture)
+	void SafeDeleteParam(void)
 	{
-		m_Effect->SetTexture(param.c_str(), texture->m_ptr);
+		if(m_Param && m_Effect->m_ptr)
+		{
+			m_Effect->DeleteParameterBlock(m_Param);
+		}
 	}
 
 	void BeginParameterBlock(void)
 	{
-		_ASSERT(NULL == m_Param);
+		SafeDeleteParam();
 
 		m_Effect->BeginParameterBlock();
 	}
