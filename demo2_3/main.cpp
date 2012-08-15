@@ -9,7 +9,9 @@
 // MyDemo
 // ------------------------------------------------------------------------------------------
 
-class MyDemo : public my::DxutSample
+class MyDemo
+	: public my::DxutSample
+	, public my::ResourceMgr
 {
 	class AnimationMgr
 	{
@@ -171,6 +173,12 @@ protected:
 			return hres;
 		}
 
+		// 设置资源读取路径
+		RegisterFileDir(".");
+		RegisterZipArchive("data.zip", "");
+		RegisterFileDir("..\\demo2_3");
+		RegisterZipArchive("..\\demo2_3\\data.zip");
+
 		// 初始化相机
 		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
 		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
@@ -178,16 +186,16 @@ protected:
 		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 
 		// 初始化角色资源
-		my::CachePtr cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
+		my::CachePtr cache = OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
 		m_characterMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
+		cache = OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
 		m_characterTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
-		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size(), NULL, my::ResourceMgr::getSingletonPtr(), 0, m_EffectPool);
+		cache = OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
+		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
+		cache = OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
 		m_characterAnimMgr.reset(new AnimationMgr((char *)&(*cache)[0], cache->size()));
 		m_characterAnimMgr->SetAnimationTime("clip1", m_characterAnimMgr->m_skeleton->GetAnimation("clip1").m_time, "clip2");
 		m_characterAnimMgr->SetAnimationTime("clip2", m_characterAnimMgr->m_skeleton->GetAnimation("clip2").m_time, "clip1");
@@ -197,10 +205,10 @@ protected:
 		m_characterAnimMgr->m_currentTime = 0.0f;
 
 		// 初始化场景资源
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
+		cache = OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
 		m_sceneMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
 
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("scene.texture.jpg")->GetWholeCache();
+		cache = OpenArchiveStream("scene.texture.jpg")->GetWholeCache();
 		m_sceneTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 初始化物理引擎及相关资源
@@ -255,7 +263,7 @@ protected:
 		m_dynamicsWorld->addRigidBody(m_sphereBody.get());
 
 		// 创建用于渲染物理物体的线框模式 shader
-		cache = my::ResourceMgr::getSingleton().OpenArchiveStream("WireEffect.fx")->GetWholeCache();
+		cache = OpenArchiveStream("WireEffect.fx")->GetWholeCache();
 		m_wireEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		//THROW_CUSEXCEPTION("aaa");
@@ -557,11 +565,6 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	// 设置crtdbg监视内存泄漏
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
-
-	my::ResourceMgr::getSingleton().RegisterFileDir(".");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("data.zip", "");
-	my::ResourceMgr::getSingleton().RegisterFileDir("..\\demo2_3");
-	my::ResourceMgr::getSingleton().RegisterZipArchive("..\\demo2_3\\data.zip");
 
 	return MyDemo().Run(true, 800, 600);
 

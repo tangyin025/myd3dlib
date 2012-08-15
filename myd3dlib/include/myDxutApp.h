@@ -120,8 +120,6 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
-		CComPtr<ID3DXEffectPool> m_EffectPool; // ! Effect dependency
-
 		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
 
 		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs; // ! DeviceRelatedObject dependency

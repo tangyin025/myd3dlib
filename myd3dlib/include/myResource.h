@@ -3,7 +3,6 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <unzip.h>
-#include "mySingleton.h"
 #include <atlbase.h>
 #include <d3d9.h>
 #include "myUi.h"
@@ -109,7 +108,7 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	class ResourceMgrBase
+	class ResourceMgr
 	{
 	protected:
 		typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
@@ -119,9 +118,9 @@ namespace my
 		ResourceDirPtrMap m_dirMap;
 
 	public:
-		ResourceMgrBase(void);
+		ResourceMgr(void);
 
-		virtual ~ResourceMgrBase(void);
+		virtual ~ResourceMgr(void);
 
 		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
 
@@ -133,37 +132,4 @@ namespace my
 
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
-
-	class IncludeFromResource
-		: public ResourceMgrBase
-		, public ID3DXInclude
-	{
-	protected:
-		std::map<LPCVOID, CachePtr> m_cacheSet;
-
-	public:
-		virtual __declspec(nothrow) HRESULT __stdcall Open(
-			D3DXINCLUDE_TYPE IncludeType,
-			LPCSTR pFileName,
-			LPCVOID pParentData,
-			LPCVOID * ppData,
-			UINT * pBytes);
-
-		virtual __declspec(nothrow) HRESULT __stdcall Close(
-			LPCVOID pData);
-	};
-
-	typedef boost::shared_ptr<IncludeFromResource> IncludeFromResourcePtr;
-
-	class ResourceMgr
-		: public IncludeFromResource
-		, public Singleton<ResourceMgr>
-	{
-	public:
-		ResourceMgr(void);
-
-		~ResourceMgr(void);
-	};
-
-	typedef boost::shared_ptr<ResourceMgr> ResourceMgrPtr;
 };

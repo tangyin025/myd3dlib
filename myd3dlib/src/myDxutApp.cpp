@@ -133,11 +133,6 @@ HRESULT DxutApp::OnD3D9CreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
-
 	return S_OK;
 }
 
@@ -179,8 +174,6 @@ void DxutApp::OnD3D9DestroyDevice(void)
 
 		UnregisterDeviceRelatedObject(*obj_iter++);
 	}
-
-	m_EffectPool.Release();
 }
 
 void DxutApp::OnFrameMove(

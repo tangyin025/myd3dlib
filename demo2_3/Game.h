@@ -100,9 +100,25 @@ typedef boost::statechart::event_base GameEventBase;
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
 class GameLoader
-	: public my::DxutApp
+	: public my::ResourceMgr
+	, public ID3DXInclude
 {
+protected:
+	std::map<LPCVOID, my::CachePtr> m_cacheSet;
+
+	CComPtr<ID3DXEffectPool> m_EffectPool;
+
 public:
+	virtual __declspec(nothrow) HRESULT __stdcall Open(
+		D3DXINCLUDE_TYPE IncludeType,
+		LPCSTR pFileName,
+		LPCVOID pParentData,
+		LPCVOID * ppData,
+		UINT * pBytes);
+
+	virtual __declspec(nothrow) HRESULT __stdcall Close(
+		LPCVOID pData);
+
 	my::TexturePtr LoadTexture(const std::string & path);
 
 	my::MeshPtr LoadMesh(const std::string & path);
@@ -116,6 +132,7 @@ public:
 
 class Game
 	: public GameLoader
+	, public my::DxutApp
 	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:

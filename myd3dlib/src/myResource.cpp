@@ -197,25 +197,25 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
-ResourceMgrBase::ResourceMgrBase(void)
+ResourceMgr::ResourceMgr(void)
 {
 }
 
-ResourceMgrBase::~ResourceMgrBase(void)
+ResourceMgr::~ResourceMgr(void)
 {
 }
 
-void ResourceMgrBase::RegisterZipArchive(const std::string & zip_path, const std::string & password)
+void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
 {
 	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
 }
 
-void ResourceMgrBase::RegisterFileDir(const std::string & dir)
+void ResourceMgr::RegisterFileDir(const std::string & dir)
 {
 	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
 }
 
-bool ResourceMgrBase::CheckArchivePath(const std::string & path)
+bool ResourceMgr::CheckArchivePath(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -229,7 +229,7 @@ bool ResourceMgrBase::CheckArchivePath(const std::string & path)
 	return false;
 }
 
-std::string ResourceMgrBase::GetFullPath(const std::string & path)
+std::string ResourceMgr::GetFullPath(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -244,7 +244,7 @@ std::string ResourceMgrBase::GetFullPath(const std::string & path)
 	return std::string();
 }
 
-ArchiveStreamPtr ResourceMgrBase::OpenArchiveStream(const std::string & path)
+ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -256,57 +256,4 @@ ArchiveStreamPtr ResourceMgrBase::OpenArchiveStream(const std::string & path)
 	}
 
 	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
-}
-
-HRESULT IncludeFromResource::Open(
-	D3DXINCLUDE_TYPE IncludeType,
-	LPCSTR pFileName,
-	LPCVOID pParentData,
-	LPCVOID * ppData,
-	UINT * pBytes)
-{
-	CachePtr cache;
-	switch(IncludeType)
-	{
-	case D3DXINC_SYSTEM:
-		if(CheckArchivePath(pFileName))
-		{
-			cache = OpenArchiveStream(pFileName)->GetWholeCache();
-			*ppData = &(*cache)[0];
-			*pBytes = cache->size();
-			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
-			m_cacheSet[*ppData] = cache;
-			return S_OK;
-		}
-
-	case D3DXINC_LOCAL:
-		if(ResourceMgr::getSingleton().CheckArchivePath(pFileName))
-		{
-			cache = ResourceMgr::getSingleton().OpenArchiveStream(pFileName)->GetWholeCache();
-			*ppData = &(*cache)[0];
-			*pBytes = cache->size();
-			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
-			m_cacheSet[*ppData] = cache;
-			return S_OK;
-		}
-	}
-	return E_FAIL;
-}
-
-HRESULT IncludeFromResource::Close(
-	LPCVOID pData)
-{
-	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
-	m_cacheSet.erase(m_cacheSet.find(pData));
-	return S_OK;
-}
-
-ResourceMgr::DrivedClassPtr Singleton<ResourceMgr>::s_ptr;
-
-ResourceMgr::ResourceMgr(void)
-{
-}
-
-ResourceMgr::~ResourceMgr(void)
-{
 }

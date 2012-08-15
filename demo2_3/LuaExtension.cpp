@@ -99,7 +99,7 @@ static int luaL_loadfile (lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		lf.stream = my::ResourceMgr::getSingleton().OpenArchiveStream(filename);
+		lf.stream = Game::getSingleton().OpenArchiveStream(filename);
 	}
 	catch(const my::Exception & e)
 	{
