@@ -93,8 +93,15 @@ ResourceDir::~ResourceDir(void)
 {
 }
 
+ZipArchiveDir::ZipArchiveDir(const std::string & dir)
+	: ResourceDir(dir)
+	, m_UsePassword(false)
+{
+}
+
 ZipArchiveDir::ZipArchiveDir(const std::string & dir, const std::string & password)
 	: ResourceDir(dir)
+	, m_UsePassword(true)
 	, m_password(password)
 {
 }
@@ -138,7 +145,7 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
 	}
 
-	if(!m_password.empty())
+	if(m_UsePassword)
 	{
 		ret = unzOpenCurrentFilePassword(zFile, m_password.c_str());
 	}
@@ -203,6 +210,11 @@ ResourceMgr::ResourceMgr(void)
 
 ResourceMgr::~ResourceMgr(void)
 {
+}
+
+void ResourceMgr::RegisterZipArchive(const std::string & zip_path)
+{
+	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
 }
 
 void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)

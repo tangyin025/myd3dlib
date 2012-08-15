@@ -109,6 +109,10 @@ protected:
 	CComPtr<ID3DXEffectPool> m_EffectPool;
 
 public:
+	GameLoader(void);
+
+	virtual ~GameLoader(void);
+
 	virtual __declspec(nothrow) HRESULT __stdcall Open(
 		D3DXINCLUDE_TYPE IncludeType,
 		LPCSTR pFileName,

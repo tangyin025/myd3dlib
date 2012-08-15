@@ -85,8 +85,12 @@ namespace my
 	protected:
 		std::string m_password;
 
+		bool m_UsePassword;
+
 	public:
-		ZipArchiveDir(const std::string & dir, const std::string & password = "");
+		ZipArchiveDir(const std::string & dir);
+
+		ZipArchiveDir(const std::string & dir, const std::string & password);
 
 		bool CheckArchivePath(const std::string & path);
 
@@ -122,7 +126,9 @@ namespace my
 
 		virtual ~ResourceMgr(void);
 
-		void RegisterZipArchive(const std::string & zip_path, const std::string & password = "");
+		void RegisterZipArchive(const std::string & zip_path);
+
+		void RegisterZipArchive(const std::string & zip_path, const std::string & password);
 
 		void RegisterFileDir(const std::string & dir);
 

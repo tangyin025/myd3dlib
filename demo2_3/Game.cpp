@@ -211,6 +211,18 @@ void GameStateBase::DrawCapsule(
 	DrawCylinderStage(pd3dDevice, radius, y0, y1, Color, world);
 }
 
+GameLoader::GameLoader(void)
+{
+	RegisterFileDir(".");
+	RegisterZipArchive("data.zip");
+	RegisterFileDir("..\\demo2_3");
+	RegisterZipArchive("..\\demo2_3\\data.zip");
+}
+
+GameLoader::~GameLoader(void)
+{
+}
+
 HRESULT GameLoader::Open(
 	D3DXINCLUDE_TYPE IncludeType,
 	LPCSTR pFileName,

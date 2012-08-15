@@ -175,7 +175,7 @@ protected:
 
 		// 设置资源读取路径
 		RegisterFileDir(".");
-		RegisterZipArchive("data.zip", "");
+		RegisterZipArchive("data.zip");
 		RegisterFileDir("..\\demo2_3");
 		RegisterZipArchive("..\\demo2_3\\data.zip");
 
