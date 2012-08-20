@@ -39,7 +39,8 @@ class MyDemo
 		AnimationMgr(LPCSTR pSrcData, UINT srcDataLen)
 			: m_currentTime(0)
 		{
-			m_skeleton = my::OgreSkeletonAnimation::CreateOgreSkeletonAnimation(pSrcData, srcDataLen);
+			m_skeleton.reset(new my::OgreSkeletonAnimation());
+			m_skeleton->CreateOgreSkeletonAnimation(pSrcData, srcDataLen);
 		}
 
 		void SetAnimationTime(const std::string & anim, float time, const std::string & next_anim)
@@ -187,13 +188,16 @@ protected:
 
 		// 初始化角色资源
 		my::CachePtr cache = OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
-		m_characterMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
+		m_characterMesh.reset(new my::Mesh());
+		m_characterMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
 		cache = OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
-		m_characterTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+		m_characterTexture.reset(new my::Texture());
+		m_characterTexture->CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		cache = OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
-		m_characterEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
+		m_characterEffect.reset(new my::Effect());
+		m_characterEffect->Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		cache = OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
 		m_characterAnimMgr.reset(new AnimationMgr((char *)&(*cache)[0], cache->size()));
@@ -206,10 +210,12 @@ protected:
 
 		// 初始化场景资源
 		cache = OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
-		m_sceneMesh = my::Mesh::CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
+		m_sceneMesh.reset(new my::Mesh());
+		m_sceneMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
 
 		cache = OpenArchiveStream("scene.texture.jpg")->GetWholeCache();
-		m_sceneTexture = my::Texture::CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+		m_sceneTexture.reset(new my::Texture());
+		m_sceneTexture->CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 		// 初始化物理引擎及相关资源
 		m_dynamicsWorld.reset();
@@ -240,7 +246,8 @@ protected:
 			btRigidBody::btRigidBodyConstructionInfo(0.0f, m_groundMotionState.get(), m_groundShape.get(), localInertia)));
 		m_groundBody->setRestitution(1.0f);
 
-		m_groundMesh = my::Mesh::CreateBox(pd3dDevice, boxHalfExtents.x * 2, boxHalfExtents.z * 2, boxHalfExtents.y * 2);
+		m_groundMesh.reset(new my::Mesh());
+		m_groundMesh->CreateBox(pd3dDevice, boxHalfExtents.x * 2, boxHalfExtents.z * 2, boxHalfExtents.y * 2);
 
 		// 创建物里球体（用于角色碰撞）
 		const float sphereRadius = 5.0f;
@@ -255,7 +262,8 @@ protected:
 			btRigidBody::btRigidBodyConstructionInfo(sphereMass, m_sphereMotionState.get(), m_sphereShape.get(), localInertia)));
 		m_sphereBody->setRestitution(0.0f);
 
-		m_sphereMesh = my::Mesh::CreateSphere(pd3dDevice, sphereRadius);
+		m_sphereMesh.reset(new my::Mesh());
+		m_sphereMesh->CreateSphere(pd3dDevice, sphereRadius);
 
 		// 将地面和角色球加入物理场景
 		m_dynamicsWorld->addRigidBody(m_groundBody.get());
@@ -264,7 +272,8 @@ protected:
 
 		// 创建用于渲染物理物体的线框模式 shader
 		cache = OpenArchiveStream("WireEffect.fx")->GetWholeCache();
-		m_wireEffect = my::Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
+		m_wireEffect.reset(new my::Effect());
+		m_wireEffect->CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 
 		//THROW_CUSEXCEPTION("aaa");
 
@@ -288,7 +297,8 @@ protected:
 		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 
 		// 创建用于shadow map的render target，使用D3DXCreateTexture可以为不支持设备创建兼容贴图
-		m_shadowMapRT = my::Texture::CreateAdjustedTexture(
+		m_shadowMapRT.reset(new my::Texture());
+		m_shadowMapRT->CreateAdjustedTexture(
 			pd3dDevice,
 			SHADOWMAP_SIZE,
 			SHADOWMAP_SIZE,
@@ -299,7 +309,8 @@ protected:
 
 		// 创建用于shadow map的depth scentil
 		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
-		m_shadowMapDS = my::Surface::CreateDepthStencilSurface(
+		m_shadowMapDS.reset(new my::Surface());
+		m_shadowMapDS->CreateDepthStencilSurface(
 			pd3dDevice,
 			SHADOWMAP_SIZE,
 			SHADOWMAP_SIZE,

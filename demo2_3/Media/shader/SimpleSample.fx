@@ -20,6 +20,7 @@ shared float    g_fTime;                   // App's time in seconds
 shared float4x4 g_mWorld;                  // World matrix for object
 shared float4x4 g_mWorldViewProjection;    // World * View * Projection matrix
 
+shared row_major float2x4 g_dualquat[96];
 
 
 //--------------------------------------------------------------------------------------

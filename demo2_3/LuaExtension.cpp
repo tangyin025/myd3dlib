@@ -676,7 +676,7 @@ void Export2Lua(lua_State * L)
 		, class_<GameLoader>("GameLoader")
 			.def("LoadTexture", &GameLoader::LoadTexture)
 			.def("LoadMesh", &GameLoader::LoadMesh)
-			.def("LoadSkeletonAnimation", &GameLoader::LoadSkeletonAnimation)
+			.def("LoadSkeleton", &GameLoader::LoadSkeleton)
 			.def("LoadEffect", &GameLoader::LoadEffect)
 			.def("LoadFont", &GameLoader::LoadFont)
 
@@ -705,6 +705,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Camera", &GameStateMain::m_Camera)
 			.def_readwrite("Effect", &GameStateMain::m_Effect)
 			.def("InsertStaticMesh", &GameStateMain::InsertStaticMesh)
+			.def("InsertCharacter", &GameStateMain::InsertCharacter)
 
 		, class_<BaseCamera, boost::shared_ptr<BaseCamera> >("BaseCamera")
 			.def_readwrite("Aspect", &BaseCamera::m_Aspect)
@@ -735,6 +736,14 @@ void Export2Lua(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Mesh", &EffectMesh::m_Mesh)
 			.def("InsertMaterial", &EffectMesh::InsertMaterial)
+
+		, class_<Character, boost::shared_ptr<Character> >("Character")
+			.def(constructor<>())
+			.def_readwrite("LODLevel", &Character::m_LODLevel)
+			.def_readwrite("Position", &Character::m_Position)
+			.def_readwrite("Rotation", &Character::m_Rotation)
+			.def("InsertMeshLOD", &Character::InsertMeshLOD)
+			.def("InsertSkeletonLOD", &Character::InsertSkeletonLOD)
 	];
 
 	globals(L)["game"] = Game::getSingletonPtr();

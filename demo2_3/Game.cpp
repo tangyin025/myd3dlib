@@ -237,7 +237,7 @@ HRESULT GameLoader::Open(
 	case D3DXINC_LOCAL:
 		if(CheckArchivePath(pFileName))
 		{
-			cache = OpenArchiveStream(pFileName)->GetWholeCache();
+			cache = OpenArchiveStream(std::string("shader\\") + pFileName)->GetWholeCache();
 			*ppData = &(*cache)[0];
 			*pBytes = cache->size();
 			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
@@ -258,57 +258,87 @@ HRESULT GameLoader::Close(
 
 TexturePtr GameLoader::LoadTexture(const std::string & path)
 {
+	TexturePtr ret(new Texture());
 	std::string loc_path = std::string("texture\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
-		return Texture::CreateTextureFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str());
-
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	return Texture::CreateTextureFromFileInMemory(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
+	{
+		ret->CreateTextureFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str());
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateTextureFromFileInMemory(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
+	}
+	return ret;
 }
 
 MeshPtr GameLoader::LoadMesh(const std::string & path)
 {
+	MeshPtr ret(new Mesh());
 	std::string loc_path = std::string("mesh\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
-		return Mesh::CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
-
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	return Mesh::CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+	{
+		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+	}
+	return ret;
 }
 
-OgreSkeletonAnimationPtr GameLoader::LoadSkeletonAnimation(const std::string & path)
+OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
 {
-	std::string loc_path = std::string("skeleton\\") + path;
+	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
+	std::string loc_path = std::string("mesh\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
-		return OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(full_path.c_str());
-
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	return OgreSkeletonAnimation::CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+	{
+		ret->CreateOgreSkeletonAnimationFromFile(full_path.c_str());
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+	}
+	return ret;
 }
 
 EffectPtr GameLoader::LoadEffect(const std::string & path)
 {
+	EffectPtr ret(new Effect());
 	std::string loc_path = std::string("shader\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
-		return Effect::CreateEffectFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
-
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	return Effect::CreateEffect(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+	{
+		ret->CreateEffectFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateEffect(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+	}
+	return ret;
 }
 
 FontPtr GameLoader::LoadFont(const std::string & path, int height)
 {
+	FontPtr ret(new Font());
 	std::string loc_path = std::string("font\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
-		return Font::CreateFontFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), height, 1);
-
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	return Font::CreateFontFromFileInCache(Game::getSingleton().GetD3D9Device(), cache, height, 1);
+	{
+		ret->CreateFontFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), height, 1);
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateFontFromFileInCache(Game::getSingleton().GetD3D9Device(), cache, height, 1);
+	}
+	return ret;
 }
 
 Game::Game(void)
@@ -418,16 +448,22 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	if(!m_input)
 	{
-		m_input = Input::CreateInput(GetModuleHandle(NULL));
-		m_keyboard = Keyboard::CreateKeyboard(m_input->m_ptr);
+		m_input.reset(new Input());
+		m_input->CreateInput(GetModuleHandle(NULL));
+
+		m_keyboard.reset(new Keyboard());
+		m_keyboard->CreateKeyboard(m_input->m_ptr);
 		m_keyboard->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-		m_mouse = Mouse::CreateMouse(m_input->m_ptr);
+
+		m_mouse.reset(new Mouse());
+		m_mouse->CreateMouse(m_input->m_ptr);
 		m_mouse->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 	}
 
 	if(!m_sound)
 	{
-		m_sound = Sound::CreateSound();
+		m_sound.reset(new Sound());
+		m_sound->CreateSound();
 		m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
 	}
 
@@ -488,6 +524,8 @@ void Game::OnD3D9DestroyDevice(void)
 	m_dlgResourceMgr.OnD3D9DestroyDevice();
 
 	m_settingsDlg.OnD3D9DestroyDevice();
+
+	ExecuteCode("collectgarbage(\"collect\")");
 
 	m_console.reset();
 

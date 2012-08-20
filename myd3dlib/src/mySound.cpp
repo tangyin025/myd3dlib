@@ -8,7 +8,7 @@
 
 using namespace my;
 
-SoundPtr Sound::CreateSound(void)
+void Sound::CreateSound(void)
 {
 	LPDIRECTSOUND8 lpsound;
 	HRESULT hr;
@@ -16,21 +16,11 @@ SoundPtr Sound::CreateSound(void)
 	{
 		THROW_DSOUNDEXCEPTION(hr);
 	}
-	return SoundPtr(new Sound(lpsound));
+
+	Create(lpsound);
 }
 
-SoundBufferPtr Sound::CreateSoundBuffer(
-	LPCDSBUFFERDESC pcDSBufferDesc)
-{
-	LPDIRECTSOUNDBUFFER lpdsbuffer;
-	if(FAILED(hr = m_ptr->CreateSoundBuffer(pcDSBufferDesc, &lpdsbuffer, NULL)))
-	{
-		THROW_DSOUNDEXCEPTION(hr);
-	}
-	return SoundBufferPtr(new SoundBuffer(lpdsbuffer));
-}
-
-SoundBufferPtr SoundBuffer::CreateSoundBufferFromMmio(
+void SoundBuffer::CreateSoundBufferFromMmio(
 	LPDIRECTSOUND8 pDSound,
 	HMMIO hmmio,
 	DWORD flags)
@@ -93,13 +83,13 @@ SoundBufferPtr SoundBuffer::CreateSoundBufferFromMmio(
 		THROW_DSOUNDEXCEPTION(hr);
 	}
 
-	SoundBufferPtr sbuffer(new SoundBuffer(lpdsbuffer));
+	Create(lpdsbuffer);
 
 	unsigned char * buffer1;
 	DWORD bytes1;
 	unsigned char * buffer2;
 	DWORD bytes2;
-	sbuffer->Lock(0, child.cksize, (LPVOID *)&buffer1, &bytes1, (LPVOID *)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
+	Lock(0, child.cksize, (LPVOID *)&buffer1, &bytes1, (LPVOID *)&buffer2, &bytes2, DSBLOCK_ENTIREBUFFER);
 
 	_ASSERT(bytes1 + bytes2 == child.cksize);
 
@@ -115,14 +105,12 @@ SoundBufferPtr SoundBuffer::CreateSoundBufferFromMmio(
 		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
 	}
 
-	sbuffer->Unlock(buffer1, bytes1, buffer2, bytes2);
+	Unlock(buffer1, bytes1, buffer2, bytes2);
 
 	mmioClose(hmmio, 0);
-
-	return sbuffer;
 }
 
-SoundBufferPtr SoundBuffer::CreateSoundBufferFromFile(
+void SoundBuffer::CreateSoundBufferFromFile(
 	LPDIRECTSOUND8 pDSound,
 	LPCSTR pSrcFile,
 	DWORD flags)
@@ -132,10 +120,11 @@ SoundBufferPtr SoundBuffer::CreateSoundBufferFromFile(
 	{
 		THROW_CUSEXCEPTION("open wave file failed");
 	}
-	return CreateSoundBufferFromMmio(pDSound, hmmio, flags);
+
+	CreateSoundBufferFromMmio(pDSound, hmmio, flags);
 }
 
-SoundBufferPtr SoundBuffer::CreateSoundBufferFromFileInMemory(
+void SoundBuffer::CreateSoundBufferFromFileInMemory(
 	LPDIRECTSOUND8 pDSound,
 	LPCVOID pSrcData,
 	UINT SrcDataLen,
@@ -176,7 +165,8 @@ SoundBufferPtr SoundBuffer::CreateSoundBufferFromFileInMemory(
 	{
 		THROW_CUSEXCEPTION("open wave file failed");
 	}
-	return CreateSoundBufferFromMmio(pDSound, hmmio, flags);
+
+	CreateSoundBufferFromMmio(pDSound, hmmio, flags);
 }
 
 Sound3DBufferPtr SoundBuffer::Get3DBuffer(void)

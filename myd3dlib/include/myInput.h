@@ -8,29 +8,30 @@
 
 namespace my
 {
-	class Input;
-
-	typedef boost::shared_ptr<Input> InputPtr;
-
 	class Input
 	{
 	public:
-		IDirectInput8W * m_ptr;
-
 		HRESULT hr;
 
-		Input(IDirectInput8W * dinput)
-			: m_ptr(dinput)
+		IDirectInput8W * m_ptr;
+
+	public:
+		Input(void)
+			: m_ptr(NULL)
 		{
 		}
 
-	public:
 		virtual ~Input(void)
 		{
 			SAFE_RELEASE(m_ptr);
 		}
 
-		static InputPtr CreateInput(HINSTANCE hinst);
+		void Create(IDirectInput8W * dinput)
+		{
+			m_ptr = dinput;
+		}
+
+		void CreateInput(HINSTANCE hinst);
 
 		void ConfigureDevices(
 			LPDICONFIGUREDEVICESCALLBACK lpdiCallback,
@@ -103,24 +104,31 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<Input> InputPtr;
+
 	class InputDevice
 	{
 	public:
+		HRESULT hr;
+
 		friend Input;
 
 		IDirectInputDevice8W * m_ptr;
 
-		HRESULT hr;
-
-		InputDevice(LPDIRECTINPUTDEVICE8W device)
-			: m_ptr(device)
+	public:
+		InputDevice(void)
+			: m_ptr(NULL)
 		{
 		}
 
-	public:
 		virtual ~InputDevice(void)
 		{
 			SAFE_RELEASE(m_ptr);
+		}
+
+		void Create(LPDIRECTINPUTDEVICE8W device)
+		{
+			m_ptr = device;
 		}
 
 		virtual void Capture(void) = 0;
@@ -162,10 +170,6 @@ namespace my
 		}
 	};
 
-	class Keyboard;
-
-	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
-
 	class Keyboard : public InputDevice
 	{
 	protected:
@@ -173,10 +177,12 @@ namespace my
 
 		BYTE m_CurState[256];
 
-		Keyboard(LPDIRECTINPUTDEVICE8W device);
-
 	public:
-		static KeyboardPtr CreateKeyboard(LPDIRECTINPUT8W input);
+		Keyboard(void)
+		{
+		}
+
+		void CreateKeyboard(LPDIRECTINPUT8W input);
 
 		virtual void Capture(void);
 
@@ -196,9 +202,7 @@ namespace my
 		}
 	};
 
-	class Mouse;
-
-	typedef boost::shared_ptr<Mouse> MousePtr;
+	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
 
 	class Mouse : public InputDevice
 	{
@@ -207,10 +211,12 @@ namespace my
 
 		DIMOUSESTATE m_CurState;
 
-		Mouse(LPDIRECTINPUTDEVICE8W device);
-
 	public:
-		static MousePtr CreateMouse(LPDIRECTINPUT8W input);
+		Mouse(void)
+		{
+		}
+
+		void CreateMouse(LPDIRECTINPUT8W input);
 
 		virtual void Capture(void);
 
@@ -244,4 +250,6 @@ namespace my
 			return m_PreState.rgbButtons[dwIndex] && !m_CurState.rgbButtons[dwIndex];
 		}
 	};
+
+	typedef boost::shared_ptr<Mouse> MousePtr;
 }

@@ -5,6 +5,7 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "Camera.h"
 #include "EffectMesh.h"
+#include "Character.h"
 
 class GameStateMain;
 
@@ -50,13 +51,15 @@ public:
 
 	boost::shared_ptr<ModuleViewCamera> m_Camera;
 
+	my::EffectPtr m_Effect;
+
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 
 	EffectMeshPtrList m_staticMeshes;
 
-	my::EffectPtr m_Effect;
+	typedef std::vector<CharacterPtr> CharacterPtrList;
 
-	my::TexturePtr m_Texture;
+	CharacterPtrList m_characters;
 
 public:
 	GameStateMain(void);
@@ -82,5 +85,10 @@ public:
 	void InsertStaticMesh(EffectMeshPtr effect_mesh)
 	{
 		m_staticMeshes.push_back(effect_mesh);
+	}
+
+	void InsertCharacter(CharacterPtr character)
+	{
+		m_characters.push_back(character);
 	}
 };

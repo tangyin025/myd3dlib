@@ -429,10 +429,12 @@ BoneList & BoneTrackList::GetPose(
 	return boneList;
 }
 
-OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
+void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	LPCSTR pSrcData,
 	UINT srcDataLen)
 {
+	Clear();
+
 	std::string xmlStr(pSrcData, srcDataLen);
 
 	rapidxml::xml_document<char> doc;
@@ -451,7 +453,6 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	DEFINE_XML_NODE_SIMPLE(bone, bones);
 
 	int bone_i = 0;
-	OgreSkeletonAnimationPtr ogre_skel_anim(new OgreSkeletonAnimation());
 	for(; node_bone != NULL; node_bone = node_bone->next_sibling(), bone_i++)
 	{
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
@@ -461,12 +462,12 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		}
 
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
-		if(ogre_skel_anim->m_boneNameMap.end() != ogre_skel_anim->m_boneNameMap.find(attr_name->value()))
+		if(m_boneNameMap.end() != m_boneNameMap.find(attr_name->value()))
 		{
 			THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
 		}
 
-		ogre_skel_anim->m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
+		m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
 
 		DEFINE_XML_NODE_SIMPLE(position, bone);
 		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, position);
@@ -482,32 +483,32 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-		ogre_skel_anim->m_boneBindPose.push_back(
+		m_boneBindPose.push_back(
 			Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, -axis_z), -angle), Vector3(x, y, -z)));
 
-		_ASSERT(id == ogre_skel_anim->m_boneBindPose.size() - 1);
+		_ASSERT(id == m_boneBindPose.size() - 1);
 	}
 
 	DEFINE_XML_NODE_SIMPLE(bonehierarchy, skeleton);
 	DEFINE_XML_NODE_SIMPLE(boneparent, bonehierarchy);
 
-	ogre_skel_anim->m_boneHierarchy.resize(ogre_skel_anim->m_boneBindPose.size());
+	m_boneHierarchy.resize(m_boneBindPose.size());
 	for(; node_boneparent != NULL; node_boneparent = node_boneparent->next_sibling())
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(bone, boneparent);
-		if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_bone->value()))
+		if(m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
 		{
 			THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 		}
 
 		DEFINE_XML_ATTRIBUTE_SIMPLE(parent, boneparent);
-		if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_parent->value()))
+		if(m_boneNameMap.end() == m_boneNameMap.find(attr_parent->value()))
 		{
 			THROW_CUSEXCEPTION(str_printf("invalid bone parent name: %s", attr_parent->value()));
 		}
 
-		ogre_skel_anim->m_boneHierarchy.InsertChild(
-			ogre_skel_anim->m_boneNameMap[attr_parent->value()], ogre_skel_anim->m_boneNameMap[attr_bone->value()]);
+		m_boneHierarchy.InsertChild(
+			m_boneNameMap[attr_parent->value()], m_boneNameMap[attr_bone->value()]);
 	}
 
 	DEFINE_XML_NODE_SIMPLE(animations, skeleton);
@@ -516,29 +517,29 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	for(; node_animation != NULL; node_animation = node_animation->next_sibling())
 	{
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
-		if(ogre_skel_anim->m_animationMap.end() != ogre_skel_anim->m_animationMap.find(attr_name->value()))
+		if(m_animationMap.end() != m_animationMap.find(attr_name->value()))
 		{
 			THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
 		}
 
-		ogre_skel_anim->m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
-		OgreAnimation & anim = ogre_skel_anim->m_animationMap[attr_name->value()];
+		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
+		OgreAnimation & anim = m_animationMap[attr_name->value()];
 
 		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
 		anim.m_time = length;
-		anim.resize(ogre_skel_anim->m_boneBindPose.size());
+		anim.resize(m_boneBindPose.size());
 
 		DEFINE_XML_NODE_SIMPLE(tracks, animation);
 		DEFINE_XML_NODE_SIMPLE(track, tracks);
 		for(; node_track != NULL; node_track = node_track->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
-			if(ogre_skel_anim->m_boneNameMap.end() == ogre_skel_anim->m_boneNameMap.find(attr_bone->value()))
+			if(m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
 			{
 				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 			}
 
-			BoneTrack & bone_track = anim[ogre_skel_anim->m_boneNameMap[attr_bone->value()]];
+			BoneTrack & bone_track = anim[m_boneNameMap[attr_bone->value()]];
 
 			DEFINE_XML_NODE_SIMPLE(keyframes, track);
 			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
@@ -568,11 +569,9 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			}
 		}
 	}
-
-	return ogre_skel_anim;
 }
 
-OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
+void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	LPCSTR pFilename)
 {
 	FILE * fp;
@@ -583,5 +582,5 @@ OgreSkeletonAnimationPtr OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromF
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 
-	return CreateOgreSkeletonAnimation((LPCSTR)&(*cache)[0], cache->size());
+	CreateOgreSkeletonAnimation((LPCSTR)&(*cache)[0], cache->size());
 }

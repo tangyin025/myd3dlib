@@ -10,22 +10,19 @@
 
 namespace my
 {
-	class Surface;
-
-	typedef boost::shared_ptr<Surface> SurfacePtr;
-
 	class Surface : public DeviceRelatedObject<IDirect3DSurface9>
 	{
-		friend class Texture;
-
-	protected:
-		Surface(IDirect3DSurface9 * ptr)
-			: DeviceRelatedObject(ptr)
+	public:
+		Surface(void)
 		{
 		}
 
-	public:
-		static SurfacePtr CreateDepthStencilSurface(
+		void Create(IDirect3DSurface9 * ptr)
+		{
+			m_ptr = ptr;
+		}
+
+		void CreateDepthStencilSurface(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
@@ -34,7 +31,7 @@ namespace my
 			DWORD MultisampleQuality = 0,
 			BOOL Discard = TRUE);
 
-		static SurfacePtr CreateOffscreenPlainSurface(
+		void CreateOffscreenPlainSurface(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
@@ -85,19 +82,20 @@ namespace my
 		}
 	};
 
-	class BaseTexture;
-
-	typedef boost::shared_ptr<BaseTexture> BaseTexturePtr;
+	typedef boost::shared_ptr<Surface> SurfacePtr;
 
 	class BaseTexture : public DeviceRelatedObject<IDirect3DBaseTexture9>
 	{
 	public:
-		BaseTexture(IDirect3DBaseTexture9 * ptr)
-			: DeviceRelatedObject(ptr)
+		BaseTexture(void)
 		{
 		}
 
-	public:
+		void Create(IDirect3DBaseTexture9 * ptr)
+		{
+			m_ptr = ptr;
+		}
+
 		void GenerateMipSubLevels(void)
 		{
 			m_ptr->GenerateMipSubLevels();
@@ -129,20 +127,14 @@ namespace my
 		}
 	};
 
-	class Texture;
-
-	typedef boost::shared_ptr<Texture> TexturePtr;
-
 	class Texture : public BaseTexture
 	{
-	protected:
-		Texture(IDirect3DTexture9 * pd3dTexture)
-			: BaseTexture(pd3dTexture)
+	public:
+		Texture(void)
 		{
 		}
 
-	public:
-		static TexturePtr CreateTexture(
+		void CreateTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
@@ -151,7 +143,7 @@ namespace my
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		static TexturePtr CreateAdjustedTexture(
+		void CreateAdjustedTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
@@ -160,7 +152,7 @@ namespace my
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		static TexturePtr CreateTextureFromFile(
+		void CreateTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcFile,
 			UINT Width = D3DX_DEFAULT_NONPOW2,
@@ -175,7 +167,7 @@ namespace my
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
 
-		static TexturePtr CreateTextureFromFileInMemory(
+		void CreateTextureFromFileInMemory(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataSize,
@@ -191,7 +183,6 @@ namespace my
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
 
-	public:
 		void AddDirtyRect(CONST CRect * pDirtyRect = NULL)
 		{
 			V(static_cast<IDirect3DTexture9 *>(m_ptr)->AddDirtyRect(pDirtyRect));
@@ -229,20 +220,16 @@ namespace my
 		}
 	};
 
-	class CubeTexture;
-
-	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;
+	typedef boost::shared_ptr<Texture> TexturePtr;
 
 	class CubeTexture : public BaseTexture
 	{
 	public:
-		CubeTexture(IDirect3DCubeTexture9 * pd3dCubeTexture)
-			: BaseTexture(pd3dCubeTexture)
+		CubeTexture(void)
 		{
 		}
 
-	public:
-		static CubeTexturePtr CreateCubeTexture(
+		void CreateCubeTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT EdgeLength,
 			UINT Levels,
@@ -250,7 +237,7 @@ namespace my
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		static CubeTexturePtr CubeAdjustedTexture(
+		void CubeAdjustedTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Size,
 			UINT MipLevels = D3DX_DEFAULT,
@@ -258,7 +245,7 @@ namespace my
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		static CubeTexturePtr CreateCubeTextureFromFile(
+		void CreateCubeTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcFile,
 			UINT Size = D3DX_DEFAULT,
@@ -272,7 +259,7 @@ namespace my
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
 
-		static CubeTexturePtr CreateCubeTextureFromFileInMemory(
+		void CreateCubeTextureFromFileInMemory(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataSize,
@@ -287,4 +274,6 @@ namespace my
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
 	};
+
+	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;
 }

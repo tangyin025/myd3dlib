@@ -1,14 +1,9 @@
 #include "stdafx.h"
 #include "myTexture.h"
-#include "myResource.h"
-
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-#endif
 
 using namespace my;
 
-SurfacePtr Surface::CreateDepthStencilSurface(
+void Surface::CreateDepthStencilSurface(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -25,10 +20,10 @@ SurfacePtr Surface::CreateDepthStencilSurface(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SurfacePtr(new Surface(pSurface));
+	Create(pSurface);
 }
 
-SurfacePtr Surface::CreateOffscreenPlainSurface(
+void Surface::CreateOffscreenPlainSurface(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -42,10 +37,10 @@ SurfacePtr Surface::CreateOffscreenPlainSurface(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SurfacePtr(new Surface(pSurface));
+	Create(pSurface);
 }
 
-TexturePtr Texture::CreateTexture(
+void Texture::CreateTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -62,10 +57,10 @@ TexturePtr Texture::CreateTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	Create(pTexture);
 }
 
-TexturePtr Texture::CreateAdjustedTexture(
+void Texture::CreateAdjustedTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -82,10 +77,10 @@ TexturePtr Texture::CreateAdjustedTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	Create(pTexture);
 }
 
-TexturePtr Texture::CreateTextureFromFile(
+void Texture::CreateTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	UINT Width,
@@ -108,10 +103,10 @@ TexturePtr Texture::CreateTextureFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	Create(pTexture);
 }
 
-TexturePtr Texture::CreateTextureFromFileInMemory(
+void Texture::CreateTextureFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
@@ -135,10 +130,10 @@ TexturePtr Texture::CreateTextureFromFileInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return TexturePtr(new Texture(pTexture));
+	Create(pTexture);
 }
 
-CubeTexturePtr CubeTexture::CreateCubeTexture(
+void CubeTexture::CreateCubeTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT EdgeLength,
 	UINT Levels,
@@ -154,10 +149,10 @@ CubeTexturePtr CubeTexture::CreateCubeTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	Create(pCubeTexture);
 }
 
-CubeTexturePtr CubeTexture::CubeAdjustedTexture(
+void CubeTexture::CubeAdjustedTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Size,
 	UINT MipLevels,
@@ -173,10 +168,10 @@ CubeTexturePtr CubeTexture::CubeAdjustedTexture(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	Create(pCubeTexture);
 }
 
-CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
+void CubeTexture::CreateCubeTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	UINT Size,
@@ -198,10 +193,10 @@ CubeTexturePtr CubeTexture::CreateCubeTextureFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	Create(pCubeTexture);
 }
 
-CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
+void CubeTexture::CreateCubeTextureFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
@@ -224,5 +219,5 @@ CubeTexturePtr CubeTexture::CreateCubeTextureFromFileInMemory(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return CubeTexturePtr(new CubeTexture(pCubeTexture));
+	Create(pCubeTexture);
 }

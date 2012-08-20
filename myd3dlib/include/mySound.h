@@ -7,36 +7,37 @@
 
 namespace my
 {
-	class Sound;
-
-	typedef boost::shared_ptr<Sound> SoundPtr;
-
-	class SoundBuffer;
-
-	typedef boost::shared_ptr<SoundBuffer> SoundBufferPtr;
-
 	class Sound
 	{
 	public:
-		IDirectSound8 * m_ptr;
-
 		HRESULT hr;
 
-		Sound(IDirectSound8 * ptr)
-			: m_ptr(ptr)
+		IDirectSound8 * m_ptr;
+
+	public:
+		Sound(void)
+			: m_ptr(NULL)
 		{
 		}
 
-	public:
 		virtual ~Sound(void)
 		{
 			SAFE_RELEASE(m_ptr);
 		}
 
-		static SoundPtr CreateSound(void);
+		void Create(IDirectSound8 * ptr)
+		{
+			m_ptr = ptr;
+		}
 
-		SoundBufferPtr CreateSoundBuffer(
-			LPCDSBUFFERDESC pcDSBufferDesc);
+		void CreateSound(void);
+
+		void CreateSoundBuffer(
+			LPCDSBUFFERDESC pcDSBufferDesc,
+			LPDIRECTSOUNDBUFFER * ppDSBuffer)
+		{
+			V(m_ptr->CreateSoundBuffer(pcDSBufferDesc, ppDSBuffer, NULL));
+		}
 
 		DSCAPS GetCaps(void)
 		{
@@ -53,6 +54,8 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<Sound> SoundPtr;
+
 	class Sound3DBuffer;
 
 	typedef boost::shared_ptr<Sound3DBuffer> Sound3DBufferPtr;
@@ -63,35 +66,38 @@ namespace my
 
 	class SoundBuffer
 	{
-		friend Sound;
-
 	public:
-		IDirectSoundBuffer * m_ptr;
-
 		HRESULT hr;
 
-		SoundBuffer(IDirectSoundBuffer * ptr)
-			: m_ptr(ptr)
+		IDirectSoundBuffer * m_ptr;
+
+	public:
+		SoundBuffer(void)
+			: m_ptr(NULL)
 		{
 		}
 
-		static SoundBufferPtr CreateSoundBufferFromMmio(
-			LPDIRECTSOUND8 pDSound,
-			HMMIO hmmio,
-			DWORD flags);
-
-	public:
 		virtual ~SoundBuffer(void)
 		{
 			SAFE_RELEASE(m_ptr);
 		}
 
-		static SoundBufferPtr CreateSoundBufferFromFile(
+		void Create(IDirectSoundBuffer * ptr)
+		{
+			m_ptr = ptr;
+		}
+
+		void CreateSoundBufferFromMmio(
+			LPDIRECTSOUND8 pDSound,
+			HMMIO hmmio,
+			DWORD flags);
+
+		void CreateSoundBufferFromFile(
 			LPDIRECTSOUND8 pDSound,
 			LPCSTR pSrcFile,
 			DWORD flags = DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
 
-		static SoundBufferPtr CreateSoundBufferFromFileInMemory(
+		void CreateSoundBufferFromFileInMemory(
 			LPDIRECTSOUND8 pDSound,
 			LPCVOID pSrcData,
 			UINT SrcDataLen,
@@ -215,6 +221,8 @@ namespace my
 
 		Sound3DListenerPtr Get3DListener(void);
 	};
+
+	typedef boost::shared_ptr<SoundBuffer> SoundBufferPtr;
 
 	class Sound3DBuffer
 	{

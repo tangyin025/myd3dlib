@@ -10,7 +10,7 @@
 
 using namespace my;
 
-SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
+void Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 {
 	LPD3DXSPRITE pSprite = NULL;
 	HRESULT hres = D3DXCreateSprite(pDevice, &pSprite);
@@ -19,7 +19,7 @@ SpritePtr Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return SpritePtr(new Sprite(pSprite));
+	Create(pSprite);
 }
 
 bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
@@ -118,12 +118,22 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 	return false;
 }
 
-Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap)
-	: m_face(face)
-	, m_Device(pDevice)
-	, FONT_PIXEL_GAP(pixel_gap)
+Font::~Font(void)
 {
+	if(m_face)
+	{
+		FT_Done_Face(m_face);
+		m_face = NULL;
+	}
+}
+
+void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
+{
+	m_face = face;
+
 	_ASSERT(m_face);
+
+	m_Device = pDevice;
 
 	FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
 	if(err)
@@ -135,25 +145,15 @@ Font::Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short p
 
 	m_maxAdvance = m_face->size->metrics.max_advance >> 6;
 
-	CreateFontTexture(256, 256);
+	CreateFontTexture(512, 512);
 
 	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 }
 
-Font::~Font(void)
-{
-	if(m_face)
-	{
-		FT_Done_Face(m_face);
-		m_face = NULL;
-	}
-}
-
-FontPtr Font::CreateFontFromFile(
+void Font::CreateFontFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	int height,
-	unsigned short pixel_gap,
 	FT_Long face_index)
 {
 	FT_Face face;
@@ -163,28 +163,26 @@ FontPtr Font::CreateFontFromFile(
 		THROW_CUSEXCEPTION("FT_New_Face failed");
 	}
 
-	return FontPtr(new Font(face, height, pDevice, pixel_gap));
+	Create(face, height, pDevice);
 }
 
-FontPtr Font::CreateFontFromFileInMemory(
+void Font::CreateFontFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	const void * file_base,
 	long file_size,
 	int height,
-	unsigned short pixel_gap,
 	FT_Long face_index)
 {
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
 
-	return CreateFontFromFileInCache(pDevice, cache, height, pixel_gap, face_index);
+	CreateFontFromFileInCache(pDevice, cache, height, face_index);
 }
 
-FontPtr Font::CreateFontFromFileInCache(
+void Font::CreateFontFromFileInCache(
 	LPDIRECT3DDEVICE9 pDevice,
 	CachePtr cache_ptr,
 	int height,
-	unsigned short pixel_gap,
 	FT_Long face_index)
 {
 	FT_Face face;
@@ -194,9 +192,9 @@ FontPtr Font::CreateFontFromFileInCache(
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
 	}
 
-	FontPtr font(new Font(face, height, pDevice, pixel_gap));
-	font->m_cache = cache_ptr;
-	return font;
+	Create(face, height, pDevice);
+
+	m_cache = cache_ptr;
 }
 
 void Font::OnResetDevice(void)
@@ -210,6 +208,7 @@ void Font::OnLostDevice(void)
 void Font::OnDestroyDevice(void)
 {
 	m_Device.Release();
+
 	if(m_face)
 	{
 		FT_Done_Face(m_face);
@@ -219,8 +218,10 @@ void Font::OnDestroyDevice(void)
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
-	m_texture.reset();
-	m_texture = Texture::CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+	m_texture.reset(new Texture());
+
+	m_texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+
 	m_textureDesc = m_texture->GetLevelDesc();
 }
 

@@ -18,18 +18,23 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
-	protected:
-		ConstantTable(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
-			: m_pConstantTable(pConstantTable)
-			, m_Device(pDevice)
+	public:
+		ConstantTable(void)
 		{
-			_ASSERT(NULL != m_pConstantTable);
 		}
 
-	public:
 		virtual ~ConstantTable(void)
 		{
 			SAFE_RELEASE(m_pConstantTable);
+		}
+
+		void Create(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+		{
+			m_pConstantTable = pConstantTable;
+
+			_ASSERT(m_pConstantTable);
+
+			m_Device = pDevice;
 		}
 
 		LPVOID GetBufferPointer(void)
@@ -155,10 +160,6 @@ namespace my
 		}
 	};
 
-	class VertexShader;
-
-	typedef boost::shared_ptr<VertexShader> VertexShaderPtr;
-
 	class VertexShader
 		: public ConstantTable
 		, public DeviceRelatedObject<IDirect3DVertexShader9>
@@ -166,17 +167,19 @@ namespace my
 	protected:
 		HRESULT hr;
 
-		VertexShader(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
-			: ConstantTable(pConstantTable, pDevice)
-			, DeviceRelatedObject(ptr)
+	public:
+		VertexShader(void)
 		{
-			_ASSERT(m_Device == GetDevice());
 		}
 
-		void OnDestroyDevice(void);
+		void Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+		{
+			m_ptr = ptr;
 
-	public:
-		static VertexShaderPtr CreateVertexShader(
+			ConstantTable::Create(pConstantTable, pDevice);
+		}
+
+		void CreateVertexShader(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
@@ -186,7 +189,7 @@ namespace my
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0);
 
-		static VertexShaderPtr CreateVertexShaderFromFile(
+		void CreateVertexShaderFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcFile,
 			LPCSTR pFunctionName,
@@ -195,7 +198,8 @@ namespace my
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0);
 
-	public:
+		void OnDestroyDevice(void);
+
 		CComPtr<IDirect3DDevice9> GetDevice(void)
 		{
 			CComPtr<IDirect3DDevice9> Device;
@@ -209,9 +213,7 @@ namespace my
 		}
 	};
 
-	class PixelShader;
-
-	typedef boost::shared_ptr<PixelShader> PixelShaderPtr;
+	typedef boost::shared_ptr<VertexShader> VertexShaderPtr;
 
 	class PixelShader
 		: public ConstantTable
@@ -220,17 +222,19 @@ namespace my
 	protected:
 		HRESULT hr;
 
-		PixelShader(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
-			: ConstantTable(pConstantTable, pDevice)
-			, DeviceRelatedObject(ptr)
+	public:
+		PixelShader(void)
 		{
-			_ASSERT(m_Device == GetDevice());
 		}
 
-		void OnDestroyDevice(void);
+		void Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+		{
+			m_ptr = ptr;
 
-	public:
-		static PixelShaderPtr CreatePixelShader(
+			ConstantTable::Create(pConstantTable, pDevice);
+		}
+
+		void CreatePixelShader(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
@@ -240,7 +244,7 @@ namespace my
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0);
 
-		static PixelShaderPtr CreatePixelShaderFromFile(
+		void CreatePixelShaderFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcFile,
 			LPCSTR pFunctionName,
@@ -249,7 +253,8 @@ namespace my
 			LPD3DXINCLUDE pInclude = NULL,
 			DWORD Flags = 0);
 
-	public:
+		void OnDestroyDevice(void);
+
 		CComPtr<IDirect3DDevice9> GetDevice(void)
 		{
 			CComPtr<IDirect3DDevice9> Device;
@@ -263,19 +268,20 @@ namespace my
 		}
 	};
 
-	class BaseEffect;
-
-	typedef boost::shared_ptr<BaseEffect> BaseEffectPtr;
+	typedef boost::shared_ptr<PixelShader> PixelShaderPtr;
 
 	class BaseEffect : public DeviceRelatedObject<ID3DXBaseEffect>
 	{
 	public:
-		BaseEffect(ID3DXBaseEffect * ptr)
-			: DeviceRelatedObject(ptr)
+		BaseEffect(void)
 		{
 		}
 
-	public:
+		void Create(ID3DXBaseEffect * ptr)
+		{
+			m_ptr = ptr;
+		}
+
 		D3DXHANDLE GetAnnotation(D3DXHANDLE hObject, UINT Index)
 		{
 			D3DXHANDLE ret = m_ptr->GetAnnotation(hObject, Index);
@@ -607,20 +613,14 @@ namespace my
 		}
 	};
 
-	class Effect;
-
-	typedef boost::shared_ptr<Effect> EffectPtr;
-
 	class Effect : public BaseEffect
 	{
-	protected:
-		Effect(ID3DXEffect * pd3dxEffect)
-			: BaseEffect(pd3dxEffect)
+	public:
+		Effect(void)
 		{
 		}
 
-	public:
-		static EffectPtr CreateEffect(
+		void CreateEffect(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataLen,
@@ -629,7 +629,7 @@ namespace my
 			DWORD Flags = 0,
 			LPD3DXEFFECTPOOL pPool = NULL);
 
-		static EffectPtr CreateEffectFromFile(
+		void CreateEffectFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcFile,
 			CONST D3DXMACRO * pDefines = NULL,
@@ -637,17 +637,16 @@ namespace my
 			DWORD Flags = 0,
 			LPD3DXEFFECTPOOL pPool = NULL);
 
-		virtual void OnResetDevice(void)
+		void OnResetDevice(void)
 		{
 			V(static_cast<ID3DXEffect *>(m_ptr)->OnResetDevice());
 		}
 
-		virtual void OnLostDevice(void)
+		void OnLostDevice(void)
 		{
 			V(static_cast<ID3DXEffect *>(m_ptr)->OnLostDevice());
 		}
 
-	public:
 		void ApplyParameterBlock(D3DXHANDLE hParameterBlock)
 		{
 			V(static_cast<ID3DXEffect *>(m_ptr)->ApplyParameterBlock(hParameterBlock));
@@ -764,4 +763,6 @@ namespace my
 			return SUCCEEDED(static_cast<ID3DXEffect *>(m_ptr)->ValidateTechnique(hTechnique));
 		}
 	};
+
+	typedef boost::shared_ptr<Effect> EffectPtr;
 }

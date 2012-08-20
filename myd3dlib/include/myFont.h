@@ -12,17 +12,19 @@
 
 namespace my
 {
-	class Sprite;
-
-	typedef boost::shared_ptr<Sprite> SpritePtr;
-
 	class Sprite : public DeviceRelatedObject<ID3DXSprite>
 	{
-	protected:
-		Sprite(ID3DXSprite * ptr)
-			: DeviceRelatedObject(ptr)
+	public:
+		Sprite(void)
 		{
 		}
+
+		void Create(ID3DXSprite * ptr)
+		{
+			m_ptr = ptr;
+		}
+
+		void CreateSprite(LPDIRECT3DDEVICE9 pDevice);
 
 		virtual void OnResetDevice(void)
 		{
@@ -33,9 +35,6 @@ namespace my
 		{
 			V(m_ptr->OnLostDevice());
 		}
-
-	public:
-		static SpritePtr CreateSprite(LPDIRECT3DDEVICE9 pDevice);
 
 		void Begin(DWORD Flags = D3DXSPRITE_ALPHABLEND)
 		{
@@ -82,15 +81,15 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<Sprite> SpritePtr;
+
 	class RectAssignmentNode;
 
 	typedef boost::shared_ptr<RectAssignmentNode> RectAssignmentNodePtr;
 
 	class RectAssignmentNode
 	{
-		friend class Font;
-
-	protected:
+	public:
 		bool m_used;
 
 		CRect m_rect;
@@ -112,10 +111,6 @@ namespace my
 
 		bool AssignRect(const CSize & size, CRect & outRect);
 	};
-
-	class Font;
-
-	typedef boost::shared_ptr<Font> FontPtr;
 
 	class Font : public DeviceRelatedObjectBase
 	{
@@ -184,38 +179,40 @@ namespace my
 
 		RectAssignmentNodePtr m_textureRectRoot;
 
-		Font(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice, unsigned short pixel_gap);
-
 	public:
+		Font(int font_pixel_gap = 1)
+			: FONT_PIXEL_GAP(font_pixel_gap)
+		{
+		}
+
 		virtual ~Font(void);
 
-		static FontPtr CreateFontFromFile(
+		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
+
+		void CreateFontFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
 			int height,
-			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
-		static FontPtr CreateFontFromFileInMemory(
+		void CreateFontFromFileInMemory(
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
 			int height,
-			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
-		static FontPtr CreateFontFromFileInCache(
+		void CreateFontFromFileInCache(
 			LPDIRECT3DDEVICE9 pDevice,
 			boost::shared_ptr<std::vector<unsigned char> > cache_ptr,
 			int height,
-			unsigned short pixel_gap = 0,
 			FT_Long face_index = 0);
 
-		virtual void OnResetDevice(void);
+		void OnResetDevice(void);
 
-		virtual void OnLostDevice(void);
+		void OnLostDevice(void);
 
-		virtual void OnDestroyDevice(void);
+		void OnDestroyDevice(void);
 
 		void CreateFontTexture(UINT Width, UINT Height);
 
@@ -265,4 +262,6 @@ namespace my
 
 		int XtoCP(LPCWSTR pString, float x);
 	};
+
+	typedef boost::shared_ptr<Font> FontPtr;
 }

@@ -76,7 +76,6 @@ namespace my
 		{
 		}
 
-	public:
 		void SetRotation(const Quaternion & rotation)
 		{
 			m_rotation = rotation;
@@ -293,32 +292,51 @@ namespace my
 
 		BoneHierarchy m_boneHierarchy;
 
+	public:
+		OgreSkeleton(void)
+		{
+		}
+
+		void Clear(void)
+		{
+			m_boneNameMap.clear();
+
+			m_boneBindPose.clear();
+
+			m_boneHierarchy.clear();
+		}
+
 		int GetBoneIndex(const std::string & bone_name) const
 		{
 			_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
 
 			return m_boneNameMap.find(bone_name)->second;
 		}
-
-	public:
-		OgreSkeleton(void)
-		{
-		}
 	};
-
-	class OgreSkeletonAnimation;
-
-	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
 
 	class OgreSkeletonAnimation : public OgreSkeleton
 	{
-	protected:
+	public:
+		stdext::hash_map<std::string, OgreAnimation> m_animationMap;
+
+	public:
 		OgreSkeletonAnimation(void)
 		{
 		}
 
-	public:
-		stdext::hash_map<std::string, OgreAnimation> m_animationMap;
+		void CreateOgreSkeletonAnimation(
+			LPCSTR pSrcData,
+			UINT srcDataLen);
+
+		void CreateOgreSkeletonAnimationFromFile(
+			LPCSTR pFilename);
+
+		void Clear(void)
+		{
+			OgreSkeleton::Clear();
+
+			m_animationMap.clear();
+		}
 
 		const OgreAnimation & GetAnimation(const std::string & anim_name) const
 		{
@@ -331,13 +349,7 @@ namespace my
 		{
 			return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, root_i, time);
 		}
-
-	public:
-		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimation(
-			LPCSTR pSrcData,
-			UINT srcDataLen);
-
-		static OgreSkeletonAnimationPtr CreateOgreSkeletonAnimationFromFile(
-			LPCSTR pFilename);
 	};
+
+	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;
 }

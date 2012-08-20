@@ -1,5 +1,8 @@
 #pragma once
 
+#include "myMath.h"
+#include <boost/shared_ptr.hpp>
+
 namespace my
 {
 	class SteeringOutput

@@ -183,6 +183,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Character.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Console.cpp"
 				>
 			</File>
@@ -234,6 +238,10 @@
 			>
 			<File
 				RelativePath=".\Camera.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Character.h"
 				>
 			</File>
 			<File

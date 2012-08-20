@@ -98,10 +98,9 @@ namespace my
 		DrivedClass * m_ptr;
 
 	public:
-		DeviceRelatedObject(DrivedClass * ptr)
-			: m_ptr(ptr)
+		DeviceRelatedObject(void)
+			: m_ptr(NULL)
 		{
-			_ASSERT(NULL != m_ptr);
 		}
 
 		virtual ~DeviceRelatedObject(void)

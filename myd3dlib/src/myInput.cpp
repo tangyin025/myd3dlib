@@ -1,13 +1,9 @@
 #include "stdafx.h"
 #include "myInput.h"
 
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-#endif
-
 using namespace my;
 
-InputPtr Input::CreateInput(HINSTANCE hinst)
+void Input::CreateInput(HINSTANCE hinst)
 {
 	LPDIRECTINPUT8W input;
 	HRESULT hres;
@@ -15,18 +11,11 @@ InputPtr Input::CreateInput(HINSTANCE hinst)
 	{
 		THROW_DINPUTEXCEPTION(hres);
 	}
-	return InputPtr(new Input(input));
+
+	Create(input);
 }
 
-Keyboard::Keyboard(LPDIRECTINPUTDEVICE8W device)
-	: InputDevice(device)
-{
-	SetDataFormat(&c_dfDIKeyboard);
-
-	ZeroMemory(&m_CurState, sizeof(m_CurState));
-}
-
-KeyboardPtr Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
+void Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
 {
 	HRESULT hres;
 	LPDIRECTINPUTDEVICE8W device;
@@ -34,7 +23,12 @@ KeyboardPtr Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
 	{
 		THROW_DINPUTEXCEPTION(hres);
 	}
-	return KeyboardPtr(new Keyboard(device));
+
+	Create(device);
+
+	SetDataFormat(&c_dfDIKeyboard);
+
+	ZeroMemory(&m_CurState, sizeof(m_CurState));
 }
 
 void Keyboard::Capture(void)
@@ -52,15 +46,7 @@ void Keyboard::Capture(void)
 	}
 }
 
-Mouse::Mouse(LPDIRECTINPUTDEVICE8W device)
-	: InputDevice(device)
-{
-	SetDataFormat(&c_dfDIMouse);
-
-	ZeroMemory(&m_CurState, sizeof(m_CurState));
-}
-
-MousePtr Mouse::CreateMouse(LPDIRECTINPUT8W input)
+void Mouse::CreateMouse(LPDIRECTINPUT8W input)
 {
 	HRESULT hres;
 	LPDIRECTINPUTDEVICE8W device;
@@ -68,7 +54,12 @@ MousePtr Mouse::CreateMouse(LPDIRECTINPUT8W input)
 	{
 		THROW_DINPUTEXCEPTION(hres);
 	}
-	return MousePtr(new Mouse(device));
+
+	Create(device);
+
+	SetDataFormat(&c_dfDIMouse);
+
+	ZeroMemory(&m_CurState, sizeof(m_CurState));
 }
 
 void Mouse::Capture(void)

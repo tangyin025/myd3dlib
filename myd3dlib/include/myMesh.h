@@ -212,14 +212,9 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
 
-	class VertexBuffer;
-
-	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
-
 	class VertexBuffer : public DeviceRelatedObjectBase
 	{
-	//protected:
-	public:
+	protected:
 		CComPtr<IDirect3DDevice9> m_Device;
 
 		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
@@ -234,10 +229,28 @@ namespace my
 
 		WORD m_Stream;
 
-		VertexBuffer(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0);
-
 	public:
-		static VertexBufferPtr CreateVertexBuffer(
+		VertexBuffer(void)
+			: m_vertexStride(0)
+			, m_NumVertices(0)
+			, m_Stream(0)
+		{
+		}
+
+		void Create(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0)
+		{
+			m_Device = pDevice;
+
+			m_VertexElemSet = VertexElemSet;
+
+			m_vertexStride = VertexElemSet.GetVertexStride(Stream);
+
+			m_NumVertices = 0;
+
+			m_Stream = Stream;
+		}
+
+		void CreateVertexBuffer(
 			LPDIRECT3DDEVICE9 pD3DDevice,
 			const D3DVERTEXELEMENT9Set & VertexElemSet,
 			WORD Stream = 0);
@@ -275,9 +288,7 @@ namespace my
 		void SetBlendWeights(UINT Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
 	};
 
-	class IndexBuffer;
-
-	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
+	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
 
 	class IndexBuffer : public DeviceRelatedObjectBase
 	{
@@ -291,10 +302,17 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
-		IndexBuffer(LPDIRECT3DDEVICE9 pDevice);
-
 	public:
-		static IndexBufferPtr CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
+		IndexBuffer(void)
+		{
+		}
+
+		void Create(LPDIRECT3DDEVICE9 pDevice)
+		{
+			m_Device = pDevice;
+		}
+
+		void CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
 
 		void OnResetDevice(void);
 
@@ -309,34 +327,35 @@ namespace my
 		void SetIndex(UINT Index, unsigned int IndexValue);
 	};
 
-	class Mesh;
-
-	typedef boost::shared_ptr<Mesh> MeshPtr;
+	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
 	class Mesh : public DeviceRelatedObject<ID3DXMesh>
 	{
-	protected:
-		Mesh(ID3DXMesh * pMesh)
-			: DeviceRelatedObject(pMesh)
+	public:
+		Mesh(void)
 		{
 		}
 
-	public:
-		static MeshPtr CreateMesh(
+		void Create(ID3DXMesh * pMesh)
+		{
+			m_ptr = pMesh;
+		}
+
+		void CreateMesh(
 			LPDIRECT3DDEVICE9 pD3DDevice,
 			DWORD NumFaces,
 			DWORD NumVertices,
 			CONST LPD3DVERTEXELEMENT9 pDeclaration,
 			DWORD Options = D3DXMESH_MANAGED);
 
-		static MeshPtr CreateMeshFVF(
+		void CreateMeshFVF(
 			LPDIRECT3DDEVICE9 pD3DDevice,
 			DWORD NumFaces,
 			DWORD NumVertices,
 			DWORD FVF,
 			DWORD Options = D3DXMESH_MANAGED);
 
-		static MeshPtr CreateMeshFromX(
+		void CreateMeshFromX(
 			LPDIRECT3DDEVICE9 pD3DDevice,
 			LPCSTR pFilename,
 			DWORD Options = D3DXMESH_MANAGED,
@@ -345,7 +364,7 @@ namespace my
 			LPD3DXBUFFER * ppEffectInstances = NULL,
 			DWORD * pNumMaterials = NULL);
 
-		static MeshPtr CreateMeshFromXInMemory(
+		void CreateMeshFromXInMemory(
 			LPDIRECT3DDEVICE9 pD3DDevice,
 			LPCVOID Memory,
 			DWORD SizeOfMemory,
@@ -355,27 +374,27 @@ namespace my
 			LPD3DXBUFFER * ppEffectInstances = NULL,
 			DWORD * pNumMaterials = NULL);
 
-		static MeshPtr CreateMeshFromOgreXml(
+		void CreateMeshFromOgreXml(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCSTR pFilename,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		static MeshPtr CreateMeshFromOgreXmlInMemory(
+		void CreateMeshFromOgreXmlInMemory(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		static MeshPtr CreateBox(
+		void CreateBox(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			FLOAT Width = 1.0f,
 			FLOAT Height = 1.0f,
 			FLOAT Depth = 1.0f,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		static MeshPtr CreateCylinder(
+		void CreateCylinder(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			FLOAT Radius1 = 1.0f,
 			FLOAT Radius2 = 1.0f,
@@ -384,24 +403,24 @@ namespace my
 			UINT Stacks = 1,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		static MeshPtr CreatePolygon(
+		void CreatePolygon(
 			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT Length = 1.0f,
 			UINT Sides = 5,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		static MeshPtr CreateSphere(
+		void CreateSphere(
 			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT Radius = 1.0f,
 			UINT Slices = 20,
 			UINT Stacks = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		static MeshPtr CreateTeapot(
+		void CreateTeapot(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		static MeshPtr CreateTorus(
+		void CreateTorus(
 			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT InnerRadius = 0.5f,
 			FLOAT OuterRadius = 1.5f,
@@ -575,4 +594,6 @@ namespace my
 			V(m_ptr->UnlockAttributeBuffer());
 		}
 	};
+
+	typedef boost::shared_ptr<Mesh> MeshPtr;
 };

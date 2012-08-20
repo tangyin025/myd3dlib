@@ -15,18 +15,52 @@ dofile "Hud.lua"
 
 local state=game:CurrentState()
 
-local effectMesh = EffectMesh()
-effectMesh.Mesh = game:LoadMesh("plane.mesh.xml")
-local effect = game:LoadEffect("SimpleSample.fx")
-local material = Material()
-material.Effect = effect
-local texture = game:LoadTexture("Checker.bmp")
-effect:SetTechnique("RenderScene")
-material:BeginParameterBlock()
-effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
-effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
-effect:SetTexture("g_MeshTexture", texture)
-material:EndParameterBlock()
-effectMesh:InsertMaterial(material)
+-- 防止garbage collect时清理掉还在使用的资源
+texture_pool = {}
 
-state:InsertStaticMesh(effectMesh)
+local function CreateScene()
+	local effectMesh = EffectMesh()
+	effectMesh.Mesh = game:LoadMesh("plane.mesh.xml")
+	local effect = game:LoadEffect("SimpleSample.fx")
+	local material = Material()
+	material.Effect = effect
+	local texture = game:LoadTexture("Checker.bmp")
+	table.insert(texture_pool, texture)
+	effect:SetTechnique("RenderScene")
+	material:BeginParameterBlock()
+	effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
+	effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
+	effect:SetTexture("g_MeshTexture", texture)
+	material:EndParameterBlock()
+	effectMesh:InsertMaterial(material)
+	state:InsertStaticMesh(effectMesh)
+end
+
+local function CreateRole()
+	local effectMesh = EffectMesh()
+	effectMesh.Mesh = game:LoadMesh("aaa.mesh.xml")
+	local effect = game:LoadEffect("SkinedMesh.fx")
+	local material = Material()
+	material.Effect = effect
+	local texture = game:LoadTexture("Checker.bmp")
+	table.insert(texture_pool, texture)
+	effect:SetTechnique("RenderScene")
+	material:BeginParameterBlock()
+	effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
+	effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
+	effect:SetTexture("g_MeshTexture", texture)
+	material:EndParameterBlock()
+	effectMesh:InsertMaterial(material)
+	
+	local skeleton = game:LoadSkeleton("aaa.skeleton.xml")
+	
+	local character = Character()
+	character:InsertMeshLOD(effectMesh)
+	character:InsertSkeletonLOD(skeleton)
+	
+	state:InsertCharacter(character)
+end
+
+-- CreateScene()
+
+CreateRole()

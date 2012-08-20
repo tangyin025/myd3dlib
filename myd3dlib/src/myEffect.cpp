@@ -13,11 +13,13 @@ using namespace my;
 void VertexShader::OnDestroyDevice(void)
 {
 	SAFE_RELEASE(m_pConstantTable);
+
 	SAFE_RELEASE(m_ptr);
+
 	m_Device.Release();
 }
 
-VertexShaderPtr VertexShader::CreateVertexShader(
+void VertexShader::CreateVertexShader(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
@@ -50,10 +52,10 @@ VertexShaderPtr VertexShader::CreateVertexShader(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
+	Create(pVS, pConstantTable, pDevice);
 }
 
-VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
+void VertexShader::CreateVertexShaderFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	LPCSTR pFunctionName,
@@ -85,17 +87,19 @@ VertexShaderPtr VertexShader::CreateVertexShaderFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return VertexShaderPtr(new VertexShader(pVS, pConstantTable, pDevice));
+	Create(pVS, pConstantTable, pDevice);
 }
 
 void PixelShader::OnDestroyDevice(void)
 {
 	SAFE_RELEASE(m_pConstantTable);
+
 	SAFE_RELEASE(m_ptr);
+
 	m_Device.Release();
 }
 
-PixelShaderPtr PixelShader::CreatePixelShader(
+void PixelShader::CreatePixelShader(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
@@ -128,10 +132,10 @@ PixelShaderPtr PixelShader::CreatePixelShader(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
+	Create(pPS, pConstantTable, pDevice);
 }
 
-PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
+void PixelShader::CreatePixelShaderFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	LPCSTR pFunctionName,
@@ -163,10 +167,10 @@ PixelShaderPtr PixelShader::CreatePixelShaderFromFile(
 		THROW_D3DEXCEPTION(hres);
 	}
 
-	return PixelShaderPtr(new PixelShader(pPS, pConstantTable, pDevice));
+	Create(pPS, pConstantTable, pDevice);
 }
 
-EffectPtr Effect::CreateEffect(
+void Effect::CreateEffect(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataLen,
@@ -189,10 +193,10 @@ EffectPtr Effect::CreateEffect(
 		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %p", pSrcData));
 	}
 
-	return EffectPtr(new Effect(pEffect));
+	Create(pEffect);
 }
 
-EffectPtr Effect::CreateEffectFromFile(
+void Effect::CreateEffectFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcFile,
 	CONST D3DXMACRO * pDefines,
@@ -214,5 +218,5 @@ EffectPtr Effect::CreateEffectFromFile(
 		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %s", pSrcFile));
 	}
 
-	return EffectPtr(new Effect(pEffect));
+	Create(pEffect);
 }

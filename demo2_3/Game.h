@@ -127,7 +127,7 @@ public:
 
 	my::MeshPtr LoadMesh(const std::string & path);
 
-	my::OgreSkeletonAnimationPtr LoadSkeletonAnimation(const std::string & path);
+	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
 
 	my::EffectPtr LoadEffect(const std::string & path);
 

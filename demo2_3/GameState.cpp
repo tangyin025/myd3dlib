@@ -57,8 +57,6 @@ GameStateMain::GameStateMain(void)
 	m_Camera->m_Distance = 10.0f;
 
 	m_Effect = Game::getSingleton().LoadEffect("SimpleSample.fx");
-
-	m_Texture = Game::getSingleton().LoadTexture("Checker.bmp");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -87,15 +85,15 @@ void GameStateMain::OnD3D9FrameRender(
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
-		//DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
-		//DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
-		//for(int i = 1; i <= 10; i++)
-		//{
-		//	DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
-		//	DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
-		//	DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-		//	DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-		//}
+		DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+		DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+		for(int i = 1; i <= 10; i++)
+		{
+			DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		}
 
 		m_Effect->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
 		m_Effect->SetMatrix("g_mWorld", Matrix4::Identity());
@@ -104,6 +102,15 @@ void GameStateMain::OnD3D9FrameRender(
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
 		{
 			(*effect_mesh_iter)->Draw(pd3dDevice, fElapsedTime);
+		}
+
+		CharacterPtrList::iterator character_iter = m_characters.begin();
+		for(; character_iter != m_characters.end(); character_iter++)
+		{
+			my::Matrix4 world = my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) * my::Matrix4::Translation((*character_iter)->m_Position);
+			m_Effect->SetMatrix("g_mWorld", world);
+			m_Effect->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
 		V(pd3dDevice->EndScene());
