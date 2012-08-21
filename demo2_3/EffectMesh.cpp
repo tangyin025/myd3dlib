@@ -11,7 +11,7 @@ void EffectMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 		for(UINT p = 0; p < cPasses; p++)
 		{
 			mat->m_Effect->BeginPass(p);
-			m_Mesh->DrawSubset(i);
+			DrawSubset(i);
 			mat->m_Effect->EndPass();
 		}
 		mat->m_Effect->End();

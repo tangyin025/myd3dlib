@@ -9,6 +9,7 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/transition.hpp>
 #pragma warning(default: 4819)
+#include "EffectMesh.h"
 
 class GameStateBase
 {
@@ -126,6 +127,8 @@ public:
 	my::TexturePtr LoadTexture(const std::string & path);
 
 	my::MeshPtr LoadMesh(const std::string & path);
+
+	EffectMeshPtr LoadEffectMesh(const std::string & path);
 
 	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
 

@@ -19,8 +19,7 @@ local state=game:CurrentState()
 texture_pool = {}
 
 local function CreateScene()
-	local effectMesh = EffectMesh()
-	effectMesh.Mesh = game:LoadMesh("plane.mesh.xml")
+	local effectMesh = game:LoadEffectMesh("plane.mesh.xml")
 	local effect = game:LoadEffect("SimpleSample.fx")
 	local material = Material()
 	material.Effect = effect
@@ -37,8 +36,7 @@ local function CreateScene()
 end
 
 local function CreateRole()
-	local effectMesh = EffectMesh()
-	effectMesh.Mesh = game:LoadMesh("aaa.mesh.xml")
+	local effectMesh = game:LoadEffectMesh("aaa.mesh.xml")
 	local effect = game:LoadEffect("SkinedMesh.fx")
 	local material = Material()
 	material.Effect = effect
@@ -61,6 +59,6 @@ local function CreateRole()
 	state:InsertCharacter(character)
 end
 
--- CreateScene()
+CreateScene()
 
 CreateRole()

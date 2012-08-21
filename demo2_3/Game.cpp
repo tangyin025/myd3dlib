@@ -290,6 +290,26 @@ MeshPtr GameLoader::LoadMesh(const std::string & path)
 	return ret;
 }
 
+EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
+{
+	EffectMeshPtr ret(new EffectMesh());
+	std::string loc_path = std::string("mesh\\") + path;
+	std::string full_path = GetFullPath(loc_path);
+	if(!full_path.empty())
+	{
+		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+	}
+
+	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
+	// 由于目前没有实现，所以只好在 lua脚本中手动设置（InsertMaterial），很傻的一种做法
+	return ret;
+}
+
 OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
 {
 	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
