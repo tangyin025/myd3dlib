@@ -27,6 +27,8 @@ namespace my
 
 		void Create(IDirectSound8 * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 
@@ -84,6 +86,8 @@ namespace my
 
 		void Create(IDirectSoundBuffer * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 

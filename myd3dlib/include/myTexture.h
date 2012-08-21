@@ -19,6 +19,8 @@ namespace my
 
 		void Create(IDirect3DSurface9 * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 
@@ -93,6 +95,8 @@ namespace my
 
 		void Create(IDirect3DBaseTexture9 * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 

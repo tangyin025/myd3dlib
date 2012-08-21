@@ -30,9 +30,9 @@ namespace my
 
 		void Create(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
 		{
-			m_pConstantTable = pConstantTable;
+			_ASSERT(!m_pConstantTable && !m_Device);
 
-			_ASSERT(m_pConstantTable);
+			m_pConstantTable = pConstantTable;
 
 			m_Device = pDevice;
 		}
@@ -174,6 +174,8 @@ namespace my
 
 		void Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 
 			ConstantTable::Create(pConstantTable, pDevice);
@@ -229,6 +231,8 @@ namespace my
 
 		void Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 
 			ConstantTable::Create(pConstantTable, pDevice);
@@ -279,6 +283,8 @@ namespace my
 
 		void Create(ID3DXBaseEffect * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 

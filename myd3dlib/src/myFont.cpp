@@ -118,6 +118,13 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 	return false;
 }
 
+Font::Font(int font_pixel_gap)
+	: m_face(NULL)
+	, FONT_PIXEL_GAP(font_pixel_gap)
+	, m_texture(new Texture())
+{
+}
+
 Font::~Font(void)
 {
 	if(m_face)
@@ -129,9 +136,9 @@ Font::~Font(void)
 
 void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 {
-	m_face = face;
+	_ASSERT(!m_face && !m_Device);
 
-	_ASSERT(m_face);
+	m_face = face;
 
 	m_Device = pDevice;
 
@@ -218,7 +225,7 @@ void Font::OnDestroyDevice(void)
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
-	m_texture.reset(new Texture());
+	m_texture->OnDestroyDevice();
 
 	m_texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
 

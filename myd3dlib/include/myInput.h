@@ -28,6 +28,8 @@ namespace my
 
 		void Create(IDirectInput8W * dinput)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = dinput;
 		}
 
@@ -128,6 +130,8 @@ namespace my
 
 		void Create(LPDIRECTINPUTDEVICE8W device)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = device;
 		}
 

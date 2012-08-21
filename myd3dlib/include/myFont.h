@@ -21,6 +21,8 @@ namespace my
 
 		void Create(ID3DXSprite * ptr)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = ptr;
 		}
 
@@ -180,10 +182,7 @@ namespace my
 		RectAssignmentNodePtr m_textureRectRoot;
 
 	public:
-		Font(int font_pixel_gap = 1)
-			: FONT_PIXEL_GAP(font_pixel_gap)
-		{
-		}
+		Font(int font_pixel_gap = 1);
 
 		virtual ~Font(void);
 

@@ -239,6 +239,8 @@ namespace my
 
 		void Create(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0)
 		{
+			_ASSERT(!m_Device);
+
 			m_Device = pDevice;
 
 			m_VertexElemSet = VertexElemSet;
@@ -309,6 +311,8 @@ namespace my
 
 		void Create(LPDIRECT3DDEVICE9 pDevice)
 		{
+			_ASSERT(!m_Device);
+
 			m_Device = pDevice;
 		}
 
@@ -338,6 +342,8 @@ namespace my
 
 		void Create(ID3DXMesh * pMesh)
 		{
+			_ASSERT(!m_ptr);
+
 			m_ptr = pMesh;
 		}
 

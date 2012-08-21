@@ -331,12 +331,12 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateFontFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), height, 1);
+		ret->CreateFontFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), height);
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateFontFromFileInCache(Game::getSingleton().GetD3D9Device(), cache, height, 1);
+		ret->CreateFontFromFileInCache(Game::getSingleton().GetD3D9Device(), cache, height);
 	}
 	return ret;
 }
