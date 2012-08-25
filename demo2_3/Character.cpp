@@ -4,15 +4,17 @@
 
 void Character::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	float totalTime = m_skeletonLOD[m_LODLevel]->GetAnimation("clip1").GetTime();
+	float totalTime = m_skeletonLOD[m_LODLevel]->GetAnimation("walk").GetTime();
 
 	m_stateTime = fmod(m_stateTime + fElapsedTime, totalTime);
 
 	// 获取当前动画
-	int root_i = m_skeletonLOD[m_LODLevel]->GetBoneIndex("joint1");
+	int root_i = m_skeletonLOD[m_LODLevel]->GetBoneIndex("Bip01");
 	m_animPose.clear();
-	m_animPose.resize(m_skeletonLOD[m_LODLevel]->m_boneBindPose.size());
-	m_skeletonLOD[m_LODLevel]->BuildAnimationPose(m_animPose, root_i, "clip1", m_stateTime);
+	m_animPose.resize(m_skeletonLOD[m_LODLevel]->m_boneBindPose.size(), my::Bone(my::Quaternion::Identity(), my::Vector3(0,0,0)));
+	m_skeletonLOD[m_LODLevel]->BuildAnimationPose(m_animPose, root_i, "walk", m_stateTime);
+
+	m_animPose[root_i].m_position.z = 0;
 
 	// 将当前动画和绑定动作叠加
 	m_incrementedPose.clear();

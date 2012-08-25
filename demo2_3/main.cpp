@@ -116,7 +116,7 @@ class MyDemo
 protected:
 	CModelViewerCamera m_camera;
 
-	my::MeshPtr m_characterMesh;
+	my::OgreMeshPtr m_characterMesh;
 
 	my::TexturePtr m_characterTexture;
 
@@ -124,7 +124,7 @@ protected:
 
 	AnimationMgrPtr m_characterAnimMgr;
 
-	my::MeshPtr m_sceneMesh;
+	my::OgreMeshPtr m_sceneMesh;
 
 	my::TexturePtr m_sceneTexture;
 
@@ -188,7 +188,7 @@ protected:
 
 		// 初始化角色资源
 		my::CachePtr cache = OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
-		m_characterMesh.reset(new my::Mesh());
+		m_characterMesh.reset(new my::OgreMesh());
 		m_characterMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
 
 		cache = OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
@@ -210,7 +210,7 @@ protected:
 
 		// 初始化场景资源
 		cache = OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
-		m_sceneMesh.reset(new my::Mesh());
+		m_sceneMesh.reset(new my::OgreMesh());
 		m_sceneMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
 
 		cache = OpenArchiveStream("scene.texture.jpg")->GetWholeCache();

@@ -380,19 +380,6 @@ namespace my
 			LPD3DXBUFFER * ppEffectInstances = NULL,
 			DWORD * pNumMaterials = NULL);
 
-		void CreateMeshFromOgreXml(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCSTR pFilename,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
-
-		void CreateMeshFromOgreXmlInMemory(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCSTR pSrcData,
-			UINT srcDataLen,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
-
 		void CreateBox(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			FLOAT Width = 1.0f,
@@ -602,4 +589,27 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
+
+	class OgreMesh : public Mesh
+	{
+	public:
+		OgreMesh(void)
+		{
+		};
+
+		void CreateMeshFromOgreXml(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			LPCSTR pFilename,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		void CreateMeshFromOgreXmlInMemory(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			LPCSTR pSrcData,
+			UINT srcDataLen,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+	};
+
+	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
 };

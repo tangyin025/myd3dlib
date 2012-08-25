@@ -275,7 +275,7 @@ TexturePtr GameLoader::LoadTexture(const std::string & path)
 
 MeshPtr GameLoader::LoadMesh(const std::string & path)
 {
-	MeshPtr ret(new Mesh());
+	OgreMeshPtr ret(new OgreMesh());
 	std::string loc_path = std::string("mesh\\") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())

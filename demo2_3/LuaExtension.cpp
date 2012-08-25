@@ -478,6 +478,8 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
+		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
+
 		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
 
 		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
@@ -733,7 +735,7 @@ void Export2Lua(lua_State * L)
 			.def("BeginParameterBlock", &Material::BeginParameterBlock)
 			.def("EndParameterBlock", &Material::EndParameterBlock)
 
-		, class_<EffectMesh, boost::shared_ptr<EffectMesh> >("EffectMesh")
+		, class_<EffectMesh, my::OgreMesh, boost::shared_ptr<EffectMesh> >("EffectMesh")
 			.def("InsertMaterial", &EffectMesh::InsertMaterial)
 
 		, class_<Character, boost::shared_ptr<Character> >("Character")
@@ -741,6 +743,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("LODLevel", &Character::m_LODLevel)
 			.def_readwrite("Position", &Character::m_Position)
 			.def_readwrite("Rotation", &Character::m_Rotation)
+			.def_readwrite("Scale", &Character::m_Scale)
 			.def("InsertMeshLOD", &Character::InsertMeshLOD)
 			.def("InsertSkeletonLOD", &Character::InsertSkeletonLOD)
 	];

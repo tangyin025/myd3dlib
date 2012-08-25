@@ -10,10 +10,13 @@ dofile "Hud.lua"
 -- scene.Camera=camera
 -- game:InsertScene(scene)
 
--- -- 利用 EventAlign调整相机的 Aspect
--- local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
-
 local state=game:CurrentState()
+
+local camera = state.Camera
+camera.LookAt=Vector3(0,1,0)
+
+-- 利用 EventAlign调整相机的 Aspect
+local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
 
 -- 防止garbage collect时清理掉还在使用的资源
 texture_pool = {}
@@ -36,11 +39,11 @@ local function CreateScene()
 end
 
 local function CreateRole()
-	local effectMesh = game:LoadEffectMesh("aaa.mesh.xml")
+	local effectMesh = game:LoadEffectMesh("casual19_m.mesh.xml")
 	local effect = game:LoadEffect("SkinedMesh.fx")
 	local material = Material()
 	material.Effect = effect
-	local texture = game:LoadTexture("Checker.bmp")
+	local texture = game:LoadTexture("casual19_m_35.tga")
 	table.insert(texture_pool, texture)
 	effect:SetTechnique("RenderScene")
 	material:BeginParameterBlock()
@@ -49,16 +52,17 @@ local function CreateRole()
 	effect:SetTexture("g_MeshTexture", texture)
 	material:EndParameterBlock()
 	effectMesh:InsertMaterial(material)
-	
-	local skeleton = game:LoadSkeleton("aaa.skeleton.xml")
+
+	local skeleton = game:LoadSkeleton("casual19_m.skeleton.xml")
 	
 	local character = Character()
 	character:InsertMeshLOD(effectMesh)
 	character:InsertSkeletonLOD(skeleton)
+	character.Scale = Vector3(0.01,0.01,0.01)
 	
 	state:InsertCharacter(character)
 end
 
-CreateScene()
+-- CreateScene()
 
 CreateRole()

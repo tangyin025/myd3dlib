@@ -107,7 +107,10 @@ void GameStateMain::OnD3D9FrameRender(
 		CharacterPtrList::iterator character_iter = m_characters.begin();
 		for(; character_iter != m_characters.end(); character_iter++)
 		{
-			my::Matrix4 world = my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) * my::Matrix4::Translation((*character_iter)->m_Position);
+			my::Matrix4 world =
+				my::Matrix4::Scaling((*character_iter)->m_Scale) *
+				my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
+				my::Matrix4::Translation((*character_iter)->m_Position);
 			m_Effect->SetMatrix("g_mWorld", world);
 			m_Effect->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);

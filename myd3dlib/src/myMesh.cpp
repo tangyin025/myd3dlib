@@ -320,7 +320,108 @@ void Mesh::CreateMeshFromXInMemory(
 	Create(pMesh);
 }
 
-void Mesh::CreateMeshFromOgreXml(
+void Mesh::CreateBox(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	FLOAT Width,
+	FLOAT Height,
+	FLOAT Depth,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void Mesh::CreateCylinder(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	FLOAT Radius1,
+	FLOAT Radius2,
+	FLOAT Length,
+	UINT Slices,
+	UINT Stacks,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void Mesh::CreatePolygon(
+	LPDIRECT3DDEVICE9 pDevice,
+	FLOAT Length,
+	UINT Sides,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void Mesh::CreateSphere(
+	LPDIRECT3DDEVICE9 pDevice,
+	FLOAT Radius,
+	UINT Slices,
+	UINT Stacks,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void Mesh::CreateTeapot(
+	LPDIRECT3DDEVICE9 pDevice,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void Mesh::CreateTorus(
+	LPDIRECT3DDEVICE9 pDevice,
+	FLOAT InnerRadius,
+	FLOAT OuterRadius,
+	UINT Sides,
+	UINT Rings,
+	LPD3DXBUFFER * ppAdjacency)
+{
+	LPD3DXMESH pMesh = NULL;
+	HRESULT hres = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
+	if(FAILED(hres))
+	{
+		THROW_D3DEXCEPTION(hres);
+	}
+
+	Create(pMesh);
+}
+
+void OgreMesh::CreateMeshFromOgreXml(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCSTR pFilename,
 	bool bComputeTangentFrame,
@@ -337,7 +438,7 @@ void Mesh::CreateMeshFromOgreXml(
 	CreateMeshFromOgreXmlInMemory(pd3dDevice, (LPCSTR)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
 }
 
-void Mesh::CreateMeshFromOgreXmlInMemory(
+void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
@@ -589,105 +690,4 @@ void Mesh::CreateMeshFromOgreXmlInMemory(
 	}
 
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
-}
-
-void Mesh::CreateBox(
-	LPDIRECT3DDEVICE9 pd3dDevice,
-	FLOAT Width,
-	FLOAT Height,
-	FLOAT Depth,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
-}
-
-void Mesh::CreateCylinder(
-	LPDIRECT3DDEVICE9 pd3dDevice,
-	FLOAT Radius1,
-	FLOAT Radius2,
-	FLOAT Length,
-	UINT Slices,
-	UINT Stacks,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
-}
-
-void Mesh::CreatePolygon(
-	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT Length,
-	UINT Sides,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
-}
-
-void Mesh::CreateSphere(
-	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT Radius,
-	UINT Slices,
-	UINT Stacks,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
-}
-
-void Mesh::CreateTeapot(
-	LPDIRECT3DDEVICE9 pDevice,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
-}
-
-void Mesh::CreateTorus(
-	LPDIRECT3DDEVICE9 pDevice,
-	FLOAT InnerRadius,
-	FLOAT OuterRadius,
-	UINT Sides,
-	UINT Rings,
-	LPD3DXBUFFER * ppAdjacency)
-{
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
 }
