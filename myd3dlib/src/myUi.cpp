@@ -1623,6 +1623,20 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 	return false;
 }
 
+void Dialog::SetVisible(bool bVisible)
+{
+	if(!(m_bVisible = bVisible))
+	{
+		ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
+		if(ControlFocus && ContainsControl(ControlFocus))
+		{
+			ControlFocus->OnFocusOut();
+
+			DxutApp::getSingleton().m_ControlFocus.reset();
+		}
+	}
+}
+
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
 {
 	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();

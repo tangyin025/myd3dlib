@@ -528,6 +528,8 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
+		virtual void SetVisible(bool bVisible);
+
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 
 		void RequestFocus(ControlPtr control);
