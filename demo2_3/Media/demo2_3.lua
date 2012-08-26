@@ -23,43 +23,16 @@ texture_pool = {}
 
 local function CreateScene()
 	local effectMesh = game:LoadEffectMesh("plane.mesh.xml")
-	local effect = game:LoadEffect("SimpleSample.fx")
-	local material = Material()
-	material.Effect = effect
-	local texture = game:LoadTexture("Checker.bmp")
-	table.insert(texture_pool, texture)
-	effect:SetTechnique("RenderScene")
-	material:BeginParameterBlock()
-	effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
-	effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
-	effect:SetTexture("g_MeshTexture", texture)
-	material:EndParameterBlock()
-	effectMesh:InsertMaterial(material)
 	state:InsertStaticMesh(effectMesh)
 end
 
 local function CreateRole()
-	local effectMesh = game:LoadEffectMesh("casual19_m.mesh.xml")
-	local effect = game:LoadEffect("SkinedMesh.fx")
-	local material = Material()
-	material.Effect = effect
-	local texture = game:LoadTexture("casual19_m_35.tga")
-	table.insert(texture_pool, texture)
-	effect:SetTechnique("RenderScene")
-	material:BeginParameterBlock()
-	effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
-	effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
-	effect:SetTexture("g_MeshTexture", texture)
-	material:EndParameterBlock()
-	effectMesh:InsertMaterial(material)
-
-	local skeleton = game:LoadSkeleton("casual19_m.skeleton.xml")
-	
+	local effectMesh = game:LoadEffectMesh("casual19_m_highpoly.mesh.xml")
+	local skeleton = game:LoadSkeleton("casual19_m_highpoly.skeleton.xml")
 	local character = Character()
 	character:InsertMeshLOD(effectMesh)
 	character:InsertSkeletonLOD(skeleton)
 	character.Scale = Vector3(0.01,0.01,0.01)
-	
 	state:InsertCharacter(character)
 end
 

@@ -290,6 +290,19 @@ MeshPtr GameLoader::LoadMesh(const std::string & path)
 	return ret;
 }
 
+MaterialPtr GameLoader::LoadMaterial(const std::string & path)
+{
+	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
+	// 由于目前没有实现，所以只好在 lua脚本中手动设置（SetupMaterial），很傻的一种做法
+	MaterialPtr ret(new Material());
+	std::string loc_path = std::string("material\\") + path;
+	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+	std::string code((char *)&(*cache)[0], cache->size());
+	Game::getSingleton().ExecuteCode(code.c_str());
+	luabind::call_function<void>(Game::getSingleton().m_lua->_state, "SetupMaterial", boost::ref(ret));
+	return ret;
+}
+
 EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
 {
 	EffectMeshPtr ret(new EffectMesh());
@@ -305,8 +318,10 @@ EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
 		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 	}
 
-	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
-	// 由于目前没有实现，所以只好在 lua脚本中手动设置（InsertMaterial），很傻的一种做法
+	for(UINT i = 0; i < ret->GetMaterialNum(); i++)
+	{
+		ret->InsertMaterial(LoadMaterial(ret->GetMaterialName(i) + ".lua"));
+	}
 	return ret;
 }
 

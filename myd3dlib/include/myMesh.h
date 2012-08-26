@@ -593,6 +593,9 @@ namespace my
 	class OgreMesh : public Mesh
 	{
 	public:
+		std::vector<std::string> m_MaterialNameList;
+
+	public:
 		OgreMesh(void)
 		{
 		};
@@ -609,6 +612,16 @@ namespace my
 			UINT srcDataLen,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		UINT GetMaterialNum(void) const
+		{
+			return m_MaterialNameList.size();
+		}
+
+		const std::string & GetMaterialName(DWORD AttribId) const
+		{
+			return m_MaterialNameList[AttribId];
+		}
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;

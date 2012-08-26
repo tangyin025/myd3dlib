@@ -479,6 +479,8 @@ void Export2Lua(lua_State * L)
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
+			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
+			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
 
 		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
 

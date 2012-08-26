@@ -529,15 +529,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		facecount += count;
 	}
 
-	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateMesh(
-		facecount, vertexcount, dwMeshOptions, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], pd3dDevice, &pMesh);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	Create(pMesh);
+	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&elems.BuildVertexElementList()[0], dwMeshOptions);
 
 	const VOID * pVertices = LockVertexBuffer();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
@@ -672,6 +664,8 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 			}
 			pAttrBuffer[face_i] = submesh_i;
 		}
+
+		m_MaterialNameList.push_back(attr_material->value());
 	}
 	UnlockAttributeBuffer();
 	UnlockIndexBuffer();
