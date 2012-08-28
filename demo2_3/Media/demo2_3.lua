@@ -26,16 +26,21 @@ local function CreateScene()
 	state:InsertStaticMesh(effectMesh)
 end
 
-local function CreateRole()
-	local effectMesh = game:LoadEffectMesh("casual19_m_highpoly.mesh.xml")
-	local skeleton = game:LoadSkeleton("casual19_m_highpoly.skeleton.xml")
+local effectMesh = game:LoadEffectMesh("casual19_m_highpoly.mesh.xml")
+local skeleton = game:LoadSkeleton("casual19_m_highpoly.skeleton.xml")
+local function CreateRole(p)
 	local character = Character()
 	character:InsertMeshLOD(effectMesh)
 	character:InsertSkeletonLOD(skeleton)
 	character.Scale = Vector3(0.01,0.01,0.01)
+	character.Position = p
 	state:InsertCharacter(character)
 end
 
 -- CreateScene()
 
-CreateRole()
+for i=-5,5 do
+	for j = -5,5 do
+		CreateRole(Vector3(i,0,j))
+	end
+end
