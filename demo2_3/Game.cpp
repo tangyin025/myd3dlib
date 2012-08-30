@@ -481,6 +481,14 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	m_SimpleSample = LoadEffect("SimpleSample.fx");
+
+	m_ShadowMap = LoadEffect("ShadowMap.fx");
+
+	m_ShadowMapRT.reset(new my::Texture());
+
+	m_ShadowMapDS.reset(new my::Surface());
+
 	if(!m_input)
 	{
 		m_input.reset(new Input());
@@ -534,6 +542,14 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
+	const DWORD shadow_map_size = 512;
+	m_ShadowMapRT->CreateAdjustedTexture(
+		pd3dDevice, shadow_map_size, shadow_map_size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+
+	DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
+	m_ShadowMapDS->CreateDepthStencilSurface(
+		pd3dDevice, shadow_map_size, shadow_map_size, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+
 	return S_OK;
 }
 
@@ -545,6 +561,10 @@ void Game::OnD3D9LostDevice(void)
 
 	m_settingsDlg.OnD3D9LostDevice();
 
+	m_ShadowMapRT->OnDestroyDevice();
+
+	m_ShadowMapDS->OnDestroyDevice();
+
 	DxutApp::OnD3D9LostDevice();
 }
 
@@ -553,6 +573,12 @@ void Game::OnD3D9DestroyDevice(void)
 	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	terminate();
+
+	m_SimpleSample.reset();
+
+	m_ShadowMapRT.reset();
+
+	m_ShadowMapDS.reset();
 
 	m_EffectPool.Release();
 

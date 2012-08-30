@@ -14,6 +14,7 @@ local state=game:CurrentState()
 
 local camera = state.Camera
 camera.LookAt=Vector3(0,1,0)
+-- camera.Distance=1
 
 -- 利用 EventAlign调整相机的 Aspect
 local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
@@ -38,6 +39,8 @@ local function CreateRole(p)
 end
 
 -- CreateScene()
+
+-- CreateRole(Vector3(0,0,0))
 
 for i=-5,5 do
 	for j = -5,5 do

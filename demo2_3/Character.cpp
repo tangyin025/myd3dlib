@@ -2,9 +2,9 @@
 #include "Character.h"
 #include "GameState.h"
 
-void Character::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Character::OnFrameMove(double fTime, float fElapsedTime)
 {
-	float totalTime = m_skeletonLOD[m_LODLevel]->GetAnimation("walk").GetTime();
+	const float totalTime = m_skeletonLOD[m_LODLevel]->GetAnimation("walk").GetTime();
 
 	m_stateTime = fmod(m_stateTime + fElapsedTime, totalTime);
 
@@ -39,8 +39,11 @@ void Character::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	m_dualQuaternionList.resize(m_skeletonLOD[m_LODLevel]->m_boneBindPose.size());
 	m_hierarchyBoneList.BuildDualQuaternionList(
 		m_dualQuaternionList, m_hierarchyBoneList2);
+}
 
-	dynamic_cast<GameStateMain *>(Game::getSingleton().CurrentState())->m_Effect->SetMatrixArray("g_dualquat", &m_dualQuaternionList[0], m_dualQuaternionList.size());
+void Character::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	Game::getSingleton().m_SimpleSample->SetMatrixArray("g_dualquat", &m_dualQuaternionList[0], m_dualQuaternionList.size());
 
 	m_meshLOD[m_LODLevel]->Draw(pd3dDevice, fElapsedTime);
 }

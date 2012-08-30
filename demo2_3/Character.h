@@ -66,6 +66,8 @@ public:
 		m_skeletonLOD.push_back(skeleton);
 	}
 
+	void OnFrameMove(double fTime, float fElapsedTime);
+
 	void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
 };
 

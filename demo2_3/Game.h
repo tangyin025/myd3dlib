@@ -163,6 +163,14 @@ public:
 
 	MessagePanelPtr m_panel;
 
+	my::EffectPtr m_SimpleSample;
+
+	my::EffectPtr m_ShadowMap;
+
+	my::TexturePtr m_ShadowMapRT;
+
+	my::SurfacePtr m_ShadowMapDS;
+
 	my::InputPtr m_input;
 
 	my::KeyboardPtr m_keyboard;

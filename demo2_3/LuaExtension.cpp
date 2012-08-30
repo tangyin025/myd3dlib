@@ -277,8 +277,8 @@ void Export2Lua(lua_State * L)
 
 	open(L);
 
-	//// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	//register_exception_handler<my::Exception>(&translate_my_exception);
+	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
 	//set_pcall_callback(lua_error_pcall);
@@ -708,7 +708,6 @@ void Export2Lua(lua_State * L)
 
 		, class_<GameStateMain, GameStateBase>("GameStateMain")
 			.def_readwrite("Camera", &GameStateMain::m_Camera)
-			.def_readwrite("Effect", &GameStateMain::m_Effect)
 			.def("InsertStaticMesh", &GameStateMain::InsertStaticMesh)
 			.def("InsertCharacter", &GameStateMain::InsertCharacter)
 

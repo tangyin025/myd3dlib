@@ -22,6 +22,8 @@ void GameStateLoad::OnFrameMove(
 	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
 
 	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
+
+	Game::getSingleton().CurrentState()->OnFrameMove(fTime, fElapsedTime);
 }
 
 void GameStateLoad::OnD3D9FrameRender(
@@ -55,8 +57,6 @@ GameStateMain::GameStateMain(void)
 	m_Camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
 	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	m_Camera->m_Distance = 10.0f;
-
-	m_Effect = Game::getSingleton().LoadEffect("SimpleSample.fx");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -70,6 +70,12 @@ void GameStateMain::OnFrameMove(
 	m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
+
+	CharacterPtrList::iterator character_iter = m_characters.begin();
+	for(; character_iter != m_characters.end(); character_iter++)
+	{
+		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
+	}
 }
 
 void GameStateMain::OnD3D9FrameRender(
@@ -77,6 +83,48 @@ void GameStateMain::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	////CComPtr<IDirect3DSurface9> oldRt;
+	////V(pd3dDevice->GetRenderTarget(0, &oldRt));
+	////V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
+	////CComPtr<IDirect3DSurface9> oldDs = NULL;
+	////V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+	////V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
+	//V(pd3dDevice->Clear(
+	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	//if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	//{
+	//	my::Effect * ShadowMap = Game::getSingleton().m_ShadowMap.get();
+	//	ShadowMap->SetTechnique("RenderSkinedShadow");
+	//	CharacterPtrList::iterator character_iter = m_characters.begin();
+	//	for(; character_iter != m_characters.end(); character_iter++)
+	//	{
+	//		my::Matrix4 world =
+	//			my::Matrix4::Scaling((*character_iter)->m_Scale) *
+	//			my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
+	//			my::Matrix4::Translation((*character_iter)->m_Position);
+	//		ShadowMap->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+	//		Game::getSingleton().m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
+	//		EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
+	//		UINT cPasses = ShadowMap->Begin();
+	//		for(UINT p = 0; p < cPasses; ++p)
+	//		{
+	//			ShadowMap->BeginPass(p);
+	//			for(int i = 0; i < mesh->GetMaterialNum(); i++)
+	//			{
+	//				mesh->DrawSubset(i);
+	//			}
+	//			ShadowMap->EndPass();
+	//		}
+	//		ShadowMap->End();
+	//	}
+
+	//	V(pd3dDevice->EndScene());
+	//}
+	////V(pd3dDevice->SetRenderTarget(0, oldRt));
+	////V(pd3dDevice->SetDepthStencilSurface(oldDs));
+	////oldRt.Release();
+	////oldDs.Release();
+
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 
@@ -95,9 +143,9 @@ void GameStateMain::OnD3D9FrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		m_Effect->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
-		m_Effect->SetMatrix("g_mWorld", Matrix4::Identity());
-		m_Effect->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		Game::getSingleton().m_SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
+		Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
+		Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
 		{
@@ -111,8 +159,8 @@ void GameStateMain::OnD3D9FrameRender(
 				my::Matrix4::Scaling((*character_iter)->m_Scale) *
 				my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				my::Matrix4::Translation((*character_iter)->m_Position);
-			m_Effect->SetMatrix("g_mWorld", world);
-			m_Effect->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+			Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", world);
+			Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
