@@ -7,8 +7,6 @@
 
 float4 g_MaterialAmbientColor;
 float4 g_MaterialDiffuseColor;
-float3 g_LightDir;
-float4 g_LightDiffuse;
 texture g_MeshTexture;
 
 //--------------------------------------------------------------------------------------

@@ -83,6 +83,7 @@ void GameStateMain::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	my::Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
 	////CComPtr<IDirect3DSurface9> oldRt;
 	////V(pd3dDevice->GetRenderTarget(0, &oldRt));
 	////V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
@@ -103,7 +104,7 @@ void GameStateMain::OnD3D9FrameRender(
 	//			my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 	//			my::Matrix4::Translation((*character_iter)->m_Position);
 	//		ShadowMap->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
-	//		Game::getSingleton().m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
+	//		SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 	//		EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
 	//		UINT cPasses = ShadowMap->Begin();
 	//		for(UINT p = 0; p < cPasses; ++p)
@@ -143,9 +144,12 @@ void GameStateMain::OnD3D9FrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		Game::getSingleton().m_SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
-		Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
-		Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
+		SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
+		SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		SimpleSample->SetVector("g_EyePos", m_Camera->m_View.inverse()[3]); // ! Need optimize
+		SimpleSample->SetVector("g_LightDir", Vector4(0,0,-1,0).normalize());
+		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
 		{
@@ -159,8 +163,8 @@ void GameStateMain::OnD3D9FrameRender(
 				my::Matrix4::Scaling((*character_iter)->m_Scale) *
 				my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				my::Matrix4::Translation((*character_iter)->m_Position);
-			Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", world);
-			Game::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+			SimpleSample->SetMatrix("g_mWorld", world);
+			SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 

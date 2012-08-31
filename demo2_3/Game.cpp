@@ -749,7 +749,8 @@ void Game::ExecuteCode(const char * code)
 		if(!m_panel)
 			THROW_CUSEXCEPTION(e.what());
 
-		AddLine(ms2ws(e.what()));
+		AddLine(L"");
+		puts(ms2ws(e.what()));
 	}
 }
 

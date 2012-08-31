@@ -25,7 +25,7 @@ void RenderSkinedShadowVS(SKINED_VS_INPUT i,
 {
 	float4 Pos;
 	float3 Normal;
-	get_skined_vs(i, Pos, Normal);
+	get_skined_vs(i, Pos);
 	
 	oPos = mul(Pos, g_mWorldViewProjection);
 	
