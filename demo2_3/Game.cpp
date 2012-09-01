@@ -489,6 +489,10 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_ShadowMapDS.reset(new my::Surface());
 
+	m_CubeMapRT.reset(new my::CubeTexture());
+	CachePtr cache = OpenArchiveStream("texture\\uffizi_cross.dds")->GetWholeCache();
+	m_CubeMapRT->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+
 	if(!m_input)
 	{
 		m_input.reset(new Input());
@@ -573,12 +577,6 @@ void Game::OnD3D9DestroyDevice(void)
 	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	terminate();
-
-	m_SimpleSample.reset();
-
-	m_ShadowMapRT.reset();
-
-	m_ShadowMapDS.reset();
 
 	m_EffectPool.Release();
 

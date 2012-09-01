@@ -625,7 +625,7 @@ namespace my
 			return m_MaterialNameList[AttribId];
 		}
 
-		//void ComputeTangentFrame(void);
+		void ComputeTangentFrame(void);
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;

@@ -9,7 +9,8 @@ shared float4x4 g_mWorldViewProjection;
 shared float3 g_EyePos;
 shared float3 g_LightDir;
 shared float4 g_LightDiffuse;
-shared texture  g_ShadowTexture;
+shared texture g_ShadowTexture;
+shared texture g_CubeTexture;
 shared row_major float2x4 g_dualquat[96];
 
 //--------------------------------------------------------------------------------------

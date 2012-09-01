@@ -668,92 +668,95 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	UnlockIndexBuffer();
 
 	std::vector<DWORD> rgdwAdjacency(GetNumFaces() * 3);
-	GenerateAdjacency(0, &rgdwAdjacency[0]);
+	GenerateAdjacency(EPSILON_E6, &rgdwAdjacency[0]);
 	if(bComputeTangentFrame)
 	{
-		DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
-		if(!normals)
-			dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
-		HRESULT hres = D3DXComputeTangentFrameEx(
-			m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
-		if(FAILED(hres))
-		{
-			THROW_D3DEXCEPTION(hres);
-		}
+		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
+		//if(!normals)
+		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
+		//HRESULT hres = D3DXComputeTangentFrameEx(
+		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		//if(FAILED(hres))
+		//{
+		//	THROW_D3DEXCEPTION(hres);
+		//}
+		ComputeTangentFrame();
 	}
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 }
-//
-//void OgreMesh::ComputeTangentFrame(void)
-//{
-//	std::vector<Vector3> tan1(GetNumVertices(), Vector3::zero);
-//	std::vector<Vector3> tan2(GetNumVertices(), Vector3::zero);
-//	WORD VertexStride = m_VertexElemSet.CalculateVertexStride();
-//
-//	VOID * pIndices = LockIndexBuffer();
-//	const VOID * pVertices = LockVertexBuffer();
-//	for(DWORD face_i = 0; face_i < GetNumFaces(); face_i++)
-//	{
-//		int i1, i2, i3;
-//		if(GetOptions() & D3DXMESH_32BIT)
-//		{
-//			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
-//			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
-//			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
-//		}
-//		else
-//		{
-//			i1 = *((WORD *)pIndices + face_i * 3 + 0);
-//			i2 = *((WORD *)pIndices + face_i * 3 + 1);
-//			i3 = *((WORD *)pIndices + face_i * 3 + 2);
-//		}
-//
-//		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
-//		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
-//		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
-//
-//		const Vector3 & v1 = m_VertexElemSet.GetPosition(pv1);
-//		const Vector3 & v2 = m_VertexElemSet.GetPosition(pv2);
-//		const Vector3 & v3 = m_VertexElemSet.GetPosition(pv3);
-//
-//		const Vector2 & w1 = m_VertexElemSet.GetTexcoord(pv1);
-//		const Vector2 & w2 = m_VertexElemSet.GetTexcoord(pv2);
-//		const Vector2 & w3 = m_VertexElemSet.GetTexcoord(pv3);
-//
-//		float x1 = v2.x - v1.x;
-//		float x2 = v3.x - v1.x;
-//		float y1 = v2.y - v1.y;
-//		float y2 = v3.y - v1.y;
-//		float z1 = v2.z - v1.z;
-//		float z2 = v3.z - v1.z;
-//
-//		float s1 = w2.x - w1.x;
-//		float s2 = w3.x - w1.x;
-//		float t1 = w2.y - w1.y;
-//		float t2 = w3.y - w1.y;
-//
-//		float r = 1.0F / (s1 * t2 - s2 * t1);
-//		Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
-//		Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
-//
-//		tan1[i1] += sdir;
-//		tan1[i2] += sdir;
-//		tan1[i3] += sdir;
-//
-//		tan2[i1] += tdir;
-//		tan2[i2] += tdir;
-//		tan2[i3] += tdir;
-//	}
-//
-//	for(DWORD vertex_i = 0; vertex_i < GetNumVertices(); vertex_i++)
-//	{
-//		unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * VertexStride;
-//		const Vector3 & n = m_VertexElemSet.GetNormal(pVertex);
-//		const Vector3 & t = tan1[vertex_i];
-//
-//		// Gram-Schmidt orthogonalize
-//		m_VertexElemSet.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
-//	}
-//	UnlockVertexBuffer();
-//	UnlockIndexBuffer();
-//}
+
+void OgreMesh::ComputeTangentFrame(void)
+{
+	std::vector<Vector3> tan1(GetNumVertices(), Vector3::zero);
+	std::vector<Vector3> tan2(GetNumVertices(), Vector3::zero);
+	WORD VertexStride = m_VertexElemSet.CalculateVertexStride();
+
+	VOID * pIndices = LockIndexBuffer();
+	const VOID * pVertices = LockVertexBuffer();
+
+	for(DWORD face_i = 0; face_i < GetNumFaces(); face_i++)
+	{
+		int i1, i2, i3;
+		if(GetOptions() & D3DXMESH_32BIT)
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const Vector3 & v1 = m_VertexElemSet.GetPosition(pv1);
+		const Vector3 & v2 = m_VertexElemSet.GetPosition(pv2);
+		const Vector3 & v3 = m_VertexElemSet.GetPosition(pv3);
+
+		const Vector2 & w1 = m_VertexElemSet.GetTexcoord(pv1);
+		const Vector2 & w2 = m_VertexElemSet.GetTexcoord(pv2);
+		const Vector2 & w3 = m_VertexElemSet.GetTexcoord(pv3);
+
+		float x1 = v2.x - v1.x;
+		float x2 = v3.x - v1.x;
+		float y1 = v2.y - v1.y;
+		float y2 = v3.y - v1.y;
+		float z1 = v2.z - v1.z;
+		float z2 = v3.z - v1.z;
+
+		float s1 = w2.x - w1.x;
+		float s2 = w3.x - w1.x;
+		float t1 = w2.y - w1.y;
+		float t2 = w3.y - w1.y;
+
+		float r = 1.0F / (s1 * t2 - s2 * t1);
+		Vector3 sdir((t2 * x1 - t1 * x2) * r, (t2 * y1 - t1 * y2) * r, (t2 * z1 - t1 * z2) * r);
+		Vector3 tdir((s1 * x2 - s2 * x1) * r, (s1 * y2 - s2 * y1) * r, (s1 * z2 - s2 * z1) * r);
+
+		tan1[i1] += sdir;
+		tan1[i2] += sdir;
+		tan1[i3] += sdir;
+
+		tan2[i1] += tdir;
+		tan2[i2] += tdir;
+		tan2[i3] += tdir;
+	}
+
+	for(DWORD vertex_i = 0; vertex_i < GetNumVertices(); vertex_i++)
+	{
+		unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * VertexStride;
+		const Vector3 & n = m_VertexElemSet.GetNormal(pVertex);
+		const Vector3 & t = tan1[vertex_i];
+
+		// Gram-Schmidt orthogonalize
+		m_VertexElemSet.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
+	}
+
+	UnlockVertexBuffer();
+	UnlockIndexBuffer();
+}
