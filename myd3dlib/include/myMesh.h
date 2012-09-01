@@ -207,7 +207,7 @@ namespace my
 
 		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(void) const;
 
-		UINT GetVertexStride(DWORD Stream) const;
+		UINT CalculateVertexStride(DWORD Stream = 0) const;
 
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
@@ -245,7 +245,7 @@ namespace my
 
 			m_VertexElemSet = VertexElemSet;
 
-			m_vertexStride = VertexElemSet.GetVertexStride(Stream);
+			m_vertexStride = VertexElemSet.CalculateVertexStride(Stream);
 
 			m_NumVertices = 0;
 
@@ -593,6 +593,8 @@ namespace my
 	class OgreMesh : public Mesh
 	{
 	public:
+		D3DVERTEXELEMENT9Set m_VertexElemSet;
+
 		std::vector<std::string> m_MaterialNameList;
 
 	public:
@@ -622,6 +624,8 @@ namespace my
 		{
 			return m_MaterialNameList[AttribId];
 		}
+
+		//void ComputeTangentFrame(void);
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;

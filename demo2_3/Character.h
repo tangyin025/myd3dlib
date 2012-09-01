@@ -27,9 +27,9 @@ public:
 		StateIdle,
 	};
 
-	State m_state;
+	State m_State;
 
-	float m_stateTime;
+	float m_StateTime;
 
 	my::BoneList m_animPose;
 
@@ -47,8 +47,8 @@ public:
 		, m_Position(0,0,0)
 		, m_Rotation(0,0,0,1)
 		, m_Scale(1,1,1)
-		, m_state(StateIdle)
-		, m_stateTime(0)
+		, m_State(StateIdle)
+		, m_StateTime(0)
 	{
 	}
 

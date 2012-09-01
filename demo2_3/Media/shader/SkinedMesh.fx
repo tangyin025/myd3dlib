@@ -99,7 +99,7 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	float3x3 mWorldToTangent = float3x3(vTangentWS, vBinormalWS, vNormalWorldSpace);
 	
 	Output.LightTS = mul(mWorldToTangent, g_LightDir);
-	Output.ViewTS = mul(mWorldToTangent, normalize(g_EyePos - mul(g_mWorld, vPos)));
+	Output.ViewTS = mul(mWorldToTangent, g_EyePos - mul(vPos, g_mWorld));
     
     return Output;    
 }
@@ -121,18 +121,20 @@ struct PS_OUTPUT
 PS_OUTPUT RenderScenePS( VS_OUTPUT In ) 
 { 
     PS_OUTPUT Output;
-
+	
+	float3 vLightTS = normalize(In.LightTS);
+	
+	float3 vViewTS = normalize(In.ViewTS);
+	
     float3 vNormalTS = tex2D(g_samNormalMap, In.TextureUV) * 2 - 1;
     
     float4 cBaseColor = tex2D(MeshTextureSampler, In.TextureUV);
     
-    float3 vLightTSAdj = float3(In.LightTS.x, -In.LightTS.y, In.LightTS.z);
+    float4 cDiffuse = saturate(dot(vNormalTS, vLightTS)) * g_MaterialDiffuseColor + g_MaterialAmbientColor;
     
-    float4 cDiffuse = saturate(dot(vNormalTS, vLightTSAdj)) * g_MaterialDiffuseColor + g_MaterialAmbientColor;
-    
-    float3 vReflectionTS = normalize(2 * dot(In.ViewTS, vNormalTS) * vNormalTS - In.ViewTS);
+    float3 vReflectionTS = get_reflection(vNormalTS, vViewTS);
 	
-    float fRdotL = saturate(dot(vReflectionTS, vLightTSAdj));
+    float fRdotL = saturate(dot(vReflectionTS, vLightTS));
     
     float4 cSpecular = saturate(pow(fRdotL, 8)) * 1.5 * tex2D(g_samSpecularMap, In.TextureUV);
     

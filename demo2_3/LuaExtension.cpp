@@ -745,6 +745,8 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Position", &Character::m_Position)
 			.def_readwrite("Rotation", &Character::m_Rotation)
 			.def_readwrite("Scale", &Character::m_Scale)
+			.def_readwrite("State", &Character::m_State)
+			.def_readwrite("StateTime", &Character::m_StateTime)
 			.def("InsertMeshLOD", &Character::InsertMeshLOD)
 			.def("InsertSkeletonLOD", &Character::InsertSkeletonLOD)
 	];

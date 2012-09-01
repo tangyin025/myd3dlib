@@ -148,7 +148,7 @@ void GameStateMain::OnD3D9FrameRender(
 		SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
 		SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
 		SimpleSample->SetVector("g_EyePos", m_Camera->m_View.inverse()[3]); // ! Need optimize
-		SimpleSample->SetVector("g_LightDir", Vector4(0,0,-1,0).normalize());
+		SimpleSample->SetVector("g_LightDir", Vector4(1,1,-1,0).normalize());
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)

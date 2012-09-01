@@ -13,7 +13,7 @@ shared texture  g_ShadowTexture;
 shared row_major float2x4 g_dualquat[96];
 
 //--------------------------------------------------------------------------------------
-// Vertex shader input structure
+// SKINED_VS_INPUT
 //--------------------------------------------------------------------------------------
 
 struct SKINED_VS_INPUT
@@ -22,13 +22,12 @@ struct SKINED_VS_INPUT
     float4 BlendWeights		: BLENDWEIGHT;
     float4 BlendIndices		: BlendIndices;
     float3 Normal			: NORMAL;
-	float3 Binormal			: BINORMAL;
 	float3 Tangent			: TANGENT;
     float2 Tex0				: TEXCOORD0;
 };
 
 //--------------------------------------------------------------------------------------
-// This shader computes skined transform
+// get_skined_dual
 //--------------------------------------------------------------------------------------
 
 void get_skined_dual(SKINED_VS_INPUT i, out float2x4 dual)
@@ -62,6 +61,10 @@ void get_skined_dual(SKINED_VS_INPUT i, out float2x4 dual)
     dual = dual / length;
 }
 
+//--------------------------------------------------------------------------------------
+// get_skined_vs
+//--------------------------------------------------------------------------------------
+
 void get_skined_vs(SKINED_VS_INPUT i, out float4 Pos)
 {
     float2x4 dual = (float2x4)0;
@@ -72,6 +75,10 @@ void get_skined_vs(SKINED_VS_INPUT i, out float4 Pos)
     position += translation;
     Pos = float4(position, 1);
 }
+
+//--------------------------------------------------------------------------------------
+// get_skined_vsnormal
+//--------------------------------------------------------------------------------------
 
 void get_skined_vsnormal(SKINED_VS_INPUT i, out float4 Pos, out float3 Normal, out float3 Tangent)
 {
@@ -85,4 +92,13 @@ void get_skined_vsnormal(SKINED_VS_INPUT i, out float4 Pos, out float3 Normal, o
 	
     Normal = i.Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, i.Normal.xyz) + dual[0].w * i.Normal.xyz);
 	Tangent = i.Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, i.Tangent.xyz) + dual[0].w * i.Tangent.xyz);;
+}
+
+//--------------------------------------------------------------------------------------
+// get_reflection
+//--------------------------------------------------------------------------------------
+
+float3 get_reflection(float3 Normal, float3 View)
+{
+	return normalize(2 * dot(Normal, View) * Normal - View);
 }
