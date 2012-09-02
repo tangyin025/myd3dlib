@@ -5,6 +5,8 @@ class Material
 public:
 	my::EffectPtr m_Effect;
 
+	std::string m_Technique;
+
 	D3DXHANDLE m_Param;
 
 public:
@@ -26,9 +28,13 @@ public:
 		}
 	}
 
-	void BeginParameterBlock(void)
+	void BeginParameterBlock(const std::string & Technique)
 	{
 		SafeDeleteParam();
+
+		m_Technique = Technique;
+
+		m_Effect->SetTechnique(m_Technique.c_str());
 
 		m_Effect->BeginParameterBlock();
 	}
@@ -36,6 +42,31 @@ public:
 	void EndParameterBlock(void)
 	{
 		m_Param = m_Effect->EndParameterBlock();
+	}
+
+	void ApplyParameterBlock(void)
+	{
+		m_Effect->ApplyParameterBlock(m_Param);
+	}
+
+	UINT Begin(DWORD Flags = 0)
+	{
+		return m_Effect->Begin(Flags);
+	}
+
+	void End(void)
+	{
+		m_Effect->End();
+	}
+
+	void BeginPass(UINT Pass)
+	{
+		m_Effect->BeginPass(Pass);
+	}
+
+	void EndPass(void)
+	{
+		m_Effect->EndPass();
 	}
 };
 

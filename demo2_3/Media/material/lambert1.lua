@@ -1,12 +1,8 @@
 function SetupMaterial(material)
-	local effect = game:LoadEffect("SimpleSample.fx")
-	material.Effect = effect
-	local texture = game:LoadTexture("Checker.bmp")
-	table.insert(texture_pool, texture)
-	effect:SetTechnique("RenderScene")
-	material:BeginParameterBlock()
-	effect:SetVector("g_MaterialAmbientColor", Vector4(1,1,1,1))
-	effect:SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1))
-	effect:SetTexture("g_MeshTexture", texture)
+	material.Effect = LoadEffect("SimpleSample.fx")
+	material:BeginParameterBlock("RenderScene")
+	material.Effect:SetVector("g_MaterialAmbientColor", Vector4(0.16,0.16,0.16,1.0))
+	material.Effect:SetVector("g_MaterialDiffuseColor", Vector4(1.00,1.00,1.00,1.0))
+	material.Effect:SetTexture("g_MeshTexture", LoadTexture("Checker.bmp"))
 	material:EndParameterBlock()
 end

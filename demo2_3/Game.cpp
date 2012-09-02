@@ -272,23 +272,23 @@ TexturePtr GameLoader::LoadTexture(const std::string & path)
 	}
 	return ret;
 }
-
-MeshPtr GameLoader::LoadMesh(const std::string & path)
-{
-	OgreMeshPtr ret(new OgreMesh());
-	std::string loc_path = std::string("mesh\\") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
-	{
-		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
-	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
-	}
-	return ret;
-}
+//
+//MeshPtr GameLoader::LoadMesh(const std::string & path)
+//{
+//	OgreMeshPtr ret(new OgreMesh());
+//	std::string loc_path = std::string("mesh\\") + path;
+//	std::string full_path = GetFullPath(loc_path);
+//	if(!full_path.empty())
+//	{
+//		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
+//	}
+//	else
+//	{
+//		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+//		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+//	}
+//	return ret;
+//}
 
 MaterialPtr GameLoader::LoadMaterial(const std::string & path)
 {
@@ -490,7 +490,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_ShadowMapDS.reset(new my::Surface());
 
 	m_CubeMapRT.reset(new my::CubeTexture());
-	CachePtr cache = OpenArchiveStream("texture\\uffizi_cross.dds")->GetWholeCache();
+	CachePtr cache = OpenArchiveStream("texture\\galileo_cross.dds")->GetWholeCache();
 	m_CubeMapRT->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 	if(!m_input)
