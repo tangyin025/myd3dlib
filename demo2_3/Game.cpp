@@ -272,23 +272,6 @@ TexturePtr GameLoader::LoadTexture(const std::string & path)
 	}
 	return ret;
 }
-//
-//MeshPtr GameLoader::LoadMesh(const std::string & path)
-//{
-//	OgreMeshPtr ret(new OgreMesh());
-//	std::string loc_path = std::string("mesh\\") + path;
-//	std::string full_path = GetFullPath(loc_path);
-//	if(!full_path.empty())
-//	{
-//		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
-//	}
-//	else
-//	{
-//		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-//		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
-//	}
-//	return ret;
-//}
 
 MaterialPtr GameLoader::LoadMaterial(const std::string & path)
 {
@@ -490,8 +473,6 @@ HRESULT Game::OnD3D9CreateDevice(
 	m_ShadowMapDS.reset(new my::Surface());
 
 	m_CubeMapRT.reset(new my::CubeTexture());
-	CachePtr cache = OpenArchiveStream("texture\\galileo_cross.dds")->GetWholeCache();
-	m_CubeMapRT->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 
 	if(!m_input)
 	{
@@ -554,6 +535,10 @@ HRESULT Game::OnD3D9ResetDevice(
 	m_ShadowMapDS->CreateDepthStencilSurface(
 		pd3dDevice, shadow_map_size, shadow_map_size, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
+	// ! 使用 D3DUSAGE_RENDERTARGET会严重影响 texCUBE性能，最好是使用静态的 CreateCubeTextureFromFile
+	m_CubeMapRT->CreateCubeTexture(
+		pd3dDevice, shadow_map_size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
+
 	return S_OK;
 }
 
@@ -568,6 +553,8 @@ void Game::OnD3D9LostDevice(void)
 	m_ShadowMapRT->OnDestroyDevice();
 
 	m_ShadowMapDS->OnDestroyDevice();
+
+	m_CubeMapRT->OnDestroyDevice();
 
 	DxutApp::OnD3D9LostDevice();
 }

@@ -199,7 +199,7 @@ namespace my
 			return desc;
 		}
 
-		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level)
+		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0)
 		{
 			CComPtr<IDirect3DSurface9> Surface;
 			V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetSurfaceLevel(Level, &Surface));
@@ -277,6 +277,59 @@ namespace my
 			D3DCOLOR ColorKey = 0,
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
+
+		void AddDirtyRect(
+			D3DCUBEMAP_FACES FaceType,
+			CONST RECT * pDirtyRect = NULL)
+		{
+			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->AddDirtyRect(FaceType, pDirtyRect));
+		}
+
+		CComPtr<IDirect3DSurface9> GetCubeMapSurface(
+			D3DCUBEMAP_FACES FaceType,
+			UINT Level = 0)
+		{
+			CComPtr<IDirect3DSurface9> ret;
+			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetCubeMapSurface(FaceType, Level, &ret));
+			return ret;
+		}
+
+		D3DSURFACE_DESC GetLevelDesc(
+			UINT Level = 0)
+		{
+			D3DSURFACE_DESC desc;
+			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
+			return desc;
+		}
+
+		D3DLOCKED_RECT LockRect(
+			D3DCUBEMAP_FACES FaceType,
+			const CRect & rect,
+			DWORD Flags = 0,
+			UINT Level = 0)
+		{
+			_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
+
+			D3DLOCKED_RECT LockedRect;
+			if(FAILED(hr = static_cast<IDirect3DCubeTexture9 *>(m_ptr)->LockRect(FaceType, Level, &LockedRect, &rect, Flags)))
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
+			return LockedRect;
+		}
+
+		void UnlockRect(
+			D3DCUBEMAP_FACES FaceType,
+			UINT Level = 0)
+		{
+			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->UnlockRect(FaceType, Level));
+		}
+
+		void DrawToSurface(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			D3DCUBEMAP_FACES FaceType,
+			TexturePtr texture,
+			UINT Level = 0);
 	};
 
 	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;

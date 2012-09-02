@@ -221,3 +221,38 @@ void CubeTexture::CreateCubeTextureFromFileInMemory(
 
 	Create(pCubeTexture);
 }
+
+void CubeTexture::DrawToSurface(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	D3DCUBEMAP_FACES FaceType,
+	TexturePtr texture,
+	UINT Level)
+{
+	CComPtr<IDirect3DSurface9> SurfaceDst = GetCubeMapSurface(FaceType, Level);
+
+	D3DSURFACE_DESC desc;
+	V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
+
+	struct Vertex
+	{
+		FLOAT x, y, z, w;
+		FLOAT u, v;
+	};
+
+	Vertex v[4] =
+	{
+		{ 0.0f,					0.0f,				0.5f, 1.0f, 0.0f, 0.0f },
+		{ (FLOAT)desc.Width,	0.0f,				0.5f, 1.0f, 1.0f, 0.0f },
+		{ 0.0f,					(FLOAT)desc.Height,	0.5f, 1.0f, 0.0f, 1.0f },
+		{ (FLOAT)desc.Width,	(FLOAT)desc.Height,	0.5f, 1.0f, 1.0f, 1.0f },
+	};
+
+	V(pd3dDevice->SetRenderTarget(0, SurfaceDst));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetTexture(0, texture->m_ptr));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(v[0])));
+		V(pd3dDevice->EndScene());
+	}
+}

@@ -57,6 +57,13 @@ GameStateMain::GameStateMain(void)
 	m_Camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
 	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	m_Camera->m_Distance = 10.0f;
+
+	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_X] = Game::getSingleton().LoadTexture("cubescene_rt.jpg");
+	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_X] = Game::getSingleton().LoadTexture("cubescene_lf.jpg");
+	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_Y] = Game::getSingleton().LoadTexture("cubescene_up.jpg");
+	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_Y] = Game::getSingleton().LoadTexture("cubescene_dn.jpg");
+	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_Z] = Game::getSingleton().LoadTexture("cubescene_fr.jpg");
+	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_Z] = Game::getSingleton().LoadTexture("cubescene_bk.jpg");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -84,12 +91,13 @@ void GameStateMain::OnD3D9FrameRender(
 	float fElapsedTime)
 {
 	my::Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
-	////CComPtr<IDirect3DSurface9> oldRt;
-	////V(pd3dDevice->GetRenderTarget(0, &oldRt));
-	////V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
-	////CComPtr<IDirect3DSurface9> oldDs = NULL;
-	////V(pd3dDevice->GetDepthStencilSurface(&oldDs));
-	////V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
+	CComPtr<IDirect3DSurface9> oldRt;
+	V(pd3dDevice->GetRenderTarget(0, &oldRt));
+	CComPtr<IDirect3DSurface9> oldDs = NULL;
+	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+
+	//V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
+	//V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
 	//V(pd3dDevice->Clear(
 	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	//if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -121,10 +129,19 @@ void GameStateMain::OnD3D9FrameRender(
 
 	//	V(pd3dDevice->EndScene());
 	//}
-	////V(pd3dDevice->SetRenderTarget(0, oldRt));
-	////V(pd3dDevice->SetDepthStencilSurface(oldDs));
-	////oldRt.Release();
-	////oldDs.Release();
+
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr)); // ! Must have the same multisample as the render target
+	for(DWORD Face = 0; Face < _countof(m_CubeMapFaces); Face++)
+	{
+		Game::getSingleton().m_CubeMapRT->DrawToSurface(pd3dDevice, (D3DCUBEMAP_FACES)Face, m_CubeMapFaces[Face]);
+	}
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+
+	V(pd3dDevice->SetRenderTarget(0, oldRt));
+	V(pd3dDevice->SetDepthStencilSurface(oldDs));
+	oldRt.Release();
+	oldDs.Release();
 
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));

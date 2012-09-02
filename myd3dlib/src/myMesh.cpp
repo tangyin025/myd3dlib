@@ -668,7 +668,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	UnlockIndexBuffer();
 
 	std::vector<DWORD> rgdwAdjacency(GetNumFaces() * 3);
-	GenerateAdjacency(EPSILON_E6, &rgdwAdjacency[0]);
+	GenerateAdjacency((float)EPSILON_E6, &rgdwAdjacency[0]);
 	if(bComputeTangentFrame)
 	{
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
