@@ -108,7 +108,7 @@ float3 get_reflection(float3 Normal, float3 View)
 // get_fresnel
 //--------------------------------------------------------------------------------------
 
-float get_fresnel(float3 Normal, float3 View)
+float get_fresnel(float3 Normal, float3 View, float FresExp, float ReflStrength)
 {
-	return pow(1.0 - abs(dot(Normal, View)), 3.0) * 1.4;
+	return pow(1.0 - abs(dot(Normal, View)), FresExp) * ReflStrength;
 }

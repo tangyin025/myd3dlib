@@ -1635,6 +1635,8 @@ void Dialog::SetVisible(bool bVisible)
 			DxutApp::getSingleton().m_ControlFocus.reset();
 		}
 	}
+	else
+		ForceFocusControl();
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)

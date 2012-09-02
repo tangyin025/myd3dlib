@@ -11,6 +11,9 @@ texture g_MeshTexture;
 texture g_NormalTexture;
 texture g_SpecularTexture;
 
+float FresExp = 3.0;
+float ReflStrength = 1.4;
+
 //--------------------------------------------------------------------------------------
 // Texture samplers
 //--------------------------------------------------------------------------------------
@@ -57,8 +60,8 @@ sampler_state
 
 struct VS_OUTPUT
 {
-	float4 Position   	: POSITION;
-	float2 TextureUV  	: TEXCOORD0;
+	float4 Position		: POSITION;
+	float2 TextureUV	: TEXCOORD0;
 	float3 NormalWS		: TEXCOORD1;
 	float3 TangentWS	: TEXCOORD2;
 	float3 BinormalWS	: TEXCOORD3;
@@ -88,7 +91,7 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	Output.BinormalWS = vBinormalWS;
 	Output.ViewWS = g_EyePos - mul(vPos, g_mWorld);
 	
-	return Output;    
+	return Output;
 }
 
 //--------------------------------------------------------------------------------------
@@ -110,9 +113,11 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	
 	float4 cSpecular = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
 	
-	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor + g_MaterialAmbientColor;
+	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor;
 	
-	return cDiffuse * tex2D(MeshTextureSampler, In.TextureUV) + cSpecular * get_fresnel(vNormalWS, vViewWS);
+	float4 cAmbient = max(g_MaterialAmbientColor, get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength));
+	
+	return (cDiffuse + cAmbient) * tex2D(MeshTextureSampler, In.TextureUV) + cSpecular;
 }
 
 //--------------------------------------------------------------------------------------

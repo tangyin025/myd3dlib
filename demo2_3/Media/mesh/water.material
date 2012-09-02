@@ -1,0 +1,20 @@
+material waterPhong
+{
+	technique
+	{
+		pass
+		{
+			ambient 1 1 1 1
+			diffuse 1 1 1 1
+			specular 0 0 0 0
+			emissive 0 0 0
+
+			texture_unit
+			{
+				texture Checker.bmp
+				tex_coord_set 0
+				colour_op modulate
+			}
+		}
+	}
+}

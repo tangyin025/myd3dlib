@@ -7,7 +7,7 @@ local state=game:CurrentState()
 -- 设置相机
 local camera = state.Camera
 camera.LookAt=Vector3(0,1,0)
--- camera.Distance=1
+camera.Distance=3
 
 -- ! 利用EventAlign调整相机的Aspect
 local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.vp.x/args.vp.y end;game:InsertDlg(d)
@@ -30,10 +30,12 @@ end
 
 -- CreateScene("plane")
 
--- CreateRole("casual19_m_highpoly", Vector3(0,0,0), 0)
+CreateScene("water")
 
-for i=-5,5 do
-	for j = -5,5 do
-		CreateRole("casual19_m_highpoly", Vector3(i,0,j), math.random(0,1))
-	end
-end
+CreateRole("casual19_m_highpoly", Vector3(0,0,0), 0)
+
+-- for i=-5,5 do
+	-- for j = -5,5 do
+		-- CreateRole("casual19_m_highpoly", Vector3(i,0,j), math.random(0,1))
+	-- end
+-- end
