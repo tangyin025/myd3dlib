@@ -5,6 +5,9 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
+#define SHADOW_MAP_SIZE 512
+#define SHADOW_EPSILON 0.00010f
+
 float4 g_MaterialAmbientColor;
 float4 g_MaterialDiffuseColor;
 texture g_MeshTexture;
@@ -54,6 +57,15 @@ sampler_state
 	MagFilter = LINEAR;
 };
 
+sampler ShadowTextureSampler =
+sampler_state
+{
+	Texture = <g_ShadowTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------
@@ -66,6 +78,7 @@ struct VS_OUTPUT
 	float3 TangentWS	: TEXCOORD2;
 	float3 BinormalWS	: TEXCOORD3;
 	float3 ViewWS		: TEXCOORD4;
+	float4 PosLight		: TEXCOORD5;
 };
 
 //--------------------------------------------------------------------------------------
@@ -90,6 +103,7 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	Output.TangentWS = vTangentWS;
 	Output.BinormalWS = vBinormalWS;
 	Output.ViewWS = g_EyePos - mul(vPos, g_mWorld);
+	Output.PosLight = mul(vPos, mul(g_mWorld, g_mLightViewProjection));
 	
 	return Output;
 }
@@ -98,6 +112,21 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 // This shader outputs the pixel's color by modulating the texture's
 // color with diffuse material color
 //--------------------------------------------------------------------------------------
+
+float get_ligthAmount(float4 PosLight)
+{
+	float2 ShadowTexC = float2(PosLight.x / PosLight.w * 0.5 + 0.5, 0.5 - PosLight.y / PosLight.w * 0.5);
+	
+	float2 lerps = frac(SHADOW_MAP_SIZE * ShadowTexC);
+	
+	float sourcevals[4];
+	sourcevals[0] = (tex2D(ShadowTextureSampler, ShadowTexC) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
+	sourcevals[1] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(1.0/SHADOW_MAP_SIZE, 0)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
+	sourcevals[2] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(0, 1.0/SHADOW_MAP_SIZE)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
+	sourcevals[3] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(1.0/SHADOW_MAP_SIZE, 1.0/SHADOW_MAP_SIZE)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
+	
+	return lerp(lerp(sourcevals[0], sourcevals[1], lerps.x), lerp(sourcevals[2], sourcevals[3], lerps.x), lerps.y);
+}
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
@@ -113,9 +142,9 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	
 	float4 cSpecular = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
 	
-	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor;
+	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor * get_ligthAmount(In.PosLight);
 	
-	float4 cAmbient = max(g_MaterialAmbientColor, get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength));
+	float4 cAmbient = g_MaterialAmbientColor + get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
 	
 	return (cDiffuse + cAmbient) * tex2D(MeshTextureSampler, In.TextureUV) + cSpecular;
 }
@@ -128,7 +157,7 @@ technique RenderScene
 {
 	pass P0
 	{
-		VertexShader = compile vs_2_0 RenderSceneVS();
-		PixelShader  = compile ps_2_0 RenderScenePS(); 
+		VertexShader = compile vs_3_0 RenderSceneVS();
+		PixelShader  = compile ps_3_0 RenderScenePS(); 
 	}
 }

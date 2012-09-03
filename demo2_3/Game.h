@@ -171,6 +171,8 @@ public:
 
 	my::CubeTexturePtr m_CubeMapRT;
 
+	my::SurfacePtr m_CubeMapDS;
+
 	my::InputPtr m_input;
 
 	my::KeyboardPtr m_keyboard;

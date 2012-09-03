@@ -6,6 +6,7 @@
 shared float g_fTime;
 shared float4x4 g_mWorld;
 shared float4x4 g_mWorldViewProjection;
+shared float4x4 g_mLightViewProjection;
 shared float3 g_EyePos;
 shared float3 g_LightDir;
 shared float4 g_LightDiffuse;

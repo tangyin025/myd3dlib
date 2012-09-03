@@ -90,48 +90,55 @@ void GameStateMain::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	my::Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
+	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
 	CComPtr<IDirect3DSurface9> oldRt;
 	V(pd3dDevice->GetRenderTarget(0, &oldRt));
-	CComPtr<IDirect3DSurface9> oldDs = NULL;
+	CComPtr<IDirect3DSurface9> oldDs;
 	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
 
-	//V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
-	//V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
-	//V(pd3dDevice->Clear(
-	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	//if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	//{
-	//	my::Effect * ShadowMap = Game::getSingleton().m_ShadowMap.get();
-	//	ShadowMap->SetTechnique("RenderSkinedShadow");
-	//	CharacterPtrList::iterator character_iter = m_characters.begin();
-	//	for(; character_iter != m_characters.end(); character_iter++)
-	//	{
-	//		my::Matrix4 world =
-	//			my::Matrix4::Scaling((*character_iter)->m_Scale) *
-	//			my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
-	//			my::Matrix4::Translation((*character_iter)->m_Position);
-	//		ShadowMap->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
-	//		SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
-	//		EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
-	//		UINT cPasses = ShadowMap->Begin();
-	//		for(UINT p = 0; p < cPasses; ++p)
-	//		{
-	//			ShadowMap->BeginPass(p);
-	//			for(int i = 0; i < mesh->GetMaterialNum(); i++)
-	//			{
-	//				mesh->DrawSubset(i);
-	//			}
-	//			ShadowMap->EndPass();
-	//		}
-	//		ShadowMap->End();
-	//	}
+	Vector4 LightDir(1,1,-1,0);
+	((Vector3 &)LightDir).normalizeSelf();
+	Vector3 LightTag(0,1,0);
+	Matrix4 LightViewProj =
+		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
+		Matrix4::OrthoLH(3, 3, -50, 50);
 
-	//	V(pd3dDevice->EndScene());
-	//}
+	V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
+	V(pd3dDevice->Clear(
+		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		Effect * ShadowMap = Game::getSingleton().m_ShadowMap.get();
+		ShadowMap->SetTechnique("RenderSkinedShadow");
+		CharacterPtrList::iterator character_iter = m_characters.begin();
+		for(; character_iter != m_characters.end(); character_iter++)
+		{
+			Matrix4 world =
+				Matrix4::Scaling((*character_iter)->m_Scale) *
+				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
+				Matrix4::Translation((*character_iter)->m_Position);
+			ShadowMap->SetMatrix("g_mWorldViewProjection", world * LightViewProj);
+			SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
+			EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
+			UINT cPasses = ShadowMap->Begin();
+			for(UINT p = 0; p < cPasses; ++p)
+			{
+				ShadowMap->BeginPass(p);
+				for(UINT i = 0; i < mesh->GetMaterialNum(); i++)
+				{
+					mesh->DrawSubset(i);
+				}
+				ShadowMap->EndPass();
+			}
+			ShadowMap->End();
+		}
+
+		V(pd3dDevice->EndScene());
+	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr)); // ! Must have the same multisample as the render target
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_CubeMapDS->m_ptr));
 	for(DWORD Face = 0; Face < _countof(m_CubeMapFaces); Face++)
 	{
 		Game::getSingleton().m_CubeMapRT->DrawToSurface(pd3dDevice, (D3DCUBEMAP_FACES)Face, m_CubeMapFaces[Face]);
@@ -164,8 +171,9 @@ void GameStateMain::OnD3D9FrameRender(
 		SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
 		SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
 		SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
 		SimpleSample->SetVector("g_EyePos", m_Camera->m_View.inverse()[3]); // ! Need optimize
-		SimpleSample->SetVector("g_LightDir", Vector4(1,1,-1,0).normalize());
+		SimpleSample->SetVector("g_LightDir", LightDir);
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		SimpleSample->SetTexture("g_CubeTexture", Game::getSingleton().m_CubeMapRT->m_ptr);
 		SimpleSample->SetTexture("g_ShadowTexture", Game::getSingleton().m_ShadowMapRT->m_ptr);
@@ -178,10 +186,10 @@ void GameStateMain::OnD3D9FrameRender(
 		CharacterPtrList::iterator character_iter = m_characters.begin();
 		for(; character_iter != m_characters.end(); character_iter++)
 		{
-			my::Matrix4 world =
-				my::Matrix4::Scaling((*character_iter)->m_Scale) *
-				my::Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
-				my::Matrix4::Translation((*character_iter)->m_Position);
+			Matrix4 world =
+				Matrix4::Scaling((*character_iter)->m_Scale) *
+				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
+				Matrix4::Translation((*character_iter)->m_Position);
 			SimpleSample->SetMatrix("g_mWorld", world);
 			SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);

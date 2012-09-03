@@ -231,13 +231,14 @@ HRESULT GameLoader::Open(
 	UINT * pBytes)
 {
 	CachePtr cache;
+	std::string loc_path = std::string("shader/") + pFileName;
 	switch(IncludeType)
 	{
 	case D3DXINC_SYSTEM:
 	case D3DXINC_LOCAL:
-		if(CheckArchivePath(pFileName))
+		if(CheckArchivePath(loc_path))
 		{
-			cache = OpenArchiveStream(std::string("shader\\") + pFileName)->GetWholeCache();
+			cache = OpenArchiveStream(loc_path)->GetWholeCache();
 			*ppData = &(*cache)[0];
 			*pBytes = cache->size();
 			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
@@ -259,7 +260,7 @@ HRESULT GameLoader::Close(
 TexturePtr GameLoader::LoadTexture(const std::string & path)
 {
 	TexturePtr ret(new Texture());
-	std::string loc_path = std::string("texture\\") + path;
+	std::string loc_path = std::string("texture/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
@@ -278,7 +279,7 @@ MaterialPtr GameLoader::LoadMaterial(const std::string & path)
 	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
 	// 由于目前没有实现，所以只好在 lua脚本中手动设置（SetupMaterial），很傻的一种做法
 	MaterialPtr ret(new Material());
-	std::string loc_path = std::string("material\\") + path;
+	std::string loc_path = std::string("material/") + path;
 	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
 	std::string code((char *)&(*cache)[0], cache->size());
 	Game::getSingleton().ExecuteCode(code.c_str());
@@ -289,7 +290,7 @@ MaterialPtr GameLoader::LoadMaterial(const std::string & path)
 EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
 {
 	EffectMeshPtr ret(new EffectMesh());
-	std::string loc_path = std::string("mesh\\") + path;
+	std::string loc_path = std::string("mesh/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
@@ -311,7 +312,7 @@ EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
 OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
 {
 	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
-	std::string loc_path = std::string("mesh\\") + path;
+	std::string loc_path = std::string("mesh/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
@@ -328,7 +329,7 @@ OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
 EffectPtr GameLoader::LoadEffect(const std::string & path)
 {
 	EffectPtr ret(new Effect());
-	std::string loc_path = std::string("shader\\") + path;
+	std::string loc_path = std::string("shader/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
@@ -345,7 +346,7 @@ EffectPtr GameLoader::LoadEffect(const std::string & path)
 FontPtr GameLoader::LoadFont(const std::string & path, int height)
 {
 	FontPtr ret(new Font());
-	std::string loc_path = std::string("font\\") + path;
+	std::string loc_path = std::string("font/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
@@ -474,6 +475,8 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_CubeMapRT.reset(new my::CubeTexture());
 
+	m_CubeMapDS.reset(new my::Surface());
+
 	if(!m_input)
 	{
 		m_input.reset(new Input());
@@ -527,17 +530,22 @@ HRESULT Game::OnD3D9ResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
-	const DWORD shadow_map_size = 512;
+	const DWORD SHADOW_MAP_SIZE = 512;
 	m_ShadowMapRT->CreateAdjustedTexture(
-		pd3dDevice, shadow_map_size, shadow_map_size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowMapDS->CreateDepthStencilSurface(
-		pd3dDevice, shadow_map_size, shadow_map_size, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
 	// ! 使用 D3DUSAGE_RENDERTARGET会严重影响 texCUBE性能，最好是使用静态的 CreateCubeTextureFromFile
+	const DWORD CUBE_MAP_SIZE = 512;
 	m_CubeMapRT->CreateCubeTexture(
-		pd3dDevice, shadow_map_size, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
+		pd3dDevice, CUBE_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
+
+	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
+	m_CubeMapDS->CreateDepthStencilSurface(
+		pd3dDevice, CUBE_MAP_SIZE, CUBE_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
 	return S_OK;
 }
@@ -555,6 +563,8 @@ void Game::OnD3D9LostDevice(void)
 	m_ShadowMapDS->OnDestroyDevice();
 
 	m_CubeMapRT->OnDestroyDevice();
+
+	m_CubeMapDS->OnDestroyDevice();
 
 	DxutApp::OnD3D9LostDevice();
 }
