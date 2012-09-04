@@ -126,6 +126,8 @@ public:
 
 	my::TexturePtr LoadTexture(const std::string & path);
 
+	my::CubeTexturePtr LoadCubeTexture(const std::string & path);
+
 	MaterialPtr LoadMaterial(const std::string & path);
 
 	EffectMeshPtr LoadEffectMesh(const std::string & path);

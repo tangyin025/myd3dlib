@@ -274,6 +274,23 @@ TexturePtr GameLoader::LoadTexture(const std::string & path)
 	return ret;
 }
 
+CubeTexturePtr GameLoader::LoadCubeTexture(const std::string & path)
+{
+	CubeTexturePtr ret(new CubeTexture());
+	std::string loc_path = std::string("texture/") + path;
+	std::string full_path = GetFullPath(loc_path);
+	if(!full_path.empty())
+	{
+		ret->CreateCubeTextureFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str());
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateCubeTextureFromFileInMemory(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
+	}
+	return ret;
+}
+
 MaterialPtr GameLoader::LoadMaterial(const std::string & path)
 {
 	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
@@ -534,6 +551,7 @@ HRESULT Game::OnD3D9ResetDevice(
 	m_ShadowMapRT->CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
+	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
 	DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowMapDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
@@ -543,7 +561,6 @@ HRESULT Game::OnD3D9ResetDevice(
 	m_CubeMapRT->CreateCubeTexture(
 		pd3dDevice, CUBE_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
 
-	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
 	m_CubeMapDS->CreateDepthStencilSurface(
 		pd3dDevice, CUBE_MAP_SIZE, CUBE_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 

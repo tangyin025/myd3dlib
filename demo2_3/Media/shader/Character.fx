@@ -115,7 +115,8 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 
 float get_ligthAmount(float4 PosLight)
 {
-	float2 ShadowTexC = float2(PosLight.x / PosLight.w * 0.5 + 0.5, 0.5 - PosLight.y / PosLight.w * 0.5);
+	float2 ShadowTexC = PosLight.xy / PosLight.w * 0.5 + 0.5;
+	ShadowTexC.y = 1 - ShadowTexC.y;
 	
 	float2 lerps = frac(SHADOW_MAP_SIZE * ShadowTexC);
 	
@@ -138,7 +139,7 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	
 	float3 vNormalWS = mul(vNormalTS, mT2W);
 	
-	float3 vReflectionWS = get_reflection(vNormalWS, vViewWS);
+	float3 vReflectionWS = reflect(vNormalWS, vViewWS);//get_reflection(vNormalWS, vViewWS);
 	
 	float4 cSpecular = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
 	
@@ -157,7 +158,7 @@ technique RenderScene
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 RenderSceneVS();
-		PixelShader  = compile ps_3_0 RenderScenePS(); 
+		VertexShader = compile vs_2_0 RenderSceneVS();
+		PixelShader  = compile ps_2_0 RenderScenePS(); 
 	}
 }

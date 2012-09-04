@@ -5,7 +5,7 @@ class Material
 public:
 	my::EffectPtr m_Effect;
 
-	std::string m_Technique;
+	D3DXHANDLE m_Technique;
 
 	D3DXHANDLE m_Param;
 
@@ -32,9 +32,9 @@ public:
 	{
 		SafeDeleteParam();
 
-		m_Technique = Technique;
+		m_Technique = m_Effect->GetTechniqueByName(Technique.c_str());
 
-		m_Effect->SetTechnique(m_Technique.c_str());
+		m_Effect->SetTechnique(m_Technique);
 
 		m_Effect->BeginParameterBlock();
 	}

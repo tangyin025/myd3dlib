@@ -324,12 +324,6 @@ namespace my
 		{
 			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->UnlockRect(FaceType, Level));
 		}
-
-		void DrawToSurface(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			D3DCUBEMAP_FACES FaceType,
-			TexturePtr texture,
-			UINT Level = 0);
 	};
 
 	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;

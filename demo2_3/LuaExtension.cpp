@@ -679,6 +679,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<GameLoader>("GameLoader")
 			.def("LoadTexture", &GameLoader::LoadTexture)
+			.def("LoadCubeTexture", &GameLoader::LoadCubeTexture)
 			.def("LoadMaterial", &GameLoader::LoadMaterial)
 			.def("LoadEffectMesh", &GameLoader::LoadEffectMesh)
 			.def("LoadSkeleton", &GameLoader::LoadSkeleton)

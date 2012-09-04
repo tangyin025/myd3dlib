@@ -90,18 +90,18 @@ void GameStateMain::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
-	CComPtr<IDirect3DSurface9> oldRt;
-	V(pd3dDevice->GetRenderTarget(0, &oldRt));
-	CComPtr<IDirect3DSurface9> oldDs;
-	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
-
 	Vector4 LightDir(1,1,-1,0);
 	((Vector3 &)LightDir).normalizeSelf();
 	Vector3 LightTag(0,1,0);
 	Matrix4 LightViewProj =
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
 		Matrix4::OrthoLH(3, 3, -50, 50);
+
+	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
+	CComPtr<IDirect3DSurface9> oldRt;
+	V(pd3dDevice->GetRenderTarget(0, &oldRt));
+	CComPtr<IDirect3DSurface9> oldDs;
+	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
 
 	V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
@@ -137,11 +137,36 @@ void GameStateMain::OnD3D9FrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_CubeMapDS->m_ptr));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	CubeTexture * CubeMapRT = Game::getSingleton().m_CubeMapRT.get();
 	for(DWORD Face = 0; Face < _countof(m_CubeMapFaces); Face++)
 	{
-		Game::getSingleton().m_CubeMapRT->DrawToSurface(pd3dDevice, (D3DCUBEMAP_FACES)Face, m_CubeMapFaces[Face]);
+		CComPtr<IDirect3DSurface9> SurfaceDst = CubeMapRT->GetCubeMapSurface((D3DCUBEMAP_FACES)Face);
+		D3DSURFACE_DESC desc = CubeMapRT->GetLevelDesc();
+
+		struct Vertex
+		{
+			FLOAT x, y, z, w;
+			FLOAT u, v;
+		};
+
+		Vertex v[4] =
+		{
+			{ 0.0f,					0.0f,				0.5f, 1.0f, 0.0f, 0.0f },
+			{ (FLOAT)desc.Width,	0.0f,				0.5f, 1.0f, 1.0f, 0.0f },
+			{ 0.0f,					(FLOAT)desc.Height,	0.5f, 1.0f, 0.0f, 1.0f },
+			{ (FLOAT)desc.Width,	(FLOAT)desc.Height,	0.5f, 1.0f, 1.0f, 1.0f },
+		};
+
+		V(pd3dDevice->SetRenderTarget(0, SurfaceDst));
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetTexture(0, m_CubeMapFaces[Face]->m_ptr));
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(v[0])));
+			V(pd3dDevice->EndScene());
+		}
 	}
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 
@@ -152,7 +177,6 @@ void GameStateMain::OnD3D9FrameRender(
 
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
-
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
@@ -175,7 +199,7 @@ void GameStateMain::OnD3D9FrameRender(
 		SimpleSample->SetVector("g_EyePos", m_Camera->m_View.inverse()[3]); // ! Need optimize
 		SimpleSample->SetVector("g_LightDir", LightDir);
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		SimpleSample->SetTexture("g_CubeTexture", Game::getSingleton().m_CubeMapRT->m_ptr);
+		SimpleSample->SetTexture("g_CubeTexture", CubeMapRT->m_ptr);
 		SimpleSample->SetTexture("g_ShadowTexture", Game::getSingleton().m_ShadowMapRT->m_ptr);
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
