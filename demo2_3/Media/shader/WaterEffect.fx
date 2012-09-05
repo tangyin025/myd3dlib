@@ -14,7 +14,7 @@ texture g_WaterNormalTexture;
 
 float FresExp = 3.0;
 float ReflStrength = 3.4;
-
+float3 WaterColor = {2 / 255.0, 10 / 255.0, 31 / 255.0};
 float Amplitude[3] = {0.01, 0.03, 0.5};
 float Frequency[3] = {2 * PI / WAVE_LENGTH0, 1 * PI / WAVE_LENGTH1, 2 * PI / WAVE_LENGTH2};
 float Phase[3] = {0.2 * 2 * PI / WAVE_LENGTH0, 0.2 * 2 * PI / WAVE_LENGTH1, 0.2 * 2 * PI / WAVE_LENGTH2};
@@ -133,11 +133,9 @@ float4 WaterEffectPS( VS_OUTPUT In ) : COLOR
 	
 	float4 cReflection = texCUBE(CubeTextureSampler, vReflectionWS);
 	
-	float3 cRefrection = float3(2 / 255.0, 10 / 255.0, 31 / 255.0);
-	
 	float fres = get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
 	
-	return float4(cReflection.xyz * fres + cRefrection * (1 - fres), 1);
+	return float4(cReflection.xyz * fres + WaterColor * (1 - fres), 1);
 }
 
 // ------------------------------------------------------------------------------------------

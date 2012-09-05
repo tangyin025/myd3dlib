@@ -51,7 +51,7 @@ public:
 
 	boost::shared_ptr<ModuleViewCamera> m_Camera;
 
-	my::TexturePtr m_CubeMapFaces[6];
+	my::TexturePtr m_CubeTextureFaces[6];
 
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 

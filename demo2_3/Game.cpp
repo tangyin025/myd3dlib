@@ -486,13 +486,17 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_ShadowMap = LoadEffect("ShadowMap.fx");
 
-	m_ShadowMapRT.reset(new my::Texture());
+	m_ShadowTextureRT.reset(new my::Texture());
 
-	m_ShadowMapDS.reset(new my::Surface());
+	m_ShadowTextureDS.reset(new my::Surface());
 
-	m_CubeMapRT.reset(new my::CubeTexture());
+	m_CubeTextureRT.reset(new my::CubeTexture());
 
-	m_CubeMapDS.reset(new my::Surface());
+	m_CubeTextureDS.reset(new my::Surface());
+
+	m_ScreenTexture.reset(new my::Texture());
+
+	m_ScreenTextureSurf.reset(new my::Surface());
 
 	if(!m_input)
 	{
@@ -548,21 +552,26 @@ HRESULT Game::OnD3D9ResetDevice(
 	}
 
 	const DWORD SHADOW_MAP_SIZE = 512;
-	m_ShadowMapRT->CreateAdjustedTexture(
+	m_ShadowTextureRT->CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
 	DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
-	m_ShadowMapDS->CreateDepthStencilSurface(
+	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
 	// ! 使用 D3DUSAGE_RENDERTARGET会严重影响 texCUBE性能，最好是使用静态的 CreateCubeTextureFromFile
 	const DWORD CUBE_MAP_SIZE = 512;
-	m_CubeMapRT->CreateCubeTexture(
+	m_CubeTextureRT->CreateCubeTexture(
 		pd3dDevice, CUBE_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
 
-	m_CubeMapDS->CreateDepthStencilSurface(
+	m_CubeTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, CUBE_MAP_SIZE, CUBE_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+
+	m_ScreenTexture->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, pBackBufferSurfaceDesc->Format, D3DPOOL_DEFAULT);
+
+	m_ScreenTextureSurf->Create(m_ScreenTexture->GetSurfaceLevel().Detach());
 
 	return S_OK;
 }
@@ -575,13 +584,17 @@ void Game::OnD3D9LostDevice(void)
 
 	m_settingsDlg.OnD3D9LostDevice();
 
-	m_ShadowMapRT->OnDestroyDevice();
+	m_ShadowTextureRT->OnDestroyDevice();
 
-	m_ShadowMapDS->OnDestroyDevice();
+	m_ShadowTextureDS->OnDestroyDevice();
 
-	m_CubeMapRT->OnDestroyDevice();
+	m_CubeTextureRT->OnDestroyDevice();
 
-	m_CubeMapDS->OnDestroyDevice();
+	m_CubeTextureDS->OnDestroyDevice();
+
+	m_ScreenTextureSurf->OnDestroyDevice();
+
+	m_ScreenTexture->OnDestroyDevice();
 
 	DxutApp::OnD3D9LostDevice();
 }

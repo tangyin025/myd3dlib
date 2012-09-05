@@ -58,12 +58,12 @@ GameStateMain::GameStateMain(void)
 	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	m_Camera->m_Distance = 10.0f;
 
-	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_X] = Game::getSingleton().LoadTexture("cubescene_rt.jpg");
-	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_X] = Game::getSingleton().LoadTexture("cubescene_lf.jpg");
-	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_Y] = Game::getSingleton().LoadTexture("cubescene_up.jpg");
-	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_Y] = Game::getSingleton().LoadTexture("cubescene_dn.jpg");
-	m_CubeMapFaces[D3DCUBEMAP_FACE_POSITIVE_Z] = Game::getSingleton().LoadTexture("cubescene_fr.jpg");
-	m_CubeMapFaces[D3DCUBEMAP_FACE_NEGATIVE_Z] = Game::getSingleton().LoadTexture("cubescene_bk.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_X] = Game::getSingleton().LoadTexture("cubescene_rt.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_X] = Game::getSingleton().LoadTexture("cubescene_lf.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_Y] = Game::getSingleton().LoadTexture("cubescene_up.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_Y] = Game::getSingleton().LoadTexture("cubescene_dn.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_Z] = Game::getSingleton().LoadTexture("cubescene_fr.jpg");
+	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_Z] = Game::getSingleton().LoadTexture("cubescene_bk.jpg");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -90,6 +90,12 @@ void GameStateMain::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	CComPtr<IDirect3DSurface9> oldRt;
+	V(pd3dDevice->GetRenderTarget(0, &oldRt));
+	CComPtr<IDirect3DSurface9> oldDs;
+	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
+
 	Vector4 LightDir(1,1,-1,0);
 	((Vector3 &)LightDir).normalizeSelf();
 	Vector3 LightTag(0,1,0);
@@ -97,14 +103,9 @@ void GameStateMain::OnD3D9FrameRender(
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
 		Matrix4::OrthoLH(3, 3, -50, 50);
 
-	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
-	CComPtr<IDirect3DSurface9> oldRt;
-	V(pd3dDevice->GetRenderTarget(0, &oldRt));
-	CComPtr<IDirect3DSurface9> oldDs;
-	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
-
-	V(pd3dDevice->SetRenderTarget(0, Game::getSingleton().m_ShadowMapRT->GetSurfaceLevel(0)));
-	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowMapDS->m_ptr));
+	my::Texture * ShadowTextureRT = Game::getSingleton().m_ShadowTextureRT.get();
+	V(pd3dDevice->SetRenderTarget(0, ShadowTextureRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ShadowTextureDS->m_ptr));
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -137,10 +138,10 @@ void GameStateMain::OnD3D9FrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_CubeMapDS->m_ptr));
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_CubeTextureDS->m_ptr));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	CubeTexture * CubeMapRT = Game::getSingleton().m_CubeMapRT.get();
-	for(DWORD Face = 0; Face < _countof(m_CubeMapFaces); Face++)
+	CubeTexture * CubeMapRT = Game::getSingleton().m_CubeTextureRT.get();
+	for(DWORD Face = 0; Face < _countof(m_CubeTextureFaces); Face++)
 	{
 		CComPtr<IDirect3DSurface9> SurfaceDst = CubeMapRT->GetCubeMapSurface((D3DCUBEMAP_FACES)Face);
 		D3DSURFACE_DESC desc = CubeMapRT->GetLevelDesc();
@@ -151,20 +152,20 @@ void GameStateMain::OnD3D9FrameRender(
 			FLOAT u, v;
 		};
 
-		Vertex v[4] =
+		Vertex quad[4] =
 		{
-			{ 0.0f,					0.0f,				0.5f, 1.0f, 0.0f, 0.0f },
-			{ (FLOAT)desc.Width,	0.0f,				0.5f, 1.0f, 1.0f, 0.0f },
-			{ 0.0f,					(FLOAT)desc.Height,	0.5f, 1.0f, 0.0f, 1.0f },
-			{ (FLOAT)desc.Width,	(FLOAT)desc.Height,	0.5f, 1.0f, 1.0f, 1.0f },
+			{ -0.5f,					-0.5f,						0.5f, 1.0f, 0.0f, 0.0f },
+			{ (FLOAT)desc.Width - 0.5f,	-0.5f,						0.5f, 1.0f, 1.0f, 0.0f },
+			{ -0.5f,					(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 0.0f, 1.0f },
+			{ (FLOAT)desc.Width - 0.5f,	(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 1.0f, 1.0f },
 		};
 
 		V(pd3dDevice->SetRenderTarget(0, SurfaceDst));
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-			V(pd3dDevice->SetTexture(0, m_CubeMapFaces[Face]->m_ptr));
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, v, sizeof(v[0])));
+			V(pd3dDevice->SetTexture(0, m_CubeTextureFaces[Face]->m_ptr));
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, quad, sizeof(quad[0])));
 			V(pd3dDevice->EndScene());
 		}
 	}
@@ -172,9 +173,6 @@ void GameStateMain::OnD3D9FrameRender(
 
 	V(pd3dDevice->SetRenderTarget(0, oldRt));
 	V(pd3dDevice->SetDepthStencilSurface(oldDs));
-	oldRt.Release();
-	oldDs.Release();
-
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -200,7 +198,7 @@ void GameStateMain::OnD3D9FrameRender(
 		SimpleSample->SetVector("g_LightDir", LightDir);
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		SimpleSample->SetTexture("g_CubeTexture", CubeMapRT->m_ptr);
-		SimpleSample->SetTexture("g_ShadowTexture", Game::getSingleton().m_ShadowMapRT->m_ptr);
+		SimpleSample->SetTexture("g_ShadowTexture", ShadowTextureRT->m_ptr);
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
 		{
@@ -221,6 +219,38 @@ void GameStateMain::OnD3D9FrameRender(
 
 		V(pd3dDevice->EndScene());
 	}
+
+	my::Texture * ScreenTexture = Game::getSingleton().m_ScreenTexture.get();
+	my::Surface * ScreenTextureSurf = Game::getSingleton().m_ScreenTextureSurf.get();
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	if(SUCCEEDED(hr = pd3dDevice->StretchRect(oldRt, NULL, ScreenTextureSurf->m_ptr, NULL, D3DTEXF_POINT)))
+	{
+		D3DSURFACE_DESC desc = ScreenTextureSurf->GetDesc();
+		struct Vertex
+		{
+			FLOAT x, y, z, w;
+			FLOAT u, v;
+		};
+
+		Vertex quad[4] =
+		{
+			{ -0.5f,					-0.5f,						0.5f, 1.0f, 0.0f, 0.0f },
+			{ (FLOAT)desc.Width - 0.5f,	-0.5f,						0.5f, 1.0f, 1.0f, 0.0f },
+			{ -0.5f,					(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 0.0f, 1.0f },
+			{ (FLOAT)desc.Width - 0.5f,	(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 1.0f, 1.0f },
+		};
+
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+			V(pd3dDevice->SetTexture(0, ScreenTexture->m_ptr));
+			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, quad, sizeof(quad[0])));
+			V(pd3dDevice->EndScene());
+		}
+	}
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	oldRt.Release();
+	oldDs.Release();
 }
 
 LRESULT GameStateMain::MsgProc(

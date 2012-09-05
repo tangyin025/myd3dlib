@@ -167,13 +167,17 @@ public:
 
 	my::EffectPtr m_ShadowMap;
 
-	my::TexturePtr m_ShadowMapRT;
+	my::TexturePtr m_ShadowTextureRT;
 
-	my::SurfacePtr m_ShadowMapDS;
+	my::SurfacePtr m_ShadowTextureDS;
 
-	my::CubeTexturePtr m_CubeMapRT;
+	my::CubeTexturePtr m_CubeTextureRT;
 
-	my::SurfacePtr m_CubeMapDS;
+	my::SurfacePtr m_CubeTextureDS;
+
+	my::TexturePtr m_ScreenTexture;
+
+	my::SurfacePtr m_ScreenTextureSurf;
 
 	my::InputPtr m_input;
 
