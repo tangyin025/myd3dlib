@@ -124,9 +124,10 @@ public:
 	virtual __declspec(nothrow) HRESULT __stdcall Close(
 		LPCVOID pData);
 
-	my::TexturePtr LoadTexture(const std::string & path);
+	// ! luabind cannt convert boost::shared_ptr<Derived Class> to base ptr
+	boost::shared_ptr<my::BaseTexture> LoadTexture(const std::string & path);
 
-	my::CubeTexturePtr LoadCubeTexture(const std::string & path);
+	boost::shared_ptr<my::BaseTexture> LoadCubeTexture(const std::string & path);
 
 	MaterialPtr LoadMaterial(const std::string & path);
 
@@ -171,13 +172,9 @@ public:
 
 	my::SurfacePtr m_ShadowTextureDS;
 
-	my::CubeTexturePtr m_CubeTextureRT;
+	my::TexturePtr m_ScreenTextureRT;
 
-	my::SurfacePtr m_CubeTextureDS;
-
-	my::TexturePtr m_ScreenTexture;
-
-	my::SurfacePtr m_ScreenTextureSurf;
+	my::SurfacePtr m_ScreenTextureDS;
 
 	my::InputPtr m_input;
 

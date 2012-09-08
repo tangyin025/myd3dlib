@@ -6,5 +6,6 @@ function SetupMaterial(material)
 	material.Effect:SetTexture("g_MeshTexture", LoadTexture("casual19_m_35.jpg"))
 	material.Effect:SetTexture("g_NormalTexture", LoadTexture("casual19_m_35_normal.png"))
 	material.Effect:SetTexture("g_SpecularTexture", LoadTexture("casual19_m_35_spec.png"))
+	material.Effect:SetTexture("g_CubeTexture", LoadCubeTexture("galileo_cross.dds"))
 	material:EndParameterBlock()
 end

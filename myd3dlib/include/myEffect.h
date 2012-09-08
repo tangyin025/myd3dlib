@@ -598,7 +598,7 @@ namespace my
 			V(m_ptr->SetTexture(hParameter, pTexture));
 		}
 
-		void SetTexture(D3DXHANDLE hParameter, const TexturePtr & pTexture)
+		void SetTexture(D3DXHANDLE hParameter, const BaseTexturePtr & pTexture)
 		{
 			V(m_ptr->SetTexture(hParameter, pTexture ? pTexture->m_ptr : NULL));
 		}

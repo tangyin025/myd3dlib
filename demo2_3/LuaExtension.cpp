@@ -474,7 +474,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
-		, class_<my::Texture, my::BaseTexture, boost::shared_ptr<my::Texture> >("Texture")
+		, class_<my::Texture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture")
 
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
@@ -536,7 +536,7 @@ void Export2Lua(lua_State * L)
 			.def("SetMatrixTransposeArray", &my::BaseEffect::SetMatrixTransposeArray)
 			.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
 			.def("SetString", &my::BaseEffect::SetString)
-			.def("SetTexture", (void (my::BaseEffect::*)(D3DXHANDLE, const my::TexturePtr &))&my::BaseEffect::SetTexture)
+			.def("SetTexture", (void (my::BaseEffect::*)(D3DXHANDLE, const my::BaseTexturePtr &))&my::BaseEffect::SetTexture)
 			.def("SetValue", &my::BaseEffect::SetValue)
 			.def("SetVector", &my::BaseEffect::SetVector)
 			.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
@@ -588,7 +588,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<my::TexturePtr, const my::Vector4 &>())
+			.def(constructor<my::BaseTexturePtr, const my::Vector4 &>())
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())

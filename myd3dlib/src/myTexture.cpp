@@ -152,7 +152,7 @@ void CubeTexture::CreateCubeTexture(
 	Create(pCubeTexture);
 }
 
-void CubeTexture::CubeAdjustedTexture(
+void CubeTexture::CreateAdjustedCubeTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Size,
 	UINT MipLevels,

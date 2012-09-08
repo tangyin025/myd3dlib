@@ -13,6 +13,7 @@ float4 g_MaterialDiffuseColor;
 texture g_MeshTexture;
 texture g_NormalTexture;
 texture g_SpecularTexture;
+texture g_CubeTexture;
 
 float FresExp = 3.0;
 float ReflStrength = 1.4;
@@ -21,6 +22,15 @@ float ReflStrength = 1.4;
 // Texture samplers
 //--------------------------------------------------------------------------------------
 
+sampler ShadowTextureSampler =
+sampler_state
+{
+	Texture = <g_ShadowTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
 sampler MeshTextureSampler = 
 sampler_state
 {
@@ -28,15 +38,6 @@ sampler_state
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
 	MipFilter = LINEAR;
-};
-
-samplerCUBE CubeTextureSampler =
-sampler_state
-{
-	Texture = <g_CubeTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
 };
 
 sampler NormalTextureSampler =
@@ -57,10 +58,10 @@ sampler_state
 	MagFilter = LINEAR;
 };
 
-sampler ShadowTextureSampler =
+samplerCUBE CubeTextureSampler =
 sampler_state
 {
-	Texture = <g_ShadowTexture>;
+	Texture = <g_CubeTexture>;
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;

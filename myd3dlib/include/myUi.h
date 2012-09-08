@@ -51,12 +51,15 @@ namespace my
 	class ControlImage
 	{
 	public:
-		TexturePtr m_Texture;
+		BaseTexturePtr m_Texture;
+
+		D3DSURFACE_DESC desc;
 
 		Vector4 m_Border;
 
-		ControlImage(TexturePtr Texture, const Vector4 & Border)
+		ControlImage(BaseTexturePtr Texture, const Vector4 & Border)
 			: m_Texture(Texture)
+			, desc(Texture->GetLevelDesc(0))
 			, m_Border(Border)
 		{
 		}

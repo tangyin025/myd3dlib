@@ -11,6 +11,7 @@
 #define PI 3.141596
 
 texture g_WaterNormalTexture;
+texture g_CubeTexture;
 
 float FresExp = 3.0;
 float ReflStrength = 3.4;

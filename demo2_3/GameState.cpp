@@ -57,13 +57,6 @@ GameStateMain::GameStateMain(void)
 	m_Camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
 	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
 	m_Camera->m_Distance = 10.0f;
-
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_X] = Game::getSingleton().LoadTexture("cubescene_rt.jpg");
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_X] = Game::getSingleton().LoadTexture("cubescene_lf.jpg");
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_Y] = Game::getSingleton().LoadTexture("cubescene_up.jpg");
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_Y] = Game::getSingleton().LoadTexture("cubescene_dn.jpg");
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_POSITIVE_Z] = Game::getSingleton().LoadTexture("cubescene_fr.jpg");
-	m_CubeTextureFaces[D3DCUBEMAP_FACE_NEGATIVE_Z] = Game::getSingleton().LoadTexture("cubescene_bk.jpg");
 }
 
 GameStateMain::~GameStateMain(void)
@@ -102,6 +95,7 @@ void GameStateMain::OnD3D9FrameRender(
 	Matrix4 LightViewProj =
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
 		Matrix4::OrthoLH(3, 3, -50, 50);
+	Vector4 EyePos = m_Camera->m_View.inverse()[3]; // ! Need optimize
 
 	my::Texture * ShadowTextureRT = Game::getSingleton().m_ShadowTextureRT.get();
 	V(pd3dDevice->SetRenderTarget(0, ShadowTextureRT->GetSurfaceLevel(0)));
@@ -138,41 +132,9 @@ void GameStateMain::OnD3D9FrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_CubeTextureDS->m_ptr));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	CubeTexture * CubeMapRT = Game::getSingleton().m_CubeTextureRT.get();
-	for(DWORD Face = 0; Face < _countof(m_CubeTextureFaces); Face++)
-	{
-		CComPtr<IDirect3DSurface9> SurfaceDst = CubeMapRT->GetCubeMapSurface((D3DCUBEMAP_FACES)Face);
-		D3DSURFACE_DESC desc = CubeMapRT->GetLevelDesc();
-
-		struct Vertex
-		{
-			FLOAT x, y, z, w;
-			FLOAT u, v;
-		};
-
-		Vertex quad[4] =
-		{
-			{ -0.5f,					-0.5f,						0.5f, 1.0f, 0.0f, 0.0f },
-			{ (FLOAT)desc.Width - 0.5f,	-0.5f,						0.5f, 1.0f, 1.0f, 0.0f },
-			{ -0.5f,					(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 0.0f, 1.0f },
-			{ (FLOAT)desc.Width - 0.5f,	(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 1.0f, 1.0f },
-		};
-
-		V(pd3dDevice->SetRenderTarget(0, SurfaceDst));
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-			V(pd3dDevice->SetTexture(0, m_CubeTextureFaces[Face]->m_ptr));
-			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, quad, sizeof(quad[0])));
-			V(pd3dDevice->EndScene());
-		}
-	}
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-
-	V(pd3dDevice->SetRenderTarget(0, oldRt));
-	V(pd3dDevice->SetDepthStencilSurface(oldDs));
+	my::Texture * ScreenTextureRT = Game::getSingleton().m_ScreenTextureRT.get();
+	V(pd3dDevice->SetRenderTarget(0, ScreenTextureRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(Game::getSingleton().m_ScreenTextureDS->m_ptr));
 	V(pd3dDevice->Clear(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -190,14 +152,15 @@ void GameStateMain::OnD3D9FrameRender(
 		//	DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		//}
 
+		Matrix4 world = Matrix4::Identity();
 		SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
-		SimpleSample->SetMatrix("g_mWorld", Matrix4::Identity());
-		SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera->m_View * m_Camera->m_Proj);
+		SimpleSample->SetMatrix("g_mWorld", world);
+		SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 		SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
-		SimpleSample->SetVector("g_EyePos", m_Camera->m_View.inverse()[3]); // ! Need optimize
+		SimpleSample->SetVector("g_EyePos", EyePos);
+		SimpleSample->SetVector("g_EyePosOS", EyePos.transform(world.inverse()));
 		SimpleSample->SetVector("g_LightDir", LightDir);
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		SimpleSample->SetTexture("g_CubeTexture", CubeMapRT->m_ptr);
 		SimpleSample->SetTexture("g_ShadowTexture", ShadowTextureRT->m_ptr);
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
 		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
@@ -214,18 +177,19 @@ void GameStateMain::OnD3D9FrameRender(
 				Matrix4::Translation((*character_iter)->m_Position);
 			SimpleSample->SetMatrix("g_mWorld", world);
 			SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+			SimpleSample->SetVector("g_EyePosOS", EyePos.transform(world.inverse()));
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
 		V(pd3dDevice->EndScene());
 	}
 
-	my::Texture * ScreenTexture = Game::getSingleton().m_ScreenTexture.get();
-	my::Surface * ScreenTextureSurf = Game::getSingleton().m_ScreenTextureSurf.get();
+	V(pd3dDevice->SetRenderTarget(0, oldRt));
+	V(pd3dDevice->SetDepthStencilSurface(oldDs));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	if(SUCCEEDED(hr = pd3dDevice->StretchRect(oldRt, NULL, ScreenTextureSurf->m_ptr, NULL, D3DTEXF_POINT)))
+	//if(SUCCEEDED(hr = pd3dDevice->StretchRect(oldRt, NULL, ScreenTextureRT->GetSurfaceLevel(0), NULL, D3DTEXF_LINEAR)))
 	{
-		D3DSURFACE_DESC desc = ScreenTextureSurf->GetDesc();
+		D3DSURFACE_DESC desc = ScreenTextureRT->GetLevelDesc(0);
 		struct Vertex
 		{
 			FLOAT x, y, z, w;
@@ -243,7 +207,7 @@ void GameStateMain::OnD3D9FrameRender(
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-			V(pd3dDevice->SetTexture(0, ScreenTexture->m_ptr));
+			V(pd3dDevice->SetTexture(0, ScreenTextureRT->m_ptr));
 			V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, quad, sizeof(quad[0])));
 			V(pd3dDevice->EndScene());
 		}

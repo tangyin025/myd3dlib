@@ -30,3 +30,11 @@ function LoadSkeleton(name)
 	end
 	return skeleton_pool[name]
 end
+
+cube_texture_pool={}
+function LoadCubeTexture(name)
+	if not cube_texture_pool[name] then
+		cube_texture_pool[name]=game:LoadCubeTexture(name)
+	end
+	return cube_texture_pool[name]
+end

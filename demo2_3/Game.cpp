@@ -257,7 +257,7 @@ HRESULT GameLoader::Close(
 	return S_OK;
 }
 
-TexturePtr GameLoader::LoadTexture(const std::string & path)
+boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & path)
 {
 	TexturePtr ret(new Texture());
 	std::string loc_path = std::string("texture/") + path;
@@ -274,7 +274,7 @@ TexturePtr GameLoader::LoadTexture(const std::string & path)
 	return ret;
 }
 
-CubeTexturePtr GameLoader::LoadCubeTexture(const std::string & path)
+boost::shared_ptr<my::BaseTexture> GameLoader::LoadCubeTexture(const std::string & path)
 {
 	CubeTexturePtr ret(new CubeTexture());
 	std::string loc_path = std::string("texture/") + path;
@@ -490,13 +490,9 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	m_ShadowTextureDS.reset(new my::Surface());
 
-	m_CubeTextureRT.reset(new my::CubeTexture());
+	m_ScreenTextureRT.reset(new my::Texture());
 
-	m_CubeTextureDS.reset(new my::Surface());
-
-	m_ScreenTexture.reset(new my::Texture());
-
-	m_ScreenTextureSurf.reset(new my::Surface());
+	m_ScreenTextureDS.reset(new my::Surface());
 
 	if(!m_input)
 	{
@@ -560,18 +556,11 @@ HRESULT Game::OnD3D9ResetDevice(
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
-	// ! 使用 D3DUSAGE_RENDERTARGET会严重影响 texCUBE性能，最好是使用静态的 CreateCubeTextureFromFile
-	const DWORD CUBE_MAP_SIZE = 512;
-	m_CubeTextureRT->CreateCubeTexture(
-		pd3dDevice, CUBE_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A16B16G16R16F, D3DPOOL_DEFAULT);
-
-	m_CubeTextureDS->CreateDepthStencilSurface(
-		pd3dDevice, CUBE_MAP_SIZE, CUBE_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
-
-	m_ScreenTexture->CreateTexture(
+	m_ScreenTextureRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, pBackBufferSurfaceDesc->Format, D3DPOOL_DEFAULT);
 
-	m_ScreenTextureSurf->Create(m_ScreenTexture->GetSurfaceLevel().Detach());
+	m_ScreenTextureDS->CreateDepthStencilSurface(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
 
 	return S_OK;
 }
@@ -588,13 +577,9 @@ void Game::OnD3D9LostDevice(void)
 
 	m_ShadowTextureDS->OnDestroyDevice();
 
-	m_CubeTextureRT->OnDestroyDevice();
+	m_ScreenTextureRT->OnDestroyDevice();
 
-	m_CubeTextureDS->OnDestroyDevice();
-
-	m_ScreenTextureSurf->OnDestroyDevice();
-
-	m_ScreenTexture->OnDestroyDevice();
+	m_ScreenTextureDS->OnDestroyDevice();
 
 	DxutApp::OnD3D9LostDevice();
 }

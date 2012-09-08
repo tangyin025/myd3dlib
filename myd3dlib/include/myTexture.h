@@ -129,7 +129,11 @@ namespace my
 		{
 			return m_ptr->SetLOD(LODNew);
 		}
+
+		virtual D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) = 0;
 	};
+
+	typedef boost::shared_ptr<BaseTexture> BaseTexturePtr;
 
 	class Texture : public BaseTexture
 	{
@@ -236,12 +240,12 @@ namespace my
 		void CreateCubeTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT EdgeLength,
-			UINT Levels,
+			UINT Levels = 0,
 			DWORD Usage = 0,
 			D3DFORMAT Format = D3DFMT_UNKNOWN,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		void CubeAdjustedTexture(
+		void CreateAdjustedCubeTexture(
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Size,
 			UINT MipLevels = D3DX_DEFAULT,
