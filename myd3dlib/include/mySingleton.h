@@ -6,25 +6,25 @@
 
 namespace my
 {
-	template <class DrivedClass>
+	template <class DerivedClass>
 	class Singleton
 	{
 	public:
-		typedef boost::shared_ptr<DrivedClass> DrivedClassPtr;
+		typedef boost::shared_ptr<DerivedClass> DrivedClassPtr;
 
 		static DrivedClassPtr s_ptr;
 
 	public:
-		static DrivedClass * getSingletonPtr(void)
+		static DerivedClass * getSingletonPtr(void)
 		{
 			if(NULL == s_ptr)
 			{
-				s_ptr.reset(new DrivedClass());
+				s_ptr.reset(new DerivedClass());
 			}
 			return s_ptr.get();
 		}
 
-		static DrivedClass & getSingleton(void)
+		static DerivedClass & getSingleton(void)
 		{
 			return *getSingletonPtr();
 		}
@@ -41,20 +41,20 @@ namespace my
 		}
 	};
 
-	template <class DrivedClass>
+	template <class DerivedClass>
 	class SingleInstance
 	{
 	public:
 		static SingleInstance * s_ptr;
 
 	public:
-		static DrivedClass * getSingletonPtr(void)
+		static DerivedClass * getSingletonPtr(void)
 		{
 			_ASSERT(NULL != s_ptr);
-			return dynamic_cast<DrivedClass *>(s_ptr);
+			return dynamic_cast<DerivedClass *>(s_ptr);
 		}
 
-		static DrivedClass & getSingleton(void)
+		static DerivedClass & getSingleton(void)
 		{
 			return *getSingletonPtr();
 		}
@@ -87,7 +87,7 @@ namespace my
 		virtual void OnDestroyDevice(void) = 0;
 	};
 
-	template <class DrivedClass> 
+	template <class DerivedClass> 
 	class DeviceRelatedObject
 		: public DeviceRelatedObjectBase
 	{
@@ -95,7 +95,7 @@ namespace my
 		HRESULT hr;
 
 	public:
-		DrivedClass * m_ptr;
+		DerivedClass * m_ptr;
 
 	public:
 		DeviceRelatedObject(void)

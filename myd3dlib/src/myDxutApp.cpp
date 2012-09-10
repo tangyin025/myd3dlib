@@ -551,3 +551,90 @@ DxutSample::DxutSample(void)
 DxutSample::~DxutSample(void)
 {
 }
+
+LRESULT DxutWindow::OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+{
+	DxutApp2::getSingleton().Render();
+	ValidateRect(NULL);
+	bHandled = true;
+	return 0;
+}
+
+LRESULT DxutWindow::OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled)
+{
+	DxutApp2::getSingleton().Cleanup();
+	bHandled = true;
+	return 0;
+}
+
+DxutApp2::SingleInstance * SingleInstance<DxutApp2>::s_ptr = NULL;
+
+DxutApp2::DxutApp2(void)
+{
+}
+
+DxutApp2::~DxutApp2(void)
+{
+}
+
+WindowPtr DxutApp2::NewWindow(void)
+{
+	return WindowPtr(new DxutWindow());
+}
+
+int DxutApp2::Run(void)
+{
+	m_wnd = NewWindow();
+	m_wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
+
+	LPDIRECT3D9 pd3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+	if(NULL == pd3d9)
+		return 0;
+	m_d3d9.Attach(pd3d9);
+
+	D3DPRESENT_PARAMETERS d3dpp = {0};
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+
+	if(FAILED(m_d3d9->CreateDevice(
+		D3DADAPTER_DEFAULT,
+		D3DDEVTYPE_HAL,
+		m_wnd->m_hWnd,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		&d3dpp,
+		&m_d3dDevice)))
+		return 0;
+
+	m_wnd->ShowWindow(SW_SHOW);
+	m_wnd->UpdateWindow();
+
+	MSG msg;
+	msg.message = WM_NULL;
+
+	while(WM_QUIT != msg.message)
+	{
+		if(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+		{
+			::TranslateMessage(&msg);
+			::DispatchMessageW(&msg);
+		}
+		else
+		{
+			Render();
+		}
+	}
+
+	return (int)msg.wParam;
+}
+
+void DxutApp2::Cleanup(void)
+{
+	m_d3dDevice.Release();
+
+	m_d3d9.Release();
+}
+
+void DxutApp2::Render(void)
+{
+}

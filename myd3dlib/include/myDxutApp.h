@@ -8,6 +8,7 @@
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "myUi.h"
+#include "myThread.h"
 #include <atlbase.h>
 #include <hash_set>
 
@@ -248,5 +249,42 @@ namespace my
 		DxutSample(void);
 
 		~DxutSample(void);
+	};
+
+	class DxutWindow
+		: public Window
+	{
+	public:
+		BEGIN_MSG_MAP(GameWnd)
+		MESSAGE_HANDLER(WM_PAINT, OnPaint)
+		MESSAGE_HANDLER(WM_DESTROY, OnDestroy);
+		END_MSG_MAP()
+
+		LRESULT OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled);
+
+		LRESULT OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled);
+	};
+
+	class DxutApp2
+		: public Application
+		, public SingleInstance<DxutApp2>
+	{
+	public:
+		CComPtr<IDirect3D9> m_d3d9;
+
+		CComPtr<IDirect3DDevice9> m_d3dDevice;
+
+	public:
+		DxutApp2(void);
+
+		virtual ~DxutApp2(void);
+
+		WindowPtr NewWindow(void);
+
+		int Run(void);
+
+		void Cleanup(void);
+
+		void Render(void);
 	};
 };
