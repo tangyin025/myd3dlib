@@ -637,4 +637,18 @@ void DxutApp2::Cleanup(void)
 
 void DxutApp2::Render(void)
 {
+    // Clear the backbuffer to a blue color
+    m_d3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 0, 0, 255 ), 1.0f, 0 );
+
+    // Begin the scene
+    if( SUCCEEDED( m_d3dDevice->BeginScene() ) )
+    {
+        // Rendering of scene objects can happen here
+
+        // End the scene
+        m_d3dDevice->EndScene();
+    }
+
+    // Present the backbuffer contents to the display
+    m_d3dDevice->Present( NULL, NULL, NULL, NULL );
 }
