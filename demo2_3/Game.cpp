@@ -379,7 +379,7 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 
 Game::Game(void)
 {
-	m_settingsDlg.Init(&m_dlgResourceMgr);
+	//m_settingsDlg.Init(&m_dlgResourceMgr);
 
 	m_lua.reset(new LuaContext());
 
@@ -450,7 +450,7 @@ HRESULT Game::OnD3D9CreateDevice(
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	HRESULT hres;
-	if(FAILED(hres = DxutApp::OnD3D9CreateDevice(
+	if(FAILED(hres = DxutApplication::OnD3D9CreateDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -461,13 +461,13 @@ HRESULT Game::OnD3D9CreateDevice(
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	ImeEditBox::Initialize(DxutApp::getSingleton().GetHWND());
+	ImeEditBox::Initialize(DxutApplication::getSingleton().GetHWND());
 
 	ImeEditBox::EnableImeSystem(false);
 
-	V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
+	//V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
 
-	V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
+	//V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 	ExecuteCode("dofile \"Font.lua\"");
 
@@ -529,15 +529,15 @@ HRESULT Game::OnD3D9ResetDevice(
 	AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = DxutApp::OnD3D9ResetDevice(
+	if(FAILED(hres = DxutApplication::OnD3D9ResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
 	}
 
-	V(m_dlgResourceMgr.OnD3D9ResetDevice());
+	//V(m_dlgResourceMgr.OnD3D9ResetDevice());
 
-	V(m_settingsDlg.OnD3D9ResetDevice());
+	//V(m_settingsDlg.OnD3D9ResetDevice());
 
 	UpdateDlgViewProj(m_console);
 
@@ -552,15 +552,15 @@ HRESULT Game::OnD3D9ResetDevice(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
+	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowTextureDS->CreateDepthStencilSurface(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
 	m_ScreenTextureRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, pBackBufferSurfaceDesc->Format, D3DPOOL_DEFAULT);
 
 	m_ScreenTextureDS->CreateDepthStencilSurface(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, D3DFMT_D24X8);
 
 	return S_OK;
 }
@@ -569,9 +569,9 @@ void Game::OnD3D9LostDevice(void)
 {
 	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_dlgResourceMgr.OnD3D9LostDevice();
+	//m_dlgResourceMgr.OnD3D9LostDevice();
 
-	m_settingsDlg.OnD3D9LostDevice();
+	//m_settingsDlg.OnD3D9LostDevice();
 
 	m_ShadowTextureRT->OnDestroyDevice();
 
@@ -581,7 +581,7 @@ void Game::OnD3D9LostDevice(void)
 
 	m_ScreenTextureDS->OnDestroyDevice();
 
-	DxutApp::OnD3D9LostDevice();
+	DxutApplication::OnD3D9LostDevice();
 }
 
 void Game::OnD3D9DestroyDevice(void)
@@ -592,9 +592,9 @@ void Game::OnD3D9DestroyDevice(void)
 
 	m_EffectPool.Release();
 
-	m_dlgResourceMgr.OnD3D9DestroyDevice();
+	//m_dlgResourceMgr.OnD3D9DestroyDevice();
 
-	m_settingsDlg.OnD3D9DestroyDevice();
+	//m_settingsDlg.OnD3D9DestroyDevice();
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
@@ -604,14 +604,14 @@ void Game::OnD3D9DestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	DxutApp::OnD3D9DestroyDevice();
+	DxutApplication::OnD3D9DestroyDevice();
 }
 
 void Game::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	DxutApp::OnFrameMove(fTime, fElapsedTime);
+	DxutApplication::OnFrameMove(fTime, fElapsedTime);
 
 	m_keyboard->Capture();
 
@@ -626,14 +626,14 @@ void Game::OnD3D9FrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	if(m_settingsDlg.IsActive())
-	{
-		m_settingsDlg.OnRender(fElapsedTime);
-		return;
-	}
+	//if(m_settingsDlg.IsActive())
+	//{
+	//	m_settingsDlg.OnRender(fElapsedTime);
+	//	return;
+	//}
 
-	//V(pd3dDevice->Clear(
-	//	0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
+    //// Clear the backbuffer to a blue color
+    //pd3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 0, 0, 255 ), 1.0f, 0 );
 
 	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
 	if(cs = CurrentState())
@@ -661,10 +661,10 @@ void Game::OnD3D9FrameRender(
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-		m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
-			Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
-		m_font->DrawString(DXUTGetDeviceStats(),
-			Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
+		//m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
+		//	Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
+		//m_font->DrawString(DXUTGetDeviceStats(),
+		//	Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 
 		UIRender::End(pd3dDevice);
 
@@ -680,22 +680,22 @@ LRESULT Game::MsgProc(
 	bool * pbNoFurtherProcessing)
 {
 	LRESULT hres;
-	if(FAILED(hres = DxutApp::MsgProc(
+	if(FAILED(hres = DxutApplication::MsgProc(
 		hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
 	{
 		return hres;
 	}
 
-	if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
-		return 0;
-	}
+	//if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
+	//{
+	//	return 0;
+	//}
 
-	if(m_settingsDlg.IsActive())
-	{
-		m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-		return 0;
-	}
+	//if(m_settingsDlg.IsActive())
+	//{
+	//	m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
+	//	return 0;
+	//}
 
 	if(m_console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
@@ -730,7 +730,7 @@ void Game::OnKeyboard(
 	bool bKeyDown,
 	bool bAltDown)
 {
-	DxutApp::OnKeyboard(nChar, bKeyDown, bAltDown);
+	DxutApplication::OnKeyboard(nChar, bKeyDown, bAltDown);
 }
 
 void Game::ToggleFullScreen(void)
@@ -745,14 +745,14 @@ void Game::ToggleRef(void)
 
 void Game::ChangeDevice(void)
 {
-	m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
+	//m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
 }
 
 void Game::ExecuteCode(const char * code)
 {
 	try
 	{
-		m_lua->executeCode(code);
+		luaL_dostring(m_lua->_state, code);
 	}
 	catch(const std::runtime_error & e)
 	{
@@ -766,11 +766,11 @@ void Game::ExecuteCode(const char * code)
 
 void Game::UpdateDlgViewProj(DialogPtr dlg)
 {
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc = DXUTGetD3D9BackBufferSurfaceDesc();
+	const D3DSURFACE_DESC & desc = GetD3D9BackBufferSurfaceDesc();
 
-	float aspect = pBackBufferSurfaceDesc->Width / (float)pBackBufferSurfaceDesc->Height;
+	float aspect = desc.Width / (float)desc.Height;
 
-	float height = (float)pBackBufferSurfaceDesc->Height;
+	float height = (float)desc.Height;
 
 	Vector2 vp(height * aspect, height);
 

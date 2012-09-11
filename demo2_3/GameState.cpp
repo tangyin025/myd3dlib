@@ -153,7 +153,7 @@ void GameStateMain::OnD3D9FrameRender(
 		//}
 
 		Matrix4 world = Matrix4::Identity();
-		SimpleSample->SetFloat("g_fTime", (float)Game::getSingleton().GetTime());
+		SimpleSample->SetFloat("g_fTime", (float)fTime);
 		SimpleSample->SetMatrix("g_mWorld", world);
 		SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
 		SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
@@ -213,8 +213,6 @@ void GameStateMain::OnD3D9FrameRender(
 		}
 	}
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-	oldRt.Release();
-	oldDs.Release();
 }
 
 LRESULT GameStateMain::MsgProc(

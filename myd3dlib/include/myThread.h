@@ -124,11 +124,9 @@ namespace my
 
 		BOOL AdjustClientRect(const CRect & rect);
 
-	public:
-		DECLARE_WND_CLASS_EX(GetWndClassName(), CS_HREDRAW | CS_VREDRAW, -1)
+		DECLARE_WND_CLASS_EX(GetWndClassName(), CS_HREDRAW | CS_VREDRAW, -1);
 
-		BEGIN_MSG_MAP(Window)
-		END_MSG_MAP()
+		DECLARE_EMPTY_MSG_MAP();
 
 		void OnFinalMessage(HWND hwnd);
 	};
@@ -138,8 +136,6 @@ namespace my
 	class Application
 	{
 	public:
-		WindowPtr m_wnd;
-
 		HINSTANCE m_hinst;
 
 	public:
@@ -150,8 +146,6 @@ namespace my
 		HINSTANCE GetHandle(void) const;
 
 		static std::wstring GetModuleFileName(void);
-
-		virtual WindowPtr NewWindow(void);
 
 		int Run(void);
 	};

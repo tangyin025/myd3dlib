@@ -142,15 +142,15 @@ public:
 
 class Game
 	: public GameLoader
-	, public my::DxutApp
+	, public my::DxutApplication
 	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:
 	GameStateBase * cs;
 
-	CDXUTDialogResourceManager m_dlgResourceMgr;
+	//CDXUTDialogResourceManager m_dlgResourceMgr;
 
-	CD3DSettingsDlg m_settingsDlg;
+	//CD3DSettingsDlg m_settingsDlg;
 
 	my::LuaContextPtr m_lua;
 
@@ -221,7 +221,7 @@ public:
 
 	static Game * getSingletonPtr(void)
 	{
-		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
+		return dynamic_cast<Game *>(DxutApplication::getSingletonPtr());
 	}
 
 	virtual bool IsD3D9DeviceAcceptable(

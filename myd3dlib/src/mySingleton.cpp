@@ -6,10 +6,10 @@ using namespace my;
 
 DeviceRelatedObjectBase::DeviceRelatedObjectBase(void)
 {
-	DxutApp::getSingleton().RegisterDeviceRelatedObject(this);
+	DxutApplication::getSingleton().RegisterDeviceRelatedObject(this);
 }
 
 DeviceRelatedObjectBase::~DeviceRelatedObjectBase(void)
 {
-	DxutApp::getSingleton().UnregisterDeviceRelatedObject(this);
+	DxutApplication::getSingleton().UnregisterDeviceRelatedObject(this);
 }

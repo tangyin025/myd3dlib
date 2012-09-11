@@ -707,16 +707,11 @@ std::wstring Application::GetModuleFileName(void)
 	return ret;
 }
 
-WindowPtr Application::NewWindow(void)
-{
-	return WindowPtr(new Window());
-}
-
 int Application::Run(void)
 {
-	m_wnd = NewWindow();
-	m_wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
-	m_wnd->ShowWindow(SW_SHOW);
+	WindowPtr wnd(new Window());
+	wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
+	wnd->ShowWindow(SW_SHOW);
 
 	MSG msg;
 	msg.message = WM_NULL;

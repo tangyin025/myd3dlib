@@ -14,64 +14,90 @@
 
 namespace my
 {
-	class DxutApp : public SingleInstance<DxutApp>
+	class DxutWindow
+		: public Window
 	{
-	protected:
+	public:
+		BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0);
+	};
+
+	typedef boost::shared_ptr<DxutWindow> DxutWindowPtr;
+
+	class DxutApplication
+		: public Application
+		, public SingleInstance<DxutApplication>
+	{
+	public:
 		HRESULT hr;
 
-		static bool CALLBACK IsD3D9DeviceAcceptable_s(
-			D3DCAPS9 * pCaps,
-			D3DFORMAT AdapterFormat,
-			D3DFORMAT BackBufferFormat,
-			bool bWindowed,
-			void * pUserContext);
+		FT_Library m_Library; // ! Font dependency
 
-		static bool CALLBACK ModifyDeviceSettings_s(
-			DXUTDeviceSettings * pDeviceSettings,
-			void * pUserContext);
+		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
 
-		static HRESULT CALLBACK OnD3D9CreateDevice_s(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-			void * pUserContext);
+		boost::weak_ptr<Control> m_ControlFocus;
 
-		static HRESULT CALLBACK OnD3D9ResetDevice_s(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-			void * pUserContext);
+		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
 
-		static void CALLBACK OnD3D9LostDevice_s(
-			void * pUserContext);
+		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs; // ! DeviceRelatedObject dependency
 
-		static void CALLBACK OnD3D9DestroyDevice_s(
-			void * pUserContext);
+		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
 
-		static void CALLBACK OnFrameMove_s(
-			double fTime,
-			float fElapsedTime,
-			void * pUserContext);
+			m_deviceRelatedObjs.insert(obj);
+		}
 
-		static void CALLBACK OnD3D9FrameRender_s(
-			IDirect3DDevice9 * pd3dDevice,
-			double fTime,
-			float fElapsedTime,
-			void * pUserContext);
+		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
+		{
+			DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.find(obj);
+			if(obj_iter != m_deviceRelatedObjs.end())
+			{
+				m_deviceRelatedObjs.erase(obj_iter);
+			}
+		}
 
-		static LRESULT CALLBACK MsgProc_s(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing,
-			void * pUserContext);
+		HWND GetHWND(void)
+		{
+			return m_wnd->m_hWnd;
+		}
 
-		static void CALLBACK OnKeyboard_s(
-			UINT nChar,
-			bool bKeyDown,
-			bool bAltDown,
-			void * pUserContext);
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return m_d3dDevice;
+		}
 
-	protected:
+		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
+		{
+			return m_BackBufferSurfaceDesc;
+		}
+
+		double GetAbsoluteTime(void)
+		{
+			return 0;
+		}
+
+		double GetTime(void)
+		{
+			return 0;
+		}
+
+	public:
+		CComPtr<IDirect3D9> m_d3d9;
+
+		CComPtr<IDirect3DDevice9> m_d3dDevice;
+
+		DxutWindowPtr m_wnd;
+
+		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
+
+	public:
+		DxutApplication(void);
+
+		virtual ~DxutApplication(void);
+
+		int Run(void);
+
+	public:
 		virtual bool IsD3D9DeviceAcceptable(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
@@ -113,178 +139,5 @@ namespace my
 			UINT nChar,
 			bool bKeyDown,
 			bool bAltDown);
-
-	public:
-		FT_Library m_Library; // ! Font dependency
-
-		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
-
-		boost::weak_ptr<Control> m_ControlFocus;
-
-		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
-
-		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs; // ! DeviceRelatedObject dependency
-
-		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
-
-			m_deviceRelatedObjs.insert(obj);
-		}
-
-		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.find(obj);
-			if(obj_iter != m_deviceRelatedObjs.end())
-			{
-				m_deviceRelatedObjs.erase(obj_iter);
-			}
-		}
-
-	public:
-		DxutApp(void);
-
-		virtual ~DxutApp(void);
-
-		virtual int Run(
-			bool bWindowed = true,
-			int nSuggestedWidth = 800,
-			int nSuggestedHeight = 600);
-
-		HWND GetHWND(void)
-		{
-			return DXUTGetHWND();
-		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return DXUTGetD3D9Device();
-		}
-
-		double GetAbsoluteTime(void)
-		{
-			return DXUTGetGlobalTimer()->GetAbsoluteTime();
-		}
-
-		double GetTime(void)
-		{
-			return DXUTGetTime();
-		}
-	};
-
-	class DxutSample : public DxutApp
-	{
-	protected:
-		enum
-		{
-			IDC_TOGGLEFULLSCREEN,
-			IDC_TOGGLEREF,
-			IDC_CHANGEDEVICE
-		};
-
-		CDXUTDialogResourceManager m_dlgResourceMgr;
-
-		CD3DSettingsDlg m_settingsDlg;
-
-		CDXUTDialog m_hudDlg;
-
-		CComPtr<ID3DXFont> m_font;
-
-		CComPtr<ID3DXSprite> m_sprite;
-
-		virtual bool IsD3D9DeviceAcceptable(
-			D3DCAPS9 * pCaps,
-			D3DFORMAT AdapterFormat,
-			D3DFORMAT BackBufferFormat,
-			bool bWindowed);
-
-		virtual bool ModifyDeviceSettings(
-			DXUTDeviceSettings * pDeviceSettings);
-
-		virtual HRESULT OnD3D9CreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual HRESULT OnD3D9ResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual void OnD3D9LostDevice(void);
-
-		virtual void OnD3D9DestroyDevice(void);
-
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime);
-
-		virtual void OnD3D9FrameRender(
-			IDirect3DDevice9 * pd3dDevice,
-			double fTime,
-			float fElapsedTime);
-
-		virtual void OnRender(
-			IDirect3DDevice9 * pd3dDevice,
-			double fTime,
-			float fElapsedTime);
-
-		static void CALLBACK OnGUIEvent_s(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl,
-			void * pUserContext);
-
-		virtual void OnGUIEvent(
-			UINT nEvent,
-			int nControlID,
-			CDXUTControl * pControl);
-
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing);
-
-	public:
-		DxutSample(void);
-
-		~DxutSample(void);
-	};
-
-	class DxutWindow
-		: public Window
-	{
-	public:
-		BEGIN_MSG_MAP(GameWnd)
-		MESSAGE_HANDLER(WM_PAINT, OnPaint)
-		MESSAGE_HANDLER(WM_DESTROY, OnDestroy);
-		END_MSG_MAP()
-
-		LRESULT OnPaint(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled);
-
-		LRESULT OnDestroy(UINT nMsg, WPARAM wParam, LPARAM lParam, BOOL & bHandled);
-	};
-
-	class DxutApp2
-		: public Application
-		, public SingleInstance<DxutApp2>
-	{
-	public:
-		CComPtr<IDirect3D9> m_d3d9;
-
-		CComPtr<IDirect3DDevice9> m_d3dDevice;
-
-	public:
-		DxutApp2(void);
-
-		virtual ~DxutApp2(void);
-
-		WindowPtr NewWindow(void);
-
-		int Run(void);
-
-		void Cleanup(void);
-
-		void Render(void);
 	};
 };
