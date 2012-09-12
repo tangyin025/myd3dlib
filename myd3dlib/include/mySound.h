@@ -2,7 +2,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <dsound.h>
-#include <DXUT.h>
+#include "myException.h"
 #include "myMath.h"
 
 namespace my

@@ -1,7 +1,11 @@
 #pragma once
 
 #include <Windows.h>
+#include <atlbase.h>
 #include <atlwin.h>
+#include <atltypes.h>
+#include <string>
+#include <boost/shared_ptr.hpp>
 
 namespace my
 {

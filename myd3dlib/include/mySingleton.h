@@ -2,7 +2,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <Windows.h>
-#include <DXUT.h>
+#include "myException.h"
 
 namespace my
 {

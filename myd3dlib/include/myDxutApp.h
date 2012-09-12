@@ -2,15 +2,21 @@
 
 #include "mySingleton.h"
 #include <d3d9.h>
-#include <DXUT.h>
-#include <DXUTgui.h>
-#include <DXUTsettingsdlg.h>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 #include "myUi.h"
 #include "myThread.h"
 #include <atlbase.h>
 #include <hash_set>
+
+struct DXUTD3D9DeviceSettings
+{
+	UINT AdapterOrdinal;
+	D3DDEVTYPE DeviceType;
+	D3DFORMAT AdapterFormat;
+	DWORD BehaviorFlags;
+	D3DPRESENT_PARAMETERS pp;
+};
 
 namespace my
 {
@@ -105,7 +111,7 @@ namespace my
 			bool bWindowed);
 
 		virtual bool ModifyDeviceSettings(
-			DXUTDeviceSettings * pDeviceSettings);
+			DXUTD3D9DeviceSettings * pDeviceSettings);
 
 		virtual HRESULT OnD3D9CreateDevice(
 			IDirect3DDevice9 * pd3dDevice,

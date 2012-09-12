@@ -3,7 +3,6 @@
 #include "GameState.h"
 #include "LuaExtension.h"
 #include <luabind/luabind.hpp>
-#include <SDKmisc.h>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -379,8 +378,6 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 
 Game::Game(void)
 {
-	//m_settingsDlg.Init(&m_dlgResourceMgr);
-
 	m_lua.reset(new LuaContext());
 
 	Export2Lua(m_lua->_state);
@@ -397,8 +394,7 @@ bool Game::IsD3D9DeviceAcceptable(
 	D3DFORMAT BackBufferFormat,
 	bool bWindowed)
 {
-	IDirect3D9* pD3D = DXUTGetD3D9Object();
-	if( FAILED( pD3D->CheckDeviceFormat( pCaps->AdapterOrdinal, pCaps->DeviceType,
+	if( FAILED( m_d3d9->CheckDeviceFormat( pCaps->AdapterOrdinal, pCaps->DeviceType,
 		AdapterFormat, D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
 		D3DRTYPE_TEXTURE, BackBufferFormat ) ) )
 		return false;
@@ -410,36 +406,31 @@ bool Game::IsD3D9DeviceAcceptable(
 }
 
 bool Game::ModifyDeviceSettings(
-	DXUTDeviceSettings * pDeviceSettings)
+	DXUTD3D9DeviceSettings * pDeviceSettings)
 {
-	assert( DXUT_D3D9_DEVICE == pDeviceSettings->ver );
-
-	HRESULT hr;
-	IDirect3D9* pD3D = DXUTGetD3D9Object();
 	D3DCAPS9 caps;
-
-	V( pD3D->GetDeviceCaps( pDeviceSettings->d3d9.AdapterOrdinal,
-		pDeviceSettings->d3d9.DeviceType,
+	V( m_d3d9->GetDeviceCaps( pDeviceSettings->AdapterOrdinal,
+		pDeviceSettings->DeviceType,
 		&caps ) );
 
 	if( ( caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT ) == 0 ||
 		caps.VertexShaderVersion < D3DVS_VERSION( 1, 1 ) )
 	{
-		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		pDeviceSettings->BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 	}
 
 	if( caps.MaxVertexBlendMatrices < 2 )
-		pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+		pDeviceSettings->BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
 
 	// ! Fix lua print(0xffffffff) issue, ref: http://www.lua.org/bugs.html#5.1-3
-	pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
+	pDeviceSettings->BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
 	static bool s_bFirstTime = true;
 	if( s_bFirstTime )
 	{
 		s_bFirstTime = false;
-		if( pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF )
-			DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
+		//if( pDeviceSettings->DeviceType == D3DDEVTYPE_REF )
+		//	DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
 	}
 
 	return true;
@@ -464,10 +455,6 @@ HRESULT Game::OnD3D9CreateDevice(
 	ImeEditBox::Initialize(DxutApplication::getSingleton().GetHWND());
 
 	ImeEditBox::EnableImeSystem(false);
-
-	//V(m_dlgResourceMgr.OnD3D9CreateDevice(pd3dDevice));
-
-	//V(m_settingsDlg.OnD3D9CreateDevice(pd3dDevice));
 
 	ExecuteCode("dofile \"Font.lua\"");
 
@@ -535,10 +522,6 @@ HRESULT Game::OnD3D9ResetDevice(
 		return hres;
 	}
 
-	//V(m_dlgResourceMgr.OnD3D9ResetDevice());
-
-	//V(m_settingsDlg.OnD3D9ResetDevice());
-
 	UpdateDlgViewProj(m_console);
 
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
@@ -569,10 +552,6 @@ void Game::OnD3D9LostDevice(void)
 {
 	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	//m_dlgResourceMgr.OnD3D9LostDevice();
-
-	//m_settingsDlg.OnD3D9LostDevice();
-
 	m_ShadowTextureRT->OnDestroyDevice();
 
 	m_ShadowTextureDS->OnDestroyDevice();
@@ -591,10 +570,6 @@ void Game::OnD3D9DestroyDevice(void)
 	terminate();
 
 	m_EffectPool.Release();
-
-	//m_dlgResourceMgr.OnD3D9DestroyDevice();
-
-	//m_settingsDlg.OnD3D9DestroyDevice();
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
@@ -686,11 +661,6 @@ LRESULT Game::MsgProc(
 		return hres;
 	}
 
-	//if((*pbNoFurtherProcessing = m_dlgResourceMgr.MsgProc(hWnd, uMsg, wParam, lParam)))
-	//{
-	//	return 0;
-	//}
-
 	//if(m_settingsDlg.IsActive())
 	//{
 	//	m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
@@ -735,12 +705,12 @@ void Game::OnKeyboard(
 
 void Game::ToggleFullScreen(void)
 {
-	DXUTToggleFullScreen();
+	//DXUTToggleFullScreen();
 }
 
 void Game::ToggleRef(void)
 {
-	DXUTToggleREF();
+	//DXUTToggleREF();
 }
 
 void Game::ChangeDevice(void)
@@ -752,7 +722,7 @@ void Game::ExecuteCode(const char * code)
 {
 	try
 	{
-		luaL_dostring(m_lua->_state, code);
+		m_lua->executeCode(code);
 	}
 	catch(const std::runtime_error & e)
 	{

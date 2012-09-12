@@ -11,9 +11,9 @@
 #include <myD3dLib.h>
 #include <luabind/luabind.hpp>
 #include <luabind/operator.hpp>
-#include <SDKmisc.h>
+//#include <SDKmisc.h>
 #include <luabind/luabind.hpp>
 #include <myd3dlib.h>
-#include <DXUTCamera.h>
+//#include <DXUTCamera.h>
 #include <btBulletDynamicsCommon.h>
   //Matching lines: 15    Matching files: 9    Total files searched: 15

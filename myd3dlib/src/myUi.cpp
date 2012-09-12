@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "myUi.h"
 #include "myDxutApp.h"
-#include <ImeUi.h>
+#include "ImeUi.h"
 #include "myCollision.h"
 
 #ifdef _DEBUG

@@ -42,7 +42,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/Zm150"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -62,9 +62,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib d3dx10d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="2"
-				DelayLoadDLLs="d3dx10d_42.dll"
+				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -119,7 +119,7 @@
 				AdditionalOptions="/Zm150"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -138,9 +138,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib d3dx10.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="1"
-				DelayLoadDLLs="d3dx10_42.dll"
+				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"

@@ -148,10 +148,6 @@ class Game
 public:
 	GameStateBase * cs;
 
-	//CDXUTDialogResourceManager m_dlgResourceMgr;
-
-	//CD3DSettingsDlg m_settingsDlg;
-
 	my::LuaContextPtr m_lua;
 
 	typedef std::vector<my::DialogPtr> DialogPtrSet;
@@ -231,7 +227,7 @@ public:
 		bool bWindowed);
 
 	virtual bool ModifyDeviceSettings(
-		DXUTDeviceSettings * pDeviceSettings);
+		DXUTD3D9DeviceSettings * pDeviceSettings);
 
 	virtual HRESULT OnD3D9CreateDevice(
 		IDirect3DDevice9 * pd3dDevice,

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "myDxutApp.h"
-#include <SDKmisc.h>
 #include "myResource.h"
 
 using namespace my;
@@ -85,7 +84,7 @@ int DxutApplication::Run(void)
 		D3DADAPTER_DEFAULT,
 		D3DDEVTYPE_HAL,
 		GetHWND(),
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE,
 		&d3dpp,
 		&m_d3dDevice)))
 	{
@@ -164,7 +163,7 @@ bool DxutApplication::IsD3D9DeviceAcceptable(
 }
 
 bool DxutApplication::ModifyDeviceSettings(
-	DXUTDeviceSettings * pDeviceSettings)
+	DXUTD3D9DeviceSettings * pDeviceSettings)
 {
 	return true;
 }

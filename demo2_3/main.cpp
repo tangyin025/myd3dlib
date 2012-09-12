@@ -1,7 +1,7 @@
 ﻿
 #include "stdafx.h"
 #include <myd3dlib.h>
-#include <DXUTCamera.h>
+//#include <DXUTCamera.h>
 #include <btBulletDynamicsCommon.h>
 #include "Game.h"
 #include <mythread.h>

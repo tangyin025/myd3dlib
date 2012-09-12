@@ -2,8 +2,6 @@
 
 #include <d3dx9.h>
 #include <atlbase.h>
-#include <DXUT.h>
-#include "mySingleton.h"
 #include "myMath.h"
 #include "myTexture.h"
 

@@ -119,3 +119,11 @@ namespace my
 #define THROW_WINEXCEPTION(code) throw my::WinException((code), __FILE__, __LINE__)
 
 #define THROW_CUSEXCEPTION(info) throw my::CustomException((info), __FILE__, __LINE__)
+
+#ifdef _DEBUG
+#define V(expr) _ASSERT(SUCCEEDED(hr = (expr)))
+#else
+#define V(expr) expr
+#endif
+
+#define SAFE_RELEASE(p) if(p) {p->Release(); p=NULL;}

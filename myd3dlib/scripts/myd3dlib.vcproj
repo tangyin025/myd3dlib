@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)dxut\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
+				AdditionalIncludeDirectories="&quot;D:\Program Files (2)\boost_1_34_1&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)bullet\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="0"
 				EnableFunctionLevelLinking="true"
@@ -150,6 +150,10 @@
 			Filter="cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
+			<File
+				RelativePath="..\src\ImeUi.cpp"
+				>
+			</File>
 			<File
 				RelativePath="..\src\libc.cpp"
 				>
@@ -258,6 +262,10 @@
 			>
 			<File
 				RelativePath="..\include\FastDelegate.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\ImeUi.h"
 				>
 			</File>
 			<File

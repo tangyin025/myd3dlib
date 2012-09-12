@@ -3,7 +3,6 @@
 #include <boost/shared_ptr.hpp>
 #include <dinput.h>
 #include <atlbase.h>
-#include <DXUT.h>
 #include "myException.h"
 
 namespace my

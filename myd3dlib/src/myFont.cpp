@@ -427,19 +427,23 @@ void Font::DrawString(
 {
 	//UIRender::Begin(m_Device);
 
-	V(m_Device->SetTexture(0, m_texture->m_ptr));
-
-	// ! D3DFMT_A8
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-
 	CUSTOMVERTEX vertex_list[1024];
 	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);
 
-	V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+	// ! Some nvidia video card lost device states if draw empty primitives
+	if(numVerts > 0)
+	{
+		V(m_Device->SetTexture(0, m_texture->m_ptr));
 
-	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
+		// ! D3DFMT_A8
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
 
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+
+		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
+
+		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+	}
 
 	//UIRender::End(m_Device);
 }

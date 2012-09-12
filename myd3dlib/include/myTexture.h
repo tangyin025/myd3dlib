@@ -3,9 +3,9 @@
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include <d3d9.h>
+#include <d3dx9.h>
 #include <atlbase.h>
 #include <atltypes.h>
-#include <DXUT.h>
 #include "myException.h"
 
 namespace my
