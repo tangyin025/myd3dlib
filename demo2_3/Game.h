@@ -80,7 +80,7 @@ public:
 		double fTime,
 		float fElapsedTime) = 0;
 
-	virtual void OnD3D9FrameRender(
+	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime) = 0;
@@ -220,7 +220,7 @@ public:
 		return dynamic_cast<Game *>(DxutApplication::getSingletonPtr());
 	}
 
-	virtual bool IsD3D9DeviceAcceptable(
+	virtual bool IsDeviceAcceptable(
 		D3DCAPS9 * pCaps,
 		D3DFORMAT AdapterFormat,
 		D3DFORMAT BackBufferFormat,
@@ -229,23 +229,23 @@ public:
 	virtual bool ModifyDeviceSettings(
 		DXUTD3D9DeviceSettings * pDeviceSettings);
 
-	virtual HRESULT OnD3D9CreateDevice(
+	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	virtual HRESULT OnD3D9ResetDevice(
+	virtual HRESULT OnResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	virtual void OnD3D9LostDevice(void);
+	virtual void OnLostDevice(void);
 
-	virtual void OnD3D9DestroyDevice(void);
+	virtual void OnDestroyDevice(void);
 
 	virtual void OnFrameMove(
 		double fTime,
 		float fElapsedTime);
 
-	virtual void OnD3D9FrameRender(
+	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);

@@ -26,7 +26,7 @@ void GameStateLoad::OnFrameMove(
 	Game::getSingleton().CurrentState()->OnFrameMove(fTime, fElapsedTime);
 }
 
-void GameStateLoad::OnD3D9FrameRender(
+void GameStateLoad::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
@@ -78,7 +78,7 @@ void GameStateMain::OnFrameMove(
 	}
 }
 
-void GameStateMain::OnD3D9FrameRender(
+void GameStateMain::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)

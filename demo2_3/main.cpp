@@ -1,7 +1,6 @@
 ﻿
 #include "stdafx.h"
 #include <myd3dlib.h>
-//#include <DXUTCamera.h>
 #include <btBulletDynamicsCommon.h>
 #include "Game.h"
 #include <mythread.h>
@@ -164,12 +163,12 @@
 //
 //	my::EffectPtr m_wireEffect;
 //
-//	HRESULT OnD3D9CreateDevice(
+//	HRESULT OnCreateDevice(
 //		IDirect3DDevice9 * pd3dDevice,
 //		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 //	{
 //		HRESULT hres;
-//		if(FAILED(hres = my::DxutSample::OnD3D9CreateDevice(
+//		if(FAILED(hres = my::DxutSample::OnCreateDevice(
 //			pd3dDevice, pBackBufferSurfaceDesc)))
 //		{
 //			return hres;
@@ -281,12 +280,12 @@
 //		return S_OK;
 //	}
 //
-//	HRESULT OnD3D9ResetDevice(
+//	HRESULT OnResetDevice(
 //		IDirect3DDevice9 * pd3dDevice,
 //		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 //	{
 //		HRESULT hres;
-//		if(FAILED(hres = my::DxutSample::OnD3D9ResetDevice(
+//		if(FAILED(hres = my::DxutSample::OnResetDevice(
 //			pd3dDevice, pBackBufferSurfaceDesc)))
 //		{
 //			return hres;
@@ -320,18 +319,18 @@
 //		return S_OK;
 //	}
 //
-//	void OnD3D9LostDevice(void)
+//	void OnLostDevice(void)
 //	{
 //		// 在这里处理在reset中创建的资源
 //		m_shadowMapRT.reset();
 //		m_shadowMapDS.reset();
 //
-//		my::DxutSample::OnD3D9LostDevice();
+//		my::DxutSample::OnLostDevice();
 //	}
 //
-//	void OnD3D9DestroyDevice(void)
+//	void OnDestroyDevice(void)
 //	{
-//		my::DxutSample::OnD3D9DestroyDevice();
+//		my::DxutSample::OnDestroyDevice();
 //	}
 //
 //	void OnFrameMove(
@@ -578,13 +577,5 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
-	//return MyDemo().Run(true, 800, 600);
-
 	return Game().Run();
-
-	//return my::Application().Run();
-
-	my::DxutApplication app;
-
-	return app.Run();
 }

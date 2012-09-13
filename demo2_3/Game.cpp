@@ -388,7 +388,7 @@ Game::~Game(void)
 	ImeEditBox::Uninitialize();
 }
 
-bool Game::IsD3D9DeviceAcceptable(
+bool Game::IsDeviceAcceptable(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
 	D3DFORMAT BackBufferFormat,
@@ -436,12 +436,12 @@ bool Game::ModifyDeviceSettings(
 	return true;
 }
 
-HRESULT Game::OnD3D9CreateDevice(
+HRESULT Game::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	HRESULT hres;
-	if(FAILED(hres = DxutApplication::OnD3D9CreateDevice(
+	if(FAILED(hres = DxutApplication::OnCreateDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -467,7 +467,7 @@ HRESULT Game::OnD3D9CreateDevice(
 
 	UpdateDlgViewProj(m_console);
 
-	AddLine(L"Game::OnD3D9CreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_SimpleSample = LoadEffect("SimpleSample.fx");
 
@@ -509,14 +509,14 @@ HRESULT Game::OnD3D9CreateDevice(
 	return S_OK;
 }
 
-HRESULT Game::OnD3D9ResetDevice(
+HRESULT Game::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	AddLine(L"Game::OnD3D9ResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = DxutApplication::OnD3D9ResetDevice(
+	if(FAILED(hres = DxutApplication::OnResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -548,9 +548,9 @@ HRESULT Game::OnD3D9ResetDevice(
 	return S_OK;
 }
 
-void Game::OnD3D9LostDevice(void)
+void Game::OnLostDevice(void)
 {
-	AddLine(L"Game::OnD3D9LostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	m_ShadowTextureRT->OnDestroyDevice();
 
@@ -560,12 +560,12 @@ void Game::OnD3D9LostDevice(void)
 
 	m_ScreenTextureDS->OnDestroyDevice();
 
-	DxutApplication::OnD3D9LostDevice();
+	DxutApplication::OnLostDevice();
 }
 
-void Game::OnD3D9DestroyDevice(void)
+void Game::OnDestroyDevice(void)
 {
-	AddLine(L"Game::OnD3D9DestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	terminate();
 
@@ -579,7 +579,7 @@ void Game::OnD3D9DestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	DxutApplication::OnD3D9DestroyDevice();
+	DxutApplication::OnDestroyDevice();
 }
 
 void Game::OnFrameMove(
@@ -596,7 +596,7 @@ void Game::OnFrameMove(
 		cs->OnFrameMove(fTime, fElapsedTime);
 }
 
-void Game::OnD3D9FrameRender(
+void Game::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
@@ -612,7 +612,7 @@ void Game::OnD3D9FrameRender(
 
 	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
 	if(cs = CurrentState())
-		cs->OnD3D9FrameRender(pd3dDevice, fTime, fElapsedTime);
+		cs->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{

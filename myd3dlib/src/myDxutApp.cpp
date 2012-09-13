@@ -73,19 +73,48 @@ int DxutApplication::Run(void)
 	CRect clientRect;
 	m_wnd->GetClientRect(&clientRect);
 
-	D3DPRESENT_PARAMETERS d3dpp = {0};
-	d3dpp.Windowed = TRUE;
-	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.EnableAutoDepthStencil = TRUE;
-	d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
+    DXUTMatchOptions matchOptions;
+    matchOptions.eAPIVersion = DXUTMT_IGNORE_INPUT;
+    matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
+    matchOptions.eDeviceType = DXUTMT_IGNORE_INPUT;
+    matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
+    matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
+    matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
+    matchOptions.eVertexProcessing = DXUTMT_IGNORE_INPUT;
+    //if( bWindowed || ( nSuggestedWidth != 0 && nSuggestedHeight != 0 ) )
+        matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+    //else
+    //    matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
+    matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
+    matchOptions.eBackBufferCount = DXUTMT_IGNORE_INPUT;
+    matchOptions.eMultiSample = DXUTMT_IGNORE_INPUT;
+    matchOptions.eSwapEffect = DXUTMT_IGNORE_INPUT;
+    matchOptions.eDepthFormat = DXUTMT_IGNORE_INPUT;
+    matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
+    matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
+    matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
+    matchOptions.ePresentInterval = DXUTMT_IGNORE_INPUT;
+
+	DXUTD3D9DeviceSettings deviceSettings;
+	ZeroMemory( &deviceSettings, sizeof( deviceSettings ) );
+    deviceSettings.pp.Windowed = true;
+    deviceSettings.pp.BackBufferWidth = clientRect.Width();
+    deviceSettings.pp.BackBufferHeight = clientRect.Height();
+
+    hr = DXUTFindValidDeviceSettings( &deviceSettings, &deviceSettings, &matchOptions );
+    if( FAILED( hr ) ) // the call will fail if no valid devices were found
+    {
+        //DXUTDisplayErrorMessage( hr );
+        //return DXUT_ERR( L"DXUTFindValidDeviceSettings", hr );
+		return 0;
+    }
 
 	if(FAILED(m_d3d9->CreateDevice(
-		D3DADAPTER_DEFAULT,
-		D3DDEVTYPE_HAL,
+		deviceSettings.AdapterOrdinal,
+		deviceSettings.DeviceType,
 		GetHWND(),
-		D3DCREATE_SOFTWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE,
-		&d3dpp,
+		deviceSettings.BehaviorFlags | D3DCREATE_FPU_PRESERVE,
+		&deviceSettings.pp,
 		&m_d3dDevice)))
 	{
 		return 0;
@@ -100,7 +129,7 @@ int DxutApplication::Run(void)
 	my::SurfacePtr surface(new my::Surface());
 	surface->Create(pBackBuffer);
 	m_BackBufferSurfaceDesc = surface->GetDesc();
-	if(FAILED(OnD3D9CreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		return 0;
 	}
@@ -116,7 +145,7 @@ int DxutApplication::Run(void)
 		(*obj_iter)->OnResetDevice();
 	}
 
-	if(FAILED(OnD3D9ResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		return 0;
 	}
@@ -140,7 +169,7 @@ int DxutApplication::Run(void)
 			float fElapsedTime = 1/30.0f;
 			OnFrameMove(time, fElapsedTime);
 
-			OnD3D9FrameRender(m_d3dDevice, time, fElapsedTime);
+			OnFrameRender(m_d3dDevice, time, fElapsedTime);
 
 			if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
 			{
@@ -153,7 +182,7 @@ int DxutApplication::Run(void)
 	return (int)msg.wParam;
 }
 
-bool DxutApplication::IsD3D9DeviceAcceptable(
+bool DxutApplication::IsDeviceAcceptable(
 	D3DCAPS9 * pCaps,
 	D3DFORMAT AdapterFormat,
 	D3DFORMAT BackBufferFormat,
@@ -168,25 +197,25 @@ bool DxutApplication::ModifyDeviceSettings(
 	return true;
 }
 
-HRESULT DxutApplication::OnD3D9CreateDevice(
+HRESULT DxutApplication::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	return S_OK;
 }
 
-HRESULT DxutApplication::OnD3D9ResetDevice(
+HRESULT DxutApplication::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	return S_OK;
 }
 
-void DxutApplication::OnD3D9LostDevice(void)
+void DxutApplication::OnLostDevice(void)
 {
 }
 
-void DxutApplication::OnD3D9DestroyDevice(void)
+void DxutApplication::OnDestroyDevice(void)
 {
 }
 
@@ -196,7 +225,7 @@ void DxutApplication::OnFrameMove(
 {
 }
 
-void DxutApplication::OnD3D9FrameRender(
+void DxutApplication::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)

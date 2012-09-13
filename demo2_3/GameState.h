@@ -24,7 +24,7 @@ public:
 		double fTime,
 		float fElapsedTime);
 
-	virtual void OnD3D9FrameRender(
+	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
@@ -68,7 +68,7 @@ public:
 		double fTime,
 		float fElapsedTime);
 
-	virtual void OnD3D9FrameRender(
+	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
