@@ -1,748 +1,392 @@
-﻿//--------------------------------------------------------------------------------------
-// File: CustomUI.cpp
-//
-// Sample to show usage of DXUT's GUI system
-//
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
-#include "DXUT.h"
-#include "DXUTgui.h"
-#include "DXUTguiIME.h"
-#include "DXUTcamera.h"
-#include "DXUTsettingsdlg.h"
-#include "SDKmesh.h"
-#include "SDKmisc.h"
-//#include "resource.h"
-
-//#define DEBUG_VS   // Uncomment this line to debug vertex shaders 
-//#define DEBUG_PS   // Uncomment this line to debug pixel shaders 
+﻿/*
+** $Id: lua.c,v 1.160.1.2 2007/12/28 15:32:23 roberto Exp $
+** Lua stand-alone interpreter
+** See Copyright Notice in lua.h
+*/
 
 
-//--------------------------------------------------------------------------------------
-// Global variables
-//--------------------------------------------------------------------------------------
-ID3DXFont*                  g_pFont = NULL;         // Font for drawing text
-ID3DXSprite*                g_pTextSprite = NULL;   // Sprite for batching draw text calls
-ID3DXEffect*                g_pEffect = NULL;       // D3DX effect interface
-CDXUTXFileMesh              g_Mesh;                 // Background mesh
-D3DXMATRIXA16               g_mView;
-CModelViewerCamera          g_Camera;               // A model viewing camera
-CDXUTDialogResourceManager  g_DialogResourceManager; // manager for shared resources of dialogs
-CD3DSettingsDlg             g_SettingsDlg;          // Device settings dialog
-CDXUTDialog                 g_HUD;                  // dialog for standard controls
-CDXUTDialog                 g_SampleUI;             // dialog for sample specific controls
+#include <signal.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 
+#define lua_c
+extern "C"{
+#include "lua.h"
 
-//--------------------------------------------------------------------------------------
-// UI control IDs
-//--------------------------------------------------------------------------------------
-#define IDC_TOGGLEFULLSCREEN    1
-#define IDC_TOGGLEREF           3
-#define IDC_CHANGEDEVICE        4
-#define IDC_EDITBOX1            5
-#define IDC_EDITBOX2            6
-#define IDC_ENABLEIME           7
-#define IDC_DISABLEIME          8
-#define IDC_COMBOBOX            9
-#define IDC_STATIC              10
-#define IDC_OUTPUT              12
-#define IDC_SLIDER              13
-#define IDC_CHECKBOX            14
-#define IDC_CLEAREDIT           15
-#define IDC_RADIO1A             16
-#define IDC_RADIO1B             17
-#define IDC_RADIO1C             18
-#define IDC_RADIO2A             19
-#define IDC_RADIO2B             20
-#define IDC_RADIO2C             21
-#define IDC_LISTBOX             22
-#define IDC_LISTBOXM            23
-
-
-//--------------------------------------------------------------------------------------
-// Forward declarations 
-//--------------------------------------------------------------------------------------
-bool CALLBACK IsDeviceAcceptable( D3DCAPS9* pCaps, D3DFORMAT AdapterFormat, D3DFORMAT BackBufferFormat, bool bWindowed,
-                                  void* pUserContext );
-bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext );
-HRESULT CALLBACK OnCreateDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_DESC* pBackBufferSurfaceDesc,
-                                 void* pUserContext );
-HRESULT CALLBACK OnResetDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_DESC* pBackBufferSurfaceDesc,
-                                void* pUserContext );
-void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext );
-void CALLBACK OnFrameRender( IDirect3DDevice9* pd3dDevice, double fTime, float fElapsedTime, void* pUserContext );
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                          void* pUserContext );
-void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext );
-void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext );
-void CALLBACK OnLostDevice( void* pUserContext );
-void CALLBACK OnDestroyDevice( void* pUserContext );
-
-void InitApp();
-void RenderText();
-
-
-//--------------------------------------------------------------------------------------
-// Entry point to the program. Initializes everything and goes into a message processing 
-// loop. Idle time is used to render the scene.
-//--------------------------------------------------------------------------------------
-INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
-{
-    // Enable run-time memory check for debug builds.
-#if defined(DEBUG) | defined(_DEBUG)
-    _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
-#endif
-
-    // DXUT will create and use the best device (either D3D9 or D3D10) 
-    // that is available on the system depending on which D3D callbacks are set below
-
-    // Set DXUT callbacks
-    DXUTSetCallbackD3D9DeviceAcceptable( IsDeviceAcceptable );
-    DXUTSetCallbackD3D9DeviceCreated( OnCreateDevice );
-    DXUTSetCallbackD3D9DeviceReset( OnResetDevice );
-    DXUTSetCallbackD3D9FrameRender( OnFrameRender );
-    DXUTSetCallbackD3D9DeviceLost( OnLostDevice );
-    DXUTSetCallbackD3D9DeviceDestroyed( OnDestroyDevice );
-    DXUTSetCallbackMsgProc( MsgProc );
-    DXUTSetCallbackKeyboard( KeyboardProc );
-    DXUTSetCallbackFrameMove( OnFrameMove );
-    DXUTSetCallbackDeviceChanging( ModifyDeviceSettings );
-
-    DXUTSetCursorSettings( true, true );
-    InitApp();
-    DXUTInit( true, true ); // Parse the command line and show msgboxes
-    DXUTSetHotkeyHandling( true, true, true );
-    DXUTCreateWindow( L"CustomUI" );
-    DXUTCreateDevice( true, 640, 480 );
-    DXUTMainLoop();
-
-    return DXUTGetExitCode();
+#include "lauxlib.h"
+#include "lualib.h"
 }
 
 
-//--------------------------------------------------------------------------------------
-// Initialize the app 
-//--------------------------------------------------------------------------------------
-void InitApp()
-{
-    // Initialize dialogs
-    g_SettingsDlg.Init( &g_DialogResourceManager );
-    g_HUD.Init( &g_DialogResourceManager );
-    g_SampleUI.Init( &g_DialogResourceManager );
+static lua_State *globalL = NULL;
 
-    g_HUD.SetCallback( OnGUIEvent ); int iY = 10;
-    g_HUD.AddButton( IDC_TOGGLEFULLSCREEN, L"Toggle full screen", 35, iY, 125, 22 );
-    g_HUD.AddButton( IDC_TOGGLEREF, L"Toggle REF (F3)", 35, iY += 24, 125, 22 );
-    g_HUD.AddButton( IDC_CHANGEDEVICE, L"Change device (F2)", 35, iY += 24, 125, 22, VK_F2 );
+static const char *progname = LUA_PROGNAME;
 
-    g_SampleUI.SetCallback( OnGUIEvent );
 
-    g_SampleUI.SetFont( 1, L"Comic Sans MS", 24, FW_NORMAL );
-    g_SampleUI.SetFont( 2, L"Courier New", 16, FW_NORMAL );
 
-    // Static
-    g_SampleUI.AddStatic( IDC_STATIC, L"This is a static control.", 0, 0, 200, 30 );
-    g_SampleUI.AddStatic( IDC_OUTPUT,
-                          L"This static control provides feedback for your action.  It will change as you interact with the UI controls.", 20, 50, 620, 300 );
-    g_SampleUI.GetStatic( IDC_OUTPUT )->SetTextColor( D3DCOLOR_ARGB( 255, 255, 0, 0 ) ); // Change color to red
-    g_SampleUI.GetStatic( IDC_STATIC )->SetTextColor( D3DCOLOR_ARGB( 255, 0, 255, 0 ) ); // Change color to green
-    g_SampleUI.GetControl( IDC_OUTPUT )->GetElement( 0 )->dwTextFormat = DT_LEFT | DT_TOP | DT_WORDBREAK;
-    g_SampleUI.GetControl( IDC_OUTPUT )->GetElement( 0 )->iFont = 2;
-    g_SampleUI.GetControl( IDC_STATIC )->GetElement( 0 )->dwTextFormat = DT_CENTER | DT_VCENTER | DT_WORDBREAK;
-
-    // Buttons
-    g_SampleUI.AddButton( IDC_ENABLEIME, L"Enable (I)ME", 30, 390, 80, 35, L'I' );
-    g_SampleUI.AddButton( IDC_DISABLEIME, L"Disable I(M)E", 30, 430, 80, 35, L'M' );
-
-    // Edit box
-    g_SampleUI.AddEditBox( IDC_EDITBOX1, L"Edit control with default styles. Type text here and press Enter", 20, 440,
-                           600, 32 );
-
-    // IME-enabled edit box
-    CDXUTIMEEditBox* pIMEEdit;
-    CDXUTIMEEditBox::InitDefaultElements( &g_SampleUI );
-    if( SUCCEEDED( CDXUTIMEEditBox::CreateIMEEditBox( &g_SampleUI, IDC_EDITBOX2,
-                                                      L"IME-capable edit control with custom styles. Type and press Enter", 20, 390, 600, 45, false, &pIMEEdit ) ) )
-    {
-        g_SampleUI.AddControl( pIMEEdit );
-        pIMEEdit->GetElement( 0 )->iFont = 1;
-        pIMEEdit->GetElement( 1 )->iFont = 1;
-        pIMEEdit->GetElement( 9 )->iFont = 1;
-        pIMEEdit->GetElement( 0 )->TextureColor.Init( D3DCOLOR_ARGB( 128, 255, 255, 255 ) );  // Transparent center
-        pIMEEdit->SetBorderWidth( 7 );
-        pIMEEdit->SetTextColor( D3DCOLOR_ARGB( 255, 64, 64, 64 ) );
-        pIMEEdit->SetCaretColor( D3DCOLOR_ARGB( 255, 64, 64, 64 ) );
-        pIMEEdit->SetSelectedTextColor( D3DCOLOR_ARGB( 255, 255, 255, 255 ) );
-        pIMEEdit->SetSelectedBackColor( D3DCOLOR_ARGB( 255, 40, 72, 72 ) );
-    }
-
-    // Slider
-    g_SampleUI.AddSlider( IDC_SLIDER, 200, 450, 200, 24, 0, 100, 50, false );
-
-    // Checkbox
-    g_SampleUI.AddCheckBox( IDC_CHECKBOX, L"This is a checkbox with hotkey. Press 'C' to toggle the check state.",
-                            170, 450, 350, 24, false, L'C', false );
-    g_SampleUI.AddCheckBox( IDC_CLEAREDIT,
-                            L"This checkbox controls whether edit control text is cleared when Enter is pressed. (T)",
-                            170, 460, 450, 24, false, L'T', false );
-
-    // Combobox
-    CDXUTComboBox* pCombo;
-    g_SampleUI.AddComboBox( IDC_COMBOBOX, 0, 0, 200, 24, L'O', false, &pCombo );
-    if( pCombo )
-    {
-        pCombo->SetDropHeight( 100 );
-        pCombo->AddItem( L"Combobox item (O)", ( LPVOID )0x11111111 );
-        pCombo->AddItem( L"Placeholder (O)", ( LPVOID )0x12121212 );
-        pCombo->AddItem( L"One more (O)", ( LPVOID )0x13131313 );
-        pCombo->AddItem( L"I can't get enough (O)", ( LPVOID )0x14141414 );
-        pCombo->AddItem( L"Ok, last one, I promise (O)", ( LPVOID )0x15151515 );
-    }
-
-    // Radio buttons
-    g_SampleUI.AddRadioButton( IDC_RADIO1A, 1, L"Radio group 1 Amy (1)", 0, 50, 220, 24, false, L'1' );
-    g_SampleUI.AddRadioButton( IDC_RADIO1B, 1, L"Radio group 1 Brian (2)", 0, 50, 220, 24, false, L'2' );
-    g_SampleUI.AddRadioButton( IDC_RADIO1C, 1, L"Radio group 1 Clark (3)", 0, 50, 220, 24, false, L'3' );
-
-    g_SampleUI.AddRadioButton( IDC_RADIO2A, 2, L"Single (4)", 0, 50, 90, 24, false, L'4' );
-    g_SampleUI.AddRadioButton( IDC_RADIO2B, 2, L"Double (5)", 0, 50, 90, 24, false, L'5' );
-    g_SampleUI.AddRadioButton( IDC_RADIO2C, 2, L"Triple (6)", 0, 50, 90, 24, false, L'6' );
-
-    // List box
-    g_SampleUI.AddListBox( IDC_LISTBOX, 30, 400, 200, 150, 0 );
-    for( int i = 0; i < 15; ++i )
-    {
-        WCHAR wszText[50];
-        swprintf_s( wszText, 50, L"Single-selection listbox item %d", i );
-        g_SampleUI.GetListBox( IDC_LISTBOX )->AddItem( wszText, ( LPVOID )( size_t )i );
-    }
-    g_SampleUI.AddListBox( IDC_LISTBOXM, 30, 400, 200, 150, CDXUTListBox::MULTISELECTION );
-    for( int i = 0; i < 30; ++i )
-    {
-        WCHAR wszText[50];
-        swprintf_s( wszText, 50, L"Multi-selection listbox item %d", i );
-        g_SampleUI.GetListBox( IDC_LISTBOXM )->AddItem( wszText, ( LPVOID )( size_t )i );
-    }
+static void lstop (lua_State *L, lua_Debug *ar) {
+  (void)ar;  /* unused arg. */
+  lua_sethook(L, NULL, 0, 0);
+  luaL_error(L, "interrupted!");
 }
 
 
-//--------------------------------------------------------------------------------------
-// Rejects any D3D9 devices that aren't acceptable to the app by returning false
-//--------------------------------------------------------------------------------------
-bool CALLBACK IsDeviceAcceptable( D3DCAPS9* pCaps, D3DFORMAT AdapterFormat,
-                                  D3DFORMAT BackBufferFormat, bool bWindowed, void* pUserContext )
-{
-    // Skip backbuffer formats that don't support alpha blending
-    IDirect3D9* pD3D = DXUTGetD3D9Object();
-    if( FAILED( pD3D->CheckDeviceFormat( pCaps->AdapterOrdinal, pCaps->DeviceType,
-                                         AdapterFormat, D3DUSAGE_QUERY_POSTPIXELSHADER_BLENDING,
-                                         D3DRTYPE_TEXTURE, BackBufferFormat ) ) )
-        return false;
-
-    // Must support pixel shader 2.0
-    if( pCaps->PixelShaderVersion < D3DPS_VERSION( 2, 0 ) )
-        return false;
-
-    return true;
+static void laction (int i) {
+  signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
+                              terminate process (default action) */
+  lua_sethook(globalL, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
 
-//--------------------------------------------------------------------------------------
-// Called right before creating a D3D9 or D3D10 device, allowing the app to modify the device settings as needed
-//--------------------------------------------------------------------------------------
-bool CALLBACK ModifyDeviceSettings( DXUTDeviceSettings* pDeviceSettings, void* pUserContext )
-{
-    assert( DXUT_D3D9_DEVICE == pDeviceSettings->ver );
-
-    HRESULT hr;
-    IDirect3D9* pD3D = DXUTGetD3D9Object();
-    D3DCAPS9 caps;
-
-    V( pD3D->GetDeviceCaps( pDeviceSettings->d3d9.AdapterOrdinal,
-                            pDeviceSettings->d3d9.DeviceType,
-                            &caps ) );
-
-    // If device doesn't support HW T&L or doesn't support 1.1 vertex shaders in HW 
-    // then switch to SWVP.
-    if( ( caps.DevCaps & D3DDEVCAPS_HWTRANSFORMANDLIGHT ) == 0 ||
-        caps.VertexShaderVersion < D3DVS_VERSION( 1, 1 ) )
-    {
-        pDeviceSettings->d3d9.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-    }
-
-    // Debugging vertex shaders requires either REF or software vertex processing 
-    // and debugging pixel shaders requires REF.  
-#ifdef DEBUG_VS
-    if( pDeviceSettings->d3d9.DeviceType != D3DDEVTYPE_REF )
-    {
-        pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_HARDWARE_VERTEXPROCESSING;
-        pDeviceSettings->d3d9.BehaviorFlags &= ~D3DCREATE_PUREDEVICE;
-        pDeviceSettings->d3d9.BehaviorFlags |= D3DCREATE_SOFTWARE_VERTEXPROCESSING;
-    }
-#endif
-#ifdef DEBUG_PS
-    pDeviceSettings->d3d9.DeviceType = D3DDEVTYPE_REF;
-#endif
-
-    // For the first device created if its a REF device, optionally display a warning dialog box
-    static bool s_bFirstTime = true;
-    if( s_bFirstTime )
-    {
-        s_bFirstTime = false;
-        if( pDeviceSettings->d3d9.DeviceType == D3DDEVTYPE_REF )
-            DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
-    }
-
-    return true;
+static void print_usage (void) {
+  fprintf(stderr,
+  "usage: %s [options] [script [args]].\n"
+  "Available options are:\n"
+  "  -e stat  execute string " LUA_QL("stat") "\n"
+  "  -l name  require library " LUA_QL("name") "\n"
+  "  -i       enter interactive mode after executing " LUA_QL("script") "\n"
+  "  -v       show version information\n"
+  "  --       stop handling options\n"
+  "  -        execute stdin and stop handling options\n"
+  ,
+  progname);
+  fflush(stderr);
 }
 
 
-//--------------------------------------------------------------------------------------
-// Create any D3D9 resources that will live through a device reset (D3DPOOL_MANAGED)
-// and aren't tied to the back buffer size
-//--------------------------------------------------------------------------------------
-HRESULT CALLBACK OnCreateDevice( IDirect3DDevice9* pd3dDevice, const D3DSURFACE_DESC* pBackBufferSurfaceDesc,
-                                 void* pUserContext )
-{
-    HRESULT hr;
-
-    CDXUTIMEEditBox::Initialize( DXUTGetHWND() );
-
-    V_RETURN( g_DialogResourceManager.OnD3D9CreateDevice( pd3dDevice ) );
-    V_RETURN( g_SettingsDlg.OnD3D9CreateDevice( pd3dDevice ) );
-    // Initialize the font
-    V_RETURN( D3DXCreateFont( pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET,
-                              OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE,
-                              L"Arial", &g_pFont ) );
-
-    DWORD dwShaderFlags = D3DXFX_NOT_CLONEABLE;
-#if defined( DEBUG ) || defined( _DEBUG )
-        dwShaderFlags |= D3DXSHADER_DEBUG;
-    #endif
-#ifdef DEBUG_VS
-        dwShaderFlags |= D3DXSHADER_FORCE_VS_SOFTWARE_NOOPT;
-    #endif
-#ifdef DEBUG_PS
-        dwShaderFlags |= D3DXSHADER_FORCE_PS_SOFTWARE_NOOPT;
-    #endif
-
-    // Read the D3DX effect file
-    WCHAR str[MAX_PATH];
-    V_RETURN( DXUTFindDXSDKMediaFileCch( str, MAX_PATH, L"CustomUI.fx" ) );
-    V_RETURN( D3DXCreateEffectFromFile( pd3dDevice, str, NULL, NULL, dwShaderFlags,
-                                        NULL, &g_pEffect, NULL ) );
-
-    g_Mesh.Create( pd3dDevice, L"cell.x" );
-
-    // Setup the camera's view parameters
-    D3DXVECTOR3 vecEye( 0.0f, 1.5f, -7.0f );
-    D3DXVECTOR3 vecAt ( 0.0f, 0.2f, 0.0f );
-    D3DXVECTOR3 vecUp ( 0.0f, 1.0f, 0.0f );
-    g_Camera.SetViewParams( &vecEye, &vecAt );
-    D3DXMatrixLookAtLH( &g_mView, &vecEye, &vecAt, &vecUp );
-
-    return S_OK;
+static void l_message (const char *pname, const char *msg) {
+  if (pname) fprintf(stderr, "%s: ", pname);
+  fprintf(stderr, "%s\n", msg);
+  fflush(stderr);
 }
 
-//--------------------------------------------------------------------------------------
-// Create any D3D9 resources that won't live through a device reset (D3DPOOL_DEFAULT) 
-// or that are tied to the back buffer size 
-//--------------------------------------------------------------------------------------
-HRESULT CALLBACK OnResetDevice( IDirect3DDevice9* pd3dDevice,
-                                const D3DSURFACE_DESC* pBackBufferSurfaceDesc, void* pUserContext )
-{
-    HRESULT hr;
 
-    V_RETURN( g_DialogResourceManager.OnD3D9ResetDevice() );
-    V_RETURN( g_SettingsDlg.OnD3D9ResetDevice() );
+static int report (lua_State *L, int status) {
+  if (status && !lua_isnil(L, -1)) {
+    const char *msg = lua_tostring(L, -1);
+    if (msg == NULL) msg = "(error object is not a string)";
+    l_message(progname, msg);
+    lua_pop(L, 1);
+  }
+  return status;
+}
 
-    if( g_pFont )
-        V_RETURN( g_pFont->OnResetDevice() );
-    if( g_pEffect )
-        V_RETURN( g_pEffect->OnResetDevice() );
 
-    // Create a sprite to help batch calls when drawing many lines of text
-    V_RETURN( D3DXCreateSprite( pd3dDevice, &g_pTextSprite ) );
+static int traceback (lua_State *L) {
+  if (!lua_isstring(L, 1))  /* 'message' not a string? */
+    return 1;  /* keep it intact */
+  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+  if (!lua_istable(L, -1)) {
+    lua_pop(L, 1);
+    return 1;
+  }
+  lua_getfield(L, -1, "traceback");
+  if (!lua_isfunction(L, -1)) {
+    lua_pop(L, 2);
+    return 1;
+  }
+  lua_pushvalue(L, 1);  /* pass error message */
+  lua_pushinteger(L, 2);  /* skip this function and traceback */
+  lua_call(L, 2, 1);  /* call debug.traceback */
+  return 1;
+}
 
-    // Setup the camera's projection parameters
-    float fAspectRatio = pBackBufferSurfaceDesc->Width / ( FLOAT )pBackBufferSurfaceDesc->Height;
-    g_Camera.SetProjParams( D3DX_PI / 4, fAspectRatio, 0.1f, 1000.0f );
-    g_Camera.SetWindow( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
 
-    g_HUD.SetLocation( pBackBufferSurfaceDesc->Width - 170, 0 );
-    g_HUD.SetSize( 170, 170 );
-    g_SampleUI.SetLocation( 0, 0 );
-    g_SampleUI.SetSize( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height );
+static int docall (lua_State *L, int narg, int clear) {
+  int status;
+  int base = lua_gettop(L) - narg;  /* function index */
+  lua_pushcfunction(L, traceback);  /* push traceback function */
+  lua_insert(L, base);  /* put it under chunk and args */
+  signal(SIGINT, laction);
+  status = lua_pcall(L, narg, (clear ? 0 : LUA_MULTRET), base);
+  signal(SIGINT, SIG_DFL);
+  lua_remove(L, base);  /* remove traceback function */
+  /* force a complete garbage collection in case of errors */
+  if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
+  return status;
+}
 
-    g_SampleUI.GetControl( IDC_STATIC )->SetSize( pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height * 6 /
-                                                  10 );
-    g_SampleUI.GetControl( IDC_OUTPUT )->SetSize( pBackBufferSurfaceDesc->Width - 170, pBackBufferSurfaceDesc->Height /
-                                                  4 );
-    g_SampleUI.GetControl( IDC_EDITBOX1 )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 230 );
-    g_SampleUI.GetControl( IDC_EDITBOX1 )->SetSize( pBackBufferSurfaceDesc->Width - 40, 32 );
-    if( g_SampleUI.GetControl( IDC_EDITBOX2 ) )
-    {
-        g_SampleUI.GetControl( IDC_EDITBOX2 )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 280 );
-        g_SampleUI.GetControl( IDC_EDITBOX2 )->SetSize( pBackBufferSurfaceDesc->Width - 40, 45 );
+
+static void print_version (void) {
+  l_message(NULL, LUA_RELEASE "  " LUA_COPYRIGHT);
+}
+
+
+static int getargs (lua_State *L, char **argv, int n) {
+  int narg;
+  int i;
+  int argc = 0;
+  while (argv[argc]) argc++;  /* count total number of arguments */
+  narg = argc - (n + 1);  /* number of arguments to the script */
+  luaL_checkstack(L, narg + 3, "too many arguments to script");
+  for (i=n+1; i < argc; i++)
+    lua_pushstring(L, argv[i]);
+  lua_createtable(L, narg, n + 1);
+  for (i=0; i < argc; i++) {
+    lua_pushstring(L, argv[i]);
+    lua_rawseti(L, -2, i - n);
+  }
+  return narg;
+}
+
+
+static int dofile (lua_State *L, const char *name) {
+  int status = luaL_loadfile(L, name) || docall(L, 0, 1);
+  return report(L, status);
+}
+
+
+static int dostring (lua_State *L, const char *s, const char *name) {
+  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
+  return report(L, status);
+}
+
+
+static int dolibrary (lua_State *L, const char *name) {
+  lua_getglobal(L, "require");
+  lua_pushstring(L, name);
+  return report(L, docall(L, 1, 1));
+}
+
+
+static const char *get_prompt (lua_State *L, int firstline) {
+  const char *p;
+  lua_getfield(L, LUA_GLOBALSINDEX, firstline ? "_PROMPT" : "_PROMPT2");
+  p = lua_tostring(L, -1);
+  if (p == NULL) p = (firstline ? LUA_PROMPT : LUA_PROMPT2);
+  lua_pop(L, 1);  /* remove global */
+  return p;
+}
+
+
+static int incomplete (lua_State *L, int status) {
+  if (status == LUA_ERRSYNTAX) {
+    size_t lmsg;
+    const char *msg = lua_tolstring(L, -1, &lmsg);
+    const char *tp = msg + lmsg - (sizeof(LUA_QL("<eof>")) - 1);
+    if (strstr(msg, LUA_QL("<eof>")) == tp) {
+      lua_pop(L, 1);
+      return 1;
     }
-    g_SampleUI.GetControl( IDC_ENABLEIME )->SetLocation( 130, pBackBufferSurfaceDesc->Height - 80 );
-    g_SampleUI.GetControl( IDC_DISABLEIME )->SetLocation( 220, pBackBufferSurfaceDesc->Height - 80 );
-    g_SampleUI.GetControl( IDC_SLIDER )->SetLocation( 10, pBackBufferSurfaceDesc->Height - 140 );
-    g_SampleUI.GetControl( IDC_CHECKBOX )->SetLocation( 120, pBackBufferSurfaceDesc->Height - 50 );
-    g_SampleUI.GetControl( IDC_CLEAREDIT )->SetLocation( 120, pBackBufferSurfaceDesc->Height - 25 );
-    g_SampleUI.GetControl( IDC_COMBOBOX )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 180 );
-    g_SampleUI.GetControl( IDC_RADIO1A )->SetLocation( pBackBufferSurfaceDesc->Width - 160, 100 );
-    g_SampleUI.GetControl( IDC_RADIO1B )->SetLocation( pBackBufferSurfaceDesc->Width - 160, 124 );
-    g_SampleUI.GetControl( IDC_RADIO1C )->SetLocation( pBackBufferSurfaceDesc->Width - 160, 148 );
-    g_SampleUI.GetControl( IDC_RADIO2A )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 100 );
-    g_SampleUI.GetControl( IDC_RADIO2B )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 76 );
-    g_SampleUI.GetControl( IDC_RADIO2C )->SetLocation( 20, pBackBufferSurfaceDesc->Height - 52 );
-    g_SampleUI.GetControl( IDC_LISTBOX )->SetLocation( pBackBufferSurfaceDesc->Width - 400,
-                                                       pBackBufferSurfaceDesc->Height - 180 );
-    g_SampleUI.GetControl( IDC_LISTBOX )->SetSize( 190, 96 );
-    g_SampleUI.GetControl( IDC_LISTBOXM )->SetLocation( pBackBufferSurfaceDesc->Width - 200,
-                                                        pBackBufferSurfaceDesc->Height - 180 );
-    g_SampleUI.GetControl( IDC_LISTBOXM )->SetSize( 190, 124 );
-    
-    g_Mesh.RestoreDeviceObjects( pd3dDevice );
-
-    return S_OK;
+  }
+  return 0;  /* else... */
 }
 
 
-//--------------------------------------------------------------------------------------
-// Handle updates to the scene.  This is called regardless of which D3D API is used
-//--------------------------------------------------------------------------------------
-void CALLBACK OnFrameMove( double fTime, float fElapsedTime, void* pUserContext )
-{
-    D3DXMATRIXA16 m;
-    D3DXMatrixRotationY( &m, D3DX_PI * fElapsedTime / 40.0f );
-    D3DXMatrixMultiply( &g_mView, &m, &g_mView );
+static int pushline (lua_State *L, int firstline) {
+  char buffer[LUA_MAXINPUT];
+  char *b = buffer;
+  size_t l;
+  const char *prmt = get_prompt(L, firstline);
+  if (lua_readline(L, b, prmt) == 0)
+    return 0;  /* no input */
+  l = strlen(b);
+  if (l > 0 && b[l-1] == '\n')  /* line ends with newline? */
+    b[l-1] = '\0';  /* remove it */
+  if (firstline && b[0] == '=')  /* first line starts with `=' ? */
+    lua_pushfstring(L, "return %s", b+1);  /* change it to `return' */
+  else
+    lua_pushstring(L, b);
+  lua_freeline(L, b);
+  return 1;
 }
 
 
-//--------------------------------------------------------------------------------------
-// Render the scene using the D3D9 device
-//--------------------------------------------------------------------------------------
-void CALLBACK OnFrameRender( IDirect3DDevice9* pd3dDevice, double fTime, float fElapsedTime, void* pUserContext )
-{
-    if( g_SettingsDlg.IsActive() )
-    {
-        g_SettingsDlg.OnRender( fElapsedTime );
-        return;
+static int loadline (lua_State *L) {
+  int status;
+  lua_settop(L, 0);
+  if (!pushline(L, 1))
+    return -1;  /* no input */
+  for (;;) {  /* repeat until gets a complete line */
+    status = luaL_loadbuffer(L, lua_tostring(L, 1), lua_strlen(L, 1), "=stdin");
+    if (!incomplete(L, status)) break;  /* cannot try to add lines? */
+    if (!pushline(L, 0))  /* no more input? */
+      return -1;
+    lua_pushliteral(L, "\n");  /* add a new line... */
+    lua_insert(L, -2);  /* ...between the two lines */
+    lua_concat(L, 3);  /* join them */
+  }
+  lua_saveline(L, 1);
+  lua_remove(L, 1);  /* remove line */
+  return status;
+}
+
+
+static void dotty (lua_State *L) {
+  int status;
+  const char *oldprogname = progname;
+  progname = NULL;
+  while ((status = loadline(L)) != -1) {
+    if (status == 0) status = docall(L, 0, 0);
+    report(L, status);
+    if (status == 0 && lua_gettop(L) > 0) {  /* any result to print? */
+      lua_getglobal(L, "print");
+      lua_insert(L, 1);
+      if (lua_pcall(L, lua_gettop(L)-1, 0, 0) != 0)
+        l_message(progname, lua_pushfstring(L,
+                               "error calling " LUA_QL("print") " (%s)",
+                               lua_tostring(L, -1)));
     }
+  }
+  lua_settop(L, 0);  /* clear stack */
+  fputs("\n", stdout);
+  fflush(stdout);
+  progname = oldprogname;
+}
 
-    HRESULT hr;
-    D3DXMATRIXA16 mWorld;
-    D3DXMATRIXA16 mView;
-    D3DXMATRIXA16 mProj;
-    D3DXMATRIXA16 mWorldViewProjection;
 
-    // Clear the render target and the zbuffer 
-    V( pd3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB( 0, 45, 50, 170 ), 1.0f, 0 ) );
+static int handle_script (lua_State *L, char **argv, int n) {
+  int status;
+  const char *fname;
+  int narg = getargs(L, argv, n);  /* collect arguments */
+  lua_setglobal(L, "arg");
+  fname = argv[n];
+  if (strcmp(fname, "-") == 0 && strcmp(argv[n-1], "--") != 0) 
+    fname = NULL;  /* stdin */
+  status = luaL_loadfile(L, fname);
+  lua_insert(L, -(narg+1));
+  if (status == 0)
+    status = docall(L, narg, 0);
+  else
+    lua_pop(L, narg);      
+  return report(L, status);
+}
 
-    // Render the scene
-    if( SUCCEEDED( pd3dDevice->BeginScene() ) )
-    {
-        // Get the projection & view matrix from the camera class
-        mWorld = *g_Camera.GetWorldMatrix();
-        mProj = *g_Camera.GetProjMatrix();
-        mView = g_mView;
 
-        mWorldViewProjection = mWorld * mView * mProj;
+/* check that argument has no extra characters at the end */
+#define notail(x)	{if ((x)[2] != '\0') return -1;}
 
-        // Update the effect's variables.  Instead of using strings, it would 
-        // be more efficient to cache a handle to the parameter by calling 
-        // ID3DXEffect::GetParameterByName
-        V( g_pEffect->SetMatrix( "g_mWorldViewProjection", &mWorldViewProjection ) );
-        V( g_pEffect->SetMatrix( "g_mWorld", &mWorld ) );
-        V( g_pEffect->SetFloat( "g_fTime", ( float )fTime ) );
 
-        g_pEffect->SetTechnique( "RenderScene" );
-        UINT cPasses;
-        g_pEffect->Begin( &cPasses, 0 );
-        ID3DXMesh* pMesh = g_Mesh.GetMesh();
-        for( UINT p = 0; p < cPasses; ++p )
-        {
-            g_pEffect->BeginPass( p );
-            for( UINT m = 0; m < g_Mesh.m_dwNumMaterials; ++m )
-            {
-                g_pEffect->SetTexture( "g_txScene", g_Mesh.m_pTextures[m] );
-                g_pEffect->CommitChanges();
-                pMesh->DrawSubset( m );
-            }
-            g_pEffect->EndPass();
+static int collectargs (char **argv, int *pi, int *pv, int *pe) {
+  int i;
+  for (i = 1; argv[i] != NULL; i++) {
+    if (argv[i][0] != '-')  /* not an option? */
+        return i;
+    switch (argv[i][1]) {  /* option */
+      case '-':
+        notail(argv[i]);
+        return (argv[i+1] != NULL ? i+1 : 0);
+      case '\0':
+        return i;
+      case 'i':
+        notail(argv[i]);
+        *pi = 1;  /* go through */
+      case 'v':
+        notail(argv[i]);
+        *pv = 1;
+        break;
+      case 'e':
+        *pe = 1;  /* go through */
+      case 'l':
+        if (argv[i][2] == '\0') {
+          i++;
+          if (argv[i] == NULL) return -1;
         }
-        g_pEffect->End();
-
-        RenderText();
-        V( g_HUD.OnRender( fElapsedTime ) );
-        V( g_SampleUI.OnRender( fElapsedTime ) );
-
-        V( pd3dDevice->EndScene() );
+        break;
+      default: return -1;  /* invalid option */
     }
+  }
+  return 0;
 }
 
 
-//--------------------------------------------------------------------------------------
-// Render the help and statistics text. This function uses the ID3DXFont interface for 
-// efficient text rendering.
-//--------------------------------------------------------------------------------------
-void RenderText()
-{
-    CDXUTTextHelper txtHelper( g_pFont, g_pTextSprite, 15 );
-
-    // Output statistics
-    txtHelper.Begin();
-    txtHelper.SetInsertionPos( 5, 5 );
-    txtHelper.SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 0.0f, 1.0f ) );
-    txtHelper.DrawTextLine( DXUTGetFrameStats( DXUTIsVsyncEnabled() ) );
-    txtHelper.DrawTextLine( DXUTGetDeviceStats() );
-    txtHelper.SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
-    txtHelper.SetForegroundColor( D3DXCOLOR( 1.0f, 1.0f, 1.0f, 1.0f ) );
-    txtHelper.DrawTextLine( L"Press ESC to quit" );
-    txtHelper.End();
+static int runargs (lua_State *L, char **argv, int n) {
+  int i;
+  for (i = 1; i < n; i++) {
+    if (argv[i] == NULL) continue;
+    lua_assert(argv[i][0] == '-');
+    switch (argv[i][1]) {  /* option */
+      case 'e': {
+        const char *chunk = argv[i] + 2;
+        if (*chunk == '\0') chunk = argv[++i];
+        lua_assert(chunk != NULL);
+        if (dostring(L, chunk, "=(command line)") != 0)
+          return 1;
+        break;
+      }
+      case 'l': {
+        const char *filename = argv[i] + 2;
+        if (*filename == '\0') filename = argv[++i];
+        lua_assert(filename != NULL);
+        if (dolibrary(L, filename))
+          return 1;  /* stop if file fails */
+        break;
+      }
+      default: break;
+    }
+  }
+  return 0;
 }
 
 
-//--------------------------------------------------------------------------------------
-// Handle messages to the application
-//--------------------------------------------------------------------------------------
-LRESULT CALLBACK MsgProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, bool* pbNoFurtherProcessing,
-                          void* pUserContext )
-{
-    // Always allow dialog resource manager calls to handle global messages
-    // so GUI state is updated correctly
-    *pbNoFurtherProcessing = CDXUTIMEEditBox::StaticMsgProc( hWnd, uMsg, wParam, lParam );
-    if( *pbNoFurtherProcessing )
-        return 0;
-    *pbNoFurtherProcessing = g_DialogResourceManager.MsgProc( hWnd, uMsg, wParam, lParam );
-    if( *pbNoFurtherProcessing )
-        return 0;
+static int handle_luainit (lua_State *L) {
+  const char *init = getenv(LUA_INIT);
+  if (init == NULL) return 0;  /* status OK */
+  else if (init[0] == '@')
+    return dofile(L, init+1);
+  else
+    return dostring(L, init, "=" LUA_INIT);
+}
 
-    if( g_SettingsDlg.IsActive() )
-    {
-        g_SettingsDlg.MsgProc( hWnd, uMsg, wParam, lParam );
-        return 0;
-    }
 
-    // Give the dialogs a chance to handle the message first
-    *pbNoFurtherProcessing = g_HUD.MsgProc( hWnd, uMsg, wParam, lParam );
-    if( *pbNoFurtherProcessing )
-        return 0;
-    *pbNoFurtherProcessing = g_SampleUI.MsgProc( hWnd, uMsg, wParam, lParam );
-    if( *pbNoFurtherProcessing )
-        return 0;
+struct Smain {
+  int argc;
+  char **argv;
+  int status;
+};
 
-    // Pass all remaining windows messages to camera so it can respond to user input
-    g_Camera.HandleMessages( hWnd, uMsg, wParam, lParam );
 
+static int pmain (lua_State *L) {
+  struct Smain *s = (struct Smain *)lua_touserdata(L, 1);
+  char **argv = s->argv;
+  int script;
+  int has_i = 0, has_v = 0, has_e = 0;
+  globalL = L;
+  if (argv[0] && argv[0][0]) progname = argv[0];
+  lua_gc(L, LUA_GCSTOP, 0);  /* stop collector during initialization */
+  luaL_openlibs(L);  /* open libraries */
+  lua_gc(L, LUA_GCRESTART, 0);
+  s->status = handle_luainit(L);
+  if (s->status != 0) return 0;
+  script = collectargs(argv, &has_i, &has_v, &has_e);
+  if (script < 0) {  /* invalid args? */
+    print_usage();
+    s->status = 1;
     return 0;
-}
-
-
-//--------------------------------------------------------------------------------------
-// Handle key presses
-//--------------------------------------------------------------------------------------
-void CALLBACK KeyboardProc( UINT nChar, bool bKeyDown, bool bAltDown, void* pUserContext )
-{
-}
-
-
-//--------------------------------------------------------------------------------------
-// Handles the GUI events
-//--------------------------------------------------------------------------------------
-void CALLBACK OnGUIEvent( UINT nEvent, int nControlID, CDXUTControl* pControl, void* pUserContext )
-{
-    WCHAR wszOutput[1024];
-
-    switch( nControlID )
-    {
-        case IDC_TOGGLEFULLSCREEN:
-            DXUTToggleFullScreen(); break;
-        case IDC_TOGGLEREF:
-            DXUTToggleREF(); break;
-        case IDC_CHANGEDEVICE:
-            g_SettingsDlg.SetActive( !g_SettingsDlg.IsActive() ); break;
-        case IDC_ENABLEIME:
-            CDXUTIMEEditBox::SetImeEnableFlag( true );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText(
-                L"You clicked the 'Enable IME' button.\nIME text input is enabled for IME-capable edit controls." );
-            break;
-        case IDC_DISABLEIME:
-            CDXUTIMEEditBox::SetImeEnableFlag( false );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText(
-                L"You clicked the 'Disable IME' button.\nIME text input is disabled for IME-capable edit controls." );
-            break;
-        case IDC_EDITBOX1:
-        case IDC_EDITBOX2:
-            switch( nEvent )
-            {
-                case EVENT_EDITBOX_STRING:
-                {
-                    swprintf_s( wszOutput, 1024,
-                                     L"You have pressed Enter in edit control (ID %u).\nThe content of the edit control is:\n\"%s\"",
-                                     nControlID, ( ( CDXUTEditBox* )pControl )->GetText() );
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-
-                    // Clear the text if needed
-                    if( g_SampleUI.GetCheckBox( IDC_CLEAREDIT )->GetChecked() )
-                        ( ( CDXUTEditBox* )pControl )->SetText( L"" );
-                    break;
-                }
-
-                case EVENT_EDITBOX_CHANGE:
-                {
-                    swprintf_s( wszOutput, 1024,
-                                     L"You have changed the content of an edit control (ID %u).\nIt is now:\n\"%s\"",
-                                     nControlID, ( ( CDXUTEditBox* )pControl )->GetText() );
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-
-                    break;
-                }
-            }
-            break;
-        case IDC_SLIDER:
-            swprintf_s( wszOutput, 1024, L"You adjusted the slider control.\nThe new value reported is %d",
-                             ( ( CDXUTSlider* )pControl )->GetValue() );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            break;
-        case IDC_CHECKBOX:
-            swprintf_s( wszOutput, 1024, L"You %s the upper check box.",
-                             ( ( CDXUTCheckBox* )pControl )->GetChecked() ? L"checked" : L"cleared" );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            break;
-        case IDC_CLEAREDIT:
-            swprintf_s( wszOutput, 1024, L"You %s the lower check box.\nNow edit controls will %s",
-                             ( ( CDXUTCheckBox* )pControl )->GetChecked() ? L"checked" : L"cleared",
-                             ( ( CDXUTCheckBox* )pControl )->GetChecked() ?
-                             L"be cleared when you press Enter to send the text" :
-                             L"retain the text context when you press Enter to send the text" );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            break;
-        case IDC_COMBOBOX:
-        {
-            DXUTComboBoxItem* pItem = ( ( CDXUTComboBox* )pControl )->GetSelectedItem();
-            if( pItem )
-            {
-                swprintf_s( wszOutput, 1024,
-                                 L"You selected a new item in the combobox.\nThe new item is \"%s\" and the associated data value is 0x%p",
-                                 pItem->strText, pItem->pData );
-                g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            }
-            break;
-        }
-        case IDC_RADIO1A:
-        case IDC_RADIO1B:
-        case IDC_RADIO1C:
-            swprintf_s( wszOutput, 1024,
-                             L"You selected a new radio button in the UPPER radio group.\nThe new button is \"%s\"",
-                             ( ( CDXUTRadioButton* )pControl )->GetText() );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            break;
-        case IDC_RADIO2A:
-        case IDC_RADIO2B:
-        case IDC_RADIO2C:
-            swprintf_s( wszOutput, 1024,
-                             L"You selected a new radio button in the LOWER radio group.\nThe new button is \"%s\"",
-                             ( ( CDXUTRadioButton* )pControl )->GetText() );
-            g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-            break;
-
-        case IDC_LISTBOX:
-            switch( nEvent )
-            {
-                case EVENT_LISTBOX_ITEM_DBLCLK:
-                {
-                    DXUTListBoxItem* pItem = ( ( CDXUTListBox* )pControl )->GetItem(
-                        ( ( CDXUTListBox* )pControl )->GetSelectedIndex( -1 ) );
-
-                    swprintf_s( wszOutput, 1024,
-                                     L"You double clicked an item in the left list box.  The item is\n\"%s\"",
-                                     pItem ? pItem->strText : L"" );
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-                    break;
-                }
-
-                case EVENT_LISTBOX_SELECTION:
-                {
-                    swprintf_s( wszOutput, 1024,
-                                     L"You changed the selection in the left list box.  The selected item is %d",
-                                     ( ( CDXUTListBox* )pControl )->GetSelectedIndex() );
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-                    break;
-                }
-            }
-            break;
-
-        case IDC_LISTBOXM:
-            switch( nEvent )
-            {
-                case EVENT_LISTBOX_ITEM_DBLCLK:
-                {
-                    DXUTListBoxItem* pItem = ( ( CDXUTListBox* )pControl )->GetItem(
-                        ( ( CDXUTListBox* )pControl )->GetSelectedIndex( -1 ) );
-
-                    swprintf_s( wszOutput, 1024,
-                                     L"You double clicked an item in the right list box.  The item is\n\"%s\"",
-                                     pItem ? pItem->strText : L"" );
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-                    break;
-                }
-
-                case EVENT_LISTBOX_SELECTION:
-                {
-                    swprintf_s( wszOutput, 1024,
-                                     L"You changed the selection in the right list box.  The selected item(s) are\n" );
-                    int nSelected = -1;
-                    while( ( nSelected = ( ( CDXUTListBox* )pControl )->GetSelectedIndex( nSelected ) ) != -1 )
-                    {
-                        swprintf_s( wszOutput + lstrlenW( wszOutput ), 1024 - lstrlenW( wszOutput ), L"%d,",
-                                         nSelected );
-                    }
-                    // Remove the trailing comma if one exists.
-                    if( wszOutput[lstrlenW( wszOutput ) - 1] == L',' )
-                        wszOutput[lstrlenW( wszOutput ) - 1] = L'\0';
-                    g_SampleUI.GetStatic( IDC_OUTPUT )->SetText( wszOutput );
-                    break;
-                }
-            }
-            break;
+  }
+  if (has_v) print_version();
+  s->status = runargs(L, argv, (script > 0) ? script : s->argc);
+  if (s->status != 0) return 0;
+  if (script)
+    s->status = handle_script(L, argv, script);
+  if (s->status != 0) return 0;
+  if (has_i)
+    dotty(L);
+  else if (script == 0 && !has_e && !has_v) {
+    if (lua_stdin_is_tty()) {
+      print_version();
+      dotty(L);
     }
+    else dofile(L, NULL);  /* executes stdin as a file */
+  }
+  return 0;
 }
 
 
-//--------------------------------------------------------------------------------------
-// Release D3D9 resources created in the OnD3D9ResetDevice callback 
-//--------------------------------------------------------------------------------------
-void CALLBACK OnLostDevice( void* pUserContext )
-{
-    g_DialogResourceManager.OnD3D9LostDevice();
-    g_SettingsDlg.OnD3D9LostDevice();
-    g_Mesh.InvalidateDeviceObjects();
-
-    if( g_pFont )
-        g_pFont->OnLostDevice();
-    if( g_pEffect )
-        g_pEffect->OnLostDevice();
-    SAFE_RELEASE( g_pTextSprite );
+int main (int argc, char **argv) {
+  int status;
+  struct Smain s;
+  lua_State *L = lua_open();  /* create state */
+  if (L == NULL) {
+    l_message(argv[0], "cannot create state: not enough memory");
+    return EXIT_FAILURE;
+  }
+  s.argc = argc;
+  s.argv = argv;
+  status = lua_cpcall(L, &pmain, &s);
+  report(L, status);
+  lua_close(L);
+  return (status || s.status) ? EXIT_FAILURE : EXIT_SUCCESS;
 }
-
-
-//--------------------------------------------------------------------------------------
-// Release D3D9 resources created in the OnD3D9CreateDevice callback 
-//--------------------------------------------------------------------------------------
-void CALLBACK OnDestroyDevice( void* pUserContext )
-{
-    CDXUTIMEEditBox::Uninitialize( );
-
-    g_DialogResourceManager.OnD3D9DestroyDevice();
-    g_SettingsDlg.OnD3D9DestroyDevice();
-    g_Mesh.Destroy();
-
-    SAFE_RELEASE( g_pEffect );
-    SAFE_RELEASE( g_pFont );
-}
-
-
 
