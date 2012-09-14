@@ -14,13 +14,6 @@
 
 #define DXUTERR_NODIRECT3D              MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0901)
 #define DXUTERR_NOCOMPATIBLEDEVICES     MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0902)
-#define DXUTERR_MEDIANOTFOUND           MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0903)
-#define DXUTERR_NONZEROREFCOUNT         MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0904)
-#define DXUTERR_CREATINGDEVICE          MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0905)
-#define DXUTERR_RESETTINGDEVICE         MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0906)
-#define DXUTERR_CREATINGDEVICEOBJECTS   MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0907)
-#define DXUTERR_RESETTINGDEVICEOBJECTS  MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0908)
-#define DXUTERR_DEVICEREMOVED           MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x090A)
 
 //--------------------------------------------------------------------------------------
 // Forward declarations
@@ -96,9 +89,8 @@ HRESULT WINAPI DXUTFindValidDeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3
 {
     HRESULT hr = S_OK;
 
-    //if( pOut == NULL )
-    //    return DXUT_ERR_MSGBOX( L"DXUTFindValidDeviceSettings", E_INVALIDARG );
-	_ASSERT(pOut);
+    if( pOut == NULL )
+        return E_INVALIDARG;
 
     // Default to DXUTMT_IGNORE_INPUT for everything unless pMatchOptions isn't NULL
     DXUTMatchOptions defaultMatchOptions;
@@ -128,10 +120,10 @@ HRESULT WINAPI DXUTFindValidDeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3
     //if( pMatchOptions->eAPIVersion != DXUTMT_IGNORE_INPUT && pIn && pIn->ver == DXUT_D3D9_DEVICE )
     //    bPreferD3D9 = true;
 
-    //// Build an optimal device settings structure based upon the match 
-    //// options.  If the match option is set to ignore, then a optimal default value is used.
-    //// The default value may not exist on the system, but later this will be taken 
-    //// into account.
+    // Build an optimal device settings structure based upon the match 
+    // options.  If the match option is set to ignore, then a optimal default value is used.
+    // The default value may not exist on the system, but later this will be taken 
+    // into account.
     bool bFoundValidD3D10 = false;
     bool bFoundValidD3D9 = false;
 
@@ -184,10 +176,6 @@ HRESULT WINAPI DXUTFindValidDeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3
         ZeroMemory( &d3d9In, sizeof( DXUTD3D9DeviceSettings ) );
         if( pIn )
         {
-            //if( pIn->ver == DXUT_D3D10_DEVICE )
-            //    DXUTConvertDeviceSettings10to9( &pIn->d3d10, &d3d9In );
-            //else
-            //    d3d9In = pIn->d3d9;
 			d3d9In = *pIn;
         }
 
@@ -208,8 +196,7 @@ HRESULT WINAPI DXUTFindValidDeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3
     }
     else
     {
-        //return DXUT_ERR( L"DXUTFindValidDeviceSettings", hr );
-		THROW_D3DEXCEPTION(hr);
+        return hr;
     }
 }
 
@@ -318,7 +305,7 @@ HRESULT CD3D9Enumeration::Enumerate( LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE IsD3D9
                                      void* pIsD3D9DeviceAcceptableFuncUserContext )
 {
     //CDXUTPerfEventGenerator eventGenerator( DXUT_PERFEVENTCOLOR, L"DXUT D3D9 Enumeration" );
-	IDirect3D9 * pD3D = my::DxutApplication::getSingleton().m_d3d9;
+	IDirect3D9* pD3D = my::DxutApplication::getSingleton().m_d3d9;
     if( pD3D == NULL )
     {
 		return DXUTERR_NODIRECT3D;
@@ -514,7 +501,7 @@ HRESULT CD3D9Enumeration::EnumerateDevices( CD3D9EnumAdapterInfo* pAdapterInfo,
 			pp.hDeviceWindow = my::DxutApplication::getSingleton().GetHWND();
             IDirect3DDevice9* pDevice = NULL;
             if( FAILED( hr = m_pD3D->CreateDevice( pAdapterInfo->AdapterOrdinal, pDeviceInfo->DeviceType,
-                                                   pp.hDeviceWindow,
+                                                   my::DxutApplication::getSingleton().GetHWND(),
                                                    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE, &pp,
                                                    &pDevice ) ) )
             {
@@ -596,14 +583,8 @@ HRESULT CD3D9Enumeration::EnumerateDeviceCombos( CD3D9EnumAdapterInfo* pAdapterI
 
                 // If an application callback function has been provided, make sure this device
                 // is acceptable to the app.
-                //if( m_IsD3D9DeviceAcceptableFunc != NULL )
-                //{
-                //    if( !m_IsD3D9DeviceAcceptableFunc( &pDeviceInfo->Caps, adapterFormat, backBufferFormat,
-                //                                       FALSE != nWindowed, m_pIsD3D9DeviceAcceptableFuncUserContext ) )
-                //        continue;
-                //}
-				if(!my::DxutApplication::getSingleton().IsDeviceAcceptable(&pDeviceInfo->Caps, adapterFormat, backBufferFormat,
-					FALSE != nWindowed))
+				if(!my::DxutApplication::getSingleton().IsDeviceAcceptable(
+					&pDeviceInfo->Caps, adapterFormat, backBufferFormat, FALSE != nWindowed))
 					continue;
 
                 // At this point, we have an adapter/device/adapterformat/backbufferformat/iswindowed

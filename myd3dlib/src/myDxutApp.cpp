@@ -93,13 +93,14 @@ int DxutApplication::Run(void)
     matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
     matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
     matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
-    matchOptions.ePresentInterval = DXUTMT_IGNORE_INPUT;
+    matchOptions.ePresentInterval = DXUTMT_PRESERVE_INPUT;
 
 	DXUTD3D9DeviceSettings deviceSettings;
 	ZeroMemory( &deviceSettings, sizeof( deviceSettings ) );
     deviceSettings.pp.Windowed = true;
     deviceSettings.pp.BackBufferWidth = clientRect.Width();
     deviceSettings.pp.BackBufferHeight = clientRect.Height();
+	deviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
     hr = DXUTFindValidDeviceSettings( &deviceSettings, &deviceSettings, &matchOptions );
     if( FAILED( hr ) ) // the call will fail if no valid devices were found
