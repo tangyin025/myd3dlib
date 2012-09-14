@@ -384,7 +384,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 
 				return true;
 			}
@@ -451,10 +451,11 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 			}
 		}
 
-		if(DxutApplication::getSingleton().GetAbsoluteTime() - m_dfLastBlink >= m_dfBlink )
+		double fAbsoluteTime = DxutApplication::getSingleton().GetAbsoluteTime();
+		if(fAbsoluteTime - m_dfLastBlink >= m_dfBlink )
 		{
 			m_bCaretOn = !m_bCaretOn;
-			m_dfLastBlink = DxutApplication::getSingleton().GetAbsoluteTime();
+			m_dfLastBlink = fAbsoluteTime;
 		}
 
 		if(Skin && Skin->m_Font)
@@ -1242,7 +1243,7 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
     // scroll.
 	if(m_Arrow != CLEAR)
 	{
-		double dCurrTime = DxutApplication::getSingleton().GetTime();
+		double dCurrTime = DxutApplication::getSingleton().GetAbsoluteTime();
 		switch(m_Arrow)
 		{
 		case CLICKED_UP:
@@ -1319,11 +1320,11 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 
 bool ScrollBar::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(WM_CAPTURECHANGED == uMsg)
-	{
-		if((HWND)lParam != DxutApplication::getSingleton().GetHWND())
-			m_bDrag = false;
-	}
+	//if(WM_CAPTURECHANGED == uMsg)
+	//{
+	//	if((HWND)lParam != DxutApplication::getSingleton().GetHWND())
+	//		m_bDrag = false;
+	//}
 	return false;
 }
 
@@ -1342,22 +1343,22 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(UpButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
-				m_dArrowTS = DxutApplication::getSingleton().GetTime();
+				m_dArrowTS = DxutApplication::getSingleton().GetAbsoluteTime();
 				return true;
 			}
 
 			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(DownButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
-				m_dArrowTS = DxutApplication::getSingleton().GetTime();
+				m_dArrowTS = DxutApplication::getSingleton().GetAbsoluteTime();
 				return true;
 			}
 
@@ -1369,7 +1370,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
 			if(ThumbButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 				m_bDrag = true;
 				m_fThumbOffsetY = pt.y - fThumbTop;
 				return true;
@@ -1377,7 +1378,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
@@ -1597,7 +1598,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bMouseDrag = true;
 
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				//SetCapture(DxutApplication::getSingleton().GetHWND());
 
 				m_MouseOffset = pt - m_Location;
 				return true;

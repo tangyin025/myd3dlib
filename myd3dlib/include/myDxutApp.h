@@ -71,12 +71,75 @@ namespace my
 
 		double GetAbsoluteTime(void)
 		{
+			return m_fAbsoluteTime;
+		}
+
+	public:
+		virtual bool IsDeviceAcceptable(
+			D3DCAPS9 * pCaps,
+			D3DFORMAT AdapterFormat,
+			D3DFORMAT BackBufferFormat,
+			bool bWindowed)
+		{
+			return true;
+		}
+
+		virtual bool ModifyDeviceSettings(
+			DXUTD3D9DeviceSettings * pDeviceSettings)
+		{
+			return true;
+		}
+
+		virtual HRESULT OnCreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+		{
+			return S_OK;
+		}
+
+		virtual HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+		{
+			return S_OK;
+		}
+
+		virtual void OnLostDevice(void)
+		{
+		}
+
+		virtual void OnDestroyDevice(void)
+		{
+		}
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime)
+		{
+		}
+
+		virtual void OnFrameRender(
+			IDirect3DDevice9 * pd3dDevice,
+			double fTime,
+			float fElapsedTime)
+		{
+		}
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing)
+		{
 			return 0;
 		}
 
-		double GetTime(void)
+		virtual void OnKeyboard(
+			UINT nChar,
+			bool bKeyDown,
+			bool bAltDown)
 		{
-			return 0;
 		}
 
 	public:
@@ -88,6 +151,12 @@ namespace my
 
 		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
 
+		double m_fAbsoluteTime;
+
+		LONGLONG m_llQPFTicksPerSec;
+
+		LONGLONG m_llLastElapsedTime;
+
 	public:
 		DxutApplication(void);
 
@@ -95,47 +164,10 @@ namespace my
 
 		int Run(void);
 
-	public:
-		virtual bool IsDeviceAcceptable(
-			D3DCAPS9 * pCaps,
-			D3DFORMAT AdapterFormat,
-			D3DFORMAT BackBufferFormat,
-			bool bWindowed);
+		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
 
-		virtual bool ModifyDeviceSettings(
-			DXUTD3D9DeviceSettings * pDeviceSettings);
+		void Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
 
-		virtual HRESULT OnCreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual HRESULT OnResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		virtual void OnLostDevice(void);
-
-		virtual void OnDestroyDevice(void);
-
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime);
-
-		virtual void OnFrameRender(
-			IDirect3DDevice9 * pd3dDevice,
-			double fTime,
-			float fElapsedTime);
-
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing);
-
-		virtual void OnKeyboard(
-			UINT nChar,
-			bool bKeyDown,
-			bool bAltDown);
+		void Render3DEnvironment(void);
 	};
 };

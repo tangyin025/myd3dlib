@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "myDxutApp.h"
 #include "myResource.h"
+#include "libc.h"
 
 using namespace my;
 
@@ -51,6 +52,12 @@ DxutApplication::DxutApplication(void)
 	{
 		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
 	}
+
+	LARGE_INTEGER qwTicksPerSec;
+	QueryPerformanceFrequency(&qwTicksPerSec);
+	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
+
+	m_llLastElapsedTime = 0;
 }
 
 DxutApplication::~DxutApplication(void)
@@ -62,190 +69,149 @@ DxutApplication::~DxutApplication(void)
 
 int DxutApplication::Run(void)
 {
-	LPDIRECT3D9 pd3d9 = Direct3DCreate9(D3D_SDK_VERSION);
-	if(NULL == pd3d9)
-		return 0;
-	m_d3d9.Attach(pd3d9);
-
 	m_wnd = DxutWindowPtr(new DxutWindow());
 	m_wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
 
-	CRect clientRect;
-	m_wnd->GetClientRect(&clientRect);
+	MSG msg = {0};
 
-    DXUTMatchOptions matchOptions;
-    matchOptions.eAPIVersion = DXUTMT_IGNORE_INPUT;
-    matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
-    matchOptions.eDeviceType = DXUTMT_IGNORE_INPUT;
-    matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
-    matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
-    matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
-    matchOptions.eVertexProcessing = DXUTMT_IGNORE_INPUT;
-    //if( bWindowed || ( nSuggestedWidth != 0 && nSuggestedHeight != 0 ) )
-        matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
-    //else
-    //    matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
-    matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
-    matchOptions.eBackBufferCount = DXUTMT_IGNORE_INPUT;
-    matchOptions.eMultiSample = DXUTMT_IGNORE_INPUT;
-    matchOptions.eSwapEffect = DXUTMT_IGNORE_INPUT;
-    matchOptions.eDepthFormat = DXUTMT_IGNORE_INPUT;
-    matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
-    matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
-    matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
-    matchOptions.ePresentInterval = DXUTMT_PRESERVE_INPUT;
-
-	DXUTD3D9DeviceSettings deviceSettings;
-	ZeroMemory( &deviceSettings, sizeof( deviceSettings ) );
-    deviceSettings.pp.Windowed = true;
-    deviceSettings.pp.BackBufferWidth = clientRect.Width();
-    deviceSettings.pp.BackBufferHeight = clientRect.Height();
-	deviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-
-    hr = DXUTFindValidDeviceSettings( &deviceSettings, &deviceSettings, &matchOptions );
-    if( FAILED( hr ) ) // the call will fail if no valid devices were found
-    {
-        //DXUTDisplayErrorMessage( hr );
-        //return DXUT_ERR( L"DXUTFindValidDeviceSettings", hr );
-		return 0;
-    }
-
-	if(FAILED(m_d3d9->CreateDevice(
-		deviceSettings.AdapterOrdinal,
-		deviceSettings.DeviceType,
-		GetHWND(),
-		deviceSettings.BehaviorFlags | D3DCREATE_FPU_PRESERVE,
-		&deviceSettings.pp,
-		&m_d3dDevice)))
+	try
 	{
-		return 0;
-	}
-
-	IDirect3DSurface9 * pBackBuffer;
-	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer)))
-	{
-		return 0;
-	}
-
-	my::SurfacePtr surface(new my::Surface());
-	surface->Create(pBackBuffer);
-	m_BackBufferSurfaceDesc = surface->GetDesc();
-	if(FAILED(OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-	{
-		return 0;
-	}
-
-	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
-	{
-		return 0;
-	}
-
-	DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
-	for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
-	{
-		(*obj_iter)->OnResetDevice();
-	}
-
-	if(FAILED(OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-	{
-		return 0;
-	}
-
-	m_wnd->ShowWindow(SW_SHOW);
-	m_wnd->UpdateWindow();
-
-	MSG msg;
-	msg.message = WM_NULL;
-
-	double time = 0;
-	while(WM_QUIT != msg.message)
-	{
-		if(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
+		LPDIRECT3D9 pd3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+		if(NULL == pd3d9)
 		{
-			::TranslateMessage(&msg);
-			::DispatchMessageW(&msg);
+			THROW_CUSEXCEPTION("cannnot create direct3d9");
 		}
-		else
+		m_d3d9.Attach(pd3d9);
+
+		CRect clientRect;
+		m_wnd->GetClientRect(&clientRect);
+
+		CreateDevice(true, clientRect.Width(), clientRect.Height());
+
+		IDirect3DSurface9 * pBackBuffer;
+		if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer)))
 		{
-			float fElapsedTime = 1/30.0f;
-			OnFrameMove(time, fElapsedTime);
+			THROW_D3DEXCEPTION(hr);
+		}
 
-			OnFrameRender(m_d3dDevice, time, fElapsedTime);
+		my::SurfacePtr surface(new my::Surface());
+		surface->Create(pBackBuffer);
+		m_BackBufferSurfaceDesc = surface->GetDesc();
+		if(FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
 
-			if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
+		if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+
+		DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
+		for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
+		{
+			(*obj_iter)->OnResetDevice();
+		}
+
+		if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+
+		m_wnd->ShowWindow(SW_SHOW);
+		m_wnd->UpdateWindow();
+
+		msg.message = WM_NULL;
+		while(WM_QUIT != msg.message)
+		{
+			if(::PeekMessageW(&msg, NULL, 0, 0, PM_REMOVE))
 			{
+				::TranslateMessage(&msg);
+				::DispatchMessageW(&msg);
 			}
-
-			time += 0.01f;
+			else
+			{
+				Render3DEnvironment();
+			}
 		}
+	}
+	catch(const my::Exception & e)
+	{
+		m_wnd->MessageBox(ms2ts(e.GetFullDescription().c_str()).c_str(), _T("Exception"));
+		m_wnd->DestroyWindow();
 	}
 
 	return (int)msg.wParam;
 }
 
-bool DxutApplication::IsDeviceAcceptable(
-	D3DCAPS9 * pCaps,
-	D3DFORMAT AdapterFormat,
-	D3DFORMAT BackBufferFormat,
-	bool bWindowed)
+void DxutApplication::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
 {
-	return true;
+	DXUTMatchOptions matchOptions;
+	matchOptions.eAPIVersion = DXUTMT_IGNORE_INPUT;
+	matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
+	matchOptions.eDeviceType = DXUTMT_IGNORE_INPUT;
+	matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
+	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.eVertexProcessing = DXUTMT_IGNORE_INPUT;
+	matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.eBackBufferCount = DXUTMT_IGNORE_INPUT;
+	matchOptions.eMultiSample = DXUTMT_IGNORE_INPUT;
+	matchOptions.eSwapEffect = DXUTMT_IGNORE_INPUT;
+	matchOptions.eDepthFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.eStencilFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.ePresentFlags = DXUTMT_IGNORE_INPUT;
+	matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
+	matchOptions.ePresentInterval = DXUTMT_PRESERVE_INPUT;
+
+	DXUTD3D9DeviceSettings deviceSettings;
+	ZeroMemory( &deviceSettings, sizeof( deviceSettings ) );
+	deviceSettings.pp.Windowed = true;
+	deviceSettings.pp.BackBufferWidth = nSuggestedWidth;
+	deviceSettings.pp.BackBufferHeight = nSuggestedHeight;
+	deviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	hr = DXUTFindValidDeviceSettings( &deviceSettings, &deviceSettings, &matchOptions );
+	if( FAILED( hr ) ) // the call will fail if no valid devices were found
+	{
+		THROW_CUSEXCEPTION("no valid devices were found");
+	}
+
+	Create3DEnvironment(deviceSettings);
 }
 
-bool DxutApplication::ModifyDeviceSettings(
-	DXUTD3D9DeviceSettings * pDeviceSettings)
+void DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
 {
-	return true;
+	if(FAILED(hr = m_d3d9->CreateDevice(
+		deviceSettings.AdapterOrdinal,
+		deviceSettings.DeviceType,
+		GetHWND(),
+		deviceSettings.BehaviorFlags | D3DCREATE_FPU_PRESERVE,
+		const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp),
+		&m_d3dDevice)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 }
 
-HRESULT DxutApplication::OnCreateDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+void DxutApplication::Render3DEnvironment(void)
 {
-	return S_OK;
-}
+	LARGE_INTEGER qwTime;
+	QueryPerformanceCounter(&qwTime);
+	double fTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
 
-HRESULT DxutApplication::OnResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
+	float fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
 
-void DxutApplication::OnLostDevice(void)
-{
-}
+	m_llLastElapsedTime = qwTime.QuadPart;
 
-void DxutApplication::OnDestroyDevice(void)
-{
-}
+	m_fAbsoluteTime = fTime;
 
-void DxutApplication::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-}
+	OnFrameMove(fTime, fElapsedTime);
 
-void DxutApplication::OnFrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
-{
-}
+	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
-LRESULT DxutApplication::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
-void DxutApplication::OnKeyboard(
-	UINT nChar,
-	bool bKeyDown,
-	bool bAltDown)
-{
+	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
+	{
+	}
 }

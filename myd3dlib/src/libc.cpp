@@ -51,7 +51,7 @@ wchar_t * aswprintf(const wchar_t * format, ...)
 
 		va_list args;
 		va_start(args, format);
-		ret_size = vswprintf(buffer, new_size, format, args);
+		ret_size = vswprintf_s(buffer, new_size, format, args);
 		va_end(args);
 	}
 
@@ -94,7 +94,7 @@ wchar_t * avswprintf(const wchar_t * format, va_list args)
 		new_size += inc_size;
 		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
 
-		ret_size = vswprintf(buffer, new_size, format, args);
+		ret_size = vswprintf_s(buffer, new_size, format, args);
 	}
 
 	return buffer;
@@ -121,7 +121,7 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	va_start(args, format);
 	std::basic_string<wchar_t> ret;
 	int nLen;
-	for(ret.resize(512); -1 == (nLen = vswprintf(&ret[0], ret.size(), format, args)); ret.resize(ret.size() + 512))
+	for(ret.resize(512); -1 == (nLen = vswprintf_s(&ret[0], ret.size(), format, args)); ret.resize(ret.size() + 512))
 	{
 	}
 	va_end(args);
