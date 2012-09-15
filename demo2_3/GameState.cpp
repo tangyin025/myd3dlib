@@ -120,9 +120,9 @@ void GameStateMain::OnFrameRender(
 			for(UINT p = 0; p < cPasses; ++p)
 			{
 				ShadowMap->BeginPass(p);
-				for(UINT i = 0; i < mesh->GetMaterialNum(); i++)
+				for(UINT i = 0; i < mesh->m_Mesh->GetMaterialNum(); i++)
 				{
-					mesh->DrawSubset(i);
+					mesh->m_Mesh->DrawSubset(i);
 				}
 				ShadowMap->EndPass();
 			}

@@ -3,6 +3,11 @@
 class MyDemo
 	: public my::DxutApplication
 {
+protected:
+	CComPtr<ID3DXFont> m_font;
+
+	CComPtr<ID3DXSprite> m_sprite;
+
 public:
 	virtual bool IsDeviceAcceptable(
 		D3DCAPS9 * pCaps,
@@ -23,6 +28,11 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
+		if(FAILED(hr = D3DXCreateFont(
+			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font)))
+		{
+			return hr;
+		}
 		return S_OK;
 	}
 
@@ -30,15 +40,25 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
+		m_font->OnResetDevice();
+
+		if(FAILED(hr = D3DXCreateSprite(pd3dDevice, &m_sprite)))
+		{
+			return hr;
+		}
 		return S_OK;
 	}
 
 	virtual void OnLostDevice(void)
 	{
+		m_font->OnLostDevice();
+
+		m_sprite.Release();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
+		m_font.Release();
 	}
 
 	virtual void OnFrameMove(
@@ -58,6 +78,9 @@ public:
 		// Render the scene
 		if( SUCCEEDED( pd3dDevice->BeginScene() ) )
 		{
+			V(m_sprite->Begin(D3DXSPRITE_ALPHABLEND));
+			V(m_font->DrawTextW(m_sprite, m_strFPS, wcslen(m_strFPS), CRect(5,5,100,100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)));
+			V(m_sprite->End());
 			V( pd3dDevice->EndScene() );
 		}
 	}

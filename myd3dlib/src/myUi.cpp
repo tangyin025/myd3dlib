@@ -384,7 +384,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 
 				return true;
 			}
@@ -1343,7 +1343,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(UpButtonRect.PtInRect(pt))
 			{
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
@@ -1354,7 +1354,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(DownButtonRect.PtInRect(pt))
 			{
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
@@ -1370,7 +1370,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
 			if(ThumbButtonRect.PtInRect(pt))
 			{
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 				m_bDrag = true;
 				m_fThumbOffsetY = pt.y - fThumbTop;
 				return true;
@@ -1378,7 +1378,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
 			{
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
@@ -1598,7 +1598,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bMouseDrag = true;
 
-				//SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApplication::getSingleton().GetHWND());
 
 				m_MouseOffset = pt - m_Location;
 				return true;

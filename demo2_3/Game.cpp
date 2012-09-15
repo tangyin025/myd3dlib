@@ -256,6 +256,66 @@ HRESULT GameLoader::Close(
 	return S_OK;
 }
 
+HRESULT GameLoader::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		if(res)
+		{
+			res->OnResetDevice();
+			res_iter++;
+		}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
+	}
+
+	return S_OK;
+}
+
+void GameLoader::OnLostDevice(void)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		if(res)
+		{
+			res->OnLostDevice();
+			res_iter++;
+		}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
+	}
+}
+
+void GameLoader::OnDestroyDevice(void)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		if(res)
+		{
+			res->OnDestroyDevice();
+			res_iter++;
+		}
+		//else
+		//{
+		//	m_resourceSet.erase(res_iter++);
+		//}
+	}
+
+	m_resourceSet.clear();
+}
+
 boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & path)
 {
 	TexturePtr ret(new Texture());
@@ -263,13 +323,15 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & p
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateTextureFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str());
+		ret->CreateTextureFromFile(GetD3D9Device(), full_path.c_str());
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateTextureFromFileInMemory(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
+		ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
 	}
+
+	m_resourceSet.insert(ret);
 	return ret;
 }
 
@@ -280,48 +342,34 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadCubeTexture(const std::string
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateCubeTextureFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str());
+		ret->CreateCubeTextureFromFile(GetD3D9Device(), full_path.c_str());
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateCubeTextureFromFileInMemory(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
+		ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
 	}
+
+	m_resourceSet.insert(ret);
 	return ret;
 }
 
-MaterialPtr GameLoader::LoadMaterial(const std::string & path)
+OgreMeshPtr GameLoader::LoadMesh(const std::string & path)
 {
-	// ! 这个地方正确的做法应该是解析 material文件，并读取 Effect文件，及设置相应的 Parameter
-	// 由于目前没有实现，所以只好在 lua脚本中手动设置（SetupMaterial），很傻的一种做法
-	MaterialPtr ret(new Material());
-	std::string loc_path = std::string("material/") + path;
-	CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-	std::string code((char *)&(*cache)[0], cache->size());
-	Game::getSingleton().ExecuteCode(code.c_str());
-	luabind::call_function<void>(Game::getSingleton().m_lua->_state, "SetupMaterial", boost::ref(ret));
-	return ret;
-}
-
-EffectMeshPtr GameLoader::LoadEffectMesh(const std::string & path)
-{
-	EffectMeshPtr ret(new EffectMesh());
+	OgreMeshPtr ret(new OgreMesh());
 	std::string loc_path = std::string("mesh/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateMeshFromOgreXml(Game::getSingleton().GetD3D9Device(), full_path.c_str(), true);
+		ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateMeshFromOgreXmlInMemory(Game::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+		ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 	}
 
-	for(UINT i = 0; i < ret->GetMaterialNum(); i++)
-	{
-		ret->InsertMaterial(LoadMaterial(ret->GetMaterialName(i) + ".lua"));
-	}
+	m_resourceSet.insert(ret);
 	return ret;
 }
 
@@ -349,13 +397,15 @@ EffectPtr GameLoader::LoadEffect(const std::string & path)
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateEffectFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
+		ret->CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateEffect(Game::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+		ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 	}
+
+	m_resourceSet.insert(ret);
 	return ret;
 }
 
@@ -366,13 +416,15 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateFontFromFile(Game::getSingleton().GetD3D9Device(), full_path.c_str(), height);
+		ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
 	}
 	else
 	{
 		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateFontFromFileInCache(Game::getSingleton().GetD3D9Device(), cache, height);
+		ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
 	}
+
+	m_resourceSet.insert(ret);
 	return ret;
 }
 
@@ -456,14 +508,20 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	ExecuteCode("dofile \"Font.lua\"");
+	m_font = LoadFont("wqy-microhei.ttc", 13);
 
-	ExecuteCode("dofile \"Console.lua\"");
+	ConsolePtr console(new Console());
+
+	m_console = console;
+
+	m_panel = console->m_panel;
 
 	if(!m_font || !m_console || !m_panel)
 	{
 		THROW_CUSEXCEPTION("m_font, m_console, m_panel must be created");
 	}
+
+	m_panel = console->m_panel;
 
 	UpdateDlgViewProj(m_console);
 
@@ -516,7 +574,7 @@ HRESULT Game::OnResetDevice(
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = DxutApplication::OnResetDevice(
+	if(FAILED(hres = GameLoader::OnResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -560,7 +618,7 @@ void Game::OnLostDevice(void)
 
 	m_ScreenTextureDS->OnDestroyDevice();
 
-	DxutApplication::OnLostDevice();
+	GameLoader::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -579,7 +637,7 @@ void Game::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	DxutApplication::OnDestroyDevice();
+	GameLoader::OnDestroyDevice();
 }
 
 void Game::OnFrameMove(
@@ -640,6 +698,7 @@ void Game::OnFrameRender(
 		//	Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 		//m_font->DrawString(DXUTGetDeviceStats(),
 		//	Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
+		m_font->DrawString(m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		UIRender::End(pd3dDevice);
 

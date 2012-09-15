@@ -3,6 +3,8 @@
 
 void EffectMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
+	_ASSERT(m_Mesh);
+
 	for(DWORD i = 0; i < m_materials.size(); i++)
 	{
 		Material * mat = m_materials[i].get();
@@ -11,7 +13,7 @@ void EffectMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 		for(UINT p = 0; p < cPasses; p++)
 		{
 			mat->BeginPass(p);
-			DrawSubset(i);
+			m_Mesh->DrawSubset(i);
 			mat->EndPass();
 		}
 		mat->End();

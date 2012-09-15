@@ -46,6 +46,11 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 DxutApplication::SingleInstance * SingleInstance<DxutApplication>::s_ptr = NULL;
 
 DxutApplication::DxutApplication(void)
+	: m_fAbsoluteTime(0)
+	, m_fLastTime(0)
+	, m_dwFrames(0)
+	, m_llQPFTicksPerSec(0)
+	, m_llLastElapsedTime(0)
 {
 	FT_Error err = FT_Init_FreeType(&m_Library);
 	if(err)
@@ -56,21 +61,19 @@ DxutApplication::DxutApplication(void)
 	LARGE_INTEGER qwTicksPerSec;
 	QueryPerformanceFrequency(&qwTicksPerSec);
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
-
-	m_llLastElapsedTime = 0;
 }
 
 DxutApplication::~DxutApplication(void)
 {
 	FT_Error err = FT_Done_FreeType(m_Library);
-
-	_ASSERT(m_deviceRelatedObjs.empty());
 }
 
 int DxutApplication::Run(void)
 {
 	m_wnd = DxutWindowPtr(new DxutWindow());
 	m_wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
+	m_wnd->AdjustClientRect(CRect(0,0,800,600));
+	m_wnd->CenterWindow();
 
 	MSG msg = {0};
 
@@ -88,29 +91,9 @@ int DxutApplication::Run(void)
 
 		CreateDevice(true, clientRect.Width(), clientRect.Height());
 
-		IDirect3DSurface9 * pBackBuffer;
-		if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &pBackBuffer)))
-		{
-			THROW_D3DEXCEPTION(hr);
-		}
-
-		my::SurfacePtr surface(new my::Surface());
-		surface->Create(pBackBuffer);
-		m_BackBufferSurfaceDesc = surface->GetDesc();
-		if(FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-		{
-			THROW_D3DEXCEPTION(hr);
-		}
-
 		if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
 		{
 			THROW_D3DEXCEPTION(hr);
-		}
-
-		DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.begin();
-		for(; obj_iter != m_deviceRelatedObjs.end(); obj_iter++)
-		{
-			(*obj_iter)->OnResetDevice();
 		}
 
 		if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
@@ -134,6 +117,8 @@ int DxutApplication::Run(void)
 				Render3DEnvironment();
 			}
 		}
+
+		Cleanup3DEnvironment();
 	}
 	catch(const my::Exception & e)
 	{
@@ -193,6 +178,22 @@ void DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceS
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
+
+	CComPtr<IDirect3DSurface9> BackBuffer;
+	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 }
 
 void DxutApplication::Render3DEnvironment(void)
@@ -207,11 +208,40 @@ void DxutApplication::Render3DEnvironment(void)
 
 	m_fAbsoluteTime = fTime;
 
+	m_dwFrames++;
+
+	if(m_fAbsoluteTime - m_fLastTime > 1.0f)
+	{
+		float fFPS = (float)(m_dwFrames / (m_fAbsoluteTime - m_fLastTime));
+		swprintf_s(m_strFPS, _countof(m_strFPS), L"%0.2f fps", fFPS);
+		m_fLastTime = m_fAbsoluteTime;
+		m_dwFrames = 0;
+	}
+
 	OnFrameMove(fTime, fElapsedTime);
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
 	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
 	{
+	}
+}
+
+void DxutApplication::Cleanup3DEnvironment(void)
+{
+	m_StateBlock.Release();
+
+	OnLostDevice();
+
+	OnDestroyDevice();
+
+	_ASSERT(m_d3dDevice);
+
+	UINT references = m_d3dDevice.Detach()->Release();
+	if(references > 0)
+	{
+		wchar_t msg[256];
+		swprintf_s(msg, _countof(msg), L"no zero reference count: %u", references);
+		m_wnd->MessageBox(msg);
 	}
 }

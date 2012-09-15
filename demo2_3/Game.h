@@ -103,11 +103,16 @@ template< class Event > void boost::statechart::detail::no_context<Event>::no_fu
 class GameLoader
 	: public my::ResourceMgr
 	, public ID3DXInclude
+	, public my::DxutApplication
 {
 protected:
 	std::map<LPCVOID, my::CachePtr> m_cacheSet;
 
 	CComPtr<ID3DXEffectPool> m_EffectPool;
+
+	typedef std::set<boost::weak_ptr<my::DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+
+	DeviceRelatedResourceSet m_resourceSet;
 
 public:
 	GameLoader(void);
@@ -124,14 +129,20 @@ public:
 	virtual __declspec(nothrow) HRESULT __stdcall Close(
 		LPCVOID pData);
 
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
+
 	// ! luabind cannt convert boost::shared_ptr<Derived Class> to base ptr
 	boost::shared_ptr<my::BaseTexture> LoadTexture(const std::string & path);
 
 	boost::shared_ptr<my::BaseTexture> LoadCubeTexture(const std::string & path);
 
-	MaterialPtr LoadMaterial(const std::string & path);
-
-	EffectMeshPtr LoadEffectMesh(const std::string & path);
+	my::OgreMeshPtr LoadMesh(const std::string & path);
 
 	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
 
@@ -142,7 +153,6 @@ public:
 
 class Game
 	: public GameLoader
-	, public my::DxutApplication
 	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:

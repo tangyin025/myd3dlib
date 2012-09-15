@@ -34,46 +34,6 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
-		typedef stdext::hash_set<DeviceRelatedObjectBase *> DeviceRelatedObjectBasePtrSet;
-
-		DeviceRelatedObjectBasePtrSet m_deviceRelatedObjs; // ! DeviceRelatedObject dependency
-
-		void RegisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			_ASSERT(m_deviceRelatedObjs.end() == m_deviceRelatedObjs.find(obj));
-
-			m_deviceRelatedObjs.insert(obj);
-		}
-
-		void UnregisterDeviceRelatedObject(DeviceRelatedObjectBase * obj)
-		{
-			DeviceRelatedObjectBasePtrSet::iterator obj_iter = m_deviceRelatedObjs.find(obj);
-			if(obj_iter != m_deviceRelatedObjs.end())
-			{
-				m_deviceRelatedObjs.erase(obj_iter);
-			}
-		}
-
-		HWND GetHWND(void)
-		{
-			return m_wnd->m_hWnd;
-		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return m_d3dDevice;
-		}
-
-		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
-		{
-			return m_BackBufferSurfaceDesc;
-		}
-
-		double GetAbsoluteTime(void)
-		{
-			return m_fAbsoluteTime;
-		}
-
 	public:
 		virtual bool IsDeviceAcceptable(
 			D3DCAPS9 * pCaps,
@@ -153,6 +113,12 @@ namespace my
 
 		double m_fAbsoluteTime;
 
+		double m_fLastTime;
+
+		DWORD m_dwFrames;
+
+		wchar_t m_strFPS[64];
+
 		LONGLONG m_llQPFTicksPerSec;
 
 		LONGLONG m_llLastElapsedTime;
@@ -169,5 +135,27 @@ namespace my
 		void Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
 
 		void Render3DEnvironment(void);
+
+		void Cleanup3DEnvironment(void);
+
+		HWND GetHWND(void)
+		{
+			return m_wnd->m_hWnd;
+		}
+
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return m_d3dDevice;
+		}
+
+		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
+		{
+			return m_BackBufferSurfaceDesc;
+		}
+
+		double GetAbsoluteTime(void)
+		{
+			return m_fAbsoluteTime;
+		}
 	};
 };

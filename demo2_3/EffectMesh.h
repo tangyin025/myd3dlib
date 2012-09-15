@@ -72,9 +72,11 @@ public:
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
-class EffectMesh : public my::OgreMesh
+class EffectMesh
 {
 public:
+	my::OgreMeshPtr m_Mesh;
+
 	typedef std::vector<MaterialPtr> MaterialPtrList;
 
 	MaterialPtrList m_materials;

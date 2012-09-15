@@ -28,7 +28,7 @@ local function CreateRole(n,p,t)
 	state:InsertCharacter(character)
 end
 
--- CreateScene("plane")
+-- -- CreateScene("plane")
 
 CreateScene("water")
 
