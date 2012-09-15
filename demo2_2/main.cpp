@@ -94,13 +94,6 @@ public:
 	{
 		return 0;
 	}
-
-	virtual void OnKeyboard(
-		UINT nChar,
-		bool bKeyDown,
-		bool bAltDown)
-	{
-	}
 };
 
 INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )

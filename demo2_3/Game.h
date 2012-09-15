@@ -267,11 +267,6 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	virtual void OnKeyboard(
-		UINT nChar,
-		bool bKeyDown,
-		bool bAltDown);
-
 	void ToggleFullScreen(void);
 
 	void ToggleRef(void);

@@ -16,11 +16,17 @@ namespace my
 		: public Window
 	{
 	protected:
-		int m_state;
+		bool m_Minimized;
+
+		bool m_Maximized;
+
+		bool m_InSizeMove;
 
 	public:
 		DxutWindow(void)
-			: m_state(0)
+			: m_Minimized(false)
+			, m_Maximized(false)
+			, m_InSizeMove(false)
 		{
 		}
 
@@ -124,13 +130,6 @@ namespace my
 			return 0;
 		}
 
-		virtual void OnKeyboard(
-			UINT nChar,
-			bool bKeyDown,
-			bool bAltDown)
-		{
-		}
-
 	public:
 		CComPtr<IDirect3D9> m_d3d9;
 
@@ -141,6 +140,26 @@ namespace my
 		DXUTD3D9DeviceSettings m_DeviceSettings;
 
 		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
+
+		bool m_DeviceObjectsCreated;
+
+		bool m_DeviceObjectsReset;
+
+		UINT m_FullScreenBackBufferWidthAtModeChange;
+
+		UINT m_FullScreenBackBufferHeightAtModeChange;
+
+		UINT m_WindowBackBufferWidthAtModeChange;
+
+		UINT m_WindowBackBufferHeightAtModeChange;
+
+		DWORD m_WindowedStyleAtModeChange;
+
+		WINDOWPLACEMENT m_WindowedPlacement;
+
+		bool m_TopmostWhileWindowed;
+
+		bool m_IgnoreSizeChange;
 
 		double m_fAbsoluteTime;
 
@@ -165,11 +184,15 @@ namespace my
 
 		void CheckForWindowSizeChange(void);
 
-		void ChangeDevice(const DXUTD3D9DeviceSettings & deviceSettings);
+		bool CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceSettings, const DXUTD3D9DeviceSettings & newDeviceSettings);
 
-		void Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+		void ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings);
 
-		void Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+		void ToggleFullScreen(void);
+
+		HRESULT Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+
+		HRESULT Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
 
 		void Render3DEnvironment(void);
 

@@ -492,19 +492,12 @@ HRESULT Game::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hres;
-	if(FAILED(hres = DxutApplication::OnCreateDevice(
-		pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hres;
-	}
-
 	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	ImeEditBox::Initialize(DxutApplication::getSingleton().GetHWND());
+	ImeEditBox::Initialize(GetHWND());
 
 	ImeEditBox::EnableImeSystem(false);
 
@@ -644,8 +637,6 @@ void Game::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	DxutApplication::OnFrameMove(fTime, fElapsedTime);
-
 	m_keyboard->Capture();
 
 	m_mouse->Capture();
@@ -713,13 +704,6 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	LRESULT hres;
-	if(FAILED(hres = DxutApplication::MsgProc(
-		hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
-	{
-		return hres;
-	}
-
 	//if(m_settingsDlg.IsActive())
 	//{
 	//	m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
@@ -746,25 +730,17 @@ LRESULT Game::MsgProc(
 	}
 
 	if((cs = CurrentState()) &&
-		(FAILED(hres = cs->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing))
+		(FAILED(hr = cs->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing))
 	{
-		return hres;
+		return hr;
 	}
 
 	return 0;
 }
 
-void Game::OnKeyboard(
-	UINT nChar,
-	bool bKeyDown,
-	bool bAltDown)
-{
-	DxutApplication::OnKeyboard(nChar, bKeyDown, bAltDown);
-}
-
 void Game::ToggleFullScreen(void)
 {
-	//DXUTToggleFullScreen();
+	DxutApplication::ToggleFullScreen();
 }
 
 void Game::ToggleRef(void)
