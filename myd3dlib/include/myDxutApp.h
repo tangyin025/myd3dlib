@@ -15,7 +15,15 @@ namespace my
 	class DxutWindow
 		: public Window
 	{
+	protected:
+		int m_state;
+
 	public:
+		DxutWindow(void)
+			: m_state(0)
+		{
+		}
+
 		BOOL ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID = 0);
 	};
 
@@ -33,6 +41,27 @@ namespace my
 		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
 
 		boost::weak_ptr<Control> m_ControlFocus;
+
+	public:
+		HWND GetHWND(void)
+		{
+			return m_wnd->m_hWnd;
+		}
+
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return m_d3dDevice;
+		}
+
+		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
+		{
+			return m_BackBufferSurfaceDesc;
+		}
+
+		double GetAbsoluteTime(void)
+		{
+			return m_fAbsoluteTime;
+		}
 
 	public:
 		virtual bool IsDeviceAcceptable(
@@ -105,9 +134,11 @@ namespace my
 	public:
 		CComPtr<IDirect3D9> m_d3d9;
 
+		DxutWindowPtr m_wnd;
+
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
 
-		DxutWindowPtr m_wnd;
+		DXUTD3D9DeviceSettings m_DeviceSettings;
 
 		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
 
@@ -132,30 +163,16 @@ namespace my
 
 		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
 
+		void CheckForWindowSizeChange(void);
+
+		void ChangeDevice(const DXUTD3D9DeviceSettings & deviceSettings);
+
 		void Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+
+		void Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
 
 		void Render3DEnvironment(void);
 
 		void Cleanup3DEnvironment(void);
-
-		HWND GetHWND(void)
-		{
-			return m_wnd->m_hWnd;
-		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return m_d3dDevice;
-		}
-
-		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
-		{
-			return m_BackBufferSurfaceDesc;
-		}
-
-		double GetAbsoluteTime(void)
-		{
-			return m_fAbsoluteTime;
-		}
 	};
 };

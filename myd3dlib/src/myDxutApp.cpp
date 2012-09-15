@@ -1,4 +1,4 @@
-#include "stdafx.h"
+﻿#include "stdafx.h"
 #include "myDxutApp.h"
 #include "myResource.h"
 #include "libc.h"
@@ -13,17 +13,49 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 		switch(uMsg)
 		{
 		case WM_CREATE:
-			{
-				ATLASSERT(m_hWnd);
-				lResult = 0;
-				return TRUE;
-			}
+			ATLASSERT(m_hWnd);
+			lResult = 0;
+			return TRUE;
 
 		case WM_DESTROY:
+			lResult = 0;
+			return TRUE;
+
+		case WM_SIZE:
+			switch(wParam)
 			{
-				lResult = 0;
-				return TRUE;
+			case SIZE_MINIMIZED:
+				m_state = 1;
+				break;
+
+			case SIZE_MAXIMIZED:
+				DxutApplication::getSingleton().CheckForWindowSizeChange();
+				m_state = 2;
+				break;
+
+			case SIZE_RESTORED:
+				if(m_state != 3)
+				{
+					DxutApplication::getSingleton().CheckForWindowSizeChange();
+					m_state = 0;
+				}
+				break;
 			}
+			break;
+
+		case WM_ENTERSIZEMOVE:
+			m_state = 3;
+			break;
+
+		case WM_GETMINMAXINFO:
+			((MINMAXINFO *)lParam)->ptMinTrackSize.x = 200;
+			((MINMAXINFO *)lParam)->ptMinTrackSize.y = 200;
+			break;
+
+		case WM_EXITSIZEMOVE:
+			DxutApplication::getSingleton().CheckForWindowSizeChange();
+			m_state = 0;
+			break;
 
 		default:
 			bool bNoFurtherProcessing = false;
@@ -71,9 +103,12 @@ DxutApplication::~DxutApplication(void)
 int DxutApplication::Run(void)
 {
 	m_wnd = DxutWindowPtr(new DxutWindow());
-	m_wnd->Create(NULL, Window::rcDefault, GetModuleFileName().c_str());
-	m_wnd->AdjustClientRect(CRect(0,0,800,600));
-	m_wnd->CenterWindow();
+	CRect desktopRect;
+	GetClientRect(GetDesktopWindow(), &desktopRect);
+	CRect clientRect(0,0,800,600);
+	AdjustWindowRect(&clientRect, WS_OVERLAPPEDWINDOW, FALSE);
+	clientRect.MoveToXY((desktopRect.Width() - clientRect.Width()) / 2, (desktopRect.Height() - clientRect.Height()) / 2);
+	m_wnd->Create(NULL, clientRect, GetModuleFileName().c_str());
 
 	MSG msg = {0};
 
@@ -90,16 +125,6 @@ int DxutApplication::Run(void)
 		m_wnd->GetClientRect(&clientRect);
 
 		CreateDevice(true, clientRect.Width(), clientRect.Height());
-
-		if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
-		{
-			THROW_D3DEXCEPTION(hr);
-		}
-
-		if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-		{
-			THROW_D3DEXCEPTION(hr);
-		}
 
 		m_wnd->ShowWindow(SW_SHOW);
 		m_wnd->UpdateWindow();
@@ -166,6 +191,27 @@ void DxutApplication::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSug
 	Create3DEnvironment(deviceSettings);
 }
 
+void DxutApplication::CheckForWindowSizeChange(void)
+{
+	_ASSERT(m_d3dDevice);
+
+	CRect clientRect;
+	m_wnd->GetClientRect(&clientRect);
+
+	if(m_BackBufferSurfaceDesc.Width != clientRect.Width() || m_BackBufferSurfaceDesc.Height != clientRect.Height())
+	{
+		DXUTD3D9DeviceSettings deviceSettings = m_DeviceSettings;
+		deviceSettings.pp.BackBufferWidth = clientRect.Width();
+		deviceSettings.pp.BackBufferHeight = clientRect.Height();
+		ChangeDevice(deviceSettings);
+	}
+}
+
+void DxutApplication::ChangeDevice(const DXUTD3D9DeviceSettings & deviceSettings)
+{
+	Reset3DEnvironment(deviceSettings);
+}
+
 void DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(FAILED(hr = m_d3d9->CreateDevice(
@@ -179,6 +225,8 @@ void DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceS
 		THROW_D3DEXCEPTION(hr);
 	}
 
+	m_DeviceSettings = deviceSettings;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer)))
 	{
@@ -191,6 +239,52 @@ void DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceS
 	}
 
 	if(FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+}
+
+void DxutApplication::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
+{
+	m_StateBlock.Release();
+
+	OnLostDevice();
+
+	if(FAILED(hr = m_d3dDevice->Reset(const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp))))
+	{
+		// ! 这个地方 device lost 不应该做为错误处理
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	m_DeviceSettings = deviceSettings;
+
+	CComPtr<IDirect3DSurface9> BackBuffer;
+	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
