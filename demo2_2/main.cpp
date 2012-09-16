@@ -1,7 +1,7 @@
 ﻿#include <myD3dLib.h>
 
 class MyDemo
-	: public my::DxutApplication
+	: public my::DxutApp
 {
 protected:
 	CComPtr<ID3DXFont> m_font;

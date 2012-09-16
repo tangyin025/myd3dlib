@@ -143,7 +143,7 @@ static int luaB_dofile (lua_State *L) {
 
 static int os_exit(lua_State * L)
 {
-	HWND hwnd = my::DxutApplication::getSingleton().GetHWND();
+	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
 	_ASSERT(NULL != hwnd);
 	SendMessage(hwnd, WM_CLOSE, 0, 0);
 	return 0;
@@ -277,8 +277,8 @@ void Export2Lua(lua_State * L)
 
 	open(L);
 
-	//// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	//register_exception_handler<my::Exception>(&translate_my_exception);
+	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
 	//set_pcall_callback(lua_error_pcall);

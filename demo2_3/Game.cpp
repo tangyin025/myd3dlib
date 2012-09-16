@@ -514,7 +514,7 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("m_font, m_console, m_panel must be created");
 	}
 
-	m_panel = console->m_panel;
+	m_console->SetVisible(false);
 
 	UpdateDlgViewProj(m_console);
 
@@ -740,7 +740,7 @@ LRESULT Game::MsgProc(
 
 void Game::ToggleFullScreen(void)
 {
-	DxutApplication::ToggleFullScreen();
+	DxutApp::ToggleFullScreen();
 }
 
 void Game::ToggleRef(void)
@@ -766,6 +766,8 @@ void Game::ExecuteCode(const char * code)
 
 		AddLine(L"");
 		puts(ms2ws(e.what()));
+
+		m_console->SetVisible(true);
 	}
 }
 

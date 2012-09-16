@@ -34,7 +34,7 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 
 void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 {
-	DxutApplication::getSingleton().m_StateBlock->Capture();
+	DxutApp::getSingleton().m_StateBlock->Capture();
 
 	HRESULT hr;
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
@@ -60,7 +60,7 @@ void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
 
 void UIRender::End(IDirect3DDevice9 * pd3dDevice)
 {
-	DxutApplication::getSingleton().m_StateBlock->Apply();
+	DxutApp::getSingleton().m_StateBlock->Apply();
 }
 
 my::Rectangle UIRender::CalculateUVRect(const CSize & textureSize, const CRect & textureRect)
@@ -384,7 +384,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bPressed = true;
 
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 
 				return true;
 			}
@@ -451,7 +451,7 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 			}
 		}
 
-		double fAbsoluteTime = DxutApplication::getSingleton().GetAbsoluteTime();
+		double fAbsoluteTime = DxutApp::getSingleton().GetAbsoluteTime();
 		if(fAbsoluteTime - m_dfLastBlink >= m_dfBlink )
 		{
 			m_bCaretOn = !m_bCaretOn;
@@ -742,7 +742,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			{
 				m_bMouseDrag = true;
 
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 
 				if(m_Skin && m_Skin->m_Font)
 				{
@@ -888,7 +888,7 @@ void EditBox::PlaceCaret(int nCP)
 void EditBox::ResetCaretBlink(void)
 {
 	m_bCaretOn = true;
-	m_dfLastBlink = DxutApplication::getSingleton().GetAbsoluteTime();
+	m_dfLastBlink = DxutApp::getSingleton().GetAbsoluteTime();
 }
 
 void EditBox::DeleteSelectionText(void)
@@ -1243,7 +1243,7 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
     // scroll.
 	if(m_Arrow != CLEAR)
 	{
-		double dCurrTime = DxutApplication::getSingleton().GetAbsoluteTime();
+		double dCurrTime = DxutApp::getSingleton().GetAbsoluteTime();
 		switch(m_Arrow)
 		{
 		case CLICKED_UP:
@@ -1322,7 +1322,7 @@ bool ScrollBar::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	//if(WM_CAPTURECHANGED == uMsg)
 	//{
-	//	if((HWND)lParam != DxutApplication::getSingleton().GetHWND())
+	//	if((HWND)lParam != DxutApp::getSingleton().GetHWND())
 	//		m_bDrag = false;
 	//}
 	return false;
@@ -1343,22 +1343,22 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(UpButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
-				m_dArrowTS = DxutApplication::getSingleton().GetAbsoluteTime();
+				m_dArrowTS = DxutApp::getSingleton().GetAbsoluteTime();
 				return true;
 			}
 
 			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(DownButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
-				m_dArrowTS = DxutApplication::getSingleton().GetAbsoluteTime();
+				m_dArrowTS = DxutApp::getSingleton().GetAbsoluteTime();
 				return true;
 			}
 
@@ -1370,7 +1370,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
 			if(ThumbButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 				m_bDrag = true;
 				m_fThumbOffsetY = pt.y - fThumbTop;
 				return true;
@@ -1378,7 +1378,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
 			{
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
@@ -1463,7 +1463,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(!m_bEnabled || !m_bVisible)
 		return false;
 
-	ControlPtr ControlFocus = DxutApplication::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
 
 	if(ControlFocus
 		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
@@ -1560,7 +1560,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt))
 				{
 					ControlFocus->OnFocusOut();
-					DxutApplication::getSingleton().m_ControlFocus.reset();
+					DxutApp::getSingleton().m_ControlFocus.reset();
 				}
 
 				if(HandleMouse(uMsg, pt, wParam, lParam))
@@ -1598,7 +1598,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bMouseDrag = true;
 
-				SetCapture(DxutApplication::getSingleton().GetHWND());
+				SetCapture(DxutApp::getSingleton().GetHWND());
 
 				m_MouseOffset = pt - m_Location;
 				return true;
@@ -1628,12 +1628,12 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if(!(m_bVisible = bVisible))
 	{
-		ControlPtr ControlFocus = DxutApplication::getSingleton().m_ControlFocus.lock();
+		ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
 		if(ControlFocus && ContainsControl(ControlFocus))
 		{
 			ControlFocus->OnFocusOut();
 
-			DxutApplication::getSingleton().m_ControlFocus.reset();
+			DxutApp::getSingleton().m_ControlFocus.reset();
 		}
 	}
 	else
@@ -1658,7 +1658,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	if(!control->CanHaveFocus())
 		return;
 
-	ControlPtr ControlFocus = DxutApplication::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
 	if(ControlFocus)
 	{
 		if(ControlFocus == control)
@@ -1668,7 +1668,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	}
 
 	control->OnFocusIn();
-	DxutApplication::getSingleton().m_ControlFocus = control;
+	DxutApp::getSingleton().m_ControlFocus = control;
 }
 
 void Dialog::ForceFocusControl(void)

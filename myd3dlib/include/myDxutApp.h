@@ -35,23 +35,77 @@ namespace my
 
 	typedef boost::shared_ptr<DxutWindow> DxutWindowPtr;
 
-	class DxutApplication
+	class DxutApp
 		: public Application
-		, public SingleInstance<DxutApplication>
+		, public SingleInstance<DxutApp>
 	{
 	public:
-		HRESULT hr;
-
 		FT_Library m_Library; // ! Font dependency
 
 		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
 
 		boost::weak_ptr<Control> m_ControlFocus;
 
+	protected:
+		HRESULT hr;
+
+		CComPtr<IDirect3D9> m_d3d9;
+
+		DxutWindowPtr m_wnd;
+
+		CComPtr<IDirect3DDevice9> m_d3dDevice;
+
+		DXUTD3D9DeviceSettings m_DeviceSettings;
+
+		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
+
+		bool m_DeviceObjectsCreated;
+
+		bool m_DeviceObjectsReset;
+
+		UINT m_FullScreenBackBufferWidthAtModeChange;
+
+		UINT m_FullScreenBackBufferHeightAtModeChange;
+
+		UINT m_WindowBackBufferWidthAtModeChange;
+
+		UINT m_WindowBackBufferHeightAtModeChange;
+
+		DWORD m_WindowedStyleAtModeChange;
+
+		WINDOWPLACEMENT m_WindowedPlacement;
+
+		bool m_TopmostWhileWindowed;
+
+		bool m_IgnoreSizeChange;
+
+		bool m_DeviceLost;
+
+		double m_fAbsoluteTime;
+
+		double m_fLastTime;
+
+		DWORD m_dwFrames;
+
+		wchar_t m_strFPS[64];
+
+		LONGLONG m_llQPFTicksPerSec;
+
+		LONGLONG m_llLastElapsedTime;
+
 	public:
+		DxutApp(void);
+
+		virtual ~DxutApp(void);
+
 		HWND GetHWND(void)
 		{
 			return m_wnd->m_hWnd;
+		}
+
+		IDirect3D9 * GetD3D9(void)
+		{
+			return m_d3d9;
 		}
 
 		IDirect3DDevice9 * GetD3D9Device(void)
@@ -69,7 +123,6 @@ namespace my
 			return m_fAbsoluteTime;
 		}
 
-	public:
 		virtual bool IsDeviceAcceptable(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
@@ -130,67 +183,17 @@ namespace my
 			return 0;
 		}
 
-	public:
-		CComPtr<IDirect3D9> m_d3d9;
-
-		DxutWindowPtr m_wnd;
-
-		CComPtr<IDirect3DDevice9> m_d3dDevice;
-
-		DXUTD3D9DeviceSettings m_DeviceSettings;
-
-		D3DSURFACE_DESC m_BackBufferSurfaceDesc;
-
-		bool m_DeviceObjectsCreated;
-
-		bool m_DeviceObjectsReset;
-
-		UINT m_FullScreenBackBufferWidthAtModeChange;
-
-		UINT m_FullScreenBackBufferHeightAtModeChange;
-
-		UINT m_WindowBackBufferWidthAtModeChange;
-
-		UINT m_WindowBackBufferHeightAtModeChange;
-
-		DWORD m_WindowedStyleAtModeChange;
-
-		WINDOWPLACEMENT m_WindowedPlacement;
-
-		bool m_TopmostWhileWindowed;
-
-		bool m_IgnoreSizeChange;
-
-		bool m_DeviceLost;
-
-		double m_fAbsoluteTime;
-
-		double m_fLastTime;
-
-		DWORD m_dwFrames;
-
-		wchar_t m_strFPS[64];
-
-		LONGLONG m_llQPFTicksPerSec;
-
-		LONGLONG m_llLastElapsedTime;
-
-	public:
-		DxutApplication(void);
-
-		virtual ~DxutApplication(void);
-
 		int Run(void);
 
 		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
 
 		void CheckForWindowSizeChange(void);
 
+		void ToggleFullScreen(void);
+
 		bool CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceSettings, const DXUTD3D9DeviceSettings & newDeviceSettings);
 
 		void ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings);
-
-		void ToggleFullScreen(void);
 
 		HRESULT Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
 

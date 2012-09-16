@@ -29,14 +29,14 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				break;
 
 			case SIZE_MAXIMIZED:
-				DxutApplication::getSingleton().CheckForWindowSizeChange();
+				DxutApp::getSingleton().CheckForWindowSizeChange();
 				m_Maximized = true;
 				break;
 
 			case SIZE_RESTORED:
 				if(!m_InSizeMove)
 				{
-					DxutApplication::getSingleton().CheckForWindowSizeChange();
+					DxutApp::getSingleton().CheckForWindowSizeChange();
 					m_Minimized = false;
 					m_Maximized = false;
 				}
@@ -54,7 +54,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			break;
 
 		case WM_EXITSIZEMOVE:
-			DxutApplication::getSingleton().CheckForWindowSizeChange();
+			DxutApp::getSingleton().CheckForWindowSizeChange();
 			m_InSizeMove = false;
 			break;
 
@@ -71,7 +71,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			case VK_RETURN:
 				if(GetKeyState(VK_MENU))
 				{
-					DxutApplication::getSingleton().ToggleFullScreen();
+					DxutApp::getSingleton().ToggleFullScreen();
 					lResult = 0;
 					return TRUE;
 				}
@@ -81,7 +81,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 
 		default:
 			bool bNoFurtherProcessing = false;
-			lResult = DxutApplication::getSingleton().MsgProc(hWnd, uMsg, wParam, lParam, &bNoFurtherProcessing);
+			lResult = DxutApp::getSingleton().MsgProc(hWnd, uMsg, wParam, lParam, &bNoFurtherProcessing);
 			if(bNoFurtherProcessing)
 			{
 				return TRUE;
@@ -97,9 +97,9 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return FALSE;
 }
 
-DxutApplication::SingleInstance * SingleInstance<DxutApplication>::s_ptr = NULL;
+DxutApp::SingleInstance * SingleInstance<DxutApp>::s_ptr = NULL;
 
-DxutApplication::DxutApplication(void)
+DxutApp::DxutApp(void)
 	: m_DeviceObjectsCreated(false)
 	, m_DeviceObjectsReset(false)
 	, m_FullScreenBackBufferWidthAtModeChange(0)
@@ -125,12 +125,12 @@ DxutApplication::DxutApplication(void)
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
 }
 
-DxutApplication::~DxutApplication(void)
+DxutApp::~DxutApp(void)
 {
 	FT_Error err = FT_Done_FreeType(m_Library);
 }
 
-int DxutApplication::Run(void)
+int DxutApp::Run(void)
 {
 	m_wnd = DxutWindowPtr(new DxutWindow());
 	CRect desktopRect;
@@ -184,7 +184,7 @@ int DxutApplication::Run(void)
 	return (int)msg.wParam;
 }
 
-void DxutApplication::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
+void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
 {
 	DXUTMatchOptions matchOptions;
 	matchOptions.eAPIVersion = DXUTMT_IGNORE_INPUT;
@@ -220,7 +220,7 @@ void DxutApplication::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSug
 	ChangeDevice(deviceSettings);
 }
 
-void DxutApplication::CheckForWindowSizeChange(void)
+void DxutApp::CheckForWindowSizeChange(void)
 {
 	_ASSERT(m_d3dDevice);
 
@@ -239,7 +239,57 @@ void DxutApplication::CheckForWindowSizeChange(void)
 	}
 }
 
-bool DxutApplication::CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceSettings, const DXUTD3D9DeviceSettings & newDeviceSettings)
+void DxutApp::ToggleFullScreen(void)
+{
+	DXUTMatchOptions matchOptions;
+	matchOptions.eAPIVersion = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eAdapterOrdinal = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eDeviceType = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
+	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.eVertexProcessing = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
+	matchOptions.eBackBufferCount = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eMultiSample = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eSwapEffect = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eDepthFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eStencilFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.ePresentFlags = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
+	matchOptions.ePresentInterval = DXUTMT_CLOSEST_TO_INPUT;
+
+	DXUTD3D9DeviceSettings deviceSettings = m_DeviceSettings;
+	deviceSettings.pp.Windowed = !deviceSettings.pp.Windowed;
+	if(deviceSettings.pp.Windowed)
+	{
+		deviceSettings.pp.BackBufferWidth = m_WindowBackBufferWidthAtModeChange;
+		deviceSettings.pp.BackBufferHeight = m_WindowBackBufferHeightAtModeChange;
+	}
+	else
+	{
+		deviceSettings.pp.BackBufferWidth = m_FullScreenBackBufferWidthAtModeChange;
+		deviceSettings.pp.BackBufferHeight = m_FullScreenBackBufferHeightAtModeChange;
+	}
+
+	if(deviceSettings.pp.BackBufferWidth > 0 && deviceSettings.pp.BackBufferHeight > 0)
+	{
+		matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+	}
+	else
+	{
+		matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
+	}
+
+	if(FAILED(hr = DXUTFindValidDeviceSettings(&deviceSettings, &deviceSettings, &matchOptions)))
+	{
+		THROW_CUSEXCEPTION("no valid devices were found");
+	}
+
+	ChangeDevice(deviceSettings);
+}
+
+bool DxutApp::CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceSettings, const DXUTD3D9DeviceSettings & newDeviceSettings)
 {
 	if(oldDeviceSettings.AdapterOrdinal == newDeviceSettings.AdapterOrdinal
 		&& oldDeviceSettings.DeviceType == newDeviceSettings.DeviceType
@@ -250,7 +300,7 @@ bool DxutApplication::CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceS
 	return false;
 }
 
-void DxutApplication::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
+void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(!ModifyDeviceSettings(&deviceSettings))
 	{
@@ -309,73 +359,23 @@ void DxutApplication::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 	}
 	else
 	{
-		if(m_d3dDevice)
-		{
-			Cleanup3DEnvironment();
-		}
-
 		if(FAILED(hr = Create3DEnvironment(deviceSettings)))
 		{
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
 
+	m_DeviceSettings = deviceSettings;
+
 	m_IgnoreSizeChange = false;
 }
 
-void DxutApplication::ToggleFullScreen(void)
+HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
 {
-	DXUTMatchOptions matchOptions;
-	matchOptions.eAPIVersion = DXUTMT_PRESERVE_INPUT;
-	matchOptions.eAdapterOrdinal = DXUTMT_PRESERVE_INPUT;
-	matchOptions.eDeviceType = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
-	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
-	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
-	matchOptions.eVertexProcessing = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
-	matchOptions.eBackBufferCount = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eMultiSample = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eSwapEffect = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eDepthFormat = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eStencilFormat = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.ePresentFlags = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eRefreshRate = DXUTMT_IGNORE_INPUT;
-	matchOptions.ePresentInterval = DXUTMT_CLOSEST_TO_INPUT;
-
-	DXUTD3D9DeviceSettings deviceSettings = m_DeviceSettings;
-	deviceSettings.pp.Windowed = !deviceSettings.pp.Windowed;
-	if(deviceSettings.pp.Windowed)
+	if(m_DeviceObjectsCreated)
 	{
-		deviceSettings.pp.BackBufferWidth = m_WindowBackBufferWidthAtModeChange;
-		deviceSettings.pp.BackBufferHeight = m_WindowBackBufferHeightAtModeChange;
+		Cleanup3DEnvironment();
 	}
-	else
-	{
-		deviceSettings.pp.BackBufferWidth = m_FullScreenBackBufferWidthAtModeChange;
-		deviceSettings.pp.BackBufferHeight = m_FullScreenBackBufferHeightAtModeChange;
-	}
-
-	if(deviceSettings.pp.BackBufferWidth > 0 && deviceSettings.pp.BackBufferHeight > 0)
-	{
-		matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
-	}
-	else
-	{
-		matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
-	}
-
-	if(FAILED(hr = DXUTFindValidDeviceSettings(&deviceSettings, &deviceSettings, &matchOptions)))
-	{
-		THROW_CUSEXCEPTION("no valid devices were found");
-	}
-
-	ChangeDevice(deviceSettings);
-}
-
-HRESULT DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
-{
-	_ASSERT(!m_DeviceObjectsCreated);
 
 	if(FAILED(hr = m_d3d9->CreateDevice(
 		deviceSettings.AdapterOrdinal,
@@ -388,8 +388,6 @@ HRESULT DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & devi
 		return hr;
 	}
 
-	m_DeviceSettings = deviceSettings;
-
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
@@ -401,8 +399,6 @@ HRESULT DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & devi
 
 	m_DeviceObjectsCreated = true;
 
-	_ASSERT(!m_DeviceObjectsReset);
-
 	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock))
 		|| FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
@@ -414,7 +410,7 @@ HRESULT DxutApplication::Create3DEnvironment(const DXUTD3D9DeviceSettings & devi
 	return S_OK;
 }
 
-HRESULT DxutApplication::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
+HRESULT DxutApp::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(m_DeviceObjectsReset)
 	{
@@ -423,14 +419,10 @@ HRESULT DxutApplication::Reset3DEnvironment(const DXUTD3D9DeviceSettings & devic
 		m_DeviceObjectsReset = false;
 	}
 
-	_ASSERT(!m_DeviceObjectsReset);
-
 	if(FAILED(hr = m_d3dDevice->Reset(const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp))))
 	{
 		return hr;
 	}
-
-	m_DeviceSettings = deviceSettings;
 
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
@@ -449,7 +441,7 @@ HRESULT DxutApplication::Reset3DEnvironment(const DXUTD3D9DeviceSettings & devic
 	return S_OK;
 }
 
-void DxutApplication::Render3DEnvironment(void)
+void DxutApp::Render3DEnvironment(void)
 {
 	if(m_DeviceLost)
 	{
@@ -509,7 +501,7 @@ void DxutApplication::Render3DEnvironment(void)
 	}
 }
 
-void DxutApplication::Cleanup3DEnvironment(void)
+void DxutApp::Cleanup3DEnvironment(void)
 {
 	if(m_DeviceObjectsReset)
 	{
@@ -518,17 +510,16 @@ void DxutApplication::Cleanup3DEnvironment(void)
 		m_DeviceObjectsReset = false;
 	}
 
-	OnDestroyDevice();
-
-	_ASSERT(m_d3dDevice && m_DeviceObjectsCreated);
-
-	UINT references = m_d3dDevice.Detach()->Release();
-	if(references > 0)
+	if(m_DeviceObjectsCreated)
 	{
-		wchar_t msg[256];
-		swprintf_s(msg, _countof(msg), L"no zero reference count: %u", references);
-		m_wnd->MessageBox(msg);
+		OnDestroyDevice();
+		UINT references = m_d3dDevice.Detach()->Release();
+		if(references > 0)
+		{
+			wchar_t msg[256];
+			swprintf_s(msg, _countof(msg), L"no zero reference count: %u", references);
+			m_wnd->MessageBox(msg);
+		}
+		m_DeviceObjectsCreated = false;
 	}
-
-	m_DeviceObjectsCreated = false;
 }

@@ -17,7 +17,7 @@ namespace my
 			: m_file(file)
 			, m_line(line)
 		{
-			_ASSERT(false);
+			MessageBeep(-1); //_ASSERT(false);
 		}
 
 		virtual ~Exception(void)

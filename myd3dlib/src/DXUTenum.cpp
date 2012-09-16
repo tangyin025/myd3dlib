@@ -305,7 +305,7 @@ HRESULT CD3D9Enumeration::Enumerate( LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE IsD3D9
                                      void* pIsD3D9DeviceAcceptableFuncUserContext )
 {
     //CDXUTPerfEventGenerator eventGenerator( DXUT_PERFEVENTCOLOR, L"DXUT D3D9 Enumeration" );
-	IDirect3D9* pD3D = my::DxutApplication::getSingleton().m_d3d9;
+	IDirect3D9* pD3D = my::DxutApp::getSingleton().GetD3D9();
     if( pD3D == NULL )
     {
 		return DXUTERR_NODIRECT3D;
@@ -498,10 +498,10 @@ HRESULT CD3D9Enumeration::EnumerateDevices( CD3D9EnumAdapterInfo* pAdapterInfo,
             pp.BackBufferCount = 1;
             pp.SwapEffect = D3DSWAPEFFECT_COPY;
             pp.Windowed = TRUE;
-			pp.hDeviceWindow = my::DxutApplication::getSingleton().GetHWND();
+			pp.hDeviceWindow = my::DxutApp::getSingleton().GetHWND();
             IDirect3DDevice9* pDevice = NULL;
             if( FAILED( hr = m_pD3D->CreateDevice( pAdapterInfo->AdapterOrdinal, pDeviceInfo->DeviceType,
-                                                   my::DxutApplication::getSingleton().GetHWND(),
+                                                   my::DxutApp::getSingleton().GetHWND(),
                                                    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE, &pp,
                                                    &pDevice ) ) )
             {
@@ -583,7 +583,7 @@ HRESULT CD3D9Enumeration::EnumerateDeviceCombos( CD3D9EnumAdapterInfo* pAdapterI
 
                 // If an application callback function has been provided, make sure this device
                 // is acceptable to the app.
-				if(!my::DxutApplication::getSingleton().IsDeviceAcceptable(
+				if(!my::DxutApp::getSingleton().IsDeviceAcceptable(
 					&pDeviceInfo->Caps, adapterFormat, backBufferFormat, FALSE != nWindowed))
 					continue;
 
@@ -1162,7 +1162,7 @@ HRESULT DXUTFindValidD3D9DeviceSettings( DXUTD3D9DeviceSettings* pOut, DXUTD3D9D
     CD3D9EnumDeviceSettingsCombo* pBestDeviceSettingsCombo = NULL;
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
-    IDirect3D9* pD3D = my::DxutApplication::getSingleton().m_d3d9;
+    IDirect3D9* pD3D = my::DxutApp::getSingleton().GetD3D9();
     CD3D9Enumeration* pd3dEnum = DXUTGetD3D9Enumeration( false );
     CGrowableArray <CD3D9EnumAdapterInfo*>* pAdapterList = pd3dEnum->GetAdapterInfoList();
     for( int iAdapter = 0; iAdapter < pAdapterList->GetSize(); iAdapter++ )
@@ -1232,7 +1232,7 @@ void DXUTBuildOptimalD3D9DeviceSettings( DXUTD3D9DeviceSettings* pOptimalDeviceS
                                          DXUTD3D9DeviceSettings* pDeviceSettingsIn,
                                          DXUTMatchOptions* pMatchOptions )
 {
-    IDirect3D9* pD3D = my::DxutApplication::getSingleton().m_d3d9;
+    IDirect3D9* pD3D = my::DxutApp::getSingleton().GetD3D9();
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
     ZeroMemory( pOptimalDeviceSettings, sizeof( DXUTD3D9DeviceSettings ) );
@@ -1802,7 +1802,7 @@ void DXUTBuildValidD3D9DeviceSettings( DXUTD3D9DeviceSettings* pValidDeviceSetti
                                        DXUTD3D9DeviceSettings* pDeviceSettingsIn,
                                        DXUTMatchOptions* pMatchOptions )
 {
-    IDirect3D9* pD3D = my::DxutApplication::getSingleton().m_d3d9;
+    IDirect3D9* pD3D = my::DxutApp::getSingleton().GetD3D9();
     D3DDISPLAYMODE adapterDesktopDisplayMode;
     pD3D->GetAdapterDisplayMode( pBestDeviceSettingsCombo->AdapterOrdinal, &adapterDesktopDisplayMode );
 
@@ -2231,8 +2231,8 @@ void DXUTBuildValidD3D9DeviceSettings( DXUTD3D9DeviceSettings* pValidDeviceSetti
     pValidDeviceSettings->pp.MultiSampleType = bestMultiSampleType;
     pValidDeviceSettings->pp.MultiSampleQuality = bestMultiSampleQuality;
     pValidDeviceSettings->pp.SwapEffect = bestSwapEffect;
-    pValidDeviceSettings->pp.hDeviceWindow = pBestDeviceSettingsCombo->Windowed ? my::DxutApplication::getSingleton().GetHWND() :
-        my::DxutApplication::getSingleton().GetHWND();
+    pValidDeviceSettings->pp.hDeviceWindow = pBestDeviceSettingsCombo->Windowed ? my::DxutApp::getSingleton().GetHWND() :
+        my::DxutApp::getSingleton().GetHWND();
     pValidDeviceSettings->pp.Windowed = pBestDeviceSettingsCombo->Windowed;
     pValidDeviceSettings->pp.EnableAutoDepthStencil = bestEnableAutoDepthStencil;
     pValidDeviceSettings->pp.AutoDepthStencilFormat = bestDepthStencilFormat;
@@ -4010,8 +4010,8 @@ HRESULT DXUTFindValidD3D9Resolution( CD3D9EnumDeviceSettingsCombo* pBestDeviceSe
 //    pValidDeviceSettings->sd.SampleDesc.Count = bestMultiSampleCount;
 //    pValidDeviceSettings->sd.SampleDesc.Quality = bestMultiSampleQuality;
 //    pValidDeviceSettings->sd.SwapEffect = bestSwapEffect;
-//    pValidDeviceSettings->sd.OutputWindow = pBestDeviceSettingsCombo->Windowed ? my::DxutApplication::getSingleton().GetHWND() :
-//        my::DxutApplication::getSingleton().GetHWND();
+//    pValidDeviceSettings->sd.OutputWindow = pBestDeviceSettingsCombo->Windowed ? my::DxutApp::getSingleton().GetHWND() :
+//        my::DxutApp::getSingleton().GetHWND();
 //    pValidDeviceSettings->sd.Windowed = pBestDeviceSettingsCombo->Windowed;
 //    pValidDeviceSettings->sd.BufferDesc.RefreshRate = bestDisplayMode.RefreshRate;
 //    pValidDeviceSettings->sd.Flags = 0;
@@ -4046,7 +4046,7 @@ HRESULT DXUTFindValidD3D9Resolution( CD3D9EnumDeviceSettingsCombo* pBestDeviceSe
 //        UINT Height = Info.rcWork.bottom - Info.rcWork.top;
 //
 //        RECT rcClient = Info.rcWork;
-//        AdjustWindowRect( &rcClient, GetWindowLong( my::DxutApplication::getSingleton().GetHWND(), GWL_STYLE ), FALSE );
+//        AdjustWindowRect( &rcClient, GetWindowLong( my::DxutApp::getSingleton().GetHWND(), GWL_STYLE ), FALSE );
 //        Width = Width - ( rcClient.right - rcClient.left - Width );
 //        Height = Height - ( rcClient.bottom - rcClient.top - Height );
 //

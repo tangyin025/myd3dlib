@@ -103,7 +103,7 @@ template< class Event > void boost::statechart::detail::no_context<Event>::no_fu
 class GameLoader
 	: public my::ResourceMgr
 	, public ID3DXInclude
-	, public my::DxutApplication
+	, public my::DxutApp
 {
 protected:
 	std::map<LPCVOID, my::CachePtr> m_cacheSet;
@@ -227,7 +227,7 @@ public:
 
 	static Game * getSingletonPtr(void)
 	{
-		return dynamic_cast<Game *>(DxutApplication::getSingletonPtr());
+		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
 	virtual bool IsDeviceAcceptable(
