@@ -44,19 +44,26 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 
-		case WM_ENTERSIZEMOVE:
-			m_InSizeMove = true;
-			break;
-
 		case WM_GETMINMAXINFO:
 			((MINMAXINFO *)lParam)->ptMinTrackSize.x = 200;
 			((MINMAXINFO *)lParam)->ptMinTrackSize.y = 200;
+			break;
+
+		case WM_ENTERSIZEMOVE:
+			m_InSizeMove = true;
 			break;
 
 		case WM_EXITSIZEMOVE:
 			DxutApplication::getSingleton().CheckForWindowSizeChange();
 			m_InSizeMove = false;
 			break;
+
+		case WM_ACTIVATEAPP:
+			break;
+
+		case WM_MENUCHAR:
+			lResult = MAKELRESULT(0, MNC_CLOSE);
+			return TRUE;
 
 		case WM_SYSKEYDOWN:
 			switch(wParam)
@@ -65,6 +72,8 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 				if(GetKeyState(VK_MENU))
 				{
 					DxutApplication::getSingleton().ToggleFullScreen();
+					lResult = 0;
+					return TRUE;
 				}
 				break;
 			}
@@ -98,6 +107,7 @@ DxutApplication::DxutApplication(void)
 	, m_WindowBackBufferWidthAtModeChange(800)
 	, m_WindowBackBufferHeightAtModeChange(600)
 	, m_IgnoreSizeChange(false)
+	, m_DeviceLost(false)
 	, m_fAbsoluteTime(0)
 	, m_fLastTime(0)
 	, m_dwFrames(0)
@@ -441,6 +451,31 @@ HRESULT DxutApplication::Reset3DEnvironment(const DXUTD3D9DeviceSettings & devic
 
 void DxutApplication::Render3DEnvironment(void)
 {
+	if(m_DeviceLost)
+	{
+		if(FAILED(hr = m_d3dDevice->TestCooperativeLevel()))
+		{
+			if(D3DERR_DEVICELOST == hr)
+			{
+				WaitMessage();
+				return;
+			}
+
+			if(FAILED(hr = Reset3DEnvironment(m_DeviceSettings)))
+			{
+				if(D3DERR_DEVICELOST == hr)
+				{
+					WaitMessage();
+					return;
+				}
+
+				THROW_D3DEXCEPTION(hr);
+			}
+		}
+
+		m_DeviceLost = false;
+	}
+
 	LARGE_INTEGER qwTime;
 	QueryPerformanceCounter(&qwTime);
 	double fTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
@@ -467,6 +502,10 @@ void DxutApplication::Render3DEnvironment(void)
 
 	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
 	{
+		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+		{
+			m_DeviceLost = true;
+		}
 	}
 }
 

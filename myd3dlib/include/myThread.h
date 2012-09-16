@@ -128,7 +128,7 @@ namespace my
 
 		BOOL AdjustClientRect(const CRect & rect);
 
-		DECLARE_WND_CLASS_EX(GetWndClassName(), CS_HREDRAW | CS_VREDRAW, -1);
+		DECLARE_WND_CLASS_EX(GetWndClassName(), CS_DBLCLKS, -1);
 
 		DECLARE_EMPTY_MSG_MAP();
 

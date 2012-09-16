@@ -161,6 +161,8 @@ namespace my
 
 		bool m_IgnoreSizeChange;
 
+		bool m_DeviceLost;
+
 		double m_fAbsoluteTime;
 
 		double m_fLastTime;
