@@ -282,7 +282,7 @@ namespace my
 
 		const Vector3 & getTransformAxis(unsigned i) const
 		{
-			return transform[i];
+			return transform[i].xyz;
 		}
 
 		enum PrimitiveType
@@ -471,12 +471,6 @@ namespace my
 
 	class IntersectionTests
 	{
-	public:
-		static bool IsNormalized(const Vector3 & vec)
-		{
-			return abs(vec.magnitude() - 1) < EPSILON_E6;
-		}
-
 	public:
 		static bool sphereAndHalfSpace(
 			const CollisionSphere & sphere,

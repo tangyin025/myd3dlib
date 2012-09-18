@@ -2,7 +2,7 @@
 
 #include <d3d9.h>
 #include <set>
-#include <myMath.h>
+#include "myMath.h"
 #include <vector>
 #include <atlbase.h>
 #include <boost/shared_ptr.hpp>

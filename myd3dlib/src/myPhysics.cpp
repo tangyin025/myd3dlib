@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "myPhysics.h"
-#include "myCollision.h"
 
 #ifndef UNREFERENCED_PARAMETER
 #define UNREFERENCED_PARAMETER(P) (P)
@@ -1138,7 +1137,7 @@ namespace my
 
 	void Contact::calculateContactBasis(void)
 	{
-		_ASSERT(IntersectionTests::IsNormalized(contactNormal));
+		_ASSERT(IS_NORMALIZED(contactNormal, EPSILON_E6));
 
 		Vector3 contantTangents[2];
 
@@ -1603,7 +1602,7 @@ namespace my
 	{
 		Vector3 deltaPosition = linearChange + angularChange.cross(relativeContactPosition);
 
-		_ASSERT(IntersectionTests::IsNormalized(contact.contactNormal));
+		_ASSERT(IS_NORMALIZED(contact.contactNormal, EPSILON_E6));
 
 		if(0 == bodyIndex)
 		{

@@ -1518,10 +1518,10 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEWHEEL:
 		{
 			Matrix4 invViewMatrix = m_View.inverse();
-			const Vector3 & viewX = invViewMatrix[0];
-			const Vector3 & viewY = invViewMatrix[1];
-			const Vector3 & viewZ = invViewMatrix[2];
-			const Vector3 & ptEye = invViewMatrix[3];
+			const Vector3 & viewX = invViewMatrix[0].xyz;
+			const Vector3 & viewY = invViewMatrix[1].xyz;
+			const Vector3 & viewZ = invViewMatrix[2].xyz;
+			const Vector3 & ptEye = invViewMatrix[3].xyz;
 
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
@@ -1557,13 +1557,13 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 
 				// ! 补丁，用以解决对话框控件丢失焦点
-				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt))
+				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt.xy))
 				{
 					ControlFocus->OnFocusOut();
 					DxutApp::getSingleton().m_ControlFocus.reset();
 				}
 
-				if(HandleMouse(uMsg, pt, wParam, lParam))
+				if(HandleMouse(uMsg, pt.xy, wParam, lParam))
 				{
 					// ! 补丁，强制让自己具有 FocusControl
 					ForceFocusControl();

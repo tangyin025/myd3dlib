@@ -175,7 +175,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		return sphere.getTransformAxis(3).dot(planeNormal) - sphere.radius < planeDistance;
 	}
@@ -189,7 +189,7 @@ namespace my
 
 	float IntersectionTests::calculateBoxAxisHalfProjection(const CollisionBox & box, const Vector3 & axis)
 	{
-		_ASSERT(IsNormalized(axis));
+		_ASSERT(IS_NORMALIZED(axis, EPSILON_E6));
 
 		return
 			box.halfSize.x * abs(axis.dot(box.getTransformAxis(0))) +
@@ -202,7 +202,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		return box.getTransformAxis(3).dot(planeNormal) - calculateBoxAxisHalfProjection(box, planeNormal) < planeDistance;
 	}
@@ -337,7 +337,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(IsNormalized(dir));
+		_ASSERT(IS_NORMALIZED(dir, EPSILON_E6));
 
 		float denom = planeNormal.dot(dir);
 
@@ -385,7 +385,7 @@ namespace my
 		const Vector3 & v1,
 		const Vector3 & v2)
 	{
-		_ASSERT(IsNormalized(dir));
+		_ASSERT(IS_NORMALIZED(dir, EPSILON_E6));
 
 		Vector3 normal = calculateTriangleNormal(v0, v1, v2);
 
@@ -422,7 +422,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
@@ -454,7 +454,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
@@ -557,7 +557,7 @@ namespace my
 		const Vector3 & planePoint,
 		const Vector3 & planeNormal)
 	{
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		return (point - planePoint).dot(planeNormal);
 	}
@@ -567,7 +567,7 @@ namespace my
 		const Vector3 & planeNormal,
 		float planeDistance)
 	{
-		_ASSERT(IsNormalized(planeNormal));
+		_ASSERT(IS_NORMALIZED(planeNormal, EPSILON_E6));
 
 		return point.dot(planeNormal) - planeDistance;
 	}
@@ -1152,7 +1152,7 @@ namespace my
 		float & smallestPenetration,
 		unsigned & smallestIndex)
 	{
-		_ASSERT(IsNormalized(axis));
+		_ASSERT(IS_NORMALIZED(axis, EPSILON_E6));
 
 		float penetration = calculateBoxAxisAndBoxPenetration(box0, axis, box1);
 
@@ -1196,7 +1196,7 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(IsNormalized(axis));
+		_ASSERT(IS_NORMALIZED(axis, EPSILON_E6));
 
 		Vector3 toCentre = box1.getTransformAxis(3) - box0.getTransformAxis(3);
 
@@ -1337,7 +1337,7 @@ namespace my
 		float & smallestPenetration,
 		unsigned & smallestIndex)
 	{
-		_ASSERT(IsNormalized(axis));
+		_ASSERT(IS_NORMALIZED(axis, EPSILON_E6));
 
 		float penetration = calculateBoxAxisAndTrianglePenetration(box, axis, v0, v1, v2);
 
@@ -1380,7 +1380,7 @@ namespace my
 		const Vector3 & v1,
 		const Vector3 & v2)
 	{
-		_ASSERT(IsNormalized(axis));
+		_ASSERT(IS_NORMALIZED(axis, EPSILON_E6));
 
 		Vector3 triCentor = (v0 + v1 + v2) / 3.0f;
 

@@ -78,19 +78,26 @@ public:
 
 	virtual void OnFrameMove(
 		double fTime,
-		float fElapsedTime) = 0;
+		float fElapsedTime)
+	{
+	}
 
 	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
-		float fElapsedTime) = 0;
+		float fElapsedTime)
+	{
+	}
 
 	virtual LRESULT MsgProc(
 		HWND hWnd,
 		UINT uMsg,
 		WPARAM wParam,
 		LPARAM lParam,
-		bool * pbNoFurtherProcessing) = 0;
+		bool * pbNoFurtherProcessing)
+	{
+		return 0;
+	}
 };
 
 class GameStateLoad;

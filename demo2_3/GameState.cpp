@@ -35,16 +35,6 @@ void GameStateLoad::OnFrameRender(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
 }
 
-LRESULT GameStateLoad::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
 GameStateMain::GameStateMain(void)
 {
 	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
@@ -89,8 +79,7 @@ void GameStateMain::OnFrameRender(
 	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
 	Effect * SimpleSample = Game::getSingleton().m_SimpleSample.get();
 
-	Vector4 LightDir(1,1,-1,0);
-	((Vector3 &)LightDir).normalizeSelf();
+	Vector3 LightDir(Vector3(1,1,-1).normalize());
 	Vector3 LightTag(0,1,0);
 	Matrix4 LightViewProj =
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
@@ -159,7 +148,7 @@ void GameStateMain::OnFrameRender(
 		SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
 		SimpleSample->SetVector("g_EyePos", EyePos);
 		SimpleSample->SetVector("g_EyePosOS", EyePos.transform(world.inverse()));
-		SimpleSample->SetVector("g_LightDir", LightDir);
+		SimpleSample->SetVector("g_LightDir", Vector4(LightDir.x, LightDir.y, LightDir.z, 0));
 		SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		SimpleSample->SetTexture("g_ShadowTexture", ShadowTextureRT->m_ptr);
 		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
@@ -213,14 +202,4 @@ void GameStateMain::OnFrameRender(
 		}
 	}
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-}
-
-LRESULT GameStateMain::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
 }

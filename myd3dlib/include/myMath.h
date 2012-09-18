@@ -289,10 +289,21 @@ namespace my
 		static const Vector2 unitY;
 	};
 
-	class Vector3 : public Vector2
+	class Vector3
 	{
 	public:
-		float z;
+		union
+		{
+			struct
+			{
+				float x, y, z;
+			};
+
+			struct
+			{
+				Vector2 xy;
+			};
+		};
 
 	public:
 		Vector3(void)
@@ -303,7 +314,8 @@ namespace my
 		}
 
 		Vector3(float _x, float _y, float _z)
-			: Vector2(_x, _y)
+			: x(_x)
+			, y(_y)
 			, z(_z)
 		{
 		}
@@ -512,10 +524,21 @@ namespace my
 		static const Vector3 unitZ;
 	};
 
-	class Vector4 : public Vector3
+	class Vector4
 	{
 	public:
-		float w;
+		union
+		{
+			struct
+			{
+				float x, y, z, w;
+			};
+
+			struct
+			{
+				Vector3 xyz;
+			};
+		};
 
 	public:
 		Vector4(void)
@@ -527,7 +550,9 @@ namespace my
 		}
 
 		Vector4(float _x, float _y, float _z, float _w)
-			: Vector3(_x, _y, _z)
+			: x(_x)
+			, y(_y)
+			, z(_z)
 			, w(_w)
 		{
 		}
@@ -2348,3 +2373,5 @@ namespace my
 		return ret;
 	}
 };
+
+#define IS_NORMALIZED(v, e) (abs((v).magnitude() - 1) < e)
