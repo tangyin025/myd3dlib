@@ -44,6 +44,18 @@ public:
 
 	boost::shared_ptr<ModuleViewCamera> m_Camera;
 
+	my::EffectPtr m_SimpleSample;
+
+	my::EffectPtr m_ShadowMap;
+
+	my::TexturePtr m_ShadowTextureRT;
+
+	my::SurfacePtr m_ShadowTextureDS;
+
+	my::TexturePtr m_ScreenTextureRT;
+
+	my::SurfacePtr m_ScreenTextureDS;
+
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 
 	EffectMeshPtrList m_staticMeshes;
@@ -56,6 +68,18 @@ public:
 	GameStateMain(void);
 
 	~GameStateMain(void);
+
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 	virtual void OnFrameMove(
 		double fTime,

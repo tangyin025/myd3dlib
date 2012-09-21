@@ -43,7 +43,5 @@ void Character::OnFrameMove(double fTime, float fElapsedTime)
 
 void Character::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	Game::getSingleton().m_SimpleSample->SetMatrixArray("g_dualquat", &m_dualQuaternionList[0], m_dualQuaternionList.size());
-
 	m_meshLOD[m_LODLevel]->Draw(pd3dDevice, fElapsedTime);
 }

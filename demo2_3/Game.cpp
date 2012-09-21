@@ -10,7 +10,7 @@
 
 using namespace my;
 
-void GameStateBase::DrawLine(
+void DrawHelper::DrawLine(
 	IDirect3DDevice9 * pd3dDevice,
 	const Vector3 & v0,
 	const Vector3 & v1,
@@ -33,7 +33,7 @@ void GameStateBase::DrawLine(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
 }
 
-void GameStateBase::DrawSphere(
+void DrawHelper::DrawSphere(
 	IDirect3DDevice9 * pd3dDevice,
 	float radius,
 	D3DCOLOR Color,
@@ -42,7 +42,7 @@ void GameStateBase::DrawSphere(
 	DrawSpereStage(pd3dDevice, radius, 0, 20, 0, Color, world);
 }
 
-void GameStateBase::DrawBox(
+void DrawHelper::DrawBox(
 	IDirect3DDevice9 * pd3dDevice,
 	const Vector3 & halfSize,
 	D3DCOLOR Color,
@@ -76,7 +76,7 @@ void GameStateBase::DrawBox(
 	pd3dDevice->DrawIndexedPrimitiveUP(D3DPT_LINELIST, 0, _countof(v), _countof(idx) / 2, idx, D3DFMT_INDEX16, v, sizeof(v[0]));
 }
 
-void GameStateBase::DrawTriangle(
+void DrawHelper::DrawTriangle(
 	IDirect3DDevice9 * pd3dDevice,
 	const Vector3 & v0,
 	const Vector3 & v1,
@@ -102,7 +102,7 @@ void GameStateBase::DrawTriangle(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINESTRIP, _countof(v) - 1, v, sizeof(v[0]));
 }
 
-void GameStateBase::DrawSpereStage(
+void DrawHelper::DrawSpereStage(
 	IDirect3DDevice9 * pd3dDevice,
 	float radius,
 	int VSTAGE_BEGIN,
@@ -152,7 +152,7 @@ void GameStateBase::DrawSpereStage(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
 }
 
-void GameStateBase::DrawCylinderStage(
+void DrawHelper::DrawCylinderStage(
 	IDirect3DDevice9 * pd3dDevice,
 	float radius,
 	float y0,
@@ -196,7 +196,7 @@ void GameStateBase::DrawCylinderStage(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
 }
 
-void GameStateBase::DrawCapsule(
+void DrawHelper::DrawCapsule(
 	IDirect3DDevice9 * pd3dDevice,
 	float radius,
 	float height,
@@ -307,10 +307,10 @@ void GameLoader::OnDestroyDevice(void)
 			res->OnDestroyDevice();
 			res_iter++;
 		}
-		//else
-		//{
-		//	m_resourceSet.erase(res_iter++);
-		//}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
 	}
 
 	m_resourceSet.clear();
@@ -520,18 +520,6 @@ HRESULT Game::OnCreateDevice(
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_SimpleSample = LoadEffect("SimpleSample.fx");
-
-	m_ShadowMap = LoadEffect("ShadowMap.fx");
-
-	m_ShadowTextureRT.reset(new my::Texture());
-
-	m_ShadowTextureDS.reset(new my::Surface());
-
-	m_ScreenTextureRT.reset(new my::Texture());
-
-	m_ScreenTextureDS.reset(new my::Surface());
-
 	if(!m_input)
 	{
 		m_input.reset(new Input());
@@ -554,6 +542,8 @@ HRESULT Game::OnCreateDevice(
 	}
 
 	initiate();
+
+	SafeCreateCurrentState();
 
 	//THROW_CUSEXCEPTION("aaa");
 
@@ -581,20 +571,7 @@ HRESULT Game::OnResetDevice(
 		UpdateDlgViewProj(*dlg_iter);
 	}
 
-	const DWORD SHADOW_MAP_SIZE = 512;
-	m_ShadowTextureRT->CreateAdjustedTexture(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
-
-	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
-	m_ShadowTextureDS->CreateDepthStencilSurface(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
-
-	m_ScreenTextureRT->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, pBackBufferSurfaceDesc->Format, D3DPOOL_DEFAULT);
-
-	m_ScreenTextureDS->CreateDepthStencilSurface(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, D3DFMT_D24X8);
+	SafeResetCurrentState();
 
 	return S_OK;
 }
@@ -603,13 +580,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_ShadowTextureRT->OnDestroyDevice();
-
-	m_ShadowTextureDS->OnDestroyDevice();
-
-	m_ScreenTextureRT->OnDestroyDevice();
-
-	m_ScreenTextureDS->OnDestroyDevice();
+	SafeLostCurrentState();
 
 	GameLoader::OnLostDevice();
 }
@@ -617,6 +588,8 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	SafeDestroyCurrentState();
 
 	terminate();
 

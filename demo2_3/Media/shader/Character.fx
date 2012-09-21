@@ -117,17 +117,15 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 float get_ligthAmount(float4 PosLight)
 {
 	float2 ShadowTexC = PosLight.xy / PosLight.w * 0.5 + 0.5;
-	ShadowTexC.y = 1 - ShadowTexC.y;
+	ShadowTexC.y = 1.0 - ShadowTexC.y;
 	
-	float2 lerps = frac(SHADOW_MAP_SIZE * ShadowTexC);
-	
-	float sourcevals[4];
-	sourcevals[0] = (tex2D(ShadowTextureSampler, ShadowTexC) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
-	sourcevals[1] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(1.0/SHADOW_MAP_SIZE, 0)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
-	sourcevals[2] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(0, 1.0/SHADOW_MAP_SIZE)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
-	sourcevals[3] = (tex2D(ShadowTextureSampler, ShadowTexC + float2(1.0/SHADOW_MAP_SIZE, 1.0/SHADOW_MAP_SIZE)) + SHADOW_EPSILON < PosLight.z / PosLight.w) ? 0.0 : 1.0;
-	
-	return lerp(lerp(sourcevals[0], sourcevals[1], lerps.x), lerp(sourcevals[2], sourcevals[3], lerps.x), lerps.y);
+	float LightAmount = 0;
+	float x, y;
+	for(x = -0.5; x <= 0.5; x += 1.0)
+		for(y = -0.5; y <= 0.5; y+= 1.0)
+			LightAmount += tex2D(ShadowTextureSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLight.z / PosLight.w ? 0.0f : 1.0f;
+			
+	return LightAmount / 4;
 }
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
@@ -159,7 +157,7 @@ technique RenderScene
 {
 	pass P0
 	{
-		VertexShader = compile vs_3_0 RenderSceneVS();
-		PixelShader  = compile ps_3_0 RenderScenePS(); 
+		VertexShader = compile vs_2_0 RenderSceneVS();
+		PixelShader  = compile ps_2_0 RenderScenePS(); 
 	}
 }

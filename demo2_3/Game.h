@@ -11,11 +11,12 @@
 #pragma warning(default: 4819)
 #include "EffectMesh.h"
 
-class GameStateBase
+class DrawHelper
 {
 protected:
 	HRESULT hr;
 
+public:
 	static void DrawLine(
 		IDirect3DDevice9 * pd3dDevice,
 		const my::Vector3 & v0,
@@ -66,13 +67,48 @@ protected:
 		float height,
 		D3DCOLOR Color,
 		const my::Matrix4 & world = my::Matrix4::identity);
+};
+
+class GameStateBase
+	: public DrawHelper
+{
+	friend class Game;
+
+protected:
+	bool m_DeviceObjectsCreated;
+
+	bool m_DeviceObjectsReset;
 
 public:
 	GameStateBase(void)
+		: m_DeviceObjectsCreated(false)
+		, m_DeviceObjectsReset(false)
 	{
 	}
 
 	virtual ~GameStateBase(void)
+	{
+	}
+
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	virtual void OnLostDevice(void)
+	{
+	}
+
+	virtual void OnDestroyDevice(void)
 	{
 	}
 
@@ -177,18 +213,6 @@ public:
 
 	MessagePanelPtr m_panel;
 
-	my::EffectPtr m_SimpleSample;
-
-	my::EffectPtr m_ShadowMap;
-
-	my::TexturePtr m_ShadowTextureRT;
-
-	my::SurfacePtr m_ShadowTextureDS;
-
-	my::TexturePtr m_ScreenTextureRT;
-
-	my::SurfacePtr m_ScreenTextureDS;
-
 	my::InputPtr m_input;
 
 	my::KeyboardPtr m_keyboard;
@@ -205,6 +229,56 @@ public:
 	GameStateBase * CurrentState(void)
 	{
 		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
+	}
+
+	void SafeCreateCurrentState(void)
+	{
+		if((cs = CurrentState()) && !cs->m_DeviceObjectsCreated)
+		{
+			cs->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+			cs->m_DeviceObjectsCreated = true;
+		}
+	}
+
+	void SafeResetCurrentState(void)
+	{
+		if((cs = CurrentState()) && !cs->m_DeviceObjectsReset)
+		{
+			cs->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+			cs->m_DeviceObjectsReset = true;
+		}
+	}
+
+	void SafeLostCurrentState(void)
+	{
+		if((cs = CurrentState()) && cs->m_DeviceObjectsReset)
+		{
+			cs->OnLostDevice();
+			cs->m_DeviceObjectsReset = false;
+		}
+	}
+
+	void SafeDestroyCurrentState(void)
+	{
+		if((cs = CurrentState()) && cs->m_DeviceObjectsCreated)
+		{
+			cs->OnDestroyDevice();
+			cs->m_DeviceObjectsCreated = false;
+		}
+	}
+
+	void process_event(const boost::statechart::event_base & evt)
+	{
+		SafeLostCurrentState();
+
+		SafeDestroyCurrentState();
+
+		state_machine::process_event(evt);
+
+		// ! 当状态切换时发生异常 正确的做法应该是让状态切换失败，而不是继续下去
+		SafeCreateCurrentState();
+
+		SafeResetCurrentState();
 	}
 
 	my::ControlPtr GetPanel(void) const
