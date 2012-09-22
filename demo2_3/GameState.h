@@ -42,8 +42,6 @@ public:
 	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
 
-	boost::shared_ptr<ModuleViewCamera> m_Camera;
-
 	my::EffectPtr m_SimpleSample;
 
 	my::EffectPtr m_ShadowMap;
@@ -55,6 +53,8 @@ public:
 	my::TexturePtr m_ScreenTextureRT;
 
 	my::SurfacePtr m_ScreenTextureDS;
+
+	boost::shared_ptr<Camera> m_Camera;
 
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 

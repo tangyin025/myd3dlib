@@ -1,4 +1,4 @@
-#include "StdAfx.h"
+ï»¿#include "StdAfx.h"
 #include "GameState.h"
 //
 //#ifdef _DEBUG
@@ -21,9 +21,9 @@ void GameStateLoad::OnFrameMove(
 {
 	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
 
-	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
-
-	Game::getSingleton().CurrentState()->OnFrameMove(fTime, fElapsedTime);
+	GameStateBase * cs = Game::getSingleton().CurrentState();
+	if(cs)
+		cs->OnFrameMove(fTime, fElapsedTime);
 }
 
 void GameStateLoad::OnFrameRender(
@@ -37,16 +37,6 @@ void GameStateLoad::OnFrameRender(
 
 GameStateMain::GameStateMain(void)
 {
-	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
-	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
-	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
-	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
-	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
-		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
-
-	m_Camera.reset(new ModuleViewCamera(D3DXToRadian(75), 4/3.0f, 0.1f, 3000.0f));
-	m_Camera->m_Rotation = Vector3(D3DXToRadian(-45), D3DXToRadian(45), 0);
-	m_Camera->m_Distance = 10.0f;
 }
 
 GameStateMain::~GameStateMain(void)
@@ -57,6 +47,13 @@ HRESULT GameStateMain::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
+	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
+		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
+
 	m_SimpleSample = Game::getSingleton().LoadEffect("SimpleSample.fx");
 
 	m_ShadowMap = Game::getSingleton().LoadEffect("ShadowMap.fx");
@@ -69,6 +66,10 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_ScreenTextureDS.reset(new my::Surface());
 
+	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
+
+	_ASSERT(m_Camera);
+
 	return S_OK;
 }
 
@@ -80,7 +81,7 @@ HRESULT GameStateMain::OnResetDevice(
 	m_ShadowTextureRT->CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
-	// ! ËùÓÐµÄ render target±ØÐëÊ¹ÓÃ¾ßÓÐÏàÍ¬ multisampleµÄ depth stencil
+	// ! æ‰€æœ‰çš„ render targetå¿…é¡»ä½¿ç”¨å…·æœ‰ç›¸åŒ multisampleçš„ depth stencil
 	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);

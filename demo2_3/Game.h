@@ -153,7 +153,7 @@ protected:
 
 	CComPtr<ID3DXEffectPool> m_EffectPool;
 
-	typedef std::set<boost::weak_ptr<my::DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+	typedef std::map<std::string, boost::weak_ptr<my::DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
 
 	DeviceRelatedResourceSet m_resourceSet;
 
@@ -273,12 +273,25 @@ public:
 
 		SafeDestroyCurrentState();
 
-		state_machine::process_event(evt);
+		try
+		{
+			state_machine::process_event(evt);
 
-		// ! 当状态切换时发生异常 正确的做法应该是让状态切换失败，而不是继续下去
-		SafeCreateCurrentState();
+			// ! 当状态切换时发生异常 正确的做法应该是让状态切换失败，而不是继续下去
+			SafeCreateCurrentState();
 
-		SafeResetCurrentState();
+			SafeResetCurrentState();
+		}
+		catch(const my::Exception & e)
+		{
+			SafeLostCurrentState();
+
+			SafeDestroyCurrentState();
+
+			terminate();
+
+			THROW_CUSEXCEPTION(e.GetDescription());
+		}
 	}
 
 	my::ControlPtr GetPanel(void) const

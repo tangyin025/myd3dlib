@@ -1844,6 +1844,10 @@ namespace my
 		Matrix4 inverse(void) const
 		{
 			return adjoint() / determinant();
+
+			//Matrix4 ret;
+			//D3DXMatrixInverse((D3DXMATRIX *)&ret, NULL, (D3DXMATRIX *)this);
+			//return ret;
 		}
 
 		static Matrix4 LookAtLH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)

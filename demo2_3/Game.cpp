@@ -263,7 +263,7 @@ HRESULT GameLoader::OnResetDevice(
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
 	{
-		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
 		if(res)
 		{
 			res->OnResetDevice();
@@ -283,7 +283,7 @@ void GameLoader::OnLostDevice(void)
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
 	{
-		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
 		if(res)
 		{
 			res->OnLostDevice();
@@ -301,7 +301,7 @@ void GameLoader::OnDestroyDevice(void)
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
 	{
-		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->lock();
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
 		if(res)
 		{
 			res->OnDestroyDevice();
@@ -331,7 +331,7 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & p
 		ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
 	}
 
-	m_resourceSet.insert(ret);
+	m_resourceSet.insert(std::make_pair(path, ret));
 	return ret;
 }
 
@@ -350,7 +350,7 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadCubeTexture(const std::string
 		ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
 	}
 
-	m_resourceSet.insert(ret);
+	m_resourceSet.insert(std::make_pair(path, ret));
 	return ret;
 }
 
@@ -369,7 +369,7 @@ OgreMeshPtr GameLoader::LoadMesh(const std::string & path)
 		ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 	}
 
-	m_resourceSet.insert(ret);
+	m_resourceSet.insert(std::make_pair(path, ret));
 	return ret;
 }
 
@@ -405,7 +405,7 @@ EffectPtr GameLoader::LoadEffect(const std::string & path)
 		ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 	}
 
-	m_resourceSet.insert(ret);
+	m_resourceSet.insert(std::make_pair(path, ret));
 	return ret;
 }
 
@@ -424,7 +424,7 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 		ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
 	}
 
-	m_resourceSet.insert(ret);
+	m_resourceSet.insert(std::make_pair(str_printf("%s, %d", path.c_str(), height), ret));
 	return ret;
 }
 
@@ -629,12 +629,11 @@ void Game::OnFrameRender(
 	//	return;
 	//}
 
-    //// Clear the backbuffer to a blue color
-    //pd3dDevice->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB( 0, 0, 255 ), 1.0f, 0 );
-
 	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
 	if(cs = CurrentState())
 		cs->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+	else
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
