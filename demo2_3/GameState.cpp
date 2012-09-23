@@ -54,6 +54,9 @@ HRESULT GameStateMain::OnCreateDevice(
 	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
 		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
+	m_timer = TimerPtr(new Timer(0.01f));
+	m_timer->m_EventTimer = boost::bind(&GameStateMain::OnFixedFrameMove, this);
+
 	m_SimpleSample = Game::getSingleton().LoadEffect("SimpleSample.fx");
 
 	m_ShadowMap = Game::getSingleton().LoadEffect("ShadowMap.fx");
@@ -110,11 +113,17 @@ void GameStateMain::OnDestroyDevice(void)
 {
 }
 
+void GameStateMain::OnFixedFrameMove(void)
+{
+}
+
 void GameStateMain::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
+	m_timer->OnFrameMove(fTime, fElapsedTime);
+
+	m_dynamicsWorld->stepSimulation(fElapsedTime, 3, m_timer->m_Interval);
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 

@@ -247,6 +247,51 @@ namespace luabind
 		: default_converter<my::ControlEvent>
 	{
 	};
+
+	template <>
+	struct default_converter<TimerEvent>
+		: native_converter_base<TimerEvent>
+	{
+		static int compute_score(lua_State * L, int index)
+		{
+			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+		}
+
+		TimerEvent from(lua_State * L, int index)
+		{
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(void)
+				{
+					try
+					{
+						obj();
+					}
+					catch(const luabind::error & e)
+					{
+						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+					}
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+		}
+
+		void to(lua_State * L, TimerEvent const & e)
+		{
+			_ASSERT(false);
+		}
+	};
+
+	template <>
+	struct default_converter<TimerEvent const &>
+		: default_converter<TimerEvent>
+	{
+	};
 }
 
 void Export2Lua(lua_State * L)
@@ -663,6 +708,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def("InsertControl", &my::Dialog::InsertControl)
+			.def("ClearAllControl", &my::Dialog::ClearAllControl)
 
 		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
 			.def(constructor<>())
@@ -677,6 +723,20 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
 			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
+		, class_<TimerEvent>("TimerEvent")
+
+		, class_<Timer, boost::shared_ptr<Timer> >("Timer")
+			.def(constructor<float>())
+			.def_readwrite("Interval", &Timer::m_Interval)
+			.def_readwrite("RemainingTime", &Timer::m_RemainingTime)
+			.def_readwrite("EventTimer", &Timer::m_EventTimer)
+			.def("OnFrameMove", &Timer::OnFrameMove)
+
+		, class_<TimerMgr>("TimerMgr")
+			.def("InsertTimer", &TimerMgr::InsertTimer)
+			.def("RemoveTimer", &TimerMgr::RemoveTimer)
+			.def("ClearAllTimer", &TimerMgr::ClearAllTimer)
+
 		, class_<GameLoader>("GameLoader")
 			.def("LoadTexture", &GameLoader::LoadTexture)
 			.def("LoadCubeTexture", &GameLoader::LoadCubeTexture)
@@ -685,7 +745,7 @@ void Export2Lua(lua_State * L)
 			.def("LoadEffect", &GameLoader::LoadEffect)
 			.def("LoadFont", &GameLoader::LoadFont)
 
-		, class_<Game, GameLoader>("Game")
+		, class_<Game, bases<GameLoader, TimerMgr> >("Game")
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
@@ -696,6 +756,7 @@ void Export2Lua(lua_State * L)
 			.def("ChangeDevice", &Game::ChangeDevice)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("InsertDlg", &Game::InsertDlg)
+			.def("ClearAllDlg", &Game::ClearAllDlg)
 
 		, class_<GameStateBase>("GameStateBase")
 

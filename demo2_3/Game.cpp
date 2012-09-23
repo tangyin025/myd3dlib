@@ -428,6 +428,29 @@ FontPtr GameLoader::LoadFont(const std::string & path, int height)
 	return ret;
 }
 
+void Timer::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	m_RemainingTime += fElapsedTime;
+	while(m_RemainingTime >= 0)
+	{
+		m_RemainingTime -= m_Interval;
+		m_EventTimer();
+	}
+}
+
+void TimerMgr::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	TimerPtrSet::const_iterator timer_iter = m_timerSet.begin();
+	for(; timer_iter != m_timerSet.end(); timer_iter++)
+	{
+		(*timer_iter)->OnFrameMove(fElapsedTime, fElapsedTime);
+	}
+}
+
 Game::Game(void)
 {
 	m_lua.reset(new LuaContext());
@@ -599,9 +622,11 @@ void Game::OnDestroyDevice(void)
 
 	m_console.reset();
 
-	m_dlgSet.clear();
+	ClearAllDlg();
 
 	ImeEditBox::Uninitialize();
+
+	ClearAllTimer();
 
 	GameLoader::OnDestroyDevice();
 }
@@ -616,6 +641,8 @@ void Game::OnFrameMove(
 
 	if(cs = CurrentState())
 		cs->OnFrameMove(fTime, fElapsedTime);
+
+	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(

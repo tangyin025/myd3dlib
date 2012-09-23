@@ -545,6 +545,11 @@ namespace my
 		{
 			m_Controls.push_back(control);
 		}
+
+		void ClearAllControl(void)
+		{
+			m_Controls.clear();
+		}
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;

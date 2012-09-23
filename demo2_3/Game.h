@@ -9,7 +9,6 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/transition.hpp>
 #pragma warning(default: 4819)
-#include "EffectMesh.h"
 
 class DrawHelper
 {
@@ -194,9 +193,67 @@ public:
 	my::FontPtr LoadFont(const std::string & path, int height);
 };
 
+typedef boost::function<void (void)> TimerEvent;
+
+class Timer
+{
+public:
+	float m_Interval;
+
+	float m_RemainingTime;
+
+	TimerEvent m_EventTimer;
+
+public:
+	Timer(float Interval)
+		: m_Interval(Interval)
+		, m_RemainingTime(-Interval)
+	{
+	}
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+};
+
+typedef boost::shared_ptr<Timer> TimerPtr;
+
+class TimerMgr
+{
+protected:
+	typedef std::set<TimerPtr> TimerPtrSet;
+
+	TimerPtrSet m_timerSet;
+
+public:
+	TimerMgr(void)
+	{
+	}
+
+	void InsertTimer(TimerPtr timer)
+	{
+		m_timerSet.insert(timer);
+	}
+
+	void RemoveTimer(TimerPtr timer)
+	{
+		m_timerSet.erase(timer);
+	}
+
+	void ClearAllTimer(void)
+	{
+		m_timerSet.clear();
+	}
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+};
+
 class Game
 	: public GameLoader
 	, public boost::statechart::state_machine<Game, GameStateLoad>
+	, public TimerMgr
 {
 public:
 	GameStateBase * cs;
@@ -376,6 +433,11 @@ public:
 		UpdateDlgViewProj(dlg);
 
 		m_dlgSet.push_back(dlg);
+	}
+
+	void ClearAllDlg(void)
+	{
+		m_dlgSet.clear();
 	}
 };
 

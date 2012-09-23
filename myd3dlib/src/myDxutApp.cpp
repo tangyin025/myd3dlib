@@ -123,6 +123,10 @@ DxutApp::DxutApp(void)
 	LARGE_INTEGER qwTicksPerSec;
 	QueryPerformanceFrequency(&qwTicksPerSec);
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
+
+	//LARGE_INTEGER qwTime;
+	//QueryPerformanceCounter(&qwTime);
+	//m_llLastElapsedTime = qwTime.QuadPart;
 }
 
 DxutApp::~DxutApp(void)

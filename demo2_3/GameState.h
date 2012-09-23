@@ -42,6 +42,8 @@ public:
 	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
 
+	TimerPtr m_timer;
+
 	my::EffectPtr m_SimpleSample;
 
 	my::EffectPtr m_ShadowMap;
@@ -80,6 +82,8 @@ public:
 	virtual void OnLostDevice(void);
 
 	virtual void OnDestroyDevice(void);
+
+	virtual void OnFixedFrameMove(void);
 
 	virtual void OnFrameMove(
 		double fTime,
