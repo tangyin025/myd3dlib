@@ -38,6 +38,7 @@ namespace my
 	class DxutApp
 		: public Application
 		, public SingleInstance<DxutApp>
+		, public CD3D9Enumeration
 	{
 	public:
 		FT_Library m_Library; // ! Font dependency
@@ -184,6 +185,40 @@ namespace my
 		}
 
 		int Run(void);
+
+		HRESULT DXUTFindValidD3D9DeviceSettings(
+			DXUTD3D9DeviceSettings * pOut,
+			DXUTD3D9DeviceSettings * pIn,
+			DXUTMatchOptions * pMatchOptions,
+			DXUTD3D9DeviceSettings * pOptimal);
+
+		void DXUTBuildOptimalD3D9DeviceSettings(
+			DXUTD3D9DeviceSettings * pOptimalDeviceSettings,
+			DXUTD3D9DeviceSettings * pDeviceSettingsIn,
+			DXUTMatchOptions * pMatchOptions);
+
+		bool DXUTDoesD3D9DeviceComboMatchPreserveOptions(
+			CD3D9EnumDeviceSettingsCombo * pDeviceSettingsCombo,
+			DXUTD3D9DeviceSettings * pDeviceSettingsIn,
+			DXUTMatchOptions * pMatchOptions);
+
+		float DXUTRankD3D9DeviceCombo(
+			CD3D9EnumDeviceSettingsCombo * pDeviceSettingsCombo,
+			DXUTD3D9DeviceSettings * pOptimalDeviceSettings,
+			D3DDISPLAYMODE * pAdapterDesktopDisplayMode);
+
+		void DXUTBuildValidD3D9DeviceSettings(
+			DXUTD3D9DeviceSettings * pValidDeviceSettings,
+			CD3D9EnumDeviceSettingsCombo * pBestDeviceSettingsCombo,
+			DXUTD3D9DeviceSettings * pDeviceSettingsIn,
+			DXUTMatchOptions * pMatchOptions);
+
+		HRESULT DXUTFindValidD3D9Resolution(
+			CD3D9EnumDeviceSettingsCombo * pBestDeviceSettingsCombo,
+			D3DDISPLAYMODE displayModeIn,
+			D3DDISPLAYMODE * pBestDisplayMode);
+
+		DXUTD3D9DeviceSettings FindValidDeviceSettings(const DXUTD3D9DeviceSettings & deviceSettings, const DXUTMatchOptions & matchOptions);
 
 		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);
 
