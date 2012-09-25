@@ -737,19 +737,9 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::ToggleFullScreen(void)
-{
-	DxutApp::ToggleFullScreen();
-}
-
 void Game::ToggleRef(void)
 {
 	//DXUTToggleREF();
-}
-
-void Game::ChangeDevice(void)
-{
-	//m_settingsDlg.SetActive(!m_settingsDlg.IsActive());
 }
 
 void Game::ExecuteCode(const char * code)

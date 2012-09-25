@@ -7,11 +7,8 @@
 //--------------------------------------------------------------------------------------
 #include "stdafx.h"
 #include "DXUTenum.h"
-#include "myException.h"
-#include "myDxutApp.h"
 #undef min // use __min instead
 #undef max // use __max instead
-
 
 //--------------------------------------------------------------------------------------
 // Forward declarations
@@ -24,6 +21,7 @@ CD3D9Enumeration::CD3D9Enumeration()
 {
     m_bHasEnumerated = false;
     m_pD3D = NULL;
+	m_hWnd = NULL;
     m_bRequirePostPixelShaderBlending = true;
 
     m_nMinWidth = 640;
@@ -62,7 +60,7 @@ CD3D9Enumeration::~CD3D9Enumeration()
 // if supported otherwise it will default to SWVP, however the app can change this 
 // through the ConfirmDevice callback.
 //--------------------------------------------------------------------------------------
-HRESULT CD3D9Enumeration::Enumerate( IDirect3D9 * pD3D )
+HRESULT CD3D9Enumeration::Enumerate( IDirect3D9 * pD3D, HWND hWnd )
 {
     //CDXUTPerfEventGenerator eventGenerator( DXUT_PERFEVENTCOLOR, L"DXUT D3D9 Enumeration" );
     if( pD3D == NULL )
@@ -72,6 +70,7 @@ HRESULT CD3D9Enumeration::Enumerate( IDirect3D9 * pD3D )
 
     m_bHasEnumerated = true;
     m_pD3D = pD3D;
+	m_hWnd = hWnd;
 
     HRESULT hr;
     ClearAdapterInfoList();
@@ -255,17 +254,17 @@ HRESULT CD3D9Enumeration::EnumerateDevices( CD3D9EnumAdapterInfo* pAdapterInfo,
             pp.BackBufferCount = 1;
             pp.SwapEffect = D3DSWAPEFFECT_COPY;
             pp.Windowed = TRUE;
-			pp.hDeviceWindow = my::DxutApp::getSingleton().GetHWND();
+			pp.hDeviceWindow = m_hWnd;
             IDirect3DDevice9* pDevice = NULL;
             if( FAILED( hr = m_pD3D->CreateDevice( pAdapterInfo->AdapterOrdinal, pDeviceInfo->DeviceType,
-                                                   my::DxutApp::getSingleton().GetHWND(),
+                                                   m_hWnd,
                                                    D3DCREATE_HARDWARE_VERTEXPROCESSING | D3DCREATE_FPU_PRESERVE, &pp,
                                                    &pDevice ) ) )
             {
                 delete pDeviceInfo;
                 continue;
             }
-            SAFE_RELEASE( pDevice );
+			pDevice->Release();
         }
 
         // Get info for each devicecombo on this device

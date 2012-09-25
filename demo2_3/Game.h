@@ -418,11 +418,7 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	void ToggleFullScreen(void);
-
 	void ToggleRef(void);
-
-	void ChangeDevice(void);
 
 	void ExecuteCode(const char * code);
 

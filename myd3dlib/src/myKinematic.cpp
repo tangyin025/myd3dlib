@@ -1,10 +1,6 @@
 #include "StdAfx.h"
 #include "myKinematic.h"
 
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-#endif
-
 using namespace my;
 
 #define SIMPLE_INTEGRATION(duration, velocity, rotation) \

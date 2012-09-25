@@ -3,6 +3,10 @@
 #include "myResource.h"
 #include "libc.h"
 
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
+
 using namespace my;
 
 BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
@@ -207,7 +211,7 @@ HRESULT DxutApp::DXUTFindValidD3D9DeviceSettings(
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
 	if( !HasEnumerated() )
-		Enumerate( m_d3d9 );
+		Enumerate( m_d3d9, GetHWND() );
 
     CGrowableArray <CD3D9EnumAdapterInfo*>* pAdapterList = GetAdapterInfoList();
     for( int iAdapter = 0; iAdapter < pAdapterList->GetSize(); iAdapter++ )
@@ -1457,11 +1461,12 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 			m_FullScreenBackBufferHeightAtModeChange = m_BackBufferSurfaceDesc.Height;
 			m_wnd->SetWindowLong(GWL_STYLE, m_WindowedStyleAtModeChange);
 			m_wnd->SetWindowPlacement(&m_WindowedPlacement);
-			HWND hWndInsertAfter = m_TopmostWhileWindowed ? HWND_TOPMOST : HWND_NOTOPMOST;
-			CRect clientRect(0, 0, m_WindowBackBufferWidthAtModeChange, m_WindowBackBufferHeightAtModeChange);
-			AdjustWindowRect(&clientRect, m_wnd->GetWindowLong(GWL_STYLE), NULL);
-			m_wnd->SetWindowPos(hWndInsertAfter, 0, 0, clientRect.Width(), clientRect.Height(), SWP_NOMOVE | SWP_NOREDRAW);
 		}
+
+		HWND hWndInsertAfter = ((m_wnd->GetWindowLong(GWL_STYLE) & WS_EX_TOPMOST) != 0) ? HWND_TOPMOST : HWND_NOTOPMOST;
+		CRect clientRect(0, 0, deviceSettings.pp.BackBufferWidth, deviceSettings.pp.BackBufferHeight);
+		AdjustWindowRect(&clientRect, m_wnd->GetWindowLong(GWL_STYLE), NULL);
+		m_wnd->SetWindowPos(hWndInsertAfter, 0, 0, clientRect.Width(), clientRect.Height(), SWP_NOMOVE | SWP_NOREDRAW);
 	}
 	else
 	{
@@ -1473,7 +1478,6 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 			m_WindowedPlacement.length = sizeof(m_WindowedPlacement);
 			m_wnd->GetWindowPlacement(&m_WindowedPlacement);
 			m_WindowedStyleAtModeChange = m_wnd->GetWindowLong(GWL_STYLE);
-			m_TopmostWhileWindowed = ((m_WindowedStyleAtModeChange & WS_EX_TOPMOST) != 0);
 		}
 
 		m_wnd->ShowWindow(SW_HIDE);

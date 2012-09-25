@@ -12,8 +12,6 @@
 #define DXUTERR_NODIRECT3D				MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0901)
 #define DXUTERR_NOCOMPATIBLEDEVICES		MAKE_HRESULT(SEVERITY_ERROR, FACILITY_ITF, 0x0902)
 
-typedef bool    (CALLBACK *LPDXUTCALLBACKISD3D9DEVICEACCEPTABLE)( D3DCAPS9* pCaps, D3DFORMAT AdapterFormat, D3DFORMAT BackBufferFormat, bool bWindowed, void* pUserContext );
-
 //--------------------------------------------------------------------------------------
 // A growable array
 //--------------------------------------------------------------------------------------
@@ -434,7 +432,7 @@ public:
     {
         return m_bHasEnumerated;
     }
-    HRESULT                 Enumerate( IDirect3D9 * pD3D );
+    HRESULT                 Enumerate( IDirect3D9 * pD3D, HWND hWnd );
 
     // These should be called after Enumerate() is called
     CGrowableArray <CD3D9EnumAdapterInfo*>* GetAdapterInfoList();
@@ -458,6 +456,7 @@ protected:
 
     bool m_bHasEnumerated;
     IDirect3D9* m_pD3D;
+	HWND m_hWnd;
 	virtual bool IsDeviceAcceptable(
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,

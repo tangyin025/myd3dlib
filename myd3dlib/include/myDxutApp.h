@@ -76,8 +76,6 @@ namespace my
 
 		WINDOWPLACEMENT m_WindowedPlacement;
 
-		bool m_TopmostWhileWindowed;
-
 		bool m_IgnoreSizeChange;
 
 		bool m_DeviceLost;
@@ -122,6 +120,11 @@ namespace my
 		double GetAbsoluteTime(void)
 		{
 			return m_fAbsoluteTime;
+		}
+
+		DXUTD3D9DeviceSettings GetD3D9DeviceSettings(void)
+		{
+			return m_DeviceSettings;
 		}
 
 		virtual bool IsDeviceAcceptable(
