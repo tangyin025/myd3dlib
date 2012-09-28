@@ -700,6 +700,32 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should be removed
 			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should be removed
 
+		, class_<my::ComboBoxSkin, my::ButtonSkin, boost::shared_ptr<my::ControlSkin> >("ComboBoxSkin")
+			.def(constructor<>())
+			.def_readwrite("DropdownImage", &my::ComboBoxSkin::m_DropdownImage)
+			.def_readwrite("DropdownItemMouseOverImage", &my::ComboBoxSkin::m_DropdownItemMouseOverImage)
+			.def_readwrite("ScrollBarUpBtnNormalImage", &my::ComboBoxSkin::m_ScrollBarUpBtnNormalImage)
+			.def_readwrite("ScrollBarUpBtnDisabledImage", &my::ComboBoxSkin::m_ScrollBarUpBtnDisabledImage)
+			.def_readwrite("ScrollBarDownBtnNormalImage", &my::ComboBoxSkin::m_ScrollBarDownBtnNormalImage)
+			.def_readwrite("ScrollBarDownBtnDisabledImage", &my::ComboBoxSkin::m_ScrollBarDownBtnDisabledImage)
+			.def_readwrite("ScrollBarThumbBtnNormalImage", &my::ComboBoxSkin::m_ScrollBarThumbBtnNormalImage)
+			.def_readwrite("ScrollBarImage", &my::ComboBoxSkin::m_ScrollBarImage)
+
+		, class_<my::ComboBox, my::Button, boost::shared_ptr<my::Control> >("ComboBox")
+			.def(constructor<>())
+			.property("DropdownWidth", &my::ComboBox::GetDropdownWidth, &my::ComboBox::SetDropdownWidth)
+			.property("DropdownHeight", &my::ComboBox::GetDropdownHeight, &my::ComboBox::SetDropdownHeight)
+			.property("Border", &my::ComboBox::GetBorder, &my::ComboBox::SetBorder)
+			.property("ItemHeight", &my::ComboBox::GetItemHeight, &my::ComboBox::SetItemHeight)
+			.property("Selected", &my::ComboBox::GetSelected, &my::ComboBox::SetSelected)
+			.def_readwrite("ScrollbarWidth", &my::ComboBox::m_ScrollbarWidth)
+			.scope
+			[
+				def("ul2p", &my::ComboBox::ul2p)
+			]
+			.def("AddItem", &my::ComboBox::AddItem)
+			.def_readwrite("EventSelectionChanged", &my::ComboBox::EventSelectionChanged)
+
 		, class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
 			.def_readonly("vp", &my::AlignEventArgs::vp)
 
@@ -766,15 +792,19 @@ void Export2Lua(lua_State * L)
 			.def("RemoveTimer", &TimerMgr::RemoveTimer)
 			.def("ClearAllTimer", &TimerMgr::ClearAllTimer)
 
-		, class_<GameLoader>("GameLoader")
-			.def("LoadTexture", &GameLoader::LoadTexture)
-			.def("LoadCubeTexture", &GameLoader::LoadCubeTexture)
-			.def("LoadMesh", &GameLoader::LoadMesh)
-			.def("LoadSkeleton", &GameLoader::LoadSkeleton)
-			.def("LoadEffect", &GameLoader::LoadEffect)
-			.def("LoadFont", &GameLoader::LoadFont)
+		, class_<LoaderMgr, my::DxutApp>("LoaderMgr")
+			.def("LoadTexture", &LoaderMgr::LoadTexture)
+			.def("LoadCubeTexture", &LoaderMgr::LoadCubeTexture)
+			.def("LoadMesh", &LoaderMgr::LoadMesh)
+			.def("LoadSkeleton", &LoaderMgr::LoadSkeleton)
+			.def("LoadEffect", &LoaderMgr::LoadEffect)
+			.def("LoadFont", &LoaderMgr::LoadFont)
 
-		, class_<Game, bases<my::DxutApp, GameLoader, TimerMgr> >("Game")
+		, class_<DialogMgr, my::DxutApp>("DialogMgr")
+			.def("InsertDlg", &DialogMgr::InsertDlg)
+			.def("ClearAllDlg", &DialogMgr::ClearAllDlg)
+
+		, class_<Game, bases<LoaderMgr, DialogMgr, TimerMgr> >("Game")
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
@@ -782,8 +812,6 @@ void Export2Lua(lua_State * L)
 			.def("process_event", &Game::process_event)
 			.def("ToggleRef", &Game::ToggleRef)
 			.def("ExecuteCode", &Game::ExecuteCode)
-			.def("InsertDlg", &Game::InsertDlg)
-			.def("ClearAllDlg", &Game::ClearAllDlg)
 
 		, class_<GameStateBase>("GameStateBase")
 

@@ -179,11 +179,11 @@ void ControlSkin::DrawImage(IDirect3DDevice9 * pd3dDevice, ControlImagePtr Image
 	}
 }
 
-void ControlSkin::DrawString(LPCWSTR pString, const my::Rectangle & rect, DWORD color)
+void ControlSkin::DrawString(LPCWSTR pString, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
 {
 	if(m_Font)
 	{
-		m_Font->DrawString(pString, rect, color, m_TextAlign);
+		m_Font->DrawString(pString, rect, TextColor, TextAlign);
 	}
 }
 
@@ -285,7 +285,7 @@ void Static::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 	{
 		if(m_Skin)
 		{
-			m_Skin->DrawString(m_Text.c_str(), Rectangle::LeftTop(Offset + m_Location, m_Size), m_Skin->m_TextColor);
+			m_Skin->DrawString(m_Text.c_str(), Rectangle::LeftTop(Offset + m_Location, m_Size), m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -299,7 +299,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 {
 	if(m_bVisible)
 	{
-		ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin, ControlSkin>(m_Skin);
+		ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
@@ -333,7 +333,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 				}
 			}
 
-			Skin->DrawString(m_Text.c_str(), Rect, Skin->m_TextColor);
+			Skin->DrawString(m_Text.c_str(), Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -431,11 +431,11 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 {
 	if(m_bVisible)
 	{
-		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if(Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
+		if(Skin)
 		{
 			if(!m_bEnabled)
 			{
@@ -1165,7 +1165,7 @@ void ImeEditBox::RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTi
 
 void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
+	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 	if(Skin && Skin->m_Font)
 	{
 		s_CompString = ImeUi_GetCompositionString();
@@ -1199,7 +1199,7 @@ void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsed
 
 void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin, ControlSkin>(m_Skin);
+	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 	if(Skin && Skin->m_Font)
 	{
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
@@ -1284,12 +1284,14 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 
 	if(m_bVisible)
 	{
-		ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin, ControlSkin>(m_Skin);
+		ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-		if(Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
+		if(Skin)
 		{
+			Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+
 			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
 
 			Rectangle DownButtonRect(Rectangle::RightBottom(Rect.r, Rect.b, m_Size.x, m_UpDownButtonHeight));
@@ -1440,6 +1442,284 @@ void ScrollBar::Scroll(int nDelta)
 	m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, m_nPosition + nDelta));
 }
 
+void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+{
+	if(m_bVisible)
+	{
+		ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
+
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
+		if(m_Skin)
+		{
+			if(!m_bEnabled)
+			{
+				Skin->DrawImage(pd3dDevice, Skin->m_DisabledImage, Rect, m_Color);
+			}
+			else
+			{
+				if(m_bOpened)
+				{
+					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
+
+					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownWidth, m_DropdownHeight));
+
+					Skin->DrawImage(pd3dDevice, Skin->m_DropdownImage, DropdownRect, m_Color);
+
+					// ! ScrollBar source copy
+					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownHeight));
+
+					Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarImage, ScrollBarRect, m_Color);
+
+					Rectangle UpButtonRect(Rectangle::LeftTop(ScrollBarRect.l, ScrollBarRect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
+
+					Rectangle DownButtonRect(Rectangle::RightBottom(ScrollBarRect.r, ScrollBarRect.b, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
+
+					if(m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
+					{
+						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Color);
+
+						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Color);
+
+						float fTrackHeight = m_DropdownHeight - m_ScrollbarUpDownBtnHeight * 2;
+						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
+						int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
+						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
+						Rectangle ThumbButtonRect(ScrollBarRect.l, fThumbTop, ScrollBarRect.r, fThumbTop + fThumbHeight);
+
+						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Color);
+					}
+					else
+					{
+						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Color);
+
+						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Color);
+					}
+
+					int i = m_ScrollBar.m_nPosition;
+					float y = DropdownRect.t + m_Border.y;
+					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					{
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+
+						if(i == m_iFocused)
+						{
+							Skin->DrawImage(pd3dDevice, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Color);
+						}
+
+						ComboBoxItem * item = m_Items[i].get();
+						Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
+						Skin->DrawString(item->strText.c_str(), ItemTextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+					}
+				}
+				else
+				{
+					D3DXCOLOR DstColor(m_Color);
+					if(m_bMouseOver /*|| m_bHasFocus*/)
+					{
+						Rect = Rect.offset(-m_PressedOffset);
+					}
+					else
+					{
+						DstColor.a = 0;
+					}
+					Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
+					Skin->DrawImage(pd3dDevice, Skin->m_MouseOverImage, Rect, m_BlendColor);
+				}
+			}
+
+			Rectangle TextRect = Rect.shrink(m_Border);
+			if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+				Skin->DrawString(m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+		}
+	}
+}
+
+bool ComboBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ComboBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
+}
+
+bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled && m_bVisible)
+	{
+		if(m_bHasFocus && m_bOpened)
+		{
+			if(m_ScrollBar.HandleMouse(uMsg, pt - Vector2(m_Location.x, m_Location.y + m_Size.y), wParam, lParam))
+			{
+				return true;
+			}
+		}
+
+		Rectangle DropdownRect(Rectangle::LeftTop(
+			m_Location.x, m_Location.y + m_Size.y, m_DropdownWidth, m_DropdownHeight));
+
+		switch(uMsg)
+		{
+		case WM_MOUSEMOVE:
+			if(m_bHasFocus && m_bOpened)
+			{
+				if(DropdownRect.PtInRect(pt))
+				{
+					int i = m_ScrollBar.m_nPosition;
+					float y = DropdownRect.t;
+					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					{
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+
+						if(ItemRect.PtInRect(pt))
+						{
+							m_iFocused = i;
+
+							break;
+						}
+					}
+					return true;
+				}
+			}
+			break;
+
+		case WM_LBUTTONDOWN:
+		case WM_LBUTTONDBLCLK:
+			if(ContainsPoint(pt))
+			{
+				m_bPressed = true;
+
+				SetCapture(DxutApp::getSingleton().GetHWND());
+
+				m_bOpened = !m_bOpened;
+
+				return true;
+			}
+
+			if(m_bHasFocus && m_bOpened)
+			{
+				if(DropdownRect.PtInRect(pt))
+				{
+					int i = m_ScrollBar.m_nPosition;
+					float y = DropdownRect.t;
+					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
+					{
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+
+						if(ItemRect.PtInRect(pt))
+						{
+							m_iSelected = i;
+
+							m_bOpened = false;
+
+							if(EventSelectionChanged)
+								EventSelectionChanged(EventArgsPtr(new EventArgs));
+
+							break;
+						}
+					}
+					return true;
+				}
+			}
+			break;
+
+		case WM_LBUTTONUP:
+			if(m_bPressed && ContainsPoint(pt))
+			{
+				ReleaseCapture();
+
+				m_bPressed = false;
+
+				return true;
+			}
+			break;
+		}
+	}
+
+	return false;
+}
+
+void ComboBox::OnLayout(void)
+{
+	m_ScrollBar.m_Location = Vector2(m_DropdownWidth, 0);
+
+	m_ScrollBar.m_Size = Vector2(m_ScrollbarWidth, m_DropdownHeight);
+
+	m_ScrollBar.m_nPageSize = (int)((m_DropdownHeight - m_Border.y - m_Border.w) / m_ItemHeight);
+}
+
+void ComboBox::SetDropdownWidth(float DropdownWidth)
+{
+	m_DropdownWidth = DropdownWidth;
+
+	OnLayout();
+}
+
+float ComboBox::GetDropdownWidth(void) const
+{
+	return m_DropdownWidth;
+}
+
+void ComboBox::SetDropdownHeight(float DropdownHeight)
+{
+	m_DropdownHeight = DropdownHeight;
+
+	OnLayout();
+}
+
+float ComboBox::GetDropdownHeight(void) const
+{
+	return m_DropdownHeight;
+}
+
+void ComboBox::SetBorder(const Vector4 & Border)
+{
+	m_Border = Border;
+
+	OnLayout();
+}
+
+const Vector4 & ComboBox::GetBorder(void) const
+{
+	return m_Border;
+}
+
+void ComboBox::SetItemHeight(float ItemHeight)
+{
+	m_ItemHeight = ItemHeight;
+
+	OnLayout();
+}
+
+float ComboBox::GetItemHeight(void) const
+{
+	return m_ItemHeight;
+}
+
+void ComboBox::SetSelected(int iSelected)
+{
+	m_iSelected = m_iFocused = iSelected;
+}
+
+int ComboBox::GetSelected(void) const
+{
+	return m_iSelected;
+}
+
+void ComboBox::AddItem(const std::wstring & strText, void * pData)
+{
+	_ASSERT(!strText.empty());
+
+	ComboBoxItemPtr item(new ComboBoxItem(strText, pData));
+
+	m_Items.push_back(item);
+
+	m_ScrollBar.m_nEnd = m_Items.size();
+}
+
 void Dialog::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
@@ -1488,7 +1768,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 
 		if(uMsg == WM_KEYDOWN
-			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox, Control>(ControlFocus)))
+			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox>(ControlFocus)))
 		{
 			ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)

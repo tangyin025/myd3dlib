@@ -221,6 +221,14 @@ namespace my
 			D3DDISPLAYMODE displayModeIn,
 			D3DDISPLAYMODE * pBestDisplayMode);
 
+		static WCHAR * DXUTD3DDeviceTypeToString(D3DDEVTYPE devType);
+
+		static LPCWSTR DXUTD3DFormatToString(D3DFORMAT format, bool bWithPrefix);
+
+		static WCHAR * DXUTMultisampleTypeToString(D3DMULTISAMPLE_TYPE MultiSampleType);
+
+		static WCHAR * DXUTVertexProcessingTypeToString(DWORD vpt);
+
 		DXUTD3D9DeviceSettings FindValidDeviceSettings(const DXUTD3D9DeviceSettings & deviceSettings, const DXUTMatchOptions & matchOptions);
 
 		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);

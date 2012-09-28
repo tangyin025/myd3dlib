@@ -95,7 +95,7 @@ namespace my
 
 		void DrawImage(IDirect3DDevice9 * pd3dDevice, ControlImagePtr Image, const Rectangle & rect, DWORD color);
 
-		void DrawString(LPCWSTR pString, const Rectangle & rect, DWORD color);
+		void DrawString(LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
 	};
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
@@ -479,6 +479,136 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
+
+	class ComboBoxSkin : public ButtonSkin
+	{
+	public:
+		ControlImagePtr m_DropdownImage;
+
+		ControlImagePtr m_DropdownItemMouseOverImage;
+
+		ControlImagePtr m_ScrollBarUpBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarUpBtnDisabledImage;
+
+		ControlImagePtr m_ScrollBarDownBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarDownBtnDisabledImage;
+
+		ControlImagePtr m_ScrollBarThumbBtnNormalImage;
+
+		ControlImagePtr m_ScrollBarImage;
+
+	public:
+		ComboBoxSkin(void)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<ComboBoxSkin> ComboBoxSkinPtr;
+
+	class ComboBoxItem
+	{
+	public:
+		std::wstring strText;
+
+		void * pData;
+
+		CRect rcActive;
+
+		bool bVisible;
+
+		ComboBoxItem(const std::wstring _strText, void * _pData = NULL)
+			: strText(_strText)
+			, pData(_pData)
+			, rcActive(0,0,0,0)
+			, bVisible(true)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<ComboBoxItem> ComboBoxItemPtr;
+
+	class ComboBox : public Button
+	{
+	public:
+		float m_DropdownWidth;
+
+		float m_DropdownHeight;
+
+		ScrollBar m_ScrollBar;
+
+		float m_ScrollbarWidth;
+
+		float m_ScrollbarUpDownBtnHeight;
+
+		Vector4 m_Border;
+
+		bool m_bOpened;
+
+		typedef std::vector<ComboBoxItemPtr> ComboBoxItemPtrList;
+
+		ComboBoxItemPtrList m_Items;
+
+		float m_ItemHeight;
+
+		int m_iFocused;
+
+		int m_iSelected;
+
+		ControlEvent EventSelectionChanged;
+
+	public:
+		ComboBox(void)
+			: m_DropdownWidth(100)
+			, m_DropdownHeight(100)
+			, m_ScrollbarWidth(20)
+			, m_ScrollbarUpDownBtnHeight(20)
+			, m_Border(0,0,0,0)
+			, m_bOpened(false)
+			, m_ItemHeight(15)
+			, m_iFocused(0)
+			, m_iSelected(-1)
+		{
+			m_Skin.reset(new ComboBoxSkin());
+
+			OnLayout();
+		}
+
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+
+		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
+
+		virtual void OnLayout(void);
+
+		void SetDropdownWidth(float DropdownWidth);
+
+		float GetDropdownWidth(void) const;
+
+		void SetDropdownHeight(float DropdownHeight);
+
+		float GetDropdownHeight(void) const;
+
+		void SetBorder(const Vector4 & Border);
+
+		const Vector4 & GetBorder(void) const;
+
+		void SetItemHeight(float ItemHeight);
+
+		float GetItemHeight(void) const;
+
+		void SetSelected(int iSelected);
+
+		int GetSelected(void) const;
+
+		static void * ul2p(const unsigned long ul) { return (void *)(ULONG_PTR)ul; }
+
+		void AddItem(const std::wstring & strText, void * pData);
+	};
 
 	class AlignEventArgs : public my::EventArgs
 	{

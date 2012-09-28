@@ -142,10 +142,10 @@ typedef boost::statechart::event_base GameEventBase;
 // ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
-class GameLoader
+class LoaderMgr
 	: public my::ResourceMgr
 	, public ID3DXInclude
-	, public my::DxutApp
+	, virtual public my::DxutApp
 {
 protected:
 	std::map<LPCVOID, my::CachePtr> m_cacheSet;
@@ -157,9 +157,9 @@ protected:
 	DeviceRelatedResourceSet m_resourceSet;
 
 public:
-	GameLoader(void);
+	LoaderMgr(void);
 
-	virtual ~GameLoader(void);
+	virtual ~LoaderMgr(void);
 
 	virtual __declspec(nothrow) HRESULT __stdcall Open(
 		D3DXINCLUDE_TYPE IncludeType,
@@ -194,6 +194,47 @@ public:
 };
 
 typedef boost::function<void (void)> TimerEvent;
+
+class DialogMgr
+	: virtual public my::DxutApp
+{
+public:
+	typedef std::vector<my::DialogPtr> DialogPtrSet;
+
+	DialogPtrSet m_dlgSet;
+
+public:
+	DialogMgr(void)
+	{
+	}
+
+	void OnAlign(void);
+
+	void UpdateDlgViewProj(my::DialogPtr dlg);
+
+	void Draw(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	bool MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam);
+
+	void InsertDlg(my::DialogPtr dlg)
+	{
+		UpdateDlgViewProj(dlg);
+
+		m_dlgSet.push_back(dlg);
+	}
+
+	void ClearAllDlg(void)
+	{
+		m_dlgSet.clear();
+	}
+};
 
 class Timer
 {
@@ -251,18 +292,15 @@ public:
 };
 
 class Game
-	: public GameLoader
-	, public boost::statechart::state_machine<Game, GameStateLoad>
+	: public LoaderMgr
+	, public DialogMgr
 	, public TimerMgr
+	, public boost::statechart::state_machine<Game, GameStateLoad>
 {
 public:
 	GameStateBase * cs;
 
 	my::LuaContextPtr m_lua;
-
-	typedef std::vector<my::DialogPtr> DialogPtrSet;
-
-	DialogPtrSet m_dlgSet;
 
 	my::FontPtr m_font;
 
@@ -421,20 +459,6 @@ public:
 	void ToggleRef(void);
 
 	void ExecuteCode(const char * code);
-
-	void UpdateDlgViewProj(my::DialogPtr dlg);
-
-	void InsertDlg(my::DialogPtr dlg)
-	{
-		UpdateDlgViewProj(dlg);
-
-		m_dlgSet.push_back(dlg);
-	}
-
-	void ClearAllDlg(void)
-	{
-		m_dlgSet.clear();
-	}
 };
 
 class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>

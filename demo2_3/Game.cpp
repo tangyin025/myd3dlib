@@ -210,7 +210,7 @@ void DrawHelper::DrawCapsule(
 	DrawCylinderStage(pd3dDevice, radius, y0, y1, Color, world);
 }
 
-GameLoader::GameLoader(void)
+LoaderMgr::LoaderMgr(void)
 {
 	RegisterFileDir("Media");
 	RegisterZipArchive("Media.zip");
@@ -218,11 +218,11 @@ GameLoader::GameLoader(void)
 	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
-GameLoader::~GameLoader(void)
+LoaderMgr::~LoaderMgr(void)
 {
 }
 
-HRESULT GameLoader::Open(
+HRESULT LoaderMgr::Open(
 	D3DXINCLUDE_TYPE IncludeType,
 	LPCSTR pFileName,
 	LPCVOID pParentData,
@@ -248,7 +248,7 @@ HRESULT GameLoader::Open(
 	return E_FAIL;
 }
 
-HRESULT GameLoader::Close(
+HRESULT LoaderMgr::Close(
 	LPCVOID pData)
 {
 	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
@@ -256,7 +256,7 @@ HRESULT GameLoader::Close(
 	return S_OK;
 }
 
-HRESULT GameLoader::OnResetDevice(
+HRESULT LoaderMgr::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
@@ -278,7 +278,7 @@ HRESULT GameLoader::OnResetDevice(
 	return S_OK;
 }
 
-void GameLoader::OnLostDevice(void)
+void LoaderMgr::OnLostDevice(void)
 {
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
@@ -296,7 +296,7 @@ void GameLoader::OnLostDevice(void)
 	}
 }
 
-void GameLoader::OnDestroyDevice(void)
+void LoaderMgr::OnDestroyDevice(void)
 {
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
@@ -316,7 +316,7 @@ void GameLoader::OnDestroyDevice(void)
 	m_resourceSet.clear();
 }
 
-boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & path)
+boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & path)
 {
 	TexturePtr ret(new Texture());
 	std::string loc_path = std::string("texture/") + path;
@@ -335,7 +335,7 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadTexture(const std::string & p
 	return ret;
 }
 
-boost::shared_ptr<my::BaseTexture> GameLoader::LoadCubeTexture(const std::string & path)
+boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string & path)
 {
 	CubeTexturePtr ret(new CubeTexture());
 	std::string loc_path = std::string("texture/") + path;
@@ -354,7 +354,7 @@ boost::shared_ptr<my::BaseTexture> GameLoader::LoadCubeTexture(const std::string
 	return ret;
 }
 
-OgreMeshPtr GameLoader::LoadMesh(const std::string & path)
+OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path)
 {
 	OgreMeshPtr ret(new OgreMesh());
 	std::string loc_path = std::string("mesh/") + path;
@@ -373,7 +373,7 @@ OgreMeshPtr GameLoader::LoadMesh(const std::string & path)
 	return ret;
 }
 
-OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
+OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path)
 {
 	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
 	std::string loc_path = std::string("mesh/") + path;
@@ -390,7 +390,7 @@ OgreSkeletonAnimationPtr GameLoader::LoadSkeleton(const std::string & path)
 	return ret;
 }
 
-EffectPtr GameLoader::LoadEffect(const std::string & path)
+EffectPtr LoaderMgr::LoadEffect(const std::string & path)
 {
 	EffectPtr ret(new Effect());
 	std::string loc_path = std::string("shader/") + path;
@@ -409,7 +409,7 @@ EffectPtr GameLoader::LoadEffect(const std::string & path)
 	return ret;
 }
 
-FontPtr GameLoader::LoadFont(const std::string & path, int height)
+FontPtr LoaderMgr::LoadFont(const std::string & path, int height)
 {
 	FontPtr ret(new Font());
 	std::string loc_path = std::string("font/") + path;
@@ -436,7 +436,9 @@ void Timer::OnFrameMove(
 	while(m_RemainingTime >= 0)
 	{
 		m_RemainingTime -= m_Interval;
-		m_EventTimer();
+
+		if(m_EventTimer)
+			m_EventTimer();
 	}
 }
 
@@ -449,6 +451,59 @@ void TimerMgr::OnFrameMove(
 	{
 		(*timer_iter)->OnFrameMove(fElapsedTime, fElapsedTime);
 	}
+}
+
+void DialogMgr::OnAlign(void)
+{
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	{
+		UpdateDlgViewProj(*dlg_iter);
+	}
+}
+
+void DialogMgr::UpdateDlgViewProj(DialogPtr dlg)
+{
+	const D3DSURFACE_DESC & desc = GetD3D9BackBufferSurfaceDesc();
+
+	float aspect = desc.Width / (float)desc.Height;
+
+	float height = (float)desc.Height;
+
+	Vector2 vp(height * aspect, height);
+
+	UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
+
+	if(dlg->EventAlign)
+		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
+}
+
+void DialogMgr::Draw(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	{
+		(*dlg_iter)->Draw(pd3dDevice, fElapsedTime);
+	}
+}
+
+bool DialogMgr::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
+	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
+	{
+		if((*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam))
+			return true;
+	}
+
+	return false;
 }
 
 Game::Game(void)
@@ -580,7 +635,7 @@ HRESULT Game::OnResetDevice(
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = GameLoader::OnResetDevice(
+	if(FAILED(hres = LoaderMgr::OnResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -588,11 +643,7 @@ HRESULT Game::OnResetDevice(
 
 	UpdateDlgViewProj(m_console);
 
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-	{
-		UpdateDlgViewProj(*dlg_iter);
-	}
+	OnAlign();
 
 	SafeResetCurrentState();
 
@@ -605,7 +656,7 @@ void Game::OnLostDevice(void)
 
 	SafeLostCurrentState();
 
-	GameLoader::OnLostDevice();
+	LoaderMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -628,7 +679,7 @@ void Game::OnDestroyDevice(void)
 
 	ClearAllTimer();
 
-	GameLoader::OnDestroyDevice();
+	LoaderMgr::OnDestroyDevice();
 }
 
 void Game::OnFrameMove(
@@ -666,11 +717,7 @@ void Game::OnFrameRender(
 	{
 		UIRender::Begin(pd3dDevice);
 
-		DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-		for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-		{
-			(*dlg_iter)->Draw(pd3dDevice, fElapsedTime);
-		}
+		DialogMgr::Draw(pd3dDevice, fTime, fElapsedTime);
 
 		m_console->Draw(pd3dDevice, fElapsedTime);
 
@@ -721,11 +768,9 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
-	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
+	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
-		if((*pbNoFurtherProcessing = (*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam)))
-			return 0;
+		return 0;
 	}
 
 	if((cs = CurrentState()) &&
@@ -758,20 +803,4 @@ void Game::ExecuteCode(const char * code)
 
 		m_console->SetVisible(true);
 	}
-}
-
-void Game::UpdateDlgViewProj(DialogPtr dlg)
-{
-	const D3DSURFACE_DESC & desc = GetD3D9BackBufferSurfaceDesc();
-
-	float aspect = desc.Width / (float)desc.Height;
-
-	float height = (float)desc.Height;
-
-	Vector2 vp(height * aspect, height);
-
-	UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
-
-	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
 }
