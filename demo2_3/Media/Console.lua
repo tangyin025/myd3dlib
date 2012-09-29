@@ -1,24 +1,26 @@
-console=Dialog()
-console.Color=ARGB(197,0,0,0)
--- console.Location=Vector2(50,95)
-console.Size=Vector2(700,410)
-console.Skin.Font=game.font
-console.Skin.TextColor=ARGB(255,255,255,255)
-console.Skin.TextAlign=Font.AlignLeftTop
-console.EventAlign=function(args)
-	console.Location=Vector2(50,95)
+module("Console", package.seeall)
+
+dlg=Dialog()
+dlg.Color=ARGB(197,0,0,0)
+-- dlg.Location=Vector2(50,95)
+dlg.Size=Vector2(700,410)
+dlg.Skin.Font=_Font.font1
+dlg.Skin.TextColor=ARGB(255,255,255,255)
+dlg.Skin.TextAlign=Font.AlignLeftTop
+dlg.EventAlign=function(args)
+	dlg.Location=Vector2(50,95)
 end
 
 local panel=MessagePanel()
 panel.Color=ARGB(0,0,0,0)
 panel.Location=Vector2(5,5)
 panel.Size=Vector2(700-5-5,410-5-5-20)
-panel.Skin.Font=game.font
+panel.Skin.Font=_Font.font1
 panel.scrollbar.Color=ARGB(15,255,255,255)
 panel.scrollbar.Location=Vector2(panel.Size.x - 20, 0)
 panel.scrollbar.Size=Vector2(20, panel.Size.y)
 panel.scrollbar.nPageSize=3
-console:InsertControl(panel)
+dlg:InsertControl(panel)
 
 local e_texts={}
 local e_texts_idx=0
@@ -28,7 +30,7 @@ edit.Location=Vector2(5, 410-5-20)
 edit.Size=Vector2(700-5-5,20)
 edit.Border=Vector4(0,0,0,0)
 edit.Text="在这里输入命令"
-edit.Skin.Font=game.font
+edit.Skin.Font=_Font.font1
 edit.Skin.TextColor=ARGB(255,63,188,239)
 edit.EventEnter=function()
 	-- 使用临时变量可以减少 wstou8的转换次数
@@ -56,8 +58,8 @@ edit.EventKeyDown=function()
 		edit.Text=e_texts[e_texts_idx]
 	end
 end
-console:InsertControl(edit)
+dlg:InsertControl(edit)
 
-game.console=console
+game.console=dlg
 
 game.panel=panel

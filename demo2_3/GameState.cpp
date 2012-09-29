@@ -71,7 +71,10 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
 
-	_ASSERT(m_Camera);
+	if(!m_Camera)
+	{
+		THROW_CUSEXCEPTION("camera must be created");
+	}
 
 	return S_OK;
 }

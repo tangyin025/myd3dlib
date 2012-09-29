@@ -1,3 +1,5 @@
+module("Loader", package.seeall)
+
 -- 防止garbage collect时清理掉还在使用的资源
 resource_pool={}
 function LoadTexture(name)

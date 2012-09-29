@@ -514,15 +514,9 @@ namespace my
 
 		void * pData;
 
-		CRect rcActive;
-
-		bool bVisible;
-
 		ComboBoxItem(const std::wstring _strText, void * _pData = NULL)
 			: strText(_strText)
 			, pData(_pData)
-			, rcActive(0,0,0,0)
-			, bVisible(true)
 		{
 		}
 	};
@@ -532,9 +526,7 @@ namespace my
 	class ComboBox : public Button
 	{
 	public:
-		float m_DropdownWidth;
-
-		float m_DropdownHeight;
+		Vector2 m_DropdownSize;
 
 		ScrollBar m_ScrollBar;
 
@@ -560,8 +552,7 @@ namespace my
 
 	public:
 		ComboBox(void)
-			: m_DropdownWidth(100)
-			, m_DropdownHeight(100)
+			: m_DropdownSize(100,100)
 			, m_ScrollbarWidth(20)
 			, m_ScrollbarUpDownBtnHeight(20)
 			, m_Border(0,0,0,0)
@@ -583,15 +574,13 @@ namespace my
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
+		virtual void OnFocusOut(void);
+
 		virtual void OnLayout(void);
 
-		void SetDropdownWidth(float DropdownWidth);
+		void SetDropdownSize(const Vector2 & DropdownSize);
 
-		float GetDropdownWidth(void) const;
-
-		void SetDropdownHeight(float DropdownHeight);
-
-		float GetDropdownHeight(void) const;
+		const Vector2 & GetDropdownSize(void) const;
 
 		void SetBorder(const Vector4 & Border);
 

@@ -179,83 +179,83 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return ImeEditBox::HandleKeyboard(uMsg, wParam, lParam);
 }
-
-Console::Console(void)
-{
-	m_Color = D3DCOLOR_ARGB(197,0,0,0);
-	m_Size = Vector2(700,410);
-	m_Skin->m_Font = Game::getSingleton().m_font;
-	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
-	m_Skin->m_TextAlign = Font::AlignLeftTop;
-	EventAlign = boost::bind(&Console::OnEventAlign, this, _1);
-
-	const Vector4 Border(5,5,5,5);
-
-	m_edit.reset(new ConsoleEditBox());
-	m_edit->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-	m_edit->m_Size = Vector2(m_Size.x - Border.x - Border.z, 20);
-	m_edit->m_Location = Vector2(Border.x, m_Size.y - Border.w - m_edit->m_Size.y);
-	m_edit->m_Border = Vector4(0,0,0,0);
-	m_edit->m_Skin->m_Font = Game::getSingleton().m_font;
-	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
-	m_edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
-	m_edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
-	m_edit->EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
-	m_edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
-	InsertControl(m_edit);
-
-	m_edit->SetText(L"在这里输入命令");
-
-	m_panel.reset(new MessagePanel());
-	m_panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
-	m_panel->m_Location = Vector2(Border.x, Border.y);
-	m_panel->m_Size = Vector2(m_Size.x - Border.x - Border.z, m_Size.y - Border.y - Border.w - m_edit->m_Size.y);
-	m_panel->m_Skin->m_Font = Game::getSingleton().m_font;
-	m_panel->m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
-	m_panel->m_scrollbar->m_Size = Vector2(20, m_panel->m_Size.y);
-	m_panel->m_scrollbar->m_Location = Vector2(m_panel->m_Size.x - m_panel->m_scrollbar->m_Size.x, 0);
-	m_panel->m_scrollbar->m_nPageSize = 3;
-	InsertControl(m_panel);
-
-	m_strIter = m_strList.end();
-}
-
-Console::~Console(void)
-{
-}
-
-void Console::OnEventAlign(EventArgsPtr args)
-{
-	m_Location = Vector2(50,95);
-}
-
-void Console::OnEventEnter(EventArgsPtr args)
-{
-	std::wstring code = m_edit->m_Text;
-	if(!code.empty())
-	{
-		m_strList.push_back(code);
-		if(m_strList.size() > 32)
-			m_strList.pop_front();
-		m_strIter = m_strList.end();
-		m_edit->SetText(L"");
-		m_panel->AddLine(code, m_edit->m_Skin->m_TextColor);
-		Game::getSingleton().ExecuteCode(wstou8(code.c_str()).c_str());
-	}
-}
-
-void Console::OnEventKeyUp(EventArgsPtr args)
-{
-	if(m_strIter != m_strList.begin())
-	{
-		m_edit->SetText(*--m_strIter);
-	}
-}
-
-void Console::OnEventKeyDown(EventArgsPtr args)
-{
-	if(m_strIter != m_strList.end() && ++std::list<std::wstring>::iterator(m_strIter) != m_strList.end())
-	{
-		m_edit->SetText(*++m_strIter);
-	}
-}
+//
+//Console::Console(void)
+//{
+//	m_Color = D3DCOLOR_ARGB(197,0,0,0);
+//	m_Size = Vector2(700,410);
+//	m_Skin->m_Font = Game::getSingleton().m_font;
+//	m_Skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
+//	m_Skin->m_TextAlign = Font::AlignLeftTop;
+//	EventAlign = boost::bind(&Console::OnEventAlign, this, _1);
+//
+//	const Vector4 Border(5,5,5,5);
+//
+//	m_edit.reset(new ConsoleEditBox());
+//	m_edit->m_Color = D3DCOLOR_ARGB(15,255,255,255);
+//	m_edit->m_Size = Vector2(m_Size.x - Border.x - Border.z, 20);
+//	m_edit->m_Location = Vector2(Border.x, m_Size.y - Border.w - m_edit->m_Size.y);
+//	m_edit->m_Border = Vector4(0,0,0,0);
+//	m_edit->m_Skin->m_Font = Game::getSingleton().m_font;
+//	m_edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
+//	m_edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
+//	m_edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
+//	m_edit->EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
+//	m_edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
+//	InsertControl(m_edit);
+//
+//	m_edit->SetText(L"在这里输入命令");
+//
+//	m_panel.reset(new MessagePanel());
+//	m_panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
+//	m_panel->m_Location = Vector2(Border.x, Border.y);
+//	m_panel->m_Size = Vector2(m_Size.x - Border.x - Border.z, m_Size.y - Border.y - Border.w - m_edit->m_Size.y);
+//	m_panel->m_Skin->m_Font = Game::getSingleton().m_font;
+//	m_panel->m_scrollbar->m_Color = D3DCOLOR_ARGB(15,255,255,255);
+//	m_panel->m_scrollbar->m_Size = Vector2(20, m_panel->m_Size.y);
+//	m_panel->m_scrollbar->m_Location = Vector2(m_panel->m_Size.x - m_panel->m_scrollbar->m_Size.x, 0);
+//	m_panel->m_scrollbar->m_nPageSize = 3;
+//	InsertControl(m_panel);
+//
+//	m_strIter = m_strList.end();
+//}
+//
+//Console::~Console(void)
+//{
+//}
+//
+//void Console::OnEventAlign(EventArgsPtr args)
+//{
+//	m_Location = Vector2(50,95);
+//}
+//
+//void Console::OnEventEnter(EventArgsPtr args)
+//{
+//	std::wstring code = m_edit->m_Text;
+//	if(!code.empty())
+//	{
+//		m_strList.push_back(code);
+//		if(m_strList.size() > 32)
+//			m_strList.pop_front();
+//		m_strIter = m_strList.end();
+//		m_edit->SetText(L"");
+//		m_panel->AddLine(code, m_edit->m_Skin->m_TextColor);
+//		Game::getSingleton().ExecuteCode(wstou8(code.c_str()).c_str());
+//	}
+//}
+//
+//void Console::OnEventKeyUp(EventArgsPtr args)
+//{
+//	if(m_strIter != m_strList.begin())
+//	{
+//		m_edit->SetText(*--m_strIter);
+//	}
+//}
+//
+//void Console::OnEventKeyDown(EventArgsPtr args)
+//{
+//	if(m_strIter != m_strList.end() && ++std::list<std::wstring>::iterator(m_strIter) != m_strList.end())
+//	{
+//		m_edit->SetText(*++m_strIter);
+//	}
+//}

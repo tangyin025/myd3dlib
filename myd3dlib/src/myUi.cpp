@@ -1462,12 +1462,12 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 				{
 					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
 
-					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownWidth, m_DropdownHeight));
+					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownSize.x, m_DropdownSize.y));
 
 					Skin->DrawImage(pd3dDevice, Skin->m_DropdownImage, DropdownRect, m_Color);
 
 					// ! ScrollBar source copy
-					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownHeight));
+					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y));
 
 					Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarImage, ScrollBarRect, m_Color);
 
@@ -1481,7 +1481,7 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Color);
 
-						float fTrackHeight = m_DropdownHeight - m_ScrollbarUpDownBtnHeight * 2;
+						float fTrackHeight = m_DropdownSize.y - m_ScrollbarUpDownBtnHeight * 2;
 						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
 						int nMaxPosition = m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart - m_ScrollBar.m_nPageSize;
 						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
@@ -1500,7 +1500,7 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 					float y = DropdownRect.t + m_Border.y;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
 
 						if(i == m_iFocused)
 						{
@@ -1559,7 +1559,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		}
 
 		Rectangle DropdownRect(Rectangle::LeftTop(
-			m_Location.x, m_Location.y + m_Size.y, m_DropdownWidth, m_DropdownHeight));
+			m_Location.x, m_Location.y + m_Size.y, m_DropdownSize.x, m_DropdownSize.y));
 
 		switch(uMsg)
 		{
@@ -1572,7 +1572,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					float y = DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
 
 						if(ItemRect.PtInRect(pt))
 						{
@@ -1607,7 +1607,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					float y = DropdownRect.t;
 					for(; i < (int)m_Items.size() && y <= DropdownRect.b - m_ItemHeight; i++, y += m_ItemHeight)
 					{
-						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownWidth, m_ItemHeight));
+						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
 
 						if(ItemRect.PtInRect(pt))
 						{
@@ -1642,37 +1642,32 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	return false;
 }
 
+void ComboBox::OnFocusOut(void)
+{
+	m_bOpened = false;
+
+	Control::OnFocusOut();
+}
+
 void ComboBox::OnLayout(void)
 {
-	m_ScrollBar.m_Location = Vector2(m_DropdownWidth, 0);
+	m_ScrollBar.m_Location = Vector2(m_DropdownSize.x, 0);
 
-	m_ScrollBar.m_Size = Vector2(m_ScrollbarWidth, m_DropdownHeight);
+	m_ScrollBar.m_Size = Vector2(m_ScrollbarWidth, m_DropdownSize.y);
 
-	m_ScrollBar.m_nPageSize = (int)((m_DropdownHeight - m_Border.y - m_Border.w) / m_ItemHeight);
+	m_ScrollBar.m_nPageSize = (int)((m_DropdownSize.y - m_Border.y - m_Border.w) / m_ItemHeight);
 }
 
-void ComboBox::SetDropdownWidth(float DropdownWidth)
+void ComboBox::SetDropdownSize(const Vector2 & DropdownSize)
 {
-	m_DropdownWidth = DropdownWidth;
+	m_DropdownSize = DropdownSize;
 
 	OnLayout();
 }
 
-float ComboBox::GetDropdownWidth(void) const
+const Vector2 & ComboBox::GetDropdownSize(void) const
 {
-	return m_DropdownWidth;
-}
-
-void ComboBox::SetDropdownHeight(float DropdownHeight)
-{
-	m_DropdownHeight = DropdownHeight;
-
-	OnLayout();
-}
-
-float ComboBox::GetDropdownHeight(void) const
-{
-	return m_DropdownHeight;
+	return m_DropdownSize;
 }
 
 void ComboBox::SetBorder(const Vector4 & Border)

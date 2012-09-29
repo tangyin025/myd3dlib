@@ -1,4 +1,5 @@
 dofile "Loader.lua"
+dofile "CommonUI.lua"
 dofile "Hud.lua"
 
 -- 获取当前state
@@ -23,14 +24,14 @@ local d=Dialog();d.Visible=false;d.EventAlign=function(args) camera.Aspect=args.
 
 -- 创建场景
 local function CreateScene(n)
-	state:InsertStaticMesh(LoadEffectMesh(n..".mesh.xml"))
+	state:InsertStaticMesh(Loader.LoadEffectMesh(n..".mesh.xml"))
 end
 
 -- 创建角色
 local function CreateRole(n,p,t)
 	local character=Character()
-	character:InsertMeshLOD(LoadEffectMesh(n..".mesh.xml"))
-	character:InsertSkeletonLOD(LoadSkeleton(n..".skeleton.xml"))
+	character:InsertMeshLOD(Loader.LoadEffectMesh(n..".mesh.xml"))
+	character:InsertSkeletonLOD(Loader.LoadSkeleton(n..".skeleton.xml"))
 	character.Scale=Vector3(0.01,0.01,0.01)
 	character.Position=p
 	character.StateTime=t

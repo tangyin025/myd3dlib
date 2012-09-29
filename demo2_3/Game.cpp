@@ -579,13 +579,9 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_font = LoadFont("wqy-microhei.ttc", 13);
+	ExecuteCode("dofile \"Font.lua\"");
 
-	ConsolePtr console(new Console());
-
-	m_console = console;
-
-	m_panel = console->m_panel;
+	ExecuteCode("dofile \"Console.lua\"");
 
 	if(!m_font || !m_console || !m_panel)
 	{
