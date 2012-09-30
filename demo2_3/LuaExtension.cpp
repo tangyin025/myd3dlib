@@ -180,28 +180,32 @@ namespace luabind
 	struct default_converter<std::wstring>
 		: native_converter_base<std::wstring>
 	{
-		static int compute_score(lua_State * L, int index)
+		static int compute_score(lua_State* L, int index)
 		{
 			return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
 		}
 
-		std::wstring from(lua_State * L, int index)
+		std::wstring from(lua_State* L, int index)
 		{
 			return u8tows(lua_tostring(L, index));
 		}
 
-		void to(lua_State * L, std::wstring const & str)
+		void to(lua_State* L, std::wstring const& value)
 		{
-			std::string res(wstou8(str.c_str()));
-			lua_pushlstring(L, res.c_str(), res.size());
+			std::string str = wstou8(value.c_str());
+			lua_pushlstring(L, str.data(), str.size());
 		}
 	};
 
 	template <>
-	struct default_converter<std::wstring const &>
+	struct default_converter<std::wstring const>
 		: default_converter<std::wstring>
-	{
-	};
+	{};
+
+	template <>
+	struct default_converter<std::wstring const&>
+		: default_converter<std::wstring>
+	{};
 
 	template <>
 	struct default_converter<my::ControlEvent>
@@ -322,8 +326,8 @@ void Export2Lua(lua_State * L)
 
 	open(L);
 
-	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	register_exception_handler<my::Exception>(&translate_my_exception);
+	//// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	//register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
 	//set_pcall_callback(lua_error_pcall);
@@ -660,10 +664,10 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("DisabledImage", &my::ButtonSkin::m_DisabledImage)
 			.def_readwrite("PressedImage", &my::ButtonSkin::m_PressedImage)
 			.def_readwrite("MouseOverImage", &my::ButtonSkin::m_MouseOverImage)
+			.def_readwrite("PressedOffset", &my::ButtonSkin::m_PressedOffset)
 
 		, class_<my::Button, my::Static, boost::shared_ptr<my::Control> >("Button")
 			.def(constructor<>())
-			.def_readwrite("PressedOffset", &my::Button::m_PressedOffset)
 			.def_readwrite("EventClick", &my::Button::EventClick)
 			.def("SetHotkey", &my::Button::SetHotkey)
 
@@ -718,11 +722,10 @@ void Export2Lua(lua_State * L)
 			.property("ItemHeight", &my::ComboBox::GetItemHeight, &my::ComboBox::SetItemHeight)
 			.property("Selected", &my::ComboBox::GetSelected, &my::ComboBox::SetSelected)
 			.def_readwrite("ScrollbarWidth", &my::ComboBox::m_ScrollbarWidth)
-			.scope
-			[
-				def("ul2p", &my::ComboBox::ul2p)
-			]
 			.def("AddItem", &my::ComboBox::AddItem)
+			.def("RemoveAllItems", &my::ComboBox::RemoveAllItems)
+			.def("GetItemData", &my::ComboBox::GetItemDataUInt)
+			.def("SetItemData", (void (my::ComboBox::*)(int, unsigned int))&my::ComboBox::SetItemData)
 			.def_readwrite("EventSelectionChanged", &my::ComboBox::EventSelectionChanged)
 
 		, class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
@@ -732,6 +735,7 @@ void Export2Lua(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
+			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
 			.def("InsertControl", &my::Dialog::InsertControl)
 			.def("ClearAllControl", &my::Dialog::ClearAllControl)
 
@@ -771,7 +775,35 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("BehaviorFlags", &DXUTD3D9DeviceSettings::BehaviorFlags)
 			.def_readwrite("pp", &DXUTD3D9DeviceSettings::pp)
 
-		, class_<my::DxutApp>("DxutApp")
+		, class_<CD3D9EnumAdapterInfo>("CD3D9EnumAdapterInfo")
+			.def_readonly("AdapterOrdinal", &CD3D9EnumAdapterInfo::AdapterOrdinal)
+			.def_readonly("szUniqueDescription", &CD3D9EnumAdapterInfo::szUniqueDescription)
+			.def_readonly("deviceInfoList", &CD3D9EnumAdapterInfo::deviceInfoList)
+
+		, class_<CGrowableArray<CD3D9EnumAdapterInfo *> >("CD3D9EnumAdapterInfoArray")
+			.def("GetAt", &CGrowableArray<CD3D9EnumAdapterInfo *>::GetAt)
+			.def("GetSize", &CGrowableArray<CD3D9EnumAdapterInfo *>::GetSize)
+
+		, class_<CD3D9EnumDeviceInfo>("CD3D9EnumDeviceInfo")
+			.def_readonly("AdapterOrdinal", &CD3D9EnumDeviceInfo::AdapterOrdinal)
+			.def_readonly("DeviceType", &CD3D9EnumDeviceInfo::DeviceType)
+
+		, class_<CGrowableArray<CD3D9EnumDeviceInfo *> >("CD3D9EnumDeviceInfoArray")
+			.def("GetAt", &CGrowableArray<CD3D9EnumDeviceInfo *>::GetAt)
+			.def("GetSize", &CGrowableArray<CD3D9EnumDeviceInfo *>::GetSize)
+
+		, class_<CD3D9Enumeration>("CD3D9Enumeration")
+			.def("GetAdapterInfoList", &CD3D9Enumeration::GetAdapterInfoList)
+			.def("GetAdapterInfo", &CD3D9Enumeration::GetAdapterInfo)
+
+		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
+			.scope
+			[
+				def("DXUTD3DDeviceTypeToString", &my::DxutApp::DXUTD3DDeviceTypeToString)
+				, def("DXUTD3DFormatToString", &my::DxutApp::DXUTD3DFormatToString)
+				, def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString)
+				, def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
+			]
 			.def("GetAbsoluteTime", &my::DxutApp::GetAbsoluteTime)
 			.def("GetD3D9DeviceSettings", &my::DxutApp::GetD3D9DeviceSettings)
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)

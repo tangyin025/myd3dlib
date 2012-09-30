@@ -269,6 +269,10 @@ bool Control::GetVisible(void)
 	return m_bVisible;
 }
 
+void Control::Refresh(void)
+{
+}
+
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
@@ -313,7 +317,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 			{
 				if(m_bPressed)
 				{
-					Rect = Rect.offset(m_PressedOffset);
+					Rect = Rect.offset(Skin->m_PressedOffset);
 					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
 				}
 				else
@@ -321,7 +325,7 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 					D3DXCOLOR DstColor(m_Color);
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						Rect = Rect.offset(-m_PressedOffset);
+						Rect = Rect.offset(-Skin->m_PressedOffset);
 					}
 					else
 					{
@@ -425,6 +429,11 @@ void Button::OnHotkey(void)
 bool Button::ContainsPoint(const Vector2 & pt)
 {
 	return Control::ContainsPoint(pt);
+}
+
+void Button::Refresh(void)
+{
+	m_BlendColor = m_Color;
 }
 
 void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
@@ -1460,9 +1469,11 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 			{
 				if(m_bOpened)
 				{
-					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
-
 					Rectangle DropdownRect(Rectangle::LeftTop(Rect.l, Rect.b, m_DropdownSize.x, m_DropdownSize.y));
+
+					Rect = Rect.offset(Skin->m_PressedOffset);
+
+					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
 
 					Skin->DrawImage(pd3dDevice, Skin->m_DropdownImage, DropdownRect, m_Color);
 
@@ -1517,7 +1528,7 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 					D3DXCOLOR DstColor(m_Color);
 					if(m_bMouseOver /*|| m_bHasFocus*/)
 					{
-						Rect = Rect.offset(-m_PressedOffset);
+						Rect = Rect.offset(-Skin->m_PressedOffset);
 					}
 					else
 					{
@@ -1611,11 +1622,13 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 						if(ItemRect.PtInRect(pt))
 						{
+							int last_selected = m_iSelected;
+
 							m_iSelected = i;
 
 							m_bOpened = false;
 
-							if(EventSelectionChanged)
+							if(last_selected != m_iSelected && EventSelectionChanged)
 								EventSelectionChanged(EventArgsPtr(new EventArgs));
 
 							break;
@@ -1704,15 +1717,42 @@ int ComboBox::GetSelected(void) const
 	return m_iSelected;
 }
 
-void ComboBox::AddItem(const std::wstring & strText, void * pData)
+void ComboBox::AddItem(const std::wstring & strText)
 {
 	_ASSERT(!strText.empty());
 
-	ComboBoxItemPtr item(new ComboBoxItem(strText, pData));
+	ComboBoxItemPtr item(new ComboBoxItem(strText));
 
 	m_Items.push_back(item);
 
 	m_ScrollBar.m_nEnd = m_Items.size();
+}
+
+void ComboBox::RemoveAllItems(void)
+{
+	m_Items.clear();
+
+	m_ScrollBar.m_nEnd = m_Items.size();
+}
+
+void * ComboBox::GetItemData(int index)
+{
+	return m_Items[index]->pData;
+}
+
+void ComboBox::SetItemData(int index, void * pData)
+{
+	m_Items[index]->pData = pData;
+}
+
+unsigned int ComboBox::GetItemDataUInt(int index)
+{
+	return PtrToUint(GetItemData(index));
+}
+
+void ComboBox::SetItemData(int index, unsigned int uData)
+{
+	SetItemData(index, UintToPtr(uData));
 }
 
 void Dialog::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
@@ -1912,7 +1952,23 @@ void Dialog::SetVisible(bool bVisible)
 		}
 	}
 	else
+	{
 		ForceFocusControl();
+
+		Refresh();
+	}
+}
+
+void Dialog::Refresh(void)
+{
+	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	{
+		(*ctrl_iter)->Refresh();
+	}
+
+	if(EventRefresh)
+		EventRefresh(EventArgsPtr(new EventArgs()));
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)

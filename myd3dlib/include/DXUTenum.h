@@ -506,11 +506,12 @@ CD3D9Enumeration*   WINAPI DXUTGetD3D9Enumeration( bool bForceEnumerate = false 
 class CD3D9EnumAdapterInfo
 {
 public:
+			CD3D9EnumAdapterInfo() : szUniqueDescription(256,0) {}
             ~CD3D9EnumAdapterInfo();
 
     UINT AdapterOrdinal;
     D3DADAPTER_IDENTIFIER9 AdapterIdentifier;
-    WCHAR   szUniqueDescription[256];
+	std::wstring   szUniqueDescription;
 
     CGrowableArray <D3DDISPLAYMODE> displayModeList; // Array of supported D3DDISPLAYMODEs
     CGrowableArray <CD3D9EnumDeviceInfo*> deviceInfoList; // Array of CD3D9EnumDeviceInfo* with unique supported DeviceTypes

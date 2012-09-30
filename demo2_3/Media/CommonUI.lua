@@ -1,54 +1,34 @@
 module("CommonUI", package.seeall)
 
-function ComLabel(Location, Size, Text)
-	local lbl=Static()
-	lbl.Location=Location
-	lbl.Size=Size
-	lbl.Text=Text
-	lbl.Skin.Font=_Font.font1
-	lbl.Skin.TextColor=ARGB(255,255,255,255)
-	lbl.Skin.TextAlign=Font.AlignCenterMiddle
-	return lbl
-end
+com_lbl_skin=ControlSkin()
+com_lbl_skin.Font=_Font.font1
+com_lbl_skin.TextColor=ARGB(255,255,255,255)
+com_lbl_skin.TextAlign=Font.AlignLeftMiddle
 
-function ComButton(Location, Size, Text)
-	local btn=Button()
-	btn.Location=Location
-	btn.Size=Size
-	btn.Text=Text
-	btn.PressedOffset=Vector2(1,2)
-	btn.Skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(5,5,5,5))
-	btn.Skin.Font=_Font.font1
-	btn.Skin.TextColor=ARGB(255,255,255,255)
-	btn.Skin.TextAlign=Font.AlignCenterMiddle
-	btn.Skin.DisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(5,5,5,5))
-	btn.Skin.PressedImage=ControlImage(Loader.LoadTexture("com_btn_down.png"), Vector4(5,5,5,5))
-	btn.Skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"), Vector4(5,5,5,5))
-	return btn
-end
+com_btn_skin=ButtonSkin()
+com_btn_skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"),Vector4(5,5,5,5))
+com_btn_skin.Font=_Font.font1
+com_btn_skin.TextColor=ARGB(255,255,255,255)
+com_btn_skin.TextAlign=Font.AlignCenterMiddle
+com_btn_skin.PressedOffset=Vector2(1,2)
+com_btn_skin.DisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"),Vector4(5,5,5,5))
+com_btn_skin.PressedImage=ControlImage(Loader.LoadTexture("com_btn_down.png"),Vector4(5,5,5,5))
+com_btn_skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"),Vector4(5,5,5,5))
 
-function ComComboBox(Location, Size, DropdownHeight)
-	local cbx=ComboBox()
-	cbx.Location=Location
-	cbx.Size=Size
-	cbx.PressedOffset=Vector2(1,2)
-	cbx.DropdownSize=Vector2(Size.x, DropdownHeight)
-	cbx.ItemHeight=22
-	cbx.Border=Vector4(5,0,0,0)
-	cbx.Skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
-	cbx.Skin.Font=_Font.font1
-	cbx.Skin.TextColor=ARGB(255,255,255,255)
-	cbx.Skin.TextAlign=Font.AlignLeftMiddle
-	cbx.Skin.DisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
-	cbx.Skin.PressedImage=ControlImage(Loader.LoadTexture("com_btn_down.png"), Vector4(7,7,7,7))
-	cbx.Skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"), Vector4(7,7,7,7))
-	cbx.Skin.DropdownImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
-	cbx.Skin.DropdownItemMouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarUpBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarUpBtnDisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarDownBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarDownBtnDisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarThumbBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
-	cbx.Skin.ScrollBarImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
-	return cbx
-end
+com_cbx_skin=ComboBoxSkin()
+com_cbx_skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"),Vector4(5,5,5,5))
+com_cbx_skin.Font=_Font.font1
+com_cbx_skin.TextColor=ARGB(255,255,255,255)
+com_cbx_skin.TextAlign=Font.AlignCenterMiddle
+com_cbx_skin.PressedOffset=Vector2(1,2)
+com_cbx_skin.DisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"),Vector4(5,5,5,5))
+com_cbx_skin.PressedImage=ControlImage(Loader.LoadTexture("com_btn_down.png"),Vector4(5,5,5,5))
+com_cbx_skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"),Vector4(5,5,5,5))
+com_cbx_skin.DropdownImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
+com_cbx_skin.DropdownItemMouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarUpBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarUpBtnDisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarDownBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarDownBtnDisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarThumbBtnNormalImage=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
+com_cbx_skin.ScrollBarImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))

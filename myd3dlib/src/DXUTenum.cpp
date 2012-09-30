@@ -188,14 +188,14 @@ HRESULT CD3D9Enumeration::Enumerate( IDirect3D9 * pD3D, HWND hWnd )
 
         MultiByteToWideChar( CP_ACP, 0,
                              pAdapterInfo->AdapterIdentifier.Description, -1,
-                             pAdapterInfo->szUniqueDescription, 100 );
+                             &pAdapterInfo->szUniqueDescription[0], 100 );
         pAdapterInfo->szUniqueDescription[100] = 0;
 
         if( !bUniqueDesc )
         {
             WCHAR sz[100];
             swprintf_s( sz, 100, L" (#%d)", pAdapterInfo->AdapterOrdinal );
-            wcscat_s( pAdapterInfo->szUniqueDescription, 256, sz );
+            wcscat_s( &pAdapterInfo->szUniqueDescription[0], 256, sz );
 
         }
     }

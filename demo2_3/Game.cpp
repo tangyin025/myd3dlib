@@ -698,12 +698,6 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	//if(m_settingsDlg.IsActive())
-	//{
-	//	m_settingsDlg.OnRender(fElapsedTime);
-	//	return;
-	//}
-
 	// 当状态切换时发生异常会导致新状态没有被创建，所以有必要判断之
 	if(cs = CurrentState())
 		cs->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
@@ -747,12 +741,6 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	//if(m_settingsDlg.IsActive())
-	//{
-	//	m_settingsDlg.MsgProc(hWnd, uMsg, wParam, lParam);
-	//	return 0;
-	//}
-
 	if(m_console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
 		m_console->SetVisible(!m_console->GetVisible());
@@ -779,11 +767,12 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::ExecuteCode(const char * code)
+bool Game::ExecuteCode(const char * code)
 {
 	try
 	{
 		m_lua->executeCode(code);
+		return true;
 	}
 	catch(const std::runtime_error & e)
 	{
@@ -795,4 +784,5 @@ void Game::ExecuteCode(const char * code)
 
 		m_console->SetVisible(true);
 	}
+	return false;
 }

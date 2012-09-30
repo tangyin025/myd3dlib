@@ -221,13 +221,13 @@ namespace my
 			D3DDISPLAYMODE displayModeIn,
 			D3DDISPLAYMODE * pBestDisplayMode);
 
-		static WCHAR * DXUTD3DDeviceTypeToString(D3DDEVTYPE devType);
+		static const char * DXUTD3DDeviceTypeToString(D3DDEVTYPE devType);
 
-		static LPCWSTR DXUTD3DFormatToString(D3DFORMAT format, bool bWithPrefix);
+		static const char * DXUTD3DFormatToString(D3DFORMAT format, bool bWithPrefix);
 
-		static WCHAR * DXUTMultisampleTypeToString(D3DMULTISAMPLE_TYPE MultiSampleType);
+		static const char * DXUTMultisampleTypeToString(D3DMULTISAMPLE_TYPE MultiSampleType);
 
-		static WCHAR * DXUTVertexProcessingTypeToString(DWORD vpt);
+		static const char * DXUTVertexProcessingTypeToString(DWORD vpt);
 
 		DXUTD3D9DeviceSettings FindValidDeviceSettings(const DXUTD3D9DeviceSettings & deviceSettings, const DXUTMatchOptions & matchOptions);
 

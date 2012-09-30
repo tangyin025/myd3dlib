@@ -176,6 +176,8 @@ namespace my
 
 		virtual bool GetVisible(void);
 
+		virtual void Refresh(void);
+
 		void SetHotkey(UINT nHotkey);
 
 		UINT GetHotkey(void);
@@ -210,8 +212,11 @@ namespace my
 
 		ControlImagePtr m_MouseOverImage;
 
+		Vector2 m_PressedOffset;
+
 	public:
 		ButtonSkin(void)
+			: m_PressedOffset(0,0)
 		{
 		}
 	};
@@ -225,15 +230,12 @@ namespace my
 
 		D3DXCOLOR m_BlendColor;
 
-		Vector2 m_PressedOffset;
-
 		ControlEvent EventClick;
 
 	public:
 		Button(void)
 			: m_bPressed(false)
 			, m_BlendColor(m_Color)
-			, m_PressedOffset(0,0)
 		{
 			m_Skin.reset(new ButtonSkin());
 		}
@@ -249,6 +251,8 @@ namespace my
 		virtual void OnHotkey(void);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
+
+		virtual void Refresh(void);
 	};
 
 	typedef boost::shared_ptr<Button> ButtonPtr;
@@ -514,9 +518,9 @@ namespace my
 
 		void * pData;
 
-		ComboBoxItem(const std::wstring _strText, void * _pData = NULL)
+		ComboBoxItem(const std::wstring _strText)
 			: strText(_strText)
-			, pData(_pData)
+			, pData(NULL)
 		{
 		}
 	};
@@ -594,9 +598,17 @@ namespace my
 
 		int GetSelected(void) const;
 
-		static void * ul2p(const unsigned long ul) { return (void *)(ULONG_PTR)ul; }
+		void AddItem(const std::wstring & strText);
 
-		void AddItem(const std::wstring & strText, void * pData);
+		void RemoveAllItems(void);
+
+		void * GetItemData(int index);
+
+		void SetItemData(int index, void * pData);
+
+		unsigned int GetItemDataUInt(int index);
+
+		void SetItemData(int index, unsigned int uData);
 	};
 
 	class AlignEventArgs : public my::EventArgs
@@ -631,6 +643,8 @@ namespace my
 
 		ControlEvent EventAlign;
 
+		ControlEvent EventRefresh;
+
 	public:
 		Dialog(void)
 			: m_Transform(Matrix4::identity)
@@ -651,6 +665,8 @@ namespace my
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
 		virtual void SetVisible(bool bVisible);
+
+		virtual void Refresh(void);
 
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 

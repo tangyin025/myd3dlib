@@ -468,7 +468,7 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	void ExecuteCode(const char * code);
+	bool ExecuteCode(const char * code);
 };
 
 class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
