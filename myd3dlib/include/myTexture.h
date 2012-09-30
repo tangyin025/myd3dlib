@@ -162,7 +162,7 @@ namespace my
 
 		void CreateTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCSTR pSrcFile,
+			LPCTSTR pSrcFile,
 			UINT Width = D3DX_DEFAULT_NONPOW2,
 			UINT Height = D3DX_DEFAULT_NONPOW2,
 			UINT MipLevels = D3DX_DEFAULT,
@@ -255,7 +255,7 @@ namespace my
 
 		void CreateCubeTextureFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
-			LPCSTR pSrcFile,
+			LPCTSTR pSrcFile,
 			UINT Size = D3DX_DEFAULT,
 			UINT MipLevels = D3DX_DEFAULT,
 			DWORD Usage = 0,

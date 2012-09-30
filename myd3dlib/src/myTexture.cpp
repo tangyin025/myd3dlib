@@ -82,7 +82,7 @@ void Texture::CreateAdjustedTexture(
 
 void Texture::CreateTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	UINT Width,
 	UINT Height,
 	UINT MipLevels,
@@ -96,7 +96,7 @@ void Texture::CreateTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	HRESULT hres = D3DXCreateTextureFromFileExA(
+	HRESULT hres = D3DXCreateTextureFromFileEx(
 		pDevice, pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 	if(FAILED(hres))
 	{
@@ -173,7 +173,7 @@ void CubeTexture::CreateAdjustedCubeTexture(
 
 void CubeTexture::CreateCubeTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	UINT Size,
 	UINT MipLevels,
 	DWORD Usage,
@@ -186,7 +186,7 @@ void CubeTexture::CreateCubeTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	HRESULT hres = D3DXCreateCubeTextureFromFileExA(
+	HRESULT hres = D3DXCreateCubeTextureFromFileEx(
 		pDevice, pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
 	if(FAILED(hres))
 	{

@@ -53,7 +53,7 @@ void VertexShader::CreateVertexShader(
 
 void VertexShader::CreateVertexShaderFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
 	CONST D3DXMACRO * pDefines,
@@ -63,7 +63,7 @@ void VertexShader::CreateVertexShaderFromFile(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShaderFromFileA(
+	HRESULT hres = D3DXCompileShaderFromFile(
 		pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 	if(FAILED(hres))
 	{
@@ -133,7 +133,7 @@ void PixelShader::CreatePixelShader(
 
 void PixelShader::CreatePixelShaderFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
 	CONST D3DXMACRO * pDefines,
@@ -143,7 +143,7 @@ void PixelShader::CreatePixelShaderFromFile(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShaderFromFileA(
+	HRESULT hres = D3DXCompileShaderFromFile(
 		pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
 	if(FAILED(hres))
 	{
@@ -194,7 +194,7 @@ void Effect::CreateEffect(
 
 void Effect::CreateEffectFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	CONST D3DXMACRO * pDefines,
 	LPD3DXINCLUDE pInclude,
 	DWORD Flags,
@@ -202,7 +202,7 @@ void Effect::CreateEffectFromFile(
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
-	HRESULT hres = D3DXCreateEffectFromFileA(
+	HRESULT hres = D3DXCreateEffectFromFile(
 		pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 	if(FAILED(hres))
 	{

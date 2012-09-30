@@ -1,5 +1,16 @@
 module("CommonUI", package.seeall)
 
+function ComLabel(Location, Size, Text)
+	local lbl=Static()
+	lbl.Location=Location
+	lbl.Size=Size
+	lbl.Text=Text
+	lbl.Skin.Font=_Font.font1
+	lbl.Skin.TextColor=ARGB(255,255,255,255)
+	lbl.Skin.TextAlign=Font.AlignCenterMiddle
+	return lbl
+end
+
 function ComButton(Location, Size, Text)
 	local btn=Button()
 	btn.Location=Location
@@ -16,14 +27,14 @@ function ComButton(Location, Size, Text)
 	return btn
 end
 
-function ComComboBox(Location, Size, DropdownSize, ItemHeight, Border)
+function ComComboBox(Location, Size, DropdownHeight)
 	local cbx=ComboBox()
 	cbx.Location=Location
 	cbx.Size=Size
 	cbx.PressedOffset=Vector2(1,2)
-	cbx.DropdownSize=DropdownSize
-	cbx.ItemHeight=ItemHeight
-	cbx.Border=Border
+	cbx.DropdownSize=Vector2(Size.x, DropdownHeight)
+	cbx.ItemHeight=22
+	cbx.Border=Vector4(5,0,0,0)
 	cbx.Skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
 	cbx.Skin.Font=_Font.font1
 	cbx.Skin.TextColor=ARGB(255,255,255,255)

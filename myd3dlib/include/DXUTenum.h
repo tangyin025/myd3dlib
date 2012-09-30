@@ -351,9 +351,9 @@ enum DXUT_MATCH_TYPE
 
 struct DXUTMatchOptions
 {
-    DXUT_MATCH_TYPE eAPIVersion;
+    //DXUT_MATCH_TYPE eAPIVersion;
     DXUT_MATCH_TYPE eAdapterOrdinal;
-    DXUT_MATCH_TYPE eOutput;
+    //DXUT_MATCH_TYPE eOutput;
     DXUT_MATCH_TYPE eDeviceType;
     DXUT_MATCH_TYPE eWindowed;
     DXUT_MATCH_TYPE eAdapterFormat;

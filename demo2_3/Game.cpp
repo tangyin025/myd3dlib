@@ -323,7 +323,7 @@ boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & pa
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateTextureFromFile(GetD3D9Device(), full_path.c_str());
+		ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 	}
 	else
 	{
@@ -342,7 +342,7 @@ boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string 
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateCubeTextureFromFile(GetD3D9Device(), full_path.c_str());
+		ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 	}
 	else
 	{
@@ -380,7 +380,7 @@ OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path)
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateOgreSkeletonAnimationFromFile(full_path.c_str());
+		ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path.c_str()).c_str());
 	}
 	else
 	{
@@ -397,7 +397,7 @@ EffectPtr LoaderMgr::LoadEffect(const std::string & path)
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
 	{
-		ret->CreateEffectFromFile(GetD3D9Device(), full_path.c_str(), NULL, NULL, 0, m_EffectPool);
+		ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
 	}
 	else
 	{
@@ -433,7 +433,8 @@ void Timer::OnFrameMove(
 	float fElapsedTime)
 {
 	m_RemainingTime += fElapsedTime;
-	while(m_RemainingTime >= 0)
+	unsigned int iter = 0;
+	while(m_RemainingTime >= 0 && iter++ < m_MaxIter)
 	{
 		m_RemainingTime -= m_Interval;
 
@@ -776,11 +777,6 @@ LRESULT Game::MsgProc(
 	}
 
 	return 0;
-}
-
-void Game::ToggleRef(void)
-{
-	//DXUTToggleREF();
 }
 
 void Game::ExecuteCode(const char * code)

@@ -572,10 +572,10 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 }
 
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
-	LPCSTR pFilename)
+	LPCTSTR pFilename)
 {
 	FILE * fp;
-	if(0 != fopen_s(&fp, pFilename, "rb"))
+	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 	}

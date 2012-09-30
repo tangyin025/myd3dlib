@@ -237,6 +237,8 @@ namespace my
 
 		void ToggleFullScreen(void);
 
+		void ToggleREF(void);
+
 		bool CanDeviceBeReset(const DXUTD3D9DeviceSettings & oldDeviceSettings, const DXUTD3D9DeviceSettings & newDeviceSettings);
 
 		void ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings);

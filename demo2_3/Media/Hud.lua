@@ -11,24 +11,24 @@ dlg.EventAlign=function(args)
 	dlg.Location=Vector2(args.vp.x-170,0)
 end
 
-local btn=CommonUI.ComButton(Vector2(35,10),Vector2(125,22),"Toggle full screen")
-btn.EventClick=function(args)
+local btn_toggle_fs=CommonUI.ComButton(Vector2(35,10),Vector2(125,22),"Toggle full screen")
+btn_toggle_fs.EventClick=function(args)
 	game:ToggleFullScreen()
 end
-dlg:InsertControl(btn)
+dlg:InsertControl(btn_toggle_fs)
 
-local btn=CommonUI.ComButton(Vector2(35,35),Vector2(125,22),"Toggle REF (F3)")
-btn:SetHotkey(114) -- VK_F3
-btn.EventClick=function(args)
-	game:ToggleRef()
+local btn_toggle_ref=CommonUI.ComButton(Vector2(35,35),Vector2(125,22),"Toggle REF (F3)")
+btn_toggle_ref:SetHotkey(114) -- VK_F3
+btn_toggle_ref.EventClick=function(args)
+	game:ToggleREF()
 end
-dlg:InsertControl(btn)
+dlg:InsertControl(btn_toggle_ref)
 
-local btn=CommonUI.ComButton(Vector2(35,60),Vector2(125,22),"Change device (F2)")
-btn:SetHotkey(113) -- VK_F2
-btn.EventClick=function(args)
-	game:ChangeDevice()
+btn_change_device=CommonUI.ComButton(Vector2(35,60),Vector2(125,22),"Change device (F2)")
+btn_change_device:SetHotkey(113) -- VK_F2
+btn_change_device.EventClick=function(args)
+	-- game:ChangeDevice()
 end
-dlg:InsertControl(btn)
+dlg:InsertControl(btn_change_device)
 
 game:InsertDlg(dlg)

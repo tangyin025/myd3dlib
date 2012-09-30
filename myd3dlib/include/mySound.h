@@ -98,7 +98,7 @@ namespace my
 
 		void CreateSoundBufferFromFile(
 			LPDIRECTSOUND8 pDSound,
-			LPCSTR pSrcFile,
+			LPCTSTR pSrcFile,
 			DWORD flags = DSBCAPS_CTRL3D | DSBCAPS_CTRLVOLUME | DSBCAPS_STATIC | DSBCAPS_LOCSOFTWARE);
 
 		void CreateSoundBufferFromFileInMemory(

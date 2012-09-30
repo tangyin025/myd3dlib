@@ -112,11 +112,11 @@ void SoundBuffer::CreateSoundBufferFromMmio(
 
 void SoundBuffer::CreateSoundBufferFromFile(
 	LPDIRECTSOUND8 pDSound,
-	LPCSTR pSrcFile,
+	LPCTSTR pSrcFile,
 	DWORD flags)
 {
 	HMMIO hmmio;
-	if(NULL == (hmmio = mmioOpenA(const_cast<char *>(pSrcFile), NULL, MMIO_READ | MMIO_ALLOCBUF)))
+	if(NULL == (hmmio = mmioOpen(const_cast<TCHAR *>(pSrcFile), NULL, MMIO_READ | MMIO_ALLOCBUF)))
 	{
 		THROW_CUSEXCEPTION("open wave file failed");
 	}

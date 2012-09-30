@@ -1542,10 +1542,8 @@ DXUTD3D9DeviceSettings DxutApp::FindValidDeviceSettings(const DXUTD3D9DeviceSett
 void DxutApp::CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight)
 {
 	DXUTMatchOptions matchOptions;
-	matchOptions.eAPIVersion = DXUTMT_IGNORE_INPUT;
 	matchOptions.eAdapterOrdinal = DXUTMT_IGNORE_INPUT;
 	matchOptions.eDeviceType = DXUTMT_IGNORE_INPUT;
-	matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
 	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
 	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eVertexProcessing = DXUTMT_IGNORE_INPUT;
@@ -1592,13 +1590,12 @@ void DxutApp::CheckForWindowSizeChange(void)
 void DxutApp::ToggleFullScreen(void)
 {
 	DXUTMatchOptions matchOptions;
-	matchOptions.eAPIVersion = DXUTMT_PRESERVE_INPUT;
 	matchOptions.eAdapterOrdinal = DXUTMT_PRESERVE_INPUT;
 	matchOptions.eDeviceType = DXUTMT_CLOSEST_TO_INPUT;
-	matchOptions.eOutput = DXUTMT_IGNORE_INPUT;
 	matchOptions.eWindowed = DXUTMT_PRESERVE_INPUT;
 	matchOptions.eAdapterFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eVertexProcessing = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
 	matchOptions.eBackBufferFormat = DXUTMT_IGNORE_INPUT;
 	matchOptions.eBackBufferCount = DXUTMT_CLOSEST_TO_INPUT;
 	matchOptions.eMultiSample = DXUTMT_CLOSEST_TO_INPUT;
@@ -1626,9 +1623,37 @@ void DxutApp::ToggleFullScreen(void)
 	{
 		matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
 	}
-	else
+
+	ChangeDevice(FindValidDeviceSettings(deviceSettings, matchOptions));
+}
+
+void DxutApp::ToggleREF(void)
+{
+	DXUTMatchOptions matchOptions;
+	matchOptions.eAdapterOrdinal = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eDeviceType = DXUTMT_PRESERVE_INPUT;
+	matchOptions.eWindowed = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eAdapterFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eVertexProcessing = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eResolution = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eBackBufferFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eBackBufferCount = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eMultiSample = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eSwapEffect = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eDepthFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eStencilFormat = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.ePresentFlags = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.eRefreshRate = DXUTMT_CLOSEST_TO_INPUT;
+	matchOptions.ePresentInterval = DXUTMT_CLOSEST_TO_INPUT;
+
+	DXUTD3D9DeviceSettings deviceSettings = m_DeviceSettings;
+	if(deviceSettings.DeviceType == D3DDEVTYPE_HAL)
 	{
-		matchOptions.eResolution = DXUTMT_IGNORE_INPUT;
+		deviceSettings.DeviceType = D3DDEVTYPE_REF;
+	}
+	else if(deviceSettings.DeviceType == D3DDEVTYPE_REF)
+	{
+		deviceSettings.DeviceType = D3DDEVTYPE_HAL;
 	}
 
 	ChangeDevice(FindValidDeviceSettings(deviceSettings, matchOptions));

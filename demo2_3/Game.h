@@ -230,6 +230,15 @@ public:
 		m_dlgSet.push_back(dlg);
 	}
 
+	void RemoveDlg(my::DialogPtr dlg)
+	{
+		DialogPtrSet::iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
+		if(dlg_iter != m_dlgSet.end())
+		{
+			m_dlgSet.erase(dlg_iter);
+		}
+	}
+
 	void ClearAllDlg(void)
 	{
 		m_dlgSet.clear();
@@ -243,12 +252,15 @@ public:
 
 	float m_RemainingTime;
 
+	const unsigned int m_MaxIter;
+
 	TimerEvent m_EventTimer;
 
 public:
-	Timer(float Interval)
+	Timer(float Interval, unsigned int MaxIter = 4)
 		: m_Interval(Interval)
 		, m_RemainingTime(-Interval)
+		, m_MaxIter(MaxIter)
 	{
 	}
 
@@ -455,8 +467,6 @@ public:
 		WPARAM wParam,
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
-
-	void ToggleRef(void);
 
 	void ExecuteCode(const char * code);
 };

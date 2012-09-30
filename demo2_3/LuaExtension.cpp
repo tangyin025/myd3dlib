@@ -775,6 +775,7 @@ void Export2Lua(lua_State * L)
 			.def("GetAbsoluteTime", &my::DxutApp::GetAbsoluteTime)
 			.def("GetD3D9DeviceSettings", &my::DxutApp::GetD3D9DeviceSettings)
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)
+			.def("ToggleREF", &my::DxutApp::ToggleREF)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
 		, class_<TimerEvent>("TimerEvent")
@@ -801,6 +802,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<DialogMgr, my::DxutApp>("DialogMgr")
 			.def("InsertDlg", &DialogMgr::InsertDlg)
+			.def("RemoveDlg", &DialogMgr::RemoveDlg)
 			.def("ClearAllDlg", &DialogMgr::ClearAllDlg)
 
 		, class_<Game, bases<LoaderMgr, DialogMgr, TimerMgr> >("Game")
@@ -809,7 +811,6 @@ void Export2Lua(lua_State * L)
 			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
 			.def("CurrentState", &Game::CurrentState)
 			.def("process_event", &Game::process_event)
-			.def("ToggleRef", &Game::ToggleRef)
 			.def("ExecuteCode", &Game::ExecuteCode)
 
 		, class_<GameStateBase>("GameStateBase")

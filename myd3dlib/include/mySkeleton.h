@@ -329,7 +329,7 @@ namespace my
 			UINT srcDataLen);
 
 		void CreateOgreSkeletonAnimationFromFile(
-			LPCSTR pFilename);
+			LPCTSTR pFilename);
 
 		void Clear(void)
 		{
