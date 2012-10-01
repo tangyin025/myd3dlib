@@ -625,6 +625,10 @@ namespace my
 
 		void RemoveAllItems(void);
 
+		bool ContainsItem(const std::wstring & strText, UINT iStart = 0) const;
+
+		int FindItem(const std::wstring & strText, UINT iStart = 0) const;
+
 		void * GetItemData(int index);
 
 		void SetItemData(int index, void * pData);

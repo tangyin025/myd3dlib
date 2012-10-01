@@ -223,7 +223,7 @@ namespace my
 
 		static const char * DXUTD3DDeviceTypeToString(D3DDEVTYPE devType);
 
-		static const char * DXUTD3DFormatToString(D3DFORMAT format, bool bWithPrefix);
+		static const char * DXUTD3DFormatToString(D3DFORMAT format);
 
 		static const char * DXUTMultisampleTypeToString(D3DMULTISAMPLE_TYPE MultiSampleType);
 

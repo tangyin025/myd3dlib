@@ -1528,7 +1528,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 				if(ContainsPoint(pt))
 				{
-					m_Checked = !m_Checked;
+					m_Checked = true;
 
 					if(EventClick)
 						EventClick(EventArgsPtr(new EventArgs));
@@ -1800,6 +1800,11 @@ float ComboBox::GetItemHeight(void) const
 void ComboBox::SetSelected(int iSelected)
 {
 	m_iSelected = m_iFocused = iSelected;
+
+	if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
+	{
+		m_ScrollBar.m_nPosition = Min(m_iSelected, Max(0, m_ScrollBar.m_nEnd - m_ScrollBar.m_nPageSize));
+	}
 }
 
 int ComboBox::GetSelected(void) const
@@ -1823,6 +1828,36 @@ void ComboBox::RemoveAllItems(void)
 	m_Items.clear();
 
 	m_ScrollBar.m_nEnd = m_Items.size();
+}
+
+bool ComboBox::ContainsItem(const std::wstring & strText, UINT iStart) const
+{
+	return -1 != FindItem(strText, iStart);
+}
+
+int ComboBox::FindItem(const std::wstring & strText, UINT iStart) const
+{
+	struct Finder
+	{
+		const std::wstring & str;
+
+		Finder(const std::wstring & _str)
+			: str(_str)
+		{
+		}
+
+		bool operator() (ComboBoxItemPtr item)
+		{
+			return item->strText == str;
+		}
+	};
+
+	ComboBoxItemPtrList::const_iterator item_iter = std::find_if(m_Items.begin() + iStart, m_Items.end(), Finder(strText));
+	if(item_iter != m_Items.end())
+	{
+		return std::distance(m_Items.begin(), item_iter);
+	}
+	return -1;
 }
 
 void * ComboBox::GetItemData(int index)
