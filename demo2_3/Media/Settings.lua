@@ -26,6 +26,15 @@ local function SettingsButton(x,y,text)
 	return btn
 end
 
+local function SettingsCheckBox(x,y,text)
+	local chx=CheckBox()
+	chx.Location=Vector2(x,y)
+	chx.Size=Vector2(120,22)
+	chx.Text=text
+	chx.Skin=CommonUI.com_chx_skin
+	return chx
+end
+
 local function SettingsLabel(y,text)
 	local lbl=Static()
 	lbl.Location=Vector2(0,y)
@@ -116,10 +125,10 @@ local cbx_adapter_format=SettingsComboBox(item_y)
 dlg:InsertControl(cbx_adapter_format)
 
 item_y=item_y-item_height
-local btn_windowed=SettingsButton(239,item_y,"Windowed")
-dlg:InsertControl(btn_windowed)
-local btn_full_screen=SettingsButton(357,item_y,"Full Screen")
-dlg:InsertControl(btn_full_screen)
+local chx_windowed=SettingsCheckBox(239,item_y,"Windowed")
+dlg:InsertControl(chx_windowed)
+local chx_full_screen=SettingsCheckBox(357,item_y,"Full Screen")
+dlg:InsertControl(chx_full_screen)
 
 item_y=item_y-item_height
 local lbl_render_device=SettingsLabel(item_y,"Render Device")
@@ -161,6 +170,7 @@ function OnAdapterChanged()
 		print("Settings::OnAdapterChanged()")
 		assert(local_device_settings)
 		local adapter_info=game:GetAdapterInfo(local_device_settings.AdapterOrdinal)
+		cbx_render_device:RemoveAllItems()
 		for i=0,adapter_info.deviceInfoList:GetSize()-1 do
 			local device_info=adapter_info.deviceInfoList:GetAt(i)
 			cbx_render_device:AddItem(DxutApp.DXUTD3DDeviceTypeToString(device_info.DeviceType))

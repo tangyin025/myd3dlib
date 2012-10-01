@@ -699,10 +699,14 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::ScrollBar, my::Control, boost::shared_ptr<my::Control> >("ScrollBar")
 			.def(constructor<>())
-			.def_readwrite("nPosition", &my::ScrollBar::m_nPosition) // ! should be removed
-			.def_readwrite("nPageSize", &my::ScrollBar::m_nPageSize) // ! should be removed
-			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should be removed
-			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should be removed
+			.def_readwrite("nPosition", &my::ScrollBar::m_nPosition) // ! should use property
+			.def_readwrite("nPageSize", &my::ScrollBar::m_nPageSize) // ! should use property
+			.def_readwrite("nStart", &my::ScrollBar::m_nStart) // ! should use property
+			.def_readwrite("nEnd", &my::ScrollBar::m_nEnd) // ! should use property
+
+		, class_<my::CheckBox, my::Button, boost::shared_ptr<my::Control> >("CheckBox")
+			.def(constructor<>())
+			.def_readwrite("Checked", &my::CheckBox::m_Checked)
 
 		, class_<my::ComboBoxSkin, my::ButtonSkin, boost::shared_ptr<my::ControlSkin> >("ComboBoxSkin")
 			.def(constructor<>())
@@ -726,6 +730,7 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllItems", &my::ComboBox::RemoveAllItems)
 			.def("GetItemData", &my::ComboBox::GetItemDataUInt)
 			.def("SetItemData", (void (my::ComboBox::*)(int, unsigned int))&my::ComboBox::SetItemData)
+			.def("GetNumItems", &my::ComboBox::GetNumItems)
 			.def_readwrite("EventSelectionChanged", &my::ComboBox::EventSelectionChanged)
 
 		, class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")

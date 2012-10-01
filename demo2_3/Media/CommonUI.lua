@@ -15,6 +15,15 @@ com_btn_skin.DisabledImage=ControlImage(Loader.LoadTexture("com_btn_disable.png"
 com_btn_skin.PressedImage=ControlImage(Loader.LoadTexture("com_btn_down.png"),Vector4(5,5,5,5))
 com_btn_skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_btn_hover.png"),Vector4(5,5,5,5))
 
+com_chx_skin=ButtonSkin()
+com_chx_skin.Image=ControlImage(Loader.LoadTexture("com_chx_normal.png"),Vector4(0,0,0,0))
+com_chx_skin.Font=_Font.font1
+com_chx_skin.TextColor=ARGB(255,255,255,255)
+com_chx_skin.TextAlign=Font.AlignLeftMiddle
+com_chx_skin.DisabledImage=ControlImage(Loader.LoadTexture("com_chx_disable.png"),Vector4(0,0,0,0))
+com_chx_skin.PressedImage=ControlImage(Loader.LoadTexture("com_chx_down.png"),Vector4(0,0,0,0))
+com_chx_skin.MouseOverImage=ControlImage(Loader.LoadTexture("com_chx_hover.png"),Vector4(0,0,0,0))
+
 com_cbx_skin=ComboBoxSkin()
 com_cbx_skin.Image=ControlImage(Loader.LoadTexture("com_btn_normal.png"),Vector4(5,5,5,5))
 com_cbx_skin.Font=_Font.font1

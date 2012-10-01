@@ -484,6 +484,29 @@ namespace my
 
 	typedef boost::shared_ptr<ScrollBar> ScrollBarPtr;
 
+	class CheckBox : public Button
+	{
+	public:
+		Vector2 m_CheckBtnSize;
+
+		bool m_Checked;
+
+	public:
+		CheckBox(void)
+			: m_CheckBtnSize(20,20)
+			, m_Checked(false)
+		{
+		}
+
+		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
+	};
+
+	typedef boost::shared_ptr<CheckBox> CheckBoxPtr;
+
 	class ComboBoxSkin : public ButtonSkin
 	{
 	public:
@@ -609,7 +632,11 @@ namespace my
 		unsigned int GetItemDataUInt(int index);
 
 		void SetItemData(int index, unsigned int uData);
+
+		UINT GetNumItems(void);
 	};
+
+	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
 	class AlignEventArgs : public my::EventArgs
 	{
