@@ -64,15 +64,21 @@ lbl_title.Color=ARGB(255,255,255,255)
 lbl_title.Skin.Image=ControlImage(Loader.LoadTexture("Direct3D Settings.png"),Vector4(0,0,0,0))
 dlg:InsertControl(lbl_title)
 
+local local_device_settings=nil
+
 local btn_ok=SettingsButton(230,439,"OK")
 btn_ok.EventClick=function(args)
-	print("SettingsDlg OK")
+	-- print("Settings.btn_ok.EventClick")
+	assert(local_device_settings)
+	game:ChangeDevice(local_device_settings)
+	dlg.Visible=false
 end
 dlg:InsertControl(btn_ok)
-
 local btn_cancel=SettingsButton(315,439,"Cancel")
 btn_cancel.EventClick=function(args)
-	print("SettingsDlg Cancel")
+	-- print("Settings.OnCancelBtnClicked")
+	assert(local_device_settings)
+	dlg.Visible=false
 end
 dlg:InsertControl(btn_cancel)
 
@@ -190,8 +196,6 @@ cbx_display_adapter.EventSelectionChanged=function(args)
 end
 dlg:InsertControl(cbx_display_adapter)
 
-local local_device_settings=nil
-
 function RefreshDisplayAdapter()
 	local_device_settings=game:GetD3D9DeviceSettings()
 	local adapter_info_list=game:GetAdapterInfoList()
@@ -237,12 +241,12 @@ function RefreshDisplayAdapter()
 	cbx_vertical_sync.Selected=0
 	cbx_vertical_sync:AddItem("On")
 	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT)
-	if local_device_settings.pp.PresentationInterval == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT then
+	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_DEFAULT then
 		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
 	end
 	cbx_vertical_sync:AddItem("Off")
 	cbx_vertical_sync:SetItemData(cbx_vertical_sync:GetNumItems()-1,DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE)
-	if local_device_settings.pp.PresentationInterval == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE then
+	if bit.tobit(local_device_settings.pp.PresentationInterval) == DXUTD3D9DeviceSettings.D3DPRESENT_INTERVAL_IMMEDIATE then
 		cbx_vertical_sync.Selected=cbx_vertical_sync:GetNumItems()-1
 	end
 	OnPresentIntervalChanged()
@@ -259,8 +263,10 @@ end
 
 function OnAdapterChanged()
 	if IsComboBoxSelectedValid(cbx_display_adapter) then
-		print("Settings::OnAdapterChanged()")
+		-- print("Settings.OnAdapterChanged")
 		assert(local_device_settings)
+		local_device_settings.AdapterOrdinal=GetComboBoxSelectedData(cbx_display_adapter)
+		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_render_device:RemoveAllItems()
 		cbx_render_device.Selected=0
@@ -278,8 +284,10 @@ end
 
 function OnDeviceTypeChanged()
 	if IsComboBoxSelectedValid(cbx_render_device) then
-		print("Settings::OnDeviceTypeChanged()")
+		-- print("Settings.OnDeviceTypeChanged")
 		assert(local_device_settings)
+		local_device_settings.DeviceType=GetComboBoxSelectedData(cbx_render_device)
+		
 		local adapter_original=GetComboBoxSelectedData(cbx_display_adapter)
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
@@ -313,8 +321,10 @@ end
 
 function OnWindowedFullScreenChanged()
 	if chx_windowed.Checked or chx_full_screen.Checked then
-		print("Settings::OnWindowedFullScreenChanged()")
+		-- print("Settings.OnWindowedFullScreenChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.Windowed=chx_windowed.Checked and 1 or 0
+		
 		local adapter_original=GetComboBoxSelectedData(cbx_display_adapter)
 		local device_type=GetComboBoxSelectedData(cbx_render_device)
 		local device_info=game:GetDeviceInfo(adapter_original,device_type)
@@ -354,8 +364,10 @@ end
 
 function OnAdapterFormatChanged()
 	if IsComboBoxSelectedValid(cbx_adapter_format) then
-		print("Settings::OnAdapterFormatChanged()")
+		-- print("Settings.OnAdapterFormatChanged")
 		assert(local_device_settings)
+		local_device_settings.AdapterFormat=GetComboBoxSelectedData(cbx_adapter_format)
+		
 		local adapter_info=game:GetAdapterInfo(GetComboBoxSelectedData(cbx_display_adapter))
 		cbx_resolution:RemoveAllItems()
 		cbx_resolution.Selected=0
@@ -401,8 +413,11 @@ end
 
 function OnResolutionChanged()
 	if IsComboBoxSelectedValid(cbx_resolution) then
-		print("Settings::OnResolutionChanged()")
+		-- print("Settings.OnResolutionChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.BackBufferWidth=LOWORD(GetComboBoxSelectedData(cbx_resolution))
+		local_device_settings.pp.BackBufferHeight=HIWORD(GetComboBoxSelectedData(cbx_resolution))
+		
 		cbx_refresh_rate:RemoveAllItems()
 		cbx_refresh_rate.Selected=0
 		-- Only full screen mode, the refresh_rate is valid
@@ -439,15 +454,18 @@ end
 
 function OnRefreshRateChanged()
 	if IsComboBoxSelectedValid(cbx_refresh_rate) then
-		print("Settings::OnRefreshRateChanged()")
+		-- print("Settings.OnRefreshRateChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.FullScreen_RefreshRateInHz=GetComboBoxSelectedData(cbx_refresh_rate)
 	end
 end
 
 function OnBackBufferFormatChanged()
 	if IsComboBoxSelectedValid(cbx_back_buffer_format) then
-		print("Settings::OnBackBufferFormatChanged()")
+		-- print("Settings.OnBackBufferFormatChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.BackBufferFormat=GetComboBoxSelectedData(cbx_back_buffer_format)
+		
 		local device_settings_combo = game:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
@@ -478,8 +496,10 @@ end
 
 function OnDepthStencilBufferFormatChanged()
 	if IsComboBoxSelectedValid(cbx_depth_stencil_format) then
-		print("Settings::OnDepthStencilBufferFormatChanged()")
+		-- print("Settings.OnDepthStencilBufferFormatChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.AutoDepthStencilFormat=GetComboBoxSelectedData(cbx_depth_stencil_format)
+		
 		local device_settings_combo = game:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
@@ -506,8 +526,10 @@ end
 
 function OnMultisampleTypeChanged()
 	if IsComboBoxSelectedValid(cbx_multisample_type) then
-		print("Settings::OnMultisampleTypeChanged")
+		-- print("Settings.OnMultisampleTypeChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.MultiSampleType=GetComboBoxSelectedData(cbx_multisample_type)
+		
 		local device_settings_combo = game:GetDeviceSettingsCombo(
 			GetComboBoxSelectedData(cbx_display_adapter),
 			GetComboBoxSelectedData(cbx_render_device),
@@ -536,22 +558,34 @@ end
 
 function OnMultisampleQualityChanged()
 	if IsComboBoxSelectedValid(cbx_multisample_quality) then
-		print("Settings::OnMultisampleQualityChanged()")
+		-- print("Settings.OnMultisampleQualityChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.MultiSampleQuality=GetComboBoxSelectedData(cbx_multisample_quality)
 	end
 end
 
 function OnVertexProcessingChanged()
 	if IsComboBoxSelectedValid(cbx_vertex_processing) then
-		print("Settngs::OnVertexProcessingChanged()")
+		-- print("Settings.OnVertexProcessingChanged")
 		assert(local_device_settings)
+		local_device_settings.BehaviorFlags=bit.band(
+			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_SOFTWARE_VERTEXPROCESSING))
+		local_device_settings.BehaviorFlags=bit.band(
+			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_HARDWARE_VERTEXPROCESSING))
+		local_device_settings.BehaviorFlags=bit.band(
+			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_PUREDEVICE))
+		local_device_settings.BehaviorFlags=bit.band(
+			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_MIXED_VERTEXPROCESSING))
+		local_device_settings.BehaviorFlags=bit.bor(
+			local_device_settings.BehaviorFlags,GetComboBoxSelectedData(cbx_vertex_processing))
 	end
 end
 
 function OnPresentIntervalChanged()
 	if IsComboBoxSelectedValid(cbx_vertical_sync) then
-		print("Settings::OnPresentIntervalChanged()")
+		-- print("Settings.OnPresentIntervalChanged")
 		assert(local_device_settings)
+		local_device_settings.pp.PresentationInterval=GetComboBoxSelectedData(cbx_vertical_sync)
 	end
 end
 

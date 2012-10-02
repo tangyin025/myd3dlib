@@ -516,6 +516,8 @@ Game::Game(void)
 
 Game::~Game(void)
 {
+	ClearAllDlg(); // ! m_dlgSet must be destroyed before distruct m_lua for some EventXxx Delegates
+
 	ImeEditBox::Uninitialize();
 }
 

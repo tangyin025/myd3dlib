@@ -1719,7 +1719,14 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 	{
 		if(FAILED(hr = Reset3DEnvironment(deviceSettings)))
 		{
-			THROW_D3DEXCEPTION(hr);
+			if(D3DERR_DEVICELOST == hr)
+			{
+				m_DeviceLost = true;
+			}
+			else
+			{
+				THROW_D3DEXCEPTION(hr);
+			}
 		}
 	}
 	else
