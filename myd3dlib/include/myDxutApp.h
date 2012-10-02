@@ -229,6 +229,46 @@ namespace my
 
 		static const char * DXUTVertexProcessingTypeToString(DWORD vpt);
 
+		bool GetSoftwareVP(void) const
+		{
+			return m_bSoftwareVP;
+		}
+
+		void SetSoftwareVP(bool value)
+		{
+			m_bSoftwareVP = value;
+		}
+
+		bool GetHardwareVP(void) const
+		{
+			return m_bHardwareVP;
+		}
+
+		void SetHardwareVP(bool value)
+		{
+			m_bHardwareVP = value;
+		}
+
+		bool GetPureHardwareVP(void) const
+		{
+			return m_bPureHarewareVP;
+		}
+
+		void SetPureHardwareVP(bool value)
+		{
+			m_bPureHarewareVP = value;
+		}
+
+		bool GetMixedVP(void) const
+		{
+			return m_bMixedVP;
+		}
+
+		void SetMixedVP(bool value)
+		{
+			m_bMixedVP = value;
+		}
+
 		DXUTD3D9DeviceSettings FindValidDeviceSettings(const DXUTD3D9DeviceSettings & deviceSettings, const DXUTMatchOptions & matchOptions);
 
 		void CreateDevice(bool bWindowed, int nSuggestedWidth, int nSuggestedHeight);

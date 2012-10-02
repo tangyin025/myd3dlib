@@ -496,7 +496,6 @@ protected:
     void                    ClearAdapterInfoList();
 };
 
-CD3D9Enumeration*   WINAPI DXUTGetD3D9Enumeration( bool bForceEnumerate = false );
 
 
 //--------------------------------------------------------------------------------------
@@ -555,6 +554,8 @@ struct CD3D9EnumDeviceSettingsCombo
     CGrowableArray <DWORD> multiSampleQualityList; // List of number of quality levels for each multisample type
     CGrowableArray <UINT> presentIntervalList; // List of D3DPRESENT flags
     CGrowableArray <CD3D9EnumDSMSConflict> DSMSConflictList; // List of CD3D9EnumDSMSConflict
+
+	bool IsDepthStencilMultiSampleConflict(D3DFORMAT DSFormat, D3DMULTISAMPLE_TYPE MSType);
 
     CD3D9EnumAdapterInfo* pAdapterInfo;
     CD3D9EnumDeviceInfo* pDeviceInfo;

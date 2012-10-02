@@ -900,3 +900,21 @@ void CD3D9Enumeration::SetMultisampleQualityMax( UINT nMax )
     m_nMultisampleQualityMax = nMax;
 }
 
+
+//--------------------------------------------------------------------------------------
+// CD3D9EnumDeviceSettingsCombo::IsDepthStencilMultiSampleConflict
+//--------------------------------------------------------------------------------------
+bool CD3D9EnumDeviceSettingsCombo::IsDepthStencilMultiSampleConflict(D3DFORMAT DSFormat, D3DMULTISAMPLE_TYPE MSType)
+{
+	for( int iConf = 0; iConf < DSMSConflictList.GetSize(); iConf++ )
+	{
+		CD3D9EnumDSMSConflict & DSMSConf = DSMSConflictList.GetAt( iConf );
+		if( DSMSConf.DSFormat == DSFormat &&
+			DSMSConf.MSType == MSType )
+		{
+			return true;
+		}
+	}
+	return false;
+}
+

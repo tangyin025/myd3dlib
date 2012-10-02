@@ -452,11 +452,11 @@ void Export2Lua(lua_State * L)
 			.def("squadSelf", &my::Quaternion::squadSelf)
 			.scope
 			[
-				def("Identity", &my::Quaternion::Identity)
-				, def("RotationAxis", &my::Quaternion::RotationAxis)
-				, def("RotationMatrix", &my::Quaternion::RotationMatrix)
-				, def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll)
-				, def("RotationFromTo", &my::Quaternion::RotationFromTo)
+				def("Identity", &my::Quaternion::Identity),
+				def("RotationAxis", &my::Quaternion::RotationAxis),
+				def("RotationMatrix", &my::Quaternion::RotationMatrix),
+				def("RotationYawPitchRoll", &my::Quaternion::RotationYawPitchRoll),
+				def("RotationFromTo", &my::Quaternion::RotationFromTo)
 			]
 
 		, class_<my::Matrix4, boost::shared_ptr<my::Matrix4> >("Matrix4")
@@ -489,31 +489,31 @@ void Export2Lua(lua_State * L)
 			.def("lerpSelf", &my::Matrix4::lerpSelf)
 			.scope
 			[
-				def("Identity", &my::Matrix4::Identity)
-				, def("LookAtLH", &my::Matrix4::LookAtLH)
-				, def("LookAtRH", &my::Matrix4::LookAtRH)
-				, def("OrthoLH", &my::Matrix4::OrthoLH)
-				, def("OrthoRH", &my::Matrix4::OrthoRH)
-				, def("OrthoOffCenterLH", &my::Matrix4::OrthoOffCenterLH)
-				, def("OrthoOffCenterRH", &my::Matrix4::OrthoOffCenterRH)
-				, def("PerspectiveFovLH", &my::Matrix4::PerspectiveFovLH)
-				, def("PerspectiveFovRH", &my::Matrix4::PerspectiveFovRH)
-				, def("PerspectiveLH", &my::Matrix4::PerspectiveLH)
-				, def("PerspectiveRH", &my::Matrix4::PerspectiveRH)
-				, def("PerspectiveOffCenterLH", &my::Matrix4::PerspectiveOffCenterLH)
-				, def("PerspectiveOffCenterRH", &my::Matrix4::PerspectiveOffCenterRH)
-				, def("RotationAxis", &my::Matrix4::RotationAxis)
-				, def("RotationQuaternion", &my::Matrix4::RotationQuaternion)
-				, def("RotationX", &my::Matrix4::RotationX)
-				, def("RotationY", &my::Matrix4::RotationY)
-				, def("RotationZ", &my::Matrix4::RotationZ)
-				, def("RotationYawPitchRoll", &my::Matrix4::RotationYawPitchRoll)
-				, def("Scaling", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Scaling)
-				, def("Scaling", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Scaling)
-				, def("Transformation", &my::Matrix4::Transformation)
-				, def("Transformation2D", &my::Matrix4::Transformation2D)
-				, def("Translation", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Translation)
-				, def("Translation", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Translation)
+				def("Identity", &my::Matrix4::Identity),
+				def("LookAtLH", &my::Matrix4::LookAtLH),
+				def("LookAtRH", &my::Matrix4::LookAtRH),
+				def("OrthoLH", &my::Matrix4::OrthoLH),
+				def("OrthoRH", &my::Matrix4::OrthoRH),
+				def("OrthoOffCenterLH", &my::Matrix4::OrthoOffCenterLH),
+				def("OrthoOffCenterRH", &my::Matrix4::OrthoOffCenterRH),
+				def("PerspectiveFovLH", &my::Matrix4::PerspectiveFovLH),
+				def("PerspectiveFovRH", &my::Matrix4::PerspectiveFovRH),
+				def("PerspectiveLH", &my::Matrix4::PerspectiveLH),
+				def("PerspectiveRH", &my::Matrix4::PerspectiveRH),
+				def("PerspectiveOffCenterLH", &my::Matrix4::PerspectiveOffCenterLH),
+				def("PerspectiveOffCenterRH", &my::Matrix4::PerspectiveOffCenterRH),
+				def("RotationAxis", &my::Matrix4::RotationAxis),
+				def("RotationQuaternion", &my::Matrix4::RotationQuaternion),
+				def("RotationX", &my::Matrix4::RotationX),
+				def("RotationY", &my::Matrix4::RotationY),
+				def("RotationZ", &my::Matrix4::RotationZ),
+				def("RotationYawPitchRoll", &my::Matrix4::RotationYawPitchRoll),
+				def("Scaling", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Scaling),
+				def("Scaling", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Scaling),
+				def("Transformation", &my::Matrix4::Transformation),
+				def("Transformation2D", &my::Matrix4::Transformation2D),
+				def("Translation", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Translation),
+				def("Translation", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
 
 		, class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
@@ -615,21 +615,21 @@ void Export2Lua(lua_State * L)
 		, class_<my::Font, boost::shared_ptr<my::Font> >("Font")
 			.enum_("constants")
 			[
-				value("AlignLeft", my::Font::AlignLeft)
-				, value("AlignCenter", my::Font::AlignCenter)
-				, value("AlignRight", my::Font::AlignRight)
-				, value("AlignTop", my::Font::AlignTop)
-				, value("AlignMiddle", my::Font::AlignMiddle)
-				, value("AlignBottom", my::Font::AlignBottom)
-				, value("AlignLeftTop", my::Font::AlignLeftTop)
-				, value("AlignCenterTop", my::Font::AlignCenterTop)
-				, value("AlignRightTop", my::Font::AlignRightTop)
-				, value("AlignLeftMiddle", my::Font::AlignLeftMiddle)
-				, value("AlignCenterMiddle", my::Font::AlignCenterMiddle)
-				, value("AlignRightMiddle", my::Font::AlignRightMiddle)
-				, value("AlignLeftBottom", my::Font::AlignLeftBottom)
-				, value("AlignCenterBottom", my::Font::AlignCenterBottom)
-				, value("AlignRightBottom", my::Font::AlignRightBottom)
+				value("AlignLeft", my::Font::AlignLeft),
+				value("AlignCenter", my::Font::AlignCenter),
+				value("AlignRight", my::Font::AlignRight),
+				value("AlignTop", my::Font::AlignTop),
+				value("AlignMiddle", my::Font::AlignMiddle),
+				value("AlignBottom", my::Font::AlignBottom),
+				value("AlignLeftTop", my::Font::AlignLeftTop),
+				value("AlignCenterTop", my::Font::AlignCenterTop),
+				value("AlignRightTop", my::Font::AlignRightTop),
+				value("AlignLeftMiddle", my::Font::AlignLeftMiddle),
+				value("AlignCenterMiddle", my::Font::AlignCenterMiddle),
+				value("AlignRightMiddle", my::Font::AlignRightMiddle),
+				value("AlignLeftBottom", my::Font::AlignLeftBottom),
+				value("AlignCenterBottom", my::Font::AlignCenterBottom),
+				value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
 
 		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
@@ -786,6 +786,18 @@ void Export2Lua(lua_State * L)
 			.def("GetSize", &CGrowableArray<D3DDISPLAYMODE>::GetSize)
 
 		, class_<DXUTD3D9DeviceSettings>("DXUTD3D9DeviceSettings")
+			.enum_("VertexProcessingType")
+			[
+				value("D3DCREATE_SOFTWARE_VERTEXPROCESSING", D3DCREATE_SOFTWARE_VERTEXPROCESSING),
+				value("D3DCREATE_MIXED_VERTEXPROCESSING", D3DCREATE_MIXED_VERTEXPROCESSING),
+				value("D3DCREATE_HARDWARE_VERTEXPROCESSING", D3DCREATE_HARDWARE_VERTEXPROCESSING),
+				value("D3DCREATE_PUREDEVICE", D3DCREATE_PUREDEVICE)
+			]
+			.enum_("PresentIntervalType")
+			[
+				value("D3DPRESENT_INTERVAL_DEFAULT", D3DPRESENT_INTERVAL_DEFAULT),
+				value("D3DPRESENT_INTERVAL_IMMEDIATE", D3DPRESENT_INTERVAL_IMMEDIATE)
+			]
 			.def_readwrite("AdapterOrdinal", &DXUTD3D9DeviceSettings::AdapterOrdinal)
 			.def_readwrite("DeviceType", &DXUTD3D9DeviceSettings::DeviceType)
 			.def_readwrite("AdapterFormat", &DXUTD3D9DeviceSettings::AdapterFormat)
@@ -811,9 +823,17 @@ void Export2Lua(lua_State * L)
 			.def("GetAt", &CGrowableArray<CD3D9EnumDeviceInfo *>::GetAt)
 			.def("GetSize", &CGrowableArray<CD3D9EnumDeviceInfo *>::GetSize)
 
-		, class_<CGrowableArray<UINT> >("UINTArray")
-			.def("GetAt", &CGrowableArray<UINT>::GetAt)
-			.def("GetSize", &CGrowableArray<UINT>::GetSize)
+		, class_<CGrowableArray<D3DFORMAT> >("D3DFORMATArray")
+			.def("GetAt", &CGrowableArray<D3DFORMAT>::GetAt)
+			.def("GetSize", &CGrowableArray<D3DFORMAT>::GetSize)
+
+		, class_<CGrowableArray<D3DMULTISAMPLE_TYPE> >("D3DMULTISAMPLE_TYPEArray")
+			.def("GetAt", &CGrowableArray<D3DMULTISAMPLE_TYPE>::GetAt)
+			.def("GetSize", &CGrowableArray<D3DMULTISAMPLE_TYPE>::GetSize)
+
+		, class_<CGrowableArray<DWORD> >("DWORDArray")
+			.def("GetAt", (const DWORD & (CGrowableArray<DWORD>::*)(int))&CGrowableArray<DWORD>::GetAt) // ! forced convert to const ref
+			.def("GetSize", &CGrowableArray<DWORD>::GetSize)
 
 		, class_<CD3D9EnumDeviceSettingsCombo>("CD3D9EnumDeviceSettingsCombo")
 			.def_readonly("AdapterOrdinal", &CD3D9EnumDeviceSettingsCombo::AdapterOrdinal)
@@ -825,7 +845,7 @@ void Export2Lua(lua_State * L)
 			.def_readonly("multiSampleTypeList", &CD3D9EnumDeviceSettingsCombo::multiSampleTypeList)
 			.def_readonly("multiSampleQualityList", &CD3D9EnumDeviceSettingsCombo::multiSampleQualityList)
 			.def_readonly("presentIntervalList", &CD3D9EnumDeviceSettingsCombo::presentIntervalList)
-			.def_readonly("DSMSConflictList", &CD3D9EnumDeviceSettingsCombo::DSMSConflictList)
+			.def("IsDepthStencilMultiSampleConflict", &CD3D9EnumDeviceSettingsCombo::IsDepthStencilMultiSampleConflict)
 
 		, class_<CGrowableArray<CD3D9EnumDeviceSettingsCombo *> >("CD3D9EnumDeviceSettingsComboArray")
 			.def("GetAt", &CGrowableArray<CD3D9EnumDeviceSettingsCombo *>::GetAt)
@@ -840,15 +860,19 @@ void Export2Lua(lua_State * L)
 		, class_<my::DxutApp, CD3D9Enumeration>("DxutApp")
 			.scope
 			[
-				def("DXUTD3DDeviceTypeToString", &my::DxutApp::DXUTD3DDeviceTypeToString)
-				, def("DXUTD3DFormatToString", &my::DxutApp::DXUTD3DFormatToString)
-				, def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString)
-				, def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
+				def("DXUTD3DDeviceTypeToString", &my::DxutApp::DXUTD3DDeviceTypeToString),
+				def("DXUTD3DFormatToString", &my::DxutApp::DXUTD3DFormatToString),
+				def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString),
+				def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
 			]
 			.def("GetAbsoluteTime", &my::DxutApp::GetAbsoluteTime)
 			.def("GetD3D9DeviceSettings", &my::DxutApp::GetD3D9DeviceSettings)
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)
 			.def("ToggleREF", &my::DxutApp::ToggleREF)
+			.property("SoftwareVP", &my::DxutApp::GetSoftwareVP, &my::DxutApp::SetSoftwareVP)
+			.property("HardwareVP", &my::DxutApp::GetHardwareVP, &my::DxutApp::SetHardwareVP)
+			.property("PureHardwareVP", &my::DxutApp::GetPureHardwareVP, &my::DxutApp::SetPureHardwareVP)
+			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
 		, class_<TimerEvent>("TimerEvent")
