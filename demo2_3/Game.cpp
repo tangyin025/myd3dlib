@@ -467,16 +467,8 @@ void DialogMgr::UpdateDlgViewProj(DialogPtr dlg)
 {
 	const D3DSURFACE_DESC & desc = GetD3D9BackBufferSurfaceDesc();
 
-	float aspect = desc.Width / (float)desc.Height;
-
-	float height = (float)desc.Height;
-
-	Vector2 vp(height * aspect, height);
-
-	UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), vp.x, vp.y, dlg->m_View, dlg->m_Proj);
-
 	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
+		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2((float)desc.Width, (float)desc.Height))));
 }
 
 void DialogMgr::Draw(
@@ -724,10 +716,6 @@ void Game::OnFrameRender(
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-		//m_font->DrawString(DXUTGetFrameStats(DXUTIsVsyncEnabled()),
-		//	Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
-		//m_font->DrawString(DXUTGetDeviceStats(),
-		//	Rectangle::LeftTop(5,5 + (float)m_font->m_LineHeight,500,10), D3DCOLOR_ARGB(255,255,255,0), Font::AlignLeftTop);
 		m_font->DrawString(m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		UIRender::End(pd3dDevice);

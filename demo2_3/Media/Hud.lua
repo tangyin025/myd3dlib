@@ -7,6 +7,7 @@ dlg.Skin.Font=_Font.font1
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
+	CommonUI.UpdateDlgViewProj(dlg,args.vp.x,args.vp.y)
 	dlg.Location=Vector2(args.vp.x-170,0)
 end
 
