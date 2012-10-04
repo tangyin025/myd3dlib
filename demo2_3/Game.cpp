@@ -574,9 +574,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	ExecuteCode("dofile \"Font.lua\"");
-
-	ExecuteCode("dofile \"Console.lua\"");
+	ExecuteCode("require \"Console.lua\"");
 
 	if(!m_font || !m_console || !m_panel)
 	{

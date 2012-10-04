@@ -1962,6 +1962,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
+			// ! WM_MOUSEMOVE 时 Matrix4::inverse比较费，有必要优化掉
 			Matrix4 invViewMatrix = m_View.inverse();
 			const Vector3 & viewX = invViewMatrix[0].xyz;
 			const Vector3 & viewY = invViewMatrix[1].xyz;

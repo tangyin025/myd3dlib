@@ -1137,7 +1137,7 @@ namespace my
 
 	void Contact::calculateContactBasis(void)
 	{
-		_ASSERT(IS_NORMALIZED(contactNormal, EPSILON_E6));
+		_ASSERT(IS_NORMALIZED(contactNormal));
 
 		Vector3 contantTangents[2];
 
@@ -1602,7 +1602,7 @@ namespace my
 	{
 		Vector3 deltaPosition = linearChange + angularChange.cross(relativeContactPosition);
 
-		_ASSERT(IS_NORMALIZED(contact.contactNormal, EPSILON_E6));
+		_ASSERT(IS_NORMALIZED(contact.contactNormal));
 
 		if(0 == bodyIndex)
 		{

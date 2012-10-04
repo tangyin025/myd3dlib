@@ -1,3 +1,6 @@
+require "Font.lua"
+require "CommonUI.lua"
+
 module("Console", package.seeall)
 
 dlg=Dialog()

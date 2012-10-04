@@ -2378,4 +2378,6 @@ namespace my
 	}
 };
 
-#define IS_NORMALIZED(v, e) (abs((v).magnitude() - 1) < e)
+#define IS_UNITED(v) (abs((float)(v) - 1) < EPSILON_E6)
+
+#define IS_NORMALIZED(v) (IS_UNITED((v).magnitude()))

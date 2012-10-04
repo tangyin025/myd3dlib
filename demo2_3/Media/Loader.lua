@@ -40,7 +40,7 @@ end
 function LoadFont(name, height)
 	local res_name = name..height
 	if not resource_pool[res_name] then
-		resource_pool[res_name]=game:LoadFont(name)
+		resource_pool[res_name]=game:LoadFont(name, height)
 	end
 	return resource_pool[res_name]
 end

@@ -8,7 +8,6 @@
 
 static int lua_print(lua_State * L)
 {
-	// ! u8tows会抛异常，不要让 C++异常直接抛到 lua函数以外
 	try
 	{
 		MessagePanel * panel = Game::getSingleton().m_panel.get();
@@ -28,7 +27,7 @@ static int lua_print(lua_State * L)
 				LUA_QL("print"));
 			if (i>1) panel->puts(L"\t");
 			else panel->_push_enter(D3DCOLOR_ARGB(255,255,255,255));
-			panel->puts(u8tows(s));
+			panel->puts(u8tows(s)); // ! u8tows会抛异常，不要让 C++异常直接抛到 lua函数以外
 			lua_pop(L, 1);  /* pop result */
 		}
 		return 0;
@@ -139,6 +138,21 @@ static int luaB_dofile (lua_State *L) {
 	if (luaL_loadfile(L, fname) != 0) lua_error(L);
 	lua_call(L, 0, LUA_MULTRET);
 	return lua_gettop(L) - n;
+}
+
+static void loaderror (lua_State *L, const char *filename) {
+  luaL_error(L, "error loading module " LUA_QS " from file " LUA_QS ":\n\t%s",
+                lua_tostring(L, 1), filename, lua_tostring(L, -1));
+}
+
+static int loader_Lua (lua_State *L) {
+  //const char *filename;
+  const char *name = luaL_checkstring(L, 1);
+  //filename = findfile(L, name, "path");
+  //if (filename == NULL) return 1;  /* library not found in this path */
+  if (luaL_loadfile(L, name) != 0)
+    loaderror(L, name);
+  return 1;  /* library loaded successfully */
 }
 
 static int os_exit(lua_State * L)
@@ -309,10 +323,15 @@ void Export2Lua(lua_State * L)
 	lua_pushcfunction(L, luaB_dofile);
 	lua_setglobal(L, "dofile");
 
+	lua_getglobal(L, "package");
+	lua_getfield(L, -1, "loaders");
+	lua_pushcfunction(L, loader_Lua);
+	lua_rawseti(L, -2, 2);
+
 	lua_getglobal(L, "os");
 	lua_pushcclosure(L, os_exit, 0);
 	lua_setfield(L, -2, "exit");
-	lua_pop(L, 1);
+	lua_settop(L, 0);
 
 	struct HelpFunc
 	{
@@ -743,10 +762,11 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Transform", &my::Dialog::m_Transform)
 			.def_readwrite("View", &my::Dialog::m_View)
 			.def_readwrite("Proj", &my::Dialog::m_Proj)
-			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
-			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
+			.def("Refresh", &my::Dialog::Refresh)
 			.def("InsertControl", &my::Dialog::InsertControl)
 			.def("ClearAllControl", &my::Dialog::ClearAllControl)
+			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
+			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
 
 		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
 			.def(constructor<>())
