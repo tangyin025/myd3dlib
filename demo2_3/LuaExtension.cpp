@@ -163,7 +163,7 @@ static int os_exit(lua_State * L)
 	return 0;
 }
 
-static int lua_error_pcall(lua_State * L)
+static int add_file_and_line(lua_State * L)
 {
    lua_Debug d;
    lua_getstack(L, 1, &d);
@@ -349,7 +349,7 @@ void Export2Lua(lua_State * L)
 	//register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
-	//set_pcall_callback(lua_error_pcall);
+	//set_pcall_callback(add_file_and_line);
 
 	module(L)
 	[
@@ -764,6 +764,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Proj", &my::Dialog::m_Proj)
 			.def("Refresh", &my::Dialog::Refresh)
 			.def("InsertControl", &my::Dialog::InsertControl)
+			.def("RemoveControl", &my::Dialog::RemoveControl)
 			.def("ClearAllControl", &my::Dialog::ClearAllControl)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
@@ -921,7 +922,7 @@ void Export2Lua(lua_State * L)
 		, class_<DialogMgr, my::DxutApp>("DialogMgr")
 			.def("InsertDlg", &DialogMgr::InsertDlg)
 			.def("RemoveDlg", &DialogMgr::RemoveDlg)
-			.def("ClearAllDlg", &DialogMgr::ClearAllDlg)
+			.def("RemoveAllDlg", &DialogMgr::RemoveAllDlg)
 
 		, class_<Game, bases<LoaderMgr, DialogMgr, TimerMgr> >("Game")
 			.def_readwrite("font", &Game::m_font)

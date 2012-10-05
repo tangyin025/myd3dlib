@@ -1,5 +1,6 @@
 require "Font.lua"
 require "CommonUI.lua"
+require "Settings.lua"
 
 module("Hud", package.seeall)
 
@@ -42,8 +43,10 @@ btn_change_device.Text="Change device (F2)"
 btn_change_device.Skin=CommonUI.com_btn_skin
 btn_change_device:SetHotkey(113) -- VK_F2
 btn_change_device.EventClick=function(args)
-	print "haven't implemented Hud.btn_change_device.EventClick"
+	Settings.dlg.Visible=not Settings.dlg.Visible
 end
 dlg:InsertControl(btn_change_device)
 
+game:RemoveDlg(Settings.dlg)
 game:InsertDlg(dlg)
+game:InsertDlg(Settings.dlg)

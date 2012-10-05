@@ -3,6 +3,7 @@
 #include "GameState.h"
 #include "LuaExtension.h"
 #include <luabind/luabind.hpp>
+#include <signal.h>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -448,9 +449,10 @@ void TimerMgr::OnFrameMove(
 	float fElapsedTime)
 {
 	TimerPtrSet::const_iterator timer_iter = m_timerSet.begin();
-	for(; timer_iter != m_timerSet.end(); timer_iter++)
+	for(; timer_iter != m_timerSet.end(); )
 	{
-		(*timer_iter)->OnFrameMove(fElapsedTime, fElapsedTime);
+		// ! take care of EventTimer removing self
+		(*timer_iter++)->OnFrameMove(fElapsedTime, fElapsedTime);
 	}
 }
 
@@ -508,7 +510,7 @@ Game::Game(void)
 
 Game::~Game(void)
 {
-	ClearAllDlg(); // ! m_dlgSet must be destroyed before distruct m_lua for some EventXxx Delegates
+	RemoveAllDlg(); // ! m_dlgSet must be destroyed before distruct m_lua for some EventXxx Delegates
 
 	ImeEditBox::Uninitialize();
 }
@@ -662,7 +664,7 @@ void Game::OnDestroyDevice(void)
 
 	m_console.reset();
 
-	ClearAllDlg();
+	RemoveAllDlg();
 
 	ImeEditBox::Uninitialize();
 
@@ -755,22 +757,76 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
+static int traceback (lua_State *L) {
+  if (!lua_isstring(L, 1))  /* 'message' not a string? */
+    return 1;  /* keep it intact */
+  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+  if (!lua_istable(L, -1)) {
+    lua_pop(L, 1);
+    return 1;
+  }
+  lua_getfield(L, -1, "traceback");
+  if (!lua_isfunction(L, -1)) {
+    lua_pop(L, 2);
+    return 1;
+  }
+  lua_pushvalue(L, 1);  /* pass error message */
+  lua_pushinteger(L, 2);  /* skip this function and traceback */
+  lua_call(L, 2, 1);  /* call debug.traceback */
+  return 1;
+}
+
+static void lstop (lua_State *L, lua_Debug *ar) {
+  (void)ar;  /* unused arg. */
+  lua_sethook(L, NULL, 0, 0);
+  luaL_error(L, "interrupted!");
+}
+
+static void laction (int i) {
+  signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
+                              terminate process (default action) */
+  lua_sethook(Game::getSingleton().m_lua->_state, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+}
+
+static int docall (lua_State *L, int narg, int clear) {
+  int status;
+  int base = lua_gettop(L) - narg;  /* function index */
+  lua_pushcfunction(L, traceback);  /* push traceback function */
+  lua_insert(L, base);  /* put it under chunk and args */
+  signal(SIGINT, laction);
+  status = lua_pcall(L, narg, (clear ? 0 : LUA_MULTRET), base);
+  signal(SIGINT, SIG_DFL);
+  lua_remove(L, base);  /* remove traceback function */
+  /* force a complete garbage collection in case of errors */
+  if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
+  return status;
+}
+
+static void l_message (const char *pname, const char *msg) {
+  //if (pname) fprintf(stderr, "%s: ", pname);
+  //fprintf(stderr, "%s\n", msg);
+  //fflush(stderr);
+	Game::getSingleton().AddLine(L"");
+	Game::getSingleton().puts(ms2ws(msg).c_str());
+}
+
+static int report (lua_State *L, int status) {
+  if (status && !lua_isnil(L, -1)) {
+    const char *msg = lua_tostring(L, -1);
+    if (msg == NULL) msg = "(error object is not a string)";
+    l_message("aaa", msg);
+    lua_pop(L, 1);
+  }
+  return status;
+}
+
+static int dostring (lua_State *L, const char *s, const char *name) {
+  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
+  return report(L, status);
+}
+
 bool Game::ExecuteCode(const char * code)
 {
-	try
-	{
-		m_lua->executeCode(code);
-		return true;
-	}
-	catch(const std::runtime_error & e)
-	{
-		if(!m_panel)
-			THROW_CUSEXCEPTION(e.what());
-
-		AddLine(L"");
-		puts(ms2ws(e.what()));
-
-		m_console->SetVisible(true);
-	}
-	return false;
+	return 0 == dostring(m_lua->_state, code, "Game::ExecuteCode");
 }
+

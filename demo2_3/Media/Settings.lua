@@ -590,4 +590,6 @@ dlg.EventRefresh=function(args)
 	RefreshDisplayAdapter()
 end
 
+dlg.Visible=false
+
 game:InsertDlg(dlg)

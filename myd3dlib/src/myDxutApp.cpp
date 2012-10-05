@@ -185,8 +185,7 @@ int DxutApp::Run(void)
 	}
 	catch(const my::Exception & e)
 	{
-		m_wnd->MessageBox(ms2ts(e.GetFullDescription().c_str()).c_str(), _T("Exception"));
-		m_wnd->DestroyWindow();
+		MessageBox(m_wnd->m_hWnd, ms2ts(e.GetFullDescription().c_str()).c_str(), NULL, MB_OK);
 	}
 
 	return (int)msg.wParam;
@@ -1888,9 +1887,9 @@ void DxutApp::Cleanup3DEnvironment(void)
 		UINT references = m_d3dDevice.Detach()->Release();
 		if(references > 0)
 		{
-			wchar_t msg[256];
-			swprintf_s(msg, _countof(msg), L"no zero reference count: %u", references);
-			m_wnd->MessageBox(msg);
+			TCHAR msg[256];
+			_stprintf_s(msg, _countof(msg), _T("no zero reference count: %u"), references);
+			MessageBox(m_wnd->m_hWnd, msg, NULL, MB_OK);
 		}
 		m_DeviceObjectsCreated = false;
 	}

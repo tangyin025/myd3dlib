@@ -19,11 +19,33 @@ void GameStateLoad::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	Game::getSingleton().ExecuteCode("game:process_event(GameEventLoadOver())");
+}
 
-	GameStateBase * cs = Game::getSingleton().CurrentState();
-	if(cs)
-		cs->OnFrameMove(fTime, fElapsedTime);
+HRESULT GameStateLoad::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	if(!Game::getSingleton().ExecuteCode("dofile \"StateLoad.lua\""))
+	{
+		return E_FAIL;
+	}
+
+	return S_OK;
+}
+
+HRESULT GameStateLoad::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+void GameStateLoad::OnLostDevice(void)
+{
+}
+
+void GameStateLoad::OnDestroyDevice(void)
+{
 }
 
 void GameStateLoad::OnFrameRender(
@@ -31,8 +53,7 @@ void GameStateLoad::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	V(pd3dDevice->Clear(
-		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 255), 1, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 }
 
 GameStateMain::GameStateMain(void)
@@ -54,9 +75,6 @@ HRESULT GameStateMain::OnCreateDevice(
 	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
 		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
-	m_timer = TimerPtr(new Timer(0.01f));
-	m_timer->m_EventTimer = boost::bind(&GameStateMain::OnFixedFrameMove, this);
-
 	m_SimpleSample = Game::getSingleton().LoadEffect("SimpleSample.fx");
 
 	m_ShadowMap = Game::getSingleton().LoadEffect("ShadowMap.fx");
@@ -69,7 +87,10 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	//m_ScreenTextureDS.reset(new my::Surface());
 
-	Game::getSingleton().ExecuteCode("dofile(\"demo2_3.lua\")");
+	if(!Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\""))
+	{
+		return E_FAIL;
+	}
 
 	if(!m_Camera)
 	{
@@ -114,6 +135,9 @@ void GameStateMain::OnLostDevice(void)
 
 void GameStateMain::OnDestroyDevice(void)
 {
+	m_staticMeshes.clear();
+
+	m_characters.clear();
 }
 
 void GameStateMain::OnFixedFrameMove(void)
@@ -124,9 +148,7 @@ void GameStateMain::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_timer->OnFrameMove(fTime, fElapsedTime);
-
-	m_dynamicsWorld->stepSimulation(fElapsedTime, 3, m_timer->m_Interval);
+	m_dynamicsWorld->stepSimulation(fElapsedTime, 3, 0.01f);
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 

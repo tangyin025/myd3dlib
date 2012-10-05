@@ -193,8 +193,6 @@ public:
 	my::FontPtr LoadFont(const std::string & path, int height);
 };
 
-typedef boost::function<void (void)> TimerEvent;
-
 class DialogMgr
 	: virtual public my::DxutApp
 {
@@ -232,18 +230,20 @@ public:
 
 	void RemoveDlg(my::DialogPtr dlg)
 	{
-		DialogPtrSet::iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
+		DialogPtrSet::const_iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
 		if(dlg_iter != m_dlgSet.end())
 		{
 			m_dlgSet.erase(dlg_iter);
 		}
 	}
 
-	void ClearAllDlg(void)
+	void RemoveAllDlg(void)
 	{
 		m_dlgSet.clear();
 	}
 };
+
+typedef boost::function<void (void)> TimerEvent;
 
 class Timer
 {
@@ -342,16 +342,22 @@ public:
 	{
 		if((cs = CurrentState()) && !cs->m_DeviceObjectsCreated)
 		{
-			cs->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+			if(FAILED(cs->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc)))
+			{
+				THROW_CUSEXCEPTION("cs->OnCreateDevice failed");
+			}
 			cs->m_DeviceObjectsCreated = true;
 		}
 	}
 
 	void SafeResetCurrentState(void)
 	{
-		if((cs = CurrentState()) && !cs->m_DeviceObjectsReset)
+		if((cs = CurrentState()) && cs->m_DeviceObjectsCreated && !cs->m_DeviceObjectsReset)
 		{
-			cs->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+			if(FAILED(cs->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc)))
+			{
+				THROW_CUSEXCEPTION("cs->OnResetDevice failed");
+			}
 			cs->m_DeviceObjectsReset = true;
 		}
 	}
@@ -397,7 +403,7 @@ public:
 
 			terminate();
 
-			THROW_CUSEXCEPTION(e.GetDescription());
+			AddLine(ms2ws(e.GetDescription().c_str()));
 		}
 	}
 

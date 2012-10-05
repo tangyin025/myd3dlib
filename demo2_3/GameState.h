@@ -20,6 +20,18 @@ public:
 
 	~GameStateLoad(void);
 
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
+
 	virtual void OnFrameMove(
 		double fTime,
 		float fElapsedTime);
@@ -41,8 +53,6 @@ public:
 	boost::shared_ptr<btConstraintSolver> m_constraintSolver;
 	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
-
-	TimerPtr m_timer;
 
 	my::EffectPtr m_SimpleSample;
 

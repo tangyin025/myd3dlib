@@ -712,6 +712,15 @@ namespace my
 			m_Controls.push_back(control);
 		}
 
+		void RemoveControl(ControlPtr control)
+		{
+			ControlPtrSet::const_iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
+			if(ctrl_iter != m_Controls.end())
+			{
+				m_Controls.erase(ctrl_iter);
+			}
+		}
+
 		void ClearAllControl(void)
 		{
 			m_Controls.clear();
