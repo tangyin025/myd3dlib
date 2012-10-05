@@ -1,5 +1,3 @@
-require "Loader.lua"
-
 module("CommonUI", package.seeall)
 
 com_lbl_skin=ControlSkin()

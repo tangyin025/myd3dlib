@@ -7,15 +7,10 @@
 #include "EffectMesh.h"
 #include "Character.h"
 
-class GameStateMain;
-
 class GameStateLoad
 	: public GameStateBase
-	, public boost::statechart::simple_state<GameStateLoad, Game>
 {
 public:
-	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
-
 	GameStateLoad(void);
 
 	~GameStateLoad(void);
@@ -44,7 +39,6 @@ public:
 
 class GameStateMain
 	: public GameStateBase
-	, public boost::statechart::simple_state<GameStateMain, Game>
 {
 public:
 	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;

@@ -25,7 +25,9 @@ HRESULT GameStateLoad::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(!Game::getSingleton().ExecuteCode("dofile \"StateLoad.lua\""))
+	Game::getSingleton().AddLine(L"GameStateLoad::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateLoad.lua\""))
 	{
 		return E_FAIL;
 	}
@@ -37,15 +39,19 @@ HRESULT GameStateLoad::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Game::getSingleton().AddLine(L"GameStateLoad::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	return S_OK;
 }
 
 void GameStateLoad::OnLostDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStateLoad::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 void GameStateLoad::OnDestroyDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStateLoad::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 }
 
 void GameStateLoad::OnFrameRender(
@@ -68,6 +74,8 @@ HRESULT GameStateMain::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Game::getSingleton().AddLine(L"GameStateMain::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
 	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
@@ -87,7 +95,7 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	//m_ScreenTextureDS.reset(new my::Surface());
 
-	if(!Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\""))
+	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
 	{
 		return E_FAIL;
 	}
@@ -104,6 +112,8 @@ HRESULT GameStateMain::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	Game::getSingleton().AddLine(L"GameStateMain::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	const DWORD SHADOW_MAP_SIZE = 512;
 	m_ShadowTextureRT->CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
@@ -124,6 +134,8 @@ HRESULT GameStateMain::OnResetDevice(
 
 void GameStateMain::OnLostDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStateMain::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	m_ShadowTextureRT->OnDestroyDevice();
 
 	m_ShadowTextureDS->OnDestroyDevice();
@@ -135,6 +147,8 @@ void GameStateMain::OnLostDevice(void)
 
 void GameStateMain::OnDestroyDevice(void)
 {
+	Game::getSingleton().AddLine(L"GameStateMain::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
 	m_staticMeshes.clear();
 
 	m_characters.clear();

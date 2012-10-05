@@ -901,8 +901,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<Timer, boost::shared_ptr<Timer> >("Timer")
 			.def(constructor<float>())
-			.def_readwrite("Interval", &Timer::m_Interval)
-			.def_readwrite("RemainingTime", &Timer::m_RemainingTime)
+			.def_readonly("Interval", &Timer::m_Interval)
 			.def_readwrite("EventTimer", &Timer::m_EventTimer)
 			.def("OnFrameMove", &Timer::OnFrameMove)
 
@@ -928,16 +927,12 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
-			.def("CurrentState", &Game::CurrentState)
-			.def("process_event", &Game::process_event)
 			.def("ExecuteCode", &Game::ExecuteCode)
+			.def("GetCurrentState", &Game::GetCurrentState)
+			.def("GetCurrentStateKey", &Game::GetCurrentStateKey)
+			.def("ChangeState", &Game::ChangeState)
 
 		, class_<GameStateBase>("GameStateBase")
-
-		, class_<GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventBase")
-
-		, class_<GameEventLoadOver, GameEventBase, boost::shared_ptr<GameEventBase> >("GameEventLoadOver")
-			.def(constructor<>())
 
 		, class_<GameStateLoad, GameStateBase>("GameStateLoad")
 

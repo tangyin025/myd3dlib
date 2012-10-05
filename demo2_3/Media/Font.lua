@@ -1,5 +1,3 @@
-require "Loader.lua"
-
 module("_Font", package.seeall)
 
 font1=Loader.LoadFont("wqy-microhei.ttc", 13)

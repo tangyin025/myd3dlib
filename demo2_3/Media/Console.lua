@@ -1,5 +1,6 @@
-require "Font.lua"
-require "CommonUI.lua"
+dofile "Loader.lua"
+dofile "Font.lua"
+dofile "CommonUI.lua"
 
 module("Console", package.seeall)
 

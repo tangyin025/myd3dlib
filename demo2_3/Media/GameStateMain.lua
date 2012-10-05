@@ -1,7 +1,6 @@
-require "Loader.lua"
 
 -- 获取当前state
-local state=game:CurrentState()
+local state=game:GetCurrentState()
 
 -- -- 创建相机
 -- local camera=ModelViewerCamera(math.rad(75),4/3.0,0.1,3000)

@@ -1,6 +1,3 @@
-require "Font.lua"
-require "CommonUI.lua"
-
 module("Settings",package.seeall)
 
 dlg=Dialog()

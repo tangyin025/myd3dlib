@@ -1,6 +1,4 @@
-require "Font.lua"
-require "CommonUI.lua"
-require "Settings.lua"
+dofile "Settings.lua"
 
 module("Hud", package.seeall)
 
