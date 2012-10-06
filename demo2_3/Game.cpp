@@ -317,77 +317,67 @@ void LoaderMgr::OnDestroyDevice(void)
 	m_resourceSet.clear();
 }
 
-void LoaderMgr::SetResource(const std::string & key, boost::shared_ptr<my::DeviceRelatedObjectBase> res)
+boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & path, bool reload)
 {
-	DeviceRelatedResourceSet::const_iterator old_res_iter = m_resourceSet.find(key);
-	if(m_resourceSet.end() != old_res_iter)
+	TexturePtr ret = GetResource<Texture>(path, reload);
+	if(!ret->m_ptr)
 	{
-		boost::shared_ptr<my::DeviceRelatedObjectBase> old_res = old_res_iter->second.lock();
-		if(old_res)
-			old_res->OnDestroyDevice();
+		std::string loc_path = std::string("texture/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+		}
 	}
-
-	m_resourceSet[key] = res;
-}
-
-boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & path)
-{
-	TexturePtr ret(new Texture());
-	std::string loc_path = std::string("texture/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
-	{
-		ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
-	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
-	}
-
-	SetResource(path, ret);
 	return ret;
 }
 
-boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string & path)
+boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
 {
-	CubeTexturePtr ret(new CubeTexture());
-	std::string loc_path = std::string("texture/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
+	CubeTexturePtr ret = GetResource<CubeTexture>(path, reload);
+	if(!ret->m_ptr)
 	{
-		ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+		std::string loc_path = std::string("texture/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+		}
 	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
-	}
-
-	SetResource(path, ret);
 	return ret;
 }
 
-OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path)
+OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path, bool reload)
 {
-	OgreMeshPtr ret(new OgreMesh());
-	std::string loc_path = std::string("mesh/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
+	OgreMeshPtr ret = GetResource<OgreMesh>(path, reload);
+	if(!ret->m_ptr)
 	{
-		ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+		std::string loc_path = std::string("mesh/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+		}
 	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
-	}
-
-	SetResource(path, ret);
 	return ret;
 }
 
-OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path)
+OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path, bool reload)
 {
 	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
 	std::string loc_path = std::string("mesh/") + path;
@@ -404,41 +394,43 @@ OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path)
 	return ret;
 }
 
-EffectPtr LoaderMgr::LoadEffect(const std::string & path)
+EffectPtr LoaderMgr::LoadEffect(const std::string & path, bool reload)
 {
-	EffectPtr ret(new Effect());
-	std::string loc_path = std::string("shader/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
+	EffectPtr ret = GetResource<Effect>(path, reload);
+	if(!ret->m_ptr)
 	{
-		ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+		std::string loc_path = std::string("shader/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+		}
 	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
-	}
-
-	SetResource(path, ret);
 	return ret;
 }
 
-FontPtr LoaderMgr::LoadFont(const std::string & path, int height)
+FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 {
-	FontPtr ret(new Font());
-	std::string loc_path = std::string("font/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
+	FontPtr ret = GetResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
+	if(!ret->m_face)
 	{
-		ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+		std::string loc_path = std::string("font/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
+		}
 	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
-	}
-
-	SetResource(str_printf("%s, %d", path.c_str(), height), ret);
 	return ret;
 }
 

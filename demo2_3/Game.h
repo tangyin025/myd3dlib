@@ -168,20 +168,39 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	void SetResource(const std::string & key, boost::shared_ptr<my::DeviceRelatedObjectBase> res);
+	template <class ResourceType>
+	boost::shared_ptr<ResourceType> GetResource(const std::string & key, bool reload)
+	{
+		DeviceRelatedResourceSet::const_iterator res_iter = m_resourceSet.find(key);
+		if(m_resourceSet.end() != res_iter)
+		{
+			boost::shared_ptr<my::DeviceRelatedObjectBase> res = res_iter->second.lock();
+			if(res)
+			{
+				if(reload)
+					res->OnDestroyDevice();
+
+				return boost::dynamic_pointer_cast<ResourceType>(res);
+			}
+		}
+
+		boost::shared_ptr<ResourceType> res(new ResourceType());
+		m_resourceSet[key] = res;
+		return res;
+	}
 
 	// ! luabind cannt convert boost::shared_ptr<Derived Class> to base ptr
-	boost::shared_ptr<my::BaseTexture> LoadTexture(const std::string & path);
+	boost::shared_ptr<my::BaseTexture> LoadTexture(const std::string & path, bool reload = false);
 
-	boost::shared_ptr<my::BaseTexture> LoadCubeTexture(const std::string & path);
+	boost::shared_ptr<my::BaseTexture> LoadCubeTexture(const std::string & path, bool reload = false);
 
-	my::OgreMeshPtr LoadMesh(const std::string & path);
+	my::OgreMeshPtr LoadMesh(const std::string & path, bool reload = false);
 
-	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
+	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path, bool reload = false);
 
-	my::EffectPtr LoadEffect(const std::string & path);
+	my::EffectPtr LoadEffect(const std::string & path, bool reload = false);
 
-	my::FontPtr LoadFont(const std::string & path, int height);
+	my::FontPtr LoadFont(const std::string & path, int height, bool reload = false);
 };
 
 class DialogMgr

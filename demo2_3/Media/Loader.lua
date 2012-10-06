@@ -4,35 +4,35 @@ module("Loader", package.seeall)
 resource_pool={}
 function LoadTexture(name)
 	if not resource_pool[name] then
-		resource_pool[name]=game:LoadTexture(name)
+		resource_pool[name]=game:LoadTexture(name, false)
 	end
 	return resource_pool[name]
 end
 
 function LoadCubeTexture(name)
 	if not resource_pool[name] then
-		resource_pool[name]=game:LoadCubeTexture(name)
+		resource_pool[name]=game:LoadCubeTexture(name, false)
 	end
 	return resource_pool[name]
 end
 
 function LoadMesh(name)
 	if not resource_pool[name] then
-		resource_pool[name]=game:LoadMesh(name)
+		resource_pool[name]=game:LoadMesh(name, false)
 	end
 	return resource_pool[name]
 end
 
 function LoadSkeleton(name)
 	if not resource_pool[name] then
-		resource_pool[name]=game:LoadSkeleton(name)
+		resource_pool[name]=game:LoadSkeleton(name, false)
 	end
 	return resource_pool[name]
 end
 
 function LoadEffect(name)
 	if not resource_pool[name] then
-		resource_pool[name]=game:LoadEffect(name)
+		resource_pool[name]=game:LoadEffect(name, false)
 	end
 	return resource_pool[name]
 end
@@ -40,7 +40,7 @@ end
 function LoadFont(name, height)
 	local res_name = name..height
 	if not resource_pool[res_name] then
-		resource_pool[res_name]=game:LoadFont(name, height)
+		resource_pool[res_name]=game:LoadFont(name, height, false)
 	end
 	return resource_pool[res_name]
 end

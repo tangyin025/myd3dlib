@@ -160,10 +160,10 @@ namespace my
 
 		int m_LineHeight;
 
+		FT_Face m_face;
+
 	protected:
 		HRESULT hr;
-
-		FT_Face m_face;
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
