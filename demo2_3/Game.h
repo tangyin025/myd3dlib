@@ -234,8 +234,6 @@ public:
 	}
 };
 
-typedef boost::function<void (void)> TimerEvent;
-
 class Timer
 {
 public:
@@ -247,7 +245,9 @@ public:
 
 	bool m_Running;
 
-	TimerEvent m_EventTimer;
+	my::ControlEvent m_EventTimer;
+
+	my::EventArgsPtr m_DefaultArgs;
 
 public:
 	Timer(float Interval)
@@ -255,6 +255,7 @@ public:
 		, m_RemainingTime(-Interval)
 		, m_MaxIter(4)
 		, m_Running(false)
+		, m_DefaultArgs(new my::EventArgs())
 	{
 	}
 
@@ -291,7 +292,7 @@ public:
 		timer->m_Running = false;
 	}
 
-	void ClearAllTimer(void)
+	void RemoveAllTimer(void)
 	{
 		m_timerSet.clear();
 	}
@@ -401,7 +402,7 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	bool ExecuteCode(const char * code);
+	void ExecuteCode(const char * code);
 
 	void SetState(const std::string & key, GameStateBasePtr state);
 

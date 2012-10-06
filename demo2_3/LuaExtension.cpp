@@ -34,7 +34,7 @@ static int lua_print(lua_State * L)
 	}
 	catch(const my::Exception & e)
 	{
-		return luaL_error(L, e.GetFullDescription().c_str());
+		return luaL_error(L, e.GetDescription().c_str());
 	}
 }
 
@@ -184,7 +184,7 @@ static int add_file_and_line(lua_State * L)
 
 static void translate_my_exception(lua_State* L, my::Exception const & e)
 {
-	std::string s = e.GetFullDescription();
+	std::string s = e.GetDescription();
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
@@ -247,6 +247,7 @@ namespace luabind
 					}
 					catch(const luabind::error & e)
 					{
+						// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
 						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
 					}
 				}
@@ -263,51 +264,6 @@ namespace luabind
 	template <>
 	struct default_converter<my::ControlEvent const &>
 		: default_converter<my::ControlEvent>
-	{
-	};
-
-	template <>
-	struct default_converter<TimerEvent>
-		: native_converter_base<TimerEvent>
-	{
-		static int compute_score(lua_State * L, int index)
-		{
-			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-		}
-
-		TimerEvent from(lua_State * L, int index)
-		{
-			struct InternalExceptionHandler
-			{
-				luabind::object obj;
-				InternalExceptionHandler(const luabind::object & _obj)
-					: obj(_obj)
-				{
-				}
-				void operator()(void)
-				{
-					try
-					{
-						obj();
-					}
-					catch(const luabind::error & e)
-					{
-						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
-					}
-				}
-			};
-			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
-		}
-
-		void to(lua_State * L, TimerEvent const & e)
-		{
-			_ASSERT(false);
-		}
-	};
-
-	template <>
-	struct default_converter<TimerEvent const &>
-		: default_converter<TimerEvent>
 	{
 	};
 }
@@ -345,8 +301,8 @@ void Export2Lua(lua_State * L)
 
 	open(L);
 
-	//// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	//register_exception_handler<my::Exception>(&translate_my_exception);
+	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	register_exception_handler<my::Exception>(&translate_my_exception);
 
 	//// ! 为什么不起作用
 	//set_pcall_callback(add_file_and_line);
@@ -897,8 +853,6 @@ void Export2Lua(lua_State * L)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
-		, class_<TimerEvent>("TimerEvent")
-
 		, class_<Timer, boost::shared_ptr<Timer> >("Timer")
 			.def(constructor<float>())
 			.def_readonly("Interval", &Timer::m_Interval)
@@ -908,7 +862,7 @@ void Export2Lua(lua_State * L)
 		, class_<TimerMgr>("TimerMgr")
 			.def("InsertTimer", &TimerMgr::InsertTimer)
 			.def("RemoveTimer", &TimerMgr::RemoveTimer)
-			.def("ClearAllTimer", &TimerMgr::ClearAllTimer)
+			.def("RemoveAllTimer", &TimerMgr::RemoveAllTimer)
 
 		, class_<LoaderMgr, my::DxutApp>("LoaderMgr")
 			.def("LoadTexture", &LoaderMgr::LoadTexture)

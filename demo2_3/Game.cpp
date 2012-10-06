@@ -453,7 +453,7 @@ void Timer::OnFrameMove(
 		m_RemainingTime -= m_Interval;
 
 		if(m_EventTimer)
-			m_EventTimer();
+			m_EventTimer(m_DefaultArgs);
 	}
 }
 
@@ -525,6 +525,10 @@ Game::Game(void)
 
 Game::~Game(void)
 {
+	RemoveAllDlg();
+
+	RemoveAllTimer();
+
 	ImeEditBox::Uninitialize();
 }
 
@@ -685,7 +689,7 @@ void Game::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	ClearAllTimer();
+	RemoveAllTimer();
 
 	LoaderMgr::OnDestroyDevice();
 }
@@ -818,33 +822,43 @@ static int docall (lua_State *L, int narg, int clear) {
   if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
   return status;
 }
+//
+//static void l_message (const char *pname, const char *msg) {
+//  //if (pname) fprintf(stderr, "%s: ", pname);
+//  //fprintf(stderr, "%s\n", msg);
+//  //fflush(stderr);
+//	Game::getSingleton().AddLine(L"");
+//	Game::getSingleton().puts(ms2ws(msg).c_str());
+//}
+//
+//static int report (lua_State *L, int status) {
+//  if (status && !lua_isnil(L, -1)) {
+//    const char *msg = lua_tostring(L, -1);
+//    if (msg == NULL) msg = "(error object is not a string)";
+//    l_message("aaa", msg);
+//    lua_pop(L, 1);
+//  }
+//  return status;
+//}
 
-static void l_message (const char *pname, const char *msg) {
-  //if (pname) fprintf(stderr, "%s: ", pname);
-  //fprintf(stderr, "%s\n", msg);
-  //fflush(stderr);
-	Game::getSingleton().AddLine(L"");
-	Game::getSingleton().puts(ms2ws(msg).c_str());
-}
-
-static int report (lua_State *L, int status) {
-  if (status && !lua_isnil(L, -1)) {
-    const char *msg = lua_tostring(L, -1);
-    if (msg == NULL) msg = "(error object is not a string)";
-    l_message("aaa", msg);
-    lua_pop(L, 1);
+static int dostring (lua_State *L, const char *s, const char *name) {
+  //int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
+  //return report(L, status);
+  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
+  if(status && !lua_isnil(L, -1))
+  {
+	  std::string msg = lua_tostring(L, -1);
+	  if(msg.empty())
+		  msg = "(error object is not a string)";
+	  lua_pop(L, 1);
+	  THROW_CUSEXCEPTION(msg);
   }
   return status;
 }
 
-static int dostring (lua_State *L, const char *s, const char *name) {
-  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
-  return report(L, status);
-}
-
-bool Game::ExecuteCode(const char * code)
+void Game::ExecuteCode(const char * code)
 {
-	return 0 == dostring(m_lua->_state, code, "Game::ExecuteCode");
+	dostring(m_lua->_state, code, "Game::ExecuteCode");
 }
 
 void Game::SetState(const std::string & key, GameStateBasePtr state)
@@ -884,10 +898,7 @@ void Game::SafeCreateState(GameStateBasePtr state)
 	if(state)
 	{
 		_ASSERT(!state->m_DeviceObjectsCreated);
-		if(FAILED(state->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc)))
-		{
-			THROW_CUSEXCEPTION("state->OnCreateDevice failed");
-		}
+		state->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
 		state->m_DeviceObjectsCreated = true;
 	}
 }
@@ -897,10 +908,7 @@ void Game::SafeResetState(GameStateBasePtr state)
 	if(state && state->m_DeviceObjectsCreated && m_DeviceObjectsCreated)
 	{
 		_ASSERT(!state->m_DeviceObjectsReset);
-		if(FAILED(state->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc)))
-		{
-			THROW_CUSEXCEPTION("state->OnResetDevice failed");
-		}
+		state->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
 		state->m_DeviceObjectsReset = true;
 	}
 }
@@ -948,6 +956,7 @@ void Game::SafeChangeState(GameStateBasePtr old_state, GameStateBasePtrMap::cons
 
 			m_CurrentStateIter = m_stateMap.end();
 
+			// ! 状态切换是可以容错的，只是当状态切换失败后，将没有CurrentState
 			AddLine(ms2ws(e.GetDescription().c_str()));
 		}
 	}

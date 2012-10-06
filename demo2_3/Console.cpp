@@ -120,7 +120,7 @@ void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 	if(m_Skin && m_Skin->m_Font)
 	{
 		_push_enter(Color);
-		_push_line(str.c_str(), Color);
+		puts(str.c_str());
 	}
 }
 

@@ -95,7 +95,7 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	
 	float3 vNormalWS = normalize(mul(vNormal, (float3x3)g_mWorld));
 	float3 vTangentWS = normalize(mul(vTangent, (float3x3)g_mWorld));
-	float3 vBinormalWS = cross(vNormalWS, vTangentWS);
+	float3 vBinormalWS = cross(vTangentWS, vNormalWS);
 	
 	VS_OUTPUT Output;
 	Output.Position = mul(vPos, g_mWorldViewProjection);
@@ -121,8 +121,8 @@ float get_ligthAmount(float4 PosLight)
 	
 	float LightAmount = 0;
 	float x, y;
-	for(x = -0.5; x <= 0.5; x += 1.0)
-		for(y = -0.5; y <= 0.5; y+= 1.0)
+	for(x = -0.0; x <= 1.0; x += 1.0)
+		for(y = -0.0; y <= 1.0; y+= 1.0)
 			LightAmount += tex2D(ShadowTextureSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLight.z / PosLight.w ? 0.0f : 1.0f;
 			
 	return LightAmount / 4;
@@ -138,15 +138,15 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	
 	float3 vNormalWS = mul(vNormalTS, mT2W);
 	
-	float3 vReflectionWS = get_reflection(vNormalWS, vViewWS);
-	
-	float4 cSpecular = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
-	
 	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor * get_ligthAmount(In.PosLight);
 	
-	float4 cAmbient = g_MaterialAmbientColor + get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
+	float3 vReflectionWS = get_reflection(vNormalWS, vViewWS);
 	
-	return (cDiffuse + cAmbient) * tex2D(MeshTextureSampler, In.TextureUV) + cSpecular;
+	float4 cReflection = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
+	
+	float kFres = get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
+	
+	return (cDiffuse + g_MaterialAmbientColor + kFres) * tex2D(MeshTextureSampler, In.TextureUV) + cReflection;
 }
 
 //--------------------------------------------------------------------------------------

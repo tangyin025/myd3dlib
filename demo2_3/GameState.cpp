@@ -27,10 +27,7 @@ HRESULT GameStateLoad::OnCreateDevice(
 {
 	Game::getSingleton().AddLine(L"GameStateLoad::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateLoad.lua\""))
-	{
-		return E_FAIL;
-	}
+	Game::getSingleton().ExecuteCode("dofile \"GameStateLoad.lua\"");
 
 	return S_OK;
 }
@@ -95,10 +92,7 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	//m_ScreenTextureDS.reset(new my::Surface());
 
-	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
-	{
-		return E_FAIL;
-	}
+	Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\"");
 
 	if(!m_Camera)
 	{
