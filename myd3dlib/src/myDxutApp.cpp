@@ -1732,7 +1732,9 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 	{
 		if(FAILED(hr = Create3DEnvironment(deviceSettings)))
 		{
-			THROW_D3DEXCEPTION(hr);
+			m_wnd->DestroyWindow();
+			my::D3DException e(hr, __FILE__, __LINE__);
+			MessageBox(NULL, ms2ts(e.GetFullDescription().c_str()).c_str(), NULL, MB_OK);
 		}
 	}
 

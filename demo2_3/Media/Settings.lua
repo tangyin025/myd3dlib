@@ -572,6 +572,10 @@ function OnVertexProcessingChanged()
 			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_MIXED_VERTEXPROCESSING))
 		local_device_settings.BehaviorFlags=bit.bor(
 			local_device_settings.BehaviorFlags,GetComboBoxSelectedData(cbx_vertex_processing))
+		if bit.band(local_device_settings.BehaviorFlags,DXUTD3D9DeviceSettings.D3DCREATE_PUREDEVICE) then
+			local_device_settings.BehaviorFlags=bit.bor(
+				local_device_settings.BehaviorFlags,DXUTD3D9DeviceSettings.D3DCREATE_HARDWARE_VERTEXPROCESSING)
+		end
 	end
 end
 
