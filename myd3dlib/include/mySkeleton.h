@@ -22,6 +22,8 @@ namespace my
 		}
 	};
 
+	typedef std::set<int> BoneIndexSet;
+
 	class BoneHierarchy : public std::vector<BoneHierarchyNode>
 	{
 	public:
@@ -55,6 +57,28 @@ namespace my
 			{
 				node.m_child = child_i;
 			}
+		}
+
+		BoneHierarchy & BuildLeafedHierarchy(BoneHierarchy & leafedBoneHierarchy, int root_i, const BoneIndexSet & leafNodeIndices)
+		{
+			_ASSERT(leafedBoneHierarchy.size() == size());
+
+			reference node = leafedBoneHierarchy[root_i] = operator[](root_i);
+			if(node.m_child >= 0 && leafNodeIndices.end() == leafNodeIndices.find(root_i))
+			{
+				BuildLeafedHierarchy(leafedBoneHierarchy, node.m_child, leafNodeIndices);
+			}
+			else
+			{
+				node.m_child = -1;
+			}
+
+			if(node.m_sibling >= 0)
+			{
+				BuildLeafedHierarchy(leafedBoneHierarchy, node.m_sibling, leafNodeIndices);
+			}
+
+			return leafedBoneHierarchy;
 		}
 	};
 
@@ -312,6 +336,15 @@ namespace my
 
 			return m_boneNameMap.find(bone_name)->second;
 		}
+
+		BoneHierarchy & BuildLeafedHierarchy(BoneHierarchy & leafedBoneHierarchy, int root_i, const BoneIndexSet & leafNodeIndices)
+		{
+			//leafedBoneHierarchy.clear();
+
+			//leafedBoneHierarchy.resize(m_boneHierarchy.size(), BoneHierarchyNode());
+
+			return m_boneHierarchy.BuildLeafedHierarchy(leafedBoneHierarchy, root_i, leafNodeIndices);
+		}
 	};
 
 	class OgreSkeletonAnimation : public OgreSkeleton
@@ -345,9 +378,13 @@ namespace my
 			return m_animationMap.find(anim_name)->second;
 		}
 
-		BoneList & BuildAnimationPose(BoneList & pose, int root_i, const std::string & anim_name, float time) const
+		BoneList & BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const
 		{
-			return GetAnimation(anim_name).GetPose(pose, m_boneHierarchy, root_i, time);
+			//pose.clear();
+
+			//pose.resize(m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
+
+			return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
 		}
 	};
 

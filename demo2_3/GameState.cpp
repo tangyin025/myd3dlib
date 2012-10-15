@@ -88,10 +88,6 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_ShadowTextureDS.reset(new my::Surface());
 
-	//m_ScreenTextureRT.reset(new my::Texture());
-
-	//m_ScreenTextureDS.reset(new my::Surface());
-
 	Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\"");
 
 	if(!m_Camera)
@@ -117,12 +113,6 @@ HRESULT GameStateMain::OnResetDevice(
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
-	//m_ScreenTextureRT->CreateTexture(
-	//	pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, pBackBufferSurfaceDesc->Format, D3DPOOL_DEFAULT);
-
-	//m_ScreenTextureDS->CreateDepthStencilSurface(
-	//	pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, D3DFMT_D24X8);
-
 	return S_OK;
 }
 
@@ -133,10 +123,6 @@ void GameStateMain::OnLostDevice(void)
 	m_ShadowTextureRT->OnDestroyDevice();
 
 	m_ShadowTextureDS->OnDestroyDevice();
-
-	//m_ScreenTextureRT->OnDestroyDevice();
-
-	//m_ScreenTextureDS->OnDestroyDevice();
 }
 
 void GameStateMain::OnDestroyDevice(void)
@@ -217,8 +203,6 @@ void GameStateMain::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	//V(pd3dDevice->SetRenderTarget(0, m_ScreenTextureRT->GetSurfaceLevel(0)));
-	//V(pd3dDevice->SetDepthStencilSurface(m_ScreenTextureDS->m_ptr));
 	V(pd3dDevice->SetRenderTarget(0, oldRt));
 	V(pd3dDevice->SetDepthStencilSurface(oldDs));
 	V(pd3dDevice->Clear(
@@ -270,34 +254,4 @@ void GameStateMain::OnFrameRender(
 
 		V(pd3dDevice->EndScene());
 	}
-
-	//V(pd3dDevice->SetRenderTarget(0, oldRt));
-	//V(pd3dDevice->SetDepthStencilSurface(oldDs));
-	//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	////if(SUCCEEDED(hr = pd3dDevice->StretchRect(oldRt, NULL, m_ScreenTextureRT->GetSurfaceLevel(0), NULL, D3DTEXF_LINEAR)))
-	//{
-	//	D3DSURFACE_DESC desc = m_ScreenTextureRT->GetLevelDesc(0);
-	//	struct Vertex
-	//	{
-	//		FLOAT x, y, z, w;
-	//		FLOAT u, v;
-	//	};
-
-	//	Vertex quad[4] =
-	//	{
-	//		{ -0.5f,					-0.5f,						0.5f, 1.0f, 0.0f, 0.0f },
-	//		{ (FLOAT)desc.Width - 0.5f,	-0.5f,						0.5f, 1.0f, 1.0f, 0.0f },
-	//		{ -0.5f,					(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 0.0f, 1.0f },
-	//		{ (FLOAT)desc.Width - 0.5f,	(FLOAT)desc.Height - 0.5f,	0.5f, 1.0f, 1.0f, 1.0f },
-	//	};
-
-	//	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	//	{
-	//		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-	//		V(pd3dDevice->SetTexture(0, m_ScreenTextureRT->m_ptr));
-	//		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLESTRIP, 2, quad, sizeof(quad[0])));
-	//		V(pd3dDevice->EndScene());
-	//	}
-	//}
-	//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 }

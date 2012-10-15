@@ -56,10 +56,6 @@ public:
 
 	my::SurfacePtr m_ShadowTextureDS;
 
-	//my::TexturePtr m_ScreenTextureRT;
-
-	//my::SurfacePtr m_ScreenTextureDS;
-
 	boost::shared_ptr<Camera> m_Camera;
 
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;

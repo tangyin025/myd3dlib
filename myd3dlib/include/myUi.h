@@ -714,7 +714,7 @@ namespace my
 
 		void RemoveControl(ControlPtr control)
 		{
-			ControlPtrSet::const_iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
+			ControlPtrSet::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
 			if(ctrl_iter != m_Controls.end())
 			{
 				m_Controls.erase(ctrl_iter);

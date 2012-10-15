@@ -31,6 +31,8 @@ public:
 
 	float m_StateTime;
 
+	my::BoneHierarchy m_leafedBoneHierarchy;
+
 	my::BoneList m_animPose;
 
 	my::BoneList m_incrementedPose;

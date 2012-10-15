@@ -25,11 +25,11 @@ local function CreateScene(n)
 end
 
 -- 创建角色
-local function CreateRole(n,p,t)
+local function CreateRole(n,p,t,s)
 	local character=Character()
 	character:InsertMeshLOD(Loader.LoadEffectMesh(n..".mesh.xml"))
 	character:InsertSkeletonLOD(Loader.LoadSkeleton(n..".skeleton.xml"))
-	character.Scale=Vector3(0.01,0.01,0.01)
+	character.Scale=Vector3(s,s,s)
 	character.Position=p
 	character.StateTime=t
 	state:InsertCharacter(character)
@@ -39,7 +39,9 @@ end
 
 CreateScene("water")
 
-CreateRole("casual19_m_highpoly", Vector3(0,0,0), 0)
+-- CreateRole("tube", Vector3(0,0,0), 0, 1)
+
+CreateRole("casual19_m_highpoly", Vector3(0,0,0), 0, 0.01)
 
 -- for i=-5,5 do
 	-- for j=-5,5 do

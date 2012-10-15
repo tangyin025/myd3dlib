@@ -240,7 +240,7 @@ public:
 
 	void RemoveDlg(my::DialogPtr dlg)
 	{
-		DialogPtrSet::const_iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
+		DialogPtrSet::iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
 		if(dlg_iter != m_dlgSet.end())
 		{
 			m_dlgSet.erase(dlg_iter);
