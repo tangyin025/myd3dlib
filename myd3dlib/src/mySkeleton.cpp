@@ -56,6 +56,61 @@ using namespace my;
 	rapidxml::xml_attribute<char> * attr_##attr_s; \
 	DEFINE_XML_ATTRIBUTE_BOOL(attr_s, attr_##attr_s, node_##parent_s, attr_s)
 
+void BoneHierarchy::InsertSibling(int root_i, int sibling_i)
+{
+	_ASSERT(root_i >= 0 && root_i < (int)size());
+	_ASSERT(sibling_i >= 0 && sibling_i < (int)size());
+
+	reference node = operator[](root_i);
+	if(node.m_sibling >= 0)
+	{
+		InsertSibling(node.m_sibling, sibling_i);
+	}
+	else
+	{
+		node.m_sibling = sibling_i;
+	}
+}
+
+void BoneHierarchy::InsertChild(int root_i, int child_i)
+{
+	_ASSERT(root_i >= 0 && root_i < (int)size());
+	_ASSERT(child_i >= 0 && child_i < (int)size());
+
+	reference node = operator[](root_i);
+	if(node.m_child >= 0)
+	{
+		InsertSibling(node.m_child, child_i);
+	}
+	else
+	{
+		node.m_child = child_i;
+	}
+}
+
+BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
+	BoneHierarchy & leafedBoneHierarchy,
+	int root_i,
+	const BoneIndexSet & leafNodeIndices)
+{
+	_ASSERT(leafedBoneHierarchy.size() == size());
+
+	reference node = leafedBoneHierarchy[root_i] = operator[](root_i);
+
+	if(leafNodeIndices.end() == leafNodeIndices.find(root_i))
+	{
+		int node_i = node.m_child;
+		for(; node_i >= 0; node_i = operator[](node_i).m_sibling)
+		{
+			BuildLeafedHierarchy(leafedBoneHierarchy, node_i, leafNodeIndices);
+		}
+	}
+	else
+		leafedBoneHierarchy[root_i].m_child = -1;
+
+	return leafedBoneHierarchy;
+}
+
 TransformList & TransformList::Transform(
 	TransformList & hierarchyTransformList,
 	const TransformList & rhs,
@@ -67,15 +122,10 @@ TransformList & TransformList::Transform(
 
 	hierarchyTransformList[root_i] = operator[](root_i) * rhs[root_i];
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		Transform(hierarchyTransformList, rhs, boneHierarchy, node.m_sibling);
-	}
-
-	if(node.m_child >= 0)
-	{
-		Transform(hierarchyTransformList, rhs, boneHierarchy, node.m_child);
+		Transform(hierarchyTransformList, rhs, boneHierarchy, node_i);
 	}
 
 	return hierarchyTransformList;
@@ -90,15 +140,10 @@ TransformList & TransformList::TransformSelf(
 
 	operator[](root_i) *= rhs[root_i];
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		TransformSelf(rhs, boneHierarchy, node.m_sibling);
-	}
-
-	if(node.m_child >= 0)
-	{
-		TransformSelf(rhs, boneHierarchy, node.m_child);
+		TransformSelf(rhs, boneHierarchy, node_i);
 	}
 
 	return *this;
@@ -115,15 +160,10 @@ BoneList & BoneList::Increment(
 
 	boneList[root_i] = operator[](root_i).Increment(rhs[root_i]);
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		Increment(boneList, rhs, boneHierarchy, node.m_sibling);
-	}
-
-	if(node.m_child >= 0)
-	{
-		Increment(boneList, rhs, boneHierarchy, node.m_child);
+		Increment(boneList, rhs, boneHierarchy, node_i);
 	}
 
 	return boneList;
@@ -138,15 +178,10 @@ BoneList & BoneList::IncrementSelf(
 
 	operator[](root_i).IncrementSelf(rhs[root_i]);
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		IncrementSelf(rhs, boneHierarchy, node.m_sibling);
-	}
-
-	if(node.m_child >= 0)
-	{
-		IncrementSelf(rhs, boneHierarchy, node.m_child);
+		IncrementSelf(rhs, boneHierarchy, node_i);
 	}
 
 	return *this;
@@ -164,15 +199,10 @@ BoneList & BoneList::Lerp(
 
 	boneList[root_i] = operator[](root_i).Lerp(rhs[root_i], t);
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		Lerp(boneList, rhs, boneHierarchy, node.m_sibling, t);
-	}
-
-	if(node.m_child >= 0)
-	{
-		Lerp(boneList, rhs, boneHierarchy, node.m_child, t);
+		Lerp(boneList, rhs, boneHierarchy, node_i, t);
 	}
 
 	return boneList;
@@ -188,15 +218,10 @@ BoneList & BoneList::LerpSelf(
 
 	operator[](root_i).LerpSelf(rhs[root_i], t);
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		LerpSelf(rhs, boneHierarchy, node.m_sibling, t);
-	}
-
-	if(node.m_child >= 0)
-	{
-		LerpSelf(rhs, boneHierarchy, node.m_child, t);
+		LerpSelf(rhs, boneHierarchy, node_i, t);
 	}
 
 	return *this;
@@ -218,47 +243,39 @@ BoneList & BoneList::BuildHierarchyBoneList(
 	hier_bone.m_rotation = bone.m_rotation * rootRotation;
 	hier_bone.m_position = bone.m_position.transform(rootRotation) + rootPosition;
 
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node.m_sibling, rootRotation, rootPosition);
-	}
-
-	if(node.m_child >= 0)
-	{
-		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node.m_child, hier_bone.m_rotation, hier_bone.m_position);
+		BuildHierarchyBoneList(hierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
 	}
 
 	return hierarchyBoneList;
 }
 
-//BoneList & BoneList::BuildInverseHierarchyBoneList(
-//	BoneList & inverseHierarchyBoneList,
-//	const BoneHierarchy & boneHierarchy,
-//	int root_i,
-//	const Quaternion & inverseRootRotation,
-//	const Vector3 & inverseRootPosition)
-//{
-//	_ASSERT(inverseHierarchyBoneList.size() == size());
-//	_ASSERT(inverseHierarchyBoneList.size() == boneHierarchy.size());
+BoneList & BoneList::BuildInverseHierarchyBoneList(
+	BoneList & inverseHierarchyBoneList,
+	const BoneHierarchy & boneHierarchy,
+	int root_i,
+	const Quaternion & inverseRootRotation,
+	const Vector3 & inverseRootPosition)
+{
+	_ASSERT(inverseHierarchyBoneList.size() == size());
+	_ASSERT(inverseHierarchyBoneList.size() == boneHierarchy.size());
 
-//	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-//	const_reference bone = operator[](root_i);
-//	reference hier_bone = inverseHierarchyBoneList[root_i];
-//	hier_bone.m_rotation = inverseRootRotation * bone.m_rotation.conjugate();
-//	hier_bone.m_position = -(bone.m_position.transform(inverseRootRotation.conjugate()) - inverseRootPosition);
+	BoneHierarchy::const_reference node = boneHierarchy[root_i];
+	const_reference bone = operator[](root_i);
+	reference hier_bone = inverseHierarchyBoneList[root_i];
+	hier_bone.m_rotation = inverseRootRotation * bone.m_rotation.conjugate();
+	hier_bone.m_position = -(bone.m_position.transform(inverseRootRotation.conjugate()) - inverseRootPosition);
 
-//	if(node.m_sibling >= 0)
-//	{
-//		BuildInverseHierarchyBoneList(inverseHierarchyBoneList, boneHierarchy, node.m_sibling, inverseRootRotation, inverseRootPosition);
-//	}
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	{
+		BuildInverseHierarchyBoneList(inverseHierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
+	}
 
-//	if(node.m_child >= 0)
-//	{
-//		BuildInverseHierarchyBoneList(inverseHierarchyBoneList, boneHierarchy, node.m_child, hier_bone.m_rotation, hier_bone.m_position);
-//	}
-
-//	return inverseHierarchyBoneList;
-//}
+	return inverseHierarchyBoneList;
+}
 
 TransformList & BoneList::BuildTransformList(
 	TransformList & transformList) const
@@ -273,19 +290,19 @@ TransformList & BoneList::BuildTransformList(
 	return transformList;
 }
 
-//TransformList & BoneList::BuildTransformListTF(
-//	TransformList & inverseTransformList) const
-//{
-//	_ASSERT(inverseTransformList.size() == size());
+TransformList & BoneList::BuildTransformListTF(
+	TransformList & inverseTransformList) const
+{
+	_ASSERT(inverseTransformList.size() == size());
 
-//	for(size_t i = 0; i < size(); i++)
-//	{
-//		const_reference bone = operator[](i);
-//		inverseTransformList[i] = Matrix4::Translation(bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation);
-//	}
+	for(size_t i = 0; i < size(); i++)
+	{
+		const_reference bone = operator[](i);
+		inverseTransformList[i] = Matrix4::Translation(bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation);
+	}
 
-//	return inverseTransformList;
-//}
+	return inverseTransformList;
+}
 
 TransformList & BoneList::BuildInverseTransformList(
 	TransformList & inverseTransformList) const
@@ -342,14 +359,10 @@ TransformList & BoneList::BuildHierarchyTransformList(
 	const_reference bone = operator[](root_i);
 	hierarchyTransformList[root_i] = Matrix4::RotationQuaternion(bone.m_rotation) * Matrix4::Translation(bone.m_position) * rootTransform;
 
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		BuildHierarchyTransformList(hierarchyTransformList, boneHierarchy, node.m_sibling, rootTransform);
-	}
-
-	if(node.m_child >= 0)
-	{
-		BuildHierarchyTransformList(hierarchyTransformList, boneHierarchy, node.m_child, hierarchyTransformList[root_i]);
+		BuildHierarchyTransformList(hierarchyTransformList, boneHierarchy, node_i, hierarchyTransformList[root_i]);
 	}
 
 	return hierarchyTransformList;
@@ -368,14 +381,10 @@ TransformList & BoneList::BuildInverseHierarchyTransformList(
 	const_reference bone = operator[](root_i);
 	inverseHierarchyTransformList[root_i] = inverseRootTransform * Matrix4::Translation(-bone.m_position) * Matrix4::RotationQuaternion(bone.m_rotation.conjugate());
 
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		BuildInverseHierarchyTransformList(inverseHierarchyTransformList, boneHierarchy, node.m_sibling, inverseRootTransform);
-	}
-
-	if(node.m_child >= 0)
-	{
-		BuildInverseHierarchyTransformList(inverseHierarchyTransformList, boneHierarchy, node.m_child, inverseHierarchyTransformList[root_i]);
+		BuildInverseHierarchyTransformList(inverseHierarchyTransformList, boneHierarchy, node_i, inverseHierarchyTransformList[root_i]);
 	}
 
 	return inverseHierarchyTransformList;
@@ -415,15 +424,10 @@ BoneList & BoneTrackList::GetPose(
 
 	boneList[root_i] = operator[](root_i).GetPoseBone(time);
 
-	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-	if(node.m_sibling >= 0)
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		GetPose(boneList, boneHierarchy, node.m_sibling, time);
-	}
-
-	if(node.m_child >= 0)
-	{
-		GetPose(boneList, boneHierarchy, node.m_child, time);
+		GetPose(boneList, boneHierarchy, node_i, time);
 	}
 
 	return boneList;

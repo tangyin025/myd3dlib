@@ -27,59 +27,14 @@ namespace my
 	class BoneHierarchy : public std::vector<BoneHierarchyNode>
 	{
 	public:
-		void InsertSibling(int root_i, int sibling_i)
-		{
-			_ASSERT(root_i >= 0 && root_i < (int)size());
-			_ASSERT(sibling_i >= 0 && sibling_i < (int)size());
+		void InsertSibling(int root_i, int sibling_i);
 
-			reference node = operator[](root_i);
-			if(node.m_sibling >= 0)
-			{
-				InsertSibling(node.m_sibling, sibling_i);
-			}
-			else
-			{
-				node.m_sibling = sibling_i;
-			}
-		}
+		void InsertChild(int root_i, int child_i);
 
-		void InsertChild(int root_i, int child_i)
-		{
-			_ASSERT(root_i >= 0 && root_i < (int)size());
-			_ASSERT(child_i >= 0 && child_i < (int)size());
-
-			reference node = operator[](root_i);
-			if(node.m_child >= 0)
-			{
-				InsertSibling(node.m_child, child_i);
-			}
-			else
-			{
-				node.m_child = child_i;
-			}
-		}
-
-		BoneHierarchy & BuildLeafedHierarchy(BoneHierarchy & leafedBoneHierarchy, int root_i, const BoneIndexSet & leafNodeIndices)
-		{
-			_ASSERT(leafedBoneHierarchy.size() == size());
-
-			reference node = leafedBoneHierarchy[root_i] = operator[](root_i);
-			if(node.m_child >= 0 && leafNodeIndices.end() == leafNodeIndices.find(root_i))
-			{
-				BuildLeafedHierarchy(leafedBoneHierarchy, node.m_child, leafNodeIndices);
-			}
-			else
-			{
-				node.m_child = -1;
-			}
-
-			if(node.m_sibling >= 0)
-			{
-				BuildLeafedHierarchy(leafedBoneHierarchy, node.m_sibling, leafNodeIndices);
-			}
-
-			return leafedBoneHierarchy;
-		}
+		BoneHierarchy & BuildLeafedHierarchy(
+			BoneHierarchy & leafedBoneHierarchy,
+			int root_i,
+			const BoneIndexSet & leafNodeIndices);
 	};
 
 	class Bone
@@ -208,18 +163,18 @@ namespace my
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
 			const Vector3 & rootPosition = Vector3::zero);
 
-		//BoneList & BuildInverseHierarchyBoneList(
-		//	BoneList & inverseHierarchyBoneList,
-		//	const BoneHierarchy & boneHierarchy,
-		//	int root_i,
-		//	const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
-		//	const Vector3 & inverseRootPosition = Vector3::zero);
+		BoneList & BuildInverseHierarchyBoneList(
+			BoneList & inverseHierarchyBoneList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
+			const Vector3 & inverseRootPosition = Vector3::zero);
 
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;
 
-		//TransformList & BuildTransformListTF(
-		//	TransformList & inverseTransformList) const;
+		TransformList & BuildTransformListTF(
+			TransformList & inverseTransformList) const;
 
 		TransformList & BuildInverseTransformList(
 			TransformList & inverseTransformList) const;

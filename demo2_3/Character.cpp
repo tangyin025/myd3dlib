@@ -14,7 +14,7 @@ void Character::OnFrameMove(double fTime, float fElapsedTime)
 	m_skeletonLOD[m_LODLevel]->BuildLeafedHierarchy(
 		m_leafedBoneHierarchy,
 		m_skeletonLOD[m_LODLevel]->GetBoneIndex("Bip01"),
-		my::BoneIndexSet());
+		m_leafNodeSet);
 
 	// 获取当前动画
 	m_animPose.clear();
