@@ -137,7 +137,7 @@ size_t ControlImage::BuildVertices(UIRender::CUSTOMVERTEX * pBuffer, size_t buff
 
 	if(buffer_size >= 6 * 9)
 	{
-		//D3DSURFACE_DESC desc = m_Texture->GetLevelDesc();
+		D3DSURFACE_DESC desc = m_Texture->GetLevelDesc();
 		const float x[4] = { rect.l, rect.l + m_Border.x, rect.r - m_Border.z, rect.r };
 		const float y[4] = { rect.t, rect.t + m_Border.y, rect.b - m_Border.w, rect.b };
 		const float u[4] = { 0, m_Border.x / desc.Width, (desc.Width - m_Border.z) / desc.Width, 1 };

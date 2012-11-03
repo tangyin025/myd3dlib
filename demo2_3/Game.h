@@ -145,6 +145,10 @@ protected:
 
 	DeviceRelatedResourceSet m_resourceSet;
 
+	typedef std::map<std::string, boost::weak_ptr<my::OgreSkeletonAnimation> > OgreSkeletonAnimationSet;
+
+	OgreSkeletonAnimationSet m_skeletonSet;
+
 public:
 	LoaderMgr(void);
 
@@ -169,7 +173,7 @@ public:
 	virtual void OnDestroyDevice(void);
 
 	template <class ResourceType>
-	boost::shared_ptr<ResourceType> GetResource(const std::string & key, bool reload)
+	boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
 	{
 		DeviceRelatedResourceSet::const_iterator res_iter = m_resourceSet.find(key);
 		if(m_resourceSet.end() != res_iter)

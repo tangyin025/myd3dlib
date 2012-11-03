@@ -53,13 +53,10 @@ namespace my
 	public:
 		BaseTexturePtr m_Texture;
 
-		D3DSURFACE_DESC desc;
-
 		Vector4 m_Border;
 
 		ControlImage(BaseTexturePtr Texture, const Vector4 & Border)
 			: m_Texture(Texture)
-			, desc(Texture->GetLevelDesc(0))
 			, m_Border(Border)
 		{
 		}

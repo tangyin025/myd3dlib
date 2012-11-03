@@ -17,6 +17,8 @@ public:
 
 	my::Matrix4 m_Proj;
 
+	my::ControlEvent EventAlign;
+
 public:
 	BaseCamera(float Fovy, float Aspect, float Nz, float Fz)
 		: m_Fovy(Fovy)

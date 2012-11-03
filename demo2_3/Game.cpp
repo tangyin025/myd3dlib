@@ -319,7 +319,7 @@ void LoaderMgr::OnDestroyDevice(void)
 
 boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & path, bool reload)
 {
-	TexturePtr ret = GetResource<Texture>(path, reload);
+	TexturePtr ret = GetDeviceRelatedResource<Texture>(path, reload);
 	if(!ret->m_ptr)
 	{
 		std::string loc_path = std::string("texture/") + path;
@@ -339,7 +339,7 @@ boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & pa
 
 boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
 {
-	CubeTexturePtr ret = GetResource<CubeTexture>(path, reload);
+	CubeTexturePtr ret = GetDeviceRelatedResource<CubeTexture>(path, reload);
 	if(!ret->m_ptr)
 	{
 		std::string loc_path = std::string("texture/") + path;
@@ -359,7 +359,7 @@ boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string 
 
 OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path, bool reload)
 {
-	OgreMeshPtr ret = GetResource<OgreMesh>(path, reload);
+	OgreMeshPtr ret = GetDeviceRelatedResource<OgreMesh>(path, reload);
 	if(!ret->m_ptr)
 	{
 		std::string loc_path = std::string("mesh/") + path;
@@ -379,7 +379,22 @@ OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path, bool reload)
 
 OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path, bool reload)
 {
-	OgreSkeletonAnimationPtr ret(new OgreSkeletonAnimation());
+	OgreSkeletonAnimationSet::const_iterator res_iter = m_skeletonSet.find(path);
+	OgreSkeletonAnimationPtr ret;
+	if(m_skeletonSet.end() != res_iter)
+	{
+		ret = res_iter->second.lock();
+		if(ret)
+		{
+			if(reload)
+				ret->Clear();
+			else
+				return ret;
+		}
+	}
+	else
+		ret.reset(new OgreSkeletonAnimation());
+
 	std::string loc_path = std::string("mesh/") + path;
 	std::string full_path = GetFullPath(loc_path);
 	if(!full_path.empty())
@@ -396,7 +411,7 @@ OgreSkeletonAnimationPtr LoaderMgr::LoadSkeleton(const std::string & path, bool 
 
 EffectPtr LoaderMgr::LoadEffect(const std::string & path, bool reload)
 {
-	EffectPtr ret = GetResource<Effect>(path, reload);
+	EffectPtr ret = GetDeviceRelatedResource<Effect>(path, reload);
 	if(!ret->m_ptr)
 	{
 		std::string loc_path = std::string("shader/") + path;
@@ -416,7 +431,7 @@ EffectPtr LoaderMgr::LoadEffect(const std::string & path, bool reload)
 
 FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 {
-	FontPtr ret = GetResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
+	FontPtr ret = GetDeviceRelatedResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
 	if(!ret->m_face)
 	{
 		std::string loc_path = std::string("font/") + path;
