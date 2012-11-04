@@ -1,4 +1,3 @@
-dofile "Loader.lua"
 dofile "Font.lua"
 dofile "CommonUI.lua"
 

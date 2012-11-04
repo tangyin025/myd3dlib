@@ -22,16 +22,34 @@ camera.EventAlign=function(args)
 end
 state.Camera=camera
 
+-- 读取材质
+local function LoadMaterial(name)
+	dofile("material/"..name..".lua")
+	local mat = Material()
+	SetupMaterial(mat)
+	return mat
+end
+
+-- 读取mesh
+local function LoadEffectMesh(name)
+	local effectMesh = EffectMesh()
+	effectMesh.Mesh = game:LoadMesh(name)
+	for i = 0,effectMesh.Mesh:GetMaterialNum()-1 do
+		effectMesh:InsertMaterial(LoadMaterial(effectMesh.Mesh:GetMaterialName(i)))
+	end
+	return effectMesh
+end
+
 -- 创建场景
 local function CreateScene(n)
-	state:InsertStaticMesh(Loader.LoadEffectMesh(n..".mesh.xml"))
+	state:InsertStaticMesh(LoadEffectMesh(n..".mesh.xml"))
 end
 
 -- 创建角色
 local function CreateRole(n,p,t,s)
 	local character=Character()
-	character:InsertMeshLOD(Loader.LoadEffectMesh(n..".mesh.xml"))
-	character:InsertSkeletonLOD(Loader.LoadSkeleton(n..".skeleton.xml"))
+	character:InsertMeshLOD(LoadEffectMesh(n..".mesh.xml"))
+	character:InsertSkeletonLOD(game:LoadSkeleton(n..".skeleton.xml"))
 	character.Scale=Vector3(s,s,s)
 	character.Position=p
 	character.StateTime=t

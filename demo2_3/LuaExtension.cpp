@@ -268,6 +268,64 @@ namespace luabind
 	};
 }
 
+struct HelpFunc
+{
+	static DWORD ARGB(int a, int r, int g, int b)
+	{
+		return D3DCOLOR_ARGB(a,r,g,b);
+	}
+
+	static void SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::TexturePtr texture)
+	{
+		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
+	}
+
+	static void SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::CubeTexturePtr texture)
+	{
+		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
+	}
+
+	static my::TexturePtr LoadTexture(LoaderMgr * obj, const std::string & path)
+	{
+		return obj->LoadTexture(path);
+	}
+
+	static my::CubeTexturePtr LoadCubeTexture(LoaderMgr * obj, const std::string & path)
+	{
+		return obj->LoadCubeTexture(path);
+	}
+
+	static my::OgreMeshPtr LoadMesh(LoaderMgr * obj, const std::string & path)
+	{
+		return obj->LoadMesh(path);
+	}
+
+	static my::OgreSkeletonAnimationPtr LoadSkeleton(LoaderMgr * obj, const std::string & path)
+	{
+		return obj->LoadSkeleton(path);
+	}
+
+	static my::EffectPtr LoadEffect(LoaderMgr * obj, const std::string & path)
+	{
+		return obj->LoadEffect(path);
+	}
+
+	static my::FontPtr LoadFont(LoaderMgr * obj, const std::string & path, int height)
+	{
+		return obj->LoadFont(path, height);
+	}
+
+	static my::ControlPtr GetPanel(Game * obj)
+	{
+		return obj->m_panel;
+	}
+
+	static void SetPanel(Game * obj, my::ControlPtr panel)
+	{
+		obj->m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
+	}
+};
+
 void Export2Lua(lua_State * L)
 {
 	lua_pushcfunction(L, lua_print);
@@ -288,14 +346,6 @@ void Export2Lua(lua_State * L)
 	lua_pushcclosure(L, os_exit, 0);
 	lua_setfield(L, -2, "exit");
 	lua_settop(L, 0);
-
-	struct HelpFunc
-	{
-		static DWORD ARGB(int a, int r, int g, int b)
-		{
-			return D3DCOLOR_ARGB(a,r,g,b);
-		}
-	};
 
 	using namespace luabind;
 
@@ -500,6 +550,8 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::Texture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture")
 
+		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
+
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
@@ -560,7 +612,9 @@ void Export2Lua(lua_State * L)
 			.def("SetMatrixTransposeArray", &my::BaseEffect::SetMatrixTransposeArray)
 			.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
 			.def("SetString", &my::BaseEffect::SetString)
-			.def("SetTexture", (void (my::BaseEffect::*)(D3DXHANDLE, const my::BaseTexturePtr &))&my::BaseEffect::SetTexture)
+			// ! luabind cannot convert boost::shared_ptr<Derived Class> to base ptr
+			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::TexturePtr))&HelpFunc::SetTexture)
+			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::CubeTexturePtr))&HelpFunc::SetTexture)
 			.def("SetValue", &my::BaseEffect::SetValue)
 			.def("SetVector", &my::BaseEffect::SetVector)
 			.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
@@ -612,7 +666,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<my::BaseTexturePtr, const my::Vector4 &>())
+			.def(constructor<my::TexturePtr, const my::Vector4 &>())
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())
@@ -871,6 +925,13 @@ void Export2Lua(lua_State * L)
 			.def("LoadSkeleton", &LoaderMgr::LoadSkeleton)
 			.def("LoadEffect", &LoaderMgr::LoadEffect)
 			.def("LoadFont", &LoaderMgr::LoadFont)
+			// ! luabind unsupport default parameter
+			.def("LoadTexture", &HelpFunc::LoadTexture)
+			.def("LoadCubeTexture", &HelpFunc::LoadCubeTexture)
+			.def("LoadMesh", &HelpFunc::LoadMesh)
+			.def("LoadSkeleton", &HelpFunc::LoadSkeleton)
+			.def("LoadEffect", &HelpFunc::LoadEffect)
+			.def("LoadFont", &HelpFunc::LoadFont)
 
 		, class_<DialogMgr, my::DxutApp>("DialogMgr")
 			.def("InsertDlg", &DialogMgr::InsertDlg)
@@ -880,7 +941,8 @@ void Export2Lua(lua_State * L)
 		, class_<Game, bases<LoaderMgr, DialogMgr, TimerMgr> >("Game")
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
-			.property("panel", &Game::GetPanel, &Game::SetPanel) // ! luabind unsupport cast shared_ptr to derived class
+			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
+			.property("panel", &HelpFunc::GetPanel, &HelpFunc::SetPanel)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("GetCurrentState", &Game::GetCurrentState)
 			.def("GetCurrentStateKey", &Game::GetCurrentStateKey)

@@ -51,11 +51,11 @@ namespace my
 	class ControlImage
 	{
 	public:
-		BaseTexturePtr m_Texture;
+		TexturePtr m_Texture;
 
 		Vector4 m_Border;
 
-		ControlImage(BaseTexturePtr Texture, const Vector4 & Border)
+		ControlImage(TexturePtr Texture, const Vector4 & Border)
 			: m_Texture(Texture)
 			, m_Border(Border)
 		{

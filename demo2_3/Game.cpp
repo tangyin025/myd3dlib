@@ -317,7 +317,7 @@ void LoaderMgr::OnDestroyDevice(void)
 	m_resourceSet.clear();
 }
 
-boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & path, bool reload)
+TexturePtr LoaderMgr::LoadTexture(const std::string & path, bool reload)
 {
 	TexturePtr ret = GetDeviceRelatedResource<Texture>(path, reload);
 	if(!ret->m_ptr)
@@ -337,7 +337,7 @@ boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadTexture(const std::string & pa
 	return ret;
 }
 
-boost::shared_ptr<my::BaseTexture> LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
+CubeTexturePtr LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
 {
 	CubeTexturePtr ret = GetDeviceRelatedResource<CubeTexture>(path, reload);
 	if(!ret->m_ptr)

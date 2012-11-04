@@ -193,10 +193,9 @@ public:
 		return res;
 	}
 
-	// ! luabind cannt convert boost::shared_ptr<Derived Class> to base ptr
-	boost::shared_ptr<my::BaseTexture> LoadTexture(const std::string & path, bool reload = false);
+	my::TexturePtr LoadTexture(const std::string & path, bool reload = false);
 
-	boost::shared_ptr<my::BaseTexture> LoadCubeTexture(const std::string & path, bool reload = false);
+	my::CubeTexturePtr LoadCubeTexture(const std::string & path, bool reload = false);
 
 	my::OgreMeshPtr LoadMesh(const std::string & path, bool reload = false);
 
@@ -357,16 +356,6 @@ public:
 	Game(void);
 
 	virtual ~Game(void);
-
-	my::ControlPtr GetPanel(void) const
-	{
-		return m_panel;
-	}
-
-	void SetPanel(my::ControlPtr panel)
-	{
-		m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
-	}
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
