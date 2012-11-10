@@ -275,52 +275,62 @@ struct HelpFunc
 		return D3DCOLOR_ARGB(a,r,g,b);
 	}
 
-	static void SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::TexturePtr texture)
+	static void BaseEffect_SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::TexturePtr texture)
 	{
 		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
 	}
 
-	static void SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::CubeTexturePtr texture)
+	static void BaseEffect_SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::CubeTexturePtr texture)
 	{
 		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
 	}
 
-	static my::TexturePtr LoadTexture(LoaderMgr * obj, const std::string & path)
+	static void ParameterMap_AddTexture(ParameterMap * obj, const std::string & name, my::TexturePtr value)
+	{
+		obj->AddTexture(name, value);
+	}
+
+	static void ParameterMap_AddTexture(ParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
+	{
+		obj->AddTexture(name, value);
+	}
+
+	static my::TexturePtr LoaderMgr_LoadTexture(LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadTexture(path);
 	}
 
-	static my::CubeTexturePtr LoadCubeTexture(LoaderMgr * obj, const std::string & path)
+	static my::CubeTexturePtr LoaderMgr_LoadCubeTexture(LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadCubeTexture(path);
 	}
 
-	static my::OgreMeshPtr LoadMesh(LoaderMgr * obj, const std::string & path)
+	static my::OgreMeshPtr LoaderMgr_LoadMesh(LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadMesh(path);
 	}
 
-	static my::OgreSkeletonAnimationPtr LoadSkeleton(LoaderMgr * obj, const std::string & path)
+	static my::OgreSkeletonAnimationPtr LoaderMgr_LoadSkeleton(LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadSkeleton(path);
 	}
 
-	static my::EffectPtr LoadEffect(LoaderMgr * obj, const std::string & path)
+	static my::EffectPtr LoaderMgr_LoadEffect(LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadEffect(path);
 	}
 
-	static my::FontPtr LoadFont(LoaderMgr * obj, const std::string & path, int height)
+	static my::FontPtr LoaderMgr_LoadFont(LoaderMgr * obj, const std::string & path, int height)
 	{
 		return obj->LoadFont(path, height);
 	}
 
-	static my::ControlPtr GetPanel(Game * obj)
+	static my::ControlPtr Game_GetPanel(Game * obj)
 	{
 		return obj->m_panel;
 	}
 
-	static void SetPanel(Game * obj, my::ControlPtr panel)
+	static void Game_SetPanel(Game * obj, my::ControlPtr panel)
 	{
 		obj->m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
 	}
@@ -613,8 +623,8 @@ void Export2Lua(lua_State * L)
 			.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
 			.def("SetString", &my::BaseEffect::SetString)
 			// ! luabind cannot convert boost::shared_ptr<Derived Class> to base ptr
-			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::TexturePtr))&HelpFunc::SetTexture)
-			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::CubeTexturePtr))&HelpFunc::SetTexture)
+			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::TexturePtr))&HelpFunc::BaseEffect_SetTexture)
+			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::CubeTexturePtr))&HelpFunc::BaseEffect_SetTexture)
 			.def("SetValue", &my::BaseEffect::SetValue)
 			.def("SetVector", &my::BaseEffect::SetVector)
 			.def("SetVectorArray", &my::BaseEffect::SetVectorArray)
@@ -926,12 +936,12 @@ void Export2Lua(lua_State * L)
 			.def("LoadEffect", &LoaderMgr::LoadEffect)
 			.def("LoadFont", &LoaderMgr::LoadFont)
 			// ! luabind unsupport default parameter
-			.def("LoadTexture", &HelpFunc::LoadTexture)
-			.def("LoadCubeTexture", &HelpFunc::LoadCubeTexture)
-			.def("LoadMesh", &HelpFunc::LoadMesh)
-			.def("LoadSkeleton", &HelpFunc::LoadSkeleton)
-			.def("LoadEffect", &HelpFunc::LoadEffect)
-			.def("LoadFont", &HelpFunc::LoadFont)
+			.def("LoadTexture", &HelpFunc::LoaderMgr_LoadTexture)
+			.def("LoadCubeTexture", &HelpFunc::LoaderMgr_LoadCubeTexture)
+			.def("LoadMesh", &HelpFunc::LoaderMgr_LoadMesh)
+			.def("LoadSkeleton", &HelpFunc::LoaderMgr_LoadSkeleton)
+			.def("LoadEffect", &HelpFunc::LoaderMgr_LoadEffect)
+			.def("LoadFont", &HelpFunc::LoaderMgr_LoadFont)
 
 		, class_<DialogMgr, my::DxutApp>("DialogMgr")
 			.def("InsertDlg", &DialogMgr::InsertDlg)
@@ -942,7 +952,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
-			.property("panel", &HelpFunc::GetPanel, &HelpFunc::SetPanel)
+			.property("panel", &HelpFunc::Game_GetPanel, &HelpFunc::Game_SetPanel)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("GetCurrentState", &Game::GetCurrentState)
 			.def("GetCurrentStateKey", &Game::GetCurrentStateKey)
@@ -981,11 +991,19 @@ void Export2Lua(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Rotation", &FirstPersonCamera::m_Rotation)
 
-		, class_<Material, boost::shared_ptr<Material> >("Material")
+		, class_<ParameterMap>("ParameterMap")
+			.def("AddBool", &ParameterMap::AddBool)
+			.def("AddFloat", &ParameterMap::AddFloat)
+			.def("AddInt", &ParameterMap::AddInt)
+			.def("AddVector", &ParameterMap::AddVector)
+			.def("AddMatrix", &ParameterMap::AddMatrix)
+			.def("AddString", &ParameterMap::AddString)
+			.def("AddTexture", (void (*)(ParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::ParameterMap_AddTexture)
+			.def("AddTexture", (void (*)(ParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::ParameterMap_AddTexture)
+
+		, class_<Material, ParameterMap, boost::shared_ptr<Material> >("Material")
 			.def(constructor<>())
 			.def_readwrite("Effect", &Material::m_Effect)
-			.def("BeginParameterBlock", &Material::BeginParameterBlock)
-			.def("EndParameterBlock", &Material::EndParameterBlock)
 
 		, class_<EffectMesh, boost::shared_ptr<EffectMesh> >("EffectMesh")
 			.def(constructor<>())

@@ -1,73 +1,80 @@
 #pragma once
 
-class Material
+class BaseParameter
+{
+public:
+	std::string name;
+
+	BaseParameter(const std::string & _name)
+		: name(_name)
+	{
+	}
+
+	virtual ~BaseParameter(void)
+	{
+	}
+
+	virtual void SetParameter(my::Effect * effect) const = 0;
+};
+
+template <class ParameterType>
+class Parameter : public BaseParameter
+{
+public:
+	ParameterType value;
+
+	Parameter(const std::string & _name, const ParameterType & _value)
+		: BaseParameter(_name)
+		, value(_value)
+	{
+	}
+
+	virtual void SetParameter(my::Effect * effect) const;
+};
+
+typedef boost::shared_ptr<BaseParameter> BaseParameterPtr;
+
+class ParameterMap : public std::map<std::string, BaseParameterPtr>
+{
+public:
+	void AddBool(const std::string & name, bool value);
+
+	void AddFloat(const std::string & name, float value);
+
+	void AddInt(const std::string & name, int value);
+
+	void AddVector(const std::string & name, const my::Vector4 & value);
+
+	void AddMatrix(const std::string & name, const my::Matrix4 & value);
+
+	void AddString(const std::string & name, const std::string & value);
+
+	void AddTexture(const std::string & name, my::BaseTexturePtr value);
+};
+
+class Material : public ParameterMap
 {
 public:
 	my::EffectPtr m_Effect;
 
-	D3DXHANDLE m_Technique;
-
-	D3DXHANDLE m_Param;
-
 public:
 	Material(void)
-		: m_Param(NULL)
 	{
 	}
 
 	~Material(void)
 	{
-		SafeDeleteParam();
 	}
 
-	void SafeDeleteParam(void)
-	{
-		if(m_Param && m_Effect->m_ptr)
-		{
-			m_Effect->DeleteParameterBlock(m_Param);
-		}
-	}
+	void ApplyParameterBlock(void);
 
-	void BeginParameterBlock(const std::string & Technique)
-	{
-		SafeDeleteParam();
+	UINT Begin(DWORD Flags = 0);
 
-		m_Technique = m_Effect->GetTechniqueByName(Technique.c_str());
+	void End(void);
 
-		m_Effect->SetTechnique(m_Technique);
+	void BeginPass(UINT Pass);
 
-		m_Effect->BeginParameterBlock();
-	}
-
-	void EndParameterBlock(void)
-	{
-		m_Param = m_Effect->EndParameterBlock();
-	}
-
-	void ApplyParameterBlock(void)
-	{
-		m_Effect->ApplyParameterBlock(m_Param);
-	}
-
-	UINT Begin(DWORD Flags = 0)
-	{
-		return m_Effect->Begin(Flags);
-	}
-
-	void End(void)
-	{
-		m_Effect->End();
-	}
-
-	void BeginPass(UINT Pass)
-	{
-		m_Effect->BeginPass(Pass);
-	}
-
-	void EndPass(void)
-	{
-		m_Effect->EndPass();
-	}
+	void EndPass(void);
 };
 
 typedef boost::shared_ptr<Material> MaterialPtr;
