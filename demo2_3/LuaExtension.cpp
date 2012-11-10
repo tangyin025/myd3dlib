@@ -285,14 +285,14 @@ struct HelpFunc
 		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
 	}
 
-	static void ParameterMap_AddTexture(ParameterMap * obj, const std::string & name, my::TexturePtr value)
+	static void ParameterMap_SetTexture(ParameterMap * obj, const std::string & name, my::TexturePtr value)
 	{
-		obj->AddTexture(name, value);
+		obj->SetTexture(name, value);
 	}
 
-	static void ParameterMap_AddTexture(ParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
+	static void ParameterMap_SetTexture(ParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
 	{
-		obj->AddTexture(name, value);
+		obj->SetTexture(name, value);
 	}
 
 	static my::TexturePtr LoaderMgr_LoadTexture(LoaderMgr * obj, const std::string & path)
@@ -992,14 +992,14 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Rotation", &FirstPersonCamera::m_Rotation)
 
 		, class_<ParameterMap>("ParameterMap")
-			.def("AddBool", &ParameterMap::AddBool)
-			.def("AddFloat", &ParameterMap::AddFloat)
-			.def("AddInt", &ParameterMap::AddInt)
-			.def("AddVector", &ParameterMap::AddVector)
-			.def("AddMatrix", &ParameterMap::AddMatrix)
-			.def("AddString", &ParameterMap::AddString)
-			.def("AddTexture", (void (*)(ParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::ParameterMap_AddTexture)
-			.def("AddTexture", (void (*)(ParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::ParameterMap_AddTexture)
+			.def("SetBool", &ParameterMap::SetBool)
+			.def("SetFloat", &ParameterMap::SetFloat)
+			.def("SetInt", &ParameterMap::SetInt)
+			.def("SetVector", &ParameterMap::SetVector)
+			.def("SetMatrix", &ParameterMap::SetMatrix)
+			.def("SetString", &ParameterMap::SetString)
+			.def("SetTexture", (void (*)(ParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::ParameterMap_SetTexture)
+			.def("SetTexture", (void (*)(ParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::ParameterMap_SetTexture)
 
 		, class_<Material, ParameterMap, boost::shared_ptr<Material> >("Material")
 			.def(constructor<>())
