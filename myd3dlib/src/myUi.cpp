@@ -32,82 +32,6 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 	outProj = Matrix4::PerspectiveFovLH(fovy, Width / Height, 0.1f, 3000.0f);
 }
 
-// ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
-
-size_t UIRender::BuildRectangleVertices(
-	CUSTOMVERTEX * pBuffer,
-	size_t bufferSize,
-	const my::Rectangle & rect,
-	DWORD color,
-	const my::Rectangle & uvRect)
-{
-	if(bufferSize >= 6)
-	{
-		pBuffer[0].x = ALIGN_UI_UNIT(rect.l);
-		pBuffer[0].y = ALIGN_UI_UNIT(rect.t);
-		pBuffer[0].z = 0;
-		pBuffer[0].color = color;
-		pBuffer[0].u = uvRect.l;
-		pBuffer[0].v = uvRect.t;
-
-		pBuffer[1].x = ALIGN_UI_UNIT(rect.r);
-		pBuffer[1].y = ALIGN_UI_UNIT(rect.t);
-		pBuffer[1].z = 0;
-		pBuffer[1].color = color;
-		pBuffer[1].u = uvRect.r;
-		pBuffer[1].v = uvRect.t;
-
-		pBuffer[2].x = ALIGN_UI_UNIT(rect.l);
-		pBuffer[2].y = ALIGN_UI_UNIT(rect.b);
-		pBuffer[2].z = 0;
-		pBuffer[2].color = color;
-		pBuffer[2].u = uvRect.l;
-		pBuffer[2].v = uvRect.b;
-
-		pBuffer[3].x = ALIGN_UI_UNIT(rect.r);
-		pBuffer[3].y = ALIGN_UI_UNIT(rect.b);
-		pBuffer[3].z = 0;
-		pBuffer[3].color = color;
-		pBuffer[3].u = uvRect.r;
-		pBuffer[3].v = uvRect.b;
-
-		pBuffer[4] = pBuffer[2];
-		pBuffer[5] = pBuffer[1];
-
-		return 6;
-	}
-	return 0;
-}
-
-size_t UIRender::BuildWindowVertices(
-	CUSTOMVERTEX * pBuffer,
-	size_t bufferSize,
-	const my::Rectangle & rect,
-	DWORD color,
-	const CSize & windowSize,
-	const Vector4 & windowBorder)
-{
-	if(bufferSize >= 6 * 9)
-	{
-		const float x[4] = { rect.l, rect.l + windowBorder.x, rect.r - windowBorder.z, rect.r };
-		const float y[4] = { rect.t, rect.t + windowBorder.y, rect.b - windowBorder.w, rect.b };
-		const float u[4] = { 0, windowBorder.x / windowSize.cx, (windowSize.cx - windowBorder.z) / windowSize.cx, 1 };
-		const float v[4] = { 0, windowBorder.y / windowSize.cy, (windowSize.cy - windowBorder.w) / windowSize.cy, 1 };
-		size_t vertex_off = 0;
-		for(int i = 0; i < 3; i++)
-		{
-			for(int j = 0; j < 3; j++)
-			{
-				vertex_off += BuildRectangleVertices(
-					pBuffer + vertex_off, bufferSize, my::Rectangle(x[j], y[i], x[j + 1], y[i + 1]), color, my::Rectangle(u[j], v[i], u[j + 1], v[i + 1]));
-			}
-		}
-		return vertex_off;
-	}
-	return 0;
-}
-
 void UIRender::Begin(void)
 {
 	V(DxutApp::getSingleton().m_StateBlock->Capture());
@@ -155,22 +79,104 @@ void UIRender::SetProj(const Matrix4 & proj)
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&proj));
 }
 
+void UIRender::ClearVertexList(void)
+{
+	vertex_list.clear();
+}
+
+// ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
+#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
+
+void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
+{
+	CUSTOMVERTEX vertex = { ALIGN_UI_UNIT(x), ALIGN_UI_UNIT(y), 0, color, u, v };
+	vertex_list.push_back(vertex);
+}
+
+void UIRender::DrawVertexList(void)
+{
+	if(!vertex_list.empty())
+	{
+		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(CUSTOMVERTEX)));
+	}
+}
+
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & uvRect, D3DCOLOR color)
+{
+	PushVertex(rect.l, rect.t, uvRect.l, uvRect.t, color);
+	PushVertex(rect.r, rect.t, uvRect.r, uvRect.t, color);
+	PushVertex(rect.l, rect.b, uvRect.l, uvRect.b, color);
+	PushVertex(rect.r, rect.b, uvRect.r, uvRect.b, color);
+	PushVertex(rect.l, rect.b, uvRect.l, uvRect.b, color);
+	PushVertex(rect.r, rect.t, uvRect.r, uvRect.t, color);
+}
+
 void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & uvRect)
 {
-	CUSTOMVERTEX vertex_list[6];
-	size_t vertNum;
-	vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, uvRect);
-	V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(CUSTOMVERTEX)));
+	ClearVertexList();
+	PushRectangle(rect, uvRect, color);
+	DrawVertexList();
+}
+
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder)
+{
+	ClearVertexList();
+
+	Rectangle innerRect(
+		rect.l + windowBorder.x,
+		rect.t + windowBorder.y,
+		rect.r - windowBorder.z,
+		rect.b - windowBorder.w);
+
+	Rectangle innerUvRect(
+		windowBorder.x / windowSize.cx,
+		windowBorder.y / windowSize.cy,
+		(windowSize.cx - windowBorder.z) / windowSize.cx,
+		(windowSize.cy - windowBorder.w) / windowSize.cy);
+
+	PushRectangle(
+		Rectangle(rect.l, rect.t, innerRect.l, innerRect.t),
+		Rectangle(0, 0, innerUvRect.l, innerUvRect.t), color);
+
+	PushRectangle(
+		Rectangle(innerRect.l, rect.t, innerRect.r, innerRect.t),
+		Rectangle(innerUvRect.l, 0, innerUvRect.r, innerUvRect.t), color);
+
+	PushRectangle(
+		Rectangle(innerRect.r, rect.t, rect.r, innerRect.t),
+		Rectangle(innerUvRect.r, 0, 1, innerUvRect.t), color);
+
+	PushRectangle(
+		Rectangle(rect.l, innerRect.t, innerRect.l, innerRect.b),
+		Rectangle(0, innerUvRect.t, innerUvRect.l, innerUvRect.b), color);
+
+	PushRectangle(
+		Rectangle(innerRect.l, innerRect.t, innerRect.r, innerRect.b),
+		Rectangle(innerUvRect.l, innerUvRect.t, innerUvRect.r, innerUvRect.b), color);
+
+	PushRectangle(
+		Rectangle(innerRect.r, innerRect.t, rect.r, innerRect.b),
+		Rectangle(innerUvRect.r, innerUvRect.t, 1, innerUvRect.b), color);
+
+	PushRectangle(
+		Rectangle(rect.l, innerRect.b, innerRect.l, rect.b),
+		Rectangle(0, innerUvRect.b, innerUvRect.l, 1), color);
+
+	PushRectangle(
+		Rectangle(innerRect.l, innerRect.b, innerRect.r, rect.b),
+		Rectangle(innerUvRect.l, innerUvRect.b, innerUvRect.r, 1), color);
+
+	PushRectangle(
+		Rectangle(innerRect.r, innerRect.b, rect.r, rect.b),
+		Rectangle(innerUvRect.r, innerUvRect.b, 1, 1), color);
 }
 
 void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder)
 {
-	UIRender::CUSTOMVERTEX vertex_list[6 * 9];
-	size_t vertNum;
-	vertNum = BuildWindowVertices(vertex_list, _countof(vertex_list), rect, color, windowSize, windowBorder);
-	V(m_Device->SetFVF(UIRender::D3DFVF_CUSTOMVERTEX));
-	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(UIRender::CUSTOMVERTEX)));
+	ClearVertexList();
+	PushWindow(rect, color, windowSize, windowBorder);
+	DrawVertexList();
 }
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
@@ -187,11 +193,11 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 	}
 }
 
-void ControlSkin::DrawString(LPCWSTR pString, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
+void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Rectangle & rect, DWORD TextColor, Font::Align TextAlign)
 {
 	if(m_Font)
 	{
-		m_Font->DrawString(pString, rect, TextColor, TextAlign);
+		m_Font->DrawString(ui_render, pString, rect, TextColor, TextAlign);
 	}
 }
 
@@ -297,7 +303,7 @@ void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	{
 		if(m_Skin)
 		{
-			m_Skin->DrawString(m_Text.c_str(), Rectangle::LeftTop(Offset + m_Location, m_Size), m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			m_Skin->DrawString(ui_render, m_Text.c_str(), Rectangle::LeftTop(Offset + m_Location, m_Size), m_Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -345,7 +351,7 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 				}
 			}
 
-			Skin->DrawString(m_Text.c_str(), Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), Rect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -497,7 +503,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 				ui_render->DrawRectangle(SelRect, Skin->m_SelBkColor, Rectangle(0,0,1,1));
 			}
 
-			Skin->m_Font->DrawString(m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+			Skin->m_Font->DrawString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
 			if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 			{
@@ -1205,7 +1211,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		ui_render->SetTexture(my::TexturePtr());
 		ui_render->DrawRectangle(rc, m_CompWinColor, Rectangle(0,0,1,1));
 
-		Skin->m_Font->DrawString(s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->DrawString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
 		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
 		if(m_bCaretOn)
@@ -1254,7 +1260,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 		ui_render->SetTexture(my::TexturePtr());
 		ui_render->DrawRectangle(CandRect, m_CandidateWinColor, Rectangle(0,0,1,1));
 
-		Skin->m_Font->DrawString(horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->DrawString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
 }
 
@@ -1504,7 +1510,7 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 			Rectangle TextRect(Rectangle::LeftTop(BtnRect.r, Offset.y + m_Location.y, m_Size.x - m_CheckBtnSize.x, m_Size.y));
 
-			Skin->DrawString(m_Text.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+			Skin->DrawString(ui_render, m_Text.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }
@@ -1624,7 +1630,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 						ComboBoxItem * item = m_Items[i].get();
 						Rectangle ItemTextRect = ItemRect.shrink(m_Border.x, 0, m_Border.z, 0);
-						Skin->DrawString(item->strText.c_str(), ItemTextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+						Skin->DrawString(ui_render, item->strText.c_str(), ItemTextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 					}
 				}
 				else
@@ -1646,7 +1652,7 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 
 			Rectangle TextRect = Rect.shrink(m_Border);
 			if(m_iSelected >= 0 && m_iSelected < (int)m_Items.size())
-				Skin->DrawString(m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
+				Skin->DrawString(ui_render, m_Items[m_iSelected]->strText.c_str(), TextRect, Skin->m_TextColor, m_Skin->m_TextAlign);
 		}
 	}
 }

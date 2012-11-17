@@ -383,9 +383,8 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	return pen;
 }
 
-size_t Font::BuildStringVertices(
-	CUSTOMVERTEX * pBuffer,
-	size_t bufferSize,
+void Font::DrawString(
+	UIRender * ui_render,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
 	D3DCOLOR Color,
@@ -393,7 +392,7 @@ size_t Font::BuildStringVertices(
 {
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
-	size_t i = 0;
+	ui_render->ClearVertexList();
 	wchar_t c;
 	while((c = *pString++) && pen.x < rect.r)
 	{
@@ -403,56 +402,28 @@ size_t Font::BuildStringVertices(
 
 		int CharHeight = info.textureRect.bottom - info.textureRect.top;
 
-		// ! uv_rect could be optimized
-		CSize textureSize(m_textureDesc.Width, m_textureDesc.Height);
+		CSize textureSize(
+			m_textureDesc.Width,
+			m_textureDesc.Height);
+
 		Rectangle uv_rect(
 			(float)info.textureRect.left / textureSize.cx,
 			(float)info.textureRect.top / textureSize.cy,
 			(float)info.textureRect.right / textureSize.cx,
 			(float)info.textureRect.bottom / textureSize.cy);
 
-		size_t used = UIRender::BuildRectangleVertices(
-			&pBuffer[i], bufferSize - i, Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight), Color, uv_rect);
+		// ! frequently calling UIRender::PushVertex may obviously lose performance
+		ui_render->PushRectangle(
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight), uv_rect, Color);
 
-		if(0 == used)
-		{
-			break;
-		}
-
-		i += used;
 		pen.x += info.horiAdvance;
 	}
 
-	return i;
-}
-
-void Font::DrawString(
-	LPCWSTR pString,
-	const my::Rectangle & rect,
-	D3DCOLOR Color,
-	Align align)
-{
-	//UIRender::Begin(m_Device);
-
-	CUSTOMVERTEX vertex_list[1024];
-	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);
-
-	// ! Some nvidia video card may lost device states if draw empty primitives
-	if(numVerts > 0)
-	{
-		V(m_Device->SetTexture(0, m_texture->m_ptr));
-
-		// ! D3DFMT_A8
-		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-
-		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-
-		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, numVerts / 3, vertex_list, sizeof(*vertex_list)));
-
-		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
-	}
-
-	//UIRender::End(m_Device);
+	// ! D3DFMT_A8
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+	ui_render->SetTexture(m_texture);
+	ui_render->DrawVertexList();
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
 }
 
 void Font::DrawString(

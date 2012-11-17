@@ -604,6 +604,8 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
+	m_uiRender.reset(new my::UIRender(pd3dDevice));
+
 	ExecuteCode("dofile \"Console.lua\"");
 
 	ExecuteCode("dofile \"Hud.lua\"");
@@ -698,6 +700,8 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
+	m_uiRender.reset();
+
 	ImeEditBox::Uninitialize();
 
 	RemoveAllTimer();
@@ -731,30 +735,27 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		UIRender ui_render(pd3dDevice);
+		m_uiRender->Begin();
 
-		ui_render.Begin();
+		DialogMgr::Draw(m_uiRender.get(), fTime, fElapsedTime);
 
-		DialogMgr::Draw(&ui_render, fTime, fElapsedTime);
-
-		ui_render.SetWorld(m_console->m_Transform);
-		ui_render.SetView(m_console->m_View);
-		ui_render.SetProj(m_console->m_Proj);
-		m_console->Draw(&ui_render, fElapsedTime);
+		m_uiRender->SetWorld(m_console->m_Transform);
+		m_uiRender->SetView(m_console->m_View);
+		m_uiRender->SetProj(m_console->m_Proj);
+		m_console->Draw(m_uiRender.get(), fElapsedTime);
 
 		_ASSERT(m_font);
 
 		Matrix4 View, Proj;
 		D3DVIEWPORT9 vp;
 		pd3dDevice->GetViewport(&vp);
-		UIRender::BuildPerspectiveMatrices(
-			D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
-		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
-		m_font->DrawString(m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
+		m_uiRender->SetWorld(Matrix4::identity);
+		m_uiRender->SetView(View);
+		m_uiRender->SetProj(Proj);
+		m_font->DrawString(m_uiRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
-		ui_render.End();
+		m_uiRender->End();
 
 		V(pd3dDevice->EndScene());
 	}

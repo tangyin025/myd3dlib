@@ -335,6 +335,8 @@ public:
 
 	my::FontPtr m_font;
 
+	my::UIRenderPtr m_uiRender;
+
 	my::DialogPtr m_console;
 
 	MessagePanelPtr m_panel;

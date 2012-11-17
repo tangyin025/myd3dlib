@@ -114,18 +114,11 @@ namespace my
 		bool AssignRect(const CSize & size, CRect & outRect);
 	};
 
+	class UIRender;
+
 	class Font : public DeviceRelatedObjectBase
 	{
 	public:
-		struct CUSTOMVERTEX
-		{
-			FLOAT x, y, z;
-			DWORD color;
-			FLOAT u, v;
-		};
-
-		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
-
 		enum Align
 		{
 			AlignLeft			= 0x000001,
@@ -235,16 +228,8 @@ namespace my
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
 
-		size_t BuildStringVertices(
-			CUSTOMVERTEX * pBuffer,
-			size_t bufferSize,
-			LPCWSTR pString,
-			const Rectangle & rect,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),
-			Align align = AlignLeftTop);
-
-		// Example of Draw BuildStringVertices
 		void DrawString(
+			UIRender * ui_render,
 			LPCWSTR pString,
 			const Rectangle & rect,
 			D3DCOLOR Color = D3DCOLOR_ARGB(255, 255, 255, 255),

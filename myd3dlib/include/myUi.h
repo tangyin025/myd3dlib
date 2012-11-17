@@ -10,13 +10,22 @@ namespace my
 	class UIRender
 	{
 	public:
-		typedef Font::CUSTOMVERTEX CUSTOMVERTEX;
+		struct CUSTOMVERTEX
+		{
+			FLOAT x, y, z;
+			DWORD color;
+			FLOAT u, v;
+		};
 
-		static const DWORD D3DFVF_CUSTOMVERTEX = Font::D3DFVF_CUSTOMVERTEX;
+		static const DWORD D3DFVF_CUSTOMVERTEX = D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1;
 
 		HRESULT hr;
 
 		CComPtr<IDirect3DDevice9> m_Device;
+
+		typedef std::vector<CUSTOMVERTEX> CUSTOMVERTEXList;
+
+		CUSTOMVERTEXList vertex_list;
 
 	public:
 		UIRender(IDirect3DDevice9 * pd3dDevice)
@@ -32,10 +41,6 @@ namespace my
 
 		static void BuildPerspectiveMatrices(float fovy, float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
 
-		static size_t BuildRectangleVertices(CUSTOMVERTEX * pBuffer, size_t bufferSize, const Rectangle & rect, DWORD color, const Rectangle & uvRect);
-
-		static size_t BuildWindowVertices(CUSTOMVERTEX * pBuffer, size_t bufferSize, const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
-
 		// Default UIRender rendering ui elements under Fixed Pipeline
 		virtual void Begin(void);
 
@@ -49,10 +54,22 @@ namespace my
 
 		virtual void SetProj(const Matrix4 & proj);
 
-		virtual void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & uvRect);
+		virtual void ClearVertexList(void);
 
-		virtual void DrawWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
+		virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
+
+		virtual void DrawVertexList(void);
+
+		void PushRectangle(const Rectangle & rect, const Rectangle & uvRect, D3DCOLOR color);
+
+		void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & uvRect);
+
+		void PushWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
+
+		void DrawWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
 	};
+
+	typedef boost::shared_ptr<UIRender> UIRenderPtr;
 
 	class EventArgs
 	{
@@ -106,7 +123,7 @@ namespace my
 
 		void DrawImage(UIRender * ui_render, ControlImagePtr Image, const Rectangle & rect, DWORD color);
 
-		void DrawString(LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
+		void DrawString(UIRender * ui_render, LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
 	};
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
