@@ -14,26 +14,44 @@ namespace my
 
 		static const DWORD D3DFVF_CUSTOMVERTEX = Font::D3DFVF_CUSTOMVERTEX;
 
+		HRESULT hr;
+
+		CComPtr<IDirect3DDevice9> m_Device;
+
+	public:
+		UIRender(IDirect3DDevice9 * pd3dDevice)
+			: m_Device(pd3dDevice)
+		{
+		}
+
+		virtual ~UIRender(void)
+		{
+		}
+
 		static void BuildOrthoMatrices(float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
 
 		static void BuildPerspectiveMatrices(float fovy, float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
 
-		// Rendering UI under Fixed Pipeline is not recommended
-		static void Begin(IDirect3DDevice9 * pd3dDevice);
+		static size_t BuildRectangleVertices(CUSTOMVERTEX * pBuffer, size_t bufferSize, const Rectangle & rect, DWORD color, const Rectangle & uvRect);
 
-		static void End(IDirect3DDevice9 * pd3dDevice);
+		static size_t BuildWindowVertices(CUSTOMVERTEX * pBuffer, size_t bufferSize, const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
 
-		static Rectangle CalculateUVRect(const CSize & textureSize, const CRect & textureRect);
+		// Default UIRender rendering ui elements under Fixed Pipeline
+		virtual void Begin(void);
 
-		static size_t BuildRectangleVertices(
-			CUSTOMVERTEX * pBuffer,
-			size_t bufferSize,
-			const Rectangle & rect,
-			DWORD color,
-			const Rectangle & uvRect);
+		virtual void End(void);
 
-		// Example of Draw BuildRectangleVertices
-		static void DrawRectangle(IDirect3DDevice9 * pd3dDevice, const Rectangle & rect, DWORD color);
+		virtual void SetTexture(my::TexturePtr texture);
+
+		virtual void SetWorld(const Matrix4 & world);
+
+		virtual void SetView(const Matrix4 & view);
+
+		virtual void SetProj(const Matrix4 & proj);
+
+		virtual void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & uvRect);
+
+		virtual void DrawWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
 	};
 
 	class EventArgs
@@ -60,10 +78,6 @@ namespace my
 			, m_Border(Border)
 		{
 		}
-
-		size_t BuildVertices(UIRender::CUSTOMVERTEX * pBuffer, size_t buffer_size, const Rectangle & rect, DWORD color);
-
-		void Draw(IDirect3DDevice9 * pd3dDevice, const Rectangle & rect, DWORD color);
 	};
 
 	typedef boost::shared_ptr<ControlImage> ControlImagePtr;
@@ -90,7 +104,7 @@ namespace my
 		{
 		}
 
-		void DrawImage(IDirect3DDevice9 * pd3dDevice, ControlImagePtr Image, const Rectangle & rect, DWORD color);
+		void DrawImage(UIRender * ui_render, ControlImagePtr Image, const Rectangle & rect, DWORD color);
 
 		void DrawString(LPCWSTR pString, const Rectangle & rect, DWORD TextColor, Font::Align TextAlign);
 	};
@@ -120,8 +134,6 @@ namespace my
 
 		ControlSkinPtr m_Skin;
 
-		HRESULT hr;
-
 		boost::weak_ptr<Control> this_ptr;
 
 	public:
@@ -143,7 +155,7 @@ namespace my
 		{
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -193,7 +205,7 @@ namespace my
 		{
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool ContainsPoint(const Vector2 & pt);
 	};
@@ -237,7 +249,7 @@ namespace my
 			m_Skin.reset(new ButtonSkin());
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -318,7 +330,7 @@ namespace my
 			m_Skin.reset(new EditBoxSkin());
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -371,7 +383,7 @@ namespace my
 		{
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -391,11 +403,11 @@ namespace my
 
 		static void EnableImeSystem(bool bEnable);
 
-		void RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		void RenderIndicator(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
-		void RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		void RenderComposition(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
-		void RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		void RenderCandidateWindow(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 	};
 
 	typedef boost::shared_ptr<ImeEditBox> ImeEditBoxPtr;
@@ -466,7 +478,7 @@ namespace my
 			m_Skin.reset(new ScrollBarSkin());
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -495,7 +507,7 @@ namespace my
 		{
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -590,7 +602,7 @@ namespace my
 			OnLayout();
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
@@ -686,7 +698,7 @@ namespace my
 		{
 		}
 
-		virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

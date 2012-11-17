@@ -403,13 +403,16 @@ size_t Font::BuildStringVertices(
 
 		int CharHeight = info.textureRect.bottom - info.textureRect.top;
 
-		// ! CalculateUVRect can be optimized
+		// ! uv_rect could be optimized
+		CSize textureSize(m_textureDesc.Width, m_textureDesc.Height);
+		Rectangle uv_rect(
+			(float)info.textureRect.left / textureSize.cx,
+			(float)info.textureRect.top / textureSize.cy,
+			(float)info.textureRect.right / textureSize.cx,
+			(float)info.textureRect.bottom / textureSize.cy);
+
 		size_t used = UIRender::BuildRectangleVertices(
-			&pBuffer[i],
-			bufferSize - i,
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight),
-			Color,
-			UIRender::CalculateUVRect(CSize(m_textureDesc.Width, m_textureDesc.Height), info.textureRect));
+			&pBuffer[i], bufferSize - i, Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight), Color, uv_rect);
 
 		if(0 == used)
 		{
@@ -434,7 +437,7 @@ void Font::DrawString(
 	CUSTOMVERTEX vertex_list[1024];
 	size_t numVerts = BuildStringVertices(vertex_list, _countof(vertex_list), pString, rect, Color, align);
 
-	// ! Some nvidia video card lost device states if draw empty primitives
+	// ! Some nvidia video card may lost device states if draw empty primitives
 	if(numVerts > 0)
 	{
 		V(m_Device->SetTexture(0, m_texture->m_ptr));

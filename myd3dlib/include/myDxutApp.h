@@ -45,7 +45,7 @@ namespace my
 
 		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
 
-		boost::weak_ptr<Control> m_ControlFocus;
+		boost::weak_ptr<Control> m_ControlFocus; // ! UI dependency
 
 	protected:
 		HRESULT hr;

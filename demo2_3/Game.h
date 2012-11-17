@@ -3,67 +3,66 @@
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include "Console.h"
-
-class DrawHelper
-{
-protected:
-	HRESULT hr;
-
-public:
-	static void DrawLine(
-		IDirect3DDevice9 * pd3dDevice,
-		const my::Vector3 & v0,
-		const my::Vector3 & v1,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawSphere(
-		IDirect3DDevice9 * pd3dDevice,
-		float radius,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawBox(
-		IDirect3DDevice9 * pd3dDevice,
-		const my::Vector3 & halfSize,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawTriangle(
-		IDirect3DDevice9 * pd3dDevice,
-		const my::Vector3 & v0,
-		const my::Vector3 & v1,
-		const my::Vector3 & v2,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawSpereStage(
-		IDirect3DDevice9 * pd3dDevice,
-		float radius,
-		int VSTAGE_BEGIN,
-		int VSTAGE_END,
-		float offsetY,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawCylinderStage(
-		IDirect3DDevice9 * pd3dDevice,
-		float radius,
-		float y0,
-		float y1,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-
-	static void DrawCapsule(
-		IDirect3DDevice9 * pd3dDevice,
-		float radius,
-		float height,
-		D3DCOLOR Color,
-		const my::Matrix4 & world = my::Matrix4::identity);
-};
+//
+//class DrawHelper
+//{
+//protected:
+//	HRESULT hr;
+//
+//public:
+//	static void DrawLine(
+//		IDirect3DDevice9 * pd3dDevice,
+//		const my::Vector3 & v0,
+//		const my::Vector3 & v1,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawSphere(
+//		IDirect3DDevice9 * pd3dDevice,
+//		float radius,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawBox(
+//		IDirect3DDevice9 * pd3dDevice,
+//		const my::Vector3 & halfSize,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawTriangle(
+//		IDirect3DDevice9 * pd3dDevice,
+//		const my::Vector3 & v0,
+//		const my::Vector3 & v1,
+//		const my::Vector3 & v2,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawSpereStage(
+//		IDirect3DDevice9 * pd3dDevice,
+//		float radius,
+//		int VSTAGE_BEGIN,
+//		int VSTAGE_END,
+//		float offsetY,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawCylinderStage(
+//		IDirect3DDevice9 * pd3dDevice,
+//		float radius,
+//		float y0,
+//		float y1,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//
+//	static void DrawCapsule(
+//		IDirect3DDevice9 * pd3dDevice,
+//		float radius,
+//		float height,
+//		D3DCOLOR Color,
+//		const my::Matrix4 & world = my::Matrix4::identity);
+//};
 
 class GameStateBase
-	: public DrawHelper
 {
 	friend class Game;
 
@@ -71,6 +70,8 @@ protected:
 	bool m_DeviceObjectsCreated;
 
 	bool m_DeviceObjectsReset;
+
+	HRESULT hr;
 
 public:
 	GameStateBase(void)
@@ -224,7 +225,7 @@ public:
 	void UpdateDlgViewProj(my::DialogPtr dlg);
 
 	void Draw(
-		IDirect3DDevice9 * pd3dDevice,
+		my::UIRender * ui_render,
 		double fTime,
 		float fElapsedTime);
 

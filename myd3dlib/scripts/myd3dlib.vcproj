@@ -269,10 +269,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\FastDelegate.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\ImeUi.h"
 				>
 			</File>

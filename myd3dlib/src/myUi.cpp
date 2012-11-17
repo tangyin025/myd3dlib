@@ -32,46 +32,6 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 	outProj = Matrix4::PerspectiveFovLH(fovy, Width / Height, 0.1f, 3000.0f);
 }
 
-void UIRender::Begin(IDirect3DDevice9 * pd3dDevice)
-{
-	DxutApp::getSingleton().m_StateBlock->Capture();
-
-	HRESULT hr;
-	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
-	V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
-	V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
-}
-
-void UIRender::End(IDirect3DDevice9 * pd3dDevice)
-{
-	DxutApp::getSingleton().m_StateBlock->Apply();
-}
-
-my::Rectangle UIRender::CalculateUVRect(const CSize & textureSize, const CRect & textureRect)
-{
-	return Rectangle(
-		(float)textureRect.left / textureSize.cx,
-		(float)textureRect.top / textureSize.cy,
-		(float)textureRect.right / textureSize.cx,
-		(float)textureRect.bottom / textureSize.cy);
-}
-
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
 #define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
 
@@ -120,35 +80,27 @@ size_t UIRender::BuildRectangleVertices(
 	return 0;
 }
 
-void UIRender::DrawRectangle(IDirect3DDevice9 * pd3dDevice, const my::Rectangle & rect, DWORD color)
+size_t UIRender::BuildWindowVertices(
+	CUSTOMVERTEX * pBuffer,
+	size_t bufferSize,
+	const my::Rectangle & rect,
+	DWORD color,
+	const CSize & windowSize,
+	const Vector4 & windowBorder)
 {
-	CUSTOMVERTEX vertex_list[6];
-	size_t vertNum;
-	HRESULT hr;
-	vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, Rectangle(0,0,1,1));
-	V(pd3dDevice->SetTexture(0, NULL));
-	V(pd3dDevice->SetFVF(D3DFVF_CUSTOMVERTEX));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(CUSTOMVERTEX)));
-}
-
-size_t ControlImage::BuildVertices(UIRender::CUSTOMVERTEX * pBuffer, size_t buffer_size, const my::Rectangle & rect, DWORD color)
-{
-	_ASSERT(m_Texture);
-
-	if(buffer_size >= 6 * 9)
+	if(bufferSize >= 6 * 9)
 	{
-		D3DSURFACE_DESC desc = m_Texture->GetLevelDesc();
-		const float x[4] = { rect.l, rect.l + m_Border.x, rect.r - m_Border.z, rect.r };
-		const float y[4] = { rect.t, rect.t + m_Border.y, rect.b - m_Border.w, rect.b };
-		const float u[4] = { 0, m_Border.x / desc.Width, (desc.Width - m_Border.z) / desc.Width, 1 };
-		const float v[4] = { 0, m_Border.y / desc.Height, (desc.Height - m_Border.w) / desc.Height, 1 };
+		const float x[4] = { rect.l, rect.l + windowBorder.x, rect.r - windowBorder.z, rect.r };
+		const float y[4] = { rect.t, rect.t + windowBorder.y, rect.b - windowBorder.w, rect.b };
+		const float u[4] = { 0, windowBorder.x / windowSize.cx, (windowSize.cx - windowBorder.z) / windowSize.cx, 1 };
+		const float v[4] = { 0, windowBorder.y / windowSize.cy, (windowSize.cy - windowBorder.w) / windowSize.cy, 1 };
 		size_t vertex_off = 0;
 		for(int i = 0; i < 3; i++)
 		{
 			for(int j = 0; j < 3; j++)
 			{
-				vertex_off += UIRender::BuildRectangleVertices(
-					pBuffer + vertex_off, buffer_size, my::Rectangle(x[j], y[i], x[j + 1], y[i + 1]), color, my::Rectangle(u[j], v[i], u[j + 1], v[i + 1]));
+				vertex_off += BuildRectangleVertices(
+					pBuffer + vertex_off, bufferSize, my::Rectangle(x[j], y[i], x[j + 1], y[i + 1]), color, my::Rectangle(u[j], v[i], u[j + 1], v[i + 1]));
 			}
 		}
 		return vertex_off;
@@ -156,26 +108,82 @@ size_t ControlImage::BuildVertices(UIRender::CUSTOMVERTEX * pBuffer, size_t buff
 	return 0;
 }
 
-void ControlImage::Draw(IDirect3DDevice9 * pd3dDevice, const my::Rectangle & rect, DWORD color)
+void UIRender::Begin(void)
+{
+	V(DxutApp::getSingleton().m_StateBlock->Capture());
+
+	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
+	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+	V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+	V(m_Device->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+}
+
+void UIRender::End(void)
+{
+	V(DxutApp::getSingleton().m_StateBlock->Apply());
+}
+
+void UIRender::SetTexture(my::TexturePtr texture)
+{
+	V(m_Device->SetTexture(0, texture ? texture->m_ptr : NULL));
+}
+
+void UIRender::SetWorld(const Matrix4 & world)
+{
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world));
+}
+
+void UIRender::SetView(const Matrix4 & view)
+{
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&view));
+}
+
+void UIRender::SetProj(const Matrix4 & proj)
+{
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&proj));
+}
+
+void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & uvRect)
+{
+	CUSTOMVERTEX vertex_list[6];
+	size_t vertNum;
+	vertNum = BuildRectangleVertices(vertex_list, _countof(vertex_list), rect, color, uvRect);
+	V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(CUSTOMVERTEX)));
+}
+
+void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder)
 {
 	UIRender::CUSTOMVERTEX vertex_list[6 * 9];
 	size_t vertNum;
-	HRESULT hr;
-	vertNum = BuildVertices(vertex_list, _countof(vertex_list), rect, color);
-	V(pd3dDevice->SetTexture(0, m_Texture->m_ptr));
-	V(pd3dDevice->SetFVF(UIRender::D3DFVF_CUSTOMVERTEX));
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(UIRender::CUSTOMVERTEX)));
+	vertNum = BuildWindowVertices(vertex_list, _countof(vertex_list), rect, color, windowSize, windowBorder);
+	V(m_Device->SetFVF(UIRender::D3DFVF_CUSTOMVERTEX));
+	V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertNum / 3, vertex_list, sizeof(UIRender::CUSTOMVERTEX)));
 }
 
-void ControlSkin::DrawImage(IDirect3DDevice9 * pd3dDevice, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
+void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
 {
 	if(Image)
 	{
-		Image->Draw(pd3dDevice, rect, color);
+		ui_render->SetTexture(Image->m_Texture);
+		ui_render->DrawWindow(rect, color, CSize(Image->m_Texture->GetLevelDesc().Width, Image->m_Texture->GetLevelDesc().Height), Image->m_Border);
 	}
 	else
 	{
-		UIRender::DrawRectangle(pd3dDevice, rect, color);
+		ui_render->SetTexture(my::TexturePtr());
+		ui_render->DrawRectangle(rect, color, Rectangle(0,0,1,1));
 	}
 }
 
@@ -187,7 +195,7 @@ void ControlSkin::DrawString(LPCWSTR pString, const my::Rectangle & rect, DWORD 
 	}
 }
 
-void Control::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -195,7 +203,7 @@ void Control::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 		{
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
-			m_Skin->DrawImage(pd3dDevice, m_Skin->m_Image, Rect, m_Color);
+			m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Color);
 		}
 	}
 }
@@ -283,7 +291,7 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
-void Static::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -299,7 +307,7 @@ bool Static::ContainsPoint(const Vector2 & pt)
 	return false;
 }
 
-void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -311,14 +319,14 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
 			}
 			else
 			{
 				if(m_bPressed)
 				{
 					Rect = Rect.offset(Skin->m_PressedOffset);
-					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Color);
 				}
 				else
 				{
@@ -331,9 +339,9 @@ void Button::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vecto
 					{
 						DstColor.a = 0;
 					}
-					Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(pd3dDevice, Skin->m_MouseOverImage, Rect, m_BlendColor);
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_BlendColor);
 				}
 			}
 
@@ -436,7 +444,7 @@ void Button::Refresh(void)
 	m_BlendColor = m_Color;
 }
 
-void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -448,15 +456,15 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 		{
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
 			}
 			else if(m_bHasFocus)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_FocusedImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_FocusedImage, Rect, m_Color);
 			}
 			else
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 			}
 		}
 
@@ -485,7 +493,8 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 					Min(TextRect.r, TextRect.l + sel_right_x),
 					TextRect.b);
 
-				UIRender::DrawRectangle(pd3dDevice, SelRect, Skin->m_SelBkColor);
+				ui_render->SetTexture(my::TexturePtr());
+				ui_render->DrawRectangle(SelRect, Skin->m_SelBkColor, Rectangle(0,0,1,1));
 			}
 
 			Skin->m_Font->DrawString(m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
@@ -514,7 +523,8 @@ void EditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vect
 					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 				}
 
-				UIRender::DrawRectangle(pd3dDevice, CaretRect, Skin->m_CaretColor);
+				ui_render->SetTexture(my::TexturePtr());
+				ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
 			}
 		}
 	}
@@ -1042,22 +1052,22 @@ bool ImeEditBox::s_bHideCaret = false;
 
 std::wstring ImeEditBox::s_CompString;
 
-void ImeEditBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
-		EditBox::Draw(pd3dDevice, fElapsedTime, Offset);
+		EditBox::Draw(ui_render, fElapsedTime, Offset);
 
 	    ImeUi_RenderUI();
 
 		if(m_bHasFocus)
 		{
-			RenderIndicator(pd3dDevice, fElapsedTime, Offset);
+			RenderIndicator(ui_render, fElapsedTime, Offset);
 
-			RenderComposition(pd3dDevice, fElapsedTime, Offset);
+			RenderComposition(ui_render, fElapsedTime, Offset);
 
 			if(ImeUi_IsShowCandListWindow())
-				RenderCandidateWindow(pd3dDevice, fElapsedTime, Offset);
+				RenderCandidateWindow(ui_render, fElapsedTime, Offset);
 		}
 	}
 }
@@ -1168,11 +1178,11 @@ void ImeEditBox::EnableImeSystem(bool bEnable)
 	ImeUi_EnableIme(bEnable);
 }
 
-void ImeEditBox::RenderIndicator(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderIndicator(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 }
 
-void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 	if(Skin && Skin->m_Font)
@@ -1192,7 +1202,8 @@ void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsed
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		UIRender::DrawRectangle(pd3dDevice, rc, m_CompWinColor);
+		ui_render->SetTexture(my::TexturePtr());
+		ui_render->DrawRectangle(rc, m_CompWinColor, Rectangle(0,0,1,1));
 
 		Skin->m_Font->DrawString(s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
@@ -1201,12 +1212,13 @@ void ImeEditBox::RenderComposition(IDirect3DDevice9 * pd3dDevice, float fElapsed
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			UIRender::DrawRectangle(pd3dDevice, CaretRect, Skin->m_CaretColor);
+			ui_render->SetTexture(my::TexturePtr());
+			ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
 		}
 	}
 }
 
-void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 	if(Skin && Skin->m_Font)
@@ -1239,13 +1251,14 @@ void ImeEditBox::RenderCandidateWindow(IDirect3DDevice9 * pd3dDevice, float fEla
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		UIRender::DrawRectangle(pd3dDevice, CandRect, m_CandidateWinColor);
+		ui_render->SetTexture(my::TexturePtr());
+		ui_render->DrawRectangle(CandRect, m_CandidateWinColor, Rectangle(0,0,1,1));
 
 		Skin->m_Font->DrawString(horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
 }
 
-void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
     // Check if the arrow button has been held for a while.
     // If so, update the thumb position to simulate repeated
@@ -1299,7 +1312,7 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 
 		if(Skin)
 		{
-			Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 
 			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
 
@@ -1307,9 +1320,9 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 
 			if(m_bEnabled && m_nEnd - m_nStart > m_nPageSize)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_UpBtnNormalImage, UpButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_UpBtnNormalImage, UpButtonRect, m_Color);
 
-				Skin->DrawImage(pd3dDevice, Skin->m_DownBtnNormalImage, DownButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DownBtnNormalImage, DownButtonRect, m_Color);
 
 				float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
 				float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
@@ -1317,13 +1330,13 @@ void ScrollBar::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Ve
 				float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
 				Rectangle ThumbButtonRect(Rect.l, fThumbTop, Rect.r, fThumbTop + fThumbHeight);
 
-				Skin->DrawImage(pd3dDevice, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_ThumbBtnNormalImage, ThumbButtonRect, m_Color);
 			}
 			else
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_UpBtnDisabledImage, UpButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_UpBtnDisabledImage, UpButtonRect, m_Color);
 
-				Skin->DrawImage(pd3dDevice, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DownBtnDisabledImage, DownButtonRect, m_Color);
 			}
 		}
 	}
@@ -1451,7 +1464,7 @@ void ScrollBar::Scroll(int nDelta)
 	m_nPosition = Max(m_nStart, Min(m_nEnd - m_nPageSize, m_nPosition + nDelta));
 }
 
-void CheckBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -1464,17 +1477,17 @@ void CheckBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_DisabledImage, BtnRect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, BtnRect, m_Color);
 			}
 			else
 			{
 				if(m_Checked)
 				{
-					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, BtnRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, BtnRect, m_Color);
 				}
 				else
 				{
-					Skin->DrawImage(pd3dDevice, Skin->m_Image, BtnRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_Image, BtnRect, m_Color);
 				}
 
 				D3DXCOLOR DstColor(m_Color);
@@ -1486,7 +1499,7 @@ void CheckBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 					DstColor.a = 0;
 				}
 				D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-				Skin->DrawImage(pd3dDevice, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
+				Skin->DrawImage(ui_render, Skin->m_MouseOverImage, BtnRect, m_BlendColor);
 			}
 
 			Rectangle TextRect(Rectangle::LeftTop(BtnRect.r, Offset.y + m_Location.y, m_Size.x - m_CheckBtnSize.x, m_Size.y));
@@ -1542,7 +1555,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	return false;
 }
 
-void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
@@ -1554,7 +1567,7 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 			if(!m_bEnabled)
 			{
-				Skin->DrawImage(pd3dDevice, Skin->m_DisabledImage, Rect, m_Color);
+				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
 			}
 			else
 			{
@@ -1564,14 +1577,14 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 					Rect = Rect.offset(Skin->m_PressedOffset);
 
-					Skin->DrawImage(pd3dDevice, Skin->m_PressedImage, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_PressedImage, Rect, m_Color);
 
-					Skin->DrawImage(pd3dDevice, Skin->m_DropdownImage, DropdownRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_DropdownImage, DropdownRect, m_Color);
 
 					// ! ScrollBar source copy
 					Rectangle ScrollBarRect(Rectangle::LeftTop(DropdownRect.r, DropdownRect.t, m_ScrollbarWidth, m_DropdownSize.y));
 
-					Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarImage, ScrollBarRect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_ScrollBarImage, ScrollBarRect, m_Color);
 
 					Rectangle UpButtonRect(Rectangle::LeftTop(ScrollBarRect.l, ScrollBarRect.t, m_ScrollbarWidth, m_ScrollbarUpDownBtnHeight));
 
@@ -1579,9 +1592,9 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 					if(m_ScrollBar.m_bEnabled && m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart > m_ScrollBar.m_nPageSize)
 					{
-						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnNormalImage, UpButtonRect, m_Color);
 
-						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnNormalImage, DownButtonRect, m_Color);
 
 						float fTrackHeight = m_DropdownSize.y - m_ScrollbarUpDownBtnHeight * 2;
 						float fThumbHeight = fTrackHeight * m_ScrollBar.m_nPageSize / (m_ScrollBar.m_nEnd - m_ScrollBar.m_nStart);
@@ -1589,13 +1602,13 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 						float fThumbTop = UpButtonRect.b + (float)(m_ScrollBar.m_nPosition - m_ScrollBar.m_nStart) / nMaxPosition * (fTrackHeight - fThumbHeight);
 						Rectangle ThumbButtonRect(ScrollBarRect.l, fThumbTop, ScrollBarRect.r, fThumbTop + fThumbHeight);
 
-						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarThumbBtnNormalImage, ThumbButtonRect, m_Color);
 					}
 					else
 					{
-						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarUpBtnDisabledImage, UpButtonRect, m_Color);
 
-						Skin->DrawImage(pd3dDevice, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Color);
+						Skin->DrawImage(ui_render, Skin->m_ScrollBarDownBtnDisabledImage, DownButtonRect, m_Color);
 					}
 
 					int i = m_ScrollBar.m_nPosition;
@@ -1606,7 +1619,7 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 
 						if(i == m_iFocused)
 						{
-							Skin->DrawImage(pd3dDevice, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Color);
+							Skin->DrawImage(ui_render, Skin->m_DropdownItemMouseOverImage, ItemRect, m_Color);
 						}
 
 						ComboBoxItem * item = m_Items[i].get();
@@ -1625,9 +1638,9 @@ void ComboBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vec
 					{
 						DstColor.a = 0;
 					}
-					Skin->DrawImage(pd3dDevice, Skin->m_Image, Rect, m_Color);
+					Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 					D3DXColorLerp(&m_BlendColor, &m_BlendColor, &DstColor, 1.0f - powf(0.8f, 30 * fElapsedTime));
-					Skin->DrawImage(pd3dDevice, Skin->m_MouseOverImage, Rect, m_BlendColor);
+					Skin->DrawImage(ui_render, Skin->m_MouseOverImage, Rect, m_BlendColor);
 				}
 			}
 
@@ -1885,20 +1898,16 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
-void Dialog::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_Transform));
-	V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_View));
-	V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Proj));
-
 	if(m_bVisible)
 	{
-		Control::Draw(pd3dDevice, fElapsedTime, Vector2(0,0));
+		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
 		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
-			(*ctrl_iter)->Draw(pd3dDevice, fElapsedTime, m_Location);
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Location);
 		}
 	}
 }

@@ -16,9 +16,9 @@ MessagePanel::~MessagePanel(void)
 {
 }
 
-void MessagePanel::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Vector2 & Offset)
+void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
-	Control::Draw(pd3dDevice, fElapsedTime, Offset);
+	Control::Draw(ui_render, fElapsedTime, Offset);
 
 	if(m_Skin && m_Skin->m_Font)
 	{
@@ -33,7 +33,7 @@ void MessagePanel::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const
 		}
 	}
 
-	m_scrollbar->Draw(pd3dDevice, fElapsedTime, m_Location + Offset);
+	m_scrollbar->Draw(ui_render, fElapsedTime, m_Location + Offset);
 }
 
 bool MessagePanel::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
