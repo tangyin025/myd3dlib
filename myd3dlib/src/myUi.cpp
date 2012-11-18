@@ -64,18 +64,10 @@ void UIRender::SetTexture(my::TexturePtr texture)
 	V(m_Device->SetTexture(0, texture ? texture->m_ptr : NULL));
 }
 
-void UIRender::SetWorld(const Matrix4 & world)
+void UIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj)
 {
 	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world));
-}
-
-void UIRender::SetView(const Matrix4 & view)
-{
 	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&view));
-}
-
-void UIRender::SetProj(const Matrix4 & proj)
-{
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&proj));
 }
 

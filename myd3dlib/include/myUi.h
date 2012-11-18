@@ -48,11 +48,7 @@ namespace my
 
 		virtual void SetTexture(my::TexturePtr texture);
 
-		virtual void SetWorld(const Matrix4 & world);
-
-		virtual void SetView(const Matrix4 & view);
-
-		virtual void SetProj(const Matrix4 & proj);
+		virtual void SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj);
 
 		virtual void ClearVertexList(void);
 

@@ -231,7 +231,7 @@ void Font::CreateFontTexture(UINT Width, UINT Height)
 {
 	m_texture->OnDestroyDevice();
 
-	m_texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8, D3DPOOL_MANAGED);
+	m_texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
 	m_textureDesc = m_texture->GetLevelDesc();
 }
@@ -283,10 +283,10 @@ void Font::InsertCharacter(
 		D3DLOCKED_RECT lr = m_texture->LockRect(info.textureRect);
 		for(int y = 0; y < bmpHeight; y++)
 		{
-			memcpy(
-				(unsigned char *)lr.pBits + y * lr.Pitch,
-				bmpBuffer + y * bmpPitch,
-				bmpWidth * sizeof(unsigned char));
+			for(int x = 0; x < bmpWidth; x++)
+			{
+				*((DWORD *)((unsigned char *)lr.pBits + y * lr.Pitch) + x) = D3DCOLOR_ARGB(*(bmpBuffer + y * bmpPitch + x),255,255,255);
+			}
 		}
 		m_texture->UnlockRect();
 	}
@@ -419,11 +419,8 @@ void Font::DrawString(
 		pen.x += info.horiAdvance;
 	}
 
-	// ! D3DFMT_A8
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
 	ui_render->SetTexture(m_texture);
 	ui_render->DrawVertexList();
-	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
 }
 
 void Font::DrawString(

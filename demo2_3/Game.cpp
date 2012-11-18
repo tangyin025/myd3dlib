@@ -464,6 +464,48 @@ void Timer::OnFrameMove(
 	}
 }
 
+void EffectUIRender::SetTexture(my::TexturePtr texture)
+{
+	if(m_UIEffect && m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetTexture("g_MeshTexture", texture ? texture->m_ptr : (Game::getSingleton().m_whiteTexture ? Game::getSingleton().m_whiteTexture->m_ptr : NULL));
+	}
+}
+
+void EffectUIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj)
+{
+	if(m_UIEffect && m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetMatrix("g_mWorld", world);
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", world * view * proj);
+	}
+}
+
+void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
+{
+	CUSTOMVERTEX vertex = { x, y, 0, color, u, v };
+	vertex_list.push_back(vertex);
+}
+
+void EffectUIRender::DrawVertexList(void)
+{
+	if(m_UIEffect && m_UIEffect->m_ptr)
+	{
+		if(!vertex_list.empty() && m_UIEffect)
+		{
+			UINT cPasses = m_UIEffect->Begin();
+			for(UINT p = 0; p < cPasses; p++)
+			{
+				m_UIEffect->BeginPass(p);
+				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(CUSTOMVERTEX)));
+				m_UIEffect->EndPass();
+			}
+			m_UIEffect->End();
+		}
+	}
+}
+
 void TimerMgr::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -501,10 +543,7 @@ void DialogMgr::Draw(
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		ui_render->SetWorld((*dlg_iter)->m_Transform);
-		ui_render->SetView((*dlg_iter)->m_View);
-		ui_render->SetProj((*dlg_iter)->m_Proj);
-
+		ui_render->SetTransform((*dlg_iter)->m_Transform, (*dlg_iter)->m_View, (*dlg_iter)->m_Proj);
 		(*dlg_iter)->Draw(ui_render, fElapsedTime);
 	}
 }
@@ -604,7 +643,11 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_uiRender.reset(new my::UIRender(pd3dDevice));
+	m_uiRender.reset(new EffectUIRender(pd3dDevice));
+
+	boost::dynamic_pointer_cast<EffectUIRender>(m_uiRender)->m_UIEffect = LoadEffect("UIEffect.fx");
+
+	m_whiteTexture = LoadTexture("white.bmp");
 
 	ExecuteCode("dofile \"Console.lua\"");
 
@@ -739,9 +782,7 @@ void Game::OnFrameRender(
 
 		DialogMgr::Draw(m_uiRender.get(), fTime, fElapsedTime);
 
-		m_uiRender->SetWorld(m_console->m_Transform);
-		m_uiRender->SetView(m_console->m_View);
-		m_uiRender->SetProj(m_console->m_Proj);
+		m_uiRender->SetTransform(m_console->m_Transform, m_console->m_View, m_console->m_Proj);
 		m_console->Draw(m_uiRender.get(), fElapsedTime);
 
 		_ASSERT(m_font);
@@ -750,9 +791,7 @@ void Game::OnFrameRender(
 		D3DVIEWPORT9 vp;
 		pd3dDevice->GetViewport(&vp);
 		UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-		m_uiRender->SetWorld(Matrix4::identity);
-		m_uiRender->SetView(View);
-		m_uiRender->SetProj(Proj);
+		m_uiRender->SetTransform(Matrix4::identity, View, Proj);
 		m_font->DrawString(m_uiRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		m_uiRender->End();

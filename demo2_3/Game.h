@@ -325,6 +325,27 @@ public:
 		float fElapsedTime);
 };
 
+class EffectUIRender
+	: public my::UIRender
+{
+public:
+	my::EffectPtr m_UIEffect;
+
+public:
+	EffectUIRender(IDirect3DDevice9 * pd3dDevice)
+		: UIRender(pd3dDevice)
+	{
+	}
+
+	virtual void SetTexture(my::TexturePtr texture);
+
+	virtual void SetTransform(const my::Matrix4 & world, const my::Matrix4 & view, const my::Matrix4 & proj);
+
+	virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
+
+	virtual void DrawVertexList(void);
+};
+
 class Game
 	: public LoaderMgr
 	, public DialogMgr
@@ -336,6 +357,8 @@ public:
 	my::FontPtr m_font;
 
 	my::UIRenderPtr m_uiRender;
+
+	my::TexturePtr m_whiteTexture;
 
 	my::DialogPtr m_console;
 
