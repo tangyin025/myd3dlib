@@ -53,6 +53,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "LinearMath", "bullet\script
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luabind", "luabind\scripts\luabind.vcproj", "{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -103,6 +105,10 @@ Global
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Debug|Win32.Build.0 = Debug|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Release|Win32.ActiveCfg = Release|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Release|Win32.Build.0 = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.Build.0 = Debug|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.ActiveCfg = Release|Win32
+		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
