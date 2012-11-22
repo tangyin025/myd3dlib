@@ -8,6 +8,8 @@ public:
 	CMainApp(void);
 
 	virtual BOOL InitInstance(void);
+
+	DECLARE_MESSAGE_MAP()
 };
 
 extern CMainApp theApp;
