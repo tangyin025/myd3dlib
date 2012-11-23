@@ -1,7 +1,5 @@
 #pragma once
 
-#include <afxwin.h>
-
 class CImgRegionDoc : public CDocument
 {
 	DECLARE_DYNCREATE(CImgRegionDoc)
@@ -9,7 +7,7 @@ class CImgRegionDoc : public CDocument
 public:
 	CImgRegionDoc(void);
 
-	virtual BOOL OnNewDocument();
+	virtual BOOL OnNewDocument(void);
 
 	DECLARE_MESSAGE_MAP()
 };

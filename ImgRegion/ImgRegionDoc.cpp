@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ImgRegionDoc.h"
 
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
@@ -9,7 +10,7 @@ CImgRegionDoc::CImgRegionDoc(void)
 {
 }
 
-BOOL CImgRegionDoc::OnNewDocument()
+BOOL CImgRegionDoc::OnNewDocument(void)
 {
 	if (!CDocument::OnNewDocument())
 		return FALSE;

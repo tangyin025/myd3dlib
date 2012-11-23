@@ -1,6 +1,5 @@
 #pragma once
 
-#include <afxwin.h>
 #include "ImgRegionDoc.h"
 
 class CImgRegionView : public CView

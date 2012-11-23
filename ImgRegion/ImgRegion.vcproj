@@ -46,7 +46,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
 			/>
@@ -119,7 +119,7 @@
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -177,6 +177,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FileView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ImgRegionDoc.cpp"
 				>
 			</File>
@@ -192,6 +196,30 @@
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\PropertiesWnd.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx.cpp"
+				>
+				<FileConfiguration
+					Name="Debug|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"
+					/>
+				</FileConfiguration>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -200,6 +228,10 @@
 			>
 			<File
 				RelativePath=".\ChildFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FileView.h"
 				>
 			</File>
 			<File
@@ -219,7 +251,15 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PropertiesWnd.h"
+				>
+			</File>
+			<File
 				RelativePath=".\resource.h"
+				>
+			</File>
+			<File
+				RelativePath=".\stdafx.h"
 				>
 			</File>
 		</Filter>
@@ -230,6 +270,10 @@
 			>
 			<File
 				RelativePath=".\ImgRegion.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\Toolbar256.bmp"
 				>
 			</File>
 		</Filter>

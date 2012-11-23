@@ -5,6 +5,12 @@
 #define IDR_MENU1                       101
 #define IDR_MAINFRAME                   101
 #define IDR_ImgRegionTYPE               102
+#define IDS_TOOLBAR_STANDARD            102
+#define ID_VIEW_FILEVIEW                103
+#define IDS_TOOLBAR_CUSTOMIZE           103
+#define ID_VIEW_PROPERTIESWND           104
+#define ID_VIEW_CUSTOMIZE				105
+#define ID_WINDOW_MANAGER				106
 #define ID_VIEW_APPLOOK_WIN_2000        40001
 #define ID_VIEW_APPLOOK_OFF_XP          40002
 #define ID_VIEW_APPLOOK_WIN_XP          40003
@@ -19,8 +25,8 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        104
-#define _APS_NEXT_COMMAND_VALUE         40011
+#define _APS_NEXT_RESOURCE_VALUE        107
+#define _APS_NEXT_COMMAND_VALUE         40010
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

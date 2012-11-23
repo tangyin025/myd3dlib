@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ImgRegionView.h"
 
 IMPLEMENT_DYNCREATE(CImgRegionView, CView)

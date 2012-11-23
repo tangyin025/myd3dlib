@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "MainApp.h"
 #include "MainFrm.h"
 #include "resource.h"
@@ -23,9 +24,20 @@ CMainApp::CMainApp(void)
 
 BOOL CMainApp::InitInstance(void)
 {
+	INITCOMMONCONTROLSEX InitCtrls;
+	InitCtrls.dwSize = sizeof(InitCtrls);
+	InitCtrls.dwICC = ICC_WIN95_CLASSES;
+	InitCommonControlsEx(&InitCtrls);
+
 	CWinAppEx::InitInstance();
 
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+
+	//InitContextMenuManager();
+
+	//InitKeyboardManager();
+
+	//InitTooltipManager();
 
 	CMultiDocTemplate * pDocTemplate;
 	pDocTemplate = new CMultiDocTemplate(IDR_ImgRegionTYPE,
@@ -39,6 +51,7 @@ BOOL CMainApp::InitInstance(void)
 	CMainFrame * pMainFrame = new CMainFrame;
 	if (!pMainFrame || !pMainFrame->LoadFrame(IDR_MAINFRAME))
 	{
+		delete pMainFrame;
 		return FALSE;
 	}
 	m_pMainWnd = pMainFrame;

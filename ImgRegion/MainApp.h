@@ -1,6 +1,6 @@
 #pragma once
 
-#include <afxwinappex.h>
+#include "resource.h"
 
 class CMainApp : public CWinAppEx
 {
@@ -8,6 +8,8 @@ public:
 	CMainApp(void);
 
 	virtual BOOL InitInstance(void);
+
+	UINT  m_nAppLook;
 
 	DECLARE_MESSAGE_MAP()
 };
