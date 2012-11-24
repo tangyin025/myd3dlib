@@ -53,6 +53,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	EnableWindowsDialog(ID_WINDOW_MANAGER, _T("窗口(&W)..."), TRUE);
 
+	CDockingManager::SetDockingMode(DT_SMART);
+
+	EnableAutoHidePanes(CBRS_ALIGN_ANY);
+
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("未能创建菜单栏\n");

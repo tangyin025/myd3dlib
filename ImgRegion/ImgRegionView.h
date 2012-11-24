@@ -2,7 +2,7 @@
 
 #include "ImgRegionDoc.h"
 
-class CImgRegionView : public CView
+class CImgRegionView : public CScrollView
 {
 public:
 	DECLARE_DYNCREATE(CImgRegionView)
@@ -14,4 +14,8 @@ public:
 	virtual void OnDraw(CDC * pDC);
 
 	DECLARE_MESSAGE_MAP()
+
+	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };

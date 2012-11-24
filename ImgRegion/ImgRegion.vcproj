@@ -279,5 +279,9 @@
 		</Filter>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="ImgRegion.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
