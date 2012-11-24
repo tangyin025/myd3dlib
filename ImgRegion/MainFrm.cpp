@@ -41,13 +41,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	OnApplicationLook(theApp.m_nAppLook);
 
-	CMDITabInfo mdiTabParams;
-	mdiTabParams.m_style = CMFCTabCtrl::STYLE_3D_ONENOTE;
-	mdiTabParams.m_bActiveTabCloseButton = TRUE;
-	mdiTabParams.m_bTabIcons = FALSE;
-	mdiTabParams.m_bAutoColor = TRUE;
-	mdiTabParams.m_bDocumentMenu = TRUE;
-	EnableMDITabbedGroups(TRUE, mdiTabParams);
+	//CMDITabInfo mdiTabParams;
+	//mdiTabParams.m_style = CMFCTabCtrl::STYLE_3D_ONENOTE;
+	//mdiTabParams.m_bActiveTabCloseButton = TRUE;
+	//mdiTabParams.m_bTabIcons = FALSE;
+	//mdiTabParams.m_bAutoColor = TRUE;
+	//mdiTabParams.m_bDocumentMenu = TRUE;
+	//EnableMDITabbedGroups(TRUE, mdiTabParams);
 
 	EnableDocking(CBRS_ALIGN_ANY);
 

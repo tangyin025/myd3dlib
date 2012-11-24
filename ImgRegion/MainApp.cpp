@@ -35,9 +35,13 @@ BOOL CMainApp::InitInstance(void)
 
 	InitContextMenuManager();
 
-	//InitKeyboardManager();
+	InitKeyboardManager();
 
-	//InitTooltipManager();
+	InitTooltipManager();
+	CMFCToolTipInfo ttParams;
+	ttParams.m_bVislManagerTheme = TRUE;
+	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
+		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
 	CMultiDocTemplate * pDocTemplate;
 	pDocTemplate = new CMultiDocTemplate(IDR_ImgRegionTYPE,
@@ -55,6 +59,11 @@ BOOL CMainApp::InitInstance(void)
 		return FALSE;
 	}
 	m_pMainWnd = pMainFrame;
+
+	CCommandLineInfo cmdInfo;
+	ParseCommandLine(cmdInfo);
+	if (!ProcessShellCommand(cmdInfo))
+		return FALSE;
 
 	pMainFrame->ShowWindow(m_nCmdShow);
 	pMainFrame->UpdateWindow();
