@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "ImageView.h"
 
+IMPLEMENT_DYNAMIC(CImageView, CView)
+
 BEGIN_MESSAGE_MAP(CImageView, CView)
 	ON_WM_SIZE()
 	ON_WM_HSCROLL()
@@ -478,9 +480,9 @@ BOOL CImageView::OnMouseWheel(UINT fFlags, short zDelta, CPoint point)
 	return DoMouseWheel(fFlags, zDelta, point);
 }
 
-BOOL _afxGotScrollLines; // defined in wincore.cpp
+static BOOL _afxGotScrollLines; // defined in wincore.cpp
 
-UINT PASCAL _AfxGetMouseScrollLines()
+static UINT PASCAL _AfxGetMouseScrollLines()
 {
 	static UINT uCachedScrollLines;
 

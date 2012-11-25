@@ -3,6 +3,8 @@
 class CImageView : public CView
 {
 public:
+	DECLARE_DYNAMIC(CImageView)
+
 	CImageView(void);
 
 	DECLARE_MESSAGE_MAP()

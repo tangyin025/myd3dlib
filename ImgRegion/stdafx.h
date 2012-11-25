@@ -16,6 +16,18 @@
 #define _WIN32_IE 0x0700
 #endif
 
+#ifndef _SECURE_ATL
+#define _SECURE_ATL 1
+#endif
+
+#ifndef VC_EXTRALEAN
+#define VC_EXTRALEAN
+#endif
+
+#define _ATL_CSTRING_EXPLICIT_CONSTRUCTORS
+
+#define _AFX_ALL_WARNINGS
+
 #include <afxwin.h>
 #include <afxwinappex.h>
 #include <afxcontrolbars.h>
