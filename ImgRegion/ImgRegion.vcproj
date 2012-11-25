@@ -181,6 +181,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ImageView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ImgRegionDoc.cpp"
 				>
 			</File>
@@ -235,6 +239,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ImageView.h"
+				>
+			</File>
+			<File
 				RelativePath=".\ImgRegionDoc.h"
 				>
 			</File>
@@ -270,6 +278,10 @@
 			>
 			<File
 				RelativePath=".\ImgRegion.rc"
+				>
+			</File>
+			<File
+				RelativePath=".\toolbar1.bmp"
 				>
 			</File>
 			<File

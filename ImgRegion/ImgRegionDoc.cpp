@@ -11,6 +11,12 @@ void CRegionNode::Draw(CDC * pDC, const CPoint & ptOff)
 	else
 		m_image.Draw(pDC->m_hDC, rectNode);
 
+	CString strInfo;
+	strInfo.Format(_T("x:%d y:%d w:%d h:%d"), m_rc.left, m_rc.top, m_rc.Width(), m_rc.Height());
+	//DWORD bkMode = pDC->SetBkMode(TRANSPARENT);
+	pDC->DrawText(strInfo, rectNode, DT_SINGLELINE | DT_LEFT | DT_TOP | DT_NOCLIP);
+	//pDC->SetBkMode(bkMode);
+
 	CRegionNodePtrList::const_iterator child_iter = m_childs.begin();
 	for(; child_iter != m_childs.end(); child_iter++)
 	{

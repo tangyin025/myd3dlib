@@ -147,6 +147,10 @@ BEGIN
     POPUP "窗口(&W)"
     BEGIN
         MENUITEM "新建窗口(&N)",                    ID_WINDOW_NEW
+        MENUITEM "层叠(&D)",                      ID_WINDOW_CASCADE
+        MENUITEM "水平平铺(&H)",                    ID_WINDOW_TILE_HORZ
+        MENUITEM "垂直平铺(&V)",                    ID_WINDOW_TILE_VERT
+        MENUITEM "排列图标(&I)",                    ID_WINDOW_ARRANGE
     END
     POPUP "帮助(&H)"
     BEGIN
@@ -162,20 +166,22 @@ END
 
 IDR_MAINFRAME ACCELERATORS 
 BEGIN
-    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL
-    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL
-    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL
-    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL
-    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL
-    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL
-    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL
-    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL
-    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT
-    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT
-    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL
-    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT
-    VK_F6,          ID_NEXT_PANE,           VIRTKEY 
-    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT
+    "C",            ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_COPY,           VIRTKEY, CONTROL, NOINVERT
+    VK_DELETE,      ID_EDIT_CUT,            VIRTKEY, SHIFT, NOINVERT
+    "X",            ID_EDIT_CUT,            VIRTKEY, CONTROL, NOINVERT
+    "V",            ID_EDIT_PASTE,          VIRTKEY, CONTROL, NOINVERT
+    VK_INSERT,      ID_EDIT_PASTE,          VIRTKEY, SHIFT, NOINVERT
+    VK_BACK,        ID_EDIT_UNDO,           VIRTKEY, ALT, NOINVERT
+    "Z",            ID_EDIT_UNDO,           VIRTKEY, CONTROL, NOINVERT
+    "N",            ID_FILE_NEW,            VIRTKEY, CONTROL, NOINVERT
+    "O",            ID_FILE_OPEN,           VIRTKEY, CONTROL, NOINVERT
+    "P",            ID_FILE_PRINT,          VIRTKEY, CONTROL, NOINVERT
+    "S",            ID_FILE_SAVE,           VIRTKEY, CONTROL, NOINVERT
+    VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
+    VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
+    VK_OEM_PLUS,    ID_ZOOM_IN,             VIRTKEY, CONTROL, NOINVERT
+    VK_OEM_MINUS,   ID_ZOOM_OUT,            VIRTKEY, CONTROL, NOINVERT
 END
 
 
@@ -198,6 +204,12 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
+IDR_TOOLBAR1 TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_ZOOM_IN
+    BUTTON      ID_ZOOM_OUT
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -205,6 +217,7 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "Toolbar256.bmp"
+IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -213,14 +226,7 @@ IDR_MAINFRAME           BITMAP                  "Toolbar256.bmp"
 
 STRINGTABLE 
 BEGIN
-    ID_APP_EXIT             "退出应用程序；提示保存文档\n退出"
-END
-
-STRINGTABLE 
-BEGIN
     IDR_MAINFRAME           "ImgRegion"
-    IDS_TOOLBAR_STANDARD    "标准"
-    IDS_TOOLBAR_CUSTOMIZE   "自定义..."
 END
 
 #endif    // Chinese (P.R.C.) resources
