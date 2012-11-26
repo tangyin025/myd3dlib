@@ -10,8 +10,6 @@ BEGIN_MESSAGE_MAP(CImageView, CView)
 	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
-static DWORD ScaleTable[] = { 32000, 16000, 12000, 8000, 7000, 6000, 5000, 4000, 3000, 2000, 1000, 667, 500, 333, 250, 167, 125, 83, 62, 50, 40, 30, 20, 15, 10, 7 };
-
 CImageView::CImageView(void)
 	: m_ScaleIdx(10)
 	, m_bInsideUpdate(FALSE)
