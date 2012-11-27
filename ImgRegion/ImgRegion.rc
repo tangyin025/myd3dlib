@@ -227,7 +227,8 @@ IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
 // Cursor
 //
 
-IDC_CURSOR1             CURSOR                  "cursor1.cur"
+IDC_CURSOR1             CURSOR                  "Arrow.cur"
+IDC_CURSOR2             CURSOR                  "Cross.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

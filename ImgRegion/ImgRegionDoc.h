@@ -34,8 +34,6 @@ public:
 		: CRegion(rc, name, color)
 	{
 	}
-
-	void Draw(CDC * pDC, const CPoint & ptOff);
 };
 
 class CImgRegionDoc : public CDocument

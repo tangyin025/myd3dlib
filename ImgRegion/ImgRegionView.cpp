@@ -19,10 +19,14 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
+static const float ZoomTable[] = {
+	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0.667f, 0.500f, 0.333f, 0.250f, 0.167f, 0.125f, 0.083f, 0.062f, 0.050f, 0.040f, 0.030f, 0.020f, 0.015f, 0.010f, 0.007f };
+
 CImgRegionView::CImgRegionView(void)
 	: m_dwCurrCursor(CursorTypeArrow)
 	, m_bPrepareDrag(FALSE)
 	, m_bDrag(FALSE)
+	, m_dwZoomIdx(10)
 {
 }
 
@@ -39,7 +43,28 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	if (!pDoc)
 		return;
 
-	pDoc->m_root->Draw(pDC, CPoint(0,0));
+	DrawRegionNode(pDC, pDoc->m_root.get());
+}
+
+void CImgRegionView::DrawRegionNode(CDC * pDC, const CRegionNode * node, const CPoint & ptOff)
+{
+	CRect rectNode(node->m_rc);
+	rectNode.OffsetRect(ptOff);
+
+	if(node->m_image.IsNull())
+		pDC->FillSolidRect(rectNode, node->m_color);
+	else
+		node->m_image.Draw(pDC->m_hDC, rectNode);
+
+	CString strInfo;
+	strInfo.Format(_T("x:%d y:%d w:%d h:%d"), node->m_rc.left, node->m_rc.top, node->m_rc.Width(), node->m_rc.Height());
+	pDC->DrawText(strInfo, rectNode, DT_SINGLELINE | DT_LEFT | DT_TOP | DT_NOCLIP);
+
+	CRegionNodePtrList::const_iterator child_iter = node->m_childs.begin();
+	for(; child_iter != node->m_childs.end(); child_iter++)
+	{
+		DrawRegionNode(pDC, child_iter->get(), CPoint(ptOff.x + node->m_rc.left, ptOff.y + node->m_rc.top));
+	}
 }
 
 BOOL CImgRegionView::OnEraseBkgnd(CDC* pDC)
@@ -55,8 +80,9 @@ int CImgRegionView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CImageView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	m_hCursor[CursorTypeArrow] = ::LoadCursor(NULL, IDC_ARROW);
-	m_hCursor[CursorTypeHand] = theApp.LoadCursor(IDC_CURSOR1);
+	m_hCursor[CursorTypeArrow] = theApp.LoadCursor(IDC_CURSOR1);
+
+	m_hCursor[CursorTypeCross] = theApp.LoadCursor(IDC_CURSOR2);
 
 	return 0;
 }
@@ -79,30 +105,32 @@ void CImgRegionView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
 
 void CImgRegionView::OnZoomIn(void)
 {
-	m_ScaleIdx = max(0, m_ScaleIdx - 1);
-	UpdateScrollSize();
+	m_dwZoomIdx = max(0, m_dwZoomIdx - 1);
+
+	SetZoomFactor(ZoomTable[m_dwZoomIdx]);
 }
 
 void CImgRegionView::OnUpdateZoomIn(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_ScaleIdx > 0);
+	pCmdUI->Enable(m_dwZoomIdx > 0);
 }
 
 void CImgRegionView::OnZoomOut(void)
 {
-	m_ScaleIdx = min(_countof(ScaleTable) - 1, m_ScaleIdx + 1);
-	UpdateScrollSize();
+	m_dwZoomIdx = min(_countof(ZoomTable) - 1, m_dwZoomIdx + 1);
+
+	SetZoomFactor(ZoomTable[m_dwZoomIdx]);
 }
 
 void CImgRegionView::OnUpdateZoomOut(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_ScaleIdx < _countof(ScaleTable) - 1);
+	pCmdUI->Enable(m_dwZoomIdx < _countof(ZoomTable) - 1);
 }
 
 BOOL CImgRegionView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 {
 	if(m_bPrepareDrag || m_bDrag)
-		SetCursor(m_hCursor[CursorTypeHand]);
+		SetCursor(m_hCursor[CursorTypeCross]);
 	else
 		SetCursor(m_hCursor[m_dwCurrCursor]);
 
@@ -117,7 +145,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		if(!((1 << 14) & nFlags) && !m_bDrag)
 		{
 			m_bPrepareDrag = TRUE;
-			SetCursor(m_hCursor[CursorTypeHand]);
+			SetCursor(m_hCursor[CursorTypeCross]);
 		}
 		break;
 	}

@@ -11,8 +11,7 @@ public:
 	enum CursorType
 	{
 		CursorTypeArrow = 0,
-		CursorTypeHand,
-		CursorTypeMove,
+		CursorTypeCross,
 		CursorTypeCount
 	};
 
@@ -28,11 +27,16 @@ public:
 
 	CPoint m_bDragStartScrollPos;
 
+	DWORD m_dwZoomIdx;
+
+public:
 	CImgRegionView(void);
 
 	CImgRegionDoc * GetDocument() const;
 
 	virtual void OnDraw(CDC * pDC);
+
+	void DrawRegionNode(CDC * pDC, const CRegionNode * node, const CPoint & ptOff = CPoint(0,0));
 
 	DECLARE_MESSAGE_MAP()
 

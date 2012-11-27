@@ -11,6 +11,7 @@
 #define ID_WINDOW_MANAGER               106
 #define IDR_TOOLBAR1                    107
 #define IDC_CURSOR1                     108
+#define IDC_CURSOR2                     109
 #define ID_VIEW_APPLOOK_WIN_2000        40001
 #define ID_VIEW_APPLOOK_OFF_XP          40002
 #define ID_VIEW_APPLOOK_WIN_XP          40003
@@ -27,7 +28,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        109
+#define _APS_NEXT_RESOURCE_VALUE        110
 #define _APS_NEXT_COMMAND_VALUE         40012
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101

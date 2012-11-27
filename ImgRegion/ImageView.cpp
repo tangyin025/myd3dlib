@@ -11,7 +11,8 @@ BEGIN_MESSAGE_MAP(CImageView, CView)
 END_MESSAGE_MAP()
 
 CImageView::CImageView(void)
-	: m_ScaleIdx(10)
+	: m_ExtentLog(1000,1000)
+	, m_ExtentDev(1000,1000)
 	, m_bInsideUpdate(FALSE)
 	, m_totalDev(0,0)
 {
@@ -28,8 +29,8 @@ void CImageView::DoPrepareDC(CDC* pDC, BOOL bIsPrinting)
 {
 	pDC->SetMapMode(MM_ISOTROPIC);
 	pDC->SetWindowOrg(CPoint(0,0));
-	pDC->SetWindowExt(CSize(1000,1000));
-	pDC->SetViewportExt(CSize(ScaleTable[m_ScaleIdx],ScaleTable[m_ScaleIdx]));
+	pDC->SetWindowExt(m_ExtentLog);
+	pDC->SetViewportExt(m_ExtentDev);
 
 	CPoint ptVpOrg(0, 0);       // assume no shift for printing
 	if (!bIsPrinting)
@@ -570,4 +571,16 @@ void CImageView::CheckScrollBars(BOOL& bHasHorzBar, BOOL& bHasVertBar) const
 	pBar = GetScrollBarCtrl(SB_HORZ);
 	bHasHorzBar = ((pBar != NULL) && pBar->IsWindowEnabled()) ||
 					(dwStyle & WS_HSCROLL);
+}
+
+void CImageView::SetZoomFactor(float factor)
+{
+	float x = m_ExtentLog.cx * factor;
+	float y = m_ExtentLog.cy * factor;
+	_ASSERT(x > 1 && x < INT_MAX);
+	_ASSERT(y > 1 && y < INT_MAX);
+	m_ExtentDev.cx = (int)x;
+	m_ExtentDev.cy = (int)y;
+
+	UpdateScrollSize();
 }
