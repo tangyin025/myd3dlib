@@ -8,6 +8,7 @@ BEGIN_MESSAGE_MAP(CImageView, CView)
 	ON_WM_HSCROLL()
 	ON_WM_VSCROLL()
 	ON_WM_MOUSEWHEEL()
+	ON_WM_CREATE()
 END_MESSAGE_MAP()
 
 CImageView::CImageView(void)
@@ -20,57 +21,46 @@ CImageView::CImageView(void)
 
 void CImageView::OnPrepareDC(CDC* pDC, CPrintInfo* pInfo)
 {
-	DoPrepareDC(pDC, pDC->IsPrinting());
+	pDC->SetMapMode(MM_ISOTROPIC);
+	pDC->SetWindowOrg(m_wndDc->GetWindowOrg());
+	pDC->SetWindowExt(m_wndDc->GetWindowExt());
+	pDC->SetViewportExt(m_wndDc->GetViewportExt());
+
+	if (!pDC->IsPrinting())
+	{
+		pDC->SetViewportOrg(m_wndDc->GetViewportOrg());
+	}
+	else
+		pDC->SetViewportOrg(CPoint(0,0)); // assume no shift for printing
 
 	CView::OnPrepareDC(pDC, pInfo);
-}
-
-void CImageView::DoPrepareDC(CDC* pDC, BOOL bIsPrinting)
-{
-	pDC->SetMapMode(MM_ISOTROPIC);
-	pDC->SetWindowOrg(CPoint(0,0));
-	pDC->SetWindowExt(m_ExtentLog);
-	pDC->SetViewportExt(m_ExtentDev);
-
-	CPoint ptVpOrg(0, 0);       // assume no shift for printing
-	if (!bIsPrinting)
-	{
-		ASSERT(pDC->GetWindowOrg() == CPoint(0,0));
-
-		// by default shift viewport origin in negative direction of scroll
-		ptVpOrg = -GetDeviceScrollPosition();
-
-		CRect rect;
-		GetClientRect(&rect);
-
-		// if client area is larger than total device size,
-		// override scroll positions to place origin such that
-		// output is centered in the window
-		if (m_totalDev.cx < rect.Width())
-			ptVpOrg.x = (rect.Width() - m_totalDev.cx) / 2;
-		if (m_totalDev.cy < rect.Height())
-			ptVpOrg.y = (rect.Height() - m_totalDev.cy) / 2;
-	}
-	pDC->SetViewportOrg(ptVpOrg);
 }
 
 void CImageView::SetScrollSizes(const CSize & sizeTotal)
 {
 	m_totalLog = sizeTotal;
 
-	UpdateScrollSize();
+	UpdateScrollContext();
+
+	UpdateBars(GetDeviceScrollPosition());
+
+	Invalidate(TRUE);
 }
 
-void CImageView::UpdateScrollSize(void)
+void CImageView::UpdateScrollContext(void)
 {
-	CWindowDC dc(NULL);
+	_ASSERT(m_wndDc);
 
-	DoPrepareDC(&dc);
+	m_wndDc->SetMapMode(MM_ISOTROPIC);
+	m_wndDc->SetWindowOrg(CPoint(0,0));
+	m_wndDc->SetWindowExt(m_ExtentLog);
+	m_wndDc->SetViewportOrg(CPoint(0,0));
+	m_wndDc->SetViewportExt(m_ExtentDev);
 
 	CPoint ptLeftTop(0,0);
 	CPoint ptRightBottom(m_totalLog);
-	dc.LPtoDP(&ptLeftTop);
-	dc.LPtoDP(&ptRightBottom);
+	m_wndDc->LPtoDP(&ptLeftTop);
+	m_wndDc->LPtoDP(&ptRightBottom);
 	m_totalDev = ptRightBottom - ptLeftTop;
 
 	m_pageDev.cx = m_totalDev.cx / 2;
@@ -78,15 +68,29 @@ void CImageView::UpdateScrollSize(void)
 
 	m_lineDev.cx = m_totalDev.cx / 50;
 	m_lineDev.cy = m_totalDev.cy / 50;
-
-	if (m_hWnd != NULL)
-	{
-		UpdateBars();
-		Invalidate(TRUE);
-	}
 }
 
-void CImageView::UpdateBars(void)
+void CImageView::UpdateViewportOrg(void)
+{
+	// by default shift viewport origin in negative direction of scroll
+	CPoint ptVpOrg = -GetDeviceScrollPosition();
+
+	CRect rect;
+	GetClientRect(&rect);
+
+	// if client area is larger than total device size,
+	// override scroll positions to place origin such that
+	// output is centered in the window
+	if (m_totalDev.cx < rect.Width())
+		ptVpOrg.x = (rect.Width() - m_totalDev.cx) / 2;
+
+	if (m_totalDev.cy < rect.Height())
+		ptVpOrg.y = (rect.Height() - m_totalDev.cy) / 2;
+
+	m_wndDc->SetViewportOrg(ptVpOrg);
+}
+
+void CImageView::UpdateBars(const CPoint & ptDesiredMove)
 {
 	// UpdateBars may cause window to be resized - ignore those resizings
 	if (m_bInsideUpdate)
@@ -99,51 +103,23 @@ void CImageView::UpdateBars(void)
 	// NOTE: turning on/off the scrollbars will cause 'OnSize' callbacks
 	ASSERT(m_totalDev.cx >= 0 && m_totalDev.cy >= 0);
 
-	CRect rectClient;
-	BOOL bCalcClient = TRUE;
-
-	// allow parent to do inside-out layout first
-	CWnd* pParentWnd = GetParent();
-	if (pParentWnd != NULL)
-	{
-		// if parent window responds to this message, use just
-		//  client area for scroll bar calc -- not "true" client area
-		if ((BOOL)pParentWnd->SendMessage(WM_RECALCPARENT, 0,
-			(LPARAM)(LPCRECT)&rectClient) != 0)
-		{
-			// use rectClient instead of GetTrueClientSize for
-			//  client size calculation.
-			bCalcClient = FALSE;
-		}
-	}
-
 	CSize sizeClient;
 	CSize sizeSb;
 
-	if (bCalcClient)
+	// get client rect
+	if (!GetTrueClientSize(sizeClient, sizeSb))
 	{
-		// get client rect
-		if (!GetTrueClientSize(sizeClient, sizeSb))
+		// no room for scroll bars (common for zero sized elements)
+		CRect rect;
+		GetClientRect(&rect);
+		if (rect.right > 0 && rect.bottom > 0)
 		{
-			// no room for scroll bars (common for zero sized elements)
-			CRect rect;
-			GetClientRect(&rect);
-			if (rect.right > 0 && rect.bottom > 0)
-			{
-				// if entire client area is not invisible, assume we have
-				//  control over our scrollbars
-				EnableScrollBarCtrl(SB_BOTH, FALSE);
-			}
-			m_bInsideUpdate = FALSE;
-			return;
+			// if entire client area is not invisible, assume we have
+			//  control over our scrollbars
+			EnableScrollBarCtrl(SB_BOTH, FALSE);
 		}
-	}
-	else
-	{
-		// let parent window determine the "client" rect
-		GetScrollBarSizes(sizeSb);
-		sizeClient.cx = rectClient.right - rectClient.left;
-		sizeClient.cy = rectClient.bottom - rectClient.top;
+		m_bInsideUpdate = FALSE;
+		return;
 	}
 
 	// enough room to add scrollbars
@@ -152,14 +128,11 @@ void CImageView::UpdateBars(void)
 	CSize needSb;
 
 	// get the current scroll bar state given the true client area
-	GetScrollBarState(sizeClient, needSb, sizeRange, ptMove, bCalcClient);
+	GetScrollBarState(sizeClient, ptDesiredMove, needSb, sizeRange, ptMove, TRUE);
 	if (needSb.cx)
 		sizeClient.cy -= sizeSb.cy;
 	if (needSb.cy)
 		sizeClient.cx -= sizeSb.cx;
-
-	// first scroll the window as needed
-	ScrollToDevicePosition(ptMove); // will set the scroll bar positions too
 
 	// this structure needed to update the scrollbar page range
 	SCROLLINFO info;
@@ -183,6 +156,9 @@ void CImageView::UpdateBars(void)
 		if (!SetScrollInfo(SB_VERT, &info, TRUE))
 			SetScrollRange(SB_VERT, 0, sizeRange.cy, TRUE);
 	}
+
+	// first scroll the window as needed
+	ScrollToDevicePosition(ptMove); // will set the scroll bar positions too
 
 	// remove recursion lockout
 	m_bInsideUpdate = FALSE;
@@ -233,6 +209,8 @@ void CImageView::ScrollToDevicePosition(POINT ptDev)
 	int yOrig = GetScrollPos(SB_VERT);
 	SetScrollPos(SB_VERT, ptDev.y);
 	ScrollWindow(xOrig - ptDev.x, yOrig - ptDev.y);
+
+	UpdateViewportOrg();
 }
 
 void CImageView::GetScrollBarSizes(CSize& sizeSb)
@@ -258,8 +236,8 @@ void CImageView::GetScrollBarSizes(CSize& sizeSb)
 
 // helper to return the state of the scrollbars without actually changing
 //  the state of the scrollbars
-void CImageView::GetScrollBarState(CSize sizeClient, CSize& needSb,
-	CSize& sizeRange, CPoint& ptMove, BOOL bInsideClient)
+void CImageView::GetScrollBarState(const CSize & sizeClient, const CPoint & ptDesiredMove,
+		CSize & needSb, CSize & sizeRange, CPoint & ptMove, BOOL bInsideClient)
 {
 	// get scroll bar sizes (the part that is in the client area)
 	CSize sizeSb;
@@ -268,7 +246,8 @@ void CImageView::GetScrollBarState(CSize sizeClient, CSize& needSb,
 	// enough room to add scrollbars
 	sizeRange = m_totalDev - sizeClient;
 		// > 0 => need to scroll
-	ptMove = GetDeviceScrollPosition();
+	ptMove.x = max(0, ptDesiredMove.x);
+	ptMove.y = max(0, ptDesiredMove.y);
 		// point to move to (start at current scroll pos)
 
 	BOOL bNeedH = sizeRange.cx > 0;
@@ -314,7 +293,7 @@ CPoint CImageView::GetDeviceScrollPosition() const
 void CImageView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
-	UpdateBars();
+	UpdateBars(GetDeviceScrollPosition());
 }
 
 void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
@@ -461,6 +440,8 @@ BOOL CImageView::OnScrollBy(CSize sizeScroll, BOOL bDoScroll)
 			SetScrollPos(SB_HORZ, x);
 		if (y != yOrig)
 			SetScrollPos(SB_VERT, y);
+
+		UpdateViewportOrg();
 	}
 	return TRUE;
 }
@@ -573,8 +554,12 @@ void CImageView::CheckScrollBars(BOOL& bHasHorzBar, BOOL& bHasVertBar) const
 					(dwStyle & WS_HSCROLL);
 }
 
-void CImageView::SetZoomFactor(float factor)
+void CImageView::SetZoomFactor(float factor, const CPoint & ptLocalLook)
 {
+	CPoint ptDeviceLook = ptLocalLook;
+
+	m_wndDc->DPtoLP(&ptDeviceLook);
+
 	float x = m_ExtentLog.cx * factor;
 	float y = m_ExtentLog.cy * factor;
 	_ASSERT(x > 1 && x < INT_MAX);
@@ -582,5 +567,25 @@ void CImageView::SetZoomFactor(float factor)
 	m_ExtentDev.cx = (int)x;
 	m_ExtentDev.cy = (int)y;
 
-	UpdateScrollSize();
+	UpdateScrollContext();
+
+	UpdateBars(GetDeviceScrollPosition());
+
+	//m_wndDc->LPtoDP(&ptDeviceLook);
+
+	//UpdateBars(CPoint(
+	//	max(0, ptDeviceLook.x - ptLocalLook.x),
+	//	max(0, ptDeviceLook.y - ptLocalLook.y)));
+
+	Invalidate(TRUE);
+}
+
+int CImageView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	m_wndDc.reset(new CWindowDC(this));
+
+	return 0;
 }

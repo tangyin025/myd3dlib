@@ -107,7 +107,10 @@ void CImgRegionView::OnZoomIn(void)
 {
 	m_dwZoomIdx = max(0, m_dwZoomIdx - 1);
 
-	SetZoomFactor(ZoomTable[m_dwZoomIdx]);
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	SetZoomFactor(ZoomTable[m_dwZoomIdx], rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomIn(CCmdUI *pCmdUI)
@@ -119,7 +122,10 @@ void CImgRegionView::OnZoomOut(void)
 {
 	m_dwZoomIdx = min(_countof(ZoomTable) - 1, m_dwZoomIdx + 1);
 
-	SetZoomFactor(ZoomTable[m_dwZoomIdx]);
+	CRect rectClient;
+	GetClientRect(&rectClient);
+
+	SetZoomFactor(ZoomTable[m_dwZoomIdx], rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomOut(CCmdUI *pCmdUI)
@@ -190,6 +196,9 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 {
+	CPoint pointLog = point;
+	m_wndDc->DPtoLP(&pointLog);
+	TRACE("Log Point: %d, %d\n", pointLog.x, pointLog.y);
 	if(m_bDrag)
 	{
 		CSize sizeClient;
@@ -198,13 +207,12 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 		{
 			return;
 		}
+		CSize offset = point - m_bDragStartPos;
+		CPoint ptDesireMove(CPoint(m_bDragStartScrollPos.x - offset.cx, m_bDragStartScrollPos.y - offset.cy));
 		CSize sizeRange;
 		CPoint ptMove;
 		CSize needSb;
-		GetScrollBarState(sizeClient, needSb, sizeRange, ptMove, TRUE);
-		CSize offset = point - m_bDragStartPos;
-		ScrollToDevicePosition(CPoint(
-			max(0, min(sizeRange.cx, m_bDragStartScrollPos.x - offset.cx)),
-			max(0, min(sizeRange.cy, m_bDragStartScrollPos.y - offset.cy))));
+		GetScrollBarState(sizeClient, ptDesireMove, needSb, sizeRange, ptMove, TRUE);
+		ScrollToDevicePosition(ptMove);
 	}
 }

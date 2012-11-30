@@ -2,6 +2,23 @@
 
 class CImageView : public CView
 {
+protected:
+	const CSize m_ExtentLog;
+
+	CSize m_ExtentDev;
+
+	CSize m_totalLog;
+
+	CSize m_totalDev;
+
+	CSize m_pageDev;
+
+	CSize m_lineDev;
+
+	BOOL m_bInsideUpdate;
+
+	std::tr1::shared_ptr<CWindowDC> m_wndDc;
+
 public:
 	DECLARE_DYNAMIC(CImageView)
 
@@ -15,16 +32,18 @@ public:
 
 	void SetScrollSizes(const CSize & sizeTotal);
 
-	void UpdateScrollSize(void);
+	void UpdateScrollContext(void);
 
-	void UpdateBars(void);
+	void UpdateViewportOrg(void);
+
+	void UpdateBars(const CPoint & ptDesiredMove);
 
 	BOOL GetTrueClientSize(CSize& size, CSize& sizeSb);
 
 	void GetScrollBarSizes(CSize& sizeSb);
 
-	void GetScrollBarState(CSize sizeClient, CSize& needSb,
-		CSize& sizeRange, CPoint& ptMove, BOOL bInsideClient);
+	void GetScrollBarState(const CSize & sizeClient, const CPoint & ptDesiredMove,
+		CSize & needSb, CSize & sizeRange, CPoint & ptMove, BOOL bInsideClient);
 
 	CPoint GetDeviceScrollPosition() const;
 
@@ -46,19 +65,7 @@ public:
 
 	void CheckScrollBars(BOOL& bHasHorzBar, BOOL& bHasVertBar) const;
 
-	void SetZoomFactor(float factor);
+	void SetZoomFactor(float factor, const CPoint & ptLocalLook);
 
-	const CSize m_ExtentLog;
-
-	CSize m_ExtentDev;
-
-	CSize m_totalLog;
-
-	CSize m_totalDev;
-
-	CSize m_pageDev;
-
-	CSize m_lineDev;
-
-	BOOL m_bInsideUpdate;
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 };
