@@ -158,13 +158,14 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 }
 
 void Font::CreateFontFromFile(
+	FT_Library Library,
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	int height,
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Face(DxutApp::getSingleton().m_Library, pFilename, face_index, &face);
+	FT_Error err = FT_New_Face(Library, pFilename, face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Face failed");
@@ -174,6 +175,7 @@ void Font::CreateFontFromFile(
 }
 
 void Font::CreateFontFromFileInMemory(
+	FT_Library Library,
 	LPDIRECT3DDEVICE9 pDevice,
 	const void * file_base,
 	long file_size,
@@ -183,17 +185,18 @@ void Font::CreateFontFromFileInMemory(
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
 
-	CreateFontFromFileInCache(pDevice, cache, height, face_index);
+	CreateFontFromFileInCache(Library, pDevice, cache, height, face_index);
 }
 
 void Font::CreateFontFromFileInCache(
+	FT_Library Library,
 	LPDIRECT3DDEVICE9 pDevice,
 	CachePtr cache_ptr,
 	int height,
 	FT_Long face_index)
 {
 	FT_Face face;
-	FT_Error err = FT_New_Memory_Face(DxutApp::getSingleton().m_Library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
+	FT_Error err = FT_New_Memory_Face(Library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
 	if(err)
 	{
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");

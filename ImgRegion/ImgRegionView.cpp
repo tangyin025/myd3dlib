@@ -6,27 +6,17 @@ IMPLEMENT_DYNCREATE(CImgRegionView, CImageView)
 
 BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_WM_ERASEBKGND()
+	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_COMMAND(ID_ZOOM_IN, &CImgRegionView::OnZoomIn)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_IN, &CImgRegionView::OnUpdateZoomIn)
 	ON_COMMAND(ID_ZOOM_OUT, &CImgRegionView::OnZoomOut)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_OUT, &CImgRegionView::OnUpdateZoomOut)
-	ON_WM_SETCURSOR()
-	ON_WM_KEYDOWN()
-	ON_WM_KEYUP()
-	ON_WM_LBUTTONDOWN()
-	ON_WM_LBUTTONUP()
-	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
-static const float ZoomTable[] = {
-	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 0.667f, 0.500f, 0.333f, 0.250f, 0.167f, 0.125f, 0.083f, 0.062f, 0.050f, 0.040f, 0.030f, 0.020f, 0.015f, 0.010f, 0.007f };
-
 CImgRegionView::CImgRegionView(void)
-	: m_dwCurrCursor(CursorTypeArrow)
-	, m_bPrepareDrag(FALSE)
-	, m_bDrag(FALSE)
-	, m_dwZoomIdx(10)
+	: m_nCurrCursor(CursorTypeArrow)
+	, m_nCurrImageSize(10)
 {
 }
 
@@ -42,6 +32,9 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
+
+	PrepareDC(pDC, pDoc->m_root->m_rc,
+		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 
 	DrawRegionNode(pDC, pDoc->m_root.get());
 }
@@ -71,7 +64,7 @@ BOOL CImgRegionView::OnEraseBkgnd(CDC* pDC)
 {
 	CRect rectClient;
 	GetClientRect(&rectClient);
-	pDC->FillSolidRect(&rectClient, RGB(192,192,192));
+	pDC->FillSolidRect(&rectClient, RGB(197,197,197));
 	return TRUE;
 }
 
@@ -81,7 +74,6 @@ int CImgRegionView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	m_hCursor[CursorTypeArrow] = theApp.LoadCursor(IDC_CURSOR1);
-
 	m_hCursor[CursorTypeCross] = theApp.LoadCursor(IDC_CURSOR2);
 
 	return 0;
@@ -96,123 +88,64 @@ void CImgRegionView::OnInitialUpdate()
 	if (!pDoc)
 		return;
 
-	SetScrollSizes(CSize(pDoc->m_root->m_rc.Width(), pDoc->m_root->m_rc.Height()));
+	for(int i = 0; i < _countof(m_ImageSizeTable); i++)
+	{
+		m_ImageSizeTable[i] = CSize(
+			(int)((pDoc->m_root->m_rc.right - pDoc->m_root->m_rc.left) * ZoomTable[i]),
+			(int)((pDoc->m_root->m_rc.bottom - pDoc->m_root->m_rc.top) * ZoomTable[i]));
+	}
+
+	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
 }
 
-void CImgRegionView::OnUpdate(CView* pSender, LPARAM lHint, CObject* pHint)
+void CImgRegionView::OnSize(UINT nType, int cx, int cy)
 {
+	CImageView::OnSize(nType, cx, cy);
+
+	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
 }
 
-void CImgRegionView::OnZoomIn(void)
+void CImgRegionView::OnZoomIn()
 {
-	m_dwZoomIdx = max(0, m_dwZoomIdx - 1);
-
 	CRect rectClient;
-	GetClientRect(&rectClient);
+	GetClientRect(rectClient);
 
-	SetZoomFactor(ZoomTable[m_dwZoomIdx], rectClient.CenterPoint());
+	ZoomImage(m_nCurrImageSize - 1, rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomIn(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_dwZoomIdx > 0);
+	pCmdUI->Enable(m_nCurrImageSize > 0);
 }
 
-void CImgRegionView::OnZoomOut(void)
+void CImgRegionView::OnZoomOut()
 {
-	m_dwZoomIdx = min(_countof(ZoomTable) - 1, m_dwZoomIdx + 1);
-
 	CRect rectClient;
-	GetClientRect(&rectClient);
+	GetClientRect(rectClient);
 
-	SetZoomFactor(ZoomTable[m_dwZoomIdx], rectClient.CenterPoint());
+	ZoomImage(m_nCurrImageSize + 1, rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomOut(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_dwZoomIdx < _countof(ZoomTable) - 1);
+	pCmdUI->Enable(m_nCurrImageSize < _countof(m_ImageSizeTable) - 1);
 }
 
-BOOL CImgRegionView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
+void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRedraw)
 {
-	if(m_bPrepareDrag || m_bDrag)
-		SetCursor(m_hCursor[CursorTypeCross]);
-	else
-		SetCursor(m_hCursor[m_dwCurrCursor]);
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 
-	return TRUE;
-}
+	CRect SrcImageRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]);
 
-void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	switch(nChar)
-	{
-	case VK_SPACE:
-		if(!((1 << 14) & nFlags) && !m_bDrag)
-		{
-			m_bPrepareDrag = TRUE;
-			SetCursor(m_hCursor[CursorTypeCross]);
-		}
-		break;
-	}
-}
+	m_nCurrImageSize = max(0, min((int)_countof(m_ImageSizeTable) - 1, ImageSizeIdx));
 
-void CImgRegionView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
-{
-	switch(nChar)
-	{
-	case VK_SPACE:
-		if(m_bPrepareDrag)
-		{
-			m_bPrepareDrag = FALSE;
-			if(!m_bDrag)
-			{
-				SetCursor(m_hCursor[m_dwCurrCursor]);
-			}
-		}
-		break;
-	}
-}
+	my::Vector2 center = MapPoint(my::Vector2((float)ptLook.x, (float)ptLook.y), SrcImageRect, CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]));
 
-void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
-{
-	if(m_bPrepareDrag)
-	{
-		m_bDrag = TRUE;
-		m_bDragStartPos = point;
-		m_bDragStartScrollPos = GetDeviceScrollPosition();
-		SetCapture();
-	}
-}
+	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], bRedraw, CPoint((int)(center.x - ptLook.x), (int)(center.y - ptLook.y)));
 
-void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
-{
-	if(m_bDrag)
-	{
-		m_bDrag = FALSE;
-		ReleaseCapture();
-	}
-}
-
-void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
-{
-	CPoint pointLog = point;
-	m_wndDc->DPtoLP(&pointLog);
-	TRACE("Log Point: %d, %d\n", pointLog.x, pointLog.y);
-	if(m_bDrag)
-	{
-		CSize sizeClient;
-		CSize sizeSb;
-		if (!GetTrueClientSize(sizeClient, sizeSb))
-		{
-			return;
-		}
-		CSize offset = point - m_bDragStartPos;
-		CPoint ptDesireMove(CPoint(m_bDragStartScrollPos.x - offset.cx, m_bDragStartScrollPos.y - offset.cy));
-		CSize sizeRange;
-		CPoint ptMove;
-		CSize needSb;
-		GetScrollBarState(sizeClient, ptDesireMove, needSb, sizeRange, ptMove, TRUE);
-		ScrollToDevicePosition(ptMove);
-	}
+	if(bRedraw)
+		Invalidate(TRUE);
 }

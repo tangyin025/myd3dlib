@@ -59,7 +59,7 @@ void UIRender::End(void)
 	V(DxutApp::getSingleton().m_StateBlock->Apply());
 }
 
-void UIRender::SetTexture(my::TexturePtr texture)
+void UIRender::SetTexture(TexturePtr texture)
 {
 	V(m_Device->SetTexture(0, texture ? texture->m_ptr : NULL));
 }
@@ -180,7 +180,7 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 	}
 	else
 	{
-		ui_render->SetTexture(my::TexturePtr());
+		ui_render->SetTexture(TexturePtr());
 		ui_render->DrawRectangle(rect, color, Rectangle(0,0,1,1));
 	}
 }
@@ -491,7 +491,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Min(TextRect.r, TextRect.l + sel_right_x),
 					TextRect.b);
 
-				ui_render->SetTexture(my::TexturePtr());
+				ui_render->SetTexture(TexturePtr());
 				ui_render->DrawRectangle(SelRect, Skin->m_SelBkColor, Rectangle(0,0,1,1));
 			}
 
@@ -521,7 +521,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 				}
 
-				ui_render->SetTexture(my::TexturePtr());
+				ui_render->SetTexture(TexturePtr());
 				ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
 			}
 		}
@@ -1200,7 +1200,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		ui_render->SetTexture(my::TexturePtr());
+		ui_render->SetTexture(TexturePtr());
 		ui_render->DrawRectangle(rc, m_CompWinColor, Rectangle(0,0,1,1));
 
 		Skin->m_Font->DrawString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
@@ -1210,7 +1210,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			ui_render->SetTexture(my::TexturePtr());
+			ui_render->SetTexture(TexturePtr());
 			ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
 		}
 	}
@@ -1249,7 +1249,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		ui_render->SetTexture(my::TexturePtr());
+		ui_render->SetTexture(TexturePtr());
 		ui_render->DrawRectangle(CandRect, m_CandidateWinColor, Rectangle(0,0,1,1));
 
 		Skin->m_Font->DrawString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);

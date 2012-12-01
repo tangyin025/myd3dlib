@@ -46,7 +46,7 @@ namespace my
 
 		virtual void End(void);
 
-		virtual void SetTexture(my::TexturePtr texture);
+		virtual void SetTexture(TexturePtr texture);
 
 		virtual void SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj);
 
@@ -109,7 +109,7 @@ namespace my
 	public:
 		ControlSkin(void)
 			: m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
-			, m_TextAlign(my::Font::AlignLeftTop)
+			, m_TextAlign(Font::AlignLeftTop)
 		{
 		}
 
@@ -664,12 +664,12 @@ namespace my
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
-	class AlignEventArgs : public my::EventArgs
+	class AlignEventArgs : public EventArgs
 	{
 	public:
-		my::Vector2 vp;
+		Vector2 vp;
 
-		AlignEventArgs(const my::Vector2 & _vp)
+		AlignEventArgs(const Vector2 & _vp)
 			: vp(_vp)
 		{
 		}

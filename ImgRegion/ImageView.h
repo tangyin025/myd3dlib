@@ -1,24 +1,9 @@
 #pragma once
 
+#include <myMath.h>
+
 class CImageView : public CView
 {
-protected:
-	const CSize m_ExtentLog;
-
-	CSize m_ExtentDev;
-
-	CSize m_totalLog;
-
-	CSize m_totalDev;
-
-	CSize m_pageDev;
-
-	CSize m_lineDev;
-
-	BOOL m_bInsideUpdate;
-
-	std::tr1::shared_ptr<CWindowDC> m_wndDc;
-
 public:
 	DECLARE_DYNAMIC(CImageView)
 
@@ -26,46 +11,17 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 
-	virtual void OnPrepareDC(CDC* pDC, CPrintInfo* pInfo = NULL);
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
-	void DoPrepareDC(CDC* pDC, BOOL bIsPrinting = FALSE);
-
-	void SetScrollSizes(const CSize & sizeTotal);
-
-	void UpdateScrollContext(void);
-
-	void UpdateViewportOrg(void);
-
-	void UpdateBars(const CPoint & ptDesiredMove);
-
-	BOOL GetTrueClientSize(CSize& size, CSize& sizeSb);
-
-	void GetScrollBarSizes(CSize& sizeSb);
-
-	void GetScrollBarState(const CSize & sizeClient, const CPoint & ptDesiredMove,
-		CSize & needSb, CSize & sizeRange, CPoint & ptMove, BOOL bInsideClient);
-
-	CPoint GetDeviceScrollPosition() const;
-
-	void ScrollToDevicePosition(POINT ptDev);
-
-	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 
 	afx_msg void OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
 
-	virtual BOOL OnScroll(UINT nScrollCode, UINT nPos, BOOL bDoScroll = TRUE);
+	void SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw = TRUE, const CPoint & scrollPos = CPoint(0,0));
 
-	virtual BOOL OnScrollBy(CSize sizeScroll, BOOL bDoScroll = TRUE);
+	static void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
 
-	afx_msg BOOL OnMouseWheel(UINT fFlags, short zDelta, CPoint point);
-
-	BOOL DoMouseWheel(UINT fFlags, short zDelta, CPoint point);
-
-	void CheckScrollBars(BOOL& bHasHorzBar, BOOL& bHasVertBar) const;
-
-	void SetZoomFactor(float factor, const CPoint & ptLocalLook);
-
-	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	static my::Vector2 MapPoint(const my::Vector2 & point, const CRect & rectImageSrc, const CRect & rectImageDst);
 };

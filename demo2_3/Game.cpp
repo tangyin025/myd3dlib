@@ -438,12 +438,12 @@ FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+			ret->CreateFontFromFile(m_Library, GetD3D9Device(), full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
+			ret->CreateFontFromFileInCache(m_Library, GetD3D9Device(), cache, height);
 		}
 	}
 	return ret;
