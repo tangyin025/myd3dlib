@@ -237,10 +237,8 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 	case DragStateImage:
 		{
 			CSize sizeDrag = point - m_DragImagePos;
-			CPoint ptOrg(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
-			SetScrollPos(SB_HORZ, m_DragImageScrollPos.x - sizeDrag.cx);
-			SetScrollPos(SB_VERT, m_DragImageScrollPos.y - sizeDrag.cy);
-			ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
+
+			ScrollToPos(CPoint(m_DragImageScrollPos.x - sizeDrag.cx, m_DragImageScrollPos.y - sizeDrag.cy), TRUE);
 		}
 		break;
 	}

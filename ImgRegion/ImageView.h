@@ -32,6 +32,8 @@ public:
 
 	void SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw = TRUE, const CPoint & scrollPos = CPoint(0,0));
 
+	void ScrollToPos(const CPoint & scrollPos, BOOL bRedraw = TRUE);
+
 	void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
 
 	void RestoreDC(CDC * pDC);

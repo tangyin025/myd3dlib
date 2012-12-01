@@ -37,18 +37,19 @@ int CImageView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
+	int nBar = HIWORD(nSBCode);
+
 	// Get the minimum and maximum scroll-bar positions.
 	int minpos;
 	int maxpos;
-	GetScrollRange(SB_HORZ, &minpos, &maxpos); 
-	maxpos = GetScrollLimit(SB_HORZ);
+	GetScrollRange(nBar, &minpos, &maxpos); 
+	maxpos = GetScrollLimit(nBar);
 
 	// Get the current position of scroll box.
-	int curpos = GetScrollPos(SB_HORZ);
-	int oldpos = curpos;
+	int curpos = GetScrollPos(nBar);
 
 	// Determine the new position of scroll box.
-	switch (nSBCode)
+	switch (LOWORD(nSBCode))
 	{
 	case SB_LEFT:      // Scroll to far left.
 		curpos = minpos;
@@ -75,7 +76,7 @@ void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		{
 			// Get the page size. 
 			SCROLLINFO   info;
-			GetScrollInfo(SB_HORZ, &info, SIF_ALL);
+			GetScrollInfo(nBar, &info, SIF_ALL);
 
 			if (curpos > minpos)
 				curpos = max(minpos, curpos - (int) info.nPage);
@@ -86,7 +87,7 @@ void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 		{
 			// Get the page size. 
 			SCROLLINFO   info;
-			GetScrollInfo(SB_HORZ, &info, SIF_ALL);
+			GetScrollInfo(nBar, &info, SIF_ALL);
 
 			if (curpos < maxpos)
 				curpos = min(maxpos, curpos + (int) info.nPage);
@@ -103,82 +104,21 @@ void CImageView::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	}
 
 	// Set the new position of the thumb (scroll box).
-	SetScrollPos(SB_HORZ, curpos);
+	switch(nBar)
+	{
+	case SB_HORZ:
+		ScrollToPos(CPoint(curpos, GetScrollPos(SB_VERT)), TRUE);
+		break;
 
-	ScrollWindow(oldpos - curpos, 0);
+	case SB_VERT:
+		ScrollToPos(CPoint(GetScrollPos(SB_HORZ), curpos), TRUE);
+		break;
+	}
 }
 
 void CImageView::OnVScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 {
-	// Get the minimum and maximum scroll-bar positions.
-	int minpos;
-	int maxpos;
-	GetScrollRange(SB_VERT, &minpos, &maxpos); 
-	maxpos = GetScrollLimit(SB_VERT);
-
-	// Get the current position of scroll box.
-	int curpos = GetScrollPos(SB_VERT);
-	int oldpos = curpos;
-
-	// Determine the new position of scroll box.
-	switch (nSBCode)
-	{
-	case SB_LEFT:      // Scroll to far left.
-		curpos = minpos;
-		break;
-
-	case SB_RIGHT:      // Scroll to far right.
-		curpos = maxpos;
-		break;
-
-	case SB_ENDSCROLL:   // End scroll.
-		break;
-
-	case SB_LINELEFT:      // Scroll left.
-		if (curpos > minpos)
-			curpos--;
-		break;
-
-	case SB_LINERIGHT:   // Scroll right.
-		if (curpos < maxpos)
-			curpos++;
-		break;
-
-	case SB_PAGELEFT:    // Scroll one page left.
-		{
-			// Get the page size. 
-			SCROLLINFO   info;
-			GetScrollInfo(SB_VERT, &info, SIF_ALL);
-
-			if (curpos > minpos)
-				curpos = max(minpos, curpos - (int) info.nPage);
-		}
-		break;
-
-	case SB_PAGERIGHT:      // Scroll one page right.
-		{
-			// Get the page size. 
-			SCROLLINFO   info;
-			GetScrollInfo(SB_VERT, &info, SIF_ALL);
-
-			if (curpos < maxpos)
-				curpos = min(maxpos, curpos + (int) info.nPage);
-		}
-		break;
-
-	case SB_THUMBPOSITION: // Scroll to absolute position. nPos is the position
-		curpos = nPos;      // of the scroll box at the end of the drag operation.
-		break;
-
-	case SB_THUMBTRACK:   // Drag scroll box to specified position. nPos is the
-		curpos = nPos;     // position that the scroll box has been dragged to.
-		break;
-	}
-
-	// Set the new position of the thumb (scroll box).
-	SetScrollPos(SB_VERT, curpos);
-
-	ScrollWindow(0, oldpos - curpos);
+	OnHScroll(MAKELONG(nSBCode, SB_VERT), nPos, pScrollBar);
 }
 
 void CImageView::SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw, const CPoint & scrollPos)
@@ -226,6 +166,18 @@ void CImageView::SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw, const CPo
 	info.nPage = rectClient.Height();
 	info.nPos = scrollPos.y;
 	SetScrollInfo(SB_VERT, &info, bRedraw);
+}
+
+void CImageView::ScrollToPos(const CPoint & scrollPos, BOOL bRedraw)
+{
+	CPoint ptOrg(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+
+	SetScrollPos(SB_HORZ, scrollPos.x, bRedraw);
+
+	SetScrollPos(SB_VERT, scrollPos.y, bRedraw);
+
+	if(bRedraw)
+		ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
 }
 
 void CImageView::PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev)

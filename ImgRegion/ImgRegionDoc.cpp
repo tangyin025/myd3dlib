@@ -5,25 +5,6 @@
 #define new DEBUG_NEW
 #endif
 
-void CRegionNode::SetParent(CRegionNodePtr child, CRegionNodePtr parent)
-{
-	parent->m_childs.push_back(child);
-
-	child->m_Parent = parent;
-}
-
-CPoint CRegionNode::LocalToRoot(CRegionNodePtr node, const CPoint & ptLocal)
-{
-	CPoint ptRet(node->m_rc.left + ptLocal.x, node->m_rc.top + ptLocal.y);
-
-	CRegionNodePtr parent = node->m_Parent.lock();
-
-	if(parent)
-		return LocalToRoot(parent, ptRet);
-
-	return ptRet;
-}
-
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
@@ -45,9 +26,9 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 	CRegionNodePtr node2(new CRegionNode(CRect(25,25,75,75), _T("aaa"), RGB(0,255,0)));
 
-	CRegionNode::SetParent(node1, m_root);
+	m_root->m_childs.push_back(node1);
 
-	CRegionNode::SetParent(node2, node1);
+	node1->m_childs.push_back(node2);
 
 	return TRUE;
 }

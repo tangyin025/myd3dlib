@@ -27,22 +27,14 @@ typedef std::vector<CRegionNodePtr> CRegionNodePtrList;
 
 class CRegionNode : public CRegion
 {
-	friend class CImgRegionView;
-
-protected:
+public:
 	CRegionNodePtrList m_childs;
-
-	boost::weak_ptr<CRegionNode> m_Parent;
 
 public:
 	CRegionNode(const CRect & rc, const CString & name, COLORREF color)
 		: CRegion(rc, name, color)
 	{
 	}
-
-	static void SetParent(CRegionNodePtr child, CRegionNodePtr parent);
-
-	static CPoint LocalToRoot(CRegionNodePtr node, const CPoint & ptLocal);
 };
 
 class CImgRegionDoc : public CDocument
