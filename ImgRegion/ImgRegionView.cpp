@@ -2,6 +2,10 @@
 #include "ImgRegionView.h"
 #include "MainApp.h"
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 IMPLEMENT_DYNCREATE(CImgRegionView, CImageView)
 
 BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
@@ -12,11 +16,19 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_IN, &CImgRegionView::OnUpdateZoomIn)
 	ON_COMMAND(ID_ZOOM_OUT, &CImgRegionView::OnZoomOut)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_OUT, &CImgRegionView::OnUpdateZoomOut)
+	ON_WM_KEYDOWN()
+	ON_WM_KEYUP()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSEWHEEL()
+	ON_WM_SETCURSOR()
 END_MESSAGE_MAP()
 
 CImgRegionView::CImgRegionView(void)
 	: m_nCurrCursor(CursorTypeArrow)
 	, m_nCurrImageSize(10)
+	, m_DragState(DragStateNone)
 {
 }
 
@@ -102,7 +114,7 @@ void CImgRegionView::OnSize(UINT nType, int cx, int cy)
 {
 	CImageView::OnSize(nType, cx, cy);
 
-	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
+	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
 }
 
 void CImgRegionView::OnZoomIn()
@@ -148,4 +160,110 @@ void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRe
 
 	if(bRedraw)
 		Invalidate(TRUE);
+}
+
+void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	switch(nChar)
+	{
+	case VK_SPACE:
+		if(!((1 << 14) & nFlags) && DragStateNone == m_DragState)
+		{
+			m_nCurrCursor = CursorTypeCross;
+			SetCursor(m_hCursor[m_nCurrCursor]);
+		}
+		break;
+	}
+}
+
+void CImgRegionView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	switch(nChar)
+	{
+	case VK_SPACE:
+		if(CursorTypeCross == m_nCurrCursor && DragStateImage != m_DragState)
+		{
+			m_nCurrCursor = CursorTypeArrow;
+			SetCursor(m_hCursor[m_nCurrCursor]);
+		}
+		break;
+	}
+}
+
+void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	switch(m_nCurrCursor)
+	{
+	case CursorTypeCross:
+		ASSERT(DragStateNone == m_DragState);
+		m_DragState = DragStateImage;
+		m_DragImagePos = point;
+		m_DragImageScrollPos = CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+		SetCapture();
+		break;
+
+	default:
+		m_DragState = DragStateControl;
+		SetCapture();
+		break;
+	}
+}
+
+void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	switch(m_nCurrCursor)
+	{
+	case CursorTypeCross:
+		ASSERT(DragStateImage == m_DragState);
+		m_DragState = DragStateNone;
+		if(0 == HIBYTE(GetKeyState(VK_SPACE)))
+		{
+			m_nCurrCursor = CursorTypeArrow;
+		}
+		ReleaseCapture();
+		break;
+
+	default:
+		m_DragState = DragStateNone;
+		ReleaseCapture();
+		break;
+	}
+}
+
+void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	switch(m_DragState)
+	{
+	case DragStateImage:
+		{
+			CSize sizeDrag = point - m_DragImagePos;
+			CPoint ptOrg(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
+			SetScrollPos(SB_HORZ, m_DragImageScrollPos.x - sizeDrag.cx);
+			SetScrollPos(SB_VERT, m_DragImageScrollPos.y - sizeDrag.cy);
+			ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
+		}
+		break;
+	}
+}
+
+BOOL CImgRegionView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	switch(m_nCurrCursor)
+	{
+	case CursorTypeCross:
+		{
+			int nToScroll = ::MulDiv(-zDelta, 1, WHEEL_DELTA);
+			ScreenToClient(&pt);
+			ZoomImage(m_nCurrImageSize + nToScroll, pt);
+		}
+		break;
+	}
+	return TRUE;
+}
+
+BOOL CImgRegionView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
+{
+	SetCursor(m_hCursor[m_nCurrCursor]);
+
+	return TRUE;
 }

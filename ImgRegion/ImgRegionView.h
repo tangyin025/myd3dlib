@@ -27,6 +27,19 @@ public:
 
 	int m_nCurrImageSize;
 
+	enum DragState
+	{
+		DragStateNone = 0,
+		DragStateImage,
+		DragStateControl,
+	};
+
+	DragState m_DragState;
+
+	CPoint m_DragImagePos;
+
+	CPoint m_DragImageScrollPos;
+
 public:
 	CImgRegionView(void);
 
@@ -55,4 +68,18 @@ public:
 	afx_msg void OnUpdateZoomOut(CCmdUI *pCmdUI);
 
 	void ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRedraw = TRUE);
+
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+
+	afx_msg void OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags);
+
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+
+	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 };

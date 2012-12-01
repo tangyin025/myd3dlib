@@ -4,6 +4,17 @@
 
 class CImageView : public CView
 {
+protected:
+	int m_oldMapMode;
+
+	CSize m_oldWindowExt;
+
+	CPoint m_oldWindowOrg;
+
+	CSize m_oldViewportExt;
+
+	CPoint m_oldViewportOrg;
+
 public:
 	DECLARE_DYNAMIC(CImageView)
 
@@ -21,7 +32,9 @@ public:
 
 	void SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw = TRUE, const CPoint & scrollPos = CPoint(0,0));
 
-	static void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
+	void PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev);
+
+	void RestoreDC(CDC * pDC);
 
 	static my::Vector2 MapPoint(const my::Vector2 & point, const CRect & rectImageSrc, const CRect & rectImageDst);
 };

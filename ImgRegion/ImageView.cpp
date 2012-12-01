@@ -1,6 +1,10 @@
 #include "StdAfx.h"
 #include "ImageView.h"
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 IMPLEMENT_DYNAMIC(CImageView, CView)
 
 BEGIN_MESSAGE_MAP(CImageView, CView)
@@ -226,11 +230,20 @@ void CImageView::SetScrollSizes(const CSize & sizeTotal, BOOL bRedraw, const CPo
 
 void CImageView::PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev)
 {
-	pDC->SetMapMode(MM_ISOTROPIC);
-	pDC->SetWindowExt(rectImageLog.Size());
-	pDC->SetWindowOrg(rectImageLog.TopLeft());
-	pDC->SetViewportExt(rectImageDev.Size());
-	pDC->SetViewportOrg(rectImageDev.TopLeft());
+	m_oldMapMode = pDC->SetMapMode(MM_ISOTROPIC);
+	m_oldWindowExt = pDC->SetWindowExt(rectImageLog.Size());
+	m_oldWindowOrg = pDC->SetWindowOrg(rectImageLog.TopLeft());
+	m_oldViewportExt = pDC->SetViewportExt(rectImageDev.Size());
+	m_oldViewportOrg = pDC->SetViewportOrg(rectImageDev.TopLeft());
+}
+
+void CImageView::RestoreDC(CDC * pDC)
+{
+	pDC->SetMapMode(m_oldMapMode);
+	pDC->SetWindowExt(m_oldWindowExt);
+	pDC->SetWindowOrg(m_oldWindowOrg);
+	pDC->SetViewportExt(m_oldViewportExt);
+	pDC->SetViewportOrg(m_oldViewportOrg);
 }
 
 my::Vector2 CImageView::MapPoint(const my::Vector2 & point, const CRect & rectImageSrc, const CRect & rectImageDst)
