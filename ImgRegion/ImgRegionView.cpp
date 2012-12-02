@@ -49,6 +49,52 @@ void CImgRegionView::OnDraw(CDC * pDC)
 		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 
 	DrawRegionNode(pDC, pDoc->m_root.get());
+
+	CRegionNodePtr SelectedNode = pDoc->m_SelectedNode.lock();
+	CPoint ptTopLeft;
+	if(SelectedNode && pDoc->LocalToRoot(SelectedNode.get(), CPoint(0,0), ptTopLeft))
+	{
+		CRect rect(ptTopLeft, SelectedNode->m_rc.Size());
+		pDC->LPtoDP(&rect.TopLeft());
+		pDC->LPtoDP(&rect.BottomRight());
+		RestoreDC(pDC);
+
+		CPen penDash(PS_DASH, 1, RGB(0,0,255));
+		CPen * oldPen = pDC->SelectObject(&penDash);
+		int oldBk = pDC->SetBkMode(TRANSPARENT);
+		DrawRectHandle(pDC, rect);
+
+		CPen penSolid(PS_SOLID, 1, RGB(0,0,255));
+		pDC->SelectObject(&penSolid);
+		CPoint ptCenter = rect.CenterPoint();
+		DrawSmallHandle(pDC, CPoint(rect.left, rect.top));
+		DrawSmallHandle(pDC, CPoint(ptCenter.x, rect.top));
+		DrawSmallHandle(pDC, CPoint(rect.right, rect.top));
+		DrawSmallHandle(pDC, CPoint(rect.left, ptCenter.y));
+		DrawSmallHandle(pDC, CPoint(rect.right, ptCenter.y));
+		DrawSmallHandle(pDC, CPoint(rect.left, rect.bottom));
+		DrawSmallHandle(pDC, CPoint(ptCenter.x, rect.bottom));
+		DrawSmallHandle(pDC, CPoint(rect.right, rect.bottom));
+
+		pDC->SetBkMode(oldBk);
+		pDC->SelectObject(oldPen);
+	}
+}
+
+void CImgRegionView::DrawRectHandle(CDC * pDC, const CRect & rectHandle)
+{
+	pDC->MoveTo(rectHandle.left, rectHandle.top);
+	pDC->LineTo(rectHandle.right, rectHandle.top);
+	pDC->LineTo(rectHandle.right, rectHandle.bottom);
+	pDC->LineTo(rectHandle.left, rectHandle.bottom);
+	pDC->LineTo(rectHandle.left, rectHandle.top);
+}
+
+void CImgRegionView::DrawSmallHandle(CDC * pDC, const CPoint & ptHandle)
+{
+	const int HANDLE_WIDTH = 4;
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
+	pDC->Rectangle(&rectHandle);
 }
 
 void CImgRegionView::DrawRegionNode(CDC * pDC, const CRegionNode * node, const CPoint & ptOff)
@@ -203,6 +249,21 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 		break;
 
 	default:
+		{
+			CImgRegionDoc * pDoc = GetDocument();
+			ASSERT_VALID(pDoc);
+			if (!pDoc)
+				return;
+
+			CWindowDC dc(this);
+			PrepareDC(&dc, pDoc->m_root->m_rc,
+				CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+
+			CPoint ptLocal = point;
+			dc.DPtoLP(&ptLocal);
+			pDoc->m_SelectedNode = CRegionNode::GetPointedRegion(pDoc->m_root, ptLocal);
+			Invalidate(TRUE);
+		}
 		m_DragState = DragStateControl;
 		SetCapture();
 		break;

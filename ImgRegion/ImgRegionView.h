@@ -49,6 +49,10 @@ public:
 
 	void DrawRegionNode(CDC * pDC, const CRegionNode * node, const CPoint & ptOff = CPoint(0,0));
 
+	void DrawRectHandle(CDC * pDC, const CRect & rectHandle);
+
+	void DrawSmallHandle(CDC * pDC, const CPoint & ptHandle);
+
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
 	DECLARE_MESSAGE_MAP()
