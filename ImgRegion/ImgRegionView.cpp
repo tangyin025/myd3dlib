@@ -255,13 +255,11 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			if (!pDoc)
 				return;
 
-			CWindowDC dc(this);
-			PrepareDC(&dc, pDoc->m_root->m_rc,
-				CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+			my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
+				CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), pDoc->m_root->m_rc);
 
-			CPoint ptLocal = point;
-			dc.DPtoLP(&ptLocal);
-			pDoc->m_SelectedNode = CRegionNode::GetPointedRegion(pDoc->m_root, ptLocal);
+			pDoc->m_SelectedNode = CRegionNode::GetPointedRegion(pDoc->m_root, CPoint((int)ptLocal.x, (int)ptLocal.y));
+
 			Invalidate(TRUE);
 		}
 		m_DragState = DragStateControl;
