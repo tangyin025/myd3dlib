@@ -1,6 +1,6 @@
 #pragma once
 
-class CRegion
+class CImgRegion
 {
 public:
 	CRect m_rc;
@@ -11,7 +11,7 @@ public:
 
 	CImage m_image;
 
-	CRegion(const CRect & rc, const CString & name, COLORREF color)
+	CImgRegion(const CRect & rc, const CString & name, COLORREF color)
 		: m_rc(rc)
 		, m_name(name)
 		, m_color(color)
@@ -19,26 +19,26 @@ public:
 	}
 };
 
-class CRegionNode;
+class CImgRegionNode;
 
-typedef boost::shared_ptr<CRegionNode> CRegionNodePtr;
+typedef boost::shared_ptr<CImgRegionNode> CImgRegionNodePtr;
 
-typedef std::vector<CRegionNodePtr> CRegionNodePtrList;
+typedef std::vector<CImgRegionNodePtr> CImgRegionNodePtrList;
 
-class CRegionNode : public CRegion
+class CImgRegionNode : public CImgRegion
 {
 public:
-	CRegionNodePtrList m_childs;
+	CImgRegionNodePtrList m_childs;
 
-	boost::weak_ptr<CRegionNode> m_Parent;
+	boost::weak_ptr<CImgRegionNode> m_Parent;
 
 public:
-	CRegionNode(const CRect & rc, const CString & name, COLORREF color)
-		: CRegion(rc, name, color)
+	CImgRegionNode(const CRect & rc, const CString & name, COLORREF color)
+		: CImgRegion(rc, name, color)
 	{
 	}
 
-	static CRegionNodePtr InsertChild(CRegionNodePtr node, CRegionNodePtr child)
+	static CImgRegionNodePtr InsertChild(CImgRegionNodePtr node, CImgRegionNodePtr child)
 	{
 		node->m_childs.push_back(child);
 
@@ -47,12 +47,12 @@ public:
 		return node;
 	}
 
-	static CRegionNodePtr GetPointedRegion(CRegionNodePtr root, const CPoint & ptLocal)
+	static CImgRegionNodePtr GetPointedRegion(CImgRegionNodePtr root, const CPoint & ptLocal)
 	{
-		CRegionNodePtrList::const_iterator reg_iter = root->m_childs.begin();
+		CImgRegionNodePtrList::const_iterator reg_iter = root->m_childs.begin();
 		for(; reg_iter != root->m_childs.end(); reg_iter++)
 		{
-			CRegionNodePtr ret;
+			CImgRegionNodePtr ret;
 			if(ret = GetPointedRegion((*reg_iter), ptLocal - root->m_rc.TopLeft()))
 				return ret;
 		}
@@ -60,16 +60,16 @@ public:
 		if(root->m_rc.PtInRect(ptLocal))
 			return root;
 
-		return CRegionNodePtr();
+		return CImgRegionNodePtr();
 	}
 };
 
 class CImgRegionDoc : public CDocument
 {
 public:
-	CRegionNodePtr m_root;
+	CImgRegionNodePtr m_root;
 
-	boost::weak_ptr<CRegionNode> m_SelectedNode;
+	boost::weak_ptr<CImgRegionNode> m_SelectedNode;
 
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
@@ -81,5 +81,5 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	BOOL LocalToRoot(const CRegionNode * node, const CPoint & ptLocal, CPoint & ptResult);
+	BOOL LocalToRoot(const CImgRegionNode * node, const CPoint & ptLocal, CPoint & ptResult);
 };

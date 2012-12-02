@@ -36,9 +36,29 @@ public:
 
 	DragState m_DragState;
 
-	CPoint m_DragImagePos;
+	CPoint m_DragPos;
 
-	CPoint m_DragImageScrollPos;
+	CPoint m_DragScrollPos;
+
+	CPoint m_DragControlPos;
+
+	CPoint m_DragHandlePos;
+
+	enum HandleType
+	{
+		HandleTypeNone = 0,
+		HandleTypeLeftTop,
+		HandleTypeCenterTop,
+		HandleTypeRightTop,
+		HandleTypeLeftMiddle,
+		HandleTypeRightMiddle,
+		HandleTypeLeftBottom,
+		HandleTypeCenterBottom,
+		HandleTypeRightBottom,
+		HandleTypeCount
+	};
+
+	int m_nSelectedHandle;
 
 public:
 	CImgRegionView(void);
@@ -47,11 +67,13 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
-	void DrawRegionNode(CDC * pDC, const CRegionNode * node, const CPoint & ptOff = CPoint(0,0));
+	void DrawRegionNode(CDC * pDC, const CImgRegionNode * node, const CPoint & ptOff = CPoint(0,0));
 
 	void DrawRectHandle(CDC * pDC, const CRect & rectHandle);
 
-	void DrawSmallHandle(CDC * pDC, const CPoint & ptHandle);
+	void DrawSmallHandle(CDC * pDC, const CPoint & ptHandle, BOOL bSelected);
+
+	BOOL CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse);
 
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
