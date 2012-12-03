@@ -39,12 +39,17 @@ CImgRegionDoc * CImgRegionView::GetDocument() const
 	return (CImgRegionDoc *)m_pDocument;
 }
 
-static const COLORREF HANDLE_COLOR = RGB(0,0,255);
+static const Gdiplus::Color HANDLE_COLOR(255,0,0,255);
 
 void CImgRegionView::OnDraw(CDC * pDC)
 {
 	CRect rectClient;
 	GetClientRect(&rectClient);
+
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 
 	CBitmap bmp;
 	bmp.CreateCompatibleBitmap(pDC, rectClient.Width(), rectClient.Height());
@@ -53,15 +58,17 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	CBitmap * oldBmp = dcMemory.SelectObject(&bmp);
 	dcMemory.FillSolidRect(&rectClient, RGB(192,192,192));
 
-	CImgRegionDoc * pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
+	Gdiplus::Graphics grap(dcMemory.GetSafeHdc());
+	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
+	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
+	grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
+	grap.ScaleTransform(
+		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_root->m_rc.Width(),
+		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_root->m_rc.Height());
 
-	PrepareDC(&dcMemory, pDoc->m_root->m_rc,
-		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+	DrawRegionNode(grap, pDoc->m_root.get());
 
-	DrawRegionNode(&dcMemory, pDoc->m_root.get());
+	grap.ResetTransform();
 
 	CImgRegionNodePtr SelectedNode = pDoc->m_SelectedNode.lock();
 	ASSERT(SelectedNode != pDoc->m_root);
@@ -69,52 +76,46 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	if(SelectedNode && pDoc->LocalToRoot(SelectedNode.get(), CPoint(0,0), ptTopLeft))
 	{
 		CRect rect(ptTopLeft, SelectedNode->m_rc.Size());
-		dcMemory.LPtoDP(&rect.TopLeft());
-		dcMemory.LPtoDP(&rect.BottomRight());
-		RestoreDC(&dcMemory);
+		CWindowDC dc(this);
+		PrepareDC(&dc, pDoc->m_root->m_rc,
+			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+		dc.LPtoDP(&rect.TopLeft());
+		dc.LPtoDP(&rect.BottomRight());
 
-		CPen penDash(PS_DASH, 1, HANDLE_COLOR);
-		CPen * oldPen = dcMemory.SelectObject(&penDash);
-		int oldBk = dcMemory.SetBkMode(TRANSPARENT);
-		DrawRectHandle(&dcMemory, rect);
+		DrawRectHandle(grap, rect);
 
-		CPen penSolid(PS_SOLID, 1, HANDLE_COLOR);
-		dcMemory.SelectObject(&penSolid);
 		CPoint ptCenter = rect.CenterPoint();
-		DrawSmallHandle(&dcMemory, CPoint(rect.left, rect.top), m_nSelectedHandle == HandleTypeLeftTop);
-		DrawSmallHandle(&dcMemory, CPoint(ptCenter.x, rect.top), m_nSelectedHandle == HandleTypeCenterTop);
-		DrawSmallHandle(&dcMemory, CPoint(rect.right, rect.top), m_nSelectedHandle == HandleTypeRightTop);
-		DrawSmallHandle(&dcMemory, CPoint(rect.left, ptCenter.y), m_nSelectedHandle == HandleTypeLeftMiddle);
-		DrawSmallHandle(&dcMemory, CPoint(rect.right, ptCenter.y), m_nSelectedHandle == HandleTypeRightMiddle);
-		DrawSmallHandle(&dcMemory, CPoint(rect.left, rect.bottom), m_nSelectedHandle == HandleTypeLeftBottom);
-		DrawSmallHandle(&dcMemory, CPoint(ptCenter.x, rect.bottom), m_nSelectedHandle == HandleTypeCenterBottom);
-		DrawSmallHandle(&dcMemory, CPoint(rect.right, rect.bottom), m_nSelectedHandle == HandleTypeRightBottom);
-
-		dcMemory.SelectObject(oldPen);
+		DrawSmallHandle(grap, CPoint(rect.left, rect.top), m_nSelectedHandle == HandleTypeLeftTop);
+		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.top), m_nSelectedHandle == HandleTypeCenterTop);
+		DrawSmallHandle(grap, CPoint(rect.right, rect.top), m_nSelectedHandle == HandleTypeRightTop);
+		DrawSmallHandle(grap, CPoint(rect.left, ptCenter.y), m_nSelectedHandle == HandleTypeLeftMiddle);
+		DrawSmallHandle(grap, CPoint(rect.right, ptCenter.y), m_nSelectedHandle == HandleTypeRightMiddle);
+		DrawSmallHandle(grap, CPoint(rect.left, rect.bottom), m_nSelectedHandle == HandleTypeLeftBottom);
+		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.bottom), m_nSelectedHandle == HandleTypeCenterBottom);
+		DrawSmallHandle(grap, CPoint(rect.right, rect.bottom), m_nSelectedHandle == HandleTypeRightBottom);
 	}
-	else
-		RestoreDC(&dcMemory);
 
 	pDC->BitBlt(0, 0, rectClient.Width(), rectClient.Height(), &dcMemory, 0, 0, SRCCOPY);
-
-	dcMemory.SelectObject(oldBmp);
 }
 
-void CImgRegionView::DrawRectHandle(CDC * pDC, const CRect & rectHandle)
+void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
 {
-	pDC->MoveTo(rectHandle.left, rectHandle.top);
-	pDC->LineTo(rectHandle.right, rectHandle.top);
-	pDC->LineTo(rectHandle.right, rectHandle.bottom);
-	pDC->LineTo(rectHandle.left, rectHandle.bottom);
-	pDC->LineTo(rectHandle.left, rectHandle.top);
+	Gdiplus::Pen pen(HANDLE_COLOR, 1.0f);
+	pen.SetDashStyle(Gdiplus::DashStyleDash);
+	float dashValue[] = { 10.0f, 4.0f };
+	pen.SetDashPattern(dashValue, _countof(dashValue));
+	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
 }
 
 static const int HANDLE_WIDTH = 4;
 
-void CImgRegionView::DrawSmallHandle(CDC * pDC, const CPoint & ptHandle, BOOL bSelected)
+void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected)
 {
 	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
-	bSelected ? pDC->FillSolidRect(&rectHandle, HANDLE_COLOR) : pDC->Rectangle(&rectHandle);
+	Gdiplus::Pen pen(HANDLE_COLOR,1.0f);
+	Gdiplus::SolidBrush brush(bSelected ? HANDLE_COLOR : Gdiplus::Color(255,255,255,255));
+	grap.FillRectangle(&brush, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
 }
 
 BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse)
@@ -123,24 +124,53 @@ BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & pt
 	return rectHandle.PtInRect(ptMouse);
 }
 
-void CImgRegionView::DrawRegionNode(CDC * pDC, const CImgRegionNode * node, const CPoint & ptOff)
+void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, const CImgRegionNode * node, const CPoint & ptOff)
 {
 	CRect rectNode(node->m_rc);
 	rectNode.OffsetRect(ptOff);
 
-	if(node->m_image.IsNull())
-		pDC->FillSolidRect(rectNode, node->m_color);
+	if(node->m_image)
+	{
+		Gdiplus::ColorMatrix colorMatrix = {	1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+												0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
+												0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
+												0.0f, 0.0f, 0.0f, node->m_color.GetA() / 255.0f, 0.0f,
+												0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+		Gdiplus::ImageAttributes imageAtt;
+		imageAtt.SetColorMatrix(&colorMatrix, Gdiplus::ColorMatrixFlagsDefault, Gdiplus::ColorAdjustTypeBitmap);
+		grap.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+		grap.DrawImage(
+			node->m_image.get(), 
+			Gdiplus::Rect(rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height()),
+			0,
+			0,
+			node->m_image->GetWidth(),
+			node->m_image->GetHeight(),
+			Gdiplus::UnitPixel,
+			&imageAtt);
+	}
 	else
-		node->m_image.Draw(pDC->m_hDC, rectNode);
+	{
+		Gdiplus::SolidBrush brush(node->m_color);
+		grap.FillRectangle(&brush, rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height());
+	}
 
-	CString strInfo;
-	strInfo.Format(_T("x:%d y:%d w:%d h:%d"), node->m_rc.left, node->m_rc.top, node->m_rc.Width(), node->m_rc.Height());
-	pDC->DrawText(strInfo, rectNode, DT_SINGLELINE | DT_LEFT | DT_TOP | DT_NOCLIP);
+	if(node->m_font)
+	{
+		CString strInfo;
+		strInfo.Format(_T("x:%d y:%d w:%d h:%d"), node->m_rc.left, node->m_rc.top, node->m_rc.Width(), node->m_rc.Height());
+
+		Gdiplus::RectF rectF(rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height());
+		Gdiplus::SolidBrush solidBrush(Gdiplus::Color(255, 0, 0, 255));
+		Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
+		strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
+		grap.DrawString(strInfo, strInfo.GetLength(), node->m_font.get(), rectF, &strFormat, &solidBrush);
+	}
 
 	CImgRegionNodePtrList::const_iterator child_iter = node->m_childs.begin();
 	for(; child_iter != node->m_childs.end(); child_iter++)
 	{
-		DrawRegionNode(pDC, child_iter->get(), CPoint(ptOff.x + node->m_rc.left, ptOff.y + node->m_rc.top));
+		DrawRegionNode(grap, child_iter->get(), CPoint(ptOff.x + node->m_rc.left, ptOff.y + node->m_rc.top));
 	}
 }
 

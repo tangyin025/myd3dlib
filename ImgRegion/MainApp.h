@@ -11,7 +11,13 @@ public:
 
 	UINT  m_nAppLook;
 
+	Gdiplus::GdiplusStartupInput gdiplusStartupInput;
+
+	ULONG_PTR gdiplusToken;
+
 	DECLARE_MESSAGE_MAP()
+
+	virtual int ExitInstance();
 };
 
 extern CMainApp theApp;

@@ -38,6 +38,7 @@
 #include <atlimage.h>
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
+#include <GdiPlus.h>
 
 #ifdef _UNICODE
 #if defined _M_IX86

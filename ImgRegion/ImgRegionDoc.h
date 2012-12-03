@@ -1,5 +1,9 @@
 #pragma once
 
+typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
+
+typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
+
 class CImgRegion
 {
 public:
@@ -7,11 +11,13 @@ public:
 
 	CString m_name;
 
-	COLORREF m_color;
+	Gdiplus::Color m_color;
 
-	CImage m_image;
+	ImagePtr m_image;
 
-	CImgRegion(const CRect & rc, const CString & name, COLORREF color)
+	FontPtr2 m_font;
+
+	CImgRegion(const CRect & rc, const CString & name, const Gdiplus::Color & color)
 		: m_rc(rc)
 		, m_name(name)
 		, m_color(color)
@@ -33,7 +39,7 @@ public:
 	boost::weak_ptr<CImgRegionNode> m_Parent;
 
 public:
-	CImgRegionNode(const CRect & rc, const CString & name, COLORREF color)
+	CImgRegionNode(const CRect & rc, const CString & name, const Gdiplus::Color & color)
 		: CImgRegion(rc, name, color)
 	{
 	}

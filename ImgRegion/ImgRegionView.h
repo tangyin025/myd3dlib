@@ -67,11 +67,11 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
-	void DrawRegionNode(CDC * pDC, const CImgRegionNode * node, const CPoint & ptOff = CPoint(0,0));
+	void DrawRegionNode(Gdiplus::Graphics & grap, const CImgRegionNode * node, const CPoint & ptOff = CPoint(0,0));
 
-	void DrawRectHandle(CDC * pDC, const CRect & rectHandle);
+	void DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle);
 
-	void DrawSmallHandle(CDC * pDC, const CPoint & ptHandle, BOOL bSelected);
+	void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected);
 
 	BOOL CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse);
 

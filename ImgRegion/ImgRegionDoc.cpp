@@ -1,9 +1,9 @@
 #include "stdafx.h"
 #include "ImgRegionDoc.h"
-
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
+//
+//#ifdef _DEBUG
+//#define new DEBUG_NEW
+//#endif
 
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
 
@@ -12,9 +12,12 @@ END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
 {
-	m_root.reset(new CImgRegionNode(CRect(0,0,500,500),_T("Root"), RGB(255,255,255)));
+	m_root.reset(new CImgRegionNode(CRect(0,0,500,500),_T("Root"), Gdiplus::Color(255,255,0,0)));
 
-	HRESULT hres = m_root->m_image.Load(_T("Checker.bmp"));
+	m_root->m_image.reset(Gdiplus::Image::FromFile(L"Checker.bmp"));
+
+	Gdiplus::FontFamily fontFamily(L"Arial");
+	m_root->m_font.reset(new Gdiplus::Font(&fontFamily, 12, Gdiplus::FontStyleBold, Gdiplus::UnitPoint));
 }
 
 BOOL CImgRegionDoc::OnNewDocument(void)
@@ -22,9 +25,13 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
-	CImgRegionNodePtr node1(new CImgRegionNode(CRect(100,100,200,200), _T("aaa"), RGB(255,0,0)));
+	CImgRegionNodePtr node1(new CImgRegionNode(CRect(100,100,200,200), _T("aaa"), Gdiplus::Color(255,255,0,0)));
 
-	CImgRegionNodePtr node2(new CImgRegionNode(CRect(25,25,75,75), _T("aaa"), RGB(0,255,0)));
+	node1->m_font = m_root->m_font;
+
+	CImgRegionNodePtr node2(new CImgRegionNode(CRect(25,25,75,75), _T("aaa"), Gdiplus::Color(255,0,255,0)));
+
+	node2->m_font = m_root->m_font;
 
 	CImgRegionNode::InsertChild(m_root, node1);
 

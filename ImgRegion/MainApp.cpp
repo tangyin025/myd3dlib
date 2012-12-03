@@ -31,6 +31,8 @@ BOOL CMainApp::InitInstance(void)
 
 	CWinAppEx::InitInstance();
 
+	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
+
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
 	InitContextMenuManager();
@@ -70,4 +72,11 @@ BOOL CMainApp::InitInstance(void)
 	pMainFrame->UpdateWindow();
 
 	return TRUE;
+}
+
+int CMainApp::ExitInstance()
+{
+	Gdiplus::GdiplusShutdown(gdiplusToken);
+
+	return CWinAppEx::ExitInstance();
 }

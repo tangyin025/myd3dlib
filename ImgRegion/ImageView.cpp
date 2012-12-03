@@ -177,7 +177,8 @@ void CImageView::ScrollToPos(const CPoint & scrollPos, BOOL bRedraw)
 	SetScrollPos(SB_VERT, scrollPos.y, bRedraw);
 
 	if(bRedraw)
-		ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
+		//ScrollWindow(ptOrg.x - GetScrollPos(SB_HORZ), ptOrg.y - GetScrollPos(SB_VERT));
+		Invalidate(TRUE);
 }
 
 void CImageView::PrepareDC(CDC * pDC, const CRect & rectImageLog, const CRect & rectImageDev)
