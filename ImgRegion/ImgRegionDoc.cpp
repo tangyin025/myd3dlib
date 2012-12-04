@@ -16,7 +16,10 @@ CImgRegionDoc::CImgRegionDoc(void)
 
 	m_root->m_image.reset(Gdiplus::Image::FromFile(L"Checker.bmp"));
 
+	m_root->m_border = Vector4i(100,50,100,50);
+
 	Gdiplus::FontFamily fontFamily(L"Arial");
+
 	m_root->m_font.reset(new Gdiplus::Font(&fontFamily, 12, Gdiplus::FontStyleBold, Gdiplus::UnitPoint));
 }
 
@@ -32,6 +35,10 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	CImgRegionNodePtr node2(new CImgRegionNode(CRect(25,25,75,75), _T("aaa"), Gdiplus::Color(255,0,255,0)));
 
 	node2->m_font = m_root->m_font;
+
+	node2->m_image.reset(Gdiplus::Image::FromFile(L"com_btn_normal.png"));
+
+	node2->m_border = Vector4i(7,7,7,7);
 
 	CImgRegionNode::InsertChild(m_root, node1);
 

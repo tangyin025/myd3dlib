@@ -1,7 +1,5 @@
 #pragma once
 
-#include <myMath.h>
-
 class CImageView : public CView
 {
 protected:

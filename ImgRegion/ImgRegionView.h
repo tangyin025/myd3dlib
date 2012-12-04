@@ -69,6 +69,8 @@ public:
 
 	void DrawRegionNode(Gdiplus::Graphics & grap, const CImgRegionNode * node, const CPoint & ptOff = CPoint(0,0));
 
+	void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, int alpha);
+
 	void DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle);
 
 	void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected);
