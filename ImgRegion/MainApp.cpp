@@ -80,3 +80,10 @@ int CMainApp::ExitInstance()
 
 	return CWinAppEx::ExitInstance();
 }
+
+BOOL CMainApp::OnIdle(LONG lCount)
+{
+	((CMainFrame *)m_pMainWnd)->m_wndFileView.OnIdleUpdate();
+
+	return CWinAppEx::OnIdle(lCount);
+}

@@ -3,6 +3,7 @@
 #include "mainfrm.h"
 #include "FileView.h"
 #include "Resource.h"
+#include "ChildFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,6 +17,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 END_MESSAGE_MAP()
 
 CFileView::CFileView()
+	: m_pDoc(NULL)
 {
 }
 
@@ -82,4 +84,42 @@ void CFileView::OnSetFocus(CWnd* pOldWnd)
 	CDockablePane::OnSetFocus(pOldWnd);
 
 	m_wndFileView.SetFocus();
+}
+
+void CFileView::OnIdleUpdate()
+{
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+	if(pChildFrame)
+	{
+		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+		if(pDoc)
+		{
+			if(pDoc != m_pDoc)
+			{
+				m_wndFileView.DeleteAllItems();
+
+				m_pDoc = pDoc;
+	
+				InsertRegionNode(pDoc->m_root.get());
+			}
+			return;
+		}
+	}
+
+	m_wndFileView.DeleteAllItems();
+}
+
+void CFileView::InsertRegionNode(const CImgRegionNode * node, HTREEITEM hParent)
+{
+	HTREEITEM hChild = m_wndFileView.InsertItem(node->m_name, 0, 0, hParent);
+
+	CImgRegionNodePtrList::const_iterator reg_iter = node->m_childs.begin();
+	for(; reg_iter != node->m_childs.end(); reg_iter++)
+	{
+		InsertRegionNode(reg_iter->get(), hChild);
+	}
+
+	m_wndFileView.Expand(hParent, TVE_EXPAND);
 }

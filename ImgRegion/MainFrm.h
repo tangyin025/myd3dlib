@@ -22,7 +22,7 @@ public:
 
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 
-protected:
+public:
 	CMFCMenuBar m_wndMenuBar;
 
 	CMFCToolBar m_wndToolBar;

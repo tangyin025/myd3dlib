@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "ImgRegionDoc.h"
+
 class CFileView : public CDockablePane
 {
 public:
@@ -12,6 +14,8 @@ public:
 
 	CTreeCtrl m_wndFileView;
 
+	CImgRegionDoc * m_pDoc;
+
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
@@ -22,5 +26,10 @@ protected:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 
 	DECLARE_MESSAGE_MAP()
+
+public:
+	void OnIdleUpdate();
+
+	void InsertRegionNode(const CImgRegionNode * node, HTREEITEM hParent = TVI_ROOT);
 };
 

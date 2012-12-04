@@ -18,6 +18,8 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 	virtual int ExitInstance();
+
+	virtual BOOL OnIdle(LONG lCount);
 };
 
 extern CMainApp theApp;

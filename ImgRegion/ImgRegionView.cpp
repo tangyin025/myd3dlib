@@ -168,7 +168,9 @@ void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * 
 		Gdiplus::ImageAttributes imageAtt;
 		imageAtt.SetColorMatrix(&colorMatrix, Gdiplus::ColorMatrixFlagsDefault, Gdiplus::ColorAdjustTypeBitmap);
 		//imageAtt.SetWrapMode(Gdiplus::WrapModeTileFlipXY);
+		Gdiplus::InterpolationMode oldInterpolationMode = grap.GetInterpolationMode();
 		grap.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+		Gdiplus::PixelOffsetMode oldPixelOffsetMode = grap.GetPixelOffsetMode();
 		grap.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 
 		grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top, border.x, border.y),
@@ -197,6 +199,9 @@ void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * 
 
 		grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.bottom - border.w, border.x, border.w),
 			img->GetWidth() - border.z, img->GetHeight() - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+
+		grap.SetInterpolationMode(oldInterpolationMode);
+		grap.SetPixelOffsetMode(oldPixelOffsetMode);
 }
 
 BOOL CImgRegionView::OnEraseBkgnd(CDC* pDC)
