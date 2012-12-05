@@ -6,17 +6,17 @@
 class CFileView : public CDockablePane
 {
 public:
+	CImgRegionDoc * m_pDoc;
+
+	std::set<CTreeCtrl *> m_TreeCtrlSet;
+
+public:
 	CFileView(void);
 
 	void AdjustLayout(void);
 
 	void OnChangeVisualStyle(void);
 
-	CTreeCtrl m_wndFileView;
-
-	CImgRegionDoc * m_pDoc;
-
-protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -30,6 +30,6 @@ protected:
 public:
 	void OnIdleUpdate();
 
-	void InsertRegionNode(const CImgRegionNode * node, HTREEITEM hParent = TVI_ROOT);
+	afx_msg void OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 };
 

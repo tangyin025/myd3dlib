@@ -67,7 +67,7 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
-	void DrawRegionNode(Gdiplus::Graphics & grap, const CImgRegionNode * node, const CPoint & ptOff = CPoint(0,0));
+	void DrawRegionNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
 	void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, int alpha);
 
@@ -84,6 +84,8 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	virtual void OnInitialUpdate();
+
+	void UpdateImageSizeTable(const CSize & sizeRoot);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
