@@ -12,6 +12,8 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
+	: m_ImageSize(500,500)
+	, m_BkColor(255,255,255,255)
 {
 }
 
@@ -87,20 +89,22 @@ void CImgRegionDoc::DeleteItemTreeData(HTREEITEM hItem)
 
 HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal)
 {
-	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
-	ASSERT(pReg);
-
-	HTREEITEM hChild = m_TreeCtrl.GetChildItem(hItem);
-	for(; NULL != hChild; hChild = m_TreeCtrl.GetNextSiblingItem(hItem))
+	// 这里的碰撞检测应当反过来检测，因为优先画在前面的
+	if(hItem)
 	{
 		HTREEITEM hRet;
-		if(hRet = GetPointedRegionNode(hChild, ptLocal - pReg->m_rc.TopLeft()))
+		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetNextSiblingItem(hItem), ptLocal))
 			return hRet;
+
+		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
+		ASSERT(pReg);
+
+		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_rc.TopLeft()))
+			return hRet;
+
+		if(pReg->m_rc.PtInRect(ptLocal))
+			return hItem;
 	}
-
-	if(pReg->m_rc.PtInRect(ptLocal))
-		return hItem;
-
 	return NULL;
 }
 
@@ -112,7 +116,7 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	if (!CreateTreeCtrl())
 		return FALSE;
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("root"));
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	CImgRegion * pRegRoot = new CImgRegion(CRect(0,0,500,500), Gdiplus::Color(255,255,255,255));
 	pRegRoot->m_image.reset(Gdiplus::Image::FromFile(L"Checker.bmp"));
 	pRegRoot->m_border = Vector4i(100,50,100,50);
@@ -120,12 +124,12 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	pRegRoot->m_font.reset(new Gdiplus::Font(&fontFamily, 12, Gdiplus::FontStyleBold, Gdiplus::UnitPoint));
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pRegRoot);
 
-	hItem = m_TreeCtrl.InsertItem(_T("aaa"), hItem);
+	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
 	CImgRegion * pReg = new CImgRegion(CRect(100,100,200,200), Gdiplus::Color(192,255,0,0));
 	pReg->m_font = pRegRoot->m_font;
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
+	hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
 	pReg = new CImgRegion(CRect(25,25,75,75), Gdiplus::Color(255,0,255,0));
 	pReg->m_font = pRegRoot->m_font;
 	pReg->m_image.reset(Gdiplus::Image::FromFile(L"com_btn_normal.png"));

@@ -51,14 +51,6 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	if (!pDoc)
 		return;
 
-	HTREEITEM hItemRoot = pDoc->m_TreeCtrl.GetRootItem();
-	ASSERT(hItemRoot);
-	if (!hItemRoot)
-		return;
-
-	CImgRegion * pRegRoot = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItemRoot);
-	ASSERT(pRegRoot);
-
 	CBitmap bmp;
 	bmp.CreateCompatibleBitmap(pDC, rectClient.Width(), rectClient.Height());
 	CDC dcMemory;
@@ -71,10 +63,13 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
 	grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 	grap.ScaleTransform(
-		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pRegRoot->m_rc.Width(),
-		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pRegRoot->m_rc.Height());
+		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_ImageSize.cx,
+		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_ImageSize.cy);
 
-	DrawRegionNode(grap, &pDoc->m_TreeCtrl, hItemRoot);
+	Gdiplus::SolidBrush brush(pDoc->m_BkColor);
+	grap.FillRectangle(&brush, 0, 0, pDoc->m_ImageSize.cx, pDoc->m_ImageSize.cy);
+
+	DrawRegionNode(grap, pDoc->m_TreeCtrl.GetRootItem());
 
 	grap.ResetTransform();
 
@@ -87,7 +82,7 @@ void CImgRegionView::OnDraw(CDC * pDC)
 
 		CRect rect(ptTopLeft, pReg->m_rc.Size());
 		CWindowDC dc(this);
-		PrepareDC(&dc, pRegRoot->m_rc,
+		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
 			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
@@ -134,40 +129,46 @@ BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & pt
 	return rectHandle.PtInRect(ptMouse);
 }
 
-void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff)
+void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, const CPoint & ptOff)
 {
-	CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
-	ASSERT(pReg);
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
 
-	CRect rectNode(pReg->m_rc);
-	rectNode.OffsetRect(ptOff);
-
-	if(pReg->m_image)
+	if(hItem)
 	{
-		DrawRegionImage(grap, pReg->m_image.get(), rectNode, pReg->m_border, pReg->m_color.GetAlpha());
-	}
-	else
-	{
-		Gdiplus::SolidBrush brush(pReg->m_color);
-		grap.FillRectangle(&brush, rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height());
-	}
+		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
+		ASSERT(pReg);
 
-	if(pReg->m_font)
-	{
-		CString strInfo;
-		strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_rc.left, pReg->m_rc.top, pReg->m_rc.Width(), pReg->m_rc.Height());
+		CRect rectNode(pReg->m_rc);
+		rectNode.OffsetRect(ptOff);
 
-		Gdiplus::RectF rectF((float)rectNode.left, (float)rectNode.top, (float)rectNode.Width(), (float)rectNode.Height());
-		Gdiplus::SolidBrush solidBrush(Gdiplus::Color(255, 0, 0, 255));
-		Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
-		strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
-		grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_font.get(), rectF, &strFormat, &solidBrush);
-	}
+		if(pReg->m_image)
+		{
+			DrawRegionImage(grap, pReg->m_image.get(), rectNode, pReg->m_border, pReg->m_color.GetAlpha());
+		}
+		else
+		{
+			Gdiplus::SolidBrush brush(pReg->m_color);
+			grap.FillRectangle(&brush, rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height());
+		}
 
-	HTREEITEM hChild = pTreeCtrl->GetChildItem(hItem);
-	for(; NULL != hChild; hChild = pTreeCtrl->GetNextSiblingItem(hItem))
-	{
-		DrawRegionNode(grap, pTreeCtrl, hChild, CPoint(ptOff.x + pReg->m_rc.left, ptOff.y + pReg->m_rc.top));
+		if(pReg->m_font)
+		{
+			CString strInfo;
+			strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_rc.left, pReg->m_rc.top, pReg->m_rc.Width(), pReg->m_rc.Height());
+
+			Gdiplus::RectF rectF((float)rectNode.left, (float)rectNode.top, (float)rectNode.Width(), (float)rectNode.Height());
+			Gdiplus::SolidBrush solidBrush(Gdiplus::Color(255, 0, 0, 255));
+			Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
+			strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
+			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_font.get(), rectF, &strFormat, &solidBrush);
+		}
+
+		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_rc.left, ptOff.y + pReg->m_rc.top));
+
+		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
 	}
 }
 
@@ -242,15 +243,7 @@ void CImgRegionView::OnInitialUpdate()
 	if (!pDoc)
 		return;
 
-	HTREEITEM hItem = pDoc->m_TreeCtrl.GetRootItem();
-	ASSERT(hItem);
-	if (!hItem)
-		return;
-
-	CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
-	ASSERT(pReg);
-
-	UpdateImageSizeTable(pReg->m_rc.Size());
+	UpdateImageSizeTable(pDoc->m_ImageSize);
 
 	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
 }
@@ -428,14 +421,6 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			if (!pDoc)
 				return;
 
-			HTREEITEM hItemRoot = pDoc->m_TreeCtrl.GetRootItem();
-			ASSERT(hItemRoot);
-			if (!hItemRoot)
-				return;
-
-			CImgRegion * pRegRoot = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItemRoot);
-			ASSERT(pRegRoot);
-
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			CPoint ptTopLeft;
 			if(hSelected && pDoc->LocalToRoot(hSelected, CPoint(0,0), ptTopLeft))
@@ -445,7 +430,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				CRect rect(ptTopLeft, pReg->m_rc.Size());
 				CWindowDC dc(this);
-				PrepareDC(&dc, pRegRoot->m_rc,
+				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
 					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 				dc.LPtoDP(&rect.TopLeft());
 				dc.LPtoDP(&rect.BottomRight());
@@ -501,9 +486,9 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				// 由于dc.DPtoLP所得的结果被四啥五入，所以使用MapPoint获得更精确的结果
 				my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), pRegRoot->m_rc);
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_ImageSize));
 
-				hSelected = pDoc->GetPointedRegionNode(hItemRoot, CPoint((int)ptLocal.x, (int)ptLocal.y));
+				hSelected = pDoc->GetPointedRegionNode(pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 			}
 
 			if(hSelected)
@@ -579,14 +564,6 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			if (!pDoc)
 				return;
 
-			HTREEITEM hItemRoot = pDoc->m_TreeCtrl.GetRootItem();
-			ASSERT(hItemRoot);
-			if (!hItemRoot)
-				return;
-
-			CImgRegion * pRegRoot = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItemRoot);
-			ASSERT(pRegRoot);
-
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			ASSERT(hSelected);
 	
@@ -596,7 +573,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			CSize sizeDrag = point - m_DragPos;
 
 			my::Vector2 dragOff = MapPoint(my::Vector2((float)sizeDrag.cx, (float)sizeDrag.cy),
-				CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), pRegRoot->m_rc);
+				CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_ImageSize));
 
 			switch(m_nSelectedHandle)
 			{

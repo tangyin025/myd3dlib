@@ -67,7 +67,7 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
-	void DrawRegionNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
+	void DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
 	void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, int alpha);
 

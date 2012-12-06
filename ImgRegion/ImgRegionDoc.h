@@ -45,6 +45,10 @@ class CImgRegionDoc : public CDocument
 public:
 	CTreeCtrl m_TreeCtrl;
 
+	CSize m_ImageSize;
+
+	Gdiplus::Color m_BkColor;
+
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 
