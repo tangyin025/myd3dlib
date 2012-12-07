@@ -22,20 +22,23 @@ public:
 class CImgRegion
 {
 public:
-	CRect m_rc;
+	CPoint m_Local;
 
-	Gdiplus::Color m_color;
+	CSize m_Size;
 
-	ImagePtr m_image;
+	Gdiplus::Color m_Color;
 
-	Vector4i m_border;
+	ImagePtr m_Image;
 
-	FontPtr2 m_font;
+	Vector4i m_Border;
 
-	CImgRegion(const CRect & rc, const Gdiplus::Color & color)
-		: m_rc(rc)
-		, m_color(color)
-		, m_border(0,0,0,0)
+	FontPtr2 m_Font;
+
+	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color, const Vector4i & Border = Vector4i(0,0,0,0))
+		: m_Local(Local)
+		, m_Size(Size)
+		, m_Color(Color)
+		, m_Border(Border)
 	{
 	}
 };

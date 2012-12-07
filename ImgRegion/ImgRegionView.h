@@ -38,12 +38,6 @@ public:
 
 	CPoint m_DragPos;
 
-	CPoint m_DragScrollPos;
-
-	CPoint m_DragControlPos;
-
-	CPoint m_DragHandlePos;
-
 	enum HandleType
 	{
 		HandleTypeNone = 0,

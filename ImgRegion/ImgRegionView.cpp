@@ -80,7 +80,7 @@ void CImgRegionView::OnDraw(CDC * pDC)
 		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 		ASSERT(pReg);
 
-		CRect rect(ptTopLeft, pReg->m_rc.Size());
+		CRect rect(ptTopLeft, pReg->m_Size);
 		CWindowDC dc(this);
 		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
 			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
@@ -141,32 +141,31 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
 		ASSERT(pReg);
 
-		CRect rectNode(pReg->m_rc);
-		rectNode.OffsetRect(ptOff);
+		CPoint nodePos = pReg->m_Local + ptOff;
 
-		if(pReg->m_image)
+		if(pReg->m_Image)
 		{
-			DrawRegionImage(grap, pReg->m_image.get(), rectNode, pReg->m_border, pReg->m_color.GetAlpha());
+			DrawRegionImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color.GetAlpha());
 		}
 		else
 		{
-			Gdiplus::SolidBrush brush(pReg->m_color);
-			grap.FillRectangle(&brush, rectNode.left, rectNode.top, rectNode.Width(), rectNode.Height());
+			Gdiplus::SolidBrush brush(pReg->m_Color);
+			grap.FillRectangle(&brush, nodePos.x, nodePos.y, pReg->m_Size.cx, pReg->m_Size.cy);
 		}
 
-		if(pReg->m_font)
+		if(pReg->m_Font)
 		{
 			CString strInfo;
-			strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_rc.left, pReg->m_rc.top, pReg->m_rc.Width(), pReg->m_rc.Height());
+			strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
 
-			Gdiplus::RectF rectF((float)rectNode.left, (float)rectNode.top, (float)rectNode.Width(), (float)rectNode.Height());
+			Gdiplus::RectF rectF((float)nodePos.x, (float)nodePos.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
 			Gdiplus::SolidBrush solidBrush(Gdiplus::Color(255, 0, 0, 255));
 			Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
 			strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
-			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_font.get(), rectF, &strFormat, &solidBrush);
+			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &strFormat, &solidBrush);
 		}
 
-		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_rc.left, ptOff.y + pReg->m_rc.top));
+		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
 
 		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
 	}
@@ -346,36 +345,35 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				switch(m_nSelectedHandle)
 				{
 				case HandleTypeLeftTop:
-					m_DragHandlePos.x = (pReg->m_rc.left += dragOff.cx);
-					m_DragHandlePos.y = (pReg->m_rc.top += dragOff.cy);
+					pReg->m_Local.x += dragOff.cx;
+					pReg->m_Local.y += dragOff.cy;
 					break;
 				case HandleTypeCenterTop:
-					m_DragHandlePos.y = (pReg->m_rc.top += dragOff.cy);
+					pReg->m_Local.y += dragOff.cy;
 					break;
 				case HandleTypeRightTop:
-					m_DragHandlePos.x = (pReg->m_rc.right += dragOff.cx);
-					m_DragHandlePos.y = (pReg->m_rc.top += dragOff.cy);
+					pReg->m_Size.cx += dragOff.cx;
+					pReg->m_Local.y += dragOff.cy;
 					break;
 				case HandleTypeLeftMiddle:
-					m_DragHandlePos.x = (pReg->m_rc.left += dragOff.cx);
+					pReg->m_Local.x += dragOff.cx;
 					break;
 				case HandleTypeRightMiddle:
-					m_DragHandlePos.x = (pReg->m_rc.right += dragOff.cx);
+					pReg->m_Size.cx += dragOff.cx;
 					break;
 				case HandleTypeLeftBottom:
-					m_DragHandlePos.x = (pReg->m_rc.left += dragOff.cx);
-					m_DragHandlePos.y = (pReg->m_rc.bottom += dragOff.cy);
+					pReg->m_Local.x += dragOff.cx;
+					pReg->m_Size.cy += dragOff.cy;
 					break;
 				case HandleTypeCenterBottom:
-					m_DragHandlePos.y = (pReg->m_rc.bottom += dragOff.cy);
+					pReg->m_Size.cy += dragOff.cy;
 					break;
 				case HandleTypeRightBottom:
-					m_DragHandlePos.x = (pReg->m_rc.right += dragOff.cx);
-					m_DragHandlePos.y = (pReg->m_rc.bottom += dragOff.cy);
+					pReg->m_Size.cx += dragOff.cx;
+					pReg->m_Size.cy += dragOff.cy;
 					break;
 				default:
-					pReg->m_rc.OffsetRect(dragOff);
-					m_DragControlPos = pReg->m_rc.TopLeft();
+					pReg->m_Local += dragOff;
 					break;
 				}
 
@@ -410,7 +408,6 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 		ASSERT(DragStateNone == m_DragState);
 		m_DragState = DragStateImage;
 		m_DragPos = point;
-		m_DragScrollPos = CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
 		SetCapture();
 		break;
 
@@ -428,7 +425,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 				ASSERT(pReg);
 
-				CRect rect(ptTopLeft, pReg->m_rc.Size());
+				CRect rect(ptTopLeft, pReg->m_Size);
 				CWindowDC dc(this);
 				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
 					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
@@ -439,42 +436,34 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				if(CheckSmallHandle(CPoint(rect.left, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftTop;
-					m_DragHandlePos.SetPoint(pReg->m_rc.left, pReg->m_rc.top);
 				}
 				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeCenterTop;
-					m_DragHandlePos.SetPoint(pReg->m_rc.left + pReg->m_rc.Width() / 2, pReg->m_rc.top);
 				}
 				else if(CheckSmallHandle(CPoint(rect.right, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeRightTop;
-					m_DragHandlePos.SetPoint(pReg->m_rc.right, pReg->m_rc.top);
 				}
 				else if(CheckSmallHandle(CPoint(rect.left, ptCenter.y), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftMiddle;
-					m_DragHandlePos.SetPoint(pReg->m_rc.left, pReg->m_rc.top + pReg->m_rc.Height() / 2);
 				}
 				else if(CheckSmallHandle(CPoint(rect.right, ptCenter.y), point))
 				{
 					m_nSelectedHandle = HandleTypeRightMiddle;
-					m_DragHandlePos.SetPoint(pReg->m_rc.right, pReg->m_rc.top + pReg->m_rc.Height() / 2);
 				}
 				else if(CheckSmallHandle(CPoint(rect.left, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftBottom;
-					m_DragHandlePos.SetPoint(pReg->m_rc.left, pReg->m_rc.bottom);
 				}
 				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeCenterBottom;
-					m_DragHandlePos.SetPoint(pReg->m_rc.left + pReg->m_rc.Width() / 2, pReg->m_rc.bottom);
 				}
 				else if(CheckSmallHandle(CPoint(rect.right, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeRightBottom;
-					m_DragHandlePos.SetPoint(pReg->m_rc.right, pReg->m_rc.bottom);
 				}
 				else
 				{
@@ -499,7 +488,6 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				pDoc->m_TreeCtrl.SelectItem(hSelected);
 				m_DragState = DragStateControl;
 				m_DragPos = point;
-				m_DragControlPos = pReg->m_rc.TopLeft();
 				SetCapture();
 			}
 			else
@@ -553,7 +541,9 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 		{
 			CSize sizeDrag = point - m_DragPos;
 
-			ScrollToPos(CPoint(m_DragScrollPos.x - sizeDrag.cx, m_DragScrollPos.y - sizeDrag.cy), TRUE);
+			ScrollToPos(CPoint(GetScrollPos(SB_HORZ) - sizeDrag.cx, GetScrollPos(SB_VERT) - sizeDrag.cy), TRUE);
+
+			m_DragPos = point;
 		}
 		break;
 
@@ -575,40 +565,47 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			my::Vector2 dragOff = MapPoint(my::Vector2((float)sizeDrag.cx, (float)sizeDrag.cy),
 				CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_ImageSize));
 
+			CSize sizeDragLog((int)dragOff.x, (int)dragOff.y);
+
 			switch(m_nSelectedHandle)
 			{
 			case HandleTypeLeftTop:
-				pReg->m_rc.left = m_DragHandlePos.x + (int)dragOff.x;
-				pReg->m_rc.top = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Local += sizeDragLog;
+				pReg->m_Size -= sizeDragLog;
 				break;
 			case HandleTypeCenterTop:
-				pReg->m_rc.top = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Local.y += sizeDragLog.cy;
+				pReg->m_Size.cy -= sizeDragLog.cy;
 				break;
 			case HandleTypeRightTop:
-				pReg->m_rc.right = m_DragHandlePos.x + (int)dragOff.x;
-				pReg->m_rc.top = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Local.y += sizeDragLog.cy;
+				pReg->m_Size.cx += sizeDragLog.cx;
+				pReg->m_Size.cy -= sizeDragLog.cy;
 				break;
 			case HandleTypeLeftMiddle:
-				pReg->m_rc.left = m_DragHandlePos.x + (int)dragOff.x;
+				pReg->m_Local.x += sizeDragLog.cx;
+				pReg->m_Size.cx -= sizeDragLog.cx;
 				break;
 			case HandleTypeRightMiddle:
-				pReg->m_rc.right = m_DragHandlePos.x + (int)dragOff.x;
+				pReg->m_Size.cx += sizeDragLog.cx;
 				break;
 			case HandleTypeLeftBottom:
-				pReg->m_rc.left = m_DragHandlePos.x + (int)dragOff.x;
-				pReg->m_rc.bottom = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Local.x += sizeDragLog.cx;
+				pReg->m_Size.cx -= sizeDragLog.cx;
+				pReg->m_Size.cy += sizeDragLog.cy;
 				break;
 			case HandleTypeCenterBottom:
-				pReg->m_rc.bottom = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Size.cy += sizeDragLog.cy;
 				break;
 			case HandleTypeRightBottom:
-				pReg->m_rc.right = m_DragHandlePos.x + (int)dragOff.x;
-				pReg->m_rc.bottom = m_DragHandlePos.y + (int)dragOff.y;
+				pReg->m_Size += sizeDragLog;
 				break;
 			default:
-				pReg->m_rc.MoveToXY(m_DragControlPos.x + (int)dragOff.x, m_DragControlPos.y + (int)dragOff.y);
+				pReg->m_Local += sizeDragLog;
 				break;
 			}
+
+			m_DragPos = point;
 
 			Invalidate(TRUE);
 		}
