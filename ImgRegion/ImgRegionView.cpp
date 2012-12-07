@@ -101,6 +101,8 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	}
 
 	pDC->BitBlt(0, 0, rectClient.Width(), rectClient.Height(), &dcMemory, 0, 0, SRCCOPY);
+
+	dcMemory.SelectObject(oldBmp);
 }
 
 void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
