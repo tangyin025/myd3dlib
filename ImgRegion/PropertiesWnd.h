@@ -44,6 +44,7 @@ public:
 		PropertyItemBorderZ,
 		PropertyItemBorderW,
 		PropertyItemFont,
+		PropertyItemFontSize,
 		PropertyItemFontAlpha,
 		PropertyItemFontRGB,
 		PropertyCount

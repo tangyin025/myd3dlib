@@ -124,12 +124,26 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CFont* font = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
 	font->GetLogFont(&lf);
 	lstrcpy(lf.lfFaceName, _T("宋体, Arial"));
-	CMyPropertyGridFontProperty * pFontProp = new CMyPropertyGridFontProperty(_T("字体"), lf, CF_SCREENFONTS, _T("字体"), PropertyItemFont);
-	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pFontProp);
+	pProp = new CMFCPropertyGridProperty(_T("字体"), _T("新宋体"), _T("选择字体"), PropertyItemFont);
+	pProp->AllowEdit(FALSE);
+	Gdiplus::InstalledFontCollection installedFontCollection;
+	const int count = installedFontCollection.GetFamilyCount();
+	Gdiplus::FontFamily * families = new Gdiplus::FontFamily[count];
+	int found;
+	installedFontCollection.GetFamilies(count, &families[0], &found);
+	for(int i = 0; i < found; i++)
+	{
+		CString strFamily;
+		families[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+		pProp->AddOption(strFamily);
+	}
+	delete families;
+	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
+	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)12l, _T("字体大小"), PropertyItemFontSize);
+	pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
 	pProp = new CMFCPropertyGridProperty(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
-
 	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
 	pColorProp->EnableAutomaticButton(_T("默认"), ::GetSysColor(COLOR_3DFACE));
@@ -216,18 +230,14 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);
 				m_pProp[PropertyItemBorderW]->SetValue((_variant_t)pReg->m_Border.w);
 
-				//CView * pView = pChild->GetActiveView();
-				//ASSERT(pView);
-				//CDC * pDC = pView->GetDC();
-				//LOGFONT lf;
-				//{
-				//	Gdiplus::Graphics grap(pDC->GetSafeHdc());
-				//	pReg->m_Font->GetLogFontW(&grap, &lf);
-				//}
-				//pView->ReleaseDC(pDC);
-				//((CMyPropertyGridFontProperty *)m_pProp[PropertyItemFont])->SetLogFont(lf);
-				//m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
-				//((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
+				Gdiplus::FontFamily family;
+				pReg->m_Font->GetFamily(&family);
+				CString strFamily;
+				family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+				m_pProp[PropertyItemFont]->SetValue((_variant_t)strFamily);
+				m_pProp[PropertyItemFontSize]->SetValue((long)pReg->m_Font->GetSize());
+				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
+				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
 
 				return;
 			}
@@ -258,8 +268,6 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				Property PropertyIdx = (Property)pProp->GetData();
 				COLORREF color;
 				TCHAR CurrPath[MAX_PATH];
-				CView * pView;
-				CDC * pDC;
 				switch(PropertyIdx)
 				{
 				case PropertyItemLocal:
@@ -306,17 +314,19 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemFont:
+				case PropertyItemFontSize:
+					pReg->m_Font.reset(new Gdiplus::Font(
+						m_pProp[PropertyItemFont]->GetValue().bstrVal,
+						(float)m_pProp[PropertyItemFontSize]->GetValue().lVal,
+						Gdiplus::FontStyleRegular,
+						Gdiplus::UnitPoint, NULL));
+					break;
+
 				case PropertyItemFontAlpha:
 				case PropertyItemFontRGB:
-					//pView = pChild->GetActiveView();
-					//ASSERT(pView);
-					//pDC = pView->GetDC();
-					//pReg->m_Font.reset(new Gdiplus::Font(
-					//	pDC->GetSafeHdc(), ((CMyPropertyGridFontProperty *)m_pProp[PropertyItemFont])->GetLogFont()));
-					//pView->ReleaseDC(pDC);
-					//color = ((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->GetColor();
-					//pReg->m_FontColor = Gdiplus::Color(
-					//	(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
+					color = ((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->GetColor();
+					pReg->m_FontColor = Gdiplus::Color(
+						(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
 					break;
 				}
 

@@ -128,7 +128,7 @@ void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & pt
 
 BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse)
 {
-	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH + 1, ptHandle.y + HANDLE_WIDTH + 1);
 	return rectHandle.PtInRect(ptMouse);
 }
 
@@ -146,7 +146,7 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 
 		CPoint nodePos = pReg->m_Local + ptOff;
 
-		if(pReg->m_Image)
+		if(pReg->m_Image && Gdiplus::ImageTypeUnknown != pReg->m_Image->GetType())
 		{
 			DrawRegionImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color.GetAlpha());
 		}

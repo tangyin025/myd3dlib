@@ -96,6 +96,8 @@ afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pRe
 		if(pDoc)
 		{
 			pDoc->UpdateAllViews(NULL);
+
+			pFrame->m_wndProperties.UpdateProperties();
 		}
 	}
 }
