@@ -7,7 +7,7 @@ typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
 class Vector4i
 {
 public:
-	int x, y, z, w;
+	LONG x, y, z, w;
 
 	Vector4i(int _x, int _y, int _z, int _w)
 		: x(_x), y(_y), z(_z), w(_w)
@@ -30,15 +30,20 @@ public:
 
 	ImagePtr m_Image;
 
+	CString m_ImageStr;
+
 	Vector4i m_Border;
 
 	FontPtr2 m_Font;
+
+	Gdiplus::Color m_FontColor;
 
 	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color, const Vector4i & Border = Vector4i(0,0,0,0))
 		: m_Local(Local)
 		, m_Size(Size)
 		, m_Color(Color)
 		, m_Border(Border)
+		, m_FontColor(255,0,0,255)
 	{
 	}
 };

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ImgRegionView.h"
 #include "MainApp.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -161,7 +162,7 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 			strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
 
 			Gdiplus::RectF rectF((float)nodePos.x, (float)nodePos.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
-			Gdiplus::SolidBrush solidBrush(Gdiplus::Color(255, 0, 0, 255));
+			Gdiplus::SolidBrush solidBrush(pReg->m_FontColor);
 			Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
 			strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
 			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &strFormat, &solidBrush);
@@ -382,6 +383,10 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				Invalidate(TRUE);
 
 				pDoc->UpdateAllViews(this);
+
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT(pFrame);
+				pFrame->m_wndProperties.UpdateProperties();
 			}
 		}
 		break;
@@ -501,6 +506,10 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			Invalidate(TRUE);
 
 			pDoc->UpdateAllViews(this);
+
+			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT(pFrame);
+			pFrame->m_wndProperties.UpdateProperties();
 		}
 		break;
 	}
@@ -530,6 +539,10 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 				return;
 
 			pDoc->UpdateAllViews(this);
+
+			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT(pFrame);
+			pFrame->m_wndProperties.UpdateProperties();
 		}
 		break;
 	}
@@ -610,6 +623,8 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			m_DragPos = point;
 
 			Invalidate(TRUE);
+
+			UpdateWindow();
 		}
 		break;
 	}
@@ -635,4 +650,16 @@ BOOL CImgRegionView::OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message)
 	SetCursor(m_hCursor[m_nCurrCursor]);
 
 	return TRUE;
+}
+
+void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView)
+{
+	CImageView::OnActivateView(bActivate, pActivateView, pDeactiveView);
+
+	if(bActivate && pActivateView)
+	{
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		pFrame->m_wndProperties.UpdateProperties();
+	}
 }

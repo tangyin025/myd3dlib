@@ -118,7 +118,8 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
-	pRegRoot->m_Image.reset(Gdiplus::Image::FromFile(L"Checker.bmp"));
+	pRegRoot->m_ImageStr = L"Checker.bmp";
+	pRegRoot->m_Image.reset(Gdiplus::Image::FromFile(pRegRoot->m_ImageStr));
 	pRegRoot->m_Border = Vector4i(100,50,100,50);
 	Gdiplus::FontFamily fontFamily(L"Arial");
 	pRegRoot->m_Font.reset(new Gdiplus::Font(&fontFamily, 12, Gdiplus::FontStyleBold, Gdiplus::UnitPoint));
@@ -132,7 +133,8 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
 	pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,0,255,0));
 	pReg->m_Font = pRegRoot->m_Font;
-	pReg->m_Image.reset(Gdiplus::Image::FromFile(L"com_btn_normal.png"));
+	pReg->m_ImageStr = L"com_btn_normal.png";
+	pReg->m_Image.reset(Gdiplus::Image::FromFile(pReg->m_ImageStr));
 	pReg->m_Border = Vector4i(7,7,7,7);
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
