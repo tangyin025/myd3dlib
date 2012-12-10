@@ -64,11 +64,20 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
 	grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 	grap.ScaleTransform(
-		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_ImageSize.cx,
-		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_ImageSize.cy);
+		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
+		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
 
-	Gdiplus::SolidBrush brush(pDoc->m_BkColor);
-	grap.FillRectangle(&brush, 0, 0, pDoc->m_ImageSize.cx, pDoc->m_ImageSize.cy);
+	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
+	{
+		DrawRegionImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
+	}
+	else
+	{
+		Gdiplus::SolidBrush brush(pDoc->m_Color);
+		grap.FillRectangle(&brush, pDoc->m_Local.x, pDoc->m_Local.y, pDoc->m_Size.cx, pDoc->m_Size.cy);
+	}
+
+	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
 
 	DrawRegionNode(grap, pDoc->m_TreeCtrl.GetRootItem());
 
@@ -83,7 +92,7 @@ void CImgRegionView::OnDraw(CDC * pDC)
 
 		CRect rect(ptTopLeft, pReg->m_Size);
 		CWindowDC dc(this);
-		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
+		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
@@ -148,7 +157,7 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 
 		if(pReg->m_Image && Gdiplus::ImageTypeUnknown != pReg->m_Image->GetType())
 		{
-			DrawRegionImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color.GetAlpha());
+			DrawRegionImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color);
 		}
 		else
 		{
@@ -159,7 +168,7 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 		if(pReg->m_Font)
 		{
 			CString strInfo;
-			strInfo.Format(_T("x:%d y:%d w:%d h:%d"), pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
+			strInfo.Format(pReg->m_Text, pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
 
 			Gdiplus::RectF rectF((float)nodePos.x, (float)nodePos.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
 			Gdiplus::SolidBrush solidBrush(pReg->m_FontColor);
@@ -174,50 +183,52 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 	}
 }
 
-void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, int alpha)
+void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color)
 {
-		Gdiplus::ColorMatrix colorMatrix = {	1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-												0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-												0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-												0.0f, 0.0f, 0.0f, alpha / 255.0f, 0.0f,
-												0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
-		Gdiplus::ImageAttributes imageAtt;
-		imageAtt.SetColorMatrix(&colorMatrix, Gdiplus::ColorMatrixFlagsDefault, Gdiplus::ColorAdjustTypeBitmap);
-		//imageAtt.SetWrapMode(Gdiplus::WrapModeTileFlipXY);
-		Gdiplus::InterpolationMode oldInterpolationMode = grap.GetInterpolationMode();
-		grap.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
-		Gdiplus::PixelOffsetMode oldPixelOffsetMode = grap.GetPixelOffsetMode();
-		grap.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
+	Gdiplus::ColorMatrix colorMatrix = {
+		color.GetR() / 255.0f, 0.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, color.GetG() / 255.0f, 0.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, color.GetB() / 255.0f, 0.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, color.GetA() / 255.0f, 0.0f,
+		0.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top, border.x, border.y),
-			0, 0, border.x, border.y, Gdiplus::UnitPixel, &imageAtt);
+	Gdiplus::ImageAttributes imageAtt;
+	imageAtt.SetColorMatrix(&colorMatrix, Gdiplus::ColorMatrixFlagsDefault, Gdiplus::ColorAdjustTypeBitmap);
+	//imageAtt.SetWrapMode(Gdiplus::WrapModeTileFlipXY);
+	Gdiplus::InterpolationMode oldInterpolationMode = grap.GetInterpolationMode();
+	grap.SetInterpolationMode(Gdiplus::InterpolationModeNearestNeighbor);
+	Gdiplus::PixelOffsetMode oldPixelOffsetMode = grap.GetPixelOffsetMode();
+	grap.SetPixelOffsetMode(Gdiplus::PixelOffsetModeHalf);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top, dstRect.Width() - border.x - border.z, border.y),
-			border.x, 0, img->GetWidth() - border.x - border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top, border.x, border.y),
+		0, 0, border.x, border.y, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top, border.x, border.y),
-			img->GetWidth() - border.z, 0, border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top, dstRect.Width() - border.x - border.z, border.y),
+		border.x, 0, img->GetWidth() - border.x - border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
-			0, border.y, border.x, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top, border.x, border.y),
+		img->GetWidth() - border.z, 0, border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top + border.y, dstRect.Width() - border.x - border.z, dstRect.Height() - border.y - border.w),
-			border.x, border.y, img->GetWidth() - border.x - border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
+		0, border.y, border.x, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
-			img->GetWidth() - border.z, border.y, border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top + border.y, dstRect.Width() - border.x - border.z, dstRect.Height() - border.y - border.w),
+		border.x, border.y, img->GetWidth() - border.x - border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.bottom - border.w, border.x, border.w),
-			0, img->GetHeight() - border.w, border.x, border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
+		img->GetWidth() - border.z, border.y, border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.bottom - border.w, dstRect.Width() - border.x - border.z, border.w),
-			border.x, img->GetHeight() - border.w, img->GetWidth() - border.x - border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.bottom - border.w, border.x, border.w),
+		0, img->GetHeight() - border.w, border.x, border.w, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.bottom - border.w, border.x, border.w),
-			img->GetWidth() - border.z, img->GetHeight() - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.bottom - border.w, dstRect.Width() - border.x - border.z, border.w),
+		border.x, img->GetHeight() - border.w, img->GetWidth() - border.x - border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
 
-		grap.SetInterpolationMode(oldInterpolationMode);
-		grap.SetPixelOffsetMode(oldPixelOffsetMode);
+	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.bottom - border.w, border.x, border.w),
+		img->GetWidth() - border.z, img->GetHeight() - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
+
+	grap.SetInterpolationMode(oldInterpolationMode);
+	grap.SetPixelOffsetMode(oldPixelOffsetMode);
 }
 
 BOOL CImgRegionView::OnEraseBkgnd(CDC* pDC)
@@ -245,7 +256,7 @@ void CImgRegionView::OnInitialUpdate()
 	if (!pDoc)
 		return;
 
-	UpdateImageSizeTable(pDoc->m_ImageSize);
+	UpdateImageSizeTable(pDoc->m_Size);
 
 	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
 }
@@ -435,7 +446,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				CRect rect(ptTopLeft, pReg->m_Size);
 				CWindowDC dc(this);
-				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_ImageSize),
+				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 				dc.LPtoDP(&rect.TopLeft());
 				dc.LPtoDP(&rect.BottomRight());
@@ -483,7 +494,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				// 由于dc.DPtoLP所得的结果被四啥五入，所以使用MapPoint获得更精确的结果
 				my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_ImageSize));
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 				hSelected = pDoc->GetPointedRegionNode(pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 			}
@@ -579,7 +590,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			CSize sizeDrag = point - m_DragPos;
 
 			my::Vector2 dragOff = MapPoint(my::Vector2((float)sizeDrag.cx, (float)sizeDrag.cy),
-				CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_ImageSize));
+				CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 			CSize sizeDragLog((int)dragOff.x, (int)dragOff.y);
 

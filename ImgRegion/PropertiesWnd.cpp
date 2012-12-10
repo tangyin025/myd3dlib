@@ -98,7 +98,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMFCPropertyGridColorProperty * pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
-	pColorProp->EnableAutomaticButton(_T("默认"), ::GetSysColor(COLOR_3DFACE));
+	pColorProp->EnableAutomaticButton(_T("默认"), RGB(255,255,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
 	CMFCPropertyGridFileProperty * pFileProp = new CMFCPropertyGridFileProperty(
@@ -137,7 +137,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		families[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
 		pProp->AddOption(strFamily);
 	}
-	delete families;
+	delete [] families;
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
 	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)12l, _T("字体大小"), PropertyItemFontSize);
@@ -146,10 +146,17 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
 	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
-	pColorProp->EnableAutomaticButton(_T("默认"), ::GetSysColor(COLOR_3DFACE));
+	pColorProp->EnableAutomaticButton(_T("默认"), RGB(0,0,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);
+
+	pGroup = new CMFCPropertyGridProperty(_T("文本"));
+
+	pProp = new CMFCPropertyGridProperty(_T("文本"), _T(""), _T("输出内容"), PropertyItemText);
+	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
+
+	m_wndPropList.AddProperty(m_pProp[PropertyGroupText] = pGroup);
 
 	return 0;
 }
@@ -238,6 +245,8 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemFontSize]->SetValue((long)pReg->m_Font->GetSize());
 				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
+
+				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
 
 				return;
 			}
@@ -328,6 +337,9 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					pReg->m_FontColor = Gdiplus::Color(
 						(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
 					break;
+
+				case PropertyItemText:
+					pReg->m_Text = m_pProp[PropertyItemText]->GetValue().bstrVal;
 				}
 
 				pDoc->UpdateAllViews(NULL);

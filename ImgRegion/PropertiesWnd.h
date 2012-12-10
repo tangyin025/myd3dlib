@@ -29,6 +29,7 @@ public:
 		PropertyGroupCoord = 0,
 		PropertyGroupImage,
 		PropertyGroupFont,
+		PropertyGroupText,
 		PropertyItemLocal,
 		PropertyItemLocalX,
 		PropertyItemLocalY,
@@ -47,6 +48,7 @@ public:
 		PropertyItemFontSize,
 		PropertyItemFontAlpha,
 		PropertyItemFontRGB,
+		PropertyItemText,
 		PropertyCount
 	};
 

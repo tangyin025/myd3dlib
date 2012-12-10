@@ -1,6 +1,4 @@
 #pragma once
-//
-//#include "PropertiesWnd.h"
 
 typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
 
@@ -40,53 +38,25 @@ public:
 
 	Gdiplus::Color m_FontColor;
 
+	CString m_Text;
+
 	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color, const Vector4i & Border = Vector4i(0,0,0,0))
 		: m_Local(Local)
 		, m_Size(Size)
 		, m_Color(Color)
 		, m_Border(Border)
 		, m_FontColor(255,0,0,255)
+		, m_Text(_T("x:%d y:%d w:%d h:%d"))
 	{
 	}
 };
-//
-//class PropertyHistory
-//{
-//public:
-//	CPropertiesWnd::Property m_Type;
-//
-//	PropertyHistory(CPropertiesWnd::Property Type)
-//		: m_Type(Type)
-//	{
-//	}
-//};
-//
-//template <class ValueType>
-//class PropertyHistoryImpl : public PropertyHistory
-//{
-//public:
-//	ValueType m_Value;
-//
-//	PropertyHistoryImpl(const ValueType & Value)
-//		: m_Value(Value)
-//	{
-//	}
-//};
-//
-//typedef boost::shared_ptr<PropertyHistory> PropertyHistoryPtr;
-//
-//typedef std::vector<PropertyHistoryPtr> PropertyHistoryPtrList;
 
-class CImgRegionDoc : public CDocument
+class CImgRegionDoc
+	: public CDocument
+	, public CImgRegion
 {
 public:
 	CTreeCtrl m_TreeCtrl;
-
-	//PropertyHistoryPtrList m_HistoryList;
-
-	CSize m_ImageSize;
-
-	Gdiplus::Color m_BkColor;
 
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
@@ -107,5 +77,19 @@ public:
 
 	virtual BOOL OnNewDocument(void);
 
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+
+	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
+
 	virtual void OnCloseDocument();
+
+	virtual void Serialize(CArchive& ar);
+
+	int GetChildCount(HTREEITEM hItem);
+
+	void SerializeRegionNode(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
+
+	ImagePtr GetImage(const CString & strImg);
+
+	FontPtr2 GetFont(const CString & strFamily, float fSize);
 };
