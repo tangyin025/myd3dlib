@@ -30,13 +30,19 @@ public:
 	enum DragState
 	{
 		DragStateNone = 0,
-		DragStateImage,
+		DragStateScroll,
 		DragStateControl,
 	};
 
 	DragState m_DragState;
 
 	CPoint m_DragPos;
+
+	CPoint m_DragRegLocal;
+
+	CSize m_DragRegSize;
+
+	CPoint m_DragScrollPos;
 
 	enum HandleType
 	{

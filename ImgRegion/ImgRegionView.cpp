@@ -398,7 +398,7 @@ void CImgRegionView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch(nChar)
 	{
 	case VK_SPACE:
-		if(CursorTypeCross == m_nCurrCursor && DragStateImage != m_DragState)
+		if(CursorTypeCross == m_nCurrCursor && DragStateScroll != m_DragState)
 		{
 			m_nCurrCursor = CursorTypeArrow;
 			SetCursor(m_hCursor[m_nCurrCursor]);
@@ -413,8 +413,9 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 	case CursorTypeCross:
 		ASSERT(DragStateNone == m_DragState);
-		m_DragState = DragStateImage;
+		m_DragState = DragStateScroll;
 		m_DragPos = point;
+		m_DragScrollPos = CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT));
 		SetCapture();
 		break;
 
@@ -495,6 +496,8 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				pDoc->m_TreeCtrl.SelectItem(hSelected);
 				m_DragState = DragStateControl;
 				m_DragPos = point;
+				m_DragRegLocal = pReg->m_Local;
+				m_DragRegSize = pReg->m_Size;
 				SetCapture();
 			}
 			else
@@ -507,9 +510,9 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 			pDoc->UpdateAllViews(this);
 
-			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-			ASSERT(pFrame);
-			pFrame->m_wndProperties.UpdateProperties();
+			//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			//ASSERT(pFrame);
+			//pFrame->m_wndProperties.UpdateProperties();
 		}
 		break;
 	}
@@ -519,7 +522,7 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	switch(m_DragState)
 	{
-	case DragStateImage:
+	case DragStateScroll:
 		m_DragState = DragStateNone;
 		if(0 == HIBYTE(GetKeyState(VK_SPACE)))
 		{
@@ -552,13 +555,11 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	switch(m_DragState)
 	{
-	case DragStateImage:
+	case DragStateScroll:
 		{
 			CSize sizeDrag = point - m_DragPos;
 
-			ScrollToPos(CPoint(GetScrollPos(SB_HORZ) - sizeDrag.cx, GetScrollPos(SB_VERT) - sizeDrag.cy), TRUE);
-
-			m_DragPos = point;
+			ScrollToPos(m_DragScrollPos - sizeDrag, TRUE);
 		}
 		break;
 
@@ -585,42 +586,40 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			switch(m_nSelectedHandle)
 			{
 			case HandleTypeLeftTop:
-				pReg->m_Local += sizeDragLog;
-				pReg->m_Size -= sizeDragLog;
+				pReg->m_Local = m_DragRegLocal + sizeDragLog;
+				pReg->m_Size = m_DragRegSize - sizeDragLog;
 				break;
 			case HandleTypeCenterTop:
-				pReg->m_Local.y += sizeDragLog.cy;
-				pReg->m_Size.cy -= sizeDragLog.cy;
+				pReg->m_Local.y = m_DragRegLocal.y + sizeDragLog.cy;
+				pReg->m_Size.cy = m_DragRegSize.cy - sizeDragLog.cy;
 				break;
 			case HandleTypeRightTop:
-				pReg->m_Local.y += sizeDragLog.cy;
-				pReg->m_Size.cx += sizeDragLog.cx;
-				pReg->m_Size.cy -= sizeDragLog.cy;
+				pReg->m_Local.y = m_DragRegLocal.y + sizeDragLog.cy;
+				pReg->m_Size.cx = m_DragRegSize.cx + sizeDragLog.cx;
+				pReg->m_Size.cy = m_DragRegSize.cy - sizeDragLog.cy;
 				break;
 			case HandleTypeLeftMiddle:
-				pReg->m_Local.x += sizeDragLog.cx;
-				pReg->m_Size.cx -= sizeDragLog.cx;
+				pReg->m_Local.x = m_DragRegLocal.x + sizeDragLog.cx;
+				pReg->m_Size.cx = m_DragRegSize.cx - sizeDragLog.cx;
 				break;
 			case HandleTypeRightMiddle:
-				pReg->m_Size.cx += sizeDragLog.cx;
+				pReg->m_Size.cx = m_DragRegSize.cx + sizeDragLog.cx;
 				break;
 			case HandleTypeLeftBottom:
-				pReg->m_Local.x += sizeDragLog.cx;
-				pReg->m_Size.cx -= sizeDragLog.cx;
-				pReg->m_Size.cy += sizeDragLog.cy;
+				pReg->m_Local.x = m_DragRegLocal.x + sizeDragLog.cx;
+				pReg->m_Size.cx = m_DragRegSize.cx - sizeDragLog.cx;
+				pReg->m_Size.cy = m_DragRegSize.cy + sizeDragLog.cy;
 				break;
 			case HandleTypeCenterBottom:
-				pReg->m_Size.cy += sizeDragLog.cy;
+				pReg->m_Size.cy = m_DragRegSize.cy + sizeDragLog.cy;
 				break;
 			case HandleTypeRightBottom:
-				pReg->m_Size += sizeDragLog;
+				pReg->m_Size = m_DragRegSize + sizeDragLog;
 				break;
 			default:
-				pReg->m_Local += sizeDragLog;
+				pReg->m_Local = m_DragRegLocal + sizeDragLog;
 				break;
 			}
-
-			m_DragPos = point;
 
 			Invalidate(TRUE);
 

@@ -1,4 +1,6 @@
 #pragma once
+//
+//#include "PropertiesWnd.h"
 
 typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
 
@@ -47,11 +49,40 @@ public:
 	{
 	}
 };
+//
+//class PropertyHistory
+//{
+//public:
+//	CPropertiesWnd::Property m_Type;
+//
+//	PropertyHistory(CPropertiesWnd::Property Type)
+//		: m_Type(Type)
+//	{
+//	}
+//};
+//
+//template <class ValueType>
+//class PropertyHistoryImpl : public PropertyHistory
+//{
+//public:
+//	ValueType m_Value;
+//
+//	PropertyHistoryImpl(const ValueType & Value)
+//		: m_Value(Value)
+//	{
+//	}
+//};
+//
+//typedef boost::shared_ptr<PropertyHistory> PropertyHistoryPtr;
+//
+//typedef std::vector<PropertyHistoryPtr> PropertyHistoryPtrList;
 
 class CImgRegionDoc : public CDocument
 {
 public:
 	CTreeCtrl m_TreeCtrl;
+
+	//PropertyHistoryPtrList m_HistoryList;
 
 	CSize m_ImageSize;
 
