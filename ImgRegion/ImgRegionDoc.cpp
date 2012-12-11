@@ -14,7 +14,7 @@ END_MESSAGE_MAP()
 CImgRegionDoc::CImgRegionDoc(void)
 	: CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color::White)
 {
-	m_Font.reset(new Gdiplus::Font(L"Arial", 12, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+	m_Font = GetFont(L"Arial", 12);
 }
 
 BOOL CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal, CPoint & ptResult)
@@ -110,6 +110,9 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 
 BOOL CImgRegionDoc::OnNewDocument(void)
 {
+	GetCurrentDirectory(MAX_PATH, m_CurrentDir.GetBufferSetLength(MAX_PATH));
+	m_CurrentDir.ReleaseBuffer();
+
 	if (!CDocument::OnNewDocument())
 		return FALSE;
 
@@ -119,7 +122,7 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
 	pRegRoot->m_ImageStr = L"Checker.bmp";
-	pRegRoot->m_Image.reset(Gdiplus::Image::FromFile(pRegRoot->m_ImageStr));
+	pRegRoot->m_Image = GetImage(pRegRoot->m_ImageStr);
 	pRegRoot->m_Border = Vector4i(100,50,100,50);
 	Gdiplus::FontFamily fontFamily(L"Arial");
 	pRegRoot->m_Font = m_Font;
@@ -134,7 +137,7 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,255,255,255));
 	pReg->m_Font = m_Font;
 	pReg->m_ImageStr = L"com_btn_normal.png";
-	pReg->m_Image.reset(Gdiplus::Image::FromFile(pReg->m_ImageStr));
+	pReg->m_Image = GetImage(pReg->m_ImageStr);
 	pReg->m_Border = Vector4i(7,7,7,7);
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
@@ -148,6 +151,10 @@ BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 	if (!CImgRegionDoc::CreateTreeCtrl())
 		return FALSE;
 
+	m_CurrentDir = lpszPathName;
+	PathRemoveFileSpec(m_CurrentDir.GetBuffer());
+	m_CurrentDir.ReleaseBuffer();
+
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
 
@@ -156,7 +163,14 @@ BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
-	return CDocument::OnSaveDocument(lpszPathName);
+	if(!CDocument::OnSaveDocument(lpszPathName))
+		return FALSE;
+
+	m_CurrentDir = lpszPathName;
+	PathRemoveFileSpec(m_CurrentDir.GetBuffer());
+	m_CurrentDir.ReleaseBuffer();
+
+	return TRUE;
 }
 
 void CImgRegionDoc::OnCloseDocument()
@@ -216,7 +230,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			DWORD argb = pReg->m_Color.GetValue(); ar << argb;
 			ar << pReg->m_ImageStr;
 			ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
-			Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); ar << strFamily << pReg->m_Font->GetSize();
+			Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily << pReg->m_Font->GetSize();
 			argb = pReg->m_FontColor.GetValue(); ar << argb;
 			ar << pReg->m_Text;
 
@@ -251,12 +265,32 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 	}
 }
 
-ImagePtr CImgRegionDoc::GetImage(const CString & strImg)
+ImagePtr CImgRegionDoc::GetImage(CString strImg)
 {
-	return ImagePtr(Gdiplus::Image::FromFile(strImg));
+	if(!strImg.IsEmpty())
+	{
+		if(PathIsRelative(strImg))
+		{
+			TCHAR buff[MAX_PATH];
+			strImg = PathCombine(buff, GetCurrentDir(), strImg);
+		}
+		return ImagePtr(new Gdiplus::Image(strImg));
+	}
+
+	return ImagePtr();
 }
 
 FontPtr2 CImgRegionDoc::GetFont(const CString & strFamily, float fSize)
 {
-	return FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+	if(!strFamily.IsEmpty())
+		return FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+
+	return FontPtr2();
+}
+
+const CString & CImgRegionDoc::GetCurrentDir(void) const
+{
+	ASSERT(!m_CurrentDir.IsEmpty());
+
+	return m_CurrentDir;
 }

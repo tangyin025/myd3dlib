@@ -58,6 +58,8 @@ class CImgRegionDoc
 public:
 	CTreeCtrl m_TreeCtrl;
 
+	CString m_CurrentDir;
+
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 
@@ -88,8 +90,10 @@ public:
 	int GetChildCount(HTREEITEM hItem);
 
 	void SerializeRegionNode(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
-
-	ImagePtr GetImage(const CString & strImg);
+public:
+	ImagePtr GetImage(CString strImg);
 
 	FontPtr2 GetFont(const CString & strFamily, float fSize);
+
+	const CString & GetCurrentDir(void) const;
 };

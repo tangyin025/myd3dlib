@@ -3,25 +3,79 @@
 #include "PropertiesWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"
-//
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#endif
 
-void CMyPropertyGridFontProperty::SetLogFont(LOGFONT & lf)
+void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 {
-	m_lf = lf;
+	ASSERT_VALID(this);
+	ASSERT_VALID(m_pWndList);
+	ASSERT_VALID(m_pWndInPlace);
+	ASSERT(::IsWindow(m_pWndInPlace->GetSafeHwnd()));
 
-	if(m_pWndInPlace != NULL)
+	m_bButtonIsDown = TRUE;
+	Redraw();
+
+	CString strPath = m_varValue.bstrVal;
+	BOOL bUpdate = FALSE;
+
+	if (m_bIsFolder)
 	{
-		m_pWndInPlace->SetWindowText(FormatProperty());
+		//if (afxShellManager == NULL)
+		//{
+		//	CWinAppEx* pApp = DYNAMIC_DOWNCAST(CWinAppEx, AfxGetApp());
+		//	if (pApp != NULL)
+		//	{
+		//		pApp->InitShellManager();
+		//	}
+		//}
+
+		//if (afxShellManager == NULL)
+		//{
+		//	ASSERT(FALSE);
+		//}
+		//else
+		//{
+		//	bUpdate = afxShellManager->BrowseForFolder(strPath, m_pWndList, strPath);
+		//}
+
+		ASSERT(FALSE);
 	}
 	else
 	{
-		m_varValue = (LPCTSTR)FormatProperty();
+		if(PathIsRelative(strPath))
+		{
+			TCHAR buff[MAX_PATH];
+			strPath = PathCombine(buff, m_strCurrDir, strPath);
+		}
+
+		CFileDialog dlg(m_bOpenFileDialog, m_strDefExt, strPath, m_dwFileOpenFlags, m_strFilter, m_pWndList);
+		if (dlg.DoModal() == IDOK)
+		{
+			bUpdate = TRUE;
+			strPath = dlg.GetPathName();
+		}
 	}
 
+	if (bUpdate)
+	{
+		if (m_pWndInPlace != NULL)
+		{
+			m_pWndInPlace->SetWindowText(strPath);
+		}
+
+		m_varValue = (LPCTSTR) strPath;
+	}
+
+	m_bButtonIsDown = FALSE;
 	Redraw();
+
+	if (m_pWndInPlace != NULL)
+	{
+		m_pWndInPlace->SetFocus();
+	}
+	else
+	{
+		m_pWndList->SetFocus();
+	}
 }
 
 BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
@@ -101,7 +155,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pColorProp->EnableAutomaticButton(_T("默认"), RGB(255,255,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
-	CMFCPropertyGridFileProperty * pFileProp = new CMFCPropertyGridFileProperty(
+	CMFCPropertyGridFileProperty * pFileProp = new CImgRegionPropertyGridFileProperty(
 		_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("图片文件(*.bmp; *.jpg; *.png)|*.bmp;*.jpg;*.png|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
 	pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
 
@@ -231,7 +285,8 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
 
-				((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
+				((CImgRegionPropertyGridFileProperty *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
+				((CImgRegionPropertyGridFileProperty *)m_pProp[PropertyItemImage])->m_strCurrDir = pDoc->GetCurrentDir();
 				m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
 				m_pProp[PropertyItemBorderY]->SetValue((_variant_t)pReg->m_Border.y);
 				m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);
@@ -276,7 +331,6 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				ASSERT(pProp);
 				Property PropertyIdx = (Property)pProp->GetData();
 				COLORREF color;
-				TCHAR CurrPath[MAX_PATH];
 				switch(PropertyIdx)
 				{
 				case PropertyItemLocal:
@@ -301,14 +355,14 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemImage:
-					GetCurrentDirectory(MAX_PATH, CurrPath);
 					PathRelativePathTo(
 						pReg->m_ImageStr.GetBufferSetLength(MAX_PATH),
-						CurrPath,
+						pDoc->GetCurrentDir(),
 						FILE_ATTRIBUTE_DIRECTORY,
 						((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal,
 						FILE_ATTRIBUTE_NORMAL);
-					pReg->m_Image.reset(Gdiplus::Image::FromFile(pReg->m_ImageStr));
+					pReg->m_ImageStr.ReleaseBuffer();
+					pReg->m_Image = pDoc->GetImage(pReg->m_ImageStr);
 					break;
 
 				case PropertyItemBorder:
@@ -324,11 +378,9 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 				case PropertyItemFont:
 				case PropertyItemFontSize:
-					pReg->m_Font.reset(new Gdiplus::Font(
+					pReg->m_Font = pDoc->GetFont(
 						m_pProp[PropertyItemFont]->GetValue().bstrVal,
-						(float)m_pProp[PropertyItemFontSize]->GetValue().lVal,
-						Gdiplus::FontStyleRegular,
-						Gdiplus::UnitPoint, NULL));
+						(float)m_pProp[PropertyItemFontSize]->GetValue().lVal);
 					break;
 
 				case PropertyItemFontAlpha:

@@ -1,16 +1,18 @@
 
 #pragma once
 
-class CMyPropertyGridFontProperty : public CMFCPropertyGridFontProperty
+class CImgRegionPropertyGridFileProperty : public CMFCPropertyGridFileProperty
 {
 public:
-	CMyPropertyGridFontProperty(	const CString& strName, LOGFONT& lf, DWORD dwFontDialogFlags = CF_EFFECTS | CF_SCREENFONTS, 
-		LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0, COLORREF color = (COLORREF)-1)
-		: CMFCPropertyGridFontProperty(strName, lf, dwFontDialogFlags, lpszDescr, dwData, color)
+	CImgRegionPropertyGridFileProperty(const CString& strName, BOOL bOpenFileDialog, const CString& strFileName, LPCTSTR lpszDefExt = NULL,
+		DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
+		: CMFCPropertyGridFileProperty(strName, bOpenFileDialog, strFileName, lpszDefExt, dwFlags, lpszFilter, lpszDescr, dwData)
 	{
 	}
 
-	void SetLogFont(LOGFONT & lf);
+	virtual void OnClickButton(CPoint point);
+
+	CString m_strCurrDir;
 };
 
 class CPropertiesWnd : public CDockablePane
