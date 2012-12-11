@@ -42,6 +42,8 @@
 #include <GdiPlus.h>
 
 #include <myMath.h>
+#include <boost/functional/hash.hpp>
+#include <unordered_map>
 
 #ifdef _UNICODE
 #if defined _M_IX86

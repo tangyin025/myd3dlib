@@ -122,7 +122,7 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
 	pRegRoot->m_ImageStr = L"Checker.bmp";
-	pRegRoot->m_Image = GetImage(pRegRoot->m_ImageStr);
+	pRegRoot->m_Image = GetImage(GetFullPath(pRegRoot->m_ImageStr));
 	pRegRoot->m_Border = Vector4i(100,50,100,50);
 	Gdiplus::FontFamily fontFamily(L"Arial");
 	pRegRoot->m_Font = m_Font;
@@ -137,7 +137,7 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,255,255,255));
 	pReg->m_Font = m_Font;
 	pReg->m_ImageStr = L"com_btn_normal.png";
-	pReg->m_Image = GetImage(pReg->m_ImageStr);
+	pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
 	pReg->m_Border = Vector4i(7,7,7,7);
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
@@ -252,7 +252,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			ar >> pReg->m_Local;
 			ar >> pReg->m_Size;
 			DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
-			ar >> pReg->m_ImageStr; pReg->m_Image = GetImage(pReg->m_ImageStr);
+			ar >> pReg->m_ImageStr; pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
 			ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
 			CString strFamily; float fSize; ar >> strFamily >> fSize; pReg->m_Font = GetFont(strFamily, fSize);
 			ar >> argb; pReg->m_FontColor.SetValue(argb);
@@ -269,12 +269,16 @@ ImagePtr CImgRegionDoc::GetImage(CString strImg)
 {
 	if(!strImg.IsEmpty())
 	{
-		if(PathIsRelative(strImg))
+		ASSERT(!PathIsRelative(strImg));
+
+		std::wstring key(strImg);
+		ImagePtrMap::iterator img_iter = m_ImageMap.find(key);
+		if(img_iter == m_ImageMap.end())
 		{
-			TCHAR buff[MAX_PATH];
-			strImg = PathCombine(buff, GetCurrentDir(), strImg);
+			m_ImageMap[key] = ImagePtr(new Gdiplus::Image(strImg));
 		}
-		return ImagePtr(new Gdiplus::Image(strImg));
+
+		return m_ImageMap[key];
 	}
 
 	return ImagePtr();
@@ -283,7 +287,19 @@ ImagePtr CImgRegionDoc::GetImage(CString strImg)
 FontPtr2 CImgRegionDoc::GetFont(const CString & strFamily, float fSize)
 {
 	if(!strFamily.IsEmpty())
-		return FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+	{
+		CString strFont;
+		strFont.Format(_T("%s, %f"), strFamily, fSize);
+
+		std::wstring key(strFont);
+		FontPtr2Map::iterator fnt_iter = m_FontMap.find(key);
+		if(fnt_iter == m_FontMap.end())
+		{
+			m_FontMap[key] = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+		}
+
+		return m_FontMap[key];
+	}
 
 	return FontPtr2();
 }
@@ -293,4 +309,26 @@ const CString & CImgRegionDoc::GetCurrentDir(void) const
 	ASSERT(!m_CurrentDir.IsEmpty());
 
 	return m_CurrentDir;
+}
+
+CString CImgRegionDoc::GetRelativePath(const CString & strPath) const
+{
+	if(PathIsRelative(strPath))
+		return strPath;
+
+	CString res;
+	PathRelativePathTo(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), FILE_ATTRIBUTE_DIRECTORY, strPath, FILE_ATTRIBUTE_NORMAL);
+	res.ReleaseBuffer();
+
+	return res;
+}
+
+CString CImgRegionDoc::GetFullPath(const CString & strPath) const
+{
+	if(!PathIsRelative(strPath))
+		return strPath;
+
+	CString res;
+	PathCombine(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), strPath);
+	return res;
 }

@@ -331,6 +331,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				ASSERT(pProp);
 				Property PropertyIdx = (Property)pProp->GetData();
 				COLORREF color;
+				BSTR ImageStr;
 				switch(PropertyIdx)
 				{
 				case PropertyItemLocal:
@@ -355,14 +356,9 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemImage:
-					PathRelativePathTo(
-						pReg->m_ImageStr.GetBufferSetLength(MAX_PATH),
-						pDoc->GetCurrentDir(),
-						FILE_ATTRIBUTE_DIRECTORY,
-						((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal,
-						FILE_ATTRIBUTE_NORMAL);
-					pReg->m_ImageStr.ReleaseBuffer();
-					pReg->m_Image = pDoc->GetImage(pReg->m_ImageStr);
+					ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
+					pReg->m_ImageStr = pDoc->GetRelativePath(ImageStr);
+					pReg->m_Image = pDoc->GetImage(ImageStr);
 					break;
 
 				case PropertyItemBorder:

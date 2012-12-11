@@ -60,6 +60,14 @@ public:
 
 	CString m_CurrentDir;
 
+	typedef std::tr1::unordered_map<std::wstring, ImagePtr, boost::hash<std::wstring> > ImagePtrMap;
+
+	ImagePtrMap m_ImageMap;
+
+	typedef std::tr1::unordered_map<std::wstring, FontPtr2, boost::hash<std::wstring> > FontPtr2Map;
+
+	FontPtr2Map m_FontMap;
+
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 
@@ -90,10 +98,15 @@ public:
 	int GetChildCount(HTREEITEM hItem);
 
 	void SerializeRegionNode(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
+
 public:
 	ImagePtr GetImage(CString strImg);
 
 	FontPtr2 GetFont(const CString & strFamily, float fSize);
 
 	const CString & GetCurrentDir(void) const;
+
+	CString GetRelativePath(const CString & strPath) const;
+
+	CString GetFullPath(const CString & strPath) const;
 };
