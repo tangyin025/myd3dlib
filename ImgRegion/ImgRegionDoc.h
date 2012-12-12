@@ -1,5 +1,7 @@
 #pragma once
 
+#include "FileView.h"
+
 typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
 
 typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
@@ -56,7 +58,7 @@ class CImgRegionDoc
 	, public CImgRegion
 {
 public:
-	CTreeCtrl m_TreeCtrl;
+	CImgRegionTreeCtrl m_TreeCtrl;
 
 	CString m_CurrentDir;
 

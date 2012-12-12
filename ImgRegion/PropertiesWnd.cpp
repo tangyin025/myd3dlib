@@ -3,6 +3,7 @@
 #include "PropertiesWnd.h"
 #include "Resource.h"
 #include "MainFrm.h"
+#include "ImgRegionDoc.h"
 
 void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 {

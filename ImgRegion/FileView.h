@@ -1,7 +1,26 @@
 
 #pragma once
 
-#include "ImgRegionDoc.h"
+class CImgRegionDoc;
+
+class CImgRegionTreeCtrl : public CTreeCtrl
+{
+protected:
+	BOOL m_bDrag;
+
+	CImageList * m_pDragImage;
+
+public:
+	CImgRegionTreeCtrl(void);
+
+	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+};
 
 class CFileView : public CDockablePane
 {

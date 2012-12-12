@@ -344,10 +344,8 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			if (!pDoc)
 				return;
 
-			CSize dragOff(
-				nChar == VK_LEFT ? -1 : (nChar == VK_RIGHT ? 1 : 0),
-				nChar == VK_UP ? -1 : (nChar == VK_DOWN ? 1 : 0));
-
+			CSize sizeDragLog(
+				nChar == VK_LEFT ? -1 : (nChar == VK_RIGHT ? 1 : 0), nChar == VK_UP ? -1 : (nChar == VK_DOWN ? 1 : 0));
 
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			ASSERT(hSelected);
@@ -359,39 +357,44 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				switch(m_nSelectedHandle)
 				{
 				case HandleTypeLeftTop:
-					pReg->m_Local.x += dragOff.cx;
-					pReg->m_Local.y += dragOff.cy;
+					pReg->m_Local += sizeDragLog;
+					pReg->m_Size -= sizeDragLog;
 					break;
 				case HandleTypeCenterTop:
-					pReg->m_Local.y += dragOff.cy;
+					pReg->m_Local.y += sizeDragLog.cy;
+					pReg->m_Size.cy -= sizeDragLog.cy;
 					break;
 				case HandleTypeRightTop:
-					pReg->m_Size.cx += dragOff.cx;
-					pReg->m_Local.y += dragOff.cy;
+					pReg->m_Local.y += sizeDragLog.cy;
+					pReg->m_Size.cx += sizeDragLog.cx;
+					pReg->m_Size.cy -= sizeDragLog.cy;
 					break;
 				case HandleTypeLeftMiddle:
-					pReg->m_Local.x += dragOff.cx;
+					pReg->m_Local.x += sizeDragLog.cx;
+					pReg->m_Size.cx -= sizeDragLog.cx;
 					break;
 				case HandleTypeRightMiddle:
-					pReg->m_Size.cx += dragOff.cx;
+					pReg->m_Size.cx += sizeDragLog.cx;
 					break;
 				case HandleTypeLeftBottom:
-					pReg->m_Local.x += dragOff.cx;
-					pReg->m_Size.cy += dragOff.cy;
+					pReg->m_Local.x += sizeDragLog.cx;
+					pReg->m_Size.cx -= sizeDragLog.cx;
+					pReg->m_Size.cy += sizeDragLog.cy;
 					break;
 				case HandleTypeCenterBottom:
-					pReg->m_Size.cy += dragOff.cy;
+					pReg->m_Size.cy += sizeDragLog.cy;
 					break;
 				case HandleTypeRightBottom:
-					pReg->m_Size.cx += dragOff.cx;
-					pReg->m_Size.cy += dragOff.cy;
+					pReg->m_Size += sizeDragLog;
 					break;
 				default:
-					pReg->m_Local += dragOff;
+					pReg->m_Local += sizeDragLog;
 					break;
 				}
 
 				Invalidate(TRUE);
+
+				UpdateWindow();
 
 				pDoc->UpdateAllViews(this);
 
