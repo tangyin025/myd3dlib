@@ -54,6 +54,8 @@ public:
 
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
 
+	BOOL m_bIsPropInvalid;
+
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
@@ -73,5 +75,10 @@ public:
 	void UpdateProperties(void);
 
 	afx_msg LRESULT OnPropertyChanged(WPARAM wParam, LPARAM lParam);
+
+	void InvalidProperties(void)
+	{
+		m_bIsPropInvalid = TRUE;
+	}
 };
 

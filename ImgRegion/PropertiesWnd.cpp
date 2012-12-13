@@ -68,6 +68,7 @@ BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 END_MESSAGE_MAP()
 
 CPropertiesWnd::CPropertiesWnd()
+	: m_bIsPropInvalid(FALSE)
 {
 }
 
@@ -240,6 +241,12 @@ void CPropertiesWnd::SetPropListFont()
 
 void CPropertiesWnd::OnIdleUpdate()
 {
+	if(m_bIsPropInvalid)
+	{
+		UpdateProperties();
+
+		m_bIsPropInvalid = FALSE;
+	}
 }
 
 void CPropertiesWnd::UpdateProperties(void)

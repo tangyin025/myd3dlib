@@ -400,7 +400,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 				ASSERT(pFrame);
-				pFrame->m_wndProperties.UpdateProperties();
+				pFrame->m_wndProperties.InvalidProperties();
 			}
 		}
 		break;
@@ -526,7 +526,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 			//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			//ASSERT(pFrame);
-			//pFrame->m_wndProperties.UpdateProperties();
+			//pFrame->m_wndProperties.InvalidProperties();
 		}
 		break;
 	}
@@ -555,11 +555,11 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 			if (!pDoc)
 				return;
 
-			pDoc->UpdateAllViews(this);
+			//pDoc->UpdateAllViews(this);
 
-			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-			ASSERT(pFrame);
-			pFrame->m_wndProperties.UpdateProperties();
+			//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			//ASSERT(pFrame);
+			//pFrame->m_wndProperties.InvalidProperties();
 		}
 		break;
 	}
@@ -673,6 +673,6 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
-		pFrame->m_wndProperties.UpdateProperties();
+		pFrame->m_wndProperties.InvalidProperties();
 	}
 }

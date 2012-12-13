@@ -129,7 +129,7 @@ afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pRe
 		{
 			pDoc->UpdateAllViews(NULL);
 
-			pFrame->m_wndProperties.UpdateProperties();
+			pFrame->m_wndProperties.InvalidProperties();
 		}
 	}
 	*pResult = 0;
