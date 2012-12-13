@@ -329,6 +329,8 @@ CString CImgRegionDoc::GetFullPath(const CString & strPath) const
 		return strPath;
 
 	CString res;
-	PathCombine(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), strPath);
+	if(!strPath.IsEmpty())
+		PathCombine(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), strPath);
+
 	return res;
 }

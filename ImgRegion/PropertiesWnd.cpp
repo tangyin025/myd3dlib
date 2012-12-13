@@ -18,41 +18,21 @@ void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 	CString strPath = m_varValue.bstrVal;
 	BOOL bUpdate = FALSE;
 
-	if (m_bIsFolder)
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+
+	CMDIChildWnd * pChild = pFrame->MDIGetActive();
+	if(pChild)
 	{
-		//if (afxShellManager == NULL)
-		//{
-		//	CWinAppEx* pApp = DYNAMIC_DOWNCAST(CWinAppEx, AfxGetApp());
-		//	if (pApp != NULL)
-		//	{
-		//		pApp->InitShellManager();
-		//	}
-		//}
-
-		//if (afxShellManager == NULL)
-		//{
-		//	ASSERT(FALSE);
-		//}
-		//else
-		//{
-		//	bUpdate = afxShellManager->BrowseForFolder(strPath, m_pWndList, strPath);
-		//}
-
-		ASSERT(FALSE);
-	}
-	else
-	{
-		if(PathIsRelative(strPath))
+		CImgRegionDoc * pDoc = (CImgRegionDoc *)pChild->GetActiveDocument();
+		if(pDoc)
 		{
-			TCHAR buff[MAX_PATH];
-			strPath = PathCombine(buff, m_strCurrDir, strPath);
-		}
-
-		CFileDialog dlg(m_bOpenFileDialog, m_strDefExt, strPath, m_dwFileOpenFlags, m_strFilter, m_pWndList);
-		if (dlg.DoModal() == IDOK)
-		{
-			bUpdate = TRUE;
-			strPath = dlg.GetPathName();
+			CFileDialog dlg(m_bOpenFileDialog, m_strDefExt, pDoc->GetFullPath(strPath), m_dwFileOpenFlags, m_strFilter, m_pWndList);
+			if (dlg.DoModal() == IDOK)
+			{
+				bUpdate = TRUE;
+				strPath = dlg.GetPathName();
+			}
 		}
 	}
 
@@ -287,7 +267,6 @@ void CPropertiesWnd::UpdateProperties(void)
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
 
 				((CImgRegionPropertyGridFileProperty *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
-				((CImgRegionPropertyGridFileProperty *)m_pProp[PropertyItemImage])->m_strCurrDir = pDoc->GetCurrentDir();
 				m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
 				m_pProp[PropertyItemBorderY]->SetValue((_variant_t)pReg->m_Border.y);
 				m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);

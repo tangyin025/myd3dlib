@@ -11,8 +11,6 @@ public:
 	}
 
 	virtual void OnClickButton(CPoint point);
-
-	CString m_strCurrDir;
 };
 
 class CPropertiesWnd : public CDockablePane
