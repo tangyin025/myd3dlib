@@ -10,37 +10,6 @@
 #define new DEBUG_NEW
 #endif
 
-CImgRegionTreeCtrl::CImgRegionTreeCtrl(void)
-	: m_bDrag(FALSE)
-{
-}
-
-BEGIN_MESSAGE_MAP(CImgRegionTreeCtrl, CTreeCtrl)
-	ON_NOTIFY_REFLECT(TVN_BEGINDRAG, &CImgRegionTreeCtrl::OnTvnBegindrag)
-	ON_WM_MOUSEMOVE()
-	ON_WM_LBUTTONUP()
-END_MESSAGE_MAP()
-
-void CImgRegionTreeCtrl::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	SetCapture();
-	m_bDrag = TRUE;
-	*pResult = 0;
-}
-
-void CImgRegionTreeCtrl::OnMouseMove(UINT nFlags, CPoint point)
-{
-	CTreeCtrl::OnMouseMove(nFlags, point);
-}
-
-void CImgRegionTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
-{
-	ReleaseCapture();
-	m_bDrag = FALSE;
-	CTreeCtrl::OnLButtonUp(nFlags, point);
-}
-
 BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()

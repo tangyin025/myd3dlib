@@ -6,6 +6,153 @@
 //#define new DEBUG_NEW
 //#endif
 
+CImgRegionTreeCtrl::CImgRegionTreeCtrl(void)
+	: m_bDrag(FALSE)
+	, m_hDragParent(NULL)
+	, m_hDragFront(NULL)
+{
+}
+
+BEGIN_MESSAGE_MAP(CImgRegionTreeCtrl, CTreeCtrl)
+	ON_NOTIFY_REFLECT(TVN_BEGINDRAG, &CImgRegionTreeCtrl::OnTvnBegindrag)
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
+END_MESSAGE_MAP()
+
+void CImgRegionTreeCtrl::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	TVHITTESTINFO info;
+	info.pt = pNMTreeView->ptDrag;
+	HitTest(&info);
+	if((info.flags & TVHT_ONITEM) && info.hItem)
+	{
+		SetCapture();
+		m_bDrag = TRUE;
+		m_hDragItem = info.hItem;
+	}
+	*pResult = 0;
+}
+
+void CImgRegionTreeCtrl::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if(m_bDrag)
+	{
+		TVHITTESTINFO info;
+		info.pt = point;
+		HitTest(&info);
+		if((info.flags & TVHT_ONITEM) && info.hItem)
+		{
+			CRect rectItem;
+			GetItemRect(info.hItem, &rectItem, FALSE);
+
+			int nBorder = rectItem.Height() / 3;
+			if(point.y < rectItem.top + nBorder)
+			{
+				SetInsertMark(info.hItem, FALSE);
+				SelectDropTarget(NULL);
+				m_hDragParent = GetSafeParentItem(info.hItem);
+				m_hDragFront = GetSafePreSiblingItem(info.hItem);
+			}
+			else if(point.y >= rectItem.bottom - nBorder)
+			{
+				SetInsertMark(info.hItem, TRUE);
+				SelectDropTarget(NULL);
+				m_hDragParent = GetSafeParentItem(info.hItem);
+				m_hDragFront = info.hItem;
+			}
+			else
+			{
+				SetInsertMark(NULL);
+				SelectDropTarget(info.hItem);
+				m_hDragParent = info.hItem;
+				m_hDragFront = TVI_LAST;
+			}
+		}
+		else
+		{
+			SetInsertMark(NULL);
+			SelectDropTarget(NULL);
+			m_hDragParent = TVI_ROOT;
+			m_hDragFront = TVI_LAST;
+		}
+	}
+	CTreeCtrl::OnMouseMove(nFlags, point);
+}
+
+void CImgRegionTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if(m_bDrag)
+	{
+		ReleaseCapture();
+		m_bDrag = FALSE;
+		SetInsertMark(NULL);
+		SelectDropTarget(NULL);
+
+		HTREEITEM hItem = MoveTreeItem(m_hDragParent, m_hDragFront, m_hDragItem);
+		SelectItem(hItem);
+		Expand(hItem, TVE_EXPAND);
+	}
+	CTreeCtrl::OnLButtonUp(nFlags, point);
+}
+
+BOOL CImgRegionTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
+{
+	if(hParent == hChild)
+		return TRUE;
+
+	HTREEITEM hItem = GetChildItem(hParent);
+	for(; hItem; hItem = GetNextSiblingItem(hItem))
+	{
+		if(FindTreeChildItem(hItem, hChild))
+			return TRUE;
+	}
+
+	return FALSE;
+}
+
+HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
+{
+	if(hParent == hOtherItem || hInsertAfter == hOtherItem || FindTreeChildItem(hOtherItem, hParent))
+	{
+		return hOtherItem;
+	}
+
+	HTREEITEM hItem = InsertItem(GetItemText(hOtherItem), 0, 0, hParent, hInsertAfter);
+	SetItemData(hItem, GetItemData(hOtherItem));
+
+	HTREEITEM hOtherChild = GetChildItem(hOtherItem);
+	HTREEITEM hChild = TVI_LAST;
+	for(; hOtherChild; )
+	{
+		// ! Note deleted item cannot get next sibling
+		HTREEITEM hNextOtherChild = GetNextSiblingItem(hOtherChild);
+		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
+		hOtherChild = hNextOtherChild;
+	}
+
+	DeleteItem(hOtherItem);
+	return hItem;
+}
+
+HTREEITEM CImgRegionTreeCtrl::GetSafeParentItem(HTREEITEM hItem)
+{
+	HTREEITEM hParent = GetParentItem(hItem);
+	if(!hParent)
+		return TVI_ROOT;
+
+	return hParent;
+}
+
+HTREEITEM CImgRegionTreeCtrl::GetSafePreSiblingItem(HTREEITEM hItem)
+{
+	HTREEITEM hSibling = GetPrevSiblingItem(hItem);
+	if(!hSibling)
+		return TVI_FIRST;
+
+	return hSibling;
+}
+
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
@@ -24,10 +171,14 @@ BOOL CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal, CPoint 
 		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 		ASSERT(pReg);
 
-		if(hItem == m_TreeCtrl.GetRootItem())
+		HTREEITEM hRoot = m_TreeCtrl.GetRootItem();
+		for(; hRoot; hRoot = m_TreeCtrl.GetNextSiblingItem(hRoot))
 		{
-			ptResult = pReg->m_Local + ptLocal;
-			return TRUE;
+			if(hItem == hRoot)
+			{
+				ptResult = pReg->m_Local + ptLocal;
+				return TRUE;
+			}
 		}
 
 		return LocalToRoot(m_TreeCtrl.GetParentItem(hItem), pReg->m_Local + ptLocal, ptResult);
@@ -57,12 +208,13 @@ BOOL CImgRegionDoc::CreateTreeCtrl(void)
 void CImgRegionDoc::DestroyTreeCtrl(void)
 {
 	HTREEITEM hItem = m_TreeCtrl.GetRootItem();
-	for(; NULL != hItem; hItem = m_TreeCtrl.GetNextSiblingItem(hItem))
+	for(; NULL != hItem; )
 	{
-		DeleteItemTreeData(hItem);
+		// ! Note deleted item cannot get next sibling
+		HTREEITEM hNextItem = m_TreeCtrl.GetNextSiblingItem(hItem);
+		DeleteTreeItem(hItem, TRUE);
+		hItem = hNextItem;
 	}
-
-	m_TreeCtrl.DeleteAllItems();
 
 	m_TreeCtrl.DestroyWindow();
 
@@ -74,17 +226,25 @@ void CImgRegionDoc::DestroyTreeCtrl(void)
 	pFrame->m_wndFileView.AdjustLayout();
 }
 
-void CImgRegionDoc::DeleteItemTreeData(HTREEITEM hItem)
+void CImgRegionDoc::DeleteTreeItem(HTREEITEM hItem, BOOL bDeleteData)
 {
-	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
-	ASSERT(pReg);
-	delete pReg;
-
-	HTREEITEM hChild = m_TreeCtrl.GetChildItem(hItem);
-	for(; NULL != hChild; hChild = m_TreeCtrl.GetNextSiblingItem(hItem))
+	if(bDeleteData)
 	{
-		DeleteItemTreeData(hChild);
+		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
+		ASSERT(pReg);
+		delete pReg;
+
+		HTREEITEM hChild = m_TreeCtrl.GetChildItem(hItem);
+		for(; NULL != hChild; )
+		{
+			// ! Note deleted item cannot get next sibling
+			HTREEITEM hNextChild = m_TreeCtrl.GetNextSiblingItem(hChild);
+			DeleteTreeItem(hChild, bDeleteData);
+			hChild = hNextChild;
+		}
 	}
+
+	m_TreeCtrl.DeleteItem(hItem);
 }
 
 HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal)

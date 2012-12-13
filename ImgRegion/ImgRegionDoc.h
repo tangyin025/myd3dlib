@@ -53,6 +53,38 @@ public:
 	}
 };
 
+class CImgRegionTreeCtrl : public CTreeCtrl
+{
+protected:
+	BOOL m_bDrag;
+
+	HTREEITEM m_hDragItem;
+
+	HTREEITEM m_hDragParent;
+
+	HTREEITEM m_hDragFront;
+
+public:
+	CImgRegionTreeCtrl(void);
+
+	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+public:
+	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
+
+	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
+
+	HTREEITEM GetSafeParentItem(HTREEITEM hItem);
+
+	HTREEITEM GetSafePreSiblingItem(HTREEITEM hItem);
+};
+
 class CImgRegionDoc
 	: public CDocument
 	, public CImgRegion
@@ -81,7 +113,7 @@ public:
 
 	void DestroyTreeCtrl(void);
 
-	void DeleteItemTreeData(HTREEITEM hItem);
+	void DeleteTreeItem(HTREEITEM hItem, BOOL bDeleteData = FALSE);
 
 	HTREEITEM GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal);
 
