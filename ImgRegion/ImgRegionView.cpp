@@ -84,13 +84,12 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	grap.ResetTransform();
 
 	HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
-	CPoint ptTopLeft;
-	if(hSelected && pDoc->LocalToRoot(hSelected, CPoint(0,0), ptTopLeft))
+	if(hSelected)
 	{
 		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 		ASSERT(pReg);
 
-		CRect rect(ptTopLeft, pReg->m_Size);
+		CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
 		CWindowDC dc(this);
 		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
@@ -441,13 +440,12 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				return;
 
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
-			CPoint ptTopLeft;
-			if(hSelected && pDoc->LocalToRoot(hSelected, CPoint(0,0), ptTopLeft))
+			if(hSelected)
 			{
 				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 				ASSERT(pReg);
 
-				CRect rect(ptTopLeft, pReg->m_Size);
+				CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
 				CWindowDC dc(this);
 				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));

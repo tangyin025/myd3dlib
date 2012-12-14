@@ -42,6 +42,7 @@ END
 BEGIN
     "\r\n"
     "#if !defined(_AFXDLL)\r\n"
+    "#include ""l.CHS\\afxres.rc""          // 标准组件\r\n"
     "#include ""l.CHS\\afxribbon.rc""               // MFC 功能区和控件条资源\r\n"
     "#endif\r\n"
     "\0"
@@ -232,6 +233,16 @@ IDC_CURSOR2             CURSOR                  "Cross.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDR_MAINFRAME           ICON                    "ImgRegion.ico"
+IDR_ImgRegionTYPE       ICON                    "ImgRegionDoc.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // String Table
 //
 
@@ -268,6 +279,7 @@ END
 //
 
 #if !defined(_AFXDLL)
+#include "l.CHS\afxres.rc"          // 标准组件
 #include "l.CHS\afxribbon.rc"               // MFC 功能区和控件条资源
 #endif
 

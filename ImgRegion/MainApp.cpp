@@ -63,7 +63,7 @@ BOOL CMainApp::InitInstance(void)
 	m_pMainWnd = pMainFrame;
 
 	CCommandLineInfo cmdInfo;
-	//cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
+	cmdInfo.m_nShellCommand = CCommandLineInfo::FileNothing;
 	ParseCommandLine(cmdInfo);
 	if (!ProcessShellCommand(cmdInfo))
 		return FALSE;

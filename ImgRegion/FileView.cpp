@@ -16,6 +16,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 400, &CFileView::OnTvnSelchangedTree)
+	ON_NOTIFY_RANGE(TVN_DRAGCHANGED, 4, 400, &CFileView::OnTvnDragchangedTree)
 END_MESSAGE_MAP()
 
 CFileView::CFileView()
@@ -102,4 +103,35 @@ afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pRe
 		}
 	}
 	*pResult = 0;
+}
+
+afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMTREEVIEWDRAG * pDragInfo = reinterpret_cast<NMTREEVIEWDRAG *>(pNMHDR);
+	ASSERT(pDragInfo);
+
+	CImgRegionTreeCtrl * pTreeCtrl = DYNAMIC_DOWNCAST(CImgRegionTreeCtrl, GetDlgItem(id));
+	ASSERT(pTreeCtrl);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+
+	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+	if(pChildFrame)
+	{
+		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+		if(pDoc && &pDoc->m_TreeCtrl == pTreeCtrl)
+		{
+			CPoint ptOrg = pDoc->LocalToRoot(pDragInfo->hDragItem, CPoint(0,0));
+
+			HTREEITEM hItem = pTreeCtrl->MoveTreeItem(pDragInfo->hDragTagParent, pDragInfo->hDragTagFront, pDragInfo->hDragItem);
+			pTreeCtrl->SelectItem(hItem);
+			pTreeCtrl->Expand(hItem, TVE_EXPAND);
+
+			CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
+			ASSERT(pReg);
+
+			pReg->m_Local = pDoc->RootToLocal(pDragInfo->hDragTagParent, ptOrg);
+		}
+	}
 }

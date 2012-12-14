@@ -6,6 +6,16 @@ typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
 
 typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
 
+#define TVN_DRAGCHANGED (TVN_LAST + 1)
+
+struct NMTREEVIEWDRAG
+{
+	NMHDR hdr;
+	HTREEITEM hDragItem;
+	HTREEITEM hDragTagParent;
+	HTREEITEM hDragTagFront;
+};
+
 class Vector4i
 {
 public:
@@ -60,9 +70,11 @@ protected:
 
 	HTREEITEM m_hDragItem;
 
-	HTREEITEM m_hDragParent;
+	HTREEITEM m_hDragTagParent;
 
-	HTREEITEM m_hDragFront;
+	HTREEITEM m_hDragTagFront;
+
+	DECLARE_DYNAMIC(CImgRegionTreeCtrl)
 
 public:
 	CImgRegionTreeCtrl(void);
@@ -79,6 +91,25 @@ public:
 	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
 
 	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
+
+	template <class DataType>
+	void DeleteTreeItem(HTREEITEM hItem, BOOL bDeleteData = FALSE)
+	{
+		if(bDeleteData)
+		{
+			delete (DataType *)GetItemData(hItem);
+
+			HTREEITEM hNextChild = NULL;
+			for(HTREEITEM hChild = GetChildItem(hItem); NULL != hChild; hChild = hNextChild)
+			{
+				hNextChild = GetNextSiblingItem(hChild);
+
+				DeleteTreeItem<DataType>(hChild, bDeleteData);
+			}
+		}
+
+		DeleteItem(hItem);
+	}
 
 	HTREEITEM GetSafeParentItem(HTREEITEM hItem);
 
@@ -107,13 +138,13 @@ public:
 
 	CImgRegionDoc(void);
 
-	BOOL LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal, CPoint & ptResult);
+	CPoint LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal);
+
+	CPoint RootToLocal(HTREEITEM hItem, const CPoint & ptRoot);
 
 	BOOL CreateTreeCtrl(void);
 
 	void DestroyTreeCtrl(void);
-
-	void DeleteTreeItem(HTREEITEM hItem, BOOL bDeleteData = FALSE);
 
 	HTREEITEM GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal);
 

@@ -31,5 +31,7 @@ public:
 	void OnIdleUpdate();
 
 	afx_msg void OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 };
 
