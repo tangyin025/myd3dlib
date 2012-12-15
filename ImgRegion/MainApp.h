@@ -15,6 +15,8 @@ public:
 
 	ULONG_PTR gdiplusToken;
 
+	CArray<Gdiplus::FontFamily> fontFamilies;
+
 	DECLARE_MESSAGE_MAP()
 
 	virtual int ExitInstance();

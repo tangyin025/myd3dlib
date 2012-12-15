@@ -4,6 +4,7 @@
 #include "Resource.h"
 #include "MainFrm.h"
 #include "ImgRegionDoc.h"
+#include "MainApp.h"
 
 void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 {
@@ -162,18 +163,12 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstrcpy(lf.lfFaceName, _T("宋体, Arial"));
 	pProp = new CMFCPropertyGridProperty(_T("字体"), _T("新宋体"), _T("选择字体"), PropertyItemFont);
 	pProp->AllowEdit(FALSE);
-	Gdiplus::InstalledFontCollection installedFontCollection;
-	const int count = installedFontCollection.GetFamilyCount();
-	Gdiplus::FontFamily * families = new Gdiplus::FontFamily[count];
-	int found;
-	installedFontCollection.GetFamilies(count, &families[0], &found);
-	for(int i = 0; i < found; i++)
+	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
 	{
 		CString strFamily;
-		families[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+		theApp.fontFamilies[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
 		pProp->AddOption(strFamily);
 	}
-	delete [] families;
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
 	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)12l, _T("字体大小"), PropertyItemFontSize);

@@ -35,6 +35,13 @@ BOOL CMainApp::InitInstance(void)
 
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 
+	Gdiplus::InstalledFontCollection installedFontCollection;
+	const int count = installedFontCollection.GetFamilyCount();
+	fontFamilies.SetSize(count);
+	int found;
+	installedFontCollection.GetFamilies(count, fontFamilies.GetData(), &found);
+	fontFamilies.SetSize(found);
+
 	InitContextMenuManager();
 
 	InitKeyboardManager();
@@ -76,6 +83,8 @@ BOOL CMainApp::InitInstance(void)
 
 int CMainApp::ExitInstance()
 {
+	fontFamilies.RemoveAll();
+
 	Gdiplus::GdiplusShutdown(gdiplusToken);
 
 	return CWinAppEx::ExitInstance();

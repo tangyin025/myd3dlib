@@ -2,6 +2,7 @@
 #include "ImgRegionDoc.h"
 #include "MainFrm.h"
 #include "resource.h"
+#include "ImgRegionDocPropertyDlg.h"
 //
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -290,7 +291,13 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 	//m_TreeCtrl.SelectItem(hItem);
 
-	return TRUE;
+	CImgRegionDocPropertyDlg dlg;
+	if(dlg.DoModal() == IDOK)
+	{
+		return TRUE;
+	}
+
+	return FALSE;
 }
 
 BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
