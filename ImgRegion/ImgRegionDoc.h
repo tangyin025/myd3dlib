@@ -174,4 +174,12 @@ public:
 	CString GetRelativePath(const CString & strPath) const;
 
 	CString GetFullPath(const CString & strPath) const;
+
+	afx_msg void OnAddRegion();
+
+	afx_msg void OnUpdateAddRegion(CCmdUI *pCmdUI);
+
+	afx_msg void OnDelRegion();
+
+	afx_msg void OnUpdateDelRegion(CCmdUI *pCmdUI);
 };

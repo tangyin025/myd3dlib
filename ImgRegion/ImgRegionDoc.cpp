@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ImgRegionDoc.h"
 #include "MainFrm.h"
+#include "resource.h"
 //
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -162,6 +163,10 @@ HTREEITEM CImgRegionTreeCtrl::GetSafePreSiblingItem(HTREEITEM hItem)
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
+	ON_COMMAND(ID_ADD_REGION, &CImgRegionDoc::OnAddRegion)
+	ON_UPDATE_COMMAND_UI(ID_ADD_REGION, &CImgRegionDoc::OnUpdateAddRegion)
+	ON_COMMAND(ID_DEL_REGION, &CImgRegionDoc::OnDelRegion)
+	ON_UPDATE_COMMAND_UI(ID_DEL_REGION, &CImgRegionDoc::OnUpdateDelRegion)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -262,29 +267,28 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	if (!CreateTreeCtrl())
 		return FALSE;
 
-	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
-	CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
-	pRegRoot->m_ImageStr = L"Checker.bmp";
-	pRegRoot->m_Image = GetImage(GetFullPath(pRegRoot->m_ImageStr));
-	pRegRoot->m_Border = Vector4i(100,50,100,50);
-	Gdiplus::FontFamily fontFamily(L"Arial");
-	pRegRoot->m_Font = m_Font;
-	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pRegRoot);
+	//HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
+	//CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
+	//pRegRoot->m_ImageStr = L"Checker.bmp";
+	//pRegRoot->m_Image = GetImage(GetFullPath(pRegRoot->m_ImageStr));
+	//pRegRoot->m_Border = Vector4i(100,50,100,50);
+	//pRegRoot->m_Font = m_Font;
+	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pRegRoot);
 
-	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
-	CImgRegion * pReg = new CImgRegion(CPoint(100,100), CSize(200,200), Gdiplus::Color(192,255,0,0));
-	pReg->m_Font = m_Font;
-	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+	//hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
+	//CImgRegion * pReg = new CImgRegion(CPoint(100,100), CSize(200,200), Gdiplus::Color(192,255,0,0));
+	//pReg->m_Font = m_Font;
+	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-	hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
-	pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,255,255,255));
-	pReg->m_Font = m_Font;
-	pReg->m_ImageStr = L"com_btn_normal.png";
-	pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
-	pReg->m_Border = Vector4i(7,7,7,7);
-	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+	//hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
+	//pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,255,255,255));
+	//pReg->m_Font = m_Font;
+	//pReg->m_ImageStr = L"com_btn_normal.png";
+	//pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
+	//pReg->m_Border = Vector4i(7,7,7,7);
+	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-	m_TreeCtrl.SelectItem(hItem);
+	//m_TreeCtrl.SelectItem(hItem);
 
 	return TRUE;
 }
@@ -476,4 +480,51 @@ CString CImgRegionDoc::GetFullPath(const CString & strPath) const
 		PathCombine(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), strPath);
 
 	return res;
+}
+
+void CImgRegionDoc::OnAddRegion()
+{
+	HTREEITEM hParent = NULL;
+	CPoint ptOrg(10,10);
+	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+	if(hSelected)
+	{
+		hParent = m_TreeCtrl.GetParentItem(hSelected);
+		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		ptOrg += pReg->m_Local;
+	}
+	if(!hParent)
+	{
+		hParent = TVI_ROOT;
+	}
+
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"), hParent, TVI_LAST);
+	CImgRegion * pReg = new CImgRegion(ptOrg, CSize(100,100),
+		Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255)));
+	pReg->m_Font = m_Font;
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+	m_TreeCtrl.SelectItem(hItem);
+}
+
+void CImgRegionDoc::OnUpdateAddRegion(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(TRUE);
+}
+
+void CImgRegionDoc::OnDelRegion()
+{
+	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+	if(hSelected)
+	{
+		m_TreeCtrl.DeleteTreeItem<CImgRegion>(hSelected, TRUE);
+	}
+
+	// ! 如果没有selected item，则最后一次的 DeleteTreeItem，不会触发 TVN_SELCHANGED
+	if(!m_TreeCtrl.GetSelectedItem())
+		UpdateAllViews(NULL);
+}
+
+void CImgRegionDoc::OnUpdateDelRegion(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(NULL != m_TreeCtrl.GetSelectedItem());
 }
