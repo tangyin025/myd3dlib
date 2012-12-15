@@ -9,7 +9,7 @@ CImgRegionDocPropertyDlg::CImgRegionDocPropertyDlg(CWnd* pParent /*=NULL*/)
 	: CDialog(CImgRegionDocPropertyDlg::IDD, pParent)
 	, m_Size(500,500)
 	, m_Color(RGB(255,255,255))
-	, m_strBkImage(_T(""))
+	, m_ImageStr(_T(""))
 	, m_strFontFamily(_T("Arial"))
 	, m_FontSize(12)
 {
@@ -25,7 +25,7 @@ void CImgRegionDocPropertyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT1, m_Size.cx);
 	DDX_Text(pDX, IDC_EDIT2, m_Size.cy);
 	DDX_Control(pDX, IDC_BUTTON1, m_btnColor);
-	DDX_Text(pDX, IDC_EDIT3, m_strBkImage);
+	DDX_Text(pDX, IDC_EDIT3, m_ImageStr);
 	DDX_Control(pDX, IDC_COMBO1, m_cbxFontFamily);
 	DDX_Text(pDX, IDC_EDIT4, m_FontSize);
 
@@ -46,6 +46,12 @@ END_MESSAGE_MAP()
 
 void CImgRegionDocPropertyDlg::OnBnClickedOpenImage()
 {
+	CFileDialog dlg(TRUE, NULL, m_ImageStr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("Í¼Æ¬ÎÄ¼þ(*.bmp; *.jpg; *.png)|*.bmp;*.jpg;*.png|All Files(*.*)|*.*||"), this);
+	if(dlg.DoModal() == IDOK)
+	{
+		m_ImageStr = dlg.GetPathName();
+		SetDlgItemText(IDC_EDIT3, m_ImageStr);
+	}
 }
 
 BOOL CImgRegionDocPropertyDlg::OnInitDialog()

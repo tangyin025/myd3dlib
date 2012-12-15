@@ -340,7 +340,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemImage:
 					ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
 					pReg->m_ImageStr = pDoc->GetRelativePath(ImageStr);
-					pReg->m_Image = pDoc->GetImage(ImageStr);
+					pReg->m_Image = theApp.GetImage(ImageStr);
 					break;
 
 				case PropertyItemBorder:
@@ -356,7 +356,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 				case PropertyItemFont:
 				case PropertyItemFontSize:
-					pReg->m_Font = pDoc->GetFont(
+					pReg->m_Font = theApp.GetFont(
 						m_pProp[PropertyItemFont]->GetValue().bstrVal,
 						(float)m_pProp[PropertyItemFontSize]->GetValue().lVal);
 					break;
@@ -373,6 +373,8 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 
 				pDoc->UpdateAllViews(NULL);
+
+				pDoc->SetModifiedFlag();
 			}
 		}
 	}

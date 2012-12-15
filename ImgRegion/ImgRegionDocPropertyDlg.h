@@ -25,7 +25,7 @@ public:
 
 	COLORREF m_Color;
 
-	CString m_strBkImage;
+	CString m_ImageStr;
 
 	CComboBox m_cbxFontFamily;
 

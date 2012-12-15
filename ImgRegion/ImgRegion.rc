@@ -95,7 +95,7 @@ BEGIN
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "关于 aaa(&A)...",               ID_APP_ABOUT
+        MENUITEM "关于 ImgRegion(&A)...",         ID_APP_ABOUT
     END
 END
 
@@ -108,6 +108,10 @@ BEGIN
         MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
         MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
+        POPUP "导出(&E)"
+        BEGIN
+            MENUITEM "图片(&I)...",                   ID_FILE_EXPORT_IMG
+        END
         MENUITEM SEPARATOR
         MENUITEM "打印(&P)...\tCtrl+P",           ID_FILE_PRINT
         MENUITEM "打印预览(&V)",                    ID_FILE_PRINT_PREVIEW
@@ -158,7 +162,7 @@ BEGIN
     END
     POPUP "帮助(&H)"
     BEGIN
-        MENUITEM "关于 aaa(&A)...",               ID_APP_ABOUT
+        MENUITEM "关于 ImgRegion(&A)...",         ID_APP_ABOUT
     END
 END
 
@@ -222,6 +226,7 @@ END
 
 IDR_MAINFRAME           BITMAP                  "Toolbar256.bmp"
 IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
+IDB_BITMAP1             BITMAP                  "jyiczlza.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -253,17 +258,28 @@ FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
     DEFPUSHBUTTON   "OK",IDOK,69,99,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,123,99,50,14
-    EDITTEXT        IDC_EDIT1,84,16,40,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT2,136,16,40,14,ES_AUTOHSCROLL | ES_NUMBER
-    EDITTEXT        IDC_EDIT3,84,54,68,14,ES_AUTOHSCROLL
-    EDITTEXT        IDC_EDIT4,156,73,40,14,ES_AUTOHSCROLL | ES_NUMBER
-    LTEXT           "画布大小",IDC_STATIC,44,16,33,8
-    LTEXT           "背景颜色",IDC_STATIC,44,35,33,8
-    LTEXT           "背景图片",IDC_STATIC,44,54,33,8
-    LTEXT           "默认字体",IDC_STATIC,44,73,33,8
-    COMBOBOX        IDC_COMBO1,84,73,68,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
-    PUSHBUTTON      "Button1",IDC_BUTTON1,84,35,68,14
-    PUSHBUTTON      "...",IDC_BUTTON2,156,54,40,14
+    EDITTEXT        IDC_EDIT1,92,16,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT2,144,16,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT3,92,54,68,14,ES_AUTOHSCROLL
+    EDITTEXT        IDC_EDIT4,164,73,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    RTEXT           "画布大小",IDC_STATIC,36,16,49,8
+    RTEXT           "背景颜色",IDC_STATIC,36,35,49,8
+    RTEXT           "背景图片",IDC_STATIC,36,54,49,8
+    RTEXT           "默认字体",IDC_STATIC,36,73,49,8
+    COMBOBOX        IDC_COMBO1,92,73,68,30,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    PUSHBUTTON      "Button1",IDC_BUTTON1,92,35,68,14
+    PUSHBUTTON      "...",IDC_BUTTON2,164,54,40,14
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 207, 72
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Dialog"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    DEFPUSHBUTTON   "确定",IDOK,134,42,66,23
+    LTEXT           "ImgRegion，作者：Tang Yin",IDC_STATIC,79,12,94,8
+    LTEXT           "Copyright (C) 2013",IDC_STATIC,79,27,62,8
+    CONTROL         112,IDC_STATIC,"Static",SS_BITMAP,15,12,50,46
 END
 
 
@@ -281,6 +297,14 @@ BEGIN
         RIGHTMARGIN, 235
         TOPMARGIN, 7
         BOTTOMMARGIN, 115
+    END
+
+    IDD_ABOUTBOX, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 200
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 65
     END
 END
 #endif    // APSTUDIO_INVOKED

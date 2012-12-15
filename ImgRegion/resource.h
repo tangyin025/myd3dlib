@@ -13,14 +13,15 @@
 #define IDC_CURSOR1                     108
 #define IDC_CURSOR2                     109
 #define IDD_DOC_PROPERTY                110
+#define IDD_ABOUTBOX                    111
+#define IDB_BITMAP1                     112
 #define IDC_EDIT1                       1001
 #define IDC_EDIT2                       1002
 #define IDC_EDIT3                       1003
 #define IDC_EDIT4                       1004
 #define IDC_COMBO1                      1006
-#define IDC_COMBO2                      1007
-#define IDC_BUTTON1                     1008
-#define IDC_BUTTON2                     1009
+#define IDC_BUTTON1                     1007
+#define IDC_BUTTON2                     1008
 #define ID_VIEW_APPLOOK_WIN_2000        40001
 #define ID_VIEW_APPLOOK_OFF_XP          40002
 #define ID_VIEW_APPLOOK_WIN_XP          40003
@@ -34,14 +35,15 @@
 #define ID_ZOOM_IN                      40011
 #define ID_DEL_REGION                   40012
 #define ID_ADD_REGION                   40013
+#define ID_FILE_EXPORT_IMG              40014
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        111
-#define _APS_NEXT_COMMAND_VALUE         40014
-#define _APS_NEXT_CONTROL_VALUE         1010
+#define _APS_NEXT_RESOURCE_VALUE        113
+#define _APS_NEXT_COMMAND_VALUE         40015
+#define _APS_NEXT_CONTROL_VALUE         1009
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

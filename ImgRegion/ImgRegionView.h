@@ -67,6 +67,8 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
+	void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
+
 	void DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
 	void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
@@ -114,4 +116,6 @@ public:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 protected:
 	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
+public:
+	afx_msg void OnFileExportImg();
 };

@@ -3,10 +3,10 @@
 #include "MainFrm.h"
 #include "resource.h"
 #include "ImgRegionDocPropertyDlg.h"
-//
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#endif
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
 IMPLEMENT_DYNAMIC(CImgRegionTreeCtrl, CTreeCtrl)
 
@@ -173,7 +173,6 @@ END_MESSAGE_MAP()
 CImgRegionDoc::CImgRegionDoc(void)
 	: CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color::White)
 {
-	m_Font = GetFont(L"Arial", 12);
 }
 
 CPoint CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal)
@@ -268,32 +267,15 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	if (!CreateTreeCtrl())
 		return FALSE;
 
-	//HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
-	//CImgRegion * pRegRoot = new CImgRegion(CPoint(0,0), CSize(500,500), Gdiplus::Color(255,255,255,255));
-	//pRegRoot->m_ImageStr = L"Checker.bmp";
-	//pRegRoot->m_Image = GetImage(GetFullPath(pRegRoot->m_ImageStr));
-	//pRegRoot->m_Border = Vector4i(100,50,100,50);
-	//pRegRoot->m_Font = m_Font;
-	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pRegRoot);
-
-	//hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
-	//CImgRegion * pReg = new CImgRegion(CPoint(100,100), CSize(200,200), Gdiplus::Color(192,255,0,0));
-	//pReg->m_Font = m_Font;
-	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-
-	//hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
-	//pReg = new CImgRegion(CPoint(25,25), CSize(75,75), Gdiplus::Color(255,255,255,255));
-	//pReg->m_Font = m_Font;
-	//pReg->m_ImageStr = L"com_btn_normal.png";
-	//pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
-	//pReg->m_Border = Vector4i(7,7,7,7);
-	//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-
-	//m_TreeCtrl.SelectItem(hItem);
-
 	CImgRegionDocPropertyDlg dlg;
 	if(dlg.DoModal() == IDOK)
 	{
+		m_Size = dlg.m_Size;
+		m_Color.SetFromCOLORREF(dlg.m_Color);
+		m_ImageStr = GetRelativePath(dlg.m_ImageStr);
+		m_Image = theApp.GetImage(dlg.m_ImageStr);
+		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
+
 		return TRUE;
 	}
 
@@ -340,7 +322,9 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 	{	// storing code
 		ar << m_Size;
 		DWORD argb = m_Color.GetValue(); ar << argb;
-		ar << m_Border.x << m_Border.y << m_Border.z << m_Border.w;
+		ar << m_ImageStr;
+		Gdiplus::FontFamily family; m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
+		ar << m_Font->GetSize();
 
 		SerializeRegionNode(ar, TVI_ROOT);
 	}
@@ -348,7 +332,9 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 	{	// loading code
 		ar >> m_Size;
 		DWORD argb; ar >> argb; m_Color.SetValue(argb);
-		ar >> m_Border.x >> m_Border.y >> m_Border.z >> m_Border.w;
+		ar >> m_ImageStr; m_Image = theApp.GetImage(GetFullPath(m_ImageStr));
+		CString strFamily; float fSize; ar >> strFamily;
+		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
 
 		SerializeRegionNode(ar, TVI_ROOT);
 	}
@@ -384,7 +370,8 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			DWORD argb = pReg->m_Color.GetValue(); ar << argb;
 			ar << pReg->m_ImageStr;
 			ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
-			Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily << pReg->m_Font->GetSize();
+			Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
+			ar << pReg->m_Font->GetSize();
 			argb = pReg->m_FontColor.GetValue(); ar << argb;
 			ar << pReg->m_Text;
 
@@ -406,9 +393,10 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			ar >> pReg->m_Local;
 			ar >> pReg->m_Size;
 			DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
-			ar >> pReg->m_ImageStr; pReg->m_Image = GetImage(GetFullPath(pReg->m_ImageStr));
+			ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(GetFullPath(pReg->m_ImageStr));
 			ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
-			CString strFamily; float fSize; ar >> strFamily >> fSize; pReg->m_Font = GetFont(strFamily, fSize);
+			CString strFamily; float fSize; ar >> strFamily;
+			ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
 			ar >> argb; pReg->m_FontColor.SetValue(argb);
 			ar >> pReg->m_Text;
 
@@ -417,45 +405,6 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			SerializeRegionNode(ar, hItem);
 		}
 	}
-}
-
-ImagePtr CImgRegionDoc::GetImage(CString strImg)
-{
-	if(!strImg.IsEmpty())
-	{
-		ASSERT(!PathIsRelative(strImg));
-
-		std::wstring key(strImg);
-		ImagePtrMap::iterator img_iter = m_ImageMap.find(key);
-		if(img_iter == m_ImageMap.end())
-		{
-			m_ImageMap[key] = ImagePtr(new Gdiplus::Image(strImg));
-		}
-
-		return m_ImageMap[key];
-	}
-
-	return ImagePtr();
-}
-
-FontPtr2 CImgRegionDoc::GetFont(const CString & strFamily, float fSize)
-{
-	if(!strFamily.IsEmpty())
-	{
-		CString strFont;
-		strFont.Format(_T("%s, %f"), strFamily, fSize);
-
-		std::wstring key(strFont);
-		FontPtr2Map::iterator fnt_iter = m_FontMap.find(key);
-		if(fnt_iter == m_FontMap.end())
-		{
-			m_FontMap[key] = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
-		}
-
-		return m_FontMap[key];
-	}
-
-	return FontPtr2();
 }
 
 const CString & CImgRegionDoc::GetCurrentDir(void) const
@@ -511,6 +460,8 @@ void CImgRegionDoc::OnAddRegion()
 	pReg->m_Font = m_Font;
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 	m_TreeCtrl.SelectItem(hItem);
+
+	SetModifiedFlag();
 }
 
 void CImgRegionDoc::OnUpdateAddRegion(CCmdUI *pCmdUI)
@@ -529,6 +480,8 @@ void CImgRegionDoc::OnDelRegion()
 	// ! 如果没有selected item，则最后一次的 DeleteTreeItem，不会触发 TVN_SELCHANGED
 	if(!m_TreeCtrl.GetSelectedItem())
 		UpdateAllViews(NULL);
+
+	SetModifiedFlag();
 }
 
 void CImgRegionDoc::OnUpdateDelRegion(CCmdUI *pCmdUI)

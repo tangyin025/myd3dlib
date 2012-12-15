@@ -132,6 +132,8 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 			ASSERT(pReg);
 
 			pReg->m_Local = pDoc->RootToLocal(pDragInfo->hDragTagParent, ptOrg);
+
+			pDoc->SetModifiedFlag();
 		}
 	}
 }

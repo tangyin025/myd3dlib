@@ -24,6 +24,7 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_SETCURSOR()
+	ON_COMMAND(ID_FILE_EXPORT_IMG, &CImgRegionView::OnFileExportImg)
 END_MESSAGE_MAP()
 
 CImgRegionView::CImgRegionView(void)
@@ -60,28 +61,18 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	dcMemory.FillSolidRect(&rectClient, RGB(192,192,192));
 
 	Gdiplus::Graphics grap(dcMemory.GetSafeHdc());
-	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
-	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
-	grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
-	grap.ScaleTransform(
-		(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
-		(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
-
-	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
+	Gdiplus::GraphicsContainer container = grap.BeginContainer();
 	{
-		DrawRegionImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
+		Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
+		grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
+		grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
+		grap.ScaleTransform(
+			(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
+			(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
+
+		DrawRegionDoc(grap, pDoc);
 	}
-	else
-	{
-		Gdiplus::SolidBrush brush(pDoc->m_Color);
-		grap.FillRectangle(&brush, pDoc->m_Local.x, pDoc->m_Local.y, pDoc->m_Size.cx, pDoc->m_Size.cy);
-	}
-
-	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
-
-	DrawRegionNode(grap, pDoc->m_TreeCtrl.GetRootItem());
-
-	grap.ResetTransform();
+	grap.EndContainer(container);
 
 	HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
@@ -112,6 +103,23 @@ void CImgRegionView::OnDraw(CDC * pDC)
 	pDC->BitBlt(0, 0, rectClient.Width(), rectClient.Height(), &dcMemory, 0, 0, SRCCOPY);
 
 	dcMemory.SelectObject(oldBmp);
+}
+
+void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc)
+{
+	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
+	{
+		DrawRegionImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
+	}
+	else
+	{
+		Gdiplus::SolidBrush brush(pDoc->m_Color);
+		grap.FillRectangle(&brush, pDoc->m_Local.x, pDoc->m_Local.y, pDoc->m_Size.cx, pDoc->m_Size.cy);
+	}
+
+	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
+
+	DrawRegionNode(grap, pDoc->m_TreeCtrl.GetRootItem());
 }
 
 void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
@@ -397,6 +405,8 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 
 				pDoc->UpdateAllViews(this);
 
+				pDoc->SetModifiedFlag();
+
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 				ASSERT(pFrame);
 				pFrame->m_wndProperties.InvalidProperties();
@@ -636,6 +646,8 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			Invalidate(TRUE);
 
 			UpdateWindow();
+
+			pDoc->SetModifiedFlag();
 		}
 		break;
 	}
@@ -672,5 +684,65 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
 		pFrame->m_wndProperties.InvalidProperties();
+	}
+}
+
+int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
+
+	Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+	Gdiplus::GetImageEncodersSize(&num, &size);
+	if(size == 0)
+		return -1;  // Failure
+
+	pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+	if(pImageCodecInfo == NULL)
+		return -1;  // Failure
+
+	GetImageEncoders(num, size, pImageCodecInfo);
+
+	for(UINT j = 0; j < num; ++j)
+	{
+		if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+		{
+			*pClsid = pImageCodecInfo[j].Clsid;
+			free(pImageCodecInfo);
+			return j;  // Success
+		}    
+	}
+
+	free(pImageCodecInfo);
+	return -1;  // Failure
+}
+
+void CImgRegionView::OnFileExportImg()
+{
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	CFileDialog dlg(FALSE, _T("jpg"), pDoc->GetTitle(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("JPEG(*.jpg; *.jpeg; *.jpe)|*.jpg; *.jpeg; *.jpe|BMP(*.bmp; *.rle; *.dib)|*.bmp; *.rle; *.dib|PNG(*.png)|*.png||"), this);
+	if(dlg.DoModal() == IDOK)
+	{
+		CStringW format;
+		format.Format(L"image/%s", theApp.GetMIME(dlg.GetFileExt()));
+		CLSID encoderClsid;
+		if(GetEncoderClsid(format, &encoderClsid) < 0)
+		{
+			AfxMessageBox(_T("the specified format was not supported"));
+			return;
+		}
+
+		Gdiplus::Bitmap bmp(pDoc->m_Size.cx, pDoc->m_Size.cy, PixelFormat24bppRGB);
+		Gdiplus::Graphics grap(&bmp);
+
+		DrawRegionDoc(grap, pDoc);
+
+		bmp.Save(dlg.GetPathName(), &encoderClsid, NULL);
 	}
 }
