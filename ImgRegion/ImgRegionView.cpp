@@ -10,6 +10,7 @@
 IMPLEMENT_DYNCREATE(CImgRegionView, CImageView)
 
 BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
+	ON_WM_PAINT()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
 	ON_WM_CREATE()
@@ -40,30 +41,54 @@ CImgRegionDoc * CImgRegionView::GetDocument() const
 	return (CImgRegionDoc *)m_pDocument;
 }
 
-static const Gdiplus::Color HANDLE_COLOR(255,0,0,255);
-
-void CImgRegionView::OnDraw(CDC * pDC)
+void CImgRegionView::OnPaint()
 {
+	CPaintDC dc(this);
+	Gdiplus::Rect rectClip(
+		dc.m_ps.rcPaint.left,
+		dc.m_ps.rcPaint.top,
+		dc.m_ps.rcPaint.right - dc.m_ps.rcPaint.left,
+		dc.m_ps.rcPaint.bottom - dc.m_ps.rcPaint.top);
+
 	CRect rectClient;
 	GetClientRect(&rectClient);
 
+	CBitmap bmp;
+	bmp.CreateCompatibleBitmap(&dc, rectClient.Width(), rectClient.Height());
+	CDC dcMemory;
+	dcMemory.CreateCompatibleDC(&dc);
+	CBitmap * oldBmp = dcMemory.SelectObject(&bmp);
+	Gdiplus::Graphics grap(dcMemory.GetSafeHdc());
+	grap.SetClip(rectClip);
+
+	Draw(grap);
+
+	dc.BitBlt(rectClip.X, rectClip.Y, rectClip.Width, rectClip.Height, &dcMemory, rectClip.X, rectClip.Y, SRCCOPY);
+
+	dcMemory.SelectObject(oldBmp);
+}
+
+void CImgRegionView::OnDraw(CDC * pDC)
+{
+	ASSERT(false);
+}
+
+static const Gdiplus::Color HANDLE_COLOR(255,0,0,255);
+
+void CImgRegionView::Draw(Gdiplus::Graphics & grap)
+{
 	CImgRegionDoc * pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	CBitmap bmp;
-	bmp.CreateCompatibleBitmap(pDC, rectClient.Width(), rectClient.Height());
-	CDC dcMemory;
-	dcMemory.CreateCompatibleDC(pDC);
-	CBitmap * oldBmp = dcMemory.SelectObject(&bmp);
-	dcMemory.FillSolidRect(&rectClient, RGB(192,192,192));
+	CRect rectClient;
+	GetClientRect(&rectClient);
+	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
+	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
 
-	Gdiplus::Graphics grap(dcMemory.GetSafeHdc());
 	Gdiplus::GraphicsContainer container = grap.BeginContainer();
 	{
-		Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
-		grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
 		grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 		grap.ScaleTransform(
 			(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
@@ -86,7 +111,7 @@ void CImgRegionView::OnDraw(CDC * pDC)
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
 
-		DrawRectHandle(grap, rect);
+		DrawRectFrame(grap, rect);
 
 		CPoint ptCenter = rect.CenterPoint();
 		DrawSmallHandle(grap, CPoint(rect.left, rect.top), m_nSelectedHandle == HandleTypeLeftTop);
@@ -98,17 +123,13 @@ void CImgRegionView::OnDraw(CDC * pDC)
 		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.bottom), m_nSelectedHandle == HandleTypeCenterBottom);
 		DrawSmallHandle(grap, CPoint(rect.right, rect.bottom), m_nSelectedHandle == HandleTypeRightBottom);
 	}
-
-	pDC->BitBlt(0, 0, rectClient.Width(), rectClient.Height(), &dcMemory, 0, 0, SRCCOPY);
-
-	dcMemory.SelectObject(oldBmp);
 }
 
 void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc)
 {
 	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
 	{
-		DrawRegionImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
+		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
 	}
 	else
 	{
@@ -118,10 +139,10 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDo
 
 	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
 
-	DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetRootItem());
+	DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetRootItem());
 }
 
-void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff)
+void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff)
 {
 	if(hItem)
 	{
@@ -132,7 +153,7 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pD
 
 		if(pReg->m_Image && Gdiplus::ImageTypeUnknown != pReg->m_Image->GetType())
 		{
-			DrawRegionImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color);
+			DrawRegionDocImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color);
 		}
 		else
 		{
@@ -152,13 +173,13 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pD
 			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &strFormat, &solidBrush);
 		}
 
-		DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
+		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
 
-		DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
+		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
 	}
 }
 
-void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color)
+void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color)
 {
 	Gdiplus::ColorMatrix colorMatrix = {
 		color.GetR() / 255.0f, 0.0f, 0.0f, 0.0f, 0.0f,
@@ -206,7 +227,7 @@ void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * 
 	grap.SetPixelOffsetMode(oldPixelOffsetMode);
 }
 
-void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
+void CImgRegionView::DrawRectFrame(Gdiplus::Graphics & grap, const CRect & rectHandle)
 {
 	Gdiplus::Pen pen(HANDLE_COLOR, 1.0f);
 	pen.SetDashStyle(Gdiplus::DashStyleDash);

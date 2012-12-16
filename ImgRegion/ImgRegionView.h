@@ -65,15 +65,19 @@ public:
 
 	CImgRegionDoc * GetDocument() const;
 
+	afx_msg void OnPaint();
+
 	virtual void OnDraw(CDC * pDC);
+
+	void Draw(Gdiplus::Graphics & grap);
 
 	static void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
 
-	static void DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
+	static void DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
-	static void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
+	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 
-	static void DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle);
+	static void DrawRectFrame(Gdiplus::Graphics & grap, const CRect & rectHandle);
 
 	static void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected);
 

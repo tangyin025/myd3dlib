@@ -340,7 +340,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemImage:
 					ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
 					pReg->m_ImageStr = pDoc->GetRelativePath(ImageStr);
-					pReg->m_Image = theApp.GetImage(ImageStr);
+					pReg->m_Image = theApp.GetImage(pDoc->GetFullPath(pReg->m_ImageStr));
 					break;
 
 				case PropertyItemBorder:
