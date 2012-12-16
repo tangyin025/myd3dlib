@@ -15,12 +15,13 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
-	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 400, &CFileView::OnTvnSelchangedTree)
-	ON_NOTIFY_RANGE(TVN_DRAGCHANGED, 4, 400, &CFileView::OnTvnDragchangedTree)
+	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 1000, &CFileView::OnTvnSelchangedTree)
+	ON_NOTIFY_RANGE(TVN_DRAGCHANGED, 4, 1000, &CFileView::OnTvnDragchangedTree)
 END_MESSAGE_MAP()
 
 CFileView::CFileView()
 	: m_pDoc(NULL)
+	, m_bIsLayoutInvalid(FALSE)
 {
 }
 
@@ -31,23 +32,23 @@ void CFileView::AdjustLayout()
 		return;
 	}
 
-	CRect rectClient;
-	GetClientRect(rectClient);
-
-	if (!m_TreeCtrlSet.empty())
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	if(pFrame)
 	{
-		int nCtrlHeight = rectClient.Height() / m_TreeCtrlSet.size();
-		int y = 0;
-		std::set<CTreeCtrl *>::iterator tree_iter = m_TreeCtrlSet.begin();
-		for(; tree_iter != m_TreeCtrlSet.end(); tree_iter++)
+		CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+		if(pChildFrame)
 		{
-			(*tree_iter)->SetWindowPos(
-				NULL,
-				rectClient.left,
-				rectClient.top + y,
-				rectClient.Width(),
-				nCtrlHeight, SWP_NOACTIVATE | SWP_NOZORDER);
-			y += nCtrlHeight;
+			CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+			if(pDoc && pDoc->m_TreeCtrl.m_hWnd)
+			{
+				CRect rectClient;
+				GetClientRect(rectClient);
+
+				pDoc->m_TreeCtrl.SetWindowPos(
+					&wndTop, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), 0);
+
+				pDoc->m_TreeCtrl.Invalidate();
+			}
 		}
 	}
 }
@@ -85,6 +86,12 @@ void CFileView::OnSetFocus(CWnd* pOldWnd)
 
 void CFileView::OnIdleUpdate()
 {
+	if(m_bIsLayoutInvalid)
+	{
+		AdjustLayout();
+
+		m_bIsLayoutInvalid = FALSE;
+	}
 }
 
 afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult)

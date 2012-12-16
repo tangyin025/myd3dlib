@@ -2,7 +2,8 @@
 #include "ImgRegionDoc.h"
 #include "MainFrm.h"
 #include "resource.h"
-#include "ImgRegionDocPropertyDlg.h"
+#include "ImgRegionFilePropertyDlg.h"
+#include "ImgRegionView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -168,6 +169,8 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_ADD_REGION, &CImgRegionDoc::OnUpdateAddRegion)
 	ON_COMMAND(ID_DEL_REGION, &CImgRegionDoc::OnDelRegion)
 	ON_UPDATE_COMMAND_UI(ID_DEL_REGION, &CImgRegionDoc::OnUpdateDelRegion)
+	ON_COMMAND(ID_EXPORT_IMG, &CImgRegionDoc::OnExportImg)
+	ON_COMMAND(ID_FILE_PROPERTY, &CImgRegionDoc::OnFileProperty)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -202,15 +205,13 @@ BOOL CImgRegionDoc::CreateTreeCtrl(void)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT(pFrame);
 
-	if (!m_TreeCtrl.CreateEx(WS_EX_CLIENTEDGE, WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, CRect(), &pFrame->m_wndFileView, pFrame->m_wndFileView.m_TreeCtrlSet.size() + 4))
+	static DWORD dwCtrlID = 4;
+
+	if (!m_TreeCtrl.CreateEx(WS_EX_CLIENTEDGE, WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_SHOWSELALWAYS, CRect(), &pFrame->m_wndFileView, dwCtrlID++))
 	{
 		TRACE0("CImgRegionDoc::CreateTreeCtrl failed \n");
 		return FALSE;
 	}
-
-	pFrame->m_wndFileView.m_TreeCtrlSet.insert(&m_TreeCtrl);
-
-	pFrame->m_wndFileView.AdjustLayout();
 
 	return TRUE;
 }
@@ -226,13 +227,6 @@ void CImgRegionDoc::DestroyTreeCtrl(void)
 	}
 
 	m_TreeCtrl.DestroyWindow();
-
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
-
-	pFrame->m_wndFileView.m_TreeCtrlSet.erase(&m_TreeCtrl);
-
-	pFrame->m_wndFileView.AdjustLayout();
 }
 
 HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal)
@@ -261,20 +255,25 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	GetCurrentDirectory(MAX_PATH, m_CurrentDir.GetBufferSetLength(MAX_PATH));
 	m_CurrentDir.ReleaseBuffer();
 
-	if (!CDocument::OnNewDocument())
-		return FALSE;
-
-	if (!CreateTreeCtrl())
-		return FALSE;
-
-	CImgRegionDocPropertyDlg dlg;
+	CImgRegionFilePropertyDlg dlg;
 	if(dlg.DoModal() == IDOK)
 	{
+		if (!CreateTreeCtrl())
+			return FALSE;
+
+		if (!CDocument::OnNewDocument())
+			return FALSE;
+
 		m_Size = dlg.m_Size;
 		m_Color.SetFromCOLORREF(dlg.m_Color);
 		m_ImageStr = GetRelativePath(dlg.m_ImageStr);
 		m_Image = theApp.GetImage(dlg.m_ImageStr);
 		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+
+		pFrame->m_wndFileView.InvalidLayout();
 
 		return TRUE;
 	}
@@ -284,12 +283,12 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
-	if (!CImgRegionDoc::CreateTreeCtrl())
-		return FALSE;
-
 	m_CurrentDir = lpszPathName;
 	PathRemoveFileSpec(m_CurrentDir.GetBuffer());
 	m_CurrentDir.ReleaseBuffer();
+
+	if (!CImgRegionDoc::CreateTreeCtrl())
+		return FALSE;
 
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
@@ -311,7 +310,10 @@ BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 
 void CImgRegionDoc::OnCloseDocument()
 {
-	DestroyTreeCtrl();
+	if(m_TreeCtrl.m_hWnd)
+	{
+		DestroyTreeCtrl();
+	}
 
 	CDocument::OnCloseDocument();
 }
@@ -487,4 +489,88 @@ void CImgRegionDoc::OnDelRegion()
 void CImgRegionDoc::OnUpdateDelRegion(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(NULL != m_TreeCtrl.GetSelectedItem());
+}
+
+static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
+{
+	UINT  num = 0;          // number of image encoders
+	UINT  size = 0;         // size of the image encoder array in bytes
+
+	Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
+
+	Gdiplus::GetImageEncodersSize(&num, &size);
+	if(size == 0)
+		return -1;  // Failure
+
+	pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
+	if(pImageCodecInfo == NULL)
+		return -1;  // Failure
+
+	GetImageEncoders(num, size, pImageCodecInfo);
+
+	for(UINT j = 0; j < num; ++j)
+	{
+		if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
+		{
+			*pClsid = pImageCodecInfo[j].Clsid;
+			free(pImageCodecInfo);
+			return j;  // Success
+		}    
+	}
+
+	free(pImageCodecInfo);
+	return -1;  // Failure
+}
+
+void CImgRegionDoc::OnExportImg()
+{
+	CFileDialog dlg(FALSE, _T("jpg"), GetTitle(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("JPEG(*.jpg; *.jpeg; *.jpe)|*.jpg; *.jpeg; *.jpe|BMP(*.bmp; *.rle; *.dib)|*.bmp; *.rle; *.dib|PNG(*.png)|*.png||"), NULL);
+	if(dlg.DoModal() == IDOK)
+	{
+		CStringW format;
+		format.Format(L"image/%s", theApp.GetMIME(dlg.GetFileExt()));
+		CLSID encoderClsid;
+		if(GetEncoderClsid(format, &encoderClsid) < 0)
+		{
+			AfxMessageBox(_T("the specified format was not supported"));
+			return;
+		}
+
+		Gdiplus::Bitmap bmp(m_Size.cx, m_Size.cy, PixelFormat24bppRGB);
+		Gdiplus::Graphics grap(&bmp);
+
+		CImgRegionView::DrawRegionDoc(grap, this);
+
+		bmp.Save(dlg.GetPathName(), &encoderClsid, NULL);
+	}
+}
+
+void CImgRegionDoc::OnFileProperty()
+{
+	ASSERT(m_Font);
+
+	CImgRegionFilePropertyDlg dlg;
+	dlg.m_Size = m_Size;
+	dlg.m_Color = m_Color.ToCOLORREF();
+	dlg.m_ImageStr = m_ImageStr;
+	Gdiplus::FontFamily family; m_Font->GetFamily(&family); family.GetFamilyName(dlg.m_strFontFamily.GetBufferSetLength(LF_FACESIZE)); dlg.m_strFontFamily.ReleaseBuffer();
+	dlg.m_FontSize = (LONG)m_Font->GetSize();
+	if(dlg.DoModal() == IDOK)
+	{
+		m_Size = dlg.m_Size;
+		m_Color.SetFromCOLORREF(dlg.m_Color);
+		m_ImageStr = GetRelativePath(dlg.m_ImageStr);
+		m_Image = theApp.GetImage(dlg.m_ImageStr);
+		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
+
+		POSITION pos = GetFirstViewPosition();
+		while(NULL != pos)
+		{
+			CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
+			ASSERT(pView);
+
+			pView->UpdateImageSizeTable(m_Size);
+		}
+	}
 }

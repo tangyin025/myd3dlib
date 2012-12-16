@@ -1,12 +1,12 @@
 
 #include "stdafx.h"
-#include "ImgRegionDocPropertyDlg.h"
+#include "ImgRegionFilePropertyDlg.h"
 #include "MainApp.h"
 
-IMPLEMENT_DYNAMIC(CImgRegionDocPropertyDlg, CDialog)
+IMPLEMENT_DYNAMIC(CImgRegionFilePropertyDlg, CDialog)
 
-CImgRegionDocPropertyDlg::CImgRegionDocPropertyDlg(CWnd* pParent /*=NULL*/)
-	: CDialog(CImgRegionDocPropertyDlg::IDD, pParent)
+CImgRegionFilePropertyDlg::CImgRegionFilePropertyDlg(CWnd* pParent /*=NULL*/)
+	: CDialog(CImgRegionFilePropertyDlg::IDD, pParent)
 	, m_Size(500,500)
 	, m_Color(RGB(255,255,255))
 	, m_ImageStr(_T(""))
@@ -15,11 +15,11 @@ CImgRegionDocPropertyDlg::CImgRegionDocPropertyDlg(CWnd* pParent /*=NULL*/)
 {
 }
 
-CImgRegionDocPropertyDlg::~CImgRegionDocPropertyDlg()
+CImgRegionFilePropertyDlg::~CImgRegionFilePropertyDlg()
 {
 }
 
-void CImgRegionDocPropertyDlg::DoDataExchange(CDataExchange* pDX)
+void CImgRegionFilePropertyDlg::DoDataExchange(CDataExchange* pDX)
 {
 	CDialog::DoDataExchange(pDX);
 	DDX_Text(pDX, IDC_EDIT1, m_Size.cx);
@@ -40,11 +40,11 @@ void CImgRegionDocPropertyDlg::DoDataExchange(CDataExchange* pDX)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CImgRegionDocPropertyDlg, CDialog)
-	ON_BN_CLICKED(IDC_BUTTON2, &CImgRegionDocPropertyDlg::OnBnClickedOpenImage)
+BEGIN_MESSAGE_MAP(CImgRegionFilePropertyDlg, CDialog)
+	ON_BN_CLICKED(IDC_BUTTON2, &CImgRegionFilePropertyDlg::OnBnClickedOpenImage)
 END_MESSAGE_MAP()
 
-void CImgRegionDocPropertyDlg::OnBnClickedOpenImage()
+void CImgRegionFilePropertyDlg::OnBnClickedOpenImage()
 {
 	CFileDialog dlg(TRUE, NULL, m_ImageStr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("Í¼Æ¬ÎÄ¼þ(*.bmp; *.jpg; *.png)|*.bmp;*.jpg;*.png|All Files(*.*)|*.*||"), this);
 	if(dlg.DoModal() == IDOK)
@@ -54,7 +54,7 @@ void CImgRegionDocPropertyDlg::OnBnClickedOpenImage()
 	}
 }
 
-BOOL CImgRegionDocPropertyDlg::OnInitDialog()
+BOOL CImgRegionFilePropertyDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 

@@ -24,7 +24,6 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_SETCURSOR()
-	ON_COMMAND(ID_FILE_EXPORT_IMG, &CImgRegionView::OnFileExportImg)
 END_MESSAGE_MAP()
 
 CImgRegionView::CImgRegionView(void)
@@ -119,42 +118,11 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDo
 
 	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
 
-	DrawRegionNode(grap, pDoc->m_TreeCtrl.GetRootItem());
+	DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetRootItem());
 }
 
-void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
+void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff)
 {
-	Gdiplus::Pen pen(HANDLE_COLOR, 1.0f);
-	pen.SetDashStyle(Gdiplus::DashStyleDash);
-	float dashValue[] = { 10.0f, 4.0f };
-	pen.SetDashPattern(dashValue, _countof(dashValue));
-	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
-}
-
-static const int HANDLE_WIDTH = 4;
-
-void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected)
-{
-	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
-	Gdiplus::Pen pen(HANDLE_COLOR,1.0f);
-	Gdiplus::SolidBrush brush(bSelected ? HANDLE_COLOR : Gdiplus::Color(255,255,255,255));
-	grap.FillRectangle(&brush, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
-	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
-}
-
-BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse)
-{
-	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH + 1, ptHandle.y + HANDLE_WIDTH + 1);
-	return rectHandle.PtInRect(ptMouse);
-}
-
-void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, const CPoint & ptOff)
-{
-	CImgRegionDoc * pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-
 	if(hItem)
 	{
 		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
@@ -184,9 +152,9 @@ void CImgRegionView::DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, c
 			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &strFormat, &solidBrush);
 		}
 
-		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
+		DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
 
-		DrawRegionNode(grap, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
+		DrawRegionNode(grap, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
 	}
 }
 
@@ -238,6 +206,32 @@ void CImgRegionView::DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * 
 	grap.SetPixelOffsetMode(oldPixelOffsetMode);
 }
 
+void CImgRegionView::DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle)
+{
+	Gdiplus::Pen pen(HANDLE_COLOR, 1.0f);
+	pen.SetDashStyle(Gdiplus::DashStyleDash);
+	float dashValue[] = { 10.0f, 4.0f };
+	pen.SetDashPattern(dashValue, _countof(dashValue));
+	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+}
+
+static const int HANDLE_WIDTH = 4;
+
+void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected)
+{
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
+	Gdiplus::Pen pen(HANDLE_COLOR,1.0f);
+	Gdiplus::SolidBrush brush(bSelected ? HANDLE_COLOR : Gdiplus::Color(255,255,255,255));
+	grap.FillRectangle(&brush, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+}
+
+BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse)
+{
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH + 1, ptHandle.y + HANDLE_WIDTH + 1);
+	return rectHandle.PtInRect(ptMouse);
+}
+
 BOOL CImgRegionView::OnEraseBkgnd(CDC* pDC)
 {
 	return TRUE;
@@ -264,8 +258,6 @@ void CImgRegionView::OnInitialUpdate()
 		return;
 
 	UpdateImageSizeTable(pDoc->m_Size);
-
-	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize]);
 }
 
 void CImgRegionView::UpdateImageSizeTable(const CSize & sizeRoot)
@@ -274,6 +266,10 @@ void CImgRegionView::UpdateImageSizeTable(const CSize & sizeRoot)
 	{
 		m_ImageSizeTable[i] = CSize((int)(sizeRoot.cx * ZoomTable[i]), (int)(sizeRoot.cy * ZoomTable[i]));
 	}
+
+	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
+
+	Invalidate();
 }
 
 void CImgRegionView::OnSize(UINT nType, int cx, int cy)
@@ -683,66 +679,8 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
-		pFrame->m_wndProperties.InvalidProperties();
-	}
-}
+		pFrame->m_wndProperties.UpdateProperties();
 
-int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
-{
-	UINT  num = 0;          // number of image encoders
-	UINT  size = 0;         // size of the image encoder array in bytes
-
-	Gdiplus::ImageCodecInfo* pImageCodecInfo = NULL;
-
-	Gdiplus::GetImageEncodersSize(&num, &size);
-	if(size == 0)
-		return -1;  // Failure
-
-	pImageCodecInfo = (Gdiplus::ImageCodecInfo*)(malloc(size));
-	if(pImageCodecInfo == NULL)
-		return -1;  // Failure
-
-	GetImageEncoders(num, size, pImageCodecInfo);
-
-	for(UINT j = 0; j < num; ++j)
-	{
-		if( wcscmp(pImageCodecInfo[j].MimeType, format) == 0 )
-		{
-			*pClsid = pImageCodecInfo[j].Clsid;
-			free(pImageCodecInfo);
-			return j;  // Success
-		}    
-	}
-
-	free(pImageCodecInfo);
-	return -1;  // Failure
-}
-
-void CImgRegionView::OnFileExportImg()
-{
-	CImgRegionDoc * pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-
-	CFileDialog dlg(FALSE, _T("jpg"), pDoc->GetTitle(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("JPEG(*.jpg; *.jpeg; *.jpe)|*.jpg; *.jpeg; *.jpe|BMP(*.bmp; *.rle; *.dib)|*.bmp; *.rle; *.dib|PNG(*.png)|*.png||"), this);
-	if(dlg.DoModal() == IDOK)
-	{
-		CStringW format;
-		format.Format(L"image/%s", theApp.GetMIME(dlg.GetFileExt()));
-		CLSID encoderClsid;
-		if(GetEncoderClsid(format, &encoderClsid) < 0)
-		{
-			AfxMessageBox(_T("the specified format was not supported"));
-			return;
-		}
-
-		Gdiplus::Bitmap bmp(pDoc->m_Size.cx, pDoc->m_Size.cy, PixelFormat24bppRGB);
-		Gdiplus::Graphics grap(&bmp);
-
-		DrawRegionDoc(grap, pDoc);
-
-		bmp.Save(dlg.GetPathName(), &encoderClsid, NULL);
+		pFrame->m_wndFileView.AdjustLayout();
 	}
 }

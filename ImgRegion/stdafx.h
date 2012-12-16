@@ -35,10 +35,8 @@
 #include <afxmdiframewndex.h>
 
 #include <vector>
-#include <set>
 #include <atlimage.h>
 #include <boost/shared_ptr.hpp>
-#include <boost/weak_ptr.hpp>
 #include <GdiPlus.h>
 
 #include <myMath.h>

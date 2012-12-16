@@ -50,8 +50,6 @@ BOOL CMainApp::InitInstance(void)
 
 	Gdiplus::GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 
-	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
-
 	Gdiplus::InstalledFontCollection installedFontCollection;
 	const int count = installedFontCollection.GetFamilyCount();
 	fontFamilies.SetSize(count);
@@ -66,6 +64,9 @@ BOOL CMainApp::InitInstance(void)
 	m_ImageMIME[L"rle"] = _T("bmp");
 	m_ImageMIME[L"dib"] = _T("bmp");
 	m_ImageMIME[L"png"] = _T("png");
+
+	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+	LoadStdProfileSettings(4);
 
 	InitContextMenuManager();
 

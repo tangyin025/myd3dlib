@@ -67,15 +67,15 @@ public:
 
 	virtual void OnDraw(CDC * pDC);
 
-	void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
+	static void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
 
-	void DrawRegionNode(Gdiplus::Graphics & grap, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
+	static void DrawRegionNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
-	void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
+	static void DrawRegionImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 
-	void DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle);
+	static void DrawRectHandle(Gdiplus::Graphics & grap, const CRect & rectHandle);
 
-	void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected);
+	static void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, BOOL bSelected);
 
 	BOOL CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse);
 
@@ -86,7 +86,7 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	virtual void OnInitialUpdate();
-
+public:
 	void UpdateImageSizeTable(const CSize & sizeRoot);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -114,8 +114,6 @@ public:
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
-protected:
+
 	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
-public:
-	afx_msg void OnFileExportImg();
 };

@@ -8,7 +8,7 @@ class CFileView : public CDockablePane
 public:
 	CImgRegionDoc * m_pDoc;
 
-	std::set<CTreeCtrl *> m_TreeCtrlSet;
+	BOOL m_bIsLayoutInvalid;
 
 public:
 	CFileView(void);
@@ -33,5 +33,10 @@ public:
 	afx_msg void OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult);
+
+	void InvalidLayout(void)
+	{
+		m_bIsLayoutInvalid = TRUE;
+	}
 };
 

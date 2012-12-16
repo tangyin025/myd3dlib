@@ -64,8 +64,6 @@ BEGIN
         MENUITEM "打开(&O)...\tCtrl+O",           ID_FILE_OPEN
         MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM SEPARATOR
-        MENUITEM "打印设置(&R)...",                 ID_FILE_PRINT_SETUP
-        MENUITEM SEPARATOR
         MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
         MENUITEM "退出(&X)",                      ID_APP_EXIT
@@ -108,14 +106,13 @@ BEGIN
         MENUITEM "关闭(&C)",                      ID_FILE_CLOSE
         MENUITEM "保存(&S)\tCtrl+S",              ID_FILE_SAVE
         MENUITEM "另存为(&A)...",                  ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "属性(&O)...",                   ID_FILE_PROPERTY
         POPUP "导出(&E)"
         BEGIN
-            MENUITEM "图片(&I)...",                   ID_FILE_EXPORT_IMG
+            MENUITEM "图片(&I)...",                   ID_EXPORT_IMG
+            MENUITEM "Lua(&L)...",                  ID_EXPORT_LUA
         END
-        MENUITEM SEPARATOR
-        MENUITEM "打印(&P)...\tCtrl+P",           ID_FILE_PRINT
-        MENUITEM "打印预览(&V)",                    ID_FILE_PRINT_PREVIEW
-        MENUITEM "打印设置(&R)...",                 ID_FILE_PRINT_SETUP
         MENUITEM SEPARATOR
         MENUITEM "最近的文件",                       ID_FILE_MRU_FILE1
         MENUITEM SEPARATOR
@@ -251,7 +248,7 @@ IDR_ImgRegionTYPE       ICON                    "ImgRegionDoc.ico"
 // Dialog
 //
 
-IDD_DOC_PROPERTY DIALOGEX 0, 0, 242, 122
+IDD_FILE_PROPERTY DIALOGEX 0, 0, 242, 122
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Dialog"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
@@ -291,7 +288,7 @@ END
 #ifdef APSTUDIO_INVOKED
 GUIDELINES DESIGNINFO 
 BEGIN
-    IDD_DOC_PROPERTY, DIALOG
+    IDD_FILE_PROPERTY, DIALOG
     BEGIN
         LEFTMARGIN, 7
         RIGHTMARGIN, 235

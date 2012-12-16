@@ -167,4 +167,8 @@ public:
 	afx_msg void OnDelRegion();
 
 	afx_msg void OnUpdateDelRegion(CCmdUI *pCmdUI);
+
+	afx_msg void OnExportImg();
+
+	afx_msg void OnFileProperty();
 };

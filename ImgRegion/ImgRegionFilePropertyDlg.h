@@ -3,16 +3,16 @@
 #include "resource.h"
 #include "afxwin.h"
 
-class CImgRegionDocPropertyDlg : public CDialog
+class CImgRegionFilePropertyDlg : public CDialog
 {
-	DECLARE_DYNAMIC(CImgRegionDocPropertyDlg)
+	DECLARE_DYNAMIC(CImgRegionFilePropertyDlg)
 
 public:
-	CImgRegionDocPropertyDlg(CWnd* pParent = NULL);
+	CImgRegionFilePropertyDlg(CWnd* pParent = NULL);
 
-	virtual ~CImgRegionDocPropertyDlg();
+	virtual ~CImgRegionFilePropertyDlg();
 
-	enum { IDD = IDD_DOC_PROPERTY };
+	enum { IDD = IDD_FILE_PROPERTY };
 
 protected:
 	virtual void DoDataExchange(CDataExchange* pDX);
