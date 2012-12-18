@@ -151,7 +151,9 @@ public:
 
 	int GetChildCount(HTREEITEM hItem);
 
-	void SerializeRegionNode(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
+	void SerializeRegionNode(CArchive & ar, CImgRegion * pReg);
+
+	void SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
 
 public:
 	const CString & GetCurrentDir(void) const;
@@ -171,4 +173,8 @@ public:
 	afx_msg void OnExportImg();
 
 	afx_msg void OnFileProperty();
+
+	afx_msg void OnEditCopy();
+
+	afx_msg void OnEditPaste();
 };

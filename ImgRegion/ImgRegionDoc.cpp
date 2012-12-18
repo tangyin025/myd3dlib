@@ -171,6 +171,8 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_DEL_REGION, &CImgRegionDoc::OnUpdateDelRegion)
 	ON_COMMAND(ID_EXPORT_IMG, &CImgRegionDoc::OnExportImg)
 	ON_COMMAND(ID_FILE_PROPERTY, &CImgRegionDoc::OnFileProperty)
+	ON_COMMAND(ID_EDIT_COPY, &CImgRegionDoc::OnEditCopy)
+	ON_COMMAND(ID_EDIT_PASTE, &CImgRegionDoc::OnEditPaste)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -335,7 +337,7 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 		Gdiplus::FontFamily family; m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
 		ar << m_Font->GetSize();
 
-		SerializeRegionNode(ar, TVI_ROOT);
+		SerializeRegionNodeTree(ar);
 	}
 	else
 	{	// loading code
@@ -358,7 +360,7 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 		CString strFamily; float fSize; ar >> strFamily;
 		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
 
-		SerializeRegionNode(ar, TVI_ROOT);
+		SerializeRegionNodeTree(ar);
 	}
 }
 
@@ -372,7 +374,35 @@ int CImgRegionDoc::GetChildCount(HTREEITEM hItem)
 	return nChilds;
 }
 
-void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
+void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
+{
+	if (ar.IsStoring())
+	{
+		ar << pReg->m_Local;
+		ar << pReg->m_Size;
+		DWORD argb = pReg->m_Color.GetValue(); ar << argb;
+		ar << pReg->m_ImageStr;
+		ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
+		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
+		ar << pReg->m_Font->GetSize();
+		argb = pReg->m_FontColor.GetValue(); ar << argb;
+		ar << pReg->m_Text;
+	}
+	else
+	{
+		ar >> pReg->m_Local;
+		ar >> pReg->m_Size;
+		DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
+		ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(GetFullPath(pReg->m_ImageStr));
+		ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
+		CString strFamily; float fSize; ar >> strFamily;
+		ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
+		ar >> argb; pReg->m_FontColor.SetValue(argb);
+		ar >> pReg->m_Text;
+	}
+}
+
+void CImgRegionDoc::SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent)
 {
 	if (ar.IsStoring())
 	{
@@ -387,17 +417,9 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 			ASSERT(pReg);
 
-			ar << pReg->m_Local;
-			ar << pReg->m_Size;
-			DWORD argb = pReg->m_Color.GetValue(); ar << argb;
-			ar << pReg->m_ImageStr;
-			ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
-			Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
-			ar << pReg->m_Font->GetSize();
-			argb = pReg->m_FontColor.GetValue(); ar << argb;
-			ar << pReg->m_Text;
+			SerializeRegionNode(ar, pReg);
 
-			SerializeRegionNode(ar, hItem);
+			SerializeRegionNodeTree(ar, hItem);
 		}
 	}
 	else
@@ -412,19 +434,11 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, HTREEITEM hParent)
 			CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100), Gdiplus::Color::White);
 			ASSERT(pReg);
 
-			ar >> pReg->m_Local;
-			ar >> pReg->m_Size;
-			DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
-			ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(GetFullPath(pReg->m_ImageStr));
-			ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
-			CString strFamily; float fSize; ar >> strFamily;
-			ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
-			ar >> argb; pReg->m_FontColor.SetValue(argb);
-			ar >> pReg->m_Text;
+			SerializeRegionNode(ar, pReg);
 
 			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-			SerializeRegionNode(ar, hItem);
+			SerializeRegionNodeTree(ar, hItem);
 		}
 	}
 }
@@ -544,8 +558,8 @@ static int GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 
 void CImgRegionDoc::OnExportImg()
 {
-	CFileDialog dlg(FALSE, _T("jpg"), GetTitle(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("JPEG(*.jpg; *.jpeg; *.jpe)|*.jpg; *.jpeg; *.jpe|BMP(*.bmp; *.rle; *.dib)|*.bmp; *.rle; *.dib|PNG(*.png)|*.png||"), NULL);
+	CFileDialog dlg(FALSE, _T("png"), GetTitle(), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("PNG(*.png)|*.png|JPEG(*.jpg; *.jpeg; *.jpe)|*.jpg; *.jpeg; *.jpe|BMP(*.bmp; *.rle; *.dib)|*.bmp; *.rle; *.dib||"), NULL);
 	if(dlg.DoModal() == IDOK)
 	{
 		CStringW format;
@@ -592,5 +606,69 @@ void CImgRegionDoc::OnFileProperty()
 
 			pView->UpdateImageSizeTable(m_Size);
 		}
+	}
+}
+
+void CImgRegionDoc::OnEditCopy()
+{
+	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+	if(hSelected)
+	{
+		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		ASSERT(pReg);
+
+		theApp.m_ClipboardFile.SetLength(0);
+		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
+		SerializeRegionNode(ar, pReg);
+		ar.Close();
+	}
+}
+
+#define DELETE_EXCEPTION(e) do { if(e) { e->Delete(); } } while (0)
+
+void CImgRegionDoc::OnEditPaste()
+{
+	if(theApp.m_ClipboardFile.GetLength() > 0)
+	{
+		HTREEITEM hParent = NULL;
+		CPoint ptOrg(10,10);
+		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+		if(hSelected)
+		{
+			hParent = m_TreeCtrl.GetParentItem(hSelected);
+			CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+			ptOrg += pReg->m_Local;
+		}
+		if(!hParent)
+		{
+			hParent = TVI_ROOT;
+		}
+
+		CImgRegion * pReg = new CImgRegion(ptOrg, CSize(100,100), Gdiplus::Color::White);
+		ASSERT(pReg);
+
+		TRY
+		{
+			theApp.m_ClipboardFile.SeekToBegin();
+			CArchive ar(&theApp.m_ClipboardFile, CArchive::load);
+			SerializeRegionNode(ar, pReg);
+
+			pReg->m_Local = ptOrg;
+		}
+		CATCH_ALL(e)
+		{
+			TCHAR buff[256];
+			e->GetErrorMessage(buff, _countof(buff));
+			AfxMessageBox(buff);
+
+			DELETE_EXCEPTION(e);
+			delete pReg;
+			return;
+		}
+		END_CATCH_ALL
+
+		HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"), hParent, TVI_LAST);
+		m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+		m_TreeCtrl.SelectItem(hItem);
 	}
 }

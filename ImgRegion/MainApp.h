@@ -39,6 +39,8 @@ public:
 
 	FontPtr2 GetFont(const CString & strFamily, float fSize);
 
+	CMemFile m_ClipboardFile;
+
 	DECLARE_MESSAGE_MAP()
 
 	virtual int ExitInstance();
