@@ -255,9 +255,6 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 
 BOOL CImgRegionDoc::OnNewDocument(void)
 {
-	GetCurrentDirectory(MAX_PATH, m_CurrentDir.GetBufferSetLength(MAX_PATH));
-	m_CurrentDir.ReleaseBuffer();
-
 	CImgRegionFilePropertyDlg dlg;
 	if(dlg.DoModal() == IDOK)
 	{
@@ -269,8 +266,8 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 		m_Size = dlg.m_Size;
 		m_Color.SetFromCOLORREF(dlg.m_Color);
-		m_ImageStr = GetRelativePath(dlg.m_ImageStr);
-		m_Image = theApp.GetImage(dlg.m_ImageStr);
+		m_ImageStr = dlg.m_ImageStr;
+		m_Image = theApp.GetImage(m_ImageStr);
 		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
 
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -286,10 +283,6 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
-	m_CurrentDir = lpszPathName;
-	PathRemoveFileSpec(m_CurrentDir.GetBuffer());
-	m_CurrentDir.ReleaseBuffer();
-
 	if (!CImgRegionDoc::CreateTreeCtrl())
 		return FALSE;
 
@@ -303,10 +296,6 @@ BOOL CImgRegionDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	if(!CDocument::OnSaveDocument(lpszPathName))
 		return FALSE;
-
-	m_CurrentDir = lpszPathName;
-	PathRemoveFileSpec(m_CurrentDir.GetBuffer());
-	m_CurrentDir.ReleaseBuffer();
 
 	return TRUE;
 }
@@ -356,7 +345,7 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 
 		ar >> m_Size;
 		DWORD argb; ar >> argb; m_Color.SetValue(argb);
-		ar >> m_ImageStr; m_Image = theApp.GetImage(GetFullPath(m_ImageStr));
+		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
 		CString strFamily; float fSize; ar >> strFamily;
 		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
 
@@ -393,7 +382,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 		ar >> pReg->m_Local;
 		ar >> pReg->m_Size;
 		DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
-		ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(GetFullPath(pReg->m_ImageStr));
+		ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
 		ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
 		CString strFamily; float fSize; ar >> strFamily;
 		ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
@@ -441,37 +430,6 @@ void CImgRegionDoc::SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent)
 			SerializeRegionNodeTree(ar, hItem);
 		}
 	}
-}
-
-const CString & CImgRegionDoc::GetCurrentDir(void) const
-{
-	ASSERT(!m_CurrentDir.IsEmpty());
-
-	return m_CurrentDir;
-}
-
-CString CImgRegionDoc::GetRelativePath(const CString & strPath) const
-{
-	if(PathIsRelative(strPath))
-		return strPath;
-
-	CString res;
-	PathRelativePathTo(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), FILE_ATTRIBUTE_DIRECTORY, strPath, FILE_ATTRIBUTE_NORMAL);
-	res.ReleaseBuffer();
-
-	return res;
-}
-
-CString CImgRegionDoc::GetFullPath(const CString & strPath) const
-{
-	if(!PathIsRelative(strPath))
-		return strPath;
-
-	CString res;
-	if(!strPath.IsEmpty())
-		PathCombine(res.GetBufferSetLength(MAX_PATH), GetCurrentDir(), strPath);
-
-	return res;
 }
 
 void CImgRegionDoc::OnAddRegion()
@@ -594,8 +552,8 @@ void CImgRegionDoc::OnFileProperty()
 	{
 		m_Size = dlg.m_Size;
 		m_Color.SetFromCOLORREF(dlg.m_Color);
-		m_ImageStr = GetRelativePath(dlg.m_ImageStr);
-		m_Image = theApp.GetImage(dlg.m_ImageStr);
+		m_ImageStr = dlg.m_ImageStr;
+		m_Image = theApp.GetImage(m_ImageStr);
 		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
 
 		POSITION pos = GetFirstViewPosition();

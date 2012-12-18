@@ -116,8 +116,6 @@ ImagePtr CMainApp::GetImage(const CString & strImg)
 {
 	if(!strImg.IsEmpty())
 	{
-		ASSERT(!PathIsRelative(strImg));
-
 		std::wstring key(strImg);
 		ImagePtrMap::iterator img_iter = m_ImageMap.find(key);
 		if(img_iter == m_ImageMap.end())

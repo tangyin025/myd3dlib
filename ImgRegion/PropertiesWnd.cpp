@@ -28,7 +28,7 @@ void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 		CImgRegionDoc * pDoc = (CImgRegionDoc *)pChild->GetActiveDocument();
 		if(pDoc)
 		{
-			CFileDialog dlg(m_bOpenFileDialog, m_strDefExt, pDoc->GetFullPath(strPath), m_dwFileOpenFlags, m_strFilter, m_pWndList);
+			CFileDialog dlg(m_bOpenFileDialog, m_strDefExt, strPath, m_dwFileOpenFlags, m_strFilter, m_pWndList);
 			if (dlg.DoModal() == IDOK)
 			{
 				bUpdate = TRUE;
@@ -313,7 +313,6 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				ASSERT(pProp);
 				Property PropertyIdx = (Property)pProp->GetData();
 				COLORREF color;
-				BSTR ImageStr;
 				switch(PropertyIdx)
 				{
 				case PropertyItemLocal:
@@ -338,9 +337,8 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					break;
 
 				case PropertyItemImage:
-					ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
-					pReg->m_ImageStr = pDoc->GetRelativePath(ImageStr);
-					pReg->m_Image = theApp.GetImage(pDoc->GetFullPath(pReg->m_ImageStr));
+					pReg->m_ImageStr = ((CMFCPropertyGridFileProperty *)m_pProp[PropertyItemImage])->GetValue().bstrVal;
+					pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
 					break;
 
 				case PropertyItemBorder:

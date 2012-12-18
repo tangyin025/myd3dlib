@@ -10,7 +10,7 @@ CImgRegionFilePropertyDlg::CImgRegionFilePropertyDlg(CWnd* pParent /*=NULL*/)
 	, m_Size(500,500)
 	, m_Color(RGB(255,255,255))
 	, m_ImageStr(_T(""))
-	, m_strFontFamily(_T("Arial"))
+	, m_strFontFamily(_T("Î¢ÈíÑÅºÚ"))
 	, m_FontSize(12)
 {
 }
@@ -57,6 +57,9 @@ void CImgRegionFilePropertyDlg::OnBnClickedOpenImage()
 BOOL CImgRegionFilePropertyDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
+
+	m_btnColor.EnableAutomaticButton(_T("Ä¬ÈÏ"), RGB(255,255,255));
+	m_btnColor.EnableOtherButton(_T("ÆäËü"));
 
 	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
 	{
