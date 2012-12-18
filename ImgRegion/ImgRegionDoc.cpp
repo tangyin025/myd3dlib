@@ -336,11 +336,14 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 		int nVersion;
 		if(1 != _stscanf_s(strVersion, FILE_VERSION_DESC, &nVersion))
 		{
-			AfxThrowArchiveException(CArchiveException::genericException);
+			AfxThrowArchiveException(CArchiveException::badIndex);
 		}
 		if(nVersion != FILE_VERSION)
 		{
-			AfxThrowArchiveException(CArchiveException::badIndex);
+			CString msg;
+			msg.Format(_T("不支持的版本：%d"), nVersion);
+			AfxMessageBox(msg);
+			AfxThrowUserException();
 		}
 
 		ar >> m_Size;
