@@ -310,7 +310,7 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 339;
+static const int FILE_VERSION = 344;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
@@ -370,6 +370,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 {
 	if (ar.IsStoring())
 	{
+		ar << pReg->m_Locked;
 		ar << pReg->m_Local;
 		ar << pReg->m_Size;
 		DWORD argb = pReg->m_Color.GetValue(); ar << argb;
@@ -382,6 +383,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 	}
 	else
 	{
+		ar >> pReg->m_Locked;
 		ar >> pReg->m_Local;
 		ar >> pReg->m_Size;
 		DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
@@ -614,6 +616,7 @@ void CImgRegionDoc::OnEditPaste()
 			CArchive ar(&theApp.m_ClipboardFile, CArchive::load);
 			SerializeRegionNode(ar, pReg);
 
+			pReg->m_Locked = FALSE;
 			pReg->m_Local = ptOrg;
 		}
 		CATCH_ALL(e)

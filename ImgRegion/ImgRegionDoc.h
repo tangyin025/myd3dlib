@@ -31,6 +31,8 @@ public:
 class CImgRegion
 {
 public:
+	BOOL m_Locked;
+
 	CPoint m_Local;
 
 	CSize m_Size;
@@ -50,7 +52,8 @@ public:
 	CString m_Text;
 
 	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color, const Vector4i & Border = Vector4i(0,0,0,0))
-		: m_Local(Local)
+		: m_Locked(FALSE)
+		, m_Local(Local)
 		, m_Size(Size)
 		, m_Color(Color)
 		, m_Border(Border)

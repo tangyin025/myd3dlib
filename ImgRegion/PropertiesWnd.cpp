@@ -60,6 +60,68 @@ void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 	}
 }
 
+CCheckBoxProp::CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr, DWORD dwData) :
+	CMFCPropertyGridProperty(strName, COleVariant((long)bCheck), lpszDescr, dwData)
+{
+	m_rectCheck.SetRectEmpty();
+}
+
+void CCheckBoxProp::OnDrawName(CDC* pDC, CRect rect)
+{
+	m_rectCheck = rect;
+	m_rectCheck.DeflateRect(1, 1);
+
+	m_rectCheck.right = m_rectCheck.left + m_rectCheck.Height();
+
+	rect.left = m_rectCheck.right + 1;
+
+	CMFCPropertyGridProperty::OnDrawName(pDC, rect);
+
+	OnDrawCheckBox(pDC, m_rectCheck, (m_varValue.boolVal));
+}
+
+void CCheckBoxProp::OnClickName(CPoint point)
+{
+	if (m_bEnabled && m_rectCheck.PtInRect(point))
+	{
+		m_varValue.boolVal = !(m_varValue.boolVal);
+		m_pWndList->InvalidateRect(m_rectCheck);
+		m_pWndList->OnPropertyChanged(this);
+	}
+}
+
+BOOL CCheckBoxProp::OnDblClk(CPoint point)
+{
+	if (m_bEnabled && m_rectCheck.PtInRect(point))
+	{
+		return TRUE;
+	}
+
+	m_varValue.boolVal = !(m_varValue.boolVal);
+	m_pWndList->InvalidateRect(m_rectCheck);
+	m_pWndList->OnPropertyChanged(this);
+	return TRUE;
+}
+
+void CCheckBoxProp::OnDrawCheckBox(CDC * pDC, CRect rect, BOOL bChecked)
+{
+	COLORREF clrTextOld = pDC->GetTextColor();
+
+	CMFCVisualManager::GetInstance()->OnDrawCheckBox(pDC, rect, FALSE, bChecked, m_bEnabled);
+
+	pDC->SetTextColor(clrTextOld);
+}
+
+BOOL CCheckBoxProp::PushChar(UINT nChar)
+{
+	if (nChar == VK_SPACE)
+	{
+		OnDblClk(CPoint(-1, -1));
+	}
+
+	return TRUE;
+}
+
 BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
@@ -112,8 +174,11 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMFCPropertyGridProperty * pGroup = new CMFCPropertyGridProperty(_T("外观"));
 
+	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), PropertyItemLocked);
+	pGroup->AddSubItem(m_pProp[PropertyItemLocked] = pProp);
+
 	CMFCPropertyGridProperty * pLocal = new CMFCPropertyGridProperty(_T("Local"), PropertyItemLocal, TRUE);
-	CMFCPropertyGridProperty * pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
+	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
 	pLocal->AddSubItem(m_pProp[PropertyItemLocalX] = pProp);
 	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
 	pLocal->AddSubItem(m_pProp[PropertyItemLocalY] = pProp);
@@ -261,6 +326,7 @@ void CPropertiesWnd::UpdateProperties(void)
 				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 				ASSERT(pReg);
 
+				m_pProp[PropertyItemLocked]->SetValue((_variant_t)(long)pReg->m_Locked);
 				m_pProp[PropertyItemLocalX]->SetValue((_variant_t)pReg->m_Local.x);
 				m_pProp[PropertyItemLocalY]->SetValue((_variant_t)pReg->m_Local.y);
 				m_pProp[PropertyItemSizeW]->SetValue((_variant_t)pReg->m_Size.cx);
@@ -315,6 +381,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				COLORREF color;
 				switch(PropertyIdx)
 				{
+				case PropertyItemLocked:
+					pReg->m_Locked = m_pProp[PropertyItemLocked]->GetValue().lVal;
+					break;
+
 				case PropertyItemLocal:
 				case PropertyItemLocalX:
 				case PropertyItemLocalY:
