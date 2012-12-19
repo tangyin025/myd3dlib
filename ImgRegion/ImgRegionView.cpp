@@ -103,15 +103,24 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 		ASSERT(pReg);
 
 		CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
+		CPoint ptTextOrg(rect.TopLeft() + CPoint(10,10));
+		CPoint ptText(ptTextOrg + pReg->m_TextOff);
+
 		CWindowDC dc(this);
 		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
+		dc.LPtoDP(&ptTextOrg);
+		dc.LPtoDP(&ptText);
 
 		const Gdiplus::Color clrHandle = pReg->m_Locked ? Gdiplus::Color::Gray : Gdiplus::Color::Blue;
 
-		DrawRectFrame(grap, rect, clrHandle);
+		Gdiplus::Pen pen(clrHandle, 1.0f);
+		pen.SetDashStyle(Gdiplus::DashStyleDash);
+		float dashValue[] = { 10.0f, 4.0f };
+		pen.SetDashPattern(dashValue, _countof(dashValue));
+		grap.DrawRectangle(&pen, rect.left, rect.top, rect.Width(), rect.Height());
 
 		CPoint ptCenter = rect.CenterPoint();
 		DrawSmallHandle(grap, CPoint(rect.left, rect.top), clrHandle, m_nSelectedHandle == HandleTypeLeftTop);
@@ -122,6 +131,10 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 		DrawSmallHandle(grap, CPoint(rect.left, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeLeftBottom);
 		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeCenterBottom);
 		DrawSmallHandle(grap, CPoint(rect.right, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeRightBottom);
+
+		grap.DrawLine(&pen, ptTextOrg.x, ptTextOrg.y, ptText.x, ptText.y);
+
+		DrawSmallHandle(grap, ptText, clrHandle, m_nSelectedHandle == HandleTypeLeftTopText);
 	}
 }
 
@@ -166,11 +179,14 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 			CString strInfo;
 			strInfo.Format(pReg->m_Text, pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
 
-			Gdiplus::RectF rectF((float)nodePos.x, (float)nodePos.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
+			Gdiplus::PointF pointF(
+				(float)nodePos.x + pReg->m_TextOff.x,
+				(float)nodePos.y + pReg->m_TextOff.y);
+
 			Gdiplus::SolidBrush solidBrush(pReg->m_FontColor);
-			Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
-			strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
-			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &strFormat, &solidBrush);
+			//Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
+			//strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
+			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), pointF, NULL, &solidBrush);
 		}
 
 		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
@@ -225,15 +241,6 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 
 	grap.SetInterpolationMode(oldInterpolationMode);
 	grap.SetPixelOffsetMode(oldPixelOffsetMode);
-}
-
-void CImgRegionView::DrawRectFrame(Gdiplus::Graphics & grap, const CRect & rectHandle, const Gdiplus::Color & clrHandle)
-{
-	Gdiplus::Pen pen(clrHandle, 1.0f);
-	pen.SetDashStyle(Gdiplus::DashStyleDash);
-	float dashValue[] = { 10.0f, 4.0f };
-	pen.SetDashPattern(dashValue, _countof(dashValue));
-	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
 }
 
 static const int HANDLE_WIDTH = 4;
@@ -347,6 +354,11 @@ void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRe
 
 void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
 	switch(nChar)
 	{
 	case VK_SPACE:
@@ -363,11 +375,6 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case VK_RIGHT:
 		if(DragStateNone == m_DragState)
 		{
-			CImgRegionDoc * pDoc = GetDocument();
-			ASSERT_VALID(pDoc);
-			if (!pDoc)
-				return;
-
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			if(hSelected)
 			{
@@ -412,6 +419,9 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					case HandleTypeRightBottom:
 						pReg->m_Size += sizeDragLog;
 						break;
+					case HandleTypeLeftTopText:
+						pReg->m_TextOff += sizeDragLog;
+						break;
 					default:
 						pReg->m_Local += sizeDragLog;
 						break;
@@ -431,6 +441,14 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 			}
 		}
+		break;
+
+	case VK_INSERT:
+		pDoc->OnAddRegion();
+		break;
+
+	case VK_DELETE:
+		pDoc->OnDelRegion();
 		break;
 	}
 }
@@ -475,11 +493,16 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				ASSERT(pReg);
 
 				CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
+				CPoint ptTextOrg(rect.TopLeft() + CPoint(10,10));
+				CPoint ptText(ptTextOrg + pReg->m_TextOff);
+
 				CWindowDC dc(this);
 				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
 					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
 				dc.LPtoDP(&rect.TopLeft());
 				dc.LPtoDP(&rect.BottomRight());
+				dc.LPtoDP(&ptTextOrg);
+				dc.LPtoDP(&ptText);
 
 				CPoint ptCenter = rect.CenterPoint();
 				if(CheckSmallHandle(CPoint(rect.left, rect.top), point))
@@ -514,6 +537,10 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				{
 					m_nSelectedHandle = HandleTypeRightBottom;
 				}
+				else if(CheckSmallHandle(ptText, point))
+				{
+					m_nSelectedHandle = HandleTypeLeftTopText;
+				}
 				else
 				{
 					m_nSelectedHandle = HandleTypeNone;
@@ -539,6 +566,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				m_DragPos = point;
 				m_DragRegLocal = pReg->m_Local;
 				m_DragRegSize = pReg->m_Size;
+				m_DragRegTextOff = pReg->m_TextOff;
 				SetCapture();
 			}
 			else
@@ -658,6 +686,9 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 					break;
 				case HandleTypeRightBottom:
 					pReg->m_Size = m_DragRegSize + sizeDragLog;
+					break;
+				case HandleTypeLeftTopText:
+					pReg->m_TextOff = m_DragRegTextOff + sizeDragLog;
 					break;
 				default:
 					pReg->m_Local = m_DragRegLocal + sizeDragLog;

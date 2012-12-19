@@ -42,6 +42,8 @@ public:
 
 	CSize m_DragRegSize;
 
+	CPoint m_DragRegTextOff;
+
 	CPoint m_DragScrollPos;
 
 	enum HandleType
@@ -55,6 +57,7 @@ public:
 		HandleTypeLeftBottom,
 		HandleTypeCenterBottom,
 		HandleTypeRightBottom,
+		HandleTypeLeftTopText,
 		HandleTypeCount
 	};
 
@@ -76,8 +79,6 @@ public:
 	static void DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
 	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
-
-	static void DrawRectFrame(Gdiplus::Graphics & grap, const CRect & rectHandle, const Gdiplus::Color & clrHandle);
 
 	static void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected);
 

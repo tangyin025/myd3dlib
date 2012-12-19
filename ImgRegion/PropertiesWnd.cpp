@@ -249,6 +249,13 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	pGroup = new CMFCPropertyGridProperty(_T("文本"));
 
+	pLocal = new CMFCPropertyGridProperty(_T("偏移"), PropertyItemTextOff, TRUE);
+	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
+	pLocal->AddSubItem(m_pProp[PropertyItemTextOffX] = pProp);
+	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
+	pLocal->AddSubItem(m_pProp[PropertyItemTextOffY] = pProp);
+	pGroup->AddSubItem(m_pProp[PropertyItemTextOff] = pLocal);
+
 	pProp = new CMFCPropertyGridProperty(_T("文本"), _T(""), _T("输出内容"), PropertyItemText);
 	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
 
@@ -349,6 +356,8 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
 
+				m_pProp[PropertyItemTextOffX]->SetValue((_variant_t)pReg->m_TextOff.x);
+				m_pProp[PropertyItemTextOffY]->SetValue((_variant_t)pReg->m_TextOff.y);
 				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
 
 				return;
@@ -434,6 +443,13 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					color = ((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->GetColor();
 					pReg->m_FontColor = Gdiplus::Color(
 						(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
+					break;
+
+				case PropertyItemTextOff:
+				case PropertyItemTextOffX:
+				case PropertyItemTextOffY:
+					pReg->m_TextOff.x = m_pProp[PropertyItemTextOffX]->GetValue().lVal;
+					pReg->m_TextOff.y = m_pProp[PropertyItemTextOffY]->GetValue().lVal;
 					break;
 
 				case PropertyItemText:

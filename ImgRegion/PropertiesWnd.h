@@ -70,6 +70,9 @@ public:
 		PropertyItemFontSize,
 		PropertyItemFontAlpha,
 		PropertyItemFontRGB,
+		PropertyItemTextOff,
+		PropertyItemTextOffX,
+		PropertyItemTextOffY,
 		PropertyItemText,
 		PropertyCount
 	};

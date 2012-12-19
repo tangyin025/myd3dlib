@@ -310,7 +310,7 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 344;
+static const int FILE_VERSION = 345;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
@@ -379,6 +379,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
 		ar << pReg->m_Font->GetSize();
 		argb = pReg->m_FontColor.GetValue(); ar << argb;
+		ar << pReg->m_TextOff;
 		ar << pReg->m_Text;
 	}
 	else
@@ -392,6 +393,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 		CString strFamily; float fSize; ar >> strFamily;
 		ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
 		ar >> argb; pReg->m_FontColor.SetValue(argb);
+		ar >> pReg->m_TextOff;
 		ar >> pReg->m_Text;
 	}
 }
@@ -474,13 +476,13 @@ void CImgRegionDoc::OnDelRegion()
 	if(hSelected)
 	{
 		m_TreeCtrl.DeleteTreeItem<CImgRegion>(hSelected, TRUE);
+
+		// ! 如果没有selected item，则最后一次的 DeleteTreeItem，不会触发 TVN_SELCHANGED
+		if(!m_TreeCtrl.GetSelectedItem())
+			UpdateAllViews(NULL);
+
+		SetModifiedFlag();
 	}
-
-	// ! 如果没有selected item，则最后一次的 DeleteTreeItem，不会触发 TVN_SELCHANGED
-	if(!m_TreeCtrl.GetSelectedItem())
-		UpdateAllViews(NULL);
-
-	SetModifiedFlag();
 }
 
 void CImgRegionDoc::OnUpdateDelRegion(CCmdUI *pCmdUI)
