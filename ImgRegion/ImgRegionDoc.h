@@ -3,16 +3,6 @@
 #include "FileView.h"
 #include "MainApp.h"
 
-#define TVN_DRAGCHANGED (TVN_LAST + 1)
-
-struct NMTREEVIEWDRAG
-{
-	NMHDR hdr;
-	HTREEITEM hDragItem;
-	HTREEITEM hDragTagParent;
-	HTREEITEM hDragTagFront;
-};
-
 class Vector4i
 {
 public:
@@ -53,7 +43,7 @@ public:
 
 	CString m_Text;
 
-	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color, const Vector4i & Border = Vector4i(0,0,0,0))
+	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color = Gdiplus::Color::White, const Vector4i & Border = Vector4i(0,0,0,0))
 		: m_Locked(FALSE)
 		, m_Local(Local)
 		, m_Size(Size)
@@ -66,65 +56,14 @@ public:
 	}
 };
 
-class CImgRegionTreeCtrl : public CTreeCtrl
-{
-protected:
-	BOOL m_bDrag;
-
-	HTREEITEM m_hDragItem;
-
-	HTREEITEM m_hDragTagParent;
-
-	HTREEITEM m_hDragTagFront;
-
-	DECLARE_DYNAMIC(CImgRegionTreeCtrl)
-
-public:
-	CImgRegionTreeCtrl(void);
-
-	DECLARE_MESSAGE_MAP()
-
-	afx_msg void OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
-
-	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-
-	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
-
-public:
-	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
-
-	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
-
-	template <class DataType>
-	void DeleteTreeItem(HTREEITEM hItem, BOOL bDeleteData = FALSE)
-	{
-		if(bDeleteData)
-		{
-			delete (DataType *)GetItemData(hItem);
-
-			HTREEITEM hNextChild = NULL;
-			for(HTREEITEM hChild = GetChildItem(hItem); NULL != hChild; hChild = hNextChild)
-			{
-				hNextChild = GetNextSiblingItem(hChild);
-
-				DeleteTreeItem<DataType>(hChild, bDeleteData);
-			}
-		}
-
-		DeleteItem(hItem);
-	}
-
-	HTREEITEM GetSafeParentItem(HTREEITEM hItem);
-
-	HTREEITEM GetSafePreSiblingItem(HTREEITEM hItem);
-};
-
 class CImgRegionDoc
 	: public CDocument
 	, public CImgRegion
 {
 public:
 	CImgRegionTreeCtrl m_TreeCtrl;
+
+	DWORD m_NextRegId;
 
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
