@@ -46,7 +46,8 @@ END_MESSAGE_MAP()
 
 void CImgRegionFilePropertyDlg::OnBnClickedOpenImage()
 {
-	CFileDialog dlg(TRUE, NULL, m_ImageStr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("图片文件(*.bmp; *.jpg; *.png)|*.bmp;*.jpg;*.png|All Files(*.*)|*.*||"), this);
+	CFileDialog dlg(TRUE, NULL, m_ImageStr, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), this);
 	if(dlg.DoModal() == IDOK)
 	{
 		m_ImageStr = dlg.GetPathName();

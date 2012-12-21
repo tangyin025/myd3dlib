@@ -123,6 +123,16 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 		pFrame->m_wndFileView.InvalidLayout();
 
+		//CString strName;
+		//strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
+		//HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, TVI_ROOT, TVI_LAST);
+		//CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100), Gdiplus::Color::White);
+		//pReg->m_ImageStr = _T("E:\\Works\\VC++\\myd3d\\D3DSolution\\ImgRegion\\com_btn_normal16.tga");
+		//pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
+		//pReg->m_Font = m_Font;
+		//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+		//m_TreeCtrl.SelectItem(hItem);
+
 		return TRUE;
 	}
 

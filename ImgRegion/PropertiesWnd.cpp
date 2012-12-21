@@ -203,8 +203,8 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pColorProp->EnableAutomaticButton(_T("默认"), RGB(255,255,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
-	CMFCPropertyGridFileProperty * pFileProp = new CImgRegionPropertyGridFileProperty(
-		_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, _T("图片文件(*.bmp; *.jpg; *.png)|*.bmp;*.jpg;*.png|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
+	CMFCPropertyGridFileProperty * pFileProp = new CImgRegionPropertyGridFileProperty(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+		_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
 	pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
 
 	pLocal = new CMFCPropertyGridProperty(_T("Border"), PropertyItemBorder, TRUE);

@@ -33,6 +33,8 @@ public:
 
 	ImagePtr GetImage(const CString & strImg);
 
+	static ImagePtr OpenTgaImage(const CString & strImg);
+
 	typedef std::tr1::unordered_map<std::wstring, FontPtr2, boost::hash<std::wstring> > FontPtr2Map;
 
 	FontPtr2Map m_FontMap;
