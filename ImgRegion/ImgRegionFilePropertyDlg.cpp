@@ -11,7 +11,7 @@ CImgRegionFilePropertyDlg::CImgRegionFilePropertyDlg(CWnd* pParent /*=NULL*/)
 	, m_Color(RGB(255,255,255))
 	, m_ImageStr(_T(""))
 	, m_strFontFamily(_T("Î¢ÈíÑÅºÚ"))
-	, m_FontSize(12)
+	, m_FontSize(16)
 {
 }
 

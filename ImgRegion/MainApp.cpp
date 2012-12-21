@@ -204,7 +204,7 @@ FontPtr2 CMainApp::GetFont(const CString & strFamily, float fSize)
 		FontPtr2Map::iterator fnt_iter = m_FontMap.find(key);
 		if(fnt_iter == m_FontMap.end())
 		{
-			m_FontMap[key] = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitPoint));
+			m_FontMap[key] = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitWorld));
 		}
 
 		return m_FontMap[key];

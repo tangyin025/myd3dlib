@@ -183,10 +183,22 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 				(float)nodePos.x + pReg->m_TextOff.x,
 				(float)nodePos.y + pReg->m_TextOff.y);
 
-			Gdiplus::SolidBrush solidBrush(pReg->m_FontColor);
 			//Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
 			//strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
-			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), pointF, NULL, &solidBrush);
+			Gdiplus::SolidBrush brush(pReg->m_FontColor);
+			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), pointF, NULL, &brush);
+
+			//Gdiplus::GraphicsPath path;
+			//Gdiplus::FontFamily family;
+			//pReg->m_Font->GetFamily(&family);
+			//path.AddString(strInfo, strInfo.GetLength(), &family, pReg->m_Font->GetStyle(), pReg->m_Font->GetSize(), pointF, NULL);
+			//Gdiplus::Pen pen(pReg->m_FontColor, 2.0f);
+			//Gdiplus::SolidBrush brush(pReg->m_Color);
+			//Gdiplus::SmoothingMode sm = grap.GetSmoothingMode();
+			//grap.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+			//grap.DrawPath(&pen, &path);
+			//grap.FillPath(&brush, &path);
+			//grap.SetSmoothingMode(sm);
 		}
 
 		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
@@ -214,28 +226,22 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top, border.x, border.y),
 		0, 0, border.x, border.y, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top, dstRect.Width() - border.x - border.z, border.y),
 		border.x, 0, img->GetWidth() - border.x - border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top, border.x, border.y),
 		img->GetWidth() - border.z, 0, border.z, border.y, Gdiplus::UnitPixel, &imageAtt);
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
 		0, border.y, border.x, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.top + border.y, dstRect.Width() - border.x - border.z, dstRect.Height() - border.y - border.w),
 		border.x, border.y, img->GetWidth() - border.x - border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.top + border.y, border.x, dstRect.Height() - border.y - border.w),
 		img->GetWidth() - border.z, border.y, border.z, img->GetHeight() - border.y - border.w, Gdiplus::UnitPixel, &imageAtt);
 
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left, dstRect.bottom - border.w, border.x, border.w),
 		0, img->GetHeight() - border.w, border.x, border.w, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.left + border.x, dstRect.bottom - border.w, dstRect.Width() - border.x - border.z, border.w),
 		border.x, img->GetHeight() - border.w, img->GetWidth() - border.x - border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
-
 	grap.DrawImage(img, Gdiplus::Rect(dstRect.right - border.z, dstRect.bottom - border.w, border.x, border.w),
 		img->GetWidth() - border.z, img->GetHeight() - border.w, border.z, border.w, Gdiplus::UnitPixel, &imageAtt);
 
