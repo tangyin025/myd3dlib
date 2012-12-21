@@ -6,7 +6,7 @@
 #include "ImgRegionDoc.h"
 #include "MainApp.h"
 
-void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
+void CFileProp::OnClickButton(CPoint point)
 {
 	ASSERT_VALID(this);
 	ASSERT_VALID(m_pWndList);
@@ -58,6 +58,17 @@ void CImgRegionPropertyGridFileProperty::OnClickButton(CPoint point)
 	{
 		m_pWndList->SetFocus();
 	}
+}
+
+void CSliderProp::OnClickButton(CPoint point)
+{
+	ASSERT_VALID(this);
+	ASSERT_VALID(m_pWndList);
+	ASSERT_VALID(m_pWndInPlace);
+	ASSERT(::IsWindow(m_pWndInPlace->GetSafeHwnd()));
+
+	CRect rectInPlace;
+	m_pWndInPlace->GetWindowRect(&rectInPlace);
 }
 
 CCheckBoxProp::CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr, DWORD dwData) :
@@ -203,7 +214,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pColorProp->EnableAutomaticButton(_T("默认"), RGB(255,255,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
-	CMFCPropertyGridFileProperty * pFileProp = new CImgRegionPropertyGridFileProperty(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+	CMFCPropertyGridFileProperty * pFileProp = new CFileProp(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
 		_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
 	pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
 
@@ -222,11 +233,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	pGroup = new CMFCPropertyGridProperty(_T("字体"));
 
-	LOGFONT lf;
-	CFont* font = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
-	font->GetLogFont(&lf);
-	lstrcpy(lf.lfFaceName, _T("宋体, Arial"));
-	pProp = new CMFCPropertyGridProperty(_T("字体"), _T("新宋体"), _T("选择字体"), PropertyItemFont);
+	pProp = new CMFCPropertyGridProperty(_T("字体"), _T("微软雅黑"), _T("选择字体"), PropertyItemFont);
 	pProp->AllowEdit(FALSE);
 	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
 	{
@@ -236,7 +243,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
-	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)12l, _T("字体大小"), PropertyItemFontSize);
+	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
 	pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
 	pProp = new CMFCPropertyGridProperty(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
@@ -341,7 +348,7 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
 
-				((CImgRegionPropertyGridFileProperty *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
+				((CFileProp *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
 				m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
 				m_pProp[PropertyItemBorderY]->SetValue((_variant_t)pReg->m_Border.y);
 				m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);

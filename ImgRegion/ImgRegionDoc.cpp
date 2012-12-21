@@ -104,6 +104,11 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 BOOL CImgRegionDoc::OnNewDocument(void)
 {
 	CImgRegionFilePropertyDlg dlg;
+	dlg.m_Size.cx = theApp.GetProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
+	dlg.m_Size.cy = theApp.GetProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
+	dlg.m_Color = theApp.GetProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
+	dlg.m_strFontFamily = theApp.GetProfileString(_T("Settings"), _T("FontFamily"), dlg.m_strFontFamily);
+	dlg.m_FontSize = theApp.GetProfileInt(_T("Settings"), _T("FontSize"), dlg.m_FontSize);
 	if(dlg.DoModal() == IDOK)
 	{
 		if (!CreateTreeCtrl())
@@ -123,15 +128,11 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 
 		pFrame->m_wndFileView.InvalidLayout();
 
-		//CString strName;
-		//strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
-		//HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, TVI_ROOT, TVI_LAST);
-		//CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100), Gdiplus::Color::White);
-		//pReg->m_ImageStr = _T("E:\\Works\\VC++\\myd3d\\D3DSolution\\ImgRegion\\com_btn_normal16.tga");
-		//pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-		//pReg->m_Font = m_Font;
-		//m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-		//m_TreeCtrl.SelectItem(hItem);
+		theApp.WriteProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
+		theApp.WriteProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
+		theApp.WriteProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
+		theApp.WriteProfileString(_T("Settings"), _T("FontFamily"), dlg.m_strFontFamily);
+		theApp.WriteProfileInt(_T("Settings"), _T("FontSize"), dlg.m_FontSize);
 
 		return TRUE;
 	}

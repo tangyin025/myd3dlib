@@ -1,13 +1,25 @@
 
 #pragma once
 
-class CImgRegionPropertyGridFileProperty : public CMFCPropertyGridFileProperty
+class CFileProp : public CMFCPropertyGridFileProperty
 {
 public:
-	CImgRegionPropertyGridFileProperty(const CString& strName, BOOL bOpenFileDialog, const CString& strFileName, LPCTSTR lpszDefExt = NULL,
+	CFileProp(const CString& strName, BOOL bOpenFileDialog, const CString& strFileName, LPCTSTR lpszDefExt = NULL,
 		DWORD dwFlags = OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, LPCTSTR lpszFilter = NULL, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
 		: CMFCPropertyGridFileProperty(strName, bOpenFileDialog, strFileName, lpszDefExt, dwFlags, lpszFilter, lpszDescr, dwData)
 	{
+	}
+
+	virtual void OnClickButton(CPoint point);
+};
+
+class CSliderProp : public CMFCPropertyGridProperty
+{
+public:
+	CSliderProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
+		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData)
+	{
+		m_dwFlags = 0x0002;
 	}
 
 	virtual void OnClickButton(CPoint point);
