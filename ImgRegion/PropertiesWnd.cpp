@@ -249,7 +249,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
 	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
-	pColorProp->EnableAutomaticButton(_T("默认"), RGB(0,0,255));
+	pColorProp->EnableAutomaticButton(_T("默认"), RGB(0,0,0));
 	pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);

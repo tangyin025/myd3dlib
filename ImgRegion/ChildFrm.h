@@ -10,4 +10,8 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
+	virtual void ActivateFrame(int nCmdShow = -1);
+
+	virtual BOOL DestroyWindow();
 };
