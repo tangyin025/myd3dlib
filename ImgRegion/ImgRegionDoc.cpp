@@ -162,7 +162,7 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 352;
+static const int FILE_VERSION = 355;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
@@ -172,6 +172,7 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 	{	// storing code
 		CString strVersion; strVersion.Format(FILE_VERSION_DESC, FILE_VERSION); ar << strVersion;
 
+		ar << m_NextRegId;
 		ar << m_Size;
 		DWORD argb = m_Color.GetValue(); ar << argb;
 		ar << m_ImageStr;
@@ -196,6 +197,7 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 			AfxThrowUserException();
 		}
 
+		ar >> m_NextRegId;
 		ar >> m_Size;
 		DWORD argb; ar >> argb; m_Color.SetValue(argb);
 		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
