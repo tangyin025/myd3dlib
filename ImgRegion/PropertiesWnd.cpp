@@ -239,7 +239,6 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMFCPropertyGridColorProperty * pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
-	pColorProp->EnableAutomaticButton(_T("默认"), RGB(255,255,255));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
 	CMFCPropertyGridFileProperty * pFileProp = new CFileProp(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
@@ -277,7 +276,6 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
 	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
-	pColorProp->EnableAutomaticButton(_T("默认"), RGB(0,0,0));
 	pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);

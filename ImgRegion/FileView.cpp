@@ -390,6 +390,8 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 			pDoc->UpdateAllViews(NULL);
 
 			pDoc->SetModifiedFlag();
+
+			pFrame->m_wndProperties.InvalidProperties();
 		}
 	}
 }

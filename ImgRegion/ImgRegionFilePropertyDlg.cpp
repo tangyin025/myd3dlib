@@ -54,7 +54,6 @@ BOOL CImgRegionFilePropertyDlg::OnInitDialog()
 {
 	CDialog::OnInitDialog();
 
-	m_btnColor.EnableAutomaticButton(_T("Ä¬ÈÏ"), RGB(255,255,255));
 	m_btnColor.EnableOtherButton(_T("ÆäËü"));
 
 	return TRUE;

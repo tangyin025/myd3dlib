@@ -549,42 +549,43 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 				dc.LPtoDP(&ptTextOrg);
 				dc.LPtoDP(&ptText);
 
+				// 检测的顺序应当和绘制的顺序反向
 				CPoint ptCenter = rect.CenterPoint();
-				if(CheckSmallHandle(CPoint(rect.left, rect.top), point))
+				if(CheckSmallHandle(ptText, point))
 				{
-					m_nSelectedHandle = HandleTypeLeftTop;
-				}
-				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.top), point))
-				{
-					m_nSelectedHandle = HandleTypeCenterTop;
-				}
-				else if(CheckSmallHandle(CPoint(rect.right, rect.top), point))
-				{
-					m_nSelectedHandle = HandleTypeRightTop;
-				}
-				else if(CheckSmallHandle(CPoint(rect.left, ptCenter.y), point))
-				{
-					m_nSelectedHandle = HandleTypeLeftMiddle;
-				}
-				else if(CheckSmallHandle(CPoint(rect.right, ptCenter.y), point))
-				{
-					m_nSelectedHandle = HandleTypeRightMiddle;
-				}
-				else if(CheckSmallHandle(CPoint(rect.left, rect.bottom), point))
-				{
-					m_nSelectedHandle = HandleTypeLeftBottom;
-				}
-				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.bottom), point))
-				{
-					m_nSelectedHandle = HandleTypeCenterBottom;
+					m_nSelectedHandle = HandleTypeLeftTopText;
 				}
 				else if(CheckSmallHandle(CPoint(rect.right, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeRightBottom;
 				}
-				else if(CheckSmallHandle(ptText, point))
+				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.bottom), point))
 				{
-					m_nSelectedHandle = HandleTypeLeftTopText;
+					m_nSelectedHandle = HandleTypeCenterBottom;
+				}
+				else if(CheckSmallHandle(CPoint(rect.left, rect.bottom), point))
+				{
+					m_nSelectedHandle = HandleTypeLeftBottom;
+				}
+				else if(CheckSmallHandle(CPoint(rect.right, ptCenter.y), point))
+				{
+					m_nSelectedHandle = HandleTypeRightMiddle;
+				}
+				else if(CheckSmallHandle(CPoint(rect.left, ptCenter.y), point))
+				{
+					m_nSelectedHandle = HandleTypeLeftMiddle;
+				}
+				else if(CheckSmallHandle(CPoint(rect.right, rect.top), point))
+				{
+					m_nSelectedHandle = HandleTypeRightTop;
+				}
+				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.top), point))
+				{
+					m_nSelectedHandle = HandleTypeCenterTop;
+				}
+				else if(CheckSmallHandle(CPoint(rect.left, rect.top), point))
+				{
+					m_nSelectedHandle = HandleTypeLeftTop;
 				}
 				else
 				{
@@ -622,7 +623,8 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 			Invalidate(TRUE);
 
-			pDoc->UpdateAllViews(this);
+			// ! OnLButtonDown时刷新会影响手感，移到OnLButtonUp
+			//pDoc->UpdateAllViews(this);
 
 			//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 			//ASSERT(pFrame);

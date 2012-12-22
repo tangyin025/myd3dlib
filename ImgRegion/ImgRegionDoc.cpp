@@ -320,6 +320,10 @@ void CImgRegionDoc::OnAddRegion()
 	UpdateAllViews(NULL);
 
 	SetModifiedFlag();
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+	pFrame->m_wndProperties.InvalidProperties();
 }
 
 void CImgRegionDoc::OnUpdateAddRegion(CCmdUI *pCmdUI)
@@ -334,11 +338,13 @@ void CImgRegionDoc::OnDelRegion()
 	{
 		m_TreeCtrl.DeleteTreeItem<CImgRegion>(hSelected, TRUE);
 
-		// ! 如果没有selected item，则最后一次的 DeleteTreeItem，不会触发 TVN_SELCHANGED
-		if(!m_TreeCtrl.GetSelectedItem())
-			UpdateAllViews(NULL);
+		UpdateAllViews(NULL);
 
 		SetModifiedFlag();
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		pFrame->m_wndProperties.InvalidProperties();
 	}
 }
 
@@ -494,5 +500,9 @@ void CImgRegionDoc::OnEditPaste()
 		UpdateAllViews(NULL);
 
 		SetModifiedFlag();
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		pFrame->m_wndProperties.InvalidProperties();
 	}
 }
