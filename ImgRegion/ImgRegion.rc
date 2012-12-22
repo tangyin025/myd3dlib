@@ -201,7 +201,7 @@ BEGIN
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
-    BUTTON      ID_FILE_PRINT
+    BUTTON      ID_EXPORT_IMG
     BUTTON      ID_APP_ABOUT
 END
 
@@ -326,6 +326,34 @@ END
 STRINGTABLE 
 BEGIN
     AFX_IDS_IDLEMESSAGE     "就绪"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_FILE_NEW             "创建新文档\n新建"
+    ID_FILE_OPEN            "打开现有文档\n打开"
+    ID_FILE_SAVE            "保存活动文档\n保存"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_APP_ABOUT            "显示程序信息、版本号和版权\n关于"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_EDIT_COPY            "复制选定内容并将其放到剪贴板上\n复制"
+    ID_EDIT_CUT             "剪切选定内容并将其放到剪贴板上\n剪切"
+    ID_EDIT_PASTE           "插入剪贴板内容\n粘贴"
+END
+
+STRINGTABLE 
+BEGIN
+    ID_ZOOM_OUT             "缩小当前视图\n缩小"
+    ID_ZOOM_IN              "放大当前视图\n放大"
+    ID_DEL_REGION           "删除选中的区域\n删除区域(Delete)"
+    ID_ADD_REGION           "在选中的区域附近创建一个新区域\n添加区域(Insert)"
+    ID_EXPORT_IMG           "将当前视图内容导出为图片格式\n导出图片"
 END
 
 #endif    // Chinese (P.R.C.) resources
