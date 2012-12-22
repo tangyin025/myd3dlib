@@ -25,6 +25,20 @@ public:
 	virtual void OnClickButton(CPoint point);
 };
 
+class CComboProp : public CMFCPropertyGridProperty
+{
+public:
+	CComboProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
+		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData)
+		, m_iSelIndex(-1)
+	{
+	}
+
+	virtual void OnSelectCombo();
+
+	int m_iSelIndex;
+};
+
 class CCheckBoxProp : public CMFCPropertyGridProperty
 {
 public:
@@ -82,10 +96,12 @@ public:
 		PropertyItemFontSize,
 		PropertyItemFontAlpha,
 		PropertyItemFontRGB,
+		PropertyItemText,
+		PropertyItemTextAlign,
+		PropertyItemTextWrap,
 		PropertyItemTextOff,
 		PropertyItemTextOffX,
 		PropertyItemTextOffY,
-		PropertyItemText,
 		PropertyCount
 	};
 

@@ -71,6 +71,22 @@ void CSliderProp::OnClickButton(CPoint point)
 	m_pWndInPlace->GetWindowRect(&rectInPlace);
 }
 
+void CComboProp::OnSelectCombo()
+{
+	ASSERT_VALID(this);
+	ASSERT_VALID(m_pWndCombo);
+	ASSERT_VALID(m_pWndInPlace);
+
+	m_iSelIndex = m_pWndCombo->GetCurSel();
+	if (m_iSelIndex >= 0)
+	{
+		CString str;
+		m_pWndCombo->GetLBText(m_iSelIndex, str);
+		m_pWndInPlace->SetWindowText(str);
+		OnUpdateValue();
+	}
+}
+
 CCheckBoxProp::CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr, DWORD dwData) :
 	CMFCPropertyGridProperty(strName, COleVariant((long)bCheck), lpszDescr, dwData)
 {
@@ -163,6 +179,18 @@ void CPropertiesWnd::AdjustLayout()
 		rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
+static const TCHAR * TextAlignDesc[TextAlignCount] = {
+	_T("LeftTop"),
+	_T("CenterTop"),
+	_T("RightTop"),
+	_T("LeftMiddle"),
+	_T("CenterMiddle"),
+	_T("RightMiddle"),
+	_T("LeftBottom"),
+	_T("CenterBottom"),
+	_T("RightBottom"),
+};
+
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
@@ -239,7 +267,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	{
 		CString strFamily;
 		theApp.fontFamilies[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
-		pProp->AddOption(strFamily);
+		pProp->AddOption(strFamily, FALSE);
 	}
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
@@ -256,15 +284,26 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	pGroup = new CMFCPropertyGridProperty(_T("文本"));
 
+	pProp = new CMFCPropertyGridProperty(_T("文本"), _T(""), _T("矩形框内的文字描述"), PropertyItemText);
+	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
+
+	pProp = new CComboProp(_T("对齐"), TextAlignDesc[0], _T("文本在矩形框内的对其方式"), PropertyItemTextAlign);
+	pProp->AllowEdit(FALSE);
+	for(int i = 0; i < TextAlignCount; i++)
+	{
+		pProp->AddOption(TextAlignDesc[i], FALSE);
+	}
+	pGroup->AddSubItem(m_pProp[PropertyItemTextAlign] = pProp);
+
+	pProp = new CCheckBoxProp(_T("自动换行"), FALSE, _T("文本在矩形框内自动换行"), PropertyItemTextWrap);
+	pGroup->AddSubItem(m_pProp[PropertyItemTextWrap] = pProp);
+
 	pLocal = new CMFCPropertyGridProperty(_T("偏移"), PropertyItemTextOff, TRUE);
 	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
 	pLocal->AddSubItem(m_pProp[PropertyItemTextOffX] = pProp);
 	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
 	pLocal->AddSubItem(m_pProp[PropertyItemTextOffY] = pProp);
 	pGroup->AddSubItem(m_pProp[PropertyItemTextOff] = pLocal);
-
-	pProp = new CMFCPropertyGridProperty(_T("文本"), _T(""), _T("输出内容"), PropertyItemText);
-	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupText] = pGroup);
 
@@ -363,9 +402,11 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
 				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
 
+				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
+				m_pProp[PropertyItemTextAlign]->SetValue((_variant_t)TextAlignDesc[pReg->m_TextAlign]);
+				m_pProp[PropertyItemTextWrap]->SetValue((_variant_t)(long)pReg->m_TextWrap);
 				m_pProp[PropertyItemTextOffX]->SetValue((_variant_t)pReg->m_TextOff.x);
 				m_pProp[PropertyItemTextOffY]->SetValue((_variant_t)pReg->m_TextOff.y);
-				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
 
 				return;
 			}
@@ -452,15 +493,24 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 						(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
 					break;
 
+				case PropertyItemText:
+					pReg->m_Text = m_pProp[PropertyItemText]->GetValue().bstrVal;
+					break;
+
+				case PropertyItemTextAlign:
+					pReg->m_TextAlign = my::Clamp<DWORD>(((CComboProp *)m_pProp[PropertyItemTextAlign])->m_iSelIndex, 0, TextAlignCount - 1);
+					break;
+
+				case PropertyItemTextWrap:
+					pReg->m_TextWrap = m_pProp[PropertyItemTextWrap]->GetValue().lVal;
+					break;
+
 				case PropertyItemTextOff:
 				case PropertyItemTextOffX:
 				case PropertyItemTextOffY:
 					pReg->m_TextOff.x = m_pProp[PropertyItemTextOffX]->GetValue().lVal;
 					pReg->m_TextOff.y = m_pProp[PropertyItemTextOffY]->GetValue().lVal;
 					break;
-
-				case PropertyItemText:
-					pReg->m_Text = m_pProp[PropertyItemText]->GetValue().bstrVal;
 				}
 
 				pDoc->UpdateAllViews(NULL);

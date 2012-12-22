@@ -18,6 +18,20 @@ public:
 	}
 };
 
+enum TextAlign
+{
+	TextAlignLeftTop = 0,
+	TextAlignCenterTop,
+	TextAlignRightTop,
+	TextAlignLeftMiddle,
+	TextAlignCenterMiddle,
+	TextAlignRightMiddle,
+	TextAlignLeftBottom,
+	TextAlignCenterBottom,
+	TextAlignRightBottom,
+	TextAlignCount
+};
+
 class CImgRegion
 {
 public:
@@ -39,9 +53,13 @@ public:
 
 	Gdiplus::Color m_FontColor;
 
-	CPoint m_TextOff;
-
 	CString m_Text;
+
+	DWORD m_TextAlign;
+
+	BOOL m_TextWrap;
+
+	CPoint m_TextOff;
 
 	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color = Gdiplus::Color::White, const Vector4i & Border = Vector4i(0,0,0,0))
 		: m_Locked(FALSE)
@@ -50,8 +68,10 @@ public:
 		, m_Color(Color)
 		, m_Border(Border)
 		, m_FontColor(255,0,0,0)
-		, m_TextOff(0,0)
 		, m_Text(_T("x:%d y:%d w:%d h:%d"))
+		, m_TextAlign(TextAlignLeftTop)
+		, m_TextWrap(FALSE)
+		, m_TextOff(0,0)
 	{
 	}
 };

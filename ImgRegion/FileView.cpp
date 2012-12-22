@@ -340,20 +340,23 @@ void CFileView::OnIdleUpdate()
 
 afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT(pFrame);
-	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
-	if(pChildFrame)
+	LPNMTREEVIEW ptv = (LPNMTREEVIEW)pNMHDR;
+	if(ptv->action != TVC_UNKNOWN)
 	{
-		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
-		if(pDoc)
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+		if(pChildFrame)
 		{
-			pDoc->UpdateAllViews(NULL);
+			CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+			if(pDoc)
+			{
+				pDoc->UpdateAllViews(NULL);
 
-			pFrame->m_wndProperties.InvalidProperties();
+				pFrame->m_wndProperties.InvalidProperties();
+			}
 		}
 	}
-	*pResult = 0;
 }
 
 afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult)
@@ -383,6 +386,8 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 			ASSERT(pReg);
 
 			pReg->m_Local = pDoc->RootToLocal(pDragInfo->hDragTagParent, ptOrg);
+
+			pDoc->UpdateAllViews(NULL);
 
 			pDoc->SetModifiedFlag();
 		}

@@ -182,8 +182,48 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 			Gdiplus::RectF rectF(
 				(float)ptNode.x + pReg->m_TextOff.x, (float)ptNode.y + pReg->m_TextOff.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
 
-			Gdiplus::StringFormat format(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
+			Gdiplus::StringFormat format((pReg->m_TextWrap ? 0 : Gdiplus::StringFormatFlagsNoWrap) | Gdiplus::StringFormatFlagsNoClip);
 			format.SetTrimming(Gdiplus::StringTrimmingNone);
+			switch(pReg->m_TextAlign)
+			{
+			case TextAlignLeftTop:
+				format.SetAlignment(Gdiplus::StringAlignmentNear);
+				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+				break;
+			case TextAlignCenterTop:
+				format.SetAlignment(Gdiplus::StringAlignmentCenter);
+				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+				break;
+			case TextAlignRightTop:
+				format.SetAlignment(Gdiplus::StringAlignmentFar);
+				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+				break;
+			case TextAlignLeftMiddle:
+				format.SetAlignment(Gdiplus::StringAlignmentNear);
+				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+				break;
+			case TextAlignCenterMiddle:
+				format.SetAlignment(Gdiplus::StringAlignmentCenter);
+				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+				break;
+			case TextAlignRightMiddle:
+				format.SetAlignment(Gdiplus::StringAlignmentFar);
+				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+				break;
+			case TextAlignLeftBottom:
+				format.SetAlignment(Gdiplus::StringAlignmentNear);
+				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+				break;
+			case TextAlignCenterBottom:
+				format.SetAlignment(Gdiplus::StringAlignmentCenter);
+				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+				break;
+			case TextAlignRightBottom:
+				format.SetAlignment(Gdiplus::StringAlignmentFar);
+				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+				break;
+			}
+
 			Gdiplus::SolidBrush brush(pReg->m_FontColor);
 			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &format, &brush);
 

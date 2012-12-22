@@ -162,7 +162,7 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 350;
+static const int FILE_VERSION = 352;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
@@ -227,8 +227,10 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
 		ar << pReg->m_Font->GetSize();
 		argb = pReg->m_FontColor.GetValue(); ar << argb;
-		ar << pReg->m_TextOff;
 		ar << pReg->m_Text;
+		ar << pReg->m_TextAlign;
+		ar << pReg->m_TextWrap;
+		ar << pReg->m_TextOff;
 	}
 	else
 	{
@@ -241,8 +243,10 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 		CString strFamily; float fSize; ar >> strFamily;
 		ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
 		ar >> argb; pReg->m_FontColor.SetValue(argb);
-		ar >> pReg->m_TextOff;
 		ar >> pReg->m_Text;
+		ar >> pReg->m_TextAlign;
+		ar >> pReg->m_TextWrap;
+		ar >> pReg->m_TextOff;
 	}
 }
 
@@ -312,6 +316,8 @@ void CImgRegionDoc::OnAddRegion()
 	pReg->m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 	m_TreeCtrl.SelectItem(hItem);
+
+	UpdateAllViews(NULL);
 
 	SetModifiedFlag();
 }
@@ -484,5 +490,9 @@ void CImgRegionDoc::OnEditPaste()
 		HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST);
 		m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 		m_TreeCtrl.SelectItem(hItem);
+
+		UpdateAllViews(NULL);
+
+		SetModifiedFlag();
 	}
 }
