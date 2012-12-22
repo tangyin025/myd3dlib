@@ -23,8 +23,7 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
-	: CImgRegion(CPoint(0,0), CSize(500,500))
-	, m_NextRegId(1)
+	: m_NextRegId(1)
 {
 }
 
@@ -107,8 +106,6 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 	dlg.m_Size.cx = theApp.GetProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
 	dlg.m_Size.cy = theApp.GetProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
 	dlg.m_Color = theApp.GetProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
-	dlg.m_strFontFamily = theApp.GetProfileString(_T("Settings"), _T("FontFamily"), dlg.m_strFontFamily);
-	dlg.m_FontSize = theApp.GetProfileInt(_T("Settings"), _T("FontSize"), dlg.m_FontSize);
 	if(dlg.DoModal() == IDOK)
 	{
 		if (!CreateTreeCtrl())
@@ -121,7 +118,6 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 		m_Color.SetFromCOLORREF(dlg.m_Color);
 		m_ImageStr = dlg.m_ImageStr;
 		m_Image = theApp.GetImage(m_ImageStr);
-		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
 
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
@@ -131,9 +127,6 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 		theApp.WriteProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
 		theApp.WriteProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
 		theApp.WriteProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
-		theApp.WriteProfileString(_T("Settings"), _T("FontFamily"), dlg.m_strFontFamily);
-		theApp.WriteProfileInt(_T("Settings"), _T("FontSize"), dlg.m_FontSize);
-
 		return TRUE;
 	}
 
@@ -169,7 +162,7 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 345;
+static const int FILE_VERSION = 350;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
@@ -182,8 +175,6 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 		ar << m_Size;
 		DWORD argb = m_Color.GetValue(); ar << argb;
 		ar << m_ImageStr;
-		Gdiplus::FontFamily family; m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
-		ar << m_Font->GetSize();
 
 		SerializeRegionNodeTree(ar);
 	}
@@ -208,8 +199,6 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 		ar >> m_Size;
 		DWORD argb; ar >> argb; m_Color.SetValue(argb);
 		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
-		CString strFamily; float fSize; ar >> strFamily;
-		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
 
 		SerializeRegionNodeTree(ar);
 	}
@@ -319,7 +308,8 @@ void CImgRegionDoc::OnAddRegion()
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST);
 	CImgRegion * pReg = new CImgRegion(ptOrg, CSize(100,100),
 		Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255)));
-	pReg->m_Font = m_Font;
+	pReg->m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
+	pReg->m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 	m_TreeCtrl.SelectItem(hItem);
 
@@ -408,21 +398,16 @@ void CImgRegionDoc::OnExportImg()
 
 void CImgRegionDoc::OnFileProperty()
 {
-	ASSERT(m_Font);
-
 	CImgRegionFilePropertyDlg dlg;
 	dlg.m_Size = m_Size;
 	dlg.m_Color = m_Color.ToCOLORREF();
 	dlg.m_ImageStr = m_ImageStr;
-	Gdiplus::FontFamily family; m_Font->GetFamily(&family); family.GetFamilyName(dlg.m_strFontFamily.GetBufferSetLength(LF_FACESIZE)); dlg.m_strFontFamily.ReleaseBuffer();
-	dlg.m_FontSize = (LONG)m_Font->GetSize();
 	if(dlg.DoModal() == IDOK)
 	{
 		m_Size = dlg.m_Size;
 		m_Color.SetFromCOLORREF(dlg.m_Color);
 		m_ImageStr = dlg.m_ImageStr;
 		m_Image = theApp.GetImage(m_ImageStr);
-		m_Font = theApp.GetFont(dlg.m_strFontFamily, (float)dlg.m_FontSize);
 
 		POSITION pos = GetFirstViewPosition();
 		while(NULL != pos)

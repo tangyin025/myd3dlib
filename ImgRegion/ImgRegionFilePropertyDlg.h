@@ -27,12 +27,6 @@ public:
 
 	CString m_ImageStr;
 
-	CComboBox m_cbxFontFamily;
-
-	CString m_strFontFamily;
-
-	LONG m_FontSize;
-
 	afx_msg void OnBnClickedOpenImage();
 
 	virtual BOOL OnInitDialog();

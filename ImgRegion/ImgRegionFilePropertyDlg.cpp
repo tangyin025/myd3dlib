@@ -10,8 +10,6 @@ CImgRegionFilePropertyDlg::CImgRegionFilePropertyDlg(CWnd* pParent /*=NULL*/)
 	, m_Size(500,500)
 	, m_Color(RGB(255,255,255))
 	, m_ImageStr(_T(""))
-	, m_strFontFamily(_T("Î¢ÈíÑÅºÚ"))
-	, m_FontSize(16)
 {
 }
 
@@ -26,13 +24,10 @@ void CImgRegionFilePropertyDlg::DoDataExchange(CDataExchange* pDX)
 	DDX_Text(pDX, IDC_EDIT2, m_Size.cy);
 	DDX_Control(pDX, IDC_BUTTON1, m_btnColor);
 	DDX_Text(pDX, IDC_EDIT3, m_ImageStr);
-	DDX_Control(pDX, IDC_COMBO1, m_cbxFontFamily);
-	DDX_Text(pDX, IDC_EDIT4, m_FontSize);
 
 	if(pDX->m_bSaveAndValidate)
 	{
 		m_Color = m_btnColor.GetColor();
-		m_cbxFontFamily.GetLBText(m_cbxFontFamily.GetCurSel(), m_strFontFamily);
 	}
 	else
 	{
@@ -61,16 +56,6 @@ BOOL CImgRegionFilePropertyDlg::OnInitDialog()
 
 	m_btnColor.EnableAutomaticButton(_T("Ä¬ÈÏ"), RGB(255,255,255));
 	m_btnColor.EnableOtherButton(_T("ÆäËü"));
-
-	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
-	{
-		CString strFamily;
-		theApp.fontFamilies[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
-		m_cbxFontFamily.AddString(strFamily);
-	}
-
-	int nSel = m_cbxFontFamily.SelectString(-1, m_strFontFamily);
-	ASSERT(nSel != CB_ERR);
 
 	return TRUE;
 }

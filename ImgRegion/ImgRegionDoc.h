@@ -49,7 +49,7 @@ public:
 		, m_Size(Size)
 		, m_Color(Color)
 		, m_Border(Border)
-		, m_FontColor(255,0,0,255)
+		, m_FontColor(255,0,0,0)
 		, m_TextOff(0,0)
 		, m_Text(_T("x:%d y:%d w:%d h:%d"))
 	{
@@ -58,12 +58,19 @@ public:
 
 class CImgRegionDoc
 	: public CDocument
-	, public CImgRegion
 {
 public:
 	CImgRegionTreeCtrl m_TreeCtrl;
 
 	DWORD m_NextRegId;
+
+	CSize m_Size;
+
+	Gdiplus::Color m_Color;
+
+	CString m_ImageStr;
+
+	ImagePtr m_Image;
 
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)

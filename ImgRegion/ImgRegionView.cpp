@@ -142,12 +142,12 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDo
 {
 	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
 	{
-		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(pDoc->m_Local, pDoc->m_Size), pDoc->m_Border, pDoc->m_Color);
+		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(CPoint(0,0), pDoc->m_Size), Vector4i(0,0,0,0), pDoc->m_Color);
 	}
 	else
 	{
 		Gdiplus::SolidBrush brush(pDoc->m_Color);
-		grap.FillRectangle(&brush, pDoc->m_Local.x, pDoc->m_Local.y, pDoc->m_Size.cx, pDoc->m_Size.cy);
+		grap.FillRectangle(&brush, 0, 0, pDoc->m_Size.cx, pDoc->m_Size.cy);
 	}
 
 	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
@@ -162,16 +162,16 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
 		ASSERT(pReg);
 
-		CPoint nodePos = pReg->m_Local + ptOff;
+		CPoint ptNode = pReg->m_Local + ptOff;
 
 		if(pReg->m_Image && Gdiplus::ImageTypeUnknown != pReg->m_Image->GetType())
 		{
-			DrawRegionDocImage(grap, pReg->m_Image.get(), CRect(nodePos, pReg->m_Size), pReg->m_Border, pReg->m_Color);
+			DrawRegionDocImage(grap, pReg->m_Image.get(), CRect(ptNode, pReg->m_Size), pReg->m_Border, pReg->m_Color);
 		}
 		else
 		{
 			Gdiplus::SolidBrush brush(pReg->m_Color);
-			grap.FillRectangle(&brush, nodePos.x, nodePos.y, pReg->m_Size.cx, pReg->m_Size.cy);
+			grap.FillRectangle(&brush, ptNode.x, ptNode.y, pReg->m_Size.cx, pReg->m_Size.cy);
 		}
 
 		if(pReg->m_Font)
@@ -179,19 +179,18 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 			CString strInfo;
 			strInfo.Format(pReg->m_Text, pReg->m_Local.x, pReg->m_Local.y, pReg->m_Size.cx, pReg->m_Size.cy);
 
-			Gdiplus::PointF pointF(
-				(float)nodePos.x + pReg->m_TextOff.x,
-				(float)nodePos.y + pReg->m_TextOff.y);
+			Gdiplus::RectF rectF(
+				(float)ptNode.x + pReg->m_TextOff.x, (float)ptNode.y + pReg->m_TextOff.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
 
-			//Gdiplus::StringFormat strFormat(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
-			//strFormat.SetTrimming(Gdiplus::StringTrimmingNone);
+			Gdiplus::StringFormat format(Gdiplus::StringFormatFlagsNoWrap | Gdiplus::StringFormatFlagsNoClip);
+			format.SetTrimming(Gdiplus::StringTrimmingNone);
 			Gdiplus::SolidBrush brush(pReg->m_FontColor);
-			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), pointF, NULL, &brush);
+			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &format, &brush);
 
 			//Gdiplus::GraphicsPath path;
 			//Gdiplus::FontFamily family;
 			//pReg->m_Font->GetFamily(&family);
-			//path.AddString(strInfo, strInfo.GetLength(), &family, pReg->m_Font->GetStyle(), pReg->m_Font->GetSize(), pointF, NULL);
+			//path.AddString(strInfo, strInfo.GetLength(), &family, pReg->m_Font->GetStyle(), pReg->m_Font->GetSize(), rectF, &format);
 			//Gdiplus::Pen pen(pReg->m_FontColor, 2.0f);
 			//Gdiplus::SolidBrush brush(pReg->m_Color);
 			//Gdiplus::SmoothingMode sm = grap.GetSmoothingMode();
