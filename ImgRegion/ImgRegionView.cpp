@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_MOUSEWHEEL()
 	ON_WM_SETCURSOR()
+	ON_WM_CONTEXTMENU()
 END_MESSAGE_MAP()
 
 CImgRegionView::CImgRegionView(void)
@@ -152,14 +153,14 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDo
 
 	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
 
-	DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetRootItem());
+	DrawRegionDocNode(grap, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem());
 }
 
-void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff)
+void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff)
 {
 	if(hItem)
 	{
-		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
+		CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
 		ASSERT(pReg);
 
 		CPoint ptNode = pReg->m_Local + ptOff;
@@ -240,9 +241,9 @@ void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc *
 			//grap.SetSmoothingMode(sm);
 		}
 
-		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
+		DrawRegionDocNode(grap, pTreeCtrl, pTreeCtrl->GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Local.x, ptOff.y + pReg->m_Local.y));
 
-		DrawRegionDocNode(grap, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptOff);
+		DrawRegionDocNode(grap, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem), ptOff);
 	}
 }
 
@@ -786,5 +787,111 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 		pFrame->m_wndProperties.UpdateProperties();
 
 		pFrame->m_wndFileView.AdjustLayout();
+	}
+}
+
+void CImgRegionView::OnContextMenu(CWnd* pWnd, CPoint point)
+{
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	if(m_ContextMenu.m_hMenu)
+		m_ContextMenu.DestroyMenu();
+
+	m_ContextMenu.CreatePopupMenu();
+	MENUINFO mi = {0};
+	mi.cbSize = sizeof(mi);
+	mi.fMask = MIM_STYLE;
+	mi.dwStyle = MNS_NOTIFYBYPOS;
+	m_ContextMenu.SetMenuInfo(&mi);
+
+	CPoint ptMenu = point;
+	ScreenToClient(&point);
+
+	my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
+		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+
+	InsertPointedRegionNodeToMenuItem(&m_ContextMenu, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
+
+	if(m_ContextMenu.GetMenuItemCount() == 0)
+	{
+		MENUITEMINFO mii = {0};
+		mii.cbSize = sizeof(mii);
+		mii.fMask = MIIM_STATE | MIIM_DATA | MIIM_STRING;
+		mii.fState = MFS_DISABLED;
+		mii.dwItemData = 0;
+		mii.dwTypeData = _T("Пе");
+		m_ContextMenu.InsertMenuItem(-1, &mii, TRUE);
+	}
+
+	m_ContextMenu.TrackPopupMenu(0, ptMenu.x, ptMenu.y, pWnd);
+}
+
+BOOL CImgRegionView::OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	switch(message)
+	{
+	case WM_MENUCOMMAND:
+		{
+			CMenu menu;
+			menu.Attach((HMENU)lParam);
+			OnMenuCommand(wParam, &menu);
+			menu.Detach();
+			*pResult = 0;
+			return TRUE;
+		}
+	}
+
+	return CImageView::OnWndMsg(message, wParam, lParam, pResult);
+}
+
+void CImgRegionView::OnMenuCommand(UINT nPos, CMenu* pMenu)
+{
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	MENUITEMINFO mii = {0};
+	mii.cbSize = sizeof(mii);
+	mii.fMask = MIIM_DATA;
+	pMenu->GetMenuItemInfo(nPos, &mii, TRUE);
+
+	pDoc->m_TreeCtrl.SelectItem((HTREEITEM)mii.dwItemData);
+
+	Invalidate(TRUE);
+
+	pDoc->UpdateAllViews(this);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+	pFrame->m_wndProperties.InvalidProperties();
+}
+
+void CImgRegionView::InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal)
+{
+	if(hItem)
+	{
+		CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
+		ASSERT(pReg);
+
+		if(CRect(pReg->m_Local, pReg->m_Size).PtInRect(ptLocal))
+		{
+			MENUITEMINFO mii = {0};
+			mii.cbSize = sizeof(mii);
+			mii.fMask = MIIM_STATE | MIIM_DATA | MIIM_STRING;
+			mii.fState = (hItem == pTreeCtrl->GetSelectedItem() ? MFS_CHECKED : MFS_ENABLED);
+			mii.dwItemData = (ULONG_PTR)hItem;
+			CString strItem = pTreeCtrl->GetItemText(hItem);
+			mii.dwTypeData = strItem.GetBuffer();
+			pMenu->InsertMenuItem(-1, &mii, TRUE);
+			strItem.ReleaseBuffer();
+		}
+
+		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetChildItem(hItem), ptLocal - pReg->m_Local);
+
+		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem), ptLocal);
 	}
 }

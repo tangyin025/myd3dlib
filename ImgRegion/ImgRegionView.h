@@ -63,6 +63,8 @@ public:
 
 	int m_nSelectedHandle;
 
+	CMenu m_ContextMenu;
+
 public:
 	CImgRegionView(void);
 
@@ -76,7 +78,7 @@ public:
 
 	static void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
 
-	static void DrawRegionDocNode(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
+	static void DrawRegionDocNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
 
 	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 
@@ -121,4 +123,12 @@ public:
 	afx_msg BOOL OnSetCursor(CWnd* pWnd, UINT nHitTest, UINT message);
 
 	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
+
+	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
+
+	virtual BOOL OnWndMsg(UINT message, WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+
+	void OnMenuCommand(UINT nPos, CMenu* pMenu);
+
+	static void InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal);
 };

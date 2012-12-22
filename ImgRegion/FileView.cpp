@@ -225,6 +225,8 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
 	}
 
+	Expand(hItem, TVE_EXPAND);
+
 	DeleteItem(hOtherItem);
 	return hItem;
 }
