@@ -19,7 +19,9 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_COMMAND(ID_EXPORT_IMG, &CImgRegionDoc::OnExportImg)
 	ON_COMMAND(ID_FILE_PROPERTY, &CImgRegionDoc::OnFileProperty)
 	ON_COMMAND(ID_EDIT_COPY, &CImgRegionDoc::OnEditCopy)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CImgRegionDoc::OnUpdateEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &CImgRegionDoc::OnEditPaste)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CImgRegionDoc::OnUpdateEditPaste)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -340,15 +342,21 @@ void CImgRegionDoc::OnDelRegion()
 	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
 	{
-		m_TreeCtrl.DeleteTreeItem<CImgRegion>(hSelected, TRUE);
+		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		ASSERT(pReg);
 
-		UpdateAllViews(NULL);
+		if(!pReg->m_Locked)
+		{
+			m_TreeCtrl.DeleteTreeItem<CImgRegion>(hSelected, TRUE); pReg = NULL;
 
-		SetModifiedFlag();
+			UpdateAllViews(NULL);
 
-		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-		ASSERT(pFrame);
-		pFrame->m_wndProperties.InvalidProperties();
+			SetModifiedFlag();
+
+			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT(pFrame);
+			pFrame->m_wndProperties.InvalidProperties();
+		}
 	}
 }
 
@@ -433,6 +441,8 @@ void CImgRegionDoc::OnFileProperty()
 
 			pView->UpdateImageSizeTable(m_Size);
 		}
+
+		SetModifiedFlag();
 	}
 }
 
@@ -449,6 +459,11 @@ void CImgRegionDoc::OnEditCopy()
 		SerializeRegionNode(ar, pReg);
 		ar.Close();
 	}
+}
+
+void CImgRegionDoc::OnUpdateEditCopy(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(NULL != m_TreeCtrl.GetSelectedItem());
 }
 
 #define DELETE_EXCEPTION(e) do { if(e) { e->Delete(); } } while (0)
@@ -504,5 +519,20 @@ void CImgRegionDoc::OnEditPaste()
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
 		pFrame->m_wndProperties.InvalidProperties();
+
+		// ! È¥µôActiveViewµÄm_nSelectedHandleÊôÐÔ
+		POSITION pos = GetFirstViewPosition();
+		while(NULL != pos)
+		{
+			CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
+			ASSERT(pView);
+
+			pView->m_nSelectedHandle = CImgRegionView::HandleTypeNone;
+		}
 	}
+}
+
+void CImgRegionDoc::OnUpdateEditPaste(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(theApp.m_ClipboardFile.GetLength() > 0);
 }

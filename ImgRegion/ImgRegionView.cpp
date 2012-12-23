@@ -856,10 +856,10 @@ void CImgRegionView::OnMenuCommand(UINT nPos, CMenu* pMenu)
 
 	MENUITEMINFO mii = {0};
 	mii.cbSize = sizeof(mii);
-	mii.fMask = MIIM_DATA;
+	mii.fMask = MIIM_STATE | MIIM_DATA;
 	pMenu->GetMenuItemInfo(nPos, &mii, TRUE);
 
-	pDoc->m_TreeCtrl.SelectItem((HTREEITEM)mii.dwItemData);
+	pDoc->m_TreeCtrl.SelectItem(mii.fState & MFS_CHECKED ? NULL : (HTREEITEM)mii.dwItemData);
 
 	Invalidate(TRUE);
 
