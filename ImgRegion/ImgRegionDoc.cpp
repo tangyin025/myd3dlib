@@ -284,11 +284,13 @@ void CImgRegionDoc::SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent)
 			CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
 			ASSERT(pReg);
 
-			SerializeRegionNode(ar, pReg);
-
 			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
+			SerializeRegionNode(ar, pReg);
+
 			SerializeRegionNodeTree(ar, hItem);
+
+			m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 		}
 	}
 }
@@ -456,20 +458,17 @@ void CImgRegionDoc::OnEditPaste()
 	if(theApp.m_ClipboardFile.GetLength() > 0)
 	{
 		HTREEITEM hParent = NULL;
-		CPoint ptOrg(10,10);
 		HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 		if(hSelected)
 		{
 			hParent = m_TreeCtrl.GetParentItem(hSelected);
-			CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
-			ptOrg += pReg->m_Local;
 		}
 		if(!hParent)
 		{
 			hParent = TVI_ROOT;
 		}
 
-		CImgRegion * pReg = new CImgRegion(ptOrg, CSize(100,100));
+		CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
 		ASSERT(pReg);
 
 		TRY
@@ -479,7 +478,6 @@ void CImgRegionDoc::OnEditPaste()
 			SerializeRegionNode(ar, pReg);
 
 			pReg->m_Locked = FALSE;
-			pReg->m_Local = ptOrg;
 		}
 		CATCH_ALL(e)
 		{
