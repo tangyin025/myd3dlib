@@ -229,7 +229,7 @@ IDB_BITMAP1             BITMAP                  "jyiczlza.bmp"
 //
 
 IDC_CURSOR1             CURSOR                  "Arrow.cur"
-IDC_CURSOR2             CURSOR                  "Cross.cur"
+IDC_CURSOR2             CURSOR                  "Ubuntu move.cur"
 
 /////////////////////////////////////////////////////////////////////////////
 //

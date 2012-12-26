@@ -15,7 +15,7 @@ public:
 	enum CursorType
 	{
 		CursorTypeArrow = 0,
-		CursorTypeCross,
+		CursorTypeMove,
 		CursorTypeCount
 	};
 

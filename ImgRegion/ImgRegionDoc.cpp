@@ -330,6 +330,16 @@ void CImgRegionDoc::OnAddRegion()
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT(pFrame);
 	pFrame->m_wndProperties.InvalidProperties();
+
+	// ! È¥µôActiveViewµÄm_nSelectedHandleÊôÐÔ
+	POSITION pos = GetFirstViewPosition();
+	while(NULL != pos)
+	{
+		CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
+		ASSERT(pView);
+
+		pView->m_nSelectedHandle = CImgRegionView::HandleTypeNone;
+	}
 }
 
 void CImgRegionDoc::OnUpdateAddRegion(CCmdUI *pCmdUI)

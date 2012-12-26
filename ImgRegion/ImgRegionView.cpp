@@ -317,7 +317,7 @@ int CImgRegionView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	m_hCursor[CursorTypeArrow] = theApp.LoadCursor(IDC_CURSOR1);
-	m_hCursor[CursorTypeCross] = theApp.LoadCursor(IDC_CURSOR2);
+	m_hCursor[CursorTypeMove] = theApp.LoadCursor(IDC_CURSOR2);
 
 	return 0;
 }
@@ -410,8 +410,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case VK_SPACE:
 		if(!((1 << 14) & nFlags) && DragStateNone == m_DragState)
 		{
-			m_nCurrCursor = CursorTypeCross;
-			SetCursor(m_hCursor[m_nCurrCursor]);
+			SetCursor(m_hCursor[m_nCurrCursor = CursorTypeMove]);
 		}
 		break;
 
@@ -504,10 +503,9 @@ void CImgRegionView::OnKeyUp(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch(nChar)
 	{
 	case VK_SPACE:
-		if(CursorTypeCross == m_nCurrCursor && DragStateScroll != m_DragState)
+		if(CursorTypeMove == m_nCurrCursor && DragStateScroll != m_DragState)
 		{
-			m_nCurrCursor = CursorTypeArrow;
-			SetCursor(m_hCursor[m_nCurrCursor]);
+			SetCursor(m_hCursor[m_nCurrCursor = CursorTypeArrow]);
 		}
 		break;
 	}
@@ -517,7 +515,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	switch(m_nCurrCursor)
 	{
-	case CursorTypeCross:
+	case CursorTypeMove:
 		ASSERT(DragStateNone == m_DragState);
 		m_DragState = DragStateScroll;
 		m_DragPos = point;
@@ -758,7 +756,7 @@ BOOL CImgRegionView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	switch(m_nCurrCursor)
 	{
-	case CursorTypeCross:
+	case CursorTypeMove:
 		{
 			int nToScroll = ::MulDiv(-zDelta, 1, WHEEL_DELTA);
 			ScreenToClient(&pt);

@@ -299,10 +299,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Cross.cur"
-				>
-			</File>
-			<File
 				RelativePath=".\ImgRegion.ico"
 				>
 			</File>
@@ -324,6 +320,10 @@
 			</File>
 			<File
 				RelativePath=".\Toolbar256.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\Ubuntu move.cur"
 				>
 			</File>
 		</Filter>

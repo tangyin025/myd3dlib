@@ -271,7 +271,7 @@ void CImgRegionTreeCtrl::OnTimer(UINT_PTR nIDEvent)
 BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
-	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
 	ON_WM_SETFOCUS()
 	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 1000, &CFileView::OnTvnSelchangedTree)
 	ON_NOTIFY_RANGE(TVN_DRAGCHANGED, 4, 1000, &CFileView::OnTvnDragchangedTree)
@@ -332,9 +332,13 @@ void CFileView::OnSize(UINT nType, int cx, int cy)
 	AdjustLayout();
 }
 
-void CFileView::OnPaint()
+BOOL CFileView::OnEraseBkgnd(CDC* pDC)
 {
-	CPaintDC dc(this);
+	CRect rectClient;
+	GetClientRect(&rectClient);
+	pDC->FillSolidRect(&rectClient, GetSysColor(COLOR_WINDOW));
+
+	return TRUE;
 }
 
 void CFileView::OnSetFocus(CWnd* pOldWnd)
