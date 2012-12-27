@@ -121,14 +121,17 @@ BOOL CImgRegionDoc::OnNewDocument(void)
 		m_ImageStr = dlg.m_ImageStr;
 		m_Image = theApp.GetImage(m_ImageStr);
 
+		theApp.WriteProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
+		theApp.WriteProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
+		theApp.WriteProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
+
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
 
 		pFrame->m_wndFileView.InvalidLayout();
 
-		theApp.WriteProfileInt(_T("Settings"), _T("SizeX"), dlg.m_Size.cx);
-		theApp.WriteProfileInt(_T("Settings"), _T("SizeY"), dlg.m_Size.cy);
-		theApp.WriteProfileInt(_T("Settings"), _T("Color"), dlg.m_Color);
+		UpdateImageSizeTable(m_Size);
+
 		return TRUE;
 	}
 
@@ -142,6 +145,8 @@ BOOL CImgRegionDoc::OnOpenDocument(LPCTSTR lpszPathName)
 
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
+
+	UpdateImageSizeTable(m_Size);
 
 	return TRUE;
 }
@@ -297,6 +302,26 @@ void CImgRegionDoc::SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent)
 	}
 }
 
+void CImgRegionDoc::UpdateImageSizeTable(const CSize & sizeRoot)
+{
+	for(int i = 0; i < _countof(m_ImageSizeTable); i++)
+	{
+		m_ImageSizeTable[i] = CSize((int)(sizeRoot.cx * ZoomTable[i]), (int)(sizeRoot.cy * ZoomTable[i]));
+	}
+
+	POSITION pos = GetFirstViewPosition();
+	while(NULL != pos)
+	{
+		CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
+		ASSERT(pView);
+
+		pView->SetScrollSizes(
+			m_ImageSizeTable[pView->m_nCurrImageSize], TRUE, CPoint(pView->GetScrollPos(SB_HORZ), pView->GetScrollPos(SB_VERT)));
+
+		pView->Invalidate();
+	}
+}
+
 void CImgRegionDoc::OnAddRegion()
 {
 	HTREEITEM hParent = NULL;
@@ -443,14 +468,7 @@ void CImgRegionDoc::OnFileProperty()
 		m_ImageStr = dlg.m_ImageStr;
 		m_Image = theApp.GetImage(m_ImageStr);
 
-		POSITION pos = GetFirstViewPosition();
-		while(NULL != pos)
-		{
-			CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
-			ASSERT(pView);
-
-			pView->UpdateImageSizeTable(m_Size);
-		}
+		UpdateImageSizeTable(m_Size);
 
 		SetModifiedFlag();
 	}

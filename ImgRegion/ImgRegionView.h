@@ -4,9 +4,6 @@
 #include "ImgRegionDoc.h"
 #include <set>
 
-static const float ZoomTable[] = {
-	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 2.0f/3, 1.0f/2, 1.0f/3, 1.0f/4, 1.0f/6, 1.0f/8, 1.0f/12, 1.0f/16, 1.0f/20, 1.0f/25, 3.0f/100, 2.0f/100, 1.5f/100, 1.0f/100, 0.7f/100 };
-
 class CImgRegionView : public CImageView
 {
 public:
@@ -22,8 +19,6 @@ public:
 	HCURSOR m_hCursor[CursorTypeCount];
 
 	int m_nCurrCursor;
-
-	CSize m_ImageSizeTable[_countof(ZoomTable)];
 
 	int m_nCurrImageSize;
 
@@ -82,9 +77,13 @@ public:
 
 	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 
-	static void DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected);
+	static void DrawControlHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected);
 
-	BOOL CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse);
+	static void DrawTextHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected);
+
+	BOOL CheckControlHandle(const CPoint & ptHandle, const CPoint & ptMouse);
+
+	BOOL CheckTextHandle(const CPoint & ptHandle, const CPoint & ptMouse);
 
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 
@@ -93,8 +92,6 @@ public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	virtual void OnInitialUpdate();
-public:
-	void UpdateImageSizeTable(const CSize & sizeRoot);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 

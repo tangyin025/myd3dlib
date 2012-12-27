@@ -90,8 +90,8 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 	{
 		grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 		grap.ScaleTransform(
-			(float)m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
-			(float)m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
+			(float)pDoc->m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
+			(float)pDoc->m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
 
 		DrawRegionDoc(grap, pDoc);
 	}
@@ -109,7 +109,7 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 
 		CWindowDC dc(this);
 		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
 		dc.LPtoDP(&ptTextOrg);
@@ -124,18 +124,18 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 		grap.DrawRectangle(&pen, rect.left, rect.top, rect.Width(), rect.Height());
 
 		CPoint ptCenter = rect.CenterPoint();
-		DrawSmallHandle(grap, CPoint(rect.left, rect.top), clrHandle, m_nSelectedHandle == HandleTypeLeftTop);
-		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.top), clrHandle, m_nSelectedHandle == HandleTypeCenterTop);
-		DrawSmallHandle(grap, CPoint(rect.right, rect.top), clrHandle, m_nSelectedHandle == HandleTypeRightTop);
-		DrawSmallHandle(grap, CPoint(rect.left, ptCenter.y), clrHandle, m_nSelectedHandle == HandleTypeLeftMiddle);
-		DrawSmallHandle(grap, CPoint(rect.right, ptCenter.y), clrHandle, m_nSelectedHandle == HandleTypeRightMiddle);
-		DrawSmallHandle(grap, CPoint(rect.left, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeLeftBottom);
-		DrawSmallHandle(grap, CPoint(ptCenter.x, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeCenterBottom);
-		DrawSmallHandle(grap, CPoint(rect.right, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeRightBottom);
+		DrawControlHandle(grap, CPoint(rect.left, rect.top), clrHandle, m_nSelectedHandle == HandleTypeLeftTop);
+		DrawControlHandle(grap, CPoint(ptCenter.x, rect.top), clrHandle, m_nSelectedHandle == HandleTypeCenterTop);
+		DrawControlHandle(grap, CPoint(rect.right, rect.top), clrHandle, m_nSelectedHandle == HandleTypeRightTop);
+		DrawControlHandle(grap, CPoint(rect.left, ptCenter.y), clrHandle, m_nSelectedHandle == HandleTypeLeftMiddle);
+		DrawControlHandle(grap, CPoint(rect.right, ptCenter.y), clrHandle, m_nSelectedHandle == HandleTypeRightMiddle);
+		DrawControlHandle(grap, CPoint(rect.left, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeLeftBottom);
+		DrawControlHandle(grap, CPoint(ptCenter.x, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeCenterBottom);
+		DrawControlHandle(grap, CPoint(rect.right, rect.bottom), clrHandle, m_nSelectedHandle == HandleTypeRightBottom);
 
 		grap.DrawLine(&pen, ptTextOrg.x, ptTextOrg.y, ptText.x, ptText.y);
 
-		DrawSmallHandle(grap, ptText, clrHandle, m_nSelectedHandle == HandleTypeLeftTopText);
+		DrawTextHandle(grap, ptText, clrHandle, m_nSelectedHandle == HandleTypeLeftTopText);
 	}
 }
 
@@ -291,7 +291,7 @@ void CImgRegionView::DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image
 
 static const int HANDLE_WIDTH = 4;
 
-void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected)
+void CImgRegionView::DrawControlHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected)
 {
 	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
 	Gdiplus::Pen pen(clrHandle, 1.0f);
@@ -300,7 +300,22 @@ void CImgRegionView::DrawSmallHandle(Gdiplus::Graphics & grap, const CPoint & pt
 	grap.DrawRectangle(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
 }
 
-BOOL CImgRegionView::CheckSmallHandle(const CPoint & ptHandle, const CPoint & ptMouse)
+void CImgRegionView::DrawTextHandle(Gdiplus::Graphics & grap, const CPoint & ptHandle, const Gdiplus::Color & clrHandle, BOOL bSelected)
+{
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH, ptHandle.y + HANDLE_WIDTH);
+	Gdiplus::Pen pen(clrHandle, 1.0f);
+	Gdiplus::SolidBrush brush(bSelected ? clrHandle : Gdiplus::Color(255,255,255,255));
+	grap.FillEllipse(&brush, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+	grap.DrawEllipse(&pen, rectHandle.left, rectHandle.top, rectHandle.Width(), rectHandle.Height());
+}
+
+BOOL CImgRegionView::CheckControlHandle(const CPoint & ptHandle, const CPoint & ptMouse)
+{
+	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH + 1, ptHandle.y + HANDLE_WIDTH + 1);
+	return rectHandle.PtInRect(ptMouse);
+}
+
+BOOL CImgRegionView::CheckTextHandle(const CPoint & ptHandle, const CPoint & ptMouse)
 {
 	CRect rectHandle(ptHandle.x - HANDLE_WIDTH, ptHandle.y - HANDLE_WIDTH, ptHandle.x + HANDLE_WIDTH + 1, ptHandle.y + HANDLE_WIDTH + 1);
 	return rectHandle.PtInRect(ptMouse);
@@ -326,31 +341,24 @@ void CImgRegionView::OnInitialUpdate()
 {
 	CImageView::OnInitialUpdate();
 
-	CImgRegionDoc * pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
+	//CImgRegionDoc * pDoc = GetDocument();
+	//ASSERT_VALID(pDoc);
+	//if (!pDoc)
+	//	return;
 
-	UpdateImageSizeTable(pDoc->m_Size);
-}
-
-void CImgRegionView::UpdateImageSizeTable(const CSize & sizeRoot)
-{
-	for(int i = 0; i < _countof(m_ImageSizeTable); i++)
-	{
-		m_ImageSizeTable[i] = CSize((int)(sizeRoot.cx * ZoomTable[i]), (int)(sizeRoot.cy * ZoomTable[i]));
-	}
-
-	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
-
-	Invalidate();
+	//SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(0,0));
 }
 
 void CImgRegionView::OnSize(UINT nType, int cx, int cy)
 {
 	CImageView::OnSize(nType, cx, cy);
 
-	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
 }
 
 void CImgRegionView::OnZoomIn()
@@ -376,7 +384,7 @@ void CImgRegionView::OnZoomOut()
 
 void CImgRegionView::OnUpdateZoomOut(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_nCurrImageSize < _countof(m_ImageSizeTable) - 1);
+	pCmdUI->Enable(m_nCurrImageSize < _countof(ZoomTable) - 1);
 }
 
 void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRedraw)
@@ -386,13 +394,13 @@ void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRe
 	if (!pDoc)
 		return;
 
-	CRect SrcImageRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]);
+	CRect SrcImageRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]);
 
-	m_nCurrImageSize = max(0, min((int)_countof(m_ImageSizeTable) - 1, ImageSizeIdx));
+	m_nCurrImageSize = max(0, min((int)_countof(pDoc->m_ImageSizeTable) - 1, ImageSizeIdx));
 
-	my::Vector2 center = MapPoint(my::Vector2((float)ptLook.x, (float)ptLook.y), SrcImageRect, CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]));
+	my::Vector2 center = MapPoint(my::Vector2((float)ptLook.x, (float)ptLook.y), SrcImageRect, CRect(CPoint(0, 0), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
 
-	SetScrollSizes(m_ImageSizeTable[m_nCurrImageSize], bRedraw, CPoint((int)(center.x - ptLook.x), (int)(center.y - ptLook.y)));
+	SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], bRedraw, CPoint((int)(center.x - ptLook.x), (int)(center.y - ptLook.y)));
 
 	if(bRedraw)
 		Invalidate(TRUE);
@@ -542,7 +550,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				CWindowDC dc(this);
 				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]));
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
 				dc.LPtoDP(&rect.TopLeft());
 				dc.LPtoDP(&rect.BottomRight());
 				dc.LPtoDP(&ptTextOrg);
@@ -550,39 +558,39 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				// 检测的顺序应当和绘制的顺序反向
 				CPoint ptCenter = rect.CenterPoint();
-				if(CheckSmallHandle(ptText, point))
+				if(CheckTextHandle(ptText, point))
 				{
 					m_nSelectedHandle = HandleTypeLeftTopText;
 				}
-				else if(CheckSmallHandle(CPoint(rect.right, rect.bottom), point))
+				else if(CheckControlHandle(CPoint(rect.right, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeRightBottom;
 				}
-				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.bottom), point))
+				else if(CheckControlHandle(CPoint(ptCenter.x, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeCenterBottom;
 				}
-				else if(CheckSmallHandle(CPoint(rect.left, rect.bottom), point))
+				else if(CheckControlHandle(CPoint(rect.left, rect.bottom), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftBottom;
 				}
-				else if(CheckSmallHandle(CPoint(rect.right, ptCenter.y), point))
+				else if(CheckControlHandle(CPoint(rect.right, ptCenter.y), point))
 				{
 					m_nSelectedHandle = HandleTypeRightMiddle;
 				}
-				else if(CheckSmallHandle(CPoint(rect.left, ptCenter.y), point))
+				else if(CheckControlHandle(CPoint(rect.left, ptCenter.y), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftMiddle;
 				}
-				else if(CheckSmallHandle(CPoint(rect.right, rect.top), point))
+				else if(CheckControlHandle(CPoint(rect.right, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeRightTop;
 				}
-				else if(CheckSmallHandle(CPoint(ptCenter.x, rect.top), point))
+				else if(CheckControlHandle(CPoint(ptCenter.x, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeCenterTop;
 				}
-				else if(CheckSmallHandle(CPoint(rect.left, rect.top), point))
+				else if(CheckControlHandle(CPoint(rect.left, rect.top), point))
 				{
 					m_nSelectedHandle = HandleTypeLeftTop;
 				}
@@ -596,7 +604,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				// 由于dc.DPtoLP所得的结果被四啥五入，所以使用MapPoint获得更精确的结果
 				my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 				hSelected = pDoc->GetPointedRegionNode(pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 			}
@@ -696,7 +704,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 				CSize sizeDrag = point - m_DragPos;
 
 				my::Vector2 dragOff = MapPoint(my::Vector2((float)sizeDrag.cx, (float)sizeDrag.cy),
-					CRect(CPoint(0, 0), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+					CRect(CPoint(0, 0), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 				CSize sizeDragLog((int)dragOff.x, (int)dragOff.y);
 
@@ -809,7 +817,7 @@ void CImgRegionView::OnContextMenu(CWnd* pWnd, CPoint point)
 	ScreenToClient(&point);
 
 	my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 	InsertPointedRegionNodeToMenuItem(&m_ContextMenu, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 

@@ -3,6 +3,9 @@
 #include "FileView.h"
 #include "MainApp.h"
 
+static const float ZoomTable[] = {
+	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 2.0f/3, 1.0f/2, 1.0f/3, 1.0f/4, 1.0f/6, 1.0f/8, 1.0f/12, 1.0f/16, 1.0f/20, 1.0f/25, 3.0f/100, 2.0f/100, 1.5f/100, 1.0f/100, 0.7f/100 };
+
 class Vector4i
 {
 public:
@@ -82,6 +85,8 @@ class CImgRegionDoc
 public:
 	CImgRegionTreeCtrl m_TreeCtrl;
 
+	CSize m_ImageSizeTable[_countof(ZoomTable)];
+
 	DWORD m_NextRegId;
 
 	CSize m_Size;
@@ -125,6 +130,7 @@ public:
 
 	void SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
 
+	void UpdateImageSizeTable(const CSize & sizeRoot);
 public:
 	afx_msg void OnAddRegion();
 

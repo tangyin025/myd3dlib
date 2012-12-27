@@ -13,13 +13,13 @@ protected:
 
 	CPoint m_oldViewportOrg;
 
-public:
 	DECLARE_DYNAMIC(CImageView)
 
 	CImageView(void);
 
 	DECLARE_MESSAGE_MAP()
 
+public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
