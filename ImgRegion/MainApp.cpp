@@ -117,20 +117,20 @@ ImagePtr CMainApp::GetImage(const CString & strImg)
 {
 	if(!strImg.IsEmpty())
 	{
+		ImagePtr ret;
 		std::wstring key(strImg);
 		ImagePtrMap::iterator img_iter = m_ImageMap.find(key);
-		if(img_iter == m_ImageMap.end())
+		if(img_iter != m_ImageMap.end())
 		{
-			LPCTSTR szExt = PathFindExtension(strImg);
-			if(0 == _tcsicmp(szExt, _T(".tga")))
-			{
-				return OpenTgaImage(strImg);
-			}
-			else
-				m_ImageMap[key] = ImagePtr(new Gdiplus::Image(strImg));
+			ret = img_iter->second.lock();
+			if(ret)
+				return ret;
 		}
 
-		return m_ImageMap[key];
+		LPCTSTR szExt = PathFindExtension(strImg);
+		m_ImageMap[key] =
+			ret = (0 == _tcsicmp(szExt, _T(".tga")) ? OpenTgaImage(strImg) : ImagePtr(new Gdiplus::Image(strImg)));
+		return ret;
 	}
 
 	return ImagePtr();
@@ -200,14 +200,19 @@ FontPtr2 CMainApp::GetFont(const CString & strFamily, float fSize)
 		CString strFont;
 		strFont.Format(_T("%s, %f"), strFamily, fSize);
 
+		FontPtr2 ret;
 		std::wstring key(strFont);
 		FontPtr2Map::iterator fnt_iter = m_FontMap.find(key);
-		if(fnt_iter == m_FontMap.end())
+		if(fnt_iter != m_FontMap.end())
 		{
-			m_FontMap[key] = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitWorld));
+			ret = fnt_iter->second.lock();
+			if(ret)
+				return ret;
 		}
 
-		return m_FontMap[key];
+		m_FontMap[key] =
+			ret = FontPtr2(new Gdiplus::Font(strFamily, fSize, Gdiplus::FontStyleRegular, Gdiplus::UnitWorld));
+		return ret;
 	}
 
 	return FontPtr2();

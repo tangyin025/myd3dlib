@@ -27,7 +27,7 @@ public:
 
 	const CString & GetMIME(const CString & strExt);
 
-	typedef std::tr1::unordered_map<std::wstring, ImagePtr, boost::hash<std::wstring> > ImagePtrMap;
+	typedef std::tr1::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Image>, boost::hash<std::wstring> > ImagePtrMap;
 
 	ImagePtrMap m_ImageMap;
 
@@ -35,7 +35,7 @@ public:
 
 	static ImagePtr OpenTgaImage(const CString & strImg);
 
-	typedef std::tr1::unordered_map<std::wstring, FontPtr2, boost::hash<std::wstring> > FontPtr2Map;
+	typedef std::tr1::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Font>, boost::hash<std::wstring> > FontPtr2Map;
 
 	FontPtr2Map m_FontMap;
 
