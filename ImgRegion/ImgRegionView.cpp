@@ -745,7 +745,17 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 					pReg->m_TextOff = m_DragRegTextOff + sizeDragLog;
 					break;
 				default:
-					pReg->m_Local = m_DragRegLocal + sizeDragLog;
+					if(0 != HIBYTE(GetKeyState(VK_SHIFT)))
+					{
+						if(abs(sizeDragLog.cx) > abs(sizeDragLog.cy))
+						{
+							pReg->m_Local.SetPoint(m_DragRegLocal.x + sizeDragLog.cx, m_DragRegLocal.y);
+						}
+						else
+							pReg->m_Local.SetPoint(m_DragRegLocal.x, m_DragRegLocal.y + sizeDragLog.cy);
+					}
+					else
+						pReg->m_Local = m_DragRegLocal + sizeDragLog;
 					break;
 				}
 
