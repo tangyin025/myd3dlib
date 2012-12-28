@@ -2,7 +2,6 @@
 
 #include "ImageView.h"
 #include "ImgRegionDoc.h"
-#include <set>
 
 class CImgRegionView : public CImageView
 {

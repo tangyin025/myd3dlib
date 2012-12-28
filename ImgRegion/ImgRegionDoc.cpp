@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ImgRegionDoc.h"
+#include "MainApp.h"
 #include "MainFrm.h"
 #include "resource.h"
 #include "ImgRegionFilePropertyDlg.h"

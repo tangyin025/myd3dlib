@@ -1,7 +1,6 @@
 #pragma once
 
 #include "resource.h"
-#include "afxwin.h"
 
 class CImgRegionFilePropertyDlg : public CDialog
 {
@@ -26,6 +25,8 @@ public:
 	COLORREF m_Color;
 
 	CString m_ImageStr;
+
+	ImagePtr m_Image;
 
 	afx_msg void OnBnClickedOpenImage();
 

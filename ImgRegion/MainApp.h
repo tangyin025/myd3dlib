@@ -2,10 +2,6 @@
 
 #include "resource.h"
 
-typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
-
-typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
-
 class CMainApp : public CWinAppEx
 {
 public:

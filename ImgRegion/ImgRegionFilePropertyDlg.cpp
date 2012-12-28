@@ -47,6 +47,13 @@ void CImgRegionFilePropertyDlg::OnBnClickedOpenImage()
 	{
 		m_ImageStr = dlg.GetPathName();
 		SetDlgItemText(IDC_EDIT3, m_ImageStr);
+
+		m_Image = theApp.GetImage(m_ImageStr);
+		if(m_Image)
+		{
+			SetDlgItemInt(IDC_EDIT1, m_Image->GetWidth());
+			SetDlgItemInt(IDC_EDIT2, m_Image->GetHeight());
+		}
 	}
 }
 

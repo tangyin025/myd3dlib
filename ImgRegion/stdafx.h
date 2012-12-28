@@ -44,6 +44,10 @@
 #include <boost/functional/hash.hpp>
 #include <unordered_map>
 
+typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
+
+typedef boost::shared_ptr<Gdiplus::Font> FontPtr2;
+
 #ifdef _UNICODE
 #if defined _M_IX86
 #pragma comment(linker,"/manifestdependency:\"type='win32' name='Microsoft.Windows.Common-Controls' version='6.0.0.0' processorArchitecture='x86' publicKeyToken='6595b64144ccf1df' language='*'\"")

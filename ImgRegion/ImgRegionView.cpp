@@ -707,6 +707,15 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 					CRect(CPoint(0, 0), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
 
 				CSize sizeDragLog((int)dragOff.x, (int)dragOff.y);
+				if(0 != HIBYTE(GetKeyState(VK_SHIFT)))
+				{
+					if(abs(sizeDragLog.cx) > abs(sizeDragLog.cy))
+					{
+						sizeDragLog.cy = 0;
+					}
+					else
+						sizeDragLog.cx = 0;
+				}
 
 				switch(m_nSelectedHandle)
 				{
@@ -745,17 +754,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 					pReg->m_TextOff = m_DragRegTextOff + sizeDragLog;
 					break;
 				default:
-					if(0 != HIBYTE(GetKeyState(VK_SHIFT)))
-					{
-						if(abs(sizeDragLog.cx) > abs(sizeDragLog.cy))
-						{
-							pReg->m_Local.SetPoint(m_DragRegLocal.x + sizeDragLog.cx, m_DragRegLocal.y);
-						}
-						else
-							pReg->m_Local.SetPoint(m_DragRegLocal.x, m_DragRegLocal.y + sizeDragLog.cy);
-					}
-					else
-						pReg->m_Local = m_DragRegLocal + sizeDragLog;
+					pReg->m_Local = m_DragRegLocal + sizeDragLog;
 					break;
 				}
 
