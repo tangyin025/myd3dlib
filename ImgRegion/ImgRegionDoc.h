@@ -78,6 +78,85 @@ public:
 	}
 };
 
+class CImgRegionDoc;
+
+class HistoryChange
+{
+public:
+	CImgRegionDoc * m_pDoc;
+
+	HistoryChange(CImgRegionDoc * pDoc)
+		: m_pDoc(pDoc)
+	{
+	}
+
+	virtual void Do(void) = 0;
+
+	virtual void Undo(void) = 0;
+};
+
+typedef boost::shared_ptr<HistoryChange> HistoryChangePtr;
+
+template <typename ValueType>
+class HistoryChangeValue : public HistoryChange
+{
+public:
+	ValueType m_oldValue;
+
+	ValueType m_newValue;
+
+	HistoryChangeValue(CImgRegionDoc * pDoc, const ValueType & oldValue, const ValueType & newValue)
+		: HistoryChange(pDoc)
+		, m_oldValue(oldValue)
+		, m_newValue(newValue)
+	{
+	}
+};
+
+class HistoryChangeItemLocal : public HistoryChangeValue<CPoint>
+{
+public:
+	HTREEITEM m_hItem;
+
+	HistoryChangeItemLocal(CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & oldValue, const CPoint & newValue)
+		: HistoryChangeValue(pDoc, oldValue, newValue)
+		, m_hItem(hItem)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+class History : public std::vector<HistoryChangePtr>
+{
+public:
+	History(void)
+	{
+	}
+
+	virtual void Do(void)
+	{
+		iterator hist_iter = begin();
+		for(; hist_iter != end(); hist_iter++)
+		{
+			(*hist_iter)->Do();
+		}
+	}
+
+	virtual void Undo(void)
+	{
+		iterator hist_iter = begin();
+		for(; hist_iter != end(); hist_iter++)
+		{
+			(*hist_iter)->Undo();
+		}
+	}
+};
+
+typedef std::vector<History> HistoryList;
+
 class CImgRegionDoc
 	: public CDocument
 {
@@ -85,6 +164,10 @@ public:
 	CImgRegionTreeCtrl m_TreeCtrl;
 
 	CSize m_ImageSizeTable[_countof(ZoomTable)];
+
+	HistoryList m_HistoryList;
+
+	int m_HistoryStep;
 
 	DWORD m_NextRegId;
 
@@ -150,4 +233,12 @@ public:
 	afx_msg void OnEditPaste();
 
 	afx_msg void OnUpdateEditPaste(CCmdUI *pCmdUI);
+
+	afx_msg void OnEditUndo();
+
+	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
+
+	afx_msg void OnEditRedo();
+
+	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 };

@@ -10,6 +10,22 @@
 #define new DEBUG_NEW
 #endif
 
+void HistoryChangeItemLocal::Do(void)
+{
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(m_hItem);
+	ASSERT(pReg);
+
+	pReg->m_Local = m_newValue;
+}
+
+void HistoryChangeItemLocal::Undo(void)
+{
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(m_hItem);
+	ASSERT(pReg);
+
+	pReg->m_Local = m_oldValue;
+}
+
 IMPLEMENT_DYNCREATE(CImgRegionDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
@@ -23,10 +39,15 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_COPY, &CImgRegionDoc::OnUpdateEditCopy)
 	ON_COMMAND(ID_EDIT_PASTE, &CImgRegionDoc::OnEditPaste)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_PASTE, &CImgRegionDoc::OnUpdateEditPaste)
+	ON_COMMAND(ID_EDIT_UNDO, &CImgRegionDoc::OnEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CImgRegionDoc::OnUpdateEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, &CImgRegionDoc::OnEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CImgRegionDoc::OnUpdateEditRedo)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
-	: m_NextRegId(1)
+	: m_HistoryStep(-1)
+	, m_NextRegId(1)
 {
 }
 
@@ -564,4 +585,38 @@ void CImgRegionDoc::OnEditPaste()
 void CImgRegionDoc::OnUpdateEditPaste(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(theApp.m_ClipboardFile.GetLength() > 0);
+}
+
+void CImgRegionDoc::OnEditUndo()
+{
+	if(m_HistoryStep >= 0)
+	{
+		m_HistoryList[m_HistoryStep--].Undo();
+
+		UpdateAllViews(NULL);
+
+		SetModifiedFlag();
+	}
+}
+
+void CImgRegionDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_HistoryStep >= 0);
+}
+
+void CImgRegionDoc::OnEditRedo()
+{
+	if(m_HistoryStep < (int)m_HistoryList.size() - 1)
+	{
+		m_HistoryList[++m_HistoryStep].Do();
+
+		UpdateAllViews(NULL);
+
+		SetModifiedFlag();
+	}
+}
+
+void CImgRegionDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_HistoryStep < (int)m_HistoryList.size() - 1);
 }
