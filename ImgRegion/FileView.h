@@ -31,6 +31,10 @@ protected:
 
 	DECLARE_DYNAMIC(CImgRegionTreeCtrl)
 
+	typedef std::tr1::unordered_map<std::wstring, HTREEITEM, boost::hash<std::wstring> > HTREEITEMMap;
+
+	HTREEITEMMap m_ItemMap;
+
 public:
 	CImgRegionTreeCtrl(void);
 
@@ -43,6 +47,8 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 
 public:
+	HTREEITEM InsertItem(LPCTSTR lpszItem, HTREEITEM hParent = TVI_ROOT , HTREEITEM hInsertAfter = TVI_LAST);
+
 	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
 
 	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
@@ -63,7 +69,10 @@ public:
 			}
 		}
 
+		std::wstring key(GetItemText(hItem));
+		ASSERT(m_ItemMap.find(key) != m_ItemMap.end());
 		DeleteItem(hItem);
+		m_ItemMap.erase(key);
 	}
 
 	HTREEITEM GetSafeParentItem(HTREEITEM hItem);

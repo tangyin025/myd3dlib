@@ -98,7 +98,8 @@ public:
 typedef boost::shared_ptr<HistoryChange> HistoryChangePtr;
 
 template <typename ValueType>
-class HistoryChangeValue : public HistoryChange
+class HistoryChangeValue
+	: public HistoryChange
 {
 public:
 	ValueType m_oldValue;
@@ -113,14 +114,15 @@ public:
 	}
 };
 
-class HistoryChangeItemLocal : public HistoryChangeValue<CPoint>
+class HistoryChangeItemLocal
+	: public HistoryChangeValue<CPoint>
 {
 public:
-	HTREEITEM m_hItem;
+	std::wstring m_itemID;
 
-	HistoryChangeItemLocal(CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & oldValue, const CPoint & newValue)
+	HistoryChangeItemLocal(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
 		: HistoryChangeValue(pDoc, oldValue, newValue)
-		, m_hItem(hItem)
+		, m_itemID(itemID)
 	{
 	}
 
@@ -129,7 +131,8 @@ public:
 	virtual void Undo(void);
 };
 
-class History : public std::vector<HistoryChangePtr>
+class History
+	: public std::vector<HistoryChangePtr>
 {
 public:
 	History(void)
@@ -155,7 +158,65 @@ public:
 	}
 };
 
-typedef std::vector<History> HistoryList;
+typedef boost::shared_ptr<History> HistoryPtr;
+
+class HistoryAddRegion
+	: public History
+{
+public:
+	CImgRegionDoc * m_pDoc;
+
+	std::wstring m_itemID;
+
+	CPoint m_Local;
+
+	Gdiplus::Color m_Color;
+
+	Gdiplus::Color m_FontColor;
+
+	std::wstring m_parentID;
+
+	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & Local, const Gdiplus::Color & Color, const Gdiplus::Color & FontColor, LPCTSTR parentID)
+		: m_pDoc(pDoc)
+		, m_itemID(itemID)
+		, m_Local(Local)
+		, m_Color(Color)
+		, m_FontColor(FontColor)
+		, m_parentID(parentID)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+class HistoryDelRegion
+	: public History
+{
+public:
+	CImgRegionDoc * m_pDoc;
+
+	std::wstring m_itemID;
+
+	std::wstring m_parentID;
+
+	std::wstring m_beforeID;
+
+	CMemFile m_DeleteNode;
+
+	HistoryDelRegion(CImgRegionDoc * pDoc, LPCTSTR itemID)
+		: m_pDoc(pDoc)
+		, m_itemID(itemID)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+typedef std::vector<HistoryPtr> HistoryPtrList;
 
 class CImgRegionDoc
 	: public CDocument
@@ -165,9 +226,9 @@ public:
 
 	CSize m_ImageSizeTable[_countof(ZoomTable)];
 
-	HistoryList m_HistoryList;
+	HistoryPtrList m_HistoryList;
 
-	int m_HistoryStep;
+	DWORD m_HistoryStep;
 
 	DWORD m_NextRegId;
 
@@ -208,12 +269,13 @@ public:
 
 	int GetChildCount(HTREEITEM hItem);
 
+public:
 	void SerializeRegionNode(CArchive & ar, CImgRegion * pReg);
 
-	void SerializeRegionNodeTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
+	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
-public:
+
 	afx_msg void OnAddRegion();
 
 	afx_msg void OnUpdateAddRegion(CCmdUI *pCmdUI);

@@ -203,6 +203,16 @@ void CImgRegionTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 	CTreeCtrl::OnLButtonUp(nFlags, point);
 }
 
+HTREEITEM CImgRegionTreeCtrl::InsertItem(LPCTSTR lpszItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	std::wstring key(lpszItem);
+	ASSERT(m_ItemMap.find(key) == m_ItemMap.end());
+
+	HTREEITEM hItem;
+	m_ItemMap[key] = hItem = CTreeCtrl::InsertItem(lpszItem, hParent, hInsertAfter);
+	return hItem;
+}
+
 BOOL CImgRegionTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
 {
 	if(hParent == hChild)
@@ -225,7 +235,8 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 		return hOtherItem;
 	}
 
-	HTREEITEM hItem = InsertItem(GetItemText(hOtherItem), 0, 0, hParent, hInsertAfter);
+	std::wstring key(GetItemText(hOtherItem));
+	HTREEITEM hItem = CTreeCtrl::InsertItem(key.c_str(), hParent, hInsertAfter);
 	SetItemData(hItem, GetItemData(hOtherItem));
 
 	HTREEITEM hNextOtherChild = NULL;
@@ -240,7 +251,9 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 	Expand(hItem, TVE_EXPAND);
 
 	DeleteItem(hOtherItem);
-	return hItem;
+
+	ASSERT(m_ItemMap.find(key) != m_ItemMap.end());
+	return m_ItemMap[key] = hItem;
 }
 
 HTREEITEM CImgRegionTreeCtrl::GetSafeParentItem(HTREEITEM hItem)

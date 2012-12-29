@@ -434,6 +434,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				ASSERT(pProp);
 				Property PropertyIdx = (Property)pProp->GetData();
 				COLORREF color;
+				HistoryPtr hist(new History());
 				switch(PropertyIdx)
 				{
 				case PropertyItemLocked:
@@ -443,8 +444,10 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemLocal:
 				case PropertyItemLocalX:
 				case PropertyItemLocalY:
-					pReg->m_Local.x = m_pProp[PropertyItemLocalX]->GetValue().lVal;
-					pReg->m_Local.y = m_pProp[PropertyItemLocalY]->GetValue().lVal;
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(
+						pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Local, CPoint(m_pProp[PropertyItemLocalX]->GetValue().lVal, m_pProp[PropertyItemLocalY]->GetValue().lVal))));
+					pDoc->m_HistoryList.push_back(hist);
+					pDoc->m_HistoryList[pDoc->m_HistoryStep++]->Do();
 					break;
 
 				case PropertyItemSize:
