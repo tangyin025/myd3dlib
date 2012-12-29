@@ -449,15 +449,25 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemLocal:
 				case PropertyItemLocalX:
 				case PropertyItemLocalY:
-					pReg->m_Local.x = m_pProp[PropertyItemLocalX]->GetValue().lVal;
-					pReg->m_Local.y = m_pProp[PropertyItemLocalY]->GetValue().lVal;
+					{
+						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(
+							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Local, CPoint(m_pProp[PropertyItemLocalX]->GetValue().lVal, m_pProp[PropertyItemLocalY]->GetValue().lVal))));
+						pDoc->AddNewHistory(hist);
+						hist->Do();
+					}
 					break;
 
 				case PropertyItemSize:
 				case PropertyItemSizeW:
 				case PropertyItemSizeH:
-					pReg->m_Size.cx = m_pProp[PropertyItemSizeW]->GetValue().lVal;
-					pReg->m_Size.cy = m_pProp[PropertyItemSizeH]->GetValue().lVal;
+					{
+						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(
+							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Size, CPoint(m_pProp[PropertyItemSizeW]->GetValue().lVal, m_pProp[PropertyItemSizeH]->GetValue().lVal))));
+						pDoc->AddNewHistory(hist);
+						hist->Do();
+					}
 					break;
 
 				case PropertyItemAlpha:
@@ -512,8 +522,13 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				case PropertyItemTextOff:
 				case PropertyItemTextOffX:
 				case PropertyItemTextOffY:
-					pReg->m_TextOff.x = m_pProp[PropertyItemTextOffX]->GetValue().lVal;
-					pReg->m_TextOff.y = m_pProp[PropertyItemTextOffY]->GetValue().lVal;
+					{
+						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(
+							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_TextOff, CPoint(m_pProp[PropertyItemTextOffX]->GetValue().lVal, m_pProp[PropertyItemTextOffY]->GetValue().lVal))));
+						pDoc->AddNewHistory(hist);
+						hist->Do();
+					}
 					break;
 				}
 

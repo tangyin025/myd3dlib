@@ -10,6 +10,78 @@
 #define new DEBUG_NEW
 #endif
 
+void HistoryChangeItemLocal::Do(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_Local = m_newValue;
+}
+
+void HistoryChangeItemLocal::Undo(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_Local = m_oldValue;
+}
+
+void HistoryChangeItemSize::Do(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_Size = m_newValue;
+}
+
+void HistoryChangeItemSize::Undo(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_Size = m_oldValue;
+}
+
+void HistoryChangeItemTextOff::Do(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_TextOff = m_newValue;
+}
+
+void HistoryChangeItemTextOff::Undo(void)
+{
+	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+
+	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pReg);
+
+	pReg->m_TextOff = m_oldValue;
+}
+
 HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID)
 	: CImgRegion(CPoint(10,10), CSize(100,100))
 	, m_pDoc(pDoc)
@@ -136,6 +208,24 @@ void HistoryMovRegion::Undo(void)
 		ASSERT(pReg);
 
 		pReg->m_Local = m_pDoc->RootToLocal(hOldParent, ptOrg);
+	}
+}
+
+void HistoryModifyRegion::Do(void)
+{
+	iterator hist_iter = begin();
+	for(; hist_iter != end(); hist_iter++)
+	{
+		(*hist_iter)->Do();
+	}
+}
+
+void HistoryModifyRegion::Undo(void)
+{
+	iterator hist_iter = begin();
+	for(; hist_iter != end(); hist_iter++)
+	{
+		(*hist_iter)->Undo();
 	}
 }
 

@@ -120,34 +120,63 @@ public:
 	}
 };
 
+class HistoryChangeItemLocal
+	: public HistoryChangeItemValue<CPoint>
+{
+public:
+	HistoryChangeItemLocal(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
+		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+class HistoryChangeItemSize
+	: public HistoryChangeItemValue<CSize>
+{
+public:
+	HistoryChangeItemSize(CImgRegionDoc * pDoc, LPCTSTR itemID, const CSize & oldValue, const CSize & newValue)
+		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+class HistoryChangeItemTextOff
+	: public HistoryChangeItemValue<CPoint>
+{
+public:
+	HistoryChangeItemTextOff(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
+		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
 class History
-	: public std::vector<HistoryChangePtr>
 {
 public:
 	History(void)
 	{
 	}
 
-	virtual void Do(void)
-	{
-		iterator hist_iter = begin();
-		for(; hist_iter != end(); hist_iter++)
-		{
-			(*hist_iter)->Do();
-		}
-	}
+	virtual void Do(void) = 0;
 
-	virtual void Undo(void)
-	{
-		iterator hist_iter = begin();
-		for(; hist_iter != end(); hist_iter++)
-		{
-			(*hist_iter)->Undo();
-		}
-	}
+	virtual void Undo(void) = 0;
 };
 
 typedef boost::shared_ptr<History> HistoryPtr;
+
+typedef std::vector<HistoryPtr> HistoryPtrList;
 
 class HistoryAddRegion
 	: public History
@@ -223,7 +252,21 @@ public:
 	virtual void Undo(void);
 };
 
-typedef std::vector<HistoryPtr> HistoryPtrList;
+class HistoryModifyRegion
+	: public History
+	, public std::vector<HistoryChangePtr>
+{
+public:
+	HistoryModifyRegion(void)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
+typedef boost::shared_ptr<HistoryModifyRegion> HistoryModifyRegionPtr;
 
 class CImgRegionDoc
 	: public CDocument
