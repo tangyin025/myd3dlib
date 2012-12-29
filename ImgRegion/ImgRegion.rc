@@ -203,7 +203,11 @@ BEGIN
     BUTTON      ID_EDIT_COPY
     BUTTON      ID_EDIT_PASTE
     SEPARATOR
+    BUTTON      ID_EDIT_UNDO
+    BUTTON      ID_EDIT_REDO
+    SEPARATOR
     BUTTON      ID_EXPORT_IMG
+    SEPARATOR
     BUTTON      ID_APP_ABOUT
 END
 
@@ -347,6 +351,8 @@ BEGIN
     ID_EDIT_COPY            "复制选定内容并将其放到剪贴板上\n复制"
     ID_EDIT_CUT             "剪切选定内容并将其放到剪贴板上\n剪切"
     ID_EDIT_PASTE           "插入剪贴板内容\n粘贴"
+    ID_EDIT_UNDO            "撤消上一操作\n撤消"
+    ID_EDIT_REDO            "恢复上次撤消的操作\n重做"
 END
 
 STRINGTABLE 
