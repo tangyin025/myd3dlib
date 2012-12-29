@@ -685,28 +685,31 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 			if (!pDoc)
 				return;
 
-			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
-			ASSERT(hSelected);
-
-			CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
-			ASSERT(pReg);
-
-			CString strItem = pDoc->m_TreeCtrl.GetItemText(hSelected);
-
-			HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-			if(pReg->m_Local != m_DragRegLocal)
+			if(m_DragPos != point)
 			{
-				hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(pDoc, strItem, m_DragRegLocal, pReg->m_Local)));
+				HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
+				ASSERT(hSelected);
+
+				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+				ASSERT(pReg);
+
+				CString strItem = pDoc->m_TreeCtrl.GetItemText(hSelected);
+
+				HistoryModifyRegionPtr hist(new HistoryModifyRegion());
+				if(pReg->m_Local != m_DragRegLocal)
+				{
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(pDoc, strItem, m_DragRegLocal, pReg->m_Local)));
+				}
+				if(pReg->m_Size != m_DragRegSize)
+				{
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, strItem, m_DragRegSize, pReg->m_Size)));
+				}
+				if(pReg->m_TextOff != m_DragRegTextOff)
+				{
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, strItem, m_DragRegTextOff, pReg->m_TextOff)));
+				}
+				pDoc->AddNewHistory(hist);
 			}
-			if(pReg->m_Size != m_DragRegSize)
-			{
-				hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, strItem, m_DragRegSize, pReg->m_Size)));
-			}
-			if(pReg->m_TextOff != m_DragRegTextOff)
-			{
-				hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, strItem, m_DragRegTextOff, pReg->m_TextOff)));
-			}
-			pDoc->AddNewHistory(hist);
 
 			pDoc->UpdateAllViews(this);
 

@@ -192,6 +192,8 @@ public:
 
 	CMemFile m_NodeCache;
 
+	DWORD m_OverideRegId;
+
 	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID, LPCTSTR beforeID);
 
 	virtual void Do(void);
@@ -325,7 +327,7 @@ public:
 public:
 	void SerializeRegionNode(CArchive & ar, CImgRegion * pReg);
 
-	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
+	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
 

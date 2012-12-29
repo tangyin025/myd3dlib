@@ -87,6 +87,7 @@ HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR
 	, m_itemID(itemID)
 	, m_parentID(parentID)
 	, m_beforeID(beforeID)
+	, m_OverideRegId(0)
 {
 }
 
@@ -101,12 +102,25 @@ void HistoryAddRegion::Do(void)
 
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-	ASSERT(m_NodeCache.GetLength() > 0);
-	m_NodeCache.SeekToBegin();
-	CArchive ar(&m_NodeCache, CArchive::load);
-	m_pDoc->SerializeRegionNode(ar, pReg);
-	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
-	ar.Close();
+	// ! 使用 OverideRegId，防止发生重名，又可以再undo之后重名创建
+	if(0 == m_OverideRegId)
+	{
+		m_OverideRegId = m_pDoc->m_NextRegId;
+	}
+
+	DWORD oldRegId = m_pDoc->m_NextRegId;
+	{
+		m_pDoc->m_NextRegId = m_OverideRegId;
+		ASSERT(m_NodeCache.GetLength() > 0);
+		m_NodeCache.SeekToBegin();
+		CArchive ar(&m_NodeCache, CArchive::load);
+		m_pDoc->SerializeRegionNode(ar, pReg);
+		m_pDoc->SerializeRegionNodeSubTree(ar, hItem, TRUE);
+		ar.Close();
+	}
+	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
+
+	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
 	m_pDoc->m_TreeCtrl.SelectItem(hItem);
 }
@@ -116,8 +130,6 @@ void HistoryAddRegion::Undo(void)
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
 
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
-
-	ASSERT(NULL == m_pDoc->m_TreeCtrl.GetChildItem(hItem));
 
 	m_pDoc->m_TreeCtrl.DeleteTreeItem<CImgRegion>(hItem, TRUE);
 }
@@ -490,7 +502,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 	}
 }
 
-void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent)
+void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent, BOOL bOverideName)
 {
 	if (ar.IsStoring())
 	{
@@ -507,7 +519,7 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent)
 
 			SerializeRegionNode(ar, pReg);
 
-			SerializeRegionNodeSubTree(ar, hItem);
+			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
 		}
 	}
 	else
@@ -517,7 +529,11 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent)
 		for(int i = 0; i < nChilds; i++)
 		{
 			CString strName;
-			ar >> strName; HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
+			ar >> strName;
+			if(bOverideName)
+				strName.Format(_T("图层 %03d"), m_NextRegId++);
+
+			HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
 
 			CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
 			ASSERT(pReg);
@@ -526,7 +542,7 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent)
 
 			SerializeRegionNode(ar, pReg);
 
-			SerializeRegionNodeSubTree(ar, hItem);
+			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
 
 			m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 		}
@@ -573,7 +589,6 @@ void CImgRegionDoc::OnAddRegion()
 
 	CString strName;
 	strName.Format(_T("图层 %03d"), m_NextRegId++);
-
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
 		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
 
@@ -730,7 +745,7 @@ void CImgRegionDoc::OnEditCopy()
 		theApp.m_ClipboardFile.SetLength(0);
 		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
 		SerializeRegionNode(ar, pReg);
-		ar << 0;
+		SerializeRegionNodeSubTree(ar, hSelected);
 		ar.Close();
 	}
 }
