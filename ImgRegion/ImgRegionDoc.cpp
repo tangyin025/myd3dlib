@@ -802,6 +802,10 @@ void CImgRegionDoc::OnEditUndo()
 		UpdateAllViews(NULL);
 
 		SetModifiedFlag();
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		pFrame->m_wndProperties.InvalidProperties();
 	}
 }
 
@@ -819,6 +823,10 @@ void CImgRegionDoc::OnEditRedo()
 		UpdateAllViews(NULL);
 
 		SetModifiedFlag();
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT(pFrame);
+		pFrame->m_wndProperties.InvalidProperties();
 	}
 }
 
