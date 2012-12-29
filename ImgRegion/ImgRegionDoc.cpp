@@ -120,6 +120,8 @@ void HistoryAddRegion::Do(void)
 	}
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
 
+	pReg->m_Locked = FALSE;
+
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 
 	m_pDoc->m_TreeCtrl.SelectItem(hItem);

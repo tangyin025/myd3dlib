@@ -77,19 +77,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CString strCustomize(_T("自定义..."));
 	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
-	//DockPane(&m_wndToolBar);
-
-	if (!m_wndToolBar2.CreateEx(this, TBSTYLE_FLAT, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_GRIPPER | CBRS_TOOLTIPS | CBRS_FLYBY | CBRS_SIZE_DYNAMIC, CRect(1,1,1,1), AFX_IDW_TOOLBAR + 2) ||
-		!m_wndToolBar2.LoadToolBar(IDR_TOOLBAR1))
-	{
-		TRACE0("未能创建工具栏\n");
-		return -1;
-	}
-	m_wndToolBar2.SetWindowText(_T("图像"));
-	m_wndToolBar2.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
-	m_wndToolBar2.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndToolBar2);
-	DockPaneLeftOf(&m_wndToolBar, &m_wndToolBar2);
+	DockPane(&m_wndToolBar);
 
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
 

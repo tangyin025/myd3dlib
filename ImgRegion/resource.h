@@ -9,7 +9,6 @@
 #define ID_VIEW_PROPERTIESWND           104
 #define ID_VIEW_CUSTOMIZE               105
 #define ID_WINDOW_MANAGER               106
-#define IDR_TOOLBAR1                    107
 #define IDC_CURSOR1                     108
 #define IDC_CURSOR2                     109
 #define IDD_FILE_PROPERTY               110

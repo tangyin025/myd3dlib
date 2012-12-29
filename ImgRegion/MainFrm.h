@@ -27,8 +27,6 @@ public:
 
 	CMFCToolBar m_wndToolBar;
 
-	CMFCToolBar m_wndToolBar2;
-
 	CMFCStatusBar m_wndStatusBar;
 
 	CFileView m_wndFileView;
