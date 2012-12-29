@@ -10,26 +10,13 @@
 #define new DEBUG_NEW
 #endif
 
-void HistoryChangeItemLocal::Do(void)
+HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID)
+	: CImgRegion(CPoint(10,10), CSize(100,100))
+	, m_pDoc(pDoc)
+	, m_itemID(itemID)
+	, m_parentID(parentID)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
-
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
-	ASSERT(pReg);
-
-	pReg->m_Local = m_newValue;
-}
-
-void HistoryChangeItemLocal::Undo(void)
-{
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
-
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
-	ASSERT(pReg);
-
-	pReg->m_Local = m_oldValue;
+	m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 }
 
 void HistoryAddRegion::Do(void)
@@ -43,9 +30,7 @@ void HistoryAddRegion::Do(void)
 	}
 
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, TVI_LAST);
-	CImgRegion * pReg = new CImgRegion(m_Local, CSize(100,100), m_Color);
-	pReg->m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
-	pReg->m_FontColor = m_FontColor;
+	CImgRegion * pReg = new CImgRegion(*this);
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 	m_pDoc->m_TreeCtrl.SelectItem(hItem);
 }
@@ -436,8 +421,11 @@ void CImgRegionDoc::OnAddRegion()
 	CString strName;
 	strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
 
-	HistoryPtr hist(new HistoryAddRegion(
-		this, strName, ptOrg, Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255)), Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255)), hParent ? m_TreeCtrl.GetItemText(hParent) : _T("")));
+	HistoryAddRegionPtr hist(new HistoryAddRegion(
+		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T("")));
+	hist->m_Local = ptOrg;
+	hist->m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
+	hist->m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	m_HistoryList.push_back(hist);
 	m_HistoryList[m_HistoryStep++]->Do();
 
@@ -602,21 +590,19 @@ void CImgRegionDoc::OnEditPaste()
 		{
 			hParent = m_TreeCtrl.GetParentItem(hSelected);
 		}
-		if(!hParent)
-		{
-			hParent = TVI_ROOT;
-		}
 
-		CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
-		ASSERT(pReg);
+		CString strName;
+		strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
+		HistoryAddRegionPtr hist(new HistoryAddRegion(
+			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T("")));
 
 		TRY
 		{
 			theApp.m_ClipboardFile.SeekToBegin();
 			CArchive ar(&theApp.m_ClipboardFile, CArchive::load);
-			SerializeRegionNode(ar, pReg);
+			SerializeRegionNode(ar, hist.get());
 
-			pReg->m_Locked = FALSE;
+			hist->m_Locked = FALSE;
 		}
 		CATCH_ALL(e)
 		{
@@ -625,16 +611,12 @@ void CImgRegionDoc::OnEditPaste()
 			AfxMessageBox(buff);
 
 			DELETE_EXCEPTION(e);
-			delete pReg;
 			return;
 		}
 		END_CATCH_ALL
 
-		CString strName;
-		strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
-		HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST);
-		m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-		m_TreeCtrl.SelectItem(hItem);
+		m_HistoryList.push_back(hist);
+		m_HistoryList[m_HistoryStep++]->Do();
 
 		UpdateAllViews(NULL);
 

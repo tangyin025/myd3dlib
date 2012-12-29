@@ -1,6 +1,7 @@
 #pragma once
 
 #include "FileView.h"
+#include "PropertiesWnd.h"
 
 static const float ZoomTable[] = {
 	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 2.0f/3, 1.0f/2, 1.0f/3, 1.0f/4, 1.0f/6, 1.0f/8, 1.0f/12, 1.0f/16, 1.0f/20, 1.0f/25, 3.0f/100, 2.0f/100, 1.5f/100, 1.0f/100, 0.7f/100 };
@@ -98,37 +99,25 @@ public:
 typedef boost::shared_ptr<HistoryChange> HistoryChangePtr;
 
 template <typename ValueType>
-class HistoryChangeValue
+class HistoryChangeItemValue
 	: public HistoryChange
-{
-public:
-	ValueType m_oldValue;
-
-	ValueType m_newValue;
-
-	HistoryChangeValue(CImgRegionDoc * pDoc, const ValueType & oldValue, const ValueType & newValue)
-		: HistoryChange(pDoc)
-		, m_oldValue(oldValue)
-		, m_newValue(newValue)
-	{
-	}
-};
-
-class HistoryChangeItemLocal
-	: public HistoryChangeValue<CPoint>
 {
 public:
 	std::wstring m_itemID;
 
-	HistoryChangeItemLocal(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
-		: HistoryChangeValue(pDoc, oldValue, newValue)
+	ValueType m_oldValue;
+
+	ValueType m_newValue;
+
+	CPropertiesWnd::Property m_property;
+
+	HistoryChangeItemValue(CImgRegionDoc * pDoc, LPCTSTR itemID, const ValueType & oldValue, const ValueType & newValue)
+		: HistoryChange(pDoc)
 		, m_itemID(itemID)
+		, m_oldValue(oldValue)
+		, m_newValue(newValue)
 	{
 	}
-
-	virtual void Do(void);
-
-	virtual void Undo(void);
 };
 
 class History
@@ -162,34 +151,23 @@ typedef boost::shared_ptr<History> HistoryPtr;
 
 class HistoryAddRegion
 	: public History
+	, public CImgRegion
 {
 public:
 	CImgRegionDoc * m_pDoc;
 
 	std::wstring m_itemID;
 
-	CPoint m_Local;
-
-	Gdiplus::Color m_Color;
-
-	Gdiplus::Color m_FontColor;
-
 	std::wstring m_parentID;
 
-	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & Local, const Gdiplus::Color & Color, const Gdiplus::Color & FontColor, LPCTSTR parentID)
-		: m_pDoc(pDoc)
-		, m_itemID(itemID)
-		, m_Local(Local)
-		, m_Color(Color)
-		, m_FontColor(FontColor)
-		, m_parentID(parentID)
-	{
-	}
+	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID);
 
 	virtual void Do(void);
 
 	virtual void Undo(void);
 };
+
+typedef boost::shared_ptr<HistoryAddRegion> HistoryAddRegionPtr;
 
 class HistoryDelRegion
 	: public History
