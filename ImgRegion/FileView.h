@@ -74,12 +74,6 @@ public:
 		DeleteItem(hItem);
 		m_ItemMap.erase(key);
 	}
-
-	HTREEITEM GetSafeParentItem(HTREEITEM hItem);
-
-	HTREEITEM GetSafePreSiblingItem(HTREEITEM hItem);
-
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 class CFileView : public CDockablePane

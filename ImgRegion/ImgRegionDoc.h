@@ -194,6 +194,35 @@ public:
 	virtual void Undo(void);
 };
 
+class HistoryMovRegion
+	: public History
+{
+public:
+	CImgRegionDoc * m_pDoc;
+
+	std::wstring m_itemID;
+
+	std::wstring m_oldParentID;
+
+	std::wstring m_oldBeforeID;
+
+	std::wstring m_newParentID;
+
+	std::wstring m_newBeforeID;
+
+	HistoryMovRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR newParentID, LPCTSTR newBeforeID)
+		: m_pDoc(pDoc)
+		, m_itemID(itemID)
+		, m_newParentID(newParentID)
+		, m_newBeforeID(newBeforeID)
+	{
+	}
+
+	virtual void Do(void);
+
+	virtual void Undo(void);
+};
+
 typedef std::vector<HistoryPtr> HistoryPtrList;
 
 class CImgRegionDoc
@@ -253,6 +282,8 @@ public:
 	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
+
+	void AddNewHistory(HistoryPtr hist);
 
 	afx_msg void OnAddRegion();
 
