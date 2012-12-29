@@ -180,7 +180,6 @@ typedef std::vector<HistoryPtr> HistoryPtrList;
 
 class HistoryAddRegion
 	: public History
-	, public CImgRegion
 {
 public:
 	CImgRegionDoc * m_pDoc;
@@ -189,7 +188,11 @@ public:
 
 	std::wstring m_parentID;
 
-	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID);
+	std::wstring m_beforeID;
+
+	CMemFile m_NodeCache;
+
+	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID, LPCTSTR beforeID);
 
 	virtual void Do(void);
 
@@ -210,7 +213,7 @@ public:
 
 	std::wstring m_beforeID;
 
-	CMemFile m_DeleteNode;
+	CMemFile m_NodeCache;
 
 	HistoryDelRegion(CImgRegionDoc * pDoc, LPCTSTR itemID)
 		: m_pDoc(pDoc)

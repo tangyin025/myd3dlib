@@ -82,28 +82,32 @@ void HistoryChangeItemTextOff::Undo(void)
 	pReg->m_TextOff = m_oldValue;
 }
 
-HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID)
-	: CImgRegion(CPoint(10,10), CSize(100,100))
-	, m_pDoc(pDoc)
+HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID, LPCTSTR beforeID)
+	: m_pDoc(pDoc)
 	, m_itemID(itemID)
 	, m_parentID(parentID)
+	, m_beforeID(beforeID)
 {
-	m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 }
 
 void HistoryAddRegion::Do(void)
 {
-	HTREEITEM hParent = TVI_ROOT;
-	if(!m_parentID.empty())
-	{
-		ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_parentID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	HTREEITEM hParent = m_parentID.empty() ? TVI_ROOT : m_pDoc->m_TreeCtrl.m_ItemMap[m_parentID];
+	HTREEITEM hBefore = m_beforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_beforeID];
+	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, hBefore);
 
-		hParent = m_pDoc->m_TreeCtrl.m_ItemMap[m_parentID];
-	}
+	CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
+	ASSERT(pReg);
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, TVI_LAST);
-	CImgRegion * pReg = new CImgRegion(*this);
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+
+	ASSERT(m_NodeCache.GetLength() > 0);
+	m_NodeCache.SeekToBegin();
+	CArchive ar(&m_NodeCache, CArchive::load);
+	m_pDoc->SerializeRegionNode(ar, pReg);
+	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
+	ar.Close();
+
 	m_pDoc->m_TreeCtrl.SelectItem(hItem);
 }
 
@@ -127,8 +131,8 @@ void HistoryDelRegion::Do(void)
 	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
 	ASSERT(pReg);
 
-	m_DeleteNode.SetLength(0);
-	CArchive ar(&m_DeleteNode, CArchive::store);
+	m_NodeCache.SetLength(0);
+	CArchive ar(&m_NodeCache, CArchive::store);
 	m_pDoc->SerializeRegionNode(ar, pReg);
 	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
 	ar.Close();
@@ -153,8 +157,9 @@ void HistoryDelRegion::Undo(void)
 
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 
-	m_DeleteNode.SeekToBegin();
-	CArchive ar(&m_DeleteNode, CArchive::load);
+	ASSERT(m_NodeCache.GetLength() > 0);
+	m_NodeCache.SeekToBegin();
+	CArchive ar(&m_NodeCache, CArchive::load);
 	m_pDoc->SerializeRegionNode(ar, pReg);
 	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
 	ar.Close();
@@ -570,10 +575,16 @@ void CImgRegionDoc::OnAddRegion()
 	strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
 
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
-		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T("")));
-	hist->m_Local = ptOrg;
-	hist->m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
-	hist->m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
+		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
+
+	CImgRegion reg(ptOrg, CSize(100,100));
+	reg.m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
+	reg.m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
+	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
+	CArchive ar(&hist->m_NodeCache, CArchive::store);
+	SerializeRegionNode(ar, &reg);
+	ar << 0;
+	ar.Close();
 
 	AddNewHistory(hist);
 	hist->Do();
@@ -719,6 +730,7 @@ void CImgRegionDoc::OnEditCopy()
 		theApp.m_ClipboardFile.SetLength(0);
 		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
 		SerializeRegionNode(ar, pReg);
+		ar << 0;
 		ar.Close();
 	}
 }
@@ -744,26 +756,14 @@ void CImgRegionDoc::OnEditPaste()
 		CString strName;
 		strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
-			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T("")));
+			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), m_TreeCtrl.GetItemText(hSelected)));
 
-		TRY
-		{
-			theApp.m_ClipboardFile.SeekToBegin();
-			CArchive ar(&theApp.m_ClipboardFile, CArchive::load);
-			SerializeRegionNode(ar, hist.get());
-
-			hist->m_Locked = FALSE;
-		}
-		CATCH_ALL(e)
-		{
-			TCHAR buff[256];
-			e->GetErrorMessage(buff, _countof(buff));
-			AfxMessageBox(buff);
-
-			DELETE_EXCEPTION(e);
-			return;
-		}
-		END_CATCH_ALL
+		void * pBuffer;
+		void * pBufferMax;
+		theApp.m_ClipboardFile.SeekToBegin();
+		UINT len = theApp.m_ClipboardFile.GetBufferPtr(CFile::bufferRead, -1, &pBuffer, &pBufferMax);
+		hist->m_NodeCache.Write(pBuffer, len);
+		hist->m_NodeCache.Flush();
 
 		AddNewHistory(hist);
 		hist->Do();
