@@ -242,7 +242,7 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 	HTREEITEM hChild = TVI_LAST;
 	for(HTREEITEM hOtherChild = GetChildItem(hOtherItem); hOtherChild; hOtherChild = hNextOtherChild)
 	{
-		HTREEITEM hNextOtherChild = GetNextSiblingItem(hOtherChild);
+		hNextOtherChild = GetNextSiblingItem(hOtherChild);
 
 		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
 	}

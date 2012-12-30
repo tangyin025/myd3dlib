@@ -648,6 +648,8 @@ void CImgRegionDoc::OnDelRegion()
 			ASSERT(pFrame);
 			pFrame->m_wndProperties.InvalidProperties();
 		}
+		else
+			::MessageBeep(MB_OK);
 	}
 }
 
