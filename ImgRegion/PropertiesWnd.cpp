@@ -60,15 +60,61 @@ void CFileProp::OnClickButton(CPoint point)
 	}
 }
 
-void CSliderProp::OnClickButton(CPoint point)
+CWnd* CSliderProp::CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
+{
+	CPropSliderCtrl* pWndSlider = new CPropSliderCtrl(this);
+
+	CRect rectSlider(CPoint(rectEdit.right-120,rectEdit.bottom),CSize(120,30));
+
+	pWndSlider->Create(TBS_HORZ | TBS_TOP | WS_VISIBLE | WS_CHILD, rectSlider, m_pWndList, AFX_PROPLIST_ID_INPLACE);
+	pWndSlider->SetRange(0,255);
+	pWndSlider->SetPos(m_varValue.lVal);
+
+	bDefaultFormat = TRUE;
+	return pWndSlider;
+}
+
+BOOL CSliderProp::OnUpdateValue()
 {
 	ASSERT_VALID(this);
-	ASSERT_VALID(m_pWndList);
 	ASSERT_VALID(m_pWndInPlace);
+	ASSERT_VALID(m_pWndList);
 	ASSERT(::IsWindow(m_pWndInPlace->GetSafeHwnd()));
 
-	CRect rectInPlace;
-	m_pWndInPlace->GetWindowRect(&rectInPlace);
+	long lCurrValue = m_varValue.lVal;
+
+	CSliderCtrl* pSlider = (CSliderCtrl*) m_pWndInPlace;
+
+	m_varValue = (long) pSlider->GetPos();
+
+	if (lCurrValue != m_varValue.lVal)
+	{
+		m_pWndList->OnPropertyChanged(this);
+	}
+
+	return TRUE;
+}
+
+BEGIN_MESSAGE_MAP(CPropSliderCtrl, CSliderCtrl)
+	ON_WM_HSCROLL_REFLECT()
+	ON_WM_KILLFOCUS()
+END_MESSAGE_MAP()
+
+void CPropSliderCtrl::HScroll(UINT nSBCode, UINT nPos)
+{
+	ASSERT_VALID(m_pProp);
+
+	m_pProp->OnUpdateValue();
+	m_pProp->Redraw();
+}
+
+void CPropSliderCtrl::OnKillFocus(CWnd* pNewWnd)
+{
+	CSliderCtrl::OnKillFocus(pNewWnd);
+
+	ASSERT_VALID(m_pProp);
+
+	m_pProp->OnEndEdit();
 }
 
 void CComboProp::OnSelectCombo()
@@ -234,7 +280,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	pGroup = new CMFCPropertyGridProperty(_T("颜色"));
 
-	pProp = new CMFCPropertyGridProperty(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemAlpha);
+	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemAlpha] = pProp);
 
 	CMFCPropertyGridColorProperty * pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
@@ -271,8 +317,22 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
 	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
+	pProp->AddOption(_T("6"));
+	pProp->AddOption(_T("8"));
+	pProp->AddOption(_T("9"));
+	pProp->AddOption(_T("10"));
+	pProp->AddOption(_T("11"));
+	pProp->AddOption(_T("12"));
+	pProp->AddOption(_T("14"));
+	pProp->AddOption(_T("16"));
+	pProp->AddOption(_T("18"));
+	pProp->AddOption(_T("24"));
+	pProp->AddOption(_T("36"));
+	pProp->AddOption(_T("48"));
+	pProp->AddOption(_T("60"));
+	pProp->AddOption(_T("72"));
 	pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
+	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
 	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));

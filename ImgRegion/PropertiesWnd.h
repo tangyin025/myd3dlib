@@ -19,10 +19,30 @@ public:
 	CSliderProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
 		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData)
 	{
-		m_dwFlags = 0x0002;
 	}
 
-	virtual void OnClickButton(CPoint point);
+	virtual BOOL OnUpdateValue();
+
+	virtual CWnd* CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat);
+
+	virtual BOOL OnSetCursor() const { return FALSE; }
+};
+
+class CPropSliderCtrl : public CSliderCtrl
+{
+public:
+	CPropSliderCtrl(CSliderProp* pProp)
+		: m_pProp(pProp)
+	{
+	}
+
+	CSliderProp* m_pProp;
+
+	DECLARE_MESSAGE_MAP()
+
+	afx_msg void HScroll(UINT nSBCode, UINT nPos);
+
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };
 
 class CComboProp : public CMFCPropertyGridProperty
