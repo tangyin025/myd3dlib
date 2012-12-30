@@ -30,7 +30,7 @@
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   40009
 #define ID_ZOOM_OUT                     40010
 #define ID_ZOOM_IN                      40011
-#define ID_ZOOM_CUSTOM					40012
+#define ID_ZOOM_CUSTOM                  40012
 #define ID_DEL_REGION                   40013
 #define ID_ADD_REGION                   40014
 #define ID_EXPORT_IMG                   40015
