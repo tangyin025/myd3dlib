@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "MainFrm.h"
 #include "MainApp.h"
+#include "ImgRegionView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -14,6 +15,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CMDIFrameWndEx)
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
+	ON_REGISTERED_MESSAGE(AFX_WM_RESETTOOLBAR, &CMainFrame::OnToolbarReset)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -183,4 +185,17 @@ void CMainFrame::OnApplicationLook(UINT id)
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetRadio(theApp.m_nAppLook == pCmdUI->m_nID);
+}
+
+LRESULT CMainFrame::OnToolbarReset(WPARAM wp,LPARAM lp)
+{
+	CMFCToolBarComboBoxButton ComboButton(
+		ID_ZOOM_CUSTOM, GetCmdMgr()->GetCmdImage(ID_ZOOM_CUSTOM, FALSE), CBS_DROPDOWNLIST | WS_CHILD | WS_VISIBLE | WS_VSCROLL, 80);
+	ComboButton.EnableWindow(true);
+	ComboButton.SetCenterVert();
+	ComboButton.SetFlatMode();
+	CImgRegionView::UpdateComboButtonZoomList(&ComboButton);
+	ComboButton.SelectItem(0); 
+	m_wndToolBar.ReplaceButton(ID_ZOOM_CUSTOM, ComboButton);
+	return 0;
 }

@@ -34,4 +34,6 @@ public:
 	CPropertiesWnd m_wndProperties;
 
 	DECLARE_MESSAGE_MAP()
+
+	afx_msg LRESULT OnToolbarReset(WPARAM wp,LPARAM lp);
 };

@@ -104,6 +104,12 @@ public:
 
 	afx_msg void OnUpdateZoomOut(CCmdUI *pCmdUI);
 
+	afx_msg void OnZoomCustom();
+
+	afx_msg void OnUpdateZoomCustom(CCmdUI *pCmdUI);
+
+	afx_msg void OnZoomCustomSelChange();
+
 public:
 	void ZoomImage(float ZoomFactor = 1.0f, const CPoint & ptLook = CPoint(0,0), BOOL bRedraw = TRUE);
 
@@ -130,4 +136,6 @@ public:
 	void OnMenuCommand(UINT nPos, CMenu* pMenu);
 
 	static void InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal);
+
+	static void UpdateComboButtonZoomList(CMFCToolBarComboBoxButton * pSrcCombo);
 };

@@ -208,6 +208,7 @@ BEGIN
     SEPARATOR
     BUTTON      ID_EXPORT_IMG
     SEPARATOR
+    BUTTON      ID_ZOOM_CUSTOM
     BUTTON      ID_ZOOM_IN
     BUTTON      ID_ZOOM_OUT
     BUTTON      ID_ADD_REGION
@@ -273,7 +274,7 @@ BEGIN
     DEFPUSHBUTTON   "确定",IDOK,134,42,66,23
     LTEXT           "ImgRegion，作者：Tang Yin",IDC_STATIC,79,12,94,8
     LTEXT           "Copyright (C) 2013",IDC_STATIC,79,27,62,8
-    CONTROL         112,IDC_STATIC,"Static",SS_BITMAP,15,12,50,46
+    CONTROL         111,IDC_STATIC,"Static",SS_BITMAP,15,12,50,46
 END
 
 
@@ -355,6 +356,7 @@ STRINGTABLE
 BEGIN
     ID_ZOOM_OUT             "缩小当前视图\n缩小"
     ID_ZOOM_IN              "放大当前视图\n放大"
+    ID_ZOOM_CUSTOM          "设置当前视图的缩放比例\n缩放比例"
     ID_DEL_REGION           "删除选中的区域\n删除区域(Delete)"
     ID_ADD_REGION           "在选中的区域附近创建一个新区域\n添加区域(Insert)"
     ID_EXPORT_IMG           "将当前视图内容导出为图片格式\n导出图片"

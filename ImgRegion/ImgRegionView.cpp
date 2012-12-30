@@ -21,6 +21,9 @@ BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_IN, &CImgRegionView::OnUpdateZoomIn)
 	ON_COMMAND(ID_ZOOM_OUT, &CImgRegionView::OnZoomOut)
 	ON_UPDATE_COMMAND_UI(ID_ZOOM_OUT, &CImgRegionView::OnUpdateZoomOut)
+	ON_COMMAND(ID_ZOOM_CUSTOM, &CImgRegionView::OnZoomCustom)
+	//ON_UPDATE_COMMAND_UI(ID_ZOOM_CUSTOM, &CImgRegionView::OnUpdateZoomCustom)
+	ON_CBN_SELCHANGE(ID_ZOOM_CUSTOM, &CImgRegionView::OnZoomCustomSelChange)
 	ON_WM_KEYDOWN()
 	ON_WM_KEYUP()
 	ON_WM_LBUTTONDOWN()
@@ -420,6 +423,42 @@ void CImgRegionView::ZoomImage(float ZoomFactor, const CPoint & ptLook, BOOL bRe
 
 	if(bRedraw)
 		Invalidate(TRUE);
+
+	// ! 采用手动update，而不是ON_UPDATE_COMMAND_UI
+	OnUpdateZoomCustom(NULL);
+}
+
+void CImgRegionView::OnZoomCustom()
+{
+}
+
+void CImgRegionView::OnUpdateZoomCustom(CCmdUI *pCmdUI)
+{
+	CMFCToolBarComboBoxButton * pSrcCombo = CMFCToolBarComboBoxButton::GetByCmd(ID_ZOOM_CUSTOM, FALSE);
+	CString strItem;
+	if(pSrcCombo)
+	{
+		strItem.Format(_T("%.2f%%"), m_ImageZoomFactor * 100);
+		pSrcCombo->SetText(strItem);
+		CComboBox * pCombo = pSrcCombo->GetComboBox();
+		if(pCombo && pCombo->GetParent())
+		{
+			pCombo->GetParent()->InvalidateRect(pSrcCombo->GetInvalidateRect());
+		}
+	}
+}
+
+void CImgRegionView::OnZoomCustomSelChange()
+{
+	CRect rectClient;
+	GetClientRect(rectClient);
+
+	CMFCToolBarComboBoxButton * pSrcCombo = CMFCToolBarComboBoxButton::GetByCmd(ID_ZOOM_CUSTOM, FALSE);
+	if(pSrcCombo)
+	{
+		int nIndex = pSrcCombo->GetCurSel();
+		ZoomImage(ZoomTable[pSrcCombo->GetItemData(nIndex)], rectClient.CenterPoint());
+	}
 }
 
 void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
@@ -971,5 +1010,16 @@ void CImgRegionView::InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl 
 		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetChildItem(hItem), ptLocal - pReg->m_Local);
 
 		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem), ptLocal);
+	}
+}
+
+void CImgRegionView::UpdateComboButtonZoomList(CMFCToolBarComboBoxButton * pSrcCombo)
+{
+	pSrcCombo->RemoveAllItems();
+	CString strItem;
+	for(int i = 0; i < _countof(ZoomTable); i += 2)
+	{
+		strItem.Format(_T("%.2f%%"), ZoomTable[i] * 100);
+		pSrcCombo->AddItem(strItem, i);
 	}
 }

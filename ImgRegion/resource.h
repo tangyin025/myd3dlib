@@ -9,11 +9,11 @@
 #define ID_VIEW_PROPERTIESWND           104
 #define ID_VIEW_CUSTOMIZE               105
 #define ID_WINDOW_MANAGER               106
-#define IDC_CURSOR1                     108
-#define IDC_CURSOR2                     109
-#define IDD_FILE_PROPERTY               110
-#define IDD_ABOUTBOX                    111
-#define IDB_BITMAP1                     112
+#define IDC_CURSOR1                     107
+#define IDC_CURSOR2                     108
+#define IDD_FILE_PROPERTY               109
+#define IDD_ABOUTBOX                    110
+#define IDB_BITMAP1                     111
 #define IDC_EDIT1                       1001
 #define IDC_EDIT2                       1002
 #define IDC_EDIT3                       1003
@@ -30,18 +30,19 @@
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   40009
 #define ID_ZOOM_OUT                     40010
 #define ID_ZOOM_IN                      40011
-#define ID_DEL_REGION                   40012
-#define ID_ADD_REGION                   40013
-#define ID_EXPORT_IMG                   40014
-#define ID_EXPORT_LUA                   40015
-#define ID_FILE_PROPERTY                40016
+#define ID_ZOOM_CUSTOM					40012
+#define ID_DEL_REGION                   40013
+#define ID_ADD_REGION                   40014
+#define ID_EXPORT_IMG                   40015
+#define ID_EXPORT_LUA                   40016
+#define ID_FILE_PROPERTY                40017
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        113
-#define _APS_NEXT_COMMAND_VALUE         40017
+#define _APS_NEXT_RESOURCE_VALUE        112
+#define _APS_NEXT_COMMAND_VALUE         40018
 #define _APS_NEXT_CONTROL_VALUE         1006
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
