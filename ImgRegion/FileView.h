@@ -111,5 +111,7 @@ public:
 	{
 		m_bIsLayoutInvalid = TRUE;
 	}
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 

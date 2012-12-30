@@ -571,14 +571,6 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			}
 		}
 		break;
-
-	case VK_INSERT:
-		pDoc->OnAddRegion();
-		break;
-
-	case VK_DELETE:
-		pDoc->OnDelRegion();
-		break;
 	}
 }
 
@@ -1022,4 +1014,30 @@ void CImgRegionView::UpdateComboButtonZoomList(CMFCToolBarComboBoxButton * pSrcC
 		strItem.Format(_T("%.2f%%"), ZoomTable[i] * 100);
 		pSrcCombo->AddItem(strItem, i);
 	}
+}
+
+BOOL CImgRegionView::PreTranslateMessage(MSG* pMsg)
+{
+	CImgRegionDoc * pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (pDoc)
+	{
+		switch(pMsg->message)
+		{
+		case WM_KEYDOWN:
+			switch(pMsg->wParam)
+			{
+			case VK_INSERT:
+				pDoc->OnAddRegion();
+				return TRUE;
+
+			case VK_DELETE:
+				pDoc->OnDelRegion();
+				return TRUE;
+			}
+			break;
+		}
+	}
+
+	return CImageView::PreTranslateMessage(pMsg);
 }

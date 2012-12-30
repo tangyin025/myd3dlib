@@ -397,3 +397,35 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 		}
 	}
 }
+
+BOOL CFileView::PreTranslateMessage(MSG* pMsg)
+{
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT(pFrame);
+
+	CChildFrame * pChildFrame = DYNAMIC_DOWNCAST(CChildFrame, pFrame->MDIGetActive());
+	if(pChildFrame)
+	{
+		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
+		if(pDoc)
+		{
+			switch(pMsg->message)
+			{
+			case WM_KEYDOWN:
+				switch(pMsg->wParam)
+				{
+				case VK_INSERT:
+					pDoc->OnAddRegion();
+					return TRUE;
+
+				case VK_DELETE:
+					pDoc->OnDelRegion();
+					return TRUE;
+				}
+				break;
+			}
+		}
+	}
+
+	return CDockablePane::PreTranslateMessage(pMsg);
+}

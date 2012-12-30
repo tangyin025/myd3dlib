@@ -138,4 +138,6 @@ public:
 	static void InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal);
 
 	static void UpdateComboButtonZoomList(CMFCToolBarComboBoxButton * pSrcCombo);
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
