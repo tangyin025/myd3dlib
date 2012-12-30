@@ -553,19 +553,13 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent,
 
 void CImgRegionDoc::UpdateImageSizeTable(const CSize & sizeRoot)
 {
-	for(int i = 0; i < _countof(m_ImageSizeTable); i++)
-	{
-		m_ImageSizeTable[i] = CSize((int)(sizeRoot.cx * ZoomTable[i]), (int)(sizeRoot.cy * ZoomTable[i]));
-	}
-
 	POSITION pos = GetFirstViewPosition();
 	while(NULL != pos)
 	{
 		CImgRegionView * pView = DYNAMIC_DOWNCAST(CImgRegionView, GetNextView(pos));
 		ASSERT(pView);
 
-		pView->SetScrollSizes(
-			m_ImageSizeTable[pView->m_nCurrImageSize], TRUE, CPoint(pView->GetScrollPos(SB_HORZ), pView->GetScrollPos(SB_VERT)));
+		pView->ZoomImage(pView->m_ImageZoomFactor);
 
 		pView->Invalidate();
 	}

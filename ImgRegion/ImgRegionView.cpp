@@ -7,6 +7,9 @@
 #define new DEBUG_NEW
 #endif
 
+static const float ZoomTable[] = {
+	32, 16, 12, 8, 7, 6, 5, 4, 3, 2, 1, 2.0f/3, 1.0f/2, 1.0f/3, 1.0f/4, 1.0f/6, 1.0f/8, 1.0f/12, 1.0f/16, 1.0f/20, 1.0f/25, 3.0f/100, 2.0f/100, 1.5f/100, 1.0f/100, 0.7f/100 };
+
 IMPLEMENT_DYNCREATE(CImgRegionView, CImageView)
 
 BEGIN_MESSAGE_MAP(CImgRegionView, CImageView)
@@ -30,7 +33,8 @@ END_MESSAGE_MAP()
 
 CImgRegionView::CImgRegionView(void)
 	: m_nCurrCursor(CursorTypeArrow)
-	, m_nCurrImageSize(10)
+	, m_ImageZoomFactor(1.0f)
+	, m_ImageSize(100,100)
 	, m_DragState(DragStateNone)
 	, m_nSelectedHandle(HandleTypeNone)
 {
@@ -90,8 +94,8 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 	{
 		grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
 		grap.ScaleTransform(
-			(float)pDoc->m_ImageSizeTable[m_nCurrImageSize].cx / pDoc->m_Size.cx,
-			(float)pDoc->m_ImageSizeTable[m_nCurrImageSize].cy / pDoc->m_Size.cy);
+			(float)m_ImageSize.cx / pDoc->m_Size.cx,
+			(float)m_ImageSize.cy / pDoc->m_Size.cy);
 
 		DrawRegionDoc(grap, pDoc);
 	}
@@ -109,7 +113,7 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 
 		CWindowDC dc(this);
 		PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
+			CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize));
 		dc.LPtoDP(&rect.TopLeft());
 		dc.LPtoDP(&rect.BottomRight());
 		dc.LPtoDP(&ptTextOrg);
@@ -346,7 +350,7 @@ void CImgRegionView::OnInitialUpdate()
 	//if (!pDoc)
 	//	return;
 
-	//SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(0,0));
+	//SetScrollSizes(m_ImageSize, TRUE, CPoint(0,0));
 }
 
 void CImgRegionView::OnSize(UINT nType, int cx, int cy)
@@ -358,7 +362,7 @@ void CImgRegionView::OnSize(UINT nType, int cx, int cy)
 	if (!pDoc)
 		return;
 
-	SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
+	SetScrollSizes(m_ImageSize, TRUE, CPoint(GetScrollPos(SB_HORZ), GetScrollPos(SB_VERT)));
 }
 
 void CImgRegionView::OnZoomIn()
@@ -366,12 +370,18 @@ void CImgRegionView::OnZoomIn()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	ZoomImage(m_nCurrImageSize - 1, rectClient.CenterPoint());
+	typedef std::reverse_iterator<const float *> rf_iter;
+
+	rf_iter begin(&ZoomTable[_countof(ZoomTable)]);
+	rf_iter end(&ZoomTable[0]);
+	rf_iter res_iter = std::find_if(begin, end, std::bind2nd(std::greater<float>(), m_ImageZoomFactor));
+
+	ZoomImage(res_iter != end ? *res_iter : ZoomTable[0], rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomIn(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_nCurrImageSize > 0);
+	pCmdUI->Enable(m_ImageZoomFactor < ZoomTable[0]);
 }
 
 void CImgRegionView::OnZoomOut()
@@ -379,28 +389,34 @@ void CImgRegionView::OnZoomOut()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	ZoomImage(m_nCurrImageSize + 1, rectClient.CenterPoint());
+	const float * begin = &ZoomTable[0];
+	const float * end = &ZoomTable[_countof(ZoomTable)];
+	const float * res_iter = std::find_if(begin, end, std::bind2nd(std::less<float>(), m_ImageZoomFactor));
+
+	ZoomImage(res_iter != end ? *res_iter : ZoomTable[_countof(ZoomTable)-1], rectClient.CenterPoint());
 }
 
 void CImgRegionView::OnUpdateZoomOut(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_nCurrImageSize < _countof(ZoomTable) - 1);
+	pCmdUI->Enable(m_ImageZoomFactor > ZoomTable[_countof(ZoomTable)-1]);
 }
 
-void CImgRegionView::ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRedraw)
+void CImgRegionView::ZoomImage(float ZoomFactor, const CPoint & ptLook, BOOL bRedraw)
 {
 	CImgRegionDoc * pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	CRect SrcImageRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]);
+	CRect SrcImageRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize);
 
-	m_nCurrImageSize = max(0, min((int)_countof(pDoc->m_ImageSizeTable) - 1, ImageSizeIdx));
+	m_ImageZoomFactor = my::Min(ZoomTable[0], my::Max(ZoomTable[_countof(ZoomTable)-1], ZoomFactor));
 
-	my::Vector2 center = MapPoint(my::Vector2((float)ptLook.x, (float)ptLook.y), SrcImageRect, CRect(CPoint(0, 0), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
+	m_ImageSize.SetSize((int)(pDoc->m_Size.cx * m_ImageZoomFactor), (int)(pDoc->m_Size.cy * m_ImageZoomFactor));
 
-	SetScrollSizes(pDoc->m_ImageSizeTable[m_nCurrImageSize], bRedraw, CPoint((int)(center.x - ptLook.x), (int)(center.y - ptLook.y)));
+	my::Vector2 center = MapPoint(my::Vector2((float)ptLook.x, (float)ptLook.y), SrcImageRect, CRect(CPoint(0, 0), m_ImageSize));
+
+	SetScrollSizes(m_ImageSize, bRedraw, CPoint((int)(center.x - ptLook.x), (int)(center.y - ptLook.y)));
 
 	if(bRedraw)
 		Invalidate(TRUE);
@@ -571,7 +587,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				CWindowDC dc(this);
 				PrepareDC(&dc, CRect(CPoint(0,0), pDoc->m_Size),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]));
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize));
 				dc.LPtoDP(&rect.TopLeft());
 				dc.LPtoDP(&rect.BottomRight());
 				dc.LPtoDP(&ptTextOrg);
@@ -625,7 +641,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				// 由于dc.DPtoLP所得的结果被四啥五入，所以使用MapPoint获得更精确的结果
 				my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+					CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize), CRect(CPoint(0,0), pDoc->m_Size));
 
 				hSelected = pDoc->GetPointedRegionNode(pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 			}
@@ -751,7 +767,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 				CSize sizeDrag = point - m_DragPos;
 
 				my::Vector2 dragOff = MapPoint(my::Vector2((float)sizeDrag.cx, (float)sizeDrag.cy),
-					CRect(CPoint(0, 0), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+					CRect(CPoint(0, 0), m_ImageSize), CRect(CPoint(0,0), pDoc->m_Size));
 
 				CSize sizeDragLog((int)dragOff.x, (int)dragOff.y);
 				if(0 != HIBYTE(GetKeyState(VK_SHIFT)))
@@ -822,9 +838,9 @@ BOOL CImgRegionView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 	{
 	case CursorTypeMove:
 		{
-			int nToScroll = ::MulDiv(-zDelta, 1, WHEEL_DELTA);
+			int nToScroll = ::MulDiv(zDelta, 1, WHEEL_DELTA);
 			ScreenToClient(&pt);
-			ZoomImage(m_nCurrImageSize + nToScroll, pt);
+			ZoomImage(m_ImageZoomFactor * (1.0f + nToScroll * 0.1f), pt);
 		}
 		break;
 	}
@@ -873,7 +889,7 @@ void CImgRegionView::OnContextMenu(CWnd* pWnd, CPoint point)
 	ScreenToClient(&point);
 
 	my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
-		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), pDoc->m_ImageSizeTable[m_nCurrImageSize]), CRect(CPoint(0,0), pDoc->m_Size));
+		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize), CRect(CPoint(0,0), pDoc->m_Size));
 
 	InsertPointedRegionNodeToMenuItem(&m_ContextMenu, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 

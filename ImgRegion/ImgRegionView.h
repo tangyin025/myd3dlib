@@ -19,7 +19,9 @@ public:
 
 	int m_nCurrCursor;
 
-	int m_nCurrImageSize;
+	float m_ImageZoomFactor;
+
+	CSize m_ImageSize;
 
 	enum DragState
 	{
@@ -102,7 +104,8 @@ public:
 
 	afx_msg void OnUpdateZoomOut(CCmdUI *pCmdUI);
 
-	void ZoomImage(int ImageSizeIdx, const CPoint & ptLook, BOOL bRedraw = TRUE);
+public:
+	void ZoomImage(float ZoomFactor = 1.0f, const CPoint & ptLook = CPoint(0,0), BOOL bRedraw = TRUE);
 
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
