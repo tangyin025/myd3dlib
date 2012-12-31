@@ -160,6 +160,8 @@ namespace my
 
 		boost::shared_ptr<std::vector<unsigned char> > m_cache;
 
+		int m_Height;
+
 		float m_LineHeight;
 
 		CharacterMap m_characterMap;
@@ -175,7 +177,9 @@ namespace my
 
 		virtual ~Font(void);
 
-		void SetSize(int height);
+		int GetHeight(void) const { return m_Height; }
+
+		void SetHeight(int height);
 
 		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 

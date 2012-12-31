@@ -671,7 +671,7 @@ void Export2Lua(lua_State * L)
 				value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
-			.def("SetSize", &my::Font::SetSize)
+			.property("Height", &my::Font::GetHeight, &my::Font::SetHeight)
 
 		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
 

@@ -134,7 +134,7 @@ Font::~Font(void)
 	}
 }
 
-void Font::SetSize(int height)
+void Font::SetHeight(int height)
 {
 	_ASSERT(m_face && m_Device);
 
@@ -143,6 +143,8 @@ void Font::SetSize(int height)
 	{
 		THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
 	}
+
+	m_Height = height;
 
 	m_LineHeight = m_face->size->metrics.height / 64.0f;
 
@@ -161,7 +163,7 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 
 	m_Device = pDevice;
 
-	SetSize(height);
+	SetHeight(height);
 }
 
 void Font::CreateFontFromFile(

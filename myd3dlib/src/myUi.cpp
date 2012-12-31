@@ -507,7 +507,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 
 				if(!m_bInsertMode)
 				{
-					int charWidth;
+					float charWidth;
 					if(m_nCaret < (int)m_Text.length())
 					{
 						const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
