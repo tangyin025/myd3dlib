@@ -147,8 +147,6 @@ namespace my
 
 		ControlSkinPtr m_Skin;
 
-		boost::weak_ptr<Control> this_ptr;
-
 	public:
 		Control(void)
 			: m_bEnabled(true)
@@ -204,8 +202,6 @@ namespace my
 
 		UINT GetHotkey(void);
 	};
-
-	typedef boost::shared_ptr<Control> ControlPtr;
 
 	class Static : public Control
 	{
@@ -675,11 +671,13 @@ namespace my
 		}
 	};
 
+	typedef boost::shared_ptr<Control> ControlPtr;
+
+	typedef std::vector<ControlPtr> ControlPtrSet;
+
 	class Dialog : public Control
 	{
 	public:
-		typedef std::vector<ControlPtr> ControlPtrSet;
-
 		ControlPtrSet m_Controls;
 
 		ControlPtr m_ControlMouseOver;

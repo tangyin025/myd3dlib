@@ -140,22 +140,18 @@ namespace my
 
 		struct CharacterInfo
 		{
-			int horiBearingX;
-
-			int horiBearingY;
-
-			int horiAdvance;
-
+			float width;
+			float height;
+			float horiBearingX;
+			float horiBearingY;
+			float horiAdvance;
 			CRect textureRect;
 		};
 
 		typedef stdext::hash_map<int, CharacterInfo> CharacterMap;
 
-		int m_LineHeight;
-
 		FT_Face m_face;
 
-	protected:
 		HRESULT hr;
 
 		CComPtr<IDirect3DDevice9> m_Device;
@@ -164,7 +160,7 @@ namespace my
 
 		boost::shared_ptr<std::vector<unsigned char> > m_cache;
 
-		int m_maxAdvance;
+		float m_LineHeight;
 
 		CharacterMap m_characterMap;
 
@@ -178,6 +174,8 @@ namespace my
 		Font(int font_pixel_gap = 1);
 
 		virtual ~Font(void);
+
+		void SetSize(int height);
 
 		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 
@@ -215,9 +213,11 @@ namespace my
 
 		void InsertCharacter(
 			int character,
-			int horiBearingX,
-			int horiBearingY,
-			int horiAdvance,
+			float width,
+			float height,
+			float horiBearingX,
+			float horiBearingY,
+			float horiAdvance,
 			const unsigned char * bmpBuffer,
 			int bmpWidth,
 			int bmpHeight,

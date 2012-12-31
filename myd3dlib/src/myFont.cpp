@@ -134,6 +134,25 @@ Font::~Font(void)
 	}
 }
 
+void Font::SetSize(int height)
+{
+	_ASSERT(m_face && m_Device);
+
+	FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
+	if(err)
+	{
+		THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
+	}
+
+	m_LineHeight = m_face->size->metrics.height / 64.0f;
+
+	CreateFontTexture(512, 512);
+
+	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+
+	m_characterMap.clear();
+}
+
 void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 {
 	_ASSERT(!m_face && !m_Device);
@@ -142,19 +161,7 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 
 	m_Device = pDevice;
 
-	FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
-	if(err)
-	{
-		THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
-	}
-
-	m_LineHeight = m_face->size->metrics.height >> 6;
-
-	m_maxAdvance = m_face->size->metrics.max_advance >> 6;
-
-	CreateFontTexture(512, 512);
-
-	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+	SetSize(height);
 }
 
 void Font::CreateFontFromFile(
@@ -260,9 +267,11 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 
 void Font::InsertCharacter(
 	int character,
-	int horiBearingX,
-	int horiBearingY,
-	int horiAdvance,
+	float width,
+	float height,
+	float horiBearingX,
+	float horiBearingY,
+	float horiAdvance,
 	const unsigned char * bmpBuffer,
 	int bmpWidth,
 	int bmpHeight,
@@ -271,17 +280,18 @@ void Font::InsertCharacter(
 	_ASSERT(m_characterMap.end() == m_characterMap.find(character));
 
 	CharacterInfo info;
-
-	// Add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
-	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
-
-	::InflateRect(&info.textureRect, -FONT_PIXEL_GAP, -FONT_PIXEL_GAP);
-
+	info.width = width;
+	info.height = height;
 	info.horiBearingX = horiBearingX;
 	info.horiBearingY = horiBearingY;
 	info.horiAdvance = horiAdvance;
 
-	if(!IsRectEmpty(&info.textureRect))
+	// Add pixel gap around each font cell to avoid uv boundaries issue when Antialiasing
+	AssignTextureRect(CSize(bmpWidth + FONT_PIXEL_GAP * 2, bmpHeight + FONT_PIXEL_GAP * 2), info.textureRect);
+
+	info.textureRect.InflateRect(-FONT_PIXEL_GAP, -FONT_PIXEL_GAP);
+
+	if(!info.textureRect.IsRectEmpty())
 	{
 		D3DLOCKED_RECT lr = m_texture->LockRect(info.textureRect);
 		for(int y = 0; y < bmpHeight; y++)
@@ -316,9 +326,11 @@ void Font::LoadCharacter(int character)
 
 	InsertCharacter(
 		character,
-		m_face->glyph->metrics.horiBearingX >> 6,
-		m_face->glyph->metrics.horiBearingY >> 6,
-		m_face->glyph->metrics.horiAdvance >> 6,
+		m_face->glyph->metrics.width / 64.0f,
+		m_face->glyph->metrics.height / 64.0f,
+		m_face->glyph->metrics.horiBearingX / 64.0f,
+		m_face->glyph->metrics.horiBearingY / 64.0f,
+		m_face->glyph->metrics.horiAdvance / 64.0f,
 		m_face->glyph->bitmap.buffer,
 		m_face->glyph->bitmap.width,
 		m_face->glyph->bitmap.rows,
@@ -340,7 +352,7 @@ const Font::CharacterInfo & Font::GetCharacterInfo(int character)
 
 Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 {
-	Vector2 extent(0, (float)m_LineHeight);
+	Vector2 extent(0, m_LineHeight);
 	wchar_t c;
 	while((c = *pString++))
 	{
@@ -401,23 +413,15 @@ void Font::DrawString(
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
-		int CharWidth = info.textureRect.right - info.textureRect.left;
-
-		int CharHeight = info.textureRect.bottom - info.textureRect.top;
-
-		CSize textureSize(
-			m_textureDesc.Width,
-			m_textureDesc.Height);
-
 		Rectangle uv_rect(
-			(float)info.textureRect.left / textureSize.cx,
-			(float)info.textureRect.top / textureSize.cy,
-			(float)info.textureRect.right / textureSize.cx,
-			(float)info.textureRect.bottom / textureSize.cy);
+			(float)info.textureRect.left / m_textureDesc.Width,
+			(float)info.textureRect.top / m_textureDesc.Height,
+			(float)info.textureRect.right / m_textureDesc.Width,
+			(float)info.textureRect.bottom / m_textureDesc.Height);
 
 		// ! frequently calling UIRender::PushVertex may obviously lose performance
 		ui_render->PushRectangle(
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, (float)CharWidth, (float)CharHeight), uv_rect, Color);
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color);
 
 		pen.x += info.horiAdvance;
 	}
