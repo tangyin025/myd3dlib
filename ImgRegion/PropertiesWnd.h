@@ -1,6 +1,34 @@
 
 #pragma once
 
+class CSimpleProp : public CMFCPropertyGridProperty
+{
+public:
+	CSimpleProp(const CString& strGroupName, DWORD_PTR dwData = 0, BOOL bIsValueList = FALSE)
+		: CMFCPropertyGridProperty(strGroupName, dwData, bIsValueList)
+	{
+	}
+
+	CSimpleProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0,
+		LPCTSTR lpszEditMask = NULL, LPCTSTR lpszEditTemplate = NULL, LPCTSTR lpszValidChars = NULL)
+		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData, lpszEditMask, lpszEditTemplate, lpszValidChars)
+	{
+	}
+
+	virtual void SetValue(const COleVariant& varValue);
+};
+
+class CColorProp : public CMFCPropertyGridColorProperty
+{
+public:
+	CColorProp(const CString& strName, const COLORREF& color, CPalette* pPalette = NULL, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
+		: CMFCPropertyGridColorProperty(strName, color, pPalette, lpszDescr, dwData)
+	{
+	}
+
+	void SetColor(COLORREF color);
+};
+
 class CFileProp : public CMFCPropertyGridFileProperty
 {
 public:
@@ -11,13 +39,15 @@ public:
 	}
 
 	virtual void OnClickButton(CPoint point);
+
+	virtual void SetValue(const COleVariant& varValue);
 };
 
-class CSliderProp : public CMFCPropertyGridProperty
+class CSliderProp : public CSimpleProp
 {
 public:
 	CSliderProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
-		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData)
+		: CSimpleProp(strName, varValue, lpszDescr, dwData)
 	{
 	}
 
@@ -45,11 +75,11 @@ public:
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 };
 
-class CComboProp : public CMFCPropertyGridProperty
+class CComboProp : public CSimpleProp
 {
 public:
 	CComboProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
-		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData)
+		: CSimpleProp(strName, varValue, lpszDescr, dwData)
 		, m_iSelIndex(-1)
 	{
 	}
@@ -59,10 +89,14 @@ public:
 	int m_iSelIndex;
 };
 
-class CCheckBoxProp : public CMFCPropertyGridProperty
+class CCheckBoxProp : public CSimpleProp
 {
 public:
-	CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr = NULL, DWORD dwData = 0);
+	CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr = NULL, DWORD dwData = 0)
+		: CSimpleProp(strName, COleVariant((long)bCheck), lpszDescr, dwData)
+	{
+		m_rectCheck.SetRectEmpty();
+	}
 
 protected:
 	virtual BOOL OnEdit(LPPOINT /*lptClick*/) { return FALSE; }

@@ -6,6 +6,55 @@
 #include "ImgRegionDoc.h"
 #include "MainApp.h"
 
+void CSimpleProp::SetValue(const COleVariant& varValue)
+{
+	ASSERT_VALID(this);
+
+	if (m_varValue.vt != VT_EMPTY && m_varValue.vt != varValue.vt)
+	{
+		ASSERT(FALSE);
+		return;
+	}
+
+	BOOL bInPlaceEdit = m_bInPlaceEdit;
+	if (bInPlaceEdit)
+	{
+		OnEndEdit();
+	}
+
+	m_varValue = varValue;
+	//Redraw();
+
+	if (bInPlaceEdit)
+	{
+		ASSERT_VALID(m_pWndList);
+		m_pWndList->EditItem(this);
+	}
+}
+
+void CColorProp::SetColor(COLORREF color)
+{
+	ASSERT_VALID(this);
+
+	m_Color = color;
+	m_varValue = (LONG) color;
+
+	//if (::IsWindow(m_pWndList->GetSafeHwnd()))
+	//{
+	//	CRect rect = m_Rect;
+	//	rect.DeflateRect(0, 1);
+
+	//	m_pWndList->InvalidateRect(rect);
+	//	m_pWndList->UpdateWindow();
+	//}
+
+	if (m_pWndInPlace != NULL)
+	{
+		ASSERT_VALID(m_pWndInPlace);
+		m_pWndInPlace->SetWindowText(FormatProperty());
+	}
+}
+
 void CFileProp::OnClickButton(CPoint point)
 {
 	ASSERT_VALID(this);
@@ -57,6 +106,32 @@ void CFileProp::OnClickButton(CPoint point)
 	else
 	{
 		m_pWndList->SetFocus();
+	}
+}
+
+void CFileProp::SetValue(const COleVariant& varValue)
+{
+	ASSERT_VALID(this);
+
+	if (m_varValue.vt != VT_EMPTY && m_varValue.vt != varValue.vt)
+	{
+		ASSERT(FALSE);
+		return;
+	}
+
+	BOOL bInPlaceEdit = m_bInPlaceEdit;
+	if (bInPlaceEdit)
+	{
+		OnEndEdit();
+	}
+
+	m_varValue = varValue;
+	//Redraw();
+
+	if (bInPlaceEdit)
+	{
+		ASSERT_VALID(m_pWndList);
+		m_pWndList->EditItem(this);
 	}
 }
 
@@ -131,12 +206,6 @@ void CComboProp::OnSelectCombo()
 		m_pWndInPlace->SetWindowText(str);
 		OnUpdateValue();
 	}
-}
-
-CCheckBoxProp::CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr, DWORD dwData) :
-	CMFCPropertyGridProperty(strName, COleVariant((long)bCheck), lpszDescr, dwData)
-{
-	m_rectCheck.SetRectEmpty();
 }
 
 void CCheckBoxProp::OnDrawName(CDC* pDC, CRect rect)
@@ -257,33 +326,33 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	AdjustLayout();
 
-	CMFCPropertyGridProperty * pGroup = new CMFCPropertyGridProperty(_T("外观"));
+	CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
 
 	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), PropertyItemLocked);
 	pGroup->AddSubItem(m_pProp[PropertyItemLocked] = pProp);
 
-	CMFCPropertyGridProperty * pLocal = new CMFCPropertyGridProperty(_T("Local"), PropertyItemLocal, TRUE);
-	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
+	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), PropertyItemLocal, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
 	pLocal->AddSubItem(m_pProp[PropertyItemLocalX] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
 	pLocal->AddSubItem(m_pProp[PropertyItemLocalY] = pProp);
 	pGroup->AddSubItem(m_pProp[PropertyItemLocal] = pLocal);
 
-	pLocal = new CMFCPropertyGridProperty(_T("Size"), PropertyItemSize, TRUE);
-	pProp = new CMFCPropertyGridProperty(_T("w"), (_variant_t)100l, _T("宽度"), PropertyItemSizeW);
+	pLocal = new CSimpleProp(_T("Size"), PropertyItemSize, TRUE);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)100l, _T("宽度"), PropertyItemSizeW);
 	pLocal->AddSubItem(m_pProp[PropertyItemSizeW] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("h"), (_variant_t)100l, _T("高度"), PropertyItemSizeH);
+	pProp = new CSimpleProp(_T("h"), (_variant_t)100l, _T("高度"), PropertyItemSizeH);
 	pLocal->AddSubItem(m_pProp[PropertyItemSizeH] = pProp);
 	pGroup->AddSubItem(m_pProp[PropertyItemSize] = pLocal);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupCoord] = pGroup);
 
-	pGroup = new CMFCPropertyGridProperty(_T("颜色"));
+	pGroup = new CSimpleProp(_T("颜色"));
 
 	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemAlpha] = pProp);
 
-	CMFCPropertyGridColorProperty * pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
+	CColorProp * pColorProp = new CColorProp(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
 	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
@@ -291,22 +360,22 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
 	pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
 
-	pLocal = new CMFCPropertyGridProperty(_T("Border"), PropertyItemBorder, TRUE);
-	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("左边距"), PropertyItemBorderX);
+	pLocal = new CSimpleProp(_T("Border"), PropertyItemBorder, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("左边距"), PropertyItemBorderX);
 	pLocal->AddSubItem(m_pProp[PropertyItemBorderX] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("上边距"), PropertyItemBorderY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("上边距"), PropertyItemBorderY);
 	pLocal->AddSubItem(m_pProp[PropertyItemBorderY] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("z"), (_variant_t)0l, _T("右边距"), PropertyItemBorderZ);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0l, _T("右边距"), PropertyItemBorderZ);
 	pLocal->AddSubItem(m_pProp[PropertyItemBorderZ] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("w"), (_variant_t)0l, _T("下边距"), PropertyItemBorderW);
+	pProp = new CSimpleProp(_T("w"), (_variant_t)0l, _T("下边距"), PropertyItemBorderW);
 	pLocal->AddSubItem(m_pProp[PropertyItemBorderW] = pProp);
 	pGroup->AddSubItem(m_pProp[PropertyItemBorder] = pLocal);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupImage] = pGroup);
 
-	pGroup = new CMFCPropertyGridProperty(_T("字体"));
+	pGroup = new CSimpleProp(_T("字体"));
 
-	pProp = new CMFCPropertyGridProperty(_T("字体"), _T("微软雅黑"), _T("选择字体"), PropertyItemFont);
+	pProp = new CSimpleProp(_T("字体"), _T("微软雅黑"), _T("选择字体"), PropertyItemFont);
 	pProp->AllowEdit(FALSE);
 	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
 	{
@@ -316,7 +385,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
-	pProp = new CMFCPropertyGridProperty(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
+	pProp = new CSimpleProp(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
 	pProp->AddOption(_T("6"));
 	pProp->AddOption(_T("8"));
 	pProp->AddOption(_T("9"));
@@ -334,15 +403,15 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
 	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
 	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
-	pColorProp = new CMFCPropertyGridColorProperty(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
+	pColorProp = new CColorProp(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
 	pColorProp->EnableOtherButton(_T("其他..."));
 	pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
 
 	m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);
 
-	pGroup = new CMFCPropertyGridProperty(_T("文本"));
+	pGroup = new CSimpleProp(_T("文本"));
 
-	pProp = new CMFCPropertyGridProperty(_T("文本"), _T(""), _T("矩形框内的文字描述"), PropertyItemText);
+	pProp = new CSimpleProp(_T("文本"), _T(""), _T("矩形框内的文字描述"), PropertyItemText);
 	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
 
 	pProp = new CComboProp(_T("对齐"), TextAlignDesc[0], _T("文本在矩形框内的对其方式"), PropertyItemTextAlign);
@@ -356,10 +425,10 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	pProp = new CCheckBoxProp(_T("自动换行"), FALSE, _T("文本在矩形框内自动换行"), PropertyItemTextWrap);
 	pGroup->AddSubItem(m_pProp[PropertyItemTextWrap] = pProp);
 
-	pLocal = new CMFCPropertyGridProperty(_T("偏移"), PropertyItemTextOff, TRUE);
-	pProp = new CMFCPropertyGridProperty(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
+	pLocal = new CSimpleProp(_T("偏移"), PropertyItemTextOff, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
 	pLocal->AddSubItem(m_pProp[PropertyItemTextOffX] = pProp);
-	pProp = new CMFCPropertyGridProperty(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
 	pLocal->AddSubItem(m_pProp[PropertyItemTextOffY] = pProp);
 	pGroup->AddSubItem(m_pProp[PropertyItemTextOff] = pLocal);
 
@@ -443,7 +512,7 @@ void CPropertiesWnd::UpdateProperties(void)
 				m_pProp[PropertyItemSizeW]->SetValue((_variant_t)pReg->m_Size.cx);
 				m_pProp[PropertyItemSizeH]->SetValue((_variant_t)pReg->m_Size.cy);
 				m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
-				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
+				((CColorProp *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
 
 				((CFileProp *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
 				m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
@@ -464,13 +533,15 @@ void CPropertiesWnd::UpdateProperties(void)
 				}
 				m_pProp[PropertyItemFontSize]->SetValue(fntSize);
 				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
-				((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
+				((CColorProp *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
 
 				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
 				m_pProp[PropertyItemTextAlign]->SetValue((_variant_t)TextAlignDesc[pReg->m_TextAlign]);
 				m_pProp[PropertyItemTextWrap]->SetValue((_variant_t)(long)pReg->m_TextWrap);
 				m_pProp[PropertyItemTextOffX]->SetValue((_variant_t)pReg->m_TextOff.x);
 				m_pProp[PropertyItemTextOffY]->SetValue((_variant_t)pReg->m_TextOff.y);
+
+				m_wndPropList.Invalidate();
 
 				return;
 			}
@@ -532,7 +603,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 				case PropertyItemAlpha:
 				case PropertyItemRGB:
-					color = ((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemRGB])->GetColor();
+					color = ((CColorProp *)m_pProp[PropertyItemRGB])->GetColor();
 					pReg->m_Color = Gdiplus::Color(
 						(BYTE)my::Clamp(m_pProp[PropertyItemAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
 					break;
@@ -562,7 +633,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 				case PropertyItemFontAlpha:
 				case PropertyItemFontRGB:
-					color = ((CMFCPropertyGridColorProperty *)m_pProp[PropertyItemFontRGB])->GetColor();
+					color = ((CColorProp *)m_pProp[PropertyItemFontRGB])->GetColor();
 					pReg->m_FontColor = Gdiplus::Color(
 						(BYTE)my::Clamp(m_pProp[PropertyItemFontAlpha]->GetValue().lVal, 0l, 255l), GetRValue(color), GetGValue(color), GetBValue(color));
 					break;
