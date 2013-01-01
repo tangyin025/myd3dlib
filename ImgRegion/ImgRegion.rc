@@ -77,17 +77,17 @@ BEGIN
         MENUITEM "状态栏(&S)",                     ID_VIEW_STATUS_BAR
         POPUP "应用程序外观(&A)"
         BEGIN
-            MENUITEM "Windows 2000(&2)",            40001
-            MENUITEM "Office XP(&X)",               40002
-            MENUITEM "Windows XP(&W)",              40003
-            MENUITEM "Office 2003(&3)",             40004
-            MENUITEM "Visual Studio.NET 2005(&5)",  40005
+            MENUITEM "Windows 2000(&2)",            ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office XP(&X)",               ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "Windows XP(&W)",              ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 2003(&3)",             ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio.NET 2005(&5)",  ID_VIEW_APPLOOK_VS_2005
             POPUP "Office 2007(&7)"
             BEGIN
-                MENUITEM "蓝色样式(&B)",                    40006
-                MENUITEM "黑色样式(&L)",                    40007
-                MENUITEM "银色样式(&S)",                    40008
-                MENUITEM "水绿色样式(&A)",                   40009
+                MENUITEM "蓝色样式(&B)",                    ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "黑色样式(&L)",                    ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "银色样式(&S)",                    ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "水绿色样式(&A)",                   ID_VIEW_APPLOOK_OFF_2007_AQUA
             END
         END
     END
