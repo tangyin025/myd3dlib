@@ -55,6 +55,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luabind", "luabind\scripts\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myd3dbox", "myd3dbox\myd3dbox.vcproj", "{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -109,6 +111,10 @@ Global
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.Build.0 = Debug|Win32
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.ActiveCfg = Release|Win32
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
+		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Debug|Win32.ActiveCfg = Debug|Win32
+		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Debug|Win32.Build.0 = Debug|Win32
+		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Release|Win32.ActiveCfg = Release|Win32
+		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
