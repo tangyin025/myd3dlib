@@ -148,11 +148,7 @@ void Font::SetHeight(int height)
 
 	m_LineHeight = m_face->size->metrics.height / 64.0f;
 
-	CreateFontTexture(512, 512);
-
-	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
-
-	m_characterMap.clear();
+	ResetCharacterMap();
 }
 
 void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
@@ -246,6 +242,15 @@ void Font::CreateFontTexture(UINT Width, UINT Height)
 	m_texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
 	m_textureDesc = m_texture->GetLevelDesc();
+}
+
+void Font::ResetCharacterMap(void)
+{
+	CreateFontTexture(512, 512);
+
+	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
+
+	m_characterMap.clear();
 }
 
 void Font::AssignTextureRect(const CSize & size, CRect & outRect)

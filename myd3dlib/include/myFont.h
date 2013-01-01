@@ -213,6 +213,8 @@ namespace my
 
 		void CreateFontTexture(UINT Width, UINT Height);
 
+		void ResetCharacterMap(void);
+
 		void AssignTextureRect(const CSize & size, CRect & outRect);
 
 		void InsertCharacter(
