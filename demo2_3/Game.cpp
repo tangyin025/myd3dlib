@@ -464,17 +464,27 @@ void Timer::OnFrameMove(
 	}
 }
 
+void EffectUIRender::Begin(void)
+{
+	if(m_UIEffect->m_ptr)
+		m_Passes = m_UIEffect->Begin();
+}
+
+void EffectUIRender::End(void)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->End();
+}
+
 void EffectUIRender::SetTexture(my::TexturePtr texture)
 {
-	if(m_UIEffect && m_UIEffect->m_ptr)
-	{
+	if(m_UIEffect->m_ptr)
 		m_UIEffect->SetTexture("g_MeshTexture", texture ? texture->m_ptr : (Game::getSingleton().m_whiteTexture ? Game::getSingleton().m_whiteTexture->m_ptr : NULL));
-	}
 }
 
 void EffectUIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj)
 {
-	if(m_UIEffect && m_UIEffect->m_ptr)
+	if(m_UIEffect->m_ptr)
 	{
 		m_UIEffect->SetMatrix("g_mWorld", world);
 		m_UIEffect->SetMatrix("g_mWorldViewProjection", world * view * proj);
@@ -483,25 +493,22 @@ void EffectUIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, c
 
 void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {
-	CUSTOMVERTEX vertex = { x, y, 0, color, u, v };
-	vertex_list.push_back(vertex);
+	UIRender::PushVertex(x, y, u, v, color);
 }
 
 void EffectUIRender::DrawVertexList(void)
 {
-	if(m_UIEffect && m_UIEffect->m_ptr)
+	if(m_UIEffect->m_ptr)
 	{
-		if(!vertex_list.empty() && m_UIEffect)
+		if(vertex_count > 0)
 		{
-			UINT cPasses = m_UIEffect->Begin();
-			for(UINT p = 0; p < cPasses; p++)
+			for(UINT p = 0; p < m_Passes; p++)
 			{
 				m_UIEffect->BeginPass(p);
 				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(CUSTOMVERTEX)));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
 				m_UIEffect->EndPass();
 			}
-			m_UIEffect->End();
 		}
 	}
 }
@@ -643,9 +650,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_uiRender.reset(new EffectUIRender(pd3dDevice));
-
-	boost::dynamic_pointer_cast<EffectUIRender>(m_uiRender)->m_UIEffect = LoadEffect("UIEffect.fx");
+	m_uiRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
 	m_whiteTexture = LoadTexture("white.bmp");
 

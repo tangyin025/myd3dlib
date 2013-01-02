@@ -73,7 +73,7 @@ void UIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, const M
 
 void UIRender::ClearVertexList(void)
 {
-	vertex_list.clear();
+	vertex_count = 0;
 }
 
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
@@ -81,16 +81,24 @@ void UIRender::ClearVertexList(void)
 
 void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {
-	CUSTOMVERTEX vertex = { ALIGN_UI_UNIT(x), ALIGN_UI_UNIT(y), 0, color, u, v };
-	vertex_list.push_back(vertex);
+	if(vertex_count < _countof(vertex_list))
+	{
+		vertex_list[vertex_count].x = ALIGN_UI_UNIT(x);
+		vertex_list[vertex_count].y = ALIGN_UI_UNIT(y);
+		vertex_list[vertex_count].z = 0;
+		vertex_list[vertex_count].u = u;
+		vertex_list[vertex_count].v = v;
+		vertex_list[vertex_count].color = color;
+		vertex_count++;
+	}
 }
 
 void UIRender::DrawVertexList(void)
 {
-	if(!vertex_list.empty())
+	if(vertex_count > 0)
 	{
 		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(CUSTOMVERTEX)));
+		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
 	}
 }
 

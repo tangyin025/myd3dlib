@@ -23,13 +23,14 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
-		typedef std::vector<CUSTOMVERTEX> CUSTOMVERTEXList;
+		CUSTOMVERTEX vertex_list[2048];
 
-		CUSTOMVERTEXList vertex_list;
+		size_t vertex_count;
 
 	public:
 		UIRender(IDirect3DDevice9 * pd3dDevice)
 			: m_Device(pd3dDevice)
+			, vertex_count(0)
 		{
 		}
 
