@@ -15,6 +15,8 @@ public:
 
 	CMFCStatusBar m_wndStatusBar;
 
+	CComPtr<IDirect3DDevice9> m_d3dDevice;
+
 	DECLARE_MESSAGE_MAP()
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -24,4 +26,6 @@ public:
 	afx_msg void OnApplicationLook(UINT id);
 
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
+
+	afx_msg void OnDestroy();
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <Mmsystem.h>
 #include <dsound.h>
 #include "myException.h"
 #include "myMath.h"

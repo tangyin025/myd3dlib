@@ -17,6 +17,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_VIEW_CUSTOMIZE, &CMainFrame::OnViewCustomize)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -29,6 +30,21 @@ static UINT indicators[] =
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	D3DPRESENT_PARAMETERS d3dpp = {0};
+    d3dpp.Windowed = TRUE;
+    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.hDeviceWindow = m_hWnd;
+
+	HRESULT hres = theApp.m_d3d9->CreateDevice(
+		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &m_d3dDevice);
+	if(FAILED(hres))
+	{
+		my::D3DException e(hres, __FILE__, __LINE__);
+		TRACE(e.GetFullDescription().c_str());
+		return -1;
+	}
+
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -143,4 +159,17 @@ void CMainFrame::OnApplicationLook(UINT id)
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
 	pCmdUI->SetRadio(FALSE);
+}
+
+void CMainFrame::OnDestroy()
+{
+	CFrameWndEx::OnDestroy();
+
+	UINT references = m_d3dDevice.Detach()->Release();
+	if(references > 0)
+	{
+		CString msg;
+		msg.Format(_T("no zero reference count: %u"), references);
+		AfxMessageBox(msg);
+	}
 }

@@ -438,12 +438,12 @@ FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(m_Library, GetD3D9Device(), full_path.c_str(), height);
+			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(m_Library, GetD3D9Device(), cache, height);
+			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
 		}
 	}
 	return ret;
@@ -482,12 +482,22 @@ void EffectUIRender::SetTexture(my::TexturePtr texture)
 		m_UIEffect->SetTexture("g_MeshTexture", texture ? texture->m_ptr : (Game::getSingleton().m_whiteTexture ? Game::getSingleton().m_whiteTexture->m_ptr : NULL));
 }
 
-void EffectUIRender::SetTransform(const Matrix4 & world, const Matrix4 & view, const Matrix4 & proj)
+void EffectUIRender::SetWorld(const Matrix4 & world)
+{
+	m_World = world;
+}
+
+void EffectUIRender::SetView(const Matrix4 & view)
+{
+	m_View = view;
+}
+
+void EffectUIRender::SetProjection(const Matrix4 & proj)
 {
 	if(m_UIEffect->m_ptr)
 	{
-		m_UIEffect->SetMatrix("g_mWorld", world);
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", world * view * proj);
+		m_UIEffect->SetMatrix("g_mWorld", m_World);
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", m_World * m_View * proj);
 	}
 }
 
@@ -550,7 +560,9 @@ void DialogMgr::Draw(
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		ui_render->SetTransform((*dlg_iter)->m_Transform, (*dlg_iter)->m_View, (*dlg_iter)->m_Proj);
+		ui_render->SetWorld((*dlg_iter)->m_Transform);
+		ui_render->SetView((*dlg_iter)->m_View);
+		ui_render->SetProjection((*dlg_iter)->m_Proj);
 		(*dlg_iter)->Draw(ui_render, fElapsedTime);
 	}
 }
@@ -787,16 +799,15 @@ void Game::OnFrameRender(
 
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_UIRender->SetTransform(m_console->m_Transform, m_console->m_View, m_console->m_Proj);
+		m_UIRender->SetWorld(m_console->m_Transform);
+		m_UIRender->SetView(m_console->m_View);
+		m_UIRender->SetProjection(m_console->m_Proj);
+
 		m_console->Draw(m_UIRender.get(), fElapsedTime);
 
 		_ASSERT(m_font);
 
-		Matrix4 View, Proj;
-		D3DVIEWPORT9 vp;
-		pd3dDevice->GetViewport(&vp);
-		UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-		m_UIRender->SetTransform(Matrix4::identity, View, Proj);
+		// ! Use the same world, view, proj as m_console
 		m_font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		m_UIRender->End();

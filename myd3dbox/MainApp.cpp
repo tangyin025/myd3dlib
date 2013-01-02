@@ -37,6 +37,13 @@ BOOL CMainApp::InitInstance(void)
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
+	LPDIRECT3D9 pd3d9 = Direct3DCreate9(D3D_SDK_VERSION);
+	if(NULL == pd3d9)
+	{
+		return FALSE;
+	}
+	m_d3d9.Attach(pd3d9);
+
 	CSingleDocTemplate* pDocTemplate;
 	pDocTemplate = new CSingleDocTemplate(
 		IDR_MAINFRAME,

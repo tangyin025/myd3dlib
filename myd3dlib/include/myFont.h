@@ -114,6 +114,26 @@ namespace my
 		bool AssignRect(const CSize & size, CRect & outRect);
 	};
 
+	class FontLibrary : public Singleton<FontLibrary>
+	{
+	public:
+		FT_Library m_Library;
+
+		FontLibrary(void)
+		{
+			FT_Error err = FT_Init_FreeType(&m_Library);
+			if(err)
+			{
+				THROW_CUSEXCEPTION("FT_Init_FreeType failed");
+			}
+		}
+
+		virtual ~FontLibrary(void)
+		{
+			FT_Done_FreeType(m_Library);
+		}
+	};
+
 	class UIRender;
 
 	class Font : public DeviceRelatedObjectBase
@@ -184,14 +204,12 @@ namespace my
 		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 
 		void CreateFontFromFile(
-			FT_Library Library,
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
 			int height,
 			FT_Long face_index = 0);
 
 		void CreateFontFromFileInMemory(
-			FT_Library Library,
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
@@ -199,7 +217,6 @@ namespace my
 			FT_Long face_index = 0);
 
 		void CreateFontFromFileInCache(
-			FT_Library Library,
 			LPDIRECT3DDEVICE9 pDevice,
 			boost::shared_ptr<std::vector<unsigned char> > cache_ptr,
 			int height,

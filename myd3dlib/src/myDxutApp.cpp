@@ -118,12 +118,6 @@ DxutApp::DxutApp(void)
 	, m_llQPFTicksPerSec(0)
 	, m_llLastElapsedTime(0)
 {
-	FT_Error err = FT_Init_FreeType(&m_Library);
-	if(err)
-	{
-		THROW_CUSEXCEPTION("FT_Init_FreeType failed");
-	}
-
 	LARGE_INTEGER qwTicksPerSec;
 	QueryPerformanceFrequency(&qwTicksPerSec);
 	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
@@ -135,7 +129,6 @@ DxutApp::DxutApp(void)
 
 DxutApp::~DxutApp(void)
 {
-	FT_Error err = FT_Done_FreeType(m_Library);
 }
 
 int DxutApp::Run(void)
