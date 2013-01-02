@@ -365,7 +365,7 @@ public:
 
 	my::FontPtr m_font;
 
-	my::UIRenderPtr m_uiRender;
+	my::UIRenderPtr m_UIRender;
 
 	my::TexturePtr m_whiteTexture;
 

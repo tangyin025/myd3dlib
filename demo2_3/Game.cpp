@@ -650,7 +650,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_uiRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
 	m_whiteTexture = LoadTexture("white.bmp");
 
@@ -748,7 +748,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	m_uiRender.reset();
+	m_UIRender.reset();
 
 	ImeEditBox::Uninitialize();
 
@@ -783,12 +783,12 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		m_uiRender->Begin();
+		m_UIRender->Begin();
 
-		DialogMgr::Draw(m_uiRender.get(), fTime, fElapsedTime);
+		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_uiRender->SetTransform(m_console->m_Transform, m_console->m_View, m_console->m_Proj);
-		m_console->Draw(m_uiRender.get(), fElapsedTime);
+		m_UIRender->SetTransform(m_console->m_Transform, m_console->m_View, m_console->m_Proj);
+		m_console->Draw(m_UIRender.get(), fElapsedTime);
 
 		_ASSERT(m_font);
 
@@ -796,10 +796,10 @@ void Game::OnFrameRender(
 		D3DVIEWPORT9 vp;
 		pd3dDevice->GetViewport(&vp);
 		UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)vp.Width, (float)vp.Height, View, Proj);
-		m_uiRender->SetTransform(Matrix4::identity, View, Proj);
-		m_font->DrawString(m_uiRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		m_UIRender->SetTransform(Matrix4::identity, View, Proj);
+		m_font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
-		m_uiRender->End();
+		m_UIRender->End();
 
 		V(pd3dDevice->EndScene());
 	}
