@@ -350,7 +350,7 @@ public:
 
 	virtual void End(void);
 
-	virtual void SetTexture(my::TexturePtr texture);
+	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 	virtual void SetWorld(const my::Matrix4 & world);
 
@@ -375,7 +375,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::TexturePtr m_whiteTexture;
+	my::TexturePtr m_WhiteTexture;
 
 	my::DialogPtr m_console;
 

@@ -47,7 +47,7 @@ namespace my
 
 		virtual void End(void);
 
-		virtual void SetTexture(TexturePtr texture);
+		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 		virtual void SetWorld(const Matrix4 & world);
 

@@ -29,6 +29,7 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	ASSERT(pFrame);
 
 	LPDIRECT3DDEVICE9 pd3dDevice = pFrame->m_d3dDevice;
+	m_font.CreateFontFromFile(pd3dDevice, "../demo2_3/Media/font/wqy-microhei.ttc", 13);
 
 	return 0;
 }
@@ -52,11 +53,45 @@ void CMainView::OnPaint()
 		LPDIRECT3DDEVICE9 pd3dDevice = pFrame->m_d3dDevice;
 
 		HRESULT hr;
-		CComPtr<IDirect3DSurface9> BackBuffer;
-		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
-		V(pd3dDevice->SetRenderTarget(0, BackBuffer));
+		my::Surface BackBuffer;
+		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+		V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
 		V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+			my::Matrix4 view, proj;
+			my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height, view, proj);
+			my::UIRender ui_render(pd3dDevice);
+			ui_render.SetWorld(my::Matrix4::Identity());
+			ui_render.SetView(view);
+			ui_render.SetProjection(proj);
+
+			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+			V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+			V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
+			V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
+			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
+			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
+			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
+			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+
+			CString strText;
+			strText.Format(_T("%d x %d"), desc.Width, desc.Height);
+			m_font.DrawString(&ui_render, strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
+
+			V(pd3dDevice->EndScene());
+		}
 
 		V(m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0));
 	}

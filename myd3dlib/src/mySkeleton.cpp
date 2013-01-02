@@ -5,10 +5,6 @@
 #include "libc.h"
 #include "myResource.h"
 
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-#endif
-
 using namespace my;
 
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \

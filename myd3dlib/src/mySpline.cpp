@@ -1,10 +1,6 @@
 #include "StdAfx.h"
 #include "mySpline.h"
 
-#ifdef _DEBUG
-#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-#endif
-
 using namespace my;
 
 float SplineNode::Interpolate(const SplineNode & rhs, float s)

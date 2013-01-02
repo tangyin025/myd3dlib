@@ -476,10 +476,11 @@ void EffectUIRender::End(void)
 		m_UIEffect->End();
 }
 
-void EffectUIRender::SetTexture(my::TexturePtr texture)
+void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
+	_ASSERT(Game::getSingleton().m_WhiteTexture);
 	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", texture ? texture->m_ptr : (Game::getSingleton().m_whiteTexture ? Game::getSingleton().m_whiteTexture->m_ptr : NULL));
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTexture->m_ptr);
 }
 
 void EffectUIRender::SetWorld(const Matrix4 & world)
@@ -664,7 +665,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
-	m_whiteTexture = LoadTexture("white.bmp");
+	m_WhiteTexture = LoadTexture("white.bmp");
 
 	ExecuteCode("dofile \"Console.lua\"");
 

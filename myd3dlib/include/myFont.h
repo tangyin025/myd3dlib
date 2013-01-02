@@ -186,7 +186,7 @@ namespace my
 
 		CharacterMap m_characterMap;
 
-		TexturePtr m_texture;
+		Texture m_Texture;
 
 		D3DSURFACE_DESC m_textureDesc;
 
