@@ -135,7 +135,6 @@ typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
 class LoaderMgr
 	: public my::ResourceMgr
 	, public ID3DXInclude
-	, virtual public my::DxutApp
 {
 protected:
 	std::map<LPCVOID, my::CachePtr> m_cacheSet;
@@ -208,7 +207,6 @@ public:
 };
 
 class DialogMgr
-	: virtual public my::DxutApp
 {
 public:
 	typedef std::vector<my::DialogPtr> DialogPtrSet;
@@ -364,7 +362,8 @@ public:
 };
 
 class Game
-	: public LoaderMgr
+	: public my::DxutApp
+	, public LoaderMgr
 	, public DialogMgr
 	, public TimerMgr
 {
@@ -400,6 +399,16 @@ public:
 
 	virtual ~Game(void);
 
+	static Game & getSingleton(void)
+	{
+		return *getSingletonPtr();
+	}
+
+	static Game * getSingletonPtr(void)
+	{
+		return static_cast<Game *>(DxutApp::getSingletonPtr());
+	}
+
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
 		m_panel->AddLine(str, Color);
@@ -408,16 +417,6 @@ public:
 	void puts(const std::wstring & str)
 	{
 		m_panel->puts(str);
-	}
-
-	static Game & getSingleton(void)
-	{
-		return *getSingletonPtr();
-	}
-
-	static Game * getSingletonPtr(void)
-	{
-		return dynamic_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
 	virtual bool IsDeviceAcceptable(

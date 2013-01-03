@@ -909,7 +909,6 @@ void Export2Lua(lua_State * L)
 				def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString),
 				def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
 			]
-			.def("GetAbsoluteTime", &my::DxutApp::GetAbsoluteTime)
 			.def("GetD3D9DeviceSettings", &my::DxutApp::GetD3D9DeviceSettings)
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)
 			.def("ToggleREF", &my::DxutApp::ToggleREF)
@@ -925,12 +924,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventTimer", &Timer::m_EventTimer)
 			.def("OnFrameMove", &Timer::OnFrameMove)
 
-		, class_<TimerMgr>("TimerMgr")
-			.def("InsertTimer", &TimerMgr::InsertTimer)
-			.def("RemoveTimer", &TimerMgr::RemoveTimer)
-			.def("RemoveAllTimer", &TimerMgr::RemoveAllTimer)
-
-		, class_<LoaderMgr, my::DxutApp>("LoaderMgr")
+		, class_<LoaderMgr>("LoaderMgr")
 			.def("LoadTexture", &LoaderMgr::LoadTexture)
 			.def("LoadCubeTexture", &LoaderMgr::LoadCubeTexture)
 			.def("LoadMesh", &LoaderMgr::LoadMesh)
@@ -945,12 +939,17 @@ void Export2Lua(lua_State * L)
 			.def("LoadEffect", &HelpFunc::LoaderMgr_LoadEffect)
 			.def("LoadFont", &HelpFunc::LoaderMgr_LoadFont)
 
-		, class_<DialogMgr, my::DxutApp>("DialogMgr")
+		, class_<DialogMgr>("DialogMgr")
 			.def("InsertDlg", &DialogMgr::InsertDlg)
 			.def("RemoveDlg", &DialogMgr::RemoveDlg)
 			.def("RemoveAllDlg", &DialogMgr::RemoveAllDlg)
 
-		, class_<Game, bases<LoaderMgr, DialogMgr, TimerMgr> >("Game")
+		, class_<TimerMgr>("TimerMgr")
+			.def("InsertTimer", &TimerMgr::InsertTimer)
+			.def("RemoveTimer", &TimerMgr::RemoveTimer)
+			.def("RemoveAllTimer", &TimerMgr::RemoveAllTimer)
+
+		, class_<Game, bases<my::DxutApp, LoaderMgr, DialogMgr, TimerMgr> >("Game")
 			.def_readwrite("font", &Game::m_font)
 			.def_readwrite("console", &Game::m_console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr

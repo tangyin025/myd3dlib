@@ -481,7 +481,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			}
 		}
 
-		double fAbsoluteTime = DxutApp::getSingleton().GetAbsoluteTime();
+		double fAbsoluteTime = Clock::getSingleton().m_fAbsoluteTime;
 		if(fAbsoluteTime - m_dfLastBlink >= m_dfBlink )
 		{
 			m_bCaretOn = !m_bCaretOn;
@@ -918,7 +918,7 @@ void EditBox::PlaceCaret(int nCP)
 void EditBox::ResetCaretBlink(void)
 {
 	m_bCaretOn = true;
-	m_dfLastBlink = DxutApp::getSingleton().GetAbsoluteTime();
+	m_dfLastBlink = Clock::getSingleton().m_fAbsoluteTime;
 }
 
 void EditBox::DeleteSelectionText(void)
@@ -1276,7 +1276,7 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
     // scroll.
 	if(m_Arrow != CLEAR)
 	{
-		double dCurrTime = DxutApp::getSingleton().GetAbsoluteTime();
+		double dCurrTime = Clock::getSingleton().m_fAbsoluteTime;
 		switch(m_Arrow)
 		{
 		case CLICKED_UP:
@@ -1381,7 +1381,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
-				m_dArrowTS = DxutApp::getSingleton().GetAbsoluteTime();
+				m_dArrowTS = Clock::getSingleton().m_fAbsoluteTime;
 				return true;
 			}
 
@@ -1391,7 +1391,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
-				m_dArrowTS = DxutApp::getSingleton().GetAbsoluteTime();
+				m_dArrowTS = Clock::getSingleton().m_fAbsoluteTime;
 				return true;
 			}
 
@@ -1896,6 +1896,8 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
+boost::weak_ptr<Control> Dialog::m_ControlFocus;
+
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
@@ -1915,7 +1917,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(!m_bEnabled || !m_bVisible)
 		return false;
 
-	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = m_ControlFocus.lock();
 
 	if(ControlFocus
 		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
@@ -2013,7 +2015,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt.xy))
 				{
 					ControlFocus->OnFocusOut();
-					DxutApp::getSingleton().m_ControlFocus.reset();
+					m_ControlFocus.reset();
 				}
 
 				if(HandleMouse(uMsg, pt.xy, wParam, lParam))
@@ -2078,12 +2080,12 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if(!(m_bVisible = bVisible))
 	{
-		ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
+		ControlPtr ControlFocus = m_ControlFocus.lock();
 		if(ControlFocus && ContainsControl(ControlFocus))
 		{
 			ControlFocus->OnFocusOut();
 
-			DxutApp::getSingleton().m_ControlFocus.reset();
+			m_ControlFocus.reset();
 		}
 	}
 	else
@@ -2124,7 +2126,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	if(!control->CanHaveFocus())
 		return;
 
-	ControlPtr ControlFocus = DxutApp::getSingleton().m_ControlFocus.lock();
+	ControlPtr ControlFocus = m_ControlFocus.lock();
 	if(ControlFocus)
 	{
 		if(ControlFocus == control)
@@ -2134,7 +2136,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	}
 
 	control->OnFocusIn();
-	DxutApp::getSingleton().m_ControlFocus = control;
+	m_ControlFocus = control;
 }
 
 void Dialog::ForceFocusControl(void)

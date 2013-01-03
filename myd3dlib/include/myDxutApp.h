@@ -36,14 +36,41 @@ namespace my
 
 	typedef boost::shared_ptr<DxutWindow> DxutWindowPtr;
 
-	class DxutApp
-		: public Application
-		, public SingleInstance<DxutApp>
-		, public CD3D9Enumeration
+	class Clock
+		: public SingleInstance<Clock>
 	{
 	public:
-		boost::weak_ptr<Control> m_ControlFocus; // ! UI dependency
+		LONGLONG m_llQPFTicksPerSec;
 
+		LONGLONG m_llLastElapsedTime;
+
+		double m_fAbsoluteTime;
+
+		float m_fElapsedTime;
+
+		Clock(void)
+			: m_llQPFTicksPerSec(0)
+			, m_llLastElapsedTime(0)
+			, m_fAbsoluteTime(0)
+			, m_fElapsedTime(0)
+		{
+			LARGE_INTEGER qwTicksPerSec;
+			QueryPerformanceFrequency(&qwTicksPerSec);
+			m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
+
+			//LARGE_INTEGER qwTime;
+			//QueryPerformanceCounter(&qwTime);
+			//m_llLastElapsedTime = qwTime.QuadPart;
+		}
+
+		void Update(void);
+	};
+
+	class DxutApp
+		: public Clock
+		, public Application
+		, public CD3D9Enumeration
+	{
 	protected:
 		HRESULT hr;
 
@@ -77,26 +104,35 @@ namespace my
 
 		bool m_DeviceLost;
 
-		double m_fAbsoluteTime;
-
 		double m_fLastTime;
 
 		DWORD m_dwFrames;
 
 		wchar_t m_strFPS[64];
 
-		LONGLONG m_llQPFTicksPerSec;
-
-		LONGLONG m_llLastElapsedTime;
-
 	public:
 		DxutApp(void);
 
 		virtual ~DxutApp(void);
 
-		double GetAbsoluteTime(void)
+		static DxutApp & getSingleton(void)
 		{
-			return m_fAbsoluteTime;
+			return *getSingletonPtr();
+		}
+
+		static DxutApp * getSingletonPtr(void)
+		{
+			return static_cast<DxutApp *>(Clock::getSingletonPtr());
+		}
+
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return m_d3dDevice;
+		}
+
+		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
+		{
+			return m_BackBufferSurfaceDesc;
 		}
 
 		DXUTD3D9DeviceSettings GetD3D9DeviceSettings(void)

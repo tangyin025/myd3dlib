@@ -685,6 +685,8 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
+		static boost::weak_ptr<Control> m_ControlFocus;
+
 		ControlPtrSet m_Controls;
 
 		ControlPtr m_ControlMouseOver;

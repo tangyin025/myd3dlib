@@ -110,7 +110,19 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return FALSE;
 }
 
-DxutApp::SingleInstance * SingleInstance<DxutApp>::s_ptr = NULL;
+void Clock::Update(void)
+{
+	LARGE_INTEGER qwTime;
+	QueryPerformanceCounter(&qwTime);
+
+	m_fAbsoluteTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
+
+	m_fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
+
+	m_llLastElapsedTime = qwTime.QuadPart;
+}
+
+Clock::SingleInstance * SingleInstance<Clock>::s_ptr = NULL;
 
 DxutApp::DxutApp(void)
 	: m_DeviceObjectsCreated(false)
@@ -121,19 +133,9 @@ DxutApp::DxutApp(void)
 	, m_WindowBackBufferHeightAtModeChange(600)
 	, m_IgnoreSizeChange(false)
 	, m_DeviceLost(false)
-	, m_fAbsoluteTime(0)
 	, m_fLastTime(0)
 	, m_dwFrames(0)
-	, m_llQPFTicksPerSec(0)
-	, m_llLastElapsedTime(0)
 {
-	LARGE_INTEGER qwTicksPerSec;
-	QueryPerformanceFrequency(&qwTicksPerSec);
-	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
-
-	//LARGE_INTEGER qwTime;
-	//QueryPerformanceCounter(&qwTime);
-	//m_llLastElapsedTime = qwTime.QuadPart;
 }
 
 DxutApp::~DxutApp(void)
@@ -1839,15 +1841,7 @@ void DxutApp::Render3DEnvironment(void)
 		m_DeviceLost = false;
 	}
 
-	LARGE_INTEGER qwTime;
-	QueryPerformanceCounter(&qwTime);
-	double fTime = qwTime.QuadPart / (double)m_llQPFTicksPerSec;
-
-	float fElapsedTime = (float)((qwTime.QuadPart - m_llLastElapsedTime) / (double)m_llQPFTicksPerSec);
-
-	m_llLastElapsedTime = qwTime.QuadPart;
-
-	m_fAbsoluteTime = fTime;
+	Clock::Update();
 
 	m_dwFrames++;
 
@@ -1859,9 +1853,9 @@ void DxutApp::Render3DEnvironment(void)
 		m_dwFrames = 0;
 	}
 
-	OnFrameMove(fTime, fElapsedTime);
+	OnFrameMove(m_fAbsoluteTime, m_fElapsedTime);
 
-	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+	OnFrameRender(m_d3dDevice, m_fAbsoluteTime, m_fElapsedTime);
 
 	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
 	{

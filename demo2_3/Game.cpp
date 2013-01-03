@@ -326,12 +326,12 @@ TexturePtr LoaderMgr::LoadTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateTextureFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str());
+			ret->CreateTextureFromFile(my::DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateTextureFromFileInMemory(m_d3dDevice, &(*cache)[0], cache->size());
+			ret->CreateTextureFromFileInMemory(my::DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -346,12 +346,12 @@ CubeTexturePtr LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateCubeTextureFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str());
+			ret->CreateCubeTextureFromFile(my::DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateCubeTextureFromFileInMemory(m_d3dDevice, &(*cache)[0], cache->size());
+			ret->CreateCubeTextureFromFileInMemory(my::DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -366,12 +366,12 @@ OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(m_d3dDevice, full_path.c_str(), true);
+			ret->CreateMeshFromOgreXml(my::DxutApp::getSingleton().GetD3D9Device(), full_path.c_str(), true);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateMeshFromOgreXmlInMemory(m_d3dDevice, (char *)&(*cache)[0], cache->size(), true);
+			ret->CreateMeshFromOgreXmlInMemory(my::DxutApp::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 		}
 	}
 	return ret;
@@ -418,12 +418,12 @@ EffectPtr LoaderMgr::LoadEffect(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(my::DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateEffect(m_d3dDevice, &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+			ret->CreateEffect(my::DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 		}
 	}
 	return ret;
@@ -438,12 +438,12 @@ FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(m_d3dDevice, full_path.c_str(), height);
+			ret->CreateFontFromFile(my::DxutApp::getSingleton().GetD3D9Device(), full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(m_d3dDevice, cache, height);
+			ret->CreateFontFromFileInCache(my::DxutApp::getSingleton().GetD3D9Device(), cache, height);
 		}
 	}
 	return ret;
@@ -547,9 +547,11 @@ void DialogMgr::OnAlign(void)
 
 void DialogMgr::UpdateDlgViewProj(DialogPtr dlg)
 {
+	const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+
 	if(dlg->EventAlign)
 		dlg->EventAlign(EventArgsPtr(
-			new AlignEventArgs(Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height))));
+			new AlignEventArgs(Vector2((float)desc.Width, (float)desc.Height))));
 }
 
 void DialogMgr::Draw(
