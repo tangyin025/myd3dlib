@@ -14,6 +14,7 @@ namespace my
 {
 	class DxutWindow
 		: public Window
+		, public SingleInstance<DxutWindow>
 	{
 	protected:
 		bool m_Minimized;
@@ -92,26 +93,6 @@ namespace my
 		DxutApp(void);
 
 		virtual ~DxutApp(void);
-
-		HWND GetHWND(void)
-		{
-			return m_wnd->m_hWnd;
-		}
-
-		IDirect3D9 * GetD3D9(void)
-		{
-			return m_d3d9;
-		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return m_d3dDevice;
-		}
-
-		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
-		{
-			return m_BackBufferSurfaceDesc;
-		}
 
 		double GetAbsoluteTime(void)
 		{

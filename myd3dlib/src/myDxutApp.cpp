@@ -5,6 +5,8 @@
 
 using namespace my;
 
+DxutWindow::SingleInstance * SingleInstance<DxutWindow>::s_ptr = NULL;
+
 BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
 {
 	switch(dwMsgMapID)
@@ -79,11 +81,22 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 			}
 			break;
 
+		case WM_LBUTTONUP:
+			ReleaseCapture();
+			// goto default
+			
 		default:
 			bool bNoFurtherProcessing = false;
 			lResult = DxutApp::getSingleton().MsgProc(hWnd, uMsg, wParam, lParam, &bNoFurtherProcessing);
 			if(bNoFurtherProcessing)
 			{
+				switch(uMsg)
+				{
+				case WM_LBUTTONDOWN:
+				case WM_LBUTTONDBLCLK:
+					SetCapture();
+					break;
+				}
 				return TRUE;
 			}
 		}
@@ -199,7 +212,7 @@ HRESULT DxutApp::DXUTFindValidD3D9DeviceSettings(
     D3DDISPLAYMODE adapterDesktopDisplayMode;
 
 	if( !HasEnumerated() )
-		Enumerate( m_d3d9, GetHWND() );
+		Enumerate( m_d3d9, m_wnd->m_hWnd );
 
     CGrowableArray <CD3D9EnumAdapterInfo*>* pAdapterList = GetAdapterInfoList();
     for( int iAdapter = 0; iAdapter < pAdapterList->GetSize(); iAdapter++ )
@@ -1248,7 +1261,7 @@ void DxutApp::DXUTBuildValidD3D9DeviceSettings(
 	pValidDeviceSettings->pp.MultiSampleType = bestMultiSampleType;
 	pValidDeviceSettings->pp.MultiSampleQuality = bestMultiSampleQuality;
 	pValidDeviceSettings->pp.SwapEffect = bestSwapEffect;
-	pValidDeviceSettings->pp.hDeviceWindow = GetHWND();
+	pValidDeviceSettings->pp.hDeviceWindow = m_wnd->m_hWnd;
 	pValidDeviceSettings->pp.Windowed = pBestDeviceSettingsCombo->Windowed;
 	pValidDeviceSettings->pp.EnableAutoDepthStencil = bestEnableAutoDepthStencil;
 	pValidDeviceSettings->pp.AutoDepthStencilFormat = bestDepthStencilFormat;
@@ -1742,7 +1755,7 @@ HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettin
 	if(FAILED(hr = m_d3d9->CreateDevice(
 		deviceSettings.AdapterOrdinal,
 		deviceSettings.DeviceType,
-		GetHWND(),
+		m_wnd->m_hWnd,
 		deviceSettings.BehaviorFlags,
 		const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp),
 		&m_d3dDevice)))

@@ -412,9 +412,6 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
-
-				SetCapture(DxutApp::getSingleton().GetHWND());
-
 				return true;
 			}
 			break;
@@ -431,7 +428,6 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 					if(EventClick)
 						EventClick(EventArgsPtr(new EventArgs));
 				}
-
 				return true;
 			}
 			break;
@@ -777,8 +773,6 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if(ContainsPoint(pt))
 			{
 				m_bMouseDrag = true;
-
-				SetCapture(DxutApp::getSingleton().GetHWND());
 
 				if(m_Skin && m_Skin->m_Font)
 				{
@@ -1384,7 +1378,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(UpButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
@@ -1395,7 +1388,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
 			if(DownButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
@@ -1411,7 +1403,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
 			if(ThumbButtonRect.PtInRect(pt))
 			{
-				SetCapture(DxutApp::getSingleton().GetHWND());
 				m_bDrag = true;
 				m_fThumbOffsetY = pt.y - fThumbTop;
 				return true;
@@ -1419,7 +1410,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
 			{
-				SetCapture(DxutApp::getSingleton().GetHWND());
 				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
@@ -1542,9 +1532,6 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
-
-				SetCapture(DxutApp::getSingleton().GetHWND());
-
 				return true;
 			}
 			break;
@@ -1563,7 +1550,6 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					if(EventClick)
 						EventClick(EventArgsPtr(new EventArgs));
 				}
-
 				return true;
 			}
 			break;
@@ -1709,7 +1695,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 						if(ItemRect.PtInRect(pt))
 						{
 							m_iFocused = i;
-
 							break;
 						}
 					}
@@ -1723,11 +1708,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
-
-				SetCapture(DxutApp::getSingleton().GetHWND());
-
 				m_bOpened = !m_bOpened;
-
 				return true;
 			}
 
@@ -2069,9 +2050,6 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if(ContainsPoint(pt))
 			{
 				m_bMouseDrag = true;
-
-				SetCapture(DxutApp::getSingleton().GetHWND());
-
 				m_MouseOffset = pt - m_Location;
 				return true;
 			}

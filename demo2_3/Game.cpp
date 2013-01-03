@@ -326,12 +326,12 @@ TexturePtr LoaderMgr::LoadTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateTextureFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+			ret->CreateTextureFromFileInMemory(m_d3dDevice, &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -346,12 +346,12 @@ CubeTexturePtr LoaderMgr::LoadCubeTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateCubeTextureFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+			ret->CreateCubeTextureFromFileInMemory(m_d3dDevice, &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -366,12 +366,12 @@ OgreMeshPtr LoaderMgr::LoadMesh(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+			ret->CreateMeshFromOgreXml(m_d3dDevice, full_path.c_str(), true);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+			ret->CreateMeshFromOgreXmlInMemory(m_d3dDevice, (char *)&(*cache)[0], cache->size(), true);
 		}
 	}
 	return ret;
@@ -418,12 +418,12 @@ EffectPtr LoaderMgr::LoadEffect(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(m_d3dDevice, ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+			ret->CreateEffect(m_d3dDevice, &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 		}
 	}
 	return ret;
@@ -438,12 +438,12 @@ FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+			ret->CreateFontFromFile(m_d3dDevice, full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
+			ret->CreateFontFromFileInCache(m_d3dDevice, cache, height);
 		}
 	}
 	return ret;
@@ -547,10 +547,9 @@ void DialogMgr::OnAlign(void)
 
 void DialogMgr::UpdateDlgViewProj(DialogPtr dlg)
 {
-	const D3DSURFACE_DESC & desc = GetD3D9BackBufferSurfaceDesc();
-
 	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2((float)desc.Width, (float)desc.Height))));
+		dlg->EventAlign(EventArgsPtr(
+			new AlignEventArgs(Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height))));
 }
 
 void DialogMgr::Draw(
@@ -659,7 +658,7 @@ HRESULT Game::OnCreateDevice(
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	ImeEditBox::Initialize(GetHWND());
+	ImeEditBox::Initialize(m_wnd->m_hWnd);
 
 	ImeEditBox::EnableImeSystem(false);
 
@@ -689,18 +688,18 @@ HRESULT Game::OnCreateDevice(
 
 		m_keyboard.reset(new Keyboard());
 		m_keyboard->CreateKeyboard(m_input->m_ptr);
-		m_keyboard->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+		m_keyboard->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
 		m_mouse.reset(new Mouse());
 		m_mouse->CreateMouse(m_input->m_ptr);
-		m_mouse->SetCooperativeLevel(GetHWND(), DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 	}
 
 	if(!m_sound)
 	{
 		m_sound.reset(new Sound());
 		m_sound->CreateSound();
-		m_sound->SetCooperativeLevel(GetHWND(), DSSCL_PRIORITY);
+		m_sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
 	SetState("GameStateLoad", GameStateBasePtr(new GameStateLoad()));
@@ -971,7 +970,7 @@ void Game::SafeCreateState(GameStateBasePtr state)
 	if(state)
 	{
 		_ASSERT(!state->m_DeviceObjectsCreated);
-		state->OnCreateDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+		state->OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc);
 		state->m_DeviceObjectsCreated = true;
 	}
 }
@@ -981,7 +980,7 @@ void Game::SafeResetState(GameStateBasePtr state)
 	if(state && state->m_DeviceObjectsCreated && m_DeviceObjectsCreated)
 	{
 		_ASSERT(!state->m_DeviceObjectsReset);
-		state->OnResetDevice(GetD3D9Device(), &m_BackBufferSurfaceDesc);
+		state->OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc);
 		state->m_DeviceObjectsReset = true;
 	}
 }

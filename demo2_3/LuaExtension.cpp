@@ -157,7 +157,7 @@ static int loader_Lua (lua_State *L) {
 
 static int os_exit(lua_State * L)
 {
-	HWND hwnd = my::DxutApp::getSingleton().GetHWND();
+	HWND hwnd = my::DxutWindow::getSingleton().m_hWnd;
 	_ASSERT(NULL != hwnd);
 	SendMessage(hwnd, WM_CLOSE, 0, 0);
 	return 0;
