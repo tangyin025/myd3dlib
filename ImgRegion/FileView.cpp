@@ -235,7 +235,9 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 	}
 
 	std::wstring key(GetItemText(hOtherItem));
-	HTREEITEM hItem = CTreeCtrl::InsertItem(key.c_str(), hParent, hInsertAfter);
+	int nImage, nSelectedImage;
+	GetItemImage(hOtherItem, nImage, nSelectedImage);
+	HTREEITEM hItem = CTreeCtrl::InsertItem(key.c_str(), nImage, nSelectedImage, hParent, hInsertAfter);
 	SetItemData(hItem, GetItemData(hOtherItem));
 
 	HTREEITEM hNextOtherChild = NULL;

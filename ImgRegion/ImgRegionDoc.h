@@ -276,6 +276,8 @@ class CImgRegionDoc
 public:
 	CImgRegionTreeCtrl m_TreeCtrl;
 
+	CImageList m_TreeImageList;
+
 	HistoryPtrList m_HistoryList;
 
 	DWORD m_HistoryStep;

@@ -178,6 +178,8 @@ void HistoryDelRegion::Undo(void)
 	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
 	ar.Close();
 
+	if(pReg->m_Locked)
+		m_pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
 	m_pDoc->m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 }
 
@@ -309,6 +311,19 @@ BOOL CImgRegionDoc::CreateTreeCtrl(void)
 		return FALSE;
 	}
 
+	CBitmap bmp;
+	if (!bmp.LoadBitmap(IDB_BITMAP2))
+	{
+		TRACE0("bmp.LoadBitmap failed \n");
+		return FALSE;
+	}
+	BITMAP bmpObj;
+	bmp.GetBitmap(&bmpObj);
+
+	m_TreeImageList.Create(16, bmpObj.bmHeight, ILC_MASK | ILC_COLOR24, 0, 0);
+	m_TreeImageList.Add(&bmp, RGB(255,0,255));
+	m_TreeCtrl.SetImageList(&m_TreeImageList, TVSIL_NORMAL);
+
 	return TRUE;
 }
 
@@ -324,6 +339,8 @@ void CImgRegionDoc::DestroyTreeCtrl(void)
 
 	ASSERT(m_TreeCtrl.m_ItemMap.empty());
 	m_TreeCtrl.DestroyWindow();
+
+	m_TreeImageList.DeleteImageList();
 }
 
 HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & ptLocal)
@@ -546,6 +563,8 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent,
 
 			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
 
+			if(pReg->m_Locked)
+				m_TreeCtrl.SetItemImage(hItem, 1, 1);
 			m_TreeCtrl.Expand(hItem, TVE_EXPAND);
 		}
 	}
