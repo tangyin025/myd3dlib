@@ -1761,8 +1761,7 @@ HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettin
 
 	m_DeviceObjectsCreated = true;
 
-	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock))
-		|| FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -1776,7 +1775,6 @@ HRESULT DxutApp::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSetting
 {
 	if(m_DeviceObjectsReset)
 	{
-		m_StateBlock.Release();
 		OnLostDevice();
 		m_DeviceObjectsReset = false;
 	}
@@ -1790,10 +1788,8 @@ HRESULT DxutApp::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSetting
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	if(FAILED(hr = m_d3dDevice->CreateStateBlock(D3DSBT_ALL, &m_StateBlock))
-		|| FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
-		m_StateBlock.Release();
 		OnLostDevice();
 		return hr;
 	}
@@ -1867,7 +1863,6 @@ void DxutApp::Cleanup3DEnvironment(void)
 {
 	if(m_DeviceObjectsReset)
 	{
-		m_StateBlock.Release();
 		OnLostDevice();
 		m_DeviceObjectsReset = false;
 	}

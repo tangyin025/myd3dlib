@@ -30,7 +30,10 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 
 void UIRender::Begin(void)
 {
-	V(DxutApp::getSingleton().m_StateBlock->Capture());
+	if(!m_StateBlock)
+		V(m_Device->BeginStateBlock());
+	else
+		V(m_StateBlock->Capture());
 
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
@@ -48,11 +51,15 @@ void UIRender::Begin(void)
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+
+	if(!m_StateBlock)
+		V(m_Device->EndStateBlock(&m_StateBlock));
 }
 
 void UIRender::End(void)
 {
-	V(DxutApp::getSingleton().m_StateBlock->Apply());
+	_ASSERT(m_StateBlock);
+		V(m_StateBlock->Apply());
 }
 
 void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)

@@ -41,8 +41,6 @@ namespace my
 		, public CD3D9Enumeration
 	{
 	public:
-		CComPtr<IDirect3DStateBlock9> m_StateBlock; // ! UI dependency
-
 		boost::weak_ptr<Control> m_ControlFocus; // ! UI dependency
 
 	protected:

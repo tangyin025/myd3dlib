@@ -68,28 +68,13 @@ void CMainView::OnPaint()
 			ui_render.SetWorld(my::Matrix4::Identity());
 			ui_render.SetView(view);
 			ui_render.SetProjection(proj);
-
-			V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
-			V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
-			V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-			V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
-			V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
-			V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR));
-			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR));
-			V(pd3dDevice->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, 0));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLOROP, D3DTOP_MODULATE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_TEXTURE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_COLORARG2, D3DTA_DIFFUSE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
-			V(pd3dDevice->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
+			ui_render.Begin();
 
 			CString strText;
 			strText.Format(_T("%d x %d"), desc.Width, desc.Height);
 			m_font.DrawString(&ui_render, strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
 
+			ui_render.End();
 			V(pd3dDevice->EndScene());
 		}
 

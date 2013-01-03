@@ -23,6 +23,8 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		CComPtr<IDirect3DStateBlock9> m_StateBlock;
+
 		CUSTOMVERTEX vertex_list[2048];
 
 		size_t vertex_count;
