@@ -182,6 +182,8 @@ namespace my
 
 		int m_Height;
 
+		my::Vector2 m_Scale;
+
 		float m_LineHeight;
 
 		CharacterMap m_characterMap;
@@ -193,13 +195,17 @@ namespace my
 		RectAssignmentNodePtr m_textureRectRoot;
 
 	public:
-		Font(int font_pixel_gap = 1);
+		Font(int font_pixel_gap = 1)
+			: m_face(NULL)
+			, FONT_PIXEL_GAP(font_pixel_gap)
+		{
+		}
 
 		virtual ~Font(void);
 
-		int GetHeight(void) const { return m_Height; }
+		const Vector2 & GetScale(void) const { return m_Scale; }
 
-		void SetHeight(int height);
+		void SetScale(const Vector2 & scale);
 
 		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 
@@ -230,8 +236,6 @@ namespace my
 
 		void CreateFontTexture(UINT Width, UINT Height);
 
-		void ResetCharacterMap(void);
-
 		void AssignTextureRect(const CSize & size, CRect & outRect);
 
 		void InsertCharacter(
@@ -251,6 +255,8 @@ namespace my
 		const CharacterInfo & GetCharacterInfo(int character);
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
+
+		static float CalculateAlignedValue(float value, float scale);
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
 

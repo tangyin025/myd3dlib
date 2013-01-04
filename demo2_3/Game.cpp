@@ -504,7 +504,16 @@ void EffectUIRender::SetProjection(const Matrix4 & proj)
 
 void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {
-	UIRender::PushVertex(x, y, u, v, color);
+	if(vertex_count < _countof(vertex_list))
+	{
+		vertex_list[vertex_count].x = x;
+		vertex_list[vertex_count].y = y;
+		vertex_list[vertex_count].z = 0;
+		vertex_list[vertex_count].u = u;
+		vertex_list[vertex_count].v = v;
+		vertex_list[vertex_count].color = color;
+		vertex_count++;
+	}
 }
 
 void EffectUIRender::DrawVertexList(void)

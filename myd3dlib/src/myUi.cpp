@@ -30,10 +30,22 @@ void UIRender::BuildPerspectiveMatrices(float fovy, float Width, float Height, M
 
 void UIRender::Begin(void)
 {
-	if(!m_StateBlock)
-		V(m_Device->BeginStateBlock());
-	else
-		V(m_StateBlock->Capture());
+	V(m_Device->GetRenderState(D3DRS_CULLMODE, &State[0]));
+	V(m_Device->GetRenderState(D3DRS_LIGHTING, &State[1]));
+	V(m_Device->GetRenderState(D3DRS_ALPHABLENDENABLE, &State[2]));
+	V(m_Device->GetRenderState(D3DRS_SRCBLEND, &State[3]));
+	V(m_Device->GetRenderState(D3DRS_DESTBLEND, &State[4]));
+	V(m_Device->GetRenderState(D3DRS_ZENABLE, &State[5]));
+	V(m_Device->GetSamplerState(0, D3DSAMP_MAGFILTER, &State[6]));
+	V(m_Device->GetSamplerState(0, D3DSAMP_MINFILTER, &State[7]));
+	V(m_Device->GetSamplerState(0, D3DSAMP_MIPFILTER, &State[8]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_TEXCOORDINDEX, &State[9]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_COLOROP, &State[10]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_COLORARG1, &State[11]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_COLORARG2, &State[12]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAOP, &State[13]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAARG1, &State[14]));
+	V(m_Device->GetTextureStageState(0, D3DTSS_ALPHAARG2, &State[15]));
 
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
@@ -51,15 +63,26 @@ void UIRender::Begin(void)
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, D3DTOP_MODULATE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE));
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE));
-
-	if(!m_StateBlock)
-		V(m_Device->EndStateBlock(&m_StateBlock));
 }
 
 void UIRender::End(void)
 {
-	_ASSERT(m_StateBlock);
-		V(m_StateBlock->Apply());
+	V(m_Device->SetRenderState(D3DRS_CULLMODE, State[0]));
+	V(m_Device->SetRenderState(D3DRS_LIGHTING, State[1]));
+	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, State[2]));
+	V(m_Device->SetRenderState(D3DRS_SRCBLEND, State[3]));
+	V(m_Device->SetRenderState(D3DRS_DESTBLEND, State[4]));
+	V(m_Device->SetRenderState(D3DRS_ZENABLE, State[5]));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, State[6]));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, State[7]));
+	V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, State[8]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_TEXCOORDINDEX, State[9]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLOROP, State[10]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, State[11]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG2, State[12]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAOP, State[13]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG1, State[14]));
+	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, State[15]));
 }
 
 void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
@@ -88,7 +111,7 @@ void UIRender::ClearVertexList(void)
 }
 
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
+#define ALIGN_UI_UNIT(v) ((v) - 0.5f)
 
 void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {

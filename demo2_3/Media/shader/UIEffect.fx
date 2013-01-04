@@ -42,7 +42,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(floor(vPos) + float4(0.5,0.5,0,0), g_mWorldViewProjection);
+    Output.Position = mul(vPos - float4(0.5,0.5,0,0), g_mWorldViewProjection);
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;

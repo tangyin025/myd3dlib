@@ -670,8 +670,9 @@ void Export2Lua(lua_State * L)
 				value("AlignCenterBottom", my::Font::AlignCenterBottom),
 				value("AlignRightBottom", my::Font::AlignRightBottom)
 			]
+			.def_readonly("Height", &my::Font::m_Height)
+			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
-			.property("Height", &my::Font::GetHeight, &my::Font::SetHeight)
 
 		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
 

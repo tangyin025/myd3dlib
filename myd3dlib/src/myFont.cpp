@@ -116,12 +116,6 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 
 FontLibrary::DrivedClassPtr Singleton<FontLibrary>::s_ptr;
 
-Font::Font(int font_pixel_gap)
-	: m_face(NULL)
-	, FONT_PIXEL_GAP(font_pixel_gap)
-{
-}
-
 Font::~Font(void)
 {
 	if(m_face)
@@ -131,21 +125,25 @@ Font::~Font(void)
 	}
 }
 
-void Font::SetHeight(int height)
+void Font::SetScale(const Vector2 & scale)
 {
-	_ASSERT(m_face && m_Device);
-
-	FT_Error err = FT_Set_Pixel_Sizes(m_face, height, height);
+	FT_Size_RequestRec  req;
+	req.type = FT_SIZE_REQUEST_TYPE_NOMINAL;
+	req.width = (FT_Long)(m_Height * scale.x * 64);
+	req.height = (FT_Long)(m_Height * scale.y * 64);
+	req.horiResolution = 0;
+	req.vertResolution = 0;
+	FT_Error err = FT_Request_Size(m_face, &req);
 	if(err)
 	{
-		THROW_CUSEXCEPTION("FT_Set_Pixel_Sizes failed");
+		THROW_CUSEXCEPTION("FT_Request_Size failed");
 	}
 
-	m_Height = height;
+	m_Scale = scale;
 
-	m_LineHeight = m_face->size->metrics.height / 64.0f;
+	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 
-	ResetCharacterMap();
+	m_characterMap.clear();
 }
 
 void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
@@ -156,7 +154,13 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 
 	m_Device = pDevice;
 
-	SetHeight(height);
+	m_Height = height;
+
+	CreateFontTexture(512, 512);
+
+	SetScale(Vector2(1,1));
+
+	m_LineHeight = m_face->size->metrics.height / 64.0f;
 }
 
 void Font::CreateFontFromFile(
@@ -236,15 +240,6 @@ void Font::CreateFontTexture(UINT Width, UINT Height)
 	m_Texture.CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
 	m_textureDesc = m_Texture.GetLevelDesc();
-}
-
-void Font::ResetCharacterMap(void)
-{
-	CreateFontTexture(512, 512);
-
-	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
-
-	m_characterMap.clear();
 }
 
 void Font::AssignTextureRect(const CSize & size, CRect & outRect)
@@ -327,11 +322,11 @@ void Font::LoadCharacter(int character)
 
 	InsertCharacter(
 		character,
-		m_face->glyph->metrics.width / 64.0f,
-		m_face->glyph->metrics.height / 64.0f,
-		m_face->glyph->metrics.horiBearingX / 64.0f,
-		m_face->glyph->metrics.horiBearingY / 64.0f,
-		m_face->glyph->metrics.horiAdvance / 64.0f,
+		m_face->glyph->metrics.width / 64.0f / m_Scale.x,
+		m_face->glyph->metrics.height / 64.0f / m_Scale.y,
+		m_face->glyph->metrics.horiBearingX / 64.0f / m_Scale.x,
+		m_face->glyph->metrics.horiBearingY / 64.0f / m_Scale.y,
+		m_face->glyph->metrics.horiAdvance / 64.0f / m_Scale.x,
 		m_face->glyph->bitmap.buffer,
 		m_face->glyph->bitmap.width,
 		m_face->glyph->bitmap.rows,
@@ -364,6 +359,11 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
+float Font::CalculateAlignedValue(float value, float scale)
+{
+	return value + (floor(value * scale) - value * scale) / scale;
+}
+
 Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, Align align)
 {
 	Vector2 pen;
@@ -381,6 +381,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 		Vector2 extent = CalculateStringExtent(pString);
 		pen.x = rect.r - extent.x;
 	}
+	pen.x = CalculateAlignedValue(pen.x, m_Scale.x);
 
 	if(align & AlignTop)
 	{
@@ -394,7 +395,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	{
 		pen.y = rect.b - m_LineHeight;
 	}
-	pen.y += m_LineHeight;
+	pen.y = CalculateAlignedValue(pen.y + m_LineHeight, m_Scale.y);
 
 	return pen;
 }
