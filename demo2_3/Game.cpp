@@ -545,22 +545,10 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
-void DialogMgr::OnAlign(void)
+void DialogMgr::UpdateDlgViewProj(DialogPtr dlg, const my::Vector2 & vp)
 {
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-	{
-		UpdateDlgViewProj(*dlg_iter);
-	}
-}
-
-void DialogMgr::UpdateDlgViewProj(DialogPtr dlg)
-{
-	const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-
 	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(
-			new AlignEventArgs(Vector2((float)desc.Width, (float)desc.Height))));
+		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
 }
 
 void DialogMgr::Draw(
@@ -673,7 +661,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
+	m_UIRender.reset(new UIRender(pd3dDevice));
 
 	m_WhiteTexture = LoadTexture("white.bmp");
 
@@ -688,7 +676,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_console->SetVisible(false);
 
-	UpdateDlgViewProj(m_console);
+	UpdateDlgViewProj(m_console, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -737,9 +725,15 @@ HRESULT Game::OnResetDevice(
 		return hres;
 	}
 
-	UpdateDlgViewProj(m_console);
+	Vector2 vp((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height);
 
-	OnAlign();
+	UpdateDlgViewProj(m_console, vp);
+
+	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
+	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	{
+		UpdateDlgViewProj(*dlg_iter, vp);
+	}
 
 	SafeResetState(GetCurrentState());
 

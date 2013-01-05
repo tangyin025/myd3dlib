@@ -359,11 +359,6 @@ Vector2 Font::CalculateStringExtent(LPCWSTR pString)
 	return extent;
 }
 
-float Font::CalculateAlignedValue(float value, float scale)
-{
-	return value + (floor(value * scale) - value * scale) / scale;
-}
-
 Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, Align align)
 {
 	Vector2 pen;
@@ -381,7 +376,6 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 		Vector2 extent = CalculateStringExtent(pString);
 		pen.x = rect.r - extent.x;
 	}
-	pen.x = CalculateAlignedValue(pen.x, m_Scale.x);
 
 	if(align & AlignTop)
 	{
@@ -395,7 +389,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	{
 		pen.y = rect.b - m_LineHeight;
 	}
-	pen.y = CalculateAlignedValue(pen.y + m_LineHeight, m_Scale.y);
+	pen.y += m_LineHeight;
 
 	return pen;
 }

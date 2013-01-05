@@ -256,8 +256,6 @@ namespace my
 
 		Vector2 CalculateStringExtent(LPCWSTR pString);
 
-		static float CalculateAlignedValue(float value, float scale);
-
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
 
 		void DrawString(

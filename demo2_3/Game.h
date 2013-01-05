@@ -218,9 +218,7 @@ public:
 	{
 	}
 
-	void OnAlign(void);
-
-	void UpdateDlgViewProj(my::DialogPtr dlg);
+	static void UpdateDlgViewProj(my::DialogPtr dlg, const my::Vector2 & vp);
 
 	void Draw(
 		my::UIRender * ui_render,
@@ -235,7 +233,9 @@ public:
 
 	void InsertDlg(my::DialogPtr dlg)
 	{
-		UpdateDlgViewProj(dlg);
+		const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+
+		UpdateDlgViewProj(dlg, my::Vector2((float)desc.Width, (float)desc.Height));
 
 		m_dlgSet.push_back(dlg);
 	}

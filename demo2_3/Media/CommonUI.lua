@@ -42,11 +42,13 @@ com_cbx_skin.ScrollBarDownBtnDisabledImage=ControlImage(game:LoadTexture("com_bt
 com_cbx_skin.ScrollBarThumbBtnNormalImage=ControlImage(game:LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
 com_cbx_skin.ScrollBarImage=ControlImage(game:LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
 
-function UpdateDlgViewProj(dlg, width, height)
-	local fovy=1.308996938995747
-	local half_width=width*0.5
-	local half_height=height*0.5
-	local dist=half_height*math.tan(math.pi*0.5-fovy*0.5)
-	dlg.View=Matrix4.LookAtLH(Vector3(half_width,half_height,dist),Vector3(half_width,half_height,0),Vector3(0,-1,0))
-	dlg.Proj=Matrix4.PerspectiveFovLH(fovy,width/height,0.1,3000)
+function UpdateDlgViewProj(dlg, vp)
+	local Fovy=1.308996938995747
+	local Aspect=vp.x/vp.y
+	local Height=600
+	local Width=Height*Aspect
+	local dist=Height*0.5*math.tan(math.pi*0.5-Fovy*0.5)
+	dlg.View=Matrix4.LookAtLH(Vector3(Width*0.5,Height*0.5,dist),Vector3(Width*0.5,Height*0.5,0),Vector3(0,-1,0))
+	dlg.Proj=Matrix4.PerspectiveFovLH(Fovy,Aspect,0.1,3000)
+	return Vector2(Width,Height)
 end

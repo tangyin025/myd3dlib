@@ -111,7 +111,7 @@ void UIRender::ClearVertexList(void)
 }
 
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) ((v) - 0.5f)
+#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
 
 void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {

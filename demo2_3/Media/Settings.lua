@@ -7,8 +7,8 @@ dlg.Skin.Font=_Font.font1
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
-	CommonUI.UpdateDlgViewProj(dlg,args.vp.x,args.vp.y)
-	dlg.Location=Vector2((args.vp.x-dlg.Size.x)*0.5,(args.vp.y-dlg.Size.y)*0.5)
+	local vp=CommonUI.UpdateDlgViewProj(dlg,args.vp)
+	dlg.Location=(vp-dlg.Size)*0.5
 end
 
 local function SettingsButton(x,y,text)
