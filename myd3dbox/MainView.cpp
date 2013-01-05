@@ -65,9 +65,7 @@ void CMainView::OnPaint()
 			my::Matrix4 view, proj;
 			my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height, view, proj);
 			my::UIRender ui_render(pd3dDevice);
-			ui_render.SetWorld(my::Matrix4::Identity());
-			ui_render.SetView(view);
-			ui_render.SetProjection(proj);
+			ui_render.SetTransform(my::Matrix4::Identity(), view, proj);
 			ui_render.Begin();
 
 			CString strText;

@@ -90,19 +90,11 @@ void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 	V(m_Device->SetTexture(0, pTexture));
 }
 
-void UIRender::SetWorld(const Matrix4 & world)
+void UIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj)
 {
-	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world));
-}
-
-void UIRender::SetView(const Matrix4 & view)
-{
-	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&view));
-}
-
-void UIRender::SetProjection(const Matrix4 & proj)
-{
-	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&proj));
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 }
 
 void UIRender::ClearVertexList(void)
@@ -111,7 +103,7 @@ void UIRender::ClearVertexList(void)
 }
 
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) (floor(v) - 0.5f)
+#define ALIGN_UI_UNIT(v) (floor((v) + 0.25f) - 0.5f)
 
 void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {

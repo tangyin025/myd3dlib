@@ -483,22 +483,15 @@ void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTexture->m_ptr);
 }
 
-void EffectUIRender::SetWorld(const Matrix4 & world)
-{
-	m_World = world;
-}
-
-void EffectUIRender::SetView(const Matrix4 & view)
-{
-	m_View = view;
-}
-
-void EffectUIRender::SetProjection(const Matrix4 & proj)
+void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj)
 {
 	if(m_UIEffect->m_ptr)
 	{
-		m_UIEffect->SetMatrix("g_mWorld", m_World);
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", m_World * m_View * proj);
+		m_UIEffect->SetMatrix("g_mWorld", World);
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
+
+		const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+		m_UIEffect->SetVector("g_ScreenSize", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
 	}
 }
 
@@ -559,9 +552,8 @@ void DialogMgr::Draw(
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
 	{
-		ui_render->SetWorld((*dlg_iter)->m_Transform);
-		ui_render->SetView((*dlg_iter)->m_View);
-		ui_render->SetProjection((*dlg_iter)->m_Proj);
+		ui_render->SetTransform((*dlg_iter)->m_Transform, (*dlg_iter)->m_View, (*dlg_iter)->m_Proj);
+
 		(*dlg_iter)->Draw(ui_render, fElapsedTime);
 	}
 }
@@ -661,7 +653,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	m_UIRender.reset(new UIRender(pd3dDevice));
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
 	m_WhiteTexture = LoadTexture("white.bmp");
 
@@ -804,9 +796,7 @@ void Game::OnFrameRender(
 
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_UIRender->SetWorld(m_console->m_Transform);
-		m_UIRender->SetView(m_console->m_View);
-		m_UIRender->SetProjection(m_console->m_Proj);
+		m_UIRender->SetTransform(m_console->m_Transform, m_console->m_View, m_console->m_Proj);
 
 		m_console->Draw(m_UIRender.get(), fElapsedTime);
 

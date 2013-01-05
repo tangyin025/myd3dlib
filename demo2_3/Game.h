@@ -335,6 +335,8 @@ public:
 
 	my::Matrix4 m_View;
 
+	my::Matrix4 m_Proj;
+
 public:
 	EffectUIRender(IDirect3DDevice9 * pd3dDevice, my::EffectPtr effect)
 		: UIRender(pd3dDevice)
@@ -350,11 +352,7 @@ public:
 
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
-	virtual void SetWorld(const my::Matrix4 & world);
-
-	virtual void SetView(const my::Matrix4 & view);
-
-	virtual void SetProjection(const my::Matrix4 & proj);
+	virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
 
 	virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
 

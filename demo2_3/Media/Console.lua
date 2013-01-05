@@ -13,6 +13,7 @@ dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
 	local vp=CommonUI.UpdateDlgViewProj(dlg,args.vp)
 	dlg.Location=Vector2(50,95)
+	_Font.font1.Scale=Vector2(args.vp.y/vp.y,args.vp.y/vp.y)
 end
 
 local panel=MessagePanel()
