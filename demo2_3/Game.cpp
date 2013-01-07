@@ -491,7 +491,7 @@ void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 &
 		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
 
 		const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-		m_UIEffect->SetVector("g_ScreenSize", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
 	}
 }
 

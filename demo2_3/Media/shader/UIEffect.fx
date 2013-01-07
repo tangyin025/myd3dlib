@@ -5,7 +5,7 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-float2 g_ScreenSize;
+float2 g_ScreenDim;
 
 texture g_MeshTexture;
 
@@ -37,15 +37,6 @@ struct VS_OUTPUT
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
 
-float4 ALIGN_UI_UNIT(float4 pos)
-{
-	return float4(
-		((floor((g_ScreenSize.x + pos.x / pos.w * g_ScreenSize.x) * 0.5 + 0.25) - 0.5) * 2 - g_ScreenSize.x) / g_ScreenSize.x * pos.w,
-		(g_ScreenSize.y - (floor((g_ScreenSize.y - pos.y / pos.w * g_ScreenSize.y) * 0.5 + 0.25) - 0.5) * 2) / g_ScreenSize.y * pos.w,
-		pos.z,
-		pos.w);
-}
-
 VS_OUTPUT RenderSceneVS( float4 vPos : POSITION, 
                          float4 vDiffuse : COLOR0,
                          float2 vTexCoord0 : TEXCOORD0 )
@@ -53,7 +44,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = ALIGN_UI_UNIT(mul(vPos, g_mWorldViewProjection));
+    Output.Position = align_ui_unit(mul(vPos, g_mWorldViewProjection), g_ScreenDim);
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;

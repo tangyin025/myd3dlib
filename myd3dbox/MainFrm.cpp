@@ -40,15 +40,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &m_d3dDevice);
 	if(FAILED(hres))
 	{
-		my::D3DException e(hres, __FILE__, __LINE__);
-		TRACE(e.GetFullDescription().c_str());
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	CMFCVisualManager::SetDefaultManager(RUNTIME_CLASS(CMFCVisualManagerVS2005));
+	OnApplicationLook(theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005));
 
 	if (!m_wndMenuBar.Create(this))
 	{
@@ -154,6 +153,8 @@ void CMainFrame::OnApplicationLook(UINT id)
 	}
 
 	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
+
+	theApp.WriteInt(_T("ApplicationLook"), id);
 }
 
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
