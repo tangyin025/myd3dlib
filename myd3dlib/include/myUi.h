@@ -40,9 +40,13 @@ namespace my
 		{
 		}
 
-		static void BuildOrthoMatrices(float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
+		static Matrix4 OrthoView(float Width, float Height);
 
-		static void BuildPerspectiveMatrices(float fovy, float Width, float Height, Matrix4 & outView, Matrix4 & outProj);
+		static Matrix4 OrthoProj(float Width, float Height);
+
+		static Matrix4 PerspectiveView(float Fovy, float Width, float Height);
+
+		static Matrix4 PerspectiveProj(float Fovy, float Width, float Height);
 
 		// Default UIRender rendering ui elements under Fixed Pipeline
 		virtual void Begin(void);
@@ -704,10 +708,11 @@ namespace my
 	public:
 		Dialog(void)
 			: m_Transform(Matrix4::identity)
+			, m_View(UIRender::PerspectiveView(D3DXToRadian(75.0f), 800, 600))
+			, m_Proj(UIRender::PerspectiveProj(D3DXToRadian(75.0f), 800, 600))
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
-			UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), 800, 600, m_View, m_Proj);
 		}
 
 		virtual ~Dialog(void)

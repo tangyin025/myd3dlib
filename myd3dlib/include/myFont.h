@@ -198,6 +198,7 @@ namespace my
 		Font(int font_pixel_gap = 1)
 			: m_face(NULL)
 			, FONT_PIXEL_GAP(font_pixel_gap)
+			, m_Scale(0,0)
 		{
 		}
 
@@ -205,7 +206,7 @@ namespace my
 
 		const Vector2 & GetScale(void) const { return m_Scale; }
 
-		void SetScale(const Vector2 & scale);
+		void SetScale(const Vector2 & Scale);
 
 		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
 

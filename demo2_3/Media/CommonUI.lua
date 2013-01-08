@@ -47,8 +47,8 @@ function UpdateDlgViewProj(dlg, vp)
 	local Aspect=vp.x/vp.y
 	local Height=600
 	local Width=Height*Aspect
-	local dist=Height*0.5*math.tan(math.pi*0.5-Fovy*0.5)
-	dlg.View=Matrix4.LookAtLH(Vector3(Width*0.5,Height*0.5,dist),Vector3(Width*0.5,Height*0.5,0),Vector3(0,-1,0))
-	dlg.Proj=Matrix4.PerspectiveFovLH(Fovy,Aspect,0.1,3000)
+	dlg.View=UIRender.PerspectiveView(Fovy,Width,Height)
+	dlg.Proj=UIRender.PerspectiveProj(Fovy,Width,Height)
+	_Font.font1.Scale = Vector2(vp.y/Height,vp.y/Height)
 	return Vector2(Width,Height)
 end

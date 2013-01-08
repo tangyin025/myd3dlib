@@ -62,10 +62,11 @@ void CMainView::OnPaint()
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-			my::Matrix4 view, proj;
-			my::UIRender::BuildPerspectiveMatrices(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height, view, proj);
 			my::UIRender ui_render(pd3dDevice);
-			ui_render.SetTransform(my::Matrix4::Identity(), view, proj);
+			ui_render.SetTransform(
+				my::Matrix4::Identity(),
+				my::UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+				my::UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
 			ui_render.Begin();
 
 			CString strText;

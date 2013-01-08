@@ -125,12 +125,12 @@ Font::~Font(void)
 	}
 }
 
-void Font::SetScale(const Vector2 & scale)
+void Font::SetScale(const Vector2 & Scale)
 {
 	FT_Size_RequestRec  req;
 	req.type = FT_SIZE_REQUEST_TYPE_NOMINAL;
-	req.width = (FT_Long)(m_Height * scale.x * 64);
-	req.height = (FT_Long)(m_Height * scale.y * 64);
+	req.width = (FT_Long)(m_Height * Scale.x * 64);
+	req.height = (FT_Long)(m_Height * Scale.y * 64);
 	req.horiResolution = 0;
 	req.vertResolution = 0;
 	FT_Error err = FT_Request_Size(m_face, &req);
@@ -139,7 +139,7 @@ void Font::SetScale(const Vector2 & scale)
 		THROW_CUSEXCEPTION("FT_Request_Size failed");
 	}
 
-	m_Scale = scale;
+	m_Scale = Scale;
 
 	m_textureRectRoot.reset(new RectAssignmentNode(CRect(0, 0, m_textureDesc.Width, m_textureDesc.Height)));
 

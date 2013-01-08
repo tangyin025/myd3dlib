@@ -674,6 +674,15 @@ void Export2Lua(lua_State * L)
 			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
+		, class_<my::UIRender>("UIRender")
+			.scope
+			[
+				def("OrthoView", &my::UIRender::OrthoView),
+				def("OrthoProj", &my::UIRender::OrthoProj),
+				def("PerspectiveView", &my::UIRender::PerspectiveView),
+				def("PerspectiveProj", &my::UIRender::PerspectiveProj)
+			]
+
 		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
 
 		, class_<my::ControlEvent>("ControlEvent")
