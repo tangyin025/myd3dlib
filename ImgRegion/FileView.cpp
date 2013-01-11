@@ -33,6 +33,7 @@ BEGIN_MESSAGE_MAP(CImgRegionTreeCtrl, CTreeCtrl)
 	ON_NOTIFY_REFLECT(TVN_BEGINDRAG, &CImgRegionTreeCtrl::OnTvnBegindrag)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
+	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CImgRegionTreeCtrl::OnNMCustomdraw)
 END_MESSAGE_MAP()
 
 void CImgRegionTreeCtrl::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
@@ -255,6 +256,32 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 
 	ASSERT(m_ItemMap.find(key) != m_ItemMap.end());
 	return m_ItemMap[key] = hItem;
+}
+
+void CImgRegionTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
+    NMTVCUSTOMDRAW *pcd = (NMTVCUSTOMDRAW   *)pNMHDR;
+    switch ( pcd->nmcd.dwDrawStage )
+    {
+    case CDDS_PREPAINT: 
+        *pResult = CDRF_NOTIFYITEMDRAW;     
+        break;
+
+    case CDDS_ITEMPREPAINT : 
+        {
+            HTREEITEM   hItem = (HTREEITEM)pcd->nmcd.dwItemSpec;
+
+            if ( GetSelectedItem() == hItem )
+            {
+                pcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);    
+                pcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+            }
+
+            *pResult = CDRF_DODEFAULT;// do not set *pResult = CDRF_SKIPDEFAULT
+            break;
+        }
+    }
 }
 
 BEGIN_MESSAGE_MAP(CFileView, CDockablePane)

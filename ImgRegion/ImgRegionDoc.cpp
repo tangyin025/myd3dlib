@@ -6,6 +6,8 @@
 #include "ImgRegionFilePropertyDlg.h"
 #include "ImgRegionView.h"
 
+//#pragma comment(lib, "UxTheme.lib")
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -310,6 +312,7 @@ BOOL CImgRegionDoc::CreateTreeCtrl(void)
 		TRACE0("CImgRegionDoc::CreateTreeCtrl failed \n");
 		return FALSE;
 	}
+	//SetWindowTheme(m_TreeCtrl.m_hWnd, L"Explorer", NULL);
 
 	CBitmap bmp;
 	if (!bmp.LoadBitmap(IDB_BITMAP2))

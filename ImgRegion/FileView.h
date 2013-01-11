@@ -74,6 +74,8 @@ public:
 		DeleteItem(hItem);
 		m_ItemMap.erase(key);
 	}
+
+	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 };
 
 class CFileView : public CDockablePane
