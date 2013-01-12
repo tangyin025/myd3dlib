@@ -10,19 +10,19 @@
 		} \
 	}
 
+#define DEF_BUFF_SIZE 512
+#define DEF_INCR_SIZE 512
+
 char * asprintf(const char * format, ...)
 {
-	static const size_t def_size = 512;
-	static const size_t inc_size = 512;
-
-	_ASSERT(inc_size <= def_size);
-	size_t new_size = def_size - inc_size;
-	size_t ret_size = def_size;
+	_ASSERT(DEF_INCR_SIZE <= DEF_BUFF_SIZE);
+	size_t new_size = DEF_BUFF_SIZE - DEF_INCR_SIZE;
+	size_t ret_size = DEF_BUFF_SIZE;
 	char * buffer = NULL;
 
 	while(ret_size >= new_size)
 	{
-		new_size += inc_size;
+		new_size += DEF_INCR_SIZE;
 		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
 
 		va_list args;
@@ -36,17 +36,14 @@ char * asprintf(const char * format, ...)
 
 wchar_t * aswprintf(const wchar_t * format, ...)
 {
-	static const size_t def_size = 512;
-	static const size_t inc_size = 512;
-
-	_ASSERT(inc_size <= def_size);
-	size_t new_size = def_size - inc_size;
-	size_t ret_size = def_size;
+	_ASSERT(DEF_INCR_SIZE <= DEF_BUFF_SIZE);
+	size_t new_size = DEF_BUFF_SIZE - DEF_INCR_SIZE;
+	size_t ret_size = DEF_BUFF_SIZE;
 	wchar_t * buffer = NULL;
 
 	while(ret_size >= new_size)
 	{
-		new_size += inc_size;
+		new_size += DEF_INCR_SIZE;
 		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
 
 		va_list args;
@@ -60,17 +57,14 @@ wchar_t * aswprintf(const wchar_t * format, ...)
 
 char * avsprintf(const char * format, va_list args)
 {
-	static const size_t def_size = 512;
-	static const size_t inc_size = 512;
-
-	_ASSERT(inc_size <= def_size);
-	size_t new_size = def_size - inc_size;
-	size_t ret_size = def_size;
+	_ASSERT(DEF_INCR_SIZE <= DEF_BUFF_SIZE);
+	size_t new_size = DEF_BUFF_SIZE - DEF_INCR_SIZE;
+	size_t ret_size = DEF_BUFF_SIZE;
 	char * buffer = NULL;
 
 	while(ret_size >= new_size)
 	{
-		new_size += inc_size;
+		new_size += DEF_INCR_SIZE;
 		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
 
 		ret_size = vsnprintf_s(buffer, new_size, new_size, format, args);
@@ -81,17 +75,14 @@ char * avsprintf(const char * format, va_list args)
 
 wchar_t * avswprintf(const wchar_t * format, va_list args)
 {
-	static const size_t def_size = 512;
-	static const size_t inc_size = 512;
-
-	_ASSERT(inc_size <= def_size);
-	size_t new_size = def_size - inc_size;
-	size_t ret_size = def_size;
+	_ASSERT(DEF_INCR_SIZE <= DEF_BUFF_SIZE);
+	size_t new_size = DEF_BUFF_SIZE - DEF_INCR_SIZE;
+	size_t ret_size = DEF_BUFF_SIZE;
 	wchar_t * buffer = NULL;
 
 	while(ret_size >= new_size)
 	{
-		new_size += inc_size;
+		new_size += DEF_INCR_SIZE;
 		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
 
 		ret_size = vswprintf_s(buffer, new_size, format, args);
@@ -106,7 +97,7 @@ std::basic_string<char> str_printf(const char * format, ...)
 	va_start(args, format);
 	std::basic_string<char> ret;
 	int nLen;
-	for(ret.resize(512); -1 == (nLen = vsnprintf_s(&ret[0], ret.size(), ret.size(), format, args)); ret.resize(ret.size() + 512))
+	for(ret.resize(DEF_BUFF_SIZE); -1 == (nLen = vsnprintf_s(&ret[0], ret.size(), ret.size(), format, args)); ret.resize(ret.size() + DEF_INCR_SIZE))
 	{
 	}
 	va_end(args);
@@ -121,7 +112,7 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 	va_start(args, format);
 	std::basic_string<wchar_t> ret;
 	int nLen;
-	for(ret.resize(512); -1 == (nLen = vswprintf_s(&ret[0], ret.size(), format, args)); ret.resize(ret.size() + 512))
+	for(ret.resize(DEF_BUFF_SIZE); -1 == (nLen = vswprintf_s(&ret[0], ret.size(), format, args)); ret.resize(ret.size() + DEF_INCR_SIZE))
 	{
 	}
 	va_end(args);
@@ -132,76 +123,44 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 
 std::basic_string<wchar_t> ms2ws(const char * str)
 {
-	int nLen;
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, NULL, 0)))
-	{
-		THROW_WINEXCEPTION(::GetLastError());
-	}
-
 	std::basic_string<wchar_t> ret;
-	ret.resize(nLen - 1);
-	if(0 == (nLen = MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, &ret[0], nLen)))
+	ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, NULL, 0));
+	if(!ret.empty())
 	{
-		THROW_WINEXCEPTION(::GetLastError());
+		ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, &ret[0], ret.size()) - 1);
 	}
-
-	ret.resize(nLen - 1);
 	return ret;
 }
 
 std::basic_string<char> ws2ms(const wchar_t * str)
 {
-	int nLen;
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, NULL, 0, NULL, NULL)))
-	{
-		THROW_WINEXCEPTION(::GetLastError());
-	}
-
 	std::basic_string<char> ret;
-	ret.resize(nLen - 1);
-	if(0 == (nLen = WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, &ret[0], nLen, NULL, NULL)))
+	ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, NULL, 0, NULL, NULL));
+	if(!ret.empty())
 	{
-		THROW_WINEXCEPTION(::GetLastError());
+		ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
-
-	ret.resize(nLen - 1);
 	return ret;
 }
 
 std::basic_string<wchar_t> u8tows(const char * str)
 {
-	int nLen;
-	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0)))
-	{
-		THROW_WINEXCEPTION(::GetLastError());
-	}
-
 	std::basic_string<wchar_t> ret;
-	ret.resize(nLen - 1);
-	if(0 == (nLen = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, &ret[0], nLen)))
+	ret.resize(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, NULL, 0));
+	if(!ret.empty())
 	{
-		THROW_WINEXCEPTION(::GetLastError());
+		ret.resize(MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, str, -1, &ret[0], ret.size()) - 1);
 	}
-
-	ret.resize(nLen - 1);
 	return ret;
 }
 
 std::basic_string<char> wstou8(const wchar_t * str)
 {
-	int nLen;
-	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, NULL, 0, NULL, NULL)))
-	{
-		THROW_WINEXCEPTION(::GetLastError());
-	}
-
 	std::basic_string<char> ret;
-	ret.resize(nLen - 1);
-	if(0 == (nLen = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, &ret[0], nLen, NULL, NULL)))
+	ret.resize(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, NULL, 0, NULL, NULL));
+	if(!ret.empty())
 	{
-		THROW_WINEXCEPTION(::GetLastError());
+		ret.resize(WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
-
-	ret.resize(nLen - 1);
 	return ret;
 }
