@@ -66,6 +66,26 @@ void FirstPersonCamera::OnFrameMove(
 			m_Rotation.y += D3DXToRadian(mouse->GetX());
 		}
 
+		if(keyboard->IsKeyDown(DIK_UP))
+		{
+			m_Rotation.x -= D3DXToRadian(3);
+		}
+
+		if(keyboard->IsKeyDown(DIK_DOWN))
+		{
+			m_Rotation.x += D3DXToRadian(3);
+		}
+
+		if(keyboard->IsKeyDown(DIK_LEFT))
+		{
+			m_Rotation.y -= D3DXToRadian(3);
+		}
+
+		if(keyboard->IsKeyDown(DIK_RIGHT))
+		{
+			m_Rotation.y += D3DXToRadian(3);
+		}
+
 		if(keyboard->IsKeyDown(DIK_W))
 		{
 			Velocity.z = Movement;

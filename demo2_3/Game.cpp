@@ -370,7 +370,7 @@ void EffectUIRender::DrawVertexList(void)
 }
 
 Game::Game(void)
-	: m_Timer(0.01f)
+	: m_Timer(1/60.0f)
 {
 	m_lua.reset(new LuaContext());
 
