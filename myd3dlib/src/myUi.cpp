@@ -1921,6 +1921,8 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
+		ui_render->SetTransform(m_Transform, m_View, m_Proj);
+
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
 		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();

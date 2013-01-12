@@ -3,134 +3,6 @@
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include "Console.h"
-//
-//class DrawHelper
-//{
-//protected:
-//	HRESULT hr;
-//
-//public:
-//	static void DrawLine(
-//		IDirect3DDevice9 * pd3dDevice,
-//		const my::Vector3 & v0,
-//		const my::Vector3 & v1,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawSphere(
-//		IDirect3DDevice9 * pd3dDevice,
-//		float radius,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawBox(
-//		IDirect3DDevice9 * pd3dDevice,
-//		const my::Vector3 & halfSize,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawTriangle(
-//		IDirect3DDevice9 * pd3dDevice,
-//		const my::Vector3 & v0,
-//		const my::Vector3 & v1,
-//		const my::Vector3 & v2,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawSpereStage(
-//		IDirect3DDevice9 * pd3dDevice,
-//		float radius,
-//		int VSTAGE_BEGIN,
-//		int VSTAGE_END,
-//		float offsetY,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawCylinderStage(
-//		IDirect3DDevice9 * pd3dDevice,
-//		float radius,
-//		float y0,
-//		float y1,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//
-//	static void DrawCapsule(
-//		IDirect3DDevice9 * pd3dDevice,
-//		float radius,
-//		float height,
-//		D3DCOLOR Color,
-//		const my::Matrix4 & world = my::Matrix4::identity);
-//};
-
-class GameStateBase
-{
-	friend class Game;
-
-protected:
-	bool m_DeviceObjectsCreated;
-
-	bool m_DeviceObjectsReset;
-
-	HRESULT hr;
-
-public:
-	GameStateBase(void)
-		: m_DeviceObjectsCreated(false)
-		, m_DeviceObjectsReset(false)
-	{
-	}
-
-	virtual ~GameStateBase(void)
-	{
-	}
-
-	virtual HRESULT OnCreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
-	virtual HRESULT OnResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
-	virtual void OnLostDevice(void)
-	{
-	}
-
-	virtual void OnDestroyDevice(void)
-	{
-	}
-
-	virtual void OnFrameMove(
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
-	virtual void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
-	virtual LRESULT MsgProc(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam,
-		bool * pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-};
-
-typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
 
 class LoaderMgr
 	: public my::ResourceMgr
@@ -206,6 +78,75 @@ public:
 	my::FontPtr LoadFont(const std::string & path, int height, bool reload = false);
 };
 
+class Timer
+{
+public:
+	const float m_Interval;
+
+	float m_RemainingTime;
+
+	my::ControlEvent m_EventTimer;
+
+public:
+	Timer(float Interval, float RemainingTime = 0)
+		: m_Interval(Interval)
+		, m_RemainingTime(Interval)
+	{
+	}
+};
+
+typedef boost::shared_ptr<Timer> TimerPtr;
+
+class TimerMgr
+{
+protected:
+	typedef std::map<TimerPtr, bool> TimerPtrSet;
+
+	TimerPtrSet m_timerSet;
+
+	const float m_MinRemainingTime;
+
+	my::EventArgsPtr m_DefaultArgs;
+
+public:
+	TimerMgr(void)
+		: m_MinRemainingTime(-1/10.0f)
+		, m_DefaultArgs(new my::EventArgs())
+	{
+	}
+
+	TimerPtr AddTimer(float Interval, my::ControlEvent EventTimer)
+	{
+		TimerPtr timer(new Timer(Interval, Interval));
+		timer->m_EventTimer = EventTimer;
+		InsertTimer(timer);
+		return timer;
+	}
+
+	void InsertTimer(TimerPtr timer)
+	{
+		m_timerSet.insert(std::make_pair(timer, true));
+	}
+
+	void RemoveTimer(TimerPtr timer)
+	{
+		TimerPtrSet::iterator timer_iter = m_timerSet.find(timer);
+		if(timer_iter != m_timerSet.end())
+		{
+			timer_iter->second = false;
+		}
+	}
+
+	void RemoveAllTimer(void)
+	{
+		m_timerSet.clear();
+	}
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+};
+
 class DialogMgr
 {
 public:
@@ -255,74 +196,6 @@ public:
 	}
 };
 
-class Timer
-{
-public:
-	float m_Interval;
-
-	float m_RemainingTime;
-
-	const unsigned int m_MaxIter;
-
-	bool m_Running;
-
-	my::ControlEvent m_EventTimer;
-
-	my::EventArgsPtr m_DefaultArgs;
-
-public:
-	Timer(float Interval)
-		: m_Interval(Interval)
-		, m_RemainingTime(-Interval)
-		, m_MaxIter(4)
-		, m_Running(false)
-		, m_DefaultArgs(new my::EventArgs())
-	{
-	}
-
-	void OnFrameMove(
-		double fTime,
-		float fElapsedTime);
-};
-
-typedef boost::shared_ptr<Timer> TimerPtr;
-
-class TimerMgr
-{
-protected:
-	typedef std::set<TimerPtr> TimerPtrSet;
-
-	TimerPtrSet m_timerSet;
-
-public:
-	TimerMgr(void)
-	{
-	}
-
-	void InsertTimer(TimerPtr timer)
-	{
-		m_timerSet.insert(timer);
-
-		timer->m_Running = true;
-	}
-
-	void RemoveTimer(TimerPtr timer)
-	{
-		m_timerSet.erase(timer);
-
-		timer->m_Running = false;
-	}
-
-	void RemoveAllTimer(void)
-	{
-		m_timerSet.clear();
-	}
-
-	void OnFrameMove(
-		double fTime,
-		float fElapsedTime);
-};
-
 class EffectUIRender
 	: public my::UIRender
 {
@@ -359,20 +232,92 @@ public:
 	virtual void DrawVertexList(void);
 };
 
+class GameStateBase
+{
+	friend class Game;
+
+protected:
+	bool m_DeviceObjectsCreated;
+
+	bool m_DeviceObjectsReset;
+
+	HRESULT hr;
+
+public:
+	GameStateBase(void)
+		: m_DeviceObjectsCreated(false)
+		, m_DeviceObjectsReset(false)
+	{
+	}
+
+	virtual ~GameStateBase(void)
+	{
+	}
+
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		return S_OK;
+	}
+
+	virtual void OnLostDevice(void)
+	{
+	}
+
+	virtual void OnDestroyDevice(void)
+	{
+	}
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+	}
+
+	virtual void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+	}
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
+	{
+		return 0;
+	}
+};
+
+typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
+
 class Game
 	: public my::DxutApp
 	, public LoaderMgr
-	, public DialogMgr
 	, public TimerMgr
+	, public DialogMgr
 {
 public:
 	my::LuaContextPtr m_lua;
 
-	my::FontPtr m_font;
+	Timer m_Timer;
 
 	my::UIRenderPtr m_UIRender;
 
 	my::TexturePtr m_WhiteTexture;
+
+	my::FontPtr m_font;
 
 	my::DialogPtr m_console;
 

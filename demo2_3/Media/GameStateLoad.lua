@@ -1,7 +1,5 @@
 
-t=Timer(0.1)
-t.EventTimer=function(args)
+t=game:AddTimer(0.1, function(args)
 	game:ChangeState("GameStateMain")
 	game:RemoveTimer(t)
-end
-game:InsertTimer(t)
+end)

@@ -177,12 +177,6 @@ namespace my
 		{
 		}
 
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime)
-		{
-		}
-
 		virtual void OnFrameRender(
 			IDirect3DDevice9 * pd3dDevice,
 			double fTime,
