@@ -1922,7 +1922,7 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
-		ui_render->SetTransform(m_Transform, m_View, m_Proj);
+		ui_render->SetTransform(m_World, m_View, m_Proj);
 
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
@@ -2006,14 +2006,14 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
 			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
 
-			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_Transform);
-			float dialogDistance = ((Vector3 &)m_Transform[3]).dot(dialogNormal);
+			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_World);
+			float dialogDistance = ((Vector3 &)m_World[3]).dot(dialogNormal);
 			IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
 
 			if(result.first)
 			{
 				Vector3 ptInt(ptEye + dir * result.second);
-				Vector3 pt = ptInt.transformCoord(m_Transform.inverse());
+				Vector3 pt = ptInt.transformCoord(m_World.inverse());
 				Vector2 ptLocal = Vector2(pt.x - m_Location.x, pt.y - m_Location.y);
 				if(ControlFocus
 					&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl

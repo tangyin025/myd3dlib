@@ -690,7 +690,7 @@ namespace my
 
 		ControlPtr m_ControlMouseOver;
 
-		Matrix4 m_Transform;
+		Matrix4 m_World;
 
 		Matrix4 m_View;
 
@@ -706,7 +706,7 @@ namespace my
 
 	public:
 		Dialog(void)
-			: m_Transform(Matrix4::identity)
+			: m_World(Matrix4::identity)
 			, m_View(UIRender::PerspectiveView(D3DXToRadian(75.0f), 800, 600))
 			, m_Proj(UIRender::PerspectiveProj(D3DXToRadian(75.0f), 800, 600))
 			, m_bMouseDrag(false)

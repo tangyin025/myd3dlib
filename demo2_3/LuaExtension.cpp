@@ -791,7 +791,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(constructor<>())
-			.def_readwrite("Transform", &my::Dialog::m_Transform)
+			.def_readwrite("World", &my::Dialog::m_World)
 			.def_readwrite("View", &my::Dialog::m_View)
 			.def_readwrite("Proj", &my::Dialog::m_Proj)
 			.def("Refresh", &my::Dialog::Refresh)
