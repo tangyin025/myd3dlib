@@ -309,6 +309,10 @@ bool DialogMgr::MsgProc(
 
 void EffectUIRender::Begin(void)
 {
+	const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
+
 	if(m_UIEffect->m_ptr)
 		m_Passes = m_UIEffect->Begin();
 }
@@ -326,24 +330,28 @@ void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTexture->m_ptr);
 }
 
-void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj)
+void EffectUIRender::SetWorld(const my::Matrix4 & World)
 {
 	if(m_UIEffect->m_ptr)
-	{
 		m_UIEffect->SetMatrix("g_mWorld", World);
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
+}
 
-		const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
-	}
+void EffectUIRender::SetView(const my::Matrix4 & View)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetMatrix("g_mView", View);
+}
+
+void EffectUIRender::SetProj(const my::Matrix4 & Proj)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetMatrix("g_mProj", Proj);
 }
 
 void EffectUIRender::SetOpacity(float Opacity)
 {
 	if(m_UIEffect->m_ptr)
-	{
 		m_UIEffect->SetVector("g_LightDiffuse", my::Vector4(1,1,1,Opacity));
-	}
 }
 
 void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)

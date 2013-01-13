@@ -219,7 +219,11 @@ public:
 
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
-	virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
+	virtual void SetWorld(const my::Matrix4 & World);
+
+	virtual void SetView(const my::Matrix4 & View);
+
+	virtual void SetProj(const my::Matrix4 & Proj);
 
 	virtual void SetOpacity(float Opacity);
 
