@@ -57,6 +57,7 @@ void FirstPersonCamera::OnFrameMove(
 	_ASSERT(mouse && keyboard);
 
 	const float Movement = 5.0f * fElapsedTime;
+	const float Rotation = 180.0f * fElapsedTime;
 	Vector3 Velocity(0,0,0);
 	if(!my::Dialog::m_ControlFocus.lock())
 	{
@@ -68,22 +69,22 @@ void FirstPersonCamera::OnFrameMove(
 
 		if(keyboard->IsKeyDown(DIK_UP))
 		{
-			m_Rotation.x -= D3DXToRadian(3);
+			m_Rotation.x -= D3DXToRadian(Rotation);
 		}
 
 		if(keyboard->IsKeyDown(DIK_DOWN))
 		{
-			m_Rotation.x += D3DXToRadian(3);
+			m_Rotation.x += D3DXToRadian(Rotation);
 		}
 
 		if(keyboard->IsKeyDown(DIK_LEFT))
 		{
-			m_Rotation.y -= D3DXToRadian(3);
+			m_Rotation.y -= D3DXToRadian(Rotation);
 		}
 
 		if(keyboard->IsKeyDown(DIK_RIGHT))
 		{
-			m_Rotation.y += D3DXToRadian(3);
+			m_Rotation.y += D3DXToRadian(Rotation);
 		}
 
 		if(keyboard->IsKeyDown(DIK_W))
