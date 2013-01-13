@@ -34,6 +34,7 @@ Matrix4 UIRender::PerspectiveProj(float Fovy, float Width, float Height)
 
 void UIRender::Begin(void)
 {
+	// ! Default UIRender rendering ui elements under Fixed Pipeline
 	V(m_Device->GetRenderState(D3DRS_CULLMODE, &State[0]));
 	V(m_Device->GetRenderState(D3DRS_LIGHTING, &State[1]));
 	V(m_Device->GetRenderState(D3DRS_ALPHABLENDENABLE, &State[2]));
@@ -106,6 +107,15 @@ void UIRender::ClearVertexList(void)
 	vertex_count = 0;
 }
 
+void UIRender::DrawVertexList(void)
+{
+	if(vertex_count > 0)
+	{
+		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+	}
+}
+
 // ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
 #define ALIGN_UI_UNIT(v) (floor((v) + 0.3333333f) - 0.5f)
 
@@ -120,15 +130,6 @@ void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 		vertex_list[vertex_count].v = v;
 		vertex_list[vertex_count].color = color;
 		vertex_count++;
-	}
-}
-
-void UIRender::DrawVertexList(void)
-{
-	if(vertex_count > 0)
-	{
-		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
 	}
 }
 

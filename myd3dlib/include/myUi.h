@@ -48,7 +48,6 @@ namespace my
 
 		static Matrix4 PerspectiveProj(float Fovy, float Width, float Height);
 
-		// Default UIRender rendering ui elements under Fixed Pipeline
 		virtual void Begin(void);
 
 		virtual void End(void);
@@ -59,9 +58,9 @@ namespace my
 
 		virtual void ClearVertexList(void);
 
-		virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
-
 		virtual void DrawVertexList(void);
+
+		virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & uvRect, D3DCOLOR color);
 
