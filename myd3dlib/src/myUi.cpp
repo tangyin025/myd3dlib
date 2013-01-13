@@ -95,18 +95,10 @@ void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 	V(m_Device->SetTexture(0, pTexture));
 }
 
-void UIRender::SetWorld(const my::Matrix4 & World)
+void UIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
 {
 	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
-}
-
-void UIRender::SetView(const my::Matrix4 & View)
-{
 	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
-}
-
-void UIRender::SetProj(const my::Matrix4 & Proj)
-{
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
 }
 
@@ -1930,13 +1922,7 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
-		ui_render->SetWorld(m_World);
-
-		ui_render->SetView(m_View);
-
-		ui_render->SetProj(m_Proj);
-
-		ui_render->SetOpacity(m_Opacity);
+		ui_render->SetTransform(m_World, m_View, m_Proj);
 
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 

@@ -330,28 +330,10 @@ void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTexture->m_ptr);
 }
 
-void EffectUIRender::SetWorld(const my::Matrix4 & World)
+void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
 {
 	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mWorld", World);
-}
-
-void EffectUIRender::SetView(const my::Matrix4 & View)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mView", View);
-}
-
-void EffectUIRender::SetProj(const my::Matrix4 & Proj)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mProj", Proj);
-}
-
-void EffectUIRender::SetOpacity(float Opacity)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetVector("g_LightDiffuse", my::Vector4(1,1,1,Opacity));
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
 }
 
 void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
@@ -621,7 +603,7 @@ void Game::OnFrameRender(
 		_ASSERT(m_Font);
 
 		// ! Use the same view, proj as m_Console
-		m_UIRender->SetWorld(my::Matrix4::Identity());
+		m_UIRender->SetTransform(my::Matrix4::Identity(), m_Console->m_View, m_Console->m_Proj);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 

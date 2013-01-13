@@ -5,10 +5,6 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-float4x4 g_mView;
-
-float4x4 g_mProj;
-
 float2 g_ScreenDim;
 
 texture g_MeshTexture;
@@ -48,7 +44,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = align_ui_unit(mul(vPos, mul(mul(g_mWorld, g_mView), g_mProj)), g_ScreenDim);
+    Output.Position = align_ui_unit(mul(vPos, g_mWorldViewProjection), g_ScreenDim);
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;
@@ -67,7 +63,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse * g_LightDiffuse;
+    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
 }
 
 //--------------------------------------------------------------------------------------

@@ -54,13 +54,7 @@ namespace my
 
 		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
-		virtual void SetWorld(const my::Matrix4 & World);
-
-		virtual void SetView(const my::Matrix4 & View);
-
-		virtual void SetProj(const my::Matrix4 & Proj);
-
-		virtual void SetOpacity(float Opacity) {} // ! Unsupported
+		virtual void SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj);
 
 		virtual void ClearVertexList(void);
 
@@ -706,8 +700,6 @@ namespace my
 
 		Vector2 m_MouseOffset;
 
-		float m_Opacity;
-
 		ControlEvent EventAlign;
 
 		ControlEvent EventRefresh;
@@ -719,7 +711,6 @@ namespace my
 			, m_Proj(UIRender::PerspectiveProj(D3DXToRadian(75.0f), 800, 600))
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
-			, m_Opacity(1)
 		{
 		}
 
