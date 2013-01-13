@@ -317,19 +317,19 @@ public:
 
 	my::TexturePtr m_WhiteTexture;
 
-	my::FontPtr m_font;
+	my::FontPtr m_Font;
 
-	my::DialogPtr m_console;
+	my::DialogPtr m_Console;
 
-	MessagePanelPtr m_panel;
+	MessagePanelPtr m_Panel;
 
-	my::InputPtr m_input;
+	my::InputPtr m_Input;
 
-	my::KeyboardPtr m_keyboard;
+	my::KeyboardPtr m_Keyboard;
 
-	my::MousePtr m_mouse;
+	my::MousePtr m_Mouse;
 
-	my::SoundPtr m_sound;
+	my::SoundPtr m_Sound;
 
 	typedef stdext::hash_map<std::string, GameStateBasePtr> GameStateBasePtrMap;
 
@@ -354,12 +354,12 @@ public:
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
-		m_panel->AddLine(str, Color);
+		m_Panel->AddLine(str, Color);
 	}
 
 	void puts(const std::wstring & str)
 	{
-		m_panel->puts(str);
+		m_Panel->puts(str);
 	}
 
 	virtual bool IsDeviceAcceptable(

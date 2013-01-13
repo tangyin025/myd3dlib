@@ -457,36 +457,36 @@ HRESULT Game::OnCreateDevice(
 
 	ExecuteCode("dofile \"Hud.lua\"");
 
-	if(!m_font || !m_console || !m_panel)
+	if(!m_Font || !m_Console || !m_Panel)
 	{
-		THROW_CUSEXCEPTION("m_font, m_console, m_panel must be created");
+		THROW_CUSEXCEPTION("m_Font, m_Console, m_Panel must be created");
 	}
 
-	m_console->SetVisible(false);
+	m_Console->SetVisible(false);
 
-	UpdateDlgViewProj(m_console, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
+	UpdateDlgViewProj(m_Console, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(!m_input)
+	if(!m_Input)
 	{
-		m_input.reset(new Input());
-		m_input->CreateInput(GetModuleHandle(NULL));
+		m_Input.reset(new Input());
+		m_Input->CreateInput(GetModuleHandle(NULL));
 
-		m_keyboard.reset(new Keyboard());
-		m_keyboard->CreateKeyboard(m_input->m_ptr);
-		m_keyboard->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+		m_Keyboard.reset(new Keyboard());
+		m_Keyboard->CreateKeyboard(m_Input->m_ptr);
+		m_Keyboard->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
-		m_mouse.reset(new Mouse());
-		m_mouse->CreateMouse(m_input->m_ptr);
-		m_mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
+		m_Mouse.reset(new Mouse());
+		m_Mouse->CreateMouse(m_Input->m_ptr);
+		m_Mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 	}
 
-	if(!m_sound)
+	if(!m_Sound)
 	{
-		m_sound.reset(new Sound());
-		m_sound->CreateSound();
-		m_sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
+		m_Sound.reset(new Sound());
+		m_Sound->CreateSound();
+		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
 	SetState("GameStateLoad", GameStateBasePtr(new GameStateLoad()));
@@ -515,7 +515,7 @@ HRESULT Game::OnResetDevice(
 
 	Vector2 vp((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height);
 
-	UpdateDlgViewProj(m_console, vp);
+	UpdateDlgViewProj(m_Console, vp);
 
 	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
 	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
@@ -549,7 +549,7 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	m_console.reset();
+	m_Console.reset();
 
 	RemoveAllDlg();
 
@@ -566,9 +566,9 @@ void Game::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_keyboard->Capture();
+	m_Keyboard->Capture();
 
-	m_mouse->Capture();
+	m_Mouse->Capture();
 
 	if(m_stateMap.end() != m_CurrentStateIter)
 		m_CurrentStateIter->second->OnFrameMove(fTime, fElapsedTime);
@@ -600,12 +600,12 @@ void Game::OnFrameRender(
 
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_console->Draw(m_UIRender.get(), fElapsedTime);
+		m_Console->Draw(m_UIRender.get(), fElapsedTime);
 
-		_ASSERT(m_font);
+		_ASSERT(m_Font);
 
-		// ! Use the same world, view, proj as m_console
-		m_font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		// ! Use the same world, view, proj as m_Console
+		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		m_UIRender->End();
 
@@ -620,14 +620,14 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	if(m_console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
+	if(m_Console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
-		m_console->SetVisible(!m_console->GetVisible());
+		m_Console->SetVisible(!m_Console->GetVisible());
 		*pbNoFurtherProcessing = true;
 		return 0;
 	}
 
-	if(m_console && (*pbNoFurtherProcessing = m_console->MsgProc(hWnd, uMsg, wParam, lParam)))
+	if(m_Console && (*pbNoFurtherProcessing = m_Console->MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}

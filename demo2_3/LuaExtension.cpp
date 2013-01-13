@@ -10,7 +10,7 @@ static int lua_print(lua_State * L)
 {
 	try
 	{
-		MessagePanel * panel = Game::getSingleton().m_panel.get();
+		MessagePanel * panel = Game::getSingleton().m_Panel.get();
 		_ASSERT(panel);
 
 		int n = lua_gettop(L);  /* number of arguments */
@@ -327,12 +327,12 @@ struct HelpFunc
 
 	static my::ControlPtr Game_GetPanel(Game * obj)
 	{
-		return obj->m_panel;
+		return obj->m_Panel;
 	}
 
 	static void Game_SetPanel(Game * obj, my::ControlPtr panel)
 	{
-		obj->m_panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
+		obj->m_Panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
 	}
 };
 
@@ -961,10 +961,10 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllDlg", &DialogMgr::RemoveAllDlg)
 
 		, class_<Game, bases<my::DxutApp, LoaderMgr, DialogMgr, TimerMgr> >("Game")
-			.def_readwrite("font", &Game::m_font)
-			.def_readwrite("console", &Game::m_console)
+			.def_readwrite("Font", &Game::m_Font)
+			.def_readwrite("Console", &Game::m_Console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
-			.property("panel", &HelpFunc::Game_GetPanel, &HelpFunc::Game_SetPanel)
+			.property("Panel", &HelpFunc::Game_GetPanel, &HelpFunc::Game_SetPanel)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("GetCurrentState", &Game::GetCurrentState)
 			.def("GetCurrentStateKey", &Game::GetCurrentStateKey)

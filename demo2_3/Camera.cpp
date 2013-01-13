@@ -18,7 +18,7 @@ void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	Mouse * mouse = Game::getSingleton().m_mouse.get();
+	Mouse * mouse = Game::getSingleton().m_Mouse.get();
 
 	_ASSERT(mouse);
 
@@ -50,9 +50,9 @@ void FirstPersonCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	Mouse * mouse = Game::getSingleton().m_mouse.get();
+	Mouse * mouse = Game::getSingleton().m_Mouse.get();
 
-	Keyboard * keyboard = Game::getSingleton().m_keyboard.get();
+	Keyboard * keyboard = Game::getSingleton().m_Keyboard.get();
 
 	_ASSERT(mouse && keyboard);
 

@@ -64,6 +64,6 @@ edit.EventKeyDown=function()
 end
 dlg:InsertControl(edit)
 
-game.console=dlg
+game.Console=dlg
 
-game.panel=panel
+game.Panel=panel
