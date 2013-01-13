@@ -620,7 +620,9 @@ void Game::OnFrameRender(
 
 		_ASSERT(m_Font);
 
-		// ! Use the same world, view, proj as m_Console
+		// ! Use the same view, proj as m_Console
+		m_UIRender->SetWorld(my::Matrix4::Identity());
+
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
 		m_UIRender->End();
