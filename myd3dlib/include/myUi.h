@@ -56,6 +56,8 @@ namespace my
 
 		virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
 
+		virtual void SetOpacity(float Opacity) {} // ! Unsupported
+
 		virtual void ClearVertexList(void);
 
 		virtual void DrawVertexList(void);
@@ -700,6 +702,8 @@ namespace my
 
 		Vector2 m_MouseOffset;
 
+		float m_Opacity;
+
 		ControlEvent EventAlign;
 
 		ControlEvent EventRefresh;
@@ -711,6 +715,7 @@ namespace my
 			, m_Proj(UIRender::PerspectiveProj(D3DXToRadian(75.0f), 800, 600))
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
+			, m_Opacity(1)
 		{
 		}
 

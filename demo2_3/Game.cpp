@@ -338,6 +338,14 @@ void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 &
 	}
 }
 
+void EffectUIRender::SetOpacity(float Opacity)
+{
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetVector("g_LightDiffuse", my::Vector4(1,1,1,Opacity));
+	}
+}
+
 void EffectUIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 {
 	if(vertex_count < _countof(vertex_list))

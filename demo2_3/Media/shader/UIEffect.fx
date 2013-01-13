@@ -63,7 +63,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
+    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse * g_LightDiffuse;
 }
 
 //--------------------------------------------------------------------------------------

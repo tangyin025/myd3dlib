@@ -212,9 +212,9 @@ void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize &
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
 {
-	if(Image)
+	if(Image && Image->m_Texture)
 	{
-		ui_render->SetTexture(Image->m_Texture ? Image->m_Texture->m_ptr : NULL);
+		ui_render->SetTexture(Image->m_Texture->m_ptr);
 		ui_render->DrawWindow(rect, color, CSize(Image->m_Texture->GetLevelDesc().Width, Image->m_Texture->GetLevelDesc().Height), Image->m_Border);
 	}
 	else
@@ -1923,6 +1923,8 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	if(m_bVisible)
 	{
 		ui_render->SetTransform(m_World, m_View, m_Proj);
+
+		ui_render->SetOpacity(m_Opacity);
 
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
