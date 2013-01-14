@@ -1738,14 +1738,15 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 
 						if(ItemRect.PtInRect(pt))
 						{
-							int last_selected = m_iSelected;
-
-							m_iSelected = i;
-
 							m_bOpened = false;
 
-							if(last_selected != m_iSelected && EventSelectionChanged)
-								EventSelectionChanged(EventArgsPtr(new EventArgs));
+							if(m_iSelected != i)
+							{
+								m_iSelected = i;
+
+								if(EventSelectionChanged)
+									EventSelectionChanged(EventArgsPtr(new EventArgs));
+							}
 
 							break;
 						}
@@ -1761,6 +1762,52 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 				m_bPressed = false;
 
 				return true;
+			}
+			break;
+
+		case WM_MOUSEWHEEL:
+			if(m_bHasFocus)
+			{
+	            int zDelta = (short)HIWORD(wParam) / WHEEL_DELTA;
+				if(m_bOpened)
+				{
+					UINT uLines;
+					SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &uLines, 0);
+					m_ScrollBar.Scroll(-zDelta * uLines);
+				}
+				else
+				{
+					if(zDelta > 0)
+					{
+						if(m_iFocused > 0)
+						{
+							m_iFocused--;
+
+							if(m_iSelected != m_iFocused)
+							{
+								m_iSelected = m_iFocused;
+
+								if(EventSelectionChanged)
+									EventSelectionChanged(EventArgsPtr(new EventArgs));
+							}
+						}
+					}
+					else
+					{
+						if(m_iFocused + 1 < (int)m_Items.size())
+						{
+							m_iFocused++;
+
+							if(m_iSelected != m_iFocused)
+							{
+								m_iSelected = m_iFocused;
+
+								if(EventSelectionChanged)
+									EventSelectionChanged(EventArgsPtr(new EventArgs));
+							}
+						}
+					}
+				}
 			}
 			break;
 		}
