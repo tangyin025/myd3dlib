@@ -684,7 +684,7 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		static boost::weak_ptr<Control> m_ControlFocus;
+		static boost::weak_ptr<Control> s_ControlFocus;
 
 		ControlPtrSet m_Controls;
 

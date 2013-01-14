@@ -439,8 +439,6 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if(m_bPressed)
 			{
-				ReleaseCapture();
-
 				m_bPressed = false;
 
 				if(ContainsPoint(pt))
@@ -834,7 +832,6 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
 			{
-				ReleaseCapture();
 				m_bMouseDrag = false;
 			}
 			break;
@@ -1447,7 +1444,6 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_LBUTTONUP:
 		{
 			m_bDrag = false;
-			ReleaseCapture();
 			m_Arrow = CLEAR;
 			break;
 		}
@@ -1559,8 +1555,6 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_LBUTTONUP:
 			if(m_bPressed)
 			{
-				ReleaseCapture();
-
 				m_bPressed = false;
 
 				if(ContainsPoint(pt))
@@ -1764,8 +1758,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		case WM_LBUTTONUP:
 			if(m_bPressed && ContainsPoint(pt))
 			{
-				ReleaseCapture();
-
 				m_bPressed = false;
 
 				return true;
@@ -1916,7 +1908,7 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
-boost::weak_ptr<Control> Dialog::m_ControlFocus;
+boost::weak_ptr<Control> Dialog::s_ControlFocus;
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
@@ -1939,7 +1931,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(!m_bEnabled || !m_bVisible)
 		return false;
 
-	ControlPtr ControlFocus = m_ControlFocus.lock();
+	ControlPtr ControlFocus = s_ControlFocus.lock();
 
 	if(ControlFocus
 		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
@@ -2037,7 +2029,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt.xy))
 				{
 					ControlFocus->OnFocusOut();
-					m_ControlFocus.reset();
+					s_ControlFocus.reset();
 				}
 
 				if(HandleMouse(uMsg, pt.xy, wParam, lParam))
@@ -2082,7 +2074,6 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
 			{
-				ReleaseCapture();
 				m_bMouseDrag = false;
 			}
 			break;
@@ -2102,12 +2093,12 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if(!(m_bVisible = bVisible))
 	{
-		ControlPtr ControlFocus = m_ControlFocus.lock();
+		ControlPtr ControlFocus = s_ControlFocus.lock();
 		if(ControlFocus && ContainsControl(ControlFocus))
 		{
 			ControlFocus->OnFocusOut();
 
-			m_ControlFocus.reset();
+			s_ControlFocus.reset();
 		}
 	}
 	else
@@ -2148,7 +2139,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	if(!control->CanHaveFocus())
 		return;
 
-	ControlPtr ControlFocus = m_ControlFocus.lock();
+	ControlPtr ControlFocus = s_ControlFocus.lock();
 	if(ControlFocus)
 	{
 		if(ControlFocus == control)
@@ -2158,7 +2149,7 @@ void Dialog::RequestFocus(ControlPtr control)
 	}
 
 	control->OnFocusIn();
-	m_ControlFocus = control;
+	s_ControlFocus = control;
 }
 
 void Dialog::ForceFocusControl(void)

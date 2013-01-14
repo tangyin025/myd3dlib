@@ -22,7 +22,7 @@ void ModelViewerCamera::OnFrameMove(
 
 	_ASSERT(mouse);
 
-	if(!my::Dialog::m_ControlFocus.lock())
+	if(!my::Dialog::s_ControlFocus.lock())
 	{
 		if(mouse->IsButtonDown(0))
 		{
@@ -59,7 +59,7 @@ void FirstPersonCamera::OnFrameMove(
 	const float Movement = 5.0f * fElapsedTime;
 	const float Rotation = 180.0f * fElapsedTime;
 	Vector3 Velocity(0,0,0);
-	if(!my::Dialog::m_ControlFocus.lock())
+	if(!my::Dialog::s_ControlFocus.lock())
 	{
 		if(mouse->IsButtonDown(0))
 		{
