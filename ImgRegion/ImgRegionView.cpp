@@ -755,7 +755,10 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 				{
 					hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, strItem, m_DragRegTextOff, pReg->m_TextOff)));
 				}
-				pDoc->AddNewHistory(hist);
+				if(!hist->empty())
+				{
+					pDoc->AddNewHistory(hist);
+				}
 			}
 
 			pDoc->UpdateAllViews(this);
