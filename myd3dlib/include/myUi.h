@@ -60,7 +60,7 @@ namespace my
 
 		virtual void DrawVertexList(void);
 
-		virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
+		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color);
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & uvRect, D3DCOLOR color);
 

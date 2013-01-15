@@ -116,16 +116,13 @@ void UIRender::DrawVertexList(void)
 	}
 }
 
-// ! Floor UI unit & subtract 0.5 units to correctly align texels with pixels
-#define ALIGN_UI_UNIT(v) (floor((v) + 0.3333333f) - 0.5f)
-
-void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
+void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color)
 {
 	if(vertex_count < _countof(vertex_list))
 	{
-		vertex_list[vertex_count].x = ALIGN_UI_UNIT(x);
-		vertex_list[vertex_count].y = ALIGN_UI_UNIT(y);
-		vertex_list[vertex_count].z = 0;
+		vertex_list[vertex_count].x = x;
+		vertex_list[vertex_count].y = y;
+		vertex_list[vertex_count].z = z;
 		vertex_list[vertex_count].u = u;
 		vertex_list[vertex_count].v = v;
 		vertex_list[vertex_count].color = color;
@@ -135,12 +132,12 @@ void UIRender::PushVertex(float x, float y, float u, float v, D3DCOLOR color)
 
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & uvRect, D3DCOLOR color)
 {
-	PushVertex(rect.l, rect.t, uvRect.l, uvRect.t, color);
-	PushVertex(rect.r, rect.t, uvRect.r, uvRect.t, color);
-	PushVertex(rect.l, rect.b, uvRect.l, uvRect.b, color);
-	PushVertex(rect.r, rect.b, uvRect.r, uvRect.b, color);
-	PushVertex(rect.l, rect.b, uvRect.l, uvRect.b, color);
-	PushVertex(rect.r, rect.t, uvRect.r, uvRect.t, color);
+	PushVertex(rect.l, rect.t, 0, uvRect.l, uvRect.t, color);
+	PushVertex(rect.r, rect.t, 0, uvRect.r, uvRect.t, color);
+	PushVertex(rect.l, rect.b, 0, uvRect.l, uvRect.b, color);
+	PushVertex(rect.r, rect.b, 0, uvRect.r, uvRect.b, color);
+	PushVertex(rect.l, rect.b, 0, uvRect.l, uvRect.b, color);
+	PushVertex(rect.r, rect.t, 0, uvRect.r, uvRect.t, color);
 }
 
 void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & uvRect)

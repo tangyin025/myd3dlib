@@ -295,32 +295,32 @@ struct HelpFunc
 		obj->SetTexture(name, value);
 	}
 
-	static my::TexturePtr LoaderMgr_LoadTexture(LoaderMgr * obj, const std::string & path)
+	static my::TexturePtr LoaderMgr_LoadTexture(my::LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadTexture(path);
 	}
 
-	static my::CubeTexturePtr LoaderMgr_LoadCubeTexture(LoaderMgr * obj, const std::string & path)
+	static my::CubeTexturePtr LoaderMgr_LoadCubeTexture(my::LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadCubeTexture(path);
 	}
 
-	static my::OgreMeshPtr LoaderMgr_LoadMesh(LoaderMgr * obj, const std::string & path)
+	static my::OgreMeshPtr LoaderMgr_LoadMesh(my::LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadMesh(path);
 	}
 
-	static my::OgreSkeletonAnimationPtr LoaderMgr_LoadSkeleton(LoaderMgr * obj, const std::string & path)
+	static my::OgreSkeletonAnimationPtr LoaderMgr_LoadSkeleton(my::LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadSkeleton(path);
 	}
 
-	static my::EffectPtr LoaderMgr_LoadEffect(LoaderMgr * obj, const std::string & path)
+	static my::EffectPtr LoaderMgr_LoadEffect(my::LoaderMgr * obj, const std::string & path)
 	{
 		return obj->LoadEffect(path);
 	}
 
-	static my::FontPtr LoaderMgr_LoadFont(LoaderMgr * obj, const std::string & path, int height)
+	static my::FontPtr LoaderMgr_LoadFont(my::LoaderMgr * obj, const std::string & path, int height)
 	{
 		return obj->LoadFont(path, height);
 	}
@@ -928,13 +928,13 @@ void Export2Lua(lua_State * L)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
-		, class_<LoaderMgr>("LoaderMgr")
-			.def("LoadTexture", &LoaderMgr::LoadTexture)
-			.def("LoadCubeTexture", &LoaderMgr::LoadCubeTexture)
-			.def("LoadMesh", &LoaderMgr::LoadMesh)
-			.def("LoadSkeleton", &LoaderMgr::LoadSkeleton)
-			.def("LoadEffect", &LoaderMgr::LoadEffect)
-			.def("LoadFont", &LoaderMgr::LoadFont)
+		, class_<my::LoaderMgr>("LoaderMgr")
+			.def("LoadTexture", &my::LoaderMgr::LoadTexture)
+			.def("LoadCubeTexture", &my::LoaderMgr::LoadCubeTexture)
+			.def("LoadMesh", &my::LoaderMgr::LoadMesh)
+			.def("LoadSkeleton", &my::LoaderMgr::LoadSkeleton)
+			.def("LoadEffect", &my::LoaderMgr::LoadEffect)
+			.def("LoadFont", &my::LoaderMgr::LoadFont)
 			// ! luabind unsupport default parameter
 			.def("LoadTexture", &HelpFunc::LoaderMgr_LoadTexture)
 			.def("LoadCubeTexture", &HelpFunc::LoaderMgr_LoadCubeTexture)
@@ -943,24 +943,24 @@ void Export2Lua(lua_State * L)
 			.def("LoadEffect", &HelpFunc::LoaderMgr_LoadEffect)
 			.def("LoadFont", &HelpFunc::LoaderMgr_LoadFont)
 
-		, class_<Timer, boost::shared_ptr<Timer> >("Timer")
+		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
 			.def(constructor<float, float>())
-			.def_readonly("Interval", &Timer::m_Interval)
-			.def_readonly("RemainingTime", &Timer::m_RemainingTime)
-			.def_readwrite("EventTimer", &Timer::m_EventTimer)
+			.def_readonly("Interval", &my::Timer::m_Interval)
+			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
+			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
-		, class_<TimerMgr>("TimerMgr")
-			.def("AddTimer", &TimerMgr::AddTimer)
-			.def("InsertTimer", &TimerMgr::InsertTimer)
-			.def("RemoveTimer", &TimerMgr::RemoveTimer)
-			.def("RemoveAllTimer", &TimerMgr::RemoveAllTimer)
+		, class_<my::TimerMgr>("TimerMgr")
+			.def("AddTimer", &my::TimerMgr::AddTimer)
+			.def("InsertTimer", &my::TimerMgr::InsertTimer)
+			.def("RemoveTimer", &my::TimerMgr::RemoveTimer)
+			.def("RemoveAllTimer", &my::TimerMgr::RemoveAllTimer)
 
-		, class_<DialogMgr>("DialogMgr")
-			.def("InsertDlg", &DialogMgr::InsertDlg)
-			.def("RemoveDlg", &DialogMgr::RemoveDlg)
-			.def("RemoveAllDlg", &DialogMgr::RemoveAllDlg)
+		, class_<my::DialogMgr>("DialogMgr")
+			.def("InsertDlg", &my::DialogMgr::InsertDlg)
+			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
+			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
 
-		, class_<Game, bases<my::DxutApp, LoaderMgr, DialogMgr, TimerMgr> >("Game")
+		, class_<Game, bases<my::DxutApp, my::LoaderMgr, my::DialogMgr, my::TimerMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr

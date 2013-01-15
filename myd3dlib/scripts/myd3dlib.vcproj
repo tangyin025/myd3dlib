@@ -239,6 +239,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myUtility.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -354,6 +358,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myUi.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myUtility.h"
 				>
 			</File>
 			<File

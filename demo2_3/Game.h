@@ -4,198 +4,6 @@
 #include <LuaContext.h>
 #include "Console.h"
 
-class LoaderMgr
-	: public my::ResourceMgr
-	, public ID3DXInclude
-{
-protected:
-	std::map<LPCVOID, my::CachePtr> m_cacheSet;
-
-	CComPtr<ID3DXEffectPool> m_EffectPool;
-
-	typedef std::map<std::string, boost::weak_ptr<my::DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
-
-	DeviceRelatedResourceSet m_resourceSet;
-
-	typedef std::map<std::string, boost::weak_ptr<my::OgreSkeletonAnimation> > OgreSkeletonAnimationSet;
-
-	OgreSkeletonAnimationSet m_skeletonSet;
-
-public:
-	LoaderMgr(void);
-
-	virtual ~LoaderMgr(void);
-
-	virtual __declspec(nothrow) HRESULT __stdcall Open(
-		D3DXINCLUDE_TYPE IncludeType,
-		LPCSTR pFileName,
-		LPCVOID pParentData,
-		LPCVOID * ppData,
-		UINT * pBytes);
-
-	virtual __declspec(nothrow) HRESULT __stdcall Close(
-		LPCVOID pData);
-
-	virtual HRESULT OnResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-	virtual void OnLostDevice(void);
-
-	virtual void OnDestroyDevice(void);
-
-	template <class ResourceType>
-	boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
-	{
-		DeviceRelatedResourceSet::const_iterator res_iter = m_resourceSet.find(key);
-		if(m_resourceSet.end() != res_iter)
-		{
-			boost::shared_ptr<my::DeviceRelatedObjectBase> res = res_iter->second.lock();
-			if(res)
-			{
-				if(reload)
-					res->OnDestroyDevice();
-
-				return boost::dynamic_pointer_cast<ResourceType>(res);
-			}
-		}
-
-		boost::shared_ptr<ResourceType> res(new ResourceType());
-		m_resourceSet[key] = res;
-		return res;
-	}
-
-	my::TexturePtr LoadTexture(const std::string & path, bool reload = false);
-
-	my::CubeTexturePtr LoadCubeTexture(const std::string & path, bool reload = false);
-
-	my::OgreMeshPtr LoadMesh(const std::string & path, bool reload = false);
-
-	my::OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path, bool reload = false);
-
-	my::EffectPtr LoadEffect(const std::string & path, bool reload = false);
-
-	my::FontPtr LoadFont(const std::string & path, int height, bool reload = false);
-};
-
-class Timer
-{
-public:
-	const float m_Interval;
-
-	float m_RemainingTime;
-
-	my::ControlEvent m_EventTimer;
-
-public:
-	Timer(float Interval, float RemainingTime = 0)
-		: m_Interval(Interval)
-		, m_RemainingTime(Interval)
-	{
-	}
-};
-
-typedef boost::shared_ptr<Timer> TimerPtr;
-
-class TimerMgr
-{
-protected:
-	typedef std::map<TimerPtr, bool> TimerPtrSet;
-
-	TimerPtrSet m_timerSet;
-
-	const float m_MinRemainingTime;
-
-	my::EventArgsPtr m_DefaultArgs;
-
-public:
-	TimerMgr(void)
-		: m_MinRemainingTime(-1/10.0f)
-		, m_DefaultArgs(new my::EventArgs())
-	{
-	}
-
-	TimerPtr AddTimer(float Interval, my::ControlEvent EventTimer)
-	{
-		TimerPtr timer(new Timer(Interval, Interval));
-		timer->m_EventTimer = EventTimer;
-		InsertTimer(timer);
-		return timer;
-	}
-
-	void InsertTimer(TimerPtr timer)
-	{
-		m_timerSet.insert(std::make_pair(timer, true));
-	}
-
-	void RemoveTimer(TimerPtr timer)
-	{
-		TimerPtrSet::iterator timer_iter = m_timerSet.find(timer);
-		if(timer_iter != m_timerSet.end())
-		{
-			timer_iter->second = false;
-		}
-	}
-
-	void RemoveAllTimer(void)
-	{
-		m_timerSet.clear();
-	}
-
-	void OnFrameMove(
-		double fTime,
-		float fElapsedTime);
-};
-
-class DialogMgr
-{
-public:
-	typedef std::vector<my::DialogPtr> DialogPtrSet;
-
-	DialogPtrSet m_dlgSet;
-
-public:
-	DialogMgr(void)
-	{
-	}
-
-	static void UpdateDlgViewProj(my::DialogPtr dlg, const my::Vector2 & vp);
-
-	void Draw(
-		my::UIRender * ui_render,
-		double fTime,
-		float fElapsedTime);
-
-	bool MsgProc(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam);
-
-	void InsertDlg(my::DialogPtr dlg)
-	{
-		const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-
-		UpdateDlgViewProj(dlg, my::Vector2((float)desc.Width, (float)desc.Height));
-
-		m_dlgSet.push_back(dlg);
-	}
-
-	void RemoveDlg(my::DialogPtr dlg)
-	{
-		DialogPtrSet::iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
-		if(dlg_iter != m_dlgSet.end())
-		{
-			m_dlgSet.erase(dlg_iter);
-		}
-	}
-
-	void RemoveAllDlg(void)
-	{
-		m_dlgSet.clear();
-	}
-};
-
 class EffectUIRender
 	: public my::UIRender
 {
@@ -220,8 +28,6 @@ public:
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 	virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
-
-	virtual void PushVertex(float x, float y, float u, float v, D3DCOLOR color);
 
 	virtual void DrawVertexList(void);
 };
@@ -298,14 +104,14 @@ typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
 
 class Game
 	: public my::DxutApp
-	, public LoaderMgr
-	, public TimerMgr
-	, public DialogMgr
+	, public my::LoaderMgr
+	, public my::TimerMgr
+	, public my::DialogMgr
 {
 public:
 	my::LuaContextPtr m_lua;
 
-	Timer m_Timer;
+	my::Timer m_Timer;
 
 	my::UIRenderPtr m_UIRender;
 
