@@ -150,9 +150,10 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("m_Font, m_Console, m_Panel must be created");
 	}
 
-	m_Console->SetVisible(false);
+	m_dlgSetMap[1].push_back(m_Console);
 
-	UpdateDlgViewProj(m_Console, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
+	if(m_Console->EventAlign)
+		m_Console->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2(-DialogMgr::m_View._41*2,DialogMgr::m_View._42*2))));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -201,15 +202,9 @@ HRESULT Game::OnResetDevice(
 		return hres;
 	}
 
-	Vector2 vp((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height);
+	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
-	UpdateDlgViewProj(m_Console, vp);
-
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
-	{
-		UpdateDlgViewProj(*dlg_iter, vp);
-	}
+	DialogMgr::UpdateViewport(vp);
 
 	SafeResetState(GetCurrentState());
 
@@ -238,6 +233,8 @@ void Game::OnDestroyDevice(void)
 	ExecuteCode("collectgarbage(\"collect\")");
 
 	m_Console.reset();
+
+	m_dlgSetMap[1].clear();
 
 	RemoveAllDlg();
 
@@ -288,12 +285,9 @@ void Game::OnFrameRender(
 
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_Console->Draw(m_UIRender.get(), fElapsedTime);
-
 		_ASSERT(m_Font);
 
-		// ! Use the same view, proj as m_Console
-		m_UIRender->SetTransform(my::Matrix4::Identity(), m_Console->m_View, m_Console->m_Proj);
+		m_UIRender->SetTransform(my::Matrix4::Identity(), DialogMgr::m_View, DialogMgr::m_Proj);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
@@ -314,11 +308,6 @@ LRESULT Game::MsgProc(
 	{
 		m_Console->SetVisible(!m_Console->GetVisible());
 		*pbNoFurtherProcessing = true;
-		return 0;
-	}
-
-	if(m_Console && (*pbNoFurtherProcessing = m_Console->MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
 		return 0;
 	}
 

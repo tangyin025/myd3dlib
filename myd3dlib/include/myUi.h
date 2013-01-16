@@ -692,10 +692,6 @@ namespace my
 
 		Matrix4 m_World;
 
-		Matrix4 m_View;
-
-		Matrix4 m_Proj;
-
 		bool m_bMouseDrag;
 
 		Vector2 m_MouseOffset;
@@ -707,8 +703,6 @@ namespace my
 	public:
 		Dialog(void)
 			: m_World(Matrix4::identity)
-			, m_View(UIRender::PerspectiveView(D3DXToRadian(75.0f), 800, 600))
-			, m_Proj(UIRender::PerspectiveProj(D3DXToRadian(75.0f), 800, 600))
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
@@ -721,6 +715,8 @@ namespace my
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		virtual bool HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		virtual bool HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam);
 

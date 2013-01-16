@@ -7,8 +7,11 @@ dlg.Skin.Font=_Font.font1
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
-	local vp=CommonUI.UpdateDlgViewProj(dlg,args.vp)
-	dlg.Location=(vp-dlg.Size)*0.5
+	dlg.Location=(args.vp-dlg.Size)*0.5
+	
+	-- ! Scale Font
+	local desc=game:GetD3D9BackBufferSurfaceDesc()
+	_Font.font1.Scale=Vector2(desc.Width/args.vp.x,desc.Height/args.vp.y)
 end
 
 local function SettingsButton(x,y,text)

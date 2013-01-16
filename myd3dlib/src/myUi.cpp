@@ -2,7 +2,6 @@
 #include "myUi.h"
 #include "myDxutApp.h"
 #include "ImeUi.h"
-#include "myCollision.h"
 
 using namespace my;
 
@@ -1958,8 +1957,6 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
-		ui_render->SetTransform(m_World, m_View, m_Proj);
-
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
 		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
@@ -1972,129 +1969,22 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 
 bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(!m_bEnabled || !m_bVisible)
-		return false;
+	return false;
+}
 
-	ControlPtr ControlFocus = s_ControlFocus.lock();
-
-	if(ControlFocus
-		&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
-		&& ControlFocus->GetEnabled())
+bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if(m_bEnabled)
 	{
-		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
-			return true;
-	}
-
-	switch(uMsg)
-	{
-	case WM_KEYDOWN:
-	case WM_SYSKEYDOWN:
-	case WM_KEYUP:
-	case WM_SYSKEYUP:
-		if(ControlFocus
-			&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
-			&& ControlFocus->GetEnabled())
+		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
-			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+			if((*ctrl_iter)->GetHotkey() == wParam)
+			{
+				(*ctrl_iter)->OnHotkey();
 				return true;
-		}
-
-		if(uMsg == WM_KEYDOWN
-			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox>(ControlFocus)))
-		{
-			ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
-			for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-			{
-				if((*ctrl_iter)->GetHotkey() == wParam)
-				{
-					(*ctrl_iter)->OnHotkey();
-					return true;
-				}
 			}
 		}
-		break;
-
-	case WM_MOUSEMOVE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_XBUTTONDOWN:
-	case WM_XBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDBLCLK:
-	case WM_RBUTTONDBLCLK:
-	case WM_XBUTTONDBLCLK:
-	case WM_MOUSEWHEEL:
-		{
-			// ! WM_MOUSEMOVE 时 Matrix4::inverse比较费，有必要优化掉
-			Matrix4 invViewMatrix = m_View.inverse();
-			const Vector3 & viewX = invViewMatrix[0].xyz;
-			const Vector3 & viewY = invViewMatrix[1].xyz;
-			const Vector3 & viewZ = invViewMatrix[2].xyz;
-			const Vector3 & ptEye = invViewMatrix[3].xyz;
-
-			CRect ClientRect;
-			GetClientRect(hWnd, &ClientRect);
-			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
-			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
-
-			Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal(m_World);
-			float dialogDistance = ((Vector3 &)m_World[3]).dot(dialogNormal);
-			IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
-
-			if(result.first)
-			{
-				Vector3 ptInt(ptEye + dir * result.second);
-				Vector3 pt = ptInt.transformCoord(m_World.inverse());
-				Vector2 ptLocal = Vector2(pt.x - m_Location.x, pt.y - m_Location.y);
-				if(ControlFocus
-					&& ContainsControl(ControlFocus) // ! 补丁，只处理自己的 FocusControl
-					&& ControlFocus->GetEnabled())
-				{
-					if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
-						return true;
-				}
-
-				ControlPtr ControlPtd = GetControlAtPoint(ptLocal);
-				if(ControlPtd && ControlPtd->GetEnabled())
-				{
-					if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
-					{
-						RequestFocus(ControlPtd);
-						return true;
-					}
-				}
-
-				// ! 补丁，用以解决对话框控件丢失焦点
-				if(uMsg == WM_LBUTTONDOWN && ContainsControl(ControlFocus) && !ContainsPoint(pt.xy))
-				{
-					ControlFocus->OnFocusOut();
-					s_ControlFocus.reset();
-				}
-
-				if(HandleMouse(uMsg, pt.xy, wParam, lParam))
-				{
-					// ! 补丁，强制让自己具有 FocusControl
-					ForceFocusControl();
-					return true;
-				}
-
-				if(ControlPtd != m_ControlMouseOver)
-				{
-					if(m_ControlMouseOver)
-						m_ControlMouseOver->OnMouseLeave();
-
-					m_ControlMouseOver = ControlPtd;
-					if(ControlPtd)
-						ControlPtd->OnMouseEnter();
-				}
-			}
-		}
-		break;
 	}
 	return false;
 }

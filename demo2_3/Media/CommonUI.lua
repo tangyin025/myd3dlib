@@ -41,14 +41,3 @@ com_cbx_skin.ScrollBarDownBtnNormalImage=ControlImage(game:LoadTexture("com_btn_
 com_cbx_skin.ScrollBarDownBtnDisabledImage=ControlImage(game:LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
 com_cbx_skin.ScrollBarThumbBtnNormalImage=ControlImage(game:LoadTexture("com_btn_normal.png"), Vector4(7,7,7,7))
 com_cbx_skin.ScrollBarImage=ControlImage(game:LoadTexture("com_btn_disable.png"), Vector4(7,7,7,7))
-
-function UpdateDlgViewProj(dlg, vp)
-	local Fovy=1.308996938995747
-	local Aspect=vp.x/vp.y
-	local Height=600
-	local Width=Height*Aspect
-	dlg.View=UIRender.PerspectiveView(Fovy,Width,Height)
-	dlg.Proj=UIRender.PerspectiveProj(Fovy,Width,Height)
-	_Font.font1.Scale = Vector2(vp.y/Height,vp.y/Height)
-	return Vector2(Width,Height)
-end

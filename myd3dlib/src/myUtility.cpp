@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "myUtility.h"
 #include "libc.h"
+#include "myCollision.h"
 
 using namespace my;
 
@@ -266,10 +267,22 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
-void DialogMgr::UpdateDlgViewProj(DialogPtr dlg, const Vector2 & vp)
+void DialogMgr::UpdateViewport(const Vector2 & vp)
 {
-	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
+	m_View = UIRender::PerspectiveView(D3DXToRadian(75), vp.x, vp.y);
+
+	m_Proj = UIRender::PerspectiveProj(D3DXToRadian(75), vp.x, vp.y);
+
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	{
+		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			if((*dlg_iter)->EventAlign)
+				(*dlg_iter)->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
+		}
+	}
 }
 
 void DialogMgr::Draw(
@@ -277,10 +290,16 @@ void DialogMgr::Draw(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogPtrSet::iterator dlg_iter = m_dlgSet.begin();
-	for(; dlg_iter != m_dlgSet.end(); dlg_iter++)
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
 	{
-		(*dlg_iter)->Draw(ui_render, fElapsedTime);
+		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			ui_render->SetTransform((*dlg_iter)->m_World, m_View, m_Proj);
+
+			(*dlg_iter)->Draw(ui_render, fElapsedTime);
+		}
 	}
 }
 
@@ -290,11 +309,129 @@ bool DialogMgr::MsgProc(
 	WPARAM wParam,
 	LPARAM lParam)
 {
-	DialogPtrSet::reverse_iterator dlg_iter = m_dlgSet.rbegin();
-	for(; dlg_iter != m_dlgSet.rend(); dlg_iter++)
+	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
+	if(ControlFocus)
 	{
-		if((*dlg_iter)->MsgProc(hWnd, uMsg, wParam, lParam))
+		_ASSERT(!boost::dynamic_pointer_cast<Dialog>(ControlFocus));
+		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
 			return true;
+	}
+
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if(ControlFocus)
+		{
+			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+				return true;
+		}
+
+		if(uMsg == WM_KEYDOWN
+			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox>(ControlFocus)))
+		{
+			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+			{
+				DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+				{
+					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
+						return true;
+				}
+			}
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+		{
+			Matrix4 invViewMatrix = m_View.inverse();
+			const Vector3 & viewX = invViewMatrix[0].xyz;
+			const Vector3 & viewY = invViewMatrix[1].xyz;
+			const Vector3 & viewZ = invViewMatrix[2].xyz;
+			const Vector3 & ptEye = invViewMatrix[3].xyz;
+
+			CRect ClientRect;
+			GetClientRect(hWnd, &ClientRect);
+			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
+			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
+			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
+
+			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
+			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
+			{
+				DialogPtrSet::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
+				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
+				{
+					Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
+					float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
+					IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
+
+					if(result.first)
+					{
+						Vector3 ptInt(ptEye + dir * result.second);
+						Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
+						Vector2 ptLocal = Vector2(pt.x - (*dlg_iter)->m_Location.x, pt.y - (*dlg_iter)->m_Location.y);
+						if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
+						{
+							// ! 只处理自己的 FocusControl
+							if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
+								return true;
+						}
+
+						ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
+						if(ControlPtd && ControlPtd->GetEnabled())
+						{
+							if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
+							{
+								(*dlg_iter)->RequestFocus(ControlPtd);
+								return true;
+							}
+						}
+
+						// ! 用以解决对话框控件丢失焦点
+						if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+						{
+							ControlFocus->OnFocusOut();
+							Dialog::s_ControlFocus.reset();
+						}
+
+						if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
+						{
+							// ! 强制让自己具有 FocusControl
+							(*dlg_iter)->ForceFocusControl();
+							return true;
+						}
+
+						if(ControlPtd != (*dlg_iter)->m_ControlMouseOver)
+						{
+							if((*dlg_iter)->m_ControlMouseOver)
+								(*dlg_iter)->m_ControlMouseOver->OnMouseLeave();
+
+							(*dlg_iter)->m_ControlMouseOver = ControlPtd;
+							if(ControlPtd)
+								ControlPtd->OnMouseEnter();
+						}
+					}
+				}
+			}
+		}
+		break;
 	}
 
 	return false;

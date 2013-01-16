@@ -11,7 +11,6 @@ dlg.Skin.Font=_Font.font1
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
-	local vp=CommonUI.UpdateDlgViewProj(dlg,args.vp)
 	dlg.Location=Vector2(50,95)
 end
 
@@ -67,3 +66,5 @@ dlg:InsertControl(edit)
 game.Console=dlg
 
 game.Panel=panel
+
+dlg.Visible=false

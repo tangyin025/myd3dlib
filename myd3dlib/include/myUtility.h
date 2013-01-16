@@ -156,14 +156,21 @@ namespace my
 	public:
 		typedef std::vector<DialogPtr> DialogPtrSet;
 
-		DialogPtrSet m_dlgSet;
+		typedef std::map<int, DialogPtrSet> DialogPtrSetMap;
+
+		DialogPtrSetMap m_dlgSetMap;
+
+		Matrix4 m_View;
+
+		Matrix4 m_Proj;
 
 	public:
 		DialogMgr(void)
 		{
+			UpdateViewport(Vector2(800,600));
 		}
 
-		static void UpdateDlgViewProj(DialogPtr dlg, const Vector2 & vp);
+		void UpdateViewport(const Vector2 & vp);
 
 		void Draw(
 			UIRender * ui_render,
@@ -178,25 +185,24 @@ namespace my
 
 		void InsertDlg(DialogPtr dlg)
 		{
-			const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+			m_dlgSetMap[0].push_back(dlg);
 
-			UpdateDlgViewProj(dlg, Vector2((float)desc.Width, (float)desc.Height));
-
-			m_dlgSet.push_back(dlg);
+			if(dlg->EventAlign)
+				dlg->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2(-m_View._41*2,m_View._42*2))));
 		}
 
 		void RemoveDlg(DialogPtr dlg)
 		{
-			DialogPtrSet::iterator dlg_iter = std::find(m_dlgSet.begin(), m_dlgSet.end(), dlg);
-			if(dlg_iter != m_dlgSet.end())
+			DialogPtrSet::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
+			if(dlg_iter != m_dlgSetMap[0].end())
 			{
-				m_dlgSet.erase(dlg_iter);
+				m_dlgSetMap[0].erase(dlg_iter);
 			}
 		}
 
-		void RemoveAllDlg(void)
+		void RemoveAllDlg()
 		{
-			m_dlgSet.clear();
+			m_dlgSetMap[0].clear();
 		}
 	};
 }
