@@ -378,54 +378,58 @@ bool DialogMgr::MsgProc(
 				DialogPtrSet::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
 				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
 				{
-					Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
-					float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-					IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
-
-					if(result.first)
+					// ! 只处理看得见的 Dialog
+					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
 					{
-						Vector3 ptInt(ptEye + dir * result.second);
-						Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
-						Vector2 ptLocal = Vector2(pt.x - (*dlg_iter)->m_Location.x, pt.y - (*dlg_iter)->m_Location.y);
-						if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
-						{
-							// ! 只处理自己的 FocusControl
-							if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
-								return true;
-						}
+						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
+						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
 
-						ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
-						if(ControlPtd && ControlPtd->GetEnabled())
+						if(result.first)
 						{
-							if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
+							Vector3 ptInt(ptEye + dir * result.second);
+							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
+							Vector2 ptLocal = Vector2(pt.x - (*dlg_iter)->m_Location.x, pt.y - (*dlg_iter)->m_Location.y);
+							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
 							{
-								(*dlg_iter)->RequestFocus(ControlPtd);
+								// ! 只处理自己的 FocusControl
+								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
+									return true;
+							}
+
+							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
+							if(ControlPtd && ControlPtd->GetEnabled())
+							{
+								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
+								{
+									(*dlg_iter)->RequestFocus(ControlPtd);
+									return true;
+								}
+							}
+
+							// ! 用以解决对话框控件丢失焦点
+							if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+							{
+								ControlFocus->OnFocusOut();
+								Dialog::s_ControlFocus.reset();
+							}
+
+							if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
+							{
+								// ! 强制让自己具有 FocusControl
+								(*dlg_iter)->ForceFocusControl();
 								return true;
 							}
-						}
 
-						// ! 用以解决对话框控件丢失焦点
-						if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
-						{
-							ControlFocus->OnFocusOut();
-							Dialog::s_ControlFocus.reset();
-						}
+							if(ControlPtd != (*dlg_iter)->m_ControlMouseOver)
+							{
+								if((*dlg_iter)->m_ControlMouseOver)
+									(*dlg_iter)->m_ControlMouseOver->OnMouseLeave();
 
-						if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
-						{
-							// ! 强制让自己具有 FocusControl
-							(*dlg_iter)->ForceFocusControl();
-							return true;
-						}
-
-						if(ControlPtd != (*dlg_iter)->m_ControlMouseOver)
-						{
-							if((*dlg_iter)->m_ControlMouseOver)
-								(*dlg_iter)->m_ControlMouseOver->OnMouseLeave();
-
-							(*dlg_iter)->m_ControlMouseOver = ControlPtd;
-							if(ControlPtd)
-								ControlPtd->OnMouseEnter();
+								(*dlg_iter)->m_ControlMouseOver = ControlPtd;
+								if(ControlPtd)
+									ControlPtd->OnMouseEnter();
+							}
 						}
 					}
 				}
