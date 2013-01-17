@@ -58,7 +58,6 @@ void EffectUIRender::DrawVertexList(void)
 }
 
 Game::Game(void)
-	: m_Timer(1/60.0f)
 {
 	m_lua.reset(new LuaContext());
 
@@ -255,6 +254,8 @@ void Game::OnFrameMove(
 
 	m_Mouse->Capture();
 
+	TimerMgr::OnFrameMove(fTime, fElapsedTime);
+
 	if(m_stateMap.end() != m_CurrentStateIter)
 		m_CurrentStateIter->second->OnFrameMove(fTime, fElapsedTime);
 }
@@ -264,15 +265,7 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	m_Timer.m_RemainingTime = Max(m_Timer.m_RemainingTime - fElapsedTime, m_MinRemainingTime);
-	while(m_Timer.m_RemainingTime <= 0)
-	{
-		OnFrameMove(fTime + m_Timer.m_RemainingTime, m_Timer.m_Interval);
-
-		m_Timer.m_RemainingTime += m_Timer.m_Interval;
-	}
-
-	TimerMgr::OnFrameMove(fTime, fElapsedTime);
+	OnFrameMove(fTime, fElapsedTime);
 
 	if(m_stateMap.end() != m_CurrentStateIter)
 		m_CurrentStateIter->second->OnFrameRender(pd3dDevice, fTime, fElapsedTime);

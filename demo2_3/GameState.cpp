@@ -341,7 +341,7 @@ void GameStateMain::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_dynamicsWorld->stepSimulation(fElapsedTime, 0);
+	m_dynamicsWorld->stepSimulation(fElapsedTime, 4);
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 

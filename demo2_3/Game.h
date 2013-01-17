@@ -111,8 +111,6 @@ class Game
 public:
 	my::LuaContextPtr m_lua;
 
-	my::Timer m_Timer;
-
 	my::UIRenderPtr m_UIRender;
 
 	my::TexturePtr m_WhiteTexture;
