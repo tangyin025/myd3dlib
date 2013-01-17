@@ -786,9 +786,6 @@ void Export2Lua(lua_State * L)
 			.def("GetNumItems", &my::ComboBox::GetNumItems)
 			.def_readwrite("EventSelectionChanged", &my::ComboBox::EventSelectionChanged)
 
-		, class_<my::AlignEventArgs, my::EventArgs, boost::shared_ptr<my::EventArgs> >("AlignEventArgs")
-			.def_readonly("vp", &my::AlignEventArgs::vp)
-
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(constructor<>())
 			.def_readwrite("World", &my::Dialog::m_World)
@@ -965,6 +962,7 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllTimer", &my::TimerMgr::RemoveAllTimer)
 
 		, class_<my::DialogMgr>("DialogMgr")
+			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)
 			.def("InsertDlg", &my::DialogMgr::InsertDlg)
 			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
 			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)

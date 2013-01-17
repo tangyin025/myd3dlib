@@ -267,7 +267,7 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
-void DialogMgr::UpdateViewport(const Vector2 & vp)
+void DialogMgr::SetDlgViewport(const Vector2 & vp)
 {
 	m_View = UIRender::PerspectiveView(D3DXToRadian(75), vp.x, vp.y);
 
@@ -280,7 +280,7 @@ void DialogMgr::UpdateViewport(const Vector2 & vp)
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
 			if((*dlg_iter)->EventAlign)
-				(*dlg_iter)->EventAlign(EventArgsPtr(new AlignEventArgs(vp)));
+				(*dlg_iter)->EventAlign(EventArgsPtr(new EventArgs()));
 		}
 	}
 }

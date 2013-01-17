@@ -8,7 +8,8 @@ local state=game:GetCurrentState()
 -- camera.LookAt=Vector3(0,1,0)
 -- camera.Distance=3
 -- camera.EventAlign=function(args)
-	-- camera.Aspect=args.vp.x/args.vp.y
+	-- local desc=game:GetD3D9BackBufferSurfaceDesc()
+	-- camera.Aspect=desc.Width/desc.Height
 -- end
 -- state.Camera=camera
 
@@ -18,7 +19,8 @@ local d=3
 camera.Position=Vector3(d*k*k,d*k+1,-d*k*k)
 camera.Rotation=Vector3(math.rad(45),math.rad(-45),0)
 camera.EventAlign=function(args)
-	camera.Aspect=args.vp.x/args.vp.y
+	local desc=game:GetD3D9BackBufferSurfaceDesc()
+	camera.Aspect=desc.Width/desc.Height
 end
 state.Camera=camera
 

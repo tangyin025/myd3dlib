@@ -167,10 +167,15 @@ namespace my
 	public:
 		DialogMgr(void)
 		{
-			UpdateViewport(Vector2(800,600));
+			SetDlgViewport(Vector2(800,600));
 		}
 
-		void UpdateViewport(const Vector2 & vp);
+		void SetDlgViewport(const Vector2 & vp);
+
+		Vector2 GetDlgViewport(void) const
+		{
+			return Vector2(-m_View._41*2, m_View._42*2);
+		}
 
 		void Draw(
 			UIRender * ui_render,
@@ -188,7 +193,7 @@ namespace my
 			m_dlgSetMap[0].push_back(dlg);
 
 			if(dlg->EventAlign)
-				dlg->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2(-m_View._41*2,m_View._42*2))));
+				dlg->EventAlign(EventArgsPtr(new EventArgs()));
 		}
 
 		void RemoveDlg(DialogPtr dlg)

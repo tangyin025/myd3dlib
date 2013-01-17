@@ -9,7 +9,7 @@ dlg.Skin.Font=_Font.font1
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
-	dlg.Location=Vector2(args.vp.x-170,0)
+	dlg.Location=Vector2(game.DlgViewport.x-170,0)
 end
 
 local btn_toggle_fs=Button()

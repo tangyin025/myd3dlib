@@ -666,17 +666,6 @@ namespace my
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
-	class AlignEventArgs : public EventArgs
-	{
-	public:
-		Vector2 vp;
-
-		AlignEventArgs(const Vector2 & _vp)
-			: vp(_vp)
-		{
-		}
-	};
-
 	typedef boost::shared_ptr<Control> ControlPtr;
 
 	typedef std::vector<ControlPtr> ControlPtrSet;

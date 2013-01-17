@@ -153,7 +153,7 @@ HRESULT Game::OnCreateDevice(
 	m_dlgSetMap[1].push_back(m_Console);
 
 	if(m_Console->EventAlign)
-		m_Console->EventAlign(EventArgsPtr(new AlignEventArgs(Vector2(-DialogMgr::m_View._41*2,DialogMgr::m_View._42*2))));
+		m_Console->EventAlign(EventArgsPtr(new EventArgs()));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -204,7 +204,7 @@ HRESULT Game::OnResetDevice(
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
-	DialogMgr::UpdateViewport(vp);
+	DialogMgr::SetDlgViewport(vp);
 
 	SafeResetState(GetCurrentState());
 

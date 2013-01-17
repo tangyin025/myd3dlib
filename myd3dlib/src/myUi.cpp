@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "myUi.h"
 #include "myDxutApp.h"
 #include "ImeUi.h"

@@ -37,8 +37,8 @@ struct SKINED_VS_INPUT
 float4 align_ui_unit(float4 pos, float2 ScreenDim)
 {
 	return float4(
-		((floor((ScreenDim.x + pos.x / pos.w * ScreenDim.x) * 0.5 + 0.3333333) - 0.5) * 2 - ScreenDim.x) / ScreenDim.x * pos.w,
-		(ScreenDim.y - (floor((ScreenDim.y - pos.y / pos.w * ScreenDim.y) * 0.5 + 0.3333333) - 0.5) * 2) / ScreenDim.y * pos.w,
+		((floor((ScreenDim.x + pos.x / pos.w * ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - ScreenDim.x) / ScreenDim.x * pos.w,
+		(ScreenDim.y - (floor((ScreenDim.y - pos.y / pos.w * ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / ScreenDim.y * pos.w,
 		pos.z,
 		pos.w);
 }
