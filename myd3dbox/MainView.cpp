@@ -25,11 +25,7 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParent());
-	ASSERT(pFrame);
-
-	LPDIRECT3DDEVICE9 pd3dDevice = pFrame->m_d3dDevice;
-	m_font.CreateFontFromFile(pd3dDevice, "../demo2_3/Media/font/wqy-microhei.ttc", 13);
+	m_font = CMainFrame::getSingleton().LoadFont("wqy-microhei.ttc", 13);
 
 	return 0;
 }
@@ -37,6 +33,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CMainView::OnDestroy()
 {
 	CView::OnDestroy();
+
+	m_font.reset();
 
 	m_d3dSwapChain.Release();
 }
@@ -70,13 +68,24 @@ void CMainView::OnPaint()
 
 			CString strText;
 			strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-			m_font.DrawString(&ui_render, strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
+			m_font->DrawString(&ui_render, strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
 
 			ui_render.End();
 			V(pd3dDevice->EndScene());
 		}
 
-		V(m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0));
+		if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
+		{
+			if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+			{
+				OnDeviceLost();
+
+				if(SUCCEEDED(hr = CMainFrame::getSingleton().ResetD3DDevice()))
+				{
+					OnDeviceReset();
+				}
+			}
+		}
 	}
 }
 
@@ -84,34 +93,48 @@ void CMainView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParent());
-	ASSERT(pFrame);
-
 	if(cx > 0 && cy > 0)
 	{
-		LPDIRECT3DDEVICE9 pd3dDevice = pFrame->m_d3dDevice;
+		OnDeviceLost();
 
-		D3DPRESENT_PARAMETERS d3dpp = {0};
-		d3dpp.Windowed = TRUE;
-		d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-		d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-		d3dpp.hDeviceWindow = m_hWnd;
-
-		m_d3dSwapChain.Release();
-		HRESULT hres = pd3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
-		if(FAILED(hres))
+		HRESULT hres;
+		if(FAILED(hres = OnDeviceReset()))
 		{
-			my::D3DException e(hres, __FILE__, __LINE__);
-			TRACE(e.GetFullDescription().c_str());
+			TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
 		}
-
-		m_DepthStencil.OnDestroyDevice();
-		m_DepthStencil.CreateDepthStencilSurface(
-			pd3dDevice, cx, cy, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 	}
 }
 
 BOOL CMainView::OnEraseBkgnd(CDC* pDC)
 {
 	return TRUE;
+}
+
+HRESULT CMainView::OnDeviceReset(void)
+{
+	D3DPRESENT_PARAMETERS d3dpp = {0};
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.hDeviceWindow = m_hWnd;
+
+	HRESULT hres = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
+	if(FAILED(hres))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hres;
+	}
+
+	CRect rectClient;
+	GetClientRect(&rectClient);
+	m_DepthStencil.OnDestroyDevice();
+	m_DepthStencil.CreateDepthStencilSurface(
+		CMainFrame::getSingleton().m_d3dDevice, rectClient.Width(), rectClient.Height(), D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+
+	return S_OK;
+}
+
+void CMainView::OnDeviceLost(void)
+{
+	m_d3dSwapChain.Release();
 }

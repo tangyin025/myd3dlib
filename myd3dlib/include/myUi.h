@@ -288,16 +288,13 @@ namespace my
 
 		ControlImagePtr m_FocusedImage;
 
-		D3DCOLOR m_SelTextColor;
-
 		D3DCOLOR m_SelBkColor;
 
 		D3DCOLOR m_CaretColor;
 
 	public:
 		EditBoxSkin(void)
-			: m_SelTextColor(D3DCOLOR_ARGB(255,255,255,255))
-			, m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
+			: m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
 			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
 		}

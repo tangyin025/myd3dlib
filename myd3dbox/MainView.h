@@ -17,7 +17,7 @@ public:
 
 	my::Surface m_DepthStencil;
 
-	my::Font m_font;
+	my::FontPtr m_font;
 
 	DECLARE_MESSAGE_MAP()
 
@@ -30,4 +30,8 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
+
+	virtual HRESULT OnDeviceReset(void);
+
+	virtual void OnDeviceLost(void);
 };

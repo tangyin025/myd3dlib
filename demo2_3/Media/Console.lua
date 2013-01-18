@@ -12,6 +12,10 @@ dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
 	dlg.Location=Vector2(50,95)
+	
+	-- ! Scale Font
+	local desc=game:GetD3D9BackBufferSurfaceDesc()
+	_Font.font1.Scale=Vector2(desc.Width/game.DlgViewport.x,desc.Height/game.DlgViewport.y)
 end
 
 local panel=MessagePanel()
@@ -35,6 +39,7 @@ edit.Border=Vector4(0,0,0,0)
 edit.Text="在这里输入命令"
 edit.Skin.Font=_Font.font1
 edit.Skin.TextColor=ARGB(255,63,188,239)
+edit.Skin.SelBkColor=ARGB(255,255,128,0)
 edit.EventEnter=function()
 	-- 使用临时变量可以减少 wstou8的转换次数
 	local code=tostring(edit.Text)

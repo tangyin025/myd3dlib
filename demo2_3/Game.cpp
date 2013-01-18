@@ -64,6 +64,11 @@ Game::Game(void)
 	Export2Lua(m_lua->_state);
 
 	m_CurrentStateIter = m_stateMap.end();
+
+	RegisterFileDir("Media");
+	RegisterZipArchive("Media.zip");
+	RegisterFileDir("..\\demo2_3\\Media");
+	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
 Game::~Game(void)

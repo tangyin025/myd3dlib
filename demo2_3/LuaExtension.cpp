@@ -726,7 +726,6 @@ void Export2Lua(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("DisabledImage", &my::EditBoxSkin::m_DisabledImage)
 			.def_readwrite("FocusedImage", &my::EditBoxSkin::m_FocusedImage)
-			.def_readwrite("SelTextColor", &my::EditBoxSkin::m_SelTextColor)
 			.def_readwrite("SelBkColor", &my::EditBoxSkin::m_SelBkColor)
 			.def_readwrite("CaretColor", &my::EditBoxSkin::m_CaretColor)
 

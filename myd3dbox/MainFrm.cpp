@@ -8,8 +8,14 @@
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
+CMainFrame::SingleInstance * my::SingleInstance<CMainFrame>::s_ptr(NULL);
+
 CMainFrame::CMainFrame(void)
 {
+	RegisterFileDir("Media");
+	RegisterZipArchive("Media.zip");
+	RegisterFileDir("..\\demo2_3\\Media");
+	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
@@ -30,19 +36,29 @@ static UINT indicators[] =
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	D3DPRESENT_PARAMETERS d3dpp = {0};
-    d3dpp.Windowed = TRUE;
-    d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	d3dpp.hDeviceWindow = m_hWnd;
+	TRACE0("CMainFrame::OnCreate \n");
+
+	ZeroMemory(&m_d3dpp, sizeof(m_d3dpp));
+    m_d3dpp.Windowed = TRUE;
+    m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+    m_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	m_d3dpp.hDeviceWindow = m_hWnd;
 
 	HRESULT hres = theApp.m_d3d9->CreateDevice(
-		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &d3dpp, &m_d3dDevice);
+		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice);
 	if(FAILED(hres))
 	{
 		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
+	m_DeviceObjectsCreated = true;
+
+	if(FAILED(hres = OnDeviceReset()))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return -1;
+	}
+	m_DeviceObjectsReset = true;
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -166,11 +182,79 @@ void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
 
-	UINT references = m_d3dDevice.Detach()->Release();
-	if(references > 0)
+	if(m_DeviceObjectsReset)
 	{
-		CString msg;
-		msg.Format(_T("no zero reference count: %u"), references);
-		AfxMessageBox(msg);
+		OnDeviceLost();
+		m_DeviceObjectsReset = false;
 	}
+
+	TRACE0("CMainFrame::OnDestroy \n");
+
+	if(m_DeviceObjectsCreated)
+	{
+		LoaderMgr::OnDestroyDevice();
+
+		UINT references = m_d3dDevice.Detach()->Release();
+		if(references > 0)
+		{
+			CString msg;
+			msg.Format(_T("no zero reference count: %u"), references);
+			AfxMessageBox(msg);
+		}
+		m_DeviceObjectsCreated = false;
+	}
+}
+
+HRESULT CMainFrame::ResetD3DDevice(void)
+{
+	if(m_DeviceObjectsReset)
+	{
+		OnDeviceLost();
+		m_DeviceObjectsReset = false;
+	}
+
+	HRESULT hres;
+	if(FAILED(hres = m_d3dDevice->Reset(&m_d3dpp)))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hres;
+	}
+
+	if(FAILED(hres = OnDeviceReset()))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hres;
+	}
+	m_DeviceObjectsReset = true;
+
+	return S_OK;
+}
+
+HRESULT CMainFrame::OnDeviceReset(void)
+{
+	TRACE0("CMainFrame::OnDeviceReset \n");
+
+	my::Surface BackBuffer;
+	HRESULT hres;
+	if(FAILED(hres = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr)))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hres;
+	}
+
+	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+
+	if(FAILED(hres = LoaderMgr::OnResetDevice(m_d3dDevice, &desc)))
+	{
+		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hres;
+	}
+	return S_OK;
+}
+
+void CMainFrame::OnDeviceLost(void)
+{
+	TRACE0("CMainFrame::OnDeviceLost \n");
+
+	LoaderMgr::OnLostDevice();
 }

@@ -30,6 +30,8 @@ namespace my
 
 		virtual ~LoaderMgr(void);
 
+		virtual IDirect3DDevice9 * GetD3D9Device(void) = 0;
+
 		virtual __declspec(nothrow) HRESULT __stdcall Open(
 			D3DXINCLUDE_TYPE IncludeType,
 			LPCSTR pFileName,

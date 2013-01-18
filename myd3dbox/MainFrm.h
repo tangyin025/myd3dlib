@@ -1,6 +1,9 @@
 #pragma once
 
-class CMainFrame : public CFrameWndEx
+class CMainFrame
+	: public CFrameWndEx
+	, public my::SingleInstance<CMainFrame>
+	, public my::LoaderMgr
 {
 public:
 	CMainFrame(void);
@@ -13,9 +16,20 @@ public:
 
 	CMFCStatusBar m_wndStatusBar;
 
+	D3DPRESENT_PARAMETERS m_d3dpp;
+
 	CComPtr<IDirect3DDevice9> m_d3dDevice;
 
+	bool m_DeviceObjectsCreated;
+
+	bool m_DeviceObjectsReset;
+
 	DECLARE_MESSAGE_MAP()
+
+	IDirect3DDevice9 * GetD3D9Device(void)
+	{
+		return m_d3dDevice;
+	}
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
@@ -26,4 +40,10 @@ public:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 
 	afx_msg void OnDestroy();
+public:
+	HRESULT ResetD3DDevice(void);
+
+	virtual HRESULT OnDeviceReset(void);
+
+	virtual void OnDeviceLost(void);
 };
