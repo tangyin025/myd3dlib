@@ -58,9 +58,7 @@ namespace my
 			QueryPerformanceFrequency(&qwTicksPerSec);
 			m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
 
-			//LARGE_INTEGER qwTime;
-			//QueryPerformanceCounter(&qwTime);
-			//m_llLastElapsedTime = qwTime.QuadPart;
+			Update();
 		}
 
 		void Update(void);

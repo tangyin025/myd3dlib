@@ -2,7 +2,9 @@
 
 #include "resource.h"
 
-class CMainApp : public CWinAppEx
+class CMainApp
+	: public CWinAppEx
+	, public my::Clock
 {
 public:
 	CMainApp(void);
