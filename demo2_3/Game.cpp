@@ -29,9 +29,10 @@ void EffectUIRender::End(void)
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
-	_ASSERT(Game::getSingleton().m_WhiteTexture);
+	_ASSERT(Game::getSingleton().m_WhiteTex);
+
 	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTexture->m_ptr);
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
 }
 
 void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
@@ -143,7 +144,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
-	m_WhiteTexture = LoadTexture("white.bmp");
+	m_WhiteTex = LoadTexture("white.bmp");
 
 	ExecuteCode("dofile \"Console.lua\"");
 

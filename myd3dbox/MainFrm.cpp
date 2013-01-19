@@ -170,12 +170,12 @@ void CMainFrame::OnApplicationLook(UINT id)
 
 	RedrawWindow(NULL, NULL, RDW_ALLCHILDREN | RDW_INVALIDATE | RDW_UPDATENOW | RDW_FRAME | RDW_ERASE);
 
-	theApp.WriteInt(_T("ApplicationLook"), id);
+	theApp.WriteInt(_T("ApplicationLook"), m_nAppLook = id);
 }
 
 void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 {
-	pCmdUI->SetRadio(FALSE);
+	pCmdUI->SetRadio(m_nAppLook == pCmdUI->m_nID);
 }
 
 void CMainFrame::OnDestroy()

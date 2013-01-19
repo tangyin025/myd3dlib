@@ -10,6 +10,8 @@ public:
 
 	DECLARE_DYNCREATE(CMainFrame)
 
+	UINT  m_nAppLook;
+
 	CMFCMenuBar m_wndMenuBar;
 
 	CMFCToolBar m_wndToolBar;

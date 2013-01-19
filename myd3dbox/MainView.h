@@ -2,7 +2,37 @@
 
 #include "MainDoc.h"
 
-class CMainView : public CView
+class EffectUIRender
+	: public my::UIRender
+{
+public:
+	my::EffectPtr m_UIEffect;
+
+	UINT m_Passes;
+
+public:
+	EffectUIRender(IDirect3DDevice9 * pd3dDevice, my::EffectPtr effect)
+		: UIRender(pd3dDevice)
+		, m_UIEffect(effect)
+		, m_Passes(0)
+	{
+		_ASSERT(m_UIEffect);
+	}
+
+	virtual void Begin(void);
+
+	virtual void End(void);
+
+	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+
+	virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
+
+	virtual void DrawVertexList(void);
+};
+
+class CMainView
+	: public CView
+	, public my::SingleInstance<CMainView>
 {
 public:
 	CMainView(void);
@@ -17,7 +47,11 @@ public:
 
 	my::Surface m_DepthStencil;
 
-	my::FontPtr m_font;
+	my::FontPtr m_Font;
+
+	my::TexturePtr m_WhiteTex;
+
+	my::UIRenderPtr m_UIRender;
 
 	DECLARE_MESSAGE_MAP()
 

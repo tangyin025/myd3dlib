@@ -385,7 +385,7 @@ bool DialogMgr::MsgProc(
 						{
 							Vector3 ptInt(ptEye + dir * result.second);
 							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
-							Vector2 ptLocal = Vector2(pt.x - (*dlg_iter)->m_Location.x, pt.y - (*dlg_iter)->m_Location.y);
+							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
 							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
 							{
 								// ! 只处理自己的 FocusControl

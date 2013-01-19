@@ -6,6 +6,54 @@
 #define new DEBUG_NEW
 #endif
 
+void EffectUIRender::Begin(void)
+{
+	CRect rectClient;
+	CMainView::getSingleton().GetClientRect(&rectClient);
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetVector("g_ScreenDim", my::Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+
+	if(m_UIEffect->m_ptr)
+		m_Passes = m_UIEffect->Begin();
+}
+
+void EffectUIRender::End(void)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->End();
+}
+
+void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
+}
+
+void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
+}
+
+void EffectUIRender::DrawVertexList(void)
+{
+	if(m_UIEffect->m_ptr)
+	{
+		if(vertex_count > 0)
+		{
+			for(UINT p = 0; p < m_Passes; p++)
+			{
+				m_UIEffect->BeginPass(p);
+				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+				m_UIEffect->EndPass();
+			}
+		}
+	}
+}
+
+CMainView::SingleInstance * my::SingleInstance<CMainView>::s_ptr(NULL);
+
 IMPLEMENT_DYNCREATE(CMainView, CView)
 
 CMainView::CMainView(void)
@@ -25,7 +73,12 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	m_font = CMainFrame::getSingleton().LoadFont("wqy-microhei.ttc", 13);
+	m_Font = CMainFrame::getSingleton().LoadFont("wqy-microhei.ttc", 13);
+
+	m_WhiteTex = CMainFrame::getSingleton().LoadTexture("white.bmp");
+
+	m_UIRender.reset(new EffectUIRender(
+		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
 
 	return 0;
 }
@@ -34,7 +87,7 @@ void CMainView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	m_font.reset();
+	m_Font.reset();
 
 	m_d3dSwapChain.Release();
 }
@@ -43,12 +96,9 @@ void CMainView::OnPaint()
 {
 	CPaintDC dc(this);
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, GetParent());
-	ASSERT(pFrame);
-
 	if(m_d3dSwapChain)
 	{
-		LPDIRECT3DDEVICE9 pd3dDevice = pFrame->m_d3dDevice;
+		LPDIRECT3DDEVICE9 pd3dDevice = CMainFrame::getSingleton().m_d3dDevice;
 
 		HRESULT hr;
 		my::Surface BackBuffer;
@@ -60,17 +110,16 @@ void CMainView::OnPaint()
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
 			D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-			my::UIRender ui_render(pd3dDevice);
-			ui_render.SetTransform(my::Matrix4::Identity(),
+			m_UIRender->SetTransform(my::Matrix4::Identity(),
 				my::UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
 				my::UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-			ui_render.Begin();
+			m_UIRender->Begin();
 
 			CString strText;
 			strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-			m_font->DrawString(&ui_render, strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
+			m_Font->DrawString(m_UIRender.get(), strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
 
-			ui_render.End();
+			m_UIRender->End();
 			V(pd3dDevice->EndScene());
 		}
 

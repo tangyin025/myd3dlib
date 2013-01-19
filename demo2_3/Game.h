@@ -113,7 +113,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::TexturePtr m_WhiteTexture;
+	my::TexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;
 
