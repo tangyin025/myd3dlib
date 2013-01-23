@@ -1747,7 +1747,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 	m_IgnoreSizeChange = false;
 }
 
-HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
+HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(m_DeviceObjectsCreated)
 	{
@@ -1759,7 +1759,7 @@ HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettin
 		deviceSettings.DeviceType,
 		m_wnd->m_hWnd,
 		deviceSettings.BehaviorFlags,
-		const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp),
+		&deviceSettings.pp,
 		&m_d3dDevice)))
 	{
 		return hr;
@@ -1786,7 +1786,7 @@ HRESULT DxutApp::Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettin
 	return S_OK;
 }
 
-HRESULT DxutApp::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings)
+HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 {
 	if(m_DeviceObjectsReset)
 	{
@@ -1794,7 +1794,7 @@ HRESULT DxutApp::Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSetting
 		m_DeviceObjectsReset = false;
 	}
 
-	if(FAILED(hr = m_d3dDevice->Reset(const_cast<D3DPRESENT_PARAMETERS *>(&deviceSettings.pp))))
+	if(FAILED(hr = m_d3dDevice->Reset(&deviceSettings.pp)))
 	{
 		return hr;
 	}

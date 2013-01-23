@@ -288,9 +288,9 @@ namespace my
 
 		void ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings);
 
-		HRESULT Create3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+		HRESULT Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings);
 
-		HRESULT Reset3DEnvironment(const DXUTD3D9DeviceSettings & deviceSettings);
+		HRESULT Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings);
 
 		void Render3DEnvironment(void);
 
