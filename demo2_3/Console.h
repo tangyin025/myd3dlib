@@ -1,7 +1,5 @@
 #pragma once
 
-#include <myD3dLib.h>
-
 class MessagePanel
 	: public my::Control
 {

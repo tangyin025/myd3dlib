@@ -1,7 +1,6 @@
 #pragma once
 
 #include "EffectMesh.h"
-#include <mySkeleton.h>
 
 class Character
 {

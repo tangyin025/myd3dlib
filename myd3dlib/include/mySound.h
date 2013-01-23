@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#include <WTypes.h>
 #include <Mmsystem.h>
 #include <dsound.h>
 #include "myException.h"

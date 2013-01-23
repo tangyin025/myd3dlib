@@ -1,5 +1,5 @@
 //Find all "#include <", Match case, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
-#include <memory.h> // to allow <,> comparisons
+#define DIRECTINPUT_VERSION 0x0800
 #include <windows.h>
 #include <stdlib.h>
 #include <string>
@@ -56,9 +56,12 @@ extern "C"
 #include <boost/shared_ptr.hpp>
 #include <Windows.h>
 #include <vector>
+#include <set>
 #include <hash_map>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
+#include <WTypes.h>
+#include <Mmsystem.h>
 #include <dsound.h>
 #include <boost/shared_ptr.hpp>
 #include <vector>
@@ -80,6 +83,9 @@ extern "C"
 #include <cassert>      // For assert
 #include <new>          // For placement new
 #include <exception>    // For std::exception
+#include <d3d9.h>
+#include <string>
+#include <assert.h>
 #include <Windows.h>
 #include <assert.h>
 #include <math.h>
@@ -90,4 +96,4 @@ extern "C"
 #include <d3d9.h>
 #include <dinput.h>
 #include <dsound.h>
-  //Matching lines: 89    Matching files: 25    Total files searched: 47
+//  Matching lines: 93    Matching files: 25    Total files searched: 50

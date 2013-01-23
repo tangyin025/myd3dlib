@@ -1,7 +1,5 @@
 ﻿#pragma once
 
-#include <myd3dlib.h>
-#include <LuaContext.h>
 #include "Console.h"
 
 class EffectUIRender

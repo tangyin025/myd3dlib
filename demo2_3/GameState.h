@@ -1,8 +1,6 @@
 #pragma once
 
 #include "Game.h"
-#include <btBulletDynamicsCommon.h>
-#include <BulletDynamics/Character/btKinematicCharacterController.h>
 #include "Camera.h"
 #include "EffectMesh.h"
 #include "Character.h"

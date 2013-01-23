@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/shared_ptr.hpp>
+#define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <atlbase.h>
 #include "myException.h"

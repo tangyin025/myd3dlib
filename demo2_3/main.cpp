@@ -1,9 +1,6 @@
 ﻿
 #include "stdafx.h"
-#include <myd3dlib.h>
-#include <btBulletDynamicsCommon.h>
 #include "Game.h"
-#include <mythread.h>
 
 // ------------------------------------------------------------------------------------------
 // MyDemo

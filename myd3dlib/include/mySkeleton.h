@@ -2,6 +2,7 @@
 
 #include <vector>
 #include "myMath.h"
+#include <set>
 #include <hash_map>
 #include <boost/shared_ptr.hpp>
 

@@ -2,8 +2,6 @@
 #include "Game.h"
 #include "GameState.h"
 #include "LuaExtension.h"
-#include <luabind/luabind.hpp>
-#include <signal.h>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -391,21 +389,19 @@ static int docall (lua_State *L, int narg, int clear) {
 static int dostring (lua_State *L, const char *s, const char *name) {
   //int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
   //return report(L, status);
-  int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
-  if(status && !lua_isnil(L, -1))
-  {
-	  std::string msg = lua_tostring(L, -1);
-	  if(msg.empty())
-		  msg = "(error object is not a string)";
-	  lua_pop(L, 1);
-	  THROW_CUSEXCEPTION(msg);
-  }
-  return status;
+  return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
 }
 
 void Game::ExecuteCode(const char * code)
 {
-	dostring(m_lua->_state, code, "Game::ExecuteCode");
+	if(dostring(m_lua->_state, code, "Game::ExecuteCode") && !lua_isnil(m_lua->_state, -1))
+	{
+		std::string msg = lua_tostring(m_lua->_state, -1);
+		if(msg.empty())
+			msg = "(error object is not a string)";
+		lua_pop(m_lua->_state, 1);
+		THROW_CUSEXCEPTION(msg);
+	}
 }
 
 void Game::SetState(const std::string & key, GameStateBasePtr state)

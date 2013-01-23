@@ -1,7 +1,5 @@
 #pragma once
 
-#include <myd3dlib.h>
-
 class BaseCamera
 {
 public:
