@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "Game.h"
 #include "GameState.h"
 #include "LuaExtension.h"
@@ -499,7 +499,7 @@ void Game::SafeChangeState(GameStateBasePtr old_state, GameStateBasePtrMap::cons
 
 			m_CurrentStateIter = m_stateMap.end();
 
-			// ! 状态切换是可以容错的，只是当状态切换失败后，将没有CurrentState
+			// ! ״̬�л��ǿ����ݴ��ģ�ֻ�ǵ�״̬�л�ʧ�ܺ󣬽�û��CurrentState
 			AddLine(ms2ws(e.GetDescription().c_str()));
 		}
 	}

@@ -1,4 +1,4 @@
-ï»¿#include "stdafx.h"
+#include "stdafx.h"
 #include "Console.h"
 #include "Game.h"
 
@@ -203,7 +203,7 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 //	m_edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
 //	InsertControl(m_edit);
 //
-//	m_edit->SetText(L"åœ¨è¿™é‡Œè¾“å…¥å‘½ä»¤");
+//	m_edit->SetText(L"ÔÚÕâÀïÊäÈëÃüÁî");
 //
 //	m_panel.reset(new MessagePanel());
 //	m_panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);

@@ -1,4 +1,4 @@
-ï»¿#include "StdAfx.h"
+#include "StdAfx.h"
 #include "GameState.h"
 //
 //#ifdef _DEBUG
@@ -259,6 +259,16 @@ void GameStateLoad::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 }
 
+LRESULT GameStateLoad::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 GameStateMain::GameStateMain(void)
 {
 }
@@ -308,7 +318,7 @@ HRESULT GameStateMain::OnResetDevice(
 	m_ShadowTextureRT->CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
-	// ! æ‰€æœ‰çš„ render targetå¿…é¡»ä½¿ç”¨å…·æœ‰ç›¸åŒ multisampleçš„ depth stencil
+	// ! ËùÓÐµÄ render target±ØÐëÊ¹ÓÃ¾ßÓÐÏàÍ¬ multisampleµÄ depth stencil
 	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
@@ -456,4 +466,14 @@ void GameStateMain::OnFrameRender(
 
 		V(pd3dDevice->EndScene());
 	}
+}
+
+LRESULT GameStateMain::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
 }

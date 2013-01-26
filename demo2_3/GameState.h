@@ -91,6 +91,13 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
 };
 
 class GameStateMain
@@ -147,6 +154,13 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
+
+	virtual LRESULT MsgProc(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing);
 
 	void InsertStaticMesh(EffectMeshPtr effect_mesh)
 	{

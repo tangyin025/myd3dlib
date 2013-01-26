@@ -1,4 +1,4 @@
-ï»¿#include "stdafx.h"
+#include "stdafx.h"
 #include "LuaExtension.h"
 #include "Game.h"
 #include "GameState.h"
@@ -236,7 +236,7 @@ namespace luabind
 					}
 					catch(const luabind::error & e)
 					{
-						// ! ControlEventäº‹ä»¶å¤„ç†æ˜¯å®¹é”™çš„ï¼Œå½“äº‹ä»¶å¤„ç†å¤±è´¥åï¼Œç¨‹åºç»§ç»­è¿è¡Œ
+						// ! ControlEventÊÂ¼ş´¦ÀíÊÇÈİ´íµÄ£¬µ±ÊÂ¼ş´¦ÀíÊ§°Üºó£¬³ÌĞò¼ÌĞøÔËĞĞ
 						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
 					}
 				}
@@ -350,10 +350,10 @@ void Export2Lua(lua_State * L)
 
 	open(L);
 
-	// ! ä¼šå¯¼è‡´å†…å­˜æ³„æ¼ï¼Œä½†å¯ä»¥é‡å†™ handle_exception_auxï¼ŒåŠ å…¥ my::Exceptionçš„æ”¯æŒ
+	// ! »áµ¼ÖÂÄÚ´æĞ¹Â©£¬µ«¿ÉÒÔÖØĞ´ handle_exception_aux£¬¼ÓÈë my::ExceptionµÄÖ§³Ö
 	register_exception_handler<my::Exception>(&translate_my_exception);
 
-	//// ! ä¸ºä»€ä¹ˆä¸èµ·ä½œç”¨
+	//// ! ÎªÊ²Ã´²»Æğ×÷ÓÃ
 	//set_pcall_callback(add_file_and_line);
 
 	module(L)

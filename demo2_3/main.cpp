@@ -1,4 +1,4 @@
-ï»¿
+
 #include "stdafx.h"
 #include "Game.h"
 
@@ -73,34 +73,34 @@
 //
 //		void OnFrameMove(double fTime, float fElapsedTime)
 //		{
-//			// å åŠ æ—¶é—´
+//			// µş¼ÓÊ±¼ä
 //			AddAnimationTime(fElapsedTime);
 //
-//			// è·å–å½“å‰åŠ¨ç”»
+//			// »ñÈ¡µ±Ç°¶¯»­
 //			int root_i = m_skeleton->GetBoneIndex("jack_loBackA");
 //			m_animPose.clear();
 //			m_animPose.resize(m_skeleton->m_boneBindPose.size());
 //			m_skeleton->BuildAnimationPose(m_animPose, root_i, m_currentAnim, m_currentTime);
 //
-//			// å°†å½“å‰åŠ¨ç”»å’Œç»‘å®šåŠ¨ä½œå åŠ 
+//			// ½«µ±Ç°¶¯»­ºÍ°ó¶¨¶¯×÷µş¼Ó
 //			m_incrementedPose.clear();
 //			m_incrementedPose.resize(m_skeleton->m_boneBindPose.size());
 //			m_animPose.Increment(
 //				m_incrementedPose, m_skeleton->m_boneBindPose, m_skeleton->m_boneHierarchy, root_i);
 //
-//			// ä¸ºç»‘å®šåŠ¨ä½œç”Ÿæˆå±‚æ¬¡åŒ–çš„éª¨éª¼åˆ—è¡¨ï¼ˆåˆ—è¡¨ä¸­å­éª¨éª¼çš„æ•°æ®å°†åŒ…å«çˆ¶éª¨éª¼çš„å˜æ¢ï¼‰
+//			// Îª°ó¶¨¶¯×÷Éú³É²ã´Î»¯µÄ¹Ç÷ÀÁĞ±í£¨ÁĞ±íÖĞ×Ó¹Ç÷ÀµÄÊı¾İ½«°üº¬¸¸¹Ç÷ÀµÄ±ä»»£©
 //			m_hierarchyBoneList.clear();
 //			m_hierarchyBoneList.resize(m_skeleton->m_boneBindPose.size());
 //			m_skeleton->m_boneBindPose.BuildHierarchyBoneList(
 //				m_hierarchyBoneList, m_skeleton->m_boneHierarchy, root_i);
 //
-//			// ä¸ºç›®æ ‡åŠ¨ä½œç”Ÿæˆå±‚æ¬¡åŒ–çš„éª¨éª¼åˆ—è¡¨
+//			// ÎªÄ¿±ê¶¯×÷Éú³É²ã´Î»¯µÄ¹Ç÷ÀÁĞ±í
 //			m_hierarchyBoneList2.clear();
 //			m_hierarchyBoneList2.resize(m_skeleton->m_boneBindPose.size());
 //			m_incrementedPose.BuildHierarchyBoneList(
 //				m_hierarchyBoneList2, m_skeleton->m_boneHierarchy, root_i);
 //
-//			// å°†ç»‘å®šåŠ¨ä½œåŠç›®æ ‡åŠ¨ä½œçš„éª¨éª¼åˆ—è¡¨ç”ŸæˆåŒå››å…ƒå¼ï¼ˆç»‘å®šåŠ¨ä½œä¸å†éœ€è¦é€†å˜æ¢ï¼ŒåŒå››å…ƒå¼ä¼šè¿›è¡Œå¤„ç†ï¼‰
+//			// ½«°ó¶¨¶¯×÷¼°Ä¿±ê¶¯×÷µÄ¹Ç÷ÀÁĞ±íÉú³ÉË«ËÄÔªÊ½£¨°ó¶¨¶¯×÷²»ÔÙĞèÒªÄæ±ä»»£¬Ë«ËÄÔªÊ½»á½øĞĞ´¦Àí£©
 //			m_dualQuaternionList.clear();
 //			m_dualQuaternionList.resize(m_skeleton->m_boneBindPose.size());
 //			m_hierarchyBoneList.BuildDualQuaternionList(
@@ -153,7 +153,7 @@
 //
 //	boost::shared_ptr<btRigidBody> m_sphereBody;
 //
-//	// dynamic worldåº”å½“åœ¨å…¶å®ƒç‰©ç†å¯¹è±¡é”€æ¯ä¹‹å‰é”€æ¯ï¼Œæ‰€ä»¥è¿™é‡Œç‰¹æ®Šå¤„ç†ä¸€ä¸‹
+//	// dynamic worldÓ¦µ±ÔÚÆäËüÎïÀí¶ÔÏóÏú»ÙÖ®Ç°Ïú»Ù£¬ËùÒÔÕâÀïÌØÊâ´¦ÀíÒ»ÏÂ
 //	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 //
 //	my::MeshPtr m_sphereMesh;
@@ -171,19 +171,19 @@
 //			return hres;
 //		}
 //
-//		// è®¾ç½®èµ„æºè¯»å–è·¯å¾„
+//		// ÉèÖÃ×ÊÔ´¶ÁÈ¡Â·¾¶
 //		RegisterFileDir(".");
 //		RegisterZipArchive("data.zip");
 //		RegisterFileDir("..\\demo2_3");
 //		RegisterZipArchive("..\\demo2_3\\data.zip");
 //
-//		// åˆå§‹åŒ–ç›¸æœº
+//		// ³õÊ¼»¯Ïà»ú
 //		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
 //		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
 //		m_camera.SetViewParams(&vecEye, &vecAt);
 //		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
 //
-//		// åˆå§‹åŒ–è§’è‰²èµ„æº
+//		// ³õÊ¼»¯½ÇÉ«×ÊÔ´
 //		my::CachePtr cache = OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
 //		m_characterMesh.reset(new my::OgreMesh());
 //		m_characterMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
@@ -205,7 +205,7 @@
 //		m_characterAnimMgr->m_currentAnim = "clip1";
 //		m_characterAnimMgr->m_currentTime = 0.0f;
 //
-//		// åˆå§‹åŒ–åœºæ™¯èµ„æº
+//		// ³õÊ¼»¯³¡¾°×ÊÔ´
 //		cache = OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
 //		m_sceneMesh.reset(new my::OgreMesh());
 //		m_sceneMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
@@ -214,7 +214,7 @@
 //		m_sceneTexture.reset(new my::Texture());
 //		m_sceneTexture->CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
 //
-//		// åˆå§‹åŒ–ç‰©ç†å¼•æ“åŠç›¸å…³èµ„æº
+//		// ³õÊ¼»¯ÎïÀíÒıÇæ¼°Ïà¹Ø×ÊÔ´
 //		m_dynamicsWorld.reset();
 //		m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
 //
@@ -229,7 +229,7 @@
 //
 //		m_dynamicsWorld->setGravity(btVector3(0,-10,0));
 //
-//		// åˆ›å»ºç‰©ç†åœ°é¢
+//		// ´´½¨ÎïÀíµØÃæ
 //		const my::Vector3 boxHalfExtents(50.0f, 50.0f, 50.0f);
 //		m_groundShape.reset(new btBoxShape(btVector3(boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z)));
 //
@@ -246,7 +246,7 @@
 //		m_groundMesh.reset(new my::Mesh());
 //		m_groundMesh->CreateBox(pd3dDevice, boxHalfExtents.x * 2, boxHalfExtents.z * 2, boxHalfExtents.y * 2);
 //
-//		// åˆ›å»ºç‰©é‡Œçƒä½“ï¼ˆç”¨äºè§’è‰²ç¢°æ’ï¼‰
+//		// ´´½¨ÎïÀïÇòÌå£¨ÓÃÓÚ½ÇÉ«Åö×²£©
 //		const float sphereRadius = 5.0f;
 //		m_sphereShape.reset(new btSphereShape(sphereRadius));
 //
@@ -262,12 +262,12 @@
 //		m_sphereMesh.reset(new my::Mesh());
 //		m_sphereMesh->CreateSphere(pd3dDevice, sphereRadius);
 //
-//		// å°†åœ°é¢å’Œè§’è‰²çƒåŠ å…¥ç‰©ç†åœºæ™¯
+//		// ½«µØÃæºÍ½ÇÉ«Çò¼ÓÈëÎïÀí³¡¾°
 //		m_dynamicsWorld->addRigidBody(m_groundBody.get());
 //
 //		m_dynamicsWorld->addRigidBody(m_sphereBody.get());
 //
-//		// åˆ›å»ºç”¨äºæ¸²æŸ“ç‰©ç†ç‰©ä½“çš„çº¿æ¡†æ¨¡å¼ shader
+//		// ´´½¨ÓÃÓÚäÖÈ¾ÎïÀíÎïÌåµÄÏß¿òÄ£Ê½ shader
 //		cache = OpenArchiveStream("WireEffect.fx")->GetWholeCache();
 //		m_wireEffect.reset(new my::Effect());
 //		m_wireEffect->CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
@@ -288,12 +288,12 @@
 //			return hres;
 //		}
 //
-//		// é‡æ–°è®¾ç½®ç›¸æœºçš„æŠ•å½±
+//		// ÖØĞÂÉèÖÃÏà»úµÄÍ¶Ó°
 //		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
 //		m_camera.SetProjParams(D3DXToRadian(90.0f), fAspectRatio, 0.1f, 10000.0f);
 //		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
 //
-//		// åˆ›å»ºç”¨äºshadow mapçš„render targetï¼Œä½¿ç”¨D3DXCreateTextureå¯ä»¥ä¸ºä¸æ”¯æŒè®¾å¤‡åˆ›å»ºå…¼å®¹è´´å›¾
+//		// ´´½¨ÓÃÓÚshadow mapµÄrender target£¬Ê¹ÓÃD3DXCreateTexture¿ÉÒÔÎª²»Ö§³ÖÉè±¸´´½¨¼æÈİÌùÍ¼
 //		m_shadowMapRT.reset(new my::Texture());
 //		m_shadowMapRT->CreateAdjustedTexture(
 //			pd3dDevice,
@@ -304,7 +304,7 @@
 //			D3DFMT_R32F,
 //			D3DPOOL_DEFAULT);
 //
-//		// åˆ›å»ºç”¨äºshadow mapçš„depth scentil
+//		// ´´½¨ÓÃÓÚshadow mapµÄdepth scentil
 //		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 //		m_shadowMapDS.reset(new my::Surface());
 //		m_shadowMapDS->CreateDepthStencilSurface(
@@ -318,7 +318,7 @@
 //
 //	void OnLostDevice(void)
 //	{
-//		// åœ¨è¿™é‡Œå¤„ç†åœ¨resetä¸­åˆ›å»ºçš„èµ„æº
+//		// ÔÚÕâÀï´¦ÀíÔÚresetÖĞ´´½¨µÄ×ÊÔ´
 //		m_shadowMapRT.reset();
 //		m_shadowMapDS.reset();
 //
@@ -336,7 +336,7 @@
 //	{
 //		my::DxutSample::OnFrameMove(fTime, fElapsedTime);
 //
-//		// åœ¨è¿™é‡Œæ›´æ–°åœºæ™¯
+//		// ÔÚÕâÀï¸üĞÂ³¡¾°
 //		btTransform transform;
 //		m_sphereMotionState->getWorldTransform(transform);
 //		const btVector3 & origin = transform.getOrigin();
@@ -344,10 +344,10 @@
 //		m_camera.SetModelCenter(D3DXVECTOR3(origin[0], origin[1] + 20.0f, origin[2]));
 //		m_camera.FrameMove(fElapsedTime);
 //
-//		// æ›´æ–°éª¨éª¼åŠ¨ç”»
+//		// ¸üĞÂ¹Ç÷À¶¯»­
 //		m_characterAnimMgr->OnFrameMove(fTime, fElapsedTime);
 //
-//		// æ›´æ–°ç‰©ç†å¼•æ“
+//		// ¸üĞÂÎïÀíÒıÇæ
 //		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 //	}
 //
@@ -359,14 +359,14 @@
 //		V(pd3dDevice->Clear(
 //			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 //
-//		// è·å¾—ç›¸æœºæŠ•å½±çŸ©é˜µ
+//		// »ñµÃÏà»úÍ¶Ó°¾ØÕó
 //		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
 //		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
 //		my::Matrix4 mView = *(my::Matrix4 *)m_camera.GetViewMatrix();
 //		my::Matrix4 mViewProj = mView * mProj;
 //		//my::Matrix4 mWorldViewProjection = mWorld * mViewProj;
 //
-//		// è®¡ç®—ç‰©ç†åœ°é¢çš„å˜æ¢
+//		// ¼ÆËãÎïÀíµØÃæµÄ±ä»»
 //		btTransform transform;
 //		m_groundMotionState->getWorldTransform(transform);
 //		const btVector3 & ground_origin = transform.getOrigin();
@@ -378,7 +378,7 @@
 //			ground_basis[2][0], ground_basis[2][1], ground_basis[2][2], 0,
 //			ground_origin[0], ground_origin[1], ground_origin[2], 1);
 //
-//		// è®¡ç®—è§’è‰²çƒçš„å˜æ¢
+//		// ¼ÆËã½ÇÉ«ÇòµÄ±ä»»
 //		m_sphereMotionState->getWorldTransform(transform);
 //		const btVector3 & sphere_origin = transform.getOrigin();
 //		const btMatrix3x3 & sphere_basis = transform.getBasis();
@@ -395,12 +395,12 @@
 //
 //		my::Matrix4 mCharacterLocal = my::Matrix4::Translation(my::Vector3(0.0f, -5.0f, 0.0f));
 //
-//		// è®¡ç®—å…‰æºä½ç½®ï¼Œå¤„åœ¨ç›¸æœºçš„ç›¸å¯¹ä½ç½®ä¸Š
+//		// ¼ÆËã¹âÔ´Î»ÖÃ£¬´¦ÔÚÏà»úµÄÏà¶ÔÎ»ÖÃÉÏ
 //		my::Vector4 vLightPosLocal(30, 30, 30, 1);
 //
 //		//my::Vector4 vLightPosWorld(vLightPosLocal.transform(mWorld));
 //
-//		// è®¡ç®—å…‰ç…§çš„é€è§†å˜æ¢
+//		// ¼ÆËã¹âÕÕµÄÍ¸ÊÓ±ä»»
 //		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
 //			my::Vector3(vLightPosLocal.x, vLightPosLocal.y, vLightPosLocal.z),
 //			my::Vector3(mSphereWorld._41, mSphereWorld._42, mSphereWorld._43),
@@ -408,7 +408,7 @@
 //		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovLH(D3DXToRadian(75.0f), 1.0f, 1.0f, 200.0f));
 //		my::Matrix4 mViewProjLight = mViewLight * mProjLight;
 //
-//		// å°†shadow mapä½œä¸ºrender targetï¼Œæ³¨æ„ä¿å­˜æ¢å¤åŸæ¥çš„render target
+//		// ½«shadow map×÷Îªrender target£¬×¢Òâ±£´æ»Ö¸´Ô­À´µÄrender target
 //		HRESULT hr;
 //		CComPtr<IDirect3DSurface9> oldRt;
 //		V(pd3dDevice->GetRenderTarget(0, &oldRt));
@@ -420,14 +420,14 @@
 //			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 //		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 //		{
-//			// æ›´æ–°d3dx effectå˜é‡
+//			// ¸üĞÂd3dx effect±äÁ¿
 //			m_characterEffect->SetMatrix("g_mWorldViewProjectionLight", mCharacterLocal * mSphereLocal * mWorld * mViewProjLight);
 //			m_characterEffect->SetTechnique("RenderShadow");
 //
-//			// è§’è‰²åŠ¨ç”»è¦æ±‚ä½¿ç”¨åŒå››å…ƒå¼åˆ—è¡¨
+//			// ½ÇÉ«¶¯»­ÒªÇóÊ¹ÓÃË«ËÄÔªÊ½ÁĞ±í
 //			m_characterEffect->SetMatrixArray("g_dualquat", &m_characterAnimMgr->m_dualQuaternionList[0], m_characterAnimMgr->m_dualQuaternionList.size());
 //
-//			// æ¸²æŸ“æ¨¡å‹çš„ä¸¤ä¸ªéƒ¨åˆ†ï¼Œæ³¨æ„ï¼Œå¤´å‘çš„éƒ¨åˆ†ä¸è¦èƒŒé¢å‰”é™¤
+//			// äÖÈ¾Ä£ĞÍµÄÁ½¸ö²¿·Ö£¬×¢Òâ£¬Í··¢µÄ²¿·Ö²»Òª±³ÃæÌŞ³ı
 //			UINT cPasses = m_characterEffect->Begin();
 //			for(UINT p = 0; p < cPasses; ++p)
 //			{
@@ -447,14 +447,14 @@
 //		oldRt.Release();
 //		oldDs.Release();
 //
-//		// æ¸…ç†ç¼“å­˜èƒŒæ™¯åŠdepth stencil
+//		// ÇåÀí»º´æ±³¾°¼°depth stencil
 //		V(pd3dDevice->Clear(
 //			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 //
 //		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 //		{
 //			UINT cPasses;
-//			//// æ¸²æŸ“ç‰©ç†åœ°é¢
+//			//// äÖÈ¾ÎïÀíµØÃæ
 //			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mGroundLocal * mWorld * mViewProj);
 //			//m_wireEffect->SetMatrix("g_mWorld", mGroundLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -469,7 +469,7 @@
 //			//}
 //			//m_wireEffect->End();
 //
-//			//// æ¸²æŸ“è§’è‰²çƒ
+//			//// äÖÈ¾½ÇÉ«Çò
 //			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mSphereLocal * mWorld * mViewProj);
 //			//m_wireEffect->SetMatrix("g_mWorld", mSphereLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -484,7 +484,7 @@
 //			//}
 //			//m_wireEffect->End();
 //
-//			// æ¸²æŸ“è§’è‰²æ¨¡å‹
+//			// äÖÈ¾½ÇÉ«Ä£ĞÍ
 //			m_characterEffect->SetMatrix("g_mWorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
 //			m_characterEffect->SetMatrix("g_mWorld", mCharacterLocal * mSphereLocal * mWorld);
 //			m_characterEffect->SetFloat("g_fTime", (float)fTime);
@@ -495,7 +495,7 @@
 //			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPosLocal, 3);
 //			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
-//			// è§’è‰²åŠ¨ç”»è¦æ±‚ä½¿ç”¨åŒå››å…ƒå¼åˆ—è¡¨
+//			// ½ÇÉ«¶¯»­ÒªÇóÊ¹ÓÃË«ËÄÔªÊ½ÁĞ±í
 //			m_characterEffect->SetMatrixArray("g_dualquat", &m_characterAnimMgr->m_dualQuaternionList[0], m_characterAnimMgr->m_dualQuaternionList.size());
 //
 //			m_characterEffect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);
@@ -504,7 +504,7 @@
 //			cPasses = m_characterEffect->Begin();
 //			for(UINT p = 0; p < cPasses; ++p)
 //			{
-//				// æ¸²æŸ“æ¨¡å‹çš„ä¸¤ä¸ªéƒ¨åˆ†ï¼Œæ³¨æ„ï¼Œå¤´å‘çš„éƒ¨åˆ†ä¸è¦èƒŒé¢å‰”é™¤
+//				// äÖÈ¾Ä£ĞÍµÄÁ½¸ö²¿·Ö£¬×¢Òâ£¬Í··¢µÄ²¿·Ö²»Òª±³ÃæÌŞ³ı
 //				m_characterEffect->BeginPass(p);
 //				V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 //				m_characterMesh->DrawSubset(1);
@@ -514,7 +514,7 @@
 //			}
 //			m_characterEffect->End();
 //
-//			// æ¸²æŸ“åœºæ™¯
+//			// äÖÈ¾³¡¾°
 //			m_characterEffect->SetMatrix("g_mWorldViewProjection", mWorld * mViewProj);
 //			m_characterEffect->SetMatrix("g_mWorld", mWorld);
 //			m_characterEffect->SetFloat("g_fTime", (float)fTime);
@@ -555,7 +555,7 @@
 //			return hres;
 //		}
 //
-//		// ç›¸æœºæ¶ˆæ¯å¤„ç†
+//		// Ïà»úÏûÏ¢´¦Àí
 //		return m_camera.HandleMessages(hWnd, uMsg, wParam, lParam);
 //	}
 //};
@@ -570,7 +570,7 @@ int WINAPI wWinMain(HINSTANCE hInstance,
 					int nCmdShow)
 {
 #if defined(DEBUG) | defined(_DEBUG)
-	// è®¾ç½®crtdbgç›‘è§†å†…å­˜æ³„æ¼
+	// ÉèÖÃcrtdbg¼àÊÓÄÚ´æĞ¹Â©
 	_CrtSetDbgFlag(_CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF);
 #endif
 
