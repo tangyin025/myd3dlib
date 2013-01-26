@@ -475,5 +475,11 @@ LRESULT GameStateMain::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	return m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+	if(!my::Dialog::s_ControlFocus.lock())
+	{
+		LRESULT lr;
+		if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+			return lr;
+	}
+	return 0;
 }

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "myResource.h"
 #include "libc.h"
-#include "myDxutApp.h"
+#include "myException.h"
 
 using namespace my;
 

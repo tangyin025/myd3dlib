@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Game.h"
-#include "Camera.h"
 #include "EffectMesh.h"
 #include "Character.h"
 //
@@ -119,7 +118,7 @@ public:
 
 	my::SurfacePtr m_ShadowTextureDS;
 
-	boost::shared_ptr<Camera> m_Camera;
+	boost::shared_ptr<my::Camera> m_Camera;
 
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 

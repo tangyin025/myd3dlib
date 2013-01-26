@@ -3,9 +3,7 @@
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <unzip.h>
-#include <atlbase.h>
 #include <d3d9.h>
-#include "myUi.h"
 #include <map>
 
 namespace my
