@@ -83,7 +83,7 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_UIRender.reset(new EffectUIRender(
 		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
 
-	m_Camera.m_Rotation = Vector3(D3DXToRadian(45),D3DXToRadian(-45),0);
+	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 10;
 
