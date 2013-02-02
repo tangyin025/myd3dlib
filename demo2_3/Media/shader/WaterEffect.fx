@@ -6,7 +6,7 @@
 // ------------------------------------------------------------------------------------------
 
 #define WAVE_LENGTH0 1.0
-#define WAVE_LENGTH1 1.3
+#define WAVE_LENGTH1 1.0
 #define WAVE_LENGTH2 1.0
 #define PI 3.141596
 
@@ -15,12 +15,11 @@ texture g_CubeTexture;
 
 float FresExp = 3.0;
 float ReflStrength = 3.4;
-float3 WaterColor = {2 / 255.0, 10 / 255.0, 31 / 255.0};
-float Amplitude[3] = {0.01, 0.03, 0.5};
-float Frequency[3] = {2 * PI / WAVE_LENGTH0, 1 * PI / WAVE_LENGTH1, 2 * PI / WAVE_LENGTH2};
+float Amplitude[3] = {0.01, 0.01, 0.03};
+float Frequency[3] = {2 * PI / WAVE_LENGTH0, 2 * PI / WAVE_LENGTH1, 2 * PI / WAVE_LENGTH2};
 float Phase[3] = {0.2 * 2 * PI / WAVE_LENGTH0, 0.2 * 2 * PI / WAVE_LENGTH1, 0.2 * 2 * PI / WAVE_LENGTH2};
-float GerstnerQ[3] = {0.6, 0.6, 0.5};
-float3 WaveDir[3] = { {1.0, 0, 1.0}, {1.0, 0, -1.0}, {0, 0, -1.0} };
+float GerstnerQ[3] = {0.6, 0.6, 0.6};
+float3 WaveDir[3] = { {1.0, 0, 1.0}, {1.0, 0, -1.0}, {1.0, 0, 1.0} };
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
@@ -72,13 +71,14 @@ VS_OUTPUT WaterEffectVS( in float4 iPos			: POSITION,
 	
 	float angle[3];
 	float4 vPosWS = iPos;
+	for(uint i = 0; i < 1; i++)
 	{
-		angle[0] = Frequency[0] * dot(WaveDir[0], iPos.xyz) + Phase[0] * g_fTime;
-		float s = sin(angle[0]);
-		float c = cos(angle[0]);
-		vPosWS.x += WaveDir[0].x * GerstnerQ[0] * Amplitude[0] * c;
-		vPosWS.y += Amplitude[0] * s;
-		vPosWS.z += WaveDir[0].z * GerstnerQ[0] * Amplitude[0] * c;
+		angle[i] = Frequency[i] * dot(WaveDir[i], iPos.xyz) + Phase[i] * g_fTime;
+		float s = sin(angle[i]);
+		float c = cos(angle[i]);
+		vPosWS.x += WaveDir[i].x * GerstnerQ[i] * Amplitude[i] * c;
+		vPosWS.y += Amplitude[i] * s;
+		vPosWS.z += WaveDir[i].z * GerstnerQ[i] * Amplitude[i] * c;
 	}
 	Out.pos = mul(vPosWS, g_mWorldViewProjection);
 	
@@ -89,22 +89,23 @@ VS_OUTPUT WaterEffectVS( in float4 iPos			: POSITION,
 	float3 vNormalWS = mul(iNormal, (float3x3)g_mWorld);
 	float3 vTangentWS = mul(iTangent, (float3x3)g_mWorld);
 	float3 vBinormalWS = cross(vNormalWS, vTangentWS);
+	for(uint i = 0; i < 1; i++)
 	{
-		float wa = Frequency[0] * Amplitude[0];
-		float s = sin(angle[0]);
-		float c = cos(angle[0]);
+		float wa = Frequency[i] * Amplitude[i];
+		float s = sin(angle[i]);
+		float c = cos(angle[i]);
 		
-		vTangentWS.x -= GerstnerQ[0] * WaveDir[0].x * WaveDir[0].x * wa * s;
-		vTangentWS.y += WaveDir[0].x * wa * c;
-		vTangentWS.z -= GerstnerQ[0] * WaveDir[0].x * WaveDir[0].z * wa * s;
+		vTangentWS.x -= GerstnerQ[i] * WaveDir[i].x * WaveDir[i].x * wa * s;
+		vTangentWS.y += WaveDir[i].x * wa * c;
+		vTangentWS.z -= GerstnerQ[i] * WaveDir[i].x * WaveDir[i].z * wa * s;
 		
-		vNormalWS.x -= WaveDir[0].x * wa * c;
-		vNormalWS.y -= GerstnerQ[0] * wa * s;
-		vNormalWS.z -= WaveDir[0].z * wa * c;
+		vNormalWS.x -= WaveDir[i].x * wa * c;
+		vNormalWS.y -= GerstnerQ[i] * wa * s;
+		vNormalWS.z -= WaveDir[i].z * wa * c;
 		
-		vBinormalWS.x -= GerstnerQ[0] * WaveDir[0].x * WaveDir[0].z * wa * s;
-		vBinormalWS.y += WaveDir[0].z * wa * c;
-		vBinormalWS.z -= GerstnerQ[0] * WaveDir[0].z * WaveDir[0].z * wa * s;
+		vBinormalWS.x -= GerstnerQ[i] * WaveDir[i].x * WaveDir[i].z * wa * s;
+		vBinormalWS.y += WaveDir[i].z * wa * c;
+		vBinormalWS.z -= GerstnerQ[i] * WaveDir[i].z * WaveDir[i].z * wa * s;
 	}
 	Out.NormalWS = vNormalWS;
 	Out.TangentWS = vTangentWS;
@@ -136,6 +137,8 @@ float4 WaterEffectPS( VS_OUTPUT In ) : COLOR
 	
 	float fres = get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
 	
+	float3 WaterColor = {2 / 255.0, 10 / 255.0, 31 / 255.0};
+	
 	return float4(cReflection.xyz * fres + WaterColor * (1 - fres), 1);
 }
 
@@ -150,6 +153,7 @@ technique WaterEffect
 		// AlphaBlendEnable = TRUE;
 		// SrcBlend = SRCALPHA;
 		// DestBlend = INVSRCALPHA;
+		// FillMode = WIREFRAME;
 		VertexShader = compile vs_2_0 WaterEffectVS();
 		PixelShader = compile ps_2_0 WaterEffectPS();
 	}
