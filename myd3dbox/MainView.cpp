@@ -85,7 +85,7 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(45),D3DXToRadian(-45),0);
 	m_Camera.m_LookAt = Vector3(0,0,0);
-	m_Camera.m_Distance = 3;
+	m_Camera.m_Distance = 10;
 
 	return 0;
 }
