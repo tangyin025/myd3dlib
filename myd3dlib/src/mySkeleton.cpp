@@ -484,7 +484,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
 		m_boneBindPose.push_back(
-			Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, -axis_z), -angle), Vector3(x, y, -z)));
+			Bone(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(x, y, z)));
 
 		_ASSERT(id == m_boneBindPose.size() - 1);
 	}
@@ -565,7 +565,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
 				bone_track.push_back(
-					BoneKeyframe(Quaternion::RotationAxis(Vector3(axis_x, axis_y, -axis_z), -angle), Vector3(translate_x, translate_y, -translate_z), time));
+					BoneKeyframe(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(translate_x, translate_y, translate_z), time));
 			}
 		}
 	}

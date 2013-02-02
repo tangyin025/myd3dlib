@@ -366,7 +366,7 @@ bool DialogMgr::MsgProc(
 			GetClientRect(hWnd, &ClientRect);
 			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
 			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
-			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y + viewZ).normalize();
+			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y - viewZ).normalize();
 
 			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
 			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
@@ -449,9 +449,9 @@ void ModelViewerCamera::OnFrameMove(
 		* Matrix4::RotationY(-m_Rotation.y)
 		* Matrix4::RotationX(-m_Rotation.x)
 		* Matrix4::RotationZ(-m_Rotation.z)
-		* Matrix4::Translation(Vector3(0,0,m_Distance));
+		* Matrix4::Translation(Vector3(0,0,-m_Distance));
 
-	m_Proj = Matrix4::PerspectiveFovLH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+	m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
 }
 
 LRESULT ModelViewerCamera::MsgProc(
@@ -482,8 +482,8 @@ LRESULT ModelViewerCamera::MsgProc(
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			m_Rotation.x += D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Rotation.y += D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
+			m_Rotation.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
+			m_Rotation.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
 			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -511,7 +511,7 @@ void FirstPersonCamera::OnFrameMove(
 		* Matrix4::RotationX(-m_Rotation.x)
 		* Matrix4::RotationZ(-m_Rotation.z);
 
-	m_Proj = Matrix4::PerspectiveFovLH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+	m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
 }
 
 LRESULT FirstPersonCamera::MsgProc(
@@ -542,8 +542,8 @@ LRESULT FirstPersonCamera::MsgProc(
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			m_Rotation.x += D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Rotation.y += D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
+			m_Rotation.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
+			m_Rotation.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
 			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -554,12 +554,12 @@ LRESULT FirstPersonCamera::MsgProc(
 		switch(wParam)
 		{
 		case 'W':
-			m_Velocity.z = 1;
+			m_Velocity.z = -1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'S':
-			m_Velocity.z = -1;
+			m_Velocity.z = 1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
@@ -589,13 +589,13 @@ LRESULT FirstPersonCamera::MsgProc(
 		switch(wParam)
 		{
 		case 'W':
-			if(m_Velocity.z > 0)
+			if(m_Velocity.z < 0)
 				m_Velocity.z = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'S':
-			if(m_Velocity.z < 0)
+			if(m_Velocity.z > 0)
 				m_Velocity.z = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;

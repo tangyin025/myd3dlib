@@ -533,28 +533,20 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		{
 			DEFINE_XML_NODE_SIMPLE(position, vertex);
 			D3DVERTEXELEMENT9Set::PositionType & Position = m_VertexElemSet.GetPosition(pVertex);
-			float tmp;
 			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, x);
-			Position.x = tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, y);
-			Position.y = tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_position, z);
-			Position.z = -tmp;
+			DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
+			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
+			DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
 		}
 
 		if(normals)
 		{
 			DEFINE_XML_NODE_SIMPLE(normal, vertex);
 			D3DVERTEXELEMENT9Set::NormalType & Normal = m_VertexElemSet.GetNormal(pVertex);
-			float tmp;
 			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, x);
-			Normal.x = tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, y);
-			Normal.y = tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_normal, z);
-			Normal.z = -tmp;
+			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.x, attr_tmp, node_normal, x);
+			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.y, attr_tmp, node_normal, y);
+			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.z, attr_tmp, node_normal, z);
 		}
 
 		rapidxml::xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");

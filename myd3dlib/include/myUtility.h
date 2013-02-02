@@ -279,10 +279,9 @@ namespace my
 			double fTime,
 			float fElapsedTime)
 		{
-			// ! 通过 Position，Orientation逆向计算 View非常费时，派生类应当跳过这一步直接获得 View
-			m_View = (Matrix4::RotationQuaternion(m_Orientation) * Matrix4::Translation(m_Position)).inverse();
+			m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
 
-			m_Proj = Matrix4::PerspectiveFovLH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+			m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
 		}
 
 		virtual LRESULT MsgProc(

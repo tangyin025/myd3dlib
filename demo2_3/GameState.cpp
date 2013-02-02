@@ -172,7 +172,7 @@ void GameStateMain::OnFrameRender(
 	CComPtr<IDirect3DSurface9> oldDs;
 	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
 
-	Vector3 LightDir(Vector3(1,1,-1).normalize());
+	Vector3 LightDir(Vector3(1,1,1).normalize());
 	Vector3 LightTag(0,1,0);
 	Matrix4 LightViewProj =
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
