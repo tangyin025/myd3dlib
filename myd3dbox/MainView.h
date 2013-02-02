@@ -33,6 +33,7 @@ public:
 class CMainView
 	: public CView
 	, public my::SingleInstance<CMainView>
+	, public my::DrawHelper
 {
 public:
 	CMainView(void);
@@ -52,6 +53,8 @@ public:
 	my::TexturePtr m_WhiteTex;
 
 	my::UIRenderPtr m_UIRender;
+
+	my::ModelViewerCamera m_Camera;
 
 	DECLARE_MESSAGE_MAP()
 

@@ -6,12 +6,14 @@
 #define new DEBUG_NEW
 #endif
 
+using namespace my;
+
 void EffectUIRender::Begin(void)
 {
 	CRect rectClient;
 	CMainView::getSingleton().GetClientRect(&rectClient);
 	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetVector("g_ScreenDim", my::Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
 
 	if(m_UIEffect->m_ptr)
 		m_Passes = m_UIEffect->Begin();
@@ -29,7 +31,7 @@ void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
 }
 
-void EffectUIRender::SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj)
+void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
 {
 	if(m_UIEffect->m_ptr)
 		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
@@ -52,11 +54,12 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-CMainView::SingleInstance * my::SingleInstance<CMainView>::s_ptr(NULL);
+CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainView, CView)
 
 CMainView::CMainView(void)
+	: m_Camera()
 {
 }
 
@@ -80,6 +83,10 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_UIRender.reset(new EffectUIRender(
 		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
 
+	m_Camera.m_Rotation = Vector3(D3DXToRadian(45),D3DXToRadian(-45),0);
+	m_Camera.m_LookAt = Vector3(0,0,0);
+	m_Camera.m_Distance = 3;
+
 	return 0;
 }
 
@@ -101,7 +108,7 @@ void CMainView::OnPaint()
 		LPDIRECT3DDEVICE9 pd3dDevice = CMainFrame::getSingleton().m_d3dDevice;
 
 		HRESULT hr;
-		my::Surface BackBuffer;
+		Surface BackBuffer;
 		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 		V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
 		V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
@@ -109,10 +116,25 @@ void CMainView::OnPaint()
 
 		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 		{
+			m_Camera.OnFrameMove(0,0);
+			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
+			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
+			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
+
+			DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+			DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+			for(int i = 1; i <= 10; i++)
+			{
+				DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+				DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			}
+
 			D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-			m_UIRender->SetTransform(my::Matrix4::Identity(),
-				my::UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-				my::UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
+			m_UIRender->SetTransform(Matrix4::Identity(),
+				UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+				UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
 			m_UIRender->Begin();
 
 			CString strText;
@@ -146,10 +168,10 @@ void CMainView::OnSize(UINT nType, int cx, int cy)
 	{
 		OnDeviceLost();
 
-		HRESULT hres;
-		if(FAILED(hres = OnDeviceReset()))
+		HRESULT hr;
+		if(FAILED(hr = OnDeviceReset()))
 		{
-			TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+			TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		}
 	}
 }
@@ -167,23 +189,26 @@ HRESULT CMainView::OnDeviceReset(void)
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.hDeviceWindow = m_hWnd;
 
-	HRESULT hres = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
-	if(FAILED(hres))
+	HRESULT hr = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
+	if(FAILED(hr))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hres;
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
 	}
 
-	CRect rectClient;
-	GetClientRect(&rectClient);
-	m_DepthStencil.OnDestroyDevice();
+	Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 	m_DepthStencil.CreateDepthStencilSurface(
-		CMainFrame::getSingleton().m_d3dDevice, rectClient.Width(), rectClient.Height(), D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+		CMainFrame::getSingleton().m_d3dDevice, desc.Width, desc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+
+	m_Camera.m_Aspect = (float)desc.Width / desc.Height;
 
 	return S_OK;
 }
 
 void CMainView::OnDeviceLost(void)
 {
+	m_DepthStencil.OnDestroyDevice();
 	m_d3dSwapChain.Release();
 }
