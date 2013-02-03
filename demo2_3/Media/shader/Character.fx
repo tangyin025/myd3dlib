@@ -130,7 +130,7 @@ float get_ligthAmount(float4 PosLight)
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
-	float3x3 mT2W = float3x3(normalize(In.TangentWS), normalize(In.BinormalWS), normalize(In.NormalWS));
+	float3x3 mT2W = float3x3(normalize(In.BinormalWS), normalize(In.TangentWS), normalize(In.NormalWS));
 	
 	float3 vViewWS = normalize(In.ViewWS);
 	

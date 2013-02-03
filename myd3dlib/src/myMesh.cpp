@@ -553,12 +553,9 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		for(int i = 0; i < texture_coords && node_texcoord != NULL; i++, node_texcoord = node_texcoord->next_sibling())
 		{
 			D3DVERTEXELEMENT9Set::TexcoordType & Texcoord = m_VertexElemSet.GetTexcoord(pVertex, i);
-			float tmp;
 			rapidxml::xml_attribute<char> * attr_tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, u);
-			Texcoord.x = tmp;
-			DEFINE_XML_ATTRIBUTE_FLOAT(tmp, attr_tmp, node_texcoord, v);
-			Texcoord.y = tmp;
+			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.x, attr_tmp, node_texcoord, u);
+			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.y, attr_tmp, node_texcoord, v);
 		}
 
 		if(node_boneassignments != NULL)
