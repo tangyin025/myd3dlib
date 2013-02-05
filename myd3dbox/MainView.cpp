@@ -149,12 +149,7 @@ void CMainView::OnPaint()
 		{
 			if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
 			{
-				OnDeviceLost();
-
-				if(SUCCEEDED(hr = CMainFrame::getSingleton().ResetD3DDevice()))
-				{
-					OnDeviceReset();
-				}
+				CMainFrame::getSingleton().ResetD3DDevice();
 			}
 		}
 	}
@@ -164,7 +159,7 @@ void CMainView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
 
-	if(cx > 0 && cy > 0)
+	if(cx > 0 && cy > 0 && m_d3dSwapChain)
 	{
 		OnDeviceLost();
 

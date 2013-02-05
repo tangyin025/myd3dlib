@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "MainFrm.h"
 #include "MainApp.h"
+#include "MainView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -44,24 +45,24 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     m_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	m_d3dpp.hDeviceWindow = m_hWnd;
 
-	HRESULT hres = theApp.m_d3d9->CreateDevice(
+	HRESULT hr = theApp.m_d3d9->CreateDevice(
 		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 	m_DeviceObjectsCreated = true;
 
-	if(FAILED(hres = OnDeviceReset()))
+	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	if(FAILED(hr = OnDeviceReset()))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 	m_DeviceObjectsReset = true;
-
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
-		return -1;
 
 	OnApplicationLook(theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WIN_2000));
 
@@ -180,8 +181,6 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 
 void CMainFrame::OnDestroy()
 {
-	CFrameWndEx::OnDestroy();
-
 	if(m_DeviceObjectsReset)
 	{
 		OnDeviceLost();
@@ -189,6 +188,8 @@ void CMainFrame::OnDestroy()
 	}
 
 	TRACE0("CMainFrame::OnDestroy \n");
+
+	CFrameWndEx::OnDestroy();
 
 	if(m_DeviceObjectsCreated)
 	{
@@ -213,17 +214,17 @@ HRESULT CMainFrame::ResetD3DDevice(void)
 		m_DeviceObjectsReset = false;
 	}
 
-	HRESULT hres;
-	if(FAILED(hres = m_d3dDevice->Reset(&m_d3dpp)))
+	HRESULT hr;
+	if(FAILED(hr = m_d3dDevice->Reset(&m_d3dpp)))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hres;
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
 	}
 
-	if(FAILED(hres = OnDeviceReset()))
+	if(FAILED(hr = OnDeviceReset()))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hres;
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
 	}
 	m_DeviceObjectsReset = true;
 
@@ -235,19 +236,25 @@ HRESULT CMainFrame::OnDeviceReset(void)
 	TRACE0("CMainFrame::OnDeviceReset \n");
 
 	my::Surface BackBuffer;
-	HRESULT hres;
-	if(FAILED(hres = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr)))
+	HRESULT hr;
+	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr)))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hres;
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
 	}
 
 	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 
-	if(FAILED(hres = LoaderMgr::OnResetDevice(m_d3dDevice, &desc)))
+	if(FAILED(hr = LoaderMgr::OnResetDevice(m_d3dDevice, &desc)))
 	{
-		TRACE(my::D3DException(hres, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hres;
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
+	}
+
+	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
+	{
+		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
 	}
 	return S_OK;
 }
@@ -257,4 +264,6 @@ void CMainFrame::OnDeviceLost(void)
 	TRACE0("CMainFrame::OnDeviceLost \n");
 
 	LoaderMgr::OnLostDevice();
+
+	CMainView::getSingleton().OnDeviceLost();
 }
