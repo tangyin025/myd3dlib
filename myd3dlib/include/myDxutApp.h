@@ -102,9 +102,9 @@ namespace my
 
 		bool m_DeviceLost;
 
-		double m_fLastTime;
-
 		DWORD m_dwFrames;
+
+		double m_fLastTime;
 
 		wchar_t m_strFPS[64];
 

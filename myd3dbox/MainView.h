@@ -68,7 +68,16 @@ public:
 
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 public:
-	virtual HRESULT OnDeviceReset(void);
+	HRESULT OnDeviceReset(void);
 
-	virtual void OnDeviceLost(void);
+	void OnDeviceLost(void);
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
 };

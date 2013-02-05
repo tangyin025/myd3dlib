@@ -133,8 +133,8 @@ DxutApp::DxutApp(void)
 	, m_WindowBackBufferHeightAtModeChange(600)
 	, m_IgnoreSizeChange(false)
 	, m_DeviceLost(false)
-	, m_fLastTime(0)
 	, m_dwFrames(0)
+	, m_fLastTime(0)
 {
 }
 

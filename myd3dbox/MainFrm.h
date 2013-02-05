@@ -45,7 +45,15 @@ public:
 public:
 	HRESULT ResetD3DDevice(void);
 
-	virtual HRESULT OnDeviceReset(void);
+	HRESULT OnDeviceReset(void);
 
-	virtual void OnDeviceLost(void);
+	void OnDeviceLost(void);
+
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
+	void OnFrameRender(
+		double fTime,
+		float fElapsedTime);
 };

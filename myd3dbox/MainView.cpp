@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "MainView.h"
 #include "MainFrm.h"
+#include "MainApp.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -105,53 +106,7 @@ void CMainView::OnPaint()
 
 	if(m_d3dSwapChain)
 	{
-		LPDIRECT3DDEVICE9 pd3dDevice = CMainFrame::getSingleton().m_d3dDevice;
-
-		HRESULT hr;
-		Surface BackBuffer;
-		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-		V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
-		V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
-
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-		{
-			m_Camera.OnFrameMove(0,0);
-			V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-			V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
-			V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
-
-			DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
-			DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
-			for(int i = 1; i <= 10; i++)
-			{
-				DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
-				DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
-				DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-				DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-			}
-
-			D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-			m_UIRender->SetTransform(Matrix4::Identity(),
-				UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-				UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-			m_UIRender->Begin();
-
-			CString strText;
-			strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-			m_Font->DrawString(m_UIRender.get(), strText, my::Rectangle(10,10,100,100), D3DCOLOR_ARGB(255,255,255,0));
-
-			m_UIRender->End();
-			V(pd3dDevice->EndScene());
-		}
-
-		if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
-		{
-			if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
-			{
-				CMainFrame::getSingleton().ResetD3DDevice();
-			}
-		}
+		OnFrameRender(CMainFrame::getSingleton().m_d3dDevice, theApp.m_fAbsoluteTime, 0);
 	}
 }
 
@@ -183,6 +138,7 @@ HRESULT CMainView::OnDeviceReset(void)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.hDeviceWindow = m_hWnd;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 
 	HRESULT hr = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
@@ -206,4 +162,64 @@ void CMainView::OnDeviceLost(void)
 {
 	m_DepthStencil.OnDestroyDevice();
 	m_d3dSwapChain.Release();
+}
+
+void CMainView::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+}
+
+void CMainView::OnFrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	ASSERT(m_d3dSwapChain);
+
+	HRESULT hr;
+	Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
+	V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		m_Camera.OnFrameMove(0,0);
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
+		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
+		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
+
+		DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
+		DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
+		for(int i = 1; i <= 10; i++)
+		{
+			DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
+		}
+
+		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+		m_UIRender->SetTransform(Matrix4::Identity(),
+			UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+			UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
+		m_UIRender->Begin();
+
+		CString strText;
+		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
+		m_Font->DrawString(m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+
+		m_UIRender->End();
+		V(pd3dDevice->EndScene());
+	}
+
+	if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
+	{
+		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+		{
+			CMainFrame::getSingleton().ResetD3DDevice();
+		}
+	}
 }
