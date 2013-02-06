@@ -12,3 +12,9 @@ IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
 CMainDoc::CMainDoc(void)
 {
 }
+
+void CMainDoc::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+}
