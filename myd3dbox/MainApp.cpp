@@ -64,7 +64,16 @@ END_MESSAGE_MAP()
 
 BOOL CMainApp::OnIdle(LONG lCount)
 {
-	CWinAppEx::OnIdle(lCount);
+	BOOL bRet = CWinAppEx::OnIdle(lCount);
+
+	if(!CMainFrame::getSingleton().m_DeviceObjectsReset)
+	{
+		HRESULT hr = CMainFrame::getSingleton().ResetD3DDevice();
+		if(D3DERR_DEVICELOST == hr)
+		{
+			return bRet;
+		}
+	}
 
 	my::Clock::Update();
 
