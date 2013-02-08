@@ -54,7 +54,21 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::ModelViewerCamera m_Camera;
+	my::FirstPersonCamera m_Camera;
+
+	BOOL m_bAltDown;
+
+	BOOL m_bEatAltUp;
+
+	enum DragCameraMode
+	{
+		DragCameraNone = 0,
+		DragCameraRotate,
+		DragCameraTrack,
+		DragCameraZoom,
+	};
+
+	DragCameraMode m_DragCameraMode;
 
 	DECLARE_MESSAGE_MAP()
 
@@ -76,4 +90,6 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

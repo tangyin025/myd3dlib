@@ -61,6 +61,9 @@ IMPLEMENT_DYNCREATE(CMainView, CView)
 
 CMainView::CMainView(void)
 	: m_Camera()
+	, m_bAltDown(FALSE)
+	, m_bEatAltUp(FALSE)
+	, m_DragCameraMode(DragCameraNone)
 {
 }
 
@@ -84,9 +87,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_UIRender.reset(new EffectUIRender(
 		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
 
+	m_Camera.m_Position = Vector3(10,10,10);
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	m_Camera.m_LookAt = Vector3(0,0,0);
-	m_Camera.m_Distance = 10;
 
 	return 0;
 }
@@ -216,4 +218,87 @@ void CMainView::OnFrameRender(
 			CMainFrame::getSingleton().ResetD3DDevice();
 		}
 	}
+}
+
+BOOL CMainView::PreTranslateMessage(MSG* pMsg)
+{
+	switch(pMsg->message)
+	{
+	case WM_SYSKEYDOWN:
+		if(pMsg->wParam == VK_MENU)
+		{
+			m_bAltDown = TRUE;
+		}
+		break;
+
+	case WM_SYSKEYUP:
+		if(pMsg->wParam == VK_MENU)
+		{
+			if(m_bEatAltUp)
+			{
+				m_bEatAltUp = FALSE;
+				return TRUE;
+			}
+		}
+		break;
+
+	case WM_LBUTTONDOWN:
+		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+		{
+			m_bEatAltUp = TRUE;
+			m_DragCameraMode = DragCameraRotate;
+			SetCapture();
+			return TRUE;
+		}
+		break;
+
+	case WM_LBUTTONUP:
+		if(DragCameraRotate == m_DragCameraMode)
+		{
+			m_DragCameraMode = DragCameraNone;
+			ReleaseCapture();
+			return TRUE;
+		}
+		break;
+
+	case WM_MBUTTONDOWN:
+		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+		{
+			m_bEatAltUp = TRUE;
+			m_DragCameraMode = DragCameraTrack;
+			SetCapture();
+			return TRUE;
+		}
+		break;
+
+	case WM_MBUTTONUP:
+		if(DragCameraTrack == m_DragCameraMode)
+		{
+			m_DragCameraMode = DragCameraNone;
+			ReleaseCapture();
+			return TRUE;
+		}
+		break;
+
+	case WM_RBUTTONDOWN:
+		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+		{
+			m_bEatAltUp = TRUE;
+			m_DragCameraMode = DragCameraZoom;
+			SetCapture();
+			return TRUE;
+		}
+		break;
+
+	case WM_RBUTTONUP:
+		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+		{
+			m_bEatAltUp = TRUE;
+			m_DragCameraMode = DragCameraNone;
+			return TRUE;
+		}
+		break;
+	}
+
+	return CView::PreTranslateMessage(pMsg);
 }
