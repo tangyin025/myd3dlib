@@ -330,10 +330,10 @@ std::string Window::GetWindowMessageStr(UINT message)
 	case WM_INPUT:
 		return "WM_INPUT";
 #endif /* _WIN32_WINNT >= 0x0501 */
-	case WM_KEYFIRST:
-		return "WM_KEYFIRST";
-		//case WM_KEYDOWN:
-		//	return "WM_KEYDOWN";
+	//case WM_KEYFIRST:
+	//	return "WM_KEYFIRST";
+	case WM_KEYDOWN:
+		return "WM_KEYDOWN";
 	case WM_KEYUP:
 		return "WM_KEYUP";
 	case WM_CHAR:
@@ -431,10 +431,10 @@ std::string Window::GetWindowMessageStr(UINT message)
 		return "WM_CTLCOLORSTATIC";
 	case MN_GETHMENU:
 		return "MN_GETHMENU";
-	case WM_MOUSEFIRST:
-		return "WM_MOUSEFIRST";
-		//case WM_MOUSEMOVE:
-		//	return "WM_MOUSEMOVE";
+	//case WM_MOUSEFIRST:
+	//	return "WM_MOUSEFIRST";
+	case WM_MOUSEMOVE:
+		return "WM_MOUSEMOVE";
 	case WM_LBUTTONDOWN:
 		return "WM_LBUTTONDOWN";
 	case WM_LBUTTONUP:

@@ -73,6 +73,12 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MBUTTONDOWN()
+	ON_WM_MBUTTONUP()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
@@ -246,68 +252,75 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		}
 		break;
 
-	case WM_LBUTTONDOWN:
-		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	case WM_KEYUP:
+		if(pMsg->wParam == VK_MENU && m_bAltDown)
 		{
-			m_bEatAltUp = TRUE;
-			m_DragCameraMode = DragCameraRotate;
-			m_Camera.m_DragPos = CPoint(pMsg->lParam);
-			SetCapture();
-			return TRUE;
-		}
-		break;
-
-	case WM_LBUTTONUP:
-		if(DragCameraRotate == m_DragCameraMode)
-		{
-			m_DragCameraMode = DragCameraNone;
-			ReleaseCapture();
-			return TRUE;
-		}
-		break;
-
-	case WM_MBUTTONDOWN:
-		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
-		{
-			m_bEatAltUp = TRUE;
-			m_DragCameraMode = DragCameraTrack;
-			m_Camera.m_DragPos = CPoint(pMsg->lParam);
-			SetCapture();
-			return TRUE;
-		}
-		break;
-
-	case WM_MBUTTONUP:
-		if(DragCameraTrack == m_DragCameraMode)
-		{
-			m_DragCameraMode = DragCameraNone;
-			ReleaseCapture();
-			return TRUE;
-		}
-		break;
-
-	case WM_RBUTTONDOWN:
-		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
-		{
-			m_bEatAltUp = TRUE;
-			m_DragCameraMode = DragCameraZoom;
-			m_Camera.m_DragPos = CPoint(pMsg->lParam);
-			SetCapture();
-			return TRUE;
-		}
-		break;
-
-	case WM_RBUTTONUP:
-		if(DragCameraZoom == m_DragCameraMode)
-		{
-			m_DragCameraMode = DragCameraNone;
-			ReleaseCapture();
-			return TRUE;
+			m_bAltDown = FALSE;
 		}
 		break;
 	}
 
 	return CView::PreTranslateMessage(pMsg);
+}
+
+void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	{
+		m_bEatAltUp = TRUE;
+		m_DragCameraMode = DragCameraRotate;
+		m_Camera.m_DragPos = point;
+		SetCapture();
+	}
+}
+
+void CMainView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if(DragCameraRotate == m_DragCameraMode)
+	{
+		m_DragCameraMode = DragCameraNone;
+		ReleaseCapture();
+	}
+}
+
+void CMainView::OnMButtonDown(UINT nFlags, CPoint point)
+{
+	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	{
+		m_bEatAltUp = TRUE;
+		m_DragCameraMode = DragCameraTrack;
+		m_Camera.m_DragPos = point;
+		SetCapture();
+	}
+}
+
+void CMainView::OnMButtonUp(UINT nFlags, CPoint point)
+{
+	if(DragCameraTrack == m_DragCameraMode)
+	{
+		m_DragCameraMode = DragCameraNone;
+		ReleaseCapture();
+	}
+}
+
+void CMainView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	{
+		m_bEatAltUp = TRUE;
+		m_DragCameraMode = DragCameraZoom;
+		m_Camera.m_DragPos = point;
+		SetCapture();
+	}
+}
+
+void CMainView::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	if(DragCameraZoom == m_DragCameraMode)
+	{
+		m_DragCameraMode = DragCameraNone;
+		ReleaseCapture();
+	}
 }
 
 void CMainView::OnMouseMove(UINT nFlags, CPoint point)
