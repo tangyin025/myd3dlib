@@ -672,9 +672,9 @@ namespace my
 	public:
 		static boost::weak_ptr<Control> s_ControlFocus;
 
-		ControlPtrSet m_Controls;
+		boost::weak_ptr<Control> m_ControlMouseOver;
 
-		ControlPtr m_ControlMouseOver;
+		ControlPtrSet m_Controls;
 
 		Matrix4 m_World;
 
@@ -712,7 +712,7 @@ namespace my
 
 		ControlPtr GetControlAtPoint(const Vector2 & pt);
 
-		void RequestFocus(ControlPtr control);
+		static void RequestFocus(ControlPtr control);
 
 		void ForceFocusControl(void);
 

@@ -769,6 +769,9 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			case VK_DOWN:
 				ResetCaretBlink();
 				return true;
+
+			default:
+				return wParam != VK_ESCAPE;
 			}
 			break;
 		}
@@ -1974,7 +1977,7 @@ bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if(m_bEnabled && m_bVisible)
+	if(/*m_bEnabled &&*/ m_bVisible)
 	{
 		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)

@@ -325,8 +325,7 @@ bool DialogMgr::MsgProc(
 				return true;
 		}
 
-		if(uMsg == WM_KEYDOWN
-			&& (!ControlFocus || !boost::dynamic_pointer_cast<EditBox>(ControlFocus)))
+		if(uMsg == WM_KEYDOWN)
 		{
 			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
 			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
@@ -375,7 +374,7 @@ bool DialogMgr::MsgProc(
 				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
 				{
 					// ! 只处理看得见的 Dialog
-					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
+					if(/*(*dlg_iter)->GetEnabled() &&*/ (*dlg_iter)->GetVisible())
 					{
 						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
 						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
@@ -386,26 +385,44 @@ bool DialogMgr::MsgProc(
 							Vector3 ptInt(ptEye + dir * result.second);
 							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
 							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
+
+							// ! 只处理自己的 FocusControl
 							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
 							{
-								// ! 只处理自己的 FocusControl
 								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
 									return true;
 							}
 
+							// ! 只处理自己的 mouse over control
 							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
+							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
+							if(ControlPtd != m_ControlMouseOver)
+							{
+								if(m_ControlMouseOver)
+									m_ControlMouseOver->OnMouseLeave();
+
+								if(ControlPtd && ControlPtd->GetEnabled())
+								{
+									(*dlg_iter)->m_ControlMouseOver = ControlPtd;
+									ControlPtd->OnMouseEnter();
+								}
+								else
+									(*dlg_iter)->m_ControlMouseOver.reset();
+							}
+
 							if(ControlPtd && ControlPtd->GetEnabled())
 							{
 								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
 								{
-									(*dlg_iter)->RequestFocus(ControlPtd);
+									Dialog::RequestFocus(ControlPtd);
 									return true;
 								}
 							}
 
-							// ! 用以解决对话框控件丢失焦点
-							if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+							bool bDlgPtd = (*dlg_iter)->ContainsPoint(pt.xy);
+							if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !bDlgPtd)
 							{
+								// ! 用以解决对话框控件丢失焦点
 								ControlFocus->OnFocusOut();
 								Dialog::s_ControlFocus.reset();
 							}
@@ -415,16 +432,6 @@ bool DialogMgr::MsgProc(
 								// ! 强制让自己具有 FocusControl
 								(*dlg_iter)->ForceFocusControl();
 								return true;
-							}
-
-							if(ControlPtd != (*dlg_iter)->m_ControlMouseOver)
-							{
-								if((*dlg_iter)->m_ControlMouseOver)
-									(*dlg_iter)->m_ControlMouseOver->OnMouseLeave();
-
-								(*dlg_iter)->m_ControlMouseOver = ControlPtd;
-								if(ControlPtd)
-									ControlPtd->OnMouseEnter();
 							}
 						}
 					}
