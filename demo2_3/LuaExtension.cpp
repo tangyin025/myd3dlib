@@ -956,7 +956,7 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
-			.def_readwrite("Fovy", &my::BaseCamera::m_Fovy)
+			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
 			.def_readwrite("Aspect", &my::BaseCamera::m_Aspect)
 			.def_readwrite("Nz", &my::BaseCamera::m_Nz)
 			.def_readwrite("Fz", &my::BaseCamera::m_Fz)

@@ -1947,6 +1947,30 @@ namespace my
 				0,		0,		zn * zf / (zn - zf),	0);
 		}
 
+		static Matrix4 PerspectiveAovLH(float fovx, float aspect, float zn, float zf)
+		{
+			float xScale = cot(fovx / 2);
+			float yScale = xScale * aspect;
+
+			return Matrix4(
+				xScale,	0,		0,						0,
+				0,		yScale,	0,						0,
+				0,		0,		zf / (zf - zn),			1,
+				0,		0,		-zn * zf / (zf - zn),	0);
+		}
+
+		static Matrix4 PerspectiveAovRH(float fovx, float aspect, float zn, float zf)
+		{
+			float xScale = cot(fovx / 2);
+			float yScale = xScale * aspect;
+
+			return Matrix4(
+				xScale,	0,		0,						0,
+				0,		yScale,	0,						0,
+				0,		0,		zf / (zn - zf),			-1,
+				0,		0,		zn * zf / (zn - zf),	0);
+		}
+
 		static Matrix4 PerspectiveLH(float w, float h, float zn, float zf)
 		{
 			return Matrix4(

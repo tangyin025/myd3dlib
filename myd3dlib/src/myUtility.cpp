@@ -451,7 +451,7 @@ void ModelViewerCamera::OnFrameMove(
 		* Matrix4::RotationZ(-m_Rotation.z)
 		* Matrix4::Translation(Vector3(0,0,-m_Distance));
 
-	m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 }
 
 LRESULT ModelViewerCamera::MsgProc(
@@ -511,7 +511,7 @@ void FirstPersonCamera::OnFrameMove(
 		* Matrix4::RotationX(-m_Rotation.x)
 		* Matrix4::RotationZ(-m_Rotation.z);
 
-	m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 }
 
 LRESULT FirstPersonCamera::MsgProc(

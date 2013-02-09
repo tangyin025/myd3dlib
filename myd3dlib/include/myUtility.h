@@ -216,7 +216,7 @@ namespace my
 	class BaseCamera
 	{
 	public:
-		float m_Fovy;
+		float m_Fov;
 
 		float m_Aspect;
 
@@ -231,8 +231,8 @@ namespace my
 		ControlEvent EventAlign;
 
 	public:
-		BaseCamera(float Fovy, float Aspect, float Nz, float Fz)
-			: m_Fovy(Fovy)
+		BaseCamera(float Fov, float Aspect, float Nz, float Fz)
+			: m_Fov(Fov)
 			, m_Aspect(Aspect)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
@@ -268,8 +268,8 @@ namespace my
 		Quaternion m_Orientation;
 
 	public:
-		Camera(float Fovy = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: BaseCamera(Fovy, Aspect, Nz, Fz)
+		Camera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+			: BaseCamera(Fov, Aspect, Nz, Fz)
 			, m_Position(Vector3::zero)
 			, m_Orientation(Quaternion::identity)
 		{
@@ -281,7 +281,7 @@ namespace my
 		{
 			m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
 
-			m_Proj = Matrix4::PerspectiveFovRH(m_Fovy, m_Aspect, m_Nz, m_Fz);
+			m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 		}
 
 		virtual LRESULT MsgProc(
@@ -310,8 +310,8 @@ namespace my
 		CPoint m_DragPos;
 
 	public:
-		ModelViewerCamera(float Fovy = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fovy, Aspect, Nz, Fz)
+		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+			: Camera(Fov, Aspect, Nz, Fz)
 			, m_LookAt(Vector3::zero)
 			, m_Rotation(Vector3::zero)
 			, m_Distance(0)
@@ -344,8 +344,8 @@ namespace my
 		CPoint m_DragPos;
 
 	public:
-		FirstPersonCamera(float Fovy = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fovy, Aspect, Nz, Fz)
+		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
+			: Camera(Fov, Aspect, Nz, Fz)
 			, m_Velocity(0,0,0)
 			, m_Rotation(0,0,0)
 			, m_bDrag(false)
