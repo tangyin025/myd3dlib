@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -87,8 +88,9 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_UIRender.reset(new EffectUIRender(
 		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
 
-	m_Camera.m_Position = Vector3(10,10,10);
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	m_Camera.m_LookAt = Vector3(0,0,0);
+	m_Camera.m_Distance = 20;
 
 	return 0;
 }
@@ -232,8 +234,10 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		break;
 
 	case WM_SYSKEYUP:
-		if(pMsg->wParam == VK_MENU)
+		if(pMsg->wParam == VK_MENU && m_bAltDown)
 		{
+			m_bAltDown = FALSE;
+
 			if(m_bEatAltUp)
 			{
 				m_bEatAltUp = FALSE;
@@ -247,6 +251,7 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		{
 			m_bEatAltUp = TRUE;
 			m_DragCameraMode = DragCameraRotate;
+			m_Camera.m_DragPos = CPoint(pMsg->lParam);
 			SetCapture();
 			return TRUE;
 		}
@@ -266,6 +271,7 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		{
 			m_bEatAltUp = TRUE;
 			m_DragCameraMode = DragCameraTrack;
+			m_Camera.m_DragPos = CPoint(pMsg->lParam);
 			SetCapture();
 			return TRUE;
 		}
@@ -285,20 +291,46 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		{
 			m_bEatAltUp = TRUE;
 			m_DragCameraMode = DragCameraZoom;
+			m_Camera.m_DragPos = CPoint(pMsg->lParam);
 			SetCapture();
 			return TRUE;
 		}
 		break;
 
 	case WM_RBUTTONUP:
-		if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+		if(DragCameraZoom == m_DragCameraMode)
 		{
-			m_bEatAltUp = TRUE;
 			m_DragCameraMode = DragCameraNone;
+			ReleaseCapture();
 			return TRUE;
 		}
 		break;
 	}
 
 	return CView::PreTranslateMessage(pMsg);
+}
+
+void CMainView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	switch(m_DragCameraMode)
+	{
+	case DragCameraRotate:
+		m_Camera.m_Rotation.x -= D3DXToRadian((point.y - m_Camera.m_DragPos.y) * 0.5f);
+		m_Camera.m_Rotation.y -= D3DXToRadian((point.x - m_Camera.m_DragPos.x) * 0.5f);
+		m_Camera.m_DragPos = point;
+		break;
+
+	case DragCameraTrack:
+		{
+			Vector3 mov((m_Camera.m_DragPos.x - point.x) * 0.02f, (point.y - m_Camera.m_DragPos.y) * 0.02f, 0);
+			m_Camera.m_LookAt += mov.transform(m_Camera.m_Orientation);
+			m_Camera.m_DragPos = point;
+		}
+		break;
+
+	case DragCameraZoom:
+		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
+		m_Camera.m_DragPos = point;
+		break;
+	}
 }

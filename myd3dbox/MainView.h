@@ -54,7 +54,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::FirstPersonCamera m_Camera;
+	my::ModelViewerCamera m_Camera;
 
 	BOOL m_bAltDown;
 
@@ -92,4 +92,6 @@ public:
 		float fElapsedTime);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
