@@ -175,6 +175,12 @@ void CMainView::OnDeviceLost(void)
 	m_d3dSwapChain.Release();
 }
 
+void CMainView::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+}
+
 void CMainView::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,

@@ -273,7 +273,7 @@ void CMainFrame::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	CMainDoc::getSingleton().OnFrameMove(fTime, fElapsedTime);
+	CMainView::getSingleton().OnFrameMove(fTime, fElapsedTime);
 }
 
 void CMainFrame::OnFrameRender(

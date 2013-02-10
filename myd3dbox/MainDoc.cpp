@@ -13,8 +13,33 @@ CMainDoc::CMainDoc(void)
 {
 }
 
-void CMainDoc::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
+BOOL CMainDoc::OnNewDocument()
 {
+	// TODO: Add your specialized code here and/or call the base class
+
+	return CDocument::OnNewDocument();
+}
+
+BOOL CMainDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+	if (!CDocument::OnOpenDocument(lpszPathName))
+		return FALSE;
+
+	// TODO:  Add your specialized creation code here
+
+	return TRUE;
+}
+
+BOOL CMainDoc::OnSaveDocument(LPCTSTR lpszPathName)
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	return CDocument::OnSaveDocument(lpszPathName);
+}
+
+void CMainDoc::OnCloseDocument()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	CDocument::OnCloseDocument();
 }

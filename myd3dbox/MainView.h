@@ -86,6 +86,10 @@ public:
 
 	void OnDeviceLost(void);
 
+	void OnFrameMove(
+		double fTime,
+		float fElapsedTime);
+
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
