@@ -343,7 +343,9 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 
 	case DragCameraTrack:
 		{
-			Vector3 mov((m_Camera.m_DragPos.x - point.x) * 0.02f, (point.y - m_Camera.m_DragPos.y) * 0.02f, 0);
+			Vector3 mov(
+				(m_Camera.m_DragPos.x - point.x) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f,
+				(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0);
 			m_Camera.m_LookAt += mov.transform(m_Camera.m_Orientation);
 			m_Camera.m_DragPos = point;
 		}
