@@ -73,6 +73,7 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_PAINT()
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
+	ON_WM_KILLFOCUS()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MBUTTONDOWN()
@@ -261,6 +262,13 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return CView::PreTranslateMessage(pMsg);
+}
+
+void CMainView::OnKillFocus(CWnd* pNewWnd)
+{
+	CView::OnKillFocus(pNewWnd);
+
+	m_bAltDown = FALSE;
 }
 
 void CMainView::OnLButtonDown(UINT nFlags, CPoint point)

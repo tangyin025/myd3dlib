@@ -93,6 +93,8 @@ public:
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
+	afx_msg void OnKillFocus(CWnd* pNewWnd);
+
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
