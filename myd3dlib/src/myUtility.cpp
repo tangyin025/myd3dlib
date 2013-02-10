@@ -374,7 +374,7 @@ bool DialogMgr::MsgProc(
 				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
 				{
 					// ! 只处理看得见的 Dialog
-					if(/*(*dlg_iter)->GetEnabled() &&*/ (*dlg_iter)->GetVisible())
+					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
 					{
 						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
 						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
@@ -386,14 +386,14 @@ bool DialogMgr::MsgProc(
 							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
 							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
 
-							// ! 只处理自己的 FocusControl
+							// ! 只处理自己的 ControlFocus
 							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
 							{
 								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
 									return true;
 							}
 
-							// ! 只处理自己的 mouse over control
+							// ! 只处理自己的 m_ControlMouseOver
 							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
 							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
 							if(ControlPtd != m_ControlMouseOver)
@@ -419,8 +419,8 @@ bool DialogMgr::MsgProc(
 								}
 							}
 
-							bool bDlgPtd = (*dlg_iter)->ContainsPoint(pt.xy);
-							if(uMsg == WM_LBUTTONDOWN && (*dlg_iter)->ContainsControl(ControlFocus) && !bDlgPtd)
+							if(uMsg == WM_LBUTTONDOWN
+								&& (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
 							{
 								// ! 用以解决对话框控件丢失焦点
 								ControlFocus->OnFocusOut();
