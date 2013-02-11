@@ -1,5 +1,6 @@
 //Find all "#include <", Match case, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
 #define DIRECTINPUT_VERSION 0x0800
+#define NOMINMAX
 #include <windows.h>
 #include <stdlib.h>
 #include <string>

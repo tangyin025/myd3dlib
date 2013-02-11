@@ -8,6 +8,7 @@
 #include <Windows.h>
 #include <assert.h>
 #include "myException.h"
+#include "myMath.h"
 #include "ImeUi.h"
 #include <math.h>
 #include <msctf.h>
@@ -1691,7 +1692,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 						}
 						else
 						{
-							g_uCandPageSize = min( lpCandList->dwPageSize, MAX_CANDLIST );
+							g_uCandPageSize = my::Min( lpCandList->dwPageSize, MAX_CANDLIST );
 							startOfPage = g_bUILessMode ? lpCandList->dwPageStart : ( g_dwSelection / g_uCandPageSize ) * g_uCandPageSize;
 						}
 
@@ -2316,7 +2317,7 @@ static void GetReadingString(HWND hWnd)
 			if (!p) break;
 			dwlen = *(DWORD *)(p + 7*4 + 16*2*4);
 			dwerr = *(DWORD *)(p + 8*4 + 16*2*4);
-			dwerr = min(dwerr, dwlen);
+			dwerr = my::Min(dwerr, dwlen);
 			wstr = (WCHAR *)(p + 6*4 + 16*2*1);
 			unicode = TRUE;
 			break;
@@ -3285,12 +3286,12 @@ void CTsfUiLessMode::MakeCandidateStrings(ITfCandidateListUIElement* pcandidate)
 			pcandidate->GetPageIndex(IndexList, uPageCnt, &uPageCnt);
 			dwPageStart = IndexList[uCurrentPage];
 			dwPageSize = (uCurrentPage < uPageCnt-1) ? 
-				min(uCount, IndexList[uCurrentPage+1]) - dwPageStart:
+				my::Min(uCount, IndexList[uCurrentPage+1]) - dwPageStart:
 				uCount - dwPageStart;
 		}
 	}
 
-	g_uCandPageSize = min(dwPageSize, MAX_CANDLIST);
+	g_uCandPageSize = my::Min(dwPageSize, MAX_CANDLIST);
 	g_dwSelection = g_dwSelection - dwPageStart;
 
 	memset(&g_szCandidate, 0, sizeof(g_szCandidate));
