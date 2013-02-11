@@ -26,9 +26,9 @@ namespace my
 		OgreSkeletonAnimationSet m_skeletonSet;
 
 	public:
-		LoaderMgr(void);
-
-		virtual ~LoaderMgr(void);
+		LoaderMgr(void)
+		{
+		}
 
 		virtual IDirect3DDevice9 * GetD3D9Device(void) = 0;
 
@@ -93,10 +93,13 @@ namespace my
 
 		ControlEvent m_EventTimer;
 
+		bool m_Removed;
+
 	public:
 		Timer(float Interval, float RemainingTime = 0)
 			: m_Interval(Interval)
 			, m_RemainingTime(Interval)
+			, m_Removed(true)
 		{
 		}
 	};
@@ -106,47 +109,28 @@ namespace my
 	class TimerMgr
 	{
 	protected:
-		typedef std::map<TimerPtr, bool> TimerPtrSet;
+		typedef std::set<TimerPtr> TimerPtrSet;
 
 		TimerPtrSet m_timerSet;
 
-		const float m_MinRemainingTime;
-
 		EventArgsPtr m_DefaultArgs;
+
+		const int m_MaxIterCount;
 
 	public:
 		TimerMgr(void)
-			: m_MinRemainingTime(-1/10.0f)
-			, m_DefaultArgs(new EventArgs())
+			: m_DefaultArgs(new EventArgs())
+			, m_MaxIterCount(4)
 		{
 		}
 
-		TimerPtr AddTimer(float Interval, ControlEvent EventTimer)
-		{
-			TimerPtr timer(new Timer(Interval, Interval));
-			timer->m_EventTimer = EventTimer;
-			InsertTimer(timer);
-			return timer;
-		}
+		TimerPtr AddTimer(float Interval, ControlEvent EventTimer);
 
-		void InsertTimer(TimerPtr timer)
-		{
-			m_timerSet.insert(std::make_pair(timer, true));
-		}
+		void InsertTimer(TimerPtr timer);
 
-		void RemoveTimer(TimerPtr timer)
-		{
-			TimerPtrSet::iterator timer_iter = m_timerSet.find(timer);
-			if(timer_iter != m_timerSet.end())
-			{
-				timer_iter->second = false;
-			}
-		}
+		void RemoveTimer(TimerPtr timer);
 
-		void RemoveAllTimer(void)
-		{
-			m_timerSet.clear();
-		}
+		void RemoveAllTimer(void);
 
 		void OnFrameMove(
 			double fTime,

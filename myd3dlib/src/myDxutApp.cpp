@@ -1853,6 +1853,8 @@ void DxutApp::Render3DEnvironment(void)
 		m_dwFrames = 0;
 	}
 
+	OnFrameMove(m_fAbsoluteTime, m_fElapsedTime);
+
 	OnFrameRender(m_d3dDevice, m_fAbsoluteTime, m_fElapsedTime);
 
 	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))

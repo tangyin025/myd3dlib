@@ -2,16 +2,9 @@
 #include "myUtility.h"
 #include "libc.h"
 #include "myCollision.h"
+#include "myDxutApp.h"
 
 using namespace my;
-
-LoaderMgr::LoaderMgr(void)
-{
-}
-
-LoaderMgr::~LoaderMgr(void)
-{
-}
 
 HRESULT LoaderMgr::Open(
 	D3DXINCLUDE_TYPE IncludeType,
@@ -239,6 +232,43 @@ FontPtr LoaderMgr::LoadFont(const std::string & path, int height, bool reload)
 	return ret;
 }
 
+TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
+{
+	TimerPtr timer(new Timer(Interval, Interval + Clock::getSingleton().m_fElapsedTime));
+	timer->m_EventTimer = EventTimer;
+	InsertTimer(timer);
+	return timer;
+}
+
+void TimerMgr::InsertTimer(TimerPtr timer)
+{
+	if(timer)
+	{
+		_ASSERT(timer->m_Removed);
+
+		m_timerSet.insert(timer);
+
+		timer->m_Removed = false;
+	}
+}
+
+void TimerMgr::RemoveTimer(TimerPtr timer)
+{
+	if(timer)
+	{
+		_ASSERT(!timer->m_Removed);
+
+		m_timerSet.erase(timer);
+
+		timer->m_Removed = true;
+	}
+}
+
+void TimerMgr::RemoveAllTimer(void)
+{
+	m_timerSet.clear();
+}
+
 void TimerMgr::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -246,20 +276,15 @@ void TimerMgr::OnFrameMove(
 	TimerPtrSet::const_iterator timer_iter = m_timerSet.begin();
 	for(; timer_iter != m_timerSet.end(); )
 	{
-		Timer * const timer = timer_iter->first.get();
-		timer->m_RemainingTime = Max(timer->m_RemainingTime - fElapsedTime, m_MinRemainingTime);
-		while(timer->m_RemainingTime <= 0 && timer_iter->second)
+		TimerPtr timer = (*timer_iter++);
+		timer->m_RemainingTime = Max(timer->m_RemainingTime - fElapsedTime, -1.0f);
+		for(int i = 0; i < m_MaxIterCount && timer->m_RemainingTime <= 0 && !timer->m_Removed; i++)
 		{
 			if(timer->m_EventTimer)
 				timer->m_EventTimer(m_DefaultArgs);
 
 			timer->m_RemainingTime += timer->m_Interval;
 		}
-
-		if(timer_iter->second)
-			timer_iter++;
-		else
-			m_timerSet.erase(timer_iter++);
 	}
 }
 

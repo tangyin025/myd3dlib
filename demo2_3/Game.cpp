@@ -269,8 +269,6 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	OnFrameMove(fTime, fElapsedTime);
-
 	if(m_stateMap.end() != m_CurrentStateIter)
 		m_CurrentStateIter->second->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	else
