@@ -4,6 +4,7 @@
 #include "myException.h"
 #include "libc.h"
 #include "myResource.h"
+#include <tchar.h>
 
 using namespace my;
 

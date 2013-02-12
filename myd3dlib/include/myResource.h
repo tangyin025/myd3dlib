@@ -1,10 +1,13 @@
 #pragma once
 
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include <unzip.h>
-#include <d3d9.h>
 #include <map>
+#include "myTexture.h"
+#include "myEffect.h"
+#include "myMesh.h"
+#include "mySkeleton.h"
+#include "myFont.h"
+#include <boost/weak_ptr.hpp>
 
 namespace my
 {
@@ -60,15 +63,20 @@ namespace my
 		virtual CachePtr GetWholeCache(void);
 	};
 
-	class ResourceDir
+	class ArchiveDir
 	{
 	protected:
 		std::string m_dir;
 
 	public:
-		ResourceDir(const std::string & dir);
+		ArchiveDir(const std::string & dir)
+			: m_dir(dir)
+		{
+		}
 
-		virtual ~ResourceDir(void);
+		virtual ~ArchiveDir(void)
+		{
+		}
 
 		virtual bool CheckArchivePath(const std::string & path) = 0;
 
@@ -78,7 +86,7 @@ namespace my
 	};
 
 	class ZipArchiveDir
-		: public ResourceDir
+		: public ArchiveDir
 	{
 	protected:
 		std::string m_password;
@@ -86,9 +94,18 @@ namespace my
 		bool m_UsePassword;
 
 	public:
-		ZipArchiveDir(const std::string & dir);
+		ZipArchiveDir(const std::string & dir)
+			: ArchiveDir(dir)
+			, m_UsePassword(false)
+		{
+		}
 
-		ZipArchiveDir(const std::string & dir, const std::string & password);
+		ZipArchiveDir(const std::string & dir, const std::string & password)
+			: ArchiveDir(dir)
+			, m_UsePassword(true)
+			, m_password(password)
+		{
+		}
 
 		bool CheckArchivePath(const std::string & path);
 
@@ -98,10 +115,13 @@ namespace my
 	};
 
 	class FileArchiveDir
-		: public ResourceDir
+		: public ArchiveDir
 	{
 	public:
-		FileArchiveDir(const std::string & dir);
+		FileArchiveDir(const std::string & dir)
+			: ArchiveDir(dir)
+		{
+		}
 
 		bool CheckArchivePath(const std::string & path);
 
@@ -110,19 +130,19 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	class ResourceMgr
+	class ArchiveDirMgr
 	{
 	protected:
-		typedef boost::shared_ptr<ResourceDir> ResourceDirPtr;
+		typedef boost::shared_ptr<ArchiveDir> ResourceDirPtr;
 
 		typedef std::map<std::string, ResourceDirPtr> ResourceDirPtrMap;
 
 		ResourceDirPtrMap m_dirMap;
 
 	public:
-		ResourceMgr(void);
+		ArchiveDirMgr(void);
 
-		virtual ~ResourceMgr(void);
+		virtual ~ArchiveDirMgr(void);
 
 		void RegisterZipArchive(const std::string & zip_path);
 
@@ -135,5 +155,81 @@ namespace my
 		std::string GetFullPath(const std::string & path);
 
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+	};
+
+	class ResourceMgr
+		: public ArchiveDirMgr
+		, public ID3DXInclude
+	{
+	protected:
+		std::map<LPCVOID, CachePtr> m_cacheSet;
+
+		CComPtr<ID3DXEffectPool> m_EffectPool;
+
+		typedef std::map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+
+		DeviceRelatedResourceSet m_resourceSet;
+
+		typedef std::map<std::string, boost::weak_ptr<OgreSkeletonAnimation> > OgreSkeletonAnimationSet;
+
+		OgreSkeletonAnimationSet m_skeletonSet;
+
+	public:
+		ResourceMgr(void)
+		{
+		}
+
+		virtual IDirect3DDevice9 * GetD3D9Device(void) = 0;
+
+		virtual __declspec(nothrow) HRESULT __stdcall Open(
+			D3DXINCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID * ppData,
+			UINT * pBytes);
+
+		virtual __declspec(nothrow) HRESULT __stdcall Close(
+			LPCVOID pData);
+
+		virtual HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
+		template <class ResourceType>
+		boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
+		{
+			DeviceRelatedResourceSet::const_iterator res_iter = m_resourceSet.find(key);
+			if(m_resourceSet.end() != res_iter)
+			{
+				boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
+				if(res)
+				{
+					if(reload)
+						res->OnDestroyDevice();
+
+					return boost::dynamic_pointer_cast<ResourceType>(res);
+				}
+			}
+
+			boost::shared_ptr<ResourceType> res(new ResourceType());
+			m_resourceSet[key] = res;
+			return res;
+		}
+
+		TexturePtr LoadTexture(const std::string & path, bool reload = false);
+
+		CubeTexturePtr LoadCubeTexture(const std::string & path, bool reload = false);
+
+		OgreMeshPtr LoadMesh(const std::string & path, bool reload = false);
+
+		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path, bool reload = false);
+
+		EffectPtr LoadEffect(const std::string & path, bool reload = false);
+
+		FontPtr LoadFont(const std::string & path, int height, bool reload = false);
 	};
 };

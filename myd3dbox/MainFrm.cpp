@@ -194,7 +194,7 @@ void CMainFrame::OnDestroy()
 
 	if(m_DeviceObjectsCreated)
 	{
-		LoaderMgr::OnDestroyDevice();
+		ResourceMgr::OnDestroyDevice();
 
 		UINT references = m_d3dDevice.Detach()->Release();
 		if(references > 0)
@@ -246,7 +246,7 @@ HRESULT CMainFrame::OnDeviceReset(void)
 
 	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 
-	if(FAILED(hr = LoaderMgr::OnResetDevice(m_d3dDevice, &desc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &desc)))
 	{
 		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;
@@ -264,7 +264,7 @@ void CMainFrame::OnDeviceLost(void)
 {
 	TRACE0("CMainFrame::OnDeviceLost \n");
 
-	LoaderMgr::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 
 	CMainView::getSingleton().OnDeviceLost();
 }

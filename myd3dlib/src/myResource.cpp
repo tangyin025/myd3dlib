@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "myResource.h"
 #include "libc.h"
-#include "myException.h"
 
 using namespace my;
 
@@ -80,28 +79,6 @@ CachePtr FileArchiveStream::GetWholeCache(void)
 	return cache;
 }
 
-ResourceDir::ResourceDir(const std::string & dir)
-	: m_dir(dir)
-{
-}
-
-ResourceDir::~ResourceDir(void)
-{
-}
-
-ZipArchiveDir::ZipArchiveDir(const std::string & dir)
-	: ResourceDir(dir)
-	, m_UsePassword(false)
-{
-}
-
-ZipArchiveDir::ZipArchiveDir(const std::string & dir, const std::string & password)
-	: ResourceDir(dir)
-	, m_UsePassword(true)
-	, m_password(password)
-{
-}
-
 bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
@@ -157,11 +134,6 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new ZipArchiveStream(zFile));
 }
 
-FileArchiveDir::FileArchiveDir(const std::string & dir)
-	: ResourceDir(dir)
-{
-}
-
 bool FileArchiveDir::CheckArchivePath(const std::string & path)
 {
 	return !GetFullPath(path).empty();
@@ -200,30 +172,30 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
-ResourceMgr::ResourceMgr(void)
+ArchiveDirMgr::ArchiveDirMgr(void)
 {
 }
 
-ResourceMgr::~ResourceMgr(void)
+ArchiveDirMgr::~ArchiveDirMgr(void)
 {
 }
 
-void ResourceMgr::RegisterZipArchive(const std::string & zip_path)
+void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path)
 {
 	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
 }
 
-void ResourceMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
+void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
 {
 	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
 }
 
-void ResourceMgr::RegisterFileDir(const std::string & dir)
+void ArchiveDirMgr::RegisterFileDir(const std::string & dir)
 {
 	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
 }
 
-bool ResourceMgr::CheckArchivePath(const std::string & path)
+bool ArchiveDirMgr::CheckArchivePath(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -237,7 +209,7 @@ bool ResourceMgr::CheckArchivePath(const std::string & path)
 	return false;
 }
 
-std::string ResourceMgr::GetFullPath(const std::string & path)
+std::string ArchiveDirMgr::GetFullPath(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -252,7 +224,7 @@ std::string ResourceMgr::GetFullPath(const std::string & path)
 	return std::string();
 }
 
-ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
+ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 {
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
@@ -264,4 +236,230 @@ ArchiveStreamPtr ResourceMgr::OpenArchiveStream(const std::string & path)
 	}
 
 	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
+}
+
+HRESULT ResourceMgr::Open(
+	D3DXINCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID * ppData,
+	UINT * pBytes)
+{
+	CachePtr cache;
+	std::string loc_path = std::string("shader/") + pFileName;
+	switch(IncludeType)
+	{
+	case D3DXINC_SYSTEM:
+	case D3DXINC_LOCAL:
+		if(CheckArchivePath(loc_path))
+		{
+			cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			*ppData = &(*cache)[0];
+			*pBytes = cache->size();
+			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
+			m_cacheSet[*ppData] = cache;
+			return S_OK;
+		}
+	}
+	return E_FAIL;
+}
+
+HRESULT ResourceMgr::Close(
+	LPCVOID pData)
+{
+	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
+	m_cacheSet.erase(m_cacheSet.find(pData));
+	return S_OK;
+}
+
+HRESULT ResourceMgr::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
+		if(res)
+		{
+			res->OnResetDevice();
+			res_iter++;
+		}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
+	}
+
+	return S_OK;
+}
+
+void ResourceMgr::OnLostDevice(void)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
+		if(res)
+		{
+			res->OnLostDevice();
+			res_iter++;
+		}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
+	}
+}
+
+void ResourceMgr::OnDestroyDevice(void)
+{
+	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
+	for(; res_iter != m_resourceSet.end();)
+	{
+		boost::shared_ptr<DeviceRelatedObjectBase> res = res_iter->second.lock();
+		if(res)
+		{
+			res->OnDestroyDevice();
+			res_iter++;
+		}
+		else
+		{
+			m_resourceSet.erase(res_iter++);
+		}
+	}
+
+	m_resourceSet.clear();
+}
+
+TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
+{
+	TexturePtr ret = GetDeviceRelatedResource<Texture>(path, reload);
+	if(!ret->m_ptr)
+	{
+		std::string loc_path = std::string("texture/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+		}
+	}
+	return ret;
+}
+
+CubeTexturePtr ResourceMgr::LoadCubeTexture(const std::string & path, bool reload)
+{
+	CubeTexturePtr ret = GetDeviceRelatedResource<CubeTexture>(path, reload);
+	if(!ret->m_ptr)
+	{
+		std::string loc_path = std::string("texture/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+		}
+	}
+	return ret;
+}
+
+OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
+{
+	OgreMeshPtr ret = GetDeviceRelatedResource<OgreMesh>(path, reload);
+	if(!ret->m_ptr)
+	{
+		std::string loc_path = std::string("mesh/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+		}
+	}
+	return ret;
+}
+
+OgreSkeletonAnimationPtr ResourceMgr::LoadSkeleton(const std::string & path, bool reload)
+{
+	OgreSkeletonAnimationSet::const_iterator res_iter = m_skeletonSet.find(path);
+	OgreSkeletonAnimationPtr ret;
+	if(m_skeletonSet.end() != res_iter)
+	{
+		ret = res_iter->second.lock();
+		if(ret)
+		{
+			if(reload)
+				ret->Clear();
+			else
+				return ret;
+		}
+	}
+	else
+		ret.reset(new OgreSkeletonAnimation());
+
+	std::string loc_path = std::string("mesh/") + path;
+	std::string full_path = GetFullPath(loc_path);
+	if(!full_path.empty())
+	{
+		ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path.c_str()).c_str());
+	}
+	else
+	{
+		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+		ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+	}
+	return ret;
+}
+
+EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
+{
+	EffectPtr ret = GetDeviceRelatedResource<Effect>(path, reload);
+	if(!ret->m_ptr)
+	{
+		std::string loc_path = std::string("shader/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+		}
+	}
+	return ret;
+}
+
+FontPtr ResourceMgr::LoadFont(const std::string & path, int height, bool reload)
+{
+	FontPtr ret = GetDeviceRelatedResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
+	if(!ret->m_face)
+	{
+		std::string loc_path = std::string("font/") + path;
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
+		{
+			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+		}
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
+		}
+	}
+	return ret;
 }

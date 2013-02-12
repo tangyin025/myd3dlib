@@ -199,7 +199,7 @@ HRESULT Game::OnResetDevice(
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = LoaderMgr::OnResetDevice(
+	if(FAILED(hres = ResourceMgr::OnResetDevice(
 		pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
@@ -220,7 +220,7 @@ void Game::OnLostDevice(void)
 
 	SafeLostState(GetCurrentState());
 
-	LoaderMgr::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -247,7 +247,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	LoaderMgr::OnDestroyDevice();
+	ResourceMgr::OnDestroyDevice();
 }
 
 void Game::OnFrameMove(

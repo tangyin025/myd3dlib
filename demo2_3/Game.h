@@ -102,7 +102,7 @@ typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
 
 class Game
 	: public my::DxutApp
-	, public my::LoaderMgr
+	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
 {

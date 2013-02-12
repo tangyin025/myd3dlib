@@ -284,32 +284,32 @@ struct HelpFunc
 		obj->SetTexture(name, value);
 	}
 
-	static my::TexturePtr LoaderMgr_LoadTexture(my::LoaderMgr * obj, const std::string & path)
+	static my::TexturePtr ResourceMgr_LoadTexture(my::ResourceMgr * obj, const std::string & path)
 	{
 		return obj->LoadTexture(path);
 	}
 
-	static my::CubeTexturePtr LoaderMgr_LoadCubeTexture(my::LoaderMgr * obj, const std::string & path)
+	static my::CubeTexturePtr ResourceMgr_LoadCubeTexture(my::ResourceMgr * obj, const std::string & path)
 	{
 		return obj->LoadCubeTexture(path);
 	}
 
-	static my::OgreMeshPtr LoaderMgr_LoadMesh(my::LoaderMgr * obj, const std::string & path)
+	static my::OgreMeshPtr ResourceMgr_LoadMesh(my::ResourceMgr * obj, const std::string & path)
 	{
 		return obj->LoadMesh(path);
 	}
 
-	static my::OgreSkeletonAnimationPtr LoaderMgr_LoadSkeleton(my::LoaderMgr * obj, const std::string & path)
+	static my::OgreSkeletonAnimationPtr ResourceMgr_LoadSkeleton(my::ResourceMgr * obj, const std::string & path)
 	{
 		return obj->LoadSkeleton(path);
 	}
 
-	static my::EffectPtr LoaderMgr_LoadEffect(my::LoaderMgr * obj, const std::string & path)
+	static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
 	{
 		return obj->LoadEffect(path);
 	}
 
-	static my::FontPtr LoaderMgr_LoadFont(my::LoaderMgr * obj, const std::string & path, int height)
+	static my::FontPtr ResourceMgr_LoadFont(my::ResourceMgr * obj, const std::string & path, int height)
 	{
 		return obj->LoadFont(path, height);
 	}
@@ -784,18 +784,20 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
 
-		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
-			.def(constructor<>())
-			.def_readwrite("lbegin", &MessagePanel::m_lbegin)
-			.def_readwrite("lend", &MessagePanel::m_lend)
-			.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
-			.def("AddLine", &MessagePanel::AddLine)
-			.def("puts", &MessagePanel::puts)
-
-		, class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
-			.def(constructor<>())
-			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
-			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
+		, class_<my::ResourceMgr>("ResourceMgr")
+			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
+			.def("LoadCubeTexture", &my::ResourceMgr::LoadCubeTexture)
+			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
+			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
+			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
+			.def("LoadFont", &my::ResourceMgr::LoadFont)
+			// ! luabind unsupport default parameter
+			.def("LoadTexture", &HelpFunc::ResourceMgr_LoadTexture)
+			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
+			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
+			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
+			.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
+			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
@@ -922,21 +924,6 @@ void Export2Lua(lua_State * L)
 			.property("MixedVP", &my::DxutApp::GetMixedVP, &my::DxutApp::SetMixedVP)
 			.def("ChangeDevice", &my::DxutApp::ChangeDevice)
 
-		, class_<my::LoaderMgr>("LoaderMgr")
-			.def("LoadTexture", &my::LoaderMgr::LoadTexture)
-			.def("LoadCubeTexture", &my::LoaderMgr::LoadCubeTexture)
-			.def("LoadMesh", &my::LoaderMgr::LoadMesh)
-			.def("LoadSkeleton", &my::LoaderMgr::LoadSkeleton)
-			.def("LoadEffect", &my::LoaderMgr::LoadEffect)
-			.def("LoadFont", &my::LoaderMgr::LoadFont)
-			// ! luabind unsupport default parameter
-			.def("LoadTexture", &HelpFunc::LoaderMgr_LoadTexture)
-			.def("LoadCubeTexture", &HelpFunc::LoaderMgr_LoadCubeTexture)
-			.def("LoadMesh", &HelpFunc::LoaderMgr_LoadMesh)
-			.def("LoadSkeleton", &HelpFunc::LoaderMgr_LoadSkeleton)
-			.def("LoadEffect", &HelpFunc::LoaderMgr_LoadEffect)
-			.def("LoadFont", &HelpFunc::LoaderMgr_LoadFont)
-
 		, class_<my::Timer, boost::shared_ptr<my::Timer> >("Timer")
 			.def(constructor<float, float>())
 			.def_readonly("Interval", &my::Timer::m_Interval)
@@ -979,7 +966,7 @@ void Export2Lua(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Rotation", &my::FirstPersonCamera::m_Rotation)
 
-		, class_<Game, bases<my::DxutApp, my::LoaderMgr, my::DialogMgr, my::TimerMgr> >("Game")
+		, class_<Game, bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::TimerMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
@@ -1027,6 +1014,19 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("StateTime", &Character::m_StateTime)
 			.def("InsertMeshLOD", &Character::InsertMeshLOD)
 			.def("InsertSkeletonLOD", &Character::InsertSkeletonLOD)
+
+		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
+			.def(constructor<>())
+			.def_readwrite("lbegin", &MessagePanel::m_lbegin)
+			.def_readwrite("lend", &MessagePanel::m_lend)
+			.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
+			.def("AddLine", &MessagePanel::AddLine)
+			.def("puts", &MessagePanel::puts)
+
+		, class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
+			.def(constructor<>())
+			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
+			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 	];
 
 	globals(L)["game"] = Game::getSingletonPtr();

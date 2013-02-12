@@ -8,7 +8,7 @@
 //
 //class MyDemo
 //	: public my::DxutSample
-//	, public my::ResourceMgr
+//	, public my::ArchiveDirMgr
 //{
 //	class AnimationMgr
 //	{

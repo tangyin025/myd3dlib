@@ -3,7 +3,7 @@
 class CMainFrame
 	: public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
-	, public my::LoaderMgr
+	, public my::ResourceMgr
 {
 public:
 	CMainFrame(void);
