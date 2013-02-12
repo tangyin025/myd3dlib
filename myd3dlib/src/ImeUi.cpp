@@ -1692,7 +1692,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 						}
 						else
 						{
-							g_uCandPageSize = my::Min( lpCandList->dwPageSize, MAX_CANDLIST );
+							g_uCandPageSize = my::Min( lpCandList->dwPageSize, (DWORD)MAX_CANDLIST );
 							startOfPage = g_bUILessMode ? lpCandList->dwPageStart : ( g_dwSelection / g_uCandPageSize ) * g_uCandPageSize;
 						}
 
@@ -3291,7 +3291,7 @@ void CTsfUiLessMode::MakeCandidateStrings(ITfCandidateListUIElement* pcandidate)
 		}
 	}
 
-	g_uCandPageSize = my::Min(dwPageSize, MAX_CANDLIST);
+	g_uCandPageSize = my::Min(dwPageSize, (DWORD)MAX_CANDLIST);
 	g_dwSelection = g_dwSelection - dwPageStart;
 
 	memset(&g_szCandidate, 0, sizeof(g_szCandidate));

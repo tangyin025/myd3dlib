@@ -13,26 +13,26 @@
 
 namespace my
 {
-	template <typename T1, typename T2>
-	T1 Min(const T1 & a, const T2 & b)
+	template <typename T>
+	T Min(const T & a, const T & b)
 	{
 		return a < b ? a : b;
 	}
 
-	template <typename T1, typename T2, typename T3>
-	T1 Min(const T1 & a, const T2 & b, const T3 & c)
+	template <typename T>
+	T Min(const T & a, const T & b, const T & c)
 	{
 		return a < b ? (a < c ? a : c) : (b < c ? b : c);
 	}
 
-	template <typename T1, typename T2>
-	T1 Max(const T1 & a, const T2 & b)
+	template <typename T>
+	T Max(const T & a, const T & b)
 	{
 		return a > b ? a : b;
 	}
 
-	template <typename T1, typename T2, typename T3>
-	T1 Max(const T1 & a, const T2 & b, const T3 & c)
+	template <typename T>
+	T Max(const T & a, const T & b, const T & c)
 	{
 		return a > b ? (a > c ? a : c) : (b > c ? b : c);
 	}
