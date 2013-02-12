@@ -3,6 +3,92 @@
 
 using namespace my;
 
+template <>
+void Parameter<bool>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetBool(name.c_str(), value);
+}
+
+template <>
+void Parameter<float>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetFloat(name.c_str(), value);
+}
+
+template <>
+void Parameter<int>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetInt(name.c_str(), value);
+}
+
+template <>
+void Parameter<Vector4>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetVector(name.c_str(), value);
+}
+
+template <>
+void Parameter<Matrix4>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetMatrix(name.c_str(), value);
+}
+
+template <>
+void Parameter<std::string>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetString(name.c_str(), value.c_str());
+}
+
+template <>
+void Parameter<BaseTexturePtr>::SetParameter(Effect * effect, const std::string & name) const
+{
+	effect->SetTexture(name.c_str(), value ? value->m_ptr : NULL);
+}
+
+void ParameterMap::SetBool(const std::string & name, bool value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<bool>(value));
+}
+
+void ParameterMap::SetFloat(const std::string & name, float value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<float>(value));
+}
+
+void ParameterMap::SetInt(const std::string & name, int value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<int>(value));
+}
+
+void ParameterMap::SetVector(const std::string & name, const Vector4 & value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<Vector4>(value));
+}
+
+void ParameterMap::SetMatrix(const std::string & name, const Matrix4 & value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<Matrix4>(value));
+}
+
+void ParameterMap::SetString(const std::string & name, const std::string & value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<std::string>(value));
+}
+
+void ParameterMap::SetTexture(const std::string & name, BaseTexturePtr value)
+{
+	operator[](name) = BaseParameterPtr(new Parameter<BaseTexturePtr>(value));
+}
+
+void Material::ApplyParameterBlock(void)
+{
+	const_iterator param_iter = begin();
+	for(; param_iter != end(); param_iter++)
+	{
+		param_iter->second->SetParameter(m_Effect.get(), param_iter->first);
+	}
+}
+
 void EffectMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
 	_ASSERT(m_Mesh);
@@ -19,7 +105,7 @@ void EffectMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 	}
 }
 
-void EffectMesh::DrawSubset(DWORD i, my::Effect * effect)
+void EffectMesh::DrawSubset(DWORD i, Effect * effect)
 {
 	_ASSERT(m_Mesh);
 

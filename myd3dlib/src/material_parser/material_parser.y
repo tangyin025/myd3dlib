@@ -39,13 +39,13 @@ assignment_expression:
 	
 %%
 
-void my::Material::CreateMaterialFromFile(
-			LPCSTR pFilename)
-{
-}
+// void my::Material::CreateMaterialFromFile(
+			// LPCSTR pFilename)
+// {
+// }
 
-void my::Material::CreateMaterialFromFileInMemory(
-			LPCVOID Memory,
-			DWORD SizeOfMemory)
-{
-}
+// void my::Material::CreateMaterialFromFileInMemory(
+			// LPCVOID Memory,
+			// DWORD SizeOfMemory)
+// {
+// }
