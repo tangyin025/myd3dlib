@@ -58,13 +58,6 @@ public:
 	{
 	}
 
-	void CreateMaterialFromFile(
-		LPCSTR pFilename);
-
-	void CreateMaterialFromFileInMemory(
-		LPCVOID Memory,
-		DWORD SizeOfMemory);
-
 	void ApplyParameterBlock(void);
 };
 
