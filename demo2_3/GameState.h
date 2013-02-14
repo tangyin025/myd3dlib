@@ -7,20 +7,20 @@
 // ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
 
-class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
+class GameEventInit : public boost::statechart::event<GameEventInit>
 {
 };
 
 class GameStateMain;
 
-class GameStateLoad
+class GameStateInit
 	: public GameStateBase
-	, public boost::statechart::simple_state<GameStateLoad, GameStateMachine>
+	, public boost::statechart::simple_state<GameStateInit, GameStateMachine>
 {
 public:
-	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
+	typedef boost::statechart::transition<GameEventInit, GameStateMain> reactions;
 
-	GameStateLoad(void)
+	GameStateInit(void)
 	{
 	}
 
@@ -58,7 +58,7 @@ class GameStateMain
 	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
 {
 public:
-	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
+	typedef boost::statechart::transition<GameEventInit, GameStateMain> reactions;
 
 	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
 	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;

@@ -977,12 +977,12 @@ void Export2Lua(lua_State * L)
 
 		, class_<boost::statechart::event_base>("event_base")
 
-		, class_<GameEventLoadOver, boost::statechart::event_base>("GameEventLoadOver")
+		, class_<GameEventInit, boost::statechart::event_base>("GameEventInit")
 			.def(constructor<>())
 
 		, class_<GameStateBase>("GameStateBase")
 
-		, class_<GameStateLoad, GameStateBase>("GameStateLoad")
+		, class_<GameStateInit, GameStateBase>("GameStateInit")
 
 		, class_<GameStateMain, GameStateBase>("GameStateMain")
 			.def_readwrite("Camera", &GameStateMain::m_Camera)

@@ -7,51 +7,50 @@
 
 using namespace my;
 
-void GameStateLoad::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-}
-
-HRESULT GameStateLoad::OnCreateDevice(
+HRESULT GameStateInit::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().AddLine(L"GameStateLoad::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	Game::getSingleton().ExecuteCode("dofile \"GameStateLoad.lua\"");
+	Game::getSingleton().AddLine(L"GameStateInit::OnCreateDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	return S_OK;
 }
 
-HRESULT GameStateLoad::OnResetDevice(
+HRESULT GameStateInit::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().AddLine(L"GameStateLoad::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateInit::OnResetDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	return S_OK;
 }
 
-void GameStateLoad::OnLostDevice(void)
+void GameStateInit::OnLostDevice(void)
 {
-	Game::getSingleton().AddLine(L"GameStateLoad::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateInit::OnLostDevice", D3DCOLOR_ARGB(255,255,128,0));
 }
 
-void GameStateLoad::OnDestroyDevice(void)
+void GameStateInit::OnDestroyDevice(void)
 {
-	Game::getSingleton().AddLine(L"GameStateLoad::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateInit::OnDestroyDevice", D3DCOLOR_ARGB(255,255,128,0));
 }
 
-void GameStateLoad::OnFrameRender(
+void GameStateInit::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	Game::getSingleton().process_event(GameEventInit());
+}
+
+void GameStateInit::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
 {
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	_ASSERT(false);
 }
 
-LRESULT GameStateLoad::MsgProc(
+LRESULT GameStateInit::MsgProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
@@ -65,7 +64,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().AddLine(L"GameStateMain::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateMain::OnCreateDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
 	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
@@ -96,7 +95,7 @@ HRESULT GameStateMain::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	Game::getSingleton().AddLine(L"GameStateMain::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateMain::OnResetDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	const DWORD SHADOW_MAP_SIZE = 512;
 	m_ShadowTextureRT->CreateAdjustedTexture(
@@ -115,7 +114,7 @@ HRESULT GameStateMain::OnResetDevice(
 
 void GameStateMain::OnLostDevice(void)
 {
-	Game::getSingleton().AddLine(L"GameStateMain::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateMain::OnLostDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	m_ShadowTextureRT->OnDestroyDevice();
 
@@ -124,7 +123,7 @@ void GameStateMain::OnLostDevice(void)
 
 void GameStateMain::OnDestroyDevice(void)
 {
-	Game::getSingleton().AddLine(L"GameStateMain::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+	Game::getSingleton().AddLine(L"GameStateMain::OnDestroyDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	m_staticMeshes.clear();
 

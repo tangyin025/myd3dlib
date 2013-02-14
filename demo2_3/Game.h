@@ -104,10 +104,10 @@ public:
 	}
 };
 
-class GameStateLoad;
+class GameStateInit;
 
 class GameStateMachine
-	: public boost::statechart::state_machine<GameStateMachine, GameStateLoad>
+	: public boost::statechart::state_machine<GameStateMachine, GameStateInit>
 {
 public:
 	GameStateBase * CurrentState(void)
