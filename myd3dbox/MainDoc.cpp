@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "MainDoc.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -16,6 +17,9 @@ CMainDoc::CMainDoc(void)
 BOOL CMainDoc::OnNewDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
+
+	//m_StaticMeshes.clear();
+	//m_StaticMeshes.push_back(CMainFrame::getSingleton().LoadMesh("plane.mesh.xml"));
 
 	return CDocument::OnNewDocument();
 }

@@ -83,6 +83,12 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
+CMainDoc * CMainView::GetDocument() const
+{
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
+	return (CMainDoc *)m_pDocument;
+}
+
 int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
@@ -100,8 +106,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
-
-	//m_StaticMeshes.push_back(CMainFrame::getSingleton().LoadMesh("plane.mesh.xml"));
 
 	return 0;
 }
@@ -192,6 +196,9 @@ void CMainView::OnFrameRender(
 {
 	ASSERT(m_d3dSwapChain);
 
+	CMainDoc * pDoc = GetDocument();
+	ASSERT(pDoc);
+
 	HRESULT hr;
 	Surface BackBuffer;
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
@@ -236,8 +243,8 @@ void CMainView::OnFrameRender(
 		m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0.0f,1.0f,0.0f,1.0f));
 		m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(0.0f,0.0f,0.0f,1.0f));
 		m_SimpleSample->SetTexture("g_MeshTexture", m_WhiteTex->m_ptr);
-		MeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
-		for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
+		CMainDoc::MeshPtrList::iterator mesh_iter = pDoc->m_StaticMeshes.begin();
+		for(; mesh_iter != pDoc->m_StaticMeshes.end(); mesh_iter++)
 		{
 			for(UINT i = 0; i < (*mesh_iter)->GetMaterialNum(); i++)
 			{
