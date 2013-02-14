@@ -1,6 +1,6 @@
 
 -- 获取当前state
-local state=game:GetCurrentState()
+local state=game:CurrentState()
 
 -- -- 创建相机
 -- local camera=ModelViewerCamera(math.rad(75),4/3.0,0.1,3000)

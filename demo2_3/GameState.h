@@ -4,13 +4,25 @@
 #include "EffectMesh.h"
 #include "Character.h"
 
+// ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
+template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
+
+class GameEventLoadOver : public boost::statechart::event<GameEventLoadOver>
+{
+};
+
+class GameStateMain;
+
 class GameStateLoad
 	: public GameStateBase
+	, public boost::statechart::simple_state<GameStateLoad, GameStateMachine>
 {
 public:
-	GameStateLoad(void);
+	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
 
-	~GameStateLoad(void);
+	GameStateLoad(void)
+	{
+	}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -43,8 +55,11 @@ public:
 
 class GameStateMain
 	: public GameStateBase
+	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
 {
 public:
+	typedef boost::statechart::transition<GameEventLoadOver, GameStateMain> reactions;
+
 	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
 	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
 	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
@@ -71,9 +86,9 @@ public:
 	CharacterPtrList m_characters;
 
 public:
-	GameStateMain(void);
-
-	~GameStateMain(void);
+	GameStateMain(void)
+	{
+	}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,

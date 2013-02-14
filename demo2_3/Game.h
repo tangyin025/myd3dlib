@@ -1,6 +1,12 @@
 #pragma once
 
 #include "Console.h"
+#pragma warning(disable: 4819)
+#include <boost/statechart/event.hpp>
+#include <boost/statechart/state_machine.hpp>
+#include <boost/statechart/simple_state.hpp>
+#include <boost/statechart/transition.hpp>
+#pragma warning(default: 4819)
 
 class EffectUIRender
 	: public my::UIRender
@@ -32,17 +38,17 @@ public:
 
 class GameStateBase
 {
-	friend class Game;
+private:
+	friend class GameStateMachine;
 
-protected:
 	bool m_DeviceObjectsCreated;
 
 	bool m_DeviceObjectsReset;
 
+public:
 	HRESULT hr;
 
-public:
-	GameStateBase(void)
+	GameStateBase(void) throw ()
 		: m_DeviceObjectsCreated(false)
 		, m_DeviceObjectsReset(false)
 	{
@@ -98,13 +104,117 @@ public:
 	}
 };
 
-typedef boost::shared_ptr<GameStateBase> GameStateBasePtr;
+class GameStateLoad;
+
+class GameStateMachine
+	: public boost::statechart::state_machine<GameStateMachine, GameStateLoad>
+{
+public:
+	GameStateBase * CurrentState(void)
+	{
+		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
+	}
+
+	void process_event(const boost::statechart::event_base & evt)
+	{
+		SafeLostCurrentState();
+		SafeDestroyCurrentState();
+		state_machine::process_event(evt);
+		SafeCreateCurrentState(my::DxutApp::getSingleton().GetD3D9Device(), &my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc());
+		SafeResetCurrentState(my::DxutApp::getSingleton().GetD3D9Device(), &my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc());
+	}
+
+	void SafeCreateCurrentState(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && !cs->m_DeviceObjectsCreated)
+		{
+			_ASSERT(!cs->m_DeviceObjectsReset);
+			cs->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+			cs->m_DeviceObjectsCreated = true;
+		}
+	}
+
+	void SafeResetCurrentState(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsCreated && !cs->m_DeviceObjectsReset)
+		{
+			cs->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+			cs->m_DeviceObjectsReset = true;
+		}
+	}
+
+	void SafeLostCurrentState(void)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsCreated && cs->m_DeviceObjectsReset)
+		{
+			cs->OnLostDevice();
+			cs->m_DeviceObjectsReset = false;
+		}
+	}
+
+	void SafeDestroyCurrentState(void)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsCreated)
+		{
+			_ASSERT(!cs->m_DeviceObjectsReset);
+			cs->OnDestroyDevice();
+			cs->m_DeviceObjectsCreated = false;
+		}
+	}
+
+	void SafeFrameMoveCurrentState(
+		double fTime,
+		float fElapsedTime)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsReset)
+		{
+			cs->OnFrameMove(fTime, fElapsedTime);
+		}
+	}
+
+	void SafeFrameRenderCurrentState(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsReset)
+		{
+			cs->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+		}
+	}
+
+	LRESULT SafeMsgProcCurrentState(
+		HWND hWnd,
+		UINT uMsg,
+		WPARAM wParam,
+		LPARAM lParam,
+		bool * pbNoFurtherProcessing)
+	{
+		GameStateBase * cs = CurrentState();
+		if(cs && cs->m_DeviceObjectsReset)
+		{
+			return cs->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
+		}
+		return 0;
+	}
+};
 
 class Game
 	: public my::DxutApp
 	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
+	, public GameStateMachine
 {
 public:
 	my::LuaContextPtr m_lua;
@@ -126,12 +236,6 @@ public:
 	my::MousePtr m_Mouse;
 
 	my::SoundPtr m_Sound;
-
-	typedef stdext::hash_map<std::string, GameStateBasePtr> GameStateBasePtrMap;
-
-	GameStateBasePtrMap m_stateMap;
-
-	GameStateBasePtrMap::const_iterator m_CurrentStateIter;
 
 public:
 	Game(void);
@@ -201,26 +305,4 @@ public:
 		bool * pbNoFurtherProcessing);
 
 	void ExecuteCode(const char * code);
-
-	void SetState(const std::string & key, GameStateBasePtr state);
-
-	GameStateBasePtr GetState(const std::string & key) const;
-
-	GameStateBasePtr GetCurrentState(void) const;
-
-	std::string GetCurrentStateKey(void) const;
-
-	void SafeCreateState(GameStateBasePtr state);
-
-	void SafeResetState(GameStateBasePtr state);
-
-	void SafeLostState(GameStateBasePtr state);
-
-	void SafeDestroyState(GameStateBasePtr state);
-
-	void SafeChangeState(GameStateBasePtr old_state, GameStateBasePtrMap::const_iterator new_state);
-
-	void ChangeState(const std::string & key);
-
-	void RemoveAllState(void);
 };

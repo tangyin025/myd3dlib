@@ -7,14 +7,6 @@
 
 using namespace my;
 
-GameStateLoad::GameStateLoad(void)
-{
-}
-
-GameStateLoad::~GameStateLoad(void)
-{
-}
-
 void GameStateLoad::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -67,14 +59,6 @@ LRESULT GameStateLoad::MsgProc(
 	bool * pbNoFurtherProcessing)
 {
 	return 0;
-}
-
-GameStateMain::GameStateMain(void)
-{
-}
-
-GameStateMain::~GameStateMain(void)
-{
 }
 
 HRESULT GameStateMain::OnCreateDevice(

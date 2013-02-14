@@ -971,10 +971,14 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Console", &Game::m_Console)
 			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
 			.property("Panel", &HelpFunc::Game_GetPanel, &HelpFunc::Game_SetPanel)
+			.def("CurrentState", &Game::CurrentState)
+			.def("process_event", &Game::process_event)
 			.def("ExecuteCode", &Game::ExecuteCode)
-			.def("GetCurrentState", &Game::GetCurrentState)
-			.def("GetCurrentStateKey", &Game::GetCurrentStateKey)
-			.def("ChangeState", &Game::ChangeState)
+
+		, class_<boost::statechart::event_base>("event_base")
+
+		, class_<GameEventLoadOver, boost::statechart::event_base>("GameEventLoadOver")
+			.def(constructor<>())
 
 		, class_<GameStateBase>("GameStateBase")
 

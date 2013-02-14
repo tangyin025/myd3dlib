@@ -58,16 +58,14 @@ void EffectUIRender::DrawVertexList(void)
 
 Game::Game(void)
 {
-	m_lua.reset(new LuaContext());
-
-	Export2Lua(m_lua->_state);
-
-	m_CurrentStateIter = m_stateMap.end();
-
 	RegisterFileDir("Media");
 	RegisterZipArchive("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");
 	RegisterZipArchive("..\\demo2_3\\Media.zip");
+
+	m_lua.reset(new LuaContext());
+
+	Export2Lua(m_lua->_state);
 }
 
 Game::~Game(void)
@@ -181,11 +179,9 @@ HRESULT Game::OnCreateDevice(
 		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
-	SetState("GameStateLoad", GameStateBasePtr(new GameStateLoad()));
+	GameStateMachine::initiate();
 
-	SetState("GameStateMain", GameStateBasePtr(new GameStateMain()));
-
-	ChangeState("GameStateLoad");
+	SafeCreateCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
 
 	//THROW_CUSEXCEPTION("aaa");
 
@@ -209,7 +205,7 @@ HRESULT Game::OnResetDevice(
 
 	DialogMgr::SetDlgViewport(vp);
 
-	SafeResetState(GetCurrentState());
+	SafeResetCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
 
 	return S_OK;
 }
@@ -218,7 +214,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	SafeLostState(GetCurrentState());
+	SafeLostCurrentState();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -227,9 +223,9 @@ void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	SafeDestroyState(GetCurrentState());
+	SafeDestroyCurrentState();
 
-	RemoveAllState();
+	GameStateMachine::terminate();
 
 	m_EffectPool.Release();
 
@@ -260,8 +256,7 @@ void Game::OnFrameMove(
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
-	if(m_stateMap.end() != m_CurrentStateIter)
-		m_CurrentStateIter->second->OnFrameMove(fTime, fElapsedTime);
+	SafeFrameMoveCurrentState(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -269,8 +264,8 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	if(m_stateMap.end() != m_CurrentStateIter)
-		m_CurrentStateIter->second->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+	if(CurrentState())
+		SafeFrameRenderCurrentState(pd3dDevice, fTime, fElapsedTime);
 	else
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 
@@ -311,12 +306,9 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if(m_stateMap.end() != m_CurrentStateIter)
-	{
-		LRESULT lr;
-		if(lr = m_CurrentStateIter->second->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-			return lr;
-	}
+	LRESULT lr;
+	if(lr = SafeMsgProcCurrentState(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+		return lr;
 
 	return 0;
 }
@@ -400,117 +392,4 @@ void Game::ExecuteCode(const char * code)
 		lua_pop(m_lua->_state, 1);
 		THROW_CUSEXCEPTION(msg);
 	}
-}
-
-void Game::SetState(const std::string & key, GameStateBasePtr state)
-{
-	_ASSERT(!GetState(key));
-
-	m_stateMap[key] = state;
-}
-
-GameStateBasePtr Game::GetState(const std::string & key) const
-{
-	GameStateBasePtrMap::const_iterator state_iter = m_stateMap.find(key);
-	if(m_stateMap.end() != state_iter)
-		return state_iter->second;
-
-	return GameStateBasePtr();
-}
-
-GameStateBasePtr Game::GetCurrentState(void) const
-{
-	if(m_stateMap.end() != m_CurrentStateIter)
-		return m_CurrentStateIter->second;
-
-	return GameStateBasePtr();
-}
-
-std::string Game::GetCurrentStateKey(void) const
-{
-	if(m_stateMap.end() != m_CurrentStateIter)
-		return m_CurrentStateIter->first;
-
-	return "";
-}
-
-void Game::SafeCreateState(GameStateBasePtr state)
-{
-	if(state)
-	{
-		_ASSERT(!state->m_DeviceObjectsCreated);
-		state->OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc);
-		state->m_DeviceObjectsCreated = true;
-	}
-}
-
-void Game::SafeResetState(GameStateBasePtr state)
-{
-	if(state && state->m_DeviceObjectsCreated && m_DeviceObjectsCreated)
-	{
-		_ASSERT(!state->m_DeviceObjectsReset);
-		state->OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc);
-		state->m_DeviceObjectsReset = true;
-	}
-}
-
-void Game::SafeLostState(GameStateBasePtr state)
-{
-	if(state && state->m_DeviceObjectsReset)
-	{
-		state->OnLostDevice();
-		state->m_DeviceObjectsReset = false;
-	}
-}
-
-void Game::SafeDestroyState(GameStateBasePtr state)
-{
-	if(state && state->m_DeviceObjectsCreated)
-	{
-		_ASSERT(!state->m_DeviceObjectsReset);
-		state->OnDestroyDevice();
-		state->m_DeviceObjectsCreated = false;
-	}
-}
-
-void Game::SafeChangeState(GameStateBasePtr old_state, GameStateBasePtrMap::const_iterator new_state_iter)
-{
-	SafeLostState(old_state);
-
-	SafeDestroyState(old_state);
-
-	m_CurrentStateIter = new_state_iter;
-
-	if(m_stateMap.end() != new_state_iter)
-	{
-		try
-		{
-			SafeCreateState(new_state_iter->second);
-
-			SafeResetState(new_state_iter->second);
-		}
-		catch(const my::Exception & e)
-		{
-			SafeLostState(new_state_iter->second);
-
-			SafeDestroyState(new_state_iter->second);
-
-			m_CurrentStateIter = m_stateMap.end();
-
-			// ! 状态切换是可以容错的，只是当状态切换失败后，将没有CurrentState
-			AddLine(ms2ws(e.GetDescription().c_str()));
-		}
-	}
-}
-
-void Game::ChangeState(const std::string & key)
-{
-	SafeChangeState(GetCurrentState(), m_stateMap.find(key));
-}
-
-void Game::RemoveAllState(void)
-{
-	m_stateMap.clear();
-
-	m_CurrentStateIter = m_stateMap.end();
 }
