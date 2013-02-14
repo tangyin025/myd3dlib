@@ -80,6 +80,8 @@ technique RenderScene
 {
     pass P0
     {          
+		FillMode = WIREFRAME;
+		CullMode = NONE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

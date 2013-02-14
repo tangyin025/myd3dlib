@@ -125,9 +125,9 @@ void GameStateMain::OnDestroyDevice(void)
 {
 	Game::getSingleton().AddLine(L"GameStateMain::OnDestroyDevice", D3DCOLOR_ARGB(255,255,128,0));
 
-	m_staticMeshes.clear();
+	m_StaticMeshes.clear();
 
-	m_characters.clear();
+	m_Characters.clear();
 }
 
 void GameStateMain::OnFrameMove(
@@ -138,8 +138,8 @@ void GameStateMain::OnFrameMove(
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 
-	CharacterPtrList::iterator character_iter = m_characters.begin();
-	for(; character_iter != m_characters.end(); character_iter++)
+	CharacterPtrList::iterator character_iter = m_Characters.begin();
+	for(; character_iter != m_Characters.end(); character_iter++)
 	{
 		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
@@ -169,17 +169,17 @@ void GameStateMain::OnFrameRender(
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		m_ShadowMap->SetTechnique("RenderSkinedShadow");
-		CharacterPtrList::iterator character_iter = m_characters.begin();
-		for(; character_iter != m_characters.end(); character_iter++)
+		CharacterPtrList::iterator character_iter = m_Characters.begin();
+		for(; character_iter != m_Characters.end(); character_iter++)
 		{
 			// ! for uninitialized dual quaternion list
 			(*character_iter)->m_dualQuaternionList.resize((*character_iter)->m_skeletonLOD[(*character_iter)->m_LODLevel]->m_boneBindPose.size());
 
-			Matrix4 world =
+			Matrix4 World =
 				Matrix4::Scaling((*character_iter)->m_Scale) *
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
-			m_ShadowMap->SetMatrix("g_mWorldViewProjection", world * LightViewProj);
+			m_ShadowMap->SetMatrix("g_mWorldViewProjection", World * LightViewProj);
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
 			UINT cPasses = m_ShadowMap->Begin();
@@ -207,32 +207,32 @@ void GameStateMain::OnFrameRender(
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
-		Matrix4 world = Matrix4::Identity();
+		Matrix4 World = Matrix4::Identity();
 		m_SimpleSample->SetFloat("g_fTime", (float)fTime);
-		m_SimpleSample->SetMatrix("g_mWorld", world);
-		m_SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
+		m_SimpleSample->SetMatrix("g_mWorld", World);
+		m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
 		m_SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
 		m_SimpleSample->SetVector("g_EyePos", EyePos);
-		m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(world.inverse()));
+		m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
 		m_SimpleSample->SetVector("g_LightDir", Vector4(LightDir.x, LightDir.y, LightDir.z, 0));
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT->m_ptr);
-		EffectMeshPtrList::iterator effect_mesh_iter = m_staticMeshes.begin();
-		for(; effect_mesh_iter != m_staticMeshes.end(); effect_mesh_iter++)
+		EffectMeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
+		for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
 		{
-			(*effect_mesh_iter)->Draw(pd3dDevice, fElapsedTime);
+			(*mesh_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
-		CharacterPtrList::iterator character_iter = m_characters.begin();
-		for(; character_iter != m_characters.end(); character_iter++)
+		CharacterPtrList::iterator character_iter = m_Characters.begin();
+		for(; character_iter != m_Characters.end(); character_iter++)
 		{
-			Matrix4 world =
+			Matrix4 World =
 				Matrix4::Scaling((*character_iter)->m_Scale) *
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
-			m_SimpleSample->SetMatrix("g_mWorld", world);
-			m_SimpleSample->SetMatrix("g_mWorldViewProjection", world * m_Camera->m_View * m_Camera->m_Proj);
-			m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(world.inverse()));
+			m_SimpleSample->SetMatrix("g_mWorld", World);
+			m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
+			m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}

@@ -48,13 +48,19 @@ public:
 
 	my::Surface m_DepthStencil;
 
-	my::FontPtr m_Font;
+	my::UIRenderPtr m_UIRender;
 
 	my::TexturePtr m_WhiteTex;
 
-	my::UIRenderPtr m_UIRender;
+	my::FontPtr m_Font;
+
+	my::EffectPtr m_SimpleSample;
 
 	my::ModelViewerCamera m_Camera;
+
+	typedef std::vector<my::OgreMeshPtr> MeshPtrList;
+
+	MeshPtrList m_StaticMeshes;
 
 	BOOL m_bAltDown;
 

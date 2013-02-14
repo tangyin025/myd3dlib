@@ -79,11 +79,11 @@ public:
 
 	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
 
-	EffectMeshPtrList m_staticMeshes;
+	EffectMeshPtrList m_StaticMeshes;
 
 	typedef std::vector<CharacterPtr> CharacterPtrList;
 
-	CharacterPtrList m_characters;
+	CharacterPtrList m_Characters;
 
 public:
 	GameStateMain(void)
@@ -120,11 +120,11 @@ public:
 
 	void InsertStaticMesh(EffectMeshPtr effect_mesh)
 	{
-		m_staticMeshes.push_back(effect_mesh);
+		m_StaticMeshes.push_back(effect_mesh);
 	}
 
 	void InsertCharacter(CharacterPtr character)
 	{
-		m_characters.push_back(character);
+		m_Characters.push_back(character);
 	}
 };
