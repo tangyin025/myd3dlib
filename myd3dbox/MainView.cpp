@@ -107,6 +107,9 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
 
+	m_StaticMeshes.clear();
+	m_StaticMeshes.push_back(CMainFrame::getSingleton().LoadMesh("casual19_m_highpoly.mesh.xml"));
+
 	return 0;
 }
 
@@ -196,9 +199,6 @@ void CMainView::OnFrameRender(
 {
 	ASSERT(m_d3dSwapChain);
 
-	CMainDoc * pDoc = GetDocument();
-	ASSERT(pDoc);
-
 	HRESULT hr;
 	Surface BackBuffer;
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
@@ -231,7 +231,7 @@ void CMainView::OnFrameRender(
 			Matrix4::OrthoLH(3, 3, -50, 50);
 		Vector4 EyePos = m_Camera.m_View.inverse()[3];
 
-		Matrix4 World = Matrix4::Identity();
+		Matrix4 World = Matrix4::Scaling(0.01f,0.01f,0.01f);
 		m_SimpleSample->SetFloat("g_fTime", (float)fTime);
 		m_SimpleSample->SetMatrix("g_mWorld", World);
 		m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera.m_View * m_Camera.m_Proj);
@@ -240,11 +240,11 @@ void CMainView::OnFrameRender(
 		m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
 		m_SimpleSample->SetVector("g_LightDir", Vector4(LightDir.x, LightDir.y, LightDir.z, 0));
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0.0f,1.0f,0.0f,1.0f));
-		m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(0.0f,0.0f,0.0f,1.0f));
+		m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0.1f,0.1f,0.1f,1.0f));
+		m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1.0f,1.0f,1.0f,1.0f));
 		m_SimpleSample->SetTexture("g_MeshTexture", m_WhiteTex->m_ptr);
-		CMainDoc::MeshPtrList::iterator mesh_iter = pDoc->m_StaticMeshes.begin();
-		for(; mesh_iter != pDoc->m_StaticMeshes.end(); mesh_iter++)
+		MeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
+		for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
 		{
 			for(UINT i = 0; i < (*mesh_iter)->GetMaterialNum(); i++)
 			{

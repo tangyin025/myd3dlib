@@ -9,10 +9,6 @@ public:
 
 	DECLARE_DYNCREATE(CMainDoc)
 
-	typedef std::vector<my::OgreMeshPtr> MeshPtrList;
-
-	MeshPtrList m_StaticMeshes;
-
 	virtual BOOL OnNewDocument();
 
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);

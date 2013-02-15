@@ -58,6 +58,10 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
+	typedef std::vector<my::OgreMeshPtr> MeshPtrList;
+
+	MeshPtrList m_StaticMeshes;
+
 	BOOL m_bAltDown;
 
 	BOOL m_bEatAltUp;

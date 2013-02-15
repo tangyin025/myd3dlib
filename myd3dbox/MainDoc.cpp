@@ -18,9 +18,6 @@ BOOL CMainDoc::OnNewDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
 
-	//m_StaticMeshes.clear();
-	//m_StaticMeshes.push_back(CMainFrame::getSingleton().LoadMesh("plane.mesh.xml"));
-
 	return CDocument::OnNewDocument();
 }
 
