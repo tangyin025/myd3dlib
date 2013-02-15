@@ -3,15 +3,16 @@
 
 using namespace my;
 
-#define SIMPLE_INTEGRATION(duration, velocity, rotation) \
-	position.x += (velocity).x * duration; \
-	position.y += (velocity).y * duration; \
-	position.z += (velocity).z * duration; \
-	orientation = fmod(orientation + (rotation) * duration, D3DX_PI * 2);
+void Location::integrate(float duration, const Vector3 & velocity, float rotation)
+{
+	position += velocity * duration;
+
+	orientation = fmod(orientation + rotation * duration, D3DX_PI * 2);
+}
 
 void Location::integrate(const SteeringOutput & steer, float duration)
 {
-	SIMPLE_INTEGRATION(duration, steer.linear, steer.angular);
+	integrate(duration, steer.linear, steer.angular);
 }
 
 void Location::setOrientationFromVelocityLH(const Vector3 & velocity)
@@ -29,15 +30,15 @@ Vector3 Location::getOrientationAsVector(void) const
 
 void Kinematic::integrate(float duration)
 {
-	SIMPLE_INTEGRATION(duration, velocity, rotation);
+	Location::integrate(duration, velocity, rotation);
 }
 
 void Kinematic::integrate(const SteeringOutput & steer, float duration)
 {
-	SIMPLE_INTEGRATION(duration, velocity, rotation);
-	velocity.x += steer.linear.x * duration;
-	velocity.y += steer.linear.y * duration;
-	velocity.z += steer.linear.z * duration;
+	Location::integrate(duration, velocity, rotation);
+
+	velocity += steer.linear * duration;
+
 	rotation += steer.angular * duration;
 }
 
@@ -46,15 +47,14 @@ void Kinematic::integrate(
 	float drag,
 	float duration)
 {
-	SIMPLE_INTEGRATION(duration, velocity, rotation);
+	Location::integrate(duration, velocity, rotation);
 
 	float integration_drag = pow(drag, duration);
 	velocity *= integration_drag;
 	rotation *= integration_drag * integration_drag;
 
-	velocity.x += steer.linear.x * duration;
-	velocity.y += steer.linear.y * duration;
-	velocity.z += steer.linear.z * duration;
+	velocity += steer.linear * duration;
+
 	rotation += steer.angular * duration;
 }
 
@@ -63,16 +63,16 @@ void Kinematic::integrate(
 	const SteeringOutput & drag,
 	float duration)
 {
-	SIMPLE_INTEGRATION(duration, velocity, rotation);
+	Location::integrate(duration, velocity, rotation);
 
 	velocity.x *= pow(drag.linear.x, duration);
 	velocity.y *= pow(drag.linear.y, duration);
 	velocity.z *= pow(drag.linear.z, duration);
+
 	rotation *= pow(drag.angular, duration);
 
-	velocity.x += steer.linear.x * duration;
-	velocity.y += steer.linear.y * duration;
-	velocity.z += steer.linear.z * duration;
+	velocity += steer.linear * duration;
+
 	rotation += steer.angular * duration;
 }
 

@@ -50,6 +50,21 @@ namespace my
 	}
 
 	template <typename T>
+	T Round(const T & v, const T & min, const T & max);
+
+	template <>
+	inline int Round(const int & v, const int & min, const int & max)
+	{
+		return v > max ? min + (max - v) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
+	}
+
+	template <>
+	inline float Round(const float & v, const float & min, const float & max)
+	{
+		return v > max ? min + fmod(max - v, max - min) : (v < min ? max - fmod(min - v, max - min) : v);
+	}
+
+	template <typename T>
 	T Random(const T & range);
 
 	template <>

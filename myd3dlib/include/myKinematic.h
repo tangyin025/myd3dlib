@@ -102,6 +102,8 @@ namespace my
 				|| orientation != other.orientation;
 		}
 
+		void integrate(float duration, const Vector3 & velocity, float rotation);
+
 		void integrate(const SteeringOutput & steer, float duration);
 
 		void setOrientationFromVelocityLH(const Vector3 & velocity);
