@@ -58,13 +58,13 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	//typedef std::vector<my::OgreMeshPtr> MeshPtrList;
-
-	//MeshPtrList m_StaticMeshes;
-
 	typedef std::vector<my::KinematicPtr> KinematicPtrList;
 
 	KinematicPtrList m_Characters;
+
+	typedef std::vector<my::SteeringBehaviourPtr> SteeringBehaviourPtrList;
+
+	SteeringBehaviourPtrList m_Steerings;
 
 	BOOL m_bAltDown;
 

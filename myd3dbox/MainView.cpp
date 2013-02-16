@@ -107,10 +107,18 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 5;
 
-	//m_StaticMeshes.clear();
-	//m_StaticMeshes.push_back(CMainFrame::getSingleton().LoadMesh("casual19_m_highpoly.mesh.xml"));
+	for(int i = 0; i < 100; i++)
+	{
+		m_Characters.push_back(
+			my::KinematicPtr(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(45),Vector3(0,0,0),0)));
 
-	m_Characters.push_back(my::KinematicPtr(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(45),Vector3(1,0,0),0)));
+		my::Wander * wander = new my::Wander();
+		wander->character = m_Characters[i].get();
+		wander->maxAcceleration = 1.0f;
+		wander->volatility = 2.0f;
+		wander->turnSpeed = 2.0f;
+		m_Steerings.push_back(my::SteeringBehaviourPtr(wander));
+	}
 
 	return 0;
 }
@@ -192,12 +200,15 @@ void CMainView::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	KinematicPtrList::iterator kine_iter = m_Characters.begin();
-	for(; kine_iter != m_Characters.end(); kine_iter++)
+	for(int i = 0; i < m_Characters.size(); i++)
 	{
-		(*kine_iter)->integrate(fElapsedTime);
-		(*kine_iter)->position.x = Round((*kine_iter)->position.x, -10.0f, 10.0f);
-		(*kine_iter)->position.z = Round((*kine_iter)->position.z, -10.0f, 10.0f);
+		SteeringOutput steer;
+		m_Steerings[i]->getSteering(&steer);
+		m_Characters[i]->integrate(steer, fElapsedTime);
+		m_Characters[i]->setOrientationFromVelocity(m_Characters[i]->velocity);
+		m_Characters[i]->trimMaxSpeed(2.0f);
+		m_Characters[i]->position.x = Round(m_Characters[i]->position.x, -10.0f, 10.0f);
+		m_Characters[i]->position.z = Round(m_Characters[i]->position.z, -10.0f, 10.0f);
 	}
 }
 
@@ -233,47 +244,12 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		//Vector3 LightDir(Vector3(1,1,1).normalize());
-		//Vector3 LightTag(0,1,0);
-		//Matrix4 LightViewProj =
-		//	Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
-		//	Matrix4::OrthoLH(3, 3, -50, 50);
-		//Vector4 EyePos = m_Camera.m_View.inverse()[3];
-
-		//Matrix4 World = Matrix4::Scaling(0.01f,0.01f,0.01f);
-		//m_SimpleSample->SetFloat("g_fTime", (float)fTime);
-		//m_SimpleSample->SetMatrix("g_mWorld", World);
-		//m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera.m_View * m_Camera.m_Proj);
-		//m_SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
-		//m_SimpleSample->SetVector("g_EyePos", EyePos);
-		//m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
-		//m_SimpleSample->SetVector("g_LightDir", Vector4(LightDir.x, LightDir.y, LightDir.z, 0));
-		//m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		//m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0.1f,0.1f,0.1f,1.0f));
-		//m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1.0f,1.0f,1.0f,1.0f));
-		//m_SimpleSample->SetTexture("g_MeshTexture", m_WhiteTex->m_ptr);
-		//MeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
-		//for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
-		//{
-		//	for(UINT i = 0; i < (*mesh_iter)->GetMaterialNum(); i++)
-		//	{
-		//		UINT passes = m_SimpleSample->Begin();
-		//		for(UINT p = 0; p < passes; p++)
-		//		{
-		//			m_SimpleSample->BeginPass(p);
-		//			(*mesh_iter)->DrawSubset(i);
-		//			m_SimpleSample->EndPass();
-		//		}
-		//		m_SimpleSample->End();
-		//	}
-		//}
-
 		KinematicPtrList::iterator kine_iter = m_Characters.begin();
 		for(; kine_iter != m_Characters.end(); kine_iter++)
 		{
 			Matrix4 CharaTransform = Matrix4::RotationY((*kine_iter)->orientation) * Matrix4::Translation((*kine_iter)->position);
 			DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
-			DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.2f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
+			DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
 		}
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();

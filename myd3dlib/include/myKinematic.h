@@ -106,7 +106,7 @@ namespace my
 
 		void integrate(const SteeringOutput & steer, float duration);
 
-		void setOrientationFromVelocityLH(const Vector3 & velocity);
+		void setOrientationFromVelocity(const Vector3 & velocity);
 
 		Vector3 getOrientationAsVector(void) const;
 	};
@@ -212,6 +212,8 @@ namespace my
 			const SteeringOutput & steer,
 			const SteeringOutput & drag,
 			float duration);
+
+		void trimMaxSpeed(float maxSpeed);
 	};
 
 	typedef boost::shared_ptr<Kinematic> KinematicPtr;
@@ -225,6 +227,8 @@ namespace my
 
 		virtual void getSteering(SteeringOutput * output) = 0;
 	};
+
+	typedef boost::shared_ptr<SteeringBehaviour> SteeringBehaviourPtr;
 
 	class Seek : public SteeringBehaviour
 	{
@@ -248,6 +252,7 @@ namespace my
 		Vector3 internal_target;
 
 		SeekWithInternalTarget(void)
+			: internal_target(0,0,0)
 		{
 			target = &internal_target;
 		}

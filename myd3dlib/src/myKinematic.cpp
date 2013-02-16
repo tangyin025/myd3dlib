@@ -15,7 +15,7 @@ void Location::integrate(const SteeringOutput & steer, float duration)
 	integrate(duration, steer.linear, steer.angular);
 }
 
-void Location::setOrientationFromVelocityLH(const Vector3 & velocity)
+void Location::setOrientationFromVelocity(const Vector3 & velocity)
 {
 	if(velocity.magnitudeSq() > EPSILON_E12)
 	{
@@ -76,6 +76,14 @@ void Kinematic::integrate(
 	rotation += steer.angular * duration;
 }
 
+void Kinematic::trimMaxSpeed(float maxSpeed)
+{
+	if(velocity.magnitudeSq() > maxSpeed * maxSpeed)
+	{
+		velocity = velocity.normalize() * maxSpeed;
+	}
+}
+
 void Seek::getSteering(SteeringOutput * output)
 {
 	output->linear = *target - character->position;
@@ -121,8 +129,8 @@ void Wander::getSteering(SteeringOutput * output)
 	internal_target.x += volatility * cos(angle);
 	internal_target.z += volatility * sin(angle);
 
-	internal_target.x += Random(turnSpeed) - Random(turnSpeed);
-	internal_target.z += Random(turnSpeed) - Random(turnSpeed);
+	internal_target.x += Random(-turnSpeed, turnSpeed);
+	internal_target.z += Random(-turnSpeed, turnSpeed);
 
 	Seek::getSteering(output);
 }
