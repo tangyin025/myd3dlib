@@ -267,4 +267,18 @@ namespace my
 
 		virtual void getSteering(SteeringOutput * output);
 	};
+
+	class Arrive : public Seek
+	{
+	public:
+		float maxSpeed;
+
+		float targetRadius;
+
+		float slowRadius;
+
+		float timeToTarget;
+
+		virtual void getSteering(SteeringOutput * output);
+	};
 }

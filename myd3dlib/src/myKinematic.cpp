@@ -90,9 +90,10 @@ void Seek::getSteering(SteeringOutput * output)
 
 	if(output->linear.magnitudeSq() > EPSILON_E12)
 	{
-		output->linear.normalizeSelf();
-		output->linear *= maxAcceleration;
+		output->linear = output->linear.normalize() * maxAcceleration;
 	}
+
+	output->angular = 0;
 }
 
 void Flee::getSteering(SteeringOutput * output)
@@ -101,9 +102,10 @@ void Flee::getSteering(SteeringOutput * output)
 
 	if(output->linear.magnitudeSq() > EPSILON_E12)
 	{
-		output->linear.normalizeSelf();
-		output->linear *= maxAcceleration;
+		output->linear = output->linear.normalize() * maxAcceleration;
 	}
+
+	output->angular = 0;
 }
 
 void Wander::getSteering(SteeringOutput * output)
@@ -129,8 +131,40 @@ void Wander::getSteering(SteeringOutput * output)
 	internal_target.x += volatility * cos(angle);
 	internal_target.z += volatility * sin(angle);
 
-	internal_target.x += Random(-turnSpeed, turnSpeed);
-	internal_target.z += Random(-turnSpeed, turnSpeed);
+	internal_target.x += Random(turnSpeed) - Random(turnSpeed);
+	internal_target.z += Random(turnSpeed) - Random(turnSpeed);
 
 	Seek::getSteering(output);
+}
+
+void Arrive::getSteering(SteeringOutput * output)
+{
+	Vector3 direction = *target - character->position;
+	float distance = direction.magnitude();
+
+	if(distance < targetRadius)
+	{
+		output->clear();
+		return;
+	}
+
+	float targetSpeed;
+	if(distance < slowRadius)
+	{
+		targetSpeed = maxSpeed * distance / slowRadius;
+	}
+	else
+	{
+		targetSpeed = maxSpeed;
+	}
+
+	Vector3 targetVelocity = direction.normalize() * targetSpeed;
+	output->linear = (targetVelocity - character->velocity) / timeToTarget;
+
+	if(output->linear.magnitudeSq() > maxAcceleration)
+	{
+		output->linear = output->linear.normalize() * maxAcceleration;
+	}
+
+	output->angular = 0;
 }

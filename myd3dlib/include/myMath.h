@@ -14,82 +14,82 @@
 namespace my
 {
 	template <typename T>
-	T Min(const T & a, const T & b)
+	T Min(T a, T b)
 	{
 		return a < b ? a : b;
 	}
 
 	template <typename T>
-	T Min(const T & a, const T & b, const T & c)
+	T Min(T a, T b, T c)
 	{
 		return a < b ? (a < c ? a : c) : (b < c ? b : c);
 	}
 
 	template <typename T>
-	T Max(const T & a, const T & b)
+	T Max(T a, T b)
 	{
 		return a > b ? a : b;
 	}
 
 	template <typename T>
-	T Max(const T & a, const T & b, const T & c)
+	T Max(T a, T b, T c)
 	{
 		return a > b ? (a > c ? a : c) : (b > c ? b : c);
 	}
 
 	template <typename T>
-	T Lerp(const T & a, const T & b, float s)
+	T Lerp(T a, T b, T s)
 	{
 		return a + s * (b - a);
 	}
 
 	template <typename T>
-	T Clamp(const T & v, const T & min, const T & max)
+	T Clamp(T v, T min, T max)
 	{
 		return min > v ? min : (max < v ? max : v);
 	}
 
 	template <typename T>
-	T Round(const T & v, const T & min, const T & max);
+	T Round(T v, T min, T max);
 
 	template <>
-	inline int Round(const int & v, const int & min, const int & max)
+	inline int Round(int v, int min, int max)
 	{
 		return v > max ? min + (max - v) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
 	}
 
 	template <>
-	inline float Round(const float & v, const float & min, const float & max)
+	inline float Round(float v, float min, float max)
 	{
 		return v > max ? min + fmod(max - v, max - min) : (v < min ? max - fmod(min - v, max - min) : v);
 	}
 
 	template <typename T>
-	T Random(const T & range);
+	T Random(T range);
 
 	template <>
-	inline int Random<int>(const int & range)
+	inline int Random(int range)
 	{
 		return rand() % range;
 	}
 
 	template <>
-	inline float Random<float>(const float & range)
+	inline float Random(float range)
 	{
 		return range * ((float)rand() / RAND_MAX);
 	}
 
 	template <typename T>
-	T Random(const T & min, const T & max);
+	T Random(T min, T max);
 
 	template <>
-	inline int Random<int>(const int & min, const int & max)
+	inline int Random(int min, int max)
 	{
 		return min + rand() % (max - min);
 	}
 
 	template <>
-	inline float Random<float>(const float & min, const float & max)
+	inline float Random(float min, float max)
 	{
 		return min + (max - min) * ((float)rand() / RAND_MAX);
 	}
