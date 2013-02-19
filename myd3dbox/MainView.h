@@ -58,6 +58,8 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
+	CRectTracker m_Tracker;
+
 	typedef std::vector<my::KinematicPtr> KinematicPtrList;
 
 	KinematicPtrList m_Characters;

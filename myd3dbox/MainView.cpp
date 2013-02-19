@@ -140,6 +140,8 @@ void CMainView::OnPaint()
 	{
 		OnFrameRender(CMainFrame::getSingleton().m_d3dDevice, theApp.m_fAbsoluteTime, 0);
 	}
+
+	m_Tracker.Draw(&dc);
 }
 
 void CMainView::OnSize(UINT nType, int cx, int cy)
@@ -326,6 +328,8 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 		m_Camera.m_DragPos = point;
 		SetCapture();
 	}
+	else
+		m_Tracker.TrackRubberBand(this, point);
 }
 
 void CMainView::OnLButtonUp(UINT nFlags, CPoint point)
@@ -388,13 +392,10 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 
 	case DragCameraTrack:
-		{
-			Vector3 mov(
-				(m_Camera.m_DragPos.x - point.x) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f,
-				(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0);
-			m_Camera.m_LookAt += mov.transform(m_Camera.m_Orientation);
-			m_Camera.m_DragPos = point;
-		}
+		m_Camera.m_LookAt += Vector3(
+			(m_Camera.m_DragPos.x - point.x) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f,
+			(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0).transform(m_Camera.m_Orientation);
+		m_Camera.m_DragPos = point;
 		break;
 
 	case DragCameraZoom:
