@@ -60,13 +60,11 @@ public:
 
 	CRectTracker m_Tracker;
 
-	typedef std::vector<my::KinematicPtr> KinematicPtrList;
+	my::KinematicPtr m_Character;
 
-	KinematicPtrList m_Characters;
+	my::Seek m_Seek;
 
-	typedef std::vector<my::SteeringBehaviourPtr> SteeringBehaviourPtrList;
-
-	SteeringBehaviourPtrList m_Steerings;
+	my::Arrive m_Arrive;
 
 	BOOL m_bAltDown;
 

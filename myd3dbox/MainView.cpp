@@ -103,22 +103,21 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("SimpleSample.fx");
 
-	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	m_Camera.m_LookAt = Vector3(0,0,0);
-	m_Camera.m_Distance = 5;
+	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
+	m_Camera.m_LookAt = Vector3(0,-2,0);
+	m_Camera.m_Distance = 20;
 
-	for(int i = 0; i < 100; i++)
-	{
-		m_Characters.push_back(
-			my::KinematicPtr(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(45),Vector3(0,0,0),0)));
+	m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
 
-		my::Wander * wander = new my::Wander();
-		wander->character = m_Characters[i].get();
-		wander->maxAcceleration = 1.0f;
-		wander->volatility = 2.0f;
-		wander->turnSpeed = 2.0f;
-		m_Steerings.push_back(my::SteeringBehaviourPtr(wander));
-	}
+	m_Seek.character = m_Character.get();
+	m_Seek.target = Vector3(5,0,5);
+	m_Seek.maxAcceleration = 2.0f;
+
+	m_Arrive.character = m_Character.get();
+	m_Arrive.target = Vector3(5,0,5);
+	m_Arrive.maxAcceleration = 2.0f;
+	m_Arrive.radius = 0.2f;
+	m_Arrive.timeToTarget = 2.0f;
 
 	return 0;
 }
@@ -202,16 +201,14 @@ void CMainView::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	for(int i = 0; i < m_Characters.size(); i++)
-	{
-		SteeringOutput steer;
-		m_Steerings[i]->getSteering(&steer);
-		m_Characters[i]->integrate(steer, fElapsedTime);
-		m_Characters[i]->setOrientationFromVelocity(m_Characters[i]->velocity);
-		m_Characters[i]->trimMaxSpeed(2.0f);
-		m_Characters[i]->position.x = Round(m_Characters[i]->position.x, -10.0f, 10.0f);
-		m_Characters[i]->position.z = Round(m_Characters[i]->position.z, -10.0f, 10.0f);
-	}
+	SteeringOutput steer;
+	//m_Seek.getSteering(&steer);
+	m_Arrive.getSteering(&steer);
+	m_Character->integrate(steer, 0.35f, 0.01f);
+	m_Character->setOrientationFromVelocity(m_Character->velocity);
+	m_Character->trimMaxSpeed(2.0f);
+	m_Character->position.x = Round(m_Character->position.x, -10.0f, 10.0f);
+	m_Character->position.y = Round(m_Character->position.y, -10.0f, 10.0f);
 }
 
 void CMainView::OnFrameRender(
@@ -246,13 +243,10 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		KinematicPtrList::iterator kine_iter = m_Characters.begin();
-		for(; kine_iter != m_Characters.end(); kine_iter++)
-		{
-			Matrix4 CharaTransform = Matrix4::RotationY((*kine_iter)->orientation) * Matrix4::Translation((*kine_iter)->position);
-			DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
-			DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
-		}
+		Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
+		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
+		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
+		DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		m_UIRender->SetTransform(Matrix4::Identity(),

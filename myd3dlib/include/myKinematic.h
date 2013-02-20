@@ -233,7 +233,7 @@ namespace my
 	class Seek : public SteeringBehaviour
 	{
 	public:
-		const Vector3 * target;
+		Vector3 target;
 
 		float maxAcceleration;
 
@@ -246,19 +246,7 @@ namespace my
 		virtual void getSteering(SteeringOutput * output);
 	};
 
-	class SeekWithInternalTarget : public Seek
-	{
-	protected:
-		Vector3 internal_target;
-
-		SeekWithInternalTarget(void)
-			: internal_target(0,0,0)
-		{
-			target = &internal_target;
-		}
-	};
-
-	class Wander : public SeekWithInternalTarget
+	class Wander : public Seek
 	{
 	public:
 		float volatility;
@@ -271,11 +259,7 @@ namespace my
 	class Arrive : public Seek
 	{
 	public:
-		float maxSpeed;
-
-		float targetRadius;
-
-		float slowRadius;
+		float radius;
 
 		float timeToTarget;
 
