@@ -85,15 +85,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		TRACE0("Failed to create toolbar\n");
 		return -1;
 	}
-	CString strToolBarName;
-	strToolBarName.LoadString(IDS_TOOLBAR_STANDARD);
-	m_wndToolBar.SetWindowText(strToolBarName);
+	m_wndToolBar.SetWindowText(_T("标准"));
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, _T("自定义..."));
 	DockPane(&m_wndToolBar);
-
-	CString strCustomize;
-	strCustomize.LoadString(IDS_TOOLBAR_CUSTOMIZE);
-	m_wndToolBar.EnableCustomizeButton(TRUE, ID_VIEW_CUSTOMIZE, strCustomize);
 
 	if (!m_wndStatusBar.Create(this))
 	{
@@ -113,7 +108,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CDockingManager::SetDockingMode(DT_SMART);
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);
-	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
+	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, _T("自定义..."), ID_VIEW_TOOLBAR);
 	CMFCToolBar::EnableQuickCustomization();
 
 	return 0;

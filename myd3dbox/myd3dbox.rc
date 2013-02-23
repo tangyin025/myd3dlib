@@ -168,8 +168,6 @@ IDR_MAINFRAME           ICON                    "myd3dbox.ico"
 STRINGTABLE 
 BEGIN
     IDR_MAINFRAME           "aaa\n\naaa\n\n\naaa.Document\naaa.Document"
-    IDS_TOOLBAR_STANDARD    "标准"
-    IDS_TOOLBAR_CUSTOMIZE   "自定义..."
 END
 
 STRINGTABLE 
