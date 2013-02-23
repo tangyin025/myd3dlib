@@ -107,6 +107,8 @@ namespace my
 		{
 		}
 
+		static std::string ReplaceBackslash(const std::string & path);
+
 		bool CheckArchivePath(const std::string & path);
 
 		std::string GetFullPath(const std::string & path);
@@ -166,15 +168,13 @@ namespace my
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
+		std::string m_EffectInclude;
+
 		std::map<LPCVOID, CachePtr> m_cacheSet;
 
 		typedef std::map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
 
 		DeviceRelatedResourceSet m_resourceSet;
-
-		typedef std::map<std::string, boost::weak_ptr<OgreSkeletonAnimation> > OgreSkeletonAnimationSet;
-
-		OgreSkeletonAnimationSet m_skeletonSet;
 
 	public:
 		ResourceMgr(void)

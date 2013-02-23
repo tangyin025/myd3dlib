@@ -5,6 +5,7 @@
 #include <set>
 #include <hash_map>
 #include <boost/shared_ptr.hpp>
+#include "mySingleton.h"
 
 namespace my
 {
@@ -25,7 +26,8 @@ namespace my
 
 	typedef std::set<int> BoneIndexSet;
 
-	class BoneHierarchy : public std::vector<BoneHierarchyNode>
+	class BoneHierarchy
+		: public std::vector<BoneHierarchyNode>
 	{
 	public:
 		void InsertSibling(int root_i, int sibling_i);
@@ -115,7 +117,8 @@ namespace my
 		}
 	};
 
-	class TransformList : public std::vector<Matrix4>
+	class TransformList
+		: public std::vector<Matrix4>
 	{
 	public:
 		TransformList & Transform(
@@ -130,7 +133,8 @@ namespace my
 			int root_i);
 	};
 
-	class BoneList : public std::vector<Bone>
+	class BoneList
+		: public std::vector<Bone>
 	{
 	public:
 		BoneList & Increment(
@@ -197,7 +201,8 @@ namespace my
 			const Matrix4 & inverseRootTransform = Matrix4::identity);
 	};
 
-	class BoneKeyframe : public Bone
+	class BoneKeyframe
+		: public Bone
 	{
 	public:
 		float m_time;
@@ -225,13 +230,15 @@ namespace my
 		}
 	};
 
-	class BoneTrack : public std::vector<BoneKeyframe>
+	class BoneTrack
+		: public std::vector<BoneKeyframe>
 	{
 	public:
 		Bone GetPoseBone(float time) const;
 	};
 
-	class BoneTrackList : public std::vector<BoneTrack>
+	class BoneTrackList
+		: public std::vector<BoneTrack>
 	{
 	public:
 		BoneList & GetPose(
@@ -241,7 +248,8 @@ namespace my
 			float time) const;
 	};
 
-	class OgreAnimation : public BoneTrackList
+	class OgreAnimation
+		: public BoneTrackList
 	{
 	public:
 		float m_time;
@@ -295,15 +303,15 @@ namespace my
 
 		BoneHierarchy & BuildLeafedHierarchy(BoneHierarchy & leafedBoneHierarchy, int root_i, const BoneIndexSet & leafNodeIndices)
 		{
-			//leafedBoneHierarchy.clear();
-
-			//leafedBoneHierarchy.resize(m_boneHierarchy.size(), BoneHierarchyNode());
+			_ASSERT(leafedBoneHierarchy.size() >= m_boneHierarchy.size());
 
 			return m_boneHierarchy.BuildLeafedHierarchy(leafedBoneHierarchy, root_i, leafNodeIndices);
 		}
 	};
 
-	class OgreSkeletonAnimation : public OgreSkeleton
+	class OgreSkeletonAnimation
+		: public OgreSkeleton
+		, public DeviceRelatedObjectBase
 	{
 	public:
 		stdext::hash_map<std::string, OgreAnimation> m_animationMap;
@@ -319,6 +327,12 @@ namespace my
 
 		void CreateOgreSkeletonAnimationFromFile(
 			LPCTSTR pFilename);
+
+		void OnResetDevice(void) {}
+
+		void OnLostDevice(void) {}
+
+		void OnDestroyDevice(void) {}
 
 		void Clear(void)
 		{
@@ -336,9 +350,7 @@ namespace my
 
 		BoneList & BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const
 		{
-			//pose.clear();
-
-			//pose.resize(m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
+			_ASSERT(pose.size() >= m_boneBindPose.size());
 
 			return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
 		}

@@ -76,10 +76,6 @@ namespace my
 	class DeviceRelatedObjectBase
 	{
 	public:
-		DeviceRelatedObjectBase(void)
-		{
-		}
-
 		virtual ~DeviceRelatedObjectBase(void)
 		{
 		}

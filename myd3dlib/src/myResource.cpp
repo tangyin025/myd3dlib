@@ -79,6 +79,17 @@ CachePtr FileArchiveStream::GetWholeCache(void)
 	return cache;
 }
 
+std::string ZipArchiveDir::ReplaceBackslash(const std::string & path)
+{
+	size_t pos = 0;
+	std::string ret = path;
+	while(std::string::npos != (pos = ret.find('\\', pos)))
+	{
+		ret.replace(pos++, 1, 1, '/');
+	}
+	return ret;
+}
+
 bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
@@ -87,7 +98,7 @@ bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 		return false;
 	}
 
-	int ret = unzLocateFile(zFile, path.c_str(), 0);
+	int ret = unzLocateFile(zFile, ReplaceBackslash(path).c_str(), 0);
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
@@ -111,7 +122,7 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
 	}
 
-	int ret = unzLocateFile(zFile, path.c_str(), 0);
+	int ret = unzLocateFile(zFile, ReplaceBackslash(path).c_str(), 0);
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
@@ -246,7 +257,9 @@ HRESULT ResourceMgr::Open(
 	UINT * pBytes)
 {
 	CachePtr cache;
-	std::string loc_path = std::string("shader/") + pFileName;
+	std::string loc_path;
+	loc_path.resize(MAX_PATH);
+	PathCombineA(&loc_path[0], m_EffectInclude.c_str(), pFileName);
 	switch(IncludeType)
 	{
 	case D3DXINC_SYSTEM:
@@ -356,7 +369,9 @@ TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
 	TexturePtr ret = GetDeviceRelatedResource<Texture>(path, reload);
 	if(!ret->m_ptr)
 	{
-		std::string loc_path = std::string("texture/") + path;
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "texture", path.c_str());
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
@@ -376,7 +391,9 @@ CubeTexturePtr ResourceMgr::LoadCubeTexture(const std::string & path, bool reloa
 	CubeTexturePtr ret = GetDeviceRelatedResource<CubeTexture>(path, reload);
 	if(!ret->m_ptr)
 	{
-		std::string loc_path = std::string("texture/") + path;
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "texture", path.c_str());
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
@@ -396,7 +413,9 @@ OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
 	OgreMeshPtr ret = GetDeviceRelatedResource<OgreMesh>(path, reload);
 	if(!ret->m_ptr)
 	{
-		std::string loc_path = std::string("mesh/") + path;
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "mesh", path.c_str());
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
@@ -413,32 +432,22 @@ OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
 
 OgreSkeletonAnimationPtr ResourceMgr::LoadSkeleton(const std::string & path, bool reload)
 {
-	OgreSkeletonAnimationSet::const_iterator res_iter = m_skeletonSet.find(path);
-	OgreSkeletonAnimationPtr ret;
-	if(m_skeletonSet.end() != res_iter)
+	OgreSkeletonAnimationPtr ret = GetDeviceRelatedResource<OgreSkeletonAnimation>(path, reload);
+	if(ret->m_boneHierarchy.empty())
 	{
-		ret = res_iter->second.lock();
-		if(ret)
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "mesh", path.c_str());
+		std::string full_path = GetFullPath(loc_path);
+		if(!full_path.empty())
 		{
-			if(reload)
-				ret->Clear();
-			else
-				return ret;
+			ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path.c_str()).c_str());
 		}
-	}
-	else
-		ret.reset(new OgreSkeletonAnimation());
-
-	std::string loc_path = std::string("mesh/") + path;
-	std::string full_path = GetFullPath(loc_path);
-	if(!full_path.empty())
-	{
-		ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path.c_str()).c_str());
-	}
-	else
-	{
-		CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-		ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+		else
+		{
+			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
+			ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+		}
 	}
 	return ret;
 }
@@ -448,7 +457,11 @@ EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
 	EffectPtr ret = GetDeviceRelatedResource<Effect>(path, reload);
 	if(!ret->m_ptr)
 	{
-		std::string loc_path = std::string("shader/") + path;
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "shader", path.c_str());
+		m_EffectInclude = loc_path;
+		PathRemoveFileSpecA(&m_EffectInclude[0]);
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
@@ -468,7 +481,9 @@ FontPtr ResourceMgr::LoadFont(const std::string & path, int height, bool reload)
 	FontPtr ret = GetDeviceRelatedResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
 	if(!ret->m_face)
 	{
-		std::string loc_path = std::string("font/") + path;
+		std::string loc_path;
+		loc_path.resize(MAX_PATH);
+		PathCombineA(&loc_path[0], "font", path.c_str());
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
