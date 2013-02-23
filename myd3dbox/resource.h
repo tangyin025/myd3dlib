@@ -5,6 +5,7 @@
 #define IDR_MAINFRAME                   101
 #define IDS_TOOLBAR_STANDARD            102
 #define IDS_TOOLBAR_CUSTOMIZE           103
+#define ID_VIEW_OUTLINER				104
 #define ID_VIEW_CUSTOMIZE               40001
 #define ID_VIEW_APPLOOK_WIN_2000        40002
 #define ID_VIEW_APPLOOK_OFF_XP          40003

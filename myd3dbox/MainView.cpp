@@ -59,14 +59,6 @@ CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainView, CView)
 
-CMainView::CMainView(void)
-	: m_Camera()
-	, m_bAltDown(FALSE)
-	, m_bEatAltUp(FALSE)
-	, m_DragCameraMode(DragCameraNone)
-{
-}
-
 BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()

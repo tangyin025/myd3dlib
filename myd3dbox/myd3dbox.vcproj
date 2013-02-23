@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\OutlinerView.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -247,6 +251,10 @@
 			</File>
 			<File
 				RelativePath=".\MainView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\OutlinerView.h"
 				>
 			</File>
 			<File

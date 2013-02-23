@@ -36,7 +36,13 @@ class CMainView
 	, public my::DrawHelper
 {
 public:
-	CMainView(void);
+	CMainView(void)
+		: m_Camera()
+		, m_bAltDown(FALSE)
+		, m_bEatAltUp(FALSE)
+		, m_DragCameraMode(DragCameraNone)
+	{
+	}
 
 	DECLARE_DYNCREATE(CMainView)
 
