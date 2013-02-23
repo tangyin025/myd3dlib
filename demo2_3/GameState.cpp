@@ -73,9 +73,9 @@ HRESULT GameStateMain::OnCreateDevice(
 	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
 		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
-	m_SimpleSample = Game::getSingleton().LoadEffect("SimpleSample.fx");
+	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx");
 
-	m_ShadowMap = Game::getSingleton().LoadEffect("ShadowMap.fx");
+	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx");
 
 	m_ShadowTextureRT.reset(new my::Texture());
 

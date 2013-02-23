@@ -107,6 +107,8 @@ namespace my
 		{
 		}
 
+		static std::string ReplaceSlash(const std::string & path);
+
 		static std::string ReplaceBackslash(const std::string & path);
 
 		bool CheckArchivePath(const std::string & path);

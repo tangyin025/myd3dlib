@@ -87,13 +87,13 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	m_UIRender.reset(new EffectUIRender(
-		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("UIEffect.fx")));
+		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("shader/UIEffect.fx")));
 
-	m_WhiteTex = CMainFrame::getSingleton().LoadTexture("white.bmp");
+	m_WhiteTex = CMainFrame::getSingleton().LoadTexture("texture/white.bmp");
 
-	m_Font = CMainFrame::getSingleton().LoadFont("wqy-microhei.ttc", 13);
+	m_Font = CMainFrame::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
 
-	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("SimpleSample.fx");
+	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("shader/SimpleSample.fx");
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
