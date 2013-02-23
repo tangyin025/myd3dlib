@@ -7,7 +7,9 @@ class CMainApp
 	, public my::Clock
 {
 public:
-	CMainApp(void);
+	CMainApp(void)
+	{
+	}
 
 	virtual BOOL InitInstance(void);
 
@@ -15,12 +17,6 @@ public:
 
 public:
 	CComPtr<IDirect3D9> m_d3d9;
-
-	DWORD m_dwFrames;
-
-	double m_fLastTime;
-
-	float m_fFPS;
 
 	virtual BOOL OnIdle(LONG lCount);
 };

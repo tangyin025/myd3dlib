@@ -48,12 +48,4 @@ public:
 	HRESULT OnDeviceReset(void);
 
 	void OnDeviceLost(void);
-
-	void OnFrameMove(
-		double fTime,
-		float fElapsedTime);
-
-	void OnFrameRender(
-		double fTime,
-		float fElapsedTime);
 };

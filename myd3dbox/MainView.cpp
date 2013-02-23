@@ -171,7 +171,7 @@ HRESULT CMainView::OnDeviceReset(void)
 	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	d3dpp.hDeviceWindow = m_hWnd;
-	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	HRESULT hr = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
@@ -383,6 +383,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera.m_Rotation.x -= D3DXToRadian((point.y - m_Camera.m_DragPos.y) * 0.5f);
 		m_Camera.m_Rotation.y -= D3DXToRadian((point.x - m_Camera.m_DragPos.x) * 0.5f);
 		m_Camera.m_DragPos = point;
+		Invalidate();
 		break;
 
 	case DragCameraTrack:
@@ -390,11 +391,13 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 			(m_Camera.m_DragPos.x - point.x) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f,
 			(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0).transform(m_Camera.m_Orientation);
 		m_Camera.m_DragPos = point;
+		Invalidate();
 		break;
 
 	case DragCameraZoom:
 		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
 		m_Camera.m_DragPos = point;
+		Invalidate();
 		break;
 	}
 }

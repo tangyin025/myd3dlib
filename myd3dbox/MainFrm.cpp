@@ -44,7 +44,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
     m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
     m_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	m_d3dpp.hDeviceWindow = m_hWnd;
-	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	HRESULT hr = theApp.m_d3d9->CreateDevice(
 		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice);
@@ -267,18 +267,4 @@ void CMainFrame::OnDeviceLost(void)
 	ResourceMgr::OnLostDevice();
 
 	CMainView::getSingleton().OnDeviceLost();
-}
-
-void CMainFrame::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	CMainView::getSingleton().OnFrameMove(fTime, fElapsedTime);
-}
-
-void CMainFrame::OnFrameRender(
-	double fTime,
-	float fElapsedTime)
-{
-	CMainView::getSingleton().OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 }

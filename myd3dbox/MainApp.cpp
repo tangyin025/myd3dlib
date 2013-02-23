@@ -10,12 +10,6 @@
 
 CMainApp theApp;
 
-CMainApp::CMainApp(void)
-	: m_dwFrames(0)
-	, m_fLastTime(0)
-{
-}
-
 BOOL CMainApp::InitInstance(void)
 {
 	INITCOMMONCONTROLSEX InitCtrls;
@@ -74,21 +68,5 @@ BOOL CMainApp::OnIdle(LONG lCount)
 			return bRet;
 		}
 	}
-
-	my::Clock::Update();
-
-	m_dwFrames++;
-
-	if(m_fAbsoluteTime - m_fLastTime > 1.0f)
-	{
-		m_fFPS = (float)(m_dwFrames / (m_fAbsoluteTime - m_fLastTime));
-		m_fLastTime = m_fAbsoluteTime;
-		m_dwFrames = 0;
-	}
-
-	CMainFrame::getSingleton().OnFrameMove(m_fAbsoluteTime, m_fElapsedTime);
-
-	CMainFrame::getSingleton().OnFrameRender(m_fAbsoluteTime, m_fElapsedTime);
-
-	return TRUE;
+	return bRet;
 }
