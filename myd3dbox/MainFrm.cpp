@@ -14,9 +14,7 @@ CMainFrame::SingleInstance * my::SingleInstance<CMainFrame>::s_ptr(NULL);
 CMainFrame::CMainFrame(void)
 {
 	RegisterFileDir("Media");
-	RegisterZipArchive("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
@@ -54,6 +52,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 	m_DeviceObjectsCreated = true;
+
+	ResourceMgr::OnCreateDevice(m_d3dDevice, NULL);
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -240,17 +240,8 @@ HRESULT CMainFrame::OnDeviceReset(void)
 {
 	TRACE0("CMainFrame::OnDeviceReset \n");
 
-	my::Surface BackBuffer;
 	HRESULT hr;
-	if(FAILED(hr = m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr)))
-	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
-
-	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-
-	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &desc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, NULL)))
 	{
 		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;

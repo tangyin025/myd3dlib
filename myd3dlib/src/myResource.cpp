@@ -272,6 +272,21 @@ HRESULT ResourceMgr::Close(
 	return S_OK;
 }
 
+HRESULT ResourceMgr::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	m_Device = pd3dDevice;
+
+	HRESULT hr;
+	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
+	return S_OK;
+}
+
 HRESULT ResourceMgr::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -330,6 +345,10 @@ void ResourceMgr::OnDestroyDevice(void)
 	}
 
 	m_resourceSet.clear();
+
+	m_EffectPool.Release();
+
+	m_Device.Release();
 }
 
 TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
@@ -341,12 +360,12 @@ TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateTextureFromFile(m_Device, ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+			ret->CreateTextureFromFileInMemory(m_Device, &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -361,12 +380,12 @@ CubeTexturePtr ResourceMgr::LoadCubeTexture(const std::string & path, bool reloa
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateCubeTextureFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateCubeTextureFromFile(m_Device, ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateCubeTextureFromFileInMemory(GetD3D9Device(), &(*cache)[0], cache->size());
+			ret->CreateCubeTextureFromFileInMemory(m_Device, &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -381,12 +400,12 @@ OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(GetD3D9Device(), full_path.c_str(), true);
+			ret->CreateMeshFromOgreXml(m_Device, full_path.c_str(), true);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateMeshFromOgreXmlInMemory(GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+			ret->CreateMeshFromOgreXmlInMemory(m_Device, (char *)&(*cache)[0], cache->size(), true);
 		}
 	}
 	return ret;
@@ -433,12 +452,12 @@ EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(m_Device, ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateEffect(GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+			ret->CreateEffect(m_Device, &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 		}
 	}
 	return ret;
@@ -453,12 +472,12 @@ FontPtr ResourceMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(loc_path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(GetD3D9Device(), full_path.c_str(), height);
+			ret->CreateFontFromFile(m_Device, full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(loc_path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(GetD3D9Device(), cache, height);
+			ret->CreateFontFromFileInCache(m_Device, cache, height);
 		}
 	}
 	return ret;

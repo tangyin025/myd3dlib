@@ -252,11 +252,6 @@ public:
 		return static_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
-	IDirect3DDevice9 * GetD3D9Device(void)
-	{
-		return my::DxutApp::GetD3D9Device();
-	}
-
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
 		m_Panel->AddLine(str, Color);

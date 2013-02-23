@@ -11,7 +11,7 @@ using namespace my;
 
 void EffectUIRender::Begin(void)
 {
-	const D3DSURFACE_DESC & desc = my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+	const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
 	if(m_UIEffect->m_ptr)
 		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
 
@@ -129,14 +129,14 @@ HRESULT Game::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
-
 	ImeEditBox::Initialize(m_wnd->m_hWnd);
 
 	ImeEditBox::EnableImeSystem(false);
+
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("UIEffect.fx")));
 
@@ -227,8 +227,6 @@ void Game::OnDestroyDevice(void)
 
 	GameStateMachine::terminate();
 
-	m_EffectPool.Release();
-
 	ExecuteCode("collectgarbage(\"collect\")");
 
 	m_Console.reset();
@@ -277,7 +275,7 @@ void Game::OnFrameRender(
 
 		_ASSERT(m_Font);
 
-		m_UIRender->SetTransform(my::Matrix4::Identity(), DialogMgr::m_View, DialogMgr::m_Proj);
+		m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_View, DialogMgr::m_Proj);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 

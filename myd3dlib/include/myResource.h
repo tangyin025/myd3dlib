@@ -162,9 +162,11 @@ namespace my
 		, public ID3DXInclude
 	{
 	protected:
-		std::map<LPCVOID, CachePtr> m_cacheSet;
+		CComPtr<IDirect3DDevice9> m_Device;
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
+
+		std::map<LPCVOID, CachePtr> m_cacheSet;
 
 		typedef std::map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
 
@@ -179,8 +181,6 @@ namespace my
 		{
 		}
 
-		virtual IDirect3DDevice9 * GetD3D9Device(void) = 0;
-
 		virtual __declspec(nothrow) HRESULT __stdcall Open(
 			D3DXINCLUDE_TYPE IncludeType,
 			LPCSTR pFileName,
@@ -191,13 +191,17 @@ namespace my
 		virtual __declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		virtual HRESULT OnResetDevice(
+		HRESULT OnCreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
 			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-		virtual void OnLostDevice(void);
+		HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-		virtual void OnDestroyDevice(void);
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
 
 		template <class ResourceType>
 		boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
