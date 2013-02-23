@@ -26,7 +26,7 @@ state.Camera=camera
 
 -- 读取材质
 local function LoadMaterial(name)
-	dofile("material/"..name..".lua")
+	dofile(name)
 	local mat = Material()
 	SetupMaterial(mat)
 	return mat
@@ -37,7 +37,7 @@ local function LoadEffectMesh(name)
 	local effectMesh = EffectMesh()
 	effectMesh.Mesh = game:LoadMesh(name)
 	for i = 0,effectMesh.Mesh:GetMaterialNum()-1 do
-		effectMesh:InsertMaterial(LoadMaterial(effectMesh.Mesh:GetMaterialName(i)))
+		effectMesh:InsertMaterial(LoadMaterial("material/"..effectMesh.Mesh:GetMaterialName(i)..".lua"))
 	end
 	return effectMesh
 end

@@ -70,7 +70,10 @@ Game::Game(void)
 
 Game::~Game(void)
 {
-	RemoveAllDlg();
+	// ! All delegated object must have been destroyed before destruct m_lua
+	GameStateMachine::terminate();
+
+	m_dlgSetMap.clear();
 
 	RemoveAllTimer();
 
