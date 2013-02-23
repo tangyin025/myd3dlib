@@ -96,7 +96,7 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("SimpleSample.fx");
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
-	m_Camera.m_LookAt = Vector3(0,-2,0);
+	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
 
 	m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
