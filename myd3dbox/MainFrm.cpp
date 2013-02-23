@@ -14,7 +14,9 @@ CMainFrame::SingleInstance * my::SingleInstance<CMainFrame>::s_ptr(NULL);
 CMainFrame::CMainFrame(void)
 {
 	RegisterFileDir("Media");
+	RegisterZipArchive("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");
+	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
