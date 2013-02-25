@@ -283,6 +283,10 @@
 				RelativePath=".\Toolbar.bmp"
 				>
 			</File>
+			<File
+				RelativePath=".\toolbar1.bmp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

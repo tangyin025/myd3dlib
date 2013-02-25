@@ -126,6 +126,11 @@ BEGIN
     BUTTON      ID_APP_ABOUT
 END
 
+IDR_TOOLBAR1 TOOLBAR  16, 15
+BEGIN
+    BUTTON      ID_BUTTON40013
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -133,6 +138,7 @@ END
 //
 
 IDR_MAINFRAME           BITMAP                  "Toolbar.bmp"
+IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
