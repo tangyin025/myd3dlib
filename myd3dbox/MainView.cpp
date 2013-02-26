@@ -3,10 +3,6 @@
 #include "MainFrm.h"
 #include "MainApp.h"
 
-#ifdef _DEBUG
-#define new DEBUG_NEW
-#endif
-
 using namespace my;
 
 void EffectUIRender::Begin(void)
@@ -75,6 +71,33 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
+void CMainView::drawLine(const btVector3 & from,const btVector3 & to,const btVector3 & color)
+{
+	DrawLine(CMainFrame::getSingleton().m_d3dDevice, (Vector3 &)from, (Vector3 &)to, D3DCOLOR_ARGB(255, (int)(255 * color.x()), (int)(255 * color.y()), (int)(255 * color.z())));
+}
+
+void CMainView::drawContactPoint(const btVector3 & PointOnB,const btVector3 & normalOnB, btScalar distance, int lifeTime, const btVector3 & color)
+{
+}
+
+void CMainView::reportErrorWarning(const char * warningString)
+{
+}
+
+void CMainView::draw3dText(const btVector3 & location,const char * textString)
+{
+}
+
+void CMainView::setDebugMode(int debugMode)
+{
+	m_DebugDrawModes = debugMode;
+}
+
+int CMainView::getDebugMode() const
+{
+	return m_DebugDrawModes;
+}
+
 CMainDoc * CMainView::GetDocument() const
 {
 	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
@@ -98,6 +121,19 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
+
+	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+
+	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+
+	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+
+	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
+
+	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
+		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
+	m_dynamicsWorld->setDebugDrawer(this);
+	m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
 
 	m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
 
@@ -193,6 +229,8 @@ void CMainView::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
+	m_dynamicsWorld->stepSimulation(fElapsedTime);
+
 	SteeringOutput steer;
 	//m_Seek.getSteering(&steer);
 	m_Arrive.getSteering(&steer);
@@ -239,6 +277,8 @@ void CMainView::OnFrameRender(
 		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
 		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
 		DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
+
+		m_dynamicsWorld->debugDrawWorld();
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		m_UIRender->SetTransform(Matrix4::Identity(),

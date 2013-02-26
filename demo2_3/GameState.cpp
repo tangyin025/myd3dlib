@@ -67,9 +67,13 @@ HRESULT GameStateMain::OnCreateDevice(
 	Game::getSingleton().AddLine(L"GameStateMain::OnCreateDevice", D3DCOLOR_ARGB(255,255,128,0));
 
 	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+
 	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+
 	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+
 	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
+
 	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
 		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 

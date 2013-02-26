@@ -33,8 +33,8 @@
 #include <afxcontrolbars.h>
 #include <afxmdichildwndex.h>
 #include <afxmdiframewndex.h>
-
 #include <myD3dLib.h>
+#include <btBulletDynamicsCommon.h>
 
 #ifdef _UNICODE
 #if defined _M_IX86

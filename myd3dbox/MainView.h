@@ -34,21 +34,52 @@ class CMainView
 	: public CView
 	, public my::SingleInstance<CMainView>
 	, public my::DrawHelper
+	, public btIDebugDraw
 {
 public:
 	CMainView(void)
-		: m_Camera()
-		, m_bAltDown(FALSE)
+		: m_bAltDown(FALSE)
 		, m_bEatAltUp(FALSE)
 		, m_DragCameraMode(DragCameraNone)
+		, m_Camera()
 	{
 	}
 
 	DECLARE_DYNCREATE(CMainView)
 
+	virtual void drawLine(const btVector3 & from,const btVector3 & to,const btVector3 & color);
+
+	virtual void drawContactPoint(const btVector3 & PointOnB,const btVector3 & normalOnB, btScalar distance, int lifeTime, const btVector3 & color);
+
+	virtual void reportErrorWarning(const char * warningString);
+
+	virtual void draw3dText(const btVector3 & location,const char * textString);
+
+	virtual void setDebugMode(int debugMode);
+
+	virtual int getDebugMode() const;
+
 	CMainDoc * GetDocument(void) const;
 
 	virtual void OnDraw(CDC* pDC) {}
+
+	int m_DebugDrawModes;
+
+	BOOL m_bAltDown;
+
+	BOOL m_bEatAltUp;
+
+	enum DragCameraMode
+	{
+		DragCameraNone = 0,
+		DragCameraRotate,
+		DragCameraTrack,
+		DragCameraZoom,
+	};
+
+	DragCameraMode m_DragCameraMode;
+
+	CRectTracker m_Tracker;
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 
@@ -64,27 +95,23 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	CRectTracker m_Tracker;
+	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
+
+	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
+
+	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
+
+	boost::shared_ptr<btConstraintSolver> m_constraintSolver;
+
+	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
+
+	btAlignedObjectArray<boost::shared_ptr<btCollisionShape> > m_collisionShapes;
 
 	my::KinematicPtr m_Character;
 
 	my::Seek m_Seek;
 
 	my::Arrive m_Arrive;
-
-	BOOL m_bAltDown;
-
-	BOOL m_bEatAltUp;
-
-	enum DragCameraMode
-	{
-		DragCameraNone = 0,
-		DragCameraRotate,
-		DragCameraTrack,
-		DragCameraZoom,
-	};
-
-	DragCameraMode m_DragCameraMode;
 
 	DECLARE_MESSAGE_MAP()
 

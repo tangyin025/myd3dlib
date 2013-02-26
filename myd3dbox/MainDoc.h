@@ -9,6 +9,12 @@ public:
 
 	DECLARE_DYNCREATE(CMainDoc)
 
+	boost::shared_ptr<btCollisionShape> m_groundShape;
+
+	boost::shared_ptr<btMotionState> m_groundMotionState;
+
+	boost::shared_ptr<btRigidBody> m_groundBody;
+
 	virtual BOOL OnNewDocument();
 
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
