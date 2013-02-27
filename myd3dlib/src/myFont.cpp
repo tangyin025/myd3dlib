@@ -405,7 +405,7 @@ void Font::DrawString(
 
 	ui_render->ClearVertexList();
 	wchar_t c;
-	while((c = *pString++) && pen.x < rect.r)
+	while(c = *pString++)
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
@@ -436,7 +436,7 @@ void Font::DrawString(
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
 	wchar_t c;
-	while((c = *pString++) && pen.x < rect.r)
+	while(c = *pString++)
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 

@@ -551,6 +551,11 @@ namespace my
 
 			struct
 			{
+				Vector2 xy;
+			};
+
+			struct
+			{
 				Vector3 xyz;
 			};
 		};
@@ -2316,30 +2321,26 @@ namespace my
 
 	inline Vector2 Vector2::transformCoord(const Matrix4 & m) const
 	{
-		return Vector2(
-			x * m._11 + y * m._21 + m._41,
-			x * m._12 + y * m._22 + m._42);
+		Vector4 ret = transform(m);
+
+		return ret.xy / ret.w;
 	}
 
 	inline Vector2 Vector2::transformCoordTranspose(const Matrix4 & m) const
 	{
-		return Vector2(
-			x * m._11 + y * m._12 + m._14,
-			x * m._21 + y * m._22 + m._24);
+		Vector4 ret = transformTranspose(m);
+
+		return ret.xy / ret.w;
 	}
 
 	inline Vector2 Vector2::transformNormal(const Matrix4 & m) const
 	{
-		return Vector2(
-			x * m._11 + y * m._21,
-			x * m._12 + y * m._22);
+		return Vector4(x, y, 0, 0).transform(m).xy;
 	}
 
 	inline Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
 	{
-		return Vector2(
-			x * m._11 + y * m._12,
-			x * m._21 + y * m._22);
+		return Vector4(x, y, 0, 0).transformTranspose(m).xy;
 	}
 
 	inline Vector4 Vector3::transform(const Matrix4 & m) const
@@ -2354,34 +2355,26 @@ namespace my
 
 	inline Vector3 Vector3::transformCoord(const Matrix4 & m) const
 	{
-		return Vector3(
-			x * m._11 + y * m._21 + z * m._31 + m._41,
-			x * m._12 + y * m._22 + z * m._32 + m._42,
-			x * m._13 + y * m._23 + z * m._33 + m._43);
+		Vector4 ret = transform(m);
+
+		return ret.xyz / ret.w;
 	}
 
 	inline Vector3 Vector3::transformCoordTranspose(const Matrix4 & m) const
 	{
-		return Vector3(
-			x * m._11 + y * m._12 + z * m._13 + m._14,
-			x * m._21 + y * m._22 + z * m._23 + m._24,
-			x * m._31 + y * m._32 + z * m._33 + m._34);
+		Vector4 ret = transformTranspose(m);
+
+		return ret.xyz / ret.w;
 	}
 
 	inline Vector3 Vector3::transformNormal(const Matrix4 & m) const
 	{
-		return Vector3(
-			x * m._11 + y * m._21 + z * m._31,
-			x * m._12 + y * m._22 + z * m._32,
-			x * m._13 + y * m._23 + z * m._33);
+		return Vector4(x, y, z, 0).transform(m).xyz;
 	}
 
 	inline Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
 	{
-		return Vector3(
-			x * m._11 + y * m._12 + z * m._13,
-			x * m._21 + y * m._22 + z * m._23,
-			x * m._31 + y * m._32 + z * m._33);
+		return Vector4(x, y, z, 0).transformTranspose(m).xyz;
 	}
 
 	inline Vector3 Vector3::transform(const Quaternion & q) const

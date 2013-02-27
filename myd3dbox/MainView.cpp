@@ -86,6 +86,22 @@ void CMainView::reportErrorWarning(const char * warningString)
 
 void CMainView::draw3dText(const btVector3 & location,const char * textString)
 {
+	// ! Unoptimized implementation
+	Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+	m_UIRender->SetTransform(Matrix4::Identity(),
+		UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+		UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
+	m_UIRender->Begin();
+
+	Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_View * m_Camera.m_Proj);
+	pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
+	pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
+
+	m_Font->DrawString(m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
+
+	m_UIRender->End();
 }
 
 void CMainView::setDebugMode(int debugMode)
@@ -277,6 +293,8 @@ void CMainView::OnFrameRender(
 		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
 		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
 		DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
+
+		draw3dText(btVector3(1,1,1), "aaa");
 
 		m_dynamicsWorld->debugDrawWorld();
 
