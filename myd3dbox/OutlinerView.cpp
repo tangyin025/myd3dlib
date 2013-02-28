@@ -6,6 +6,216 @@
 #define new DEBUG_NEW
 #endif
 
+#define TVN_DRAGCHANGED (TVN_LAST + 1)
+
+struct NMTREEVIEWDRAG
+{
+	NMHDR hdr;
+	HTREEITEM hDragItem;
+	HTREEITEM hDragTagParent;
+	HTREEITEM hDragTagFront;
+};
+
+BEGIN_MESSAGE_MAP(COutlinerTreeCtrl, CTreeCtrl)
+	ON_NOTIFY_REFLECT(TVN_BEGINDRAG, &COutlinerTreeCtrl::OnTvnBegindrag)
+	ON_WM_MOUSEMOVE()
+	ON_WM_LBUTTONUP()
+	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &COutlinerTreeCtrl::OnNMCustomdraw)
+END_MESSAGE_MAP()
+
+void COutlinerTreeCtrl::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	TVHITTESTINFO info;
+	info.pt = pNMTreeView->ptDrag;
+	HitTest(&info);
+	if((info.flags & TVHT_ONITEM) && info.hItem)
+	{
+		SetCapture();
+		m_bDrag = TRUE;
+		m_hDragItem = info.hItem;
+		m_DragDropType = DropTypeNone;
+	}
+	*pResult = 0;
+}
+
+void COutlinerTreeCtrl::OnMouseMove(UINT nFlags, CPoint point)
+{
+	if(m_bDrag)
+	{
+		TVHITTESTINFO info;
+		info.pt = point;
+		HitTest(&info);
+		if(info.flags & TVHT_TOLEFT)
+		{
+			SetInsertMark(NULL);
+			SelectDropTarget(NULL);
+			m_DragDropType = DropTypeNone;
+
+			if(point.x < m_LastDragPos.x)
+				SendMessage(WM_HSCROLL, SB_LINEUP, 0);
+		}
+		else if(info.flags & TVHT_TORIGHT)
+		{
+			SetInsertMark(NULL);
+			SelectDropTarget(NULL);
+			m_DragDropType = DropTypeNone;
+
+			if(point.x > m_LastDragPos.x)
+				SendMessage(WM_HSCROLL, SB_LINEDOWN, 0);
+		}
+		else if(info.flags & TVHT_ABOVE)
+		{
+			if(point.y < m_LastDragPos.y)
+				SendMessage(WM_VSCROLL, SB_LINEUP, 0);
+
+			HTREEITEM hFirst = GetFirstVisibleItem();
+			if(hFirst)
+			{
+				CRect rectItem;
+				GetItemRect(hFirst, &rectItem, FALSE);
+				if(point.y < rectItem.top)
+				{
+					SetInsertMark(hFirst, FALSE);
+					SelectDropTarget(hFirst);
+					m_DragDropType = DropTypeFront;
+				}
+			}
+		}
+		else if(info.flags & TVHT_BELOW)
+		{
+			if(point.y > m_LastDragPos.y)
+				SendMessage(WM_VSCROLL, SB_LINEDOWN, 0);
+
+			HTREEITEM hLast = GetLastVisibleItem();
+			if(hLast)
+			{
+				CRect rectItem;
+				GetItemRect(hLast, &rectItem, FALSE);
+				if(point.y >= rectItem.bottom)
+				{
+					SetInsertMark(hLast, TRUE);
+					SelectDropTarget(hLast);
+					m_DragDropType = DropTypeBack;
+				}
+			}
+		}
+		else if((info.flags & (TVHT_ONITEM | TVHT_ONITEMINDENT | TVHT_ONITEMRIGHT)) && info.hItem)
+		{
+			CRect rectItem;
+			GetItemRect(info.hItem, &rectItem, FALSE);
+
+			int nBorder = rectItem.Height() / 3;
+			if(point.y < rectItem.top + nBorder)
+			{
+				SetInsertMark(info.hItem, FALSE);
+				SelectDropTarget(info.hItem);
+				m_DragDropType = DropTypeFront;
+			}
+			else if(point.y >= rectItem.bottom - nBorder)
+			{
+				SetInsertMark(info.hItem, TRUE);
+				SelectDropTarget(info.hItem);
+				m_DragDropType = DropTypeBack;
+			}
+			else
+			{
+				SetInsertMark(NULL);
+				SelectDropTarget(info.hItem);
+				m_DragDropType = DropTypeChild;
+			}
+		}
+		else
+		{
+			HTREEITEM hLast = GetLastVisibleItem();
+			if(hLast)
+			{
+				CRect rectItem;
+				GetItemRect(hLast, &rectItem, FALSE);
+				if(point.y >= rectItem.bottom)
+				{
+					SetInsertMark(hLast, TRUE);
+					SelectDropTarget(hLast);
+					m_DragDropType = DropTypeBack;
+				}
+			}
+		}
+
+		m_LastDragPos = point;
+	}
+	CTreeCtrl::OnMouseMove(nFlags, point);
+}
+
+void COutlinerTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	if(m_bDrag)
+	{
+		ReleaseCapture();
+		m_bDrag = FALSE;
+
+		NMTREEVIEWDRAG dragInfo;
+		dragInfo.hdr.hwndFrom = GetSafeHwnd();
+		dragInfo.hdr.idFrom = GetDlgCtrlID();
+		dragInfo.hdr.code = TVN_DRAGCHANGED;
+		dragInfo.hDragItem = m_hDragItem;
+
+		HTREEITEM hDropItem = GetDropHilightItem();
+		SetInsertMark(NULL);
+		SelectDropTarget(NULL);
+
+		switch(m_DragDropType)
+		{
+		case DropTypeFront:
+			ASSERT(hDropItem);
+			dragInfo.hDragTagParent = GetParentItem(hDropItem);
+			dragInfo.hDragTagFront = GetPrevSiblingItem(hDropItem);
+			GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&dragInfo);
+			break;
+
+		case DropTypeChild:
+			ASSERT(hDropItem);
+			dragInfo.hDragTagParent = hDropItem;
+			dragInfo.hDragTagFront = NULL;
+			GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&dragInfo);
+			break;
+
+		case DropTypeBack:
+			ASSERT(hDropItem);
+			dragInfo.hDragTagParent = GetParentItem(hDropItem);
+			dragInfo.hDragTagFront = hDropItem;
+			GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&dragInfo);
+			break;
+		}
+	}
+	CTreeCtrl::OnLButtonUp(nFlags, point);
+}
+
+void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
+    NMTVCUSTOMDRAW *pcd = (NMTVCUSTOMDRAW   *)pNMHDR;
+    switch ( pcd->nmcd.dwDrawStage )
+    {
+    case CDDS_PREPAINT: 
+        *pResult = CDRF_NOTIFYITEMDRAW;     
+        break;
+
+    case CDDS_ITEMPREPAINT : 
+        {
+            HTREEITEM   hItem = (HTREEITEM)pcd->nmcd.dwItemSpec;
+
+            if ( GetSelectedItem() == hItem )
+            {
+                pcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);    
+                pcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+            }
+
+            *pResult = CDRF_DODEFAULT;// do not set *pResult = CDRF_SKIPDEFAULT
+            break;
+        }
+    }
+}
+
 COutlinerView::SingleInstance * my::SingleInstance<COutlinerView>::s_ptr(NULL);
 
 BEGIN_MESSAGE_MAP(COutlinerView, CDockablePane)
@@ -24,8 +234,13 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS, CRect(0,0,0,0), this, 4))
+	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
 		return -1;
+
+	HTREEITEM hItem = m_wndTreeCtrl.InsertItem(_T("aaa"));
+	hItem = m_wndTreeCtrl.InsertItem(_T("bbb"), hItem);
+	hItem = m_wndTreeCtrl.InsertItem(_T("ccc"), hItem);
+	m_wndTreeCtrl.SelectItem(hItem);
 
 	return 0;
 }
