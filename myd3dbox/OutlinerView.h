@@ -41,6 +41,8 @@ public:
 
 	DropType m_DragDropType;
 
+	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
+
 	afx_msg void OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
@@ -65,11 +67,13 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 
+	CTreeCtrl m_wndTreeCtrl;
+
 	CMFCToolBar m_wndToolBar;
 
-	COutlinerTreeCtrl m_wndTreeCtrl;
-
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+
+	virtual void AdjustLayout(void);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 };

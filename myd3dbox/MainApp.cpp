@@ -19,7 +19,7 @@ BOOL CMainApp::InitInstance(void)
 
 	CWinAppEx::InitInstance();
 
-	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
+	SetRegistryKey(_T("Local AppWizard-Generated Applications"));
 
 	LoadStdProfileSettings(4);
 

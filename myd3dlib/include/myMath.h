@@ -1470,6 +1470,23 @@ namespace my
 			D3DXQuaternionToAxisAngle((D3DXQUATERNION *)this, (D3DXVECTOR3 *)&outAxis, &outAngle);
 		}
 
+		static Quaternion RotationEulerAngles(const Vector3 & angles)
+		{
+			return Quaternion(
+				sin(angles.x * 0.5f) * cos(angles.y * 0.5f) * cos(angles.z * 0.5f) - cos(angles.x * 0.5f) * sin(angles.y * 0.5f) * sin(angles.z * 0.5f),
+				cos(angles.x * 0.5f) * sin(angles.y * 0.5f) * cos(angles.z * 0.5f) + sin(angles.x * 0.5f) * cos(angles.y * 0.5f) * sin(angles.z * 0.5f),
+				cos(angles.x * 0.5f) * cos(angles.y * 0.5f) * sin(angles.z * 0.5f) - sin(angles.x * 0.5f) * sin(angles.y * 0.5f) * cos(angles.z * 0.5f),
+				cos(angles.x * 0.5f) * cos(angles.y * 0.5f) * cos(angles.z * 0.5f) + sin(angles.x * 0.5f) * sin(angles.y * 0.5f) * sin(angles.z * 0.5f));
+		}
+
+		Vector3 ToEulerAngles(void) const
+		{
+			return Vector3(
+				atan2((w * x + y * z) * 2, 1 - (x * x + y * y) * 2),
+				asin((w * y - z * x) * 2),
+				atan2((w * z + x * y) * 2, 1 - (y * y + z * z) * 2));
+		}
+
 	public:
 		static const Quaternion identity;
 	};

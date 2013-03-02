@@ -23,6 +23,21 @@ BEGIN_MESSAGE_MAP(COutlinerTreeCtrl, CTreeCtrl)
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &COutlinerTreeCtrl::OnNMCustomdraw)
 END_MESSAGE_MAP()
 
+BOOL COutlinerTreeCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
+{
+	BOOL bRes = CTreeCtrl::OnNotify(wParam, lParam, pResult);
+
+	NMHDR* pNMHDR = (NMHDR*)lParam;
+	ASSERT(pNMHDR != NULL);
+
+	if (pNMHDR && pNMHDR->code == TTN_SHOW && GetToolTips() != NULL)
+	{
+		GetToolTips()->SetWindowPos(&wndTop, -1, -1, -1, -1, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOSIZE);
+	}
+
+	return bRes;
+}
+
 void COutlinerTreeCtrl::OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
@@ -228,14 +243,15 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
+		return -1;
+
 	if (!m_wndToolBar.Create(this, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_HIDE_INPLACE | CBRS_TOOLTIPS | CBRS_FLYBY, IDR_TOOLBAR1)
 		|| !m_wndToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE))
 		return -1;
 
+	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-
-	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
-		return -1;
 
 	HTREEITEM hItem = m_wndTreeCtrl.InsertItem(_T("aaa"));
 	hItem = m_wndTreeCtrl.InsertItem(_T("bbb"), hItem);
@@ -245,13 +261,26 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	return 0;
 }
 
+void COutlinerView::AdjustLayout(void)
+{
+	if (GetSafeHwnd())
+	{
+		CRect rectClient;
+		GetClientRect(&rectClient);
+
+		int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
+
+		m_wndToolBar.SetWindowPos(NULL,
+			rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+
+		m_wndTreeCtrl.SetWindowPos(NULL,
+			rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	}
+}
+
 void COutlinerView::OnSize(UINT nType, int cx, int cy)
 {
 	CDockablePane::OnSize(nType, cx, cy);
 
-	CRect rectClient;
-	GetClientRect(&rectClient);
-	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-	m_wndTreeCtrl.SetWindowPos(NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	AdjustLayout();
 }
