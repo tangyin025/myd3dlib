@@ -93,16 +93,13 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 	Gdiplus::SolidBrush bkBrush(Gdiplus::Color(255,192,192,192));
 	grap.FillRectangle(&bkBrush, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height());
 
-	Gdiplus::GraphicsContainer container = grap.BeginContainer();
-	{
-		grap.TranslateTransform(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
-		grap.ScaleTransform(
-			(float)m_ImageSize.cx / pDoc->m_Size.cx,
-			(float)m_ImageSize.cy / pDoc->m_Size.cy);
+	Gdiplus::Matrix world;
+	world.Translate(-(float)GetScrollPos(SB_HORZ), -(float)GetScrollPos(SB_VERT));
+	world.Scale((float)m_ImageSize.cx / pDoc->m_Size.cx, (float)m_ImageSize.cy / pDoc->m_Size.cy);
 
-		DrawRegionDoc(grap, pDoc);
-	}
-	grap.EndContainer(container);
+	DrawRegionDoc(grap, world, pDoc);
+
+	grap.ResetTransform();
 
 	HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
@@ -146,8 +143,10 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 	}
 }
 
-void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc)
+void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CImgRegionDoc * pDoc)
 {
+	grap.SetTransform(&world);
+
 	if(pDoc->m_Image && Gdiplus::ImageTypeUnknown != pDoc->m_Image->GetType())
 	{
 		DrawRegionDocImage(grap, pDoc->m_Image.get(), CRect(CPoint(0,0), pDoc->m_Size), Vector4i(0,0,0,0), pDoc->m_Color);
@@ -160,97 +159,26 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDo
 
 	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
 
-	DrawRegionDocNode(grap, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem());
+	DrawRegionDocNode(grap, world, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem());
 }
 
-void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff)
+void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CTreeCtrl * pTreeCtrl, HTREEITEM hItem)
 {
 	if(hItem)
 	{
+		grap.SetTransform(&world);
+
 		CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
 		ASSERT(pReg);
 
-		CPoint ptNode = pReg->m_Location + ptOff;
+		pReg->Draw(grap);
 
-		if(pReg->m_Image && Gdiplus::ImageTypeUnknown != pReg->m_Image->GetType())
-		{
-			DrawRegionDocImage(grap, pReg->m_Image.get(), CRect(ptNode, pReg->m_Size), pReg->m_Border, pReg->m_Color);
-		}
-		else
-		{
-			Gdiplus::SolidBrush brush(pReg->m_Color);
-			grap.FillRectangle(&brush, ptNode.x, ptNode.y, pReg->m_Size.cx, pReg->m_Size.cy);
-		}
+		Gdiplus::Matrix * childWorld = world.Clone();
+		childWorld->Translate((float)pReg->m_Location.x, (float)pReg->m_Location.y);
+		DrawRegionDocNode(grap, *childWorld, pTreeCtrl, pTreeCtrl->GetChildItem(hItem));
+		delete childWorld;
 
-		if(pReg->m_Font)
-		{
-			CString strInfo;
-			strInfo.Format(pReg->m_Text, pReg->m_Location.x, pReg->m_Location.y, pReg->m_Size.cx, pReg->m_Size.cy);
-
-			Gdiplus::RectF rectF(
-				(float)ptNode.x + pReg->m_TextOff.x, (float)ptNode.y + pReg->m_TextOff.y, (float)pReg->m_Size.cx, (float)pReg->m_Size.cy);
-
-			Gdiplus::StringFormat format((pReg->m_TextWrap ? 0 : Gdiplus::StringFormatFlagsNoWrap) | Gdiplus::StringFormatFlagsNoClip);
-			format.SetTrimming(Gdiplus::StringTrimmingNone);
-			switch(pReg->m_TextAlign)
-			{
-			case TextAlignLeftTop:
-				format.SetAlignment(Gdiplus::StringAlignmentNear);
-				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
-				break;
-			case TextAlignCenterTop:
-				format.SetAlignment(Gdiplus::StringAlignmentCenter);
-				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
-				break;
-			case TextAlignRightTop:
-				format.SetAlignment(Gdiplus::StringAlignmentFar);
-				format.SetLineAlignment(Gdiplus::StringAlignmentNear);
-				break;
-			case TextAlignLeftMiddle:
-				format.SetAlignment(Gdiplus::StringAlignmentNear);
-				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
-				break;
-			case TextAlignCenterMiddle:
-				format.SetAlignment(Gdiplus::StringAlignmentCenter);
-				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
-				break;
-			case TextAlignRightMiddle:
-				format.SetAlignment(Gdiplus::StringAlignmentFar);
-				format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
-				break;
-			case TextAlignLeftBottom:
-				format.SetAlignment(Gdiplus::StringAlignmentNear);
-				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
-				break;
-			case TextAlignCenterBottom:
-				format.SetAlignment(Gdiplus::StringAlignmentCenter);
-				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
-				break;
-			case TextAlignRightBottom:
-				format.SetAlignment(Gdiplus::StringAlignmentFar);
-				format.SetLineAlignment(Gdiplus::StringAlignmentFar);
-				break;
-			}
-
-			Gdiplus::SolidBrush brush(pReg->m_FontColor);
-			grap.DrawString(strInfo, strInfo.GetLength(), pReg->m_Font.get(), rectF, &format, &brush);
-
-			//Gdiplus::GraphicsPath path;
-			//Gdiplus::FontFamily family;
-			//pReg->m_Font->GetFamily(&family);
-			//path.AddString(strInfo, strInfo.GetLength(), &family, pReg->m_Font->GetStyle(), pReg->m_Font->GetSize(), rectF, &format);
-			//Gdiplus::Pen pen(pReg->m_FontColor, 2.0f);
-			//Gdiplus::SolidBrush brush(pReg->m_Color);
-			//Gdiplus::SmoothingMode sm = grap.GetSmoothingMode();
-			//grap.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
-			//grap.DrawPath(&pen, &path);
-			//grap.FillPath(&brush, &path);
-			//grap.SetSmoothingMode(sm);
-		}
-
-		DrawRegionDocNode(grap, pTreeCtrl, pTreeCtrl->GetChildItem(hItem), CPoint(ptOff.x + pReg->m_Location.x, ptOff.y + pReg->m_Location.y));
-
-		DrawRegionDocNode(grap, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem), ptOff);
+		DrawRegionDocNode(grap, world, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem));
 	}
 }
 

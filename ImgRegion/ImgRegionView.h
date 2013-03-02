@@ -72,9 +72,9 @@ public:
 
 	void Draw(Gdiplus::Graphics & grap);
 
-	static void DrawRegionDoc(Gdiplus::Graphics & grap, CImgRegionDoc * pDoc);
+	static void DrawRegionDoc(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CImgRegionDoc * pDoc);
 
-	static void DrawRegionDocNode(Gdiplus::Graphics & grap, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptOff = CPoint(0,0));
+	static void DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CTreeCtrl * pTreeCtrl, HTREEITEM hItem);
 
 	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 

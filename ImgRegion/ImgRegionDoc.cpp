@@ -179,6 +179,85 @@ void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextOffY]->SetValue((_variant_t)m_TextOff.y);
 }
 
+void CImgRegion::Draw(Gdiplus::Graphics & grap)
+{
+	if(m_Image && Gdiplus::ImageTypeUnknown != m_Image->GetType())
+	{
+		CImgRegionView::DrawRegionDocImage(grap, m_Image.get(), CRect(m_Location, m_Size), m_Border, m_Color);
+	}
+	else
+	{
+		Gdiplus::SolidBrush brush(m_Color);
+		grap.FillRectangle(&brush, m_Location.x, m_Location.y, m_Size.cx, m_Size.cy);
+	}
+
+	if(m_Font)
+	{
+		CString strInfo;
+		strInfo.Format(m_Text, m_Location.x, m_Location.y, m_Size.cx, m_Size.cy);
+
+		Gdiplus::RectF rectF(
+			(float)m_Location.x + m_TextOff.x, (float)m_Location.y + m_TextOff.y, (float)m_Size.cx, (float)m_Size.cy);
+
+		Gdiplus::StringFormat format((m_TextWrap ? 0 : Gdiplus::StringFormatFlagsNoWrap) | Gdiplus::StringFormatFlagsNoClip);
+		format.SetTrimming(Gdiplus::StringTrimmingNone);
+		switch(m_TextAlign)
+		{
+		case TextAlignLeftTop:
+			format.SetAlignment(Gdiplus::StringAlignmentNear);
+			format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+			break;
+		case TextAlignCenterTop:
+			format.SetAlignment(Gdiplus::StringAlignmentCenter);
+			format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+			break;
+		case TextAlignRightTop:
+			format.SetAlignment(Gdiplus::StringAlignmentFar);
+			format.SetLineAlignment(Gdiplus::StringAlignmentNear);
+			break;
+		case TextAlignLeftMiddle:
+			format.SetAlignment(Gdiplus::StringAlignmentNear);
+			format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+			break;
+		case TextAlignCenterMiddle:
+			format.SetAlignment(Gdiplus::StringAlignmentCenter);
+			format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+			break;
+		case TextAlignRightMiddle:
+			format.SetAlignment(Gdiplus::StringAlignmentFar);
+			format.SetLineAlignment(Gdiplus::StringAlignmentCenter);
+			break;
+		case TextAlignLeftBottom:
+			format.SetAlignment(Gdiplus::StringAlignmentNear);
+			format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+			break;
+		case TextAlignCenterBottom:
+			format.SetAlignment(Gdiplus::StringAlignmentCenter);
+			format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+			break;
+		case TextAlignRightBottom:
+			format.SetAlignment(Gdiplus::StringAlignmentFar);
+			format.SetLineAlignment(Gdiplus::StringAlignmentFar);
+			break;
+		}
+
+		Gdiplus::SolidBrush brush(m_FontColor);
+		grap.DrawString(strInfo, strInfo.GetLength(), m_Font.get(), rectF, &format, &brush);
+
+		//Gdiplus::GraphicsPath path;
+		//Gdiplus::FontFamily family;
+		//m_Font->GetFamily(&family);
+		//path.AddString(strInfo, strInfo.GetLength(), &family, m_Font->GetStyle(), m_Font->GetSize(), rectF, &format);
+		//Gdiplus::Pen pen(m_FontColor, 2.0f);
+		//Gdiplus::SolidBrush brush(m_Color);
+		//Gdiplus::SmoothingMode sm = grap.GetSmoothingMode();
+		//grap.SetSmoothingMode(Gdiplus::SmoothingModeAntiAlias);
+		//grap.DrawPath(&pen, &path);
+		//grap.FillPath(&brush, &path);
+		//grap.SetSmoothingMode(sm);
+	}
+}
+
 void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
@@ -896,8 +975,9 @@ void CImgRegionDoc::OnExportImg()
 
 		Gdiplus::Bitmap bmp(m_Size.cx, m_Size.cy, PixelFormat24bppRGB);
 		Gdiplus::Graphics grap(&bmp);
+		Gdiplus::Matrix world;
 
-		CImgRegionView::DrawRegionDoc(grap, this);
+		CImgRegionView::DrawRegionDoc(grap, world, this);
 
 		bmp.Save(dlg.GetPathName(), &encoderClsid, NULL);
 	}
