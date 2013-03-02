@@ -694,6 +694,10 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			{
 				pDoc->m_TreeCtrl.SelectItem(NULL);
 				m_DragState = DragStateNone;
+
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT(pFrame);
+				pFrame->m_wndProperties.InvalidProperties();
 			}
 
 			Invalidate(TRUE);
@@ -892,7 +896,7 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 {
 	CImageView::OnActivateView(bActivate, pActivateView, pDeactiveView);
 
-	if(bActivate && pActivateView)
+	if(bActivate && pActivateView && pActivateView != pDeactiveView)
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);

@@ -32,6 +32,8 @@ enum TextAlign
 	TextAlignCount
 };
 
+extern const TCHAR * TextAlignDesc[TextAlignCount];
+
 class CImgRegion
 {
 public:
@@ -74,6 +76,10 @@ public:
 		, m_TextOff(0,0)
 	{
 	}
+
+	virtual void CreateProperties(CPropertiesWnd * pPropertiesWnd);
+
+	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd);
 };
 
 class CImgRegionDoc;
