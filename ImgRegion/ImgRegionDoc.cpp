@@ -258,6 +258,42 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 	}
 }
 
+void CImgRegion::Serialize(CArchive& ar)
+{
+	if (ar.IsStoring())
+	{
+		ar << m_Locked;
+		ar << m_Location;
+		ar << m_Size;
+		DWORD argb = m_Color.GetValue(); ar << argb;
+		ar << m_ImageStr;
+		ar << m_Border.x << m_Border.y << m_Border.z << m_Border.w;
+		Gdiplus::FontFamily family; m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
+		ar << m_Font->GetSize();
+		argb = m_FontColor.GetValue(); ar << argb;
+		ar << m_Text;
+		ar << m_TextAlign;
+		ar << m_TextWrap;
+		ar << m_TextOff;
+	}
+	else
+	{
+		ar >> m_Locked;
+		ar >> m_Location;
+		ar >> m_Size;
+		DWORD argb; ar >> argb; m_Color.SetValue(argb);
+		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
+		ar >> m_Border.x >> m_Border.y >> m_Border.z >> m_Border.w;
+		CString strFamily; float fSize; ar >> strFamily;
+		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
+		ar >> argb; m_FontColor.SetValue(argb);
+		ar >> m_Text;
+		ar >> m_TextAlign;
+		ar >> m_TextWrap;
+		ar >> m_TextOff;
+	}
+}
+
 void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
@@ -345,7 +381,7 @@ void HistoryAddRegion::Do(void)
 	HTREEITEM hBefore = m_beforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_beforeID];
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, hBefore);
 
-	CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
+	CImgRegion * pReg = new CImgRegion;
 	ASSERT(pReg);
 
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
@@ -362,7 +398,7 @@ void HistoryAddRegion::Do(void)
 		ASSERT(m_NodeCache.GetLength() > 0);
 		m_NodeCache.SeekToBegin();
 		CArchive ar(&m_NodeCache, CArchive::load);
-		m_pDoc->SerializeRegionNode(ar, pReg);
+		pReg->Serialize(ar);
 		m_pDoc->SerializeRegionNodeSubTree(ar, hItem, TRUE);
 		ar.Close();
 	}
@@ -395,7 +431,7 @@ void HistoryDelRegion::Do(void)
 
 	m_NodeCache.SetLength(0);
 	CArchive ar(&m_NodeCache, CArchive::store);
-	m_pDoc->SerializeRegionNode(ar, pReg);
+	pReg->Serialize(ar);
 	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
 	ar.Close();
 
@@ -414,7 +450,7 @@ void HistoryDelRegion::Undo(void)
 	HTREEITEM hBefore = m_beforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_beforeID];
 	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, hBefore);
 
-	CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
+	CImgRegion * pReg = new CImgRegion;
 	ASSERT(pReg);
 
 	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
@@ -422,7 +458,7 @@ void HistoryDelRegion::Undo(void)
 	ASSERT(m_NodeCache.GetLength() > 0);
 	m_NodeCache.SeekToBegin();
 	CArchive ar(&m_NodeCache, CArchive::load);
-	m_pDoc->SerializeRegionNode(ar, pReg);
+	pReg->Serialize(ar);
 	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
 	ar.Close();
 
@@ -735,42 +771,6 @@ int CImgRegionDoc::GetChildCount(HTREEITEM hItem)
 	return nChilds;
 }
 
-void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
-{
-	if (ar.IsStoring())
-	{
-		ar << pReg->m_Locked;
-		ar << pReg->m_Location;
-		ar << pReg->m_Size;
-		DWORD argb = pReg->m_Color.GetValue(); ar << argb;
-		ar << pReg->m_ImageStr;
-		ar << pReg->m_Border.x << pReg->m_Border.y << pReg->m_Border.z << pReg->m_Border.w;
-		Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
-		ar << pReg->m_Font->GetSize();
-		argb = pReg->m_FontColor.GetValue(); ar << argb;
-		ar << pReg->m_Text;
-		ar << pReg->m_TextAlign;
-		ar << pReg->m_TextWrap;
-		ar << pReg->m_TextOff;
-	}
-	else
-	{
-		ar >> pReg->m_Locked;
-		ar >> pReg->m_Location;
-		ar >> pReg->m_Size;
-		DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
-		ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
-		ar >> pReg->m_Border.x >> pReg->m_Border.y >> pReg->m_Border.z >> pReg->m_Border.w;
-		CString strFamily; float fSize; ar >> strFamily;
-		ar >> fSize; pReg->m_Font = theApp.GetFont(strFamily, fSize);
-		ar >> argb; pReg->m_FontColor.SetValue(argb);
-		ar >> pReg->m_Text;
-		ar >> pReg->m_TextAlign;
-		ar >> pReg->m_TextWrap;
-		ar >> pReg->m_TextOff;
-	}
-}
-
 void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent, BOOL bOverideName)
 {
 	if (ar.IsStoring())
@@ -785,9 +785,7 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent,
 
 			CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 			ASSERT(pReg);
-
-			SerializeRegionNode(ar, pReg);
-
+			pReg->Serialize(ar);
 			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
 		}
 	}
@@ -804,13 +802,11 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent,
 
 			HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
 
-			CImgRegion * pReg = new CImgRegion(CPoint(10,10), CSize(100,100));
+			CImgRegion * pReg = new CImgRegion;
 			ASSERT(pReg);
 
 			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-
-			SerializeRegionNode(ar, pReg);
-
+			pReg->Serialize(ar);
 			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
 
 			if(pReg->m_Locked)
@@ -857,12 +853,14 @@ void CImgRegionDoc::OnAddRegion()
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
 		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
 
-	CImgRegion reg(ptOrg, CSize(100,100));
+	CImgRegion reg;
+	reg.m_Location = ptOrg;
+	reg.m_Size = CSize(100,100);
 	reg.m_Color = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	reg.m_Font = theApp.GetFont(_T("Î¢ÈíÑÅºÚ"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	CArchive ar(&hist->m_NodeCache, CArchive::store);
-	SerializeRegionNode(ar, &reg);
+	reg.Serialize(ar);
 	ar << 0;
 	ar.Close();
 
@@ -1012,7 +1010,7 @@ void CImgRegionDoc::OnEditCopy()
 
 		theApp.m_ClipboardFile.SetLength(0);
 		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
-		SerializeRegionNode(ar, pReg);
+		pReg->Serialize(ar);
 		SerializeRegionNodeSubTree(ar, hSelected);
 		ar.Close();
 	}

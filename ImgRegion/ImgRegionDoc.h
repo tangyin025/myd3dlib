@@ -63,13 +63,13 @@ public:
 
 	CPoint m_TextOff;
 
-	CImgRegion(const CPoint & Local, const CSize & Size, const Gdiplus::Color & Color = Gdiplus::Color::White, const Vector4i & Border = Vector4i(0,0,0,0))
+	CImgRegion(void)
 		: m_Locked(FALSE)
-		, m_Location(Local)
-		, m_Size(Size)
-		, m_Color(Color)
-		, m_Border(Border)
-		, m_FontColor(255,0,0,0)
+		, m_Location(100,100)
+		, m_Size(100,100)
+		, m_Color(255,255,255,255)
+		, m_Border(0,0,0,0)
+		, m_FontColor(255,255,255,255)
 		, m_Text(_T("x:%d y:%d w:%d h:%d"))
 		, m_TextAlign(TextAlignLeftTop)
 		, m_TextWrap(FALSE)
@@ -82,6 +82,8 @@ public:
 	virtual void UpdateProperties(CPropertiesWnd * pPropertiesWnd);
 
 	virtual void Draw(Gdiplus::Graphics & grap);
+
+	virtual void Serialize(CArchive& archive);
 };
 
 class CImgRegionDoc;
@@ -330,8 +332,6 @@ public:
 	int GetChildCount(HTREEITEM hItem);
 
 public:
-	void SerializeRegionNode(CArchive & ar, CImgRegion * pReg);
-
 	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
