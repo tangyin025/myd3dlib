@@ -13,7 +13,7 @@
 #define new DEBUG_NEW
 #endif
 
-void HistoryChangeItemLocal::Do(void)
+void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
 
@@ -25,7 +25,7 @@ void HistoryChangeItemLocal::Do(void)
 	pReg->m_Location = m_newValue;
 }
 
-void HistoryChangeItemLocal::Undo(void)
+void HistoryChangeItemLocation::Undo(void)
 {
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
 

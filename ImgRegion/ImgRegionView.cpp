@@ -544,7 +544,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 					HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 					if(pReg->m_Location != m_DragRegLocal)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
 					}
 					if(pReg->m_Size != m_DragRegSize)
 					{
@@ -745,7 +745,7 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 				HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 				if(pReg->m_Location != m_DragRegLocal)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
 				}
 				if(pReg->m_Size != m_DragRegSize)
 				{

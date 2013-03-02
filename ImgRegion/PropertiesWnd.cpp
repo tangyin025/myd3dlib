@@ -331,12 +331,12 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), PropertyItemLocked);
 	//pGroup->AddSubItem(m_pProp[PropertyItemLocked] = pProp);
 
-	//CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), PropertyItemLocal, TRUE);
-	//pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
-	//pLocal->AddSubItem(m_pProp[PropertyItemLocalX] = pProp);
-	//pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
-	//pLocal->AddSubItem(m_pProp[PropertyItemLocalY] = pProp);
-	//pGroup->AddSubItem(m_pProp[PropertyItemLocal] = pLocal);
+	//CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), PropertyItemLocation, TRUE);
+	//pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocationX);
+	//pLocal->AddSubItem(m_pProp[PropertyItemLocationX] = pProp);
+	//pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocationY);
+	//pLocal->AddSubItem(m_pProp[PropertyItemLocationY] = pProp);
+	//pGroup->AddSubItem(m_pProp[PropertyItemLocation] = pLocal);
 
 	//pLocal = new CSimpleProp(_T("Size"), PropertyItemSize, TRUE);
 	//pProp = new CSimpleProp(_T("w"), (_variant_t)100l, _T("宽度"), PropertyItemSizeW);
@@ -507,8 +507,8 @@ void CPropertiesWnd::UpdateProperties(void)
 				ASSERT(pReg);
 
 				//m_pProp[PropertyItemLocked]->SetValue((_variant_t)(long)pReg->m_Locked);
-				//m_pProp[PropertyItemLocalX]->SetValue((_variant_t)pReg->m_Location.x);
-				//m_pProp[PropertyItemLocalY]->SetValue((_variant_t)pReg->m_Location.y);
+				//m_pProp[PropertyItemLocationX]->SetValue((_variant_t)pReg->m_Location.x);
+				//m_pProp[PropertyItemLocationY]->SetValue((_variant_t)pReg->m_Location.y);
 				//m_pProp[PropertyItemSizeW]->SetValue((_variant_t)pReg->m_Size.cx);
 				//m_pProp[PropertyItemSizeH]->SetValue((_variant_t)pReg->m_Size.cy);
 				//m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
@@ -580,13 +580,13 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 						pDoc->m_TreeCtrl.SetItemImage(hSelected, 0, 0);
 					break;
 
-				case PropertyItemLocal:
-				case PropertyItemLocalX:
-				case PropertyItemLocalY:
+				case PropertyItemLocation:
+				case PropertyItemLocationX:
+				case PropertyItemLocationY:
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(
-							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Location, CPoint(m_pProp[PropertyItemLocalX]->GetValue().lVal, m_pProp[PropertyItemLocalY]->GetValue().lVal))));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(
+							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Location, CPoint(m_pProp[PropertyItemLocationX]->GetValue().lVal, m_pProp[PropertyItemLocationY]->GetValue().lVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}

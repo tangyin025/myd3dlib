@@ -117,11 +117,11 @@ public:
 	}
 };
 
-class HistoryChangeItemLocal
+class HistoryChangeItemLocation
 	: public HistoryChangeItemValue<CPoint>
 {
 public:
-	HistoryChangeItemLocal(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
+	HistoryChangeItemLocation(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
