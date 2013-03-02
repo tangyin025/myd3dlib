@@ -357,4 +357,6 @@ public:
 	afx_msg void OnEditRedo();
 
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
+
+	afx_msg void OnExportLua();
 };

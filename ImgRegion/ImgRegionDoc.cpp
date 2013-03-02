@@ -5,6 +5,7 @@
 #include "resource.h"
 #include "ImgRegionFilePropertyDlg.h"
 #include "ImgRegionView.h"
+#include "LuaExporterDlg.h"
 
 //#pragma comment(lib, "UxTheme.lib")
 
@@ -269,6 +270,7 @@ BEGIN_MESSAGE_MAP(CImgRegionDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CImgRegionDoc::OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, &CImgRegionDoc::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CImgRegionDoc::OnUpdateEditRedo)
+	ON_COMMAND(ID_EXPORT_LUA, &CImgRegionDoc::OnExportLua)
 END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
@@ -868,4 +870,10 @@ void CImgRegionDoc::OnEditRedo()
 void CImgRegionDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 {
 	pCmdUI->Enable(m_HistoryStep < m_HistoryList.size());
+}
+
+void CImgRegionDoc::OnExportLua()
+{
+	CLuaExporterDlg dlg;
+	dlg.DoModal();
 }
