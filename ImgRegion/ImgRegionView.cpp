@@ -896,11 +896,11 @@ void CImgRegionView::OnActivateView(BOOL bActivate, CView* pActivateView, CView*
 {
 	CImageView::OnActivateView(bActivate, pActivateView, pDeactiveView);
 
-	if(bActivate && pActivateView && pActivateView != pDeactiveView)
+	if(bActivate && pActivateView)
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT(pFrame);
-		pFrame->m_wndProperties.UpdateProperties();
+		pFrame->m_wndProperties.InvalidProperties();
 
 		pFrame->m_wndFileView.AdjustLayout();
 	}
