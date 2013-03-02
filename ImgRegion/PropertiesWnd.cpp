@@ -326,113 +326,113 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	AdjustLayout();
 
-	CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
+	//CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
 
-	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), PropertyItemLocked);
-	pGroup->AddSubItem(m_pProp[PropertyItemLocked] = pProp);
+	//CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), PropertyItemLocked);
+	//pGroup->AddSubItem(m_pProp[PropertyItemLocked] = pProp);
 
-	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), PropertyItemLocal, TRUE);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
-	pLocal->AddSubItem(m_pProp[PropertyItemLocalX] = pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
-	pLocal->AddSubItem(m_pProp[PropertyItemLocalY] = pProp);
-	pGroup->AddSubItem(m_pProp[PropertyItemLocal] = pLocal);
+	//CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), PropertyItemLocal, TRUE);
+	//pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemLocalX);
+	//pLocal->AddSubItem(m_pProp[PropertyItemLocalX] = pProp);
+	//pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemLocalY);
+	//pLocal->AddSubItem(m_pProp[PropertyItemLocalY] = pProp);
+	//pGroup->AddSubItem(m_pProp[PropertyItemLocal] = pLocal);
 
-	pLocal = new CSimpleProp(_T("Size"), PropertyItemSize, TRUE);
-	pProp = new CSimpleProp(_T("w"), (_variant_t)100l, _T("宽度"), PropertyItemSizeW);
-	pLocal->AddSubItem(m_pProp[PropertyItemSizeW] = pProp);
-	pProp = new CSimpleProp(_T("h"), (_variant_t)100l, _T("高度"), PropertyItemSizeH);
-	pLocal->AddSubItem(m_pProp[PropertyItemSizeH] = pProp);
-	pGroup->AddSubItem(m_pProp[PropertyItemSize] = pLocal);
+	//pLocal = new CSimpleProp(_T("Size"), PropertyItemSize, TRUE);
+	//pProp = new CSimpleProp(_T("w"), (_variant_t)100l, _T("宽度"), PropertyItemSizeW);
+	//pLocal->AddSubItem(m_pProp[PropertyItemSizeW] = pProp);
+	//pProp = new CSimpleProp(_T("h"), (_variant_t)100l, _T("高度"), PropertyItemSizeH);
+	//pLocal->AddSubItem(m_pProp[PropertyItemSizeH] = pProp);
+	//pGroup->AddSubItem(m_pProp[PropertyItemSize] = pLocal);
 
-	m_wndPropList.AddProperty(m_pProp[PropertyGroupCoord] = pGroup);
+	//m_wndPropList.AddProperty(m_pProp[PropertyGroupCoord] = pGroup);
 
-	pGroup = new CSimpleProp(_T("颜色"));
+	//pGroup = new CSimpleProp(_T("颜色"));
 
-	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemAlpha);
-	pGroup->AddSubItem(m_pProp[PropertyItemAlpha] = pProp);
+	//pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemAlpha);
+	//pGroup->AddSubItem(m_pProp[PropertyItemAlpha] = pProp);
 
-	CColorProp * pColorProp = new CColorProp(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
-	pColorProp->EnableOtherButton(_T("其他..."));
-	pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
+	//CColorProp * pColorProp = new CColorProp(_T("颜色"), RGB(255,0,0), NULL, _T("颜色"), PropertyItemRGB);
+	//pColorProp->EnableOtherButton(_T("其他..."));
+	//pGroup->AddSubItem(m_pProp[PropertyItemRGB] = pColorProp);
 
-	CMFCPropertyGridFileProperty * pFileProp = new CFileProp(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
-		_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
-	pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
+	//CMFCPropertyGridFileProperty * pFileProp = new CFileProp(_T("图片"), TRUE, _T("aaa.png"), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT,
+	//	_T("图片文件(*.bmp; *.jpg; *.png; *.tga)|*.bmp;*.jpg;*.png;*.tga|All Files(*.*)|*.*||"), _T("图片文件"), PropertyItemImage);
+	//pGroup->AddSubItem(m_pProp[PropertyItemImage] = pFileProp);
 
-	pLocal = new CSimpleProp(_T("Border"), PropertyItemBorder, TRUE);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("左边距"), PropertyItemBorderX);
-	pLocal->AddSubItem(m_pProp[PropertyItemBorderX] = pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("上边距"), PropertyItemBorderY);
-	pLocal->AddSubItem(m_pProp[PropertyItemBorderY] = pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)0l, _T("右边距"), PropertyItemBorderZ);
-	pLocal->AddSubItem(m_pProp[PropertyItemBorderZ] = pProp);
-	pProp = new CSimpleProp(_T("w"), (_variant_t)0l, _T("下边距"), PropertyItemBorderW);
-	pLocal->AddSubItem(m_pProp[PropertyItemBorderW] = pProp);
-	pGroup->AddSubItem(m_pProp[PropertyItemBorder] = pLocal);
+	//pLocal = new CSimpleProp(_T("Border"), PropertyItemBorder, TRUE);
+	//pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("左边距"), PropertyItemBorderX);
+	//pLocal->AddSubItem(m_pProp[PropertyItemBorderX] = pProp);
+	//pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("上边距"), PropertyItemBorderY);
+	//pLocal->AddSubItem(m_pProp[PropertyItemBorderY] = pProp);
+	//pProp = new CSimpleProp(_T("z"), (_variant_t)0l, _T("右边距"), PropertyItemBorderZ);
+	//pLocal->AddSubItem(m_pProp[PropertyItemBorderZ] = pProp);
+	//pProp = new CSimpleProp(_T("w"), (_variant_t)0l, _T("下边距"), PropertyItemBorderW);
+	//pLocal->AddSubItem(m_pProp[PropertyItemBorderW] = pProp);
+	//pGroup->AddSubItem(m_pProp[PropertyItemBorder] = pLocal);
 
-	m_wndPropList.AddProperty(m_pProp[PropertyGroupImage] = pGroup);
+	//m_wndPropList.AddProperty(m_pProp[PropertyGroupImage] = pGroup);
 
-	pGroup = new CSimpleProp(_T("字体"));
+	//pGroup = new CSimpleProp(_T("字体"));
 
-	pProp = new CSimpleProp(_T("字体"), _T("微软雅黑"), _T("选择字体"), PropertyItemFont);
-	pProp->AllowEdit(FALSE);
-	for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
-	{
-		CString strFamily;
-		theApp.fontFamilies[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
-		pProp->AddOption(strFamily, FALSE);
-	}
-	pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
+	//pProp = new CSimpleProp(_T("字体"), _T("微软雅黑"), _T("选择字体"), PropertyItemFont);
+	//pProp->AllowEdit(FALSE);
+	//for(int i = 0; i < theApp.fontFamilies.GetSize(); i++)
+	//{
+	//	CString strFamily;
+	//	theApp.fontFamilies[i].GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+	//	pProp->AddOption(strFamily, FALSE);
+	//}
+	//pGroup->AddSubItem(m_pProp[PropertyItemFont] = pProp);
 
-	pProp = new CSimpleProp(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
-	pProp->AddOption(_T("6"));
-	pProp->AddOption(_T("8"));
-	pProp->AddOption(_T("9"));
-	pProp->AddOption(_T("10"));
-	pProp->AddOption(_T("11"));
-	pProp->AddOption(_T("12"));
-	pProp->AddOption(_T("14"));
-	pProp->AddOption(_T("16"));
-	pProp->AddOption(_T("18"));
-	pProp->AddOption(_T("24"));
-	pProp->AddOption(_T("36"));
-	pProp->AddOption(_T("48"));
-	pProp->AddOption(_T("60"));
-	pProp->AddOption(_T("72"));
-	pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
-	pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
-	pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
-	pColorProp = new CColorProp(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
-	pColorProp->EnableOtherButton(_T("其他..."));
-	pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
+	//pProp = new CSimpleProp(_T("字号"), (_variant_t)16l, _T("字体大小"), PropertyItemFontSize);
+	//pProp->AddOption(_T("6"));
+	//pProp->AddOption(_T("8"));
+	//pProp->AddOption(_T("9"));
+	//pProp->AddOption(_T("10"));
+	//pProp->AddOption(_T("11"));
+	//pProp->AddOption(_T("12"));
+	//pProp->AddOption(_T("14"));
+	//pProp->AddOption(_T("16"));
+	//pProp->AddOption(_T("18"));
+	//pProp->AddOption(_T("24"));
+	//pProp->AddOption(_T("36"));
+	//pProp->AddOption(_T("48"));
+	//pProp->AddOption(_T("60"));
+	//pProp->AddOption(_T("72"));
+	//pGroup->AddSubItem(m_pProp[PropertyItemFontSize] = pProp);
+	//pProp = new CSliderProp(_T("Alpha"), (_variant_t)255l, _T("透明值"), PropertyItemFontAlpha);
+	//pGroup->AddSubItem(m_pProp[PropertyItemFontAlpha] = pProp);
+	//pColorProp = new CColorProp(_T("颜色"), RGB(0,0,255), NULL, _T("颜色"), PropertyItemFontRGB);
+	//pColorProp->EnableOtherButton(_T("其他..."));
+	//pGroup->AddSubItem(m_pProp[PropertyItemFontRGB] = pColorProp);
 
-	m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);
+	//m_wndPropList.AddProperty(m_pProp[PropertyGroupFont] = pGroup);
 
-	pGroup = new CSimpleProp(_T("文本"));
+	//pGroup = new CSimpleProp(_T("文本"));
 
-	pProp = new CSimpleProp(_T("文本"), _T(""), _T("矩形框内的文字描述"), PropertyItemText);
-	pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
+	//pProp = new CSimpleProp(_T("文本"), _T(""), _T("矩形框内的文字描述"), PropertyItemText);
+	//pGroup->AddSubItem(m_pProp[PropertyItemText] = pProp);
 
-	pProp = new CComboProp(_T("对齐"), TextAlignDesc[0], _T("文本在矩形框内的对其方式"), PropertyItemTextAlign);
-	pProp->AllowEdit(FALSE);
-	for(int i = 0; i < TextAlignCount; i++)
-	{
-		pProp->AddOption(TextAlignDesc[i], FALSE);
-	}
-	pGroup->AddSubItem(m_pProp[PropertyItemTextAlign] = pProp);
+	//pProp = new CComboProp(_T("对齐"), TextAlignDesc[0], _T("文本在矩形框内的对其方式"), PropertyItemTextAlign);
+	//pProp->AllowEdit(FALSE);
+	//for(int i = 0; i < TextAlignCount; i++)
+	//{
+	//	pProp->AddOption(TextAlignDesc[i], FALSE);
+	//}
+	//pGroup->AddSubItem(m_pProp[PropertyItemTextAlign] = pProp);
 
-	pProp = new CCheckBoxProp(_T("自动换行"), FALSE, _T("文本在矩形框内自动换行"), PropertyItemTextWrap);
-	pGroup->AddSubItem(m_pProp[PropertyItemTextWrap] = pProp);
+	//pProp = new CCheckBoxProp(_T("自动换行"), FALSE, _T("文本在矩形框内自动换行"), PropertyItemTextWrap);
+	//pGroup->AddSubItem(m_pProp[PropertyItemTextWrap] = pProp);
 
-	pLocal = new CSimpleProp(_T("偏移"), PropertyItemTextOff, TRUE);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
-	pLocal->AddSubItem(m_pProp[PropertyItemTextOffX] = pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
-	pLocal->AddSubItem(m_pProp[PropertyItemTextOffY] = pProp);
-	pGroup->AddSubItem(m_pProp[PropertyItemTextOff] = pLocal);
+	//pLocal = new CSimpleProp(_T("偏移"), PropertyItemTextOff, TRUE);
+	//pProp = new CSimpleProp(_T("x"), (_variant_t)0l, _T("x坐标"), PropertyItemTextOffX);
+	//pLocal->AddSubItem(m_pProp[PropertyItemTextOffX] = pProp);
+	//pProp = new CSimpleProp(_T("y"), (_variant_t)0l, _T("y坐标"), PropertyItemTextOffY);
+	//pLocal->AddSubItem(m_pProp[PropertyItemTextOffY] = pProp);
+	//pGroup->AddSubItem(m_pProp[PropertyItemTextOff] = pLocal);
 
-	m_wndPropList.AddProperty(m_pProp[PropertyGroupText] = pGroup);
+	//m_wndPropList.AddProperty(m_pProp[PropertyGroupText] = pGroup);
 
 	return 0;
 }
@@ -506,40 +506,40 @@ void CPropertiesWnd::UpdateProperties(void)
 				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
 				ASSERT(pReg);
 
-				m_pProp[PropertyItemLocked]->SetValue((_variant_t)(long)pReg->m_Locked);
-				m_pProp[PropertyItemLocalX]->SetValue((_variant_t)pReg->m_Local.x);
-				m_pProp[PropertyItemLocalY]->SetValue((_variant_t)pReg->m_Local.y);
-				m_pProp[PropertyItemSizeW]->SetValue((_variant_t)pReg->m_Size.cx);
-				m_pProp[PropertyItemSizeH]->SetValue((_variant_t)pReg->m_Size.cy);
-				m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
-				((CColorProp *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
+				//m_pProp[PropertyItemLocked]->SetValue((_variant_t)(long)pReg->m_Locked);
+				//m_pProp[PropertyItemLocalX]->SetValue((_variant_t)pReg->m_Location.x);
+				//m_pProp[PropertyItemLocalY]->SetValue((_variant_t)pReg->m_Location.y);
+				//m_pProp[PropertyItemSizeW]->SetValue((_variant_t)pReg->m_Size.cx);
+				//m_pProp[PropertyItemSizeH]->SetValue((_variant_t)pReg->m_Size.cy);
+				//m_pProp[PropertyItemAlpha]->SetValue((_variant_t)(long)pReg->m_Color.GetAlpha());
+				//((CColorProp *)m_pProp[PropertyItemRGB])->SetColor(pReg->m_Color.ToCOLORREF());
 
-				((CFileProp *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
-				m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
-				m_pProp[PropertyItemBorderY]->SetValue((_variant_t)pReg->m_Border.y);
-				m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);
-				m_pProp[PropertyItemBorderW]->SetValue((_variant_t)pReg->m_Border.w);
+				//((CFileProp *)m_pProp[PropertyItemImage])->SetValue((_variant_t)pReg->m_ImageStr);
+				//m_pProp[PropertyItemBorderX]->SetValue((_variant_t)pReg->m_Border.x);
+				//m_pProp[PropertyItemBorderY]->SetValue((_variant_t)pReg->m_Border.y);
+				//m_pProp[PropertyItemBorderZ]->SetValue((_variant_t)pReg->m_Border.z);
+				//m_pProp[PropertyItemBorderW]->SetValue((_variant_t)pReg->m_Border.w);
 
-				CString strFamily;
-				if(pReg->m_Font)
-				{
-					Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
-				}
-				m_pProp[PropertyItemFont]->SetValue((_variant_t)strFamily);
-				long fntSize = 16;
-				if(pReg->m_Font)
-				{
-					fntSize = (long)pReg->m_Font->GetSize();
-				}
-				m_pProp[PropertyItemFontSize]->SetValue(fntSize);
-				m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
-				((CColorProp *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
+				//CString strFamily;
+				//if(pReg->m_Font)
+				//{
+				//	Gdiplus::FontFamily family; pReg->m_Font->GetFamily(&family); family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE));
+				//}
+				//m_pProp[PropertyItemFont]->SetValue((_variant_t)strFamily);
+				//long fntSize = 16;
+				//if(pReg->m_Font)
+				//{
+				//	fntSize = (long)pReg->m_Font->GetSize();
+				//}
+				//m_pProp[PropertyItemFontSize]->SetValue(fntSize);
+				//m_pProp[PropertyItemFontAlpha]->SetValue((_variant_t)(long)pReg->m_FontColor.GetAlpha());
+				//((CColorProp *)m_pProp[PropertyItemFontRGB])->SetColor(pReg->m_FontColor.ToCOLORREF());
 
-				m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
-				m_pProp[PropertyItemTextAlign]->SetValue((_variant_t)TextAlignDesc[pReg->m_TextAlign]);
-				m_pProp[PropertyItemTextWrap]->SetValue((_variant_t)(long)pReg->m_TextWrap);
-				m_pProp[PropertyItemTextOffX]->SetValue((_variant_t)pReg->m_TextOff.x);
-				m_pProp[PropertyItemTextOffY]->SetValue((_variant_t)pReg->m_TextOff.y);
+				//m_pProp[PropertyItemText]->SetValue((_variant_t)pReg->m_Text);
+				//m_pProp[PropertyItemTextAlign]->SetValue((_variant_t)TextAlignDesc[pReg->m_TextAlign]);
+				//m_pProp[PropertyItemTextWrap]->SetValue((_variant_t)(long)pReg->m_TextWrap);
+				//m_pProp[PropertyItemTextOffX]->SetValue((_variant_t)pReg->m_TextOff.x);
+				//m_pProp[PropertyItemTextOffY]->SetValue((_variant_t)pReg->m_TextOff.y);
 
 				m_wndPropList.Invalidate();
 
@@ -586,7 +586,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					{
 						HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocal(
-							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Local, CPoint(m_pProp[PropertyItemLocalX]->GetValue().lVal, m_pProp[PropertyItemLocalY]->GetValue().lVal))));
+							pDoc, pDoc->m_TreeCtrl.GetItemText(hSelected), pReg->m_Location, CPoint(m_pProp[PropertyItemLocalX]->GetValue().lVal, m_pProp[PropertyItemLocalY]->GetValue().lVal))));
 						pDoc->AddNewHistory(hist);
 						hist->Do();
 					}

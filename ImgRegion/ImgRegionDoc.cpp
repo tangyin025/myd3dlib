@@ -22,7 +22,7 @@ void HistoryChangeItemLocal::Do(void)
 	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Local = m_newValue;
+	pReg->m_Location = m_newValue;
 }
 
 void HistoryChangeItemLocal::Undo(void)
@@ -34,7 +34,7 @@ void HistoryChangeItemLocal::Undo(void)
 	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
 	ASSERT(pReg);
 
-	pReg->m_Local = m_oldValue;
+	pReg->m_Location = m_oldValue;
 }
 
 void HistoryChangeItemSize::Do(void)
@@ -210,7 +210,7 @@ void HistoryMovRegion::Do(void)
 		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hNewItem);
 		ASSERT(pReg);
 
-		pReg->m_Local = m_pDoc->RootToLocal(hNewParent, ptOrg);
+		pReg->m_Location = m_pDoc->RootToLocal(hNewParent, ptOrg);
 	}
 }
 
@@ -231,7 +231,7 @@ void HistoryMovRegion::Undo(void)
 		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hOldItem);
 		ASSERT(pReg);
 
-		pReg->m_Local = m_pDoc->RootToLocal(hOldParent, ptOrg);
+		pReg->m_Location = m_pDoc->RootToLocal(hOldParent, ptOrg);
 	}
 }
 
@@ -287,7 +287,7 @@ CPoint CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal)
 	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 	ASSERT(pReg);
 
-	return LocalToRoot(m_TreeCtrl.GetParentItem(hItem), ptLocal + pReg->m_Local);
+	return LocalToRoot(m_TreeCtrl.GetParentItem(hItem), ptLocal + pReg->m_Location);
 }
 
 CPoint CImgRegionDoc::RootToLocal(HTREEITEM hItem, const CPoint & ptRoot)
@@ -298,7 +298,7 @@ CPoint CImgRegionDoc::RootToLocal(HTREEITEM hItem, const CPoint & ptRoot)
 	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 	ASSERT(pReg);
 
-	return RootToLocal(m_TreeCtrl.GetParentItem(hItem), ptRoot - pReg->m_Local);
+	return RootToLocal(m_TreeCtrl.GetParentItem(hItem), ptRoot - pReg->m_Location);
 }
 
 BOOL CImgRegionDoc::CreateTreeCtrl(void)
@@ -360,10 +360,10 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
 		ASSERT(pReg);
 
-		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Local))
+		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location))
 			return hRet;
 
-		if(CRect(pReg->m_Local, pReg->m_Size).PtInRect(ptLocal))
+		if(CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
 			return hItem;
 	}
 	return NULL;
@@ -495,7 +495,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 	if (ar.IsStoring())
 	{
 		ar << pReg->m_Locked;
-		ar << pReg->m_Local;
+		ar << pReg->m_Location;
 		ar << pReg->m_Size;
 		DWORD argb = pReg->m_Color.GetValue(); ar << argb;
 		ar << pReg->m_ImageStr;
@@ -511,7 +511,7 @@ void CImgRegionDoc::SerializeRegionNode(CArchive & ar, CImgRegion * pReg)
 	else
 	{
 		ar >> pReg->m_Locked;
-		ar >> pReg->m_Local;
+		ar >> pReg->m_Location;
 		ar >> pReg->m_Size;
 		DWORD argb; ar >> argb; pReg->m_Color.SetValue(argb);
 		ar >> pReg->m_ImageStr; pReg->m_Image = theApp.GetImage(pReg->m_ImageStr);
@@ -604,7 +604,7 @@ void CImgRegionDoc::OnAddRegion()
 	{
 		hParent = m_TreeCtrl.GetParentItem(hSelected);
 		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
-		ptOrg += pReg->m_Local;
+		ptOrg += pReg->m_Location;
 	}
 
 	CString strName;
