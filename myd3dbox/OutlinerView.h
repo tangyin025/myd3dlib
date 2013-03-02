@@ -67,7 +67,7 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 
-	CTreeCtrl m_wndTreeCtrl;
+	COutlinerTreeCtrl m_wndTreeCtrl;
 
 	CMFCToolBar m_wndToolBar;
 
