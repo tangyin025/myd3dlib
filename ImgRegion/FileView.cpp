@@ -268,6 +268,16 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 	return m_ItemMap[key] = hItem;
 }
 
+int CImgRegionTreeCtrl::GetChildCount(HTREEITEM hItem)
+{
+	int nChilds = 0;
+	for(HTREEITEM hChild = GetChildItem(hItem);
+		hChild; hChild = GetNextSiblingItem(hChild))
+		nChilds++;
+
+	return nChilds;
+}
+
 void CImgRegionTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item

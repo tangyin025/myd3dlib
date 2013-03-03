@@ -3,7 +3,6 @@
 
 #include "stdafx.h"
 #include "LuaExporterDlg.h"
-#include <libc.h>
 #include "MainFrm.h"
 
 

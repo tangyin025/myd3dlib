@@ -6,7 +6,7 @@
 #include "ImgRegionFilePropertyDlg.h"
 #include "ImgRegionView.h"
 #include "LuaExporterDlg.h"
-#include <libc.h>
+#include "ImgRegionDocFileVersions.h"
 
 //#pragma comment(lib, "UxTheme.lib")
 
@@ -259,40 +259,9 @@ void CImgRegion::Draw(Gdiplus::Graphics & grap)
 	}
 }
 
-void CImgRegion::Serialize(CArchive& ar)
+void CImgRegion::Serialize(CArchive& ar, int version)
 {
-	if (ar.IsStoring())
-	{
-		ar << m_Locked;
-		ar << m_Location;
-		ar << m_Size;
-		DWORD argb = m_Color.GetValue(); ar << argb;
-		ar << m_ImageStr;
-		ar << m_Border.x << m_Border.y << m_Border.z << m_Border.w;
-		Gdiplus::FontFamily family; m_Font->GetFamily(&family); CString strFamily; family.GetFamilyName(strFamily.GetBufferSetLength(LF_FACESIZE)); strFamily.ReleaseBuffer(); ar << strFamily;
-		ar << m_Font->GetSize();
-		argb = m_FontColor.GetValue(); ar << argb;
-		ar << m_Text;
-		ar << m_TextAlign;
-		ar << m_TextWrap;
-		ar << m_TextOff;
-	}
-	else
-	{
-		ar >> m_Locked;
-		ar >> m_Location;
-		ar >> m_Size;
-		DWORD argb; ar >> argb; m_Color.SetValue(argb);
-		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
-		ar >> m_Border.x >> m_Border.y >> m_Border.z >> m_Border.w;
-		CString strFamily; float fSize; ar >> strFamily;
-		ar >> fSize; m_Font = theApp.GetFont(strFamily, fSize);
-		ar >> argb; m_FontColor.SetValue(argb);
-		ar >> m_Text;
-		ar >> m_TextAlign;
-		ar >> m_TextWrap;
-		ar >> m_TextOff;
-	}
+	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
 }
 
 void CImgRegion::ExportToLua(std::ofstream & ofs, int indent)
@@ -407,8 +376,8 @@ void HistoryAddRegion::Do(void)
 		ASSERT(m_NodeCache.GetLength() > 0);
 		m_NodeCache.SeekToBegin();
 		CArchive ar(&m_NodeCache, CArchive::load);
-		pReg->Serialize(ar);
-		m_pDoc->SerializeRegionNodeSubTree(ar, hItem, TRUE);
+		pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
+		m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem, TRUE);
 		ar.Close();
 	}
 	m_pDoc->m_NextRegId = max(oldRegId, m_pDoc->m_NextRegId);
@@ -440,8 +409,8 @@ void HistoryDelRegion::Do(void)
 
 	m_NodeCache.SetLength(0);
 	CArchive ar(&m_NodeCache, CArchive::store);
-	pReg->Serialize(ar);
-	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
+	pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
+	m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem);
 	ar.Close();
 
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
@@ -467,8 +436,8 @@ void HistoryDelRegion::Undo(void)
 	ASSERT(m_NodeCache.GetLength() > 0);
 	m_NodeCache.SeekToBegin();
 	CArchive ar(&m_NodeCache, CArchive::load);
-	pReg->Serialize(ar);
-	m_pDoc->SerializeRegionNodeSubTree(ar, hItem);
+	pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
+	m_pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hItem);
 	ar.Close();
 
 	if(pReg->m_Locked)
@@ -726,105 +695,34 @@ void CImgRegionDoc::OnCloseDocument()
 	CDocument::OnCloseDocument();
 }
 
-static const int FILE_VERSION = 355;
-
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
-
-static const TCHAR DEFAULT_CONTROL_NAME[] = _T("control_%03d");
 
 void CImgRegionDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
 	{	// storing code
-		CString strVersion; strVersion.Format(FILE_VERSION_DESC, FILE_VERSION); ar << strVersion;
+		CString strVersion; strVersion.Format(FILE_VERSION_DESC, CImgRegionDocFileVersions::FILE_VERSION); ar << strVersion;
 
-		ar << m_NextRegId;
-		ar << m_Size;
-		DWORD argb = m_Color.GetValue(); ar << argb;
-		ar << m_ImageStr;
-
-		SerializeRegionNodeSubTree(ar);
+		CImgRegionDocFileVersions::Serialize(this, ar, CImgRegionDocFileVersions::FILE_VERSION);
 	}
 	else
 	{	// loading code
 		CString strVersion; ar >> strVersion;
 
 		// ! 版本控制用以将来转换低版本文档
-		int nVersion;
-		if(1 != _stscanf_s(strVersion, FILE_VERSION_DESC, &nVersion))
+		int version;
+		if(1 != _stscanf_s(strVersion, FILE_VERSION_DESC, &version))
 		{
 			AfxThrowArchiveException(CArchiveException::badIndex);
 		}
-		if(nVersion != FILE_VERSION)
-		{
-			CString msg;
-			msg.Format(_T("不支持的版本：%d"), nVersion);
-			AfxMessageBox(msg);
-			AfxThrowUserException();
-		}
 
-		ar >> m_NextRegId;
-		ar >> m_Size;
-		DWORD argb; ar >> argb; m_Color.SetValue(argb);
-		ar >> m_ImageStr; m_Image = theApp.GetImage(m_ImageStr);
-
-		SerializeRegionNodeSubTree(ar);
+		CImgRegionDocFileVersions::Serialize(this, ar, version);
 	}
 }
 
-int CImgRegionDoc::GetChildCount(HTREEITEM hItem)
+void CImgRegionDoc::SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
 {
-	int nChilds = 0;
-	for(HTREEITEM hChild = m_TreeCtrl.GetChildItem(hItem);
-		hChild; hChild = m_TreeCtrl.GetNextSiblingItem(hChild))
-		nChilds++;
-
-	return nChilds;
-}
-
-void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent, BOOL bOverideName)
-{
-	if (ar.IsStoring())
-	{
-		int nChilds = GetChildCount(hParent); ar << nChilds;
-
-		HTREEITEM hItem = m_TreeCtrl.GetChildItem(hParent);
-		for(int i = 0; i < nChilds; i++, hItem = m_TreeCtrl.GetNextSiblingItem(hItem))
-		{
-			ASSERT(hItem);
-			ar << m_TreeCtrl.GetItemText(hItem);
-
-			CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
-			ASSERT(pReg);
-			pReg->Serialize(ar);
-			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
-		}
-	}
-	else
-	{
-		int nChilds; ar >> nChilds;
-
-		for(int i = 0; i < nChilds; i++)
-		{
-			CString strName;
-			ar >> strName;
-			if(bOverideName)
-				strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
-
-			HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
-
-			CImgRegion * pReg = new CImgRegion;
-			ASSERT(pReg);
-
-			m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
-			pReg->Serialize(ar);
-			SerializeRegionNodeSubTree(ar, hItem, bOverideName);
-
-			if(pReg->m_Locked)
-				m_TreeCtrl.SetItemImage(hItem, 1, 1);
-			m_TreeCtrl.Expand(hItem, TVE_EXPAND);
-		}
-	}
+	CImgRegionDocFileVersions::SerializeSubTreeNode(this, ar, version, hParent, bOverideName);
 }
 
 void CImgRegionDoc::UpdateImageSizeTable(const CSize & sizeRoot)
@@ -860,7 +758,7 @@ void CImgRegionDoc::OnAddRegion()
 	}
 
 	CString strName;
-	strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
+	strName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId++);
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
 		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
 
@@ -871,7 +769,7 @@ void CImgRegionDoc::OnAddRegion()
 	reg.m_Font = theApp.GetFont(_T("微软雅黑"), 16);
 	reg.m_FontColor = Gdiplus::Color(255,my::Random<int>(0,255),my::Random<int>(0,255),my::Random<int>(0,255));
 	CArchive ar(&hist->m_NodeCache, CArchive::store);
-	reg.Serialize(ar);
+	reg.Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
 	ar << 0;
 	ar.Close();
 
@@ -1021,8 +919,8 @@ void CImgRegionDoc::OnEditCopy()
 
 		theApp.m_ClipboardFile.SetLength(0);
 		CArchive ar(&theApp.m_ClipboardFile, CArchive::store);
-		pReg->Serialize(ar);
-		SerializeRegionNodeSubTree(ar, hSelected);
+		pReg->Serialize(ar, CImgRegionDocFileVersions::FILE_VERSION);
+		SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION, hSelected);
 		ar.Close();
 	}
 }
@@ -1046,7 +944,7 @@ void CImgRegionDoc::OnEditPaste()
 		}
 
 		CString strName;
-		strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
+		strName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId++);
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), m_TreeCtrl.GetItemText(hSelected)));
 

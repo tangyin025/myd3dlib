@@ -191,6 +191,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\ImgRegionDocFileVersions.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\ImgRegionFilePropertyDlg.cpp"
 				>
 			</File>
@@ -258,6 +262,10 @@
 			</File>
 			<File
 				RelativePath=".\ImgRegionDoc.h"
+				>
+			</File>
+			<File
+				RelativePath=".\ImgRegionDocFileVersions.h"
 				>
 			</File>
 			<File

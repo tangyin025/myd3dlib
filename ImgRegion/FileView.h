@@ -77,6 +77,8 @@ public:
 		m_ItemMap.erase(key);
 	}
 
+	int GetChildCount(HTREEITEM hItem);
+
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 };
 

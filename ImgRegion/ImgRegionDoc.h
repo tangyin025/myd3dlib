@@ -83,7 +83,7 @@ public:
 
 	virtual void Draw(Gdiplus::Graphics & grap);
 
-	virtual void Serialize(CArchive& archive);
+	virtual void Serialize(CArchive& archive, int version);
 
 	virtual void ExportToLua(std::ofstream & ofs, int indent);
 };
@@ -335,10 +335,8 @@ public:
 
 	virtual void Serialize(CArchive& ar);
 
-	int GetChildCount(HTREEITEM hItem);
-
 public:
-	void SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
+	void SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);
 
