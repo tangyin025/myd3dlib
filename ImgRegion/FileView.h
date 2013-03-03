@@ -51,6 +51,8 @@ public:
 
 	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
 
+	BOOL CanItemMove(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
+
 	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
 
 	template <class DataType>

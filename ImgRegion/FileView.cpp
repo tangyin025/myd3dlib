@@ -228,11 +228,21 @@ BOOL CImgRegionTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
 	return FALSE;
 }
 
-HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
+BOOL CImgRegionTreeCtrl::CanItemMove(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
 {
 	if(hParent == hOtherItem || hInsertAfter == hOtherItem || FindTreeChildItem(hOtherItem, hParent))
 	{
-		return hOtherItem;
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
+{
+	if(!CanItemMove(hParent, hInsertAfter, hOtherItem))
+	{
+		ASSERT(false); return hOtherItem;
 	}
 
 	std::wstring key(GetItemText(hOtherItem));
@@ -410,19 +420,24 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
 		if(pDoc && &pDoc->m_TreeCtrl == pTreeCtrl)
 		{
-			CString newParentID = pDragInfo->hDragTagParent ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagParent) : _T("");
-			CString newBeforeID = pDragInfo->hDragTagFront ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagFront) : _T("");
-			HistoryPtr hist(new HistoryMovRegion(
-				pDoc, pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragItem), newParentID, newBeforeID));
+			if(pTreeCtrl->CanItemMove(pDragInfo->hDragTagParent, pDragInfo->hDragTagFront, pDragInfo->hDragItem))
+			{
+				CString newParentID = pDragInfo->hDragTagParent ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagParent) : _T("");
+				CString newBeforeID = pDragInfo->hDragTagFront ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagFront) : _T("");
+				HistoryPtr hist(new HistoryMovRegion(
+					pDoc, pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragItem), newParentID, newBeforeID));
 
-			pDoc->AddNewHistory(hist);
-			hist->Do();
+				pDoc->AddNewHistory(hist);
+				hist->Do();
 
-			pDoc->UpdateAllViews(NULL);
+				pDoc->UpdateAllViews(NULL);
 
-			pDoc->SetModifiedFlag();
+				pDoc->SetModifiedFlag();
 
-			pFrame->m_wndProperties.InvalidProperties();
+				pFrame->m_wndProperties.InvalidProperties();
+			}
+			else
+				MessageBox(_T("无法移动节点"));
 		}
 	}
 }
