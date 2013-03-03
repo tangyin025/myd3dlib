@@ -22,10 +22,12 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 	CImgRegionDoc * m_pDoc;
-
+public:
 	CString m_strProjectDir;
 
 	CString m_strLuaPath;
+
+	BOOL m_dirtyFlag;
 
 	afx_msg void OnBnClickedButton1();
 

@@ -304,6 +304,10 @@ public:
 
 	ImagePtr m_Image;
 
+	CString m_strProjectDir;
+
+	CString m_strLuaPath;
+
 public:
 	DECLARE_DYNCREATE(CImgRegionDoc)
 

@@ -16,6 +16,7 @@ CLuaExporterDlg::CLuaExporterDlg(CImgRegionDoc * pDoc, CWnd* pParent /*=NULL*/)
 	, m_pDoc(pDoc)
 	, m_strProjectDir(_T(""))
 	, m_strLuaPath(_T(""))
+	, m_dirtyFlag(FALSE)
 {
 }
 
@@ -70,15 +71,12 @@ void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, 
 		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
 		ASSERT(pReg);
 
+		ofs << std::string(indent, '\t') << std::endl;
 		ofs << std::string(indent, '\t') << "Gui.Control \"" << ts2ms(m_pDoc->m_TreeCtrl.GetItemText(hItem)) << "\"" << std::endl;
 		ofs << std::string(indent, '\t') << "{" << std::endl;
-
 		pReg->ExportToLua(ofs, indent + 1);
-
 		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetChildItem(hItem), indent + 1);
-
-		ofs << std::string(indent, '\t') << "}" << std::endl;
-
+		ofs << std::string(indent, '\t') << "}," << std::endl;
 		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem));
 	}
 }
@@ -103,13 +101,13 @@ void CLuaExporterDlg::OnOK()
 	}
 
 	ofs << "local ui=Gui.Create()" << std::endl;
-	ofs << "{" << std::endl;
-
+	ofs << "{";
 	ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetRootItem());
-
 	ofs << "}" << std::endl;
 
 	ofs.close();
 
 	MessageBox(_T("成功导出lua脚本文件"));
+
+	m_dirtyFlag = TRUE;
 }

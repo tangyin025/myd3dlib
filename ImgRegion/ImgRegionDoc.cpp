@@ -6,6 +6,7 @@
 #include "ImgRegionFilePropertyDlg.h"
 #include "ImgRegionView.h"
 #include "LuaExporterDlg.h"
+#include <libc.h>
 
 //#pragma comment(lib, "UxTheme.lib")
 
@@ -296,7 +297,10 @@ void CImgRegion::Serialize(CArchive& ar)
 
 void CImgRegion::ExportToLua(std::ofstream & ofs, int indent)
 {
-	ofs << std::string(indent, '\t') << "Location=Vector2(" << m_Location.x << "," << m_Location.y << ")," << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("Location=Vector2(%d,%d),", m_Location.x, m_Location.y) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("Size=Vector2(%d,%d),", m_Size.cx, m_Size.cy) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("BackgroundColor=ARGB(%d,%d,%d,%d),", m_Color.GetA(), m_Color.GetR(), m_Color.GetG(), m_Color.GetB()) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("Text=\"%s\",", ts2ms(m_Text).c_str()) << std::endl;
 }
 
 void HistoryChangeItemLocation::Do(void)
@@ -726,6 +730,8 @@ static const int FILE_VERSION = 355;
 
 static const TCHAR FILE_VERSION_DESC[] = _T("ImgRegion File Version: %d");
 
+static const TCHAR DEFAULT_CONTROL_NAME[] = _T("control_%03d");
+
 void CImgRegionDoc::Serialize(CArchive& ar)
 {
 	if (ar.IsStoring())
@@ -803,7 +809,7 @@ void CImgRegionDoc::SerializeRegionNodeSubTree(CArchive & ar, HTREEITEM hParent,
 			CString strName;
 			ar >> strName;
 			if(bOverideName)
-				strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
+				strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
 
 			HTREEITEM hItem = m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
 
@@ -854,7 +860,7 @@ void CImgRegionDoc::OnAddRegion()
 	}
 
 	CString strName;
-	strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
+	strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
 		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
 
@@ -1040,7 +1046,7 @@ void CImgRegionDoc::OnEditPaste()
 		}
 
 		CString strName;
-		strName.Format(_T("Í¼²ã %03d"), m_NextRegId++);
+		strName.Format(DEFAULT_CONTROL_NAME, m_NextRegId++);
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
 			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), m_TreeCtrl.GetItemText(hSelected)));
 
@@ -1124,7 +1130,14 @@ void CImgRegionDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 void CImgRegionDoc::OnExportLua()
 {
 	CLuaExporterDlg dlg(this);
-	if(IDOK == dlg.DoModal())
+	dlg.m_strProjectDir = m_strProjectDir;
+	dlg.m_strLuaPath = m_strLuaPath;
+	dlg.DoModal();
+	if(dlg.m_dirtyFlag)
 	{
+		m_strProjectDir = dlg.m_strProjectDir;
+		m_strLuaPath = dlg.m_strLuaPath;
+
+		SetModifiedFlag();
 	}
 }
