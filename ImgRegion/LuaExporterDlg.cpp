@@ -76,7 +76,7 @@ void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, 
 		pReg->ExportToLua(ofs, indent + 1);
 		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetChildItem(hItem), indent + 1);
 		ofs << std::string(indent, '\t') << "}," << std::endl;
-		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem));
+		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), indent);
 	}
 }
 

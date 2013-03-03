@@ -30,7 +30,7 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 {
 	CMFCPropertyGridProperty * pGroup = new CSimpleProp(_T("外观"));
 
-	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), FALSE, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
+	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("锁住"), m_Locked, _T("锁住移动属性"), CPropertiesWnd::PropertyItemLocked);
 	pGroup->AddSubItem(pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked] = pProp);
 
 	CMFCPropertyGridProperty * pLocal = new CSimpleProp(_T("Local"), CPropertiesWnd::PropertyItemLocation, TRUE);
