@@ -2,6 +2,8 @@
 
 #include "resource.h"
 
+#include "ImgRegionDoc.h"
+
 // CLuaExporterDlg dialog
 
 class CLuaExporterDlg : public CDialog
@@ -9,14 +11,25 @@ class CLuaExporterDlg : public CDialog
 	DECLARE_DYNAMIC(CLuaExporterDlg)
 
 public:
-	CLuaExporterDlg(CWnd* pParent = NULL);   // standard constructor
+	CLuaExporterDlg(CImgRegionDoc * pDoc, CWnd* pParent = NULL);   // standard constructor
+
 	virtual ~CLuaExporterDlg();
 
-// Dialog Data
 	enum { IDD = IDD_LUA_EXPORTER };
 
-protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV support
 
 	DECLARE_MESSAGE_MAP()
+
+	CImgRegionDoc * m_pDoc;
+
+	CString m_strProjectDir;
+
+	CString m_strLuaPath;
+
+	afx_msg void OnBnClickedButton1();
+
+	afx_msg void OnBnClickedButton2();
+
+	virtual void OnOK();
 };

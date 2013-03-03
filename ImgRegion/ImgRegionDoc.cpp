@@ -1118,6 +1118,8 @@ void CImgRegionDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 
 void CImgRegionDoc::OnExportLua()
 {
-	CLuaExporterDlg dlg;
-	dlg.DoModal();
+	CLuaExporterDlg dlg(this);
+	if(IDOK == dlg.DoModal())
+	{
+	}
 }
