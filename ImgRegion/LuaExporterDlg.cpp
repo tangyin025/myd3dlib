@@ -5,7 +5,6 @@
 #include "LuaExporterDlg.h"
 #include <libc.h>
 #include "MainFrm.h"
-#include <fstream>
 
 
 // CLuaExporterDlg dialog
@@ -64,6 +63,26 @@ void CLuaExporterDlg::OnBnClickedButton2()
 {
 }
 
+void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent)
+{
+	if(hItem)
+	{
+		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+		ASSERT(pReg);
+
+		ofs << std::string(indent, '\t') << "Gui.Control \"" << ts2ms(m_pDoc->m_TreeCtrl.GetItemText(hItem)) << "\"" << std::endl;
+		ofs << std::string(indent, '\t') << "{" << std::endl;
+
+		pReg->ExportToLua(ofs, indent + 1);
+
+		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetChildItem(hItem), indent + 1);
+
+		ofs << std::string(indent, '\t') << "}" << std::endl;
+
+		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem));
+	}
+}
+
 void CLuaExporterDlg::OnOK()
 {
 	ASSERT(m_pDoc);
@@ -83,5 +102,14 @@ void CLuaExporterDlg::OnOK()
 		return;
 	}
 
+	ofs << "local ui=Gui.Create()" << std::endl;
+	ofs << "{" << std::endl;
+
+	ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetRootItem());
+
+	ofs << "}" << std::endl;
+
 	ofs.close();
+
+	MessageBox(_T("成功导出lua脚本文件"));
 }

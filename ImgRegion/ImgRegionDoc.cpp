@@ -294,6 +294,11 @@ void CImgRegion::Serialize(CArchive& ar)
 	}
 }
 
+void CImgRegion::ExportToLua(std::ofstream & ofs, int indent)
+{
+	ofs << std::string(indent, '\t') << "Location=Vector2(" << m_Location.x << "," << m_Location.y << ")," << std::endl;
+}
+
 void HistoryChangeItemLocation::Do(void)
 {
 	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());

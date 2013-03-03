@@ -43,6 +43,7 @@
 #include <myMath.h>
 #include <boost/functional/hash.hpp>
 #include <unordered_map>
+#include <fstream>
 
 typedef boost::shared_ptr<Gdiplus::Image> ImagePtr;
 

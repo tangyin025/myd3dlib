@@ -66,6 +66,9 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myd3dbox", "myd3dbox\myd3db
 	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F5CF866-21B8-4F4B-B9D1-6159003E468F} = {1F5CF866-21B8-4F4B-B9D1-6159003E468F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

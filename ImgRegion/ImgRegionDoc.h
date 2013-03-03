@@ -84,6 +84,8 @@ public:
 	virtual void Draw(Gdiplus::Graphics & grap);
 
 	virtual void Serialize(CArchive& archive);
+
+	virtual void ExportToLua(std::ofstream & ofs, int indent);
 };
 
 class CImgRegionDoc;

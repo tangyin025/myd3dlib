@@ -31,5 +31,7 @@ public:
 
 	afx_msg void OnBnClickedButton2();
 
+	void ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent = 1);
+
 	virtual void OnOK();
 };
