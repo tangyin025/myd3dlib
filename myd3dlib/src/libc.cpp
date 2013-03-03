@@ -164,3 +164,13 @@ std::basic_string<char> wstou8(const wchar_t * str)
 	}
 	return ret;
 }
+
+std::basic_string<char> mstou8(const char * str)
+{
+	return wstou8(ms2ws(str).c_str());
+}
+
+std::basic_string<char> u8toms(const char * str)
+{
+	return ws2ms(u8tows(str).c_str());
+}
