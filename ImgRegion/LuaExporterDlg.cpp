@@ -73,7 +73,7 @@ void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, 
 		ofs << std::string(indent, '\t') << std::endl;
 		ofs << std::string(indent, '\t') << "Gui.Control \"" << ts2ms(m_pDoc->m_TreeCtrl.GetItemText(hItem)) << "\"" << std::endl;
 		ofs << std::string(indent, '\t') << "{" << std::endl;
-		pReg->ExportToLua(ofs, indent + 1);
+		pReg->ExportToLua(ofs, indent + 1, m_strProjectDir);
 		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetChildItem(hItem), indent + 1);
 		ofs << std::string(indent, '\t') << "}," << std::endl;
 		ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), indent);
@@ -86,12 +86,6 @@ void CLuaExporterDlg::OnOK()
 
 	UpdateData();
 
-	if(!PathIsFileSpec(m_strLuaPath))
-	{
-		MessageBox(_T("脚本文件名无效"));
-		return;
-	}
-
 	std::ofstream ofs(m_strLuaPath);
 	if(ofs.bad())
 	{
@@ -99,7 +93,14 @@ void CLuaExporterDlg::OnOK()
 		return;
 	}
 
-	ofs << "local ui=Gui.Create()" << std::endl;
+	LPCTSTR szName, szExtent, szBuff = m_strLuaPath.GetBuffer();
+	szName = PathFindFileName(szBuff);
+	szExtent = PathFindExtension(szBuff);
+	std::basic_string<TCHAR> strName(szName, szExtent - szName);
+
+	ofs << "module(\"" << ts2ms(strName.c_str()) << "\", package.seeall)" << std::endl;
+	ofs << std::endl;
+	ofs << "ui = Gui.Create()" << std::endl;
 	ofs << "{";
 	ExportTreeNodeToLua(ofs, m_pDoc->m_TreeCtrl.GetRootItem());
 	ofs << "}" << std::endl;

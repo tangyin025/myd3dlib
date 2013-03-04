@@ -264,12 +264,22 @@ void CImgRegion::Serialize(CArchive& ar, int version)
 	CImgRegionDocFileVersions::SerializeImgRegion(this, ar, version);
 }
 
-void CImgRegion::ExportToLua(std::ofstream & ofs, int indent)
+void CImgRegion::ExportToLua(std::ofstream & ofs, int indent, LPCTSTR szProjectDir)
 {
-	ofs << std::string(indent, '\t') << str_printf("Location=Vector2(%d,%d),", m_Location.x, m_Location.y) << std::endl;
-	ofs << std::string(indent, '\t') << str_printf("Size=Vector2(%d,%d),", m_Size.cx, m_Size.cy) << std::endl;
-	ofs << std::string(indent, '\t') << str_printf("BackgroundColor=ARGB(%d,%d,%d,%d),", m_Color.GetA(), m_Color.GetR(), m_Color.GetG(), m_Color.GetB()) << std::endl;
-	ofs << std::string(indent, '\t') << str_printf("Text=\"%s\",", ts2ms(m_Text).c_str()) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("Location = Vector2(%d,%d),", m_Location.x, m_Location.y) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("Size = Vector2(%d,%d),", m_Size.cx, m_Size.cy) << std::endl;
+	ofs << std::string(indent, '\t') << str_printf("BackgroundColor = ARGB(%d,%d,%d,%d),", m_Color.GetA(), m_Color.GetR(), m_Color.GetG(), m_Color.GetB()) << std::endl;
+	if(!m_ImageStr.IsEmpty())
+	{
+		CString strRelatedDir;
+		PathRelativePathTo(strRelatedDir.GetBufferSetLength(MAX_PATH), szProjectDir, FILE_ATTRIBUTE_DIRECTORY, m_ImageStr, FILE_ATTRIBUTE_DIRECTORY);
+		strRelatedDir.ReleaseBuffer();
+		strRelatedDir.Replace(_T('\\'), _T('/'));
+		ofs << std::string(indent, '\t') << "Skin = Gui.ControlSkin" << std::endl;
+		ofs << std::string(indent, '\t') << "{" << std::endl;
+		ofs << std::string(indent, '\t') << str_printf("\tBackgroundImage = Gui.Image(\"%s\", Vector4(%d,%d,%d,%d)),", ts2ms(strRelatedDir).c_str(), m_Border.x, m_Border.y, m_Border.z, m_Border.w) << std::endl;
+		ofs << std::string(indent, '\t') << "}," << std::endl;
+	}
 }
 
 void HistoryChangeItemLocation::Do(void)
@@ -1031,7 +1041,7 @@ void CImgRegionDoc::OnExportLua()
 	dlg.m_strProjectDir = m_strProjectDir;
 	dlg.m_strLuaPath = m_strLuaPath;
 	dlg.DoModal();
-	if(dlg.m_dirtyFlag)
+	if(dlg.m_dirtyFlag && (m_strProjectDir != dlg.m_strProjectDir || m_strLuaPath != dlg.m_strLuaPath))
 	{
 		m_strProjectDir = dlg.m_strProjectDir;
 		m_strLuaPath = dlg.m_strLuaPath;

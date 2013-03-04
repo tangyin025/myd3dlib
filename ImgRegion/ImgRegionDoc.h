@@ -85,7 +85,7 @@ public:
 
 	virtual void Serialize(CArchive& archive, int version);
 
-	virtual void ExportToLua(std::ofstream & ofs, int indent);
+	virtual void ExportToLua(std::ofstream & ofs, int indent, LPCTSTR szProjectDir);
 };
 
 class CImgRegionDoc;
