@@ -12,6 +12,8 @@ public:
 	}
 };
 
+typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
+
 class COutlinerTreeCtrl
 	: public CTreeCtrl
 {
@@ -50,6 +52,12 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult);
+
+	BOOL SetItemData(HTREEITEM hItem, TreeNodeBasePtr node);
+
+	TreeNodeBasePtr GetItemData(HTREEITEM hItem) const;
 };
 
 class COutlinerView

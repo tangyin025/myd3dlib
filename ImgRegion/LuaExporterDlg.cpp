@@ -61,6 +61,12 @@ void CLuaExporterDlg::OnBnClickedButton1()
 
 void CLuaExporterDlg::OnBnClickedButton2()
 {
+	TCHAR szFile[MAX_PATH];
+	GetDlgItem(IDC_EDIT2)->GetWindowText(szFile, MAX_PATH);
+
+	CFileDialog dlgFile(FALSE, _T("lua"), szFile);
+	if(IDOK == dlgFile.DoModal())
+		GetDlgItem(IDC_EDIT2)->SetWindowText(dlgFile.GetPathName());
 }
 
 void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, int indent)

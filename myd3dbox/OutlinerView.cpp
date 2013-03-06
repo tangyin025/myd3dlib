@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(COutlinerTreeCtrl, CTreeCtrl)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &COutlinerTreeCtrl::OnNMCustomdraw)
+	ON_NOTIFY_REFLECT(TVN_DELETEITEM, &COutlinerTreeCtrl::OnTvnDeleteitem)
 END_MESSAGE_MAP()
 
 BOOL COutlinerTreeCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
@@ -229,6 +230,25 @@ void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
             break;
         }
     }
+}
+
+void COutlinerTreeCtrl::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	TreeNodeBasePtr * pPtr = (TreeNodeBasePtr *)CTreeCtrl::GetItemData(pNMTreeView->itemOld.hItem);
+	if(pPtr)
+		delete pPtr;
+	*pResult = 0;
+}
+
+BOOL COutlinerTreeCtrl::SetItemData(HTREEITEM hItem, TreeNodeBasePtr node)
+{
+	return CTreeCtrl::SetItemData(hItem, (DWORD_PTR) new TreeNodeBasePtr(node));
+}
+
+TreeNodeBasePtr COutlinerTreeCtrl::GetItemData(HTREEITEM hItem) const
+{
+	return *(TreeNodeBasePtr *)CTreeCtrl::GetItemData(hItem);
 }
 
 COutlinerView::SingleInstance * my::SingleInstance<COutlinerView>::s_ptr(NULL);

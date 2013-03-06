@@ -2,11 +2,11 @@
 #include "ImgRegionDocFileVersions.h"
 #include "MainApp.h"
 
-const int CImgRegionDocFileVersions::FILE_VERSION = 356;
+const int CImgRegionDocFileVersions::FILE_VERSION = 498;
 
 const CString CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME(_T("control_%03d"));
 
-static void CImgRegionDocFileVersions_Serialize355(CImgRegionDoc * pDoc, CArchive & ar, int version)
+static void CImgRegionDocFileVersions_Loading355(CImgRegionDoc * pDoc, CArchive & ar, int version)
 {
 	if(version < 355)
 	{
@@ -22,11 +22,11 @@ static void CImgRegionDocFileVersions_Serialize355(CImgRegionDoc * pDoc, CArchiv
 	pDoc->SerializeSubTreeNode(ar, version);
 }
 
-static void CImgRegionDocFileVersions_Serialize356(CImgRegionDoc * pDoc, CArchive & ar, int version)
+static void CImgRegionDocFileVersions_Loading498(CImgRegionDoc * pDoc, CArchive & ar, int version)
 {
-	if(version < 356)
+	if(version < 498)
 	{
-		CImgRegionDocFileVersions_Serialize355(pDoc, ar, version); return;
+		CImgRegionDocFileVersions_Loading355(pDoc, ar, version); return;
 	}
 
 	ar >> pDoc->m_NextRegId;
@@ -43,7 +43,7 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_Serialize356(pDoc, ar, version); return;
+		CImgRegionDocFileVersions_Loading498(pDoc, ar, version); return;
 	}
 
 	ar << pDoc->m_NextRegId;
@@ -56,7 +56,7 @@ void CImgRegionDocFileVersions::Serialize(CImgRegionDoc * pDoc, CArchive & ar, i
 	pDoc->SerializeSubTreeNode(ar, CImgRegionDocFileVersions::FILE_VERSION);
 }
 
-static void CImgRegionDocFileVersions_SerializeSubTreeNode355(CImgRegionDoc * pDoc, CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
+static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc, CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
 {
 	if(version < 355)
 	{
@@ -80,7 +80,7 @@ static void CImgRegionDocFileVersions_SerializeSubTreeNode355(CImgRegionDoc * pD
 
 		pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 		pReg->Serialize(ar, version);
-		CImgRegionDocFileVersions_SerializeSubTreeNode355(pDoc, ar, version, hItem, bOverideName);
+		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hItem, bOverideName);
 
 		if(pReg->m_Locked)
 			pDoc->m_TreeCtrl.SetItemImage(hItem, 1, 1);
@@ -92,7 +92,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_SerializeSubTreeNode355(pDoc, ar, version, hParent, bOverideName); return;
+		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hParent, bOverideName); return;
 	}
 
 	int nChilds = pDoc->m_TreeCtrl.GetChildCount(hParent); ar << nChilds;
@@ -110,7 +110,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 	}
 }
 
-static void CImgRegionDocFileVersions_SerializeImgRegion355(CImgRegion * pReg, CArchive & ar, int version)
+static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CArchive & ar, int version)
 {
 	if(version < 355)
 	{
@@ -137,7 +137,7 @@ void CImgRegionDocFileVersions::SerializeImgRegion(CImgRegion * pReg, CArchive &
 {
 	if (ar.IsLoading())
 	{
-		CImgRegionDocFileVersions_SerializeImgRegion355(pReg, ar, version); return;
+		CImgRegionDocFileVersions_LoadingImgRegion355(pReg, ar, version); return;
 	}
 
 	ar << pReg->m_Locked;
