@@ -53,11 +53,9 @@ public:
 
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 
-	afx_msg void OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
 
-	BOOL SetItemData(HTREEITEM hItem, TreeNodeBasePtr node);
-
-	TreeNodeBasePtr GetItemData(HTREEITEM hItem) const;
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 class COutlinerView
@@ -84,4 +82,16 @@ public:
 	virtual void AdjustLayout(void);
 
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+
+	afx_msg void OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+
+	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
 };

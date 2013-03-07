@@ -6,7 +6,8 @@
 #define new DEBUG_NEW
 #endif
 
-#define TVN_DRAGCHANGED (TVN_LAST + 1)
+#define TVN_DRAGCHANGED		(TVN_LAST + 1)
+#define TVN_USERDELETING	(TVN_LAST + 2)
 
 struct NMTREEVIEWDRAG
 {
@@ -21,7 +22,8 @@ BEGIN_MESSAGE_MAP(COutlinerTreeCtrl, CTreeCtrl)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &COutlinerTreeCtrl::OnNMCustomdraw)
-	ON_NOTIFY_REFLECT(TVN_DELETEITEM, &COutlinerTreeCtrl::OnTvnDeleteitem)
+	ON_WM_LBUTTONDBLCLK()
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 BOOL COutlinerTreeCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
@@ -232,23 +234,32 @@ void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
     }
 }
 
-void COutlinerTreeCtrl::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
+void COutlinerTreeCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
 {
-	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	TreeNodeBasePtr * pPtr = (TreeNodeBasePtr *)CTreeCtrl::GetItemData(pNMTreeView->itemOld.hItem);
-	if(pPtr)
-		delete pPtr;
-	*pResult = 0;
+	HTREEITEM hSelected = GetSelectedItem();
+	if(hSelected)
+	{
+		SetFocus();
+		CEdit * pEdit = EditLabel(hSelected);
+		ASSERT(pEdit);
+	}
 }
 
-BOOL COutlinerTreeCtrl::SetItemData(HTREEITEM hItem, TreeNodeBasePtr node)
+void COutlinerTreeCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
-	return CTreeCtrl::SetItemData(hItem, (DWORD_PTR) new TreeNodeBasePtr(node));
-}
+	switch(nChar)
+	{
+	case VK_DELETE:
+		{
+			NMHDR hdr = {GetSafeHwnd(), GetDlgCtrlID(), TVN_USERDELETING};
+			GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&hdr);
+		}
+		break;
 
-TreeNodeBasePtr COutlinerTreeCtrl::GetItemData(HTREEITEM hItem) const
-{
-	return *(TreeNodeBasePtr *)CTreeCtrl::GetItemData(hItem);
+	default:
+		CTreeCtrl::OnKeyDown(nChar, nRepCnt, nFlags);
+		break;
+	}
 }
 
 COutlinerView::SingleInstance * my::SingleInstance<COutlinerView>::s_ptr(NULL);
@@ -256,6 +267,11 @@ COutlinerView::SingleInstance * my::SingleInstance<COutlinerView>::s_ptr(NULL);
 BEGIN_MESSAGE_MAP(COutlinerView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
+	ON_NOTIFY(TVN_SELCHANGED, 4, &COutlinerView::OnTvnSelchangedTree)
+	ON_NOTIFY(TVN_DRAGCHANGED, 4, &COutlinerView::OnTvnDragchangedTree)
+	ON_NOTIFY(TVN_BEGINLABELEDIT, 4, &COutlinerView::OnTvnBeginlabeledit)
+	ON_NOTIFY(TVN_ENDLABELEDIT, 4, &COutlinerView::OnTvnEndlabeledit)
+	ON_NOTIFY(TVN_USERDELETING, 4, &COutlinerView::OnTvnUserDeleting)
 END_MESSAGE_MAP()
 
 int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -263,7 +279,7 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
+	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_EDITLABELS | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
 		return -1;
 
 	if (!m_wndToolBar.Create(this, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_HIDE_INPLACE | CBRS_TOOLTIPS | CBRS_FLYBY, IDR_TOOLBAR1)
@@ -287,12 +303,9 @@ void COutlinerView::AdjustLayout(void)
 	{
 		CRect rectClient;
 		GetClientRect(&rectClient);
-
 		int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-
 		m_wndToolBar.SetWindowPos(NULL,
 			rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-
 		m_wndTreeCtrl.SetWindowPos(NULL,
 			rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
@@ -303,4 +316,44 @@ void COutlinerView::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 
 	AdjustLayout();
+}
+
+void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void COutlinerView::OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	NMTREEVIEWDRAG * pTVDragInfo = reinterpret_cast<NMTREEVIEWDRAG *>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void COutlinerView::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void COutlinerView::OnTvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: Add your control notification handler code here
+	*pResult = 0;
+}
+
+void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	*pResult = 0;
 }
