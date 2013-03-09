@@ -22,7 +22,6 @@ BEGIN_MESSAGE_MAP(COutlinerTreeCtrl, CTreeCtrl)
 	ON_WM_MOUSEMOVE()
 	ON_WM_LBUTTONUP()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &COutlinerTreeCtrl::OnNMCustomdraw)
-	ON_WM_LBUTTONDBLCLK()
 	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
@@ -234,22 +233,6 @@ void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
     }
 }
 
-void COutlinerTreeCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
-{
-	HTREEITEM hSelected = GetSelectedItem();
-	if(hSelected)
-	{
-		CRect rcItem;
-		GetItemRect(hSelected, &rcItem, TRUE);
-		if(rcItem.PtInRect(point))
-		{
-			SetFocus();
-			CEdit * pEdit = EditLabel(hSelected);
-			ASSERT(pEdit);
-		}
-	}
-}
-
 void COutlinerTreeCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	switch(nChar)
@@ -293,6 +276,11 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
+
+	CMenu menu;
+	menu.LoadMenu(IDR_MENU1);
+	m_wndToolBar.ReplaceButton(ID_BUTTON40013,
+		CMFCToolBarMenuButton(-1, menu.GetSubMenu(0)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);

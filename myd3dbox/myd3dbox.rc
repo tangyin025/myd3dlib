@@ -13,12 +13,12 @@
 #undef APSTUDIO_READONLY_SYMBOLS
 
 /////////////////////////////////////////////////////////////////////////////
-// English (U.S.) resources
+// Chinese (P.R.C.) resources
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
 #ifdef _WIN32
-LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
-#pragma code_page(1252)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
 #endif //_WIN32
 
 #ifdef APSTUDIO_INVOKED
@@ -41,9 +41,9 @@ END
 3 TEXTINCLUDE 
 BEGIN
     "\r\n"
-    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)\r\n"
-    "LANGUAGE 9, 1\r\n"
-    "#pragma code_page(1252)\r\n"
+    "#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)\r\n"
+    "LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED\r\n"
+    "#pragma code_page(936)\r\n"
     "#include ""afxres.rc""         // Standard components\r\n"
     "#if !defined(_AFXDLL)\r\n"
     "#include ""afxribbon.rc""              // MFC ribbon and control bar resources\r\n"
@@ -107,6 +107,14 @@ BEGIN
     POPUP "&Help"
     BEGIN
         MENUITEM "&About aaa...",               ID_APP_ABOUT
+    END
+END
+
+IDR_MENU1 MENU 
+BEGIN
+    POPUP "Outliner"
+    BEGIN
+        MENUITEM "Create Mesh",                 ID_OUTLINER_CREATEMESH
     END
 END
 
@@ -214,7 +222,7 @@ BEGIN
     ID_EDIT_PASTE           "Insert Clipboard contents\nPaste"
 END
 
-#endif    // English (U.S.) resources
+#endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -225,9 +233,9 @@ END
 // Generated from the TEXTINCLUDE 3 resource.
 //
 
-#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
-LANGUAGE 9, 1
-#pragma code_page(1252)
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CHS)
+LANGUAGE LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED
+#pragma code_page(936)
 #include "afxres.rc"         // Standard components
 #if !defined(_AFXDLL)
 #include "afxribbon.rc"              // MFC ribbon and control bar resources

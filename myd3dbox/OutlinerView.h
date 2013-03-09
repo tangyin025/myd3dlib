@@ -53,8 +53,6 @@ public:
 
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 
-	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
-
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
