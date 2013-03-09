@@ -239,9 +239,14 @@ void COutlinerTreeCtrl::OnLButtonDblClk(UINT nFlags, CPoint point)
 	HTREEITEM hSelected = GetSelectedItem();
 	if(hSelected)
 	{
-		SetFocus();
-		CEdit * pEdit = EditLabel(hSelected);
-		ASSERT(pEdit);
+		CRect rcItem;
+		GetItemRect(hSelected, &rcItem, TRUE);
+		if(rcItem.PtInRect(point))
+		{
+			SetFocus();
+			CEdit * pEdit = EditLabel(hSelected);
+			ASSERT(pEdit);
+		}
 	}
 }
 
@@ -279,7 +284,7 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (!m_wndTreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_EDITLABELS | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
+	if (!m_TreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_EDITLABELS | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(0,0,0,0), this, 4))
 		return -1;
 
 	if (!m_wndToolBar.Create(this, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_HIDE_INPLACE | CBRS_TOOLTIPS | CBRS_FLYBY, IDR_TOOLBAR1)
@@ -289,10 +294,10 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	HTREEITEM hItem = m_wndTreeCtrl.InsertItem(_T("aaa"));
-	hItem = m_wndTreeCtrl.InsertItem(_T("bbb"), hItem);
-	hItem = m_wndTreeCtrl.InsertItem(_T("ccc"), hItem);
-	m_wndTreeCtrl.SelectItem(hItem);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
+	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
+	hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
+	m_TreeCtrl.SelectItem(hItem);
 
 	return 0;
 }
@@ -306,7 +311,7 @@ void COutlinerView::AdjustLayout(void)
 		int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
 		m_wndToolBar.SetWindowPos(NULL,
 			rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-		m_wndTreeCtrl.SetWindowPos(NULL,
+		m_TreeCtrl.SetWindowPos(NULL,
 			rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 }
@@ -356,4 +361,21 @@ void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	*pResult = 0;
+}
+
+BOOL COutlinerView::PreTranslateMessage(MSG* pMsg)
+{
+	// http://support.microsoft.com/kb/167960/en-us
+	if (pMsg->message == WM_KEYDOWN &&  
+		pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE)  
+	{  
+		CEdit * pEdit = m_TreeCtrl.GetEditControl();  
+		if (pEdit)  
+		{  
+			pEdit->SendMessage(WM_KEYDOWN, pMsg->wParam, pMsg->lParam);  
+			return TRUE;  
+		}  
+	}  
+
+	return CDockablePane::PreTranslateMessage(pMsg);
 }

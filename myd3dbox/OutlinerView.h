@@ -73,7 +73,7 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 
-	COutlinerTreeCtrl m_wndTreeCtrl;
+	COutlinerTreeCtrl m_TreeCtrl;
 
 	CMFCToolBar m_wndToolBar;
 
@@ -94,4 +94,6 @@ public:
 	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
