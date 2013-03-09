@@ -260,6 +260,7 @@ BEGIN_MESSAGE_MAP(COutlinerView, CDockablePane)
 	ON_NOTIFY(TVN_BEGINLABELEDIT, 4, &COutlinerView::OnTvnBeginlabeledit)
 	ON_NOTIFY(TVN_ENDLABELEDIT, 4, &COutlinerView::OnTvnEndlabeledit)
 	ON_NOTIFY(TVN_USERDELETING, 4, &COutlinerView::OnTvnUserDeleting)
+	ON_COMMAND(ID_OUTLINER_CREATEMESH, &COutlinerView::OnOutlinerCreatemesh)
 END_MESSAGE_MAP()
 
 int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -279,8 +280,9 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMenu menu;
 	menu.LoadMenu(IDR_MENU1);
-	m_wndToolBar.ReplaceButton(ID_BUTTON40013,
-		CMFCToolBarMenuButton(-1, menu.GetSubMenu(0)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
+	CMFCToolBarMenuButton menuBtn(-1, menu.GetSubMenu(0)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE));
+	menuBtn.SetMessageWnd(this);
+	m_wndToolBar.ReplaceButton(ID_BUTTON40013, menuBtn);
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
@@ -366,4 +368,13 @@ BOOL COutlinerView::PreTranslateMessage(MSG* pMsg)
 	}  
 
 	return CDockablePane::PreTranslateMessage(pMsg);
+}
+
+void COutlinerView::OnOutlinerCreatemesh()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(TRUE);
+	if(IDOK == dlg.DoModal())
+	{
+	}
 }

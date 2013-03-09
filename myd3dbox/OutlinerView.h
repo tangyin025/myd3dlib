@@ -94,4 +94,6 @@ public:
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
+	afx_msg void OnOutlinerCreatemesh();
 };
