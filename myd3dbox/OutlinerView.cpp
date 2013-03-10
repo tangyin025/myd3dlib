@@ -277,11 +277,11 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.SetOwner(this);
 	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
-	//CMenu menu;
-	//menu.LoadMenu(IDR_MENU1);
-	//CMFCToolBarMenuButton menuBtn(-1, menu.GetSubMenu(0)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE));
-	//menuBtn.SetMessageWnd(this);
-	//m_wndToolBar.ReplaceButton(ID_BUTTON40013, menuBtn);
+	CMenu menu;
+	menu.LoadMenu(IDR_MAINFRAME);
+	CMFCToolBarMenuButton menuBtn(-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE));
+	menuBtn.SetMessageWnd(this);
+	m_wndToolBar.ReplaceButton(ID_BUTTON40013, menuBtn);
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);

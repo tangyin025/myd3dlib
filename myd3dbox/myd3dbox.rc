@@ -81,6 +81,10 @@ BEGIN
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
     END
+    POPUP "&Create"
+    BEGIN
+        MENUITEM "Static Mesh",                 ID_CREATE_STATICMESH
+    END
     POPUP "&View"
     BEGIN
         POPUP "&Toolbars and Docking Windows"
