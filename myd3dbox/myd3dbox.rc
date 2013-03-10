@@ -110,14 +110,6 @@ BEGIN
     END
 END
 
-IDR_MENU1 MENU 
-BEGIN
-    POPUP "Outliner"
-    BEGIN
-        MENUITEM "Create Mesh",                 ID_OUTLINER_CREATEMESH
-    END
-END
-
 
 /////////////////////////////////////////////////////////////////////////////
 //
