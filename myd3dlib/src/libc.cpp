@@ -124,10 +124,10 @@ std::basic_string<wchar_t> str_printf(const wchar_t * format, ...)
 std::basic_string<wchar_t> ms2ws(const char * str)
 {
 	std::basic_string<wchar_t> ret;
-	ret.resize(MultiByteToWideChar(CP_ACP, 0, str, -1, NULL, 0));
+	ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, NULL, 0));
 	if(!ret.empty())
 	{
-		ret.resize(MultiByteToWideChar(CP_ACP, 0, str, -1, &ret[0], ret.size()) - 1);
+		ret.resize(MultiByteToWideChar(CP_ACP, MB_PRECOMPOSED, str, -1, &ret[0], ret.size()) - 1);
 	}
 	return ret;
 }
@@ -135,10 +135,10 @@ std::basic_string<wchar_t> ms2ws(const char * str)
 std::basic_string<char> ws2ms(const wchar_t * str)
 {
 	std::basic_string<char> ret;
-	ret.resize(WideCharToMultiByte(CP_ACP, 0, str, -1, NULL, 0, NULL, NULL));
+	ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, NULL, 0, NULL, NULL));
 	if(!ret.empty())
 	{
-		ret.resize(WideCharToMultiByte(CP_ACP, 0, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
+		ret.resize(WideCharToMultiByte(CP_ACP, WC_COMPOSITECHECK | WC_SEPCHARS, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
 	return ret;
 }
@@ -163,14 +163,4 @@ std::basic_string<char> wstou8(const wchar_t * str)
 		ret.resize(WideCharToMultiByte(CP_UTF8, 0, str, -1, &ret[0], ret.size(), NULL, NULL) - 1);
 	}
 	return ret;
-}
-
-std::basic_string<char> mstou8(const char * str)
-{
-	return wstou8(ms2ws(str).c_str());
-}
-
-std::basic_string<char> u8toms(const char * str)
-{
-	return ws2ms(u8tows(str).c_str());
 }

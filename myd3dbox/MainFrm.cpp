@@ -3,13 +3,15 @@
 #include "MainApp.h"
 #include "MainView.h"
 
+using namespace my;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
-CMainFrame::SingleInstance * my::SingleInstance<CMainFrame>::s_ptr(NULL);
+CMainFrame::SingleInstance * SingleInstance<CMainFrame>::s_ptr(NULL);
 
 CMainFrame::CMainFrame(void)
 {
@@ -50,7 +52,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice);
 	if(FAILED(hr))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 	m_DeviceObjectsCreated = true;
@@ -62,7 +64,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if(FAILED(hr = OnDeviceReset()))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 	m_DeviceObjectsReset = true;
@@ -224,13 +226,13 @@ HRESULT CMainFrame::ResetD3DDevice(void)
 	HRESULT hr;
 	if(FAILED(hr = m_d3dDevice->Reset(&m_d3dpp)))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;
 	}
 
 	if(FAILED(hr = OnDeviceReset()))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;
 	}
 	m_DeviceObjectsReset = true;
@@ -245,13 +247,13 @@ HRESULT CMainFrame::OnDeviceReset(void)
 	HRESULT hr;
 	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, NULL)))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;
 	}
 
 	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
 	{
-		TRACE(my::D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return hr;
 	}
 	return S_OK;
