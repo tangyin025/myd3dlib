@@ -22,4 +22,8 @@ public:
 	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
 
 	virtual void OnCloseDocument();
+
+	DECLARE_MESSAGE_MAP()
+
+	afx_msg void OnCreateStaticmesh();
 };

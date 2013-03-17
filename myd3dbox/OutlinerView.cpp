@@ -279,9 +279,8 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	CMenu menu;
 	menu.LoadMenu(IDR_MAINFRAME);
-	CMFCToolBarMenuButton menuBtn(-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE));
-	menuBtn.SetMessageWnd(this);
-	m_wndToolBar.ReplaceButton(ID_BUTTON40013, menuBtn);
+	m_wndToolBar.ReplaceButton(ID_BUTTON40013, CMFCToolBarMenuButton(
+		-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
 	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
@@ -303,6 +302,23 @@ void COutlinerView::AdjustLayout(void)
 		m_TreeCtrl.SetWindowPos(NULL,
 			rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
+}
+
+BOOL COutlinerView::PreTranslateMessage(MSG* pMsg)
+{
+	// http://support.microsoft.com/kb/167960/en-us
+	if (pMsg->message == WM_KEYDOWN &&  
+		pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE)  
+	{  
+		CEdit * pEdit = m_TreeCtrl.GetEditControl();  
+		if (pEdit)  
+		{  
+			pEdit->SendMessage(WM_KEYDOWN, pMsg->wParam, pMsg->lParam);  
+			return TRUE;  
+		}  
+	}  
+
+	return CDockablePane::PreTranslateMessage(pMsg);
 }
 
 void COutlinerView::OnSize(UINT nType, int cx, int cy)
@@ -350,21 +366,4 @@ void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	*pResult = 0;
-}
-
-BOOL COutlinerView::PreTranslateMessage(MSG* pMsg)
-{
-	// http://support.microsoft.com/kb/167960/en-us
-	if (pMsg->message == WM_KEYDOWN &&  
-		pMsg->wParam == VK_RETURN || pMsg->wParam == VK_ESCAPE)  
-	{  
-		CEdit * pEdit = m_TreeCtrl.GetEditControl();  
-		if (pEdit)  
-		{  
-			pEdit->SendMessage(WM_KEYDOWN, pMsg->wParam, pMsg->lParam);  
-			return TRUE;  
-		}  
-	}  
-
-	return CDockablePane::PreTranslateMessage(pMsg);
 }

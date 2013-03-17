@@ -79,6 +79,8 @@ public:
 
 	virtual void AdjustLayout(void);
 
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 	afx_msg void OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult);
@@ -92,6 +94,4 @@ public:
 	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
-
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };

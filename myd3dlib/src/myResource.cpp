@@ -233,6 +233,11 @@ bool ArchiveDirMgr::CheckArchivePath(const std::string & path)
 
 std::string ArchiveDirMgr::GetFullPath(const std::string & path)
 {
+	if(!PathIsRelativeA(path.c_str()))
+	{
+		return path;
+	}
+
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
 	{
@@ -248,6 +253,17 @@ std::string ArchiveDirMgr::GetFullPath(const std::string & path)
 
 ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 {
+	if(!PathIsRelativeA(path.c_str()))
+	{
+		FILE * fp;
+		if(0 != fopen_s(&fp, path.c_str(), "rb"))
+		{
+			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path.c_str()));
+		}
+
+		return ArchiveStreamPtr(new FileArchiveStream(fp));
+	}
+
 	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
 	for(; dir_iter != m_dirMap.end(); dir_iter++)
 	{

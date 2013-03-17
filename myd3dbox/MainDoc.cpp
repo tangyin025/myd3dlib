@@ -2,10 +2,15 @@
 #include "MainDoc.h"
 #include "MainFrm.h"
 #include "MainView.h"
+#include "resource.h"
 
 CMainDoc::SingleInstance * my::SingleInstance<CMainDoc>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
+
+BEGIN_MESSAGE_MAP(CMainDoc, CDocument)
+	ON_COMMAND(ID_CREATE_STATICMESH, &CMainDoc::OnCreateStaticmesh)
+END_MESSAGE_MAP()
 
 CMainDoc::CMainDoc(void)
 {
@@ -54,4 +59,21 @@ void CMainDoc::OnCloseDocument()
 	// TODO: Add your specialized code here and/or call the base class
 
 	CDocument::OnCloseDocument();
+}
+
+void CMainDoc::OnCreateStaticmesh()
+{
+	CFileDialog dlg(TRUE);
+	if(IDOK == dlg.DoModal())
+	{
+		try
+		{
+			my::OgreMeshPtr mesh = CMainFrame::getSingleton().LoadMesh(ws2ms(dlg.GetPathName()));
+		}
+		catch (const my::Exception & e)
+		{
+			AfxMessageBox(str_printf(_T("Cannot open: %s\n%s"),
+				dlg.GetFileName(), ms2ws(e.GetFullDescription().c_str()).c_str()).c_str());
+		}
+	}
 }
