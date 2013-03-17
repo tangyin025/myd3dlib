@@ -397,17 +397,17 @@ void CPropertiesWnd::UpdateProperties(void)
 				ASSERT(pReg);
 
 				pReg->CreateProperties(this);
-			}
-			else
-			{
-				m_hSelectedNode = NULL;
 
-				m_wndPropList.RemoveAll();
-
-				m_wndPropList.Invalidate();
+				return;
 			}
 		}
 	}
+
+	m_hSelectedNode = NULL;
+
+	m_wndPropList.RemoveAll();
+
+	m_wndPropList.Invalidate();
 }
 
 LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
