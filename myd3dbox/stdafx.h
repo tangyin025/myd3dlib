@@ -35,6 +35,7 @@
 #include <afxmdiframewndex.h>
 #include <myD3dLib.h>
 #include <btBulletDynamicsCommon.h>
+#include <deque>
 
 #ifdef _UNICODE
 #if defined _M_IX86

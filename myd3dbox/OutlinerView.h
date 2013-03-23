@@ -14,8 +14,7 @@ public:
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
 
-class COutlinerTreeCtrl
-	: public CTreeCtrl
+class COutlinerTreeCtrl : public CTreeCtrl
 {
 public:
 	COutlinerTreeCtrl(void)
