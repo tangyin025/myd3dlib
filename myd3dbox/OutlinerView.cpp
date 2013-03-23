@@ -274,9 +274,6 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		|| !m_wndToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE))
 		return -1;
 
-	m_wndToolBar.SetOwner(this);
-	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-
 	CMenu menu;
 	menu.LoadMenu(IDR_MAINFRAME);
 	m_wndToolBar.ReplaceButton(ID_BUTTON40013, CMFCToolBarMenuButton(
@@ -296,11 +293,14 @@ void COutlinerView::AdjustLayout(void)
 	{
 		CRect rectClient;
 		GetClientRect(&rectClient);
+
 		int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-		m_wndToolBar.SetWindowPos(NULL,
-			rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-		m_TreeCtrl.SetWindowPos(NULL,
-			rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+
+		m_wndToolBar.SetWindowPos(
+			NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+
+		m_TreeCtrl.SetWindowPos(
+			NULL, rectClient.left, rectClient.top + cyTlb, rectClient.Width(), rectClient.Height() - cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
 	}
 }
 

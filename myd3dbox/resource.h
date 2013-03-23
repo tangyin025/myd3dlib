@@ -4,7 +4,9 @@
 //
 #define IDR_MAINFRAME                   101
 #define ID_VIEW_OUTLINER                102
-#define IDR_TOOLBAR1                    103
+#define ID_VIEW_PROPERTIESWND			103
+#define IDR_TOOLBAR1                    104
+#define IDR_TOOLBAR2                    105
 #define ID_VIEW_CUSTOMIZE               40001
 #define ID_VIEW_APPLOOK_WIN_2000        40002
 #define ID_VIEW_APPLOOK_OFF_XP          40003
@@ -17,13 +19,15 @@
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   40010
 #define ID_BUTTON40013                  40011
 #define ID_CREATE_STATICMESH            40012
+#define ID_EXPAND_ALL                   40013
+#define ID_SORTPROPERTIES               40014
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        104
-#define _APS_NEXT_COMMAND_VALUE         40013
+#define _APS_NEXT_RESOURCE_VALUE        106
+#define _APS_NEXT_COMMAND_VALUE         40015
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

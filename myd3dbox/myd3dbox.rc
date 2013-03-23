@@ -139,6 +139,12 @@ BEGIN
     BUTTON      ID_BUTTON40013
 END
 
+IDR_TOOLBAR2 TOOLBAR  16, 16
+BEGIN
+    BUTTON      ID_EXPAND_ALL
+    BUTTON      ID_SORTPROPERTIES
+END
+
 
 /////////////////////////////////////////////////////////////////////////////
 //
@@ -147,6 +153,7 @@ END
 
 IDR_MAINFRAME           BITMAP                  "Toolbar.bmp"
 IDR_TOOLBAR1            BITMAP                  "toolbar1.bmp"
+IDR_TOOLBAR2            BITMAP                  "toolbar2.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //
