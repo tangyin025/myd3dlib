@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "DocHistoryMgr.h"
 
-void History::Do(void)
+void CDocHistory::Do(void)
 {
 	const_iterator hist_iter = begin();
 	for(; hist_iter != end(); hist_iter++)
@@ -10,7 +10,7 @@ void History::Do(void)
 	}
 }
 
-void History::Undo(void)
+void CDocHistory::Undo(void)
 {
 	const_reverse_iterator hist_iter = rbegin();
 	for(; hist_iter != rend(); hist_iter++)

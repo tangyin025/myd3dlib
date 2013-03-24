@@ -1,30 +1,30 @@
 #pragma once
 
-class HistoryStepBase
+class CDocStepBase
 {
 public:
-	HistoryStepBase(void)
+	CDocStepBase(void)
 	{
 	}
 
-	virtual ~HistoryStepBase(void)
+	virtual ~CDocStepBase(void)
 	{
 	}
 
 	virtual void Do(void);
 };
 
-typedef boost::shared_ptr<HistoryStepBase> HistoryStepBasePtr;
+typedef boost::shared_ptr<CDocStepBase> CDocStepBasePtr;
 
-class History
-	: protected std::vector<std::pair<HistoryStepBasePtr, HistoryStepBasePtr> >
+class CDocHistory
+	: protected std::vector<std::pair<CDocStepBasePtr, CDocStepBasePtr> >
 {
 public:
-	History(void)
+	CDocHistory(void)
 	{
 	}
 
-	virtual ~History(void)
+	virtual ~CDocHistory(void)
 	{
 	}
 
@@ -33,11 +33,10 @@ public:
 	void Undo(void);
 };
 
-typedef boost::shared_ptr<History> HistoryPtr;
+typedef boost::shared_ptr<CDocHistory> CDocHistoryPtr;
 
 class CDocHistoryMgr
-	: protected std::deque<HistoryPtr>
-	, public my::SingleInstance<CDocHistoryMgr>
+	: protected std::deque<CDocHistoryPtr>
 {
 public:
 	CDocHistoryMgr(void)
