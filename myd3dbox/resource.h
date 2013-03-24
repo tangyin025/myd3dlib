@@ -4,7 +4,7 @@
 //
 #define IDR_MAINFRAME                   101
 #define ID_VIEW_OUTLINER                102
-#define ID_VIEW_PROPERTIESWND			103
+#define ID_VIEW_PROPERTIESWND           103
 #define IDR_TOOLBAR1                    104
 #define IDR_TOOLBAR2                    105
 #define ID_VIEW_CUSTOMIZE               40001
