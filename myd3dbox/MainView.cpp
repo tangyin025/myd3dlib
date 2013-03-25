@@ -242,6 +242,13 @@ void CMainView::OnFrameRender(
 
 		m_dynamicsWorld->debugDrawWorld();
 
+		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
+
+		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+		ASSERT(pOutliner);
+		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
+
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
 			UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),

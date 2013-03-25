@@ -4,18 +4,6 @@
 #include "MainView.h"
 #include "resource.h"
 
-void TreeStaticMeshNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
-{
-	UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
-	for(UINT p = 0; p < cPasses; p++)
-	{
-		for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
-		{
-			m_mesh->DrawSubset(i);
-		}
-	}
-}
-
 CMainDoc::SingleInstance * my::SingleInstance<CMainDoc>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
@@ -81,6 +69,13 @@ void CMainDoc::OnCreateStaticmesh()
 		try
 		{
 			my::OgreMeshPtr mesh = CMainFrame::getSingleton().LoadMesh(ws2ms(dlg.GetPathName()));
+
+			static unsigned int i = 0;
+			CString strItem;
+			strItem.Format(_T("mesh_%03d"), i++);
+			AddTreeStaticMeshNode(strItem, mesh);
+
+			UpdateAllViews(NULL);
 		}
 		catch (const my::Exception & e)
 		{

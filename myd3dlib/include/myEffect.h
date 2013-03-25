@@ -653,7 +653,7 @@ namespace my
 
 		UINT Begin(DWORD Flags = 0)
 		{
-			UINT Passes;
+			UINT Passes = 0;
 			V(static_cast<ID3DXEffect *>(m_ptr)->Begin(&Passes, Flags));
 			return Passes;
 		}

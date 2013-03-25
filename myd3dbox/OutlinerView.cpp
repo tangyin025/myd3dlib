@@ -380,3 +380,15 @@ TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
 {
 	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
 }
+
+void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem)
+{
+	if(hItem)
+	{
+		GetItemNode(hItem)->Draw(pd3dDevice, fElapsedTime);
+
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem));
+
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem));
+	}
+}

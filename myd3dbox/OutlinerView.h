@@ -71,7 +71,7 @@ public:
 	}
 
 	DECLARE_MESSAGE_MAP()
-
+public:
 	COutlinerTreeCtrl m_TreeCtrl;
 
 	CMFCToolBar m_wndToolBar;
@@ -103,4 +103,6 @@ public:
 	void InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 
 	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
+
+	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem);
 };
