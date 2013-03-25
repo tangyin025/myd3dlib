@@ -9,9 +9,55 @@ using namespace my;
 #define new DEBUG_NEW
 #endif
 
-IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
+void EffectUIRender::Begin(void)
+{
+	CRect rectClient;
+	CMainView::getSingleton().GetClientRect(&rectClient);
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+
+	if(m_UIEffect->m_ptr)
+		m_Passes = m_UIEffect->Begin();
+}
+
+void EffectUIRender::End(void)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->End();
+}
+
+void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
+}
+
+void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
+}
+
+void EffectUIRender::DrawVertexList(void)
+{
+	if(m_UIEffect->m_ptr)
+	{
+		if(vertex_count > 0)
+		{
+			for(UINT p = 0; p < m_Passes; p++)
+			{
+				m_UIEffect->BeginPass(p);
+				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+				m_UIEffect->EndPass();
+			}
+		}
+	}
+}
 
 CMainFrame::SingleInstance * SingleInstance<CMainFrame>::s_ptr(NULL);
+
+IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 CMainFrame::CMainFrame(void)
 {
@@ -124,6 +170,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, _T("Customize..."), ID_VIEW_TOOLBAR);
 	CMFCToolBar::EnableQuickCustomization();
 
+	m_UIRender.reset(new EffectUIRender(
+		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("shader/UIEffect.fx")));
+
+	m_WhiteTex = CMainFrame::getSingleton().LoadTexture("texture/white.bmp");
+
+	m_Font = CMainFrame::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
+
+	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("shader/SimpleSample.fx");
+
 	return 0;
 }
 
@@ -208,6 +263,8 @@ void CMainFrame::OnDestroy()
 	TRACE0("CMainFrame::OnDestroy \n");
 
 	CFrameWndEx::OnDestroy();
+
+	m_UIRender.reset();
 
 	if(m_DeviceObjectsCreated)
 	{

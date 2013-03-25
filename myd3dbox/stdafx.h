@@ -36,6 +36,8 @@
 #include <myD3dLib.h>
 #include <btBulletDynamicsCommon.h>
 #include <deque>
+#include <unordered_map>
+#include <boost/functional/hash.hpp>
 
 #ifdef _UNICODE
 #if defined _M_IX86

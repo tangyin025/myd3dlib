@@ -5,52 +5,6 @@
 
 using namespace my;
 
-void EffectUIRender::Begin(void)
-{
-	CRect rectClient;
-	CMainView::getSingleton().GetClientRect(&rectClient);
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
-
-	if(m_UIEffect->m_ptr)
-		m_Passes = m_UIEffect->Begin();
-}
-
-void EffectUIRender::End(void)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->End();
-}
-
-void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
-}
-
-void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
-}
-
-void EffectUIRender::DrawVertexList(void)
-{
-	if(m_UIEffect->m_ptr)
-	{
-		if(vertex_count > 0)
-		{
-			for(UINT p = 0; p < m_Passes; p++)
-			{
-				m_UIEffect->BeginPass(p);
-				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
-				m_UIEffect->EndPass();
-			}
-		}
-	}
-}
-
 CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainView, CView)
@@ -90,18 +44,19 @@ void CMainView::draw3dText(const btVector3 & location,const char * textString)
 	Surface BackBuffer;
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-	m_UIRender->SetTransform(Matrix4::Identity(),
+	CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
 		UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
 		UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-	m_UIRender->Begin();
+	CMainFrame::getSingleton().m_UIRender->Begin();
 
 	Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_View * m_Camera.m_Proj);
 	pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
 	pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
 
-	m_Font->DrawString(m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
+	CMainFrame::getSingleton().m_Font->DrawString(
+		CMainFrame::getSingleton().m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
 
-	m_UIRender->End();
+	CMainFrame::getSingleton().m_UIRender->End();
 }
 
 void CMainView::setDebugMode(int debugMode)
@@ -124,15 +79,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	m_UIRender.reset(new EffectUIRender(
-		CMainFrame::getSingleton().m_d3dDevice, CMainFrame::getSingleton().LoadEffect("shader/UIEffect.fx")));
-
-	m_WhiteTex = CMainFrame::getSingleton().LoadTexture("texture/white.bmp");
-
-	m_Font = CMainFrame::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
-
-	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("shader/SimpleSample.fx");
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
@@ -169,8 +115,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CMainView::OnDestroy()
 {
 	CView::OnDestroy();
-
-	m_Font.reset();
 
 	m_d3dSwapChain.Release();
 }
@@ -299,16 +243,17 @@ void CMainView::OnFrameRender(
 		m_dynamicsWorld->debugDrawWorld();
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		m_UIRender->SetTransform(Matrix4::Identity(),
+		CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
 			UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
 			UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-		m_UIRender->Begin();
+		CMainFrame::getSingleton().m_UIRender->Begin();
 
 		CString strText;
 		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		m_Font->DrawString(m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		CMainFrame::getSingleton().m_Font->DrawString(
+			CMainFrame::getSingleton().m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
 
-		m_UIRender->End();
+		CMainFrame::getSingleton().m_UIRender->End();
 		V(pd3dDevice->EndScene());
 	}
 

@@ -1,5 +1,24 @@
 #pragma once
 
+#include "OutlinerView.h"
+
+class TreeStaticMeshNode : TreeNodeBase
+{
+public:
+	TreeStaticMeshNode(my::OgreMeshPtr mesh)
+		: m_mesh(mesh)
+	{
+	}
+
+	TreeStaticMeshNode(void)
+	{
+	}
+
+	my::OgreMeshPtr m_mesh;
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+};
+
 class CMainDoc
 	: public CDocument
 	, public my::SingleInstance<CMainDoc>

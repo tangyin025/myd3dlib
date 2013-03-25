@@ -10,6 +10,8 @@ public:
 	virtual ~TreeNodeBase(void)
 	{
 	}
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime) = 0;
 };
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
@@ -74,6 +76,10 @@ public:
 
 	CMFCToolBar m_wndToolBar;
 
+	typedef std::tr1::unordered_map<std::basic_string<TCHAR>, HTREEITEM, boost::hash<std::basic_string<TCHAR> > > TreeItemMap;
+
+	TreeItemMap m_ItemMap;
+
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	virtual void AdjustLayout(void);
@@ -93,4 +99,8 @@ public:
 	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
+
+	void InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+
+	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
 };

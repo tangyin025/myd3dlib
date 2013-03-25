@@ -4,6 +4,18 @@
 #include "MainView.h"
 #include "resource.h"
 
+void TreeStaticMeshNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+{
+	UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
+	for(UINT p = 0; p < cPasses; p++)
+	{
+		for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
+		{
+			m_mesh->DrawSubset(i);
+		}
+	}
+}
+
 CMainDoc::SingleInstance * my::SingleInstance<CMainDoc>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)

@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "resource.h"
 #include "OutlinerView.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -257,6 +258,7 @@ BEGIN_MESSAGE_MAP(COutlinerView, CDockablePane)
 	ON_WM_SIZE()
 	ON_NOTIFY(TVN_SELCHANGED, 4, &COutlinerView::OnTvnSelchangedTree)
 	ON_NOTIFY(TVN_DRAGCHANGED, 4, &COutlinerView::OnTvnDragchangedTree)
+	ON_NOTIFY(TVN_DELETEITEM, 4, &COutlinerView::OnTvnDeleteitem)
 	ON_NOTIFY(TVN_BEGINLABELEDIT, 4, &COutlinerView::OnTvnBeginlabeledit)
 	ON_NOTIFY(TVN_ENDLABELEDIT, 4, &COutlinerView::OnTvnEndlabeledit)
 	ON_NOTIFY(TVN_USERDELETING, 4, &COutlinerView::OnTvnUserDeleting)
@@ -278,11 +280,6 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	menu.LoadMenu(IDR_MAINFRAME);
 	m_wndToolBar.ReplaceButton(ID_BUTTON40013, CMFCToolBarMenuButton(
 		-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
-
-	HTREEITEM hItem = m_TreeCtrl.InsertItem(_T("aaa"));
-	hItem = m_TreeCtrl.InsertItem(_T("bbb"), hItem);
-	hItem = m_TreeCtrl.InsertItem(_T("ccc"), hItem);
-	m_TreeCtrl.SelectItem(hItem);
 
 	return 0;
 }
@@ -345,7 +342,9 @@ void COutlinerView::OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 void COutlinerView::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	// TODO: Add your control notification handler code here
+	TreeNodeBasePtr * ptr = (TreeNodeBasePtr *)m_TreeCtrl.GetItemData(pNMTreeView->itemOld.hItem);
+	ASSERT(ptr);
+	delete ptr;
 	*pResult = 0;
 }
 
@@ -366,4 +365,18 @@ void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	*pResult = 0;
+}
+
+void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
+
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(strItem.c_str(), hParent, hInsertAfter);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR) new TreeNodeBasePtr(node));
+	m_ItemMap[strItem] = hItem;
+}
+
+TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
+{
+	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
 }
