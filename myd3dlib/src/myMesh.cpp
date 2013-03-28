@@ -464,10 +464,11 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_specular, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(texture_coords, vertexbuffer);
 
-	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
-	{
-		THROW_CUSEXCEPTION("facecount overflow ( >= 2^16 - 1 )");
-	}
+	//if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
+	//{
+	//	THROW_CUSEXCEPTION("facecount overflow ( >= 2^16 - 1 )");
+	//}
+	dwMeshOptions |= D3DXMESH_32BIT;
 
 	if(!positions)
 	{

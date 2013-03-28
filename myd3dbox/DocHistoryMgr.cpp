@@ -1,25 +1,74 @@
 #include "StdAfx.h"
 #include "DocHistoryMgr.h"
 #include "MainFrm.h"
+#include "MainView.h"
 
 using namespace my;
 
+StaticMeshTreeNode::~StaticMeshTreeNode(void)
+{
+	//CMainView * pView = CMainView::getSingletonPtr();
+	//ASSERT(pView);
+
+	//pView->m_dynamicsWorld->removeRigidBody(m_rigidBody.get());
+}
+
+void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
+{
+	ASSERT(mesh);
+
+	m_mesh = mesh;
+
+	VOID * pIndices = m_mesh->LockIndexBuffer();
+
+	VOID * pVertices = m_mesh->LockVertexBuffer();
+
+	m_indexVertexArray.reset(new btTriangleIndexVertexArray(
+		m_mesh->GetNumFaces(),
+		(int *)pIndices,
+		sizeof(DWORD) * 3,
+		m_mesh->GetNumVertices(),
+		(btScalar *)pVertices,
+		m_mesh->m_VertexElemSet.CalculateVertexStride()));
+
+	m_meshShape.reset(new btBvhTriangleMeshShape(
+		m_indexVertexArray.get(), true, btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+
+	m_mesh->UnlockVertexBuffer();
+
+	m_mesh->UnlockIndexBuffer();
+
+	m_motionState.reset(new btDefaultMotionState(btTransform::getIdentity()));
+
+	m_rigidBody.reset(new btRigidBody(0, m_motionState.get(), m_meshShape.get(), btVector3(0,0,0)));
+
+	m_rigidBody->setContactProcessingThreshold(1e18f);
+
+	CMainView * pView = CMainView::getSingletonPtr();
+	ASSERT(pView);
+
+	pView->m_dynamicsWorld->addRigidBody(m_rigidBody.get());
+}
+
 void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
-	CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,1));
-	CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-	CMainFrame::getSingleton().m_SimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
-	UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
-	for(UINT p = 0; p < cPasses; p++)
+	if(m_mesh)
 	{
-		CMainFrame::getSingleton().m_SimpleSample->BeginPass(p);
-		for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
+		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,1));
+		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
+		CMainFrame::getSingleton().m_SimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
+		UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
+		for(UINT p = 0; p < cPasses; p++)
 		{
-			m_mesh->DrawSubset(i);
+			CMainFrame::getSingleton().m_SimpleSample->BeginPass(p);
+			for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
+			{
+				m_mesh->DrawSubset(i);
+			}
+			CMainFrame::getSingleton().m_SimpleSample->EndPass();
 		}
-		CMainFrame::getSingleton().m_SimpleSample->EndPass();
+		CMainFrame::getSingleton().m_SimpleSample->End();
 	}
-	CMainFrame::getSingleton().m_SimpleSample->End();
 }
 
 void CDocHistory::Do(void)
@@ -73,7 +122,8 @@ void CDocHistoryMgr::AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mes
 	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 	ASSERT(pOutliner);
 
-	StaticMeshTreeNodePtr node(new StaticMeshTreeNode(mesh));
+	StaticMeshTreeNodePtr node(new StaticMeshTreeNode);
+	node->SetMesh(mesh);
 
 	CDocHistoryPtr hist(new CDocHistory());
 	hist->push_back(std::make_pair(

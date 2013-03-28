@@ -4,17 +4,25 @@
 
 class StaticMeshTreeNode : public TreeNodeBase
 {
-public:
-	StaticMeshTreeNode(my::OgreMeshPtr mesh)
-		: m_mesh(mesh)
-	{
-	}
+protected:
+	my::OgreMeshPtr m_mesh;
 
+	boost::shared_ptr<btTriangleIndexVertexArray> m_indexVertexArray;
+
+	boost::shared_ptr<btBvhTriangleMeshShape> m_meshShape;
+
+	boost::shared_ptr<btRigidBody> m_rigidBody;
+
+	boost::shared_ptr<btDefaultMotionState> m_motionState;
+
+public:
 	StaticMeshTreeNode(void)
 	{
 	}
 
-	my::OgreMeshPtr m_mesh;
+	virtual ~StaticMeshTreeNode(void);
+
+	void SetMesh(my::OgreMeshPtr mesh);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
 };
