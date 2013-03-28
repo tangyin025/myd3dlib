@@ -227,6 +227,16 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
+		pFrame->m_SimpleSample->SetFloat("g_fTime", fTime);
+		pFrame->m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
+		pFrame->m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
+		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+
+		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+		ASSERT(pOutliner);
+		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
+
 		Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
 		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
 		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
@@ -237,16 +247,6 @@ void CMainView::OnFrameRender(
 		pFrame->m_dynamicsWorld->setDebugDrawer(this);
 		pFrame->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
 		pFrame->m_dynamicsWorld->debugDrawWorld();
-
-		pFrame->m_SimpleSample->SetFloat("g_fTime", fTime);
-		pFrame->m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
-		pFrame->m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
-		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
-		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-
-		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
-		ASSERT(pOutliner);
-		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
