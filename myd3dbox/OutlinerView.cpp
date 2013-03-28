@@ -345,6 +345,10 @@ void COutlinerView::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
 	TreeNodeBasePtr * ptr = (TreeNodeBasePtr *)m_TreeCtrl.GetItemData(pNMTreeView->itemOld.hItem);
 	ASSERT(ptr);
 	delete ptr;
+
+	std::basic_string<TCHAR> strItem(m_TreeCtrl.GetItemText(pNMTreeView->itemOld.hItem));
+	ASSERT(!strItem.empty() && m_ItemMap.end() != m_ItemMap.find(strItem));
+	m_ItemMap.erase(strItem);
 	*pResult = 0;
 }
 

@@ -68,6 +68,7 @@ public:
 
 	virtual ~COutlinerView(void)
 	{
+		ASSERT(m_ItemMap.empty());
 	}
 
 	DECLARE_MESSAGE_MAP()

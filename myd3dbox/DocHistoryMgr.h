@@ -70,10 +70,6 @@ public:
 
 	StaticMeshTreeNodePtr m_node;
 
-	std::basic_string<TCHAR> m_strParent;
-
-	std::basic_string<TCHAR> m_strBefore;
-
 	CDeleteStaticMeshTreeNodeStep(LPCTSTR lpszItem)
 		: m_strItem(lpszItem)
 	{

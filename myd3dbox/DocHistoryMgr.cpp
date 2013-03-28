@@ -2,15 +2,22 @@
 #include "DocHistoryMgr.h"
 #include "MainFrm.h"
 
+using namespace my;
+
 void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
 {
+	CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,1));
+	CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
+	CMainFrame::getSingleton().m_SimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
 	UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
 	for(UINT p = 0; p < cPasses; p++)
 	{
+		CMainFrame::getSingleton().m_SimpleSample->BeginPass(p);
 		for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
 		{
 			m_mesh->DrawSubset(i);
 		}
+		CMainFrame::getSingleton().m_SimpleSample->EndPass();
 	}
 	CMainFrame::getSingleton().m_SimpleSample->End();
 }
@@ -52,19 +59,13 @@ void CDeleteStaticMeshTreeNodeStep::Do(void)
 	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 	ASSERT(pOutliner);
 
-	ASSERT(!m_strItem.empty() && pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_strItem));
-
+	ASSERT(!m_strItem.empty() && pOutliner->m_ItemMap.end() != pOutliner->m_ItemMap.find(m_strItem));
 	HTREEITEM hItem = pOutliner->m_ItemMap[m_strItem];
-	HTREEITEM hParent = pOutliner->m_TreeCtrl.GetParentItem(hItem);
-	HTREEITEM hBefore = pOutliner->m_TreeCtrl.GetPrevSiblingItem(hItem);
 
 	m_node = boost::dynamic_pointer_cast<StaticMeshTreeNode>(pOutliner->GetItemNode(hItem));
 	ASSERT(m_node);
-	m_strParent = hParent ? pOutliner->m_TreeCtrl.GetItemText(hParent) : _T("");
-	m_strBefore = hBefore ? pOutliner->m_TreeCtrl.GetItemText(hBefore) : _T("");
 
-	ASSERT(m_strParent.empty() || pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_strParent));
-	ASSERT(m_strBefore.empty() || pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_strBefore));
+	pOutliner->m_TreeCtrl.DeleteItem(hItem);
 }
 
 void CDocHistoryMgr::AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)

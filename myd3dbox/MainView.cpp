@@ -242,8 +242,11 @@ void CMainView::OnFrameRender(
 
 		m_dynamicsWorld->debugDrawWorld();
 
-		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		CMainFrame::getSingleton().m_SimpleSample->SetFloat("g_fTime", fTime);
 		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
+		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		CMainFrame::getSingleton().m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
+		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);

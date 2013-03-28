@@ -9,6 +9,10 @@ CMainDoc::SingleInstance * my::SingleInstance<CMainDoc>::s_ptr(NULL);
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CMainDoc, CDocument)
+	ON_COMMAND(ID_EDIT_UNDO, &CMainDoc::OnEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainDoc::OnUpdateEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, &CMainDoc::OnEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainDoc::OnUpdateEditRedo)
 	ON_COMMAND(ID_CREATE_STATICMESH, &CMainDoc::OnCreateStaticmesh)
 END_MESSAGE_MAP()
 
@@ -59,6 +63,30 @@ void CMainDoc::OnCloseDocument()
 	// TODO: Add your specialized code here and/or call the base class
 
 	CDocument::OnCloseDocument();
+}
+
+void CMainDoc::OnEditUndo()
+{
+	operator[](m_nStep--)->Undo();
+
+	UpdateAllViews(NULL);
+}
+
+void CMainDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_nStep >= 0);
+}
+
+void CMainDoc::OnEditRedo()
+{
+	operator[](++m_nStep)->Do();
+
+	UpdateAllViews(NULL);
+}
+
+void CMainDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
+{
+	pCmdUI->Enable(m_nStep < (int)CDocHistoryMgr::size() - 1);
 }
 
 void CMainDoc::OnCreateStaticmesh()
