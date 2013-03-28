@@ -69,6 +69,16 @@ public:
 
 	bool m_DeviceObjectsReset;
 
+	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
+
+	boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
+
+	boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
+
+	boost::shared_ptr<btConstraintSolver> m_constraintSolver;
+
+	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
+
 	DECLARE_MESSAGE_MAP()
 
 	IDirect3DDevice9 * GetD3D9Device(void)

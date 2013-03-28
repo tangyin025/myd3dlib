@@ -5,6 +5,10 @@
 
 using namespace my;
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainView, CView)
@@ -83,19 +87,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
-
-	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
-
-	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
-
-	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
-
-	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
-
-	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
-		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
-	m_dynamicsWorld->setDebugDrawer(this);
-	m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
 
 	m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
 
@@ -189,7 +180,7 @@ void CMainView::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_dynamicsWorld->stepSimulation(fElapsedTime);
+	//m_dynamicsWorld->stepSimulation(fElapsedTime);
 
 	SteeringOutput steer;
 	//m_Seek.getSteering(&steer);
@@ -218,6 +209,9 @@ void CMainView::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		CMainFrame * pFrame = CMainFrame::getSingletonPtr();
+		ASSERT(pFrame);
+
 		m_Camera.OnFrameMove(0,0);
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
@@ -240,30 +234,32 @@ void CMainView::OnFrameRender(
 
 		draw3dText(btVector3(1,1,1), "aaa");
 
-		m_dynamicsWorld->debugDrawWorld();
+		pFrame->m_dynamicsWorld->setDebugDrawer(this);
+		pFrame->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
+		pFrame->m_dynamicsWorld->debugDrawWorld();
 
-		CMainFrame::getSingleton().m_SimpleSample->SetFloat("g_fTime", fTime);
-		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
-		CMainFrame::getSingleton().m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
-		CMainFrame::getSingleton().m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
-		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+		pFrame->m_SimpleSample->SetFloat("g_fTime", fTime);
+		pFrame->m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
+		pFrame->m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
+		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
 		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
+		pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
 			UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
 			UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-		CMainFrame::getSingleton().m_UIRender->Begin();
+		pFrame->m_UIRender->Begin();
 
 		CString strText;
 		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		CMainFrame::getSingleton().m_Font->DrawString(
-			CMainFrame::getSingleton().m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		pFrame->m_Font->DrawString(
+			pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
 
-		CMainFrame::getSingleton().m_UIRender->End();
+		pFrame->m_UIRender->End();
 		V(pd3dDevice->EndScene());
 	}
 

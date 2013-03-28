@@ -36,7 +36,7 @@ BOOL CMainDoc::OnNewDocument()
 		btRigidBody::btRigidBodyConstructionInfo(0.0f, m_groundMotionState.get(), m_groundShape.get(), localInertia)));
 	m_groundBody->setRestitution(1.0f);
 
-	CMainView::getSingleton().m_dynamicsWorld->addRigidBody(m_groundBody.get());
+	CMainFrame::getSingleton().m_dynamicsWorld->addRigidBody(m_groundBody.get());
 
 	return CDocument::OnNewDocument();
 }
