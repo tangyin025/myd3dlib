@@ -116,9 +116,16 @@ public:
 
 	virtual ~CDocHistoryMgr(void)
 	{
+		ASSERT(empty());
 	}
 
 	int m_nStep;
+
+	void Do(void);
+
+	void Undo(void);
+
+	void ClearAllHistory(void);
 
 	void AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh);
 };

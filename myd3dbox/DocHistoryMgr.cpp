@@ -117,6 +117,23 @@ void CDeleteStaticMeshTreeNodeStep::Do(void)
 	pOutliner->m_TreeCtrl.DeleteItem(hItem);
 }
 
+void CDocHistoryMgr::Do(void)
+{
+	operator[](++m_nStep)->Do();
+}
+
+void CDocHistoryMgr::Undo(void)
+{
+	operator[](m_nStep--)->Undo();
+}
+
+void CDocHistoryMgr::ClearAllHistory(void)
+{
+	clear();
+
+	m_nStep = -1;
+}
+
 void CDocHistoryMgr::AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
 {
 	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
