@@ -20,12 +20,17 @@ CMainDoc::CMainDoc(void)
 {
 }
 
-BOOL CMainDoc::OnNewDocument()
+void CMainDoc::Clear(void)
 {
-	// TODO: Add your specialized code here and/or call the base class
 	CDocHistoryMgr::ClearAllHistory();
 
 	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
+}
+
+BOOL CMainDoc::OnNewDocument()
+{
+	// TODO: Add your specialized code here and/or call the base class
+	Clear();
 
 	//const my::Vector3 boxHalfExtents(10.0f, 10.0f, 10.0f);
 	//m_groundShape.reset(new btBoxShape(btVector3(boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z)));
@@ -51,9 +56,7 @@ BOOL CMainDoc::OnOpenDocument(LPCTSTR lpszPathName)
 		return FALSE;
 
 	// TODO:  Add your specialized creation code here
-	CDocHistoryMgr::ClearAllHistory();
-
-	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
+	Clear();
 
 	return TRUE;
 }
@@ -61,9 +64,7 @@ BOOL CMainDoc::OnOpenDocument(LPCTSTR lpszPathName)
 BOOL CMainDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	CDocHistoryMgr::ClearAllHistory();
-
-	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
+	Clear();
 
 	return CDocument::OnSaveDocument(lpszPathName);
 }
@@ -71,9 +72,7 @@ BOOL CMainDoc::OnSaveDocument(LPCTSTR lpszPathName)
 void CMainDoc::OnCloseDocument()
 {
 	// TODO: Add your specialized code here and/or call the base class
-	CDocHistoryMgr::ClearAllHistory();
-
-	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
+	Clear();
 
 	CDocument::OnCloseDocument();
 }
