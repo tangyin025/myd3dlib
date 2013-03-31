@@ -117,7 +117,7 @@ void CMainDoc::OnCreateStaticmesh()
 			static unsigned int i = 0;
 			CString strItem;
 			strItem.Format(_T("mesh_%03d"), i++);
-			AddTreeStaticMeshNode(strItem, mesh);
+			AddStaticMeshTreeNode(strItem, mesh);
 
 			SetModifiedFlag();
 

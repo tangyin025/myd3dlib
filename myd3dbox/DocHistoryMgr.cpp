@@ -110,11 +110,15 @@ void CDeleteTreeNodeStep::Do(void)
 
 void CDocHistoryMgr::Do(void)
 {
+	ASSERT(m_nStep < (int)size() - 1);
+
 	operator[](++m_nStep)->Do();
 }
 
 void CDocHistoryMgr::Undo(void)
 {
+	ASSERT(m_nStep >= 0);
+
 	operator[](m_nStep--)->Undo();
 }
 
@@ -125,7 +129,15 @@ void CDocHistoryMgr::ClearAllHistory(void)
 	m_nStep = -1;
 }
 
-void CDocHistoryMgr::AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
+void CDocHistoryMgr::AddHistory(CDocHistoryPtr hist)
+{
+	if(!empty())
+		erase(begin() + (m_nStep + 1), end());
+
+	push_back(hist);
+}
+
+void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
 {
 	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 	ASSERT(pOutliner);
@@ -138,7 +150,7 @@ void CDocHistoryMgr::AddTreeStaticMeshNode(LPCTSTR lpszItem, my::OgreMeshPtr mes
 		CDocStepBasePtr(new CAddTreeNodeStep(lpszItem, node)),
 		CDocStepBasePtr(new CDeleteTreeNodeStep(lpszItem))));
 
-	push_back(hist);
+	AddHistory(hist);
 
-	operator[](++m_nStep)->Do();
+	Do();
 }
