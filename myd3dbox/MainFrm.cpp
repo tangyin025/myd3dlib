@@ -4,10 +4,10 @@
 #include "MainView.h"
 
 using namespace my;
-//
-//#ifdef _DEBUG
-//#define new DEBUG_NEW
-//#endif
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
 void EffectUIRender::Begin(void)
 {
@@ -178,17 +178,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Font = CMainFrame::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
 
 	m_SimpleSample = CMainFrame::getSingleton().LoadEffect("shader/SimpleSample.fx");
-
-	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
-
-	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
-
-	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
-
-	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
-
-	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
-		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
 	return 0;
 }

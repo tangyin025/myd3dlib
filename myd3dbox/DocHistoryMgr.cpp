@@ -7,10 +7,6 @@ using namespace my;
 
 StaticMeshTreeNode::~StaticMeshTreeNode(void)
 {
-	//CMainFrame * pFrame = CMainFrame::getSingletonPtr();
-	//ASSERT(pFrame);
-
-	//pFrame->m_dynamicsWorld->removeRigidBody(m_rigidBody.get());
 }
 
 void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
@@ -43,11 +39,6 @@ void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
 	m_rigidBody.reset(new btRigidBody(0, m_motionState.get(), m_meshShape.get(), btVector3(0,0,0)));
 
 	m_rigidBody->setContactProcessingThreshold(1e18f);
-
-	//CMainFrame * pFrame = CMainFrame::getSingletonPtr();
-	//ASSERT(pFrame);
-
-	//pFrame->m_dynamicsWorld->addRigidBody(m_rigidBody.get());
 }
 
 void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)

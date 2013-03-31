@@ -237,16 +237,16 @@ void CMainView::OnFrameRender(
 		ASSERT(pOutliner);
 		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
 
+		pOutliner->m_dynamicsWorld->setDebugDrawer(this);
+		pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
+		pOutliner->m_dynamicsWorld->debugDrawWorld();
+
 		Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
 		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
 		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
 		DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
 
 		draw3dText(btVector3(1,1,1), "aaa");
-
-		pFrame->m_dynamicsWorld->setDebugDrawer(this);
-		pFrame->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
-		pFrame->m_dynamicsWorld->debugDrawWorld();
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
