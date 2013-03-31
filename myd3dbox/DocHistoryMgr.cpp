@@ -137,14 +137,8 @@ void CDocHistoryMgr::AddHistory(CDocHistoryPtr hist)
 	push_back(hist);
 }
 
-void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
+void CDocHistoryMgr::AddTreeNode(LPCTSTR lpszItem, TreeNodeBasePtr node)
 {
-	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
-	ASSERT(pOutliner);
-
-	StaticMeshTreeNodePtr node(new StaticMeshTreeNode);
-	node->SetMesh(mesh);
-
 	CDocHistoryPtr hist(new CDocHistory());
 	hist->push_back(std::make_pair(
 		CDocStepBasePtr(new CAddTreeNodeStep(lpszItem, node)),
@@ -153,4 +147,31 @@ void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mes
 	AddHistory(hist);
 
 	Do();
+}
+
+void CDocHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
+{
+	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+	ASSERT(pOutliner);
+
+	CString strItem = pOutliner->m_TreeCtrl.GetItemText(hItem);
+	boost::shared_ptr<CDeleteTreeNodeStep> del_step(new CDeleteTreeNodeStep(strItem));
+	del_step->Do();
+
+	CDocHistoryPtr hist(new CDocHistory());
+	hist->push_back(std::make_pair(
+		del_step,
+		CDocStepBasePtr(new CAddTreeNodeStep(strItem, del_step->m_node))));
+
+	AddHistory(hist);
+
+	m_nStep++;
+}
+
+void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
+{
+	StaticMeshTreeNodePtr node(new StaticMeshTreeNode);
+	node->SetMesh(mesh);
+
+	AddTreeNode(lpszItem, node);
 }

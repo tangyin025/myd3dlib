@@ -2,6 +2,7 @@
 #include "resource.h"
 #include "OutlinerView.h"
 #include "MainFrm.h"
+#include "MainDoc.h"
 //
 //#ifdef _DEBUG
 //#define new DEBUG_NEW
@@ -240,8 +241,16 @@ void COutlinerTreeCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	{
 	case VK_DELETE:
 		{
-			NMHDR hdr = {GetSafeHwnd(), GetDlgCtrlID(), TVN_USERDELETING};
-			GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&hdr);
+			HTREEITEM hSelected = GetSelectedItem();
+			if(hSelected)
+			{
+				NMTREEVIEW NMTreeView = {0};
+				NMTreeView.hdr.hwndFrom = GetSafeHwnd();
+				NMTreeView.hdr.idFrom = GetDlgCtrlID();
+				NMTreeView.hdr.code = TVN_USERDELETING;
+				NMTreeView.itemOld.hItem = hSelected;
+				GetParent()->SendMessage(WM_NOTIFY, GetDlgCtrlID(), (LPARAM)&NMTreeView);
+			}
 		}
 		break;
 
@@ -383,7 +392,15 @@ void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 
 void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 {
+	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	// TODO: Add your control notification handler code here
 	*pResult = 0;
+
+	ASSERT(pNMTreeView->itemOld.hItem);
+	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+	ASSERT(pDoc);
+	pDoc->DeleteTreeNode(pNMTreeView->itemOld.hItem);
+	pDoc->UpdateAllViews(NULL);
 }
 
 void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)

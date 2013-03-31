@@ -131,5 +131,9 @@ public:
 
 	void AddHistory(CDocHistoryPtr hist);
 
+	void AddTreeNode(LPCTSTR lpszItem, TreeNodeBasePtr node);
+
+	void DeleteTreeNode(HTREEITEM hItem);
+
 	void AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh);
 };
