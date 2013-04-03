@@ -8,6 +8,7 @@
 float4 g_MaterialAmbientColor;
 float4 g_MaterialDiffuseColor;
 texture g_MeshTexture;
+float g_ZOff;
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
@@ -46,6 +47,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     
     // Transform the position from object space to homogeneous projection space
     Output.Position = mul(vPos, g_mWorldViewProjection);
+	Output.Position.z -= g_ZOff;
     
     // Transform the normal from object space to world space    
     vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_mWorld)); // normal (world space)

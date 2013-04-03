@@ -41,24 +41,73 @@ void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
 	m_rigidBody->setContactProcessingThreshold(1e18f);
 }
 
-void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime)
+void StaticMeshTreeNode::DrawStaticMeshTreeNode(
+	StaticMeshTreeNode * node,
+	IDirect3DDevice9 * pd3dDevice,
+	float fElapsedTime,
+	DWORD RenderMode,
+	my::Vector4 & Color)
+{
+	my::Effect * pSimpleSample = CMainFrame::getSingleton().m_SimpleSample.get();
+
+	DWORD OldState;
+	pd3dDevice->GetRenderState(D3DRS_FILLMODE, &OldState);
+	FLOAT OldZOff = pSimpleSample->GetFloat("g_ZOff");
+	if(CMainView::RenderModeWire == RenderMode)
+	{
+		pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+		pSimpleSample->SetFloat("g_ZOff", 0.001f);
+	}
+
+	pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
+	pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
+	pSimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
+	UINT cPasses = pSimpleSample->Begin();
+	for(UINT p = 0; p < cPasses; p++)
+	{
+		pSimpleSample->BeginPass(p);
+		for(DWORD i = 0; i < node->m_mesh->GetMaterialNum(); i++)
+		{
+			node->m_mesh->DrawSubset(i);
+		}
+		pSimpleSample->EndPass();
+	}
+	pSimpleSample->End();
+
+	if(CMainView::RenderModeWire == RenderMode)
+	{
+		pSimpleSample->SetFloat("g_ZOff", OldZOff);
+		pd3dDevice->SetRenderState(D3DRS_FILLMODE, OldState);
+	}
+}
+
+void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected)
 {
 	if(m_mesh)
 	{
-		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,1));
-		CMainFrame::getSingleton().m_SimpleSample->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-		CMainFrame::getSingleton().m_SimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
-		UINT cPasses = CMainFrame::getSingleton().m_SimpleSample->Begin();
-		for(UINT p = 0; p < cPasses; p++)
+		switch(RenderMode)
 		{
-			CMainFrame::getSingleton().m_SimpleSample->BeginPass(p);
-			for(DWORD i = 0; i < m_mesh->GetMaterialNum(); i++)
+		case CMainView::RenderModeDefault:
 			{
-				m_mesh->DrawSubset(i);
+				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, RenderMode, my::Vector4(1,1,1,1));
 			}
-			CMainFrame::getSingleton().m_SimpleSample->EndPass();
+			if(IsSelected)
+			{
+				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, CMainView::RenderModeWire, my::Vector4(67,255,163,255)/my::Vector4(255,255,255,255));
+			}
+			break;
+
+		case CMainView::RenderModeWire:
+			if(IsSelected)
+			{
+				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, CMainView::RenderModeWire, my::Vector4(67,255,163,255)/my::Vector4(255,255,255,255));
+			}
+			else
+			{
+				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, RenderMode, my::Vector4(0,4,96,255)/my::Vector4(255,255,255,255));
+			}
+			break;
 		}
-		CMainFrame::getSingleton().m_SimpleSample->End();
 	}
 }
 

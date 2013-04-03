@@ -13,7 +13,7 @@ public:
 
 	virtual btRigidBody * GetRigidBody(void) { return NULL; }
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime) = 0;
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected) = 0;
 };
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
@@ -117,5 +117,5 @@ public:
 
 	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
 
-	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem);
+	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, DWORD RenderMode);
 };

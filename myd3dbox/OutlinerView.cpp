@@ -350,6 +350,10 @@ void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
+
+	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+	ASSERT(pDoc);
+	pDoc->UpdateAllViews(NULL);
 }
 
 void COutlinerView::OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
@@ -421,14 +425,14 @@ TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
 	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
 }
 
-void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem)
+void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, DWORD RenderMode)
 {
 	if(hItem)
 	{
-		GetItemNode(hItem)->Draw(pd3dDevice, fElapsedTime);
+		GetItemNode(hItem)->Draw(pd3dDevice, fElapsedTime, RenderMode, hItem == m_TreeCtrl.GetSelectedItem());
 
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem));
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), RenderMode);
 
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem));
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), RenderMode);
 	}
 }

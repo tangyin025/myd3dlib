@@ -88,17 +88,17 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
 
-	m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
+	//m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
 
-	m_Seek.character = m_Character.get();
-	m_Seek.target = Vector3(5,0,5);
-	m_Seek.maxAcceleration = 2.0f;
+	//m_Seek.character = m_Character.get();
+	//m_Seek.target = Vector3(5,0,5);
+	//m_Seek.maxAcceleration = 2.0f;
 
-	m_Arrive.character = m_Character.get();
-	m_Arrive.target = Vector3(5,0,5);
-	m_Arrive.maxAcceleration = 2.0f;
-	m_Arrive.radius = 0.2f;
-	m_Arrive.timeToTarget = 2.0f;
+	//m_Arrive.character = m_Character.get();
+	//m_Arrive.target = Vector3(5,0,5);
+	//m_Arrive.maxAcceleration = 2.0f;
+	//m_Arrive.radius = 0.2f;
+	//m_Arrive.timeToTarget = 2.0f;
 
 	return 0;
 }
@@ -182,14 +182,14 @@ void CMainView::OnFrameMove(
 {
 	//m_dynamicsWorld->stepSimulation(fElapsedTime);
 
-	SteeringOutput steer;
-	//m_Seek.getSteering(&steer);
-	m_Arrive.getSteering(&steer);
-	m_Character->integrate(steer, 0.35f, 0.01f);
-	m_Character->setOrientationFromVelocity(m_Character->velocity);
-	m_Character->trimMaxSpeed(2.0f);
-	m_Character->position.x = Round(m_Character->position.x, -10.0f, 10.0f);
-	m_Character->position.y = Round(m_Character->position.y, -10.0f, 10.0f);
+	//SteeringOutput steer;
+	////m_Seek.getSteering(&steer);
+	//m_Arrive.getSteering(&steer);
+	//m_Character->integrate(steer, 0.35f, 0.01f);
+	//m_Character->setOrientationFromVelocity(m_Character->velocity);
+	//m_Character->trimMaxSpeed(2.0f);
+	//m_Character->position.x = Round(m_Character->position.x, -10.0f, 10.0f);
+	//m_Character->position.y = Round(m_Character->position.y, -10.0f, 10.0f);
 }
 
 void CMainView::OnFrameRender(
@@ -227,7 +227,7 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		pFrame->m_SimpleSample->SetFloat("g_fTime", fTime);
+		pFrame->m_SimpleSample->SetFloat("g_fTime", (float)fTime);
 		pFrame->m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
 		pFrame->m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
 		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
@@ -235,18 +235,18 @@ void CMainView::OnFrameRender(
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
-		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem());
+		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
 
-		pOutliner->m_dynamicsWorld->setDebugDrawer(this);
-		pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
-		pOutliner->m_dynamicsWorld->debugDrawWorld();
+		//pOutliner->m_dynamicsWorld->setDebugDrawer(this);
+		//pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
+		//pOutliner->m_dynamicsWorld->debugDrawWorld();
 
-		Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
-		DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
-		DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
-		DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
+		//Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
+		//DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
+		//DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
+		//DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
 
-		draw3dText(btVector3(1,1,1), "aaa");
+		//draw3dText(btVector3(1,1,1), "aaa");
 
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		pFrame->m_UIRender->SetTransform(Matrix4::Identity(),

@@ -14,6 +14,7 @@ public:
 		, m_bEatAltUp(FALSE)
 		, m_DragCameraMode(DragCameraNone)
 		, m_Camera()
+		, m_RenderMode(RenderModeDefault)
 	{
 	}
 
@@ -59,11 +60,19 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	my::KinematicPtr m_Character;
+	//my::KinematicPtr m_Character;
 
-	my::Seek m_Seek;
+	//my::Seek m_Seek;
 
-	my::Arrive m_Arrive;
+	//my::Arrive m_Arrive;
+
+	enum RenderMode
+	{
+		RenderModeDefault = 0,
+		RenderModeWire,
+	};
+
+	RenderMode m_RenderMode;
 
 	DECLARE_MESSAGE_MAP()
 

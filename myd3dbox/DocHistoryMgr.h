@@ -26,7 +26,14 @@ public:
 
 	virtual btRigidBody * GetRigidBody(void) { return m_rigidBody.get(); }
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime);
+	static void DrawStaticMeshTreeNode(
+		StaticMeshTreeNode * node,
+		IDirect3DDevice9 * pd3dDevice,
+		float fElapsedTime,
+		DWORD RenderMode,
+		my::Vector4 & Color);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected);
 };
 
 typedef boost::shared_ptr<StaticMeshTreeNode> StaticMeshTreeNodePtr;
