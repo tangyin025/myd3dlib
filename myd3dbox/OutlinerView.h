@@ -71,6 +71,7 @@ public:
 	virtual ~COutlinerView(void)
 	{
 		ASSERT(m_ItemMap.empty());
+		ASSERT(m_BodyMap.empty());
 	}
 
 	DECLARE_MESSAGE_MAP()
@@ -82,6 +83,10 @@ public:
 	typedef std::tr1::unordered_map<std::basic_string<TCHAR>, HTREEITEM, boost::hash<std::basic_string<TCHAR> > > TreeItemMap;
 
 	TreeItemMap m_ItemMap;
+
+	typedef stdext::hash_map<btRigidBody *, HTREEITEM> RigidBodyMap;
+
+	RigidBodyMap m_BodyMap;
 
 	boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
 

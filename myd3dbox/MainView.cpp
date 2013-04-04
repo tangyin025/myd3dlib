@@ -27,6 +27,7 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_RBUTTONDOWN()
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 void CMainView::drawLine(const btVector3 & from,const btVector3 & to,const btVector3 & color)
@@ -235,11 +236,22 @@ void CMainView::OnFrameRender(
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
-		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
+		switch(m_RenderMode)
+		{
+		case RenderModeDefault:
+			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
+			break;
 
-		//pOutliner->m_dynamicsWorld->setDebugDrawer(this);
-		//pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
-		//pOutliner->m_dynamicsWorld->debugDrawWorld();
+		case RenderModeWire:
+			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
+			break;
+
+		case RenderModePhysics:
+			pOutliner->m_dynamicsWorld->setDebugDrawer(this);
+			pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
+			pOutliner->m_dynamicsWorld->debugDrawWorld();
+			break;
+		}
 
 		//Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
 		//DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
@@ -324,7 +336,38 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 		SetCapture();
 	}
 	else
-		m_Tracker.TrackRubberBand(this, point);
+		//m_Tracker.TrackRubberBand(this, point);
+	{
+		// ! m_View.inverse() 可以优化掉
+		Matrix4 invViewMatrix = m_Camera.m_View.inverse();
+		const Vector3 & viewX = invViewMatrix[0].xyz;
+		const Vector3 & viewY = invViewMatrix[1].xyz;
+		const Vector3 & viewZ = invViewMatrix[2].xyz;
+		const Vector3 & ptEye = invViewMatrix[3].xyz;
+
+		CRect ClientRect;
+		GetClientRect(&ClientRect);
+		Vector2 ptScreen((float)point.x, (float)point.y);
+		Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Camera.m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Camera.m_Proj._22);
+		Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y - viewZ).normalize() * 1000;
+
+		btCollisionWorld::ClosestRayResultCallback CB(
+			btVector3(ptEye.x, ptEye.y, ptEye.z), btVector3(ptEye.x + dir.x, ptEye.y + dir.y, ptEye.z + dir.z));
+
+		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+		ASSERT(pOutliner);
+		pOutliner->m_dynamicsWorld->rayTest(CB.m_rayFromWorld, CB.m_rayToWorld, CB);
+
+		if(CB.hasHit())
+		{
+			COutlinerView::RigidBodyMap::const_iterator body_iter = pOutliner->m_BodyMap.find(dynamic_cast<btRigidBody *>(CB.m_collisionObject));
+			ASSERT(body_iter != pOutliner->m_BodyMap.end());
+			ASSERT(body_iter->second);
+			pOutliner->m_TreeCtrl.SelectItem(body_iter->second);
+		}
+		else
+			pOutliner->m_TreeCtrl.SelectItem(NULL);
+	}
 }
 
 void CMainView::OnLButtonUp(UINT nFlags, CPoint point)
@@ -401,4 +444,28 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		Invalidate();
 		break;
 	}
+}
+
+void CMainView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	switch(nChar)
+	{
+	case VK_DELETE:
+		{
+			COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+			ASSERT(pOutliner);
+
+			HTREEITEM hSelected = pOutliner->m_TreeCtrl.GetSelectedItem();
+			if(hSelected)
+			{
+				CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+				ASSERT(pDoc);
+				pDoc->DeleteTreeNode(hSelected);
+				pDoc->UpdateAllViews(NULL);
+			}
+		}
+		return;
+	}
+
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }

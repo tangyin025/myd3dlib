@@ -154,6 +154,7 @@ bool DialogMgr::MsgProc(
 	case WM_XBUTTONDBLCLK:
 	case WM_MOUSEWHEEL:
 		{
+			// ! m_View.inverse() 可以优化掉
 			Matrix4 invViewMatrix = m_View.inverse();
 			const Vector3 & viewX = invViewMatrix[0].xyz;
 			const Vector3 & viewY = invViewMatrix[1].xyz;
@@ -249,7 +250,7 @@ void ModelViewerCamera::OnFrameMove(
 {
 	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
 
-	m_Position = Vector3(0,0,-m_Distance).transform(m_Orientation) + m_LookAt;
+	m_Position = Vector3(0,0,m_Distance).transform(m_Orientation) + m_LookAt;
 
 	m_View = Matrix4::Translation(-m_LookAt)
 		* Matrix4::RotationY(-m_Rotation.y)
