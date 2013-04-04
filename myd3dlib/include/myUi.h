@@ -40,14 +40,6 @@ namespace my
 		{
 		}
 
-		static Matrix4 OrthoView(float Width, float Height);
-
-		static Matrix4 OrthoProj(float Width, float Height);
-
-		static Matrix4 PerspectiveView(float Fovy, float Width, float Height);
-
-		static Matrix4 PerspectiveProj(float Fovy, float Width, float Height);
-
 		virtual void Begin(void);
 
 		virtual void End(void);

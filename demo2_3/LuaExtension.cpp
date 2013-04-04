@@ -663,15 +663,6 @@ void Export2Lua(lua_State * L)
 			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
 			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
-		, class_<my::UIRender>("UIRender")
-			.scope
-			[
-				def("OrthoView", &my::UIRender::OrthoView),
-				def("OrthoProj", &my::UIRender::OrthoProj),
-				def("PerspectiveView", &my::UIRender::PerspectiveView),
-				def("PerspectiveProj", &my::UIRender::PerspectiveProj)
-			]
-
 		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
 
 		, class_<my::ControlEvent>("ControlEvent")
@@ -947,14 +938,16 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Aspect", &my::BaseCamera::m_Aspect)
 			.def_readwrite("Nz", &my::BaseCamera::m_Nz)
 			.def_readwrite("Fz", &my::BaseCamera::m_Fz)
-			.def_readwrite("View", &my::BaseCamera::m_View)
-			.def_readwrite("Proj", &my::BaseCamera::m_Proj)
-			.def_readwrite("EventAlign", &my::BaseCamera::EventAlign)
+			.def_readonly("View", &my::BaseCamera::m_View)
+			.def_readonly("Proj", &my::BaseCamera::m_Proj)
 
 		, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Position", &my::Camera::m_Position)
 			.def_readwrite("Orientation", &my::Camera::m_Orientation)
+			.def_readonly("ViewProj", &my::Camera::m_ViewProj)
+			.def_readonly("InverseViewProj", &my::Camera::m_InverseViewProj)
+			.def_readwrite("EventAlign", &my::Camera::EventAlign)
 
 		, class_<my::ModelViewerCamera, my::Camera, boost::shared_ptr<my::Camera> >("ModelViewerCamera")
 			.def(constructor<float, float, float, float>())

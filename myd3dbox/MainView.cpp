@@ -45,23 +45,23 @@ void CMainView::reportErrorWarning(const char * warningString)
 
 void CMainView::draw3dText(const btVector3 & location,const char * textString)
 {
-	// ! Unoptimized implementation
-	Surface BackBuffer;
-	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-	CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
-		UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-		UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-	CMainFrame::getSingleton().m_UIRender->Begin();
+	//// ! Unoptimized implementation
+	//Surface BackBuffer;
+	//V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	//D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+	//CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
+	//	UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+	//	UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
+	//CMainFrame::getSingleton().m_UIRender->Begin();
 
-	Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_View * m_Camera.m_Proj);
-	pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
-	pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
+	//Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_View * m_Camera.m_Proj);
+	//pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
+	//pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
 
-	CMainFrame::getSingleton().m_Font->DrawString(
-		CMainFrame::getSingleton().m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
+	//CMainFrame::getSingleton().m_Font->DrawString(
+	//	CMainFrame::getSingleton().m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
 
-	CMainFrame::getSingleton().m_UIRender->End();
+	//CMainFrame::getSingleton().m_UIRender->End();
 }
 
 void CMainView::setDebugMode(int debugMode)
@@ -260,18 +260,18 @@ void CMainView::OnFrameRender(
 
 		//draw3dText(btVector3(1,1,1), "aaa");
 
-		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
-			UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-			UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-		pFrame->m_UIRender->Begin();
+		//D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+		//pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
+		//	UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
+		//	UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
+		//pFrame->m_UIRender->Begin();
 
-		CString strText;
-		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		pFrame->m_Font->DrawString(
-			pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		//CString strText;
+		//strText.Format(_T("%d x %d"), desc.Width, desc.Height);
+		//pFrame->m_Font->DrawString(
+		//	pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
 
-		pFrame->m_UIRender->End();
+		//pFrame->m_UIRender->End();
 		V(pd3dDevice->EndScene());
 	}
 
@@ -338,21 +338,14 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 	else
 		//m_Tracker.TrackRubberBand(this, point);
 	{
-		// ! m_View.inverse() 可以优化掉
-		Matrix4 invViewMatrix = m_Camera.m_View.inverse();
-		const Vector3 & viewX = invViewMatrix[0].xyz;
-		const Vector3 & viewY = invViewMatrix[1].xyz;
-		const Vector3 & viewZ = invViewMatrix[2].xyz;
-		const Vector3 & ptEye = invViewMatrix[3].xyz;
-
 		CRect ClientRect;
 		GetClientRect(&ClientRect);
-		Vector2 ptScreen((float)point.x, (float)point.y);
-		Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Camera.m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Camera.m_Proj._22);
-		Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y - viewZ).normalize() * 1000;
+		Vector2 ptScreen(point.x + 0.5f, point.y + 0.5f);
+		Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
+		Vector3 dir = (ptProj.transformCoord(m_Camera.m_InverseViewProj) - m_Camera.m_Position).normalize();
 
 		btCollisionWorld::ClosestRayResultCallback CB(
-			btVector3(ptEye.x, ptEye.y, ptEye.z), btVector3(ptEye.x + dir.x, ptEye.y + dir.y, ptEye.z + dir.z));
+			btVector3(m_Camera.m_Position.x, m_Camera.m_Position.y, m_Camera.m_Position.z), btVector3(m_Camera.m_Position.x + dir.x * 1000, m_Camera.m_Position.y + dir.y * 1000, m_Camera.m_Position.z + dir.z * 1000));
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);

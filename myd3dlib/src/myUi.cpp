@@ -5,32 +5,6 @@
 
 using namespace my;
 
-Matrix4 UIRender::OrthoView(float Width, float Height)
-{
-	return Matrix4::LookAtRH(
-		Vector3(Width * 0.5f, Height * 0.5f, -1),
-		Vector3(Width * 0.5f, Height * 0.5f, 0),
-		Vector3(0, -1, 0));
-}
-
-Matrix4 UIRender::OrthoProj(float Width, float Height)
-{
-	return Matrix4::OrthoRH(Width, Height, -50.0f, 50.0f);
-}
-
-Matrix4 UIRender::PerspectiveView(float Fovy, float Width, float Height)
-{
-	return Matrix4::LookAtRH(
-		Vector3(Width * 0.5f, Height * 0.5f, -Height * 0.5f * cot(Fovy / 2)),
-		Vector3(Width * 0.5f, Height * 0.5f, 0),
-		Vector3(0, -1, 0));
-}
-
-Matrix4 UIRender::PerspectiveProj(float Fovy, float Width, float Height)
-{
-	return Matrix4::PerspectiveFovRH(Fovy, Width / Height, 0.1f, 3000.0f);
-}
-
 void UIRender::Begin(void)
 {
 	// ! Default UIRender rendering ui elements under Fixed Pipeline

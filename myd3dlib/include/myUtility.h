@@ -61,66 +61,6 @@ namespace my
 			float fElapsedTime);
 	};
 
-	class DialogMgr
-	{
-	public:
-		typedef std::vector<DialogPtr> DialogPtrSet;
-
-		typedef std::map<int, DialogPtrSet> DialogPtrSetMap;
-
-		DialogPtrSetMap m_dlgSetMap;
-
-		Matrix4 m_View;
-
-		Matrix4 m_Proj;
-
-	public:
-		DialogMgr(void)
-		{
-			SetDlgViewport(Vector2(800,600));
-		}
-
-		void SetDlgViewport(const Vector2 & vp);
-
-		Vector2 GetDlgViewport(void) const
-		{
-			return Vector2(-m_View._41*2, m_View._42*2);
-		}
-
-		void Draw(
-			UIRender * ui_render,
-			double fTime,
-			float fElapsedTime);
-
-		bool MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam);
-
-		void InsertDlg(DialogPtr dlg)
-		{
-			m_dlgSetMap[0].push_back(dlg);
-
-			if(dlg->EventAlign)
-				dlg->EventAlign(EventArgsPtr(new EventArgs()));
-		}
-
-		void RemoveDlg(DialogPtr dlg)
-		{
-			DialogPtrSet::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
-			if(dlg_iter != m_dlgSetMap[0].end())
-			{
-				m_dlgSetMap[0].erase(dlg_iter);
-			}
-		}
-
-		void RemoveAllDlg()
-		{
-			m_dlgSetMap[0].clear();
-		}
-	};
-
 	class BaseCamera
 	{
 	public:
@@ -135,8 +75,6 @@ namespace my
 		Matrix4 m_View;
 
 		Matrix4 m_Proj;
-
-		ControlEvent EventAlign;
 
 	public:
 		BaseCamera(float Fov, float Aspect, float Nz, float Fz)
@@ -175,6 +113,12 @@ namespace my
 
 		Quaternion m_Orientation;
 
+		Matrix4 m_ViewProj;
+
+		Matrix4 m_InverseViewProj;
+
+		ControlEvent EventAlign;
+
 	public:
 		Camera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
 			: BaseCamera(Fov, Aspect, Nz, Fz)
@@ -185,22 +129,14 @@ namespace my
 
 		virtual void OnFrameMove(
 			double fTime,
-			float fElapsedTime)
-		{
-			m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
-
-			m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
-		}
+			float fElapsedTime);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
 			UINT uMsg,
 			WPARAM wParam,
 			LPARAM lParam,
-			bool * pbNoFurtherProcessing)
-		{
-			return 0;
-		}
+			bool * pbNoFurtherProcessing);
 	};
 
 	class ModelViewerCamera
@@ -270,6 +206,64 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+	};
+
+	class DialogMgr
+	{
+	public:
+		typedef std::vector<DialogPtr> DialogPtrSet;
+
+		typedef std::map<int, DialogPtrSet> DialogPtrSetMap;
+
+		DialogPtrSetMap m_dlgSetMap;
+
+		FirstPersonCamera m_Camera;
+
+	public:
+		DialogMgr(void)
+		{
+			SetDlgViewport(Vector2(800,600));
+		}
+
+		void SetDlgViewport(const Vector2 & vp);
+
+		Vector2 GetDlgViewport(void) const
+		{
+			return Vector2(-m_Camera.m_View._41*2, m_Camera.m_View._42*2);
+		}
+
+		void Draw(
+			UIRender * ui_render,
+			double fTime,
+			float fElapsedTime);
+
+		bool MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam);
+
+		void InsertDlg(DialogPtr dlg)
+		{
+			m_dlgSetMap[0].push_back(dlg);
+
+			if(dlg->EventAlign)
+				dlg->EventAlign(EventArgsPtr(new EventArgs()));
+		}
+
+		void RemoveDlg(DialogPtr dlg)
+		{
+			DialogPtrSet::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
+			if(dlg_iter != m_dlgSetMap[0].end())
+			{
+				m_dlgSetMap[0].erase(dlg_iter);
+			}
+		}
+
+		void RemoveAllDlg()
+		{
+			m_dlgSetMap[0].clear();
+		}
 	};
 
 	class DrawHelper

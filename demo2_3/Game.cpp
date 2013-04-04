@@ -278,7 +278,7 @@ void Game::OnFrameRender(
 
 		_ASSERT(m_Font);
 
-		m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_View, DialogMgr::m_Proj);
+		m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 

@@ -62,186 +62,27 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
-void DialogMgr::SetDlgViewport(const Vector2 & vp)
-{
-	m_View = UIRender::PerspectiveView(D3DXToRadian(75), vp.x, vp.y);
-
-	m_Proj = UIRender::PerspectiveProj(D3DXToRadian(75), vp.x, vp.y);
-
-	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
-	{
-		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
-		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
-		{
-			if((*dlg_iter)->EventAlign)
-				(*dlg_iter)->EventAlign(EventArgsPtr(new EventArgs()));
-		}
-	}
-}
-
-void DialogMgr::Draw(
-	UIRender * ui_render,
+void Camera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
-	{
-		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
-		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
-		{
-			ui_render->SetTransform((*dlg_iter)->m_World, m_View, m_Proj);
+	m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
 
-			(*dlg_iter)->Draw(ui_render, fElapsedTime);
-		}
-	}
+	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
 }
 
-bool DialogMgr::MsgProc(
+LRESULT Camera::MsgProc(
 	HWND hWnd,
 	UINT uMsg,
 	WPARAM wParam,
-	LPARAM lParam)
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
 {
-	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
-	if(ControlFocus)
-	{
-		_ASSERT(!boost::dynamic_pointer_cast<Dialog>(ControlFocus));
-		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
-			return true;
-	}
-
-	switch(uMsg)
-	{
-	case WM_KEYDOWN:
-	case WM_SYSKEYDOWN:
-	case WM_KEYUP:
-	case WM_SYSKEYUP:
-		if(ControlFocus)
-		{
-			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
-				return true;
-		}
-
-		if(uMsg == WM_KEYDOWN)
-		{
-			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
-			{
-				DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
-				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
-				{
-					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
-						return true;
-				}
-			}
-		}
-		break;
-
-	case WM_MOUSEMOVE:
-	case WM_LBUTTONDOWN:
-	case WM_LBUTTONUP:
-	case WM_MBUTTONDOWN:
-	case WM_MBUTTONUP:
-	case WM_RBUTTONDOWN:
-	case WM_RBUTTONUP:
-	case WM_XBUTTONDOWN:
-	case WM_XBUTTONUP:
-	case WM_LBUTTONDBLCLK:
-	case WM_MBUTTONDBLCLK:
-	case WM_RBUTTONDBLCLK:
-	case WM_XBUTTONDBLCLK:
-	case WM_MOUSEWHEEL:
-		{
-			// ! m_View.inverse() 可以优化掉
-			Matrix4 invViewMatrix = m_View.inverse();
-			const Vector3 & viewX = invViewMatrix[0].xyz;
-			const Vector3 & viewY = invViewMatrix[1].xyz;
-			const Vector3 & viewZ = invViewMatrix[2].xyz;
-			const Vector3 & ptEye = invViewMatrix[3].xyz;
-
-			CRect ClientRect;
-			GetClientRect(hWnd, &ClientRect);
-			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector2 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right) / m_Proj._11, Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom) / m_Proj._22);
-			Vector3 dir = (viewX * ptProj.x + viewY * ptProj.y - viewZ).normalize();
-
-			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
-			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
-			{
-				DialogPtrSet::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
-				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
-				{
-					// ! 只处理看得见的 Dialog
-					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
-					{
-						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
-						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ptEye, dir, dialogNormal, dialogDistance);
-
-						if(result.first)
-						{
-							Vector3 ptInt(ptEye + dir * result.second);
-							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
-							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
-
-							// ! 只处理自己的 ControlFocus
-							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
-							{
-								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
-									return true;
-							}
-
-							// ! 只处理自己的 m_ControlMouseOver
-							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
-							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
-							if(ControlPtd != m_ControlMouseOver)
-							{
-								if(m_ControlMouseOver)
-									m_ControlMouseOver->OnMouseLeave();
-
-								if(ControlPtd && ControlPtd->GetEnabled())
-								{
-									(*dlg_iter)->m_ControlMouseOver = ControlPtd;
-									ControlPtd->OnMouseEnter();
-								}
-								else
-									(*dlg_iter)->m_ControlMouseOver.reset();
-							}
-
-							if(ControlPtd && ControlPtd->GetEnabled())
-							{
-								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
-								{
-									Dialog::RequestFocus(ControlPtd);
-									return true;
-								}
-							}
-
-							if(uMsg == WM_LBUTTONDOWN
-								&& (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
-							{
-								// ! 用以解决对话框控件丢失焦点
-								ControlFocus->OnFocusOut();
-								Dialog::s_ControlFocus.reset();
-							}
-
-							if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
-							{
-								// ! 强制让自己具有 FocusControl
-								(*dlg_iter)->ForceFocusControl();
-								return true;
-							}
-						}
-					}
-				}
-			}
-		}
-		break;
-	}
-
-	return false;
+	return 0;
 }
 
 void ModelViewerCamera::OnFrameMove(
@@ -259,6 +100,10 @@ void ModelViewerCamera::OnFrameMove(
 		* Matrix4::Translation(Vector3(0,0,-m_Distance));
 
 	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
 }
 
 LRESULT ModelViewerCamera::MsgProc(
@@ -319,6 +164,10 @@ void FirstPersonCamera::OnFrameMove(
 		* Matrix4::RotationZ(-m_Rotation.z);
 
 	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
 }
 
 LRESULT FirstPersonCamera::MsgProc(
@@ -434,6 +283,185 @@ LRESULT FirstPersonCamera::MsgProc(
 		break;
 	}
 	return 0;
+}
+
+void DialogMgr::SetDlgViewport(const Vector2 & vp)
+{
+	m_Camera.m_Position = Vector3(vp.x * 0.5f, vp.y * 0.5f, -vp.y * 0.5f * cot(m_Camera.m_Fov / 2));
+
+	m_Camera.m_Rotation.x = D3DXToRadian(180);
+
+	m_Camera.m_Aspect = vp.x / vp.y;
+
+	m_Camera.OnFrameMove(0,0);
+
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	{
+		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			if((*dlg_iter)->EventAlign)
+				(*dlg_iter)->EventAlign(EventArgsPtr(new EventArgs()));
+		}
+	}
+}
+
+void DialogMgr::Draw(
+	UIRender * ui_render,
+	double fTime,
+	float fElapsedTime)
+{
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	{
+		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			ui_render->SetTransform((*dlg_iter)->m_World, m_Camera.m_View, m_Camera.m_Proj);
+
+			(*dlg_iter)->Draw(ui_render, fElapsedTime);
+		}
+	}
+}
+
+bool DialogMgr::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
+	if(ControlFocus)
+	{
+		_ASSERT(!boost::dynamic_pointer_cast<Dialog>(ControlFocus));
+		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+			return true;
+	}
+
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if(ControlFocus)
+		{
+			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+				return true;
+		}
+
+		if(uMsg == WM_KEYDOWN)
+		{
+			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+			{
+				DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+				{
+					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
+						return true;
+				}
+			}
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+		{
+			CRect ClientRect;
+			GetClientRect(hWnd, &ClientRect);
+			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
+			Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
+			Vector3 dir = (ptProj.transformCoord(m_Camera.m_InverseViewProj) - m_Camera.m_Position).normalize();
+
+			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
+			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
+			{
+				DialogPtrSet::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
+				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
+				{
+					// ! 只处理看得见的 Dialog
+					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
+					{
+						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
+						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(m_Camera.m_Position, dir, dialogNormal, dialogDistance);
+
+						if(result.first)
+						{
+							Vector3 ptInt(m_Camera.m_Position + dir * result.second);
+							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
+							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
+
+							// ! 只处理自己的 ControlFocus
+							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
+							{
+								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
+									return true;
+							}
+
+							// ! 只处理自己的 m_ControlMouseOver
+							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
+							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
+							if(ControlPtd != m_ControlMouseOver)
+							{
+								if(m_ControlMouseOver)
+									m_ControlMouseOver->OnMouseLeave();
+
+								if(ControlPtd && ControlPtd->GetEnabled())
+								{
+									(*dlg_iter)->m_ControlMouseOver = ControlPtd;
+									ControlPtd->OnMouseEnter();
+								}
+								else
+									(*dlg_iter)->m_ControlMouseOver.reset();
+							}
+
+							if(ControlPtd && ControlPtd->GetEnabled())
+							{
+								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
+								{
+									Dialog::RequestFocus(ControlPtd);
+									return true;
+								}
+							}
+
+							if(uMsg == WM_LBUTTONDOWN
+								&& (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+							{
+								// ! 用以解决对话框控件丢失焦点
+								ControlFocus->OnFocusOut();
+								Dialog::s_ControlFocus.reset();
+							}
+
+							if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
+							{
+								// ! 强制让自己具有 FocusControl
+								(*dlg_iter)->ForceFocusControl();
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		break;
+	}
+
+	return false;
 }
 
 void DrawHelper::DrawLine(
