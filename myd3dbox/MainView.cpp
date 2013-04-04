@@ -2,6 +2,7 @@
 #include "MainView.h"
 #include "MainFrm.h"
 #include "MainApp.h"
+#include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 
 using namespace my;
 
@@ -45,23 +46,7 @@ void CMainView::reportErrorWarning(const char * warningString)
 
 void CMainView::draw3dText(const btVector3 & location,const char * textString)
 {
-	Surface BackBuffer;
-	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-
-	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
-	ASSERT(pFrame);
-
-	pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
-	pFrame->m_UIRender->Begin();
-
-	Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_ViewProj);
-	pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
-	pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
-
-	pFrame->m_Font->DrawString(
-		pFrame->m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
-	pFrame->m_UIRender->End();
+	DrawTextAtWorld((Vector3 &)location, ms2ws(textString).c_str(), D3DCOLOR_ARGB(255,255,255,0));
 }
 
 void CMainView::setDebugMode(int debugMode)
@@ -72,6 +57,26 @@ void CMainView::setDebugMode(int debugMode)
 int CMainView::getDebugMode() const
 {
 	return m_DebugDrawModes;
+}
+
+void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
+{
+	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
+	ASSERT(pFrame);
+
+	pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+	pFrame->m_UIRender->Begin();
+
+	Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
+
+	Vector2 vp = DialogMgr::GetDlgViewport();
+
+	Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
+
+	pFrame->m_Font->DrawString(
+		pFrame->m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+
+	pFrame->m_UIRender->End();
 }
 
 CMainDoc * CMainView::GetDocument() const
@@ -261,7 +266,8 @@ void CMainView::OnFrameRender(
 		//DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
 		//DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
 
-		//draw3dText(btVector3(1,1,1), "aaa");
+		DrawTextAtWorld(Vector3(10,0,0), _T("x"), D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(0,0,10), _T("z"), D3DCOLOR_ARGB(255,255,255,0));
 
 		pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
 		pFrame->m_UIRender->Begin();
@@ -346,6 +352,8 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 
 		btCollisionWorld::ClosestRayResultCallback CB(
 			btVector3(m_Camera.m_Position.x, m_Camera.m_Position.y, m_Camera.m_Position.z), btVector3(m_Camera.m_Position.x + dir.x * 1000, m_Camera.m_Position.y + dir.y * 1000, m_Camera.m_Position.z + dir.z * 1000));
+		// ! Back face culling
+		CB.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);

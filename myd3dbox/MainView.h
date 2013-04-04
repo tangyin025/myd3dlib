@@ -33,6 +33,8 @@ public:
 
 	virtual int getDebugMode() const;
 
+	void DrawTextAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
+
 	CMainDoc * GetDocument(void) const;
 
 	virtual void OnDraw(CDC* pDC) {}
