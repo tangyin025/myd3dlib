@@ -227,10 +227,7 @@ namespace my
 
 		void SetDlgViewport(const Vector2 & vp);
 
-		Vector2 GetDlgViewport(void) const
-		{
-			return Vector2(-m_Camera.m_View._41*2, m_Camera.m_View._42*2);
-		}
+		Vector2 GetDlgViewport(void) const;
 
 		void Draw(
 			UIRender * ui_render,

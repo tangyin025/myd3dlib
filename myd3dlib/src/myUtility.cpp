@@ -307,6 +307,11 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp)
 	}
 }
 
+Vector2 DialogMgr::GetDlgViewport(void) const
+{
+	return Vector2(-m_Camera.m_View._41*2, m_Camera.m_View._42*2);
+}
+
 void DialogMgr::Draw(
 	UIRender * ui_render,
 	double fTime,

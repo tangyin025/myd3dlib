@@ -45,23 +45,23 @@ void CMainView::reportErrorWarning(const char * warningString)
 
 void CMainView::draw3dText(const btVector3 & location,const char * textString)
 {
-	//// ! Unoptimized implementation
-	//Surface BackBuffer;
-	//V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	//D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-	//CMainFrame::getSingleton().m_UIRender->SetTransform(Matrix4::Identity(),
-	//	UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-	//	UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-	//CMainFrame::getSingleton().m_UIRender->Begin();
+	Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 
-	//Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_View * m_Camera.m_Proj);
-	//pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
-	//pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
+	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
+	ASSERT(pFrame);
 
-	//CMainFrame::getSingleton().m_Font->DrawString(
-	//	CMainFrame::getSingleton().m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
+	pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+	pFrame->m_UIRender->Begin();
 
-	//CMainFrame::getSingleton().m_UIRender->End();
+	Vector3 pos = ((Vector3 &)location).transformCoord(m_Camera.m_ViewProj);
+	pos.x = Lerp(0.0f, (float)desc.Width, (pos.x + 1) / 2);
+	pos.y = Lerp(0.0f, (float)desc.Height, (1 - pos.y) / 2);
+
+	pFrame->m_Font->DrawString(
+		pFrame->m_UIRender.get(), ms2ws(textString).c_str(), my::Rectangle(pos.xy, pos.xy), D3DCOLOR_ARGB(255,255,255,0));
+	pFrame->m_UIRender->End();
 }
 
 void CMainView::setDebugMode(int debugMode)
@@ -163,6 +163,9 @@ HRESULT CMainView::OnDeviceReset(void)
 	Surface BackBuffer;
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+
+	DialogMgr::SetDlgViewport(Vector2((float)desc.Width, (float)desc.Height));
+
 	m_DepthStencil.CreateDepthStencilSurface(
 		CMainFrame::getSingleton().m_d3dDevice, desc.Width, desc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
@@ -260,18 +263,15 @@ void CMainView::OnFrameRender(
 
 		//draw3dText(btVector3(1,1,1), "aaa");
 
-		//D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		//pFrame->m_UIRender->SetTransform(Matrix4::Identity(),
-		//	UIRender::PerspectiveView(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height),
-		//	UIRender::PerspectiveProj(D3DXToRadian(75.0f), (float)desc.Width, (float)desc.Height));
-		//pFrame->m_UIRender->Begin();
+		pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+		pFrame->m_UIRender->Begin();
+		CString strText;
+		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
+		pFrame->m_Font->DrawString(
+			pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		pFrame->m_UIRender->End();
 
-		//CString strText;
-		//strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		//pFrame->m_Font->DrawString(
-		//	pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
-
-		//pFrame->m_UIRender->End();
 		V(pd3dDevice->EndScene());
 	}
 
