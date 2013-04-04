@@ -145,19 +145,13 @@ HRESULT Game::OnCreateDevice(
 
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
-	ExecuteCode("dofile \"Console.lua\"");
+	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
 
-	ExecuteCode("dofile \"Hud.lua\"");
+	m_Console = ConsolePtr(new Console());
 
-	if(!m_Font || !m_Console || !m_Panel)
-	{
-		THROW_CUSEXCEPTION("m_Font, m_Console, m_Panel must be created");
-	}
+	m_Console->SetVisible(false);
 
 	m_dlgSetMap[1].push_back(m_Console);
-
-	if(m_Console->EventAlign)
-		m_Console->EventAlign(EventArgsPtr(new EventArgs()));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -207,6 +201,8 @@ HRESULT Game::OnResetDevice(
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp);
+
+	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
 	SafeResetCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
 
@@ -383,14 +379,17 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
 }
 
-void Game::ExecuteCode(const char * code)
+bool Game::ExecuteCode(const char * code) throw()
 {
 	if(dostring(m_lua->_state, code, "Game::ExecuteCode") && !lua_isnil(m_lua->_state, -1))
 	{
-		std::string msg = lua_tostring(m_lua->_state, -1);
+		std::wstring msg = ms2ws(lua_tostring(m_lua->_state, -1));
 		if(msg.empty())
-			msg = "(error object is not a string)";
+			msg = L"(error object is not a string)";
 		lua_pop(m_lua->_state, 1);
-		THROW_CUSEXCEPTION(msg);
+
+		MessageBeep(-1); AddLine(msg);
+		return false;
 	}
+	return true;
 }

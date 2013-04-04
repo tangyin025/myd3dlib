@@ -18,10 +18,10 @@ static int lua_print(lua_State * L)
 			return luaL_error(L, LUA_QL("tostring") " must return a string to "
 			LUA_QL("print"));
 		if (i>1)
-			Game::getSingleton().m_Panel->puts(L"\t");
+			Game::getSingleton().puts(L"\t");
 		else
-			Game::getSingleton().m_Panel->_push_enter(D3DCOLOR_ARGB(255,255,255,255));
-		Game::getSingleton().m_Panel->puts(u8tows(s));
+			Game::getSingleton().AddLine(L"", D3DCOLOR_ARGB(255,255,255,255));
+		Game::getSingleton().puts(u8tows(s));
 		lua_pop(L, 1);  /* pop result */
 	}
 	return 0;
@@ -221,27 +221,29 @@ namespace luabind
 
 		my::ControlEvent from(lua_State * L, int index)
 		{
-			struct InternalExceptionHandler
-			{
-				luabind::object obj;
-				InternalExceptionHandler(const luabind::object & _obj)
-					: obj(_obj)
-				{
-				}
-				void operator()(my::EventArgsPtr args)
-				{
-					try
-					{
-						obj(args);
-					}
-					catch(const luabind::error & e)
-					{
-						// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
-						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
-					}
-				}
-			};
-			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+			//struct InternalExceptionHandler
+			//{
+			//	luabind::object obj;
+			//	InternalExceptionHandler(const luabind::object & _obj)
+			//		: obj(_obj)
+			//	{
+			//	}
+			//	void operator()(my::EventArgsPtr args)
+			//	{
+			//		try
+			//		{
+			//			obj(args);
+			//		}
+			//		catch(const luabind::error & e)
+			//		{
+			//			// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
+			//			Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+			//		}
+			//	}
+			//};
+			//return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+
+			return luabind::object(luabind::from_stack(L, index));
 		}
 
 		void to(lua_State * L, my::ControlEvent const & e)
@@ -312,16 +314,6 @@ struct HelpFunc
 	static my::FontPtr ResourceMgr_LoadFont(my::ResourceMgr * obj, const std::string & path, int height)
 	{
 		return obj->LoadFont(path, height);
-	}
-
-	static my::ControlPtr Game_GetPanel(Game * obj)
-	{
-		return obj->m_Panel;
-	}
-
-	static void Game_SetPanel(Game * obj, my::ControlPtr panel)
-	{
-		obj->m_Panel = boost::dynamic_pointer_cast<MessagePanel>(panel);
 	}
 };
 
@@ -962,8 +954,6 @@ void Export2Lua(lua_State * L)
 		, class_<Game, bases<my::DxutApp, my::ResourceMgr, my::DialogMgr, my::TimerMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
-			// ! luabind cannot convert boost::shared_ptr<Base Class> to derived ptr
-			.property("Panel", &HelpFunc::Game_GetPanel, &HelpFunc::Game_SetPanel)
 			.def("CurrentState", &Game::CurrentState)
 			.def("process_event", &Game::process_event)
 			.def("ExecuteCode", &Game::ExecuteCode)

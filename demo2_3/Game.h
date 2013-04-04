@@ -132,8 +132,8 @@ public:
 		if(cs && !cs->m_DeviceObjectsCreated)
 		{
 			_ASSERT(!cs->m_DeviceObjectsReset);
-			cs->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
-			cs->m_DeviceObjectsCreated = true;
+			if(SUCCEEDED(cs->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+				cs->m_DeviceObjectsCreated = true;
 		}
 	}
 
@@ -144,8 +144,8 @@ public:
 		GameStateBase * cs = CurrentState();
 		if(cs && cs->m_DeviceObjectsCreated && !cs->m_DeviceObjectsReset)
 		{
-			cs->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
-			cs->m_DeviceObjectsReset = true;
+			if(SUCCEEDED(cs->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+				cs->m_DeviceObjectsReset = true;
 		}
 	}
 
@@ -225,9 +225,7 @@ public:
 
 	my::FontPtr m_Font;
 
-	my::DialogPtr m_Console;
-
-	MessagePanelPtr m_Panel;
+	ConsolePtr m_Console;
 
 	my::InputPtr m_Input;
 
@@ -254,12 +252,12 @@ public:
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
 	{
-		m_Panel->AddLine(str, Color);
+		m_Console->m_Panel->AddLine(str, Color);
 	}
 
 	void puts(const std::wstring & str)
 	{
-		m_Panel->puts(str);
+		m_Console->m_Panel->puts(str);
 	}
 
 	virtual bool IsDeviceAcceptable(
@@ -299,5 +297,5 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	void ExecuteCode(const char * code);
+	bool ExecuteCode(const char * code) throw();
 };

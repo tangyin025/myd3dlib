@@ -85,12 +85,12 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_ShadowTextureDS.reset(new my::Surface());
 
-	Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\"");
-
-	if(!m_Camera)
+	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
 	{
-		THROW_CUSEXCEPTION("camera must be created");
+		return E_FAIL;
 	}
+
+	_ASSERT(m_Camera);
 
 	return S_OK;
 }
@@ -110,7 +110,7 @@ HRESULT GameStateMain::OnResetDevice(
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
-	if(m_Camera && m_Camera->EventAlign)
+	if(m_Camera->EventAlign)
 		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
 
 	return S_OK;

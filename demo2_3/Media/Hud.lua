@@ -5,7 +5,7 @@ module("Hud", package.seeall)
 dlg=Dialog()
 dlg.Color=ARGB(0,0,0,0)
 dlg.Size=Vector2(170,170)
-dlg.Skin.Font=_Font.font1
+dlg.Skin.Font=game.Font
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)

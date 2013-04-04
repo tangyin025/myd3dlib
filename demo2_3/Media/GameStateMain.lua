@@ -1,3 +1,5 @@
+dofile "CommonUI.lua"
+dofile "Hud.lua"
 
 -- 获取当前state
 local state=game:CurrentState()

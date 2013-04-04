@@ -1,28 +1,25 @@
-dofile "Font.lua"
-dofile "CommonUI.lua"
-
 module("Console", package.seeall)
 
 dlg=Dialog()
 dlg.Color=ARGB(197,0,0,0)
 -- dlg.Location=Vector2(50,95)
 dlg.Size=Vector2(700,410)
-dlg.Skin.Font=_Font.font1
+dlg.Skin.Font=game.Font
 dlg.Skin.TextColor=ARGB(255,255,255,255)
 dlg.Skin.TextAlign=Font.AlignLeftTop
 dlg.EventAlign=function(args)
 	dlg.Location=Vector2(50,95)
 	
-	-- ! Scale Font
-	local desc=game:GetD3D9BackBufferSurfaceDesc()
-	_Font.font1.Scale=Vector2(desc.Width/game.DlgViewport.x,desc.Height/game.DlgViewport.y)
+	-- -- ! Scale Font
+	-- local desc=game:GetD3D9BackBufferSurfaceDesc()
+	-- game.Font.Scale=Vector2(desc.Width/game.DlgViewport.x,desc.Height/game.DlgViewport.y)
 end
 
 local panel=MessagePanel()
 panel.Color=ARGB(0,0,0,0)
 panel.Location=Vector2(5,5)
 panel.Size=Vector2(700-5-5,410-5-5-20)
-panel.Skin.Font=_Font.font1
+panel.Skin.Font=game.Font
 panel.scrollbar.Color=ARGB(15,255,255,255)
 panel.scrollbar.Location=Vector2(panel.Size.x - 20, 0)
 panel.scrollbar.Size=Vector2(20, panel.Size.y)
@@ -37,7 +34,7 @@ edit.Location=Vector2(5, 410-5-20)
 edit.Size=Vector2(700-5-5,20)
 edit.Border=Vector4(0,0,0,0)
 edit.Text="在这里输入命令"
-edit.Skin.Font=_Font.font1
+edit.Skin.Font=game.Font
 edit.Skin.TextColor=ARGB(255,63,188,239)
 edit.Skin.SelBkColor=ARGB(255,255,128,0)
 edit.EventEnter=function()
