@@ -10,6 +10,13 @@ void Emitter::Reset(void)
 	m_Time = 0;
 }
 
+void Emitter::Spawn(void)
+{
+	ParticlePtr particle(new Particle());
+	particle->setVelocity(Vector3(Random(0.0f,5.0f), Random(0.0f,5.0f), Random(0.0f,5.0f)));
+	m_ParticleList.push_back(particle);
+}
+
 void Emitter::Update(double fTime, float fElapsedTime)
 {
 	m_Time += fElapsedTime;
@@ -24,9 +31,7 @@ void Emitter::Update(double fTime, float fElapsedTime)
 
 	for(int i = m_ParticleList.size(); i < Count; i++)
 	{
-		ParticlePtr particle(new Particle());
-		particle->setVelocity(Vector3(Random(0.0f,5.0f), Random(0.0f,5.0f), Random(0.0f,5.0f)));
-		m_ParticleList.push_back(particle);
+		Spawn();
 	}
 }
 
@@ -36,10 +41,8 @@ HRESULT EmitterInstance::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	_ASSERT(!m_VertexBuffer);
-	_ASSERT(!m_InstanceData);
-
-	m_Device = pd3dDevice;
+	_ASSERT(!m_VertexBuffer.m_ptr);
+	_ASSERT(!m_InstanceData.m_ptr);
 
 	return S_OK;
 }
@@ -48,37 +51,24 @@ HRESULT EmitterInstance::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	_ASSERT(!m_VertexBuffer);
-	_ASSERT(!m_InstanceData);
+	_ASSERT(!m_VertexBuffer.m_ptr);
+	_ASSERT(!m_InstanceData.m_ptr);
 
-	_ASSERT(m_Device);
+	m_VertexBuffer.CreateVertexBuffer(pd3dDevice, m_VertexElemSet.CalculateVertexStride(0) * 6);
 
-	HRESULT hr;
-	if(FAILED(hr = m_Device->CreateVertexBuffer(
-		m_VertexElemSet.CalculateVertexStride(0) * 6, 0, 0, D3DPOOL_DEFAULT, &m_VertexBuffer, 0)))
-	{
-		return hr;
-	}
-
-	if(FAILED(hr = m_Device->CreateVertexBuffer(
-		m_VertexElemSet.CalculateVertexStride(1) * 1024, 0, 0, D3DPOOL_DEFAULT, &m_InstanceData, 0)))
-	{
-		return hr;
-	}
+	m_InstanceData.CreateVertexBuffer(pd3dDevice, m_VertexElemSet.CalculateVertexStride(1) * 1024);
 
 	return S_OK;
 }
 
 void EmitterInstance::OnLostDevice(void)
 {
-	m_VertexBuffer.Release();
-	m_InstanceData.Release();
+	m_VertexBuffer.OnDestroyDevice();
+	m_InstanceData.OnDestroyDevice();
 }
 
 void EmitterInstance::OnDestroyDevice(void)
 {
-	_ASSERT(!m_VertexBuffer);
-	_ASSERT(!m_InstanceData);
-
-	m_Device.Release();
+	_ASSERT(!m_VertexBuffer.m_ptr);
+	_ASSERT(!m_InstanceData.m_ptr);
 }

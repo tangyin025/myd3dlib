@@ -235,123 +235,88 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
 
-	class VertexBuffer : public DeviceRelatedObjectBase
+	class VertexBuffer : public DeviceRelatedObject<IDirect3DVertexBuffer9>
 	{
-	protected:
-		CComPtr<IDirect3DDevice9> m_Device;
-
-		CComPtr<IDirect3DVertexBuffer9> m_VertexBuffer;
-
-		std::vector<unsigned char> m_MemVertexBuffer;
-
-		D3DVERTEXELEMENT9Set m_VertexElemSet;
-
-		WORD m_vertexStride;
-
-		UINT m_NumVertices;
-
-		WORD m_Stream;
-
 	public:
 		VertexBuffer(void)
-			: m_vertexStride(0)
-			, m_NumVertices(0)
-			, m_Stream(0)
 		{
 		}
 
-		void Create(LPDIRECT3DDEVICE9 pDevice, const D3DVERTEXELEMENT9Set & VertexElemSet, WORD Stream = 0)
+		void Create(IDirect3DVertexBuffer9 * ptr)
 		{
-			_ASSERT(!m_Device);
+			_ASSERT(!m_ptr);
 
-			m_Device = pDevice;
-
-			m_VertexElemSet = VertexElemSet;
-
-			m_vertexStride = VertexElemSet.CalculateVertexStride(Stream);
-
-			m_NumVertices = 0;
-
-			m_Stream = Stream;
+			m_ptr = ptr;
 		}
 
 		void CreateVertexBuffer(
-			LPDIRECT3DDEVICE9 pD3DDevice,
-			const D3DVERTEXELEMENT9Set & VertexElemSet,
-			WORD Stream = 0);
+			LPDIRECT3DDEVICE9 pDevice,
+			UINT Length,
+			DWORD Usage = 0,
+			DWORD FVF = 0,
+			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
-		void OnResetDevice(void);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
-
-		void UpdateVertexBuffer(void);
-
-		void ResizeVertexBufferLength(UINT NumVertices);
-
-		template <typename ElementType>
-		void SetCustomType(UINT Index, const ElementType & Value, D3DDECLUSAGE Usage, BYTE UsageIndex)
+		D3DVERTEXBUFFER_DESC GetDesc(void)
 		{
-			_ASSERT(Index < m_NumVertices && m_MemVertexBuffer.size() == m_NumVertices * m_vertexStride);
-
-			m_VertexElemSet.SetCustomType<ElementType>(&m_MemVertexBuffer[Index * m_vertexStride], m_Stream, Usage, UsageIndex, Value);
+			D3DVERTEXBUFFER_DESC desc;
+			V(m_ptr->GetDesc(&desc));
+			return desc;
 		}
 
-		void SetPosition(UINT Index, const D3DVERTEXELEMENT9Set::PositionType & Position, BYTE UsageIndex = 0);
+		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0)
+		{
+			void * ret;
+			V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
+			return ret;
+		}
 
-		void SetBinormal(UINT Index, const D3DVERTEXELEMENT9Set::BinormalType & Binormal, BYTE UsageIndex = 0);
-
-		void SetTangent(UINT Index, const D3DVERTEXELEMENT9Set::TangentType & Tangent, BYTE UsageIndex = 0);
-
-		void SetNormal(UINT Index, const D3DVERTEXELEMENT9Set::NormalType & Normal, BYTE UsageIndex = 0);
-
-		void SetTexcoord(UINT Index, const D3DVERTEXELEMENT9Set::TexcoordType & Texcoord, BYTE UsageIndex = 0);
-
-		void SetBlendIndices(UINT Index, const D3DVERTEXELEMENT9Set::BlendIndicesType & BlendIndices, BYTE UsageIndex = 0);
-
-		void SetBlendWeights(UINT Index, const D3DVERTEXELEMENT9Set::BlendWeightsType & BlendWeights, BYTE UsageIndex = 0);
+		void Unlock(void)
+		{
+			V(m_ptr->Unlock());
+		}
 	};
 
 	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
 
-	class IndexBuffer : public DeviceRelatedObjectBase
+	class IndexBuffer : public DeviceRelatedObject<IDirect3DIndexBuffer9>
 	{
-	public:
-		CComPtr<IDirect3DIndexBuffer9> m_IndexBuffer;
-
-	protected:
-		typedef std::vector<unsigned int> UIntList;
-
-		UIntList m_MemIndexBuffer;
-
-		CComPtr<IDirect3DDevice9> m_Device;
-
 	public:
 		IndexBuffer(void)
 		{
 		}
 
-		void Create(LPDIRECT3DDEVICE9 pDevice)
+		void Create(IDirect3DIndexBuffer9 * ptr)
 		{
-			_ASSERT(!m_Device);
+			_ASSERT(!m_ptr);
 
-			m_Device = pDevice;
+			m_ptr = ptr;
 		}
 
-		void CreateIndexBuffer(LPDIRECT3DDEVICE9 pD3DDevice);
+		void CreateIndexBuffer(
+			LPDIRECT3DDEVICE9 pDevice,
+			UINT Length,
+			DWORD Usage = 0,
+			D3DFORMAT Format = D3DFMT_INDEX32,
+			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
-		void OnResetDevice(void);
+		D3DINDEXBUFFER_DESC GetDesc(void)
+		{
+			D3DINDEXBUFFER_DESC desc;
+			V(m_ptr->GetDesc(&desc));
+			return desc;
+		}
 
-		void OnLostDevice(void);
+		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0)
+		{
+			void * ret;
+			V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
+			return ret;
+		}
 
-		void OnDestroyDevice(void);
-
-		void UpdateIndexBuffer(void);
-
-		void ResizeIndexBufferLength(UINT NumIndices);
-
-		void SetIndex(UINT Index, unsigned int IndexValue);
+		void Unlock(void)
+		{
+			V(m_ptr->Unlock());
+		}
 	};
 
 	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
