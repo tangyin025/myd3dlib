@@ -33,7 +33,7 @@ public:
 
 class CMainFrame
 	: public CFrameWndEx
-	, public my::SingleInstance<CMainFrame>
+	, public my::EmitterInstance
 	, public my::ResourceMgr
 {
 public:
@@ -70,10 +70,15 @@ public:
 	bool m_DeviceObjectsReset;
 
 	DECLARE_MESSAGE_MAP()
-
-	IDirect3DDevice9 * GetD3D9Device(void)
+public:
+	static CMainFrame & getSingleton(void)
 	{
-		return m_d3dDevice;
+		return *getSingletonPtr();
+	}
+
+	static CMainFrame * getSingletonPtr(void)
+	{
+		return static_cast<CMainFrame *>(EmitterInstance::getSingletonPtr());
 	}
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
@@ -85,7 +90,7 @@ public:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 
 	afx_msg void OnDestroy();
-public:
+
 	HRESULT ResetD3DDevice(void);
 
 	HRESULT OnDeviceReset(void);

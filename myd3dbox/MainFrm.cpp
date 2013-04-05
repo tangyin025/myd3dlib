@@ -55,8 +55,6 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-CMainFrame::SingleInstance * SingleInstance<CMainFrame>::s_ptr(NULL);
-
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 CMainFrame::CMainFrame(void)
@@ -94,16 +92,26 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_d3dpp.hDeviceWindow = m_hWnd;
 	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	HRESULT hr = theApp.m_d3d9->CreateDevice(
-		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice);
-	if(FAILED(hr))
+	HRESULT hr;
+	if(FAILED(hr = theApp.m_d3d9->CreateDevice(
+		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice)))
 	{
 		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 	m_DeviceObjectsCreated = true;
 
-	ResourceMgr::OnCreateDevice(m_d3dDevice, NULL);
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, NULL)))
+	{
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return -1;
+	}
+
+	if(FAILED(hr = EmitterInstance::OnCreateDevice(m_d3dDevice, NULL)))
+	{
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return -1;
+	}
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -268,6 +276,8 @@ void CMainFrame::OnDestroy()
 
 	if(m_DeviceObjectsCreated)
 	{
+		EmitterInstance::OnDestroyDevice();
+
 		ResourceMgr::OnDestroyDevice();
 
 		UINT references = m_d3dDevice.Detach()->Release();
@@ -317,6 +327,12 @@ HRESULT CMainFrame::OnDeviceReset(void)
 		return hr;
 	}
 
+	if(FAILED(hr = EmitterInstance::OnResetDevice(m_d3dDevice, NULL)))
+	{
+		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		return hr;
+	}
+
 	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
 	{
 		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
@@ -328,6 +344,8 @@ HRESULT CMainFrame::OnDeviceReset(void)
 void CMainFrame::OnDeviceLost(void)
 {
 	TRACE0("CMainFrame::OnDeviceLost \n");
+
+	EmitterInstance::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 
