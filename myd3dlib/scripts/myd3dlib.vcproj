@@ -179,6 +179,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myEmitter.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myException.cpp"
 				>
 			</File>
@@ -298,6 +302,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myEffect.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myEmitter.h"
 				>
 			</File>
 			<File

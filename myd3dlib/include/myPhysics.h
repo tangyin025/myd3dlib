@@ -123,13 +123,13 @@ namespace my
 
 	public:
 		Particle(void)
+			: position(0,0,0)
+			, velocity(0,0,0)
+			, acceleration(0,0,0)
+			, forceAccum(0,0,0)
+			, damping(1)
+			, inverseMass(1)
 		{
-			setPosition(Vector3::zero);
-			setVelocity(Vector3::zero);
-			setAcceleration(Vector3::zero);
-			clearAccumulator();
-			setDamping(1);
-			setInverseMass(1);
 		}
 
 		bool hasFiniteMass(void) const;

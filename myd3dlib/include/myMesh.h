@@ -46,12 +46,18 @@ namespace my
 		}
 
 		template <typename ElementType>
+		ElementType & GetCustomType(void * pVertex, DWORD Offset) const
+		{
+			return *(ElementType *)((unsigned char *)pVertex + Offset);
+		}
+
+		template <typename ElementType>
 		ElementType & GetCustomType(void * pVertex, WORD Stream, D3DDECLUSAGE Usage, BYTE UsageIndex) const
 		{
 			const_iterator elem_iter = find(CreateCustomElement(Stream, Usage, UsageIndex));
 			_ASSERT(elem_iter != end());
 
-			return *(ElementType *)((unsigned char *)pVertex + elem_iter->Offset);
+			return GetCustomType<ElementType>(pVertex, elem_iter->Offset);
 		}
 
 		template <typename ElementType>
@@ -143,6 +149,23 @@ namespace my
 		void SetTexcoord(void * pVertex, const TexcoordType & Texcoord, WORD Stream = 0, BYTE UsageIndex = 0) const
 		{
 			GetTexcoord(pVertex, Stream, UsageIndex) = Texcoord;
+		}
+
+		typedef D3DCOLOR ColorType;
+
+		static D3DVERTEXELEMENT9 CreateColorElement(WORD Stream, WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			return CreateCustomElement(Stream, D3DDECLUSAGE_COLOR, UsageIndex, Offset, D3DDECLTYPE_D3DCOLOR, Method);
+		}
+
+		ColorType & GetColor(void * pVertex, WORD Stream = 0, BYTE UsageIndex = 0) const
+		{
+			return GetCustomType<ColorType>(pVertex, Stream, D3DDECLUSAGE_COLOR, UsageIndex);
+		}
+
+		void SetColor(void * pVertex, const ColorType & Color, WORD Stream = 0, BYTE UsageIndex = 0) const
+		{
+			GetColor(pVertex, Stream, UsageIndex) = Color;
 		}
 
 		typedef D3DCOLOR BlendIndicesType;

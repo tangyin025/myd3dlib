@@ -141,6 +141,11 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	if(FAILED(hr = EmitterInstance::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
 
 	m_WhiteTex = LoadTexture("texture/white.bmp");
@@ -192,8 +197,12 @@ HRESULT Game::OnResetDevice(
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	HRESULT hres;
-	if(FAILED(hres = ResourceMgr::OnResetDevice(
-		pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hres = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hres;
+	}
+
+	if(FAILED(hres = EmitterInstance::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
 	}
@@ -214,6 +223,8 @@ void Game::OnLostDevice(void)
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	SafeLostCurrentState();
+
+	EmitterInstance::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -239,6 +250,8 @@ void Game::OnDestroyDevice(void)
 	ImeEditBox::Uninitialize();
 
 	RemoveAllTimer();
+
+	EmitterInstance::OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
 }

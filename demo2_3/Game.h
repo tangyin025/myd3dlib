@@ -214,6 +214,7 @@ class Game
 	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
+	, public my::EmitterInstance
 	, public GameStateMachine
 {
 public:
