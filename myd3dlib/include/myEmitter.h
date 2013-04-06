@@ -30,7 +30,7 @@ namespace my
 
 		void Reset(void);
 
-		void Spawn(const Vector3 & pos);
+		void Spawn(void);
 
 		void Update(double fTime, float fElapsedTime);
 
@@ -50,6 +50,8 @@ namespace my
 		D3DVERTEXELEMENT9Set m_VertexElemSet;
 
 		VertexBuffer m_VertexBuffer;
+
+		IndexBuffer m_IndexData;
 
 		VertexBuffer m_InstanceData;
 

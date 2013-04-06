@@ -10,11 +10,11 @@ void Emitter::Reset(void)
 	m_Time = 0;
 }
 
-void Emitter::Spawn(const Vector3 & pos)
+void Emitter::Spawn(void)
 {
 	ParticlePtr particle(new Particle());
-	particle->setPosition(pos);
-	particle->setVelocity(Vector3(Random(0.0f,5.0f), Random(0.0f,5.0f), Random(0.0f,5.0f)));
+	particle->setPosition(Vector3(0,0,0));
+	particle->setVelocity(Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)));
 	m_ParticleList.push_back(particle);
 }
 
@@ -32,14 +32,15 @@ void Emitter::Update(double fTime, float fElapsedTime)
 
 	for(int i = m_ParticleList.size(); i < Count; i++)
 	{
-		Spawn(Vector3(0,0,0));
+		Spawn();
 	}
 }
 
 DWORD Emitter::BuildInstance(EmitterInstance * pEmitterInstance)
 {
-	DWORD ParticleCount = Min(1024u, m_ParticleList.size());
-	unsigned char * pInstances = (unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * ParticleCount);
+	DWORD ParticleCount = Min(4096u, m_ParticleList.size());
+	unsigned char * pInstances =
+		(unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * ParticleCount);
 	_ASSERT(pInstances);
 	for(DWORD i = 0; i < ParticleCount; i++)
 	{
@@ -61,17 +62,19 @@ void Emitter::Draw(IDirect3DDevice9 * pd3dDevice,
 
 	DWORD ParticleCount = BuildInstance(pEmitterInstance);
 
-	pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | ParticleCount);
-	pd3dDevice->SetStreamSource(0, pEmitterInstance->m_VertexBuffer.m_ptr, 0, pEmitterInstance->m_VertexStride);
+	HRESULT hr;
+	V(pd3dDevice->SetStreamSource(0, pEmitterInstance->m_VertexBuffer.m_ptr, 0, pEmitterInstance->m_VertexStride));
+	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | ParticleCount));
 
-	pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1);
-	pd3dDevice->SetStreamSource(1, pEmitterInstance->m_InstanceData.m_ptr, 0, pEmitterInstance->m_InstanceStride);
+	V(pd3dDevice->SetStreamSource(1, pEmitterInstance->m_InstanceData.m_ptr, 0, pEmitterInstance->m_InstanceStride));
+	V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 
-	pd3dDevice->SetVertexDeclaration(pEmitterInstance->m_Decl);
-	pd3dDevice->DrawPrimitive(D3DPT_TRIANGLEFAN, 0, 2);
+	V(pd3dDevice->SetVertexDeclaration(pEmitterInstance->m_Decl));
+	V(pd3dDevice->SetIndices(pEmitterInstance->m_IndexData.m_ptr));
+	V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
 
-	pd3dDevice->SetStreamSourceFreq(0,1);
-	pd3dDevice->SetStreamSourceFreq(1,1);
+	V(pd3dDevice->SetStreamSourceFreq(0,1));
+	V(pd3dDevice->SetStreamSourceFreq(1,1));
 }
 
 EmitterInstance::SingleInstance * SingleInstance<EmitterInstance>::s_ptr = NULL;
@@ -81,6 +84,7 @@ HRESULT EmitterInstance::OnCreateDevice(
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	_ASSERT(!m_VertexBuffer.m_ptr);
+	_ASSERT(!m_IndexData.m_ptr);
 	_ASSERT(!m_InstanceData.m_ptr);
 
 	m_Decl = m_VertexElemSet.CreateVertexDeclaration(pd3dDevice);
@@ -103,7 +107,15 @@ HRESULT EmitterInstance::OnResetDevice(
 	m_VertexElemSet.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0,1), 0, 0);
 	m_VertexBuffer.Unlock();
 
-	m_InstanceData.CreateVertexBuffer(pd3dDevice, m_InstanceStride * 1024);
+	m_IndexData.CreateIndexBuffer(pd3dDevice, sizeof(DWORD) * 4);
+	DWORD * pIndices = (DWORD *)m_IndexData.Lock(0, sizeof(DWORD) * 4);
+	pIndices[0] = 0;
+	pIndices[1] = 1;
+	pIndices[2] = 2;
+	pIndices[3] = 3;
+	m_IndexData.Unlock();
+
+	m_InstanceData.CreateVertexBuffer(pd3dDevice, m_InstanceStride * 4096u);
 
 	return S_OK;
 }
@@ -111,12 +123,14 @@ HRESULT EmitterInstance::OnResetDevice(
 void EmitterInstance::OnLostDevice(void)
 {
 	m_VertexBuffer.OnDestroyDevice();
+	m_IndexData.OnDestroyDevice();
 	m_InstanceData.OnDestroyDevice();
 }
 
 void EmitterInstance::OnDestroyDevice(void)
 {
 	_ASSERT(!m_VertexBuffer.m_ptr);
+	_ASSERT(!m_IndexData.m_ptr);
 	_ASSERT(!m_InstanceData.m_ptr);
 
 	m_Decl.Release();
