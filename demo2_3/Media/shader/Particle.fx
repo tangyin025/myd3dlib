@@ -42,8 +42,10 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
                          float4 vDiffuse : COLOR0 )
 {
     VS_OUTPUT Output;
-	float4 vParticlePos = float4(lerp(-.5,.5,vTexCoord0.x), lerp(.5,-.5,vTexCoord0.y), 0, 0);
-	Output.Position = mul(vParticlePos + vPos, g_mWorldViewProjection);
+	float3 CameraRight = cross(g_CameraDir, g_CameraUp);
+	float4 LocalPos = float4(
+		CameraRight * lerp(-.5,.5,vTexCoord0.x) + g_CameraUp * lerp(.5,-.5,vTexCoord0.y), 0);
+	Output.Position = mul(LocalPos + vPos, g_mWorldViewProjection);
 	
 	Output.Diffuse = vDiffuse;
 	Output.TextureUV = vTexCoord0;
@@ -58,7 +60,7 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
-    return In.Diffuse;
+    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
 }
 
 //--------------------------------------------------------------------------------------

@@ -6,24 +6,19 @@ using namespace my;
 void Emitter::Reset(void)
 {
 	m_ParticleList.clear();
-
-	m_Time = 0;
 }
 
 void Emitter::Spawn(void)
 {
 	ParticlePtr particle(new Particle());
 	particle->setPosition(Vector3(0,0,0));
-	particle->setVelocity(Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)));
+	particle->setVelocity(Vector3(Random(-5.0f,5.0f),Random(-5.0f,5.0f),Random(-5.0f,5.0f)));
 	m_ParticleList.push_back(particle);
-
-	if(m_ParticleList.size() > 2048)
-		m_ParticleList.pop_front();
 }
 
 void Emitter::Update(double fTime, float fElapsedTime)
 {
-	m_Time += fElapsedTime;
+	m_RemainingSpawnTime += fElapsedTime;
 
 	ParticlePtrList::iterator part_iter = m_ParticleList.begin();
 	for(; part_iter != m_ParticleList.end(); part_iter++)
@@ -31,12 +26,19 @@ void Emitter::Update(double fTime, float fElapsedTime)
 		(*part_iter)->integrate(fElapsedTime);
 	}
 
-	m_RemainingSpawnTime -= fElapsedTime;
 	_ASSERT(m_InverseRate > 0);
-	while(m_RemainingSpawnTime <= 0)
+	while(m_RemainingSpawnTime >= m_InverseRate)
 	{
-		m_RemainingSpawnTime += m_InverseRate;
 		Spawn();
+		m_RemainingSpawnTime -= m_InverseRate;
+	}
+
+	float TotalTime = m_ParticleList.size() * m_InverseRate + m_RemainingSpawnTime;
+	if(TotalTime >= m_ParticleLifeTime + m_InverseRate)
+	{
+		float OverTime = TotalTime - m_ParticleLifeTime;
+		size_t remove_count = Min((size_t)(OverTime / m_InverseRate), m_ParticleList.size());
+		m_ParticleList.erase(m_ParticleList.begin(), m_ParticleList.begin() + remove_count);
 	}
 }
 

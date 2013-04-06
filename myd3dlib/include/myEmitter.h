@@ -14,7 +14,7 @@ namespace my
 	public:
 		HRESULT hr;
 
-		float m_Time;
+		float m_ParticleLifeTime;
 
 		float m_InverseRate;
 
@@ -26,7 +26,7 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_Time(0)
+			: m_ParticleLifeTime(10)
 			, m_InverseRate(1/100.0f)
 			, m_RemainingSpawnTime(0)
 		{
