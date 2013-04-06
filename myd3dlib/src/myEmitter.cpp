@@ -16,13 +16,14 @@ void Emitter::Spawn(void)
 	particle->setPosition(Vector3(0,0,0));
 	particle->setVelocity(Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)));
 	m_ParticleList.push_back(particle);
+
+	if(m_ParticleList.size() > 2048)
+		m_ParticleList.pop_front();
 }
 
 void Emitter::Update(double fTime, float fElapsedTime)
 {
 	m_Time += fElapsedTime;
-
-	int Count = (int)(m_Time * m_Rate);
 
 	ParticlePtrList::iterator part_iter = m_ParticleList.begin();
 	for(; part_iter != m_ParticleList.end(); part_iter++)
@@ -30,15 +31,22 @@ void Emitter::Update(double fTime, float fElapsedTime)
 		(*part_iter)->integrate(fElapsedTime);
 	}
 
-	for(int i = m_ParticleList.size(); i < Count; i++)
+	m_RemainingSpawnTime -= fElapsedTime;
+	_ASSERT(m_InverseRate > 0);
+	while(m_RemainingSpawnTime <= 0)
 	{
+		m_RemainingSpawnTime += m_InverseRate;
 		Spawn();
 	}
 }
 
-DWORD Emitter::BuildInstance(EmitterInstance * pEmitterInstance)
+DWORD Emitter::BuildInstance(
+	EmitterInstance * pEmitterInstance,
+	double fTime,
+	float fElapsedTime)
 {
 	DWORD ParticleCount = Min(4096u, m_ParticleList.size());
+
 	unsigned char * pInstances =
 		(unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * ParticleCount);
 	_ASSERT(pInstances);
@@ -53,16 +61,11 @@ DWORD Emitter::BuildInstance(EmitterInstance * pEmitterInstance)
 	return ParticleCount;
 }
 
-void Emitter::Draw(IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
+void Emitter::RenderInstance(
+	IDirect3DDevice9 * pd3dDevice,
+	EmitterInstance * pEmitterInstance,
+	DWORD ParticleCount)
 {
-	EmitterInstance * pEmitterInstance = EmitterInstance::getSingletonPtr();
-	_ASSERT(pEmitterInstance);
-
-	DWORD ParticleCount = BuildInstance(pEmitterInstance);
-
-	HRESULT hr;
 	V(pd3dDevice->SetStreamSource(0, pEmitterInstance->m_VertexBuffer.m_ptr, 0, pEmitterInstance->m_VertexStride));
 	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | ParticleCount));
 
@@ -75,6 +78,18 @@ void Emitter::Draw(IDirect3DDevice9 * pd3dDevice,
 
 	V(pd3dDevice->SetStreamSourceFreq(0,1));
 	V(pd3dDevice->SetStreamSourceFreq(1,1));
+}
+
+void Emitter::Draw(IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	EmitterInstance * pEmitterInstance = EmitterInstance::getSingletonPtr();
+	_ASSERT(pEmitterInstance);
+
+	DWORD ParticleCount = BuildInstance(pEmitterInstance, fTime, fElapsedTime);
+
+	RenderInstance(pd3dDevice, pEmitterInstance, ParticleCount);
 }
 
 EmitterInstance::SingleInstance * SingleInstance<EmitterInstance>::s_ptr = NULL;

@@ -3,6 +3,7 @@
 #include "mySingleton.h"
 #include "myPhysics.h"
 #include "myMesh.h"
+#include <deque>
 
 namespace my
 {
@@ -11,16 +12,23 @@ namespace my
 	class Emitter
 	{
 	public:
+		HRESULT hr;
+
 		float m_Time;
 
-		float m_Rate;
+		float m_InverseRate;
+
+		float m_RemainingSpawnTime;
+
+		typedef std::deque<ParticlePtr> ParticlePtrList;
 
 		ParticlePtrList m_ParticleList;
 
 	public:
 		Emitter(void)
 			: m_Time(0)
-			, m_Rate(100)
+			, m_InverseRate(1/100.0f)
+			, m_RemainingSpawnTime(0)
 		{
 		}
 
@@ -34,7 +42,15 @@ namespace my
 
 		void Update(double fTime, float fElapsedTime);
 
-		DWORD BuildInstance(EmitterInstance * pEmitterInstance);
+		DWORD BuildInstance(
+			EmitterInstance * pEmitterInstance,
+			double fTime,
+			float fElapsedTime);
+
+		void RenderInstance(
+			IDirect3DDevice9 * pd3dDevice,
+			EmitterInstance * pEmitterInstance,
+			DWORD ParticleCount);
 
 		void Draw(IDirect3DDevice9 * pd3dDevice,
 			double fTime,

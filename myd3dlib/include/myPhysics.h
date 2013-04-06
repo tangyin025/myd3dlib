@@ -531,15 +531,11 @@ namespace my
 	// ParticleWorld
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	typedef std::vector<my::ParticlePtr> ParticlePtrList;
-
-	typedef std::vector<my::ParticleContactGeneratorPtr> ParticleContactGeneratorPtrList;
-
-	typedef std::vector<my::ParticleContact> ParticleContactArray;
-
 	class ParticleWorld
 	{
 	protected:
+		typedef std::vector<my::ParticlePtr> ParticlePtrList;
+
 		ParticlePtrList particleList;
 
 		ParticleForceRegistry registry;
@@ -548,7 +544,11 @@ namespace my
 
 		ParticleContactResolver resolver;
 
+		typedef std::vector<my::ParticleContactGeneratorPtr> ParticleContactGeneratorPtrList;
+
 		ParticleContactGeneratorPtrList particleContactGeneratorList;
+
+		typedef std::vector<my::ParticleContact> ParticleContactArray;
 
 		ParticleContactArray particleContactArray;
 

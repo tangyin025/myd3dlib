@@ -164,7 +164,6 @@ void GameStateMain::OnFrameRender(
 	Matrix4 LightViewProj =
 		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
 		Matrix4::OrthoLH(3, 3, -50, 50);
-	Vector4 EyePos = m_Camera->m_View.inverse()[3]; // ! Need optimize
 
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowTextureRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowTextureDS->m_ptr));
@@ -216,9 +215,9 @@ void GameStateMain::OnFrameRender(
 		m_SimpleSample->SetMatrix("g_mWorld", World);
 		m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
 		m_SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
-		m_SimpleSample->SetVector("g_EyePos", EyePos);
-		m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
-		m_SimpleSample->SetVector("g_LightDir", Vector4(LightDir.x, LightDir.y, LightDir.z, 0));
+		m_SimpleSample->SetVector("g_EyePos", m_Camera->m_Position);
+		m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
+		m_SimpleSample->SetVector("g_LightDir", LightDir);
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT->m_ptr);
 		EffectMeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
@@ -236,7 +235,7 @@ void GameStateMain::OnFrameRender(
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_SimpleSample->SetMatrix("g_mWorld", World);
 			m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
-			m_SimpleSample->SetVector("g_EyePosOS", EyePos.transform(World.inverse()));
+			m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}

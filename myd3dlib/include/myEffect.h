@@ -606,6 +606,11 @@ namespace my
 			V(m_ptr->SetVector(hParameter, (D3DXVECTOR4 *)&Vector));
 		}
 
+		void SetVector(D3DXHANDLE hParameter, const Vector3 & Vector)
+		{
+			V(m_ptr->SetFloatArray(hParameter, &Vector.x, 3));
+		}
+
 		void SetVectorArray(D3DXHANDLE hParameter, const Vector4 * pVector, UINT Count)
 		{
 			V(m_ptr->SetVectorArray(hParameter, (D3DXVECTOR4 *)pVector, Count));
