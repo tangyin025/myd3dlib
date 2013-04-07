@@ -12,8 +12,6 @@ namespace my
 	class Emitter
 	{
 	public:
-		HRESULT hr;
-
 		float m_ParticleLifeTime;
 
 		float m_InverseRate;
@@ -46,11 +44,6 @@ namespace my
 			EmitterInstance * pEmitterInstance,
 			double fTime,
 			float fElapsedTime);
-
-		void RenderInstance(
-			IDirect3DDevice9 * pd3dDevice,
-			EmitterInstance * pEmitterInstance,
-			DWORD ParticleCount);
 
 		void Draw(IDirect3DDevice9 * pd3dDevice,
 			double fTime,
@@ -106,5 +99,7 @@ namespace my
 		void OnLostDevice(void);
 
 		void OnDestroyDevice(void);
+
+		virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
 	};
 }

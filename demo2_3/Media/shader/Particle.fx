@@ -5,8 +5,8 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-shared float4 g_CameraDir;
-shared float4 g_CameraUp;
+shared float3 g_CameraUp;
+shared float3 g_CameraRight;
 texture g_MeshTexture;
 
 //--------------------------------------------------------------------------------------
@@ -42,9 +42,8 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
                          float4 vDiffuse : COLOR0 )
 {
     VS_OUTPUT Output;
-	float3 CameraRight = cross(g_CameraDir, g_CameraUp);
 	float4 LocalPos = float4(
-		CameraRight * lerp(-.5,.5,vTexCoord0.x) + g_CameraUp * lerp(.5,-.5,vTexCoord0.y), 0);
+		g_CameraUp * lerp(.5,-.5,vTexCoord0.y) + g_CameraRight * lerp(-.5,.5,vTexCoord0.x), 0);
 	Output.Position = mul(LocalPos + vPos, g_mWorldViewProjection);
 	
 	Output.Diffuse = vDiffuse;

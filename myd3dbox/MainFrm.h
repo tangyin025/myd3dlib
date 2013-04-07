@@ -31,10 +31,24 @@ public:
 	virtual void DrawVertexList(void);
 };
 
+class EffectEmitterInstance
+	: public my::EmitterInstance
+{
+public:
+	my::EffectPtr m_ParticleEffect;
+
+public:
+	EffectEmitterInstance(void)
+	{
+	}
+
+	virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
+};
+
 class CMainFrame
 	: public CFrameWndEx
-	, public my::EmitterInstance
 	, public my::ResourceMgr
+	, public EffectEmitterInstance
 {
 public:
 	CMainFrame(void);

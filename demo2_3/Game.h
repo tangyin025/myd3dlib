@@ -36,6 +36,20 @@ public:
 	virtual void DrawVertexList(void);
 };
 
+class EffectEmitterInstance
+	: public my::EmitterInstance
+{
+public:
+	my::EffectPtr m_ParticleEffect;
+
+public:
+	EffectEmitterInstance(void)
+	{
+	}
+
+	virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
+};
+
 class GameStateBase
 {
 private:
@@ -214,7 +228,7 @@ class Game
 	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
-	, public my::EmitterInstance
+	, public EffectEmitterInstance
 	, public GameStateMachine
 {
 public:
