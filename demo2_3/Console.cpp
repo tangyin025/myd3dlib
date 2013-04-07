@@ -59,6 +59,11 @@ bool MessagePanel::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPA
 	return Control::HandleMouse(uMsg, pt, wParam, lParam);
 }
 
+bool MessagePanel::CanHaveFocus(void)
+{
+	return m_bVisible && m_bEnabled;
+}
+
 int MessagePanel::MoveLineIndex(int index, int step)
 {
 	return (index + step) % _countof(m_lines);

@@ -20,20 +20,20 @@ bool Spline::InsertNode(SplineNodePtr node, int begin_i, int end_i)
 {
 	if(begin_i >= end_i)
 	{
-		nodes.insert(nodes.begin() + begin_i, node);
+		insert(begin() + begin_i, node);
 		return true;
 	}
 
 	int mid_i = (begin_i + end_i) / 2;
 
-	if(node->x < nodes[mid_i]->x)
+	if(node->x < operator [](mid_i)->x)
 	{
 		return InsertNode(node, begin_i, mid_i);
 	}
 
-	if(node->x == nodes[mid_i]->x)
+	if(node->x == operator [](mid_i)->x)
 	{
-		nodes[mid_i] = node;
+		operator [](mid_i) = node;
 		return true;
 	}
 
@@ -42,7 +42,7 @@ bool Spline::InsertNode(SplineNodePtr node, int begin_i, int end_i)
 
 void Spline::AddNode(SplineNodePtr node)
 {
-	InsertNode(node, 0, nodes.size());
+	InsertNode(node, 0, size());
 }
 
 void Spline::AddNode(float x, float y, float k0, float k)
@@ -54,25 +54,25 @@ float Spline::_Interpolate(float s, int begin_i, int end_i)
 {
 	if(begin_i >= end_i)
 	{
-		if(begin_i >= (int)nodes.size())
-			return nodes.back()->y;
+		if(begin_i >= (int)size())
+			return back()->y;
 
 		if(end_i <= 0)
-			return nodes.front()->y;
+			return front()->y;
 
-		return nodes[begin_i - 1]->Interpolate(*nodes[begin_i], s);
+		return operator [](begin_i - 1)->Interpolate(*operator [](begin_i), s);
 	}
 
 	int mid_i = (begin_i + end_i) / 2;
 
-	if(s < nodes[mid_i]->x)
+	if(s < operator [](mid_i)->x)
 	{
 		return _Interpolate(s, begin_i, mid_i);
 	}
 
-	if(s == nodes[mid_i]->x)
+	if(s == operator [](mid_i)->x)
 	{
-		return nodes[mid_i]->y;
+		return operator [](mid_i)->y;
 	}
 
 	return _Interpolate(s, mid_i + 1, end_i);
@@ -80,7 +80,7 @@ float Spline::_Interpolate(float s, int begin_i, int end_i)
 
 float Spline::Interpolate(float s)
 {
-	_ASSERT(!nodes.empty());
+	_ASSERT(!empty());
 
-	return _Interpolate(s, 0, nodes.size());
+	return _Interpolate(s, 0, size());
 }

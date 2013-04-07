@@ -54,6 +54,7 @@ DWORD Emitter::BuildInstance(
 	_ASSERT(pInstances);
 	for(DWORD i = 0; i < ParticleCount; i++)
 	{
+		// ! Can optimize, because all offset are constant
 		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
 		pEmitterInstance->m_VertexElemSet.SetPosition(pInstance, m_ParticleList[i]->getPosition(), 1, 0);
 		pEmitterInstance->m_VertexElemSet.SetColor(pInstance, D3DCOLOR_ARGB(255,255,255,255), 1, 0);

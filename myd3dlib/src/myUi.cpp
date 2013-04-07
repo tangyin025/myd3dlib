@@ -1936,7 +1936,7 @@ void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 	{
 		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 
-		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
 			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Location);
@@ -1953,7 +1953,7 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
 		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 		{
 			if((*ctrl_iter)->GetHotkey() == wParam)
@@ -2022,7 +2022,7 @@ void Dialog::SetVisible(bool bVisible)
 
 void Dialog::Refresh(void)
 {
-	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
 	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 	{
 		(*ctrl_iter)->Refresh();
@@ -2034,7 +2034,7 @@ void Dialog::Refresh(void)
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
 {
-	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
 	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 	{
 		if((*ctrl_iter)->ContainsPoint(pt) && (*ctrl_iter)->GetVisible() && (*ctrl_iter)->GetEnabled())
@@ -2065,7 +2065,7 @@ void Dialog::RequestFocus(ControlPtr control)
 
 void Dialog::ForceFocusControl(void)
 {
-	ControlPtrSet::iterator ctrl_iter = m_Controls.begin();
+	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
 	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
 	{
 		if((*ctrl_iter)->CanHaveFocus())

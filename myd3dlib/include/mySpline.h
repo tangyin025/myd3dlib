@@ -21,13 +21,8 @@ namespace my
 
 	typedef boost::shared_ptr<SplineNode> SplineNodePtr;
 
-	typedef std::vector<SplineNodePtr> SplineNodeList;
-
-	class Spline
+	class Spline : protected std::vector<SplineNodePtr>
 	{
-	protected:
-		SplineNodeList nodes;
-
 	public:
 		Spline(void)
 		{

@@ -32,6 +32,8 @@ public:
 
 	virtual bool HandleMouse(UINT uMsg, const my::Vector2 & pt, WPARAM wParam, LPARAM lParam);
 
+	virtual bool CanHaveFocus(void);
+
 	int MoveLineIndex(int index, int step);
 
 	int LineIndexDistance(int start, int end);

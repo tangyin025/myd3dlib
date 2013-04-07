@@ -201,6 +201,8 @@ namespace my
 		UINT GetHotkey(void);
 	};
 
+	typedef boost::shared_ptr<Control> ControlPtr;
+
 	class Static : public Control
 	{
 	public:
@@ -655,10 +657,6 @@ namespace my
 
 	typedef boost::shared_ptr<ComboBox> ComboBoxPtr;
 
-	typedef boost::shared_ptr<Control> ControlPtr;
-
-	typedef std::vector<ControlPtr> ControlPtrSet;
-
 	class Dialog : public Control
 	{
 	public:
@@ -666,7 +664,9 @@ namespace my
 
 		boost::weak_ptr<Control> m_ControlMouseOver;
 
-		ControlPtrSet m_Controls;
+		typedef std::vector<ControlPtr> ControlPtrList;
+
+		ControlPtrList m_Controls;
 
 		Matrix4 m_World;
 
@@ -717,7 +717,7 @@ namespace my
 
 		void RemoveControl(ControlPtr control)
 		{
-			ControlPtrSet::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
+			ControlPtrList::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
 			if(ctrl_iter != m_Controls.end())
 			{
 				m_Controls.erase(ctrl_iter);
