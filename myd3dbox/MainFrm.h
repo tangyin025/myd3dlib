@@ -26,7 +26,7 @@ public:
 
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
-	virtual void SetTransform(const my::Matrix4 & World, const my::Matrix4 & View, const my::Matrix4 & Proj);
+	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
 
 	virtual void DrawVertexList(void);
 };

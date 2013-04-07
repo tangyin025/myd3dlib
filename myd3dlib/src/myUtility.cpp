@@ -323,7 +323,7 @@ void DialogMgr::Draw(
 		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
-			ui_render->SetTransform((*dlg_iter)->m_World, m_Camera.m_View, m_Camera.m_Proj);
+			ui_render->SetWorldViewProj((*dlg_iter)->m_World * m_Camera.m_ViewProj);
 
 			(*dlg_iter)->Draw(ui_render, fElapsedTime);
 		}

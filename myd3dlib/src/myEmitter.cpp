@@ -26,18 +26,19 @@ void Emitter::Update(double fTime, float fElapsedTime)
 		(*part_iter)->integrate(fElapsedTime);
 	}
 
-	_ASSERT(m_InverseRate > 0);
-	while(m_RemainingSpawnTime >= m_InverseRate)
+	_ASSERT(m_SpawnInterval > 0);
+
+	while(m_RemainingSpawnTime >= m_SpawnInterval)
 	{
 		Spawn();
-		m_RemainingSpawnTime -= m_InverseRate;
+		m_RemainingSpawnTime -= m_SpawnInterval;
 	}
 
-	float TotalTime = m_ParticleList.size() * m_InverseRate + m_RemainingSpawnTime;
-	if(TotalTime >= m_ParticleLifeTime + m_InverseRate)
+	float TotalTime = m_ParticleList.size() * m_SpawnInterval + m_RemainingSpawnTime;
+	if(TotalTime >= m_ParticleLifeTime + m_SpawnInterval)
 	{
 		float OverTime = TotalTime - m_ParticleLifeTime;
-		size_t remove_count = Min((size_t)(OverTime / m_InverseRate), m_ParticleList.size());
+		size_t remove_count = Min((size_t)(OverTime / m_SpawnInterval), m_ParticleList.size());
 		m_ParticleList.erase(m_ParticleList.begin(), m_ParticleList.begin() + remove_count);
 	}
 }

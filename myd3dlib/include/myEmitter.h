@@ -14,7 +14,7 @@ namespace my
 	public:
 		float m_ParticleLifeTime;
 
-		float m_InverseRate;
+		float m_SpawnInterval;
 
 		float m_RemainingSpawnTime;
 
@@ -25,7 +25,7 @@ namespace my
 	public:
 		Emitter(void)
 			: m_ParticleLifeTime(10)
-			, m_InverseRate(1/100.0f)
+			, m_SpawnInterval(1/100.0f)
 			, m_RemainingSpawnTime(0)
 		{
 		}

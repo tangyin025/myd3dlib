@@ -68,11 +68,11 @@ void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 	V(m_Device->SetTexture(0, pTexture));
 }
 
-void UIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
+void UIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
-	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&World));
-	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&View));
-	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Proj));
+	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&WorldViewProj));
+	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::identity));
+	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
 }
 
 void UIRender::ClearVertexList(void)

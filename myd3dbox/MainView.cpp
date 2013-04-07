@@ -64,7 +64,7 @@ void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR 
 	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
 	ASSERT(pFrame);
 
-	pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+	pFrame->m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
 	pFrame->m_UIRender->Begin();
 
 	Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
@@ -269,7 +269,7 @@ void CMainView::OnFrameRender(
 		DrawTextAtWorld(Vector3(10,0,0), _T("x"), D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,10), _T("z"), D3DCOLOR_ARGB(255,255,255,0));
 
-		pFrame->m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+		pFrame->m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
 		pFrame->m_UIRender->Begin();
 		CString strText;
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();

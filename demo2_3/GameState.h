@@ -90,7 +90,7 @@ public:
 
 	CharacterPtrList m_Characters;
 
-	my::EmitterPtr m_Emitter;
+	//my::EmitterPtr m_Emitter;
 
 public:
 	GameStateMain(void)

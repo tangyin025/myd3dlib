@@ -33,10 +33,10 @@ void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
 }
 
-void EffectUIRender::SetTransform(const Matrix4 & World, const Matrix4 & View, const Matrix4 & Proj)
+void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
 	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", World * View * Proj);
+		m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
 }
 
 void EffectUIRender::DrawVertexList(void)
@@ -301,7 +301,7 @@ void Game::OnFrameRender(
 
 		_ASSERT(m_Font);
 
-		m_UIRender->SetTransform(Matrix4::Identity(), DialogMgr::m_Camera.m_View, DialogMgr::m_Camera.m_Proj);
+		m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 

@@ -92,7 +92,7 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	_ASSERT(m_Camera);
 
-	m_Emitter.reset(new Emitter());
+	//m_Emitter.reset(new Emitter());
 
 	return S_OK;
 }
@@ -150,7 +150,7 @@ void GameStateMain::OnFrameMove(
 		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
 
-	m_Emitter->Update(fTime, fElapsedTime);
+	//m_Emitter->Update(fTime, fElapsedTime);
 }
 
 void GameStateMain::OnFrameRender(
@@ -244,11 +244,11 @@ void GameStateMain::OnFrameRender(
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
-		Game::getSingleton().m_ParticleEffect->SetVector("g_CameraUp", Vector3(0,1,0).transform(m_Camera->m_Orientation));
-		Game::getSingleton().m_ParticleEffect->SetVector("g_CameraRight", Vector3(1,0,0).transform(m_Camera->m_Orientation));
-		Game::getSingleton().m_ParticleEffect->SetMatrix("g_mWorldViewProjection", m_Camera->m_ViewProj);
-		Game::getSingleton().m_ParticleEffect->SetTexture("g_MeshTexture", Game::getSingleton().m_WhiteTex->m_ptr);
-		m_Emitter->Draw(pd3dDevice, fTime, fElapsedTime);
+		//Game::getSingleton().m_ParticleEffect->SetVector("g_CameraUp", Vector3(0,1,0).transform(m_Camera->m_Orientation));
+		//Game::getSingleton().m_ParticleEffect->SetVector("g_CameraRight", Vector3(1,0,0).transform(m_Camera->m_Orientation));
+		//Game::getSingleton().m_ParticleEffect->SetMatrix("g_mWorldViewProjection", m_Camera->m_ViewProj);
+		//Game::getSingleton().m_ParticleEffect->SetTexture("g_MeshTexture", Game::getSingleton().m_WhiteTex->m_ptr);
+		//m_Emitter->Draw(pd3dDevice, fTime, fElapsedTime);
 
 		V(pd3dDevice->EndScene());
 	}
