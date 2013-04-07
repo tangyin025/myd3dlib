@@ -13,6 +13,18 @@
 
 namespace my
 {
+	//inline int _ftoi(double dval)
+	//{
+	//	// seee,eeee,eeee,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm,mmmm
+	//	return *(int *)&(dval += 1.5 * (1LL << 52));
+	//}
+
+	//inline int _ftoi(float fval)
+	//{
+	//	// seee,eeee,emmm,mmmm,mmmm,mmmm,mmmm,mmmm
+	//	return *(int *)&(fval += 1.5 * (1LL << 23)) << 10 >> 10;
+	//}
+
 	template <typename T>
 	T Min(T a, T b)
 	{

@@ -92,8 +92,6 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	_ASSERT(m_Camera);
 
-	//m_Emitter.reset(new Emitter());
-
 	return S_OK;
 }
 
@@ -149,8 +147,6 @@ void GameStateMain::OnFrameMove(
 	{
 		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
-
-	//m_Emitter->Update(fTime, fElapsedTime);
 }
 
 void GameStateMain::OnFrameRender(
@@ -217,7 +213,7 @@ void GameStateMain::OnFrameRender(
 		Matrix4 World = Matrix4::Identity();
 		m_SimpleSample->SetFloat("g_fTime", (float)fTime);
 		m_SimpleSample->SetMatrix("g_mWorld", World);
-		m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
+		m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
 		m_SimpleSample->SetMatrix("g_mLightViewProjection", LightViewProj);
 		m_SimpleSample->SetVector("g_EyePos", m_Camera->m_Position);
 		m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
@@ -238,17 +234,11 @@ void GameStateMain::OnFrameRender(
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_SimpleSample->SetMatrix("g_mWorld", World);
-			m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_View * m_Camera->m_Proj);
+			m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
 			m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
-
-		//Game::getSingleton().m_ParticleEffect->SetVector("g_CameraUp", Vector3(0,1,0).transform(m_Camera->m_Orientation));
-		//Game::getSingleton().m_ParticleEffect->SetVector("g_CameraRight", Vector3(1,0,0).transform(m_Camera->m_Orientation));
-		//Game::getSingleton().m_ParticleEffect->SetMatrix("g_mWorldViewProjection", m_Camera->m_ViewProj);
-		//Game::getSingleton().m_ParticleEffect->SetTexture("g_MeshTexture", Game::getSingleton().m_WhiteTex->m_ptr);
-		//m_Emitter->Draw(pd3dDevice, fTime, fElapsedTime);
 
 		V(pd3dDevice->EndScene());
 	}
