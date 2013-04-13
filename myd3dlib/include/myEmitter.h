@@ -37,7 +37,7 @@ namespace my
 
 		void Reset(void);
 
-		void Spawn(const Vector3 & Velocity);
+		void Spawn(const Vector3 & Position, const Vector3 & Velocity);
 
 		void Update(double fTime, float fElapsedTime);
 
