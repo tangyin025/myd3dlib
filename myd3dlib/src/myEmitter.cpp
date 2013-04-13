@@ -8,11 +8,11 @@ void Emitter::Reset(void)
 	m_ParticleList.clear();
 }
 
-void Emitter::Spawn(void)
+void Emitter::Spawn(const Vector3 & Velocity)
 {
 	ParticlePtr particle(new Particle());
 	particle->setPosition(Vector3(0,0,0));
-	particle->setVelocity(Vector3(Random(-5.0f,5.0f),Random(-5.0f,5.0f),Random(-5.0f,5.0f)));
+	particle->setVelocity(Velocity);
 	m_ParticleList.push_back(particle);
 }
 
@@ -30,7 +30,8 @@ void Emitter::Update(double fTime, float fElapsedTime)
 
 	while(m_RemainingSpawnTime >= m_SpawnInterval)
 	{
-		Spawn();
+		Spawn(Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)));
+
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}
 

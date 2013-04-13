@@ -3,6 +3,7 @@
 #include "mySingleton.h"
 #include "myPhysics.h"
 #include "myMesh.h"
+#include "mySpline.h"
 #include <deque>
 
 namespace my
@@ -36,7 +37,7 @@ namespace my
 
 		void Reset(void);
 
-		void Spawn(void);
+		void Spawn(const Vector3 & Velocity);
 
 		void Update(double fTime, float fElapsedTime);
 

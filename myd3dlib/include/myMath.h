@@ -542,6 +542,21 @@ namespace my
 		Vector3 transform(const Quaternion & q) const;
 
 	public:
+		static Vector3 SphericalToCartesian(const Vector3 & Spherical)
+		{
+			return Vector3(
+				Spherical.x * sin(Spherical.y) * sin(Spherical.z),
+				Spherical.x * cos(Spherical.y),
+				Spherical.x * sin(Spherical.y) * cos(Spherical.z));
+		}
+
+		static Vector3 CartesianToSpherical(const Vector3 & Cartesian)
+		{
+			float r = sqrt(Cartesian.x * Cartesian.x + Cartesian.y * Cartesian.y + Cartesian.z * Cartesian.z);
+
+			return Vector3(r, acos(Cartesian.y / r), atan2(Cartesian.x, Cartesian.z));
+		}
+
 		static const Vector3 zero;
 
 		static const Vector3 unitX;
