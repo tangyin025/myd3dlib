@@ -71,6 +71,11 @@ technique RenderScene
     pass P0
     {          
 		CullMode = NONE;
+		Lighting = FALSE;
+		AlphaBlendEnable = TRUE;
+		SrcBlend = SRCALPHA;
+		DestBlend = INVSRCALPHA;
+		ZEnable = TRUE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

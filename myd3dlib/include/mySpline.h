@@ -34,7 +34,7 @@ namespace my
 
 		bool InsertNode(SplineNodePtr node, int begin_i, int end_i);
 
-		void AddNode(SplineNodePtr node);
+		void InsertNode(SplineNodePtr node);
 
 		void AddNode(float x, float y, float k0, float k);
 

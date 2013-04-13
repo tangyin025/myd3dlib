@@ -40,14 +40,14 @@ bool Spline::InsertNode(SplineNodePtr node, int begin_i, int end_i)
 	return InsertNode(node, mid_i + 1, end_i);
 }
 
-void Spline::AddNode(SplineNodePtr node)
+void Spline::InsertNode(SplineNodePtr node)
 {
 	InsertNode(node, 0, size());
 }
 
 void Spline::AddNode(float x, float y, float k0, float k)
 {
-	AddNode(SplineNodePtr(new SplineNode(x, y, k0, k)));
+	InsertNode(SplineNodePtr(new SplineNode(x, y, k0, k)));
 }
 
 float Spline::Interpolate(float s, int begin_i, int end_i)

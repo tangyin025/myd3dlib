@@ -18,6 +18,8 @@ void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity)
 
 void Emitter::Update(double fTime, float fElapsedTime)
 {
+	m_Time += fElapsedTime;
+
 	m_RemainingSpawnTime += fElapsedTime;
 
 	ParticlePtrList::iterator part_iter = m_ParticleList.begin();
@@ -31,16 +33,23 @@ void Emitter::Update(double fTime, float fElapsedTime)
 	while(m_RemainingSpawnTime >= m_SpawnInterval)
 	{
 		Spawn(
-			Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)),
-			Vector3(Random(-5.0f,5.0f), Random(-5.0f,5.0f), Random(-5.0f,5.0f)));
+			Vector3(
+				Random(m_Position.x - m_HalfSpawnArea.x, m_Position.x + m_HalfSpawnArea.x),
+				Random(m_Position.y - m_HalfSpawnArea.y, m_Position.y + m_HalfSpawnArea.y),
+				Random(m_Position.z - m_HalfSpawnArea.z, m_Position.z + m_HalfSpawnArea.z)),
+
+			Vector3::SphericalToCartesian(Vector3(
+				m_SpawnSpeed,
+				m_SpawnInclination.Interpolate(fmod(m_Time, m_SpawnLoopTime)),
+				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime)))).transform(m_Orientation));
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}
 
-	float TotalTime = m_ParticleList.size() * m_SpawnInterval + m_RemainingSpawnTime;
-	if(TotalTime >= m_ParticleLifeTime + m_SpawnInterval)
+	float ParticleTime = m_ParticleList.size() * m_SpawnInterval + m_RemainingSpawnTime;
+	if(ParticleTime >= m_ParticleLifeTime + m_SpawnInterval)
 	{
-		float OverTime = TotalTime - m_ParticleLifeTime;
+		float OverTime = ParticleTime - m_ParticleLifeTime;
 		size_t remove_count = Min((size_t)(OverTime / m_SpawnInterval), m_ParticleList.size());
 		m_ParticleList.erase(m_ParticleList.begin(), m_ParticleList.begin() + remove_count);
 	}
@@ -61,7 +70,13 @@ DWORD Emitter::BuildInstance(
 		// ! Can optimize, because all offset are constant
 		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
 		pEmitterInstance->m_VertexElemSet.SetPosition(pInstance, m_ParticleList[i]->getPosition(), 1, 0);
-		pEmitterInstance->m_VertexElemSet.SetColor(pInstance, D3DCOLOR_ARGB(255,255,255,255), 1, 0);
+
+		float ParticleTime = m_SpawnInterval * (m_ParticleList.size() - i - 1) + m_RemainingSpawnTime;
+		pEmitterInstance->m_VertexElemSet.SetColor(pInstance, D3DCOLOR_ARGB(
+			m_ParticleColorAlpha.Interpolate(ParticleTime),
+			m_ParticleColorRed.Interpolate(ParticleTime),
+			m_ParticleColorGreen.Interpolate(ParticleTime),
+			m_ParticleColorBlue.Interpolate(ParticleTime)), 1, 0);
 	}
 	pEmitterInstance->m_InstanceData.Unlock();
 
