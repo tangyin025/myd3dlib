@@ -38,9 +38,9 @@ namespace my
 
 		Quaternion m_Orientation;
 
-		typedef std::deque<ParticlePtr> ParticlePtrList;
+		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
 
-		ParticlePtrList m_ParticleList;
+		ParticlePtrPairList m_ParticleList;
 
 		float m_Time;
 
