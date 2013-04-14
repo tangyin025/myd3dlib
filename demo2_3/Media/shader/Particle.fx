@@ -73,9 +73,11 @@ technique RenderScene
 		CullMode = NONE;
 		Lighting = FALSE;
 		AlphaBlendEnable = TRUE;
-		SrcBlend = SRCALPHA;
-		DestBlend = INVSRCALPHA;
+		BlendOp = ADD;
+		SrcBlend = SRCCOLOR;
+		DestBlend = ONE;
 		ZEnable = TRUE;
+		ZWriteEnable = FALSE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }
