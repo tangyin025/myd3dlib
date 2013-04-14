@@ -42,23 +42,7 @@ namespace my
 
 		ParticlePtrPairList m_ParticleList;
 
-		float m_Time;
-
 		float m_ParticleLifeTime;
-
-		float m_SpawnInterval;
-
-		float m_RemainingSpawnTime;
-
-		Vector3 m_HalfSpawnArea;
-
-		float m_SpawnSpeed;
-
-		EmitterParameter<float> m_SpawnInclination;
-
-		EmitterParameter<float> m_SpawnAzimuth;
-
-		float m_SpawnLoopTime;
 
 		EmitterParameter<int> m_ParticleColorAlpha;
 
@@ -76,15 +60,7 @@ namespace my
 		Emitter(void)
 			: m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
-			, m_Time(0)
 			, m_ParticleLifeTime(10)
-			, m_SpawnInterval(1/100.0f)
-			, m_RemainingSpawnTime(0)
-			, m_HalfSpawnArea(0,0,0)
-			, m_SpawnSpeed(1)
-			, m_SpawnInclination(D3DXToRadian(0))
-			, m_SpawnAzimuth(D3DXToRadian(0))
-			, m_SpawnLoopTime(10)
 			, m_ParticleColorAlpha(255)
 			, m_ParticleColorRed(255)
 			, m_ParticleColorGreen(255)
@@ -102,7 +78,7 @@ namespace my
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity);
 
-		void Update(double fTime, float fElapsedTime);
+		virtual void Update(double fTime, float fElapsedTime);
 
 		DWORD BuildInstance(
 			EmitterInstance * pEmitterInstance,
@@ -115,6 +91,45 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Emitter> EmitterPtr;
+
+	class AutoSpawnEmitter
+		: public Emitter
+	{
+	public:
+		float m_Time;
+
+		float m_SpawnInterval;
+
+		float m_RemainingSpawnTime;
+
+		Vector3 m_HalfSpawnArea;
+
+		float m_SpawnSpeed;
+
+		EmitterParameter<float> m_SpawnInclination;
+
+		EmitterParameter<float> m_SpawnAzimuth;
+
+		float m_SpawnLoopTime;
+
+	public:
+		AutoSpawnEmitter(void)
+			: Emitter()
+			, m_Time(0)
+			, m_SpawnInterval(1/100.0f)
+			, m_RemainingSpawnTime(0)
+			, m_HalfSpawnArea(0,0,0)
+			, m_SpawnSpeed(1)
+			, m_SpawnInclination(D3DXToRadian(0))
+			, m_SpawnAzimuth(D3DXToRadian(0))
+			, m_SpawnLoopTime(10)
+		{
+		}
+
+		virtual void Update(double fTime, float fElapsedTime);
+	};
+
+	typedef boost::shared_ptr<AutoSpawnEmitter> AutoSpawnEmitterPtr;
 
 	class EmitterInstance
 		: public SingleInstance<EmitterInstance>
