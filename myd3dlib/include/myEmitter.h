@@ -34,10 +34,6 @@ namespace my
 	class Emitter
 	{
 	public:
-		Vector3 m_Position;
-
-		Quaternion m_Orientation;
-
 		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
 
 		ParticlePtrPairList m_ParticleList;
@@ -58,9 +54,7 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_Position(0,0,0)
-			, m_Orientation(Quaternion::Identity())
-			, m_ParticleLifeTime(10)
+			: m_ParticleLifeTime(10)
 			, m_ParticleColorAlpha(255)
 			, m_ParticleColorRed(255)
 			, m_ParticleColorGreen(255)
@@ -96,6 +90,10 @@ namespace my
 		: public Emitter
 	{
 	public:
+		Vector3 m_Position;
+
+		Quaternion m_Orientation;
+
 		float m_Time;
 
 		float m_SpawnInterval;
@@ -114,7 +112,8 @@ namespace my
 
 	public:
 		AutoSpawnEmitter(void)
-			: Emitter()
+			: m_Position(0,0,0)
+			, m_Orientation(Quaternion::Identity())
 			, m_Time(0)
 			, m_SpawnInterval(1/100.0f)
 			, m_RemainingSpawnTime(0)
