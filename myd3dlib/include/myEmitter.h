@@ -68,6 +68,10 @@ namespace my
 
 		EmitterParameter<int> m_ParticleColorBlue;
 
+		EmitterParameter<float> m_ParticleSizeX;
+
+		EmitterParameter<float> m_ParticleSizeY;
+
 	public:
 		Emitter(void)
 			: m_Position(0,0,0)
@@ -85,6 +89,8 @@ namespace my
 			, m_ParticleColorRed(255)
 			, m_ParticleColorGreen(255)
 			, m_ParticleColorBlue(255)
+			, m_ParticleSizeX(1)
+			, m_ParticleSizeY(1)
 		{
 		}
 
@@ -137,6 +143,8 @@ namespace my
 			offset += sizeof(D3DVERTEXELEMENT9Set::PositionType);
 			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateColorElement(1, offset, 0));
 			offset += sizeof(D3DVERTEXELEMENT9Set::ColorType);
+			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateCustomElement(1, D3DDECLUSAGE_TEXCOORD, 1, offset, D3DDECLTYPE_FLOAT4));
+			offset += sizeof(FLOAT) * 4;
 
 			m_VertexStride = m_VertexElemSet.CalculateVertexStride(0);
 			m_InstanceStride = m_VertexElemSet.CalculateVertexStride(1);

@@ -39,11 +39,13 @@ struct VS_OUTPUT
 
 VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0, 
 						 float4 vPos : POSITION0,
-                         float4 vDiffuse : COLOR0 )
+                         float4 vDiffuse : COLOR0,
+						 float4 vTexCoord1 : TEXCOORD1 )
 {
     VS_OUTPUT Output;
 	float4 LocalPos = float4(
-		g_CameraUp * lerp(.5,-.5,vTexCoord0.y) + g_CameraRight * lerp(-.5,.5,vTexCoord0.x), 0);
+		g_CameraUp * lerp(vTexCoord1.x * 0.5, -vTexCoord1.y * 0.5, vTexCoord0.y) +
+		g_CameraRight * lerp(-vTexCoord1.x * 0.5, vTexCoord1.y * 0.5, vTexCoord0.x), 0);
 	Output.Position = mul(LocalPos + vPos, g_mWorldViewProjection);
 	
 	Output.Diffuse = vDiffuse;

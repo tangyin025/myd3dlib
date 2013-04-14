@@ -77,6 +77,10 @@ DWORD Emitter::BuildInstance(
 			m_ParticleColorRed.Interpolate(ParticleTime),
 			m_ParticleColorGreen.Interpolate(ParticleTime),
 			m_ParticleColorBlue.Interpolate(ParticleTime)), 1, 0);
+
+		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
+			m_ParticleSizeX.Interpolate(ParticleTime),
+			m_ParticleSizeY.Interpolate(ParticleTime), 1, 1));
 	}
 	pEmitterInstance->m_InstanceData.Unlock();
 
