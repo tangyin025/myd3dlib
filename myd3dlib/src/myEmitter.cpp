@@ -45,7 +45,7 @@ DWORD Emitter::BuildInstance(
 	_ASSERT(pInstances);
 	for(DWORD i = 0; i < ParticleCount; i++)
 	{
-		// ! Can optimize, because all offset are constant
+		// ! Can optimize, because all point offset are constant
 		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
 		pEmitterInstance->m_VertexElemSet.SetPosition(pInstance, m_ParticleList[i].first->getPosition(), 1, 0);
 
@@ -57,7 +57,12 @@ DWORD Emitter::BuildInstance(
 
 		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
 			m_ParticleSizeX.Interpolate(m_ParticleList[i].second),
-			m_ParticleSizeY.Interpolate(m_ParticleList[i].second), 1, 1));
+			m_ParticleSizeY.Interpolate(m_ParticleList[i].second),
+			m_ParticleAngle.Interpolate(m_ParticleList[i].second), 1));
+
+		unsigned int AnimFrame = (unsigned int)(m_ParticleList[i].second * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
+		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 2, (unsigned int)D3DCOLOR_ARGB(
+			0, 0, AnimFrame / m_ParticleAnimRow, AnimFrame % m_ParticleAnimColumn));
 	}
 	pEmitterInstance->m_InstanceData.Unlock();
 
