@@ -24,31 +24,17 @@ public:
 
 	virtual void End(void);
 
-	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
-
 	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
+
+	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 	virtual void DrawVertexList(void);
 };
 
-class EffectEmitterInstance
-	: public my::EmitterInstance
-{
-public:
-	my::EffectPtr m_ParticleEffect;
-
-public:
-	EffectEmitterInstance(void)
-	{
-	}
-
-	virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
-};
-
 class CMainFrame
 	: public CFrameWndEx
+	, public my::SingleInstance<CMainFrame>
 	, public my::ResourceMgr
-	, public EffectEmitterInstance
 {
 public:
 	CMainFrame(void);
@@ -85,16 +71,6 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	static CMainFrame & getSingleton(void)
-	{
-		return *getSingletonPtr();
-	}
-
-	static CMainFrame * getSingletonPtr(void)
-	{
-		return static_cast<CMainFrame *>(EmitterInstance::getSingletonPtr());
-	}
-
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnViewCustomize();

@@ -44,9 +44,9 @@ namespace my
 
 		virtual void End(void);
 
-		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
-
 		virtual void SetWorldViewProj(const Matrix4 & WorldViewProj);
+
+		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 		virtual void ClearVertexList(void);
 

@@ -26,16 +26,16 @@ void EffectUIRender::End(void)
 		m_UIEffect->End();
 }
 
-void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
-}
-
 void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
 	if(m_UIEffect->m_ptr)
 		m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+}
+
+void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	if(m_UIEffect->m_ptr)
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
 }
 
 void EffectUIRender::DrawVertexList(void)
@@ -55,20 +55,7 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-void EffectEmitterInstance::DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances)
-{
-	if(m_ParticleEffect->m_ptr)
-	{
-		UINT uPasses = m_ParticleEffect->Begin();
-		for(UINT p = 0; p < uPasses; p++)
-		{
-			m_ParticleEffect->BeginPass(p);
-			EmitterInstance::DrawInstance(pd3dDevice, NumInstances);
-			m_ParticleEffect->EndPass();
-		}
-		m_ParticleEffect->End();
-	}
-}
+CMainFrame::SingleInstance * SingleInstance<CMainFrame>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
@@ -122,11 +109,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	if(FAILED(hr = EmitterInstance::OnCreateDevice(m_d3dDevice, NULL)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return -1;
-	}
+	//if(FAILED(hr = EmitterInstance::OnCreateDevice(m_d3dDevice, NULL)))
+	//{
+	//	TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+	//	return -1;
+	//}
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
@@ -193,7 +180,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, _T("Customize..."), ID_VIEW_TOOLBAR);
 	CMFCToolBar::EnableQuickCustomization();
 
-	m_ParticleEffect = LoadEffect("shader/Particle.fx");
+	//m_ParticleEffect = LoadEffect("shader/Particle.fx");
 
 	m_UIRender.reset(new EffectUIRender(m_d3dDevice, LoadEffect("shader/UIEffect.fx")));
 
@@ -292,7 +279,7 @@ void CMainFrame::OnDestroy()
 
 	if(m_DeviceObjectsCreated)
 	{
-		EmitterInstance::OnDestroyDevice();
+		//EmitterInstance::OnDestroyDevice();
 
 		ResourceMgr::OnDestroyDevice();
 
@@ -343,11 +330,11 @@ HRESULT CMainFrame::OnDeviceReset(void)
 		return hr;
 	}
 
-	if(FAILED(hr = EmitterInstance::OnResetDevice(m_d3dDevice, NULL)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
+	//if(FAILED(hr = EmitterInstance::OnResetDevice(m_d3dDevice, NULL)))
+	//{
+	//	TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+	//	return hr;
+	//}
 
 	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
 	{
@@ -361,7 +348,7 @@ void CMainFrame::OnDeviceLost(void)
 {
 	TRACE0("CMainFrame::OnDeviceLost \n");
 
-	EmitterInstance::OnLostDevice();
+	//EmitterInstance::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 

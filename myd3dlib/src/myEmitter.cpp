@@ -69,16 +69,18 @@ DWORD Emitter::BuildInstance(
 	return ParticleCount;
 }
 
-void Emitter::Draw(IDirect3DDevice9 * pd3dDevice,
+void Emitter::Draw(
+	EmitterInstance * pEmitterInstance,
 	double fTime,
 	float fElapsedTime)
 {
-	EmitterInstance * pEmitterInstance = EmitterInstance::getSingletonPtr();
-	_ASSERT(pEmitterInstance);
-
 	DWORD ParticleCount = BuildInstance(pEmitterInstance, fTime, fElapsedTime);
 
-	pEmitterInstance->DrawInstance(pd3dDevice, ParticleCount);
+	pEmitterInstance->SetTexture(m_Texture ? m_Texture->m_ptr : NULL);
+
+	pEmitterInstance->SetAnimationColumnRow(m_ParticleAnimColumn, m_ParticleAnimRow);
+
+	pEmitterInstance->DrawInstance(ParticleCount);
 }
 
 void AutoSpawnEmitter::Update(double fTime, float fElapsedTime)
@@ -117,12 +119,14 @@ void AutoSpawnEmitter::Update(double fTime, float fElapsedTime)
 	}
 }
 
-EmitterInstance::SingleInstance * SingleInstance<EmitterInstance>::s_ptr = NULL;
-
 HRESULT EmitterInstance::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	_ASSERT(!m_Device);
+
+	m_Device = pd3dDevice;
+
 	_ASSERT(!m_VertexBuffer.m_ptr);
 	_ASSERT(!m_IndexData.m_ptr);
 	_ASSERT(!m_InstanceData.m_ptr);
@@ -174,21 +178,39 @@ void EmitterInstance::OnDestroyDevice(void)
 	_ASSERT(!m_InstanceData.m_ptr);
 
 	m_Decl.Release();
+
+	m_Device.Release();
 }
 
-void EmitterInstance::DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances)
+void EmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
+{
+}
+
+void EmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+}
+
+void EmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
+{
+}
+
+void EmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
+{
+}
+
+void EmitterInstance::DrawInstance(DWORD NumInstances)
 {
 	HRESULT hr;
-	V(pd3dDevice->SetStreamSource(0, m_VertexBuffer.m_ptr, 0, m_VertexStride));
-	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+	V(m_Device->SetStreamSource(0, m_VertexBuffer.m_ptr, 0, m_VertexStride));
+	V(m_Device->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
 
-	V(pd3dDevice->SetStreamSource(1, m_InstanceData.m_ptr, 0, m_InstanceStride));
-	V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+	V(m_Device->SetStreamSource(1, m_InstanceData.m_ptr, 0, m_InstanceStride));
+	V(m_Device->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
 
-	V(pd3dDevice->SetVertexDeclaration(m_Decl));
-	V(pd3dDevice->SetIndices(m_IndexData.m_ptr));
-	V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
+	V(m_Device->SetVertexDeclaration(m_Decl));
+	V(m_Device->SetIndices(m_IndexData.m_ptr));
+	V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLEFAN, 0, 0, 4, 0, 2));
 
-	V(pd3dDevice->SetStreamSourceFreq(0,1));
-	V(pd3dDevice->SetStreamSourceFreq(1,1));
+	V(m_Device->SetStreamSourceFreq(0,1));
+	V(m_Device->SetStreamSourceFreq(1,1));
 }

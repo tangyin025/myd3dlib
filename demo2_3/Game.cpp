@@ -12,36 +12,31 @@ using namespace my;
 void EffectUIRender::Begin(void)
 {
 	const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
+	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
 
-	if(m_UIEffect->m_ptr)
-		m_Passes = m_UIEffect->Begin();
+	m_Passes = m_UIEffect->Begin();
 }
 
 void EffectUIRender::End(void)
 {
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->End();
+	m_UIEffect->End();
+}
+
+void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
+{
+	m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
 	_ASSERT(Game::getSingleton().m_WhiteTex);
 
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
-}
-
-void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
-{
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
 }
 
 void EffectUIRender::DrawVertexList(void)
 {
-	if(m_UIEffect->m_ptr && vertex_count > 0)
+	if(vertex_count > 0)
 	{
 		for(UINT p = 0; p < m_Passes; p++)
 		{
@@ -53,15 +48,38 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-void EffectEmitterInstance::DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances)
+void EffectEmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
-	if(m_ParticleEffect->m_ptr)
+	m_ParticleEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+}
+
+void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	_ASSERT(Game::getSingleton().m_WhiteTex);
+
+	m_ParticleEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+}
+
+void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
+{
+	m_ParticleEffect->SetVector("g_CameraUp", Up);
+	m_ParticleEffect->SetVector("g_CameraRight", Right);
+}
+
+void EffectEmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
+{
+	m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
+}
+
+void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
+{
+	if(NumInstances > 0)
 	{
 		UINT uPasses = m_ParticleEffect->Begin();
 		for(UINT p = 0; p < uPasses; p++)
 		{
 			m_ParticleEffect->BeginPass(p);
-			EmitterInstance::DrawInstance(pd3dDevice, NumInstances);
+			EmitterInstance::DrawInstance(NumInstances);
 			m_ParticleEffect->EndPass();
 		}
 		m_ParticleEffect->End();
@@ -153,14 +171,14 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	if(FAILED(hr = EffectEmitterInstance::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
+
+	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx")));
+
+	if(FAILED(hr = m_EmitterInst->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
-
-	m_ParticleEffect = LoadEffect("shader/Particle.fx");
-
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
 
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
@@ -216,7 +234,7 @@ HRESULT Game::OnResetDevice(
 		return hres;
 	}
 
-	if(FAILED(hres = EffectEmitterInstance::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hres = m_EmitterInst->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hres;
 	}
@@ -238,7 +256,7 @@ void Game::OnLostDevice(void)
 
 	SafeLostCurrentState();
 
-	EffectEmitterInstance::OnLostDevice();
+	m_EmitterInst->OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -259,11 +277,11 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
+	m_EmitterInst->OnDestroyDevice();
+
 	m_UIRender.reset();
 
 	RemoveAllTimer();
-
-	EffectEmitterInstance::OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
 

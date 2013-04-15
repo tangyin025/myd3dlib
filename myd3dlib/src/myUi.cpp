@@ -63,16 +63,16 @@ void UIRender::End(void)
 	V(m_Device->SetTextureStageState(0, D3DTSS_ALPHAARG2, State[15]));
 }
 
-void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
-{
-	V(m_Device->SetTexture(0, pTexture));
-}
-
 void UIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
 	V(m_Device->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&WorldViewProj));
 	V(m_Device->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Matrix4::identity));
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
+}
+
+void UIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	V(m_Device->SetTexture(0, pTexture));
 }
 
 void UIRender::ClearVertexList(void)

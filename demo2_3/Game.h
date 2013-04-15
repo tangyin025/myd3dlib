@@ -29,9 +29,9 @@ public:
 
 	virtual void End(void);
 
-	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
-
 	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
+
+	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
 	virtual void DrawVertexList(void);
 };
@@ -43,11 +43,20 @@ public:
 	my::EffectPtr m_ParticleEffect;
 
 public:
-	EffectEmitterInstance(void)
+	EffectEmitterInstance(my::EffectPtr effect)
+		: m_ParticleEffect(effect)
 	{
 	}
 
-	virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
+	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
+
+	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+
+	virtual void SetDirection(const my::Vector3 & Dir, const my::Vector3 & Up, const my::Vector3 & Right);
+
+	virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row);
+
+	virtual void DrawInstance(DWORD NumInstances);
 };
 
 class GameStateBase
@@ -228,13 +237,14 @@ class Game
 	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
-	, public EffectEmitterInstance
 	, public GameStateMachine
 {
 public:
 	my::LuaContextPtr m_lua;
 
 	my::UIRenderPtr m_UIRender;
+
+	my::EmitterInstancePtr m_EmitterInst;
 
 	my::TexturePtr m_WhiteTex;
 

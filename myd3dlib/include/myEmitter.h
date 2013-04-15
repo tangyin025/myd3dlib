@@ -2,6 +2,7 @@
 
 #include "mySingleton.h"
 #include "myPhysics.h"
+#include "myTexture.h"
 #include "myMesh.h"
 #include "mySpline.h"
 #include <deque>
@@ -60,6 +61,8 @@ namespace my
 
 		unsigned char m_ParticleAnimRow;
 
+		TexturePtr m_Texture;
+
 	public:
 		Emitter(void)
 			: m_ParticleLifeTime(10)
@@ -91,7 +94,8 @@ namespace my
 			double fTime,
 			float fElapsedTime);
 
-		void Draw(IDirect3DDevice9 * pd3dDevice,
+		void Draw(
+			EmitterInstance * pEmitterInstance,
 			double fTime,
 			float fElapsedTime);
 	};
@@ -143,9 +147,10 @@ namespace my
 	typedef boost::shared_ptr<AutoSpawnEmitter> AutoSpawnEmitterPtr;
 
 	class EmitterInstance
-		: public SingleInstance<EmitterInstance>
 	{
 	public:
+		CComPtr<IDirect3DDevice9> m_Device;
+
 		D3DVERTEXELEMENT9Set m_VertexElemSet;
 
 		VertexBuffer m_VertexBuffer;
@@ -194,6 +199,16 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		virtual void DrawInstance(IDirect3DDevice9 * pd3dDevice, DWORD NumInstances);
+		virtual void SetWorldViewProj(const Matrix4 & WorldViewProj);
+
+		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+
+		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right);
+
+		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row);
+
+		virtual void DrawInstance(DWORD NumInstances);
 	};
+
+	typedef boost::shared_ptr<EmitterInstance> EmitterInstancePtr;
 }
