@@ -4,6 +4,7 @@
 #include "mySkeleton.h"
 #include "myMesh.h"
 #include "myEffect.h"
+#include "myEmitter.h"
 #include "myUI.h"
 
 namespace my
@@ -225,6 +226,10 @@ namespace my
 			SetDlgViewport(Vector2(800,600));
 		}
 
+		virtual ~DialogMgr(void)
+		{
+		}
+
 		void SetDlgViewport(const Vector2 & vp);
 
 		Vector2 GetDlgViewport(void) const;
@@ -260,6 +265,49 @@ namespace my
 		void RemoveAllDlg()
 		{
 			m_dlgSetMap[0].clear();
+		}
+	};
+
+	class EmitterMgr
+	{
+	public:
+		typedef std::set<EmitterPtr> EmitterPtrSet;
+
+		EmitterPtrSet m_EmitterSet;
+
+	public:
+		EmitterMgr(void)
+		{
+		}
+
+		virtual ~EmitterMgr(void)
+		{
+		}
+
+		void Update(
+			double fTime,
+			float fElapsedTime);
+
+		void Draw(
+			EmitterInstance * pInstance,
+			double fTime,
+			float fElapsedTime);
+
+		void InsertEmitter(EmitterPtr emitter)
+		{
+			_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+
+			m_EmitterSet.insert(emitter);
+		}
+
+		void RemoveEmitter(EmitterPtr emitter)
+		{
+			m_EmitterSet.erase(emitter);
+		}
+
+		void RemoveAllEmitter(void)
+		{
+			m_EmitterSet.clear();
 		}
 	};
 

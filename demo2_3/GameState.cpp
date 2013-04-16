@@ -138,6 +138,8 @@ void GameStateMain::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
+	EmitterMgr::Update(fTime, fElapsedTime);
+
 	m_dynamicsWorld->stepSimulation(fElapsedTime, 4);
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
@@ -239,6 +241,11 @@ void GameStateMain::OnFrameRender(
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
+
+		Game::getSingleton().m_EmitterInst->SetWorldViewProj(m_Camera->m_ViewProj);
+		Game::getSingleton().m_EmitterInst->SetDirection(
+			Vector3(0,0,1).transform(m_Camera->m_Orientation), Vector3(0,1,0).transform(m_Camera->m_Orientation), Vector3(1,0,0).transform(m_Camera->m_Orientation));
+		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), fTime, fElapsedTime);
 
 		V(pd3dDevice->EndScene());
 	}

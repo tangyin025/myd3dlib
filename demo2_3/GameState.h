@@ -56,6 +56,7 @@ public:
 class GameStateMain
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
+	, public my::EmitterMgr
 {
 public:
 	typedef boost::statechart::transition<GameEventInit, GameStateMain> reactions;

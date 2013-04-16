@@ -50,10 +50,10 @@ DWORD Emitter::BuildInstance(
 		pEmitterInstance->m_VertexElemSet.SetPosition(pInstance, m_ParticleList[i].first->getPosition(), 1, 0);
 
 		pEmitterInstance->m_VertexElemSet.SetColor(pInstance, D3DCOLOR_ARGB(
-			m_ParticleColorAlpha.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorRed.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorGreen.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorBlue.Interpolate(m_ParticleList[i].second)), 1, 0);
+			m_ParticleColorA.Interpolate(m_ParticleList[i].second),
+			m_ParticleColorR.Interpolate(m_ParticleList[i].second),
+			m_ParticleColorG.Interpolate(m_ParticleList[i].second),
+			m_ParticleColorB.Interpolate(m_ParticleList[i].second)), 1, 0);
 
 		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
 			m_ParticleSizeX.Interpolate(m_ParticleList[i].second),

@@ -41,13 +41,13 @@ namespace my
 
 		float m_ParticleLifeTime;
 
-		EmitterParameter<int> m_ParticleColorAlpha;
+		EmitterParameter<int> m_ParticleColorA;
 
-		EmitterParameter<int> m_ParticleColorRed;
+		EmitterParameter<int> m_ParticleColorR;
 
-		EmitterParameter<int> m_ParticleColorGreen;
+		EmitterParameter<int> m_ParticleColorG;
 
-		EmitterParameter<int> m_ParticleColorBlue;
+		EmitterParameter<int> m_ParticleColorB;
 
 		EmitterParameter<float> m_ParticleSizeX;
 
@@ -66,10 +66,10 @@ namespace my
 	public:
 		Emitter(void)
 			: m_ParticleLifeTime(10)
-			, m_ParticleColorAlpha(255)
-			, m_ParticleColorRed(255)
-			, m_ParticleColorGreen(255)
-			, m_ParticleColorBlue(255)
+			, m_ParticleColorA(255)
+			, m_ParticleColorR(255)
+			, m_ParticleColorG(255)
+			, m_ParticleColorB(255)
 			, m_ParticleSizeX(1)
 			, m_ParticleSizeY(1)
 			, m_ParticleAngle(0)

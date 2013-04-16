@@ -469,6 +469,29 @@ bool DialogMgr::MsgProc(
 	return false;
 }
 
+void EmitterMgr::Update(
+	double fTime,
+	float fElapsedTime)
+{
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		(*emitter_iter)->Update(fTime, fElapsedTime);
+	}
+}
+
+void EmitterMgr::Draw(
+	EmitterInstance * pInstance,
+	double fTime,
+	float fElapsedTime)
+{
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		(*emitter_iter)->Draw(pInstance, fTime, fElapsedTime);
+	}
+}
+
 void DrawHelper::DrawLine(
 	IDirect3DDevice9 * pd3dDevice,
 	const Vector3 & v0,
