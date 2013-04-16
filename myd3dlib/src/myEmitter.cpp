@@ -83,7 +83,7 @@ void Emitter::Draw(
 	pEmitterInstance->DrawInstance(ParticleCount);
 }
 
-void AutoSpawnEmitter::Update(double fTime, float fElapsedTime)
+void SphericalEmitter::Update(double fTime, float fElapsedTime)
 {
 	Emitter::Update(fTime, fElapsedTime);
 

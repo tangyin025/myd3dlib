@@ -16,17 +16,17 @@ namespace my
 		: public Spline
 	{
 	public:
-		T m_ConstantValue;
+		T m_Value;
 
 		EmitterParameter(const T & Value)
-			: m_ConstantValue(Value)
+			: m_Value(Value)
 		{
 		}
 
 		T Interpolate(float s)
 		{
 			if(empty())
-				return m_ConstantValue;
+				return m_Value;
 
 			return (T)Spline::Interpolate(s, 0, size());
 		}
@@ -102,7 +102,7 @@ namespace my
 
 	typedef boost::shared_ptr<Emitter> EmitterPtr;
 
-	class AutoSpawnEmitter
+	class SphericalEmitter
 		: public Emitter
 	{
 	public:
@@ -127,7 +127,7 @@ namespace my
 		float m_SpawnLoopTime;
 
 	public:
-		AutoSpawnEmitter(void)
+		SphericalEmitter(void)
 			: m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_Time(0)
@@ -144,7 +144,7 @@ namespace my
 		virtual void Update(double fTime, float fElapsedTime);
 	};
 
-	typedef boost::shared_ptr<AutoSpawnEmitter> AutoSpawnEmitterPtr;
+	typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
 
 	class EmitterInstance
 	{
