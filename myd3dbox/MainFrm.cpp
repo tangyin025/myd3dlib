@@ -13,44 +13,40 @@ void EffectUIRender::Begin(void)
 {
 	CRect rectClient;
 	CMainView::getSingleton().GetClientRect(&rectClient);
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
 
-	if(m_UIEffect->m_ptr)
-		m_Passes = m_UIEffect->Begin();
+	m_Passes = m_UIEffect->Begin();
 }
 
 void EffectUIRender::End(void)
 {
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->End();
+	m_UIEffect->End();
+
+	m_Passes = 0;
 }
 
 void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+	m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
-	if(m_UIEffect->m_ptr)
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
+	_ASSERT(CMainFrame::getSingleton().m_WhiteTex);
+
+	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
 }
 
 void EffectUIRender::DrawVertexList(void)
 {
-	if(m_UIEffect->m_ptr)
+	if(vertex_count > 0)
 	{
-		if(vertex_count > 0)
+		for(UINT p = 0; p < m_Passes; p++)
 		{
-			for(UINT p = 0; p < m_Passes; p++)
-			{
-				m_UIEffect->BeginPass(p);
-				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
-				m_UIEffect->EndPass();
-			}
+			m_UIEffect->BeginPass(p);
+			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+			m_UIEffect->EndPass();
 		}
 	}
 }
@@ -103,20 +99,22 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_DeviceObjectsCreated = true;
 
+	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
 	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, NULL)))
 	{
 		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
 		return -1;
 	}
 
-	//if(FAILED(hr = EmitterInstance::OnCreateDevice(m_d3dDevice, NULL)))
-	//{
-	//	TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-	//	return -1;
-	//}
+	m_UIRender.reset(new EffectUIRender(m_d3dDevice, LoadEffect("shader/UIEffect.fx")));
 
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
-		return -1;
+	m_WhiteTex = LoadTexture("texture/white.bmp");
+
+	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
+
+	m_SimpleSample = LoadEffect("shader/SimpleSample.fx");
 
 	if(FAILED(hr = OnDeviceReset()))
 	{
@@ -179,16 +177,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	EnableAutoHidePanes(CBRS_ALIGN_ANY);
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, _T("Customize..."), ID_VIEW_TOOLBAR);
 	CMFCToolBar::EnableQuickCustomization();
-
-	//m_ParticleEffect = LoadEffect("shader/Particle.fx");
-
-	m_UIRender.reset(new EffectUIRender(m_d3dDevice, LoadEffect("shader/UIEffect.fx")));
-
-	m_WhiteTex = LoadTexture("texture/white.bmp");
-
-	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
-
-	m_SimpleSample = LoadEffect("shader/SimpleSample.fx");
 
 	return 0;
 }
@@ -273,9 +261,9 @@ void CMainFrame::OnDestroy()
 
 	TRACE0("CMainFrame::OnDestroy \n");
 
-	CFrameWndEx::OnDestroy();
-
 	m_UIRender.reset();
+
+	CFrameWndEx::OnDestroy();
 
 	if(m_DeviceObjectsCreated)
 	{
@@ -330,12 +318,6 @@ HRESULT CMainFrame::OnDeviceReset(void)
 		return hr;
 	}
 
-	//if(FAILED(hr = EmitterInstance::OnResetDevice(m_d3dDevice, NULL)))
-	//{
-	//	TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-	//	return hr;
-	//}
-
 	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
 	{
 		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
@@ -347,8 +329,6 @@ HRESULT CMainFrame::OnDeviceReset(void)
 void CMainFrame::OnDeviceLost(void)
 {
 	TRACE0("CMainFrame::OnDeviceLost \n");
-
-	//EmitterInstance::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 
