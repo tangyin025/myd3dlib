@@ -76,9 +76,9 @@ void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
 
 void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
 {
-	m_ParticleEffect->SetVector("g_CameraDir", Dir);
-	m_ParticleEffect->SetVector("g_CameraUp", Up);
-	m_ParticleEffect->SetVector("g_CameraRight", Right);
+	m_ParticleEffect->SetVector("g_ParticleDir", Dir);
+	m_ParticleEffect->SetVector("g_ParticleUp", Up);
+	m_ParticleEffect->SetVector("g_ParticleRight", Right);
 }
 
 void EffectEmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
