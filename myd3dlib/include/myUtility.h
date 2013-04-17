@@ -290,6 +290,7 @@ namespace my
 
 		void Draw(
 			EmitterInstance * pInstance,
+			Camera * pCamera,
 			double fTime,
 			float fElapsedTime);
 

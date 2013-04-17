@@ -42,11 +42,18 @@ class EffectEmitterInstance
 public:
 	my::EffectPtr m_ParticleEffect;
 
+	UINT m_Passes;
+
 public:
 	EffectEmitterInstance(my::EffectPtr effect)
 		: m_ParticleEffect(effect)
+		, m_Passes(0)
 	{
 	}
+
+	virtual void Begin(void);
+
+	virtual void End(void);
 
 	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
 

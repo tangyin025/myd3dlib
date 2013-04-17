@@ -35,6 +35,15 @@ namespace my
 	class Emitter
 	{
 	public:
+		enum DirectionType
+		{
+			DirectionTypeCamera,
+			DirectionTypeVertical,
+			DirectionTypeHorizontal,
+		};
+
+		DirectionType m_Direction;
+
 		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
 
 		ParticlePtrPairList m_ParticleList;
@@ -65,7 +74,8 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_ParticleLifeTime(10)
+			: m_Direction(DirectionTypeCamera)
+			, m_ParticleLifeTime(10)
 			, m_ParticleColorA(255)
 			, m_ParticleColorR(255)
 			, m_ParticleColorG(255)
@@ -199,13 +209,17 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		virtual void SetWorldViewProj(const Matrix4 & WorldViewProj);
+		virtual void Begin(void) {}
 
-		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+		virtual void End(void) {}
 
-		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right);
+		virtual void SetWorldViewProj(const Matrix4 & WorldViewProj) {}
 
-		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row);
+		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture) {}
+
+		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right) {}
+
+		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row) {}
 
 		virtual void DrawInstance(DWORD NumInstances);
 	};

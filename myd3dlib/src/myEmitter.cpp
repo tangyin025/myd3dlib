@@ -182,22 +182,6 @@ void EmitterInstance::OnDestroyDevice(void)
 	m_Device.Release();
 }
 
-void EmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
-{
-}
-
-void EmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
-{
-}
-
-void EmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
-{
-}
-
-void EmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
-{
-}
-
 void EmitterInstance::DrawInstance(DWORD NumInstances)
 {
 	HRESULT hr;

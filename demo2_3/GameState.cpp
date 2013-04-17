@@ -242,10 +242,9 @@ void GameStateMain::OnFrameRender(
 			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
 		}
 
-		Game::getSingleton().m_EmitterInst->SetWorldViewProj(m_Camera->m_ViewProj);
-		Game::getSingleton().m_EmitterInst->SetDirection(
-			Vector3(0,0,1).transform(m_Camera->m_Orientation), Vector3(0,1,0).transform(m_Camera->m_Orientation), Vector3(1,0,0).transform(m_Camera->m_Orientation));
-		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), fTime, fElapsedTime);
+		Game::getSingleton().m_EmitterInst->Begin();
+		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
+		Game::getSingleton().m_EmitterInst->End();
 
 		V(pd3dDevice->EndScene());
 	}

@@ -634,7 +634,7 @@ void Export2Lua(lua_State * L)
 			.def("ValidateTechnique", &my::Effect::ValidateTechnique)
 
 		, class_<my::Font, boost::shared_ptr<my::Font> >("Font")
-			.enum_("constants")
+			.enum_("Align")
 			[
 				value("AlignLeft", my::Font::AlignLeft),
 				value("AlignCenter", my::Font::AlignCenter),
@@ -779,7 +779,14 @@ void Export2Lua(lua_State * L)
 			.def("Interpolate", &my::EmitterParameter<float>::Interpolate)
 
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
+			.enum_("DirectionType")
+			[
+				value("DirectionTypeCamera", my::Emitter::DirectionTypeCamera),
+				value("DirectionTypeVertical", my::Emitter::DirectionTypeVertical),
+				value("DirectionTypeHorizontal", my::Emitter::DirectionTypeHorizontal)
+			]
 			.def(constructor<>())
+			.def_readwrite("Direction", &my::Emitter::m_Direction)
 			.def_readwrite("ParticleLifeTime", &my::Emitter::m_ParticleLifeTime)
 			.def_readonly("ParticleColorA", &my::Emitter::m_ParticleColorA)
 			.def_readonly("ParticleColorR", &my::Emitter::m_ParticleColorR)

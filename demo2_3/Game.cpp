@@ -20,6 +20,8 @@ void EffectUIRender::Begin(void)
 void EffectUIRender::End(void)
 {
 	m_UIEffect->End();
+
+	m_Passes = 0;
 }
 
 void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
@@ -48,6 +50,18 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
+void EffectEmitterInstance::Begin(void)
+{
+	m_Passes = m_ParticleEffect->Begin();
+}
+
+void EffectEmitterInstance::End(void)
+{
+	m_ParticleEffect->End();
+
+	m_Passes = 0;
+}
+
 void EffectEmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
 	m_ParticleEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
@@ -62,6 +76,7 @@ void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
 
 void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
 {
+	m_ParticleEffect->SetVector("g_CameraDir", Dir);
 	m_ParticleEffect->SetVector("g_CameraUp", Up);
 	m_ParticleEffect->SetVector("g_CameraRight", Right);
 }
@@ -75,14 +90,12 @@ void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
 {
 	if(NumInstances > 0)
 	{
-		UINT uPasses = m_ParticleEffect->Begin();
-		for(UINT p = 0; p < uPasses; p++)
+		for(UINT p = 0; p < m_Passes; p++)
 		{
 			m_ParticleEffect->BeginPass(p);
 			EmitterInstance::DrawInstance(NumInstances);
 			m_ParticleEffect->EndPass();
 		}
-		m_ParticleEffect->End();
 	}
 }
 

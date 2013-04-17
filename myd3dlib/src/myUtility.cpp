@@ -482,12 +482,36 @@ void EmitterMgr::Update(
 
 void EmitterMgr::Draw(
 	EmitterInstance * pInstance,
+	Camera * pCamera,
 	double fTime,
 	float fElapsedTime)
 {
 	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
 	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
 	{
+		pInstance->SetWorldViewProj(pCamera->m_ViewProj);
+		switch((*emitter_iter)->m_Direction)
+		{
+		case Emitter::DirectionTypeCamera:
+			pInstance->SetDirection(
+				Vector3(0,0,1).transform(pCamera->m_Orientation),
+				Vector3(0,1,0).transform(pCamera->m_Orientation),
+				Vector3(1,0,0).transform(pCamera->m_Orientation));
+			break;
+
+		case Emitter::DirectionTypeVertical:
+			{
+				Vector3 Up(0,1,0);
+				Vector3 Right = Vector3(0,0,-1).transform(pCamera->m_Orientation).cross(Up);
+				Vector3 Dir = Right.cross(Up);
+				pInstance->SetDirection(Dir, Up, Right);
+			}
+			break;
+
+		case Emitter::DirectionTypeHorizontal:
+			pInstance->SetDirection(Vector3(0,1,0), Vector3(0,0,1), Vector3(-1,0,0));
+			break;
+		}
 		(*emitter_iter)->Draw(pInstance, fTime, fElapsedTime);
 	}
 }
