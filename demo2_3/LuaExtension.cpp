@@ -276,12 +276,12 @@ struct HelpFunc
 		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
 	}
 
-	static void ParameterMap_SetTexture(ParameterMap * obj, const std::string & name, my::TexturePtr value)
+	static void EffectParameterMap_SetTexture(my::EffectParameterMap * obj, const std::string & name, my::TexturePtr value)
 	{
 		obj->SetTexture(name, value);
 	}
 
-	static void ParameterMap_SetTexture(ParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
+	static void EffectParameterMap_SetTexture(my::EffectParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
 	{
 		obj->SetTexture(name, value);
 	}
@@ -976,6 +976,20 @@ void Export2Lua(lua_State * L)
 			.def("RemoveEmitter", &my::EmitterMgr::RemoveEmitter)
 			.def("RemoveAllEmitter", &my::EmitterMgr::RemoveAllEmitter)
 
+		, class_<my::EffectParameterMap>("EffectParameterMap")
+			.def("SetBool", &my::EffectParameterMap::SetBool)
+			.def("SetFloat", &my::EffectParameterMap::SetFloat)
+			.def("SetInt", &my::EffectParameterMap::SetInt)
+			.def("SetVector", &my::EffectParameterMap::SetVector)
+			.def("SetMatrix", &my::EffectParameterMap::SetMatrix)
+			.def("SetString", &my::EffectParameterMap::SetString)
+			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
+			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
+
+		, class_<my::Material, my::EffectParameterMap, boost::shared_ptr<my::Material> >("Material")
+			.def(constructor<>())
+			.def_readwrite("Effect", &my::Material::m_Effect)
+
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
 			.def_readwrite("Aspect", &my::BaseCamera::m_Aspect)
@@ -1022,20 +1036,6 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Camera", &GameStateMain::m_Camera)
 			.def("InsertStaticMesh", &GameStateMain::InsertStaticMesh)
 			.def("InsertCharacter", &GameStateMain::InsertCharacter)
-
-		, class_<ParameterMap>("ParameterMap")
-			.def("SetBool", &ParameterMap::SetBool)
-			.def("SetFloat", &ParameterMap::SetFloat)
-			.def("SetInt", &ParameterMap::SetInt)
-			.def("SetVector", &ParameterMap::SetVector)
-			.def("SetMatrix", &ParameterMap::SetMatrix)
-			.def("SetString", &ParameterMap::SetString)
-			.def("SetTexture", (void (*)(ParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::ParameterMap_SetTexture)
-			.def("SetTexture", (void (*)(ParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::ParameterMap_SetTexture)
-
-		, class_<Material, ParameterMap, boost::shared_ptr<Material> >("Material")
-			.def(constructor<>())
-			.def_readwrite("Effect", &Material::m_Effect)
 
 		, class_<EffectMesh, boost::shared_ptr<EffectMesh> >("EffectMesh")
 			.def(constructor<>())

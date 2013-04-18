@@ -9,6 +9,64 @@
 
 namespace my
 {
+	class DrawHelper
+	{
+	protected:
+		HRESULT hr;
+
+	public:
+		static void DrawLine(
+			IDirect3DDevice9 * pd3dDevice,
+			const my::Vector3 & v0,
+			const my::Vector3 & v1,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawSphere(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawBox(
+			IDirect3DDevice9 * pd3dDevice,
+			const my::Vector3 & halfSize,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawTriangle(
+			IDirect3DDevice9 * pd3dDevice,
+			const my::Vector3 & v0,
+			const my::Vector3 & v1,
+			const my::Vector3 & v2,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawSpereStage(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			int VSTAGE_BEGIN,
+			int VSTAGE_END,
+			float offsetY,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawCylinderStage(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			float y0,
+			float y1,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+
+		static void DrawCapsule(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			float height,
+			D3DCOLOR Color,
+			const my::Matrix4 & world = my::Matrix4::identity);
+	};
+
 	class Timer
 	{
 	public:
@@ -312,61 +370,66 @@ namespace my
 		}
 	};
 
-	class DrawHelper
+	class EffectParameterBase
 	{
-	protected:
-		HRESULT hr;
+	public:
+		EffectParameterBase(void)
+		{
+		}
+
+		virtual ~EffectParameterBase(void)
+		{
+		}
+
+		virtual void SetParameter(my::Effect * pEffect, const std::string & Name) const = 0;
+	};
+
+	typedef boost::shared_ptr<EffectParameterBase> EffectParameterBasePtr;
+
+	template <class T>
+	class EffectParameter : public EffectParameterBase
+	{
+	public:
+		T m_Value;
+
+		EffectParameter(const T & Value)
+			: m_Value(Value)
+		{
+		}
+
+		virtual void SetParameter(my::Effect * pEffect, const std::string & Name) const;
+	};
+
+	class EffectParameterMap : public std::map<std::string, EffectParameterBasePtr>
+	{
+	public:
+		void SetBool(const std::string & Name, bool Value);
+
+		void SetFloat(const std::string & Name, float Value);
+
+		void SetInt(const std::string & Name, int Value);
+
+		void SetVector(const std::string & Name, const my::Vector4 & Value);
+
+		void SetMatrix(const std::string & Name, const my::Matrix4 & Value);
+
+		void SetString(const std::string & Name, const std::string & Value);
+
+		void SetTexture(const std::string & Name, my::BaseTexturePtr Value);
+	};
+
+	class Material : public EffectParameterMap
+	{
+	public:
+		my::EffectPtr m_Effect;
 
 	public:
-		static void DrawLine(
-			IDirect3DDevice9 * pd3dDevice,
-			const my::Vector3 & v0,
-			const my::Vector3 & v1,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
+		Material(void)
+		{
+		}
 
-		static void DrawSphere(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
-
-		static void DrawBox(
-			IDirect3DDevice9 * pd3dDevice,
-			const my::Vector3 & halfSize,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
-
-		static void DrawTriangle(
-			IDirect3DDevice9 * pd3dDevice,
-			const my::Vector3 & v0,
-			const my::Vector3 & v1,
-			const my::Vector3 & v2,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
-
-		static void DrawSpereStage(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			int VSTAGE_BEGIN,
-			int VSTAGE_END,
-			float offsetY,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
-
-		static void DrawCylinderStage(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float y0,
-			float y1,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
-
-		static void DrawCapsule(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float height,
-			D3DCOLOR Color,
-			const my::Matrix4 & world = my::Matrix4::identity);
+		void ApplyParameterBlock(void);
 	};
+
+	typedef boost::shared_ptr<Material> MaterialPtr;
 }
