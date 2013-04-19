@@ -244,6 +244,7 @@ class Game
 	, public my::ResourceMgr
 	, public my::TimerMgr
 	, public my::DialogMgr
+	, public my::MaterialMgr
 	, public GameStateMachine
 {
 public:

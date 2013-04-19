@@ -432,4 +432,40 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Material> MaterialPtr;
+
+	class MaterialMgr
+	{
+	public:
+		typedef stdext::hash_map<std::string, MaterialPtr> MaterialPtrMap;
+
+		MaterialPtrMap m_MaterialMap;
+
+	public:
+		MaterialMgr(void)
+		{
+		}
+
+		virtual ~MaterialMgr(void)
+		{
+		}
+
+		void InsertMaterial(const std::string & key, MaterialPtr material)
+		{
+			_ASSERT(m_MaterialMap.end() == m_MaterialMap.find(key));
+
+			m_MaterialMap[key] = material;
+		}
+
+		void RemoveMaterial(const std::string & key)
+		{
+			_ASSERT(m_MaterialMap.end() != m_MaterialMap.find(key));
+
+			m_MaterialMap.erase(m_MaterialMap.find(key));
+		}
+
+		void RemoveAllMaterial(void)
+		{
+			m_MaterialMap.clear();
+		}
+	};
 }
