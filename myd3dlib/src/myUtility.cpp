@@ -801,3 +801,17 @@ void Material::ApplyParameterBlock(void)
 		param_iter->second->SetParameter(m_Effect.get(), param_iter->first);
 	}
 }
+
+void Material::DrawMeshSubset(Mesh * pMesh, DWORD i)
+{
+	ApplyParameterBlock();
+
+	UINT cPasses = m_Effect->Begin();
+	for(UINT p = 0; p < cPasses; p++)
+	{
+		m_Effect->BeginPass(p);
+		pMesh->DrawSubset(i);
+		m_Effect->EndPass();
+	}
+	m_Effect->End();
+}
