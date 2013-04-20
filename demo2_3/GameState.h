@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Game.h"
-#include "EffectMesh.h"
 #include "Character.h"
 
 // ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
@@ -83,9 +82,9 @@ public:
 
 	boost::shared_ptr<my::Camera> m_Camera;
 
-	typedef std::vector<EffectMeshPtr> EffectMeshPtrList;
+	typedef std::vector<my::OgreMeshPtr> OgreMeshPtrList;
 
-	EffectMeshPtrList m_StaticMeshes;
+	OgreMeshPtrList m_StaticMeshes;
 
 	typedef std::vector<CharacterPtr> CharacterPtrList;
 
@@ -124,9 +123,9 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	void InsertStaticMesh(EffectMeshPtr effect_mesh)
+	void InsertStaticMesh(my::OgreMeshPtr mesh)
 	{
-		m_StaticMeshes.push_back(effect_mesh);
+		m_StaticMeshes.push_back(mesh);
 	}
 
 	void InsertCharacter(CharacterPtr character)

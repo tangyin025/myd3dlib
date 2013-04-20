@@ -187,10 +187,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\EffectMesh.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\Game.cpp"
 				>
 			</File>
@@ -238,10 +234,6 @@
 			</File>
 			<File
 				RelativePath=".\Console.h"
-				>
-			</File>
-			<File
-				RelativePath=".\EffectMesh.h"
 				>
 			</File>
 			<File

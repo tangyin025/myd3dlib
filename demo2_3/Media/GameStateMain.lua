@@ -26,55 +26,18 @@ camera.EventAlign=function(args)
 end
 state.Camera=camera
 
--- 读取材质
-local function LoadMaterial(name)
-	dofile(name)
-	local mat = Material()
-	SetupMaterial(mat)
-	return mat
-end
-
--- 读取mesh
-local function LoadEffectMesh(name)
-	local effectMesh = EffectMesh()
-	effectMesh.Mesh = game:LoadMesh(name)
-	for i = 0,effectMesh.Mesh:GetMaterialNum()-1 do
-		effectMesh:InsertMaterial(LoadMaterial("material/"..effectMesh.Mesh:GetMaterialName(i)..".lua"))
-	end
-	return effectMesh
-end
+dofile "material/waterPhong.lua"
+dofile "material/casual19_m_highpolyPhong.lua"
 
 -- 创建场景
-local function CreateScene(n)
-	state:InsertStaticMesh(LoadEffectMesh("mesh/"..n..".mesh.xml"))
-end
+state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml"))
 
 -- 创建角色
-local function CreateRole(n,p,t,s)
-	local character=Character()
-	character:InsertMeshLOD(LoadEffectMesh("mesh/"..n..".mesh.xml"))
-	character:InsertSkeletonLOD(game:LoadSkeleton("mesh/"..n..".skeleton.xml"))
-	character.Scale=Vector3(s,s,s)
-	character.Position=p
-	character.StateTime=t
-	state:InsertCharacter(character)
-end
-
--- CreateScene("plane")
-
-CreateScene("water")
-
--- CreateRole("tube", Vector3(0,0,0), 0, 1)
-
-CreateRole("casual19_m_highpoly", Vector3(0,0,0), 0, 0.01)
-
--- CreateRole("sportive03_f", Vector3(0,0,0), 0, 0.01)
-
--- for i=-5,5 do
-	-- for j=-5,5 do
-		-- CreateRole("casual19_m_highpoly", Vector3(i,0,j), math.random(0,1), 0.01)
-	-- end
--- end
+local character=Character()
+character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml")
+character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml")
+character.Scale=Vector3(0.01,0.01,0.01)
+state:InsertCharacter(character)
 
 -- local emitter=SphericalEmitter()
 -- emitter.SpawnInterval=1/100

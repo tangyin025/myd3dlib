@@ -178,7 +178,7 @@ void GameStateMain::OnFrameRender(
 		for(; character_iter != m_Characters.end(); character_iter++)
 		{
 			// ! for uninitialized dual quaternion list
-			(*character_iter)->m_dualQuaternionList.resize((*character_iter)->m_skeletonLOD[(*character_iter)->m_LODLevel]->m_boneBindPose.size());
+			(*character_iter)->m_dualQuaternionList.resize((*character_iter)->m_Skeleton->m_boneBindPose.size());
 
 			Matrix4 World =
 				Matrix4::Scaling((*character_iter)->m_Scale) *
@@ -186,14 +186,14 @@ void GameStateMain::OnFrameRender(
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_ShadowMap->SetMatrix("g_mWorldViewProjection", World * LightViewProj);
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
-			EffectMesh * mesh = (*character_iter)->m_meshLOD[(*character_iter)->m_LODLevel].get();
+			OgreMesh * mesh = (*character_iter)->m_Mesh.get();
 			UINT cPasses = m_ShadowMap->Begin();
 			for(UINT p = 0; p < cPasses; ++p)
 			{
 				m_ShadowMap->BeginPass(p);
-				for(UINT i = 0; i < mesh->m_Mesh->GetMaterialNum(); i++)
+				for(UINT i = 0; i < mesh->GetMaterialNum(); i++)
 				{
-					mesh->m_Mesh->DrawSubset(i);
+					mesh->DrawSubset(i);
 				}
 				m_ShadowMap->EndPass();
 			}
@@ -222,10 +222,19 @@ void GameStateMain::OnFrameRender(
 		m_SimpleSample->SetVector("g_LightDir", LightDir);
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT->m_ptr);
-		EffectMeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
+		OgreMeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
 		for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
 		{
-			(*mesh_iter)->Draw(pd3dDevice, fElapsedTime);
+			DWORD i = 0;
+			for(; i < (*mesh_iter)->m_MaterialNameList.size(); i++)
+			{
+				Game::MaterialPtrMap::iterator mat_iter =
+					Game::getSingleton().m_MaterialMap.find((*mesh_iter)->m_MaterialNameList[i]);
+				if(mat_iter != Game::getSingleton().m_MaterialMap.end())
+				{
+					mat_iter->second->DrawMeshSubset(mesh_iter->get(), i);
+				}
+			}
 		}
 
 		CharacterPtrList::iterator character_iter = m_Characters.begin();
@@ -239,7 +248,16 @@ void GameStateMain::OnFrameRender(
 			m_SimpleSample->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
 			m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
-			(*character_iter)->Draw(pd3dDevice, fElapsedTime);
+			DWORD i = 0;
+			for(; i < (*character_iter)->m_Mesh->m_MaterialNameList.size(); i++)
+			{
+				Game::MaterialPtrMap::iterator mat_iter =
+					Game::getSingleton().m_MaterialMap.find((*character_iter)->m_Mesh->m_MaterialNameList[i]);
+				if(mat_iter != Game::getSingleton().m_MaterialMap.end())
+				{
+					mat_iter->second->DrawMeshSubset((*character_iter)->m_Mesh.get(), i);
+				}
+			}
 		}
 
 		Game::getSingleton().m_EmitterInst->Begin();
