@@ -2,14 +2,14 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "GameState.h"
-
-// ------------------------------------------------------------------------------------------
-// MyDemo
-// ------------------------------------------------------------------------------------------
+//
+//// ------------------------------------------------------------------------------------------
+//// MyDemo
+//// ------------------------------------------------------------------------------------------
 //
 //class MyDemo
-//	: public my::DxutSample
-//	, public my::ArchiveDirMgr
+//	: public my::DxutApp
+//	, public my::ResourceMgr
 //{
 //	class AnimationMgr
 //	{
@@ -34,11 +34,10 @@
 //
 //		my::TransformList m_dualQuaternionList;
 //
-//		AnimationMgr(LPCSTR pSrcData, UINT srcDataLen)
+//		AnimationMgr(my::OgreSkeletonAnimationPtr skeleton)
 //			: m_currentTime(0)
+//			, m_skeleton(skeleton)
 //		{
-//			m_skeleton.reset(new my::OgreSkeletonAnimation());
-//			m_skeleton->CreateOgreSkeletonAnimation(pSrcData, srcDataLen);
 //		}
 //
 //		void SetAnimationTime(const std::string & anim, float time, const std::string & next_anim)
@@ -74,14 +73,19 @@
 //
 //		void OnFrameMove(double fTime, float fElapsedTime)
 //		{
-//			// 叠加时间
 //			AddAnimationTime(fElapsedTime);
 //
-//			// 获取当前动画
+//			// 获取叶子结点
 //			int root_i = m_skeleton->GetBoneIndex("jack_loBackA");
+//			my::BoneHierarchy boneHierarchy;
+//			boneHierarchy.resize(m_skeleton->m_boneHierarchy.size());
+//			m_skeleton->BuildLeafedHierarchy(boneHierarchy, root_i);
+//
+//			// 获取当前动画
 //			m_animPose.clear();
 //			m_animPose.resize(m_skeleton->m_boneBindPose.size());
-//			m_skeleton->BuildAnimationPose(m_animPose, root_i, m_currentAnim, m_currentTime);
+//			m_skeleton->BuildAnimationPose(
+//				m_animPose, boneHierarchy, root_i, m_currentAnim, m_currentTime);
 //
 //			// 将当前动画和绑定动作叠加
 //			m_incrementedPose.clear();
@@ -112,7 +116,7 @@
 //	typedef boost::shared_ptr<AnimationMgr> AnimationMgrPtr;
 //
 //protected:
-//	CModelViewerCamera m_camera;
+//	my::ModelViewerCamera m_camera;
 //
 //	my::OgreMeshPtr m_characterMesh;
 //
@@ -146,8 +150,6 @@
 //
 //	boost::shared_ptr<btRigidBody> m_groundBody;
 //
-//	my::MeshPtr m_groundMesh;
-//
 //	boost::shared_ptr<btCollisionShape> m_sphereShape;
 //
 //	boost::shared_ptr<btMotionState> m_sphereMotionState;
@@ -157,48 +159,31 @@
 //	// dynamic world应当在其它物理对象销毁之前销毁，所以这里特殊处理一下
 //	boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 //
-//	my::MeshPtr m_sphereMesh;
-//
-//	my::EffectPtr m_wireEffect;
-//
 //	HRESULT OnCreateDevice(
 //		IDirect3DDevice9 * pd3dDevice,
 //		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 //	{
-//		HRESULT hres;
-//		if(FAILED(hres = my::DxutSample::OnCreateDevice(
-//			pd3dDevice, pBackBufferSurfaceDesc)))
-//		{
-//			return hres;
-//		}
-//
 //		// 设置资源读取路径
 //		RegisterFileDir(".");
 //		RegisterZipArchive("data.zip");
 //		RegisterFileDir("..\\demo2_3");
 //		RegisterZipArchive("..\\demo2_3\\data.zip");
 //
+//		if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+//		{
+//			return hr;
+//		}
+//
 //		// 初始化相机
-//		D3DXVECTOR3 vecEye(0.0f, 0.0f, 20.0f);
-//		D3DXVECTOR3 vecAt(0.0f, 0.0f, 0.0f);
-//		m_camera.SetViewParams(&vecEye, &vecAt);
-//		//m_camera.SetModelCenter(D3DXVECTOR3(0.0f, 15.0f, 0.0f));
+//		m_camera.m_Rotation = my::Vector3(0,D3DXToRadian(180),0);
+//		m_camera.m_LookAt = my::Vector3(0,0,0);
+//		m_camera.m_Distance = 30;
 //
 //		// 初始化角色资源
-//		my::CachePtr cache = OpenArchiveStream("jack_hres_all.mesh.xml")->GetWholeCache();
-//		m_characterMesh.reset(new my::OgreMesh());
-//		m_characterMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size());
-//
-//		cache = OpenArchiveStream("jack_texture.jpg")->GetWholeCache();
-//		m_characterTexture.reset(new my::Texture());
-//		m_characterTexture->CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
-//
-//		cache = OpenArchiveStream("SkinedMesh+ShadowMap.fx")->GetWholeCache();
-//		m_characterEffect.reset(new my::Effect());
-//		m_characterEffect->Effect::CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
-//
-//		cache = OpenArchiveStream("jack_anim_stand.skeleton.xml")->GetWholeCache();
-//		m_characterAnimMgr.reset(new AnimationMgr((char *)&(*cache)[0], cache->size()));
+//		m_characterMesh = LoadMesh("jack_hres_all.mesh.xml");
+//		m_characterTexture = LoadTexture("jack_texture.jpg");
+//		m_characterEffect = LoadEffect("SkinedMesh+ShadowMap.fx");
+//		m_characterAnimMgr.reset(new AnimationMgr(LoadSkeleton("jack_anim_stand.skeleton.xml")));
 //		m_characterAnimMgr->SetAnimationTime("clip1", m_characterAnimMgr->m_skeleton->GetAnimation("clip1").m_time, "clip2");
 //		m_characterAnimMgr->SetAnimationTime("clip2", m_characterAnimMgr->m_skeleton->GetAnimation("clip2").m_time, "clip1");
 //		m_characterAnimMgr->SetAnimationTime("clip3", m_characterAnimMgr->m_skeleton->GetAnimation("clip3").m_time, "clip4");
@@ -207,13 +192,8 @@
 //		m_characterAnimMgr->m_currentTime = 0.0f;
 //
 //		// 初始化场景资源
-//		cache = OpenArchiveStream("scene.mesh.xml")->GetWholeCache();
-//		m_sceneMesh.reset(new my::OgreMesh());
-//		m_sceneMesh->CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), false);
-//
-//		cache = OpenArchiveStream("scene.texture.jpg")->GetWholeCache();
-//		m_sceneTexture.reset(new my::Texture());
-//		m_sceneTexture->CreateTextureFromFileInMemory(pd3dDevice, &(*cache)[0], cache->size());
+//		m_sceneMesh = LoadMesh("scene.mesh.xml");
+//		m_sceneTexture = LoadTexture("scene.texture.jpg");
 //
 //		// 初始化物理引擎及相关资源
 //		m_dynamicsWorld.reset();
@@ -244,9 +224,6 @@
 //			btRigidBody::btRigidBodyConstructionInfo(0.0f, m_groundMotionState.get(), m_groundShape.get(), localInertia)));
 //		m_groundBody->setRestitution(1.0f);
 //
-//		m_groundMesh.reset(new my::Mesh());
-//		m_groundMesh->CreateBox(pd3dDevice, boxHalfExtents.x * 2, boxHalfExtents.z * 2, boxHalfExtents.y * 2);
-//
 //		// 创建物里球体（用于角色碰撞）
 //		const float sphereRadius = 5.0f;
 //		m_sphereShape.reset(new btSphereShape(sphereRadius));
@@ -260,18 +237,9 @@
 //			btRigidBody::btRigidBodyConstructionInfo(sphereMass, m_sphereMotionState.get(), m_sphereShape.get(), localInertia)));
 //		m_sphereBody->setRestitution(0.0f);
 //
-//		m_sphereMesh.reset(new my::Mesh());
-//		m_sphereMesh->CreateSphere(pd3dDevice, sphereRadius);
-//
 //		// 将地面和角色球加入物理场景
 //		m_dynamicsWorld->addRigidBody(m_groundBody.get());
-//
 //		m_dynamicsWorld->addRigidBody(m_sphereBody.get());
-//
-//		// 创建用于渲染物理物体的线框模式 shader
-//		cache = OpenArchiveStream("WireEffect.fx")->GetWholeCache();
-//		m_wireEffect.reset(new my::Effect());
-//		m_wireEffect->CreateEffect(pd3dDevice, &(*cache)[0], cache->size());
 //
 //		//THROW_CUSEXCEPTION("aaa");
 //
@@ -282,17 +250,14 @@
 //		IDirect3DDevice9 * pd3dDevice,
 //		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 //	{
-//		HRESULT hres;
-//		if(FAILED(hres = my::DxutSample::OnResetDevice(
-//			pd3dDevice, pBackBufferSurfaceDesc)))
+//		if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 //		{
-//			return hres;
+//			return hr;
 //		}
 //
 //		// 重新设置相机的投影
 //		float fAspectRatio = pBackBufferSurfaceDesc->Width / (FLOAT)pBackBufferSurfaceDesc->Height;
-//		m_camera.SetProjParams(D3DXToRadian(90.0f), fAspectRatio, 0.1f, 10000.0f);
-//		m_camera.SetWindow(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+//		m_camera.m_Aspect = fAspectRatio;
 //
 //		// 创建用于shadow map的render target，使用D3DXCreateTexture可以为不支持设备创建兼容贴图
 //		m_shadowMapRT.reset(new my::Texture());
@@ -306,13 +271,12 @@
 //			D3DPOOL_DEFAULT);
 //
 //		// 创建用于shadow map的depth scentil
-//		DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 //		m_shadowMapDS.reset(new my::Surface());
 //		m_shadowMapDS->CreateDepthStencilSurface(
 //			pd3dDevice,
 //			SHADOWMAP_SIZE,
 //			SHADOWMAP_SIZE,
-//			d3dSettings.d3d9.pp.AutoDepthStencilFormat);
+//			D3DFMT_D24X8);
 //
 //		return S_OK;
 //	}
@@ -323,27 +287,26 @@
 //		m_shadowMapRT.reset();
 //		m_shadowMapDS.reset();
 //
-//		my::DxutSample::OnLostDevice();
+//		ResourceMgr::OnLostDevice();
 //	}
 //
 //	void OnDestroyDevice(void)
 //	{
-//		my::DxutSample::OnDestroyDevice();
+//		ResourceMgr::OnDestroyDevice();
 //	}
 //
 //	void OnFrameMove(
 //		double fTime,
 //		float fElapsedTime)
 //	{
-//		my::DxutSample::OnFrameMove(fTime, fElapsedTime);
+//		my::DxutApp::OnFrameMove(fTime, fElapsedTime);
 //
 //		// 在这里更新场景
 //		btTransform transform;
 //		m_sphereMotionState->getWorldTransform(transform);
 //		const btVector3 & origin = transform.getOrigin();
-//		m_camera.m_bDragSinceLastUpdate = true;
-//		m_camera.SetModelCenter(D3DXVECTOR3(origin[0], origin[1] + 20.0f, origin[2]));
-//		m_camera.FrameMove(fElapsedTime);
+//		m_camera.m_LookAt = my::Vector3(origin[0], origin[1] + 20.0f, origin[2]);
+//		m_camera.OnFrameMove(fTime, fElapsedTime);
 //
 //		// 更新骨骼动画
 //		m_characterAnimMgr->OnFrameMove(fTime, fElapsedTime);
@@ -352,7 +315,7 @@
 //		m_dynamicsWorld->stepSimulation(fElapsedTime, 10);
 //	}
 //
-//	void OnRender(
+//	void OnFrameRender(
 //		IDirect3DDevice9 * pd3dDevice,
 //		double fTime,
 //		float fElapsedTime)
@@ -361,11 +324,8 @@
 //			0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 72, 72, 72), 1, 0));
 //
 //		// 获得相机投影矩阵
-//		my::Matrix4 mWorld = *(my::Matrix4 *)m_camera.GetWorldMatrix();
-//		my::Matrix4 mProj = *(my::Matrix4 *)m_camera.GetProjMatrix();
-//		my::Matrix4 mView = *(my::Matrix4 *)m_camera.GetViewMatrix();
-//		my::Matrix4 mViewProj = mView * mProj;
-//		//my::Matrix4 mWorldViewProjection = mWorld * mViewProj;
+//		my::Matrix4 mWorld = my::Matrix4::Identity();
+//		my::Matrix4 mViewProj = m_camera.m_ViewProj;
 //
 //		// 计算物理地面的变换
 //		btTransform transform;
@@ -397,16 +357,14 @@
 //		my::Matrix4 mCharacterLocal = my::Matrix4::Translation(my::Vector3(0.0f, -5.0f, 0.0f));
 //
 //		// 计算光源位置，处在相机的相对位置上
-//		my::Vector4 vLightPosLocal(30, 30, 30, 1);
-//
-//		//my::Vector4 vLightPosWorld(vLightPosLocal.transform(mWorld));
+//		my::Vector3 vLightPosWS = my::Vector3(30, 30, -30);
 //
 //		// 计算光照的透视变换
-//		my::Matrix4 mViewLight(my::Matrix4::LookAtLH(
-//			my::Vector3(vLightPosLocal.x, vLightPosLocal.y, vLightPosLocal.z),
+//		my::Matrix4 mViewLight(my::Matrix4::LookAtRH(
+//			my::Vector3(vLightPosWS.x, vLightPosWS.y, vLightPosWS.z),
 //			my::Vector3(mSphereWorld._41, mSphereWorld._42, mSphereWorld._43),
 //			my::Vector3(0.0f, 1.0f, 0.0f)));
-//		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovLH(D3DXToRadian(75.0f), 1.0f, 1.0f, 200.0f));
+//		my::Matrix4 mProjLight(my::Matrix4::PerspectiveFovRH(D3DXToRadian(75.0f), 1.0f, 1.0f, 200.0f));
 //		my::Matrix4 mViewProjLight = mViewLight * mProjLight;
 //
 //		// 将shadow map作为render target，注意保存恢复原来的render target
@@ -456,8 +414,8 @@
 //		{
 //			UINT cPasses;
 //			//// 渲染物理地面
-//			//m_wireEffect->SetMatrix("g_WorldViewProjection", mGroundLocal * mWorld * mViewProj);
-//			//m_wireEffect->SetMatrix("g_World", mGroundLocal * mWorld);
+//			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mGroundLocal * mWorld * mViewProj);
+//			//m_wireEffect->SetMatrix("g_mWorld", mGroundLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			//m_characterEffect->SetTechnique("RenderScene");
@@ -471,8 +429,8 @@
 //			//m_wireEffect->End();
 //
 //			//// 渲染角色球
-//			//m_wireEffect->SetMatrix("g_WorldViewProjection", mSphereLocal * mWorld * mViewProj);
-//			//m_wireEffect->SetMatrix("g_World", mSphereLocal * mWorld);
+//			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mSphereLocal * mWorld * mViewProj);
+//			//m_wireEffect->SetMatrix("g_mWorld", mSphereLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			//m_characterEffect->SetTechnique("RenderScene");
@@ -486,14 +444,14 @@
 //			//m_wireEffect->End();
 //
 //			// 渲染角色模型
-//			m_characterEffect->SetMatrix("g_WorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
-//			m_characterEffect->SetMatrix("g_World", mCharacterLocal * mSphereLocal * mWorld);
-//			m_characterEffect->SetFloat("g_Time", (float)fTime);
+//			m_characterEffect->SetMatrix("g_mWorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
+//			m_characterEffect->SetMatrix("g_mWorld", mCharacterLocal * mSphereLocal * mWorld);
+//			m_characterEffect->SetFloat("g_fTime", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 //			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //			m_characterEffect->SetTexture("g_MeshTexture", m_characterTexture->m_ptr);
-//			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPosLocal, 3);
+//			m_characterEffect->SetVector("g_LightPos", vLightPosWS);
 //			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			// 角色动画要求使用双四元式列表
@@ -516,14 +474,14 @@
 //			m_characterEffect->End();
 //
 //			// 渲染场景
-//			m_characterEffect->SetMatrix("g_WorldViewProjection", mWorld * mViewProj);
-//			m_characterEffect->SetMatrix("g_World", mWorld);
-//			m_characterEffect->SetFloat("g_Time", (float)fTime);
+//			m_characterEffect->SetMatrix("g_mWorldViewProjection", mWorld * mViewProj);
+//			m_characterEffect->SetMatrix("g_mWorld", mWorld);
+//			m_characterEffect->SetFloat("g_fTime", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 //			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //			m_characterEffect->SetTexture("g_MeshTexture", m_sceneTexture->m_ptr);
-//			m_characterEffect->SetFloatArray("g_LightPos", (float *)&vLightPosLocal, 3);
+//			m_characterEffect->SetVector("g_LightPos", vLightPosWS);
 //			m_characterEffect->SetVector("g_LightDiffuse", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			m_characterEffect->SetTexture("g_ShadowTexture", m_shadowMapRT->m_ptr);
@@ -549,15 +507,14 @@
 //		LPARAM lParam,
 //		bool * pbNoFurtherProcessing)
 //	{
-//		LRESULT hres;
-//		if(FAILED(hres = my::DxutSample::MsgProc(
-//			hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)) || *pbNoFurtherProcessing)
+//		// 相机消息处理
+//		LRESULT lr;
+//		if(lr = m_camera.MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 //		{
-//			return hres;
+//			return lr;
 //		}
 //
-//		// 相机消息处理
-//		return m_camera.HandleMessages(hWnd, uMsg, wParam, lParam);
+//		return 0;
 //	}
 //};
 

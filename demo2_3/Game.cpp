@@ -251,15 +251,14 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	HRESULT hres;
-	if(FAILED(hres = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
-		return hres;
+		return hr;
 	}
 
-	if(FAILED(hres = m_EmitterInst->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = m_EmitterInst->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
-		return hres;
+		return hr;
 	}
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);

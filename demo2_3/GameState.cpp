@@ -164,8 +164,8 @@ void GameStateMain::OnFrameRender(
 	Vector3 LightDir(Vector3(1,1,1).normalize());
 	Vector3 LightTag(0,1,0);
 	Matrix4 LightViewProj =
-		Matrix4::LookAtLH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
-		Matrix4::OrthoLH(3, 3, -50, 50);
+		Matrix4::LookAtRH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
+		Matrix4::OrthoRH(3, 3, -50, 50);
 
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowTextureRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowTextureDS->m_ptr));
