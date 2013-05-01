@@ -3,7 +3,7 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-shared float g_fTime;
+shared float g_Time;
 shared float4x4 g_World;
 shared float4x4 g_ViewProj;
 shared float4x4 g_ViewProjLS;

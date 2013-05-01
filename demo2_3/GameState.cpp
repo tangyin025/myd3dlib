@@ -214,7 +214,7 @@ void GameStateMain::OnFrameRender(
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 
 		Matrix4 World = Matrix4::Identity();
-		m_SimpleSample->SetFloat("g_fTime", (float)fTime);
+		m_SimpleSample->SetFloat("g_Time", (float)fTime);
 		m_SimpleSample->SetMatrix("g_World", World);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 		m_SimpleSample->SetMatrix("g_ViewProjLS", LightViewProj);

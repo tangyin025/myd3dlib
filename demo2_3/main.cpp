@@ -488,7 +488,7 @@
 //			// 渲染角色模型
 //			m_characterEffect->SetMatrix("g_WorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
 //			m_characterEffect->SetMatrix("g_World", mCharacterLocal * mSphereLocal * mWorld);
-//			m_characterEffect->SetFloat("g_fTime", (float)fTime);
+//			m_characterEffect->SetFloat("g_Time", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 //			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
@@ -518,7 +518,7 @@
 //			// 渲染场景
 //			m_characterEffect->SetMatrix("g_WorldViewProjection", mWorld * mViewProj);
 //			m_characterEffect->SetMatrix("g_World", mWorld);
-//			m_characterEffect->SetFloat("g_fTime", (float)fTime);
+//			m_characterEffect->SetFloat("g_Time", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
 //			m_characterEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));

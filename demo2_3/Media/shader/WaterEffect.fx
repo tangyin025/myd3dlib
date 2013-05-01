@@ -75,7 +75,7 @@ VS_OUTPUT WaterEffectVS( in float4 iPos			: POSITION,
 	float4 vPosWS = iPos;
 	for(uint i = 0; i < 1; i++)
 	{
-		angle[i] = Frequency[i] * dot(WaveDir[i], iPos.xyz) + Phase[i] * g_fTime;
+		angle[i] = Frequency[i] * dot(WaveDir[i], iPos.xyz) + Phase[i] * g_Time;
 		S[i] = sin(angle[i]);
 		C[i] = cos(angle[i]);
 		vPosWS.x += WaveDir[i].x * GerstnerQ[i] * Amplitude[i] * C[i];
@@ -84,9 +84,9 @@ VS_OUTPUT WaterEffectVS( in float4 iPos			: POSITION,
 	}
 	Out.pos = mul(vPosWS, mul(g_World, g_ViewProj));
 	
-	Out.texCoord0 = iTexCoord + g_fTime * 0.02;
-	Out.texCoord1 = iTexCoord * 2.0 + g_fTime * -0.02;
-	Out.texCoord2 = iTexCoord / 2.0 + g_fTime * 0.01;
+	Out.texCoord0 = iTexCoord + g_Time * 0.02;
+	Out.texCoord1 = iTexCoord * 2.0 + g_Time * -0.02;
+	Out.texCoord2 = iTexCoord / 2.0 + g_Time * 0.01;
 	
 	float3 vBinormalWS = float3(1,0,0);
 	float3 vTangentWS = float3(0,0,1);

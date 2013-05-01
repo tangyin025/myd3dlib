@@ -237,7 +237,7 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		pFrame->m_SimpleSample->SetFloat("g_fTime", (float)fTime);
+		pFrame->m_SimpleSample->SetFloat("g_Time", (float)fTime);
 		pFrame->m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
 		pFrame->m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
