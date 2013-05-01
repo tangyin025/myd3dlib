@@ -13,8 +13,7 @@ void Character::OnFrameMove(double fTime, float fElapsedTime)
 	m_leafedBoneHierarchy.resize(m_Skeleton->m_boneHierarchy.size());
 	m_Skeleton->BuildLeafedHierarchy(
 		m_leafedBoneHierarchy,
-		m_Skeleton->GetBoneIndex("Bip01"),
-		m_leafNodeSet);
+		m_Skeleton->GetBoneIndex("Bip01"));
 
 	// 获取当前动画
 	m_animPose.clear();

@@ -37,7 +37,7 @@ namespace my
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,
-			const BoneIndexSet & leafNodeIndices);
+			const BoneIndexSet & leafNodeIndices = BoneIndexSet());
 	};
 
 	class Bone
@@ -301,7 +301,10 @@ namespace my
 			return m_boneNameMap.find(bone_name)->second;
 		}
 
-		BoneHierarchy & BuildLeafedHierarchy(BoneHierarchy & leafedBoneHierarchy, int root_i, const BoneIndexSet & leafNodeIndices)
+		BoneHierarchy & BuildLeafedHierarchy(
+			BoneHierarchy & leafedBoneHierarchy,
+			int root_i,
+			const BoneIndexSet & leafNodeIndices = BoneIndexSet())
 		{
 			_ASSERT(leafedBoneHierarchy.size() >= m_boneHierarchy.size());
 
