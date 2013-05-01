@@ -44,7 +44,9 @@ namespace my
 
 		virtual void End(void);
 
-		virtual void SetWorldViewProj(const Matrix4 & WorldViewProj);
+		virtual void SetWorld(const Matrix4 & World);
+
+		virtual void SetViewProj(const Matrix4 & ViewProj);
 
 		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 

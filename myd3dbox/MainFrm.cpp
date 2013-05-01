@@ -25,9 +25,14 @@ void EffectUIRender::End(void)
 	m_Passes = 0;
 }
 
-void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
+void EffectUIRender::SetWorld(const Matrix4 & World)
 {
-	m_UIEffect->SetMatrix("g_WorldViewProjection", WorldViewProj);
+	m_UIEffect->SetMatrix("g_World", World);
+}
+
+void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
+{
+	m_UIEffect->SetMatrix("g_ViewProjection", ViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)

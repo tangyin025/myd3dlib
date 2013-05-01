@@ -64,7 +64,8 @@ void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR 
 	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
 	ASSERT(pFrame);
 
-	pFrame->m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
+	pFrame->m_UIRender->SetWorld(Matrix4::identity);
+	pFrame->m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
 	pFrame->m_UIRender->Begin();
 
 	Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
@@ -238,7 +239,7 @@ void CMainView::OnFrameRender(
 
 		pFrame->m_SimpleSample->SetFloat("g_fTime", (float)fTime);
 		pFrame->m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
-		pFrame->m_SimpleSample->SetMatrix("g_WorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		pFrame->m_SimpleSample->SetMatrix("g_ViewProjection", m_Camera.m_ViewProj);
 		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
 		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 
@@ -269,7 +270,8 @@ void CMainView::OnFrameRender(
 		DrawTextAtWorld(Vector3(10,0,0), _T("x"), D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,10), _T("z"), D3DCOLOR_ARGB(255,255,255,0));
 
-		pFrame->m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
+		pFrame->m_UIRender->SetWorld(Matrix4::identity);
+		pFrame->m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
 		pFrame->m_UIRender->Begin();
 		CString strText;
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();

@@ -24,9 +24,14 @@ void EffectUIRender::End(void)
 	m_Passes = 0;
 }
 
-void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
+void EffectUIRender::SetWorld(const Matrix4 & World)
 {
-	m_UIEffect->SetMatrix("g_WorldViewProjection", WorldViewProj);
+	m_UIEffect->SetMatrix("g_World", World);
+}
+
+void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
+{
+	m_UIEffect->SetMatrix("g_ViewProjection", ViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
@@ -62,9 +67,14 @@ void EffectEmitterInstance::End(void)
 	m_Passes = 0;
 }
 
-void EffectEmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
+void EffectEmitterInstance::SetWorld(const my::Matrix4 & World)
 {
-	m_ParticleEffect->SetMatrix("g_WorldViewProjection", WorldViewProj);
+	m_ParticleEffect->SetMatrix("g_World", World);
+}
+
+void EffectEmitterInstance::SetViewProj(const my::Matrix4 & ViewProj)
+{
+	m_ParticleEffect->SetMatrix("g_ViewProjection", ViewProj);
 }
 
 void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
@@ -332,7 +342,7 @@ void Game::OnFrameRender(
 
 		_ASSERT(m_Font);
 
-		m_UIRender->SetWorldViewProj(Matrix4::identity * DialogMgr::m_Camera.m_ViewProj);
+		m_UIRender->SetWorld(Matrix4::identity);
 
 		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 

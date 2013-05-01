@@ -46,7 +46,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     float3 vNormalWorldSpace;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(vPos, g_WorldViewProjection);
+    Output.Position = mul(vPos, mul(g_World, g_ViewProjection));
 	Output.Position.z -= g_ZOff;
     
     // Transform the normal from object space to world space    

@@ -10,7 +10,7 @@ void RenderShadowVS(float4 Pos : POSITION,
 					out float4 oPos : POSITION,
 					out float2 Depth : TEXCOORD0)
 {
-	oPos = mul(Pos, g_WorldViewProjection);
+	oPos = mul(Pos, mul(g_World, g_ViewProjection));
 	
 	Depth.xy = oPos.zw;
 }
@@ -23,7 +23,7 @@ void RenderSkinedShadowVS(SKINED_VS_INPUT i,
 	float3 Normal;
 	get_skined_vs(i, Pos);
 	
-	oPos = mul(Pos, g_WorldViewProjection);
+	oPos = mul(Pos, mul(g_World, g_ViewProjection));
 	
 	Depth.xy = oPos.zw;
 }

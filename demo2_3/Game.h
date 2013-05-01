@@ -29,7 +29,9 @@ public:
 
 	virtual void End(void);
 
-	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
+	virtual void SetWorld(const my::Matrix4 & World);
+
+	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 
@@ -55,7 +57,9 @@ public:
 
 	virtual void End(void);
 
-	virtual void SetWorldViewProj(const my::Matrix4 & WorldViewProj);
+	virtual void SetWorld(const my::Matrix4 & World);
+
+	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
 	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
 

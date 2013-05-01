@@ -517,13 +517,15 @@ void DialogMgr::Draw(
 	double fTime,
 	float fElapsedTime)
 {
+	ui_render->SetViewProj(m_Camera.m_ViewProj);
+
 	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
 	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
 	{
 		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
-			ui_render->SetWorldViewProj((*dlg_iter)->m_World * m_Camera.m_ViewProj);
+			ui_render->SetWorld((*dlg_iter)->m_World);
 
 			(*dlg_iter)->Draw(ui_render, fElapsedTime);
 		}
@@ -686,10 +688,13 @@ void EmitterMgr::Draw(
 	double fTime,
 	float fElapsedTime)
 {
+	pInstance->SetViewProj(pCamera->m_ViewProj);
+
 	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
 	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
 	{
-		pInstance->SetWorldViewProj(pCamera->m_ViewProj);
+		pInstance->SetWorld(Matrix4::identity);
+
 		switch((*emitter_iter)->m_Direction)
 		{
 		case Emitter::DirectionTypeCamera:
@@ -712,6 +717,7 @@ void EmitterMgr::Draw(
 			pInstance->SetDirection(Vector3(0,1,0), Vector3(0,0,1), Vector3(-1,0,0));
 			break;
 		}
+
 		(*emitter_iter)->Draw(pInstance, fTime, fElapsedTime);
 	}
 }
