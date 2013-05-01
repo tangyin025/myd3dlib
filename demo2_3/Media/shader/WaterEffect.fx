@@ -82,7 +82,7 @@ VS_OUTPUT WaterEffectVS( in float4 iPos			: POSITION,
 		vPosWS.y += Amplitude[i] * S[i];
 		vPosWS.z += WaveDir[i].z * GerstnerQ[i] * Amplitude[i] * C[i];
 	}
-	Out.pos = mul(vPosWS, mul(g_World, g_ViewProjection));
+	Out.pos = mul(vPosWS, mul(g_World, g_ViewProj));
 	
 	Out.texCoord0 = iTexCoord + g_fTime * 0.02;
 	Out.texCoord1 = iTexCoord * 2.0 + g_fTime * -0.02;

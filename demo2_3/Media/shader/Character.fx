@@ -98,13 +98,13 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	float3 vBinormalWS = cross(vTangentWS, vNormalWS);
 	
 	VS_OUTPUT Output;
-	Output.Position = mul(vPos, mul(g_World, g_ViewProjection));
+	Output.Position = mul(vPos, mul(g_World, g_ViewProj));
 	Output.TextureUV = i.Tex0; 
 	Output.NormalWS = vNormalWS;
 	Output.TangentWS = vTangentWS;
 	Output.BinormalWS = vBinormalWS;
 	Output.ViewWS = g_EyePos - mul(vPos, g_World);
-	Output.PosLight = mul(vPos, mul(g_World, g_LightViewProjection));
+	Output.PosLight = mul(vPos, mul(g_World, g_ViewProjLS));
 	
 	return Output;
 }

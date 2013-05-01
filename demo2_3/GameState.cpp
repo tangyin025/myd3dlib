@@ -185,7 +185,7 @@ void GameStateMain::OnFrameRender(
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_ShadowMap->SetMatrix("g_World", World);
-			m_ShadowMap->SetMatrix("g_ViewProjection", LightViewProj);
+			m_ShadowMap->SetMatrix("g_ViewProj", LightViewProj);
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			OgreMesh * mesh = (*character_iter)->m_Mesh.get();
 			UINT cPasses = m_ShadowMap->Begin();
@@ -216,8 +216,8 @@ void GameStateMain::OnFrameRender(
 		Matrix4 World = Matrix4::Identity();
 		m_SimpleSample->SetFloat("g_fTime", (float)fTime);
 		m_SimpleSample->SetMatrix("g_World", World);
-		m_SimpleSample->SetMatrix("g_ViewProjection", m_Camera->m_ViewProj);
-		m_SimpleSample->SetMatrix("g_LightViewProjection", LightViewProj);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		m_SimpleSample->SetMatrix("g_ViewProjLS", LightViewProj);
 		m_SimpleSample->SetVector("g_EyePos", m_Camera->m_Position);
 		m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 		m_SimpleSample->SetVector("g_LightDir", LightDir);
@@ -246,7 +246,7 @@ void GameStateMain::OnFrameRender(
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_SimpleSample->SetMatrix("g_World", World);
-			m_SimpleSample->SetMatrix("g_ViewProjection", m_Camera->m_ViewProj);
+			m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 			m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			DWORD i = 0;

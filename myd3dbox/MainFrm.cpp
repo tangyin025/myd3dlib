@@ -32,7 +32,7 @@ void EffectUIRender::SetWorld(const Matrix4 & World)
 
 void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
 {
-	m_UIEffect->SetMatrix("g_ViewProjection", ViewProj);
+	m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
