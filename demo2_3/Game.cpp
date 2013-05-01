@@ -26,7 +26,7 @@ void EffectUIRender::End(void)
 
 void EffectUIRender::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
-	m_UIEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+	m_UIEffect->SetMatrix("g_WorldViewProjection", WorldViewProj);
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
@@ -64,7 +64,7 @@ void EffectEmitterInstance::End(void)
 
 void EffectEmitterInstance::SetWorldViewProj(const Matrix4 & WorldViewProj)
 {
-	m_ParticleEffect->SetMatrix("g_mWorldViewProjection", WorldViewProj);
+	m_ParticleEffect->SetMatrix("g_WorldViewProjection", WorldViewProj);
 }
 
 void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)

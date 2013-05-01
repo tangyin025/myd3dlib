@@ -456,8 +456,8 @@
 //		{
 //			UINT cPasses;
 //			//// 渲染物理地面
-//			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mGroundLocal * mWorld * mViewProj);
-//			//m_wireEffect->SetMatrix("g_mWorld", mGroundLocal * mWorld);
+//			//m_wireEffect->SetMatrix("g_WorldViewProjection", mGroundLocal * mWorld * mViewProj);
+//			//m_wireEffect->SetMatrix("g_World", mGroundLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			//m_characterEffect->SetTechnique("RenderScene");
@@ -471,8 +471,8 @@
 //			//m_wireEffect->End();
 //
 //			//// 渲染角色球
-//			//m_wireEffect->SetMatrix("g_mWorldViewProjection", mSphereLocal * mWorld * mViewProj);
-//			//m_wireEffect->SetMatrix("g_mWorld", mSphereLocal * mWorld);
+//			//m_wireEffect->SetMatrix("g_WorldViewProjection", mSphereLocal * mWorld * mViewProj);
+//			//m_wireEffect->SetMatrix("g_World", mSphereLocal * mWorld);
 //			//m_wireEffect->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 //
 //			//m_characterEffect->SetTechnique("RenderScene");
@@ -486,8 +486,8 @@
 //			//m_wireEffect->End();
 //
 //			// 渲染角色模型
-//			m_characterEffect->SetMatrix("g_mWorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
-//			m_characterEffect->SetMatrix("g_mWorld", mCharacterLocal * mSphereLocal * mWorld);
+//			m_characterEffect->SetMatrix("g_WorldViewProjection", mCharacterLocal * mSphereLocal * mWorld * mViewProj);
+//			m_characterEffect->SetMatrix("g_World", mCharacterLocal * mSphereLocal * mWorld);
 //			m_characterEffect->SetFloat("g_fTime", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));
@@ -516,8 +516,8 @@
 //			m_characterEffect->End();
 //
 //			// 渲染场景
-//			m_characterEffect->SetMatrix("g_mWorldViewProjection", mWorld * mViewProj);
-//			m_characterEffect->SetMatrix("g_mWorld", mWorld);
+//			m_characterEffect->SetMatrix("g_WorldViewProjection", mWorld * mViewProj);
+//			m_characterEffect->SetMatrix("g_World", mWorld);
 //			m_characterEffect->SetFloat("g_fTime", (float)fTime);
 //
 //			m_characterEffect->SetVector("g_MaterialAmbientColor", my::Vector4(0.27f, 0.27f, 0.27f, 1.0f));

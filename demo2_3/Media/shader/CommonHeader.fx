@@ -4,9 +4,9 @@
 //--------------------------------------------------------------------------------------
 
 shared float g_fTime;
-shared float4x4 g_mWorld;
-shared float4x4 g_mWorldViewProjection;
-shared float4x4 g_mLightViewProjection;
+shared float4x4 g_World;
+shared float4x4 g_WorldViewProjection;
+shared float4x4 g_LightViewProjection;
 shared float3 g_EyePos;
 shared float3 g_EyePosOS;
 shared float3 g_LightDir;

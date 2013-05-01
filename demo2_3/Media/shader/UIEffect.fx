@@ -44,7 +44,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = align_ui_unit(mul(vPos, g_mWorldViewProjection), g_ScreenDim);
+    Output.Position = align_ui_unit(mul(vPos, g_WorldViewProjection), g_ScreenDim);
     
     // Calc diffuse color    
     Output.Diffuse = vDiffuse;

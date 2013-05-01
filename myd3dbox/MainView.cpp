@@ -237,8 +237,8 @@ void CMainView::OnFrameRender(
 		}
 
 		pFrame->m_SimpleSample->SetFloat("g_fTime", (float)fTime);
-		pFrame->m_SimpleSample->SetMatrix("g_mWorld", Matrix4::identity);
-		pFrame->m_SimpleSample->SetMatrix("g_mWorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
+		pFrame->m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
+		pFrame->m_SimpleSample->SetMatrix("g_WorldViewProjection", m_Camera.m_View * m_Camera.m_Proj);
 		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
 		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 

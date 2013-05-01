@@ -50,7 +50,7 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
 		g_ParticleUp * lerp(vTexCoord1.y * 0.5, -vTexCoord1.y * 0.5, vTexCoord0.y) +
 		g_ParticleRight * lerp(-vTexCoord1.x * 0.5, vTexCoord1.x * 0.5, vTexCoord0.x), vTexCoord1.z, g_ParticleDir), 0);
 		
-	Output.Position = mul(LocalPos + vPos, g_mWorldViewProjection);
+	Output.Position = mul(LocalPos + vPos, g_WorldViewProjection);
 	
 	Output.Diffuse = vDiffuse;
 	Output.TextureUV = (vTexCoord2.xy + vTexCoord0.xy) / g_AnimationColumnRow;

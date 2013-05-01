@@ -46,11 +46,11 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     float3 vNormalWorldSpace;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(vPos, g_mWorldViewProjection);
+    Output.Position = mul(vPos, g_WorldViewProjection);
 	Output.Position.z -= g_ZOff;
     
     // Transform the normal from object space to world space    
-    vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_mWorld)); // normal (world space)
+    vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_World)); // normal (world space)
 
     // Calc diffuse color    
     Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0, -dot(vNormalWorldSpace, g_LightDir)) + 
