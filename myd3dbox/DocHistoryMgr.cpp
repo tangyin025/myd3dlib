@@ -15,30 +15,30 @@ void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
 
 	m_mesh = mesh;
 
-	VOID * pIndices = m_mesh->LockIndexBuffer();
+	//VOID * pIndices = m_mesh->LockIndexBuffer();
 
-	VOID * pVertices = m_mesh->LockVertexBuffer();
+	//VOID * pVertices = m_mesh->LockVertexBuffer();
 
-	m_indexVertexArray.reset(new btTriangleIndexVertexArray(
-		m_mesh->GetNumFaces(),
-		(int *)pIndices,
-		sizeof(DWORD) * 3,
-		m_mesh->GetNumVertices(),
-		(btScalar *)pVertices,
-		m_mesh->m_VertexElemSet.CalculateVertexStride()));
+	//m_indexVertexArray.reset(new btTriangleIndexVertexArray(
+	//	m_mesh->GetNumFaces(),
+	//	(int *)pIndices,
+	//	sizeof(DWORD) * 3,
+	//	m_mesh->GetNumVertices(),
+	//	(btScalar *)pVertices,
+	//	m_mesh->m_VertexElemSet.CalculateVertexStride()));
 
-	m_meshShape.reset(new btBvhTriangleMeshShape(
-		m_indexVertexArray.get(), true, btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+	//m_meshShape.reset(new btBvhTriangleMeshShape(
+	//	m_indexVertexArray.get(), true, btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
 
-	m_mesh->UnlockVertexBuffer();
+	//m_mesh->UnlockVertexBuffer();
 
-	m_mesh->UnlockIndexBuffer();
+	//m_mesh->UnlockIndexBuffer();
 
-	m_motionState.reset(new btDefaultMotionState(btTransform::getIdentity()));
+	//m_motionState.reset(new btDefaultMotionState(btTransform::getIdentity()));
 
-	m_rigidBody.reset(new btRigidBody(0, m_motionState.get(), m_meshShape.get(), btVector3(0,0,0)));
+	//m_rigidBody.reset(new btRigidBody(0, m_motionState.get(), m_meshShape.get(), btVector3(0,0,0)));
 
-	m_rigidBody->setContactProcessingThreshold(1e18f);
+	//m_rigidBody->setContactProcessingThreshold(1e18f);
 }
 
 void StaticMeshTreeNode::DrawStaticMeshTreeNode(

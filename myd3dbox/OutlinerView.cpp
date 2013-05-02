@@ -290,16 +290,16 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndToolBar.ReplaceButton(ID_BUTTON40013, CMFCToolBarMenuButton(
 		-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
 
-	m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
+	//m_collisionConfiguration.reset(new btDefaultCollisionConfiguration());
 
-	m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
+	//m_dispatcher.reset(new btCollisionDispatcher(m_collisionConfiguration.get()));
 
-	m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
+	//m_overlappingPairCache.reset(new btAxisSweep3(btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
 
-	m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
+	//m_constraintSolver.reset(new btSequentialImpulseConstraintSolver());
 
-	m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
-		m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
+	//m_dynamicsWorld.reset(new btDiscreteDynamicsWorld(
+	//	m_dispatcher.get(), m_overlappingPairCache.get(), m_constraintSolver.get(), m_collisionConfiguration.get()));
 
 	return 0;
 }
@@ -368,13 +368,13 @@ void COutlinerView::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	TreeNodeBasePtr * ptr = (TreeNodeBasePtr *)m_TreeCtrl.GetItemData(pNMTreeView->itemOld.hItem);
 	ASSERT(ptr);
-	btRigidBody * body = (*ptr)->GetRigidBody();
-	if(body)
-	{
-		ASSERT(!m_BodyMap.empty() && m_BodyMap.end() != m_BodyMap.find(body));
-		m_BodyMap.erase(body);
-		m_dynamicsWorld->removeRigidBody(body);
-	}
+	//btRigidBody * body = (*ptr)->GetRigidBody();
+	//if(body)
+	//{
+	//	ASSERT(!m_BodyMap.empty() && m_BodyMap.end() != m_BodyMap.find(body));
+	//	m_BodyMap.erase(body);
+	//	m_dynamicsWorld->removeRigidBody(body);
+	//}
 
 	std::basic_string<TCHAR> strItem(m_TreeCtrl.GetItemText(pNMTreeView->itemOld.hItem));
 	ASSERT(!strItem.empty() && m_ItemMap.end() != m_ItemMap.find(strItem));
@@ -420,13 +420,13 @@ void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNod
 	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
 	m_ItemMap[strItem] = hItem;
 
-	btRigidBody * body = node->GetRigidBody();
-	if(body)
-	{
-		ASSERT(m_BodyMap.end() == m_BodyMap.find(body));
-		m_BodyMap[body] = hItem;
-		m_dynamicsWorld->addRigidBody(body);
-	}
+	//btRigidBody * body = node->GetRigidBody();
+	//if(body)
+	//{
+	//	ASSERT(m_BodyMap.end() == m_BodyMap.find(body));
+	//	m_BodyMap[body] = hItem;
+	//	m_dynamicsWorld->addRigidBody(body);
+	//}
 }
 
 TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)

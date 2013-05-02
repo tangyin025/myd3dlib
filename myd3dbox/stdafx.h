@@ -34,7 +34,8 @@
 #include <afxmdichildwndex.h>
 #include <afxmdiframewndex.h>
 #include <myD3dLib.h>
-#include <btBulletDynamicsCommon.h>
+//#include <btBulletDynamicsCommon.h>
+//#include <BulletCollision/NarrowPhaseCollision/btRaycastCallback.h>
 #include <deque>
 #include <unordered_map>
 #include <boost/functional/hash.hpp>
