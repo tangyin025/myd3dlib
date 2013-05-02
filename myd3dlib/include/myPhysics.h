@@ -689,9 +689,9 @@ namespace my
 			orientation = _orientation;
 		}
 
-		void addOrientationLH(const Vector3 & _rotation)
+		void addOrientationRH(const Vector3 & _rotation)
 		{
-			orientation += orientation * Quaternion(_rotation.x, _rotation.y, _rotation.z, 0) * 0.5f; // ! left-handed coordinate
+			orientation += Quaternion(_rotation.x, _rotation.y, _rotation.z, 0) * orientation * 0.5f; // ! right-handed coordinate
 		}
 
 		const Quaternion & getOrientation(void) const
