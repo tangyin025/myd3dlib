@@ -32,21 +32,6 @@ BOOL CMainDoc::OnNewDocument()
 	// TODO: Add your specialized code here and/or call the base class
 	Clear();
 
-	//const my::Vector3 boxHalfExtents(10.0f, 10.0f, 10.0f);
-	//m_groundShape.reset(new btBoxShape(btVector3(boxHalfExtents.x, boxHalfExtents.y, boxHalfExtents.z)));
-
-	//btTransform transform;
-	//transform.setIdentity();
-	//transform.setOrigin(btVector3(0, -boxHalfExtents.y, 0));
-	//m_groundMotionState.reset(new btDefaultMotionState(transform));
-
-	//btVector3 localInertia(0, 0, 0);
-	//m_groundBody.reset(new btRigidBody(
-	//	btRigidBody::btRigidBodyConstructionInfo(0.0f, m_groundMotionState.get(), m_groundShape.get(), localInertia)));
-	//m_groundBody->setRestitution(1.0f);
-
-	//CMainFrame::getSingleton().m_dynamicsWorld->addRigidBody(m_groundBody.get());
-
 	return CDocument::OnNewDocument();
 }
 

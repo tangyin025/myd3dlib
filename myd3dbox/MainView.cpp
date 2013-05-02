@@ -29,34 +29,6 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
-//
-//void CMainView::drawLine(const btVector3 & from,const btVector3 & to,const btVector3 & color)
-//{
-//	DrawLine(CMainFrame::getSingleton().m_d3dDevice, (Vector3 &)from, (Vector3 &)to, D3DCOLOR_ARGB(255, (int)(255 * color.x()), (int)(255 * color.y()), (int)(255 * color.z())));
-//}
-//
-//void CMainView::drawContactPoint(const btVector3 & PointOnB,const btVector3 & normalOnB, btScalar distance, int lifeTime, const btVector3 & color)
-//{
-//}
-//
-//void CMainView::reportErrorWarning(const char * warningString)
-//{
-//}
-//
-//void CMainView::draw3dText(const btVector3 & location,const char * textString)
-//{
-//	DrawTextAtWorld((Vector3 &)location, ms2ws(textString).c_str(), D3DCOLOR_ARGB(255,255,255,0));
-//}
-//
-//void CMainView::setDebugMode(int debugMode)
-//{
-//	m_DebugDrawModes = debugMode;
-//}
-//
-//int CMainView::getDebugMode() const
-//{
-//	return m_DebugDrawModes;
-//}
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
 {
@@ -189,8 +161,6 @@ void CMainView::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	//m_dynamicsWorld->stepSimulation(fElapsedTime);
-
 	//SteeringOutput steer;
 	////m_Seek.getSteering(&steer);
 	//m_Arrive.getSteering(&steer);
@@ -255,9 +225,6 @@ void CMainView::OnFrameRender(
 			break;
 
 		case RenderModePhysics:
-			//pOutliner->m_dynamicsWorld->setDebugDrawer(this);
-			//pOutliner->m_dynamicsWorld->getDebugDrawer()->setDebugMode(0xff & ~DBG_DrawAabb);
-			//pOutliner->m_dynamicsWorld->debugDrawWorld();
 			break;
 		}
 
@@ -343,33 +310,7 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 		SetCapture();
 	}
 	else
-		//m_Tracker.TrackRubberBand(this, point);
-	{
-		//CRect ClientRect;
-		//GetClientRect(&ClientRect);
-		//Vector2 ptScreen(point.x + 0.5f, point.y + 0.5f);
-		//Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
-		//Vector3 dir = (ptProj.transformCoord(m_Camera.m_InverseViewProj) - m_Camera.m_Position).normalize();
-
-		//btCollisionWorld::ClosestRayResultCallback CB(
-		//	btVector3(m_Camera.m_Position.x, m_Camera.m_Position.y, m_Camera.m_Position.z), btVector3(m_Camera.m_Position.x + dir.x * 1000, m_Camera.m_Position.y + dir.y * 1000, m_Camera.m_Position.z + dir.z * 1000));
-		//// ! Back face culling
-		//CB.m_flags |= btTriangleRaycastCallback::kF_FilterBackfaces;
-
-		//COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
-		//ASSERT(pOutliner);
-		//pOutliner->m_dynamicsWorld->rayTest(CB.m_rayFromWorld, CB.m_rayToWorld, CB);
-
-		//if(CB.hasHit())
-		//{
-		//	COutlinerView::RigidBodyMap::const_iterator body_iter = pOutliner->m_BodyMap.find(dynamic_cast<btRigidBody *>(CB.m_collisionObject));
-		//	ASSERT(body_iter != pOutliner->m_BodyMap.end());
-		//	ASSERT(body_iter->second);
-		//	pOutliner->m_TreeCtrl.SelectItem(body_iter->second);
-		//}
-		//else
-		//	pOutliner->m_TreeCtrl.SelectItem(NULL);
-	}
+		m_Tracker.TrackRubberBand(this, point);
 }
 
 void CMainView::OnLButtonUp(UINT nFlags, CPoint point)

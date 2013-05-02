@@ -11,8 +11,6 @@ public:
 	{
 	}
 
-	//virtual btRigidBody * GetRigidBody(void) { return NULL; }
-
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected) = 0;
 };
 
@@ -71,7 +69,6 @@ public:
 	virtual ~COutlinerView(void)
 	{
 		ASSERT(m_ItemMap.empty());
-		//ASSERT(m_BodyMap.empty());
 	}
 
 	DECLARE_MESSAGE_MAP()
@@ -83,20 +80,6 @@ public:
 	typedef std::tr1::unordered_map<std::basic_string<TCHAR>, HTREEITEM, boost::hash<std::basic_string<TCHAR> > > TreeItemMap;
 
 	TreeItemMap m_ItemMap;
-
-	//typedef stdext::hash_map<btRigidBody *, HTREEITEM> RigidBodyMap;
-
-	//RigidBodyMap m_BodyMap;
-
-	//boost::shared_ptr<btDefaultCollisionConfiguration> m_collisionConfiguration;
-
-	//boost::shared_ptr<btCollisionDispatcher> m_dispatcher;
-
-	//boost::shared_ptr<btBroadphaseInterface> m_overlappingPairCache;
-
-	//boost::shared_ptr<btConstraintSolver> m_constraintSolver;
-
-	//boost::shared_ptr<btDiscreteDynamicsWorld> m_dynamicsWorld;
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
