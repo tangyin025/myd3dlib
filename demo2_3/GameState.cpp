@@ -140,8 +140,6 @@ void GameStateMain::OnFrameMove(
 {
 	EmitterMgr::Update(fTime, fElapsedTime);
 
-	//m_dynamicsWorld->stepSimulation(fElapsedTime, 4);
-
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 
 	CharacterPtrList::iterator character_iter = m_Characters.begin();
