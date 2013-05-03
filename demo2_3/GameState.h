@@ -78,6 +78,18 @@ public:
 
 	CharacterPtrList m_Characters;
 
+	PxDefaultAllocator m_DefaultAllocator;
+
+	PxDefaultErrorCallback m_DefaultErrorCallback;
+
+	PxFoundation * m_Foundation;
+
+	PxProfileZoneManager * m_ProfileZoneManager;
+
+	PxPhysics * m_Physics;
+
+	PxCooking * m_Cooking;
+
 public:
 	GameStateMain(void)
 	{

@@ -1,9 +1,9 @@
 #include "StdAfx.h"
 #include "GameState.h"
-//
-//#ifdef _DEBUG
-//#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
-//#endif
+
+#ifdef _DEBUG
+#define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
+#endif
 
 using namespace my;
 
@@ -74,6 +74,31 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_ShadowTextureDS.reset(new my::Surface());
 
+	if(!(m_Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_DefaultAllocator, m_DefaultErrorCallback)))
+	{
+		THROW_CUSEXCEPTION("PxCreateFoundation failed");
+	}
+
+	if(!(m_ProfileZoneManager = &PxProfileZoneManager::createProfileZoneManager(m_Foundation)))
+	{
+		THROW_CUSEXCEPTION("PxProfileZoneManager::createProfileZoneManager failed");
+	}
+
+	if(!(m_Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(), true, m_ProfileZoneManager)))
+	{
+		THROW_CUSEXCEPTION("PxCreatePhysics failed");
+	}
+
+	if(!PxInitExtensions(*m_Physics))
+	{
+		THROW_CUSEXCEPTION("PxInitExtensions failed");
+	}
+
+	if(!(m_Cooking = PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, PxCookingParams())))
+	{
+		THROW_CUSEXCEPTION("PxCreateCooking failed");
+	}
+
 	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
 	{
 		return E_FAIL;
@@ -121,6 +146,20 @@ void GameStateMain::OnDestroyDevice(void)
 	m_StaticMeshes.clear();
 
 	m_Characters.clear();
+
+	if(m_Cooking)
+		m_Cooking->release();
+
+	PxCloseExtensions();
+
+	if(m_Physics)
+		m_Physics->release();
+
+	if(m_ProfileZoneManager)
+		m_ProfileZoneManager->release();
+
+	if(m_Foundation)
+		m_Foundation->release();
 }
 
 void GameStateMain::OnFrameMove(
