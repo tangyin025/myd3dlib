@@ -2,6 +2,7 @@
 
 #include "Game.h"
 #include "Character.h"
+#include "PhysxSample.h"
 
 // ! Release build with Pch will suffer LNK2001, ref: http://thread.gmane.org/gmane.comp.lib.boost.user/23065
 template< class Event > void boost::statechart::detail::no_context<Event>::no_function( const Event & ) {}
@@ -56,6 +57,7 @@ class GameStateMain
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
 	, public my::EmitterMgr
+	, public PhysxSample
 {
 public:
 	typedef boost::statechart::transition<GameEventInit, GameStateMain> reactions;
@@ -77,22 +79,6 @@ public:
 	typedef std::vector<CharacterPtr> CharacterPtrList;
 
 	CharacterPtrList m_Characters;
-
-	PxDefaultAllocator m_DefaultAllocator;
-
-	PxDefaultErrorCallback m_DefaultErrorCallback;
-
-	PxFoundation * m_Foundation;
-
-	PxProfileZoneManager * m_ProfileZoneManager;
-
-	PxPhysics * m_Physics;
-
-	PxCooking * m_Cooking;
-
-	PxDefaultCpuDispatcher * m_CpuDispatcher;
-
-	PxScene * m_Scene;
 
 public:
 	GameStateMain(void)
