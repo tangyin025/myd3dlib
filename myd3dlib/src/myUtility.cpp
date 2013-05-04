@@ -208,7 +208,7 @@ void DrawHelper::DrawCapsule(
 
 TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
 {
-	TimerPtr timer(new Timer(Interval, Interval + Clock::getSingleton().m_fElapsedTime));
+	TimerPtr timer(new Timer(Interval, Interval));
 	timer->m_EventTimer = EventTimer;
 	InsertTimer(timer);
 	return timer;
@@ -251,13 +251,13 @@ void TimerMgr::OnFrameMove(
 	for(; timer_iter != m_timerSet.end(); )
 	{
 		TimerPtr timer = (*timer_iter++);
-		timer->m_RemainingTime = Max(timer->m_RemainingTime - fElapsedTime, -1.0f);
-		for(int i = 0; i < m_MaxIterCount && timer->m_RemainingTime <= 0 && !timer->m_Removed; i++)
+		timer->m_RemainingTime = Min(m_MaxIterCount * timer->m_Interval, timer->m_RemainingTime + fElapsedTime);
+		for(int i = 0; timer->m_RemainingTime >= timer->m_Interval && !timer->m_Removed; i++)
 		{
 			if(timer->m_EventTimer)
 				timer->m_EventTimer(m_DefaultArgs);
 
-			timer->m_RemainingTime += timer->m_Interval;
+			timer->m_RemainingTime -= timer->m_Interval;
 		}
 	}
 }

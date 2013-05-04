@@ -81,7 +81,7 @@ namespace my
 	public:
 		Timer(float Interval, float RemainingTime = 0)
 			: m_Interval(Interval)
-			, m_RemainingTime(Interval)
+			, m_RemainingTime(RemainingTime)
 			, m_Removed(true)
 		{
 		}
