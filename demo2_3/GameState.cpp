@@ -99,6 +99,20 @@ HRESULT GameStateMain::OnCreateDevice(
 		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
 
+	if(!(m_CpuDispatcher = PxDefaultCpuDispatcherCreate(1)))
+	{
+		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
+	}
+
+	PxSceneDesc sceneDesc(m_Physics->getTolerancesScale());
+	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.cpuDispatcher = m_CpuDispatcher;
+	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
+	if(!(m_Scene = m_Physics->createScene(sceneDesc)))
+	{
+		THROW_CUSEXCEPTION("m_Physics->createScene failed");
+	}
+
 	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
 	{
 		return E_FAIL;
@@ -146,6 +160,12 @@ void GameStateMain::OnDestroyDevice(void)
 	m_StaticMeshes.clear();
 
 	m_Characters.clear();
+
+	if(m_Scene)
+		m_Scene->release();
+
+	if(m_CpuDispatcher)
+		m_CpuDispatcher->release();
 
 	if(m_Cooking)
 		m_Cooking->release();

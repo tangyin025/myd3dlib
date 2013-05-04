@@ -90,6 +90,10 @@ public:
 
 	PxCooking * m_Cooking;
 
+	PxDefaultCpuDispatcher * m_CpuDispatcher;
+
+	PxScene * m_Scene;
+
 public:
 	GameStateMain(void)
 	{
