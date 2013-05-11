@@ -11,9 +11,6 @@ namespace my
 {
 	class DrawHelper
 	{
-	protected:
-		HRESULT hr;
-
 	public:
 		static void DrawLine(
 			IDirect3DDevice9 * pd3dDevice,

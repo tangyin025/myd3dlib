@@ -45,6 +45,12 @@ protected:
 
 	bool m_WaitForResults;
 
+	PxMaterial * m_DefaultMaterial;
+
+	PxRigidDynamic * m_Sphere;
+
+	PxRigidStatic * m_Plane;
+
 public:
 	PhysxSample(void)
 		: m_Timer(1/60.0f,0)

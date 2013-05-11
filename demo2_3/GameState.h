@@ -58,6 +58,7 @@ class GameStateMain
 	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
 	, public my::EmitterMgr
 	, public PhysxSample
+	, public my::DrawHelper
 {
 public:
 	typedef boost::statechart::transition<GameEventInit, GameStateMain> reactions;
@@ -122,4 +123,6 @@ public:
 	{
 		m_Characters.push_back(character);
 	}
+
+	void DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable);
 };

@@ -8,6 +8,8 @@
 #pragma comment(lib, "PhysXProfileSDK.lib")
 //#pragma comment(lib, "PxTask.lib")
 
+#define PHYSX_SAFE_RELEASE(p) if(p) { p->release(); p=NULL; }
+
 void StepperTask::run(void)
 {
 	m_Sample->SubstepDone(this);
@@ -60,30 +62,51 @@ bool PhysxSample::OnInit(void)
 		THROW_CUSEXCEPTION("m_Physics->createScene failed");
 	}
 
+	if(!(m_DefaultMaterial = m_Physics->createMaterial(0.5f, 0.5f, 0.1f)))
+	{
+		THROW_CUSEXCEPTION("m_Physics->createMaterial failed");
+	}
+
+	if(!(m_Sphere = PxCreateDynamic(*m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_DefaultMaterial, 1)))
+	{
+		THROW_CUSEXCEPTION("PxCreateDynamic failed");
+	}
+	m_Scene->addActor(*m_Sphere);
+
+	if(!(m_Plane = PxCreatePlane(*m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_DefaultMaterial)))
+	{
+		THROW_CUSEXCEPTION("PxCreatePlane failed");
+	}
+	m_Scene->addActor(*m_Plane);
+
+	m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+
+	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+
 	return true;
 }
 
 void PhysxSample::OnShutdown(void)
 {
-	if(m_Scene)
-		m_Scene->release();
+	PHYSX_SAFE_RELEASE(m_Plane);
 
-	if(m_CpuDispatcher)
-		m_CpuDispatcher->release();
+	PHYSX_SAFE_RELEASE(m_Sphere);
 
-	if(m_Cooking)
-		m_Cooking->release();
+	PHYSX_SAFE_RELEASE(m_DefaultMaterial);
+
+	PHYSX_SAFE_RELEASE(m_Scene);
+
+	PHYSX_SAFE_RELEASE(m_CpuDispatcher);
+
+	PHYSX_SAFE_RELEASE(m_Cooking);
 
 	PxCloseExtensions();
 
-	if(m_Physics)
-		m_Physics->release();
+	PHYSX_SAFE_RELEASE(m_Physics);
 
-	if(m_ProfileZoneManager)
-		m_ProfileZoneManager->release();
+	PHYSX_SAFE_RELEASE(m_ProfileZoneManager);
 
-	if(m_Foundation)
-		m_Foundation->release();
+	PHYSX_SAFE_RELEASE(m_Foundation);
 }
 
 void PhysxSample::OnTickPreRender(float dtime)
