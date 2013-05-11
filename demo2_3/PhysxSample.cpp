@@ -7,6 +7,7 @@
 #pragma comment(lib, "PhysX3Extensions.lib")
 #pragma comment(lib, "PhysXProfileSDK.lib")
 //#pragma comment(lib, "PxTask.lib")
+#pragma comment(lib, "ApexFramework_x86.lib")
 
 #define PHYSX_SAFE_RELEASE(p) if(p) { p->release(); p=NULL; }
 
@@ -83,11 +84,24 @@ bool PhysxSample::OnInit(void)
 
 	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 
+	physx::apex::NxApexSDKDesc apexDesc;
+	apexDesc.outputStream = &m_DefaultErrorCallback;
+	apexDesc.physXSDKVersion = PX_PHYSICS_VERSION;
+	apexDesc.physXSDK = m_Physics;
+	apexDesc.cooking = m_Cooking;
+	apexDesc.renderResourceManager = &m_ApexUserRenderResMgr;
+	if(!(m_ApexSDK = NxCreateApexSDK(apexDesc)))
+	{
+		THROW_CUSEXCEPTION("NxCreateApexSDK failed");
+	}
+
 	return true;
 }
 
 void PhysxSample::OnShutdown(void)
 {
+	PHYSX_SAFE_RELEASE(m_ApexSDK);
+
 	PHYSX_SAFE_RELEASE(m_Plane);
 
 	PHYSX_SAFE_RELEASE(m_Sphere);
