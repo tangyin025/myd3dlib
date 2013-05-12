@@ -85,6 +85,10 @@ protected:
 
 	physx::apex::NxApexSDK * m_ApexSDK;
 
+	physx::apex::NxModuleDestructible * m_ModuleDestructible;
+
+	physx::apex::NxApexScene * m_ApexScene;
+
 public:
 	PhysxSample(void)
 		: m_Timer(1/60.0f,0)

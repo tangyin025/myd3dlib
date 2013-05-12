@@ -5,6 +5,7 @@
 #include <luabind/exception_handler.hpp>
 #include <PxPhysicsAPI.h>
 #include <NxApex.h>
+#include <NxModuleDestructible.h>
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include <signal.h>

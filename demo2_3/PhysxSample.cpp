@@ -95,11 +95,29 @@ bool PhysxSample::OnInit(void)
 		THROW_CUSEXCEPTION("NxCreateApexSDK failed");
 	}
 
+	if(!(m_ModuleDestructible = static_cast<physx::apex::NxModuleDestructible *>(m_ApexSDK->createModule("Destructible"))))
+	{
+		THROW_CUSEXCEPTION("m_ApexSDK->createModule failed");
+	}
+
+	NxParameterized::Interface * moduleDesc = m_ModuleDestructible->getDefaultModuleDesc();
+	m_ModuleDestructible->init(*moduleDesc);
+	physx::apex::NxApexSceneDesc apexSceneDesc;
+	apexSceneDesc.scene = m_Scene;
+	if(!(m_ApexScene = m_ApexSDK->createScene(apexSceneDesc)))
+	{
+		THROW_CUSEXCEPTION("m_ApexSDK->createScene failed");
+	}
+
 	return true;
 }
 
 void PhysxSample::OnShutdown(void)
 {
+	PHYSX_SAFE_RELEASE(m_ApexScene);
+
+	PHYSX_SAFE_RELEASE(m_ModuleDestructible);
+
 	PHYSX_SAFE_RELEASE(m_ApexSDK);
 
 	PHYSX_SAFE_RELEASE(m_Plane);
