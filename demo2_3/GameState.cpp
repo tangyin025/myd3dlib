@@ -150,8 +150,6 @@ void GameStateMain::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	PxTransform SphereTransform = m_Sphere->getGlobalPose();
-
 	PhysxSample::OnTickPreRender(fElapsedTime);
 
 	CComPtr<IDirect3DSurface9> oldRt;
@@ -266,12 +264,9 @@ void GameStateMain::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	//DrawSphere(pd3dDevice, 1, D3DCOLOR_ARGB(255,255,0,0), (Matrix4 &)PxMat44(SphereTransform));
-
 	PhysxSample::OnTickPostRender(fElapsedTime);
 
-	const PxRenderBuffer& debugRenderable = m_Scene->getRenderBuffer();
-	DrawRenderBuffer(pd3dDevice, debugRenderable);
+	DrawRenderBuffer(pd3dDevice, m_Scene->getRenderBuffer());
 }
 
 LRESULT GameStateMain::MsgProc(
@@ -286,39 +281,4 @@ LRESULT GameStateMain::MsgProc(
 		return lr;
 
 	return 0;
-}
-
-void GameStateMain::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable)
-{
-	const PxU32 numPoints = debugRenderable.getNbPoints();
-	if(numPoints)
-	{
-		const PxDebugPoint* PX_RESTRICT points = debugRenderable.getPoints();
-		for(PxU32 i=0; i<numPoints; i++)
-		{
-			const PxDebugPoint& point = points[i];
-		}
-	}
-
-	const PxU32 numLines = debugRenderable.getNbLines();
-	if(numLines)
-	{
-		const PxDebugLine* PX_RESTRICT lines = debugRenderable.getLines();
-		for(PxU32 i=0; i<numLines; i++)
-		{
-			const PxDebugLine& line = lines[i];
-			DrawLine(pd3dDevice, (Vector3 &)line.pos0, (Vector3 &)line.pos1, line.color0);
-		}
-	}
-
-	const PxU32 numTriangles = debugRenderable.getNbTriangles();
-	if(numTriangles)
-	{
-		const PxDebugTriangle* PX_RESTRICT triangles = debugRenderable.getTriangles();
-		for(PxU32 i=0; i<numTriangles; i++)
-		{
-			const PxDebugTriangle& triangle = triangles[i];
-			DrawTriangle(pd3dDevice, (Vector3 &)triangle.pos0, (Vector3 &)triangle.pos1, (Vector3 &)triangle.pos2, triangle.color0);
-		}
-	}
 }

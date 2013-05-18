@@ -18,6 +18,14 @@ public:
 	virtual const char * getName(void) const;
 };
 
+class PhysxSampleAllocator : public PxAllocatorCallback
+{
+public:
+	void * allocate(size_t size, const char * typeName, const char * filename, int line);
+
+	void deallocate(void * ptr);
+};
+
 class UserRenderResourceManager
 	: public physx::apex::NxUserRenderResourceManager
 {
@@ -49,15 +57,14 @@ class UserRenderResourceManager
 };
 
 class PhysxSample
+	: public my::DrawHelper
 {
 protected:
-	PxDefaultAllocator m_DefaultAllocator;
+	PhysxSampleAllocator m_Allocator;
 
-	PxDefaultErrorCallback m_DefaultErrorCallback;
+	PxDefaultErrorCallback m_ErrorCallback;
 
 	PxFoundation * m_Foundation;
-
-	PxProfileZoneManager * m_ProfileZoneManager;
 
 	PxPhysics * m_Physics;
 
@@ -75,7 +82,7 @@ protected:
 
 	bool m_WaitForResults;
 
-	PxMaterial * m_DefaultMaterial;
+	PxMaterial * m_Material;
 
 	PxRigidDynamic * m_Sphere;
 
@@ -91,11 +98,22 @@ protected:
 
 public:
 	PhysxSample(void)
-		: m_Timer(1/60.0f,0)
+		: m_Foundation(NULL)
+		, m_Physics(NULL)
+		, m_Cooking(NULL)
+		, m_CpuDispatcher(NULL)
+		, m_Scene(NULL)
+		, m_Timer(1/60.0f,0)
 		, m_Completion0(this)
 		, m_Completion1(this)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
+		, m_Material(NULL)
+		, m_Sphere(NULL)
+		, m_Plane(NULL)
+		, m_ApexSDK(NULL)
+		, m_ModuleDestructible(NULL)
+		, m_ApexScene(NULL)
 	{
 	}
 
@@ -112,4 +130,6 @@ public:
 	void Substep(StepperTask & completionTask);
 
 	void SubstepDone(StepperTask * ownerTask);
+
+	void DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable);
 };

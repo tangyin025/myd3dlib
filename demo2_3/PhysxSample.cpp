@@ -1,15 +1,9 @@
 #include "StdAfx.h"
 #include "PhysxSample.h"
 
-#pragma comment(lib, "PhysX3_x86.lib")
-#pragma comment(lib, "PhysX3Common_x86.lib")
-#pragma comment(lib, "PhysX3Cooking_x86.lib")
-#pragma comment(lib, "PhysX3Extensions.lib")
-#pragma comment(lib, "PhysXProfileSDK.lib")
-//#pragma comment(lib, "PxTask.lib")
-#pragma comment(lib, "ApexFramework_x86.lib")
-
 #define PHYSX_SAFE_RELEASE(p) if(p) { p->release(); p=NULL; }
+
+using namespace my;
 
 void StepperTask::run(void)
 {
@@ -22,19 +16,38 @@ const char * StepperTask::getName(void) const
 	return "Stepper Task";
 }
 
+void * PhysxSampleAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
+{
+#ifdef _DEBUG
+	return _aligned_malloc_dbg(size, 16, filename, line);
+#else
+	return _aligned_malloc(size, 16);	
+#endif
+}
+
+void PhysxSampleAllocator::deallocate(void * ptr)
+{
+#ifdef _DEBUG
+	_aligned_free_dbg(ptr);
+#else
+	_aligned_free(ptr);
+#endif
+}
+
 bool PhysxSample::OnInit(void)
 {
-	if(!(m_Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_DefaultAllocator, m_DefaultErrorCallback)))
+	if(!(m_Foundation = PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback)))
 	{
 		THROW_CUSEXCEPTION("PxCreateFoundation failed");
 	}
 
-	if(!(m_ProfileZoneManager = &PxProfileZoneManager::createProfileZoneManager(m_Foundation)))
-	{
-		THROW_CUSEXCEPTION("PxProfileZoneManager::createProfileZoneManager failed");
-	}
-
-	if(!(m_Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(), true, m_ProfileZoneManager)))
+	if(!(m_Physics = PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
+#ifdef _DEBUG
+		true
+#else
+		false
+#endif
+		)))
 	{
 		THROW_CUSEXCEPTION("PxCreatePhysics failed");
 	}
@@ -49,7 +62,7 @@ bool PhysxSample::OnInit(void)
 		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
 
-	if(!(m_CpuDispatcher = PxDefaultCpuDispatcherCreate(1)))
+	if(!(m_CpuDispatcher = PxDefaultCpuDispatcherCreate(1, NULL)))
 	{
 		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
@@ -63,18 +76,18 @@ bool PhysxSample::OnInit(void)
 		THROW_CUSEXCEPTION("m_Physics->createScene failed");
 	}
 
-	if(!(m_DefaultMaterial = m_Physics->createMaterial(0.5f, 0.5f, 0.1f)))
+	if(!(m_Material = m_Physics->createMaterial(0.5f, 0.5f, 0.1f)))
 	{
 		THROW_CUSEXCEPTION("m_Physics->createMaterial failed");
 	}
 
-	if(!(m_Sphere = PxCreateDynamic(*m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_DefaultMaterial, 1)))
+	if(!(m_Sphere = PxCreateDynamic(*m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)))
 	{
 		THROW_CUSEXCEPTION("PxCreateDynamic failed");
 	}
 	m_Scene->addActor(*m_Sphere);
 
-	if(!(m_Plane = PxCreatePlane(*m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_DefaultMaterial)))
+	if(!(m_Plane = PxCreatePlane(*m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_Material)))
 	{
 		THROW_CUSEXCEPTION("PxCreatePlane failed");
 	}
@@ -85,7 +98,7 @@ bool PhysxSample::OnInit(void)
 	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 
 	physx::apex::NxApexSDKDesc apexDesc;
-	apexDesc.outputStream = &m_DefaultErrorCallback;
+	apexDesc.outputStream = &m_ErrorCallback;
 	apexDesc.physXSDKVersion = PX_PHYSICS_VERSION;
 	apexDesc.physXSDK = m_Physics;
 	apexDesc.cooking = m_Cooking;
@@ -124,7 +137,7 @@ void PhysxSample::OnShutdown(void)
 
 	PHYSX_SAFE_RELEASE(m_Sphere);
 
-	PHYSX_SAFE_RELEASE(m_DefaultMaterial);
+	PHYSX_SAFE_RELEASE(m_Material);
 
 	PHYSX_SAFE_RELEASE(m_Scene);
 
@@ -132,11 +145,10 @@ void PhysxSample::OnShutdown(void)
 
 	PHYSX_SAFE_RELEASE(m_Cooking);
 
-	PxCloseExtensions();
+	if(m_Physics)
+		PxCloseExtensions();
 
 	PHYSX_SAFE_RELEASE(m_Physics);
-
-	PHYSX_SAFE_RELEASE(m_ProfileZoneManager);
 
 	PHYSX_SAFE_RELEASE(m_Foundation);
 }
@@ -158,7 +170,7 @@ void PhysxSample::OnTickPostRender(float dtime)
 
 bool PhysxSample::Advance(float dtime)
 {
-	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
+	m_Timer.m_RemainingTime = Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
 	{
@@ -200,4 +212,39 @@ void PhysxSample::SubstepDone(StepperTask * ownerTask)
 	Substep(task);
 
 	task.removeReference();
+}
+
+void PhysxSample::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable)
+{
+	const PxU32 numPoints = debugRenderable.getNbPoints();
+	if(numPoints)
+	{
+		const PxDebugPoint* PX_RESTRICT points = debugRenderable.getPoints();
+		for(PxU32 i=0; i<numPoints; i++)
+		{
+			const PxDebugPoint& point = points[i];
+		}
+	}
+
+	const PxU32 numLines = debugRenderable.getNbLines();
+	if(numLines)
+	{
+		const PxDebugLine* PX_RESTRICT lines = debugRenderable.getLines();
+		for(PxU32 i=0; i<numLines; i++)
+		{
+			const PxDebugLine& line = lines[i];
+			DrawLine(pd3dDevice, (Vector3 &)line.pos0, (Vector3 &)line.pos1, line.color0);
+		}
+	}
+
+	const PxU32 numTriangles = debugRenderable.getNbTriangles();
+	if(numTriangles)
+	{
+		const PxDebugTriangle* PX_RESTRICT triangles = debugRenderable.getTriangles();
+		for(PxU32 i=0; i<numTriangles; i++)
+		{
+			const PxDebugTriangle& triangle = triangles[i];
+			DrawTriangle(pd3dDevice, (Vector3 &)triangle.pos0, (Vector3 &)triangle.pos1, (Vector3 &)triangle.pos2, triangle.color0);
+		}
+	}
 }
