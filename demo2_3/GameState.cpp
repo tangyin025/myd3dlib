@@ -66,6 +66,11 @@ HRESULT GameStateMain::OnCreateDevice(
 {
 	Game::getSingleton().AddLine(L"GameStateMain::OnCreateDevice", D3DCOLOR_ARGB(255,255,128,0));
 
+	if(!PhysxScene::OnInit())
+	{
+		return E_FAIL;
+	}
+
 	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx");
 
 	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx");
@@ -73,11 +78,6 @@ HRESULT GameStateMain::OnCreateDevice(
 	m_ShadowTextureRT.reset(new my::Texture());
 
 	m_ShadowTextureDS.reset(new my::Surface());
-
-	if(!PhysxSample::OnInit())
-	{
-		return E_FAIL;
-	}
 
 	if(!Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\""))
 	{
@@ -127,7 +127,7 @@ void GameStateMain::OnDestroyDevice(void)
 
 	m_Characters.clear();
 
-	PhysxSample::OnShutdown();
+	PhysxScene::OnShutdown();
 }
 
 void GameStateMain::OnFrameMove(
@@ -143,6 +143,8 @@ void GameStateMain::OnFrameMove(
 	{
 		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
+
+	PhysxScene::OnTickPreRender(fElapsedTime);
 }
 
 void GameStateMain::OnFrameRender(
@@ -150,8 +152,6 @@ void GameStateMain::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	PhysxSample::OnTickPreRender(fElapsedTime);
-
 	CComPtr<IDirect3DSurface9> oldRt;
 	V(pd3dDevice->GetRenderTarget(0, &oldRt));
 	CComPtr<IDirect3DSurface9> oldDs;
@@ -261,12 +261,13 @@ void GameStateMain::OnFrameRender(
 		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
 		Game::getSingleton().m_EmitterInst->End();
 
+		// ! The Right tick post render should be called after d3ddevice->present, for vertical sync reason
+		PhysxScene::OnTickPostRender(fElapsedTime);
+
+		PhysxScene::DrawRenderBuffer(Game::getSingleton().GetD3D9Device(), m_Scene->getRenderBuffer());
+
 		V(pd3dDevice->EndScene());
 	}
-
-	PhysxSample::OnTickPostRender(fElapsedTime);
-
-	DrawRenderBuffer(pd3dDevice, m_Scene->getRenderBuffer());
 }
 
 LRESULT GameStateMain::MsgProc(

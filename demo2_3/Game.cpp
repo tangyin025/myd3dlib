@@ -194,6 +194,11 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	if(!PhysxSample::OnInit())
+	{
+		return E_FAIL;
+	}
+
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
 
 	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx")));
@@ -302,6 +307,8 @@ void Game::OnDestroyDevice(void)
 	m_EmitterInst->OnDestroyDevice();
 
 	m_UIRender.reset();
+
+	PhysxSample::OnShutdown();
 
 	RemoveAllTimer();
 

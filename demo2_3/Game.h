@@ -7,6 +7,7 @@
 #include <boost/statechart/simple_state.hpp>
 #include <boost/statechart/transition.hpp>
 #pragma warning(default: 4819)
+#include "PhysxSample.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -249,6 +250,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::MaterialMgr
+	, public PhysxSample
 	, public GameStateMachine
 {
 public:

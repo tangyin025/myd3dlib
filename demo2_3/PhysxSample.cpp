@@ -5,17 +5,6 @@
 
 using namespace my;
 
-void StepperTask::run(void)
-{
-	m_Sample->SubstepDone(this);
-	release();
-}
-
-const char * StepperTask::getName(void) const
-{
-	return "Stepper Task";
-}
-
 void * PhysxSampleAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
 #ifdef _DEBUG
@@ -32,6 +21,33 @@ void PhysxSampleAllocator::deallocate(void * ptr)
 #else
 	_aligned_free(ptr);
 #endif
+}
+
+void PhysxSampleErrorCallback::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	switch(code)
+	{
+	case PxErrorCode::eNO_ERROR:
+		break;
+
+	case PxErrorCode::eDEBUG_INFO:
+		OutputDebugStringA(str_printf("%s (%d) : info: %s\n", file, line, message).c_str());
+		break;
+
+	case PxErrorCode::eDEBUG_WARNING:
+	case PxErrorCode::ePERF_WARNING:
+		OutputDebugStringA(str_printf("%s (%d) : warning: %s\n", file, line, message).c_str());
+		break;
+
+	case PxErrorCode::eINVALID_PARAMETER:
+	case PxErrorCode::eINVALID_OPERATION:
+	case PxErrorCode::eOUT_OF_MEMORY:
+	case PxErrorCode::eINTERNAL_ERROR:
+	case PxErrorCode::eABORT:
+	case PxErrorCode::eEXCEPTION_ON_STARTUP:
+		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
+		break;
+	}
 }
 
 bool PhysxSample::OnInit(void)
@@ -67,27 +83,59 @@ bool PhysxSample::OnInit(void)
 		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
 
-	PxSceneDesc sceneDesc(m_Physics->getTolerancesScale());
+	return true;
+}
+
+PhysxSample::SingleInstance * SingleInstance<PhysxSample>::s_ptr = NULL;
+
+void PhysxSample::OnShutdown(void)
+{
+	PHYSX_SAFE_RELEASE(m_CpuDispatcher);
+
+	PHYSX_SAFE_RELEASE(m_Cooking);
+
+	if(m_Physics)
+		PxCloseExtensions();
+
+	PHYSX_SAFE_RELEASE(m_Physics);
+
+	PHYSX_SAFE_RELEASE(m_Foundation);
+}
+
+void StepperTask::run(void)
+{
+	m_Scene->SubstepDone(this);
+	release();
+}
+
+const char * StepperTask::getName(void) const
+{
+	return "Stepper Task";
+}
+
+bool PhysxScene::OnInit(void)
+{
+	PxSceneDesc sceneDesc(PhysxSample::getSingleton().m_Physics->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	sceneDesc.cpuDispatcher = m_CpuDispatcher;
+	sceneDesc.cpuDispatcher = PhysxSample::getSingleton().m_CpuDispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	if(!(m_Scene = m_Physics->createScene(sceneDesc)))
+	if(!(m_Scene = PhysxSample::getSingleton().m_Physics->createScene(sceneDesc)))
 	{
-		THROW_CUSEXCEPTION("m_Physics->createScene failed");
+		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createScene failed");
 	}
 
-	if(!(m_Material = m_Physics->createMaterial(0.5f, 0.5f, 0.1f)))
+	if(!(m_Material = PhysxSample::getSingleton().m_Physics->createMaterial(0.5f, 0.5f, 0.1f)))
 	{
-		THROW_CUSEXCEPTION("m_Physics->createMaterial failed");
+		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createMaterial failed");
 	}
 
-	if(!(m_Sphere = PxCreateDynamic(*m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)))
+	if(!(m_Sphere = PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)))
 	{
 		THROW_CUSEXCEPTION("PxCreateDynamic failed");
 	}
 	m_Scene->addActor(*m_Sphere);
 
-	if(!(m_Plane = PxCreatePlane(*m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_Material)))
+	if(!(m_Plane = PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_Material)))
 	{
 		THROW_CUSEXCEPTION("PxCreatePlane failed");
 	}
@@ -98,10 +146,10 @@ bool PhysxSample::OnInit(void)
 	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 
 	physx::apex::NxApexSDKDesc apexDesc;
-	apexDesc.outputStream = &m_ErrorCallback;
+	apexDesc.outputStream = &PhysxSample::getSingleton().m_ErrorCallback;
 	apexDesc.physXSDKVersion = PX_PHYSICS_VERSION;
-	apexDesc.physXSDK = m_Physics;
-	apexDesc.cooking = m_Cooking;
+	apexDesc.physXSDK = PhysxSample::getSingleton().m_Physics;
+	apexDesc.cooking = PhysxSample::getSingleton().m_Cooking;
 	apexDesc.renderResourceManager = &m_ApexUserRenderResMgr;
 	if(!(m_ApexSDK = NxCreateApexSDK(apexDesc)))
 	{
@@ -125,7 +173,7 @@ bool PhysxSample::OnInit(void)
 	return true;
 }
 
-void PhysxSample::OnShutdown(void)
+void PhysxScene::OnShutdown(void)
 {
 	PHYSX_SAFE_RELEASE(m_ApexScene);
 
@@ -140,27 +188,16 @@ void PhysxSample::OnShutdown(void)
 	PHYSX_SAFE_RELEASE(m_Material);
 
 	PHYSX_SAFE_RELEASE(m_Scene);
-
-	PHYSX_SAFE_RELEASE(m_CpuDispatcher);
-
-	PHYSX_SAFE_RELEASE(m_Cooking);
-
-	if(m_Physics)
-		PxCloseExtensions();
-
-	PHYSX_SAFE_RELEASE(m_Physics);
-
-	PHYSX_SAFE_RELEASE(m_Foundation);
 }
 
-void PhysxSample::OnTickPreRender(float dtime)
+void PhysxScene::OnTickPreRender(float dtime)
 {
 	m_Sync.ResetEvent();
 
 	m_WaitForResults = Advance(dtime);
 }
 
-void PhysxSample::OnTickPostRender(float dtime)
+void PhysxScene::OnTickPostRender(float dtime)
 {
 	if(m_WaitForResults)
 	{
@@ -168,7 +205,7 @@ void PhysxSample::OnTickPostRender(float dtime)
 	}
 }
 
-bool PhysxSample::Advance(float dtime)
+bool PhysxScene::Advance(float dtime)
 {
 	m_Timer.m_RemainingTime = Min(0.1f, m_Timer.m_RemainingTime + dtime);
 
@@ -188,12 +225,12 @@ bool PhysxSample::Advance(float dtime)
 	return true;
 }
 
-void PhysxSample::Substep(StepperTask & completionTask)
+void PhysxScene::Substep(StepperTask & completionTask)
 {
 	m_Scene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
-void PhysxSample::SubstepDone(StepperTask * ownerTask)
+void PhysxScene::SubstepDone(StepperTask * ownerTask)
 {
 	m_Scene->fetchResults(true);
 
@@ -214,7 +251,7 @@ void PhysxSample::SubstepDone(StepperTask * ownerTask)
 	task.removeReference();
 }
 
-void PhysxSample::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable)
+void PhysxScene::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice, const PxRenderBuffer & debugRenderable)
 {
 	const PxU32 numPoints = debugRenderable.getNbPoints();
 	if(numPoints)

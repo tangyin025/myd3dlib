@@ -1,29 +1,25 @@
 #pragma once
 
-class PhysxSample;
-
-class StepperTask
-	: public physx::pxtask::LightCpuTask
-{
-public:
-	PhysxSample * m_Sample;
-
-	StepperTask(PhysxSample * Sample)
-		: m_Sample(Sample)
-	{
-	}
-
-	virtual void run(void);
-
-	virtual const char * getName(void) const;
-};
-
 class PhysxSampleAllocator : public PxAllocatorCallback
 {
 public:
 	void * allocate(size_t size, const char * typeName, const char * filename, int line);
 
 	void deallocate(void * ptr);
+};
+
+class PhysxSampleErrorCallback : public PxErrorCallback
+{
+public:
+	PhysxSampleErrorCallback(void)
+	{
+	}
+
+	~PhysxSampleErrorCallback(void)
+	{
+	}
+
+	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
 
 class UserRenderResourceManager
@@ -57,12 +53,12 @@ class UserRenderResourceManager
 };
 
 class PhysxSample
-	: public my::DrawHelper
+	: public my::SingleInstance<PhysxSample>
 {
-protected:
+public:
 	PhysxSampleAllocator m_Allocator;
 
-	PxDefaultErrorCallback m_ErrorCallback;
+	PhysxSampleErrorCallback m_ErrorCallback;
 
 	PxFoundation * m_Foundation;
 
@@ -72,6 +68,42 @@ protected:
 
 	PxDefaultCpuDispatcher * m_CpuDispatcher;
 
+public:
+	PhysxSample(void)
+		: m_Foundation(NULL)
+		, m_Physics(NULL)
+		, m_Cooking(NULL)
+		, m_CpuDispatcher(NULL)
+	{
+	}
+
+	bool OnInit(void);
+
+	void OnShutdown(void);
+};
+
+class PhysxScene;
+
+class StepperTask
+	: public physx::pxtask::LightCpuTask
+{
+public:
+	PhysxScene * m_Scene;
+
+	StepperTask(PhysxScene * Scene)
+		: m_Scene(Scene)
+	{
+	}
+
+	virtual void run(void);
+
+	virtual const char * getName(void) const;
+};
+
+class PhysxScene
+	: public my::DrawHelper
+{
+public:
 	PxScene * m_Scene;
 
 	my::Timer m_Timer;
@@ -97,12 +129,8 @@ protected:
 	physx::apex::NxApexScene * m_ApexScene;
 
 public:
-	PhysxSample(void)
-		: m_Foundation(NULL)
-		, m_Physics(NULL)
-		, m_Cooking(NULL)
-		, m_CpuDispatcher(NULL)
-		, m_Scene(NULL)
+	PhysxScene(void)
+		: m_Scene(NULL)
 		, m_Timer(1/60.0f,0)
 		, m_Completion0(this)
 		, m_Completion1(this)
