@@ -68,12 +68,20 @@ public:
 
 	PxDefaultCpuDispatcher * m_CpuDispatcher;
 
+	UserRenderResourceManager m_ApexUserRenderResMgr;
+
+	physx::apex::NxApexSDK * m_ApexSDK;
+
+	physx::apex::NxModuleDestructible * m_ModuleDestructible;
+
 public:
 	PhysxSample(void)
 		: m_Foundation(NULL)
 		, m_Physics(NULL)
 		, m_Cooking(NULL)
 		, m_CpuDispatcher(NULL)
+		, m_ApexSDK(NULL)
+		, m_ModuleDestructible(NULL)
 	{
 	}
 
@@ -120,12 +128,6 @@ public:
 
 	PxRigidStatic * m_Plane;
 
-	UserRenderResourceManager m_ApexUserRenderResMgr;
-
-	physx::apex::NxApexSDK * m_ApexSDK;
-
-	physx::apex::NxModuleDestructible * m_ModuleDestructible;
-
 	physx::apex::NxApexScene * m_ApexScene;
 
 public:
@@ -139,8 +141,6 @@ public:
 		, m_Material(NULL)
 		, m_Sphere(NULL)
 		, m_Plane(NULL)
-		, m_ApexSDK(NULL)
-		, m_ModuleDestructible(NULL)
 		, m_ApexScene(NULL)
 	{
 	}
