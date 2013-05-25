@@ -1,5 +1,31 @@
 #pragma once
 
+template <typename T>
+class PhysxPtr
+	: public boost::shared_ptr<T>
+{
+public:
+	static void Deletor(T * p) throw ()
+	{
+		p->release();
+	}
+
+	PhysxPtr(void)
+	{
+	}
+
+	PhysxPtr(T * p)
+		: boost::shared_ptr(p, Deletor)
+	{
+	}
+
+	template <typename Y>
+	void reset(Y * p)
+	{
+		boost::shared_ptr<T>::reset<Y>(p, Deletor);
+	}
+};
+
 class PhysxSampleAllocator : public PxAllocatorCallback
 {
 public:
@@ -60,28 +86,22 @@ public:
 
 	PhysxSampleErrorCallback m_ErrorCallback;
 
-	PxFoundation * m_Foundation;
+	PhysxPtr<PxFoundation> m_Foundation;
 
-	PxPhysics * m_Physics;
+	PhysxPtr<PxPhysics> m_Physics;
 
-	PxCooking * m_Cooking;
+	PhysxPtr<PxCooking> m_Cooking;
 
-	PxDefaultCpuDispatcher * m_CpuDispatcher;
+	PhysxPtr<PxDefaultCpuDispatcher> m_CpuDispatcher;
 
 	UserRenderResourceManager m_ApexUserRenderResMgr;
 
-	physx::apex::NxApexSDK * m_ApexSDK;
+	PhysxPtr<physx::apex::NxApexSDK> m_ApexSDK;
 
-	physx::apex::NxModuleDestructible * m_ModuleDestructible;
+	PhysxPtr<physx::apex::NxModuleDestructible> m_ModuleDestructible;
 
 public:
 	PhysxSample(void)
-		: m_Foundation(NULL)
-		, m_Physics(NULL)
-		, m_Cooking(NULL)
-		, m_CpuDispatcher(NULL)
-		, m_ApexSDK(NULL)
-		, m_ModuleDestructible(NULL)
 	{
 	}
 
@@ -112,7 +132,9 @@ class PhysxScene
 	: public my::DrawHelper
 {
 public:
-	PxScene * m_Scene;
+	PhysxPtr<PxScene> m_Scene;
+
+	PhysxPtr<physx::apex::NxApexScene> m_ApexScene;
 
 	my::Timer m_Timer;
 
@@ -122,26 +144,17 @@ public:
 
 	bool m_WaitForResults;
 
-	PxMaterial * m_Material;
+	PhysxPtr<PxMaterial> m_Material;
 
-	PxRigidDynamic * m_Sphere;
-
-	PxRigidStatic * m_Plane;
-
-	physx::apex::NxApexScene * m_ApexScene;
+	std::vector<PhysxPtr<PxActor> > m_Actors;
 
 public:
 	PhysxScene(void)
-		: m_Scene(NULL)
-		, m_Timer(1/60.0f,0)
+		: m_Timer(1/60.0f,0)
 		, m_Completion0(this)
 		, m_Completion1(this)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
-		, m_Material(NULL)
-		, m_Sphere(NULL)
-		, m_Plane(NULL)
-		, m_ApexScene(NULL)
 	{
 	}
 
