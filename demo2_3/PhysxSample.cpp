@@ -25,9 +25,6 @@ void PhysxSampleErrorCallback::reportError(PxErrorCode::Enum code, const char* m
 {
 	switch(code)
 	{
-	case PxErrorCode::eNO_ERROR:
-		break;
-
 	case PxErrorCode::eDEBUG_INFO:
 		OutputDebugStringA(str_printf("%s (%d) : info: %s\n", file, line, message).c_str());
 		break;
@@ -37,12 +34,7 @@ void PhysxSampleErrorCallback::reportError(PxErrorCode::Enum code, const char* m
 		OutputDebugStringA(str_printf("%s (%d) : warning: %s\n", file, line, message).c_str());
 		break;
 
-	case PxErrorCode::eINVALID_PARAMETER:
-	case PxErrorCode::eINVALID_OPERATION:
-	case PxErrorCode::eOUT_OF_MEMORY:
-	case PxErrorCode::eINTERNAL_ERROR:
-	case PxErrorCode::eABORT:
-	case PxErrorCode::eEXCEPTION_ON_STARTUP:
+	default:
 		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
 		break;
 	}
@@ -172,6 +164,9 @@ bool PhysxScene::OnInit(void)
 
 void PhysxScene::OnShutdown(void)
 {
+	m_Actors.clear();
+
+	_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 }
 
 void PhysxScene::OnTickPreRender(float dtime)
