@@ -95,7 +95,7 @@ VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
 	
 	float3 vNormalWS = normalize(mul(vNormal, (float3x3)g_World));
 	float3 vTangentWS = normalize(mul(vTangent, (float3x3)g_World));
-	float3 vBinormalWS = cross(vTangentWS, vNormalWS);
+	float3 vBinormalWS = cross(vNormalWS, vTangentWS);
 	
 	VS_OUTPUT Output;
 	Output.Position = mul(vPos, mul(g_World, g_ViewProj));
@@ -138,7 +138,7 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	
 	float3 vNormalWS = mul(vNormalTS, mT2W);
 	
-	float4 cDiffuse = saturate(dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor * get_ligthAmount(In.PosLight);
+	float4 cDiffuse = saturate(-dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor * get_ligthAmount(In.PosLight);
 	
 	float3 vReflectionWS = get_reflection(vNormalWS, vViewWS);
 	

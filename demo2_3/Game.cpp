@@ -335,6 +335,9 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	// ! 为什么要顺时针，右手系应该是逆时针
+	pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+
 	if(CurrentState())
 		SafeFrameRenderCurrentState(pd3dDevice, fTime, fElapsedTime);
 	else

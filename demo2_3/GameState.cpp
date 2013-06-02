@@ -86,6 +86,61 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	_ASSERT(m_Camera);
 
+	/************************************************************************/
+	/* ÎïÀí sample Ê¾Àý                                                     */
+	/************************************************************************/
+	m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+
+	PhysxPtr<PxRigidActor> actor;
+	if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)),
+		actor))
+	{
+		THROW_CUSEXCEPTION("PxCreateDynamic failed");
+	}
+	m_Scene->addActor(*actor);
+	m_Actors.insert(static_pointer_cast<PxActor>(actor));
+
+	my::OgreMeshPtr mesh = Game::getSingleton().LoadMesh("mesh/plane.mesh.xml");
+	void * pVertices = mesh->LockVertexBuffer();
+	void * pIndices = mesh->LockIndexBuffer();
+
+	PxTriangleMeshDesc meshDesc;
+	meshDesc.points.count = mesh->GetNumVertices();
+	meshDesc.points.stride = mesh->GetNumBytesPerVertex();
+	meshDesc.points.data = pVertices;
+
+	meshDesc.triangles.count = mesh->GetNumFaces();
+	_ASSERT(mesh->GetOptions() & D3DXMESH_32BIT);
+	meshDesc.triangles.stride = 3 * sizeof(DWORD);
+	meshDesc.triangles.data = pIndices;
+
+	PhysxPtr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
+	if(!triMesh)
+	{
+		THROW_CUSEXCEPTION("PxToolkit::createTriangleMesh32 failed");
+	}
+
+	if(!(actor.reset(PxCreateStatic(*PhysxSample::getSingleton().m_Physics, PxTransform::createIdentity(), PxTriangleMeshGeometry(triMesh.get(), PxMeshScale()), *m_Material)),
+		actor))
+	{
+		THROW_CUSEXCEPTION("PxCreateStatic failed");
+	}
+	m_Scene->addActor(*actor);
+	m_Actors.insert(static_pointer_cast<PxActor>(actor));
+
+	mesh->UnlockIndexBuffer();
+	mesh->UnlockVertexBuffer();
+
+	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,-5,0), PxVec3(0,1,0)), *m_Material)),
+		actor))
+	{
+		THROW_CUSEXCEPTION("PxCreatePlane failed");
+	}
+	m_Scene->addActor(*actor);
+	m_Actors.insert(static_pointer_cast<PxActor>(actor));
+
 	return S_OK;
 }
 
@@ -157,11 +212,9 @@ void GameStateMain::OnFrameRender(
 	CComPtr<IDirect3DSurface9> oldDs;
 	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
 
-	Vector3 LightDir(Vector3(1,1,1).normalize());
+	Vector3 LightDir(Vector3(-1,-1,-1).normalize());
 	Vector3 LightTag(0,1,0);
-	Matrix4 LightViewProj =
-		Matrix4::LookAtRH(LightTag + LightDir, LightTag, Vector3(0,1,0)) *
-		Matrix4::OrthoRH(3, 3, -50, 50);
+	Matrix4 LightViewProj = Matrix4::LookAtRH(LightTag - LightDir, LightTag, Vector3(0,1,0)) * Matrix4::OrthoRH(3, 3, -50, 50);
 
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowTextureRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowTextureDS->m_ptr));

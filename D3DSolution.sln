@@ -23,6 +23,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zlib", "zlib\scripts\zlib.v
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "demo2_3", "demo2_3\demo2_3.vcproj", "{CB0CD6EC-FB35-493C-BCA2-7B90F5D5D405}"
 	ProjectSection(ProjectDependencies) = postProject
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34} = {FD3A9F18-00FA-4936-AE21-7455E3964D34}
 		{198A862B-2908-48A8-8654-5D6B4583E441} = {198A862B-2908-48A8-8654-5D6B4583E441}
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F} = {8F8C0F3C-BAEC-48FF-900A-33C045BB395F}
 		{4B104248-0F92-4516-8D50-E87D5E9BB6B6} = {4B104248-0F92-4516-8D50-E87D5E9BB6B6}
@@ -51,6 +52,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgR
 	ProjectSection(ProjectDependencies) = postProject
 		{1F5CF866-21B8-4F4B-B9D1-6159003E468F} = {1F5CF866-21B8-4F4B-B9D1-6159003E468F}
 	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PxToolkit", "PxToolkit\scripts\PxToolkit.vcproj", "{FD3A9F18-00FA-4936-AE21-7455E3964D34}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -98,6 +101,10 @@ Global
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Debug|Win32.Build.0 = Debug|Win32
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.ActiveCfg = Release|Win32
 		{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}.Release|Win32.Build.0 = Release|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Debug|Win32.Build.0 = Debug|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Release|Win32.ActiveCfg = Release|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

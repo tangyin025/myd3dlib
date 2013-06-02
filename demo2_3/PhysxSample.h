@@ -1,30 +1,6 @@
 #pragma once
 
-template <typename T>
-class PhysxPtr
-	: public boost::shared_ptr<T>
-{
-public:
-	static void Deletor(T * p) throw ()
-	{
-		p->release();
-	}
-
-	PhysxPtr(void)
-	{
-	}
-
-	PhysxPtr(T * p)
-		: boost::shared_ptr(p, Deletor)
-	{
-	}
-
-	template <typename Y>
-	void reset(Y * p)
-	{
-		boost::shared_ptr<T>::reset<Y>(p, Deletor);
-	}
-};
+#include "PhysxPtr.hpp"
 
 class PhysxSampleAllocator : public PxAllocatorCallback
 {
@@ -146,7 +122,7 @@ public:
 
 	PhysxPtr<PxMaterial> m_Material;
 
-	std::vector<PhysxPtr<PxActor> > m_Actors;
+	std::set<PhysxPtr<PxActor> > m_Actors;
 
 public:
 	PhysxScene(void)

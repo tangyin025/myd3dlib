@@ -138,27 +138,6 @@ bool PhysxScene::OnInit(void)
 		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createMaterial failed");
 	}
 
-	PhysxPtr<PxActor> actor;
-	if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)),
-		actor))
-	{
-		THROW_CUSEXCEPTION("PxCreateDynamic failed");
-	}
-	m_Scene->addActor(*actor);
-	m_Actors.push_back(actor);
-
-	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,1,0), 0), *m_Material)),
-		actor))
-	{
-		THROW_CUSEXCEPTION("PxCreatePlane failed");
-	}
-	m_Scene->addActor(*actor);
-	m_Actors.push_back(actor);
-
-	m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-
-	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-
 	return true;
 }
 

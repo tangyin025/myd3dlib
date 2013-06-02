@@ -28,6 +28,7 @@ state.Camera=camera
 
 dofile "material/waterPhong.lua"
 dofile "material/casual19_m_highpolyPhong.lua"
+dofile "material/lambert1.lua"
 
 -- 创建场景
 state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml"))
