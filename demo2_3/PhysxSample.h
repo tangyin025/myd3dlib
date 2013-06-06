@@ -122,8 +122,6 @@ public:
 
 	PhysxPtr<PxMaterial> m_Material;
 
-	std::set<PhysxPtr<PxActor> > m_Actors;
-
 public:
 	PhysxScene(void)
 		: m_Timer(1/60.0f,0)
@@ -132,6 +130,11 @@ public:
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 	{
+	}
+
+	virtual ~PhysxScene(void)
+	{
+		_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 	}
 
 	bool OnInit(void);

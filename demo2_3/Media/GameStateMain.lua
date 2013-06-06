@@ -30,15 +30,15 @@ dofile "material/waterPhong.lua"
 dofile "material/casual19_m_highpolyPhong.lua"
 dofile "material/lambert1.lua"
 
--- 创建场景
-state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml"))
+-- -- 创建场景
+-- state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml"))
 
--- 创建角色
-local character=Character()
-character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml")
-character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml")
-character.Scale=Vector3(0.01,0.01,0.01)
-state:InsertCharacter(character)
+-- -- 创建角色
+-- local character=Character()
+-- character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml")
+-- character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml")
+-- character.Scale=Vector3(0.01,0.01,0.01)
+-- state:InsertCharacter(character)
 
 -- local emitter=SphericalEmitter()
 -- emitter.SpawnInterval=1/100

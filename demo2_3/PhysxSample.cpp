@@ -87,6 +87,8 @@ bool PhysxSample::OnInit(void)
 
 	NxParameterized::Interface * moduleDesc = m_ModuleDestructible->getDefaultModuleDesc();
 	m_ModuleDestructible->init(*moduleDesc);
+	m_ModuleDestructible->setLODBenefitValue(200);
+	m_ModuleDestructible->setLODEnabled(true);
 
 	if(!PxInitExtensions(*m_Physics))
 	{
@@ -143,9 +145,6 @@ bool PhysxScene::OnInit(void)
 
 void PhysxScene::OnShutdown(void)
 {
-	m_Actors.clear();
-
-	_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 }
 
 void PhysxScene::OnTickPreRender(float dtime)
@@ -185,12 +184,12 @@ bool PhysxScene::Advance(float dtime)
 
 void PhysxScene::Substep(StepperTask & completionTask)
 {
-	m_Scene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
+	m_ApexScene->simulate(m_Timer.m_Interval, true, &completionTask, 0, 0);
 }
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)
 {
-	m_Scene->fetchResults(true);
+	m_ApexScene->fetchResults(true, NULL);
 
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
 	{

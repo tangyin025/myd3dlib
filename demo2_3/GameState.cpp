@@ -94,7 +94,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 
 	PhysxPtr<PxRigidActor> actor;
-	if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,10,0)), PxSphereGeometry(1), *m_Material, 1)),
+	if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,100,0)), PxSphereGeometry(1), *m_Material, 1)),
 		actor))
 	{
 		THROW_CUSEXCEPTION("PxCreateDynamic failed");
@@ -102,44 +102,102 @@ HRESULT GameStateMain::OnCreateDevice(
 	m_Scene->addActor(*actor);
 	m_Actors.insert(static_pointer_cast<PxActor>(actor));
 
-	my::OgreMeshPtr mesh = Game::getSingleton().LoadMesh("mesh/plane.mesh.xml");
-	void * pVertices = mesh->LockVertexBuffer();
-	void * pIndices = mesh->LockIndexBuffer();
-
-	PxTriangleMeshDesc meshDesc;
-	meshDesc.points.count = mesh->GetNumVertices();
-	meshDesc.points.stride = mesh->GetNumBytesPerVertex();
-	meshDesc.points.data = pVertices;
-
-	meshDesc.triangles.count = mesh->GetNumFaces();
-	_ASSERT(mesh->GetOptions() & D3DXMESH_32BIT);
-	meshDesc.triangles.stride = 3 * sizeof(DWORD);
-	meshDesc.triangles.data = pIndices;
-
-	PhysxPtr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
-	if(!triMesh)
-	{
-		THROW_CUSEXCEPTION("PxToolkit::createTriangleMesh32 failed");
-	}
-
-	if(!(actor.reset(PxCreateStatic(*PhysxSample::getSingleton().m_Physics, PxTransform::createIdentity(), PxTriangleMeshGeometry(triMesh.get(), PxMeshScale()), *m_Material)),
-		actor))
-	{
-		THROW_CUSEXCEPTION("PxCreateStatic failed");
-	}
-	m_Scene->addActor(*actor);
-	m_Actors.insert(static_pointer_cast<PxActor>(actor));
-
-	mesh->UnlockIndexBuffer();
-	mesh->UnlockVertexBuffer();
-
-	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,-5,0), PxVec3(0,1,0)), *m_Material)),
+	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,0,0), PxVec3(0,1,0)), *m_Material)),
 		actor))
 	{
 		THROW_CUSEXCEPTION("PxCreatePlane failed");
 	}
 	m_Scene->addActor(*actor);
 	m_Actors.insert(static_pointer_cast<PxActor>(actor));
+
+	//my::OgreMeshPtr mesh = Game::getSingleton().LoadMesh("mesh/plane.mesh.xml");
+	//void * pVertices = mesh->LockVertexBuffer();
+	//void * pIndices = mesh->LockIndexBuffer();
+
+	//PxTriangleMeshDesc meshDesc;
+	//meshDesc.points.count = mesh->GetNumVertices();
+	//meshDesc.points.stride = mesh->GetNumBytesPerVertex();
+	//meshDesc.points.data = pVertices;
+
+	//meshDesc.triangles.count = mesh->GetNumFaces();
+	//_ASSERT(mesh->GetOptions() & D3DXMESH_32BIT);
+	//meshDesc.triangles.stride = 3 * sizeof(DWORD);
+	//meshDesc.triangles.data = pIndices;
+
+	//PhysxPtr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
+	//if(!triMesh)
+	//{
+	//	THROW_CUSEXCEPTION("PxToolkit::createTriangleMesh32 failed");
+	//}
+
+	//if(!(actor.reset(PxCreateStatic(*PhysxSample::getSingleton().m_Physics, PxTransform::createIdentity(), PxTriangleMeshGeometry(triMesh.get(), PxMeshScale()), *m_Material)),
+	//	actor))
+	//{
+	//	THROW_CUSEXCEPTION("PxCreateStatic failed");
+	//}
+	//m_Scene->addActor(*actor);
+	//m_Actors.insert(static_pointer_cast<PxActor>(actor));
+
+	//mesh->UnlockIndexBuffer();
+	//mesh->UnlockVertexBuffer();
+
+	/************************************************************************/
+	/* Apex ÆÆËéÊ¾Àý                                                        */
+	/************************************************************************/
+	PhysxPtr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createStream("Wall.apb", physx::PxFileBuf::OPEN_READ_ONLY));
+	NxParameterized::Serializer::SerializeType iSerType = PhysxSample::getSingleton().m_ApexSDK->getSerializeType(*stream);
+	PhysxPtr<NxParameterized::Serializer> ser(PhysxSample::getSingleton().m_ApexSDK->createSerializer(iSerType));
+	NxParameterized::Serializer::DeserializedData data;
+	NxParameterized::Serializer::ErrorType serError = ser->deserialize(*stream, data);
+
+	NxParameterized::Interface * params = data[0];
+	physx::NxApexAsset * asset = PhysxSample::getSingleton().m_ApexSDK->createAsset(params, "Asset Name");
+	m_destructibleAsset.reset(static_cast<physx::NxDestructibleAsset *>(asset));
+
+	params = m_destructibleAsset->getDefaultActorDesc();
+	NxParameterized::setParamBool(*params, "destructibleParameters.flags.CRUMBLE_SMALLEST_CHUNKS", true);
+	NxParameterized::setParamF32(*params, "destructibleParameters.forceToDamage", 0.1f);
+	NxParameterized::setParamF32(*params, "destructibleParameters.damageThreshold", 10.0f);
+	NxParameterized::setParamF32(*params, "destructibleParameters.damageCap", 10.0f);
+	NxParameterized::setParamF32(*params, "destructibleParameters.damageToRadius", 0.0f);
+	NxParameterized::setParamF32(*params, "destructibleParameters.fractureImpulseScale", 2.0f);
+	NxParameterized::setParamBool(*params, "formExtendedStructures", true);
+	{
+		int depthParametersCount = 0;
+		NxParameterized::getParamArraySize(*params, "depthParameters", depthParametersCount);
+		NxParameterized::setParamI32(*params, "destructibleParameters.impactDamageDefaultDepth", depthParametersCount - 1);
+		if(depthParametersCount > 0)
+		{
+			const unsigned int bufferCount = 128;
+			for(physx::PxU32 index = 0; index < static_cast<unsigned int>(depthParametersCount); ++index)
+			{
+				char buffer[bufferCount] = {0};
+				sprintf_s(buffer, bufferCount, "depthParameters[%d].OVERRIDE_IMPACT_DAMAGE", index);
+				NxParameterized::setParamBool(*params, buffer, false);
+			}
+		}
+	}
+	NxParameterized::setParamU32(*params, "p3ShapeDescTemplate.simulationFilterData.word0", 2);
+	NxParameterized::setParamU32(*params, "p3ShapeDescTemplate.simulationFilterData.word2", ~0);
+	NxParameterized::setParamF32(*params, "p3BodyDescTemplate.density", 1.0f);
+	NxParameterized::setParamBool(*params, "dynamic", false);
+	physx::PxMat44 wallPose = physx::PxMat44::createIdentity();
+	wallPose(1, 1) =  0;
+	wallPose(2, 2) =  0;
+	wallPose(1, 2) =  1;
+	wallPose(2, 1) = -1;
+	wallPose(1, 3) = 5.7747002f;
+	NxParameterized::setParamMat44(*params, "globalPose", wallPose);
+	NxParameterized::setParamVec3(*params, "scale", PxVec3(0.5f));
+	physx::NxApexActor * apexActor = asset->createApexActor(*params, *m_ApexScene);
+	m_destructibleActor.reset(static_cast<physx::NxDestructibleActor *>(apexActor));
+
+	params = m_ApexScene->getDebugRenderParams();
+	NxParameterized::setParamF32(*params, "VISUALIZATION_ENABLE", 1.0f);
+	NxParameterized::setParamF32(*params, "VISUALIZATION_SCALE", 1.0f);
+	NxParameterized::setParamF32(*params, "VISUALIZE_LOD_BENEFITS", 1.0f);
+	NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_ACTOR", 1.0f);
+	NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_SUPPORT", 1.0f);
 
 	return S_OK;
 }
@@ -198,6 +256,15 @@ void GameStateMain::OnFrameMove(
 	{
 		(*character_iter)->OnFrameMove(fTime, fElapsedTime);
 	}
+
+	D3DVIEWPORT9 vp;
+	Game::getSingleton().GetD3D9Device()->GetViewport(&vp);
+	static const physx::PxU32 viewIDlookAtRightHand = m_ApexScene->allocViewMatrix(physx::apex::ViewMatrixType::LOOK_AT_RH);
+	static const physx::PxU32 projIDperspectiveCubicRightHand = m_ApexScene->allocProjMatrix(physx::apex::ProjMatrixType::USER_CUSTOMIZED);
+	m_ApexScene->setViewMatrix(PxMat44(&(m_Camera->m_View.transpose()._11)), viewIDlookAtRightHand);
+	m_ApexScene->setProjMatrix(PxMat44(&(m_Camera->m_Proj.transpose()._11)), projIDperspectiveCubicRightHand);
+	m_ApexScene->setProjParams(m_Camera->m_Nz, m_Camera->m_Fz, D3DXToDegree(m_Camera->m_Fov), vp.Width, vp.Height, projIDperspectiveCubicRightHand);
+	m_ApexScene->setUseViewProjMatrix(viewIDlookAtRightHand, projIDperspectiveCubicRightHand);
 
 	PhysxScene::OnTickPreRender(fElapsedTime);
 }
@@ -317,6 +384,8 @@ void GameStateMain::OnFrameRender(
 		// ! The Right tick post render should be called after d3ddevice->present, for vertical sync reason
 		PhysxScene::OnTickPostRender(fElapsedTime);
 
+		m_ApexScene->prepareRenderResourceContexts();
+
 		PhysxScene::DrawRenderBuffer(Game::getSingleton().GetD3D9Device(), m_Scene->getRenderBuffer());
 
 		V(pd3dDevice->EndScene());
@@ -333,6 +402,40 @@ LRESULT GameStateMain::MsgProc(
 	LRESULT lr;
 	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 		return lr;
+
+	switch(uMsg)
+	{
+	case WM_RBUTTONUP:
+		CRect ClientRect;
+		GetClientRect(hWnd, &ClientRect);
+		Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
+		Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
+		Vector3 dir = (ptProj.transformCoord(m_Camera->m_InverseViewProj) - m_Camera->m_Position).normalize();
+
+		PxVec3 rayOrigin(m_Camera->m_Position.x, m_Camera->m_Position.y, m_Camera->m_Position.z);
+		PxVec3 rayDirection(dir.x, dir.y, dir.z);
+
+		physx::apex::NxDestructibleActor * hitActor = NULL;
+		physx::PxF32 hitTime = PX_MAX_F32;
+		physx::PxVec3 hitNormal(0.0f);
+		physx::PxI32 hitChunkIndex = physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX;
+		physx::PxF32 time = 0;
+		physx::PxVec3 normal(0.0f);
+		const physx::PxI32 chunkIndex = m_destructibleActor->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
+		if(chunkIndex != physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX && time < hitTime)
+		{
+			hitActor = m_destructibleActor.get();
+			hitTime = time;
+			hitNormal = normal;
+			hitChunkIndex = chunkIndex;
+		}
+
+		if(hitActor)
+		{
+			hitActor->applyDamage(10.0f, 10.0f, rayOrigin + (hitTime * rayDirection), rayDirection, hitChunkIndex);
+		}
+		break;
+	}
 
 	return 0;
 }
