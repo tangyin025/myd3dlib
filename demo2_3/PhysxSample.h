@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PhysxPtr.hpp"
+#include "ApexRenderResourceMgr.h"
 
 class PhysxSampleAllocator : public PxAllocatorCallback
 {
@@ -24,36 +25,6 @@ public:
 	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
 
-class UserRenderResourceManager
-	: public physx::apex::NxUserRenderResourceManager
-{
-	virtual physx::apex::NxUserRenderVertexBuffer* createVertexBuffer(const physx::apex::NxUserRenderVertexBufferDesc& desc) {return NULL;}
-
-	virtual void releaseVertexBuffer(physx::apex::NxUserRenderVertexBuffer& buffer) {}
-
-	virtual physx::apex::NxUserRenderIndexBuffer* createIndexBuffer(const physx::apex::NxUserRenderIndexBufferDesc& desc) {return NULL;}
-
-	virtual void releaseIndexBuffer(physx::apex::NxUserRenderIndexBuffer& buffer) {}
-
-	virtual physx::apex::NxUserRenderBoneBuffer* createBoneBuffer(const physx::apex::NxUserRenderBoneBufferDesc& desc) {return NULL;}
-
-	virtual void releaseBoneBuffer(physx::apex::NxUserRenderBoneBuffer& buffer) {}
-
-	virtual physx::apex::NxUserRenderInstanceBuffer* createInstanceBuffer(const physx::apex::NxUserRenderInstanceBufferDesc& desc) {return NULL;}
-
-	virtual void releaseInstanceBuffer(physx::apex::NxUserRenderInstanceBuffer& buffer) {}
-
-	virtual physx::apex::NxUserRenderSpriteBuffer* createSpriteBuffer(const physx::apex::NxUserRenderSpriteBufferDesc& desc) {return NULL;}
-
-	virtual void releaseSpriteBuffer(physx::apex::NxUserRenderSpriteBuffer& buffer) {}
-
-	virtual physx::apex::NxUserRenderResource* createResource(const physx::apex::NxUserRenderResourceDesc& desc) {return NULL;}
-
-	virtual void releaseResource(physx::apex::NxUserRenderResource& resource) {}
-
-	virtual physx::PxU32 getMaxBonesForMaterial(void* material) {return 0;}
-};
-
 class PhysxSample
 	: public my::SingleInstance<PhysxSample>
 {
@@ -70,7 +41,7 @@ public:
 
 	PhysxPtr<PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	UserRenderResourceManager m_ApexUserRenderResMgr;
+	ApexRenderResourceMgr m_ApexUserRenderResMgr;
 
 	PhysxPtr<physx::apex::NxApexSDK> m_ApexSDK;
 
