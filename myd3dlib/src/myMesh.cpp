@@ -65,6 +65,21 @@ std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void
 	return ret;
 }
 
+std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(WORD OverideStream) const
+{
+	std::vector<D3DVERTEXELEMENT9> ret;
+	const_iterator elem_iter = begin();
+	for(; elem_iter != end(); elem_iter++)
+	{
+		ret.push_back(*elem_iter);
+		ret.back().Stream = OverideStream;
+	}
+
+	//D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
+	//ret.push_back(elem_end);
+	return ret;
+}
+
 UINT D3DVERTEXELEMENT9Set::CalculateVertexStride(DWORD Stream) const
 {
 	return D3DXGetDeclVertexSize(&BuildVertexElementList()[0], Stream);

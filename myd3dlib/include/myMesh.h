@@ -230,6 +230,8 @@ namespace my
 
 		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(void) const;
 
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD OverideStream) const;
+
 		UINT CalculateVertexStride(DWORD Stream = 0) const;
 
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;

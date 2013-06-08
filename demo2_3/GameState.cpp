@@ -73,6 +73,8 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx");
 
+	m_CheckerTexture = Game::getSingleton().LoadTexture("texture/Checker.bmp");
+
 	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx");
 
 	m_ShadowTextureRT.reset(new my::Texture());
@@ -89,8 +91,8 @@ HRESULT GameStateMain::OnCreateDevice(
 	/************************************************************************/
 	/* ÎïÀí sample Ê¾Àý                                                     */
 	/************************************************************************/
-	m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-	m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 
 	PhysxPtr<PxRigidActor> actor;
@@ -380,6 +382,11 @@ void GameStateMain::OnFrameRender(
 		Game::getSingleton().m_EmitterInst->Begin();
 		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
 		Game::getSingleton().m_EmitterInst->End();
+
+		m_destructibleActor->lockRenderResources();
+		m_destructibleActor->updateRenderResources();
+		m_destructibleActor->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
+		m_destructibleActor->unlockRenderResources();
 
 		// ! The Right tick post render should be called after d3ddevice->present, for vertical sync reason
 		PhysxScene::OnTickPostRender(fElapsedTime);

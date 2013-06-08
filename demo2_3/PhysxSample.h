@@ -33,6 +33,8 @@ public:
 
 	PhysxSampleErrorCallback m_ErrorCallback;
 
+	ApexRenderer m_ApexRenderer;
+
 	PhysxPtr<PxFoundation> m_Foundation;
 
 	PhysxPtr<PxPhysics> m_Physics;
