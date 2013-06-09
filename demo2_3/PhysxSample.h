@@ -35,6 +35,10 @@ public:
 
 	ApexRenderer m_ApexRenderer;
 
+	ApexRenderResourceMgr m_ApexUserRenderResMgr;
+
+	ApexResourceCallback m_ApexResourceCallback;
+
 	PhysxPtr<PxFoundation> m_Foundation;
 
 	PhysxPtr<PxPhysics> m_Physics;
@@ -42,8 +46,6 @@ public:
 	PhysxPtr<PxCooking> m_Cooking;
 
 	PhysxPtr<PxDefaultCpuDispatcher> m_CpuDispatcher;
-
-	ApexRenderResourceMgr m_ApexUserRenderResMgr;
 
 	PhysxPtr<physx::apex::NxApexSDK> m_ApexSDK;
 

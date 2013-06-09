@@ -74,6 +74,7 @@ bool PhysxSample::OnInit(void)
 	apexDesc.physXSDK = PhysxSample::getSingleton().m_Physics.get();
 	apexDesc.cooking = PhysxSample::getSingleton().m_Cooking.get();
 	apexDesc.renderResourceManager = &m_ApexUserRenderResMgr;
+	apexDesc.resourceCallback = &m_ApexResourceCallback;
 	if(!(m_ApexSDK.reset(NxCreateApexSDK(apexDesc)), m_ApexSDK))
 	{
 		THROW_CUSEXCEPTION("NxCreateApexSDK failed");

@@ -1,5 +1,17 @@
 #pragma once
 
+class ApexResourceCallback : public physx::apex::NxResourceCallback
+{
+public:
+	ApexResourceCallback(void);
+
+	virtual ~ApexResourceCallback(void);
+
+	void* requestResource(const char* nameSpace, const char* name);
+
+	void  releaseResource(const char* nameSpace, const char* name, void* resource);
+};
+
 class ApexRenderResourceMgr : public physx::apex::NxUserRenderResourceManager
 {
 public:
@@ -101,7 +113,7 @@ public:
 
 	void setSpriteBufferRange(physx::PxU32 firstSprite, physx::PxU32 numSprites) {}
 
-	void setMaterial(void* material) {}
+	void setMaterial(void* material) {m_material = static_cast<my::Material *>(material);}
 
 	physx::PxU32 getNbVertexBuffers() const {return m_ApexVbs.size();}
 
@@ -114,8 +126,6 @@ public:
 	physx::apex::NxUserRenderInstanceBuffer* getInstanceBuffer() const {return NULL;}
 
 	physx::apex::NxUserRenderSpriteBuffer* getSpriteBuffer() const {return NULL;}
-
-	my::EffectPtr m_ApexEffect;
 
 	std::vector<ApexRenderVertexBuffer *> m_ApexVbs;
 
@@ -136,4 +146,6 @@ public:
 	unsigned int m_firstBone;
 
 	unsigned int m_numBones;
+
+	my::Material * m_material;
 };

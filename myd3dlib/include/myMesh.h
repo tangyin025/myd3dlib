@@ -7,7 +7,6 @@
 #include <atlbase.h>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
-#include "myException.h"
 
 namespace my
 {
