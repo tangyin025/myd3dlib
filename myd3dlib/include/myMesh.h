@@ -236,6 +236,237 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const;
 	};
 
+	class D3DVertexElement
+	{
+	public:
+		BYTE Offset;
+
+		D3DDECLTYPE Type;
+
+		D3DDECLMETHOD Method;
+
+		D3DVertexElement(void)
+			: Offset(0)
+			, Type(D3DDECLTYPE_UNUSED)
+			, Method(D3DDECLMETHOD_DEFAULT)
+		{
+		}
+
+		D3DVertexElement(BYTE _Offset, D3DDECLTYPE _Type, D3DDECLMETHOD _Method)
+			: Offset(_Offset)
+			, Type(_Type)
+			, Method(_Method)
+		{
+		}
+	};
+
+	class D3DVertexElementSet
+	{
+	public:
+		static const int MAX_BONE_INDICES = 4;
+
+		static const int MAX_USAGE = D3DDECLUSAGE_SAMPLE+1;
+
+		static const int MAX_USAGE_INDEX = 8;
+
+		D3DVertexElement elems[MAX_USAGE][MAX_USAGE_INDEX];
+
+	public:
+		D3DVertexElementSet(void)
+		{
+		}
+
+		void InsertVertexElement(BYTE Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
+		{
+			_ASSERT(Type != D3DDECLTYPE_UNUSED);
+
+			_ASSERT(Usage < MAX_USAGE && UsageIndex < MAX_USAGE_INDEX);
+
+			elems[Usage][UsageIndex] = D3DVertexElement(Offset, Type, Method);
+		}
+
+		template <typename ElementType>
+		ElementType & GetVertexElement(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex) const
+		{
+			return *(ElementType *)((unsigned char *)pVertex + elems[Usage][UsageIndex].Offset);
+		}
+
+		template <typename ElementType>
+		void SetVertexElement(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex, const ElementType & Value) const
+		{
+			GetVertexElement<ElementType>(pVertex, Usage, UsageIndex) = Value;
+		}
+
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream)
+		{
+			std::vector<D3DVERTEXELEMENT9> ret;
+			for(unsigned int Usage = 0; Usage < MAX_USAGE; Usage++)
+			{
+				for(unsigned int UsageIndex = 0; UsageIndex < MAX_USAGE_INDEX; UsageIndex++)
+				{
+					const D3DVertexElement & elem = elems[Usage][UsageIndex];
+					if(elem.Type != D3DDECLTYPE_UNUSED)
+					{
+						D3DVERTEXELEMENT9 ve = {Stream, elem.Offset, elem.Type, elem.Method, Usage, UsageIndex};
+						ret.push_back(ve);
+					}
+				}
+			}
+		}
+
+		void InsertPositionElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, UsageIndex, Method);
+		}
+
+		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return GetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex);
+		}
+
+		void SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex, Position);
+		}
+
+		void InsertBlendWeightElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, Method);
+		}
+
+		Vector4 & GetBlendWeight(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+
+			return GetVertexElement<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex);
+		}
+
+		void SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+
+			return SetVertexElement<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, BlendWeight);
+		}
+
+		void InsertBlendIndicesElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_BLENDINDICES, UsageIndex, Method);
+		}
+
+		DWORD & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+
+			return GetVertexElement<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex);
+		}
+
+		void SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+
+			return SetVertexElement<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex, BlendIndices);
+		}
+
+		void InsertNormalElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, UsageIndex, Method);
+		}
+
+		Vector3 & GetNormal(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return GetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex);
+		}
+
+		void SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex, Normal);
+		}
+
+		void InsertTexcoordElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT2, D3DDECLUSAGE_TEXCOORD, UsageIndex, Method);
+		}
+
+		Vector2 & GetTexcoord(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
+
+			return GetVertexElement<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex);
+		}
+
+		void SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
+
+			return SetVertexElement<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex, Texcoord);
+		}
+
+		void InsertTangentElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_TANGENT, UsageIndex, Method);
+		}
+
+		Vector3 & GetTangent(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return GetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex);
+		}
+
+		void SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex, Tangent);
+		}
+
+		void InsertBinormalElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_BINORMAL, UsageIndex, Method);
+		}
+
+		Vector3 & GetBinormal(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return GetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex);
+		}
+
+		void SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex, Binormal);
+		}
+
+		void InsertColorElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		{
+			InsertVertexElement(Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLUSAGE_COLOR, UsageIndex, Method);
+		}
+
+		D3DCOLOR & GetColor(void * pVertex, BYTE UsageIndex = 0)
+		{
+			_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
+
+			return GetVertexElement<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex);
+		}
+
+		void SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex = 0) const
+		{
+			_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
+
+			return SetVertexElement<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex, Color);
+		}
+	};
+
 	class VertexBuffer : public DeviceRelatedObject<IDirect3DVertexBuffer9>
 	{
 	public:
