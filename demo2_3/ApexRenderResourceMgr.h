@@ -65,7 +65,7 @@ public:
 
 	void writeBuffer(const physx::NxApexRenderVertexBufferData& data, physx::PxU32 firstVertex, physx::PxU32 numVertices);
 
-	my::D3DVERTEXELEMENT9Set m_ve;
+	my::D3DVertexElementSet m_VertexElems;
 
 	DWORD m_stride;
 

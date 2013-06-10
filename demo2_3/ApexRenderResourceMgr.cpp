@@ -178,50 +178,53 @@ ApexRenderVertexBuffer::ApexRenderVertexBuffer(IDirect3DDevice9 * pd3dDevice, co
 			switch(physx::apex::NxRenderVertexSemantic::Enum(i))
 			{
 			case physx::apex::NxRenderVertexSemantic::POSITION:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreatePositionElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::PositionType);
+				m_VertexElems.InsertPositionElement(offset);
+				offset += sizeof(my::Vector3);
 				break;
 			case physx::apex::NxRenderVertexSemantic::NORMAL:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateNormalElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::NormalType);
+				m_VertexElems.InsertNormalElement(offset);
+				offset += sizeof(my::Vector3);
 				break;
 			case physx::apex::NxRenderVertexSemantic::TANGENT:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateTangentElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::TangentType);
+				m_VertexElems.InsertTangentElement(offset);
+				offset += sizeof(my::Vector3);
 				break;
 			case physx::apex::NxRenderVertexSemantic::COLOR:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateColorElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::ColorType);
+				m_VertexElems.InsertColorElement(offset);
+				offset += sizeof(D3DCOLOR);
 				break;
 			case physx::apex::NxRenderVertexSemantic::TEXCOORD0:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::TexcoordType);
+				m_VertexElems.InsertTexcoordElement(offset, 0);
+				offset += sizeof(my::Vector2);
 				break;
 			case physx::apex::NxRenderVertexSemantic::TEXCOORD1:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, offset, 1));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::TexcoordType);
+				m_VertexElems.InsertTexcoordElement(offset, 1);
+				offset += sizeof(my::Vector2);
 				break;
 			case physx::apex::NxRenderVertexSemantic::TEXCOORD2:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, offset, 2));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::TexcoordType);
+				m_VertexElems.InsertTexcoordElement(offset, 2);
+				offset += sizeof(my::Vector2);
 				break;
 			case physx::apex::NxRenderVertexSemantic::TEXCOORD3:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, offset, 3));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::TexcoordType);
+				m_VertexElems.InsertTexcoordElement(offset, 3);
+				offset += sizeof(my::Vector2);
 				break;
 			case physx::apex::NxRenderVertexSemantic::BONE_INDEX:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateBlendIndicesElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::BlendIndicesType);
+				m_VertexElems.InsertBlendIndicesElement(offset);
+				offset += sizeof(DWORD);
 				break;
 			case physx::apex::NxRenderVertexSemantic::BONE_WEIGHT:
-				m_ve.insert(my::D3DVERTEXELEMENT9Set::CreateBlendWeightsElement(0, offset, 0));
-				offset += sizeof(my::D3DVERTEXELEMENT9Set::BlendWeightsType);
+				m_VertexElems.InsertBlendWeightElement(offset);
+				offset += sizeof(my::Vector4);
 				break;
 			}
 		}
 	}
 	// ! ignore DISPLACEMENT_TEXCOORD, DISPLACEMENT_FLAGS, desc.hint
-	m_stride = m_ve.CalculateVertexStride();
+	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
+	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+	velist.push_back(ve_end);
+	m_stride = D3DXGetDeclVertexSize(&velist[0], 0);
 	m_vb.CreateVertexBuffer(pd3dDevice, m_stride * desc.maxVerts, 0, 0, D3DPOOL_MANAGED);
 }
 
@@ -231,7 +234,6 @@ ApexRenderVertexBuffer::~ApexRenderVertexBuffer(void)
 
 void ApexRenderVertexBuffer::writeBuffer(const physx::NxApexRenderVertexBufferData& data, physx::PxU32 firstVertex, physx::PxU32 numVertices)
 {
-	unsigned short bone_index;
 	unsigned char * pVertices = (unsigned char *)m_vb.Lock(m_stride * firstVertex, m_stride * numVertices);
 	for(unsigned int i = 0; i < physx::apex::NxRenderVertexSemantic::NUM_SEMANTICS; i++)
 	{
@@ -245,50 +247,50 @@ void ApexRenderVertexBuffer::writeBuffer(const physx::NxApexRenderVertexBufferDa
 				{
 				case physx::apex::NxRenderVertexSemantic::POSITION:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT3);
-					m_ve.SetPosition(pVertices + m_stride * j, *(my::Vector3 *)(
-						(unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetPosition(pVertices + m_stride * j,
+						*(my::Vector3 *)((unsigned char *)semanticData.data + semanticData.stride * j));
 					break;
 				case physx::apex::NxRenderVertexSemantic::NORMAL:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT3);
-					m_ve.SetNormal(pVertices + m_stride * j, *(my::Vector3 *)(
-						(unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetNormal(pVertices + m_stride * j,
+						*(my::Vector3 *)((unsigned char *)semanticData.data + semanticData.stride * j));
 					break;
 				case physx::apex::NxRenderVertexSemantic::TANGENT:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT3);
-					m_ve.SetTangent(pVertices + m_stride * j, *(my::Vector3 *)(
-						(unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetTangent(pVertices + m_stride * j,
+						*(my::Vector3 *)((unsigned char *)semanticData.data + semanticData.stride * j));
 					break;
 				case physx::apex::NxRenderVertexSemantic::COLOR:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::UBYTE4);
-					m_ve.SetColor(pVertices + m_stride * j, *(DWORD *)(
-						(unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetColor(pVertices + m_stride * j,
+						*(DWORD *)((unsigned char *)semanticData.data + semanticData.stride * j));
 					break;
 				case physx::apex::NxRenderVertexSemantic::TEXCOORD0:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT2);
-					m_ve.SetTexcoord(pVertices + m_stride * j,
-						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetTexcoord(pVertices + m_stride * j,
+						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 0);
 					break;
 				case physx::apex::NxRenderVertexSemantic::TEXCOORD1:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT2);
-					m_ve.SetTexcoord(pVertices + m_stride * j,
-						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 0, 1);
+					m_VertexElems.SetTexcoord(pVertices + m_stride * j,
+						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 1);
 					break;
 				case physx::apex::NxRenderVertexSemantic::TEXCOORD2:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT2);
-					m_ve.SetTexcoord(pVertices + m_stride * j,
-						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 0, 2);
+					m_VertexElems.SetTexcoord(pVertices + m_stride * j,
+						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 2);
 					break;
 				case physx::apex::NxRenderVertexSemantic::TEXCOORD3:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT2);
-					m_ve.SetTexcoord(pVertices + m_stride * j,
-						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 0, 3);
+					m_VertexElems.SetTexcoord(pVertices + m_stride * j,
+						*(my::Vector2 *)((unsigned char *)semanticData.data + semanticData.stride * j), 3);
 					break;
 				case physx::apex::NxRenderVertexSemantic::BONE_INDEX:
 					switch(semanticData.format)
 					{
 					case physx::apex::NxRenderDataFormat::USHORT1:
-						bone_index = *(unsigned short *)((unsigned char *)semanticData.data + semanticData.stride * j);
-						m_ve.SetBlendIndices(pVertices + m_stride * j, D3DCOLOR_ARGB(0,0,0,bone_index), 0, 0);
+						m_VertexElems.SetBlendIndices(pVertices + m_stride * j,
+							*(unsigned short *)((unsigned char *)semanticData.data + semanticData.stride * j));
 						break;
 					default:
 						_ASSERT(false);
@@ -297,8 +299,8 @@ void ApexRenderVertexBuffer::writeBuffer(const physx::NxApexRenderVertexBufferDa
 					break;
 				case physx::apex::NxRenderVertexSemantic::BONE_WEIGHT:
 					_ASSERT(semanticData.format == physx::apex::NxRenderDataFormat::FLOAT4);
-					m_ve.SetBlendWeights(pVertices + m_stride * j, *(my::Vector4 *)(
-						(unsigned char *)semanticData.data + semanticData.stride * j), 0, 0);
+					m_VertexElems.SetBlendWeight(pVertices + m_stride * j,
+						*(my::Vector4 *)((unsigned char *)semanticData.data + semanticData.stride * j));
 					break;
 				}
 			}
@@ -352,22 +354,26 @@ void ApexRenderBoneBuffer::writeBuffer(const physx::NxApexRenderBoneBufferData& 
 ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
 {
 	m_ApexVbs.resize(desc.numVertexBuffers);
-	std::vector<D3DVERTEXELEMENT9> elems;
+	std::vector<D3DVERTEXELEMENT9> velist;
 	for(WORD i = 0; i < desc.numVertexBuffers; i++)
 	{
 		ApexRenderVertexBuffer * pVb = static_cast<ApexRenderVertexBuffer *>(desc.vertexBuffers[i]);
 		m_ApexVbs[i] = pVb;
-		std::vector<D3DVERTEXELEMENT9> ve = pVb->m_ve.BuildVertexElementList(i);
-		elems.insert(elems.end(), ve.begin(), ve.end());
+		std::vector<D3DVERTEXELEMENT9> ve = pVb->m_VertexElems.BuildVertexElementList(i);
+		velist.insert(velist.end(), ve.begin(), ve.end());
 	}
-	D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
-	elems.push_back(elem_end);
+	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+	velist.push_back(ve_end);
 
 	m_firstVertex = desc.firstVertex;
 
 	m_numVerts = desc.numVerts;
 
-	pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl);
+	HRESULT hr;
+	if(FAILED(hr = pd3dDevice->CreateVertexDeclaration(&velist[0], &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 
 	m_ApexIb = static_cast<ApexRenderIndexBuffer *>(desc.indexBuffer);
 

@@ -132,7 +132,10 @@ HRESULT EmitterInstance::OnCreateDevice(
 	_ASSERT(!m_InstanceData.m_ptr);
 
 	HRESULT hr;
-	V(pd3dDevice->CreateVertexDeclaration(&m_velist[0], &m_Decl));
+	if(FAILED(hr = pd3dDevice->CreateVertexDeclaration(&m_velist[0], &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 
 	return S_OK;
 }

@@ -6,53 +6,6 @@
 
 using namespace my;
 
-std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(void) const
-{
-	std::vector<D3DVERTEXELEMENT9> ret;
-	const_iterator elem_iter = begin();
-	for(; elem_iter != end(); elem_iter++)
-	{
-		ret.push_back(*elem_iter);
-	}
-
-	D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
-	ret.push_back(elem_end);
-	return ret;
-}
-
-std::vector<D3DVERTEXELEMENT9> D3DVERTEXELEMENT9Set::BuildVertexElementList(WORD OverideStream) const
-{
-	std::vector<D3DVERTEXELEMENT9> ret;
-	const_iterator elem_iter = begin();
-	for(; elem_iter != end(); elem_iter++)
-	{
-		ret.push_back(*elem_iter);
-		ret.back().Stream = OverideStream;
-	}
-
-	//D3DVERTEXELEMENT9 elem_end = {0xFF, 0, D3DDECLTYPE_UNUSED, 0, 0, 0};
-	//ret.push_back(elem_end);
-	return ret;
-}
-
-UINT D3DVERTEXELEMENT9Set::CalculateVertexStride(DWORD Stream) const
-{
-	return D3DXGetDeclVertexSize(&BuildVertexElementList()[0], Stream);
-}
-
-CComPtr<IDirect3DVertexDeclaration9> D3DVERTEXELEMENT9Set::CreateVertexDeclaration(LPDIRECT3DDEVICE9 pDevice) const
-{
-	CComPtr<IDirect3DVertexDeclaration9> ret;
-
-	HRESULT hres = pDevice->CreateVertexDeclaration((D3DVERTEXELEMENT9 *)&BuildVertexElementList()[0], &ret);
-	if(FAILED(hres))
-	{
-		THROW_D3DEXCEPTION(hres);
-	}
-
-	return ret;
-}
-
 void VertexBuffer::CreateVertexBuffer(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Length,
@@ -437,7 +390,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 			float * pWeights = (float *)&m_VertexElems.GetBlendWeight(pVertex);
 
 			int i = 0;
-			for(; i < D3DVERTEXELEMENT9Set::MAX_BONE_INDICES; i++)
+			for(; i < D3DVertexElementSet::MAX_BONE_INDICES; i++)
 			{
 				if(pWeights[i] == 0)
 				{
@@ -447,7 +400,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 				}
 			}
 
-			if(i >= D3DVERTEXELEMENT9Set::MAX_BONE_INDICES)
+			if(i >= D3DVertexElementSet::MAX_BONE_INDICES)
 			{
 				THROW_CUSEXCEPTION("too much bone assignment");
 			}
