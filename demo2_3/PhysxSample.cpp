@@ -129,12 +129,23 @@ bool PhysxScene::OnInit(void)
 		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createScene failed");
 	}
 
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+
 	physx::apex::NxApexSceneDesc apexSceneDesc;
 	apexSceneDesc.scene = m_Scene.get();
 	if(!(m_ApexScene.reset(PhysxSample::getSingleton().m_ApexSDK->createScene(apexSceneDesc)), m_ApexScene))
 	{
 		THROW_CUSEXCEPTION("m_ApexSDK->createScene failed");
 	}
+
+	//NxParameterized::Interface * params = m_ApexScene->getDebugRenderParams();
+	//NxParameterized::setParamF32(*params, "VISUALIZATION_ENABLE", 1.0f);
+	//NxParameterized::setParamF32(*params, "VISUALIZATION_SCALE", 1.0f);
+	//NxParameterized::setParamF32(*params, "VISUALIZE_LOD_BENEFITS", 1.0f);
+	//NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_ACTOR", 1.0f);
+	//NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_SUPPORT", 1.0f);
 
 	if(!(m_Material.reset(PhysxSample::getSingleton().m_Physics->createMaterial(0.5f, 0.5f, 0.1f)), m_Material))
 	{

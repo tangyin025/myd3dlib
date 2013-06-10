@@ -91,26 +91,22 @@ HRESULT GameStateMain::OnCreateDevice(
 	/************************************************************************/
 	/* 物理 sample 示例                                                     */
 	/************************************************************************/
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-
 	PhysxPtr<PxRigidActor> actor;
-	if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,100,0)), PxSphereGeometry(1), *m_Material, 1)),
-		actor))
-	{
-		THROW_CUSEXCEPTION("PxCreateDynamic failed");
-	}
-	m_Scene->addActor(*actor);
-	m_Actors.insert(static_pointer_cast<PxActor>(actor));
-
 	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,0,0), PxVec3(0,1,0)), *m_Material)),
 		actor))
 	{
 		THROW_CUSEXCEPTION("PxCreatePlane failed");
 	}
 	m_Scene->addActor(*actor);
-	m_Actors.insert(static_pointer_cast<PxActor>(actor));
+	m_Actors.push_back(static_pointer_cast<PxActor>(actor));
+
+	//if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,100,0)), PxSphereGeometry(1), *m_Material, 1)),
+	//	actor))
+	//{
+	//	THROW_CUSEXCEPTION("PxCreateDynamic failed");
+	//}
+	//m_Scene->addActor(*actor);
+	//m_Actors.push_back(static_pointer_cast<PxActor>(actor));
 
 	//my::OgreMeshPtr mesh = Game::getSingleton().LoadMesh("mesh/plane.mesh.xml");
 	//void * pVertices = mesh->LockVertexBuffer();
@@ -138,7 +134,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	//	THROW_CUSEXCEPTION("PxCreateStatic failed");
 	//}
 	//m_Scene->addActor(*actor);
-	//m_Actors.insert(static_pointer_cast<PxActor>(actor));
+	//m_Actors.push_back(static_pointer_cast<PxActor>(actor));
 
 	//mesh->UnlockIndexBuffer();
 	//mesh->UnlockVertexBuffer();
@@ -146,17 +142,19 @@ HRESULT GameStateMain::OnCreateDevice(
 	/************************************************************************/
 	/* Apex 破碎示例                                                        */
 	/************************************************************************/
-	PhysxPtr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createStream("Wall.apb", physx::PxFileBuf::OPEN_READ_ONLY));
+	CachePtr cache = Game::getSingleton().OpenArchiveStream("Wall.apb")->GetWholeCache();
+	PhysxPtr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createMemoryReadStream(&(*cache)[0], cache->size()));
 	NxParameterized::Serializer::SerializeType iSerType = PhysxSample::getSingleton().m_ApexSDK->getSerializeType(*stream);
 	PhysxPtr<NxParameterized::Serializer> ser(PhysxSample::getSingleton().m_ApexSDK->createSerializer(iSerType));
 	NxParameterized::Serializer::DeserializedData data;
 	NxParameterized::Serializer::ErrorType serError = ser->deserialize(*stream, data);
 
 	NxParameterized::Interface * params = data[0];
-	physx::NxApexAsset * asset = PhysxSample::getSingleton().m_ApexSDK->createAsset(params, "Asset Name");
-	m_destructibleAsset.reset(static_cast<physx::NxDestructibleAsset *>(asset));
+	PhysxPtr<physx::apex::NxDestructibleAsset> asset(
+		static_cast<physx::NxDestructibleAsset *>(PhysxSample::getSingleton().m_ApexSDK->createAsset(params, "Asset Name")));
+	m_DestructibleAssets.push_back(asset);
 
-	params = m_destructibleAsset->getDefaultActorDesc();
+	params = asset->getDefaultActorDesc();
 	NxParameterized::setParamBool(*params, "destructibleParameters.flags.CRUMBLE_SMALLEST_CHUNKS", true);
 	NxParameterized::setParamF32(*params, "destructibleParameters.forceToDamage", 0.1f);
 	NxParameterized::setParamF32(*params, "destructibleParameters.damageThreshold", 10.0f);
@@ -191,15 +189,9 @@ HRESULT GameStateMain::OnCreateDevice(
 	wallPose(1, 3) = 5.7747002f;
 	NxParameterized::setParamMat44(*params, "globalPose", wallPose);
 	NxParameterized::setParamVec3(*params, "scale", PxVec3(0.5f));
-	physx::NxApexActor * apexActor = asset->createApexActor(*params, *m_ApexScene);
-	m_destructibleActor.reset(static_cast<physx::NxDestructibleActor *>(apexActor));
-
-	params = m_ApexScene->getDebugRenderParams();
-	NxParameterized::setParamF32(*params, "VISUALIZATION_ENABLE", 1.0f);
-	NxParameterized::setParamF32(*params, "VISUALIZATION_SCALE", 1.0f);
-	NxParameterized::setParamF32(*params, "VISUALIZE_LOD_BENEFITS", 1.0f);
-	NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_ACTOR", 1.0f);
-	NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_SUPPORT", 1.0f);
+	PhysxPtr<physx::apex::NxDestructibleActor> apexActor(
+		static_cast<physx::NxDestructibleActor *>(asset->createApexActor(*params, *m_ApexScene)));
+	m_DestructibleActors.push_back(apexActor);
 
 	return S_OK;
 }
@@ -383,10 +375,13 @@ void GameStateMain::OnFrameRender(
 		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
 		Game::getSingleton().m_EmitterInst->End();
 
-		m_destructibleActor->lockRenderResources();
-		m_destructibleActor->updateRenderResources();
-		m_destructibleActor->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
-		m_destructibleActor->unlockRenderResources();
+		for(size_t i = 0; i < m_DestructibleActors.size(); i++)
+		{
+			m_DestructibleActors[i]->lockRenderResources();
+			m_DestructibleActors[i]->updateRenderResources();
+			m_DestructibleActors[i]->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
+			m_DestructibleActors[i]->unlockRenderResources();
+		}
 
 		// ! The Right tick post render should be called after d3ddevice->present, for vertical sync reason
 		PhysxScene::OnTickPostRender(fElapsedTime);
@@ -428,13 +423,16 @@ LRESULT GameStateMain::MsgProc(
 		physx::PxI32 hitChunkIndex = physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX;
 		physx::PxF32 time = 0;
 		physx::PxVec3 normal(0.0f);
-		const physx::PxI32 chunkIndex = m_destructibleActor->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
-		if(chunkIndex != physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX && time < hitTime)
+		for(size_t i = 0; i < m_DestructibleActors.size(); i++)
 		{
-			hitActor = m_destructibleActor.get();
-			hitTime = time;
-			hitNormal = normal;
-			hitChunkIndex = chunkIndex;
+			const physx::PxI32 chunkIndex = m_DestructibleActors[i]->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
+			if(chunkIndex != physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX && time < hitTime)
+			{
+				hitActor = m_DestructibleActors[i].get();
+				hitTime = time;
+				hitNormal = normal;
+				hitChunkIndex = chunkIndex;
+			}
 		}
 
 		if(hitActor)

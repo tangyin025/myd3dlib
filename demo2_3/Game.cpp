@@ -111,7 +111,6 @@ void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
 
 Game::Game(void)
 {
-	RegisterFileDir(".");
 	RegisterFileDir("Media");
 	RegisterZipArchive("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");

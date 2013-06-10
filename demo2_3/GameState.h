@@ -81,11 +81,11 @@ public:
 
 	CharacterPtrList m_Characters;
 
-	std::set<PhysxPtr<PxActor> > m_Actors;
+	std::vector<PhysxPtr<PxActor> > m_Actors;
 
-	PhysxPtr<physx::apex::NxDestructibleAsset> m_destructibleAsset;
+	std::vector<PhysxPtr<physx::apex::NxDestructibleAsset> > m_DestructibleAssets;
 
-	PhysxPtr<physx::apex::NxDestructibleActor> m_destructibleActor;
+	std::vector<PhysxPtr<physx::apex::NxDestructibleActor> > m_DestructibleActors;
 
 public:
 	GameStateMain(void)
