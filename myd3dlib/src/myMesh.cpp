@@ -319,18 +319,18 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION("cannot process non-position vertex");
 	}
 
-	m_elems.InsertPositionElement(0);
+	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
 
 	if(normals || bComputeTangentFrame)
 	{
-		m_elems.InsertNormalElement(offset);
+		m_VertexElems.InsertNormalElement(offset);
 		offset += sizeof(Vector3);
 	}
 
 	if(bComputeTangentFrame)
 	{
-		m_elems.InsertTangentElement(offset);
+		m_VertexElems.InsertTangentElement(offset);
 		offset += sizeof(Vector3);
 	}
 
@@ -341,7 +341,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 
 	for(int i = 0; i < texture_coords; i++)
 	{
-		m_elems.InsertTexcoordElement(offset, i);
+		m_VertexElems.InsertTexcoordElement(offset, i);
 		offset += sizeof(Vector2);
 	}
 
@@ -349,10 +349,10 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	WORD indicesOffset = 0, weightsOffset = 0;
 	if(node_boneassignments != NULL)
 	{
-		m_elems.InsertBlendIndicesElement(offset);
+		m_VertexElems.InsertBlendIndicesElement(offset);
 		offset += sizeof(DWORD);
 
-		m_elems.InsertBlendWeightElement(offset);
+		m_VertexElems.InsertBlendWeightElement(offset);
 		offset += sizeof(Vector4);
 	}
 
@@ -366,7 +366,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		facecount += count;
 	}
 
-	std::vector<D3DVERTEXELEMENT9> velist = m_elems.BuildVertexElementList(0);
+	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
@@ -380,7 +380,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		if(positions)
 		{
 			DEFINE_XML_NODE_SIMPLE(position, vertex);
-			Vector3 & Position = m_elems.GetPosition(pVertex);
+			Vector3 & Position = m_VertexElems.GetPosition(pVertex);
 			rapidxml::xml_attribute<char> * attr_tmp;
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
@@ -390,7 +390,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		if(normals)
 		{
 			DEFINE_XML_NODE_SIMPLE(normal, vertex);
-			Vector3 & Normal = m_elems.GetNormal(pVertex);
+			Vector3 & Normal = m_VertexElems.GetNormal(pVertex);
 			rapidxml::xml_attribute<char> * attr_tmp;
 			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.x, attr_tmp, node_normal, x);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Normal.y, attr_tmp, node_normal, y);
@@ -400,7 +400,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		rapidxml::xml_node<char> * node_texcoord = node_vertex->first_node("texcoord");
 		for(int i = 0; i < texture_coords && node_texcoord != NULL; i++, node_texcoord = node_texcoord->next_sibling())
 		{
-			Vector2 & Texcoord = m_elems.GetTexcoord(pVertex, i);
+			Vector2 & Texcoord = m_VertexElems.GetTexcoord(pVertex, i);
 			rapidxml::xml_attribute<char> * attr_tmp;
 			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.x, attr_tmp, node_texcoord, u);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.y, attr_tmp, node_texcoord, v);
@@ -408,8 +408,8 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 
 		if(node_boneassignments != NULL)
 		{
-			m_elems.SetBlendIndices(pVertex, 0);
-			m_elems.SetBlendWeight(pVertex, Vector4::zero);
+			m_VertexElems.SetBlendIndices(pVertex, 0);
+			m_VertexElems.SetBlendWeight(pVertex, Vector4::zero);
 		}
 	}
 
@@ -433,8 +433,8 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 			}
 
 			unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
-			unsigned char * pIndices = (unsigned char *)&m_elems.GetBlendIndices(pVertex);
-			float * pWeights = (float *)&m_elems.GetBlendWeight(pVertex);
+			unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
+			float * pWeights = (float *)&m_VertexElems.GetBlendWeight(pVertex);
 
 			int i = 0;
 			for(; i < D3DVERTEXELEMENT9Set::MAX_BONE_INDICES; i++)
@@ -547,13 +547,13 @@ void OgreMesh::ComputeTangentFrame(void)
 		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
 		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
 
-		const Vector3 & v1 = m_elems.GetPosition(pv1);
-		const Vector3 & v2 = m_elems.GetPosition(pv2);
-		const Vector3 & v3 = m_elems.GetPosition(pv3);
+		const Vector3 & v1 = m_VertexElems.GetPosition(pv1);
+		const Vector3 & v2 = m_VertexElems.GetPosition(pv2);
+		const Vector3 & v3 = m_VertexElems.GetPosition(pv3);
 
-		const Vector2 & w1 = m_elems.GetTexcoord(pv1);
-		const Vector2 & w2 = m_elems.GetTexcoord(pv2);
-		const Vector2 & w3 = m_elems.GetTexcoord(pv3);
+		const Vector2 & w1 = m_VertexElems.GetTexcoord(pv1);
+		const Vector2 & w2 = m_VertexElems.GetTexcoord(pv2);
+		const Vector2 & w3 = m_VertexElems.GetTexcoord(pv3);
 
 		float x1 = v2.x - v1.x;
 		float x2 = v3.x - v1.x;
@@ -583,11 +583,11 @@ void OgreMesh::ComputeTangentFrame(void)
 	for(DWORD vertex_i = 0; vertex_i < GetNumVertices(); vertex_i++)
 	{
 		unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * VertexStride;
-		const Vector3 & n = m_elems.GetNormal(pVertex);
+		const Vector3 & n = m_VertexElems.GetNormal(pVertex);
 		const Vector3 & t = tan1[vertex_i];
 
 		// Gram-Schmidt orthogonalize
-		m_elems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
+		m_VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
 	}
 
 	UnlockVertexBuffer();

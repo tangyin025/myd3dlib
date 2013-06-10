@@ -47,21 +47,21 @@ DWORD Emitter::BuildInstance(
 	{
 		// ! Can optimize, because all point offset are constant
 		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
-		pEmitterInstance->m_VertexElemSet.SetPosition(pInstance, m_ParticleList[i].first->getPosition(), 1, 0);
+		pEmitterInstance->m_InstanceElems.SetPosition(pInstance, m_ParticleList[i].first->getPosition());
 
-		pEmitterInstance->m_VertexElemSet.SetColor(pInstance, D3DCOLOR_ARGB(
+		pEmitterInstance->m_InstanceElems.SetColor(pInstance, D3DCOLOR_ARGB(
 			m_ParticleColorA.Interpolate(m_ParticleList[i].second),
 			m_ParticleColorR.Interpolate(m_ParticleList[i].second),
 			m_ParticleColorG.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorB.Interpolate(m_ParticleList[i].second)), 1, 0);
+			m_ParticleColorB.Interpolate(m_ParticleList[i].second)));
 
-		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
+		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
 			m_ParticleSizeX.Interpolate(m_ParticleList[i].second),
 			m_ParticleSizeY.Interpolate(m_ParticleList[i].second),
 			m_ParticleAngle.Interpolate(m_ParticleList[i].second), 1));
 
 		unsigned int AnimFrame = (unsigned int)(m_ParticleList[i].second * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
-		pEmitterInstance->m_VertexElemSet.SetCustomType(pInstance, 1, D3DDECLUSAGE_TEXCOORD, 2, (unsigned int)D3DCOLOR_ARGB(
+		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 2, (DWORD)D3DCOLOR_ARGB(
 			0, 0, AnimFrame / m_ParticleAnimRow, AnimFrame % m_ParticleAnimColumn));
 	}
 	pEmitterInstance->m_InstanceData.Unlock();
@@ -131,7 +131,8 @@ HRESULT EmitterInstance::OnCreateDevice(
 	_ASSERT(!m_IndexData.m_ptr);
 	_ASSERT(!m_InstanceData.m_ptr);
 
-	m_Decl = m_VertexElemSet.CreateVertexDeclaration(pd3dDevice);
+	HRESULT hr;
+	V(pd3dDevice->CreateVertexDeclaration(&m_velist[0], &m_Decl));
 
 	return S_OK;
 }
@@ -145,10 +146,10 @@ HRESULT EmitterInstance::OnResetDevice(
 
 	m_VertexBuffer.CreateVertexBuffer(pd3dDevice, m_VertexStride * 4);
 	unsigned char * pVertices = (unsigned char *)m_VertexBuffer.Lock(0, m_VertexStride * 4);
-	m_VertexElemSet.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0,0), 0, 0);
-	m_VertexElemSet.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(1,0), 0, 0);
-	m_VertexElemSet.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1,1), 0, 0);
-	m_VertexElemSet.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0,1), 0, 0);
+	m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 0, Vector2(0,0));
+	m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 1, Vector2(1,0));
+	m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 2, Vector2(1,1));
+	m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0,1));
 	m_VertexBuffer.Unlock();
 
 	m_IndexData.CreateIndexBuffer(pd3dDevice, sizeof(DWORD) * 4);

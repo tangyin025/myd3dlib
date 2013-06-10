@@ -161,13 +161,17 @@ namespace my
 	public:
 		CComPtr<IDirect3DDevice9> m_Device;
 
-		D3DVERTEXELEMENT9Set m_VertexElemSet;
+		D3DVertexElementSet m_VertexElems;
 
 		VertexBuffer m_VertexBuffer;
 
 		IndexBuffer m_IndexData;
 
+		D3DVertexElementSet m_InstanceElems;
+
 		VertexBuffer m_InstanceData;
+
+		std::vector<D3DVERTEXELEMENT9> m_velist;
 
 		DWORD m_VertexStride;
 
@@ -178,19 +182,25 @@ namespace my
 	public:
 		EmitterInstance(void)
 		{
-			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateTexcoordElement(0, 0, 0));
-			WORD offset = 0;
-			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreatePositionElement(1, 0, 0));
-			offset += sizeof(D3DVERTEXELEMENT9Set::PositionType);
-			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateColorElement(1, offset, 0));
-			offset += sizeof(D3DVERTEXELEMENT9Set::ColorType);
-			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateCustomElement(1, D3DDECLUSAGE_TEXCOORD, 1, offset, D3DDECLTYPE_FLOAT4));
-			offset += sizeof(FLOAT) * 4;
-			m_VertexElemSet.insert(D3DVERTEXELEMENT9Set::CreateCustomElement(1, D3DDECLUSAGE_TEXCOORD, 2, offset, D3DDECLTYPE_UBYTE4));
-			offset += sizeof(UCHAR) * 4;
+			m_VertexElems.InsertTexcoordElement(0);
 
-			m_VertexStride = m_VertexElemSet.CalculateVertexStride(0);
-			m_InstanceStride = m_VertexElemSet.CalculateVertexStride(1);
+			m_InstanceElems.InsertPositionElement(0);
+			WORD offset = sizeof(Vector3);
+			m_InstanceElems.InsertColorElement(offset);
+			offset += sizeof(D3DCOLOR);
+			m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
+			offset += sizeof(Vector4);
+			m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_TEXCOORD, 2);
+			offset += sizeof(DWORD);
+
+			m_velist = m_VertexElems.BuildVertexElementList(0);
+			std::vector<D3DVERTEXELEMENT9> ielist = m_InstanceElems.BuildVertexElementList(1);
+			m_velist.insert(m_velist.end(), ielist.begin(), ielist.end());
+			D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+			m_velist.push_back(ve_end);
+
+			m_VertexStride = D3DXGetDeclVertexSize(&m_velist[0], 0);
+			m_InstanceStride = D3DXGetDeclVertexSize(&m_velist[0], 1);
 		}
 
 		virtual ~EmitterInstance(void)
