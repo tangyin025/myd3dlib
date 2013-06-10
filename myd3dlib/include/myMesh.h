@@ -239,7 +239,7 @@ namespace my
 	class D3DVertexElement
 	{
 	public:
-		BYTE Offset;
+		WORD Offset;
 
 		D3DDECLTYPE Type;
 
@@ -252,7 +252,7 @@ namespace my
 		{
 		}
 
-		D3DVertexElement(BYTE _Offset, D3DDECLTYPE _Type, D3DDECLMETHOD _Method)
+		D3DVertexElement(WORD _Offset, D3DDECLTYPE _Type, D3DDECLMETHOD _Method)
 			: Offset(_Offset)
 			, Type(_Type)
 			, Method(_Method)
@@ -276,7 +276,7 @@ namespace my
 		{
 		}
 
-		void InsertVertexElement(BYTE Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
+		void InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
 		{
 			_ASSERT(Type != D3DDECLTYPE_UNUSED);
 
@@ -312,9 +312,10 @@ namespace my
 					}
 				}
 			}
+			return ret;
 		}
 
-		void InsertPositionElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertPositionElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, UsageIndex, Method);
 		}
@@ -333,7 +334,7 @@ namespace my
 			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex, Position);
 		}
 
-		void InsertBlendWeightElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertBlendWeightElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, Method);
 		}
@@ -352,7 +353,7 @@ namespace my
 			return SetVertexElement<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, BlendWeight);
 		}
 
-		void InsertBlendIndicesElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_BLENDINDICES, UsageIndex, Method);
 		}
@@ -371,7 +372,7 @@ namespace my
 			return SetVertexElement<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex, BlendIndices);
 		}
 
-		void InsertNormalElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertNormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, UsageIndex, Method);
 		}
@@ -390,7 +391,7 @@ namespace my
 			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex, Normal);
 		}
 
-		void InsertTexcoordElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertTexcoordElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT2, D3DDECLUSAGE_TEXCOORD, UsageIndex, Method);
 		}
@@ -409,7 +410,7 @@ namespace my
 			return SetVertexElement<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex, Texcoord);
 		}
 
-		void InsertTangentElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertTangentElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_TANGENT, UsageIndex, Method);
 		}
@@ -428,7 +429,7 @@ namespace my
 			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex, Tangent);
 		}
 
-		void InsertBinormalElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertBinormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_BINORMAL, UsageIndex, Method);
 		}
@@ -447,7 +448,7 @@ namespace my
 			return SetVertexElement<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex, Binormal);
 		}
 
-		void InsertColorElement(BYTE Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
+		void InsertColorElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
 		{
 			InsertVertexElement(Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLUSAGE_COLOR, UsageIndex, Method);
 		}
@@ -813,7 +814,7 @@ namespace my
 	class OgreMesh : public Mesh
 	{
 	public:
-		D3DVERTEXELEMENT9Set m_VertexElemSet;
+		D3DVertexElementSet m_elems;
 
 		std::vector<std::string> m_MaterialNameList;
 
