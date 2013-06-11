@@ -603,9 +603,9 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromOgreXmlInMemory(
+		void CreateMeshFromOgreXmlInString(
 			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCSTR pSrcData,
+			LPSTR pSrcData,
 			UINT srcDataLen,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);

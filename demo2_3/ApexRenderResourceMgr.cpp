@@ -147,6 +147,7 @@ void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& contex
 	_ASSERT(renderResource->m_material);
 	IDirect3DDevice9 * pd3dDevice = Game::getSingleton().GetD3D9Device();
 	GameStateMain * state = static_cast<GameStateMain *>(Game::getSingleton().CurrentState());
+	renderResource->m_material->m_Effect->SetMatrix("g_World", (my::Matrix4 &)context.local2world);
 	renderResource->m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &renderResource->m_ApexBb->m_bones[0], renderResource->m_ApexBb->m_bones.size());
 	renderResource->m_material->ApplyParameterBlock();
 	HRESULT hr;

@@ -227,23 +227,23 @@ void OgreMesh::CreateMeshFromOgreXml(
 	}
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
-
-	CreateMeshFromOgreXmlInMemory(pd3dDevice, (LPCSTR)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	cache->push_back(0);
+	CreateMeshFromOgreXmlInString(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
 }
 
-void OgreMesh::CreateMeshFromOgreXmlInMemory(
+void OgreMesh::CreateMeshFromOgreXmlInString(
 	LPDIRECT3DDEVICE9 pd3dDevice,
-	LPCSTR pSrcData,
+	LPSTR pSrcData,
 	UINT srcDataLen,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
-	std::string xmlStr(pSrcData, srcDataLen);
+	_ASSERT(0 == pSrcData[srcDataLen-1]);
 
 	rapidxml::xml_document<char> doc;
 	try
 	{
-		doc.parse<0>(&xmlStr[0]);
+		doc.parse<0>(pSrcData);
 	}
 	catch(rapidxml::parse_error & e)
 	{

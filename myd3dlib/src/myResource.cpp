@@ -442,7 +442,8 @@ OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateMeshFromOgreXmlInMemory(m_Device, (char *)&(*cache)[0], cache->size(), true);
+			cache->push_back(0);
+			ret->CreateMeshFromOgreXmlInString(m_Device, (char *)&(*cache)[0], cache->size(), true);
 		}
 	}
 	return ret;
@@ -461,6 +462,7 @@ OgreSkeletonAnimationPtr ResourceMgr::LoadSkeleton(const std::string & path, boo
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
+			cache->push_back(0);
 			ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
 		}
 	}

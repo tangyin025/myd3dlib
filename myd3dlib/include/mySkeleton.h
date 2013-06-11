@@ -325,7 +325,7 @@ namespace my
 		}
 
 		void CreateOgreSkeletonAnimation(
-			LPCSTR pSrcData,
+			LPSTR pSrcData,
 			UINT srcDataLen);
 
 		void CreateOgreSkeletonAnimationFromFile(

@@ -386,17 +386,17 @@ BoneList & BoneTrackList::GetPose(
 }
 
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
-	LPCSTR pSrcData,
+	LPSTR pSrcData,
 	UINT srcDataLen)
 {
 	Clear();
 
-	std::string xmlStr(pSrcData, srcDataLen);
+	_ASSERT(0 == pSrcData[srcDataLen-1]);
 
 	rapidxml::xml_document<char> doc;
 	try
 	{
-		doc.parse<0>(&xmlStr[0]);
+		doc.parse<0>(pSrcData);
 	}
 	catch(rapidxml::parse_error & e)
 	{
@@ -537,6 +537,6 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	}
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
-
-	CreateOgreSkeletonAnimation((LPCSTR)&(*cache)[0], cache->size());
+	cache->push_back(0);
+	CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
 }
