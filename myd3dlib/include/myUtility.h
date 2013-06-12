@@ -467,4 +467,23 @@ namespace my
 			m_MaterialMap.clear();
 		}
 	};
+
+	class ResourceMgrEx : public ResourceMgr
+	{
+	public:
+		typedef std::map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
+
+		MaterialWeakPtrSet m_materialSet;
+
+	public:
+		ResourceMgrEx(void)
+		{
+		}
+
+		virtual ~ResourceMgrEx(void)
+		{
+		}
+
+		MaterialPtr LoadMaterial(const std::string & path, bool reload = false);
+	};
 }

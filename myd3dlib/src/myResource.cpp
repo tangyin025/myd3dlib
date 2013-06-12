@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #include "libc.h"
 
 using namespace my;
@@ -194,14 +195,6 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
 }
 
-ArchiveDirMgr::ArchiveDirMgr(void)
-{
-}
-
-ArchiveDirMgr::~ArchiveDirMgr(void)
-{
-}
-
 void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path)
 {
 	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
@@ -316,8 +309,6 @@ HRESULT ResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_Device = pd3dDevice;
-
 	HRESULT hr;
 	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
 	{
@@ -387,8 +378,6 @@ void ResourceMgr::OnDestroyDevice(void)
 	m_resourceSet.clear();
 
 	m_EffectPool.Release();
-
-	m_Device.Release();
 }
 
 TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
@@ -399,12 +388,12 @@ TexturePtr ResourceMgr::LoadTexture(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateTextureFromFile(m_Device, ms2ts(full_path.c_str()).c_str());
+			ret->CreateTextureFromFile(DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateTextureFromFileInMemory(m_Device, &(*cache)[0], cache->size());
+			ret->CreateTextureFromFileInMemory(DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -418,12 +407,12 @@ CubeTexturePtr ResourceMgr::LoadCubeTexture(const std::string & path, bool reloa
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateCubeTextureFromFile(m_Device, ms2ts(full_path.c_str()).c_str());
+			ret->CreateCubeTextureFromFile(DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateCubeTextureFromFileInMemory(m_Device, &(*cache)[0], cache->size());
+			ret->CreateCubeTextureFromFileInMemory(DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
 		}
 	}
 	return ret;
@@ -437,13 +426,13 @@ OgreMeshPtr ResourceMgr::LoadMesh(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(m_Device, full_path.c_str(), true);
+			ret->CreateMeshFromOgreXml(DxutApp::getSingleton().GetD3D9Device(), full_path.c_str(), true);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
 			cache->push_back(0);
-			ret->CreateMeshFromOgreXmlInString(m_Device, (char *)&(*cache)[0], cache->size(), true);
+			ret->CreateMeshFromOgreXmlInString(DxutApp::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 		}
 	}
 	return ret;
@@ -479,12 +468,12 @@ EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(m_Device, ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(DxutApp::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateEffect(m_Device, &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+			ret->CreateEffect(DxutApp::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
 		}
 	}
 	return ret;
@@ -498,12 +487,12 @@ FontPtr ResourceMgr::LoadFont(const std::string & path, int height, bool reload)
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateFontFromFile(m_Device, full_path.c_str(), height);
+			ret->CreateFontFromFile(DxutApp::getSingleton().GetD3D9Device(), full_path.c_str(), height);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateFontFromFileInCache(m_Device, cache, height);
+			ret->CreateFontFromFileInCache(DxutApp::getSingleton().GetD3D9Device(), cache, height);
 		}
 	}
 	return ret;

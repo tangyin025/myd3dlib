@@ -457,16 +457,16 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 	GenerateAdjacency((float)EPSILON_E6, &rgdwAdjacency[0]);
 	if(bComputeTangentFrame)
 	{
-		DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
-		if(!normals)
-			dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
-		HRESULT hres = D3DXComputeTangentFrameEx(
-			m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
-		if(FAILED(hres))
-		{
-			THROW_D3DEXCEPTION(hres);
-		}
-		//ComputeTangentFrame();
+		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
+		//if(!normals)
+		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
+		//HRESULT hres = D3DXComputeTangentFrameEx(
+		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		//if(FAILED(hres))
+		//{
+		//	THROW_D3DEXCEPTION(hres);
+		//}
+		ComputeTangentFrame();
 	}
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
 }

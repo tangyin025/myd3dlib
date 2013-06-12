@@ -3,6 +3,7 @@
 #include "libc.h"
 #include "myCollision.h"
 #include "myDxutApp.h"
+#include "rapidxml.hpp"
 
 using namespace my;
 
@@ -820,4 +821,67 @@ void Material::DrawMeshSubset(Mesh * pMesh, DWORD i)
 		m_Effect->EndPass();
 	}
 	m_Effect->End();
+}
+
+MaterialPtr ResourceMgrEx::LoadMaterial(const std::string & path, bool reload)
+{
+	MaterialPtr ret;
+	MaterialWeakPtrSet::const_iterator mat_iter = m_materialSet.find(path);
+	if(m_materialSet.end() != mat_iter)
+	{
+		ret = mat_iter->second.lock();
+		if(ret && !reload)
+		{
+			return ret;
+		}
+	}
+
+	ret.reset(new Material());
+
+	CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
+	cache->push_back(0);
+
+	rapidxml::xml_document<char> doc;
+	try
+	{
+		doc.parse<0>((char *)&(*cache)[0]);
+	}
+	catch(rapidxml::parse_error & e)
+	{
+		THROW_CUSEXCEPTION(e.what());
+	}
+
+	rapidxml::xml_node<char> * node_root = &doc;
+	DEFINE_XML_NODE_SIMPLE(material, root);
+	DEFINE_XML_NODE_SIMPLE(Shader, material);
+	rapidxml::xml_attribute<char> * attr_shader_path;
+	DEFINE_XML_ATTRIBUTE(attr_shader_path, node_Shader, path);
+
+	ret->m_Effect = LoadEffect(attr_shader_path->value(), reload);
+
+	DEFINE_XML_NODE_SIMPLE(parameter, material);
+	for(; node_parameter; node_parameter = node_parameter->next_sibling())
+	{
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
+		DEFINE_XML_ATTRIBUTE_SIMPLE(type, parameter);
+
+		if(0 == strcmp(attr_type->value(), "Vector4"))
+		{
+			DEFINE_XML_NODE_SIMPLE(Vector4, parameter);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, Vector4);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, Vector4);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, Vector4);
+			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, Vector4);
+			ret->SetVector(attr_name->value(), Vector4(x, y, z, w));
+		}
+		else if(0 == strcmp(attr_type->value(), "Texture"))
+		{
+			DEFINE_XML_NODE_SIMPLE(Texture, parameter);
+			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+			ret->SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
+		}
+	}
+
+	m_materialSet[path] = ret;
+	return ret;
 }

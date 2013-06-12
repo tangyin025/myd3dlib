@@ -246,7 +246,7 @@ public:
 
 class Game
 	: public my::DxutApp
-	, public my::ResourceMgr
+	, public my::ResourceMgrEx
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::MaterialMgr

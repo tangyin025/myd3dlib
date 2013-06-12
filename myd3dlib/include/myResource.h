@@ -144,9 +144,13 @@ namespace my
 		ResourceDirPtrMap m_dirMap;
 
 	public:
-		ArchiveDirMgr(void);
+		ArchiveDirMgr(void)
+		{
+		}
 
-		virtual ~ArchiveDirMgr(void);
+		virtual ~ArchiveDirMgr(void)
+		{
+		}
 
 		void RegisterZipArchive(const std::string & zip_path);
 
@@ -166,8 +170,6 @@ namespace my
 		, public ID3DXInclude
 	{
 	protected:
-		CComPtr<IDirect3DDevice9> m_Device;
-
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
 		std::string m_EffectInclude;
@@ -180,6 +182,10 @@ namespace my
 
 	public:
 		ResourceMgr(void)
+		{
+		}
+
+		virtual ~ResourceMgr(void)
 		{
 		}
 

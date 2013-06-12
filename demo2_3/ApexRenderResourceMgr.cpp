@@ -20,36 +20,7 @@ void* ApexResourceCallback::requestResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		std::string full_path = Game::getSingleton().GetFullPath(name);
-		if(full_path.empty())
-		{
-			THROW_CUSEXCEPTION("empty material path");
-		}
-
-		my::CachePtr cache = Game::getSingleton().OpenArchiveStream(full_path)->GetWholeCache();
-		std::string xmlStr((char *)&(*cache)[0], cache->size());
-		rapidxml::xml_document<char> doc;
-		try
-		{
-			doc.parse<0>(&xmlStr[0]);
-		}
-		catch (rapidxml::parse_error & e)
-		{
-			THROW_CUSEXCEPTION(e.what());
-		}
-
-		rapidxml::xml_node<char> * node_root = &doc;
-		DEFINE_XML_NODE_SIMPLE(material, root);
-		DEFINE_XML_NODE_SIMPLE(variables, material);
-		DEFINE_XML_NODE_SIMPLE(sampler2D, variables);
-		std::string tex_path(node_sampler2D->value());
-
-		my::Material * mat = new my::Material;
-		mat->m_Effect = Game::getSingleton().LoadEffect("shader/ApexEffect.fx");
-		mat->SetVector("g_MaterialAmbientColor", my::Vector4(0.1f,0.1f,0.1f,0.1f));
-		mat->SetVector("g_MaterialDiffuseColor", my::Vector4(1.0f,1.0f,1.0f,1.0f));
-		mat->SetTexture("g_MeshTexture", Game::getSingleton().LoadTexture(tex_path));
-		return mat;
+		return new my::MaterialPtr(Game::getSingleton().LoadMaterial(name));
 	}
 	return NULL;
 }
@@ -58,7 +29,7 @@ void  ApexResourceCallback::releaseResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		delete static_cast<my::Material *>(resource);
+		delete static_cast<my::MaterialPtr *>(resource);
 	}
 }
 
