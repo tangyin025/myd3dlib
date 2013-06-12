@@ -986,14 +986,18 @@ void Export2Lua(lua_State * L)
 			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
 			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
 
-		, class_<my::Material, my::EffectParameterMap, boost::shared_ptr<my::Material> >("Material")
+		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
 			.def(constructor<>())
 			.def_readwrite("Effect", &my::Material::m_Effect)
+			.def_readonly("ParameterMap", &my::Material::m_ParameterMap)
 
 		, class_<my::MaterialMgr>("MaterialMgr")
 			.def("InsertMaterial", &my::MaterialMgr::InsertMaterial)
 			.def("RemoveMaterial", &my::MaterialMgr::RemoveMaterial)
 			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
+
+		, class_<my::ResourceMgrEx, bases<my::ResourceMgr> >("ResourceMgrEx")
+			.def("LoadMaterial", &my::ResourceMgrEx::LoadMaterial)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
@@ -1021,7 +1025,9 @@ void Export2Lua(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Rotation", &my::FirstPersonCamera::m_Rotation)
 
-		, class_<Game, bases<my::DxutApp, my::ResourceMgr, my::TimerMgr, my::DialogMgr, my::MaterialMgr> >("Game")
+		, class_<PhysxSample, bases<my::DxutApp, my::ResourceMgrEx> >("PhysxSample")
+
+		, class_<Game, bases<PhysxSample, my::TimerMgr, my::DialogMgr, my::MaterialMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
 			.def("CurrentState", &Game::CurrentState)

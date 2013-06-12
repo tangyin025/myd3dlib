@@ -802,8 +802,8 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 
 void Material::ApplyParameterBlock(void)
 {
-	const_iterator param_iter = begin();
-	for(; param_iter != end(); param_iter++)
+	EffectParameterMap::const_iterator param_iter = m_ParameterMap.begin();
+	for(; param_iter != m_ParameterMap.end(); param_iter++)
 	{
 		param_iter->second->SetParameter(m_Effect.get(), param_iter->first);
 	}
@@ -872,13 +872,13 @@ MaterialPtr ResourceMgrEx::LoadMaterial(const std::string & path, bool reload)
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, Vector4);
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, Vector4);
 			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, Vector4);
-			ret->SetVector(attr_name->value(), Vector4(x, y, z, w));
+			ret->m_ParameterMap.SetVector(attr_name->value(), Vector4(x, y, z, w));
 		}
 		else if(0 == strcmp(attr_type->value(), "Texture"))
 		{
 			DEFINE_XML_NODE_SIMPLE(Texture, parameter);
 			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
-			ret->SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
+			ret->m_ParameterMap.SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
 		}
 	}
 

@@ -415,10 +415,12 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	class Material : public EffectParameterMap
+	class Material
 	{
 	public:
 		EffectPtr m_Effect;
+
+		EffectParameterMap m_ParameterMap;
 
 	public:
 		Material(void)
