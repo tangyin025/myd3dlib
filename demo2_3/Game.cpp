@@ -189,14 +189,9 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = PhysxSample::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
-	}
-
-	if(!PhysxSample::OnInit())
-	{
-		return E_FAIL;
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
@@ -256,7 +251,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = PhysxSample::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -285,7 +280,7 @@ void Game::OnLostDevice(void)
 
 	m_EmitterInst->OnLostDevice();
 
-	ResourceMgr::OnLostDevice();
+	PhysxSample::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -308,11 +303,9 @@ void Game::OnDestroyDevice(void)
 
 	m_UIRender.reset();
 
-	PhysxSample::OnShutdown();
-
 	RemoveAllTimer();
 
-	ResourceMgr::OnDestroyDevice();
+	PhysxSample::OnDestroyDevice();
 
 	ImeEditBox::Uninitialize();
 }

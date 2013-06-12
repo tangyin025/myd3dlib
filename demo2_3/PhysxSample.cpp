@@ -40,8 +40,20 @@ void PhysxSampleErrorCallback::reportError(PxErrorCode::Enum code, const char* m
 	}
 }
 
-bool PhysxSample::OnInit(void)
+HRESULT PhysxSample::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	if(FAILED(hr = DxutApp::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
+	if(FAILED(hr = ResourceMgrEx::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback)), m_Foundation))
 	{
 		THROW_CUSEXCEPTION("PxCreateFoundation failed");
@@ -69,10 +81,10 @@ bool PhysxSample::OnInit(void)
 	}
 
 	physx::apex::NxApexSDKDesc apexDesc;
-	apexDesc.outputStream = &PhysxSample::getSingleton().m_ErrorCallback;
+	apexDesc.outputStream = &m_ErrorCallback;
 	apexDesc.physXSDKVersion = PX_PHYSICS_VERSION;
-	apexDesc.physXSDK = PhysxSample::getSingleton().m_Physics.get();
-	apexDesc.cooking = PhysxSample::getSingleton().m_Cooking.get();
+	apexDesc.physXSDK = m_Physics.get();
+	apexDesc.cooking = m_Cooking.get();
 	apexDesc.renderResourceManager = &m_ApexUserRenderResMgr;
 	apexDesc.resourceCallback = &m_ApexResourceCallback;
 	if(!(m_ApexSDK.reset(NxCreateApexSDK(apexDesc)), m_ApexSDK))
@@ -95,16 +107,52 @@ bool PhysxSample::OnInit(void)
 	{
 		THROW_CUSEXCEPTION("PxInitExtensions failed");
 	}
-
-	return true;
+	return S_OK;
 }
 
-PhysxSample::SingleInstance * SingleInstance<PhysxSample>::s_ptr = NULL;
+HRESULT PhysxSample::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	if(FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
 
-void PhysxSample::OnShutdown(void)
+	if(FAILED(hr = ResourceMgrEx::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+	return S_OK;
+}
+
+void PhysxSample::OnLostDevice(void)
+{
+	ResourceMgrEx::OnLostDevice();
+
+	DxutApp::OnLostDevice();
+}
+
+void PhysxSample::OnDestroyDevice(void)
 {
 	if(m_Physics)
 		PxCloseExtensions();
+
+	m_ModuleDestructible.reset();
+
+	m_ApexSDK.reset();
+
+	m_CpuDispatcher.reset();
+
+	m_Cooking.reset();
+
+	m_Physics.reset();
+
+	m_Foundation.reset();
+
+	ResourceMgrEx::OnDestroyDevice();
+
+	DxutApp::OnDestroyDevice();
 }
 
 void StepperTask::run(void)
@@ -157,6 +205,11 @@ bool PhysxScene::OnInit(void)
 
 void PhysxScene::OnShutdown(void)
 {
+	_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+
+	m_ApexScene.reset();
+
+	m_Scene.reset();
 }
 
 void PhysxScene::OnTickPreRender(float dtime)

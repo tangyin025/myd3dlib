@@ -245,12 +245,10 @@ public:
 };
 
 class Game
-	: public my::DxutApp
-	, public my::ResourceMgrEx
+	: public PhysxSample
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::MaterialMgr
-	, public PhysxSample
 	, public GameStateMachine
 {
 public:
@@ -286,7 +284,7 @@ public:
 
 	static Game * getSingletonPtr(void)
 	{
-		return static_cast<Game *>(DxutApp::getSingletonPtr());
+		return static_cast<Game *>(PhysxSample::getSingletonPtr());
 	}
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))

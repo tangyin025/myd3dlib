@@ -234,6 +234,12 @@ void GameStateMain::OnDestroyDevice(void)
 
 	m_Characters.clear();
 
+	m_Actors.clear();
+
+	m_DestructibleActors.clear();
+
+	m_DestructibleAssets.clear();
+
 	PhysxScene::OnShutdown();
 }
 

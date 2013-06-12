@@ -26,7 +26,8 @@ public:
 };
 
 class PhysxSample
-	: public my::SingleInstance<PhysxSample>
+	: public my::DxutApp
+	, public my::ResourceMgrEx
 {
 public:
 	PhysxSampleAllocator m_Allocator;
@@ -56,9 +57,27 @@ public:
 	{
 	}
 
-	bool OnInit(void);
+	static PhysxSample & getSingleton(void)
+	{
+		return *getSingletonPtr();
+	}
 
-	void OnShutdown(void);
+	static PhysxSample * getSingletonPtr(void)
+	{
+		return static_cast<PhysxSample *>(DxutApp::getSingletonPtr());
+	}
+
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 };
 
 class PhysxScene;
@@ -109,7 +128,6 @@ public:
 
 	virtual ~PhysxScene(void)
 	{
-		_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 	}
 
 	bool OnInit(void);
