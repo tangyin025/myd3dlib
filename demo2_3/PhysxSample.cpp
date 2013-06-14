@@ -61,11 +61,11 @@ HRESULT PhysxSample::OnCreateDevice(
 
 	if(!(m_Physics.reset(PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
 #ifdef _DEBUG
-		true
+		true,
 #else
-		false
+		false,
 #endif
-		)), m_Physics))
+		NULL)), m_Physics))
 	{
 		THROW_CUSEXCEPTION("PxCreatePhysics failed");
 	}
@@ -188,6 +188,10 @@ bool PhysxScene::OnInit(void)
 		THROW_CUSEXCEPTION("m_ApexSDK->createScene failed");
 	}
 
+	m_ViewMatrixID = m_ApexScene->allocViewMatrix(physx::apex::ViewMatrixType::LOOK_AT_RH);
+	m_ProjMatrixID = m_ApexScene->allocProjMatrix(physx::apex::ProjMatrixType::USER_CUSTOMIZED);
+	m_ApexScene->setUseViewProjMatrix(m_ViewMatrixID, m_ProjMatrixID);
+
 	//NxParameterized::Interface * params = m_ApexScene->getDebugRenderParams();
 	//NxParameterized::setParamF32(*params, "VISUALIZATION_ENABLE", 1.0f);
 	//NxParameterized::setParamF32(*params, "VISUALIZATION_SCALE", 1.0f);
@@ -210,6 +214,21 @@ void PhysxScene::OnShutdown(void)
 	m_ApexScene.reset();
 
 	m_Scene.reset();
+}
+
+void PhysxScene::SetProjParams(float nz, float fz, float fov, DWORD ViewportWidth, DWORD ViewportHeight)
+{
+	m_ApexScene->setProjParams(nz, fz, D3DXToDegree(fov), ViewportWidth, ViewportHeight, m_ProjMatrixID);
+}
+
+void PhysxScene::SetViewMatrix(const my::Matrix4 & View)
+{
+	m_ApexScene->setViewMatrix(PxMat44(&const_cast<my::Matrix4 &>(View)._11));
+}
+
+void PhysxScene::SetProjMatrix(const my::Matrix4 & Proj)
+{
+	m_ApexScene->setProjMatrix(PxMat44(&const_cast<my::Matrix4 &>(Proj)._11));
 }
 
 void PhysxScene::OnTickPreRender(float dtime)
@@ -254,7 +273,9 @@ void PhysxScene::Substep(StepperTask & completionTask)
 
 void PhysxScene::SubstepDone(StepperTask * ownerTask)
 {
-	m_ApexScene->fetchResults(true, NULL);
+	m_ApexScene->fetchResults(true, &m_ErrorState);
+
+	_ASSERT(0 == m_ErrorState);
 
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
 	{

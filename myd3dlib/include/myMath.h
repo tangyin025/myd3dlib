@@ -2184,7 +2184,7 @@ namespace my
 			return Matrix4(1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, v.x, v.y, v.z, 1);
 		}
 
-		Matrix4 transpose(void)
+		Matrix4 transpose(void) const
 		{
 			return Matrix4(
 				_11, _21, _31, _41,
@@ -2193,7 +2193,7 @@ namespace my
 				_14, _24, _34, _44);
 		}
 
-		Matrix4 transformTranspose(const Matrix4 & rhs)
+		Matrix4 transformTranspose(const Matrix4 & rhs) const
 		{
 			return Matrix4(
 				_11 * rhs._11 + _12 * rhs._12 + _13 * rhs._13 + _14 * rhs._14,

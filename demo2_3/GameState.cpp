@@ -259,12 +259,9 @@ void GameStateMain::OnFrameMove(
 
 	D3DVIEWPORT9 vp;
 	Game::getSingleton().GetD3D9Device()->GetViewport(&vp);
-	static const physx::PxU32 viewIDlookAtRightHand = m_ApexScene->allocViewMatrix(physx::apex::ViewMatrixType::LOOK_AT_RH);
-	static const physx::PxU32 projIDperspectiveCubicRightHand = m_ApexScene->allocProjMatrix(physx::apex::ProjMatrixType::USER_CUSTOMIZED);
-	m_ApexScene->setViewMatrix(PxMat44(&(m_Camera->m_View.transpose()._11)), viewIDlookAtRightHand);
-	m_ApexScene->setProjMatrix(PxMat44(&(m_Camera->m_Proj.transpose()._11)), projIDperspectiveCubicRightHand);
-	m_ApexScene->setProjParams(m_Camera->m_Nz, m_Camera->m_Fz, D3DXToDegree(m_Camera->m_Fov), vp.Width, vp.Height, projIDperspectiveCubicRightHand);
-	m_ApexScene->setUseViewProjMatrix(viewIDlookAtRightHand, projIDperspectiveCubicRightHand);
+	PhysxScene::SetViewMatrix(m_Camera->m_View);
+	PhysxScene::SetProjMatrix(m_Camera->m_Proj);
+	PhysxScene::SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
 
 	PhysxScene::OnTickPreRender(fElapsedTime);
 }

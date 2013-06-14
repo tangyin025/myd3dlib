@@ -114,7 +114,13 @@ public:
 
 	bool m_WaitForResults;
 
+	physx::PxU32 m_ErrorState;
+
 	PhysxPtr<PxMaterial> m_Material;
+
+	physx::PxU32 m_ViewMatrixID;
+
+	physx::PxU32 m_ProjMatrixID;
 
 public:
 	PhysxScene(void)
@@ -123,6 +129,7 @@ public:
 		, m_Completion1(this)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
+		, m_ErrorState(0)
 	{
 	}
 
@@ -133,6 +140,12 @@ public:
 	bool OnInit(void);
 
 	void OnShutdown(void);
+
+	void SetProjParams(float nz, float fz, float fov, DWORD ViewportWidth, DWORD ViewportHeight);
+
+	void SetViewMatrix(const my::Matrix4 & View);
+
+	void SetProjMatrix(const my::Matrix4 & Proj);
 
 	void OnTickPreRender(float dtime);
 

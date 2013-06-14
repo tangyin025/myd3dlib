@@ -9,7 +9,7 @@ float4 g_MaterialAmbientColor;
 float4 g_MaterialDiffuseColor;
 texture g_MeshTexture;
 float g_ZOff;
-float4x4 g_BoneMatrices[60];
+float4x3 g_BoneMatrices[60];
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
@@ -47,10 +47,10 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     float3 vNormalWorldSpace;
 	
-	float4 p0 = mul(vPos, g_BoneMatrices[BlendIndices.x]);
+	float3 p0 = mul(vPos, g_BoneMatrices[BlendIndices.x]);
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(p0, mul(g_World, g_ViewProj));
+    Output.Position = mul(float4(p0,1.0), mul(g_World, g_ViewProj));
 	Output.Position.z -= g_ZOff;
     
     // Transform the normal from object space to world space    
