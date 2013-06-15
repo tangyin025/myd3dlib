@@ -124,24 +124,6 @@ void Clock::Update(void)
 
 Clock::SingleInstance * SingleInstance<Clock>::s_ptr = NULL;
 
-DxutApp::DxutApp(void)
-	: m_DeviceObjectsCreated(false)
-	, m_DeviceObjectsReset(false)
-	, m_FullScreenBackBufferWidthAtModeChange(0)
-	, m_FullScreenBackBufferHeightAtModeChange(0)
-	, m_WindowBackBufferWidthAtModeChange(800)
-	, m_WindowBackBufferHeightAtModeChange(600)
-	, m_IgnoreSizeChange(false)
-	, m_DeviceLost(false)
-	, m_dwFrames(0)
-	, m_fLastTime(0)
-{
-}
-
-DxutApp::~DxutApp(void)
-{
-}
-
 int DxutApp::Run(void)
 {
 	m_wnd = DxutWindowPtr(new DxutWindow());

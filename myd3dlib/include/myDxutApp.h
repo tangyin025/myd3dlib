@@ -61,20 +61,18 @@ namespace my
 			Update();
 		}
 
+		virtual ~Clock(void)
+		{
+		}
+
 		void Update(void);
 	};
 
-	class DxutApp
+	class D3DContext
 		: public Clock
-		, public Application
-		, public CD3D9Enumeration
 	{
 	protected:
-		HRESULT hr;
-
 		CComPtr<IDirect3D9> m_d3d9;
-
-		DxutWindowPtr m_wnd;
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
 
@@ -85,6 +83,53 @@ namespace my
 		bool m_DeviceObjectsCreated;
 
 		bool m_DeviceObjectsReset;
+
+	public:
+		D3DContext(void)
+			: m_DeviceObjectsCreated(false)
+			, m_DeviceObjectsReset(false)
+		{
+		}
+
+		virtual ~D3DContext(void)
+		{
+		}
+
+		static D3DContext & getSingleton(void)
+		{
+			return *getSingletonPtr();
+		}
+
+		static D3DContext * getSingletonPtr(void)
+		{
+			return static_cast<D3DContext *>(Clock::getSingletonPtr());
+		}
+
+		IDirect3DDevice9 * GetD3D9Device(void)
+		{
+			return m_d3dDevice;
+		}
+
+		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
+		{
+			return m_BackBufferSurfaceDesc;
+		}
+
+		DXUTD3D9DeviceSettings GetD3D9DeviceSettings(void)
+		{
+			return m_DeviceSettings;
+		}
+	};
+
+	class DxutApp
+		: public D3DContext
+		, public Application
+		, public CD3D9Enumeration
+	{
+	protected:
+		HRESULT hr;
+
+		DxutWindowPtr m_wnd;
 
 		UINT m_FullScreenBackBufferWidthAtModeChange;
 
@@ -109,9 +154,21 @@ namespace my
 		wchar_t m_strFPS[64];
 
 	public:
-		DxutApp(void);
+		DxutApp(void)
+			: m_FullScreenBackBufferWidthAtModeChange(0)
+			, m_FullScreenBackBufferHeightAtModeChange(0)
+			, m_WindowBackBufferWidthAtModeChange(800)
+			, m_WindowBackBufferHeightAtModeChange(600)
+			, m_IgnoreSizeChange(false)
+			, m_DeviceLost(false)
+			, m_dwFrames(0)
+			, m_fLastTime(0)
+		{
+		}
 
-		virtual ~DxutApp(void);
+		virtual ~DxutApp(void)
+		{
+		}
 
 		static DxutApp & getSingleton(void)
 		{
@@ -120,22 +177,7 @@ namespace my
 
 		static DxutApp * getSingletonPtr(void)
 		{
-			return static_cast<DxutApp *>(Clock::getSingletonPtr());
-		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return m_d3dDevice;
-		}
-
-		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
-		{
-			return m_BackBufferSurfaceDesc;
-		}
-
-		DXUTD3D9DeviceSettings GetD3D9DeviceSettings(void)
-		{
-			return m_DeviceSettings;
+			return static_cast<DxutApp *>(D3DContext::getSingletonPtr());
 		}
 
 		virtual bool IsDeviceAcceptable(
