@@ -72,6 +72,8 @@ namespace my
 		: public Clock
 	{
 	protected:
+		HRESULT hr;
+
 		CComPtr<IDirect3D9> m_d3d9;
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
@@ -127,8 +129,6 @@ namespace my
 		, public CD3D9Enumeration
 	{
 	protected:
-		HRESULT hr;
-
 		DxutWindowPtr m_wnd;
 
 		UINT m_FullScreenBackBufferWidthAtModeChange;

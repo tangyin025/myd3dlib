@@ -7,14 +7,6 @@ class StaticMeshTreeNode : public TreeNodeBase
 protected:
 	my::OgreMeshPtr m_mesh;
 
-	//boost::shared_ptr<btTriangleIndexVertexArray> m_indexVertexArray;
-
-	//boost::shared_ptr<btBvhTriangleMeshShape> m_meshShape;
-
-	//boost::shared_ptr<btDefaultMotionState> m_motionState;
-
-	//boost::shared_ptr<btRigidBody> m_rigidBody;
-
 public:
 	StaticMeshTreeNode(void)
 	{
@@ -23,8 +15,6 @@ public:
 	virtual ~StaticMeshTreeNode(void);
 
 	void SetMesh(my::OgreMeshPtr mesh);
-
-	//virtual btRigidBody * GetRigidBody(void) { return m_rigidBody.get(); }
 
 	static void DrawStaticMeshTreeNode(
 		StaticMeshTreeNode * node,

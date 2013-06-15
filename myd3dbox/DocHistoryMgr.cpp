@@ -14,31 +14,6 @@ void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
 	ASSERT(mesh);
 
 	m_mesh = mesh;
-
-	//VOID * pIndices = m_mesh->LockIndexBuffer();
-
-	//VOID * pVertices = m_mesh->LockVertexBuffer();
-
-	//m_indexVertexArray.reset(new btTriangleIndexVertexArray(
-	//	m_mesh->GetNumFaces(),
-	//	(int *)pIndices,
-	//	sizeof(DWORD) * 3,
-	//	m_mesh->GetNumVertices(),
-	//	(btScalar *)pVertices,
-	//	m_mesh->m_VertexElemSet.CalculateVertexStride()));
-
-	//m_meshShape.reset(new btBvhTriangleMeshShape(
-	//	m_indexVertexArray.get(), true, btVector3(-1000,-1000,-1000), btVector3(1000,1000,1000)));
-
-	//m_mesh->UnlockVertexBuffer();
-
-	//m_mesh->UnlockIndexBuffer();
-
-	//m_motionState.reset(new btDefaultMotionState(btTransform::getIdentity()));
-
-	//m_rigidBody.reset(new btRigidBody(0, m_motionState.get(), m_meshShape.get(), btVector3(0,0,0)));
-
-	//m_rigidBody->setContactProcessingThreshold(1e18f);
 }
 
 void StaticMeshTreeNode::DrawStaticMeshTreeNode(
@@ -48,20 +23,18 @@ void StaticMeshTreeNode::DrawStaticMeshTreeNode(
 	DWORD RenderMode,
 	my::Vector4 & Color)
 {
-	my::Effect * pSimpleSample = CMainFrame::getSingleton().m_SimpleSample.get();
+	my::Effect * pSimpleSample = CMainView::getSingleton().m_SimpleSample.get();
 
 	DWORD OldState;
 	pd3dDevice->GetRenderState(D3DRS_FILLMODE, &OldState);
-	FLOAT OldZOff = pSimpleSample->GetFloat("g_ZOff");
 	if(CMainView::RenderModeWire == RenderMode)
 	{
 		pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-		pSimpleSample->SetFloat("g_ZOff", 0.001f);
 	}
 
 	pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
 	pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
-	pSimpleSample->SetTexture("g_MeshTexture", CMainFrame::getSingleton().m_WhiteTex->m_ptr);
+	pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex->m_ptr);
 	UINT cPasses = pSimpleSample->Begin();
 	for(UINT p = 0; p < cPasses; p++)
 	{
@@ -76,7 +49,6 @@ void StaticMeshTreeNode::DrawStaticMeshTreeNode(
 
 	if(CMainView::RenderModeWire == RenderMode)
 	{
-		pSimpleSample->SetFloat("g_ZOff", OldZOff);
 		pd3dDevice->SetRenderState(D3DRS_FILLMODE, OldState);
 	}
 }

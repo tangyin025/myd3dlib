@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "MainDoc.h"
+#include "MainApp.h"
 #include "MainFrm.h"
 #include "MainView.h"
 #include "resource.h"
@@ -97,7 +98,7 @@ void CMainDoc::OnCreateStaticmesh()
 	{
 		try
 		{
-			my::OgreMeshPtr mesh = CMainFrame::getSingleton().LoadMesh(ws2ms(dlg.GetPathName()));
+			my::OgreMeshPtr mesh = theApp.LoadMesh(ws2ms(dlg.GetPathName()));
 
 			static unsigned int i = 0;
 			CString strItem;

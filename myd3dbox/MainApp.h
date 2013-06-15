@@ -4,7 +4,8 @@
 
 class CMainApp
 	: public CWinAppEx
-	, public my::Clock
+	, public my::D3DContext
+	, public my::ResourceMgr
 {
 public:
 	CMainApp(void)
@@ -16,9 +17,13 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 public:
-	CComPtr<IDirect3D9> m_d3d9;
-
 	virtual BOOL OnIdle(LONG lCount);
+
+	BOOL CreateD3DDevice(HWND hWnd);
+
+	BOOL ResetD3DDevice(void);
+
+	void DestroyD3DDevice(void);
 };
 
 extern CMainApp theApp;

@@ -9,63 +9,10 @@ using namespace my;
 #define new DEBUG_NEW
 #endif
 
-void EffectUIRender::Begin(void)
-{
-	CRect rectClient;
-	CMainView::getSingleton().GetClientRect(&rectClient);
-	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
-
-	m_Passes = m_UIEffect->Begin();
-}
-
-void EffectUIRender::End(void)
-{
-	m_UIEffect->End();
-
-	m_Passes = 0;
-}
-
-void EffectUIRender::SetWorld(const Matrix4 & World)
-{
-	m_UIEffect->SetMatrix("g_World", World);
-}
-
-void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
-{
-	m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
-}
-
-void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
-{
-	_ASSERT(CMainFrame::getSingleton().m_WhiteTex);
-
-	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainFrame::getSingleton().m_WhiteTex->m_ptr);
-}
-
-void EffectUIRender::DrawVertexList(void)
-{
-	if(vertex_count > 0)
-	{
-		for(UINT p = 0; p < m_Passes; p++)
-		{
-			m_UIEffect->BeginPass(p);
-			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
-			m_UIEffect->EndPass();
-		}
-	}
-}
-
-CMainFrame::SingleInstance * SingleInstance<CMainFrame>::s_ptr(NULL);
-
 IMPLEMENT_DYNCREATE(CMainFrame, CFrameWndEx)
 
 CMainFrame::CMainFrame(void)
 {
-	RegisterFileDir("Media");
-	RegisterZipArchive("Media.zip");
-	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipArchive("..\\demo2_3\\Media.zip");
 }
 
 BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
@@ -86,47 +33,11 @@ static UINT indicators[] =
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	TRACE0("CMainFrame::OnCreate \n");
-
-	ZeroMemory(&m_d3dpp, sizeof(m_d3dpp));
-    m_d3dpp.Windowed = TRUE;
-    m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    m_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
-	m_d3dpp.hDeviceWindow = m_hWnd;
-	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-
-	HRESULT hr;
-	if(FAILED(hr = theApp.m_d3d9->CreateDevice(
-		D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, m_hWnd, D3DCREATE_SOFTWARE_VERTEXPROCESSING, &m_d3dpp, &m_d3dDevice)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+	if (!theApp.CreateD3DDevice(m_hWnd))
 		return -1;
-	}
-	m_DeviceObjectsCreated = true;
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
-	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, NULL)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return -1;
-	}
-
-	m_UIRender.reset(new EffectUIRender(m_d3dDevice, LoadEffect("shader/UIEffect.fx")));
-
-	m_WhiteTex = LoadTexture("texture/white.bmp");
-
-	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
-
-	m_SimpleSample = LoadEffect("shader/SimpleSample.fx");
-
-	if(FAILED(hr = OnDeviceReset()))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return -1;
-	}
-	m_DeviceObjectsReset = true;
 
 	OnApplicationLook(theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WIN_2000));
 
@@ -258,84 +169,7 @@ void CMainFrame::OnUpdateApplicationLook(CCmdUI* pCmdUI)
 
 void CMainFrame::OnDestroy()
 {
-	if(m_DeviceObjectsReset)
-	{
-		OnDeviceLost();
-		m_DeviceObjectsReset = false;
-	}
-
-	TRACE0("CMainFrame::OnDestroy \n");
-
-	m_UIRender.reset();
-
 	CFrameWndEx::OnDestroy();
 
-	if(m_DeviceObjectsCreated)
-	{
-		//EmitterInstance::OnDestroyDevice();
-
-		ResourceMgr::OnDestroyDevice();
-
-		UINT references = m_d3dDevice.Detach()->Release();
-		if(references > 0)
-		{
-			CString msg;
-			msg.Format(_T("no zero reference count: %u"), references);
-			AfxMessageBox(msg);
-		}
-		m_DeviceObjectsCreated = false;
-	}
-}
-
-HRESULT CMainFrame::ResetD3DDevice(void)
-{
-	if(m_DeviceObjectsReset)
-	{
-		OnDeviceLost();
-		m_DeviceObjectsReset = false;
-	}
-
-	HRESULT hr;
-	if(FAILED(hr = m_d3dDevice->Reset(&m_d3dpp)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
-
-	if(FAILED(hr = OnDeviceReset()))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
-	m_DeviceObjectsReset = true;
-
-	return S_OK;
-}
-
-HRESULT CMainFrame::OnDeviceReset(void)
-{
-	TRACE0("CMainFrame::OnDeviceReset \n");
-
-	HRESULT hr;
-	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, NULL)))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
-
-	if(FAILED(hr = CMainView::getSingleton().OnDeviceReset()))
-	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
-	}
-	return S_OK;
-}
-
-void CMainFrame::OnDeviceLost(void)
-{
-	TRACE0("CMainFrame::OnDeviceLost \n");
-
-	ResourceMgr::OnLostDevice();
-
-	CMainView::getSingleton().OnDeviceLost();
+	theApp.DestroyD3DDevice();
 }

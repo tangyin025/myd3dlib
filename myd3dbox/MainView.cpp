@@ -9,6 +9,53 @@ using namespace my;
 #define new DEBUG_NEW
 #endif
 
+void EffectUIRender::Begin(void)
+{
+	CRect rectClient;
+	CMainView::getSingleton().GetClientRect(&rectClient);
+	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+
+	m_Passes = m_UIEffect->Begin();
+}
+
+void EffectUIRender::End(void)
+{
+	m_UIEffect->End();
+
+	m_Passes = 0;
+}
+
+void EffectUIRender::SetWorld(const Matrix4 & World)
+{
+	m_UIEffect->SetMatrix("g_World", World);
+}
+
+void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
+{
+	m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+}
+
+void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+{
+	_ASSERT(CMainView::getSingleton().m_WhiteTex);
+
+	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
+}
+
+void EffectUIRender::DrawVertexList(void)
+{
+	if(vertex_count > 0)
+	{
+		for(UINT p = 0; p < m_Passes; p++)
+		{
+			m_UIEffect->BeginPass(p);
+			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+			m_UIEffect->EndPass();
+		}
+	}
+}
+
 CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
 
 IMPLEMENT_DYNCREATE(CMainView, CView)
@@ -32,12 +79,9 @@ END_MESSAGE_MAP()
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
 {
-	CMainFrame * pFrame = CMainFrame::getSingletonPtr();
-	ASSERT(pFrame);
-
-	pFrame->m_UIRender->SetWorld(Matrix4::identity);
-	pFrame->m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
-	pFrame->m_UIRender->Begin();
+	m_UIRender->SetWorld(Matrix4::identity);
+	m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
+	m_UIRender->Begin();
 
 	Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
 
@@ -45,10 +89,9 @@ void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR 
 
 	Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
 
-	pFrame->m_Font->DrawString(
-		pFrame->m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+	m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
 
-	pFrame->m_UIRender->End();
+	m_UIRender->End();
 }
 
 CMainDoc * CMainView::GetDocument() const
@@ -62,21 +105,17 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx")));
+
+	m_WhiteTex = theApp.LoadTexture("texture/white.bmp");
+
+	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
+
+	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx");
+
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
 	m_Camera.m_Distance = 20;
-
-	//m_Character.reset(new my::Kinematic(Vector3(0,0,0),D3DXToRadian(0),Vector3(0,0,2),0));
-
-	//m_Seek.character = m_Character.get();
-	//m_Seek.target = Vector3(5,0,5);
-	//m_Seek.maxAcceleration = 2.0f;
-
-	//m_Arrive.character = m_Character.get();
-	//m_Arrive.target = Vector3(5,0,5);
-	//m_Arrive.maxAcceleration = 2.0f;
-	//m_Arrive.radius = 0.2f;
-	//m_Arrive.timeToTarget = 2.0f;
 
 	return 0;
 }
@@ -94,25 +133,22 @@ void CMainView::OnPaint()
 
 	if(m_d3dSwapChain)
 	{
-		OnFrameRender(CMainFrame::getSingleton().m_d3dDevice, theApp.m_fAbsoluteTime, 0);
-	}
+		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, 0);
 
-	m_Tracker.Draw(&dc);
+		m_Tracker.Draw(&dc);
+	}
 }
 
 void CMainView::OnSize(UINT nType, int cx, int cy)
 {
 	CView::OnSize(nType, cx, cy);
 
-	if(cx > 0 && cy > 0 && m_d3dSwapChain)
+	if(cx > 0 && cy > 0)
 	{
 		OnDeviceLost();
 
-		HRESULT hr;
-		if(FAILED(hr = OnDeviceReset()))
-		{
-			TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		}
+		// ! 在初始化窗口时，会被反复创建多次
+		ResetD3DSwapChain();
 	}
 }
 
@@ -121,7 +157,7 @@ BOOL CMainView::OnEraseBkgnd(CDC* pDC)
 	return TRUE;
 }
 
-HRESULT CMainView::OnDeviceReset(void)
+BOOL CMainView::ResetD3DSwapChain(void)
 {
 	D3DPRESENT_PARAMETERS d3dpp = {0};
 	d3dpp.Windowed = TRUE;
@@ -130,11 +166,11 @@ HRESULT CMainView::OnDeviceReset(void)
 	d3dpp.hDeviceWindow = m_hWnd;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-	HRESULT hr = CMainFrame::getSingleton().m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
+	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
 		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
-		return hr;
+		return FALSE;
 	}
 
 	Surface BackBuffer;
@@ -144,31 +180,18 @@ HRESULT CMainView::OnDeviceReset(void)
 	DialogMgr::SetDlgViewport(Vector2((float)desc.Width, (float)desc.Height));
 
 	m_DepthStencil.CreateDepthStencilSurface(
-		CMainFrame::getSingleton().m_d3dDevice, desc.Width, desc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+		theApp.GetD3D9Device(), desc.Width, desc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
 	m_Camera.m_Aspect = (float)desc.Width / desc.Height;
 
-	return S_OK;
+	return TRUE;
 }
 
 void CMainView::OnDeviceLost(void)
 {
 	m_DepthStencil.OnDestroyDevice();
-	m_d3dSwapChain.Release();
-}
 
-void CMainView::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	//SteeringOutput steer;
-	////m_Seek.getSteering(&steer);
-	//m_Arrive.getSteering(&steer);
-	//m_Character->integrate(steer, 0.35f, 0.01f);
-	//m_Character->setOrientationFromVelocity(m_Character->velocity);
-	//m_Character->trimMaxSpeed(2.0f);
-	//m_Character->position.x = Round(m_Character->position.x, -10.0f, 10.0f);
-	//m_Character->position.y = Round(m_Character->position.y, -10.0f, 10.0f);
+	m_d3dSwapChain.Release();
 }
 
 void CMainView::OnFrameRender(
@@ -184,12 +207,11 @@ void CMainView::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
 	V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		CMainFrame * pFrame = CMainFrame::getSingletonPtr();
-		ASSERT(pFrame);
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
 		m_Camera.OnFrameMove(0,0);
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
@@ -206,11 +228,11 @@ void CMainView::OnFrameRender(
 			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
 		}
 
-		pFrame->m_SimpleSample->SetFloat("g_Time", (float)fTime);
-		pFrame->m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
-		pFrame->m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
-		pFrame->m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
-		pFrame->m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+		m_SimpleSample->SetFloat("g_Time", (float)fTime);
+		m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+		m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
+		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
@@ -228,23 +250,18 @@ void CMainView::OnFrameRender(
 			break;
 		}
 
-		//Matrix4 CharaTransform = Matrix4::RotationY(m_Character->orientation) * Matrix4::Translation(m_Character->position);
-		//DrawSphere(pd3dDevice, 0.05f, D3DCOLOR_ARGB(255,255,0,0), CharaTransform);
-		//DrawLine(pd3dDevice, Vector3(0,0,0), Vector3(0,0,0.3f), D3DCOLOR_ARGB(255,255,255,0), CharaTransform);
-		//DrawLine(pd3dDevice, m_Character->position, m_Seek.target, D3DCOLOR_ARGB(255,0,255,0));
-
 		DrawTextAtWorld(Vector3(10,0,0), _T("x"), D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,10), _T("z"), D3DCOLOR_ARGB(255,255,255,0));
 
-		pFrame->m_UIRender->SetWorld(Matrix4::identity);
-		pFrame->m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
-		pFrame->m_UIRender->Begin();
+		m_UIRender->SetWorld(Matrix4::identity);
+		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
+		m_UIRender->Begin();
 		CString strText;
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		pFrame->m_Font->DrawString(
-			pFrame->m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
-		pFrame->m_UIRender->End();
+		m_Font->DrawString(
+			m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		m_UIRender->End();
 
 		V(pd3dDevice->EndScene());
 	}
@@ -253,7 +270,7 @@ void CMainView::OnFrameRender(
 	{
 		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
 		{
-			CMainFrame::getSingleton().ResetD3DDevice();
+			theApp.ResetD3DDevice();
 		}
 	}
 }
