@@ -3,6 +3,7 @@
 #include "Game.h"
 #include "GameState.h"
 #include <rapidxml.hpp>
+#include <PxMat34Legacy.h>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -262,7 +263,7 @@ void ApexRenderVertexBuffer::writeBuffer(const physx::NxApexRenderVertexBufferDa
 ApexRenderIndexBuffer::ApexRenderIndexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderIndexBufferDesc&desc)
 {
 	_ASSERT(desc.format == physx::apex::NxRenderDataFormat::UINT1);
-	m_ib.CreateIndexBuffer(pd3dDevice, sizeof(DWORD) * desc.maxIndices, 0, D3DFMT_INDEX32, D3DPOOL_MANAGED);
+	m_ib.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * desc.maxIndices, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
 }
 
 ApexRenderIndexBuffer::~ApexRenderIndexBuffer(void)
@@ -271,10 +272,10 @@ ApexRenderIndexBuffer::~ApexRenderIndexBuffer(void)
 
 void ApexRenderIndexBuffer::writeBuffer(const void* srcData, physx::PxU32 srcStride, physx::PxU32 firstDestElement, physx::PxU32 numElements)
 {
-	DWORD * pIndices = (DWORD *)m_ib.Lock(sizeof(DWORD) * firstDestElement, sizeof(DWORD) * numElements, 0);
-	for(unsigned int i = 0; i < numElements; i++)
+	WORD * pIndices = (WORD *)m_ib.Lock(sizeof(WORD) * firstDestElement, sizeof(WORD) * numElements, 0);
+	for(unsigned int j = 0; j < numElements; j++)
 	{
-		pIndices[i] = *(unsigned int *)((unsigned char *)srcData + srcStride * i);
+		pIndices[j] = *(unsigned int *)((unsigned char *)srcData + srcStride * j);
 	}
 	m_ib.Unlock();
 }
@@ -293,10 +294,10 @@ void ApexRenderBoneBuffer::writeBuffer(const physx::NxApexRenderBoneBufferData& 
 	const physx::apex::NxApexRenderSemanticData & semanticData = data.getSemanticData(physx::apex::NxRenderBoneSemantic::POSE);
 	if(semanticData.data)
 	{
-		for(unsigned int i = 0; i < numBones; i++)
+		for(unsigned int j = 0; j < numBones; j++)
 		{
-			m_bones[firstBone + i] = (my::Matrix4 &)physx::PxMat44(
-				*(const physx::general_shared3::PxMat34Legacy *)((unsigned char *)semanticData.data + i * semanticData.stride));
+			m_bones[firstBone + j] = (my::Matrix4 &)physx::PxMat44(
+				*(const physx::general_shared3::PxMat34Legacy *)((unsigned char *)semanticData.data + j * semanticData.stride));
 		}
 	}
 }

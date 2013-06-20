@@ -180,6 +180,7 @@ bool PhysxScene::OnInit(void)
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 	physx::apex::NxApexSceneDesc apexSceneDesc;
 	apexSceneDesc.scene = m_Scene.get();

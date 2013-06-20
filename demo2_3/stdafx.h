@@ -10,7 +10,6 @@
 #include <NxModuleDestructible.h>
 #include <NxDestructibleAsset.h>
 #include <NxDestructibleActor.h>
-#include <PxMat34Legacy.h>
 #include <myd3dlib.h>
 #include <LuaContext.h>
 #include <signal.h>

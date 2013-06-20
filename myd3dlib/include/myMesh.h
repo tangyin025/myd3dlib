@@ -303,7 +303,7 @@ namespace my
 			LPDIRECT3DDEVICE9 pDevice,
 			UINT Length,
 			DWORD Usage = 0,
-			D3DFORMAT Format = D3DFMT_INDEX32,
+			D3DFORMAT Format = D3DFMT_INDEX16,
 			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
 		D3DINDEXBUFFER_DESC GetDesc(void)
