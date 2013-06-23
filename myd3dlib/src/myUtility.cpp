@@ -286,6 +286,13 @@ LRESULT Camera::MsgProc(
 	return 0;
 }
 
+std::pair<Vector3, Vector3> Camera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.cx), Lerp(1.0f, -1.0f, pt.y / dim.cy), 1.0f);
+
+	return std::make_pair(m_Position, (ptProj.transformCoord(m_InverseViewProj) - m_Position).normalize());
+}
+
 void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -591,9 +598,8 @@ bool DialogMgr::MsgProc(
 		{
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-			Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
-			Vector3 dir = (ptProj.transformCoord(m_Camera.m_InverseViewProj) - m_Camera.m_Position).normalize();
+			std::pair<Vector3, Vector3> ray = m_Camera.CalculateRay(
+				Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
 			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
 			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
@@ -606,11 +612,11 @@ bool DialogMgr::MsgProc(
 					{
 						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
 						float dialogDistance = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(m_Camera.m_Position, dir, dialogNormal, dialogDistance);
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, dialogNormal, dialogDistance);
 
 						if(result.first)
 						{
-							Vector3 ptInt(m_Camera.m_Position + dir * result.second);
+							Vector3 ptInt(ray.first + ray.second * result.second);
 							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
 							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
 

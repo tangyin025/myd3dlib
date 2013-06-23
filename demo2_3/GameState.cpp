@@ -150,11 +150,9 @@ HRESULT GameStateMain::OnCreateDevice(
 	NxParameterized::Serializer::ErrorType serError = ser->deserialize(*stream, data);
 
 	NxParameterized::Interface * params = data[0];
-	PhysxPtr<physx::apex::NxDestructibleAsset> asset(
-		static_cast<physx::NxDestructibleAsset *>(PhysxSample::getSingleton().m_ApexSDK->createAsset(params, "Asset Name")));
-	m_DestructibleAssets.push_back(asset);
+	m_ApexAsset.reset(PhysxSample::getSingleton().m_ApexSDK->createAsset(params, "Asset Name"));
 
-	params = asset->getDefaultActorDesc();
+	params = m_ApexAsset->getDefaultActorDesc();
 	NxParameterized::setParamBool(*params, "destructibleParameters.flags.CRUMBLE_SMALLEST_CHUNKS", true);
 	NxParameterized::setParamF32(*params, "destructibleParameters.forceToDamage", 0.1f);
 	NxParameterized::setParamF32(*params, "destructibleParameters.damageThreshold", 10.0f);
@@ -189,9 +187,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	wallPose(1, 3) = 5.7747002f;
 	NxParameterized::setParamMat44(*params, "globalPose", wallPose);
 	NxParameterized::setParamVec3(*params, "scale", PxVec3(0.5f));
-	PhysxPtr<physx::apex::NxDestructibleActor> apexActor(
-		static_cast<physx::NxDestructibleActor *>(asset->createApexActor(*params, *m_ApexScene)));
-	m_DestructibleActors.push_back(apexActor);
+	m_DestructibleActor.reset(static_cast<physx::NxDestructibleActor *>(m_ApexAsset->createApexActor(*params, *m_ApexScene)));
 
 	return S_OK;
 }
@@ -236,9 +232,9 @@ void GameStateMain::OnDestroyDevice(void)
 
 	m_Actors.clear();
 
-	m_DestructibleActors.clear();
+	m_DestructibleActor.reset();
 
-	m_DestructibleAssets.clear();
+	m_ApexAsset.reset();
 
 	PhysxScene::OnShutdown();
 }
@@ -374,13 +370,10 @@ void GameStateMain::OnFrameRender(
 			}
 		}
 
-		for(size_t i = 0; i < m_DestructibleActors.size(); i++)
-		{
-			m_DestructibleActors[i]->lockRenderResources();
-			m_DestructibleActors[i]->updateRenderResources();
-			m_DestructibleActors[i]->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
-			m_DestructibleActors[i]->unlockRenderResources();
-		}
+		m_DestructibleActor->lockRenderResources();
+		m_DestructibleActor->updateRenderResources();
+		m_DestructibleActor->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
+		m_DestructibleActor->unlockRenderResources();
 
 		Game::getSingleton().m_EmitterInst->Begin();
 		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
@@ -413,36 +406,19 @@ LRESULT GameStateMain::MsgProc(
 	case WM_RBUTTONUP:
 		CRect ClientRect;
 		GetClientRect(hWnd, &ClientRect);
-		Vector2 ptScreen((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f);
-		Vector3 ptProj(Lerp(-1.0f, 1.0f, ptScreen.x / ClientRect.right), Lerp(1.0f, -1.0f, ptScreen.y / ClientRect.bottom), 1.0f);
-		Vector3 dir = (ptProj.transformCoord(m_Camera->m_InverseViewProj) - m_Camera->m_Position).normalize();
+		std::pair<Vector3, Vector3> ray = m_Camera->CalculateRay(
+			Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
-		PxVec3 rayOrigin(m_Camera->m_Position.x, m_Camera->m_Position.y, m_Camera->m_Position.z);
-		PxVec3 rayDirection(dir.x, dir.y, dir.z);
+		PxVec3 rayOrigin(ray.first.x, ray.first.y, ray.first.z);
+		PxVec3 rayDirection(ray.second.x, ray.second.y, ray.second.z);
 
-		physx::apex::NxDestructibleActor * hitActor = NULL;
-		physx::PxF32 hitTime = PX_MAX_F32;
-		physx::PxVec3 hitNormal(0.0f);
-		physx::PxI32 hitChunkIndex = physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX;
 		physx::PxF32 time = 0;
 		physx::PxVec3 normal(0.0f);
-		for(size_t i = 0; i < m_DestructibleActors.size(); i++)
+		const physx::PxI32 chunkIndex = m_DestructibleActor->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
+		if(chunkIndex != physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX && time < PX_MAX_F32)
 		{
-			const physx::PxI32 chunkIndex = m_DestructibleActors[i]->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
-			if(chunkIndex != physx::apex::NxModuleDestructibleConst::INVALID_CHUNK_INDEX && time < hitTime)
-			{
-				hitActor = m_DestructibleActors[i].get();
-				hitTime = time;
-				hitNormal = normal;
-				hitChunkIndex = chunkIndex;
-			}
+			m_DestructibleActor->applyDamage(10.0f, 10.0f, rayOrigin + (time * rayDirection), rayDirection, chunkIndex);
 		}
-
-		if(hitActor)
-		{
-			hitActor->applyDamage(10.0f, 10.0f, rayOrigin + (hitTime * rayDirection), rayDirection, hitChunkIndex);
-		}
-		break;
 	}
 
 	return 0;

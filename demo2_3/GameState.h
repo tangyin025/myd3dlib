@@ -83,9 +83,9 @@ public:
 
 	std::vector<PhysxPtr<PxActor> > m_Actors;
 
-	std::vector<PhysxPtr<physx::apex::NxDestructibleAsset> > m_DestructibleAssets;
+	PhysxPtr<physx::apex::NxApexAsset> m_ApexAsset;
 
-	std::vector<PhysxPtr<physx::apex::NxDestructibleActor> > m_DestructibleActors;
+	PhysxPtr<physx::apex::NxDestructibleActor> m_DestructibleActor;
 
 public:
 	GameStateMain(void)

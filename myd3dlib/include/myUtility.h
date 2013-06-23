@@ -193,6 +193,8 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+
+		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class ModelViewerCamera
