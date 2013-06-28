@@ -5,8 +5,6 @@
 
 using namespace my;
 
-DxutWindow::SingleInstance * SingleInstance<DxutWindow>::s_ptr = NULL;
-
 BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT& lResult, DWORD dwMsgMapID)
 {
 	switch(dwMsgMapID)
@@ -121,8 +119,6 @@ void Clock::Update(void)
 
 	m_llLastElapsedTime = qwTime.QuadPart;
 }
-
-Clock::SingleInstance * SingleInstance<Clock>::s_ptr = NULL;
 
 int DxutApp::Run(void)
 {

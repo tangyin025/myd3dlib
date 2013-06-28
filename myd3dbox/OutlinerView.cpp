@@ -260,8 +260,6 @@ void COutlinerTreeCtrl::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 }
 
-COutlinerView::SingleInstance * my::SingleInstance<COutlinerView>::s_ptr(NULL);
-
 BEGIN_MESSAGE_MAP(COutlinerView, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()

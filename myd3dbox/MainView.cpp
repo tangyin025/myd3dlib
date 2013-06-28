@@ -56,8 +56,6 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-CMainView::SingleInstance * SingleInstance<CMainView>::s_ptr(NULL);
-
 IMPLEMENT_DYNCREATE(CMainView, CView)
 
 BEGIN_MESSAGE_MAP(CMainView, CView)

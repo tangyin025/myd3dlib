@@ -1,6 +1,6 @@
 #pragma once
 
-#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <Windows.h>
 #include "myException.h"
 
@@ -10,18 +10,10 @@ namespace my
 	class Singleton
 	{
 	public:
-		typedef boost::shared_ptr<DerivedClass> DrivedClassPtr;
-
-		static DrivedClassPtr s_ptr;
-
-	public:
 		static DerivedClass * getSingletonPtr(void)
 		{
-			if(NULL == s_ptr)
-			{
-				s_ptr.reset(new DerivedClass());
-			}
-			return s_ptr.get();
+			static boost::scoped_ptr<DerivedClass> ptr(new DerivedClass);
+			return ptr.get();
 		}
 
 		static DerivedClass & getSingleton(void)
@@ -30,14 +22,8 @@ namespace my
 		}
 
 	public:
-		Singleton(void)
-		{
-			_ASSERT(NULL == s_ptr);
-		}
-
 		virtual ~Singleton(void)
 		{
-			_ASSERT(NULL != s_ptr); s_ptr.reset();
 		}
 	};
 
@@ -72,6 +58,9 @@ namespace my
 			s_ptr = NULL;
 		}
 	};
+
+	template <class DerivedClass>
+	SingleInstance<DerivedClass> * SingleInstance<DerivedClass>::s_ptr(0);
 
 	class DeviceRelatedObjectBase
 	{

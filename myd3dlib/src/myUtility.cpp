@@ -437,12 +437,12 @@ LRESULT FirstPersonCamera::MsgProc(
 			*pbNoFurtherProcessing = true;
 			return 0;
 
-		case VK_PRIOR:
+		case 'E':
 			m_Velocity.y = 1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
-		case VK_NEXT:
+		case 'Q':
 			m_Velocity.y = -1;
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -476,13 +476,13 @@ LRESULT FirstPersonCamera::MsgProc(
 			*pbNoFurtherProcessing = true;
 			return 0;
 
-		case VK_PRIOR:
+		case 'E':
 			if(m_Velocity.y > 0)
 				m_Velocity.y = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
-		case VK_NEXT:
+		case 'Q':
 			if(m_Velocity.y < 0)
 				m_Velocity.y = 0;
 			*pbNoFurtherProcessing = true;

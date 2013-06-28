@@ -5,8 +5,6 @@
 #include "MainView.h"
 #include "resource.h"
 
-CMainDoc::SingleInstance * my::SingleInstance<CMainDoc>::s_ptr(NULL);
-
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CMainDoc, CDocument)

@@ -1,6 +1,6 @@
-//Find all "#include <", Match case, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
 #define DIRECTINPUT_VERSION 0x0800
 #define NOMINMAX
+//Find all "#include <", Match case, Whole word, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
 #include <windows.h>
 #include <stdlib.h>
 #include <string>
@@ -27,6 +27,7 @@ extern "C"
 #include <hash_set>
 #include <d3dx9.h>
 #include <atlbase.h>
+#include <deque>
 #include <string>
 #include <Windows.h>
 #include <boost/shared_ptr.hpp>
@@ -48,13 +49,10 @@ extern "C"
 #include <boost/shared_ptr.hpp>
 #include <list>
 #include <vector>
-#include <vector>
-#include <boost/shared_ptr.hpp>
 #include <unzip.h>
-#include <atlbase.h>
-#include <d3d9.h>
 #include <map>
-#include <boost/shared_ptr.hpp>
+#include <boost/weak_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <Windows.h>
 #include <vector>
 #include <set>
@@ -97,4 +95,5 @@ extern "C"
 #include <d3d9.h>
 #include <dinput.h>
 #include <dsound.h>
-//  Matching lines: 93    Matching files: 25    Total files searched: 50
+#include <tchar.h>
+//  Matching lines: 93    Matching files: 28    Total files searched: 52

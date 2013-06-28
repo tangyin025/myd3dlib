@@ -114,8 +114,6 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 	return false;
 }
 
-FontLibrary::DrivedClassPtr Singleton<FontLibrary>::s_ptr;
-
 Font::~Font(void)
 {
 	if(m_face)
