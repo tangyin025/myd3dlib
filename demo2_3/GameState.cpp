@@ -91,7 +91,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	/************************************************************************/
 	/* 物理 sample 示例                                                     */
 	/************************************************************************/
-	PhysxPtr<PxRigidActor> actor;
+	physx_ptr<PxRigidActor> actor;
 	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,0,0), PxVec3(0,1,0)), *m_Material)),
 		actor))
 	{
@@ -122,7 +122,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	//meshDesc.triangles.stride = 3 * sizeof(DWORD);
 	//meshDesc.triangles.data = pIndices;
 
-	//PhysxPtr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
+	//physx_ptr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
 	//if(!triMesh)
 	//{
 	//	THROW_CUSEXCEPTION("PxToolkit::createTriangleMesh32 failed");
@@ -143,9 +143,9 @@ HRESULT GameStateMain::OnCreateDevice(
 	/* Apex 破碎示例                                                        */
 	/************************************************************************/
 	CachePtr cache = Game::getSingleton().OpenArchiveStream("Wall.apb")->GetWholeCache();
-	PhysxPtr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createMemoryReadStream(&(*cache)[0], cache->size()));
+	physx_ptr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createMemoryReadStream(&(*cache)[0], cache->size()));
 	NxParameterized::Serializer::SerializeType iSerType = PhysxSample::getSingleton().m_ApexSDK->getSerializeType(*stream);
-	PhysxPtr<NxParameterized::Serializer> ser(PhysxSample::getSingleton().m_ApexSDK->createSerializer(iSerType));
+	physx_ptr<NxParameterized::Serializer> ser(PhysxSample::getSingleton().m_ApexSDK->createSerializer(iSerType));
 	NxParameterized::Serializer::DeserializedData data;
 	NxParameterized::Serializer::ErrorType serError = ser->deserialize(*stream, data);
 

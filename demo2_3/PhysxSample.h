@@ -1,6 +1,6 @@
 #pragma once
 
-#include "PhysxPtr.hpp"
+#include "physx_ptr.hpp"
 #include "ApexRenderResourceMgr.h"
 
 class PhysxSampleAllocator : public PxAllocatorCallback
@@ -40,17 +40,17 @@ public:
 
 	ApexResourceCallback m_ApexResourceCallback;
 
-	PhysxPtr<PxFoundation> m_Foundation;
+	physx_ptr<PxFoundation> m_Foundation;
 
-	PhysxPtr<PxPhysics> m_Physics;
+	physx_ptr<PxPhysics> m_Physics;
 
-	PhysxPtr<PxCooking> m_Cooking;
+	physx_ptr<PxCooking> m_Cooking;
 
-	PhysxPtr<PxDefaultCpuDispatcher> m_CpuDispatcher;
+	physx_ptr<PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	PhysxPtr<physx::apex::NxApexSDK> m_ApexSDK;
+	physx_ptr<physx::apex::NxApexSDK> m_ApexSDK;
 
-	PhysxPtr<physx::apex::NxModuleDestructible> m_ModuleDestructible;
+	physx_ptr<physx::apex::NxModuleDestructible> m_ModuleDestructible;
 
 public:
 	PhysxSample(void)
@@ -102,9 +102,9 @@ class PhysxScene
 	: public my::DrawHelper
 {
 public:
-	PhysxPtr<PxScene> m_Scene;
+	physx_ptr<PxScene> m_Scene;
 
-	PhysxPtr<physx::apex::NxApexScene> m_ApexScene;
+	physx_ptr<physx::apex::NxApexScene> m_ApexScene;
 
 	my::Timer m_Timer;
 
@@ -116,7 +116,7 @@ public:
 
 	physx::PxU32 m_ErrorState;
 
-	PhysxPtr<PxMaterial> m_Material;
+	physx_ptr<PxMaterial> m_Material;
 
 	physx::PxU32 m_ViewMatrixID;
 
