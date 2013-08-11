@@ -141,13 +141,13 @@ namespace my
 			: m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_Time(0)
-			, m_SpawnInterval(10)
+			, m_SpawnInterval(5)
 			, m_RemainingSpawnTime(0)
 			, m_HalfSpawnArea(0,0,0)
 			, m_SpawnSpeed(0)
 			, m_SpawnInclination(D3DXToRadian(0))
 			, m_SpawnAzimuth(D3DXToRadian(0))
-			, m_SpawnLoopTime(10)
+			, m_SpawnLoopTime(5)
 		{
 		}
 

@@ -93,7 +93,8 @@ void SphericalEmitter::Update(double fTime, float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
-	while(m_RemainingSpawnTime >= m_SpawnInterval)
+	// ! 没有进行过载保护
+	while(m_RemainingSpawnTime >= 0)
 	{
 		Spawn(
 			Vector3(
@@ -107,15 +108,6 @@ void SphericalEmitter::Update(double fTime, float fElapsedTime)
 				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime)))).transform(m_Orientation));
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
-
-		if((m_ParticleList.back().second += m_RemainingSpawnTime) < m_ParticleLifeTime)
-		{
-			m_ParticleList.back().first->integrate(m_RemainingSpawnTime);
-		}
-		else
-		{
-			m_ParticleList.pop_back();
-		}
 	}
 }
 
@@ -155,8 +147,8 @@ HRESULT EmitterInstance::OnResetDevice(
 	m_VertexElems.SetTexcoord(pVertices + m_VertexStride * 3, Vector2(0,1));
 	m_VertexBuffer.Unlock();
 
-	m_IndexData.CreateIndexBuffer(pd3dDevice, sizeof(DWORD) * 4);
-	DWORD * pIndices = (DWORD *)m_IndexData.Lock(0, sizeof(DWORD) * 4);
+	m_IndexData.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * 4);
+	WORD * pIndices = (WORD *)m_IndexData.Lock(0, sizeof(WORD) * 4);
 	pIndices[0] = 0;
 	pIndices[1] = 1;
 	pIndices[2] = 2;
