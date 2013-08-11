@@ -305,9 +305,9 @@ namespace my
 
 		bool m_bCaretOn;
     
-		double m_dfBlink;
+		DWORD m_dwBlink;
 
-		double m_dfLastBlink;
+		DWORD m_dwLastBlink;
 
 		int m_nFirstVisible;
 
@@ -327,8 +327,8 @@ namespace my
 		EditBox(void)
 			: m_nCaret(0)
 			, m_bCaretOn(true)
-			, m_dfBlink(GetCaretBlinkTime() * 0.001f)
-			, m_dfLastBlink(0)
+			, m_dwBlink(GetCaretBlinkTime())
+			, m_dwLastBlink(0)
 			, m_nFirstVisible(0)
 			, m_Border(0,0,0,0)
 			, m_bMouseDrag(false)
@@ -467,7 +467,7 @@ namespace my
 
 		ARROWSTATE m_Arrow;
 
-		double m_dArrowTS;
+		DWORD m_dwArrowTS;
 
 		float m_fThumbOffsetY;
 
@@ -480,7 +480,7 @@ namespace my
 			, m_nStart(0)
 			, m_nEnd(10)
 			, m_Arrow(CLEAR)
-			, m_dArrowTS(0)
+			, m_dwArrowTS(0)
 			, m_fThumbOffsetY(0)
 		{
 			m_Skin.reset(new ScrollBarSkin());

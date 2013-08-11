@@ -108,7 +108,7 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return FALSE;
 }
 
-void Clock::Update(void)
+void Clock::UpdateClock(void)
 {
 	LARGE_INTEGER qwTime;
 	QueryPerformanceCounter(&qwTime);
@@ -1819,7 +1819,7 @@ void DxutApp::Render3DEnvironment(void)
 		m_DeviceLost = false;
 	}
 
-	Clock::Update();
+	UpdateClock();
 
 	m_dwFrames++;
 

@@ -37,7 +37,6 @@ namespace my
 	typedef boost::shared_ptr<DxutWindow> DxutWindowPtr;
 
 	class Clock
-		: public SingleInstance<Clock>
 	{
 	public:
 		LONGLONG m_llQPFTicksPerSec;
@@ -58,18 +57,18 @@ namespace my
 			QueryPerformanceFrequency(&qwTicksPerSec);
 			m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
 
-			Update();
+			UpdateClock();
 		}
 
 		virtual ~Clock(void)
 		{
 		}
 
-		void Update(void);
+		void UpdateClock(void);
 	};
 
 	class D3DContext
-		: public Clock
+		: public SingleInstance<D3DContext>
 	{
 	protected:
 		HRESULT hr;
@@ -97,16 +96,6 @@ namespace my
 		{
 		}
 
-		static D3DContext & getSingleton(void)
-		{
-			return *getSingletonPtr();
-		}
-
-		static D3DContext * getSingletonPtr(void)
-		{
-			return static_cast<D3DContext *>(Clock::getSingletonPtr());
-		}
-
 		IDirect3DDevice9 * GetD3D9Device(void)
 		{
 			return m_d3dDevice;
@@ -125,6 +114,7 @@ namespace my
 
 	class DxutApp
 		: public D3DContext
+		, public Clock
 		, public Application
 		, public CD3D9Enumeration
 	{

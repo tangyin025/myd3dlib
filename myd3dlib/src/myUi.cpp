@@ -473,11 +473,11 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			}
 		}
 
-		double fAbsoluteTime = Clock::getSingleton().m_fAbsoluteTime;
-		if(fAbsoluteTime - m_dfLastBlink >= m_dfBlink )
+		DWORD dwAbsoluteTime = timeGetTime();
+		if(dwAbsoluteTime - m_dwLastBlink >= m_dwBlink )
 		{
 			m_bCaretOn = !m_bCaretOn;
-			m_dfLastBlink = fAbsoluteTime;
+			m_dwLastBlink = dwAbsoluteTime;
 		}
 
 		if(Skin && Skin->m_Font)
@@ -912,7 +912,7 @@ void EditBox::PlaceCaret(int nCP)
 void EditBox::ResetCaretBlink(void)
 {
 	m_bCaretOn = true;
-	m_dfLastBlink = Clock::getSingleton().m_fAbsoluteTime;
+	m_dwLastBlink = timeGetTime();
 }
 
 void EditBox::DeleteSelectionText(void)
@@ -1270,40 +1270,40 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
     // scroll.
 	if(m_Arrow != CLEAR)
 	{
-		double dCurrTime = Clock::getSingleton().m_fAbsoluteTime;
+		DWORD dwAbsoluteTime = timeGetTime();
 		switch(m_Arrow)
 		{
 		case CLICKED_UP:
-			if(0.33 < dCurrTime - m_dArrowTS)
+			if(330 < dwAbsoluteTime - m_dwArrowTS)
 			{
 				Scroll(-1);
 				m_Arrow = HELD_UP;
-				m_dArrowTS = dCurrTime;
+				m_dwArrowTS = dwAbsoluteTime;
 			}
 			break;
 
 		case HELD_UP:
-			if(0.05 < dCurrTime - m_dArrowTS)
+			if(50 < dwAbsoluteTime - m_dwArrowTS)
 			{
 				Scroll(-1);
-				m_dArrowTS = dCurrTime;
+				m_dwArrowTS = dwAbsoluteTime;
 			}
 			break;
 
 		case CLICKED_DOWN:
-			if(0.33 < dCurrTime - m_dArrowTS)
+			if(330 < dwAbsoluteTime - m_dwArrowTS)
 			{
 				Scroll( 1);
 				m_Arrow = HELD_DOWN;
-				m_dArrowTS = dCurrTime;
+				m_dwArrowTS = dwAbsoluteTime;
 			}
 			break;
 
 		case HELD_DOWN:
-			if(0.05 < dCurrTime - m_dArrowTS)
+			if(50 < dwAbsoluteTime - m_dwArrowTS)
 			{
 				Scroll( 1);
-				m_dArrowTS = dCurrTime;
+				m_dwArrowTS = dwAbsoluteTime;
 			}
 			break;
 		}
@@ -1375,7 +1375,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
-				m_dArrowTS = Clock::getSingleton().m_fAbsoluteTime;
+				m_dwArrowTS = timeGetTime();
 				return true;
 			}
 
@@ -1385,7 +1385,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
-				m_dArrowTS = Clock::getSingleton().m_fAbsoluteTime;
+				m_dwArrowTS = timeGetTime();
 				return true;
 			}
 

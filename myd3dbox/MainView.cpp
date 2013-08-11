@@ -131,7 +131,9 @@ void CMainView::OnPaint()
 
 	if(m_d3dSwapChain)
 	{
-		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, 0);
+		theApp.UpdateClock();
+
+		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 		m_Tracker.Draw(&dc);
 	}
