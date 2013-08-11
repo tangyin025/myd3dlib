@@ -71,11 +71,11 @@ HRESULT GameStateMain::OnCreateDevice(
 		return E_FAIL;
 	}
 
-	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx");
+	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", my::ResourceMgr::string_pair_list());
 
 	m_CheckerTexture = Game::getSingleton().LoadTexture("texture/Checker.bmp");
 
-	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx");
+	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx", my::ResourceMgr::string_pair_list());
 
 	m_ShadowTextureRT.reset(new my::Texture());
 

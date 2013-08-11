@@ -240,7 +240,9 @@ namespace my
 
 		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path, bool reload = false);
 
-		EffectPtr LoadEffect(const std::string & path, bool reload = false);
+		typedef std::vector<std::pair<std::string, std::string> > string_pair_list;
+
+		EffectPtr LoadEffect(const std::string & path, const string_pair_list & macros, bool reload = false);
 
 		FontPtr LoadFont(const std::string & path, int height, bool reload = false);
 	};

@@ -194,9 +194,9 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx")));
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", my::ResourceMgr::string_pair_list())));
 
-	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx")));
+	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", my::ResourceMgr::string_pair_list())));
 
 	if(FAILED(hr = m_EmitterInst->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{

@@ -306,10 +306,10 @@ struct HelpFunc
 		return obj->LoadSkeleton(path);
 	}
 
-	static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
-	{
-		return obj->LoadEffect(path);
-	}
+	//static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
+	//{
+	//	return obj->LoadEffect(path, my::ResourceMgr::string_pair_list());
+	//}
 
 	static my::FontPtr ResourceMgr_LoadFont(my::ResourceMgr * obj, const std::string & path, int height)
 	{
@@ -825,7 +825,7 @@ void Export2Lua(lua_State * L)
 			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
 			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
 			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
-			.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
+			//.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
 			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")

@@ -2,6 +2,7 @@
 #include "myResource.h"
 #include "myDxutApp.h"
 #include "libc.h"
+#include <strstream>
 
 using namespace my;
 
@@ -458,9 +459,21 @@ OgreSkeletonAnimationPtr ResourceMgr::LoadSkeleton(const std::string & path, boo
 	return ret;
 }
 
-EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
+EffectPtr ResourceMgr::LoadEffect(const std::string & path, const string_pair_list & macros, bool reload)
 {
-	EffectPtr ret = GetDeviceRelatedResource<Effect>(path, reload);
+	std::ostrstream ostr;
+	ostr << path;
+	std::vector<D3DXMACRO> d3dmacros;
+	string_pair_list::const_iterator macro_iter = macros.begin();
+	for(; macro_iter != macros.end(); macro_iter++)
+	{
+		D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
+		ostr << ", " << d3dmacro.Name << ", " << d3dmacro.Definition;
+		d3dmacros.push_back(d3dmacro);
+	}
+	D3DXMACRO end = {0};
+	d3dmacros.push_back(end);
+	EffectPtr ret = GetDeviceRelatedResource<Effect>(ostr.str(), reload);
 	if(!ret->m_ptr)
 	{
 		m_EffectInclude = ZipArchiveDir::ReplaceSlash(path);
@@ -468,12 +481,12 @@ EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), NULL, NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), &d3dmacros[0], NULL, 0, m_EffectPool);
 		}
 		else
 		{
 			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-			ret->CreateEffect(D3DContext::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), NULL, this, 0, m_EffectPool);
+			ret->CreateEffect(D3DContext::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), &d3dmacros[0], this, 0, m_EffectPool);
 		}
 	}
 	return ret;
@@ -481,7 +494,9 @@ EffectPtr ResourceMgr::LoadEffect(const std::string & path, bool reload)
 
 FontPtr ResourceMgr::LoadFont(const std::string & path, int height, bool reload)
 {
-	FontPtr ret = GetDeviceRelatedResource<Font>(str_printf("%s, %d", path.c_str(), height), reload);
+	std::ostrstream ostr;
+	ostr << path << ", " << height;
+	FontPtr ret = GetDeviceRelatedResource<Font>(ostr.str(), reload);
 	if(!ret->m_face)
 	{
 		std::string full_path = GetFullPath(path);

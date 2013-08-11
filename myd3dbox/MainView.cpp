@@ -103,13 +103,13 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx")));
+	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx", my::ResourceMgr::string_pair_list())));
 
 	m_WhiteTex = theApp.LoadTexture("texture/white.bmp");
 
 	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
 
-	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx");
+	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", my::ResourceMgr::string_pair_list());
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,0,0);
