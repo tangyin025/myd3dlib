@@ -306,14 +306,19 @@ struct HelpFunc
 		return obj->LoadSkeleton(path);
 	}
 
-	//static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
-	//{
-	//	return obj->LoadEffect(path, std::vector<std::pair<std::string, std::string> >());
-	//}
+	static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
+	{
+		return obj->LoadEffect(path, std::vector<std::pair<std::string, std::string> >());
+	}
 
 	static my::FontPtr ResourceMgr_LoadFont(my::ResourceMgr * obj, const std::string & path, int height)
 	{
 		return obj->LoadFont(path, height);
+	}
+
+	static my::MaterialPtr ResourceMgr_LoadMaterial(my::ResourceMgr * obj, const std::string & path)
+	{
+		return obj->LoadMaterial(path);
 	}
 };
 
@@ -820,6 +825,13 @@ void Export2Lua(lua_State * L)
 			.def("LoadSkeleton", &my::DeviceRelatedResourceMgr::LoadSkeleton)
 			.def("LoadEffect", &my::DeviceRelatedResourceMgr::LoadEffect)
 			.def("LoadFont", &my::DeviceRelatedResourceMgr::LoadFont)
+			// ! luabind unsupport default parameter
+			.def("LoadTexture", &HelpFunc::ResourceMgr_LoadTexture)
+			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
+			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
+			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
+			.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
+			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
@@ -989,14 +1001,9 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
 
 		, class_<my::ResourceMgr, my::DeviceRelatedResourceMgr>("ResourceMgr")
-			// ! luabind unsupport default parameter
-			.def("LoadTexture", &HelpFunc::ResourceMgr_LoadTexture)
-			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
-			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
-			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
-			//.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
-			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
 			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
+			// ! luabind unsupport default parameter
+			.def("LoadMaterial", &HelpFunc::ResourceMgr_LoadMaterial)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)

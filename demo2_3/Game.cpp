@@ -458,7 +458,7 @@ bool Game::ExecuteCode(const char * code) throw()
 			msg = L"(error object is not a string)";
 		lua_pop(m_lua->_state, 1);
 
-		MessageBeep(-1); AddLine(msg);
+		MessageBeep(-1); AddLine(msg); if(!m_Console->GetVisible()) m_Console->SetVisible(true);
 		return false;
 	}
 	return true;

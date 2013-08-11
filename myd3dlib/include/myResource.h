@@ -223,7 +223,7 @@ namespace my
 					if(reload)
 						res->OnDestroyDevice();
 
-					return boost::dynamic_pointer_cast<ResourceType>(res);
+					boost::shared_ptr<ResourceType> ret = boost::dynamic_pointer_cast<ResourceType>(res); _ASSERT(ret); return ret;
 				}
 			}
 

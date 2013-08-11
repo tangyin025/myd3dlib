@@ -886,6 +886,12 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
 			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
 			ret->SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
 		}
+		else if(0 == strcmp(attr_type->value(), "CubeTexture"))
+		{
+			DEFINE_XML_NODE_SIMPLE(Texture, parameter);
+			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+			ret->SetTexture(attr_name->value(), LoadCubeTexture(attr_path->value(), reload));
+		}
 	}
 
 	m_materialSet[path] = ret;
