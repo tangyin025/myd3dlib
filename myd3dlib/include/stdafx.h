@@ -33,7 +33,7 @@ extern "C"
 #include <boost/shared_ptr.hpp>
 #include <d3dx9.h>
 #include <atltypes.h>
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <ft2build.h>
 #include <boost/shared_ptr.hpp>
 #include <dinput.h>
@@ -56,7 +56,7 @@ extern "C"
 #include <Windows.h>
 #include <vector>
 #include <set>
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <WTypes.h>

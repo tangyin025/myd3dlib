@@ -308,7 +308,7 @@ struct HelpFunc
 
 	//static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path)
 	//{
-	//	return obj->LoadEffect(path, my::ResourceMgr::string_pair_list());
+	//	return obj->LoadEffect(path, std::vector<std::pair<std::string, std::string> >());
 	//}
 
 	static my::FontPtr ResourceMgr_LoadFont(my::ResourceMgr * obj, const std::string & path, int height)
@@ -813,20 +813,13 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("SpawnAzimuth", &my::SphericalEmitter::m_SpawnAzimuth)
 			.def_readwrite("SpawnLoopTime", &my::SphericalEmitter::m_SpawnLoopTime)
 
-		, class_<my::ResourceMgr>("ResourceMgr")
-			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
-			.def("LoadCubeTexture", &my::ResourceMgr::LoadCubeTexture)
-			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
-			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
-			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
-			.def("LoadFont", &my::ResourceMgr::LoadFont)
-			// ! luabind unsupport default parameter
-			.def("LoadTexture", &HelpFunc::ResourceMgr_LoadTexture)
-			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
-			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
-			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
-			//.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
-			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
+		, class_<my::DeviceRelatedResourceMgr>("DeviceRelatedResourceMgr")
+			.def("LoadTexture", &my::DeviceRelatedResourceMgr::LoadTexture)
+			.def("LoadCubeTexture", &my::DeviceRelatedResourceMgr::LoadCubeTexture)
+			.def("LoadMesh", &my::DeviceRelatedResourceMgr::LoadMesh)
+			.def("LoadSkeleton", &my::DeviceRelatedResourceMgr::LoadSkeleton)
+			.def("LoadEffect", &my::DeviceRelatedResourceMgr::LoadEffect)
+			.def("LoadFont", &my::DeviceRelatedResourceMgr::LoadFont)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
@@ -986,18 +979,24 @@ void Export2Lua(lua_State * L)
 			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::TexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
 			.def("SetTexture", (void (*)(my::EffectParameterMap *, const std::string &, my::CubeTexturePtr))&HelpFunc::EffectParameterMap_SetTexture)
 
-		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
+		, class_<my::Material, my::EffectParameterMap, boost::shared_ptr<my::Material> >("Material")
 			.def(constructor<>())
 			.def_readwrite("Effect", &my::Material::m_Effect)
-			.def_readonly("ParameterMap", &my::Material::m_ParameterMap)
 
 		, class_<my::MaterialMgr>("MaterialMgr")
 			.def("InsertMaterial", &my::MaterialMgr::InsertMaterial)
 			.def("RemoveMaterial", &my::MaterialMgr::RemoveMaterial)
 			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
 
-		, class_<my::ResourceMgrEx, bases<my::ResourceMgr> >("ResourceMgrEx")
-			.def("LoadMaterial", &my::ResourceMgrEx::LoadMaterial)
+		, class_<my::ResourceMgr, my::DeviceRelatedResourceMgr>("ResourceMgr")
+			// ! luabind unsupport default parameter
+			.def("LoadTexture", &HelpFunc::ResourceMgr_LoadTexture)
+			.def("LoadCubeTexture", &HelpFunc::ResourceMgr_LoadCubeTexture)
+			.def("LoadMesh", &HelpFunc::ResourceMgr_LoadMesh)
+			.def("LoadSkeleton", &HelpFunc::ResourceMgr_LoadSkeleton)
+			//.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
+			.def("LoadFont", &HelpFunc::ResourceMgr_LoadFont)
+			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
@@ -1025,7 +1024,7 @@ void Export2Lua(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Rotation", &my::FirstPersonCamera::m_Rotation)
 
-		, class_<PhysxSample, bases<my::DxutApp, my::ResourceMgrEx> >("PhysxSample")
+		, class_<PhysxSample, bases<my::DxutApp, my::ResourceMgr> >("PhysxSample")
 
 		, class_<Game, bases<PhysxSample, my::TimerMgr, my::DialogMgr, my::MaterialMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)

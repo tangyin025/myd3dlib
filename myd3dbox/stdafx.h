@@ -35,8 +35,7 @@
 #include <afxmdiframewndex.h>
 #include <myD3dLib.h>
 #include <deque>
-#include <unordered_map>
-#include <boost/functional/hash.hpp>
+#include <boost/unordered_map.hpp>
 
 #ifdef _UNICODE
 #if defined _M_IX86

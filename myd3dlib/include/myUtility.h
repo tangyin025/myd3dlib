@@ -417,12 +417,10 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	class Material
+	class Material : public EffectParameterMap
 	{
 	public:
 		EffectPtr m_Effect;
-
-		EffectParameterMap m_ParameterMap;
 
 	public:
 		Material(void)
@@ -439,7 +437,7 @@ namespace my
 	class MaterialMgr
 	{
 	public:
-		typedef stdext::hash_map<std::string, MaterialPtr> MaterialPtrMap;
+		typedef boost::unordered_map<std::string, MaterialPtr> MaterialPtrMap;
 
 		MaterialPtrMap m_MaterialMap;
 
@@ -472,7 +470,7 @@ namespace my
 		}
 	};
 
-	class ResourceMgrEx : public ResourceMgr
+	class ResourceMgr : public DeviceRelatedResourceMgr
 	{
 	public:
 		typedef std::map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
@@ -480,11 +478,11 @@ namespace my
 		MaterialWeakPtrSet m_materialSet;
 
 	public:
-		ResourceMgrEx(void)
+		ResourceMgr(void)
 		{
 		}
 
-		virtual ~ResourceMgrEx(void)
+		virtual ~ResourceMgr(void)
 		{
 		}
 

@@ -165,7 +165,7 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	class ResourceMgr
+	class DeviceRelatedResourceMgr
 		: public ArchiveDirMgr
 		, public ID3DXInclude
 	{
@@ -181,11 +181,11 @@ namespace my
 		DeviceRelatedResourceSet m_resourceSet;
 
 	public:
-		ResourceMgr(void)
+		DeviceRelatedResourceMgr(void)
 		{
 		}
 
-		virtual ~ResourceMgr(void)
+		virtual ~DeviceRelatedResourceMgr(void)
 		{
 		}
 

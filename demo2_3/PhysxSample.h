@@ -27,7 +27,7 @@ public:
 
 class PhysxSample
 	: public my::DxutApp
-	, public my::ResourceMgrEx
+	, public my::ResourceMgr
 {
 public:
 	PhysxSampleAllocator m_Allocator;

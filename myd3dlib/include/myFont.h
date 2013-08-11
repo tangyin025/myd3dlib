@@ -6,7 +6,7 @@
 #include "myTexture.h"
 #include <atltypes.h>
 #include "myMath.h"
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <ft2build.h>
 #include FT_FREETYPE_H
 
@@ -168,7 +168,7 @@ namespace my
 			CRect textureRect;
 		};
 
-		typedef stdext::hash_map<int, CharacterInfo> CharacterMap;
+		typedef boost::unordered_map<int, CharacterInfo> CharacterMap;
 
 		FT_Face m_face;
 

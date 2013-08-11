@@ -3,7 +3,7 @@
 #include <vector>
 #include "myMath.h"
 #include <set>
-#include <hash_map>
+#include <boost/unordered_map.hpp>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 
@@ -274,7 +274,7 @@ namespace my
 	class OgreSkeleton
 	{
 	public:
-		stdext::hash_map<std::string, int> m_boneNameMap;
+		boost::unordered_map<std::string, int> m_boneNameMap;
 
 		BoneList m_boneBindPose;
 
@@ -317,7 +317,7 @@ namespace my
 		, public DeviceRelatedObjectBase
 	{
 	public:
-		stdext::hash_map<std::string, OgreAnimation> m_animationMap;
+		boost::unordered_map<std::string, OgreAnimation> m_animationMap;
 
 	public:
 		OgreSkeletonAnimation(void)

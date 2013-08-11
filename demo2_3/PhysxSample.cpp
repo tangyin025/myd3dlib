@@ -49,7 +49,7 @@ HRESULT PhysxSample::OnCreateDevice(
 		return hr;
 	}
 
-	if(FAILED(hr = ResourceMgrEx::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -119,7 +119,7 @@ HRESULT PhysxSample::OnResetDevice(
 		return hr;
 	}
 
-	if(FAILED(hr = ResourceMgrEx::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -128,7 +128,7 @@ HRESULT PhysxSample::OnResetDevice(
 
 void PhysxSample::OnLostDevice(void)
 {
-	ResourceMgrEx::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 
 	DxutApp::OnLostDevice();
 }
@@ -150,7 +150,7 @@ void PhysxSample::OnDestroyDevice(void)
 
 	m_Foundation.reset();
 
-	ResourceMgrEx::OnDestroyDevice();
+	ResourceMgr::OnDestroyDevice();
 
 	DxutApp::OnDestroyDevice();
 }

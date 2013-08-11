@@ -77,7 +77,7 @@ public:
 
 	CMFCToolBar m_wndToolBar;
 
-	typedef std::tr1::unordered_map<std::basic_string<TCHAR>, HTREEITEM, boost::hash<std::basic_string<TCHAR> > > TreeItemMap;
+	typedef boost::unordered_map<std::basic_string<TCHAR>, HTREEITEM> TreeItemMap;
 
 	TreeItemMap m_ItemMap;
 
