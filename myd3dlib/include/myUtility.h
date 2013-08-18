@@ -6,6 +6,7 @@
 #include "myEffect.h"
 #include "myEmitter.h"
 #include "myUI.h"
+#include <map>
 
 namespace my
 {
@@ -269,9 +270,9 @@ namespace my
 	class DialogMgr
 	{
 	public:
-		typedef std::vector<DialogPtr> DialogPtrSet;
+		typedef std::vector<DialogPtr> DialogPtrList;
 
-		typedef std::map<int, DialogPtrSet> DialogPtrSetMap;
+		typedef std::map<int, DialogPtrList> DialogPtrSetMap;
 
 		DialogPtrSetMap m_dlgSetMap;
 
@@ -312,7 +313,7 @@ namespace my
 
 		void RemoveDlg(DialogPtr dlg)
 		{
-			DialogPtrSet::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
+			DialogPtrList::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
 			if(dlg_iter != m_dlgSetMap[0].end())
 			{
 				m_dlgSetMap[0].erase(dlg_iter);
@@ -487,7 +488,7 @@ namespace my
 		{
 			_ASSERT(m_MaterialMap.end() != m_MaterialMap.find(key));
 
-			m_MaterialMap.erase(m_MaterialMap.find(key));
+			m_MaterialMap.erase(key);
 		}
 
 		void RemoveAllMaterial(void)
@@ -499,7 +500,7 @@ namespace my
 	class ResourceMgr : public DeviceRelatedResourceMgr
 	{
 	public:
-		typedef std::map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
+		typedef boost::unordered_map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
 
 		MaterialWeakPtrSet m_materialSet;
 

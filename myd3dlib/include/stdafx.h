@@ -35,6 +35,7 @@ extern "C"
 #include <atltypes.h>
 #include <boost/unordered_map.hpp>
 #include <ft2build.h>
+#include <vector>
 #include <boost/shared_ptr.hpp>
 #include <dinput.h>
 #include <atlbase.h>
@@ -50,8 +51,8 @@ extern "C"
 #include <list>
 #include <vector>
 #include <unzip.h>
-#include <map>
 #include <boost/weak_ptr.hpp>
+#include <boost/unordered_map.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <Windows.h>
 #include <vector>
@@ -78,10 +79,7 @@ extern "C"
 #include <boost/function.hpp>
 #include <boost/weak_ptr.hpp>
 #include <set>
-#include <cstdlib>      // For std::size_t
-#include <cassert>      // For assert
-#include <new>          // For placement new
-#include <exception>    // For std::exception
+#include <map>
 #include <d3d9.h>
 #include <string>
 #include <assert.h>
@@ -95,5 +93,6 @@ extern "C"
 #include <d3d9.h>
 #include <dinput.h>
 #include <dsound.h>
+#include <strstream>
 #include <tchar.h>
-//  Matching lines: 93    Matching files: 28    Total files searched: 52
+  //Matching lines: 91    Matching files: 28    Total files searched: 51

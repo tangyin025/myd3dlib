@@ -506,7 +506,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp)
 	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
 	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
 	{
-		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
 			if((*dlg_iter)->EventAlign)
@@ -530,7 +530,7 @@ void DialogMgr::Draw(
 	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
 	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
 	{
-		DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
 			ui_render->SetWorld((*dlg_iter)->m_World);
@@ -571,7 +571,7 @@ bool DialogMgr::MsgProc(
 			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
 			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
 			{
-				DialogPtrSet::iterator dlg_iter = dlg_layer_iter->second.begin();
+				DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
 				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 				{
 					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
@@ -604,7 +604,7 @@ bool DialogMgr::MsgProc(
 			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
 			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
 			{
-				DialogPtrSet::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
+				DialogPtrList::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
 				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
 				{
 					// ! 只处理看得见的 Dialog
@@ -860,27 +860,24 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
 		for(; node_parameter; node_parameter = node_parameter->next_sibling())
 		{
 			DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
-			DEFINE_XML_ATTRIBUTE_SIMPLE(type, parameter);
+			rapidxml::xml_node<char> * node_value = node_parameter->first_node();
 
-			if(0 == strcmp(attr_type->value(), "Vector4"))
+			if(0 == strcmp(node_value->name(), "Vector4"))
 			{
-				DEFINE_XML_NODE_SIMPLE(Vector4, parameter);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, Vector4);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, Vector4);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, Vector4);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, Vector4);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, value);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, value);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, value);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, value);
 				effect_pair.second.SetVector(attr_name->value(), Vector4(x, y, z, w));
 			}
-			else if(0 == strcmp(attr_type->value(), "Texture"))
+			else if(0 == strcmp(node_value->name(), "Texture"))
 			{
-				DEFINE_XML_NODE_SIMPLE(Texture, parameter);
-				DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+				DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
 				effect_pair.second.SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
 			}
-			else if(0 == strcmp(attr_type->value(), "CubeTexture"))
+			else if(0 == strcmp(node_value->name(), "CubeTexture"))
 			{
-				DEFINE_XML_NODE_SIMPLE(Texture, parameter);
-				DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+				DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
 				effect_pair.second.SetTexture(attr_name->value(), LoadCubeTexture(attr_path->value(), reload));
 			}
 		}

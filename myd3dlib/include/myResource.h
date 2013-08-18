@@ -1,13 +1,13 @@
 #pragma once
 
 #include <unzip.h>
-#include <map>
 #include "myTexture.h"
 #include "myEffect.h"
 #include "myMesh.h"
 #include "mySkeleton.h"
 #include "myFont.h"
 #include <boost/weak_ptr.hpp>
+#include <boost/unordered_map.hpp>
 
 namespace my
 {
@@ -139,7 +139,7 @@ namespace my
 	protected:
 		typedef boost::shared_ptr<ArchiveDir> ResourceDirPtr;
 
-		typedef std::map<std::string, ResourceDirPtr> ResourceDirPtrMap;
+		typedef boost::unordered_map<std::string, ResourceDirPtr> ResourceDirPtrMap;
 
 		ResourceDirPtrMap m_dirMap;
 
@@ -174,9 +174,9 @@ namespace my
 
 		std::string m_EffectInclude;
 
-		std::map<LPCVOID, CachePtr> m_cacheSet;
+		boost::unordered_map<LPCVOID, CachePtr> m_cacheSet;
 
-		typedef std::map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+		typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
 
 		DeviceRelatedResourceSet m_resourceSet;
 

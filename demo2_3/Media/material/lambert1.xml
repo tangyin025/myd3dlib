@@ -1,12 +1,12 @@
 <material>
 	<shader path="shader/SimpleSample.fx">
-		<parameter name="g_MaterialAmbientColor" type="Vector4">
+		<parameter name="g_MaterialAmbientColor">
 			<Vector4 x="0.1" y="0.1" z="0.1" w="0.1"/>
 		</parameter>
-		<parameter name="g_MaterialDiffuseColor" type="Vector4">
+		<parameter name="g_MaterialDiffuseColor">
 			<Vector4 x="1.0" y="1.0" z="1.0" w="1.0"/>
 		</parameter>
-		<parameter name="g_MeshTexture" type="Texture">
+		<parameter name="g_MeshTexture">
 			<Texture path="texture/Checker.bmp"/>
 		</parameter>
 	</shader>

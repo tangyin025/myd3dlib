@@ -302,7 +302,7 @@ HRESULT DeviceRelatedResourceMgr::Close(
 	LPCVOID pData)
 {
 	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
-	m_cacheSet.erase(m_cacheSet.find(pData));
+	m_cacheSet.erase(pData);
 	return S_OK;
 }
 
