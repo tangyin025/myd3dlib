@@ -771,62 +771,48 @@ void EffectParameter<BaseTexturePtr>::SetParameter(Effect * pEffect, const std::
 	pEffect->SetTexture(Name.c_str(), m_Value ? m_Value->m_ptr : NULL);
 }
 
-void EffectParameterMap::SetBool(const std::string & Name, bool Value)
+void Material::ApplyParameterBlock(UINT i)
 {
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<bool>(Value));
-}
-
-void EffectParameterMap::SetFloat(const std::string & Name, float Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<float>(Value));
-}
-
-void EffectParameterMap::SetInt(const std::string & Name, int Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<int>(Value));
-}
-
-void EffectParameterMap::SetVector(const std::string & Name, const Vector4 & Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<Vector4>(Value));
-}
-
-void EffectParameterMap::SetMatrix(const std::string & Name, const Matrix4 & Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<Matrix4>(Value));
-}
-
-void EffectParameterMap::SetString(const std::string & Name, const std::string & Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<std::string>(Value));
-}
-
-void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Value)
-{
-	operator[](Name) = EffectParameterBasePtr(new EffectParameter<BaseTexturePtr>(Value));
-}
-
-void Material::ApplyParameterBlock(void)
-{
-	EffectParameterMap::const_iterator param_iter = begin();
-	for(; param_iter != end(); param_iter++)
+	const value_type & effect_pair = operator [] (i);
+	EffectParameterMap::const_iterator param_iter = effect_pair.second.begin();
+	for(; param_iter != effect_pair.second.end(); param_iter++)
 	{
-		param_iter->second->SetParameter(m_Effect.get(), param_iter->first);
+		param_iter->second->SetParameter(effect_pair.first.get(), param_iter->first);
 	}
 }
 
-void Material::DrawMeshSubset(Mesh * pMesh, DWORD i)
+UINT Material::Begin(UINT i, DWORD Flags)
 {
-	ApplyParameterBlock();
+	return operator [] (i).first->Begin(Flags);
+}
 
-	UINT cPasses = m_Effect->Begin();
-	for(UINT p = 0; p < cPasses; p++)
+void Material::BeginPass(UINT i, UINT Pass)
+{
+	return operator [] (i).first->BeginPass(Pass);
+}
+
+void Material::EndPass(UINT i)
+{
+	return operator [] (i).first->EndPass();
+}
+
+void Material::End(UINT i)
+{
+	return operator [] (i).first->End();
+}
+
+void Material::DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId)
+{
+	ApplyParameterBlock(i);
+
+	UINT Pass = Begin(i, 0);
+	for(UINT p = 0; p < Pass; p++)
 	{
-		m_Effect->BeginPass(p);
-		pMesh->DrawSubset(i);
-		m_Effect->EndPass();
+		BeginPass(i, p);
+		pMesh->DrawSubset(AttribId);
+		EndPass(i);
 	}
-	m_Effect->End();
+	End(i);
 }
 
 MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
@@ -859,38 +845,44 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
 
 	rapidxml::xml_node<char> * node_root = &doc;
 	DEFINE_XML_NODE_SIMPLE(material, root);
-	DEFINE_XML_NODE_SIMPLE(Shader, material);
-	rapidxml::xml_attribute<char> * attr_shader_path;
-	DEFINE_XML_ATTRIBUTE(attr_shader_path, node_Shader, path);
-
-	ret->m_Effect = LoadEffect(attr_shader_path->value(), string_pair_list(), reload);
-
-	DEFINE_XML_NODE_SIMPLE(parameter, material);
-	for(; node_parameter; node_parameter = node_parameter->next_sibling())
+	DEFINE_XML_NODE_SIMPLE(shader, material);
+	for(; node_shader; node_shader = node_shader->next_sibling())
 	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
-		DEFINE_XML_ATTRIBUTE_SIMPLE(type, parameter);
+		ret->push_back(Material::value_type());
+		Material::value_type & effect_pair = ret->back();
 
-		if(0 == strcmp(attr_type->value(), "Vector4"))
+		rapidxml::xml_attribute<char> * attr_shader_path;
+		DEFINE_XML_ATTRIBUTE(attr_shader_path, node_shader, path);
+
+		effect_pair.first = LoadEffect(attr_shader_path->value(), string_pair_list(), reload);
+
+		DEFINE_XML_NODE_SIMPLE(parameter, shader);
+		for(; node_parameter; node_parameter = node_parameter->next_sibling())
 		{
-			DEFINE_XML_NODE_SIMPLE(Vector4, parameter);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, Vector4);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, Vector4);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, Vector4);
-			DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, Vector4);
-			ret->SetVector(attr_name->value(), Vector4(x, y, z, w));
-		}
-		else if(0 == strcmp(attr_type->value(), "Texture"))
-		{
-			DEFINE_XML_NODE_SIMPLE(Texture, parameter);
-			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
-			ret->SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
-		}
-		else if(0 == strcmp(attr_type->value(), "CubeTexture"))
-		{
-			DEFINE_XML_NODE_SIMPLE(Texture, parameter);
-			DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
-			ret->SetTexture(attr_name->value(), LoadCubeTexture(attr_path->value(), reload));
+			DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
+			DEFINE_XML_ATTRIBUTE_SIMPLE(type, parameter);
+
+			if(0 == strcmp(attr_type->value(), "Vector4"))
+			{
+				DEFINE_XML_NODE_SIMPLE(Vector4, parameter);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, Vector4);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, Vector4);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, Vector4);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, Vector4);
+				effect_pair.second.SetVector(attr_name->value(), Vector4(x, y, z, w));
+			}
+			else if(0 == strcmp(attr_type->value(), "Texture"))
+			{
+				DEFINE_XML_NODE_SIMPLE(Texture, parameter);
+				DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+				effect_pair.second.SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
+			}
+			else if(0 == strcmp(attr_type->value(), "CubeTexture"))
+			{
+				DEFINE_XML_NODE_SIMPLE(Texture, parameter);
+				DEFINE_XML_ATTRIBUTE_SIMPLE(path, Texture);
+				effect_pair.second.SetTexture(attr_name->value(), LoadCubeTexture(attr_path->value(), reload));
+			}
 		}
 	}
 

@@ -399,37 +399,63 @@ namespace my
 		virtual void SetParameter(Effect * pEffect, const std::string & Name) const;
 	};
 
-	class EffectParameterMap : public std::map<std::string, EffectParameterBasePtr>
+	class EffectParameterMap : public boost::unordered_map<std::string, EffectParameterBasePtr>
 	{
 	public:
-		void SetBool(const std::string & Name, bool Value);
+		void SetBool(const std::string & Name, bool Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<bool>(Value));
+		}
 
-		void SetFloat(const std::string & Name, float Value);
+		void SetFloat(const std::string & Name, float Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<float>(Value));
+		}
 
-		void SetInt(const std::string & Name, int Value);
+		void SetInt(const std::string & Name, int Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<int>(Value));
+		}
 
-		void SetVector(const std::string & Name, const Vector4 & Value);
+		void SetVector(const std::string & Name, const Vector4 & Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<Vector4>(Value));
+		}
 
-		void SetMatrix(const std::string & Name, const Matrix4 & Value);
+		void SetMatrix(const std::string & Name, const Matrix4 & Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<Matrix4>(Value));
+		}
 
-		void SetString(const std::string & Name, const std::string & Value);
+		void SetString(const std::string & Name, const std::string & Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<std::string>(Value));
+		}
 
-		void SetTexture(const std::string & Name, BaseTexturePtr Value);
+		void SetTexture(const std::string & Name, BaseTexturePtr Value)
+		{
+			operator[](Name) = EffectParameterBasePtr(new EffectParameter<BaseTexturePtr>(Value));
+		}
 	};
 
-	class Material : public EffectParameterMap
+	class Material : public std::vector<std::pair<EffectPtr, EffectParameterMap> >
 	{
-	public:
-		EffectPtr m_Effect;
-
 	public:
 		Material(void)
 		{
 		}
 
-		void ApplyParameterBlock(void);
+		void ApplyParameterBlock(UINT i);
 
-		void DrawMeshSubset(Mesh * pMesh, DWORD i);
+		UINT Begin(UINT i, DWORD Flags = 0);
+
+		void BeginPass(UINT i, UINT Pass);
+
+		void EndPass(UINT i);
+
+		void End(UINT i);
+
+		void DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId);
 	};
 
 	typedef boost::shared_ptr<Material> MaterialPtr;

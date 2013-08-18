@@ -1,21 +1,22 @@
 <material>
-	<Shader path="shader/Character.fx"/>
-	<parameter name="g_MaterialAmbientColor" type="Vector4">
-		<Vector4 x="0.3" y="0.3" z="0.3" w="1.0"/>
-	</parameter>
-	<parameter name="g_MaterialDiffuseColor" type="Vector4">
-		<Vector4 x="1.0" y="1.0" z="1.0" w="1.0"/>
-	</parameter>
-	<parameter name="g_MeshTexture" type="Texture">
-		<Texture path="texture/casual19_m_35.jpg"/>
-	</parameter>
-	<parameter name="g_NormalTexture" type="Texture">
-		<Texture path="texture/casual19_m_35_normal.png"/>
-	</parameter>
-	<parameter name="g_SpecularTexture" type="Texture">
-		<Texture path="texture/casual19_m_35_spec.png"/>
-	</parameter>
-	<parameter name="g_CubeTexture" type="CubeTexture">
-		<Texture path="texture/galileo_cross.dds"/>
-	</parameter>
+	<shader path="shader/Character.fx">
+		<parameter name="g_MaterialAmbientColor" type="Vector4">
+			<Vector4 x="0.3" y="0.3" z="0.3" w="1.0"/>
+		</parameter>
+		<parameter name="g_MaterialDiffuseColor" type="Vector4">
+			<Vector4 x="1.0" y="1.0" z="1.0" w="1.0"/>
+		</parameter>
+		<parameter name="g_MeshTexture" type="Texture">
+			<Texture path="texture/casual19_m_35.jpg"/>
+		</parameter>
+		<parameter name="g_NormalTexture" type="Texture">
+			<Texture path="texture/casual19_m_35_normal.png"/>
+		</parameter>
+		<parameter name="g_SpecularTexture" type="Texture">
+			<Texture path="texture/casual19_m_35_spec.png"/>
+		</parameter>
+		<parameter name="g_CubeTexture" type="CubeTexture">
+			<Texture path="texture/galileo_cross.dds"/>
+		</parameter>
+	</shader>
 </material>

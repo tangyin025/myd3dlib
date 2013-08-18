@@ -347,15 +347,15 @@ ApexRenderResource::~ApexRenderResource(void)
 
 void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World)
 {
-	m_material->m_Effect->SetMatrix("g_World", World);
-	m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[0], m_numBones);
-	m_material->ApplyParameterBlock();
+	(*m_material)[0].first->SetMatrix("g_World", World);
+	(*m_material)[0].first->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[0], m_numBones);
+	m_material->ApplyParameterBlock(0);
 
 	HRESULT hr;
-	UINT cPasses = m_material->m_Effect->Begin();
+	UINT cPasses = m_material->Begin(0);
 	for(UINT p = 0; p < cPasses; p++)
 	{
-		m_material->m_Effect->BeginPass(p);
+		m_material->BeginPass(0, p);
 		V(pd3dDevice->SetVertexDeclaration(m_Decl));
 		for(size_t i = 0; i < m_ApexVbs.size(); i++)
 		{
@@ -363,7 +363,7 @@ void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 &
 		}
 		V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
-		m_material->m_Effect->EndPass();
+		m_material->EndPass(0);
 	}
-	m_material->m_Effect->End();
+	m_material->End(0);
 }

@@ -1,9 +1,10 @@
 <material>
-	<Shader path="shader/WaterEffect.fx"/>
-	<parameter name="g_WaterNormalTexture" type="Texture">
-		<Texture path="texture/WaterNormal2.png"/>
-	</parameter>
-	<parameter name="g_CubeTexture" type="CubeTexture">
-		<Texture path="texture/galileo_cross.dds"/>
-	</parameter>
+	<shader path="shader/WaterEffect.fx">
+		<parameter name="g_WaterNormalTexture" type="Texture">
+			<Texture path="texture/WaterNormal2.png"/>
+		</parameter>
+		<parameter name="g_CubeTexture" type="CubeTexture">
+			<Texture path="texture/galileo_cross.dds"/>
+		</parameter>
+	</shader>
 </material>

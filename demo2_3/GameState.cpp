@@ -342,7 +342,7 @@ void GameStateMain::OnFrameRender(
 					Game::getSingleton().m_MaterialMap.find((*mesh_iter)->m_MaterialNameList[i]);
 				if(mat_iter != Game::getSingleton().m_MaterialMap.end())
 				{
-					mat_iter->second->DrawMeshSubset(mesh_iter->get(), i);
+					mat_iter->second->DrawMeshSubset(0, mesh_iter->get(), i);
 				}
 			}
 		}
@@ -365,7 +365,7 @@ void GameStateMain::OnFrameRender(
 					Game::getSingleton().m_MaterialMap.find((*character_iter)->m_Mesh->m_MaterialNameList[i]);
 				if(mat_iter != Game::getSingleton().m_MaterialMap.end())
 				{
-					mat_iter->second->DrawMeshSubset((*character_iter)->m_Mesh.get(), i);
+					mat_iter->second->DrawMeshSubset(0, (*character_iter)->m_Mesh.get(), i);
 				}
 			}
 		}
