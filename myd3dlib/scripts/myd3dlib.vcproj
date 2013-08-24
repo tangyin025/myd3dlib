@@ -163,10 +163,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\LuaContext.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\myCollision.cpp"
 				>
 			</File>
@@ -196,6 +192,10 @@
 			</File>
 			<File
 				RelativePath="..\src\myKinematic.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\myLog.cpp"
 				>
 			</File>
 			<File
@@ -285,10 +285,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\include\LuaContext.h"
-				>
-			</File>
-			<File
 				RelativePath="..\include\myCollision.h"
 				>
 			</File>
@@ -322,6 +318,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myKinematic.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myLog.h"
 				>
 			</File>
 			<File
