@@ -26,17 +26,17 @@ camera.EventAlign=function(args)
 end
 state.Camera=camera
 
-game:InsertMaterial("waterPhong", game:LoadMaterial("material/waterPhong.xml"))
-game:InsertMaterial("casual19_m_highpolyPhong", game:LoadMaterial("material/casual19_m_highpolyPhong.xml"))
-game:InsertMaterial("lambert1", game:LoadMaterial("material/lambert1.xml"))
+game:InsertMaterial("waterPhong", game:LoadMaterial("material/waterPhong.xml",false))
+game:InsertMaterial("casual19_m_highpolyPhong", game:LoadMaterial("material/casual19_m_highpolyPhong.xml",false))
+game:InsertMaterial("lambert1", game:LoadMaterial("material/lambert1.xml",false))
 
 -- -- 创建场景
--- state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml"))
+-- state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml",false))
 
 -- -- 创建角色
 -- local character=Character()
--- character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml")
--- character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml")
+-- character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml",false)
+-- character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml",false)
 -- character.Scale=Vector3(0.01,0.01,0.01)
 -- state:InsertCharacter(character)
 
@@ -60,5 +60,5 @@ game:InsertMaterial("lambert1", game:LoadMaterial("material/lambert1.xml"))
 -- emitter.ParticleSizeX:AddNode(10,10,0,0);
 -- emitter.ParticleSizeY:AddNode(0,1,0,0);
 -- emitter.ParticleSizeY:AddNode(10,10,0,0);
--- emitter.Texture=game:LoadTexture("texture/flare.dds")
+-- emitter.Texture=game:LoadTexture("texture/flare.dds",false)
 -- state:InsertEmitter(emitter)
