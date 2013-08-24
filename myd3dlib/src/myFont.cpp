@@ -134,7 +134,7 @@ void Font::SetScale(const Vector2 & Scale)
 	FT_Error err = FT_Request_Size(m_face, &req);
 	if(err)
 	{
-		THROW_CUSEXCEPTION("FT_Request_Size failed");
+		THROW_CUSEXCEPTION(_T("FT_Request_Size failed"));
 	}
 
 	m_Scale = Scale;
@@ -171,7 +171,7 @@ void Font::CreateFontFromFile(
 	FT_Error err = FT_New_Face(FontLibrary::getSingleton().m_Library, pFilename, face_index, &face);
 	if(err)
 	{
-		THROW_CUSEXCEPTION("FT_New_Face failed");
+		THROW_CUSEXCEPTION(_T("FT_New_Face failed"));
 	}
 
 	Create(face, height, pDevice);
@@ -200,7 +200,7 @@ void Font::CreateFontFromFileInCache(
 	FT_Error err = FT_New_Memory_Face(FontLibrary::getSingleton().m_Library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);
 	if(err)
 	{
-		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
+		THROW_CUSEXCEPTION(_T("FT_New_Memory_Face failed"));
 	}
 
 	Create(face, height, pDevice);
@@ -252,7 +252,7 @@ void Font::AssignTextureRect(const CSize & size, CRect & outRect)
 
 		if(!m_textureRectRoot->AssignRect(size, outRect))
 		{
-			THROW_CUSEXCEPTION("m_textureRectRoot->AssignRect failed");
+			THROW_CUSEXCEPTION(_T("m_textureRectRoot->AssignRect failed"));
 		}
 
 		m_characterMap.clear();
@@ -310,12 +310,12 @@ void Font::LoadCharacter(int character)
 	FT_Error err = FT_Load_Glyph(m_face, glyph_index, FT_LOAD_RENDER);
 	if(err)
 	{
-		THROW_CUSEXCEPTION(str_printf("FT_Load_Glyph \"%c\" failed", character));
+		THROW_CUSEXCEPTION(str_printf(_T("FT_Load_Glyph \"%c\" failed"), character));
 	}
 
 	if(FT_PIXEL_MODE_GRAY != m_face->glyph->bitmap.pixel_mode)
 	{
-		THROW_CUSEXCEPTION("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode");
+		THROW_CUSEXCEPTION(_T("FT_PIXEL_MODE_GRAY != ft_face->glyph->bitmap.pixel_mode"));
 	}
 
 	InsertCharacter(

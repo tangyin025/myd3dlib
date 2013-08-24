@@ -241,7 +241,7 @@
 //		m_dynamicsWorld->addRigidBody(m_groundBody.get());
 //		m_dynamicsWorld->addRigidBody(m_sphereBody.get());
 //
-//		//THROW_CUSEXCEPTION("aaa");
+//		//THROW_CUSEXCEPTION(_T("aaa"));
 //
 //		return S_OK;
 //	}

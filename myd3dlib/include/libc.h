@@ -26,13 +26,13 @@ std::basic_string<char> wstou8(const wchar_t * str);
 
 #ifdef _UNICODE
 #define ms2ts(str) ms2ws(str)
-#define ws2ts(str) (str)
+#define ws2ts(str) std::wstring(str)
 #define ts2ms(str) ws2ms(str)
-#define ts2ws(str) (str)
+#define ts2ws(str) std::wstring(str)
 #else
-#define ms2ts(str) (str)
+#define ms2ts(str) std::string(str)
 #define ws2ts(str) ws2ms(str)
-#define ts2ms(str) (str)
+#define ts2ms(str) std::string(str)
 #define ts2ws(str) ms2ws(str)
 #endif
 

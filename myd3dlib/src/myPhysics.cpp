@@ -11,6 +11,16 @@ namespace my
 	// Particle
 	// /////////////////////////////////////////////////////////////////////////////////////
 
+	Particle::Particle(void)
+		: position(0,0,0)
+		, velocity(0,0,0)
+		, acceleration(0,0,0)
+		, forceAccum(0,0,0)
+		, damping(1)
+		, inverseMass(1)
+	{
+	}
+
 	bool Particle::hasFiniteMass(void) const
 	{
 		return inverseMass > 0.0f;
@@ -642,6 +652,17 @@ namespace my
 	// ParticleWorld
 	// /////////////////////////////////////////////////////////////////////////////////////
 
+	ParticleWorld::ParticleWorld(unsigned maxContacts, unsigned _resolveIterations)
+		: resolveIteration(_resolveIterations)
+		, resolver(_resolveIterations)
+		, particleContactArray(maxContacts)
+	{
+	}
+
+	ParticleWorld::~ParticleWorld(void)
+	{
+	}
+
 	void ParticleWorld::startFrame(void)
 	{
 		ParticlePtrList::iterator p_iter = particleList.begin();
@@ -697,6 +718,30 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// RigidBody
 	// /////////////////////////////////////////////////////////////////////////////////////
+
+	RigidBody::RigidBody(void)
+	{
+		setInverseMass(1);
+		setPosition(Vector3::zero);
+		setOrientation(Quaternion::identity);
+		setVelocity(Vector3::zero);
+		setRotation(Vector3::zero);
+		//Matrix4 transform;
+		setInverseInertialTensor(Matrix4::identity);
+		//Matrix4 inverseInertiaTensorWorld;
+		setAcceleration(Vector3::zero);
+		clearAccumulator();
+		clearTorqueAccumulator();
+		//Vector3 resultingAcc;
+		//Vector3 resultingAngularAcc;
+		setDamping(1);
+		setAngularDamping(1);
+		setSleepEpsilon(0.0f);
+		//float motion;
+		setAwake(true);
+		setCanSleep(true);
+		calculateDerivedData();
+	}
 
 	static Matrix4 _transformInertiaTensor(
 		const Matrix4 & inertiaTensor,
@@ -1819,6 +1864,23 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// World
 	// /////////////////////////////////////////////////////////////////////////////////////
+
+	World::World(
+		unsigned maxContacts,
+		unsigned _resolvePositionIteration,
+		unsigned _resolveVelocityIteration,
+		float resolvePositionEpsilon,
+		float resolveVelocityEpsilon)
+		: resolvePositionIteration(_resolvePositionIteration)
+		, resolveVelocityIteration(_resolveVelocityIteration)
+		, resolver(_resolvePositionIteration, _resolveVelocityIteration, resolvePositionEpsilon, resolveVelocityEpsilon)
+		, contactList(maxContacts)
+	{
+	}
+
+	World::~World(void)
+	{
+	}
 
 	void World::startFrame(void)
 	{

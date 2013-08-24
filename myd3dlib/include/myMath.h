@@ -1,6 +1,5 @@
 #pragma once
 
-#include <crtdbg.h>
 #include <d3dx9.h>
 
 #define EPSILON_E3			(1.0e-3)
@@ -131,15 +130,9 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i)
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		float & operator [](size_t i);
 
-		const float & operator [](size_t i) const
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		const float & operator [](size_t i) const;
 
 	public:
 		Vector2 operator - (void) const
@@ -348,15 +341,9 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i)
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		float & operator [](size_t i);
 
-		const float & operator [](size_t i) const
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		const float & operator [](size_t i) const;
 
 	public:
 		Vector3 operator - (void) const
@@ -605,15 +592,9 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i)
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		float & operator [](size_t i);
 
-		const float & operator [](size_t i) const
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(float)); return (&x)[i];
-		}
+		const float & operator [](size_t i) const;
 
 	public:
 		Vector4 operator - (void) const
@@ -1550,15 +1531,9 @@ namespace my
 		}
 
 	public:
-		Vector4 & operator [](size_t i)
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(Vector4)); return ((Vector4 *)&_11)[i];
-		}
+		Vector4 & operator [](size_t i);
 
-		const Vector4 & operator [](size_t i) const
-		{
-			_ASSERT(i < sizeof(*this) / sizeof(Vector4)); return ((Vector4 *)&_11)[i];
-		}
+		const Vector4 & operator [](size_t i) const;
 
 	public:
 		Matrix4 operator - (void) const

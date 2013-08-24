@@ -62,7 +62,7 @@ void CFileProp::OnClickButton(CPoint point)
 	m_bButtonIsDown = TRUE;
 	Redraw();
 
-	CString strPath = m_varValue.bstrVal;
+	CString strPath(m_varValue.bstrVal);
 	BOOL bUpdate = FALSE;
 
 	if (m_bIsFolder)

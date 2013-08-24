@@ -29,7 +29,7 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
 		if(FAILED(hr = D3DXCreateFont(
-			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, L"Arial", &m_font)))
+			pd3dDevice, 15, 0, FW_BOLD, 1, FALSE, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, DEFAULT_QUALITY, DEFAULT_PITCH | FF_DONTCARE, _T("Arial"), &m_font)))
 		{
 			return hr;
 		}

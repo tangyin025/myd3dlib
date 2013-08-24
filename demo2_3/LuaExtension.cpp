@@ -91,7 +91,7 @@ static int luaL_loadfile (lua_State *L, const char *filename)
 	}
 	catch(const my::Exception & e)
 	{
-		lua_pushfstring(L, e.GetDescription().c_str());
+		lua_pushfstring(L, ts2ms(e.what().c_str()).c_str());
 		lua_remove(L, fnameindex);
 		return LUA_ERRFILE;
 	}
@@ -173,7 +173,7 @@ static int add_file_and_line(lua_State * L)
 
 static void translate_my_exception(lua_State* L, my::Exception const & e)
 {
-	std::string s = e.GetDescription();
+	std::string s = ts2ms(e.what().c_str());
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 

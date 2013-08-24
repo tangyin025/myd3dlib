@@ -15,7 +15,7 @@ ZipArchiveStream::ZipArchiveStream(unzFile zFile)
 	if(UNZ_OK != ret)
 	{
 		unzClose(m_zFile);
-		THROW_CUSEXCEPTION("cannot get file info from zip file");
+		THROW_CUSEXCEPTION(_T("cannot get file info from zip file"));
 	}
 }
 
@@ -35,13 +35,13 @@ CachePtr ZipArchiveStream::GetWholeCache(void)
 	CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
 	if(0 == cache->size())
 	{
-		THROW_CUSEXCEPTION("read zip file cache failed");
+		THROW_CUSEXCEPTION(_T("read zip file cache failed"));
 	}
 
 	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
-		THROW_CUSEXCEPTION("read zip file cache failed");
+		THROW_CUSEXCEPTION(_T("read zip file cache failed"));
 	}
 	return cache;
 }
@@ -69,14 +69,14 @@ CachePtr FileArchiveStream::GetWholeCache(void)
 	CachePtr cache(new Cache(len));
 	if(0 == cache->size())
 	{
-		THROW_CUSEXCEPTION("read file cache failed");
+		THROW_CUSEXCEPTION(_T("read file cache failed"));
 	}
 
 	fseek(m_fp, 0, SEEK_SET);
 	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
-		THROW_CUSEXCEPTION("read file cache failed");
+		THROW_CUSEXCEPTION(_T("read file cache failed"));
 	}
 	return cache;
 }
@@ -132,14 +132,14 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip archive: %s"), m_dir.c_str()));
 	}
 
 	int ret = unzLocateFile(zFile, ReplaceBackslash(path).c_str(), 0);
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), path.c_str()));
 	}
 
 	if(m_UsePassword)
@@ -153,7 +153,7 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), path.c_str()));
 	}
 	return ArchiveStreamPtr(new ZipArchiveStream(zFile));
 }
@@ -184,13 +184,13 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
 	}
 
 	FILE * fp;
 	if(0 != fopen_s(&fp, fullPath.c_str(), "rb"))
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
 	}
 
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
@@ -252,7 +252,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		FILE * fp;
 		if(0 != fopen_s(&fp, path.c_str(), "rb"))
 		{
-			THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", path.c_str()));
+			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
 		}
 
 		return ArchiveStreamPtr(new FileArchiveStream(fp));
@@ -267,7 +267,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", path.c_str()));
+	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), path.c_str()));
 }
 
 HRESULT DeviceRelatedResourceMgr::Open(
@@ -427,7 +427,7 @@ OgreMeshPtr DeviceRelatedResourceMgr::LoadMesh(const std::string & path, bool re
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(D3DContext::getSingleton().GetD3D9Device(), full_path.c_str(), true);
+			ret->CreateMeshFromOgreXml(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), true);
 		}
 		else
 		{

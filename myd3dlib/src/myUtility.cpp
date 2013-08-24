@@ -840,7 +840,7 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
 	}
 	catch(rapidxml::parse_error & e)
 	{
-		THROW_CUSEXCEPTION(e.what());
+		THROW_CUSEXCEPTION(ms2ts(e.what()));
 	}
 
 	rapidxml::xml_node<char> * node_root = &doc;

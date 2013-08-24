@@ -2,6 +2,7 @@
 #include "myUi.h"
 #include "myDxutApp.h"
 #include "ImeUi.h"
+#include "libc.h"
 
 using namespace my;
 
@@ -1192,7 +1193,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
 	if(Skin && Skin->m_Font)
 	{
-		s_CompString = ImeUi_GetCompositionString();
+		s_CompString = ts2ws(ImeUi_GetCompositionString());
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
@@ -1250,7 +1251,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 		std::wstring horizontalText;
 		for(UINT i = 0; i < MAX_CANDLIST && *ImeUi_GetCandidate(i) != L'\0'; i++)
 		{
-			horizontalText += ImeUi_GetCandidate(i);
+			horizontalText += ts2ws(ImeUi_GetCandidate(i));
 		}
 		extent = Skin->m_Font->CalculateStringExtent(horizontalText.c_str());
 

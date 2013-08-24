@@ -34,10 +34,10 @@ void VertexShader::CreateVertexShader(
 	{
 		if(ErrorMsgs)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create vertex shader from: %p", pSrcData));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create vertex shader from: %p"), pSrcData));
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -69,10 +69,10 @@ void VertexShader::CreateVertexShaderFromFile(
 	{
 		if(ErrorMsgs)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create vertex shader from: %s", pSrcFile));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create vertex shader from: %s"), pSrcFile));
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
@@ -114,10 +114,10 @@ void PixelShader::CreatePixelShader(
 	{
 		if(ErrorMsgs)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create pixel shader from: %p", pSrcData));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create pixel shader from: %p"), pSrcData));
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -149,10 +149,10 @@ void PixelShader::CreatePixelShaderFromFile(
 	{
 		if(ErrorMsgs)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)ErrorMsgs->GetBufferPointer(), ErrorMsgs->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create pixel shader from: %s", pSrcFile));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create pixel shader from: %s"), pSrcFile));
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
@@ -183,10 +183,10 @@ void Effect::CreateEffect(
 	{
 		if(CompilationErrors)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)CompilationErrors->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %p", pSrcData));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create effect from: %p"), pSrcData));
 	}
 
 	Create(pEffect);
@@ -208,10 +208,10 @@ void Effect::CreateEffectFromFile(
 	{
 		if(CompilationErrors)
 		{
-			THROW_CUSEXCEPTION(std::string((char *)CompilationErrors->GetBufferPointer(), CompilationErrors->GetBufferSize()));
+			THROW_CUSEXCEPTION(ms2ts((char *)CompilationErrors->GetBufferPointer()));
 		}
 
-		THROW_CUSEXCEPTION(str_printf("cannot create effect from: %s", pSrcFile));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot create effect from: %s"), pSrcFile));
 	}
 
 	Create(pEffect);

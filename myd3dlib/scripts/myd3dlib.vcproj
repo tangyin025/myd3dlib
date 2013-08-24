@@ -163,6 +163,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\LuaContext.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myCollision.cpp"
 				>
 			</File>
@@ -282,6 +286,10 @@
 			</File>
 			<File
 				RelativePath="..\include\libc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\LuaContext.h"
 				>
 			</File>
 			<File

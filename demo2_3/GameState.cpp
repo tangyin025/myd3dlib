@@ -95,7 +95,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	if(!(actor.reset(PxCreatePlane(*PhysxSample::getSingleton().m_Physics, PxPlane(PxVec3(0,0,0), PxVec3(0,1,0)), *m_Material)),
 		actor))
 	{
-		THROW_CUSEXCEPTION("PxCreatePlane failed");
+		THROW_CUSEXCEPTION(_T("PxCreatePlane failed"));
 	}
 	m_Scene->addActor(*actor);
 	m_Actors.push_back(static_pointer_cast<PxActor>(actor));
@@ -103,7 +103,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	//if(!(actor.reset(PxCreateDynamic(*PhysxSample::getSingleton().m_Physics, PxTransform(PxVec3(0,100,0)), PxSphereGeometry(1), *m_Material, 1)),
 	//	actor))
 	//{
-	//	THROW_CUSEXCEPTION("PxCreateDynamic failed");
+	//	THROW_CUSEXCEPTION(_T("PxCreateDynamic failed"));
 	//}
 	//m_Scene->addActor(*actor);
 	//m_Actors.push_back(static_pointer_cast<PxActor>(actor));
@@ -125,13 +125,13 @@ HRESULT GameStateMain::OnCreateDevice(
 	//physx_ptr<PxTriangleMesh> triMesh(PxToolkit::createTriangleMesh32(*PhysxSample::getSingleton().m_Physics, *PhysxSample::getSingleton().m_Cooking, &meshDesc));
 	//if(!triMesh)
 	//{
-	//	THROW_CUSEXCEPTION("PxToolkit::createTriangleMesh32 failed");
+	//	THROW_CUSEXCEPTION(_T("PxToolkit::createTriangleMesh32 failed"));
 	//}
 
 	//if(!(actor.reset(PxCreateStatic(*PhysxSample::getSingleton().m_Physics, PxTransform::createIdentity(), PxTriangleMeshGeometry(triMesh.get(), PxMeshScale()), *m_Material)),
 	//	actor))
 	//{
-	//	THROW_CUSEXCEPTION("PxCreateStatic failed");
+	//	THROW_CUSEXCEPTION(_T("PxCreateStatic failed"));
 	//}
 	//m_Scene->addActor(*actor);
 	//m_Actors.push_back(static_pointer_cast<PxActor>(actor));

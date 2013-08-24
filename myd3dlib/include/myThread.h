@@ -120,7 +120,7 @@ namespace my
 
 		HINSTANCE GetHandle(void) const;
 
-		static std::wstring GetModuleFileName(void);
+		static std::basic_string<TCHAR> GetModuleFileName(void);
 
 		int Run(void);
 	};

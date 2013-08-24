@@ -56,7 +56,7 @@ HRESULT PhysxSample::OnCreateDevice(
 
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, m_ErrorCallback)), m_Foundation))
 	{
-		THROW_CUSEXCEPTION("PxCreateFoundation failed");
+		THROW_CUSEXCEPTION(_T("PxCreateFoundation failed"));
 	}
 
 	if(!(m_Physics.reset(PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
@@ -67,17 +67,17 @@ HRESULT PhysxSample::OnCreateDevice(
 #endif
 		NULL)), m_Physics))
 	{
-		THROW_CUSEXCEPTION("PxCreatePhysics failed");
+		THROW_CUSEXCEPTION(_T("PxCreatePhysics failed"));
 	}
 
 	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, PxCookingParams())), m_Cooking))
 	{
-		THROW_CUSEXCEPTION("PxCreateCooking failed");
+		THROW_CUSEXCEPTION(_T("PxCreateCooking failed"));
 	}
 
 	if(!(m_CpuDispatcher.reset(PxDefaultCpuDispatcherCreate(1, NULL)), m_CpuDispatcher))
 	{
-		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
+		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
 	}
 
 	physx::apex::NxApexSDKDesc apexDesc;
@@ -89,13 +89,13 @@ HRESULT PhysxSample::OnCreateDevice(
 	apexDesc.resourceCallback = &m_ApexResourceCallback;
 	if(!(m_ApexSDK.reset(NxCreateApexSDK(apexDesc)), m_ApexSDK))
 	{
-		THROW_CUSEXCEPTION("NxCreateApexSDK failed");
+		THROW_CUSEXCEPTION(_T("NxCreateApexSDK failed"));
 	}
 
 	if(!(m_ModuleDestructible.reset(static_cast<physx::apex::NxModuleDestructible *>(m_ApexSDK->createModule("Destructible"))),
 		m_ModuleDestructible))
 	{
-		THROW_CUSEXCEPTION("m_ApexSDK->createModule failed");
+		THROW_CUSEXCEPTION(_T("m_ApexSDK->createModule failed"));
 	}
 
 	NxParameterized::Interface * moduleDesc = m_ModuleDestructible->getDefaultModuleDesc();
@@ -105,7 +105,7 @@ HRESULT PhysxSample::OnCreateDevice(
 
 	if(!PxInitExtensions(*m_Physics))
 	{
-		THROW_CUSEXCEPTION("PxInitExtensions failed");
+		THROW_CUSEXCEPTION(_T("PxInitExtensions failed"));
 	}
 	return S_OK;
 }
@@ -174,7 +174,7 @@ bool PhysxScene::OnInit(void)
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	if(!(m_Scene.reset(PhysxSample::getSingleton().m_Physics->createScene(sceneDesc)), m_Scene))
 	{
-		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createScene failed");
+		THROW_CUSEXCEPTION(_T("PhysxSample::getSingleton().m_Physics->createScene failed"));
 	}
 
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
@@ -186,7 +186,7 @@ bool PhysxScene::OnInit(void)
 	apexSceneDesc.scene = m_Scene.get();
 	if(!(m_ApexScene.reset(PhysxSample::getSingleton().m_ApexSDK->createScene(apexSceneDesc)), m_ApexScene))
 	{
-		THROW_CUSEXCEPTION("m_ApexSDK->createScene failed");
+		THROW_CUSEXCEPTION(_T("m_ApexSDK->createScene failed"));
 	}
 
 	m_ViewMatrixID = m_ApexScene->allocViewMatrix(physx::apex::ViewMatrixType::LOOK_AT_RH);
@@ -202,7 +202,7 @@ bool PhysxScene::OnInit(void)
 
 	if(!(m_Material.reset(PhysxSample::getSingleton().m_Physics->createMaterial(0.5f, 0.5f, 0.1f)), m_Material))
 	{
-		THROW_CUSEXCEPTION("PhysxSample::getSingleton().m_Physics->createMaterial failed");
+		THROW_CUSEXCEPTION(_T("PhysxSample::getSingleton().m_Physics->createMaterial failed"));
 	}
 
 	return true;

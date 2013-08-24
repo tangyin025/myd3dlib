@@ -7,26 +7,6 @@ namespace my
 	// BoundingSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	const Vector3 & BoundingSphere::getCenter(void) const
-	{
-		return center;
-	}
-
-	void BoundingSphere::setCenter(const Vector3 & _center)
-	{
-		center = _center;
-	}
-
-	const float BoundingSphere::getRadius(void) const
-	{
-		return radius;
-	}
-
-	void BoundingSphere::setRadius(float _radius)
-	{
-		radius = _radius;
-	}
-
 	BoundingSphere::BoundingSphere(const Vector3 & _center, float _radius)
 		: center(_center)
 		, radius(_radius)
@@ -92,6 +72,16 @@ namespace my
 	// CollisionSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
 
+	CollisionSphere::CollisionSphere(
+		float _radius,
+		const Matrix4 & _offset,
+		float _friction,
+		float _restitution)
+		: CollisionPrimitive(_offset, _friction, _restitution)
+		, radius(_radius)
+	{
+	}
+
 	unsigned CollisionSphere::collide(
 		const CollisionPrimitive * rhs,
 		Contact * contacts,
@@ -130,6 +120,16 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionBox
 	// /////////////////////////////////////////////////////////////////////////////////////
+
+	CollisionBox::CollisionBox(
+		const Vector3 & _halfSize,
+		const Matrix4 & _offset,
+		float _friction,
+		float _restitution)
+		: CollisionPrimitive(_offset, _friction, _restitution)
+		, halfSize(_halfSize)
+	{
+	}
 
 	unsigned CollisionBox::collide(
 		const CollisionPrimitive * rhs,

@@ -735,9 +735,9 @@ HINSTANCE Application::GetHandle(void) const
 	return m_hinst;
 }
 
-std::wstring Application::GetModuleFileName(void)
+std::basic_string<TCHAR> Application::GetModuleFileName(void)
 {
-	std::wstring ret;
+	std::basic_string<TCHAR> ret;
 	ret.resize(MAX_PATH);
 	ret.resize(::GetModuleFileName(NULL, &ret[0], ret.size()));
 

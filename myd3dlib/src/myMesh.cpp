@@ -216,14 +216,14 @@ void Mesh::CreateTorus(
 
 void OgreMesh::CreateMeshFromOgreXml(
 	LPDIRECT3DDEVICE9 pd3dDevice,
-	LPCSTR pFilename,
+	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
 {
 	FILE * fp;
-	if(0 != fopen_s(&fp, pFilename, "rb"))
+	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
 	}
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
@@ -247,7 +247,7 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 	}
 	catch(rapidxml::parse_error & e)
 	{
-		THROW_CUSEXCEPTION(e.what());
+		THROW_CUSEXCEPTION(ms2ts(e.what()));
 	}
 
 	rapidxml::xml_node<char> * node_root = &doc;
@@ -263,12 +263,12 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 
 	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
 	{
-		THROW_CUSEXCEPTION("facecount overflow ( >= 2^16 - 1 )");
+		THROW_CUSEXCEPTION(_T("facecount overflow ( >= 2^16 - 1 )"));
 	}
 
 	if(!positions)
 	{
-		THROW_CUSEXCEPTION("cannot process non-position vertex");
+		THROW_CUSEXCEPTION(_T("cannot process non-position vertex"));
 	}
 
 	m_VertexElems.InsertPositionElement(0);
@@ -288,7 +288,7 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 
 	if(texture_coords > MAXBYTE)
 	{
-		THROW_CUSEXCEPTION("texture coords overflow ( > 255 )");
+		THROW_CUSEXCEPTION(_T("texture coords overflow ( > 255 )"));
 	}
 
 	for(int i = 0; i < texture_coords; i++)
@@ -376,12 +376,12 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 
 			if(vertexindex >= vertexcount)
 			{
-				THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
+				THROW_CUSEXCEPTION(str_printf(_T("invalid vertex index: %d"), vertexindex));
 			}
 
 			if(boneindex >= 0xff)
 			{
-				THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
+				THROW_CUSEXCEPTION(str_printf(_T("invalid bone index: %d"), boneindex));
 			}
 
 			unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
@@ -401,7 +401,7 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 
 			if(i >= D3DVertexElementSet::MAX_BONE_INDICES)
 			{
-				THROW_CUSEXCEPTION("too much bone assignment");
+				THROW_CUSEXCEPTION(_T("too much bone assignment"));
 			}
 		}
 	}
@@ -419,7 +419,7 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh);
 		if(!usesharedvertices || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
 		{
-			THROW_CUSEXCEPTION("!usesharedvertices || !triangle_list");
+			THROW_CUSEXCEPTION(_T("!usesharedvertices || !triangle_list"));
 		}
 
 		DEFINE_XML_NODE_SIMPLE(faces, submesh);

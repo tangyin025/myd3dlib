@@ -122,15 +122,7 @@ namespace my
 		}
 
 	public:
-		Particle(void)
-			: position(0,0,0)
-			, velocity(0,0,0)
-			, acceleration(0,0,0)
-			, forceAccum(0,0,0)
-			, damping(1)
-			, inverseMass(1)
-		{
-		}
+		Particle(void);
 
 		bool hasFiniteMass(void) const;
 
@@ -574,16 +566,9 @@ namespace my
 		}
 
 	public:
-		ParticleWorld(unsigned maxContacts = 256, unsigned _resolveIterations = 16)
-			: resolveIteration(_resolveIterations)
-			, resolver(_resolveIterations)
-			, particleContactArray(maxContacts)
-		{
-		}
+		ParticleWorld(unsigned maxContacts = 256, unsigned _resolveIterations = 16);
 
-		virtual ~ParticleWorld(void)
-		{
-		}
+		virtual ~ParticleWorld(void);
 
 		virtual void startFrame(void);
 
@@ -839,29 +824,7 @@ namespace my
 		}
 
 	public:
-		RigidBody(void)
-		{
-			setInverseMass(1);
-			setPosition(Vector3::zero);
-			setOrientation(Quaternion::identity);
-			setVelocity(Vector3::zero);
-			setRotation(Vector3::zero);
-			//Matrix4 transform;
-			setInverseInertialTensor(Matrix4::identity);
-			//Matrix4 inverseInertiaTensorWorld;
-			setAcceleration(Vector3::zero);
-			clearAccumulator();
-			clearTorqueAccumulator();
-			//Vector3 resultingAcc;
-			//Vector3 resultingAngularAcc;
-			setDamping(1);
-			setAngularDamping(1);
-			setSleepEpsilon(0.0f);
-			//float motion;
-			setAwake(true);
-			setCanSleep(true);
-			calculateDerivedData();
-		}
+		RigidBody(void);
 
 		void calculateDerivedData(void);
 
@@ -1292,18 +1255,9 @@ namespace my
 			unsigned _resolvePositionIteration = 16,
 			unsigned _resolveVelocityIteration = 16,
 			float resolvePositionEpsilon = 0.01f,
-			float resolveVelocityEpsilon = 0.01f)
+			float resolveVelocityEpsilon = 0.01f);
 
-			: resolvePositionIteration(_resolvePositionIteration)
-			, resolveVelocityIteration(_resolveVelocityIteration)
-			, resolver(_resolvePositionIteration, _resolveVelocityIteration, resolvePositionEpsilon, resolveVelocityEpsilon)
-			, contactList(maxContacts)
-		{
-		}
-
-		virtual ~World(void)
-		{
-		}
+		virtual ~World(void);
 
 		virtual void startFrame(void);
 

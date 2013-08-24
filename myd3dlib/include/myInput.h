@@ -13,25 +13,14 @@ namespace my
 	public:
 		HRESULT hr;
 
-		IDirectInput8W * m_ptr;
+		IDirectInput8 * m_ptr;
 
 	public:
-		Input(void)
-			: m_ptr(NULL)
-		{
-		}
+		Input(void);
 
-		virtual ~Input(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~Input(void);
 
-		void Create(IDirectInput8W * dinput)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = dinput;
-		}
+		void Create(IDirectInput8 * dinput);
 
 		void CreateInput(HINSTANCE hinst);
 
@@ -115,7 +104,7 @@ namespace my
 
 		friend Input;
 
-		IDirectInputDevice8W * m_ptr;
+		IDirectInputDevice8 * m_ptr;
 
 	public:
 		InputDevice(void)
@@ -128,7 +117,7 @@ namespace my
 			SAFE_RELEASE(m_ptr);
 		}
 
-		void Create(LPDIRECTINPUTDEVICE8W device)
+		void Create(LPDIRECTINPUTDEVICE8 device)
 		{
 			_ASSERT(!m_ptr);
 
@@ -186,7 +175,7 @@ namespace my
 		{
 		}
 
-		void CreateKeyboard(LPDIRECTINPUT8W input);
+		void CreateKeyboard(LPDIRECTINPUT8 input);
 
 		virtual void Capture(void);
 
@@ -220,7 +209,7 @@ namespace my
 		{
 		}
 
-		void CreateMouse(LPDIRECTINPUT8W input);
+		void CreateMouse(LPDIRECTINPUT8 input);
 
 		virtual void Capture(void);
 

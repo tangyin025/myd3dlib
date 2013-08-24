@@ -96,7 +96,7 @@ void CMainDoc::OnCreateStaticmesh()
 	{
 		try
 		{
-			my::OgreMeshPtr mesh = theApp.LoadMesh(ws2ms(dlg.GetPathName()));
+			my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms(dlg.GetPathName()));
 
 			static unsigned int i = 0;
 			CString strItem;
@@ -109,8 +109,7 @@ void CMainDoc::OnCreateStaticmesh()
 		}
 		catch (const my::Exception & e)
 		{
-			AfxMessageBox(str_printf(_T("Cannot open: %s\n%s"),
-				dlg.GetFileName(), ms2ws(e.what().c_str()).c_str()).c_str());
+			AfxMessageBox(str_printf(_T("Cannot open: %s\n%s"), dlg.GetFileName(), e.what().c_str()).c_str());
 		}
 	}
 }

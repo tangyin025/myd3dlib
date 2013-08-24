@@ -1242,7 +1242,7 @@ static void DrawCandidateList()
 			DWORD uDW = 0;
 			DWORD uDH = 0;
 			TCHAR ss[8];
-            swprintf_s(ss, COUNTOF(ss), TEXT("%d"), cnt);
+            _stprintf_s(ss, COUNTOF(ss), TEXT("%d"), cnt);
 			g_CaretInfo.pFont->GetTextExtent( ss, &uDW, &uDH );
 			uDigitWidthList[cnt] = uDW;
 			if ( uDW > uDigitWidth )
@@ -1369,7 +1369,7 @@ static void DrawCandidateList()
 		// draw background of error character if it exists
 		TCHAR szTemp[ COUNTOF( g_szReadingString ) ];
 		if (g_iReadingError >= 0) {
-			wcscpy_s(szTemp, COUNTOF(szTemp), g_szReadingString);
+			_tcscpy_s(szTemp, COUNTOF(szTemp), g_szReadingString);
 			LPTSTR psz = szTemp + g_iReadingError;
 #ifdef UNICODE
 			psz++;
@@ -1526,7 +1526,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 					lRet = (LONG)_ImmGetCompositionString( himc, GCS_RESULTSTR, szCompStr, COUNTOF( szCompStr ) ) / sizeof(TCHAR);
 					szCompStr[lRet] = 0;
 					CancelCompString( g_hwndCurr, false, GetCharCount( szCompStr ) );
-					wcscpy_s(g_szCompositionString, COUNTOF(g_szCompositionString), szCompStr);
+					_tcscpy_s(g_szCompositionString, COUNTOF(g_szCompositionString), szCompStr);
 					_SendCompString();
 					InitCompStringData();
 				}
@@ -1544,7 +1544,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 					//
 					CancelCompString(g_hwndCurr, false, GetCharCount( szCompStr ) );
 
-					wcscpy_s(g_szCompositionString, COUNTOF(g_szCompositionString), szCompStr);
+					_tcscpy_s(g_szCompositionString, COUNTOF(g_szCompositionString), szCompStr);
 					lRet = _ImmGetCompositionString( himc, GCS_COMPATTR, g_szCompAttrString, COUNTOF( g_szCompAttrString ) );
 					g_szCompAttrString[lRet] = 0;
 					// Older CHT IME uses composition string for reading string
@@ -1583,7 +1583,7 @@ LPARAM ImeUi_ProcessMessage( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM& lParam
 									if (g_dwSelection == (DWORD)i)
 										g_iReadingError = lstrlen(g_szReadingString);
 									LPCTSTR pszTmp = g_szCandidate[i];
-				                    wcscat_s(g_szReadingString, COUNTOF(g_szReadingString), pszTmp);
+				                    _tcscat_s(g_szReadingString, COUNTOF(g_szReadingString), pszTmp);
 								}
 							}
 						}
@@ -2412,7 +2412,7 @@ static void GetReadingString(HWND hWnd)
 			if (g_dwSelection == (DWORD)i)
 				g_iReadingError = lstrlen(g_szReadingString);
 			LPCTSTR pszTmp = g_szCandidate[i];
-			wcscat_s(g_szReadingString, COUNTOF(g_szReadingString), pszTmp);
+			_tcscat_s(g_szReadingString, COUNTOF(g_szReadingString), pszTmp);
 		}
 	}
 	g_uCandPageSize = MAX_CANDLIST;
@@ -3226,9 +3226,9 @@ void CTsfUiLessMode::MakeReadingInformationString(ITfReadingInformationUIElement
 			{
 				szStr[sizeof(szStr)-1] = 0;
 			}
-			wcscpy_s( g_szReadingString, COUNTOF(g_szReadingString), szStr );
+			_tcscpy_s( g_szReadingString, COUNTOF(g_szReadingString), szStr );
 #else
-			wcscpy_s( g_szReadingString, COUNTOF(g_szReadingString), bstr );
+			_tcscpy_s( g_szReadingString, COUNTOF(g_szReadingString), bstr );
 #endif
 			g_dwCount = cchMax;
 			LPCTSTR pszSource = g_szReadingString;

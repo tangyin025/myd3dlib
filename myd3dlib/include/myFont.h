@@ -125,7 +125,7 @@ namespace my
 			FT_Error err = FT_Init_FreeType(&m_Library);
 			if(err)
 			{
-				THROW_CUSEXCEPTION("FT_Init_FreeType failed");
+				THROW_CUSEXCEPTION(_T("FT_Init_FreeType failed"));
 			}
 		}
 

@@ -3,11 +3,28 @@
 
 using namespace my;
 
+Input::Input(void)
+: m_ptr(NULL)
+{
+}
+
+Input::~Input(void)
+{
+	SAFE_RELEASE(m_ptr);
+}
+
+void Input::Create(IDirectInput8 * dinput)
+{
+	_ASSERT(!m_ptr);
+
+	m_ptr = dinput;
+}
+
 void Input::CreateInput(HINSTANCE hinst)
 {
-	LPDIRECTINPUT8W input;
+	LPDIRECTINPUT8 input;
 	HRESULT hres;
-	if(FAILED(hres = DirectInput8Create(hinst, DIRECTINPUT_HEADER_VERSION, IID_IDirectInput8W, (LPVOID *)&input, NULL)))
+	if(FAILED(hres = DirectInput8Create(hinst, DIRECTINPUT_HEADER_VERSION, IID_IDirectInput8, (LPVOID *)&input, NULL)))
 	{
 		THROW_DINPUTEXCEPTION(hres);
 	}
@@ -15,10 +32,10 @@ void Input::CreateInput(HINSTANCE hinst)
 	Create(input);
 }
 
-void Keyboard::CreateKeyboard(LPDIRECTINPUT8W input)
+void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input)
 {
 	HRESULT hres;
-	LPDIRECTINPUTDEVICE8W device;
+	LPDIRECTINPUTDEVICE8 device;
 	if(FAILED(hres = input->CreateDevice(GUID_SysKeyboard, &device, NULL)))
 	{
 		THROW_DINPUTEXCEPTION(hres);
@@ -46,10 +63,10 @@ void Keyboard::Capture(void)
 	}
 }
 
-void Mouse::CreateMouse(LPDIRECTINPUT8W input)
+void Mouse::CreateMouse(LPDIRECTINPUT8 input)
 {
 	HRESULT hres;
-	LPDIRECTINPUTDEVICE8W device;
+	LPDIRECTINPUTDEVICE8 device;
 	if(FAILED(hres = input->CreateDevice(GUID_SysMouse, &device, NULL)))
 	{
 		THROW_DINPUTEXCEPTION(hres);

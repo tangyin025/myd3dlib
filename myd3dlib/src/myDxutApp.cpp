@@ -137,7 +137,7 @@ int DxutApp::Run(void)
 		LPDIRECT3D9 pd3d9 = Direct3DCreate9(D3D_SDK_VERSION);
 		if(NULL == pd3d9)
 		{
-			THROW_CUSEXCEPTION("cannnot create direct3d9");
+			THROW_CUSEXCEPTION(_T("cannnot create direct3d9"));
 		}
 		m_d3d9.Attach(pd3d9);
 
@@ -167,7 +167,7 @@ int DxutApp::Run(void)
 	}
 	catch(const my::Exception & e)
 	{
-		MessageBox(m_wnd->m_hWnd, ms2ts(e.what().c_str()).c_str(), NULL, MB_OK);
+		MessageBox(m_wnd->m_hWnd, e.what().c_str(), NULL, MB_OK);
 	}
 
 	return (int)msg.wParam;
@@ -1510,7 +1510,7 @@ DXUTD3D9DeviceSettings DxutApp::FindValidDeviceSettings(const DXUTD3D9DeviceSett
                                           const_cast<DXUTMatchOptions *>(&matchOptions), &optimalDeviceSettings );
     if( FAILED( hr ) )
 	{
-		THROW_CUSEXCEPTION("no valid devices were found");
+		THROW_CUSEXCEPTION(_T("no valid devices were found"));
 	}
 	return validDeviceSettings;
 }
@@ -1715,8 +1715,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 		if(FAILED(hr = Create3DEnvironment(deviceSettings)))
 		{
 			m_wnd->DestroyWindow();
-			my::D3DException e(hr, __FILE__, __LINE__);
-			MessageBox(NULL, ms2ts(e.what().c_str()).c_str(), NULL, MB_OK);
+			MessageBox(NULL, my::D3DException::Translate(hr).c_str(), NULL, MB_OK);
 		}
 	}
 

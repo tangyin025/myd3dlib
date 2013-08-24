@@ -20,13 +20,25 @@ namespace my
 		float radius;
 
 	public:
-		const Vector3 & getCenter(void) const;
+		const Vector3 & getCenter(void) const
+		{
+			return center;
+		}
 
-		void setCenter(const Vector3 & _center);
+		void setCenter(const Vector3 & _center)
+		{
+			center = _center;
+		}
 
-		const float getRadius(void) const;
+		const float getRadius(void) const
+		{
+			return radius;
+		}
 
-		void setRadius(float _radius);
+		void setRadius(float _radius)
+		{
+			radius = _radius;
+		}
 
 	public:
 		BoundingSphere(const Vector3 & _center, float _radius);
@@ -53,152 +65,152 @@ namespace my
 		RigidBody * body1;
 	};
 
-	// /////////////////////////////////////////////////////////////////////////////////////
-	// BVHNode
-	// /////////////////////////////////////////////////////////////////////////////////////
+	//// /////////////////////////////////////////////////////////////////////////////////////
+	//// BVHNode
+	//// /////////////////////////////////////////////////////////////////////////////////////
 
-	template <class BoundingVolumeClass>
-	class BVHNode
-	{
-	protected:
-		class BoundingVolumeLt
-		{
-		protected:
-			BoundingVolumeClass volume;
+	//template <class BoundingVolumeClass>
+	//class BVHNode
+	//{
+	//protected:
+	//	class BoundingVolumeLt
+	//	{
+	//	protected:
+	//		BoundingVolumeClass volume;
 
-		public:
-			BoundingVolumeLt(const BoundingVolumeClass & _volume)
-				: volume(_volume)
-			{
-			}
+	//	public:
+	//		BoundingVolumeLt(const BoundingVolumeClass & _volume)
+	//			: volume(_volume)
+	//		{
+	//		}
 
-			bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
-			{
-				return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
-			}
-		};
+	//		bool operator () (const BVHNode<BoundingVolumeClass> & lhs, const BVHNode<BoundingVolumeClass> & rhs)
+	//		{
+	//			return lhs.volume.getGrowth(volume) < rhs.volume.getGrowth(volume);
+	//		}
+	//	};
 
-	protected:
-		typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
+	//protected:
+	//	typedef std::vector<BVHNode<BoundingVolumeClass> > BVHNodeList;
 
-		BVHNodeList childs;
+	//	BVHNodeList childs;
 
-		BoundingVolumeClass volume;
+	//	BoundingVolumeClass volume;
 
-		RigidBody * body;
+	//	RigidBody * body;
 
-	protected:
-		bool overlaps(const BVHNode<BoundingVolumeClass> & other) const
-		{
-			return volume.overlap(other.volume);
-		}
+	//protected:
+	//	bool overlaps(const BVHNode<BoundingVolumeClass> & other) const
+	//	{
+	//		return volume.overlap(other.volume);
+	//	}
 
-		unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
-		{
-			if(limit > 0)
-			{
-				if(overlaps(other))
-				{
-					if(isLeaf())
-					{
-						if(other.isLeaf())
-						{
-							contacts[0].body0 = body;
-							contacts[0].body1 = other.body;
-							return 1;
-						}
+	//	unsigned getPotentialContactsWith(const BVHNode<BoundingVolumeClass> & other, PotentialContact * contacts, unsigned limit) const
+	//	{
+	//		if(limit > 0)
+	//		{
+	//			if(overlaps(other))
+	//			{
+	//				if(isLeaf())
+	//				{
+	//					if(other.isLeaf())
+	//					{
+	//						contacts[0].body0 = body;
+	//						contacts[0].body1 = other.body;
+	//						return 1;
+	//					}
 
-						return other.getPotentialContactsWith(*this, contants, limit);
-					}
+	//					return other.getPotentialContactsWith(*this, contants, limit);
+	//				}
 
-					unsigned nret = 0;
-					BVHNodeList::constant_iterator child_iter = childs.begin();
-					for(; child_iter != childs.end(); child_iter++)
-					{
-						nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
-					}
-					return nret;
-				}
-			}
-			return 0;
-		}
+	//				unsigned nret = 0;
+	//				BVHNodeList::constant_iterator child_iter = childs.begin();
+	//				for(; child_iter != childs.end(); child_iter++)
+	//				{
+	//					nret += child_iter->getPotentialContactsWith(other, &contacts[nret], limit - nret);
+	//				}
+	//				return nret;
+	//			}
+	//		}
+	//		return 0;
+	//	}
 
-		void recalculateBoundingVolume(void)
-		{
-			_ASSERT(!childs.empty());
+	//	void recalculateBoundingVolume(void)
+	//	{
+	//		_ASSERT(!childs.empty());
 
-			BVHNodeList::const_iterator child_iter = childs.begin();
-			volume = child_iter->volume;
-			child_iter++;
-			for(; child_iter != childs.end(); child_iter++)
-			{
-				volume = buildBoundingSphere(volume, child_iter->volume);
-			}
-		}
+	//		BVHNodeList::const_iterator child_iter = childs.begin();
+	//		volume = child_iter->volume;
+	//		child_iter++;
+	//		for(; child_iter != childs.end(); child_iter++)
+	//		{
+	//			volume = buildBoundingSphere(volume, child_iter->volume);
+	//		}
+	//	}
 
-	public:
-		BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
-			: volume(_volume)
-			, body(_body)
-		{
-		}
+	//public:
+	//	BVHNode(const BoundingVolumeClass & _volume, RigidBody * _body = NULL)
+	//		: volume(_volume)
+	//		, body(_body)
+	//	{
+	//	}
 
-		bool isLeaf(void) const
-		{
-			if(NULL == body)
-			{
-				_ASSERT(childs.empty());
+	//	bool isLeaf(void) const
+	//	{
+	//		if(NULL == body)
+	//		{
+	//			_ASSERT(childs.empty());
 
-				return true;
-			}
+	//			return true;
+	//		}
 
-			_ASSERT(!childs.empty());
+	//		_ASSERT(!childs.empty());
 
-			return false;
-		}
+	//		return false;
+	//	}
 
-		unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const
-		{
-			if(limit > 0)
-			{
-				if(!isLeaf())
-				{
-					unsigned nret = 0;
-					BVHNodeList::constant_iterator child_iter = childs.begin();
-					for(; child_iter != childs.end(); child_iter++)
-					{
-						BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
-						for(; other_child_iter != childs.end(); other_child_iter++)
-						{
-							nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
-						}
-					}
-					return nret;
-				}
-			}
-			return 0;
-		}
+	//	unsigned getPotentialContacts(PotentialContact * contacts, unsigned limit) const
+	//	{
+	//		if(limit > 0)
+	//		{
+	//			if(!isLeaf())
+	//			{
+	//				unsigned nret = 0;
+	//				BVHNodeList::constant_iterator child_iter = childs.begin();
+	//				for(; child_iter != childs.end(); child_iter++)
+	//				{
+	//					BVHNodeList::constant_iterator other_child_iter = child_iter + 1;
+	//					for(; other_child_iter != childs.end(); other_child_iter++)
+	//					{
+	//						nret += child_iter->getPotentialContactsWith(*other_child_iter, &contacts[nret], limit - nret);
+	//					}
+	//				}
+	//				return nret;
+	//			}
+	//		}
+	//		return 0;
+	//	}
 
-		void insert(RigidBody * _body, const BoundingVolumeClass & _volume)
-		{
-			if(isLeaf())
-			{
-				childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
+	//	void insert(RigidBody * _body, const BoundingVolumeClass & _volume)
+	//	{
+	//		if(isLeaf())
+	//		{
+	//			childs.push_back(BVHNode<BoundingVolumeClass>(volume, body));
 
-				childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
+	//			childs.push_back(BVHNode<BoundingVolumeClass>(_volume, _body));
 
-				body = NULL;
-			}
-			else
-			{
-				BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
+	//			body = NULL;
+	//		}
+	//		else
+	//		{
+	//			BVHNodeList::iterator child_iter = std::min_element(childs.begin(), childs.end(), BoundingVolumeLt(_volume));
 
-				child_iter->insert(_body, _volume);
-			}
+	//			child_iter->insert(_body, _volume);
+	//		}
 
-			recalculateBoundingVolume();
-		}
-	};
+	//		recalculateBoundingVolume();
+	//	}
+	//};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionPrimitive
@@ -285,6 +297,22 @@ namespace my
 			return transform[i].xyz;
 		}
 
+	protected:
+		CollisionPrimitive(const Matrix4 & _offset, float _friction, float _restitution)
+			: body(NULL)
+			, offset(_offset)
+			, friction(_friction)
+			, restitution(_restitution)
+		{
+		}
+
+	public:
+		virtual ~CollisionPrimitive(void)
+		{
+		}
+
+		void calculateInternals(void);
+
 		enum PrimitiveType
 		{
 			PrimitiveTypeShere,
@@ -315,22 +343,6 @@ namespace my
 			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const = 0;
-
-	protected:
-		CollisionPrimitive(const Matrix4 & _offset, float _friction, float _restitution)
-			: body(NULL)
-			, offset(_offset)
-			, friction(_friction)
-			, restitution(_restitution)
-		{
-		}
-
-	public:
-		virtual ~CollisionPrimitive(void)
-		{
-		}
-
-		void calculateInternals(void);
 	};
 
 	typedef boost::shared_ptr<CollisionPrimitive> CollisionPrimitivePtr;
@@ -364,6 +376,13 @@ namespace my
 			return PrimitiveTypeShere;
 		}
 
+	public:
+		CollisionSphere(
+			float _radius,
+			const Matrix4 & _offset = my::Matrix4::identity,
+			float _friction = 0,
+			float _restitution = 0);
+
 		virtual unsigned collide(
 			const CollisionPrimitive * rhs,
 			Contact * contacts,
@@ -386,18 +405,6 @@ namespace my
 			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const;
-
-	public:
-		CollisionSphere(
-			float _radius,
-			const Matrix4 & _offset = my::Matrix4::identity,
-			float _friction = 0,
-			float _restitution = 0)
-
-			: CollisionPrimitive(_offset, _friction, _restitution)
-			, radius(_radius)
-		{
-		}
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -429,6 +436,13 @@ namespace my
 			return PrimitiveTypeBox;
 		}
 
+	public:
+		CollisionBox(
+			const Vector3 & _halfSize,
+			const Matrix4 & _offset = my::Matrix4::identity,
+			float _friction = 0,
+			float _restitution = 0);
+
 		virtual unsigned collide(
 			const CollisionPrimitive * rhs,
 			Contact * contacts,
@@ -451,18 +465,6 @@ namespace my
 			float planeRestitution,
 			Contact * contacts,
 			unsigned limits) const;
-
-	public:
-		CollisionBox(
-			const Vector3 & _halfSize,
-			const Matrix4 & _offset = my::Matrix4::identity,
-			float _friction = 0,
-			float _restitution = 0)
-
-			: CollisionPrimitive(_offset, _friction, _restitution)
-			, halfSize(_halfSize)
-		{
-		}
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

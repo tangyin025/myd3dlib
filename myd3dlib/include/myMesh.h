@@ -599,7 +599,7 @@ namespace my
 
 		void CreateMeshFromOgreXml(
 			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCSTR pFilename,
+			LPCTSTR pFilename,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 

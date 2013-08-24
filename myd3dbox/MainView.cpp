@@ -169,7 +169,7 @@ BOOL CMainView::ResetD3DSwapChain(void)
 	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).what().c_str());
+		TRACE(my::D3DException::Translate(hr).c_str());
 		return FALSE;
 	}
 
@@ -250,8 +250,8 @@ void CMainView::OnFrameRender(
 			break;
 		}
 
-		DrawTextAtWorld(Vector3(10,0,0), _T("x"), D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,10), _T("z"), D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(10,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(0,0,10), L"z", D3DCOLOR_ARGB(255,255,255,0));
 
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
@@ -260,7 +260,7 @@ void CMainView::OnFrameRender(
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
 		m_Font->DrawString(
-			m_UIRender.get(), strText, my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+			m_UIRender.get(), ts2ws(strText).c_str(), my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
 		m_UIRender->End();
 
 		V(pd3dDevice->EndScene());
