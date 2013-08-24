@@ -199,10 +199,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\src\myLog.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\src\myMath.cpp"
 				>
 			</File>
@@ -326,10 +322,6 @@
 			</File>
 			<File
 				RelativePath="..\include\myKinematic.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\myLog.h"
 				>
 			</File>
 			<File
