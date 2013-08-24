@@ -15,30 +15,15 @@ namespace my
 		CRITICAL_SECTION m_section;
 
 	public:
-		CriticalSection(void)
-		{
-			::InitializeCriticalSection(&m_section);
-		}
+		CriticalSection(void);
 
-		~CriticalSection(void)
-		{
-			::DeleteCriticalSection(&m_section);
-		}
+		~CriticalSection(void);
 
-		void enter(void)
-		{
-			::EnterCriticalSection(&m_section);
-		}
+		void Enter(void);
 
-		void leave(void)
-		{
-			::LeaveCriticalSection(&m_section);
-		}
+		void Leave(void);
 
-		BOOL TryEnterCriticalSection(void)
-		{
-			return ::TryEnterCriticalSection(&m_section);
-		}
+		BOOL TryEnterCriticalSection(void);
 	};
 
 	class CriticalSectionLock
@@ -47,16 +32,9 @@ namespace my
 		CriticalSection & m_cs;
 
 	public:
-		CriticalSectionLock(CriticalSection & cs)
-			: m_cs(cs)
-		{
-			m_cs.enter();
-		}
+		CriticalSectionLock(CriticalSection & cs);
 
-		~CriticalSectionLock(void)
-		{
-			m_cs.leave();
-		}
+		~CriticalSectionLock(void);
 	};
 
 	class Event
@@ -67,14 +45,7 @@ namespace my
 		BOOL bres;
 
 	public:
-		Event(
-			LPSECURITY_ATTRIBUTES lpEventAttributes = NULL,
-			BOOL bManualReset = FALSE,
-			BOOL bInitialState = FALSE,
-			LPCTSTR lpName = NULL)
-		{
-			m_hevent = ::CreateEvent(lpEventAttributes, bManualReset, bInitialState, lpName);
-		}
+		Event(LPSECURITY_ATTRIBUTES lpEventAttributes = NULL, BOOL bManualReset = FALSE, BOOL bInitialState = FALSE, LPCTSTR lpName = NULL);
 
 		~Event(void);
 

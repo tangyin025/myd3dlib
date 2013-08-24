@@ -169,7 +169,7 @@ BOOL CMainView::ResetD3DSwapChain(void)
 	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
-		TRACE(D3DException(hr, __FILE__, __LINE__).GetFullDescription().c_str());
+		TRACE(D3DException(hr, __FILE__, __LINE__).what().c_str());
 		return FALSE;
 	}
 

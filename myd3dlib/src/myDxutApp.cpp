@@ -167,7 +167,7 @@ int DxutApp::Run(void)
 	}
 	catch(const my::Exception & e)
 	{
-		MessageBox(m_wnd->m_hWnd, ms2ts(e.GetFullDescription().c_str()).c_str(), NULL, MB_OK);
+		MessageBox(m_wnd->m_hWnd, ms2ts(e.what().c_str()).c_str(), NULL, MB_OK);
 	}
 
 	return (int)msg.wParam;
@@ -1716,7 +1716,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 		{
 			m_wnd->DestroyWindow();
 			my::D3DException e(hr, __FILE__, __LINE__);
-			MessageBox(NULL, ms2ts(e.GetFullDescription().c_str()).c_str(), NULL, MB_OK);
+			MessageBox(NULL, ms2ts(e.what().c_str()).c_str(), NULL, MB_OK);
 		}
 	}
 

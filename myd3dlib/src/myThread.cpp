@@ -4,6 +4,47 @@
 
 using namespace my;
 
+CriticalSection::CriticalSection(void)
+{
+	::InitializeCriticalSection(&m_section);
+}
+
+CriticalSection::~CriticalSection(void)
+{
+	::DeleteCriticalSection(&m_section);
+}
+
+void CriticalSection::Enter(void)
+{
+	::EnterCriticalSection(&m_section);
+}
+
+void CriticalSection::Leave(void)
+{
+	::LeaveCriticalSection(&m_section);
+}
+
+BOOL CriticalSection::TryEnterCriticalSection(void)
+{
+	return ::TryEnterCriticalSection(&m_section);
+}
+
+CriticalSectionLock::CriticalSectionLock(CriticalSection & cs)
+	: m_cs(cs)
+{
+	m_cs.Enter();
+}
+
+CriticalSectionLock::~CriticalSectionLock(void)
+{
+	m_cs.Leave();
+}
+
+Event::Event(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName)
+{
+	m_hevent = ::CreateEvent(lpEventAttributes, bManualReset, bInitialState, lpName);
+}
+
 Event::~Event(void)
 {
 	::CloseHandle(m_hevent);

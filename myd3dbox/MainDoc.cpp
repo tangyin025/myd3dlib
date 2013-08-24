@@ -110,7 +110,7 @@ void CMainDoc::OnCreateStaticmesh()
 		catch (const my::Exception & e)
 		{
 			AfxMessageBox(str_printf(_T("Cannot open: %s\n%s"),
-				dlg.GetFileName(), ms2ws(e.GetFullDescription().c_str()).c_str()).c_str());
+				dlg.GetFileName(), ms2ws(e.what().c_str()).c_str()).c_str());
 		}
 	}
 }

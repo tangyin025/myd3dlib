@@ -7,17 +7,9 @@
 
 using namespace my;
 
-std::string Exception::GetFullDescription(void) const
+std::string ComException::Translate(HRESULT hres) throw()
 {
-	std::stringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << GetDescription();
-	return osstr.str();
-}
-
-std::string ComException::GetDescription(void) const throw()
-{
-	switch(m_hres)
+	switch(hres)
 	{
 	case NOERROR: return "NOERROR";
 	case E_UNEXPECTED: return "E_UNEXPECTED";
@@ -91,9 +83,17 @@ std::string ComException::GetDescription(void) const throw()
 	return "unknown error result";
 }
 
-std::string D3DException::GetDescription(void) const throw()
+std::string ComException::what(void) const
 {
-	switch(m_hres)
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << Translate(m_hres);
+	return osstr.str();
+}
+
+std::string D3DException::Translate(HRESULT hres) throw()
+{
+	switch(hres)
 	{
 	case D3DOK_NOAUTOGEN: return "D3DOK_NOAUTOGEN";
 	case D3DERR_CONFLICTINGRENDERSTATE: return "D3DERR_CONFLICTINGRENDERSTATE";
@@ -129,12 +129,20 @@ std::string D3DException::GetDescription(void) const throw()
 	case E_OUTOFMEMORY: return "E_OUTOFMEMORY";
 	//case S_OK: return "S_OK";
 	}
-	return ComException::GetDescription();
+	return ComException::Translate(hres);
 }
 
-std::string DInputException::GetDescription(void) const throw()
+std::string D3DException::what(void) const
 {
-	switch(m_hres)
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << Translate(m_hres);
+	return osstr.str();
+}
+
+std::string DInputException::Translate(HRESULT hres) throw()
+{
+	switch(hres)
 	{
 	case DI_BUFFEROVERFLOW: return "DI_BUFFEROVERFLOW";
 	case DI_DOWNLOADSKIPPED: return "DI_DOWNLOADSKIPPED";
@@ -179,12 +187,20 @@ std::string DInputException::GetDescription(void) const throw()
 	case E_HANDLE: return "E_HANDLE";
 	case E_PENDING: return "E_PENDING";
 	}
-	return ComException::GetDescription();
+	return ComException::Translate(hres);
 }
 
-std::string DSoundException::GetDescription(void) const throw()
+std::string DInputException::what(void) const
 {
-	switch(m_hres)
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << Translate(m_hres);
+	return osstr.str();
+}
+
+std::string DSoundException::Translate(HRESULT hres) throw()
+{
+	switch(hres)
 	{
 	case DS_OK: return "DS_OK";
 	case DS_NO_VIRTUALIZATION: return "DS_NO_VIRTUALIZATION";
@@ -213,15 +229,23 @@ std::string DSoundException::GetDescription(void) const throw()
 	case DSERR_UNINITIALIZED: return "DSERR_UNINITIALIZED";
 	case DSERR_UNSUPPORTED: return "DSERR_UNSUPPORTED";
 	}
-	return ComException::GetDescription();
+	return ComException::Translate(hres);
 }
 
-std::string WinException::GetDescription(void) const throw()
+std::string DSoundException::what(void) const
+{
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << Translate(m_hres);
+	return osstr.str();
+}
+
+std::string WinException::Translate(DWORD code) throw()
 {
 	std::string desc;
 	desc.resize(MAX_PATH);
 	desc.resize(::FormatMessageA(
-		FORMAT_MESSAGE_FROM_SYSTEM, NULL, m_code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), &desc[0], desc.size(), NULL));
+		FORMAT_MESSAGE_FROM_SYSTEM, NULL, code, MAKELANGID(LANG_ENGLISH, SUBLANG_ENGLISH_US), &desc[0], desc.size(), NULL));
 
 	if(desc.empty())
 	{
@@ -231,7 +255,18 @@ std::string WinException::GetDescription(void) const throw()
 	return desc;
 }
 
-std::string CustomException::GetDescription(void) const throw()
+std::string WinException::what(void) const
 {
-	return m_desc;
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << Translate(m_code);
+	return osstr.str();
+}
+
+std::string CustomException::what(void) const
+{
+	std::stringstream osstr;
+	osstr << m_file << " (" << m_line << "):" << std::endl;
+	osstr << m_desc;
+	return osstr.str();
 }
