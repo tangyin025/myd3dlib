@@ -2,13 +2,7 @@
 #ifndef __LIBC_H__
 #define __LIBC_H__
 
-#include <stdlib.h>
 #include <string>
-
-#if _MSC_VER < 1400
-#define vsnprintf _vsnprintf
-#define vswprintf _vsnwprintf
-#endif
 
 char * asprintf(const char * format, ...);
 
