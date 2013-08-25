@@ -4,7 +4,6 @@
 #include <WTypes.h>
 #include <Mmsystem.h>
 #include <dsound.h>
-#include "myException.h"
 #include "myMath.h"
 
 namespace my
@@ -17,45 +16,23 @@ namespace my
 		IDirectSound8 * m_ptr;
 
 	public:
-		Sound(void)
-			: m_ptr(NULL)
-		{
-		}
+		Sound(void);
 
-		virtual ~Sound(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~Sound(void);
 
-		void Create(IDirectSound8 * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(IDirectSound8 * ptr);
 
 		void CreateSound(void);
 
 		void CreateSoundBuffer(
 			LPCDSBUFFERDESC pcDSBufferDesc,
-			LPDIRECTSOUNDBUFFER * ppDSBuffer)
-		{
-			V(m_ptr->CreateSoundBuffer(pcDSBufferDesc, ppDSBuffer, NULL));
-		}
+			LPDIRECTSOUNDBUFFER * ppDSBuffer);
 
-		DSCAPS GetCaps(void)
-		{
-			DSCAPS res;
-			V(m_ptr->GetCaps(&res));
-			return res;
-		}
+		DSCAPS GetCaps(void);
 
 		void SetCooperativeLevel(
 			HWND hwnd,
-			DWORD dwLevel = DSSCL_PRIORITY)
-		{
-			V(m_ptr->SetCooperativeLevel(hwnd, dwLevel));
-		}
+			DWORD dwLevel = DSSCL_PRIORITY);
 	};
 
 	typedef boost::shared_ptr<Sound> SoundPtr;
@@ -76,22 +53,11 @@ namespace my
 		IDirectSoundBuffer * m_ptr;
 
 	public:
-		SoundBuffer(void)
-			: m_ptr(NULL)
-		{
-		}
+		SoundBuffer(void);
 
-		virtual ~SoundBuffer(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~SoundBuffer(void);
 
-		void Create(IDirectSoundBuffer * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(IDirectSoundBuffer * ptr);
 
 		void CreateSoundBufferFromMmio(
 			LPDIRECTSOUND8 pDSound,
@@ -111,10 +77,7 @@ namespace my
 
 		void GetCurrentPosition(
 			LPDWORD pdwCurrentPlayCursor,
-			LPDWORD pdwCurrentWriteCursor)
-		{
-			V(m_ptr->GetCurrentPosition(pdwCurrentPlayCursor, pdwCurrentWriteCursor));
-		}
+			LPDWORD pdwCurrentWriteCursor);
 
 		void Lock(
 			DWORD dwOffset,
@@ -123,104 +86,49 @@ namespace my
 			LPDWORD  pdwAudioBytes1,
 			LPVOID * ppvAudioPtr2,
 			LPDWORD pdwAudioBytes2,
-			DWORD dwFlags)
-		{
-			V(m_ptr->Lock(dwOffset, dwBytes, ppvAudioPtr1, pdwAudioBytes1, ppvAudioPtr2, pdwAudioBytes2, dwFlags));
-		}
+			DWORD dwFlags);
 
 		void Play(
 			DWORD dwPriority = 0,
-			DWORD dwFlags = 0)
-		{
-			V(m_ptr->Play(0, dwPriority, dwFlags));
-		}
+			DWORD dwFlags = 0);
 
 		void SetCurrentPosition(
-			DWORD dwNewPosition)
-		{
-			V(m_ptr->SetCurrentPosition(dwNewPosition));
-		}
+			DWORD dwNewPosition);
 
-		void Stop(void)
-		{
-			V(m_ptr->Stop());
-		}
+		void Stop(void);
 
 		void Unlock(
 			LPVOID pvAudioPtr1,
 			DWORD dwAudioBytes1,
 			LPVOID pvAudioPtr2,
-			DWORD dwAudioBytes2)
-		{
-			V(m_ptr->Unlock(pvAudioPtr1, dwAudioBytes1, pvAudioPtr2, dwAudioBytes2));
-		}
+			DWORD dwAudioBytes2);
 
-		DWORD GetFrequency(void)
-		{
-			DWORD res;
-			V(m_ptr->GetFrequency(&res));
-			return res;
-		}
+		DWORD GetFrequency(void);
 
-		LONG GetPan(void)
-		{
-			LONG res;
-			V(m_ptr->GetPan(&res));
-			return res;
-		}
+		LONG GetPan(void);
 
-		LONG GetVolume(void)
-		{
-			LONG res;
-			V(m_ptr->GetVolume(&res));
-			return res;
-		}
+		LONG GetVolume(void);
 
 		void SetFrequency(
-			DWORD dwFrequency)
-		{
-			V(m_ptr->SetFrequency(dwFrequency));
-		}
+			DWORD dwFrequency);
 
 		void SetPan(
-			LONG lPan)
-		{
-			V(m_ptr->SetPan(lPan));
-		}
+			LONG lPan);
 
 		void SetVolume(
-			LONG lVolume)
-		{
-			V(m_ptr->SetVolume(lVolume));
-		}
+			LONG lVolume);
 
-		DSBCAPS GetCaps(void)
-		{
-			DSBCAPS res;
-			V(m_ptr->GetCaps(&res));
-			return res;
-		}
+		DSBCAPS GetCaps(void);
 
 		void GetFormat(
 			LPWAVEFORMATEX pwfxFormat,
 			DWORD dwSizeAllocated,
-			LPDWORD pdwSizeWritten)
-		{
-			V(m_ptr->GetFormat(pwfxFormat, dwSizeAllocated, pdwSizeWritten));
-		}
+			LPDWORD pdwSizeWritten);
 
-		DWORD GetStatus(void)
-		{
-			DWORD res;
-			V(m_ptr->GetStatus(&res));
-			return res;
-		}
+		DWORD GetStatus(void);
 
 		void SetFormat(
-			LPCWAVEFORMATEX pcfxFormat)
-		{
-			V(m_ptr->SetFormat(pcfxFormat));
-		}
+			LPCWAVEFORMATEX pcfxFormat);
 
 	public:
 		Sound3DBufferPtr Get3DBuffer(void);
@@ -239,143 +147,67 @@ namespace my
 
 		HRESULT hr;
 
-		Sound3DBuffer(IDirectSound3DBuffer * ptr)
-			: m_ptr(ptr)
-		{
-		}
+		Sound3DBuffer(IDirectSound3DBuffer * ptr);
 
 	public:
-		virtual ~Sound3DBuffer(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~Sound3DBuffer(void);
 
-		DWORD GetMode(void)
-		{
-			DWORD res;
-			V(m_ptr->GetMode(&res));
-			return res;
-		}
+		DWORD GetMode(void);
 
 		void SetMode(
 			DWORD dwMode,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetMode(dwMode, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
-		DS3DBUFFER GetAllParameters(void)
-		{
-			DS3DBUFFER res;
-			V(m_ptr->GetAllParameters(&res));
-			return res;
-		}
+		DS3DBUFFER GetAllParameters(void);
 
 		void SetAllParameters(
 			LPCDS3DBUFFER pcDs3dBuffer,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetAllParameters(pcDs3dBuffer, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
-		D3DVALUE GetMaxDistance(void)
-		{
-			D3DVALUE res;
-			V(m_ptr->GetMaxDistance(&res));
-			return res;
-		}
+		D3DVALUE GetMaxDistance(void);
 
-		D3DVALUE GetMinDistance(void)
-		{
-			D3DVALUE res;
-			V(m_ptr->GetMinDistance(&res));
-			return res;
-		}
+		D3DVALUE GetMinDistance(void);
 
 		void SetMaxDistance(
 			D3DVALUE flMaxDistance,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetMaxDistance(flMaxDistance, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetMinDistance(
 			D3DVALUE flMinDistance,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetMinDistance(flMinDistance, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
-		Vector3 GetPosition(void)
-		{
-			Vector3 res;
-			V(m_ptr->GetPosition((D3DVECTOR *)&res));
-			return res;
-		}
+		Vector3 GetPosition(void);
 
 		void SetPosition(
 			const Vector3 & pos,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetPosition(pos.x, pos.y, pos.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void GetConeAngles(
 			LPDWORD pdwInsideConeAngle,
-			LPDWORD pdwOutsideConeAngle)
-		{
-			V(m_ptr->GetConeAngles(pdwInsideConeAngle, pdwOutsideConeAngle));
-		}
+			LPDWORD pdwOutsideConeAngle);
 
-		Vector3 GetConeOrientation(void)
-		{
-			Vector3 res;
-			V(m_ptr->GetConeOrientation((D3DVECTOR *)&res));
-			return res;
-		}
+		Vector3 GetConeOrientation(void);
 
-		LONG GetConeOutsideVolume(void)
-		{
-			LONG res;
-			V(m_ptr->GetConeOutsideVolume(&res));
-			return res;
-		}
+		LONG GetConeOutsideVolume(void);
 
 		void SetConeAngles(
 			DWORD dwInsideConeAngle,
 			DWORD dwOutsideConeAngle,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetConeAngles(dwInsideConeAngle, dwOutsideConeAngle, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetConeOrientation(
 			const Vector3 & ori,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetConeOrientation(ori.x, ori.y, ori.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetConeOutsideVolume(
 			LONG lConeOutsideVolume,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetConeOutsideVolume(lConeOutsideVolume, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
-		Vector3 GetVelocity(void)
-		{
-			Vector3 res;
-			V(m_ptr->GetVelocity((D3DVECTOR *)&res));
-			return res;
-		}
+		Vector3 GetVelocity(void);
 
 		void SetVelocity(
 			const Vector3 & vel,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetVelocity(vel.x, vel.y, vel.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 	};
 
 	class Sound3DListener
@@ -385,119 +217,56 @@ namespace my
 
 		HRESULT hr;
 
-		Sound3DListener(IDirectSound3DListener * ptr)
-			: m_ptr(ptr)
-		{
-		}
+		Sound3DListener(IDirectSound3DListener * ptr);
 
 	public:
-		virtual ~Sound3DListener(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~Sound3DListener(void);
 
-		void CommitDeferredSettings(void)
-		{
-			V(m_ptr->CommitDeferredSettings());
-		}
+		void CommitDeferredSettings(void);
 
-		DS3DLISTENER GetAllParameters(void)
-		{
-			DS3DLISTENER res;
-			V(m_ptr->GetAllParameters(&res));
-			return res;
-		}
+		DS3DLISTENER GetAllParameters(void);
 
 		void SetAllParameters(
 			LPCDS3DLISTENER pcListener,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetAllParameters(pcListener, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
-		D3DVALUE GetDistanceFactor(void)
-		{
-			D3DVALUE res;
-			V(m_ptr->GetDistanceFactor(&res));
-			return res;
-		}
+		D3DVALUE GetDistanceFactor(void);
 
-		D3DVALUE GetDopplerFactor(void)
-		{
-			D3DVALUE res;
-			V(m_ptr->GetDopplerFactor(&res));
-			return res;
-		}
+		D3DVALUE GetDopplerFactor(void);
 
-		D3DVALUE GetRolloffFactor(void)
-		{
-			D3DVALUE res;
-			V(m_ptr->GetRolloffFactor(&res));
-			return res;
-		}
+		D3DVALUE GetRolloffFactor(void);
 
 		void SetDistanceFactor(
 			D3DVALUE flDistanceFactor,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetDistanceFactor(flDistanceFactor, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetDopplerFactor(
 			D3DVALUE flDopplerFactor,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetDopplerFactor(flDopplerFactor, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetRolloffFactor(
 			D3DVALUE flRolloffFactor,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetRolloffFactor(flRolloffFactor, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void GetOrientation(
 			D3DVECTOR * pvOrientFront,
-			D3DVECTOR * pvOrientTop)
-		{
-			V(m_ptr->GetOrientation(pvOrientFront, pvOrientTop));
-		}
+			D3DVECTOR * pvOrientTop);
 
-		Vector3 GetPosition(void)
-		{
-			Vector3 res;
-			V(m_ptr->GetPosition((D3DVECTOR *)&res));
-			return res;
-		}
+		Vector3 GetPosition(void);
 
-		Vector3 GetVelocity(void)
-		{
-			Vector3 res;
-			V(m_ptr->GetVelocity((D3DVECTOR *)&res));
-			return res;
-		}
+		Vector3 GetVelocity(void);
 
 		void SetOrientation(
 			const Vector3 & Front,
 			const Vector3 & Top,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetOrientation(Front.x, Front.y, Front.z, Top.x, Top.y, Top.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetPosition(
 			const Vector3 & pos,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetPosition(pos.x, pos.y, pos.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 
 		void SetVelocity(
 			const Vector3 & vel,
-			DWORD dwApply = DS3D_IMMEDIATE)
-		{
-			V(m_ptr->SetVelocity(vel.x, vel.y, vel.z, dwApply));
-		}
+			DWORD dwApply = DS3D_IMMEDIATE);
 	};
 }

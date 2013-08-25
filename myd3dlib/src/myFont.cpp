@@ -1,10 +1,19 @@
 #include "stdafx.h"
 #include "myFont.h"
-#include "myDxutApp.h"
+#include <ft2build.h>
+#include FT_FREETYPE_H
+#include "myUI.h"
 #include "myResource.h"
 #include "libc.h"
 
 using namespace my;
+
+void Sprite::Create(ID3DXSprite * ptr)
+{
+	_ASSERT(!m_ptr);
+
+	m_ptr = ptr;
+}
 
 void Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 {
@@ -16,6 +25,60 @@ void Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 	}
 
 	Create(pSprite);
+}
+
+void Sprite::OnResetDevice(void)
+{
+	V(m_ptr->OnResetDevice());
+}
+
+void Sprite::OnLostDevice(void)
+{
+	V(m_ptr->OnLostDevice());
+}
+
+void Sprite::Begin(DWORD Flags)
+{
+	V(m_ptr->Begin(Flags));
+}
+
+void Sprite::Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
+{
+	V(m_ptr->Draw(static_cast<IDirect3DTexture9 *>(texture->m_ptr), &SrcRect, (D3DXVECTOR3 *)&Center, (D3DXVECTOR3 *)&Position, Color));
+}
+
+void Sprite::End(void)
+{
+	V(m_ptr->End());
+}
+
+CComPtr<IDirect3DDevice9> Sprite::GetDevice(void)
+{
+	CComPtr<IDirect3DDevice9> ret;
+	V(m_ptr->GetDevice(&ret));
+	return ret;
+}
+
+Matrix4 Sprite::GetTransform(void)
+{
+	Matrix4 ret;
+	V(m_ptr->GetTransform((D3DXMATRIX *)&ret));
+	return ret;
+}
+
+void Sprite::SetTransform(const Matrix4 & Transform)
+{
+	V(m_ptr->SetTransform((D3DXMATRIX *)&Transform));
+}
+
+void Sprite::SetWorldViewLH(const Matrix4 & World, const Matrix4 & View)
+{
+	V(m_ptr->SetWorldViewLH((D3DXMATRIX *)&World, (D3DXMATRIX *)&View));
+}
+
+void Sprite::SetWorldViewRH(const Matrix4 & World, const Matrix4 & View)
+{
+	V(m_ptr->SetWorldViewRH((D3DXMATRIX *)&World, (D3DXMATRIX *)&View));
 }
 
 bool RectAssignmentNode::AssignTopRect(const CSize & size, CRect & outRect)
@@ -114,6 +177,27 @@ bool RectAssignmentNode::AssignRect(const CSize & size, CRect & outRect)
 	return false;
 }
 
+Font::FontLibrary::FontLibrary(void)
+{
+	FT_Error err = FT_Init_FreeType(&m_Library);
+	if(err)
+	{
+		THROW_CUSEXCEPTION(_T("FT_Init_FreeType failed"));
+	}
+}
+
+Font::FontLibrary::~FontLibrary(void)
+{
+	FT_Done_FreeType(m_Library);
+}
+
+Font::Font(int font_pixel_gap)
+	: m_face(NULL)
+	, FONT_PIXEL_GAP(font_pixel_gap)
+	, m_Scale(0,0)
+{
+}
+
 Font::~Font(void)
 {
 	if(m_face)
@@ -165,7 +249,7 @@ void Font::CreateFontFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	int height,
-	FT_Long face_index)
+	long face_index)
 {
 	FT_Face face;
 	FT_Error err = FT_New_Face(FontLibrary::getSingleton().m_Library, pFilename, face_index, &face);
@@ -182,7 +266,7 @@ void Font::CreateFontFromFileInMemory(
 	const void * file_base,
 	long file_size,
 	int height,
-	FT_Long face_index)
+	long face_index)
 {
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
@@ -194,7 +278,7 @@ void Font::CreateFontFromFileInCache(
 	LPDIRECT3DDEVICE9 pDevice,
 	CachePtr cache_ptr,
 	int height,
-	FT_Long face_index)
+	long face_index)
 {
 	FT_Face face;
 	FT_Error err = FT_New_Memory_Face(FontLibrary::getSingleton().m_Library, &(*cache_ptr)[0], cache_ptr->size(), face_index, &face);

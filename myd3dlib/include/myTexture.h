@@ -3,10 +3,9 @@
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include <d3d9.h>
-#include <d3dx9.h>
+#include <d3dx9tex.h>
 #include <atlbase.h>
 #include <atltypes.h>
-#include "myException.h"
 
 namespace my
 {
@@ -17,12 +16,7 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DSurface9 * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(IDirect3DSurface9 * ptr);
 
 		void CreateDepthStencilSurface(
 			LPDIRECT3DDEVICE9 pDevice,
@@ -40,48 +34,17 @@ namespace my
 			D3DFORMAT Format,
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
-		CComPtr<IUnknown> GetContainer(REFIID riid)
-		{
-			CComPtr<IUnknown> Container;
-			V(m_ptr->GetContainer(riid, (void **)&Container));
-			return Container;
-		}
+		CComPtr<IUnknown> GetContainer(REFIID riid);
 
-		HDC GetDC(void)
-		{
-			HDC hdc;
-			V(m_ptr->GetDC(&hdc));
-			return hdc;
-		}
+		HDC GetDC(void);
 
-		D3DSURFACE_DESC GetDesc(void)
-		{
-			D3DSURFACE_DESC desc;
-			V(m_ptr->GetDesc(&desc));
-			return desc;
-		}
+		D3DSURFACE_DESC GetDesc(void);
 
-		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0)
-		{
-			_ASSERT(!IsRectEmpty(&rect));
+		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0);
 
-			D3DLOCKED_RECT lr;
-			if(FAILED(hr = m_ptr->LockRect(&lr, &rect, Flags)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return lr;
-		}
+		void ReleaseDC(HDC hdc);
 
-		void ReleaseDC(HDC hdc)
-		{
-			V(m_ptr->ReleaseDC(hdc));
-		}
-
-		void UnlockRect(void)
-		{
-			V(m_ptr->UnlockRect());
-		}
+		void UnlockRect(void);
 	};
 
 	typedef boost::shared_ptr<Surface> SurfacePtr;
@@ -93,42 +56,19 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DBaseTexture9 * ptr)
-		{
-			_ASSERT(!m_ptr);
+		void Create(IDirect3DBaseTexture9 * ptr);
 
-			m_ptr = ptr;
-		}
+		void GenerateMipSubLevels(void);
 
-		void GenerateMipSubLevels(void)
-		{
-			m_ptr->GenerateMipSubLevels();
-		}
+		D3DTEXTUREFILTERTYPE GetAutoGenFilterType(void);
 
-		D3DTEXTUREFILTERTYPE GetAutoGenFilterType(void)
-		{
-			return m_ptr->GetAutoGenFilterType();
-		}
+		DWORD GetLevelCount(void);
 
-		DWORD GetLevelCount(void)
-		{
-			return m_ptr->GetLevelCount();
-		}
+		DWORD GetLOD(void);
 
-		DWORD GetLOD(void)
-		{
-			return m_ptr->GetLOD();
-		}
+		void SetAutoGenFilterType(D3DTEXTUREFILTERTYPE FilterType);
 
-		void SetAutoGenFilterType(D3DTEXTUREFILTERTYPE FilterType)
-		{
-			V(m_ptr->SetAutoGenFilterType(FilterType));
-		}
-
-		DWORD SetLOD(DWORD LODNew)
-		{
-			return m_ptr->SetLOD(LODNew);
-		}
+		DWORD SetLOD(DWORD LODNew);
 
 		virtual D3DSURFACE_DESC GetLevelDesc(UINT Level = 0) = 0;
 	};
@@ -191,41 +131,15 @@ namespace my
 			D3DXIMAGE_INFO * pSrcInfo = NULL,
 			PALETTEENTRY * pPalette = NULL);
 
-		void AddDirtyRect(CONST CRect * pDirtyRect = NULL)
-		{
-			V(static_cast<IDirect3DTexture9 *>(m_ptr)->AddDirtyRect(pDirtyRect));
-		}
+		void AddDirtyRect(CONST CRect * pDirtyRect = NULL);
 
-		D3DSURFACE_DESC GetLevelDesc(UINT Level = 0)
-		{
-			D3DSURFACE_DESC desc;
-			V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
-			return desc;
-		}
+		D3DSURFACE_DESC GetLevelDesc(UINT Level = 0);
 
-		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0)
-		{
-			CComPtr<IDirect3DSurface9> Surface;
-			V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetSurfaceLevel(Level, &Surface));
-			return Surface;
-		}
+		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0);
 
-		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0, UINT Level = 0)
-		{
-			_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
+		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0, UINT Level = 0);
 
-			D3DLOCKED_RECT LockedRect;
-			if(FAILED(hr = static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, &rect, Flags)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return LockedRect;
-		}
-
-		void UnlockRect(UINT Level = 0)
-		{
-			V(static_cast<IDirect3DTexture9 *>(m_ptr)->UnlockRect(Level));
-		}
+		void UnlockRect(UINT Level = 0);
 	};
 
 	typedef boost::shared_ptr<Texture> TexturePtr;
@@ -284,50 +198,24 @@ namespace my
 
 		void AddDirtyRect(
 			D3DCUBEMAP_FACES FaceType,
-			CONST RECT * pDirtyRect = NULL)
-		{
-			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->AddDirtyRect(FaceType, pDirtyRect));
-		}
+			CONST RECT * pDirtyRect = NULL);
 
 		CComPtr<IDirect3DSurface9> GetCubeMapSurface(
 			D3DCUBEMAP_FACES FaceType,
-			UINT Level = 0)
-		{
-			CComPtr<IDirect3DSurface9> ret;
-			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetCubeMapSurface(FaceType, Level, &ret));
-			return ret;
-		}
+			UINT Level = 0);
 
 		D3DSURFACE_DESC GetLevelDesc(
-			UINT Level = 0)
-		{
-			D3DSURFACE_DESC desc;
-			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
-			return desc;
-		}
+			UINT Level = 0);
 
 		D3DLOCKED_RECT LockRect(
 			D3DCUBEMAP_FACES FaceType,
 			const CRect & rect,
 			DWORD Flags = 0,
-			UINT Level = 0)
-		{
-			_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
-
-			D3DLOCKED_RECT LockedRect;
-			if(FAILED(hr = static_cast<IDirect3DCubeTexture9 *>(m_ptr)->LockRect(FaceType, Level, &LockedRect, &rect, Flags)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return LockedRect;
-		}
+			UINT Level = 0);
 
 		void UnlockRect(
 			D3DCUBEMAP_FACES FaceType,
-			UINT Level = 0)
-		{
-			V(static_cast<IDirect3DCubeTexture9 *>(m_ptr)->UnlockRect(FaceType, Level));
-		}
+			UINT Level = 0);
 	};
 
 	typedef boost::shared_ptr<CubeTexture> CubeTexturePtr;

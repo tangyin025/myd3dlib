@@ -4,7 +4,6 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <atlbase.h>
-#include "myException.h"
 
 namespace my
 {
@@ -28,71 +27,31 @@ namespace my
 			LPDICONFIGUREDEVICESCALLBACK lpdiCallback,
 			LPDICONFIGUREDEVICESPARAMS lpdiCDParams,
 			DWORD dwFlags,
-			LPVOID pvRefData)
-		{
-			if(FAILED(hr = m_ptr->ConfigureDevices(lpdiCallback, lpdiCDParams, dwFlags, pvRefData)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+			LPVOID pvRefData);
 
-		CComPtr<IDirectInputDevice8> CreateDevice(REFGUID rguid)
-		{
-			CComPtr<IDirectInputDevice8> ret;
-			if(FAILED(hr = m_ptr->CreateDevice(rguid, &ret, NULL)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+		CComPtr<IDirectInputDevice8> CreateDevice(REFGUID rguid);
 
 		void EnumDevices(
 			DWORD dwDevType,
 			LPDIENUMDEVICESCALLBACK lpCallback,
 			LPVOID pvRef,
-			DWORD dwFlags)
-		{
-			if(FAILED(hr = m_ptr->EnumDevices(dwDevType, lpCallback, pvRef, dwFlags)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+			DWORD dwFlags);
 
 		void EnumDevicesBySemantics(
 			LPCTSTR ptszUserName,
 			LPDIACTIONFORMAT lpdiActionFormat,
 			LPDIENUMDEVICESBYSEMANTICSCB lpCallback,
 			LPVOID pvRef,
-			DWORD dwFlags)
-		{
-			if(FAILED(hr = m_ptr->EnumDevicesBySemantics(ptszUserName, lpdiActionFormat, lpCallback, pvRef, dwFlags)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+			DWORD dwFlags);
 
 		void FindDevice(
 			REFGUID rguidClass,
 			LPCTSTR ptszName,
-			LPGUID pguidInstance)
-		{
-			if(FAILED(hr = m_ptr->FindDevice(rguidClass, ptszName, pguidInstance)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+			LPGUID pguidInstance);
 
-		void GetDeviceStatus(REFGUID rguidInstance)
-		{
-			if(FAILED(hr = m_ptr->GetDeviceStatus(rguidInstance)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+		void GetDeviceStatus(REFGUID rguidInstance);
 
-		void RunControlPanel(HWND hwndOwner)
-		{
-			V(m_ptr->RunControlPanel(hwndOwner, 0));
-		}
+		void RunControlPanel(HWND hwndOwner);
 	};
 
 	typedef boost::shared_ptr<Input> InputPtr;
@@ -107,60 +66,25 @@ namespace my
 		IDirectInputDevice8 * m_ptr;
 
 	public:
-		InputDevice(void)
-			: m_ptr(NULL)
-		{
-		}
+		InputDevice(void);
 
-		virtual ~InputDevice(void)
-		{
-			SAFE_RELEASE(m_ptr);
-		}
+		virtual ~InputDevice(void);
 
-		void Create(LPDIRECTINPUTDEVICE8 device)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = device;
-		}
+		void Create(LPDIRECTINPUTDEVICE8 device);
 
 		virtual void Capture(void) = 0;
 
-		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND)
-		{
-			V(m_ptr->SetCooperativeLevel(hwnd, dwFlags));
-		}
+		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
 
-		void SetDataFormat(LPCDIDATAFORMAT lpdf)
-		{
-			V(m_ptr->SetDataFormat(lpdf));
-		}
+		void SetDataFormat(LPCDIDATAFORMAT lpdf);
 
-		void SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph)
-		{
-			V(m_ptr->SetProperty(rguidProp, pdiph));
-		}
+		void SetProperty(REFGUID rguidProp, LPCDIPROPHEADER pdiph);
 
-		void Acquire(void)
-		{
-			if(FAILED(hr = m_ptr->Acquire()))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+		void Acquire(void);
 
-		void Unacquire(void)
-		{
-			V(m_ptr->Unacquire());
-		}
+		void Unacquire(void);
 
-		void GetDeviceState(DWORD cbData, LPVOID lpvData)
-		{
-			if(FAILED(hr = m_ptr->GetDeviceState(cbData, lpvData)))
-			{
-				THROW_DINPUTEXCEPTION(hr);
-			}
-		}
+		void GetDeviceState(DWORD cbData, LPVOID lpvData);
 	};
 
 	class Keyboard : public InputDevice
@@ -179,20 +103,11 @@ namespace my
 
 		virtual void Capture(void);
 
-		BYTE IsKeyDown(DWORD dwIndex)
-		{
-			return m_CurState[dwIndex];
-		}
+		BYTE IsKeyDown(DWORD dwIndex);
 
-		bool IsKeyPressed(DWORD dwIndex)
-		{
-			return !m_PreState[dwIndex] && m_CurState[dwIndex];
-		}
+		bool IsKeyPressed(DWORD dwIndex);
 
-		bool IsKeyReleased(DWORD dwIndex)
-		{
-			return m_PreState[dwIndex] && !m_CurState[dwIndex];
-		}
+		bool IsKeyReleased(DWORD dwIndex);
 	};
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
@@ -213,35 +128,17 @@ namespace my
 
 		virtual void Capture(void);
 
-		LONG GetX(void)
-		{
-			return m_CurState.lX;
-		}
+		LONG GetX(void);
 
-		LONG GetY(void)
-		{
-			return m_CurState.lY;
-		}
+		LONG GetY(void);
 
-		LONG GetZ(void)
-		{
-			return m_CurState.lZ;
-		}
+		LONG GetZ(void);
 
-		unsigned char IsButtonDown(DWORD dwIndex)
-		{
-			return m_CurState.rgbButtons[dwIndex];
-		}
+		unsigned char IsButtonDown(DWORD dwIndex);
 
-		bool IsButtonPressed(DWORD dwIndex)
-		{
-			return !m_PreState.rgbButtons[dwIndex] && m_CurState.rgbButtons[dwIndex];
-		}
+		bool IsButtonPressed(DWORD dwIndex);
 
-		bool IsButtonReleased(DWORD dwIndex)
-		{
-			return m_PreState.rgbButtons[dwIndex] && !m_CurState.rgbButtons[dwIndex];
-		}
+		bool IsButtonReleased(DWORD dwIndex);
 	};
 
 	typedef boost::shared_ptr<Mouse> MousePtr;

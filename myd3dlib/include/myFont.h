@@ -2,14 +2,14 @@
 
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
-#include <d3dx9.h>
 #include "myTexture.h"
-#include <atltypes.h>
 #include "myMath.h"
 #include <boost/unordered_map.hpp>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include <vector>
+
+struct FT_LibraryRec_;
+
+struct FT_FaceRec_;
 
 namespace my
 {
@@ -20,68 +20,29 @@ namespace my
 		{
 		}
 
-		void Create(ID3DXSprite * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(ID3DXSprite * ptr);
 
 		void CreateSprite(LPDIRECT3DDEVICE9 pDevice);
 
-		virtual void OnResetDevice(void)
-		{
-			V(m_ptr->OnResetDevice());
-		}
+		virtual void OnResetDevice(void);
 
-		virtual void OnLostDevice(void)
-		{
-			V(m_ptr->OnLostDevice());
-		}
+		virtual void OnLostDevice(void);
 
-		void Begin(DWORD Flags = D3DXSPRITE_ALPHABLEND)
-		{
-			V(m_ptr->Begin(Flags));
-		}
+		void Begin(DWORD Flags = D3DXSPRITE_ALPHABLEND);
 
-		void Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
-		{
-			V(m_ptr->Draw(static_cast<IDirect3DTexture9 *>(texture->m_ptr), &SrcRect, (D3DXVECTOR3 *)&Center, (D3DXVECTOR3 *)&Position, Color));
-		}
+		void Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color);
 
-		void End(void)
-		{
-			V(m_ptr->End());
-		}
+		void End(void);
 
-		CComPtr<IDirect3DDevice9> GetDevice(void)
-		{
-			CComPtr<IDirect3DDevice9> ret;
-			V(m_ptr->GetDevice(&ret));
-			return ret;
-		}
+		CComPtr<IDirect3DDevice9> GetDevice(void);
 
-		Matrix4 GetTransform(void)
-		{
-			Matrix4 ret;
-			V(m_ptr->GetTransform((D3DXMATRIX *)&ret));
-			return ret;
-		}
+		Matrix4 GetTransform(void);
 
-		void SetTransform(const Matrix4 & Transform)
-		{
-			V(m_ptr->SetTransform((D3DXMATRIX *)&Transform));
-		}
+		void SetTransform(const Matrix4 & Transform);
 
-		void SetWorldViewLH(const Matrix4 & World, const Matrix4 & View)
-		{
-			V(m_ptr->SetWorldViewLH((D3DXMATRIX *)&World, (D3DXMATRIX *)&View));
-		}
+		void SetWorldViewLH(const Matrix4 & World, const Matrix4 & View);
 
-		void SetWorldViewRH(const Matrix4 & World, const Matrix4 & View)
-		{
-			V(m_ptr->SetWorldViewRH((D3DXMATRIX *)&World, (D3DXMATRIX *)&View));
-		}
+		void SetWorldViewRH(const Matrix4 & World, const Matrix4 & View);
 	};
 
 	typedef boost::shared_ptr<Sprite> SpritePtr;
@@ -101,10 +62,6 @@ namespace my
 
 		RectAssignmentNodePtr m_rchild;
 
-		bool AssignTopRect(const CSize & size, CRect & outRect);
-
-		bool AssignLeftRect(const CSize & size, CRect & outRect);
-
 	public:
 		RectAssignmentNode(const CRect & rect)
 			: m_used(false)
@@ -112,27 +69,11 @@ namespace my
 		{
 		}
 
+		bool AssignTopRect(const CSize & size, CRect & outRect);
+
+		bool AssignLeftRect(const CSize & size, CRect & outRect);
+
 		bool AssignRect(const CSize & size, CRect & outRect);
-	};
-
-	class FontLibrary : public Singleton<FontLibrary>
-	{
-	public:
-		FT_Library m_Library;
-
-		FontLibrary(void)
-		{
-			FT_Error err = FT_Init_FreeType(&m_Library);
-			if(err)
-			{
-				THROW_CUSEXCEPTION(_T("FT_Init_FreeType failed"));
-			}
-		}
-
-		virtual ~FontLibrary(void)
-		{
-			FT_Done_FreeType(m_Library);
-		}
 	};
 
 	class UIRender;
@@ -140,6 +81,16 @@ namespace my
 	class Font : public DeviceRelatedObjectBase
 	{
 	public:
+		class FontLibrary : public Singleton<FontLibrary>
+		{
+		public:
+			FT_LibraryRec_ * m_Library;
+
+			FontLibrary(void);
+
+			~FontLibrary(void);
+		};
+
 		enum Align
 		{
 			AlignLeft			= 0x000001,
@@ -171,7 +122,7 @@ namespace my
 
 		typedef boost::unordered_map<int, CharacterInfo> CharacterMap;
 
-		FT_Face m_face;
+		FT_FaceRec_ * m_face;
 
 		HRESULT hr;
 
@@ -196,12 +147,7 @@ namespace my
 		RectAssignmentNodePtr m_textureRectRoot;
 
 	public:
-		Font(int font_pixel_gap = 1)
-			: m_face(NULL)
-			, FONT_PIXEL_GAP(font_pixel_gap)
-			, m_Scale(0,0)
-		{
-		}
+		Font(int font_pixel_gap = 1);
 
 		virtual ~Font(void);
 
@@ -209,26 +155,26 @@ namespace my
 
 		void SetScale(const Vector2 & Scale);
 
-		void Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice);
+		void Create(FT_FaceRec_ * face, int height, LPDIRECT3DDEVICE9 pDevice);
 
 		void CreateFontFromFile(
 			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
 			int height,
-			FT_Long face_index = 0);
+			long face_index = 0);
 
 		void CreateFontFromFileInMemory(
 			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
 			int height,
-			FT_Long face_index = 0);
+			long face_index = 0);
 
 		void CreateFontFromFileInCache(
 			LPDIRECT3DDEVICE9 pDevice,
 			boost::shared_ptr<std::vector<unsigned char> > cache_ptr,
 			int height,
-			FT_Long face_index = 0);
+			long face_index = 0);
 
 		void OnResetDevice(void);
 
