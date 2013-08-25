@@ -389,7 +389,7 @@ TexturePtr DeviceRelatedResourceMgr::LoadTexture(const std::string & path, bool 
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str());
 		}
 		else
 		{
@@ -408,7 +408,7 @@ CubeTexturePtr DeviceRelatedResourceMgr::LoadCubeTexture(const std::string & pat
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateCubeTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str());
+			ret->CreateCubeTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str());
 		}
 		else
 		{
@@ -427,7 +427,7 @@ OgreMeshPtr DeviceRelatedResourceMgr::LoadMesh(const std::string & path, bool re
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateMeshFromOgreXml(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), true);
+			ret->CreateMeshFromOgreXml(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), true);
 		}
 		else
 		{
@@ -447,7 +447,7 @@ OgreSkeletonAnimationPtr DeviceRelatedResourceMgr::LoadSkeleton(const std::strin
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path.c_str()).c_str());
+			ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path).c_str());
 		}
 		else
 		{
@@ -481,7 +481,7 @@ EffectPtr DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const s
 		std::string full_path = GetFullPath(path);
 		if(!full_path.empty())
 		{
-			ret->CreateEffectFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path.c_str()).c_str(), &d3dmacros[0], NULL, 0, m_EffectPool);
+			ret->CreateEffectFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), &d3dmacros[0], NULL, 0, m_EffectPool);
 		}
 		else
 		{

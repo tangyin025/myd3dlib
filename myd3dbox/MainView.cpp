@@ -256,11 +256,9 @@ void CMainView::OnFrameRender(
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
 		m_UIRender->Begin();
-		CString strText;
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		strText.Format(_T("%d x %d"), desc.Width, desc.Height);
-		m_Font->DrawString(
-			m_UIRender.get(), ts2ws(strText).c_str(), my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		m_Font->DrawString(m_UIRender.get(), ts2ws(str_printf(_T("%d x %d"), desc.Width, desc.Height)).c_str(),
+			my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
 		m_UIRender->End();
 
 		V(pd3dDevice->EndScene());

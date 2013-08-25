@@ -96,7 +96,7 @@ void CMainDoc::OnCreateStaticmesh()
 	{
 		try
 		{
-			my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms(dlg.GetPathName()));
+			my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)dlg.GetPathName()));
 
 			static unsigned int i = 0;
 			CString strItem;

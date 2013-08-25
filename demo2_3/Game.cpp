@@ -430,7 +430,7 @@ static int docall (lua_State *L, int narg, int clear) {
 //  //fprintf(stderr, "%s\n", msg);
 //  //fflush(stderr);
 //	Game::getSingleton().AddLine(L"");
-//	Game::getSingleton().puts(ms2ws(msg).c_str());
+//	Game::getSingleton().puts(ms2ws(msg));
 //}
 //
 //static int report (lua_State *L, int status) {
