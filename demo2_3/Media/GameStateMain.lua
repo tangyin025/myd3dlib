@@ -30,15 +30,15 @@ game:InsertMaterial("waterPhong", game:LoadMaterial("material/waterPhong.xml",fa
 game:InsertMaterial("casual19_m_highpolyPhong", game:LoadMaterial("material/casual19_m_highpolyPhong.xml",false))
 game:InsertMaterial("lambert1", game:LoadMaterial("material/lambert1.xml",false))
 
--- -- 创建场景
--- state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml",false))
+-- 创建场景
+state:InsertStaticMesh(game:LoadMesh("mesh/water.mesh.xml",false))
 
--- -- 创建角色
--- local character=Character()
--- character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml",false)
--- character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml",false)
--- character.Scale=Vector3(0.01,0.01,0.01)
--- state:InsertCharacter(character)
+-- 创建角色
+local character=Character()
+character.Mesh=game:LoadMesh("mesh/casual19_m_highpoly.mesh.xml",false)
+character.Skeleton=game:LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml",false)
+character.Scale=Vector3(0.01,0.01,0.01)
+state:InsertCharacter(character)
 
 -- local emitter=SphericalEmitter()
 -- emitter.SpawnInterval=1/100

@@ -1,6 +1,6 @@
 #pragma once
 
-#include <d3dx9.h>
+#include <d3dx9math.h>
 
 #define EPSILON_E3			(1.0e-3)
 #define EPSILON_E4			(1.0e-4)
@@ -63,47 +63,11 @@ namespace my
 	template <typename T>
 	T Round(T v, T min, T max);
 
-	template <>
-	inline int Round(int v, int min, int max)
-	{
-		return v > max ? min + (max - v) % (max - min) : (v < min ? max - (min - v) % (max - min) : v);
-	}
-
-	template <>
-	inline float Round(float v, float min, float max)
-	{
-		return v > max ? min + fmod(max - v, max - min) : (v < min ? max - fmod(min - v, max - min) : v);
-	}
-
 	template <typename T>
 	T Random(T range);
 
-	template <>
-	inline int Random(int range)
-	{
-		return rand() % range;
-	}
-
-	template <>
-	inline float Random(float range)
-	{
-		return range * ((float)rand() / RAND_MAX);
-	}
-
 	template <typename T>
 	T Random(T min, T max);
-
-	template <>
-	inline int Random(int min, int max)
-	{
-		return min + rand() % (max - min);
-	}
-
-	template <>
-	inline float Random(float min, float max)
-	{
-		return min + (max - min) * ((float)rand() / RAND_MAX);
-	}
 
 	class Vector4;
 
@@ -2327,106 +2291,6 @@ namespace my
 	public:
 		static const Matrix4 identity;
 	};
-
-	inline Vector4 Vector2::transform(const Matrix4 & m) const
-	{
-		return Vector4(x, y, 0, 1).transform(m);
-	}
-
-	inline Vector4 Vector2::transformTranspose(const Matrix4 & m) const
-	{
-		return Vector4(x, y, 0, 1).transformTranspose(m);
-	}
-
-	inline Vector2 Vector2::transformCoord(const Matrix4 & m) const
-	{
-		Vector4 ret = transform(m);
-
-		return ret.xy / ret.w;
-	}
-
-	inline Vector2 Vector2::transformCoordTranspose(const Matrix4 & m) const
-	{
-		Vector4 ret = transformTranspose(m);
-
-		return ret.xy / ret.w;
-	}
-
-	inline Vector2 Vector2::transformNormal(const Matrix4 & m) const
-	{
-		return Vector4(x, y, 0, 0).transform(m).xy;
-	}
-
-	inline Vector2 Vector2::transformNormalTranspose(const Matrix4 & m) const
-	{
-		return Vector4(x, y, 0, 0).transformTranspose(m).xy;
-	}
-
-	inline Vector4 Vector3::transform(const Matrix4 & m) const
-	{
-		return Vector4(x, y, z, 1).transform(m);
-	}
-
-	inline Vector4 Vector3::transformTranspose(const Matrix4 & m) const
-	{
-		return Vector4(x, y, z, 1).transformTranspose(m);
-	}
-
-	inline Vector3 Vector3::transformCoord(const Matrix4 & m) const
-	{
-		Vector4 ret = transform(m);
-
-		return ret.xyz / ret.w;
-	}
-
-	inline Vector3 Vector3::transformCoordTranspose(const Matrix4 & m) const
-	{
-		Vector4 ret = transformTranspose(m);
-
-		return ret.xyz / ret.w;
-	}
-
-	inline Vector3 Vector3::transformNormal(const Matrix4 & m) const
-	{
-		return Vector4(x, y, z, 0).transform(m).xyz;
-	}
-
-	inline Vector3 Vector3::transformNormalTranspose(const Matrix4 & m) const
-	{
-		return Vector4(x, y, z, 0).transformTranspose(m).xyz;
-	}
-
-	inline Vector3 Vector3::transform(const Quaternion & q) const
-	{
-		Quaternion ret(q.conjugate() * Quaternion(x, y, z, 0) * q);
-
-		return Vector3(ret.x, ret.y, ret.z);
-	}
-
-	inline Vector4 Vector4::transform(const Matrix4 & m) const
-	{
-		return Vector4(
-			x * m._11 + y * m._21 + z * m._31 + w * m._41,
-			x * m._12 + y * m._22 + z * m._32 + w * m._42,
-			x * m._13 + y * m._23 + z * m._33 + w * m._43,
-			x * m._14 + y * m._24 + z * m._34 + w * m._44);
-	}
-
-	inline Vector4 Vector4::transformTranspose(const Matrix4 & m) const
-	{
-		return Vector4(
-			x * m._11 + y * m._12 + z * m._13 + w * m._14,
-			x * m._21 + y * m._22 + z * m._23 + w * m._24,
-			x * m._31 + y * m._32 + z * m._33 + w * m._34,
-			x * m._41 + y * m._42 + z * m._43 + w * m._44);
-	}
-
-	inline Quaternion Quaternion::RotationMatrix(const Matrix4 & m)
-	{
-		Quaternion ret;
-		D3DXQuaternionRotationMatrix((D3DXQUATERNION *)&ret, (D3DXMATRIX *)&m);
-		return ret;
-	}
 };
 
 #define IS_UNITED(v) (abs((float)(v) - 1) < EPSILON_E6)

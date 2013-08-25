@@ -4,7 +4,6 @@
 #include "mySingleton.h"
 #include "mySpline.h"
 #include "myMath.h"
-#include "myKinematic.h"
 #include "myTexture.h"
 #include "myEffect.h"
 #include "myMesh.h"

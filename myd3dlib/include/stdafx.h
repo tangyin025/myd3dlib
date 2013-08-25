@@ -19,29 +19,21 @@ extern "C" {
 #include <lualib.h>
 }
 #include <vector>
-#include <d3d9.h>
-#include <ft2build.h>
 #include <atlbase.h>
-#include <hash_set>
 #include <d3dx9.h>
 #include <atlbase.h>
+#include <boost/shared_ptr.hpp>
 #include <deque>
 #include <string>
 #include <tchar.h>
 #include <Windows.h>
 #include <boost/shared_ptr.hpp>
-#include <d3dx9.h>
-#include <atltypes.h>
 #include <boost/unordered_map.hpp>
-#include <ft2build.h>
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <dinput.h>
 #include <atlbase.h>
-#include <boost/shared_ptr.hpp>
-#include <d3dx9.h>
-#include <d3d9.h>
-#include <set>
+#include <d3dx9math.h>
 #include <vector>
 #include <atlbase.h>
 #include <boost/shared_ptr.hpp>
@@ -54,8 +46,8 @@ extern "C" {
 #include <boost/scoped_ptr.hpp>
 #include <Windows.h>
 #include <vector>
-#include <set>
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/shared_ptr.hpp>
 #include <boost/shared_ptr.hpp>
 #include <WTypes.h>
@@ -65,7 +57,7 @@ extern "C" {
 #include <vector>
 #include <boost/shared_ptr.hpp>
 #include <d3d9.h>
-#include <d3dx9.h>
+#include <d3dx9tex.h>
 #include <atlbase.h>
 #include <atltypes.h>
 #include <Windows.h>
@@ -92,7 +84,7 @@ extern "C" {
 #include <dinput.h>
 #include <dsound.h>
 #include <tchar.h>
+#include <ft2build.h>
 #include <crtdbg.h>
 #include <strstream>
-#include <tchar.h>
-  //Matching lines: 92    Matching files: 29    Total files searched: 51
+  //Matching lines: 84    Matching files: 28    Total files searched: 49

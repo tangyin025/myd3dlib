@@ -1,10 +1,8 @@
 #include "StdAfx.h"
 #include "mySkeleton.h"
 #include "rapidxml.hpp"
-#include "myException.h"
 #include "libc.h"
 #include "myResource.h"
-#include <tchar.h>
 
 using namespace my;
 
@@ -61,6 +59,44 @@ BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 		leafedBoneHierarchy[root_i].m_child = -1;
 
 	return leafedBoneHierarchy;
+}
+
+Bone Bone::Increment(const Bone & rhs) const
+{
+	return Bone(
+		m_rotation * rhs.m_rotation,
+		m_position + rhs.m_position);
+}
+
+Bone Bone::IncrementSelf(const Bone & rhs)
+{
+	m_rotation *= rhs.m_rotation;
+	m_position += rhs.m_position;
+	return *this;
+}
+
+Bone Bone::Lerp(const Bone & rhs, float t) const
+{
+	return Bone(
+		m_rotation.slerp(rhs.m_rotation, t),
+		m_position.lerp(rhs.m_position, t));
+}
+
+Bone Bone::LerpSelf(const Bone & rhs, float t)
+{
+	m_rotation.slerpSelf(rhs.m_rotation, t);
+	m_position.lerpSelf(rhs.m_position, t);
+	return *this;
+}
+
+Matrix4 Bone::BuildTransform(void) const
+{
+	return Matrix4::RotationQuaternion(m_rotation) * Matrix4::Translation(m_position);
+}
+
+Matrix4 Bone::BuildInverseTransform(void) const
+{
+	return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
 }
 
 TransformList & TransformList::Transform(
@@ -385,6 +421,32 @@ BoneList & BoneTrackList::GetPose(
 	return boneList;
 }
 
+void OgreSkeleton::Clear(void)
+{
+	m_boneNameMap.clear();
+
+	m_boneBindPose.clear();
+
+	m_boneHierarchy.clear();
+}
+
+int OgreSkeleton::GetBoneIndex(const std::string & bone_name) const
+{
+	_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
+
+	return m_boneNameMap.find(bone_name)->second;
+}
+
+BoneHierarchy & OgreSkeleton::BuildLeafedHierarchy(
+	BoneHierarchy & leafedBoneHierarchy,
+	int root_i,
+	const BoneIndexSet & leafNodeIndices)
+{
+	_ASSERT(leafedBoneHierarchy.size() >= m_boneHierarchy.size());
+
+	return m_boneHierarchy.BuildLeafedHierarchy(leafedBoneHierarchy, root_i, leafNodeIndices);
+}
+
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	LPSTR pSrcData,
 	UINT srcDataLen)
@@ -539,4 +601,37 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 	cache->push_back(0);
 	CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+}
+
+void OgreSkeletonAnimation::OnResetDevice(void)
+{
+}
+
+void OgreSkeletonAnimation::OnLostDevice(void)
+{
+}
+
+void OgreSkeletonAnimation::OnDestroyDevice(void)
+{
+}
+
+void OgreSkeletonAnimation::Clear(void)
+{
+	OgreSkeleton::Clear();
+
+	m_animationMap.clear();
+}
+
+const OgreAnimation & OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
+{
+	_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
+
+	return m_animationMap.find(anim_name)->second;
+}
+
+BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const
+{
+	_ASSERT(pose.size() >= m_boneBindPose.size());
+
+	return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
 }

@@ -28,10 +28,6 @@ namespace my
 		{
 		}
 
-		~Spline(void)
-		{
-		}
-
 		bool InsertNode(SplineNodePtr node, int begin_i, int end_i);
 
 		void InsertNode(SplineNodePtr node);

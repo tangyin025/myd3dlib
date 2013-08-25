@@ -144,9 +144,7 @@ namespace my
 		{
 		}
 
-		virtual ~BaseCamera(void)
-		{
-		}
+		virtual ~BaseCamera(void);
 
 		virtual void OnFrameMove(
 			double fTime,
@@ -284,10 +282,6 @@ namespace my
 			SetDlgViewport(Vector2(800,600));
 		}
 
-		virtual ~DialogMgr(void)
-		{
-		}
-
 		void SetDlgViewport(const Vector2 & vp);
 
 		Vector2 GetDlgViewport(void) const;
@@ -303,27 +297,11 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam);
 
-		void InsertDlg(DialogPtr dlg)
-		{
-			m_dlgSetMap[0].push_back(dlg);
+		void InsertDlg(DialogPtr dlg);
 
-			if(dlg->EventAlign)
-				dlg->EventAlign(EventArgsPtr(new EventArgs()));
-		}
+		void RemoveDlg(DialogPtr dlg);
 
-		void RemoveDlg(DialogPtr dlg)
-		{
-			DialogPtrList::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
-			if(dlg_iter != m_dlgSetMap[0].end())
-			{
-				m_dlgSetMap[0].erase(dlg_iter);
-			}
-		}
-
-		void RemoveAllDlg()
-		{
-			m_dlgSetMap[0].clear();
-		}
+		void RemoveAllDlg();
 	};
 
 	class EmitterMgr
@@ -352,22 +330,11 @@ namespace my
 			double fTime,
 			float fElapsedTime);
 
-		void InsertEmitter(EmitterPtr emitter)
-		{
-			_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+		void InsertEmitter(EmitterPtr emitter);
 
-			m_EmitterSet.insert(emitter);
-		}
+		void RemoveEmitter(EmitterPtr emitter);
 
-		void RemoveEmitter(EmitterPtr emitter)
-		{
-			m_EmitterSet.erase(emitter);
-		}
-
-		void RemoveAllEmitter(void)
-		{
-			m_EmitterSet.clear();
-		}
+		void RemoveAllEmitter(void);
 	};
 
 	class EffectParameterBase
@@ -377,9 +344,7 @@ namespace my
 		{
 		}
 
-		virtual ~EffectParameterBase(void)
-		{
-		}
+		virtual ~EffectParameterBase(void);
 
 		virtual void SetParameter(Effect * pEffect, const std::string & Name) const = 0;
 	};
@@ -403,40 +368,19 @@ namespace my
 	class EffectParameterMap : public boost::unordered_map<std::string, EffectParameterBasePtr>
 	{
 	public:
-		void SetBool(const std::string & Name, bool Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<bool>(Value));
-		}
+		void SetBool(const std::string & Name, bool Value);
 
-		void SetFloat(const std::string & Name, float Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<float>(Value));
-		}
+		void SetFloat(const std::string & Name, float Value);
 
-		void SetInt(const std::string & Name, int Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<int>(Value));
-		}
+		void SetInt(const std::string & Name, int Value);
 
-		void SetVector(const std::string & Name, const Vector4 & Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<Vector4>(Value));
-		}
+		void SetVector(const std::string & Name, const Vector4 & Value);
 
-		void SetMatrix(const std::string & Name, const Matrix4 & Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<Matrix4>(Value));
-		}
+		void SetMatrix(const std::string & Name, const Matrix4 & Value);
 
-		void SetString(const std::string & Name, const std::string & Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<std::string>(Value));
-		}
+		void SetString(const std::string & Name, const std::string & Value);
 
-		void SetTexture(const std::string & Name, BaseTexturePtr Value)
-		{
-			operator[](Name) = EffectParameterBasePtr(new EffectParameter<BaseTexturePtr>(Value));
-		}
+		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
 	class Material : public std::vector<std::pair<EffectPtr, EffectParameterMap> >
@@ -473,28 +417,11 @@ namespace my
 		{
 		}
 
-		virtual ~MaterialMgr(void)
-		{
-		}
+		void InsertMaterial(const std::string & key, MaterialPtr material);
 
-		void InsertMaterial(const std::string & key, MaterialPtr material)
-		{
-			_ASSERT(m_MaterialMap.end() == m_MaterialMap.find(key));
+		void RemoveMaterial(const std::string & key);
 
-			m_MaterialMap[key] = material;
-		}
-
-		void RemoveMaterial(const std::string & key)
-		{
-			_ASSERT(m_MaterialMap.end() != m_MaterialMap.find(key));
-
-			m_MaterialMap.erase(key);
-		}
-
-		void RemoveAllMaterial(void)
-		{
-			m_MaterialMap.clear();
-		}
+		void RemoveAllMaterial(void);
 	};
 
 	class ResourceMgr : public DeviceRelatedResourceMgr
@@ -506,10 +433,6 @@ namespace my
 
 	public:
 		ResourceMgr(void)
-		{
-		}
-
-		virtual ~ResourceMgr(void)
 		{
 		}
 

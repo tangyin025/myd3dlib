@@ -2,8 +2,8 @@
 
 #include <vector>
 #include "myMath.h"
-#include <set>
 #include <boost/unordered_map.hpp>
+#include <boost/unordered_set.hpp>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 
@@ -24,7 +24,7 @@ namespace my
 		}
 	};
 
-	typedef std::set<int> BoneIndexSet;
+	typedef boost::unordered_set<int> BoneIndexSet;
 
 	class BoneHierarchy
 		: public std::vector<BoneHierarchyNode>
@@ -78,43 +78,17 @@ namespace my
 			return m_position;
 		}
 
-		Bone Increment(const Bone & rhs) const
-		{
-			return Bone(
-				m_rotation * rhs.m_rotation,
-				m_position + rhs.m_position);
-		}
+		Bone Increment(const Bone & rhs) const;
 
-		Bone IncrementSelf(const Bone & rhs)
-		{
-			m_rotation *= rhs.m_rotation;
-			m_position += rhs.m_position;
-			return *this;
-		}
+		Bone IncrementSelf(const Bone & rhs);
 
-		Bone Lerp(const Bone & rhs, float t) const
-		{
-			return Bone(
-				m_rotation.slerp(rhs.m_rotation, t),
-				m_position.lerp(rhs.m_position, t));
-		}
+		Bone Lerp(const Bone & rhs, float t) const;
 
-		Bone LerpSelf(const Bone & rhs, float t)
-		{
-			m_rotation.slerpSelf(rhs.m_rotation, t);
-			m_position.lerpSelf(rhs.m_position, t);
-			return *this;
-		}
+		Bone LerpSelf(const Bone & rhs, float t);
 
-		Matrix4 BuildTransform(void) const
-		{
-			return Matrix4::RotationQuaternion(m_rotation) * Matrix4::Translation(m_position);
-		}
+		Matrix4 BuildTransform(void) const;
 
-		Matrix4 BuildInverseTransform(void) const
-		{
-			return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
-		}
+		Matrix4 BuildInverseTransform(void) const;
 	};
 
 	class TransformList
@@ -285,31 +259,14 @@ namespace my
 		{
 		}
 
-		void Clear(void)
-		{
-			m_boneNameMap.clear();
+		void Clear(void);
 
-			m_boneBindPose.clear();
-
-			m_boneHierarchy.clear();
-		}
-
-		int GetBoneIndex(const std::string & bone_name) const
-		{
-			_ASSERT(m_boneNameMap.end() != m_boneNameMap.find(bone_name));
-
-			return m_boneNameMap.find(bone_name)->second;
-		}
+		int GetBoneIndex(const std::string & bone_name) const;
 
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,
-			const BoneIndexSet & leafNodeIndices = BoneIndexSet())
-		{
-			_ASSERT(leafedBoneHierarchy.size() >= m_boneHierarchy.size());
-
-			return m_boneHierarchy.BuildLeafedHierarchy(leafedBoneHierarchy, root_i, leafNodeIndices);
-		}
+			const BoneIndexSet & leafNodeIndices = BoneIndexSet());
 	};
 
 	class OgreSkeletonAnimation
@@ -331,32 +288,17 @@ namespace my
 		void CreateOgreSkeletonAnimationFromFile(
 			LPCTSTR pFilename);
 
-		void OnResetDevice(void) {}
+		void OnResetDevice(void);
 
-		void OnLostDevice(void) {}
+		void OnLostDevice(void);
 
-		void OnDestroyDevice(void) {}
+		void OnDestroyDevice(void);
 
-		void Clear(void)
-		{
-			OgreSkeleton::Clear();
+		void Clear(void);
 
-			m_animationMap.clear();
-		}
+		const OgreAnimation & GetAnimation(const std::string & anim_name) const;
 
-		const OgreAnimation & GetAnimation(const std::string & anim_name) const
-		{
-			_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
-
-			return m_animationMap.find(anim_name)->second;
-		}
-
-		BoneList & BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const
-		{
-			_ASSERT(pose.size() >= m_boneBindPose.size());
-
-			return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
-		}
+		BoneList & BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const;
 	};
 
 	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;

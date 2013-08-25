@@ -1,6 +1,5 @@
 #pragma once
 
-#include "mySingleton.h"
 #include "myPhysics.h"
 #include "myTexture.h"
 #include "myMesh.h"
@@ -89,9 +88,7 @@ namespace my
 		{
 		}
 
-		virtual ~Emitter(void)
-		{
-		}
+		virtual ~Emitter(void);
 
 		void Reset(void);
 
@@ -180,32 +177,9 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
 	public:
-		EmitterInstance(void)
-		{
-			m_VertexElems.InsertTexcoordElement(0);
+		EmitterInstance(void);
 
-			m_InstanceElems.InsertPositionElement(0);
-			WORD offset = sizeof(Vector3);
-			m_InstanceElems.InsertColorElement(offset);
-			offset += sizeof(D3DCOLOR);
-			m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
-			offset += sizeof(Vector4);
-			m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_TEXCOORD, 2);
-			offset += sizeof(DWORD);
-
-			m_velist = m_VertexElems.BuildVertexElementList(0);
-			std::vector<D3DVERTEXELEMENT9> ielist = m_InstanceElems.BuildVertexElementList(1);
-			m_velist.insert(m_velist.end(), ielist.begin(), ielist.end());
-			D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
-			m_velist.push_back(ve_end);
-
-			m_VertexStride = D3DXGetDeclVertexSize(&m_velist[0], 0);
-			m_InstanceStride = D3DXGetDeclVertexSize(&m_velist[0], 1);
-		}
-
-		virtual ~EmitterInstance(void)
-		{
-		}
+		virtual ~EmitterInstance(void);
 
 		HRESULT OnCreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
@@ -219,19 +193,33 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		virtual void Begin(void) {}
+		virtual void Begin(void)
+		{
+		}
 
-		virtual void End(void) {}
+		virtual void End(void)
+		{
+		}
 
-		virtual void SetWorld(const Matrix4 & World) {}
+		virtual void SetWorld(const Matrix4 & World)
+		{
+		}
 
-		virtual void SetViewProj(const Matrix4 & ViewProj) {}
+		virtual void SetViewProj(const Matrix4 & ViewProj)
+		{
+		}
 
-		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture) {}
+		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture)
+		{
+		}
 
-		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right) {}
+		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
+		{
+		}
 
-		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row) {}
+		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row)
+		{
+		}
 
 		virtual void DrawInstance(DWORD NumInstances);
 	};

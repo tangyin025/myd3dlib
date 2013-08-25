@@ -263,6 +263,10 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
+BaseCamera::~BaseCamera(void)
+{
+}
+
 void Camera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -678,6 +682,28 @@ bool DialogMgr::MsgProc(
 	return false;
 }
 
+void DialogMgr::InsertDlg(DialogPtr dlg)
+{
+	m_dlgSetMap[0].push_back(dlg);
+
+	if(dlg->EventAlign)
+		dlg->EventAlign(EventArgsPtr(new EventArgs()));
+}
+
+void DialogMgr::RemoveDlg(DialogPtr dlg)
+{
+	DialogPtrList::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
+	if(dlg_iter != m_dlgSetMap[0].end())
+	{
+		m_dlgSetMap[0].erase(dlg_iter);
+	}
+}
+
+void DialogMgr::RemoveAllDlg()
+{
+	m_dlgSetMap[0].clear();
+}
+
 void EmitterMgr::Update(
 	double fTime,
 	float fElapsedTime)
@@ -729,6 +755,27 @@ void EmitterMgr::Draw(
 	}
 }
 
+void EmitterMgr::InsertEmitter(EmitterPtr emitter)
+{
+	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+
+	m_EmitterSet.insert(emitter);
+}
+
+void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
+{
+	m_EmitterSet.erase(emitter);
+}
+
+void EmitterMgr::RemoveAllEmitter(void)
+{
+	m_EmitterSet.clear();
+}
+
+EffectParameterBase::~EffectParameterBase(void)
+{
+}
+
 template <>
 void EffectParameter<bool>::SetParameter(Effect * pEffect, const std::string & Name) const
 {
@@ -769,6 +816,41 @@ template <>
 void EffectParameter<BaseTexturePtr>::SetParameter(Effect * pEffect, const std::string & Name) const
 {
 	pEffect->SetTexture(Name.c_str(), m_Value ? m_Value->m_ptr : NULL);
+}
+
+void EffectParameterMap::SetBool(const std::string & Name, bool Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<bool>(Value));
+}
+
+void EffectParameterMap::SetFloat(const std::string & Name, float Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<float>(Value));
+}
+
+void EffectParameterMap::SetInt(const std::string & Name, int Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<int>(Value));
+}
+
+void EffectParameterMap::SetVector(const std::string & Name, const Vector4 & Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<Vector4>(Value));
+}
+
+void EffectParameterMap::SetMatrix(const std::string & Name, const Matrix4 & Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<Matrix4>(Value));
+}
+
+void EffectParameterMap::SetString(const std::string & Name, const std::string & Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<std::string>(Value));
+}
+
+void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Value)
+{
+	operator[](Name) = EffectParameterBasePtr(new EffectParameter<BaseTexturePtr>(Value));
 }
 
 void Material::ApplyParameterBlock(UINT i)
@@ -813,6 +895,25 @@ void Material::DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId)
 		EndPass(i);
 	}
 	End(i);
+}
+
+void MaterialMgr::InsertMaterial(const std::string & key, MaterialPtr material)
+{
+	_ASSERT(m_MaterialMap.end() == m_MaterialMap.find(key));
+
+	m_MaterialMap[key] = material;
+}
+
+void MaterialMgr::RemoveMaterial(const std::string & key)
+{
+	_ASSERT(m_MaterialMap.end() != m_MaterialMap.find(key));
+
+	m_MaterialMap.erase(key);
+}
+
+void MaterialMgr::RemoveAllMaterial(void)
+{
+	m_MaterialMap.clear();
 }
 
 MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)

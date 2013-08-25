@@ -108,6 +108,19 @@ BOOL DxutWindow::ProcessWindowMessage(HWND hWnd, UINT uMsg, WPARAM wParam, LPARA
 	return FALSE;
 }
 
+Clock::Clock(void)
+	: m_llQPFTicksPerSec(0)
+	, m_llLastElapsedTime(0)
+	, m_fAbsoluteTime(0)
+	, m_fElapsedTime(0)
+{
+	LARGE_INTEGER qwTicksPerSec;
+	QueryPerformanceFrequency(&qwTicksPerSec);
+	m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
+
+	UpdateClock();
+}
+
 void Clock::UpdateClock(void)
 {
 	LARGE_INTEGER qwTime;

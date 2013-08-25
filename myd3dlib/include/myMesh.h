@@ -1,7 +1,5 @@
 #pragma once
 
-#include <d3d9.h>
-#include <set>
 #include "myMath.h"
 #include <vector>
 #include <atlbase.h>
@@ -50,14 +48,7 @@ namespace my
 		{
 		}
 
-		void InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			_ASSERT(Type != D3DDECLTYPE_UNUSED);
-
-			_ASSERT(Usage < MAX_USAGE && UsageIndex < MAX_USAGE_INDEX);
-
-			elems[Usage][UsageIndex] = D3DVertexElement(Offset, Type, Method);
-		}
+		void InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
 		template <typename ElementType>
 		ElementType & GetVertexValue(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex) const
@@ -71,175 +62,55 @@ namespace my
 			GetVertexValue<ElementType>(pVertex, Usage, UsageIndex) = Value;
 		}
 
-		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream)
-		{
-			std::vector<D3DVERTEXELEMENT9> ret;
-			for(unsigned int Usage = 0; Usage < MAX_USAGE; Usage++)
-			{
-				for(unsigned int UsageIndex = 0; UsageIndex < MAX_USAGE_INDEX; UsageIndex++)
-				{
-					const D3DVertexElement & elem = elems[Usage][UsageIndex];
-					if(elem.Type != D3DDECLTYPE_UNUSED)
-					{
-						D3DVERTEXELEMENT9 ve = {Stream, elem.Offset, elem.Type, elem.Method, Usage, UsageIndex};
-						ret.push_back(ve);
-					}
-				}
-			}
-			return ret;
-		}
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream);
 
-		void InsertPositionElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, UsageIndex, Method);
-		}
+		void InsertPositionElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0);
 
-			return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex);
-		}
+		void SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex = 0) const;
 
-		void SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+		void InsertBlendWeightElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-			return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex, Position);
-		}
+		Vector4 & GetBlendWeight(void * pVertex, BYTE UsageIndex = 0);
 
-		void InsertBlendWeightElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, Method);
-		}
+		void SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex = 0) const;
 
-		Vector4 & GetBlendWeight(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+		void InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-			return GetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex);
-		}
+		DWORD & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0);
 
-		void SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+		void SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex = 0) const;
 
-			return SetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, BlendWeight);
-		}
+		void InsertNormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		void InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_BLENDINDICES, UsageIndex, Method);
-		}
+		Vector3 & GetNormal(void * pVertex, BYTE UsageIndex = 0);
 
-		DWORD & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+		void SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex = 0) const;
 
-			return GetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex);
-		}
+		void InsertTexcoordElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		void SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+		Vector2 & GetTexcoord(void * pVertex, BYTE UsageIndex = 0);
 
-			return SetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex, BlendIndices);
-		}
+		void SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex = 0) const;
 
-		void InsertNormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, UsageIndex, Method);
-		}
+		void InsertTangentElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetNormal(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+		Vector3 & GetTangent(void * pVertex, BYTE UsageIndex = 0);
 
-			return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex);
-		}
+		void SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex = 0) const;
 
-		void SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+		void InsertBinormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-			return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex, Normal);
-		}
+		Vector3 & GetBinormal(void * pVertex, BYTE UsageIndex = 0);
 
-		void InsertTexcoordElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT2, D3DDECLUSAGE_TEXCOORD, UsageIndex, Method);
-		}
+		void SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex = 0) const;
 
-		Vector2 & GetTexcoord(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
+		void InsertColorElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-			return GetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex);
-		}
+		D3DCOLOR & GetColor(void * pVertex, BYTE UsageIndex = 0);
 
-		void SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
-
-			return SetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex, Texcoord);
-		}
-
-		void InsertTangentElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_TANGENT, UsageIndex, Method);
-		}
-
-		Vector3 & GetTangent(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
-
-			return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex);
-		}
-
-		void SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
-
-			return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex, Tangent);
-		}
-
-		void InsertBinormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_BINORMAL, UsageIndex, Method);
-		}
-
-		Vector3 & GetBinormal(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
-
-			return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex);
-		}
-
-		void SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
-
-			return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex, Binormal);
-		}
-
-		void InsertColorElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT)
-		{
-			InsertVertexElement(Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLUSAGE_COLOR, UsageIndex, Method);
-		}
-
-		D3DCOLOR & GetColor(void * pVertex, BYTE UsageIndex = 0)
-		{
-			_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
-
-			return GetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex);
-		}
-
-		void SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex = 0) const
-		{
-			_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
-
-			return SetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex, Color);
-		}
+		void SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex = 0) const;
 	};
 
 	class VertexBuffer : public DeviceRelatedObject<IDirect3DVertexBuffer9>
@@ -249,12 +120,7 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DVertexBuffer9 * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(IDirect3DVertexBuffer9 * ptr);
 
 		void CreateVertexBuffer(
 			LPDIRECT3DDEVICE9 pDevice,
@@ -263,24 +129,11 @@ namespace my
 			DWORD FVF = 0,
 			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
-		D3DVERTEXBUFFER_DESC GetDesc(void)
-		{
-			D3DVERTEXBUFFER_DESC desc;
-			V(m_ptr->GetDesc(&desc));
-			return desc;
-		}
+		D3DVERTEXBUFFER_DESC GetDesc(void);
 
-		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0)
-		{
-			void * ret;
-			V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
-			return ret;
-		}
+		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0);
 
-		void Unlock(void)
-		{
-			V(m_ptr->Unlock());
-		}
+		void Unlock(void);
 	};
 
 	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
@@ -292,12 +145,7 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DIndexBuffer9 * ptr)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = ptr;
-		}
+		void Create(IDirect3DIndexBuffer9 * ptr);
 
 		void CreateIndexBuffer(
 			LPDIRECT3DDEVICE9 pDevice,
@@ -306,24 +154,11 @@ namespace my
 			D3DFORMAT Format = D3DFMT_INDEX16,
 			D3DPOOL Pool = D3DPOOL_DEFAULT);
 
-		D3DINDEXBUFFER_DESC GetDesc(void)
-		{
-			D3DINDEXBUFFER_DESC desc;
-			V(m_ptr->GetDesc(&desc));
-			return desc;
-		}
+		D3DINDEXBUFFER_DESC GetDesc(void);
 
-		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0)
-		{
-			void * ret;
-			V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
-			return ret;
-		}
+		void * Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags = 0);
 
-		void Unlock(void)
-		{
-			V(m_ptr->Unlock());
-		}
+		void Unlock(void);
 	};
 
 	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
@@ -335,12 +170,7 @@ namespace my
 		{
 		}
 
-		void Create(ID3DXMesh * pMesh)
-		{
-			_ASSERT(!m_ptr);
-
-			m_ptr = pMesh;
-		}
+		void Create(ID3DXMesh * pMesh);
 
 		void CreateMesh(
 			LPDIRECT3DDEVICE9 pD3DDevice,
@@ -416,171 +246,66 @@ namespace my
 			UINT Rings = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
-		{
-			CComPtr<ID3DXMesh> CloneMesh;
-			V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &CloneMesh));
-			return CloneMesh;
-		}
+		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
 
-		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
-		{
-			CComPtr<ID3DXMesh> CloneMesh;
-			V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &CloneMesh));
-			return CloneMesh;
-		}
+		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
 
-		void ConvertAdjacencyToPointReps(CONST DWORD * pAdjacency, DWORD * pPRep)
-		{
-			V(m_ptr->ConvertAdjacencyToPointReps(pAdjacency, pPRep));
-		}
+		void ConvertAdjacencyToPointReps(CONST DWORD * pAdjacency, DWORD * pPRep);
 
-		void ConvertPointRepsToAdjacency(CONST DWORD* pPRep, DWORD* pAdjacency)
-		{
-			V(m_ptr->ConvertPointRepsToAdjacency(pPRep, pAdjacency));
-		}
+		void ConvertPointRepsToAdjacency(CONST DWORD* pPRep, DWORD* pAdjacency);
 
-		void DrawSubset(DWORD AttribId)
-		{
-			V(m_ptr->DrawSubset(AttribId));
-		}
+		void DrawSubset(DWORD AttribId);
 
-		void GenerateAdjacency(FLOAT Epsilon, DWORD * pAdjacency)
-		{
-			V(m_ptr->GenerateAdjacency(Epsilon, pAdjacency));
-		}
+		void GenerateAdjacency(FLOAT Epsilon, DWORD * pAdjacency);
 
-		void GetAttributeTable(D3DXATTRIBUTERANGE * pAttribTable, DWORD * pAttribTableSize)
-		{
-			V(m_ptr->GetAttributeTable(pAttribTable, pAttribTableSize));
-		}
+		void GetAttributeTable(D3DXATTRIBUTERANGE * pAttribTable, DWORD * pAttribTableSize);
 
-		void GetDeclaration(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE])
-		{
-			V(m_ptr->GetDeclaration(Declaration));
-		}
+		void GetDeclaration(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE]);
 
-		CComPtr<IDirect3DDevice9> GetDevice(void)
-		{
-			CComPtr<IDirect3DDevice9> Device;
-			V(m_ptr->GetDevice(&Device));
-			return Device;
-		}
+		CComPtr<IDirect3DDevice9> GetDevice(void);
 
-		DWORD GetFVF(void)
-		{
-			return m_ptr->GetFVF();
-		}
+		DWORD GetFVF(void);
 
-		CComPtr<IDirect3DIndexBuffer9> GetIndexBuffer(void)
-		{
-			CComPtr<IDirect3DIndexBuffer9> IndexBuffer;
-			V(m_ptr->GetIndexBuffer(&IndexBuffer));
-			return IndexBuffer;
-		}
+		CComPtr<IDirect3DIndexBuffer9> GetIndexBuffer(void);
 
-		DWORD GetNumBytesPerVertex(void)
-		{
-			return m_ptr->GetNumBytesPerVertex();
-		}
+		DWORD GetNumBytesPerVertex(void);
 
-		DWORD GetNumFaces(void)
-		{
-			return m_ptr->GetNumFaces();
-		}
+		DWORD GetNumFaces(void);
 
-		DWORD GetNumVertices(void)
-		{
-			return m_ptr->GetNumVertices();
-		}
+		DWORD GetNumVertices(void);
 
-		DWORD GetOptions(void)
-		{
-			return m_ptr->GetOptions();
-		}
+		DWORD GetOptions(void);
 
-		CComPtr<IDirect3DVertexBuffer9> GetVertexBuffer(void)
-		{
-			CComPtr<IDirect3DVertexBuffer9> VertexBuffer;
-			V(m_ptr->GetVertexBuffer(&VertexBuffer));
-			return VertexBuffer;
-		}
+		CComPtr<IDirect3DVertexBuffer9> GetVertexBuffer(void);
 
-		LPVOID LockIndexBuffer(DWORD Flags = 0)
-		{
-			LPVOID pData = NULL;
-			if(FAILED(hr = m_ptr->LockIndexBuffer(Flags, &pData)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return pData;
-		}
+		LPVOID LockIndexBuffer(DWORD Flags = 0);
 
-		LPVOID LockVertexBuffer(DWORD Flags = 0)
-		{
-			LPVOID pData = NULL;
-			if(FAILED(hr = m_ptr->LockVertexBuffer(Flags, &pData)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return pData;
-		}
+		LPVOID LockVertexBuffer(DWORD Flags = 0);
 
-		void UnlockIndexBuffer(void)
-		{
-			V(m_ptr->UnlockIndexBuffer());
-		}
+		void UnlockIndexBuffer(void);
 
-		void UnlockVertexBuffer(void)
-		{
-			V(m_ptr->UnlockVertexBuffer());
-		}
+		void UnlockVertexBuffer(void);
 
-		void UpdateSemantics(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE])
-		{
-			V(m_ptr->UpdateSemantics(Declaration));
-		}
+		void UpdateSemantics(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE]);
 
-		DWORD * LockAttributeBuffer(DWORD Flags = 0)
-		{
-			DWORD * pData = NULL;
-			if(FAILED(hr = m_ptr->LockAttributeBuffer(Flags, &pData)))
-			{
-				THROW_D3DEXCEPTION(hr);
-			}
-			return pData;
-		}
+		DWORD * LockAttributeBuffer(DWORD Flags = 0);
 
 		CComPtr<ID3DXMesh> Optimize(
 			DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
 			DWORD * pFaceRemap,
-			LPD3DXBUFFER * ppVertexRemap = NULL)
-		{
-			CComPtr<ID3DXMesh> OptMesh;
-			V(m_ptr->Optimize(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap, &OptMesh));
-			return OptMesh;
-		}
+			LPD3DXBUFFER * ppVertexRemap = NULL);
 
 		void OptimizeInplace(DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
 			DWORD * pFaceRemap,
-			LPD3DXBUFFER * ppVertexRemap = NULL)
-		{
-			V(m_ptr->OptimizeInplace(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap));
-		}
+			LPD3DXBUFFER * ppVertexRemap = NULL);
 
-		void SetAttributeTable(CONST D3DXATTRIBUTERANGE * pAttribTable, DWORD cAttribTableSize)
-		{
-			V(m_ptr->SetAttributeTable(pAttribTable, cAttribTableSize));
-		}
+		void SetAttributeTable(CONST D3DXATTRIBUTERANGE * pAttribTable, DWORD cAttribTableSize);
 
-		void UnlockAttributeBuffer(void)
-		{
-			V(m_ptr->UnlockAttributeBuffer());
-		}
+		void UnlockAttributeBuffer(void);
 	};
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
@@ -610,17 +335,11 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		UINT GetMaterialNum(void) const
-		{
-			return m_MaterialNameList.size();
-		}
-
-		const std::string & GetMaterialName(DWORD AttribId) const
-		{
-			return m_MaterialNameList[AttribId];
-		}
-
 		void ComputeTangentFrame(void);
+
+		UINT GetMaterialNum(void) const;
+
+		const std::string & GetMaterialName(DWORD AttribId) const;
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;

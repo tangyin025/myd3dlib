@@ -6,6 +6,192 @@
 
 using namespace my;
 
+void D3DVertexElementSet::InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	_ASSERT(Type != D3DDECLTYPE_UNUSED);
+
+	_ASSERT(Usage < MAX_USAGE && UsageIndex < MAX_USAGE_INDEX);
+
+	elems[Usage][UsageIndex] = D3DVertexElement(Offset, Type, Method);
+}
+
+std::vector<D3DVERTEXELEMENT9> D3DVertexElementSet::BuildVertexElementList(WORD Stream)
+{
+	std::vector<D3DVERTEXELEMENT9> ret;
+	for(unsigned int Usage = 0; Usage < MAX_USAGE; Usage++)
+	{
+		for(unsigned int UsageIndex = 0; UsageIndex < MAX_USAGE_INDEX; UsageIndex++)
+		{
+			const D3DVertexElement & elem = elems[Usage][UsageIndex];
+			if(elem.Type != D3DDECLTYPE_UNUSED)
+			{
+				D3DVERTEXELEMENT9 ve = {Stream, elem.Offset, elem.Type, elem.Method, Usage, UsageIndex};
+				ret.push_back(ve);
+			}
+		}
+	}
+	return ret;
+}
+
+void D3DVertexElementSet::InsertPositionElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, UsageIndex, Method);
+}
+
+Vector3 & D3DVertexElementSet::GetPosition(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex);
+}
+
+void D3DVertexElementSet::SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex, Position);
+}
+
+void D3DVertexElementSet::InsertBlendWeightElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, Method);
+}
+
+Vector4 & D3DVertexElementSet::GetBlendWeight(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+
+	return GetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex);
+}
+
+void D3DVertexElementSet::SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
+
+	return SetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, BlendWeight);
+}
+
+void D3DVertexElementSet::InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_BLENDINDICES, UsageIndex, Method);
+}
+
+DWORD & D3DVertexElementSet::GetBlendIndices(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+
+	return GetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex);
+}
+
+void D3DVertexElementSet::SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
+
+	return SetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex, BlendIndices);
+}
+
+void D3DVertexElementSet::InsertNormalElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, UsageIndex, Method);
+}
+
+Vector3 & D3DVertexElementSet::GetNormal(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex);
+}
+
+void D3DVertexElementSet::SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex, Normal);
+}
+
+void D3DVertexElementSet::InsertTexcoordElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT2, D3DDECLUSAGE_TEXCOORD, UsageIndex, Method);
+}
+
+Vector2 & D3DVertexElementSet::GetTexcoord(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
+
+	return GetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex);
+}
+
+void D3DVertexElementSet::SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
+
+	return SetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex, Texcoord);
+}
+
+void D3DVertexElementSet::InsertTangentElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_TANGENT, UsageIndex, Method);
+}
+
+Vector3 & D3DVertexElementSet::GetTangent(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex);
+}
+
+void D3DVertexElementSet::SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex, Tangent);
+}
+
+void D3DVertexElementSet::InsertBinormalElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_BINORMAL, UsageIndex, Method);
+}
+
+Vector3 & D3DVertexElementSet::GetBinormal(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex);
+}
+
+void D3DVertexElementSet::SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
+
+	return SetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex, Binormal);
+}
+
+void D3DVertexElementSet::InsertColorElement(WORD Offset, BYTE UsageIndex, D3DDECLMETHOD Method)
+{
+	InsertVertexElement(Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLUSAGE_COLOR, UsageIndex, Method);
+}
+
+D3DCOLOR & D3DVertexElementSet::GetColor(void * pVertex, BYTE UsageIndex)
+{
+	_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
+
+	return GetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex);
+}
+
+void D3DVertexElementSet::SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex) const
+{
+	_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
+
+	return SetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex, Color);
+}
+
+void VertexBuffer::Create(IDirect3DVertexBuffer9 * ptr)
+{
+	_ASSERT(!m_ptr);
+
+	m_ptr = ptr;
+}
+
 void VertexBuffer::CreateVertexBuffer(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Length,
@@ -22,6 +208,32 @@ void VertexBuffer::CreateVertexBuffer(
 	Create(pVB);
 }
 
+D3DVERTEXBUFFER_DESC VertexBuffer::GetDesc(void)
+{
+	D3DVERTEXBUFFER_DESC desc;
+	V(m_ptr->GetDesc(&desc));
+	return desc;
+}
+
+void * VertexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags)
+{
+	void * ret;
+	V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
+	return ret;
+}
+
+void VertexBuffer::Unlock(void)
+{
+	V(m_ptr->Unlock());
+}
+
+void IndexBuffer::Create(IDirect3DIndexBuffer9 * ptr)
+{
+	_ASSERT(!m_ptr);
+
+	m_ptr = ptr;
+}
+
 void IndexBuffer::CreateIndexBuffer(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Length,
@@ -36,6 +248,32 @@ void IndexBuffer::CreateIndexBuffer(
 	}
 
 	Create(pIB);
+}
+
+D3DINDEXBUFFER_DESC IndexBuffer::GetDesc(void)
+{
+	D3DINDEXBUFFER_DESC desc;
+	V(m_ptr->GetDesc(&desc));
+	return desc;
+}
+
+void * IndexBuffer::Lock(UINT OffsetToLock, UINT SizeToLock, DWORD Flags)
+{
+	void * ret;
+	V(m_ptr->Lock(OffsetToLock, SizeToLock, &ret, Flags));
+	return ret;
+}
+
+void IndexBuffer::Unlock(void)
+{
+	V(m_ptr->Unlock());
+}
+
+void Mesh::Create(ID3DXMesh * pMesh)
+{
+	_ASSERT(!m_ptr);
+
+	m_ptr = pMesh;
 }
 
 void Mesh::CreateMesh(
@@ -212,6 +450,172 @@ void Mesh::CreateTorus(
 	}
 
 	Create(pMesh);
+}
+
+CComPtr<ID3DXMesh> Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
+{
+	CComPtr<ID3DXMesh> CloneMesh;
+	V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &CloneMesh));
+	return CloneMesh;
+}
+
+CComPtr<ID3DXMesh> Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
+{
+	CComPtr<ID3DXMesh> CloneMesh;
+	V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &CloneMesh));
+	return CloneMesh;
+}
+
+void Mesh::ConvertAdjacencyToPointReps(CONST DWORD * pAdjacency, DWORD * pPRep)
+{
+	V(m_ptr->ConvertAdjacencyToPointReps(pAdjacency, pPRep));
+}
+
+void Mesh::ConvertPointRepsToAdjacency(CONST DWORD* pPRep, DWORD* pAdjacency)
+{
+	V(m_ptr->ConvertPointRepsToAdjacency(pPRep, pAdjacency));
+}
+
+void Mesh::DrawSubset(DWORD AttribId)
+{
+	V(m_ptr->DrawSubset(AttribId));
+}
+
+void Mesh::GenerateAdjacency(FLOAT Epsilon, DWORD * pAdjacency)
+{
+	V(m_ptr->GenerateAdjacency(Epsilon, pAdjacency));
+}
+
+void Mesh::GetAttributeTable(D3DXATTRIBUTERANGE * pAttribTable, DWORD * pAttribTableSize)
+{
+	V(m_ptr->GetAttributeTable(pAttribTable, pAttribTableSize));
+}
+
+void Mesh::GetDeclaration(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE])
+{
+	V(m_ptr->GetDeclaration(Declaration));
+}
+
+CComPtr<IDirect3DDevice9> Mesh::GetDevice(void)
+{
+	CComPtr<IDirect3DDevice9> Device;
+	V(m_ptr->GetDevice(&Device));
+	return Device;
+}
+
+DWORD Mesh::GetFVF(void)
+{
+	return m_ptr->GetFVF();
+}
+
+CComPtr<IDirect3DIndexBuffer9> Mesh::GetIndexBuffer(void)
+{
+	CComPtr<IDirect3DIndexBuffer9> IndexBuffer;
+	V(m_ptr->GetIndexBuffer(&IndexBuffer));
+	return IndexBuffer;
+}
+
+DWORD Mesh::GetNumBytesPerVertex(void)
+{
+	return m_ptr->GetNumBytesPerVertex();
+}
+
+DWORD Mesh::GetNumFaces(void)
+{
+	return m_ptr->GetNumFaces();
+}
+
+DWORD Mesh::GetNumVertices(void)
+{
+	return m_ptr->GetNumVertices();
+}
+
+DWORD Mesh::GetOptions(void)
+{
+	return m_ptr->GetOptions();
+}
+
+CComPtr<IDirect3DVertexBuffer9> Mesh::GetVertexBuffer(void)
+{
+	CComPtr<IDirect3DVertexBuffer9> VertexBuffer;
+	V(m_ptr->GetVertexBuffer(&VertexBuffer));
+	return VertexBuffer;
+}
+
+LPVOID Mesh::LockIndexBuffer(DWORD Flags)
+{
+	LPVOID pData = NULL;
+	if(FAILED(hr = m_ptr->LockIndexBuffer(Flags, &pData)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+	return pData;
+}
+
+LPVOID Mesh::LockVertexBuffer(DWORD Flags)
+{
+	LPVOID pData = NULL;
+	if(FAILED(hr = m_ptr->LockVertexBuffer(Flags, &pData)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+	return pData;
+}
+
+void Mesh::UnlockIndexBuffer(void)
+{
+	V(m_ptr->UnlockIndexBuffer());
+}
+
+void Mesh::UnlockVertexBuffer(void)
+{
+	V(m_ptr->UnlockVertexBuffer());
+}
+
+void Mesh::UpdateSemantics(D3DVERTEXELEMENT9 Declaration[MAX_FVF_DECL_SIZE])
+{
+	V(m_ptr->UpdateSemantics(Declaration));
+}
+
+DWORD * Mesh::LockAttributeBuffer(DWORD Flags)
+{
+	DWORD * pData = NULL;
+	if(FAILED(hr = m_ptr->LockAttributeBuffer(Flags, &pData)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+	return pData;
+}
+
+CComPtr<ID3DXMesh> Mesh::Optimize(
+	DWORD Flags,
+	CONST DWORD * pAdjacencyIn,
+	DWORD * pAdjacencyOut,
+	DWORD * pFaceRemap,
+	LPD3DXBUFFER * ppVertexRemap)
+{
+	CComPtr<ID3DXMesh> OptMesh;
+	V(m_ptr->Optimize(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap, &OptMesh));
+	return OptMesh;
+}
+
+void Mesh::OptimizeInplace(DWORD Flags,
+	CONST DWORD * pAdjacencyIn,
+	DWORD * pAdjacencyOut,
+	DWORD * pFaceRemap,
+	LPD3DXBUFFER * ppVertexRemap)
+{
+	V(m_ptr->OptimizeInplace(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap));
+}
+
+void Mesh::SetAttributeTable(CONST D3DXATTRIBUTERANGE * pAttribTable, DWORD cAttribTableSize)
+{
+	V(m_ptr->SetAttributeTable(pAttribTable, cAttribTableSize));
+}
+
+void Mesh::UnlockAttributeBuffer(void)
+{
+	V(m_ptr->UnlockAttributeBuffer());
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
@@ -544,4 +948,14 @@ void OgreMesh::ComputeTangentFrame(void)
 
 	UnlockVertexBuffer();
 	UnlockIndexBuffer();
+}
+
+UINT OgreMesh::GetMaterialNum(void) const
+{
+	return m_MaterialNameList.size();
+}
+
+const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
+{
+	return m_MaterialNameList[AttribId];
 }

@@ -1,13 +1,9 @@
 #pragma once
 
 #include "mySingleton.h"
-#include <d3d9.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
 #include "myUi.h"
 #include "myThread.h"
 #include <atlbase.h>
-#include <hash_set>
 #include "DXUTenum.h"
 
 namespace my
@@ -47,22 +43,7 @@ namespace my
 
 		float m_fElapsedTime;
 
-		Clock(void)
-			: m_llQPFTicksPerSec(0)
-			, m_llLastElapsedTime(0)
-			, m_fAbsoluteTime(0)
-			, m_fElapsedTime(0)
-		{
-			LARGE_INTEGER qwTicksPerSec;
-			QueryPerformanceFrequency(&qwTicksPerSec);
-			m_llQPFTicksPerSec = qwTicksPerSec.QuadPart;
-
-			UpdateClock();
-		}
-
-		virtual ~Clock(void)
-		{
-		}
+		Clock(void);
 
 		void UpdateClock(void);
 	};
@@ -89,10 +70,6 @@ namespace my
 		D3DContext(void)
 			: m_DeviceObjectsCreated(false)
 			, m_DeviceObjectsReset(false)
-		{
-		}
-
-		virtual ~D3DContext(void)
 		{
 		}
 
@@ -153,10 +130,6 @@ namespace my
 			, m_DeviceLost(false)
 			, m_dwFrames(0)
 			, m_fLastTime(0)
-		{
-		}
-
-		virtual ~DxutApp(void)
 		{
 		}
 

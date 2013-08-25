@@ -6,6 +6,10 @@
 
 using namespace my;
 
+UIRender::~UIRender(void)
+{
+}
+
 void UIRender::Begin(void)
 {
 	// ! Default UIRender rendering ui elements under Fixed Pipeline
@@ -185,6 +189,10 @@ void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize &
 	DrawVertexList();
 }
 
+ControlSkin::~ControlSkin(void)
+{
+}
+
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
 {
 	if(Image && Image->m_Texture)
@@ -205,6 +213,10 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 	{
 		m_Font->DrawString(ui_render, pString, rect, TextColor, TextAlign);
 	}
+}
+
+Control::~Control(void)
+{
 }
 
 void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
@@ -2084,4 +2096,23 @@ void Dialog::ForceFocusControl(void)
 bool Dialog::ContainsControl(ControlPtr control)
 {
 	return m_Controls.end() != std::find(m_Controls.begin(), m_Controls.end(), control);
+}
+
+void Dialog::InsertControl(ControlPtr control)
+{
+	m_Controls.push_back(control);
+}
+
+void Dialog::RemoveControl(ControlPtr control)
+{
+	ControlPtrList::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
+	if(ctrl_iter != m_Controls.end())
+	{
+		m_Controls.erase(ctrl_iter);
+	}
+}
+
+void Dialog::ClearAllControl(void)
+{
+	m_Controls.clear();
 }

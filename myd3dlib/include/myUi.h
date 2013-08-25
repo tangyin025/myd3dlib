@@ -36,9 +36,7 @@ namespace my
 		{
 		}
 
-		virtual ~UIRender(void)
-		{
-		}
+		virtual ~UIRender(void);
 
 		virtual void Begin(void);
 
@@ -113,9 +111,7 @@ namespace my
 		{
 		}
 
-		virtual ~ControlSkin(void)
-		{
-		}
+		virtual ~ControlSkin(void);
 
 		void DrawImage(UIRender * ui_render, ControlImagePtr Image, const Rectangle & rect, DWORD color);
 
@@ -162,9 +158,7 @@ namespace my
 		{
 		}
 
-		virtual ~Control(void)
-		{
-		}
+		virtual ~Control(void);
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
@@ -257,7 +251,6 @@ namespace my
 			: m_bPressed(false)
 			, m_BlendColor(m_Color)
 		{
-			m_Skin.reset(new ButtonSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -335,7 +328,6 @@ namespace my
 			, m_nSelStart(0)
 			, m_bInsertMode(true)
 		{
-			m_Skin.reset(new EditBoxSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -483,7 +475,6 @@ namespace my
 			, m_dwArrowTS(0)
 			, m_fThumbOffsetY(0)
 		{
-			m_Skin.reset(new ScrollBarSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -605,8 +596,6 @@ namespace my
 			, m_iFocused(0)
 			, m_iSelected(-1)
 		{
-			m_Skin.reset(new ComboBoxSkin());
-
 			OnLayout();
 		}
 
@@ -688,10 +677,6 @@ namespace my
 		{
 		}
 
-		virtual ~Dialog(void)
-		{
-		}
-
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -712,24 +697,11 @@ namespace my
 
 		bool ContainsControl(ControlPtr control);
 
-		void InsertControl(ControlPtr control)
-		{
-			m_Controls.push_back(control);
-		}
+		void InsertControl(ControlPtr control);
 
-		void RemoveControl(ControlPtr control)
-		{
-			ControlPtrList::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
-			if(ctrl_iter != m_Controls.end())
-			{
-				m_Controls.erase(ctrl_iter);
-			}
-		}
+		void RemoveControl(ControlPtr control);
 
-		void ClearAllControl(void)
-		{
-			m_Controls.clear();
-		}
+		void ClearAllControl(void);
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;
