@@ -11,39 +11,51 @@ using namespace my;
 
 void EffectUIRender::Begin(void)
 {
-	const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
-
-	m_Passes = m_UIEffect->Begin();
+	if(m_UIEffect->m_ptr)
+	{
+		const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
+		m_Passes = m_UIEffect->Begin();
+	}
 }
 
 void EffectUIRender::End(void)
 {
-	m_UIEffect->End();
-
-	m_Passes = 0;
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->End();
+		m_Passes = 0;
+	}
 }
 
 void EffectUIRender::SetWorld(const Matrix4 & World)
 {
-	m_UIEffect->SetMatrix("g_World", World);
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetMatrix("g_World", World);
+	}
 }
 
 void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
 {
-	m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+	}
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
-	_ASSERT(Game::getSingleton().m_WhiteTex);
-
-	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+	if(m_UIEffect->m_ptr)
+	{
+		_ASSERT(Game::getSingleton().m_WhiteTex);
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+	}
 }
 
 void EffectUIRender::DrawVertexList(void)
 {
-	if(vertex_count > 0)
+	if(m_UIEffect->m_ptr && vertex_count > 0)
 	{
 		for(UINT p = 0; p < m_Passes; p++)
 		{
@@ -57,48 +69,67 @@ void EffectUIRender::DrawVertexList(void)
 
 void EffectEmitterInstance::Begin(void)
 {
-	m_Passes = m_ParticleEffect->Begin();
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_Passes = m_ParticleEffect->Begin();
+	}
 }
 
 void EffectEmitterInstance::End(void)
 {
-	m_ParticleEffect->End();
-
-	m_Passes = 0;
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_ParticleEffect->End();
+		m_Passes = 0;
+	}
 }
 
 void EffectEmitterInstance::SetWorld(const my::Matrix4 & World)
 {
-	m_ParticleEffect->SetMatrix("g_World", World);
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_ParticleEffect->SetMatrix("g_World", World);
+	}
 }
 
 void EffectEmitterInstance::SetViewProj(const my::Matrix4 & ViewProj)
 {
-	m_ParticleEffect->SetMatrix("g_ViewProj", ViewProj);
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_ParticleEffect->SetMatrix("g_ViewProj", ViewProj);
+	}
 }
 
 void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
-	_ASSERT(Game::getSingleton().m_WhiteTex);
-
-	m_ParticleEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+	if (m_ParticleEffect->m_ptr)
+	{
+		_ASSERT(Game::getSingleton().m_WhiteTex);
+		m_ParticleEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+	}
 }
 
 void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
 {
-	m_ParticleEffect->SetVector("g_ParticleDir", Dir);
-	m_ParticleEffect->SetVector("g_ParticleUp", Up);
-	m_ParticleEffect->SetVector("g_ParticleRight", Right);
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_ParticleEffect->SetVector("g_ParticleDir", Dir);
+		m_ParticleEffect->SetVector("g_ParticleUp", Up);
+		m_ParticleEffect->SetVector("g_ParticleRight", Right);
+	}
 }
 
 void EffectEmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
 {
-	m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
+	if (m_ParticleEffect->m_ptr)
+	{
+		m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
+	}
 }
 
 void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
 {
-	if(NumInstances > 0)
+	if(m_ParticleEffect->m_ptr && NumInstances > 0)
 	{
 		for(UINT p = 0; p < m_Passes; p++)
 		{

@@ -11,40 +11,52 @@ using namespace my;
 
 void EffectUIRender::Begin(void)
 {
-	CRect rectClient;
-	CMainView::getSingleton().GetClientRect(&rectClient);
-	m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
-
-	m_Passes = m_UIEffect->Begin();
+	if(m_UIEffect->m_ptr)
+	{
+		CRect rectClient;
+		CMainView::getSingleton().GetClientRect(&rectClient);
+		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)rectClient.Width(), (float)rectClient.Height(), 0, 0));
+		m_Passes = m_UIEffect->Begin();
+	}
 }
 
 void EffectUIRender::End(void)
 {
-	m_UIEffect->End();
-
-	m_Passes = 0;
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->End();
+		m_Passes = 0;
+	}
 }
 
 void EffectUIRender::SetWorld(const Matrix4 & World)
 {
-	m_UIEffect->SetMatrix("g_World", World);
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetMatrix("g_World", World);
+	}
 }
 
 void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
 {
-	m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+	if(m_UIEffect->m_ptr)
+	{
+		m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+	}
 }
 
 void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
 {
-	_ASSERT(CMainView::getSingleton().m_WhiteTex);
-
-	m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
+	if(m_UIEffect->m_ptr)
+	{
+		_ASSERT(CMainView::getSingleton().m_WhiteTex);
+		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : CMainView::getSingleton().m_WhiteTex->m_ptr);
+	}
 }
 
 void EffectUIRender::DrawVertexList(void)
 {
-	if(vertex_count > 0)
+	if(m_UIEffect->m_ptr && vertex_count > 0)
 	{
 		for(UINT p = 0; p < m_Passes; p++)
 		{

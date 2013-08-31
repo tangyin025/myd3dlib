@@ -132,14 +132,14 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip archive: %s"), m_dir.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip archive: %s"), ms2ts(m_dir).c_str()));
 	}
 
 	int ret = unzLocateFile(zFile, ReplaceBackslash(path).c_str(), 0);
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
 	}
 
 	if(m_UsePassword)
@@ -153,7 +153,7 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
 	}
 	return ArchiveStreamPtr(new ZipArchiveStream(zFile));
 }
@@ -184,13 +184,13 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 	}
 
 	FILE * fp;
 	if(0 != fopen_s(&fp, fullPath.c_str(), "rb"))
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 	}
 
 	return ArchiveStreamPtr(new FileArchiveStream(fp));
@@ -252,7 +252,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		FILE * fp;
 		if(0 != fopen_s(&fp, path.c_str(), "rb"))
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), path.c_str()));
+			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 		}
 
 		return ArchiveStreamPtr(new FileArchiveStream(fp));
@@ -267,7 +267,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), path.c_str()));
+	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), ms2ts(path).c_str()));
 }
 
 HRESULT DeviceRelatedResourceMgr::Open(

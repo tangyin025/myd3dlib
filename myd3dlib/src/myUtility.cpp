@@ -856,31 +856,51 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 void Material::ApplyParameterBlock(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
-	EffectParameterMap::const_iterator param_iter = effect_pair.second.begin();
-	for(; param_iter != effect_pair.second.end(); param_iter++)
+	if(effect_pair.first->m_ptr)
 	{
-		param_iter->second->SetParameter(effect_pair.first.get(), param_iter->first);
+		EffectParameterMap::const_iterator param_iter = effect_pair.second.begin();
+		for(; param_iter != effect_pair.second.end(); param_iter++)
+		{
+			param_iter->second->SetParameter(effect_pair.first.get(), param_iter->first);
+		}
 	}
 }
 
 UINT Material::Begin(UINT i, DWORD Flags)
 {
-	return operator [] (i).first->Begin(Flags);
+	const value_type & effect_pair = operator [] (i);
+	if(effect_pair.first->m_ptr)
+	{
+		return effect_pair.first->Begin(Flags);
+	}
+	return 0;
 }
 
 void Material::BeginPass(UINT i, UINT Pass)
 {
-	return operator [] (i).first->BeginPass(Pass);
+	const value_type & effect_pair = operator [] (i);
+	if(effect_pair.first->m_ptr)
+	{
+		return effect_pair.first->BeginPass(Pass);
+	}
 }
 
 void Material::EndPass(UINT i)
 {
-	return operator [] (i).first->EndPass();
+	const value_type & effect_pair = operator [] (i);
+	if(effect_pair.first->m_ptr)
+	{
+		return effect_pair.first->EndPass();
+	}
 }
 
 void Material::End(UINT i)
 {
-	return operator [] (i).first->End();
+	const value_type & effect_pair = operator [] (i);
+	if(effect_pair.first->m_ptr)
+	{
+		return effect_pair.first->End();
+	}
 }
 
 void Material::DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId)
