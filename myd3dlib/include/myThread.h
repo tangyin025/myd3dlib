@@ -93,6 +93,10 @@ namespace my
 		static std::string GetWindowMessageStr(UINT message);
 
 	public:
+		Window(void);
+
+		virtual ~Window(void); // ! virtual distructor can avoid message processing after being destroyed
+
 		LONG SetStyle(LONG dwStyle);
 
 		LONG SetExStyle(LONG dwExStyle);

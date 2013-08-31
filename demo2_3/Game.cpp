@@ -271,8 +271,6 @@ HRESULT Game::OnCreateDevice(
 
 	SafeCreateCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
 
-	//THROW_CUSEXCEPTION(_T("aaa"));
-
 	return S_OK;
 }
 

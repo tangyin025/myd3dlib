@@ -696,6 +696,14 @@ std::string Window::GetWindowMessageStr(UINT message)
 	return "unknown window message";
 }
 
+Window::Window(void)
+{
+}
+
+Window::~Window(void)
+{
+}
+
 LONG Window::SetStyle(LONG dwStyle)
 {
 	return SetWindowLong(GWL_STYLE, dwStyle);

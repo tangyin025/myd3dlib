@@ -142,7 +142,7 @@ HRESULT GameStateMain::OnCreateDevice(
 	///************************************************************************/
 	///* Apex ÆÆËéÊ¾Àý                                                        */
 	///************************************************************************/
-	//CachePtr cache = Game::getSingleton().OpenArchiveStream("Wall.apb")->GetWholeCache();
+	//CachePtr cache = Game::getSingleton().OpenArchiveStream("Wall.apx")->GetWholeCache();
 	//physx_ptr<physx::PxFileBuf> stream(PhysxSample::getSingleton().m_ApexSDK->createMemoryReadStream(&(*cache)[0], cache->size()));
 	//NxParameterized::Serializer::SerializeType iSerType = PhysxSample::getSingleton().m_ApexSDK->getSerializeType(*stream);
 	//physx_ptr<NxParameterized::Serializer> ser(PhysxSample::getSingleton().m_ApexSDK->createSerializer(iSerType));
