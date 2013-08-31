@@ -3,6 +3,8 @@
 
 using namespace my;
 
+#define PARTICLE_MAX 4096u
+
 Emitter::~Emitter(void)
 {
 }
@@ -14,10 +16,13 @@ void Emitter::Reset(void)
 
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity)
 {
-	ParticlePtr particle(new Particle());
-	particle->setPosition(Position);
-	particle->setVelocity(Velocity);
-	m_ParticleList.push_back(std::make_pair(particle, 0.0f));
+	if(m_ParticleList.size() < PARTICLE_MAX)
+	{
+		ParticlePtr particle(new Particle());
+		particle->setPosition(Position);
+		particle->setVelocity(Velocity);
+		m_ParticleList.push_back(std::make_pair(particle, 0.0f));
+	}
 }
 
 void Emitter::Update(double fTime, float fElapsedTime)
@@ -42,12 +47,12 @@ DWORD Emitter::BuildInstance(
 	double fTime,
 	float fElapsedTime)
 {
-	DWORD ParticleCount = Min(4096u, m_ParticleList.size());
+	_ASSERT(m_ParticleList.size() <= PARTICLE_MAX);
 
 	unsigned char * pInstances =
-		(unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * ParticleCount);
+		(unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * m_ParticleList.size());
 	_ASSERT(pInstances);
-	for(DWORD i = 0; i < ParticleCount; i++)
+	for(DWORD i = 0; i < m_ParticleList.size(); i++)
 	{
 		// ! Can optimize, because all point offset are constant
 		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
@@ -70,7 +75,7 @@ DWORD Emitter::BuildInstance(
 	}
 	pEmitterInstance->m_InstanceData.Unlock();
 
-	return ParticleCount;
+	return m_ParticleList.size();
 }
 
 void Emitter::Draw(
@@ -97,7 +102,6 @@ void SphericalEmitter::Update(double fTime, float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
-	// ! 没有进行过载保护
 	while(m_RemainingSpawnTime >= 0)
 	{
 		Spawn(
@@ -186,7 +190,7 @@ HRESULT EmitterInstance::OnResetDevice(
 	pIndices[3] = 3;
 	m_IndexData.Unlock();
 
-	m_InstanceData.CreateVertexBuffer(pd3dDevice, m_InstanceStride * 4096u);
+	m_InstanceData.CreateVertexBuffer(pd3dDevice, m_InstanceStride * PARTICLE_MAX);
 
 	return S_OK;
 }
