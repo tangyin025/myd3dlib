@@ -513,22 +513,24 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //	return ret;
 //}
 
-DWORD IOResourceMgr::OnProc(void)
+DWORD AsynchronousIOMgr::OnProc(void)
 {
 	while(true)
 	{
 		m_IORequestListSection.Enter();
-		if(m_IORequestList.empty() && !m_IOStop)
+		if(m_IORequestList.empty() && !m_bStopped)
 		{
 			m_IORequestListNotEmpty.SleepCS(m_IORequestListSection, INFINITE);
 		}
-		if(m_IOStop)
+
+		if(m_bStopped)
 		{
 			m_IORequestListSection.Leave();
 			break;
 		}
+
 		_ASSERT(!m_IORequestList.empty());
-		IOResourcePtr io_res = m_IORequestList.front();
+		IORequestPtr io_res = m_IORequestList.front();
 		m_IORequestList.pop_front();
 		m_IORequestListSection.Leave();
 
@@ -537,45 +539,41 @@ DWORD IOResourceMgr::OnProc(void)
 		PushIOReadyResource(io_res);
 	}
 
-	_ASSERT(m_IOStop);
-	m_IORequestListSection.Leave();
+	_ASSERT(m_bStopped);
 
 	return 0;
 }
 
-void IOResourceMgr::PushIORequestResource(my::IOResourcePtr io_res)
+void AsynchronousIOMgr::PushIORequestResource(my::IORequestPtr io_res)
 {
-	m_IORequestListSection.Enter();
+	CriticalSectionLock lock(m_IORequestListSection);
 	m_IORequestList.push_back(io_res);
-	m_IORequestListSection.Leave();
-	m_IORequestListNotEmpty.Wake();
 }
 
-void IOResourceMgr::PushIOReadyResource(my::IOResourcePtr io_res)
+void AsynchronousIOMgr::PushIOReadyResource(my::IORequestPtr io_res)
 {
-	m_IOReadyListSection.Enter();
+	CriticalSectionLock lock(m_IOReadyListSection);
 	m_IOReadyList.push_back(io_res);
-	m_IOReadyListSection.Leave();
-	m_IOReadyListNotEmpty.Wake();
 }
 
-void IOResourceMgr::Stop(void)
+void AsynchronousIOMgr::Stop(void)
 {
 	m_IORequestListSection.Enter();
-	m_IOStop = true;
+	m_bStopped = true;
 	m_IORequestListSection.Leave();
+
 	m_IORequestListNotEmpty.Wake();
+
+	WaitForThreadStopped();
 }
 
 HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	//HRESULT hr;
-	//if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
-	//{
-	//	THROW_D3DEXCEPTION(hr);
-	//}
+	CreateThread();
+
+	ResumeThread();
 
 	return S_OK;
 }
@@ -622,6 +620,8 @@ void DeviceRelatedResourceMgr::OnLostDevice(void)
 
 void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
+	Stop();
+
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
 	{
@@ -640,7 +640,7 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_resourceSet.clear();
 }
 
-void DeviceRelatedResourceMgr::LoadResource(IOResourcePtr Request)
+void DeviceRelatedResourceMgr::LoadResource(IORequestPtr Request)
 {
 	std::string key = Request->GetKey();
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.find(key);
@@ -654,6 +654,8 @@ void DeviceRelatedResourceMgr::LoadResource(IOResourcePtr Request)
 	}
 
 	PushIORequestResource(Request);
+
+	m_IORequestListNotEmpty.Wake();
 }
 
 void DeviceRelatedResourceMgr::CheckResource(void)
@@ -666,22 +668,27 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 			m_IOReadyListSection.Leave();
 			break;
 		}
-		IOResourcePtr io_res = m_IOReadyList.front();
+
+		_ASSERT(!m_IOReadyList.empty());
+		IORequestPtr io_res = m_IOReadyList.front();
 		m_IOReadyList.pop_front();
 		m_IOReadyListSection.Leave();
 
 		DeviceRelatedObjectBasePtr res = io_res->GetResource(D3DContext::getSingleton().GetD3D9Device());
-		_ASSERT(res);
 
+		_ASSERT(res);
 		m_resourceSet[io_res->GetKey()] = res;
 
-		io_res->m_callback(res);
+		if(io_res->m_callback)
+		{
+			io_res->m_callback(res);
+		}
 	}
 }
 
-void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, IOResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCallback callback)
 {
-	class TextureIOResource : public IOResource
+	class TextureIOResource : public IORequest
 	{
 	protected:
 		std::string m_path;
@@ -691,8 +698,8 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, IOResourceC
 		CachePtr m_cache;
 
 	public:
-		TextureIOResource(const IOResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
-			: IOResource(callback)
+		TextureIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+			: IORequest(callback)
 			, m_path(path)
 			, m_arc(arc)
 		{
@@ -705,16 +712,22 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, IOResourceC
 
 		virtual void DoLoad(void)
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			if(m_arc->CheckArchivePath(m_path))
+			{
+				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			}
 		}
 
 		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
 			TexturePtr ret(new Texture());
-			ret->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+			if(m_cache)
+			{
+				ret->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+			}
 			return ret;
 		}
 	};
 
-	LoadResource(IOResourcePtr(new TextureIOResource(callback, path, this)));
+	LoadResource(IORequestPtr(new TextureIOResource(callback, path, this)));
 }

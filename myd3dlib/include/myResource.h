@@ -248,20 +248,20 @@ namespace my
 	//	FontPtr LoadFont(const std::string & path, int height, bool reload = false);
 	//};
 
-	typedef boost::function<void (DeviceRelatedObjectBasePtr)> IOResourceCallback;
+	typedef boost::function<void (DeviceRelatedObjectBasePtr)> ResourceCallback;
 
-	class IOResource
+	class IORequest
 	{
 	public:
-		IOResourceCallback m_callback;
+		ResourceCallback m_callback;
 
 	public:
-		IOResource(const IOResourceCallback & callback)
+		IORequest(const ResourceCallback & callback)
 			: m_callback(callback)
 		{
 		}
 
-		virtual ~IOResource(void)
+		virtual ~IORequest(void)
 		{
 		}
 
@@ -272,47 +272,44 @@ namespace my
 		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
 	};
 
-	typedef boost::shared_ptr<IOResource> IOResourcePtr;
+	typedef boost::shared_ptr<IORequest> IORequestPtr;
 
-	class IOResourceMgr
+	class AsynchronousIOMgr
 		: public ArchiveDirMgr
 		, public Thread
 	{
 	protected:
-		typedef std::list<IOResourcePtr> IOResourcePtrList;
+		typedef std::list<IORequestPtr> IORequestPtrList;
 
-		IOResourcePtrList m_IORequestList;
+		IORequestPtrList m_IORequestList;
 
 		CriticalSection m_IORequestListSection;
 
 		ConditionVariable m_IORequestListNotEmpty;
 
-		bool m_IOStop;
+		bool m_bStopped;
 
-		IOResourcePtrList m_IOReadyList;
+		IORequestPtrList m_IOReadyList;
 
 		CriticalSection m_IOReadyListSection;
 
-		ConditionVariable m_IOReadyListNotEmpty;
-
 	public:
-		IOResourceMgr(void)
-			: m_IOStop(false)
+		AsynchronousIOMgr(void)
+			: m_bStopped(false)
 		{
 		}
 
-	protected:
 		virtual DWORD OnProc(void);
 
-		void PushIORequestResource(my::IOResourcePtr io_res);
+		void PushIORequestResource(my::IORequestPtr io_res);
 
-		void PushIOReadyResource(my::IOResourcePtr io_res);
+		void PushIOReadyResource(my::IORequestPtr io_res);
 
 		void Stop(void);
 	};
 
 	class DeviceRelatedResourceMgr
-		: public IOResourceMgr
+		: protected AsynchronousIOMgr
 	{
 	protected:
 		typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
@@ -336,10 +333,10 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		void LoadResource(IOResourcePtr Request);
+		void LoadResource(IORequestPtr Request);
 
 		void CheckResource(void);
 
-		void LoadTexture(const std::string & path, IOResourceCallback callback);
+		void LoadTexture(const std::string & path, ResourceCallback callback);
 	};
 };

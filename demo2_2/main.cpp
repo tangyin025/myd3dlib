@@ -3,13 +3,12 @@
 
 class MyDemo
 	: public my::DxutApp
+	, public my::DeviceRelatedResourceMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
 
 	CComPtr<ID3DXSprite> m_sprite;
-
-	my::DeviceRelatedResourceMgr m_resMgr;
 
 public:
 	virtual bool IsDeviceAcceptable(
@@ -42,13 +41,11 @@ public:
 			return hr;
 		}
 
-		m_resMgr.RegisterFileDir(".");
-		m_resMgr.CreateThread();
-		m_resMgr.ResumeThread();
+		DeviceRelatedResourceMgr::RegisterFileDir(".");
 
-		m_resMgr.OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		DeviceRelatedResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
-		m_resMgr.LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
+		LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
 
 		return S_OK;
 	}
@@ -64,7 +61,7 @@ public:
 			return hr;
 		}
 
-		m_resMgr.OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		DeviceRelatedResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -75,21 +72,21 @@ public:
 
 		m_sprite.Release();
 
-		m_resMgr.OnLostDevice();
+		DeviceRelatedResourceMgr::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
 
-		m_resMgr.OnDestroyDevice();
+		DeviceRelatedResourceMgr::OnDestroyDevice();
 	}
 
 	virtual void OnFrameMove(
 		double fTime,
 		float fElapsedTime)
 	{
-		m_resMgr.CheckResource();
+		CheckResource();
 	}
 
 	virtual void OnFrameRender(
