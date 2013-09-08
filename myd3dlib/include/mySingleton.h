@@ -1,6 +1,7 @@
 #pragma once
 
 #include <boost/scoped_ptr.hpp>
+#include <boost/shared_ptr.hpp>
 #include <Windows.h>
 #include "myException.h"
 
@@ -76,19 +77,21 @@ namespace my
 		virtual void OnDestroyDevice(void) = 0;
 	};
 
+	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
+
 	template <class DerivedClass> 
 	class DeviceRelatedObject
 		: public DeviceRelatedObjectBase
 	{
-	protected:
+	public:
 		HRESULT hr;
 
-	public:
 		DerivedClass * m_ptr;
 
 	public:
 		DeviceRelatedObject(void)
-			: m_ptr(NULL)
+			: hr(S_OK)
+			, m_ptr(NULL)
 		{
 		}
 

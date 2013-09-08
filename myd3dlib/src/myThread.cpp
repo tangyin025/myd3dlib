@@ -60,9 +60,28 @@ void Event::SetEvent(void)
 	bres = ::SetEvent(m_hevent); _ASSERT(bres);
 }
 
-bool Event::WaitEvent(DWORD dwMilliseconds)
+BOOL Event::WaitEvent(DWORD dwMilliseconds)
 {
 	return WAIT_TIMEOUT != ::WaitForSingleObject(m_hevent, dwMilliseconds);
+}
+
+ConditionVariable::ConditionVariable(void)
+{
+	::InitializeConditionVariable(&m_condition);
+}
+
+ConditionVariable::~ConditionVariable(void)
+{
+}
+
+BOOL ConditionVariable::SleepCS(CriticalSection & cs, DWORD dwMilliseconds)
+{
+	return ::SleepConditionVariableCS(&m_condition, &cs.m_section, dwMilliseconds);
+}
+
+void ConditionVariable::Wake(void)
+{
+	::WakeConditionVariable(&m_condition);
 }
 
 DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)
@@ -155,7 +174,7 @@ void Thread::TerminateThread(DWORD dwExitCode)
 	}
 }
 
-bool Thread::WaitForThreadStopped(DWORD dwMilliseconds)
+BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 {
 	if(WAIT_TIMEOUT == ::WaitForSingleObject(m_hThread, dwMilliseconds))
 	{

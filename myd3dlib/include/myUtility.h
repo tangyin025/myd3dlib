@@ -424,18 +424,18 @@ namespace my
 		void RemoveAllMaterial(void);
 	};
 
-	class ResourceMgr : public DeviceRelatedResourceMgr
-	{
-	public:
-		typedef boost::unordered_map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
+	//class ResourceMgr : public DeviceRelatedResourceMgr
+	//{
+	//public:
+	//	typedef boost::unordered_map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
 
-		MaterialWeakPtrSet m_materialSet;
+	//	MaterialWeakPtrSet m_materialSet;
 
-	public:
-		ResourceMgr(void)
-		{
-		}
+	//public:
+	//	ResourceMgr(void)
+	//	{
+	//	}
 
-		MaterialPtr LoadMaterial(const std::string & path, bool reload = false);
-	};
+	//	MaterialPtr LoadMaterial(const std::string & path, bool reload = false);
+	//};
 }

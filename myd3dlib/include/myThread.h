@@ -12,6 +12,8 @@ namespace my
 	class CriticalSection
 	{
 	protected:
+		friend class ConditionVariable;
+
 		CRITICAL_SECTION m_section;
 
 	public:
@@ -53,7 +55,22 @@ namespace my
 
 		void SetEvent(void);
 
-		bool WaitEvent(DWORD dwMilliseconds = INFINITE);
+		BOOL WaitEvent(DWORD dwMilliseconds = INFINITE);
+	};
+
+	class ConditionVariable
+	{
+	protected:
+		CONDITION_VARIABLE m_condition;
+
+	public:
+		ConditionVariable(void);
+
+		~ConditionVariable(void);
+
+		BOOL SleepCS(CriticalSection & cs, DWORD dwMilliseconds = INFINITE);
+
+		void Wake(void);
 	};
 
 	class Thread
@@ -83,7 +100,7 @@ namespace my
 
 		void TerminateThread(DWORD dwExitCode);
 
-		bool WaitForThreadStopped(DWORD dwMilliseconds = INFINITE);
+		BOOL WaitForThreadStopped(DWORD dwMilliseconds = INFINITE);
 	};
 
 	class Window

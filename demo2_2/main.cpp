@@ -1,4 +1,5 @@
 ﻿#include <myD3dLib.h>
+#include <boost/bind.hpp>
 
 class MyDemo
 	: public my::DxutApp
@@ -7,6 +8,8 @@ protected:
 	CComPtr<ID3DXFont> m_font;
 
 	CComPtr<ID3DXSprite> m_sprite;
+
+	my::DeviceRelatedResourceMgr m_resMgr;
 
 public:
 	virtual bool IsDeviceAcceptable(
@@ -24,6 +27,11 @@ public:
 		return true;
 	}
 
+	void foo(my::DeviceRelatedObjectBasePtr res)
+	{
+		my::TexturePtr tex = boost::dynamic_pointer_cast<my::Texture>(res);
+	}
+
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -33,6 +41,15 @@ public:
 		{
 			return hr;
 		}
+
+		m_resMgr.RegisterFileDir(".");
+		m_resMgr.CreateThread();
+		m_resMgr.ResumeThread();
+
+		m_resMgr.OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
+		m_resMgr.LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
+
 		return S_OK;
 	}
 
@@ -46,6 +63,9 @@ public:
 		{
 			return hr;
 		}
+
+		m_resMgr.OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 		return S_OK;
 	}
 
@@ -54,17 +74,22 @@ public:
 		m_font->OnLostDevice();
 
 		m_sprite.Release();
+
+		m_resMgr.OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
+
+		m_resMgr.OnDestroyDevice();
 	}
 
 	virtual void OnFrameMove(
 		double fTime,
 		float fElapsedTime)
 	{
+		m_resMgr.CheckResource();
 	}
 
 	virtual void OnFrameRender(
