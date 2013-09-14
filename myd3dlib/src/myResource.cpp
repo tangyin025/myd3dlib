@@ -712,10 +712,24 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 
 		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			TexturePtr ret(new Texture());
+			BaseTexturePtr ret;
 			if(m_cache)
 			{
-				ret->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+				D3DXIMAGE_INFO imif;
+				if(SUCCEEDED(D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif)))
+				{
+					switch(imif.ResourceType)
+					{
+					case D3DRTYPE_TEXTURE:
+						ret.reset(new Texture());
+						boost::static_pointer_cast<Texture>(ret)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+						break;
+					case D3DRTYPE_CUBETEXTURE:
+						ret.reset(new CubeTexture());
+						boost::static_pointer_cast<CubeTexture>(ret)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+						break;
+					}
+				}
 			}
 			return ret;
 		}
