@@ -142,7 +142,9 @@ namespace my
 
 		typedef boost::unordered_map<std::string, ResourceDirPtr> ResourceDirPtrMap;
 
-		ResourceDirPtrMap m_dirMap;
+		ResourceDirPtrMap m_DirMap;
+
+		CriticalSection m_DirMapSection;
 
 	public:
 		ArchiveDirMgr(void)
@@ -177,9 +179,9 @@ namespace my
 
 	//	boost::unordered_map<LPCVOID, CachePtr> m_cacheSet;
 
-	//	typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+	//	typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedObjectBaseWeakPtrSet;
 
-	//	DeviceRelatedResourceSet m_resourceSet;
+	//	DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
 
 	//public:
 	//	DeviceRelatedResourceMgr(void)
@@ -215,8 +217,8 @@ namespace my
 	//	template <class ResourceType>
 	//	boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
 	//	{
-	//		DeviceRelatedResourceSet::const_iterator res_iter = m_resourceSet.find(key);
-	//		if(m_resourceSet.end() != res_iter)
+	//		DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.find(key);
+	//		if(m_ResourceWeakSet.end() != res_iter)
 	//		{
 	//			DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 	//			if(res)
@@ -229,7 +231,7 @@ namespace my
 	//		}
 
 	//		boost::shared_ptr<ResourceType> res(new ResourceType());
-	//		m_resourceSet[key] = res;
+	//		m_ResourceWeakSet[key] = res;
 	//		return res;
 	//	}
 
@@ -275,6 +277,8 @@ namespace my
 		{
 		}
 
+		void CallbackAll(DeviceRelatedObjectBasePtr res);
+
 		virtual void DoLoad(void) = 0;
 
 		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
@@ -307,16 +311,18 @@ namespace my
 
 		void PushIORequestResource(const std::string & key, my::IORequestPtr request);
 
-		void Stop(void);
+		void StopIORequestProc(void);
 	};
 
 	class DeviceRelatedResourceMgr
-		: protected AsynchronousIOMgr
+		: public AsynchronousIOMgr
 	{
 	protected:
-		typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedResourceSet;
+		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
 
-		DeviceRelatedResourceSet m_resourceSet;
+		typedef boost::unordered_map<std::string, DeviceRelatedObjectBaseWeakPtr> DeviceRelatedObjectBaseWeakPtrSet;
+
+		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
 
 	public:
 		DeviceRelatedResourceMgr(void)

@@ -198,23 +198,27 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 
 void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path)
 {
-	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
+	CriticalSectionLock lock(m_DirMapSection);
+	m_DirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
 }
 
 void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
 {
-	m_dirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
+	CriticalSectionLock lock(m_DirMapSection);
+	m_DirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
 }
 
 void ArchiveDirMgr::RegisterFileDir(const std::string & dir)
 {
-	m_dirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
+	CriticalSectionLock lock(m_DirMapSection);
+	m_DirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
 }
 
 bool ArchiveDirMgr::CheckArchivePath(const std::string & path)
 {
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirMapSection);
+	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
+	for(; dir_iter != m_DirMap.end(); dir_iter++)
 	{
 		if(dir_iter->second->CheckArchivePath(path))
 		{
@@ -232,8 +236,9 @@ std::string ArchiveDirMgr::GetFullPath(const std::string & path)
 		return path;
 	}
 
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirMapSection);
+	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
+	for(; dir_iter != m_DirMap.end(); dir_iter++)
 	{
 		std::string ret = dir_iter->second->GetFullPath(path);
 		if(!ret.empty())
@@ -258,8 +263,9 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		return ArchiveStreamPtr(new FileArchiveStream(fp));
 	}
 
-	ResourceDirPtrMap::iterator dir_iter = m_dirMap.begin();
-	for(; dir_iter != m_dirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirMapSection);
+	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
+	for(; dir_iter != m_DirMap.end(); dir_iter++)
 	{
 		if(dir_iter->second->CheckArchivePath(path))
 		{
@@ -323,8 +329,8 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //	IDirect3DDevice9 * pd3dDevice,
 //	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 //{
-//	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-//	for(; res_iter != m_resourceSet.end();)
+//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+//	for(; res_iter != m_ResourceWeakSet.end();)
 //	{
 //		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 //		if(res)
@@ -334,7 +340,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //		}
 //		else
 //		{
-//			m_resourceSet.erase(res_iter++);
+//			m_ResourceWeakSet.erase(res_iter++);
 //		}
 //	}
 //
@@ -343,8 +349,8 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //
 //void DeviceRelatedResourceMgr::OnLostDevice(void)
 //{
-//	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-//	for(; res_iter != m_resourceSet.end();)
+//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+//	for(; res_iter != m_ResourceWeakSet.end();)
 //	{
 //		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 //		if(res)
@@ -354,15 +360,15 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //		}
 //		else
 //		{
-//			m_resourceSet.erase(res_iter++);
+//			m_ResourceWeakSet.erase(res_iter++);
 //		}
 //	}
 //}
 //
 //void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 //{
-//	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-//	for(; res_iter != m_resourceSet.end();)
+//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+//	for(; res_iter != m_ResourceWeakSet.end();)
 //	{
 //		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 //		if(res)
@@ -372,11 +378,11 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //		}
 //		else
 //		{
-//			m_resourceSet.erase(res_iter++);
+//			m_ResourceWeakSet.erase(res_iter++);
 //		}
 //	}
 //
-//	m_resourceSet.clear();
+//	m_ResourceWeakSet.clear();
 //
 //	m_EffectPool.Release();
 //}
@@ -513,6 +519,16 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //	return ret;
 //}
 
+void IORequest::CallbackAll(DeviceRelatedObjectBasePtr res)
+{
+	IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
+	for(; callback_iter != m_callbacks.end(); callback_iter++)
+	{
+		if(*callback_iter)
+			(*callback_iter)(res);
+	}
+}
+
 DWORD AsynchronousIOMgr::OnProc(void)
 {
 	m_IORequestListSection.Enter();
@@ -559,7 +575,7 @@ void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IOReq
 	m_IORequestListSection.Leave();
 }
 
-void AsynchronousIOMgr::Stop(void)
+void AsynchronousIOMgr::StopIORequestProc(void)
 {
 	m_IORequestListSection.Enter();
 	m_bStopped = true;
@@ -582,8 +598,8 @@ HRESULT DeviceRelatedResourceMgr::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-	for(; res_iter != m_resourceSet.end();)
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+	for(; res_iter != m_ResourceWeakSet.end();)
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
@@ -593,7 +609,7 @@ HRESULT DeviceRelatedResourceMgr::OnResetDevice(
 		}
 		else
 		{
-			m_resourceSet.erase(res_iter++);
+			m_ResourceWeakSet.erase(res_iter++);
 		}
 	}
 
@@ -602,8 +618,8 @@ HRESULT DeviceRelatedResourceMgr::OnResetDevice(
 
 void DeviceRelatedResourceMgr::OnLostDevice(void)
 {
-	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-	for(; res_iter != m_resourceSet.end();)
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+	for(; res_iter != m_ResourceWeakSet.end();)
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
@@ -613,19 +629,19 @@ void DeviceRelatedResourceMgr::OnLostDevice(void)
 		}
 		else
 		{
-			m_resourceSet.erase(res_iter++);
+			m_ResourceWeakSet.erase(res_iter++);
 		}
 	}
 }
 
 void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
-	Stop();
+	StopIORequestProc();
 
 	WaitForThreadStopped();
 
-	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
-	for(; res_iter != m_resourceSet.end();)
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
+	for(; res_iter != m_ResourceWeakSet.end();)
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
@@ -635,27 +651,22 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 		}
 		else
 		{
-			m_resourceSet.erase(res_iter++);
+			m_ResourceWeakSet.erase(res_iter++);
 		}
 	}
 
-	m_resourceSet.clear();
+	m_ResourceWeakSet.clear();
 }
 
 void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
 {
-	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.find(key);
-	if(res_iter != m_resourceSet.end())
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
+	if(res_iter != m_ResourceWeakSet.end())
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
-			IORequest::ResourceCallbackList::const_iterator callback_iter = request->m_callbacks.begin();
-			for(; callback_iter != request->m_callbacks.end(); callback_iter++)
-			{
-				if(*callback_iter)
-					(*callback_iter)(res);
-			}
+			request->CallbackAll(res);
 			return;
 		}
 	}
@@ -671,7 +682,11 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 	{
 		if(req_iter->second->m_state != IORequest::IORequestStateNone)
 		{
-			m_resourceSet[req_iter->first] = req_iter->second->GetResource(D3DContext::getSingleton().GetD3D9Device());
+			DeviceRelatedObjectBasePtr res = req_iter->second->GetResource(D3DContext::getSingleton().GetD3D9Device());
+
+			m_ResourceWeakSet[req_iter->first] = res;
+
+			req_iter->second->CallbackAll(res);
 
 			req_iter = m_IORequestList.erase(req_iter);
 		}
