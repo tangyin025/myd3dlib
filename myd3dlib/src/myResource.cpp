@@ -638,8 +638,6 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
 	StopIORequestProc();
 
-	WaitForThreadStopped();
-
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
 	for(; res_iter != m_ResourceWeakSet.end();)
 	{
@@ -656,6 +654,8 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	}
 
 	m_ResourceWeakSet.clear();
+
+	WaitForThreadStopped();
 }
 
 void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
