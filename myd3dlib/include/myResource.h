@@ -253,19 +253,27 @@ namespace my
 	class IORequest
 	{
 	public:
-		ResourceCallback m_callback;
+		enum IORequestState
+		{
+			IORequestStateNone = 0,
+			IORequestStateLoaded,
+		};
+
+		IORequestState m_state;
+
+		typedef std::vector<ResourceCallback> ResourceCallbackList;
+
+		ResourceCallbackList m_callbacks;
 
 	public:
-		IORequest(const ResourceCallback & callback)
-			: m_callback(callback)
+		IORequest(void)
+			: m_state(IORequestStateNone)
 		{
 		}
 
 		virtual ~IORequest(void)
 		{
 		}
-
-		virtual std::string GetKey(void) = 0;
 
 		virtual void DoLoad(void) = 0;
 
@@ -279,19 +287,15 @@ namespace my
 		, public Thread
 	{
 	protected:
-		typedef std::list<IORequestPtr> IORequestPtrList;
+		typedef boost::unordered_map<std::string, IORequestPtr> IORequestPtrMap;
 
-		IORequestPtrList m_IORequestList;
+		IORequestPtrMap m_IORequestList;
 
 		CriticalSection m_IORequestListSection;
 
-		ConditionVariable m_IORequestListNotEmpty;
+		ConditionVariable m_IORequestListCondition;
 
 		bool m_bStopped;
-
-		IORequestPtrList m_IOReadyList;
-
-		CriticalSection m_IOReadyListSection;
 
 	public:
 		AsynchronousIOMgr(void)
@@ -301,9 +305,7 @@ namespace my
 
 		virtual DWORD OnProc(void);
 
-		void PushIORequestResource(my::IORequestPtr io_res);
-
-		void PushIOReadyResource(my::IORequestPtr io_res);
+		void PushIORequestResource(const std::string & key, my::IORequestPtr request);
 
 		void Stop(void);
 	};
@@ -333,7 +335,7 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		void LoadResource(IORequestPtr Request);
+		void LoadResource(const std::string & key, IORequestPtr request);
 
 		void CheckResource(void);
 

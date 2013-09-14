@@ -515,45 +515,48 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 
 DWORD AsynchronousIOMgr::OnProc(void)
 {
-	while(true)
+	m_IORequestListSection.Enter();
+	while(!m_bStopped)
 	{
-		m_IORequestListSection.Enter();
-		if(m_IORequestList.empty() && !m_bStopped)
+		IORequestPtrMap::iterator io_iter = m_IORequestList.begin();
+		for(; io_iter != m_IORequestList.end(); io_iter++)
 		{
-			m_IORequestListNotEmpty.SleepCS(m_IORequestListSection, INFINITE);
+			if(IORequest::IORequestStateNone == io_iter->second->m_state)
+			{
+				break;
+			}
 		}
-
-		if(m_bStopped)
+		if(io_iter != m_IORequestList.end())
 		{
 			m_IORequestListSection.Leave();
-			break;
+			io_iter->second->DoLoad();
+			m_IORequestListSection.Enter();
+			io_iter->second->m_state = IORequest::IORequestStateLoaded;
 		}
-
-		_ASSERT(!m_IORequestList.empty());
-		IORequestPtr io_res = m_IORequestList.front();
-		m_IORequestList.pop_front();
-		m_IORequestListSection.Leave();
-
-		io_res->DoLoad();
-
-		PushIOReadyResource(io_res);
+		else
+		{
+			m_IORequestListCondition.SleepCS(m_IORequestListSection, INFINITE);
+		}
 	}
-
-	_ASSERT(m_bStopped);
+	m_IORequestListSection.Leave();
 
 	return 0;
 }
 
-void AsynchronousIOMgr::PushIORequestResource(my::IORequestPtr io_res)
+void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
 {
-	CriticalSectionLock lock(m_IORequestListSection);
-	m_IORequestList.push_back(io_res);
-}
-
-void AsynchronousIOMgr::PushIOReadyResource(my::IORequestPtr io_res)
-{
-	CriticalSectionLock lock(m_IOReadyListSection);
-	m_IOReadyList.push_back(io_res);
+	m_IORequestListSection.Enter();
+	IORequestPtrMap::iterator req_iter = m_IORequestList.find(key);
+	if(req_iter != m_IORequestList.end())
+	{
+		req_iter->second->m_callbacks.insert(
+			req_iter->second->m_callbacks.end(), request->m_callbacks.begin(), request->m_callbacks.end());
+	}
+	else
+	{
+		m_IORequestList.insert(std::make_pair(key, request));
+	}
+	m_IORequestListSection.Leave();
 }
 
 void AsynchronousIOMgr::Stop(void)
@@ -561,10 +564,7 @@ void AsynchronousIOMgr::Stop(void)
 	m_IORequestListSection.Enter();
 	m_bStopped = true;
 	m_IORequestListSection.Leave();
-
-	m_IORequestListNotEmpty.Wake();
-
-	WaitForThreadStopped();
+	m_IORequestListCondition.Wake();
 }
 
 HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
@@ -622,6 +622,8 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
 	Stop();
 
+	WaitForThreadStopped();
+
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.begin();
 	for(; res_iter != m_resourceSet.end();)
 	{
@@ -640,50 +642,45 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_resourceSet.clear();
 }
 
-void DeviceRelatedResourceMgr::LoadResource(IORequestPtr Request)
+void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
 {
-	std::string key = Request->GetKey();
 	DeviceRelatedResourceSet::iterator res_iter = m_resourceSet.find(key);
 	if(res_iter != m_resourceSet.end())
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
-			Request->m_callback(res);
+			IORequest::ResourceCallbackList::const_iterator callback_iter = request->m_callbacks.begin();
+			for(; callback_iter != request->m_callbacks.end(); callback_iter++)
+			{
+				if(*callback_iter)
+					(*callback_iter)(res);
+			}
+			return;
 		}
 	}
 
-	PushIORequestResource(Request);
-
-	m_IORequestListNotEmpty.Wake();
+	PushIORequestResource(key, request);
 }
 
 void DeviceRelatedResourceMgr::CheckResource(void)
 {
-	while(true)
+	m_IORequestListSection.Enter();
+	IORequestPtrMap::iterator req_iter = m_IORequestList.begin();
+	for(; req_iter != m_IORequestList.end(); )
 	{
-		m_IOReadyListSection.Enter();
-		if(m_IOReadyList.empty())
+		if(req_iter->second->m_state != IORequest::IORequestStateNone)
 		{
-			m_IOReadyListSection.Leave();
-			break;
+			m_resourceSet[req_iter->first] = req_iter->second->GetResource(D3DContext::getSingleton().GetD3D9Device());
+
+			req_iter = m_IORequestList.erase(req_iter);
 		}
-
-		_ASSERT(!m_IOReadyList.empty());
-		IORequestPtr io_res = m_IOReadyList.front();
-		m_IOReadyList.pop_front();
-		m_IOReadyListSection.Leave();
-
-		DeviceRelatedObjectBasePtr res = io_res->GetResource(D3DContext::getSingleton().GetD3D9Device());
-
-		_ASSERT(res);
-		m_resourceSet[io_res->GetKey()] = res;
-
-		if(io_res->m_callback)
+		else
 		{
-			io_res->m_callback(res);
+			req_iter++;
 		}
 	}
+	m_IORequestListSection.Leave();
 }
 
 void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCallback callback)
@@ -699,15 +696,10 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 
 	public:
 		TextureIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
-			: IORequest(callback)
-			, m_path(path)
+			: m_path(path)
 			, m_arc(arc)
 		{
-		}
-
-		virtual std::string GetKey(void)
-		{
-			return m_path;
+			m_callbacks.push_back(callback);
 		}
 
 		virtual void DoLoad(void)
@@ -729,5 +721,5 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 		}
 	};
 
-	LoadResource(IORequestPtr(new TextureIOResource(callback, path, this)));
+	LoadResource(path, IORequestPtr(new TextureIOResource(callback, path, this)));
 }
