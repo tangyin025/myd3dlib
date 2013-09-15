@@ -291,9 +291,9 @@ namespace my
 		, public Thread
 	{
 	protected:
-		typedef boost::unordered_map<std::string, IORequestPtr> IORequestPtrMap;
+		typedef std::list<std::pair<std::string, IORequestPtr> > IORequestPtrPairList;
 
-		IORequestPtrMap m_IORequestList;
+		IORequestPtrPairList m_IORequestList;
 
 		CriticalSection m_IORequestListSection;
 

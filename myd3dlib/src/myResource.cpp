@@ -521,7 +521,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 
 void IORequest::CallbackAll(DeviceRelatedObjectBasePtr res)
 {
-	IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
+	ResourceCallbackList::iterator callback_iter = m_callbacks.begin();
 	for(; callback_iter != m_callbacks.end(); callback_iter++)
 	{
 		if(*callback_iter)
@@ -534,20 +534,20 @@ DWORD AsynchronousIOMgr::OnProc(void)
 	m_IORequestListSection.Enter();
 	while(!m_bStopped)
 	{
-		IORequestPtrMap::iterator io_iter = m_IORequestList.begin();
-		for(; io_iter != m_IORequestList.end(); io_iter++)
+		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(IORequest::IORequestStateNone == io_iter->second->m_state)
+			if(IORequest::IORequestStateNone == req_iter->second->m_state)
 			{
 				break;
 			}
 		}
-		if(io_iter != m_IORequestList.end())
+		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListSection.Leave();
-			io_iter->second->DoLoad();
+			req_iter->second->DoLoad();
 			m_IORequestListSection.Enter();
-			io_iter->second->m_state = IORequest::IORequestStateLoaded;
+			req_iter->second->m_state = IORequest::IORequestStateLoaded;
 		}
 		else
 		{
@@ -562,7 +562,14 @@ DWORD AsynchronousIOMgr::OnProc(void)
 void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
 {
 	m_IORequestListSection.Enter();
-	IORequestPtrMap::iterator req_iter = m_IORequestList.find(key);
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+	for(; req_iter != m_IORequestList.end(); req_iter++)
+	{
+		if(IORequest::IORequestStateNone == req_iter->second->m_state)
+		{
+			break;
+		}
+	}
 	if(req_iter != m_IORequestList.end())
 	{
 		req_iter->second->m_callbacks.insert(
@@ -570,7 +577,7 @@ void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IOReq
 	}
 	else
 	{
-		m_IORequestList.insert(std::make_pair(key, request));
+		m_IORequestList.push_back(std::make_pair(key, request));
 	}
 	m_IORequestListSection.Leave();
 }
@@ -677,7 +684,7 @@ void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPt
 void DeviceRelatedResourceMgr::CheckResource(void)
 {
 	m_IORequestListSection.Enter();
-	IORequestPtrMap::iterator req_iter = m_IORequestList.begin();
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); )
 	{
 		if(req_iter->second->m_state != IORequest::IORequestStateNone)
@@ -692,7 +699,7 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 		}
 		else
 		{
-			req_iter++;
+			break;
 		}
 	}
 	m_IORequestListSection.Leave();
