@@ -273,18 +273,18 @@ namespace my
 
 		void CheckResource(void);
 
-		void LoadTexture(const std::string & path, ResourceCallback callback);
+		void LoadTexture(const std::string & path, const ResourceCallback & callback);
 
-		void LoadMesh(const std::string & path, ResourceCallback callback);
+		void LoadMesh(const std::string & path, const ResourceCallback & callback);
 
-		void LoadSkeleton(const std::string & path, ResourceCallback callback);
+		void LoadSkeleton(const std::string & path, const ResourceCallback & callback);
 
 		typedef std::pair<std::string, std::string> EffectMacroPair;
 
 		typedef std::vector<EffectMacroPair> EffectMacroPairList;
 
-		void LoadEffect(const std::string & path, const EffectMacroPairList & macros, ResourceCallback callback);
+		void LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
 
-		void LoadFont(const std::string & path, int height, ResourceCallback callback);
+		void LoadFont(const std::string & path, int height, const ResourceCallback & callback);
 	};
 };

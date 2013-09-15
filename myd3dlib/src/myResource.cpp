@@ -511,7 +511,7 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 	m_IORequestListSection.Leave();
 }
 
-void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, const ResourceCallback & callback)
 {
 	class TextureIORequest : public IORequest
 	{
@@ -566,7 +566,7 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 	LoadResource(path, IORequestPtr(new TextureIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, const ResourceCallback & callback)
 {
 	class MeshIORequest : public IORequest
 	{
@@ -619,7 +619,7 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallba
 	LoadResource(path, IORequestPtr(new MeshIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, const ResourceCallback & callback)
 {
 	class SkeletonIORequest : public IORequest
 	{
@@ -672,7 +672,7 @@ void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCa
 	LoadResource(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, ResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
 {
 	class EffectIORequest : public IORequest
 	{
@@ -733,7 +733,7 @@ void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const Effect
 	LoadResource(ostr.str(), IORequestPtr(new EffectIORequest(callback, path, macros, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, ResourceCallback callback)
+void DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, const ResourceCallback & callback)
 {
 	class FontIORequest : public IORequest
 	{
