@@ -5,6 +5,7 @@
 #include <strstream>
 #include "myMesh.h"
 #include "mySkeleton.h"
+#include "myEffect.h"
 
 using namespace my;
 
@@ -277,249 +278,6 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 
 	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), ms2ts(path).c_str()));
 }
-//
-//HRESULT DeviceRelatedResourceMgr::Open(
-//	D3DXINCLUDE_TYPE IncludeType,
-//	LPCSTR pFileName,
-//	LPCVOID pParentData,
-//	LPCVOID * ppData,
-//	UINT * pBytes)
-//{
-//	CachePtr cache;
-//	std::string loc_path;
-//	loc_path.resize(MAX_PATH);
-//	PathCombineA(&loc_path[0], m_EffectInclude.c_str(), pFileName);
-//	switch(IncludeType)
-//	{
-//	case D3DXINC_SYSTEM:
-//	case D3DXINC_LOCAL:
-//		if(CheckArchivePath(loc_path))
-//		{
-//			cache = OpenArchiveStream(loc_path)->GetWholeCache();
-//			*ppData = &(*cache)[0];
-//			*pBytes = cache->size();
-//			_ASSERT(m_cacheSet.end() == m_cacheSet.find(*ppData));
-//			m_cacheSet[*ppData] = cache;
-//			return S_OK;
-//		}
-//	}
-//	return E_FAIL;
-//}
-//
-//HRESULT DeviceRelatedResourceMgr::Close(
-//	LPCVOID pData)
-//{
-//	_ASSERT(m_cacheSet.end() != m_cacheSet.find(pData));
-//	m_cacheSet.erase(pData);
-//	return S_OK;
-//}
-//
-//HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
-//	IDirect3DDevice9 * pd3dDevice,
-//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-//{
-//	HRESULT hr;
-//	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
-//	{
-//		THROW_D3DEXCEPTION(hr);
-//	}
-//
-//	return S_OK;
-//}
-//
-//HRESULT DeviceRelatedResourceMgr::OnResetDevice(
-//	IDirect3DDevice9 * pd3dDevice,
-//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-//{
-//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-//	for(; res_iter != m_ResourceWeakSet.end();)
-//	{
-//		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-//		if(res)
-//		{
-//			res->OnResetDevice();
-//			res_iter++;
-//		}
-//		else
-//		{
-//			m_ResourceWeakSet.erase(res_iter++);
-//		}
-//	}
-//
-//	return S_OK;
-//}
-//
-//void DeviceRelatedResourceMgr::OnLostDevice(void)
-//{
-//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-//	for(; res_iter != m_ResourceWeakSet.end();)
-//	{
-//		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-//		if(res)
-//		{
-//			res->OnLostDevice();
-//			res_iter++;
-//		}
-//		else
-//		{
-//			m_ResourceWeakSet.erase(res_iter++);
-//		}
-//	}
-//}
-//
-//void DeviceRelatedResourceMgr::OnDestroyDevice(void)
-//{
-//	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-//	for(; res_iter != m_ResourceWeakSet.end();)
-//	{
-//		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-//		if(res)
-//		{
-//			res->OnDestroyDevice();
-//			res_iter++;
-//		}
-//		else
-//		{
-//			m_ResourceWeakSet.erase(res_iter++);
-//		}
-//	}
-//
-//	m_ResourceWeakSet.clear();
-//
-//	m_EffectPool.Release();
-//}
-//
-//TexturePtr DeviceRelatedResourceMgr::LoadTexture(const std::string & path, bool reload)
-//{
-//	TexturePtr ret = GetDeviceRelatedResource<Texture>(path, reload);
-//	if(!ret->m_ptr)
-//	{
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str());
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			ret->CreateTextureFromFileInMemory(D3DContext::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
-//		}
-//	}
-//	return ret;
-//}
-//
-//CubeTexturePtr DeviceRelatedResourceMgr::LoadCubeTexture(const std::string & path, bool reload)
-//{
-//	CubeTexturePtr ret = GetDeviceRelatedResource<CubeTexture>(path, reload);
-//	if(!ret->m_ptr)
-//	{
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateCubeTextureFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str());
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			ret->CreateCubeTextureFromFileInMemory(D3DContext::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size());
-//		}
-//	}
-//	return ret;
-//}
-//
-//OgreMeshPtr DeviceRelatedResourceMgr::LoadMesh(const std::string & path, bool reload)
-//{
-//	OgreMeshPtr ret = GetDeviceRelatedResource<OgreMesh>(path, reload);
-//	if(!ret->m_ptr)
-//	{
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateMeshFromOgreXmlInFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), true);
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			cache->push_back(0);
-//			ret->CreateMeshFromOgreXmlInMemory(D3DContext::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
-//		}
-//	}
-//	return ret;
-//}
-//
-//OgreSkeletonAnimationPtr DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, bool reload)
-//{
-//	OgreSkeletonAnimationPtr ret = GetDeviceRelatedResource<OgreSkeletonAnimation>(path, reload);
-//	if(ret->m_boneHierarchy.empty())
-//	{
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateOgreSkeletonAnimationFromFile(ms2ts(full_path).c_str());
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			cache->push_back(0);
-//			ret->CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
-//		}
-//	}
-//	return ret;
-//}
-//
-//EffectPtr DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const string_pair_list & macros, bool reload)
-//{
-//	std::ostrstream ostr;
-//	ostr << path;
-//	std::vector<D3DXMACRO> d3dmacros;
-//	string_pair_list::const_iterator macro_iter = macros.begin();
-//	for(; macro_iter != macros.end(); macro_iter++)
-//	{
-//		D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
-//		ostr << ", " << d3dmacro.Name << ", " << d3dmacro.Definition;
-//		d3dmacros.push_back(d3dmacro);
-//	}
-//	D3DXMACRO end = {0};
-//	d3dmacros.push_back(end);
-//	EffectPtr ret = GetDeviceRelatedResource<Effect>(ostr.str(), reload);
-//	if(!ret->m_ptr)
-//	{
-//		m_EffectInclude = ZipArchiveDir::ReplaceSlash(path);
-//		PathRemoveFileSpecA(&m_EffectInclude[0]);
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateEffectFromFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), &d3dmacros[0], NULL, 0, m_EffectPool);
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			ret->CreateEffect(D3DContext::getSingleton().GetD3D9Device(), &(*cache)[0], cache->size(), &d3dmacros[0], this, 0, m_EffectPool);
-//		}
-//	}
-//	return ret;
-//}
-//
-//FontPtr DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, bool reload)
-//{
-//	std::ostrstream ostr;
-//	ostr << path << ", " << height;
-//	FontPtr ret = GetDeviceRelatedResource<Font>(ostr.str(), reload);
-//	if(!ret->m_face)
-//	{
-//		std::string full_path = GetFullPath(path);
-//		if(!full_path.empty())
-//		{
-//			ret->CreateFontFromFile(D3DContext::getSingleton().GetD3D9Device(), full_path.c_str(), height);
-//		}
-//		else
-//		{
-//			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//			ret->CreateFontFromFileInCache(D3DContext::getSingleton().GetD3D9Device(), cache, height);
-//		}
-//	}
-//	return ret;
-//}
 
 void IORequest::CallbackAll(DeviceRelatedObjectBasePtr res)
 {
@@ -598,6 +356,12 @@ HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	HRESULT hr;
+	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+
 	CreateThread();
 
 	ResumeThread();
@@ -666,7 +430,45 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 
 	m_ResourceWeakSet.clear();
 
+	m_EffectPool.Release();
+
 	WaitForThreadStopped();
+}
+
+HRESULT DeviceRelatedResourceMgr::Open(
+	D3DXINCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID * ppData,
+	UINT * pBytes)
+{
+	CachePtr cache;
+	std::string path;
+	path.resize(MAX_PATH);
+	PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
+	switch(IncludeType)
+	{
+	case D3DXINC_SYSTEM:
+	case D3DXINC_LOCAL:
+		if(CheckArchivePath(path))
+		{
+			cache = OpenArchiveStream(path)->GetWholeCache();
+			*ppData = &(*cache)[0];
+			*pBytes = cache->size();
+			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
+			m_CacheSet[*ppData] = cache;
+			return S_OK;
+		}
+	}
+	return E_FAIL;
+}
+
+HRESULT DeviceRelatedResourceMgr::Close(
+	LPCVOID pData)
+{
+	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
+	m_CacheSet.erase(pData);
+	return S_OK;
 }
 
 void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
@@ -711,7 +513,7 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 
 void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCallback callback)
 {
-	class TextureIOResource : public IORequest
+	class TextureIORequest : public IORequest
 	{
 	protected:
 		std::string m_path;
@@ -721,7 +523,7 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 		CachePtr m_cache;
 
 	public:
-		TextureIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		TextureIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
 			: m_path(path)
 			, m_arc(arc)
 		{
@@ -761,12 +563,12 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 		}
 	};
 
-	LoadResource(path, IORequestPtr(new TextureIOResource(callback, path, this)));
+	LoadResource(path, IORequestPtr(new TextureIORequest(callback, path, this)));
 }
 
 void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallback callback)
 {
-	class MeshIOResource : public IORequest
+	class MeshIORequest : public IORequest
 	{
 	protected:
 		std::string m_path;
@@ -778,7 +580,7 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallba
 		rapidxml::xml_document<char> m_doc;
 
 	public:
-		MeshIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		MeshIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
 			: m_path(path)
 			, m_arc(arc)
 		{
@@ -814,12 +616,12 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallba
 		}
 	};
 
-	LoadResource(path, IORequestPtr(new MeshIOResource(callback, path, this)));
+	LoadResource(path, IORequestPtr(new MeshIORequest(callback, path, this)));
 }
 
 void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCallback callback)
 {
-	class SkeletonIOResource : public IORequest
+	class SkeletonIORequest : public IORequest
 	{
 	protected:
 		std::string m_path;
@@ -831,7 +633,7 @@ void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCa
 		rapidxml::xml_document<char> m_doc;
 
 	public:
-		SkeletonIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		SkeletonIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
 			: m_path(path)
 			, m_arc(arc)
 		{
@@ -867,5 +669,110 @@ void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCa
 		}
 	};
 
-	LoadResource(path, IORequestPtr(new SkeletonIOResource(callback, path, this)));
+	LoadResource(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
+}
+
+void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, ResourceCallback callback)
+{
+	class EffectIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		std::vector<D3DXMACRO> m_d3dmacros;
+
+		DeviceRelatedResourceMgr * m_arc;
+
+		CachePtr m_cache;
+
+	public:
+		EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, DeviceRelatedResourceMgr * arc)
+			: m_path(path)
+			, m_arc(arc)
+		{
+			EffectMacroPairList::const_iterator macro_iter = macros.begin();
+			for(; macro_iter != macros.end(); macro_iter++)
+			{
+				D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
+				m_d3dmacros.push_back(d3dmacro);
+			}
+			D3DXMACRO end = {0};
+			m_d3dmacros.push_back(end);
+
+			m_callbacks.push_back(callback);
+		}
+
+		virtual void DoLoad(void)
+		{
+			if(m_arc->CheckArchivePath(m_path))
+			{
+				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			}
+		}
+
+		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		{
+			EffectPtr ret;
+			if(m_cache)
+			{
+				ret.reset(new Effect());
+				ret->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+			}
+			return ret;
+		}
+	};
+
+	std::ostrstream ostr;
+	ostr << path;
+	EffectMacroPairList::const_iterator macro_iter = macros.begin();
+	for(; macro_iter != macros.end(); macro_iter++)
+	{
+		ostr << ", " << macro_iter->first << ", " << macro_iter->second;
+	}
+
+	LoadResource(ostr.str(), IORequestPtr(new EffectIORequest(callback, path, macros, this)));
+}
+
+void DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, ResourceCallback callback)
+{
+	class FontIORequest : public IORequest
+	{
+		std::string m_path;
+
+		int m_height;
+
+		ArchiveDirMgr * m_arc;
+
+		CachePtr m_cache;
+
+	public:
+		FontIORequest(const ResourceCallback & callback, const std::string & path, int height, ArchiveDirMgr * arc)
+			: m_path(path)
+			, m_height(height)
+			, m_arc(arc)
+		{
+			m_callbacks.push_back(callback);
+		}
+
+		virtual void DoLoad(void)
+		{
+			if(m_arc->CheckArchivePath(m_path))
+			{
+				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			}
+		}
+
+		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		{
+			FontPtr ret;
+			if(m_cache)
+			{
+				ret.reset(new Font());
+				ret->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+			}
+			return ret;
+		}
+	};
+
+	LoadResource(str_printf("%s, %d", path.c_str(), height), IORequestPtr(new FontIORequest(callback, path, height, this)));
 }

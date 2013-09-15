@@ -32,7 +32,11 @@ public:
 
 		//my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
 
-		my::OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
+		//my::OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
+
+		//my::EffectPtr eff = boost::dynamic_pointer_cast<my::Effect>(res);
+
+		my::FontPtr fnt = boost::dynamic_pointer_cast<my::Font>(res);
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -53,7 +57,11 @@ public:
 
 		//LoadMesh("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
 
-		LoadSkeleton("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
+		//LoadSkeleton("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
+
+		//LoadEffect("SimpleSample.fx", EffectMacroPairList(), boost::bind(&MyDemo::foo, this, _1));
+
+		LoadFont("wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
 
 		return S_OK;
 	}

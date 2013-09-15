@@ -9,6 +9,7 @@
 #include <boost/function.hpp>
 #include "mySingleton.h"
 #include <d3d9.h>
+#include <D3DX9Shader.h>
 
 namespace my
 {
@@ -164,88 +165,6 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	//class DeviceRelatedResourceMgr
-	//	: public ArchiveDirMgr
-	//	, public ID3DXInclude
-	//{
-	//protected:
-	//	CComPtr<ID3DXEffectPool> m_EffectPool;
-
-	//	std::string m_EffectInclude;
-
-	//	boost::unordered_map<LPCVOID, CachePtr> m_cacheSet;
-
-	//	typedef boost::unordered_map<std::string, boost::weak_ptr<DeviceRelatedObjectBase> > DeviceRelatedObjectBaseWeakPtrSet;
-
-	//	DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
-
-	//public:
-	//	DeviceRelatedResourceMgr(void)
-	//	{
-	//	}
-
-	//	virtual ~DeviceRelatedResourceMgr(void)
-	//	{
-	//	}
-
-	//	virtual __declspec(nothrow) HRESULT __stdcall Open(
-	//		D3DXINCLUDE_TYPE IncludeType,
-	//		LPCSTR pFileName,
-	//		LPCVOID pParentData,
-	//		LPCVOID * ppData,
-	//		UINT * pBytes);
-
-	//	virtual __declspec(nothrow) HRESULT __stdcall Close(
-	//		LPCVOID pData);
-
-	//	HRESULT OnCreateDevice(
-	//		IDirect3DDevice9 * pd3dDevice,
-	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-	//	HRESULT OnResetDevice(
-	//		IDirect3DDevice9 * pd3dDevice,
-	//		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-	//	void OnLostDevice(void);
-
-	//	void OnDestroyDevice(void);
-
-	//	template <class ResourceType>
-	//	boost::shared_ptr<ResourceType> GetDeviceRelatedResource(const std::string & key, bool reload)
-	//	{
-	//		DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.find(key);
-	//		if(m_ResourceWeakSet.end() != res_iter)
-	//		{
-	//			DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-	//			if(res)
-	//			{
-	//				if(reload)
-	//					res->OnDestroyDevice();
-
-	//				boost::shared_ptr<ResourceType> ret = boost::dynamic_pointer_cast<ResourceType>(res); _ASSERT(ret); return ret;
-	//			}
-	//		}
-
-	//		boost::shared_ptr<ResourceType> res(new ResourceType());
-	//		m_ResourceWeakSet[key] = res;
-	//		return res;
-	//	}
-
-	//	TexturePtr LoadTexture(const std::string & path, bool reload = false);
-
-	//	CubeTexturePtr LoadCubeTexture(const std::string & path, bool reload = false);
-
-	//	OgreMeshPtr LoadMesh(const std::string & path, bool reload = false);
-
-	//	OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path, bool reload = false);
-
-	//	typedef std::vector<std::pair<std::string, std::string> > string_pair_list;
-
-	//	EffectPtr LoadEffect(const std::string & path, const string_pair_list & macros, bool reload = false);
-
-	//	FontPtr LoadFont(const std::string & path, int height, bool reload = false);
-	//};
-
 	typedef boost::function<void (DeviceRelatedObjectBasePtr)> ResourceCallback;
 
 	class IORequest
@@ -308,7 +227,7 @@ namespace my
 		void StopIORequestProc(void);
 	};
 
-	class DeviceRelatedResourceMgr : public AsynchronousIOMgr
+	class DeviceRelatedResourceMgr : public AsynchronousIOMgr, public ID3DXInclude
 	{
 	protected:
 		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
@@ -316,6 +235,12 @@ namespace my
 		typedef boost::unordered_map<std::string, DeviceRelatedObjectBaseWeakPtr> DeviceRelatedObjectBaseWeakPtrSet;
 
 		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
+
+		CComPtr<ID3DXEffectPool> m_EffectPool;
+
+		std::string m_EffectInclude;
+
+		boost::unordered_map<LPCVOID, CachePtr> m_CacheSet;
 
 	public:
 		DeviceRelatedResourceMgr(void)
@@ -334,6 +259,16 @@ namespace my
 
 		void OnDestroyDevice(void);
 
+		__declspec(nothrow) HRESULT __stdcall Open(
+			D3DXINCLUDE_TYPE IncludeType,
+			LPCSTR pFileName,
+			LPCVOID pParentData,
+			LPCVOID * ppData,
+			UINT * pBytes);
+
+		__declspec(nothrow) HRESULT __stdcall Close(
+			LPCVOID pData);
+
 		void LoadResource(const std::string & key, IORequestPtr request);
 
 		void CheckResource(void);
@@ -343,5 +278,13 @@ namespace my
 		void LoadMesh(const std::string & path, ResourceCallback callback);
 
 		void LoadSkeleton(const std::string & path, ResourceCallback callback);
+
+		typedef std::pair<std::string, std::string> EffectMacroPair;
+
+		typedef std::vector<EffectMacroPair> EffectMacroPairList;
+
+		void LoadEffect(const std::string & path, const EffectMacroPairList & macros, ResourceCallback callback);
+
+		void LoadFont(const std::string & path, int height, ResourceCallback callback);
 	};
 };
