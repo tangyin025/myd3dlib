@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "mySkeleton.h"
-#include "rapidxml.hpp"
 #include "libc.h"
 #include "myResource.h"
 
@@ -448,24 +447,10 @@ BoneHierarchy & OgreSkeleton::BuildLeafedHierarchy(
 }
 
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
-	LPSTR pSrcData,
-	UINT srcDataLen)
+	const rapidxml::xml_node<char> * node_root)
 {
 	Clear();
 
-	_ASSERT(0 == pSrcData[srcDataLen-1]);
-
-	rapidxml::xml_document<char> doc;
-	try
-	{
-		doc.parse<0>(pSrcData);
-	}
-	catch(rapidxml::parse_error & e)
-	{
-		THROW_CUSEXCEPTION(ms2ts(e.what()));
-	}
-
-	rapidxml::xml_node<char> * node_root = &doc;
 	DEFINE_XML_NODE_SIMPLE(skeleton, root);
 	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
 	DEFINE_XML_NODE_SIMPLE(bone, bones);
@@ -589,6 +574,25 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	}
 }
 
+void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromMemory(
+	LPSTR pSrcData,
+	UINT srcDataLen)
+{
+	_ASSERT(0 == pSrcData[srcDataLen-1]);
+
+	rapidxml::xml_document<char> doc;
+	try
+	{
+		doc.parse<0>(pSrcData);
+	}
+	catch(rapidxml::parse_error & e)
+	{
+		THROW_CUSEXCEPTION(ms2ts(e.what()));
+	}
+
+	CreateOgreSkeletonAnimation(&doc);
+}
+
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	LPCTSTR pFilename)
 {
@@ -600,7 +604,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 	cache->push_back(0);
-	CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+	CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }
 
 void OgreSkeletonAnimation::OnResetDevice(void)

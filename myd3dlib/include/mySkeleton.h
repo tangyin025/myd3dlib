@@ -6,6 +6,7 @@
 #include <boost/unordered_set.hpp>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
+#include "rapidxml.hpp"
 
 namespace my
 {
@@ -282,6 +283,9 @@ namespace my
 		}
 
 		void CreateOgreSkeletonAnimation(
+			const rapidxml::xml_node<char> * node_root);
+
+		void CreateOgreSkeletonAnimationFromMemory(
 			LPSTR pSrcData,
 			UINT srcDataLen);
 

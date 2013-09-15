@@ -341,5 +341,7 @@ namespace my
 		void LoadTexture(const std::string & path, ResourceCallback callback);
 
 		void LoadMesh(const std::string & path, ResourceCallback callback);
+
+		void LoadSkeleton(const std::string & path, ResourceCallback callback);
 	};
 };

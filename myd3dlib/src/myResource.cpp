@@ -4,6 +4,7 @@
 #include "libc.h"
 #include <strstream>
 #include "myMesh.h"
+#include "mySkeleton.h"
 
 using namespace my;
 
@@ -460,7 +461,7 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //		{
 //			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
 //			cache->push_back(0);
-//			ret->CreateOgreSkeletonAnimation((char *)&(*cache)[0], cache->size());
+//			ret->CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 //		}
 //	}
 //	return ret;
@@ -790,7 +791,6 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallba
 			{
 				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
 				m_cache->push_back(0);
-
 				try
 				{
 					m_doc.parse<0>((char *)&(*m_cache)[0]);
@@ -815,4 +815,57 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallba
 	};
 
 	LoadResource(path, IORequestPtr(new MeshIOResource(callback, path, this)));
+}
+
+void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, ResourceCallback callback)
+{
+	class SkeletonIOResource : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		ArchiveDirMgr * m_arc;
+
+		CachePtr m_cache;
+
+		rapidxml::xml_document<char> m_doc;
+
+	public:
+		SkeletonIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+			: m_path(path)
+			, m_arc(arc)
+		{
+			m_callbacks.push_back(callback);
+		}
+
+		virtual void DoLoad(void)
+		{
+			if(m_arc->CheckArchivePath(m_path))
+			{
+				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+				m_cache->push_back(0);
+				try
+				{
+					m_doc.parse<0>((char *)&(*m_cache)[0]);
+				}
+				catch(rapidxml::parse_error & e)
+				{
+					THROW_CUSEXCEPTION(ms2ts(e.what()));
+				}
+			}
+		}
+
+		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		{
+			OgreSkeletonAnimationPtr ret;
+			if(m_doc.first_node())
+			{
+				ret.reset(new OgreSkeletonAnimation());
+				ret->CreateOgreSkeletonAnimation(&m_doc);
+			}
+			return ret;
+		}
+	};
+
+	LoadResource(path, IORequestPtr(new SkeletonIOResource(callback, path, this)));
 }

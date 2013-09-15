@@ -30,7 +30,9 @@ public:
 	{
 		//my::TexturePtr tex = boost::dynamic_pointer_cast<my::Texture>(res);
 
-		my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+		//my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+		my::OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -49,7 +51,9 @@ public:
 
 		//LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
 
-		LoadMesh("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
+		//LoadMesh("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
+
+		LoadSkeleton("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
 
 		return S_OK;
 	}
