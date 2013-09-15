@@ -5,6 +5,7 @@
 #include <atlbase.h>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
+#include "rapidxml.hpp"
 
 namespace my
 {
@@ -322,16 +323,22 @@ namespace my
 		{
 		};
 
-		void CreateMeshFromOgreXml(
+		void CreateMeshFromOgreXmlInFile(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCTSTR pFilename,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void CreateMeshFromOgreXmlInString(
+		void CreateMeshFromOgreXmlInMemory(
 			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPSTR pSrcData,
 			UINT srcDataLen,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		void CreateMeshFromOgreXml(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			const rapidxml::xml_node<char> * node_root,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 

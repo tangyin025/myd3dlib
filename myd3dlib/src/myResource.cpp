@@ -3,6 +3,7 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <strstream>
+#include "myMesh.h"
 
 using namespace my;
 
@@ -433,13 +434,13 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 //		std::string full_path = GetFullPath(path);
 //		if(!full_path.empty())
 //		{
-//			ret->CreateMeshFromOgreXml(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), true);
+//			ret->CreateMeshFromOgreXmlInFile(D3DContext::getSingleton().GetD3D9Device(), ms2ts(full_path).c_str(), true);
 //		}
 //		else
 //		{
 //			CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
 //			cache->push_back(0);
-//			ret->CreateMeshFromOgreXmlInString(D3DContext::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
+//			ret->CreateMeshFromOgreXmlInMemory(D3DContext::getSingleton().GetD3D9Device(), (char *)&(*cache)[0], cache->size(), true);
 //		}
 //	}
 //	return ret;
@@ -545,6 +546,7 @@ DWORD AsynchronousIOMgr::OnProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListSection.Leave();
+			// ! havent handled any exception yet
 			req_iter->second->DoLoad();
 			m_IORequestListSection.Enter();
 			req_iter->second->m_state = IORequest::IORequestStateLoaded;
@@ -580,6 +582,7 @@ void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IOReq
 		m_IORequestList.push_back(std::make_pair(key, request));
 	}
 	m_IORequestListSection.Leave();
+	m_IORequestListCondition.Wake();
 }
 
 void AsynchronousIOMgr::StopIORequestProc(void)
@@ -758,4 +761,58 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, ResourceCal
 	};
 
 	LoadResource(path, IORequestPtr(new TextureIOResource(callback, path, this)));
+}
+
+void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, ResourceCallback callback)
+{
+	class MeshIOResource : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		ArchiveDirMgr * m_arc;
+
+		CachePtr m_cache;
+
+		rapidxml::xml_document<char> m_doc;
+
+	public:
+		MeshIOResource(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+			: m_path(path)
+			, m_arc(arc)
+		{
+			m_callbacks.push_back(callback);
+		}
+
+		virtual void DoLoad(void)
+		{
+			if(m_arc->CheckArchivePath(m_path))
+			{
+				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+				m_cache->push_back(0);
+
+				try
+				{
+					m_doc.parse<0>((char *)&(*m_cache)[0]);
+				}
+				catch(rapidxml::parse_error & e)
+				{
+					THROW_CUSEXCEPTION(ms2ts(e.what()));
+				}
+			}
+		}
+
+		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		{
+			OgreMeshPtr ret;
+			if(m_doc.first_node())
+			{
+				ret.reset(new OgreMesh());
+				ret->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+			}
+			return ret;
+		}
+	};
+
+	LoadResource(path, IORequestPtr(new MeshIOResource(callback, path, this)));
 }

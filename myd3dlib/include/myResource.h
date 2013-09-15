@@ -30,8 +30,7 @@ namespace my
 
 	typedef boost::shared_ptr<ArchiveStream> ArchiveStreamPtr;
 
-	class ZipArchiveStream
-		: public ArchiveStream
+	class ZipArchiveStream : public ArchiveStream
 	{
 	protected:
 		unzFile m_zFile;
@@ -48,8 +47,7 @@ namespace my
 		virtual CachePtr GetWholeCache(void);
 	};
 
-	class FileArchiveStream
-		: public ArchiveStream
+	class FileArchiveStream : public ArchiveStream
 	{
 	protected:
 		FILE * m_fp;
@@ -86,8 +84,7 @@ namespace my
 		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
 	};
 
-	class ZipArchiveDir
-		: public ArchiveDir
+	class ZipArchiveDir : public ArchiveDir
 	{
 	protected:
 		std::string m_password;
@@ -119,8 +116,7 @@ namespace my
 		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
 	};
 
-	class FileArchiveDir
-		: public ArchiveDir
+	class FileArchiveDir : public ArchiveDir
 	{
 	public:
 		FileArchiveDir(const std::string & dir)
@@ -286,9 +282,7 @@ namespace my
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
 
-	class AsynchronousIOMgr
-		: public ArchiveDirMgr
-		, public Thread
+	class AsynchronousIOMgr : public ArchiveDirMgr , public Thread
 	{
 	protected:
 		typedef std::list<std::pair<std::string, IORequestPtr> > IORequestPtrPairList;
@@ -314,8 +308,7 @@ namespace my
 		void StopIORequestProc(void);
 	};
 
-	class DeviceRelatedResourceMgr
-		: public AsynchronousIOMgr
+	class DeviceRelatedResourceMgr : public AsynchronousIOMgr
 	{
 	protected:
 		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
@@ -346,5 +339,7 @@ namespace my
 		void CheckResource(void);
 
 		void LoadTexture(const std::string & path, ResourceCallback callback);
+
+		void LoadMesh(const std::string & path, ResourceCallback callback);
 	};
 };

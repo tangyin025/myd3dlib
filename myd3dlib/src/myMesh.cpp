@@ -2,7 +2,6 @@
 #include "myMesh.h"
 #include "myResource.h"
 #include "libc.h"
-#include "rapidxml.hpp"
 
 using namespace my;
 
@@ -618,7 +617,7 @@ void Mesh::UnlockAttributeBuffer(void)
 	V(m_ptr->UnlockAttributeBuffer());
 }
 
-void OgreMesh::CreateMeshFromOgreXml(
+void OgreMesh::CreateMeshFromOgreXmlInFile(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
@@ -632,10 +631,11 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 	cache->push_back(0);
-	CreateMeshFromOgreXmlInString(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+
+	CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
 }
 
-void OgreMesh::CreateMeshFromOgreXmlInString(
+void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPSTR pSrcData,
 	UINT srcDataLen,
@@ -654,7 +654,15 @@ void OgreMesh::CreateMeshFromOgreXmlInString(
 		THROW_CUSEXCEPTION(ms2ts(e.what()));
 	}
 
-	rapidxml::xml_node<char> * node_root = &doc;
+	CreateMeshFromOgreXml(pd3dDevice, &doc, bComputeTangentFrame, dwMeshOptions);
+}
+
+void OgreMesh::CreateMeshFromOgreXml(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	const rapidxml::xml_node<char> * node_root,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
 	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, sharedgeometry);
