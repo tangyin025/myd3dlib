@@ -182,6 +182,8 @@ namespace my
 
 		ResourceCallbackList m_callbacks;
 
+		DeviceRelatedObjectBasePtr m_res;
+
 	public:
 		IORequest(void)
 			: m_state(IORequestStateNone)
@@ -192,11 +194,9 @@ namespace my
 		{
 		}
 
-		void CallbackAll(DeviceRelatedObjectBasePtr res);
-
 		virtual void DoLoad(void) = 0;
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
 	};
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
@@ -236,8 +236,6 @@ namespace my
 
 		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
 
-		CComPtr<ID3DXEffectPool> m_EffectPool;
-
 		std::string m_EffectInclude;
 
 		boost::unordered_map<LPCVOID, CachePtr> m_CacheSet;
@@ -268,6 +266,29 @@ namespace my
 
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
+	};
+
+	class AsynchronousResourceMgr : public DeviceRelatedResourceMgr
+	{
+	protected:
+		CComPtr<ID3DXEffectPool> m_EffectPool;
+
+	public:
+		AsynchronousResourceMgr(void)
+		{
+		}
+
+		HRESULT OnCreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
 
 		void LoadResource(const std::string & key, IORequestPtr request);
 

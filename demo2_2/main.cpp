@@ -3,7 +3,7 @@
 
 class MyDemo
 	: public my::DxutApp
-	, public my::DeviceRelatedResourceMgr
+	, public my::AsynchronousResourceMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
@@ -49,9 +49,9 @@ public:
 			return hr;
 		}
 
-		DeviceRelatedResourceMgr::RegisterFileDir(".");
+		AsynchronousResourceMgr::RegisterFileDir(".");
 
-		DeviceRelatedResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		//LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
 
@@ -77,7 +77,7 @@ public:
 			return hr;
 		}
 
-		DeviceRelatedResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		AsynchronousResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -88,14 +88,14 @@ public:
 
 		m_sprite.Release();
 
-		DeviceRelatedResourceMgr::OnLostDevice();
+		AsynchronousResourceMgr::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
 
-		DeviceRelatedResourceMgr::OnDestroyDevice();
+		AsynchronousResourceMgr::OnDestroyDevice();
 	}
 
 	virtual void OnFrameMove(

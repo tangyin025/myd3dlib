@@ -279,16 +279,6 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), ms2ts(path).c_str()));
 }
 
-void IORequest::CallbackAll(DeviceRelatedObjectBasePtr res)
-{
-	ResourceCallbackList::iterator callback_iter = m_callbacks.begin();
-	for(; callback_iter != m_callbacks.end(); callback_iter++)
-	{
-		if(*callback_iter)
-			(*callback_iter)(res);
-	}
-}
-
 DWORD AsynchronousIOMgr::OnProc(void)
 {
 	m_IORequestListSection.Enter();
@@ -356,16 +346,6 @@ HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hr;
-	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
-	{
-		THROW_D3DEXCEPTION(hr);
-	}
-
-	CreateThread();
-
-	ResumeThread();
-
 	return S_OK;
 }
 
@@ -384,10 +364,9 @@ HRESULT DeviceRelatedResourceMgr::OnResetDevice(
 		}
 		else
 		{
-			m_ResourceWeakSet.erase(res_iter++);
+			res_iter = m_ResourceWeakSet.erase(res_iter);
 		}
 	}
-
 	return S_OK;
 }
 
@@ -404,15 +383,13 @@ void DeviceRelatedResourceMgr::OnLostDevice(void)
 		}
 		else
 		{
-			m_ResourceWeakSet.erase(res_iter++);
+			res_iter = m_ResourceWeakSet.erase(res_iter);
 		}
 	}
 }
 
 void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
-	StopIORequestProc();
-
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
 	for(; res_iter != m_ResourceWeakSet.end();)
 	{
@@ -422,17 +399,8 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 			res->OnDestroyDevice();
 			res_iter++;
 		}
-		else
-		{
-			m_ResourceWeakSet.erase(res_iter++);
-		}
 	}
-
 	m_ResourceWeakSet.clear();
-
-	m_EffectPool.Release();
-
-	WaitForThreadStopped();
 }
 
 HRESULT DeviceRelatedResourceMgr::Open(
@@ -471,7 +439,57 @@ HRESULT DeviceRelatedResourceMgr::Close(
 	return S_OK;
 }
 
-void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
+HRESULT AsynchronousResourceMgr::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	HRESULT hr;
+	if(FAILED(hr = DeviceRelatedResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
+	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
+	{
+		return hr;
+	}
+
+	CreateThread();
+
+	ResumeThread();
+
+	return S_OK;
+}
+
+HRESULT AsynchronousResourceMgr::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	HRESULT hr;
+	if(FAILED(hr = DeviceRelatedResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+	return S_OK;
+}
+
+void AsynchronousResourceMgr::OnLostDevice(void)
+{
+	DeviceRelatedResourceMgr::OnLostDevice();
+}
+
+void AsynchronousResourceMgr::OnDestroyDevice(void)
+{
+	StopIORequestProc();
+
+	DeviceRelatedResourceMgr::OnDestroyDevice();
+
+	m_EffectPool.Release();
+
+	WaitForThreadStopped();
+}
+
+void AsynchronousResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
@@ -479,15 +497,15 @@ void DeviceRelatedResourceMgr::LoadResource(const std::string & key, IORequestPt
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
-			request->CallbackAll(res);
-			return;
+			request->m_res = res;
+			request->m_state = IORequest::IORequestStateLoaded;
 		}
 	}
 
 	PushIORequestResource(key, request);
 }
 
-void DeviceRelatedResourceMgr::CheckResource(void)
+void AsynchronousResourceMgr::CheckResource(void)
 {
 	m_IORequestListSection.Enter();
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
@@ -495,11 +513,21 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 	{
 		if(req_iter->second->m_state != IORequest::IORequestStateNone)
 		{
-			DeviceRelatedObjectBasePtr res = req_iter->second->GetResource(D3DContext::getSingleton().GetD3D9Device());
+			if(!req_iter->second->m_res)
+			{
+				req_iter->second->BuildResource(D3DContext::getSingleton().GetD3D9Device());
 
-			m_ResourceWeakSet[req_iter->first] = res;
+				m_ResourceWeakSet[req_iter->first] = req_iter->second->m_res;
+			}
 
-			req_iter->second->CallbackAll(res);
+			_ASSERT(m_ResourceWeakSet[req_iter->first].lock() == req_iter->second->m_res);
+
+			IORequest::ResourceCallbackList::iterator callback_iter = req_iter->second->m_callbacks.begin();
+			for(; callback_iter != req_iter->second->m_callbacks.end(); callback_iter++)
+			{
+				if(*callback_iter)
+					(*callback_iter)(req_iter->second->m_res);
+			}
 
 			req_iter = m_IORequestList.erase(req_iter);
 		}
@@ -511,7 +539,7 @@ void DeviceRelatedResourceMgr::CheckResource(void)
 	m_IORequestListSection.Leave();
 }
 
-void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadTexture(const std::string & path, const ResourceCallback & callback)
 {
 	class TextureIORequest : public IORequest
 	{
@@ -538,9 +566,8 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, const Resou
 			}
 		}
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			BaseTexturePtr ret;
 			if(m_cache)
 			{
 				D3DXIMAGE_INFO imif;
@@ -549,24 +576,23 @@ void DeviceRelatedResourceMgr::LoadTexture(const std::string & path, const Resou
 					switch(imif.ResourceType)
 					{
 					case D3DRTYPE_TEXTURE:
-						ret.reset(new Texture());
-						boost::static_pointer_cast<Texture>(ret)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+						m_res.reset(new Texture());
+						boost::static_pointer_cast<Texture>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
 						break;
 					case D3DRTYPE_CUBETEXTURE:
-						ret.reset(new CubeTexture());
-						boost::static_pointer_cast<CubeTexture>(ret)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+						m_res.reset(new CubeTexture());
+						boost::static_pointer_cast<CubeTexture>(m_res)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
 						break;
 					}
 				}
 			}
-			return ret;
 		}
 	};
 
 	LoadResource(path, IORequestPtr(new TextureIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadMesh(const std::string & path, const ResourceCallback & callback)
 {
 	class MeshIORequest : public IORequest
 	{
@@ -604,22 +630,20 @@ void DeviceRelatedResourceMgr::LoadMesh(const std::string & path, const Resource
 			}
 		}
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			OgreMeshPtr ret;
 			if(m_doc.first_node())
 			{
-				ret.reset(new OgreMesh());
-				ret->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+				m_res.reset(new OgreMesh());
+				boost::static_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
 			}
-			return ret;
 		}
 	};
 
 	LoadResource(path, IORequestPtr(new MeshIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadSkeleton(const std::string & path, const ResourceCallback & callback)
 {
 	class SkeletonIORequest : public IORequest
 	{
@@ -657,22 +681,20 @@ void DeviceRelatedResourceMgr::LoadSkeleton(const std::string & path, const Reso
 			}
 		}
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			OgreSkeletonAnimationPtr ret;
 			if(m_doc.first_node())
 			{
-				ret.reset(new OgreSkeletonAnimation());
-				ret->CreateOgreSkeletonAnimation(&m_doc);
+				m_res.reset(new OgreSkeletonAnimation());
+				boost::static_pointer_cast<OgreSkeletonAnimation>(m_res)->CreateOgreSkeletonAnimation(&m_doc);
 			}
-			return ret;
 		}
 	};
 
 	LoadResource(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
 {
 	class EffectIORequest : public IORequest
 	{
@@ -681,12 +703,12 @@ void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const Effect
 
 		std::vector<D3DXMACRO> m_d3dmacros;
 
-		DeviceRelatedResourceMgr * m_arc;
+		AsynchronousResourceMgr * m_arc;
 
 		CachePtr m_cache;
 
 	public:
-		EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, DeviceRelatedResourceMgr * arc)
+		EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
 			: m_path(path)
 			, m_arc(arc)
 		{
@@ -710,15 +732,13 @@ void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const Effect
 			}
 		}
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			EffectPtr ret;
 			if(m_cache)
 			{
-				ret.reset(new Effect());
-				ret->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+				m_res.reset(new Effect());
+				boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
 			}
-			return ret;
 		}
 	};
 
@@ -733,7 +753,7 @@ void DeviceRelatedResourceMgr::LoadEffect(const std::string & path, const Effect
 	LoadResource(ostr.str(), IORequestPtr(new EffectIORequest(callback, path, macros, this)));
 }
 
-void DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadFont(const std::string & path, int height, const ResourceCallback & callback)
 {
 	class FontIORequest : public IORequest
 	{
@@ -762,15 +782,13 @@ void DeviceRelatedResourceMgr::LoadFont(const std::string & path, int height, co
 			}
 		}
 
-		virtual DeviceRelatedObjectBasePtr GetResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		{
-			FontPtr ret;
 			if(m_cache)
 			{
-				ret.reset(new Font());
-				ret->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+				m_res.reset(new Font());
+				boost::static_pointer_cast<Font>(m_res)->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
 			}
-			return ret;
 		}
 	};
 

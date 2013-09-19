@@ -424,7 +424,7 @@ namespace my
 		void RemoveAllMaterial(void);
 	};
 
-	//class ResourceMgr : public DeviceRelatedResourceMgr
+	//class ResourceMgr : public AsynchronousResourceMgr
 	//{
 	//public:
 	//	typedef boost::unordered_map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
