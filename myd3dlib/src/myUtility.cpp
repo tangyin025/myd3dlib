@@ -4,6 +4,7 @@
 #include "myCollision.h"
 #include "myDxutApp.h"
 #include "rapidxml.hpp"
+#include <boost/bind.hpp>
 
 using namespace my;
 
@@ -856,7 +857,7 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 void Material::ApplyParameterBlock(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first->m_ptr)
+	if(effect_pair.first)
 	{
 		EffectParameterMap::const_iterator param_iter = effect_pair.second.begin();
 		for(; param_iter != effect_pair.second.end(); param_iter++)
@@ -869,7 +870,7 @@ void Material::ApplyParameterBlock(UINT i)
 UINT Material::Begin(UINT i, DWORD Flags)
 {
 	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first->m_ptr)
+	if(effect_pair.first)
 	{
 		return effect_pair.first->Begin(Flags);
 	}
@@ -879,27 +880,27 @@ UINT Material::Begin(UINT i, DWORD Flags)
 void Material::BeginPass(UINT i, UINT Pass)
 {
 	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first->m_ptr)
+	if(effect_pair.first)
 	{
-		return effect_pair.first->BeginPass(Pass);
+		effect_pair.first->BeginPass(Pass);
 	}
 }
 
 void Material::EndPass(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first->m_ptr)
+	if(effect_pair.first)
 	{
-		return effect_pair.first->EndPass();
+		effect_pair.first->EndPass();
 	}
 }
 
 void Material::End(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first->m_ptr)
+	if(effect_pair.first)
 	{
-		return effect_pair.first->End();
+		effect_pair.first->End();
 	}
 }
 
@@ -935,75 +936,113 @@ void MaterialMgr::RemoveAllMaterial(void)
 {
 	m_MaterialMap.clear();
 }
-//
-//MaterialPtr ResourceMgr::LoadMaterial(const std::string & path, bool reload)
-//{
-//	MaterialPtr ret;
-//	MaterialWeakPtrSet::const_iterator mat_iter = m_materialSet.find(path);
-//	if(m_materialSet.end() != mat_iter)
-//	{
-//		ret = mat_iter->second.lock();
-//		if(ret && !reload)
-//		{
-//			return ret;
-//		}
-//	}
-//
-//	ret.reset(new Material());
-//
-//	CachePtr cache = OpenArchiveStream(path)->GetWholeCache();
-//	cache->push_back(0);
-//
-//	rapidxml::xml_document<char> doc;
-//	try
-//	{
-//		doc.parse<0>((char *)&(*cache)[0]);
-//	}
-//	catch(rapidxml::parse_error & e)
-//	{
-//		THROW_CUSEXCEPTION(ms2ts(e.what()));
-//	}
-//
-//	rapidxml::xml_node<char> * node_root = &doc;
-//	DEFINE_XML_NODE_SIMPLE(material, root);
-//	DEFINE_XML_NODE_SIMPLE(shader, material);
-//	for(; node_shader; node_shader = node_shader->next_sibling())
-//	{
-//		ret->push_back(Material::value_type());
-//		Material::value_type & effect_pair = ret->back();
-//
-//		rapidxml::xml_attribute<char> * attr_shader_path;
-//		DEFINE_XML_ATTRIBUTE(attr_shader_path, node_shader, path);
-//
-//		effect_pair.first = LoadEffect(attr_shader_path->value(), string_pair_list(), reload);
-//
-//		DEFINE_XML_NODE_SIMPLE(parameter, shader);
-//		for(; node_parameter; node_parameter = node_parameter->next_sibling())
-//		{
-//			DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
-//			rapidxml::xml_node<char> * node_value = node_parameter->first_node();
-//
-//			if(0 == strcmp(node_value->name(), "Vector4"))
-//			{
-//				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, value);
-//				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, value);
-//				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, value);
-//				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, value);
-//				effect_pair.second.SetVector(attr_name->value(), Vector4(x, y, z, w));
-//			}
-//			else if(0 == strcmp(node_value->name(), "Texture"))
-//			{
-//				DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
-//				effect_pair.second.SetTexture(attr_name->value(), LoadTexture(attr_path->value(), reload));
-//			}
-//			else if(0 == strcmp(node_value->name(), "CubeTexture"))
-//			{
-//				DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
-//				effect_pair.second.SetTexture(attr_name->value(), LoadCubeTexture(attr_path->value(), reload));
-//			}
-//		}
-//	}
-//
-//	m_materialSet[path] = ret;
-//	return ret;
-//}
+
+class ResourceMgr::MaterialIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	ResourceMgr * m_arc;
+
+	CachePtr m_cache;
+
+	rapidxml::xml_document<char> m_doc;
+
+public:
+	MaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
+		{
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache->push_back(0);
+			try
+			{
+				m_doc.parse<0>((char *)&(*m_cache)[0]);
+			}
+			catch (rapidxml::parse_error & e)
+			{
+				THROW_CUSEXCEPTION(ms2ts(e.what()));
+			}
+		}
+	}
+
+	static void MaterialSetEffect(MaterialPtr mat, size_t effect_i, DeviceRelatedObjectBasePtr effect_res)
+	{
+		(*mat)[effect_i].first = boost::dynamic_pointer_cast<Effect>(effect_res);
+	}
+
+	static void MaterialSetEffectTextureParameter(MaterialPtr mat, size_t effect_i, std::string value, DeviceRelatedObjectBasePtr texture_res)
+	{
+		(*mat)[effect_i].second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_doc.first_node())
+		{
+			MaterialPtr ret(new Material());
+
+			rapidxml::xml_node<char> * node_root = &m_doc;
+			DEFINE_XML_NODE_SIMPLE(material, root);
+			DEFINE_XML_NODE_SIMPLE(shader, material);
+			for(size_t i = 0; node_shader; node_shader = node_shader->next_sibling(), i++)
+			{
+				rapidxml::xml_attribute<char> * attr_shader_path;
+				DEFINE_XML_ATTRIBUTE(attr_shader_path, node_shader, path);
+
+				ret->push_back(Material::value_type());
+				Material::value_type & effect_pair = ret->back();
+
+				m_arc->LoadEffectAsync(
+					attr_shader_path->value(), EffectMacroPairList(), boost::bind(&MaterialIORequest::MaterialSetEffect, ret, i, _1));
+
+				DEFINE_XML_NODE_SIMPLE(parameter, shader);
+				for(; node_parameter; node_parameter = node_parameter->next_sibling())
+				{
+					DEFINE_XML_ATTRIBUTE_SIMPLE(name, parameter);
+					rapidxml::xml_node<char> * node_value = node_parameter->first_node();
+
+					if(0 == strcmp(node_value->name(), "Vector4"))
+					{
+						DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(x, value);
+						DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(y, value);
+						DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(z, value);
+						DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(w, value);
+						effect_pair.second.SetVector(attr_name->value(), Vector4(x, y, z, w));
+					}
+					else if(0 == strcmp(node_value->name(), "Texture"))
+					{
+						DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
+						m_arc->LoadTextureAsync(
+							attr_path->value(), boost::bind(&MaterialIORequest::MaterialSetEffectTextureParameter, ret, i, std::string(attr_name->value()), _1));
+					}
+				}
+			}
+			m_res = ret;
+		}
+	}
+};
+
+void ResourceMgr::LoadMaterialAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)));
+}
+
+MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
+{
+	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(ResourceCallback(), path, this)));
+
+	CheckRequest(path, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<Material>(request->m_res);
+}

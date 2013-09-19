@@ -782,6 +782,8 @@ public:
 		if(m_cache)
 		{
 			m_res.reset(new Effect());
+			m_arc->m_EffectInclude = ZipArchiveDir::ReplaceSlash(m_path);
+			PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
 			boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
 		}
 	}
@@ -819,6 +821,7 @@ EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const Ef
 
 class FontIORequest : public IORequest
 {
+protected:
 	std::string m_path;
 
 	int m_height;

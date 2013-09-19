@@ -3,7 +3,7 @@
 
 class MyDemo
 	: public my::DxutApp
-	, public my::AsynchronousResourceMgr
+	, public my::ResourceMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
@@ -49,21 +49,23 @@ public:
 			return hr;
 		}
 
-		AsynchronousResourceMgr::RegisterFileDir(".");
+		ResourceMgr::RegisterFileDir("../demo2_3/Media");
 
-		AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
-		//LoadTextureAsync("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
+		//LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&MyDemo::foo, this, _1));
 
-		my::BaseTexturePtr tex = LoadTexture("aaa.jpg");
+		//my::BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
 
 		//LoadMeshAsync(("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
 
 		//LoadSkeletonAsync(("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
 
-		//LoadEffectAsync(("SimpleSample.fx", EffectMacroPairList(), boost::bind(&MyDemo::foo, this, _1));
+		//my::EffectPtr eff = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
-		LoadFontAsync("wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
+		//LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
+
+		my::MaterialPtr mat = LoadMaterial("material/lambert1.xml");
 
 		return S_OK;
 	}
@@ -79,7 +81,7 @@ public:
 			return hr;
 		}
 
-		AsynchronousResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -90,14 +92,14 @@ public:
 
 		m_sprite.Release();
 
-		AsynchronousResourceMgr::OnLostDevice();
+		ResourceMgr::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
 
-		AsynchronousResourceMgr::OnDestroyDevice();
+		ResourceMgr::OnDestroyDevice();
 	}
 
 	virtual void OnFrameMove(

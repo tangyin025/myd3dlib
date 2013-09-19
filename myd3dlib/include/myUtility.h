@@ -383,7 +383,7 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	class Material : public std::vector<std::pair<EffectPtr, EffectParameterMap> >
+	class Material : public DeviceRelatedObjectBase, public std::vector<std::pair<EffectPtr, EffectParameterMap> >
 	{
 	public:
 		Material(void)
@@ -424,18 +424,17 @@ namespace my
 		void RemoveAllMaterial(void);
 	};
 
-	//class ResourceMgr : public AsynchronousResourceMgr
-	//{
-	//public:
-	//	typedef boost::unordered_map<std::string, boost::weak_ptr<Material> > MaterialWeakPtrSet;
+	class ResourceMgr : public AsynchronousResourceMgr
+	{
+	public:
+		ResourceMgr(void)
+		{
+		}
 
-	//	MaterialWeakPtrSet m_materialSet;
+		class MaterialIORequest;
 
-	//public:
-	//	ResourceMgr(void)
-	//	{
-	//	}
+		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
 
-	//	MaterialPtr LoadMaterial(const std::string & path, bool reload = false);
-	//};
+		MaterialPtr LoadMaterial(const std::string & path);
+	};
 }
