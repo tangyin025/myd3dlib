@@ -53,15 +53,17 @@ public:
 
 		AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
-		//LoadTexture("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
+		//LoadTextureAsync("aaa.jpg", boost::bind(&MyDemo::foo, this, _1));
 
-		//LoadMesh("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
+		my::BaseTexturePtr tex = LoadTexture("aaa.jpg");
 
-		//LoadSkeleton("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
+		//LoadMeshAsync(("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
 
-		//LoadEffect("SimpleSample.fx", EffectMacroPairList(), boost::bind(&MyDemo::foo, this, _1));
+		//LoadSkeletonAsync(("sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
 
-		LoadFont("wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
+		//LoadEffectAsync(("SimpleSample.fx", EffectMacroPairList(), boost::bind(&MyDemo::foo, this, _1));
+
+		LoadFontAsync("wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
 
 		return S_OK;
 	}

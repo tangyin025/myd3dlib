@@ -2,14 +2,11 @@
 
 #include <unzip.h>
 #include "myThread.h"
-#include <vector>
-#include <list>
-#include <boost/unordered_map.hpp>
-#include <boost/weak_ptr.hpp>
-#include <boost/function.hpp>
 #include "mySingleton.h"
-#include <d3d9.h>
-#include <D3DX9Shader.h>
+#include "myMesh.h"
+#include "mySkeleton.h"
+#include "myEffect.h"
+#include "myFont.h"
 
 namespace my
 {
@@ -216,12 +213,12 @@ namespace my
 
 		virtual DWORD OnProc(void);
 
-		void PushIORequestResource(const std::string & key, my::IORequestPtr request);
+		my::IORequestPtr PushIORequestResource(const std::string & key, my::IORequestPtr request);
 
 		void StopIORequestProc(void);
 	};
 
-	class DeviceRelatedResourceMgr : public AsynchronousIOMgr, public ID3DXInclude
+	class DeviceRelatedResourceMgr
 	{
 	protected:
 		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
@@ -230,12 +227,35 @@ namespace my
 
 		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
 
+	public:
+		DeviceRelatedResourceMgr(void)
+		{
+		}
+
+		HRESULT OnCreateDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		HRESULT OnResetDevice(
+			IDirect3DDevice9 * pd3dDevice,
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
+	};
+
+	class AsynchronousResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude
+	{
+	protected:
+		CComPtr<ID3DXEffectPool> m_EffectPool;
+
 		std::string m_EffectInclude;
 
 		boost::unordered_map<LPCVOID, CachePtr> m_CacheSet;
 
 	public:
-		DeviceRelatedResourceMgr(void)
+		AsynchronousResourceMgr(void)
 		{
 		}
 
@@ -260,46 +280,37 @@ namespace my
 
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
-	};
 
-	class AsynchronousResourceMgr : public DeviceRelatedResourceMgr
-	{
-	protected:
-		CComPtr<ID3DXEffectPool> m_EffectPool;
-
-	public:
-		AsynchronousResourceMgr(void)
-		{
-		}
-
-		HRESULT OnCreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		HRESULT OnResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
-
-		void LoadResource(const std::string & key, IORequestPtr request);
+		IORequestPtr LoadResourceAsync(const std::string & key, IORequestPtr request);
 
 		void CheckResource(void);
 
-		void LoadTexture(const std::string & path, const ResourceCallback & callback);
+		bool CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout);
 
-		void LoadMesh(const std::string & path, const ResourceCallback & callback);
+		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);
 
-		void LoadSkeleton(const std::string & path, const ResourceCallback & callback);
+		BaseTexturePtr LoadTexture(const std::string & path);
+
+		void LoadMeshAsync(const std::string & path, const ResourceCallback & callback);
+
+		OgreMeshPtr LoadMesh(const std::string & path);
+
+		void LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback);
+
+		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
+
+		class EffectIORequest;
 
 		typedef std::pair<std::string, std::string> EffectMacroPair;
 
 		typedef std::vector<EffectMacroPair> EffectMacroPairList;
 
-		void LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
+		void LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
 
-		void LoadFont(const std::string & path, int height, const ResourceCallback & callback);
+		EffectPtr LoadEffect(const std::string & path, const EffectMacroPairList & macros);
+
+		void LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback);
+
+		FontPtr LoadFont(const std::string & path, int height);
 	};
 };

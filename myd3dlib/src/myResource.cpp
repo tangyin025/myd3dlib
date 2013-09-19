@@ -3,9 +3,6 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <strstream>
-#include "myMesh.h"
-#include "mySkeleton.h"
-#include "myEffect.h"
 
 using namespace my;
 
@@ -262,7 +259,6 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		{
 			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 		}
-
 		return ArchiveStreamPtr(new FileArchiveStream(fp));
 	}
 
@@ -287,7 +283,7 @@ DWORD AsynchronousIOMgr::OnProc(void)
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(req_iter->second->m_LoadEvent.WaitEvent(0))
+			if(!req_iter->second->m_LoadEvent.WaitEvent(0))
 			{
 				break;
 			}
@@ -295,12 +291,9 @@ DWORD AsynchronousIOMgr::OnProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListSection.Leave();
-
 			// ! havent handled any exception yet
 			req_iter->second->DoLoad();
-
 			req_iter->second->m_LoadEvent.SetEvent();
-
 			m_IORequestListSection.Enter();
 		}
 		else
@@ -313,9 +306,10 @@ DWORD AsynchronousIOMgr::OnProc(void)
 	return 0;
 }
 
-void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
+IORequestPtr AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
 {
 	m_IORequestListSection.Enter();
+
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); req_iter++)
 	{
@@ -324,17 +318,19 @@ void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IOReq
 			break;
 		}
 	}
+
 	if(req_iter != m_IORequestList.end())
 	{
 		req_iter->second->m_callbacks.insert(
 			req_iter->second->m_callbacks.end(), request->m_callbacks.begin(), request->m_callbacks.end());
+		m_IORequestListSection.Leave();
+		return req_iter->second;
 	}
-	else
-	{
-		m_IORequestList.push_back(std::make_pair(key, request));
-	}
+
+	m_IORequestList.push_back(std::make_pair(key, request));
 	m_IORequestListSection.Leave();
 	m_IORequestListCondition.Wake();
+	return request;
 }
 
 void AsynchronousIOMgr::StopIORequestProc(void)
@@ -406,42 +402,6 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_ResourceWeakSet.clear();
 }
 
-HRESULT DeviceRelatedResourceMgr::Open(
-	D3DXINCLUDE_TYPE IncludeType,
-	LPCSTR pFileName,
-	LPCVOID pParentData,
-	LPCVOID * ppData,
-	UINT * pBytes)
-{
-	CachePtr cache;
-	std::string path;
-	path.resize(MAX_PATH);
-	PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
-	switch(IncludeType)
-	{
-	case D3DXINC_SYSTEM:
-	case D3DXINC_LOCAL:
-		if(CheckArchivePath(path))
-		{
-			cache = OpenArchiveStream(path)->GetWholeCache();
-			*ppData = &(*cache)[0];
-			*pBytes = cache->size();
-			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
-			m_CacheSet[*ppData] = cache;
-			return S_OK;
-		}
-	}
-	return E_FAIL;
-}
-
-HRESULT DeviceRelatedResourceMgr::Close(
-	LPCVOID pData)
-{
-	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
-	m_CacheSet.erase(pData);
-	return S_OK;
-}
-
 HRESULT AsynchronousResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -492,7 +452,43 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 	WaitForThreadStopped();
 }
 
-void AsynchronousResourceMgr::LoadResource(const std::string & key, IORequestPtr request)
+HRESULT AsynchronousResourceMgr::Open(
+	D3DXINCLUDE_TYPE IncludeType,
+	LPCSTR pFileName,
+	LPCVOID pParentData,
+	LPCVOID * ppData,
+	UINT * pBytes)
+{
+	CachePtr cache;
+	std::string path;
+	path.resize(MAX_PATH);
+	PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
+	switch(IncludeType)
+	{
+	case D3DXINC_SYSTEM:
+	case D3DXINC_LOCAL:
+		if(CheckArchivePath(path))
+		{
+			cache = OpenArchiveStream(path)->GetWholeCache();
+			*ppData = &(*cache)[0];
+			*pBytes = cache->size();
+			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
+			m_CacheSet[*ppData] = cache;
+			return S_OK;
+		}
+	}
+	return E_FAIL;
+}
+
+HRESULT AsynchronousResourceMgr::Close(
+	LPCVOID pData)
+{
+	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
+	m_CacheSet.erase(pData);
+	return S_OK;
+}
+
+IORequestPtr AsynchronousResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
@@ -506,7 +502,7 @@ void AsynchronousResourceMgr::LoadResource(const std::string & key, IORequestPtr
 		}
 	}
 
-	PushIORequestResource(key, request);
+	return PushIORequestResource(key, request);
 }
 
 void AsynchronousResourceMgr::CheckResource(void)
@@ -515,24 +511,8 @@ void AsynchronousResourceMgr::CheckResource(void)
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); )
 	{
-		if(req_iter->second->m_LoadEvent.WaitEvent(0))
+		if(CheckRequest(req_iter->first, req_iter->second, 0))
 		{
-			if(!req_iter->second->m_res)
-			{
-				req_iter->second->BuildResource(D3DContext::getSingleton().GetD3D9Device());
-
-				m_ResourceWeakSet[req_iter->first] = req_iter->second->m_res;
-			}
-
-			_ASSERT(m_ResourceWeakSet[req_iter->first].lock() == req_iter->second->m_res);
-
-			IORequest::ResourceCallbackList::iterator callback_iter = req_iter->second->m_callbacks.begin();
-			for(; callback_iter != req_iter->second->m_callbacks.end(); callback_iter++)
-			{
-				if(*callback_iter)
-					(*callback_iter)(req_iter->second->m_res);
-			}
-
 			req_iter = m_IORequestList.erase(req_iter);
 		}
 		else
@@ -543,258 +523,359 @@ void AsynchronousResourceMgr::CheckResource(void)
 	m_IORequestListSection.Leave();
 }
 
-void AsynchronousResourceMgr::LoadTexture(const std::string & path, const ResourceCallback & callback)
+bool AsynchronousResourceMgr::CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout)
 {
-	class TextureIORequest : public IORequest
+	if(request->m_LoadEvent.WaitEvent(timeout))
 	{
-	protected:
-		std::string m_path;
-
-		ArchiveDirMgr * m_arc;
-
-		CachePtr m_cache;
-
-	public:
-		TextureIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
-			: m_path(path)
-			, m_arc(arc)
+		if(!request->m_res)
 		{
-			m_callbacks.push_back(callback);
+			request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
+
+			m_ResourceWeakSet[key] = request->m_res;
 		}
 
-		virtual void DoLoad(void)
-		{
-			if(m_arc->CheckArchivePath(m_path))
-			{
-				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
-			}
-		}
+		_ASSERT(m_ResourceWeakSet[key].lock() == request->m_res);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+		IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
+		for(; callback_iter != request->m_callbacks.end(); callback_iter++)
 		{
-			if(m_cache)
-			{
-				D3DXIMAGE_INFO imif;
-				if(SUCCEEDED(D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif)))
-				{
-					switch(imif.ResourceType)
-					{
-					case D3DRTYPE_TEXTURE:
-						m_res.reset(new Texture());
-						boost::static_pointer_cast<Texture>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
-						break;
-					case D3DRTYPE_CUBETEXTURE:
-						m_res.reset(new CubeTexture());
-						boost::static_pointer_cast<CubeTexture>(m_res)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
-						break;
-					}
-				}
-			}
+			if(*callback_iter)
+				(*callback_iter)(request->m_res);
 		}
-	};
-
-	LoadResource(path, IORequestPtr(new TextureIORequest(callback, path, this)));
+		return true;
+	}
+	return false;
 }
 
-void AsynchronousResourceMgr::LoadMesh(const std::string & path, const ResourceCallback & callback)
+class TextureIORequest : public IORequest
 {
-	class MeshIORequest : public IORequest
+protected:
+	std::string m_path;
+
+	ArchiveDirMgr * m_arc;
+
+	CachePtr m_cache;
+
+public:
+	TextureIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
 	{
-	protected:
-		std::string m_path;
-
-		ArchiveDirMgr * m_arc;
-
-		CachePtr m_cache;
-
-		rapidxml::xml_document<char> m_doc;
-
-	public:
-		MeshIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
-			: m_path(path)
-			, m_arc(arc)
+		if(callback)
 		{
 			m_callbacks.push_back(callback);
 		}
-
-		virtual void DoLoad(void)
-		{
-			if(m_arc->CheckArchivePath(m_path))
-			{
-				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
-				m_cache->push_back(0);
-				try
-				{
-					m_doc.parse<0>((char *)&(*m_cache)[0]);
-				}
-				catch(rapidxml::parse_error & e)
-				{
-					THROW_CUSEXCEPTION(ms2ts(e.what()));
-				}
-			}
-		}
-
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-		{
-			if(m_doc.first_node())
-			{
-				m_res.reset(new OgreMesh());
-				boost::static_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
-			}
-		}
-	};
-
-	LoadResource(path, IORequestPtr(new MeshIORequest(callback, path, this)));
-}
-
-void AsynchronousResourceMgr::LoadSkeleton(const std::string & path, const ResourceCallback & callback)
-{
-	class SkeletonIORequest : public IORequest
-	{
-	protected:
-		std::string m_path;
-
-		ArchiveDirMgr * m_arc;
-
-		CachePtr m_cache;
-
-		rapidxml::xml_document<char> m_doc;
-
-	public:
-		SkeletonIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
-			: m_path(path)
-			, m_arc(arc)
-		{
-			m_callbacks.push_back(callback);
-		}
-
-		virtual void DoLoad(void)
-		{
-			if(m_arc->CheckArchivePath(m_path))
-			{
-				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
-				m_cache->push_back(0);
-				try
-				{
-					m_doc.parse<0>((char *)&(*m_cache)[0]);
-				}
-				catch(rapidxml::parse_error & e)
-				{
-					THROW_CUSEXCEPTION(ms2ts(e.what()));
-				}
-			}
-		}
-
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-		{
-			if(m_doc.first_node())
-			{
-				m_res.reset(new OgreSkeletonAnimation());
-				boost::static_pointer_cast<OgreSkeletonAnimation>(m_res)->CreateOgreSkeletonAnimation(&m_doc);
-			}
-		}
-	};
-
-	LoadResource(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
-}
-
-void AsynchronousResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
-{
-	class EffectIORequest : public IORequest
-	{
-	protected:
-		std::string m_path;
-
-		std::vector<D3DXMACRO> m_d3dmacros;
-
-		AsynchronousResourceMgr * m_arc;
-
-		CachePtr m_cache;
-
-	public:
-		EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
-			: m_path(path)
-			, m_arc(arc)
-		{
-			EffectMacroPairList::const_iterator macro_iter = macros.begin();
-			for(; macro_iter != macros.end(); macro_iter++)
-			{
-				D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
-				m_d3dmacros.push_back(d3dmacro);
-			}
-			D3DXMACRO end = {0};
-			m_d3dmacros.push_back(end);
-
-			m_callbacks.push_back(callback);
-		}
-
-		virtual void DoLoad(void)
-		{
-			if(m_arc->CheckArchivePath(m_path))
-			{
-				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
-			}
-		}
-
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-		{
-			if(m_cache)
-			{
-				m_res.reset(new Effect());
-				boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
-			}
-		}
-	};
-
-	std::ostrstream ostr;
-	ostr << path;
-	EffectMacroPairList::const_iterator macro_iter = macros.begin();
-	for(; macro_iter != macros.end(); macro_iter++)
-	{
-		ostr << ", " << macro_iter->first << ", " << macro_iter->second;
 	}
 
-	LoadResource(ostr.str(), IORequestPtr(new EffectIORequest(callback, path, macros, this)));
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
+		{
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_cache)
+		{
+			D3DXIMAGE_INFO imif;
+			if(SUCCEEDED(D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif)))
+			{
+				switch(imif.ResourceType)
+				{
+				case D3DRTYPE_TEXTURE:
+					m_res.reset(new Texture());
+					boost::static_pointer_cast<Texture>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+					break;
+				case D3DRTYPE_CUBETEXTURE:
+					m_res.reset(new CubeTexture());
+					boost::static_pointer_cast<CubeTexture>(m_res)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+					break;
+				}
+			}
+		}
+	}
+};
+
+void AsynchronousResourceMgr::LoadTextureAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new TextureIORequest(callback, path, this)));
 }
 
-void AsynchronousResourceMgr::LoadFont(const std::string & path, int height, const ResourceCallback & callback)
+BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
 {
-	class FontIORequest : public IORequest
+	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
+
+	CheckRequest(path, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
+}
+
+class MeshIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	ArchiveDirMgr * m_arc;
+
+	CachePtr m_cache;
+
+	rapidxml::xml_document<char> m_doc;
+
+public:
+	MeshIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
 	{
-		std::string m_path;
-
-		int m_height;
-
-		ArchiveDirMgr * m_arc;
-
-		CachePtr m_cache;
-
-	public:
-		FontIORequest(const ResourceCallback & callback, const std::string & path, int height, ArchiveDirMgr * arc)
-			: m_path(path)
-			, m_height(height)
-			, m_arc(arc)
+		if(callback)
 		{
 			m_callbacks.push_back(callback);
 		}
+	}
 
-		virtual void DoLoad(void)
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
 		{
-			if(m_arc->CheckArchivePath(m_path))
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache->push_back(0);
+			try
 			{
-				m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+				m_doc.parse<0>((char *)&(*m_cache)[0]);
+			}
+			catch(rapidxml::parse_error & e)
+			{
+				THROW_CUSEXCEPTION(ms2ts(e.what()));
 			}
 		}
+	}
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_doc.first_node())
 		{
-			if(m_cache)
+			m_res.reset(new OgreMesh());
+			boost::static_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+		}
+	}
+};
+
+void AsynchronousResourceMgr::LoadMeshAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new MeshIORequest(callback, path, this)));
+}
+
+OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
+{
+	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
+
+	CheckRequest(path, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
+}
+
+class SkeletonIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	ArchiveDirMgr * m_arc;
+
+	CachePtr m_cache;
+
+	rapidxml::xml_document<char> m_doc;
+
+public:
+	SkeletonIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
+		{
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache->push_back(0);
+			try
 			{
-				m_res.reset(new Font());
-				boost::static_pointer_cast<Font>(m_res)->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+				m_doc.parse<0>((char *)&(*m_cache)[0]);
+			}
+			catch(rapidxml::parse_error & e)
+			{
+				THROW_CUSEXCEPTION(ms2ts(e.what()));
 			}
 		}
-	};
+	}
 
-	LoadResource(str_printf("%s, %d", path.c_str(), height), IORequestPtr(new FontIORequest(callback, path, height, this)));
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_doc.first_node())
+		{
+			m_res.reset(new OgreSkeletonAnimation());
+			boost::static_pointer_cast<OgreSkeletonAnimation>(m_res)->CreateOgreSkeletonAnimation(&m_doc);
+		}
+	}
+};
+
+void AsynchronousResourceMgr::LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
+}
+
+OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string & path)
+{
+	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
+
+	CheckRequest(path, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(request->m_res);
+}
+
+class AsynchronousResourceMgr::EffectIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	std::vector<D3DXMACRO> m_d3dmacros;
+
+	AsynchronousResourceMgr * m_arc;
+
+	CachePtr m_cache;
+
+public:
+	EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		EffectMacroPairList::const_iterator macro_iter = macros.begin();
+		for(; macro_iter != macros.end(); macro_iter++)
+		{
+			D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
+			m_d3dmacros.push_back(d3dmacro);
+		}
+		D3DXMACRO end = {0};
+		m_d3dmacros.push_back(end);
+
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
+		{
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_cache)
+		{
+			m_res.reset(new Effect());
+			boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+		}
+	}
+
+	static std::string BuildKey(const std::string & path, const EffectMacroPairList & macros)
+	{
+		std::ostrstream ostr;
+		ostr << path;
+		EffectMacroPairList::const_iterator macro_iter = macros.begin();
+		for(; macro_iter != macros.end(); macro_iter++)
+		{
+			ostr << ", " << macro_iter->first << ", " << macro_iter->second;
+		}
+		return ostr.str();
+	}
+};
+
+void AsynchronousResourceMgr::LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
+{
+	std::string key = EffectIORequest::BuildKey(path, macros);
+
+	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)));
+}
+
+EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros)
+{
+	std::string key = EffectIORequest::BuildKey(path, macros);
+
+	IORequestPtr request = LoadResourceAsync(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
+
+	CheckRequest(key, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<Effect>(request->m_res);
+}
+
+class FontIORequest : public IORequest
+{
+	std::string m_path;
+
+	int m_height;
+
+	ArchiveDirMgr * m_arc;
+
+	CachePtr m_cache;
+
+public:
+	FontIORequest(const ResourceCallback & callback, const std::string & path, int height, ArchiveDirMgr * arc)
+		: m_path(path)
+		, m_height(height)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckArchivePath(m_path))
+		{
+			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(m_cache)
+		{
+			m_res.reset(new Font());
+			boost::static_pointer_cast<Font>(m_res)->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+		}
+	}
+
+	static std::string BuildKey(const std::string & path, int height)
+	{
+		return str_printf("%s, %d", path.c_str(), height);
+	}
+};
+
+void AsynchronousResourceMgr::LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback)
+{
+	std::string key = FontIORequest::BuildKey(path, height);
+
+	LoadResourceAsync(key, IORequestPtr(new FontIORequest(callback, path, height, this)));
+}
+
+FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)
+{
+	std::string key = FontIORequest::BuildKey(path, height);
+
+	IORequestPtr request = LoadResourceAsync(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
+
+	CheckRequest(key, request, INFINITE);
+
+	return boost::dynamic_pointer_cast<Font>(request->m_res);
 }

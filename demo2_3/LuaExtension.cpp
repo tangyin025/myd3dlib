@@ -285,11 +285,6 @@ struct HelpFunc
 	{
 		obj->SetTexture(name, value);
 	}
-
-	static my::EffectPtr ResourceMgr_LoadEffect(my::ResourceMgr * obj, const std::string & path, bool reload)
-	{
-		return obj->LoadEffect(path, std::vector<std::pair<std::string, std::string> >(), reload);
-	}
 };
 
 void Export2Lua(lua_State * L)
@@ -795,8 +790,6 @@ void Export2Lua(lua_State * L)
 			.def("LoadSkeleton", &my::AsynchronousResourceMgr::LoadSkeleton)
 			.def("LoadEffect", &my::AsynchronousResourceMgr::LoadEffect)
 			.def("LoadFont", &my::AsynchronousResourceMgr::LoadFont)
-			// ! luabind unsupport default parameter
-			.def("LoadEffect", &HelpFunc::ResourceMgr_LoadEffect)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
 			.def_readwrite("Format", &D3DSURFACE_DESC::Format)
