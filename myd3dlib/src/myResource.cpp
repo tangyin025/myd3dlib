@@ -287,7 +287,7 @@ DWORD AsynchronousIOMgr::OnProc(void)
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(IORequest::IORequestStateNone == req_iter->second->m_state)
+			if(req_iter->second->m_LoadEvent.WaitEvent(0))
 			{
 				break;
 			}
@@ -295,10 +295,13 @@ DWORD AsynchronousIOMgr::OnProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListSection.Leave();
+
 			// ! havent handled any exception yet
 			req_iter->second->DoLoad();
+
+			req_iter->second->m_LoadEvent.SetEvent();
+
 			m_IORequestListSection.Enter();
-			req_iter->second->m_state = IORequest::IORequestStateLoaded;
 		}
 		else
 		{
@@ -316,7 +319,7 @@ void AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IOReq
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); req_iter++)
 	{
-		if(IORequest::IORequestStateNone == req_iter->second->m_state)
+		if(req_iter->first == key)
 		{
 			break;
 		}
@@ -498,7 +501,8 @@ void AsynchronousResourceMgr::LoadResource(const std::string & key, IORequestPtr
 		if(res)
 		{
 			request->m_res = res;
-			request->m_state = IORequest::IORequestStateLoaded;
+
+			request->m_LoadEvent.SetEvent();
 		}
 	}
 
@@ -511,7 +515,7 @@ void AsynchronousResourceMgr::CheckResource(void)
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); )
 	{
-		if(req_iter->second->m_state != IORequest::IORequestStateNone)
+		if(req_iter->second->m_LoadEvent.WaitEvent(0))
 		{
 			if(!req_iter->second->m_res)
 			{

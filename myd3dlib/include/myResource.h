@@ -170,13 +170,7 @@ namespace my
 	class IORequest
 	{
 	public:
-		enum IORequestState
-		{
-			IORequestStateNone = 0,
-			IORequestStateLoaded,
-		};
-
-		IORequestState m_state;
+		Event m_LoadEvent;
 
 		typedef std::vector<ResourceCallback> ResourceCallbackList;
 
@@ -186,7 +180,7 @@ namespace my
 
 	public:
 		IORequest(void)
-			: m_state(IORequestStateNone)
+			: m_LoadEvent(NULL, TRUE, FALSE, NULL)
 		{
 		}
 
