@@ -55,7 +55,6 @@ public:
 class GameStateMain
 	: public GameStateBase
 	, public boost::statechart::simple_state<GameStateMain, GameStateMachine>
-	, public my::EmitterMgr
 	, public PhysxScene
 {
 public:
@@ -70,8 +69,6 @@ public:
 	my::Texture2DPtr m_ShadowTextureRT;
 
 	my::SurfacePtr m_ShadowTextureDS;
-
-	boost::shared_ptr<my::Camera> m_Camera;
 
 	typedef std::vector<my::OgreMeshPtr> OgreMeshPtrList;
 

@@ -955,9 +955,10 @@ void Export2Lua(lua_State * L)
 
 		, class_<PhysxSample, bases<my::DxutApp, my::ResourceMgr> >("PhysxSample")
 
-		, class_<Game, bases<PhysxSample, my::TimerMgr, my::DialogMgr, my::MaterialMgr> >("Game")
+		, class_<Game, bases<PhysxSample, my::TimerMgr, my::DialogMgr, my::EmitterMgr, my::MaterialMgr> >("Game")
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
+			.def_readwrite("Camera", &Game::m_Camera)
 			.def("CurrentState", &Game::CurrentState)
 			.def("process_event", &Game::process_event)
 			.def("ExecuteCode", &Game::ExecuteCode)
@@ -971,8 +972,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<GameStateInit, GameStateBase>("GameStateInit")
 
-		, class_<GameStateMain, bases<GameStateBase, my::EmitterMgr> >("GameStateMain")
-			.def_readwrite("Camera", &GameStateMain::m_Camera)
+		, class_<GameStateMain, GameStateBase>("GameStateMain")
 			.def("InsertStaticMesh", &GameStateMain::InsertStaticMesh)
 			.def("InsertCharacter", &GameStateMain::InsertCharacter)
 

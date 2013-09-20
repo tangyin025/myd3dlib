@@ -67,7 +67,7 @@ namespace std
 // can derive from
 // max bases must at least be 1
 #ifndef LUABIND_MAX_BASES
-	#define LUABIND_MAX_BASES 4
+	#define LUABIND_MAX_BASES 5
 #elif LUABIND_MAX_BASES <= 0
 	#undef LUABIND_MAX_BASES
 	#define LUABIND_MAX_BASES 1

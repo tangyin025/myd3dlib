@@ -196,6 +196,8 @@ namespace my
 		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
+	typedef boost::shared_ptr<Camera> CameraPtr;
+
 	class ModelViewerCamera
 		: public Camera
 	{

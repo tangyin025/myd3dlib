@@ -86,8 +86,6 @@ HRESULT GameStateMain::OnCreateDevice(
 		return E_FAIL;
 	}
 
-	_ASSERT(m_Camera);
-
 	///************************************************************************/
 	///* ÎïÀí sample Ê¾Àý                                                     */
 	///************************************************************************/
@@ -207,9 +205,6 @@ HRESULT GameStateMain::OnResetDevice(
 	m_ShadowTextureDS->CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
-	if(m_Camera->EventAlign)
-		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
-
 	return S_OK;
 }
 
@@ -243,10 +238,6 @@ void GameStateMain::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	EmitterMgr::Update(fTime, fElapsedTime);
-
-	m_Camera->OnFrameMove(fTime, fElapsedTime);
-
 	CharacterPtrList::iterator character_iter = m_Characters.begin();
 	for(; character_iter != m_Characters.end(); character_iter++)
 	{
@@ -255,9 +246,9 @@ void GameStateMain::OnFrameMove(
 
 	D3DVIEWPORT9 vp;
 	Game::getSingleton().GetD3D9Device()->GetViewport(&vp);
-	PhysxScene::SetViewMatrix(m_Camera->m_View);
-	PhysxScene::SetProjMatrix(m_Camera->m_Proj);
-	PhysxScene::SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
+	PhysxScene::SetViewMatrix(Game::getSingleton().m_Camera->m_View);
+	PhysxScene::SetProjMatrix(Game::getSingleton().m_Camera->m_Proj);
+	PhysxScene::SetProjParams(Game::getSingleton().m_Camera->m_Nz, Game::getSingleton().m_Camera->m_Fz, Game::getSingleton().m_Camera->m_Fov, vp.Width, vp.Height);
 
 	PhysxScene::OnTickPreRender(fElapsedTime);
 }
@@ -319,16 +310,16 @@ void GameStateMain::OnFrameRender(
 		0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0, 161, 161, 161), 1, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&Game::getSingleton().m_Camera->m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Game::getSingleton().m_Camera->m_Proj);
 
 		Matrix4 World = Matrix4::Identity();
 		m_SimpleSample->SetFloat("g_Time", (float)fTime);
 		m_SimpleSample->SetMatrix("g_World", World);
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		m_SimpleSample->SetMatrix("g_ViewProj", Game::getSingleton().m_Camera->m_ViewProj);
 		m_SimpleSample->SetMatrix("g_ViewProjLS", LightViewProj);
-		m_SimpleSample->SetVector("g_EyePos", m_Camera->m_Position);
-		m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
+		m_SimpleSample->SetVector("g_EyePos", Game::getSingleton().m_Camera->m_Position);
+		m_SimpleSample->SetVector("g_EyePosOS", Game::getSingleton().m_Camera->m_Position.transformCoord(World.inverse()));
 		m_SimpleSample->SetVector("g_LightDir", LightDir);
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT);
@@ -355,8 +346,8 @@ void GameStateMain::OnFrameRender(
 				Matrix4::RotationQuaternion((*character_iter)->m_Rotation) *
 				Matrix4::Translation((*character_iter)->m_Position);
 			m_SimpleSample->SetMatrix("g_World", World);
-			m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-			m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
+			m_SimpleSample->SetMatrix("g_ViewProj", Game::getSingleton().m_Camera->m_ViewProj);
+			m_SimpleSample->SetVector("g_EyePosOS", Game::getSingleton().m_Camera->m_Position.transformCoord(World.inverse()));
 			m_SimpleSample->SetMatrixArray("g_dualquat", &(*character_iter)->m_dualQuaternionList[0], (*character_iter)->m_dualQuaternionList.size());
 			DWORD i = 0;
 			for(; i < (*character_iter)->m_Mesh->m_MaterialNameList.size(); i++)
@@ -374,10 +365,6 @@ void GameStateMain::OnFrameRender(
 		//m_DestructibleActor->updateRenderResources();
 		//m_DestructibleActor->dispatchRenderResources(Game::getSingleton().m_ApexRenderer);
 		//m_DestructibleActor->unlockRenderResources();
-
-		Game::getSingleton().m_EmitterInst->Begin();
-		EmitterMgr::Draw(Game::getSingleton().m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
-		Game::getSingleton().m_EmitterInst->End();
 
 		// ! The Right tick post render should be called after d3ddevice->present, for vertical sync reason
 		PhysxScene::OnTickPostRender(fElapsedTime);
@@ -397,16 +384,12 @@ LRESULT GameStateMain::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	LRESULT lr;
-	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-		return lr;
-
 	switch(uMsg)
 	{
 	case WM_RBUTTONUP:
 		CRect ClientRect;
 		GetClientRect(hWnd, &ClientRect);
-		std::pair<Vector3, Vector3> ray = m_Camera->CalculateRay(
+		std::pair<Vector3, Vector3> ray = Game::getSingleton().m_Camera->CalculateRay(
 			Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
 		PxVec3 rayOrigin(ray.first.x, ray.first.y, ray.first.z);

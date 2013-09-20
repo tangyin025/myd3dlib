@@ -248,6 +248,7 @@ class Game
 	: public PhysxSample
 	, public my::TimerMgr
 	, public my::DialogMgr
+	, public my::EmitterMgr
 	, public my::MaterialMgr
 	, public GameStateMachine
 {
@@ -263,6 +264,8 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
+
+	my::CameraPtr m_Camera;
 
 	my::InputPtr m_Input;
 

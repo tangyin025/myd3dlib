@@ -267,6 +267,8 @@ HRESULT Game::OnCreateDevice(
 		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
+	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+
 	GameStateMachine::initiate();
 
 	SafeCreateCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
@@ -295,6 +297,11 @@ HRESULT Game::OnResetDevice(
 	DialogMgr::SetDlgViewport(vp);
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
+
+	if(m_Camera->EventAlign)
+	{
+		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
+	}
 
 	SafeResetCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
 
@@ -349,7 +356,11 @@ void Game::OnFrameMove(
 
 	ResourceMgr::CheckResource();
 
+	m_Camera->OnFrameMove(fTime, fElapsedTime);
+
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
+
+	EmitterMgr::Update(fTime, fElapsedTime);
 
 	SafeFrameMoveCurrentState(fTime, fElapsedTime);
 }
@@ -369,6 +380,12 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		m_EmitterInst->Begin();
+
+		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
+
+		m_EmitterInst->End();
+
 		m_UIRender->Begin();
 
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
@@ -392,7 +409,8 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	if(m_Console && uMsg == WM_CHAR && (WCHAR)wParam == L'`')
+	if(m_Console
+		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
 		m_Console->SetVisible(!m_Console->GetVisible());
 		*pbNoFurtherProcessing = true;
@@ -405,8 +423,16 @@ LRESULT Game::MsgProc(
 	}
 
 	LRESULT lr;
-	if(lr = SafeMsgProcCurrentState(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	if(m_Camera
+		&& (lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing))
+	{
 		return lr;
+	}
+
+	if(lr = SafeMsgProcCurrentState(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	{
+		return lr;
+	}
 
 	return 0;
 }

@@ -13,7 +13,7 @@ local state=game:CurrentState()
 	-- local desc=game:GetD3D9BackBufferSurfaceDesc()
 	-- camera.Aspect=desc.Width/desc.Height
 -- end
--- state.Camera=camera
+-- game.Camera=camera
 
 local camera=FirstPersonCamera(math.rad(75),4/3.0,0.1,3000)
 local k=math.cos(math.rad(45))
@@ -24,7 +24,7 @@ camera.EventAlign=function(args)
 	local desc=game:GetD3D9BackBufferSurfaceDesc()
 	camera.Aspect=desc.Width/desc.Height
 end
-state.Camera=camera
+game.Camera=camera
 
 game:InsertMaterial("waterPhong", game:LoadMaterial("material/waterPhong.xml"))
 game:InsertMaterial("casual19_m_highpolyPhong", game:LoadMaterial("material/casual19_m_highpolyPhong.xml"))
@@ -61,4 +61,4 @@ state:InsertCharacter(character)
 -- emitter.ParticleSizeY:AddNode(0,1,0,0)
 -- emitter.ParticleSizeY:AddNode(10,10,0,0)
 -- emitter.Texture=game:LoadTexture("texture/flare.dds")
--- state:InsertEmitter(emitter)
+-- game:InsertEmitter(emitter)
