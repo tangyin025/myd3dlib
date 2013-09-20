@@ -128,7 +128,7 @@ DWORD BaseTexture::SetLOD(DWORD LODNew)
 	return m_ptr->SetLOD(LODNew);
 }
 
-void Texture::CreateTexture(
+void Texture2D::CreateTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -148,7 +148,7 @@ void Texture::CreateTexture(
 	Create(pTexture);
 }
 
-void Texture::CreateAdjustedTexture(
+void Texture2D::CreateAdjustedTexture(
 	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
@@ -168,7 +168,7 @@ void Texture::CreateAdjustedTexture(
 	Create(pTexture);
 }
 
-void Texture::CreateTextureFromFile(
+void Texture2D::CreateTextureFromFile(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	UINT Width,
@@ -194,7 +194,7 @@ void Texture::CreateTextureFromFile(
 	Create(pTexture);
 }
 
-void Texture::CreateTextureFromFileInMemory(
+void Texture2D::CreateTextureFromFileInMemory(
 	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
@@ -221,26 +221,26 @@ void Texture::CreateTextureFromFileInMemory(
 	Create(pTexture);
 }
 
-void Texture::AddDirtyRect(CONST CRect * pDirtyRect)
+void Texture2D::AddDirtyRect(CONST CRect * pDirtyRect)
 {
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->AddDirtyRect(pDirtyRect));
 }
 
-D3DSURFACE_DESC Texture::GetLevelDesc(UINT Level)
+D3DSURFACE_DESC Texture2D::GetLevelDesc(UINT Level)
 {
 	D3DSURFACE_DESC desc;
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetLevelDesc(Level, &desc));
 	return desc;
 }
 
-CComPtr<IDirect3DSurface9> Texture::GetSurfaceLevel(UINT Level)
+CComPtr<IDirect3DSurface9> Texture2D::GetSurfaceLevel(UINT Level)
 {
 	CComPtr<IDirect3DSurface9> Surface;
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->GetSurfaceLevel(Level, &Surface));
 	return Surface;
 }
 
-D3DLOCKED_RECT Texture::LockRect(const CRect & rect, DWORD Flags, UINT Level)
+D3DLOCKED_RECT Texture2D::LockRect(const CRect & rect, DWORD Flags, UINT Level)
 {
 	_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
 
@@ -252,7 +252,7 @@ D3DLOCKED_RECT Texture::LockRect(const CRect & rect, DWORD Flags, UINT Level)
 	return LockedRect;
 }
 
-void Texture::UnlockRect(UINT Level)
+void Texture2D::UnlockRect(UINT Level)
 {
 	V(static_cast<IDirect3DTexture9 *>(m_ptr)->UnlockRect(Level));
 }

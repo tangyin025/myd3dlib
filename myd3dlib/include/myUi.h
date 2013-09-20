@@ -46,7 +46,7 @@ namespace my
 
 		virtual void SetViewProj(const Matrix4 & ViewProj);
 
-		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+		virtual void SetTexture(const BaseTexturePtr & Texture);
 
 		virtual void ClearVertexList(void);
 
@@ -80,11 +80,11 @@ namespace my
 	class ControlImage
 	{
 	public:
-		TexturePtr m_Texture;
+		BaseTexturePtr m_Texture;
 
 		Vector4 m_Border;
 
-		ControlImage(TexturePtr Texture, const Vector4 & Border)
+		ControlImage(BaseTexturePtr Texture, const Vector4 & Border)
 			: m_Texture(Texture)
 			, m_Border(Border)
 		{

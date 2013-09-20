@@ -75,10 +75,10 @@ namespace my
 
 	typedef boost::shared_ptr<BaseTexture> BaseTexturePtr;
 
-	class Texture : public BaseTexture
+	class Texture2D : public BaseTexture
 	{
 	public:
-		Texture(void)
+		Texture2D(void)
 		{
 		}
 
@@ -142,7 +142,7 @@ namespace my
 		void UnlockRect(UINT Level = 0);
 	};
 
-	typedef boost::shared_ptr<Texture> TexturePtr;
+	typedef boost::shared_ptr<Texture2D> Texture2DPtr;
 
 	class CubeTexture : public BaseTexture
 	{

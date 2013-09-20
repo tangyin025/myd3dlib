@@ -63,11 +63,11 @@ public:
 
 	my::EffectPtr m_SimpleSample;
 
-	my::TexturePtr m_CheckerTexture;
+	my::BaseTexturePtr m_CheckerTexture;
 
 	my::EffectPtr m_ShadowMap;
 
-	my::TexturePtr m_ShadowTextureRT;
+	my::Texture2DPtr m_ShadowTextureRT;
 
 	my::SurfacePtr m_ShadowTextureDS;
 

@@ -42,7 +42,7 @@ void Sprite::Begin(DWORD Flags)
 	V(m_ptr->Begin(Flags));
 }
 
-void Sprite::Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
+void Sprite::Draw(Texture2DPtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color)
 {
 	V(m_ptr->Draw(static_cast<IDirect3DTexture9 *>(texture->m_ptr), &SrcRect, (D3DXVECTOR3 *)&Center, (D3DXVECTOR3 *)&Position, Color));
 }
@@ -294,17 +294,17 @@ void Font::CreateFontFromFileInCache(
 
 void Font::OnResetDevice(void)
 {
-	m_Texture.OnResetDevice();
+	m_Texture->OnResetDevice();
 }
 
 void Font::OnLostDevice(void)
 {
-	m_Texture.OnLostDevice();
+	m_Texture->OnLostDevice();
 }
 
 void Font::OnDestroyDevice(void)
 {
-	m_Texture.OnDestroyDevice();
+	m_Texture->OnDestroyDevice();
 
 	m_Device.Release();
 
@@ -317,11 +317,11 @@ void Font::OnDestroyDevice(void)
 
 void Font::CreateFontTexture(UINT Width, UINT Height)
 {
-	m_Texture.OnDestroyDevice();
+	m_Texture.reset(new Texture2D());
 
-	m_Texture.CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
+	m_Texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
-	m_textureDesc = m_Texture.GetLevelDesc();
+	m_textureDesc = m_Texture->GetLevelDesc();
 }
 
 void Font::AssignTextureRect(const CSize & size, CRect & outRect)
@@ -371,7 +371,7 @@ void Font::InsertCharacter(
 
 	if(!info.textureRect.IsRectEmpty())
 	{
-		D3DLOCKED_RECT lr = m_Texture.LockRect(info.textureRect);
+		D3DLOCKED_RECT lr = m_Texture->LockRect(info.textureRect);
 		for(int y = 0; y < bmpHeight; y++)
 		{
 			for(int x = 0; x < bmpWidth; x++)
@@ -379,7 +379,7 @@ void Font::InsertCharacter(
 				*((DWORD *)((unsigned char *)lr.pBits + y * lr.Pitch) + x) = D3DCOLOR_ARGB(*(bmpBuffer + y * bmpPitch + x),255,255,255);
 			}
 		}
-		m_Texture.UnlockRect();
+		m_Texture->UnlockRect();
 	}
 
 	m_characterMap.insert(std::make_pair(character, info));
@@ -504,7 +504,7 @@ void Font::DrawString(
 		pen.x += info.horiAdvance;
 	}
 
-	ui_render->SetTexture(m_Texture.m_ptr);
+	ui_render->SetTexture(m_Texture);
 	ui_render->DrawVertexList();
 }
 
@@ -529,7 +529,7 @@ void Font::DrawString(
 		V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 
 		V(pSprite->Draw(
-			(IDirect3DTexture9 *)m_Texture.m_ptr,
+			(IDirect3DTexture9 *)m_Texture->m_ptr,
 			&info.textureRect,
 			(D3DXVECTOR3 *)&Vector3(0, 0, 0),
 			(D3DXVECTOR3 *)&Vector3(pen.x + info.horiBearingX, pen.y - info.horiBearingY, 0),

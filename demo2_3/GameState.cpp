@@ -77,7 +77,7 @@ HRESULT GameStateMain::OnCreateDevice(
 
 	m_ShadowMap = Game::getSingleton().LoadEffect("shader/ShadowMap.fx", std::vector<std::pair<std::string, std::string> >());
 
-	m_ShadowTextureRT.reset(new my::Texture());
+	m_ShadowTextureRT.reset(new my::Texture2D());
 
 	m_ShadowTextureDS.reset(new my::Surface());
 
@@ -331,7 +331,7 @@ void GameStateMain::OnFrameRender(
 		m_SimpleSample->SetVector("g_EyePosOS", m_Camera->m_Position.transformCoord(World.inverse()));
 		m_SimpleSample->SetVector("g_LightDir", LightDir);
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT->m_ptr);
+		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT);
 		OgreMeshPtrList::iterator mesh_iter = m_StaticMeshes.begin();
 		for(; mesh_iter != m_StaticMeshes.end(); mesh_iter++)
 		{

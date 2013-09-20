@@ -34,7 +34,7 @@ public:
 
 	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
-	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+	virtual void SetTexture(const my::BaseTexturePtr & Texture);
 
 	virtual void DrawVertexList(void);
 };
@@ -62,7 +62,7 @@ public:
 
 	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
-	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+	virtual void SetTexture(const my::BaseTexturePtr & Texture);
 
 	virtual void SetDirection(const my::Vector3 & Dir, const my::Vector3 & Up, const my::Vector3 & Right);
 
@@ -258,7 +258,7 @@ public:
 
 	my::EmitterInstancePtr m_EmitterInst;
 
-	my::TexturePtr m_WhiteTex;
+	my::BaseTexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;
 

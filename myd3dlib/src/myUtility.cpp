@@ -816,7 +816,7 @@ void EffectParameter<std::string>::SetParameter(Effect * pEffect, const std::str
 template <>
 void EffectParameter<BaseTexturePtr>::SetParameter(Effect * pEffect, const std::string & Name) const
 {
-	pEffect->SetTexture(Name.c_str(), m_Value ? m_Value->m_ptr : NULL);
+	pEffect->SetTexture(Name.c_str(), m_Value);
 }
 
 void EffectParameterMap::SetBool(const std::string & Name, bool Value)

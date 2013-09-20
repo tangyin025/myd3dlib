@@ -390,13 +390,12 @@ void DeviceRelatedResourceMgr::OnLostDevice(void)
 void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end();)
+	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
 	{
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
 			res->OnDestroyDevice();
-			res_iter++;
 		}
 	}
 	m_ResourceWeakSet.clear();
@@ -585,8 +584,8 @@ public:
 				switch(imif.ResourceType)
 				{
 				case D3DRTYPE_TEXTURE:
-					m_res.reset(new Texture());
-					boost::static_pointer_cast<Texture>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+					m_res.reset(new Texture2D());
+					boost::static_pointer_cast<Texture2D>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
 					break;
 				case D3DRTYPE_CUBETEXTURE:
 					m_res.reset(new CubeTexture());

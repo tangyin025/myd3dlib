@@ -5,6 +5,7 @@
 #include "myMath.h"
 #include "mySingleton.h"
 #include <boost/shared_ptr.hpp>
+#include <myTexture.h>
 
 namespace my
 {
@@ -268,7 +269,7 @@ namespace my
 
 		void SetString(D3DXHANDLE hParameter, LPCSTR pString);
 
-		void SetTexture(D3DXHANDLE hParameter, LPDIRECT3DBASETEXTURE9 pTexture);
+		void SetTexture(D3DXHANDLE hParameter, const BaseTexturePtr & Texture);
 
 		void SetValue(D3DXHANDLE hParameter, LPCVOID pData, UINT Bytes);
 

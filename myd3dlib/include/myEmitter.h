@@ -69,7 +69,7 @@ namespace my
 
 		unsigned char m_ParticleAnimRow;
 
-		TexturePtr m_Texture;
+		BaseTexturePtr m_Texture;
 
 	public:
 		Emitter(void)
@@ -209,7 +209,7 @@ namespace my
 		{
 		}
 
-		virtual void SetTexture(IDirect3DBaseTexture9 * pTexture)
+		virtual void SetTexture(const BaseTexturePtr & Texture)
 		{
 		}
 

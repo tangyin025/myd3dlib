@@ -265,26 +265,6 @@ struct HelpFunc
 	{
 		return D3DCOLOR_ARGB(a,r,g,b);
 	}
-
-	static void BaseEffect_SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::TexturePtr texture)
-	{
-		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
-	}
-
-	static void BaseEffect_SetTexture(my::BaseEffect * obj, D3DXHANDLE hParameter, my::CubeTexturePtr texture)
-	{
-		obj->SetTexture(hParameter, texture ? texture->m_ptr : NULL);
-	}
-
-	static void EffectParameterMap_SetTexture(my::EffectParameterMap * obj, const std::string & name, my::TexturePtr value)
-	{
-		obj->SetTexture(name, value);
-	}
-
-	static void EffectParameterMap_SetTexture(my::EffectParameterMap * obj, const std::string & name, my::CubeTexturePtr value)
-	{
-		obj->SetTexture(name, value);
-	}
 };
 
 void Export2Lua(lua_State * L)
@@ -509,7 +489,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
-		, class_<my::Texture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture")
+		, class_<my::Texture2D, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("Texture2D")
 
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
 
@@ -574,8 +554,7 @@ void Export2Lua(lua_State * L)
 			.def("SetMatrixTransposePointerArray", &my::BaseEffect::SetMatrixTransposePointerArray)
 			.def("SetString", &my::BaseEffect::SetString)
 			// ! luabind cannot convert boost::shared_ptr<Derived Class> to base ptr
-			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::TexturePtr))&HelpFunc::BaseEffect_SetTexture)
-			.def("SetTexture", (void (*)(my::BaseEffect *, D3DXHANDLE, my::CubeTexturePtr))&HelpFunc::BaseEffect_SetTexture)
+			.def("SetTexture", &my::BaseEffect::SetTexture)
 			.def("SetValue", &my::BaseEffect::SetValue)
 			.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector4 &))&my::BaseEffect::SetVector)
 			.def("SetVector", (void (my::BaseEffect::*)(D3DXHANDLE, const my::Vector3 &))&my::BaseEffect::SetVector)
@@ -631,7 +610,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<my::TexturePtr, const my::Vector4 &>())
+			.def(constructor<my::BaseTexturePtr, const my::Vector4 &>())
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())
@@ -785,7 +764,6 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::AsynchronousResourceMgr>("AsynchronousResourceMgr")
 			.def("LoadTexture", &my::AsynchronousResourceMgr::LoadTexture)
-			.def("LoadCubeTexture", &my::AsynchronousResourceMgr::LoadCubeTexture)
 			.def("LoadMesh", &my::AsynchronousResourceMgr::LoadMesh)
 			.def("LoadSkeleton", &my::AsynchronousResourceMgr::LoadSkeleton)
 			.def("LoadEffect", &my::AsynchronousResourceMgr::LoadEffect)

@@ -34,7 +34,7 @@ void StaticMeshTreeNode::DrawStaticMeshTreeNode(
 
 	pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
 	pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
-	pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex->m_ptr);
+	pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex);
 	UINT cPasses = pSimpleSample->Begin();
 	for(UINT p = 0; p < cPasses; p++)
 	{

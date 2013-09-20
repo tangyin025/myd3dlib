@@ -16,7 +16,7 @@
 			<Texture path="texture/casual19_m_35_spec.png"/>
 		</parameter>
 		<parameter name="g_CubeTexture">
-			<CubeTexture path="texture/galileo_cross.dds"/>
+			<Texture path="texture/galileo_cross.dds"/>
 		</parameter>
 	</shader>
 </material>

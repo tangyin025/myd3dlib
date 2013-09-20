@@ -120,7 +120,7 @@
 //
 //	my::OgreMeshPtr m_characterMesh;
 //
-//	my::TexturePtr m_characterTexture;
+//	my::Texture2DPtr m_characterTexture;
 //
 //	my::EffectPtr m_characterEffect;
 //
@@ -128,11 +128,11 @@
 //
 //	my::OgreMeshPtr m_sceneMesh;
 //
-//	my::TexturePtr m_sceneTexture;
+//	my::Texture2DPtr m_sceneTexture;
 //
 //	static const unsigned int SHADOWMAP_SIZE = 1024;
 //
-//	my::TexturePtr m_shadowMapRT;
+//	my::Texture2DPtr m_shadowMapRT;
 //
 //	my::SurfacePtr m_shadowMapDS;
 //
@@ -260,7 +260,7 @@
 //		m_camera.m_Aspect = fAspectRatio;
 //
 //		// 创建用于shadow map的render target，使用D3DXCreateTexture可以为不支持设备创建兼容贴图
-//		m_shadowMapRT.reset(new my::Texture());
+//		m_shadowMapRT.reset(new my::Texture2D());
 //		m_shadowMapRT->CreateAdjustedTexture(
 //			pd3dDevice,
 //			SHADOWMAP_SIZE,

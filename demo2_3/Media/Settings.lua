@@ -54,7 +54,7 @@ local lbl_title=Control()
 lbl_title.Location=Vector2(17,13)
 lbl_title.Size=Vector2(256,42)
 lbl_title.Color=ARGB(255,255,255,255)
-lbl_title.Skin.Image=ControlImage(game:LoadTexture("texture/Direct3D Settings.png",false),Vector4(0,0,0,0))
+lbl_title.Skin.Image=ControlImage(game:LoadTexture("texture/Direct3D Settings.png"),Vector4(0,0,0,0))
 dlg:InsertControl(lbl_title)
 
 local local_device_settings=nil

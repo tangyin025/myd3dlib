@@ -27,7 +27,7 @@ public:
 
 	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
-	virtual void SetTexture(IDirect3DBaseTexture9 * pTexture);
+	virtual void SetTexture(const my::BaseTexturePtr & Texture);
 
 	virtual void DrawVertexList(void);
 };
@@ -80,7 +80,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::TexturePtr m_WhiteTex;
+	my::BaseTexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;
 

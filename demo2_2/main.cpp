@@ -28,7 +28,7 @@ public:
 
 	void foo(my::DeviceRelatedObjectBasePtr res)
 	{
-		//my::TexturePtr tex = boost::dynamic_pointer_cast<my::Texture>(res);
+		//my::Texture2DPtr tex = boost::dynamic_pointer_cast<my::Texture2D>(res);
 
 		//my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
 
@@ -55,7 +55,7 @@ public:
 
 		//LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&MyDemo::foo, this, _1));
 
-		//my::BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
+		my::BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
 
 		//LoadMeshAsync(("sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
 

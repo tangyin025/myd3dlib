@@ -85,7 +85,7 @@ void Emitter::Draw(
 {
 	DWORD ParticleCount = BuildInstance(pEmitterInstance, fTime, fElapsedTime);
 
-	pEmitterInstance->SetTexture(m_Texture ? m_Texture->m_ptr : NULL);
+	pEmitterInstance->SetTexture(m_Texture);
 
 	pEmitterInstance->SetAnimationColumnRow(m_ParticleAnimColumn, m_ParticleAnimRow);
 

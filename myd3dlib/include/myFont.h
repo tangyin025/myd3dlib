@@ -30,7 +30,7 @@ namespace my
 
 		void Begin(DWORD Flags = D3DXSPRITE_ALPHABLEND);
 
-		void Draw(TexturePtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color);
+		void Draw(Texture2DPtr texture, const CRect & SrcRect, const Vector3 & Center, const Vector3 & Position, D3DCOLOR Color);
 
 		void End(void);
 
@@ -140,7 +140,7 @@ namespace my
 
 		CharacterMap m_characterMap;
 
-		Texture m_Texture;
+		Texture2DPtr m_Texture;
 
 		D3DSURFACE_DESC m_textureDesc;
 

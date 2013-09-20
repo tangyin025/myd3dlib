@@ -44,12 +44,12 @@ void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
 	}
 }
 
-void EffectUIRender::SetTexture(IDirect3DBaseTexture9 * pTexture)
+void EffectUIRender::SetTexture(const my::BaseTexturePtr & Texture)
 {
 	if(m_UIEffect->m_ptr)
 	{
 		_ASSERT(Game::getSingleton().m_WhiteTex);
-		m_UIEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+		m_UIEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
 	}
 }
 
@@ -100,12 +100,12 @@ void EffectEmitterInstance::SetViewProj(const my::Matrix4 & ViewProj)
 	}
 }
 
-void EffectEmitterInstance::SetTexture(IDirect3DBaseTexture9 * pTexture)
+void EffectEmitterInstance::SetTexture(const my::BaseTexturePtr & Texture)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
 		_ASSERT(Game::getSingleton().m_WhiteTex);
-		m_ParticleEffect->SetTexture("g_MeshTexture", pTexture ? pTexture : Game::getSingleton().m_WhiteTex->m_ptr);
+		m_ParticleEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
 	}
 }
 
@@ -346,6 +346,8 @@ void Game::OnFrameMove(
 	m_Keyboard->Capture();
 
 	m_Mouse->Capture();
+
+	ResourceMgr::CheckResource();
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
