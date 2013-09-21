@@ -3,9 +3,7 @@ module("Settings",package.seeall)
 dlg=Dialog()
 dlg.Color=ARGB(150,0,0,0)
 dlg.Size=Vector2(640,480)
-dlg.Skin.Font=game.Font
-dlg.Skin.TextColor=ARGB(255,255,255,255)
-dlg.Skin.TextAlign=Font.AlignLeftTop
+dlg.Skin=CommonUI.com_lbl_skin
 dlg.EventAlign=function(args)
 	dlg.Location=(game.DlgViewport-dlg.Size)*0.5
 end

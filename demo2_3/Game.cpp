@@ -255,6 +255,8 @@ HRESULT Game::OnCreateDevice(
 		m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 	}
 
+	ExecuteCode("dofile \"GameStateMain.lua\"");
+
 	return S_OK;
 }
 
