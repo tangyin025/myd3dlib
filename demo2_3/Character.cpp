@@ -1,6 +1,6 @@
 #include "StdAfx.h"
 #include "Character.h"
-#include "GameState.h"
+#include "Game.h"
 
 void Character::OnFrameMove(double fTime, float fElapsedTime)
 {

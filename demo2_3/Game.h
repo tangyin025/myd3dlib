@@ -1,13 +1,6 @@
 #pragma once
 
 #include "Console.h"
-#pragma warning(disable: 4819)
-#include <boost/statechart/event.hpp>
-#include <boost/statechart/state_machine.hpp>
-#include <boost/statechart/simple_state.hpp>
-#include <boost/statechart/transition.hpp>
-#pragma warning(default: 4819)
-#include "PhysxSample.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -71,186 +64,13 @@ public:
 	virtual void DrawInstance(DWORD NumInstances);
 };
 
-class GameStateBase
-{
-private:
-	friend class GameStateMachine;
-
-	bool m_DeviceObjectsCreated;
-
-	bool m_DeviceObjectsReset;
-
-public:
-	HRESULT hr;
-
-	GameStateBase(void) throw ()
-		: m_DeviceObjectsCreated(false)
-		, m_DeviceObjectsReset(false)
-	{
-	}
-
-	virtual ~GameStateBase(void)
-	{
-	}
-
-	virtual HRESULT OnCreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
-	virtual HRESULT OnResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		return S_OK;
-	}
-
-	virtual void OnLostDevice(void)
-	{
-	}
-
-	virtual void OnDestroyDevice(void)
-	{
-	}
-
-	virtual void OnFrameMove(
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
-	virtual void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
-	}
-
-	virtual LRESULT MsgProc(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam,
-		bool * pbNoFurtherProcessing)
-	{
-		return 0;
-	}
-};
-
-class GameStateInit;
-
-class GameStateMachine
-	: public boost::statechart::state_machine<GameStateMachine, GameStateInit>
-{
-public:
-	GameStateBase * CurrentState(void)
-	{
-		return const_cast<GameStateBase *>(state_cast<const GameStateBase *>());
-	}
-
-	void process_event(const boost::statechart::event_base & evt)
-	{
-		SafeLostCurrentState();
-		SafeDestroyCurrentState();
-		state_machine::process_event(evt);
-		SafeCreateCurrentState(my::DxutApp::getSingleton().GetD3D9Device(), &my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc());
-		SafeResetCurrentState(my::DxutApp::getSingleton().GetD3D9Device(), &my::DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc());
-	}
-
-	void SafeCreateCurrentState(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && !cs->m_DeviceObjectsCreated)
-		{
-			_ASSERT(!cs->m_DeviceObjectsReset);
-			if(SUCCEEDED(cs->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-				cs->m_DeviceObjectsCreated = true;
-		}
-	}
-
-	void SafeResetCurrentState(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsCreated && !cs->m_DeviceObjectsReset)
-		{
-			if(SUCCEEDED(cs->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-				cs->m_DeviceObjectsReset = true;
-		}
-	}
-
-	void SafeLostCurrentState(void)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsCreated && cs->m_DeviceObjectsReset)
-		{
-			cs->OnLostDevice();
-			cs->m_DeviceObjectsReset = false;
-		}
-	}
-
-	void SafeDestroyCurrentState(void)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsCreated)
-		{
-			_ASSERT(!cs->m_DeviceObjectsReset);
-			cs->OnDestroyDevice();
-			cs->m_DeviceObjectsCreated = false;
-		}
-	}
-
-	void SafeFrameMoveCurrentState(
-		double fTime,
-		float fElapsedTime)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsReset)
-		{
-			cs->OnFrameMove(fTime, fElapsedTime);
-		}
-	}
-
-	void SafeFrameRenderCurrentState(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsReset)
-		{
-			cs->OnFrameRender(pd3dDevice, fTime, fElapsedTime);
-		}
-	}
-
-	LRESULT SafeMsgProcCurrentState(
-		HWND hWnd,
-		UINT uMsg,
-		WPARAM wParam,
-		LPARAM lParam,
-		bool * pbNoFurtherProcessing)
-	{
-		GameStateBase * cs = CurrentState();
-		if(cs && cs->m_DeviceObjectsReset)
-		{
-			return cs->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing);
-		}
-		return 0;
-	}
-};
-
 class Game
-	: public PhysxSample
+	: public my::DxutApp
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::EmitterMgr
+	, public my::ResourceMgr
 	, public my::MaterialMgr
-	, public GameStateMachine
 {
 public:
 	my::LuaContextPtr m_lua;
@@ -287,7 +107,7 @@ public:
 
 	static Game * getSingletonPtr(void)
 	{
-		return static_cast<Game *>(PhysxSample::getSingletonPtr());
+		return static_cast<Game *>(DxutApp::getSingletonPtr());
 	}
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))

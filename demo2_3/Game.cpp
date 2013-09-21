@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "GameState.h"
 #include "LuaExtension.h"
 
 #ifdef _DEBUG
@@ -154,14 +153,6 @@ Game::Game(void)
 
 Game::~Game(void)
 {
-	// ! All delegated object must have been destroyed before destruct m_lua
-	GameStateMachine::terminate();
-
-	m_dlgSetMap.clear();
-
-	RemoveAllTimer();
-
-	ImeEditBox::Uninitialize();
 }
 
 bool Game::IsDeviceAcceptable(
@@ -201,14 +192,6 @@ bool Game::ModifyDeviceSettings(
 	// ! Fix lua print(0xffffffff) issue, ref: http://www.lua.org/bugs.html#5.1-3
 	pDeviceSettings->BehaviorFlags |= D3DCREATE_FPU_PRESERVE;
 
-	static bool s_bFirstTime = true;
-	if( s_bFirstTime )
-	{
-		s_bFirstTime = false;
-		//if( pDeviceSettings->DeviceType == D3DDEVTYPE_REF )
-		//	DXUTDisplaySwitchingToREFWarning( pDeviceSettings->ver );
-	}
-
 	return true;
 }
 
@@ -220,7 +203,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	if(FAILED(hr = PhysxSample::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -239,8 +222,6 @@ HRESULT Game::OnCreateDevice(
 	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
 
 	m_Console = ConsolePtr(new Console());
-
-	m_Console->SetVisible(false);
 
 	m_dlgSetMap[1].push_back(m_Console);
 
@@ -267,11 +248,10 @@ HRESULT Game::OnCreateDevice(
 		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
-	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
-
-	GameStateMachine::initiate();
-
-	SafeCreateCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
+	if(!m_Camera)
+	{
+		m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+	}
 
 	return S_OK;
 }
@@ -282,7 +262,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = PhysxSample::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -303,8 +283,6 @@ HRESULT Game::OnResetDevice(
 		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
 	}
 
-	SafeResetCurrentState(pd3dDevice, pBackBufferSurfaceDesc);
-
 	return S_OK;
 }
 
@@ -312,20 +290,14 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	SafeLostCurrentState();
-
 	m_EmitterInst->OnLostDevice();
 
-	PhysxSample::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	SafeDestroyCurrentState();
-
-	GameStateMachine::terminate();
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
@@ -341,7 +313,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	PhysxSample::OnDestroyDevice();
+	ResourceMgr::OnDestroyDevice();
 
 	ImeEditBox::Uninitialize();
 }
@@ -361,8 +333,6 @@ void Game::OnFrameMove(
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
 	EmitterMgr::Update(fTime, fElapsedTime);
-
-	SafeFrameMoveCurrentState(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -373,10 +343,7 @@ void Game::OnFrameRender(
 	// ! 为什么要顺时针，右手系应该是逆时针
 	pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
 
-	if(CurrentState())
-		SafeFrameRenderCurrentState(pd3dDevice, fTime, fElapsedTime);
-	else
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -425,11 +392,6 @@ LRESULT Game::MsgProc(
 	LRESULT lr;
 	if(m_Camera
 		&& (lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing))
-	{
-		return lr;
-	}
-
-	if(lr = SafeMsgProcCurrentState(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 	{
 		return lr;
 	}

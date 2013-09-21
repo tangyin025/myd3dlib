@@ -100,11 +100,11 @@ Thread::~Thread(void)
 {
 	if(NULL != m_hThread)
 	{
-		_ASSERT(WAIT_TIMEOUT != ::WaitForSingleObject(m_hThread, 0));
+		//_ASSERT(WAIT_TIMEOUT != ::WaitForSingleObject(m_hThread, 1000));
 
 		//// The thread object remains in the system until the thread has terminated
 		//// and all handles to it have been closed through a call to CloseHandle.
-		//::CloseHandle(m_hThread);
+		::CloseHandle(m_hThread);
 	}
 }
 

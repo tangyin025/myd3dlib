@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "LuaExtension.h"
 #include "Game.h"
-#include "GameState.h"
 
 static int lua_print(lua_State * L)
 {
@@ -900,32 +899,10 @@ void Export2Lua(lua_State * L)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
-		, class_<my::TimerMgr>("TimerMgr")
-			.def("AddTimer", &my::TimerMgr::AddTimer)
-			.def("InsertTimer", &my::TimerMgr::InsertTimer)
-			.def("RemoveTimer", &my::TimerMgr::RemoveTimer)
-			.def("RemoveAllTimer", &my::TimerMgr::RemoveAllTimer)
-
-		, class_<my::DialogMgr>("DialogMgr")
-			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)
-			.def("InsertDlg", &my::DialogMgr::InsertDlg)
-			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
-			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
-
-		, class_<my::EmitterMgr>("EmitterMgr")
-			.def("InsertEmitter", &my::EmitterMgr::InsertEmitter)
-			.def("RemoveEmitter", &my::EmitterMgr::RemoveEmitter)
-			.def("RemoveAllEmitter", &my::EmitterMgr::RemoveAllEmitter)
-
-		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
-
-		, class_<my::MaterialMgr>("MaterialMgr")
-			.def("InsertMaterial", &my::MaterialMgr::InsertMaterial)
-			.def("RemoveMaterial", &my::MaterialMgr::RemoveMaterial)
-			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
-
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
 			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
+
+		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
@@ -953,38 +930,25 @@ void Export2Lua(lua_State * L)
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Rotation", &my::FirstPersonCamera::m_Rotation)
 
-		, class_<PhysxSample, bases<my::DxutApp, my::ResourceMgr> >("PhysxSample")
-
-		, class_<Game, bases<PhysxSample, my::TimerMgr, my::DialogMgr, my::EmitterMgr, my::MaterialMgr> >("Game")
+		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
+			.def("AddTimer", &my::TimerMgr::AddTimer)
+			.def("InsertTimer", &my::TimerMgr::InsertTimer)
+			.def("RemoveTimer", &my::TimerMgr::RemoveTimer)
+			.def("RemoveAllTimer", &my::TimerMgr::RemoveAllTimer)
+			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)
+			.def("InsertDlg", &my::DialogMgr::InsertDlg)
+			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
+			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
+			.def("InsertEmitter", &my::EmitterMgr::InsertEmitter)
+			.def("RemoveEmitter", &my::EmitterMgr::RemoveEmitter)
+			.def("RemoveAllEmitter", &my::EmitterMgr::RemoveAllEmitter)
+			.def("InsertMaterial", &my::MaterialMgr::InsertMaterial)
+			.def("RemoveMaterial", &my::MaterialMgr::RemoveMaterial)
+			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
 			.def_readwrite("Font", &Game::m_Font)
 			.def_readwrite("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
-			.def("CurrentState", &Game::CurrentState)
-			.def("process_event", &Game::process_event)
 			.def("ExecuteCode", &Game::ExecuteCode)
-
-		, class_<boost::statechart::event_base>("event_base")
-
-		, class_<GameEventInit, boost::statechart::event_base>("GameEventInit")
-			.def(constructor<>())
-
-		, class_<GameStateBase>("GameStateBase")
-
-		, class_<GameStateInit, GameStateBase>("GameStateInit")
-
-		, class_<GameStateMain, GameStateBase>("GameStateMain")
-			.def("InsertStaticMesh", &GameStateMain::InsertStaticMesh)
-			.def("InsertCharacter", &GameStateMain::InsertCharacter)
-
-		, class_<Character, boost::shared_ptr<Character> >("Character")
-			.def(constructor<>())
-			.def_readwrite("Mesh", &Character::m_Mesh)
-			.def_readwrite("Skeleton", &Character::m_Skeleton)
-			.def_readwrite("Position", &Character::m_Position)
-			.def_readwrite("Rotation", &Character::m_Rotation)
-			.def_readwrite("Scale", &Character::m_Scale)
-			.def_readwrite("State", &Character::m_State)
-			.def_readwrite("StateTime", &Character::m_StateTime)
 
 		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
 			.def(constructor<>())
