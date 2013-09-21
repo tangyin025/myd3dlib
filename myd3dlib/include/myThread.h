@@ -6,6 +6,7 @@
 #include <atltypes.h>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/function.hpp>
 
 namespace my
 {
@@ -73,18 +74,19 @@ namespace my
 		void Wake(void);
 	};
 
+	typedef boost::function<DWORD (void)> ThreadCallback;
+
 	class Thread
 	{
 	protected:
 		HANDLE m_hThread;
 
-	protected:
+		ThreadCallback m_Callback;
+
 		static DWORD WINAPI ThreadProc(__in LPVOID lpParameter);
 
-		virtual DWORD OnProc(void) = 0;
-
 	public:
-		Thread(void);
+		Thread(const ThreadCallback & Callback);
 
 		~Thread(void);
 

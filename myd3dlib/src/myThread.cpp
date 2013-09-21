@@ -88,11 +88,12 @@ DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)
 {
 	Thread * pThread = reinterpret_cast<Thread *>(lpParameter);
 
-	return pThread->OnProc();
+	return pThread->m_Callback ? pThread->m_Callback() : 0;
 }
 
-Thread::Thread(void)
+Thread::Thread(const ThreadCallback & Callback)
 	: m_hThread(NULL)
+	, m_Callback(Callback)
 {
 }
 

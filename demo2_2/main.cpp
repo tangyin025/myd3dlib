@@ -63,7 +63,7 @@ public:
 
 		//my::EffectPtr eff = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
-		//LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
+		LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
 
 		my::MaterialPtr mat = LoadMaterial("material/lambert1.xml");
 

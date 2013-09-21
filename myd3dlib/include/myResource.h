@@ -192,7 +192,7 @@ namespace my
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
 
-	class AsynchronousIOMgr : public ArchiveDirMgr , public Thread
+	class AsynchronousIOMgr : public ArchiveDirMgr
 	{
 	protected:
 		typedef std::list<std::pair<std::string, IORequestPtr> > IORequestPtrPairList;
@@ -205,15 +205,16 @@ namespace my
 
 		bool m_bStopped;
 
-	public:
-		AsynchronousIOMgr(void)
-			: m_bStopped(false)
-		{
-		}
+		Thread m_Thread;
 
-		virtual DWORD OnProc(void);
+	public:
+		AsynchronousIOMgr(void);
+
+		DWORD IORequestProc(void);
 
 		my::IORequestPtr PushIORequestResource(const std::string & key, my::IORequestPtr request);
+
+		void StartIORequestProc(void);
 
 		void StopIORequestProc(void);
 	};

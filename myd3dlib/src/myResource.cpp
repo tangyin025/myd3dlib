@@ -3,6 +3,7 @@
 #include "myDxutApp.h"
 #include "libc.h"
 #include <strstream>
+#include <boost/bind.hpp>
 
 using namespace my;
 
@@ -275,7 +276,13 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), ms2ts(path).c_str()));
 }
 
-DWORD AsynchronousIOMgr::OnProc(void)
+AsynchronousIOMgr::AsynchronousIOMgr(void)
+	: m_bStopped(false)
+	, m_Thread(boost::bind(&AsynchronousIOMgr::IORequestProc, this))
+{
+}
+
+DWORD AsynchronousIOMgr::IORequestProc(void)
 {
 	m_IORequestListSection.Enter();
 	while(!m_bStopped)
@@ -331,6 +338,12 @@ IORequestPtr AsynchronousIOMgr::PushIORequestResource(const std::string & key, m
 	m_IORequestListSection.Leave();
 	m_IORequestListCondition.Wake();
 	return request;
+}
+
+void AsynchronousIOMgr::StartIORequestProc(void)
+{
+	m_Thread.CreateThread();
+	m_Thread.ResumeThread();
 }
 
 void AsynchronousIOMgr::StopIORequestProc(void)
@@ -416,9 +429,7 @@ HRESULT AsynchronousResourceMgr::OnCreateDevice(
 		return hr;
 	}
 
-	CreateThread();
-
-	ResumeThread();
+	StartIORequestProc();
 
 	return S_OK;
 }
@@ -448,7 +459,7 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 
 	m_EffectPool.Release();
 
-	WaitForThreadStopped();
+	AsynchronousIOMgr::m_Thread.WaitForThreadStopped(INFINITE);
 }
 
 HRESULT AsynchronousResourceMgr::Open(
