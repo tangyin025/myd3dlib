@@ -385,6 +385,57 @@ void Export2Lua(lua_State * L)
 			.def("transform", &my::Vector4::transform)
 			.def("transformTranspose", &my::Vector4::transformTranspose)
 
+		, class_<my::Rectangle, boost::shared_ptr<my::Rectangle> >("Rectangle")
+			.def(constructor<float, float, float, float>())
+			.def_readwrite("l", &my::Rectangle::l)
+			.def_readwrite("t", &my::Rectangle::t)
+			.def_readwrite("r", &my::Rectangle::r)
+			.def_readwrite("b", &my::Rectangle::b)
+			.def("intersect", &my::Rectangle::intersect)
+			.def("intersectSelf", &my::Rectangle::intersectSelf)
+			.def("Union", &my::Rectangle::Union)
+			.def("unionSelf", &my::Rectangle::unionSelf)
+			.def("offset", (my::Rectangle (my::Rectangle::*)(float, float) const)&my::Rectangle::offset)
+			.def("offsetSelf", (my::Rectangle & (my::Rectangle::*)(float, float))&my::Rectangle::offsetSelf)
+			.def("offset", (my::Rectangle (my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::offset)
+			.def("offsetSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector2 &))&my::Rectangle::offsetSelf)
+			.def("shrink", (my::Rectangle (my::Rectangle::*)(float, float) const)&my::Rectangle::shrink)
+			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(float, float))&my::Rectangle::shrinkSelf)
+			.def("shrink", (my::Rectangle (my::Rectangle::*)(const my::Vector2 &) const)&my::Rectangle::shrink)
+			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector2 &))&my::Rectangle::shrinkSelf)
+			.def("shrink", (my::Rectangle (my::Rectangle::*)(float, float, float, float) const)&my::Rectangle::shrink)
+			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(float, float, float, float))&my::Rectangle::shrinkSelf)
+			.def("shrink", (my::Rectangle (my::Rectangle::*)(const my::Vector4 &) const)&my::Rectangle::shrink)
+			.def("shrinkSelf", (my::Rectangle & (my::Rectangle::*)(const my::Vector4 &))&my::Rectangle::shrinkSelf)
+			.def("LeftTop", (my::Vector2 (my::Rectangle::*)(void) const)&my::Rectangle::LeftTop)
+			.def("RightBottom", (my::Vector2 (my::Rectangle::*)(void) const)&my::Rectangle::RightBottom)
+			.def("Center", &my::Rectangle::Center)
+			.def("Width", &my::Rectangle::Width)
+			.def("Height", &my::Rectangle::Height)
+			.def("Extent", &my::Rectangle::Extent)
+			.def("PtInRect", &my::Rectangle::PtInRect)
+			.scope
+			[
+				def("LeftTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftTop),
+				def("LeftTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftTop),
+				def("LeftMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftMiddle),
+				def("LeftMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftMiddle),
+				def("LeftBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::LeftBottom),
+				def("LeftBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::LeftBottom),
+				def("CenterTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterTop),
+				def("CenterTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterTop),
+				def("CenterMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterMiddle),
+				def("CenterMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterMiddle),
+				def("CenterBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::CenterBottom),
+				def("CenterBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::CenterBottom),
+				def("RightTop", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightTop),
+				def("RightTop", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightTop),
+				def("RightMiddle", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightMiddle),
+				def("RightMiddle", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightMiddle),
+				def("RightBottom", (my::Rectangle (*)(float, float, float, float))&my::Rectangle::RightBottom),
+				def("RightBottom", (my::Rectangle (*)(const my::Vector2 &, const my::Vector2 &))&my::Rectangle::RightBottom)
+			]
+
 		, class_<my::Quaternion, boost::shared_ptr<my::Quaternion> >("Quaternion")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("x", &my::Quaternion::x)

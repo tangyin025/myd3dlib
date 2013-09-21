@@ -112,80 +112,42 @@ void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR 
 	}
 }
 
-void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & uvRect, D3DCOLOR color)
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
 {
-	PushVertex(rect.l, rect.t, 0, uvRect.l, uvRect.t, color);
-	PushVertex(rect.r, rect.t, 0, uvRect.r, uvRect.t, color);
-	PushVertex(rect.l, rect.b, 0, uvRect.l, uvRect.b, color);
-	PushVertex(rect.r, rect.b, 0, uvRect.r, uvRect.b, color);
-	PushVertex(rect.l, rect.b, 0, uvRect.l, uvRect.b, color);
-	PushVertex(rect.r, rect.t, 0, uvRect.r, uvRect.t, color);
+	PushVertex(rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
+	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
+	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
+	PushVertex(rect.r, rect.b, 0, UvRect.r, UvRect.b, color);
+	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
+	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
 }
 
-void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & uvRect)
+void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & UvRect)
 {
 	ClearVertexList();
-	PushRectangle(rect, uvRect, color);
+	PushRectangle(rect, UvRect, color);
 	DrawVertexList();
 }
 
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder)
 {
-	ClearVertexList();
-
-	Rectangle innerRect(
-		rect.l + windowBorder.x,
-		rect.t + windowBorder.y,
-		rect.r - windowBorder.z,
-		rect.b - windowBorder.w);
-
-	Rectangle innerUvRect(
-		windowBorder.x / windowSize.cx,
-		windowBorder.y / windowSize.cy,
-		(windowSize.cx - windowBorder.z) / windowSize.cx,
-		(windowSize.cy - windowBorder.w) / windowSize.cy);
-
-	PushRectangle(
-		Rectangle(rect.l, rect.t, innerRect.l, innerRect.t),
-		Rectangle(0, 0, innerUvRect.l, innerUvRect.t), color);
-
-	PushRectangle(
-		Rectangle(innerRect.l, rect.t, innerRect.r, innerRect.t),
-		Rectangle(innerUvRect.l, 0, innerUvRect.r, innerUvRect.t), color);
-
-	PushRectangle(
-		Rectangle(innerRect.r, rect.t, rect.r, innerRect.t),
-		Rectangle(innerUvRect.r, 0, 1, innerUvRect.t), color);
-
-	PushRectangle(
-		Rectangle(rect.l, innerRect.t, innerRect.l, innerRect.b),
-		Rectangle(0, innerUvRect.t, innerUvRect.l, innerUvRect.b), color);
-
-	PushRectangle(
-		Rectangle(innerRect.l, innerRect.t, innerRect.r, innerRect.b),
-		Rectangle(innerUvRect.l, innerUvRect.t, innerUvRect.r, innerUvRect.b), color);
-
-	PushRectangle(
-		Rectangle(innerRect.r, innerRect.t, rect.r, innerRect.b),
-		Rectangle(innerUvRect.r, innerUvRect.t, 1, innerUvRect.b), color);
-
-	PushRectangle(
-		Rectangle(rect.l, innerRect.b, innerRect.l, rect.b),
-		Rectangle(0, innerUvRect.b, innerUvRect.l, 1), color);
-
-	PushRectangle(
-		Rectangle(innerRect.l, innerRect.b, innerRect.r, rect.b),
-		Rectangle(innerUvRect.l, innerUvRect.b, innerUvRect.r, 1), color);
-
-	PushRectangle(
-		Rectangle(innerRect.r, innerRect.b, rect.r, rect.b),
-		Rectangle(innerUvRect.r, innerUvRect.b, 1, 1), color);
+	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
+	Rectangle InUvRect(WindowBorder.x / WindowSize.cx, WindowBorder.y / WindowSize.cy, (WindowSize.cx - WindowBorder.z) / WindowSize.cx, (WindowSize.cy - WindowBorder.w) / WindowSize.cy);
+	PushRectangle(Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(0, 0, InUvRect.l, InUvRect.t), color);
+	PushRectangle(Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, 0, InUvRect.r, InUvRect.t), color);
+	PushRectangle(Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, 0, 1, InUvRect.t), color);
+	PushRectangle(Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(0, InUvRect.t, InUvRect.l, InUvRect.b), color);
+	PushRectangle(Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
+	PushRectangle(Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, 1, InUvRect.b), color);
+	PushRectangle(Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(0, InUvRect.b, InUvRect.l, 1), color);
+	PushRectangle(Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, 1), color);
+	PushRectangle(Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, 1, 1), color);
 }
 
-void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder)
+void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder)
 {
 	ClearVertexList();
-	PushWindow(rect, color, windowSize, windowBorder);
+	PushWindow(rect, color, WindowSize, WindowBorder);
 	DrawVertexList();
 }
 

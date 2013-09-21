@@ -476,7 +476,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	return pen;
 }
 
-void Font::DrawString(
+void Font::PushStringVertices(
 	UIRender * ui_render,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
@@ -485,7 +485,6 @@ void Font::DrawString(
 {
 	Vector2 pen = CalculateAlignedPen(pString, rect, align);
 
-	ui_render->ClearVertexList();
 	wchar_t c;
 	while(c = *pString++)
 	{
@@ -503,7 +502,17 @@ void Font::DrawString(
 
 		pen.x += info.horiAdvance;
 	}
+}
 
+void Font::DrawString(
+	UIRender * ui_render,
+	LPCWSTR pString,
+	const my::Rectangle & rect,
+	D3DCOLOR Color,
+	Align align)
+{
+	ui_render->ClearVertexList();
+	PushStringVertices(ui_render, pString, rect, Color, align);
 	ui_render->SetTexture(m_Texture);
 	ui_render->DrawVertexList();
 }

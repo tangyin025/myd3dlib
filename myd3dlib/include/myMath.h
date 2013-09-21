@@ -894,7 +894,7 @@ namespace my
 			return *this;
 		}
 
-		Rectangle shrink(float x, float y, float z, float w)
+		Rectangle shrink(float x, float y, float z, float w) const
 		{
 			return Rectangle(
 				l + x,
@@ -903,7 +903,7 @@ namespace my
 				b - w);
 		}
 
-		Rectangle shrinkSelf(float x, float y, float z, float w)
+		Rectangle & shrinkSelf(float x, float y, float z, float w)
 		{
 			l += x;
 			t += y;
@@ -912,7 +912,7 @@ namespace my
 			return *this;
 		}
 
-		Rectangle shrink(const Vector4 & v)
+		Rectangle shrink(const Vector4 & v) const
 		{
 			return Rectangle(
 				l + v.x,
@@ -921,7 +921,7 @@ namespace my
 				b - v.w);
 		}
 
-		Rectangle shrinkSelf(const Vector4 & v)
+		Rectangle & shrinkSelf(const Vector4 & v)
 		{
 			l += v.x;
 			t += v.y;

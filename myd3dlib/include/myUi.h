@@ -54,13 +54,13 @@ namespace my
 
 		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & uvRect, D3DCOLOR color);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
 
-		void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & uvRect);
+		void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & UvRect);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
+		void PushWindow(const Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder);
 
-		void DrawWindow(const Rectangle & rect, DWORD color, const CSize & windowSize, const Vector4 & windowBorder);
+		void DrawWindow(const Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
