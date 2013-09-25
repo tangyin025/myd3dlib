@@ -40,25 +40,25 @@ game.Camera=camera
 -- character.Scale=Vector3(0.01,0.01,0.01)
 -- state:InsertCharacter(character)
 
-local emitter=SphericalEmitter()
-emitter.SpawnInterval=1/100
-emitter.ParticleLifeTime=10
-emitter.SpawnSpeed=5
-emitter.SpawnInclination.Value=math.rad(45)
-local Azimuth=math.rad(360)*8
-emitter.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
-emitter.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
-emitter.ParticleColorA:AddNode(0,255,0,0)
-emitter.ParticleColorA:AddNode(10,0,0,0)
-emitter.ParticleColorR:AddNode(0,255,0,0)
-emitter.ParticleColorR:AddNode(10,0,0,0)
-emitter.ParticleColorG:AddNode(0,255,0,0)
-emitter.ParticleColorG:AddNode(10,0,0,0)
-emitter.ParticleColorB:AddNode(0,255,0,0)
-emitter.ParticleColorB:AddNode(10,0,0,0)
-emitter.ParticleSizeX:AddNode(0,1,0,0)
-emitter.ParticleSizeX:AddNode(10,10,0,0)
-emitter.ParticleSizeY:AddNode(0,1,0,0)
-emitter.ParticleSizeY:AddNode(10,10,0,0)
-emitter.Texture=game:LoadTexture("texture/flare.dds")
-game:InsertEmitter(emitter)
+-- local emitter=SphericalEmitter()
+-- emitter.SpawnInterval=1/100
+-- emitter.ParticleLifeTime=10
+-- emitter.SpawnSpeed=5
+-- emitter.SpawnInclination.Value=math.rad(45)
+-- local Azimuth=math.rad(360)*8
+-- emitter.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
+-- emitter.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
+-- emitter.ParticleColorA:AddNode(0,255,0,0)
+-- emitter.ParticleColorA:AddNode(10,0,0,0)
+-- emitter.ParticleColorR:AddNode(0,255,0,0)
+-- emitter.ParticleColorR:AddNode(10,0,0,0)
+-- emitter.ParticleColorG:AddNode(0,255,0,0)
+-- emitter.ParticleColorG:AddNode(10,0,0,0)
+-- emitter.ParticleColorB:AddNode(0,255,0,0)
+-- emitter.ParticleColorB:AddNode(10,0,0,0)
+-- emitter.ParticleSizeX:AddNode(0,1,0,0)
+-- emitter.ParticleSizeX:AddNode(10,10,0,0)
+-- emitter.ParticleSizeY:AddNode(0,1,0,0)
+-- emitter.ParticleSizeY:AddNode(10,10,0,0)
+-- emitter.Texture=game:LoadTexture("texture/flare.dds")
+-- game:InsertEmitter(emitter)

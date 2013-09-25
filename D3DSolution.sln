@@ -47,6 +47,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "myd3dbox", "myd3dbox\myd3db
 		{AB3A72EC-552C-41BD-9D73-761D2419D4D1} = {AB3A72EC-552C-41BD-9D73-761D2419D4D1}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PxToolkit", "PxToolkit\scripts\PxToolkit.vcproj", "{FD3A9F18-00FA-4936-AE21-7455E3964D34}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -89,6 +91,10 @@ Global
 		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Debug|Win32.Build.0 = Debug|Win32
 		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Release|Win32.ActiveCfg = Release|Win32
 		{0736F52B-D0C5-4075-8C60-F4838E7EDEC7}.Release|Win32.Build.0 = Release|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Debug|Win32.ActiveCfg = Debug|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Debug|Win32.Build.0 = Debug|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Release|Win32.ActiveCfg = Release|Win32
+		{FD3A9F18-00FA-4936-AE21-7455E3964D34}.Release|Win32.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
