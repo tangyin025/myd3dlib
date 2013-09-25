@@ -199,7 +199,7 @@ namespace my
 
 		IORequestPtrPairList m_IORequestList;
 
-		CriticalSection m_IORequestListSection;
+		Mutex m_IORequestListMutex;
 
 		ConditionVariable m_IORequestListCondition;
 

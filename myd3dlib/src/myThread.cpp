@@ -62,26 +62,70 @@ void Event::SetEvent(void)
 
 BOOL Event::WaitEvent(DWORD dwMilliseconds)
 {
-	return WAIT_TIMEOUT != ::WaitForSingleObject(m_hevent, dwMilliseconds);
+	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_hevent, dwMilliseconds);
+}
+
+Mutex::Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCTSTR lpName)
+{
+	m_mutex = ::CreateMutex(lpMutexAttributes, bInitialOwner, lpName);
+}
+
+Mutex::~Mutex(void)
+{
+	::CloseHandle(m_mutex);
+}
+
+BOOL Mutex::Wait(DWORD dwMilliseconds)
+{
+	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_mutex, dwMilliseconds);
+}
+
+void Mutex::Release(void)
+{
+	::ReleaseMutex(m_mutex);
+}
+
+Semaphore::Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LPCTSTR lpName)
+{
+	m_sema = ::CreateSemaphore(lpSemaphoreAttributes, lInitialCount, lMaximumCount, lpName);
+}
+
+Semaphore::~Semaphore(void)
+{
+	::CloseHandle(m_sema);
+}
+
+BOOL Semaphore::Wait(DWORD dwMilliseconds)
+{
+	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_sema, dwMilliseconds);
+}
+
+LONG Semaphore::Release(LONG lReleaseCount)
+{
+	LONG ret;
+	::ReleaseSemaphore(m_sema, lReleaseCount, &ret);
+	return ret;
 }
 
 ConditionVariable::ConditionVariable(void)
+	: m_sema(0, 4096)
 {
-	::InitializeConditionVariable(&m_condition);
 }
 
 ConditionVariable::~ConditionVariable(void)
 {
 }
 
-BOOL ConditionVariable::SleepCS(CriticalSection & cs, DWORD dwMilliseconds)
+BOOL ConditionVariable::SleepMutex(Mutex & mutex, DWORD dwMilliseconds, BOOL bAlertable)
 {
-	return ::SleepConditionVariableCS(&m_condition, &cs.m_section, dwMilliseconds);
+	DWORD res = ::SignalObjectAndWait(mutex.m_mutex, m_sema.m_sema, dwMilliseconds, bAlertable);
+	mutex.Wait(INFINITE);
+	return res == WAIT_OBJECT_0;
 }
 
 void ConditionVariable::Wake(void)
 {
-	::WakeConditionVariable(&m_condition);
+	m_sema.Release(1);
 }
 
 DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)

@@ -59,17 +59,47 @@ namespace my
 		BOOL WaitEvent(DWORD dwMilliseconds = INFINITE);
 	};
 
+	class Mutex
+	{
+	public:
+		HANDLE m_mutex;
+
+	public:
+		Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes = NULL, BOOL bInitialOwner = FALSE, LPCTSTR lpName = NULL);
+
+		~Mutex(void);
+
+		BOOL Wait(DWORD dwMilliseconds = INFINITE);
+
+		void Release(void);
+	};
+
+	class Semaphore
+	{
+	public:
+		HANDLE m_sema;
+
+	public:
+		Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes = NULL, LPCTSTR lpName = NULL);
+
+		~Semaphore(void);
+
+		BOOL Wait(DWORD dwMilliseconds = INFINITE);
+
+		LONG Release(LONG lReleaseCount);
+	};
+
 	class ConditionVariable
 	{
 	protected:
-		CONDITION_VARIABLE m_condition;
+		Semaphore m_sema;
 
 	public:
 		ConditionVariable(void);
 
 		~ConditionVariable(void);
 
-		BOOL SleepCS(CriticalSection & cs, DWORD dwMilliseconds = INFINITE);
+		BOOL SleepMutex(Mutex & mutex, DWORD dwMilliseconds = INFINITE, BOOL bAlertable = FALSE);
 
 		void Wake(void);
 	};
