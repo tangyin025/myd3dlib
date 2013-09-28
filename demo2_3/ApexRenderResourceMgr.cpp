@@ -295,13 +295,42 @@ void ApexRenderBoneBuffer::writeBuffer(const physx::NxApexRenderBoneBufferData& 
 	{
 		for(unsigned int j = 0; j < numBones; j++)
 		{
-			m_bones[firstBone + j] = (my::Matrix4 &)physx::PxMat44(
-				*(const physx::general_shared3::PxMat34Legacy *)((unsigned char *)semanticData.data + j * semanticData.stride));
+			const physx::general_shared3::PxMat34Legacy & mat =
+				*(const physx::general_shared3::PxMat34Legacy *)((unsigned char *)semanticData.data + j * semanticData.stride);
+
+			m_bones[firstBone + j][0][0] = mat.M(0, 0);
+			m_bones[firstBone + j][1][0] = mat.M(1, 0);
+			m_bones[firstBone + j][2][0] = mat.M(2, 0);
+			m_bones[firstBone + j][3][0] = 0;
+
+			m_bones[firstBone + j][0][1] = mat.M(0, 1);
+			m_bones[firstBone + j][1][1] = mat.M(1, 1);
+			m_bones[firstBone + j][2][1] = mat.M(2, 1);
+			m_bones[firstBone + j][3][1] = 0;
+
+			m_bones[firstBone + j][0][2] = mat.M(0, 2);
+			m_bones[firstBone + j][1][2] = mat.M(1, 2);
+			m_bones[firstBone + j][2][2] = mat.M(2, 2);
+			m_bones[firstBone + j][3][2] = 0;
+
+			m_bones[firstBone + j][0][3] = mat.t[0];
+			m_bones[firstBone + j][1][3] = mat.t[1];
+			m_bones[firstBone + j][2][3] = mat.t[2];
+			m_bones[firstBone + j][3][3] = 0;
 		}
 	}
 }
 
 ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
+	: m_firstVertex(desc.firstVertex)
+	, m_numVerts(desc.numVerts)
+	, m_ApexIb(static_cast<ApexRenderIndexBuffer *>(desc.indexBuffer))
+	, m_firstIndex(desc.firstIndex)
+	, m_numIndices(desc.numIndices)
+	, m_ApexBb(static_cast<ApexRenderBoneBuffer *>(desc.boneBuffer))
+	, m_firstBone(desc.firstBone)
+	, m_numBones(desc.numBones)
+	, m_material(NULL)
 {
 	m_ApexVbs.resize(desc.numVertexBuffers);
 	std::vector<D3DVERTEXELEMENT9> velist;
@@ -315,29 +344,11 @@ ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const phys
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
-	m_firstVertex = desc.firstVertex;
-
-	m_numVerts = desc.numVerts;
-
 	HRESULT hr;
 	if(FAILED(hr = pd3dDevice->CreateVertexDeclaration(&velist[0], &m_Decl)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
-
-	m_ApexIb = static_cast<ApexRenderIndexBuffer *>(desc.indexBuffer);
-
-	m_firstIndex = desc.firstIndex;
-
-	m_numIndices = desc.numVerts;
-
-	m_ApexBb = static_cast<ApexRenderBoneBuffer *>(desc.boneBuffer);
-
-	m_firstBone = desc.firstBone;
-
-	m_numBones = desc.numBones;
-
-	m_material = NULL;
 }
 
 ApexRenderResource::~ApexRenderResource(void)
