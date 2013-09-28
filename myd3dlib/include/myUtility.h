@@ -424,6 +424,34 @@ namespace my
 
 	class ResourceMgr : public AsynchronousResourceMgr
 	{
+	protected:
+		class ResourceCallbackBoundle
+		{
+		public:
+			DeviceRelatedObjectBasePtr m_res;
+
+			IORequest::ResourceCallbackList m_callbacks;
+
+			ResourceCallbackBoundle(DeviceRelatedObjectBasePtr res)
+				: m_res(res)
+			{
+			}
+
+			~ResourceCallbackBoundle(void)
+			{
+				IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
+				for(; callback_iter != m_callbacks.end(); callback_iter++)
+				{
+					if(*callback_iter)
+					{
+						(*callback_iter)(m_res);
+					}
+				}
+			}
+		};
+
+		typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
+
 	public:
 		ResourceMgr(void)
 		{

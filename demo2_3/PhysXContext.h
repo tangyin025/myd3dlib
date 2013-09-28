@@ -134,4 +134,6 @@ public:
 	void Substep(StepperTask & completionTask);
 
 	void SubstepDone(StepperTask * ownerTask);
+
+	void DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice);
 };

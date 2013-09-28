@@ -69,6 +69,8 @@ public:
 
 		//my::MaterialPtr mat = LoadMaterial("material/lambert1.xml");
 
+		LoadMaterialAsync("material/casual19_m_highpolyPhong.xml", boost::bind(&MyDemo::foo, this, _1));
+
 		return S_OK;
 	}
 
@@ -104,14 +106,14 @@ public:
 		ResourceMgr::OnDestroyDevice();
 	}
 
-	virtual void OnFrameMove(
+	void OnFrameMove(
 		double fTime,
 		float fElapsedTime)
 	{
 		CheckResource();
 	}
 
-	virtual void OnFrameRender(
+	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime)
@@ -127,6 +129,15 @@ public:
 			V(m_sprite->End());
 			V( pd3dDevice->EndScene() );
 		}
+	}
+
+	virtual void OnFrameTick(double fTime, float fElapsedTime)
+	{
+		OnFrameMove(fTime, fElapsedTime);
+
+		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+
+		Present(0,0,0,0);
 	}
 
 	virtual LRESULT MsgProc(

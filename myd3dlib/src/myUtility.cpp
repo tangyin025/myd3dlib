@@ -976,14 +976,30 @@ public:
 		}
 	}
 
-	static void MaterialSetEffect(MaterialPtr mat, size_t effect_i, DeviceRelatedObjectBasePtr effect_res)
+	static void MaterialSetEffect(ResourceMgr::ResourceCallbackBoundlePtr boundle, size_t effect_i, DeviceRelatedObjectBasePtr effect_res)
 	{
-		(*mat)[effect_i].first = boost::dynamic_pointer_cast<Effect>(effect_res);
+		(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[effect_i].first = boost::dynamic_pointer_cast<Effect>(effect_res);
 	}
 
-	static void MaterialSetEffectTextureParameter(MaterialPtr mat, size_t effect_i, std::string value, DeviceRelatedObjectBasePtr texture_res)
+	static void MaterialSetEffectTextureParameter(ResourceMgr::ResourceCallbackBoundlePtr boundle, size_t effect_i, std::string value, DeviceRelatedObjectBasePtr texture_res)
 	{
-		(*mat)[effect_i].second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
+		(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[effect_i].second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
+	}
+
+	virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const char * path, const EffectMacroPairList & macros)
+	{
+		m_arc->LoadEffectAsync(path, macros, boost::bind(&MaterialIORequest::MaterialSetEffect, boundle, i, _1));
+	}
+
+	virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, size_t i, const char * path, const char * name)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::MaterialSetEffectTextureParameter, boundle, i, std::string(name), _1));
+	}
+
+	virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+	{
+		boundle->m_callbacks = m_callbacks;
+		m_callbacks.clear();
 	}
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
@@ -991,6 +1007,7 @@ public:
 		if(m_doc.first_node())
 		{
 			MaterialPtr ret(new Material());
+			ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(ret));
 
 			rapidxml::xml_node<char> * node_root = &m_doc;
 			DEFINE_XML_NODE_SIMPLE(material, root);
@@ -1002,9 +1019,6 @@ public:
 
 				ret->push_back(Material::value_type());
 				Material::value_type & effect_pair = ret->back();
-
-				m_arc->LoadEffectAsync(
-					attr_shader_path->value(), EffectMacroPairList(), boost::bind(&MaterialIORequest::MaterialSetEffect, ret, i, _1));
 
 				DEFINE_XML_NODE_SIMPLE(parameter, shader);
 				for(; node_parameter; node_parameter = node_parameter->next_sibling())
@@ -1023,12 +1037,13 @@ public:
 					else if(0 == strcmp(node_value->name(), "Texture"))
 					{
 						DEFINE_XML_ATTRIBUTE_SIMPLE(path, value);
-						m_arc->LoadTextureAsync(
-							attr_path->value(), boost::bind(&MaterialIORequest::MaterialSetEffectTextureParameter, ret, i, std::string(attr_name->value()), _1));
+						OnLoadTexture(boundle, i, attr_path->value(), attr_name->value());
 					}
 				}
+				OnLoadEffect(boundle, i, attr_shader_path->value(), EffectMacroPairList());
 			}
 			m_res = ret;
+			OnPostBuildResource(boundle);
 		}
 	}
 };
@@ -1040,7 +1055,30 @@ void ResourceMgr::LoadMaterialAsync(const std::string & path, const ResourceCall
 
 MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 {
-	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(ResourceCallback(), path, this)));
+	class SyncMaterialIORequest : public MaterialIORequest
+	{
+	public:
+		SyncMaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+			: MaterialIORequest(callback, path, arc)
+		{
+		}
+
+		virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const char * path, const EffectMacroPairList & macros)
+		{
+			(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[i].first = m_arc->LoadEffect(path, macros);
+		}
+
+		virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, size_t i, const char * path, const char * name)
+		{
+			(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[i].second.SetTexture(name, m_arc->LoadTexture(path));
+		}
+
+		virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+		{
+		}
+	};
+
+	IORequestPtr request = LoadResourceAsync(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
 
 	CheckRequest(path, request, INFINITE);
 
