@@ -143,14 +143,7 @@ Thread::Thread(const ThreadCallback & Callback)
 
 Thread::~Thread(void)
 {
-	if(NULL != m_hThread)
-	{
-		//_ASSERT(WAIT_TIMEOUT != ::WaitForSingleObject(m_hThread, 1000));
-
-		//// The thread object remains in the system until the thread has terminated
-		//// and all handles to it have been closed through a call to CloseHandle.
-		::CloseHandle(m_hThread);
-	}
+	_ASSERT(NULL == m_hThread);
 }
 
 void Thread::CreateThread(DWORD dwCreationFlags)
@@ -227,6 +220,12 @@ BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 	}
 
 	return true;
+}
+
+void Thread::CloseThread(void)
+{
+	::CloseHandle(m_hThread);
+	m_hThread = NULL;
 }
 
 std::string Window::GetWindowMessageStr(UINT message)

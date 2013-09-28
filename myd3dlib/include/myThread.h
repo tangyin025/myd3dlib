@@ -133,6 +133,8 @@ namespace my
 		void TerminateThread(DWORD dwExitCode);
 
 		BOOL WaitForThreadStopped(DWORD dwMilliseconds = INFINITE);
+
+		void CloseThread(void);
 	};
 
 	class Window

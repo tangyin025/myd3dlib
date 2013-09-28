@@ -342,6 +342,7 @@ IORequestPtr AsynchronousIOMgr::PushIORequestResource(const std::string & key, m
 
 void AsynchronousIOMgr::StartIORequestProc(void)
 {
+	m_bStopped = false;
 	m_Thread.CreateThread();
 	m_Thread.ResumeThread();
 }
@@ -459,7 +460,11 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 
 	m_EffectPool.Release();
 
-	AsynchronousIOMgr::m_Thread.WaitForThreadStopped(INFINITE);
+	m_Thread.WaitForThreadStopped(INFINITE);
+
+	m_Thread.CloseThread();
+
+	m_IORequestList.clear();
 }
 
 HRESULT AsynchronousResourceMgr::Open(
