@@ -180,14 +180,7 @@ namespace my
 		{
 		}
 
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime)
-		{
-		}
-
-		virtual void OnFrameRender(
-			IDirect3DDevice9 * pd3dDevice,
+		virtual void OnFrameTick(
 			double fTime,
 			float fElapsedTime)
 		{
@@ -304,6 +297,8 @@ namespace my
 		HRESULT Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings);
 
 		void Render3DEnvironment(void);
+
+		void Present(CONST RECT* pSourceRect=NULL,CONST RECT* pDestRect=NULL,HWND hDestWindowOverride=NULL,CONST RGNDATA* pDirtyRegion=NULL);
 
 		void Cleanup3DEnvironment(void);
 	};

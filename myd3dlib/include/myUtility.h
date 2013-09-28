@@ -318,10 +318,6 @@ namespace my
 		{
 		}
 
-		virtual ~EmitterMgr(void)
-		{
-		}
-
 		void Update(
 			double fTime,
 			float fElapsedTime);

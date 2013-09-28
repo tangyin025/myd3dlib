@@ -1843,11 +1843,12 @@ void DxutApp::Render3DEnvironment(void)
 		m_dwFrames = 0;
 	}
 
-	OnFrameMove(m_fAbsoluteTime, m_fElapsedTime);
+	OnFrameTick(m_fAbsoluteTime, m_fElapsedTime);
+}
 
-	OnFrameRender(m_d3dDevice, m_fAbsoluteTime, m_fElapsedTime);
-
-	if(FAILED(hr = m_d3dDevice->Present(NULL, NULL, NULL, NULL)))
+void DxutApp::Present(CONST RECT* pSourceRect,CONST RECT* pDestRect,HWND hDestWindowOverride,CONST RGNDATA* pDirtyRegion)
+{
+	if(FAILED(hr = m_d3dDevice->Present(pSourceRect, pDestRect, hDestWindowOverride, pDirtyRegion)))
 	{
 		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
 		{

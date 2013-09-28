@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PhysXContext.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -254,6 +258,10 @@
 			</File>
 			<File
 				RelativePath=".\physx_ptr.hpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PhysXContext.h"
 				>
 			</File>
 			<File

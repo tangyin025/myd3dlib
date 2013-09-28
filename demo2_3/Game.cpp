@@ -255,6 +255,11 @@ HRESULT Game::OnCreateDevice(
 		m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 	}
 
+	if(!PhysXSceneContext::OnInit())
+	{
+		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
+	}
+
 	ExecuteCode("dofile \"GameStateMain.lua\"");
 
 	return S_OK;
@@ -304,6 +309,8 @@ void Game::OnDestroyDevice(void)
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	ExecuteCode("collectgarbage(\"collect\")");
+
+	PhysXSceneContext::OnShutdown();
 
 	m_Console.reset();
 
@@ -371,6 +378,21 @@ void Game::OnFrameRender(
 
 		V(pd3dDevice->EndScene());
 	}
+}
+
+void Game::OnFrameTick(
+	double fTime,
+	float fElapsedTime)
+{
+	OnFrameMove(fTime, fElapsedTime);
+
+	OnTickPreRender(fElapsedTime);
+
+	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+
+	Present(NULL,NULL,NULL,NULL);
+
+	OnTickPostRender(fElapsedTime);
 }
 
 LRESULT Game::MsgProc(

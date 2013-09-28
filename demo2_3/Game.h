@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Console.h"
+#include "PhysXContext.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -71,6 +72,7 @@ class Game
 	, public my::EmitterMgr
 	, public my::ResourceMgr
 	, public my::MaterialMgr
+	, public PhysXSceneContext
 {
 public:
 	my::LuaContextPtr m_lua;
@@ -141,12 +143,16 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void OnFrameMove(
+	void OnFrameMove(
 		double fTime,
 		float fElapsedTime);
 
-	virtual void OnFrameRender(
+	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnFrameTick(
 		double fTime,
 		float fElapsedTime);
 
