@@ -147,54 +147,33 @@ namespace my
 			D3DCAPS9 * pCaps,
 			D3DFORMAT AdapterFormat,
 			D3DFORMAT BackBufferFormat,
-			bool bWindowed)
-		{
-			return true;
-		}
+			bool bWindowed);
 
 		virtual bool ModifyDeviceSettings(
-			DXUTD3D9DeviceSettings * pDeviceSettings)
-		{
-			return true;
-		}
+			DXUTD3D9DeviceSettings * pDeviceSettings);
 
 		virtual HRESULT OnCreateDevice(
 			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-		{
-			return S_OK;
-		}
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
 		virtual HRESULT OnResetDevice(
 			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-		{
-			return S_OK;
-		}
+			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-		virtual void OnLostDevice(void)
-		{
-		}
+		virtual void OnLostDevice(void);
 
-		virtual void OnDestroyDevice(void)
-		{
-		}
+		virtual void OnDestroyDevice(void);
 
 		virtual void OnFrameTick(
 			double fTime,
-			float fElapsedTime)
-		{
-		}
+			float fElapsedTime);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
 			UINT uMsg,
 			WPARAM wParam,
 			LPARAM lParam,
-			bool * pbNoFurtherProcessing)
-		{
-			return 0;
-		}
+			bool * pbNoFurtherProcessing);
 
 		int Run(void);
 

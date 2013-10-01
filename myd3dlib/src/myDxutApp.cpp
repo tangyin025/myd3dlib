@@ -133,6 +133,62 @@ void Clock::UpdateClock(void)
 	m_llLastElapsedTime = qwTime.QuadPart;
 }
 
+bool DxutApp::IsDeviceAcceptable(
+	D3DCAPS9 * pCaps,
+	D3DFORMAT AdapterFormat,
+	D3DFORMAT BackBufferFormat,
+	bool bWindowed)
+{
+	return true;
+}
+
+bool DxutApp::ModifyDeviceSettings(
+	DXUTD3D9DeviceSettings * pDeviceSettings)
+{
+	return true;
+}
+
+HRESULT DxutApp::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+HRESULT DxutApp::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	return S_OK;
+}
+
+void DxutApp::OnLostDevice(void)
+{
+}
+
+void DxutApp::OnDestroyDevice(void)
+{
+}
+
+void DxutApp::OnFrameTick(
+	double fTime,
+	float fElapsedTime)
+{
+	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+
+	Present(0,0,0,0);
+}
+
+LRESULT DxutApp::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 int DxutApp::Run(void)
 {
 	m_wnd = DxutWindowPtr(new DxutWindow());

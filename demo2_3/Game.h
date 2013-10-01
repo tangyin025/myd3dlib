@@ -87,8 +87,6 @@ public:
 
 	ConsolePtr m_Console;
 
-	my::CameraPtr m_Camera;
-
 	my::InputPtr m_Input;
 
 	my::KeyboardPtr m_Keyboard;
@@ -96,6 +94,10 @@ public:
 	my::MousePtr m_Mouse;
 
 	my::SoundPtr m_Sound;
+
+	my::EffectPtr m_SimpleSample;
+
+	my::CameraPtr m_Camera;
 
 public:
 	Game(void);
@@ -143,11 +145,11 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	void OnFrameMove(
+	virtual void OnFrameMove(
 		double fTime,
 		float fElapsedTime);
 
-	void OnFrameRender(
+	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);

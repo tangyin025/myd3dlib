@@ -208,6 +208,11 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	if(!PhysXSceneContext::OnInit())
+	{
+		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
+	}
+
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
 
 	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -250,17 +255,9 @@ HRESULT Game::OnCreateDevice(
 		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
-	if(!m_Camera)
-	{
-		m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
-	}
+	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	if(!PhysXSceneContext::OnInit())
-	{
-		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
-	}
-
-	ExecuteCode("dofile \"GameStateMain.lua\"");
+	m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
 	return S_OK;
 }
@@ -291,7 +288,6 @@ HRESULT Game::OnResetDevice(
 	{
 		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
 	}
-
 	return S_OK;
 }
 
@@ -310,8 +306,6 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	PhysXSceneContext::OnShutdown();
-
 	m_Console.reset();
 
 	m_dlgSetMap[1].clear();
@@ -323,6 +317,8 @@ void Game::OnDestroyDevice(void)
 	m_UIRender.reset();
 
 	RemoveAllTimer();
+
+	PhysXSceneContext::OnShutdown();
 
 	ResourceMgr::OnDestroyDevice();
 
@@ -351,33 +347,23 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	// ! 为什么要顺时针，右手系应该是逆时针
-	pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW);
+	m_EmitterInst->Begin();
 
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
 
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		m_EmitterInst->Begin();
+	m_EmitterInst->End();
 
-		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
+	m_UIRender->Begin();
 
-		m_EmitterInst->End();
+	DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
-		m_UIRender->Begin();
+	_ASSERT(m_Font);
 
-		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
+	m_UIRender->SetWorld(Matrix4::identity);
 
-		_ASSERT(m_Font);
+	m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
 
-		m_UIRender->SetWorld(Matrix4::identity);
-
-		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
-
-		m_UIRender->End();
-
-		V(pd3dDevice->EndScene());
-	}
+	m_UIRender->End();
 }
 
 void Game::OnFrameTick(
@@ -386,9 +372,27 @@ void Game::OnFrameTick(
 {
 	OnFrameMove(fTime, fElapsedTime);
 
+	SetViewMatrix(m_Camera->m_View);
+
+	SetProjMatrix(m_Camera->m_Proj);
+
+	D3DVIEWPORT9 vp;
+	V(m_d3dDevice->GetViewport(&vp));
+	SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
+
 	OnTickPreRender(fElapsedTime);
 
-	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+	// ! 为什么要顺时针，右手系应该是逆时针
+	V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+
+	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+
+	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
+	{
+		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
+
+		V(m_d3dDevice->EndScene());
+	}
 
 	Present(NULL,NULL,NULL,NULL);
 
@@ -421,7 +425,6 @@ LRESULT Game::MsgProc(
 	{
 		return lr;
 	}
-
 	return 0;
 }
 
