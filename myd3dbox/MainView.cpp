@@ -230,15 +230,7 @@ void CMainView::OnFrameRender(
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
 
-		DrawLine(pd3dDevice, Vector3(-10,0,0), Vector3(10,0,0), D3DCOLOR_ARGB(255,0,0,0));
-		DrawLine(pd3dDevice, Vector3(0,0,-10), Vector3(0,0,10), D3DCOLOR_ARGB(255,0,0,0));
-		for(int i = 1; i <= 10; i++)
-		{
-			DrawLine(pd3dDevice, Vector3(-10,0, (float)i), Vector3(10,0, (float)i), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3(-10,0,-(float)i), Vector3(10,0,-(float)i), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3( (float)i,0,-10), Vector3( (float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-			DrawLine(pd3dDevice, Vector3(-(float)i,0,-10), Vector3(-(float)i,0,10), D3DCOLOR_ARGB(255,127,127,127));
-		}
+		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
 		m_SimpleSample->SetFloat("g_Time", (float)fTime);
 		m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
@@ -262,8 +254,8 @@ void CMainView::OnFrameRender(
 			break;
 		}
 
-		DrawTextAtWorld(Vector3(10,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,10), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);

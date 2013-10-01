@@ -61,13 +61,6 @@ namespace my
 	// CollisionPrimitive
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	void CollisionPrimitive::calculateInternals(void)
-	{
-		_ASSERT(NULL != body);
-
-		transform = body->getTransform() * offset;
-	}
-
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// CollisionSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -405,6 +398,56 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v0, v1)) <= radius
 			|| abs(_caculateNearestDistance(intersection, v1, v2)) <= radius
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
+	}
+
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// VolumnHelper
+	// /////////////////////////////////////////////////////////////////////////////////////
+
+	float VolumnHelper::calculateBoxVolume(float width, float height, float deepth)
+	{
+		return width * height * deepth;
+	}
+
+	float VolumnHelper::calculateBoxMass(float width, float height, float deepth, float density)
+	{
+		return calculateBoxVolume(width, height, deepth) * density;
+	}
+
+	float VolumnHelper::calculateSphereVolume(float radius)
+	{
+		return (float)4 / (float)3 * (float)D3DX_PI * radius * radius * radius;
+	}
+
+	float VolumnHelper::calculateSphereMass(float radius, float density)
+	{
+		return calculateSphereVolume(radius) * density;
+	}
+
+	Matrix4 VolumnHelper::calculateInertiaTensor(float Ixx, float Iyy, float Izz, float Ixy, float Ixz, float Iyz)
+	{
+		return Matrix4(
+			 Ixx,			-Ixy,			-Ixz,			0,
+			-Ixy,			 Iyy,			-Iyz,			0,
+			-Ixz,			-Iyz,			 Izz,			0,
+			0,				0,				0,				1);
+	}
+
+	Matrix4 VolumnHelper::calculateBoxInertiaTensor(const Vector3 & halfSizes, float mass)
+	{
+		Vector3 squares = halfSizes * halfSizes;
+
+		return calculateInertiaTensor(
+			0.3f * mass * (squares.y + squares.z),
+			0.3f * mass * (squares.x + squares.z),
+			0.3f * mass * (squares.x + squares.y));
+	}
+
+	Matrix4 VolumnHelper::calculateSphereInertiaTensor(float radius, float mass)
+	{
+		float coeff = 0.4f * mass * radius * radius;
+
+		return calculateInertiaTensor(coeff, coeff, coeff);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////

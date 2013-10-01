@@ -36,7 +36,6 @@ class CMainView
 	: public CView
 	, public my::SingleInstance<CMainView>
 	, public my::DialogMgr
-	, public my::DrawHelper
 {
 public:
 	CMainView(void)

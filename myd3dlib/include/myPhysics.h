@@ -1252,8 +1252,8 @@ namespace my
 	public:
 		World(
 			unsigned maxContacts = 256,
-			unsigned _resolvePositionIteration = 16,
-			unsigned _resolveVelocityIteration = 16,
+			unsigned _resolvePositionIteration = 4,
+			unsigned _resolveVelocityIteration = 4,
 			float resolvePositionEpsilon = 0.01f,
 			float resolveVelocityEpsilon = 0.01f);
 

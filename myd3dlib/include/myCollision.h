@@ -282,11 +282,6 @@ namespace my
 			return restitution;
 		}
 
-		void setTransform(const Matrix4 & _transform)
-		{
-			transform = _transform;
-		}
-
 		const Matrix4 & getTransform(void) const
 		{
 			return transform;
@@ -295,6 +290,13 @@ namespace my
 		const Vector3 & getTransformAxis(unsigned i) const
 		{
 			return transform[i].xyz;
+		}
+
+		void calculateInternals(void)
+		{
+			_ASSERT(NULL != body);
+
+			transform = offset * body->getTransform();
 		}
 
 	protected:
@@ -310,8 +312,6 @@ namespace my
 		virtual ~CollisionPrimitive(void)
 		{
 		}
-
-		void calculateInternals(void);
 
 		enum PrimitiveType
 		{
@@ -529,6 +529,28 @@ namespace my
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2);
+	};
+
+	// /////////////////////////////////////////////////////////////////////////////////////
+	// VolumnHelper
+	// /////////////////////////////////////////////////////////////////////////////////////
+
+	class VolumnHelper
+	{
+	public:
+		static float calculateBoxVolume(float width, float height, float deepth);
+
+		static float calculateBoxMass(float width, float height, float deepth, float density);
+
+		static float calculateSphereVolume(float radius);
+
+		static float calculateSphereMass(float radius, float density);
+
+		static Matrix4 calculateInertiaTensor(float Ixx, float Iyy, float Izz, float Ixy = 0, float Ixz = 0, float Iyz = 0);
+
+		static Matrix4 calculateBoxInertiaTensor(const Vector3 & halfSizes, float mass);
+
+		static Matrix4 calculateSphereInertiaTensor(float radius, float mass);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

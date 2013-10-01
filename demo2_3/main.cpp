@@ -27,6 +27,8 @@ class Demo : public Game
 
 		ExecuteCode("dofile \"GameStateMain.lua\"");
 
+		m_Console->SetVisible(false);
+
 		//************************************************************************/
 		//* Apex ÆÆËéÊ¾Àý                                                        */
 		//************************************************************************/
@@ -137,6 +139,8 @@ class Demo : public Game
 		m_SimpleSample->SetVector("g_LightDir", Vector3(-1,-1,-1));
 		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 		//m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowTextureRT);
+
+		DrawHelper::DrawGrid(pd3dDevice);
 
 		//DrawRenderBuffer(pd3dDevice);
 

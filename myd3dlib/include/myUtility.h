@@ -63,6 +63,13 @@ namespace my
 			float height,
 			D3DCOLOR Color,
 			const Matrix4 & world = Matrix4::identity);
+
+		static void DrawGrid(
+			IDirect3DDevice9 * pd3dDevice,
+			float length = 12,
+			float linesEvery = 5,
+			unsigned subLines = 5,
+			D3DCOLOR Color = D3DCOLOR_ARGB(255,127,127,127));
 	};
 
 	class Timer

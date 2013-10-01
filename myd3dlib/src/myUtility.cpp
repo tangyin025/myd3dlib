@@ -208,6 +208,57 @@ void DrawHelper::DrawCapsule(
 	DrawCylinderStage(pd3dDevice, radius, y0, y1, Color, world);
 }
 
+void DrawHelper::DrawGrid(
+	IDirect3DDevice9 * pd3dDevice,
+	float length,
+	float linesEvery,
+	unsigned subLines,
+	D3DCOLOR Color)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+		Vertex(float _x, float _y, float _z, D3DCOLOR _color)
+			: x(_x), y(_y), z(_z), color(_color)
+		{
+		}
+	};
+
+	std::vector<Vertex> v;
+	v.push_back(Vertex(-length, 0, 0, D3DCOLOR_ARGB(255,0,0,0)));
+	v.push_back(Vertex( length, 0, 0, D3DCOLOR_ARGB(255,0,0,0)));
+	v.push_back(Vertex(0, 0, -length, D3DCOLOR_ARGB(255,0,0,0)));
+	v.push_back(Vertex(0, 0,  length, D3DCOLOR_ARGB(255,0,0,0)));
+
+	float stage = linesEvery / subLines;
+	for(float incre = stage; incre < length; incre += stage)
+	{
+		v.push_back(Vertex(-length, 0,  incre, Color));
+		v.push_back(Vertex( length, 0,  incre, Color));
+		v.push_back(Vertex(-length, 0, -incre, Color));
+		v.push_back(Vertex( length, 0, -incre, Color));
+		v.push_back(Vertex( incre, 0, -length, Color));
+		v.push_back(Vertex( incre, 0,  length, Color));
+		v.push_back(Vertex(-incre, 0, -length, Color));
+		v.push_back(Vertex(-incre, 0,  length, Color));
+	}
+
+	v.push_back(Vertex(-length, 0,  length, Color));
+	v.push_back(Vertex( length, 0,  length, Color));
+	v.push_back(Vertex(-length, 0, -length, Color));
+	v.push_back(Vertex( length, 0, -length, Color));
+	v.push_back(Vertex( length, 0, -length, Color));
+	v.push_back(Vertex( length, 0,  length, Color));
+	v.push_back(Vertex(-length, 0, -length, Color));
+	v.push_back(Vertex(-length, 0,  length, Color));
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
+}
+
 TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
 {
 	TimerPtr timer(new Timer(Interval, Interval));

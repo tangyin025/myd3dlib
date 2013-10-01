@@ -228,8 +228,6 @@ HRESULT Game::OnCreateDevice(
 
 	m_Console = ConsolePtr(new Console());
 
-	m_Console->SetVisible(true);
-
 	m_dlgSetMap[1].push_back(m_Console);
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
