@@ -203,12 +203,11 @@ Console::Console(void)
 	m_Edit->m_Skin->m_Font = Game::getSingleton().m_Font;
 	m_Edit->m_Skin->m_TextColor = D3DCOLOR_ARGB(255,63,188,239);
 	m_Edit->m_Skin->m_TextAlign = Font::AlignLeftMiddle;
+	boost::dynamic_pointer_cast<EditBoxSkin>(m_Edit->m_Skin)->m_SelBkColor = D3DCOLOR_ARGB(255,255,128,0);
 	m_Edit->EventEnter = boost::bind(&Console::OnEventEnter, this, _1);
 	m_Edit->EventKeyUp = boost::bind(&Console::OnEventKeyUp, this, _1);
 	m_Edit->EventKeyDown = boost::bind(&Console::OnEventKeyDown, this, _1);
 	InsertControl(m_Edit);
-
-	m_Edit->SetText(L"在这里输入命令");
 
 	m_Panel.reset(new MessagePanel());
 	m_Panel->m_Color = D3DCOLOR_ARGB(0,0,0,0);
