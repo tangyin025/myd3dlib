@@ -395,6 +395,12 @@ namespace my
 		{
 		}
 
+		void OnResetDevice(void);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
+
 		void ApplyParameterBlock(UINT i);
 
 		UINT Begin(UINT i, DWORD Flags = 0);
@@ -469,5 +475,9 @@ namespace my
 		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
 
 		MaterialPtr LoadMaterial(const std::string & path);
+
+		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
+
+		EmitterPtr LoadEmitter(const std::string & path);
 	};
 }

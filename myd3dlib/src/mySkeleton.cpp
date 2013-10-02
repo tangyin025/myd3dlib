@@ -420,6 +420,18 @@ BoneList & BoneTrackList::GetPose(
 	return boneList;
 }
 
+void OgreSkeleton::OnResetDevice(void)
+{
+}
+
+void OgreSkeleton::OnLostDevice(void)
+{
+}
+
+void OgreSkeleton::OnDestroyDevice(void)
+{
+}
+
 void OgreSkeleton::Clear(void)
 {
 	m_boneNameMap.clear();
@@ -605,18 +617,6 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
 	cache->push_back(0);
 	CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
-}
-
-void OgreSkeletonAnimation::OnResetDevice(void)
-{
-}
-
-void OgreSkeletonAnimation::OnLostDevice(void)
-{
-}
-
-void OgreSkeletonAnimation::OnDestroyDevice(void)
-{
 }
 
 void OgreSkeletonAnimation::Clear(void)

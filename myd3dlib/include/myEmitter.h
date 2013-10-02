@@ -32,6 +32,7 @@ namespace my
 	};
 
 	class Emitter
+		: public DeviceRelatedObjectBase
 	{
 	public:
 		enum DirectionType
@@ -89,6 +90,12 @@ namespace my
 		}
 
 		virtual ~Emitter(void);
+
+		void OnResetDevice(void);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
 
 		void Reset(void);
 

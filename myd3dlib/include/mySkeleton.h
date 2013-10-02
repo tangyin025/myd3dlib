@@ -247,6 +247,7 @@ namespace my
 	};
 
 	class OgreSkeleton
+		: public DeviceRelatedObjectBase
 	{
 	public:
 		boost::unordered_map<std::string, int> m_boneNameMap;
@@ -260,6 +261,12 @@ namespace my
 		{
 		}
 
+		void OnResetDevice(void);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
+
 		void Clear(void);
 
 		int GetBoneIndex(const std::string & bone_name) const;
@@ -272,7 +279,6 @@ namespace my
 
 	class OgreSkeletonAnimation
 		: public OgreSkeleton
-		, public DeviceRelatedObjectBase
 	{
 	public:
 		boost::unordered_map<std::string, OgreAnimation> m_animationMap;
@@ -291,12 +297,6 @@ namespace my
 
 		void CreateOgreSkeletonAnimationFromFile(
 			LPCTSTR pFilename);
-
-		void OnResetDevice(void);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
 
 		void Clear(void);
 

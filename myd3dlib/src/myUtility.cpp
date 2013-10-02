@@ -905,6 +905,18 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 	operator[](Name) = EffectParameterBasePtr(new EffectParameter<BaseTexturePtr>(Value));
 }
 
+void Material::OnResetDevice(void)
+{
+}
+
+void Material::OnLostDevice(void)
+{
+}
+
+void Material::OnDestroyDevice(void)
+{
+}
+
 void Material::ApplyParameterBlock(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
@@ -1134,4 +1146,13 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 	CheckRequest(path, request, INFINITE);
 
 	return boost::dynamic_pointer_cast<Material>(request->m_res);
+}
+
+void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallback & callback)
+{
+}
+
+EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
+{
+	return EmitterPtr();
 }

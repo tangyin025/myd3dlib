@@ -220,29 +220,27 @@ namespace luabind
 
 		my::ControlEvent from(lua_State * L, int index)
 		{
-			//struct InternalExceptionHandler
-			//{
-			//	luabind::object obj;
-			//	InternalExceptionHandler(const luabind::object & _obj)
-			//		: obj(_obj)
-			//	{
-			//	}
-			//	void operator()(my::EventArgsPtr args)
-			//	{
-			//		try
-			//		{
-			//			obj(args);
-			//		}
-			//		catch(const luabind::error & e)
-			//		{
-			//			// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
-			//			Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
-			//		}
-			//	}
-			//};
-			//return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
-
-			return luabind::object(luabind::from_stack(L, index));
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(my::EventArgsPtr args)
+				{
+					try
+					{
+						obj(args);
+					}
+					catch(const luabind::error & e)
+					{
+						// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
+						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+					}
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
 		}
 
 		void to(lua_State * L, my::ControlEvent const & e)
@@ -254,6 +252,52 @@ namespace luabind
 	template <>
 	struct default_converter<my::ControlEvent const &>
 		: default_converter<my::ControlEvent>
+	{
+	};
+
+	template <>
+	struct default_converter<my::ResourceCallback>
+		: native_converter_base<my::ResourceCallback>
+	{
+		static int compute_score(lua_State * L, int index)
+		{
+			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+		}
+
+		my::ResourceCallback from(lua_State * L, int index)
+		{
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(my::DeviceRelatedObjectBasePtr args)
+				{
+					try
+					{
+						obj(args);
+					}
+					catch(const luabind::error & e)
+					{
+						// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
+						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+					}
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+		}
+
+		void to(lua_State * L, my::ResourceCallback const & e)
+		{
+			_ASSERT(false);
+		}
+	};
+
+	template <>
+	struct default_converter<my::ResourceCallback const &>
+		: default_converter<my::ResourceCallback>
 	{
 	};
 }
@@ -300,8 +344,6 @@ void Export2Lua(lua_State * L)
 	module(L)
 	[
 		def("ARGB", &HelpFunc::ARGB)
-
-		//, class_<std::wstring>("wstring")
 
 		, class_<my::Vector2, boost::shared_ptr<my::Vector2> >("Vector2")
 			.def(constructor<float, float>())
@@ -812,11 +854,24 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("SpawnAzimuth", &my::SphericalEmitter::m_SpawnAzimuth)
 			.def_readwrite("SpawnLoopTime", &my::SphericalEmitter::m_SpawnLoopTime)
 
+		, class_<my::ResourceCallback>("ResourceCallback")
+
+		, def("res2texture", (my::BaseTexturePtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::BaseTexture>)
+		, def("res2mesh", (my::OgreMeshPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreMesh>)
+		, def("res2skeleton", (my::OgreSkeletonAnimationPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>)
+		, def("res2effect", (my::EffectPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Effect>)
+		, def("res2font", (my::FontPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Font>)
+
 		, class_<my::AsynchronousResourceMgr>("AsynchronousResourceMgr")
+			.def("LoadTextureAsync", &my::AsynchronousResourceMgr::LoadTextureAsync)
 			.def("LoadTexture", &my::AsynchronousResourceMgr::LoadTexture)
+			.def("LoadMeshAsync", &my::AsynchronousResourceMgr::LoadMeshAsync)
 			.def("LoadMesh", &my::AsynchronousResourceMgr::LoadMesh)
+			.def("LoadSkeletonAsync", &my::AsynchronousResourceMgr::LoadSkeletonAsync)
 			.def("LoadSkeleton", &my::AsynchronousResourceMgr::LoadSkeleton)
+			.def("LoadEffectAsync", &my::AsynchronousResourceMgr::LoadEffectAsync)
 			.def("LoadEffect", &my::AsynchronousResourceMgr::LoadEffect)
+			.def("LoadFontAsync", &my::AsynchronousResourceMgr::LoadFontAsync)
 			.def("LoadFont", &my::AsynchronousResourceMgr::LoadFont)
 
 		, class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
@@ -950,10 +1005,16 @@ void Export2Lua(lua_State * L)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
-		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
-			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
-
 		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
+
+		, def("res2material", (my::MaterialPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Material>)
+		, def("res2emitter", (my::EmitterPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Emitter>)
+
+		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
+			.def("LoadMaterialAsync", &my::ResourceMgr::LoadMaterialAsync)
+			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
+			.def("LoadEmitterAsync", &my::ResourceMgr::LoadEmitterAsync)
+			.def("LoadEmitter", &my::ResourceMgr::LoadEmitter)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
@@ -1001,17 +1062,19 @@ void Export2Lua(lua_State * L)
 			.def("ExecuteCode", &Game::ExecuteCode)
 
 		, class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
-			.def(constructor<>())
-			.def_readwrite("lbegin", &MessagePanel::m_lbegin)
-			.def_readwrite("lend", &MessagePanel::m_lend)
-			.def_readwrite("scrollbar", &MessagePanel::m_scrollbar)
+			.def_readonly("lbegin", &MessagePanel::m_lbegin)
+			.def_readonly("lend", &MessagePanel::m_lend)
+			.def_readonly("scrollbar", &MessagePanel::m_scrollbar)
 			.def("AddLine", &MessagePanel::AddLine)
 			.def("puts", &MessagePanel::puts)
 
 		, class_<ConsoleEditBox, my::ImeEditBox, boost::shared_ptr<my::Control> >("ConsoleEditBox")
-			.def(constructor<>())
 			.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
 			.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
+
+		, class_<Console, my::Dialog, boost::shared_ptr<my::Control> >("Console")
+			.def_readonly("Edit", &Console::m_Edit)
+			.def_readonly("Panel", &Console::m_Panel)
 	];
 
 	globals(L)["game"] = Game::getSingletonPtr();
