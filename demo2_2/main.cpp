@@ -1,7 +1,7 @@
 ﻿#include <myD3dLib.h>
 #include <boost/bind.hpp>
 
-class MyDemo
+class Demo
 	: public my::DxutApp
 	, public my::ResourceMgr
 {
@@ -26,21 +26,6 @@ public:
 		return true;
 	}
 
-	void foo(my::DeviceRelatedObjectBasePtr res)
-	{
-		//my::Texture2DPtr tex = boost::dynamic_pointer_cast<my::Texture2D>(res);
-
-		//my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
-
-		//my::OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
-
-		//my::EffectPtr eff = boost::dynamic_pointer_cast<my::Effect>(res);
-
-		//my::FontPtr fnt = boost::dynamic_pointer_cast<my::Font>(res);
-
-		my::DeviceRelatedObjectBasePtr m_res = res;
-	}
-
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -54,22 +39,6 @@ public:
 		ResourceMgr::RegisterFileDir("../demo2_3/Media");
 
 		ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
-
-		LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&MyDemo::foo, this, _1));
-
-		//my::BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
-
-		LoadMeshAsync("mesh/sportive03_f.mesh.xml", boost::bind(&MyDemo::foo, this, _1));
-
-		LoadSkeletonAsync("mesh/sportive03_f.skeleton.xml", boost::bind(&MyDemo::foo, this, _1));
-
-		//my::EffectPtr eff = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-
-		LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&MyDemo::foo, this, _1));
-
-		//my::MaterialPtr mat = LoadMaterial("material/lambert1.xml");
-
-		LoadMaterialAsync("material/casual19_m_highpolyPhong.xml", boost::bind(&MyDemo::foo, this, _1));
 
 		return S_OK;
 	}
@@ -158,5 +127,5 @@ INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
     _CrtSetDbgFlag( _CRTDBG_ALLOC_MEM_DF | _CRTDBG_LEAK_CHECK_DF );
 #endif
 
-	return MyDemo().Run();
+	return Demo().Run();
 }

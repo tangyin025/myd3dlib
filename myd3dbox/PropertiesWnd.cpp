@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "PropertiesWnd.h"
-#include "resource.h"
+#include "MainApp.h"
 
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
@@ -67,7 +67,7 @@ void CFileProp::OnClickButton(CPoint point)
 
 	if (m_bIsFolder)
 	{
-		if (afxShellManager == NULL)
+		if (theApp.GetShellManager() == NULL)
 		{
 			CWinAppEx* pApp = DYNAMIC_DOWNCAST(CWinAppEx, AfxGetApp());
 			if (pApp != NULL)
@@ -76,13 +76,13 @@ void CFileProp::OnClickButton(CPoint point)
 			}
 		}
 
-		if (afxShellManager == NULL)
+		if (theApp.GetShellManager() == NULL)
 		{
 			ASSERT(FALSE);
 		}
 		else
 		{
-			bUpdate = afxShellManager->BrowseForFolder(strPath, m_pWndList, strPath);
+			bUpdate = theApp.GetShellManager()->BrowseForFolder(strPath, m_pWndList, strPath);
 		}
 	}
 	else

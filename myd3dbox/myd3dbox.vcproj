@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -50,7 +50,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -103,7 +103,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -133,7 +133,7 @@
 				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)PxToolkit\include&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public\PhysX3&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\NxParameterized\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\shared\general\shared&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\module\destructible\public&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="false"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"

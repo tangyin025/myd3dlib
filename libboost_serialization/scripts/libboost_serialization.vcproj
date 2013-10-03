@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="lua51"
-	ProjectGUID="{198A862B-2908-48A8-8654-5D6B4583E441}"
-	RootNamespace="lua51"
+	Name="libboost_serialization"
+	ProjectGUID="{97882A3E-FE4E-4CFF-9863-517FFD484289}"
+	RootNamespace="libboost_serialization"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include"
-				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -105,8 +105,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="..\include"
-				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -151,123 +151,159 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\src\bit.c"
+				RelativePath="..\src\archive_exception.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lapi.c"
+				RelativePath="..\src\basic_archive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lauxlib.c"
+				RelativePath="..\src\basic_iarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lbaselib.c"
+				RelativePath="..\src\basic_iserializer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lcode.c"
+				RelativePath="..\src\basic_oarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ldblib.c"
+				RelativePath="..\src\basic_oserializer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ldebug.c"
+				RelativePath="..\src\basic_pointer_iserializer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ldo.c"
+				RelativePath="..\src\basic_pointer_oserializer.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ldump.c"
+				RelativePath="..\src\basic_serializer_map.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lfunc.c"
+				RelativePath="..\src\basic_text_iprimitive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lgc.c"
+				RelativePath="..\src\basic_text_oprimitive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\linit.c"
+				RelativePath="..\src\basic_text_wiprimitive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\liolib.c"
+				RelativePath="..\src\basic_text_woprimitive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\llex.c"
+				RelativePath="..\src\basic_xml_archive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lmathlib.c"
+				RelativePath="..\src\binary_iarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lmem.c"
+				RelativePath="..\src\binary_oarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\loadlib.c"
+				RelativePath="..\src\binary_wiarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lobject.c"
+				RelativePath="..\src\binary_woarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lopcodes.c"
+				RelativePath="..\src\codecvt_null.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\loslib.c"
+				RelativePath="..\src\extended_type_info.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lparser.c"
+				RelativePath="..\src\extended_type_info_no_rtti.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lstate.c"
+				RelativePath="..\src\extended_type_info_typeid.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lstring.c"
+				RelativePath="..\src\polymorphic_iarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lstrlib.c"
+				RelativePath="..\src\polymorphic_oarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ltable.c"
+				RelativePath="..\src\shared_ptr_helper.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ltablib.c"
+				RelativePath="..\src\stl_port.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\ltm.c"
+				RelativePath="..\src\text_iarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lundump.c"
+				RelativePath="..\src\text_oarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lvm.c"
+				RelativePath="..\src\text_wiarchive.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\src\lzio.c"
+				RelativePath="..\src\text_woarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\utf8_codecvt_facet.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\void_cast.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_archive_exception.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_grammar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_iarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_oarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_wgrammar.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_wiarchive.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\src\xml_woarchive.cpp"
 				>
 			</File>
 		</Filter>
@@ -276,98 +312,6 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
-			<File
-				RelativePath="..\include\lapi.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lauxlib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lcode.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ldebug.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ldo.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lfunc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lgc.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\llex.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\llimits.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lmem.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lobject.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lopcodes.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lparser.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lstate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lstring.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ltable.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\ltm.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lua.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\luaconf.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lualib.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lundump.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lvm.h"
-				>
-			</File>
-			<File
-				RelativePath="..\include\lzio.h"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
