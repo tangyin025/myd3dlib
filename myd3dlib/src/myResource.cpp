@@ -7,7 +7,7 @@
 
 using namespace my;
 
-ZipArchiveStream::ZipArchiveStream(unzFile zFile)
+ZipStream::ZipStream(unzFile zFile)
 	: m_zFile(zFile)
 {
 	_ASSERT(NULL != m_zFile);
@@ -20,18 +20,18 @@ ZipArchiveStream::ZipArchiveStream(unzFile zFile)
 	}
 }
 
-ZipArchiveStream::~ZipArchiveStream(void)
+ZipStream::~ZipStream(void)
 {
 	unzCloseCurrentFile(m_zFile);
 	unzClose(m_zFile);
 }
 
-int ZipArchiveStream::read(void * buff, unsigned read_size)
+int ZipStream::read(void * buff, unsigned read_size)
 {
 	return unzReadCurrentFile(m_zFile, buff, read_size);
 }
 
-CachePtr ZipArchiveStream::GetWholeCache(void)
+CachePtr ZipStream::GetWholeCache(void)
 {
 	CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
 	if(0 == cache->size())
@@ -47,23 +47,23 @@ CachePtr ZipArchiveStream::GetWholeCache(void)
 	return cache;
 }
 
-FileArchiveStream::FileArchiveStream(FILE * fp)
+FileStream::FileStream(FILE * fp)
 	: m_fp(fp)
 {
 	_ASSERT(NULL != m_fp);
 }
 
-FileArchiveStream::~FileArchiveStream(void)
+FileStream::~FileStream(void)
 {
 	fclose(m_fp);
 }
 
-int FileArchiveStream::read(void * buff, unsigned read_size)
+int FileStream::read(void * buff, unsigned read_size)
 {
 	return fread(buff, 1, read_size, m_fp);
 }
 
-CachePtr FileArchiveStream::GetWholeCache(void)
+CachePtr FileStream::GetWholeCache(void)
 {
 	fseek(m_fp, 0, SEEK_END);
 	long len = ftell(m_fp);
@@ -82,7 +82,7 @@ CachePtr FileArchiveStream::GetWholeCache(void)
 	return cache;
 }
 
-std::string ZipArchiveDir::ReplaceSlash(const std::string & path)
+std::string ZipStreamDir::ReplaceSlash(const std::string & path)
 {
 	size_t pos = 0;
 	std::string ret = path;
@@ -93,7 +93,7 @@ std::string ZipArchiveDir::ReplaceSlash(const std::string & path)
 	return ret;
 }
 
-std::string ZipArchiveDir::ReplaceBackslash(const std::string & path)
+std::string ZipStreamDir::ReplaceBackslash(const std::string & path)
 {
 	size_t pos = 0;
 	std::string ret = path;
@@ -104,7 +104,7 @@ std::string ZipArchiveDir::ReplaceBackslash(const std::string & path)
 	return ret;
 }
 
-bool ZipArchiveDir::CheckArchivePath(const std::string & path)
+bool ZipStreamDir::CheckPath(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
@@ -123,12 +123,12 @@ bool ZipArchiveDir::CheckArchivePath(const std::string & path)
 	return true;
 }
 
-std::string ZipArchiveDir::GetFullPath(const std::string & path)
+std::string ZipStreamDir::GetFullPath(const std::string & path)
 {
 	return std::string();
 }
 
-ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
+IOStreamPtr ZipStreamDir::OpenStream(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
@@ -156,15 +156,15 @@ ArchiveStreamPtr ZipArchiveDir::OpenArchiveStream(const std::string & path)
 		unzClose(zFile);
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
 	}
-	return ArchiveStreamPtr(new ZipArchiveStream(zFile));
+	return IOStreamPtr(new ZipStream(zFile));
 }
 
-bool FileArchiveDir::CheckArchivePath(const std::string & path)
+bool FileStreamDir::CheckPath(const std::string & path)
 {
 	return !GetFullPath(path).empty();
 }
 
-std::string FileArchiveDir::GetFullPath(const std::string & path)
+std::string FileStreamDir::GetFullPath(const std::string & path)
 {
 	std::string fullPath;
 	char * lpFilePath;
@@ -180,7 +180,7 @@ std::string FileArchiveDir::GetFullPath(const std::string & path)
 	return fullPath;
 }
 
-ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
+IOStreamPtr FileStreamDir::OpenStream(const std::string & path)
 {
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
@@ -194,34 +194,34 @@ ArchiveStreamPtr FileArchiveDir::OpenArchiveStream(const std::string & path)
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 	}
 
-	return ArchiveStreamPtr(new FileArchiveStream(fp));
+	return IOStreamPtr(new FileStream(fp));
 }
 
-void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path)
+void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
 	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path));
+	m_DirMap[zip_path] = ResourceDirPtr(new ZipStreamDir(zip_path));
 }
 
-void ArchiveDirMgr::RegisterZipArchive(const std::string & zip_path, const std::string & password)
+void StreamDirMgr::RegisterZipDir(const std::string & zip_path, const std::string & password)
 {
 	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[zip_path] = ResourceDirPtr(new ZipArchiveDir(zip_path, password));
+	m_DirMap[zip_path] = ResourceDirPtr(new ZipStreamDir(zip_path, password));
 }
 
-void ArchiveDirMgr::RegisterFileDir(const std::string & dir)
+void StreamDirMgr::RegisterFileDir(const std::string & dir)
 {
 	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[dir] = ResourceDirPtr(new FileArchiveDir(dir));
+	m_DirMap[dir] = ResourceDirPtr(new FileStreamDir(dir));
 }
 
-bool ArchiveDirMgr::CheckArchivePath(const std::string & path)
+bool StreamDirMgr::CheckPath(const std::string & path)
 {
 	CriticalSectionLock lock(m_DirMapSection);
 	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
 	for(; dir_iter != m_DirMap.end(); dir_iter++)
 	{
-		if(dir_iter->second->CheckArchivePath(path))
+		if(dir_iter->second->CheckPath(path))
 		{
 			return true;
 		}
@@ -230,7 +230,7 @@ bool ArchiveDirMgr::CheckArchivePath(const std::string & path)
 	return false;
 }
 
-std::string ArchiveDirMgr::GetFullPath(const std::string & path)
+std::string StreamDirMgr::GetFullPath(const std::string & path)
 {
 	if(!PathIsRelativeA(path.c_str()))
 	{
@@ -251,7 +251,7 @@ std::string ArchiveDirMgr::GetFullPath(const std::string & path)
 	return std::string();
 }
 
-ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
+IOStreamPtr StreamDirMgr::OpenStream(const std::string & path)
 {
 	if(!PathIsRelativeA(path.c_str()))
 	{
@@ -260,16 +260,16 @@ ArchiveStreamPtr ArchiveDirMgr::OpenArchiveStream(const std::string & path)
 		{
 			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 		}
-		return ArchiveStreamPtr(new FileArchiveStream(fp));
+		return IOStreamPtr(new FileStream(fp));
 	}
 
 	CriticalSectionLock lock(m_DirMapSection);
 	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
 	for(; dir_iter != m_DirMap.end(); dir_iter++)
 	{
-		if(dir_iter->second->CheckArchivePath(path))
+		if(dir_iter->second->CheckPath(path))
 		{
-			return dir_iter->second->OpenArchiveStream(path);
+			return dir_iter->second->OpenStream(path);
 		}
 	}
 
@@ -482,9 +482,9 @@ HRESULT AsynchronousResourceMgr::Open(
 	{
 	case D3DXINC_SYSTEM:
 	case D3DXINC_LOCAL:
-		if(CheckArchivePath(path))
+		if(CheckPath(path))
 		{
-			cache = OpenArchiveStream(path)->GetWholeCache();
+			cache = OpenStream(path)->GetWholeCache();
 			*ppData = &(*cache)[0];
 			*pBytes = cache->size();
 			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
@@ -567,12 +567,12 @@ class TextureIORequest : public IORequest
 protected:
 	std::string m_path;
 
-	ArchiveDirMgr * m_arc;
+	StreamDirMgr * m_arc;
 
 	CachePtr m_cache;
 
 public:
-	TextureIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+	TextureIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
 		: m_path(path)
 		, m_arc(arc)
 	{
@@ -584,9 +584,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 		}
 	}
 
@@ -632,14 +632,14 @@ class MeshIORequest : public IORequest
 protected:
 	std::string m_path;
 
-	ArchiveDirMgr * m_arc;
+	StreamDirMgr * m_arc;
 
 	CachePtr m_cache;
 
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	MeshIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+	MeshIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
 		: m_path(path)
 		, m_arc(arc)
 	{
@@ -651,9 +651,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -695,14 +695,14 @@ class SkeletonIORequest : public IORequest
 protected:
 	std::string m_path;
 
-	ArchiveDirMgr * m_arc;
+	StreamDirMgr * m_arc;
 
 	CachePtr m_cache;
 
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	SkeletonIORequest(const ResourceCallback & callback, const std::string & path, ArchiveDirMgr * arc)
+	SkeletonIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
 		: m_path(path)
 		, m_arc(arc)
 	{
@@ -714,9 +714,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -786,9 +786,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 		}
 	}
 
@@ -797,7 +797,7 @@ public:
 		if(m_cache)
 		{
 			m_res.reset(new Effect());
-			m_arc->m_EffectInclude = ZipArchiveDir::ReplaceSlash(m_path);
+			m_arc->m_EffectInclude = ZipStreamDir::ReplaceSlash(m_path);
 			PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
 			boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
 		}
@@ -841,12 +841,12 @@ protected:
 
 	int m_height;
 
-	ArchiveDirMgr * m_arc;
+	StreamDirMgr * m_arc;
 
 	CachePtr m_cache;
 
 public:
-	FontIORequest(const ResourceCallback & callback, const std::string & path, int height, ArchiveDirMgr * arc)
+	FontIORequest(const ResourceCallback & callback, const std::string & path, int height, StreamDirMgr * arc)
 		: m_path(path)
 		, m_height(height)
 		, m_arc(arc)
@@ -859,9 +859,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 		}
 	}
 

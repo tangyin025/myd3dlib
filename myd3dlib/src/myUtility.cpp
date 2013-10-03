@@ -1024,9 +1024,9 @@ public:
 
 	virtual void DoLoad(void)
 	{
-		if(m_arc->CheckArchivePath(m_path))
+		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenArchiveStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -1146,13 +1146,4 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 	CheckRequest(path, request, INFINITE);
 
 	return boost::dynamic_pointer_cast<Material>(request->m_res);
-}
-
-void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallback & callback)
-{
-}
-
-EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
-{
-	return EmitterPtr();
 }

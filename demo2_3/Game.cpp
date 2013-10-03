@@ -142,9 +142,9 @@ void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
 Game::Game(void)
 {
 	RegisterFileDir("Media");
-	RegisterZipArchive("Media.zip");
+	RegisterZipDir("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipArchive("..\\demo2_3\\Media.zip");
+	RegisterZipDir("..\\demo2_3\\Media.zip");
 
 	m_lua.reset(new LuaContext());
 

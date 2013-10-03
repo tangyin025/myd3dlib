@@ -24,9 +24,9 @@ BOOL CMainApp::InitInstance(void)
 	LoadStdProfileSettings(4);
 
 	RegisterFileDir("Media");
-	RegisterZipArchive("Media.zip");
+	RegisterZipDir("Media.zip");
 	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipArchive("..\\demo2_3\\Media.zip");
+	RegisterZipDir("..\\demo2_3\\Media.zip");
 
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)

@@ -29,7 +29,7 @@ static int lua_print(lua_State * L)
 typedef struct LoadF {
 	int extraline;
 	//FILE *f;
-	my::ArchiveStreamPtr stream;
+	my::IOStreamPtr stream;
 	char buff[LUAL_BUFFERSIZE];
 } LoadF;
 
@@ -86,7 +86,7 @@ static int luaL_loadfile (lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		lf.stream = Game::getSingleton().OpenArchiveStream(filename);
+		lf.stream = Game::getSingleton().OpenStream(filename);
 	}
 	catch(const my::Exception & e)
 	{
@@ -1013,8 +1013,6 @@ void Export2Lua(lua_State * L)
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
 			.def("LoadMaterialAsync", &my::ResourceMgr::LoadMaterialAsync)
 			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
-			.def("LoadEmitterAsync", &my::ResourceMgr::LoadEmitterAsync)
-			.def("LoadEmitter", &my::ResourceMgr::LoadEmitter)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)

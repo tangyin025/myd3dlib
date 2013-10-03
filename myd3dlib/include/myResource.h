@@ -14,10 +14,10 @@ namespace my
 
 	typedef boost::shared_ptr<Cache> CachePtr;
 
-	class ArchiveStream
+	class IOStream
 	{
 	public:
-		virtual ~ArchiveStream(void)
+		virtual ~IOStream(void)
 		{
 		}
 
@@ -26,9 +26,9 @@ namespace my
 		virtual CachePtr GetWholeCache(void) = 0;
 	};
 
-	typedef boost::shared_ptr<ArchiveStream> ArchiveStreamPtr;
+	typedef boost::shared_ptr<IOStream> IOStreamPtr;
 
-	class ZipArchiveStream : public ArchiveStream
+	class ZipStream : public IOStream
 	{
 	protected:
 		unzFile m_zFile;
@@ -36,53 +36,53 @@ namespace my
 		unz_file_info m_zFileInfo;
 
 	public:
-		ZipArchiveStream(unzFile zFile);
+		ZipStream(unzFile zFile);
 
-		~ZipArchiveStream(void);
+		~ZipStream(void);
 
 		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
 	};
 
-	class FileArchiveStream : public ArchiveStream
+	class FileStream : public IOStream
 	{
 	protected:
 		FILE * m_fp;
 
 	public:
-		FileArchiveStream(FILE * fp);
+		FileStream(FILE * fp);
 
-		~FileArchiveStream(void);
+		~FileStream(void);
 
 		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
 	};
 
-	class ArchiveDir
+	class StreamDir
 	{
 	protected:
 		std::string m_dir;
 
 	public:
-		ArchiveDir(const std::string & dir)
+		StreamDir(const std::string & dir)
 			: m_dir(dir)
 		{
 		}
 
-		virtual ~ArchiveDir(void)
+		virtual ~StreamDir(void)
 		{
 		}
 
-		virtual bool CheckArchivePath(const std::string & path) = 0;
+		virtual bool CheckPath(const std::string & path) = 0;
 
 		virtual std::string GetFullPath(const std::string & path) = 0;
 
-		virtual ArchiveStreamPtr OpenArchiveStream(const std::string & path) = 0;
+		virtual IOStreamPtr OpenStream(const std::string & path) = 0;
 	};
 
-	class ZipArchiveDir : public ArchiveDir
+	class ZipStreamDir : public StreamDir
 	{
 	protected:
 		std::string m_password;
@@ -90,14 +90,14 @@ namespace my
 		bool m_UsePassword;
 
 	public:
-		ZipArchiveDir(const std::string & dir)
-			: ArchiveDir(dir)
+		ZipStreamDir(const std::string & dir)
+			: StreamDir(dir)
 			, m_UsePassword(false)
 		{
 		}
 
-		ZipArchiveDir(const std::string & dir, const std::string & password)
-			: ArchiveDir(dir)
+		ZipStreamDir(const std::string & dir, const std::string & password)
+			: StreamDir(dir)
 			, m_UsePassword(true)
 			, m_password(password)
 		{
@@ -107,32 +107,32 @@ namespace my
 
 		static std::string ReplaceBackslash(const std::string & path);
 
-		bool CheckArchivePath(const std::string & path);
+		bool CheckPath(const std::string & path);
 
 		std::string GetFullPath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		IOStreamPtr OpenStream(const std::string & path);
 	};
 
-	class FileArchiveDir : public ArchiveDir
+	class FileStreamDir : public StreamDir
 	{
 	public:
-		FileArchiveDir(const std::string & dir)
-			: ArchiveDir(dir)
+		FileStreamDir(const std::string & dir)
+			: StreamDir(dir)
 		{
 		}
 
-		bool CheckArchivePath(const std::string & path);
+		bool CheckPath(const std::string & path);
 
 		std::string GetFullPath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		IOStreamPtr OpenStream(const std::string & path);
 	};
 
-	class ArchiveDirMgr
+	class StreamDirMgr
 	{
 	protected:
-		typedef boost::shared_ptr<ArchiveDir> ResourceDirPtr;
+		typedef boost::shared_ptr<StreamDir> ResourceDirPtr;
 
 		typedef boost::unordered_map<std::string, ResourceDirPtr> ResourceDirPtrMap;
 
@@ -141,25 +141,25 @@ namespace my
 		CriticalSection m_DirMapSection;
 
 	public:
-		ArchiveDirMgr(void)
+		StreamDirMgr(void)
 		{
 		}
 
-		virtual ~ArchiveDirMgr(void)
+		virtual ~StreamDirMgr(void)
 		{
 		}
 
-		void RegisterZipArchive(const std::string & zip_path);
+		void RegisterZipDir(const std::string & zip_path);
 
-		void RegisterZipArchive(const std::string & zip_path, const std::string & password);
+		void RegisterZipDir(const std::string & zip_path, const std::string & password);
 
 		void RegisterFileDir(const std::string & dir);
 
-		bool CheckArchivePath(const std::string & path);
+		bool CheckPath(const std::string & path);
 
 		std::string GetFullPath(const std::string & path);
 
-		ArchiveStreamPtr OpenArchiveStream(const std::string & path);
+		IOStreamPtr OpenStream(const std::string & path);
 	};
 
 	typedef boost::function<void (DeviceRelatedObjectBasePtr)> ResourceCallback;
@@ -192,7 +192,7 @@ namespace my
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
 
-	class AsynchronousIOMgr : public ArchiveDirMgr
+	class AsynchronousIOMgr : public StreamDirMgr
 	{
 	protected:
 		typedef std::list<std::pair<std::string, IORequestPtr> > IORequestPtrPairList;

@@ -39,7 +39,7 @@ class Demo : public Game
 		}
 		m_Scene->addActor(*m_actor);
 
-		CachePtr cache = OpenArchiveStream("Wall.apx")->GetWholeCache();
+		CachePtr cache = OpenStream("Wall.apx")->GetWholeCache();
 		physx_ptr<physx::PxFileBuf> stream(m_ApexSDK->createMemoryReadStream(&(*cache)[0], cache->size()));
 		NxParameterized::Serializer::SerializeType iSerType = m_ApexSDK->getSerializeType(*stream);
 		physx_ptr<NxParameterized::Serializer> ser(m_ApexSDK->createSerializer(iSerType));

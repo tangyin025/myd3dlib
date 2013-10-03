@@ -629,7 +629,7 @@ void OgreMesh::CreateMeshFromOgreXmlInFile(
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
 	}
 
-	CachePtr cache = ArchiveStreamPtr(new FileArchiveStream(fp))->GetWholeCache();
+	CachePtr cache = IOStreamPtr(new FileStream(fp))->GetWholeCache();
 	cache->push_back(0);
 
 	CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
