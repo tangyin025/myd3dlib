@@ -176,7 +176,7 @@ bool PhysXSceneContext::OnInit(void)
 
 void PhysXSceneContext::OnShutdown(void)
 {
-	_ASSERT(0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	_ASSERT(!m_Scene || 0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 
 	m_Material.reset();
 

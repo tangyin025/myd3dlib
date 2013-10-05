@@ -153,6 +153,11 @@ Game::Game(void)
 
 Game::~Game(void)
 {
+	// ! All delegated object must have been destroyed before destruct m_lua
+	PhysXSceneContext::OnShutdown();
+	m_dlgSetMap.clear();
+	RemoveAllTimer();
+	ImeEditBox::Uninitialize();
 }
 
 bool Game::IsDeviceAcceptable(

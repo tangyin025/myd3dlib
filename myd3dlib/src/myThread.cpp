@@ -143,7 +143,7 @@ Thread::Thread(const ThreadCallback & Callback)
 
 Thread::~Thread(void)
 {
-	_ASSERT(NULL == m_hThread);
+	//_ASSERT(NULL == m_hThread);
 }
 
 void Thread::CreateThread(DWORD dwCreationFlags)
@@ -224,6 +224,8 @@ BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 
 void Thread::CloseThread(void)
 {
+	_ASSERT(NULL != m_hThread);
+
 	::CloseHandle(m_hThread);
 	m_hThread = NULL;
 }
