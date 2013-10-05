@@ -35,6 +35,14 @@ namespace my
 		: public DeviceRelatedObjectBase
 	{
 	public:
+		enum EmitterType
+		{
+			EmitterTypeDefault,
+			EmitterTypeSpherical,
+		};
+
+		const EmitterType m_Type;
+
 		enum DirectionType
 		{
 			DirectionTypeCamera,
@@ -43,10 +51,6 @@ namespace my
 		};
 
 		DirectionType m_Direction;
-
-		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
-
-		ParticlePtrPairList m_ParticleList;
 
 		float m_ParticleLifeTime;
 
@@ -72,9 +76,14 @@ namespace my
 
 		BaseTexturePtr m_Texture;
 
+		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
+
+		ParticlePtrPairList m_ParticleList;
+
 	public:
-		Emitter(void)
-			: m_Direction(DirectionTypeCamera)
+		Emitter(EmitterType Type = EmitterTypeDefault)
+			: m_Type(Type)
+			, m_Direction(DirectionTypeCamera)
 			, m_ParticleLifeTime(10)
 			, m_ParticleColorA(255)
 			, m_ParticleColorR(255)
@@ -142,7 +151,8 @@ namespace my
 
 	public:
 		SphericalEmitter(void)
-			: m_Position(0,0,0)
+			: Emitter(EmitterTypeSpherical)
+			, m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_Time(0)
 			, m_SpawnInterval(5)

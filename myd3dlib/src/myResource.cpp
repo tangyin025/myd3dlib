@@ -415,6 +415,19 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_ResourceWeakSet.clear();
 }
 
+std::string DeviceRelatedResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
+{
+	DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
+	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
+	{
+		if(res == res_iter->second.lock())
+		{
+			return res_iter->first;
+		}
+	}
+	return std::string();
+}
+
 HRESULT AsynchronousResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)

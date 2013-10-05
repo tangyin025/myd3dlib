@@ -11,6 +11,14 @@ namespace my
 		float x, y, k0, k;
 
 	public:
+		SplineNode(void)
+			//: x(0)
+			//, y(0)
+			//, k0(0)
+			//, k(0)
+		{
+		}
+
 		SplineNode(float _x, float _y, float _k0, float _k)
 			: x(_x), y(_y), k0(_k0), k(_k)
 		{
@@ -21,7 +29,7 @@ namespace my
 
 	typedef boost::shared_ptr<SplineNode> SplineNodePtr;
 
-	class Spline : protected std::vector<SplineNodePtr>
+	class Spline : public std::vector<SplineNodePtr>
 	{
 	public:
 		Spline(void)

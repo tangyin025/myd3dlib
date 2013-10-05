@@ -416,25 +416,6 @@ namespace my
 
 	typedef boost::shared_ptr<Material> MaterialPtr;
 
-	class MaterialMgr
-	{
-	public:
-		typedef boost::unordered_map<std::string, MaterialPtr> MaterialPtrMap;
-
-		MaterialPtrMap m_MaterialMap;
-
-	public:
-		MaterialMgr(void)
-		{
-		}
-
-		void InsertMaterial(const std::string & key, MaterialPtr material);
-
-		void RemoveMaterial(const std::string & key);
-
-		void RemoveAllMaterial(void);
-	};
-
 	class ResourceMgr : public AsynchronousResourceMgr
 	{
 	protected:
@@ -475,5 +456,13 @@ namespace my
 		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
 
 		MaterialPtr LoadMaterial(const std::string & path);
+
+		class EmitterIORequest;
+
+		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
+
+		EmitterPtr LoadEmitter(const std::string & path);
+
+		void SaveEmitter(const std::string & path, EmitterPtr emitter);
 	};
 }

@@ -244,6 +244,8 @@ namespace my
 		void OnLostDevice(void);
 
 		void OnDestroyDevice(void);
+
+		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
 	};
 
 	class AsynchronousResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude

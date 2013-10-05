@@ -71,7 +71,6 @@ class Game
 	, public my::DialogMgr
 	, public my::EmitterMgr
 	, public my::ResourceMgr
-	, public my::MaterialMgr
 	, public PhysXSceneContext
 {
 public:

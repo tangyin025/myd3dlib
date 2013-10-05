@@ -820,13 +820,19 @@ void Export2Lua(lua_State * L)
 			.def("Interpolate", &my::EmitterParameter<float>::Interpolate)
 
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
+			.def(constructor<>())
+			.enum_("EmitterType")
+			[
+				value("EmitterTypeDefault", my::Emitter::DirectionTypeCamera),
+				value("EmitterTypeSpherical", my::Emitter::DirectionTypeVertical)
+			]
+			.def_readonly("Type", &my::Emitter::m_Type)
 			.enum_("DirectionType")
 			[
 				value("DirectionTypeCamera", my::Emitter::DirectionTypeCamera),
 				value("DirectionTypeVertical", my::Emitter::DirectionTypeVertical),
 				value("DirectionTypeHorizontal", my::Emitter::DirectionTypeHorizontal)
 			]
-			.def(constructor<>())
 			.def_readwrite("Direction", &my::Emitter::m_Direction)
 			.def_readwrite("ParticleLifeTime", &my::Emitter::m_ParticleLifeTime)
 			.def_readonly("ParticleColorA", &my::Emitter::m_ParticleColorA)
@@ -855,12 +861,6 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("SpawnLoopTime", &my::SphericalEmitter::m_SpawnLoopTime)
 
 		, class_<my::ResourceCallback>("ResourceCallback")
-
-		, def("res2texture", (my::BaseTexturePtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::BaseTexture>)
-		, def("res2mesh", (my::OgreMeshPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreMesh>)
-		, def("res2skeleton", (my::OgreSkeletonAnimationPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>)
-		, def("res2effect", (my::EffectPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Effect>)
-		, def("res2font", (my::FontPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Font>)
 
 		, class_<my::AsynchronousResourceMgr>("AsynchronousResourceMgr")
 			.def("LoadTextureAsync", &my::AsynchronousResourceMgr::LoadTextureAsync)
@@ -1007,12 +1007,20 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
 
-		, def("res2material", (my::MaterialPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Material>)
-		, def("res2emitter", (my::EmitterPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Emitter>)
-
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
 			.def("LoadMaterialAsync", &my::ResourceMgr::LoadMaterialAsync)
 			.def("LoadMaterial", &my::ResourceMgr::LoadMaterial)
+			.def("LoadEmitterAsync", &my::ResourceMgr::LoadEmitterAsync)
+			.def("LoadEmitter", &my::ResourceMgr::LoadEmitter)
+			.def("SaveEmitter", &my::ResourceMgr::SaveEmitter)
+
+		, def("res2texture", (my::BaseTexturePtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::BaseTexture>)
+		, def("res2mesh", (my::OgreMeshPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreMesh>)
+		, def("res2skeleton", (my::OgreSkeletonAnimationPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>)
+		, def("res2effect", (my::EffectPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Effect>)
+		, def("res2font", (my::FontPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Font>)
+		, def("res2material", (my::MaterialPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Material>)
+		, def("res2emitter", (my::EmitterPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::Emitter>)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readwrite("Fov", &my::BaseCamera::m_Fov)
@@ -1052,9 +1060,6 @@ void Export2Lua(lua_State * L)
 			.def("InsertEmitter", &my::EmitterMgr::InsertEmitter)
 			.def("RemoveEmitter", &my::EmitterMgr::RemoveEmitter)
 			.def("RemoveAllEmitter", &my::EmitterMgr::RemoveAllEmitter)
-			.def("InsertMaterial", &my::MaterialMgr::InsertMaterial)
-			.def("RemoveMaterial", &my::MaterialMgr::RemoveMaterial)
-			.def("RemoveAllMaterial", &my::MaterialMgr::RemoveAllMaterial)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def("ExecuteCode", &Game::ExecuteCode)
