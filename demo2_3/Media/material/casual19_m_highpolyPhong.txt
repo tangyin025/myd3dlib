@@ -1,0 +1,1 @@
+22 serialization::archive 10 1 19 shader/Character.fx 6 13 g_CubeTexture 6 25 texture/galileo_cross.dds 15 g_NormalTexture 6 32 texture/casual19_m_35_normal.png 13 g_MeshTexture 6 25 texture/casual19_m_35.jpg 22 g_MaterialDiffuseColor 3 0 0 1 1 1 1 17 g_SpecularTexture 6 30 texture/casual19_m_35_spec.png 22 g_MaterialAmbientColor 3 0.30000001 0.30000001 0.30000001 1
