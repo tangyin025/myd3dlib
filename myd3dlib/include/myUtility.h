@@ -345,7 +345,22 @@ namespace my
 	class EffectParameterBase
 	{
 	public:
-		EffectParameterBase(void)
+		enum EffectParameterType
+		{
+			EffectParameterTypeBool,
+			EffectParameterTypeFloat,
+			EffectParameterTypeInt,
+			EffectParameterTypeVector,
+			EffectParameterTypeMatrix,
+			EffectParameterTypeString,
+			EffectParameterTypeTexture,
+		};
+
+		const EffectParameterType m_Type;
+
+	public:
+		EffectParameterBase(EffectParameterType Type)
+			: m_Type(Type)
 		{
 		}
 
@@ -362,8 +377,9 @@ namespace my
 	public:
 		T m_Value;
 
-		EffectParameter(const T & Value)
-			: m_Value(Value)
+		EffectParameter(EffectParameterType Type, const T & Value)
+			: EffectParameterBase(Type)
+			, m_Value(Value)
 		{
 		}
 
@@ -456,6 +472,8 @@ namespace my
 		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
 
 		MaterialPtr LoadMaterial(const std::string & path);
+
+		void SaveMaterial(const std::string & path, MaterialPtr material);
 
 		class EmitterIORequest;
 

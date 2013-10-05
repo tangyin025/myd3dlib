@@ -40,5 +40,4 @@ game.Camera=camera
 -- character.Scale=Vector3(0.01,0.01,0.01)
 -- state:InsertCharacter(character)
 
--- game:LoadEmitterAsync("emitter_01.txt", function(res) game:InsertEmitter(res2emitter(res)) end)
-game:InsertEmitter(game:LoadEmitter("emitter_01.txt"))
+-- game:InsertEmitter(game:LoadEmitter("emitter_01.txt"))

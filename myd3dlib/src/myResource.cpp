@@ -825,6 +825,7 @@ public:
 		{
 			ostr << ", " << macro_iter->first << ", " << macro_iter->second;
 		}
+		ostr << std::ends;
 		return ostr.str();
 	}
 };
