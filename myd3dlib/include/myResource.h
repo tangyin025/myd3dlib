@@ -62,8 +62,8 @@ namespace my
 
 	class StreamDir
 	{
-	protected:
-		std::string m_dir;
+	public:
+		const std::string m_dir;
 
 	public:
 		StreamDir(const std::string & dir)
@@ -134,11 +134,11 @@ namespace my
 	protected:
 		typedef boost::shared_ptr<StreamDir> ResourceDirPtr;
 
-		typedef boost::unordered_map<std::string, ResourceDirPtr> ResourceDirPtrMap;
+		typedef std::vector<ResourceDirPtr> ResourceDirPtrList;
 
-		ResourceDirPtrMap m_DirMap;
+		ResourceDirPtrList m_DirList;
 
-		CriticalSection m_DirMapSection;
+		CriticalSection m_DirListSection;
 
 	public:
 		StreamDirMgr(void)

@@ -1281,7 +1281,7 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 
 void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
 {
-	std::ofstream ofs(path.c_str());
+	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::text_oarchive oa(ofs);
 	MaterialIORequest request(ResourceCallback(), path, this);
 	request.Serialize(oa, material, ResourceCallbackBoundlePtr());
@@ -1449,7 +1449,7 @@ EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
 
 void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 {
-	std::ofstream ofs(path.c_str());
+	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::text_oarchive oa(ofs);
 	EmitterIORequest request(ResourceCallback(), path, this);
 	oa << emitter->m_Type;

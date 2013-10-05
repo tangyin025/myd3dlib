@@ -199,29 +199,29 @@ IOStreamPtr FileStreamDir::OpenStream(const std::string & path)
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
-	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[zip_path] = ResourceDirPtr(new ZipStreamDir(zip_path));
+	CriticalSectionLock lock(m_DirListSection);
+	m_DirList.push_back(ResourceDirPtr(new ZipStreamDir(zip_path)));
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path, const std::string & password)
 {
-	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[zip_path] = ResourceDirPtr(new ZipStreamDir(zip_path, password));
+	CriticalSectionLock lock(m_DirListSection);
+	m_DirList.push_back(ResourceDirPtr(new ZipStreamDir(zip_path, password)));
 }
 
 void StreamDirMgr::RegisterFileDir(const std::string & dir)
 {
-	CriticalSectionLock lock(m_DirMapSection);
-	m_DirMap[dir] = ResourceDirPtr(new FileStreamDir(dir));
+	CriticalSectionLock lock(m_DirListSection);
+	m_DirList.push_back(ResourceDirPtr(new FileStreamDir(dir)));
 }
 
 bool StreamDirMgr::CheckPath(const std::string & path)
 {
-	CriticalSectionLock lock(m_DirMapSection);
-	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
-	for(; dir_iter != m_DirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirListSection);
+	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		if(dir_iter->second->CheckPath(path))
+		if((*dir_iter)->CheckPath(path))
 		{
 			return true;
 		}
@@ -237,15 +237,28 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 		return path;
 	}
 
-	CriticalSectionLock lock(m_DirMapSection);
-	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
-	for(; dir_iter != m_DirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirListSection);
+	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		std::string ret = dir_iter->second->GetFullPath(path);
+		std::string ret = (*dir_iter)->GetFullPath(path);
 		if(!ret.empty())
 		{
 			return ret;
 		}
+	}
+
+	// ! will return the default first combined path
+	if(!m_DirList.empty())
+	{
+		std::string ret;
+		ret.resize(MAX_PATH);
+		PathCombineA(&ret[0], m_DirList.front()->m_dir.c_str(), path.c_str());
+		ret = ZipStreamDir::ReplaceSlash(ret);
+		std::string full_path;
+		full_path.resize(MAX_PATH);
+		GetFullPathNameA(ret.c_str(), full_path.size(), &full_path[0], NULL);
+		return full_path;
 	}
 
 	return std::string();
@@ -263,13 +276,13 @@ IOStreamPtr StreamDirMgr::OpenStream(const std::string & path)
 		return IOStreamPtr(new FileStream(fp));
 	}
 
-	CriticalSectionLock lock(m_DirMapSection);
-	ResourceDirPtrMap::iterator dir_iter = m_DirMap.begin();
-	for(; dir_iter != m_DirMap.end(); dir_iter++)
+	CriticalSectionLock lock(m_DirListSection);
+	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
+	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
-		if(dir_iter->second->CheckPath(path))
+		if((*dir_iter)->CheckPath(path))
 		{
-			return dir_iter->second->OpenStream(path);
+			return (*dir_iter)->OpenStream(path);
 		}
 	}
 
