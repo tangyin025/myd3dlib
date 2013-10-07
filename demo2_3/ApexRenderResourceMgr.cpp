@@ -358,8 +358,8 @@ ApexRenderResource::~ApexRenderResource(void)
 
 void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World, UINT mi)
 {
-	(*m_material)[0].first->SetMatrix("g_World", World);
-	(*m_material)[0].first->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
+	m_material->GetEffectParameterPair(0).first->SetMatrix("g_World", World);
+	m_material->GetEffectParameterPair(0).first->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
 	m_material->ApplyParameterBlock(mi);
 
 	HRESULT hr;

@@ -248,6 +248,10 @@ namespace my
 		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
 	};
 
+	typedef std::pair<std::string, std::string> EffectMacroPair;
+
+	typedef std::vector<EffectMacroPair> EffectMacroPairList;
+
 	class AsynchronousResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude
 	{
 	protected:
@@ -303,10 +307,6 @@ namespace my
 		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
 
 		class EffectIORequest;
-
-		typedef std::pair<std::string, std::string> EffectMacroPair;
-
-		typedef std::vector<EffectMacroPair> EffectMacroPairList;
 
 		void LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
 

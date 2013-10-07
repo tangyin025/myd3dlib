@@ -404,7 +404,9 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	class Material : public DeviceRelatedObjectBase, public std::vector<std::pair<EffectPtr, EffectParameterMap> >
+	typedef std::pair<EffectPtr, EffectParameterMap> EffectParameterPair;
+
+	class Material : public DeviceRelatedObjectBase, protected std::vector<EffectParameterPair>
 	{
 	public:
 		Material(void)
@@ -416,6 +418,10 @@ namespace my
 		void OnLostDevice(void);
 
 		void OnDestroyDevice(void);
+
+		EffectParameterPair & GetEffectParameterPair(UINT i);
+
+		size_t GetEffectParameterPairCount(void) const;
 
 		void ApplyParameterBlock(UINT i);
 

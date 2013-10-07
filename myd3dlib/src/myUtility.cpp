@@ -922,6 +922,20 @@ void Material::OnDestroyDevice(void)
 {
 }
 
+EffectParameterPair & Material::GetEffectParameterPair(UINT i)
+{
+	if(i >= size())
+	{
+		resize(i + 1, EffectParameterPair());
+	}
+	return operator [] (i);
+}
+
+size_t Material::GetEffectParameterPairCount(void) const
+{
+	return size();
+}
+
 void Material::ApplyParameterBlock(UINT i)
 {
 	const value_type & effect_pair = operator [] (i);
@@ -1079,12 +1093,12 @@ public:
 
 	static void MaterialSetEffect(ResourceCallbackBoundlePtr boundle, size_t effect_i, DeviceRelatedObjectBasePtr effect_res)
 	{
-		(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[effect_i].first = boost::dynamic_pointer_cast<Effect>(effect_res);
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(effect_i).first = boost::dynamic_pointer_cast<Effect>(effect_res);
 	}
 
 	static void MaterialSetEffectTextureParameter(ResourceCallbackBoundlePtr boundle, size_t effect_i, std::string value, DeviceRelatedObjectBasePtr texture_res)
 	{
-		(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[effect_i].second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(effect_i).second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
 	}
 
 	virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const EffectMacroPairList & macros)
@@ -1196,11 +1210,11 @@ public:
 	{
 		if(Archive::is_saving::value)
 		{
-			size_t count = material->size();
+			size_t count = material->GetEffectParameterPairCount();
 			ar & count;
-			for(size_t i = 0; i < material->size(); i++)
+			for(size_t i = 0; i < count; i++)
 			{
-				Serialize(ar, (*material)[i], i, boundle);
+				Serialize(ar, material->GetEffectParameterPair(i), i, boundle);
 			}
 		}
 		else
@@ -1209,8 +1223,7 @@ public:
 			ar & count;
 			for(size_t i = 0; i < count; i++)
 			{
-				material->push_back(std::make_pair(EffectPtr(), EffectParameterMap()));
-				Serialize(ar, material->back(), i, boundle);
+				Serialize(ar, material->GetEffectParameterPair(i), i, boundle);
 			}
 		}
 	}
@@ -1261,12 +1274,12 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 
 		virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const EffectMacroPairList & macros)
 		{
-			(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[i].first = m_arc->LoadEffect(path, macros);
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(i).first = m_arc->LoadEffect(path, macros);
 		}
 
 		virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const std::string & name)
 		{
-			(*boost::dynamic_pointer_cast<Material>(boundle->m_res))[i].second.SetTexture(name, m_arc->LoadTexture(path));
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(i).second.SetTexture(name, m_arc->LoadTexture(path));
 		}
 
 		virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)

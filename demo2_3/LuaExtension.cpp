@@ -862,6 +862,15 @@ void Export2Lua(lua_State * L)
 
 		, class_<my::ResourceCallback>("ResourceCallback")
 
+		, class_<my::EffectMacroPair>("EffectMacroPair")
+			.def(constructor<>())
+			.def_readwrite("first", &my::EffectMacroPair::first)
+			.def_readwrite("second", &my::EffectMacroPair::second)
+
+		, class_<my::EffectMacroPairList>("EffectMacroPairList")
+			.def(constructor<>())
+			.def("push_back", &my::EffectMacroPairList::push_back)
+
 		, class_<my::AsynchronousResourceMgr>("AsynchronousResourceMgr")
 			.def("LoadTextureAsync", &my::AsynchronousResourceMgr::LoadTextureAsync)
 			.def("LoadTexture", &my::AsynchronousResourceMgr::LoadTexture)
@@ -1005,7 +1014,22 @@ void Export2Lua(lua_State * L)
 			.def_readonly("RemainingTime", &my::Timer::m_RemainingTime)
 			.def_readwrite("EventTimer", &my::Timer::m_EventTimer)
 
+		, class_<my::EffectParameterMap>("EffectParameterMap")
+			.def("SetBool", &my::EffectParameterMap::SetBool)
+			.def("SetFloat", &my::EffectParameterMap::SetFloat)
+			.def("SetInt", &my::EffectParameterMap::SetInt)
+			.def("SetVector", &my::EffectParameterMap::SetVector)
+			.def("SetMatrix", &my::EffectParameterMap::SetMatrix)
+			.def("SetString", &my::EffectParameterMap::SetString)
+			.def("SetTexture", &my::EffectParameterMap::SetTexture)
+
+		, class_<my::EffectParameterPair>("EffectParameterPair")
+			.def_readwrite("first", &my::EffectParameterPair::first)
+			.def_readwrite("second", &my::EffectParameterPair::second)
+
 		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
+			.def(constructor<>())
+			.def("GetEffectParameterPair", &my::Material::GetEffectParameterPair)
 
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
 			.def("LoadMaterialAsync", &my::ResourceMgr::LoadMaterialAsync)
