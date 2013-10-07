@@ -115,7 +115,7 @@ ApexRenderer::~ApexRenderer(void)
 void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
 {
 	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
-		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world, 0);
+		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
 }
 
 ApexRenderVertexBuffer::ApexRenderVertexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderVertexBufferDesc& desc)
@@ -356,17 +356,17 @@ ApexRenderResource::~ApexRenderResource(void)
 {
 }
 
-void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World, UINT mi)
+void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World)
 {
-	m_material->GetEffectParameterPair(0).first->SetMatrix("g_World", World);
-	m_material->GetEffectParameterPair(0).first->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
-	m_material->ApplyParameterBlock(mi);
+	m_material->m_Effect->SetMatrix("g_World", World);
+	m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
+	m_material->ApplyParameterBlock();
 
 	HRESULT hr;
-	UINT cPasses = m_material->Begin(mi);
+	UINT cPasses = m_material->Begin();
 	for(UINT p = 0; p < cPasses; p++)
 	{
-		m_material->BeginPass(0, p);
+		m_material->BeginPass(p);
 		V(pd3dDevice->SetVertexDeclaration(m_Decl));
 		for(size_t i = 0; i < m_ApexVbs.size(); i++)
 		{
@@ -374,7 +374,7 @@ void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 &
 		}
 		V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
-		m_material->EndPass(mi);
+		m_material->EndPass();
 	}
-	m_material->End(mi);
+	m_material->End();
 }

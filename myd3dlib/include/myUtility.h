@@ -404,10 +404,11 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	typedef std::pair<EffectPtr, EffectParameterMap> EffectParameterPair;
-
-	class Material : public DeviceRelatedObjectBase, protected std::vector<EffectParameterPair>
+	class Material : public DeviceRelatedObjectBase, public EffectParameterMap
 	{
+	public:
+		EffectPtr m_Effect;
+
 	public:
 		Material(void)
 		{
@@ -419,21 +420,17 @@ namespace my
 
 		void OnDestroyDevice(void);
 
-		EffectParameterPair & GetEffectParameterPair(UINT i);
+		void ApplyParameterBlock(void);
 
-		size_t GetEffectParameterPairCount(void) const;
+		UINT Begin(DWORD Flags = 0);
 
-		void ApplyParameterBlock(UINT i);
+		void BeginPass(UINT Pass);
 
-		UINT Begin(UINT i, DWORD Flags = 0);
+		void EndPass(void);
 
-		void BeginPass(UINT i, UINT Pass);
+		void End(void);
 
-		void EndPass(UINT i);
-
-		void End(UINT i);
-
-		void DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId);
+		void DrawMeshSubset(Mesh * pMesh, DWORD AttribId);
 	};
 
 	typedef boost::shared_ptr<Material> MaterialPtr;

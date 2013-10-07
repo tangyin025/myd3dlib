@@ -127,7 +127,7 @@ public:
 
 	physx::apex::NxUserRenderSpriteBuffer* getSpriteBuffer() const {return NULL;}
 
-	void Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World, UINT mi);
+	void Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World);
 
 	std::vector<ApexRenderVertexBuffer *> m_ApexVbs;
 

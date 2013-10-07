@@ -1023,13 +1023,9 @@ void Export2Lua(lua_State * L)
 			.def("SetString", &my::EffectParameterMap::SetString)
 			.def("SetTexture", &my::EffectParameterMap::SetTexture)
 
-		, class_<my::EffectParameterPair>("EffectParameterPair")
-			.def_readwrite("first", &my::EffectParameterPair::first)
-			.def_readwrite("second", &my::EffectParameterPair::second)
-
-		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
+		, class_<my::Material, my::EffectParameterMap, boost::shared_ptr<my::Material> >("Material")
 			.def(constructor<>())
-			.def("GetEffectParameterPair", &my::Material::GetEffectParameterPair)
+			.def_readwrite("Effect", &my::Material::m_Effect)
 
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")
 			.def("LoadMaterialAsync", &my::ResourceMgr::LoadMaterialAsync)

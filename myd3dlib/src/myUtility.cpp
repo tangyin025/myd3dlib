@@ -922,82 +922,63 @@ void Material::OnDestroyDevice(void)
 {
 }
 
-EffectParameterPair & Material::GetEffectParameterPair(UINT i)
+void Material::ApplyParameterBlock(void)
 {
-	if(i >= size())
+	if(m_Effect)
 	{
-		resize(i + 1, EffectParameterPair());
-	}
-	return operator [] (i);
-}
-
-size_t Material::GetEffectParameterPairCount(void) const
-{
-	return size();
-}
-
-void Material::ApplyParameterBlock(UINT i)
-{
-	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first)
-	{
-		EffectParameterMap::const_iterator param_iter = effect_pair.second.begin();
-		for(; param_iter != effect_pair.second.end(); param_iter++)
+		EffectParameterMap::const_iterator param_iter = EffectParameterMap::begin();
+		for(; param_iter != EffectParameterMap::end(); param_iter++)
 		{
-			param_iter->second->SetParameter(effect_pair.first.get(), param_iter->first);
+			param_iter->second->SetParameter(m_Effect.get(), param_iter->first);
 		}
 	}
 }
 
-UINT Material::Begin(UINT i, DWORD Flags)
+UINT Material::Begin(DWORD Flags)
 {
-	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first)
+	if(m_Effect)
 	{
-		return effect_pair.first->Begin(Flags);
+		return m_Effect->Begin(Flags);
 	}
 	return 0;
 }
 
-void Material::BeginPass(UINT i, UINT Pass)
+void Material::BeginPass(UINT Pass)
 {
-	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first)
+	if(m_Effect)
 	{
-		effect_pair.first->BeginPass(Pass);
+		m_Effect->BeginPass(Pass);
 	}
 }
 
-void Material::EndPass(UINT i)
+void Material::EndPass(void)
 {
-	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first)
+	if(m_Effect)
 	{
-		effect_pair.first->EndPass();
+		m_Effect->EndPass();
 	}
 }
 
-void Material::End(UINT i)
+void Material::End(void)
 {
-	const value_type & effect_pair = operator [] (i);
-	if(effect_pair.first)
+	if(m_Effect)
 	{
-		effect_pair.first->End();
+		m_Effect->End();
 	}
 }
 
-void Material::DrawMeshSubset(UINT i, Mesh * pMesh, DWORD AttribId)
+void Material::DrawMeshSubset(Mesh * pMesh, DWORD AttribId)
 {
-	ApplyParameterBlock(i);
+	ApplyParameterBlock();
 
-	UINT Pass = Begin(i, 0);
+	UINT Pass = Begin(0);
 	for(UINT p = 0; p < Pass; p++)
 	{
-		BeginPass(i, p);
+		BeginPass(p);
 		pMesh->DrawSubset(AttribId);
-		EndPass(i);
+		EndPass();
 	}
-	End(i);
+	End();
 }
 
 namespace boost
@@ -1091,24 +1072,24 @@ public:
 		}
 	}
 
-	static void MaterialSetEffect(ResourceCallbackBoundlePtr boundle, size_t effect_i, DeviceRelatedObjectBasePtr effect_res)
+	static void MaterialSetEffect(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr effect_res)
 	{
-		boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(effect_i).first = boost::dynamic_pointer_cast<Effect>(effect_res);
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_Effect = boost::dynamic_pointer_cast<Effect>(effect_res);
 	}
 
-	static void MaterialSetEffectTextureParameter(ResourceCallbackBoundlePtr boundle, size_t effect_i, std::string value, DeviceRelatedObjectBasePtr texture_res)
+	static void MaterialSetEffectTextureParameter(ResourceCallbackBoundlePtr boundle, std::string value, DeviceRelatedObjectBasePtr texture_res)
 	{
-		boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(effect_i).second.SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->SetTexture(value, boost::dynamic_pointer_cast<BaseTexture>(texture_res));
 	}
 
-	virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const EffectMacroPairList & macros)
+	virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, const std::string & path, const EffectMacroPairList & macros)
 	{
-		m_arc->LoadEffectAsync(path, macros, boost::bind(&MaterialIORequest::MaterialSetEffect, boundle, i, _1));
+		m_arc->LoadEffectAsync(path, macros, boost::bind(&MaterialIORequest::MaterialSetEffect, boundle, _1));
 	}
 
-	virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const std::string & name)
+	virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path, const std::string & name)
 	{
-		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::MaterialSetEffectTextureParameter, boundle, i, name, _1));
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::MaterialSetEffectTextureParameter, boundle, name, _1));
 	}
 
 	virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
@@ -1118,14 +1099,13 @@ public:
 	}
 
 	template <class Archive>
-	void Serialize(Archive & ar, std::pair<EffectPtr, EffectParameterMap> & material_elem, size_t effect_i, ResourceCallbackBoundlePtr boundle)
+	void Serialize(Archive & ar, EffectParameterMap & effect_param_map, ResourceCallbackBoundlePtr boundle)
 	{
 		if(Archive::is_saving::value)
 		{
-			ar & m_arc->GetResourceKey(material_elem.first);
-			size_t count = material_elem.second.size(); ar & count;
-			EffectParameterMap::iterator param_iter = material_elem.second.begin();
-			for(; param_iter != material_elem.second.end(); param_iter++)
+			size_t count = effect_param_map.size(); ar & count;
+			EffectParameterMap::iterator param_iter = effect_param_map.begin();
+			for(; param_iter != effect_param_map.end(); param_iter++)
 			{
 				ar & const_cast<std::string &>(param_iter->first);
 				ar & const_cast<EffectParameterBase::EffectParameterType &>(param_iter->second->m_Type);
@@ -1157,7 +1137,6 @@ public:
 		}
 		else
 		{
-			std::string path; ar & path; OnLoadEffect(boundle, effect_i, path, EffectMacroPairList());
 			size_t count; ar & count;
 			while(count--)
 			{
@@ -1167,37 +1146,37 @@ public:
 				{
 				case EffectParameterBase::EffectParameterTypeBool:
 					{
-						bool value; ar & value; material_elem.second.SetBool(name, value);
+						bool value; ar & value; effect_param_map.SetBool(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeFloat:
 					{
-						float value; ar & value; material_elem.second.SetFloat(name, value);
+						float value; ar & value; effect_param_map.SetFloat(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeInt:
 					{
-						int value; ar & value; material_elem.second.SetInt(name, value);
+						int value; ar & value; effect_param_map.SetInt(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeVector:
 					{
-						Vector4 value; ar & value; material_elem.second.SetVector(name, value);
+						Vector4 value; ar & value; effect_param_map.SetVector(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeMatrix:
 					{
-						Matrix4 value; ar & value; material_elem.second.SetMatrix(name, value);
+						Matrix4 value; ar & value; effect_param_map.SetMatrix(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeString:
 					{
-						std::string value; ar & value; material_elem.second.SetString(name, value);
+						std::string value; ar & value; effect_param_map.SetString(name, value);
 					}
 					break;
 				case EffectParameterBase::EffectParameterTypeTexture:
 					{
-						std::string path; ar & path; OnLoadTexture(boundle, effect_i, path, name);
+						std::string path; ar & path; OnLoadTexture(boundle, path, name);
 					}
 					break;
 				}
@@ -1206,26 +1185,17 @@ public:
 	}
 
 	template <class Archive>
-	void Serialize(Archive & ar, MaterialPtr material, ResourceCallbackBoundlePtr boundle)
+	void Serialize(Archive & ar, Material & material, ResourceCallbackBoundlePtr boundle)
 	{
 		if(Archive::is_saving::value)
 		{
-			size_t count = material->GetEffectParameterPairCount();
-			ar & count;
-			for(size_t i = 0; i < count; i++)
-			{
-				Serialize(ar, material->GetEffectParameterPair(i), i, boundle);
-			}
+			ar & m_arc->GetResourceKey(material.m_Effect);
 		}
 		else
 		{
-			size_t count;
-			ar & count;
-			for(size_t i = 0; i < count; i++)
-			{
-				Serialize(ar, material->GetEffectParameterPair(i), i, boundle);
-			}
+			std::string path; ar & path; OnLoadEffect(boundle, path, EffectMacroPairList());
 		}
+		Serialize(ar, static_cast<EffectParameterMap &>(material), boundle);
 	}
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
@@ -1249,7 +1219,7 @@ public:
 			std::istream ims(&mb);
 			boost::archive::text_iarchive ia(ims);
 
-			Serialize(ia, ret, boundle);
+			Serialize(ia, *ret, boundle);
 
 			m_res = ret;
 			OnPostBuildResource(boundle);
@@ -1272,14 +1242,14 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 		{
 		}
 
-		virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const EffectMacroPairList & macros)
+		virtual void OnLoadEffect(ResourceCallbackBoundlePtr boundle, const std::string & path, const EffectMacroPairList & macros)
 		{
-			boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(i).first = m_arc->LoadEffect(path, macros);
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_Effect = m_arc->LoadEffect(path, macros);
 		}
 
-		virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, size_t i, const std::string & path, const std::string & name)
+		virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path, const std::string & name)
 		{
-			boost::dynamic_pointer_cast<Material>(boundle->m_res)->GetEffectParameterPair(i).second.SetTexture(name, m_arc->LoadTexture(path));
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->SetTexture(name, m_arc->LoadTexture(path));
 		}
 
 		virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
@@ -1297,7 +1267,7 @@ void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::text_oarchive oa(ofs);
 	MaterialIORequest request(ResourceCallback(), path, this);
-	request.Serialize(oa, material, ResourceCallbackBoundlePtr());
+	request.Serialize(oa, *material, ResourceCallbackBoundlePtr());
 }
 
 class ResourceMgr::EmitterIORequest : public IORequest
@@ -1337,23 +1307,23 @@ public:
 	}
 
 	template <class Archive>
-	void Serialize(Archive & ar, EmitterPtr emitter, ResourceCallbackBoundlePtr boundle)
+	void Serialize(Archive & ar, Emitter & emitter, ResourceCallbackBoundlePtr boundle)
 	{
-		ar & emitter->m_Direction;
-		ar & emitter->m_ParticleLifeTime;
-		ar & emitter->m_ParticleColorA;
-		ar & emitter->m_ParticleColorR;
-		ar & emitter->m_ParticleColorG;
-		ar & emitter->m_ParticleColorB;
-		ar & emitter->m_ParticleSizeX;
-		ar & emitter->m_ParticleSizeY;
-		ar & emitter->m_ParticleAngle;
-		ar & emitter->m_ParticleAnimFPS;
-		ar & emitter->m_ParticleAnimColumn;
-		ar & emitter->m_ParticleAnimRow;
+		ar & emitter.m_Direction;
+		ar & emitter.m_ParticleLifeTime;
+		ar & emitter.m_ParticleColorA;
+		ar & emitter.m_ParticleColorR;
+		ar & emitter.m_ParticleColorG;
+		ar & emitter.m_ParticleColorB;
+		ar & emitter.m_ParticleSizeX;
+		ar & emitter.m_ParticleSizeY;
+		ar & emitter.m_ParticleAngle;
+		ar & emitter.m_ParticleAnimFPS;
+		ar & emitter.m_ParticleAnimColumn;
+		ar & emitter.m_ParticleAnimRow;
 		if(Archive::is_saving::value)
 		{
-			ar & m_arc->GetResourceKey(emitter->m_Texture);
+			ar & m_arc->GetResourceKey(emitter.m_Texture);
 		}
 		else
 		{
@@ -1364,19 +1334,19 @@ public:
 	}
 
 	template <class Archive>
-	void Serialize(Archive & ar, SphericalEmitterPtr emitter, ResourceCallbackBoundlePtr boundle)
+	void Serialize(Archive & ar, SphericalEmitter & emitter, ResourceCallbackBoundlePtr boundle)
 	{
-		Serialize(ar, boost::static_pointer_cast<Emitter>(emitter), boundle);
-		ar & emitter->m_Position;
-		ar & emitter->m_Orientation;
-		ar & emitter->m_Time;
-		ar & emitter->m_SpawnInterval;
-		ar & emitter->m_RemainingSpawnTime;
-		ar & emitter->m_HalfSpawnArea;
-		ar & emitter->m_SpawnSpeed;
-		ar & emitter->m_SpawnInclination;
-		ar & emitter->m_SpawnAzimuth;
-		ar & emitter->m_SpawnLoopTime;
+		Serialize(ar, static_cast<Emitter &>(emitter), boundle);
+		ar & emitter.m_Position;
+		ar & emitter.m_Orientation;
+		ar & emitter.m_Time;
+		ar & emitter.m_SpawnInterval;
+		ar & emitter.m_RemainingSpawnTime;
+		ar & emitter.m_HalfSpawnArea;
+		ar & emitter.m_SpawnSpeed;
+		ar & emitter.m_SpawnInclination;
+		ar & emitter.m_SpawnAzimuth;
+		ar & emitter.m_SpawnLoopTime;
 	}
 
 	virtual void DoLoad(void)
@@ -1414,13 +1384,13 @@ public:
 			case Emitter::EmitterTypeDefault:
 				ret.reset(new Emitter());
 				boundle.reset(new ResourceCallbackBoundle(ret));
-				Serialize(ia, ret, boundle);
+				Serialize(ia, *ret, boundle);
 				break;
 
 			case Emitter::EmitterTypeSpherical:
 				ret.reset(new SphericalEmitter());
 				boundle.reset(new ResourceCallbackBoundle(ret));
-				Serialize(ia, boost::static_pointer_cast<SphericalEmitter>(ret), boundle);
+				Serialize(ia, static_cast<SphericalEmitter &>(*ret), boundle);
 				break;
 			}
 
@@ -1469,10 +1439,10 @@ void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 	switch(emitter->m_Type)
 	{
 	case Emitter::EmitterTypeDefault:
-		request.Serialize(oa, emitter, ResourceCallbackBoundlePtr());
+		request.Serialize(oa, *emitter, ResourceCallbackBoundlePtr());
 		break;
 	case Emitter::EmitterTypeSpherical:
-		request.Serialize(oa, boost::dynamic_pointer_cast<SphericalEmitter>(emitter), ResourceCallbackBoundlePtr());
+		request.Serialize(oa, dynamic_cast<SphericalEmitter &>(*emitter), ResourceCallbackBoundlePtr());
 		break;
 	}
 }
