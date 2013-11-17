@@ -20,7 +20,7 @@ void* ApexResourceCallback::requestResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		return new my::MaterialPtr(Game::getSingleton().LoadMaterial(name));
+		//return new my::MaterialPtr(Game::getSingleton().LoadMaterial(name));
 	}
 	return NULL;
 }
@@ -29,7 +29,7 @@ void  ApexResourceCallback::releaseResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		delete static_cast<my::MaterialPtr *>(resource);
+		//delete static_cast<my::MaterialPtr *>(resource);
 	}
 }
 
@@ -331,7 +331,7 @@ ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const phys
 	, m_ApexBb(static_cast<ApexRenderBoneBuffer *>(desc.boneBuffer))
 	, m_firstBone(desc.firstBone)
 	, m_numBones(desc.numBones)
-	, m_material(NULL)
+	//, m_material(NULL)
 {
 	m_ApexVbs.resize(desc.numVertexBuffers);
 	std::vector<D3DVERTEXELEMENT9> velist;
@@ -358,15 +358,15 @@ ApexRenderResource::~ApexRenderResource(void)
 
 void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World)
 {
-	m_material->m_Effect->SetMatrix("g_World", World);
-	m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
-	m_material->ApplyParameterBlock();
+	//m_material->m_Effect->SetMatrix("g_World", World);
+	//m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
+	//m_material->ApplyParameterBlock();
 
 	HRESULT hr;
-	UINT cPasses = m_material->Begin();
-	for(UINT p = 0; p < cPasses; p++)
+	//UINT cPasses = m_material->Begin();
+	//for(UINT p = 0; p < cPasses; p++)
 	{
-		m_material->BeginPass(p);
+		//m_material->BeginPass(p);
 		V(pd3dDevice->SetVertexDeclaration(m_Decl));
 		for(size_t i = 0; i < m_ApexVbs.size(); i++)
 		{
@@ -374,7 +374,7 @@ void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 &
 		}
 		V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
-		m_material->EndPass();
+		//m_material->EndPass();
 	}
-	m_material->End();
+	//m_material->End();
 }

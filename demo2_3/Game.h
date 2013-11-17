@@ -70,7 +70,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::EmitterMgr
-	, public my::ResourceMgr
+	, public my::AsynchronousResourceMgr
 	, public PhysXSceneContext
 {
 public:

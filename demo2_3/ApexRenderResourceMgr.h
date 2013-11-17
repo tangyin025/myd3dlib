@@ -113,7 +113,7 @@ public:
 
 	void setSpriteBufferRange(physx::PxU32 firstSprite, physx::PxU32 numSprites) {}
 
-	void setMaterial(void* material) {m_material = static_cast<my::MaterialPtr *>(material)->get();}
+	void setMaterial(void* material) {/*m_material = static_cast<my::MaterialPtr *>(material)->get();*/}
 
 	physx::PxU32 getNbVertexBuffers() const {return m_ApexVbs.size();}
 
@@ -149,5 +149,5 @@ public:
 
 	unsigned int m_numBones;
 
-	my::Material * m_material;
+	//my::Material * m_material;
 };

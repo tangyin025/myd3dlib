@@ -3,7 +3,7 @@
 
 class Demo
 	: public my::DxutApp
-	, public my::ResourceMgr
+	, public my::AsynchronousResourceMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
@@ -36,9 +36,9 @@ public:
 			return hr;
 		}
 
-		ResourceMgr::RegisterFileDir("../demo2_3/Media");
+		AsynchronousResourceMgr::RegisterFileDir("../demo2_3/Media");
 
-		ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -54,7 +54,7 @@ public:
 			return hr;
 		}
 
-		ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		AsynchronousResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -65,14 +65,14 @@ public:
 
 		m_sprite.Release();
 
-		ResourceMgr::OnLostDevice();
+		AsynchronousResourceMgr::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
 
-		ResourceMgr::OnDestroyDevice();
+		AsynchronousResourceMgr::OnDestroyDevice();
 	}
 
 	void OnFrameMove(

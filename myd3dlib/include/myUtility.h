@@ -404,86 +404,86 @@ namespace my
 		void SetTexture(const std::string & Name, BaseTexturePtr Value);
 	};
 
-	class Material : public DeviceRelatedObjectBase, public EffectParameterMap
-	{
-	public:
-		EffectPtr m_Effect;
+	//class Material : public DeviceRelatedObjectBase, public EffectParameterMap
+	//{
+	//public:
+	//	EffectPtr m_Effect;
 
-	public:
-		Material(void)
-		{
-		}
+	//public:
+	//	Material(void)
+	//	{
+	//	}
 
-		void OnResetDevice(void);
+	//	void OnResetDevice(void);
 
-		void OnLostDevice(void);
+	//	void OnLostDevice(void);
 
-		void OnDestroyDevice(void);
+	//	void OnDestroyDevice(void);
 
-		void ApplyParameterBlock(void);
+	//	void ApplyParameterBlock(void);
 
-		UINT Begin(DWORD Flags = 0);
+	//	UINT Begin(DWORD Flags = 0);
 
-		void BeginPass(UINT Pass);
+	//	void BeginPass(UINT Pass);
 
-		void EndPass(void);
+	//	void EndPass(void);
 
-		void End(void);
+	//	void End(void);
 
-		void DrawMeshSubset(Mesh * pMesh, DWORD AttribId);
-	};
+	//	void DrawMeshSubset(Mesh * pMesh, DWORD AttribId);
+	//};
 
-	typedef boost::shared_ptr<Material> MaterialPtr;
+	//typedef boost::shared_ptr<Material> MaterialPtr;
 
-	class ResourceMgr : public AsynchronousResourceMgr
-	{
-	protected:
-		class ResourceCallbackBoundle
-		{
-		public:
-			DeviceRelatedObjectBasePtr m_res;
+	//class ResourceMgr : public AsynchronousResourceMgr
+	//{
+	//protected:
+	//	class ResourceCallbackBoundle
+	//	{
+	//	public:
+	//		DeviceRelatedObjectBasePtr m_res;
 
-			IORequest::ResourceCallbackList m_callbacks;
+	//		IORequest::ResourceCallbackList m_callbacks;
 
-			ResourceCallbackBoundle(DeviceRelatedObjectBasePtr res)
-				: m_res(res)
-			{
-			}
+	//		ResourceCallbackBoundle(DeviceRelatedObjectBasePtr res)
+	//			: m_res(res)
+	//		{
+	//		}
 
-			~ResourceCallbackBoundle(void)
-			{
-				IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
-				for(; callback_iter != m_callbacks.end(); callback_iter++)
-				{
-					if(*callback_iter)
-					{
-						(*callback_iter)(m_res);
-					}
-				}
-			}
-		};
+	//		~ResourceCallbackBoundle(void)
+	//		{
+	//			IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
+	//			for(; callback_iter != m_callbacks.end(); callback_iter++)
+	//			{
+	//				if(*callback_iter)
+	//				{
+	//					(*callback_iter)(m_res);
+	//				}
+	//			}
+	//		}
+	//	};
 
-		typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
+	//	typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
 
-	public:
-		ResourceMgr(void)
-		{
-		}
+	//public:
+	//	ResourceMgr(void)
+	//	{
+	//	}
 
-		class MaterialIORequest;
+	//	class MaterialIORequest;
 
-		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
+	//	void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
 
-		MaterialPtr LoadMaterial(const std::string & path);
+	//	MaterialPtr LoadMaterial(const std::string & path);
 
-		void SaveMaterial(const std::string & path, MaterialPtr material);
+	//	void SaveMaterial(const std::string & path, MaterialPtr material);
 
-		class EmitterIORequest;
+	//	class EmitterIORequest;
 
-		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
+	//	void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
 
-		EmitterPtr LoadEmitter(const std::string & path);
+	//	EmitterPtr LoadEmitter(const std::string & path);
 
-		void SaveEmitter(const std::string & path, EmitterPtr emitter);
-	};
+	//	void SaveEmitter(const std::string & path, EmitterPtr emitter);
+	//};
 }
