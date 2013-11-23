@@ -114,18 +114,32 @@ void SphericalEmitter::Update(double fTime, float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
+	Vector3 SpawnPos;
+	Quaternion SpawnOri;
+	switch(m_WorldType)
+	{
+	case WorldTypeWorld:
+		SpawnPos = m_Position;
+		SpawnOri = m_Orientation;
+		break;
+
+	default:
+		SpawnPos = Vector3::zero;
+		SpawnOri = Quaternion::identity;
+		break;
+	}
+
 	while(m_RemainingSpawnTime >= 0)
 	{
 		Spawn(
 			Vector3(
-				Random(m_Position.x - m_HalfSpawnArea.x, m_Position.x + m_HalfSpawnArea.x),
-				Random(m_Position.y - m_HalfSpawnArea.y, m_Position.y + m_HalfSpawnArea.y),
-				Random(m_Position.z - m_HalfSpawnArea.z, m_Position.z + m_HalfSpawnArea.z)),
-
+				Random(SpawnPos.x - m_HalfSpawnArea.x, SpawnPos.x + m_HalfSpawnArea.x),
+				Random(SpawnPos.y - m_HalfSpawnArea.y, SpawnPos.y + m_HalfSpawnArea.y),
+				Random(SpawnPos.z - m_HalfSpawnArea.z, SpawnPos.z + m_HalfSpawnArea.z)),
 			Vector3::SphericalToCartesian(Vector3(
 				m_SpawnSpeed,
 				m_SpawnInclination.Interpolate(fmod(m_Time, m_SpawnLoopTime)),
-				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime)))).transform(m_Orientation));
+				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime)))).transform(SpawnOri));
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}

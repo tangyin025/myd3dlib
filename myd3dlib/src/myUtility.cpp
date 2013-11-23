@@ -783,9 +783,18 @@ void EmitterMgr::Draw(
 	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
 	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
 	{
-		pInstance->SetWorld(Matrix4::identity);
+		switch((*emitter_iter)->m_WorldType)
+		{
+		case Emitter::WorldTypeWorld:
+			pInstance->SetWorld(Matrix4::Identity());
+			break;
 
-		switch((*emitter_iter)->m_Direction)
+		default:
+			pInstance->SetWorld(Matrix4::RotationQuaternion((*emitter_iter)->m_Orientation) * Matrix4::Translation((*emitter_iter)->m_Position));
+			break;
+		}
+
+		switch((*emitter_iter)->m_DirectionType)
 		{
 		case Emitter::DirectionTypeCamera:
 			pInstance->SetDirection(
@@ -1309,7 +1318,10 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 //	template <class Archive>
 //	void Serialize(Archive & ar, Emitter & emitter, ResourceCallbackBoundlePtr boundle)
 //	{
-//		ar & emitter.m_Direction;
+//		ar & emitter.m_WorldType;
+//		ar & emitter.m_DirectionType;
+//		ar & emitter.m_Position;
+//		ar & emitter.m_Orientation;
 //		ar & emitter.m_ParticleLifeTime;
 //		ar & emitter.m_ParticleColorA;
 //		ar & emitter.m_ParticleColorR;
@@ -1337,8 +1349,6 @@ void EffectParameterMap::SetTexture(const std::string & Name, BaseTexturePtr Val
 //	void Serialize(Archive & ar, SphericalEmitter & emitter, ResourceCallbackBoundlePtr boundle)
 //	{
 //		Serialize(ar, static_cast<Emitter &>(emitter), boundle);
-//		ar & emitter.m_Position;
-//		ar & emitter.m_Orientation;
 //		ar & emitter.m_Time;
 //		ar & emitter.m_SpawnInterval;
 //		ar & emitter.m_RemainingSpawnTime;

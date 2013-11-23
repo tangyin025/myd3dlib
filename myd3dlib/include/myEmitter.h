@@ -43,6 +43,14 @@ namespace my
 
 		const EmitterType m_Type;
 
+		enum WorldType
+		{
+			WorldTypeWorld,
+			WorldTypeLocal,
+		};
+
+		WorldType m_WorldType;
+
 		enum DirectionType
 		{
 			DirectionTypeCamera,
@@ -50,7 +58,11 @@ namespace my
 			DirectionTypeHorizontal,
 		};
 
-		DirectionType m_Direction;
+		DirectionType m_DirectionType;
+
+		Vector3 m_Position;
+
+		Quaternion m_Orientation;
 
 		float m_ParticleLifeTime;
 
@@ -83,7 +95,10 @@ namespace my
 	public:
 		Emitter(EmitterType Type = EmitterTypeDefault)
 			: m_Type(Type)
-			, m_Direction(DirectionTypeCamera)
+			, m_WorldType(WorldTypeWorld)
+			, m_DirectionType(DirectionTypeCamera)
+			, m_Position(0,0,0)
+			, m_Orientation(Quaternion::Identity())
 			, m_ParticleLifeTime(10)
 			, m_ParticleColorA(255)
 			, m_ParticleColorR(255)
@@ -129,10 +144,6 @@ namespace my
 		: public Emitter
 	{
 	public:
-		Vector3 m_Position;
-
-		Quaternion m_Orientation;
-
 		float m_Time;
 
 		float m_SpawnInterval;
@@ -152,8 +163,6 @@ namespace my
 	public:
 		SphericalEmitter(void)
 			: Emitter(EmitterTypeSpherical)
-			, m_Position(0,0,0)
-			, m_Orientation(Quaternion::Identity())
 			, m_Time(0)
 			, m_SpawnInterval(5)
 			, m_RemainingSpawnTime(0)
