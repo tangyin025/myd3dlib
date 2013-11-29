@@ -393,6 +393,8 @@ namespace my
 	public:
 		BaseTexturePtr m_DiffuseTexture;
 
+		BaseTexturePtr m_NormalTexture;
+
 		BaseTexturePtr m_SpecularTexture;
 
 	public:

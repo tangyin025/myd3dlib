@@ -1026,6 +1026,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::Material, boost::shared_ptr<my::Material> >("Material")
 			.def(constructor<>())
 			.def_readwrite("DiffuseTexture", &my::Material::m_DiffuseTexture)
+			.def_readwrite("NormalTexture", &my::Material::m_NormalTexture)
 			.def_readwrite("SpecularTexture", &my::Material::m_SpecularTexture)
 
 		, class_<my::ResourceMgr, my::AsynchronousResourceMgr>("ResourceMgr")

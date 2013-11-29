@@ -965,6 +965,11 @@ public:
 		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
 	}
 
+	static void OnNormalTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	{
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	}
+
 	static void OnSpecularTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
 	{
 		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
@@ -973,6 +978,11 @@ public:
 	virtual void OnLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 	{
 		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnDiffuseTextureLoaded, boundle, _1));
+	}
+
+	virtual void OnLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnNormalTextureLoaded, boundle, _1));
 	}
 
 	virtual void OnLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
@@ -1000,6 +1010,8 @@ public:
 			std::string path;
 			ia >> path;
 			OnLoadDiffuseTexture(boundle, path);
+			ia >> path;
+			OnLoadNormalTexture(boundle, path);
 			ia >> path;
 			OnLoadSpecularTexture(boundle, path);
 
@@ -1029,6 +1041,11 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = m_arc->LoadTexture(path);
 		}
 
+		virtual void OnLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		{
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = m_arc->LoadTexture(path);
+		}
+
 		virtual void OnLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 		{
 			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = m_arc->LoadTexture(path);
@@ -1049,6 +1066,7 @@ void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::text_oarchive oa(ofs);
 	oa << GetResourceKey(material->m_DiffuseTexture);
+	oa << GetResourceKey(material->m_NormalTexture);
 	oa << GetResourceKey(material->m_SpecularTexture);
 }
 
