@@ -24,6 +24,15 @@ namespace my
 		{
 		}
 
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & x;
+			ar & y;
+			ar & k0;
+			ar & k;
+		}
+
 		float Interpolate(const SplineNode & rhs, float s);
 	};
 
@@ -34,6 +43,12 @@ namespace my
 	public:
 		Spline(void)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<std::vector<SplineNodePtr> >(*this);
 		}
 
 		bool InsertNode(SplineNodePtr node, int begin_i, int end_i);

@@ -17,9 +17,21 @@ namespace my
 	public:
 		T m_Value;
 
+		EmitterParameter(void)
+			: m_Value(0)
+		{
+		}
+
 		EmitterParameter(const T & Value)
 			: m_Value(Value)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<Spline>(*this);
+			ar & m_Value;
 		}
 
 		T Interpolate(float s)
@@ -35,14 +47,6 @@ namespace my
 		: public DeviceRelatedObjectBase
 	{
 	public:
-		enum EmitterType
-		{
-			EmitterTypeDefault,
-			EmitterTypeSpherical,
-		};
-
-		const EmitterType m_Type;
-
 		enum WorldType
 		{
 			WorldTypeWorld,
@@ -93,9 +97,8 @@ namespace my
 		ParticlePtrPairList m_ParticleList;
 
 	public:
-		Emitter(EmitterType Type = EmitterTypeDefault)
-			: m_Type(Type)
-			, m_WorldType(WorldTypeWorld)
+		Emitter(void)
+			: m_WorldType(WorldTypeWorld)
 			, m_DirectionType(DirectionTypeCamera)
 			, m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
@@ -114,6 +117,26 @@ namespace my
 		}
 
 		virtual ~Emitter(void);
+
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & m_WorldType;
+			ar & m_DirectionType;
+			ar & m_Position;
+			ar & m_Orientation;
+			ar & m_ParticleLifeTime;
+			ar & m_ParticleColorA;
+			ar & m_ParticleColorR;
+			ar & m_ParticleColorG;
+			ar & m_ParticleColorB;
+			ar & m_ParticleSizeX;
+			ar & m_ParticleSizeY;
+			ar & m_ParticleAngle;
+			ar & m_ParticleAnimFPS;
+			ar & m_ParticleAnimColumn;
+			ar & m_ParticleAnimRow;
+		}
 
 		void OnResetDevice(void);
 
@@ -162,8 +185,7 @@ namespace my
 
 	public:
 		SphericalEmitter(void)
-			: Emitter(EmitterTypeSpherical)
-			, m_Time(0)
+			: m_Time(0)
 			, m_SpawnInterval(5)
 			, m_RemainingSpawnTime(0)
 			, m_HalfSpawnArea(0,0,0)
@@ -172,6 +194,20 @@ namespace my
 			, m_SpawnAzimuth(D3DXToRadian(0))
 			, m_SpawnLoopTime(5)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & boost::serialization::base_object<Emitter>(*this);
+			ar & m_Time;
+			ar & m_SpawnInterval;
+			ar & m_RemainingSpawnTime;
+			ar & m_HalfSpawnArea;
+			ar & m_SpawnSpeed;
+			ar & m_SpawnInclination;
+			ar & m_SpawnAzimuth;
+			ar & m_SpawnLoopTime;
 		}
 
 		virtual void Update(double fTime, float fElapsedTime);

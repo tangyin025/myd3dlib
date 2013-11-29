@@ -1,9 +1,17 @@
 #include "StdAfx.h"
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/export.hpp>
 #include "myEmitter.h"
 
 using namespace my;
 
 #define PARTICLE_MAX 4096u
+
+BOOST_CLASS_EXPORT(Emitter)
 
 Emitter::~Emitter(void)
 {
@@ -103,6 +111,8 @@ void Emitter::Draw(
 
 	pEmitterInstance->DrawInstance(ParticleCount);
 }
+
+BOOST_CLASS_EXPORT(SphericalEmitter)
 
 void SphericalEmitter::Update(double fTime, float fElapsedTime)
 {

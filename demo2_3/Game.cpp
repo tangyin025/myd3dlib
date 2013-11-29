@@ -208,7 +208,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	if(FAILED(hr = AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -273,7 +273,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = AsynchronousResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -302,7 +302,7 @@ void Game::OnLostDevice(void)
 
 	m_EmitterInst->OnLostDevice();
 
-	AsynchronousResourceMgr::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -325,7 +325,7 @@ void Game::OnDestroyDevice(void)
 
 	PhysXSceneContext::OnShutdown();
 
-	AsynchronousResourceMgr::OnDestroyDevice();
+	ResourceMgr::OnDestroyDevice();
 
 	ImeEditBox::Uninitialize();
 }
@@ -338,7 +338,7 @@ void Game::OnFrameMove(
 
 	m_Mouse->Capture();
 
-	AsynchronousResourceMgr::CheckResource();
+	ResourceMgr::CheckResource();
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 

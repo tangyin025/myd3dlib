@@ -1,6 +1,5 @@
 #define DIRECTINPUT_VERSION 0x0800
 #define NOMINMAX
-#define BOOST_ALL_NO_LIB
 //Find all "#include <", Match case, Whole word, Subfolders, Keep modified files open, Find Results 1, "Current Project", "*.c;*.cpp;*.cxx;*.cc;*.tli;*.tlh;*.h;*.hpp;*.hxx;*.hh;*.inl;*.rc;*.resx;*.idl;*.asm;*.inc"
 #include <windows.h>
 #include <string>

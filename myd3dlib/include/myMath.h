@@ -93,6 +93,13 @@ namespace my
 		{
 		}
 
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & x;
+			ar & y;
+		}
+
 	public:
 		float & operator [](size_t i);
 
@@ -302,6 +309,14 @@ namespace my
 			, y(_y)
 			, z(_z)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & x;
+			ar & y;
+			ar & z;
 		}
 
 	public:
@@ -555,6 +570,15 @@ namespace my
 		{
 		}
 
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & x;
+			ar & y;
+			ar & z;
+			ar & w;
+		}
+
 	public:
 		float & operator [](size_t i);
 
@@ -783,6 +807,15 @@ namespace my
 			, r(rightBottom.x)
 			, b(rightBottom.y)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & l;
+			ar & t;
+			ar & r;
+			ar & b;
 		}
 
 	public:
@@ -1186,6 +1219,15 @@ namespace my
 		{
 		}
 
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & x;
+			ar & y;
+			ar & z;
+			ar & w;
+		}
+
 	public:
 		Quaternion operator - (void) const
 		{
@@ -1492,6 +1534,15 @@ namespace my
 			, _31(m31), _32(m32), _33(m33), _34(m34)
 			, _41(m41), _42(m42), _43(m43), _44(m44)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & _11; ar & _12; ar & _13; ar & _14;
+			ar & _21; ar & _22; ar & _23; ar & _24;
+			ar & _31; ar & _32; ar & _33; ar & _34;
+			ar & _41; ar & _42; ar & _43; ar & _44;
 		}
 
 	public:
