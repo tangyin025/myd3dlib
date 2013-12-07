@@ -1,1 +1,1 @@
-22 serialization::archive 10 22 shader/SimpleSample.fx 3 13 g_MeshTexture 6 19 texture/Checker.bmp 22 g_MaterialDiffuseColor 3 0 0 1 1 1 1 22 g_MaterialAmbientColor 3 0.1 0.1 0.1 0.1
+22 serialization::archive 10 19 texture/Checker.bmp 32 texture/casual19_m_35_normal.png 30 texture/casual19_m_35_spec.png

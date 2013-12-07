@@ -94,8 +94,6 @@ public:
 
 	my::SoundPtr m_Sound;
 
-	my::EffectPtr m_SimpleSample;
-
 	my::CameraPtr m_Camera;
 
 public:
