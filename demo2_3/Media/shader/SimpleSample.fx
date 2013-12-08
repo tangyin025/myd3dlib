@@ -1,18 +1,30 @@
+//--------------------------------------------------------------------------------------
+// File: SimpleSample.fx
+//
+// The effect file for the SimpleSample sample.  
+// 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+//--------------------------------------------------------------------------------------
 
-#include "CommonHeader.fx"
 
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
+float4 g_MaterialAmbientColor;      // Material's ambient color
+float4 g_MaterialDiffuseColor;      // Material's diffuse color
+float3 g_LightDir;                  // Light's direction in world space
+float4 g_LightDiffuse;              // Light's diffuse color
+texture g_MeshTexture;              // Color texture for mesh
 
-float4 g_MaterialAmbientColor;
-float4 g_MaterialDiffuseColor;
-texture g_MeshTexture;
+float    g_fTime;                   // App's time in seconds
+float4x4 g_mWorld;                  // World matrix for object
+float4x4 g_mWorldViewProjection;    // World * View * Projection matrix
+
+
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
 //--------------------------------------------------------------------------------------
-
 sampler MeshTextureSampler = 
 sampler_state
 {
@@ -22,10 +34,10 @@ sampler_state
     MagFilter = LINEAR;
 };
 
+
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------
-
 struct VS_OUTPUT
 {
     float4 Position   : POSITION;   // vertex position 
@@ -33,10 +45,10 @@ struct VS_OUTPUT
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
 
+
 //--------------------------------------------------------------------------------------
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
-
 VS_OUTPUT RenderSceneVS( float4 vPos : POSITION, 
                          float3 vNormal : NORMAL,
                          float2 vTexCoord0 : TEXCOORD0 )
@@ -45,13 +57,13 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     float3 vNormalWorldSpace;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(vPos, mul(g_World, g_ViewProj));
+    Output.Position = mul(vPos, g_mWorldViewProjection);
     
     // Transform the normal from object space to world space    
-    vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_World)); // normal (world space)
+    vNormalWorldSpace = normalize(mul(vNormal, (float3x3)g_mWorld)); // normal (world space)
 
     // Calc diffuse color    
-    Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0, -dot(vNormalWorldSpace, g_LightDir)) + 
+    Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0,dot(vNormalWorldSpace, g_LightDir)) + 
                          g_MaterialAmbientColor;   
     Output.Diffuse.a = 1.0f; 
     
@@ -61,27 +73,38 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     return Output;    
 }
 
+
+//--------------------------------------------------------------------------------------
+// Pixel shader output structure
+//--------------------------------------------------------------------------------------
+struct PS_OUTPUT
+{
+    float4 RGBColor : COLOR0;  // Pixel color    
+};
+
+
 //--------------------------------------------------------------------------------------
 // This shader outputs the pixel's color by modulating the texture's
 // color with diffuse material color
 //--------------------------------------------------------------------------------------
-
-float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
+PS_OUTPUT RenderScenePS( VS_OUTPUT In ) 
 { 
+    PS_OUTPUT Output;
+
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
+    Output.RGBColor = tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
+
+    return Output;
 }
+
 
 //--------------------------------------------------------------------------------------
 // Renders scene 
 //--------------------------------------------------------------------------------------
-
 technique RenderScene
 {
     pass P0
     {          
-		// FillMode = WIREFRAME;
-		// CullMode = NONE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

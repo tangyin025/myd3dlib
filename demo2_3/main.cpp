@@ -85,6 +85,22 @@ public:
 
 		DrawHelper::DrawGrid(pd3dDevice);
 
+		m_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
+		m_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
+		m_effect->SetVector("g_LightDir", Vector3(1,1,1));
+		m_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+		m_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
+		m_effect->SetMatrix("g_mWorld", Matrix4::Identity());
+		m_effect->SetMatrix("g_mWorldViewProjection", m_Camera->m_ViewProj);
+		UINT passes = m_effect->Begin();
+		for(UINT p = 0; p < passes; p++)
+		{
+			m_effect->BeginPass(p);
+			m_static_mesh->DrawSubset(0);
+			m_effect->EndPass();
+		}
+		m_effect->End();
+
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}
 
