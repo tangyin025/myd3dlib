@@ -121,10 +121,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
 
-	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", std::vector<std::pair<std::string, std::string> >());
-
-	m_Camera.m_Rotation = Vector3(D3DXToRadian(-30),D3DXToRadian(0),D3DXToRadian(0));
-	m_Camera.m_LookAt = Vector3(0,0,0);
+	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
+	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
 
 	return 0;
@@ -232,27 +230,21 @@ void CMainView::OnFrameRender(
 
 		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
-		m_SimpleSample->SetFloat("g_Time", (float)fTime);
-		m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
-		m_SimpleSample->SetFloatArray("g_LightDir", &(Vector3(0,0,-1).transform(m_Camera.m_Orientation).x), 3);
-		m_SimpleSample->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+		//COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+		//ASSERT(pOutliner);
+		//switch(m_RenderMode)
+		//{
+		//case RenderModeDefault:
+		//	pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
+		//	break;
 
-		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
-		ASSERT(pOutliner);
-		switch(m_RenderMode)
-		{
-		case RenderModeDefault:
-			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
-			break;
+		//case RenderModeWire:
+		//	pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
+		//	break;
 
-		case RenderModeWire:
-			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
-			break;
-
-		case RenderModePhysics:
-			break;
-		}
+		//case RenderModePhysics:
+		//	break;
+		//}
 
 		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));

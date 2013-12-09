@@ -27,15 +27,6 @@ void Character::OnFrameMove(double fTime, float fElapsedTime)
 	// 固定根节点的z轴移动
 	m_animPose[m_Skeleton->GetBoneIndex("Bip01")].m_position.z = 0;
 
-	// 将当前动画和绑定动作叠加
-	m_incrementedPose.clear();
-	m_incrementedPose.resize(m_Skeleton->m_boneBindPose.size());
-	m_animPose.Increment(
-		m_incrementedPose,
-		m_Skeleton->m_boneBindPose,
-		m_Skeleton->m_boneHierarchy,
-		m_Skeleton->GetBoneIndex("Bip01"));
-
 	// 为绑定动作生成层次化的骨骼列表（列表中子骨骼的数据将包含父骨骼的变换）
 	m_hierarchyBoneList.clear();
 	m_hierarchyBoneList.resize(m_Skeleton->m_boneBindPose.size());
@@ -47,7 +38,7 @@ void Character::OnFrameMove(double fTime, float fElapsedTime)
 	// 为目标动作生成层次化的骨骼列表
 	m_hierarchyBoneList2.clear();
 	m_hierarchyBoneList2.resize(m_Skeleton->m_boneBindPose.size());
-	m_incrementedPose.BuildHierarchyBoneList(
+	m_animPose.BuildHierarchyBoneList(
 		m_hierarchyBoneList2,
 		m_Skeleton->m_boneHierarchy,
 		m_Skeleton->GetBoneIndex("Bip01"));

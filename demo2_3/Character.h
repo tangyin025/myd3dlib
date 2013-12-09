@@ -26,8 +26,6 @@ public:
 
 	my::BoneList m_animPose;
 
-	my::BoneList m_incrementedPose;
-
 	my::BoneList m_hierarchyBoneList;
 
 	my::BoneList m_hierarchyBoneList2;

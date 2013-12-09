@@ -23,34 +23,34 @@ void StaticMeshTreeNode::DrawStaticMeshTreeNode(
 	DWORD RenderMode,
 	my::Vector4 & Color)
 {
-	my::Effect * pSimpleSample = CMainView::getSingleton().m_SimpleSample.get();
+	//my::Effect * pSimpleSample = CMainView::getSingleton().m_SimpleSample.get();
 
-	DWORD OldState;
-	pd3dDevice->GetRenderState(D3DRS_FILLMODE, &OldState);
-	if(CMainView::RenderModeWire == RenderMode)
-	{
-		pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	}
+	//DWORD OldState;
+	//pd3dDevice->GetRenderState(D3DRS_FILLMODE, &OldState);
+	//if(CMainView::RenderModeWire == RenderMode)
+	//{
+	//	pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+	//}
 
-	pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
-	pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
-	pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex);
-	UINT cPasses = pSimpleSample->Begin();
-	for(UINT p = 0; p < cPasses; p++)
-	{
-		pSimpleSample->BeginPass(p);
-		for(DWORD i = 0; i < node->m_mesh->GetMaterialNum(); i++)
-		{
-			node->m_mesh->DrawSubset(i);
-		}
-		pSimpleSample->EndPass();
-	}
-	pSimpleSample->End();
+	//pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
+	//pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
+	//pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex);
+	//UINT cPasses = pSimpleSample->Begin();
+	//for(UINT p = 0; p < cPasses; p++)
+	//{
+	//	pSimpleSample->BeginPass(p);
+	//	for(DWORD i = 0; i < node->m_mesh->GetMaterialNum(); i++)
+	//	{
+	//		node->m_mesh->DrawSubset(i);
+	//	}
+	//	pSimpleSample->EndPass();
+	//}
+	//pSimpleSample->End();
 
-	if(CMainView::RenderModeWire == RenderMode)
-	{
-		pd3dDevice->SetRenderState(D3DRS_FILLMODE, OldState);
-	}
+	//if(CMainView::RenderModeWire == RenderMode)
+	//{
+	//	pd3dDevice->SetRenderState(D3DRS_FILLMODE, OldState);
+	//}
 }
 
 void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected)

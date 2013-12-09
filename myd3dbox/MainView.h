@@ -83,8 +83,6 @@ public:
 
 	my::FontPtr m_Font;
 
-	my::EffectPtr m_SimpleSample;
-
 	my::ModelViewerCamera m_Camera;
 
 	enum RenderMode

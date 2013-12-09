@@ -637,5 +637,7 @@ BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const Bone
 {
 	_ASSERT(pose.size() >= m_boneBindPose.size());
 
-	return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
+	GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
+
+	return pose.IncrementSelf(m_boneBindPose, boneHierarchy, root_i);
 }

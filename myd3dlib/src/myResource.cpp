@@ -311,7 +311,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListMutex.Release();
-			// ! havent handled any exception yet
+			// ! havent handled exception
 			req_iter->second->DoLoad();
 			req_iter->second->m_LoadEvent.SetEvent();
 			m_IORequestListMutex.Wait();
@@ -570,6 +570,7 @@ bool AsynchronousResourceMgr::CheckRequest(const std::string & key, IORequestPtr
 	{
 		if(!request->m_res)
 		{
+			// ! havent handled exception
 			request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
 
 			m_ResourceWeakSet[key] = request->m_res;

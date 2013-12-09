@@ -1,163 +1,150 @@
+//--------------------------------------------------------------------------------------
+// File: SimpleSample.fx
+//
+// The effect file for the SimpleSample sample.  
+// 
+// Copyright (c) Microsoft Corporation. All rights reserved.
+//--------------------------------------------------------------------------------------
 
-#include "CommonHeader.fx"
 
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
+float4 g_MaterialAmbientColor;      // Material's ambient color
+float4 g_MaterialDiffuseColor;      // Material's diffuse color
+float3 g_LightDir;                  // Light's direction in world space
+float4 g_LightDiffuse;              // Light's diffuse color
+texture g_MeshTexture;              // Color texture for mesh
 
-#define SHADOW_MAP_SIZE 512
-#define SHADOW_EPSILON 0.00010f
+float    g_fTime;                   // App's time in seconds
+float4x4 g_mWorld;                  // World matrix for object
+float4x4 g_mWorldViewProjection;    // World * View * Projection matrix
+shared row_major float2x4 g_dualquat[96];
 
-float4 g_MaterialAmbientColor;
-float4 g_MaterialDiffuseColor;
-texture g_MeshTexture;
-texture g_NormalTexture;
-texture g_SpecularTexture;
-texture g_CubeTexture;
 
-float FresExp = 3.0;
-float ReflStrength = 1.4;
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
 //--------------------------------------------------------------------------------------
-
-sampler ShadowTextureSampler =
-sampler_state
-{
-	Texture = <g_ShadowTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-};
-
 sampler MeshTextureSampler = 
 sampler_state
 {
-	Texture = <g_MeshTexture>;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-	MipFilter = LINEAR;
+    Texture = <g_MeshTexture>;
+    MipFilter = LINEAR;
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
 };
 
-sampler NormalTextureSampler =
-sampler_state
-{
-	Texture = <g_NormalTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-};
-
-sampler SpecularTextureSampler =
-sampler_state
-{
-	Texture = <g_SpecularTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-};
-
-samplerCUBE CubeTextureSampler =
-sampler_state
-{
-	Texture = <g_CubeTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
-};
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------
-
 struct VS_OUTPUT
 {
-	float4 Position		: POSITION;
-	float2 TextureUV	: TEXCOORD0;
-	float3 NormalWS		: TEXCOORD1;
-	float3 TangentWS	: TEXCOORD2;
-	float3 BinormalWS	: TEXCOORD3;
-	float3 ViewWS		: TEXCOORD4;
-	float4 PosLight		: TEXCOORD5;
+    float4 Position   : POSITION;   // vertex position 
+    float4 Diffuse    : COLOR0;     // vertex diffuse color (note that COLOR0 is clamped from 0..1)
+    float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
+
 
 //--------------------------------------------------------------------------------------
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
-
-VS_OUTPUT RenderSceneVS( SKINED_VS_INPUT i )
+VS_OUTPUT RenderSceneVS( float4 vPos : POSITION, 
+                         float3 vNormal : NORMAL,
+                         float2 vTexCoord0 : TEXCOORD0,
+						 float4 BlendWeights : BLENDWEIGHT,
+						 float4 BlendIndices : BlendIndices )
 {
-	float4 vPos;
-	float3 vNormal;
-	float3 vTangent;
-	get_skined_vsnormal(i, vPos, vNormal, vTangent);
+    VS_OUTPUT Output;
+    float3 vNormalWorldSpace;
 	
-	float3 vNormalWS = normalize(mul(vNormal, (float3x3)g_World));
-	float3 vTangentWS = normalize(mul(vTangent, (float3x3)g_World));
-	float3 vBinormalWS = cross(vNormalWS, vTangentWS);
+	// Calcuate dual
+	float2x4 dual;
+	float2x4 m = g_dualquat[BlendIndices.x];
+	float4 dq0 = (float1x4)m;
+	dual = BlendWeights.x * m;
 	
-	VS_OUTPUT Output;
-	Output.Position = mul(vPos, mul(g_World, g_ViewProj));
-	Output.TextureUV = i.Tex0; 
-	Output.NormalWS = vNormalWS;
-	Output.TangentWS = vTangentWS;
-	Output.BinormalWS = vBinormalWS;
-	Output.ViewWS = g_EyePos - mul(vPos, g_World);
-	Output.PosLight = mul(vPos, mul(g_World, g_ViewProjLS));
-	
-	return Output;
+	m = g_dualquat[BlendIndices.y];
+	float4 dq = (float1x4)m;
+	if (dot( dq0, dq ) < 0)
+		dual -= BlendWeights.y * m;
+	else
+		dual += BlendWeights.y * m;
+		
+	m = g_dualquat[BlendIndices.z];
+	dq = (float1x4)m;
+	if (dot( dq0, dq ) < 0)
+		dual -= BlendWeights.z * m;
+	else
+		dual += BlendWeights.z * m;
+		
+	m = g_dualquat[BlendIndices.w];
+	dq = (float1x4)m;
+	if (dot( dq0, dq ) < 0)
+		dual -= BlendWeights.w * m;
+	else
+		dual += BlendWeights.w * m;
+		
+	float length = sqrt(dual[0].w * dual[0].w + dual[0].x * dual[0].x + dual[0].y * dual[0].y + dual[0].z * dual[0].z);
+	dual = dual / length;
+    
+	// Calculate position, normal in object space
+	float3 position = vPos.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, vPos.xyz) + dual[0].w * vPos.xyz);
+	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
+	position += translation;
+	float3 normal = vNormal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, vNormal.xyz) + dual[0].w * vNormal.xyz);
+
+    // Transform the position from object space to homogeneous projection space
+    Output.Position = mul(float4(position,1), g_mWorldViewProjection);
+    
+    // Transform the normal from object space to world space    
+    vNormalWorldSpace = normalize(mul(normal, (float3x3)g_mWorld)); // normal (world space)
+
+    // Calc diffuse color    
+    Output.Diffuse.rgb = g_MaterialDiffuseColor * g_LightDiffuse * max(0,dot(vNormalWorldSpace, g_LightDir)) + 
+                         g_MaterialAmbientColor;   
+    Output.Diffuse.a = 1.0f; 
+    
+    // Just copy the texture coordinate through
+    Output.TextureUV = vTexCoord0; 
+    
+    return Output;    
 }
+
+
+//--------------------------------------------------------------------------------------
+// Pixel shader output structure
+//--------------------------------------------------------------------------------------
+struct PS_OUTPUT
+{
+    float4 RGBColor : COLOR0;  // Pixel color    
+};
+
 
 //--------------------------------------------------------------------------------------
 // This shader outputs the pixel's color by modulating the texture's
 // color with diffuse material color
 //--------------------------------------------------------------------------------------
-
-float get_ligthAmount(float4 PosLight)
-{
-	float2 ShadowTexC = PosLight.xy / PosLight.w * 0.5 + 0.5;
-	ShadowTexC.y = 1.0 - ShadowTexC.y;
-	
-	float LightAmount = 0;
-	float x, y;
-	for(x = -0.0; x <= 1.0; x += 1.0)
-		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowTextureSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLight.z / PosLight.w ? 0.0f : 1.0f;
-			
-	return LightAmount / 4;
-}
-
-float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
+PS_OUTPUT RenderScenePS( VS_OUTPUT In ) 
 { 
-	float3x3 mT2W = float3x3(normalize(In.BinormalWS), normalize(In.TangentWS), normalize(In.NormalWS));
-	
-	float3 vViewWS = normalize(In.ViewWS);
-	
-	float3 vNormalTS = tex2D(NormalTextureSampler, In.TextureUV) * 2 - 1;
-	
-	float3 vNormalWS = mul(vNormalTS, mT2W);
-	
-	float4 cDiffuse = saturate(-dot(vNormalWS, g_LightDir)) * g_MaterialDiffuseColor * get_ligthAmount(In.PosLight);
-	
-	float3 vReflectionWS = get_reflection(vNormalWS, vViewWS);
-	
-	float4 cReflection = texCUBE(CubeTextureSampler, vReflectionWS) * tex2D(SpecularTextureSampler, In.TextureUV);
-	
-	float kFres = get_fresnel(vNormalWS, vViewWS, FresExp, ReflStrength);
-	
-	return (cDiffuse + g_MaterialAmbientColor + kFres) * tex2D(MeshTextureSampler, In.TextureUV) + cReflection;
+    PS_OUTPUT Output;
+
+    // Lookup mesh texture and modulate it with diffuse
+    Output.RGBColor = tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
+
+    return Output;
 }
+
 
 //--------------------------------------------------------------------------------------
 // Renders scene 
 //--------------------------------------------------------------------------------------
-
 technique RenderScene
 {
-	pass P0
-	{
-		VertexShader = compile vs_2_0 RenderSceneVS();
-		PixelShader  = compile ps_2_0 RenderScenePS(); 
-	}
+    pass P0
+    {          
+        VertexShader = compile vs_2_0 RenderSceneVS();
+        PixelShader  = compile ps_2_0 RenderScenePS(); 
+    }
 }
