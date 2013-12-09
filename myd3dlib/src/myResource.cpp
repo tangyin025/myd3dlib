@@ -313,7 +313,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			m_IORequestListMutex.Release();
 			// ! havent handled exception
 			req_iter->second->DoLoad();
-			req_iter->second->m_LoadEvent.SetEvent();
+			req_iter->second->m_LoadEvent.SetEvent(); // ! req_iter may be invalid immediately
 			m_IORequestListMutex.Wait();
 		}
 		else
