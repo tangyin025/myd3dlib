@@ -19,11 +19,11 @@ public:
 
 	BoneList m_skel_pose;
 
-	my::BoneList m_skel_pose_heir1;
+	BoneList m_skel_pose_heir1;
 
-	my::BoneList m_skel_pose_heir2;
+	BoneList m_skel_pose_heir2;
 
-	my::TransformList m_dualquat;
+	TransformList m_dualquat;
 
 	EffectPtr m_static_mesh_effect;
 
@@ -35,7 +35,7 @@ public:
 		const Vector3 & pos,
 		LPCWSTR lpszText,
 		D3DCOLOR Color,
-		my::Font::Align align = my::Font::AlignCenterMiddle)
+		Font::Align align = Font::AlignCenterMiddle)
 	{
 		Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
 		Vector2 vp = DialogMgr::GetDlgViewport();
@@ -173,6 +173,7 @@ public:
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
 		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		CriticalSectionLock loc(m_ConsoleSec);
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 		_ASSERT(m_Font);
 		m_UIRender->SetWorld(Matrix4::identity);

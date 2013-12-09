@@ -212,11 +212,13 @@ namespace my
 
 		DWORD IORequestProc(void);
 
-		my::IORequestPtr PushIORequestResource(const std::string & key, my::IORequestPtr request);
+		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request);
 
 		void StartIORequestProc(void);
 
 		void StopIORequestProc(void);
+
+		virtual void OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr);
 	};
 
 	class DeviceRelatedResourceMgr
@@ -288,7 +290,7 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		IORequestPtr LoadResourceAsync(const std::string & key, IORequestPtr request);
+		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
 
 		void CheckResource(void);
 

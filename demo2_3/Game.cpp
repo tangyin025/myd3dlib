@@ -35,7 +35,7 @@ void EffectUIRender::SetWorld(const Matrix4 & World)
 	}
 }
 
-void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
+void EffectUIRender::SetViewProj(const Matrix4 & ViewProj)
 {
 	if(m_UIEffect->m_ptr)
 	{
@@ -43,7 +43,7 @@ void EffectUIRender::SetViewProj(const my::Matrix4 & ViewProj)
 	}
 }
 
-void EffectUIRender::SetTexture(const my::BaseTexturePtr & Texture)
+void EffectUIRender::SetTexture(const BaseTexturePtr & Texture)
 {
 	if(m_UIEffect->m_ptr)
 	{
@@ -83,7 +83,7 @@ void EffectEmitterInstance::End(void)
 	}
 }
 
-void EffectEmitterInstance::SetWorld(const my::Matrix4 & World)
+void EffectEmitterInstance::SetWorld(const Matrix4 & World)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -91,7 +91,7 @@ void EffectEmitterInstance::SetWorld(const my::Matrix4 & World)
 	}
 }
 
-void EffectEmitterInstance::SetViewProj(const my::Matrix4 & ViewProj)
+void EffectEmitterInstance::SetViewProj(const Matrix4 & ViewProj)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -99,7 +99,7 @@ void EffectEmitterInstance::SetViewProj(const my::Matrix4 & ViewProj)
 	}
 }
 
-void EffectEmitterInstance::SetTexture(const my::BaseTexturePtr & Texture)
+void EffectEmitterInstance::SetTexture(const BaseTexturePtr & Texture)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -358,6 +358,8 @@ void Game::OnFrameRender(
 
 	m_UIRender->Begin();
 
+	CriticalSectionLock loc(m_ConsoleSec);
+
 	DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
 	_ASSERT(m_Font);
@@ -409,6 +411,8 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
+	CriticalSectionLock loc(m_ConsoleSec);
+
 	if(m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
@@ -498,6 +502,24 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   //int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
   //return report(L, status);
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
+}
+
+void Game::OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr)
+{
+	AddLine(ts2ws(ErrorStr), D3DCOLOR_ARGB(255,255,0,0));
+}
+
+void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
+{
+	// ! 必须保证控制台生命期大于所有其他线程，且期间ui元素只读
+	CriticalSectionLock loc(m_ConsoleSec);
+	m_Console->m_Panel->AddLine(str, Color);
+}
+
+void Game::puts(const std::wstring & str)
+{
+	CriticalSectionLock loc(m_ConsoleSec);
+	m_Console->m_Panel->puts(str);
 }
 
 bool Game::ExecuteCode(const char * code) throw()

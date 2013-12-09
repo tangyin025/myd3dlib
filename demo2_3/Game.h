@@ -86,6 +86,8 @@ public:
 
 	ConsolePtr m_Console;
 
+	my::CriticalSection m_ConsoleSec;
+
 	my::InputPtr m_Input;
 
 	my::KeyboardPtr m_Keyboard;
@@ -109,16 +111,6 @@ public:
 	static Game * getSingletonPtr(void)
 	{
 		return static_cast<Game *>(DxutApp::getSingletonPtr());
-	}
-
-	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255))
-	{
-		m_Console->m_Panel->AddLine(str, Color);
-	}
-
-	void puts(const std::wstring & str)
-	{
-		m_Console->m_Panel->puts(str);
 	}
 
 	virtual bool IsDeviceAcceptable(
@@ -161,6 +153,12 @@ public:
 		WPARAM wParam,
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
+
+	virtual void OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr);
+
+	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
+
+	void puts(const std::wstring & str);
 
 	bool ExecuteCode(const char * code) throw();
 };
