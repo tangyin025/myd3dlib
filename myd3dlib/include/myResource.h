@@ -217,8 +217,6 @@ namespace my
 		void StartIORequestProc(void);
 
 		void StopIORequestProc(void);
-
-		virtual void OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr);
 	};
 
 	class DeviceRelatedResourceMgr
@@ -295,6 +293,8 @@ namespace my
 		void CheckResource(void);
 
 		bool CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout);
+
+		virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 
 		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);
 

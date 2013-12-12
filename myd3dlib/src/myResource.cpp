@@ -311,16 +311,12 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		if(req_iter != m_IORequestList.end())
 		{
 			m_IORequestListMutex.Release();
-			// ! crudely handled exception
-			try
-			{
-				req_iter->second->DoLoad();
-			}
-			catch(const my::Exception & e)
-			{
-				OnLoadResourceError(e.what());
-			}
+
+			// ! havent handled exception
+			req_iter->second->DoLoad();
+
 			req_iter->second->m_LoadEvent.SetEvent(); // ! req_iter may be invalid immediately
+
 			m_IORequestListMutex.Wait();
 		}
 		else
@@ -373,10 +369,6 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake();
-}
-
-void AsynchronousIOMgr::OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr)
-{
 }
 
 HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
@@ -559,12 +551,23 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadR
 
 void AsynchronousResourceMgr::CheckResource(void)
 {
-	m_IORequestListMutex.Wait();
+	MutexLock lock(m_IORequestListMutex);
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); )
 	{
 		if(CheckRequest(req_iter->first, req_iter->second, 0))
 		{
+			// ! further checking for asynchronous callback
+			if(m_ResourceWeakSet[req_iter->first].lock() == req_iter->second->m_res)
+			{
+				IORequest::ResourceCallbackList::iterator callback_iter = req_iter->second->m_callbacks.begin();
+				for(; callback_iter != req_iter->second->m_callbacks.end(); callback_iter++)
+				{
+					if(*callback_iter)
+						(*callback_iter)(req_iter->second->m_res);
+				}
+			}
+
 			req_iter = m_IORequestList.erase(req_iter);
 		}
 		else
@@ -572,7 +575,6 @@ void AsynchronousResourceMgr::CheckResource(void)
 			break;
 		}
 	}
-	m_IORequestListMutex.Release();
 }
 
 bool AsynchronousResourceMgr::CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout)
@@ -581,31 +583,25 @@ bool AsynchronousResourceMgr::CheckRequest(const std::string & key, IORequestPtr
 	{
 		if(!request->m_res)
 		{
-			// ! crudely handled exception
+			// ! havent handled exception
 			try
 			{
 				request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
+
+				m_ResourceWeakSet[key] = request->m_res;
 			}
-			catch(const my::Exception & e)
+			catch(const Exception & e)
 			{
-				OnLoadResourceError(e.what());
-				return true;
+				OnResourceFailed(e.what());
 			}
-
-			m_ResourceWeakSet[key] = request->m_res;
-		}
-
-		_ASSERT(m_ResourceWeakSet[key].lock() == request->m_res);
-
-		IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
-		for(; callback_iter != request->m_callbacks.end(); callback_iter++)
-		{
-			if(*callback_iter)
-				(*callback_iter)(request->m_res);
 		}
 		return true;
 	}
 	return false;
+}
+
+void AsynchronousResourceMgr::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
+{
 }
 
 class TextureIORequest : public IORequest
@@ -770,7 +766,8 @@ public:
 			}
 			catch(rapidxml::parse_error & e)
 			{
-				THROW_CUSEXCEPTION(ms2ts(e.what()));
+				//THROW_CUSEXCEPTION(ms2ts(e.what()));
+				m_doc.clear();
 			}
 		}
 	}

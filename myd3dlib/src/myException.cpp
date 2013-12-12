@@ -8,6 +8,16 @@
 
 using namespace my;
 
+Exception::Exception(LPCTSTR file, int line)
+	: m_file(file)
+	, m_line(line)
+{
+}
+
+Exception::~Exception(void)
+{
+}
+
 std::basic_string<TCHAR> ComException::Translate(HRESULT hres) throw()
 {
 	switch(hres)

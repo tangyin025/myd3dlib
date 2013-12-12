@@ -85,6 +85,17 @@ void Mutex::Release(void)
 	::ReleaseMutex(m_mutex);
 }
 
+MutexLock::MutexLock(Mutex & mutex)
+	: m_mutex(mutex)
+{
+	m_mutex.Wait();
+}
+
+MutexLock::~MutexLock(void)
+{
+	m_mutex.Release();
+}
+
 Semaphore::Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LPCTSTR lpName)
 {
 	m_sema = ::CreateSemaphore(lpSemaphoreAttributes, lInitialCount, lMaximumCount, lpName);

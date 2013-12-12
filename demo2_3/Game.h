@@ -86,8 +86,6 @@ public:
 
 	ConsolePtr m_Console;
 
-	my::CriticalSection m_ConsoleSec;
-
 	my::InputPtr m_Input;
 
 	my::KeyboardPtr m_Keyboard;
@@ -154,7 +152,7 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	virtual void OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr);
+	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 

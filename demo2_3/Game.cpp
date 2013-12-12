@@ -358,8 +358,6 @@ void Game::OnFrameRender(
 
 	m_UIRender->Begin();
 
-	CriticalSectionLock loc(m_ConsoleSec);
-
 	DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
 	_ASSERT(m_Font);
@@ -411,8 +409,6 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	CriticalSectionLock loc(m_ConsoleSec);
-
 	if(m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
@@ -504,21 +500,23 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
 }
 
-void Game::OnLoadResourceError(const std::basic_string<TCHAR> & ErrorStr)
+void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 {
-	AddLine(ts2ws(ErrorStr), D3DCOLOR_ARGB(255,255,0,0));
+	AddLine(error_str, D3DCOLOR_ARGB(255,255,255,255));
+
+	if(!m_Console->GetVisible())
+	{
+		m_Console->SetVisible(true);
+	}
 }
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
-	// ! 必须保证控制台生命期大于所有其他线程，且期间ui元素只读
-	CriticalSectionLock loc(m_ConsoleSec);
 	m_Console->m_Panel->AddLine(str, Color);
 }
 
 void Game::puts(const std::wstring & str)
 {
-	CriticalSectionLock loc(m_ConsoleSec);
 	m_Console->m_Panel->puts(str);
 }
 
@@ -531,7 +529,8 @@ bool Game::ExecuteCode(const char * code) throw()
 			msg = L"(error object is not a string)";
 		lua_pop(m_lua->_state, 1);
 
-		MessageBeep(-1); AddLine(msg); if(!m_Console->GetVisible()) m_Console->SetVisible(true);
+		OnResourceFailed(msg);
+
 		return false;
 	}
 	return true;

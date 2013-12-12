@@ -74,6 +74,17 @@ namespace my
 		void Release(void);
 	};
 
+	class MutexLock
+	{
+	protected:
+		Mutex & m_mutex;
+
+	public:
+		MutexLock(Mutex & mutex);
+
+		~MutexLock(void);
+	};
+
 	class Semaphore
 	{
 	public:

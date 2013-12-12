@@ -14,16 +14,9 @@ namespace my
 		int m_line;
 
 	public:
-		Exception(LPCTSTR file, int line)
-			: m_file(file)
-			, m_line(line)
-		{
-			_ASSERT(false);
-		}
+		Exception(LPCTSTR file, int line);
 
-		virtual ~Exception(void)
-		{
-		}
+		virtual ~Exception(void);
 
 		virtual std::basic_string<TCHAR> what(void) const = 0;
 	};
