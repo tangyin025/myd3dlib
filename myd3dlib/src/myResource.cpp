@@ -634,23 +634,34 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_cache)
+		if(!m_cache)
 		{
-			D3DXIMAGE_INFO imif;
-			if(SUCCEEDED(D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif)))
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		D3DXIMAGE_INFO imif;
+		HRESULT hr = D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif);
+		if(FAILED(hr))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+		switch(imif.ResourceType)
+		{
+		case D3DRTYPE_TEXTURE:
 			{
-				switch(imif.ResourceType)
-				{
-				case D3DRTYPE_TEXTURE:
-					m_res.reset(new Texture2D());
-					boost::static_pointer_cast<Texture2D>(m_res)->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
-					break;
-				case D3DRTYPE_CUBETEXTURE:
-					m_res.reset(new CubeTexture());
-					boost::static_pointer_cast<CubeTexture>(m_res)->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
-					break;
-				}
+				Texture2DPtr res(new Texture2D());
+				res->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+				m_res = res;
 			}
+			break;
+		case D3DRTYPE_CUBETEXTURE:
+			{
+				CubeTexturePtr res(new CubeTexture());
+				res->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+				m_res = res;
+			}
+			break;
+		default:
+			THROW_CUSEXCEPTION(str_printf(_T("unsupported d3d texture format %u"), imif.ResourceType));
 		}
 	}
 };
@@ -701,20 +712,22 @@ public:
 			{
 				m_doc.parse<0>((char *)&(*m_cache)[0]);
 			}
-			catch(rapidxml::parse_error & e)
+			catch(rapidxml::parse_error &)
 			{
-				THROW_CUSEXCEPTION(ms2ts(e.what()));
+				m_doc.clear();
 			}
 		}
 	}
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_doc.first_node())
+		if(!m_doc.first_node())
 		{
-			m_res.reset(new OgreMesh());
-			boost::static_pointer_cast<OgreMesh>(m_res)->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		OgreMeshPtr res(new OgreMesh());
+		res->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+		m_res = res;
 	}
 };
 
@@ -764,9 +777,8 @@ public:
 			{
 				m_doc.parse<0>((char *)&(*m_cache)[0]);
 			}
-			catch(rapidxml::parse_error & e)
+			catch(rapidxml::parse_error &)
 			{
-				//THROW_CUSEXCEPTION(ms2ts(e.what()));
 				m_doc.clear();
 			}
 		}
@@ -774,11 +786,13 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_doc.first_node())
+		if(!m_doc.first_node())
 		{
-			m_res.reset(new OgreSkeletonAnimation());
-			boost::static_pointer_cast<OgreSkeletonAnimation>(m_res)->CreateOgreSkeletonAnimation(&m_doc);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
+		res->CreateOgreSkeletonAnimation(&m_doc);
+		m_res = res;
 	}
 };
 
@@ -837,13 +851,15 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_cache)
+		if(!m_cache)
 		{
-			m_res.reset(new Effect());
-			m_arc->m_EffectInclude = ZipStreamDir::ReplaceSlash(m_path);
-			PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
-			boost::static_pointer_cast<Effect>(m_res)->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		EffectPtr res(new Effect());
+		m_arc->m_EffectInclude = ZipStreamDir::ReplaceSlash(m_path);
+		PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
+		res->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+		m_res = res;
 	}
 
 	static std::string BuildKey(const std::string & path, const EffectMacroPairList & macros)
@@ -911,11 +927,13 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_cache)
+		if(!m_cache)
 		{
-			m_res.reset(new Font());
-			boost::static_pointer_cast<Font>(m_res)->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		FontPtr res(new Font());
+		res->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+		m_res = res;
 	}
 
 	static std::string BuildKey(const std::string & path, int height)

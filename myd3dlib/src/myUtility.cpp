@@ -998,26 +998,24 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_cache)
+		if(!m_cache)
 		{
-			MaterialPtr ret(new Material());
-			ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(ret));
-
-			membuf mb((char *)&(*m_cache)[0], m_cache->size());
-			std::istream ims(&mb);
-			boost::archive::text_iarchive ia(ims);
-
-			std::string path;
-			ia >> path;
-			OnLoadDiffuseTexture(boundle, path);
-			ia >> path;
-			OnLoadNormalTexture(boundle, path);
-			ia >> path;
-			OnLoadSpecularTexture(boundle, path);
-
-			m_res = ret;
-			OnPostBuildResource(boundle);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		MaterialPtr res(new Material());
+		ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(res));
+		membuf mb((char *)&(*m_cache)[0], m_cache->size());
+		std::istream ims(&mb);
+		boost::archive::text_iarchive ia(ims);
+		std::string path;
+		ia >> path;
+		OnLoadDiffuseTexture(boundle, path);
+		ia >> path;
+		OnLoadNormalTexture(boundle, path);
+		ia >> path;
+		OnLoadSpecularTexture(boundle, path);
+		m_res = res;
+		OnPostBuildResource(boundle);
 	}
 };
 
@@ -1118,24 +1116,22 @@ public:
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(m_cache)
+		if(!m_cache)
 		{
-			EmitterPtr ret;
-			ResourceCallbackBoundlePtr boundle;
-
-			membuf mb((char *)&(*m_cache)[0], m_cache->size());
-			std::istream ims(&mb);
-			boost::archive::text_iarchive ia(ims);
-
-			ia >> ret;
-			boundle.reset(new ResourceCallbackBoundle(ret));
-			std::string path;
-			ia >> path;
-			OnLoadTexture(boundle, path);
-
-			m_res = ret;
-			OnPostBuildResource(boundle);
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
+		EmitterPtr res;
+		ResourceCallbackBoundlePtr boundle;
+		membuf mb((char *)&(*m_cache)[0], m_cache->size());
+		std::istream ims(&mb);
+		boost::archive::text_iarchive ia(ims);
+		ia >> res;
+		boundle.reset(new ResourceCallbackBoundle(res));
+		std::string path;
+		ia >> path;
+		OnLoadTexture(boundle, path);
+		m_res = res;
+		OnPostBuildResource(boundle);
 	}
 };
 
