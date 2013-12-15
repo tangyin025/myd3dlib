@@ -79,7 +79,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		CheckResource();
+		CheckRequests();
 	}
 
 	void OnFrameRender(

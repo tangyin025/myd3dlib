@@ -73,7 +73,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 		}
 	}
 
-	CheckResource();
+	CheckRequests();
 
 	return bRet;
 }

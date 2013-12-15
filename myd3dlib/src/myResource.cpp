@@ -549,13 +549,13 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadR
 	return PushIORequestResource(key, request);
 }
 
-void AsynchronousResourceMgr::CheckResource(void)
+void AsynchronousResourceMgr::CheckRequests(void)
 {
 	MutexLock lock(m_IORequestListMutex);
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); )
 	{
-		if(CheckRequest(req_iter->first, req_iter->second, 0))
+		if(CheckResource(req_iter->first, req_iter->second, 0))
 		{
 			// ! further checking for asynchronous callback
 			if(m_ResourceWeakSet[req_iter->first].lock() == req_iter->second->m_res)
@@ -577,7 +577,7 @@ void AsynchronousResourceMgr::CheckResource(void)
 	}
 }
 
-bool AsynchronousResourceMgr::CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout)
+bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPtr request, DWORD timeout)
 {
 	if(request->m_LoadEvent.WaitEvent(timeout))
 	{
@@ -675,7 +675,7 @@ BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
 {
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<BaseTexture>(req_iter->second->m_res);
 }
@@ -740,7 +740,7 @@ OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
 {
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<OgreMesh>(req_iter->second->m_res);
 }
@@ -805,7 +805,7 @@ OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string
 {
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(req_iter->second->m_res);
 }
@@ -889,7 +889,7 @@ EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const Ef
 
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<Effect>(req_iter->second->m_res);
 }
@@ -955,7 +955,7 @@ FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)
 
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<Font>(req_iter->second->m_res);
 }

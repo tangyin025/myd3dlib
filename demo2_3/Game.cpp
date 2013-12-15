@@ -336,7 +336,7 @@ void Game::OnFrameMove(
 
 	m_Mouse->Capture();
 
-	ResourceMgr::CheckResource();
+	ResourceMgr::CheckRequests();
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 

@@ -290,9 +290,9 @@ namespace my
 
 		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
 
-		void CheckResource(void);
+		void CheckRequests(void);
 
-		bool CheckRequest(const std::string & key, IORequestPtr request, DWORD timeout);
+		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
 
 		virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 

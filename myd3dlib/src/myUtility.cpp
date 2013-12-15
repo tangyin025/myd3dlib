@@ -1056,7 +1056,7 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<Material>(req_iter->second->m_res);
 }
@@ -1162,7 +1162,7 @@ EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
 
 	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new SyncEmitterIORequest(ResourceCallback(), path, this)));
 
-	CheckRequest(req_iter->first, req_iter->second, INFINITE);
+	CheckResource(req_iter->first, req_iter->second, INFINITE);
 
 	return boost::dynamic_pointer_cast<Emitter>(req_iter->second->m_res);
 }
