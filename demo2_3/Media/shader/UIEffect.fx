@@ -1,12 +1,11 @@
 
-#include "CommonHeader.fx"
-
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
 
+shared float4x4 g_World;
+shared float4x4 g_ViewProj;
 float2 g_ScreenDim;
-
 texture g_MeshTexture;
 
 //--------------------------------------------------------------------------------------
@@ -32,6 +31,19 @@ struct VS_OUTPUT
     float4 Diffuse    : COLOR0;     // vertex diffuse color (note that COLOR0 is clamped from 0..1)
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
+
+//--------------------------------------------------------------------------------------
+// align_ui_unit
+//--------------------------------------------------------------------------------------
+
+float4 align_ui_unit(float4 pos, float2 ScreenDim)
+{
+	return float4(
+		((floor((ScreenDim.x + pos.x / pos.w * ScreenDim.x) * 0.5 + 0.222222) - 0.5) * 2 - ScreenDim.x) / ScreenDim.x * pos.w,
+		(ScreenDim.y - (floor((ScreenDim.y - pos.y / pos.w * ScreenDim.y) * 0.5 + 0.222222) - 0.5) * 2) / ScreenDim.y * pos.w,
+		pos.z,
+		pos.w);
+}
 
 //--------------------------------------------------------------------------------------
 // This shader computes standard transform and lighting

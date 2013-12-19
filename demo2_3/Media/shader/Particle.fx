@@ -1,10 +1,10 @@
 
-#include "CommonHeader.fx"
-
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
 
+shared float4x4 g_World;
+shared float4x4 g_ViewProj;
 float3 g_ParticleDir;
 float3 g_ParticleUp;
 float3 g_ParticleRight;
@@ -34,6 +34,29 @@ struct VS_OUTPUT
     float4 Diffuse    : COLOR0;     // vertex diffuse color (note that COLOR0 is clamped from 0..1)
     float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
+
+//--------------------------------------------------------------------------------------
+// rotate_angle_axis
+//--------------------------------------------------------------------------------------
+
+float3 rotate_angle_axis(float3 v, float a, float3 N)
+{
+	float sin_a, cos_a;
+	sincos(a, sin_a, cos_a);
+	float Nxx = N.x * N.x;
+	float Nyy = N.y * N.y;
+	float Nzz = N.z * N.z;
+	float Nxy = N.x * N.y;
+	float Nyz = N.y * N.z;
+	float Nzx = N.z * N.x;
+	
+	float3x3 mRotation = {
+		Nxx * (1 - cos_a) + cos_a,			Nxy * (1 - cos_a) + N.z * sin_a,	Nzx * (1 - cos_a) - N.y * sin_a,
+		Nxy * (1 - cos_a) - N.z * sin_a,	Nyy * (1 - cos_a) + cos_a,			Nyz * (1 - cos_a) + N.x * sin_a,
+		Nzx * (1 - cos_a) + N.y * sin_a,	Nyz * (1 - cos_a) - N.x * sin_a,	Nzz * (1 - cos_a) + cos_a};
+		
+	return mul(v, mRotation);
+}
 
 //--------------------------------------------------------------------------------------
 // This shader computes standard transform and lighting

@@ -502,6 +502,8 @@ static int dostring (lua_State *L, const char *s, const char *name) {
 
 void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 {
+	_ASSERT(m_Console && m_Console->m_Panel);
+
 	AddLine(error_str, D3DCOLOR_ARGB(255,255,255,255));
 
 	if(!m_Console->GetVisible())

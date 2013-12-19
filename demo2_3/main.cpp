@@ -53,12 +53,13 @@ public:
 		}
 		ExecuteCode("dofile \"GameStateMain.lua\"");
 
-		//m_static_mesh = LoadMesh("mesh/tube.mesh.xml");
-		//m_skined_mesh = LoadMesh("mesh/tube.mesh.xml");
-		//m_skel_anim = LoadSkeleton("mesh/tube.skeleton.xml");
-		//m_static_mesh_effect = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-		//m_skined_mesh_effect = LoadEffect("shader/Character.fx", EffectMacroPairList());
-		//m_material = LoadMaterial("material/lambert1.txt");
+		// ¼ÓÔØmesh
+		m_static_mesh = LoadMesh("mesh/tube.mesh.xml");
+		m_skined_mesh = LoadMesh("mesh/tube.mesh.xml");
+		m_skel_anim = LoadSkeleton("mesh/tube.skeleton.xml");
+		m_static_mesh_effect = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+		m_skined_mesh_effect = LoadEffect("shader/Character.fx", EffectMacroPairList());
+		m_material = LoadMaterial("material/lambert1.txt");
 
 		return S_OK;
 	}
@@ -90,33 +91,31 @@ public:
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
 
-		//static float anim_time = 0;
-		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("clip1").GetTime());
-		//m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->BuildAnimationPose(
-		//	m_skel_pose,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"),
-		//	"clip1",
-		//	anim_time);
-
-		//m_skel_pose_heir1.clear();
-		//m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir1,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"));
-
-		//m_skel_pose_heir2.clear();
-		//m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir2,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"));
-
-		//m_dualquat.clear();
-		//m_dualquat.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose_heir1.BuildDualQuaternionList(m_dualquat, m_skel_pose_heir2);
+		// ÉèÖÃ¶¯»­
+		static float anim_time = 0;
+		anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("clip1").GetTime());
+		m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->BuildAnimationPose(
+			m_skel_pose,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("joint1"),
+			"clip1",
+			anim_time);
+		m_skel_pose_heir1.clear();
+		m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
+			m_skel_pose_heir1,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("joint1"));
+		m_skel_pose_heir2.clear();
+		m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose.BuildHierarchyBoneList(
+			m_skel_pose_heir2,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("joint1"));
+		m_dualquat.clear();
+		m_dualquat.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose_heir1.BuildDualQuaternionList(m_dualquat, m_skel_pose_heir2);
 	}
 
 	virtual void OnFrameRender(
@@ -129,24 +128,29 @@ public:
 
 		DrawHelper::DrawGrid(pd3dDevice);
 
-		//Matrix4 World = Matrix4::Translation(Vector3(2,0,0));
-		//m_static_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
-		//m_static_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-		//m_static_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
-		//m_static_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		//m_static_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
-		//m_static_mesh_effect->SetMatrix("g_mWorld", World);
-		//m_static_mesh_effect->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
-		//UINT passes = m_static_mesh_effect->Begin();
-		//for(UINT p = 0; p < passes; p++)
-		//{
-		//	m_static_mesh_effect->BeginPass(p);
-		//	m_static_mesh->DrawSubset(0);
-		//	m_static_mesh_effect->EndPass();
-		//}
-		//m_static_mesh_effect->End();
+		// äÖÈ¾¾²Ì¬mesh
+		if (m_static_mesh_effect) 
+		{
+			Matrix4 World = Matrix4::Translation(Vector3(2,0,0));
+			m_static_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
+			m_static_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
+			m_static_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
+			m_static_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+			m_static_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
+			m_static_mesh_effect->SetMatrix("g_World", World);
+			m_static_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+			UINT passes = m_static_mesh_effect->Begin();
+			for(UINT p = 0; p < passes; p++)
+			{
+				m_static_mesh_effect->BeginPass(p);
+				m_static_mesh->DrawSubset(0);
+				m_static_mesh_effect->EndPass();
+			}
+			m_static_mesh_effect->End();
+		}
 
-		//World = Matrix4::Translation(Vector3(-2,0,0));
+		//// äÖÈ¾¶¯»­mesh
+		//Matrix4 World = Matrix4::Translation(Vector3(-2,0,0));
 		//m_skined_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
 		//m_skined_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
 		//m_skined_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
@@ -155,7 +159,7 @@ public:
 		//m_skined_mesh_effect->SetMatrix("g_mWorld", World);
 		//m_skined_mesh_effect->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
 		//m_skined_mesh_effect->SetMatrixArray("g_dualquat", &m_dualquat[0], m_dualquat.size());
-		//passes = m_skined_mesh_effect->Begin();
+		//UINT passes = m_skined_mesh_effect->Begin();
 		//for(UINT p = 0; p < passes; p++)
 		//{
 		//	m_skined_mesh_effect->BeginPass(p);
