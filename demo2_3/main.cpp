@@ -58,7 +58,9 @@ public:
 		m_skined_mesh = LoadMesh("mesh/tube.mesh.xml");
 		m_skel_anim = LoadSkeleton("mesh/tube.skeleton.xml");
 		m_static_mesh_effect = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-		m_skined_mesh_effect = LoadEffect("shader/Character.fx", EffectMacroPairList());
+		EffectMacroPairList macros;
+		macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
+		m_skined_mesh_effect = LoadEffect("shader/SimpleSample.fx", macros);
 		m_material = LoadMaterial("material/lambert1.txt");
 
 		return S_OK;
@@ -149,24 +151,27 @@ public:
 			m_static_mesh_effect->End();
 		}
 
-		//// äÖÈ¾¶¯»­mesh
-		//Matrix4 World = Matrix4::Translation(Vector3(-2,0,0));
-		//m_skined_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
-		//m_skined_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-		//m_skined_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
-		//m_skined_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
-		//m_skined_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
-		//m_skined_mesh_effect->SetMatrix("g_mWorld", World);
-		//m_skined_mesh_effect->SetMatrix("g_mWorldViewProjection", World * m_Camera->m_ViewProj);
-		//m_skined_mesh_effect->SetMatrixArray("g_dualquat", &m_dualquat[0], m_dualquat.size());
-		//UINT passes = m_skined_mesh_effect->Begin();
-		//for(UINT p = 0; p < passes; p++)
-		//{
-		//	m_skined_mesh_effect->BeginPass(p);
-		//	m_skined_mesh->DrawSubset(0);
-		//	m_skined_mesh_effect->EndPass();
-		//}
-		//m_skined_mesh_effect->End();
+		// äÖÈ¾¶¯»­mesh
+		if (m_skined_mesh_effect)
+		{
+			Matrix4 World = Matrix4::Translation(Vector3(-2,0,0));
+			m_skined_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
+			m_skined_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
+			m_skined_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
+			m_skined_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
+			m_skined_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
+			m_skined_mesh_effect->SetMatrix("g_World", World);
+			m_skined_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+			m_skined_mesh_effect->SetMatrixArray("g_dualquat", &m_dualquat[0], m_dualquat.size());
+			UINT passes = m_skined_mesh_effect->Begin();
+			for(UINT p = 0; p < passes; p++)
+			{
+				m_skined_mesh_effect->BeginPass(p);
+				m_skined_mesh->DrawSubset(0);
+				m_skined_mesh_effect->EndPass();
+			}
+			m_skined_mesh_effect->End();
+		}
 
 		m_EmitterInst->Begin();
 		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
