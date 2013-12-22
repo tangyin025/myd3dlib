@@ -134,10 +134,6 @@ public:
 		if (m_static_mesh_effect) 
 		{
 			Matrix4 World = Matrix4::Translation(Vector3(2,0,0));
-			m_static_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
-			m_static_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-			m_static_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
-			m_static_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 			m_static_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
 			m_static_mesh_effect->SetMatrix("g_World", World);
 			m_static_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
@@ -155,10 +151,6 @@ public:
 		if (m_skined_mesh_effect)
 		{
 			Matrix4 World = Matrix4::Translation(Vector3(-2,0,0));
-			m_skined_mesh_effect->SetVector("g_MaterialAmbientColor", Vector4(0,0,0,0));
-			m_skined_mesh_effect->SetVector("g_MaterialDiffuseColor", Vector4(1,1,1,1));
-			m_skined_mesh_effect->SetVector("g_LightDir", Vector3(1,1,1));
-			m_skined_mesh_effect->SetVector("g_LightDiffuse", Vector4(1,1,1,1));
 			m_skined_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
 			m_skined_mesh_effect->SetMatrix("g_World", World);
 			m_skined_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);

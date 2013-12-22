@@ -294,6 +294,17 @@ namespace my
 
 		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
 
+		template <typename T>
+		boost::shared_ptr<T> CheckResourceSync(const std::string & key, IORequestPtr request)
+		{
+			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
+			CheckResource(req_iter->first, req_iter->second, INFINITE);
+			boost::shared_ptr<T> ret = boost::dynamic_pointer_cast<T>(req_iter->second->m_res);
+			MutexLock lock(m_IORequestListMutex);
+			m_IORequestList.erase(req_iter);
+			return ret;
+		}
+
 		virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 
 		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);

@@ -557,17 +557,6 @@ void AsynchronousResourceMgr::CheckRequests(void)
 	{
 		if(CheckResource(req_iter->first, req_iter->second, 0))
 		{
-			// ! further checking for asynchronous callback
-			if(m_ResourceWeakSet[req_iter->first].lock() == req_iter->second->m_res)
-			{
-				IORequest::ResourceCallbackList::iterator callback_iter = req_iter->second->m_callbacks.begin();
-				for(; callback_iter != req_iter->second->m_callbacks.end(); callback_iter++)
-				{
-					if(*callback_iter)
-						(*callback_iter)(req_iter->second->m_res);
-				}
-			}
-
 			req_iter = m_IORequestList.erase(req_iter);
 		}
 		else
@@ -588,7 +577,16 @@ bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPt
 			{
 				request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
 
+				_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
+
 				m_ResourceWeakSet[key] = request->m_res;
+
+				IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
+				for(; callback_iter != request->m_callbacks.end(); callback_iter++)
+				{
+					if(*callback_iter)
+						(*callback_iter)(request->m_res);
+				}
 			}
 			catch(const Exception & e)
 			{
@@ -673,11 +671,7 @@ void AsynchronousResourceMgr::LoadTextureAsync(const std::string & path, const R
 
 BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
 {
-	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
-
-	CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-	return boost::dynamic_pointer_cast<BaseTexture>(req_iter->second->m_res);
+	return CheckResourceSync<BaseTexture>(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
 }
 
 class MeshIORequest : public IORequest
@@ -738,11 +732,7 @@ void AsynchronousResourceMgr::LoadMeshAsync(const std::string & path, const Reso
 
 OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
 {
-	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
-
-	CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-	return boost::dynamic_pointer_cast<OgreMesh>(req_iter->second->m_res);
+	return CheckResourceSync<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
 }
 
 class SkeletonIORequest : public IORequest
@@ -803,11 +793,7 @@ void AsynchronousResourceMgr::LoadSkeletonAsync(const std::string & path, const 
 
 OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string & path)
 {
-	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
-
-	CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(req_iter->second->m_res);
+	return CheckResourceSync<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 }
 
 class AsynchronousResourceMgr::EffectIORequest : public IORequest
@@ -887,11 +873,7 @@ EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const Ef
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
-	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
-
-	CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-	return boost::dynamic_pointer_cast<Effect>(req_iter->second->m_res);
+	return CheckResourceSync<Effect>(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
 }
 
 class FontIORequest : public IORequest
@@ -953,9 +935,5 @@ FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 
-	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
-
-	CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-	return boost::dynamic_pointer_cast<Font>(req_iter->second->m_res);
+	return CheckResourceSync<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
 }

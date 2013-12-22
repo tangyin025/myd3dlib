@@ -11,10 +11,6 @@
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
-float4 g_MaterialAmbientColor;      // Material's ambient color
-float4 g_MaterialDiffuseColor;      // Material's diffuse color
-float3 g_LightDir;                  // Light's direction in world space
-float4 g_LightDiffuse;              // Light's diffuse color
 texture g_MeshTexture;              // Color texture for mesh
 #ifdef VS_SKINED_DQ
 row_major float2x4 g_dualquat[96];
