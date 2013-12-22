@@ -362,19 +362,19 @@ void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 &
 	//m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
 	//m_material->ApplyParameterBlock();
 
-	HRESULT hr;
+	//HRESULT hr;
 	//UINT cPasses = m_material->Begin();
 	//for(UINT p = 0; p < cPasses; p++)
-	{
-		//m_material->BeginPass(p);
-		V(pd3dDevice->SetVertexDeclaration(m_Decl));
-		for(size_t i = 0; i < m_ApexVbs.size(); i++)
-		{
-			V(pd3dDevice->SetStreamSource(i, m_ApexVbs[i]->m_vb.m_ptr, 0, m_ApexVbs[i]->m_stride));
-		}
-		V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
-		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
-		//m_material->EndPass();
-	}
+	//{
+	//	m_material->BeginPass(p);
+	//	V(pd3dDevice->SetVertexDeclaration(m_Decl));
+	//	for(size_t i = 0; i < m_ApexVbs.size(); i++)
+	//	{
+	//		V(pd3dDevice->SetStreamSource(i, m_ApexVbs[i]->m_vb.m_ptr, 0, m_ApexVbs[i]->m_stride));
+	//	}
+	//	V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
+	//	V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
+	//	m_material->EndPass();
+	//}
 	//m_material->End();
 }
