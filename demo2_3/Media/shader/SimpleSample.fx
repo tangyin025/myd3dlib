@@ -1,25 +1,19 @@
-//--------------------------------------------------------------------------------------
-// File: SimpleSample.fx
-//
-// The effect file for the SimpleSample sample.  
-// 
-// Copyright (c) Microsoft Corporation. All rights reserved.
-//--------------------------------------------------------------------------------------
 
 #include "CommonHeader.fx"
 
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
+
 texture g_MeshTexture;              // Color texture for mesh
 #ifdef VS_SKINED_DQ
 row_major float2x4 g_dualquat[96];
 #endif
 
-
 //--------------------------------------------------------------------------------------
 // Texture samplers
 //--------------------------------------------------------------------------------------
+
 sampler MeshTextureSampler = 
 sampler_state
 {
@@ -29,59 +23,96 @@ sampler_state
     MagFilter = LINEAR;
 };
 
+//--------------------------------------------------------------------------------------
+// func
+//--------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------
-// get_skined_vs
-//--------------------------------------------------------------------------------------
-#ifdef VS_SKINED_DQ
-void get_skined_vs(VS_INPUT In, out float4 Pos, out float3 Normal, out float3 Tangent)
+void get_skinned_dual( row_major float2x4 dualquat[96],
+					   float4 BlendWeights,
+					   float4 BlendIndices,
+					   out float2x4 dual)
 {
-	float2x4 m = g_dualquat[In.BlendIndices.x];
+	float2x4 m = dualquat[BlendIndices.x];
 	float4 dq0 = (float1x4)m;
-	float2x4 dual = In.BlendWeights.x * m;
-	
-	m = g_dualquat[In.BlendIndices.y];
+	dual = BlendWeights.x * m;
+	m = dualquat[BlendIndices.y];
 	float4 dq = (float1x4)m;
 	if (dot( dq0, dq ) < 0)
-		dual -= In.BlendWeights.y * m;
+		dual -= BlendWeights.y * m;
 	else
-		dual += In.BlendWeights.y * m;
-		
-	m = g_dualquat[In.BlendIndices.z];
+		dual += BlendWeights.y * m;
+	m = dualquat[BlendIndices.z];
 	dq = (float1x4)m;
 	if (dot( dq0, dq ) < 0)
-		dual -= In.BlendWeights.z * m;
+		dual -= BlendWeights.z * m;
 	else
-		dual += In.BlendWeights.z * m;
-		
-	m = g_dualquat[In.BlendIndices.w];
+		dual += BlendWeights.z * m;
+	m = dualquat[BlendIndices.w];
 	dq = (float1x4)m;
 	if (dot( dq0, dq ) < 0)
-		dual -= In.BlendWeights.w * m;
+		dual -= BlendWeights.w * m;
 	else
-		dual += In.BlendWeights.w * m;
-		
+		dual += BlendWeights.w * m;
 	float length = sqrt(dual[0].w * dual[0].w + dual[0].x * dual[0].x + dual[0].y * dual[0].y + dual[0].z * dual[0].z);
 	dual = dual / length;
-	
-	float3 position = In.Pos.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Pos.xyz) + dual[0].w * In.Pos.xyz);
-	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
-	position += translation;
-	Pos = float4(position, 1);
-	
-	Normal = In.Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Normal.xyz) + dual[0].w * In.Normal.xyz);
-	Tangent = In.Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Tangent.xyz) + dual[0].w * In.Tangent.xyz);;
 }
-#endif
+
+void get_skinned_vs( row_major float2x4 dualquat[96],
+					 float4 Position,
+					 float4 BlendWeights,
+					 float4 BlendIndices,
+					 out float4 oPos)
+{
+	float2x4 dual;
+	get_skinned_dual(dualquat, BlendWeights, BlendIndices, dual);
+	oPos.xyz = Position.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, Position.xyz) + dual[0].w * Position.xyz);
+	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
+	oPos.xyz += translation;
+	oPos.w = 1;
+}
+
+void get_skinned_vs( row_major float2x4 dualquat[96],
+					 float4 Position,
+					 float3 Normal,
+					 float3 Tangent,
+					 float4 BlendWeights,
+					 float4 BlendIndices,
+					 out float4 oPos,
+					 out float3 oNormal,
+					 out float3 oTangent)
+{
+	float2x4 dual;
+	get_skinned_dual(dualquat, BlendWeights, BlendIndices, dual);
+	oPos.xyz = Position.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, Position.xyz) + dual[0].w * Position.xyz);
+	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
+	oPos.xyz += translation;
+	oPos.w = 1;
+	oNormal = Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, Normal.xyz) + dual[0].w * Normal.xyz);
+	oTangent = Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, Tangent.xyz) + dual[0].w * Tangent.xyz);;
+}
 
 //--------------------------------------------------------------------------------------
-// This shader computes standard transform and lighting
+// VS
 //--------------------------------------------------------------------------------------
+
+VS_OUTPUT_SHADOW RenderShadowVS( VS_INPUT_SHADOW In )
+{
+	VS_OUTPUT_SHADOW Output;
+#ifdef VS_SKINED_DQ
+	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Out.Tangent);
+    Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
+#else
+    Output.Pos = mul(In.Pos, mul(g_World, g_ViewProj));
+#endif
+	Output.Tex0 = Output.Pos.zw;
+	return Output;
+}
+
 VS_OUTPUT RenderSceneVS( VS_INPUT In )
 {
     VS_OUTPUT Output;
 #ifdef VS_SKINED_DQ
-	get_skined_vs(In, Output.Pos, Output.Normal, Output.Tangent);
+	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Out.Tangent);
     Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
     Output.Normal = mul(Output.Normal, (float3x3)g_World);
 	Output.Tangent = mul(Output.Tangent, (float3x3)g_World);
@@ -91,29 +122,38 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 	Output.Tangent = mul(In.Tangent, (float3x3)g_World);
 #endif
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.View = 1.0f;
 	Output.Tex0 = In.Tex0;
-    
     return Output;    
 }
 
+//--------------------------------------------------------------------------------------
+// PS
+//--------------------------------------------------------------------------------------
 
-//--------------------------------------------------------------------------------------
-// This shader outputs the pixel's color by modulating the texture's
-// color with diffuse material color
-//--------------------------------------------------------------------------------------
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
-    // Lookup mesh texture and modulate it with diffuse
     float4 color = tex2D(MeshTextureSampler, In.Tex0);
-
     return color;
 }
 
+float4 RenderShadowPS( VS_OUTPUT_SHADOW In ) : COLOR0
+{ 
+    return In.Tex0.x / In.Tex0.y;
+}
 
 //--------------------------------------------------------------------------------------
 // Renders scene 
 //--------------------------------------------------------------------------------------
+
+technique RenderShadow
+{
+	pass p0
+	{
+        VertexShader = compile vs_2_0 RenderShadowVS();
+        PixelShader  = compile ps_2_0 RenderShadowPS(); 
+	}
+}
+
 technique RenderScene
 {
     pass P0

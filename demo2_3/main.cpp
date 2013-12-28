@@ -65,7 +65,7 @@ public:
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
 		MeshComponentPtr mesh_cmp(new MeshComponent());
-		mesh_cmp->m_Mesh = LoadMesh("mesh/tube.mesh.xml");
+		mesh_cmp->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
 		std::vector<std::string>::const_iterator mat_name_iter = mesh_cmp->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != mesh_cmp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{
@@ -182,7 +182,7 @@ public:
 		MeshComponentBasePtrList::iterator mesh_cmp_iter = m_Meshes.begin();
 		for(; mesh_cmp_iter != m_Meshes.end(); mesh_cmp_iter++)
 		{
-			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::identity);
+			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::Scaling(0.05f,0.05f,0.05f));
 		}
 
 		m_EmitterInst->Begin();
@@ -190,6 +190,7 @@ public:
 		m_EmitterInst->End();
 
 		m_UIRender->Begin();
+		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
 		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
