@@ -207,6 +207,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\MeshComponent.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PhysXContext.cpp"
 				>
 			</File>
@@ -254,6 +258,10 @@
 			</File>
 			<File
 				RelativePath=".\LuaExtension.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MeshComponent.h"
 				>
 			</File>
 			<File

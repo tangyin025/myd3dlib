@@ -80,6 +80,10 @@ public:
 
 	my::EmitterInstancePtr m_EmitterInst;
 
+	my::Texture2DPtr m_ShadowRT;
+
+	my::SurfacePtr m_ShadowDS;
+
 	my::BaseTexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;

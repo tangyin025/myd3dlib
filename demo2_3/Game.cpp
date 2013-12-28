@@ -6,6 +6,8 @@
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
+#define SHADOW_MAP_SIZE 512
+
 using namespace my;
 
 void EffectUIRender::Begin(void)
@@ -227,6 +229,10 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	m_ShadowRT.reset(new Texture2D());
+
+	m_ShadowDS.reset(new Surface());
+
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
 	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
@@ -281,6 +287,14 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
+	m_ShadowRT->CreateAdjustedTexture(
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+
+	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
+	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
+	m_ShadowDS->CreateDepthStencilSurface(
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
+
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp);
@@ -291,12 +305,17 @@ HRESULT Game::OnResetDevice(
 	{
 		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
 	}
+
 	return S_OK;
 }
 
 void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	m_ShadowRT->OnDestroyDevice();
+
+	m_ShadowDS->OnDestroyDevice();
 
 	m_EmitterInst->OnLostDevice();
 
