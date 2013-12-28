@@ -182,7 +182,7 @@ public:
 		MeshComponentBasePtrList::iterator mesh_cmp_iter = m_Meshes.begin();
 		for(; mesh_cmp_iter != m_Meshes.end(); mesh_cmp_iter++)
 		{
-			(*mesh_cmp_iter)->Draw(pd3dDevice, fElapsedTime);
+			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::identity);
 		}
 
 		m_EmitterInst->Begin();

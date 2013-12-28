@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void MeshComponent::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & ParentWorld)
+void MeshComponent::Draw(DrawState State, const my::Matrix4 & ParentWorld)
 {
 	Matrix4 World = m_World * ParentWorld;
 	for(DWORD i = 0; i < m_Materials.size(); i++)
@@ -23,7 +23,7 @@ void MeshComponent::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, cons
 	}
 }
 
-void SkeletonMeshComponent::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & ParentWorld)
+void SkeletonMeshComponent::Draw(DrawState State, const my::Matrix4 & ParentWorld)
 {
 	Matrix4 World = m_World * ParentWorld;
 	for(DWORD i = 0; i < m_Materials.size(); i++)

@@ -3,11 +3,18 @@
 class MeshComponentBase
 {
 public:
+	enum DrawState
+	{
+		DrawStateShadow,
+		DrawStateOpaque,
+	};
+
+public:
 	virtual ~MeshComponentBase(void)
 	{
 	}
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & ParentWorld = my::Matrix4::identity) = 0;
+	virtual void Draw(DrawState State, const my::Matrix4 & ParentWorld = my::Matrix4::identity) = 0;
 };
 
 typedef boost::shared_ptr<MeshComponentBase> MeshComponentBasePtr;
@@ -30,7 +37,7 @@ public:
 	{
 	}
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
+	virtual void Draw(DrawState State, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -45,7 +52,7 @@ public:
 	{
 	}
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
+	virtual void Draw(DrawState State, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
