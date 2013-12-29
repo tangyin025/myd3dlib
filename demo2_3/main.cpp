@@ -97,6 +97,8 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
+		m_Meshes.clear();
+
 		Game::OnDestroyDevice();
 	}
 

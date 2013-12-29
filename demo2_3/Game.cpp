@@ -239,7 +239,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Console = ConsolePtr(new Console());
 
-	m_Console->SetVisible(true);
+	m_Console->SetVisible(false);
 
 	m_dlgSetMap[1].push_back(m_Console);
 

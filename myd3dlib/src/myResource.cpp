@@ -544,6 +544,8 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadR
 
 			request->m_LoadEvent.SetEvent();
 		}
+		else
+			m_ResourceWeakSet.erase(res_iter);
 	}
 
 	return PushIORequestResource(key, request);
