@@ -89,19 +89,13 @@ END_MESSAGE_MAP()
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
 {
-	m_UIRender->SetWorld(Matrix4::identity);
-	m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
-	m_UIRender->Begin();
-
 	Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
-
-	Vector2 vp = DialogMgr::GetDlgViewport();
-
-	Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
-
-	m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
-
-	m_UIRender->End();
+	if(ptProj.z > 0.0f && ptProj.z < 1.0f)
+	{
+		Vector2 vp = DialogMgr::GetDlgViewport();
+		Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
+		m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+	}
 }
 
 CMainDoc * CMainView::GetDocument() const
@@ -246,12 +240,11 @@ void CMainView::OnFrameRender(
 		//	break;
 		//}
 
-		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
-
+		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
-		m_UIRender->Begin();
+		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
 		m_Font->DrawString(m_UIRender.get(), ts2ws(str_printf(_T("%d x %d"), desc.Width, desc.Height)).c_str(),
 			my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));

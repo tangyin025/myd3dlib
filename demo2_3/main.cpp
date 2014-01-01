@@ -30,10 +30,13 @@ public:
 		D3DCOLOR Color,
 		Font::Align align = Font::AlignCenterMiddle)
 	{
-		Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
-		Vector2 vp = DialogMgr::GetDlgViewport();
-		Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
-		m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+		const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
+		if(ptProj.z > 0.0f && ptProj.z < 1.0f)
+		{
+			const Vector2 vp = DialogMgr::GetDlgViewport();
+			const Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
+			m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+		}
 	}
 
 	virtual HRESULT OnCreateDevice(
