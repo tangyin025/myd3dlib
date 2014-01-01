@@ -32,7 +32,7 @@ protected:
 
 	PhysXErrorCallback m_ErrorCallback;
 
-	ApexRenderer m_ApexRenderer;
+	//ApexRenderer m_ApexRenderer;
 
 	ApexRenderResourceMgr m_ApexUserRenderResMgr;
 

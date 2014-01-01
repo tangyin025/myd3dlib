@@ -20,7 +20,10 @@ void* ApexResourceCallback::requestResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		//return new my::MaterialPtr(Game::getSingleton().LoadMaterial(name));
+		// ! cannot load material resources asynchronized
+		my::EffectMacroPairList macros;
+		macros.push_back(my::EffectMacroPair("VS_SKINED_APEX",""));
+		return new MeshComponent::MaterialPair(Game::getSingleton().LoadMaterial(name), Game::getSingleton().LoadEffect("shader/SimpleSample.fx", macros));
 	}
 	return NULL;
 }
@@ -29,7 +32,7 @@ void  ApexResourceCallback::releaseResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		//delete static_cast<my::MaterialPtr *>(resource);
+		delete static_cast<MeshComponent::MaterialPair *>(resource);
 	}
 }
 
@@ -103,20 +106,20 @@ physx::PxU32 ApexRenderResourceMgr::getMaxBonesForMaterial(void* material)
 {
 	return 60;
 }
-
-ApexRenderer::ApexRenderer(void)
-{
-}
-
-ApexRenderer::~ApexRenderer(void)
-{
-}
-
-void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
-{
-	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
-		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
-}
+//
+//ApexRenderer::ApexRenderer(void)
+//{
+//}
+//
+//ApexRenderer::~ApexRenderer(void)
+//{
+//}
+//
+//void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
+//{
+//	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
+//		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
+//}
 
 ApexRenderVertexBuffer::ApexRenderVertexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderVertexBufferDesc& desc)
 {
@@ -331,7 +334,7 @@ ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const phys
 	, m_ApexBb(static_cast<ApexRenderBoneBuffer *>(desc.boneBuffer))
 	, m_firstBone(desc.firstBone)
 	, m_numBones(desc.numBones)
-	//, m_material(NULL)
+	, m_matPair(NULL)
 {
 	m_ApexVbs.resize(desc.numVertexBuffers);
 	std::vector<D3DVERTEXELEMENT9> velist;
@@ -356,25 +359,33 @@ ApexRenderResource::~ApexRenderResource(void)
 {
 }
 
-void ApexRenderResource::Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World)
+void ApexRenderResource::Draw(DrawState State, const my::Matrix4 & ParentWorld)
 {
-	//m_material->m_Effect->SetMatrix("g_World", World);
-	//m_material->m_Effect->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
-	//m_material->ApplyParameterBlock();
-
-	//HRESULT hr;
-	//UINT cPasses = m_material->Begin();
-	//for(UINT p = 0; p < cPasses; p++)
-	//{
-	//	m_material->BeginPass(p);
-	//	V(pd3dDevice->SetVertexDeclaration(m_Decl));
-	//	for(size_t i = 0; i < m_ApexVbs.size(); i++)
-	//	{
-	//		V(pd3dDevice->SetStreamSource(i, m_ApexVbs[i]->m_vb.m_ptr, 0, m_ApexVbs[i]->m_stride));
-	//	}
-	//	V(pd3dDevice->SetIndices(m_ApexIb->m_ib.m_ptr));
-	//	V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
-	//	m_material->EndPass();
-	//}
-	//m_material->End();
+	m_matPair->second->SetMatrix("g_World", ParentWorld);
+	m_matPair->second->SetTexture("g_MeshTexture", m_matPair->first->m_DiffuseTexture);
+	m_matPair->second->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
+	switch(State)
+	{
+	case DrawStateShadow:
+		m_matPair->second->SetTechnique("RenderShadow");
+		break;
+	case DrawStateOpaque:
+		m_matPair->second->SetTechnique("RenderScene");
+		break;
+	}
+	HRESULT hr;
+	UINT passes = m_matPair->second->Begin();
+	for(UINT p = 0; p < passes; p++)
+	{
+		m_matPair->second->BeginPass(p);
+		V(m_Device->SetVertexDeclaration(m_Decl));
+		for(size_t i = 0; i < m_ApexVbs.size(); i++)
+		{
+			V(m_Device->SetStreamSource(i, m_ApexVbs[i]->m_vb.m_ptr, 0, m_ApexVbs[i]->m_stride));
+		}
+		V(m_Device->SetIndices(m_ApexIb->m_ib.m_ptr));
+		V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, m_firstVertex, m_numVerts, m_firstIndex, m_numIndices / 3));
+		m_matPair->second->EndPass();
+	}
+	m_matPair->second->End();
 }

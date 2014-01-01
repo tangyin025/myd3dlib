@@ -13,7 +13,7 @@ shared float4x4 g_ViewProj;
 struct VS_INPUT_SHADOW
 {
 	float4 Pos				: POSITION;
-#ifdef VS_SKINED_DQ
+#if (defined VS_SKINED_DQ) || (defined VS_SKINED_APEX)
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BlendIndices;
 #endif
@@ -23,7 +23,7 @@ struct VS_INPUT_SHADOW
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
-#ifdef VS_SKINED_DQ
+#if (defined VS_SKINED_DQ) || (defined VS_SKINED_APEX)
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BlendIndices;
 #endif

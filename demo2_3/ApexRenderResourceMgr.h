@@ -1,6 +1,9 @@
 #pragma once
 
-class ApexResourceCallback : public physx::apex::NxResourceCallback
+#include "MeshComponent.h"
+
+class ApexResourceCallback
+	: public physx::apex::NxResourceCallback
 {
 public:
 	ApexResourceCallback(void);
@@ -12,7 +15,8 @@ public:
 	void  releaseResource(const char* nameSpace, const char* name, void* resource);
 };
 
-class ApexRenderResourceMgr : public physx::apex::NxUserRenderResourceManager
+class ApexRenderResourceMgr
+	: public physx::apex::NxUserRenderResourceManager
 {
 public:
 	ApexRenderResourceMgr(void);
@@ -45,18 +49,20 @@ public:
 
 	physx::PxU32 getMaxBonesForMaterial(void* material);
 };
+//
+//class ApexRenderer
+//	: public physx::apex::NxUserRenderer
+//{
+//public:
+//	ApexRenderer(void);
+//
+//	virtual ~ApexRenderer(void);
+//
+//	void renderResource(const physx::apex::NxApexRenderContext& context);
+//};
 
-class ApexRenderer : public physx::apex::NxUserRenderer
-{
-public:
-	ApexRenderer(void);
-
-	virtual ~ApexRenderer(void);
-
-	void renderResource(const physx::apex::NxApexRenderContext& context);
-};
-
-class ApexRenderVertexBuffer : public physx::apex::NxUserRenderVertexBuffer
+class ApexRenderVertexBuffer
+	: public physx::apex::NxUserRenderVertexBuffer
 {
 public:
 	ApexRenderVertexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderVertexBufferDesc& desc);
@@ -72,7 +78,8 @@ public:
 	my::VertexBuffer m_vb;
 };
 
-class ApexRenderIndexBuffer : public physx::apex::NxUserRenderIndexBuffer
+class ApexRenderIndexBuffer
+	: public physx::apex::NxUserRenderIndexBuffer
 {
 public:
 	ApexRenderIndexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderIndexBufferDesc& desc);
@@ -84,7 +91,8 @@ public:
 	my::IndexBuffer m_ib;
 };
 
-class ApexRenderBoneBuffer : public physx::apex::NxUserRenderBoneBuffer
+class ApexRenderBoneBuffer
+	: public physx::apex::NxUserRenderBoneBuffer
 {
 public:
 	ApexRenderBoneBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderBoneBufferDesc& desc);
@@ -96,7 +104,9 @@ public:
 	std::vector<my::Matrix4> m_bones;
 };
 
-class ApexRenderResource : public physx::apex::NxUserRenderResource
+class ApexRenderResource
+	: public physx::apex::NxUserRenderResource
+	, public MeshComponentBase
 {
 public:
 	ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
@@ -113,7 +123,7 @@ public:
 
 	void setSpriteBufferRange(physx::PxU32 firstSprite, physx::PxU32 numSprites) {}
 
-	void setMaterial(void* material) {/*m_material = static_cast<my::MaterialPtr *>(material)->get();*/}
+	void setMaterial(void* resource) {m_matPair = static_cast<MeshComponent::MaterialPair *>(resource); m_Device = m_matPair->second->GetDevice();}
 
 	physx::PxU32 getNbVertexBuffers() const {return m_ApexVbs.size();}
 
@@ -127,7 +137,7 @@ public:
 
 	physx::apex::NxUserRenderSpriteBuffer* getSpriteBuffer() const {return NULL;}
 
-	void Draw(IDirect3DDevice9 * pd3dDevice, const my::Matrix4 & World);
+	virtual void Draw(DrawState State, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
 
 	std::vector<ApexRenderVertexBuffer *> m_ApexVbs;
 
@@ -149,5 +159,7 @@ public:
 
 	unsigned int m_numBones;
 
-	//my::Material * m_material;
+	MeshComponent::MaterialPair * m_matPair;
+
+	CComPtr<IDirect3DDevice9> m_Device;
 };
