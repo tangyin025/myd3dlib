@@ -8,7 +8,7 @@
 texture g_MeshTexture;              // Color texture for mesh
 #ifdef VS_SKINED_DQ
 row_major float2x4 g_dualquat[96];
-#elseif defined VS_SKINED_APEX
+#elif defined VS_SKINED_APEX
 float4x3 g_BoneMatrices[60];
 #endif
 
@@ -101,9 +101,9 @@ VS_OUTPUT_SHADOW RenderShadowVS( VS_INPUT_SHADOW In )
 {
 	VS_OUTPUT_SHADOW Output;
 #ifdef VS_SKINED_DQ
-	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Out.Tangent);
+	get_skinned_vs(g_dualquat, In.Pos, In.BlendWeights, In.BlendIndices, Output.Pos);
     Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
-#elseif defined VS_SKINED_APEX
+#elif defined VS_SKINED_APEX
 	Output.Pos = mul(In.Pos, mul(g_BoneMatrices[BlendIndices.x], mul(g_World, g_ViewProj)));
 #else
     Output.Pos = mul(In.Pos, mul(g_World, g_ViewProj));
@@ -116,11 +116,11 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 {
     VS_OUTPUT Output;
 #ifdef VS_SKINED_DQ
-	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Out.Tangent);
+	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Output.Tangent);
     Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
     Output.Normal = mul(Output.Normal, (float3x3)g_World);
 	Output.Tangent = mul(Output.Tangent, (float3x3)g_World);
-#elseif defined VS_SKINED_APEX
+#elif defined VS_SKINED_APEX
 	Output.Pos = mul(In.Pos, mul(mul(g_BoneMatrices[BlendIndices.x], g_World), g_ViewProj));
     Output.Normal = mul(In.Normal, (float3x3)mul(g_BoneMatrices[BlendIndices.x], g_World));
 	Output.Tangent = mul(In.Tangent, (float3x3)mul(g_BoneMatrices[BlendIndices.x], g_World));

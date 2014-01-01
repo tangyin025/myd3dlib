@@ -12,22 +12,17 @@ using namespace my;
 class Demo : public Game
 {
 public:
-	//MeshPtr m_static_mesh;
-	//MeshPtr m_skined_mesh;
-	//OgreSkeletonAnimationPtr m_skel_anim;
-	//BoneList m_skel_pose;
-	//BoneList m_skel_pose_heir1;
-	//BoneList m_skel_pose_heir2;
-	//TransformList m_dualquat;
-	//EffectPtr m_static_mesh_effect;
-	//EffectPtr m_skined_mesh_effect;
-	//MaterialPtr m_material;
-
 	EffectPtr m_SimpleSample;
 
-	typedef std::vector<MeshComponentBasePtr> MeshComponentBasePtrList;
+	SkeletonMeshComponentPtr m_mesh;
+	OgreSkeletonAnimationPtr m_skel_anim;
+	BoneList m_skel_pose;
+	BoneList m_skel_pose_heir1;
+	BoneList m_skel_pose_heir2;
 
-	MeshComponentBasePtrList m_Meshes;
+	typedef std::vector<MeshComponentBase *> MeshComponentBaseList;
+
+	MeshComponentBaseList m_Meshes;
 
 	void DrawTextAtWorld(
 		const Vector3 & pos,
@@ -52,29 +47,22 @@ public:
 
 		ExecuteCode("dofile \"GameStateMain.lua\"");
 
-		//// 加载mesh
-		//m_static_mesh = LoadMesh("mesh/tube.mesh.xml");
-		//m_skined_mesh = LoadMesh("mesh/tube.mesh.xml");
-		//m_skel_anim = LoadSkeleton("mesh/tube.skeleton.xml");
-		//m_static_mesh_effect = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-		//EffectMacroPairList macros;
-		//macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
-		//m_skined_mesh_effect = LoadEffect("shader/SimpleSample.fx", macros);
-		//m_material = LoadMaterial("material/lambert1.txt");
-
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
-		MeshComponentPtr mesh_cmp(new MeshComponent());
-		mesh_cmp->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
-		std::vector<std::string>::const_iterator mat_name_iter = mesh_cmp->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != mesh_cmp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
+		m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
+		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{
+			EffectMacroPairList macros;
+			macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
 			MaterialPtr mat = LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
-			MeshComponent::MaterialPair mat_pair(mat, LoadEffect("shader/SimpleSample.fx", EffectMacroPairList()));
-			mesh_cmp->m_Materials.push_back(mat_pair);
+			m_mesh->m_Materials.push_back(MeshComponent::MaterialPair(mat, LoadEffect("shader/SimpleSample.fx", macros)));
 		}
-		mesh_cmp->m_World = Matrix4::identity;
-		m_Meshes.push_back(mesh_cmp);
+		m_mesh->m_World = Matrix4::identity;
+		m_Meshes.push_back(m_mesh.get());
+
+		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
 		return S_OK;
 	}
@@ -108,31 +96,32 @@ public:
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
 
-		//// 设置动画
-		//static float anim_time = 0;
-		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("clip1").GetTime());
-		//m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->BuildAnimationPose(
-		//	m_skel_pose,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"),
-		//	"clip1",
-		//	anim_time);
-		//m_skel_pose_heir1.clear();
-		//m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir1,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"));
-		//m_skel_pose_heir2.clear();
-		//m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir2,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("joint1"));
-		//m_dualquat.clear();
-		//m_dualquat.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose_heir1.BuildDualQuaternionList(m_dualquat, m_skel_pose_heir2);
+		// 设置动画
+		static float anim_time = 0;
+		anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
+		m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->BuildAnimationPose(
+			m_skel_pose,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"),
+			"walk",
+			anim_time);
+		m_skel_pose[m_skel_anim->GetBoneIndex("Bip01")].m_position.z = 0; // 固定根节点的z轴移动
+		m_skel_pose_heir1.clear();
+		m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
+			m_skel_pose_heir1,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"));
+		m_skel_pose_heir2.clear();
+		m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose.BuildHierarchyBoneList(
+			m_skel_pose_heir2,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"));
+		m_mesh->m_DualQuats.clear();
+		m_mesh->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
 	}
 
 	virtual void OnFrameRender(
@@ -145,43 +134,8 @@ public:
 
 		DrawHelper::DrawGrid(pd3dDevice);
 
-		//// 渲染静态mesh
-		//if (m_static_mesh_effect) 
-		//{
-		//	Matrix4 World = Matrix4::Translation(Vector3(2,0,0));
-		//	m_static_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
-		//	m_static_mesh_effect->SetMatrix("g_World", World);
-		//	m_static_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		//	UINT passes = m_static_mesh_effect->Begin();
-		//	for(UINT p = 0; p < passes; p++)
-		//	{
-		//		m_static_mesh_effect->BeginPass(p);
-		//		m_static_mesh->DrawSubset(0);
-		//		m_static_mesh_effect->EndPass();
-		//	}
-		//	m_static_mesh_effect->End();
-		//}
-
-		//// 渲染动画mesh
-		//if (m_skined_mesh_effect)
-		//{
-		//	Matrix4 World = Matrix4::Translation(Vector3(-2,0,0));
-		//	m_skined_mesh_effect->SetTexture("g_MeshTexture", m_material->m_DiffuseTexture);
-		//	m_skined_mesh_effect->SetMatrix("g_World", World);
-		//	m_skined_mesh_effect->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		//	m_skined_mesh_effect->SetMatrixArray("g_dualquat", &m_dualquat[0], m_dualquat.size());
-		//	UINT passes = m_skined_mesh_effect->Begin();
-		//	for(UINT p = 0; p < passes; p++)
-		//	{
-		//		m_skined_mesh_effect->BeginPass(p);
-		//		m_skined_mesh->DrawSubset(0);
-		//		m_skined_mesh_effect->EndPass();
-		//	}
-		//	m_skined_mesh_effect->End();
-		//}
-
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		MeshComponentBasePtrList::iterator mesh_cmp_iter = m_Meshes.begin();
+		MeshComponentBaseList::iterator mesh_cmp_iter = m_Meshes.begin();
 		for(; mesh_cmp_iter != m_Meshes.end(); mesh_cmp_iter++)
 		{
 			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::Scaling(0.05f,0.05f,0.05f));
