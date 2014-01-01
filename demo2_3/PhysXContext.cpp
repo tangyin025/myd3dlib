@@ -39,6 +39,20 @@ void PhysXErrorCallback::reportError(PxErrorCode::Enum code, const char* message
 		break;
 	}
 }
+//
+//ApexRenderer::ApexRenderer(void)
+//{
+//}
+//
+//ApexRenderer::~ApexRenderer(void)
+//{
+//}
+//
+//void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
+//{
+//	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
+//		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
+//}
 
 bool PhysXContext::OnInit(void)
 {

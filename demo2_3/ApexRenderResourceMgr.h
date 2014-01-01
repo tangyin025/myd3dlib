@@ -49,17 +49,6 @@ public:
 
 	physx::PxU32 getMaxBonesForMaterial(void* material);
 };
-//
-//class ApexRenderer
-//	: public physx::apex::NxUserRenderer
-//{
-//public:
-//	ApexRenderer(void);
-//
-//	virtual ~ApexRenderer(void);
-//
-//	void renderResource(const physx::apex::NxApexRenderContext& context);
-//};
 
 class ApexRenderVertexBuffer
 	: public physx::apex::NxUserRenderVertexBuffer

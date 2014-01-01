@@ -106,20 +106,6 @@ physx::PxU32 ApexRenderResourceMgr::getMaxBonesForMaterial(void* material)
 {
 	return 60;
 }
-//
-//ApexRenderer::ApexRenderer(void)
-//{
-//}
-//
-//ApexRenderer::~ApexRenderer(void)
-//{
-//}
-//
-//void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
-//{
-//	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
-//		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
-//}
 
 ApexRenderVertexBuffer::ApexRenderVertexBuffer(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderVertexBufferDesc& desc)
 {

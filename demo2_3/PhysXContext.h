@@ -24,6 +24,17 @@ public:
 
 	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 };
+//
+//class ApexRenderer
+//	: public physx::apex::NxUserRenderer
+//{
+//public:
+//	ApexRenderer(void);
+//
+//	virtual ~ApexRenderer(void);
+//
+//	void renderResource(const physx::apex::NxApexRenderContext& context);
+//};
 
 class PhysXContext
 {

@@ -419,6 +419,8 @@ void Game::OnFrameTick(
 	Present(NULL,NULL,NULL,NULL);
 
 	OnTickPostRender(fElapsedTime);
+
+	//m_ApexScene->prepareRenderResourceContexts();
 }
 
 LRESULT Game::MsgProc(
