@@ -298,11 +298,19 @@ namespace my
 		boost::shared_ptr<T> CheckResourceSync(const std::string & key, IORequestPtr request)
 		{
 			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
-			CheckResource(req_iter->first, req_iter->second, INFINITE);
-			boost::shared_ptr<T> ret = boost::dynamic_pointer_cast<T>(req_iter->second->m_res);
-			MutexLock lock(m_IORequestListMutex);
-			m_IORequestList.erase(req_iter);
-			return ret;
+			if (req_iter != m_IORequestList.end())
+			{
+				CheckResource(req_iter->first, req_iter->second, INFINITE);
+
+				boost::shared_ptr<T> ret = boost::dynamic_pointer_cast<T>(req_iter->second->m_res);
+
+				MutexLock lock(m_IORequestListMutex);
+
+				m_IORequestList.erase(req_iter);
+
+				return ret;
+			}
+			return boost::dynamic_pointer_cast<T>(request->m_res);
 		}
 
 		virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);

@@ -3,12 +3,27 @@
 
 class Demo
 	: public my::DxutApp
-	, public my::AsynchronousResourceMgr
+	, public my::ResourceMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
 
 	CComPtr<ID3DXSprite> m_sprite;
+
+	void foo(my::DeviceRelatedObjectBasePtr res)
+	{
+		//my::Texture2DPtr tex = boost::dynamic_pointer_cast<my::Texture2D>(res);
+
+		//my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(res);
+
+		//my::OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<my::OgreSkeletonAnimation>(res);
+
+		//my::EffectPtr eff = boost::dynamic_pointer_cast<my::Effect>(res);
+
+		//my::FontPtr fnt = boost::dynamic_pointer_cast<my::Font>(res);
+
+		my::DeviceRelatedObjectBasePtr m_res = res;
+	}
 
 public:
 	virtual bool IsDeviceAcceptable(
@@ -36,9 +51,27 @@ public:
 			return hr;
 		}
 
-		AsynchronousResourceMgr::RegisterFileDir("../demo2_3/Media");
+		ResourceMgr::RegisterFileDir("../demo2_3/Media");
 
-		AsynchronousResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
+		LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&Demo::foo, this, _1));
+
+		LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&Demo::foo, this, _1));
+
+		//my::BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
+
+		LoadMeshAsync("mesh/sportive03_f.mesh.xml", boost::bind(&Demo::foo, this, _1));
+
+		LoadSkeletonAsync("mesh/sportive03_f.skeleton.xml", boost::bind(&Demo::foo, this, _1));
+
+		//my::EffectPtr eff = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+
+		LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&Demo::foo, this, _1));
+
+		//my::MaterialPtr mat = LoadMaterial("material/lambert1.xml");
+
+		LoadMaterialAsync("material/casual19_m_highpolyPhong.txt", boost::bind(&Demo::foo, this, _1));
 
 		return S_OK;
 	}
@@ -54,7 +87,7 @@ public:
 			return hr;
 		}
 
-		AsynchronousResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
+		ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
 		return S_OK;
 	}
@@ -65,14 +98,14 @@ public:
 
 		m_sprite.Release();
 
-		AsynchronousResourceMgr::OnLostDevice();
+		ResourceMgr::OnLostDevice();
 	}
 
 	virtual void OnDestroyDevice(void)
 	{
 		m_font.Release();
 
-		AsynchronousResourceMgr::OnDestroyDevice();
+		ResourceMgr::OnDestroyDevice();
 	}
 
 	void OnFrameMove(
