@@ -295,7 +295,7 @@ namespace my
 		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
 
 		template <typename T>
-		boost::shared_ptr<T> CheckResourceSync(const std::string & key, IORequestPtr request)
+		boost::shared_ptr<T> LoadResource(const std::string & key, IORequestPtr request)
 		{
 			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
 			if (req_iter != m_IORequestList.end())

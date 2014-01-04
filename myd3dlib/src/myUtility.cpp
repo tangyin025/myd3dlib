@@ -1054,7 +1054,7 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 		}
 	};
 
-	return CheckResourceSync<Material>(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
+	return LoadResource<Material>(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
 }
 
 void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
@@ -1156,7 +1156,7 @@ EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
 		}
 	};
 
-	return CheckResourceSync<Emitter>(path, IORequestPtr(new SyncEmitterIORequest(ResourceCallback(), path, this)));
+	return LoadResource<Emitter>(path, IORequestPtr(new SyncEmitterIORequest(ResourceCallback(), path, this)));
 }
 
 void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)

@@ -677,7 +677,7 @@ void AsynchronousResourceMgr::LoadTextureAsync(const std::string & path, const R
 
 BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
 {
-	return CheckResourceSync<BaseTexture>(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
+	return LoadResource<BaseTexture>(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
 }
 
 class MeshIORequest : public IORequest
@@ -738,7 +738,7 @@ void AsynchronousResourceMgr::LoadMeshAsync(const std::string & path, const Reso
 
 OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
 {
-	return CheckResourceSync<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
+	return LoadResource<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
 }
 
 class SkeletonIORequest : public IORequest
@@ -799,7 +799,7 @@ void AsynchronousResourceMgr::LoadSkeletonAsync(const std::string & path, const 
 
 OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string & path)
 {
-	return CheckResourceSync<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
+	return LoadResource<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 }
 
 class AsynchronousResourceMgr::EffectIORequest : public IORequest
@@ -879,7 +879,7 @@ EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const Ef
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
-	return CheckResourceSync<Effect>(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
+	return LoadResource<Effect>(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
 }
 
 class FontIORequest : public IORequest
@@ -941,5 +941,5 @@ FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 
-	return CheckResourceSync<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
+	return LoadResource<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
 }
