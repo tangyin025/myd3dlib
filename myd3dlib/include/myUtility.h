@@ -128,9 +128,9 @@ namespace my
 	class BaseCamera
 	{
 	public:
-		float m_Fov;
+		Vector3 m_Position;
 
-		float m_Aspect;
+		Quaternion m_Orientation;
 
 		float m_Nz;
 
@@ -140,14 +140,16 @@ namespace my
 
 		Matrix4 m_Proj;
 
+		Matrix4 m_ViewProj;
+
+		Matrix4 m_InverseViewProj;
+
 	public:
-		BaseCamera(float Fov, float Aspect, float Nz, float Fz)
-			: m_Fov(Fov)
-			, m_Aspect(Aspect)
+		BaseCamera(const Vector3 & Position, const Quaternion & Orientation, float Nz, float Fz)
+			: m_Position(Position)
+			, m_Orientation(Orientation)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
-			, m_View(Matrix4::identity)
-			, m_Proj(Matrix4::identity)
 		{
 		}
 
@@ -163,29 +165,25 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing) = 0;
+
+		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
 
-	class Camera
+	class OrthoCamera
 		: public BaseCamera
 	{
 	public:
-		Vector3 m_Position;
+		float m_Width;
 
-		Quaternion m_Orientation;
-
-		Matrix4 m_ViewProj;
-
-		Matrix4 m_InverseViewProj;
-
-		ControlEvent EventAlign;
+		float m_Height;
 
 	public:
-		Camera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: BaseCamera(Fov, Aspect, Nz, Fz)
-			, m_Position(Vector3::zero)
-			, m_Orientation(Quaternion::identity)
+		OrthoCamera(const Vector3 & Position, const Quaternion & Orientation, float Width, float Height, float Nz, float Fz)
+			: BaseCamera(Position, Orientation, Nz, Fz)
+			, m_Width(Width)
+			, m_Height(Height)
 		{
 		}
 
@@ -199,8 +197,38 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+	};
 
-		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
+	typedef boost::shared_ptr<OrthoCamera> OrthoCameraPtr;
+
+	class Camera
+		: public BaseCamera
+	{
+	public:
+		float m_Fov;
+
+		float m_Aspect;
+
+		ControlEvent EventAlign;
+
+	public:
+		Camera(const Vector3 & Position, const Quaternion & Orientation, float Fov, float Aspect, float Nz, float Fz)
+			: BaseCamera(Position, Orientation, Nz, Fz)
+			, m_Fov(Fov)
+			, m_Aspect(Aspect)
+		{
+		}
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime);
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing);
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;
@@ -221,7 +249,7 @@ namespace my
 
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fov, Aspect, Nz, Fz)
+			: Camera(Vector3::zero, Quaternion::identity, Fov, Aspect, Nz, Fz)
 			, m_LookAt(Vector3::zero)
 			, m_Rotation(Vector3::zero)
 			, m_Distance(0)
@@ -255,7 +283,7 @@ namespace my
 
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fov, Aspect, Nz, Fz)
+			: Camera(Vector3::zero, Quaternion::identity, Fov, Aspect, Nz, Fz)
 			, m_Velocity(0,0,0)
 			, m_Rotation(0,0,0)
 			, m_bDrag(false)

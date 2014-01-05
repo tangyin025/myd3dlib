@@ -325,6 +325,36 @@ BaseCamera::~BaseCamera(void)
 {
 }
 
+std::pair<Vector3, Vector3> BaseCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.cx), Lerp(1.0f, -1.0f, pt.y / dim.cy), 1.0f);
+
+	return std::make_pair(m_Position, (ptProj.transformCoord(m_InverseViewProj) - m_Position).normalize());
+}
+
+void OrthoCamera::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
+
+	m_Proj = Matrix4::OrthoRH(m_Width, m_Height, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
+}
+
+LRESULT OrthoCamera::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 void Camera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -348,21 +378,10 @@ LRESULT Camera::MsgProc(
 	return 0;
 }
 
-std::pair<Vector3, Vector3> Camera::CalculateRay(const Vector2 & pt, const CSize & dim)
-{
-	Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.cx), Lerp(1.0f, -1.0f, pt.y / dim.cy), 1.0f);
-
-	return std::make_pair(m_Position, (ptProj.transformCoord(m_InverseViewProj) - m_Position).normalize());
-}
-
 void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
-
-	m_Position = Vector3(0,0,m_Distance).transform(m_Orientation) + m_LookAt;
-
 	m_View = Matrix4::Translation(-m_LookAt)
 		* Matrix4::RotationY(-m_Rotation.y)
 		* Matrix4::RotationX(-m_Rotation.x)
@@ -370,6 +389,10 @@ void ModelViewerCamera::OnFrameMove(
 		* Matrix4::Translation(Vector3(0,0,-m_Distance));
 
 	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
+
+	m_Position = Vector3(0,0,m_Distance).transform(m_Orientation) + m_LookAt;
 
 	m_ViewProj = m_View * m_Proj;
 
@@ -428,16 +451,7 @@ void FirstPersonCamera::OnFrameMove(
 
 	m_Position += (m_Velocity * 5.0f * fElapsedTime).transform(m_Orientation);
 
-	m_View = Matrix4::Translation(-m_Position)
-		* Matrix4::RotationY(-m_Rotation.y)
-		* Matrix4::RotationX(-m_Rotation.x)
-		* Matrix4::RotationZ(-m_Rotation.z);
-
-	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
-
-	m_ViewProj = m_View * m_Proj;
-
-	m_InverseViewProj = m_ViewProj.inverse();
+	Camera::OnFrameMove(fTime, fElapsedTime);
 }
 
 LRESULT FirstPersonCamera::MsgProc(

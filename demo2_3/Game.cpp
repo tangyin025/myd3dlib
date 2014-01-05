@@ -266,7 +266,7 @@ HRESULT Game::OnCreateDevice(
 		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
 	}
 
-	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
 	return S_OK;
 }
