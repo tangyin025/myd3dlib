@@ -404,7 +404,7 @@ void Game::OnFrameTick(
 
 	OnTickPreRender(fElapsedTime);
 
-	// ! 为什么要顺时针，右手系应该是逆时针
+	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
 	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));

@@ -338,7 +338,7 @@ namespace my
 
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -400,7 +400,7 @@ namespace my
 
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -460,7 +460,7 @@ namespace my
 
 		virtual unsigned collideHalfSpace(
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -477,7 +477,7 @@ namespace my
 		static bool sphereAndHalfSpace(
 			const CollisionSphere & sphere,
 			const Vector3 & planeNormal,
-			float planeDistance);
+			float planeDist);
 
 		static bool sphereAndSphere(
 			const CollisionSphere & sphere0,
@@ -488,7 +488,7 @@ namespace my
 		static bool boxAndHalfSpace(
 			const CollisionBox & box,
 			const Vector3 & planeNormal,
-			float planeDistance);
+			float planeDist);
 
 		static bool _overlapOnAxis(
 			const CollisionBox & box0,
@@ -512,7 +512,7 @@ namespace my
 			const Vector3 & pos,
 			const Vector3 & dir,
 			const Vector3 & planeNormal,
-			float planeDistance);
+			float planeDist);
 
 		static Vector3 calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
 
@@ -567,7 +567,7 @@ namespace my
 		static unsigned sphereAndHalfSpace(
 			const CollisionSphere & sphere,
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -576,7 +576,7 @@ namespace my
 		static unsigned sphereAndTruePlane(
 			const CollisionSphere & sphere,
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -609,7 +609,7 @@ namespace my
 		static float calculatePointPlaneDistance(
 			const Vector3 & point,
 			const Vector3 & planeNormal,
-			float planeDistance);
+			float planeDist);
 
 		static unsigned sphereAndTriangle(
 			const CollisionSphere & sphere,
@@ -634,7 +634,7 @@ namespace my
 			float pointFriction,
 			float pointRestitution,
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -643,7 +643,7 @@ namespace my
 		static unsigned boxAndHalfSpace(
 			const CollisionBox & box,
 			const Vector3 & planeNormal,
-			float planeDistance,
+			float planeDist,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,

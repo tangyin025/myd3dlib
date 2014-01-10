@@ -100,6 +100,10 @@ public:
 
 	my::CameraPtr m_Camera;
 
+	typedef std::vector<MeshComponentBase *> RenderObjList;
+
+	RenderObjList m_RenderObjList;
+
 public:
 	Game(void);
 

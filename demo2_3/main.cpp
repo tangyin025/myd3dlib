@@ -26,10 +26,6 @@ public:
 	physx_ptr<physx::apex::NxApexAsset> m_ApexAsset;
 	physx_ptr<physx::apex::NxDestructibleActor> m_DestructibleActor;
 
-	typedef std::vector<MeshComponentBase *> MeshComponentBaseList;
-
-	MeshComponentBaseList m_Meshes;
-
 	void DrawTextAtWorld(
 		const Vector3 & pos,
 		LPCWSTR lpszText,
@@ -47,7 +43,7 @@ public:
 
 	void renderResource(const physx::apex::NxApexRenderContext& context)
 	{
-		m_Meshes.push_back(static_cast<ApexRenderResource *>(context.renderResource));
+		m_RenderObjList.push_back(static_cast<ApexRenderResource *>(context.renderResource));
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -203,16 +199,16 @@ public:
 
 		DrawHelper::DrawGrid(pd3dDevice);
 
-		m_Meshes.clear();
-		m_Meshes.push_back(m_mesh.get());
+		m_RenderObjList.clear();
+		m_RenderObjList.push_back(m_mesh.get());
 		m_DestructibleActor->lockRenderResources();
 		m_DestructibleActor->updateRenderResources();
 		m_DestructibleActor->dispatchRenderResources(*this);
 		m_DestructibleActor->unlockRenderResources();
 
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		MeshComponentBaseList::iterator mesh_cmp_iter = m_Meshes.begin();
-		for(; mesh_cmp_iter != m_Meshes.end(); mesh_cmp_iter++)
+		RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
+		for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
 		{
 			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::identity);
 		}
