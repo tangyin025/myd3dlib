@@ -198,10 +198,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DocVersionMgr.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MainApp.cpp"
 				>
 			</File>
@@ -219,6 +215,10 @@
 			</File>
 			<File
 				RelativePath=".\OutlinerView.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\PivotController.cpp"
 				>
 			</File>
 			<File
@@ -256,10 +256,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DocVersionMgr.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MainApp.h"
 				>
 			</File>
@@ -277,6 +273,10 @@
 			</File>
 			<File
 				RelativePath=".\OutlinerView.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PivotController.h"
 				>
 			</File>
 			<File

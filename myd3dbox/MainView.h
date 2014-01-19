@@ -1,6 +1,7 @@
 #pragma once
 
 #include "MainDoc.h"
+#include "PivotController.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -93,6 +94,8 @@ public:
 	};
 
 	RenderMode m_RenderMode;
+
+	PivotController m_PivotController;
 
 	DECLARE_MESSAGE_MAP()
 

@@ -224,6 +224,8 @@ void CMainView::OnFrameRender(
 
 		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
+		m_PivotController.Draw(pd3dDevice, &m_Camera);
+
 		//COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		//ASSERT(pOutliner);
 		//switch(m_RenderMode)

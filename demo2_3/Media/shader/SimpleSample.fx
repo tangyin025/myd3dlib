@@ -121,8 +121,7 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
     Output.Normal = mul(Output.Normal, (float3x3)g_World);
 	Output.Tangent = mul(Output.Tangent, (float3x3)g_World);
 #elif defined VS_SKINED_APEX
-	Output.Pos = float4(mul(In.Pos, g_BoneMatrices[In.BlendIndices.x]), 1.0); // ! take care of 4x3
-	Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
+	Output.Pos = mul(float4(mul(In.Pos, g_BoneMatrices[In.BlendIndices.x]), 1.0), mul(g_World, g_ViewProj));
     Output.Normal = mul(In.Normal, (float3x3)mul(g_BoneMatrices[In.BlendIndices.x], g_World));
 	Output.Tangent = mul(In.Tangent, (float3x3)mul(g_BoneMatrices[In.BlendIndices.x], g_World));
 #else
