@@ -90,3 +90,19 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&(Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_Pos)));
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(vertex_list[0]));
 }
+
+bool PivotController::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	switch(uMsg)
+	{
+	case WM_LBUTTONDOWN:
+		break;
+
+	case WM_MOUSEMOVE:
+		break;
+
+	case WM_LBUTTONUP:
+		break;
+	}
+	return false;
+}

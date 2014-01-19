@@ -296,6 +296,12 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 
+	if(!m_bAltDown && !m_PivotController.MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam))
+	{
+		Invalidate();
+		return TRUE;
+	}
+
 	return CView::PreTranslateMessage(pMsg);
 }
 

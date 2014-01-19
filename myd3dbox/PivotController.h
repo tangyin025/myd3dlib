@@ -34,4 +34,6 @@ public:
 	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
+
+	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
