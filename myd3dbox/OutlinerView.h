@@ -3,7 +3,11 @@
 class TreeNodeBase
 {
 public:
+	my::Matrix4 m_World;
+
+public:
 	TreeNodeBase(void)
+		: m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -11,7 +15,7 @@ public:
 	{
 	}
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected) = 0;
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World) = 0;
 };
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
@@ -105,5 +109,5 @@ public:
 
 	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
 
-	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, DWORD RenderMode);
+	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const my::Matrix4 & World);
 };

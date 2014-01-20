@@ -119,6 +119,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
 
+	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+
 	return 0;
 }
 
@@ -218,6 +220,12 @@ void CMainView::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
 		m_Camera.OnFrameMove(0,0);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+
+		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+		ASSERT(pOutliner);
+		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity);
+
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
 		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
@@ -225,22 +233,6 @@ void CMainView::OnFrameRender(
 		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
 		m_PivotController.Draw(pd3dDevice, &m_Camera);
-
-		//COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
-		//ASSERT(pOutliner);
-		//switch(m_RenderMode)
-		//{
-		//case RenderModeDefault:
-		//	pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
-		//	break;
-
-		//case RenderModeWire:
-		//	pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), m_RenderMode);
-		//	break;
-
-		//case RenderModePhysics:
-		//	break;
-		//}
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
@@ -296,7 +288,7 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 
-	if(!m_bAltDown && !m_PivotController.MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam))
+	if(!m_bAltDown && m_PivotController.MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam))
 	{
 		Invalidate();
 		return TRUE;

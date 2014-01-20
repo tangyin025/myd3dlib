@@ -38,7 +38,7 @@ void PivotController::BuildConeVertices(VertexList & vertex_list, const float ra
 void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
 	VertexList vertex_list;
-	BuildConeVertices(vertex_list, 0.25f, 1.0f, 4.0f, D3DCOLOR_ARGB(255,255,0,0));
+	BuildConeVertices(vertex_list, 0.25f, 1.0f, 3.5f, D3DCOLOR_ARGB(255,255,0,0));
 
 	size_t vertex_list_size = vertex_list.size();
 	vertex_list.resize(vertex_list_size * 3);
@@ -77,11 +77,11 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 
 	vertex_list.clear();
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,255,0,0)));
-	vertex_list.push_back(Vertex(Vector3(4.0f,0,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,255,0,0)));
+	vertex_list.push_back(Vertex(Vector3(3.5f,0,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,255,0,0)));
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,255,0)));
-	vertex_list.push_back(Vertex(Vector3(0,4.0f,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,255,0)));
+	vertex_list.push_back(Vertex(Vector3(0,3.5f,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,255,0)));
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,0,255)));
-	vertex_list.push_back(Vertex(Vector3(0,0,4.0f),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,0,255)));
+	vertex_list.push_back(Vertex(Vector3(0,0,3.5f),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,0,255)));
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);

@@ -4,8 +4,14 @@
 
 class StaticMeshTreeNode : public TreeNodeBase
 {
-protected:
-	my::OgreMeshPtr m_mesh;
+public:
+	my::OgreMeshPtr m_Mesh;
+
+	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
+
+	typedef std::vector<MaterialPair> MaterialPairList;
+
+	MaterialPairList m_Materials;
 
 public:
 	StaticMeshTreeNode(void)
@@ -14,16 +20,7 @@ public:
 
 	virtual ~StaticMeshTreeNode(void);
 
-	void SetMesh(my::OgreMeshPtr mesh);
-
-	static void DrawStaticMeshTreeNode(
-		StaticMeshTreeNode * node,
-		IDirect3DDevice9 * pd3dDevice,
-		float fElapsedTime,
-		DWORD RenderMode,
-		my::Vector4 & Color);
-
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected);
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
 };
 
 typedef boost::shared_ptr<StaticMeshTreeNode> StaticMeshTreeNodePtr;
@@ -132,5 +129,5 @@ public:
 
 	void DeleteTreeNode(HTREEITEM hItem);
 
-	void AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh);
+	void AddStaticMeshTreeNode(LPCTSTR lpszMesh);
 };

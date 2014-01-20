@@ -96,12 +96,7 @@ void CMainDoc::OnCreateStaticmesh()
 	{
 		try
 		{
-			my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)dlg.GetPathName()));
-
-			static unsigned int i = 0;
-			CString strItem;
-			strItem.Format(_T("mesh_%03d"), i++);
-			AddStaticMeshTreeNode(strItem, mesh);
+			AddStaticMeshTreeNode(dlg.GetPathName());
 
 			SetModifiedFlag();
 

@@ -6,7 +6,7 @@ class CMainApp
 	: public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
-	, public my::AsynchronousResourceMgr
+	, public my::ResourceMgr
 {
 public:
 	CMainApp(void)

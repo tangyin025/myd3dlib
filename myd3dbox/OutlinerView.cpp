@@ -406,14 +406,16 @@ TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
 	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
 }
 
-void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, DWORD RenderMode)
+void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const my::Matrix4 & World)
 {
 	if(hItem)
 	{
-		GetItemNode(hItem)->Draw(pd3dDevice, fElapsedTime, RenderMode, hItem == m_TreeCtrl.GetSelectedItem());
+		TreeNodeBasePtr node = GetItemNode(hItem);
+		
+		node->Draw(pd3dDevice, fElapsedTime, World);
 
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), RenderMode);
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), node->m_World * World);
 
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), RenderMode);
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), node->m_World * World);
 	}
 }

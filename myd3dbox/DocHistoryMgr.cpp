@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "DocHistoryMgr.h"
+#include "MainApp.h"
 #include "MainFrm.h"
 #include "MainView.h"
 
@@ -9,77 +10,24 @@ StaticMeshTreeNode::~StaticMeshTreeNode(void)
 {
 }
 
-void StaticMeshTreeNode::SetMesh(my::OgreMeshPtr mesh)
+void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & ParentWorld)
 {
-	ASSERT(mesh);
-
-	m_mesh = mesh;
-}
-
-void StaticMeshTreeNode::DrawStaticMeshTreeNode(
-	StaticMeshTreeNode * node,
-	IDirect3DDevice9 * pd3dDevice,
-	float fElapsedTime,
-	DWORD RenderMode,
-	my::Vector4 & Color)
-{
-	//my::Effect * pSimpleSample = CMainView::getSingleton().m_SimpleSample.get();
-
-	//DWORD OldState;
-	//pd3dDevice->GetRenderState(D3DRS_FILLMODE, &OldState);
-	//if(CMainView::RenderModeWire == RenderMode)
-	//{
-	//	pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
-	//}
-
-	//pSimpleSample->SetVector("g_MaterialAmbientColor", CMainView::RenderModeWire == RenderMode ? Color : Vector4(0,0,0,1));
-	//pSimpleSample->SetVector("g_MaterialDiffuseColor", CMainView::RenderModeWire == RenderMode ? Vector4(0,0,0,1) : Color);
-	//pSimpleSample->SetTexture("g_MeshTexture", CMainView::getSingleton().m_WhiteTex);
-	//UINT cPasses = pSimpleSample->Begin();
-	//for(UINT p = 0; p < cPasses; p++)
-	//{
-	//	pSimpleSample->BeginPass(p);
-	//	for(DWORD i = 0; i < node->m_mesh->GetMaterialNum(); i++)
-	//	{
-	//		node->m_mesh->DrawSubset(i);
-	//	}
-	//	pSimpleSample->EndPass();
-	//}
-	//pSimpleSample->End();
-
-	//if(CMainView::RenderModeWire == RenderMode)
-	//{
-	//	pd3dDevice->SetRenderState(D3DRS_FILLMODE, OldState);
-	//}
-}
-
-void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, DWORD RenderMode, bool IsSelected)
-{
-	if(m_mesh)
+	Matrix4 World = m_World * ParentWorld;
+	for(DWORD i = 0; i < m_Materials.size(); i++)
 	{
-		switch(RenderMode)
+		MaterialPairList::reference mat_pair = m_Materials[i];
+		_ASSERT(mat_pair.second);
+		mat_pair.second->SetMatrix("g_World", World);
+		mat_pair.second->SetTexture("g_MeshTexture", mat_pair.first->m_DiffuseTexture);
+		mat_pair.second->SetTechnique("RenderScene");
+		UINT passes = mat_pair.second->Begin();
+		for(UINT p = 0; p < passes; p++)
 		{
-		case CMainView::RenderModeDefault:
-			{
-				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, RenderMode, my::Vector4(1,1,1,1));
-			}
-			if(IsSelected)
-			{
-				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, CMainView::RenderModeWire, my::Vector4(67,255,163,255)/my::Vector4(255,255,255,255));
-			}
-			break;
-
-		case CMainView::RenderModeWire:
-			if(IsSelected)
-			{
-				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, CMainView::RenderModeWire, my::Vector4(67,255,163,255)/my::Vector4(255,255,255,255));
-			}
-			else
-			{
-				DrawStaticMeshTreeNode(this, pd3dDevice, fElapsedTime, RenderMode, my::Vector4(0,4,96,255)/my::Vector4(255,255,255,255));
-			}
-			break;
+			mat_pair.second->BeginPass(p);
+			m_Mesh->DrawSubset(i);
+			mat_pair.second->EndPass();
 		}
+		mat_pair.second->End();
 	}
 }
 
@@ -189,10 +137,19 @@ void CDocHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 	m_nStep++;
 }
 
-void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszItem, my::OgreMeshPtr mesh)
+void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszMesh)
 {
 	StaticMeshTreeNodePtr node(new StaticMeshTreeNode);
-	node->SetMesh(mesh);
+	node->m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
+	std::vector<std::string>::const_iterator mat_name_iter = node->m_Mesh->m_MaterialNameList.begin();
+	for(; mat_name_iter != node->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	{
+		MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
+		node->m_Materials.push_back(StaticMeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+	}
 
-	AddTreeNode(lpszItem, node);
+	static unsigned int i = 0;
+	CString strItem;
+	strItem.Format(_T("mesh_%03d"), i++);
+	AddTreeNode(strItem, node);
 }

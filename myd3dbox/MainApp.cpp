@@ -107,7 +107,7 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	if(FAILED(hr = AsynchronousResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr).c_str());
 		return FALSE;
@@ -115,7 +115,7 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 
 	m_DeviceObjectsCreated = true;
 
-	if(FAILED(hr = AsynchronousResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr).c_str());
 		return FALSE;
@@ -130,7 +130,7 @@ BOOL CMainApp::ResetD3DDevice(void)
 {
 	if(m_DeviceObjectsReset)
 	{
-		AsynchronousResourceMgr::OnLostDevice();
+		ResourceMgr::OnLostDevice();
 
 		m_DeviceObjectsReset = false;
 	}
@@ -145,8 +145,8 @@ BOOL CMainApp::ResetD3DDevice(void)
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	// ! 不会通知除my::AsynchronousResourceMgr意外其他对象DeviceReset，要注意
-	if(FAILED(hr = AsynchronousResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	// ! 不会通知除my::ResourceMgr意外其他对象DeviceReset，要注意
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr).c_str());
 		return FALSE;
@@ -161,7 +161,7 @@ void CMainApp::DestroyD3DDevice(void)
 {
 	if(m_DeviceObjectsCreated)
 	{
-		AsynchronousResourceMgr::OnDestroyDevice();
+		ResourceMgr::OnDestroyDevice();
 
 		UINT references = m_d3dDevice.Detach()->Release();
 		if(references > 0)

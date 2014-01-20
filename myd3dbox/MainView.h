@@ -44,7 +44,6 @@ public:
 		, m_bEatAltUp(FALSE)
 		, m_DragCameraMode(DragCameraNone)
 		, m_Camera()
-		, m_RenderMode(RenderModeDefault)
 	{
 	}
 
@@ -86,14 +85,7 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	enum RenderMode
-	{
-		RenderModeDefault = 0,
-		RenderModeWire,
-		RenderModePhysics,
-	};
-
-	RenderMode m_RenderMode;
+	my::EffectPtr m_SimpleSample;
 
 	PivotController m_PivotController;
 
