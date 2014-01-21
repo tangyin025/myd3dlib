@@ -217,6 +217,11 @@ void StreamDirMgr::RegisterFileDir(const std::string & dir)
 
 bool StreamDirMgr::CheckPath(const std::string & path)
 {
+	if(!PathIsRelativeA(path.c_str()))
+	{
+		return PathFileExistsA(path.c_str());
+	}
+
 	CriticalSectionLock lock(m_DirListSection);
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for(; dir_iter != m_DirList.end(); dir_iter++)

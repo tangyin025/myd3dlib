@@ -23,10 +23,14 @@ BOOL CMainApp::InitInstance(void)
 
 	LoadStdProfileSettings(4);
 
-	RegisterFileDir("Media");
-	RegisterZipDir("Media.zip");
-	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipDir("..\\demo2_3\\Media.zip");
+	char CurrDir[MAX_PATH];
+	GetCurrentDirectoryA(_countof(CurrDir), CurrDir);
+
+	char BuffDir[MAX_PATH];
+	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "Media"));
+	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "Media.zip"));
+	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media"));
+	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media.zip"));
 
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)
