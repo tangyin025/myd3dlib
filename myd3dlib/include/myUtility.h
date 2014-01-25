@@ -57,6 +57,13 @@ namespace my
 			D3DCOLOR Color,
 			const Matrix4 & world = Matrix4::identity);
 
+		static void DrawCylinder(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			float height,
+			D3DCOLOR Color,
+			const Matrix4 & world = Matrix4::identity);
+
 		static void DrawCapsule(
 			IDirect3DDevice9 * pd3dDevice,
 			float radius,

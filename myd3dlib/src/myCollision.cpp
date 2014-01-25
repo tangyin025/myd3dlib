@@ -342,6 +342,56 @@ namespace my
 		return TestResult(true, -(planeNormal.dot(pos) + planeDist) / denom);
 	}
 
+	IntersectionTests::TestResult IntersectionTests::rayAndCylinder(
+		const Vector3 & pos,
+		const Vector3 & dir,
+		const float cylinderRadius,
+		const float cylinderHeight,
+		const Matrix4 & invCylinderTransform)
+	{
+		Vector3 p = pos.transform(invCylinderTransform).xyz;
+		Vector3 d = dir.transformCoord(invCylinderTransform);
+		float a = d.x * d.x + d.y * d.y;
+		float b = 2 * d.x * p.x + 2 * d.y * p.y;
+		float c = p.x * p.x + p.y * p.y - cylinderRadius * cylinderRadius;
+		float discrm = b * b - 4 * a * c;
+		float t[4];
+		Vector3 k[4];
+		bool v[4];
+		if(discrm > 0)
+		{
+			t[0] = (-b + sqrt(discrm)) / (2 * a);
+			k[0] = p + d * t[0];
+			v[0] = (k[0].z >= 0 && k[0].z <= cylinderHeight);
+			t[1] = (-b - sqrt(discrm)) / (2 * a);
+			k[1] = p + d * t[1];
+			v[1] = (k[1].z >= 0 && k[1].z <= cylinderHeight);
+			t[2] = (0 - p.z) / dir.z;
+			k[2] = p + d * t[2];
+			v[2] = (k[2].xy.dot(k[2].xy) <= cylinderRadius * cylinderRadius);
+			t[3] = (cylinderHeight - p.z) / dir.z;
+			k[3] = p + d * t[3];
+			v[3] = (k[3].xy.dot(k[3].xy) <= cylinderRadius * cylinderRadius);
+			float min_t = FLT_MAX;
+			for(int i = 0; i < 4; i++)
+			{
+				if(v[i] && t[i] < min_t)
+				{
+					min_t = t[i];
+				}
+			}
+			return TestResult(min_t < FLT_MAX, min_t);
+		}
+		else if(discrm == 0)
+		{
+			t[0] = -b / (2 * a);
+			k[0] = p + d * t[0];
+			v[0] = (k[0].z >= 0 && k[0].z <= cylinderHeight);
+			return TestResult(v[0], t[0]);
+		}
+		return TestResult(false, FLT_MAX);
+	}
+
 	Vector3 IntersectionTests::calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
 	{
 		return (v1 - v0).cross(v2 - v0);

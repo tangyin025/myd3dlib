@@ -514,6 +514,13 @@ namespace my
 			const Vector3 & planeNormal,
 			float planeDist);
 
+		static TestResult rayAndCylinder(
+			const Vector3 & pos,
+			const Vector3 & dir,
+			const float cylinderRadius,
+			const float cylinderHeight,
+			const Matrix4 & invCylinderTransform); // Note: Z Axis Cylinder
+
 		static Vector3 calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
 
 		static bool isValidTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
