@@ -351,9 +351,9 @@ namespace my
 	{
 		Vector3 p = pos.transform(invCylinderTransform).xyz;
 		Vector3 d = dir.transformCoord(invCylinderTransform);
-		float a = d.x * d.x + d.y * d.y;
-		float b = 2 * d.x * p.x + 2 * d.y * p.y;
-		float c = p.x * p.x + p.y * p.y - cylinderRadius * cylinderRadius;
+		float a = d.y * d.y + d.z * d.z;
+		float b = 2 * d.y * p.y + 2 * d.z * p.z;
+		float c = p.y * p.y + p.z * p.z - cylinderRadius * cylinderRadius;
 		float discrm = b * b - 4 * a * c;
 		float t[4];
 		Vector3 k[4];
@@ -362,16 +362,16 @@ namespace my
 		{
 			t[0] = (-b + sqrt(discrm)) / (2 * a);
 			k[0] = p + d * t[0];
-			v[0] = (k[0].z >= 0 && k[0].z <= cylinderHeight);
+			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
 			t[1] = (-b - sqrt(discrm)) / (2 * a);
 			k[1] = p + d * t[1];
-			v[1] = (k[1].z >= 0 && k[1].z <= cylinderHeight);
-			t[2] = (0 - p.z) / dir.z;
+			v[1] = (k[1].x >= 0 && k[1].x <= cylinderHeight);
+			t[2] = (0 - p.x) / dir.x;
 			k[2] = p + d * t[2];
-			v[2] = (k[2].xy.dot(k[2].xy) <= cylinderRadius * cylinderRadius);
-			t[3] = (cylinderHeight - p.z) / dir.z;
+			v[2] = (k[2].yz.dot(k[2].yz) <= cylinderRadius * cylinderRadius);
+			t[3] = (cylinderHeight - p.x) / dir.x;
 			k[3] = p + d * t[3];
-			v[3] = (k[3].xy.dot(k[3].xy) <= cylinderRadius * cylinderRadius);
+			v[3] = (k[3].yz.dot(k[3].yz) <= cylinderRadius * cylinderRadius);
 			float min_t = FLT_MAX;
 			for(int i = 0; i < 4; i++)
 			{
@@ -386,7 +386,7 @@ namespace my
 		{
 			t[0] = -b / (2 * a);
 			k[0] = p + d * t[0];
-			v[0] = (k[0].z >= 0 && k[0].z <= cylinderHeight);
+			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
 			return TestResult(v[0], t[0]);
 		}
 		return TestResult(false, FLT_MAX);

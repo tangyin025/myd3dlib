@@ -219,21 +219,21 @@ void DrawHelper::DrawCylinder(
 	{
 		float Theta[2] = {2 * D3DX_PI / HSTAGE * i, 2 * D3DX_PI / HSTAGE * (i + 1)};
 		Vertex * pv = &v[i * 10];
-		pv[0].x = radius * cos(Theta[0]);
-		pv[0].y = radius * sin(Theta[0]);
-		pv[0].z = 0;
+		pv[0].x = 0;
+		pv[0].y = radius * cos(Theta[0]);
+		pv[0].z = radius * sin(Theta[0]);
 		pv[0].color = Color;
 
-		pv[1].x = radius * cos(Theta[1]);
-		pv[1].y = radius * sin(Theta[1]);
-		pv[1].z = 0;
+		pv[1].x = 0;
+		pv[1].y = radius * cos(Theta[1]);
+		pv[1].z = radius * sin(Theta[1]);
 		pv[1].color = Color;
 
 		pv[2] = pv[0];
 
-		pv[3].x = radius * cos(Theta[0]);
-		pv[3].y = radius * sin(Theta[0]);
-		pv[3].z = height;
+		pv[3].x = height;
+		pv[3].y = radius * cos(Theta[0]);
+		pv[3].z = radius * sin(Theta[0]);
 		pv[3].color = Color;
 
 		pv[4] = pv[0];
@@ -245,16 +245,16 @@ void DrawHelper::DrawCylinder(
 
 		pv[6] = pv[3];
 
-		pv[7].x = radius * cos(Theta[1]);
-		pv[7].y = radius * sin(Theta[1]);
-		pv[7].z = height;
+		pv[7].x = height;
+		pv[7].y = radius * cos(Theta[1]);
+		pv[7].z = radius * sin(Theta[1]);
 		pv[7].color = Color;
 
 		pv[8] = pv[3];
 
-		pv[9].x = 0;
+		pv[9].x = height;
 		pv[9].y = 0;
-		pv[9].z = height;
+		pv[9].z = 0;
 		pv[9].color = Color;
 	}
 

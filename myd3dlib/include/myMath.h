@@ -287,7 +287,20 @@ namespace my
 		{
 			struct
 			{
-				float x, y, z;
+				float x;
+
+				union
+				{
+					struct  
+					{
+						float y, z;
+					};
+
+					struct
+					{
+						Vector2 yz;
+					};
+				};
 			};
 
 			struct
@@ -539,7 +552,20 @@ namespace my
 		{
 			struct
 			{
-				float x, y, z, w;
+				float x;
+
+				union
+				{
+					struct  
+					{
+						float y, z, w;
+					};
+
+					struct
+					{
+						Vector2 yz;
+					};
+				};
 			};
 
 			struct
