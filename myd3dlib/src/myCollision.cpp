@@ -366,10 +366,10 @@ namespace my
 			t[1] = (-b - sqrt(discrm)) / (2 * a);
 			k[1] = p + d * t[1];
 			v[1] = (k[1].x >= 0 && k[1].x <= cylinderHeight);
-			t[2] = (0 - p.x) / dir.x;
+			t[2] = (0 - p.x) / d.x;
 			k[2] = p + d * t[2];
 			v[2] = (k[2].yz.dot(k[2].yz) <= cylinderRadius * cylinderRadius);
-			t[3] = (cylinderHeight - p.x) / dir.x;
+			t[3] = (cylinderHeight - p.x) / d.x;
 			k[3] = p + d * t[3];
 			v[3] = (k[3].yz.dot(k[3].yz) <= cylinderRadius * cylinderRadius);
 			float min_t = FLT_MAX;

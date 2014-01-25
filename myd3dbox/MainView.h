@@ -44,6 +44,7 @@ public:
 		, m_bEatAltUp(FALSE)
 		, m_DragCameraMode(DragCameraNone)
 		, m_Camera()
+		, m_MouseRay(std::make_pair(my::Vector3::zero, my::Vector3::unitX))
 	{
 	}
 
@@ -75,6 +76,8 @@ public:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 
+	D3DSURFACE_DESC m_SwapChainBufferDesc;
+
 	my::Surface m_DepthStencil;
 
 	my::UIRenderPtr m_UIRender;
@@ -84,6 +87,8 @@ public:
 	my::FontPtr m_Font;
 
 	my::ModelViewerCamera m_Camera;
+
+	std::pair<my::Vector3, my::Vector3> m_MouseRay;
 
 	my::EffectPtr m_SimpleSample;
 

@@ -181,14 +181,14 @@ BOOL CMainView::ResetD3DSwapChain(void)
 
 	Surface BackBuffer;
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+	m_SwapChainBufferDesc = BackBuffer.GetDesc();
 
-	DialogMgr::SetDlgViewport(Vector2((float)desc.Width, (float)desc.Height));
+	DialogMgr::SetDlgViewport(Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
 
 	m_DepthStencil.CreateDepthStencilSurface(
-		theApp.GetD3D9Device(), desc.Width, desc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+		theApp.GetD3D9Device(), m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
-	m_Camera.m_Aspect = (float)desc.Width / desc.Height;
+	m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 
 	return TRUE;
 }
@@ -288,12 +288,6 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 
-	if(!m_bAltDown && m_PivotController.MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam))
-	{
-		Invalidate();
-		return TRUE;
-	}
-
 	return CView::PreTranslateMessage(pMsg);
 }
 
@@ -389,6 +383,36 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
 		m_Camera.m_DragPos = point;
 		Invalidate();
+		break;
+
+	default:
+		{
+			CRect rc;
+			GetWindowRect(&rc);
+			m_MouseRay = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
+			static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
+			static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+			const Vector4 ViewPos = m_PivotController.m_Pos.transform(m_Camera.m_ViewProj);
+			const float ViewScale = ViewPos.z / 25.0f * 800.0f / m_SwapChainBufferDesc.Width;
+			Matrix4 Trans = Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_PivotController.m_Pos);
+			IntersectionTests::TestResult res[3] =
+			{
+				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, Trans.inverse()),
+				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_y * Trans).inverse()),
+				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_z * Trans).inverse())
+			};
+			m_PivotController.m_HightLightAxis = PivotController::HightLightAxisNone;
+			float minT = FLT_MAX;
+			for(int i = 0; i < 3; i++)
+			{
+				if(res[i].first && res[i].second < minT)
+				{
+					minT = res[i].second;
+					m_PivotController.m_HightLightAxis = (PivotController::HightLightAxis)(PivotController::HightLightAxisX + i);
+				}
+			}
+			Invalidate();
+		}
 		break;
 	}
 }

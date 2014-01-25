@@ -2,12 +2,40 @@
 
 class PivotController
 {
-protected:
+public:
+	static const float PivotRadius;
+
+	static const float PivotHeight;
+
+	static const float PivotOffset;
+
+	static const D3DCOLOR PivotAxisXColor;
+
+	static const D3DCOLOR PivotAxisYColor;
+
+	static const D3DCOLOR PivotAxisZColor;
+
+	static const D3DCOLOR PivotHightLightAxisColor;
+
+	enum HightLightAxis
+	{
+		HightLightAxisNone,
+		HightLightAxisX,
+		HightLightAxisY,
+		HightLightAxisZ,
+	};
+
+	HightLightAxis m_HightLightAxis;
+
 	my::Vector3 m_Pos;
+
+	my::Matrix4 m_World;
 
 public:
 	PivotController(void)
-		: m_Pos(0,0,0)
+		: m_HightLightAxis(HightLightAxisNone)
+		, m_Pos(0,0,0)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -34,6 +62,4 @@ public:
 	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
-
-	virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 };
