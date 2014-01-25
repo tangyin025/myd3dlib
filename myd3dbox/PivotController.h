@@ -15,17 +15,17 @@ public:
 
 	static const D3DCOLOR PivotAxisZColor;
 
-	static const D3DCOLOR PivotHightLightAxisColor;
+	static const D3DCOLOR PivotDragAxisColor;
 
-	enum HightLightAxis
+	enum DragAxis
 	{
-		HightLightAxisNone,
-		HightLightAxisX,
-		HightLightAxisY,
-		HightLightAxisZ,
+		DragAxisNone,
+		DragAxisX,
+		DragAxisY,
+		DragAxisZ,
 	};
 
-	HightLightAxis m_HightLightAxis;
+	DragAxis m_DragAxis;
 
 	my::Vector3 m_Pos;
 
@@ -33,7 +33,7 @@ public:
 
 public:
 	PivotController(void)
-		: m_HightLightAxis(HightLightAxisNone)
+		: m_DragAxis(DragAxisNone)
 		, m_Pos(0,0,0)
 		, m_World(my::Matrix4::Identity())
 	{
@@ -60,6 +60,8 @@ public:
 	typedef std::vector<Vertex> VertexList;
 
 	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color);
+
+	void UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
 };
