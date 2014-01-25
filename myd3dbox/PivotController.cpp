@@ -69,6 +69,7 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	pd3dDevice->SetLight(0, &light);
 
 	pd3dDevice->LightEnable(0, TRUE);
+	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_LIGHTING, TRUE);
 	pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, TRUE);
 	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
@@ -84,11 +85,14 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	vertex_list.push_back(Vertex(Vector3(0,0,3.5f),Vector3(1,1,1),D3DCOLOR_ARGB(255,0,0,255)));
 
 	pd3dDevice->LightEnable(0, FALSE);
+	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
 	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
 	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&(Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_Pos)));
-	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(vertex_list[0]));
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 2, &vertex_list[0], sizeof(vertex_list[0]));
+
+	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 }
 
 bool PivotController::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
