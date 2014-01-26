@@ -39,38 +39,22 @@ class CMainView
 	, public my::DialogMgr
 {
 public:
-	CMainView(void)
-		: m_bAltDown(FALSE)
-		, m_bEatAltUp(FALSE)
-		, m_DragCameraMode(DragCameraNone)
-		, m_Camera()
-		, m_MouseRay(std::make_pair(my::Vector3::zero, my::Vector3::unitX))
-	{
-	}
-
-	DECLARE_DYNCREATE(CMainView)
-
-	void DrawTextAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
-
-	CMainDoc * GetDocument(void) const;
-
-	virtual void OnDraw(CDC* pDC) {}
-
 	int m_DebugDrawModes;
 
 	BOOL m_bAltDown;
 
 	BOOL m_bEatAltUp;
 
-	enum DragCameraMode
+	enum DragMode
 	{
-		DragCameraNone = 0,
-		DragCameraRotate,
-		DragCameraTrack,
-		DragCameraZoom,
+		DragModeCameraNone = 0,
+		DragModeCameraRotate,
+		DragModeCameraTrack,
+		DragModeCameraZoom,
+		DragModePivotMove,
 	};
 
-	DragCameraMode m_DragCameraMode;
+	DragMode m_DragMode;
 
 	CRectTracker m_Tracker;
 
@@ -88,13 +72,39 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	std::pair<my::Vector3, my::Vector3> m_MouseRay;
-
 	my::EffectPtr m_SimpleSample;
 
 	PivotController m_PivotController;
 
+public:
+	CMainView(void)
+		: m_bAltDown(FALSE)
+		, m_bEatAltUp(FALSE)
+		, m_DragMode(DragModeCameraNone)
+		, m_Camera()
+	{
+	}
+
+	DECLARE_DYNCREATE(CMainView)
+
 	DECLARE_MESSAGE_MAP()
+
+	void DrawTextAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
+
+	BOOL ResetD3DSwapChain(void);
+
+	void OnDeviceLost(void);
+
+	void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	CMainDoc * GetDocument(void) const;
+
+	virtual void OnDraw(CDC* pDC) {}
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
@@ -105,17 +115,6 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
-public:
-	BOOL ResetD3DSwapChain(void);
-
-	void OnDeviceLost(void);
-
-	void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime);
-
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	afx_msg void OnKillFocus(CWnd* pNewWnd);
 

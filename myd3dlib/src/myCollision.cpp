@@ -350,7 +350,7 @@ namespace my
 		const Matrix4 & invCylinderTransform)
 	{
 		Vector3 p = pos.transform(invCylinderTransform).xyz;
-		Vector3 d = dir.transformCoord(invCylinderTransform);
+		Vector3 d = dir.transformNormal(invCylinderTransform);
 		float a = d.y * d.y + d.z * d.z;
 		float b = 2 * d.y * p.y + 2 * d.z * p.z;
 		float c = p.y * p.y + p.z * p.z - cylinderRadius * cylinderRadius;

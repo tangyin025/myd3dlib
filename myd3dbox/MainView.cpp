@@ -98,71 +98,6 @@ void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR 
 	}
 }
 
-CMainDoc * CMainView::GetDocument() const
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
-	return (CMainDoc *)m_pDocument;
-}
-
-int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
-{
-	if (CView::OnCreate(lpCreateStruct) == -1)
-		return -1;
-
-	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
-
-	m_WhiteTex = theApp.LoadTexture("texture/white.bmp");
-
-	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
-
-	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
-	m_Camera.m_LookAt = Vector3(0,1,0);
-	m_Camera.m_Distance = 20;
-
-	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-
-	return 0;
-}
-
-void CMainView::OnDestroy()
-{
-	CView::OnDestroy();
-
-	m_d3dSwapChain.Release();
-}
-
-void CMainView::OnPaint()
-{
-	CPaintDC dc(this);
-
-	if(m_d3dSwapChain)
-	{
-		theApp.UpdateClock();
-
-		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
-
-		m_Tracker.Draw(&dc);
-	}
-}
-
-void CMainView::OnSize(UINT nType, int cx, int cy)
-{
-	CView::OnSize(nType, cx, cy);
-
-	if(cx > 0 && cy > 0)
-	{
-		OnDeviceLost();
-
-		// ! 在初始化窗口时，会被反复创建多次
-		ResetD3DSwapChain();
-	}
-}
-
-BOOL CMainView::OnEraseBkgnd(CDC* pDC)
-{
-	return TRUE;
-}
-
 BOOL CMainView::ResetD3DSwapChain(void)
 {
 	D3DPRESENT_PARAMETERS d3dpp = {0};
@@ -257,6 +192,12 @@ void CMainView::OnFrameRender(
 	}
 }
 
+CMainDoc * CMainView::GetDocument() const
+{
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
+	return (CMainDoc *)m_pDocument;
+}
+
 BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 {
 	switch(pMsg->message)
@@ -292,6 +233,65 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 	return CView::PreTranslateMessage(pMsg);
 }
 
+int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
+
+	m_WhiteTex = theApp.LoadTexture("texture/white.bmp");
+
+	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
+
+	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
+	m_Camera.m_LookAt = Vector3(0,1,0);
+	m_Camera.m_Distance = 20;
+
+	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+
+	return 0;
+}
+
+void CMainView::OnDestroy()
+{
+	CView::OnDestroy();
+
+	m_d3dSwapChain.Release();
+}
+
+void CMainView::OnPaint()
+{
+	CPaintDC dc(this);
+
+	if(m_d3dSwapChain)
+	{
+		theApp.UpdateClock();
+
+		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+
+		m_Tracker.Draw(&dc);
+	}
+}
+
+void CMainView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	if(cx > 0 && cy > 0)
+	{
+		OnDeviceLost();
+
+		// ! 在初始化窗口时，会被反复创建多次
+		ResetD3DSwapChain();
+	}
+}
+
+BOOL CMainView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+}
+
 void CMainView::OnKillFocus(CWnd* pNewWnd)
 {
 	CView::OnKillFocus(pNewWnd);
@@ -301,32 +301,83 @@ void CMainView::OnKillFocus(CWnd* pNewWnd)
 
 void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	if(m_bAltDown && DragModeCameraNone == m_DragMode)
 	{
 		m_bEatAltUp = TRUE;
-		m_DragCameraMode = DragCameraRotate;
+		m_DragMode = DragModeCameraRotate;
 		m_Camera.m_DragPos = point;
 		SetCapture();
 	}
 	else
-		m_Tracker.TrackRubberBand(this, point);
+	{
+		CRect rc;
+		GetWindowRect(&rc);
+		std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
+		static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
+		static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+		IntersectionTests::TestResult res[3] =
+		{
+			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, m_PivotController.m_World.inverse()),
+			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_y * m_PivotController.m_World).inverse()),
+			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_z * m_PivotController.m_World).inverse()),
+		};
+		m_PivotController.m_DragAxis = PivotController::DragAxisNone;
+		float minT = FLT_MAX;
+		for(int i = 0; i < 3; i++)
+		{
+			if(res[i].first && res[i].second < minT)
+			{
+				minT = res[i].second;
+				m_PivotController.m_DragAxis = (PivotController::DragAxis)(PivotController::DragAxisX + i);
+			}
+		}
+		switch(m_PivotController.m_DragAxis)
+		{
+		case PivotController::DragAxisX:
+			m_PivotController.m_DragPos = m_PivotController.m_Pos;
+			m_PivotController.m_DragPt = ray.first + ray.second * minT;
+			m_PivotController.m_DragNormal = Vector3::unitX.cross(Vector3::unitX.cross(ray.second)).normalize();
+			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
+			m_DragMode = DragModePivotMove;
+			break;
+		case PivotController::DragAxisY:
+			m_PivotController.m_DragPos = m_PivotController.m_Pos;
+			m_PivotController.m_DragPt = ray.first + ray.second * minT;
+			m_PivotController.m_DragNormal = Vector3::unitY.cross(Vector3::unitY.cross(ray.second)).normalize();
+			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
+			m_DragMode = DragModePivotMove;
+			break;
+		case PivotController::DragAxisZ:
+			m_PivotController.m_DragPos = m_PivotController.m_Pos;
+			m_PivotController.m_DragPt = ray.first + ray.second * minT;
+			m_PivotController.m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
+			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
+			m_DragMode = DragModePivotMove;
+			break;
+		default:
+			m_Tracker.TrackRubberBand(this, point);
+			break;
+		}
+		Invalidate();
+	}
 }
 
 void CMainView::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	if(DragCameraRotate == m_DragCameraMode)
+	if(DragModeCameraRotate == m_DragMode
+		|| DragModePivotMove == m_DragMode)
 	{
-		m_DragCameraMode = DragCameraNone;
+		m_DragMode = DragModeCameraNone;
 		ReleaseCapture();
 	}
 }
 
 void CMainView::OnMButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	if(m_bAltDown && DragModeCameraNone == m_DragMode)
 	{
 		m_bEatAltUp = TRUE;
-		m_DragCameraMode = DragCameraTrack;
+		m_DragMode = DragModeCameraTrack;
 		m_Camera.m_DragPos = point;
 		SetCapture();
 	}
@@ -334,19 +385,19 @@ void CMainView::OnMButtonDown(UINT nFlags, CPoint point)
 
 void CMainView::OnMButtonUp(UINT nFlags, CPoint point)
 {
-	if(DragCameraTrack == m_DragCameraMode)
+	if(DragModeCameraTrack == m_DragMode)
 	{
-		m_DragCameraMode = DragCameraNone;
+		m_DragMode = DragModeCameraNone;
 		ReleaseCapture();
 	}
 }
 
 void CMainView::OnRButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragCameraNone == m_DragCameraMode)
+	if(m_bAltDown && DragModeCameraNone == m_DragMode)
 	{
 		m_bEatAltUp = TRUE;
-		m_DragCameraMode = DragCameraZoom;
+		m_DragMode = DragModeCameraZoom;
 		m_Camera.m_DragPos = point;
 		SetCapture();
 	}
@@ -354,18 +405,18 @@ void CMainView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CMainView::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	if(DragCameraZoom == m_DragCameraMode)
+	if(DragModeCameraZoom == m_DragMode)
 	{
-		m_DragCameraMode = DragCameraNone;
+		m_DragMode = DragModeCameraNone;
 		ReleaseCapture();
 	}
 }
 
 void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	switch(m_DragCameraMode)
+	switch(m_DragMode)
 	{
-	case DragCameraRotate:
+	case DragModeCameraRotate:
 		m_Camera.m_Rotation.x -= D3DXToRadian((point.y - m_Camera.m_DragPos.y) * 0.5f);
 		m_Camera.m_Rotation.y -= D3DXToRadian((point.x - m_Camera.m_DragPos.x) * 0.5f);
 		m_Camera.m_DragPos = point;
@@ -374,7 +425,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		Invalidate();
 		break;
 
-	case DragCameraTrack:
+	case DragModeCameraTrack:
 		m_Camera.m_LookAt += Vector3(
 			(m_Camera.m_DragPos.x - point.x) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f,
 			(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0).transform(m_Camera.m_Orientation);
@@ -384,7 +435,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		Invalidate();
 		break;
 
-	case DragCameraZoom:
+	case DragModeCameraZoom:
 		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
 		m_Camera.m_DragPos = point;
 		m_Camera.OnFrameMove(0,0);
@@ -392,30 +443,36 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		Invalidate();
 		break;
 
-	default:
+	case DragModePivotMove:
+		if(m_PivotController.m_DragAxis != PivotController::DragAxisNone)
 		{
 			CRect rc;
 			GetWindowRect(&rc);
-			m_MouseRay = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
-			static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
-			static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
-			IntersectionTests::TestResult res[3] =
+			std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
+			IntersectionTests::TestResult res;
+			res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, m_PivotController.m_DragNormal, m_PivotController.m_DragDist);
+			if(res.first)
 			{
-				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, m_PivotController.m_World.inverse()),
-				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_y * m_PivotController.m_World).inverse()),
-				IntersectionTests::rayAndCylinder(m_MouseRay.first, m_MouseRay.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_z * m_PivotController.m_World).inverse()),
-			};
-			m_PivotController.m_DragAxis = PivotController::DragAxisNone;
-			float minT = FLT_MAX;
-			for(int i = 0; i < 3; i++)
-			{
-				if(res[i].first && res[i].second < minT)
+				Vector3 pt = ray.first + ray.second * res.second;
+				switch(m_PivotController.m_DragAxis)
 				{
-					minT = res[i].second;
-					m_PivotController.m_DragAxis = (PivotController::DragAxis)(PivotController::DragAxisX + i);
+				case PivotController::DragAxisX:
+					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x + pt.x - m_PivotController.m_DragPt.x, m_PivotController.m_DragPos.y, m_PivotController.m_DragPos.z);
+					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+					Invalidate();
+					break;
+				case PivotController::DragAxisY:
+					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x, m_PivotController.m_DragPos.y + pt.y - m_PivotController.m_DragPt.y, m_PivotController.m_DragPos.z);
+					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+					Invalidate();
+					break;
+				case PivotController::DragAxisZ:
+					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x, m_PivotController.m_DragPos.y, m_PivotController.m_DragPos.z + pt.z - m_PivotController.m_DragPt.z);
+					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+					Invalidate();
+					break;
 				}
 			}
-			Invalidate();
 		}
 		break;
 	}

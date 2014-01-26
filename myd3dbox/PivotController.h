@@ -17,6 +17,10 @@ public:
 
 	static const D3DCOLOR PivotDragAxisColor;
 
+	my::Vector3 m_Pos;
+
+	my::Matrix4 m_World;
+
 	enum DragAxis
 	{
 		DragAxisNone,
@@ -27,9 +31,13 @@ public:
 
 	DragAxis m_DragAxis;
 
-	my::Vector3 m_Pos;
+	my::Vector3 m_DragPos;
 
-	my::Matrix4 m_World;
+	my::Vector3 m_DragPt;
+
+	my::Vector3 m_DragNormal;
+
+	float m_DragDist;
 
 public:
 	PivotController(void)
