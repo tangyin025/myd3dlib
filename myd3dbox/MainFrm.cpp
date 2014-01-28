@@ -80,6 +80,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndOutliner.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndOutliner);
 
+	if (!m_wndOutput.Create(_T("Output"), this, CRect(0,0,200,200), TRUE,
+		ID_VIEW_OUTPUT, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_BOTTOM | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("Failed to create output\n");
+		return -1;
+	}
+	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndOutput);
+
 	if (!m_wndProperties.Create(_T("Properties"), this, CRect(0,0,200,200), TRUE,
 		ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
 	{

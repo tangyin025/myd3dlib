@@ -16,6 +16,7 @@ BOOL CMainApp::InitInstance(void)
 	InitCtrls.dwSize = sizeof(InitCtrls);
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
+	AfxInitRichEdit();
 
 	CWinAppEx::InitInstance();
 

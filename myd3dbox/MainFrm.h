@@ -1,6 +1,7 @@
 #pragma once
 
 #include "OutlinerView.h"
+#include "OutputWnd.h"
 #include "PropertiesWnd.h"
 
 class CMainFrame
@@ -20,6 +21,8 @@ public:
 	CMFCStatusBar m_wndStatusBar;
 
 	COutlinerView m_wndOutliner;
+
+	COutputWnd m_wndOutput;
 
 	CPropertiesWnd m_wndProperties;
 
