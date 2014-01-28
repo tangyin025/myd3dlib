@@ -313,51 +313,12 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 		CRect rc;
 		GetWindowRect(&rc);
 		std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
-		static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
-		static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
-		IntersectionTests::TestResult res[3] =
+		if(m_PivotController.OnLButtonDown(ray))
 		{
-			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, m_PivotController.m_World.inverse()),
-			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_y * m_PivotController.m_World).inverse()),
-			IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotController::PivotRadius * 2, PivotController::PivotHeight + PivotController::PivotOffset, (mat_to_z * m_PivotController.m_World).inverse()),
-		};
-		m_PivotController.m_DragAxis = PivotController::DragAxisNone;
-		float minT = FLT_MAX;
-		for(int i = 0; i < 3; i++)
-		{
-			if(res[i].first && res[i].second < minT)
-			{
-				minT = res[i].second;
-				m_PivotController.m_DragAxis = (PivotController::DragAxis)(PivotController::DragAxisX + i);
-			}
+			m_DragMode = DragModePivotMove;
 		}
-		switch(m_PivotController.m_DragAxis)
-		{
-		case PivotController::DragAxisX:
-			m_PivotController.m_DragPos = m_PivotController.m_Pos;
-			m_PivotController.m_DragPt = ray.first + ray.second * minT;
-			m_PivotController.m_DragNormal = Vector3::unitX.cross(Vector3::unitX.cross(ray.second)).normalize();
-			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
-			m_DragMode = DragModePivotMove;
-			break;
-		case PivotController::DragAxisY:
-			m_PivotController.m_DragPos = m_PivotController.m_Pos;
-			m_PivotController.m_DragPt = ray.first + ray.second * minT;
-			m_PivotController.m_DragNormal = Vector3::unitY.cross(Vector3::unitY.cross(ray.second)).normalize();
-			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
-			m_DragMode = DragModePivotMove;
-			break;
-		case PivotController::DragAxisZ:
-			m_PivotController.m_DragPos = m_PivotController.m_Pos;
-			m_PivotController.m_DragPt = ray.first + ray.second * minT;
-			m_PivotController.m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
-			m_PivotController.m_DragDist = -m_PivotController.m_DragPt.dot(m_PivotController.m_DragNormal);
-			m_DragMode = DragModePivotMove;
-			break;
-		default:
+		else
 			m_Tracker.TrackRubberBand(this, point);
-			break;
-		}
 		Invalidate();
 	}
 }
@@ -449,29 +410,10 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 			CRect rc;
 			GetWindowRect(&rc);
 			std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
-			IntersectionTests::TestResult res;
-			res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, m_PivotController.m_DragNormal, m_PivotController.m_DragDist);
-			if(res.first)
+			if(m_PivotController.OnMouseMove(ray))
 			{
-				Vector3 pt = ray.first + ray.second * res.second;
-				switch(m_PivotController.m_DragAxis)
-				{
-				case PivotController::DragAxisX:
-					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x + pt.x - m_PivotController.m_DragPt.x, m_PivotController.m_DragPos.y, m_PivotController.m_DragPos.z);
-					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
-					Invalidate();
-					break;
-				case PivotController::DragAxisY:
-					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x, m_PivotController.m_DragPos.y + pt.y - m_PivotController.m_DragPt.y, m_PivotController.m_DragPos.z);
-					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
-					Invalidate();
-					break;
-				case PivotController::DragAxisZ:
-					m_PivotController.m_Pos = Vector3(m_PivotController.m_DragPos.x, m_PivotController.m_DragPos.y, m_PivotController.m_DragPos.z + pt.z - m_PivotController.m_DragPt.z);
-					m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
-					Invalidate();
-					break;
-				}
+				m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+				Invalidate();
 			}
 		}
 		break;

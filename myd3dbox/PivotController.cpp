@@ -7,7 +7,7 @@ const float PivotController::PivotRadius = 0.25f;
 
 const float PivotController::PivotHeight = 1.0f;
 
-const float PivotController::PivotOffset = 3.5f;
+const float PivotController::PivotOffset = 3.0f;
 
 const D3DCOLOR PivotController::PivotAxisXColor = D3DCOLOR_ARGB(255,255,0,0);
 
@@ -109,4 +109,70 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 2, &vertex_list[0], sizeof(vertex_list[0]));
 
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+}
+
+BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
+	static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+	IntersectionTests::TestResult res[3] =
+	{
+		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, m_World.inverse()),
+		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, (mat_to_y * m_World).inverse()),
+		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, (mat_to_z * m_World).inverse()),
+	};
+	m_DragAxis = DragAxisNone;
+	float minT = FLT_MAX;
+	for(int i = 0; i < 3; i++)
+	{
+		if(res[i].first && res[i].second < minT)
+		{
+			minT = res[i].second;
+			m_DragAxis = (DragAxis)(DragAxisX + i);
+		}
+	}
+	switch(m_DragAxis)
+	{
+	case DragAxisX:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.first + ray.second * minT;
+		m_DragNormal = Vector3::unitX.cross(Vector3::unitX.cross(ray.second)).normalize();
+		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		return TRUE;
+	case DragAxisY:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.first + ray.second * minT;
+		m_DragNormal = Vector3::unitY.cross(Vector3::unitY.cross(ray.second)).normalize();
+		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		return TRUE;
+	case DragAxisZ:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.first + ray.second * minT;
+		m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
+		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL PivotController::OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, m_DragNormal, m_DragDist);
+	if(res.first)
+	{
+		Vector3 pt = ray.first + ray.second * res.second;
+		switch(m_DragAxis)
+		{
+		case DragAxisX:
+			m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
+			return TRUE;
+		case DragAxisY:
+			m_Pos = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
+			return TRUE;
+		case DragAxisZ:
+			m_Pos = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+			return TRUE;
+		}
+	}
+	return FALSE;
 }

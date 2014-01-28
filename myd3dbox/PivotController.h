@@ -72,4 +72,8 @@ public:
 	void UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
+
+	virtual BOOL OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray);
+
+	virtual BOOL OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ray);
 };
