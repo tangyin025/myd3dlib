@@ -16,6 +16,7 @@ BOOL CMainApp::InitInstance(void)
 	InitCtrls.dwSize = sizeof(InitCtrls);
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
+
 	AfxInitRichEdit();
 
 	CWinAppEx::InitInstance();
@@ -177,4 +178,10 @@ void CMainApp::DestroyD3DDevice(void)
 		}
 		m_DeviceObjectsCreated = false;
 	}
+}
+
+void CMainApp::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
+{
+	COutputWnd::getSingleton().AddString(error_str.c_str());
+	COutputWnd::getSingleton().AddString(_T("\n"));
 }

@@ -25,6 +25,8 @@ public:
 	BOOL ResetD3DDevice(void);
 
 	void DestroyD3DDevice(void);
+
+	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 };
 
 extern CMainApp theApp;

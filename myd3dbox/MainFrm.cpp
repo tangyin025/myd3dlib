@@ -21,6 +21,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_DESTROY()
+	ON_WM_SETTINGCHANGE()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -40,6 +41,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	OnApplicationLook(theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WIN_2000));
+
+	SetPropListFont();
 
 	EnableDocking(CBRS_ALIGN_ANY);
 
@@ -181,4 +184,30 @@ void CMainFrame::OnDestroy()
 	CFrameWndEx::OnDestroy();
 
 	theApp.DestroyD3DDevice();
+}
+
+void CMainFrame::SetPropListFont()
+{
+	::DeleteObject(m_fntPropList.Detach());
+
+	LOGFONT lf;
+	afxGlobalData.fontRegular.GetLogFont(&lf);
+
+	NONCLIENTMETRICS info;
+	info.cbSize = sizeof(info);
+
+	afxGlobalData.GetNonClientMetrics(info);
+
+	lf.lfHeight = info.lfMenuFont.lfHeight;
+	lf.lfWeight = info.lfMenuFont.lfWeight;
+	lf.lfItalic = info.lfMenuFont.lfItalic;
+
+	m_fntPropList.CreateFontIndirect(&lf);
+}
+
+void CMainFrame::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
+{
+	CFrameWndEx::OnSettingChange(uFlags, lpszSection);
+
+	SetPropListFont();
 }

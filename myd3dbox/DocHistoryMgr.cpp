@@ -141,15 +141,18 @@ void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszMesh)
 {
 	StaticMeshTreeNodePtr node(new StaticMeshTreeNode);
 	node->m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
-	std::vector<std::string>::const_iterator mat_name_iter = node->m_Mesh->m_MaterialNameList.begin();
-	for(; mat_name_iter != node->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	if(node->m_Mesh)
 	{
-		MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
-		node->m_Materials.push_back(StaticMeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-	}
+		std::vector<std::string>::const_iterator mat_name_iter = node->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != node->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
+			node->m_Materials.push_back(StaticMeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+		}
 
-	static unsigned int i = 0;
-	CString strItem;
-	strItem.Format(_T("mesh_%03d"), i++);
-	AddTreeNode(strItem, node);
+		static unsigned int i = 0;
+		CString strItem;
+		strItem.Format(_T("mesh_%03d"), i++);
+		AddTreeNode(strItem, node);
+	}
 }

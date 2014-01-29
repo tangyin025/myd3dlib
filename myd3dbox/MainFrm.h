@@ -14,6 +14,8 @@ public:
 
 	UINT  m_nAppLook;
 
+	CFont m_fntPropList;
+
 	CMFCMenuBar m_wndMenuBar;
 
 	CMFCToolBar m_wndToolBar;
@@ -37,4 +39,8 @@ public:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 
 	afx_msg void OnDestroy();
+
+	void SetPropListFont();
+
+	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
 };
