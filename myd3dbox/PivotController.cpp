@@ -9,7 +9,7 @@ const float PivotController::MovePivotHeight = 1.0f;
 
 const float PivotController::MovePivotOffset = 3.0f;
 
-const float PivotController::RotationPivotRadius = 5.0f;
+const float PivotController::RotationPivotRadius = MovePivotOffset + MovePivotHeight + MovePivotRadius;
 
 const D3DCOLOR PivotController::PivotAxisXColor = D3DCOLOR_ARGB(255,255,0,0);
 
@@ -193,7 +193,7 @@ BOOL PivotController::OnRotationControllerButtonDown(const std::pair<my::Vector3
 	m_DragAxis = DragAxisNone;
 	if(res.first)
 	{
-		Vector3 k = ray.first + ray.second * res.second;
+		Vector3 k = (ray.first + ray.second * res.second).transformCoord(InvWorld);
 		if(k.x <= MovePivotRadius && k.x >= -MovePivotRadius)
 		{
 			m_DragAxis = DragAxisX;
