@@ -129,7 +129,7 @@ BOOL CMainView::ResetD3DSwapChain(void)
 
 	m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 	m_Camera.OnFrameMove(0, 0);
-	m_PivotController.UpdateViewInfo(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+	m_PivotController.UpdateViewTranslation(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 
 	return TRUE;
 }
@@ -251,8 +251,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
-
-	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
 
 	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
@@ -388,7 +386,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera.m_Rotation.y -= D3DXToRadian((point.x - m_Camera.m_DragPos.x) * 0.5f);
 		m_Camera.m_DragPos = point;
 		m_Camera.OnFrameMove(0,0);
-		m_PivotController.UpdateViewInfo(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+		m_PivotController.UpdateViewTranslation(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 		Invalidate();
 		break;
 
@@ -398,7 +396,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 			(point.y - m_Camera.m_DragPos.y) * m_Camera.m_Proj._11 * m_Camera.m_Distance * 0.001f, 0).transform(m_Camera.m_Orientation);
 		m_Camera.m_DragPos = point;
 		m_Camera.OnFrameMove(0,0);
-		m_PivotController.UpdateViewInfo(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+		m_PivotController.UpdateViewTranslation(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 		Invalidate();
 		break;
 
@@ -406,7 +404,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
 		m_Camera.m_DragPos = point;
 		m_Camera.OnFrameMove(0,0);
-		m_PivotController.UpdateViewInfo(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+		m_PivotController.UpdateViewTranslation(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 		Invalidate();
 		break;
 
@@ -418,7 +416,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 			std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
 			if(m_PivotController.OnMouseMove(ray))
 			{
-				m_PivotController.UpdateViewInfo(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+				m_PivotController.UpdateViewTranslation(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 				Invalidate();
 			}
 		}
