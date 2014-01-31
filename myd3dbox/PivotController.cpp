@@ -79,8 +79,8 @@ void PivotController::BuildCircleVertices(VertexList & vertex_list, const float 
 void PivotController::UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth)
 {
 	const Vector4 ViewPos = m_Position.transform(ViewProj);
-	const float ViewScale = ViewPos.z / 25.0f * 800.0f / ViewWidth;
-	m_World = Matrix4::RotationQuaternion(m_Rotation) * Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_Position);
+	m_ViewScale = ViewPos.z / 25.0f * 800.0f / ViewWidth;
+	m_World = Matrix4::RotationQuaternion(m_Rotation) * Matrix4::Scaling(m_ViewScale,m_ViewScale,m_ViewScale) * Matrix4::Translation(m_Position);
 }
 
 void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
@@ -130,17 +130,17 @@ void PivotController::DrawRotationController(IDirect3DDevice9 * pd3dDevice, cons
 {
 	VertexList vertex_list;
 	Quaternion quat_to_camera = Quaternion::RotationFromTo(Vector3::unitX, camera->m_Position - m_Position);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, PivotGrayAxisColor, Matrix4::RotationQuaternion(quat_to_camera), camera->m_Position, 1.0f);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position, 0.0f);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position, 0.0f);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position, 0.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, PivotGrayAxisColor, Matrix4::RotationQuaternion(quat_to_camera) * Matrix4::Scaling(m_ViewScale,m_ViewScale,m_ViewScale) * Matrix4::Translation(m_Position), camera->m_Position, 1.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, m_World, camera->m_Position, 0.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y * m_World, camera->m_Position, 0.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z * m_World, camera->m_Position, 0.0f);
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
 	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
-	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity);
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 2, &vertex_list[0], sizeof(vertex_list[0]));
 
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
@@ -194,27 +194,31 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 BOOL PivotController::OnRotationControllerButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
 {
 	Matrix4 InvWorld = m_World.inverse();
-	IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(ray.first.transformCoord(InvWorld), ray.second.transformNormal(InvWorld), Vector3::zero, RotationPivotRadius);
+	std::pair<Vector3, Vector3> locRay(ray.first.transformCoord(InvWorld), ray.second.transformNormal(InvWorld));
+	IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(locRay.first, locRay.second, Vector3::zero, RotationPivotRadius);
 	m_DragAxis = DragAxisNone;
 	if(res.first)
 	{
-		Vector3 k = (ray.first + ray.second * res.second).transformCoord(InvWorld);
+		Vector3 k = locRay.first + locRay.second * res.second;
 		if(k.x <= MovePivotRadius && k.x >= -MovePivotRadius)
 		{
 			m_DragAxis = DragAxisX;
-			m_DragPos = k;
+			m_DragPt = k;
+			m_DragRot = m_Rotation;
 			return TRUE;
 		}
 		else if(k.y <= MovePivotRadius && k.y >= -MovePivotRadius)
 		{
 			m_DragAxis = DragAxisY;
-			m_DragPos = k;
+			m_DragPt = k;
+			m_DragRot = m_Rotation;
 			return TRUE;
 		}
 		else if(k.z <= MovePivotRadius && k.z >= -MovePivotRadius)
 		{
 			m_DragAxis = DragAxisZ;
-			m_DragPos = k;
+			m_DragPt = k;
+			m_DragRot = m_Rotation;
 			return TRUE;
 		}
 	}
@@ -239,6 +243,34 @@ BOOL PivotController::OnMoveControllerMouseMove(const std::pair<my::Vector3, my:
 			m_Position = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
 			return TRUE;
 		}
+	}
+	return FALSE;
+}
+
+BOOL PivotController::OnRotationControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	Matrix4 World = Matrix4::RotationQuaternion(m_DragRot) * Matrix4::Scaling(m_ViewScale,m_ViewScale,m_ViewScale) * Matrix4::Translation(m_Position);
+	Matrix4 InvWorld = World.inverse();
+	std::pair<Vector3, Vector3> locRay(ray.first.transformCoord(InvWorld), ray.second.transformNormal(InvWorld));
+	IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(locRay.first, locRay.second, Vector3::zero, RotationPivotRadius);
+	Vector3 k;
+	if(res.first)
+	{
+		k = locRay.first + locRay.second * res.second;
+	}
+	else
+		k = locRay.first - locRay.second.normalize() * locRay.first.dot(locRay.second.normalize());
+	switch(m_DragAxis)
+	{
+	case DragAxisX:
+		m_Rotation = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z)) * m_DragRot;
+		return TRUE;
+	case DragAxisY:
+		m_Rotation = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z)) * m_DragRot;
+		return TRUE;
+	case DragAxisZ:
+		m_Rotation = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0)) * m_DragRot;
+		return TRUE;
 	}
 	return FALSE;
 }
@@ -278,7 +310,7 @@ BOOL PivotController::OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ra
 		return OnMoveControllerMouseMove(ray);
 
 	case PivotModeRotation:
-		return FALSE;
+		return OnRotationControllerMouseMove(ray);
 	}
 	return FALSE;
 }

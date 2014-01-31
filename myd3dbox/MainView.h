@@ -133,8 +133,12 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+
 	afx_msg void OnTransformMove();
+
 	afx_msg void OnUpdateTransformMove(CCmdUI *pCmdUI);
+
 	afx_msg void OnTransformRotate();
+
 	afx_msg void OnUpdateTransformRotate(CCmdUI *pCmdUI);
-	};
+};

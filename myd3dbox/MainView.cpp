@@ -252,6 +252,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
 
+	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
+
 	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
 	return 0;
