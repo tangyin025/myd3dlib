@@ -346,31 +346,28 @@ namespace my
 		const Vector3 & pos,
 		const Vector3 & dir,
 		const float cylinderRadius,
-		const float cylinderHeight,
-		const Matrix4 & invCylinderTransform)
+		const float cylinderHeight)
 	{
-		Vector3 p = pos.transform(invCylinderTransform).xyz;
-		Vector3 d = dir.transformNormal(invCylinderTransform);
-		float a = d.y * d.y + d.z * d.z;
-		float b = 2 * d.y * p.y + 2 * d.z * p.z;
-		float c = p.y * p.y + p.z * p.z - cylinderRadius * cylinderRadius;
-		float discrm = b * b - 4 * a * c;
+		const float a = dir.y * dir.y + dir.z * dir.z;
+		const float b = 2 * dir.y * pos.y + 2 * dir.z * pos.z;
+		const float c = pos.y * pos.y + pos.z * pos.z - cylinderRadius * cylinderRadius;
+		const float discrm = b * b - 4 * a * c;
 		float t[4];
 		Vector3 k[4];
 		bool v[4];
 		if(discrm > 0)
 		{
 			t[0] = (-b + sqrt(discrm)) / (2 * a);
-			k[0] = p + d * t[0];
+			k[0] = pos + dir * t[0];
 			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
 			t[1] = (-b - sqrt(discrm)) / (2 * a);
-			k[1] = p + d * t[1];
+			k[1] = pos + dir * t[1];
 			v[1] = (k[1].x >= 0 && k[1].x <= cylinderHeight);
-			t[2] = (0 - p.x) / d.x;
-			k[2] = p + d * t[2];
+			t[2] = (0 - pos.x) / dir.x;
+			k[2] = pos + dir * t[2];
 			v[2] = (k[2].yz.dot(k[2].yz) <= cylinderRadius * cylinderRadius);
-			t[3] = (cylinderHeight - p.x) / d.x;
-			k[3] = p + d * t[3];
+			t[3] = (cylinderHeight - pos.x) / dir.x;
+			k[3] = pos + dir * t[3];
 			v[3] = (k[3].yz.dot(k[3].yz) <= cylinderRadius * cylinderRadius);
 			float min_t = FLT_MAX;
 			for(int i = 0; i < 4; i++)
@@ -385,9 +382,34 @@ namespace my
 		else if(discrm == 0)
 		{
 			t[0] = -b / (2 * a);
-			k[0] = p + d * t[0];
+			k[0] = pos + dir * t[0];
 			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
 			return TestResult(v[0], t[0]);
+		}
+		return TestResult(false, FLT_MAX);
+	}
+
+	IntersectionTests::TestResult IntersectionTests::rayAndSphere(
+		const Vector3 & pos,
+		const Vector3 & dir,
+		const Vector3 & sphereCenter,
+		const float sphereRadius)
+	{
+		const Vector3 minusC = pos - sphereCenter;
+		const float a = dir.dot(dir);
+		const float b = 2 * dir.dot(minusC);
+		const float c = minusC.dot(minusC) - sphereRadius * sphereRadius;
+		const float discrm = b * b - 4 * a * c;
+		float t[2];
+		if(discrm > 0)
+		{
+			t[0] = (-b + sqrt(discrm)) / (2 * a);
+			t[1] = (-b - sqrt(discrm)) / (2 * a);
+			return TestResult(true, std::min(t[0], t[1]));
+		}
+		else if(discrm == 0)
+		{
+			return TestResult(true, -b / (2 * a));
 		}
 		return TestResult(false, FLT_MAX);
 	}

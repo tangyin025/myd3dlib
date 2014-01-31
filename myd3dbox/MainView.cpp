@@ -125,8 +125,6 @@ BOOL CMainView::ResetD3DSwapChain(void)
 
 	m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 	m_Camera.OnFrameMove(0, 0);
-
-	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
 	m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 
 	return TRUE;
@@ -249,6 +247,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
+
+	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
 
 	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 

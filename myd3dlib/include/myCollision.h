@@ -514,12 +514,18 @@ namespace my
 			const Vector3 & planeNormal,
 			float planeDist);
 
+		// ! the returned second matched un-normalized ray
+		static TestResult rayAndSphere(
+			const Vector3 & pos,
+			const Vector3 & dir,
+			const Vector3 & sphereCenter,
+			const float sphereRadius);
+
 		static TestResult rayAndCylinder(
 			const Vector3 & pos,
 			const Vector3 & dir,
 			const float cylinderRadius,
-			const float cylinderHeight,
-			const Matrix4 & invCylinderTransform); // Note: Z Axis Cylinder
+			const float cylinderHeight); // Note: Z Axis Cylinder
 
 		static Vector3 calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
 

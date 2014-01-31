@@ -3,11 +3,13 @@
 class PivotController
 {
 public:
-	static const float PivotRadius;
+	static const float MovePivotRadius;
 
-	static const float PivotHeight;
+	static const float MovePivotHeight;
 
-	static const float PivotOffset;
+	static const float MovePivotOffset;
+
+	static const float RotationPivotRadius;
 
 	static const D3DCOLOR PivotAxisXColor;
 
@@ -96,6 +98,8 @@ public:
 	void DrawRotationController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
 
 	BOOL OnMoveControllerLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray);
+
+	BOOL OnRotationControllerButtonDown(const std::pair<my::Vector3, my::Vector3> & ray);
 
 	BOOL OnMoveControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray);
 

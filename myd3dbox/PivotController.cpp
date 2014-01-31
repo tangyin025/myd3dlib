@@ -3,11 +3,13 @@
 
 using namespace my;
 
-const float PivotController::PivotRadius = 0.25f;
+const float PivotController::MovePivotRadius = 0.25f;
 
-const float PivotController::PivotHeight = 1.0f;
+const float PivotController::MovePivotHeight = 1.0f;
 
-const float PivotController::PivotOffset = 3.0f;
+const float PivotController::MovePivotOffset = 3.0f;
+
+const float PivotController::RotationPivotRadius = 5.0f;
 
 const D3DCOLOR PivotController::PivotAxisXColor = D3DCOLOR_ARGB(255,255,0,0);
 
@@ -81,9 +83,9 @@ void PivotController::UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth)
 void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
 	VertexList vertex_list;
-	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity);
-	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y);
-	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z);
+	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity);
+	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y);
+	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z);
 
 	D3DLIGHT9 light;
 	ZeroMemory(&light, sizeof(light));
@@ -104,11 +106,11 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my
 
 	vertex_list.clear();
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor));
-	vertex_list.push_back(Vertex(Vector3(PivotOffset,0,0),Vector3(1,1,1),m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor));
+	vertex_list.push_back(Vertex(Vector3(MovePivotOffset,0,0),Vector3(1,1,1),m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor));
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor));
-	vertex_list.push_back(Vertex(Vector3(0,PivotOffset,0),Vector3(1,1,1),m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor));
+	vertex_list.push_back(Vertex(Vector3(0,MovePivotOffset,0),Vector3(1,1,1),m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor));
 	vertex_list.push_back(Vertex(Vector3(0,0,0),Vector3(1,1,1),m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor));
-	vertex_list.push_back(Vertex(Vector3(0,0,PivotOffset),Vector3(1,1,1),m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor));
+	vertex_list.push_back(Vertex(Vector3(0,0,MovePivotOffset),Vector3(1,1,1),m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor));
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -124,9 +126,9 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my
 void PivotController::DrawRotationController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
 	VertexList vertex_list;
-	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position);
-	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position);
-	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position);
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -141,11 +143,14 @@ void PivotController::DrawRotationController(IDirect3DDevice9 * pd3dDevice, cons
 
 BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
 {
+	Matrix4 InvToXWorld = m_World.inverse();
+	Matrix4 InvToYWorld = (mat_to_y * m_World).inverse();
+	Matrix4 InvToZWorld = (mat_to_z * m_World).inverse();
 	IntersectionTests::TestResult res[3] =
 	{
-		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, m_World.inverse()),
-		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, (mat_to_y * m_World).inverse()),
-		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, (mat_to_z * m_World).inverse()),
+		IntersectionTests::rayAndCylinder(ray.first.transformCoord(InvToXWorld), ray.second.transformNormal(InvToXWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
+		IntersectionTests::rayAndCylinder(ray.first.transformCoord(InvToYWorld), ray.second.transformNormal(InvToYWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
+		IntersectionTests::rayAndCylinder(ray.first.transformCoord(InvToZWorld), ray.second.transformNormal(InvToZWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
 	};
 	m_DragAxis = DragAxisNone;
 	float minT = FLT_MAX;
@@ -177,6 +182,36 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 		m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
 		m_DragDist = -m_DragPt.dot(m_DragNormal);
 		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL PivotController::OnRotationControllerButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	Matrix4 InvWorld = m_World.inverse();
+	IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(ray.first.transformCoord(InvWorld), ray.second.transformNormal(InvWorld), Vector3::zero, RotationPivotRadius);
+	m_DragAxis = DragAxisNone;
+	if(res.first)
+	{
+		Vector3 k = ray.first + ray.second * res.second;
+		if(k.x <= MovePivotRadius && k.x >= -MovePivotRadius)
+		{
+			m_DragAxis = DragAxisX;
+			m_DragPos = k;
+			return TRUE;
+		}
+		else if(k.y <= MovePivotRadius && k.y >= -MovePivotRadius)
+		{
+			m_DragAxis = DragAxisY;
+			m_DragPos = k;
+			return TRUE;
+		}
+		else if(k.z <= MovePivotRadius && k.z >= -MovePivotRadius)
+		{
+			m_DragAxis = DragAxisZ;
+			m_DragPos = k;
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
@@ -225,7 +260,7 @@ BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & 
 		return OnMoveControllerLButtonDown(ray);
 
 	case PivotModeRotation:
-		return FALSE;
+		return OnRotationControllerButtonDown(ray);
 	}
 	return FALSE;
 }
