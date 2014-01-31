@@ -17,63 +17,73 @@ const D3DCOLOR PivotController::PivotAxisZColor = D3DCOLOR_ARGB(255,0,0,255);
 
 const D3DCOLOR PivotController::PivotDragAxisColor = D3DCOLOR_ARGB(255,255,255,0);
 
-void PivotController::BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color)
+const D3DCOLOR PivotController::PivotGrayAxisColor = D3DCOLOR_ARGB(255,97,97,97);
+
+const Matrix4 PivotController::mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
+
+const Matrix4 PivotController::mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+
+void PivotController::BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color, const my::Matrix4 & Transform)
 {
 	for(int theta = 0; theta < 360; theta += 30)
 	{
 		vertex_list.push_back(Vertex(
-			Vector3(offset+height, 0, 0),
-			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta)), (radius+height)*sin(D3DXToRadian(theta))).normalize(),
+			Vector3(offset+height, 0, 0).transformCoord(Transform),
+			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta)), (radius+height)*sin(D3DXToRadian(theta))).normalize().transformNormal(Transform),
 			color));
 		vertex_list.push_back(Vertex(
-			Vector3(offset, radius*cos(D3DXToRadian(theta)), radius*sin(D3DXToRadian(theta))),
-			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta)), (radius+height)*sin(D3DXToRadian(theta))).normalize(),
+			Vector3(offset, radius*cos(D3DXToRadian(theta)), radius*sin(D3DXToRadian(theta))).transformCoord(Transform),
+			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta)), (radius+height)*sin(D3DXToRadian(theta))).normalize().transformNormal(Transform),
 			color));
 		vertex_list.push_back(Vertex(
-			Vector3(offset, radius*cos(D3DXToRadian(theta+30)), radius*sin(D3DXToRadian(theta+30))),
-			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta+30)), (radius+height)*sin(D3DXToRadian(theta+30))).normalize(),
+			Vector3(offset, radius*cos(D3DXToRadian(theta+30)), radius*sin(D3DXToRadian(theta+30))).transformCoord(Transform),
+			Vector3(radius, (radius+height)*cos(D3DXToRadian(theta+30)), (radius+height)*sin(D3DXToRadian(theta+30))).normalize().transformNormal(Transform),
 			color));
 
 		vertex_list.push_back(Vertex(
-			Vector3(offset, 0, 0),
-			Vector3(-1,0,0),
+			Vector3(offset, 0, 0).transformCoord(Transform),
+			Vector3(-1,0,0).transformNormal(Transform),
 			color));
 		vertex_list.push_back(Vertex(
-			Vector3(offset, radius*cos(D3DXToRadian(theta+30)), radius*sin(D3DXToRadian(theta+30))),
-			Vector3(-1,0,0),
+			Vector3(offset, radius*cos(D3DXToRadian(theta+30)), radius*sin(D3DXToRadian(theta+30))).transformCoord(Transform),
+			Vector3(-1,0,0).transformNormal(Transform),
 			color));
 		vertex_list.push_back(Vertex(
-			Vector3(offset, radius*cos(D3DXToRadian(theta)), radius*sin(D3DXToRadian(theta))),
-			Vector3(-1,0,0),
+			Vector3(offset, radius*cos(D3DXToRadian(theta)), radius*sin(D3DXToRadian(theta))).transformCoord(Transform),
+			Vector3(-1,0,0).transformNormal(Transform),
 			color));
+	}
+}
+
+void PivotController::BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos)
+{
+	for(int theta = 0; theta < 360; theta += 10)
+	{
+		Vector3 p0 = Vector3(0, radius*cos(D3DXToRadian(theta)), radius*sin(D3DXToRadian(theta))).transformCoord(Transform);
+		Vector3 n0 = p0.normalize();
+		Vector3 d0 = (p0 - ViewPos).normalize();
+		Vector3 p1 = Vector3(0, radius*cos(D3DXToRadian(theta+10)), radius*sin(D3DXToRadian(theta+10))).transformCoord(Transform);
+		Vector3 n1 = p1.normalize();
+		Vector3 d1 = (p1 - ViewPos).normalize();
+
+		vertex_list.push_back(Vertex(p0, n0, (n0.dot(d0) <= 0.233f || n1.dot(d1) <= 0.233f) ? color : PivotGrayAxisColor));
+		vertex_list.push_back(Vertex(p1, n1, (n0.dot(d0) <= 0.233f || n1.dot(d1) <= 0.233f) ? color : PivotGrayAxisColor));
 	}
 }
 
 void PivotController::UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth)
 {
-	const Vector4 ViewPos = m_Pos.transform(ViewProj);
+	const Vector4 ViewPos = m_Position.transform(ViewProj);
 	const float ViewScale = ViewPos.z / 25.0f * 800.0f / ViewWidth;
-	m_World = Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_Pos);
+	m_World = Matrix4::RotationQuaternion(m_Rotation) * Matrix4::Scaling(ViewScale,ViewScale,ViewScale) * Matrix4::Translation(m_Position);
 }
 
-void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
+void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
 	VertexList vertex_list;
-	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor);
-
-	size_t vertex_list_size = vertex_list.size();
-	vertex_list.resize(vertex_list_size * 3);
-	static const Quaternion quat_to_y = Quaternion::RotationFromTo(Vector3(1,0,0), Vector3(0,1,0));
-	static const Quaternion quat_to_z = Quaternion::RotationFromTo(Vector3(1,0,0), Vector3(0,0,1));
-	for(size_t i = 0; i < vertex_list_size; i++)
-	{
-		vertex_list[i + vertex_list_size * 1].pos = vertex_list[i].pos.transform(quat_to_y);
-		vertex_list[i + vertex_list_size * 2].pos = vertex_list[i].pos.transform(quat_to_z);
-		vertex_list[i + vertex_list_size * 1].normal = vertex_list[i].normal.transform(quat_to_y);
-		vertex_list[i + vertex_list_size * 2].normal = vertex_list[i].normal.transform(quat_to_z);
-		vertex_list[i + vertex_list_size * 1].color = m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor;
-		vertex_list[i + vertex_list_size * 2].color = m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor;
-	}
+	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity);
+	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y);
+	BuildConeVertices(vertex_list, PivotRadius, PivotHeight, PivotOffset, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z);
 
 	D3DLIGHT9 light;
 	ZeroMemory(&light, sizeof(light));
@@ -111,10 +121,26 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 }
 
-BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
+void PivotController::DrawRotationController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
-	static const Matrix4 mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
-	static const Matrix4 mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+	VertexList vertex_list;
+	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position);
+	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position);
+	BuildCircleVertices(vertex_list, 5.0f, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position);
+
+	pd3dDevice->LightEnable(0, FALSE);
+	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetRenderState(D3DRS_NORMALIZENORMALS, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 2, &vertex_list[0], sizeof(vertex_list[0]));
+
+	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+}
+
+BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
+{
 	IntersectionTests::TestResult res[3] =
 	{
 		IntersectionTests::rayAndCylinder(ray.first, ray.second, PivotRadius * 2, PivotHeight + PivotOffset, m_World.inverse()),
@@ -134,19 +160,19 @@ BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & 
 	switch(m_DragAxis)
 	{
 	case DragAxisX:
-		m_DragPos = m_Pos;
+		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitX.cross(Vector3::unitX.cross(ray.second)).normalize();
 		m_DragDist = -m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	case DragAxisY:
-		m_DragPos = m_Pos;
+		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitY.cross(Vector3::unitY.cross(ray.second)).normalize();
 		m_DragDist = -m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	case DragAxisZ:
-		m_DragPos = m_Pos;
+		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
 		m_DragDist = -m_DragPt.dot(m_DragNormal);
@@ -155,7 +181,7 @@ BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & 
 	return FALSE;
 }
 
-BOOL PivotController::OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
+BOOL PivotController::OnMoveControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
 {
 	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, m_DragNormal, m_DragDist);
 	if(res.first)
@@ -164,15 +190,55 @@ BOOL PivotController::OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ra
 		switch(m_DragAxis)
 		{
 		case DragAxisX:
-			m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
+			m_Position = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
 			return TRUE;
 		case DragAxisY:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
+			m_Position = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
 			return TRUE;
 		case DragAxisZ:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+			m_Position = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
 			return TRUE;
 		}
+	}
+	return FALSE;
+}
+
+void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
+{
+	switch(m_PovitMode)
+	{
+	case PivotModeMove:
+		DrawMoveController(pd3dDevice, camera);
+		break;
+
+	case PivotModeRotation:
+		DrawRotationController(pd3dDevice, camera);
+		break;
+	}
+}
+
+BOOL PivotController::OnLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	switch(m_PovitMode)
+	{
+	case PivotModeMove:
+		return OnMoveControllerLButtonDown(ray);
+
+	case PivotModeRotation:
+		return FALSE;
+	}
+	return FALSE;
+}
+
+BOOL PivotController::OnMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
+{
+	switch(m_PovitMode)
+	{
+	case PivotModeMove:
+		return OnMoveControllerMouseMove(ray);
+
+	case PivotModeRotation:
+		return FALSE;
 	}
 	return FALSE;
 }

@@ -125,6 +125,8 @@ BOOL CMainView::ResetD3DSwapChain(void)
 
 	m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 	m_Camera.OnFrameMove(0, 0);
+
+	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
 	m_PivotController.UpdateWorld(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
 
 	return TRUE;

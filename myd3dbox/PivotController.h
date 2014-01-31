@@ -17,9 +17,25 @@ public:
 
 	static const D3DCOLOR PivotDragAxisColor;
 
-	my::Vector3 m_Pos;
+	static const D3DCOLOR PivotGrayAxisColor;
+
+	static const my::Matrix4 mat_to_y;
+
+	static const my::Matrix4 mat_to_z;
+
+	my::Vector3 m_Position;
+
+	my::Quaternion m_Rotation;
 
 	my::Matrix4 m_World;
+
+	enum PivotMode
+	{
+		PivotModeMove,
+		PivotModeRotation,
+	};
+
+	PivotMode m_PovitMode;
 
 	enum DragAxis
 	{
@@ -41,8 +57,10 @@ public:
 
 public:
 	PivotController(void)
-		: m_DragAxis(DragAxisNone)
-		, m_Pos(0,0,0)
+		: m_PovitMode(PivotModeMove)
+		, m_DragAxis(DragAxisNone)
+		, m_Position(0,0,0)
+		, m_Rotation(my::Quaternion::Identity())
 		, m_World(my::Matrix4::Identity())
 	{
 	}
@@ -67,9 +85,19 @@ public:
 
 	typedef std::vector<Vertex> VertexList;
 
-	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color);
+	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color, const my::Matrix4 & Transform);
+
+	void BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos);
 
 	void UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth);
+
+	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
+
+	void DrawRotationController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
+
+	BOOL OnMoveControllerLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray);
+
+	BOOL OnMoveControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
 
