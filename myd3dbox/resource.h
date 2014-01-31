@@ -4,7 +4,7 @@
 //
 #define IDR_MAINFRAME                   101
 #define ID_VIEW_OUTLINER                102
-#define ID_VIEW_OUTPUT					103
+#define ID_VIEW_OUTPUT                  103
 #define ID_VIEW_PROPERTIESWND           104
 #define IDR_TOOLBAR1                    105
 #define IDR_TOOLBAR2                    106
@@ -22,13 +22,15 @@
 #define ID_CREATE_STATICMESH            40012
 #define ID_EXPAND_ALL                   40013
 #define ID_SORTPROPERTIES               40014
+#define ID_TRANSFORM_MOVE               40015
+#define ID_TRANSFORM_ROTATE             40016
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        106
-#define _APS_NEXT_COMMAND_VALUE         40015
+#define _APS_NEXT_RESOURCE_VALUE        107
+#define _APS_NEXT_COMMAND_VALUE         40017
 #define _APS_NEXT_CONTROL_VALUE         1001
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

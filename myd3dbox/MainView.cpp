@@ -85,6 +85,10 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_WM_KEYDOWN()
+	ON_COMMAND(ID_TRANSFORM_MOVE, &CMainView::OnTransformMove)
+	ON_UPDATE_COMMAND_UI(ID_TRANSFORM_MOVE, &CMainView::OnUpdateTransformMove)
+	ON_COMMAND(ID_TRANSFORM_ROTATE, &CMainView::OnTransformRotate)
+	ON_UPDATE_COMMAND_UI(ID_TRANSFORM_ROTATE, &CMainView::OnUpdateTransformRotate)
 END_MESSAGE_MAP()
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -247,8 +251,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
-
-	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
 
 	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
@@ -444,4 +446,26 @@ void CMainView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	CView::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CMainView::OnTransformMove()
+{
+	m_PivotController.m_PovitMode = PivotController::PivotModeMove;
+	Invalidate();
+}
+
+void CMainView::OnUpdateTransformMove(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_PivotController.m_PovitMode == PivotController::PivotModeMove ? 1 : 0);
+}
+
+void CMainView::OnTransformRotate()
+{
+	m_PivotController.m_PovitMode = PivotController::PivotModeRotation;
+	Invalidate();
+}
+
+void CMainView::OnUpdateTransformRotate(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_PivotController.m_PovitMode == PivotController::PivotModeRotation ? 1 : 0);
 }

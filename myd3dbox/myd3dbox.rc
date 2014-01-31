@@ -84,6 +84,9 @@ BEGIN
         MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
         MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
         MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Move Tool",                   ID_TRANSFORM_MOVE
+        MENUITEM "Rotate Tool",                 ID_TRANSFORM_ROTATE
     END
     POPUP "&Create"
     BEGIN
@@ -139,6 +142,9 @@ BEGIN
     SEPARATOR
     BUTTON      ID_FILE_PRINT
     BUTTON      ID_APP_ABOUT
+    SEPARATOR
+    BUTTON      ID_TRANSFORM_MOVE
+    BUTTON      ID_TRANSFORM_ROTATE
 END
 
 IDR_TOOLBAR1 TOOLBAR  16, 15
