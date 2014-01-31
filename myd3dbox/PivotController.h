@@ -29,9 +29,9 @@ public:
 
 	my::Quaternion m_Rotation;
 
-	float m_ViewScale;
+	my::Vector4 m_ViewPos;
 
-	my::Matrix4 m_World;
+	float m_ViewScale;
 
 	enum PivotMode
 	{
@@ -67,8 +67,6 @@ public:
 		, m_DragAxis(DragAxisNone)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
-		, m_ViewScale(1)
-		, m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -96,7 +94,7 @@ public:
 
 	void BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos, const float discrm);
 
-	void UpdateWorld(const my::Matrix4 & ViewProj, UINT ViewWidth);
+	void UpdateViewInfo(const my::Matrix4 & ViewProj, UINT ViewWidth);
 
 	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
 
