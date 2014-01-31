@@ -153,7 +153,7 @@ void CMainView::OnFrameRender(
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 	V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
 	V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{

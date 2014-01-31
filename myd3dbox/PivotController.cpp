@@ -19,7 +19,7 @@ const D3DCOLOR PivotController::PivotAxisZColor = D3DCOLOR_ARGB(255,0,0,255);
 
 const D3DCOLOR PivotController::PivotDragAxisColor = D3DCOLOR_ARGB(255,255,255,0);
 
-const D3DCOLOR PivotController::PivotGrayAxisColor = D3DCOLOR_ARGB(255,97,97,97);
+const D3DCOLOR PivotController::PivotGrayAxisColor = D3DCOLOR_ARGB(255,127,127,127);
 
 const Matrix4 PivotController::mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
 
