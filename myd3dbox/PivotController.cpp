@@ -57,7 +57,7 @@ void PivotController::BuildConeVertices(VertexList & vertex_list, const float ra
 	}
 }
 
-void PivotController::BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos)
+void PivotController::BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos, const float discrm)
 {
 	for(int theta = 0; theta < 360; theta += 10)
 	{
@@ -68,8 +68,11 @@ void PivotController::BuildCircleVertices(VertexList & vertex_list, const float 
 		Vector3 n1 = p1.normalize();
 		Vector3 d1 = (p1 - ViewPos).normalize();
 
-		vertex_list.push_back(Vertex(p0, n0, (n0.dot(d0) <= 0.233f || n1.dot(d1) <= 0.233f) ? color : PivotGrayAxisColor));
-		vertex_list.push_back(Vertex(p1, n1, (n0.dot(d0) <= 0.233f || n1.dot(d1) <= 0.233f) ? color : PivotGrayAxisColor));
+		if(n0.dot(d0) <= discrm || n1.dot(d1) <= discrm)
+		{
+			vertex_list.push_back(Vertex(p0, n0, color));
+			vertex_list.push_back(Vertex(p1, n1, color));
+		}
 	}
 }
 
@@ -126,9 +129,11 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my
 void PivotController::DrawRotationController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
 {
 	VertexList vertex_list;
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position);
-	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position);
+	Quaternion quat_to_camera = Quaternion::RotationFromTo(Vector3::unitX, camera->m_Position - m_Position);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, PivotGrayAxisColor, Matrix4::RotationQuaternion(quat_to_camera), camera->m_Position, 1.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisX ? PivotDragAxisColor : PivotAxisXColor, Matrix4::identity, camera->m_Position, 0.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisY ? PivotDragAxisColor : PivotAxisYColor, mat_to_y, camera->m_Position, 0.0f);
+	BuildCircleVertices(vertex_list, RotationPivotRadius, m_DragAxis == DragAxisZ ? PivotDragAxisColor : PivotAxisZColor, mat_to_z, camera->m_Position, 0.0f);
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
