@@ -1447,7 +1447,12 @@ namespace my
 			return Quaternion(v.x * s, v.y * s, v.z * s, c);
 		}
 
-		static Quaternion RotationMatrix(const Matrix4 & m);
+		static Quaternion RotationMatrix(const Matrix4 & m)
+		{
+			Quaternion ret;
+			D3DXQuaternionRotationMatrix((D3DXQUATERNION *)&ret, (D3DXMATRIX *)&m);
+			return ret;
+		}
 
 		static Quaternion RotationYawPitchRoll(float yaw, float pitch, float roll)
 		{

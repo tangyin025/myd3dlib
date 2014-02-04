@@ -187,13 +187,6 @@ const Vector4 Vector4::unitZ(0, 0, 1, 0);
 
 const Vector4 Vector4::unitW(0, 0, 0, 1);
 
-Quaternion Quaternion::RotationMatrix(const Matrix4 & m)
-{
-	Quaternion ret;
-	D3DXQuaternionRotationMatrix((D3DXQUATERNION *)&ret, (D3DXMATRIX *)&m);
-	return ret;
-}
-
 const Quaternion Quaternion::identity(Quaternion::Identity());
 
 Vector4 & Matrix4::operator [](size_t i)
