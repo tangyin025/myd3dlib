@@ -59,6 +59,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Opcode", "Opcode\Opcode.vcproj", "{DBE44CA3-2912-4441-8D99-AA2242688AD2}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgRegion.vcproj", "{1A350FC9-BBE6-454A-9D01-EE69ADB76F7C}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1F5CF866-21B8-4F4B-B9D1-6159003E468F} = {1F5CF866-21B8-4F4B-B9D1-6159003E468F}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
