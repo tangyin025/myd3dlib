@@ -147,6 +147,7 @@ void CDocHistoryMgr::AddStaticMeshTreeNode(LPCTSTR lpszMesh)
 		for(; mat_name_iter != node->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{
 			MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
+			mat = mat ? mat : theApp.m_DefaultMat;
 			node->m_Materials.push_back(StaticMeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
 		}
 

@@ -119,6 +119,19 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		return FALSE;
 	}
 
+	m_DefaultMat.reset(new my::Material());
+	if(!(m_DefaultMat->m_DiffuseTexture = LoadTexture("texture/Checker.bmp")))
+	{
+		TRACE("cannot load default texture/Checker.bmp");
+		return FALSE;
+	}
+
+	if(!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", my::EffectMacroPairList())))
+	{
+		TRACE("cannot load default shader/SimpleSample.fx");
+		return FALSE;
+	}
+
 	m_DeviceObjectsCreated = true;
 
 	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))

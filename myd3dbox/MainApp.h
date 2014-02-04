@@ -18,6 +18,10 @@ public:
 	DECLARE_MESSAGE_MAP()
 
 public:
+	my::MaterialPtr m_DefaultMat;
+
+	my::EffectPtr m_SimpleSample;
+
 	virtual BOOL OnIdle(LONG lCount);
 
 	BOOL CreateD3DDevice(HWND hWnd);

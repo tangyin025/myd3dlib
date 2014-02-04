@@ -160,7 +160,7 @@ void CMainView::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+		theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
@@ -251,8 +251,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
 	m_Camera.m_LookAt = Vector3(0,1,0);
 	m_Camera.m_Distance = 20;
-
-	m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
 	return 0;
 }

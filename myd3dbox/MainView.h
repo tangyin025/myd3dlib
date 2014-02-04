@@ -72,8 +72,6 @@ public:
 
 	my::ModelViewerCamera m_Camera;
 
-	my::EffectPtr m_SimpleSample;
-
 	PivotController m_PivotController;
 
 public:
