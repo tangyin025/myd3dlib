@@ -76,7 +76,7 @@ void PivotController::BuildCircleVertices(VertexList & vertex_list, const float 
 	}
 }
 
-void PivotController::UpdateViewTranslation(const my::Matrix4 & ViewProj, UINT ViewWidth)
+void PivotController::UpdateViewTransform(const my::Matrix4 & ViewProj, UINT ViewWidth)
 {
 	const my::Vector4 ViewPos = m_Position.transform(ViewProj);
 	const float ViewScale = ViewPos.z / 25.0f * 800.0f / ViewWidth;

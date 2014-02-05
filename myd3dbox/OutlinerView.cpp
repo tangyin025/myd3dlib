@@ -3,6 +3,7 @@
 #include "OutlinerView.h"
 #include "MainFrm.h"
 #include "MainDoc.h"
+#include "MainView.h"
 
 using namespace my;
 
@@ -336,9 +337,18 @@ void COutlinerView::OnSize(UINT nType, int cx, int cy)
 
 void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	// TODO: Add your control notification handler code here
-	*pResult = 0;
+	LPNMTREEVIEW ptv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
+	if(ptv->action != TVC_UNKNOWN)
+	{
+		if(ptv->itemNew.hItem)
+		{
+			TreeNodeBasePtr node = GetItemNode(ptv->itemNew.hItem);
+			ASSERT(node);
+			CMainView::getSingleton().m_PivotController.m_Position = node->m_Position;
+			CMainView::getSingleton().m_PivotController.m_Rotation = node->m_Rotation;
+			CMainView::getSingleton().m_PivotController.UpdateViewTransform(CMainView::getSingleton().m_Camera.m_ViewProj, CMainView::getSingleton().m_SwapChainBufferDesc.Width);
+		}
+	}
 
 	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
 	ASSERT(pDoc);
@@ -429,6 +439,6 @@ void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTi
 
 	if(m_TreeCtrl.GetNextSiblingItem(hItem))
 	{
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World);
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), World);
 	}
 }

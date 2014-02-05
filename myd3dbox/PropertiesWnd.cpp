@@ -380,7 +380,15 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, (CMFCPropertyGridProperty *)lParam);
 	_ASSERT(pProp);
 	pProp->OnEventChanged();
-	CMainView::getSingleton().Invalidate();
+
+	TreeNodeBasePtr node = COutlinerView::getSingleton().GetSelectedNode();
+	if(node)
+	{
+		CMainView::getSingleton().m_PivotController.m_Position = node->m_Position;
+		CMainView::getSingleton().m_PivotController.m_Rotation = node->m_Rotation;
+		CMainView::getSingleton().m_PivotController.UpdateViewTransform(CMainView::getSingleton().m_Camera.m_ViewProj, CMainView::getSingleton().m_SwapChainBufferDesc.Width);
+		CMainView::getSingleton().Invalidate();
+	}
 	return 0;
 }
 
@@ -393,23 +401,38 @@ LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 	{
 		if(m_wndPropList.GetPropertyCount() > 0)
 		{
-			m_SelectedNode.reset();
-
 			m_wndPropList.RemoveAll();
+
+			m_wndPropList.Invalidate();
+
+			m_SelectedNode.reset();
 		}
 	}
 	else if(node == m_SelectedNode.lock())
 	{
-		//for(int i = 0; i < m_wndPropList.GetPropertyCount(); i++)
-		//{
-		//	CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_wndPropList.GetProperty(i));
-		//	_ASSERT(pProp);
-		//	pProp->OnEventUpdated();
-		//}
+		if(m_bIsPropInvalid)
+		{
+			for(int i = 0; i < m_wndPropList.GetPropertyCount(); i++)
+			{
+				CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_wndPropList.GetProperty(i));
+				_ASSERT(pProp);
+				pProp->OnEventUpdated();
+			}
+
+			m_bIsPropInvalid = FALSE;
+
+			m_wndPropList.Invalidate();
+		}
 	}
 	else
 	{
+		m_wndPropList.RemoveAll();
+
+		m_wndPropList.Invalidate();
+
 		node->SetupProperties(&m_wndPropList);
+
+		m_bIsPropInvalid = TRUE;
 
 		m_SelectedNode = node;
 	}

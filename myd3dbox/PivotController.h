@@ -93,7 +93,7 @@ public:
 
 	void BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos, const float discrm);
 
-	void UpdateViewTranslation(const my::Matrix4 & ViewProj, UINT ViewWidth);
+	void UpdateViewTransform(const my::Matrix4 & ViewProj, UINT ViewWidth);
 
 	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera);
 

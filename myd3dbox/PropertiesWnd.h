@@ -129,20 +129,25 @@ protected:
 
 class TreeNodeBase;
 
-class CPropertiesWnd : public CDockablePane
+class CPropertiesWnd
+	: public CDockablePane
+	, public my::SingleInstance<CPropertiesWnd>
 {
 public:
 	CPropertiesWnd()
+		: m_bIsPropInvalid(TRUE)
 	{
 	}
 
 	DECLARE_MESSAGE_MAP()
-
+public:
 	CMFCToolBar m_wndToolBar;
 
 	CMFCPropertyGridCtrl m_wndPropList;
 
 	boost::weak_ptr<TreeNodeBase> m_SelectedNode;
+
+	BOOL m_bIsPropInvalid;
 
 	void AdjustLayout();
 
