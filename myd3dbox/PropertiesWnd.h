@@ -136,4 +136,6 @@ public:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 
 	afx_msg LRESULT OnPropertyChanged(WPARAM wParam, LPARAM lParam);
+
+	afx_msg LRESULT OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam);
 };

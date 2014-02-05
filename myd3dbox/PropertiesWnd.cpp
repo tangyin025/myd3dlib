@@ -279,6 +279,7 @@ BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
+	ON_MESSAGE(WM_IDLEUPDATECMDUI, &CPropertiesWnd::OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
 
 void CPropertiesWnd::AdjustLayout()
@@ -341,4 +342,9 @@ void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
 LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	return 0;
+}
+
+LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
+{
+	return CDockablePane::OnIdleUpdateCmdUI(wParam, lParam);
 }
