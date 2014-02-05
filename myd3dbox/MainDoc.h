@@ -32,5 +32,5 @@ public:
 
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 
-	afx_msg void OnCreateStaticmesh();
+	afx_msg void OnCreateMesh();
 };

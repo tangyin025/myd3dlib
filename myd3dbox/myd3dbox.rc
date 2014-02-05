@@ -90,7 +90,7 @@ BEGIN
     END
     POPUP "&Create"
     BEGIN
-        MENUITEM "Static Mesh",                 ID_CREATE_STATICMESH
+        MENUITEM "Mesh...",                     ID_CREATE_MESH
     END
     POPUP "&View"
     BEGIN
