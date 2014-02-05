@@ -1,29 +1,6 @@
 #pragma once
 
-#include "OutlinerView.h"
-
-class StaticMeshTreeNode : public TreeNodeBase
-{
-public:
-	my::OgreMeshPtr m_Mesh;
-
-	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
-
-	typedef std::vector<MaterialPair> MaterialPairList;
-
-	MaterialPairList m_Materials;
-
-public:
-	StaticMeshTreeNode(void)
-	{
-	}
-
-	virtual ~StaticMeshTreeNode(void);
-
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
-};
-
-typedef boost::shared_ptr<StaticMeshTreeNode> StaticMeshTreeNodePtr;
+#include "TreeNode.h"
 
 class CDocStepBase
 {

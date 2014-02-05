@@ -1,0 +1,29 @@
+#include "StdAfx.h"
+#include "TreeNode.h"
+
+using namespace my;
+
+StaticMeshTreeNode::~StaticMeshTreeNode(void)
+{
+}
+
+void StaticMeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & ParentWorld)
+{
+	Matrix4 World = m_World * ParentWorld;
+	for(DWORD i = 0; i < m_Materials.size(); i++)
+	{
+		MaterialPairList::reference mat_pair = m_Materials[i];
+		_ASSERT(mat_pair.second);
+		mat_pair.second->SetMatrix("g_World", World);
+		mat_pair.second->SetTexture("g_MeshTexture", mat_pair.first->m_DiffuseTexture);
+		mat_pair.second->SetTechnique("RenderScene");
+		UINT passes = mat_pair.second->Begin();
+		for(UINT p = 0; p < passes; p++)
+		{
+			mat_pair.second->BeginPass(p);
+			m_Mesh->DrawSubset(i);
+			mat_pair.second->EndPass();
+		}
+		mat_pair.second->End();
+	}
+}
