@@ -17,6 +17,9 @@ BOOL CMainApp::InitInstance(void)
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
+	// http://connect.microsoft.com/VisualStudio/feedback/details/529735/mfc-feature-pack-cmfcmenubar-issue
+	afxGlobalData.EnableAccessibilitySupport(FALSE);
+
 	AfxInitRichEdit();
 
 	CWinAppEx::InitInstance();

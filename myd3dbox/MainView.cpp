@@ -164,7 +164,10 @@ void CMainView::OnFrameRender(
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 		ASSERT(pOutliner);
-		pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity);
+		if(pOutliner->m_TreeCtrl.GetRootItem())
+		{
+			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity);
+		}
 
 		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
 		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));

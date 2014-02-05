@@ -1,8 +1,44 @@
-
-#include "stdafx.h"
+#include "StdAfx.h"
 #include "PropertiesWnd.h"
 #include "MainApp.h"
 #include "MainFrm.h"
+#include "MainView.h"
+
+IMPLEMENT_DYNAMIC(CSimpleProp, CMFCPropertyGridProperty)
+
+void CSimpleProp::OnEventChanged(void)
+{
+	if(m_EventChanged)
+	{
+		m_EventChanged();
+	}
+	else
+	{
+		for (POSITION pos = m_lstSubItems.GetHeadPosition(); pos != NULL;)
+		{
+			CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_lstSubItems.GetNext(pos));
+			ASSERT_VALID(pProp);
+			pProp->OnEventChanged();
+		}
+	}
+}
+
+void CSimpleProp::OnEventUpdated(void)
+{
+	if(m_EventUpdated)
+	{
+		m_EventUpdated();
+	}
+	else
+	{
+		for (POSITION pos = m_lstSubItems.GetHeadPosition(); pos != NULL;)
+		{
+			CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_lstSubItems.GetNext(pos));
+			ASSERT_VALID(pProp);
+			pProp->OnEventUpdated();
+		}
+	}
+}
 
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
@@ -341,10 +377,41 @@ void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
 
 LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
+	CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, (CMFCPropertyGridProperty *)lParam);
+	_ASSERT(pProp);
+	pProp->OnEventChanged();
+	CMainView::getSingleton().Invalidate();
 	return 0;
 }
 
 LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 {
-	return CDockablePane::OnIdleUpdateCmdUI(wParam, lParam);
+	CDockablePane::OnIdleUpdateCmdUI(wParam, lParam);
+
+	TreeNodeBasePtr node = COutlinerView::getSingleton().GetSelectedNode();
+	if(!node)
+	{
+		if(m_wndPropList.GetPropertyCount() > 0)
+		{
+			m_SelectedNode.reset();
+
+			m_wndPropList.RemoveAll();
+		}
+	}
+	else if(node == m_SelectedNode.lock())
+	{
+		//for(int i = 0; i < m_wndPropList.GetPropertyCount(); i++)
+		//{
+		//	CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_wndPropList.GetProperty(i));
+		//	_ASSERT(pProp);
+		//	pProp->OnEventUpdated();
+		//}
+	}
+	else
+	{
+		node->SetupProperties(&m_wndPropList);
+
+		m_SelectedNode = node;
+	}
+	return 0;
 }

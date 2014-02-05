@@ -4,6 +4,8 @@
 #include "MainFrm.h"
 #include "MainDoc.h"
 
+using namespace my;
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -406,16 +408,27 @@ TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
 	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
 }
 
-void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const my::Matrix4 & World)
+TreeNodeBasePtr COutlinerView::GetSelectedNode(void)
 {
-	if(hItem)
+	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
+	return hSelected ? GetItemNode(hSelected) : TreeNodeBasePtr();
+}
+
+void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const Matrix4 & World)
+{
+	_ASSERT(hItem);
+
+	TreeNodeBasePtr node = GetItemNode(hItem);
+
+	node->Draw(pd3dDevice, fElapsedTime, World);
+
+	if(m_TreeCtrl.GetChildItem(hItem))
 	{
-		TreeNodeBasePtr node = GetItemNode(hItem);
-		
-		node->Draw(pd3dDevice, fElapsedTime, World);
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World);
+	}
 
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), node->m_World * World);
-
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), node->m_World * World);
+	if(m_TreeCtrl.GetNextSiblingItem(hItem))
+	{
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World);
 	}
 }

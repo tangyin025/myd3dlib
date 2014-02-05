@@ -1,13 +1,21 @@
 #pragma once
 
+class CMFCPropertyGridCtrl;
+
 class TreeNodeBase
 {
 public:
-	my::Matrix4 m_World;
+	my::Vector3 m_Position;
+
+	my::Quaternion m_Rotation;
+
+	my::Vector3 m_Scale;
 
 public:
 	TreeNodeBase(void)
-		: m_World(my::Matrix4::Identity())
+		: m_Position(0,0,0)
+		, m_Rotation(my::Quaternion::Identity())
+		, m_Scale(1,1,1)
 	{
 	}
 
@@ -16,11 +24,13 @@ public:
 	}
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World) = 0;
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl) = 0;
 };
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
 
-class StaticMeshTreeNode : public TreeNodeBase
+class MeshTreeNode : public TreeNodeBase
 {
 public:
 	my::OgreMeshPtr m_Mesh;
@@ -32,13 +42,15 @@ public:
 	MaterialPairList m_Materials;
 
 public:
-	StaticMeshTreeNode(void)
+	MeshTreeNode(void)
 	{
 	}
 
-	virtual ~StaticMeshTreeNode(void);
+	virtual ~MeshTreeNode(void);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
 };
 
-typedef boost::shared_ptr<StaticMeshTreeNode> StaticMeshTreeNodePtr;
+typedef boost::shared_ptr<MeshTreeNode> MeshTreeNodePtr;

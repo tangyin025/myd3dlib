@@ -96,7 +96,7 @@ void CMainDoc::OnCreateMesh()
 	{
 		try
 		{
-			AddStaticMeshTreeNode(dlg.GetPathName());
+			AddMeshTreeNode(dlg.GetPathName());
 
 			SetModifiedFlag();
 

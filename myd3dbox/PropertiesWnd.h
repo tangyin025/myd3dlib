@@ -1,8 +1,17 @@
 
 #pragma once
 
+typedef boost::function<void (void)> PropertyEvent;
+
 class CSimpleProp : public CMFCPropertyGridProperty
 {
+public:
+	DECLARE_DYNAMIC(CSimpleProp)
+
+	PropertyEvent m_EventChanged;
+
+	PropertyEvent m_EventUpdated;
+
 public:
 	CSimpleProp(const CString& strGroupName, DWORD_PTR dwData = 0, BOOL bIsValueList = FALSE)
 		: CMFCPropertyGridProperty(strGroupName, dwData, bIsValueList)
@@ -14,6 +23,10 @@ public:
 		: CMFCPropertyGridProperty(strName, varValue, lpszDescr, dwData, lpszEditMask, lpszEditTemplate, lpszValidChars)
 	{
 	}
+
+	void OnEventChanged(void);
+
+	void OnEventUpdated(void);
 
 	virtual void SetValue(const COleVariant& varValue);
 };
@@ -114,6 +127,8 @@ protected:
 	CRect m_rectCheck;
 };
 
+class TreeNodeBase;
+
 class CPropertiesWnd : public CDockablePane
 {
 public:
@@ -126,6 +141,8 @@ public:
 	CMFCToolBar m_wndToolBar;
 
 	CMFCPropertyGridCtrl m_wndPropList;
+
+	boost::weak_ptr<TreeNodeBase> m_SelectedNode;
 
 	void AdjustLayout();
 

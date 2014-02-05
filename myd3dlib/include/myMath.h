@@ -1916,6 +1916,11 @@ namespace my
 			D3DXMatrixDecompose((D3DXVECTOR3 *)&outScale, (D3DXQUATERNION *)&outRotation, (D3DXVECTOR3 *)&outTranslation, (D3DXMATRIX *)this);
 		}
 
+		static Matrix4 Compose(const Vector3 & Scale, const Quaternion & Rotate, const Vector3 & Translate)
+		{
+			return Scaling(Scale) * RotationQuaternion(Rotate) * Translation(Translate);
+		}
+
 		float determinant(void) const
 		{
 			return _11 * a11() - _12 * a12() + _13 * a13() - _14 * a14();
