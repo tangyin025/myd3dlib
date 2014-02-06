@@ -420,6 +420,14 @@ void CMainView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 {
 	switch(nChar)
 	{
+	case 'W':
+		OnTransformMove();
+		break;
+
+	case 'E':
+		OnTransformRotate();
+		break;
+
 	case VK_DELETE:
 		{
 			COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
