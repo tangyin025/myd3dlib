@@ -338,21 +338,10 @@ void COutlinerView::OnSize(UINT nType, int cx, int cy)
 void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMTREEVIEW ptv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	if(ptv->action != TVC_UNKNOWN)
+	if(ptv->action != TVC_UNKNOWN && ptv->itemNew.hItem)
 	{
-		if(ptv->itemNew.hItem)
-		{
-			TreeNodeBasePtr node = GetItemNode(ptv->itemNew.hItem);
-			ASSERT(node);
-			CMainView::getSingleton().m_PivotController.m_Position = node->m_Position;
-			CMainView::getSingleton().m_PivotController.m_Rotation = node->m_Rotation;
-			CMainView::getSingleton().m_PivotController.UpdateViewTransform(CMainView::getSingleton().m_Camera.m_ViewProj, CMainView::getSingleton().m_SwapChainBufferDesc.Width);
-		}
+		CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
 	}
-
-	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
-	ASSERT(pDoc);
-	pDoc->UpdateAllViews(NULL);
 }
 
 void COutlinerView::OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult)

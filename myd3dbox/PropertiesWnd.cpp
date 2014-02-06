@@ -384,14 +384,8 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 	pProp->OnEventChanged();
 
-	TreeNodeBasePtr node = COutlinerView::getSingleton().GetSelectedNode();
-	if(node)
-	{
-		CMainView::getSingleton().m_PivotController.m_Position = node->m_Position;
-		CMainView::getSingleton().m_PivotController.m_Rotation = node->m_Rotation;
-		CMainView::getSingleton().m_PivotController.UpdateViewTransform(CMainView::getSingleton().m_Camera.m_ViewProj, CMainView::getSingleton().m_SwapChainBufferDesc.Width);
-		CMainView::getSingleton().Invalidate();
-	}
+	CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
+
 	return 0;
 }
 

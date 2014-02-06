@@ -33,6 +33,8 @@ public:
 	virtual void DrawVertexList(void);
 };
 
+#define WM_UPDATE_PIVOTCONTROLLER (WM_USER + 0x01)
+
 class CMainView
 	: public CView
 	, public my::SingleInstance<CMainView>
@@ -129,4 +131,6 @@ public:
 	afx_msg void OnTransformRotate();
 
 	afx_msg void OnUpdateTransformRotate(CCmdUI *pCmdUI);
+
+	afx_msg LRESULT OnUpdatePivotController(WPARAM wParam, LPARAM lParam);
 };

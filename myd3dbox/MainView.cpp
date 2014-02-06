@@ -89,6 +89,7 @@ BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_UPDATE_COMMAND_UI(ID_TRANSFORM_MOVE, &CMainView::OnUpdateTransformMove)
 	ON_COMMAND(ID_TRANSFORM_ROTATE, &CMainView::OnTransformRotate)
 	ON_UPDATE_COMMAND_UI(ID_TRANSFORM_ROTATE, &CMainView::OnUpdateTransformRotate)
+	ON_MESSAGE(WM_UPDATE_PIVOTCONTROLLER, &CMainView::OnUpdatePivotController)
 END_MESSAGE_MAP()
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
@@ -436,4 +437,15 @@ void CMainView::OnTransformRotate()
 void CMainView::OnUpdateTransformRotate(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(m_PivotController.m_PovitMode == PivotController::PivotModeRotation ? 1 : 0);
+}
+
+LRESULT CMainView::OnUpdatePivotController(WPARAM wParam, LPARAM lParam)
+{
+	TreeNodeBasePtr node = COutlinerView::getSingleton().GetSelectedNode();
+	ASSERT(node);
+	m_PivotController.m_Position = node->m_Position;
+	m_PivotController.m_Rotation = node->m_Rotation;
+	m_PivotController.UpdateViewTransform(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+	Invalidate();
+	return 0;
 }
