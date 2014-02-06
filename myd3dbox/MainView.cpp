@@ -205,41 +205,6 @@ CMainDoc * CMainView::GetDocument() const
 	return (CMainDoc *)m_pDocument;
 }
 
-BOOL CMainView::PreTranslateMessage(MSG* pMsg)
-{
-	switch(pMsg->message)
-	{
-	case WM_SYSKEYDOWN:
-		if(pMsg->wParam == VK_MENU)
-		{
-			m_bAltDown = TRUE;
-		}
-		break;
-
-	case WM_SYSKEYUP:
-		if(pMsg->wParam == VK_MENU && m_bAltDown)
-		{
-			m_bAltDown = FALSE;
-
-			if(m_bEatAltUp)
-			{
-				m_bEatAltUp = FALSE;
-				return TRUE;
-			}
-		}
-		break;
-
-	case WM_KEYUP:
-		if(pMsg->wParam == VK_MENU && m_bAltDown)
-		{
-			m_bAltDown = FALSE;
-		}
-		break;
-	}
-
-	return CView::PreTranslateMessage(pMsg);
-}
-
 int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
@@ -300,15 +265,12 @@ BOOL CMainView::OnEraseBkgnd(CDC* pDC)
 void CMainView::OnKillFocus(CWnd* pNewWnd)
 {
 	CView::OnKillFocus(pNewWnd);
-
-	m_bAltDown = FALSE;
 }
 
 void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragModeCameraNone == m_DragMode)
+	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
-		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraRotate;
 		m_Camera.m_DragPos = point;
 		SetCapture();
@@ -340,9 +302,8 @@ void CMainView::OnLButtonUp(UINT nFlags, CPoint point)
 
 void CMainView::OnMButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragModeCameraNone == m_DragMode)
+	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
-		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraTrack;
 		m_Camera.m_DragPos = point;
 		SetCapture();
@@ -360,9 +321,8 @@ void CMainView::OnMButtonUp(UINT nFlags, CPoint point)
 
 void CMainView::OnRButtonDown(UINT nFlags, CPoint point)
 {
-	if(m_bAltDown && DragModeCameraNone == m_DragMode)
+	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
-		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraZoom;
 		m_Camera.m_DragPos = point;
 		SetCapture();

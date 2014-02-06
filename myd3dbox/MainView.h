@@ -39,12 +39,6 @@ class CMainView
 	, public my::DialogMgr
 {
 public:
-	int m_DebugDrawModes;
-
-	BOOL m_bAltDown;
-
-	BOOL m_bEatAltUp;
-
 	enum DragMode
 	{
 		DragModeCameraNone = 0,
@@ -76,9 +70,7 @@ public:
 
 public:
 	CMainView(void)
-		: m_bAltDown(FALSE)
-		, m_bEatAltUp(FALSE)
-		, m_DragMode(DragModeCameraNone)
+		: m_DragMode(DragModeCameraNone)
 		, m_Camera()
 	{
 	}
@@ -101,8 +93,6 @@ public:
 	CMainDoc * GetDocument(void) const;
 
 	virtual void OnDraw(CDC* pDC) {}
-
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
