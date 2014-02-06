@@ -206,6 +206,26 @@ CMainDoc * CMainView::GetDocument() const
 	return (CMainDoc *)m_pDocument;
 }
 
+void CMainView::OnDraw(CDC* pDC)
+{
+}
+
+BOOL CMainView::PreTranslateMessage(MSG* pMsg)
+{
+	switch(pMsg->message)
+	{
+	case WM_SYSKEYUP:
+		if(pMsg->wParam == VK_MENU && m_bEatAltUp)
+		{
+			m_bEatAltUp = FALSE;
+			return TRUE;
+		}
+		break;
+	}
+
+	return CView::PreTranslateMessage(pMsg);
+}
+
 int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CView::OnCreate(lpCreateStruct) == -1)
@@ -272,6 +292,7 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
+		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraRotate;
 		m_Camera.m_DragPos = point;
 		SetCapture();
@@ -305,6 +326,7 @@ void CMainView::OnMButtonDown(UINT nFlags, CPoint point)
 {
 	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
+		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraTrack;
 		m_Camera.m_DragPos = point;
 		SetCapture();
@@ -324,6 +346,7 @@ void CMainView::OnRButtonDown(UINT nFlags, CPoint point)
 {
 	if((GetKeyState(VK_MENU) & 0x8000) && (DragModeCameraNone == m_DragMode || DragModeCameraRotate == m_DragMode || DragModeCameraTrack == m_DragMode || DragModeCameraZoom == m_DragMode))
 	{
+		m_bEatAltUp = TRUE;
 		m_DragMode = DragModeCameraZoom;
 		m_Camera.m_DragPos = point;
 		SetCapture();
