@@ -28,6 +28,8 @@ void CSimpleProp::OnEventUpdated(void)
 	if(m_EventUpdated)
 	{
 		m_EventUpdated();
+
+		SetModifiedFlag();
 	}
 	else
 	{
@@ -379,6 +381,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, (CMFCPropertyGridProperty *)lParam);
 	_ASSERT(pProp);
+
 	pProp->OnEventChanged();
 
 	TreeNodeBasePtr node = COutlinerView::getSingleton().GetSelectedNode();
@@ -416,6 +419,7 @@ LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 			{
 				CSimpleProp * pProp = DYNAMIC_DOWNCAST(CSimpleProp, m_wndPropList.GetProperty(i));
 				_ASSERT(pProp);
+
 				pProp->OnEventUpdated();
 			}
 
