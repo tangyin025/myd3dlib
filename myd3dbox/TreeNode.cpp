@@ -42,7 +42,7 @@ void GetPropertyFloat(const CSimpleProp * pProp, float * pValue)
 
 void SetPropertyQuatX(CSimpleProp * pProp, const Quaternion * pValue)
 {
-	pProp->SetValue(D3DXToDegree(atan2((pValue->w * pValue->x + pValue->y * pValue->z) * 2, 1 - (pValue->x * pValue->x + pValue->y * pValue->y) * 2)));
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleX()));
 }
 
 void GetPropertyQuatX(const CSimpleProp * pProp, Quaternion * pValue)
@@ -54,7 +54,7 @@ void GetPropertyQuatX(const CSimpleProp * pProp, Quaternion * pValue)
 
 void SetPropertyQuatY(CSimpleProp * pProp, const Quaternion * pValue)
 {
-	pProp->SetValue(D3DXToDegree(asin((pValue->w * pValue->y - pValue->z * pValue->x) * 2)));
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleY()));
 }
 
 void GetPropertyQuatY(const CSimpleProp * pProp, Quaternion * pValue)
@@ -66,7 +66,7 @@ void GetPropertyQuatY(const CSimpleProp * pProp, Quaternion * pValue)
 
 void SetPropertyQuatZ(CSimpleProp * pProp, const Quaternion * pValue)
 {
-	pProp->SetValue(D3DXToDegree(atan2((pValue->w * pValue->z + pValue->x * pValue->y) * 2, 1 - (pValue->y * pValue->y + pValue->z * pValue->z) * 2)));
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleZ()));
 }
 
 void GetPropertyQuatZ(const CSimpleProp * pProp, Quaternion * pValue)
@@ -96,15 +96,15 @@ void MeshTreeNode::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 
 	CSimpleProp * pRotation = new CSimpleProp(_T("Rotation"), 0, TRUE);
 	pWorld->AddSubItem(pRotation);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)m_Rotation.x, _T("x"));
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(m_Rotation.ToEulerAngleX()), _T("x"));
 	pProp->m_EventChanged = boost::bind(GetPropertyQuatX, pProp, &m_Rotation);
 	pProp->m_EventUpdated = boost::bind(SetPropertyQuatX, pProp, &m_Rotation);
 	pRotation->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Rotation.y, _T("y"));
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(m_Rotation.ToEulerAngleY()), _T("y"));
 	pProp->m_EventChanged = boost::bind(GetPropertyQuatY, pProp, &m_Rotation);
 	pProp->m_EventUpdated = boost::bind(SetPropertyQuatY, pProp, &m_Rotation);
 	pRotation->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)m_Rotation.y, _T("z"));
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(m_Rotation.ToEulerAngleZ()), _T("z"));
 	pProp->m_EventChanged = boost::bind(GetPropertyQuatZ, pProp, &m_Rotation);
 	pProp->m_EventUpdated = boost::bind(SetPropertyQuatZ, pProp, &m_Rotation);
 	pRotation->AddSubItem(pProp);

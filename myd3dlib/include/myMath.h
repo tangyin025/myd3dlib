@@ -1524,12 +1524,24 @@ namespace my
 				cos(angles.x * 0.5f) * cos(angles.y * 0.5f) * cos(angles.z * 0.5f) + sin(angles.x * 0.5f) * sin(angles.y * 0.5f) * sin(angles.z * 0.5f));
 		}
 
+		float ToEulerAngleX(void) const
+		{
+			return atan2((w * x + y * z) * 2, 1 - (x * x + y * y) * 2);
+		}
+
+		float ToEulerAngleY(void) const
+		{
+			return asin((w * y - z * x) * 2);
+		}
+
+		float ToEulerAngleZ(void) const
+		{
+			return atan2((w * z + x * y) * 2, 1 - (y * y + z * z) * 2);
+		}
+
 		Vector3 ToEulerAngles(void) const
 		{
-			return Vector3(
-				atan2((w * x + y * z) * 2, 1 - (x * x + y * y) * 2),
-				asin((w * y - z * x) * 2),
-				atan2((w * z + x * y) * 2, 1 - (y * y + z * z) * 2));
+			return Vector3(ToEulerAngleX(), ToEulerAngleY(), ToEulerAngleZ());
 		}
 
 	public:

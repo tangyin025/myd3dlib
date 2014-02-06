@@ -432,8 +432,6 @@ LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 
 		node->SetupProperties(&m_wndPropList);
 
-		m_bIsPropInvalid = TRUE;
-
 		m_SelectedNode = node;
 	}
 	return 0;
