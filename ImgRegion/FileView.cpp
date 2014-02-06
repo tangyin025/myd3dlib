@@ -309,6 +309,7 @@ BEGIN_MESSAGE_MAP(CFileView, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_ERASEBKGND()
 	ON_WM_SETFOCUS()
+	ON_MESSAGE(WM_IDLEUPDATECMDUI, &CFileView::OnIdleUpdateCmdUI)
 	ON_NOTIFY_RANGE(TVN_SELCHANGED, 4, 1000, &CFileView::OnTvnSelchangedTree)
 	ON_NOTIFY_RANGE(TVN_DRAGCHANGED, 4, 1000, &CFileView::OnTvnDragchangedTree)
 END_MESSAGE_MAP()
@@ -382,7 +383,7 @@ void CFileView::OnSetFocus(CWnd* pOldWnd)
 	CDockablePane::OnSetFocus(pOldWnd);
 }
 
-void CFileView::OnIdleUpdate()
+LRESULT CFileView::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 {
 	if(m_bIsLayoutInvalid)
 	{
@@ -390,6 +391,7 @@ void CFileView::OnIdleUpdate()
 
 		m_bIsLayoutInvalid = FALSE;
 	}
+	return 0;
 }
 
 afx_msg void CFileView::OnTvnSelchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pResult)

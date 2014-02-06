@@ -269,6 +269,7 @@ BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
+	ON_MESSAGE(WM_IDLEUPDATECMDUI, &CPropertiesWnd::OnIdleUpdateCmdUI)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
 END_MESSAGE_MAP()
 
@@ -354,7 +355,7 @@ void CPropertiesWnd::SetPropListFont()
 	m_wndPropList.SetFont(&m_fntPropList);
 }
 
-void CPropertiesWnd::OnIdleUpdate()
+LRESULT CPropertiesWnd::OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam)
 {
 	if(m_bIsPropInvalid)
 	{
@@ -362,6 +363,7 @@ void CPropertiesWnd::OnIdleUpdate()
 
 		m_bIsPropInvalid = FALSE;
 	}
+	return 0;
 }
 
 void CPropertiesWnd::UpdateProperties(void)

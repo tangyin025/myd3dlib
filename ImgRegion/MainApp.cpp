@@ -236,10 +236,6 @@ int CMainApp::ExitInstance()
 
 BOOL CMainApp::OnIdle(LONG lCount)
 {
-	((CMainFrame *)m_pMainWnd)->m_wndFileView.OnIdleUpdate();
-
-	((CMainFrame *)m_pMainWnd)->m_wndProperties.OnIdleUpdate();
-
 	return CWinAppEx::OnIdle(lCount);
 }
 

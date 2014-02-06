@@ -183,7 +183,7 @@ protected:
 	void SetPropListFont();
 
 public:
-	void OnIdleUpdate();
+	afx_msg LRESULT OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam);
 
 	void UpdateProperties(void);
 
