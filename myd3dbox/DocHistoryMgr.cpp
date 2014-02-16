@@ -115,17 +115,8 @@ void CDocHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 void CDocHistoryMgr::AddMeshTreeNode(LPCTSTR lpszMesh)
 {
 	MeshTreeNodePtr node(new MeshTreeNode);
-	node->m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
-	if(node->m_Mesh)
+	if(node->LoadFromMesh(lpszMesh))
 	{
-		std::vector<std::string>::const_iterator mat_name_iter = node->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != node->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
-			mat = mat ? mat : theApp.m_DefaultMat;
-			node->m_Materials.push_back(MeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-		}
-
 		static unsigned int i = 0;
 		CString strItem;
 		strItem.Format(_T("mesh_%03d"), i++);

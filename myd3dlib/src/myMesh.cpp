@@ -736,7 +736,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 
 	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 
-	const VOID * pVertices = LockVertexBuffer();
+	VOID * pVertices = LockVertexBuffer();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 	for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
 	{

@@ -36,6 +36,7 @@
 #include <myD3dLib.h>
 #include <deque>
 #include <boost/unordered_map.hpp>
+#include <Opcode.h>
 
 #ifdef _UNICODE
 #if defined _M_IX86

@@ -94,4 +94,6 @@ public:
 	TreeNodeBasePtr GetSelectedNode(void);
 
 	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const my::Matrix4 & World);
+
+	bool RayTestItemNode(const std::pair<my::Vector3, my::Vector3> & ray, HTREEITEM hItem, const my::Matrix4 & World);
 };

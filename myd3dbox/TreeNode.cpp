@@ -3,11 +3,52 @@
 #include "PropertiesWnd.h"
 #include <boost/bind.hpp>
 #include "OutputWnd.h"
+#include "MainApp.h"
 
 using namespace my;
 
-MeshTreeNode::~MeshTreeNode(void)
+bool MeshTreeNode::LoadFromMesh(LPCTSTR lpszMesh)
 {
+	m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
+	if(!m_Mesh)
+	{
+		return false;
+	}
+
+	m_OpcMeshInterface.SetNbTriangles(m_Mesh->GetNumFaces());
+	m_OpcMeshInterface.SetNbVertices(m_Mesh->GetNumVertices());
+	m_OpcMeshInterfaceCB.m_pMesh = m_Mesh.get();
+	m_OpcMeshInterfaceCB.m_pIndices = m_Mesh->LockIndexBuffer();
+	m_OpcMeshInterfaceCB.m_pVertices = m_Mesh->LockVertexBuffer();
+	if(m_Mesh->GetOptions() & D3DXMESH_32BIT)
+	{
+		m_OpcMeshInterface.SetCallback(Callback::Func<DWORD>, &m_OpcMeshInterfaceCB);
+	}
+	else
+	{
+		m_OpcMeshInterface.SetCallback(Callback::Func<WORD>, &m_OpcMeshInterfaceCB);
+	}
+	Opcode::OPCODECREATE Create;
+	Create.mIMesh			= &m_OpcMeshInterface;
+	Create.mSettings.mLimit	= 1;
+	Create.mSettings.mRules	= Opcode::SPLIT_SPLATTER_POINTS | Opcode::SPLIT_GEOM_CENTER;
+	Create.mNoLeaf			= true;
+	Create.mQuantized		= true;
+	Create.mKeepOriginal	= false;
+	Create.mCanRemap		= false;
+	m_OpcMode.Build(Create);
+	// ! 这里的d3dxmesh必须是D3DPOOL_MANAGED，保证buffer内存地址始终有效
+	m_Mesh->UnlockIndexBuffer();
+	m_Mesh->UnlockVertexBuffer();
+
+	std::vector<std::string>::const_iterator mat_name_iter = m_Mesh->m_MaterialNameList.begin();
+	for(; mat_name_iter != m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	{
+		MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
+		mat = mat ? mat : theApp.m_DefaultMat;
+		m_Materials.push_back(MeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+	}
+	return true;
 }
 
 void MeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
@@ -125,4 +166,16 @@ void MeshTreeNode::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 	pScale->AddSubItem(pProp);
 
 	pPropertyGridCtrl->AddProperty(pWorld);
+}
+
+bool MeshTreeNode::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+{
+	// ! Opcode不支持缩放矩阵，这里需要先变换为模型本地射线
+	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
+	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
+	Opcode::RayCollider collider;
+	collider.SetFirstContact(false);
+	collider.SetPrimitiveTests(true);
+	collider.SetTemporalCoherence(false);
+	return collider.Collide(ir, m_OpcMode, NULL, NULL) && collider.GetContactStatus();
 }

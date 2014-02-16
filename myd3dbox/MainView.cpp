@@ -307,7 +307,18 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 			m_DragMode = DragModePivotMove;
 		}
 		else
-			m_Tracker.TrackRubberBand(this, point);
+		{
+			COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+			ASSERT(pOutliner);
+			if(pOutliner->m_TreeCtrl.GetRootItem() && pOutliner->RayTestItemNode(ray, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity))
+			{
+			}
+			else
+			{
+				pOutliner->m_TreeCtrl.SelectItem(NULL);
+				m_Tracker.TrackRubberBand(this, point);
+			}
+		}
 		Invalidate();
 	}
 }

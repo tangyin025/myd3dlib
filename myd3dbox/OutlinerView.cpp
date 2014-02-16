@@ -421,13 +421,37 @@ void COutlinerView::DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTi
 
 	node->Draw(pd3dDevice, fElapsedTime, World);
 
-	if(m_TreeCtrl.GetChildItem(hItem))
-	{
-		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World);
-	}
-
 	if(m_TreeCtrl.GetNextSiblingItem(hItem))
 	{
 		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetNextSiblingItem(hItem), World);
 	}
+
+	if(m_TreeCtrl.GetChildItem(hItem))
+	{
+		DrawItemNode(pd3dDevice, fElapsedTime, m_TreeCtrl.GetChildItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World);
+	}
+}
+
+bool COutlinerView::RayTestItemNode(const std::pair<my::Vector3, my::Vector3> & ray, HTREEITEM hItem, const my::Matrix4 & World)
+{
+	_ASSERT(hItem);
+
+	TreeNodeBasePtr node = GetItemNode(hItem);
+
+	if(node->RayTest(ray, World))
+	{
+		m_TreeCtrl.SelectItem(hItem);
+		return true;
+	}
+
+	if(m_TreeCtrl.GetNextSiblingItem(hItem) && RayTestItemNode(ray, m_TreeCtrl.GetNextSiblingItem(hItem), World))
+	{
+		return true;
+	}
+
+	if(m_TreeCtrl.GetChildItem(hItem) && RayTestItemNode(ray, m_TreeCtrl.GetChildItem(hItem), Matrix4::Compose(node->m_Scale, node->m_Rotation, node->m_Position) * World))
+	{
+		return true;
+	}
+	return false;
 }
