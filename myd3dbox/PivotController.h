@@ -29,7 +29,7 @@ public:
 
 	my::Quaternion m_Rotation;
 
-	my::Matrix4 m_ViewTranslation;
+	my::Matrix4 m_ViewTransform;
 
 	enum PivotMode
 	{
@@ -45,6 +45,9 @@ public:
 		DragAxisX,
 		DragAxisY,
 		DragAxisZ,
+		DragPlaneX,
+		DragPlaneY,
+		DragPlaneZ,
 	};
 
 	DragAxis m_DragAxis;
@@ -65,7 +68,7 @@ public:
 		, m_DragAxis(DragAxisNone)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
-		, m_ViewTranslation(my::Matrix4::Identity())
+		, m_ViewTransform(my::Matrix4::Identity())
 	{
 	}
 
@@ -88,10 +91,6 @@ public:
 	};
 
 	typedef std::vector<Vertex> VertexList;
-
-	void BuildConeVertices(VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color, const my::Matrix4 & Transform);
-
-	void BuildCircleVertices(VertexList & vertex_list, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos, const float discrm);
 
 	void UpdateViewTransform(const my::Matrix4 & ViewProj, UINT ViewWidth);
 
