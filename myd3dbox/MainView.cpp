@@ -405,7 +405,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 
 	case DragModePivotMove:
-		if(m_PivotController.m_DragAxis != PivotController::DragAxisNone)
+		if(m_PivotController.m_HighLightAxis != PivotController::HighLightAxisNone)
 		{
 			CRect rc;
 			GetWindowRect(&rc);
