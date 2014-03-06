@@ -338,7 +338,7 @@ void COutlinerView::OnSize(UINT nType, int cx, int cy)
 void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMTREEVIEW ptv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	if(ptv->action != TVC_UNKNOWN && ptv->itemNew.hItem)
+	if(/*ptv->action != TVC_UNKNOWN &&*/ ptv->itemNew.hItem)
 	{
 		CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
 	}

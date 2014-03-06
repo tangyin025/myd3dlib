@@ -508,6 +508,12 @@ namespace my
 
 		typedef std::pair<bool, float> TestResult;
 
+		static TestResult rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x);
+
+		static TestResult rayAndYPlane(const Vector3 & pos, const Vector3 & dir, float y);
+
+		static TestResult rayAndZPlane(const Vector3 & pos, const Vector3 & dir, float z);
+
 		static TestResult rayAndHalfSpace(
 			const Vector3 & pos,
 			const Vector3 & dir,

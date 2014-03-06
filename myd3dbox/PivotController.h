@@ -9,6 +9,8 @@ public:
 
 	static const float MovePivotOffset;
 
+	static const float MovePlaneWidth;
+
 	static const float RotationPivotRadius;
 
 	static const D3DCOLOR PivotAxisXColor;
@@ -47,6 +49,9 @@ public:
 		HighLightAxisX,
 		HighLightAxisY,
 		HighLightAxisZ,
+		HighLightPlaneX,
+		HighLightPlaneY,
+		HighLightPlaneZ,
 	};
 
 	my::Vector3 m_Position;
@@ -80,6 +85,8 @@ public:
 
 	PivotMode m_PovitMode;
 
+	bool m_bVisible;
+
 	HighLightAxis m_HighLightAxis;
 
 	my::Vector3 m_DragPos;
@@ -95,6 +102,7 @@ public:
 public:
 	PivotController(void)
 		: m_PovitMode(PivotModeMove)
+		, m_bVisible(false)
 		, m_HighLightAxis(HighLightAxisNone)
 	{
 	}

@@ -324,6 +324,36 @@ namespace my
 		return (closestPoint - point).magnitude();
 	}
 
+	IntersectionTests::TestResult IntersectionTests::rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x)
+	{
+		if(abs(dir.x) < EPSILON_E6)
+		{
+			return TestResult(false, FLT_MAX);
+		}
+
+		return TestResult(true, (x - pos.x) / dir.x);
+	}
+
+	IntersectionTests::TestResult IntersectionTests::rayAndYPlane(const Vector3 & pos, const Vector3 & dir, float y)
+	{
+		if(abs(dir.y) < EPSILON_E6)
+		{
+			return TestResult(false, FLT_MAX);
+		}
+
+		return TestResult(true, (y - pos.y) / dir.y);
+	}
+
+	IntersectionTests::TestResult IntersectionTests::rayAndZPlane(const Vector3 & pos, const Vector3 & dir, float z)
+	{
+		if(abs(dir.z) < EPSILON_E6)
+		{
+			return TestResult(false, FLT_MAX);
+		}
+
+		return TestResult(true, (z - pos.z) / dir.z);
+	}
+
 	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
 		const Vector3 & pos,
 		const Vector3 & dir,

@@ -176,7 +176,10 @@ void CMainView::OnFrameRender(
 
 		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
-		m_PivotController.Draw(pd3dDevice, &m_Camera);
+		if(m_PivotController.m_bVisible)
+		{
+			m_PivotController.Draw(pd3dDevice, &m_Camera);
+		}
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
@@ -302,7 +305,7 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 		CRect rc;
 		GetWindowRect(&rc);
 		std::pair<my::Vector3, my::Vector3> ray = m_Camera.CalculateRay(Vector2(point.x + 0.5f, point.y + 0.5f), rc.Size());
-		if(m_PivotController.OnLButtonDown(ray))
+		if(m_PivotController.m_bVisible && m_PivotController.OnLButtonDown(ray))
 		{
 			m_DragMode = DragModePivotMove;
 		}
@@ -312,11 +315,13 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 			ASSERT(pOutliner);
 			if(pOutliner->m_TreeCtrl.GetRootItem() && pOutliner->RayTestItemNode(ray, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity))
 			{
+				m_PivotController.m_bVisible = true;
 			}
 			else
 			{
 				pOutliner->m_TreeCtrl.SelectItem(NULL);
 				m_Tracker.TrackRubberBand(this, point);
+				m_PivotController.m_bVisible = false;
 			}
 		}
 		Invalidate();

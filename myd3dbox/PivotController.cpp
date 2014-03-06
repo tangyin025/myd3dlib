@@ -9,6 +9,8 @@ const float PivotControllerBase::MovePivotHeight = 1.0f;
 
 const float PivotControllerBase::MovePivotOffset = 3.0f;
 
+const float PivotControllerBase::MovePlaneWidth = 1.0f;
+
 const float PivotControllerBase::RotationPivotRadius = MovePivotOffset + MovePivotHeight + MovePivotRadius;
 
 const D3DCOLOR PivotControllerBase::PivotAxisXColor = D3DCOLOR_ARGB(255,255,0,0);
@@ -55,6 +57,35 @@ static void BuildConeVertices(PivotController::VertexList & vertex_list, const f
 			Vector3(-1,0,0).transformNormal(Transform),
 			color));
 	}
+}
+
+static void BuildPlaneVerties(PivotController::VertexList & vertex_list, float z, float y, const D3DCOLOR color, const my::Matrix4 & Transform)
+{
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, 0, 0).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, y > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth, 0).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, y > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth, z > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
+
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, 0, 0).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, y > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth, z > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
+	vertex_list.push_back(PivotController::Vertex(
+		Vector3(0, 0, z > 0 ? PivotController::MovePlaneWidth : -PivotController::MovePlaneWidth).transform(Transform).xyz,
+		Vector3(0,0,1).transformNormal(Transform),
+		color));
 }
 
 static void BuildWireCircleVertices(PivotController::VertexList & vertex_list, const my::Vector3 & center, const float radius, const D3DCOLOR color, const my::Matrix4 & Transform, const my::Vector3 & ViewPos, const float discrm)
@@ -123,6 +154,18 @@ void PivotControllerBase::DrawMoveController(IDirect3DDevice9 * pd3dDevice, cons
 	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_ViewTransform);
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, vertex_list.size() / 2, &vertex_list[0], sizeof(vertex_list[0]));
 
+	Matrix4 InvToXWorld = m_ViewTransform.inverse();
+	Vector3 local_camera = camera->m_Position.transform(InvToXWorld).xyz;
+	vertex_list.clear();
+	BuildPlaneVerties(vertex_list, local_camera.z, local_camera.y, high_light_axis == HighLightPlaneX ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,255,0,0), Matrix4::identity);
+	BuildPlaneVerties(vertex_list, local_camera.z, -local_camera.x, high_light_axis == HighLightPlaneY ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,255,0), mat_to_y);
+	BuildPlaneVerties(vertex_list, -local_camera.x, local_camera.y, high_light_axis == HighLightPlaneZ ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,0,255), mat_to_z);
+	pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
+	pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
+	pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
+	pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_list.size() / 3, &vertex_list[0], sizeof(vertex_list[0]));
+
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
 }
 
@@ -151,16 +194,62 @@ void PivotControllerBase::DrawRotationController(IDirect3DDevice9 * pd3dDevice, 
 BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, my::Vector3> & ray)
 {
 	Matrix4 InvToXWorld = m_ViewTransform.inverse();
+	std::pair<Vector3, Vector3> local_ray(ray.first.transform(InvToXWorld).xyz, ray.second.transformNormal(InvToXWorld));
+	m_HighLightAxis = HighLightAxisNone;
+	IntersectionTests::TestResult res[3];
+	res[0] = IntersectionTests::rayAndXPlane(local_ray.first, local_ray.second, 0);
+	res[1] = IntersectionTests::rayAndYPlane(local_ray.first, local_ray.second, 0);
+	res[2] = IntersectionTests::rayAndZPlane(local_ray.first, local_ray.second, 0);
+	float minT = FLT_MAX;
+	for(int i = 0; i < 3; i++)
+	{
+		if(res[i].first && res[i].second < minT)
+		{
+			minT = res[i].second;
+			m_HighLightAxis = (HighLightAxis)(HighLightPlaneX + i);
+		}
+	}
+	switch(m_HighLightAxis)
+	{
+	case HighLightPlaneX:
+		if(abs(local_ray.first.y + local_ray.second.y * minT) < MovePlaneWidth && abs(local_ray.first.z + local_ray.second.z * minT) < MovePlaneWidth)
+		{
+			m_DragPos = m_Position;
+			m_DragPt = ray.first + ray.second * minT;
+			m_DragNormal = Vector3::unitX;
+			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			return TRUE;
+		}
+		break;
+	case HighLightPlaneY:
+		if(abs(local_ray.first.x + local_ray.second.x * minT) < MovePlaneWidth && abs(local_ray.first.z + local_ray.second.z * minT) < MovePlaneWidth)
+		{
+			m_DragPos = m_Position;
+			m_DragPt = ray.first + ray.second * minT;
+			m_DragNormal = Vector3::unitY;
+			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			return TRUE;
+		}
+		break;
+	case HighLightPlaneZ:
+		if(abs(local_ray.first.x + local_ray.second.x * minT) < MovePlaneWidth && abs(local_ray.first.y + local_ray.second.y * minT) < MovePlaneWidth)
+		{
+			m_DragPos = m_Position;
+			m_DragPt = ray.first + ray.second * minT;
+			m_DragNormal = Vector3::unitZ;
+			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			return TRUE;
+		}
+		break;
+	}
+
 	Matrix4 InvToYWorld = (mat_to_y * m_ViewTransform).inverse();
 	Matrix4 InvToZWorld = (mat_to_z * m_ViewTransform).inverse();
-	IntersectionTests::TestResult res[3] =
-	{
-		IntersectionTests::rayAndCylinder(ray.first.transform(InvToXWorld).xyz, ray.second.transformNormal(InvToXWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
-		IntersectionTests::rayAndCylinder(ray.first.transform(InvToYWorld).xyz, ray.second.transformNormal(InvToYWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
-		IntersectionTests::rayAndCylinder(ray.first.transform(InvToZWorld).xyz, ray.second.transformNormal(InvToZWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset),
-	};
 	m_HighLightAxis = HighLightAxisNone;
-	float minT = FLT_MAX;
+	res[0] = IntersectionTests::rayAndCylinder(ray.first.transform(InvToXWorld).xyz, ray.second.transformNormal(InvToXWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset);
+	res[1] = IntersectionTests::rayAndCylinder(ray.first.transform(InvToYWorld).xyz, ray.second.transformNormal(InvToYWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset);
+	res[2] = IntersectionTests::rayAndCylinder(ray.first.transform(InvToZWorld).xyz, ray.second.transformNormal(InvToZWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset);
+	minT = FLT_MAX;
 	for(int i = 0; i < 3; i++)
 	{
 		if(res[i].first && res[i].second < minT)
@@ -190,6 +279,7 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 		m_DragDist = -m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -244,6 +334,15 @@ BOOL PivotController::OnMoveControllerMouseMove(const std::pair<my::Vector3, my:
 			return TRUE;
 		case HighLightAxisZ:
 			m_Position = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+			return TRUE;
+		case HighLightPlaneX:
+			m_Position = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z + pt.z - m_DragPt.z);
+			return TRUE;
+		case HighLightPlaneY:
+			m_Position = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+			return TRUE;
+		case HighLightPlaneZ:
+			m_Position = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
 			return TRUE;
 		}
 	}
