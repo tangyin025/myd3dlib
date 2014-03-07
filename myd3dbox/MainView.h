@@ -1,6 +1,5 @@
 #pragma once
 
-#include "MainDoc.h"
 #include "PivotController.h"
 
 class EffectUIRender
@@ -36,7 +35,7 @@ public:
 #define WM_UPDATE_PIVOTCONTROLLER (WM_USER + 0x01)
 
 class CMainView
-	: public CView
+	: public CWnd
 	, public my::SingleInstance<CMainView>
 	, public my::DialogMgr
 {
@@ -72,6 +71,8 @@ public:
 
 	PivotController m_PivotController;
 
+	DECLARE_MESSAGE_MAP()
+
 public:
 	CMainView(void)
 		: m_bEatAltUp(FALSE)
@@ -80,9 +81,7 @@ public:
 	{
 	}
 
-	DECLARE_DYNCREATE(CMainView)
-
-	DECLARE_MESSAGE_MAP()
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 
 	void DrawTextAtWorld(const my::Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align = my::Font::AlignCenterMiddle);
 
@@ -94,10 +93,6 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
-
-	CMainDoc * GetDocument(void) const;
-
-	virtual void OnDraw(CDC* pDC);
 
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 

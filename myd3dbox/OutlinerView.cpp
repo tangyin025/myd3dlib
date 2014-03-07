@@ -2,8 +2,6 @@
 #include "resource.h"
 #include "OutlinerView.h"
 #include "MainFrm.h"
-#include "MainDoc.h"
-#include "MainView.h"
 
 using namespace my;
 
@@ -212,6 +210,16 @@ void COutlinerTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 	CTreeCtrl::OnLButtonUp(nFlags, point);
 }
 
+int COutlinerTreeCtrl::CalcChildCount(HTREEITEM hItem)
+{
+	int nChilds = 0;
+	for(HTREEITEM hChild = GetChildItem(hItem);
+		hChild; hChild = GetNextSiblingItem(hChild))
+		nChilds++;
+
+	return nChilds;
+}
+
 void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
@@ -340,7 +348,7 @@ void COutlinerView::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTREEVIEW ptv = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	if(/*ptv->action != TVC_UNKNOWN &&*/ ptv->itemNew.hItem)
 	{
-		CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
+		//CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
 	}
 }
 
@@ -386,10 +394,10 @@ void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 	*pResult = 0;
 
 	ASSERT(pNMTreeView->itemOld.hItem);
-	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
-	ASSERT(pDoc);
-	pDoc->DeleteTreeNode(pNMTreeView->itemOld.hItem);
-	pDoc->UpdateAllViews(NULL);
+	//CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+	//ASSERT(pDoc);
+	//pDoc->DeleteTreeNode(pNMTreeView->itemOld.hItem);
+	//pDoc->UpdateAllViews(NULL);
 }
 
 void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)

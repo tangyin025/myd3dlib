@@ -1,7 +1,6 @@
 #include "StdAfx.h"
 #include "MainFrm.h"
 #include "MainApp.h"
-#include "MainView.h"
 
 using namespace my;
 
@@ -32,13 +31,42 @@ static UINT indicators[] =
 	ID_INDICATOR_SCRL,
 };
 
+BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
+{
+	if( !CFrameWndEx::PreCreateWindow(cs) )
+		return FALSE;
+
+	cs.dwExStyle &= ~WS_EX_CLIENTEDGE;
+	cs.lpszClass = AfxRegisterWndClass(0);
+	return TRUE;
+}
+
+BOOL CMainFrame::OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo)
+{
+	if (m_wndView.OnCmdMsg(nID, nCode, pExtra, pHandlerInfo))
+		return TRUE;
+
+	return CFrameWndEx::OnCmdMsg(nID, nCode, pExtra, pHandlerInfo);
+}
+
+void CMainFrame::OnSetFocus(CWnd* /*pOldWnd*/)
+{
+	m_wndView.SetFocus();
+}
+
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
 	if (!theApp.CreateD3DDevice(m_hWnd))
 		return -1;
 
-	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+	if (!m_wndView.Create(NULL, NULL, AFX_WS_DEFAULT_VIEW, CRect(0, 0, 0, 0), this, AFX_IDW_PANE_FIRST, NULL))
+	{
+		TRACE0("Failed to create view window\n");
 		return -1;
+	}
 
 	OnApplicationLook(theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_WIN_2000));
 

@@ -3,6 +3,7 @@
 #include "OutlinerView.h"
 #include "OutputWnd.h"
 #include "PropertiesWnd.h"
+#include "MainView.h"
 
 class CMainFrame
 	: public CFrameWndEx
@@ -28,8 +29,17 @@ public:
 
 	CPropertiesWnd m_wndProperties;
 
+	CMainView m_wndView;
+
 	DECLARE_MESSAGE_MAP()
+
 public:
+	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+
+	virtual BOOL OnCmdMsg(UINT nID, int nCode, void* pExtra, AFX_CMDHANDLERINFO* pHandlerInfo);
+
+	afx_msg void OnSetFocus(CWnd *pOldWnd);
+
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
 	afx_msg void OnViewCustomize();

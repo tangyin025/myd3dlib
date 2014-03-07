@@ -2,7 +2,6 @@
 #include "PropertiesWnd.h"
 #include "MainApp.h"
 #include "MainFrm.h"
-#include "MainView.h"
 
 IMPLEMENT_DYNAMIC(CSimpleProp, CMFCPropertyGridProperty)
 
@@ -384,7 +383,7 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 
 	pProp->OnEventChanged();
 
-	CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
+	//CMainView::getSingleton().SendMessage(WM_UPDATE_PIVOTCONTROLLER);
 
 	return 0;
 }

@@ -1,8 +1,6 @@
 #include "StdAfx.h"
 #include "MainApp.h"
-#include "MainDoc.h"
 #include "MainFrm.h"
-#include "MainView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -43,22 +41,9 @@ BOOL CMainApp::InitInstance(void)
 		return FALSE;
 	}
 
-	CSingleDocTemplate* pDocTemplate;
-	pDocTemplate = new CSingleDocTemplate(
-		IDR_MAINFRAME,
-		RUNTIME_CLASS(CMainDoc),
-		RUNTIME_CLASS(CMainFrame),
-		RUNTIME_CLASS(CMainView));
-
-	if (!pDocTemplate)
-		return FALSE;
-
-	AddDocTemplate(pDocTemplate);
-
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-	if (!ProcessShellCommand(cmdInfo))
-		return FALSE;
+	m_pMainWnd = new CMainFrame;
+	ASSERT(m_pMainWnd);
+	((CMainFrame *)m_pMainWnd)->LoadFrame(IDR_MAINFRAME, WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, NULL, NULL);
 
 	m_pMainWnd->ShowWindow(SW_SHOW);
 	m_pMainWnd->UpdateWindow();
