@@ -250,8 +250,6 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 void CMainView::OnDestroy()
 {
 	CView::OnDestroy();
-
-	m_d3dSwapChain.Release();
 }
 
 void CMainView::OnPaint()
