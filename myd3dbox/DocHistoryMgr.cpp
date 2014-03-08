@@ -2,6 +2,7 @@
 #include "DocHistoryMgr.h"
 #include "MainApp.h"
 #include "MainFrm.h"
+#include "MainView.h"
 
 using namespace my;
 

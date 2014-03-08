@@ -68,7 +68,9 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-BEGIN_MESSAGE_MAP(CMainView, CWnd)
+IMPLEMENT_DYNCREATE(CMainView, CView)
+
+BEGIN_MESSAGE_MAP(CMainView, CView)
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
 	ON_WM_PAINT()
@@ -89,19 +91,6 @@ BEGIN_MESSAGE_MAP(CMainView, CWnd)
 	ON_UPDATE_COMMAND_UI(ID_TRANSFORM_ROTATE, &CMainView::OnUpdateTransformRotate)
 	ON_MESSAGE(WM_UPDATE_PIVOTCONTROLLER, &CMainView::OnUpdatePivotController)
 END_MESSAGE_MAP()
-
-BOOL CMainView::PreCreateWindow(CREATESTRUCT& cs) 
-{
-	if (!CWnd::PreCreateWindow(cs))
-		return FALSE;
-
-	cs.dwExStyle |= WS_EX_CLIENTEDGE;
-	cs.style &= ~WS_BORDER;
-	cs.lpszClass = AfxRegisterWndClass(CS_HREDRAW|CS_VREDRAW|CS_DBLCLKS, 
-		::LoadCursor(NULL, IDC_ARROW), reinterpret_cast<HBRUSH>(COLOR_WINDOW+1), NULL);
-
-	return TRUE;
-}
 
 void CMainView::DrawTextAtWorld(const Vector3 & pos, LPCWSTR lpszText, D3DCOLOR Color, my::Font::Align align)
 {
@@ -214,6 +203,16 @@ void CMainView::OnFrameRender(
 	}
 }
 
+CMainDoc * CMainView::GetDocument() const
+{
+	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
+	return (CMainDoc *)m_pDocument;
+}
+
+void CMainView::OnDraw(CDC* pDC)
+{
+}
+
 BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 {
 	switch(pMsg->message)
@@ -227,12 +226,12 @@ BOOL CMainView::PreTranslateMessage(MSG* pMsg)
 		break;
 	}
 
-	return CWnd::PreTranslateMessage(pMsg);
+	return CView::PreTranslateMessage(pMsg);
 }
 
 int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
-	if (CWnd::OnCreate(lpCreateStruct) == -1)
+	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
 	m_UIRender.reset(new EffectUIRender(theApp.GetD3D9Device(), theApp.LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -250,13 +249,9 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CMainView::OnDestroy()
 {
-	CWnd::OnDestroy();
-
-	m_DepthStencil.OnDestroyDevice();
+	CView::OnDestroy();
 
 	m_d3dSwapChain.Release();
-
-	m_UIRender.reset();
 }
 
 void CMainView::OnPaint()
@@ -275,7 +270,7 @@ void CMainView::OnPaint()
 
 void CMainView::OnSize(UINT nType, int cx, int cy)
 {
-	CWnd::OnSize(nType, cx, cy);
+	CView::OnSize(nType, cx, cy);
 
 	if(cx > 0 && cy > 0)
 	{
@@ -293,7 +288,7 @@ BOOL CMainView::OnEraseBkgnd(CDC* pDC)
 
 void CMainView::OnKillFocus(CWnd* pNewWnd)
 {
-	CWnd::OnKillFocus(pNewWnd);
+	CView::OnKillFocus(pNewWnd);
 }
 
 void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -454,19 +449,19 @@ void CMainView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
 			ASSERT(pOutliner);
 
-			//HTREEITEM hSelected = pOutliner->m_TreeCtrl.GetSelectedItem();
-			//if(hSelected)
-			//{
-			//	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
-			//	ASSERT(pDoc);
-			//	pDoc->DeleteTreeNode(hSelected);
-			//	pDoc->UpdateAllViews(NULL);
-			//}
+			HTREEITEM hSelected = pOutliner->m_TreeCtrl.GetSelectedItem();
+			if(hSelected)
+			{
+				CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+				ASSERT(pDoc);
+				pDoc->DeleteTreeNode(hSelected);
+				pDoc->UpdateAllViews(NULL);
+			}
 		}
 		return;
 	}
 
-	CWnd::OnKeyDown(nChar, nRepCnt, nFlags);
+	CView::OnKeyDown(nChar, nRepCnt, nFlags);
 }
 
 void CMainView::OnTransformMove()
