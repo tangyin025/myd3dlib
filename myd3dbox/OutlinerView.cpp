@@ -212,6 +212,16 @@ void COutlinerTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 	CTreeCtrl::OnLButtonUp(nFlags, point);
 }
 
+int COutlinerTreeCtrl::CalcChildCount(HTREEITEM hItem)
+{
+	int nChilds = 0;
+	for(HTREEITEM hChild = GetChildItem(hItem);
+		hChild; hChild = GetNextSiblingItem(hChild))
+		nChilds++;
+
+	return nChilds;
+}
+
 void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
@@ -392,7 +402,7 @@ void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 	pDoc->UpdateAllViews(NULL);
 }
 
-void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)
+HTREEITEM COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
 	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
 
@@ -400,6 +410,7 @@ void COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNod
 	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR) new TreeNodeBasePtr(node));
 	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
 	m_ItemMap[strItem] = hItem;
+	return hItem;
 }
 
 TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
@@ -454,4 +465,42 @@ bool COutlinerView::RayTestItemNode(const std::pair<my::Vector3, my::Vector3> & 
 		return true;
 	}
 	return false;
+}
+
+void COutlinerView::SerializeSubItemRecursively(CArchive & ar, HTREEITEM hParent)
+{
+	ASSERT(hParent);
+
+	if(ar.IsStoring())
+	{
+		int nChilds = m_TreeCtrl.CalcChildCount(hParent);
+		ar << nChilds;
+		HTREEITEM hItem = m_TreeCtrl.GetChildItem(hParent);
+		for(; hItem; hItem = m_TreeCtrl.GetNextSiblingItem(hItem))
+		{
+			CString szItem = m_TreeCtrl.GetItemText(hItem);
+			ar << szItem;
+			CObject * pNode = GetItemNode(hItem).get();
+			ar << pNode;
+			SerializeSubItemRecursively(ar, hItem);
+		}
+	}
+	else
+	{
+		int nChilds;
+		ar >> nChilds;
+		for(int i = 0; i < nChilds; i++)
+		{
+			CString szItem;
+			ar >> szItem;
+			CObject * pNode;
+			ar >> pNode;
+			SerializeSubItemRecursively(ar, InsertItem((LPCTSTR)szItem, TreeNodeBasePtr(DYNAMIC_DOWNCAST(TreeNodeBase, pNode)), hParent, TVI_LAST));
+		}
+	}
+}
+
+void COutlinerView::Serialize(CArchive & ar)
+{
+	SerializeSubItemRecursively(ar, TVI_ROOT);
 }

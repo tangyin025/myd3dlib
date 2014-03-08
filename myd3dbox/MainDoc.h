@@ -14,6 +14,8 @@ public:
 
 	void Clear(void);
 
+	virtual void Serialize(CArchive& ar);
+
 	virtual BOOL OnNewDocument();
 
 	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);

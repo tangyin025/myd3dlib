@@ -7,6 +7,56 @@
 
 using namespace my;
 
+void TreeNodeBase::Serialize(CArchive & ar)
+{
+	if(ar.IsStoring())
+	{
+		ar << m_Position.x;
+		ar << m_Position.y;
+		ar << m_Position.z;
+		ar << m_Rotation.x;
+		ar << m_Rotation.y;
+		ar << m_Rotation.z;
+		ar << m_Rotation.w;
+		ar << m_Scale.x;
+		ar << m_Scale.y;
+		ar << m_Scale.z;
+	}
+	else
+	{
+		ar >> m_Position.x;
+		ar >> m_Position.y;
+		ar >> m_Position.z;
+		ar >> m_Rotation.x;
+		ar >> m_Rotation.y;
+		ar >> m_Rotation.z;
+		ar >> m_Rotation.w;
+		ar >> m_Scale.x;
+		ar >> m_Scale.y;
+		ar >> m_Scale.z;
+	}
+}
+
+IMPLEMENT_SERIAL(MeshTreeNode, TreeNodeBase, 1)
+
+void MeshTreeNode::Serialize(CArchive & ar)
+{
+	TreeNodeBase::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		std::basic_string<TCHAR> tmp(ms2ts(theApp.GetResourceKey(m_Mesh)));
+		CString path(tmp.c_str());
+		ar << path;
+	}
+	else
+	{
+		CString path;
+		ar >> path;
+		LoadFromMesh(path);
+	}
+}
+
 bool MeshTreeNode::LoadFromMesh(LPCTSTR lpszMesh)
 {
 	m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));

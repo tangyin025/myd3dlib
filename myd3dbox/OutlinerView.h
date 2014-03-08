@@ -4,14 +4,6 @@
 
 class COutlinerTreeCtrl : public CTreeCtrl
 {
-public:
-	COutlinerTreeCtrl(void)
-		: m_bDrag(FALSE)
-		, m_hDragItem(NULL)
-		, m_DragDropType(DropTypeNone)
-	{
-	}
-
 	DECLARE_MESSAGE_MAP()
 
 	BOOL m_bDrag;
@@ -30,6 +22,14 @@ public:
 
 	DropType m_DragDropType;
 
+public:
+	COutlinerTreeCtrl(void)
+		: m_bDrag(FALSE)
+		, m_hDragItem(NULL)
+		, m_DragDropType(DropTypeNone)
+	{
+	}
+
 	virtual BOOL OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult);
 
 	afx_msg void OnTvnBegindrag(NMHDR *pNMHDR, LRESULT *pResult);
@@ -37,6 +37,8 @@ public:
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+
+	int CalcChildCount(HTREEITEM hItem);
 
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 
@@ -87,7 +89,7 @@ public:
 
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
 
-	void InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+	HTREEITEM InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 
 	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
 
@@ -96,4 +98,8 @@ public:
 	void DrawItemNode(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, HTREEITEM hItem, const my::Matrix4 & World);
 
 	bool RayTestItemNode(const std::pair<my::Vector3, my::Vector3> & ray, HTREEITEM hItem, const my::Matrix4 & World);
+
+	void SerializeSubItemRecursively(CArchive & ar, HTREEITEM hParent);
+
+	void Serialize(CArchive & ar);
 };

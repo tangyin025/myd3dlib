@@ -26,9 +26,13 @@ void CMainDoc::Clear(void)
 	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
 }
 
+void CMainDoc::Serialize(CArchive& ar)
+{
+	COutlinerView::getSingleton().Serialize(ar);
+}
+
 BOOL CMainDoc::OnNewDocument()
 {
-	// TODO: Add your specialized code here and/or call the base class
 	Clear();
 
 	return CDocument::OnNewDocument();
@@ -36,26 +40,21 @@ BOOL CMainDoc::OnNewDocument()
 
 BOOL CMainDoc::OnOpenDocument(LPCTSTR lpszPathName)
 {
+	Clear();
+
 	if (!CDocument::OnOpenDocument(lpszPathName))
 		return FALSE;
-
-	// TODO:  Add your specialized creation code here
-	Clear();
 
 	return TRUE;
 }
 
 BOOL CMainDoc::OnSaveDocument(LPCTSTR lpszPathName)
 {
-	// TODO: Add your specialized code here and/or call the base class
-	Clear();
-
 	return CDocument::OnSaveDocument(lpszPathName);
 }
 
 void CMainDoc::OnCloseDocument()
 {
-	// TODO: Add your specialized code here and/or call the base class
 	Clear();
 
 	CDocument::OnCloseDocument();

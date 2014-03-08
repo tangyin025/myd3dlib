@@ -2,7 +2,7 @@
 
 class CMFCPropertyGridCtrl;
 
-class TreeNodeBase
+class TreeNodeBase : public CObject
 {
 public:
 	my::Vector3 m_Position;
@@ -22,6 +22,8 @@ public:
 	virtual ~TreeNodeBase(void)
 	{
 	}
+
+	virtual void Serialize(CArchive & ar);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World) = 0;
 
@@ -73,6 +75,8 @@ public:
 	{
 	}
 
+	virtual void Serialize(CArchive & ar);
+
 	bool LoadFromMesh(LPCTSTR lpszMesh);
 
 	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
@@ -80,6 +84,8 @@ public:
 	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
 
 	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
+
+	DECLARE_SERIAL(MeshTreeNode)
 };
 
 typedef boost::shared_ptr<MeshTreeNode> MeshTreeNodePtr;
