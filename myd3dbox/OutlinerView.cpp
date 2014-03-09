@@ -222,6 +222,16 @@ int COutlinerTreeCtrl::CalcChildCount(HTREEITEM hItem)
 	return nChilds;
 }
 
+HTREEITEM COutlinerTreeCtrl::CalcLastChildItem(HTREEITEM hItem)
+{
+	HTREEITEM hLast = NULL;
+	for(HTREEITEM hChild = GetChildItem(hItem);
+		hChild; hChild = GetNextSiblingItem(hChild))
+		hLast = hChild;
+
+	return hLast;
+}
+
 void COutlinerTreeCtrl::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item

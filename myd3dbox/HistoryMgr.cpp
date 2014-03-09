@@ -30,11 +30,11 @@ void CAddTreeNodeStep::Do(void)
 	ASSERT(pOutliner);
 
 	ASSERT(m_itemID && pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_itemID));
-	ASSERT(!m_parentID || pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_parentID));
-	ASSERT(!m_beforeID || pOutliner->m_ItemMap.end() == pOutliner->m_ItemMap.find(m_beforeID));
+	ASSERT(!m_parentID || pOutliner->m_ItemMap.end() != pOutliner->m_ItemMap.find(m_parentID));
+	ASSERT(!m_beforeID || pOutliner->m_ItemMap.end() != pOutliner->m_ItemMap.find(m_beforeID));
 
-	HTREEITEM hParent = m_parentID ? TVI_ROOT : pOutliner->m_ItemMap[m_parentID];
-	HTREEITEM hBefore = m_beforeID ? TVI_LAST : pOutliner->m_ItemMap[m_beforeID];
+	HTREEITEM hParent = m_parentID ? pOutliner->m_ItemMap[m_parentID] : TVI_ROOT;
+	HTREEITEM hBefore = m_beforeID ? pOutliner->m_ItemMap[m_beforeID] : TVI_FIRST;
 	pOutliner->InsertItem(m_itemID, m_strItem, m_node, hParent, hBefore);
 }
 
@@ -49,6 +49,12 @@ void CDeleteTreeNodeStep::Do(void)
 	m_strItem = pOutliner->m_TreeCtrl.GetItemText(hItem);
 	m_node = boost::dynamic_pointer_cast<MeshTreeNode>(pOutliner->GetItemNode(hItem));
 	ASSERT(m_node);
+
+	HTREEITEM hParent = pOutliner->m_TreeCtrl.GetParentItem(hItem);
+	m_parentID = hParent ? pOutliner->GetItemId(hParent) : 0;
+
+	HTREEITEM hBefore = pOutliner->m_TreeCtrl.GetPrevSiblingItem(hItem);
+	m_beforeID = hBefore ? pOutliner->GetItemId(hBefore) : 0;
 
 	pOutliner->m_TreeCtrl.DeleteItem(hItem);
 }
@@ -85,9 +91,16 @@ void CHistoryMgr::AddHistory(CHistoryPtr hist)
 void CHistoryMgr::AddTreeNode(LPCTSTR lpszItem, TreeNodeBasePtr node)
 {
 	m_guid++;
+
+	COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
+	ASSERT(pOutliner);
+
+	HTREEITEM hBefore = pOutliner->m_TreeCtrl.CalcLastChildItem(TVI_ROOT);
+	UINT beforeID = hBefore ? pOutliner->GetItemId(hBefore) : 0;
+
 	CHistoryPtr hist(new CHistory());
 	hist->push_back(std::make_pair(
-		CStepBasePtr(new CAddTreeNodeStep(m_guid, lpszItem, node)),
+		CStepBasePtr(new CAddTreeNodeStep(m_guid, lpszItem, node, 0, beforeID)),
 		CStepBasePtr(new CDeleteTreeNodeStep(m_guid))));
 
 	AddHistory(hist);
@@ -108,7 +121,7 @@ void CHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 	CHistoryPtr hist(new CHistory());
 	hist->push_back(std::make_pair(
 		del_step,
-		CStepBasePtr(new CAddTreeNodeStep(itemID, szItem, del_step->m_node))));
+		CStepBasePtr(new CAddTreeNodeStep(itemID, szItem, del_step->m_node, del_step->m_parentID, del_step->m_beforeID))));
 
 	AddHistory(hist);
 
@@ -120,6 +133,6 @@ void CHistoryMgr::AddMeshTreeNode(LPCTSTR lpszMesh)
 	MeshTreeNodePtr node(new MeshTreeNode);
 	if(node->LoadFromMesh(lpszMesh))
 	{
-		AddTreeNode(lpszMesh, node);
+		AddTreeNode(PathFindFileName(lpszMesh), node);
 	}
 }

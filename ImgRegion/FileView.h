@@ -77,7 +77,7 @@ public:
 		m_ItemMap.erase(key);
 	}
 
-	int GetChildCount(HTREEITEM hItem);
+	int CalcChildCount(HTREEITEM hItem);
 
 	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 };

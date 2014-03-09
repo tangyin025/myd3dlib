@@ -268,7 +268,7 @@ HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertA
 	return m_ItemMap[key] = hItem;
 }
 
-int CImgRegionTreeCtrl::GetChildCount(HTREEITEM hItem)
+int CImgRegionTreeCtrl::CalcChildCount(HTREEITEM hItem)
 {
 	int nChilds = 0;
 	for(HTREEITEM hChild = GetChildItem(hItem);

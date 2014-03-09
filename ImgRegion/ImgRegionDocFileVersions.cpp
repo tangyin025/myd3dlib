@@ -95,7 +95,7 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hParent, bOverideName); return;
 	}
 
-	int nChilds = pDoc->m_TreeCtrl.GetChildCount(hParent); ar << nChilds;
+	int nChilds = pDoc->m_TreeCtrl.CalcChildCount(hParent); ar << nChilds;
 
 	HTREEITEM hItem = pDoc->m_TreeCtrl.GetChildItem(hParent);
 	for(int i = 0; i < nChilds; i++, hItem = pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))

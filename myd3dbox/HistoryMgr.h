@@ -35,13 +35,13 @@ public:
 		UINT itemID,
 		LPCTSTR lpszItem,
 		TreeNodeBasePtr node,
-		UINT lpszParent = 0,
-		UINT lpszBefore = 0)
+		UINT parentID = 0,
+		UINT beforeID = 0)
 		: m_itemID(itemID)
 		, m_strItem(lpszItem)
 		, m_node(node)
-		, m_parentID(lpszParent)
-		, m_beforeID(lpszBefore)
+		, m_parentID(parentID)
+		, m_beforeID(beforeID)
 	{
 	}
 
@@ -57,8 +57,14 @@ public:
 
 	TreeNodeBasePtr m_node;
 
+	UINT m_parentID;
+
+	UINT m_beforeID;
+
 	CDeleteTreeNodeStep(UINT itemID)
 		: m_itemID(itemID)
+		, m_parentID(0)
+		, m_beforeID(0)
 	{
 	}
 
