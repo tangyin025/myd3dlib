@@ -1,10 +1,10 @@
 #pragma once
 
-#include "DocHistoryMgr.h"
+#include "HistoryMgr.h"
 
 class CMainDoc
 	: public CDocument
-	, public CDocHistoryMgr
+	, public CHistoryMgr
 	, public my::SingleInstance<CMainDoc>
 {
 public:

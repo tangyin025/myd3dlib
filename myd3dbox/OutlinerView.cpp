@@ -364,14 +364,13 @@ void COutlinerView::OnTvnDragchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 void COutlinerView::OnTvnDeleteitem(NMHDR *pNMHDR, LRESULT *pResult)
 {
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
-	TreeNodeBasePtr * ptr = (TreeNodeBasePtr *)m_TreeCtrl.GetItemData(pNMTreeView->itemOld.hItem);
-	ASSERT(ptr);
+	ItemDataType * data = (ItemDataType *)m_TreeCtrl.GetItemData(pNMTreeView->itemOld.hItem);
+	ASSERT(data);
 
-	std::basic_string<TCHAR> strItem(m_TreeCtrl.GetItemText(pNMTreeView->itemOld.hItem));
-	ASSERT(!strItem.empty() && m_ItemMap.end() != m_ItemMap.find(strItem));
-	m_ItemMap.erase(strItem);
+	ASSERT(m_ItemMap.end() != m_ItemMap.find(data->first));
+	m_ItemMap.erase(data->first);
+	delete data;
 
-	delete ptr;
 	*pResult = 0;
 }
 
@@ -402,20 +401,24 @@ void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 	pDoc->UpdateAllViews(NULL);
 }
 
-HTREEITEM COutlinerView::InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)
+HTREEITEM COutlinerView::InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
-	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
+	ASSERT(m_ItemMap.end() == m_ItemMap.find(id));
 
 	HTREEITEM hItem = m_TreeCtrl.InsertItem(strItem.c_str(), hParent, hInsertAfter);
-	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR) new TreeNodeBasePtr(node));
-	ASSERT(m_ItemMap.end() == m_ItemMap.find(strItem));
-	m_ItemMap[strItem] = hItem;
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR) new ItemDataType(id, node));
+	m_ItemMap[id] = hItem;
 	return hItem;
+}
+
+UINT COutlinerView::GetItemId(HTREEITEM hItem)
+{
+	return ((ItemDataType *)m_TreeCtrl.GetItemData(hItem))->first;
 }
 
 TreeNodeBasePtr COutlinerView::GetItemNode(HTREEITEM hItem)
 {
-	return *(TreeNodeBasePtr *)m_TreeCtrl.GetItemData(hItem);
+	return ((ItemDataType *)m_TreeCtrl.GetItemData(hItem))->second;
 }
 
 TreeNodeBasePtr COutlinerView::GetSelectedNode(void)
@@ -478,6 +481,8 @@ void COutlinerView::SerializeSubItemRecursively(CArchive & ar, HTREEITEM hParent
 		HTREEITEM hItem = m_TreeCtrl.GetChildItem(hParent);
 		for(; hItem; hItem = m_TreeCtrl.GetNextSiblingItem(hItem))
 		{
+			UINT id = GetItemId(hItem);
+			ar << id;
 			CString szItem = m_TreeCtrl.GetItemText(hItem);
 			ar << szItem;
 			CObject * pNode = GetItemNode(hItem).get();
@@ -491,11 +496,13 @@ void COutlinerView::SerializeSubItemRecursively(CArchive & ar, HTREEITEM hParent
 		ar >> nChilds;
 		for(int i = 0; i < nChilds; i++)
 		{
+			UINT id;
+			ar >> id;
 			CString szItem;
 			ar >> szItem;
 			CObject * pNode;
 			ar >> pNode;
-			SerializeSubItemRecursively(ar, InsertItem((LPCTSTR)szItem, TreeNodeBasePtr(DYNAMIC_DOWNCAST(TreeNodeBase, pNode)), hParent, TVI_LAST));
+			SerializeSubItemRecursively(ar, InsertItem(id, (LPCTSTR)szItem, TreeNodeBasePtr(DYNAMIC_DOWNCAST(TreeNodeBase, pNode)), hParent, TVI_LAST));
 		}
 	}
 }

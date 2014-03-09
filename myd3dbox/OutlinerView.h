@@ -50,6 +50,17 @@ class COutlinerView
 	, public my::SingleInstance<COutlinerView>
 {
 public:
+	COutlinerTreeCtrl m_TreeCtrl;
+
+	CMFCToolBar m_wndToolBar;
+
+	typedef boost::unordered_map<UINT, HTREEITEM> TreeItemMap;
+
+	TreeItemMap m_ItemMap;
+
+	typedef std::pair<UINT, TreeNodeBasePtr> ItemDataType;
+
+public:
 	COutlinerView(void)
 	{
 	}
@@ -58,16 +69,6 @@ public:
 	{
 		ASSERT(m_ItemMap.empty());
 	}
-
-	DECLARE_MESSAGE_MAP()
-public:
-	COutlinerTreeCtrl m_TreeCtrl;
-
-	CMFCToolBar m_wndToolBar;
-
-	typedef boost::unordered_map<std::basic_string<TCHAR>, HTREEITEM> TreeItemMap;
-
-	TreeItemMap m_ItemMap;
 
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 
@@ -89,7 +90,9 @@ public:
 
 	afx_msg void OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult);
 
-	HTREEITEM InsertItem(const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+	HTREEITEM InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, TreeNodeBasePtr node, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+
+	UINT GetItemId(HTREEITEM hItem);
 
 	TreeNodeBasePtr GetItemNode(HTREEITEM hItem);
 
@@ -102,4 +105,6 @@ public:
 	void SerializeSubItemRecursively(CArchive & ar, HTREEITEM hParent);
 
 	void Serialize(CArchive & ar);
+
+	DECLARE_MESSAGE_MAP()
 };

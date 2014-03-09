@@ -21,13 +21,24 @@ CMainDoc::CMainDoc(void)
 
 void CMainDoc::Clear(void)
 {
-	CDocHistoryMgr::ClearAllHistory();
+	CHistoryMgr::ClearAllHistory();
+
+	m_guid = 0;
 
 	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
 }
 
 void CMainDoc::Serialize(CArchive& ar)
 {
+	if(ar.IsStoring())
+	{
+		ar << m_guid;
+	}
+	else
+	{
+		ar >> m_guid;
+	}
+
 	COutlinerView::getSingleton().Serialize(ar);
 }
 
@@ -62,7 +73,7 @@ void CMainDoc::OnCloseDocument()
 
 void CMainDoc::OnEditUndo()
 {
-	CDocHistoryMgr::Undo();
+	CHistoryMgr::Undo();
 
 	SetModifiedFlag();
 
@@ -76,7 +87,7 @@ void CMainDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
 
 void CMainDoc::OnEditRedo()
 {
-	CDocHistoryMgr::Do();
+	CHistoryMgr::Do();
 
 	SetModifiedFlag();
 
@@ -85,7 +96,7 @@ void CMainDoc::OnEditRedo()
 
 void CMainDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(m_nStep < (int)CDocHistoryMgr::size() - 1);
+	pCmdUI->Enable(m_nStep < (int)CHistoryMgr::size() - 1);
 }
 
 void CMainDoc::OnCreateMesh()
