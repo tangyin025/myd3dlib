@@ -73,7 +73,7 @@ void CLuaExporterDlg::ExportTreeNodeToLua(std::ofstream & ofs, HTREEITEM hItem, 
 {
 	if(hItem)
 	{
-		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+		CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
 		ofs << std::string(indent, '\t') << std::endl;

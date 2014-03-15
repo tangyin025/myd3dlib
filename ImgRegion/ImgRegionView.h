@@ -74,7 +74,7 @@ public:
 
 	static void DrawRegionDoc(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CImgRegionDoc * pDoc);
 
-	static void DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CTreeCtrl * pTreeCtrl, HTREEITEM hItem);
+	static void DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CImgRegionDoc * pDoc, HTREEITEM hItem);
 
 	static void DrawRegionDocImage(Gdiplus::Graphics & grap, Gdiplus::Image * img, const CRect & dstRect, const Vector4i & border, const Gdiplus::Color & color);
 
@@ -135,7 +135,7 @@ public:
 
 	void OnMenuCommand(UINT nPos, CMenu* pMenu);
 
-	static void InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal);
+	static void InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptLocal);
 
 	static void UpdateComboButtonZoomList(CMFCToolBarComboBoxButton * pSrcCombo);
 

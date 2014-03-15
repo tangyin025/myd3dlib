@@ -88,6 +88,8 @@ public:
 	virtual void ExportToLua(std::ofstream & ofs, int indent, LPCTSTR szProjectDir);
 };
 
+typedef boost::shared_ptr<CImgRegion> CImgRegionPtr;
+
 class CImgRegionDoc;
 
 class HistoryChange
@@ -112,7 +114,7 @@ class HistoryChangeItemValue
 	: public HistoryChange
 {
 public:
-	std::wstring m_itemID;
+	UINT m_itemID;
 
 	ValueType m_oldValue;
 
@@ -120,7 +122,7 @@ public:
 
 	CPropertiesWnd::Property m_property;
 
-	HistoryChangeItemValue(CImgRegionDoc * pDoc, LPCTSTR itemID, const ValueType & oldValue, const ValueType & newValue)
+	HistoryChangeItemValue(CImgRegionDoc * pDoc, UINT itemID, const ValueType & oldValue, const ValueType & newValue)
 		: HistoryChange(pDoc)
 		, m_itemID(itemID)
 		, m_oldValue(oldValue)
@@ -133,7 +135,7 @@ class HistoryChangeItemLocation
 	: public HistoryChangeItemValue<CPoint>
 {
 public:
-	HistoryChangeItemLocation(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
+	HistoryChangeItemLocation(CImgRegionDoc * pDoc, UINT itemID, const CPoint & oldValue, const CPoint & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -147,7 +149,7 @@ class HistoryChangeItemSize
 	: public HistoryChangeItemValue<CSize>
 {
 public:
-	HistoryChangeItemSize(CImgRegionDoc * pDoc, LPCTSTR itemID, const CSize & oldValue, const CSize & newValue)
+	HistoryChangeItemSize(CImgRegionDoc * pDoc, UINT itemID, const CSize & oldValue, const CSize & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -161,7 +163,7 @@ class HistoryChangeItemTextOff
 	: public HistoryChangeItemValue<CPoint>
 {
 public:
-	HistoryChangeItemTextOff(CImgRegionDoc * pDoc, LPCTSTR itemID, const CPoint & oldValue, const CPoint & newValue)
+	HistoryChangeItemTextOff(CImgRegionDoc * pDoc, UINT itemID, const CPoint & oldValue, const CPoint & newValue)
 		: HistoryChangeItemValue(pDoc, itemID, oldValue, newValue)
 	{
 	}
@@ -193,17 +195,19 @@ class HistoryAddRegion
 public:
 	CImgRegionDoc * m_pDoc;
 
-	std::wstring m_itemID;
+	UINT m_itemID;
 
-	std::wstring m_parentID;
+	std::basic_string<TCHAR> m_strItem;
 
-	std::wstring m_beforeID;
+	UINT m_parentID;
+
+	UINT m_beforeID;
 
 	CMemFile m_NodeCache;
 
 	DWORD m_OverideRegId;
 
-	HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID, LPCTSTR beforeID);
+	HistoryAddRegion(CImgRegionDoc * pDoc, UINT itemID, LPCTSTR lpszItem, UINT parentID, UINT beforeID);
 
 	virtual void Do(void);
 
@@ -218,15 +222,17 @@ class HistoryDelRegion
 public:
 	CImgRegionDoc * m_pDoc;
 
-	std::wstring m_itemID;
+	UINT m_itemID;
 
-	std::wstring m_parentID;
+	std::basic_string<TCHAR> m_strItem;
 
-	std::wstring m_beforeID;
+	UINT m_parentID;
+
+	UINT m_beforeID;
 
 	CMemFile m_NodeCache;
 
-	HistoryDelRegion(CImgRegionDoc * pDoc, LPCTSTR itemID)
+	HistoryDelRegion(CImgRegionDoc * pDoc, UINT itemID)
 		: m_pDoc(pDoc)
 		, m_itemID(itemID)
 	{
@@ -243,17 +249,17 @@ class HistoryMovRegion
 public:
 	CImgRegionDoc * m_pDoc;
 
-	std::wstring m_itemID;
+	UINT m_itemID;
 
-	std::wstring m_oldParentID;
+	UINT m_oldParentID;
 
-	std::wstring m_oldBeforeID;
+	UINT m_oldBeforeID;
 
-	std::wstring m_newParentID;
+	UINT m_newParentID;
 
-	std::wstring m_newBeforeID;
+	UINT m_newBeforeID;
 
-	HistoryMovRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR newParentID, LPCTSTR newBeforeID)
+	HistoryMovRegion(CImgRegionDoc * pDoc, UINT itemID, UINT newParentID, UINT newBeforeID)
 		: m_pDoc(pDoc)
 		, m_itemID(itemID)
 		, m_newParentID(newParentID)
@@ -286,6 +292,12 @@ class CImgRegionDoc
 	: public CDocument
 {
 public:
+	typedef boost::unordered_map<UINT, HTREEITEM> HTREEITEMMap;
+
+	HTREEITEMMap m_ItemMap;
+
+	typedef std::pair<UINT, CImgRegionPtr> ItemDataType;
+
 	CImgRegionTreeCtrl m_TreeCtrl;
 
 	CImageList m_TreeImageList;
@@ -336,6 +348,16 @@ public:
 	virtual void Serialize(CArchive& ar);
 
 public:
+	HTREEITEM InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, CImgRegionPtr reg_ptr, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+
+	UINT GetItemId(HTREEITEM hItem);
+
+	CImgRegionPtr GetItemNode(HTREEITEM hItem);
+
+	void DeleteTreeItem(HTREEITEM hItem);
+
+	HTREEITEM MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem);
+
 	void SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent = TVI_ROOT, BOOL bOverideName = FALSE);
 
 	void UpdateImageSizeTable(const CSize & sizeRoot);

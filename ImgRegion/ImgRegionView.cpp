@@ -104,7 +104,7 @@ void CImgRegionView::Draw(Gdiplus::Graphics & grap)
 	HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
 	{
-		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+		CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 		ASSERT(pReg);
 
 		CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
@@ -157,28 +157,26 @@ void CImgRegionView::DrawRegionDoc(Gdiplus::Graphics & grap, Gdiplus::Matrix & w
 		grap.FillRectangle(&brush, 0, 0, pDoc->m_Size.cx, pDoc->m_Size.cy);
 	}
 
-	ASSERT(pDoc->m_TreeCtrl.m_hWnd);
-
-	DrawRegionDocNode(grap, world, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem());
+	DrawRegionDocNode(grap, world, pDoc, pDoc->m_TreeCtrl.GetRootItem());
 }
 
-void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CTreeCtrl * pTreeCtrl, HTREEITEM hItem)
+void CImgRegionView::DrawRegionDocNode(Gdiplus::Graphics & grap, Gdiplus::Matrix & world, CImgRegionDoc * pDoc, HTREEITEM hItem)
 {
 	if(hItem)
 	{
 		grap.SetTransform(&world);
 
-		CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
+		CImgRegionPtr pReg = pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
 		pReg->Draw(grap);
 
 		Gdiplus::Matrix * childWorld = world.Clone();
 		childWorld->Translate((float)pReg->m_Location.x, (float)pReg->m_Location.y);
-		DrawRegionDocNode(grap, *childWorld, pTreeCtrl, pTreeCtrl->GetChildItem(hItem));
+		DrawRegionDocNode(grap, *childWorld, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem));
 		delete childWorld;
 
-		DrawRegionDocNode(grap, world, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem));
+		DrawRegionDocNode(grap, world, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem));
 	}
 }
 
@@ -414,7 +412,7 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			if(hSelected)
 			{
-				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
 				if(!pReg->m_Locked)
@@ -467,20 +465,20 @@ void CImgRegionView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 						break;
 					}
 
-					CString strItem = pDoc->m_TreeCtrl.GetItemText(hSelected);
+					UINT itemId = pDoc->GetItemId(hSelected);
 
 					HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 					if(pReg->m_Location != m_DragRegLocal)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, itemId, m_DragRegLocal, pReg->m_Location)));
 					}
 					if(pReg->m_Size != m_DragRegSize)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, strItem, m_DragRegSize, pReg->m_Size)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, itemId, m_DragRegSize, pReg->m_Size)));
 					}
 					if(pReg->m_TextOff != m_DragRegTextOff)
 					{
-						hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, strItem, m_DragRegTextOff, pReg->m_TextOff)));
+						hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, itemId, m_DragRegTextOff, pReg->m_TextOff)));
 					}
 					pDoc->AddNewHistory(hist);
 
@@ -537,7 +535,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			if(hSelected)
 			{
-				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
 				CRect rect(pDoc->LocalToRoot(hSelected, CPoint(0,0)), pReg->m_Size);
@@ -607,7 +605,7 @@ void CImgRegionView::OnLButtonDown(UINT nFlags, CPoint point)
 
 			if(hSelected)
 			{
-				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
 				pDoc->m_TreeCtrl.SelectItem(hSelected);
@@ -669,23 +667,23 @@ void CImgRegionView::OnLButtonUp(UINT nFlags, CPoint point)
 				HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 				ASSERT(hSelected);
 
-				CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+				CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 				ASSERT(pReg);
 
-				CString strItem = pDoc->m_TreeCtrl.GetItemText(hSelected);
+				UINT itemId = pDoc->GetItemId(hSelected);
 
 				HistoryModifyRegionPtr hist(new HistoryModifyRegion());
 				if(pReg->m_Location != m_DragRegLocal)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, strItem, m_DragRegLocal, pReg->m_Location)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemLocation(pDoc, itemId, m_DragRegLocal, pReg->m_Location)));
 				}
 				if(pReg->m_Size != m_DragRegSize)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, strItem, m_DragRegSize, pReg->m_Size)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemSize(pDoc, itemId, m_DragRegSize, pReg->m_Size)));
 				}
 				if(pReg->m_TextOff != m_DragRegTextOff)
 				{
-					hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, strItem, m_DragRegTextOff, pReg->m_TextOff)));
+					hist->push_back(HistoryChangePtr(new HistoryChangeItemTextOff(pDoc, itemId, m_DragRegTextOff, pReg->m_TextOff)));
 				}
 				if(!hist->empty())
 				{
@@ -725,7 +723,7 @@ void CImgRegionView::OnMouseMove(UINT nFlags, CPoint point)
 			HTREEITEM hSelected = pDoc->m_TreeCtrl.GetSelectedItem();
 			ASSERT(hSelected);
 	
-			CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hSelected);
+			CImgRegionPtr pReg = pDoc->GetItemNode(hSelected);
 			ASSERT(pReg);
 
 			if(!pReg->m_Locked)
@@ -857,7 +855,7 @@ void CImgRegionView::OnContextMenu(CWnd* pWnd, CPoint point)
 	my::Vector2 ptLocal = MapPoint(my::Vector2((float)point.x, (float)point.y),
 		CRect(CPoint(-GetScrollPos(SB_HORZ), -GetScrollPos(SB_VERT)), m_ImageSize), CRect(CPoint(0,0), pDoc->m_Size));
 
-	InsertPointedRegionNodeToMenuItem(&m_ContextMenu, &pDoc->m_TreeCtrl, pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
+	InsertPointedRegionNodeToMenuItem(&m_ContextMenu, pDoc, pDoc->m_TreeCtrl.GetRootItem(), CPoint((int)ptLocal.x, (int)ptLocal.y));
 
 	if(m_ContextMenu.GetMenuItemCount() == 0)
 	{
@@ -914,11 +912,11 @@ void CImgRegionView::OnMenuCommand(UINT nPos, CMenu* pMenu)
 	pFrame->m_wndProperties.InvalidProperties();
 }
 
-void CImgRegionView::InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl * pTreeCtrl, HTREEITEM hItem, const CPoint & ptLocal)
+void CImgRegionView::InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CImgRegionDoc * pDoc, HTREEITEM hItem, const CPoint & ptLocal)
 {
 	if(hItem)
 	{
-		CImgRegion * pReg = (CImgRegion *)pTreeCtrl->GetItemData(hItem);
+		CImgRegionPtr pReg = pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 
 		if(CRect(pReg->m_Location, pReg->m_Size).PtInRect(ptLocal))
@@ -926,17 +924,17 @@ void CImgRegionView::InsertPointedRegionNodeToMenuItem(CMenu * pMenu, CTreeCtrl 
 			MENUITEMINFO mii = {0};
 			mii.cbSize = sizeof(mii);
 			mii.fMask = MIIM_STATE | MIIM_DATA | MIIM_STRING;
-			mii.fState = (hItem == pTreeCtrl->GetSelectedItem() ? MFS_CHECKED : MFS_ENABLED);
+			mii.fState = (hItem == pDoc->m_TreeCtrl.GetSelectedItem() ? MFS_CHECKED : MFS_ENABLED);
 			mii.dwItemData = (ULONG_PTR)hItem;
-			CString strItem = pTreeCtrl->GetItemText(hItem);
+			CString strItem = pDoc->m_TreeCtrl.GetItemText(hItem);
 			mii.dwTypeData = strItem.GetBuffer();
 			pMenu->InsertMenuItem(-1, &mii, TRUE);
 			strItem.ReleaseBuffer();
 		}
 
-		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetChildItem(hItem), ptLocal - pReg->m_Location);
+		InsertPointedRegionNodeToMenuItem(pMenu, pDoc, pDoc->m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location);
 
-		InsertPointedRegionNodeToMenuItem(pMenu, pTreeCtrl, pTreeCtrl->GetNextSiblingItem(hItem), ptLocal);
+		InsertPointedRegionNodeToMenuItem(pMenu, pDoc, pDoc->m_TreeCtrl.GetNextSiblingItem(hItem), ptLocal);
 	}
 }
 

@@ -10,7 +10,7 @@ static void CImgRegionDocFileVersions_Loading355(CImgRegionDoc * pDoc, CArchive 
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("不支持的版本: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("锟斤拷支锟街的版本: %d"), version).c_str());
 		AfxThrowUserException();
 	}
 
@@ -60,7 +60,7 @@ static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("不支持的版本: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("锟斤拷支锟街的版本: %d"), version).c_str());
 		AfxThrowUserException();
 	}
 
@@ -68,17 +68,20 @@ static void CImgRegionDocFileVersions_LoadingSubTreeNode355(CImgRegionDoc * pDoc
 
 	for(int i = 0; i < nChilds; i++)
 	{
-		CString strName;
-		ar >> strName;
+		UINT id;
+		ar >> id;
+		CString szName;
+		ar >> szName;
+
 		if(bOverideName)
-			strName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, pDoc->m_NextRegId++);
+		{
+			id = ++pDoc->m_NextRegId;
+			szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, id);
+		}
 
-		HTREEITEM hItem = pDoc->m_TreeCtrl.InsertItem(strName, hParent, TVI_LAST); ASSERT(hItem);
+		CImgRegionPtr pReg(new CImgRegion);
+		HTREEITEM hItem = pDoc->InsertItem(id, (LPCTSTR)szName, pReg, hParent, TVI_LAST);
 
-		CImgRegion * pReg = new CImgRegion;
-		ASSERT(pReg);
-
-		pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
 		pReg->Serialize(ar, version);
 		CImgRegionDocFileVersions_LoadingSubTreeNode355(pDoc, ar, version, hItem, bOverideName);
 
@@ -101,9 +104,10 @@ void CImgRegionDocFileVersions::SerializeSubTreeNode(CImgRegionDoc * pDoc, CArch
 	for(int i = 0; i < nChilds; i++, hItem = pDoc->m_TreeCtrl.GetNextSiblingItem(hItem))
 	{
 		ASSERT(hItem);
+		ar << pDoc->GetItemId(hItem);
 		ar << pDoc->m_TreeCtrl.GetItemText(hItem);
 
-		CImgRegion * pReg = (CImgRegion *)pDoc->m_TreeCtrl.GetItemData(hItem);
+		CImgRegionPtr pReg = pDoc->GetItemNode(hItem);
 		ASSERT(pReg);
 		pReg->Serialize(ar, version);
 		SerializeSubTreeNode(pDoc, ar, version, hItem, bOverideName);
@@ -114,7 +118,7 @@ static void CImgRegionDocFileVersions_LoadingImgRegion355(CImgRegion * pReg, CAr
 {
 	if(version < 355)
 	{
-		AfxMessageBox(str_printf(_T("不支持的版本: %d"), version).c_str());
+		AfxMessageBox(str_printf(_T("锟斤拷支锟街的版本: %d"), version).c_str());
 		AfxThrowUserException();
 	}
 

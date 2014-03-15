@@ -203,16 +203,6 @@ void CImgRegionTreeCtrl::OnLButtonUp(UINT nFlags, CPoint point)
 	CTreeCtrl::OnLButtonUp(nFlags, point);
 }
 
-HTREEITEM CImgRegionTreeCtrl::InsertItem(LPCTSTR lpszItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	std::wstring key(lpszItem);
-	ASSERT(m_ItemMap.find(key) == m_ItemMap.end());
-
-	HTREEITEM hItem;
-	m_ItemMap[key] = hItem = CTreeCtrl::InsertItem(lpszItem, hParent, hInsertAfter);
-	return hItem;
-}
-
 BOOL CImgRegionTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
 {
 	if(hParent == hChild)
@@ -236,36 +226,6 @@ BOOL CImgRegionTreeCtrl::CanItemMove(HTREEITEM hParent, HTREEITEM hInsertAfter, 
 	}
 
 	return TRUE;
-}
-
-HTREEITEM CImgRegionTreeCtrl::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
-{
-	if(!CanItemMove(hParent, hInsertAfter, hOtherItem))
-	{
-		ASSERT(false); return hOtherItem;
-	}
-
-	std::wstring key(GetItemText(hOtherItem));
-	int nImage, nSelectedImage;
-	GetItemImage(hOtherItem, nImage, nSelectedImage);
-	HTREEITEM hItem = CTreeCtrl::InsertItem(key.c_str(), nImage, nSelectedImage, hParent, hInsertAfter);
-	SetItemData(hItem, GetItemData(hOtherItem));
-
-	HTREEITEM hNextOtherChild = NULL;
-	HTREEITEM hChild = TVI_LAST;
-	for(HTREEITEM hOtherChild = GetChildItem(hOtherItem); hOtherChild; hOtherChild = hNextOtherChild)
-	{
-		hNextOtherChild = GetNextSiblingItem(hOtherChild);
-
-		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
-	}
-
-	Expand(hItem, TVE_EXPAND);
-
-	DeleteItem(hOtherItem);
-
-	ASSERT(m_ItemMap.find(key) != m_ItemMap.end());
-	return m_ItemMap[key] = hItem;
 }
 
 int CImgRegionTreeCtrl::CalcChildCount(HTREEITEM hItem)
@@ -434,10 +394,10 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 		{
 			if(pTreeCtrl->CanItemMove(pDragInfo->hDragTagParent, pDragInfo->hDragTagFront, pDragInfo->hDragItem))
 			{
-				CString newParentID = pDragInfo->hDragTagParent ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagParent) : _T("");
-				CString newBeforeID = pDragInfo->hDragTagFront ? pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragTagFront) : _T("");
+				UINT newParentID = pDragInfo->hDragTagParent ? pDoc->GetItemId(pDragInfo->hDragTagParent) : 0;
+				UINT newBeforeID = pDragInfo->hDragTagFront ? pDoc->GetItemId(pDragInfo->hDragTagFront) : 0;
 				HistoryPtr hist(new HistoryMovRegion(
-					pDoc, pDoc->m_TreeCtrl.GetItemText(pDragInfo->hDragItem), newParentID, newBeforeID));
+					pDoc, pDoc->GetItemId(pDragInfo->hDragItem), newParentID, newBeforeID));
 
 				pDoc->AddNewHistory(hist);
 				hist->Do();

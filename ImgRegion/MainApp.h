@@ -17,13 +17,13 @@ public:
 
 	CArray<Gdiplus::FontFamily> fontFamilies;
 
-	typedef std::tr1::unordered_map<std::wstring, CString, boost::hash<std::wstring> > ImageMIMEMap;
+	typedef boost::unordered_map<std::wstring, CString> ImageMIMEMap;
 
 	ImageMIMEMap m_ImageMIME;
 
 	const CString & GetMIME(const CString & strExt);
 
-	typedef std::tr1::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Image>, boost::hash<std::wstring> > ImagePtrMap;
+	typedef boost::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Image> > ImagePtrMap;
 
 	ImagePtrMap m_ImageMap;
 
@@ -31,7 +31,7 @@ public:
 
 	static ImagePtr OpenTgaImage(const CString & strImg);
 
-	typedef std::tr1::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Font>, boost::hash<std::wstring> > FontPtr2Map;
+	typedef boost::unordered_map<std::wstring, boost::weak_ptr<Gdiplus::Font> > FontPtr2Map;
 
 	FontPtr2Map m_FontMap;
 

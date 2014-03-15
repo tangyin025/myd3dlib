@@ -41,8 +41,7 @@
 #include <GdiPlus.h>
 
 #include <myMath.h>
-#include <boost/functional/hash.hpp>
-#include <unordered_map>
+#include <boost/unordered_map.hpp>
 #include <fstream>
 #include <libc.h>
 

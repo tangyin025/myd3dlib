@@ -284,11 +284,11 @@ void CImgRegion::ExportToLua(std::ofstream & ofs, int indent, LPCTSTR szProjectD
 
 void HistoryChangeItemLocation::Do(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_Location = m_newValue;
@@ -296,11 +296,11 @@ void HistoryChangeItemLocation::Do(void)
 
 void HistoryChangeItemLocation::Undo(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_Location = m_oldValue;
@@ -308,11 +308,11 @@ void HistoryChangeItemLocation::Undo(void)
 
 void HistoryChangeItemSize::Do(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_Size = m_newValue;
@@ -320,11 +320,11 @@ void HistoryChangeItemSize::Do(void)
 
 void HistoryChangeItemSize::Undo(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_Size = m_oldValue;
@@ -332,11 +332,11 @@ void HistoryChangeItemSize::Undo(void)
 
 void HistoryChangeItemTextOff::Do(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_TextOff = m_newValue;
@@ -344,19 +344,20 @@ void HistoryChangeItemTextOff::Do(void)
 
 void HistoryChangeItemTextOff::Undo(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	pReg->m_TextOff = m_oldValue;
 }
 
-HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR parentID, LPCTSTR beforeID)
+HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, UINT itemID, LPCTSTR lpszItem, UINT parentID, UINT beforeID)
 	: m_pDoc(pDoc)
 	, m_itemID(itemID)
+	, m_strItem(lpszItem)
 	, m_parentID(parentID)
 	, m_beforeID(beforeID)
 	, m_OverideRegId(0)
@@ -365,14 +366,11 @@ HistoryAddRegion::HistoryAddRegion(CImgRegionDoc * pDoc, LPCTSTR itemID, LPCTSTR
 
 void HistoryAddRegion::Do(void)
 {
-	HTREEITEM hParent = m_parentID.empty() ? TVI_ROOT : m_pDoc->m_TreeCtrl.m_ItemMap[m_parentID];
-	HTREEITEM hBefore = m_beforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_beforeID];
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, hBefore);
+	HTREEITEM hParent = !m_parentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_parentID];
+	HTREEITEM hBefore = !m_beforeID ? TVI_LAST : m_pDoc->m_ItemMap[m_beforeID];
 
-	CImgRegion * pReg = new CImgRegion;
-	ASSERT(pReg);
-
-	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+	CImgRegionPtr pReg(new CImgRegion);
+	HTREEITEM hItem = m_pDoc->InsertItem(m_itemID, m_strItem, pReg, hParent, hBefore);
 
 	// ! 使用 OverideRegId，防止发生重名，又可以再undo之后重名创建
 	if(0 == m_OverideRegId)
@@ -401,20 +399,22 @@ void HistoryAddRegion::Do(void)
 
 void HistoryAddRegion::Undo(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	m_pDoc->m_TreeCtrl.DeleteTreeItem<CImgRegion>(hItem, TRUE);
+	m_pDoc->DeleteTreeItem(hItem);
 }
 
 void HistoryDelRegion::Do(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
-	CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hItem);
+	m_strItem = m_pDoc->m_TreeCtrl.GetItemText(hItem);
+
+	CImgRegionPtr pReg = m_pDoc->GetItemNode(hItem);
 	ASSERT(pReg);
 
 	m_NodeCache.SetLength(0);
@@ -424,24 +424,21 @@ void HistoryDelRegion::Do(void)
 	ar.Close();
 
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
-	m_parentID = hParent ? m_pDoc->m_TreeCtrl.GetItemText(hParent) : _T("");
+	m_parentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
 
 	HTREEITEM hBefore = m_pDoc->m_TreeCtrl.GetPrevSiblingItem(hItem);
-	m_beforeID = hBefore ? m_pDoc->m_TreeCtrl.GetItemText(hBefore) : _T("");
+	m_beforeID = hBefore ? m_pDoc->GetItemId(hBefore) : 0;
 
-	m_pDoc->m_TreeCtrl.DeleteTreeItem<CImgRegion>(hItem, TRUE);
+	m_pDoc->DeleteTreeItem(hItem);
 }
 
 void HistoryDelRegion::Undo(void)
 {
-	HTREEITEM hParent = m_parentID.empty() ? TVI_ROOT : m_pDoc->m_TreeCtrl.m_ItemMap[m_parentID];
-	HTREEITEM hBefore = m_beforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_beforeID];
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.InsertItem(m_itemID.c_str(), hParent, hBefore);
+	HTREEITEM hParent = !m_parentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_parentID];
+	HTREEITEM hBefore = !m_beforeID ? TVI_LAST : m_pDoc->m_ItemMap[m_beforeID];
 
-	CImgRegion * pReg = new CImgRegion;
-	ASSERT(pReg);
-
-	m_pDoc->m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)pReg);
+	CImgRegionPtr pReg(new CImgRegion);
+	HTREEITEM hItem = m_pDoc->InsertItem(m_itemID, m_strItem, pReg, hParent, hBefore);
 
 	ASSERT(m_NodeCache.GetLength() > 0);
 	m_NodeCache.SeekToBegin();
@@ -457,26 +454,26 @@ void HistoryDelRegion::Undo(void)
 
 void HistoryMovRegion::Do(void)
 {
-	ASSERT(m_pDoc->m_TreeCtrl.m_ItemMap.find(m_itemID) != m_pDoc->m_TreeCtrl.m_ItemMap.end());
+	ASSERT(m_pDoc->m_ItemMap.find(m_itemID) != m_pDoc->m_ItemMap.end());
 
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 	HTREEITEM hParent = m_pDoc->m_TreeCtrl.GetParentItem(hItem);
 	HTREEITEM hBefore = m_pDoc->m_TreeCtrl.GetPrevSiblingItem(hItem);
 
-	m_oldParentID = hParent ? m_pDoc->m_TreeCtrl.GetItemText(hParent) : _T("");
-	m_oldBeforeID = hBefore ? m_pDoc->m_TreeCtrl.GetItemText(hBefore) : _T("");
+	m_oldParentID = hParent ? m_pDoc->GetItemId(hParent) : 0;
+	m_oldBeforeID = hBefore ? m_pDoc->GetItemId(hBefore) : 0;
 
 	CPoint ptOrg = m_pDoc->LocalToRoot(hItem, CPoint(0,0));
 
-	HTREEITEM hNewParent = m_newParentID.empty() ? TVI_ROOT : m_pDoc->m_TreeCtrl.m_ItemMap[m_newParentID];
-	HTREEITEM hNewBefore = m_newBeforeID.empty() ? TVI_LAST : m_pDoc->m_TreeCtrl.m_ItemMap[m_newBeforeID];
+	HTREEITEM hNewParent = !m_newParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_newParentID];
+	HTREEITEM hNewBefore = !m_newBeforeID ? TVI_LAST : m_pDoc->m_ItemMap[m_newBeforeID];
 
-	HTREEITEM hNewItem = m_pDoc->m_TreeCtrl.MoveTreeItem(hNewParent, hNewBefore, hItem);
+	HTREEITEM hNewItem = m_pDoc->MoveTreeItem(hNewParent, hNewBefore, hItem);
 	if(hNewItem != hItem)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hNewItem);
 
-		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hNewItem);
+		CImgRegionPtr pReg = m_pDoc->GetItemNode(hNewItem);
 		ASSERT(pReg);
 
 		pReg->m_Location = m_pDoc->RootToLocal(hNewParent, ptOrg);
@@ -485,19 +482,19 @@ void HistoryMovRegion::Do(void)
 
 void HistoryMovRegion::Undo(void)
 {
-	HTREEITEM hItem = m_pDoc->m_TreeCtrl.m_ItemMap[m_itemID];
+	HTREEITEM hItem = m_pDoc->m_ItemMap[m_itemID];
 
 	CPoint ptOrg = m_pDoc->LocalToRoot(hItem, CPoint(0,0));
 
-	HTREEITEM hOldParent = m_oldParentID.empty() ? TVI_ROOT : m_pDoc->m_TreeCtrl.m_ItemMap[m_oldParentID];
-	HTREEITEM hOldBefore = m_oldBeforeID.empty() ? TVI_FIRST : m_pDoc->m_TreeCtrl.m_ItemMap[m_oldBeforeID];
+	HTREEITEM hOldParent = !m_oldParentID ? TVI_ROOT : m_pDoc->m_ItemMap[m_oldParentID];
+	HTREEITEM hOldBefore = !m_oldBeforeID ? TVI_FIRST : m_pDoc->m_ItemMap[m_oldBeforeID];
 
-	HTREEITEM hOldItem = m_pDoc->m_TreeCtrl.MoveTreeItem(hOldParent, hOldBefore, hItem);
+	HTREEITEM hOldItem = m_pDoc->MoveTreeItem(hOldParent, hOldBefore, hItem);
 	if(hOldItem != hItem)
 	{
 		m_pDoc->m_TreeCtrl.SelectItem(hOldItem);
 
-		CImgRegion * pReg = (CImgRegion *)m_pDoc->m_TreeCtrl.GetItemData(hOldItem);
+		CImgRegionPtr pReg = m_pDoc->GetItemNode(hOldItem);
 		ASSERT(pReg);
 
 		pReg->m_Location = m_pDoc->RootToLocal(hOldParent, ptOrg);
@@ -544,7 +541,7 @@ END_MESSAGE_MAP()
 
 CImgRegionDoc::CImgRegionDoc(void)
 	: m_HistoryStep(0)
-	, m_NextRegId(1)
+	, m_NextRegId(0)
 {
 }
 
@@ -553,7 +550,7 @@ CPoint CImgRegionDoc::LocalToRoot(HTREEITEM hItem, const CPoint & ptLocal)
 	if(NULL == hItem)
 		return ptLocal;
 
-	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = GetItemNode(hItem);
 	ASSERT(pReg);
 
 	return LocalToRoot(m_TreeCtrl.GetParentItem(hItem), ptLocal + pReg->m_Location);
@@ -564,7 +561,7 @@ CPoint CImgRegionDoc::RootToLocal(HTREEITEM hItem, const CPoint & ptRoot)
 	if(NULL == hItem || TVI_ROOT == hItem)
 		return ptRoot;
 
-	CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
+	CImgRegionPtr pReg = GetItemNode(hItem);
 	ASSERT(pReg);
 
 	return RootToLocal(m_TreeCtrl.GetParentItem(hItem), ptRoot - pReg->m_Location);
@@ -608,10 +605,11 @@ void CImgRegionDoc::DestroyTreeCtrl(void)
 	{
 		hNextItem = m_TreeCtrl.GetNextSiblingItem(hItem);
 
-		m_TreeCtrl.DeleteTreeItem<CImgRegion>(hItem, TRUE);
+		DeleteTreeItem(hItem);
 	}
 
-	ASSERT(m_TreeCtrl.m_ItemMap.empty());
+	ASSERT(m_ItemMap.empty());
+
 	m_TreeCtrl.DestroyWindow();
 
 	m_TreeImageList.DeleteImageList();
@@ -626,7 +624,7 @@ HTREEITEM CImgRegionDoc::GetPointedRegionNode(HTREEITEM hItem, const CPoint & pt
 		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetNextSiblingItem(hItem), ptLocal))
 			return hRet;
 
-		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hItem);
+		CImgRegionPtr pReg = GetItemNode(hItem);
 		ASSERT(pReg);
 
 		if(hRet = GetPointedRegionNode(m_TreeCtrl.GetChildItem(hItem), ptLocal - pReg->m_Location))
@@ -730,6 +728,81 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 	}
 }
 
+HTREEITEM CImgRegionDoc::InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, CImgRegionPtr reg_ptr, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	ASSERT(m_ItemMap.find(id) == m_ItemMap.end());
+
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(strItem.c_str(), 0, 0, hParent, hInsertAfter);
+	m_TreeCtrl.SetItemData(hItem, (DWORD_PTR)(new ItemDataType(id, reg_ptr)));
+	m_ItemMap[id] = hItem;
+	return hItem;
+}
+
+UINT CImgRegionDoc::GetItemId(HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	DWORD_PTR pData = m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pData);
+	return ((ItemDataType *)pData)->first;
+}
+
+CImgRegionPtr CImgRegionDoc::GetItemNode(HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	DWORD_PTR pData = m_TreeCtrl.GetItemData(hItem);
+	ASSERT(pData);
+	return ((ItemDataType *)pData)->second;
+}
+
+void CImgRegionDoc::DeleteTreeItem(HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	UINT id = GetItemId(hItem);
+	ASSERT(m_ItemMap.find(id) != m_ItemMap.end());
+
+	delete (ItemDataType *)m_TreeCtrl.GetItemData(hItem);
+
+	HTREEITEM hNextChild = NULL;
+	for(HTREEITEM hChild = m_TreeCtrl.GetChildItem(hItem); NULL != hChild; hChild = hNextChild)
+	{
+		hNextChild = m_TreeCtrl.GetNextSiblingItem(hChild);
+		DeleteTreeItem(hChild);
+	}
+
+	m_TreeCtrl.DeleteItem(hItem);
+	m_ItemMap.erase(id);
+}
+
+HTREEITEM CImgRegionDoc::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
+{
+	if(!m_TreeCtrl.CanItemMove(hParent, hInsertAfter, hOtherItem))
+	{
+		ASSERT(false); return hOtherItem;
+	}
+
+	int nImage, nSelectedImage;
+	m_TreeCtrl.GetItemImage(hOtherItem, nImage, nSelectedImage);
+	HTREEITEM hItem = m_TreeCtrl.InsertItem(m_TreeCtrl.GetItemText(hOtherItem), nImage, nSelectedImage, hParent, hInsertAfter);
+	m_TreeCtrl.SetItemData(hItem, m_TreeCtrl.GetItemData(hOtherItem));
+
+	UINT itemId = GetItemId(hOtherItem);
+	ASSERT(m_ItemMap.find(itemId) != m_ItemMap.end());
+	m_ItemMap[itemId] = hItem;
+
+	HTREEITEM hNextOtherChild = NULL;
+	HTREEITEM hChild = TVI_LAST;
+	for(HTREEITEM hOtherChild = m_TreeCtrl.GetChildItem(hOtherItem); hOtherChild; hOtherChild = hNextOtherChild)
+	{
+		hNextOtherChild = m_TreeCtrl.GetNextSiblingItem(hOtherChild);
+
+		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
+	}
+
+	m_TreeCtrl.Expand(hItem, TVE_EXPAND);
+	m_TreeCtrl.DeleteItem(hOtherItem);
+	return hItem;
+}
+
 void CImgRegionDoc::SerializeSubTreeNode(CArchive & ar, int version, HTREEITEM hParent, BOOL bOverideName)
 {
 	CImgRegionDocFileVersions::SerializeSubTreeNode(this, ar, version, hParent, bOverideName);
@@ -763,14 +836,15 @@ void CImgRegionDoc::OnAddRegion()
 	if(hSelected)
 	{
 		hParent = m_TreeCtrl.GetParentItem(hSelected);
-		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		CImgRegionPtr pReg = GetItemNode(hSelected);
 		ptOrg += pReg->m_Location;
 	}
 
-	CString strName;
-	strName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId++);
+	m_NextRegId++;
+	CString szName;
+	szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
 	HistoryAddRegionPtr hist(new HistoryAddRegion(
-		this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), hSelected ? m_TreeCtrl.GetItemText(hSelected) : _T("")));
+		this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, hSelected ? GetItemId(hSelected) : 0));
 
 	CImgRegion reg;
 	reg.m_Location = ptOrg;
@@ -815,13 +889,13 @@ void CImgRegionDoc::OnDelRegion()
 	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
 	{
-		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		CImgRegionPtr pReg = GetItemNode(hSelected);
 		ASSERT(pReg);
 
 		if(!pReg->m_Locked)
 		{
 			HistoryPtr hist(new HistoryDelRegion(
-				this, m_TreeCtrl.GetItemText(hSelected)));
+				this, GetItemId(hSelected)));
 
 			AddNewHistory(hist);
 			hist->Do();
@@ -924,7 +998,7 @@ void CImgRegionDoc::OnEditCopy()
 	HTREEITEM hSelected = m_TreeCtrl.GetSelectedItem();
 	if(hSelected)
 	{
-		CImgRegion * pReg = (CImgRegion *)m_TreeCtrl.GetItemData(hSelected);
+		CImgRegionPtr pReg = GetItemNode(hSelected);
 		ASSERT(pReg);
 
 		theApp.m_ClipboardFile.SetLength(0);
@@ -953,10 +1027,11 @@ void CImgRegionDoc::OnEditPaste()
 			hParent = m_TreeCtrl.GetParentItem(hSelected);
 		}
 
-		CString strName;
-		strName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId++);
+		m_NextRegId++;
+		CString szName;
+		szName.Format(CImgRegionDocFileVersions::DEFAULT_CONTROL_NAME, m_NextRegId);
 		HistoryAddRegionPtr hist(new HistoryAddRegion(
-			this, strName, hParent ? m_TreeCtrl.GetItemText(hParent) : _T(""), m_TreeCtrl.GetItemText(hSelected)));
+			this, m_NextRegId, (LPCTSTR)szName, hParent ? GetItemId(hParent) : 0, hSelected ? GetItemId(hSelected) : 0));
 
 		void * pBuffer;
 		void * pBufferMax;
