@@ -315,12 +315,16 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		}
 		if(req_iter != m_IORequestList.end())
 		{
+			// ! req_iter will be invalid after release mutex
+			IORequestPtr request = req_iter->second;
+
 			m_IORequestListMutex.Release();
 
 			// ! havent handled exception
-			req_iter->second->DoLoad();
+			request->DoLoad();
 
-			req_iter->second->m_LoadEvent.SetEvent(); // ! req_iter may be invalid immediately
+			// ! request will be decrease after set event, shared_ptr must be thread safe
+			request->m_LoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait();
 		}

@@ -18,12 +18,12 @@
 #define ID_VIEW_APPLOOK_OFF_2007_BLACK  40008
 #define ID_VIEW_APPLOOK_OFF_2007_SILVER 40009
 #define ID_VIEW_APPLOOK_OFF_2007_AQUA   40010
-#define ID_BUTTON40013                  40011
-#define ID_CREATE_MESH                  40012
-#define ID_EXPAND_ALL                   40013
-#define ID_SORTPROPERTIES               40014
-#define ID_TRANSFORM_MOVE               40015
-#define ID_TRANSFORM_ROTATE             40016
+#define ID_EXPAND_ALL                   40011
+#define ID_SORTPROPERTIES               40012
+#define ID_TRANSFORM_MOVE               40013
+#define ID_TRANSFORM_ROTATE             40014
+#define ID_CREATE_MESHFROMFILE          40015
+#define ID_CREATE_COLLISIONCAPSULE      40016
 
 // Next default values for new objects
 // 

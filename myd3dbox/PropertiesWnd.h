@@ -127,6 +127,17 @@ protected:
 	CRect m_rectCheck;
 };
 
+class CPropertiesToolBar : public CMFCToolBar
+{
+public:
+	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
+	{
+		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*) GetOwner(), bDisableIfNoHndler);
+	}
+
+	virtual BOOL AllowShowOnList() const { return FALSE; }
+};
+
 class TreeNodeBase;
 
 class CPropertiesWnd
@@ -141,7 +152,7 @@ public:
 
 	DECLARE_MESSAGE_MAP()
 public:
-	CMFCToolBar m_wndToolBar;
+	CPropertiesToolBar m_wndToolBar;
 
 	CMFCPropertyGridCtrl m_wndPropList;
 
@@ -156,6 +167,14 @@ public:
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
+
+	afx_msg void OnExpandAllProperties();
+
+	afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
+
+	afx_msg void OnSortProperties();
+
+	afx_msg void OnUpdateSortProperties(CCmdUI* pCmdUI);
 
 	afx_msg LRESULT OnPropertyChanged(WPARAM wParam, LPARAM lParam);
 

@@ -90,7 +90,14 @@ BEGIN
     END
     POPUP "&Create"
     BEGIN
-        MENUITEM "Mesh...",                     ID_CREATE_MESH
+        POPUP "&Mesh"
+        BEGIN
+            MENUITEM "&From File...",               ID_CREATE_MESHFROMFILE
+        END
+        POPUP "&Collision"
+        BEGIN
+            MENUITEM "&Capsule",                    40018
+        END
     END
     POPUP "&View"
     BEGIN
@@ -149,7 +156,7 @@ END
 
 IDR_TOOLBAR1 TOOLBAR  16, 15
 BEGIN
-    BUTTON      ID_BUTTON40013
+    BUTTON      ID_CREATE_MESHFROMFILE
 END
 
 IDR_TOOLBAR2 TOOLBAR  16, 16

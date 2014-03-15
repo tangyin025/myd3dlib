@@ -12,7 +12,7 @@ BEGIN_MESSAGE_MAP(CMainDoc, CDocument)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainDoc::OnUpdateEditUndo)
 	ON_COMMAND(ID_EDIT_REDO, &CMainDoc::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainDoc::OnUpdateEditRedo)
-	ON_COMMAND(ID_CREATE_MESH, &CMainDoc::OnCreateMesh)
+	ON_COMMAND(ID_CREATE_MESHFROMFILE, &CMainDoc::OnCreateMeshFromFile)
 END_MESSAGE_MAP()
 
 CMainDoc::CMainDoc(void)
@@ -99,7 +99,7 @@ void CMainDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
 	pCmdUI->Enable(m_nStep < (int)CHistoryMgr::size() - 1);
 }
 
-void CMainDoc::OnCreateMesh()
+void CMainDoc::OnCreateMeshFromFile()
 {
 	CFileDialog dlg(TRUE);
 	if(IDOK == dlg.DoModal())

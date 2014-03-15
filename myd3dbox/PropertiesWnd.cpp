@@ -316,6 +316,10 @@ BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
+	ON_COMMAND(ID_EXPAND_ALL, OnExpandAllProperties)
+	ON_UPDATE_COMMAND_UI(ID_EXPAND_ALL, OnUpdateExpandAllProperties)
+	ON_COMMAND(ID_SORTPROPERTIES, OnSortProperties)
+	ON_UPDATE_COMMAND_UI(ID_SORTPROPERTIES, OnUpdateSortProperties)
 	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
 	ON_MESSAGE(WM_IDLEUPDATECMDUI, &CPropertiesWnd::OnIdleUpdateCmdUI)
 END_MESSAGE_MAP()
@@ -354,9 +358,12 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndPropList.MarkModifiedProperties();
 	m_wndPropList.SetFont(&(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_fntPropList);
 
-	if (!m_wndToolBar.Create(this, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_HIDE_INPLACE | CBRS_TOOLTIPS | CBRS_FLYBY, IDR_TOOLBAR1)
-		|| !m_wndToolBar.LoadToolBar(IDR_TOOLBAR2, 0, 0, TRUE))
+	if (!m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_TOOLBAR2) || !m_wndToolBar.LoadToolBar(IDR_TOOLBAR2, 0, 0, TRUE))
 		return -1;
+
+	// All commands will be routed via this control , not via the parent frame:
+	m_wndToolBar.SetOwner(this);
+	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
 	AdjustLayout();
 
@@ -375,6 +382,25 @@ void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
 	CDockablePane::OnSetFocus(pOldWnd);
 
 	m_wndPropList.SetFocus();
+}
+
+void CPropertiesWnd::OnExpandAllProperties()
+{
+	m_wndPropList.ExpandAll();
+}
+
+void CPropertiesWnd::OnUpdateExpandAllProperties(CCmdUI* pCmdUI)
+{
+}
+
+void CPropertiesWnd::OnSortProperties()
+{
+	m_wndPropList.SetAlphabeticMode(!m_wndPropList.IsAlphabeticMode());
+}
+
+void CPropertiesWnd::OnUpdateSortProperties(CCmdUI* pCmdUI)
+{
+	pCmdUI->SetCheck(m_wndPropList.IsAlphabeticMode());
 }
 
 LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)

@@ -302,14 +302,8 @@ int COutlinerView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!m_TreeCtrl.Create(WS_CHILD | WS_VISIBLE | TVS_EDITLABELS | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS, CRect(10,10,100,100), this, 4))
 		return -1;
 
-	if (!m_wndToolBar.Create(this, WS_CHILD | WS_VISIBLE | CBRS_TOP | CBRS_HIDE_INPLACE | CBRS_TOOLTIPS | CBRS_FLYBY, IDR_TOOLBAR1)
-		|| !m_wndToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE))
+	if (!m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_TOOLBAR1) || !m_wndToolBar.LoadToolBar(IDR_TOOLBAR1, 0, 0, TRUE))
 		return -1;
-
-	CMenu menu;
-	menu.LoadMenu(IDR_MAINFRAME);
-	m_wndToolBar.ReplaceButton(ID_BUTTON40013, CMFCToolBarMenuButton(
-		-1, menu.GetSubMenu(2)->GetSafeHmenu(), GetCmdMgr()->GetCmdImage(ID_FILE_NEW, FALSE)));
 
 	return 0;
 }
