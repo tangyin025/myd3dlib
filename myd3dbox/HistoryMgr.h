@@ -122,5 +122,5 @@ public:
 
 	void DeleteTreeNode(HTREEITEM hItem);
 
-	void AddMeshTreeNode(LPCTSTR lpszMesh);
+	void AddTreeNodeMeshFromFile(LPCTSTR lpszMesh);
 };

@@ -37,9 +37,9 @@ void TreeNodeBase::Serialize(CArchive & ar)
 	}
 }
 
-IMPLEMENT_SERIAL(MeshTreeNode, TreeNodeBase, 1)
+IMPLEMENT_SERIAL(TreeNodeMesh, TreeNodeBase, 1)
 
-void MeshTreeNode::Serialize(CArchive & ar)
+void TreeNodeMesh::Serialize(CArchive & ar)
 {
 	TreeNodeBase::Serialize(ar);
 
@@ -54,70 +54,6 @@ void MeshTreeNode::Serialize(CArchive & ar)
 		CString path;
 		ar >> path;
 		LoadFromMesh(path);
-	}
-}
-
-bool MeshTreeNode::LoadFromMesh(LPCTSTR lpszMesh)
-{
-	m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
-	if(!m_Mesh)
-	{
-		return false;
-	}
-
-	m_OpcMeshInterface.SetNbTriangles(m_Mesh->GetNumFaces());
-	m_OpcMeshInterface.SetNbVertices(m_Mesh->GetNumVertices());
-	m_OpcMeshInterfaceCB.m_pMesh = m_Mesh.get();
-	m_OpcMeshInterfaceCB.m_pIndices = m_Mesh->LockIndexBuffer();
-	m_OpcMeshInterfaceCB.m_pVertices = m_Mesh->LockVertexBuffer();
-	if(m_Mesh->GetOptions() & D3DXMESH_32BIT)
-	{
-		m_OpcMeshInterface.SetCallback(Callback::Func<DWORD>, &m_OpcMeshInterfaceCB);
-	}
-	else
-	{
-		m_OpcMeshInterface.SetCallback(Callback::Func<WORD>, &m_OpcMeshInterfaceCB);
-	}
-	Opcode::OPCODECREATE Create;
-	Create.mIMesh			= &m_OpcMeshInterface;
-	Create.mSettings.mLimit	= 1;
-	Create.mSettings.mRules	= Opcode::SPLIT_SPLATTER_POINTS | Opcode::SPLIT_GEOM_CENTER;
-	Create.mNoLeaf			= true;
-	Create.mQuantized		= true;
-	Create.mKeepOriginal	= false;
-	Create.mCanRemap		= false;
-	m_OpcMode.Build(Create);
-	// ! 这里的d3dxmesh必须是D3DPOOL_MANAGED，保证buffer内存地址始终有效
-	m_Mesh->UnlockIndexBuffer();
-	m_Mesh->UnlockVertexBuffer();
-
-	std::vector<std::string>::const_iterator mat_name_iter = m_Mesh->m_MaterialNameList.begin();
-	for(; mat_name_iter != m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-	{
-		MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
-		mat = mat ? mat : theApp.m_DefaultMat;
-		m_Materials.push_back(MeshTreeNode::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-	}
-	return true;
-}
-
-void MeshTreeNode::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
-{
-	for(DWORD i = 0; i < m_Materials.size(); i++)
-	{
-		MaterialPairList::reference mat_pair = m_Materials[i];
-		_ASSERT(mat_pair.second);
-		mat_pair.second->SetMatrix("g_World", Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
-		mat_pair.second->SetTexture("g_MeshTexture", mat_pair.first->m_DiffuseTexture);
-		mat_pair.second->SetTechnique("RenderScene");
-		UINT passes = mat_pair.second->Begin();
-		for(UINT p = 0; p < passes; p++)
-		{
-			mat_pair.second->BeginPass(p);
-			m_Mesh->DrawSubset(i);
-			mat_pair.second->EndPass();
-		}
-		mat_pair.second->End();
 	}
 }
 
@@ -167,7 +103,7 @@ void GetPropertyQuatZ(const CSimpleProp * pProp, Quaternion * pValue)
 	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pParentProp->GetSubItem(0)->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(1)->GetValue().fltVal), D3DXToRadian(pProp->GetValue().fltVal)));
 }
 
-void MeshTreeNode::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+void TreeNodeBase::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 {
 	CSimpleProp * pWorld = new CSimpleProp(_T("World"));
 	CSimpleProp * pPosition = new CSimpleProp(_T("Position"), 0, TRUE);
@@ -218,7 +154,76 @@ void MeshTreeNode::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 	pPropertyGridCtrl->AddProperty(pWorld);
 }
 
-bool MeshTreeNode::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+bool TreeNodeMesh::LoadFromMesh(LPCTSTR lpszMesh)
+{
+	m_Mesh = theApp.LoadMesh(ts2ms(lpszMesh));
+	if(!m_Mesh)
+	{
+		return false;
+	}
+
+	m_OpcMeshInterface.SetNbTriangles(m_Mesh->GetNumFaces());
+	m_OpcMeshInterface.SetNbVertices(m_Mesh->GetNumVertices());
+	m_OpcMeshInterfaceCB.m_pMesh = m_Mesh.get();
+	m_OpcMeshInterfaceCB.m_pIndices = m_Mesh->LockIndexBuffer();
+	m_OpcMeshInterfaceCB.m_pVertices = m_Mesh->LockVertexBuffer();
+	if(m_Mesh->GetOptions() & D3DXMESH_32BIT)
+	{
+		m_OpcMeshInterface.SetCallback(Callback::Func<DWORD>, &m_OpcMeshInterfaceCB);
+	}
+	else
+	{
+		m_OpcMeshInterface.SetCallback(Callback::Func<WORD>, &m_OpcMeshInterfaceCB);
+	}
+	Opcode::OPCODECREATE Create;
+	Create.mIMesh			= &m_OpcMeshInterface;
+	Create.mSettings.mLimit	= 1;
+	Create.mSettings.mRules	= Opcode::SPLIT_SPLATTER_POINTS | Opcode::SPLIT_GEOM_CENTER;
+	Create.mNoLeaf			= true;
+	Create.mQuantized		= true;
+	Create.mKeepOriginal	= false;
+	Create.mCanRemap		= false;
+	m_OpcMode.Build(Create);
+	// ! 这里的d3dxmesh必须是D3DPOOL_MANAGED，保证buffer内存地址始终有效
+	m_Mesh->UnlockIndexBuffer();
+	m_Mesh->UnlockVertexBuffer();
+
+	std::vector<std::string>::const_iterator mat_name_iter = m_Mesh->m_MaterialNameList.begin();
+	for(; mat_name_iter != m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	{
+		MaterialPtr mat = theApp.LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
+		mat = mat ? mat : theApp.m_DefaultMat;
+		m_Materials.push_back(TreeNodeMesh::MaterialPair(mat, theApp.LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+	}
+	return true;
+}
+
+void TreeNodeMesh::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+}
+
+void TreeNodeMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
+{
+	for(DWORD i = 0; i < m_Materials.size(); i++)
+	{
+		MaterialPairList::reference mat_pair = m_Materials[i];
+		_ASSERT(mat_pair.second);
+		mat_pair.second->SetMatrix("g_World", Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+		mat_pair.second->SetTexture("g_MeshTexture", mat_pair.first->m_DiffuseTexture);
+		mat_pair.second->SetTechnique("RenderScene");
+		UINT passes = mat_pair.second->Begin();
+		for(UINT p = 0; p < passes; p++)
+		{
+			mat_pair.second->BeginPass(p);
+			m_Mesh->DrawSubset(i);
+			mat_pair.second->EndPass();
+		}
+		mat_pair.second->End();
+	}
+}
+
+bool TreeNodeMesh::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
 {
 	// ! Opcode不支持缩放矩阵，这里需要先变换为模型本地射线
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();

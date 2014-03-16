@@ -34,5 +34,13 @@ public:
 
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 
-	afx_msg void OnCreateMeshFromFile();
+	afx_msg void OnCreateMeshfromfile();
+
+	afx_msg void OnCreateCollisioncapsule();
+
+	afx_msg void OnCreateCollisionbox();
+
+	afx_msg void OnCreateJointrevolute();
+
+	afx_msg void OnCreateJointd6();
 };

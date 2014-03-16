@@ -25,16 +25,16 @@ public:
 
 	virtual void Serialize(CArchive & ar);
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World) = 0;
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
 
-	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl) = 0;
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World) = 0;
 
 	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World) = 0;
 };
 
 typedef boost::shared_ptr<TreeNodeBase> TreeNodeBasePtr;
 
-class MeshTreeNode : public TreeNodeBase
+class TreeNodeMesh : public TreeNodeBase
 {
 public:
 	struct Callback
@@ -71,7 +71,7 @@ public:
 	Opcode::Model m_OpcMode;
 
 public:
-	MeshTreeNode(void)
+	TreeNodeMesh(void)
 	{
 	}
 
@@ -79,13 +79,13 @@ public:
 
 	bool LoadFromMesh(LPCTSTR lpszMesh);
 
-	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
-
 	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
 
 	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
 
-	DECLARE_SERIAL(MeshTreeNode)
+	DECLARE_SERIAL(TreeNodeMesh)
 };
 
-typedef boost::shared_ptr<MeshTreeNode> MeshTreeNodePtr;
+typedef boost::shared_ptr<TreeNodeMesh> MeshTreeNodePtr;

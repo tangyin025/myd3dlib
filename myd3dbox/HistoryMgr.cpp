@@ -47,7 +47,7 @@ void CDeleteTreeNodeStep::Do(void)
 
 	HTREEITEM hItem = pOutliner->m_ItemMap[m_itemID];
 	m_strItem = pOutliner->m_TreeCtrl.GetItemText(hItem);
-	m_node = boost::dynamic_pointer_cast<MeshTreeNode>(pOutliner->GetItemNode(hItem));
+	m_node = boost::dynamic_pointer_cast<TreeNodeMesh>(pOutliner->GetItemNode(hItem));
 	ASSERT(m_node);
 
 	HTREEITEM hParent = pOutliner->m_TreeCtrl.GetParentItem(hItem);
@@ -128,9 +128,9 @@ void CHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 	m_nStep++;
 }
 
-void CHistoryMgr::AddMeshTreeNode(LPCTSTR lpszMesh)
+void CHistoryMgr::AddTreeNodeMeshFromFile(LPCTSTR lpszMesh)
 {
-	MeshTreeNodePtr node(new MeshTreeNode);
+	MeshTreeNodePtr node(new TreeNodeMesh);
 	if(node->LoadFromMesh(lpszMesh))
 	{
 		AddTreeNode(PathFindFileName(lpszMesh), node);
