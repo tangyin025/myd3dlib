@@ -4,6 +4,7 @@
 #include <boost/bind.hpp>
 #include "OutputWnd.h"
 #include "MainApp.h"
+#include "IceHelpers.h"
 
 using namespace my;
 
@@ -233,4 +234,58 @@ bool TreeNodeMesh::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, cons
 	collider.SetPrimitiveTests(true);
 	collider.SetTemporalCoherence(false);
 	return collider.Collide(ir, m_OpcMode, NULL, NULL) && collider.GetContactStatus();
+}
+
+IMPLEMENT_SERIAL(TreeNodeCollisionCapsule, TreeNodeBase, 1)
+
+void TreeNodeCollisionCapsule::Serialize(CArchive & ar)
+{
+	TreeNodeBase::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		ar << m_Radius;
+		ar << m_Height;
+	}
+	else
+	{
+		ar >> m_Radius;
+		ar >> m_Height;
+	}
+}
+
+void TreeNodeCollisionCapsule::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pCapsule = new CSimpleProp(_T("Capsule"));
+	CSimpleProp * pProp = new CSimpleProp(_T("Radius"), (_variant_t)m_Radius, _T("Radius"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Radius);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Radius);
+	pCapsule->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("Height"), (_variant_t)m_Radius, _T("Height"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Height);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Height);
+	pCapsule->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pCapsule);
+}
+
+void TreeNodeCollisionCapsule::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+{
+	// ! 绘制有问题，会延迟一帧
+	DrawHelper::DrawCapsule(pd3dDevice, m_Radius, m_Height, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+}
+
+bool TreeNodeCollisionCapsule::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+{
+	// ! 这里的Capsule默认是Y轴向，这可能和Nvidia Physx不一样
+	m_Capsule.mP0 = IceMaths::Point(0, -m_Height * 0.5f, 0);
+	m_Capsule.mP1 = IceMaths::Point(0,  m_Height * 0.5f, 0);
+	m_Capsule.mRadius = m_Radius;
+	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
+	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
+	float s[2];
+	return RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
 }

@@ -125,6 +125,11 @@ void CMainDoc::OnCreateMeshfromfile()
 
 void CMainDoc::OnCreateCollisioncapsule()
 {
+	AddCollisionCapsule();
+
+	SetModifiedFlag();
+
+	UpdateAllViews(NULL);
 }
 
 void CMainDoc::OnCreateCollisionbox()

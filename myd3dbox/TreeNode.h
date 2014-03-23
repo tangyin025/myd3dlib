@@ -88,4 +88,35 @@ public:
 	DECLARE_SERIAL(TreeNodeMesh)
 };
 
-typedef boost::shared_ptr<TreeNodeMesh> MeshTreeNodePtr;
+typedef boost::shared_ptr<TreeNodeMesh> TreeNodeMeshPtr;
+
+class TreeNodeCollisionCapsule : public TreeNodeBase
+{
+public:
+	float m_Radius;
+	
+	float m_Height;
+
+	IceMaths::LSS m_Capsule;
+
+	Opcode::LSSCache m_Cache;
+
+public:
+	TreeNodeCollisionCapsule(void)
+		: m_Radius(1)
+		, m_Height(1)
+	{
+	}
+
+	virtual void Serialize(CArchive & ar);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
+
+	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
+
+	DECLARE_SERIAL(TreeNodeCollisionCapsule)
+};
+
+typedef boost::shared_ptr<TreeNodeCollisionCapsule> TreeNodeCollisionCapsulePtr;

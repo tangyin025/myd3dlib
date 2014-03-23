@@ -198,6 +198,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IceHelpers.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainApp.cpp"
 				>
 			</File>
@@ -261,6 +265,10 @@
 			>
 			<File
 				RelativePath=".\HistoryMgr.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IceHelpers.h"
 				>
 			</File>
 			<File

@@ -47,7 +47,7 @@ void CDeleteTreeNodeStep::Do(void)
 
 	HTREEITEM hItem = pOutliner->m_ItemMap[m_itemID];
 	m_strItem = pOutliner->m_TreeCtrl.GetItemText(hItem);
-	m_node = boost::dynamic_pointer_cast<TreeNodeMesh>(pOutliner->GetItemNode(hItem));
+	m_node = boost::dynamic_pointer_cast<TreeNodeBase>(pOutliner->GetItemNode(hItem));
 	ASSERT(m_node);
 
 	HTREEITEM hParent = pOutliner->m_TreeCtrl.GetParentItem(hItem);
@@ -130,9 +130,15 @@ void CHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 
 void CHistoryMgr::AddTreeNodeMeshFromFile(LPCTSTR lpszMesh)
 {
-	MeshTreeNodePtr node(new TreeNodeMesh);
+	TreeNodeMeshPtr node(new TreeNodeMesh);
 	if(node->LoadFromMesh(lpszMesh))
 	{
 		AddTreeNode(PathFindFileName(lpszMesh), node);
 	}
+}
+
+void CHistoryMgr::AddCollisionCapsule(void)
+{
+	TreeNodeCollisionCapsulePtr node(new TreeNodeCollisionCapsule);
+	AddTreeNode(_T("Capsule"), node);
 }

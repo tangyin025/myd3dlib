@@ -123,4 +123,6 @@ public:
 	void DeleteTreeNode(HTREEITEM hItem);
 
 	void AddTreeNodeMeshFromFile(LPCTSTR lpszMesh);
+
+	void AddCollisionCapsule(void);
 };
