@@ -161,6 +161,10 @@ void CMainView::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
+		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
+		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
+
 		theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
 		COutlinerView * pOutliner = COutlinerView::getSingletonPtr();
@@ -169,10 +173,6 @@ void CMainView::OnFrameRender(
 		{
 			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity);
 		}
-
-		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity));
-		V(pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View));
-		V(pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj));
 
 		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
 
