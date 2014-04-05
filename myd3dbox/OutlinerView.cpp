@@ -390,6 +390,13 @@ void COutlinerView::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
 	// TODO: Add your control notification handler code here
 	*pResult = 0;
+
+	// ! 需要由HistoryMgr托管
+	ASSERT(pTVDispInfo->item.hItem);
+	m_TreeCtrl.SetItemText(pTVDispInfo->item.hItem, pTVDispInfo->item.pszText);
+	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
+	ASSERT(pDoc);
+	pDoc->SetModifiedFlag();
 }
 
 void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
@@ -402,6 +409,7 @@ void COutlinerView::OnTvnUserDeleting(NMHDR *pNMHDR, LRESULT *pResult)
 	CMainDoc * pDoc = CMainDoc::getSingletonPtr();
 	ASSERT(pDoc);
 	pDoc->DeleteTreeNode(pNMTreeView->itemOld.hItem);
+	pDoc->SetModifiedFlag();
 	pDoc->UpdateAllViews(NULL);
 }
 
