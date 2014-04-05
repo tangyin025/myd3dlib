@@ -124,7 +124,7 @@ void DrawHelper::DrawSpereStage(
 	const int VSTAGE = 20;
 	const int HSTAGE = 20;
 	Vertex v[VSTAGE * HSTAGE * 4];
-	for(int j = VSTAGE_BEGIN; j < VSTAGE_END; j++)
+	for(int j = 0; j < VSTAGE; j++)
 	{
 		for(int i = 0; i < HSTAGE; i++)
 		{
@@ -150,10 +150,11 @@ void DrawHelper::DrawSpereStage(
 		}
 	}
 
+	_ASSERT(VSTAGE_END <= VSTAGE);
 	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
 	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
 	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
-	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, (VSTAGE_END - VSTAGE_BEGIN) * HSTAGE * 2, v + (VSTAGE_BEGIN * HSTAGE * 4), sizeof(v[0]));
 }
 
 void DrawHelper::DrawCylinderStage(

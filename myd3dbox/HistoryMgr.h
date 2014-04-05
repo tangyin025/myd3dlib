@@ -125,4 +125,6 @@ public:
 	void AddTreeNodeMeshFromFile(LPCTSTR lpszMesh);
 
 	void AddCollisionCapsule(void);
+
+	void AddCollisionBox(void);
 };

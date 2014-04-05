@@ -134,6 +134,11 @@ void CMainDoc::OnCreateCollisioncapsule()
 
 void CMainDoc::OnCreateCollisionbox()
 {
+	AddCollisionBox();
+
+	SetModifiedFlag();
+
+	UpdateAllViews(NULL);
 }
 
 void CMainDoc::OnCreateJointrevolute()

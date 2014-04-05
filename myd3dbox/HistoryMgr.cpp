@@ -142,3 +142,9 @@ void CHistoryMgr::AddCollisionCapsule(void)
 	TreeNodeCollisionCapsulePtr node(new TreeNodeCollisionCapsule);
 	AddTreeNode(_T("Capsule"), node);
 }
+
+void CHistoryMgr::AddCollisionBox(void)
+{
+	TreeNodeCollisionBoxPtr node(new TreeNodeCollisionBox);
+	AddTreeNode(_T("Box"), node);
+}

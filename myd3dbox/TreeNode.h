@@ -120,3 +120,27 @@ public:
 };
 
 typedef boost::shared_ptr<TreeNodeCollisionCapsule> TreeNodeCollisionCapsulePtr;
+
+class TreeNodeCollisionBox : public TreeNodeBase
+{
+public:
+	my::Vector3 m_Extent;
+
+public:
+	TreeNodeCollisionBox(void)
+		: m_Extent(1,1,1)
+	{
+	}
+
+	virtual void Serialize(CArchive & ar);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
+
+	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
+
+	DECLARE_SERIAL(TreeNodeCollisionBox)
+};
+
+typedef boost::shared_ptr<TreeNodeCollisionBox> TreeNodeCollisionBoxPtr;

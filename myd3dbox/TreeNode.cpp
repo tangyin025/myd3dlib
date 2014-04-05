@@ -274,18 +274,75 @@ void TreeNodeCollisionCapsule::SetupProperties(CMFCPropertyGridCtrl * pPropertyG
 
 void TreeNodeCollisionCapsule::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
 {
-	// ! 绘制有问题，会延迟一帧
 	DrawHelper::DrawCapsule(pd3dDevice, m_Radius, m_Height, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
 }
 
 bool TreeNodeCollisionCapsule::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
 {
 	// ! 这里的Capsule默认是Y轴向，这可能和Nvidia Physx不一样
+	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
+	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
 	m_Capsule.mP0 = IceMaths::Point(0, -m_Height * 0.5f, 0);
 	m_Capsule.mP1 = IceMaths::Point(0,  m_Height * 0.5f, 0);
 	m_Capsule.mRadius = m_Radius;
-	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
-	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
 	float s[2];
 	return RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
+}
+
+IMPLEMENT_SERIAL(TreeNodeCollisionBox, TreeNodeBase, 1)
+
+void TreeNodeCollisionBox::Serialize(CArchive & ar)
+{
+	TreeNodeBase::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		ar << m_Extent.x;
+		ar << m_Extent.y;
+		ar << m_Extent.z;
+	}
+	else
+	{
+		ar >> m_Extent.x;
+		ar >> m_Extent.y;
+		ar >> m_Extent.z;
+	}
+}
+
+void TreeNodeCollisionBox::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pBox = new CSimpleProp(_T("Box"));
+	CSimpleProp * pExtent = new CSimpleProp(_T("Extent"), 0, TRUE);
+	pBox->AddSubItem(pExtent);
+	CSimpleProp * pProp = new CSimpleProp(_T("x"), (_variant_t)m_Extent.x, _T("x"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.x);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.x);
+	pExtent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Extent.y, _T("y"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.y);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.y);
+	pExtent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)m_Extent.y, _T("z"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.z);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.z);
+	pExtent->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pBox);
+}
+
+void TreeNodeCollisionBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+{
+	DrawHelper::DrawBox(pd3dDevice, m_Extent * 0.5f, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+}
+
+bool TreeNodeCollisionBox::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+{
+	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
+	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
+	IceMaths::OBB box(IceMaths::Point(0,0,0), (IceMaths::Point&)(m_Extent * 0.5), IceMaths::Matrix3x3(1,0,0,0,1,0,0,0,1));
+	float dist;
+	IceMaths::Point hit;
+	return RayOBB(ir.mOrig, ir.mDir, box, dist, hit);
 }
