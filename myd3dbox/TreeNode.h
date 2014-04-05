@@ -124,11 +124,11 @@ typedef boost::shared_ptr<TreeNodeCollisionCapsule> TreeNodeCollisionCapsulePtr;
 class TreeNodeCollisionBox : public TreeNodeBase
 {
 public:
-	my::Vector3 m_Extent;
+	IceMaths::OBB m_Box;
 
 public:
 	TreeNodeCollisionBox(void)
-		: m_Extent(1,1,1)
+		: m_Box(IceMaths::Point(0,0,0), IceMaths::Point(1,1,1), IceMaths::Matrix3x3(1,0,0,0,1,0,0,0,1))
 	{
 	}
 

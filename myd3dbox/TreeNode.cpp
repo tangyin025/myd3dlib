@@ -297,15 +297,15 @@ void TreeNodeCollisionBox::Serialize(CArchive & ar)
 
 	if(ar.IsStoring())
 	{
-		ar << m_Extent.x;
-		ar << m_Extent.y;
-		ar << m_Extent.z;
+		ar << m_Box.mExtents.x;
+		ar << m_Box.mExtents.y;
+		ar << m_Box.mExtents.z;
 	}
 	else
 	{
-		ar >> m_Extent.x;
-		ar >> m_Extent.y;
-		ar >> m_Extent.z;
+		ar >> m_Box.mExtents.x;
+		ar >> m_Box.mExtents.y;
+		ar >> m_Box.mExtents.z;
 	}
 }
 
@@ -316,17 +316,17 @@ void TreeNodeCollisionBox::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridC
 	CSimpleProp * pBox = new CSimpleProp(_T("Box"));
 	CSimpleProp * pExtent = new CSimpleProp(_T("Extent"), 0, TRUE);
 	pBox->AddSubItem(pExtent);
-	CSimpleProp * pProp = new CSimpleProp(_T("x"), (_variant_t)m_Extent.x, _T("x"));
-	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.x);
-	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.x);
+	CSimpleProp * pProp = new CSimpleProp(_T("x"), (_variant_t)m_Box.mExtents.x, _T("x"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Box.mExtents.x);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Box.mExtents.x);
 	pExtent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Extent.y, _T("y"));
-	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.y);
-	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.y);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)m_Box.mExtents.y, _T("y"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Box.mExtents.y);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Box.mExtents.y);
 	pExtent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)m_Extent.y, _T("z"));
-	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Extent.z);
-	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Extent.z);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)m_Box.mExtents.y, _T("z"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_Box.mExtents.z);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_Box.mExtents.z);
 	pExtent->AddSubItem(pProp);
 
 	pPropertyGridCtrl->AddProperty(pBox);
@@ -334,15 +334,14 @@ void TreeNodeCollisionBox::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridC
 
 void TreeNodeCollisionBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
 {
-	DrawHelper::DrawBox(pd3dDevice, m_Extent * 0.5f, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+	DrawHelper::DrawBox(pd3dDevice, (Vector3&)m_Box.mExtents, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
 }
 
 bool TreeNodeCollisionBox::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
 {
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
 	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
-	IceMaths::OBB box(IceMaths::Point(0,0,0), (IceMaths::Point&)(m_Extent * 0.5), IceMaths::Matrix3x3(1,0,0,0,1,0,0,0,1));
 	float dist;
 	IceMaths::Point hit;
-	return RayOBB(ir.mOrig, ir.mDir, box, dist, hit);
+	return RayOBB(ir.mOrig, ir.mDir, m_Box, dist, hit);
 }
