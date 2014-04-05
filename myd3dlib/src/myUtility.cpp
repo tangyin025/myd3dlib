@@ -279,6 +279,49 @@ void DrawHelper::DrawCapsule(
 	DrawCylinderStage(pd3dDevice, radius, y0, y1, Color, world);
 }
 
+void DrawHelper::DrawCone(
+	IDirect3DDevice9 * pd3dDevice,
+	float radius,
+	float height,
+	D3DCOLOR Color,
+	const Matrix4 & world)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+	};
+
+	const int HSTAGE = 20;
+	Vertex v[HSTAGE * 4];
+	for(int i = 0; i < HSTAGE; i++)
+	{
+		float Theta[2] = {2 * D3DX_PI / HSTAGE * i, 2 * D3DX_PI / HSTAGE * (i + 1)};
+		Vertex * pv = &v[i * 4];
+		pv[0].x = 0;
+		pv[0].y = 0;
+		pv[0].z = 0;
+		pv[0].color = Color;
+
+		pv[1].x = radius * cos(Theta[0]);
+		pv[1].y = height;
+		pv[1].z = radius * sin(Theta[0]);
+		pv[1].color = Color;
+
+		pv[2] = pv[1];
+
+		pv[3].x = radius * cos(Theta[1]);
+		pv[3].y = height;
+		pv[3].z = radius * sin(Theta[1]);
+		pv[3].color = Color;
+	}
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, _countof(v) / 2, v, sizeof(v[0]));
+}
+
 void DrawHelper::DrawGrid(
 	IDirect3DDevice9 * pd3dDevice,
 	float length,

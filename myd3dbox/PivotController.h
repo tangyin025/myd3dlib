@@ -23,9 +23,9 @@ public:
 
 	static const D3DCOLOR PivotGrayAxisColor;
 
-	static const my::Matrix4 mat_to_y;
+	static const my::Matrix4 mat_x2y;
 
-	static const my::Matrix4 mat_to_z;
+	static const my::Matrix4 mat_x2z;
 
 	struct Vertex
 	{

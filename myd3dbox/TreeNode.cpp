@@ -8,6 +8,8 @@
 
 using namespace my;
 
+const Matrix4 TreeNodeBase::mat_y2x = Matrix4::RotationZ(D3DXToRadian(-90));
+
 void TreeNodeBase::SetPropertyFloat(CSimpleProp * pProp, const float * pValue)
 {
 	pProp->SetValue(*pValue);
@@ -313,16 +315,16 @@ void TreeNodeCollisionCapsule::SetupProperties(CMFCPropertyGridCtrl * pPropertyG
 
 void TreeNodeCollisionCapsule::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
 {
-	DrawHelper::DrawCapsule(pd3dDevice, m_Radius, m_Height, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+	// ! 这里的Capsule默认是Y轴向，这可能和Nvidia Physx不一样
+	DrawHelper::DrawCapsule(pd3dDevice, m_Radius, m_Height, D3DCOLOR_ARGB(255,255,0,255), mat_y2x * Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
 }
 
 bool TreeNodeCollisionCapsule::RayTest(const std::pair<Vector3, Vector3> & ray, const Matrix4 & World)
 {
-	// ! 这里的Capsule默认是Y轴向，这可能和Nvidia Physx不一样
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
 	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
-	m_Capsule.mP0 = IceMaths::Point(0, -m_Height * 0.5f, 0);
-	m_Capsule.mP1 = IceMaths::Point(0,  m_Height * 0.5f, 0);
+	m_Capsule.mP0 = IceMaths::Point(-m_Height * 0.5f, 0, 0);
+	m_Capsule.mP1 = IceMaths::Point( m_Height * 0.5f, 0, 0);
 	m_Capsule.mRadius = m_Radius;
 	float s[2];
 	return 0 != RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
@@ -383,4 +385,158 @@ bool TreeNodeCollisionBox::RayTest(const std::pair<Vector3, Vector3> & ray, cons
 	float dist;
 	IceMaths::Point hit;
 	return RayOBB(ir.mOrig, ir.mDir, m_Box, dist, hit);
+}
+
+void TreeNodeJoint::Serialize(CArchive & ar)
+{
+	TreeNodeBase::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		ar << m_Body0;
+		ar << m_Body1;
+	}
+	else
+	{
+		ar >> m_Body0;
+		ar >> m_Body1;
+	}
+}
+
+void TreeNodeJoint::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pJoint = new CSimpleProp(_T("Joint"));
+	CSimpleProp * pProp = new CSimpleProp(_T("Body0"), (_variant_t)m_Body0, _T("Body0"));
+	pProp->m_EventChanged = boost::bind(GetPropertyString, pProp, &m_Body0);
+	pProp->m_EventUpdated = boost::bind(GetPropertyString, pProp, &m_Body0);
+	pJoint->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("Body1"), (_variant_t)m_Body1, _T("Body1"));
+	pProp->m_EventChanged = boost::bind(GetPropertyString, pProp, &m_Body1);
+	pProp->m_EventUpdated = boost::bind(GetPropertyString, pProp, &m_Body1);
+	pJoint->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pJoint);
+}
+
+IMPLEMENT_SERIAL(TreeNodeJointRevolute, TreeNodeJoint, 1)
+
+const float TreeNodeJointRevolute::RevoluteCapsuleRadius = 0.1f;
+
+const float TreeNodeJointRevolute::RevoluteCapsuleHeight = 1.0f;
+
+void TreeNodeJointRevolute::Serialize(CArchive & ar)
+{
+	TreeNodeJoint::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		ar << m_LowerLimit;
+		ar << m_UpperLimit;
+	}
+	else
+	{
+		ar >> m_LowerLimit;
+		ar >> m_UpperLimit;
+	}
+}
+
+void TreeNodeJointRevolute::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeJoint::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pRevolute = new CSimpleProp(_T("Revolute"));
+	CSimpleProp * pProp = new CSimpleProp(_T("LowerLimit"), (_variant_t)m_LowerLimit, _T("LowerLimit"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_LowerLimit);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_LowerLimit);
+	pRevolute->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("UpperLimit"), (_variant_t)m_LowerLimit, _T("UpperLimit"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_UpperLimit);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_UpperLimit);
+	pRevolute->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pRevolute);
+}
+
+void TreeNodeJointRevolute::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+{
+	DrawHelper::DrawCapsule(pd3dDevice, RevoluteCapsuleRadius, RevoluteCapsuleHeight, D3DCOLOR_ARGB(255,0,255,255), mat_y2x * Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+}
+
+bool TreeNodeJointRevolute::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+{
+	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
+	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
+	m_Capsule.mP0 = IceMaths::Point(-RevoluteCapsuleHeight * 0.5f, 0, 0);
+	m_Capsule.mP1 = IceMaths::Point( RevoluteCapsuleHeight * 0.5f, 0, 0);
+	m_Capsule.mRadius = RevoluteCapsuleRadius;
+	float s[2];
+	return 0 != RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
+}
+
+IMPLEMENT_SERIAL(TreeNodeJointD6, TreeNodeJoint, 1)
+
+const float TreeNodeJointD6::D6ConeRadius = 0.5f;
+
+const float TreeNodeJointD6::D6ConeHeight = 1.0f;
+
+void TreeNodeJointD6::Serialize(CArchive & ar)
+{
+	TreeNodeJoint::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
+		ar << m_TwistMin;
+		ar << m_TwistMax;
+		ar << m_YLimitAngle;
+		ar << m_ZLimitAngle;
+	}
+	else
+	{
+		ar >> m_TwistMin;
+		ar >> m_TwistMax;
+		ar >> m_YLimitAngle;
+		ar >> m_ZLimitAngle;
+	}
+}
+
+void TreeNodeJointD6::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeJoint::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pD6 = new CSimpleProp(_T("D6"));
+	CSimpleProp * pProp = new CSimpleProp(_T("TwistMin"), (_variant_t)m_TwistMin, _T("TwistMin"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_TwistMin);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_TwistMin);
+	pD6->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("TwistMax"), (_variant_t)m_TwistMax, _T("TwistMax"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_TwistMax);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_TwistMax);
+	pD6->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("YLimitAngle"), (_variant_t)m_YLimitAngle, _T("YLimitAngle"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_YLimitAngle);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_YLimitAngle);
+	pD6->AddSubItem(pProp);
+
+	pProp = new CSimpleProp(_T("ZLimitAngle"), (_variant_t)m_ZLimitAngle, _T("ZLimitAngle"));
+	pProp->m_EventChanged = boost::bind(GetPropertyFloat, pProp, &m_ZLimitAngle);
+	pProp->m_EventUpdated = boost::bind(SetPropertyFloat, pProp, &m_ZLimitAngle);
+	pD6->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pD6);
+}
+
+void TreeNodeJointD6::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+{
+	DrawHelper::DrawCone(pd3dDevice, D6ConeRadius, D6ConeHeight, D3DCOLOR_ARGB(255,0,255,255), mat_y2x * Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
+}
+
+bool TreeNodeJointD6::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+{
+	return false;
 }

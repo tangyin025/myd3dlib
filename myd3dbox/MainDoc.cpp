@@ -143,8 +143,18 @@ void CMainDoc::OnCreateCollisionbox()
 
 void CMainDoc::OnCreateJointrevolute()
 {
+	AddJointRevolute();
+
+	SetModifiedFlag();
+
+	UpdateAllViews(NULL);
 }
 
 void CMainDoc::OnCreateJointd6()
 {
+	AddJointD6();
+
+	SetModifiedFlag();
+
+	UpdateAllViews(NULL);
 }

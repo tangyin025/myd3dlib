@@ -127,4 +127,8 @@ public:
 	void AddCollisionCapsule(void);
 
 	void AddCollisionBox(void);
+
+	void AddJointRevolute(void);
+
+	void AddJointD6(void);
 };

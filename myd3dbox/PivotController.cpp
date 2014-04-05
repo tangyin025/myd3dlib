@@ -23,9 +23,9 @@ const D3DCOLOR PivotControllerBase::PivotHighLightAxisColor = D3DCOLOR_ARGB(255,
 
 const D3DCOLOR PivotControllerBase::PivotGrayAxisColor = D3DCOLOR_ARGB(255,127,127,127);
 
-const Matrix4 PivotControllerBase::mat_to_y = Matrix4::RotationZ(D3DXToRadian(90));
+const Matrix4 PivotControllerBase::mat_x2y = Matrix4::RotationZ(D3DXToRadian(90));
 
-const Matrix4 PivotControllerBase::mat_to_z = Matrix4::RotationY(-D3DXToRadian(90));
+const Matrix4 PivotControllerBase::mat_x2z = Matrix4::RotationY(-D3DXToRadian(90));
 
 static void BuildConeVertices(PivotController::VertexList & vertex_list, const float radius, const float height, const float offset, const D3DCOLOR color, const my::Matrix4 & Transform)
 {
@@ -118,8 +118,8 @@ void PivotControllerBase::DrawMoveController(IDirect3DDevice9 * pd3dDevice, cons
 {
 	VertexList vertex_list;
 	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, high_light_axis == HighLightAxisX ? PivotHighLightAxisColor : PivotAxisXColor, Matrix4::identity);
-	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, high_light_axis == HighLightAxisY ? PivotHighLightAxisColor : PivotAxisYColor, mat_to_y);
-	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, high_light_axis == HighLightAxisZ ? PivotHighLightAxisColor : PivotAxisZColor, mat_to_z);
+	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, high_light_axis == HighLightAxisY ? PivotHighLightAxisColor : PivotAxisYColor, mat_x2y);
+	BuildConeVertices(vertex_list, MovePivotRadius, MovePivotHeight, MovePivotOffset, high_light_axis == HighLightAxisZ ? PivotHighLightAxisColor : PivotAxisZColor, mat_x2z);
 
 	D3DLIGHT9 light;
 	ZeroMemory(&light, sizeof(light));
@@ -158,8 +158,8 @@ void PivotControllerBase::DrawMoveController(IDirect3DDevice9 * pd3dDevice, cons
 	Vector3 local_camera = camera->m_Position.transform(InvToXWorld).xyz;
 	vertex_list.clear();
 	BuildPlaneVerties(vertex_list, local_camera.z, local_camera.y, high_light_axis == HighLightPlaneX ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,255,0,0), Matrix4::identity);
-	BuildPlaneVerties(vertex_list, local_camera.z, -local_camera.x, high_light_axis == HighLightPlaneY ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,255,0), mat_to_y);
-	BuildPlaneVerties(vertex_list, -local_camera.x, local_camera.y, high_light_axis == HighLightPlaneZ ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,0,255), mat_to_z);
+	BuildPlaneVerties(vertex_list, local_camera.z, -local_camera.x, high_light_axis == HighLightPlaneY ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,255,0), mat_x2y);
+	BuildPlaneVerties(vertex_list, -local_camera.x, local_camera.y, high_light_axis == HighLightPlaneZ ? D3DCOLOR_ARGB(100,255,255,0) : D3DCOLOR_ARGB(100,0,0,255), mat_x2z);
 	pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE);
 	pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE);
 	pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA);
@@ -177,8 +177,8 @@ void PivotControllerBase::DrawRotationController(IDirect3DDevice9 * pd3dDevice, 
 	Quaternion quat_to_camera = Quaternion::RotationFromTo(Vector3::unitX, camera->m_Position - m_Position);
 	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, PivotGrayAxisColor, Matrix4::RotationQuaternion(quat_to_camera) * m_ViewTransform, camera->m_Position, 1.0f);
 	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, high_light_axis == HighLightAxisX ? PivotHighLightAxisColor : PivotAxisXColor, World, camera->m_Position, 0.0f);
-	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, high_light_axis == HighLightAxisY ? PivotHighLightAxisColor : PivotAxisYColor, mat_to_y * World, camera->m_Position, 0.0f);
-	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, high_light_axis == HighLightAxisZ ? PivotHighLightAxisColor : PivotAxisZColor, mat_to_z * World, camera->m_Position, 0.0f);
+	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, high_light_axis == HighLightAxisY ? PivotHighLightAxisColor : PivotAxisYColor, mat_x2y * World, camera->m_Position, 0.0f);
+	BuildWireCircleVertices(vertex_list, m_Position, RotationPivotRadius, high_light_axis == HighLightAxisZ ? PivotHighLightAxisColor : PivotAxisZColor, mat_x2z * World, camera->m_Position, 0.0f);
 
 	pd3dDevice->LightEnable(0, FALSE);
 	pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
@@ -243,8 +243,8 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 		break;
 	}
 
-	Matrix4 InvToYWorld = (mat_to_y * m_ViewTransform).inverse();
-	Matrix4 InvToZWorld = (mat_to_z * m_ViewTransform).inverse();
+	Matrix4 InvToYWorld = (mat_x2y * m_ViewTransform).inverse();
+	Matrix4 InvToZWorld = (mat_x2z * m_ViewTransform).inverse();
 	m_HighLightAxis = HighLightAxisNone;
 	res[0] = IntersectionTests::rayAndCylinder(ray.first.transform(InvToXWorld).xyz, ray.second.transformNormal(InvToXWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset);
 	res[1] = IntersectionTests::rayAndCylinder(ray.first.transform(InvToYWorld).xyz, ray.second.transformNormal(InvToYWorld), MovePivotRadius * 2, MovePivotHeight + MovePivotOffset);

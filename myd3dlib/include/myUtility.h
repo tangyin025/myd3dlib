@@ -71,6 +71,13 @@ namespace my
 			D3DCOLOR Color,
 			const Matrix4 & world = Matrix4::identity);
 
+		static void DrawCone(
+			IDirect3DDevice9 * pd3dDevice,
+			float radius,
+			float height,
+			D3DCOLOR Color,
+			const Matrix4 & world = Matrix4::identity);
+
 		static void DrawGrid(
 			IDirect3DDevice9 * pd3dDevice,
 			float length = 12,

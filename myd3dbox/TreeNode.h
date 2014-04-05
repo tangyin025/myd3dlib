@@ -6,7 +6,9 @@ class CSimpleProp;
 
 class TreeNodeBase : public CObject
 {
-protected:
+public:
+	static const my::Matrix4 mat_y2x;
+
 	static void SetPropertyFloat(CSimpleProp * pProp, const float * pValue);
 
 	static void GetPropertyFloat(const CSimpleProp * pProp, float * pValue);
@@ -27,7 +29,6 @@ protected:
 
 	static void GetPropertyQuatZ(const CSimpleProp * pProp, my::Quaternion * pValue);
 
-public:
 	my::Vector3 m_Position;
 
 	my::Quaternion m_Rotation;
@@ -182,3 +183,92 @@ public:
 };
 
 typedef boost::shared_ptr<TreeNodeCollisionBox> TreeNodeCollisionBoxPtr;
+
+class TreeNodeJoint : public TreeNodeBase
+{
+public:
+	CString m_Body0;
+
+	CString m_Body1;
+
+public:
+	TreeNodeJoint(void)
+	{
+	}
+
+	virtual void Serialize(CArchive & ar);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+};
+
+class TreeNodeJointRevolute : public TreeNodeJoint
+{
+public:
+	static const float RevoluteCapsuleRadius;
+
+	static const float RevoluteCapsuleHeight;
+
+	IceMaths::LSS m_Capsule;
+
+	Opcode::LSSCache m_Cache;
+
+	float m_LowerLimit;
+
+	float m_UpperLimit;
+
+public:
+	TreeNodeJointRevolute(void)
+		: m_LowerLimit(-30)
+		, m_UpperLimit( 30)
+	{
+	}
+
+	virtual void Serialize(CArchive & ar);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
+
+	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
+
+	DECLARE_SERIAL(TreeNodeJointRevolute)
+};
+
+typedef boost::shared_ptr<TreeNodeJointRevolute> TreeNodeJointRevolutePtr;
+
+class TreeNodeJointD6 : public TreeNodeJoint
+{
+public:
+	static const float D6ConeRadius;
+
+	static const float D6ConeHeight;
+
+	float m_TwistMin;
+
+	float m_TwistMax;
+
+	float m_YLimitAngle;
+
+	float m_ZLimitAngle;
+
+public:
+	TreeNodeJointD6(void)
+		: m_TwistMin(-90)
+		, m_TwistMax( 90)
+		, m_YLimitAngle(30)
+		, m_ZLimitAngle(30)
+	{
+	}
+
+	virtual void Serialize(CArchive & ar);
+
+	virtual void SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl);
+
+	virtual void Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World);
+
+	virtual bool RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World);
+
+	DECLARE_SERIAL(TreeNodeJointD6)
+};
+
+typedef boost::shared_ptr<TreeNodeJointD6> TreeNodeJointD6Ptr;

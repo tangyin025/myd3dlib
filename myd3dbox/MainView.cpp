@@ -313,7 +313,6 @@ void CMainView::OnLButtonDown(UINT nFlags, CPoint point)
 			ASSERT(pOutliner);
 			if(pOutliner->m_TreeCtrl.GetRootItem() && pOutliner->RayTestItemNode(ray, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity))
 			{
-				m_PivotController.m_bVisible = true;
 			}
 			else
 			{
@@ -491,6 +490,7 @@ LRESULT CMainView::OnUpdatePivotController(WPARAM wParam, LPARAM lParam)
 	m_PivotController.m_Position = node->m_Position;
 	m_PivotController.m_Rotation = node->m_Rotation;
 	m_PivotController.UpdateViewTransform(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
+	m_PivotController.m_bVisible = true;
 	Invalidate();
 	return 0;
 }
