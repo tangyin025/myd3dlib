@@ -8,6 +8,62 @@
 
 using namespace my;
 
+void TreeNodeBase::SetPropertyFloat(CSimpleProp * pProp, const float * pValue)
+{
+	pProp->SetValue(*pValue);
+}
+
+void TreeNodeBase::GetPropertyFloat(const CSimpleProp * pProp, float * pValue)
+{
+	*pValue = pProp->GetValue().fltVal;
+}
+
+void TreeNodeBase::SetPropertyString(CSimpleProp * pProp, const CString * pValue)
+{
+	pProp->SetValue((LPCTSTR)*pValue);
+}
+
+void TreeNodeBase::GetPropertyString(const CSimpleProp * pProp, CString * pValue)
+{
+	*pValue = pProp->GetValue().bstrVal;
+}
+
+void TreeNodeBase::SetPropertyQuatX(CSimpleProp * pProp, const Quaternion * pValue)
+{
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleX()));
+}
+
+void TreeNodeBase::GetPropertyQuatX(const CSimpleProp * pProp, Quaternion * pValue)
+{
+	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
+	ASSERT_VALID(pParentProp);
+	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pProp->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(1)->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(2)->GetValue().fltVal)));
+}
+
+void TreeNodeBase::SetPropertyQuatY(CSimpleProp * pProp, const Quaternion * pValue)
+{
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleY()));
+}
+
+void TreeNodeBase::GetPropertyQuatY(const CSimpleProp * pProp, Quaternion * pValue)
+{
+	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
+	ASSERT_VALID(pParentProp);
+	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pParentProp->GetSubItem(0)->GetValue().fltVal), D3DXToRadian(pProp->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(2)->GetValue().fltVal)));
+}
+
+void TreeNodeBase::SetPropertyQuatZ(CSimpleProp * pProp, const Quaternion * pValue)
+{
+	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleZ()));
+}
+
+void TreeNodeBase::GetPropertyQuatZ(const CSimpleProp * pProp, Quaternion * pValue)
+{
+	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
+	ASSERT_VALID(pParentProp);
+	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pParentProp->GetSubItem(0)->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(1)->GetValue().fltVal), D3DXToRadian(pProp->GetValue().fltVal)));
+}
+
 void TreeNodeBase::Serialize(CArchive & ar)
 {
 	if(ar.IsStoring())
@@ -56,52 +112,6 @@ void TreeNodeMesh::Serialize(CArchive & ar)
 		ar >> path;
 		LoadFromMesh(path);
 	}
-}
-
-void SetPropertyFloat(CSimpleProp * pProp, const float * pValue)
-{
-	pProp->SetValue(*pValue);
-}
-
-void GetPropertyFloat(const CSimpleProp * pProp, float * pValue)
-{
-	*pValue = pProp->GetValue().fltVal;
-}
-
-void SetPropertyQuatX(CSimpleProp * pProp, const Quaternion * pValue)
-{
-	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleX()));
-}
-
-void GetPropertyQuatX(const CSimpleProp * pProp, Quaternion * pValue)
-{
-	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
-	ASSERT_VALID(pParentProp);
-	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pProp->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(1)->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(2)->GetValue().fltVal)));
-}
-
-void SetPropertyQuatY(CSimpleProp * pProp, const Quaternion * pValue)
-{
-	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleY()));
-}
-
-void GetPropertyQuatY(const CSimpleProp * pProp, Quaternion * pValue)
-{
-	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
-	ASSERT_VALID(pParentProp);
-	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pParentProp->GetSubItem(0)->GetValue().fltVal), D3DXToRadian(pProp->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(2)->GetValue().fltVal)));
-}
-
-void SetPropertyQuatZ(CSimpleProp * pProp, const Quaternion * pValue)
-{
-	pProp->SetValue(D3DXToDegree(pValue->ToEulerAngleZ()));
-}
-
-void GetPropertyQuatZ(const CSimpleProp * pProp, Quaternion * pValue)
-{
-	CSimpleProp * pParentProp = DYNAMIC_DOWNCAST(CSimpleProp, pProp->GetParent());
-	ASSERT_VALID(pParentProp);
-	*pValue = Quaternion::RotationEulerAngles(Vector3(D3DXToRadian(pParentProp->GetSubItem(0)->GetValue().fltVal), D3DXToRadian(pParentProp->GetSubItem(1)->GetValue().fltVal), D3DXToRadian(pProp->GetValue().fltVal)));
 }
 
 void TreeNodeBase::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
@@ -224,7 +234,7 @@ void TreeNodeMesh::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const
 	}
 }
 
-bool TreeNodeMesh::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+bool TreeNodeMesh::RayTest(const std::pair<Vector3, Vector3> & ray, const Matrix4 & World)
 {
 	// ! Opcode不支持缩放矩阵，这里需要先变换为模型本地射线
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
@@ -236,27 +246,56 @@ bool TreeNodeMesh::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, cons
 	return collider.Collide(ir, m_OpcMode, NULL, NULL) && collider.GetContactStatus();
 }
 
-IMPLEMENT_SERIAL(TreeNodeCollisionCapsule, TreeNodeBase, 1)
-
-void TreeNodeCollisionCapsule::Serialize(CArchive & ar)
+void TreeNodeCollision::Serialize(CArchive & ar)
 {
 	TreeNodeBase::Serialize(ar);
 
 	if(ar.IsStoring())
 	{
+		ar << m_BindBone;
+	}
+	else
+	{
+		ar >> m_BindBone;
+	}
+}
+
+void TreeNodeCollision::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
+{
+	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+
+	CSimpleProp * pCollision = new CSimpleProp(_T("pCollision"));
+	CSimpleProp * pProp = new CSimpleProp(_T("BindBone"), (_variant_t)m_BindBone, _T("BindBone"));
+	pProp->m_EventChanged = boost::bind(GetPropertyString, pProp, &m_BindBone);
+	pProp->m_EventUpdated = boost::bind(GetPropertyString, pProp, &m_BindBone);
+	pCollision->AddSubItem(pProp);
+
+	pPropertyGridCtrl->AddProperty(pCollision);
+}
+
+IMPLEMENT_SERIAL(TreeNodeCollisionCapsule, TreeNodeCollision, 1)
+
+void TreeNodeCollisionCapsule::Serialize(CArchive & ar)
+{
+	TreeNodeCollision::Serialize(ar);
+
+	if(ar.IsStoring())
+	{
 		ar << m_Radius;
 		ar << m_Height;
+		ar << m_BindBone;
 	}
 	else
 	{
 		ar >> m_Radius;
 		ar >> m_Height;
+		ar >> m_BindBone;
 	}
 }
 
 void TreeNodeCollisionCapsule::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 {
-	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+	TreeNodeCollision::SetupProperties(pPropertyGridCtrl);
 
 	CSimpleProp * pCapsule = new CSimpleProp(_T("Capsule"));
 	CSimpleProp * pProp = new CSimpleProp(_T("Radius"), (_variant_t)m_Radius, _T("Radius"));
@@ -272,12 +311,12 @@ void TreeNodeCollisionCapsule::SetupProperties(CMFCPropertyGridCtrl * pPropertyG
 	pPropertyGridCtrl->AddProperty(pCapsule);
 }
 
-void TreeNodeCollisionCapsule::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+void TreeNodeCollisionCapsule::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
 {
 	DrawHelper::DrawCapsule(pd3dDevice, m_Radius, m_Height, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
 }
 
-bool TreeNodeCollisionCapsule::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+bool TreeNodeCollisionCapsule::RayTest(const std::pair<Vector3, Vector3> & ray, const Matrix4 & World)
 {
 	// ! 这里的Capsule默认是Y轴向，这可能和Nvidia Physx不一样
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
@@ -286,14 +325,14 @@ bool TreeNodeCollisionCapsule::RayTest(const std::pair<my::Vector3, my::Vector3>
 	m_Capsule.mP1 = IceMaths::Point(0,  m_Height * 0.5f, 0);
 	m_Capsule.mRadius = m_Radius;
 	float s[2];
-	return RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
+	return 0 != RayCapsuleOverlap(ir.mOrig, ir.mDir, m_Capsule, s);
 }
 
-IMPLEMENT_SERIAL(TreeNodeCollisionBox, TreeNodeBase, 1)
+IMPLEMENT_SERIAL(TreeNodeCollisionBox, TreeNodeCollision, 1)
 
 void TreeNodeCollisionBox::Serialize(CArchive & ar)
 {
-	TreeNodeBase::Serialize(ar);
+	TreeNodeCollision::Serialize(ar);
 
 	if(ar.IsStoring())
 	{
@@ -311,7 +350,7 @@ void TreeNodeCollisionBox::Serialize(CArchive & ar)
 
 void TreeNodeCollisionBox::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 {
-	TreeNodeBase::SetupProperties(pPropertyGridCtrl);
+	TreeNodeCollision::SetupProperties(pPropertyGridCtrl);
 
 	CSimpleProp * pBox = new CSimpleProp(_T("Box"));
 	CSimpleProp * pExtent = new CSimpleProp(_T("Extent"), 0, TRUE);
@@ -332,12 +371,12 @@ void TreeNodeCollisionBox::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridC
 	pPropertyGridCtrl->AddProperty(pBox);
 }
 
-void TreeNodeCollisionBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const my::Matrix4 & World)
+void TreeNodeCollisionBox::Draw(IDirect3DDevice9 * pd3dDevice, float fElapsedTime, const Matrix4 & World)
 {
 	DrawHelper::DrawBox(pd3dDevice, (Vector3&)m_Box.mExtents, D3DCOLOR_ARGB(255,255,0,255), Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World);
 }
 
-bool TreeNodeCollisionBox::RayTest(const std::pair<my::Vector3, my::Vector3> & ray, const my::Matrix4 & World)
+bool TreeNodeCollisionBox::RayTest(const std::pair<Vector3, Vector3> & ray, const Matrix4 & World)
 {
 	Matrix4 w2l = (Matrix4::Compose(m_Scale, m_Rotation, m_Position) * World).inverse();
 	IceMaths::Ray ir((IceMaths::Point&)ray.first.transform(w2l).xyz, (IceMaths::Point&)ray.second.transformNormal(w2l));
