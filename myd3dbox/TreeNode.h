@@ -142,8 +142,8 @@ public:
 
 public:
 	TreeNodeCollisionCapsule(void)
-		: m_Radius(1)
-		, m_Height(1)
+		: m_Radius(10)
+		, m_Height(10)
 	{
 	}
 
@@ -167,7 +167,7 @@ public:
 
 public:
 	TreeNodeCollisionBox(void)
-		: m_Box(IceMaths::Point(0,0,0), IceMaths::Point(1,1,1), IceMaths::Matrix3x3(1,0,0,0,1,0,0,0,1))
+		: m_Box(IceMaths::Point(0,0,0), IceMaths::Point(10,10,10), IceMaths::Matrix3x3(1,0,0,0,1,0,0,0,1))
 	{
 	}
 

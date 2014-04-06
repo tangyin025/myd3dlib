@@ -423,9 +423,9 @@ void TreeNodeJoint::SetupProperties(CMFCPropertyGridCtrl * pPropertyGridCtrl)
 
 IMPLEMENT_SERIAL(TreeNodeJointRevolute, TreeNodeJoint, 1)
 
-const float TreeNodeJointRevolute::RevoluteCapsuleRadius = 0.1f;
+const float TreeNodeJointRevolute::RevoluteCapsuleRadius = 1.0f;
 
-const float TreeNodeJointRevolute::RevoluteCapsuleHeight = 1.0f;
+const float TreeNodeJointRevolute::RevoluteCapsuleHeight = 10.0f;
 
 void TreeNodeJointRevolute::Serialize(CArchive & ar)
 {
@@ -479,9 +479,9 @@ bool TreeNodeJointRevolute::RayTest(const std::pair<my::Vector3, my::Vector3> & 
 
 IMPLEMENT_SERIAL(TreeNodeJointD6, TreeNodeJoint, 1)
 
-const float TreeNodeJointD6::D6ConeRadius = 0.5f;
+const float TreeNodeJointD6::D6ConeRadius = 5.0f;
 
-const float TreeNodeJointD6::D6ConeHeight = 1.0f;
+const float TreeNodeJointD6::D6ConeHeight = 10.0f;
 
 void TreeNodeJointD6::Serialize(CArchive & ar)
 {

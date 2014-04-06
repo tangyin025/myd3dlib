@@ -174,22 +174,22 @@ void CMainView::OnFrameRender(
 			pOutliner->DrawItemNode(pd3dDevice, fElapsedTime, pOutliner->m_TreeCtrl.GetRootItem(), Matrix4::identity);
 		}
 
-		DrawHelper::DrawGrid(pd3dDevice, 12, 5, 5);
+		DrawHelper::DrawGrid(pd3dDevice, 120, 50, 5);
 
 		if(m_PivotController.m_bVisible)
 		{
 			m_PivotController.Draw(pd3dDevice, &m_Camera);
 		}
 
-		m_UIRender->Begin();
-		m_UIRender->SetWorld(Matrix4::identity);
-		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
-		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
-		D3DSURFACE_DESC desc = BackBuffer.GetDesc();
-		m_Font->DrawString(m_UIRender.get(), ts2ws(str_printf(_T("%d x %d"), desc.Width, desc.Height)).c_str(),
-			my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
-		m_UIRender->End();
+		//m_UIRender->Begin();
+		//m_UIRender->SetWorld(Matrix4::identity);
+		//m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
+		//DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		//DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		//D3DSURFACE_DESC desc = BackBuffer.GetDesc();
+		//m_Font->DrawString(m_UIRender.get(), ts2ws(str_printf(_T("%d x %d"), desc.Width, desc.Height)).c_str(),
+		//	my::Rectangle(10,10,200,200), D3DCOLOR_ARGB(255,255,255,0));
+		//m_UIRender->End();
 
 		V(pd3dDevice->EndScene());
 	}
@@ -241,8 +241,8 @@ int CMainView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Font = theApp.LoadFont("font/wqy-microhei.ttc", 13);
 
 	m_Camera.m_Rotation = Vector3(D3DXToRadian(-45),D3DXToRadian(45),D3DXToRadian(0));
-	m_Camera.m_LookAt = Vector3(0,1,0);
-	m_Camera.m_Distance = 20;
+	m_Camera.m_LookAt = Vector3(0,50,0);
+	m_Camera.m_Distance = 500;
 
 	return 0;
 }
@@ -399,7 +399,7 @@ void CMainView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 
 	case DragModeCameraZoom:
-		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 0.02f;
+		m_Camera.m_Distance -= (point.x - m_Camera.m_DragPos.x) * 1.0f;
 		m_Camera.m_DragPos = point;
 		m_Camera.OnFrameMove(0,0);
 		m_PivotController.UpdateViewTransform(m_Camera.m_ViewProj, m_SwapChainBufferDesc.Width);
