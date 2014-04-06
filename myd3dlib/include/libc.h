@@ -29,11 +29,15 @@ std::basic_string<char> wstou8(const std::basic_string<wchar_t> & str);
 #define ws2ts(str) (str)
 #define ts2ms(str) ws2ms(str)
 #define ts2ws(str) (str)
+#define u8tots(str) u8tows(str)
+#define tstou8(str) wstou8(str)
 #else
 #define ms2ts(str) (str)
 #define ws2ts(str) ws2ms(str)
 #define ts2ms(str) (str)
 #define ts2ws(str) ms2ws(str)
+#define u8tots(str) ws2ms(u8tows(str).c_str())
+#define tstou8(str) wstou8(ms2ws(str).c_str())
 #endif
 
 #endif // __LIBC_H__

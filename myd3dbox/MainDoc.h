@@ -43,4 +43,6 @@ public:
 	afx_msg void OnCreateJointrevolute();
 
 	afx_msg void OnCreateJointd6();
+
+	afx_msg void OnExport();
 };

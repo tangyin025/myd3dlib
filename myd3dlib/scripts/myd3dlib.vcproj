@@ -365,6 +365,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\include\rapidxml.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\include\rapidxml_print.hpp"
+				>
+			</File>
+			<File
 				RelativePath="..\include\stdafx.h"
 				>
 			</File>
