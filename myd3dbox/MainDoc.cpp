@@ -264,13 +264,20 @@ public:
 		m_body_name_index_map[text] =m_body_desc_list_size++;
 	}
 
-	void PushJointRevolute(TreeNodeJointRevolutePtr node)
+	void PushJointRevolute(TreeNodeJointRevolutePtr node, const std::basic_string<TCHAR> & text)
 	{
 		ASSERT(node);
 		rapidxml::xml_node<> * array_item = m_doc.allocate_node(rapidxml::node_element, "array_item");
 		array_item->append_attribute(m_doc.allocate_attribute("class_name", JOINT_REVOLUTE_CLASS_NAME));
-		PushIntElement(array_item, "body0", m_body_name_index_map[(LPCTSTR)node->m_Body0]);
-		PushIntElement(array_item, "body1", m_body_name_index_map[(LPCTSTR)node->m_Body1]);
+		boost::unordered_map<std::basic_string<TCHAR>, int>::const_iterator iter;
+		int body0 = ((iter = m_body_name_index_map.find((LPCTSTR)node->m_Body0)) != m_body_name_index_map.end()) ? iter->second
+			: (theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, cannot find body0 \"%s\""), text.c_str(), (LPCTSTR)node->m_Body0)), -1);
+		int body1 = ((iter = m_body_name_index_map.find((LPCTSTR)node->m_Body1)) != m_body_name_index_map.end()) ? iter->second
+			: (theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, cannot find body1 \"%s\""), text.c_str(), (LPCTSTR)node->m_Body1)), -1);
+		if (body0 >= 0 && body0 == body1)
+			theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, body0 and body1 must not be the same"), text.c_str()));
+		PushIntElement(array_item, "body0", body0);
+		PushIntElement(array_item, "body1", body1);
 		PushVector3Element(array_item, "pos", node->m_Position);
 		PushQuaterionElement(array_item, "rot", node->m_Rotation);
 		PushFloatElement(array_item, "lower_limit", node->m_LowerLimit);
@@ -280,13 +287,20 @@ public:
 		m_joint_desc_list_size++;
 	}
 
-	void PushJointD6(TreeNodeJointD6Ptr node)
+	void PushJointD6(TreeNodeJointD6Ptr node, const std::basic_string<TCHAR> & text)
 	{
 		ASSERT(node);
 		rapidxml::xml_node<> * array_item = m_doc.allocate_node(rapidxml::node_element, "array_item");
 		array_item->append_attribute(m_doc.allocate_attribute("class_name", JOINT_D6_CLASS_NAME));
-		PushIntElement(array_item, "body0", m_body_name_index_map[(LPCTSTR)node->m_Body0]);
-		PushIntElement(array_item, "body1", m_body_name_index_map[(LPCTSTR)node->m_Body1]);
+		boost::unordered_map<std::basic_string<TCHAR>, int>::const_iterator iter;
+		int body0 = ((iter = m_body_name_index_map.find((LPCTSTR)node->m_Body0)) != m_body_name_index_map.end()) ? iter->second
+			: (theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, cannot find body0 \"%s\""), text.c_str(), (LPCTSTR)node->m_Body0)), -1);
+		int body1 = ((iter = m_body_name_index_map.find((LPCTSTR)node->m_Body1)) != m_body_name_index_map.end()) ? iter->second
+			: (theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, cannot find body1 \"%s\""), text.c_str(), (LPCTSTR)node->m_Body1)), -1);
+		if (body0 >= 0 && body0 == body1)
+			theApp.OnResourceFailed(str_printf(_T("Joint \"%s\" error, body0 and body1 must not be the same"), text.c_str()));
+		PushIntElement(array_item, "body0", body0);
+		PushIntElement(array_item, "body1", body1);
 		PushVector3Element(array_item, "pos", node->m_Position);
 		PushQuaterionElement(array_item, "rot", node->m_Rotation);
 		PushFloatElement(array_item, "twist_min", node->m_TwistMin);
@@ -337,11 +351,11 @@ void CMainDoc::OnExport()
 			TreeNodeBasePtr node = pOutline->GetItemNode(hItem);
 			if(TreeNodeJointRevolutePtr sub_node = boost::dynamic_pointer_cast<TreeNodeJointRevolute>(node))
 			{
-				exporter.PushJointRevolute(sub_node);
+				exporter.PushJointRevolute(sub_node, (LPCTSTR)pOutline->m_TreeCtrl.GetItemText(hItem));
 			}
 			else if(TreeNodeJointD6Ptr sub_node = boost::dynamic_pointer_cast<TreeNodeJointD6>(node))
 			{
-				exporter.PushJointD6(sub_node);
+				exporter.PushJointD6(sub_node, (LPCTSTR)pOutline->m_TreeCtrl.GetItemText(hItem));
 			}
 		}
 
