@@ -63,75 +63,64 @@ END
 // Menu
 //
 
-IDR_MAINFRAME MENUEX 
+IDR_MAINFRAME MENU 
 BEGIN
-    POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&File"
     BEGIN
-        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE,MFT_STRING,MFS_ENABLED
-        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS,MFT_STRING,MFS_ENABLED
-        MENUITEM "Export...",                   ID_FILE_EXPORT,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1,MFT_STRING,MFS_GRAYED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "E&xit",                       ID_APP_EXIT,MFT_STRING,MFS_ENABLED
+        MENUITEM "&New\tCtrl+N",                ID_FILE_NEW
+        MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
+        MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
+        MENUITEM SEPARATOR
+        MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
+        MENUITEM SEPARATOR
+        MENUITEM "E&xit",                       ID_APP_EXIT
     END
-    POPUP "&Edit",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Edit"
     BEGIN
-        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE,MFT_STRING,MFS_ENABLED
-        MENUITEM MFT_SEPARATOR
-        MENUITEM "Move Tool",                   ID_TRANSFORM_MOVE,MFT_STRING,MFS_ENABLED
-        MENUITEM "Rotate Tool",                 ID_TRANSFORM_ROTATE,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Undo\tCtrl+Z",               ID_EDIT_UNDO
+        MENUITEM "&Redo\tCtrl+Y",               ID_EDIT_REDO
+        MENUITEM SEPARATOR
+        MENUITEM "Cu&t\tCtrl+X",                ID_EDIT_CUT
+        MENUITEM "&Copy\tCtrl+C",               ID_EDIT_COPY
+        MENUITEM "&Paste\tCtrl+V",              ID_EDIT_PASTE
+        MENUITEM SEPARATOR
+        MENUITEM "Move Tool",                   ID_TRANSFORM_MOVE
+        MENUITEM "Rotate Tool",                 ID_TRANSFORM_ROTATE
     END
-    POPUP "&Create",                        65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Create"
     BEGIN
-        POPUP "&Mesh",                          65535,MFT_STRING,MFS_ENABLED
+        POPUP "&Mesh"
         BEGIN
-            MENUITEM "&From File...",               ID_CREATE_MESHFROMFILE,MFT_STRING,MFS_ENABLED
-        END
-        POPUP "&Collision",                     65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "&Capsule",                    ID_CREATE_COLLISIONCAPSULE,MFT_STRING,MFS_ENABLED
-            MENUITEM "&Box",                        ID_CREATE_COLLISIONBOX,MFT_STRING,MFS_ENABLED
-        END
-        POPUP "&Joint",                         65535,MFT_STRING | MFT_RIGHTORDER,MFS_ENABLED
-        BEGIN
-            MENUITEM "&Revolute",                   ID_CREATE_JOINTREVOLUTE,MFT_STRING,MFS_ENABLED
-            MENUITEM "&D6",                         ID_CREATE_JOINTD6,MFT_STRING,MFS_ENABLED
+            MENUITEM "&From File...",               ID_CREATE_MESHFROMFILE
         END
     END
-    POPUP "&View",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&View"
     BEGIN
-        POPUP "&Toolbars and Docking Windows",  65535,MFT_STRING,MFS_ENABLED
+        POPUP "&Toolbars and Docking Windows"
         BEGIN
-            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR,MFT_STRING,MFS_ENABLED
+            MENUITEM "<placeholder>",               ID_VIEW_TOOLBAR
         END
-        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR,MFT_STRING,MFS_ENABLED
-        POPUP "&Application Look",              65535,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Status Bar",                 ID_VIEW_STATUS_BAR
+        POPUP "&Application Look"
         BEGIN
-            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000,MFT_STRING,MFS_ENABLED
-            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP,MFT_STRING,MFS_ENABLED
-            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP,MFT_STRING,MFS_ENABLED
-            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003,MFT_STRING,MFS_ENABLED
-            MENUITEM "Visual Studio.NET 200&5",     ID_VIEW_APPLOOK_VS_2005,MFT_STRING,MFS_ENABLED
-            POPUP "Office 200&7",                   65535,MFT_STRING,MFS_ENABLED
+            MENUITEM "Windows &2000",               ID_VIEW_APPLOOK_WIN_2000
+            MENUITEM "Office &XP",                  ID_VIEW_APPLOOK_OFF_XP
+            MENUITEM "&Windows XP",                 ID_VIEW_APPLOOK_WIN_XP
+            MENUITEM "Office 200&3",                ID_VIEW_APPLOOK_OFF_2003
+            MENUITEM "Visual Studio.NET 200&5",     ID_VIEW_APPLOOK_VS_2005
+            POPUP "Office 200&7"
             BEGIN
-                MENUITEM "&Blue Style",                 ID_VIEW_APPLOOK_OFF_2007_BLUE,MFT_STRING,MFS_ENABLED
-                MENUITEM "B&lack Style",                ID_VIEW_APPLOOK_OFF_2007_BLACK,MFT_STRING,MFS_ENABLED
-                MENUITEM "&Silver Style",               ID_VIEW_APPLOOK_OFF_2007_SILVER,MFT_STRING,MFS_ENABLED
-                MENUITEM "&Aqua Style",                 ID_VIEW_APPLOOK_OFF_2007_AQUA,MFT_STRING,MFS_ENABLED
+                MENUITEM "&Blue Style",                 ID_VIEW_APPLOOK_OFF_2007_BLUE
+                MENUITEM "B&lack Style",                ID_VIEW_APPLOOK_OFF_2007_BLACK
+                MENUITEM "&Silver Style",               ID_VIEW_APPLOOK_OFF_2007_SILVER
+                MENUITEM "&Aqua Style",                 ID_VIEW_APPLOOK_OFF_2007_AQUA
             END
         END
     END
-    POPUP "&Help",                          65535,MFT_STRING,MFS_ENABLED
+    POPUP "&Help"
     BEGIN
-        MENUITEM "&About aaa...",               ID_APP_ABOUT,MFT_STRING,MFS_ENABLED
+        MENUITEM "&About aaa...",               ID_APP_ABOUT
     END
 END
 

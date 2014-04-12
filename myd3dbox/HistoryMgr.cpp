@@ -127,36 +127,3 @@ void CHistoryMgr::DeleteTreeNode(HTREEITEM hItem)
 
 	m_nStep++;
 }
-
-void CHistoryMgr::AddTreeNodeMeshFromFile(LPCTSTR lpszMesh)
-{
-	TreeNodeMeshPtr node(new TreeNodeMesh);
-	if(node->LoadFromMesh(lpszMesh))
-	{
-		AddTreeNode(PathFindFileName(lpszMesh), node);
-	}
-}
-
-void CHistoryMgr::AddCollisionCapsule(void)
-{
-	TreeNodeCollisionCapsulePtr node(new TreeNodeCollisionCapsule);
-	AddTreeNode(_T("Capsule"), node);
-}
-
-void CHistoryMgr::AddCollisionBox(void)
-{
-	TreeNodeCollisionBoxPtr node(new TreeNodeCollisionBox);
-	AddTreeNode(_T("Box"), node);
-}
-
-void CHistoryMgr::AddJointRevolute(void)
-{
-	TreeNodeJointRevolutePtr node(new TreeNodeJointRevolute);
-	AddTreeNode(_T("Revolute"), node);
-}
-
-void CHistoryMgr::AddJointD6(void)
-{
-	TreeNodeJointD6Ptr node(new TreeNodeJointD6);
-	AddTreeNode(_T("D6"), node);
-}

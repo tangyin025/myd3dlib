@@ -121,14 +121,4 @@ public:
 	void AddTreeNode(LPCTSTR lpszItem, TreeNodeBasePtr node);
 
 	void DeleteTreeNode(HTREEITEM hItem);
-
-	void AddTreeNodeMeshFromFile(LPCTSTR lpszMesh);
-
-	void AddCollisionCapsule(void);
-
-	void AddCollisionBox(void);
-
-	void AddJointRevolute(void);
-
-	void AddJointD6(void);
 };
