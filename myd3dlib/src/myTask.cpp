@@ -11,7 +11,8 @@ ParallelTaskManager::ParallelTaskManager(LONG lMaximumCount)
 
 	for(LONG i = 0; i < (lMaximumCount - 1); i++)
 	{
-		m_Threads.push_back(ThreadPtr(new Thread(boost::bind(&ParallelTaskManager::ParallelThreadFunc, this))));
+		m_Threads.push_back(ThreadPtr(new Thread(boost::bind(&ParallelTaskManager::ParallelThreadFunc, this, i))));
+		m_Handles.push_back(::CreateEvent(NULL, TRUE, FALSE, NULL));
 	}
 }
 
@@ -32,7 +33,7 @@ bool ParallelTaskManager::ParallelThreadDoTask(void)
 	return false;
 }
 
-DWORD ParallelTaskManager::ParallelThreadFunc(void)
+DWORD ParallelTaskManager::ParallelThreadFunc(int i)
 {
 	m_TasksMutex.Wait(INFINITE);
 	while(!m_bStopped)
@@ -43,7 +44,9 @@ DWORD ParallelTaskManager::ParallelThreadFunc(void)
 		}
 		else
 		{
+			::SetEvent(m_Handles[i]);
 			m_TasksCondition.Sleep(m_TasksMutex, INFINITE);
+			::ResetEvent(m_Handles[i]);
 		}
 	}
 	return 0;
@@ -83,4 +86,6 @@ void ParallelTaskManager::DoAllTasks(void)
 		m_TasksMutex.Wait(INFINITE);
 	}
 	m_TasksMutex.Release();
+
+	::WaitForMultipleObjects(m_Handles.size(), &m_Handles[0], TRUE, INFINITE);
 }

@@ -21,6 +21,10 @@ namespace my
 
 		ThreadPtrList m_Threads;
 
+		typedef std::vector<HANDLE> HANDLEList;
+
+		HANDLEList m_Handles;
+
 		typedef std::vector<Task *> TaskList;
 
 		TaskList m_Tasks;
@@ -36,7 +40,7 @@ namespace my
 
 		bool ParallelThreadDoTask(void);
 
-		DWORD ParallelThreadFunc(void);
+		DWORD ParallelThreadFunc(int i);
 
 		void StartParallelThread(void);
 
