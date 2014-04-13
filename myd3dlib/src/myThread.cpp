@@ -119,9 +119,9 @@ BOOL ConditionVariable::Sleep(SynchronizationObj & obj, DWORD dwMilliseconds, BO
 	return res == WAIT_OBJECT_0;
 }
 
-void ConditionVariable::Wake(void)
+void ConditionVariable::Wake(LONG lReleaseCount)
 {
-	m_sema.Release(1);
+	m_sema.Release(lReleaseCount);
 }
 
 DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)

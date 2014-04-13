@@ -57,8 +57,8 @@ namespace my
 
 		void AddNode(float x, float y, float k0, float k);
 
-		float Interpolate(float s, int begin_i, int end_i);
+		float Interpolate(float s, int begin_i, int end_i) const;
 
-		float Interpolate(float s);
+		float Interpolate(float s) const;
 	};
 }

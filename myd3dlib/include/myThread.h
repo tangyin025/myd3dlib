@@ -105,7 +105,7 @@ namespace my
 
 		BOOL Sleep(SynchronizationObj & obj, DWORD dwMilliseconds = INFINITE, BOOL bAlertable = FALSE);
 
-		void Wake(void);
+		void Wake(LONG lReleaseCount);
 	};
 
 	typedef boost::function<DWORD (void)> ThreadCallback;

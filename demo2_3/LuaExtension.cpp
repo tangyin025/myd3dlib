@@ -577,7 +577,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
-			.def("Interpolate", (float (my::Spline::*)(float))&my::Spline::Interpolate)
+			.def("Interpolate", (float (my::Spline::*)(float) const)&my::Spline::Interpolate)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 

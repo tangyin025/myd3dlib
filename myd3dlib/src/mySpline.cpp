@@ -50,7 +50,7 @@ void Spline::AddNode(float x, float y, float k0, float k)
 	InsertNode(SplineNodePtr(new SplineNode(x, y, k0, k)));
 }
 
-float Spline::Interpolate(float s, int begin_i, int end_i)
+float Spline::Interpolate(float s, int begin_i, int end_i) const
 {
 	if(begin_i >= end_i)
 	{
@@ -78,7 +78,7 @@ float Spline::Interpolate(float s, int begin_i, int end_i)
 	return Interpolate(s, mid_i + 1, end_i);
 }
 
-float Spline::Interpolate(float s)
+float Spline::Interpolate(float s) const
 {
 	_ASSERT(!empty());
 

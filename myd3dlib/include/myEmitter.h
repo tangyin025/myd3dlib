@@ -34,7 +34,7 @@ namespace my
 			ar & m_Value;
 		}
 
-		T Interpolate(float s)
+		T Interpolate(float s) const
 		{
 			if(empty())
 				return m_Value;

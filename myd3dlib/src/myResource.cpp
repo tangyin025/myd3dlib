@@ -361,7 +361,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 
 	m_IORequestList.push_back(std::make_pair(key, request));
 	m_IORequestListMutex.Release();
-	m_IORequestListCondition.Wake();
+	m_IORequestListCondition.Wake(1);
 	return --m_IORequestList.end();
 }
 
@@ -377,7 +377,7 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
-	m_IORequestListCondition.Wake();
+	m_IORequestListCondition.Wake(1);
 }
 
 HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
