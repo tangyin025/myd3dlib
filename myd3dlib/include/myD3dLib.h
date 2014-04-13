@@ -7,6 +7,7 @@
 #include "myTexture.h"
 #include "myEffect.h"
 #include "myMesh.h"
+#include "myTask.h"
 #include "myEmitter.h"
 #include "mySkeleton.h"
 #include "myFont.h"

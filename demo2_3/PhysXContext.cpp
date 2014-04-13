@@ -232,7 +232,7 @@ void PhysXSceneContext::OnTickPostRender(float dtime)
 {
 	if(m_WaitForResults)
 	{
-		m_Sync.WaitEvent(INFINITE);
+		m_Sync.Wait(INFINITE);
 	}
 }
 

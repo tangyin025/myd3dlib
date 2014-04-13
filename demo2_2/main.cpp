@@ -26,6 +26,10 @@ protected:
 	}
 
 public:
+	Demo(void)
+	{
+	}
+
 	virtual bool IsDeviceAcceptable(
 		D3DCAPS9 * pCaps,
 		D3DFORMAT AdapterFormat,

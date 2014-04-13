@@ -40,36 +40,36 @@ namespace my
 		~CriticalSectionLock(void);
 	};
 
-	class Event
+	class SynchronizationObj
 	{
 	public:
-		HANDLE m_hevent;
+		HANDLE m_handle;
 
+	public:
+		SynchronizationObj(HANDLE handle);
+
+		virtual ~SynchronizationObj(void);
+
+		BOOL Wait(DWORD dwMilliseconds = INFINITE);
+	};
+
+	class Event : public SynchronizationObj
+	{
+	public:
 		BOOL bres;
 
 	public:
 		Event(LPSECURITY_ATTRIBUTES lpEventAttributes = NULL, BOOL bManualReset = FALSE, BOOL bInitialState = FALSE, LPCTSTR lpName = NULL);
 
-		~Event(void);
-
 		void ResetEvent(void);
 
 		void SetEvent(void);
-
-		BOOL WaitEvent(DWORD dwMilliseconds = INFINITE);
 	};
 
-	class Mutex
+	class Mutex : public SynchronizationObj
 	{
 	public:
-		HANDLE m_mutex;
-
-	public:
 		Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes = NULL, BOOL bInitialOwner = FALSE, LPCTSTR lpName = NULL);
-
-		~Mutex(void);
-
-		BOOL Wait(DWORD dwMilliseconds = INFINITE);
 
 		void Release(void);
 	};
@@ -85,17 +85,10 @@ namespace my
 		~MutexLock(void);
 	};
 
-	class Semaphore
+	class Semaphore : public SynchronizationObj
 	{
 	public:
-		HANDLE m_sema;
-
-	public:
 		Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes = NULL, LPCTSTR lpName = NULL);
-
-		~Semaphore(void);
-
-		BOOL Wait(DWORD dwMilliseconds = INFINITE);
 
 		LONG Release(LONG lReleaseCount);
 	};
@@ -110,26 +103,22 @@ namespace my
 
 		~ConditionVariable(void);
 
-		BOOL SleepMutex(Mutex & mutex, DWORD dwMilliseconds = INFINITE, BOOL bAlertable = FALSE);
+		BOOL Sleep(SynchronizationObj & obj, DWORD dwMilliseconds = INFINITE, BOOL bAlertable = FALSE);
 
 		void Wake(void);
 	};
 
 	typedef boost::function<DWORD (void)> ThreadCallback;
 
-	class Thread
+	class Thread : public SynchronizationObj
 	{
 	protected:
-		HANDLE m_hThread;
-
 		ThreadCallback m_Callback;
 
 		static DWORD WINAPI ThreadProc(__in LPVOID lpParameter);
 
 	public:
 		Thread(const ThreadCallback & Callback);
-
-		~Thread(void);
 
 		void CreateThread(DWORD dwCreationFlags = CREATE_SUSPENDED);
 
@@ -147,6 +136,8 @@ namespace my
 
 		void CloseThread(void);
 	};
+
+	typedef boost::shared_ptr<Thread> ThreadPtr;
 
 	class Window
 		: public CWindowImpl<Window, CWindow, CWinTraits<WS_OVERLAPPEDWINDOW, 0> >

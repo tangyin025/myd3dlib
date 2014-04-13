@@ -40,49 +40,44 @@ CriticalSectionLock::~CriticalSectionLock(void)
 	m_cs.Leave();
 }
 
-Event::Event(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName)
+SynchronizationObj::SynchronizationObj(HANDLE handle)
+	: m_handle(handle)
 {
-	m_hevent = ::CreateEvent(lpEventAttributes, bManualReset, bInitialState, lpName);
 }
 
-Event::~Event(void)
+SynchronizationObj::~SynchronizationObj(void)
 {
-	::CloseHandle(m_hevent);
+	::CloseHandle(m_handle);
+}
+
+BOOL SynchronizationObj::Wait(DWORD dwMilliseconds)
+{
+	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_handle, dwMilliseconds);
+}
+
+Event::Event(LPSECURITY_ATTRIBUTES lpEventAttributes, BOOL bManualReset, BOOL bInitialState, LPCTSTR lpName)
+	: SynchronizationObj(::CreateEvent(lpEventAttributes, bManualReset, bInitialState, lpName))
+{
 }
 
 void Event::ResetEvent(void)
 {
-	bres = ::ResetEvent(m_hevent); _ASSERT(bres);
+	bres = ::ResetEvent(m_handle); _ASSERT(bres);
 }
 
 void Event::SetEvent(void)
 {
-	bres = ::SetEvent(m_hevent); _ASSERT(bres);
-}
-
-BOOL Event::WaitEvent(DWORD dwMilliseconds)
-{
-	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_hevent, dwMilliseconds);
+	bres = ::SetEvent(m_handle); _ASSERT(bres);
 }
 
 Mutex::Mutex(LPSECURITY_ATTRIBUTES lpMutexAttributes, BOOL bInitialOwner, LPCTSTR lpName)
+	: SynchronizationObj(::CreateMutex(lpMutexAttributes, bInitialOwner, lpName))
 {
-	m_mutex = ::CreateMutex(lpMutexAttributes, bInitialOwner, lpName);
-}
-
-Mutex::~Mutex(void)
-{
-	::CloseHandle(m_mutex);
-}
-
-BOOL Mutex::Wait(DWORD dwMilliseconds)
-{
-	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_mutex, dwMilliseconds);
 }
 
 void Mutex::Release(void)
 {
-	::ReleaseMutex(m_mutex);
+	::ReleaseMutex(m_handle);
 }
 
 MutexLock::MutexLock(Mutex & mutex)
@@ -97,24 +92,14 @@ MutexLock::~MutexLock(void)
 }
 
 Semaphore::Semaphore(LONG lInitialCount, LONG lMaximumCount, LPSECURITY_ATTRIBUTES lpSemaphoreAttributes, LPCTSTR lpName)
+	: SynchronizationObj(::CreateSemaphore(lpSemaphoreAttributes, lInitialCount, lMaximumCount, lpName))
 {
-	m_sema = ::CreateSemaphore(lpSemaphoreAttributes, lInitialCount, lMaximumCount, lpName);
-}
-
-Semaphore::~Semaphore(void)
-{
-	::CloseHandle(m_sema);
-}
-
-BOOL Semaphore::Wait(DWORD dwMilliseconds)
-{
-	return WAIT_OBJECT_0 == ::WaitForSingleObject(m_sema, dwMilliseconds);
 }
 
 LONG Semaphore::Release(LONG lReleaseCount)
 {
 	LONG ret;
-	::ReleaseSemaphore(m_sema, lReleaseCount, &ret);
+	::ReleaseSemaphore(m_handle, lReleaseCount, &ret);
 	return ret;
 }
 
@@ -127,10 +112,10 @@ ConditionVariable::~ConditionVariable(void)
 {
 }
 
-BOOL ConditionVariable::SleepMutex(Mutex & mutex, DWORD dwMilliseconds, BOOL bAlertable)
+BOOL ConditionVariable::Sleep(SynchronizationObj & obj, DWORD dwMilliseconds, BOOL bAlertable)
 {
-	DWORD res = ::SignalObjectAndWait(mutex.m_mutex, m_sema.m_sema, dwMilliseconds, bAlertable);
-	mutex.Wait(INFINITE);
+	DWORD res = ::SignalObjectAndWait(obj.m_handle, m_sema.m_handle, dwMilliseconds, bAlertable);
+	obj.Wait(INFINITE);
 	return res == WAIT_OBJECT_0;
 }
 
@@ -147,21 +132,16 @@ DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)
 }
 
 Thread::Thread(const ThreadCallback & Callback)
-	: m_hThread(NULL)
+	: SynchronizationObj(NULL)
 	, m_Callback(Callback)
 {
 }
 
-Thread::~Thread(void)
-{
-	//_ASSERT(NULL == m_hThread);
-}
-
 void Thread::CreateThread(DWORD dwCreationFlags)
 {
-	_ASSERT(NULL == m_hThread);
+	_ASSERT(NULL == m_handle);
 
-	if(NULL == (m_hThread = ::CreateThread(NULL, 0, ThreadProc, this, dwCreationFlags, NULL)))
+	if(NULL == (m_handle = ::CreateThread(NULL, 0, ThreadProc, this, dwCreationFlags, NULL)))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -169,9 +149,9 @@ void Thread::CreateThread(DWORD dwCreationFlags)
 
 void Thread::ResumeThread(void)
 {
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	if(-1 == ::ResumeThread(m_hThread))
+	if(-1 == ::ResumeThread(m_handle))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -179,9 +159,9 @@ void Thread::ResumeThread(void)
 
 void Thread::SuspendThread(void)
 {
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	if(-1 == ::SuspendThread(m_hThread))
+	if(-1 == ::SuspendThread(m_handle))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -189,9 +169,9 @@ void Thread::SuspendThread(void)
 
 void Thread::SetThreadPriority(int nPriority)
 {
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	if(!::SetThreadPriority(m_hThread, nPriority))
+	if(!::SetThreadPriority(m_handle, nPriority))
 	{
 		THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -199,9 +179,9 @@ void Thread::SetThreadPriority(int nPriority)
 
 int Thread::GetThreadPriority(void)
 {
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	int nRet = ::GetThreadPriority(m_hThread);
+	int nRet = ::GetThreadPriority(m_handle);
 
 	if(THREAD_PRIORITY_ERROR_RETURN == nRet)
 	{
@@ -215,9 +195,9 @@ void Thread::TerminateThread(DWORD dwExitCode)
 {
 	_ASSERT(!"you should not use TerminateThread anymore");
 
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	if(!::TerminateThread(m_hThread, dwExitCode))
+	if(!::TerminateThread(m_handle, dwExitCode))
 	{
 		//THROW_WINEXCEPTION(::GetLastError());
 	}
@@ -225,7 +205,7 @@ void Thread::TerminateThread(DWORD dwExitCode)
 
 BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 {
-	if(WAIT_TIMEOUT == ::WaitForSingleObject(m_hThread, dwMilliseconds))
+	if(WAIT_TIMEOUT == ::WaitForSingleObject(m_handle, dwMilliseconds))
 	{
 		return false;
 	}
@@ -235,10 +215,11 @@ BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 
 void Thread::CloseThread(void)
 {
-	_ASSERT(NULL != m_hThread);
+	_ASSERT(NULL != m_handle);
 
-	::CloseHandle(m_hThread);
-	m_hThread = NULL;
+	::CloseHandle(m_handle);
+
+	m_handle = NULL;
 }
 
 std::string Window::GetWindowMessageStr(UINT message)

@@ -308,7 +308,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		for(; req_iter != m_IORequestList.end(); req_iter++)
 		{
-			if(!req_iter->second->m_LoadEvent.WaitEvent(0))
+			if(!req_iter->second->m_LoadEvent.Wait(0))
 			{
 				break;
 			}
@@ -326,11 +326,11 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! request will be decrease after set event, shared_ptr must be thread safe
 			request->m_LoadEvent.SetEvent();
 
-			m_IORequestListMutex.Wait();
+			m_IORequestListMutex.Wait(INFINITE);
 		}
 		else
 		{
-			m_IORequestListCondition.SleepMutex(m_IORequestListMutex, INFINITE);
+			m_IORequestListCondition.Sleep(m_IORequestListMutex, INFINITE);
 		}
 	}
 	m_IORequestListMutex.Release();
@@ -340,7 +340,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
 {
-	m_IORequestListMutex.Wait();
+	m_IORequestListMutex.Wait(INFINITE);
 
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); req_iter++)
@@ -374,7 +374,7 @@ void AsynchronousIOMgr::StartIORequestProc(void)
 
 void AsynchronousIOMgr::StopIORequestProc(void)
 {
-	m_IORequestListMutex.Wait();
+	m_IORequestListMutex.Wait(INFINITE);
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake();
@@ -500,8 +500,6 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 
 	m_Thread.WaitForThreadStopped(INFINITE);
 
-	m_Thread.CloseThread();
-
 	m_IORequestList.clear();
 }
 
@@ -583,7 +581,7 @@ void AsynchronousResourceMgr::CheckRequests(void)
 
 bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPtr request, DWORD timeout)
 {
-	if(request->m_LoadEvent.WaitEvent(timeout))
+	if(request->m_LoadEvent.Wait(timeout))
 	{
 		if(!request->m_res)
 		{
