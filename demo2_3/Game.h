@@ -72,6 +72,7 @@ class Game
 	, public my::EmitterMgr
 	, public my::ResourceMgr
 	, public PhysXSceneContext
+	, public my::ParallelTaskManager
 {
 public:
 	my::LuaContextPtr m_lua;

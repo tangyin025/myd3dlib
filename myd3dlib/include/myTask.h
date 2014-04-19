@@ -36,13 +36,13 @@ namespace my
 		bool m_bStopped;
 
 	public:
-		ParallelTaskManager(LONG lMaximumCount);
+		ParallelTaskManager(void);
 
 		bool ParallelThreadDoTask(void);
 
 		DWORD ParallelThreadFunc(int i);
 
-		void StartParallelThread(void);
+		void StartParallelThread(LONG lMaximumCount);
 
 		void StopParallelThread(void);
 

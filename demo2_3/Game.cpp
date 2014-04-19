@@ -210,6 +210,8 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
+	ParallelTaskManager::StartParallelThread(3);
+
 	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
@@ -326,6 +328,8 @@ void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	ParallelTaskManager::StopParallelThread();
+
 	ExecuteCode("collectgarbage(\"collect\")");
 
 	m_Console.reset();
@@ -394,15 +398,17 @@ void Game::OnFrameTick(
 {
 	OnFrameMove(fTime, fElapsedTime);
 
-	SetViewMatrix(m_Camera->m_View);
+	PhysXSceneContext::SetViewMatrix(m_Camera->m_View);
 
-	SetProjMatrix(m_Camera->m_Proj);
+	PhysXSceneContext::SetProjMatrix(m_Camera->m_Proj);
 
 	D3DVIEWPORT9 vp;
 	V(m_d3dDevice->GetViewport(&vp));
-	SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
+	PhysXSceneContext::SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
 
-	OnTickPreRender(fElapsedTime);
+	PhysXSceneContext::OnTickPreRender(fElapsedTime);
+
+	ParallelTaskManager::DoAllParallelTasks();
 
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
@@ -418,7 +424,7 @@ void Game::OnFrameTick(
 
 	Present(NULL,NULL,NULL,NULL);
 
-	OnTickPostRender(fElapsedTime);
+	PhysXSceneContext::OnTickPostRender(fElapsedTime);
 
 	//m_ApexScene->prepareRenderResourceContexts();
 }

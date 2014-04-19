@@ -4,16 +4,9 @@
 
 using namespace my;
 
-ParallelTaskManager::ParallelTaskManager(LONG lMaximumCount)
+ParallelTaskManager::ParallelTaskManager(void)
 	: m_bStopped(false)
 {
-	_ASSERT(lMaximumCount > 0);
-
-	for(LONG i = 0; i < lMaximumCount; i++)
-	{
-		m_Threads.push_back(ThreadPtr(new Thread(boost::bind(&ParallelTaskManager::ParallelThreadFunc, this, i))));
-		m_Handles.push_back(::CreateEvent(NULL, TRUE, FALSE, NULL));
-	}
 }
 
 bool ParallelTaskManager::ParallelThreadDoTask(void)
@@ -52,9 +45,18 @@ DWORD ParallelTaskManager::ParallelThreadFunc(int i)
 	return 0;
 }
 
-void ParallelTaskManager::StartParallelThread(void)
+void ParallelTaskManager::StartParallelThread(LONG lMaximumCount)
 {
+	_ASSERT(lMaximumCount > 0);
+
 	m_bStopped = false;
+
+	for(LONG i = 0; i < lMaximumCount; i++)
+	{
+		m_Threads.push_back(ThreadPtr(new Thread(boost::bind(&ParallelTaskManager::ParallelThreadFunc, this, i))));
+		m_Handles.push_back(::CreateEvent(NULL, TRUE, FALSE, NULL));
+	}
+
 	for(size_t i = 0; i < m_Threads.size(); i++)
 	{
 		m_Threads[i]->CreateThread();
@@ -73,6 +75,9 @@ void ParallelTaskManager::StopParallelThread(void)
 	{
 		m_Threads[i]->WaitForThreadStopped(INFINITE);
 	}
+
+	m_Threads.clear();
+	m_Handles.clear();
 }
 
 void ParallelTaskManager::PushTask(ParallelTask * task)
