@@ -123,7 +123,7 @@ BOOL CMainView::ResetD3DSwapChain(void)
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 	m_SwapChainBufferDesc = BackBuffer.GetDesc();
 
-	DialogMgr::SetDlgViewport(Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height));
+	DialogMgr::SetDlgViewport(Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), D3DXToRadian(75.0f));
 
 	m_DepthStencil.CreateDepthStencilSurface(
 		theApp.GetD3D9Device(), m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);

@@ -265,3 +265,81 @@ void EmitterInstance::DrawInstance(DWORD NumInstances)
 	V(m_Device->SetStreamSourceFreq(0,1));
 	V(m_Device->SetStreamSourceFreq(1,1));
 }
+
+void EmitterMgr::Update(
+	double fTime,
+	float fElapsedTime)
+{
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		(*emitter_iter)->Update(fTime, fElapsedTime);
+	}
+}
+
+void EmitterMgr::Draw(
+	EmitterInstance * pInstance,
+	const Matrix4 & ViewProj,
+	const Quaternion & ViewOrientation,
+	double fTime,
+	float fElapsedTime)
+{
+	pInstance->SetViewProj(ViewProj);
+
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		switch((*emitter_iter)->m_WorldType)
+		{
+		case Emitter::WorldTypeWorld:
+			pInstance->SetWorld(Matrix4::Identity());
+			break;
+
+		default:
+			pInstance->SetWorld(Matrix4::RotationQuaternion((*emitter_iter)->m_Orientation) * Matrix4::Translation((*emitter_iter)->m_Position));
+			break;
+		}
+
+		switch((*emitter_iter)->m_DirectionType)
+		{
+		case Emitter::DirectionTypeCamera:
+			pInstance->SetDirection(
+				Vector3(0,0,1).transform(ViewOrientation),
+				Vector3(0,1,0).transform(ViewOrientation),
+				Vector3(1,0,0).transform(ViewOrientation));
+			break;
+
+		case Emitter::DirectionTypeVertical:
+			{
+				Vector3 Up(0,1,0);
+				Vector3 Right = Vector3(0,0,-1).transform(ViewOrientation).cross(Up);
+				Vector3 Dir = Right.cross(Up);
+				pInstance->SetDirection(Dir, Up, Right);
+			}
+			break;
+
+		case Emitter::DirectionTypeHorizontal:
+			pInstance->SetDirection(Vector3(0,1,0), Vector3(0,0,1), Vector3(-1,0,0));
+			break;
+		}
+
+		(*emitter_iter)->Draw(pInstance, fTime, fElapsedTime);
+	}
+}
+
+void EmitterMgr::InsertEmitter(EmitterPtr emitter)
+{
+	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+
+	m_EmitterSet.insert(emitter);
+}
+
+void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
+{
+	m_EmitterSet.erase(emitter);
+}
+
+void EmitterMgr::RemoveAllEmitter(void)
+{
+	m_EmitterSet.clear();
+}

@@ -299,7 +299,7 @@ HRESULT Game::OnResetDevice(
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
-	DialogMgr::SetDlgViewport(vp);
+	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
@@ -375,7 +375,7 @@ void Game::OnFrameRender(
 {
 	m_EmitterInst->Begin();
 
-	EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
+	EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_Orientation, fTime, fElapsedTime);
 
 	m_EmitterInst->End();
 

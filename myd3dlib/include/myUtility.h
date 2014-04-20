@@ -6,7 +6,7 @@
 #include "myEffect.h"
 #include "myEmitter.h"
 #include "myUI.h"
-#include <map>
+#include <set>
 
 namespace my
 {
@@ -314,74 +314,6 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
-	};
-
-	class DialogMgr
-	{
-	public:
-		typedef std::vector<DialogPtr> DialogPtrList;
-
-		typedef std::map<int, DialogPtrList> DialogPtrSetMap;
-
-		DialogPtrSetMap m_dlgSetMap;
-
-		FirstPersonCamera m_Camera;
-
-	public:
-		DialogMgr(void)
-		{
-			SetDlgViewport(Vector2(800,600));
-		}
-
-		void SetDlgViewport(const Vector2 & vp);
-
-		Vector2 GetDlgViewport(void) const;
-
-		void Draw(
-			UIRender * ui_render,
-			double fTime,
-			float fElapsedTime);
-
-		bool MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam);
-
-		void InsertDlg(DialogPtr dlg);
-
-		void RemoveDlg(DialogPtr dlg);
-
-		void RemoveAllDlg();
-	};
-
-	class EmitterMgr
-	{
-	public:
-		typedef std::set<EmitterPtr> EmitterPtrSet;
-
-		EmitterPtrSet m_EmitterSet;
-
-	public:
-		EmitterMgr(void)
-		{
-		}
-
-		void Update(
-			double fTime,
-			float fElapsedTime);
-
-		void Draw(
-			EmitterInstance * pInstance,
-			Camera * pCamera,
-			double fTime,
-			float fElapsedTime);
-
-		void InsertEmitter(EmitterPtr emitter);
-
-		void RemoveEmitter(EmitterPtr emitter);
-
-		void RemoveAllEmitter(void);
 	};
 
 	class EffectParameterBase

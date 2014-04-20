@@ -324,6 +324,13 @@ namespace my
 		return (closestPoint - point).magnitude();
 	}
 
+	IntersectionTests::Ray IntersectionTests::CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
+	{
+		Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), 1.0f);
+
+		return Ray(pos, (ptProj.transformCoord(InverseViewProj) - pos).normalize());
+	}
+
 	IntersectionTests::TestResult IntersectionTests::rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x)
 	{
 		if(abs(dir.x) < EPSILON_E6)

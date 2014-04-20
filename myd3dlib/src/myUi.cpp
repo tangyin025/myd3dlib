@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "myUi.h"
 #include "myDxutApp.h"
+#include "myCollision.h"
 #include "ImeUi.h"
 #include "libc.h"
 
@@ -2077,4 +2078,213 @@ void Dialog::RemoveControl(ControlPtr control)
 void Dialog::ClearAllControl(void)
 {
 	m_Controls.clear();
+}
+
+void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
+{
+	m_ViewPosition = Vector3(vp.x * 0.5f, vp.y * 0.5f, -vp.y * 0.5f * cot(fov / 2));
+
+	m_View = Matrix4::LookAtRH(m_ViewPosition, Vector3(m_ViewPosition.x, m_ViewPosition.y, 0), Vector3(0, -1, 0));
+
+	m_Proj = Matrix4::PerspectiveFovRH(fov, vp.x / vp.y, 0.1f, 3000.0f);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
+
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	{
+		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			if((*dlg_iter)->EventAlign)
+				(*dlg_iter)->EventAlign(EventArgsPtr(new EventArgs()));
+		}
+	}
+}
+
+Vector2 DialogMgr::GetDlgViewport(void) const
+{
+	return Vector2(-m_View._41*2, m_View._42*2);
+}
+
+void DialogMgr::Draw(
+	UIRender * ui_render,
+	double fTime,
+	float fElapsedTime)
+{
+	ui_render->SetViewProj(m_ViewProj);
+
+	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	{
+		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
+		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+		{
+			ui_render->SetWorld((*dlg_iter)->m_World);
+
+			(*dlg_iter)->Draw(ui_render, fElapsedTime);
+		}
+	}
+}
+
+bool DialogMgr::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam)
+{
+	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
+	if(ControlFocus)
+	{
+		_ASSERT(!boost::dynamic_pointer_cast<Dialog>(ControlFocus));
+		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+			return true;
+	}
+
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+	case WM_SYSKEYDOWN:
+	case WM_KEYUP:
+	case WM_SYSKEYUP:
+		if(ControlFocus)
+		{
+			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
+				return true;
+		}
+
+		if(uMsg == WM_KEYDOWN)
+		{
+			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
+			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+			{
+				DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
+				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+				{
+					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
+						return true;
+				}
+			}
+		}
+		break;
+
+	case WM_MOUSEMOVE:
+	case WM_LBUTTONDOWN:
+	case WM_LBUTTONUP:
+	case WM_MBUTTONDOWN:
+	case WM_MBUTTONUP:
+	case WM_RBUTTONDOWN:
+	case WM_RBUTTONUP:
+	case WM_XBUTTONDOWN:
+	case WM_XBUTTONUP:
+	case WM_LBUTTONDBLCLK:
+	case WM_MBUTTONDBLCLK:
+	case WM_RBUTTONDBLCLK:
+	case WM_XBUTTONDBLCLK:
+	case WM_MOUSEWHEEL:
+		{
+			CRect ClientRect;
+			GetClientRect(hWnd, &ClientRect);
+			std::pair<Vector3, Vector3> ray = IntersectionTests::CalculateRay(
+				m_InverseViewProj, m_ViewPosition, Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), Vector2((float)ClientRect.Width(), (float)ClientRect.Height()));
+
+			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
+			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
+			{
+				DialogPtrList::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
+				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
+				{
+					// ! 只处理看得见的 Dialog
+					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
+					{
+						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
+						float dialogDist = -((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, dialogNormal, dialogDist);
+
+						if(result.first)
+						{
+							Vector3 ptInt(ray.first + ray.second * result.second);
+							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
+							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
+
+							// ! 只处理自己的 ControlFocus
+							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
+							{
+								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
+									return true;
+							}
+
+							// ! 只处理自己的 m_ControlMouseOver
+							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
+							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
+							if(ControlPtd != m_ControlMouseOver)
+							{
+								if(m_ControlMouseOver)
+									m_ControlMouseOver->OnMouseLeave();
+
+								if(ControlPtd && ControlPtd->GetEnabled())
+								{
+									(*dlg_iter)->m_ControlMouseOver = ControlPtd;
+									ControlPtd->OnMouseEnter();
+								}
+								else
+									(*dlg_iter)->m_ControlMouseOver.reset();
+							}
+
+							if(ControlPtd && ControlPtd->GetEnabled())
+							{
+								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
+								{
+									Dialog::RequestFocus(ControlPtd);
+									return true;
+								}
+							}
+
+							if(uMsg == WM_LBUTTONDOWN
+								&& (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+							{
+								// ! 用以解决对话框控件丢失焦点
+								ControlFocus->OnFocusOut();
+								Dialog::s_ControlFocus.reset();
+							}
+
+							if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
+							{
+								// ! 强制让自己具有 FocusControl
+								(*dlg_iter)->ForceFocusControl();
+								return true;
+							}
+						}
+					}
+				}
+			}
+		}
+		break;
+	}
+
+	return false;
+}
+
+void DialogMgr::InsertDlg(DialogPtr dlg)
+{
+	m_dlgSetMap[0].push_back(dlg);
+
+	if(dlg->EventAlign)
+		dlg->EventAlign(EventArgsPtr(new EventArgs()));
+}
+
+void DialogMgr::RemoveDlg(DialogPtr dlg)
+{
+	DialogPtrList::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
+	if(dlg_iter != m_dlgSetMap[0].end())
+	{
+		m_dlgSetMap[0].erase(dlg_iter);
+	}
+}
+
+void DialogMgr::RemoveAllDlg()
+{
+	m_dlgSetMap[0].clear();
 }

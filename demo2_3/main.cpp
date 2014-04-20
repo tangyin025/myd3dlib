@@ -216,12 +216,12 @@ public:
 		//PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running
 
 		m_EmitterInst->Begin();
-		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera.get(), fTime, fElapsedTime);
+		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_Orientation, fTime, fElapsedTime);
 		m_EmitterInst->End();
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
-		m_UIRender->SetViewProj(DialogMgr::m_Camera.m_ViewProj);
+		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);

@@ -506,6 +506,10 @@ namespace my
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
+		typedef std::pair<Vector3, Vector3> Ray;
+
+		static Ray CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
+
 		typedef std::pair<bool, float> TestResult;
 
 		static TestResult rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x);

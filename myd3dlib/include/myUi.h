@@ -3,7 +3,8 @@
 #include "myFont.h"
 #include <boost/function.hpp>
 #include <boost/weak_ptr.hpp>
-#include <set>
+#include <vector>
+#include <map>
 
 namespace my
 {
@@ -709,4 +710,53 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;
+
+	class DialogMgr
+	{
+	public:
+		typedef std::vector<DialogPtr> DialogPtrList;
+
+		typedef std::map<int, DialogPtrList> DialogPtrSetMap;
+
+		DialogPtrSetMap m_dlgSetMap;
+
+		//FirstPersonCamera m_Camera;
+
+		Vector3 m_ViewPosition;
+
+		Matrix4 m_View;
+
+		Matrix4 m_Proj;
+
+		Matrix4 m_ViewProj;
+
+		Matrix4 m_InverseViewProj;
+
+	public:
+		DialogMgr(void)
+		{
+			SetDlgViewport(Vector2(800,600), D3DXToRadian(75.0f));
+		}
+
+		void SetDlgViewport(const Vector2 & vp, float fov);
+
+		Vector2 GetDlgViewport(void) const;
+
+		void Draw(
+			UIRender * ui_render,
+			double fTime,
+			float fElapsedTime);
+
+		bool MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam);
+
+		void InsertDlg(DialogPtr dlg);
+
+		void RemoveDlg(DialogPtr dlg);
+
+		void RemoveAllDlg();
+	};
 }
