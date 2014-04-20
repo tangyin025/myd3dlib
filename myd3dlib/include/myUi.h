@@ -720,8 +720,6 @@ namespace my
 
 		DialogPtrSetMap m_dlgSetMap;
 
-		//FirstPersonCamera m_Camera;
-
 		Vector3 m_ViewPosition;
 
 		Matrix4 m_View;
