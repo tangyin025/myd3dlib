@@ -316,6 +316,36 @@ namespace my
 			bool * pbNoFurtherProcessing);
 	};
 
+	class EmitterMgr
+	{
+	public:
+		typedef std::set<EmitterPtr> EmitterPtrSet;
+
+		EmitterPtrSet m_EmitterSet;
+
+	public:
+		EmitterMgr(void)
+		{
+		}
+
+		void Update(
+			double fTime,
+			float fElapsedTime);
+
+		void Draw(
+			EmitterInstance * pInstance,
+			const Matrix4 & ViewProj,
+			const Quaternion & ViewOrientation,
+			double fTime,
+			float fElapsedTime);
+
+		void InsertEmitter(EmitterPtr emitter);
+
+		void RemoveEmitter(EmitterPtr emitter);
+
+		void RemoveAllEmitter(void);
+	};
+
 	class EffectParameterBase
 	{
 	public:

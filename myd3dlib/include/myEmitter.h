@@ -112,12 +112,13 @@ namespace my
 		virtual void Update(double fTime, float fElapsedTime);
 
 		DWORD BuildInstance(
-			EmitterInstance * pEmitterInstance,
+			EmitterInstance * pInstance,
 			double fTime,
 			float fElapsedTime);
 
 		void Draw(
-			EmitterInstance * pEmitterInstance,
+			EmitterInstance * pInstance,
+			const Quaternion & ViewOrientation,
 			double fTime,
 			float fElapsedTime);
 	};
@@ -246,34 +247,4 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<EmitterInstance> EmitterInstancePtr;
-
-	class EmitterMgr
-	{
-	public:
-		typedef std::set<EmitterPtr> EmitterPtrSet;
-
-		EmitterPtrSet m_EmitterSet;
-
-	public:
-		EmitterMgr(void)
-		{
-		}
-
-		void Update(
-			double fTime,
-			float fElapsedTime);
-
-		void Draw(
-			EmitterInstance * pInstance,
-			const Matrix4 & ViewProj,
-			const Quaternion & ViewOrientation,
-			double fTime,
-			float fElapsedTime);
-
-		void InsertEmitter(EmitterPtr emitter);
-
-		void RemoveEmitter(EmitterPtr emitter);
-
-		void RemoveAllEmitter(void);
-	};
 }

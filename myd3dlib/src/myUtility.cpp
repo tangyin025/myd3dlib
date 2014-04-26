@@ -675,6 +675,50 @@ LRESULT FirstPersonCamera::MsgProc(
 	return 0;
 }
 
+void EmitterMgr::Update(
+	double fTime,
+	float fElapsedTime)
+{
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		(*emitter_iter)->Update(fTime, fElapsedTime);
+	}
+}
+
+void EmitterMgr::Draw(
+	EmitterInstance * pInstance,
+	const Matrix4 & ViewProj,
+	const Quaternion & ViewOrientation,
+	double fTime,
+	float fElapsedTime)
+{
+	pInstance->SetViewProj(ViewProj);
+
+	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+	{
+		(*emitter_iter)->Draw(pInstance, ViewOrientation, fTime, fElapsedTime);
+	}
+}
+
+void EmitterMgr::InsertEmitter(EmitterPtr emitter)
+{
+	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+
+	m_EmitterSet.insert(emitter);
+}
+
+void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
+{
+	m_EmitterSet.erase(emitter);
+}
+
+void EmitterMgr::RemoveAllEmitter(void)
+{
+	m_EmitterSet.clear();
+}
+
 EffectParameterBase::~EffectParameterBase(void)
 {
 }

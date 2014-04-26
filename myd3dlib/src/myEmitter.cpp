@@ -58,53 +58,88 @@ void Emitter::Update(double fTime, float fElapsedTime)
 }
 
 DWORD Emitter::BuildInstance(
-	EmitterInstance * pEmitterInstance,
+	EmitterInstance * pInstance,
 	double fTime,
 	float fElapsedTime)
 {
 	_ASSERT(m_ParticleList.size() <= PARTICLE_MAX);
 
-	unsigned char * pInstances =
-		(unsigned char *)pEmitterInstance->m_InstanceData.Lock(0, pEmitterInstance->m_InstanceStride * m_ParticleList.size());
-	_ASSERT(pInstances);
+	unsigned char * pVertices =
+		(unsigned char *)pInstance->m_InstanceData.Lock(0, pInstance->m_InstanceStride * m_ParticleList.size());
+	_ASSERT(pVertices);
 	for(DWORD i = 0; i < m_ParticleList.size(); i++)
 	{
 		// ! Can optimize, because all point offset are constant
-		unsigned char * pInstance = pInstances + pEmitterInstance->m_InstanceStride * i;
-		pEmitterInstance->m_InstanceElems.SetPosition(pInstance, m_ParticleList[i].first->getPosition());
+		unsigned char * pVertex = pVertices + pInstance->m_InstanceStride * i;
+		pInstance->m_InstanceElems.SetPosition(pVertex, m_ParticleList[i].first->getPosition());
 
-		pEmitterInstance->m_InstanceElems.SetColor(pInstance, D3DCOLOR_ARGB(
+		pInstance->m_InstanceElems.SetColor(pVertex, D3DCOLOR_ARGB(
 			(int)m_ParticleColorA.Interpolate(m_ParticleList[i].second, 255),
 			(int)m_ParticleColorR.Interpolate(m_ParticleList[i].second, 255),
 			(int)m_ParticleColorG.Interpolate(m_ParticleList[i].second, 255),
 			(int)m_ParticleColorB.Interpolate(m_ParticleList[i].second, 255)));
 
-		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
+		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
 			m_ParticleSizeX.Interpolate(m_ParticleList[i].second, 1),
 			m_ParticleSizeY.Interpolate(m_ParticleList[i].second, 1),
 			m_ParticleAngle.Interpolate(m_ParticleList[i].second, 0), 1));
 
 		unsigned int AnimFrame = (unsigned int)(m_ParticleList[i].second * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
-		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 2, (DWORD)D3DCOLOR_ARGB(
+		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, (DWORD)D3DCOLOR_ARGB(
 			0, 0, AnimFrame / m_ParticleAnimRow, AnimFrame % m_ParticleAnimColumn));
 	}
-	pEmitterInstance->m_InstanceData.Unlock();
+	pInstance->m_InstanceData.Unlock();
 
 	return m_ParticleList.size();
 }
 
 void Emitter::Draw(
-	EmitterInstance * pEmitterInstance,
+	EmitterInstance * pInstance,
+	const Quaternion & ViewOrientation,
 	double fTime,
 	float fElapsedTime)
 {
-	DWORD ParticleCount = BuildInstance(pEmitterInstance, fTime, fElapsedTime);
+	switch(m_WorldType)
+	{
+	case WorldTypeWorld:
+		pInstance->SetWorld(Matrix4::Identity());
+		break;
 
-	pEmitterInstance->SetTexture(m_Texture);
+	default:
+		pInstance->SetWorld(Matrix4::RotationQuaternion(m_Orientation) * Matrix4::Translation(m_Position));
+		break;
+	}
 
-	pEmitterInstance->SetAnimationColumnRow(m_ParticleAnimColumn, m_ParticleAnimRow);
+	switch(m_DirectionType)
+	{
+	case DirectionTypeCamera:
+		pInstance->SetDirection(
+			Vector3(0,0,1).transform(ViewOrientation),
+			Vector3(0,1,0).transform(ViewOrientation),
+			Vector3(1,0,0).transform(ViewOrientation));
+		break;
 
-	pEmitterInstance->DrawInstance(ParticleCount);
+	case DirectionTypeVertical:
+		{
+			Vector3 Up(0,1,0);
+			Vector3 Right = Vector3(0,0,-1).transform(ViewOrientation).cross(Up);
+			Vector3 Dir = Right.cross(Up);
+			pInstance->SetDirection(Dir, Up, Right);
+		}
+		break;
+
+	case DirectionTypeHorizontal:
+		pInstance->SetDirection(Vector3(0,1,0), Vector3(0,0,1), Vector3(-1,0,0));
+		break;
+	}
+
+	DWORD ParticleCount = BuildInstance(pInstance, fTime, fElapsedTime);
+
+	pInstance->SetTexture(m_Texture);
+
+	pInstance->SetAnimationColumnRow(m_ParticleAnimColumn, m_ParticleAnimRow);
+
+	pInstance->DrawInstance(ParticleCount);
 }
 
 BOOST_CLASS_EXPORT(SphericalEmitter)
@@ -260,82 +295,4 @@ void EmitterInstance::DrawInstance(DWORD NumInstances)
 
 	V(m_Device->SetStreamSourceFreq(0,1));
 	V(m_Device->SetStreamSourceFreq(1,1));
-}
-
-void EmitterMgr::Update(
-	double fTime,
-	float fElapsedTime)
-{
-	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
-	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
-	{
-		(*emitter_iter)->Update(fTime, fElapsedTime);
-	}
-}
-
-void EmitterMgr::Draw(
-	EmitterInstance * pInstance,
-	const Matrix4 & ViewProj,
-	const Quaternion & ViewOrientation,
-	double fTime,
-	float fElapsedTime)
-{
-	pInstance->SetViewProj(ViewProj);
-
-	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
-	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
-	{
-		switch((*emitter_iter)->m_WorldType)
-		{
-		case Emitter::WorldTypeWorld:
-			pInstance->SetWorld(Matrix4::Identity());
-			break;
-
-		default:
-			pInstance->SetWorld(Matrix4::RotationQuaternion((*emitter_iter)->m_Orientation) * Matrix4::Translation((*emitter_iter)->m_Position));
-			break;
-		}
-
-		switch((*emitter_iter)->m_DirectionType)
-		{
-		case Emitter::DirectionTypeCamera:
-			pInstance->SetDirection(
-				Vector3(0,0,1).transform(ViewOrientation),
-				Vector3(0,1,0).transform(ViewOrientation),
-				Vector3(1,0,0).transform(ViewOrientation));
-			break;
-
-		case Emitter::DirectionTypeVertical:
-			{
-				Vector3 Up(0,1,0);
-				Vector3 Right = Vector3(0,0,-1).transform(ViewOrientation).cross(Up);
-				Vector3 Dir = Right.cross(Up);
-				pInstance->SetDirection(Dir, Up, Right);
-			}
-			break;
-
-		case Emitter::DirectionTypeHorizontal:
-			pInstance->SetDirection(Vector3(0,1,0), Vector3(0,0,1), Vector3(-1,0,0));
-			break;
-		}
-
-		(*emitter_iter)->Draw(pInstance, fTime, fElapsedTime);
-	}
-}
-
-void EmitterMgr::InsertEmitter(EmitterPtr emitter)
-{
-	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
-
-	m_EmitterSet.insert(emitter);
-}
-
-void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
-{
-	m_EmitterSet.erase(emitter);
-}
-
-void EmitterMgr::RemoveAllEmitter(void)
-{
-	m_EmitterSet.clear();
 }
