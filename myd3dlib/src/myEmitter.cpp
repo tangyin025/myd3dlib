@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "myEmitter.h"
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
@@ -73,15 +74,15 @@ DWORD Emitter::BuildInstance(
 		pEmitterInstance->m_InstanceElems.SetPosition(pInstance, m_ParticleList[i].first->getPosition());
 
 		pEmitterInstance->m_InstanceElems.SetColor(pInstance, D3DCOLOR_ARGB(
-			m_ParticleColorA.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorR.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorG.Interpolate(m_ParticleList[i].second),
-			m_ParticleColorB.Interpolate(m_ParticleList[i].second)));
+			(int)m_ParticleColorA.Interpolate(m_ParticleList[i].second, 255),
+			(int)m_ParticleColorR.Interpolate(m_ParticleList[i].second, 255),
+			(int)m_ParticleColorG.Interpolate(m_ParticleList[i].second, 255),
+			(int)m_ParticleColorB.Interpolate(m_ParticleList[i].second, 255)));
 
 		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
-			m_ParticleSizeX.Interpolate(m_ParticleList[i].second),
-			m_ParticleSizeY.Interpolate(m_ParticleList[i].second),
-			m_ParticleAngle.Interpolate(m_ParticleList[i].second), 1));
+			m_ParticleSizeX.Interpolate(m_ParticleList[i].second, 1),
+			m_ParticleSizeY.Interpolate(m_ParticleList[i].second, 1),
+			m_ParticleAngle.Interpolate(m_ParticleList[i].second, 0), 1));
 
 		unsigned int AnimFrame = (unsigned int)(m_ParticleList[i].second * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
 		pEmitterInstance->m_InstanceElems.SetVertexValue(pInstance, D3DDECLUSAGE_TEXCOORD, 2, (DWORD)D3DCOLOR_ARGB(
@@ -140,10 +141,11 @@ void SphericalEmitter::Update(double fTime, float fElapsedTime)
 				Random(SpawnPos.x - m_HalfSpawnArea.x, SpawnPos.x + m_HalfSpawnArea.x),
 				Random(SpawnPos.y - m_HalfSpawnArea.y, SpawnPos.y + m_HalfSpawnArea.y),
 				Random(SpawnPos.z - m_HalfSpawnArea.z, SpawnPos.z + m_HalfSpawnArea.z)),
-			Vector3::SphericalToCartesian(Vector3(
+
+			Vector3::SphericalToCartesian(
 				m_SpawnSpeed,
-				m_SpawnInclination.Interpolate(fmod(m_Time, m_SpawnLoopTime)),
-				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime)))).transform(SpawnOri));
+				m_SpawnInclination.Interpolate(fmod(m_Time, m_SpawnLoopTime), 0),
+				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime), 0)).transform(SpawnOri));
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}

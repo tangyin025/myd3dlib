@@ -577,7 +577,7 @@ void Export2Lua(lua_State * L)
 		, class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
 			.def(constructor<>())
 			.def("AddNode", (void (my::Spline::*)(float, float, float, float))&my::Spline::AddNode)
-			.def("Interpolate", (float (my::Spline::*)(float) const)&my::Spline::Interpolate)
+			.def("Interpolate", (float (my::Spline::*)(float, float) const)&my::Spline::Interpolate)
 
 		, class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
 
@@ -808,16 +808,6 @@ void Export2Lua(lua_State * L)
 			.def("ClearAllControl", &my::Dialog::ClearAllControl)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
-
-		, class_<my::EmitterParameter<int>, my::Spline, boost::shared_ptr<my::EmitterParameter<int> > >("EmitterParameterInt")
-			.def(constructor<int>())
-			.def_readwrite("Value", &my::EmitterParameter<int>::m_Value)
-			.def("Interpolate", &my::EmitterParameter<int>::Interpolate)
-
-		, class_<my::EmitterParameter<float>, my::Spline, boost::shared_ptr<my::EmitterParameter<float> > >("EmitterParameterFloat")
-			.def(constructor<float>())
-			.def_readwrite("Value", &my::EmitterParameter<float>::m_Value)
-			.def("Interpolate", &my::EmitterParameter<float>::Interpolate)
 
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
 			.def(constructor<>())

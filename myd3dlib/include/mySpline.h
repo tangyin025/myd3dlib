@@ -59,6 +59,6 @@ namespace my
 
 		float Interpolate(float s, int begin_i, int end_i) const;
 
-		float Interpolate(float s) const;
+		float Interpolate(float s, float value) const;
 	};
 }

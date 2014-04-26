@@ -11,39 +11,6 @@ namespace my
 {
 	class EmitterInstance;
 
-	template <typename T>
-	class EmitterParameter
-		: public Spline
-	{
-	public:
-		T m_Value;
-
-		EmitterParameter(void)
-			: m_Value(0)
-		{
-		}
-
-		EmitterParameter(const T & Value)
-			: m_Value(Value)
-		{
-		}
-
-		template <class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & boost::serialization::base_object<Spline>(*this);
-			ar & m_Value;
-		}
-
-		T Interpolate(float s) const
-		{
-			if(empty())
-				return m_Value;
-
-			return (T)Spline::Interpolate(s, 0, size());
-		}
-	};
-
 	class Emitter
 		: public DeviceRelatedObjectBase
 	{
@@ -71,19 +38,19 @@ namespace my
 
 		float m_ParticleLifeTime;
 
-		EmitterParameter<int> m_ParticleColorA;
+		Spline m_ParticleColorA;
 
-		EmitterParameter<int> m_ParticleColorR;
+		Spline m_ParticleColorR;
 
-		EmitterParameter<int> m_ParticleColorG;
+		Spline m_ParticleColorG;
 
-		EmitterParameter<int> m_ParticleColorB;
+		Spline m_ParticleColorB;
 
-		EmitterParameter<float> m_ParticleSizeX;
+		Spline m_ParticleSizeX;
 
-		EmitterParameter<float> m_ParticleSizeY;
+		Spline m_ParticleSizeY;
 
-		EmitterParameter<float> m_ParticleAngle;
+		Spline m_ParticleAngle;
 
 		float m_ParticleAnimFPS;
 
@@ -104,13 +71,6 @@ namespace my
 			, m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_ParticleLifeTime(10)
-			, m_ParticleColorA(255)
-			, m_ParticleColorR(255)
-			, m_ParticleColorG(255)
-			, m_ParticleColorB(255)
-			, m_ParticleSizeX(1)
-			, m_ParticleSizeY(1)
-			, m_ParticleAngle(0)
 			, m_ParticleAnimFPS(1)
 			, m_ParticleAnimColumn(1)
 			, m_ParticleAnimRow(1)
@@ -178,9 +138,9 @@ namespace my
 
 		float m_SpawnSpeed;
 
-		EmitterParameter<float> m_SpawnInclination;
+		Spline m_SpawnInclination;
 
-		EmitterParameter<float> m_SpawnAzimuth;
+		Spline m_SpawnAzimuth;
 
 		float m_SpawnLoopTime;
 
@@ -191,8 +151,6 @@ namespace my
 			, m_RemainingSpawnTime(0)
 			, m_HalfSpawnArea(0,0,0)
 			, m_SpawnSpeed(0)
-			, m_SpawnInclination(D3DXToRadian(0))
-			, m_SpawnAzimuth(D3DXToRadian(0))
 			, m_SpawnLoopTime(5)
 		{
 		}

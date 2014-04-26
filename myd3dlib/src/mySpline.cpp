@@ -78,9 +78,12 @@ float Spline::Interpolate(float s, int begin_i, int end_i) const
 	return Interpolate(s, mid_i + 1, end_i);
 }
 
-float Spline::Interpolate(float s) const
+float Spline::Interpolate(float s, float value) const
 {
-	_ASSERT(!empty());
+	if(!empty())
+	{
+		return Interpolate(s, 0, size());
+	}
 
-	return Interpolate(s, 0, size());
+	return value;
 }
