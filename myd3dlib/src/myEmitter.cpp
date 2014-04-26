@@ -33,11 +33,27 @@ void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity)
 {
 	if(m_ParticleList.size() < PARTICLE_MAX)
 	{
-		ParticlePtr particle(new Particle());
-		particle->setPosition(Position);
-		particle->setVelocity(Velocity);
+		EmitterParticlePtr particle(new EmitterParticle(Position, Velocity));
 		m_ParticleList.push_back(std::make_pair(particle, 0.0f));
 	}
+}
+
+void Emitter::UpdateParticle(EmitterParticle * particle, float time, float fElapsedTime)
+{
+	particle->integrate(fElapsedTime);
+
+	particle->m_Color = D3DCOLOR_ARGB(
+		(int)m_ParticleColorA.Interpolate(time, 255),
+		(int)m_ParticleColorR.Interpolate(time, 255),
+		(int)m_ParticleColorG.Interpolate(time, 255),
+		(int)m_ParticleColorB.Interpolate(time, 255));
+
+	particle->m_Texcoord1 = Vector4(
+		m_ParticleSizeX.Interpolate(time, 1), m_ParticleSizeY.Interpolate(time, 1), m_ParticleAngle.Interpolate(time, 0), 1);
+
+	const unsigned int AnimFrame = (unsigned int)(time * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
+	particle->m_Texcoord2 = Vector4(
+		0, 0, (float)(AnimFrame / m_ParticleAnimRow), (float)(AnimFrame % m_ParticleAnimColumn));
 }
 
 void Emitter::Update(double fTime, float fElapsedTime)
@@ -47,7 +63,7 @@ void Emitter::Update(double fTime, float fElapsedTime)
 	{
 		if((part_iter->second += fElapsedTime) < m_ParticleLifeTime)
 		{
-			part_iter->first->integrate(fElapsedTime);
+			UpdateParticle(part_iter->first.get(), part_iter->second, fElapsedTime);
 		}
 		else
 		{
@@ -72,21 +88,9 @@ DWORD Emitter::BuildInstance(
 		// ! Can optimize, because all point offset are constant
 		unsigned char * pVertex = pVertices + pInstance->m_InstanceStride * i;
 		pInstance->m_InstanceElems.SetPosition(pVertex, m_ParticleList[i].first->getPosition());
-
-		pInstance->m_InstanceElems.SetColor(pVertex, D3DCOLOR_ARGB(
-			(int)m_ParticleColorA.Interpolate(m_ParticleList[i].second, 255),
-			(int)m_ParticleColorR.Interpolate(m_ParticleList[i].second, 255),
-			(int)m_ParticleColorG.Interpolate(m_ParticleList[i].second, 255),
-			(int)m_ParticleColorB.Interpolate(m_ParticleList[i].second, 255)));
-
-		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, Vector4(
-			m_ParticleSizeX.Interpolate(m_ParticleList[i].second, 1),
-			m_ParticleSizeY.Interpolate(m_ParticleList[i].second, 1),
-			m_ParticleAngle.Interpolate(m_ParticleList[i].second, 0), 1));
-
-		unsigned int AnimFrame = (unsigned int)(m_ParticleList[i].second * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
-		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, (DWORD)D3DCOLOR_ARGB(
-			0, 0, AnimFrame / m_ParticleAnimRow, AnimFrame % m_ParticleAnimColumn));
+		pInstance->m_InstanceElems.SetColor(pVertex, m_ParticleList[i].first->m_Color);
+		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, m_ParticleList[i].first->m_Texcoord1);
+		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, m_ParticleList[i].first->m_Texcoord2);
 	}
 	pInstance->m_InstanceData.Unlock();
 
@@ -196,8 +200,8 @@ EmitterInstance::EmitterInstance(void)
 	offset += sizeof(D3DCOLOR);
 	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
 	offset += sizeof(Vector4);
-	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_TEXCOORD, 2);
-	offset += sizeof(DWORD);
+	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 2);
+	offset += sizeof(Vector4);
 
 	m_velist = m_VertexElems.BuildVertexElementList(0);
 	std::vector<D3DVERTEXELEMENT9> ielist = m_InstanceElems.BuildVertexElementList(1);

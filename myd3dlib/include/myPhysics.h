@@ -24,9 +24,9 @@ namespace my
 
 		Vector3 forceAccum;
 
-		float damping;
-
 		float inverseMass;
+
+		float damping;
 
 	public:
 		void setPosition(const Vector3 & _position)
@@ -122,7 +122,13 @@ namespace my
 		}
 
 	public:
-		Particle(void);
+		Particle(
+			const Vector3 & _position,
+			const Vector3 & _velocity,
+			const Vector3 & _acceleration,
+			const Vector3 & _forceAccum,
+			float _inverseMass,
+			float _damping);
 
 		bool hasFiniteMass(void) const;
 
@@ -588,8 +594,6 @@ namespace my
 	class RigidBody
 	{
 	protected:
-		float inverseMass;
-
 		Vector3 position;
 
 		Quaternion orientation;
@@ -600,10 +604,6 @@ namespace my
 
 		Matrix4 transform;
 
-		Matrix4 inverseInertiaTensor;
-
-		Matrix4 inverseInertiaTensorWorld;
-
 		Vector3 acceleration;
 
 		Vector3 forceAccum;
@@ -613,6 +613,12 @@ namespace my
 		Vector3 resultingAcc;
 
 		Vector3 resultingAngularAcc;
+
+		float inverseMass;
+
+		Matrix4 inverseInertiaTensor;
+
+		Matrix4 inverseInertiaTensorWorld;
 
 		float damping;
 
@@ -627,33 +633,6 @@ namespace my
 		bool canSleep;
 
 	public:
-		void setMass(float mass)
-		{
-			_ASSERT(0 != mass);
-
-			inverseMass = 1 / mass;
-		}
-
-		float getMass(void) const
-		{
-			if(inverseMass == 0)
-			{
-				return FLT_MAX;
-			}
-
-			return 1 / inverseMass;
-		}
-
-		void setInverseMass(float _inverseMass)
-		{
-			inverseMass = _inverseMass;
-		}
-
-		float getInverseMass(void) const
-		{
-			return inverseMass;
-		}
-
 		void setPosition(const Vector3 & _position)
 		{
 			position = _position;
@@ -719,30 +698,6 @@ namespace my
 			return transform;
 		}
 
-		void setInertialTensor(const Matrix4 & inertialTensor)
-		{
-			_ASSERT(0 != inertialTensor.determinant());
-
-			inverseInertiaTensor = inertialTensor.inverse();
-		}
-
-		Matrix4 getInertialTensor(void) const
-		{
-			_ASSERT(0 != inverseInertiaTensor.determinant());
-
-			return inverseInertiaTensor.inverse();
-		}
-
-		void setInverseInertialTensor(const Matrix4 & _inverseInertiaTensor)
-		{
-			inverseInertiaTensor = _inverseInertiaTensor;
-		}
-
-		const Matrix4 & getInverseInertialTensor(void) const
-		{
-			return inverseInertiaTensor;
-		}
-
 		void setAcceleration(const Vector3 & _acceleration)
 		{
 			acceleration = _acceleration;
@@ -793,6 +748,57 @@ namespace my
 			return resultingAngularAcc;
 		}
 
+		void setMass(float mass)
+		{
+			_ASSERT(0 != mass);
+
+			inverseMass = 1 / mass;
+		}
+
+		float getMass(void) const
+		{
+			if(inverseMass == 0)
+			{
+				return FLT_MAX;
+			}
+
+			return 1 / inverseMass;
+		}
+
+		void setInverseMass(float _inverseMass)
+		{
+			inverseMass = _inverseMass;
+		}
+
+		float getInverseMass(void) const
+		{
+			return inverseMass;
+		}
+
+		void setInertialTensor(const Matrix4 & inertialTensor)
+		{
+			_ASSERT(0 != inertialTensor.determinant());
+
+			inverseInertiaTensor = inertialTensor.inverse();
+		}
+
+		Matrix4 getInertialTensor(void) const
+		{
+			_ASSERT(0 != inverseInertiaTensor.determinant());
+
+			return inverseInertiaTensor.inverse();
+		}
+
+		void setInverseInertialTensor(const Matrix4 & _inverseInertiaTensor)
+		{
+			inverseInertiaTensor = _inverseInertiaTensor;
+		}
+
+		const Matrix4 & getInverseInertialTensor(void) const
+		{
+			return inverseInertiaTensor;
+		}
+
 		void setDamping(float _damping)
 		{
 			damping = _damping;
@@ -824,7 +830,18 @@ namespace my
 		}
 
 	public:
-		RigidBody(void);
+		RigidBody(
+			const Vector3 & _position,
+			const Quaternion & _orientation,
+			const Vector3 & _velocity,
+			const Vector3 & _rotation,
+			const Vector3 & _acceleration,
+			const Vector3 & _accumulator,
+			const Vector3 & _torqueAccumulator,
+			const float _inverseMass,
+			const Matrix4 & _inverseInertialTensor,
+			float _damping,
+			float _angularDamping);
 
 		void calculateDerivedData(void);
 

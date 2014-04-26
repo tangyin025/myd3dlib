@@ -9,6 +9,29 @@
 
 namespace my
 {
+	class EmitterParticle : public Particle
+	{
+	public:
+		D3DCOLOR m_Color;
+
+		Vector4 m_Texcoord1;
+
+		Vector4 m_Texcoord2;
+
+	public:
+		EmitterParticle(
+			const Vector3 & position,
+			const Vector3 & velocity)
+			: Particle(position, velocity, Vector3::zero, Vector3::zero, 1, 1)
+			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
+			, m_Texcoord1(1,1,0,1)
+			, m_Texcoord2(0,0,0,0)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<EmitterParticle> EmitterParticlePtr;
+
 	class EmitterInstance;
 
 	class Emitter
@@ -60,7 +83,7 @@ namespace my
 
 		BaseTexturePtr m_Texture;
 
-		typedef std::deque<std::pair<ParticlePtr, float> > ParticlePtrPairList;
+		typedef std::deque<std::pair<EmitterParticlePtr, float> > ParticlePtrPairList;
 
 		ParticlePtrPairList m_ParticleList;
 
@@ -108,6 +131,8 @@ namespace my
 		void Reset(void);
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity);
+
+		void UpdateParticle(EmitterParticle * particle, float time, float fElapsedTime);
 
 		virtual void Update(double fTime, float fElapsedTime);
 

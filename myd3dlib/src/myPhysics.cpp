@@ -11,13 +11,19 @@ namespace my
 	// Particle
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	Particle::Particle(void)
-		: position(0,0,0)
-		, velocity(0,0,0)
-		, acceleration(0,0,0)
-		, forceAccum(0,0,0)
-		, damping(1)
-		, inverseMass(1)
+	Particle::Particle(
+		const Vector3 & _position,
+		const Vector3 & _velocity,
+		const Vector3 & _acceleration,
+		const Vector3 & _forceAccum,
+		float _inverseMass,
+		float _damping)
+		: position(_position)
+		, velocity(_velocity)
+		, acceleration(_acceleration)
+		, forceAccum(_forceAccum)
+		, inverseMass(_inverseMass)
+		, damping(_damping)
 	{
 	}
 
@@ -719,28 +725,38 @@ namespace my
 	// RigidBody
 	// /////////////////////////////////////////////////////////////////////////////////////
 
-	RigidBody::RigidBody(void)
+	RigidBody::RigidBody(
+		const Vector3 & _position,
+		const Quaternion & _orientation,
+		const Vector3 & _velocity,
+		const Vector3 & _rotation,
+		const Vector3 & _acceleration,
+		const Vector3 & _accumulator,
+		const Vector3 & _torqueAccumulator,
+		const float _inverseMass,
+		const Matrix4 & _inverseInertialTensor,
+		float _damping,
+		float _angularDamping)
+		: position(_position)
+		, orientation(_orientation)
+		, velocity(_velocity)
+		, rotation(_rotation)
+		, transform(Matrix4::identity)
+		, acceleration(_acceleration)
+		, forceAccum(_accumulator)
+		, torqueAccum(_torqueAccumulator)
+		, resultingAcc(0,0,0)
+		, resultingAngularAcc(0,0,0)
+		, inverseMass(_inverseMass)
+		, inverseInertiaTensor(_inverseInertialTensor)
+		, inverseInertiaTensorWorld(Matrix4::identity)
+		, damping(_damping)
+		, angularDamping(_angularDamping)
+		, sleepEpsilon(0)
+		, motion(0)
+		, isAwake(true)
+		, canSleep(true)
 	{
-		setInverseMass(1);
-		setPosition(Vector3::zero);
-		setOrientation(Quaternion::identity);
-		setVelocity(Vector3::zero);
-		setRotation(Vector3::zero);
-		//Matrix4 transform;
-		setInverseInertialTensor(Matrix4::identity);
-		//Matrix4 inverseInertiaTensorWorld;
-		setAcceleration(Vector3::zero);
-		clearAccumulator();
-		clearTorqueAccumulator();
-		//Vector3 resultingAcc;
-		//Vector3 resultingAngularAcc;
-		setDamping(1);
-		setAngularDamping(1);
-		setSleepEpsilon(0.0f);
-		//float motion;
-		setAwake(true);
-		setCanSleep(true);
-		calculateDerivedData();
 	}
 
 	static Matrix4 _transformInertiaTensor(
