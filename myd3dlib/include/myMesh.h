@@ -342,6 +342,15 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
+		void CreateMeshFromOgreXmlNodes(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			const rapidxml::xml_node<char> * node_geometry,
+			const rapidxml::xml_node<char> * node_boneassignments,
+			const rapidxml::xml_node<char> * node_submesh,
+			const bool bUseSharedGeometry = true,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
 		void ComputeTangentFrame(void);
 
 		UINT GetMaterialNum(void) const;

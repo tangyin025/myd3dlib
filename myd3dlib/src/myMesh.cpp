@@ -665,8 +665,24 @@ void OgreMesh::CreateMeshFromOgreXml(
 {
 	DEFINE_XML_NODE_SIMPLE(mesh, root);
 	DEFINE_XML_NODE_SIMPLE(sharedgeometry, mesh);
-	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, sharedgeometry);
-	DEFINE_XML_NODE_SIMPLE(vertexbuffer, sharedgeometry);
+	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+	rapidxml::xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
+	rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
+
+	CreateMeshFromOgreXmlNodes(pd3dDevice, node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
+}
+
+void OgreMesh::CreateMeshFromOgreXmlNodes(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	const rapidxml::xml_node<char> * node_geometry,
+	const rapidxml::xml_node<char> * node_boneassignments,
+	const rapidxml::xml_node<char> * node_submesh,
+	const bool bUseSharedGeometry,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
+	DEFINE_XML_ATTRIBUTE_INT_SIMPLE(vertexcount, geometry);
+	DEFINE_XML_NODE_SIMPLE(vertexbuffer, geometry);
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(positions, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(normals, vertexbuffer);
 	DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(colours_diffuse, vertexbuffer);
@@ -709,9 +725,8 @@ void OgreMesh::CreateMeshFromOgreXml(
 		offset += sizeof(Vector2);
 	}
 
-	rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
 	WORD indicesOffset = 0, weightsOffset = 0;
-	if(node_boneassignments != NULL)
+	if(node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
 	{
 		m_VertexElems.InsertBlendIndicesElement(offset);
 		offset += sizeof(DWORD);
@@ -720,12 +735,11 @@ void OgreMesh::CreateMeshFromOgreXml(
 		offset += sizeof(Vector4);
 	}
 
-	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
-	DEFINE_XML_NODE_SIMPLE(submesh, submeshes);
 	int facecount = 0;
-	for(; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+	const rapidxml::xml_node<char> * node_submesh_iter = node_submesh;
+	for(; node_submesh_iter != NULL; node_submesh_iter = bUseSharedGeometry ? node_submesh_iter->next_sibling() : NULL)
 	{
-		DEFINE_XML_NODE_SIMPLE(faces, submesh);
+		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
 		facecount += count;
 	}
@@ -770,7 +784,7 @@ void OgreMesh::CreateMeshFromOgreXml(
 			DEFINE_XML_ATTRIBUTE_FLOAT(Texcoord.y, attr_tmp, node_texcoord, v);
 		}
 
-		if(node_boneassignments != NULL)
+		if(node_boneassignments != NULL && node_boneassignments->first_node("vertexboneassignment"))
 		{
 			m_VertexElems.SetBlendIndices(pVertex, 0);
 			m_VertexElems.SetBlendWeight(pVertex, Vector4::zero);
@@ -822,19 +836,19 @@ void OgreMesh::CreateMeshFromOgreXml(
 	VOID * pIndices = LockIndexBuffer();
 	DWORD * pAttrBuffer = LockAttributeBuffer();
 	int submesh_i = 0;
-	node_submesh = node_submeshes->first_node("submesh");
-	for(int face_i = 0; node_submesh != NULL; node_submesh = node_submesh->next_sibling(), submesh_i++)
+	node_submesh_iter = node_submesh;
+	for(int face_i = 0; node_submesh_iter != NULL; node_submesh_iter = bUseSharedGeometry ? node_submesh_iter->next_sibling() : NULL, submesh_i++)
 	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh);
-		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh);
-		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh);
-		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh);
+		DEFINE_XML_ATTRIBUTE_SIMPLE(material, submesh_iter);
+		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh_iter);
+		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh_iter);
+		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh_iter);
 		if(!usesharedvertices || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
 		{
 			THROW_CUSEXCEPTION(_T("!usesharedvertices || !triangle_list"));
 		}
 
-		DEFINE_XML_NODE_SIMPLE(faces, submesh);
+		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(count, faces);
 
 		DEFINE_XML_NODE_SIMPLE(face, faces);
