@@ -101,7 +101,7 @@ public:
 
 	my::CameraPtr m_Camera;
 
-	typedef std::vector<MeshComponentBase *> RenderObjList;
+	typedef std::vector<RenderComponentBase *> RenderObjList;
 
 	RenderObjList m_RenderObjList;
 

@@ -94,7 +94,7 @@ void ApexRenderResourceMgr::releaseSpriteBuffer(physx::apex::NxUserRenderSpriteB
 
 physx::apex::NxUserRenderResource* ApexRenderResourceMgr::createResource(const physx::apex::NxUserRenderResourceDesc& desc)
 {
-	return new ApexRenderResource(Game::getSingleton().GetD3D9Device(), desc);
+	return new ApexMeshComponent(Game::getSingleton().GetD3D9Device(), desc);
 }
 
 void ApexRenderResourceMgr::releaseResource(physx::apex::NxUserRenderResource& resource)
@@ -311,7 +311,7 @@ void ApexRenderBoneBuffer::writeBuffer(const physx::NxApexRenderBoneBufferData& 
 	}
 }
 
-ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
+ApexMeshComponent::ApexMeshComponent(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
 	: m_firstVertex(desc.firstVertex)
 	, m_numVerts(desc.numVerts)
 	, m_ApexIb(static_cast<ApexRenderIndexBuffer *>(desc.indexBuffer))
@@ -341,25 +341,17 @@ ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const phys
 	}
 }
 
-ApexRenderResource::~ApexRenderResource(void)
+ApexMeshComponent::~ApexMeshComponent(void)
 {
 }
 
-void ApexRenderResource::Draw(DrawState State, const my::Matrix4 & ParentWorld)
+void ApexMeshComponent::Draw(void)
 {
-	m_matPair->second->SetMatrix("g_World", ParentWorld);
+	HRESULT hr;
+	m_matPair->second->SetMatrix("g_World", my::Matrix4::identity);
 	m_matPair->second->SetTexture("g_MeshTexture", m_matPair->first->m_DiffuseTexture);
 	m_matPair->second->SetMatrixArray("g_BoneMatrices", &m_ApexBb->m_bones[m_firstBone], m_numBones);
-	switch(State)
-	{
-	case DrawStateShadow:
-		m_matPair->second->SetTechnique("RenderShadow");
-		break;
-	case DrawStateOpaque:
-		m_matPair->second->SetTechnique("RenderScene");
-		break;
-	}
-	HRESULT hr;
+	m_matPair->second->SetTechnique("RenderScene");
 	UINT passes = m_matPair->second->Begin();
 	for(UINT p = 0; p < passes; p++)
 	{

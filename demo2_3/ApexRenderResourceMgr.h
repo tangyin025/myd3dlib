@@ -1,6 +1,6 @@
 #pragma once
 
-#include "MeshComponent.h"
+#include "RenderComponent.h"
 
 class ApexResourceCallback
 	: public physx::apex::NxResourceCallback
@@ -93,14 +93,14 @@ public:
 	std::vector<my::Matrix4> m_bones;
 };
 
-class ApexRenderResource
+class ApexMeshComponent
 	: public physx::apex::NxUserRenderResource
-	, public MeshComponentBase
+	, public RenderComponentBase
 {
 public:
-	ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
+	ApexMeshComponent(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
 
-	virtual ~ApexRenderResource(void);
+	virtual ~ApexMeshComponent(void);
 
 	void setVertexBufferRange(physx::PxU32 firstVertex, physx::PxU32 numVerts) {m_firstVertex = firstVertex; m_numVerts = numVerts;}
 
@@ -126,7 +126,7 @@ public:
 
 	physx::apex::NxUserRenderSpriteBuffer* getSpriteBuffer() const {return NULL;}
 
-	virtual void Draw(DrawState State, const my::Matrix4 & ParentWorld = my::Matrix4::identity);
+	virtual void Draw(void);
 
 	std::vector<ApexRenderVertexBuffer *> m_ApexVbs;
 

@@ -9,6 +9,59 @@
 namespace my
 {
 	// /////////////////////////////////////////////////////////////////////////////////////
+	// Math Extension
+	// /////////////////////////////////////////////////////////////////////////////////////
+
+	class Frustum
+	{
+	public:
+		Plane Up, Down, Left, Right, Near, Far;
+
+	public:
+		Frustum(void)
+			//: Up()
+			//, Down()
+			//, Left()
+			//, Right()
+			//, Near()
+			//, Far()
+		{
+		}
+
+		Frustum(const Plane & _Up, const Plane & _Down, const Plane & _Left, const Plane & _Right, const Plane & _Near, const Plane & _Far)
+			: Up(_Up)
+			, Down(_Down)
+			, Left(_Left)
+			, Right(_Right)
+			, Near(_Near)
+			, Far(_Far)
+		{
+		}
+	};
+
+	class AABB
+	{
+	public:
+		Vector3 Min;
+
+		Vector3 Max;
+
+	public:
+		AABB(void)
+			//: Min(FLT_MIN,FLT_MIN,FLT_MIN)
+			//, Max(FLT_MAX,FLT_MAX,FLT_MAX)
+		{
+		}
+
+		AABB(const Vector3 & _Min, const Vector3 & _Max)
+			: Min(_Min)
+			, Max(_Max)
+		{
+			_ASSERT(Min.x <= Max.x && Min.y <= Max.y && Min.z <= Max.z);
+		}
+	};
+
+	// /////////////////////////////////////////////////////////////////////////////////////
 	// BoundingSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
 

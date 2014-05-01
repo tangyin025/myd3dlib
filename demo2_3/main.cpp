@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "Game.h"
-#include "MeshComponent.h"
+#include "RenderComponent.h"
 
 using namespace my;
 
@@ -43,7 +43,7 @@ public:
 
 	void renderResource(const physx::apex::NxApexRenderContext& context)
 	{
-		m_RenderObjList.push_back(static_cast<ApexRenderResource *>(context.renderResource));
+		m_RenderObjList.push_back(static_cast<ApexMeshComponent *>(context.renderResource));
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -210,7 +210,7 @@ public:
 		RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
 		for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
 		{
-			(*mesh_cmp_iter)->Draw(MeshComponentBase::DrawStateOpaque, Matrix4::identity);
+			(*mesh_cmp_iter)->Draw();
 		}
 
 		//PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running

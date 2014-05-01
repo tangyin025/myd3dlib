@@ -10,6 +10,10 @@
 
 #define cot(x)	tan(D3DX_PI / 2 - (x))
 
+#define IS_UNITED(v) (abs((float)(v) - 1) < EPSILON_E6)
+
+#define IS_NORMALIZED(v) (IS_UNITED((v).magnitude()))
+
 namespace my
 {
 	//inline int _ftoi(double dval)
@@ -2387,8 +2391,61 @@ namespace my
 	public:
 		static const Matrix4 identity;
 	};
+
+	class Plane
+	{
+	public:
+		float a, b, c, d;
+
+	public:
+		Plane(void)
+			//: a(1)
+			//, b(0)
+			//, c(0)
+			//, d(0)
+		{
+		}
+
+		Plane(float _a, float _b, float _c, float _d)
+			: a(_a)
+			, b(_b)
+			, c(_c)
+			, d(_d)
+		{
+		}
+
+		static Plane FromNormalDistance(const Vector3 & normal, float distance)
+		{
+			_ASSERT(IS_NORMALIZED(normal));
+
+			return Plane(normal.x, normal.y, normal.z, -distance);
+		}
+
+		float magnitude(void) const
+		{
+			return sqrt(magnitudeSq());
+		}
+
+		float magnitudeSq(void) const
+		{
+			return a * a + b * b + c * c;
+		}
+
+		Plane normalize(void) const
+		{
+			float invLength = 1 / magnitude();
+
+			return Plane(a * invLength, b * invLength, c * invLength, d * invLength);
+		}
+
+		Plane & normalizeSelf(void)
+		{
+			float invLength = 1 / magnitude();
+			a *= invLength;
+			b *= invLength;
+			c *= invLength;
+			d *= invLength;
+			return *this;
+		}
+	};
 };
-
-#define IS_UNITED(v) (abs((float)(v) - 1) < EPSILON_E6)
-
-#define IS_NORMALIZED(v) (IS_UNITED((v).magnitude()))

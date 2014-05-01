@@ -50,7 +50,7 @@ void PhysXErrorCallback::reportError(PxErrorCode::Enum code, const char* message
 //
 //void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
 //{
-//	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
+//	static_cast<ApexMeshComponent *>(context.renderResource)->Draw(
 //		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
 //}
 
