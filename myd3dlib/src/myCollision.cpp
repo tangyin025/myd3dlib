@@ -504,6 +504,28 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
 	}
 
+	bool IntersectionTests::isInsideFrustum(const Frustum & frustum, const Vector3 & pt)
+	{
+		return 0 < frustum.Up.DistanceToPoint(pt)
+			&& 0 < frustum.Down.DistanceToPoint(pt)
+			&& 0 < frustum.Left.DistanceToPoint(pt)
+			&& 0 < frustum.Right.DistanceToPoint(pt)
+			&& 0 < frustum.Near.DistanceToPoint(pt)
+			&& 0 < frustum.Far.DistanceToPoint(pt);
+	}
+
+	bool IntersectionTests::isInsideFrustum(const Frustum & frustum, const AABB & aabb)
+	{
+		return isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z))
+			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z));
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// VolumnHelper
 	// /////////////////////////////////////////////////////////////////////////////////////

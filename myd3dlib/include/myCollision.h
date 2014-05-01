@@ -572,6 +572,10 @@ namespace my
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2);
+
+		static bool isInsideFrustum(const Frustum & frustum, const Vector3 & pt);
+
+		static bool isInsideFrustum(const Frustum & frustum, const AABB & aabb);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
