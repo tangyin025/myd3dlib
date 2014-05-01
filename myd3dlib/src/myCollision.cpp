@@ -100,14 +100,13 @@ namespace my
 	}
 
 	unsigned CollisionSphere::collideHalfSpace(
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
 		unsigned limits) const
 	{
-		return CollisionDetector::sphereAndHalfSpace(*this, planeNormal, planeDist, planeFriction, planeRestitution, contacts, limits);
+		return CollisionDetector::sphereAndHalfSpace(*this, plane, planeFriction, planeRestitution, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -149,14 +148,13 @@ namespace my
 	}
 
 	unsigned CollisionBox::collideHalfSpace(
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
 		unsigned limits) const
 	{
-		return CollisionDetector::boxAndHalfSpace(*this, planeNormal, planeDist, planeFriction, planeRestitution, contacts, limits);
+		return CollisionDetector::boxAndHalfSpace(*this, plane, planeFriction, planeRestitution, contacts, limits);
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -165,12 +163,11 @@ namespace my
 
 	bool IntersectionTests::sphereAndHalfSpace(
 		const CollisionSphere & sphere,
-		const Vector3 & planeNormal,
-		float planeDist)
+		const Plane & plane)
 	{
-		_ASSERT(IS_NORMALIZED(planeNormal));
+		_ASSERT(IS_NORMALIZED(plane.normal));
 
-		return sphere.getTransformAxis(3).dot(planeNormal) - sphere.radius < -planeDist;
+		return plane.DistanceToPoint(sphere.getTransformAxis(3)) < sphere.radius;
 	}
 
 	bool IntersectionTests::sphereAndSphere(
@@ -192,12 +189,11 @@ namespace my
 
 	bool IntersectionTests::boxAndHalfSpace(
 		const CollisionBox & box,
-		const Vector3 & planeNormal,
-		float planeDist)
+		const Plane & plane)
 	{
-		_ASSERT(IS_NORMALIZED(planeNormal));
+		_ASSERT(IS_NORMALIZED(plane.normal));
 
-		return box.getTransformAxis(3).dot(planeNormal) - calculateBoxAxisHalfProjection(box, planeNormal) < -planeDist;
+		return plane.DistanceToPoint(box.getTransformAxis(3)) < calculateBoxAxisHalfProjection(box, plane.normal);
 	}
 
 	bool IntersectionTests::_overlapOnAxis(
@@ -364,19 +360,18 @@ namespace my
 	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
 		const Vector3 & pos,
 		const Vector3 & dir,
-		const Vector3 & planeNormal,
-		float planeDist)
+		const Plane & plane)
 	{
 		_ASSERT(IS_NORMALIZED(dir));
 
-		float denom = planeNormal.dot(dir);
+		float denom = plane.normal.dot(dir);
 
 		if(abs(denom) < EPSILON_E6)
 		{
 			return TestResult(false, FLT_MAX);
 		}
 
-		return TestResult(true, -(planeNormal.dot(pos) + planeDist) / denom);
+		return TestResult(true, -(plane.normal.dot(pos) + plane.d) / denom);
 	}
 
 	IntersectionTests::TestResult IntersectionTests::rayAndCylinder(
@@ -565,8 +560,7 @@ namespace my
 
 	unsigned CollisionDetector::sphereAndHalfSpace(
 		const CollisionSphere & sphere,
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
@@ -574,20 +568,20 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(IS_NORMALIZED(planeNormal));
+		_ASSERT(IS_NORMALIZED(plane.normal));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
-		float penetration = sphere.radius - planeDist - spherePosition.dot(planeNormal);
+		float penetration = sphere.radius - plane.DistanceToPoint(spherePosition);
 
 		if(penetration <= 0)
 		{
 			return 0;
 		}
 
-		contacts->contactNormal = planeNormal;
+		contacts->contactNormal = plane.normal;
 		contacts->penetration = penetration;
-		contacts->contactPoint = spherePosition - planeNormal * (sphere.radius - penetration);
+		contacts->contactPoint = spherePosition - plane.normal * (sphere.radius - penetration);
 		contacts->bodys[0] = sphere.body;
 		contacts->bodys[1] = NULL;
 		contacts->friction = sphere.friction * planeFriction;
@@ -597,8 +591,7 @@ namespace my
 
 	unsigned CollisionDetector::sphereAndTruePlane(
 		const CollisionSphere & sphere,
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
@@ -606,11 +599,11 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		_ASSERT(IS_NORMALIZED(planeNormal));
+		_ASSERT(IS_NORMALIZED(plane.normal));
 
 		Vector3 spherePosition = sphere.getTransformAxis(3);
 
-		float centreDistance = spherePosition.dot(planeNormal) + planeDist;
+		float centreDistance = plane.DistanceToPoint(spherePosition);
 
 		if(centreDistance > 0)
 		{
@@ -619,7 +612,7 @@ namespace my
 				return 0;
 			}
 
-			contacts->contactNormal = planeNormal;
+			contacts->contactNormal = plane.normal;
 			contacts->penetration = sphere.radius - centreDistance;
 		}
 		else
@@ -629,11 +622,11 @@ namespace my
 				return 0;
 			}
 
-			contacts->contactNormal = -planeNormal;
+			contacts->contactNormal = -plane.normal;
 			contacts->penetration = sphere.radius + centreDistance;
 		}
 
-		contacts->contactPoint = spherePosition - planeNormal * centreDistance;
+		contacts->contactPoint = spherePosition - plane.normal * centreDistance;
 		contacts->bodys[0] = sphere.body;
 		contacts->bodys[1] = NULL;
 		contacts->friction = sphere.friction * planeFriction;
@@ -712,16 +705,6 @@ namespace my
 		_ASSERT(IS_NORMALIZED(planeNormal));
 
 		return (point - planePoint).dot(planeNormal);
-	}
-
-	float CollisionDetector::calculatePointPlaneDistance(
-		const Vector3 & point,
-		const Vector3 & planeNormal,
-		float planeDist)
-	{
-		_ASSERT(IS_NORMALIZED(planeNormal));
-
-		return point.dot(planeNormal) + planeDist;
 	}
 
 	unsigned CollisionDetector::sphereAndTriangle(
@@ -817,8 +800,7 @@ namespace my
 		RigidBody * pointBody,
 		float pointFriction,
 		float pointRestitution,
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
@@ -826,16 +808,16 @@ namespace my
 	{
 		_ASSERT(limits > 0);
 
-		float penetration = -calculatePointPlaneDistance(point, planeNormal, planeDist);
+		float penetration = -plane.DistanceToPoint(point);
 
 		if(penetration <= 0)
 		{
 			return 0;
 		}
 
-		contacts->contactNormal = planeNormal;
+		contacts->contactNormal = plane.normal;
 		contacts->penetration = penetration;
-		contacts->contactPoint = point + planeNormal * (penetration * 0.5f); // ***
+		contacts->contactPoint = point + plane.normal * (penetration * 0.5f); // ***
 		contacts->bodys[0] = pointBody;
 		contacts->bodys[1] = NULL;
 		contacts->friction = pointFriction * planeFriction;
@@ -845,8 +827,7 @@ namespace my
 
 	unsigned CollisionDetector::boxAndHalfSpace(
 		const CollisionBox & box,
-		const Vector3 & planeNormal,
-		float planeDist,
+		const Plane & plane,
 		float planeFriction,
 		float planeRestitution,
 		Contact * contacts,
@@ -859,8 +840,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -874,8 +854,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -889,8 +868,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -904,8 +882,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -919,8 +896,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -934,8 +910,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -949,8 +924,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],
@@ -964,8 +938,7 @@ namespace my
 			box.body,
 			box.friction,
 			box.restitution,
-			planeNormal,
-			planeDist,
+			plane,
 			planeFriction,
 			planeRestitution,
 			&contacts[res],

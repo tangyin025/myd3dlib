@@ -217,7 +217,7 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 			m_DragPos = m_Position;
 			m_DragPt = ray.first + ray.second * minT;
 			m_DragNormal = Vector3::unitX;
-			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			m_DragDist = m_DragPt.dot(m_DragNormal);
 			return TRUE;
 		}
 		break;
@@ -227,7 +227,7 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 			m_DragPos = m_Position;
 			m_DragPt = ray.first + ray.second * minT;
 			m_DragNormal = Vector3::unitY;
-			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			m_DragDist = m_DragPt.dot(m_DragNormal);
 			return TRUE;
 		}
 		break;
@@ -237,7 +237,7 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 			m_DragPos = m_Position;
 			m_DragPt = ray.first + ray.second * minT;
 			m_DragNormal = Vector3::unitZ;
-			m_DragDist = -m_DragPt.dot(m_DragNormal);
+			m_DragDist = m_DragPt.dot(m_DragNormal);
 			return TRUE;
 		}
 		break;
@@ -264,19 +264,19 @@ BOOL PivotController::OnMoveControllerLButtonDown(const std::pair<my::Vector3, m
 		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitX.cross(Vector3::unitX.cross(ray.second)).normalize();
-		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		m_DragDist = m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	case HighLightAxisY:
 		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitY.cross(Vector3::unitY.cross(ray.second)).normalize();
-		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		m_DragDist = m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	case HighLightAxisZ:
 		m_DragPos = m_Position;
 		m_DragPt = ray.first + ray.second * minT;
 		m_DragNormal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.second)).normalize();
-		m_DragDist = -m_DragPt.dot(m_DragNormal);
+		m_DragDist = m_DragPt.dot(m_DragNormal);
 		return TRUE;
 	}
 
@@ -320,7 +320,7 @@ BOOL PivotController::OnRotationControllerButtonDown(const std::pair<my::Vector3
 
 BOOL PivotController::OnMoveControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
 {
-	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, m_DragNormal, m_DragDist);
+	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, my::Plane::FromNormalDistance(m_DragNormal, m_DragDist));
 	if(res.first)
 	{
 		Vector3 pt = ray.first + ray.second * res.second;

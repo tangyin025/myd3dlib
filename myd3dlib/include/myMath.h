@@ -2395,7 +2395,20 @@ namespace my
 	class Plane
 	{
 	public:
-		float a, b, c, d;
+		union
+		{
+			struct 
+			{
+				float a, b, c;
+			};
+
+			struct 
+			{
+				Vector3 normal;
+			};
+		};
+
+		float d;
 
 	public:
 		Plane(void)
@@ -2446,6 +2459,11 @@ namespace my
 			c *= invLength;
 			d *= invLength;
 			return *this;
+		}
+
+		float DistanceToPoint(const Vector3 & pt) const
+		{
+			return a * pt.x + b * pt.y + c * pt.z + d;
 		}
 	};
 };

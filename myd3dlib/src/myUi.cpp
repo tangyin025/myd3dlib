@@ -2200,8 +2200,8 @@ bool DialogMgr::MsgProc(
 					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
 					{
 						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
-						float dialogDist = -((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, dialogNormal, dialogDist);
+						float dialogDist = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::FromNormalDistance(dialogNormal, dialogDist));
 
 						if(result.first)
 						{

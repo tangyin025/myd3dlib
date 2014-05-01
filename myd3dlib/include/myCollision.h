@@ -390,8 +390,7 @@ namespace my
 			unsigned limits) const = 0;
 
 		virtual unsigned collideHalfSpace(
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -452,8 +451,7 @@ namespace my
 			unsigned limits) const;
 
 		virtual unsigned collideHalfSpace(
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -512,8 +510,7 @@ namespace my
 			unsigned limits) const;
 
 		virtual unsigned collideHalfSpace(
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -529,8 +526,7 @@ namespace my
 	public:
 		static bool sphereAndHalfSpace(
 			const CollisionSphere & sphere,
-			const Vector3 & planeNormal,
-			float planeDist);
+			const Plane & plane);
 
 		static bool sphereAndSphere(
 			const CollisionSphere & sphere0,
@@ -540,8 +536,7 @@ namespace my
 
 		static bool boxAndHalfSpace(
 			const CollisionBox & box,
-			const Vector3 & planeNormal,
-			float planeDist);
+			const Plane & plane);
 
 		static bool _overlapOnAxis(
 			const CollisionBox & box0,
@@ -574,8 +569,7 @@ namespace my
 		static TestResult rayAndHalfSpace(
 			const Vector3 & pos,
 			const Vector3 & dir,
-			const Vector3 & planeNormal,
-			float planeDist);
+			const Plane & plane);
 
 		// ! the returned second matched un-normalized ray
 		static TestResult rayAndSphere(
@@ -642,8 +636,7 @@ namespace my
 	public:
 		static unsigned sphereAndHalfSpace(
 			const CollisionSphere & sphere,
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -651,8 +644,7 @@ namespace my
 
 		static unsigned sphereAndTruePlane(
 			const CollisionSphere & sphere,
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -682,11 +674,6 @@ namespace my
 			const Vector3 & planePoint,
 			const Vector3 & planeNormal);
 
-		static float calculatePointPlaneDistance(
-			const Vector3 & point,
-			const Vector3 & planeNormal,
-			float planeDist);
-
 		static unsigned sphereAndTriangle(
 			const CollisionSphere & sphere,
 			const Vector3 & v0,
@@ -709,8 +696,7 @@ namespace my
 			RigidBody * pointBody,
 			float pointFriction,
 			float pointRestitution,
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
@@ -718,8 +704,7 @@ namespace my
 
 		static unsigned boxAndHalfSpace(
 			const CollisionBox & box,
-			const Vector3 & planeNormal,
-			float planeDist,
+			const Plane & plane,
 			float planeFriction,
 			float planeRestitution,
 			Contact * contacts,
