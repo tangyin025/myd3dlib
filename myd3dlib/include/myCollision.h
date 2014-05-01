@@ -9,35 +9,8 @@
 namespace my
 {
 	// /////////////////////////////////////////////////////////////////////////////////////
-	// Math Extension
+	// AABB
 	// /////////////////////////////////////////////////////////////////////////////////////
-
-	class Frustum
-	{
-	public:
-		Plane Up, Down, Left, Right, Near, Far;
-
-	public:
-		Frustum(void)
-			//: Up()
-			//, Down()
-			//, Left()
-			//, Right()
-			//, Near()
-			//, Far()
-		{
-		}
-
-		Frustum(const Plane & _Up, const Plane & _Down, const Plane & _Left, const Plane & _Right, const Plane & _Near, const Plane & _Far)
-			: Up(_Up)
-			, Down(_Down)
-			, Left(_Left)
-			, Right(_Right)
-			, Near(_Near)
-			, Far(_Far)
-		{
-		}
-	};
 
 	class AABB
 	{

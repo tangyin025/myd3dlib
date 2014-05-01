@@ -2466,4 +2466,43 @@ namespace my
 			return a * pt.x + b * pt.y + c * pt.z + d;
 		}
 	};
+
+	class Frustum
+	{
+	public:
+		Plane Up, Down, Left, Right, Near, Far;
+
+	public:
+		Frustum(void)
+			//: Up()
+			//, Down()
+			//, Left()
+			//, Right()
+			//, Near()
+			//, Far()
+		{
+		}
+
+		Frustum(const Plane & _Up, const Plane & _Down, const Plane & _Left, const Plane & _Right, const Plane & _Near, const Plane & _Far)
+			: Up(_Up)
+			, Down(_Down)
+			, Left(_Left)
+			, Right(_Right)
+			, Near(_Near)
+			, Far(_Far)
+		{
+		}
+
+		static Frustum FromMatrix(const Matrix4 & m)
+		{
+			// ! need normalize ?
+			return Frustum(
+				Plane(m._14 - m._12, m._24 - m._22, m._34 - m._32, m._44 - m._42),
+				Plane(m._14 + m._12, m._24 + m._22, m._34 + m._32, m._44 + m._42),
+				Plane(m._14 + m._11, m._24 + m._21, m._34 + m._31, m._44 + m._41),
+				Plane(m._14 - m._11, m._24 - m._21, m._34 - m._31, m._44 - m._41),
+				Plane(m._13, m._23, m._33, m._43),
+				Plane(m._14 - m._13, m._24 - m._23, m._34 - m._33, m._44 - m._43));
+		}
+	};
 };
