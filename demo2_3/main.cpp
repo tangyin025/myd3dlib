@@ -43,7 +43,7 @@ public:
 
 	void renderResource(const physx::apex::NxApexRenderContext& context)
 	{
-		m_RenderObjList.push_back(static_cast<ApexMeshComponent *>(context.renderResource));
+		static_cast<ApexRenderResource *>(context.renderResource)->Draw();
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -59,7 +59,7 @@ public:
 
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
-		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
+		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
 		m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
 		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
@@ -199,6 +199,8 @@ public:
 
 		DrawHelper::DrawGrid(pd3dDevice);
 
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+
 		m_RenderObjList.clear();
 		m_RenderObjList.push_back(m_mesh.get());
 		m_DestructibleActor->lockRenderResources();
@@ -206,7 +208,6 @@ public:
 		m_DestructibleActor->dispatchRenderResources(*this);
 		m_DestructibleActor->unlockRenderResources();
 
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 		RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
 		for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
 		{

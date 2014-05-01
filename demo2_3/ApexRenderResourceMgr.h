@@ -93,14 +93,13 @@ public:
 	std::vector<my::Matrix4> m_bones;
 };
 
-class ApexMeshComponent
+class ApexRenderResource
 	: public physx::apex::NxUserRenderResource
-	, public RenderComponentBase
 {
 public:
-	ApexMeshComponent(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
+	ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
 
-	virtual ~ApexMeshComponent(void);
+	virtual ~ApexRenderResource(void);
 
 	void setVertexBufferRange(physx::PxU32 firstVertex, physx::PxU32 numVerts) {m_firstVertex = firstVertex; m_numVerts = numVerts;}
 
@@ -126,7 +125,7 @@ public:
 
 	physx::apex::NxUserRenderSpriteBuffer* getSpriteBuffer() const {return NULL;}
 
-	virtual void Draw(void);
+	void Draw(void);
 
 	std::vector<ApexRenderVertexBuffer *> m_ApexVbs;
 

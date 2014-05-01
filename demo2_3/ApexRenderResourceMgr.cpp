@@ -94,7 +94,7 @@ void ApexRenderResourceMgr::releaseSpriteBuffer(physx::apex::NxUserRenderSpriteB
 
 physx::apex::NxUserRenderResource* ApexRenderResourceMgr::createResource(const physx::apex::NxUserRenderResourceDesc& desc)
 {
-	return new ApexMeshComponent(Game::getSingleton().GetD3D9Device(), desc);
+	return new ApexRenderResource(Game::getSingleton().GetD3D9Device(), desc);
 }
 
 void ApexRenderResourceMgr::releaseResource(physx::apex::NxUserRenderResource& resource)
@@ -311,7 +311,7 @@ void ApexRenderBoneBuffer::writeBuffer(const physx::NxApexRenderBoneBufferData& 
 	}
 }
 
-ApexMeshComponent::ApexMeshComponent(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
+ApexRenderResource::ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc)
 	: m_firstVertex(desc.firstVertex)
 	, m_numVerts(desc.numVerts)
 	, m_ApexIb(static_cast<ApexRenderIndexBuffer *>(desc.indexBuffer))
@@ -341,11 +341,11 @@ ApexMeshComponent::ApexMeshComponent(IDirect3DDevice9 * pd3dDevice, const physx:
 	}
 }
 
-ApexMeshComponent::~ApexMeshComponent(void)
+ApexRenderResource::~ApexRenderResource(void)
 {
 }
 
-void ApexMeshComponent::Draw(void)
+void ApexRenderResource::Draw(void)
 {
 	HRESULT hr;
 	m_matPair->second->SetMatrix("g_World", my::Matrix4::identity);

@@ -1,6 +1,6 @@
 #pragma once
 
-class RenderComponentBase
+class RenderComponent
 {
 public:
 	enum DrawState
@@ -12,21 +12,21 @@ public:
 	my::AABB m_AABB;
 
 public:
-	RenderComponentBase(void)
-		: m_AABB(my::Vector3(FLT_MIN,FLT_MIN,FLT_MIN), my::Vector3(FLT_MAX,FLT_MAX,FLT_MAX))
+	RenderComponent(const my::AABB & aabb)
+		: m_AABB(aabb)
 	{
 	}
 
-	virtual ~RenderComponentBase(void)
+	virtual ~RenderComponent(void)
 	{
 	}
 
 	virtual void Draw(void) = 0;
 };
 
-typedef boost::shared_ptr<RenderComponentBase> RenderComponentBasePtr;
+typedef boost::shared_ptr<RenderComponent> RenderComponentBasePtr;
 
-class MeshComponent : public RenderComponentBase
+class MeshComponent : public RenderComponent
 {
 public:
 	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
@@ -40,7 +40,8 @@ public:
 	my::OgreMeshPtr m_Mesh;
 
 public:
-	MeshComponent(void)
+	MeshComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
 	{
 	}
 
@@ -55,7 +56,8 @@ public:
 	my::TransformList m_DualQuats;
 
 public:
-	SkeletonMeshComponent(void)
+	SkeletonMeshComponent(const my::AABB & aabb)
+		: MeshComponent(aabb)
 	{
 	}
 
