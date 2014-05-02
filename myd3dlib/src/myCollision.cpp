@@ -504,24 +504,24 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
 	}
 
-	bool IntersectionTests::isPointOutsideFrustum(const Frustum & frustum, const Vector3 & pt)
+	bool IntersectionTests::isPointInsideFrustum(const Frustum & frustum, const Vector3 & pt)
 	{
 		return 0 < frustum.Up.DistanceToPoint(pt)
-			|| 0 < frustum.Down.DistanceToPoint(pt)
-			|| 0 < frustum.Left.DistanceToPoint(pt)
-			|| 0 < frustum.Right.DistanceToPoint(pt)
-			|| 0 < frustum.Near.DistanceToPoint(pt)
-			|| 0 < frustum.Far.DistanceToPoint(pt);
+			&& 0 < frustum.Down.DistanceToPoint(pt)
+			&& 0 < frustum.Left.DistanceToPoint(pt)
+			&& 0 < frustum.Right.DistanceToPoint(pt)
+			&& 0 < frustum.Near.DistanceToPoint(pt)
+			&& 0 < frustum.Far.DistanceToPoint(pt);
 	}
 
-	bool IntersectionTests::isAABBOutsideFrustum(const Frustum & frustum, const AABB & aabb)
+	bool IntersectionTests::isAABBInsideFrustum(const Frustum & frustum, const AABB & aabb)
 	{
 		return 0 < frustum.Up.DistanceToPoint(aabb.p(frustum.Up.normal))
-			|| 0 < frustum.Down.DistanceToPoint(aabb.p(frustum.Down.normal))
-			|| 0 < frustum.Left.DistanceToPoint(aabb.p(frustum.Left.normal))
-			|| 0 < frustum.Right.DistanceToPoint(aabb.p(frustum.Right.normal))
-			|| 0 < frustum.Near.DistanceToPoint(aabb.p(frustum.Near.normal))
-			|| 0 < frustum.Far.DistanceToPoint(aabb.p(frustum.Far.normal));
+			&& 0 < frustum.Down.DistanceToPoint(aabb.p(frustum.Down.normal))
+			&& 0 < frustum.Left.DistanceToPoint(aabb.p(frustum.Left.normal))
+			&& 0 < frustum.Right.DistanceToPoint(aabb.p(frustum.Right.normal))
+			&& 0 < frustum.Near.DistanceToPoint(aabb.p(frustum.Near.normal))
+			&& 0 < frustum.Far.DistanceToPoint(aabb.p(frustum.Far.normal));
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////
