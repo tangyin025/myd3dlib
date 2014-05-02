@@ -26,6 +26,14 @@ public:
 	physx_ptr<physx::apex::NxApexAsset> m_ApexAsset;
 	physx_ptr<physx::apex::NxDestructibleActor> m_DestructibleActor;
 
+	my::FirstPersonCamera m_TestCam;
+
+	Demo::Demo(void)
+		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
+	{
+		m_TestCam.OnFrameMove(0,0);
+	}
+
 	void DrawTextAtWorld(
 		const Vector3 & pos,
 		LPCWSTR lpszText,
@@ -59,6 +67,9 @@ public:
 
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
+		// ========================================================================================================
+		// 骨骼动画
+		// ========================================================================================================
 		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
 		m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
 		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
@@ -72,7 +83,9 @@ public:
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
+		// ========================================================================================================
 		// Apex 破碎示例
+		// ========================================================================================================
 		physx_ptr<PxRigidActor> actor;
 		if(!(actor.reset(PxCreatePlane(*m_Physics, PxPlane(PxVec3(0,0,0), PxVec3(0,1,0)), *m_Material)),
 			actor))
@@ -161,7 +174,9 @@ public:
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
 
+		// ========================================================================================================
 		// 设置动画
+		// ========================================================================================================
 		static float anim_time = 0;
 		anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
 		m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
@@ -196,30 +211,95 @@ public:
 	{
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-
-		DrawHelper::DrawGrid(pd3dDevice);
-
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
+		DrawHelper::DrawGrid(pd3dDevice);
+		//DrawHelper::DrawAABB(pd3dDevice, my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
+		//struct Vertex
+		//{
+		//	float x, y, z;
+		//	D3DCOLOR color;
+		//	Vertex(float _x, float _y, float _z, D3DCOLOR _color)
+		//		: x(_x), y(_y), z(_z), color(_color)
+		//	{
+		//	}
+		//};
+		//std::vector<Vertex> v;
+		//Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
+		//for(int i = -5; i <= 5; i++)
+		//{
+		//	for(int j = -5; j <= 5; j++)
+		//	{
+		//		for(int k = -5; k <= 5; k++)
+		//		{
+		//			my::AABB aabb(Vector3(i,j,k)-0.3f,Vector3(i,j,k)+0.3f);
+		//			//DrawHelper::DrawAABB(pd3dDevice, aabb, IntersectionTests::isAABBInsideFrustum(aabb, frustum) ? D3DCOLOR_ARGB(255,255,0,0) : D3DCOLOR_ARGB(255,255,255,255));
+		//			D3DCOLOR Color = IntersectionTests::isAABBInsideFrustum(aabb, frustum) ? D3DCOLOR_ARGB(255,255,0,0) : D3DCOLOR_ARGB(255,255,255,255);
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+		//		}
+		//	}
+		//}
+		//pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+		//pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+		//pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity);
+		//pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
+
+		// ========================================================================================================
+		// 插入骨骼动画
+		// ========================================================================================================
 		m_RenderObjList.clear();
 		m_RenderObjList.push_back(m_mesh.get());
-		m_DestructibleActor->lockRenderResources();
-		m_DestructibleActor->updateRenderResources();
-		m_DestructibleActor->dispatchRenderResources(*this);
-		m_DestructibleActor->unlockRenderResources();
-
 		RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
 		for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
 		{
 			(*mesh_cmp_iter)->Draw();
 		}
 
+		// ========================================================================================================
+		// 绘制物理物体
+		// ========================================================================================================
+		m_DestructibleActor->lockRenderResources();
+		m_DestructibleActor->updateRenderResources();
+		m_DestructibleActor->dispatchRenderResources(*this);
+		m_DestructibleActor->unlockRenderResources();
+
 		//PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running
 
+		// ========================================================================================================
+		// 绘制粒子
+		// ========================================================================================================
 		m_EmitterInst->Begin();
 		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_Orientation, fTime, fElapsedTime);
 		m_EmitterInst->End();
 
+		// ========================================================================================================
+		// 绘制网格坐标
+		// ========================================================================================================
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -256,6 +336,9 @@ public:
 			PxVec3 rayOrigin(ray.first.x, ray.first.y, ray.first.z);
 			PxVec3 rayDirection(ray.second.x, ray.second.y, ray.second.z);
 
+			// ========================================================================================================
+			// 击碎物理物体
+			// ========================================================================================================
 			physx::PxF32 time = 0;
 			physx::PxVec3 normal(0.0f);
 			const physx::PxI32 chunkIndex = m_DestructibleActor->rayCast(time, normal, rayOrigin, rayDirection, physx::apex::NxDestructibleActorRaycastFlags::AllChunks);
