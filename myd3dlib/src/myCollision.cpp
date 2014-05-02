@@ -514,14 +514,21 @@ namespace my
 			&& 0 < frustum.Far.DistanceToPoint(pt);
 	}
 
-	bool IntersectionTests::isAABBInsideFrustum(const AABB & aabb, const Frustum & frustum)
+	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum)
 	{
-		return 0 < frustum.Up.DistanceToPoint(aabb.p(frustum.Up.normal))
-			&& 0 < frustum.Down.DistanceToPoint(aabb.p(frustum.Down.normal))
-			&& 0 < frustum.Left.DistanceToPoint(aabb.p(frustum.Left.normal))
-			&& 0 < frustum.Right.DistanceToPoint(aabb.p(frustum.Right.normal))
-			&& 0 < frustum.Near.DistanceToPoint(aabb.p(frustum.Near.normal))
-			&& 0 < frustum.Far.DistanceToPoint(aabb.p(frustum.Far.normal));
+		IntersectionType ret = IntersectionTypeInside;
+		for (int i = 0; i < 6; i++)
+		{
+			if (frustum[i].DistanceToPoint(aabb.p(frustum[i].normal)) <= 0)
+			{
+				return IntersectionTypeOutside;
+			}
+			else if (frustum[i].DistanceToPoint(aabb.n(frustum[i].normal)) < 0)
+			{
+				ret = IntersectionTypeIntersect;
+			}
+		}
+		return ret;
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////

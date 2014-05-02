@@ -2524,11 +2524,16 @@ namespace my
 		{
 		}
 
+		AABB(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+			: Min(minx, miny, minz)
+			, Max(maxx, maxy, maxz)
+		{
+		}
+
 		AABB(const Vector3 & _Min, const Vector3 & _Max)
 			: Min(_Min)
 			, Max(_Max)
 		{
-			_ASSERT(Min.x <= Max.x && Min.y <= Max.y && Min.z <= Max.z);
 		}
 
 		Vector3 p(const Vector3 & normal) const

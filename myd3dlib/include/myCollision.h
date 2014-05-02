@@ -549,7 +549,14 @@ namespace my
 
 		static bool isPointInsideFrustum(const Vector3 & pt, const Frustum & frustum);
 
-		static bool isAABBInsideFrustum(const AABB & aabb, const Frustum & frustum);
+		enum IntersectionType
+		{
+			IntersectionTypeOutside,
+			IntersectionTypeInside,
+			IntersectionTypeIntersect
+		};
+
+		static IntersectionType IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
