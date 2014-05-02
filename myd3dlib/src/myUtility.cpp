@@ -373,6 +373,56 @@ void DrawHelper::DrawGrid(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
 }
 
+void DrawHelper::DrawAABB(
+	IDirect3DDevice9 * pd3dDevice,
+	const AABB & aabb,
+	D3DCOLOR Color,
+	const Matrix4 & world)
+{
+	struct Vertex
+	{
+		float x, y, z;
+		D3DCOLOR color;
+		Vertex(float _x, float _y, float _z, D3DCOLOR _color)
+			: x(_x), y(_y), z(_z), color(_color)
+		{
+		}
+	};
+
+	std::vector<Vertex> v;
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
+	v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
+	v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
+
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&world);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
+};
+
 TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
 {
 	TimerPtr timer(new Timer(Interval, Interval));
