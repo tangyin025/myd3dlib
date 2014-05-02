@@ -547,9 +547,9 @@ namespace my
 			const Vector3 & v1,
 			const Vector3 & v2);
 
-		static bool isPointInsideFrustum(const Frustum & frustum, const Vector3 & pt);
+		static bool isPointInsideFrustum(const Vector3 & pt, const Frustum & frustum);
 
-		static bool isAABBInsideFrustum(const Frustum & frustum, const AABB & aabb);
+		static bool isAABBInsideFrustum(const AABB & aabb, const Frustum & frustum);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

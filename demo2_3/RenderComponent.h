@@ -24,7 +24,7 @@ public:
 	virtual void Draw(void) = 0;
 };
 
-typedef boost::shared_ptr<RenderComponent> RenderComponentBasePtr;
+typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
 
 class MeshComponent : public RenderComponent
 {

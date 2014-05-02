@@ -8,7 +8,7 @@ class OctreeNode
 public:
 	const my::AABB m_AABB;
 
-	typedef std::vector<RenderComponentBasePtr> RenderComponentList;
+	typedef std::vector<RenderComponentPtr> RenderComponentList;
 
 	RenderComponentList m_ComponentList;
 
@@ -23,7 +23,7 @@ public:
 	}
 
 	template <typename ChildType, std::size_t N>
-	void PushComponentToChild(RenderComponentBasePtr comp, const my::AABB & AABB)
+	void PushComponentToChild(RenderComponentPtr comp, const my::AABB & AABB)
 	{
 		if (!m_Childs[N])
 		{
@@ -32,7 +32,7 @@ public:
 		m_Childs[N]->PushComponent(comp);
 	}
 
-	virtual void PushComponent(RenderComponentBasePtr comp) = 0;
+	virtual void PushComponent(RenderComponentPtr comp) = 0;
 };
 
 class OctreeNodeX : public OctreeNode
@@ -47,7 +47,7 @@ public:
 	{
 	}
 
-	virtual void PushComponent(RenderComponentBasePtr comp);
+	virtual void PushComponent(RenderComponentPtr comp);
 };
 
 class OctreeNodeY : public OctreeNode
@@ -62,7 +62,7 @@ public:
 	{
 	}
 
-	virtual void PushComponent(RenderComponentBasePtr comp);
+	virtual void PushComponent(RenderComponentPtr comp);
 };
 
 class OctreeNodeZ : public OctreeNode
@@ -77,7 +77,7 @@ public:
 	{
 	}
 
-	virtual void PushComponent(RenderComponentBasePtr comp);
+	virtual void PushComponent(RenderComponentPtr comp);
 };
 
 typedef OctreeNodeX OctreeRoot;

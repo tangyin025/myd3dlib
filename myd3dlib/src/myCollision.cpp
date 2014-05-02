@@ -504,7 +504,7 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
 	}
 
-	bool IntersectionTests::isPointInsideFrustum(const Frustum & frustum, const Vector3 & pt)
+	bool IntersectionTests::isPointInsideFrustum(const Vector3 & pt, const Frustum & frustum)
 	{
 		return 0 < frustum.Up.DistanceToPoint(pt)
 			&& 0 < frustum.Down.DistanceToPoint(pt)
@@ -514,7 +514,7 @@ namespace my
 			&& 0 < frustum.Far.DistanceToPoint(pt);
 	}
 
-	bool IntersectionTests::isAABBInsideFrustum(const Frustum & frustum, const AABB & aabb)
+	bool IntersectionTests::isAABBInsideFrustum(const AABB & aabb, const Frustum & frustum)
 	{
 		return 0 < frustum.Up.DistanceToPoint(aabb.p(frustum.Up.normal))
 			&& 0 < frustum.Down.DistanceToPoint(aabb.p(frustum.Down.normal))

@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void OctreeNodeX::PushComponent(RenderComponentBasePtr comp)
+void OctreeNodeX::PushComponent(RenderComponentPtr comp)
 {
 	if (comp->m_AABB.Max.x < m_X)
 	{
@@ -19,7 +19,7 @@ void OctreeNodeX::PushComponent(RenderComponentBasePtr comp)
 	}
 }
 
-void OctreeNodeY::PushComponent(RenderComponentBasePtr comp)
+void OctreeNodeY::PushComponent(RenderComponentPtr comp)
 {
 	if (comp->m_AABB.Max.y < m_Y)
 	{
@@ -35,7 +35,7 @@ void OctreeNodeY::PushComponent(RenderComponentBasePtr comp)
 	}
 }
 
-void OctreeNodeZ::PushComponent(RenderComponentBasePtr comp)
+void OctreeNodeZ::PushComponent(RenderComponentPtr comp)
 {
 	if (comp->m_AABB.Max.z < m_Z)
 	{
