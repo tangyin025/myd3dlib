@@ -320,7 +320,7 @@ BOOL PivotController::OnRotationControllerButtonDown(const std::pair<my::Vector3
 
 BOOL PivotController::OnMoveControllerMouseMove(const std::pair<my::Vector3, my::Vector3> & ray)
 {
-	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, my::Plane::FromNormalDistance(m_DragNormal, m_DragDist));
+	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, my::Plane::NormalDistance(m_DragNormal, m_DragDist));
 	if(res.first)
 	{
 		Vector3 pt = ray.first + ray.second * res.second;

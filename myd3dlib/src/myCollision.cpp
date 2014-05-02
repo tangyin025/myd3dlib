@@ -504,26 +504,24 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
 	}
 
-	bool IntersectionTests::isInsideFrustum(const Frustum & frustum, const Vector3 & pt)
+	bool IntersectionTests::isPointOutsideFrustum(const Frustum & frustum, const Vector3 & pt)
 	{
 		return 0 < frustum.Up.DistanceToPoint(pt)
-			&& 0 < frustum.Down.DistanceToPoint(pt)
-			&& 0 < frustum.Left.DistanceToPoint(pt)
-			&& 0 < frustum.Right.DistanceToPoint(pt)
-			&& 0 < frustum.Near.DistanceToPoint(pt)
-			&& 0 < frustum.Far.DistanceToPoint(pt);
+			|| 0 < frustum.Down.DistanceToPoint(pt)
+			|| 0 < frustum.Left.DistanceToPoint(pt)
+			|| 0 < frustum.Right.DistanceToPoint(pt)
+			|| 0 < frustum.Near.DistanceToPoint(pt)
+			|| 0 < frustum.Far.DistanceToPoint(pt);
 	}
 
-	bool IntersectionTests::isInsideFrustum(const Frustum & frustum, const AABB & aabb)
+	bool IntersectionTests::isAABBOutsideFrustum(const Frustum & frustum, const AABB & aabb)
 	{
-		return isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z))
-			&& isInsideFrustum(frustum, Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z));
+		return 0 < frustum.Up.DistanceToPoint(aabb.p(frustum.Up.normal))
+			|| 0 < frustum.Down.DistanceToPoint(aabb.p(frustum.Down.normal))
+			|| 0 < frustum.Left.DistanceToPoint(aabb.p(frustum.Left.normal))
+			|| 0 < frustum.Right.DistanceToPoint(aabb.p(frustum.Right.normal))
+			|| 0 < frustum.Near.DistanceToPoint(aabb.p(frustum.Near.normal))
+			|| 0 < frustum.Far.DistanceToPoint(aabb.p(frustum.Far.normal));
 	}
 
 	// /////////////////////////////////////////////////////////////////////////////////////

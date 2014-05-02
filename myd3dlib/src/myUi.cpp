@@ -2201,7 +2201,7 @@ bool DialogMgr::MsgProc(
 					{
 						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
 						float dialogDist = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::FromNormalDistance(dialogNormal, dialogDist));
+						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::NormalDistance(dialogNormal, dialogDist));
 
 						if(result.first)
 						{

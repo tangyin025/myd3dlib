@@ -2427,7 +2427,7 @@ namespace my
 		{
 		}
 
-		static Plane FromNormalDistance(const Vector3 & normal, float distance)
+		static Plane NormalDistance(const Vector3 & normal, float distance)
 		{
 			_ASSERT(IS_NORMALIZED(normal));
 
@@ -2493,7 +2493,11 @@ namespace my
 		{
 		}
 
-		static Frustum FromMatrix(const Matrix4 & m)
+		Plane & operator [](size_t i);
+
+		const Plane & operator [](size_t i) const;
+
+		static Frustum ExtractMatrix(const Matrix4 & m)
 		{
 			// ! need normalize ?
 			return Frustum(
@@ -2503,6 +2507,44 @@ namespace my
 				Plane(m._14 - m._11, m._24 - m._21, m._34 - m._31, m._44 - m._41),
 				Plane(m._13, m._23, m._33, m._43),
 				Plane(m._14 - m._13, m._24 - m._23, m._34 - m._33, m._44 - m._43));
+		}
+	};
+
+	class AABB
+	{
+	public:
+		Vector3 Min;
+
+		Vector3 Max;
+
+	public:
+		AABB(void)
+			//: Min(FLT_MIN,FLT_MIN,FLT_MIN)
+			//, Max(FLT_MAX,FLT_MAX,FLT_MAX)
+		{
+		}
+
+		AABB(const Vector3 & _Min, const Vector3 & _Max)
+			: Min(_Min)
+			, Max(_Max)
+		{
+			_ASSERT(Min.x <= Max.x && Min.y <= Max.y && Min.z <= Max.z);
+		}
+
+		Vector3 p(const Vector3 & normal) const
+		{
+			return Vector3(
+				normal.x > 0 ? Max.x : Min.x,
+				normal.y > 0 ? Max.y : Min.y,
+				normal.z > 0 ? Max.z : Min.z);
+		}
+
+		Vector3 n(const Vector3 & normal) const
+		{
+			return Vector3(
+				normal.x > 0 ? Min.x : Max.x,
+				normal.y > 0 ? Min.y : Max.y,
+				normal.z > 0 ? Min.z : Max.z);
 		}
 	};
 };

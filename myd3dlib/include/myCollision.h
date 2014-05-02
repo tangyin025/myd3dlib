@@ -9,32 +9,6 @@
 namespace my
 {
 	// /////////////////////////////////////////////////////////////////////////////////////
-	// AABB
-	// /////////////////////////////////////////////////////////////////////////////////////
-
-	class AABB
-	{
-	public:
-		Vector3 Min;
-
-		Vector3 Max;
-
-	public:
-		AABB(void)
-			//: Min(FLT_MIN,FLT_MIN,FLT_MIN)
-			//, Max(FLT_MAX,FLT_MAX,FLT_MAX)
-		{
-		}
-
-		AABB(const Vector3 & _Min, const Vector3 & _Max)
-			: Min(_Min)
-			, Max(_Max)
-		{
-			_ASSERT(Min.x <= Max.x && Min.y <= Max.y && Min.z <= Max.z);
-		}
-	};
-
-	// /////////////////////////////////////////////////////////////////////////////////////
 	// BoundingSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
 
@@ -573,9 +547,9 @@ namespace my
 			const Vector3 & v1,
 			const Vector3 & v2);
 
-		static bool isInsideFrustum(const Frustum & frustum, const Vector3 & pt);
+		static bool isPointOutsideFrustum(const Frustum & frustum, const Vector3 & pt);
 
-		static bool isInsideFrustum(const Frustum & frustum, const AABB & aabb);
+		static bool isAABBOutsideFrustum(const Frustum & frustum, const AABB & aabb);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////
