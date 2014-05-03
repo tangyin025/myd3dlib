@@ -591,6 +591,8 @@ void Export2Lua(lua_State * L)
 			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
 
+		, class_<my::OgreMeshSet, boost::shared_ptr<my::OgreMeshSet> >("OgreMeshSet")
+
 		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
 
 		// ! many methods of my::BaseEffect, my::Effect cannot be use in lua
@@ -866,6 +868,8 @@ void Export2Lua(lua_State * L)
 			.def("LoadTexture", &my::AsynchronousResourceMgr::LoadTexture)
 			.def("LoadMeshAsync", &my::AsynchronousResourceMgr::LoadMeshAsync)
 			.def("LoadMesh", &my::AsynchronousResourceMgr::LoadMesh)
+			.def("LoadMeshSetAsync", &my::AsynchronousResourceMgr::LoadMeshSetAsync)
+			.def("LoadMeshSet", &my::AsynchronousResourceMgr::LoadMeshSet)
 			.def("LoadSkeletonAsync", &my::AsynchronousResourceMgr::LoadSkeletonAsync)
 			.def("LoadSkeleton", &my::AsynchronousResourceMgr::LoadSkeleton)
 			.def("LoadEffectAsync", &my::AsynchronousResourceMgr::LoadEffectAsync)

@@ -593,17 +593,20 @@ bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPt
 				_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
 
 				m_ResourceWeakSet[key] = request->m_res;
-
-				IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
-				for(; callback_iter != request->m_callbacks.end(); callback_iter++)
-				{
-					if(*callback_iter)
-						(*callback_iter)(request->m_res);
-				}
 			}
 			catch(const Exception & e)
 			{
 				OnResourceFailed(e.what());
+			}
+		}
+
+		if (request->m_res)
+		{
+			IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
+			for(; callback_iter != request->m_callbacks.end(); callback_iter++)
+			{
+				if(*callback_iter)
+					(*callback_iter)(request->m_res);
 			}
 		}
 		return true;
