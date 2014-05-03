@@ -97,6 +97,9 @@ class ApexRenderResource
 	: public physx::apex::NxUserRenderResource
 {
 public:
+	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
+
+public:
 	ApexRenderResource(IDirect3DDevice9 * pd3dDevice, const physx::apex::NxUserRenderResourceDesc& desc);
 
 	virtual ~ApexRenderResource(void);
@@ -111,7 +114,7 @@ public:
 
 	void setSpriteBufferRange(physx::PxU32 firstSprite, physx::PxU32 numSprites) {}
 
-	void setMaterial(void* resource) {m_matPair = static_cast<MeshComponent::MaterialPair *>(resource); m_Device = m_matPair->second->GetDevice();}
+	void setMaterial(void* resource) {m_matPair = static_cast<MaterialPair *>(resource); m_Device = m_matPair->second->GetDevice();}
 
 	physx::PxU32 getNbVertexBuffers() const {return m_ApexVbs.size();}
 
@@ -147,7 +150,7 @@ public:
 
 	unsigned int m_numBones;
 
-	MeshComponent::MaterialPair * m_matPair;
+	MaterialPair * m_matPair;
 
 	CComPtr<IDirect3DDevice9> m_Device;
 };

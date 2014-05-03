@@ -3,12 +3,6 @@
 class RenderComponent
 {
 public:
-	enum DrawState
-	{
-		DrawStateShadow,
-		DrawStateOpaque,
-	};
-
 	my::AABB m_AABB;
 
 public:

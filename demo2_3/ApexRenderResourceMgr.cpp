@@ -23,7 +23,7 @@ void* ApexResourceCallback::requestResource(const char* nameSpace, const char* n
 		// ! cannot load material resources asynchronized
 		my::EffectMacroPairList macros;
 		macros.push_back(my::EffectMacroPair("VS_SKINED_APEX",""));
-		return new MeshComponent::MaterialPair(Game::getSingleton().LoadMaterial(name), Game::getSingleton().LoadEffect("shader/SimpleSample.fx", macros));
+		return new ApexRenderResource::MaterialPair(Game::getSingleton().LoadMaterial(name), Game::getSingleton().LoadEffect("shader/SimpleSample.fx", macros));
 	}
 	return NULL;
 }
@@ -32,7 +32,7 @@ void  ApexResourceCallback::releaseResource(const char* nameSpace, const char* n
 {
 	if(0 == strcmp(nameSpace, "ApexMaterials"))
 	{
-		delete static_cast<MeshComponent::MaterialPair *>(resource);
+		delete static_cast<ApexRenderResource::MaterialPair *>(resource);
 	}
 }
 

@@ -843,7 +843,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(use32bitindexes, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_BOOL_SIMPLE(usesharedvertices, submesh_iter);
 		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh_iter);
-		if(!usesharedvertices || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
+		if(usesharedvertices != bUseSharedGeometry || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
 		{
 			THROW_CUSEXCEPTION(_T("!usesharedvertices || !triangle_list"));
 		}
@@ -980,4 +980,93 @@ UINT OgreMesh::GetMaterialNum(void) const
 const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
 {
 	return m_MaterialNameList[AttribId];
+}
+
+void OgreMeshSet::OnResetDevice(void)
+{
+	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
+	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	{
+		(*mesh_iter)->OnResetDevice();
+	}
+}
+
+void OgreMeshSet::OnLostDevice(void)
+{
+	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
+	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	{
+		(*mesh_iter)->OnLostDevice();
+	}
+}
+
+void OgreMeshSet::OnDestroyDevice(void)
+{
+	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
+	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	{
+		(*mesh_iter)->OnDestroyDevice();
+	}
+}
+
+void OgreMeshSet::CreateMeshSetFromOgreXmlInFile(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	LPCTSTR pFilename,
+	bool bComputeTangentFrame,
+	DWORD dwMeshSetOptions)
+{
+	FILE * fp;
+	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+	{
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
+	}
+
+	CachePtr cache = IOStreamPtr(new FileStream(fp))->GetWholeCache();
+	cache->push_back(0);
+
+	CreateMeshSetFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshSetOptions);
+}
+
+void OgreMeshSet::CreateMeshSetFromOgreXmlInMemory(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	LPSTR pSrcData,
+	UINT srcDataLen,
+	bool bComputeTangentFrame,
+	DWORD dwMeshSetOptions)
+{
+	_ASSERT(0 == pSrcData[srcDataLen-1]);
+
+	rapidxml::xml_document<char> doc;
+	try
+	{
+		doc.parse<0>(pSrcData);
+	}
+	catch(rapidxml::parse_error & e)
+	{
+		THROW_CUSEXCEPTION(ms2ts(e.what()));
+	}
+
+	CreateMeshSetFromOgreXml(pd3dDevice, &doc, bComputeTangentFrame, dwMeshSetOptions);
+}
+
+void OgreMeshSet::CreateMeshSetFromOgreXml(
+	LPDIRECT3DDEVICE9 pd3dDevice,
+	const rapidxml::xml_node<char> * node_root,
+	bool bComputeTangentFrame,
+	DWORD dwMeshOptions)
+{
+	DEFINE_XML_NODE_SIMPLE(mesh, root);
+	DEFINE_XML_NODE_SIMPLE(submeshes, mesh);
+	rapidxml::xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
+	for(; node_submesh != NULL; node_submesh = node_submesh->next_sibling())
+	{
+		DEFINE_XML_NODE_SIMPLE(geometry, submesh);
+		rapidxml::xml_node<char> * node_boneassignments = node_submesh->first_node("boneassignments");
+
+		OgreMeshPtr mesh_ptr(new OgreMesh);
+		mesh_ptr->CreateMeshFromOgreXmlNodes(
+			pd3dDevice, node_geometry, node_boneassignments, node_submesh, false, bComputeTangentFrame, dwMeshOptions);
+
+		m_Submeshes.push_back(mesh_ptr);
+	}
 }

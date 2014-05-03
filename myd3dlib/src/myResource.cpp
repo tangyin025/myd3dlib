@@ -748,6 +748,67 @@ OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
 	return LoadResource<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
 }
 
+class MeshSetIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	StreamDirMgr * m_arc;
+
+	CachePtr m_cache;
+
+	rapidxml::xml_document<char> m_doc;
+
+public:
+	MeshSetIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckPath(m_path))
+		{
+			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache->push_back(0);
+			try
+			{
+				m_doc.parse<0>((char *)&(*m_cache)[0]);
+			}
+			catch(rapidxml::parse_error &)
+			{
+				m_doc.clear();
+			}
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(!m_doc.first_node())
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		OgreMeshSetPtr res(new OgreMeshSet());
+		res->CreateMeshSetFromOgreXml(pd3dDevice, &m_doc);
+		m_res = res;
+	}
+};
+
+void AsynchronousResourceMgr::LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new MeshSetIORequest(callback, path, this)));
+}
+
+OgreMeshSetPtr AsynchronousResourceMgr::LoadMeshSet(const std::string & path)
+{
+	return LoadResource<OgreMeshSet>(path, IORequestPtr(new MeshSetIORequest(ResourceCallback(), path, this)));
+}
+
 class SkeletonIORequest : public IORequest
 {
 protected:

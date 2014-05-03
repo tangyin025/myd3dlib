@@ -359,4 +359,44 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
+
+	class OgreMeshSet : public DeviceRelatedObject<ID3DXMesh>
+	{
+	public:
+		typedef std::vector<OgreMeshPtr> OgreMeshPtrSet;
+
+		OgreMeshPtrSet m_Submeshes;
+
+	public:
+		OgreMeshSet(void)
+		{
+		}
+
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
+		void CreateMeshSetFromOgreXmlInFile(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			LPCTSTR pFilename,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshSetOptions = D3DXMESH_MANAGED);
+
+		void CreateMeshSetFromOgreXmlInMemory(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			LPSTR pSrcData,
+			UINT srcDataLen,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshSetOptions = D3DXMESH_MANAGED);
+
+		void CreateMeshSetFromOgreXml(
+			LPDIRECT3DDEVICE9 pd3dDevice,
+			const rapidxml::xml_node<char> * node_root,
+			bool bComputeTangentFrame = true,
+			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+	};
+
+	typedef boost::shared_ptr<OgreMeshSet> OgreMeshSetPtr;
 };

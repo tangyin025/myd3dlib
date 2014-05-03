@@ -323,6 +323,10 @@ namespace my
 
 		OgreMeshPtr LoadMesh(const std::string & path);
 
+		void LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback);
+
+		OgreMeshSetPtr LoadMeshSet(const std::string & path);
+
 		void LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback);
 
 		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
