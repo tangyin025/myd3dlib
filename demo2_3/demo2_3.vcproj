@@ -203,15 +203,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Octree.cpp"
+				RelativePath=".\MeshComponent.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\PhysXContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderComponent.cpp"
 				>
 			</File>
 			<File
@@ -257,7 +253,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Octree.h"
+				RelativePath=".\MeshComponent.h"
 				>
 			</File>
 			<File
@@ -266,10 +262,6 @@
 			</File>
 			<File
 				RelativePath=".\PhysXContext.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderComponent.h"
 				>
 			</File>
 			<File

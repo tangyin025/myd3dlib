@@ -1,7 +1,5 @@
 #pragma once
 
-#include "RenderComponent.h"
-
 class ApexResourceCallback
 	: public physx::apex::NxResourceCallback
 {

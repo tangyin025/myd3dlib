@@ -1,26 +1,6 @@
 #pragma once
 
-class RenderComponent
-{
-public:
-	my::AABB m_AABB;
-
-public:
-	RenderComponent(const my::AABB & aabb)
-		: m_AABB(aabb)
-	{
-	}
-
-	virtual ~RenderComponent(void)
-	{
-	}
-
-	virtual void Draw(void) = 0;
-};
-
-typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
-
-class MeshComponent : public RenderComponent
+class MeshComponent : public my::Component
 {
 public:
 	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
@@ -35,7 +15,7 @@ public:
 
 public:
 	MeshComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+		: my::Component(aabb)
 	{
 	}
 

@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "RenderComponent.h"
+#include "MeshComponent.h"
 
 using namespace my;
 

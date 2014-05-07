@@ -281,4 +281,4 @@ namespace my
 
 		void Cleanup3DEnvironment(void);
 	};
-};
+}

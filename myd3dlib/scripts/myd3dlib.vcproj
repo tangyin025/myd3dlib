@@ -203,6 +203,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\src\myOctree.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\src\myPhysics.cpp"
 				>
 			</File>
@@ -326,6 +330,10 @@
 			</File>
 			<File
 				RelativePath="..\include\myMesh.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\myOctree.h"
 				>
 			</File>
 			<File

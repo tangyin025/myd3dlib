@@ -13,6 +13,7 @@
 #include "myFont.h"
 #include "myPhysics.h"
 #include "myCollision.h"
+#include "myOctree.h"
 #include "myUi.h"
 #include "myResource.h"
 #include "myInput.h"

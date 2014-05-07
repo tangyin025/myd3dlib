@@ -341,4 +341,4 @@ namespace my
 
 		FontPtr LoadFont(const std::string & path, int height);
 	};
-};
+}

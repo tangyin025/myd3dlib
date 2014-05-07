@@ -318,6 +318,8 @@ namespace my
 
 		std::vector<std::string> m_MaterialNameList;
 
+		AABB m_aabb;
+
 	public:
 		OgreMesh(void)
 		{
@@ -360,13 +362,8 @@ namespace my
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
 
-	class OgreMeshSet : public DeviceRelatedObject<ID3DXMesh>
+	class OgreMeshSet : public DeviceRelatedObject<ID3DXMesh>, public std::vector<OgreMeshPtr>
 	{
-	public:
-		typedef std::vector<OgreMeshPtr> OgreMeshPtrSet;
-
-		OgreMeshPtrSet m_Submeshes;
-
 	public:
 		OgreMeshSet(void)
 		{
@@ -399,4 +396,4 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<OgreMeshSet> OgreMeshSetPtr;
-};
+}

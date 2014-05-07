@@ -750,6 +750,9 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 
+	m_aabb.Min = Vector3(FLT_MAX,FLT_MAX,FLT_MAX);
+	m_aabb.Max = Vector3(FLT_MIN,FLT_MIN,FLT_MIN);
+
 	VOID * pVertices = LockVertexBuffer();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
 	for(int vertex_i = 0; node_vertex != NULL && vertex_i < vertexcount; node_vertex = node_vertex->next_sibling(), vertex_i++)
@@ -763,6 +766,14 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.x, attr_tmp, node_position, x);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
+
+			m_aabb.Min.x = Min(m_aabb.Min.x, Position.x);
+			m_aabb.Min.y = Min(m_aabb.Min.y, Position.y);
+			m_aabb.Min.z = Min(m_aabb.Min.z, Position.z);
+
+			m_aabb.Max.x = Max(m_aabb.Max.x, Position.x);
+			m_aabb.Max.y = Max(m_aabb.Max.y, Position.y);
+			m_aabb.Max.z = Max(m_aabb.Max.z, Position.z);
 		}
 
 		if(normals)
@@ -984,8 +995,8 @@ const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
 
 void OgreMeshSet::OnResetDevice(void)
 {
-	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
-	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	iterator mesh_iter = begin();
+	for(; mesh_iter != end(); mesh_iter++)
 	{
 		(*mesh_iter)->OnResetDevice();
 	}
@@ -993,8 +1004,8 @@ void OgreMeshSet::OnResetDevice(void)
 
 void OgreMeshSet::OnLostDevice(void)
 {
-	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
-	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	iterator mesh_iter = begin();
+	for(; mesh_iter != end(); mesh_iter++)
 	{
 		(*mesh_iter)->OnLostDevice();
 	}
@@ -1002,8 +1013,8 @@ void OgreMeshSet::OnLostDevice(void)
 
 void OgreMeshSet::OnDestroyDevice(void)
 {
-	OgreMeshPtrSet::iterator mesh_iter = m_Submeshes.begin();
-	for(; mesh_iter != m_Submeshes.end(); mesh_iter++)
+	iterator mesh_iter = begin();
+	for(; mesh_iter != end(); mesh_iter++)
 	{
 		(*mesh_iter)->OnDestroyDevice();
 	}
@@ -1067,6 +1078,6 @@ void OgreMeshSet::CreateMeshSetFromOgreXml(
 		mesh_ptr->CreateMeshFromOgreXmlNodes(
 			pd3dDevice, node_geometry, node_boneassignments, node_submesh, false, bComputeTangentFrame, dwMeshOptions);
 
-		m_Submeshes.push_back(mesh_ptr);
+		push_back(mesh_ptr);
 	}
 }

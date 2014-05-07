@@ -113,4 +113,4 @@ namespace my
 			SAFE_RELEASE(m_ptr);
 		}
 	};
-};
+}

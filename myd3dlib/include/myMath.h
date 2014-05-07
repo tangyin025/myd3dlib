@@ -2552,4 +2552,4 @@ namespace my
 				normal.z > 0 ? Min.z : Max.z);
 		}
 	};
-};
+}

@@ -1,7 +1,7 @@
 
 #include "stdafx.h"
 #include "Game.h"
-#include "RenderComponent.h"
+#include "MeshComponent.h"
 
 using namespace my;
 
@@ -29,6 +29,7 @@ public:
 	FirstPersonCamera m_TestCam;
 	OgreMeshSetPtr m_meshSet;
 	MaterialPtr m_lambert1;
+	OctreeRootPtr m_root;
 
 	Demo::Demo(void)
 		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
@@ -54,6 +55,20 @@ public:
 	void renderResource(const physx::apex::NxApexRenderContext& context)
 	{
 		static_cast<ApexRenderResource *>(context.renderResource)->Draw();
+	}
+
+	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
+	{
+		MeshComponentPtr comp(new MeshComponent(mesh->m_aabb));
+		comp->m_Mesh = mesh;
+		std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			comp->m_Materials.push_back(MeshComponent::MaterialPair(
+				LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+		}
+		comp->m_World = Matrix4::identity;
+		return comp;
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -143,6 +158,12 @@ public:
 
 		m_meshSet = LoadMeshSet("mesh/scene1.mesh.xml");
 		m_lambert1 = LoadMaterial("material/lambert1.txt");
+		m_root.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
+		OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
+		for(; mesh_iter != m_meshSet->end(); mesh_iter++)
+		{
+			m_root->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
+		}
 
 		return S_OK;
 	}
@@ -306,21 +327,15 @@ public:
 
 		////PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running
 
-		OgreMeshSet::OgreMeshPtrSet::iterator mesh_iter = m_meshSet->m_Submeshes.begin();
-		for(; mesh_iter != m_meshSet->m_Submeshes.end(); mesh_iter++)
+		struct QueryCallbackFunc
 		{
-			m_SimpleSample->SetMatrix("g_World", Matrix4::identity);
-			m_SimpleSample->SetTexture("g_MeshTexture", m_lambert1->m_DiffuseTexture);
-			m_SimpleSample->SetTechnique("RenderScene");
-			UINT passes = m_SimpleSample->Begin();
-			for(UINT p = 0; p < passes; p++)
+			void operator() (Component * comp)
 			{
-				m_SimpleSample->BeginPass(p);
-				(*mesh_iter)->DrawSubset(0);
-				m_SimpleSample->EndPass();
+				static_cast<MeshComponent *>(comp)->Draw();
 			}
-			m_SimpleSample->End();
-		}
+		};
+		Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+		m_root->QueryComponent(frustum, QueryCallbackFunc());
 
 		// ========================================================================================================
 		// »æÖÆÁ£×Ó
