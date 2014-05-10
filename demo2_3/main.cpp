@@ -156,7 +156,7 @@ public:
 		//NxParameterized::setParamVec3(*params, "scale", PxVec3(0.5f));
 		//m_DestructibleActor.reset(static_cast<physx::NxDestructibleActor *>(m_ApexAsset->createApexActor(*params, *m_ApexScene)));
 
-		m_meshSet = LoadMeshSet("mesh/scene1.mesh.xml");
+		m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
 		m_lambert1 = LoadMaterial("material/lambert1.txt");
 		m_root.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
 		OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
