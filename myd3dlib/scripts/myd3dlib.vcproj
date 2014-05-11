@@ -41,7 +41,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public\PhysX3&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\NxParameterized\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\shared\general\shared&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\module\destructible\public&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)PxToolkit\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -105,7 +105,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public\PhysX3&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\NxParameterized\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\shared\general\shared&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\module\destructible\public&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)PxToolkit\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"

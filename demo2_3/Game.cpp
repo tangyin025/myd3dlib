@@ -398,14 +398,6 @@ void Game::OnFrameTick(
 {
 	OnFrameMove(fTime, fElapsedTime);
 
-	PhysXSceneContext::SetViewMatrix(m_Camera->m_View);
-
-	PhysXSceneContext::SetProjMatrix(m_Camera->m_Proj);
-
-	D3DVIEWPORT9 vp;
-	V(m_d3dDevice->GetViewport(&vp));
-	PhysXSceneContext::SetProjParams(m_Camera->m_Nz, m_Camera->m_Fz, m_Camera->m_Fov, vp.Width, vp.Height);
-
 	PhysXSceneContext::OnTickPreRender(fElapsedTime);
 
 	ParallelTaskManager::DoAllParallelTasks();
@@ -425,8 +417,6 @@ void Game::OnFrameTick(
 	Present(NULL,NULL,NULL,NULL);
 
 	PhysXSceneContext::OnTickPostRender(fElapsedTime);
-
-	//m_ApexScene->prepareRenderResourceContexts();
 }
 
 LRESULT Game::MsgProc(

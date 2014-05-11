@@ -39,20 +39,6 @@ void PhysXErrorCallback::reportError(PxErrorCode::Enum code, const char* message
 		break;
 	}
 }
-//
-//ApexRenderer::ApexRenderer(void)
-//{
-//}
-//
-//ApexRenderer::~ApexRenderer(void)
-//{
-//}
-//
-//void ApexRenderer::renderResource(const physx::apex::NxApexRenderContext& context)
-//{
-//	static_cast<ApexRenderResource *>(context.renderResource)->Draw(
-//		Game::getSingleton().GetD3D9Device(), (my::Matrix4 &)context.local2world);
-//}
 
 bool PhysXContext::OnInit(void)
 {
@@ -82,29 +68,6 @@ bool PhysXContext::OnInit(void)
 		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
 	}
 
-	physx::apex::NxApexSDKDesc apexDesc;
-	apexDesc.outputStream = &m_ErrorCallback;
-	apexDesc.physXSDKVersion = PX_PHYSICS_VERSION;
-	apexDesc.physXSDK = m_Physics.get();
-	apexDesc.cooking = m_Cooking.get();
-	apexDesc.renderResourceManager = &m_ApexUserRenderResMgr;
-	apexDesc.resourceCallback = &m_ApexResourceCallback;
-	if(!(m_ApexSDK.reset(NxCreateApexSDK(apexDesc)), m_ApexSDK))
-	{
-		THROW_CUSEXCEPTION(_T("NxCreateApexSDK failed"));
-	}
-
-	if(!(m_ModuleDestructible.reset(static_cast<physx::apex::NxModuleDestructible *>(m_ApexSDK->createModule("Destructible"))),
-		m_ModuleDestructible))
-	{
-		THROW_CUSEXCEPTION(_T("m_ApexSDK->createModule failed"));
-	}
-
-	NxParameterized::Interface * moduleDesc = m_ModuleDestructible->getDefaultModuleDesc();
-	m_ModuleDestructible->init(*moduleDesc);
-	m_ModuleDestructible->setLODBenefitValue(200);
-	m_ModuleDestructible->setLODEnabled(true);
-
 	if(!PxInitExtensions(*m_Physics))
 	{
 		THROW_CUSEXCEPTION(_T("PxInitExtensions failed"));
@@ -116,10 +79,6 @@ void PhysXContext::OnShutdown(void)
 {
 	if(m_Physics)
 		PxCloseExtensions();
-
-	m_ModuleDestructible.reset();
-
-	m_ApexSDK.reset();
 
 	m_CpuDispatcher.reset();
 
@@ -162,24 +121,6 @@ bool PhysXSceneContext::OnInit(void)
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
-	physx::apex::NxApexSceneDesc apexSceneDesc;
-	apexSceneDesc.scene = m_Scene.get();
-	if(!(m_ApexScene.reset(m_ApexSDK->createScene(apexSceneDesc)), m_ApexScene))
-	{
-		THROW_CUSEXCEPTION(_T("m_ApexSDK->createScene failed"));
-	}
-
-	m_ViewMatrixID = m_ApexScene->allocViewMatrix(physx::apex::ViewMatrixType::LOOK_AT_RH);
-	m_ProjMatrixID = m_ApexScene->allocProjMatrix(physx::apex::ProjMatrixType::USER_CUSTOMIZED);
-	m_ApexScene->setUseViewProjMatrix(m_ViewMatrixID, m_ProjMatrixID);
-
-	//NxParameterized::Interface * params = m_ApexScene->getDebugRenderParams();
-	//NxParameterized::setParamF32(*params, "VISUALIZATION_ENABLE", 1.0f);
-	//NxParameterized::setParamF32(*params, "VISUALIZATION_SCALE", 1.0f);
-	//NxParameterized::setParamF32(*params, "VISUALIZE_LOD_BENEFITS", 1.0f);
-	//NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_ACTOR", 1.0f);
-	//NxParameterized::setParamF32(*params, "Destructible/VISUALIZE_DESTRUCTIBLE_SUPPORT", 1.0f);
-
 	if(!(m_Material.reset(m_Physics->createMaterial(0.5f, 0.5f, 0.1f)), m_Material))
 	{
 		THROW_CUSEXCEPTION(_T("m_Physics->createMaterial failed"));
@@ -194,31 +135,9 @@ void PhysXSceneContext::OnShutdown(void)
 
 	m_Material.reset();
 
-	m_ApexScene.reset();
-
 	m_Scene.reset();
 
 	PhysXContext::OnShutdown();
-}
-
-void PhysXSceneContext::SetViewMatrix(const my::Matrix4 & View)
-{
-	m_ApexScene->setViewMatrix((PxMat44&)View, m_ViewMatrixID);
-}
-
-void PhysXSceneContext::SetViewParams(const my::Vector3 & EyePos, const my::Vector3 & EyeDir, const my::Vector3 & WorldUp)
-{
-	m_ApexScene->setViewParams((PxVec3&)EyePos, (PxVec3&)EyeDir, (PxVec3&)WorldUp, m_ViewMatrixID);
-}
-
-void PhysXSceneContext::SetProjMatrix(const my::Matrix4 & Proj)
-{
-	m_ApexScene->setProjMatrix((PxMat44&)Proj, m_ProjMatrixID);
-}
-
-void PhysXSceneContext::SetProjParams(float nz, float fz, float fov, DWORD ViewportWidth, DWORD ViewportHeight)
-{
-	m_ApexScene->setProjParams(nz, fz, D3DXToDegree(fov), ViewportWidth, ViewportHeight, m_ProjMatrixID);
 }
 
 void PhysXSceneContext::OnTickPreRender(float dtime)
@@ -258,12 +177,12 @@ bool PhysXSceneContext::Advance(float dtime)
 
 void PhysXSceneContext::Substep(StepperTask & completionTask)
 {
-	m_ApexScene->simulate(m_Timer.m_Interval, true, &completionTask, 0, 0);
+	m_Scene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
 void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 {
-	m_ApexScene->fetchResults(true, &m_ErrorState);
+	m_Scene->fetchResults(true, &m_ErrorState);
 
 	_ASSERT(0 == m_ErrorState);
 
