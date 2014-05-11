@@ -501,17 +501,13 @@ namespace my
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
-		typedef std::pair<Vector3, Vector3> Ray;
-
-		static Ray CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
+		static std::pair<Vector3, Vector3> CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
 
 		typedef std::pair<bool, float> TestResult;
 
-		static TestResult rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x);
+		static TestResult rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value);
 
-		static TestResult rayAndYPlane(const Vector3 & pos, const Vector3 & dir, float y);
-
-		static TestResult rayAndZPlane(const Vector3 & pos, const Vector3 & dir, float z);
+		static TestResult rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb);
 
 		static TestResult rayAndHalfSpace(
 			const Vector3 & pos,
@@ -546,8 +542,6 @@ namespace my
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2);
-
-		static bool isPointInsideFrustum(const Vector3 & pt, const Frustum & frustum);
 
 		enum IntersectionType
 		{

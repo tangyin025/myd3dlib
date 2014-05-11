@@ -320,41 +320,48 @@ namespace my
 		return (closestPoint - point).magnitude();
 	}
 
-	IntersectionTests::Ray IntersectionTests::CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
+	std::pair<Vector3, Vector3> IntersectionTests::CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
 	{
 		Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), 1.0f);
 
-		return Ray(pos, (ptProj.transformCoord(InverseViewProj) - pos).normalize());
+		return std::make_pair(pos, (ptProj.transformCoord(InverseViewProj) - pos).normalize());
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndXPlane(const Vector3 & pos, const Vector3 & dir, float x)
+	IntersectionTests::TestResult IntersectionTests::rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value)
 	{
-		if(abs(dir.x) < EPSILON_E6)
+		if (fabs(dir[axis_i]) < EPSILON_E6)
 		{
 			return TestResult(false, FLT_MAX);
 		}
-
-		return TestResult(true, (x - pos.x) / dir.x);
+		return TestResult(true, (value - pos[axis_i]) / dir[axis_i]);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndYPlane(const Vector3 & pos, const Vector3 & dir, float y)
+	IntersectionTests::TestResult IntersectionTests::rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb)
 	{
-		if(abs(dir.y) < EPSILON_E6)
+		float tNear = FLT_MIN;
+		float tFar = FLT_MAX;
+		for (int i = 0; i < 3; i++)
 		{
-			return TestResult(false, FLT_MAX);
+			if (fabs(dir[i]) < EPSILON_E6)
+			{
+				if (pos[i] < aabb.Min[i] || pos[i] > aabb.Max[i])
+				{
+					return TestResult(false, FLT_MAX);
+				}
+			}
+
+			float t0 = (aabb.Min[i] - pos[i]) / dir[i];
+			float t1 = (aabb.Max[i] - pos[i]) / dir[i];
+
+			tNear = Max(tNear, Min(t0, t1));
+			tFar = Min(tFar, Max(t0, t1));
+
+			if (tNear > tFar || tFar < 0)
+			{
+				return TestResult(false, FLT_MAX);
+			}
 		}
-
-		return TestResult(true, (y - pos.y) / dir.y);
-	}
-
-	IntersectionTests::TestResult IntersectionTests::rayAndZPlane(const Vector3 & pos, const Vector3 & dir, float z)
-	{
-		if(abs(dir.z) < EPSILON_E6)
-		{
-			return TestResult(false, FLT_MAX);
-		}
-
-		return TestResult(true, (z - pos.z) / dir.z);
+		return TestResult(true, tNear > 0 ? tNear : tFar);
 	}
 
 	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
@@ -502,16 +509,6 @@ namespace my
 			|| abs(_caculateNearestDistance(intersection, v0, v1)) <= radius
 			|| abs(_caculateNearestDistance(intersection, v1, v2)) <= radius
 			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
-	}
-
-	bool IntersectionTests::isPointInsideFrustum(const Vector3 & pt, const Frustum & frustum)
-	{
-		return 0 < frustum.Up.DistanceToPoint(pt)
-			&& 0 < frustum.Down.DistanceToPoint(pt)
-			&& 0 < frustum.Left.DistanceToPoint(pt)
-			&& 0 < frustum.Right.DistanceToPoint(pt)
-			&& 0 < frustum.Near.DistanceToPoint(pt)
-			&& 0 < frustum.Far.DistanceToPoint(pt);
 	}
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum)
