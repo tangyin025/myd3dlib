@@ -1,36 +1,39 @@
+
+// myd3dbox.h : main header file for the myd3dbox application
+//
 #pragma once
 
-#include "resource.h"
+#ifndef __AFXWIN_H__
+	#error "include 'stdafx.h' before including this file for PCH"
+#endif
 
-class CMainApp
-	: public CWinAppEx
-	, public my::D3DContext
-	, public my::Clock
-	, public my::ResourceMgr
+#include "resource.h"       // main symbols
+
+
+// CMainApp:
+// See myd3dbox.cpp for the implementation of this class
+//
+
+class CMainApp : public CWinAppEx
 {
 public:
-	CMainApp(void)
-	{
-	}
+	CMainApp();
 
-	virtual BOOL InitInstance(void);
 
-	DECLARE_MESSAGE_MAP()
-
+// Overrides
 public:
-	my::MaterialPtr m_DefaultMat;
+	virtual BOOL InitInstance();
 
-	my::EffectPtr m_SimpleSample;
+// Implementation
+	UINT  m_nAppLook;
+	BOOL  m_bHiColorIcons;
 
-	virtual BOOL OnIdle(LONG lCount);
+	virtual void PreLoadState();
+	virtual void LoadCustomState();
+	virtual void SaveCustomState();
 
-	BOOL CreateD3DDevice(HWND hWnd);
-
-	BOOL ResetD3DDevice(void);
-
-	void DestroyD3DDevice(void);
-
-	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
+	afx_msg void OnAppAbout();
+	DECLARE_MESSAGE_MAP()
 };
 
 extern CMainApp theApp;

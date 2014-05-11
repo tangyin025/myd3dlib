@@ -25,6 +25,9 @@ namespace my
 
 	typedef boost::shared_ptr<Component> ComponentPtr;
 
+	typedef boost::function<void (Component *)> QueryCallback;
+
+	template <class ChildClass>
 	class OctreeNodeBase
 	{
 	public:
@@ -34,30 +37,13 @@ namespace my
 
 		ComponentPtrList m_ComponentList;
 
-	public:
-		OctreeNodeBase(const AABB & aabb)
-			: m_aabb(aabb)
-		{
-		}
-
-		virtual ~OctreeNodeBase(void)
-		{
-		}
-	};
-
-	typedef boost::function<void (Component *)> QueryCallback;
-
-	template <class ChildClass>
-	class OctreeNode : public OctreeNodeBase
-	{
-	public:
 		typedef boost::array<boost::shared_ptr<ChildClass>, 2> ChildArray;
 
 		ChildArray m_Childs;
 
 	public:
-		OctreeNode(const AABB & aabb)
-			: OctreeNodeBase(aabb)
+		OctreeNodeBase(const AABB & aabb)
+			: m_aabb(aabb)
 		{
 		}
 
@@ -122,14 +108,14 @@ namespace my
 
 	class OctreeNodeZ;
 
-	class OctreeNodeX : public OctreeNode<OctreeNodeY>
+	class OctreeNodeX : public OctreeNodeBase<OctreeNodeY>
 	{
 	public:
 		const float m_X;
 
 	public:
 		OctreeNodeX(const AABB & aabb)
-			: OctreeNode(aabb)
+			: OctreeNodeBase(aabb)
 			, m_X((aabb.Min.x + aabb.Max.x) * 0.5f)
 		{
 		}
@@ -137,14 +123,14 @@ namespace my
 		void PushComponent(ComponentPtr comp, float threshold);
 	};
 
-	class OctreeNodeY : public OctreeNode<OctreeNodeZ>
+	class OctreeNodeY : public OctreeNodeBase<OctreeNodeZ>
 	{
 	public:
 		const float m_Y;
 
 	public:
 		OctreeNodeY(const AABB & aabb)
-			: OctreeNode(aabb)
+			: OctreeNodeBase(aabb)
 			, m_Y((aabb.Min.y + aabb.Max.y) * 0.5f)
 		{
 		}
@@ -152,14 +138,14 @@ namespace my
 		void PushComponent(ComponentPtr comp, float threshold);
 	};
 
-	class OctreeNodeZ : public OctreeNode<OctreeNodeX>
+	class OctreeNodeZ : public OctreeNodeBase<OctreeNodeX>
 	{
 	public:
 		const float m_Z;
 
 	public:
 		OctreeNodeZ(const AABB & aabb)
-			: OctreeNode(aabb)
+			: OctreeNodeBase(aabb)
 			, m_Z((aabb.Min.z + aabb.Max.z) * 0.5f)
 		{
 		}

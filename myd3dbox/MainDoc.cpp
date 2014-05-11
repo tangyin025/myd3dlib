@@ -1,123 +1,79 @@
-#include "StdAfx.h"
+
+// MainDoc.cpp : implementation of the CMainDoc class
+//
+
+#include "stdafx.h"
+#include "MainApp.h"
+
 #include "MainDoc.h"
-#include "MainFrm.h"
-#include "MainView.h"
-#include "resource.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
+
+// CMainDoc
 
 IMPLEMENT_DYNCREATE(CMainDoc, CDocument)
 
 BEGIN_MESSAGE_MAP(CMainDoc, CDocument)
-	ON_COMMAND(ID_EDIT_UNDO, &CMainDoc::OnEditUndo)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainDoc::OnUpdateEditUndo)
-	ON_COMMAND(ID_EDIT_REDO, &CMainDoc::OnEditRedo)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainDoc::OnUpdateEditRedo)
-	ON_COMMAND(ID_CREATE_MESHFROMFILE, &CMainDoc::OnCreateMeshfromfile)
 END_MESSAGE_MAP()
 
-CMainDoc::CMainDoc(void)
+
+// CMainDoc construction/destruction
+
+CMainDoc::CMainDoc()
 {
+	// TODO: add one-time construction code here
+
 }
 
-void CMainDoc::Clear(void)
+CMainDoc::~CMainDoc()
 {
-	CHistoryMgr::ClearAllHistory();
-
-	m_guid = 0;
-
-	COutlinerView::getSingleton().m_TreeCtrl.DeleteAllItems();
-}
-
-void CMainDoc::Serialize(CArchive& ar)
-{
-	if(ar.IsStoring())
-	{
-		ar << m_guid;
-	}
-	else
-	{
-		ar >> m_guid;
-	}
-
-	COutlinerView::getSingleton().Serialize(ar);
 }
 
 BOOL CMainDoc::OnNewDocument()
 {
-	Clear();
-
-	return CDocument::OnNewDocument();
-}
-
-BOOL CMainDoc::OnOpenDocument(LPCTSTR lpszPathName)
-{
-	Clear();
-
-	if (!CDocument::OnOpenDocument(lpszPathName))
+	if (!CDocument::OnNewDocument())
 		return FALSE;
+
+	// TODO: add reinitialization code here
+	// (SDI documents will reuse this document)
 
 	return TRUE;
 }
 
-BOOL CMainDoc::OnSaveDocument(LPCTSTR lpszPathName)
+
+
+
+// CMainDoc serialization
+
+void CMainDoc::Serialize(CArchive& ar)
 {
-	return CDocument::OnSaveDocument(lpszPathName);
-}
-
-void CMainDoc::OnCloseDocument()
-{
-	Clear();
-
-	CDocument::OnCloseDocument();
-}
-
-void CMainDoc::OnEditUndo()
-{
-	CHistoryMgr::Undo();
-
-	SetModifiedFlag();
-
-	UpdateAllViews(NULL);
-}
-
-void CMainDoc::OnUpdateEditUndo(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_nStep >= 0);
-}
-
-void CMainDoc::OnEditRedo()
-{
-	CHistoryMgr::Do();
-
-	SetModifiedFlag();
-
-	UpdateAllViews(NULL);
-}
-
-void CMainDoc::OnUpdateEditRedo(CCmdUI *pCmdUI)
-{
-	pCmdUI->Enable(m_nStep < (int)CHistoryMgr::size() - 1);
-}
-
-void CMainDoc::OnCreateMeshfromfile()
-{
-	CFileDialog dlg(TRUE);
-	if(IDOK == dlg.DoModal())
+	if (ar.IsStoring())
 	{
-		try
-		{
-			CString szPath = dlg.GetPathName();
-
-			TreeNodeMeshPtr mesh(new TreeNodeMesh);
-			mesh->LoadFromFile(szPath);
-			AddTreeNode(PathFindFileName(szPath), mesh);
-
-			SetModifiedFlag();
-
-			UpdateAllViews(NULL);
-		}
-		catch (const my::Exception & e)
-		{
-			AfxMessageBox(str_printf(_T("Cannot open: %s\n%s"), dlg.GetFileName(), e.what().c_str()).c_str());
-		}
+		// TODO: add storing code here
+	}
+	else
+	{
+		// TODO: add loading code here
 	}
 }
+
+
+// CMainDoc diagnostics
+
+#ifdef _DEBUG
+void CMainDoc::AssertValid() const
+{
+	CDocument::AssertValid();
+}
+
+void CMainDoc::Dump(CDumpContext& dc) const
+{
+	CDocument::Dump(dc);
+}
+#endif //_DEBUG
+
+
+// CMainDoc commands

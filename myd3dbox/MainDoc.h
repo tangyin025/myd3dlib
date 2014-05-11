@@ -1,38 +1,41 @@
+
+// MainDoc.h : interface of the CMainDoc class
+//
+
+
 #pragma once
 
-#include "HistoryMgr.h"
 
-class CMainDoc
-	: public CDocument
-	, public CHistoryMgr
-	, public my::SingleInstance<CMainDoc>
+class CMainDoc : public CDocument
 {
-public:
-	CMainDoc(void);
-
+protected: // create from serialization only
+	CMainDoc();
 	DECLARE_DYNCREATE(CMainDoc)
 
-	void Clear(void);
+// Attributes
+public:
 
+// Operations
+public:
+
+// Overrides
+public:
+	virtual BOOL OnNewDocument();
 	virtual void Serialize(CArchive& ar);
 
-	virtual BOOL OnNewDocument();
+// Implementation
+public:
+	virtual ~CMainDoc();
+#ifdef _DEBUG
+	virtual void AssertValid() const;
+	virtual void Dump(CDumpContext& dc) const;
+#endif
 
-	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+protected:
 
-	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
-
-	virtual void OnCloseDocument();
-
+// Generated message map functions
+protected:
 	DECLARE_MESSAGE_MAP()
-
-	afx_msg void OnEditUndo();
-
-	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
-
-	afx_msg void OnEditRedo();
-
-	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
-
-	afx_msg void OnCreateMeshfromfile();
 };
+
+

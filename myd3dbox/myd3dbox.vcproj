@@ -44,10 +44,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm150"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public\PhysX3&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\NxParameterized\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\shared\general\shared&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\module\destructible\public&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)PxToolkit\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;BOOST_ALL_NO_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -69,9 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\lib\vc10win32-PhysX_3.2&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -127,11 +123,9 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				AdditionalOptions="/Zm150"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\framework\public\PhysX3&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\NxParameterized\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\public&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\shared\general\shared&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\module\destructible\public&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)PxToolkit\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -153,9 +147,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;;&quot;D:\Works\OpenSource\APEXSDK-1.2.3-Build4-CL15214552-PhysX_3.2.3-WIN-VC10-BIN\lib\vc10win32-PhysX_3.2&quot;"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -194,11 +186,7 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\HistoryMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\IceHelpers.cpp"
+				RelativePath=".\ChildView.cpp"
 				>
 			</File>
 			<File
@@ -211,26 +199,6 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\MainView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\OutlinerView.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\OutputWnd.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PivotController.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PropertiesWnd.cpp"
 				>
 			</File>
 			<File
@@ -253,10 +221,6 @@
 					/>
 				</FileConfiguration>
 			</File>
-			<File
-				RelativePath=".\TreeNode.cpp"
-				>
-			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -264,11 +228,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath=".\HistoryMgr.h"
-				>
-			</File>
-			<File
-				RelativePath=".\IceHelpers.h"
+				RelativePath=".\ChildView.h"
 				>
 			</File>
 			<File
@@ -284,27 +244,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MainView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OutlinerView.h"
-				>
-			</File>
-			<File
-				RelativePath=".\OutputWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PivotController.h"
-				>
-			</File>
-			<File
-				RelativePath=".\PropertiesWnd.h"
-				>
-			</File>
-			<File
-				RelativePath=".\resource.h"
+				RelativePath=".\Resource.h"
 				>
 			</File>
 			<File
@@ -312,7 +252,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\TreeNode.h"
+				RelativePath=".\targetver.h"
 				>
 			</File>
 		</Filter>
@@ -322,7 +262,7 @@
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
 			<File
-				RelativePath=".\myd3dbox.ico"
+				RelativePath=".\res\myd3dbox.ico"
 				>
 			</File>
 			<File
@@ -330,23 +270,31 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Toolbar.bmp"
+				RelativePath=".\res\myd3dbox.rc2"
 				>
 			</File>
 			<File
-				RelativePath=".\toolbar1.bmp"
+				RelativePath=".\res\myd3dboxDoc.ico"
 				>
 			</File>
 			<File
-				RelativePath=".\toolbar2.bmp"
+				RelativePath=".\res\Toolbar.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\res\Toolbar256.bmp"
+				>
+			</File>
+			<File
+				RelativePath=".\UserImages.bmp"
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\ReadMe.txt"
+			>
+		</File>
 	</Files>
 	<Globals>
-		<Global
-			Name="RESOURCE_FILE"
-			Value="myd3dbox.rc"
-		/>
 	</Globals>
 </VisualStudioProject>
