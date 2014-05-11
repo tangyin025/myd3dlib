@@ -40,6 +40,97 @@ CMainApp::CMainApp()
 
 CMainApp theApp;
 
+BOOL CMainApp::CreateD3DDevice(HWND hWnd)
+{
+	ZeroMemory(&m_DeviceSettings, sizeof(m_DeviceSettings));
+	m_DeviceSettings.AdapterOrdinal = D3DADAPTER_DEFAULT;
+	m_DeviceSettings.DeviceType = D3DDEVTYPE_HAL;
+	m_DeviceSettings.BehaviorFlags = D3DCREATE_SOFTWARE_VERTEXPROCESSING;
+	m_DeviceSettings.pp.Windowed = TRUE;
+	m_DeviceSettings.pp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	m_DeviceSettings.pp.BackBufferFormat = D3DFMT_UNKNOWN;
+	m_DeviceSettings.pp.hDeviceWindow = hWnd;
+	m_DeviceSettings.pp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	HRESULT hr;
+	if(FAILED(hr = m_d3d9->CreateDevice(
+		m_DeviceSettings.AdapterOrdinal,
+		m_DeviceSettings.DeviceType,
+		hWnd,
+		m_DeviceSettings.BehaviorFlags,
+		&m_DeviceSettings.pp,
+		&m_d3dDevice)))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+
+	CComPtr<IDirect3DSurface9> BackBuffer;
+	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
+	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
+
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+	m_DeviceObjectsCreated = true;
+
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+	m_DeviceObjectsReset = true;
+
+	return TRUE;
+}
+
+BOOL CMainApp::ResetD3DDevice(void)
+{
+	if(m_DeviceObjectsReset)
+	{
+		ResourceMgr::OnLostDevice();
+	}
+	m_DeviceObjectsReset = false;
+
+	if(FAILED(hr = m_d3dDevice->Reset(&m_DeviceSettings.pp)))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+
+	CComPtr<IDirect3DSurface9> BackBuffer;
+	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
+	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
+
+	// ! 不会通知除my::ResourceMgr以外其他对象DeviceReset，要注意
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+	m_DeviceObjectsReset = true;
+
+	return TRUE;
+}
+
+void CMainApp::DestroyD3DDevice(void)
+{
+	if(m_DeviceObjectsCreated)
+	{
+		ResourceMgr::OnDestroyDevice();
+
+		UINT references = m_d3dDevice.Detach()->Release();
+		if(references > 0)
+		{
+			CString msg;
+			msg.Format(_T("no zero reference count: %u"), references);
+			AfxMessageBox(msg);
+		}
+		m_DeviceObjectsCreated = false;
+	}
+}
 
 // CMainApp initialization
 
@@ -83,6 +174,21 @@ BOOL CMainApp::InitInstance()
 	ttParams.m_bVislManagerTheme = TRUE;
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
+
+	char CurrDir[MAX_PATH];
+	GetCurrentDirectoryA(_countof(CurrDir), CurrDir);
+
+	char BuffDir[MAX_PATH];
+	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "Media"));
+	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "Media.zip"));
+	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media"));
+	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media.zip"));
+
+	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
+	if(!m_d3d9)
+	{
+		return FALSE;
+	}
 
 	// Register the application's document templates.  Document templates
 	//  serve as the connection between documents, frame windows and views

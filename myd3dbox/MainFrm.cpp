@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_REGISTERED_MESSAGE(AFX_WM_CREATETOOLBAR, &CMainFrame::OnToolbarCreateNew)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -49,6 +50,9 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+	if (!theApp.CreateD3DDevice(m_hWnd))
+		return -1;
+
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -123,29 +127,29 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		}
 	}
 
-	// enable menu personalization (most-recently used commands)
-	// TODO: define your own basic commands, ensuring that each pulldown menu has at least one basic command.
-	CList<UINT, UINT> lstBasicCommands;
+	//// enable menu personalization (most-recently used commands)
+	//// TODO: define your own basic commands, ensuring that each pulldown menu has at least one basic command.
+	//CList<UINT, UINT> lstBasicCommands;
 
-	lstBasicCommands.AddTail(ID_FILE_NEW);
-	lstBasicCommands.AddTail(ID_FILE_OPEN);
-	lstBasicCommands.AddTail(ID_FILE_SAVE);
-	lstBasicCommands.AddTail(ID_FILE_PRINT);
-	lstBasicCommands.AddTail(ID_APP_EXIT);
-	lstBasicCommands.AddTail(ID_EDIT_CUT);
-	lstBasicCommands.AddTail(ID_EDIT_PASTE);
-	lstBasicCommands.AddTail(ID_EDIT_UNDO);
-	lstBasicCommands.AddTail(ID_APP_ABOUT);
-	lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
-	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLUE);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_SILVER);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLACK);
-	lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
+	//lstBasicCommands.AddTail(ID_FILE_NEW);
+	//lstBasicCommands.AddTail(ID_FILE_OPEN);
+	//lstBasicCommands.AddTail(ID_FILE_SAVE);
+	//lstBasicCommands.AddTail(ID_FILE_PRINT);
+	//lstBasicCommands.AddTail(ID_APP_EXIT);
+	//lstBasicCommands.AddTail(ID_EDIT_CUT);
+	//lstBasicCommands.AddTail(ID_EDIT_PASTE);
+	//lstBasicCommands.AddTail(ID_EDIT_UNDO);
+	//lstBasicCommands.AddTail(ID_APP_ABOUT);
+	//lstBasicCommands.AddTail(ID_VIEW_STATUS_BAR);
+	//lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2003);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_VS_2005);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLUE);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_SILVER);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_BLACK);
+	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 
-	CMFCToolBar::SetBasicCommands(lstBasicCommands);
+	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
 	return 0;
 }
@@ -156,7 +160,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/,
 	return m_wndSplitter.Create(this,
 		2, 2,               // TODO: adjust the number of rows, columns
 		CSize(10, 10),      // TODO: adjust the minimum pane size
-		pContext);
+		pContext, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SPLS_DYNAMIC_SPLIT, AFX_IDW_PANE_FIRST);
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
@@ -306,3 +310,11 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+
+void CMainFrame::OnDestroy()
+{
+	CFrameWndEx::OnDestroy();
+
+	// TODO: Add your message handler code here
+	theApp.DestroyD3DDevice();
+}

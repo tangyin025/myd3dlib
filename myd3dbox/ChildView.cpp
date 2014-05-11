@@ -18,6 +18,9 @@
 IMPLEMENT_DYNCREATE(CChildView, CView)
 
 BEGIN_MESSAGE_MAP(CChildView, CView)
+	ON_WM_PAINT()
+	ON_WM_ERASEBKGND()
+	ON_WM_SIZE()
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -30,6 +33,66 @@ CChildView::CChildView()
 
 CChildView::~CChildView()
 {
+}
+
+BOOL CChildView::ResetD3DSwapChain(void)
+{
+	D3DPRESENT_PARAMETERS d3dpp = {0};
+	d3dpp.Windowed = TRUE;
+	d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
+	d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
+	d3dpp.hDeviceWindow = m_hWnd;
+	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+
+	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
+	if(FAILED(hr))
+	{
+		TRACE(my::D3DException::Translate(hr).c_str());
+		return FALSE;
+	}
+
+	my::Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	m_SwapChainBufferDesc = BackBuffer.GetDesc();
+
+	m_DepthStencil.CreateDepthStencilSurface(
+		theApp.GetD3D9Device(), m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+
+	return TRUE;
+}
+
+void CChildView::OnDeviceLost(void)
+{
+	m_DepthStencil.OnDestroyDevice();
+	m_d3dSwapChain.Release();
+}
+
+void CChildView::OnFrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	ASSERT(m_d3dSwapChain);
+
+	HRESULT hr;
+	my::Surface BackBuffer;
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+	V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
+	V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
+
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(pd3dDevice->EndScene());
+	}
+
+	if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
+	{
+		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+		{
+			theApp.ResetD3DDevice();
+		}
+	}
 }
 
 BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
@@ -86,3 +149,32 @@ CMainDoc* CChildView::GetDocument() const // non-debug version is inline
 
 
 // CChildView message handlers
+
+void CChildView::OnPaint()
+{
+	CPaintDC dc(this); // device context for painting
+	// TODO: Add your message handler code here
+	// Do not call CView::OnPaint() for painting messages
+	if(m_d3dSwapChain)
+	{
+		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+	}
+}
+
+BOOL CChildView::OnEraseBkgnd(CDC* pDC)
+{
+	return TRUE;
+}
+
+void CChildView::OnSize(UINT nType, int cx, int cy)
+{
+	CView::OnSize(nType, cx, cy);
+
+	// TODO: Add your message handler code here
+	if(cx > 0 && cy > 0)
+	{
+		// ! 在初始化窗口时，会被反复创建多次
+		OnDeviceLost();
+		ResetD3DSwapChain();
+	}
+}

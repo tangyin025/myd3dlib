@@ -15,10 +15,16 @@
 //
 
 class CMainApp : public CWinAppEx
+	, public my::D3DContext
+	, public my::ResourceMgr
+	, public my::Clock
 {
 public:
 	CMainApp();
 
+	BOOL CreateD3DDevice(HWND hWnd);
+	BOOL ResetD3DDevice(void);
+	void DestroyD3DDevice(void);
 
 // Overrides
 public:
