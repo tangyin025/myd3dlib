@@ -188,7 +188,6 @@ public:
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-		DrawGrid(pd3dDevice);
 		BeginLine();
 		PushWireAABB(my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
 		Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
@@ -216,6 +215,8 @@ public:
 				}
 			}
 		}
+		PhysXSceneContext::PushRenderBuffer(this); // ! Do not use this method while the simulation is running
+		PushGrid();
 		EndLine(pd3dDevice, Matrix4::identity);
 
 		//// ========================================================================================================
@@ -228,8 +229,6 @@ public:
 		//{
 		//	(*mesh_cmp_iter)->Draw();
 		//}
-
-		////PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running
 
 		//// ========================================================================================================
 		//// ªÊ÷∆≥°æ∞

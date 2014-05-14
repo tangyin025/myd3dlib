@@ -203,7 +203,7 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 	task.removeReference();
 }
 
-void PhysXSceneContext::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice)
+void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 {
 	const PxRenderBuffer & debugRenderable = m_Scene->getRenderBuffer();
 
@@ -224,18 +224,17 @@ void PhysXSceneContext::DrawRenderBuffer(IDirect3DDevice9 * pd3dDevice)
 		for(PxU32 i=0; i<numLines; i++)
 		{
 			const PxDebugLine& line = lines[i];
-			my::DrawHelper::DrawLine(pd3dDevice, (my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
+			drawHelper->PushLine((my::Vector3 &)line.pos0, (my::Vector3 &)line.pos1, line.color0);
 		}
 	}
 
-	const PxU32 numTriangles = debugRenderable.getNbTriangles();
-	if(numTriangles)
-	{
-		const PxDebugTriangle* PX_RESTRICT triangles = debugRenderable.getTriangles();
-		for(PxU32 i=0; i<numTriangles; i++)
-		{
-			const PxDebugTriangle& triangle = triangles[i];
-			my::DrawHelper::DrawTriangle(pd3dDevice, (my::Vector3 &)triangle.pos0, (my::Vector3 &)triangle.pos1, (my::Vector3 &)triangle.pos2, triangle.color0);
-		}
-	}
+	//const PxU32 numTriangles = debugRenderable.getNbTriangles();
+	//if(numTriangles)
+	//{
+	//	const PxDebugTriangle* PX_RESTRICT triangles = debugRenderable.getTriangles();
+	//	for(PxU32 i=0; i<numTriangles; i++)
+	//	{
+	//		const PxDebugTriangle& triangle = triangles[i];
+	//	}
+	//}
 }

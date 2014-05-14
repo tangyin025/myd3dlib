@@ -32,84 +32,6 @@ namespace my
 		{
 		}
 
-		static void DrawLine(
-			IDirect3DDevice9 * pd3dDevice,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawSphere(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawBox(
-			IDirect3DDevice9 * pd3dDevice,
-			const Vector3 & halfSize,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawTriangle(
-			IDirect3DDevice9 * pd3dDevice,
-			const Vector3 & v0,
-			const Vector3 & v1,
-			const Vector3 & v2,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawSpereStage(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			int VSTAGE_BEGIN,
-			int VSTAGE_END,
-			float offsetY,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawCylinderStage(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float y0,
-			float y1,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawCylinder(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float height,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawCapsule(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float height,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawCone(
-			IDirect3DDevice9 * pd3dDevice,
-			float radius,
-			float height,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
-		static void DrawGrid(
-			IDirect3DDevice9 * pd3dDevice,
-			float length = 12,
-			float linesEvery = 5,
-			unsigned subLines = 5,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255,127,127,127));
-
-		static void DrawAABB(
-			IDirect3DDevice9 * pd3dDevice,
-			const AABB & aabb,
-			D3DCOLOR Color,
-			const Matrix4 & world = Matrix4::identity);
-
 		void BeginLine(void);
 
 		void EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transform = Matrix4::identity);
@@ -119,6 +41,8 @@ namespace my
 		void PushWireAABB(const AABB & aabb, D3DCOLOR Color);
 
 		void PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform);
+
+		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0));
 	};
 
 	class Timer
