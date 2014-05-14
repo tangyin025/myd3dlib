@@ -500,6 +500,8 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 
 	m_Thread.WaitForThreadStopped(INFINITE);
 
+	m_Thread.CloseThread();
+
 	m_IORequestList.clear();
 }
 

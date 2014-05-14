@@ -423,6 +423,59 @@ void DrawHelper::DrawAABB(
 	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
 };
 
+void DrawHelper::BeginLine(void)
+{
+	m_vertices.clear();
+}
+
+void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transform)
+{
+	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Transform);
+	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0]));
+}
+
+void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color)
+{
+	m_vertices.push_back(Vertex(v0, Color));
+	m_vertices.push_back(Vertex(v1, Color));
+}
+
+void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
+{
+	Vector3 v[8] = {
+		Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z),
+		Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z),
+		Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z),
+		Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z),
+		Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z),
+		Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z),
+		Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z),
+		Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z),
+	};
+	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
+	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);
+	PushLine(v[0], v[4], Color); PushLine(v[1], v[5], Color); PushLine(v[2], v[6], Color); PushLine(v[3], v[7], Color);
+}
+
+void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform)
+{
+	Vector3 v[8] = {
+		Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z).transformCoord(Transform),
+		Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z).transformCoord(Transform),
+		Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z).transformCoord(Transform),
+		Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z).transformCoord(Transform),
+		Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z).transformCoord(Transform),
+		Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z).transformCoord(Transform),
+		Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z).transformCoord(Transform),
+		Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z).transformCoord(Transform),
+	};
+	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
+	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);
+	PushLine(v[0], v[4], Color); PushLine(v[1], v[5], Color); PushLine(v[2], v[6], Color); PushLine(v[3], v[7], Color);
+}
+
 TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
 {
 	TimerPtr timer(new Timer(Interval, Interval));

@@ -11,24 +11,34 @@ using namespace my;
 
 class Demo
 	: public Game
+	, public DrawHelper
 {
 public:
 	EffectPtr m_SimpleSample;
 
+	FirstPersonCamera m_TestCam;
+
+	// ========================================================================================================
+	// 骨骼动画
+	// ========================================================================================================
 	//SkeletonMeshComponentPtr m_mesh;
 	//OgreSkeletonAnimationPtr m_skel_anim;
 	//BoneList m_skel_pose;
 	//BoneList m_skel_pose_heir1;
 	//BoneList m_skel_pose_heir2;
 
-	FirstPersonCamera m_TestCam;
-	OgreMeshSetPtr m_meshSet;
-	MaterialPtr m_lambert1;
-	OctreeRootPtr m_root;
+	//// ========================================================================================================
+	//// 场景
+	//// ========================================================================================================
+	//OgreMeshSetPtr m_meshSet;
+	//MaterialPtr m_lambert1;
+	//OctreeRootPtr m_scene;
 
 	Demo::Demo(void)
 		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
 	{
+		m_TestCam.m_Rotation.y = D3DXToRadian(180);
+		m_TestCam.m_Position.y = 5;
 		m_TestCam.OnFrameMove(0,0);
 	}
 
@@ -95,14 +105,17 @@ public:
 		//m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		//m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
-		m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
-		m_lambert1 = LoadMaterial("material/lambert1.txt");
-		m_root.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
-		OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
-		for(; mesh_iter != m_meshSet->end(); mesh_iter++)
-		{
-			m_root->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
-		}
+		//// ========================================================================================================
+		//// 场景模型
+		//// ========================================================================================================
+		//m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
+		//m_lambert1 = LoadMaterial("material/lambert1.txt");
+		//m_scene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
+		//OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
+		//for(; mesh_iter != m_meshSet->end(); mesh_iter++)
+		//{
+		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
+		//}
 
 		return S_OK;
 	}
@@ -175,75 +188,38 @@ public:
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-		DrawHelper::DrawGrid(pd3dDevice);
-		//DrawHelper::DrawAABB(pd3dDevice, my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
-		//struct Vertex
-		//{
-		//	float x, y, z;
-		//	D3DCOLOR color;
-		//	Vertex(float _x, float _y, float _z, D3DCOLOR _color)
-		//		: x(_x), y(_y), z(_z), color(_color)
-		//	{
-		//	}
-		//};
-		//std::vector<Vertex> v;
-		//Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
-		//for(int i = -5; i <= 5; i++)
-		//{
-		//	for(int j = -5; j <= 5; j++)
-		//	{
-		//		for(int k = -5; k <= 5; k++)
-		//		{
-		//			my::AABB aabb(Vector3(i,j,k)-0.3f,Vector3(i,j,k)+0.3f);
-		//			D3DCOLOR Color;
-		//			switch(IntersectionTests::IntersectAABBAndFrustum(aabb, frustum))
-		//			{
-		//			case IntersectionTests::IntersectionTypeInside:
-		//				Color = D3DCOLOR_ARGB(255,0,255,0);
-		//				break;
-		//			case IntersectionTests::IntersectionTypeIntersect:
-		//				Color = D3DCOLOR_ARGB(255,255,0,0);
-		//				break;
-		//			default:
-		//				Color = D3DCOLOR_ARGB(255,255,255,255);
-		//				break;
-		//			}
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
-
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
-
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Min.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Max.z, Color));
-		//			v.push_back(Vertex(aabb.Min.x, aabb.Max.y, aabb.Min.z, Color));
-		//			v.push_back(Vertex(aabb.Max.x, aabb.Max.y, aabb.Min.z, Color));
-		//		}
-		//	}
-		//}
-		//pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-		//pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
-		//pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Matrix4::identity);
-		//pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, v.size() / 2, &v[0], sizeof(v[0]));
+		DrawGrid(pd3dDevice);
+		BeginLine();
+		PushWireAABB(my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
+		Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
+		for(int i = -5; i <= 5; i++)
+		{
+			for(int j = -5; j <= 5; j++)
+			{
+				for(int k = -5; k <= 5; k++)
+				{
+					my::AABB aabb(m_TestCam.m_Position+Vector3(i,j,k)-0.3f,m_TestCam.m_Position+Vector3(i,j,k)+0.3f);
+					D3DCOLOR Color;
+					switch(IntersectionTests::IntersectAABBAndFrustum(aabb, frustum))
+					{
+					case IntersectionTests::IntersectionTypeInside:
+						Color = D3DCOLOR_ARGB(255,0,255,0);
+						break;
+					case IntersectionTests::IntersectionTypeIntersect:
+						Color = D3DCOLOR_ARGB(255,255,0,0);
+						break;
+					default:
+						Color = D3DCOLOR_ARGB(255,255,255,255);
+						break;
+					}
+					PushWireAABB(aabb, Color);
+				}
+			}
+		}
+		EndLine(pd3dDevice, Matrix4::identity);
 
 		//// ========================================================================================================
-		//// 插入骨骼动画
+		//// 绘制骨骼动画
 		//// ========================================================================================================
 		//m_RenderObjList.clear();
 		//m_RenderObjList.push_back(m_mesh.get());
@@ -255,15 +231,18 @@ public:
 
 		////PhysXSceneContext::DrawRenderBuffer(pd3dDevice); // ! Do not use this method while the simulation is running
 
-		struct QueryCallbackFunc
-		{
-			void operator() (Component * comp)
-			{
-				static_cast<MeshComponent *>(comp)->Draw();
-			}
-		};
-		Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-		m_root->QueryComponent(frustum, QueryCallbackFunc());
+		//// ========================================================================================================
+		//// 绘制场景
+		//// ========================================================================================================
+		//struct QueryCallbackFunc
+		//{
+		//	void operator() (Component * comp)
+		//	{
+		//		static_cast<MeshComponent *>(comp)->Draw();
+		//	}
+		//};
+		//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+		//m_scene->QueryComponent(frustum, QueryCallbackFunc());
 
 		// ========================================================================================================
 		// 绘制粒子

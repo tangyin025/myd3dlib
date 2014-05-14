@@ -12,7 +12,26 @@ namespace my
 {
 	class DrawHelper
 	{
+	protected:
+		struct Vertex
+		{
+			float x, y, z;
+
+			D3DCOLOR color;
+
+			Vertex(const Vector3 & v, D3DCOLOR _color)
+				: x(v.x), y(v.y), z(v.z), color(_color)
+			{
+			}
+		};
+
+		std::vector<Vertex> m_vertices;
+
 	public:
+		DrawHelper(void)
+		{
+		}
+
 		static void DrawLine(
 			IDirect3DDevice9 * pd3dDevice,
 			const Vector3 & v0,
@@ -90,6 +109,16 @@ namespace my
 			const AABB & aabb,
 			D3DCOLOR Color,
 			const Matrix4 & world = Matrix4::identity);
+
+		void BeginLine(void);
+
+		void EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transform = Matrix4::identity);
+
+		void PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color);
+
+		void PushWireAABB(const AABB & aabb, D3DCOLOR Color);
+
+		void PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform);
 	};
 
 	class Timer
