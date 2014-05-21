@@ -22,6 +22,10 @@ class CMainApp : public CWinAppEx
 public:
 	CMainApp();
 
+	my::UIRenderPtr m_UIRender;
+
+	my::FontPtr m_Font;
+
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
 	void DestroyD3DDevice(void);

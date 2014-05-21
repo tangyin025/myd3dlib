@@ -6,22 +6,11 @@
 #pragma once
 
 
-class CChildView : public CView
+class CChildView : public CView, public my::DialogMgr
 {
 protected: // create from serialization only
 	CChildView();
 	DECLARE_DYNCREATE(CChildView)
-
-	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
-	D3DSURFACE_DESC m_SwapChainBufferDesc;
-	my::Surface m_DepthStencil;
-
-	BOOL ResetD3DSwapChain(void);
-	void OnDeviceLost(void);
-	void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime);
 
 // Attributes
 public:
@@ -35,6 +24,17 @@ public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
+
+	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
+	D3DSURFACE_DESC m_SwapChainBufferDesc;
+	my::Surface m_DepthStencil;
+
+	BOOL ResetD3DSwapChain(void);
+	void OnDeviceLost(void);
+	void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
 
 // Implementation
 public:

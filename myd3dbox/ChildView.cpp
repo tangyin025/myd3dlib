@@ -35,6 +35,26 @@ CChildView::~CChildView()
 {
 }
 
+BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
+{
+	// TODO: Modify the Window class or styles here by modifying
+	//  the CREATESTRUCT cs
+
+	return CView::PreCreateWindow(cs);
+}
+
+// CChildView drawing
+
+void CChildView::OnDraw(CDC* /*pDC*/)
+{
+	CMainDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return;
+
+	// TODO: add draw code for native data here
+}
+
 BOOL CChildView::ResetD3DSwapChain(void)
 {
 	D3DPRESENT_PARAMETERS d3dpp = {0};
@@ -83,6 +103,11 @@ void CChildView::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		theApp.m_UIRender->Begin();
+		theApp.m_UIRender->SetViewProj(m_ViewProj);
+		theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
+		theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,0,0,0), my::Font::AlignLeftTop);
+		theApp.m_UIRender->End();
 		V(pd3dDevice->EndScene());
 	}
 
@@ -93,26 +118,6 @@ void CChildView::OnFrameRender(
 			theApp.ResetD3DDevice();
 		}
 	}
-}
-
-BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
-{
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
-	return CView::PreCreateWindow(cs);
-}
-
-// CChildView drawing
-
-void CChildView::OnDraw(CDC* /*pDC*/)
-{
-	CMainDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-
-	// TODO: add draw code for native data here
 }
 
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
@@ -176,5 +181,6 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		// ! 在初始化窗口时，会被反复创建多次
 		OnDeviceLost();
 		ResetD3DSwapChain();
+		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }

@@ -74,14 +74,12 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		TRACE(my::D3DException::Translate(hr).c_str());
 		return FALSE;
 	}
-	m_DeviceObjectsCreated = true;
 
-	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-	{
-		TRACE(my::D3DException::Translate(hr).c_str());
-		return FALSE;
-	}
-	m_DeviceObjectsReset = true;
+	m_UIRender.reset(new my::UIRender(m_d3dDevice));
+
+	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
+
+	m_DeviceObjectsCreated = true;
 
 	return TRUE;
 }
@@ -119,6 +117,8 @@ void CMainApp::DestroyD3DDevice(void)
 {
 	if(m_DeviceObjectsCreated)
 	{
+		m_UIRender.reset();
+
 		ResourceMgr::OnDestroyDevice();
 
 		UINT references = m_d3dDevice.Detach()->Release();
