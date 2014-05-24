@@ -29,7 +29,7 @@ static int lua_print(lua_State * L)
 typedef struct LoadF {
 	int extraline;
 	//FILE *f;
-	my::IOStreamPtr stream;
+	my::IStreamPtr stream;
 	char buff[LUAL_BUFFERSIZE];
 } LoadF;
 
@@ -86,7 +86,7 @@ static int luaL_loadfile (lua_State *L, const char *filename)
 	//ungetc(c, lf.f);
 	try
 	{
-		lf.stream = Game::getSingleton().OpenStream(filename);
+		lf.stream = Game::getSingleton().OpenIStream(filename);
 	}
 	catch(const my::Exception & e)
 	{

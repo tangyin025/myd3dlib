@@ -550,7 +550,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 		}
 	}
 
@@ -700,7 +700,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 		}
 	}
 

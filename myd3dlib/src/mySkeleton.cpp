@@ -614,7 +614,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
 	}
 
-	CachePtr cache = IOStreamPtr(new FileStream(fp))->GetWholeCache();
+	CachePtr cache = IStreamPtr(new FileIStream(fp))->GetWholeCache();
 	cache->push_back(0);
 	CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
 }

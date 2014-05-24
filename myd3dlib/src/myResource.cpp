@@ -7,7 +7,7 @@
 
 using namespace my;
 
-ZipStream::ZipStream(unzFile zFile)
+ZipIStream::ZipIStream(unzFile zFile)
 	: m_zFile(zFile)
 {
 	_ASSERT(NULL != m_zFile);
@@ -20,18 +20,18 @@ ZipStream::ZipStream(unzFile zFile)
 	}
 }
 
-ZipStream::~ZipStream(void)
+ZipIStream::~ZipIStream(void)
 {
 	unzCloseCurrentFile(m_zFile);
 	unzClose(m_zFile);
 }
 
-int ZipStream::read(void * buff, unsigned read_size)
+int ZipIStream::read(void * buff, unsigned read_size)
 {
 	return unzReadCurrentFile(m_zFile, buff, read_size);
 }
 
-CachePtr ZipStream::GetWholeCache(void)
+CachePtr ZipIStream::GetWholeCache(void)
 {
 	CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
 	if(0 == cache->size())
@@ -47,23 +47,23 @@ CachePtr ZipStream::GetWholeCache(void)
 	return cache;
 }
 
-FileStream::FileStream(FILE * fp)
+FileIStream::FileIStream(FILE * fp)
 	: m_fp(fp)
 {
 	_ASSERT(NULL != m_fp);
 }
 
-FileStream::~FileStream(void)
+FileIStream::~FileIStream(void)
 {
 	fclose(m_fp);
 }
 
-int FileStream::read(void * buff, unsigned read_size)
+int FileIStream::read(void * buff, unsigned read_size)
 {
 	return fread(buff, 1, read_size, m_fp);
 }
 
-CachePtr FileStream::GetWholeCache(void)
+CachePtr FileIStream::GetWholeCache(void)
 {
 	fseek(m_fp, 0, SEEK_END);
 	long len = ftell(m_fp);
@@ -82,7 +82,7 @@ CachePtr FileStream::GetWholeCache(void)
 	return cache;
 }
 
-std::string ZipStreamDir::ReplaceSlash(const std::string & path)
+std::string ZipIStreamDir::ReplaceSlash(const std::string & path)
 {
 	size_t pos = 0;
 	std::string ret = path;
@@ -93,7 +93,7 @@ std::string ZipStreamDir::ReplaceSlash(const std::string & path)
 	return ret;
 }
 
-std::string ZipStreamDir::ReplaceBackslash(const std::string & path)
+std::string ZipIStreamDir::ReplaceBackslash(const std::string & path)
 {
 	size_t pos = 0;
 	std::string ret = path;
@@ -104,7 +104,7 @@ std::string ZipStreamDir::ReplaceBackslash(const std::string & path)
 	return ret;
 }
 
-bool ZipStreamDir::CheckPath(const std::string & path)
+bool ZipIStreamDir::CheckPath(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
@@ -123,12 +123,12 @@ bool ZipStreamDir::CheckPath(const std::string & path)
 	return true;
 }
 
-std::string ZipStreamDir::GetFullPath(const std::string & path)
+std::string ZipIStreamDir::GetFullPath(const std::string & path)
 {
 	return std::string();
 }
 
-IOStreamPtr ZipStreamDir::OpenStream(const std::string & path)
+IStreamPtr ZipIStreamDir::OpenIStream(const std::string & path)
 {
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
@@ -156,15 +156,15 @@ IOStreamPtr ZipStreamDir::OpenStream(const std::string & path)
 		unzClose(zFile);
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
 	}
-	return IOStreamPtr(new ZipStream(zFile));
+	return IStreamPtr(new ZipIStream(zFile));
 }
 
-bool FileStreamDir::CheckPath(const std::string & path)
+bool FileIStreamDir::CheckPath(const std::string & path)
 {
 	return !GetFullPath(path).empty();
 }
 
-std::string FileStreamDir::GetFullPath(const std::string & path)
+std::string FileIStreamDir::GetFullPath(const std::string & path)
 {
 	std::string fullPath;
 	char * lpFilePath;
@@ -180,7 +180,7 @@ std::string FileStreamDir::GetFullPath(const std::string & path)
 	return fullPath;
 }
 
-IOStreamPtr FileStreamDir::OpenStream(const std::string & path)
+IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
 {
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
@@ -194,25 +194,25 @@ IOStreamPtr FileStreamDir::OpenStream(const std::string & path)
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 	}
 
-	return IOStreamPtr(new FileStream(fp));
+	return IStreamPtr(new FileIStream(fp));
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
 	CriticalSectionLock lock(m_DirListSection);
-	m_DirList.push_back(ResourceDirPtr(new ZipStreamDir(zip_path)));
+	m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path)));
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path, const std::string & password)
 {
 	CriticalSectionLock lock(m_DirListSection);
-	m_DirList.push_back(ResourceDirPtr(new ZipStreamDir(zip_path, password)));
+	m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path, password)));
 }
 
 void StreamDirMgr::RegisterFileDir(const std::string & dir)
 {
 	CriticalSectionLock lock(m_DirListSection);
-	m_DirList.push_back(ResourceDirPtr(new FileStreamDir(dir)));
+	m_DirList.push_back(ResourceDirPtr(new FileIStreamDir(dir)));
 }
 
 bool StreamDirMgr::CheckPath(const std::string & path)
@@ -259,7 +259,7 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 		std::string ret;
 		ret.resize(MAX_PATH);
 		PathCombineA(&ret[0], m_DirList.front()->m_dir.c_str(), path.c_str());
-		ret = ZipStreamDir::ReplaceSlash(ret);
+		ret = ZipIStreamDir::ReplaceSlash(ret);
 		std::string full_path;
 		full_path.resize(MAX_PATH);
 		GetFullPathNameA(ret.c_str(), full_path.size(), &full_path[0], NULL);
@@ -269,7 +269,7 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 	return std::string();
 }
 
-IOStreamPtr StreamDirMgr::OpenStream(const std::string & path)
+IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
 {
 	if(!PathIsRelativeA(path.c_str()))
 	{
@@ -278,7 +278,7 @@ IOStreamPtr StreamDirMgr::OpenStream(const std::string & path)
 		{
 			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 		}
-		return IOStreamPtr(new FileStream(fp));
+		return IStreamPtr(new FileIStream(fp));
 	}
 
 	CriticalSectionLock lock(m_DirListSection);
@@ -287,7 +287,7 @@ IOStreamPtr StreamDirMgr::OpenStream(const std::string & path)
 	{
 		if((*dir_iter)->CheckPath(path))
 		{
-			return (*dir_iter)->OpenStream(path);
+			return (*dir_iter)->OpenIStream(path);
 		}
 	}
 
@@ -522,7 +522,7 @@ HRESULT AsynchronousResourceMgr::Open(
 	case D3DXINC_LOCAL:
 		if(CheckPath(path))
 		{
-			cache = OpenStream(path)->GetWholeCache();
+			cache = OpenIStream(path)->GetWholeCache();
 			*ppData = &(*cache)[0];
 			*pBytes = cache->size();
 			_ASSERT(m_CacheSet.end() == m_CacheSet.find(*ppData));
@@ -644,7 +644,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 		}
 	}
 
@@ -718,7 +718,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -779,7 +779,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -840,7 +840,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 			m_cache->push_back(0);
 			try
 			{
@@ -910,7 +910,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 		}
 	}
 
@@ -921,7 +921,7 @@ public:
 			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
 		EffectPtr res(new Effect());
-		m_arc->m_EffectInclude = ZipStreamDir::ReplaceSlash(m_path);
+		m_arc->m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
 		PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
 		res->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
 		m_res = res;
@@ -982,7 +982,7 @@ public:
 	{
 		if(m_arc->CheckPath(m_path))
 		{
-			m_cache = m_arc->OpenStream(m_path)->GetWholeCache();
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 		}
 	}
 

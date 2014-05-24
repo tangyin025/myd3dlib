@@ -14,10 +14,10 @@ namespace my
 
 	typedef boost::shared_ptr<Cache> CachePtr;
 
-	class IOStream
+	class IStream
 	{
 	public:
-		virtual ~IOStream(void)
+		virtual ~IStream(void)
 		{
 		}
 
@@ -26,9 +26,9 @@ namespace my
 		virtual CachePtr GetWholeCache(void) = 0;
 	};
 
-	typedef boost::shared_ptr<IOStream> IOStreamPtr;
+	typedef boost::shared_ptr<IStream> IStreamPtr;
 
-	class ZipStream : public IOStream
+	class ZipIStream : public IStream
 	{
 	protected:
 		unzFile m_zFile;
@@ -36,24 +36,24 @@ namespace my
 		unz_file_info m_zFileInfo;
 
 	public:
-		ZipStream(unzFile zFile);
+		ZipIStream(unzFile zFile);
 
-		~ZipStream(void);
+		~ZipIStream(void);
 
 		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
 	};
 
-	class FileStream : public IOStream
+	class FileIStream : public IStream
 	{
 	protected:
 		FILE * m_fp;
 
 	public:
-		FileStream(FILE * fp);
+		FileIStream(FILE * fp);
 
-		~FileStream(void);
+		~FileIStream(void);
 
 		virtual int read(void * buff, unsigned read_size);
 
@@ -79,10 +79,10 @@ namespace my
 
 		virtual std::string GetFullPath(const std::string & path) = 0;
 
-		virtual IOStreamPtr OpenStream(const std::string & path) = 0;
+		virtual IStreamPtr OpenIStream(const std::string & path) = 0;
 	};
 
-	class ZipStreamDir : public StreamDir
+	class ZipIStreamDir : public StreamDir
 	{
 	protected:
 		std::string m_password;
@@ -90,13 +90,13 @@ namespace my
 		bool m_UsePassword;
 
 	public:
-		ZipStreamDir(const std::string & dir)
+		ZipIStreamDir(const std::string & dir)
 			: StreamDir(dir)
 			, m_UsePassword(false)
 		{
 		}
 
-		ZipStreamDir(const std::string & dir, const std::string & password)
+		ZipIStreamDir(const std::string & dir, const std::string & password)
 			: StreamDir(dir)
 			, m_UsePassword(true)
 			, m_password(password)
@@ -111,13 +111,13 @@ namespace my
 
 		std::string GetFullPath(const std::string & path);
 
-		IOStreamPtr OpenStream(const std::string & path);
+		IStreamPtr OpenIStream(const std::string & path);
 	};
 
-	class FileStreamDir : public StreamDir
+	class FileIStreamDir : public StreamDir
 	{
 	public:
-		FileStreamDir(const std::string & dir)
+		FileIStreamDir(const std::string & dir)
 			: StreamDir(dir)
 		{
 		}
@@ -126,7 +126,7 @@ namespace my
 
 		std::string GetFullPath(const std::string & path);
 
-		IOStreamPtr OpenStream(const std::string & path);
+		IStreamPtr OpenIStream(const std::string & path);
 	};
 
 	class StreamDirMgr
@@ -159,7 +159,7 @@ namespace my
 
 		std::string GetFullPath(const std::string & path);
 
-		IOStreamPtr OpenStream(const std::string & path);
+		IStreamPtr OpenIStream(const std::string & path);
 	};
 
 	typedef boost::function<void (DeviceRelatedObjectBasePtr)> ResourceCallback;
