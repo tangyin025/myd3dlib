@@ -82,6 +82,22 @@ CachePtr FileIStream::GetWholeCache(void)
 	return cache;
 }
 
+FileOStream::FileOStream(FILE * fp)
+	: m_fp(fp)
+{
+	_ASSERT(NULL != m_fp);
+}
+
+FileOStream::~FileOStream(void)
+{
+	fclose(m_fp);
+}
+
+int FileOStream::write(void * buff, unsigned write_size)
+{
+	return fwrite(buff, 1, write_size, m_fp);
+}
+
 std::string ZipIStreamDir::ReplaceSlash(const std::string & path)
 {
 	size_t pos = 0;

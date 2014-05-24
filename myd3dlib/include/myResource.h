@@ -28,6 +28,18 @@ namespace my
 
 	typedef boost::shared_ptr<IStream> IStreamPtr;
 
+	class OStream
+	{
+	public:
+		virtual ~OStream(void)
+		{
+		}
+
+		virtual int write(void * buff, unsigned write_size) = 0;
+	};
+
+	typedef boost::shared_ptr<OStream> OStreamPtr;
+
 	class ZipIStream : public IStream
 	{
 	protected:
@@ -58,6 +70,19 @@ namespace my
 		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
+	};
+
+	class FileOStream : public OStream
+	{
+	protected:
+		FILE * m_fp;
+
+	public:
+		FileOStream(FILE * fp);
+
+		~FileOStream(void);
+
+		virtual int write(void * buff, unsigned write_size);
 	};
 
 	class StreamDir

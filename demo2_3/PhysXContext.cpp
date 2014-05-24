@@ -47,13 +47,13 @@ bool PhysXContext::OnInit(void)
 		THROW_CUSEXCEPTION(_T("PxCreateFoundation failed"));
 	}
 
-	if(!(m_Physics.reset(PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
+	if(!(m_sdk.reset(PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
 #ifdef _DEBUG
 		true,
 #else
 		false,
 #endif
-		NULL)), m_Physics))
+		NULL)), m_sdk))
 	{
 		THROW_CUSEXCEPTION(_T("PxCreatePhysics failed"));
 	}
@@ -68,7 +68,7 @@ bool PhysXContext::OnInit(void)
 		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
 	}
 
-	if(!PxInitExtensions(*m_Physics))
+	if(!PxInitExtensions(*m_sdk))
 	{
 		THROW_CUSEXCEPTION(_T("PxInitExtensions failed"));
 	}
@@ -77,14 +77,14 @@ bool PhysXContext::OnInit(void)
 
 void PhysXContext::OnShutdown(void)
 {
-	if(m_Physics)
+	if(m_sdk)
 		PxCloseExtensions();
 
 	m_CpuDispatcher.reset();
 
 	m_Cooking.reset();
 
-	m_Physics.reset();
+	m_sdk.reset();
 
 	m_Foundation.reset();
 }
@@ -100,31 +100,21 @@ const char * StepperTask::getName(void) const
 	return "Stepper Task";
 }
 
-bool PhysXSceneContext::OnInit(void)
+bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatcher)
 {
-	if(!PhysXContext::OnInit())
-	{
-		return false;
-	}
-
-	PxSceneDesc sceneDesc(m_Physics->getTolerancesScale());
+	PxSceneDesc sceneDesc(sdk->getTolerancesScale());
 	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-	sceneDesc.cpuDispatcher = m_CpuDispatcher.get();
+	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	if(!(m_Scene.reset(m_Physics->createScene(sceneDesc)), m_Scene))
+	if(!(m_Scene.reset(sdk->createScene(sceneDesc)), m_Scene))
 	{
-		THROW_CUSEXCEPTION(_T("m_Physics->createScene failed"));
+		THROW_CUSEXCEPTION(_T("sdk->createScene failed"));
 	}
 
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
-
-	if(!(m_Material.reset(m_Physics->createMaterial(0.5f, 0.5f, 0.1f)), m_Material))
-	{
-		THROW_CUSEXCEPTION(_T("m_Physics->createMaterial failed"));
-	}
 
 	return true;
 }
@@ -133,11 +123,7 @@ void PhysXSceneContext::OnShutdown(void)
 {
 	_ASSERT(!m_Scene || 0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 
-	m_Material.reset();
-
 	m_Scene.reset();
-
-	PhysXContext::OnShutdown();
 }
 
 void PhysXSceneContext::OnTickPreRender(float dtime)

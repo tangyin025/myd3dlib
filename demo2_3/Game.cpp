@@ -155,11 +155,8 @@ Game::Game(void)
 
 Game::~Game(void)
 {
-	// ! All delegated object must have been destroyed before destruct m_lua
-	PhysXSceneContext::OnShutdown();
-	m_dlgSetMap.clear();
-	RemoveAllTimer();
-	ImeEditBox::Uninitialize();
+	// ! Must manually call destructors at specific order
+	OnDestroyDevice();
 }
 
 bool Game::IsDeviceAcceptable(
@@ -217,9 +214,10 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	if(!PhysXSceneContext::OnInit())
+	if(!PhysXContext::OnInit()
+		|| !PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
+		THROW_CUSEXCEPTION(_T("PhysXContext::OnInit failed"));
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -345,6 +343,8 @@ void Game::OnDestroyDevice(void)
 	RemoveAllTimer();
 
 	PhysXSceneContext::OnShutdown();
+
+	PhysXContext::OnShutdown();
 
 	ResourceMgr::OnDestroyDevice();
 
@@ -531,12 +531,18 @@ void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
-	m_Console->m_Panel->AddLine(str, Color);
+	if (m_Console)
+	{
+		m_Console->m_Panel->AddLine(str, Color);
+	}
 }
 
 void Game::puts(const std::wstring & str)
 {
-	m_Console->m_Panel->puts(str);
+	if (m_Console)
+	{
+		m_Console->m_Panel->puts(str);
+	}
 }
 
 bool Game::ExecuteCode(const char * code) throw()

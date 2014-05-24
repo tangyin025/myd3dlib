@@ -33,7 +33,7 @@ protected:
 
 	physx_ptr<PxFoundation> m_Foundation;
 
-	physx_ptr<PxPhysics> m_Physics;
+	physx_ptr<PxPhysics> m_sdk;
 
 	physx_ptr<PxCooking> m_Cooking;
 
@@ -68,7 +68,6 @@ public:
 };
 
 class PhysXSceneContext
-	: public PhysXContext
 {
 protected:
 	physx_ptr<PxScene> m_Scene;
@@ -83,8 +82,6 @@ protected:
 
 	physx::PxU32 m_ErrorState;
 
-	physx_ptr<PxMaterial> m_Material;
-
 public:
 	PhysXSceneContext(void)
 		: m_Timer(1/60.0f,0)
@@ -96,7 +93,7 @@ public:
 	{
 	}
 
-	bool OnInit(void);
+	bool OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatcher);
 
 	void OnShutdown(void);
 

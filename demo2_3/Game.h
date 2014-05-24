@@ -71,6 +71,7 @@ class Game
 	, public my::DialogMgr
 	, public my::EmitterMgr
 	, public my::ResourceMgr
+	, public PhysXContext
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
 {

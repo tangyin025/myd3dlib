@@ -215,11 +215,11 @@ BOOL Thread::WaitForThreadStopped(DWORD dwMilliseconds)
 
 void Thread::CloseThread(void)
 {
-	_ASSERT(NULL != m_handle);
-
-	::CloseHandle(m_handle);
-
-	m_handle = NULL;
+	if (NULL != m_handle)
+	{
+		::CloseHandle(m_handle);
+		m_handle = NULL;
+	}
 }
 
 std::string Window::GetWindowMessageStr(UINT message)
