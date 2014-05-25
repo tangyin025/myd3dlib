@@ -35,7 +35,7 @@ namespace my
 		{
 		}
 
-		virtual int write(void * buff, unsigned write_size) = 0;
+		virtual int write(const void * buff, unsigned write_size) = 0;
 	};
 
 	typedef boost::shared_ptr<OStream> OStreamPtr;
@@ -82,7 +82,7 @@ namespace my
 
 		~FileOStream(void);
 
-		virtual int write(void * buff, unsigned write_size);
+		virtual int write(const void * buff, unsigned write_size);
 	};
 
 	class StreamDir

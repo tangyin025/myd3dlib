@@ -42,14 +42,14 @@ bool PhysXContext::OnInit(void)
 		THROW_CUSEXCEPTION(_T("PxCreateCooking failed"));
 	}
 
-	if(!(m_CpuDispatcher.reset(PxDefaultCpuDispatcherCreate(1, NULL)), m_CpuDispatcher))
-	{
-		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
-	}
-
 	if(!PxInitExtensions(*m_sdk))
 	{
 		THROW_CUSEXCEPTION(_T("PxInitExtensions failed"));
+	}
+
+	if(!(m_CpuDispatcher.reset(PxDefaultCpuDispatcherCreate(1, NULL)), m_CpuDispatcher))
+	{
+		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
 	}
 	return true;
 }
@@ -106,6 +106,66 @@ void PhysXResourceMgr::OnDestroyDevice(void)
 	OnShutdown();
 
 	ResourceMgr::OnDestroyDevice();
+}
+
+class PhysXOStream : public PxOutputStream
+{
+public:
+	my::OStreamPtr ostream;
+
+	PhysXOStream(my::OStreamPtr _ostream)
+		: ostream(_ostream)
+	{
+	}
+
+	virtual PxU32 write(const void* src, PxU32 count)
+	{
+		return ostream->write(src, count);
+	}
+};
+
+class PhysXIStream : public PxInputStream
+{
+public:
+	my::IStreamPtr istream;
+
+	PhysXIStream(my::IStreamPtr _istream)
+		: istream(_istream)
+	{
+	}
+
+	virtual PxU32 read(void* dest, PxU32 count)
+	{
+		return istream->read(dest, count);
+	}
+};
+
+void PhysXResourceMgr::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh)
+{
+	PxTriangleMeshDesc desc;
+	desc.points.count = mesh->GetNumVertices();
+	desc.points.stride = mesh->GetNumBytesPerVertex();
+	desc.points.data = mesh->LockVertexBuffer();
+	desc.triangles.count = mesh->GetNumFaces();
+	if (mesh->GetOptions() & D3DXMESH_32BIT)
+	{
+		desc.triangles.stride = 3 * sizeof(DWORD);
+	}
+	else
+	{
+		desc.triangles.stride = 3 * sizeof(WORD);
+		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+	}
+	desc.triangles.data = mesh->LockIndexBuffer();
+	m_Cooking->cookTriangleMesh(desc, PhysXOStream(ostream));
+	mesh->UnlockIndexBuffer();
+	mesh->UnlockVertexBuffer();
+}
+
+PxTriangleMesh * PhysXResourceMgr::CreateTriangleMesh(my::IStreamPtr istream)
+{
+	// ! should be call at resource thread
+	return m_sdk->createTriangleMesh(PhysXIStream(istream));
 }
 
 void PhysXSceneContext::StepperTask::run(void)

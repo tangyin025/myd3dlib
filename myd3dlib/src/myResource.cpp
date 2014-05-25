@@ -93,7 +93,7 @@ FileOStream::~FileOStream(void)
 	fclose(m_fp);
 }
 
-int FileOStream::write(void * buff, unsigned write_size)
+int FileOStream::write(const void * buff, unsigned write_size)
 {
 	return fwrite(buff, 1, write_size, m_fp);
 }

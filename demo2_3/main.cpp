@@ -15,7 +15,7 @@ class Demo
 public:
 	EffectPtr m_SimpleSample;
 
-	FirstPersonCamera m_TestCam;
+	physx_ptr<PxMaterial> m_material;
 
 	// ========================================================================================================
 	// ¹Ç÷À¶¯»­
@@ -32,6 +32,10 @@ public:
 	//OgreMeshSetPtr m_meshSet;
 	//MaterialPtr m_lambert1;
 	//OctreeRootPtr m_scene;
+
+	FirstPersonCamera m_TestCam;
+
+	physx_ptr<PxRigidActor> m_actor;
 
 	Demo::Demo(void)
 		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
@@ -88,6 +92,13 @@ public:
 
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
+		m_material.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
+
+		m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+
 		//// ========================================================================================================
 		//// ¹Ç÷À¶¯»­
 		//// ========================================================================================================
@@ -116,6 +127,25 @@ public:
 		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
 		//}
 
+		my::OgreMeshPtr mesh = LoadMesh("mesh/tube.mesh.xml");
+		FILE * fp;
+		if(0 != _tfopen_s(&fp, _T("aaa"), _T("wb")))
+		{
+			THROW_CUSEXCEPTION(_T("failed"));
+		}
+		my::OStreamPtr ofs(new my::FileOStream(fp));
+		CookTriangleMesh(ofs, mesh);
+		ofs.reset();
+
+		if(0 != _tfopen_s(&fp, _T("aaa"), _T("rb")))
+		{
+			THROW_CUSEXCEPTION(_T("failed"));
+		}
+		my::IStreamPtr ifs(new my::FileIStream(fp));
+		m_actor.reset(PxCreateStatic(
+			*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
+		m_Scene->addActor(*m_actor);
+
 		return S_OK;
 	}
 
@@ -138,6 +168,8 @@ public:
 	virtual void OnDestroyDevice(void)
 	{
 		// ×¢ÒâË³Ðò
+		m_material.reset();
+		m_actor.reset();
 
 		Game::OnDestroyDevice();
 	}
@@ -188,33 +220,33 @@ public:
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
 		BeginLine();
-		PushWireAABB(my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
-		Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
-		for(int i = -5; i <= 5; i++)
-		{
-			for(int j = -5; j <= 5; j++)
-			{
-				for(int k = -5; k <= 5; k++)
-				{
-					my::AABB aabb(m_TestCam.m_Position+Vector3(i,j,k)-0.3f,m_TestCam.m_Position+Vector3(i,j,k)+0.3f);
-					D3DCOLOR Color;
-					switch(IntersectionTests::IntersectAABBAndFrustum(aabb, frustum))
-					{
-					case IntersectionTests::IntersectionTypeInside:
-						Color = D3DCOLOR_ARGB(255,0,255,0);
-						break;
-					case IntersectionTests::IntersectionTypeIntersect:
-						Color = D3DCOLOR_ARGB(255,255,0,0);
-						break;
-					default:
-						Color = D3DCOLOR_ARGB(255,255,255,255);
-						break;
-					}
-					PushWireAABB(aabb, Color);
-				}
-			}
-		}
-		PhysXSceneContext::PushRenderBuffer(this); // ! Do not use this method while the simulation is running
+		//PushWireAABB(my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
+		//Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
+		//for(int i = -5; i <= 5; i++)
+		//{
+		//	for(int j = -5; j <= 5; j++)
+		//	{
+		//		for(int k = -5; k <= 5; k++)
+		//		{
+		//			my::AABB aabb(m_TestCam.m_Position+Vector3(i,j,k)-0.3f,m_TestCam.m_Position+Vector3(i,j,k)+0.3f);
+		//			D3DCOLOR Color;
+		//			switch(IntersectionTests::IntersectAABBAndFrustum(aabb, frustum))
+		//			{
+		//			case IntersectionTests::IntersectionTypeInside:
+		//				Color = D3DCOLOR_ARGB(255,0,255,0);
+		//				break;
+		//			case IntersectionTests::IntersectionTypeIntersect:
+		//				Color = D3DCOLOR_ARGB(255,255,0,0);
+		//				break;
+		//			default:
+		//				Color = D3DCOLOR_ARGB(255,255,255,255);
+		//				break;
+		//			}
+		//			PushWireAABB(aabb, Color);
+		//		}
+		//	}
+		//}
+		PhysXSceneContext::PushRenderBuffer(this); // ! PxScene::getRenderBuffer() not allowed while simulation is running.
 		PushGrid();
 		EndLine(pd3dDevice, Matrix4::identity);
 

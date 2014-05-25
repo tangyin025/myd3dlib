@@ -54,6 +54,10 @@ public:
 	void OnLostDevice(void);
 
 	void OnDestroyDevice(void);
+
+	void CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
+
+	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
 };
 
 class PhysXSceneContext
