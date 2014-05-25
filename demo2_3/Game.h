@@ -70,8 +70,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::EmitterMgr
-	, public my::ResourceMgr
-	, public PhysXContext
+	, public PhysXResourceMgr
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
 {
@@ -163,6 +162,8 @@ public:
 		bool * pbNoFurtherProcessing);
 
 	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
+
+	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 

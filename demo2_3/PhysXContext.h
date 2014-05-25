@@ -14,22 +14,11 @@ public:
 	void deallocate(void * ptr);
 };
 
-class PhysXErrorCallback : public PxErrorCallback
-{
-public:
-	PhysXErrorCallback(void)
-	{
-	}
-
-	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
-};
-
 class PhysXContext
+	: public PxErrorCallback
 {
 protected:
 	PhysXAllocator m_Allocator;
-
-	PhysXErrorCallback m_ErrorCallback;
 
 	physx_ptr<PxFoundation> m_Foundation;
 
@@ -49,32 +38,48 @@ public:
 	void OnShutdown(void);
 };
 
-class PhysXSceneContext;
-
-class StepperTask
-	: public physx::pxtask::LightCpuTask
+class PhysXResourceMgr
+	: public PhysXContext
+	, public my::ResourceMgr
 {
 public:
-	PhysXSceneContext * m_Scene;
+	HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	StepperTask(PhysXSceneContext * Scene)
-		: m_Scene(Scene)
-	{
-	}
+	HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	virtual void run(void);
+	void OnLostDevice(void);
 
-	virtual const char * getName(void) const;
+	void OnDestroyDevice(void);
 };
 
 class PhysXSceneContext
 {
 protected:
+	class StepperTask
+		: public physx::pxtask::LightCpuTask
+	{
+	public:
+		PhysXSceneContext * m_Scene;
+
+		StepperTask(PhysXSceneContext * Scene)
+			: m_Scene(Scene)
+		{
+		}
+
+		virtual void run(void);
+
+		virtual const char * getName(void) const;
+	};
+
+	StepperTask m_Completion0, m_Completion1;
+
 	physx_ptr<PxScene> m_Scene;
 
 	my::Timer m_Timer;
-
-	StepperTask m_Completion0, m_Completion1;
 
 	my::Event m_Sync;
 
@@ -84,9 +89,9 @@ protected:
 
 public:
 	PhysXSceneContext(void)
-		: m_Timer(1/60.0f,0)
-		, m_Completion0(this)
+		: m_Completion0(this)
 		, m_Completion1(this)
+		, m_Timer(1/60.0f,0)
 		, m_Sync(NULL, FALSE, FALSE, NULL)
 		, m_WaitForResults(false)
 		, m_ErrorState(0)

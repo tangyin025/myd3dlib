@@ -209,15 +209,14 @@ HRESULT Game::OnCreateDevice(
 
 	ParallelTaskManager::StartParallelThread(3);
 
-	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = PhysXResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
 
-	if(!PhysXContext::OnInit()
-		|| !PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
+	if(!PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION(_T("PhysXContext::OnInit failed"));
+		THROW_CUSEXCEPTION(_T("PhysXResourceMgr::OnInit failed"));
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -277,7 +276,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = PhysXResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -319,7 +318,7 @@ void Game::OnLostDevice(void)
 
 	m_EmitterInst->OnLostDevice();
 
-	ResourceMgr::OnLostDevice();
+	PhysXResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -344,9 +343,7 @@ void Game::OnDestroyDevice(void)
 
 	PhysXSceneContext::OnShutdown();
 
-	PhysXContext::OnShutdown();
-
-	ResourceMgr::OnDestroyDevice();
+	PhysXResourceMgr::OnDestroyDevice();
 
 	ImeEditBox::Uninitialize();
 }
@@ -359,7 +356,7 @@ void Game::OnFrameMove(
 
 	m_Mouse->Capture();
 
-	ResourceMgr::CheckRequests();
+	PhysXResourceMgr::CheckRequests();
 
 	m_Camera->OnFrameMove(fTime, fElapsedTime);
 
@@ -526,6 +523,26 @@ void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 	if(!m_Console->GetVisible())
 	{
 		m_Console->SetVisible(true);
+	}
+}
+
+void Game::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	switch(code)
+	{
+	case PxErrorCode::eDEBUG_INFO:
+		AddLine(ms2ws(str_printf("%s (%d) : info: %s", file, line, message)));
+		break;
+
+	case PxErrorCode::eDEBUG_WARNING:
+	case PxErrorCode::ePERF_WARNING:
+		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
+		break;
+
+	default:
+		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
+		AddLine(ms2ws(str_printf("%s, (%d) : error: %s", file, line, message)), D3DCOLOR_ARGB(255,255,0,0));
+		break;
 	}
 }
 
