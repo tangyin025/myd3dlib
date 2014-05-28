@@ -157,9 +157,12 @@ void PhysXResourceMgr::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr 
 		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
 	}
 	desc.triangles.data = mesh->LockIndexBuffer();
+	desc.materialIndices.stride = sizeof(DWORD);
+	desc.materialIndices.data = (PxMaterialTableIndex *)mesh->LockAttributeBuffer();
 	m_Cooking->cookTriangleMesh(desc, PhysXOStream(ostream));
 	mesh->UnlockIndexBuffer();
 	mesh->UnlockVertexBuffer();
+	mesh->UnlockAttributeBuffer();
 }
 
 PxTriangleMesh * PhysXResourceMgr::CreateTriangleMesh(my::IStreamPtr istream)
