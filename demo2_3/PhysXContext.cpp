@@ -51,6 +51,11 @@ bool PhysXContext::OnInit(void)
 	{
 		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
 	}
+
+	if(!(m_ControllerMgr.reset(PxCreateControllerManager(*m_Foundation)), m_ControllerMgr))
+	{
+		THROW_CUSEXCEPTION(_T("PxCreateControllerManager failed"));
+	}
 	return true;
 }
 
@@ -58,6 +63,8 @@ void PhysXContext::OnShutdown(void)
 {
 	if(m_sdk)
 		PxCloseExtensions();
+
+	m_ControllerMgr.reset();
 
 	m_CpuDispatcher.reset();
 

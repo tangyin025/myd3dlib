@@ -28,6 +28,8 @@ protected:
 
 	physx_ptr<PxDefaultCpuDispatcher> m_CpuDispatcher;
 
+	physx_ptr<PxControllerManager> m_ControllerMgr;
+
 public:
 	PhysXContext(void)
 	{
