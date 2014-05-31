@@ -208,7 +208,7 @@ bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatc
 
 void PhysXSceneContext::OnShutdown(void)
 {
-	_ASSERT(!m_Scene || 0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	//_ASSERT(!m_Scene || 0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 
 	m_Scene.reset();
 }

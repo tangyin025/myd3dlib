@@ -127,15 +127,32 @@ public:
 		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
 		//}
 
-		my::OgreMeshPtr mesh = LoadMesh("mesh/tube.mesh.xml");
-		my::OStreamPtr ofs = my::FileOStream::Open(_T("aaa"));
-		CookTriangleMesh(ofs, mesh);
-		ofs.reset();
+		// ========================================================================================================
+		// ÎïÀí³¡¾°
+		// ========================================================================================================
+		//my::OgreMeshPtr mesh = LoadMesh("mesh/tube.mesh.xml");
+		//my::OStreamPtr ofs = my::FileOStream::Open(_T("aaa"));
+		//CookTriangleMesh(ofs, mesh);
+		//ofs.reset();
 
-		my::IStreamPtr ifs = my::FileIStream::Open(_T("aaa"));
-		m_actor.reset(PxCreateStatic(
-			*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
-		m_Scene->addActor(*m_actor);
+		//my::IStreamPtr ifs = my::FileIStream::Open(_T("aaa"));
+		//m_actor.reset(PxCreateStatic(
+		//	*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
+		//ifs.reset();
+		my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
+		PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)));
+		PxShape * shape = actor->createShape(PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material);
+		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+		m_Scene->addActor(*actor);
+
+		for(int x = -10; x <= 10; x+= 2)
+		{
+			for(int z= -10; z <= 10; z+= 2)
+			{
+				m_Scene->addActor(*PxCreateDynamic(
+					*m_sdk, PxTransform(PxVec3(x,10,z),PxQuat(0,0,0,1)), PxSphereGeometry(0.3), *m_material, 1));
+			}
+		}
 
 		return S_OK;
 	}

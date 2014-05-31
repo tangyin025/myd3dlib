@@ -685,7 +685,8 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
 	{
-		THROW_CUSEXCEPTION(_T("facecount overflow ( >= 2^16 - 1 )"));
+		//THROW_CUSEXCEPTION(_T("facecount overflow ( >= 65535 )"));
+		dwMeshOptions |= D3DXMESH_32BIT;
 	}
 
 	if(!positions)
