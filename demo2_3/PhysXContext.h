@@ -57,6 +57,8 @@ public:
 
 	void CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
 
+	void CookTriangleMeshToFile(std::string path, my::OgreMeshPtr mesh);
+
 	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
 };
 

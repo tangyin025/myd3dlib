@@ -165,6 +165,11 @@ void PhysXResourceMgr::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr 
 	mesh->UnlockAttributeBuffer();
 }
 
+void PhysXResourceMgr::CookTriangleMeshToFile(std::string path, my::OgreMeshPtr mesh)
+{
+	CookTriangleMesh(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
+}
+
 PxTriangleMesh * PhysXResourceMgr::CreateTriangleMesh(my::IStreamPtr istream)
 {
 	// ! should be call at resource thread
