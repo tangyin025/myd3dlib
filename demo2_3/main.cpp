@@ -17,9 +17,9 @@ public:
 
 	physx_ptr<PxMaterial> m_material;
 
-	// ========================================================================================================
-	// ¹Ç÷À¶¯»­
-	// ========================================================================================================
+	//// ========================================================================================================
+	//// ¹Ç÷À¶¯»­
+	//// ========================================================================================================
 	//SkeletonMeshComponentPtr m_mesh;
 	//OgreSkeletonAnimationPtr m_skel_anim;
 	//BoneList m_skel_pose;
@@ -128,20 +128,11 @@ public:
 		//}
 
 		my::OgreMeshPtr mesh = LoadMesh("mesh/tube.mesh.xml");
-		FILE * fp;
-		if(0 != _tfopen_s(&fp, _T("aaa"), _T("wb")))
-		{
-			THROW_CUSEXCEPTION(_T("failed"));
-		}
-		my::OStreamPtr ofs(new my::FileOStream(fp));
+		my::OStreamPtr ofs = my::FileOStream::Open(_T("aaa"));
 		CookTriangleMesh(ofs, mesh);
 		ofs.reset();
 
-		if(0 != _tfopen_s(&fp, _T("aaa"), _T("rb")))
-		{
-			THROW_CUSEXCEPTION(_T("failed"));
-		}
-		my::IStreamPtr ifs(new my::FileIStream(fp));
+		my::IStreamPtr ifs = my::FileIStream::Open(_T("aaa"));
 		m_actor.reset(PxCreateStatic(
 			*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
 		m_Scene->addActor(*m_actor);
@@ -258,7 +249,7 @@ public:
 		//RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
 		//for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
 		//{
-		//	(*mesh_cmp_iter)->Draw();
+		//	static_cast<MeshComponent *>(*mesh_cmp_iter)->Draw();
 		//}
 
 		//// ========================================================================================================

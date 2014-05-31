@@ -58,6 +58,16 @@ FileIStream::~FileIStream(void)
 	fclose(m_fp);
 }
 
+IStreamPtr FileIStream::Open(LPCTSTR pFilename)
+{
+	FILE * fp;
+	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+	{
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
+	}
+	return IStreamPtr(new FileIStream(fp));
+}
+
 int FileIStream::read(void * buff, unsigned read_size)
 {
 	return fread(buff, 1, read_size, m_fp);
@@ -91,6 +101,16 @@ FileOStream::FileOStream(FILE * fp)
 FileOStream::~FileOStream(void)
 {
 	fclose(m_fp);
+}
+
+OStreamPtr FileOStream::Open(LPCTSTR pFilename)
+{
+	FILE * fp;
+	if(0 != _tfopen_s(&fp, pFilename, _T("wb")))
+	{
+		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
+	}
+	return OStreamPtr(new FileOStream(fp));
 }
 
 int FileOStream::write(const void * buff, unsigned write_size)
@@ -204,13 +224,7 @@ IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
 		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
 	}
 
-	FILE * fp;
-	if(0 != fopen_s(&fp, fullPath.c_str(), "rb"))
-	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
-	}
-
-	return IStreamPtr(new FileIStream(fp));
+	return FileIStream::Open(ms2ts(fullPath).c_str());
 }
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
@@ -289,12 +303,7 @@ IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
 {
 	if(!PathIsRelativeA(path.c_str()))
 	{
-		FILE * fp;
-		if(0 != fopen_s(&fp, path.c_str(), "rb"))
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
-		}
-		return IStreamPtr(new FileIStream(fp));
+		return FileIStream::Open(ms2ts(path).c_str());
 	}
 
 	CriticalSectionLock lock(m_DirListSection);
@@ -336,7 +345,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 
 			m_IORequestListMutex.Release();
 
-			// ! havent handled exception
+			// ! HAVENT HANDLED EXCEPTION YET
 			request->DoLoad();
 
 			// ! request will be decrease after set event, shared_ptr must be thread safe

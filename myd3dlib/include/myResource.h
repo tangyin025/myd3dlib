@@ -67,6 +67,8 @@ namespace my
 
 		~FileIStream(void);
 
+		static IStreamPtr Open(LPCTSTR pFilename);
+
 		virtual int read(void * buff, unsigned read_size);
 
 		virtual CachePtr GetWholeCache(void);
@@ -81,6 +83,8 @@ namespace my
 		FileOStream(FILE * fp);
 
 		~FileOStream(void);
+
+		static OStreamPtr Open(LPCTSTR pFilename);
 
 		virtual int write(const void * buff, unsigned write_size);
 	};
