@@ -6,6 +6,7 @@
 #include "myEffect.h"
 #include "myEmitter.h"
 #include "myUI.h"
+#include "myInput.h"
 #include <set>
 
 namespace my
@@ -434,5 +435,30 @@ namespace my
 		EmitterPtr LoadEmitter(const std::string & path);
 
 		void SaveEmitter(const std::string & path, EmitterPtr emitter);
+	};
+
+	typedef boost::function<void (void)> InputEvent;
+
+	class InputMgr
+	{
+	protected:
+		InputPtr m_input;
+
+		KeyboardPtr m_keyboard;
+
+		JoystickPtr m_joystick;
+
+	public:
+		InputMgr(void)
+		{
+		}
+
+		void Create(HINSTANCE hinst);
+
+		void Destroy(void);
+
+		void Update(void);
+
+		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 	};
 }

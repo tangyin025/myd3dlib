@@ -70,6 +70,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::EmitterMgr
+	, public my::InputMgr
 	, public PhysXResourceMgr
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
@@ -90,14 +91,6 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
-
-	my::InputPtr m_Input;
-
-	my::KeyboardPtr m_Keyboard;
-
-	my::MousePtr m_Mouse;
-
-	my::SoundPtr m_Sound;
 
 	my::CameraPtr m_Camera;
 

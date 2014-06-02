@@ -207,6 +207,8 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
+	InputMgr::Create(m_hinst);
+
 	ParallelTaskManager::StartParallelThread(3);
 
 	if(FAILED(hr = PhysXResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
@@ -243,27 +245,6 @@ HRESULT Game::OnCreateDevice(
 	m_dlgSetMap[1].push_back(m_Console);
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	if(!m_Input)
-	{
-		m_Input.reset(new Input());
-		m_Input->CreateInput(GetModuleHandle(NULL));
-
-		m_Keyboard.reset(new Keyboard());
-		m_Keyboard->CreateKeyboard(m_Input->m_ptr);
-		m_Keyboard->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-
-		m_Mouse.reset(new Mouse());
-		m_Mouse->CreateMouse(m_Input->m_ptr);
-		m_Mouse->SetCooperativeLevel(m_wnd->m_hWnd, DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
-	}
-
-	if(!m_Sound)
-	{
-		m_Sound.reset(new Sound());
-		m_Sound->CreateSound();
-		m_Sound->SetCooperativeLevel(m_wnd->m_hWnd, DSSCL_PRIORITY);
-	}
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
@@ -345,6 +326,8 @@ void Game::OnDestroyDevice(void)
 
 	PhysXResourceMgr::OnDestroyDevice();
 
+	InputMgr::Destroy();
+
 	ImeEditBox::Uninitialize();
 }
 
@@ -352,9 +335,7 @@ void Game::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_Keyboard->Capture();
-
-	m_Mouse->Capture();
+	InputMgr::Update();
 
 	PhysXResourceMgr::CheckRequests();
 
@@ -536,7 +517,10 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 
 	case PxErrorCode::eDEBUG_WARNING:
 	case PxErrorCode::ePERF_WARNING:
-		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
+		if (strncmp("PxScene::getRenderBuffer() not allowed while simulation is running.", message, 25))
+		{
+			AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
+		}
 		break;
 
 	default:

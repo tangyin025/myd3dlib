@@ -218,3 +218,10 @@ const Plane & Frustum::operator [](size_t i) const
 }
 
 const Matrix4 Matrix4::identity(Matrix4::Identity());
+
+Plane Plane::NormalDistance(const Vector3 & normal, float distance)
+{
+	_ASSERT(IS_NORMALIZED(normal));
+
+	return Plane(normal.x, normal.y, normal.z, -distance);
+}

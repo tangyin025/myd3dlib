@@ -849,36 +849,36 @@ namespace my
 		Rectangle intersect(const Rectangle & rhs) const
 		{
 			return Rectangle(
-				__max(l, rhs.l),
-				__max(t, rhs.t),
-				__min(r, rhs.r),
-				__min(b, rhs.b));
+				Max(l, rhs.l),
+				Max(t, rhs.t),
+				Min(r, rhs.r),
+				Min(b, rhs.b));
 		}
 
 		Rectangle & intersectSelf(const Rectangle & rhs)
 		{
-			l = __max(l, rhs.l);
-			t = __max(t, rhs.t);
-			r = __min(r, rhs.r);
-			b = __min(b, rhs.b);
+			l = Max(l, rhs.l);
+			t = Max(t, rhs.t);
+			r = Min(r, rhs.r);
+			b = Min(b, rhs.b);
 			return *this;
 		}
 
 		Rectangle Union(const Rectangle & rhs) const
 		{
 			return Rectangle(
-				__min(l, rhs.l),
-				__min(t, rhs.t),
-				__max(r, rhs.r),
-				__max(b, rhs.b));
+				Min(l, rhs.l),
+				Min(t, rhs.t),
+				Max(r, rhs.r),
+				Max(b, rhs.b));
 		}
 
 		Rectangle & unionSelf(const Rectangle & rhs)
 		{
-			l = __min(l, rhs.l);
-			t = __min(t, rhs.t);
-			r = __max(r, rhs.r);
-			b = __max(b, rhs.b);
+			l = Min(l, rhs.l);
+			t = Min(t, rhs.t);
+			r = Max(r, rhs.r);
+			b = Max(b, rhs.b);
 			return *this;
 		}
 
@@ -1946,11 +1946,11 @@ namespace my
 
 		Matrix4 inverse(void) const
 		{
-			return adjoint() / determinant();
+			//return adjoint() / determinant();
 
-			//Matrix4 ret;
-			//D3DXMatrixInverse((D3DXMATRIX *)&ret, NULL, (D3DXMATRIX *)this);
-			//return ret;
+			Matrix4 ret;
+			D3DXMatrixInverse((D3DXMATRIX *)&ret, NULL, (D3DXMATRIX *)this);
+			return ret;
 		}
 
 		static Matrix4 LookAtLH(const Vector3 & eye, const Vector3 & at, const Vector3 & up)
@@ -2427,12 +2427,7 @@ namespace my
 		{
 		}
 
-		static Plane NormalDistance(const Vector3 & normal, float distance)
-		{
-			_ASSERT(IS_NORMALIZED(normal));
-
-			return Plane(normal.x, normal.y, normal.z, -distance);
-		}
+		static Plane NormalDistance(const Vector3 & normal, float distance);
 
 		float magnitude(void) const
 		{

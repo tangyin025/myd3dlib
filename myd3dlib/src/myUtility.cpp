@@ -760,3 +760,51 @@ void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 	oa << emitter;
 	oa << GetResourceKey(emitter->m_Texture);
 }
+
+void InputMgr::Create(HINSTANCE hinst)
+{
+	m_input.reset(new Input);
+
+	m_input->CreateInput(hinst);
+
+	m_keyboard.reset(new Keyboard);
+
+	m_keyboard->CreateKeyboard(m_input->m_ptr);
+
+	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, this, DIEDFL_ATTACHEDONLY);
+}
+
+void InputMgr::Destroy(void)
+{
+	m_joystick.reset();
+
+	m_keyboard.reset();
+
+	m_input.reset();
+}
+
+void InputMgr::Update(void)
+{
+	m_keyboard->Capture();
+
+	if (m_joystick)
+	{
+		m_joystick->Capture();
+	}
+}
+
+BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+	_ASSERT(lpddi && pvRef);
+
+	if(lpddi->dwDevType & DI8DEVTYPE_JOYSTICK)
+	{
+		InputMgr * inputMgr = reinterpret_cast<InputMgr *>(pvRef);
+		JoystickPtr joystick(new Joystick);
+		joystick->CreateJoystick(inputMgr->m_input->m_ptr, lpddi->guidInstance, -255, 255, -255, 255, -255, 255, 10);
+		inputMgr->m_joystick = joystick;
+		return DIENUM_STOP;
+	}
+
+	return DIENUM_CONTINUE;
+}

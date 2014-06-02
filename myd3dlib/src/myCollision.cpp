@@ -444,7 +444,7 @@ namespace my
 		{
 			t[0] = (-b + sqrt(discrm)) / (2 * a);
 			t[1] = (-b - sqrt(discrm)) / (2 * a);
-			return TestResult(true, std::min(t[0], t[1]));
+			return TestResult(true, Min(t[0], t[1]));
 		}
 		else if(discrm == 0)
 		{

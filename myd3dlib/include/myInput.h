@@ -23,13 +23,15 @@ namespace my
 
 		void CreateInput(HINSTANCE hinst);
 
+		void Destroy(void);
+
+		CComPtr<IDirectInputDevice8> CreateDevice(REFGUID rguid);
+
 		void ConfigureDevices(
 			LPDICONFIGUREDEVICESCALLBACK lpdiCallback,
 			LPDICONFIGUREDEVICESPARAMS lpdiCDParams,
 			DWORD dwFlags,
 			LPVOID pvRefData);
-
-		CComPtr<IDirectInputDevice8> CreateDevice(REFGUID rguid);
 
 		void EnumDevices(
 			DWORD dwDevType,
@@ -72,6 +74,8 @@ namespace my
 
 		void Create(LPDIRECTINPUTDEVICE8 device);
 
+		void Destroy(void);
+
 		virtual void Capture(void) = 0;
 
 		void SetCooperativeLevel(HWND hwnd, DWORD dwFlags = DISCL_NONEXCLUSIVE | DISCL_FOREGROUND);
@@ -89,7 +93,7 @@ namespace my
 
 	class Keyboard : public InputDevice
 	{
-	protected:
+	public:
 		BYTE m_PreState[256];
 
 		BYTE m_CurState[256];
@@ -114,7 +118,7 @@ namespace my
 
 	class Mouse : public InputDevice
 	{
-	protected:
+	public:
 		DIMOUSESTATE m_PreState;
 
 		DIMOUSESTATE m_CurState;
@@ -142,4 +146,52 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Mouse> MousePtr;
+
+	class Joystick : public InputDevice
+	{
+	protected:
+		DIJOYSTATE m_PreState;
+
+		DIJOYSTATE m_CurState;
+
+	public:
+		Joystick(void)
+		{
+		}
+
+		void CreateJoystick(
+			LPDIRECTINPUT8 input,
+			REFGUID rguid,
+			LONG min_x,
+			LONG max_x,
+			LONG min_y,
+			LONG max_y,
+			LONG min_z,
+			LONG max_z,
+			float dead_zone);
+
+		void Capture(void);
+
+		LONG GetX(void) const;
+
+		LONG GetY(void) const;
+
+		LONG GetZ(void) const;
+
+		LONG GetRx(void) const;
+
+		LONG GetRy(void) const;
+
+		LONG GetRz(void) const;
+
+		LONG GetU(void) const;
+
+		LONG GetV(void) const;
+
+		DWORD GetPOV(DWORD dwIndex) const;
+
+		BYTE IsButtonDown(DWORD dwIndex) const;
+	};
+
+	typedef boost::shared_ptr<Joystick> JoystickPtr;
 }
