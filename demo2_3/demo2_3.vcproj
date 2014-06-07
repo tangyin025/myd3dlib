@@ -203,14 +203,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Socket.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\SocketAPI.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -257,14 +249,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Socket.h"
-				>
-			</File>
-			<File
-				RelativePath=".\SocketAPI.h"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.h"
 				>
 			</File>
@@ -304,6 +288,26 @@
 			</File>
 			<File
 				RelativePath=".\LuaExtension\LuaExtensionUI.cpp"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Net"
+			>
+			<File
+				RelativePath=".\Net\Socket.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Net\Socket.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Net\SocketAPI.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Net\SocketAPI.h"
 				>
 			</File>
 		</Filter>
