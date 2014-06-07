@@ -3,6 +3,7 @@
 #include "myMath.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
+#include <boost/function.hpp>
 #include <vector>
 
 namespace my

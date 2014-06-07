@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "LuaExtension.h"
+
+extern void Export2Lua(lua_State * L);
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )

@@ -191,10 +191,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\LuaExtension.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\main.cpp"
 				>
 			</File>
@@ -249,10 +245,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\LuaExtension.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MeshComponent.h"
 				>
 			</File>
@@ -282,6 +274,38 @@
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
 			>
+		</Filter>
+		<Filter
+			Name="LuaExtension"
+			>
+			<File
+				RelativePath=".\LuaExtension\LuaExtension.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtension.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtensionDevice.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtensionEmitter.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtensionMath.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtensionResource.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\LuaExtension\LuaExtensionUI.cpp"
+				>
+			</File>
 		</Filter>
 	</Files>
 	<Globals>

@@ -1,8 +1,9 @@
 #pragma once
 
 #include <unzip.h>
+#include <list>
 #include "myThread.h"
-#include "mySingleton.h"
+#include <boost/weak_ptr.hpp>
 #include "myMesh.h"
 #include "mySkeleton.h"
 #include "myEffect.h"

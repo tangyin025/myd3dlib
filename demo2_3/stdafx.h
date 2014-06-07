@@ -1,10 +1,7 @@
 #pragma once
 
-#include <luabind/luabind.hpp>
-#include <luabind/operator.hpp>
-#include <luabind/exception_handler.hpp>
-#include <PxPhysicsAPI.h>
-#include <myd3dlib.h>
+#include "myD3dLib.h"
 #include <LuaContext.h>
 #include <signal.h>
 #include <boost/bind.hpp>
+#include <PxPhysicsAPI.h>
