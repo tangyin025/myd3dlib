@@ -274,6 +274,8 @@ public:
 			m_clothMesh->m_Mesh->UnlockVertexBuffer();
 			readData->unlock();
 		}
+		PxTransform Trans = m_cloth->getGlobalPose();
+		m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 	}
 
 	virtual void OnFrameRender(
@@ -340,8 +342,6 @@ public:
 		//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
 		//m_scene->QueryComponent(frustum, QueryCallbackFunc());
 
-		PxTransform Trans = m_cloth->getGlobalPose();
-		m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 		m_clothMesh->Draw();
 
 		// ========================================================================================================
