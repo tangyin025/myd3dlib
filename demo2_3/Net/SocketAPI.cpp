@@ -74,35 +74,35 @@ SOCKET SocketAPI::socket_ex ( INT domain , INT type , INT protocol )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEAFNOSUPPORT : 
-			strncpy( Error, "WSAEAFNOSUPPORT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEAFNOSUPPORT", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEMFILE : 
-			strncpy( Error, "WSAEMFILE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEMFILE", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAEPROTONOSUPPORT : 
-			strncpy( Error, "WSAEPROTONOSUPPORT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEPROTONOSUPPORT", _ESIZE ) ;
 			break ;
 		case WSAEPROTOTYPE : 
-			strncpy( Error, "WSAEPROTOTYPE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEPROTOTYPE", _ESIZE ) ;
 			break ;
 		case WSAESOCKTNOSUPPORT : 
-			strncpy( Error, "WSAESOCKTNOSUPPORT", _ESIZE ) ;
+			strncpy_s( Error, "WSAESOCKTNOSUPPORT", _ESIZE ) ;
 			break ;
 		default : 
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -164,35 +164,35 @@ BOOL SocketAPI::bind_ex ( SOCKET s , const struct sockaddr * addr , UINT addrlen
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSAESOCKTNOSUPPORT", _ESIZE ) ;
+			strncpy_s( Error, "WSAESOCKTNOSUPPORT", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEADDRINUSE : 
-			strncpy( Error, "WSAEADDRINUSE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEADDRINUSE", _ESIZE ) ;
 			break ;
 		case WSAEADDRNOTAVAIL : 
-			strncpy( Error, "WSAEADDRNOTAVAIL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEADDRNOTAVAIL", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -252,59 +252,59 @@ BOOL SocketAPI::connect_ex ( SOCKET s , const struct sockaddr * addr , UINT addr
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEADDRINUSE : 
-			strncpy( Error, "WSAEADDRINUSE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEADDRINUSE", _ESIZE ) ;
 			break ;
 		case WSAEINTR : 
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEALREADY : 
-			strncpy( Error, "WSAEALREADY", _ESIZE ) ;
+			strncpy_s( Error, "WSAEALREADY", _ESIZE ) ;
 			break ;
 		case WSAEADDRNOTAVAIL : 
-			strncpy( Error, "WSAEADDRNOTAVAIL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEADDRNOTAVAIL", _ESIZE ) ;
 			break ;
 		case WSAEAFNOSUPPORT : 
-			strncpy( Error, "WSAEAFNOSUPPORT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEAFNOSUPPORT", _ESIZE ) ;
 			break ;
 		case WSAECONNREFUSED : 
-			strncpy( Error, "WSAECONNREFUSED", _ESIZE ) ;
+			strncpy_s( Error, "WSAECONNREFUSED", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAEISCONN : 
-			strncpy( Error, "WSAEISCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAEISCONN", _ESIZE ) ;
 			break ;
 		case WSAENETUNREACH : 
-			strncpy( Error, "WSAENETUNREACH", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETUNREACH", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAETIMEDOUT : 
-			strncpy( Error, "WSAETIMEDOUT", _ESIZE ) ;
+			strncpy_s( Error, "WSAETIMEDOUT", _ESIZE ) ;
 			break ;
 		case WSAEWOULDBLOCK  : 
-			strncpy( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -357,38 +357,38 @@ BOOL SocketAPI::listen_ex ( SOCKET s , UINT backlog )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEADDRINUSE : 
-			strncpy( Error, "WSAEADDRINUSE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEADDRINUSE", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAEISCONN : 
-			strncpy( Error, "WSAEISCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAEISCONN", _ESIZE ) ;
 			break ;
 		case WSAEMFILE : 
-			strncpy( Error, "WSAEMFILE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEMFILE", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEOPNOTSUPP : 
-			strncpy( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
+			strncpy_s( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -461,41 +461,41 @@ SOCKET SocketAPI::accept_ex ( SOCKET s , struct sockaddr * addr , UINT * addrlen
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINTR : 
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAEMFILE : 
-			strncpy( Error, "WSAEMFILE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEMFILE", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEOPNOTSUPP : 
-			strncpy( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
+			strncpy_s( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
 			break ;
 		case WSAEWOULDBLOCK : 
-			strncpy( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -557,29 +557,29 @@ BOOL SocketAPI::getsockopt_ex ( SOCKET s , INT level , INT optname , VOID * optv
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAENOPROTOOPT : 
-			strncpy( Error, "WSAENOPROTOOPT", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOPROTOOPT", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default : 
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -625,29 +625,29 @@ UINT SocketAPI::getsockopt_ex2 ( SOCKET s , INT level , INT optname , VOID * opt
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED:
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN:
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEFAULT:
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS:
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL:
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAENOPROTOOPT:
-			strncpy( Error, "WSAENOPROTOOPT", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOPROTOOPT", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK:
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default : 
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		}
@@ -707,35 +707,35 @@ BOOL SocketAPI::setsockopt_ex ( SOCKET s , INT level , INT optname , const VOID 
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAENETRESET : 
-			strncpy( Error, "WSAENETRESET", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETRESET", _ESIZE ) ;
 			break ;
 		case WSAENOPROTOOPT : 
-			strncpy( Error, "WSAENOPROTOOPT", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOPROTOOPT", _ESIZE ) ;
 			break ;
 		case WSAENOTCONN : 
-			strncpy( Error, "WSAENOTCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTCONN", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -812,66 +812,66 @@ UINT SocketAPI::send_ex ( SOCKET s , const VOID * buf , UINT len , UINT flags )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEACCES : 
-			strncpy( Error, "WSAEACCES", _ESIZE ) ;
+			strncpy_s( Error, "WSAEACCES", _ESIZE ) ;
 			break ;
 		case WSAEINTR : 
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAENETRESET : 
-			strncpy( Error, "WSAENETRESET", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETRESET", _ESIZE ) ;
 			break ;
 		case WSAENOBUFS : 
-			strncpy( Error, "WSAENOBUFS", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOBUFS", _ESIZE ) ;
 			break ;
 		case WSAENOTCONN : 
-			strncpy( Error, "WSAENOTCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTCONN", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEOPNOTSUPP : 
-			strncpy( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
+			strncpy_s( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
 			break ;
 		case WSAESHUTDOWN : 
-			strncpy( Error, "WSAESHUTDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAESHUTDOWN", _ESIZE ) ;
 			break ;
 		case WSAEWOULDBLOCK : 
-//			strncpy( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
+//			strncpy_s( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
 			return SOCKET_ERROR_WOULDBLOCK ;
 			break ;
 		case WSAEMSGSIZE : 
-			strncpy( Error, "WSAEMSGSIZE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEMSGSIZE", _ESIZE ) ;
 			break ;
 		case WSAEHOSTUNREACH : 
-			strncpy( Error, "WSAEHOSTUNREACH", _ESIZE ) ;
+			strncpy_s( Error, "WSAEHOSTUNREACH", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAECONNABORTED : 
-			strncpy( Error, "WSAECONNABORTED", _ESIZE ) ;
+			strncpy_s( Error, "WSAECONNABORTED", _ESIZE ) ;
 			break ;
 		case WSAECONNRESET : 
-			strncpy( Error, "WSAECONNRESET", _ESIZE ) ;
+			strncpy_s( Error, "WSAECONNRESET", _ESIZE ) ;
 			break ;
 		case WSAETIMEDOUT : 
-			strncpy( Error, "WSAETIMEDOUT", _ESIZE ) ;
+			strncpy_s( Error, "WSAETIMEDOUT", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -998,57 +998,57 @@ UINT SocketAPI::recv_ex ( SOCKET s , VOID * buf , UINT len , UINT flags )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAENOTCONN : 
-			strncpy( Error, "WSAENOTCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTCONN", _ESIZE ) ;
 			break ;
 		case WSAEINTR : 
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAENETRESET : 
-			strncpy( Error, "WSAENETRESET", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETRESET", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEOPNOTSUPP : 
-			strncpy( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
+			strncpy_s( Error, "WSAEOPNOTSUPP", _ESIZE ) ;
 			break ;
 		case WSAESHUTDOWN : 
-			strncpy( Error, "WSAESHUTDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAESHUTDOWN", _ESIZE ) ;
 			break ;
 		case WSAEWOULDBLOCK : 
-//			strncpy( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
+//			strncpy_s( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
 			return SOCKET_ERROR_WOULDBLOCK ;
 			break ;
 		case WSAEMSGSIZE : 
-			strncpy( Error, "WSAEMSGSIZE", _ESIZE ) ;
+			strncpy_s( Error, "WSAEMSGSIZE", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAECONNABORTED : 
-			strncpy( Error, "WSAECONNABORTED", _ESIZE ) ;
+			strncpy_s( Error, "WSAECONNABORTED", _ESIZE ) ;
 			break ;
 		case WSAETIMEDOUT : 
-			strncpy( Error, "WSAETIMEDOUT", _ESIZE ) ;
+			strncpy_s( Error, "WSAETIMEDOUT", _ESIZE ) ;
 			break ;
 		case WSAECONNRESET : 
-			strncpy( Error, "WSAECONNRESET", _ESIZE ) ;
+			strncpy_s( Error, "WSAECONNRESET", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -1142,26 +1142,26 @@ BOOL SocketAPI::closesocket_ex ( SOCKET s )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAEINTR : 
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEWOULDBLOCK : 
-			strncpy( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAEWOULDBLOCK", _ESIZE ) ;
 			break ;
 		default : 
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};//end of switch
@@ -1197,23 +1197,23 @@ BOOL SocketAPI::ioctlsocket_ex ( SOCKET s , LONG cmd , ULONG * argp )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN : 
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		case WSAEFAULT : 
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};
@@ -1373,26 +1373,26 @@ BOOL SocketAPI::shutdown_ex ( SOCKET s , UINT how )
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN :
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEINVAL : 
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS : 
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAENOTCONN : 
-			strncpy( Error, "WSAENOTCONN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTCONN", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK : 
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};
@@ -1444,29 +1444,29 @@ INT SocketAPI::select_ex ( INT maxfdp1 , fd_set * readset , fd_set * writeset , 
 		switch ( iErr ) 
 		{
 		case WSANOTINITIALISED : 
-			strncpy( Error, "WSANOTINITIALISED", _ESIZE ) ;
+			strncpy_s( Error, "WSANOTINITIALISED", _ESIZE ) ;
 			break ;
 		case WSAEFAULT:
-			strncpy( Error, "WSAEFAULT", _ESIZE ) ;
+			strncpy_s( Error, "WSAEFAULT", _ESIZE ) ;
 			break ;
 		case WSAENETDOWN:
-			strncpy( Error, "WSAENETDOWN", _ESIZE ) ;
+			strncpy_s( Error, "WSAENETDOWN", _ESIZE ) ;
 			break ;
 		case WSAEINVAL:
-			strncpy( Error, "WSAEINVAL", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINVAL", _ESIZE ) ;
 			break ;
 		case WSAEINTR:
-			strncpy( Error, "WSAEINTR", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINTR", _ESIZE ) ;
 			break ;
 		case WSAEINPROGRESS:
-			strncpy( Error, "WSAEINPROGRESS", _ESIZE ) ;
+			strncpy_s( Error, "WSAEINPROGRESS", _ESIZE ) ;
 			break ;
 		case WSAENOTSOCK:
-			strncpy( Error, "WSAENOTSOCK", _ESIZE ) ;
+			strncpy_s( Error, "WSAENOTSOCK", _ESIZE ) ;
 			break ;
 		default :
 			{
-			strncpy( Error, "UNKNOWN", _ESIZE ) ;
+			strncpy_s( Error, "UNKNOWN", _ESIZE ) ;
 			break ;
 			};
 		};

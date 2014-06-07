@@ -90,6 +90,36 @@ namespace my
 		virtual int write(const void * buff, unsigned write_size);
 	};
 
+	class MemoryIStream : public IStream
+	{
+	protected:
+		unsigned char * m_buffer;
+
+		int m_size;
+
+		int m_tell;
+
+	public:
+		MemoryIStream(void * buffer, size_t size);
+
+		virtual int read(void * buff, unsigned read_size);
+
+		virtual CachePtr GetWholeCache(void);
+	};
+
+	class MemoryOStream : public OStream
+	{
+	public:
+		CachePtr m_cache;
+
+	public:
+		MemoryOStream(void);
+
+		virtual int write(const void * buff, unsigned write_size);
+	};
+
+	typedef boost::shared_ptr<MemoryOStream> MemoryOStreamPtr;
+
 	class StreamDir
 	{
 	public:

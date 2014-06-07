@@ -39,6 +39,12 @@ public:
 
 	PxController * m_controller;
 
+	std::vector<PxClothParticle> m_clothPositions;
+
+	MeshComponentPtr m_clothMesh;
+
+	PxCloth * m_cloth;
+
 	Demo::Demo(void)
 		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
 	{
@@ -142,7 +148,7 @@ public:
 		//	*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
 		//ifs.reset();
 		my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
-		PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)));
+		PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform::createIdentity());
 		PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_material);
 		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 		m_Scene->addActor(*actor);
@@ -159,6 +165,37 @@ public:
 		cDesc.material = m_material.get();
 		m_controller = m_ControllerMgr->createController(*m_sdk, m_Scene.get(), cDesc);
 		_ASSERT(m_controller);
+
+		PxClothCollisionSphere spheres[2] =
+		{
+			{PxVec3(-5.0f, -5.0f, 0.0f), 3.f},
+			{PxVec3( 5.0f, -5.0f, 0.0f), 3.f}
+		};
+
+		// A tapered capsule
+		PxU32 capsulePairs[] = { 0, 1 };
+
+		PxClothCollisionData collisionData;
+		collisionData.spheres = spheres;
+		collisionData.numSpheres = 2;
+		collisionData.pairIndexBuffer = capsulePairs;
+		collisionData.numPairs = 1;
+
+		m_clothMesh = CreateMeshComponent(LoadMesh("mesh/plane.mesh.xml"));
+		m_clothPositions.resize(m_clothMesh->m_Mesh->GetNumVertices());
+		unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
+		for(int i = 0; i < m_clothPositions.size(); i++) {
+			void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
+			m_clothPositions[i].pos = (PxVec3 &)m_clothMesh->m_Mesh->m_VertexElems.GetPosition(pVertex);
+			m_clothPositions[i].invWeight = 1 / 1.0f;
+		}
+		m_clothMesh->m_Mesh->UnlockVertexBuffer();
+		my::MemoryOStreamPtr ofs(new my::MemoryOStream);
+		CookClothFabric(ofs, m_clothMesh->m_Mesh);
+		ifs.reset(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
+		physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
+		m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,10,0), PxQuat(0,0,0,1)), *clothFabric, &m_clothPositions[0], collisionData, PxClothFlags());
+		m_Scene->addActor(*m_cloth);
 
 		return S_OK;
 	}
@@ -224,6 +261,19 @@ public:
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
 
 		m_controller->move(PxVec3(0,-9*fElapsedTime,0), 0.001f, fElapsedTime, PxControllerFilters());
+
+		PxClothReadData * readData = m_cloth->lockClothReadData();
+		if(readData)
+		{
+			unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
+			for (unsigned int i = 0; i < m_cloth->getNbParticles(); i++)
+			{
+				void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
+				m_clothMesh->m_Mesh->m_VertexElems.SetPosition(pVertex, (Vector3&)readData->particles[i].pos);
+			}
+			m_clothMesh->m_Mesh->UnlockVertexBuffer();
+			readData->unlock();
+		}
 	}
 
 	virtual void OnFrameRender(
@@ -289,6 +339,10 @@ public:
 		//};
 		//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
 		//m_scene->QueryComponent(frustum, QueryCallbackFunc());
+
+		PxTransform Trans = m_cloth->getGlobalPose();
+		m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
+		m_clothMesh->Draw();
 
 		// ========================================================================================================
 		// »æÖÆÁ£×Ó

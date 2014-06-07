@@ -1,6 +1,8 @@
 #include "StdAfx.h"
 #include "PhysXContext.h"
 
+static const PxVec3 Gravity(0.0f, -9.81f, 0.0f);
+
 void * PhysXAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
 #ifdef _DEBUG
@@ -167,8 +169,8 @@ void PhysXResourceMgr::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr 
 	desc.materialIndices.stride = sizeof(DWORD);
 	desc.materialIndices.data = (PxMaterialTableIndex *)mesh->LockAttributeBuffer();
 	m_Cooking->cookTriangleMesh(desc, PhysXOStream(ostream));
-	mesh->UnlockIndexBuffer();
 	mesh->UnlockVertexBuffer();
+	mesh->UnlockIndexBuffer();
 	mesh->UnlockAttributeBuffer();
 }
 
@@ -180,7 +182,41 @@ void PhysXResourceMgr::CookTriangleMeshToFile(std::string path, my::OgreMeshPtr 
 PxTriangleMesh * PhysXResourceMgr::CreateTriangleMesh(my::IStreamPtr istream)
 {
 	// ! should be call at resource thread
-	return m_sdk->createTriangleMesh(PhysXIStream(istream));
+	PxTriangleMesh * ret = m_sdk->createTriangleMesh(PhysXIStream(istream));
+	return ret;
+}
+
+void PhysXResourceMgr::CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh)
+{
+	PxClothMeshDesc desc;
+	desc.points.count = mesh->GetNumVertices();
+	desc.points.stride = mesh->GetNumBytesPerVertex();
+	desc.points.data = mesh->LockVertexBuffer();
+	desc.triangles.count = mesh->GetNumFaces();
+	if (mesh->GetOptions() & D3DXMESH_32BIT)
+	{
+		desc.triangles.stride = 3 * sizeof(DWORD);
+	}
+	else
+	{
+		desc.triangles.stride = 3 * sizeof(WORD);
+		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+	}
+	desc.triangles.data = mesh->LockIndexBuffer();
+	m_Cooking->cookClothFabric(desc, Gravity, PhysXOStream(ostream));
+	mesh->UnlockVertexBuffer();
+	mesh->UnlockIndexBuffer();
+}
+
+void PhysXResourceMgr::CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh)
+{
+	CookTriangleMesh(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
+}
+
+PxClothFabric * PhysXResourceMgr::CreateClothFabric(my::IStreamPtr istream)
+{
+	PxClothFabric * ret = m_sdk->createClothFabric(PhysXIStream(istream));
+	return ret;
 }
 
 void PhysXSceneContext::StepperTask::run(void)
@@ -197,7 +233,7 @@ const char * PhysXSceneContext::StepperTask::getName(void) const
 bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatcher)
 {
 	PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+	sceneDesc.gravity = Gravity;
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	if(!(m_Scene.reset(sdk->createScene(sceneDesc)), m_Scene))

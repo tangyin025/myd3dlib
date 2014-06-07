@@ -24,7 +24,7 @@ Socket::Socket ( const CHAR* host , UINT port )
 { 
 	//__ENTER_FUNCTION_FOXNET
 
-	strncpy( m_Host, host, IP_SIZE-1 ) ;
+	strncpy_s( m_Host, host, IP_SIZE-1 ) ;
 	m_Port = port ;
 
 	create() ;	
@@ -70,7 +70,7 @@ BOOL Socket::reconnect ( const CHAR* host , UINT port )
 	close();
 
 	// create new socket impl object
-	strncpy( m_Host, host, IP_SIZE-1 ) ;
+	strncpy_s( m_Host, host, IP_SIZE-1 ) ;
 	m_Port = port ;
 
 	create() ;
@@ -132,7 +132,7 @@ BOOL Socket::connect (const CHAR* host, UINT port)
 { 
 	//__ENTER_FUNCTION_FOXNET
 
-	strncpy( m_Host, host, IP_SIZE-1 ) ;
+	strncpy_s( m_Host, host, IP_SIZE-1 ) ;
 	m_Port = port ;
 
 	return connect() ;

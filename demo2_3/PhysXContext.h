@@ -62,6 +62,12 @@ public:
 	void CookTriangleMeshToFile(std::string path, my::OgreMeshPtr mesh);
 
 	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
+
+	void CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
+
+	void CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh);
+
+	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
 };
 
 class PhysXSceneContext

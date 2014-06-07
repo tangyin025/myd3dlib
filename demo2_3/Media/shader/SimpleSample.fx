@@ -167,6 +167,7 @@ technique RenderScene
     pass P0
     {          
 		// FILLMODE = WIREFRAME;
+		CullMode = NONE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

@@ -118,6 +118,48 @@ int FileOStream::write(const void * buff, unsigned write_size)
 	return fwrite(buff, 1, write_size, m_fp);
 }
 
+MemoryIStream::MemoryIStream(void * buffer, size_t size)
+	: m_buffer((unsigned char *)buffer)
+	, m_size(size)
+	, m_tell(0)
+{
+}
+
+int MemoryIStream::read(void * buff, unsigned read_size)
+{
+	int copy_size = Min<int>(read_size, m_size - m_tell);
+	if (copy_size > 0)
+	{
+		memcpy(buff, m_buffer + m_tell, copy_size);
+		m_tell += copy_size;
+	}
+	return copy_size;
+}
+
+CachePtr MemoryIStream::GetWholeCache(void)
+{
+	CachePtr cache(new Cache(m_size));
+	memcpy(&(*cache)[0], m_buffer, cache->size());
+	return cache;
+}
+
+MemoryOStream::MemoryOStream(void)
+	: m_cache(new Cache)
+{
+	_ASSERT(m_cache->size() == 0);
+}
+
+int MemoryOStream::write(const void * buff, unsigned write_size)
+{
+	if (write_size > 0)
+	{
+		size_t prev_size = m_cache->size();
+		m_cache->resize(prev_size + write_size);
+		memcpy(&(*m_cache)[prev_size], buff, write_size);
+	}
+	return write_size;
+}
+
 std::string ZipIStreamDir::ReplaceSlash(const std::string & path)
 {
 	size_t pos = 0;
