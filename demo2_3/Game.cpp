@@ -208,7 +208,7 @@ HRESULT Game::OnCreateDevice(
 
 	ImeEditBox::EnableImeSystem(false);
 
-	InputMgr::Create(m_hinst);
+	InputMgr::Create(m_hinst, m_wnd->m_hWnd);
 
 	ParallelTaskManager::StartParallelThread(3);
 

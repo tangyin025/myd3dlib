@@ -61,7 +61,7 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		&m_DeviceSettings.pp,
 		&m_d3dDevice)))
 	{
-		TRACE(my::D3DException::Translate(hr).c_str());
+		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
@@ -71,7 +71,7 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 
 	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
-		TRACE(my::D3DException::Translate(hr).c_str());
+		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
@@ -94,7 +94,7 @@ BOOL CMainApp::ResetD3DDevice(void)
 
 	if(FAILED(hr = m_d3dDevice->Reset(&m_DeviceSettings.pp)))
 	{
-		TRACE(my::D3DException::Translate(hr).c_str());
+		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
@@ -105,7 +105,7 @@ BOOL CMainApp::ResetD3DDevice(void)
 	// ! 不会通知除my::ResourceMgr以外其他对象DeviceReset，要注意
 	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
-		TRACE(my::D3DException::Translate(hr).c_str());
+		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 	m_DeviceObjectsReset = true;

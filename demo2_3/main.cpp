@@ -68,6 +68,16 @@ public:
 		}
 	}
 
+	void OnKeyDown(KeyCode kc)
+	{
+		AddLine(str_printf(L"keydown: %s", my::Keyboard::Translate(kc)));
+	}
+
+	void OnKeyUp(KeyCode kc)
+	{
+		AddLine(str_printf(L"keyup: %s", my::Keyboard::Translate(kc)));
+	}
+
 	//void renderResource(const physx::apex::NxApexRenderContext& context)
 	//{
 	//	static_cast<ApexRenderResource *>(context.renderResource)->Draw();
@@ -106,6 +116,9 @@ public:
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+
+		m_keyboard->m_PressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
+		m_keyboard->m_ReleasedEvent = boost::bind(&Demo::OnKeyUp, this, _1);
 
 		//// ========================================================================================================
 		//// ¹Ç÷À¶¯»­

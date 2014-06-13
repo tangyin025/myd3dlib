@@ -67,7 +67,7 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
-		TRACE(my::D3DException::Translate(hr).c_str());
+		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 

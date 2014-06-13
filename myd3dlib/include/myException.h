@@ -33,7 +33,7 @@ namespace my
 		{
 		}
 
-		static std::basic_string<TCHAR> Translate(HRESULT hres) throw();
+		static LPCTSTR Translate(HRESULT hres) throw();
 
 		virtual std::basic_string<TCHAR> what(void) const;
 	};
@@ -50,7 +50,7 @@ namespace my
 		{
 		}
 
-		static std::basic_string<TCHAR> Translate(HRESULT hres) throw();
+		static LPCTSTR Translate(HRESULT hres) throw();
 
 		virtual std::basic_string<TCHAR> what(void) const;
 	};
@@ -67,7 +67,7 @@ namespace my
 		{
 		}
 
-		static std::basic_string<TCHAR> Translate(HRESULT hres) throw();
+		static LPCTSTR Translate(HRESULT hres) throw();
 
 		virtual std::basic_string<TCHAR> what(void) const;
 	};
@@ -84,7 +84,7 @@ namespace my
 		{
 		}
 
-		static std::basic_string<TCHAR> Translate(HRESULT hres) throw();
+		static LPCTSTR Translate(HRESULT hres) throw();
 
 		virtual std::basic_string<TCHAR> what(void) const;
 	};
@@ -117,8 +117,6 @@ namespace my
 			, m_desc(desc)
 		{
 		}
-
-		static std::basic_string<TCHAR> Translate(void) throw();
 
 		virtual std::basic_string<TCHAR> what(void) const;
 	};

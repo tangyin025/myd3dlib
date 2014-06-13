@@ -761,15 +761,15 @@ void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 	oa << GetResourceKey(emitter->m_Texture);
 }
 
-void InputMgr::Create(HINSTANCE hinst)
+void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 {
 	m_input.reset(new Input);
-
 	m_input->CreateInput(hinst);
 
 	m_keyboard.reset(new Keyboard);
-
 	m_keyboard->CreateKeyboard(m_input->m_ptr);
+	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+	m_keyboard->Acquire();
 
 	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, this, DIEDFL_ATTACHEDONLY);
 }

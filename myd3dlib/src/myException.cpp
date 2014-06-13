@@ -18,7 +18,7 @@ Exception::~Exception(void)
 {
 }
 
-std::basic_string<TCHAR> ComException::Translate(HRESULT hres) throw()
+LPCTSTR ComException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
 	{
@@ -102,7 +102,7 @@ std::basic_string<TCHAR> ComException::what(void) const
 	return osstr.str();
 }
 
-std::basic_string<TCHAR> D3DException::Translate(HRESULT hres) throw()
+LPCTSTR D3DException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
 	{
@@ -151,7 +151,7 @@ std::basic_string<TCHAR> D3DException::what(void) const
 	return osstr.str();
 }
 
-std::basic_string<TCHAR> DInputException::Translate(HRESULT hres) throw()
+LPCTSTR DInputException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
 	{
@@ -209,7 +209,7 @@ std::basic_string<TCHAR> DInputException::what(void) const
 	return osstr.str();
 }
 
-std::basic_string<TCHAR> DSoundException::Translate(HRESULT hres) throw()
+LPCTSTR DSoundException::Translate(HRESULT hres) throw()
 {
 	switch(hres)
 	{

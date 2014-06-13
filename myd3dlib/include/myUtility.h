@@ -453,7 +453,7 @@ namespace my
 		{
 		}
 
-		void Create(HINSTANCE hinst);
+		void Create(HINSTANCE hinst, HWND hwnd);
 
 		void Destroy(void);
 

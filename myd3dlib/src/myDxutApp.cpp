@@ -1784,7 +1784,7 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 		if(FAILED(hr = Create3DEnvironment(deviceSettings)))
 		{
 			m_wnd->DestroyWindow();
-			MessageBox(NULL, my::D3DException::Translate(hr).c_str(), NULL, MB_OK);
+			MessageBox(NULL, my::D3DException::Translate(hr), NULL, MB_OK);
 		}
 	}
 
