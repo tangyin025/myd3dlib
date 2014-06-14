@@ -458,9 +458,9 @@ namespace my
 
 		InputPtr m_input;
 
-		KeyboardPtr m_keyboard;
+		//KeyboardPtr m_keyboard;
 
-		MousePtr m_mouse;
+		//MousePtr m_mouse;
 
 		JoystickPtr m_joystick;
 

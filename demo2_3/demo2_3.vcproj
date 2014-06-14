@@ -311,6 +311,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Character"
+			>
+			<File
+				RelativePath=".\Character\LocalPlayer.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Character\LocalPlayer.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>

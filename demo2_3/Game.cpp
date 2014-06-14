@@ -247,6 +247,8 @@ HRESULT Game::OnCreateDevice(
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
+
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
 	return S_OK;
@@ -310,6 +312,8 @@ void Game::OnDestroyDevice(void)
 	ParallelTaskManager::StopParallelThread();
 
 	ExecuteCode("collectgarbage(\"collect\")");
+
+	m_PxMaterial.reset();
 
 	m_Console.reset();
 

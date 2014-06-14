@@ -17,7 +17,7 @@ public:
 class PhysXContext
 	: public PxErrorCallback
 {
-protected:
+public:
 	PhysXAllocator m_Allocator;
 
 	physx_ptr<PxFoundation> m_Foundation;
@@ -72,7 +72,7 @@ public:
 
 class PhysXSceneContext
 {
-protected:
+public:
 	class StepperTask
 		: public physx::pxtask::LightCpuTask
 	{

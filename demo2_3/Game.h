@@ -92,6 +92,8 @@ public:
 
 	ConsolePtr m_Console;
 
+	physx_ptr<PxMaterial> m_PxMaterial;
+
 	my::CameraPtr m_Camera;
 
 	typedef std::vector<my::Component *> RenderObjList;

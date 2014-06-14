@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "MeshComponent.h"
+#include "Character/LocalPlayer.h"
 
 using namespace my;
 
@@ -15,8 +16,6 @@ class Demo
 public:
 	EffectPtr m_SimpleSample;
 
-	physx_ptr<PxMaterial> m_material;
-
 	//// ========================================================================================================
 	//// 骨骼动画
 	//// ========================================================================================================
@@ -27,30 +26,27 @@ public:
 	//BoneList m_skel_pose_heir2;
 
 	//// ========================================================================================================
-	//// 场景
+	//// 大场景
 	//// ========================================================================================================
 	//OgreMeshSetPtr m_meshSet;
 	//MaterialPtr m_lambert1;
 	//OctreeRootPtr m_scene;
 
-	FirstPersonCamera m_TestCam;
+	//// ========================================================================================================
+	//// 布料系统
+	//// ========================================================================================================
+	//std::vector<PxClothParticle> m_clothPositions;
+	//MeshComponentPtr m_clothMesh;
+	//PxCloth * m_cloth;
 
-	physx_ptr<PxRigidActor> m_actor;
-
-	PxController * m_controller;
-
-	std::vector<PxClothParticle> m_clothPositions;
-
-	MeshComponentPtr m_clothMesh;
-
-	PxCloth * m_cloth;
+	// ========================================================================================================
+	// 角色系统
+	// ========================================================================================================
+	LocalPlayerPtr m_localplayer;
 
 	Demo::Demo(void)
-		: m_TestCam(D3DXToRadian(75), 1.333333f, 1, 5)
+		: m_localplayer(new LocalPlayer)
 	{
-		m_TestCam.m_Rotation.y = D3DXToRadian(180);
-		m_TestCam.m_Position.y = 5;
-		m_TestCam.OnFrameMove(0,0);
 	}
 
 	void DrawTextAtWorld(
@@ -67,56 +63,6 @@ public:
 			m_Font->DrawString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
 		}
 	}
-
-	void OnKeyDown(KeyCode kc)
-	{
-		AddLine(str_printf(L"keydown: %s", my::Keyboard::TranslateKeyCode(kc)));
-	}
-
-	void OnKeyUp(KeyCode kc)
-	{
-		AddLine(str_printf(L"keyup: %s", my::Keyboard::TranslateKeyCode(kc)));
-	}
-
-	void OnMouseMove(LONG x, LONG y, LONG z)
-	{
-		AddLine(str_printf(L"mousemove: %ld, %ld, %ld", x, y, z));
-	}
-
-	void OnMouseBtnDown(DWORD i)
-	{
-		AddLine(str_printf(L"mousedown: %ud", i));
-	}
-
-	void OnMouseBtnUp(DWORD i)
-	{
-		AddLine(str_printf(L"mouseup: %u", i));
-	}
-
-	void OnJoystickAxisMoved(JoystickAxis axis, LONG value)
-	{
-		AddLine(str_printf(L"joystickaxis: %s %ld", my::Joystick::TranslateAxis(axis), value));
-	}
-
-	void OnJoystickPovMoved(DWORD i, DWORD dir)
-	{
-		AddLine(str_printf(L"joystickpov: %u %s", i, my::Joystick::TranslatePov(dir)));
-	}
-
-	void OnJoystickBtnDown(DWORD i)
-	{
-		AddLine(str_printf(L"joystickbtndown: %u", i));
-	}
-
-	void OnJoystickBtnUp(DWORD i)
-	{
-		AddLine(str_printf(L"joystickbtnup: %u", i));
-	}
-
-	//void renderResource(const physx::apex::NxApexRenderContext& context)
-	//{
-	//	static_cast<ApexRenderResource *>(context.renderResource)->Draw();
-	//}
 
 	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
 	{
@@ -145,25 +91,10 @@ public:
 
 		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
-		m_material.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
-
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
-
-		m_keyboard->m_PressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
-		m_keyboard->m_ReleasedEvent = boost::bind(&Demo::OnKeyUp, this, _1);
-		m_mouse->m_MovedEvent = boost::bind(&Demo::OnMouseMove, this, _1, _2, _3);
-		m_mouse->m_PressedEvent = boost::bind(&Demo::OnMouseBtnDown, this, _1);
-		m_mouse->m_ReleasedEvent = boost::bind(&Demo::OnMouseBtnUp, this, _1);
-		if(m_joystick)
-		{
-			m_joystick->m_AxisMovedEvent = boost::bind(&Demo::OnJoystickAxisMoved, this, _1, _2);
-			m_joystick->m_PovMovedEvent = boost::bind(&Demo::OnJoystickPovMoved, this, _1, _2);
-			m_joystick->m_BtnPressedEvent = boost::bind(&Demo::OnJoystickBtnDown, this, _1);
-			m_joystick->m_BtnReleasedEvent = boost::bind(&Demo::OnJoystickBtnUp, this, _1);
-		}
 
 		//// ========================================================================================================
 		//// 骨骼动画
@@ -182,7 +113,7 @@ public:
 		//m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
 		//// ========================================================================================================
-		//// 场景模型
+		//// 大场景
 		//// ========================================================================================================
 		//m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
 		//m_lambert1 = LoadMaterial("material/lambert1.txt");
@@ -196,64 +127,52 @@ public:
 		// ========================================================================================================
 		// 物理场景
 		// ========================================================================================================
-		//my::OgreMeshPtr mesh = LoadMesh("mesh/tube.mesh.xml");
-		//my::OStreamPtr ofs = my::FileOStream::Open(_T("aaa"));
-		//CookTriangleMesh(ofs, mesh);
-		//ofs.reset();
-
-		//my::IStreamPtr ifs = my::FileIStream::Open(_T("aaa"));
-		//m_actor.reset(PxCreateStatic(
-		//	*m_sdk, PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), PxTriangleMeshGeometry(CreateTriangleMesh(ifs)), *m_material));
-		//ifs.reset();
 		my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
 		PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform::createIdentity());
-		PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_material);
+		PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_PxMaterial);
 		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 		m_Scene->addActor(*actor);
 
 		//for(int x = -10; x <= 10; x+= 2)
 		//	for(int z= -10; z <= 10; z+= 2)
 		//		m_Scene->addActor(*PxCreateDynamic(
-		//			*m_sdk, PxTransform(PxVec3(x,10,z),PxQuat(0,0,0,1)), PxSphereGeometry(0.3), *m_material, 1));
+		//			*m_sdk, PxTransform(PxVec3(x,10,z),PxQuat(0,0,0,1)), PxSphereGeometry(0.3), *m_PxMaterial, 1));
 
-		PxCapsuleControllerDesc cDesc;
-		cDesc.radius = 0.3f;
-		cDesc.height = 1.5f;
-		cDesc.position.y = 5;
-		cDesc.material = m_material.get();
-		m_controller = m_ControllerMgr->createController(*m_sdk, m_Scene.get(), cDesc);
-		_ASSERT(m_controller);
+		//// ========================================================================================================
+		//// 布料系统
+		//// ========================================================================================================
+		//PxClothCollisionSphere spheres[2] =
+		//{
+		//	{PxVec3(-5.0f, -5.0f, 0.0f), 3.f},
+		//	{PxVec3( 5.0f, -5.0f, 0.0f), 3.f}
+		//};
+		//// A tapered capsule
+		//PxU32 capsulePairs[] = { 0, 1 };
+		//PxClothCollisionData collisionData;
+		//collisionData.spheres = spheres;
+		//collisionData.numSpheres = 2;
+		//collisionData.pairIndexBuffer = capsulePairs;
+		//collisionData.numPairs = 1;
+		//m_clothMesh = CreateMeshComponent(LoadMesh("mesh/plane.mesh.xml"));
+		//m_clothPositions.resize(m_clothMesh->m_Mesh->GetNumVertices());
+		//unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
+		//for(int i = 0; i < m_clothPositions.size(); i++) {
+		//	void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
+		//	m_clothPositions[i].pos = (PxVec3 &)m_clothMesh->m_Mesh->m_VertexElems.GetPosition(pVertex);
+		//	m_clothPositions[i].invWeight = 1 / 1.0f;
+		//}
+		//m_clothMesh->m_Mesh->UnlockVertexBuffer();
+		//my::MemoryOStreamPtr ofs(new my::MemoryOStream);
+		//CookClothFabric(ofs, m_clothMesh->m_Mesh);
+		//ifs.reset(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
+		//physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
+		//m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,10,0), PxQuat(0,0,0,1)), *clothFabric, &m_clothPositions[0], collisionData, PxClothFlags());
+		//m_Scene->addActor(*m_cloth);
 
-		PxClothCollisionSphere spheres[2] =
-		{
-			{PxVec3(-5.0f, -5.0f, 0.0f), 3.f},
-			{PxVec3( 5.0f, -5.0f, 0.0f), 3.f}
-		};
-
-		// A tapered capsule
-		PxU32 capsulePairs[] = { 0, 1 };
-
-		PxClothCollisionData collisionData;
-		collisionData.spheres = spheres;
-		collisionData.numSpheres = 2;
-		collisionData.pairIndexBuffer = capsulePairs;
-		collisionData.numPairs = 1;
-
-		m_clothMesh = CreateMeshComponent(LoadMesh("mesh/plane.mesh.xml"));
-		m_clothPositions.resize(m_clothMesh->m_Mesh->GetNumVertices());
-		unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
-		for(int i = 0; i < m_clothPositions.size(); i++) {
-			void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
-			m_clothPositions[i].pos = (PxVec3 &)m_clothMesh->m_Mesh->m_VertexElems.GetPosition(pVertex);
-			m_clothPositions[i].invWeight = 1 / 1.0f;
-		}
-		m_clothMesh->m_Mesh->UnlockVertexBuffer();
-		my::MemoryOStreamPtr ofs(new my::MemoryOStream);
-		CookClothFabric(ofs, m_clothMesh->m_Mesh);
-		ifs.reset(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
-		physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
-		m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,10,0), PxQuat(0,0,0,1)), *clothFabric, &m_clothPositions[0], collisionData, PxClothFlags());
-		m_Scene->addActor(*m_cloth);
+		// ========================================================================================================
+		// 角色系统
+		// ========================================================================================================
+		m_localplayer->Create();
 
 		return S_OK;
 	}
@@ -277,8 +196,7 @@ public:
 	virtual void OnDestroyDevice(void)
 	{
 		// 注意顺序
-		m_material.reset();
-		m_actor.reset();
+		m_localplayer->Destroy();
 
 		Game::OnDestroyDevice();
 	}
@@ -290,7 +208,7 @@ public:
 		Game::OnFrameMove(fTime, fElapsedTime);
 
 		//// ========================================================================================================
-		//// 设置动画
+		//// 骨骼动画
 		//// ========================================================================================================
 		//static float anim_time = 0;
 		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
@@ -318,22 +236,28 @@ public:
 		//m_mesh->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
 
-		m_controller->move(PxVec3(0,-9*fElapsedTime,0), 0.001f, fElapsedTime, PxControllerFilters());
+		//// ========================================================================================================
+		//// 布料系统
+		//// ========================================================================================================
+		//PxClothReadData * readData = m_cloth->lockClothReadData();
+		//if(readData)
+		//{
+		//	unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
+		//	for (unsigned int i = 0; i < m_cloth->getNbParticles(); i++)
+		//	{
+		//		void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
+		//		m_clothMesh->m_Mesh->m_VertexElems.SetPosition(pVertex, (Vector3&)readData->particles[i].pos);
+		//	}
+		//	m_clothMesh->m_Mesh->UnlockVertexBuffer();
+		//	readData->unlock();
+		//}
+		//PxTransform Trans = m_cloth->getGlobalPose();
+		//m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 
-		PxClothReadData * readData = m_cloth->lockClothReadData();
-		if(readData)
-		{
-			unsigned char * pVertices = (unsigned char *)m_clothMesh->m_Mesh->LockVertexBuffer();
-			for (unsigned int i = 0; i < m_cloth->getNbParticles(); i++)
-			{
-				void * pVertex = pVertices + i * m_clothMesh->m_Mesh->GetNumBytesPerVertex();
-				m_clothMesh->m_Mesh->m_VertexElems.SetPosition(pVertex, (Vector3&)readData->particles[i].pos);
-			}
-			m_clothMesh->m_Mesh->UnlockVertexBuffer();
-			readData->unlock();
-		}
-		PxTransform Trans = m_cloth->getGlobalPose();
-		m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
+		// ========================================================================================================
+		// 角色系统
+		// ========================================================================================================
+		m_localplayer->Update(fElapsedTime);
 	}
 
 	virtual void OnFrameRender(
@@ -346,38 +270,12 @@ public:
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
 		BeginLine();
-		//PushWireAABB(my::AABB(Vector3(-1,-1,-1), Vector3(1,1,1)), D3DCOLOR_ARGB(255,255,255,255), m_TestCam.m_InverseViewProj);
-		//Frustum frustum(Frustum::ExtractMatrix(m_TestCam.m_ViewProj));
-		//for(int i = -5; i <= 5; i++)
-		//{
-		//	for(int j = -5; j <= 5; j++)
-		//	{
-		//		for(int k = -5; k <= 5; k++)
-		//		{
-		//			my::AABB aabb(m_TestCam.m_Position+Vector3(i,j,k)-0.3f,m_TestCam.m_Position+Vector3(i,j,k)+0.3f);
-		//			D3DCOLOR Color;
-		//			switch(IntersectionTests::IntersectAABBAndFrustum(aabb, frustum))
-		//			{
-		//			case IntersectionTests::IntersectionTypeInside:
-		//				Color = D3DCOLOR_ARGB(255,0,255,0);
-		//				break;
-		//			case IntersectionTests::IntersectionTypeIntersect:
-		//				Color = D3DCOLOR_ARGB(255,255,0,0);
-		//				break;
-		//			default:
-		//				Color = D3DCOLOR_ARGB(255,255,255,255);
-		//				break;
-		//			}
-		//			PushWireAABB(aabb, Color);
-		//		}
-		//	}
-		//}
 		PhysXSceneContext::PushRenderBuffer(this); // ! PxScene::getRenderBuffer() not allowed while simulation is running.
 		PushGrid();
 		EndLine(pd3dDevice, Matrix4::identity);
 
 		//// ========================================================================================================
-		//// 绘制骨骼动画
+		//// 骨骼动画
 		//// ========================================================================================================
 		//m_RenderObjList.clear();
 		//m_RenderObjList.push_back(m_mesh.get());
@@ -388,7 +286,7 @@ public:
 		//}
 
 		//// ========================================================================================================
-		//// 绘制场景
+		//// 大场景
 		//// ========================================================================================================
 		//struct QueryCallbackFunc
 		//{
@@ -400,7 +298,10 @@ public:
 		//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
 		//m_scene->QueryComponent(frustum, QueryCallbackFunc());
 
-		m_clothMesh->Draw();
+		//// ========================================================================================================
+		//// 布料系统
+		//// ========================================================================================================
+		//m_clothMesh->Draw();
 
 		// ========================================================================================================
 		// 绘制粒子
