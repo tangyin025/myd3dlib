@@ -441,7 +441,21 @@ namespace my
 
 	class InputMgr
 	{
-	protected:
+	public:
+		struct JoystickEnumDesc
+		{
+			LPDIRECTINPUT8 input;
+			HWND hwnd;
+			LONG min_x;
+			LONG max_x;
+			LONG min_y;
+			LONG max_y;
+			LONG min_z;
+			LONG max_z;
+			float dead_zone;
+			JoystickPtr joystick;
+		};
+
 		InputPtr m_input;
 
 		KeyboardPtr m_keyboard;

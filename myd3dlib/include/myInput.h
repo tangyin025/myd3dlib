@@ -259,7 +259,7 @@ namespace my
 		{
 		}
 
-		static LPCTSTR Translate(KeyCode kc);
+		static LPCTSTR TranslateKeyCode(KeyCode kc);
 
 		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 
@@ -295,20 +295,61 @@ namespace my
 
 	typedef boost::shared_ptr<Mouse> MousePtr;
 
+	enum JoystickAxis
+	{
+		JA_X,
+		JA_Y,
+		JA_Z,
+		JA_Rx,
+		JA_Ry,
+		JA_Rz,
+		JA_S0,
+		JA_S1,
+	};
+
+	typedef boost::function<void (JoystickAxis, LONG)> JoystickAxisEvent;
+
+	enum JoystickPov
+	{
+		JP_North		= 0,
+		JP_NorthEast	= 4500,
+		JP_East			= 9000,
+		JP_SouthEast	= 13500,
+		JP_South		= 18000,
+		JP_SouthWest	= 22500,
+		JP_West			= 27000,
+		JP_NorthWest	= 31500,
+	};
+
+	typedef boost::function<void (DWORD, JoystickPov)> JoystickPovEvent;
+
+	typedef boost::function<void (DWORD)> JoystickBtnEvent;
+
 	class Joystick : public InputDevice
 	{
-	protected:
-		DIJOYSTATE OldState;
-
+	public:
 		DIJOYSTATE m_State;
+
+		JoystickAxisEvent m_AxisMovedEvent;
+
+		JoystickPovEvent m_PovMovedEvent;
+
+		JoystickBtnEvent m_BtnPressedEvent;
+
+		JoystickBtnEvent m_BtnReleasedEvent;
 
 	public:
 		Joystick(void)
 		{
 		}
 
+		static LPCTSTR TranslateAxis(DWORD axis);
+
+		static LPCTSTR TranslatePov(DWORD pov);
+
 		void CreateJoystick(
 			LPDIRECTINPUT8 input,
+			HWND hwnd,
 			REFGUID rguid,
 			LONG min_x,
 			LONG max_x,
@@ -318,27 +359,9 @@ namespace my
 			LONG max_z,
 			float dead_zone);
 
+		void CheckAxis(LONG value, JoystickAxis axis);
+
 		void Capture(void);
-
-		LONG GetX(void) const;
-
-		LONG GetY(void) const;
-
-		LONG GetZ(void) const;
-
-		LONG GetRx(void) const;
-
-		LONG GetRy(void) const;
-
-		LONG GetRz(void) const;
-
-		LONG GetU(void) const;
-
-		LONG GetV(void) const;
-
-		DWORD GetPOV(DWORD dwIndex) const;
-
-		BYTE IsButtonDown(DWORD dwIndex) const;
 	};
 
 	typedef boost::shared_ptr<Joystick> JoystickPtr;

@@ -70,12 +70,12 @@ public:
 
 	void OnKeyDown(KeyCode kc)
 	{
-		AddLine(str_printf(L"keydown: %s", my::Keyboard::Translate(kc)));
+		AddLine(str_printf(L"keydown: %s", my::Keyboard::TranslateKeyCode(kc)));
 	}
 
 	void OnKeyUp(KeyCode kc)
 	{
-		AddLine(str_printf(L"keyup: %s", my::Keyboard::Translate(kc)));
+		AddLine(str_printf(L"keyup: %s", my::Keyboard::TranslateKeyCode(kc)));
 	}
 
 	void OnMouseMove(LONG x, LONG y, LONG z)
@@ -90,7 +90,27 @@ public:
 
 	void OnMouseBtnUp(DWORD i)
 	{
-		AddLine(str_printf(L"mouseup: %ud", i));
+		AddLine(str_printf(L"mouseup: %u", i));
+	}
+
+	void OnJoystickAxisMoved(JoystickAxis axis, LONG value)
+	{
+		AddLine(str_printf(L"joystickaxis: %s %ld", my::Joystick::TranslateAxis(axis), value));
+	}
+
+	void OnJoystickPovMoved(DWORD i, DWORD dir)
+	{
+		AddLine(str_printf(L"joystickpov: %u %s", i, my::Joystick::TranslatePov(dir)));
+	}
+
+	void OnJoystickBtnDown(DWORD i)
+	{
+		AddLine(str_printf(L"joystickbtndown: %u", i));
+	}
+
+	void OnJoystickBtnUp(DWORD i)
+	{
+		AddLine(str_printf(L"joystickbtnup: %u", i));
 	}
 
 	//void renderResource(const physx::apex::NxApexRenderContext& context)
@@ -137,6 +157,13 @@ public:
 		m_mouse->m_MovedEvent = boost::bind(&Demo::OnMouseMove, this, _1, _2, _3);
 		m_mouse->m_PressedEvent = boost::bind(&Demo::OnMouseBtnDown, this, _1);
 		m_mouse->m_ReleasedEvent = boost::bind(&Demo::OnMouseBtnUp, this, _1);
+		if(m_joystick)
+		{
+			m_joystick->m_AxisMovedEvent = boost::bind(&Demo::OnJoystickAxisMoved, this, _1, _2);
+			m_joystick->m_PovMovedEvent = boost::bind(&Demo::OnJoystickPovMoved, this, _1, _2);
+			m_joystick->m_BtnPressedEvent = boost::bind(&Demo::OnJoystickBtnDown, this, _1);
+			m_joystick->m_BtnReleasedEvent = boost::bind(&Demo::OnJoystickBtnUp, this, _1);
+		}
 
 		//// ========================================================================================================
 		//// ¹Ç÷À¶¯»­

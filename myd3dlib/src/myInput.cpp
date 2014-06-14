@@ -178,7 +178,7 @@ void InputDevice::GetDeviceData(DWORD cbObjectData, LPDIDEVICEOBJECTDATA rgdod, 
 	}
 }
 
-LPCTSTR Keyboard::Translate(KeyCode kc)
+LPCTSTR Keyboard::TranslateKeyCode(KeyCode kc)
 {
 	switch (kc)
 	{
@@ -463,8 +463,41 @@ void Mouse::Capture(void)
 	}
 }
 
+LPCTSTR Joystick::TranslateAxis(DWORD axis)
+{
+	switch(axis)
+	{
+	case JA_X: return _T("JA_X");
+	case JA_Y: return _T("JA_Y");
+	case JA_Z: return _T("JA_Z");
+	case JA_Rx: return _T("JA_Rx");
+	case JA_Ry: return _T("JA_Ry");
+	case JA_Rz: return _T("JA_Rz");
+	case JA_S0: return _T("JA_S0");
+	case JA_S1: return _T("JA_S1");
+	}
+	return _T("unknown axis");
+}
+
+LPCTSTR Joystick::TranslatePov(DWORD pov)
+{
+	switch(pov)
+	{
+	case JP_North: return _T("JP_North");
+	case JP_NorthEast: return _T("JP_NorthEast");
+	case JP_East: return _T("JP_East");
+	case JP_SouthEast: return _T("JP_SouthEast");
+	case JP_South: return _T("JP_South");
+	case JP_SouthWest: return _T("JP_SouthWest");
+	case JP_West: return _T("JP_West");
+	case JP_NorthWest: return _T("JP_NorthWest");
+	}
+	return _T("unknown pov");
+}
+
 void Joystick::CreateJoystick(
 	LPDIRECTINPUT8 input,
+	HWND hwnd,
 	REFGUID rguid,
 	LONG min_x,
 	LONG max_x,
@@ -533,72 +566,79 @@ void Joystick::CreateJoystick(
 	dipd.diph.dwHow = DIPH_BYOFFSET;
 	dipd.dwData = (DWORD)(dead_zone * 100);
 	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+
+	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+
+	ZeroMemory(&m_State, sizeof(m_State));
 }
 
-void Joystick::Capture(void)
+void Joystick::CheckAxis(LONG value, JoystickAxis axis)
 {
-	memcpy(&OldState, &m_State, sizeof(OldState));
-
-	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
+	if (value)
 	{
-		hr = m_ptr->Acquire();
-		if(SUCCEEDED(hr))
+		if (m_AxisMovedEvent)
 		{
-			GetDeviceState(sizeof(m_State), &m_State);
+			m_AxisMovedEvent(axis, value);
 		}
 	}
 }
 
-LONG Joystick::GetX(void) const
+void Joystick::Capture(void)
 {
-	return m_State.lX;
-}
+	DIJOYSTATE OldState;
+	memcpy(&OldState, &m_State, sizeof(OldState));
 
-LONG Joystick::GetY(void) const
-{
-	return m_State.lY;
-}
+	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
+	{
+		if(FAILED(hr = m_ptr->Acquire()))
+		{
+			return;
+		}
 
-LONG Joystick::GetZ(void) const
-{
-	return m_State.lZ;
-}
+		GetDeviceState(sizeof(m_State), &m_State);
+	}
 
-LONG Joystick::GetRx(void) const
-{
-	return m_State.lRx;
-}
+	CheckAxis(m_State.lX, JA_X);
+	CheckAxis(m_State.lY, JA_Y);
+	CheckAxis(m_State.lZ, JA_Z);
+	CheckAxis(m_State.lRx, JA_Rx);
+	CheckAxis(m_State.lRy, JA_Ry);
+	CheckAxis(m_State.lRz, JA_Rz);
+	CheckAxis(m_State.rglSlider[0], JA_S0);
+	CheckAxis(m_State.rglSlider[1], JA_S1);
 
-LONG Joystick::GetRy(void) const
-{
-	return m_State.lRy;
-}
+	for (DWORD i = 0; i < _countof(m_State.rgdwPOV); i++)
+	{
+		if (LOWORD(m_State.rgdwPOV[i]) != 0xFFFF)
+		{
+			if (m_PovMovedEvent)
+			{
+				m_PovMovedEvent(i, (JoystickPov)m_State.rgdwPOV[i]);
+			}
+		}
+	}
 
-LONG Joystick::GetRz(void) const
-{
-	return m_State.lRz;
-}
-
-LONG Joystick::GetU(void) const
-{
-	return m_State.rglSlider[0];
-}
-
-LONG Joystick::GetV(void) const
-{
-	return m_State.rglSlider[1];
-}
-
-DWORD Joystick::GetPOV(DWORD dwIndex) const
-{
-	_ASSERT(dwIndex < _countof(m_State.rgdwPOV));
-
-	return m_State.rgdwPOV[dwIndex];
-}
-
-BYTE Joystick::IsButtonDown(DWORD dwIndex) const
-{
-	_ASSERT(dwIndex < _countof(m_State.rgbButtons));
-
-	return m_State.rgbButtons[dwIndex];
+	for (DWORD i = 0; i < _countof(m_State.rgbButtons); i++)
+	{
+		if (m_State.rgbButtons[i] & 0x80)
+		{
+			if (!(OldState.rgbButtons[i] & 0x80))
+			{
+				if (m_BtnPressedEvent)
+				{
+					m_BtnPressedEvent(i);
+				}
+			}
+		}
+		else
+		{
+			if (OldState.rgbButtons[i] & 0x80)
+			{
+				if (m_BtnReleasedEvent)
+				{
+					m_BtnReleasedEvent(i);
+				}
+			}
+		}
+	}
 }
