@@ -78,6 +78,21 @@ public:
 		AddLine(str_printf(L"keyup: %s", my::Keyboard::Translate(kc)));
 	}
 
+	void OnMouseMove(LONG x, LONG y, LONG z)
+	{
+		AddLine(str_printf(L"mousemove: %ld, %ld, %ld", x, y, z));
+	}
+
+	void OnMouseBtnDown(DWORD i)
+	{
+		AddLine(str_printf(L"mousedown: %ud", i));
+	}
+
+	void OnMouseBtnUp(DWORD i)
+	{
+		AddLine(str_printf(L"mouseup: %ud", i));
+	}
+
 	//void renderResource(const physx::apex::NxApexRenderContext& context)
 	//{
 	//	static_cast<ApexRenderResource *>(context.renderResource)->Draw();
@@ -119,6 +134,9 @@ public:
 
 		m_keyboard->m_PressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
 		m_keyboard->m_ReleasedEvent = boost::bind(&Demo::OnKeyUp, this, _1);
+		m_mouse->m_MovedEvent = boost::bind(&Demo::OnMouseMove, this, _1, _2, _3);
+		m_mouse->m_PressedEvent = boost::bind(&Demo::OnMouseBtnDown, this, _1);
+		m_mouse->m_ReleasedEvent = boost::bind(&Demo::OnMouseBtnUp, this, _1);
 
 		//// ========================================================================================================
 		//// ¹Ç÷À¶¯»­

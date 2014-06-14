@@ -446,6 +446,8 @@ namespace my
 
 		KeyboardPtr m_keyboard;
 
+		MousePtr m_mouse;
+
 		JoystickPtr m_joystick;
 
 	public:

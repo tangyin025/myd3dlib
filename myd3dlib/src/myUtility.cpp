@@ -767,18 +767,21 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	m_input->CreateInput(hinst);
 
 	m_keyboard.reset(new Keyboard);
-	m_keyboard->CreateKeyboard(m_input->m_ptr);
-	m_keyboard->SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
-	m_keyboard->Acquire();
+	m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
+
+	m_mouse.reset(new Mouse);
+	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
 
 	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, this, DIEDFL_ATTACHEDONLY);
 }
 
 void InputMgr::Destroy(void)
 {
-	m_joystick.reset();
-
 	m_keyboard.reset();
+
+	m_mouse.reset();
+
+	m_joystick.reset();
 
 	m_input.reset();
 }
@@ -786,6 +789,8 @@ void InputMgr::Destroy(void)
 void InputMgr::Update(void)
 {
 	m_keyboard->Capture();
+
+	m_mouse->Capture();
 
 	if (m_joystick)
 	{

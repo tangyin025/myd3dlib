@@ -261,40 +261,36 @@ namespace my
 
 		static LPCTSTR Translate(KeyCode kc);
 
-		void CreateKeyboard(LPDIRECTINPUT8 input);
+		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 
 		virtual void Capture(void);
 	};
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
 
+	typedef boost::function<void (LONG, LONG, LONG)> MouseMoveEvent;
+
+	typedef boost::function<void (DWORD)> MouseBtnEvent;
+
 	class Mouse : public InputDevice
 	{
 	public:
-		DIMOUSESTATE OldState;
-
 		DIMOUSESTATE m_State;
+
+		MouseMoveEvent m_MovedEvent;
+
+		MouseBtnEvent m_PressedEvent;
+
+		MouseBtnEvent m_ReleasedEvent;
 
 	public:
 		Mouse(void)
 		{
 		}
 
-		void CreateMouse(LPDIRECTINPUT8 input);
+		void CreateMouse(LPDIRECTINPUT8 input, HWND hwnd);
 
 		virtual void Capture(void);
-
-		LONG GetX(void);
-
-		LONG GetY(void);
-
-		LONG GetZ(void);
-
-		unsigned char IsButtonDown(DWORD dwIndex);
-
-		bool IsButtonPressed(DWORD dwIndex);
-
-		bool IsButtonReleased(DWORD dwIndex);
 	};
 
 	typedef boost::shared_ptr<Mouse> MousePtr;

@@ -331,7 +331,7 @@ LPCTSTR Keyboard::Translate(KeyCode kc)
 	return _T("unknown key code");
 }
 
-void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input)
+void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd)
 {
 	LPDIRECTINPUTDEVICE8 device;
 	if(FAILED(hr = input->CreateDevice(GUID_SysKeyboard, &device, NULL)))
@@ -351,13 +351,16 @@ void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input)
 	dipdw.dwData            = KEYBOARD_DX_BUFFERSIZE;
 	SetProperty(DIPROP_BUFFERSIZE, &dipdw.diph);
 
+	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_NONEXCLUSIVE | DISCL_NOWINKEY);
+
+	Acquire();
+
 	ZeroMemory(&m_State, sizeof(m_State));
 }
 
 void Keyboard::Capture(void)
 {
 	BYTE OldState[256];
-
 	memcpy(OldState, m_State, sizeof(OldState));
 
 	DIDEVICEOBJECTDATA diBuff[KEYBOARD_DX_BUFFERSIZE];
@@ -393,7 +396,7 @@ void Keyboard::Capture(void)
 	}
 }
 
-void Mouse::CreateMouse(LPDIRECTINPUT8 input)
+void Mouse::CreateMouse(LPDIRECTINPUT8 input, HWND hwnd)
 {
 	LPDIRECTINPUTDEVICE8 device;
 	if(FAILED(hr = input->CreateDevice(GUID_SysMouse, &device, NULL)))
@@ -405,51 +408,59 @@ void Mouse::CreateMouse(LPDIRECTINPUT8 input)
 
 	SetDataFormat(&c_dfDIMouse);
 
+	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
+
+	Acquire();
+
 	ZeroMemory(&m_State, sizeof(m_State));
 }
 
 void Mouse::Capture(void)
 {
+	DIMOUSESTATE OldState;
 	memcpy(&OldState, &m_State, sizeof(OldState));
 
 	if(FAILED(hr = m_ptr->GetDeviceState(sizeof(m_State), &m_State)))
 	{
-		hr = m_ptr->Acquire();
-		if(SUCCEEDED(hr))
+		if(FAILED(hr = m_ptr->Acquire()))
 		{
-			GetDeviceState(sizeof(m_State), &m_State);
+			return;
+		}
+
+		GetDeviceState(sizeof(m_State), &m_State);
+	}
+
+	for (DWORD i = 0; i < _countof(m_State.rgbButtons); i++)
+	{
+		if (m_State.rgbButtons[i] & 0x80)
+		{
+			if (!(OldState.rgbButtons[i] & 0x80))
+			{
+				if (m_PressedEvent)
+				{
+					m_PressedEvent(i);
+				}
+			}
+		}
+		else
+		{
+			if (OldState.rgbButtons[i] & 0x80)
+			{
+				if (m_ReleasedEvent)
+				{
+					m_ReleasedEvent(i);
+				}
+			}
 		}
 	}
-}
 
-LONG Mouse::GetX(void)
-{
-	return m_State.lX;
-}
-
-LONG Mouse::GetY(void)
-{
-	return m_State.lY;
-}
-
-LONG Mouse::GetZ(void)
-{
-	return m_State.lZ;
-}
-
-unsigned char Mouse::IsButtonDown(DWORD dwIndex)
-{
-	return m_State.rgbButtons[dwIndex];
-}
-
-bool Mouse::IsButtonPressed(DWORD dwIndex)
-{
-	return !OldState.rgbButtons[dwIndex] && m_State.rgbButtons[dwIndex];
-}
-
-bool Mouse::IsButtonReleased(DWORD dwIndex)
-{
-	return OldState.rgbButtons[dwIndex] && !m_State.rgbButtons[dwIndex];
+	if (m_State.lX || m_State.lY || m_State.lZ)
+	{
+		if (m_MovedEvent)
+		{
+			m_MovedEvent(m_State.lX, m_State.lY, m_State.lZ);
+		}
+	}
 }
 
 void Joystick::CreateJoystick(
