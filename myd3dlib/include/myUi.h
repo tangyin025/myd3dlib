@@ -740,16 +740,9 @@ namespace my
 
 		Vector2 GetDlgViewport(void) const;
 
-		void Draw(
-			UIRender * ui_render,
-			double fTime,
-			float fElapsedTime);
+		void Draw(UIRender * ui_render, double fTime, float fElapsedTime);
 
-		bool MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam);
+		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		void InsertDlg(DialogPtr dlg);
 

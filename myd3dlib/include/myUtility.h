@@ -458,10 +458,6 @@ namespace my
 
 		InputPtr m_input;
 
-		//KeyboardPtr m_keyboard;
-
-		//MousePtr m_mouse;
-
 		JoystickPtr m_joystick;
 
 	public:
@@ -474,6 +470,8 @@ namespace my
 		void Destroy(void);
 
 		void Update(void);
+
+		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
 	};

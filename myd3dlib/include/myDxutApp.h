@@ -118,7 +118,7 @@ namespace my
 
 		double m_fLastTime;
 
-		wchar_t m_strFPS[64];
+		float m_fFps;
 
 	public:
 		DxutApp(void)
@@ -130,6 +130,7 @@ namespace my
 			, m_DeviceLost(false)
 			, m_dwFrames(0)
 			, m_fLastTime(0)
+			, m_fFps(0)
 		{
 		}
 

@@ -136,7 +136,7 @@ namespace my
 
 		my::Vector2 m_Scale;
 
-		float m_LineHeight;
+		int m_LineHeight;
 
 		CharacterMap m_characterMap;
 

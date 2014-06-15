@@ -1893,8 +1893,7 @@ void DxutApp::Render3DEnvironment(void)
 
 	if(m_fAbsoluteTime - m_fLastTime > 1.0f)
 	{
-		float fFPS = (float)(m_dwFrames / (m_fAbsoluteTime - m_fLastTime));
-		swprintf_s(m_strFPS, _countof(m_strFPS), L"%0.2f fps", fFPS);
+		m_fFps = (float)(m_dwFrames / (m_fAbsoluteTime - m_fLastTime));
 		m_fLastTime = m_fAbsoluteTime;
 		m_dwFrames = 0;
 	}

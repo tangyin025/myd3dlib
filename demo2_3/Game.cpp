@@ -356,6 +356,8 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
+
 	m_EmitterInst->Begin();
 
 	EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_Orientation, fTime, fElapsedTime);
@@ -364,21 +366,41 @@ void Game::OnFrameRender(
 
 	m_UIRender->Begin();
 
+	m_UIRender->SetWorld(Matrix4::identity);
+
+	m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+
+	OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
+
+	m_UIRender->End();
+}
+
+void Game::OnUIRender(
+	my::UIRender * ui_render,
+	double fTime,
+	float fElapsedTime)
+{
 	DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
 
 	_ASSERT(m_Font);
 
 	m_UIRender->SetWorld(Matrix4::identity);
 
-	m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
-
-	m_UIRender->End();
+	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
+	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
+	{
+		m_Font->DrawString(m_UIRender.get(), info_iter->second.c_str(), Rectangle::LeftTop(5,y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+	}
 }
 
 void Game::OnFrameTick(
 	double fTime,
 	float fElapsedTime)
 {
+	DrawHelper::BeginLine();
+
+	PhysXSceneContext::PushRenderBuffer(this);
+
 	OnFrameMove(fTime, fElapsedTime);
 
 	PhysXSceneContext::OnTickPreRender(fElapsedTime);
@@ -522,10 +544,7 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 
 	case PxErrorCode::eDEBUG_WARNING:
 	case PxErrorCode::ePERF_WARNING:
-		if (strncmp("PxScene::getRenderBuffer() not allowed while simulation is running.", message, 25))
-		{
-			AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
-		}
+		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
 		break;
 
 	default:

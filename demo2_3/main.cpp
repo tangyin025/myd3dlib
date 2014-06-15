@@ -11,7 +11,6 @@ using namespace my;
 
 class Demo
 	: public Game
-	, public DrawHelper
 {
 public:
 	EffectPtr m_SimpleSample;
@@ -268,11 +267,7 @@ public:
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-
-		BeginLine();
-		PhysXSceneContext::PushRenderBuffer(this); // ! PxScene::getRenderBuffer() not allowed while simulation is running.
 		PushGrid();
-		EndLine(pd3dDevice, Matrix4::identity);
 
 		//// ========================================================================================================
 		//// 骨骼动画
@@ -303,26 +298,20 @@ public:
 		//// ========================================================================================================
 		//m_clothMesh->Draw();
 
-		// ========================================================================================================
-		// 绘制粒子
-		// ========================================================================================================
-		m_EmitterInst->Begin();
-		EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_Orientation, fTime, fElapsedTime);
-		m_EmitterInst->End();
+		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
+		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+	}
 
-		// ========================================================================================================
-		// 绘制网格坐标
-		// ========================================================================================================
-		m_UIRender->Begin();
-		m_UIRender->SetWorld(Matrix4::identity);
-		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+	virtual void OnUIRender(
+		my::UIRender * ui_render,
+		double fTime,
+		float fElapsedTime)
+	{
+		// 绘制坐标
 		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
 		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
-		DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
-		_ASSERT(m_Font);
-		m_UIRender->SetWorld(Matrix4::identity);
-		m_Font->DrawString(m_UIRender.get(), m_strFPS, Rectangle::LeftTop(5,5,500,10), D3DCOLOR_ARGB(255,255,255,0));
-		m_UIRender->End();
+
+		Game::OnUIRender(ui_render, fTime, fElapsedTime);
 	}
 
 	virtual LRESULT MsgProc(

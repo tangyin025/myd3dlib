@@ -766,12 +766,6 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	m_input.reset(new Input);
 	m_input->CreateInput(hinst);
 
-	//m_keyboard.reset(new Keyboard);
-	//m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
-
-	//m_mouse.reset(new Mouse);
-	//m_mouse->CreateMouse(m_input->m_ptr, hwnd);
-
 	JoystickEnumDesc desc;
 	desc.input = m_input->m_ptr;
 	desc.hwnd = hwnd;
@@ -788,10 +782,6 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 
 void InputMgr::Destroy(void)
 {
-	//m_keyboard.reset();
-
-	//m_mouse.reset();
-
 	m_joystick.reset();
 
 	m_input.reset();
@@ -799,14 +789,15 @@ void InputMgr::Destroy(void)
 
 void InputMgr::Update(void)
 {
-	//m_keyboard->Capture();
-
-	//m_mouse->Capture();
-
 	if (m_joystick)
 	{
 		m_joystick->Capture();
 	}
+}
+
+bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	return false;
 }
 
 BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)

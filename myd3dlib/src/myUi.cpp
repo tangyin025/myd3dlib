@@ -2109,10 +2109,7 @@ Vector2 DialogMgr::GetDlgViewport(void) const
 	return Vector2(-m_View._41*2, m_View._42*2);
 }
 
-void DialogMgr::Draw(
-	UIRender * ui_render,
-	double fTime,
-	float fElapsedTime)
+void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 {
 	ui_render->SetViewProj(m_ViewProj);
 
@@ -2129,11 +2126,7 @@ void DialogMgr::Draw(
 	}
 }
 
-bool DialogMgr::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam)
+bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
 	if(ControlFocus)

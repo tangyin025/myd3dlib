@@ -242,7 +242,7 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 
 	SetScale(Vector2(1,1));
 
-	m_LineHeight = m_face->size->metrics.height / 64.0f;
+	m_LineHeight = m_face->size->metrics.height / 64;
 }
 
 void Font::CreateFontFromFile(

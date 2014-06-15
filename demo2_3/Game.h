@@ -74,9 +74,14 @@ class Game
 	, public PhysXResourceMgr
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
+	, public my::DrawHelper
 {
 public:
 	my::LuaContextPtr m_lua;
+
+	typedef std::map<int, std::wstring> ScrInfoType;
+
+	ScrInfoType m_ScrInfos;
 
 	my::UIRenderPtr m_UIRender;
 
@@ -142,6 +147,11 @@ public:
 
 	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
+
+	virtual void OnUIRender(
+		my::UIRender * ui_render,
 		double fTime,
 		float fElapsedTime);
 

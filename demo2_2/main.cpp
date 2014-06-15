@@ -137,7 +137,9 @@ public:
 		if( SUCCEEDED( pd3dDevice->BeginScene() ) )
 		{
 			V(m_sprite->Begin(D3DXSPRITE_ALPHABLEND));
-			V(m_font->DrawTextW(m_sprite, m_strFPS, wcslen(m_strFPS), CRect(5,5,100,100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)));
+			wchar_t buff[256];
+			int len = swprintf_s(buff, _countof(buff), L"%.2f", m_fFps);
+			V(m_font->DrawTextW(m_sprite, buff, len, CRect(5,5,100,100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)));
 			V(m_sprite->End());
 			V( pd3dDevice->EndScene() );
 		}
