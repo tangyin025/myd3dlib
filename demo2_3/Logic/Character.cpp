@@ -1,8 +1,8 @@
 #include "StdAfx.h"
-#include "LocalPlayer.h"
+#include "Character.h"
 #include "../Game.h"
 
-void LocalPlayer::Create(void)
+void Character::Create(void)
 {
 	PxCapsuleControllerDesc cDesc;
 	cDesc.radius = 0.3f;
@@ -13,12 +13,12 @@ void LocalPlayer::Create(void)
 		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_Scene.get(), cDesc));
 }
 
-void LocalPlayer::Update(float fElapsedTime)
+void Character::Update(float fElapsedTime)
 {
 	m_controller->move(PxVec3(0,-9*fElapsedTime,0), 0.001f, fElapsedTime, PxControllerFilters());
 }
 
-void LocalPlayer::Destroy(void)
+void Character::Destroy(void)
 {
 	m_controller.reset();
 }

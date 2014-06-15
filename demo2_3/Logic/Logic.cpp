@@ -4,24 +4,70 @@
 
 void Logic::Create(void)
 {
-	// ========================================================================================================
-	// ÎïÀí³¡¾°
-	// ========================================================================================================
-	my::IStreamPtr ifs = Game::getSingleton().OpenIStream("mesh/scene_tm.phy");
-	PxRigidActor * actor = Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity());
-	PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(Game::getSingleton().CreateTriangleMesh(ifs)).get()), *Game::getSingleton().m_PxMaterial);
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-	Game::getSingleton().m_Scene->addActor(*actor);
-
-	m_LocalPlayer->Create();
+	OnEnterState();
 }
 
 void Logic::Update(float fElapsedTime)
 {
-	m_LocalPlayer->Update(fElapsedTime);
+	switch(m_State)
+	{
+	case LogicStateLoading:
+		{
+			Game::getSingleton().PushGrid();
+		}
+		break;
+	case LogicStateMain:
+		{
+		}
+		break;
+	default:
+		break;
+	}
 }
 
 void Logic::Destroy(void)
 {
-	m_LocalPlayer->Destroy();
+	OnLeaveState();
+}
+
+void Logic::ShiftState(LogicState State)
+{
+	OnLeaveState();
+	m_State = State;
+	OnEnterState();
+}
+
+void Logic::OnEnterState(void)
+{
+	switch(m_State)
+	{
+	case LogicStateLoading:
+		{
+			Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\"");
+		}
+		break;
+	case LogicStateMain:
+		{
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+void Logic::OnLeaveState(void)
+{
+	switch(m_State)
+	{
+	case LogicStateLoading:
+		{
+		}
+		break;
+	case LogicStateMain:
+		{
+		}
+		break;
+	default:
+		break;
+	}
 }

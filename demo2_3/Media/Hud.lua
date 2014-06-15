@@ -1,4 +1,4 @@
-dofile "Settings.lua"
+require "Settings.lua"
 
 module("Hud", package.seeall)
 

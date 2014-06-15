@@ -2,19 +2,19 @@
 
 #include "../physx_ptr.hpp"
 
-class LocalPlayer
+class Character
 	: my::Particle
 {
 public:
 	physx_ptr<PxController> m_controller;
 
 public:
-	LocalPlayer(void)
+	Character(void)
 		: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,-9.8f,0), my::Vector3(0,0,0), 1, 0.8f)
 	{
 	}
 
-	virtual ~LocalPlayer(void)
+	virtual ~Character(void)
 	{
 		Destroy();
 	}
@@ -26,4 +26,4 @@ public:
 	void Destroy(void);
 };
 
-typedef boost::shared_ptr<LocalPlayer> LocalPlayerPtr;
+typedef boost::shared_ptr<Character> CharacterPtr;

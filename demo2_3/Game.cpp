@@ -358,6 +358,8 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
 	m_EmitterInst->Begin();

@@ -21,10 +21,13 @@ void DrawHelper::BeginLine(void)
 
 void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transform)
 {
-	pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-	pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
-	pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Transform);
-	pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0]));
+	if (!m_vertices.empty())
+	{
+		pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
+		pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
+		pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Transform);
+		pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0]));
+	}
 }
 
 void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color)

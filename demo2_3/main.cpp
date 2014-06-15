@@ -84,12 +84,12 @@ public:
 			return hr;
 		}
 
-		ExecuteCode("dofile \"GameStateMain.lua\"");
-
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+
+		ExecuteCode("require \"Hud.lua\"");
 
 		//// ========================================================================================================
 		//// 骨骼动画
@@ -118,20 +118,6 @@ public:
 		//{
 		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
 		//}
-
-		//// ========================================================================================================
-		//// 物理场景
-		//// ========================================================================================================
-		//my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
-		//PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform::createIdentity());
-		//PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_PxMaterial);
-		//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-		//m_Scene->addActor(*actor);
-
-		//for(int x = -10; x <= 10; x+= 2)
-		//	for(int z= -10; z <= 10; z+= 2)
-		//		m_Scene->addActor(*PxCreateDynamic(
-		//			*m_sdk, PxTransform(PxVec3(x,10,z),PxQuat(0,0,0,1)), PxSphereGeometry(0.3), *m_PxMaterial, 1));
 
 		//// ========================================================================================================
 		//// 布料系统
@@ -202,6 +188,8 @@ public:
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
 
+		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
+
 		//// ========================================================================================================
 		//// 骨骼动画
 		//// ========================================================================================================
@@ -260,10 +248,10 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		PushGrid();
+		//pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+		//pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+		//m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		//PushGrid();
 
 		//// ========================================================================================================
 		//// 骨骼动画
@@ -294,7 +282,6 @@ public:
 		//// ========================================================================================================
 		//m_clothMesh->Draw();
 
-		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}
 

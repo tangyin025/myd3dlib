@@ -312,20 +312,16 @@
 			</File>
 		</Filter>
 		<Filter
-			Name="Character"
-			>
-			<File
-				RelativePath=".\Character\LocalPlayer.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Character\LocalPlayer.h"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Logic"
 			>
+			<File
+				RelativePath=".\Logic\Character.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Logic\Character.h"
+				>
+			</File>
 			<File
 				RelativePath=".\Logic\Logic.cpp"
 				>
