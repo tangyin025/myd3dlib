@@ -790,7 +790,7 @@ void InputMgr::Destroy(void)
 	m_input.reset();
 }
 
-void InputMgr::Update(void)
+void InputMgr::Update(double fTime, float fElapsedTime)
 {
 	if (m_joystick)
 	{
@@ -800,6 +800,94 @@ void InputMgr::Update(void)
 
 bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	switch(uMsg)
+	{
+	case WM_KEYDOWN:
+		if (m_KeyPressedEvent)
+		{
+			m_KeyPressedEvent(wParam);
+			return true;
+		}
+		break;
+	case WM_SYSKEYDOWN:
+		if (m_KeyPressedEvent)
+		{
+			m_KeyPressedEvent(wParam);
+			return true;
+		}
+		break;
+	case WM_KEYUP:
+		if (m_KeyReleasedEvent)
+		{
+			m_KeyReleasedEvent(wParam);
+			return true;
+		}
+		break;
+	case WM_SYSKEYUP:
+		if (m_KeyReleasedEvent)
+		{
+			m_KeyReleasedEvent(wParam);
+			return true;
+		}
+		break;
+	case WM_MOUSEMOVE:
+		if (m_MouseMovedEvent)
+		{
+			m_MouseMovedEvent(HIWORD(lParam)-HIWORD(m_LastMousePos), LOWORD(lParam)-LOWORD(m_LastMousePos), 0);
+			m_LastMousePos = lParam;
+			return true;
+		}
+		break;
+	case WM_LBUTTONDOWN:
+		if (m_MousePressedEvent)
+		{
+			m_MousePressedEvent(0);
+			return true;
+		}
+		break;
+	case WM_LBUTTONUP:
+		if (m_MouseReleasedEvent)
+		{
+			m_MouseReleasedEvent(0);
+			return true;
+		}
+		break;
+	case WM_MBUTTONDOWN:
+		if (m_MousePressedEvent)
+		{
+			m_MousePressedEvent(2);
+			return true;
+		}
+		break;
+	case WM_MBUTTONUP:
+		if (m_MouseReleasedEvent)
+		{
+			m_MouseReleasedEvent(2);
+			return true;
+		}
+		break;
+	case WM_RBUTTONDOWN:
+		if (m_MousePressedEvent)
+		{
+			m_MousePressedEvent(1);
+			return true;
+		}
+		break;
+	case WM_RBUTTONUP:
+		if (m_MouseReleasedEvent)
+		{
+			m_MouseReleasedEvent(1);
+			return true;
+		}
+		break;
+	case WM_MOUSEWHEEL:
+		if (m_MouseMovedEvent)
+		{
+			m_MouseMovedEvent(0, 0, (short)HIWORD(wParam) / WHEEL_DELTA);
+			return true;
+		}
+		break;
+	}
 	return false;
 }
 

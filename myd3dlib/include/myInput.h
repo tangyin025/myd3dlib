@@ -243,7 +243,7 @@ namespace my
 		KC_MEDIASELECT = 0xED     // Media Select
 	};
 
-	typedef boost::function<void (KeyCode)> KeyboardEvent;
+	typedef boost::function<void (DWORD)> KeyboardEvent;
 
 	class Keyboard : public InputDevice
 	{
@@ -260,6 +260,8 @@ namespace my
 		}
 
 		static LPCTSTR TranslateKeyCode(KeyCode kc);
+
+		static LPCTSTR TranslateVirtualKey(DWORD vk);
 
 		void CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd);
 

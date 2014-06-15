@@ -331,6 +331,223 @@ LPCTSTR Keyboard::TranslateKeyCode(KeyCode kc)
 	return _T("unknown key code");
 }
 
+LPCTSTR Keyboard::TranslateVirtualKey(DWORD vk)
+{
+	switch(vk)
+	{
+	case VK_LBUTTON: return _T("VK_LBUTTON");
+	case VK_RBUTTON: return _T("VK_RBUTTON");
+	case VK_CANCEL: return _T("VK_CANCEL");
+	case VK_MBUTTON: return _T("VK_MBUTTON");
+#if(_WIN32_WINNT >= 0x0500)
+	case VK_XBUTTON1: return _T("VK_XBUTTON1");
+	case VK_XBUTTON2: return _T("VK_XBUTTON2");
+#endif /* _WIN32_WINNT >= 0x0500 */
+	case VK_BACK: return _T("VK_BACK");
+	case VK_TAB: return _T("VK_TAB");
+	case VK_CLEAR: return _T("VK_CLEAR");
+	case VK_RETURN: return _T("VK_RETURN");
+	case VK_SHIFT: return _T("VK_SHIFT");
+	case VK_CONTROL: return _T("VK_CONTROL");
+	case VK_MENU: return _T("VK_MENU");
+	case VK_PAUSE: return _T("VK_PAUSE");
+	case VK_CAPITAL: return _T("VK_CAPITAL");
+	case VK_KANA: return _T("VK_KANA");
+	//case VK_HANGEUL: return _T("VK_HANGEUL");
+	//case VK_HANGUL: return _T("VK_HANGUL");
+	case VK_JUNJA: return _T("VK_JUNJA");
+	case VK_FINAL: return _T("VK_FINAL");
+	case VK_HANJA: return _T("VK_HANJA");
+	//case VK_KANJI: return _T("VK_KANJI");
+	case VK_ESCAPE: return _T("VK_ESCAPE");
+	case VK_CONVERT: return _T("VK_CONVERT");
+	case VK_NONCONVERT: return _T("VK_NONCONVERT");
+	case VK_ACCEPT: return _T("VK_ACCEPT");
+	case VK_MODECHANGE: return _T("VK_MODECHANGE");
+	case VK_SPACE: return _T("VK_SPACE");
+	case VK_PRIOR: return _T("VK_PRIOR");
+	case VK_NEXT: return _T("VK_NEXT");
+	case VK_END: return _T("VK_END");
+	case VK_HOME: return _T("VK_HOME");
+	case VK_LEFT: return _T("VK_LEFT");
+	case VK_UP: return _T("VK_UP");
+	case VK_RIGHT: return _T("VK_RIGHT");
+	case VK_DOWN: return _T("VK_DOWN");
+	case VK_SELECT: return _T("VK_SELECT");
+	case VK_PRINT: return _T("VK_PRINT");
+	case VK_EXECUTE: return _T("VK_EXECUTE");
+	case VK_SNAPSHOT: return _T("VK_SNAPSHOT");
+	case VK_INSERT: return _T("VK_INSERT");
+	case VK_DELETE: return _T("VK_DELETE");
+	case VK_HELP: return _T("VK_HELP");
+	case VK_LWIN: return _T("VK_LWIN");
+	case VK_RWIN: return _T("VK_RWIN");
+	case VK_APPS: return _T("VK_APPS");
+	case VK_SLEEP: return _T("VK_SLEEP");
+	case VK_NUMPAD0: return _T("VK_NUMPAD0");
+	case VK_NUMPAD1: return _T("VK_NUMPAD1");
+	case VK_NUMPAD2: return _T("VK_NUMPAD2");
+	case VK_NUMPAD3: return _T("VK_NUMPAD3");
+	case VK_NUMPAD4: return _T("VK_NUMPAD4");
+	case VK_NUMPAD5: return _T("VK_NUMPAD5");
+	case VK_NUMPAD6: return _T("VK_NUMPAD6");
+	case VK_NUMPAD7: return _T("VK_NUMPAD7");
+	case VK_NUMPAD8: return _T("VK_NUMPAD8");
+	case VK_NUMPAD9: return _T("VK_NUMPAD9");
+	case VK_MULTIPLY: return _T("VK_MULTIPLY");
+	case VK_ADD: return _T("VK_ADD");
+	case VK_SEPARATOR: return _T("VK_SEPARATOR");
+	case VK_SUBTRACT: return _T("VK_SUBTRACT");
+	case VK_DECIMAL: return _T("VK_DECIMAL");
+	case VK_DIVIDE: return _T("VK_DIVIDE");
+	case VK_F1: return _T("VK_F1");
+	case VK_F2: return _T("VK_F2");
+	case VK_F3: return _T("VK_F3");
+	case VK_F4: return _T("VK_F4");
+	case VK_F5: return _T("VK_F5");
+	case VK_F6: return _T("VK_F6");
+	case VK_F7: return _T("VK_F7");
+	case VK_F8: return _T("VK_F8");
+	case VK_F9: return _T("VK_F9");
+	case VK_F10: return _T("VK_F10");
+	case VK_F11: return _T("VK_F11");
+	case VK_F12: return _T("VK_F12");
+	case VK_F13: return _T("VK_F13");
+	case VK_F14: return _T("VK_F14");
+	case VK_F15: return _T("VK_F15");
+	case VK_F16: return _T("VK_F16");
+	case VK_F17: return _T("VK_F17");
+	case VK_F18: return _T("VK_F18");
+	case VK_F19: return _T("VK_F19");
+	case VK_F20: return _T("VK_F20");
+	case VK_F21: return _T("VK_F21");
+	case VK_F22: return _T("VK_F22");
+	case VK_F23: return _T("VK_F23");
+	case VK_F24: return _T("VK_F24");
+	case VK_NUMLOCK: return _T("VK_NUMLOCK");
+	case VK_SCROLL: return _T("VK_SCROLL");
+	case VK_OEM_NEC_EQUAL: return _T("VK_OEM_NEC_EQUAL");
+	//case VK_OEM_FJ_JISHO: return _T("VK_OEM_FJ_JISHO");
+	case VK_OEM_FJ_MASSHOU: return _T("VK_OEM_FJ_MASSHOU");
+	case VK_OEM_FJ_TOUROKU: return _T("VK_OEM_FJ_TOUROKU");
+	case VK_OEM_FJ_LOYA: return _T("VK_OEM_FJ_LOYA");
+	case VK_OEM_FJ_ROYA: return _T("VK_OEM_FJ_ROYA");
+	case VK_LSHIFT: return _T("VK_LSHIFT");
+	case VK_RSHIFT: return _T("VK_RSHIFT");
+	case VK_LCONTROL: return _T("VK_LCONTROL");
+	case VK_RCONTROL: return _T("VK_RCONTROL");
+	case VK_LMENU: return _T("VK_LMENU");
+	case VK_RMENU: return _T("VK_RMENU");
+#if(_WIN32_WINNT >= 0x0500)
+	case VK_BROWSER_BACK: return _T("VK_BROWSER_BACK");
+	case VK_BROWSER_FORWARD: return _T("VK_BROWSER_FORWARD");
+	case VK_BROWSER_REFRESH: return _T("VK_BROWSER_REFRESH");
+	case VK_BROWSER_STOP: return _T("VK_BROWSER_STOP");
+	case VK_BROWSER_SEARCH: return _T("VK_BROWSER_SEARCH");
+	case VK_BROWSER_FAVORITES: return _T("VK_BROWSER_FAVORITES");
+	case VK_BROWSER_HOME: return _T("VK_BROWSER_HOME");
+	case VK_VOLUME_MUTE: return _T("VK_VOLUME_MUTE");
+	case VK_VOLUME_DOWN: return _T("VK_VOLUME_DOWN");
+	case VK_VOLUME_UP: return _T("VK_VOLUME_UP");
+	case VK_MEDIA_NEXT_TRACK: return _T("VK_MEDIA_NEXT_TRACK");
+	case VK_MEDIA_PREV_TRACK: return _T("VK_MEDIA_PREV_TRACK");
+	case VK_MEDIA_STOP: return _T("VK_MEDIA_STOP");
+	case VK_MEDIA_PLAY_PAUSE: return _T("VK_MEDIA_PLAY_PAUSE");
+	case VK_LAUNCH_MAIL: return _T("VK_LAUNCH_MAIL");
+	case VK_LAUNCH_MEDIA_SELECT: return _T("VK_LAUNCH_MEDIA_SELECT");
+	case VK_LAUNCH_APP1: return _T("VK_LAUNCH_APP1");
+	case VK_LAUNCH_APP2: return _T("VK_LAUNCH_APP2");
+#endif /* _WIN32_WINNT >= 0x0500 */
+	case VK_OEM_1: return _T("VK_OEM_1");
+	case VK_OEM_PLUS: return _T("VK_OEM_PLUS");
+	case VK_OEM_COMMA: return _T("VK_OEM_COMMA");
+	case VK_OEM_MINUS: return _T("VK_OEM_MINUS");
+	case VK_OEM_PERIOD: return _T("VK_OEM_PERIOD");
+	case VK_OEM_2: return _T("VK_OEM_2");
+	case VK_OEM_3: return _T("VK_OEM_3");
+	case VK_OEM_4: return _T("VK_OEM_4");
+	case VK_OEM_5: return _T("VK_OEM_5");
+	case VK_OEM_6: return _T("VK_OEM_6");
+	case VK_OEM_7: return _T("VK_OEM_7");
+	case VK_OEM_8: return _T("VK_OEM_8");
+	case VK_OEM_AX: return _T("VK_OEM_AX");
+	case VK_OEM_102: return _T("VK_OEM_102");
+	case VK_ICO_HELP: return _T("VK_ICO_HELP");
+	case VK_ICO_00: return _T("VK_ICO_00");
+#if(WINVER >= 0x0400)
+	case VK_PROCESSKEY: return _T("VK_PROCESSKEY");
+#endif /* WINVER >= 0x0400 */
+	case VK_ICO_CLEAR: return _T("VK_ICO_CLEAR");
+#if(_WIN32_WINNT >= 0x0500)
+	case VK_PACKET: return _T("VK_PACKET");
+#endif /* _WIN32_WINNT >= 0x0500 */
+	case VK_OEM_RESET: return _T("VK_OEM_RESET");
+	case VK_OEM_JUMP: return _T("VK_OEM_JUMP");
+	case VK_OEM_PA1: return _T("VK_OEM_PA1");
+	case VK_OEM_PA2: return _T("VK_OEM_PA2");
+	case VK_OEM_PA3: return _T("VK_OEM_PA3");
+	case VK_OEM_WSCTRL: return _T("VK_OEM_WSCTRL");
+	case VK_OEM_CUSEL: return _T("VK_OEM_CUSEL");
+	case VK_OEM_ATTN: return _T("VK_OEM_ATTN");
+	case VK_OEM_FINISH: return _T("VK_OEM_FINISH");
+	case VK_OEM_COPY: return _T("VK_OEM_COPY");
+	case VK_OEM_AUTO: return _T("VK_OEM_AUTO");
+	case VK_OEM_ENLW: return _T("VK_OEM_ENLW");
+	case VK_OEM_BACKTAB: return _T("VK_OEM_BACKTAB");
+	case VK_ATTN: return _T("VK_ATTN");
+	case VK_CRSEL: return _T("VK_CRSEL");
+	case VK_EXSEL: return _T("VK_EXSEL");
+	case VK_EREOF: return _T("VK_EREOF");
+	case VK_PLAY: return _T("VK_PLAY");
+	case VK_ZOOM: return _T("VK_ZOOM");
+	case VK_NONAME: return _T("VK_NONAME");
+	case VK_PA1: return _T("VK_PA1");
+	case VK_OEM_CLEAR: return _T("VK_OEM_CLEAR");
+	/*
+	 * VK_0 - VK_9 are the same as ASCII '0' - '9' (0x30 - 0x39)
+	 * 0x40 : unassigned
+	 * VK_A - VK_Z are the same as ASCII 'A' - 'Z' (0x41 - 0x5A)
+	 */
+	case 0x30: return _T("\x30");
+	case 0x31: return _T("\x31");
+	case 0x32: return _T("\x32");
+	case 0x33: return _T("\x33");
+	case 0x34: return _T("\x34");
+	case 0x35: return _T("\x35");
+	case 0x36: return _T("\x36");
+	case 0x37: return _T("\x37");
+	case 0x38: return _T("\x38");
+	case 0x39: return _T("\x39");
+	case 0x41: return _T("\x41");
+	case 0x42: return _T("\x42");
+	case 0x43: return _T("\x43");
+	case 0x44: return _T("\x44");
+	case 0x45: return _T("\x45");
+	case 0x46: return _T("\x46");
+	case 0x47: return _T("\x47");
+	case 0x48: return _T("\x48");
+	case 0x49: return _T("\x49");
+	case 0x4A: return _T("\x4A");
+	case 0x4B: return _T("\x4B");
+	case 0x4C: return _T("\x4C");
+	case 0x4D: return _T("\x4D");
+	case 0x4E: return _T("\x4E");
+	case 0x4F: return _T("\x4F");
+	case 0x50: return _T("\x50");
+	case 0x51: return _T("\x51");
+	case 0x52: return _T("\x52");
+	case 0x53: return _T("\x53");
+	case 0x54: return _T("\x54");
+	case 0x55: return _T("\x55");
+	case 0x56: return _T("\x56");
+	case 0x57: return _T("\x57");
+	case 0x58: return _T("\x58");
+	case 0x59: return _T("\x59");
+	case 0x5A: return _T("\x5A");
+	}
+	return _T("reserved vritual key");
+}
+
 void Keyboard::CreateKeyboard(LPDIRECTINPUT8 input, HWND hwnd)
 {
 	LPDIRECTINPUTDEVICE8 device;

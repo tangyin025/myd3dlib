@@ -54,6 +54,8 @@ void Logic::OnEnterState(void)
 			shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 			Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
 			m_LocalPlayer->Create();
+			Game::getSingleton().m_MouseMovedEvent = boost::bind(&Logic::OnMouseMove, this, _1, _2, _3);
+			Game::getSingleton().m_KeyPressedEvent = boost::bind(&Logic::OnKeyDown, this, _1);
 		}
 		break;
 	default:
@@ -75,16 +77,13 @@ void Logic::OnLeaveState(void)
 		break;
 	}
 }
-//
-//void Logic::OnSceneMeshLoaded(my::DeviceRelatedObjectBasePtr res)
-//{
-//	m_SceneMeshSet = boost::dynamic_pointer_cast<OgreMeshSet>(res);
-//
-//	OgreMeshSet::iterator mesh_iter = m_SceneMeshSet->begin();
-//	for(; mesh_iter != m_SceneMeshSet->end(); mesh_iter++)
-//	{
-//		MeshComponentPtr cmp(new MeshComponent((*mesh_iter)->m_aabb));
-//		cmp->m_Mesh = *mesh_iter;
-//		Game::getSingleton().m_OctScene->PushComponent(cmp, 0.1f);
-//	}
-//}
+
+void Logic::OnMouseMove(LONG x, LONG y, LONG z)
+{
+	Game::getSingleton().m_ScrInfos[1] = str_printf(L"%ld, %ld, %ld", x, y, z);
+}
+
+void Logic::OnKeyDown(DWORD vk)
+{
+	Game::getSingleton().m_ScrInfos[2] = str_printf(L"%s", Keyboard::TranslateVirtualKey(vk));
+}

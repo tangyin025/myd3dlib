@@ -437,8 +437,6 @@ namespace my
 		void SaveEmitter(const std::string & path, EmitterPtr emitter);
 	};
 
-	typedef boost::function<void (void)> InputEvent;
-
 	class InputMgr
 	{
 	public:
@@ -460,6 +458,18 @@ namespace my
 
 		JoystickPtr m_joystick;
 
+		DWORD m_LastMousePos;
+
+		MouseMoveEvent m_MouseMovedEvent;
+
+		MouseBtnEvent m_MousePressedEvent;
+
+		MouseBtnEvent m_MouseReleasedEvent;
+
+		KeyboardEvent m_KeyPressedEvent;
+
+		KeyboardEvent m_KeyReleasedEvent;
+
 	public:
 		InputMgr(void)
 		{
@@ -469,7 +479,7 @@ namespace my
 
 		void Destroy(void);
 
-		void Update(void);
+		void Update(double fTime, float fElapsedTime);
 
 		bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 

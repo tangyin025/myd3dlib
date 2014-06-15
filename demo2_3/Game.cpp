@@ -347,7 +347,7 @@ void Game::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	InputMgr::Update();
+	InputMgr::Update(fTime, fElapsedTime);
 
 	PhysXResourceMgr::CheckRequests();
 
@@ -463,6 +463,11 @@ LRESULT Game::MsgProc(
 	}
 
 	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	{
+		return 0;
+	}
+
+	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
