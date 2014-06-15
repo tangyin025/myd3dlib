@@ -14,7 +14,7 @@ public:
 	{
 	}
 
-	~LocalPlayer(void)
+	virtual ~LocalPlayer(void)
 	{
 		Destroy();
 	}

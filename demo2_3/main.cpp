@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "MeshComponent.h"
-#include "Character/LocalPlayer.h"
+#include "Logic/Logic.h"
 
 using namespace my;
 
@@ -13,8 +13,6 @@ class Demo
 	: public Game
 {
 public:
-	EffectPtr m_SimpleSample;
-
 	//// ========================================================================================================
 	//// 骨骼动画
 	//// ========================================================================================================
@@ -39,12 +37,12 @@ public:
 	//PxCloth * m_cloth;
 
 	// ========================================================================================================
-	// 角色系统
+	// 逻辑系统
 	// ========================================================================================================
-	LocalPlayerPtr m_localplayer;
+	LogicPtr m_Logic;
 
 	Demo::Demo(void)
-		: m_localplayer(new LocalPlayer)
+		: m_Logic(new Logic)
 	{
 	}
 
@@ -88,8 +86,6 @@ public:
 
 		ExecuteCode("dofile \"GameStateMain.lua\"");
 
-		m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
@@ -123,14 +119,14 @@ public:
 		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
 		//}
 
-		// ========================================================================================================
-		// 物理场景
-		// ========================================================================================================
-		my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
-		PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform::createIdentity());
-		PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_PxMaterial);
-		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-		m_Scene->addActor(*actor);
+		//// ========================================================================================================
+		//// 物理场景
+		//// ========================================================================================================
+		//my::IStreamPtr ifs = my::FileIStream::Open(_T("D:\\Works\\VC++\\D3DSolution\\demo2_3\\Media\\mesh\\scene_tm.phy"));
+		//PxRigidActor * actor = m_sdk->createRigidStatic(PxTransform::createIdentity());
+		//PxShape * shape = actor->createShape(PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(CreateTriangleMesh(ifs)).get()), *m_PxMaterial);
+		//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+		//m_Scene->addActor(*actor);
 
 		//for(int x = -10; x <= 10; x+= 2)
 		//	for(int z= -10; z <= 10; z+= 2)
@@ -169,9 +165,9 @@ public:
 		//m_Scene->addActor(*m_cloth);
 
 		// ========================================================================================================
-		// 角色系统
+		// 逻辑系统
 		// ========================================================================================================
-		m_localplayer->Create();
+		m_Logic->Create();
 
 		return S_OK;
 	}
@@ -195,7 +191,7 @@ public:
 	virtual void OnDestroyDevice(void)
 	{
 		// 注意顺序
-		m_localplayer->Destroy();
+		m_Logic->Destroy();
 
 		Game::OnDestroyDevice();
 	}
@@ -254,9 +250,9 @@ public:
 		//m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 
 		// ========================================================================================================
-		// 角色系统
+		// 逻辑系统
 		// ========================================================================================================
-		m_localplayer->Update(fElapsedTime);
+		m_Logic->Update(fElapsedTime);
 	}
 
 	virtual void OnFrameRender(

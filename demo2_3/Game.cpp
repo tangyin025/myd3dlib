@@ -245,11 +245,13 @@ HRESULT Game::OnCreateDevice(
 
 	m_dlgSetMap[1].push_back(m_Console);
 
-	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+
+	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
 	m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
 
-	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	return S_OK;
 }

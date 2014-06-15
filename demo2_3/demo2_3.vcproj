@@ -323,6 +323,18 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Logic"
+			>
+			<File
+				RelativePath=".\Logic\Logic.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Logic\Logic.h"
+				>
+			</File>
+		</Filter>
 	</Files>
 	<Globals>
 	</Globals>
