@@ -42,6 +42,14 @@ void ExportUI2Lua(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Text", &my::Static::m_Text)
 
+		, class_<my::ProgressBarSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ProgressBarSkin")
+			.def(constructor<>())
+			.def_readwrite("ForegroundImage", &my::ProgressBarSkin::m_ForegroundImage)
+
+		, class_<my::ProgressBar, my::Static, boost::shared_ptr<my::Control> >("ProgressBar")
+			.def(constructor<>())
+			.def_readwrite("Progress", &my::ProgressBar::m_Progress)
+
 		, class_<my::ButtonSkin, my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ButtonSkin")
 			.def(constructor<>())
 			.def_readwrite("DisabledImage", &my::ButtonSkin::m_DisabledImage)

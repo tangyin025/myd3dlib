@@ -43,7 +43,7 @@ void Logic::OnEnterState(void)
 	{
 	case LogicStateLoading:
 		{
-			Game::getSingleton().ExecuteCode("dofile \"GameStateMain.lua\"");
+			Game::getSingleton().ExecuteCode("dofile \"StateLoading.lua\"");
 		}
 		break;
 	case LogicStateMain:

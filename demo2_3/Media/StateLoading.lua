@@ -1,3 +1,5 @@
+-- require "LoadingUI.lua"
+-- require "Hud.lua"
 
 -- -- 创建相机
 -- local camera=ModelViewerCamera(math.rad(75),4/3.0,0.1,3000)
@@ -20,3 +22,12 @@ camera.EventAlign=function(args)
 	camera.Aspect=desc.Width/desc.Height
 end
 game.Camera=camera
+
+-- local t = Timer(1,0)
+-- t.EventTimer=function(args)
+	-- LoadingUI.pgs.Progress=LoadingUI.pgs.Progress+0.1
+	-- if LoadingUI.pgs.Progress >= 1.09 then
+		-- os.exit()
+	-- end
+-- end
+-- game:InsertTimer(t)

@@ -290,9 +290,9 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		// 绘制坐标
-		DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
-		DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
+		//// 绘制坐标
+		//DrawTextAtWorld(Vector3(12,0,0), L"x", D3DCOLOR_ARGB(255,255,255,0));
+		//DrawTextAtWorld(Vector3(0,0,12), L"z", D3DCOLOR_ARGB(255,255,255,0));
 
 		Game::OnUIRender(ui_render, fTime, fElapsedTime);
 	}

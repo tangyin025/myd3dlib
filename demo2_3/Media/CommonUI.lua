@@ -5,6 +5,13 @@ com_lbl_skin.Font=game:LoadFont("font/wqy-microhei.ttc", 13)
 com_lbl_skin.TextColor=ARGB(255,255,255,255)
 com_lbl_skin.TextAlign=Font.AlignLeftMiddle
 
+com_pgs_skin=ProgressBarSkin()
+com_pgs_skin.Image=ControlImage(game:LoadTexture("texture/com_btn_disable.png"),Vector4(7,7,7,7))
+com_pgs_skin.Font=game:LoadFont("font/wqy-microhei.ttc", 13)
+com_pgs_skin.TextColor=ARGB(255,255,255,255)
+com_pgs_skin.TextAlign=Font.AlignLeftMiddle
+com_pgs_skin.ForegroundImage=ControlImage(game:LoadTexture("texture/com_btn_hover.png"),Vector4(7,7,7,7))
+
 com_btn_skin=ButtonSkin()
 com_btn_skin.Image=ControlImage(game:LoadTexture("texture/com_btn_normal.png"),Vector4(7,7,7,7))
 com_btn_skin.Font=game:LoadFont("font/wqy-microhei.ttc", 13)
