@@ -8,19 +8,20 @@ class Logic
 protected:
 	enum LogicState
 	{
-		LogicStateLoading,
 		LogicStateMain,
 	};
 
 	LogicState m_State;
 
-	my::OgreMeshSetPtr m_SceneMeshSet;
+	//my::OgreMeshSetPtr m_SceneMeshSet;
+
+	physx_ptr<PxRigidActor> m_StaticSceneActor;
 
 	CharacterPtr m_LocalPlayer;
 
 public:
 	Logic(void)
-		: m_State(LogicStateLoading)
+		: m_State(LogicStateMain)
 		, m_LocalPlayer(new Character)
 	{
 	}
@@ -41,7 +42,7 @@ public:
 
 	void OnLeaveState(void);
 
-	void OnSceneMeshLoaded(my::DeviceRelatedObjectBasePtr res);
+	//void OnSceneMeshLoaded(my::DeviceRelatedObjectBasePtr res);
 };
 
 typedef boost::shared_ptr<Logic> LogicPtr;
