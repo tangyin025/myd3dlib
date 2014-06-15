@@ -3,21 +3,28 @@
 class MeshComponent : public my::Component
 {
 public:
+	my::Matrix4 m_World;
+
 	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
 
 	typedef std::vector<MaterialPair> MaterialPairList;
 
 	MaterialPairList m_Materials;
 
-	my::Matrix4 m_World;
-
 	my::OgreMeshPtr m_Mesh;
 
 public:
 	MeshComponent(const my::AABB & aabb)
 		: my::Component(aabb)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
+
+	void OnMaterialLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res);
+
+	void OnEffectLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res);
+
+	virtual void UpdateLod(float dist);
 
 	virtual void Draw(void);
 };

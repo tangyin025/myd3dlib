@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
+#include "Component/MeshComponent.h"
 
 extern void Export2Lua(lua_State * L);
 
@@ -251,6 +252,8 @@ HRESULT Game::OnCreateDevice(
 
 	m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
 
+	m_OctScene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
+
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	return S_OK;
@@ -315,6 +318,8 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
+	m_OctScene.reset();
+
 	m_PxMaterial.reset();
 
 	m_Console.reset();
@@ -360,6 +365,20 @@ void Game::OnFrameRender(
 {
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+
+	struct QueryCallbackFunc
+	{
+		void operator() (Component * comp)
+		{
+			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
+			mesh_comp->UpdateLod(1.f);
+			mesh_comp->Draw();
+		}
+	};
+	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+	m_OctScene->QueryComponent(frustum, QueryCallbackFunc());
+
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
 	m_EmitterInst->Begin();

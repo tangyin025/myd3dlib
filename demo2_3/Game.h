@@ -103,9 +103,7 @@ public:
 
 	physx_ptr<PxMaterial> m_PxMaterial;
 
-	typedef std::vector<my::Component *> RenderObjList;
-
-	RenderObjList m_RenderObjList;
+	my::OctreeRootPtr m_OctScene;
 
 public:
 	Game(void);

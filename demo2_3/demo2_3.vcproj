@@ -195,10 +195,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MeshComponent.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\PhysXContext.cpp"
 				>
 			</File>
@@ -234,10 +230,6 @@
 			</File>
 			<File
 				RelativePath=".\Game.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MeshComponent.h"
 				>
 			</File>
 			<File
@@ -308,6 +300,18 @@
 			</File>
 			<File
 				RelativePath=".\Net\SocketAPI.h"
+				>
+			</File>
+		</Filter>
+		<Filter
+			Name="Component"
+			>
+			<File
+				RelativePath=".\Component\MeshComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\MeshComponent.h"
 				>
 			</File>
 		</Filter>

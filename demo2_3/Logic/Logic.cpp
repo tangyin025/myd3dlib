@@ -2,6 +2,8 @@
 #include "Logic.h"
 #include "../Game.h"
 
+using namespace my;
+
 void Logic::Create(void)
 {
 	OnEnterState();
@@ -18,6 +20,7 @@ void Logic::Update(float fElapsedTime)
 		break;
 	case LogicStateMain:
 		{
+			Game::getSingleton().PushGrid();
 		}
 		break;
 	default:
@@ -44,6 +47,8 @@ void Logic::OnEnterState(void)
 	case LogicStateLoading:
 		{
 			Game::getSingleton().ExecuteCode("dofile \"StateLoading.lua\"");
+
+			Game::getSingleton().LoadMeshSetAsync("mesh/scene.mesh.xml", boost::bind(&Logic::OnSceneMeshLoaded, this, _1));
 		}
 		break;
 	case LogicStateMain:
@@ -69,5 +74,18 @@ void Logic::OnLeaveState(void)
 		break;
 	default:
 		break;
+	}
+}
+
+void Logic::OnSceneMeshLoaded(my::DeviceRelatedObjectBasePtr res)
+{
+	m_SceneMeshSet = boost::dynamic_pointer_cast<OgreMeshSet>(res);
+
+	OgreMeshSet::iterator mesh_iter = m_SceneMeshSet->begin();
+	for(; mesh_iter != m_SceneMeshSet->end(); mesh_iter++)
+	{
+		MeshComponentPtr cmp(new MeshComponent((*mesh_iter)->m_aabb));
+		cmp->m_Mesh = *mesh_iter;
+		Game::getSingleton().m_OctScene->PushComponent(cmp, 0.1f);
 	}
 }

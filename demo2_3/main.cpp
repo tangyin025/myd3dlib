@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "MeshComponent.h"
+//#include "Logic/MeshComponent.h"
 #include "Logic/Logic.h"
 
 using namespace my;
@@ -21,13 +21,13 @@ public:
 	//BoneList m_skel_pose;
 	//BoneList m_skel_pose_heir1;
 	//BoneList m_skel_pose_heir2;
+	//typedef std::vector<my::Component *> RenderObjList;
+	//RenderObjList m_RenderObjList;
 
 	//// ========================================================================================================
 	//// 大场景
 	//// ========================================================================================================
 	//OgreMeshSetPtr m_meshSet;
-	//MaterialPtr m_lambert1;
-	//OctreeRootPtr m_scene;
 
 	//// ========================================================================================================
 	//// 布料系统
@@ -61,19 +61,19 @@ public:
 		}
 	}
 
-	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
-	{
-		MeshComponentPtr comp(new MeshComponent(mesh->m_aabb));
-		comp->m_Mesh = mesh;
-		std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			comp->m_Materials.push_back(MeshComponent::MaterialPair(
-				LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-		}
-		comp->m_World = Matrix4::identity;
-		return comp;
-	}
+	//MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
+	//{
+	//	MeshComponentPtr comp(new MeshComponent(mesh->m_aabb));
+	//	comp->m_Mesh = mesh;
+	//	std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
+	//	for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	//	{
+	//		comp->m_Materials.push_back(MeshComponent::MaterialPair(
+	//			LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+	//	}
+	//	comp->m_World = Matrix4::identity;
+	//	return comp;
+	//}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -111,8 +111,6 @@ public:
 		//// 大场景
 		//// ========================================================================================================
 		//m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
-		//m_lambert1 = LoadMaterial("material/lambert1.txt");
-		//m_scene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
 		//OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
 		//for(; mesh_iter != m_meshSet->end(); mesh_iter++)
 		//{
@@ -263,19 +261,6 @@ public:
 		//{
 		//	static_cast<MeshComponent *>(*mesh_cmp_iter)->Draw();
 		//}
-
-		//// ========================================================================================================
-		//// 大场景
-		//// ========================================================================================================
-		//struct QueryCallbackFunc
-		//{
-		//	void operator() (Component * comp)
-		//	{
-		//		static_cast<MeshComponent *>(comp)->Draw();
-		//	}
-		//};
-		//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-		//m_scene->QueryComponent(frustum, QueryCallbackFunc());
 
 		//// ========================================================================================================
 		//// 布料系统
