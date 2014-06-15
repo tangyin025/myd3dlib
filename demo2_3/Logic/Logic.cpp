@@ -20,7 +20,6 @@ void Logic::Update(float fElapsedTime)
 		break;
 	case LogicStateMain:
 		{
-			Game::getSingleton().PushGrid();
 		}
 		break;
 	default:
@@ -88,4 +87,6 @@ void Logic::OnSceneMeshLoaded(my::DeviceRelatedObjectBasePtr res)
 		cmp->m_Mesh = *mesh_iter;
 		Game::getSingleton().m_OctScene->PushComponent(cmp, 0.1f);
 	}
+
+	ShiftState(LogicStateMain);
 }
