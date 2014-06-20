@@ -210,7 +210,7 @@ void PhysXResourceMgr::CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr m
 
 void PhysXResourceMgr::CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh)
 {
-	CookTriangleMesh(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
+	CookClothFabric(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
 }
 
 PxClothFabric * PhysXResourceMgr::CreateClothFabric(my::IStreamPtr istream)
