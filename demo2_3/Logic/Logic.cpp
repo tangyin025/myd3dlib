@@ -23,6 +23,11 @@ void Logic::Update(float fElapsedTime)
 		break;
 	}
 }
+//
+//bool Logic::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//{
+//	return false;
+//}
 
 void Logic::Destroy(void)
 {
@@ -46,11 +51,9 @@ void Logic::OnEnterState(void)
 	case LogicStateMain:
 		{
 			Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\"");
-			//Game::getSingleton().LoadMeshSetAsync("mesh/scene.mesh.xml", boost::bind(&Logic::OnSceneMeshLoaded, this, _1));
-			my::IStreamPtr ifs = Game::getSingleton().OpenIStream("mesh/scene_tm.phy");
+			PhysXTriangleMeshPtr tri_mesh = Game::getSingleton().LoadTriangleMesh("mesh/scene_tm.phy");
 			m_StaticSceneActor.reset(Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity()));
-			PxShape * shape = m_StaticSceneActor->createShape(
-				PxTriangleMeshGeometry(physx_ptr<PxTriangleMesh>(Game::getSingleton().CreateTriangleMesh(ifs)).get()), *Game::getSingleton().m_PxMaterial);
+			PxShape * shape = m_StaticSceneActor->createShape(PxTriangleMeshGeometry(tri_mesh->m_ptr), *Game::getSingleton().m_PxMaterial);
 			shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 			Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
 			m_LocalPlayer->Create();

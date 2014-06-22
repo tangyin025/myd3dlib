@@ -40,6 +40,74 @@ public:
 	void OnShutdown(void);
 };
 
+class PhysXTriangleMesh : public my::DeviceRelatedObjectBase
+{
+public:
+	PxTriangleMesh * m_ptr;
+
+public:
+	PhysXTriangleMesh(PxTriangleMesh * ptr)
+		: m_ptr(ptr)
+	{
+	}
+
+	virtual ~PhysXTriangleMesh(void)
+	{
+		if (m_ptr)
+		{
+			m_ptr->release();
+		}
+	}
+
+	virtual void OnResetDevice(void)
+	{
+	}
+
+	virtual void OnLostDevice(void)
+	{
+	}
+
+	virtual void OnDestroyDevice(void)
+	{
+	}
+};
+
+typedef boost::shared_ptr<PhysXTriangleMesh> PhysXTriangleMeshPtr;
+
+class PhysXClothFabric : public my::DeviceRelatedObjectBase
+{
+public:
+	PxClothFabric * m_ptr;
+
+public:
+	PhysXClothFabric(PxClothFabric * ptr)
+		: m_ptr(ptr)
+	{
+	}
+
+	virtual ~PhysXClothFabric(void)
+	{
+		if (m_ptr)
+		{
+			m_ptr->release();
+		}
+	}
+
+	virtual void OnResetDevice(void)
+	{
+	}
+
+	virtual void OnLostDevice(void)
+	{
+	}
+
+	virtual void OnDestroyDevice(void)
+	{
+	}
+};
+
+typedef boost::shared_ptr<PhysXClothFabric> PhysXClothFabricPtr;
+
 class PhysXResourceMgr
 	: public PhysXContext
 	, public my::ResourceMgr
@@ -63,11 +131,19 @@ public:
 
 	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
 
+	void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
+
+	PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
+
 	void CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
 
 	void CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh);
 
 	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
+
+	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
+
+	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 };
 
 class PhysXSceneContext

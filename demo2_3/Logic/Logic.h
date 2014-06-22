@@ -32,6 +32,8 @@ public:
 
 	void Update(float fElapsedTime);
 
+	//bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
 	void Destroy(void);
 
 	void ShiftState(LogicState State);
