@@ -30,12 +30,14 @@ namespace luabind
 	template <>
 	struct default_converter<std::wstring const>
 		: default_converter<std::wstring>
-	{};
+	{
+	};
 
 	template <>
 	struct default_converter<std::wstring const&>
 		: default_converter<std::wstring>
-	{};
+	{
+	};
 
 	template <>
 	struct default_converter<my::ControlEvent>
@@ -55,7 +57,7 @@ namespace luabind
 					: obj(_obj)
 				{
 				}
-				void operator()(my::EventArgsPtr args)
+				void operator()(my::EventArgs * args)
 				{
 					try
 					{

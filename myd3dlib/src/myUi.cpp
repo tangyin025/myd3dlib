@@ -380,7 +380,7 @@ bool Button::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 					m_bPressed = false;
 
 					if(EventClick)
-						EventClick(EventArgsPtr(new EventArgs));
+						EventClick(&EventArgs());
 				}
 				return true;
 			}
@@ -413,7 +413,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 				if(ContainsPoint(pt))
 				{
 					if(EventClick)
-						EventClick(EventArgsPtr(new EventArgs));
+						EventClick(&EventArgs());
 				}
 				return true;
 			}
@@ -431,7 +431,7 @@ bool Button::CanHaveFocus(void)
 void Button::OnHotkey(void)
 {
 	if(EventClick)
-		EventClick(EventArgsPtr(new EventArgs));
+		EventClick(&EventArgs());
 }
 
 bool Button::ContainsPoint(const Vector2 & pt)
@@ -545,7 +545,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						DeleteSelectionText();
 						if(EventChange)
-							EventChange(EventArgsPtr(new EventArgs));
+							EventChange(&EventArgs());
 					}
 					else if(m_nCaret > 0)
 					{
@@ -553,7 +553,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 						m_nSelStart = m_nCaret;
 						m_Text.erase(m_nCaret, 1);
 						if(EventChange)
-							EventChange(EventArgsPtr(new EventArgs));
+							EventChange(&EventArgs());
 					}
 					ResetCaretBlink();
 					break;
@@ -565,14 +565,14 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					{
 						DeleteSelectionText();
 						if(EventChange)
-							EventChange(EventArgsPtr(new EventArgs));
+							EventChange(&EventArgs());
 					}
 					break;
 
 				case 22:		// Ctrl-V Paste
 					PasteFromClipboard();
 					if(EventChange)
-						EventChange(EventArgsPtr(new EventArgs));
+						EventChange(&EventArgs());
 					break;
 
 				case 1:
@@ -585,7 +585,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 				case VK_RETURN:
 					if(EventEnter)
-						EventEnter(EventArgsPtr(new EventArgs));
+						EventEnter(&EventArgs());
 					break;
 
 				// Junk characters we don't want in the string
@@ -632,7 +632,7 @@ bool EditBox::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 					}
 					ResetCaretBlink();
 					if(EventChange)
-						EventChange(EventArgsPtr(new EventArgs));
+						EventChange(&EventArgs());
 				}
 			}
 			return true;
@@ -692,13 +692,13 @@ bool EditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 				{
 					DeleteSelectionText();
 					if(EventChange)
-						EventChange(EventArgsPtr(new EventArgs));
+						EventChange(&EventArgs());
 				}
 				else
 				{
 					m_Text.erase(m_nCaret, 1);
 					if(EventChange)
-						EventChange(EventArgsPtr(new EventArgs));
+						EventChange(&EventArgs());
 				}
 				ResetCaretBlink();
 				return true;
@@ -1534,7 +1534,7 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					m_Checked = true;
 
 					if(EventClick)
-						EventClick(EventArgsPtr(new EventArgs));
+						EventClick(&EventArgs());
 				}
 				return true;
 			}
@@ -1717,7 +1717,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 								m_iSelected = i;
 
 								if(EventSelectionChanged)
-									EventSelectionChanged(EventArgsPtr(new EventArgs));
+									EventSelectionChanged(&EventArgs());
 							}
 
 							break;
@@ -1760,7 +1760,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 								m_iSelected = m_iFocused;
 
 								if(EventSelectionChanged)
-									EventSelectionChanged(EventArgsPtr(new EventArgs));
+									EventSelectionChanged(&EventArgs());
 							}
 						}
 					}
@@ -1775,7 +1775,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 								m_iSelected = m_iFocused;
 
 								if(EventSelectionChanged)
-									EventSelectionChanged(EventArgsPtr(new EventArgs));
+									EventSelectionChanged(&EventArgs());
 							}
 						}
 					}
@@ -2028,7 +2028,7 @@ void Dialog::Refresh(void)
 	}
 
 	if(EventRefresh)
-		EventRefresh(EventArgsPtr(new EventArgs()));
+		EventRefresh(&EventArgs());
 }
 
 ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
@@ -2118,7 +2118,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
 		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
 		{
 			if((*dlg_iter)->EventAlign)
-				(*dlg_iter)->EventAlign(EventArgsPtr(new EventArgs()));
+				(*dlg_iter)->EventAlign(&EventArgs());
 		}
 	}
 }
@@ -2284,7 +2284,7 @@ void DialogMgr::InsertDlg(DialogPtr dlg)
 	m_dlgSetMap[0].push_back(dlg);
 
 	if(dlg->EventAlign)
-		dlg->EventAlign(EventArgsPtr(new EventArgs()));
+		dlg->EventAlign(&EventArgs());
 }
 
 void DialogMgr::RemoveDlg(DialogPtr dlg)

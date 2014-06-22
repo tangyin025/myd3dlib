@@ -291,7 +291,7 @@ HRESULT Game::OnResetDevice(
 
 	if(m_Camera->EventAlign)
 	{
-		m_Camera->EventAlign(EventArgsPtr(new EventArgs()));
+		m_Camera->EventAlign(&EventArgs());
 	}
 
 	return S_OK;
@@ -462,12 +462,12 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
 
-	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}

@@ -75,14 +75,11 @@ namespace my
 
 		TimerPtrSet m_timerSet;
 
-		EventArgsPtr m_DefaultArgs;
-
 		const int m_MaxIterCount;
 
 	public:
 		TimerMgr(void)
-			: m_DefaultArgs(new EventArgs())
-			, m_MaxIterCount(4)
+			: m_MaxIterCount(4)
 		{
 		}
 
@@ -460,15 +457,15 @@ namespace my
 
 		DWORD m_LastMousePos;
 
-		MouseMoveEvent m_MouseMovedEvent;
+		InputEvent m_MouseMovedEvent;
 
-		MouseBtnEvent m_MousePressedEvent;
+		InputEvent m_MousePressedEvent;
 
-		MouseBtnEvent m_MouseReleasedEvent;
+		InputEvent m_MouseReleasedEvent;
 
-		KeyboardEvent m_KeyPressedEvent;
+		InputEvent m_KeyPressedEvent;
 
-		KeyboardEvent m_KeyReleasedEvent;
+		InputEvent m_KeyReleasedEvent;
 
 	public:
 		InputMgr(void)

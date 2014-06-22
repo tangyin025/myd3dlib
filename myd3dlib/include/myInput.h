@@ -243,16 +243,44 @@ namespace my
 		KC_MEDIASELECT = 0xED     // Media Select
 	};
 
-	typedef boost::function<void (DWORD)> KeyboardEvent;
+	struct InputEventArg
+	{
+	public:
+		bool handled;
+
+	public:
+		InputEventArg(void)
+			: handled(false)
+		{
+		}
+
+		virtual ~InputEventArg(void)
+		{
+		}
+	};
+
+	typedef boost::function<void (InputEventArg * arg)> InputEvent;
+
+	struct KeyboardEventArg : public InputEventArg
+	{
+	public:
+		const DWORD kc;
+
+	public:
+		KeyboardEventArg(DWORD _kc)
+			: kc(_kc)
+		{
+		}
+	};
 
 	class Keyboard : public InputDevice
 	{
 	public:
 		BYTE m_State[256];
 
-		KeyboardEvent m_PressedEvent;
+		InputEvent m_PressedEvent;
 
-		KeyboardEvent m_ReleasedEvent;
+		InputEvent m_ReleasedEvent;
 
 	public:
 		Keyboard(void)
@@ -270,20 +298,46 @@ namespace my
 
 	typedef boost::shared_ptr<Keyboard> KeyboardPtr;
 
-	typedef boost::function<void (LONG, LONG, LONG)> MouseMoveEvent;
+	struct MouseMoveEventArg : public InputEventArg
+	{
+	public:
+		const LONG x;
 
-	typedef boost::function<void (DWORD)> MouseBtnEvent;
+		const LONG y;
+
+		const LONG z;
+
+	public:
+		MouseMoveEventArg(LONG _x, LONG _y, LONG _z)
+			: x(_x)
+			, y(_y)
+			, z(_z)
+		{
+		}
+	};
+
+	struct MouseBtnEventArg : public InputEventArg
+	{
+	public:
+		const DWORD index;
+
+	public:
+		MouseBtnEventArg(DWORD _index)
+			: index(_index)
+		{
+		}
+	};
 
 	class Mouse : public InputDevice
 	{
 	public:
 		DIMOUSESTATE m_State;
 
-		MouseMoveEvent m_MovedEvent;
+		InputEvent m_MovedEvent;
 
-		MouseBtnEvent m_PressedEvent;
+		InputEvent m_PressedEvent;
 
-		MouseBtnEvent m_ReleasedEvent;
+		InputEvent m_ReleasedEvent;
 
 	public:
 		Mouse(void)
@@ -309,7 +363,20 @@ namespace my
 		JA_S1,
 	};
 
-	typedef boost::function<void (JoystickAxis, LONG)> JoystickAxisEvent;
+	struct JoystickAxisEventArg : public InputEventArg
+	{
+	public:
+		const DWORD axis;
+
+		const LONG value;
+
+	public:
+		JoystickAxisEventArg(DWORD _axis, LONG _value)
+			: axis(_axis)
+			, value(_value)
+		{
+		}
+	};
 
 	enum JoystickPov
 	{
@@ -323,22 +390,45 @@ namespace my
 		JP_NorthWest	= 31500,
 	};
 
-	typedef boost::function<void (DWORD, JoystickPov)> JoystickPovEvent;
+	struct JoystickPovEventArg : public InputEventArg
+	{
+	public:
+		const DWORD index;
 
-	typedef boost::function<void (DWORD)> JoystickBtnEvent;
+		const DWORD dir;
+
+	public:
+		JoystickPovEventArg(DWORD _index, DWORD _dir)
+			: index(_index)
+			, dir(_dir)
+		{
+		}
+	};
+
+	struct JoystickBtnEventArg : public InputEventArg
+	{
+	public:
+		const DWORD index;
+
+	public:
+		JoystickBtnEventArg(DWORD _index)
+			: index(_index)
+		{
+		}
+	};
 
 	class Joystick : public InputDevice
 	{
 	public:
 		DIJOYSTATE m_State;
 
-		JoystickAxisEvent m_AxisMovedEvent;
+		InputEvent m_AxisMovedEvent;
 
-		JoystickPovEvent m_PovMovedEvent;
+		InputEvent m_PovMovedEvent;
 
-		JoystickBtnEvent m_BtnPressedEvent;
+		InputEvent m_BtnPressedEvent;
 
-		JoystickBtnEvent m_BtnReleasedEvent;
+		InputEvent m_BtnReleasedEvent;
 
 	public:
 		Joystick(void)

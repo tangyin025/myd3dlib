@@ -87,13 +87,13 @@ public:
 
 	~Console(void);
 
-	void OnEventAlign(my::EventArgsPtr args);
+	void OnEventAlign(my::EventArgs * args);
 
-	void OnEventEnter(my::EventArgsPtr args);
+	void OnEventEnter(my::EventArgs * args);
 
-	void OnEventKeyUp(my::EventArgsPtr args);
+	void OnEventKeyUp(my::EventArgs * args);
 
-	void OnEventKeyDown(my::EventArgsPtr args);
+	void OnEventKeyDown(my::EventArgs * args);
 };
 
 typedef boost::shared_ptr<Console> ConsolePtr;

@@ -23,11 +23,6 @@ void Logic::Update(float fElapsedTime)
 		break;
 	}
 }
-//
-//bool Logic::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
-//{
-//	return false;
-//}
 
 void Logic::Destroy(void)
 {
@@ -57,7 +52,7 @@ void Logic::OnEnterState(void)
 			shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 			Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
 			m_LocalPlayer->Create();
-			Game::getSingleton().m_MouseMovedEvent = boost::bind(&Logic::OnMouseMove, this, _1, _2, _3);
+			Game::getSingleton().m_MouseMovedEvent = boost::bind(&Logic::OnMouseMove, this, _1);
 			Game::getSingleton().m_KeyPressedEvent = boost::bind(&Logic::OnKeyDown, this, _1);
 		}
 		break;
@@ -81,12 +76,14 @@ void Logic::OnLeaveState(void)
 	}
 }
 
-void Logic::OnMouseMove(LONG x, LONG y, LONG z)
+void Logic::OnMouseMove(InputEventArg * arg)
 {
-	Game::getSingleton().m_ScrInfos[1] = str_printf(L"%ld, %ld, %ld", x, y, z);
+	MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
+	Game::getSingleton().m_ScrInfos[1] = str_printf(L"%ld, %ld, %ld", mmarg.x, mmarg.y, mmarg.z);
 }
 
-void Logic::OnKeyDown(DWORD vk)
+void Logic::OnKeyDown(InputEventArg * arg)
 {
-	Game::getSingleton().m_ScrInfos[2] = str_printf(L"%s", Keyboard::TranslateVirtualKey(vk));
+	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	Game::getSingleton().m_ScrInfos[2] = str_printf(L"%s", Keyboard::TranslateVirtualKey(karg.kc));
 }

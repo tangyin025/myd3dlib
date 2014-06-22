@@ -168,13 +168,13 @@ bool ConsoleEditBox::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 			{
 			case VK_UP:
 				if(EventKeyUp)
-					EventKeyUp(EventArgsPtr(new EventArgs));
+					EventKeyUp(&EventArgs());
 				ResetCaretBlink();
 				return true;
 
 			case VK_DOWN:
 				if(EventKeyDown)
-					EventKeyDown(EventArgsPtr(new EventArgs));
+					EventKeyDown(&EventArgs());
 				ResetCaretBlink();
 				return true;
 			}
@@ -227,12 +227,12 @@ Console::~Console(void)
 {
 }
 
-void Console::OnEventAlign(EventArgsPtr args)
+void Console::OnEventAlign(EventArgs * args)
 {
 	m_Location = Vector2(50,95);
 }
 
-void Console::OnEventEnter(EventArgsPtr args)
+void Console::OnEventEnter(EventArgs * args)
 {
 	std::wstring code = m_Edit->m_Text;
 	if(!code.empty())
@@ -247,7 +247,7 @@ void Console::OnEventEnter(EventArgsPtr args)
 	}
 }
 
-void Console::OnEventKeyUp(EventArgsPtr args)
+void Console::OnEventKeyUp(EventArgs * args)
 {
 	if(m_strIter != m_strList.begin())
 	{
@@ -255,7 +255,7 @@ void Console::OnEventKeyUp(EventArgsPtr args)
 	}
 }
 
-void Console::OnEventKeyDown(EventArgsPtr args)
+void Console::OnEventKeyDown(EventArgs * args)
 {
 	if(m_strIter != m_strList.end() && ++std::list<std::wstring>::iterator(m_strIter) != m_strList.end())
 	{

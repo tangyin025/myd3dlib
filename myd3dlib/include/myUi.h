@@ -74,9 +74,7 @@ namespace my
 		}
 	};
 
-	typedef boost::shared_ptr<EventArgs> EventArgsPtr;
-
-	typedef boost::function<void (EventArgsPtr)> ControlEvent;
+	typedef boost::function<void (EventArgs *)> ControlEvent;
 
 	class ControlImage
 	{
