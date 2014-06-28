@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "PhysXContext.h"
 
-static const PxVec3 Gravity(0.0f, -9.81f, 0.0f);
+const my::Vector3 PhysXContext::Gravity(0.0f, -9.81f, 0.0f);
 
 void * PhysXAllocator::allocate(size_t size, const char * typeName, const char * filename, int line)
 {
@@ -256,7 +256,7 @@ void PhysXResourceMgr::CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr m
 		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
 	}
 	desc.triangles.data = mesh->LockIndexBuffer();
-	m_Cooking->cookClothFabric(desc, Gravity, PhysXOStream(ostream));
+	m_Cooking->cookClothFabric(desc, (PxVec3&)Gravity, PhysXOStream(ostream));
 	mesh->UnlockVertexBuffer();
 	mesh->UnlockIndexBuffer();
 }
@@ -339,7 +339,7 @@ const char * PhysXSceneContext::StepperTask::getName(void) const
 bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatcher)
 {
 	PxSceneDesc sceneDesc(sdk->getTolerancesScale());
-	sceneDesc.gravity = Gravity;
+	sceneDesc.gravity = (PxVec3&)PhysXContext::Gravity;
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	if(!(m_Scene.reset(sdk->createScene(sceneDesc)), m_Scene))

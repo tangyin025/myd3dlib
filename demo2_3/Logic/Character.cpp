@@ -5,7 +5,7 @@
 using namespace my;
 
 Character::Character(void)
-	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,-9.81f,0), my::Vector3(0,0,0), 1, 0.8f)
+	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), PhysXContext::Gravity, my::Vector3(0,0,0), 1, 0.8f)
 	, m_LookDir(0)
 	, m_MoveState(0)
 	, m_IsOnGround(false)

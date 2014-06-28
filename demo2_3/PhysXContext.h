@@ -18,6 +18,8 @@ class PhysXContext
 	: public PxErrorCallback
 {
 public:
+	static const my::Vector3 Gravity;
+
 	PhysXAllocator m_Allocator;
 
 	physx_ptr<PxFoundation> m_Foundation;
