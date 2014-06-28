@@ -9,6 +9,7 @@ MessagePanel::MessagePanel(void)
 	, m_lend(0)
 {
 	m_scrollbar.reset(new ScrollBar());
+	m_scrollbar->m_Parent = this;
 }
 
 MessagePanel::~MessagePanel(void)
@@ -53,7 +54,7 @@ bool MessagePanel::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 bool MessagePanel::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lParam)
 {
-	if(m_scrollbar->HandleMouse(uMsg, pt - m_Location, wParam, lParam))
+	if(m_scrollbar->HandleMouse(uMsg, pt, wParam, lParam))
 		return true;
 
 	return Control::HandleMouse(uMsg, pt, wParam, lParam);

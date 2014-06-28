@@ -180,7 +180,7 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 
 Control::~Control(void)
 {
-	// ! must remove from focus
+	// ! must clear global reference
 	ReleaseFocus();
 
 	ReleaseCapture();
@@ -1540,6 +1540,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					--m_nPosition;
 				m_Arrow = CLICKED_UP;
 				m_dwArrowTS = timeGetTime();
+				SetCapture();
 				return true;
 			}
 
@@ -1550,6 +1551,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 					++m_nPosition;
 				m_Arrow = CLICKED_DOWN;
 				m_dwArrowTS = timeGetTime();
+				SetCapture();
 				return true;
 			}
 
@@ -1563,6 +1565,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			{
 				m_bDrag = true;
 				m_fThumbOffsetY = ptLocal.y - fThumbTop;
+				SetCapture();
 				return true;
 			}
 
@@ -1571,11 +1574,13 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				if(ptLocal.y >= UpButtonRect.b && ptLocal.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
+					SetCapture();
 					return true;
 				}
 				else if(ptLocal.y >= ThumbButtonRect.b && ptLocal.y < DownButtonRect.t)
 				{
 					Scroll( m_nPageSize);
+					SetCapture();
 					return true;
 				}
 			}
@@ -1584,6 +1589,7 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 
 	case WM_LBUTTONUP:
 		{
+			ReleaseCapture();
 			m_bDrag = false;
 			m_Arrow = CLEAR;
 			break;
@@ -1695,7 +1701,6 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed)
 			{
 				m_bPressed = false;
-				ReleaseFocus();
 				ReleaseCapture();
 
 				if(ContainsPoint(pt))
@@ -1825,8 +1830,12 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		if(m_bHasFocus && m_bOpened)
 		{
-			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
+			Vector2 ptLocal = WorldToLocal(pt);
+			if(m_ScrollBar.HandleMouse(uMsg, Vector2(ptLocal.x, ptLocal.y - m_Size.y), wParam, lParam))
 			{
+				// ! overload scrollbars capture
+				SetFocus();
+				SetCapture();
 				return true;
 			}
 		}
@@ -1906,8 +1915,6 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed && ContainsPoint(pt))
 			{
 				m_bPressed = false;
-				ReleaseFocus();
-				ReleaseCapture();
 
 				return true;
 			}
