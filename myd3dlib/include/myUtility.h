@@ -46,6 +46,8 @@ namespace my
 		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0));
 	};
 
+	typedef boost::function<void (float)> TimerEvent;
+
 	class Timer
 	{
 	public:
@@ -53,17 +55,19 @@ namespace my
 
 		float m_RemainingTime;
 
-		ControlEvent m_EventTimer;
+		TimerEvent m_EventTimer;
 
-		bool m_Removed;
+		bool m_Managed;
 
 	public:
 		Timer(float Interval, float RemainingTime = 0)
 			: m_Interval(Interval)
 			, m_RemainingTime(RemainingTime)
-			, m_Removed(true)
+			, m_Managed(false)
 		{
 		}
+
+		void Step(float fElapsedTime, int MaxIter);
 	};
 
 	typedef boost::shared_ptr<Timer> TimerPtr;
@@ -83,7 +87,7 @@ namespace my
 		{
 		}
 
-		TimerPtr AddTimer(float Interval, ControlEvent EventTimer);
+		TimerPtr AddTimer(float Interval, TimerEvent EventTimer);
 
 		void InsertTimer(TimerPtr timer);
 
@@ -455,7 +459,7 @@ namespace my
 
 		JoystickPtr m_joystick;
 
-		DWORD m_LastMousePos;
+		CPoint m_MousePos;
 
 		InputEvent m_MouseMovedEvent;
 

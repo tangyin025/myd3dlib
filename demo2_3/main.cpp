@@ -89,7 +89,7 @@ public:
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
-		ExecuteCode("require \"Hud.lua\"");
+		ExecuteCode("dofile \"Hud.lua\"");
 
 		//// ========================================================================================================
 		//// ¹Ç÷À¶¯»­

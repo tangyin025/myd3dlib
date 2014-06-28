@@ -130,6 +130,52 @@ namespace luabind
 		: default_converter<my::ResourceCallback>
 	{
 	};
+
+	template <>
+	struct default_converter<my::TimerEvent>
+		: native_converter_base<my::TimerEvent>
+	{
+		static int compute_score(lua_State * L, int index)
+		{
+			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+		}
+
+		my::TimerEvent from(lua_State * L, int index)
+		{
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(float interval)
+				{
+					try
+					{
+						obj(interval);
+					}
+					catch(const luabind::error & e)
+					{
+						// ! TimerEvent事件处理是容错的，当事件处理失败后，程序继续运行
+						Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+					}
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+		}
+
+		void to(lua_State * L, my::TimerEvent const & e)
+		{
+			_ASSERT(false);
+		}
+	};
+
+	template <>
+	struct default_converter<my::TimerEvent const &>
+		: default_converter<my::TimerEvent>
+	{
+	};
 }
 
 void Export2Lua(lua_State * L);

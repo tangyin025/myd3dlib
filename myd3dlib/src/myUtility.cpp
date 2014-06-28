@@ -90,7 +90,19 @@ void DrawHelper::PushGrid(float length, float linesEvery, unsigned subLines, D3D
 	PushLine(Vector3(-length, 0, -length), Vector3(-length, 0,  length), GridColor);
 }
 
-TimerPtr TimerMgr::AddTimer(float Interval, ControlEvent EventTimer)
+void Timer::Step(float fElapsedTime, int MaxIter)
+{
+	m_RemainingTime = Min(4 * m_Interval, m_RemainingTime + fElapsedTime);
+	for(int i = 0; m_RemainingTime >= m_Interval && m_Managed; i++)
+	{
+		if(m_EventTimer)
+			m_EventTimer(m_Interval);
+
+		m_RemainingTime -= m_Interval;
+	}
+}
+
+TimerPtr TimerMgr::AddTimer(float Interval, TimerEvent EventTimer)
 {
 	TimerPtr timer(new Timer(Interval, Interval));
 	timer->m_EventTimer = EventTimer;
@@ -102,11 +114,11 @@ void TimerMgr::InsertTimer(TimerPtr timer)
 {
 	if(timer)
 	{
-		_ASSERT(timer->m_Removed);
+		_ASSERT(timer->m_Managed);
 
 		m_timerSet.insert(timer);
 
-		timer->m_Removed = false;
+		timer->m_Managed = true;
 	}
 }
 
@@ -114,11 +126,11 @@ void TimerMgr::RemoveTimer(TimerPtr timer)
 {
 	if(timer)
 	{
-		_ASSERT(!timer->m_Removed);
+		_ASSERT(!timer->m_Managed);
 
 		m_timerSet.erase(timer);
 
-		timer->m_Removed = true;
+		timer->m_Managed = false;
 	}
 }
 
@@ -134,15 +146,8 @@ void TimerMgr::OnFrameMove(
 	TimerPtrSet::const_iterator timer_iter = m_timerSet.begin();
 	for(; timer_iter != m_timerSet.end(); )
 	{
-		TimerPtr timer = (*timer_iter++);
-		timer->m_RemainingTime = Min(m_MaxIterCount * timer->m_Interval, timer->m_RemainingTime + fElapsedTime);
-		for(int i = 0; timer->m_RemainingTime >= timer->m_Interval && !timer->m_Removed; i++)
-		{
-			if(timer->m_EventTimer)
-				timer->m_EventTimer(&EventArgs());
-
-			timer->m_RemainingTime -= timer->m_Interval;
-		}
+		// ! must step iterator before Update, because TimerEvent will remove self from set
+		(*timer_iter++)->Step(fElapsedTime, m_MaxIterCount);
 	}
 }
 
@@ -781,6 +786,9 @@ void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 	desc.dead_zone = 10;
 	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &desc, DIEDFL_ATTACHEDONLY);
 	m_joystick = desc.joystick;
+
+	::GetCursorPos(&m_MousePos);
+	::ScreenToClient(hwnd, &m_MousePos);
 }
 
 void InputMgr::Destroy(void)
@@ -837,9 +845,10 @@ bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_MOUSEMOVE:
 		if (m_MouseMovedEvent)
 		{
-			MouseMoveEventArg arg(HIWORD(lParam)-HIWORD(m_LastMousePos), LOWORD(lParam)-LOWORD(m_LastMousePos), 0);
+			CPoint OldMousePos(m_MousePos);
+			m_MousePos.SetPoint(LOWORD(lParam), HIWORD(lParam));
+			MouseMoveEventArg arg(m_MousePos.x - OldMousePos.x, m_MousePos.y - OldMousePos.y, 0);
 			m_MouseMovedEvent(&arg);
-			m_LastMousePos = lParam;
 			return arg.handled;
 		}
 		break;

@@ -2,6 +2,8 @@
 #include "Character.h"
 #include "../Game.h"
 
+using namespace my;
+
 void Character::Create(void)
 {
 	PxCapsuleControllerDesc cDesc;
@@ -15,7 +17,10 @@ void Character::Create(void)
 
 void Character::Update(float fElapsedTime)
 {
-	m_controller->move(PxVec3(0,-9*fElapsedTime,0), 0.001f, fElapsedTime, PxControllerFilters());
+	Vector3 resultingAcc = acceleration + forceAccum * inverseMass;
+	addVelocity(resultingAcc * fElapsedTime);		
+	velocity *= pow(damping, fElapsedTime);
+	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
 }
 
 void Character::Destroy(void)

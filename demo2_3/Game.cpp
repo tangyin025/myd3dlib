@@ -322,6 +322,10 @@ void Game::OnDestroyDevice(void)
 
 	m_PxMaterial.reset();
 
+	m_Camera.reset();
+
+	m_SimpleSample.reset();
+
 	m_Console.reset();
 
 	RemoveAllDlg();
@@ -452,16 +456,16 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
+	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	{
+		return 0;
+	}
+
 	if(m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
 		m_Console->SetVisible(!m_Console->GetVisible());
 		*pbNoFurtherProcessing = true;
-		return 0;
-	}
-
-	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
 		return 0;
 	}
 
