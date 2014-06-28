@@ -332,6 +332,19 @@ void Control::ClearAllControl(void)
 	m_Childs.clear();
 }
 
+bool Control::ContainsControl(Control * control)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		if (ctrl_iter->get() == control || (*ctrl_iter)->ContainsControl(control))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 Control * Control::GetChildAtPoint(const Vector2 & pt) const
 {
 	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
@@ -2181,9 +2194,9 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 void Dialog::SetVisible(bool bVisible)
 {
-	if (m_bVisible = bVisible)
+	if (m_bVisible != bVisible)
 	{
-		if (!Control::s_FocusControl)
+		if (m_bVisible = bVisible)
 		{
 			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
 			for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
@@ -2194,9 +2207,16 @@ void Dialog::SetVisible(bool bVisible)
 					break;
 				}
 			}
-		}
 
-		Refresh();
+			Refresh();
+		}
+		else
+		{
+			if (Control::s_FocusControl && ContainsControl(Control::s_FocusControl))
+			{
+				Control::s_FocusControl->ReleaseFocus();
+			}
+		}
 	}
 }
 

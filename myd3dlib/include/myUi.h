@@ -215,6 +215,8 @@ namespace my
 
 		void ClearAllControl(void);
 
+		bool ContainsControl(Control * control);
+
 		Control * GetChildAtPoint(const Vector2 & pt) const;
 
 		Vector2 LocalToWorld(const Vector2 & pt) const;
