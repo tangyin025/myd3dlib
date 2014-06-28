@@ -4,26 +4,54 @@
 
 class Character
 	: my::Particle
+	, PxUserControllerHitReport
+	, PxControllerBehaviorCallback
 {
 public:
 	physx_ptr<PxController> m_controller;
 
-public:
-	Character(void)
-		: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,-9.81f,0), my::Vector3(0,0,0), 1, 0.8f)
-	{
-	}
+	float m_LookDir;
 
-	virtual ~Character(void)
+	enum MoveState
 	{
-		Destroy();
-	}
+		MoveStateFront	= 0x01,
+		MoveStateBack	= 0x02,
+		MoveStateLeft	= 0x04,
+		MoveStateRight	= 0x08,
+	};
+
+	char m_MoveState;
+
+	bool m_IsOnGround;
+
+public:
+	Character(void);
+
+	virtual ~Character(void);
 
 	void Create(void);
 
 	void Update(float fElapsedTime);
 
 	void Destroy(void);
+
+	void Jump(void);
+
+	void AddMoveState(MoveState state);
+
+	void RemoveMoveState(MoveState state);
+
+	virtual void onShapeHit(const PxControllerShapeHit& hit);
+
+	virtual void onControllerHit(const PxControllersHit& hit);
+
+	virtual void onObstacleHit(const PxControllerObstacleHit& hit);
+
+	virtual PxU32 getBehaviorFlags(const PxShape& shape);
+
+	virtual PxU32 getBehaviorFlags(const PxController& controller);
+
+	virtual PxU32 getBehaviorFlags(const PxObstacle& obstacle);
 };
 
 typedef boost::shared_ptr<Character> CharacterPtr;

@@ -73,14 +73,14 @@ void Logic::OnEnterState(void)
 	case LogicStateMain:
 		{
 			Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\"");
-			//PhysXTriangleMeshPtr tri_mesh = Game::getSingleton().LoadTriangleMesh("mesh/scene_tm.phy");
-			//m_StaticSceneActor.reset(Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity()));
-			//PxShape * shape = m_StaticSceneActor->createShape(PxTriangleMeshGeometry(tri_mesh->m_ptr), *Game::getSingleton().m_PxMaterial);
-			//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-			//Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
+			PhysXTriangleMeshPtr tri_mesh = Game::getSingleton().LoadTriangleMesh("mesh/scene_tm.phy");
+			m_StaticSceneActor.reset(Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity()));
+			PxShape * shape = m_StaticSceneActor->createShape(PxTriangleMeshGeometry(tri_mesh->m_ptr), *Game::getSingleton().m_PxMaterial);
+			shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+			Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
 
 			Game::getSingleton().m_Scene->addActor(*PxCreateDynamic(
-				*Game::getSingleton().m_sdk, PxTransform::createIdentity(), PxSphereGeometry(0.5f), *Game::getSingleton().m_PxMaterial, 1));
+				*Game::getSingleton().m_sdk, PxTransform::createIdentity(), PxSphereGeometry(2.f), *Game::getSingleton().m_PxMaterial, 1));
 
 			m_LocalPlayer.reset(new Character());
 			m_LocalPlayer->Create();
@@ -130,9 +130,51 @@ void Logic::OnMouseBtnUp(my::InputEventArg * arg)
 void Logic::OnKeyDown(InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	switch (karg.kc)
+	{
+	case VK_SPACE:
+		m_LocalPlayer->Jump();
+		karg.handled = true;
+		break;
+	case 'W':
+		m_LocalPlayer->AddMoveState(Character::MoveStateFront);
+		karg.handled = true;
+		break;
+	case 'A':
+		m_LocalPlayer->AddMoveState(Character::MoveStateLeft);
+		karg.handled = true;
+		break;
+	case 'S':
+		m_LocalPlayer->AddMoveState(Character::MoveStateBack);
+		karg.handled = true;
+		break;
+	case 'D':
+		m_LocalPlayer->AddMoveState(Character::MoveStateRight);
+		karg.handled = true;
+		break;
+	}
 }
 
 void Logic::OnKeyUp(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	switch (karg.kc)
+	{
+	case 'W':
+		m_LocalPlayer->RemoveMoveState(Character::MoveStateFront);
+		karg.handled = true;
+		break;
+	case 'A':
+		m_LocalPlayer->RemoveMoveState(Character::MoveStateLeft);
+		karg.handled = true;
+		break;
+	case 'S':
+		m_LocalPlayer->RemoveMoveState(Character::MoveStateBack);
+		karg.handled = true;
+		break;
+	case 'D':
+		m_LocalPlayer->RemoveMoveState(Character::MoveStateRight);
+		karg.handled = true;
+		break;
+	}
 }

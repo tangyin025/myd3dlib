@@ -4,6 +4,19 @@
 
 using namespace my;
 
+Character::Character(void)
+	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,-9.81f,0), my::Vector3(0,0,0), 1, 0.8f)
+	, m_LookDir(0)
+	, m_MoveState(0)
+	, m_IsOnGround(false)
+{
+}
+
+Character::~Character(void)
+{
+	Destroy();
+}
+
 void Character::Create(void)
 {
 	PxCapsuleControllerDesc cDesc;
@@ -11,19 +24,121 @@ void Character::Create(void)
 	cDesc.height = 1.5f;
 	cDesc.position.y = 5;
 	cDesc.material = Game::getSingleton().m_PxMaterial.get();
+	cDesc.callback = this;
+	cDesc.behaviorCallback = this;
 	m_controller.reset(
 		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_Scene.get(), cDesc));
 }
 
 void Character::Update(float fElapsedTime)
 {
-	Vector3 resultingAcc = acceleration + forceAccum * inverseMass;
-	addVelocity(resultingAcc * fElapsedTime);		
+	const float MoveSpeed = 5;
+	if (m_IsOnGround)
+	{
+		switch (m_MoveState)
+		{
+		case MoveStateFront:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 0));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 0));
+			damping = 1.0f;
+			break;
+		case MoveStateFront | MoveStateLeft:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 45));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 45));
+			damping = 1.0f;
+			break;
+		case MoveStateLeft:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 90));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 90));
+			damping = 1.0f;
+			break;
+		case MoveStateLeft | MoveStateBack:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 135));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 135));
+			damping = 1.0f;
+			break;
+		case MoveStateBack:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 180));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 180));
+			damping = 1.0f;
+			break;
+		case MoveStateBack | MoveStateRight:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 225));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 225));
+			damping = 1.0f;
+			break;
+		case MoveStateRight:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 270));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 270));
+			damping = 1.0f;
+			break;
+		case MoveStateRight | MoveStateFront:
+			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 315));
+			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 315));
+			damping = 1.0f;
+			break;
+		default:
+			damping = 0.000001f;
+			break;
+		}
+	}
+	else
+		damping = 1.0f;
+	addVelocity(acceleration * fElapsedTime);
 	velocity *= pow(damping, fElapsedTime);
+	Game::getSingleton().m_ScrInfos[1] = str_printf(_T("%f, %f"), velocity.y, damping);
+	m_IsOnGround = false;
 	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
 }
 
 void Character::Destroy(void)
 {
 	m_controller.reset();
+}
+
+void Character::AddMoveState(MoveState state)
+{
+	m_MoveState |= state;
+}
+
+void Character::RemoveMoveState(MoveState state)
+{
+	m_MoveState &= ~state;
+}
+
+void Character::Jump(void)
+{
+	velocity.y = 5;
+}
+
+void Character::onShapeHit(const PxControllerShapeHit& hit)
+{
+	if (hit.dir.y < -0.5f)
+	{
+		velocity.y = 0;
+		m_IsOnGround = true;
+	}
+}
+
+void Character::onControllerHit(const PxControllersHit& hit)
+{
+}
+
+void Character::onObstacleHit(const PxControllerObstacleHit& hit)
+{
+}
+
+PxU32 Character::getBehaviorFlags(const PxShape& shape)
+{
+	return 0;
+}
+
+PxU32 Character::getBehaviorFlags(const PxController& controller)
+{
+	return 0;
+}
+
+PxU32 Character::getBehaviorFlags(const PxObstacle& obstacle)
+{
+	return 0;
 }
