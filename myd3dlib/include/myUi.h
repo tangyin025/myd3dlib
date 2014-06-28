@@ -125,6 +125,18 @@ namespace my
 	class Control
 	{
 	public:
+		typedef std::vector<ControlPtr> ControlPtrList;
+
+		ControlPtrList m_Childs;
+
+		Control * m_Parent;
+
+		static Control * s_FocusControl;
+
+		static Control * s_CaptureControl;
+
+		static Control * s_MouseOverControl;
+
 		bool m_bEnabled;
 
 		bool m_bVisible;
@@ -144,12 +156,6 @@ namespace my
 		D3DCOLOR m_Color;
 
 		ControlSkinPtr m_Skin;
-
-		typedef std::vector<ControlPtr> ControlPtrList;
-
-		ControlPtrList m_Childs;
-
-		Control * m_Parent;
 
 	public:
 		Control(void)
@@ -203,9 +209,17 @@ namespace my
 
 		virtual bool RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld);
 
-		void SetHotkey(UINT nHotkey);
+		void InsertControl(ControlPtr control);
 
-		UINT GetHotkey(void);
+		void RemoveControl(ControlPtr control);
+
+		void ClearAllControl(void);
+
+		Control * GetChildAtPoint(const Vector2 & pt) const;
+
+		Vector2 LocalToWorld(const Vector2 & pt) const;
+
+		Vector2 WorldToLocal(const Vector2 & pt) const;
 
 		void SetFocus(void);
 
@@ -219,17 +233,9 @@ namespace my
 
 		void ReleaseMouseOver(void);
 
-		Control * GetChildAtPoint(const Vector2 & pt) const;
+		void SetHotkey(UINT nHotkey);
 
-		Vector2 LocalToWorld(const Vector2 & pt) const;
-
-		Vector2 WorldToLocal(const Vector2 & pt) const;
-
-		void InsertControl(ControlPtr control);
-
-		void RemoveControl(ControlPtr control);
-
-		void ClearAllControl(void);
+		UINT GetHotkey(void);
 	};
 
 	class Static : public Control
@@ -716,12 +722,6 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		static Control * s_FocusControl;
-
-		static Control * s_CaptureControl;
-
-		static Control * s_MouseOverControl;
-
 		Matrix4 m_World;
 
 		bool m_bMouseDrag;

@@ -178,6 +178,12 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 	}
 }
 
+Control * Control::s_FocusControl = NULL;
+
+Control * Control::s_CaptureControl = NULL;
+
+Control * Control::s_MouseOverControl = NULL;
+
 Control::~Control(void)
 {
 	// ! must clear global reference
@@ -292,9 +298,38 @@ bool Control::RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWo
 	return false;
 }
 
-void Control::SetHotkey(UINT nHotkey)
+void Control::InsertControl(ControlPtr control)
 {
-	m_nHotkey = nHotkey;
+	_ASSERT(!control->m_Parent);
+
+	m_Childs.push_back(control);
+
+	control->m_Parent = this;
+}
+
+void Control::RemoveControl(ControlPtr control)
+{
+	ControlPtrList::iterator ctrl_iter = std::find(m_Childs.begin(), m_Childs.end(), control);
+	if(ctrl_iter != m_Childs.end())
+	{
+		_ASSERT((*ctrl_iter)->m_Parent == this);
+
+		(*ctrl_iter)->m_Parent = NULL;
+
+		m_Childs.erase(ctrl_iter);
+	}
+}
+
+void Control::ClearAllControl(void)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		_ASSERT((*ctrl_iter)->m_Parent == this);
+
+		(*ctrl_iter)->m_Parent = NULL;
+	}
+	m_Childs.clear();
 }
 
 Control * Control::GetChildAtPoint(const Vector2 & pt) const
@@ -333,21 +368,16 @@ Vector2 Control::WorldToLocal(const Vector2 & pt) const
 	return pt - m_Location;
 }
 
-UINT Control::GetHotkey(void)
-{
-	return m_nHotkey;
-}
-
 void Control::SetFocus(void)
 {
-	if (Dialog::s_FocusControl != this)
+	if (s_FocusControl != this)
 	{
-		if (Dialog::s_FocusControl)
+		if (s_FocusControl)
 		{
-			Dialog::s_FocusControl->OnFocusOut();
+			s_FocusControl->OnFocusOut();
 		}
 
-		Dialog::s_FocusControl = this;
+		s_FocusControl = this;
 
 		OnFocusIn();
 	}
@@ -355,37 +385,37 @@ void Control::SetFocus(void)
 
 void Control::ReleaseFocus(void)
 {
-	if (Dialog::s_FocusControl == this)
+	if (s_FocusControl == this)
 	{
 		OnFocusOut();
 
-		Dialog::s_FocusControl = NULL;
+		s_FocusControl = NULL;
 	}
 }
 
 void Control::SetCapture(void)
 {
-	Dialog::s_CaptureControl = this;
+	s_CaptureControl = this;
 }
 
 void Control::ReleaseCapture(void)
 {
-	if (Dialog::s_CaptureControl == this)
+	if (s_CaptureControl == this)
 	{
-		Dialog::s_CaptureControl = NULL;
+		s_CaptureControl = NULL;
 	}
 }
 
 void Control::SetMouseOver(void)
 {
-	if (Dialog::s_MouseOverControl != this)
+	if (s_MouseOverControl != this)
 	{
-		if (Dialog::s_MouseOverControl)
+		if (s_MouseOverControl)
 		{
-			Dialog::s_MouseOverControl->OnMouseLeave();
+			s_MouseOverControl->OnMouseLeave();
 		}
 
-		Dialog::s_MouseOverControl = this;
+		s_MouseOverControl = this;
 
 		OnMouseEnter();
 	}
@@ -393,46 +423,22 @@ void Control::SetMouseOver(void)
 
 void Control::ReleaseMouseOver(void)
 {
-	if (Dialog::s_MouseOverControl == this)
+	if (s_MouseOverControl == this)
 	{
 		OnMouseLeave();
 
-		Dialog::s_MouseOverControl = NULL;
+		s_MouseOverControl = NULL;
 	}
 }
 
-void Control::InsertControl(ControlPtr control)
+void Control::SetHotkey(UINT nHotkey)
 {
-	_ASSERT(!control->m_Parent);
-
-	m_Childs.push_back(control);
-
-	control->m_Parent = this;
+	m_nHotkey = nHotkey;
 }
 
-void Control::RemoveControl(ControlPtr control)
+UINT Control::GetHotkey(void)
 {
-	ControlPtrList::iterator ctrl_iter = std::find(m_Childs.begin(), m_Childs.end(), control);
-	if(ctrl_iter != m_Childs.end())
-	{
-		_ASSERT((*ctrl_iter)->m_Parent == this);
-
-		(*ctrl_iter)->m_Parent = NULL;
-
-		m_Childs.erase(ctrl_iter);
-	}
-}
-
-void Control::ClearAllControl(void)
-{
-	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
-	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
-	{
-		_ASSERT((*ctrl_iter)->m_Parent == this);
-
-		(*ctrl_iter)->m_Parent = NULL;
-	}
-	m_Childs.clear();
+	return m_nHotkey;
 }
 
 void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
@@ -2110,12 +2116,6 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
-Control * Dialog::s_FocusControl = NULL;
-
-Control * Dialog::s_CaptureControl = NULL;
-
-Control * Dialog::s_MouseOverControl = NULL;
-
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
@@ -2272,8 +2272,8 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 
 bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	if (Dialog::s_FocusControl) {
-		if (Dialog::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
+	if (Control::s_FocusControl) {
+		if (Control::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
 			return true;
 		}
 	}
@@ -2285,8 +2285,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		{
-			if (Dialog::s_FocusControl) {
-				if (Dialog::s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
+			if (Control::s_FocusControl) {
+				if (Control::s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
 					return true;
 				}
 			}
@@ -2322,11 +2322,11 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 			GetClientRect(hWnd, &ClientRect);
 			std::pair<Vector3, Vector3> ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
-			if (Dialog::s_CaptureControl) {
+			if (Control::s_CaptureControl) {
 				Vector2 pt;
-				if (Dialog::s_CaptureControl->RayToWorld(ray, pt))
+				if (Control::s_CaptureControl->RayToWorld(ray, pt))
 				{
-					if (Dialog::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
+					if (Control::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
 						return true;
 					}
 				}
@@ -2368,9 +2368,9 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			if (dlg_iter == m_DlgList.end() && Dialog::s_MouseOverControl)
+			if (dlg_iter == m_DlgList.end() && Control::s_MouseOverControl)
 			{
-				Dialog::s_MouseOverControl->ReleaseMouseOver();
+				Control::s_MouseOverControl->ReleaseMouseOver();
 			}
 		}
 		break;
