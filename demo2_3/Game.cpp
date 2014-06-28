@@ -244,7 +244,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Console->SetVisible(false);
 
-	m_dlgSetMap[1].push_back(m_Console);
+	DialogMgr::InsertDlg(m_Console);
 
 	m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
 
@@ -323,8 +323,6 @@ void Game::OnDestroyDevice(void)
 	m_PxMaterial.reset();
 
 	m_Console.reset();
-
-	m_dlgSetMap[1].clear();
 
 	RemoveAllDlg();
 

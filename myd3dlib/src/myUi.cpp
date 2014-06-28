@@ -180,17 +180,32 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 
 Control::~Control(void)
 {
+	// ! must remove from focus
+	ReleaseFocus();
+
+	ReleaseCapture();
+
+	ReleaseMouseOver();
+
+	// ! must detach parent relationship
+	ClearAllControl();
 }
 
 void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
 		{
-			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
-
 			m_Skin->DrawImage(ui_render, m_Skin->m_Image, Rect, m_Color);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
 }
@@ -241,7 +256,7 @@ void Control::OnHotkey(void)
 
 bool Control::ContainsPoint(const Vector2 & pt)
 {
-	return Rectangle::LeftTop(m_Location, m_Size).PtInRect(pt);
+	return Rectangle::LeftTop(Vector2(0,0), m_Size).PtInRect(WorldToLocal(pt));
 }
 
 void Control::SetEnabled(bool bEnabled)
@@ -268,9 +283,54 @@ void Control::Refresh(void)
 {
 }
 
+bool Control::RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld)
+{
+	if (m_Parent)
+	{
+		return m_Parent->RayToWorld(ray, ptWorld);
+	}
+	return false;
+}
+
 void Control::SetHotkey(UINT nHotkey)
 {
 	m_nHotkey = nHotkey;
+}
+
+Control * Control::GetChildAtPoint(const Vector2 & pt) const
+{
+	ControlPtrList::const_iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		if ((*ctrl_iter)->ContainsPoint(pt))
+		{
+			Control * ctrl = (*ctrl_iter)->GetChildAtPoint(pt);
+			if (ctrl)
+			{
+				return ctrl;
+			}
+			return ctrl_iter->get();
+		}
+	}
+	return NULL;
+}
+
+Vector2 Control::LocalToWorld(const Vector2 & pt) const
+{
+	if (m_Parent)
+	{
+		return m_Parent->LocalToWorld(m_Location + pt);
+	}
+	return m_Location + pt;
+}
+
+Vector2 Control::WorldToLocal(const Vector2 & pt) const
+{
+	if (m_Parent)
+	{
+		return m_Parent->WorldToLocal(pt) - m_Location;
+	}
+	return pt - m_Location;
 }
 
 UINT Control::GetHotkey(void)
@@ -278,20 +338,120 @@ UINT Control::GetHotkey(void)
 	return m_nHotkey;
 }
 
+void Control::SetFocus(void)
+{
+	if (Dialog::s_FocusControl != this)
+	{
+		if (Dialog::s_FocusControl)
+		{
+			Dialog::s_FocusControl->OnFocusOut();
+		}
+
+		Dialog::s_FocusControl = this;
+
+		OnFocusIn();
+	}
+}
+
+void Control::ReleaseFocus(void)
+{
+	if (Dialog::s_FocusControl == this)
+	{
+		OnFocusOut();
+
+		Dialog::s_FocusControl = NULL;
+	}
+}
+
+void Control::SetCapture(void)
+{
+	Dialog::s_CaptureControl = this;
+}
+
+void Control::ReleaseCapture(void)
+{
+	if (Dialog::s_CaptureControl == this)
+	{
+		Dialog::s_CaptureControl = NULL;
+	}
+}
+
+void Control::SetMouseOver(void)
+{
+	if (Dialog::s_MouseOverControl != this)
+	{
+		if (Dialog::s_MouseOverControl)
+		{
+			Dialog::s_MouseOverControl->OnMouseLeave();
+		}
+
+		Dialog::s_MouseOverControl = this;
+
+		OnMouseEnter();
+	}
+}
+
+void Control::ReleaseMouseOver(void)
+{
+	if (Dialog::s_MouseOverControl == this)
+	{
+		OnMouseLeave();
+
+		Dialog::s_MouseOverControl = NULL;
+	}
+}
+
+void Control::InsertControl(ControlPtr control)
+{
+	_ASSERT(!control->m_Parent);
+
+	m_Childs.push_back(control);
+
+	control->m_Parent = this;
+}
+
+void Control::RemoveControl(ControlPtr control)
+{
+	ControlPtrList::iterator ctrl_iter = std::find(m_Childs.begin(), m_Childs.end(), control);
+	if(ctrl_iter != m_Childs.end())
+	{
+		_ASSERT((*ctrl_iter)->m_Parent == this);
+
+		(*ctrl_iter)->m_Parent = NULL;
+
+		m_Childs.erase(ctrl_iter);
+	}
+}
+
+void Control::ClearAllControl(void)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		_ASSERT((*ctrl_iter)->m_Parent == this);
+
+		(*ctrl_iter)->m_Parent = NULL;
+	}
+	m_Childs.clear();
+}
+
 void Static::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
 	if(m_bVisible)
 	{
+		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 		if(m_Skin)
 		{
-			m_Skin->DrawString(ui_render, m_Text.c_str(), Rectangle::LeftTop(Offset + m_Location, m_Size), m_Skin->m_TextColor, m_Skin->m_TextAlign);
+			m_Skin->DrawString(ui_render, m_Text.c_str(), Rect, m_Skin->m_TextColor, m_Skin->m_TextAlign);
+		}
+
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
+		{
+			(*ctrl_iter)->Draw(ui_render, fElapsedTime, Rect.LeftTop());
 		}
 	}
-}
-
-bool Static::ContainsPoint(const Vector2 & pt)
-{
-	return false;
 }
 
 void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
@@ -401,6 +561,8 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
+				SetFocus();
+				SetCapture();
 				return true;
 			}
 			break;
@@ -408,6 +570,7 @@ bool Button::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if(m_bPressed)
 			{
+				ReleaseCapture();
 				m_bPressed = false;
 
 				if(ContainsPoint(pt))
@@ -763,11 +926,14 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			if(ContainsPoint(pt))
 			{
 				m_bMouseDrag = true;
+				SetFocus();
+				SetCapture();
 
 				if(m_Skin && m_Skin->m_Font)
 				{
+					Vector2 ptLocal = WorldToLocal(pt);
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-					float x = pt.x - m_Location.x - m_Border.x + x1st;
+					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
 					if(nCP < (int)m_Text.length())
 					{
@@ -804,6 +970,7 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
 			{
+				ReleaseCapture();
 				m_bMouseDrag = false;
 			}
 			break;
@@ -813,8 +980,9 @@ bool EditBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM l
 			{
 				if(m_Skin && m_Skin->m_Font)
 				{
+					Vector2 ptLocal = WorldToLocal(pt);
 					float x1st = m_Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-					float x = pt.x - m_Location.x - m_Border.x + x1st;
+					float x = ptLocal.x - m_Border.x + x1st;
 					int nCP = m_Skin->m_Font->XtoCP(m_Text.c_str(), x);
 					if(nCP < (int)m_Text.length())
 					{
@@ -1364,8 +1532,9 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_LBUTTONDOWN:
 	case WM_LBUTTONDBLCLK:
 		{
-			Rectangle UpButtonRect(Rectangle::LeftTop(m_Location, Vector2(m_Size.x, m_UpDownButtonHeight)));
-			if(UpButtonRect.PtInRect(pt))
+			Vector2 ptLocal = WorldToLocal(pt);
+			Rectangle UpButtonRect(Rectangle::LeftTop(Vector2(0,0), Vector2(m_Size.x, m_UpDownButtonHeight)));
+			if(UpButtonRect.PtInRect(ptLocal))
 			{
 				if(m_nPosition > m_nStart)
 					--m_nPosition;
@@ -1374,8 +1543,8 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 				return true;
 			}
 
-			Rectangle DownButtonRect(Rectangle::RightBottom(m_Location + m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
-			if(DownButtonRect.PtInRect(pt))
+			Rectangle DownButtonRect(Rectangle::RightBottom(m_Size, Vector2(m_Size.x, m_UpDownButtonHeight)));
+			if(DownButtonRect.PtInRect(ptLocal))
 			{
 				if(m_nPosition + m_nPageSize < m_nEnd)
 					++m_nPosition;
@@ -1389,22 +1558,22 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 			float fMaxThumb = fTrackHeight - fThumbHeight;
 			float fThumbTop = UpButtonRect.b + (float)(m_nPosition - m_nStart) / nMaxPosition * fMaxThumb;
-			Rectangle ThumbButtonRect(m_Location.x, fThumbTop, m_Location.x + m_Size.x, fThumbTop + fThumbHeight);
-			if(ThumbButtonRect.PtInRect(pt))
+			Rectangle ThumbButtonRect(0, fThumbTop, m_Size.x, fThumbTop + fThumbHeight);
+			if(ThumbButtonRect.PtInRect(ptLocal))
 			{
 				m_bDrag = true;
-				m_fThumbOffsetY = pt.y - fThumbTop;
+				m_fThumbOffsetY = ptLocal.y - fThumbTop;
 				return true;
 			}
 
-			if(pt.x >= ThumbButtonRect.l && pt.x < ThumbButtonRect.r)
+			if(ptLocal.x >= ThumbButtonRect.l && ptLocal.x < ThumbButtonRect.r)
 			{
-				if(pt.y >= UpButtonRect.b && pt.y < ThumbButtonRect.t)
+				if(ptLocal.y >= UpButtonRect.b && ptLocal.y < ThumbButtonRect.t)
 				{
 					Scroll(-m_nPageSize);
 					return true;
 				}
-				else if(pt.y >= ThumbButtonRect.b && pt.y < DownButtonRect.t)
+				else if(ptLocal.y >= ThumbButtonRect.b && ptLocal.y < DownButtonRect.t)
 				{
 					Scroll( m_nPageSize);
 					return true;
@@ -1424,17 +1593,13 @@ bool ScrollBar::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			Rectangle TrackRect(
-				m_Location.x,
-				m_Location.y + m_UpDownButtonHeight,
-				m_Location.x + m_Size.x,
-				m_Location.y + m_Size.y - m_UpDownButtonHeight);
-
+			Vector2 ptLocal = WorldToLocal(pt);
+			Rectangle TrackRect(0, m_UpDownButtonHeight, m_Size.x, m_Size.y - m_UpDownButtonHeight);
 			float fTrackHeight = m_Size.y - m_UpDownButtonHeight * 2;
 			float fThumbHeight = fTrackHeight * m_nPageSize / (m_nEnd - m_nStart);
 			int nMaxPosition = m_nEnd - m_nStart - m_nPageSize;
 			float fMaxThumb = fTrackHeight - fThumbHeight;
-			float fThumbTop = pt.y - m_fThumbOffsetY;
+			float fThumbTop = ptLocal.y - m_fThumbOffsetY;
 
 			if(fThumbTop < TrackRect.t)
 				fThumbTop = TrackRect.t;
@@ -1520,6 +1685,8 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(ContainsPoint(pt))
 			{
 				m_bPressed = true;
+				SetFocus();
+				SetCapture();
 				return true;
 			}
 			break;
@@ -1528,6 +1695,8 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed)
 			{
 				m_bPressed = false;
+				ReleaseFocus();
+				ReleaseCapture();
 
 				if(ContainsPoint(pt))
 				{
@@ -1656,21 +1825,21 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 	{
 		if(m_bHasFocus && m_bOpened)
 		{
-			if(m_ScrollBar.HandleMouse(uMsg, pt - Vector2(m_Location.x, m_Location.y + m_Size.y), wParam, lParam))
+			if(m_ScrollBar.HandleMouse(uMsg, pt, wParam, lParam))
 			{
 				return true;
 			}
 		}
 
-		Rectangle DropdownRect(Rectangle::LeftTop(
-			m_Location.x, m_Location.y + m_Size.y, m_DropdownSize.x, m_DropdownSize.y));
+		Rectangle DropdownRect(Rectangle::LeftTop(0, m_Size.y, m_DropdownSize.x, m_DropdownSize.y));
 
 		switch(uMsg)
 		{
 		case WM_MOUSEMOVE:
 			if(m_bHasFocus && m_bOpened)
 			{
-				if(DropdownRect.PtInRect(pt))
+				Vector2 ptLocal = WorldToLocal(pt);
+				if(DropdownRect.PtInRect(ptLocal))
 				{
 					int i = m_ScrollBar.m_nPosition;
 					float y = DropdownRect.t;
@@ -1678,7 +1847,7 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					{
 						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
 
-						if(ItemRect.PtInRect(pt))
+						if(ItemRect.PtInRect(ptLocal))
 						{
 							m_iFocused = i;
 							break;
@@ -1695,12 +1864,15 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			{
 				m_bPressed = true;
 				m_bOpened = !m_bOpened;
+				SetFocus();
+				SetCapture();
 				return true;
 			}
 
 			if(m_bHasFocus && m_bOpened)
 			{
-				if(DropdownRect.PtInRect(pt))
+				Vector2 ptLocal = WorldToLocal(pt);
+				if(DropdownRect.PtInRect(ptLocal))
 				{
 					int i = m_ScrollBar.m_nPosition;
 					float y = DropdownRect.t;
@@ -1708,12 +1880,14 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 					{
 						Rectangle ItemRect(Rectangle::LeftTop(DropdownRect.l, y, m_DropdownSize.x, m_ItemHeight));
 
-						if(ItemRect.PtInRect(pt))
+						if(ItemRect.PtInRect(ptLocal))
 						{
 							m_bOpened = false;
 
 							if(m_iSelected != i)
 							{
+								ReleaseCapture();
+
 								m_iSelected = i;
 
 								if(EventSelectionChanged)
@@ -1732,6 +1906,8 @@ bool ComboBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 			if(m_bPressed && ContainsPoint(pt))
 			{
 				m_bPressed = false;
+				ReleaseFocus();
+				ReleaseCapture();
 
 				return true;
 			}
@@ -1927,20 +2103,15 @@ UINT ComboBox::GetNumItems(void)
 	return m_Items.size();
 }
 
-boost::weak_ptr<Control> Dialog::s_ControlFocus;
+Control * Dialog::s_FocusControl = NULL;
+
+Control * Dialog::s_CaptureControl = NULL;
+
+Control * Dialog::s_MouseOverControl = NULL;
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
-	if(m_bVisible)
-	{
-		Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
-
-		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-		{
-			(*ctrl_iter)->Draw(ui_render, fElapsedTime, m_Location);
-		}
-	}
+	Control::Draw(ui_render, fElapsedTime, Vector2(0,0));
 }
 
 bool Dialog::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -1952,8 +2123,8 @@ bool Dialog::HandleKeyboard(UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(m_bEnabled && m_bVisible)
 	{
-		ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-		for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+		ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+		for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
 		{
 			if((*ctrl_iter)->GetHotkey() == wParam)
 			{
@@ -1977,6 +2148,8 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bMouseDrag = true;
 				m_MouseOffset = pt - m_Location;
+				SetFocus();
+				SetCapture();
 				return true;
 			}
 			break;
@@ -1984,6 +2157,7 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 		case WM_LBUTTONUP:
 			if(m_bMouseDrag)
 			{
+				ReleaseCapture();
 				m_bMouseDrag = false;
 			}
 			break;
@@ -2003,17 +2177,17 @@ void Dialog::SetVisible(bool bVisible)
 {
 	if(!(m_bVisible = bVisible))
 	{
-		ControlPtr ControlFocus = s_ControlFocus.lock();
-		if(ControlFocus && ContainsControl(ControlFocus))
-		{
-			ControlFocus->OnFocusOut();
+		//ControlPtr ControlFocus = s_ControlFocus.lock();
+		//if(ControlFocus && ContainsControl(ControlFocus))
+		//{
+		//	ControlFocus->OnFocusOut();
 
-			s_ControlFocus.reset();
-		}
+		//	s_ControlFocus.reset();
+		//}
 	}
 	else
 	{
-		ForceFocusControl();
+		//ForceFocusControl();
 
 		Refresh();
 	}
@@ -2021,8 +2195,8 @@ void Dialog::SetVisible(bool bVisible)
 
 void Dialog::Refresh(void)
 {
-	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
 		(*ctrl_iter)->Refresh();
 	}
@@ -2031,72 +2205,19 @@ void Dialog::Refresh(void)
 		EventRefresh(&EventArgs());
 }
 
-ControlPtr Dialog::GetControlAtPoint(const Vector2 & pt)
+bool Dialog::RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld)
 {
-	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
+	Vector3 dialogNormal = m_World[2].xyz.normalize();
+	float dialogDist = m_World[3].xyz.dot(dialogNormal);
+	IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::NormalDistance(dialogNormal, dialogDist));
+
+	if (result.first)
 	{
-		if((*ctrl_iter)->ContainsPoint(pt) && (*ctrl_iter)->GetVisible() && (*ctrl_iter)->GetEnabled())
-		{
-			return *ctrl_iter;
-		}
+		Vector3 ptInt(ray.first + ray.second * result.second);
+		ptWorld = ptInt.transformCoord(m_World.inverse()).xy;
+		return true;
 	}
-	return ControlPtr();
-}
-
-void Dialog::RequestFocus(ControlPtr control)
-{
-	if(!control->CanHaveFocus())
-		return;
-
-	ControlPtr ControlFocus = s_ControlFocus.lock();
-	if(ControlFocus)
-	{
-		if(ControlFocus == control)
-			return;
-
-		ControlFocus->OnFocusOut();
-	}
-
-	control->OnFocusIn();
-	s_ControlFocus = control;
-}
-
-void Dialog::ForceFocusControl(void)
-{
-	ControlPtrList::iterator ctrl_iter = m_Controls.begin();
-	for(; ctrl_iter != m_Controls.end(); ctrl_iter++)
-	{
-		if((*ctrl_iter)->CanHaveFocus())
-		{
-			RequestFocus(*ctrl_iter);
-			break;
-		}
-	}
-}
-
-bool Dialog::ContainsControl(ControlPtr control)
-{
-	return m_Controls.end() != std::find(m_Controls.begin(), m_Controls.end(), control);
-}
-
-void Dialog::InsertControl(ControlPtr control)
-{
-	m_Controls.push_back(control);
-}
-
-void Dialog::RemoveControl(ControlPtr control)
-{
-	ControlPtrList::iterator ctrl_iter = std::find(m_Controls.begin(), m_Controls.end(), control);
-	if(ctrl_iter != m_Controls.end())
-	{
-		m_Controls.erase(ctrl_iter);
-	}
-}
-
-void Dialog::ClearAllControl(void)
-{
-	m_Controls.clear();
+	return false;
 }
 
 void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
@@ -2111,16 +2232,17 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
 
 	m_InverseViewProj = m_ViewProj.inverse();
 
-	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
-		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
-		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
-		{
-			if((*dlg_iter)->EventAlign)
-				(*dlg_iter)->EventAlign(&EventArgs());
-		}
+		if((*dlg_iter)->EventAlign)
+			(*dlg_iter)->EventAlign(&EventArgs());
 	}
+}
+
+std::pair<Vector3, Vector3> DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	return IntersectionTests::CalculateRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 Vector2 DialogMgr::GetDlgViewport(void) const
@@ -2132,27 +2254,21 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 {
 	ui_render->SetViewProj(m_ViewProj);
 
-	DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-	for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 	{
-		DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
-		for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
-		{
-			ui_render->SetWorld((*dlg_iter)->m_World);
+		ui_render->SetWorld((*dlg_iter)->m_World);
 
-			(*dlg_iter)->Draw(ui_render, fElapsedTime);
-		}
+		(*dlg_iter)->Draw(ui_render, fElapsedTime);
 	}
 }
 
 bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
-	ControlPtr ControlFocus = Dialog::s_ControlFocus.lock();
-	if(ControlFocus)
-	{
-		_ASSERT(!boost::dynamic_pointer_cast<Dialog>(ControlFocus));
-		if(ControlFocus->MsgProc(hWnd, uMsg, wParam, lParam))
+	if (Dialog::s_FocusControl) {
+		if (Dialog::s_FocusControl->MsgProc(hWnd, uMsg, wParam, lParam)) {
 			return true;
+		}
 	}
 
 	switch(uMsg)
@@ -2161,19 +2277,17 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	case WM_SYSKEYDOWN:
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
-		if(ControlFocus)
 		{
-			if(ControlFocus->HandleKeyboard(uMsg, wParam, lParam))
-				return true;
-		}
+			if (Dialog::s_FocusControl) {
+				if (Dialog::s_FocusControl->HandleKeyboard(uMsg, wParam, lParam)) {
+					return true;
+				}
+			}
 
-		if(uMsg == WM_KEYDOWN)
-		{
-			DialogPtrSetMap::iterator dlg_layer_iter = m_dlgSetMap.begin();
-			for(; dlg_layer_iter != m_dlgSetMap.end(); dlg_layer_iter++)
+			if (uMsg == WM_KEYDOWN)
 			{
-				DialogPtrList::iterator dlg_iter = dlg_layer_iter->second.begin();
-				for(; dlg_iter != dlg_layer_iter->second.end(); dlg_iter++)
+				DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+				for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 				{
 					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
 						return true;
@@ -2199,78 +2313,57 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			std::pair<Vector3, Vector3> ray = IntersectionTests::CalculateRay(
-				m_InverseViewProj, m_ViewPosition, Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), Vector2((float)ClientRect.Width(), (float)ClientRect.Height()));
+			std::pair<Vector3, Vector3> ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
-			DialogPtrSetMap::reverse_iterator dlg_layer_iter = m_dlgSetMap.rbegin();
-			for(; dlg_layer_iter != m_dlgSetMap.rend(); dlg_layer_iter++)
-			{
-				DialogPtrList::reverse_iterator dlg_iter = dlg_layer_iter->second.rbegin();
-				for(; dlg_iter != dlg_layer_iter->second.rend(); dlg_iter++)
+			if (Dialog::s_CaptureControl) {
+				Vector2 pt;
+				if (Dialog::s_CaptureControl->RayToWorld(ray, pt))
 				{
-					// ! 只处理看得见的 Dialog
-					if((*dlg_iter)->GetEnabled() && (*dlg_iter)->GetVisible())
+					if (Dialog::s_CaptureControl->HandleMouse(uMsg, pt, wParam, lParam)) {
+						return true;
+					}
+				}
+			}
+
+			DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+			for(; dlg_iter != m_DlgList.end(); dlg_iter++)
+			{
+				// ! 只处理看得见的 Dialog
+				if((*dlg_iter)->GetVisible())
+				{
+					Vector2 pt;
+					if ((*dlg_iter)->RayToWorld(ray, pt))
 					{
-						Vector3 dialogNormal = Vector3(0, 0, 1).transformNormal((*dlg_iter)->m_World);
-						float dialogDist = ((Vector3 &)(*dlg_iter)->m_World[3]).dot(dialogNormal);
-						IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::NormalDistance(dialogNormal, dialogDist));
-
-						if(result.first)
+						if ((*dlg_iter)->ContainsPoint(pt))
 						{
-							Vector3 ptInt(ray.first + ray.second * result.second);
-							Vector3 pt = ptInt.transformCoord((*dlg_iter)->m_World.inverse());
-							Vector2 ptLocal = pt.xy - (*dlg_iter)->m_Location;
-
-							// ! 只处理自己的 ControlFocus
-							if(ControlFocus && (*dlg_iter)->ContainsControl(ControlFocus))
+							Control * ControlPtd = (*dlg_iter)->GetChildAtPoint(pt);
+							if (ControlPtd)
 							{
-								if(ControlFocus->HandleMouse(uMsg, ptLocal, wParam, lParam))
-									return true;
-							}
+								ControlPtd->SetMouseOver();
 
-							// ! 只处理自己的 m_ControlMouseOver
-							ControlPtr ControlPtd = (*dlg_iter)->GetControlAtPoint(ptLocal);
-							ControlPtr m_ControlMouseOver = (*dlg_iter)->m_ControlMouseOver.lock();
-							if(ControlPtd != m_ControlMouseOver)
-							{
-								if(m_ControlMouseOver)
-									m_ControlMouseOver->OnMouseLeave();
-
-								if(ControlPtd && ControlPtd->GetEnabled())
+								if(ControlPtd->HandleMouse(uMsg, pt, wParam, lParam))
 								{
-									(*dlg_iter)->m_ControlMouseOver = ControlPtd;
-									ControlPtd->OnMouseEnter();
-								}
-								else
-									(*dlg_iter)->m_ControlMouseOver.reset();
-							}
-
-							if(ControlPtd && ControlPtd->GetEnabled())
-							{
-								if(ControlPtd->HandleMouse(uMsg, ptLocal, wParam, lParam))
-								{
-									Dialog::RequestFocus(ControlPtd);
 									return true;
 								}
 							}
-
-							if(uMsg == WM_LBUTTONDOWN
-								&& (*dlg_iter)->ContainsControl(ControlFocus) && !(*dlg_iter)->ContainsPoint(pt.xy))
+							else
 							{
-								// ! 用以解决对话框控件丢失焦点
-								ControlFocus->OnFocusOut();
-								Dialog::s_ControlFocus.reset();
+								(*dlg_iter)->SetMouseOver();
 							}
 
-							if((*dlg_iter)->HandleMouse(uMsg, pt.xy, wParam, lParam))
+							if((*dlg_iter)->HandleMouse(uMsg, pt, wParam, lParam))
 							{
-								// ! 强制让自己具有 FocusControl
-								(*dlg_iter)->ForceFocusControl();
 								return true;
 							}
+							break;
 						}
 					}
 				}
+			}
+
+			if (dlg_iter == m_DlgList.end() && Dialog::s_MouseOverControl)
+			{
+				Dialog::s_MouseOverControl->ReleaseMouseOver();
 			}
 		}
 		break;
@@ -2281,7 +2374,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 void DialogMgr::InsertDlg(DialogPtr dlg)
 {
-	m_dlgSetMap[0].push_back(dlg);
+	m_DlgList.push_back(dlg);
 
 	if(dlg->EventAlign)
 		dlg->EventAlign(&EventArgs());
@@ -2289,14 +2382,14 @@ void DialogMgr::InsertDlg(DialogPtr dlg)
 
 void DialogMgr::RemoveDlg(DialogPtr dlg)
 {
-	DialogPtrList::iterator dlg_iter = std::find(m_dlgSetMap[0].begin(), m_dlgSetMap[0].end(), dlg);
-	if(dlg_iter != m_dlgSetMap[0].end())
+	DialogPtrList::iterator dlg_iter = std::find(m_DlgList.begin(), m_DlgList.end(), dlg);
+	if(dlg_iter != m_DlgList.end())
 	{
-		m_dlgSetMap[0].erase(dlg_iter);
+		m_DlgList.erase(dlg_iter);
 	}
 }
 
 void DialogMgr::RemoveAllDlg()
 {
-	m_dlgSetMap[0].clear();
+	m_DlgList.clear();
 }

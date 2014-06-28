@@ -2,7 +2,6 @@
 
 #include "myFont.h"
 #include <boost/function.hpp>
-#include <boost/weak_ptr.hpp>
 #include <vector>
 #include <map>
 
@@ -119,6 +118,10 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
+	class Control;
+
+	typedef boost::shared_ptr<Control> ControlPtr;
+
 	class Control
 	{
 	public:
@@ -142,6 +145,12 @@ namespace my
 
 		ControlSkinPtr m_Skin;
 
+		typedef std::vector<ControlPtr> ControlPtrList;
+
+		ControlPtrList m_Childs;
+
+		Control * m_Parent;
+
 	public:
 		Control(void)
 			: m_bEnabled(true)
@@ -153,6 +162,7 @@ namespace my
 			, m_Location(100, 100)
 			, m_Size(100, 100)
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
+			, m_Parent(NULL)
 		{
 			m_Skin.reset(new ControlSkin());
 		}
@@ -191,12 +201,36 @@ namespace my
 
 		virtual void Refresh(void);
 
+		virtual bool RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld);
+
 		void SetHotkey(UINT nHotkey);
 
 		UINT GetHotkey(void);
-	};
 
-	typedef boost::shared_ptr<Control> ControlPtr;
+		void SetFocus(void);
+
+		void ReleaseFocus(void);
+
+		void SetCapture(void);
+
+		void ReleaseCapture(void);
+
+		void SetMouseOver(void);
+
+		void ReleaseMouseOver(void);
+
+		Control * GetChildAtPoint(const Vector2 & pt) const;
+
+		Vector2 LocalToWorld(const Vector2 & pt) const;
+
+		Vector2 WorldToLocal(const Vector2 & pt) const;
+
+		void InsertControl(ControlPtr control);
+
+		void RemoveControl(ControlPtr control);
+
+		void ClearAllControl(void);
+	};
 
 	class Static : public Control
 	{
@@ -210,8 +244,6 @@ namespace my
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
-
-		virtual bool ContainsPoint(const Vector2 & pt);
 	};
 
 	typedef boost::shared_ptr<Static> StaticPtr;
@@ -684,13 +716,11 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		static boost::weak_ptr<Control> s_ControlFocus;
+		static Control * s_FocusControl;
 
-		boost::weak_ptr<Control> m_ControlMouseOver;
+		static Control * s_CaptureControl;
 
-		typedef std::vector<ControlPtr> ControlPtrList;
-
-		ControlPtrList m_Controls;
+		static Control * s_MouseOverControl;
 
 		Matrix4 m_World;
 
@@ -722,19 +752,7 @@ namespace my
 
 		virtual void Refresh(void);
 
-		ControlPtr GetControlAtPoint(const Vector2 & pt);
-
-		static void RequestFocus(ControlPtr control);
-
-		void ForceFocusControl(void);
-
-		bool ContainsControl(ControlPtr control);
-
-		void InsertControl(ControlPtr control);
-
-		void RemoveControl(ControlPtr control);
-
-		void ClearAllControl(void);
+		virtual bool RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld);
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;
@@ -744,9 +762,7 @@ namespace my
 	public:
 		typedef std::vector<DialogPtr> DialogPtrList;
 
-		typedef std::map<int, DialogPtrList> DialogPtrSetMap;
-
-		DialogPtrSetMap m_dlgSetMap;
+		DialogPtrList m_DlgList;
 
 		Vector3 m_ViewPosition;
 
@@ -767,6 +783,8 @@ namespace my
 		void SetDlgViewport(const Vector2 & vp, float fov);
 
 		Vector2 GetDlgViewport(void) const;
+
+		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 
 		void Draw(UIRender * ui_render, double fTime, float fElapsedTime);
 
