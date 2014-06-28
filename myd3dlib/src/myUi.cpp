@@ -2155,7 +2155,6 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 			{
 				m_bMouseDrag = true;
 				m_MouseOffset = pt - m_Location;
-				SetFocus();
 				SetCapture();
 				return true;
 			}
@@ -2182,19 +2181,20 @@ bool Dialog::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM lP
 
 void Dialog::SetVisible(bool bVisible)
 {
-	if(!(m_bVisible = bVisible))
+	if (m_bVisible = bVisible)
 	{
-		//ControlPtr ControlFocus = s_ControlFocus.lock();
-		//if(ControlFocus && ContainsControl(ControlFocus))
-		//{
-		//	ControlFocus->OnFocusOut();
-
-		//	s_ControlFocus.reset();
-		//}
-	}
-	else
-	{
-		//ForceFocusControl();
+		if (!Control::s_FocusControl)
+		{
+			ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+			for(; ctrl_iter != m_Childs.end(); ctrl_iter++)
+			{
+				if ((*ctrl_iter)->CanHaveFocus())
+				{
+					(*ctrl_iter)->SetFocus();
+					break;
+				}
+			}
+		}
 
 		Refresh();
 	}
