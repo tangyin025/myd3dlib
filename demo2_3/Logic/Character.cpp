@@ -89,6 +89,7 @@ void Character::Update(float fElapsedTime)
 	Game::getSingleton().m_ScrInfos[1] = str_printf(_T("%f, %f"), velocity.y, damping);
 	m_IsOnGround = false;
 	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
+	setPosition(Vector3(m_controller->getPosition().x, m_controller->getPosition().y, m_controller->getPosition().z));
 }
 
 void Character::Destroy(void)
@@ -108,7 +109,11 @@ void Character::RemoveMoveState(MoveState state)
 
 void Character::Jump(void)
 {
-	velocity.y = 5;
+	if (m_IsOnGround)
+	{
+		velocity.y = 5;
+		damping = 1.0f;
+	}
 }
 
 void Character::onShapeHit(const PxControllerShapeHit& hit)

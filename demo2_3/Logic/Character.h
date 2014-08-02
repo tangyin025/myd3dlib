@@ -3,9 +3,9 @@
 #include "../physx_ptr.hpp"
 
 class Character
-	: my::Particle
-	, PxUserControllerHitReport
-	, PxControllerBehaviorCallback
+	: public my::Particle
+	, public PxUserControllerHitReport
+	, public PxControllerBehaviorCallback
 {
 public:
 	physx_ptr<PxController> m_controller;

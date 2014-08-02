@@ -49,6 +49,9 @@ void Logic::Update(float fElapsedTime)
 {
 	m_FixedTickTimer.Step(fElapsedTime, 4);
 
+	ModelViewerCamera * camera = dynamic_cast<ModelViewerCamera *>(Game::getSingleton().m_Camera.get());
+	camera->m_LookAt = (Vector3&)m_LocalPlayer->getPosition();
+
 	Game::getSingleton().PushGrid();
 }
 
