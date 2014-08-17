@@ -22,8 +22,6 @@ public:
 
 	char m_MoveState;
 
-	bool m_IsOnGround;
-
 public:
 	Character(void);
 
