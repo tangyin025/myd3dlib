@@ -210,17 +210,15 @@ void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_View = Matrix4::Translation(-m_LookAt)
-		* Matrix4::RotationY(-m_Rotation.y)
-		* Matrix4::RotationX(-m_Rotation.x)
-		* Matrix4::RotationZ(-m_Rotation.z)
-		* Matrix4::Translation(Vector3(0,0,-m_Distance));
-
-	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
-
 	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
 
 	m_Position = Vector3(0,0,m_Distance).transform(m_Orientation) + m_LookAt;
+
+	Vector3 Up = Vector3(0,1,0).transform(m_Orientation);
+
+	m_View = Matrix4::LookAtRH(m_Position, m_LookAt, Up);
+
+	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 
 	m_ViewProj = m_View * m_Proj;
 

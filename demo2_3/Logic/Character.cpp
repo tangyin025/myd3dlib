@@ -38,43 +38,43 @@ void Character::Update(float fElapsedTime)
 		switch (m_MoveState)
 		{
 		case MoveStateFront:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 0));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 0));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(0));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(0));
 			damping = 1.0f;
 			break;
 		case MoveStateFront | MoveStateLeft:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 45));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 45));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(45));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(45));
 			damping = 1.0f;
 			break;
 		case MoveStateLeft:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 90));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 90));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(90));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(90));
 			damping = 1.0f;
 			break;
 		case MoveStateLeft | MoveStateBack:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 135));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 135));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(135));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(135));
 			damping = 1.0f;
 			break;
 		case MoveStateBack:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 180));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 180));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(180));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(180));
 			damping = 1.0f;
 			break;
 		case MoveStateBack | MoveStateRight:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 225));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 225));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(225));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(225));
 			damping = 1.0f;
 			break;
 		case MoveStateRight:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 270));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 270));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(270));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(270));
 			damping = 1.0f;
 			break;
 		case MoveStateRight | MoveStateFront:
-			velocity.x = MoveSpeed * sin(D3DXToRadian(m_LookDir + 315));
-			velocity.z = MoveSpeed * cos(D3DXToRadian(m_LookDir + 315));
+			velocity.x = MoveSpeed * sin(m_LookDir + D3DXToRadian(315));
+			velocity.z = MoveSpeed * cos(m_LookDir + D3DXToRadian(315));
 			damping = 1.0f;
 			break;
 		default:

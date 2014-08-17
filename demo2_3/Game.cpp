@@ -353,7 +353,7 @@ void Game::OnFrameMove(
 
 	PhysXResourceMgr::CheckRequests();
 
-	m_Camera->OnFrameMove(fTime, fElapsedTime);
+	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
