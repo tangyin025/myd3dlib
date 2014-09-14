@@ -22,6 +22,15 @@ public:
 
 	char m_MoveState;
 
+	enum CollisionState
+	{
+		CollisionStateNone = 0,
+		CollisionStateGround,
+		CollisionStateWall,
+	};
+
+	CollisionState m_CollisionState;
+
 public:
 	Character(void);
 
