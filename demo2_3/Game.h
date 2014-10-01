@@ -2,6 +2,7 @@
 
 #include "Console.h"
 #include "PhysXContext.h"
+#include "RenderPipeline.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -73,6 +74,7 @@ class Game
 	, public my::InputMgr
 	, public PhysXResourceMgr
 	, public PhysXSceneContext
+	, public RenderPipeline
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {
@@ -87,21 +89,13 @@ public:
 
 	my::EmitterInstancePtr m_EmitterInst;
 
-	my::Texture2DPtr m_ShadowRT;
-
-	my::SurfacePtr m_ShadowDS;
-
 	my::BaseTexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
 
-	my::EffectPtr m_SimpleSample;
-
 	my::CameraPtr m_Camera;
-
-	my::OctreeRootPtr m_OctScene;
 
 public:
 	Game(void);

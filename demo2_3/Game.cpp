@@ -1,14 +1,11 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "Component/MeshComponent.h"
 
 extern void Export2Lua(lua_State * L);
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
-
-#define SHADOW_MAP_SIZE 512
 
 using namespace my;
 
@@ -232,10 +229,6 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	m_ShadowRT.reset(new Texture2D());
-
-	m_ShadowDS.reset(new Surface());
-
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
 	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
@@ -246,11 +239,12 @@ HRESULT Game::OnCreateDevice(
 
 	DialogMgr::InsertDlg(m_Console);
 
-	m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	m_OctScene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
+	if(FAILED(hr = RenderPipeline::OnCreate(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -273,14 +267,6 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
-	m_ShadowRT->CreateAdjustedTexture(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
-
-	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
-	m_ShadowDS->CreateDepthStencilSurface(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
-
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
@@ -292,6 +278,11 @@ HRESULT Game::OnResetDevice(
 		m_Camera->EventAlign(&EventArgs());
 	}
 
+	if(FAILED(hr = RenderPipeline::OnReset(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	return S_OK;
 }
 
@@ -299,9 +290,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_ShadowRT->OnDestroyDevice();
-
-	m_ShadowDS->OnDestroyDevice();
+	RenderPipeline::OnLost();
 
 	m_EmitterInst->OnLostDevice();
 
@@ -312,15 +301,13 @@ void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	RenderPipeline::OnDestroy();
+
 	ParallelTaskManager::StopParallelThread();
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	m_OctScene.reset();
-
 	m_Camera.reset();
-
-	m_SimpleSample.reset();
 
 	m_Console.reset();
 
@@ -363,18 +350,8 @@ void Game::OnFrameRender(
 {
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-	struct QueryCallbackFunc
-	{
-		void operator() (Component * comp)
-		{
-			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
-			mesh_comp->Draw();
-		}
-	};
-	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-	m_OctScene->QueryComponent(frustum, QueryCallbackFunc());
+	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime, m_Camera->m_ViewProj);
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
