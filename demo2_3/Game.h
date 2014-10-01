@@ -101,8 +101,6 @@ public:
 
 	my::CameraPtr m_Camera;
 
-	physx_ptr<PxMaterial> m_PxMaterial;
-
 	my::OctreeRootPtr m_OctScene;
 
 public:

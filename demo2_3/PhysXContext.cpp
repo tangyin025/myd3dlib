@@ -58,13 +58,22 @@ bool PhysXContext::OnInit(void)
 	{
 		THROW_CUSEXCEPTION(_T("PxCreateControllerManager failed"));
 	}
+
+	if(!(m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f)), m_PxMaterial))
+	{
+		THROW_CUSEXCEPTION(_T("m_sdk->createMaterial failed"));
+	}
 	return true;
 }
 
 void PhysXContext::OnShutdown(void)
 {
+	m_PxMaterial.reset();
+
 	if(m_sdk)
+	{
 		PxCloseExtensions();
+	}
 
 	m_ControllerMgr.reset();
 

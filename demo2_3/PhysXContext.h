@@ -32,6 +32,8 @@ public:
 
 	physx_ptr<PxControllerManager> m_ControllerMgr;
 
+	physx_ptr<PxMaterial> m_PxMaterial;
+
 public:
 	PhysXContext(void)
 	{

@@ -250,8 +250,6 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f));
-
 	m_OctScene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
@@ -320,8 +318,6 @@ void Game::OnDestroyDevice(void)
 
 	m_OctScene.reset();
 
-	m_PxMaterial.reset();
-
 	m_Camera.reset();
 
 	m_SimpleSample.reset();
@@ -374,7 +370,6 @@ void Game::OnFrameRender(
 		void operator() (Component * comp)
 		{
 			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
-			mesh_comp->UpdateLod(1.f);
 			mesh_comp->Draw();
 		}
 	};

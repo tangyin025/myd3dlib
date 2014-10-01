@@ -4,31 +4,6 @@
 
 using namespace my;
 
-void MeshComponent::OnMaterialLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res)
-{
-	_ASSERT(i < m_Materials.size());
-	m_Materials[i].first = boost::dynamic_pointer_cast<Material>(res);
-}
-
-void MeshComponent::OnEffectLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res)
-{
-	_ASSERT(i < m_Materials.size());
-	m_Materials[i].second = boost::dynamic_pointer_cast<Effect>(res);
-}
-
-void MeshComponent::UpdateLod(float dist)
-{
-	if (m_Materials.size() < m_Mesh->m_MaterialNameList.size())
-	{
-		m_Materials.resize(m_Mesh->m_MaterialNameList.size(), MaterialPair(MaterialPtr(), EffectPtr()));
-		for (DWORD i = 0; i < m_Mesh->m_MaterialNameList.size(); i++)
-		{
-			Game::getSingleton().LoadMaterialAsync(str_printf("material/%s.txt", m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&MeshComponent::OnMaterialLoaded, this, i, _1));
-			Game::getSingleton().LoadEffectAsync("shader/SimpleSample.fx", EffectMacroPairList(), boost::bind(&MeshComponent::OnEffectLoaded, this, i, _1));
-		}
-	}
-}
-
 void MeshComponent::Draw(void)
 {
 	for(DWORD i = 0; i < m_Materials.size(); i++)

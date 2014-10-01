@@ -114,7 +114,7 @@ public:
 		//OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
 		//for(; mesh_iter != m_meshSet->end(); mesh_iter++)
 		//{
-		//	m_scene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
+		//	m_OctScene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
 		//}
 
 		//// ========================================================================================================

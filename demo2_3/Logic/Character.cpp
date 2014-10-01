@@ -8,7 +8,7 @@ Character::Character(void)
 	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), PhysXContext::Gravity, my::Vector3(0,0,0), 1, 0.8f)
 	, m_LookDir(0)
 	, m_MoveState(0)
-	, m_CollisionState(CollisionStateNone)
+	, m_CollisionState(0)
 {
 }
 
@@ -33,7 +33,7 @@ void Character::Create(void)
 void Character::Update(float fElapsedTime)
 {
 	const float MoveSpeed = 5;
-	if (m_CollisionState == CollisionStateGround)
+	if (m_CollisionState & CollisionStateGround)
 	{
 		switch (m_MoveState)
 		{
@@ -89,7 +89,7 @@ void Character::Update(float fElapsedTime)
 	addVelocity(acceleration * fElapsedTime);
 	velocity *= pow(damping, fElapsedTime);
 	Game::getSingleton().m_ScrInfos[1] = str_printf(_T("%f, %f"), velocity.y, damping);
-	m_CollisionState = CollisionStateNone;
+	m_CollisionState = 0;
 	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
 	setPosition(Vector3(m_controller->getPosition().x, m_controller->getPosition().y, m_controller->getPosition().z));
 }
@@ -111,23 +111,23 @@ void Character::RemoveMoveState(MoveState state)
 
 void Character::Jump(void)
 {
-	if (m_CollisionState == CollisionStateGround)
+	if (m_CollisionState & CollisionStateGround)
 	{
 		addVelocity(Vector3(0,5,0));
-		m_CollisionState = CollisionStateNone;
+		m_CollisionState &= ~CollisionStateGround;
 	}
 }
 
 void Character::onShapeHit(const PxControllerShapeHit& hit)
 {
-	if (hit.worldNormal.y > 0.1f)
+	if (hit.worldNormal.y > 0 && hit.worldNormal.y > fabs(hit.worldNormal.x) && hit.worldNormal.y > fabs(hit.worldNormal.z))
 	{
 		velocity.y = 0;
-		m_CollisionState = CollisionStateGround;
+		m_CollisionState |= CollisionStateGround;
 	}
 	else
 	{
-		m_CollisionState = CollisionStateWall;
+		m_CollisionState |= CollisionStateWall;
 	}
 }
 

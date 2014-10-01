@@ -20,16 +20,15 @@ public:
 		MoveStateRight	= 0x08,
 	};
 
-	char m_MoveState;
+	UINT m_MoveState;
 
 	enum CollisionState
 	{
-		CollisionStateNone = 0,
-		CollisionStateGround,
-		CollisionStateWall,
+		CollisionStateGround	= 0x01,
+		CollisionStateWall		= 0x02,
 	};
 
-	CollisionState m_CollisionState;
+	UINT m_CollisionState;
 
 public:
 	Character(void);

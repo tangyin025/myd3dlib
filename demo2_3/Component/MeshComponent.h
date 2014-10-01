@@ -20,12 +20,6 @@ public:
 	{
 	}
 
-	void OnMaterialLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res);
-
-	void OnEffectLoaded(DWORD i, my::DeviceRelatedObjectBasePtr res);
-
-	virtual void UpdateLod(float dist);
-
 	virtual void Draw(void);
 };
 
