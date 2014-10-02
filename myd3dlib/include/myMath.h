@@ -1,6 +1,7 @@
 #pragma once
 
 #include <d3dx9math.h>
+#include <boost/serialization/nvp.hpp>
 
 #define EPSILON_E3			(1.0e-3)
 #define EPSILON_E4			(1.0e-4)
@@ -100,8 +101,8 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & x;
-			ar & y;
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
 		}
 
 	public:
@@ -331,9 +332,9 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & x;
-			ar & y;
-			ar & z;
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
+			ar & BOOST_SERIALIZATION_NVP(z);
 		}
 
 	public:
@@ -600,10 +601,10 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & x;
-			ar & y;
-			ar & z;
-			ar & w;
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
+			ar & BOOST_SERIALIZATION_NVP(z);
+			ar & BOOST_SERIALIZATION_NVP(w);
 		}
 
 	public:
@@ -839,10 +840,10 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & l;
-			ar & t;
-			ar & r;
-			ar & b;
+			ar & BOOST_SERIALIZATION_NVP(l);
+			ar & BOOST_SERIALIZATION_NVP(t);
+			ar & BOOST_SERIALIZATION_NVP(r);
+			ar & BOOST_SERIALIZATION_NVP(b);
 		}
 
 	public:
@@ -1249,10 +1250,10 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & x;
-			ar & y;
-			ar & z;
-			ar & w;
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
+			ar & BOOST_SERIALIZATION_NVP(z);
+			ar & BOOST_SERIALIZATION_NVP(w);
 		}
 
 	public:
@@ -1583,10 +1584,10 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & _11; ar & _12; ar & _13; ar & _14;
-			ar & _21; ar & _22; ar & _23; ar & _24;
-			ar & _31; ar & _32; ar & _33; ar & _34;
-			ar & _41; ar & _42; ar & _43; ar & _44;
+			ar & BOOST_SERIALIZATION_NVP(_11); ar & BOOST_SERIALIZATION_NVP(_12); ar & BOOST_SERIALIZATION_NVP(_13); ar & BOOST_SERIALIZATION_NVP(_14);
+			ar & BOOST_SERIALIZATION_NVP(_21); ar & BOOST_SERIALIZATION_NVP(_22); ar & BOOST_SERIALIZATION_NVP(_23); ar & BOOST_SERIALIZATION_NVP(_24);
+			ar & BOOST_SERIALIZATION_NVP(_31); ar & BOOST_SERIALIZATION_NVP(_32); ar & BOOST_SERIALIZATION_NVP(_33); ar & BOOST_SERIALIZATION_NVP(_34);
+			ar & BOOST_SERIALIZATION_NVP(_41); ar & BOOST_SERIALIZATION_NVP(_42); ar & BOOST_SERIALIZATION_NVP(_43); ar & BOOST_SERIALIZATION_NVP(_44);
 		}
 
 	public:

@@ -336,7 +336,7 @@ PhysXClothFabricPtr PhysXResourceMgr::LoadClothFabric(const std::string & path)
 
 void PhysXSceneContext::StepperTask::run(void)
 {
-	m_Scene->SubstepDone(this);
+	m_PxScene->SubstepDone(this);
 	release();
 }
 
@@ -351,24 +351,24 @@ bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatc
 	sceneDesc.gravity = (PxVec3&)PhysXContext::Gravity;
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
-	if(!(m_Scene.reset(sdk->createScene(sceneDesc)), m_Scene))
+	if(!(m_PxScene.reset(sdk->createScene(sceneDesc)), m_PxScene))
 	{
 		THROW_CUSEXCEPTION(_T("sdk->createScene failed"));
 	}
 
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-	//m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 	return true;
 }
 
 void PhysXSceneContext::OnShutdown(void)
 {
-	//_ASSERT(!m_Scene || 0 == m_Scene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
 
-	m_Scene.reset();
+	m_PxScene.reset();
 }
 
 void PhysXSceneContext::OnTickPreRender(float dtime)
@@ -397,7 +397,7 @@ bool PhysXSceneContext::Advance(float dtime)
 
 	m_Timer.m_RemainingTime -= m_Timer.m_Interval;
 
-	m_Completion0.setContinuation(*m_Scene->getTaskManager(), NULL);
+	m_Completion0.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
 	Substep(m_Completion0);
 
@@ -408,12 +408,12 @@ bool PhysXSceneContext::Advance(float dtime)
 
 void PhysXSceneContext::Substep(StepperTask & completionTask)
 {
-	m_Scene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
+	m_PxScene->simulate(m_Timer.m_Interval, &completionTask, 0, 0, true);
 }
 
 void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 {
-	m_Scene->fetchResults(true, &m_ErrorState);
+	m_PxScene->fetchResults(true, &m_ErrorState);
 
 	_ASSERT(0 == m_ErrorState);
 
@@ -427,7 +427,7 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 
 	StepperTask & task = (ownerTask == &m_Completion0 ? m_Completion1 : m_Completion0);
 
-	task.setContinuation(*m_Scene->getTaskManager(), NULL);
+	task.setContinuation(*m_PxScene->getTaskManager(), NULL);
 
 	Substep(task);
 
@@ -436,7 +436,7 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 
 void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 {
-	const PxRenderBuffer & debugRenderable = m_Scene->getRenderBuffer();
+	const PxRenderBuffer & debugRenderable = m_PxScene->getRenderBuffer();
 
 	const PxU32 numPoints = debugRenderable.getNbPoints();
 	if(numPoints)

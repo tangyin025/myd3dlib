@@ -69,9 +69,8 @@ public:
 	//	for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 	//	{
 	//		comp->m_Materials.push_back(MeshComponent::MaterialPair(
-	//			LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+	//			LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
 	//	}
-	//	comp->m_World = Matrix4::identity;
 	//	return comp;
 	//}
 
@@ -84,10 +83,10 @@ public:
 			return hr;
 		}
 
-		m_Scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-		m_Scene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 		ExecuteCode("dofile \"Hud.lua\"");
 
@@ -146,7 +145,7 @@ public:
 		//ifs.reset(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
 		//physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
 		//m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,10,0), PxQuat(0,0,0,1)), *clothFabric, &m_clothPositions[0], collisionData, PxClothFlags());
-		//m_Scene->addActor(*m_cloth);
+		//m_PxScene->addActor(*m_cloth);
 
 		// ========================================================================================================
 		// Âß¼­ÏµÍ³

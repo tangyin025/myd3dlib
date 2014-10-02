@@ -6,6 +6,7 @@
 #include "mySpline.h"
 #include <deque>
 #include <set>
+#include <boost/serialization/nvp.hpp>
 
 namespace my
 {
@@ -105,21 +106,21 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & m_WorldType;
-			ar & m_DirectionType;
-			ar & m_Position;
-			ar & m_Orientation;
-			ar & m_ParticleLifeTime;
-			ar & m_ParticleColorA;
-			ar & m_ParticleColorR;
-			ar & m_ParticleColorG;
-			ar & m_ParticleColorB;
-			ar & m_ParticleSizeX;
-			ar & m_ParticleSizeY;
-			ar & m_ParticleAngle;
-			ar & m_ParticleAnimFPS;
-			ar & m_ParticleAnimColumn;
-			ar & m_ParticleAnimRow;
+			ar & BOOST_SERIALIZATION_NVP(m_WorldType);
+			ar & BOOST_SERIALIZATION_NVP(m_DirectionType);
+			ar & BOOST_SERIALIZATION_NVP(m_Position);
+			ar & BOOST_SERIALIZATION_NVP(m_Orientation);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorA);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorR);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorG);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorB);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeX);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeY);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleAngle);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimFPS);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimColumn);
+			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimRow);
 		}
 
 		void OnResetDevice(void);
@@ -184,15 +185,15 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & boost::serialization::base_object<Emitter>(*this);
-			ar & m_Time;
-			ar & m_SpawnInterval;
-			ar & m_RemainingSpawnTime;
-			ar & m_HalfSpawnArea;
-			ar & m_SpawnSpeed;
-			ar & m_SpawnInclination;
-			ar & m_SpawnAzimuth;
-			ar & m_SpawnLoopTime;
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Emitter);
+			ar & BOOST_SERIALIZATION_NVP(m_Time);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
+			ar & BOOST_SERIALIZATION_NVP(m_RemainingSpawnTime);
+			ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnInclination);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 		}
 
 		virtual void Update(double fTime, float fElapsedTime);

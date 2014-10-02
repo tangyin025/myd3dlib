@@ -2,6 +2,7 @@
 
 #include <boost/shared_ptr.hpp>
 #include <vector>
+#include <boost/serialization/nvp.hpp>
 
 namespace my
 {
@@ -27,10 +28,10 @@ namespace my
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			ar & x;
-			ar & y;
-			ar & k0;
-			ar & k;
+			ar & BOOST_SERIALIZATION_NVP(x);
+			ar & BOOST_SERIALIZATION_NVP(y);
+			ar & BOOST_SERIALIZATION_NVP(k0);
+			ar & BOOST_SERIALIZATION_NVP(k);
 		}
 
 		float Interpolate(const SplineNode & rhs, float s);
@@ -48,7 +49,7 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & boost::serialization::base_object<std::vector<SplineNodePtr> >(*this);
+			ar & boost::serialization::make_nvp("SplineNodePtrList", boost::serialization::base_object<std::vector<SplineNodePtr> >(*this));
 		}
 
 		bool InsertNode(SplineNodePtr node, int begin_i, int end_i);

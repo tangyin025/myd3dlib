@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="10">
+<m_DiffuseTexture>texture/Checker.bmp</m_DiffuseTexture>
+<m_NormalTexture>texture/casual19_m_35_normal.png</m_NormalTexture>
+<m_SpecularTexture>texture/casual19_m_35_spec.png</m_SpecularTexture>
+</boost_serialization>
+

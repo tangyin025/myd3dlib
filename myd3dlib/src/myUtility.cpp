@@ -1,6 +1,6 @@
 #include "StdAfx.h"
-#include <boost/archive/text_iarchive.hpp>
-#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
@@ -606,13 +606,13 @@ public:
 		ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(res));
 		membuf mb((char *)&(*m_cache)[0], m_cache->size());
 		std::istream ims(&mb);
-		boost::archive::text_iarchive ia(ims);
+		boost::archive::xml_iarchive ia(ims);
 		std::string path;
-		ia >> path;
+		ia >> boost::serialization::make_nvp("m_DiffuseTexture", path);
 		OnLoadDiffuseTexture(boundle, path);
-		ia >> path;
+		ia >> boost::serialization::make_nvp("m_NormalTexture", path);
 		OnLoadNormalTexture(boundle, path);
-		ia >> path;
+		ia >> boost::serialization::make_nvp("m_SpecularTexture", path);
 		OnLoadSpecularTexture(boundle, path);
 		m_res = res;
 		OnPostBuildResource(boundle);
@@ -660,10 +660,10 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::text_oarchive oa(ofs);
-	oa << GetResourceKey(material->m_DiffuseTexture);
-	oa << GetResourceKey(material->m_NormalTexture);
-	oa << GetResourceKey(material->m_SpecularTexture);
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("m_DiffuseTexture", GetResourceKey(material->m_DiffuseTexture));
+	oa << boost::serialization::make_nvp("m_NormalTexture", GetResourceKey(material->m_NormalTexture));
+	oa << boost::serialization::make_nvp("m_SpecularTexture", GetResourceKey(material->m_SpecularTexture));
 }
 
 class ResourceMgr::EmitterIORequest : public IORequest
@@ -720,11 +720,11 @@ public:
 		ResourceCallbackBoundlePtr boundle;
 		membuf mb((char *)&(*m_cache)[0], m_cache->size());
 		std::istream ims(&mb);
-		boost::archive::text_iarchive ia(ims);
-		ia >> res;
+		boost::archive::xml_iarchive ia(ims);
+		ia >> boost::serialization::make_nvp("Emitter", res);
 		boundle.reset(new ResourceCallbackBoundle(res));
 		std::string path;
-		ia >> path;
+		ia >> boost::serialization::make_nvp("m_Texture", path);
 		OnLoadTexture(boundle, path);
 		m_res = res;
 		OnPostBuildResource(boundle);
@@ -762,9 +762,9 @@ EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
 void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::text_oarchive oa(ofs);
-	oa << emitter;
-	oa << GetResourceKey(emitter->m_Texture);
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("Emitter", emitter);
+	oa << boost::serialization::make_nvp("m_Texture", GetResourceKey(emitter->m_Texture));
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)

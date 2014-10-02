@@ -5,13 +5,13 @@
 class RenderPipeline
 {
 public:
-	my::Texture2DPtr m_ShadowRT;
-
-	my::SurfacePtr m_ShadowDS;
-
 	my::EffectPtr m_SimpleSample;
 
 	my::OctreeRootPtr m_OctScene;
+
+	//my::Texture2DPtr m_ShadowRT;
+
+	//my::SurfacePtr m_ShadowDS;
 
 public:
 	RenderPipeline(void);

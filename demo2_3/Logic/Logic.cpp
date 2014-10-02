@@ -32,13 +32,34 @@ void Logic::Create(void)
 	}
 
 	Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\"");
-	PhysXTriangleMeshPtr tri_mesh = Game::getSingleton().LoadTriangleMesh("mesh/scene_tm.phy");
-	m_StaticSceneActor.reset(Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity()));
-	PxShape * shape = m_StaticSceneActor->createShape(PxTriangleMeshGeometry(tri_mesh->m_ptr), *Game::getSingleton().m_PxMaterial);
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-	Game::getSingleton().m_Scene->addActor(*m_StaticSceneActor);
 
-	Game::getSingleton().m_Scene->addActor(*PxCreateDynamic(
+	OgreMeshSetPtr scene = Game::getSingleton().LoadMeshSet("mesh/scene.mesh.xml");
+	PxRigidActor * scene_actor = Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity());
+	OgreMeshSet::const_iterator mesh_iter = scene->begin();
+	for (; mesh_iter != scene->end(); mesh_iter++)
+	{
+		// 插入场景渲染模型
+		MeshComponentPtr comp(new MeshComponent((*mesh_iter)->m_aabb));
+		comp->m_Mesh = *mesh_iter;
+		std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			comp->m_Materials.push_back(MeshComponent::MaterialPair(
+				Game::getSingleton().LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())),
+				Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
+		}
+		Game::getSingleton().m_OctScene->PushComponent(comp, 0.1f);
+
+		// 插入场景物理模型
+		MemoryOStreamPtr ostr(new MemoryOStream());
+		Game::getSingleton().CookTriangleMesh(ostr, *mesh_iter);
+		IStreamPtr istr(new MemoryIStream(&(*ostr->m_cache)[0], ostr->m_cache->size()));
+		PxShape * shape = scene_actor->createShape(PxTriangleMeshGeometry(Game::getSingleton().CreateTriangleMesh(istr)), *Game::getSingleton().m_PxMaterial);
+		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	}
+	Game::getSingleton().m_PxScene->addActor(*scene_actor);
+
+	Game::getSingleton().m_PxScene->addActor(*PxCreateDynamic(
 		*Game::getSingleton().m_sdk, PxTransform(PxVec3(0,3,0)), PxBoxGeometry(PxVec3(1,1,1)), *Game::getSingleton().m_PxMaterial, 1));
 
 	m_LocalPlayer.reset(new Character());

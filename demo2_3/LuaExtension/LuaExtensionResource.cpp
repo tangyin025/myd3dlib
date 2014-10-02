@@ -126,6 +126,7 @@ void ExportResource2Lua(lua_State * L)
 			]
 			.def_readonly("Height", &my::Font::m_Height)
 			.property("Scale", &my::Font::GetScale, &my::Font::SetScale)
+			.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
 		//, class_<my::EffectMacroPair>("EffectMacroPair")
 		//	.def(constructor<>())
@@ -135,7 +136,6 @@ void ExportResource2Lua(lua_State * L)
 		//, class_<my::EffectMacroPairList>("EffectMacroPairList")
 		//	.def(constructor<>())
 		//	.def("push_back", &my::EffectMacroPairList::push_back)
-		//	.def_readonly("LineHeight", &my::Font::m_LineHeight)
 
 		//, class_<my::EffectParameterMap>("EffectParameterMap")
 		//	.def("SetBool", &my::EffectParameterMap::SetBool)

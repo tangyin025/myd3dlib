@@ -157,10 +157,10 @@ public:
 		: public physx::pxtask::LightCpuTask
 	{
 	public:
-		PhysXSceneContext * m_Scene;
+		PhysXSceneContext * m_PxScene;
 
 		StepperTask(PhysXSceneContext * Scene)
-			: m_Scene(Scene)
+			: m_PxScene(Scene)
 		{
 		}
 
@@ -171,8 +171,6 @@ public:
 
 	StepperTask m_Completion0, m_Completion1;
 
-	physx_ptr<PxScene> m_Scene;
-
 	my::Timer m_Timer;
 
 	my::Event m_Sync;
@@ -180,6 +178,8 @@ public:
 	bool m_WaitForResults;
 
 	physx::PxU32 m_ErrorState;
+
+	physx_ptr<PxScene> m_PxScene;
 
 public:
 	PhysXSceneContext(void)

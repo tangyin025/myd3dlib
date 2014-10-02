@@ -27,7 +27,7 @@ void Character::Create(void)
 	cDesc.callback = this;
 	cDesc.behaviorCallback = this;
 	m_controller.reset(
-		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_Scene.get(), cDesc));
+		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_PxScene.get(), cDesc));
 }
 
 void Character::Update(float fElapsedTime)
