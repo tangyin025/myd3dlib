@@ -199,10 +199,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\RenderPipeline.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -242,10 +238,6 @@
 			</File>
 			<File
 				RelativePath=".\PhysXContext.h"
-				>
-			</File>
-			<File
-				RelativePath=".\RenderPipeline.h"
 				>
 			</File>
 			<File
@@ -320,6 +312,14 @@
 			</File>
 			<File
 				RelativePath=".\Component\MeshComponent.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\RenderPipeline.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

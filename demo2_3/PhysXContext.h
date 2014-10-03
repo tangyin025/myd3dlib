@@ -14,36 +14,6 @@ public:
 	void deallocate(void * ptr);
 };
 
-class PhysXContext
-	: public PxErrorCallback
-{
-public:
-	static const my::Vector3 Gravity;
-
-	PhysXAllocator m_Allocator;
-
-	physx_ptr<PxFoundation> m_Foundation;
-
-	physx_ptr<PxPhysics> m_sdk;
-
-	physx_ptr<PxCooking> m_Cooking;
-
-	physx_ptr<PxDefaultCpuDispatcher> m_CpuDispatcher;
-
-	physx_ptr<PxControllerManager> m_ControllerMgr;
-
-	physx_ptr<PxMaterial> m_PxMaterial;
-
-public:
-	PhysXContext(void)
-	{
-	}
-
-	bool OnInit(void);
-
-	void OnShutdown(void);
-};
-
 class PhysXTriangleMesh : public my::DeviceRelatedObjectBase
 {
 public:
@@ -112,22 +82,34 @@ public:
 
 typedef boost::shared_ptr<PhysXClothFabric> PhysXClothFabricPtr;
 
-class PhysXResourceMgr
-	: public PhysXContext
-	, public my::ResourceMgr
+class PhysXContext
+	: public PxErrorCallback
 {
 public:
-	HRESULT OnCreateDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	static const my::Vector3 Gravity;
 
-	HRESULT OnResetDevice(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	PhysXAllocator m_Allocator;
 
-	void OnLostDevice(void);
+	physx_ptr<PxFoundation> m_Foundation;
 
-	void OnDestroyDevice(void);
+	physx_ptr<PxPhysics> m_sdk;
+
+	physx_ptr<PxCooking> m_Cooking;
+
+	physx_ptr<PxDefaultCpuDispatcher> m_CpuDispatcher;
+
+	physx_ptr<PxControllerManager> m_ControllerMgr;
+
+	physx_ptr<PxMaterial> m_PxMaterial;
+
+public:
+	PhysXContext(void)
+	{
+	}
+
+	bool OnInit(void);
+
+	void OnShutdown(void);
 
 	void CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
 
@@ -135,19 +117,11 @@ public:
 
 	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
 
-	void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
-
-	PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
-
 	void CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
 
 	void CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh);
 
 	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
-
-	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
-
-	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 };
 
 class PhysXSceneContext

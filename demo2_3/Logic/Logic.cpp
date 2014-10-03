@@ -118,11 +118,6 @@ void Logic::OnMouseBtnUp(my::InputEventArg * arg)
 
 void Logic::OnKeyDown(InputEventArg * arg)
 {
-	if (Game::getSingleton().m_Console && Game::getSingleton().m_Console->GetVisible())
-	{
-		return;
-	}
-
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
 	switch (karg.kc)
 	{

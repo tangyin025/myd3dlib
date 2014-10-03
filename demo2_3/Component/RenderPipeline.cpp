@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "RenderPipeline.h"
-#include "Game.h"
-#include "Component/MeshComponent.h"
+#include "../Game.h"
+#include "MeshComponent.h"
 
 using namespace my;
 

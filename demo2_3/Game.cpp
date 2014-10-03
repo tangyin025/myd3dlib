@@ -210,14 +210,19 @@ HRESULT Game::OnCreateDevice(
 
 	ParallelTaskManager::StartParallelThread(3);
 
-	if(FAILED(hr = PhysXResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
 
+	if(!PhysXContext::OnInit())
+	{
+		THROW_CUSEXCEPTION(_T("PhysXContext::OnInit failed"));
+	}
+
 	if(!PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION(_T("PhysXResourceMgr::OnInit failed"));
+		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -257,7 +262,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = PhysXResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -294,7 +299,7 @@ void Game::OnLostDevice(void)
 
 	m_EmitterInst->OnLostDevice();
 
-	PhysXResourceMgr::OnLostDevice();
+	ResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -321,7 +326,9 @@ void Game::OnDestroyDevice(void)
 
 	PhysXSceneContext::OnShutdown();
 
-	PhysXResourceMgr::OnDestroyDevice();
+	PhysXContext::OnShutdown();
+
+	ResourceMgr::OnDestroyDevice();
 
 	InputMgr::Destroy();
 
@@ -334,7 +341,7 @@ void Game::OnFrameMove(
 {
 	InputMgr::Update(fTime, fElapsedTime);
 
-	PhysXResourceMgr::CheckRequests();
+	ResourceMgr::CheckRequests();
 
 	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
@@ -386,7 +393,7 @@ void Game::OnUIRender(
 	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
 	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
-		m_Font->DrawString(m_UIRender.get(), info_iter->second.c_str(), Rectangle::LeftTop(5,y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		m_Font->DrawString(m_UIRender.get(), info_iter->second.c_str(), Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 	}
 }
 
@@ -428,11 +435,6 @@ LRESULT Game::MsgProc(
 	LPARAM lParam,
 	bool * pbNoFurtherProcessing)
 {
-	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
-		return 0;
-	}
-
 	if(m_Console
 		&& uMsg == WM_CHAR && (WCHAR)wParam == L'`')
 	{
@@ -442,6 +444,11 @@ LRESULT Game::MsgProc(
 	}
 
 	if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+	{
+		return 0;
+	}
+
+	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
 	{
 		return 0;
 	}
@@ -586,4 +593,110 @@ bool Game::ExecuteCode(const char * code) throw()
 		return false;
 	}
 	return true;
+}
+
+class TriangleMeshIORequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+	Game * m_arc;
+
+	my::CachePtr m_cache;
+
+public:
+	TriangleMeshIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckPath(m_path))
+		{
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(!m_cache)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		PxTriangleMesh * ptr = m_arc->CreateTriangleMesh(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
+		if (!ptr)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("CreateTriangleMesh failed")));
+		}
+		m_res.reset(new PhysXTriangleMesh(ptr));
+	}
+};
+
+void Game::LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback)
+{
+	LoadResourceAsync(path, my::IORequestPtr(new TriangleMeshIORequest(callback, path, this)));
+}
+
+PhysXTriangleMeshPtr Game::LoadTriangleMesh(const std::string & path)
+{
+	return LoadResource<PhysXTriangleMesh>(path, my::IORequestPtr(new TriangleMeshIORequest(my::ResourceCallback(), path, this)));
+}
+
+class ClothFabricIORequest : public my::IORequest
+{
+protected:
+	std::string m_path;
+
+	Game * m_arc;
+
+	my::CachePtr m_cache;
+
+public:
+	ClothFabricIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckPath(m_path))
+		{
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(!m_cache)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		PxClothFabric * ptr = m_arc->CreateClothFabric(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
+		if (!ptr)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("CreateClothFabric failed")));
+		}
+		m_res.reset(new PhysXClothFabric(ptr));
+	}
+};
+
+void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback)
+{
+	LoadResourceAsync(path, my::IORequestPtr(new ClothFabricIORequest(callback, path, this)));
+}
+
+PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
+{
+	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
 }
