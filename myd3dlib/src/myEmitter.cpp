@@ -220,6 +220,7 @@ EmitterInstance::EmitterInstance(void)
 
 EmitterInstance::~EmitterInstance(void)
 {
+	OnDestroyDevice();
 }
 
 HRESULT EmitterInstance::OnCreateDevice(

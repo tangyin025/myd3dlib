@@ -225,6 +225,11 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
+	if(FAILED(hr = RenderPipeline::OnCreate(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		THROW_CUSEXCEPTION(_T("RenderPipeline::OnCreate failed"));
+	}
+
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
 
 	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -234,9 +239,10 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	m_WhiteTex = LoadTexture("texture/white.bmp");
-
-	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
+	if(!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
+	}
 
 	m_Console = ConsolePtr(new Console());
 
@@ -246,10 +252,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	if(FAILED(hr = RenderPipeline::OnCreate(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
+	m_WhiteTex = LoadTexture("texture/white.bmp");
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -318,7 +321,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	m_EmitterInst->OnDestroyDevice();
+	m_EmitterInst.reset();
 
 	m_UIRender.reset();
 
@@ -537,7 +540,7 @@ void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 
 	AddLine(error_str, D3DCOLOR_ARGB(255,255,255,255));
 
-	if(!m_Console->GetVisible())
+	if(m_Console && !m_Console->GetVisible())
 	{
 		m_Console->SetVisible(true);
 	}
@@ -565,9 +568,11 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
+	m_LastErrorStr = str;
+
 	if (m_Console)
 	{
-		m_Console->m_Panel->AddLine(str, Color);
+		m_Console->m_Panel->AddLine(m_LastErrorStr, Color);
 	}
 }
 
@@ -699,4 +704,35 @@ void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCall
 PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
 {
 	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
+}
+
+void Game::OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i)
+{
+	MeshComponentPtr mesh_cmp = weak_mesh_cmp.lock();
+	if (mesh_cmp)
+	{
+		mesh_cmp->m_Materials[i].first = boost::dynamic_pointer_cast<Material>(res);
+
+		LoadEffectAsync("shader/SimpleSample.fx", EffectMacroPairList(), boost::bind(&Game::OnMeshComponentEffectLoaded, this, _1, mesh_cmp, i));
+	}
+}
+
+void Game::OnMeshComponentEffectLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i)
+{
+	MeshComponentPtr mesh_cmp = weak_mesh_cmp.lock();
+	if (mesh_cmp)
+	{
+		mesh_cmp->m_Materials[i].second = boost::dynamic_pointer_cast<Effect>(res);
+	}
+}
+
+MeshComponentPtr Game::LoadMeshComponentAsync(MeshComponentPtr mesh_cmp, my::OgreMeshPtr mesh)
+{
+	mesh_cmp->m_Mesh = mesh;
+	mesh_cmp->m_Materials.resize(mesh_cmp->m_Mesh->m_MaterialNameList.size());
+	for(unsigned int i = 0; i < mesh_cmp->m_Mesh->m_MaterialNameList.size(); i++)
+	{
+		LoadMaterialAsync(str_printf("material/%s.xml", mesh_cmp->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshComponentMaterialLoaded, this, _1, mesh_cmp, i));
+	}
+	return mesh_cmp;
 }

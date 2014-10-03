@@ -2,6 +2,7 @@
 
 #include "Console.h"
 #include "PhysXContext.h"
+#include "Component/MeshComponent.h"
 #include "Component/RenderPipeline.h"
 
 class EffectUIRender
@@ -86,17 +87,19 @@ public:
 
 	ScrInfoType m_ScrInfos;
 
+	std::wstring m_LastErrorStr;
+
 	my::UIRenderPtr m_UIRender;
 
 	my::EmitterInstancePtr m_EmitterInst;
-
-	my::BaseTexturePtr m_WhiteTex;
 
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
 
 	my::CameraPtr m_Camera;
+
+	my::BaseTexturePtr m_WhiteTex;
 
 public:
 	Game(void);
@@ -176,4 +179,10 @@ public:
 	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
 
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
+
+	void OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i);
+
+	void OnMeshComponentEffectLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i);
+
+	MeshComponentPtr LoadMeshComponentAsync(MeshComponentPtr mesh_cmp, my::OgreMeshPtr mesh);
 };

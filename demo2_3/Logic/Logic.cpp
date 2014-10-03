@@ -39,16 +39,9 @@ void Logic::Create(void)
 	for (; mesh_iter != scene->end(); mesh_iter++)
 	{
 		// 插入场景渲染模型
-		MeshComponentPtr comp(new MeshComponent((*mesh_iter)->m_aabb));
-		comp->m_Mesh = *mesh_iter;
-		std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			comp->m_Materials.push_back(MeshComponent::MaterialPair(
-				Game::getSingleton().LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())),
-				Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-		}
-		Game::getSingleton().m_OctScene->PushComponent(comp, 0.1f);
+		Game::getSingleton().m_OctScene->PushComponent(
+			Game::getSingleton().LoadMeshComponentAsync(
+				MeshComponentPtr(new MeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
 
 		// 插入场景物理模型
 		MemoryOStreamPtr ostr(new MemoryOStream());

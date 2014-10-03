@@ -11,11 +11,15 @@ RenderPipeline::RenderPipeline(void)
 
 RenderPipeline::~RenderPipeline(void)
 {
+	OnDestroy();
 }
 
 HRESULT RenderPipeline::OnCreate(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+	if(!(m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	{
+		THROW_CUSEXCEPTION(Game::getSingleton().m_LastErrorStr);
+	}
 
 	m_OctScene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
 
