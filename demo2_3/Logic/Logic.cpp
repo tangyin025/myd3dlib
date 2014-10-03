@@ -74,8 +74,6 @@ void Logic::Update(float fElapsedTime)
 	m_LocalPlayer->m_LookDir = atan2f(-camera->m_View._13, -camera->m_View._33); // ! right hand inverse vector
 
 	m_FixedTickTimer.Step(fElapsedTime, 4);
-
-	Game::getSingleton().PushGrid();
 }
 
 void Logic::OnFixedTick(float fElapsedTime)
@@ -120,6 +118,11 @@ void Logic::OnMouseBtnUp(my::InputEventArg * arg)
 
 void Logic::OnKeyDown(InputEventArg * arg)
 {
+	if (Game::getSingleton().m_Console && Game::getSingleton().m_Console->GetVisible())
+	{
+		return;
+	}
+
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
 	switch (karg.kc)
 	{

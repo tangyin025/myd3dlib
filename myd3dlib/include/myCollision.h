@@ -4,10 +4,13 @@
 
 #include "myMath.h"
 #include <vector>
-#include "myPhysics.h"
 
 namespace my
 {
+	class Contact;
+
+	class RigidBody;
+
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// BoundingSphere
 	// /////////////////////////////////////////////////////////////////////////////////////
@@ -55,8 +58,6 @@ namespace my
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// PotentialContact
 	// /////////////////////////////////////////////////////////////////////////////////////
-
-	class RigidBody;
 
 	struct PotentialContact
 	{
@@ -292,12 +293,7 @@ namespace my
 			return transform[i].xyz;
 		}
 
-		void calculateInternals(void)
-		{
-			_ASSERT(NULL != body);
-
-			transform = offset * body->getTransform();
-		}
+		void calculateInternals(void);
 
 	protected:
 		CollisionPrimitive(const Matrix4 & _offset, float _friction, float _restitution)
