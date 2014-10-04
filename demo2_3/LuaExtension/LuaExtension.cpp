@@ -2,6 +2,130 @@
 #include "../Game.h"
 #include "LuaExtension.h"
 
+namespace luabind
+{
+	int default_converter<std::wstring>::compute_score(lua_State* L, int index)
+	{
+		return lua_type(L, index) == LUA_TSTRING ? 0 : -1;
+	}
+
+	std::wstring default_converter<std::wstring>::from(lua_State* L, int index)
+	{
+		return u8tows(lua_tostring(L, index));
+	}
+
+	void default_converter<std::wstring>::to(lua_State* L, std::wstring const& value)
+	{
+		std::string str = wstou8(value);
+		lua_pushlstring(L, str.data(), str.size());
+	}
+
+	int default_converter<my::ControlEvent>::compute_score(lua_State * L, int index)
+	{
+		return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+	}
+
+	my::ControlEvent default_converter<my::ControlEvent>::from(lua_State * L, int index)
+	{
+		struct InternalExceptionHandler
+		{
+			luabind::object obj;
+			InternalExceptionHandler(const luabind::object & _obj)
+				: obj(_obj)
+			{
+			}
+			void operator()(my::EventArgs * args)
+			{
+				try
+				{
+					obj(args);
+				}
+				catch(const luabind::error & e)
+				{
+					// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
+					Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+				}
+			}
+		};
+		return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+	}
+
+	void default_converter<my::ControlEvent>::to(lua_State * L, my::ControlEvent const & e)
+	{
+		_ASSERT(false);
+	}
+
+	int default_converter<my::ResourceCallback>::compute_score(lua_State * L, int index)
+	{
+		return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+	}
+
+	my::ResourceCallback default_converter<my::ResourceCallback>::from(lua_State * L, int index)
+	{
+		struct InternalExceptionHandler
+		{
+			luabind::object obj;
+			InternalExceptionHandler(const luabind::object & _obj)
+				: obj(_obj)
+			{
+			}
+			void operator()(my::DeviceRelatedObjectBasePtr args)
+			{
+				try
+				{
+					obj(args);
+				}
+				catch(const luabind::error & e)
+				{
+					// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
+					Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+				}
+			}
+		};
+		return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+	}
+
+	void default_converter<my::ResourceCallback>::to(lua_State * L, my::ResourceCallback const & e)
+	{
+		_ASSERT(false);
+	}
+
+	int default_converter<my::TimerEvent>::compute_score(lua_State * L, int index)
+	{
+		return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+	}
+
+	my::TimerEvent default_converter<my::TimerEvent>::from(lua_State * L, int index)
+	{
+		struct InternalExceptionHandler
+		{
+			luabind::object obj;
+			InternalExceptionHandler(const luabind::object & _obj)
+				: obj(_obj)
+			{
+			}
+			void operator()(float interval)
+			{
+				try
+				{
+					obj(interval);
+				}
+				catch(const luabind::error & e)
+				{
+					// ! TimerEvent事件处理是容错的，当事件处理失败后，程序继续运行
+					Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
+				}
+			}
+		};
+		return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+	}
+
+	void default_converter<my::TimerEvent>::to(lua_State * L, my::TimerEvent const & e)
+	{
+		_ASSERT(false);
+	}
+}
+
 static int lua_print(lua_State * L)
 {
 	int n = lua_gettop(L);  /* number of arguments */

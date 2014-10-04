@@ -1,5 +1,4 @@
 #include "stdafx.h"
-#include "../Game.h"
 #include "LuaExtension.h"
 
 using namespace luabind;
