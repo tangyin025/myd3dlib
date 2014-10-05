@@ -575,22 +575,22 @@ public:
 		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
 	}
 
-	virtual void OnLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 	{
 		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnDiffuseTextureLoaded, boundle, _1));
 	}
 
-	virtual void OnLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 	{
 		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnNormalTextureLoaded, boundle, _1));
 	}
 
-	virtual void OnLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 	{
 		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnSpecularTextureLoaded, boundle, _1));
 	}
 
-	virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
 	{
 		boundle->m_callbacks = m_callbacks;
 		m_callbacks.clear();
@@ -609,13 +609,22 @@ public:
 		boost::archive::xml_iarchive ia(ims);
 		std::string path;
 		ia >> boost::serialization::make_nvp("m_DiffuseTexture", path);
-		OnLoadDiffuseTexture(boundle, path);
+		if (!path.empty())
+		{
+			DoLoadDiffuseTexture(boundle, path);
+		}
 		ia >> boost::serialization::make_nvp("m_NormalTexture", path);
-		OnLoadNormalTexture(boundle, path);
+		if (!path.empty())
+		{
+			DoLoadNormalTexture(boundle, path);
+		}
 		ia >> boost::serialization::make_nvp("m_SpecularTexture", path);
-		OnLoadSpecularTexture(boundle, path);
+		if (!path.empty())
+		{
+			DoLoadSpecularTexture(boundle, path);
+		}
 		m_res = res;
-		OnPostBuildResource(boundle);
+		PostBuildResource(boundle);
 	}
 };
 
@@ -634,22 +643,22 @@ MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
 		{
 		}
 
-		virtual void OnLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 		{
 			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = m_arc->LoadTexture(path);
 		}
 
-		virtual void OnLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 		{
 			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = m_arc->LoadTexture(path);
 		}
 
-		virtual void OnLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 		{
 			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = m_arc->LoadTexture(path);
 		}
 
-		virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
 		{
 		}
 	};
@@ -691,12 +700,12 @@ public:
 		boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = boost::dynamic_pointer_cast<BaseTexture>(tex);
 	}
 
-	virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 	{
 		m_arc->LoadTextureAsync(path, boost::bind(&EmitterIORequest::OnTextureLoaded, boundle, _1));
 	}
 
-	virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
 	{
 		boundle->m_callbacks = m_callbacks;
 		m_callbacks.clear();
@@ -725,9 +734,12 @@ public:
 		boundle.reset(new ResourceCallbackBoundle(res));
 		std::string path;
 		ia >> boost::serialization::make_nvp("m_Texture", path);
-		OnLoadTexture(boundle, path);
+		if (!path.empty())
+		{
+			DoLoadTexture(boundle, path);
+		}
 		m_res = res;
-		OnPostBuildResource(boundle);
+		PostBuildResource(boundle);
 	}
 };
 
@@ -746,12 +758,12 @@ EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)
 		{
 		}
 
-		virtual void OnLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
 		{
 			boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = m_arc->LoadTexture(path);
 		}
 
-		virtual void OnPostBuildResource(ResourceCallbackBoundlePtr boundle)
+		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
 		{
 		}
 	};

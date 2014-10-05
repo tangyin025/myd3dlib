@@ -13,16 +13,14 @@ class Demo
 	: public Game
 {
 public:
-	//// ========================================================================================================
-	//// 骨骼动画
-	//// ========================================================================================================
-	//SkeletonMeshComponentPtr m_mesh;
-	//OgreSkeletonAnimationPtr m_skel_anim;
-	//BoneList m_skel_pose;
-	//BoneList m_skel_pose_heir1;
-	//BoneList m_skel_pose_heir2;
-	//typedef std::vector<my::Component *> RenderObjList;
-	//RenderObjList m_RenderObjList;
+	// ========================================================================================================
+	// 骨骼动画
+	// ========================================================================================================
+	SkeletonMeshComponentPtr m_mesh;
+	OgreSkeletonAnimationPtr m_skel_anim;
+	BoneList m_skel_pose;
+	BoneList m_skel_pose_heir1;
+	BoneList m_skel_pose_heir2;
 
 	//// ========================================================================================================
 	//// 大场景
@@ -90,21 +88,21 @@ public:
 
 		ExecuteCode("dofile \"Hud.lua\"");
 
-		//// ========================================================================================================
-		//// 骨骼动画
-		//// ========================================================================================================
-		//m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
-		//m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
-		//std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
-		//for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		//{
-		//	EffectMacroPairList macros;
-		//	macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
-		//	MaterialPtr mat = LoadMaterial(str_printf("material/%s.txt", mat_name_iter->c_str()));
-		//	m_mesh->m_Materials.push_back(MeshComponent::MaterialPair(mat, LoadEffect("shader/SimpleSample.fx", macros)));
-		//}
-		//m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		//m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
+		// ========================================================================================================
+		// 骨骼动画
+		// ========================================================================================================
+		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
+		m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
+		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			EffectMacroPairList macros;
+			macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
+			MaterialPtr mat = LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str()));
+			m_mesh->m_Materials.push_back(MeshComponent::MaterialPair(mat, LoadEffect("shader/SimpleSample.fx", macros)));
+		}
+		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
 		//// ========================================================================================================
 		//// 大场景
@@ -187,34 +185,34 @@ public:
 
 		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
 
-		//// ========================================================================================================
-		//// 骨骼动画
-		//// ========================================================================================================
-		//static float anim_time = 0;
-		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
-		//m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->BuildAnimationPose(
-		//	m_skel_pose,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"),
-		//	"walk",
-		//	anim_time);
-		//m_skel_pose[m_skel_anim->GetBoneIndex("Bip01")].m_position.z = 0; // 固定根节点的z轴移动
-		//m_skel_pose_heir1.clear();
-		//m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir1,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"));
-		//m_skel_pose_heir2.clear();
-		//m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir2,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"));
-		//m_mesh->m_DualQuats.clear();
-		//m_mesh->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
+		// ========================================================================================================
+		// 骨骼动画
+		// ========================================================================================================
+		static float anim_time = 0;
+		anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
+		m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->BuildAnimationPose(
+			m_skel_pose,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"),
+			"walk",
+			anim_time);
+		m_skel_pose[m_skel_anim->GetBoneIndex("Bip01")].m_position.z = 0; // 固定根节点的z轴移动
+		m_skel_pose_heir1.clear();
+		m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
+			m_skel_pose_heir1,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"));
+		m_skel_pose_heir2.clear();
+		m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose.BuildHierarchyBoneList(
+			m_skel_pose_heir2,
+			m_skel_anim->m_boneHierarchy,
+			m_skel_anim->GetBoneIndex("Bip01"));
+		m_mesh->m_DualQuats.clear();
+		m_mesh->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
 
 		//// ========================================================================================================
 		//// 布料系统
@@ -250,16 +248,11 @@ public:
 		//m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 		//PushGrid();
 
-		//// ========================================================================================================
-		//// 骨骼动画
-		//// ========================================================================================================
-		//m_RenderObjList.clear();
-		//m_RenderObjList.push_back(m_mesh.get());
-		//RenderObjList::iterator mesh_cmp_iter = m_RenderObjList.begin();
-		//for(; mesh_cmp_iter != m_RenderObjList.end(); mesh_cmp_iter++)
-		//{
-		//	static_cast<MeshComponent *>(*mesh_cmp_iter)->Draw();
-		//}
+		// ========================================================================================================
+		// 骨骼动画
+		// ========================================================================================================
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		m_mesh->Draw();
 
 		//// ========================================================================================================
 		//// 布料系统

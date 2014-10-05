@@ -42,8 +42,8 @@ game:SaveMaterial("material/sportive03_f_highpolyPhong.xml", material)
 
 material=Material()
 material.DiffuseTexture=game:LoadTexture("texture/Checker.bmp")
-material.NormalTexture=game:LoadTexture("texture/casual19_m_35_normal.png")
-material.SpecularTexture=game:LoadTexture("texture/casual19_m_35_spec.png")
+-- material.NormalTexture=game:LoadTexture("texture/casual19_m_35_normal.png")
+-- material.SpecularTexture=game:LoadTexture("texture/casual19_m_35_spec.png")
 game:SaveMaterial("material/lambert1.xml", material)
 
 -- material=Material()
