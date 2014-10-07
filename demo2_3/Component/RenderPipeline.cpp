@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "RenderPipeline.h"
-#include "../Game.h"
 #include "MeshComponent.h"
 
 using namespace my;
@@ -16,11 +15,6 @@ RenderPipeline::~RenderPipeline(void)
 
 HRESULT RenderPipeline::OnCreate(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(!(m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
-	{
-		THROW_CUSEXCEPTION(Game::getSingleton().m_LastErrorStr);
-	}
-
 	m_OctScene.reset(new OctreeRoot(my::AABB(Vector3(-256,-256,-256),Vector3(256,256,256))));
 
 	return S_OK;
@@ -58,15 +52,11 @@ void RenderPipeline::OnLost(void)
 
 void RenderPipeline::OnDestroy(void)
 {
-	m_SimpleSample.reset();
-
 	m_OctScene.reset();
 }
 
 void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float fElapsedTime, const my::Matrix4 & ViewProj)
 {
-	m_SimpleSample->SetMatrix("g_ViewProj", ViewProj);
-
 	struct QueryCallbackFunc
 	{
 		void operator() (Component * comp)
@@ -78,4 +68,14 @@ void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float
 
 	Frustum frustum(Frustum::ExtractMatrix(ViewProj));
 	m_OctScene->QueryComponent(frustum, QueryCallbackFunc());
+}
+
+void RenderPipeline::AddStaticComponent(my::ComponentPtr comp, float threshold)
+{
+	m_OctScene->PushComponent(comp, threshold);
+}
+
+void RenderPipeline::RemoveStaticComponent(my::ComponentPtr comp)
+{
+	m_OctScene->RemoveComponent(comp);
 }

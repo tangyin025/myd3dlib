@@ -101,6 +101,8 @@ public:
 
 	my::BaseTexturePtr m_WhiteTex;
 
+	my::EffectPtr m_SimpleSample;
+
 public:
 	Game(void);
 

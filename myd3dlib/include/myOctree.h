@@ -103,6 +103,43 @@ namespace my
 				}
 			}
 		}
+
+		bool HaveChildNodes(void)
+		{
+			for (unsigned int i = 0; i < m_Childs.size(); i++)
+			{
+				if (m_Childs[i])
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		bool RemoveComponent(ComponentPtr comp)
+		{
+			ComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
+			if (comp_iter != m_ComponentList.end())
+			{
+				m_ComponentList.erase(comp_iter);
+				return true;
+			}
+			else
+			{
+				for (unsigned int i = 0; i < m_Childs.size(); i++)
+				{
+					if (m_Childs[i] && m_Childs[i]->RemoveComponent(comp))
+					{
+						if (!m_Childs[i]->HaveChildNodes() && m_Childs[i]->m_ComponentList.empty())
+						{
+							m_Childs[i].reset();
+						}
+						return true;
+					}
+				}
+			}
+			return false;
+		}
 	};
 
 	class OctreeNodeY;
@@ -121,7 +158,7 @@ namespace my
 		{
 		}
 
-		void PushComponent(ComponentPtr comp, float threshold);
+		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
 	};
 
 	class OctreeNodeY : public OctreeNodeBase<OctreeNodeZ>
@@ -136,7 +173,7 @@ namespace my
 		{
 		}
 
-		void PushComponent(ComponentPtr comp, float threshold);
+		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
 	};
 
 	class OctreeNodeZ : public OctreeNodeBase<OctreeNodeX>
@@ -151,7 +188,7 @@ namespace my
 		{
 		}
 
-		void PushComponent(ComponentPtr comp, float threshold);
+		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
 	};
 
 	typedef OctreeNodeX OctreeRoot;

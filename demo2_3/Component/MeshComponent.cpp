@@ -1,6 +1,5 @@
 #include "StdAfx.h"
 #include "MeshComponent.h"
-#include "../Game.h"
 
 using namespace my;
 

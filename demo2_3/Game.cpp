@@ -254,6 +254,11 @@ HRESULT Game::OnCreateDevice(
 
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
+	if(!(m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	{
+		THROW_CUSEXCEPTION(Game::getSingleton().m_LastErrorStr);
+	}
+
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	return S_OK;
@@ -315,6 +320,8 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
+	m_SimpleSample.reset();
+
 	m_Camera.reset();
 
 	m_Console.reset();
@@ -360,6 +367,8 @@ void Game::OnFrameRender(
 {
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+
+	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
 	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime, m_Camera->m_ViewProj);
 
