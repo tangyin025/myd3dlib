@@ -1788,6 +1788,11 @@ void DxutApp::ChangeDevice(DXUTD3D9DeviceSettings & deviceSettings)
 		}
 	}
 
+	if (!m_wnd->IsWindowVisible())
+	{
+		m_wnd->ShowWindow(SW_SHOW);
+	}
+
 	m_DeviceSettings = deviceSettings;
 
 	m_IgnoreSizeChange = false;
