@@ -247,9 +247,18 @@ namespace my
 			UINT Rings = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
+		ID3DXMesh * CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
 
-		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
+		ID3DXMesh * CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
+
+		ID3DXMesh * CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut);
+
+		ID3DXMesh * SimplifyMesh(
+			const DWORD *pAdjacency,
+			DWORD MinValue,
+			DWORD Options = D3DXMESHSIMP_FACE,
+			const D3DXATTRIBUTEWEIGHTS *pVertexAttributeWeights = NULL,
+			const FLOAT *pVertexWeights = NULL);
 
 		void ConvertAdjacencyToPointReps(CONST DWORD * pAdjacency, DWORD * pPRep);
 
@@ -291,7 +300,7 @@ namespace my
 
 		DWORD * LockAttributeBuffer(DWORD Flags = 0);
 
-		CComPtr<ID3DXMesh> Optimize(
+		ID3DXMesh * Optimize(
 			DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
@@ -319,6 +328,8 @@ namespace my
 		std::vector<std::string> m_MaterialNameList;
 
 		AABB m_aabb;
+
+		std::vector<DWORD> m_Adjacency;
 
 	public:
 		OgreMesh(void)

@@ -305,6 +305,8 @@ namespace my
 
 		void OnDestroyDevice(void);
 
+		void AddResource(const std::string & key, DeviceRelatedObjectBasePtr res);
+
 		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
 	};
 

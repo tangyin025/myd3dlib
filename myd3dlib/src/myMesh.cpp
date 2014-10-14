@@ -451,18 +451,50 @@ void Mesh::CreateTorus(
 	Create(pMesh);
 }
 
-CComPtr<ID3DXMesh> Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
+ID3DXMesh * Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
 {
-	CComPtr<ID3DXMesh> CloneMesh;
-	V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &CloneMesh));
-	return CloneMesh;
+	ID3DXMesh * ret;
+	V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &ret));
+	return ret;
 }
 
-CComPtr<ID3DXMesh> Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
+ID3DXMesh * Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
 {
-	CComPtr<ID3DXMesh> CloneMesh;
-	V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &CloneMesh));
-	return CloneMesh;
+	ID3DXMesh * ret;
+	V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &ret));
+	return ret;
+}
+
+ID3DXMesh * Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut)
+{
+	ID3DXMesh * ret;
+	CComPtr<ID3DXBuffer> ErrorMsgs;
+	HRESULT hres = D3DXCleanMesh(CleanType, m_ptr, pAdjacencyIn, &ret, pAdjacencyOut, &ErrorMsgs);
+	if (FAILED(hres))
+	{
+		if (ErrorMsgs)
+		{
+			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
+		}
+		THROW_D3DEXCEPTION(hres);
+	}
+	return ret;
+}
+
+ID3DXMesh * Mesh::SimplifyMesh(
+	const DWORD *pAdjacency,
+	DWORD MinValue,
+	DWORD Options,
+	const D3DXATTRIBUTEWEIGHTS *pVertexAttributeWeights,
+	const FLOAT *pVertexWeights)
+{
+	ID3DXMesh * ret = NULL;
+	hr = D3DXSimplifyMesh(m_ptr, pAdjacency, pVertexAttributeWeights, pVertexWeights, MinValue, Options, &ret);
+	if (FAILED(hr))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+	return ret;
 }
 
 void Mesh::ConvertAdjacencyToPointReps(CONST DWORD * pAdjacency, DWORD * pPRep)
@@ -586,16 +618,16 @@ DWORD * Mesh::LockAttributeBuffer(DWORD Flags)
 	return pData;
 }
 
-CComPtr<ID3DXMesh> Mesh::Optimize(
+ID3DXMesh * Mesh::Optimize(
 	DWORD Flags,
 	CONST DWORD * pAdjacencyIn,
 	DWORD * pAdjacencyOut,
 	DWORD * pFaceRemap,
 	LPD3DXBUFFER * ppVertexRemap)
 {
-	CComPtr<ID3DXMesh> OptMesh;
-	V(m_ptr->Optimize(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap, &OptMesh));
-	return OptMesh;
+	ID3DXMesh * ret;
+	V(m_ptr->Optimize(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap, &ret));
+	return ret;
 }
 
 void Mesh::OptimizeInplace(DWORD Flags,
@@ -884,22 +916,23 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	UnlockAttributeBuffer();
 	UnlockIndexBuffer();
 
-	std::vector<DWORD> rgdwAdjacency(GetNumFaces() * 3);
-	GenerateAdjacency((float)EPSILON_E6, &rgdwAdjacency[0]);
+	std::vector<DWORD> adjacency(GetNumFaces() * 3);
+	GenerateAdjacency((float)EPSILON_E6, &adjacency[0]);
 	if(bComputeTangentFrame)
 	{
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
 		//if(!normals)
 		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
 		//HRESULT hres = D3DXComputeTangentFrameEx(
-		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &rgdwAdjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
+		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &m_Adjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
 		//if(FAILED(hres))
 		//{
 		//	THROW_D3DEXCEPTION(hres);
 		//}
 		ComputeTangentFrame();
 	}
-	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &rgdwAdjacency[0], NULL, NULL, NULL);
+	m_Adjacency.resize(GetNumFaces() * 3);
+	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
 }
 
 void OgreMesh::ComputeTangentFrame(void)

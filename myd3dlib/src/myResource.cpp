@@ -507,6 +507,13 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_ResourceWeakSet.clear();
 }
 
+void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
+{
+	_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
+
+	m_ResourceWeakSet[key] = res;
+}
+
 std::string DeviceRelatedResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
 {
 	DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
@@ -659,9 +666,7 @@ bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPt
 			{
 				request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
 
-				_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
-
-				m_ResourceWeakSet[key] = request->m_res;
+				AddResource(key, request->m_res);
 			}
 			catch(const Exception & e)
 			{
