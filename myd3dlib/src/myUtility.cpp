@@ -779,6 +779,23 @@ void ResourceMgr::SaveEmitter(const std::string & path, EmitterPtr emitter)
 	oa << boost::serialization::make_nvp("m_Texture", GetResourceKey(emitter->m_Texture));
 }
 
+void ResourceMgr::SaveMesh(const std::string & path, OgreMeshPtr mesh)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	mesh->SaveMesh(ofs);
+}
+
+void ResourceMgr::SaveSimplyMesh(const std::string & path, OgreMeshPtr mesh, DWORD MinFaces)
+{
+	OgreMeshPtr mesh_sim(new OgreMesh());
+	mesh_sim->Create(mesh->SimplifyMesh(&mesh->m_Adjacency[0], MinFaces, D3DXMESHSIMP_FACE).Detach());
+	mesh_sim->m_aabb = mesh->m_aabb;
+	mesh_sim->m_Adjacency = mesh->m_Adjacency;
+	mesh_sim->m_MaterialNameList = mesh->m_MaterialNameList;
+	mesh_sim->m_VertexElems = mesh->m_VertexElems;
+	SaveMesh(path, mesh_sim);
+}
+
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 {
 	m_input.reset(new Input);

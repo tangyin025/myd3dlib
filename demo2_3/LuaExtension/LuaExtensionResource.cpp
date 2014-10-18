@@ -173,6 +173,8 @@ void ExportResource2Lua(lua_State * L)
 			.def("LoadEmitterAsync", &my::ResourceMgr::LoadEmitterAsync)
 			.def("LoadEmitter", &my::ResourceMgr::LoadEmitter)
 			.def("SaveEmitter", &my::ResourceMgr::SaveEmitter)
+			.def("SaveMesh", &my::ResourceMgr::SaveMesh)
+			.def("SaveSimplyMesh", &my::ResourceMgr::SaveSimplyMesh)
 
 		, def("res2texture", (my::BaseTexturePtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::BaseTexture>)
 		, def("res2mesh", (my::OgreMeshPtr (*)(boost::shared_ptr<my::DeviceRelatedObjectBase> const &))&boost::dynamic_pointer_cast<my::OgreMesh>)

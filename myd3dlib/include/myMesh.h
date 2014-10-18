@@ -65,6 +65,8 @@ namespace my
 
 		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream);
 
+		unsigned int CalcTextureCoords(void);
+
 		void InsertPositionElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
 		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0);
@@ -363,6 +365,8 @@ namespace my
 			const bool bUseSharedGeometry = true,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
+
+		void SaveMesh(std::ostream & ostr);
 
 		void ComputeTangentFrame(void);
 

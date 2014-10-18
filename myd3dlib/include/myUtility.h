@@ -436,6 +436,10 @@ namespace my
 		EmitterPtr LoadEmitter(const std::string & path);
 
 		void SaveEmitter(const std::string & path, EmitterPtr emitter);
+
+		void SaveMesh(const std::string & path, OgreMeshPtr mesh);
+
+		void SaveSimplyMesh(const std::string & path, OgreMeshPtr mesh, DWORD MinFaces);
 	};
 
 	class InputMgr
