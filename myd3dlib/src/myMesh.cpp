@@ -451,23 +451,23 @@ void Mesh::CreateTorus(
 	Create(pMesh);
 }
 
-ID3DXMesh * Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
+CComPtr<ID3DXMesh> Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
 {
-	ID3DXMesh * ret;
+	CComPtr<ID3DXMesh> ret;
 	V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &ret));
 	return ret;
 }
 
-ID3DXMesh * Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
+CComPtr<ID3DXMesh> Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
 {
-	ID3DXMesh * ret;
+	CComPtr<ID3DXMesh> ret;
 	V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &ret));
 	return ret;
 }
 
-ID3DXMesh * Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut)
+CComPtr<ID3DXMesh> Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut)
 {
-	ID3DXMesh * ret;
+	CComPtr<ID3DXMesh> ret;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	HRESULT hres = D3DXCleanMesh(CleanType, m_ptr, pAdjacencyIn, &ret, pAdjacencyOut, &ErrorMsgs);
 	if (FAILED(hres))
@@ -481,14 +481,14 @@ ID3DXMesh * Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, 
 	return ret;
 }
 
-ID3DXMesh * Mesh::SimplifyMesh(
+CComPtr<ID3DXMesh> Mesh::SimplifyMesh(
 	const DWORD *pAdjacency,
 	DWORD MinValue,
 	DWORD Options,
 	const D3DXATTRIBUTEWEIGHTS *pVertexAttributeWeights,
 	const FLOAT *pVertexWeights)
 {
-	ID3DXMesh * ret = NULL;
+	CComPtr<ID3DXMesh> ret = NULL;
 	hr = D3DXSimplifyMesh(m_ptr, pAdjacency, pVertexAttributeWeights, pVertexWeights, MinValue, Options, &ret);
 	if (FAILED(hr))
 	{
@@ -618,14 +618,14 @@ DWORD * Mesh::LockAttributeBuffer(DWORD Flags)
 	return pData;
 }
 
-ID3DXMesh * Mesh::Optimize(
+CComPtr<ID3DXMesh> Mesh::Optimize(
 	DWORD Flags,
 	CONST DWORD * pAdjacencyIn,
 	DWORD * pAdjacencyOut,
 	DWORD * pFaceRemap,
 	LPD3DXBUFFER * ppVertexRemap)
 {
-	ID3DXMesh * ret;
+	CComPtr<ID3DXMesh> ret;
 	V(m_ptr->Optimize(Flags, pAdjacencyIn, pAdjacencyOut, pFaceRemap, ppVertexRemap, &ret));
 	return ret;
 }

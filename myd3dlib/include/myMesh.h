@@ -247,13 +247,13 @@ namespace my
 			UINT Rings = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		ID3DXMesh * CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
+		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
 
-		ID3DXMesh * CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
+		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
 
-		ID3DXMesh * CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut);
+		CComPtr<ID3DXMesh> CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut);
 
-		ID3DXMesh * SimplifyMesh(
+		CComPtr<ID3DXMesh> SimplifyMesh(
 			const DWORD *pAdjacency,
 			DWORD MinValue,
 			DWORD Options = D3DXMESHSIMP_FACE,
@@ -300,7 +300,7 @@ namespace my
 
 		DWORD * LockAttributeBuffer(DWORD Flags = 0);
 
-		ID3DXMesh * Optimize(
+		CComPtr<ID3DXMesh> Optimize(
 			DWORD Flags,
 			CONST DWORD * pAdjacencyIn,
 			DWORD * pAdjacencyOut,
