@@ -259,7 +259,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	m_OctScene.reset(new OctreeRoot(AABB(Vector3(-256,-256,-256), Vector3(256,256,256))));
+	m_OctScene.reset(new OctreeRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000))));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 

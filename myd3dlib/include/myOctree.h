@@ -11,6 +11,8 @@ namespace my
 	class Component
 	{
 	public:
+		static const float MIN_NODE_BLOCK;
+
 		AABB m_aabb;
 
 	public:
@@ -142,56 +144,49 @@ namespace my
 		}
 	};
 
-	class OctreeNodeY;
-
-	class OctreeNodeZ;
-
-	class OctreeNodeX : public OctreeNodeBase<OctreeNodeY>
+	template <DWORD Offset>
+	class OctreeNode : public OctreeNodeBase<OctreeNode<(Offset + 1) % 3> >
 	{
 	public:
-		const float m_X;
+		const float m_half;
 
 	public:
-		OctreeNodeX(const AABB & aabb)
+		OctreeNode(const AABB & aabb)
 			: OctreeNodeBase(aabb)
-			, m_X((aabb.Min.x + aabb.Max.x) * 0.5f)
+			, m_half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
 		{
 		}
 
-		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
-	};
-
-	class OctreeNodeY : public OctreeNodeBase<OctreeNodeZ>
-	{
-	public:
-		const float m_Y;
-
-	public:
-		OctreeNodeY(const AABB & aabb)
-			: OctreeNodeBase(aabb)
-			, m_Y((aabb.Min.y + aabb.Max.y) * 0.5f)
+		void PushComponent(ComponentPtr comp, float threshold = 0.1f)
 		{
+			if (comp->m_aabb.Max[Offset] < m_half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > Component::MIN_NODE_BLOCK)
+			{
+				if (!m_Childs[0])
+				{
+					Vector3 Max = m_aabb.Max;
+					Max[Offset] = m_half;
+					m_Childs[0].reset(new OctreeNode<(Offset + 1) % 3>(AABB(m_aabb.Min, Max)));
+				}
+				m_Childs[0]->PushComponent(comp, threshold);
+			}
+			else if (comp->m_aabb.Min[Offset] > m_half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > Component::MIN_NODE_BLOCK)
+			{
+				if (!m_Childs[1])
+				{
+					Vector3 Min = m_aabb.Min;
+					Min[Offset] = m_half;
+					m_Childs[1].reset(new OctreeNode<(Offset + 1) % 3>(AABB(Min, m_aabb.Max)));
+				}
+				m_Childs[1]->PushComponent(comp, threshold);
+			}
+			else
+			{
+				m_ComponentList.push_back(comp);
+			}
 		}
-
-		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
 	};
 
-	class OctreeNodeZ : public OctreeNodeBase<OctreeNodeX>
-	{
-	public:
-		const float m_Z;
-
-	public:
-		OctreeNodeZ(const AABB & aabb)
-			: OctreeNodeBase(aabb)
-			, m_Z((aabb.Min.z + aabb.Max.z) * 0.5f)
-		{
-		}
-
-		void PushComponent(ComponentPtr comp, float threshold = 1.0f);
-	};
-
-	typedef OctreeNodeX OctreeRoot;
+	typedef OctreeNode<0> OctreeRoot;
 
 	typedef boost::shared_ptr<OctreeRoot> OctreeRootPtr;
 }
