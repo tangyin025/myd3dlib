@@ -250,14 +250,16 @@ HRESULT Game::OnCreateDevice(
 
 	DialogMgr::InsertDlg(m_Console);
 
-	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
-
 	m_WhiteTex = LoadTexture("texture/white.bmp");
 
 	if(!(m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
 	{
 		THROW_CUSEXCEPTION(Game::getSingleton().m_LastErrorStr);
 	}
+
+	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+
+	m_OctScene.reset(new OctreeRoot(AABB(Vector3(-256,-256,-256), Vector3(256,256,256))));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -320,9 +322,11 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	m_SimpleSample.reset();
+	m_OctScene.reset();
 
 	m_Camera.reset();
+
+	m_SimpleSample.reset();
 
 	m_Console.reset();
 
@@ -370,7 +374,17 @@ void Game::OnFrameRender(
 
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime, m_Camera->m_ViewProj);
+	struct QueryCallbackFunc
+	{
+		void operator() (Component * comp)
+		{
+			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
+			mesh_comp->Draw();
+		}
+	};
+
+	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+	m_OctScene->QueryComponent(frustum, QueryCallbackFunc());
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 

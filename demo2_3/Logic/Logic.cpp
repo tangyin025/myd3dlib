@@ -39,7 +39,7 @@ void Logic::Create(void)
 	for (; mesh_iter != scene->end(); mesh_iter++)
 	{
 		// 插入场景渲染模型
-		Game::getSingleton().AddStaticComponent(
+		Game::getSingleton().m_OctScene->PushComponent(
 			Game::getSingleton().LoadMeshComponentAsync(
 				MeshComponentPtr(new MeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
 

@@ -97,11 +97,13 @@ public:
 
 	ConsolePtr m_Console;
 
-	my::CameraPtr m_Camera;
-
 	my::BaseTexturePtr m_WhiteTex;
 
 	my::EffectPtr m_SimpleSample;
+
+	my::CameraPtr m_Camera;
+
+	my::OctreeRootPtr m_OctScene;
 
 public:
 	Game(void);
