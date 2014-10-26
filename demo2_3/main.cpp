@@ -91,8 +91,10 @@ public:
 		// ========================================================================================================
 		// ¹Ç÷À¶¯»­
 		// ========================================================================================================
+		SaveSimplyMesh("aaa.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 400);
+
 		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
-		m_mesh->m_Mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
+		m_mesh->m_Mesh = LoadMesh("aaa.mesh.xml");
 		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{

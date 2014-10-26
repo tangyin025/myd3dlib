@@ -92,32 +92,11 @@ void CChildView::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	ASSERT(m_d3dSwapChain);
-
-	HRESULT hr;
-	my::Surface BackBuffer;
-	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
-	V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
-
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		theApp.m_UIRender->Begin();
-		theApp.m_UIRender->SetViewProj(m_ViewProj);
-		theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
-		theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,0,0,0), my::Font::AlignLeftTop);
-		theApp.m_UIRender->End();
-		V(pd3dDevice->EndScene());
-	}
-
-	if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
-	{
-		if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
-		{
-			theApp.ResetD3DDevice();
-		}
-	}
+	theApp.m_UIRender->Begin();
+	theApp.m_UIRender->SetViewProj(m_ViewProj);
+	theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
+	theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,0,0,0), my::Font::AlignLeftTop);
+	theApp.m_UIRender->End();
 }
 
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
@@ -162,7 +141,29 @@ void CChildView::OnPaint()
 	// Do not call CView::OnPaint() for painting messages
 	if(m_d3dSwapChain)
 	{
-		OnFrameRender(theApp.GetD3D9Device(), theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+		IDirect3DDevice9 * pd3dDevice = theApp.GetD3D9Device();
+		_ASSERT(pd3dDevice);
+
+		my::Surface BackBuffer;
+		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+		V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
+		V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
+
+		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		{
+			OnFrameRender(pd3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+
+			V(pd3dDevice->EndScene());
+		}
+
+		if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
+		{
+			if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+			{
+				theApp.ResetD3DDevice();
+			}
+		}
 	}
 }
 

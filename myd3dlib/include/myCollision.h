@@ -547,6 +547,8 @@ namespace my
 		};
 
 		static IntersectionType IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum);
+
+		static IntersectionType IntersectSphereAndFrustum(const Vector3 & center, float radius, const Frustum & frustum);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

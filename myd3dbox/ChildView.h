@@ -45,6 +45,7 @@ public:
 #endif
 
 protected:
+	HRESULT hr;
 
 // Generated message map functions
 protected:

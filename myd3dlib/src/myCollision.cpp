@@ -536,6 +536,24 @@ namespace my
 		return ret;
 	}
 
+	IntersectionTests::IntersectionType IntersectionTests::IntersectSphereAndFrustum(const Vector3 & center, float radius, const Frustum & frustum)
+	{
+		IntersectionType ret = IntersectionTypeInside;
+		for (int i = 0; i < 6; i++)
+		{
+			float dist = frustum[i].DistanceToPoint(center);
+			if (dist < -radius)
+			{
+				return IntersectionTypeOutside;
+			}
+			else if (dist < radius)
+			{
+				ret = IntersectionTypeIntersect;
+			}
+		}
+		return ret;
+	}
+
 	// /////////////////////////////////////////////////////////////////////////////////////
 	// VolumnHelper
 	// /////////////////////////////////////////////////////////////////////////////////////
