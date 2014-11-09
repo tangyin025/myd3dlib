@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "RenderPipeline.h"
-#include "MeshComponent.h"
+
+#define SHADOW_MAP_SIZE 512
 
 using namespace my;
 
@@ -10,15 +11,15 @@ RenderPipeline::RenderPipeline(void)
 
 RenderPipeline::~RenderPipeline(void)
 {
-	OnDestroy();
+	OnDestroyDevice();
 }
 
-HRESULT RenderPipeline::OnCreate(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+HRESULT RenderPipeline::OnCreateDevice(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	return S_OK;
 }
 
-HRESULT RenderPipeline::OnReset(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+HRESULT RenderPipeline::OnResetDevice(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	m_ShadowMap.CreateAdjustedTexture(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
@@ -37,7 +38,7 @@ HRESULT RenderPipeline::OnReset(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_
 	return S_OK;
 }
 
-void RenderPipeline::OnLost(void)
+void RenderPipeline::OnLostDevice(void)
 {
 	m_ShadowMap.OnDestroyDevice();
 
@@ -48,6 +49,31 @@ void RenderPipeline::OnLost(void)
 	m_GBufferL.OnDestroyDevice();
 }
 
-void RenderPipeline::OnDestroy(void)
+void RenderPipeline::OnDestroyDevice(void)
 {
+}
+
+void RenderPipeline::Draw(MeshComponent * mesh_cmp)
+{
+	for (DWORD i = 0; i < mesh_cmp->m_Materials.size(); i++)
+	{
+		_ASSERT(mesh_cmp->m_Mesh);
+		if (mesh_cmp->m_Materials[i])
+		{
+			my::EffectPtr shader = QueryShader(mesh_cmp->MESH_TYPE, MeshComponent::DrawStageCBuffer, mesh_cmp->m_Materials[i].get());
+			if (shader)
+			{
+				mesh_cmp->OnPostRender(shader.get(), MeshComponent::DrawStageCBuffer, i);
+
+				UINT passes = shader->Begin();
+				for (UINT p = 0; p < passes; p++)
+				{
+					shader->BeginPass(p);
+					mesh_cmp->m_Mesh->DrawSubset(i);
+					shader->EndPass();
+				}
+				shader->End();
+			}
+		}
+	}
 }

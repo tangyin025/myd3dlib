@@ -41,7 +41,7 @@ void Logic::Create(void)
 		// 插入场景渲染模型
 		Game::getSingleton().m_OctScene->PushComponent(
 			Game::getSingleton().LoadMeshComponentAsync(
-				MeshComponentPtr(new MeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
+				MeshComponentPtr(new StaticMeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
 
 		// 插入场景物理模型
 		MemoryOStreamPtr ostr(new MemoryOStream());

@@ -99,6 +99,12 @@ public:
 
 	my::BaseTexturePtr m_WhiteTex;
 
+	typedef std::pair<MeshComponent::MeshType, std::pair<MeshComponent::DrawStage, const my::Material *> > ShaderKeyType;
+
+	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
+
 	my::EffectPtr m_SimpleSample;
 
 	my::CameraPtr m_Camera;
@@ -166,6 +172,10 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
+	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
+
+	virtual my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material);
+
 	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
 
 	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
@@ -185,8 +195,6 @@ public:
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 
 	void OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i);
-
-	void OnMeshComponentEffectLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i);
 
 	MeshComponentPtr LoadMeshComponentAsync(MeshComponentPtr mesh_cmp, my::OgreMeshPtr mesh);
 };

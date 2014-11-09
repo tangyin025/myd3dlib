@@ -98,10 +98,7 @@ public:
 		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{
-			EffectMacroPairList macros;
-			macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
-			MaterialPtr mat = LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str()));
-			m_mesh->m_Materials.push_back(MeshComponent::MaterialPair(mat, LoadEffect("shader/SimpleSample.fx", macros)));
+			m_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
 		}
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
@@ -254,7 +251,8 @@ public:
 		// 骨骼动画
 		// ========================================================================================================
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		m_mesh->Draw();
+		//m_mesh->Draw();
+		RenderPipeline::Draw(m_mesh.get());
 
 		//// ========================================================================================================
 		//// 布料系统

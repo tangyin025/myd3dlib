@@ -630,7 +630,7 @@ public:
 
 void ResourceMgr::LoadMaterialAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)), false);
 }
 
 MaterialPtr ResourceMgr::LoadMaterial(const std::string & path)
@@ -745,7 +745,7 @@ public:
 
 void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new EmitterIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new EmitterIORequest(callback, path, this)), false);
 }
 
 EmitterPtr ResourceMgr::LoadEmitter(const std::string & path)

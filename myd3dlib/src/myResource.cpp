@@ -405,7 +405,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 	return 0;
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
+AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request, bool abort)
 {
 	m_IORequestListMutex.Wait(INFINITE);
 
@@ -420,8 +420,11 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 
 	if(req_iter != m_IORequestList.end())
 	{
-		req_iter->second->m_callbacks.insert(
-			req_iter->second->m_callbacks.end(), request->m_callbacks.begin(), request->m_callbacks.end());
+		if (!abort)
+		{
+			req_iter->second->m_callbacks.insert(
+				req_iter->second->m_callbacks.end(), request->m_callbacks.begin(), request->m_callbacks.end());
+		}
 		m_IORequestListMutex.Release();
 		return req_iter;
 	}
@@ -615,7 +618,7 @@ HRESULT AsynchronousResourceMgr::Close(
 	return S_OK;
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request)
+AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
@@ -635,7 +638,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadR
 			m_ResourceWeakSet.erase(res_iter);
 	}
 
-	return PushIORequestResource(key, request);
+	return PushIORequestResource(key, request, abort);
 }
 
 void AsynchronousResourceMgr::CheckRequests(void)
@@ -756,7 +759,7 @@ public:
 
 void AsynchronousResourceMgr::LoadTextureAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new TextureIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new TextureIORequest(callback, path, this)), false);
 }
 
 BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
@@ -817,7 +820,7 @@ public:
 
 void AsynchronousResourceMgr::LoadMeshAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new MeshIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new MeshIORequest(callback, path, this)), false);
 }
 
 OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
@@ -878,7 +881,7 @@ public:
 
 void AsynchronousResourceMgr::LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new MeshSetIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new MeshSetIORequest(callback, path, this)), false);
 }
 
 OgreMeshSetPtr AsynchronousResourceMgr::LoadMeshSet(const std::string & path)
@@ -939,7 +942,7 @@ public:
 
 void AsynchronousResourceMgr::LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
+	LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(callback, path, this)), false);
 }
 
 OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string & path)
@@ -947,77 +950,65 @@ OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string
 	return LoadResource<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 }
 
-class AsynchronousResourceMgr::EffectIORequest : public IORequest
+AsynchronousResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
+	: m_path(path)
+	, m_macros(macros) // ! must cache the string
+	, m_arc(arc)
 {
-protected:
-	std::string m_path;
-
-	std::vector<D3DXMACRO> m_d3dmacros;
-
-	AsynchronousResourceMgr * m_arc;
-
-	CachePtr m_cache;
-
-public:
-	EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
-		: m_path(path)
-		, m_arc(arc)
+	EffectMacroPairList::const_iterator macro_iter = m_macros.begin();
+	for(; macro_iter != m_macros.end(); macro_iter++)
 	{
-		EffectMacroPairList::const_iterator macro_iter = macros.begin();
-		for(; macro_iter != macros.end(); macro_iter++)
-		{
-			D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
-			m_d3dmacros.push_back(d3dmacro);
-		}
-		D3DXMACRO end = {0};
-		m_d3dmacros.push_back(end);
-
-		if(callback)
-		{
-			m_callbacks.push_back(callback);
-		}
+		D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
+		m_d3dmacros.push_back(d3dmacro);
 	}
+	D3DXMACRO end = {0};
+	m_d3dmacros.push_back(end);
 
-	virtual void DoLoad(void)
+	if(callback)
 	{
-		if(m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-		}
+		m_callbacks.push_back(callback);
 	}
+}
 
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void AsynchronousResourceMgr::EffectIORequest::DoLoad(void)
+{
+	if(m_arc->CheckPath(m_path))
 	{
-		if(!m_cache)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
-		}
-		EffectPtr res(new Effect());
-		m_arc->m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
-		PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
-		res->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
-		m_res = res;
+		m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
 	}
+}
 
-	static std::string BuildKey(const std::string & path, const EffectMacroPairList & macros)
+void AsynchronousResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+{
+	if(!m_cache)
 	{
-		std::ostrstream ostr;
-		ostr << path;
-		EffectMacroPairList::const_iterator macro_iter = macros.begin();
-		for(; macro_iter != macros.end(); macro_iter++)
-		{
-			ostr << ", " << macro_iter->first << ", " << macro_iter->second;
-		}
-		ostr << std::ends;
-		return ostr.str();
+		THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 	}
-};
+	EffectPtr res(new Effect());
+	m_arc->m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
+	PathRemoveFileSpecA(&m_arc->m_EffectInclude[0]);
+	res->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], m_arc, 0, m_arc->m_EffectPool);
+	m_res = res;
+}
+
+std::string AsynchronousResourceMgr::EffectIORequest::BuildKey(const std::string & path, const EffectMacroPairList & macros)
+{
+	std::ostrstream ostr;
+	ostr << path;
+	EffectMacroPairList::const_iterator macro_iter = macros.begin();
+	for(; macro_iter != macros.end(); macro_iter++)
+	{
+		ostr << ", " << macro_iter->first << ", " << macro_iter->second;
+	}
+	ostr << std::ends;
+	return ostr.str();
+}
 
 void AsynchronousResourceMgr::LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
-	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)));
+	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)), false);
 }
 
 EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros)
@@ -1079,7 +1070,7 @@ void AsynchronousResourceMgr::LoadFontAsync(const std::string & path, int height
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 
-	LoadResourceAsync(key, IORequestPtr(new FontIORequest(callback, path, height, this)));
+	LoadResourceAsync(key, IORequestPtr(new FontIORequest(callback, path, height, this)), false);
 }
 
 FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)

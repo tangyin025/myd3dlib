@@ -272,7 +272,7 @@ namespace my
 
 		DWORD IORequestProc(void);
 
-		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request);
+		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request, bool abort);
 
 		void StartIORequestProc(void);
 
@@ -350,7 +350,7 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
+		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort);
 
 		void CheckRequests(void);
 
@@ -359,7 +359,7 @@ namespace my
 		template <typename T>
 		boost::shared_ptr<T> LoadResource(const std::string & key, IORequestPtr request)
 		{
-			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
+			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request, false);
 			if (req_iter != m_IORequestList.end())
 			{
 				CheckResource(req_iter->first, req_iter->second, INFINITE);
@@ -393,7 +393,28 @@ namespace my
 
 		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
 
-		class EffectIORequest;
+		class EffectIORequest : public IORequest
+		{
+		protected:
+			std::string m_path;
+
+			EffectMacroPairList m_macros;
+
+			std::vector<D3DXMACRO> m_d3dmacros;
+
+			AsynchronousResourceMgr * m_arc;
+
+			CachePtr m_cache;
+
+		public:
+			EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc);
+
+			virtual void DoLoad(void);
+
+			virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+
+			static std::string BuildKey(const std::string & path, const EffectMacroPairList & macros);
+		};
 
 		void LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
 

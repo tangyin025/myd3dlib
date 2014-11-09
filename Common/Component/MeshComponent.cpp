@@ -3,38 +3,27 @@
 
 using namespace my;
 
-void MeshComponent::Draw(void)
+void StaticMeshComponent::OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
 {
-	if (!m_Materials.empty() && m_Materials.front().second)
+	switch (draw_stage)
 	{
-		m_Materials.front().second->SetMatrix("g_World", m_World);
-	}
-
-	for(DWORD i = 0; i < m_Materials.size(); i++)
-	{
-		MaterialPairList::reference mat_pair = m_Materials[i];
-		if (mat_pair.first && mat_pair.second)
-		{
-			mat_pair.second->SetTexture("g_MeshTexture", mat_pair.first->m_DiffuseTexture);
-			mat_pair.second->SetTechnique("RenderScene");
-			UINT passes = mat_pair.second->Begin();
-			for(UINT p = 0; p < passes; p++)
-			{
-				mat_pair.second->BeginPass(p);
-				m_Mesh->DrawSubset(i);
-				mat_pair.second->EndPass();
-			}
-			mat_pair.second->End();
-		}
+	case DrawStageCBuffer:
+		shader->SetMatrix("g_World", m_World);
+		shader->SetTexture("g_MeshTexture", m_Materials[AttriId]->m_DiffuseTexture);
+		shader->SetTechnique("RenderScene");
+		break;
 	}
 }
 
-void SkeletonMeshComponent::Draw(void)
+void SkeletonMeshComponent::OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
 {
-	if (!m_Materials.empty() && m_Materials.front().second)
+	switch (draw_stage)
 	{
-		m_Materials.front().second->SetMatrixArray("g_dualquat", &m_DualQuats[0], m_DualQuats.size());
+	case DrawStageCBuffer:
+		shader->SetMatrix("g_World", m_World);
+		shader->SetTexture("g_MeshTexture", m_Materials[AttriId]->m_DiffuseTexture);
+		shader->SetMatrixArray("g_dualquat", &m_DualQuats[0], m_DualQuats.size());
+		shader->SetTechnique("RenderScene");
+		break;
 	}
-
-	MeshComponent::Draw();
 }

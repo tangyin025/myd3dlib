@@ -225,9 +225,9 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
-	if(FAILED(hr = RenderPipeline::OnCreate(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = RenderPipeline::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
-		THROW_CUSEXCEPTION(_T("RenderPipeline::OnCreate failed"));
+		THROW_CUSEXCEPTION(_T("RenderPipeline::OnCreateDevice failed"));
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -293,7 +293,7 @@ HRESULT Game::OnResetDevice(
 		m_Camera->EventAlign(&EventArgs());
 	}
 
-	if(FAILED(hr = RenderPipeline::OnReset(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = RenderPipeline::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -305,7 +305,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	RenderPipeline::OnLost();
+	RenderPipeline::OnLostDevice();
 
 	m_EmitterInst->OnLostDevice();
 
@@ -316,7 +316,7 @@ void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	RenderPipeline::OnDestroy();
+	RenderPipeline::OnDestroyDevice();
 
 	ParallelTaskManager::StopParallelThread();
 
@@ -376,15 +376,22 @@ void Game::OnFrameRender(
 
 	struct QueryCallbackFunc
 	{
+		RenderPipeline & m_render;
+		QueryCallbackFunc(RenderPipeline & render)
+			: m_render(render)
+		{
+		}
+
 		void operator() (Component * comp)
 		{
 			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
-			mesh_comp->Draw();
+			//mesh_comp->Draw();
+			m_render.Draw(mesh_comp);
 		}
 	};
 
 	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-	m_OctScene->QueryComponent(frustum, QueryCallbackFunc());
+	m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
@@ -557,6 +564,44 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
 }
 
+void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
+{
+	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+}
+
+my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material)
+{
+	// ! make sure hash_value(std::pair<.., std::pair<..,..>>) is valid
+	ShaderKeyType key(mesh_type, std::make_pair(draw_stage, material));
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	if (shader_iter != m_ShaderCache.end())
+	{
+		return shader_iter->second;
+	}
+
+	switch (draw_stage)
+	{
+	case MeshComponent::DrawStageCBuffer:
+		{
+			EffectMacroPairList macros;
+			macros.push_back(EffectMacroPair("VS_SKINED_AAAA",""));
+			if (mesh_type == MeshComponent::MeshTypeAnimation)
+			{
+				macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
+			}
+
+			std::string path = "shader/SimpleSample.fx";
+			std::string key_str = EffectIORequest::BuildKey(path, macros);
+			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
+			LoadResourceAsync(key_str, IORequestPtr(new EffectIORequest(callback, path, macros, this)), true);
+		}
+		break;
+	}
+
+	return my::EffectPtr();
+}
+
 void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 {
 	_ASSERT(m_Console && m_Console->m_Panel);
@@ -668,7 +713,7 @@ public:
 
 void Game::LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback)
 {
-	LoadResourceAsync(path, my::IORequestPtr(new TriangleMeshIORequest(callback, path, this)));
+	LoadResourceAsync(path, my::IORequestPtr(new TriangleMeshIORequest(callback, path, this)), false);
 }
 
 PhysXTriangleMeshPtr Game::LoadTriangleMesh(const std::string & path)
@@ -721,7 +766,7 @@ public:
 
 void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback)
 {
-	LoadResourceAsync(path, my::IORequestPtr(new ClothFabricIORequest(callback, path, this)));
+	LoadResourceAsync(path, my::IORequestPtr(new ClothFabricIORequest(callback, path, this)), false);
 }
 
 PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
@@ -734,18 +779,7 @@ void Game::OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boo
 	MeshComponentPtr mesh_cmp = weak_mesh_cmp.lock();
 	if (mesh_cmp)
 	{
-		mesh_cmp->m_Materials[i].first = boost::dynamic_pointer_cast<Material>(res);
-
-		LoadEffectAsync("shader/SimpleSample.fx", EffectMacroPairList(), boost::bind(&Game::OnMeshComponentEffectLoaded, this, _1, mesh_cmp, i));
-	}
-}
-
-void Game::OnMeshComponentEffectLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i)
-{
-	MeshComponentPtr mesh_cmp = weak_mesh_cmp.lock();
-	if (mesh_cmp)
-	{
-		mesh_cmp->m_Materials[i].second = boost::dynamic_pointer_cast<Effect>(res);
+		mesh_cmp->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
 	}
 }
 

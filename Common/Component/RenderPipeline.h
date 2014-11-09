@@ -1,6 +1,6 @@
 #pragma once
 
-#define SHADOW_MAP_SIZE 512
+#include "MeshComponent.h"
 
 class RenderPipeline
 {
@@ -18,11 +18,19 @@ public:
 
 	virtual ~RenderPipeline(void);
 
-	HRESULT OnCreate(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	HRESULT OnReset(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	void OnLost(void);
+	void OnLostDevice(void);
 
-	void OnDestroy(void);
+	void OnDestroyDevice(void);
+
+	virtual my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material) = 0;
+
+	void Draw(MeshComponent * mesh_cmp);
 };

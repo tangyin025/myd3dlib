@@ -3,40 +3,70 @@
 class MeshComponent : public my::Component
 {
 public:
-	my::Matrix4 m_World;
+	enum MeshType
+	{
+		MeshTypeStatic,
+		MeshTypeAnimation,
+	};
 
-	typedef std::pair<my::MaterialPtr, my::EffectPtr> MaterialPair;
+	const MeshType MESH_TYPE;
 
-	typedef std::vector<MaterialPair> MaterialPairList;
+	enum DrawStage
+	{
+		DrawStageShadow,
+		DrawStageNBuffer,
+		DrawStageDBuffer,
+		DrawStageCBuffer,
+	};
 
-	MaterialPairList m_Materials;
+	typedef std::vector<my::MaterialPtr> MaterialPtrList;
+
+	MaterialPtrList m_Materials;
 
 	my::OgreMeshPtr m_Mesh;
 
 public:
-	MeshComponent(const my::AABB & aabb)
+	MeshComponent(const my::AABB & aabb, MeshType mesh_type)
 		: my::Component(aabb)
-		, m_World(my::Matrix4::Identity())
+		, MESH_TYPE(mesh_type)
 	{
 	}
 
-	virtual void Draw(void);
+	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId) = 0;
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
 
+class StaticMeshComponent : public MeshComponent
+{
+public:
+	my::Matrix4 m_World;
+
+public:
+	StaticMeshComponent(const my::AABB & aabb)
+		: MeshComponent(aabb, MeshTypeStatic)
+		, m_World(my::Matrix4::Identity())
+	{
+	}
+
+	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
+};
+
 class SkeletonMeshComponent : public MeshComponent
 {
 public:
+	my::Matrix4 m_World;
+
 	my::TransformList m_DualQuats;
 
 public:
 	SkeletonMeshComponent(const my::AABB & aabb)
-		: MeshComponent(aabb)
+		: MeshComponent(aabb, MeshTypeAnimation)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
-	virtual void Draw(void);
+	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
