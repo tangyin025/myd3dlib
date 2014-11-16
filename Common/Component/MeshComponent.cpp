@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void StaticMeshComponent::OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
+void StaticMeshComponent::OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
 {
 	switch (draw_stage)
 	{
@@ -15,7 +15,7 @@ void StaticMeshComponent::OnPostRender(my::Effect * shader, DrawStage draw_stage
 	}
 }
 
-void SkeletonMeshComponent::OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
+void SkeletonMeshComponent::OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId)
 {
 	switch (draw_stage)
 	{

@@ -99,7 +99,7 @@ public:
 
 	my::BaseTexturePtr m_WhiteTex;
 
-	typedef std::pair<MeshComponent::MeshType, std::pair<MeshComponent::DrawStage, const my::Material *> > ShaderKeyType;
+	typedef boost::tuple<MeshComponent::MeshType, MeshComponent::DrawStage, const my::Material *> ShaderKeyType;
 
 	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
 

@@ -32,7 +32,7 @@ public:
 	{
 	}
 
-	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId) = 0;
+	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId) = 0;
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -49,7 +49,7 @@ public:
 	{
 	}
 
-	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
+	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
 };
 
 class SkeletonMeshComponent : public MeshComponent
@@ -66,7 +66,7 @@ public:
 	{
 	}
 
-	virtual void OnPostRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
+	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;

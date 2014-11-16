@@ -63,7 +63,7 @@ void RenderPipeline::Draw(MeshComponent * mesh_cmp)
 			my::EffectPtr shader = QueryShader(mesh_cmp->MESH_TYPE, MeshComponent::DrawStageCBuffer, mesh_cmp->m_Materials[i].get());
 			if (shader)
 			{
-				mesh_cmp->OnPostRender(shader.get(), MeshComponent::DrawStageCBuffer, i);
+				mesh_cmp->OnPreRender(shader.get(), MeshComponent::DrawStageCBuffer, i);
 
 				UINT passes = shader->Begin();
 				for (UINT p = 0; p < passes; p++)
