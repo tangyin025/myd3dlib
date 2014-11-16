@@ -239,7 +239,8 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	if(!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
+	if (!m_Font)
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
@@ -251,10 +252,15 @@ HRESULT Game::OnCreateDevice(
 	DialogMgr::InsertDlg(m_Console);
 
 	m_WhiteTex = LoadTexture("texture/white.bmp");
-
-	if(!(m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	if (!m_WhiteTex)
 	{
-		THROW_CUSEXCEPTION(Game::getSingleton().m_LastErrorStr);
+		THROW_CUSEXCEPTION(m_LastErrorStr);
+	}
+
+	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
+	if (!m_SimpleSample)
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
