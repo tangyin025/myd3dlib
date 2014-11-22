@@ -6,6 +6,7 @@
 using namespace my;
 
 RenderPipeline::RenderPipeline(void)
+	: m_ResMgr(NULL)
 {
 }
 
@@ -14,8 +15,17 @@ RenderPipeline::~RenderPipeline(void)
 	OnDestroyDevice();
 }
 
-HRESULT RenderPipeline::OnCreateDevice(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+HRESULT RenderPipeline::OnCreateDevice(my::ResourceMgr * res_mgr, IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	_ASSERT(res_mgr);
+
+	m_ResMgr = res_mgr;
+
+	if (!(m_SimpleSample = m_ResMgr->LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	{
+		S_FALSE;
+	}
+
 	return S_OK;
 }
 
@@ -25,7 +35,6 @@ HRESULT RenderPipeline::OnResetDevice(IDirect3DDevice9 * pd3dDevice, const D3DSU
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	//DXUTDeviceSettings d3dSettings = DXUTGetDeviceSettings();
 	m_ShadowMapDS.CreateDepthStencilSurface(
 		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
@@ -51,6 +60,55 @@ void RenderPipeline::OnLostDevice(void)
 
 void RenderPipeline::OnDestroyDevice(void)
 {
+	m_SimpleSample.reset();
+
+	m_ShaderCache.clear();
+}
+
+void RenderPipeline::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
+{
+	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+}
+
+static size_t hash_value(const RenderPipeline::ShaderKeyType & key)
+{
+	size_t seed = 0;
+	boost::hash_combine(seed, key.get<0>());
+	boost::hash_combine(seed, key.get<1>());
+	boost::hash_combine(seed, key.get<2>());
+	return seed;
+}
+
+my::EffectPtr RenderPipeline::QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material)
+{
+	// ! make sure hash_value(ShaderKeyType ..) is valid
+	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	if (shader_iter != m_ShaderCache.end())
+	{
+		return shader_iter->second;
+	}
+
+	switch (draw_stage)
+	{
+	case MeshComponent::DrawStageCBuffer:
+		{
+			EffectMacroPairList macros;
+			if (mesh_type == MeshComponent::MeshTypeAnimation)
+			{
+				macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
+			}
+
+			std::string path = "shader/SimpleSample.fx";
+			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
+			ResourceCallback callback = boost::bind(&RenderPipeline::OnShaderLoaded, this, _1, key);
+			m_ResMgr->LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, m_ResMgr)), true);
+		}
+		break;
+	}
+
+	return my::EffectPtr();
 }
 
 void RenderPipeline::Draw(MeshComponent * mesh_cmp)

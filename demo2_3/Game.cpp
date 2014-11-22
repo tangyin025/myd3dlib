@@ -225,7 +225,7 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
-	if(FAILED(hr = RenderPipeline::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = RenderPipeline::OnCreateDevice(this, pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		THROW_CUSEXCEPTION(_T("RenderPipeline::OnCreateDevice failed"));
 	}
@@ -239,8 +239,7 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
-	if (!m_Font)
+	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
@@ -251,21 +250,14 @@ HRESULT Game::OnCreateDevice(
 
 	DialogMgr::InsertDlg(m_Console);
 
-	m_WhiteTex = LoadTexture("texture/white.bmp");
-	if (!m_WhiteTex)
-	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
-	}
-
-	m_SimpleSample = Game::getSingleton().LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-	if (!m_SimpleSample)
+	if (!(m_WhiteTex = LoadTexture("texture/white.bmp")))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	m_OctScene.reset(new OctRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000)), 1.1f));
+	//m_OctScene.reset(new OctRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000)), 1.1f));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -328,11 +320,9 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	m_OctScene.reset();
+	//m_OctScene.reset();
 
 	m_Camera.reset();
-
-	m_SimpleSample.reset();
 
 	m_Console.reset();
 
@@ -380,24 +370,24 @@ void Game::OnFrameRender(
 
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-	struct QueryCallbackFunc
-	{
-		RenderPipeline & m_render;
-		QueryCallbackFunc(RenderPipeline & render)
-			: m_render(render)
-		{
-		}
+	//struct QueryCallbackFunc
+	//{
+	//	RenderPipeline & m_render;
+	//	QueryCallbackFunc(RenderPipeline & render)
+	//		: m_render(render)
+	//	{
+	//	}
 
-		void operator() (AABBNode * node)
-		{
-			MeshComponent * mesh_comp = static_cast<MeshComponent *>(node);
-			//mesh_comp->Draw();
-			m_render.Draw(mesh_comp);
-		}
-	};
+	//	void operator() (AABBNode * node)
+	//	{
+	//		MeshComponent * mesh_comp = static_cast<MeshComponent *>(node);
+	//		//mesh_comp->Draw();
+	//		m_render.Draw(mesh_comp);
+	//	}
+	//};
 
-	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-	m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
+	//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+	//m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
@@ -568,52 +558,6 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   //int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
   //return report(L, status);
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
-}
-
-void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
-{
-	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
-}
-
-static size_t hash_value(const Game::ShaderKeyType & key)
-{
-	size_t seed = 0;
-	boost::hash_combine(seed, key.get<0>());
-	boost::hash_combine(seed, key.get<1>());
-	boost::hash_combine(seed, key.get<2>());
-	return seed;
-}
-
-my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material)
-{
-	// ! make sure hash_value(ShaderKeyType ..) is valid
-	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
-
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
-	if (shader_iter != m_ShaderCache.end())
-	{
-		return shader_iter->second;
-	}
-
-	switch (draw_stage)
-	{
-	case MeshComponent::DrawStageCBuffer:
-		{
-			EffectMacroPairList macros;
-			if (mesh_type == MeshComponent::MeshTypeAnimation)
-			{
-				macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
-			}
-
-			std::string path = "shader/SimpleSample.fx";
-			std::string key_str = EffectIORequest::BuildKey(path, macros);
-			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-			LoadResourceAsync(key_str, IORequestPtr(new EffectIORequest(callback, path, macros, this)), true);
-		}
-		break;
-	}
-
-	return my::EffectPtr();
 }
 
 void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)

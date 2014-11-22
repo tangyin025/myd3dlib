@@ -33,24 +33,27 @@ void Logic::Create(void)
 
 	Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\"");
 
-	OgreMeshSetPtr scene = Game::getSingleton().LoadMeshSet("mesh/scene.mesh.xml");
-	PxRigidActor * scene_actor = Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity());
-	OgreMeshSet::const_iterator mesh_iter = scene->begin();
-	for (; mesh_iter != scene->end(); mesh_iter++)
-	{
-		// 插入场景渲染模型
-		Game::getSingleton().m_OctScene->PushComponent(
-			Game::getSingleton().LoadMeshComponentAsync(
-				MeshComponentPtr(new StaticMeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
+	Game::getSingleton().m_PxScene->addActor(*PxCreateStatic(
+		*Game::getSingleton().m_sdk, PxTransform(PxQuat(PxHalfPi, PxVec3(0,0,1))), PxPlaneGeometry(), *Game::getSingleton().m_PxMaterial));
 
-		// 插入场景物理模型
-		MemoryOStreamPtr ostr(new MemoryOStream());
-		Game::getSingleton().CookTriangleMesh(ostr, *mesh_iter);
-		IStreamPtr istr(new MemoryIStream(&(*ostr->m_cache)[0], ostr->m_cache->size()));
-		PxShape * shape = scene_actor->createShape(PxTriangleMeshGeometry(Game::getSingleton().CreateTriangleMesh(istr)), *Game::getSingleton().m_PxMaterial);
-		shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-	}
-	Game::getSingleton().m_PxScene->addActor(*scene_actor);
+	//OgreMeshSetPtr scene = Game::getSingleton().LoadMeshSet("mesh/scene.mesh.xml");
+	//PxRigidActor * scene_actor = Game::getSingleton().m_sdk->createRigidStatic(PxTransform::createIdentity());
+	//OgreMeshSet::const_iterator mesh_iter = scene->begin();
+	//for (; mesh_iter != scene->end(); mesh_iter++)
+	//{
+	//	// 插入场景渲染模型
+	//	Game::getSingleton().m_OctScene->PushComponent(
+	//		Game::getSingleton().LoadMeshComponentAsync(
+	//			MeshComponentPtr(new StaticMeshComponent((*mesh_iter)->m_aabb)), *mesh_iter), 0.1f);
+
+	//	// 插入场景物理模型
+	//	MemoryOStreamPtr ostr(new MemoryOStream());
+	//	Game::getSingleton().CookTriangleMesh(ostr, *mesh_iter);
+	//	IStreamPtr istr(new MemoryIStream(&(*ostr->m_cache)[0], ostr->m_cache->size()));
+	//	PxShape * shape = scene_actor->createShape(PxTriangleMeshGeometry(Game::getSingleton().CreateTriangleMesh(istr)), *Game::getSingleton().m_PxMaterial);
+	//	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	//}
+	//Game::getSingleton().m_PxScene->addActor(*scene_actor);
 
 	Game::getSingleton().m_PxScene->addActor(*PxCreateDynamic(
 		*Game::getSingleton().m_sdk, PxTransform(PxVec3(0,3,0)), PxBoxGeometry(PxVec3(1,1,1)), *Game::getSingleton().m_PxMaterial, 1));

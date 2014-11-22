@@ -91,7 +91,7 @@ void Character::Update(float fElapsedTime)
 	Game::getSingleton().m_ScrInfos[1] = str_printf(_T("%f, %f"), velocity.y, damping);
 	m_CollisionState = 0;
 	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
-	setPosition(Vector3(m_controller->getPosition().x, m_controller->getPosition().y, m_controller->getPosition().z));
+	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
 }
 
 void Character::Destroy(void)

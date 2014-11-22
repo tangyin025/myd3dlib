@@ -39,7 +39,10 @@
 
 
 #include <myD3dLib.h>
-
+#include <boost/bind.hpp>
+#include <boost/tuple/tuple.hpp>
+#include <boost/tuple/tuple_comparison.hpp>
+#include <PxPhysicsAPI.h>
 
 
 
