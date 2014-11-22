@@ -1,6 +1,6 @@
 #pragma once
 
-class MeshComponent : public my::Component
+class MeshComponent : public my::AABBNode
 {
 public:
 	enum MeshType
@@ -27,7 +27,7 @@ public:
 
 public:
 	MeshComponent(const my::AABB & aabb, MeshType mesh_type)
-		: my::Component(aabb)
+		: my::AABBNode(aabb)
 		, MESH_TYPE(mesh_type)
 	{
 	}

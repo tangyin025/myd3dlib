@@ -109,7 +109,7 @@ public:
 
 	my::CameraPtr m_Camera;
 
-	my::OctreeRootPtr m_OctScene;
+	my::OctRootPtr m_OctScene;
 
 public:
 	Game(void);

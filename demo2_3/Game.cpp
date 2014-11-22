@@ -265,7 +265,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
-	m_OctScene.reset(new OctreeRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000))));
+	m_OctScene.reset(new OctRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000)), 1.1f));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -388,9 +388,9 @@ void Game::OnFrameRender(
 		{
 		}
 
-		void operator() (Component * comp)
+		void operator() (AABBNode * node)
 		{
-			MeshComponent * mesh_comp = static_cast<MeshComponent *>(comp);
+			MeshComponent * mesh_comp = static_cast<MeshComponent *>(node);
 			//mesh_comp->Draw();
 			m_render.Draw(mesh_comp);
 		}

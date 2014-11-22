@@ -8,35 +8,31 @@
 
 namespace my
 {
-	class Component
-	{
-	public:
-		static const float MIN_NODE_BLOCK;
-
-		AABB m_aabb;
-
-	public:
-		Component(const AABB & aabb)
-			: m_aabb(aabb)
-		{
-		}
-
-		virtual ~Component(void)
-		{
-		}
-	};
-
-	typedef boost::shared_ptr<Component> ComponentPtr;
-
-	typedef boost::function<void (Component *)> QueryCallback;
-
-	template <class ChildClass>
-	class OctreeNodeBase
+	class AABBNode
 	{
 	public:
 		const AABB m_aabb;
 
-		typedef std::vector<ComponentPtr> ComponentPtrList;
+	public:
+		AABBNode(const AABB & aabb)
+			: m_aabb(aabb)
+		{
+		}
+
+		virtual ~AABBNode(void)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<AABBNode> AABBNodePtr;
+
+	typedef boost::function<void (AABBNode *)> QueryCallback;
+
+	template <class ChildClass>
+	class OctNodeBase : public AABBNode
+	{
+	public:
+		typedef std::vector<AABBNodePtr> ComponentPtrList;
 
 		ComponentPtrList m_ComponentList;
 
@@ -45,8 +41,8 @@ namespace my
 		ChildArray m_Childs;
 
 	public:
-		OctreeNodeBase(const AABB & aabb)
-			: m_aabb(aabb)
+		OctNodeBase(const AABB & aabb)
+			: AABBNode(aabb)
 		{
 		}
 
@@ -118,7 +114,7 @@ namespace my
 			return false;
 		}
 
-		bool RemoveComponent(ComponentPtr comp)
+		bool RemoveComponent(AABBNodePtr comp)
 		{
 			ComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
 			if (comp_iter != m_ComponentList.end())
@@ -145,37 +141,40 @@ namespace my
 	};
 
 	template <DWORD Offset>
-	class OctreeNode : public OctreeNodeBase<OctreeNode<(Offset + 1) % 3> >
+	class OctNode : public OctNodeBase<OctNode<(Offset + 1) % 3> >
 	{
 	public:
-		const float m_half;
+		const float m_Half;
+
+		const float m_MinBlock;
 
 	public:
-		OctreeNode(const AABB & aabb)
-			: OctreeNodeBase(aabb)
-			, m_half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
+		OctNode(const AABB & aabb, float MinBlock)
+			: OctNodeBase(aabb)
+			, m_Half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
+			, m_MinBlock(MinBlock)
 		{
 		}
 
-		void PushComponent(ComponentPtr comp, float threshold = 0.1f)
+		void PushComponent(AABBNodePtr comp, float threshold = 0.1f)
 		{
-			if (comp->m_aabb.Max[Offset] < m_half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > Component::MIN_NODE_BLOCK)
+			if (comp->m_aabb.Max[Offset] < m_Half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
 					Vector3 Max = m_aabb.Max;
-					Max[Offset] = m_half;
-					m_Childs[0].reset(new OctreeNode<(Offset + 1) % 3>(AABB(m_aabb.Min, Max)));
+					Max[Offset] = m_Half;
+					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(AABB(m_aabb.Min, Max), m_MinBlock));
 				}
 				m_Childs[0]->PushComponent(comp, threshold);
 			}
-			else if (comp->m_aabb.Min[Offset] > m_half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > Component::MIN_NODE_BLOCK)
+			else if (comp->m_aabb.Min[Offset] > m_Half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
 					Vector3 Min = m_aabb.Min;
-					Min[Offset] = m_half;
-					m_Childs[1].reset(new OctreeNode<(Offset + 1) % 3>(AABB(Min, m_aabb.Max)));
+					Min[Offset] = m_Half;
+					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(AABB(Min, m_aabb.Max), m_MinBlock));
 				}
 				m_Childs[1]->PushComponent(comp, threshold);
 			}
@@ -186,7 +185,7 @@ namespace my
 		}
 	};
 
-	typedef OctreeNode<0> OctreeRoot;
+	typedef OctNode<0> OctRoot;
 
-	typedef boost::shared_ptr<OctreeRoot> OctreeRootPtr;
+	typedef boost::shared_ptr<OctRoot> OctRootPtr;
 }
