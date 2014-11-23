@@ -276,7 +276,11 @@ public:
 				LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
 			}
 		}
-		RenderPipeline::DrawMesh(m_mesh.get(), lod);
+		if (lod != m_mesh->m_LodLevel && m_mesh->m_Lod[lod]->m_IsReady)
+		{
+			m_mesh->m_LodLevel = lod;
+		}
+		RenderPipeline::DrawMesh(m_mesh.get(), m_mesh->m_LodLevel);
 
 		//// ========================================================================================================
 		//// 布料系统

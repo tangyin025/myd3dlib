@@ -65,12 +65,16 @@ void RenderPipeline::OnDestroyDevice(void)
 	m_ShaderCache.clear();
 }
 
-void RenderPipeline::OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i)
+void RenderPipeline::OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter)
 {
 	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
 	if (mesh_lod)
 	{
 		mesh_lod->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
+		if (++counter->first == counter->second)
+		{
+			mesh_lod->m_IsReady = true;
+		}
 	}
 }
 
@@ -84,9 +88,10 @@ void RenderPipeline::OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boo
 		if (mesh_lod->m_Mesh)
 		{
 			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
+			CounterPtr counter(new Counter(0, (int)mesh_lod->m_Materials.size()));
 			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
 			{
-				m_ResMgr->LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&RenderPipeline::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i));
+				m_ResMgr->LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&RenderPipeline::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i, counter));
 			}
 		}
 	}

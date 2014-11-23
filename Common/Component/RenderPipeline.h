@@ -44,7 +44,11 @@ public:
 
 	void OnDestroyDevice(void);
 
-	void OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i);
+	typedef std::pair<int, const int> Counter;
+
+	typedef boost::shared_ptr<Counter> CounterPtr;
+
+	void OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter);
 
 	void OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod);
 

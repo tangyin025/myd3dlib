@@ -9,8 +9,11 @@ public:
 
 	my::OgreMeshPtr m_Mesh;
 
+	bool m_IsReady;
+
 public:
 	MeshLOD(void)
+		: m_IsReady(false)
 	{
 	}
 
@@ -38,9 +41,12 @@ public:
 
 	MeshLODPtrList m_Lod;
 
+	DWORD m_LodLevel;
+
 public:
 	MeshComponent(MeshType mesh_type)
 		: m_MeshType(mesh_type)
+		, m_LodLevel(0)
 	{
 	}
 
