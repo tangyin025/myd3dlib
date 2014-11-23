@@ -91,15 +91,11 @@ public:
 		// ========================================================================================================
 		// 骨骼动画
 		// ========================================================================================================
-		SaveSimplyMesh("aaa.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 400);
+		//SaveSimplyMesh("aaa.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 400);
+		//SaveSimplyMesh("bbb.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 40);
 
-		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent(my::AABB(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))));
-		m_mesh->m_Mesh = LoadMesh("aaa.mesh.xml");
-		std::vector<std::string>::const_iterator mat_name_iter = m_mesh->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != m_mesh->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			m_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
-		}
+		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
+		m_mesh->m_Lod.resize(3);
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
@@ -251,8 +247,36 @@ public:
 		// 骨骼动画
 		// ========================================================================================================
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		//m_mesh->Draw();
-		RenderPipeline::Draw(m_mesh.get());
+		float dist_sq = sqrt((m_Camera->m_Position - m_mesh->m_World[3].xyz).magnitudeSq());
+		DWORD lod;
+		if (dist_sq < 15)
+		{
+			lod = 0;
+			if (!m_mesh->m_Lod[lod])
+			{
+				m_mesh->m_Lod[lod].reset(new MeshLOD());
+				LoadMeshLodAsync(m_mesh->m_Lod[lod], "mesh/sportive03_f.mesh.xml");
+			}
+		}
+		else if(dist_sq < 30)
+		{
+			lod = 1;
+			if (!m_mesh->m_Lod[lod])
+			{
+				m_mesh->m_Lod[lod].reset(new MeshLOD());
+				LoadMeshLodAsync(m_mesh->m_Lod[lod], "aaa.mesh.xml");
+			}
+		}
+		else
+		{
+			lod = 2;
+			if (!m_mesh->m_Lod[lod])
+			{
+				m_mesh->m_Lod[lod].reset(new MeshLOD());
+				LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
+			}
+		}
+		RenderPipeline::DrawMesh(m_mesh.get(), lod);
 
 		//// ========================================================================================================
 		//// 布料系统

@@ -181,8 +181,4 @@ public:
 	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
 
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
-
-	void OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i);
-
-	MeshComponentPtr LoadMeshComponentAsync(MeshComponentPtr mesh_cmp, my::OgreMeshPtr mesh);
 };

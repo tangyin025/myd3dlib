@@ -731,23 +731,3 @@ PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
 {
 	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
 }
-
-void Game::OnMeshComponentMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshComponent> weak_mesh_cmp, unsigned int i)
-{
-	MeshComponentPtr mesh_cmp = weak_mesh_cmp.lock();
-	if (mesh_cmp)
-	{
-		mesh_cmp->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
-	}
-}
-
-MeshComponentPtr Game::LoadMeshComponentAsync(MeshComponentPtr mesh_cmp, my::OgreMeshPtr mesh)
-{
-	mesh_cmp->m_Mesh = mesh;
-	mesh_cmp->m_Materials.resize(mesh_cmp->m_Mesh->m_MaterialNameList.size());
-	for(unsigned int i = 0; i < mesh_cmp->m_Mesh->m_MaterialNameList.size(); i++)
-	{
-		LoadMaterialAsync(str_printf("material/%s.xml", mesh_cmp->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshComponentMaterialLoaded, this, _1, mesh_cmp, i));
-	}
-	return mesh_cmp;
-}

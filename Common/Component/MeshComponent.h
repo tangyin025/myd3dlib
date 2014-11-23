@@ -1,6 +1,29 @@
 #pragma once
 
-class MeshComponent : public my::AABBNode
+class MeshLOD
+{
+public:
+	typedef std::vector<my::MaterialPtr> MaterialPtrList;
+
+	MaterialPtrList m_Materials;
+
+	my::OgreMeshPtr m_Mesh;
+
+public:
+	MeshLOD(void)
+	{
+	}
+
+	virtual ~MeshLOD(void)
+	{
+	}
+
+	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage, DWORD AttriId);
+};
+
+typedef boost::shared_ptr<MeshLOD> MeshLODPtr;
+
+class MeshComponent
 {
 public:
 	enum MeshType
@@ -9,30 +32,19 @@ public:
 		MeshTypeAnimation,
 	};
 
-	const MeshType MESH_TYPE;
+	const MeshType m_MeshType;
 
-	enum DrawStage
-	{
-		DrawStageShadow,
-		DrawStageNBuffer,
-		DrawStageDBuffer,
-		DrawStageCBuffer,
-	};
+	typedef std::vector<MeshLODPtr> MeshLODPtrList;
 
-	typedef std::vector<my::MaterialPtr> MaterialPtrList;
-
-	MaterialPtrList m_Materials;
-
-	my::OgreMeshPtr m_Mesh;
+	MeshLODPtrList m_Lod;
 
 public:
-	MeshComponent(const my::AABB & aabb, MeshType mesh_type)
-		: my::AABBNode(aabb)
-		, MESH_TYPE(mesh_type)
+	MeshComponent(MeshType mesh_type)
+		: m_MeshType(mesh_type)
 	{
 	}
 
-	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId) = 0;
+	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -43,14 +55,16 @@ public:
 	my::Matrix4 m_World;
 
 public:
-	StaticMeshComponent(const my::AABB & aabb)
-		: MeshComponent(aabb, MeshTypeStatic)
+	StaticMeshComponent(void)
+		: MeshComponent(MeshTypeStatic)
 		, m_World(my::Matrix4::Identity())
 	{
 	}
 
-	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
+	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage);
 };
+
+typedef boost::shared_ptr<StaticMeshComponent> StaticMeshComponentPtr;
 
 class SkeletonMeshComponent : public MeshComponent
 {
@@ -60,13 +74,13 @@ public:
 	my::TransformList m_DualQuats;
 
 public:
-	SkeletonMeshComponent(const my::AABB & aabb)
-		: MeshComponent(aabb, MeshTypeAnimation)
+	SkeletonMeshComponent(void)
+		: MeshComponent(MeshTypeAnimation)
 		, m_World(my::Matrix4::Identity())
 	{
 	}
 
-	virtual void OnPreRender(my::Effect * shader, DrawStage draw_stage, DWORD AttriId);
+	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage);
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;

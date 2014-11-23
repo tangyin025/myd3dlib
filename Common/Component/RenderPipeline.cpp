@@ -65,6 +65,38 @@ void RenderPipeline::OnDestroyDevice(void)
 	m_ShaderCache.clear();
 }
 
+void RenderPipeline::OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i)
+{
+	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
+	if (mesh_lod)
+	{
+		mesh_lod->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
+	}
+}
+
+void RenderPipeline::OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod)
+{
+	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
+	if (mesh_lod)
+	{
+		mesh_lod->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
+
+		if (mesh_lod->m_Mesh)
+		{
+			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
+			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
+			{
+				m_ResMgr->LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&RenderPipeline::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i));
+			}
+		}
+	}
+}
+
+void RenderPipeline::LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path)
+{
+	m_ResMgr->LoadMeshAsync(mesh_path, boost::bind(&RenderPipeline::OnMeshLodMeshLoaded, this, _1, mesh_lod));
+}
+
 void RenderPipeline::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
 {
 	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
@@ -79,10 +111,12 @@ static size_t hash_value(const RenderPipeline::ShaderKeyType & key)
 	return seed;
 }
 
-my::EffectPtr RenderPipeline::QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material)
+my::EffectPtr RenderPipeline::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material)
 {
 	// ! make sure hash_value(ShaderKeyType ..) is valid
 	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
+
+	_ASSERT(material);
 
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
@@ -92,7 +126,7 @@ my::EffectPtr RenderPipeline::QueryShader(MeshComponent::MeshType mesh_type, Mes
 
 	switch (draw_stage)
 	{
-	case MeshComponent::DrawStageCBuffer:
+	case DrawStageCBuffer:
 		{
 			EffectMacroPairList macros;
 			if (mesh_type == MeshComponent::MeshTypeAnimation)
@@ -111,23 +145,38 @@ my::EffectPtr RenderPipeline::QueryShader(MeshComponent::MeshType mesh_type, Mes
 	return my::EffectPtr();
 }
 
-void RenderPipeline::Draw(MeshComponent * mesh_cmp)
+void RenderPipeline::DrawMesh(MeshComponent * mesh_cmp, DWORD lod)
 {
-	for (DWORD i = 0; i < mesh_cmp->m_Materials.size(); i++)
+	_ASSERT(lod < mesh_cmp->m_Lod.size());
+
+	MeshLOD * mesh_lod = mesh_cmp->m_Lod[lod].get();
+	if (mesh_lod)
 	{
-		_ASSERT(mesh_cmp->m_Mesh);
-		if (mesh_cmp->m_Materials[i])
+		mesh_cmp->OnPreRender(m_SimpleSample.get(), DrawStageCBuffer);
+
+		DrawMeshLOD(mesh_cmp->m_MeshType, mesh_lod);
+	}
+}
+
+void RenderPipeline::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
+{
+	_ASSERT(mesh_lod);
+
+	for (DWORD i = 0; i < mesh_lod->m_Materials.size(); i++)
+	{
+		_ASSERT(mesh_lod->m_Mesh);
+		if (mesh_lod->m_Materials[i])
 		{
-			my::EffectPtr shader = QueryShader(mesh_cmp->MESH_TYPE, MeshComponent::DrawStageCBuffer, mesh_cmp->m_Materials[i].get());
+			my::EffectPtr shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());
 			if (shader)
 			{
-				mesh_cmp->OnPreRender(shader.get(), MeshComponent::DrawStageCBuffer, i);
+				mesh_lod->OnPreRender(shader.get(), DrawStageCBuffer, i);
 
 				UINT passes = shader->Begin();
 				for (UINT p = 0; p < passes; p++)
 				{
 					shader->BeginPass(p);
-					mesh_cmp->m_Mesh->DrawSubset(i);
+					mesh_lod->m_Mesh->DrawSubset(i);
 					shader->EndPass();
 				}
 				shader->End();

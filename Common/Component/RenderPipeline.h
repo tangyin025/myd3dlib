@@ -5,9 +5,17 @@
 class RenderPipeline
 {
 public:
+	enum DrawStage
+	{
+		DrawStageShadow,
+		DrawStageNBuffer,
+		DrawStageDBuffer,
+		DrawStageCBuffer,
+	};
+
 	my::ResourceMgr * m_ResMgr;
 
-	typedef boost::tuple<MeshComponent::MeshType, MeshComponent::DrawStage, const my::Material *> ShaderKeyType;
+	typedef boost::tuple<MeshComponent::MeshType, DrawStage, const my::Material *> ShaderKeyType;
 
 	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
 
@@ -36,9 +44,17 @@ public:
 
 	void OnDestroyDevice(void);
 
+	void OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i);
+
+	void OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod);
+
+	void LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path);
+
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
 
-	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, MeshComponent::DrawStage draw_stage, const my::Material * material);
+	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
 
-	void Draw(MeshComponent * mesh_cmp);
+	void DrawMesh(MeshComponent * mesh_cmp, DWORD lod);
+
+	void DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod);
 };
