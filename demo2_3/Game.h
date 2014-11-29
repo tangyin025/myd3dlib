@@ -3,7 +3,6 @@
 #include "Console.h"
 #include "PhysXContext.h"
 #include "Component/MeshComponent.h"
-#include "Component/RenderPipeline.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -76,7 +75,6 @@ class Game
 	, public my::ResourceMgr
 	, public PhysXContext
 	, public PhysXSceneContext
-	, public RenderPipeline
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {
@@ -92,6 +90,22 @@ public:
 	my::UIRenderPtr m_UIRender;
 
 	my::EmitterInstancePtr m_EmitterInst;
+
+	enum DrawStage
+	{
+		DrawStageShadow,
+		DrawStageNBuffer,
+		DrawStageDBuffer,
+		DrawStageCBuffer,
+	};
+
+	typedef boost::tuple<MeshComponent::MeshType, DrawStage, const my::Material *> ShaderKeyType;
+
+	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
+
+	my::EffectPtr m_SimpleSample;
 
 	my::FontPtr m_Font;
 
@@ -181,4 +195,22 @@ public:
 	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
 
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
+
+	typedef std::pair<int, const int> Counter;
+
+	typedef boost::shared_ptr<Counter> CounterPtr;
+
+	void OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter);
+
+	void OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod);
+
+	void LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path);
+
+	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
+
+	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
+
+	void DrawMesh(MeshComponent * mesh_cmp, DWORD lod);
+
+	void DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod);
 };

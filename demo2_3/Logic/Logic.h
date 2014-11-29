@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Character.h"
-#include "Component/MeshComponent.h"
 
 class Logic
 {

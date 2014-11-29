@@ -225,11 +225,6 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
-	if(FAILED(hr = RenderPipeline::OnCreateDevice(this, pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		THROW_CUSEXCEPTION(_T("RenderPipeline::OnCreateDevice failed"));
-	}
-
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
 
 	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", std::vector<std::pair<std::string, std::string> >())));
@@ -237,6 +232,11 @@ HRESULT Game::OnCreateDevice(
 	if(FAILED(hr = m_EmitterInst->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
+	}
+
+	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
@@ -291,19 +291,12 @@ HRESULT Game::OnResetDevice(
 		m_Camera->EventAlign(&EventArgs());
 	}
 
-	if(FAILED(hr = RenderPipeline::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
-
 	return S_OK;
 }
 
 void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	RenderPipeline::OnLostDevice();
 
 	m_EmitterInst->OnLostDevice();
 
@@ -313,8 +306,6 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	RenderPipeline::OnDestroyDevice();
 
 	ParallelTaskManager::StopParallelThread();
 
@@ -327,6 +318,8 @@ void Game::OnDestroyDevice(void)
 	m_Console.reset();
 
 	RemoveAllDlg();
+
+	m_SimpleSample.reset();
 
 	m_EmitterInst.reset();
 
@@ -730,4 +723,129 @@ void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCall
 PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
 {
 	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
+}
+
+void Game::OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter)
+{
+	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
+	if (mesh_lod)
+	{
+		mesh_lod->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
+		if (++counter->first == counter->second)
+		{
+			mesh_lod->m_IsReady = true;
+		}
+	}
+}
+
+void Game::OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod)
+{
+	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
+	if (mesh_lod)
+	{
+		mesh_lod->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
+
+		if (mesh_lod->m_Mesh)
+		{
+			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
+			CounterPtr counter(new Counter(0, (int)mesh_lod->m_Materials.size()));
+			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
+			{
+				LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i, counter));
+			}
+		}
+	}
+}
+
+void Game::LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path)
+{
+	LoadMeshAsync(mesh_path, boost::bind(&Game::OnMeshLodMeshLoaded, this, _1, mesh_lod));
+}
+
+void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
+{
+	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+}
+
+static size_t hash_value(const Game::ShaderKeyType & key)
+{
+	size_t seed = 0;
+	boost::hash_combine(seed, key.get<0>());
+	boost::hash_combine(seed, key.get<1>());
+	boost::hash_combine(seed, key.get<2>());
+	return seed;
+}
+
+my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material)
+{
+	// ! make sure hash_value(ShaderKeyType ..) is valid
+	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
+
+	_ASSERT(material);
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	if (shader_iter != m_ShaderCache.end())
+	{
+		return shader_iter->second;
+	}
+
+	switch (draw_stage)
+	{
+	case DrawStageCBuffer:
+		{
+			EffectMacroPairList macros;
+			if (mesh_type == MeshComponent::MeshTypeAnimation)
+			{
+				macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
+			}
+
+			std::string path = "shader/SimpleSample.fx";
+			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
+			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
+			LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+		}
+		break;
+	}
+
+	return my::EffectPtr();
+}
+
+void Game::DrawMesh(MeshComponent * mesh_cmp, DWORD lod)
+{
+	_ASSERT(lod < mesh_cmp->m_Lod.size());
+
+	MeshLOD * mesh_lod = mesh_cmp->m_Lod[lod].get();
+	if (mesh_lod)
+	{
+		mesh_cmp->OnPreRender(m_SimpleSample.get(), DrawStageCBuffer);
+
+		DrawMeshLOD(mesh_cmp->m_MeshType, mesh_lod);
+	}
+}
+
+void Game::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
+{
+	_ASSERT(mesh_lod);
+
+	for (DWORD i = 0; i < mesh_lod->m_Materials.size(); i++)
+	{
+		_ASSERT(mesh_lod->m_Mesh);
+		if (mesh_lod->m_Materials[i])
+		{
+			my::EffectPtr shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());
+			if (shader)
+			{
+				mesh_lod->OnPreRender(shader.get(), DrawStageCBuffer, i);
+
+				UINT passes = shader->Begin();
+				for (UINT p = 0; p < passes; p++)
+				{
+					shader->BeginPass(p);
+					mesh_lod->m_Mesh->DrawSubset(i);
+					shader->EndPass();
+				}
+				shader->End();
+			}
+		}
+	}
 }

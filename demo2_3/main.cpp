@@ -280,7 +280,7 @@ public:
 		{
 			m_mesh->m_LodLevel = lod;
 		}
-		RenderPipeline::DrawMesh(m_mesh.get(), m_mesh->m_LodLevel);
+		DrawMesh(m_mesh.get(), m_mesh->m_LodLevel);
 
 		//// ========================================================================================================
 		//// 布料系统
