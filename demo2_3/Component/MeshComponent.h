@@ -37,16 +37,13 @@ public:
 
 	const MeshType m_MeshType;
 
-	typedef std::vector<MeshLODPtr> MeshLODPtrList;
+	typedef boost::unordered_map<int, MeshLODPtr> MeshLODPtrMap;
 
-	MeshLODPtrList m_Lod;
-
-	DWORD m_LodLevel;
+	MeshLODPtrMap m_Lod;
 
 public:
 	MeshComponent(MeshType mesh_type)
 		: m_MeshType(mesh_type)
-		, m_LodLevel(0)
 	{
 	}
 

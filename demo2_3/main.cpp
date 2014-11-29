@@ -95,7 +95,6 @@ public:
 		//SaveSimplyMesh("bbb.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 40);
 
 		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
-		m_mesh->m_Lod.resize(3);
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
 
@@ -276,11 +275,7 @@ public:
 				LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
 			}
 		}
-		if (lod != m_mesh->m_LodLevel && m_mesh->m_Lod[lod]->m_IsReady)
-		{
-			m_mesh->m_LodLevel = lod;
-		}
-		DrawMesh(m_mesh.get(), m_mesh->m_LodLevel);
+		DrawMesh(m_mesh.get(), lod);
 
 		//// ========================================================================================================
 		//// 布料系统

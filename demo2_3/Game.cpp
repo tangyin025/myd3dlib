@@ -810,16 +810,16 @@ my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage dra
 	return my::EffectPtr();
 }
 
-void Game::DrawMesh(MeshComponent * mesh_cmp, DWORD lod)
+void Game::DrawMesh(MeshComponent * mesh_cmp, int lod)
 {
-	_ASSERT(lod < mesh_cmp->m_Lod.size());
+	_ASSERT(mesh_cmp);
 
-	MeshLOD * mesh_lod = mesh_cmp->m_Lod[lod].get();
-	if (mesh_lod)
+	mesh_cmp->OnPreRender(m_SimpleSample.get(), DrawStageCBuffer);
+
+	MeshComponent::MeshLODPtrMap::iterator lod_iter = mesh_cmp->m_Lod.find(lod);
+	if (lod_iter != mesh_cmp->m_Lod.end())
 	{
-		mesh_cmp->OnPreRender(m_SimpleSample.get(), DrawStageCBuffer);
-
-		DrawMeshLOD(mesh_cmp->m_MeshType, mesh_lod);
+		DrawMeshLOD(mesh_cmp->m_MeshType, lod_iter->second.get());
 	}
 }
 
@@ -830,6 +830,7 @@ void Game::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
 	for (DWORD i = 0; i < mesh_lod->m_Materials.size(); i++)
 	{
 		_ASSERT(mesh_lod->m_Mesh);
+
 		if (mesh_lod->m_Materials[i])
 		{
 			my::EffectPtr shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());

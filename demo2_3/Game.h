@@ -210,7 +210,7 @@ public:
 
 	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
 
-	void DrawMesh(MeshComponent * mesh_cmp, DWORD lod);
+	void DrawMesh(MeshComponent * mesh_cmp, int lod);
 
 	void DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod);
 };
