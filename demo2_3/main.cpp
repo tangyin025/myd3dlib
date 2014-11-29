@@ -22,10 +22,10 @@ public:
 	BoneList m_skel_pose_heir1;
 	BoneList m_skel_pose_heir2;
 
-	//// ========================================================================================================
-	//// 大场景
-	//// ========================================================================================================
-	//OgreMeshSetPtr m_meshSet;
+	// ========================================================================================================
+	// 大场景
+	// ========================================================================================================
+	OgreMeshSetPtr m_meshSet;
 
 	//// ========================================================================================================
 	//// 布料系统
@@ -59,18 +59,21 @@ public:
 		}
 	}
 
-	//MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
-	//{
-	//	MeshComponentPtr comp(new MeshComponent(mesh->m_aabb));
-	//	comp->m_Mesh = mesh;
-	//	std::vector<std::string>::const_iterator mat_name_iter = comp->m_Mesh->m_MaterialNameList.begin();
-	//	for(; mat_name_iter != comp->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-	//	{
-	//		comp->m_Materials.push_back(MeshComponent::MaterialPair(
-	//			LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())), LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())));
-	//	}
-	//	return comp;
-	//}
+	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
+	{
+		MeshComponentPtr mesh_cmp(new StaticMeshComponent());
+		mesh_cmp->Min = mesh->m_aabb.Min;
+		mesh_cmp->Max = mesh->m_aabb.Max;
+		MeshLODPtr lod(new MeshLOD());
+		lod->m_Mesh = mesh;
+		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+		}
+		mesh_cmp->m_Lod[0] = lod;
+		return mesh_cmp;
+	}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -96,17 +99,17 @@ public:
 
 		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		m_skel_anim = LoadSkeleton("mesh/casual19_m_highpoly.skeleton.xml");
+		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
-		//// ========================================================================================================
-		//// 大场景
-		//// ========================================================================================================
-		//m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
-		//OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
-		//for(; mesh_iter != m_meshSet->end(); mesh_iter++)
-		//{
-		//	m_OctScene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
-		//}
+		// ========================================================================================================
+		// 大场景
+		// ========================================================================================================
+		m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
+		OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
+		for(; mesh_iter != m_meshSet->end(); mesh_iter++)
+		{
+			m_OctScene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
+		}
 
 		//// ========================================================================================================
 		//// 布料系统

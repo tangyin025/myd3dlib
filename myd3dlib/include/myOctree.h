@@ -1,6 +1,6 @@
 #pragma once
 
-#include "myMath.h"
+#include "myCollision.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
@@ -8,47 +8,54 @@
 
 namespace my
 {
-	class AABBNode
+	class AABBComponent : public AABB
 	{
 	public:
-		const AABB m_aabb;
-
-	public:
-		AABBNode(const AABB & aabb)
-			: m_aabb(aabb)
+		AABBComponent(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+			: AABB(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
-		virtual ~AABBNode(void)
+		AABBComponent(const Vector3 & _Min, const Vector3 & _Max)
+			: AABB(_Min, _Max)
+		{
+		}
+
+		virtual ~AABBComponent(void)
 		{
 		}
 	};
 
-	typedef boost::shared_ptr<AABBNode> AABBNodePtr;
+	typedef boost::shared_ptr<AABBComponent> AABBComponentPtr;
 
-	typedef boost::function<void (AABBNode *)> QueryCallback;
+	typedef boost::function<void (AABBComponent *, IntersectionTests::IntersectionType)> QueryCallback;
 
 	template <class ChildClass>
-	class OctNodeBase : public AABBNode
+	class OctNodeBase : public AABB
 	{
 	public:
-		typedef std::vector<AABBNodePtr> ComponentPtrList;
+		typedef std::vector<AABBComponentPtr> AABBComponentPtrList;
 
-		ComponentPtrList m_ComponentList;
+		AABBComponentPtrList m_ComponentList;
 
 		typedef boost::array<boost::shared_ptr<ChildClass>, 2> ChildArray;
 
 		ChildArray m_Childs;
 
 	public:
-		OctNodeBase(const AABB & aabb)
-			: AABBNode(aabb)
+		OctNodeBase(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+			: AABB(minx, miny, minz, maxx, maxy, maxz)
+		{
+		}
+
+		OctNodeBase(const Vector3 & _Min, const Vector3 & _Max)
+			: AABB(_Min, _Max)
 		{
 		}
 
 		void QueryComponent(const Frustum & frustum, const QueryCallback & callback)
 		{
-			switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
+			switch(IntersectionTests::IntersectAABBAndFrustum(*this, frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
 				QueryComponentAll(frustum, callback);
@@ -62,10 +69,10 @@ namespace my
 
 		void QueryComponentAll(const Frustum & frustum, const QueryCallback & callback)
 		{
-			ComponentPtrList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
-				callback(comp_iter->get());
+				callback(comp_iter->get(), IntersectionTests::IntersectionTypeInside);
 			}
 
 			ChildArray::iterator node_iter = m_Childs.begin();
@@ -80,14 +87,15 @@ namespace my
 
 		void QueryComponentIntersected(const Frustum & frustum, const QueryCallback & callback)
 		{
-			ComponentPtrList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
-				switch(IntersectionTests::IntersectAABBAndFrustum((*comp_iter)->m_aabb, frustum))
+				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(*(*comp_iter), frustum);
+				switch(intersect_type)
 				{
 				case IntersectionTests::IntersectionTypeInside:
 				case IntersectionTests::IntersectionTypeIntersect:
-					callback(comp_iter->get());
+					callback(comp_iter->get(), intersect_type);
 					break;
 				}
 			}
@@ -114,9 +122,9 @@ namespace my
 			return false;
 		}
 
-		bool RemoveComponent(AABBNodePtr comp)
+		bool RemoveComponent(AABBComponentPtr comp)
 		{
-			ComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
+			AABBComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
 			if (comp_iter != m_ComponentList.end())
 			{
 				m_ComponentList.erase(comp_iter);
@@ -149,32 +157,39 @@ namespace my
 		const float m_MinBlock;
 
 	public:
-		OctNode(const AABB & aabb, float MinBlock)
-			: OctNodeBase(aabb)
-			, m_Half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
+		OctNode(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
+			: OctNodeBase(minx, miny, minz, maxx, maxy, maxz)
+			, m_Half((Vector3(minx, miny, minz)[Offset] + Vector3(maxx, maxy, maxz)[Offset]) * 0.5f)
 			, m_MinBlock(MinBlock)
 		{
 		}
 
-		void PushComponent(AABBNodePtr comp, float threshold = 0.1f)
+		OctNode(const Vector3 & _Min, const Vector3 & _Max, float MinBlock)
+			: OctNodeBase(_Min, _Max)
+			, m_Half((_Min[Offset] + _Max[Offset]) * 0.5f)
+			, m_MinBlock(MinBlock)
 		{
-			if (comp->m_aabb.Max[Offset] < m_Half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
+		}
+
+		void PushComponent(AABBComponentPtr comp, float threshold = 0.1f)
+		{
+			if (comp->Max[Offset] < m_Half + threshold && Max[Offset] - Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
-					Vector3 Max = m_aabb.Max;
-					Max[Offset] = m_Half;
-					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(AABB(m_aabb.Min, Max), m_MinBlock));
+					Vector3 _Max = Max;
+					_Max[Offset] = m_Half;
+					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(Min, _Max, m_MinBlock));
 				}
 				m_Childs[0]->PushComponent(comp, threshold);
 			}
-			else if (comp->m_aabb.Min[Offset] > m_Half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
+			else if (comp->Min[Offset] > m_Half - threshold &&  Max[Offset] - Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
-					Vector3 Min = m_aabb.Min;
-					Min[Offset] = m_Half;
-					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(AABB(Min, m_aabb.Max), m_MinBlock));
+					Vector3 _Min = Min;
+					_Min[Offset] = m_Half;
+					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(_Min, Max, m_MinBlock));
 				}
 				m_Childs[1]->PushComponent(comp, threshold);
 			}

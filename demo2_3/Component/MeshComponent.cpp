@@ -4,10 +4,6 @@
 
 using namespace my;
 
-void MeshComponent::OnPreRender(my::Effect * shader, DWORD draw_stage)
-{
-}
-
 void MeshLOD::OnPreRender(my::Effect * shader, DWORD draw_stage, DWORD AttriId)
 {
 	switch (draw_stage)

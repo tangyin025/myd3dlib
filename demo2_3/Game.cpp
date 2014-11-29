@@ -255,9 +255,9 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
-	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
+	m_OctScene.reset(new OctRoot(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000), 1.1f));
 
-	//m_OctScene.reset(new OctRoot(AABB(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000)), 1.1f));
+	m_Camera.reset(new Camera(Vector3::zero, Quaternion::identity, D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -311,9 +311,9 @@ void Game::OnDestroyDevice(void)
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	//m_OctScene.reset();
-
 	m_Camera.reset();
+
+	m_OctScene.reset();
 
 	m_Console.reset();
 
@@ -363,24 +363,23 @@ void Game::OnFrameRender(
 
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-	//struct QueryCallbackFunc
-	//{
-	//	RenderPipeline & m_render;
-	//	QueryCallbackFunc(RenderPipeline & render)
-	//		: m_render(render)
-	//	{
-	//	}
+	struct QueryCallbackFunc
+	{
+		Game & device;
+		QueryCallbackFunc(Game & _device)
+			: device(_device)
+		{
+		}
 
-	//	void operator() (AABBNode * node)
-	//	{
-	//		MeshComponent * mesh_comp = static_cast<MeshComponent *>(node);
-	//		//mesh_comp->Draw();
-	//		m_render.Draw(mesh_comp);
-	//	}
-	//};
+		void operator() (AABBComponent * cmp, IntersectionTests::IntersectionType type)
+		{
+			MeshComponent * mesh_cmp = static_cast<MeshComponent *>(cmp);
+			device.DrawMesh(mesh_cmp, 0);
+		}
+	};
 
-	//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-	//m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
+	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+	m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 

@@ -113,9 +113,9 @@ public:
 
 	my::BaseTexturePtr m_WhiteTex;
 
-	my::CameraPtr m_Camera;
+	my::OctRootPtr m_OctScene;
 
-	//my::OctRootPtr m_OctScene;
+	my::CameraPtr m_Camera;
 
 public:
 	Game(void);
