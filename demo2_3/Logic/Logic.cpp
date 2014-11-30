@@ -31,8 +31,6 @@ void Logic::Create(void)
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&Logic::OnJoystickBtnUp, this, _1);
 	}
 
-	Game::getSingleton().ExecuteCode("dofile \"StateMain.lua\"");
-
 	Game::getSingleton().m_PxScene->addActor(*PxCreateStatic(
 		*Game::getSingleton().m_sdk, PxTransform(PxQuat(PxHalfPi, PxVec3(0,0,1))), PxPlaneGeometry(), *Game::getSingleton().m_PxMaterial));
 

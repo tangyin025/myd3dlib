@@ -34,13 +34,13 @@ public:
 	//MeshComponentPtr m_clothMesh;
 	//PxCloth * m_cloth;
 
-	// ========================================================================================================
-	// 逻辑系统
-	// ========================================================================================================
-	LogicPtr m_Logic;
+	//// ========================================================================================================
+	//// 逻辑系统
+	//// ========================================================================================================
+	//LogicPtr m_Logic;
 
 	Demo::Demo(void)
-		: m_Logic(new Logic)
+		//: m_Logic(new Logic)
 	{
 	}
 
@@ -59,21 +59,21 @@ public:
 		}
 	}
 
-	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
-	{
-		MeshComponentPtr mesh_cmp(new StaticMeshComponent());
-		mesh_cmp->Min = mesh->m_aabb.Min;
-		mesh_cmp->Max = mesh->m_aabb.Max;
-		MeshLODPtr lod(new MeshLOD());
-		lod->m_Mesh = mesh;
-		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
-		}
-		mesh_cmp->m_Lod[0] = lod;
-		return mesh_cmp;
-	}
+	//MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
+	//{
+	//	MeshComponentPtr mesh_cmp(new StaticMeshComponent());
+	//	mesh_cmp->Min = mesh->m_aabb.Min;
+	//	mesh_cmp->Max = mesh->m_aabb.Max;
+	//	MeshLODPtr lod(new MeshLOD());
+	//	lod->m_Mesh = mesh;
+	//	std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
+	//	for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+	//	{
+	//		lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+	//	}
+	//	mesh_cmp->m_Lod[0] = lod;
+	//	return mesh_cmp;
+	//}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -101,15 +101,15 @@ public:
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
-		// ========================================================================================================
-		// 大场景
-		// ========================================================================================================
-		m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
-		OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
-		for(; mesh_iter != m_meshSet->end(); mesh_iter++)
-		{
-			m_OctScene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
-		}
+		//// ========================================================================================================
+		//// 大场景
+		//// ========================================================================================================
+		//m_meshSet = LoadMeshSet("mesh/scene.mesh.xml");
+		//OgreMeshSet::iterator mesh_iter = m_meshSet->begin();
+		//for(; mesh_iter != m_meshSet->end(); mesh_iter++)
+		//{
+		//	m_OctScene->PushComponent(CreateMeshComponent(*mesh_iter), 0.1f);
+		//}
 
 		//// ========================================================================================================
 		//// 布料系统
@@ -142,10 +142,12 @@ public:
 		//m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,10,0), PxQuat(0,0,0,1)), *clothFabric, &m_clothPositions[0], collisionData, PxClothFlags());
 		//m_PxScene->addActor(*m_cloth);
 
-		// ========================================================================================================
-		// 逻辑系统
-		// ========================================================================================================
-		m_Logic->Create();
+		//// ========================================================================================================
+		//// 逻辑系统
+		//// ========================================================================================================
+		//m_Logic->Create();
+
+		ExecuteCode("dofile \"StateMain.lua\"");
 
 		return S_OK;
 	}
@@ -168,8 +170,8 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
-		// 注意顺序
-		m_Logic->Destroy();
+		//// 注意顺序
+		//m_Logic->Destroy();
 
 		Game::OnDestroyDevice();
 	}
@@ -179,6 +181,11 @@ public:
 		float fElapsedTime)
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
+
+		if (m_Camera)
+		{
+			m_Camera->OnFrameMove(fTime, fElapsedTime);
+		}
 
 		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
 
@@ -229,10 +236,10 @@ public:
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_clothMesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 
-		// ========================================================================================================
-		// 逻辑系统
-		// ========================================================================================================
-		m_Logic->Update(fElapsedTime);
+		//// ========================================================================================================
+		//// 逻辑系统
+		//// ========================================================================================================
+		//m_Logic->Update(fElapsedTime);
 	}
 
 	virtual void OnFrameRender(
@@ -240,10 +247,10 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		//pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		//pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-		//m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		//PushGrid();
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		PushGrid();
 
 		// ========================================================================================================
 		// 骨骼动画
@@ -308,6 +315,11 @@ public:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT lr;
+		if (m_Camera && (lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)))
+		{
+			return lr;
+		}
+
 		if(lr = Game::MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 		{
 			return lr;

@@ -321,6 +321,8 @@ void Game::OnDestroyDevice(void)
 
 	m_SimpleSample.reset();
 
+	m_ShaderCache.clear();
+
 	m_EmitterInst.reset();
 
 	m_UIRender.reset();
@@ -759,6 +761,44 @@ void Game::OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_p
 void Game::LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path)
 {
 	LoadMeshAsync(mesh_path, boost::bind(&Game::OnMeshLodMeshLoaded, this, _1, mesh_lod));
+}
+
+std::list<MeshComponentPtr> Game::LoadStaticMeshComponentListFromMeshSet(my::OgreMeshSetPtr mesh_set)
+{
+	std::list<MeshComponentPtr> ret;
+	OgreMeshSet::iterator mesh_iter = mesh_set->begin();
+	for (; mesh_iter != mesh_set->end(); mesh_iter++)
+	{
+		MeshComponentPtr mesh_cmp(new StaticMeshComponent());
+		mesh_cmp->Min = (*mesh_iter)->m_aabb.Min;
+		mesh_cmp->Max = (*mesh_iter)->m_aabb.Max;
+		MeshLODPtr mesh_lod(new MeshLOD());
+		mesh_lod->m_Mesh = *mesh_iter;
+
+		if (mesh_lod->m_Mesh)
+		{
+			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
+			CounterPtr counter(new Counter(0, (int)mesh_lod->m_Materials.size()));
+			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
+			{
+				LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i, counter));
+			}
+		}
+
+		mesh_cmp->m_Lod[0] = mesh_lod;
+		ret.push_back(mesh_cmp);
+	}
+	return ret;
+}
+
+void Game::PushMeshSetToOctScene(my::OgreMeshSetPtr mesh_set)
+{
+	std::list<MeshComponentPtr> mesh_cmp_list = LoadStaticMeshComponentListFromMeshSet(mesh_set);
+	std::list<MeshComponentPtr>::iterator mesh_cmp_iter = mesh_cmp_list.begin();
+	for (; mesh_cmp_iter != mesh_cmp_list.end(); mesh_cmp_iter++)
+	{
+		m_OctScene->PushComponent(*mesh_cmp_iter);
+	}
 }
 
 void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)

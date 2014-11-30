@@ -200,7 +200,21 @@ namespace my
 		}
 	};
 
-	typedef OctNode<0> OctRoot;
+	class OctRoot : public OctNode<0>
+	{
+	public:
+		OctRoot(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
+			: OctNode(minx, miny, minz, maxx, maxy, maxz, MinBlock)
+		{
+		}
+
+		OctRoot(const Vector3 & _Min, const Vector3 & _Max, float MinBlock)
+			: OctNode(_Min, _Max, MinBlock)
+		{
+		}
+
+		void ClearComponent(void);
+	};
 
 	typedef boost::shared_ptr<OctRoot> OctRootPtr;
 }

@@ -389,6 +389,8 @@ void Export2Lua(lua_State * L)
 			//.def_readonly("Edit", &Console::m_Edit)
 			//.def_readonly("Panel", &Console::m_Panel)
 
+		, class_<MeshComponent, my::AABBComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+
 		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
 			.def("InsertTimer", &Game::InsertTimer)
@@ -403,7 +405,9 @@ void Export2Lua(lua_State * L)
 			.def("RemoveAllEmitter", &Game::RemoveAllEmitter)
 			.def("CookTriangleMeshToFile", &Game::CookTriangleMeshToFile)
 			.def("CookClothFabricToFile", &Game::CookClothFabricToFile)
+			.def("PushMeshSetToOctScene", &Game::PushMeshSetToOctScene)
 			.def_readonly("Console", &Game::m_Console)
+			.def_readonly("OctScene", &Game::m_OctScene)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def("ExecuteCode", &Game::ExecuteCode)
 	];

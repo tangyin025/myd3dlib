@@ -235,5 +235,17 @@ void ExportMath2Lua(lua_State * L)
 				def("Translation", (my::Matrix4 (*)(float, float, float))&my::Matrix4::Translation),
 				def("Translation", (my::Matrix4 (*)(const my::Vector3 &))&my::Matrix4::Translation)
 			]
+
+		, class_<my::AABB, boost::shared_ptr<my::AABB> >("AABB")
+			.def(constructor<float, float, float, float, float, float>())
+			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
+			.def_readwrite("Min", &my::AABB::Min)
+			.def_readwrite("Max", &my::AABB::Max)
+
+		, class_<my::AABBComponent, my::AABB, boost::shared_ptr<my::AABBComponent> >("AABBComponent")
+
+		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
+			.def("PushComponent", &my::OctRoot::PushComponent)
+			.def("ClearComponent", &my::OctRoot::ClearComponent)
 	];
 }

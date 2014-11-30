@@ -1,9 +1,5 @@
 #pragma once
 
-#include <luabind/luabind.hpp>
-#include <luabind/operator.hpp>
-#include <luabind/exception_handler.hpp>
-
 namespace luabind
 {
 	template <>

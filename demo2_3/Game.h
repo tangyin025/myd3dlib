@@ -206,6 +206,10 @@ public:
 
 	void LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path);
 
+	std::list<MeshComponentPtr> LoadStaticMeshComponentListFromMeshSet(my::OgreMeshSetPtr mesh_set);
+
+	void PushMeshSetToOctScene(my::OgreMeshSetPtr mesh_set);
+
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
 
 	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
