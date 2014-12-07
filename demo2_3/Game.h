@@ -107,6 +107,8 @@ public:
 
 	my::EffectPtr m_SimpleSample;
 
+	my::EffectPtr m_SimpleSampleSkel;
+
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
@@ -212,7 +214,7 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
 
-	my::EffectPtr QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
+	my::Effect * QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
 
 	void DrawMesh(MeshComponent * mesh_cmp, int lod);
 

@@ -5,7 +5,6 @@
 
 shared float4x4 g_World;
 shared float4x4 g_ViewProj;
-shared row_major float2x4 g_dualquat[96];
 
 //--------------------------------------------------------------------------------------
 // VS_INPUT

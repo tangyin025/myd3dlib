@@ -398,7 +398,7 @@ namespace my
 		protected:
 			std::string m_path;
 
-			EffectMacroPairList m_macros;
+			std::list<std::string> m_macros;
 
 			std::vector<D3DXMACRO> m_d3dmacros;
 
@@ -407,18 +407,18 @@ namespace my
 			CachePtr m_cache;
 
 		public:
-			EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc);
+			EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, AsynchronousResourceMgr * arc);
 
 			virtual void DoLoad(void);
 
 			virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
-			static std::string BuildKey(const std::string & path, const EffectMacroPairList & macros);
+			static std::string BuildKey(const std::string & path, const std::string & macros);
 		};
 
-		void LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback);
+		void LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback);
 
-		EffectPtr LoadEffect(const std::string & path, const EffectMacroPairList & macros);
+		EffectPtr LoadEffect(const std::string & path, const std::string & macros);
 
 		void LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback);
 

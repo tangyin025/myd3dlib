@@ -950,15 +950,18 @@ OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string
 	return LoadResource<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 }
 
-AsynchronousResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, const EffectMacroPairList & macros, AsynchronousResourceMgr * arc)
+AsynchronousResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, AsynchronousResourceMgr * arc)
 	: m_path(path)
-	, m_macros(macros) // ! must cache the string
 	, m_arc(arc)
 {
-	EffectMacroPairList::const_iterator macro_iter = m_macros.begin();
-	for(; macro_iter != m_macros.end(); macro_iter++)
+	boost::regex_split(std::back_inserter(m_macros), macros);
+
+	std::list<std::string>::const_iterator macro_iter = m_macros.begin();
+	for(; macro_iter != m_macros.end(); )
 	{
-		D3DXMACRO d3dmacro = {macro_iter->first.c_str(), macro_iter->second.c_str()};
+		D3DXMACRO d3dmacro;
+		d3dmacro.Name = (macro_iter++)->c_str();
+		d3dmacro.Definition = macro_iter != m_macros.end() ? (macro_iter++)->c_str() : NULL;
 		m_d3dmacros.push_back(d3dmacro);
 	}
 	D3DXMACRO end = {0};
@@ -991,27 +994,19 @@ void AsynchronousResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 p
 	m_res = res;
 }
 
-std::string AsynchronousResourceMgr::EffectIORequest::BuildKey(const std::string & path, const EffectMacroPairList & macros)
+std::string AsynchronousResourceMgr::EffectIORequest::BuildKey(const std::string & path, const std::string & macros)
 {
-	std::ostrstream ostr;
-	ostr << path;
-	EffectMacroPairList::const_iterator macro_iter = macros.begin();
-	for(; macro_iter != macros.end(); macro_iter++)
-	{
-		ostr << ", " << macro_iter->first << ", " << macro_iter->second;
-	}
-	ostr << std::ends;
-	return ostr.str();
+	return str_printf("%s, %s", path.c_str(), macros.c_str());
 }
 
-void AsynchronousResourceMgr::LoadEffectAsync(const std::string & path, const EffectMacroPairList & macros, const ResourceCallback & callback)
+void AsynchronousResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
 	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)), false);
 }
 
-EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const EffectMacroPairList & macros)
+EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const std::string & macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 

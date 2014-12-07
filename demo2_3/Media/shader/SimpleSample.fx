@@ -6,9 +6,9 @@
 //--------------------------------------------------------------------------------------
 
 texture g_MeshTexture;              // Color texture for mesh
-// #ifdef VS_SKINED_DQ
-// row_major float2x4 g_dualquat[96];
-// #endif
+#ifdef VS_SKINED_DQ
+row_major float2x4 g_dualquat[96];
+#endif
 
 //--------------------------------------------------------------------------------------
 // Texture samplers

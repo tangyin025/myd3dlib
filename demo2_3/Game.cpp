@@ -225,16 +225,21 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
 	}
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", std::vector<std::pair<std::string, std::string> >())));
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
-	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", std::vector<std::pair<std::string, std::string> >())));
+	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", "")));
 
 	if(FAILED(hr = m_EmitterInst->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
 
-	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList())))
+	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
+	}
+
+	if (!(m_SimpleSampleSkel = LoadEffect("shader/SimpleSample.fx", "VS_SKINED_DQ 1")))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
@@ -320,6 +325,8 @@ void Game::OnDestroyDevice(void)
 	RemoveAllDlg();
 
 	m_SimpleSample.reset();
+
+	m_SimpleSampleSkel.reset();
 
 	m_ShaderCache.clear();
 
@@ -815,7 +822,7 @@ static size_t hash_value(const Game::ShaderKeyType & key)
 	return seed;
 }
 
-my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material)
+my::Effect * Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material)
 {
 	// ! make sure hash_value(ShaderKeyType ..) is valid
 	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
@@ -825,20 +832,15 @@ my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage dra
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
-		return shader_iter->second;
+		return shader_iter->second.get();
 	}
 
 	switch (draw_stage)
 	{
 	case DrawStageCBuffer:
 		{
-			EffectMacroPairList macros;
-			if (mesh_type == MeshComponent::MeshTypeAnimation)
-			{
-				macros.push_back(EffectMacroPair("VS_SKINED_DQ",""));
-			}
-
-			std::string path = "shader/SimpleSample.fx";
+			std::string macros(mesh_type == MeshComponent::MeshTypeAnimation ? "VS_SKINED_DQ 1" : "");
+			std::string path("shader/SimpleSample.fx");
 			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
 			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
 			LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
@@ -846,14 +848,14 @@ my::EffectPtr Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage dra
 		break;
 	}
 
-	return my::EffectPtr();
+	return mesh_type == MeshComponent::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get();
 }
 
 void Game::DrawMesh(MeshComponent * mesh_cmp, int lod)
 {
 	_ASSERT(mesh_cmp);
 
-	mesh_cmp->OnPreRender(m_SimpleSample.get(), DrawStageCBuffer);
+	mesh_cmp->OnPreRender(mesh_cmp->m_MeshType == MeshComponent::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get(), DrawStageCBuffer);
 
 	MeshComponent::MeshLODPtrMap::iterator lod_iter = mesh_cmp->m_Lod.find(lod);
 	if (lod_iter != mesh_cmp->m_Lod.end())
@@ -872,20 +874,19 @@ void Game::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
 
 		if (mesh_lod->m_Materials[i])
 		{
-			my::EffectPtr shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());
-			if (shader)
-			{
-				mesh_lod->OnPreRender(shader.get(), DrawStageCBuffer, i);
+			my::Effect * shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());
+			_ASSERT(shader);
 
-				UINT passes = shader->Begin();
-				for (UINT p = 0; p < passes; p++)
-				{
-					shader->BeginPass(p);
-					mesh_lod->m_Mesh->DrawSubset(i);
-					shader->EndPass();
-				}
-				shader->End();
+			mesh_lod->OnPreRender(shader, DrawStageCBuffer, i);
+
+			UINT passes = shader->Begin();
+			for (UINT p = 0; p < passes; p++)
+			{
+				shader->BeginPass(p);
+				mesh_lod->m_Mesh->DrawSubset(i);
+				shader->EndPass();
 			}
+			shader->End();
 		}
 	}
 }
