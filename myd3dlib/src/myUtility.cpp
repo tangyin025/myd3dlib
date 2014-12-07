@@ -151,72 +151,15 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
-BaseCamera::~BaseCamera(void)
-{
-}
-
-std::pair<Vector3, Vector3> BaseCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
-{
-	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Position, pt, Vector2((float)dim.cx, (float)dim.cy));
-}
-
-void OrthoCamera::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
-
-	m_Proj = Matrix4::OrthoRH(m_Width, m_Height, m_Nz, m_Fz);
-
-	m_ViewProj = m_View * m_Proj;
-
-	m_InverseViewProj = m_ViewProj.inverse();
-}
-
-LRESULT OrthoCamera::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
-void Camera::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	m_View = Matrix4::Translation(-m_Position) * Matrix4::RotationQuaternion(m_Orientation.inverse());
-
-	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
-
-	m_ViewProj = m_View * m_Proj;
-
-	m_InverseViewProj = m_ViewProj.inverse();
-}
-
-LRESULT Camera::MsgProc(
-	HWND hWnd,
-	UINT uMsg,
-	WPARAM wParam,
-	LPARAM lParam,
-	bool * pbNoFurtherProcessing)
-{
-	return 0;
-}
-
 void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
-	m_Position = Vector3(0,0,m_Distance).transform(m_Orientation) + m_LookAt;
+	m_Eye = m_LookAt + Rotation[2].xyz * m_Distance;
 
-	Vector3 Up = Vector3(0,1,0).transform(m_Orientation);
-
-	m_View = Matrix4::LookAtRH(m_Position, m_LookAt, Up);
+	m_View = Matrix4::LookAtRH(m_Eye, m_LookAt, Rotation[1].xyz);
 
 	m_Proj = Matrix4::PerspectiveAovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
 
@@ -253,8 +196,8 @@ LRESULT ModelViewerCamera::MsgProc(
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			m_Rotation.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Rotation.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
+			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
+			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
 			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -269,15 +212,26 @@ LRESULT ModelViewerCamera::MsgProc(
 	return 0;
 }
 
+std::pair<Vector3, Vector3> ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
 void FirstPersonCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
 {
-	m_Orientation = Quaternion::RotationYawPitchRoll(m_Rotation.y, m_Rotation.x, 0);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
-	m_Position += (m_Velocity * 5.0f * fElapsedTime).transform(m_Orientation);
+	m_Eye += (m_LocalVel * 5.0f * fElapsedTime).transform(Rotation).xyz;
 
-	Camera::OnFrameMove(fTime, fElapsedTime);
+	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
+
+	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
 }
 
 LRESULT FirstPersonCamera::MsgProc(
@@ -308,8 +262,8 @@ LRESULT FirstPersonCamera::MsgProc(
 	case WM_MOUSEMOVE:
 		if(m_bDrag)
 		{
-			m_Rotation.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Rotation.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
+			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
+			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
 			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -320,32 +274,32 @@ LRESULT FirstPersonCamera::MsgProc(
 		switch(wParam)
 		{
 		case 'W':
-			m_Velocity.z = -1;
+			m_LocalVel.z = -1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'S':
-			m_Velocity.z = 1;
+			m_LocalVel.z = 1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'A':
-			m_Velocity.x = -1;
+			m_LocalVel.x = -1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'D':
-			m_Velocity.x = 1;
+			m_LocalVel.x = 1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'E':
-			m_Velocity.y = 1;
+			m_LocalVel.y = 1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'Q':
-			m_Velocity.y = -1;
+			m_LocalVel.y = -1;
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
@@ -355,44 +309,49 @@ LRESULT FirstPersonCamera::MsgProc(
 		switch(wParam)
 		{
 		case 'W':
-			if(m_Velocity.z < 0)
-				m_Velocity.z = 0;
+			if(m_LocalVel.z < 0)
+				m_LocalVel.z = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'S':
-			if(m_Velocity.z > 0)
-				m_Velocity.z = 0;
+			if(m_LocalVel.z > 0)
+				m_LocalVel.z = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'A':
-			if(m_Velocity.x < 0)
-				m_Velocity.x = 0;
+			if(m_LocalVel.x < 0)
+				m_LocalVel.x = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'D':
-			if(m_Velocity.x > 0)
-				m_Velocity.x = 0;
+			if(m_LocalVel.x > 0)
+				m_LocalVel.x = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'E':
-			if(m_Velocity.y > 0)
-				m_Velocity.y = 0;
+			if(m_LocalVel.y > 0)
+				m_LocalVel.y = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 
 		case 'Q':
-			if(m_Velocity.y < 0)
-				m_Velocity.y = 0;
+			if(m_LocalVel.y < 0)
+				m_LocalVel.y = 0;
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
 		break;
 	}
 	return 0;
+}
+
+std::pair<Vector3, Vector3> FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void EmitterMgr::Update(
@@ -409,7 +368,7 @@ void EmitterMgr::Update(
 void EmitterMgr::Draw(
 	EmitterInstance * pInstance,
 	const Matrix4 & ViewProj,
-	const Quaternion & ViewOrientation,
+	const Matrix4 & View,
 	double fTime,
 	float fElapsedTime)
 {
@@ -418,7 +377,7 @@ void EmitterMgr::Draw(
 	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
 	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
 	{
-		(*emitter_iter)->Draw(pInstance, ViewOrientation, fTime, fElapsedTime);
+		(*emitter_iter)->Draw(pInstance, View, fTime, fElapsedTime);
 	}
 }
 

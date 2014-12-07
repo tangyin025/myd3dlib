@@ -103,14 +103,6 @@ namespace my
 	class BaseCamera
 	{
 	public:
-		Vector3 m_Position;
-
-		Quaternion m_Orientation;
-
-		float m_Nz;
-
-		float m_Fz;
-
 		Matrix4 m_View;
 
 		Matrix4 m_Proj;
@@ -120,61 +112,16 @@ namespace my
 		Matrix4 m_InverseViewProj;
 
 	public:
-		BaseCamera(const Vector3 & Position, const Quaternion & Orientation, float Nz, float Fz)
-			: m_Position(Position)
-			, m_Orientation(Orientation)
-			, m_Nz(Nz)
-			, m_Fz(Fz)
+		BaseCamera(void)
 		{
 		}
 
-		virtual ~BaseCamera(void);
-
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime) = 0;
-
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing) = 0;
-
-		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
+		virtual ~BaseCamera(void)
+		{
+		}
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
-
-	class OrthoCamera
-		: public BaseCamera
-	{
-	public:
-		float m_Width;
-
-		float m_Height;
-
-	public:
-		OrthoCamera(const Vector3 & Position, const Quaternion & Orientation, float Width, float Height, float Nz, float Fz)
-			: BaseCamera(Position, Orientation, Nz, Fz)
-			, m_Width(Width)
-			, m_Height(Height)
-		{
-		}
-
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime);
-
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing);
-	};
-
-	typedef boost::shared_ptr<OrthoCamera> OrthoCameraPtr;
 
 	class Camera
 		: public BaseCamera
@@ -184,26 +131,41 @@ namespace my
 
 		float m_Aspect;
 
+		float m_Nz;
+
+		float m_Fz;
+
 		ControlEvent EventAlign;
 
 	public:
-		Camera(const Vector3 & Position, const Quaternion & Orientation, float Fov, float Aspect, float Nz, float Fz)
-			: BaseCamera(Position, Orientation, Nz, Fz)
-			, m_Fov(Fov)
+		Camera(float Fov, float Aspect, float Nz, float Fz)
+			: m_Fov(Fov)
 			, m_Aspect(Aspect)
+			, m_Nz(Nz)
+			, m_Fz(Fz)
 		{
 		}
 
-		virtual void OnFrameMove(
+		virtual void Camera::OnFrameMove(
 			double fTime,
-			float fElapsedTime);
-
-		virtual LRESULT MsgProc(
+			float fElapsedTime)
+		{
+		}
+		
+		virtual LRESULT Camera::MsgProc(
 			HWND hWnd,
 			UINT uMsg,
 			WPARAM wParam,
 			LPARAM lParam,
-			bool * pbNoFurtherProcessing);
+			bool * pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim)
+		{
+			return std::make_pair(Vector3::zero, Vector3::zero);
+		}
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;
@@ -214,7 +176,7 @@ namespace my
 	public:
 		Vector3 m_LookAt;
 
-		Vector3 m_Rotation;
+		Vector3 m_Eular;
 
 		float m_Distance;
 
@@ -222,11 +184,13 @@ namespace my
 
 		CPoint m_DragPos;
 
+		Vector3 m_Eye;
+
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Vector3::zero, Quaternion::identity, Fov, Aspect, Nz, Fz)
-			, m_LookAt(Vector3::zero)
-			, m_Rotation(Vector3::zero)
+			: Camera(Fov, Aspect, Nz, Fz)
+			, m_LookAt(0,0,0)
+			, m_Eular(0,0,0)
 			, m_Distance(0)
 			, m_bDrag(false)
 		{
@@ -242,15 +206,19 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+
+		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class FirstPersonCamera
 		: public Camera
 	{
 	public:
-		Vector3 m_Velocity;
+		Vector3 m_Eye;
 
-		Vector3 m_Rotation;
+		Vector3 m_Eular;
+
+		Vector3 m_LocalVel;
 
 		bool m_bDrag;
 
@@ -258,9 +226,10 @@ namespace my
 
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Vector3::zero, Quaternion::identity, Fov, Aspect, Nz, Fz)
-			, m_Velocity(0,0,0)
-			, m_Rotation(0,0,0)
+			: Camera(Fov, Aspect, Nz, Fz)
+			, m_Eye(0,0,0)
+			, m_Eular(0,0,0)
+			, m_LocalVel(0,0,0)
 			, m_bDrag(false)
 		{
 		}
@@ -275,6 +244,8 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
+
+		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class EmitterMgr
@@ -296,7 +267,7 @@ namespace my
 		void Draw(
 			EmitterInstance * pInstance,
 			const Matrix4 & ViewProj,
-			const Quaternion & ViewOrientation,
+			const Matrix4 & View,
 			double fTime,
 			float fElapsedTime);
 

@@ -104,7 +104,7 @@ DWORD Emitter::BuildInstance(
 
 void Emitter::Draw(
 	EmitterInstance * pInstance,
-	const Quaternion & ViewOrientation,
+	const Matrix4 & View,
 	double fTime,
 	float fElapsedTime)
 {
@@ -123,15 +123,15 @@ void Emitter::Draw(
 	{
 	case DirectionTypeCamera:
 		pInstance->SetDirection(
-			Vector3(0,0,1).transform(ViewOrientation),
-			Vector3(0,1,0).transform(ViewOrientation),
-			Vector3(1,0,0).transform(ViewOrientation));
+			Vector3(View._13,View._23,View._33),
+			Vector3(View._12,View._22,View._32),
+			Vector3(View._11,View._21,View._31));
 		break;
 
 	case DirectionTypeVertical:
 		{
 			Vector3 Up(0,1,0);
-			Vector3 Right = Vector3(0,0,-1).transform(ViewOrientation).cross(Up);
+			Vector3 Right = Up.cross(Vector3(View._13,View._23,View._33));
 			Vector3 Dir = Right.cross(Up);
 			pInstance->SetDirection(Dir, Up, Right);
 		}

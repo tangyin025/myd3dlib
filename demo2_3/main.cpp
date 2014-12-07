@@ -252,40 +252,40 @@ public:
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 		PushGrid();
 
-		// ========================================================================================================
-		// 骨骼动画
-		// ========================================================================================================
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		float dist_sq = sqrt((m_Camera->m_Position - m_mesh->m_World[3].xyz).magnitudeSq());
-		DWORD lod;
-		if (dist_sq < 15)
-		{
-			lod = 0;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "mesh/sportive03_f.mesh.xml");
-			}
-		}
-		else if(dist_sq < 30)
-		{
-			lod = 1;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "aaa.mesh.xml");
-			}
-		}
-		else
-		{
-			lod = 2;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
-			}
-		}
-		DrawMesh(m_mesh.get(), lod);
+		//// ========================================================================================================
+		//// 骨骼动画
+		//// ========================================================================================================
+		//m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+		//float dist_sq = sqrt((m_Camera->m_Position - m_mesh->m_World[3].xyz).magnitudeSq());
+		//DWORD lod;
+		//if (dist_sq < 15)
+		//{
+		//	lod = 0;
+		//	if (!m_mesh->m_Lod[lod])
+		//	{
+		//		m_mesh->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh->m_Lod[lod], "mesh/sportive03_f.mesh.xml");
+		//	}
+		//}
+		//else if(dist_sq < 30)
+		//{
+		//	lod = 1;
+		//	if (!m_mesh->m_Lod[lod])
+		//	{
+		//		m_mesh->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh->m_Lod[lod], "aaa.mesh.xml");
+		//	}
+		//}
+		//else
+		//{
+		//	lod = 2;
+		//	if (!m_mesh->m_Lod[lod])
+		//	{
+		//		m_mesh->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
+		//	}
+		//}
+		//DrawMesh(m_mesh.get(), lod);
 
 		//// ========================================================================================================
 		//// 布料系统

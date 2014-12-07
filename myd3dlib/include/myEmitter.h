@@ -146,7 +146,7 @@ namespace my
 
 		void Draw(
 			EmitterInstance * pInstance,
-			const Quaternion & ViewOrientation,
+			const Matrix4 & View,
 			double fTime,
 			float fElapsedTime);
 	};
