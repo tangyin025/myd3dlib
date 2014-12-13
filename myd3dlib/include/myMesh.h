@@ -336,7 +336,7 @@ namespace my
 	public:
 		OgreMesh(void)
 		{
-		};
+		}
 
 		void CreateMeshFromOgreXmlInFile(
 			LPDIRECT3DDEVICE9 pd3dDevice,
@@ -411,4 +411,43 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<OgreMeshSet> OgreMeshSetPtr;
+
+	class OgreMeshInstance : public OgreMesh
+	{
+	public:
+		CComPtr<IDirect3DDevice9> m_Device;
+
+		D3DVertexElementSet m_InstanceElems;
+
+		VertexBuffer m_InstanceData;
+
+		std::vector<D3DVERTEXELEMENT9> m_velist;
+
+		DWORD m_VertexStride;
+
+		DWORD m_InstanceStride;
+
+		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	public:
+		OgreMeshInstance(void);
+
+		virtual ~OgreMeshInstance(void);
+
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
+		void CreateInstance(IDirect3DDevice9 * pd3dDevice);
+
+		Matrix4 * LockInstanceData(DWORD NumInstances);
+
+		void UnlockInstanceData(void);
+
+		void DrawInstance(DWORD NumInstances);
+	};
+
+	typedef boost::shared_ptr<OgreMeshInstance> OgreMeshInstancePtr;
 }

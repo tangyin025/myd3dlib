@@ -5,23 +5,9 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-texture g_MeshTexture;              // Color texture for mesh
-#ifdef VS_SKINED_DQ
+#if defined(VS_SKINED_DQ)
 row_major float2x4 g_dualquat[96];
 #endif
-
-//--------------------------------------------------------------------------------------
-// Texture samplers
-//--------------------------------------------------------------------------------------
-
-sampler MeshTextureSampler = 
-sampler_state
-{
-    Texture = <g_MeshTexture>;
-    MipFilter = LINEAR;
-    MinFilter = LINEAR;
-    MagFilter = LINEAR;
-};
 
 //--------------------------------------------------------------------------------------
 // func
@@ -98,9 +84,12 @@ void get_skinned_vs( row_major float2x4 dualquat[96],
 VS_OUTPUT_SHADOW RenderShadowVS( VS_INPUT_SHADOW In )
 {
 	VS_OUTPUT_SHADOW Output;
-#ifdef VS_SKINED_DQ
+#if defined(VS_SKINED_DQ)
 	get_skinned_vs(g_dualquat, In.Pos, In.BlendWeights, In.BlendIndices, Output.Pos);
     Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
+#elif defined(VS_INSTANCE)
+	float4x4 World = float4x4(In.mat1,In.mat2,In.mat3,In.mat4);
+	Output.Pos = mul(In.Pos, mul(World, g_ViewProj));
 #else
     Output.Pos = mul(In.Pos, mul(g_World, g_ViewProj));
 #endif
@@ -111,11 +100,16 @@ VS_OUTPUT_SHADOW RenderShadowVS( VS_INPUT_SHADOW In )
 VS_OUTPUT RenderSceneVS( VS_INPUT In )
 {
     VS_OUTPUT Output;
-#ifdef VS_SKINED_DQ
+#if defined(VS_SKINED_DQ)
 	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Output.Tangent);
     Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
     Output.Normal = mul(Output.Normal, (float3x3)g_World);
 	Output.Tangent = mul(Output.Tangent, (float3x3)g_World);
+#elif defined(VS_INSTANCE)
+	float4x4 World = float4x4(In.mat1,In.mat2,In.mat3,In.mat4);
+	Output.Pos = mul(In.Pos, mul(World, g_ViewProj));
+	Output.Normal = mul(In.Normal, (float3x3)World);
+	Output.Tangent = mul(In.Tangent, (float3x3)World);
 #else
     Output.Pos = mul(In.Pos, mul(g_World, g_ViewProj));
     Output.Normal = mul(In.Normal, (float3x3)g_World);

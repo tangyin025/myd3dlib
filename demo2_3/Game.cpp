@@ -256,6 +256,11 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
+	if (!(m_TexChecker = LoadTexture("texture/Checker.bmp")))
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
+	}
+
 	m_OctScene.reset(new OctRoot(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000), 1.1f));
 
 	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
@@ -874,7 +879,7 @@ void Game::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
 
 			mesh_lod->OnPreRender(shader, DrawStageCBuffer, i);
 
-			UINT passes = shader->Begin();
+			UINT passes = shader->Begin(0);
 			for (UINT p = 0; p < passes; p++)
 			{
 				shader->BeginPass(p);

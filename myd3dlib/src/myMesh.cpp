@@ -5,6 +5,8 @@
 
 using namespace my;
 
+#define MESH_INSTANCE_MAX 1024u
+
 void D3DVertexElementSet::InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
 {
 	_ASSERT(Type != D3DDECLTYPE_UNUSED);
@@ -1232,4 +1234,121 @@ void OgreMeshSet::CreateMeshSetFromOgreXml(
 
 		push_back(mesh_ptr);
 	}
+}
+
+OgreMeshInstance::OgreMeshInstance(void)
+	: m_VertexStride(0)
+	, m_InstanceStride(0)
+{
+}
+
+OgreMeshInstance::~OgreMeshInstance(void)
+{
+}
+
+void OgreMeshInstance::OnResetDevice(void)
+{
+	OgreMesh::OnResetDevice();
+
+	_ASSERT(!m_InstanceData.m_ptr);
+	m_InstanceData.CreateVertexBuffer(m_Device, m_InstanceStride * MESH_INSTANCE_MAX, 0, 0, D3DPOOL_DEFAULT);
+}
+
+void OgreMeshInstance::OnLostDevice(void)
+{
+	m_InstanceData.OnDestroyDevice();
+
+	OgreMesh::OnLostDevice();
+}
+
+void OgreMeshInstance::OnDestroyDevice(void)
+{
+	_ASSERT(!m_InstanceData.m_ptr);
+
+	m_Device.Release();
+	m_InstanceData.OnDestroyDevice();
+	m_Decl.Release();
+
+	OgreMesh::OnDestroyDevice();
+}
+
+void OgreMeshInstance::CreateInstance(IDirect3DDevice9 * pd3dDevice)
+{
+	_ASSERT(pd3dDevice);
+	m_Device = pd3dDevice;
+
+	WORD offset = 0;
+	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
+	offset += sizeof(Vector4);
+	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 2);
+	offset += sizeof(Vector4);
+	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 3);
+	offset += sizeof(Vector4);
+	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
+	offset += sizeof(Vector4);
+
+	m_velist.resize(MAX_FVF_DECL_SIZE);
+	GetDeclaration(&m_velist[0]);
+
+	unsigned int i = 0;
+	for (; i < m_velist.size(); i++)
+	{
+		if (m_velist[i].Stream == 0xff || m_velist[i].Type == D3DDECLTYPE_UNUSED)
+		{
+			break;
+		}
+	}
+
+	if (i >= m_velist.size())
+	{
+		THROW_CUSEXCEPTION(_T("invalid vertex declaration"));
+	}
+
+	std::vector<D3DVERTEXELEMENT9> ielist = m_InstanceElems.BuildVertexElementList(1);
+	m_velist.insert(m_velist.begin() + i, ielist.begin(), ielist.end());
+
+	m_VertexStride = D3DXGetDeclVertexSize(&m_velist[0], 0);
+	m_InstanceStride = D3DXGetDeclVertexSize(&m_velist[0], 1);
+
+	_ASSERT(!m_InstanceData.m_ptr);
+
+	if (FAILED(hr = pd3dDevice->CreateVertexDeclaration(&m_velist[0], &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
+}
+
+Matrix4 * OgreMeshInstance::LockInstanceData(DWORD NumInstances)
+{
+	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
+
+	Matrix4 * ret = (Matrix4 *)m_InstanceData.Lock(0, m_InstanceStride * NumInstances, 0);
+	_ASSERT(ret);
+	return ret;
+}
+
+void OgreMeshInstance::UnlockInstanceData(void)
+{
+	m_InstanceData.Unlock();
+}
+
+void OgreMeshInstance::DrawInstance(DWORD NumInstances)
+{
+	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
+
+	CComPtr<IDirect3DVertexBuffer9> vb = GetVertexBuffer();
+	CComPtr<IDirect3DIndexBuffer9> ib = GetIndexBuffer();
+
+	V(m_Device->SetStreamSource(0, vb, 0, m_VertexStride));
+	V(m_Device->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+
+	V(m_Device->SetStreamSource(1, m_InstanceData.m_ptr, 0, m_InstanceStride));
+	V(m_Device->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+
+	V(m_Device->SetVertexDeclaration(m_Decl));
+	V(m_Device->SetIndices(ib));
+	V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, GetNumVertices(), 0, GetNumFaces()));
+
+	V(m_Device->SetStreamSourceFreq(0,1));
+	V(m_Device->SetStreamSourceFreq(1,1));
 }

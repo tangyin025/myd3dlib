@@ -115,6 +115,8 @@ public:
 
 	my::BaseTexturePtr m_WhiteTex;
 
+	my::BaseTexturePtr m_TexChecker;
+
 	my::OctRootPtr m_OctScene;
 
 	my::CameraPtr m_Camera;
