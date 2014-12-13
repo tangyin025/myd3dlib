@@ -109,6 +109,8 @@ public:
 
 	my::EffectPtr m_SimpleSampleSkel;
 
+	my::EffectPtr m_SimpleSampleInst;
+
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;

@@ -240,6 +240,11 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
+	if (!(m_SimpleSampleInst = LoadEffect("shader/SimpleSample.fx", "VS_INSTANCE 1")))
+	{
+		THROW_CUSEXCEPTION(m_LastErrorStr);
+	}
+
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
@@ -325,6 +330,8 @@ void Game::OnDestroyDevice(void)
 	m_SimpleSample.reset();
 
 	m_SimpleSampleSkel.reset();
+
+	m_SimpleSampleInst.reset();
 
 	m_ShaderCache.clear();
 

@@ -22,10 +22,12 @@ public:
 	BoneList m_skel_pose_heir1;
 	BoneList m_skel_pose_heir2;
 
-	// ========================================================================================================
-	// 大场景
-	// ========================================================================================================
-	OgreMeshSetPtr m_meshSet;
+	OgreMeshInstancePtr m_mesh_ins;
+
+	//// ========================================================================================================
+	//// 大场景
+	//// ========================================================================================================
+	//OgreMeshSetPtr m_meshSet;
 
 	//// ========================================================================================================
 	//// 布料系统
@@ -100,6 +102,11 @@ public:
 		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
+
+		m_mesh_ins.reset(new OgreMeshInstance());
+		m_mesh_ins->CreateMeshFromOgreXmlInFile(pd3dDevice, _T("Media/mesh/tube.mesh.xml"));
+		m_mesh_ins->CreateInstance(pd3dDevice);
+		AddResource("____eraweraw", m_mesh_ins);
 
 		//// ========================================================================================================
 		//// 大场景
@@ -286,6 +293,24 @@ public:
 			}
 		}
 		DrawMesh(m_mesh.get(), lod);
+
+
+		Matrix4 * mat = m_mesh_ins->LockInstanceData(2);
+		mat[0] = Matrix4::Translation(10,0,0);
+		mat[1] = Matrix4::Translation(-10,0,0);
+		m_mesh_ins->UnlockInstanceData();
+
+		m_SimpleSampleInst->SetTexture("g_MeshTexture", m_TexChecker);
+		m_SimpleSampleInst->SetMatrix("g_World", Matrix4::identity);
+		m_SimpleSampleInst->SetTechnique("RenderScene");
+		UINT passes = m_SimpleSampleInst->Begin(0);
+		for (UINT p = 0; p < passes; p++)
+		{
+			m_SimpleSampleInst->BeginPass(p);
+			m_mesh_ins->DrawSubsetInstance(0, 2);
+			m_SimpleSampleInst->EndPass();
+		}
+		m_SimpleSampleInst->End();
 
 		//// ========================================================================================================
 		//// 布料系统
