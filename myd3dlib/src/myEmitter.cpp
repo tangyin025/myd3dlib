@@ -85,8 +85,7 @@ DWORD Emitter::BuildInstance(
 {
 	_ASSERT(m_ParticleList.size() <= PARTICLE_INSTANCE_MAX);
 
-	unsigned char * pVertices =
-		(unsigned char *)pInstance->m_InstanceData.Lock(0, pInstance->m_InstanceStride * m_ParticleList.size());
+	unsigned char * pVertices = pInstance->LockInstanceData(m_ParticleList.size());
 	_ASSERT(pVertices);
 	for(DWORD i = 0; i < m_ParticleList.size(); i++)
 	{
@@ -97,7 +96,7 @@ DWORD Emitter::BuildInstance(
 		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, m_ParticleList[i].first->m_Texcoord1);
 		pInstance->m_InstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, m_ParticleList[i].first->m_Texcoord2);
 	}
-	pInstance->m_InstanceData.Unlock();
+	pInstance->UnlockInstanceData();
 
 	return m_ParticleList.size();
 }
@@ -277,6 +276,20 @@ void ParticleInstance::CreateInstance(IDirect3DDevice9 * pd3dDevice)
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
+}
+
+unsigned char * ParticleInstance::LockInstanceData(DWORD NumInstances)
+{
+	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
+
+	unsigned char * ret = (unsigned char *)m_InstanceData.Lock(0, m_InstanceStride * NumInstances, 0);
+	_ASSERT(ret);
+	return ret;
+}
+
+void ParticleInstance::UnlockInstanceData(void)
+{
+	m_InstanceData.Unlock();
 }
 
 void ParticleInstance::DrawInstance(DWORD NumInstances)

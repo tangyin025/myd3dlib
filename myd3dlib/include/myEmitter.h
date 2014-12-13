@@ -241,6 +241,10 @@ namespace my
 
 		void CreateInstance(IDirect3DDevice9 * pd3dDevice);
 
+		unsigned char * LockInstanceData(DWORD NumInstances);
+
+		void UnlockInstanceData(void);
+
 		virtual void Begin(void) = 0;
 
 		virtual void End(void) = 0;
