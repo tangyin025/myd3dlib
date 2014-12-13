@@ -417,6 +417,8 @@ namespace my
 	public:
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+
 		D3DVertexElementSet m_InstanceElems;
 
 		VertexBuffer m_InstanceData;
@@ -446,7 +448,7 @@ namespace my
 
 		void UnlockInstanceData(void);
 
-		void DrawInstance(DWORD NumInstances);
+		void DrawSubsetInstance(DWORD AttribId, DWORD NumInstances);
 	};
 
 	typedef boost::shared_ptr<OgreMeshInstance> OgreMeshInstancePtr;

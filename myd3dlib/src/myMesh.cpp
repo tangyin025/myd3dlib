@@ -1277,6 +1277,12 @@ void OgreMeshInstance::CreateInstance(IDirect3DDevice9 * pd3dDevice)
 	_ASSERT(pd3dDevice);
 	m_Device = pd3dDevice;
 
+	DWORD submeshes = 0;
+	GetAttributeTable(NULL, &submeshes);
+	m_AttribTable.resize(submeshes);
+	GetAttributeTable(&m_AttribTable[0], &submeshes);
+	_ASSERT(m_AttribTable.size() == submeshes);
+
 	WORD offset = 0;
 	m_InstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
 	offset += sizeof(Vector4);
@@ -1332,8 +1338,9 @@ void OgreMeshInstance::UnlockInstanceData(void)
 	m_InstanceData.Unlock();
 }
 
-void OgreMeshInstance::DrawInstance(DWORD NumInstances)
+void OgreMeshInstance::DrawSubsetInstance(DWORD AttribId, DWORD NumInstances)
 {
+	_ASSERT(AttribId <= m_AttribTable.size());
 	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
 
 	CComPtr<IDirect3DVertexBuffer9> vb = GetVertexBuffer();
@@ -1347,7 +1354,8 @@ void OgreMeshInstance::DrawInstance(DWORD NumInstances)
 
 	V(m_Device->SetVertexDeclaration(m_Decl));
 	V(m_Device->SetIndices(ib));
-	V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0, 0, GetNumVertices(), 0, GetNumFaces()));
+	V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
+		m_AttribTable[AttribId].VertexStart, m_AttribTable[AttribId].VertexCount, m_AttribTable[AttribId].FaceStart, m_AttribTable[AttribId].FaceCount));
 
 	V(m_Device->SetStreamSourceFreq(0,1));
 	V(m_Device->SetStreamSourceFreq(1,1));
