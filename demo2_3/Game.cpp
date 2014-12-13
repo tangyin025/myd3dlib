@@ -67,7 +67,7 @@ void EffectUIRender::DrawVertexList(void)
 	}
 }
 
-void EffectEmitterInstance::Begin(void)
+void EffectParticleInstance::Begin(void)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -75,7 +75,7 @@ void EffectEmitterInstance::Begin(void)
 	}
 }
 
-void EffectEmitterInstance::End(void)
+void EffectParticleInstance::End(void)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -84,7 +84,7 @@ void EffectEmitterInstance::End(void)
 	}
 }
 
-void EffectEmitterInstance::SetWorld(const Matrix4 & World)
+void EffectParticleInstance::SetWorld(const Matrix4 & World)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -92,7 +92,7 @@ void EffectEmitterInstance::SetWorld(const Matrix4 & World)
 	}
 }
 
-void EffectEmitterInstance::SetViewProj(const Matrix4 & ViewProj)
+void EffectParticleInstance::SetViewProj(const Matrix4 & ViewProj)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -100,7 +100,7 @@ void EffectEmitterInstance::SetViewProj(const Matrix4 & ViewProj)
 	}
 }
 
-void EffectEmitterInstance::SetTexture(const BaseTexturePtr & Texture)
+void EffectParticleInstance::SetTexture(const BaseTexturePtr & Texture)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -109,7 +109,7 @@ void EffectEmitterInstance::SetTexture(const BaseTexturePtr & Texture)
 	}
 }
 
-void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
+void EffectParticleInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -119,7 +119,7 @@ void EffectEmitterInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up
 	}
 }
 
-void EffectEmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
+void EffectParticleInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
 {
 	if (m_ParticleEffect->m_ptr)
 	{
@@ -127,14 +127,14 @@ void EffectEmitterInstance::SetAnimationColumnRow(unsigned char Column, unsigned
 	}
 }
 
-void EffectEmitterInstance::DrawInstance(DWORD NumInstances)
+void EffectParticleInstance::DrawInstance(DWORD NumInstances)
 {
 	if(m_ParticleEffect->m_ptr && NumInstances > 0)
 	{
 		for(UINT p = 0; p < m_Passes; p++)
 		{
 			m_ParticleEffect->BeginPass(p);
-			EmitterInstance::DrawInstance(NumInstances);
+			ParticleInstance::DrawInstance(NumInstances);
 			m_ParticleEffect->EndPass();
 		}
 	}
@@ -227,12 +227,8 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
-	m_EmitterInst.reset(new EffectEmitterInstance(LoadEffect("shader/Particle.fx", "")));
-
-	if(FAILED(hr = m_EmitterInst->OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
+	m_ParticleInst.reset(new EffectParticleInstance(LoadEffect("shader/Particle.fx", "")));
+	m_ParticleInst->CreateInstance(pd3dDevice);
 
 	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
 	{
@@ -280,10 +276,7 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
-	if(FAILED(hr = m_EmitterInst->OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
+	m_ParticleInst->OnResetDevice();
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
@@ -303,7 +296,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_EmitterInst->OnLostDevice();
+	m_ParticleInst->OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -330,7 +323,7 @@ void Game::OnDestroyDevice(void)
 
 	m_ShaderCache.clear();
 
-	m_EmitterInst.reset();
+	m_ParticleInst.reset();
 
 	m_UIRender.reset();
 
@@ -339,6 +332,8 @@ void Game::OnDestroyDevice(void)
 	PhysXSceneContext::OnShutdown();
 
 	PhysXContext::OnShutdown();
+
+	RemoveAllEmitter();
 
 	ResourceMgr::OnDestroyDevice();
 
@@ -392,11 +387,11 @@ void Game::OnFrameRender(
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
-	m_EmitterInst->Begin();
+	m_ParticleInst->Begin();
 
-	EmitterMgr::Draw(m_EmitterInst.get(), m_Camera->m_ViewProj, m_Camera->m_View, fTime, fElapsedTime);
+	EmitterMgr::Draw(m_ParticleInst.get(), m_Camera->m_ViewProj, m_Camera->m_View, fTime, fElapsedTime);
 
-	m_EmitterInst->End();
+	m_ParticleInst->End();
 
 	m_UIRender->Begin();
 

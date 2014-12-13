@@ -366,7 +366,7 @@ void EmitterMgr::Update(
 }
 
 void EmitterMgr::Draw(
-	EmitterInstance * pInstance,
+	ParticleInstance * pInstance,
 	const Matrix4 & ViewProj,
 	const Matrix4 & View,
 	double fTime,

@@ -9,7 +9,7 @@
 
 namespace my
 {
-	class EmitterInstance;
+	class ParticleInstance;
 
 	class Emitter
 		: public DeviceRelatedObjectBase
@@ -140,12 +140,12 @@ namespace my
 		virtual void UpdateParticle(Particle * particle, float time, float fElapsedTime);
 
 		DWORD BuildInstance(
-			EmitterInstance * pInstance,
+			ParticleInstance * pInstance,
 			double fTime,
 			float fElapsedTime);
 
 		void Draw(
-			EmitterInstance * pInstance,
+			ParticleInstance * pInstance,
 			const Matrix4 & View,
 			double fTime,
 			float fElapsedTime);
@@ -203,9 +203,11 @@ namespace my
 
 	typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
 
-	class EmitterInstance
+	class ParticleInstance : public DeviceRelatedObjectBase
 	{
 	public:
+		HRESULT hr;
+
 		CComPtr<IDirect3DDevice9> m_Device;
 
 		D3DVertexElementSet m_VertexElems;
@@ -227,52 +229,34 @@ namespace my
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
 	public:
-		EmitterInstance(void);
+		ParticleInstance(void);
 
-		virtual ~EmitterInstance(void);
+		virtual ~ParticleInstance(void);
 
-		HRESULT OnCreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+		virtual void OnResetDevice(void);
 
-		HRESULT OnResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+		virtual void OnLostDevice(void);
 
-		void OnLostDevice(void);
+		virtual void OnDestroyDevice(void);
 
-		void OnDestroyDevice(void);
+		void CreateInstance(IDirect3DDevice9 * pd3dDevice);
 
-		virtual void Begin(void)
-		{
-		}
+		virtual void Begin(void) = 0;
 
-		virtual void End(void)
-		{
-		}
+		virtual void End(void) = 0;
 
-		virtual void SetWorld(const Matrix4 & World)
-		{
-		}
+		virtual void SetWorld(const Matrix4 & World) = 0;
 
-		virtual void SetViewProj(const Matrix4 & ViewProj)
-		{
-		}
+		virtual void SetViewProj(const Matrix4 & ViewProj) = 0;
 
-		virtual void SetTexture(const BaseTexturePtr & Texture)
-		{
-		}
+		virtual void SetTexture(const BaseTexturePtr & Texture) = 0;
 
-		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
-		{
-		}
+		virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right) = 0;
 
-		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row)
-		{
-		}
+		virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row) = 0;
 
 		virtual void DrawInstance(DWORD NumInstances);
 	};
 
-	typedef boost::shared_ptr<EmitterInstance> EmitterInstancePtr;
+	typedef boost::shared_ptr<ParticleInstance> ParticleInstancePtr;
 }

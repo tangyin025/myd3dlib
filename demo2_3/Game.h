@@ -34,8 +34,8 @@ public:
 	virtual void DrawVertexList(void);
 };
 
-class EffectEmitterInstance
-	: public my::EmitterInstance
+class EffectParticleInstance
+	: public my::ParticleInstance
 {
 public:
 	my::EffectPtr m_ParticleEffect;
@@ -43,7 +43,7 @@ public:
 	UINT m_Passes;
 
 public:
-	EffectEmitterInstance(my::EffectPtr effect)
+	EffectParticleInstance(my::EffectPtr effect)
 		: m_ParticleEffect(effect)
 		, m_Passes(0)
 	{
@@ -89,7 +89,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::EmitterInstancePtr m_EmitterInst;
+	my::ParticleInstancePtr m_ParticleInst;
 
 	enum DrawStage
 	{

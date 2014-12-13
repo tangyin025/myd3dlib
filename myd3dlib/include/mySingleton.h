@@ -100,15 +100,15 @@ namespace my
 			SAFE_RELEASE(m_ptr);
 		}
 
-		void OnResetDevice(void)
+		virtual void OnResetDevice(void)
 		{
 		}
 
-		void OnLostDevice(void)
+		virtual void OnLostDevice(void)
 		{
 		}
 
-		void OnDestroyDevice(void)
+		virtual void OnDestroyDevice(void)
 		{
 			SAFE_RELEASE(m_ptr);
 		}
