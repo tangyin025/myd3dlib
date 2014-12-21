@@ -16,13 +16,14 @@ struct VS_INPUT_SHADOW
 #if defined(VS_SKINED_DQ)
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BLENDINDICES;
-#elif defined(VS_INSTANCE)
+#endif
+	float2 Tex0				: TEXCOORD0;
+#if defined(VS_INSTANCE)
 	float4 mat1				: POSITION1;
 	float4 mat2				: POSITION2;
 	float4 mat3				: POSITION3;
 	float4 mat4				: POSITION4;
 #endif
-	float2 Tex0				: TEXCOORD0;
 };
 
 struct VS_INPUT
@@ -31,15 +32,16 @@ struct VS_INPUT
 #if defined(VS_SKINED_DQ)
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BLENDINDICES;
-#elif defined(VS_INSTANCE)
+#endif
+	float3 Normal			: NORMAL;
+	float3 Tangent			: TANGENT;
+	float2 Tex0				: TEXCOORD0;
+#if defined(VS_INSTANCE)
 	float4 mat1				: POSITION1;
 	float4 mat2				: POSITION2;
 	float4 mat3				: POSITION3;
 	float4 mat4				: POSITION4;
 #endif
-	float3 Normal			: NORMAL;
-	float3 Tangent			: TANGENT;
-	float2 Tex0				: TEXCOORD0;
 };
 
 //--------------------------------------------------------------------------------------

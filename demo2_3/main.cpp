@@ -22,7 +22,7 @@ public:
 	BoneList m_skel_pose_heir1;
 	BoneList m_skel_pose_heir2;
 
-	OgreMeshInstancePtr m_mesh_ins;
+	MeshInstancePtr m_mesh_ins;
 
 	//// ========================================================================================================
 	//// ´ó³¡¾°
@@ -103,8 +103,7 @@ public:
 		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
-		m_mesh_ins.reset(new OgreMeshInstance());
-		m_mesh_ins->CreateMeshFromOgreXmlInFile(pd3dDevice, _T("Media/mesh/tube.mesh.xml"));
+		m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		m_mesh_ins->CreateInstance(pd3dDevice);
 		AddResource("____eraweraw", m_mesh_ins);
 
