@@ -4,6 +4,16 @@
 #include "libc.h"
 #include <strstream>
 #include <boost/bind.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <fstream>
+#include "myMesh.h"
+#include "mySkeleton.h"
+#include "myEffect.h"
+#include "myFont.h"
+#include "myEmitter.h"
 
 using namespace my;
 
@@ -530,7 +540,19 @@ std::string DeviceRelatedResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr 
 	return std::string();
 }
 
-HRESULT AsynchronousResourceMgr::OnCreateDevice(
+void Material::OnResetDevice(void)
+{
+}
+
+void Material::OnLostDevice(void)
+{
+}
+
+void Material::OnDestroyDevice(void)
+{
+}
+
+HRESULT ResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
@@ -550,7 +572,7 @@ HRESULT AsynchronousResourceMgr::OnCreateDevice(
 	return S_OK;
 }
 
-HRESULT AsynchronousResourceMgr::OnResetDevice(
+HRESULT ResourceMgr::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
@@ -562,12 +584,12 @@ HRESULT AsynchronousResourceMgr::OnResetDevice(
 	return S_OK;
 }
 
-void AsynchronousResourceMgr::OnLostDevice(void)
+void ResourceMgr::OnLostDevice(void)
 {
 	DeviceRelatedResourceMgr::OnLostDevice();
 }
 
-void AsynchronousResourceMgr::OnDestroyDevice(void)
+void ResourceMgr::OnDestroyDevice(void)
 {
 	StopIORequestProc();
 
@@ -582,7 +604,7 @@ void AsynchronousResourceMgr::OnDestroyDevice(void)
 	m_IORequestList.clear();
 }
 
-HRESULT AsynchronousResourceMgr::Open(
+HRESULT ResourceMgr::Open(
 	D3DXINCLUDE_TYPE IncludeType,
 	LPCSTR pFileName,
 	LPCVOID pParentData,
@@ -610,7 +632,7 @@ HRESULT AsynchronousResourceMgr::Open(
 	return E_FAIL;
 }
 
-HRESULT AsynchronousResourceMgr::Close(
+HRESULT ResourceMgr::Close(
 	LPCVOID pData)
 {
 	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
@@ -618,7 +640,7 @@ HRESULT AsynchronousResourceMgr::Close(
 	return S_OK;
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort)
+AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
@@ -641,7 +663,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousResourceMgr::LoadR
 	return PushIORequestResource(key, request, abort);
 }
 
-void AsynchronousResourceMgr::CheckRequests(void)
+void ResourceMgr::CheckRequests(void)
 {
 	MutexLock lock(m_IORequestListMutex);
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
@@ -658,7 +680,7 @@ void AsynchronousResourceMgr::CheckRequests(void)
 	}
 }
 
-bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPtr request, DWORD timeout)
+bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, DWORD timeout)
 {
 	if(request->m_LoadEvent.Wait(timeout))
 	{
@@ -691,7 +713,7 @@ bool AsynchronousResourceMgr::CheckResource(const std::string & key, IORequestPt
 	return false;
 }
 
-void AsynchronousResourceMgr::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
+void ResourceMgr::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
 {
 }
 
@@ -757,12 +779,12 @@ public:
 	}
 };
 
-void AsynchronousResourceMgr::LoadTextureAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadTextureAsync(const std::string & path, const ResourceCallback & callback)
 {
 	LoadResourceAsync(path, IORequestPtr(new TextureIORequest(callback, path, this)), false);
 }
 
-BaseTexturePtr AsynchronousResourceMgr::LoadTexture(const std::string & path)
+boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const std::string & path)
 {
 	return LoadResource<BaseTexture>(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
 }
@@ -818,12 +840,12 @@ public:
 	}
 };
 
-void AsynchronousResourceMgr::LoadMeshAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadMeshAsync(const std::string & path, const ResourceCallback & callback)
 {
 	LoadResourceAsync(path, IORequestPtr(new MeshIORequest(callback, path, this)), false);
 }
 
-OgreMeshPtr AsynchronousResourceMgr::LoadMesh(const std::string & path)
+boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const std::string & path)
 {
 	return LoadResource<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
 }
@@ -879,12 +901,12 @@ public:
 	}
 };
 
-void AsynchronousResourceMgr::LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback)
 {
 	LoadResourceAsync(path, IORequestPtr(new MeshSetIORequest(callback, path, this)), false);
 }
 
-OgreMeshSetPtr AsynchronousResourceMgr::LoadMeshSet(const std::string & path)
+boost::shared_ptr<OgreMeshSet> ResourceMgr::LoadMeshSet(const std::string & path)
 {
 	return LoadResource<OgreMeshSet>(path, IORequestPtr(new MeshSetIORequest(ResourceCallback(), path, this)));
 }
@@ -940,17 +962,17 @@ public:
 	}
 };
 
-void AsynchronousResourceMgr::LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback)
 {
 	LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(callback, path, this)), false);
 }
 
-OgreSkeletonAnimationPtr AsynchronousResourceMgr::LoadSkeleton(const std::string & path)
+boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const std::string & path)
 {
 	return LoadResource<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
 }
 
-AsynchronousResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, AsynchronousResourceMgr * arc)
+ResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, ResourceMgr * arc)
 	: m_path(path)
 	, m_arc(arc)
 {
@@ -973,7 +995,7 @@ AsynchronousResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback
 	}
 }
 
-void AsynchronousResourceMgr::EffectIORequest::DoLoad(void)
+void ResourceMgr::EffectIORequest::DoLoad(void)
 {
 	if(m_arc->CheckPath(m_path))
 	{
@@ -981,7 +1003,7 @@ void AsynchronousResourceMgr::EffectIORequest::DoLoad(void)
 	}
 }
 
-void AsynchronousResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void ResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_cache)
 	{
@@ -994,19 +1016,19 @@ void AsynchronousResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 p
 	m_res = res;
 }
 
-std::string AsynchronousResourceMgr::EffectIORequest::BuildKey(const std::string & path, const std::string & macros)
+std::string ResourceMgr::EffectIORequest::BuildKey(const std::string & path, const std::string & macros)
 {
 	return str_printf("%s, %s", path.c_str(), macros.c_str());
 }
 
-void AsynchronousResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback)
+void ResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
 	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)), false);
 }
 
-EffectPtr AsynchronousResourceMgr::LoadEffect(const std::string & path, const std::string & macros)
+boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const std::string & path, const std::string & macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
 
@@ -1061,16 +1083,280 @@ public:
 	}
 };
 
-void AsynchronousResourceMgr::LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback)
+void ResourceMgr::LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 
 	LoadResourceAsync(key, IORequestPtr(new FontIORequest(callback, path, height, this)), false);
 }
 
-FontPtr AsynchronousResourceMgr::LoadFont(const std::string & path, int height)
+boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
 
 	return LoadResource<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
+}
+
+class MaterialIORequest : public IORequest
+{
+protected:
+	std::string m_path;
+
+	ResourceMgr * m_arc;
+
+	CachePtr m_cache;
+
+public:
+	MaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckPath(m_path))
+		{
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+		}
+	}
+
+	static void OnDiffuseTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	{
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	}
+
+	static void OnNormalTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	{
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	}
+
+	static void OnSpecularTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	{
+		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	}
+
+	virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnDiffuseTextureLoaded, boundle, _1));
+	}
+
+	virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnNormalTextureLoaded, boundle, _1));
+	}
+
+	virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnSpecularTextureLoaded, boundle, _1));
+	}
+
+	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+	{
+		boundle->m_callbacks = m_callbacks;
+		m_callbacks.clear();
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(!m_cache)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		MaterialPtr res(new Material());
+		ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(res));
+		membuf mb((char *)&(*m_cache)[0], m_cache->size());
+		std::istream ims(&mb);
+		boost::archive::xml_iarchive ia(ims);
+		std::string path;
+		ia >> boost::serialization::make_nvp("m_DiffuseTexture", path);
+		if (!path.empty())
+		{
+			DoLoadDiffuseTexture(boundle, path);
+		}
+		ia >> boost::serialization::make_nvp("m_NormalTexture", path);
+		if (!path.empty())
+		{
+			DoLoadNormalTexture(boundle, path);
+		}
+		ia >> boost::serialization::make_nvp("m_SpecularTexture", path);
+		if (!path.empty())
+		{
+			DoLoadSpecularTexture(boundle, path);
+		}
+		m_res = res;
+		PostBuildResource(boundle);
+	}
+};
+
+void ResourceMgr::LoadMaterialAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)), false);
+}
+
+boost::shared_ptr<Material> ResourceMgr::LoadMaterial(const std::string & path)
+{
+	class SyncMaterialIORequest : public MaterialIORequest
+	{
+	public:
+		SyncMaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+			: MaterialIORequest(callback, path, arc)
+		{
+		}
+
+		virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		{
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = m_arc->LoadTexture(path);
+		}
+
+		virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		{
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = m_arc->LoadTexture(path);
+		}
+
+		virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		{
+			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = m_arc->LoadTexture(path);
+		}
+
+		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+		{
+		}
+	};
+
+	return LoadResource<Material>(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
+}
+
+void ResourceMgr::SaveMaterial(const std::string & path, MaterialPtr material)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("m_DiffuseTexture", GetResourceKey(material->m_DiffuseTexture));
+	oa << boost::serialization::make_nvp("m_NormalTexture", GetResourceKey(material->m_NormalTexture));
+	oa << boost::serialization::make_nvp("m_SpecularTexture", GetResourceKey(material->m_SpecularTexture));
+}
+
+class EmitterIORequest : public IORequest
+{
+public:
+	std::string m_path;
+
+	ResourceMgr * m_arc;
+
+	CachePtr m_cache;
+
+public:
+	EmitterIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+		: m_path(path)
+		, m_arc(arc)
+	{
+		if(callback)
+		{
+			m_callbacks.push_back(callback);
+		}
+	}
+
+	static void OnTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	{
+		boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	}
+
+	virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	{
+		m_arc->LoadTextureAsync(path, boost::bind(&EmitterIORequest::OnTextureLoaded, boundle, _1));
+	}
+
+	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+	{
+		boundle->m_callbacks = m_callbacks;
+		m_callbacks.clear();
+	}
+
+	virtual void DoLoad(void)
+	{
+		if(m_arc->CheckPath(m_path))
+		{
+			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+		}
+	}
+
+	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+	{
+		if(!m_cache)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		}
+		EmitterPtr res;
+		ResourceCallbackBoundlePtr boundle;
+		membuf mb((char *)&(*m_cache)[0], m_cache->size());
+		std::istream ims(&mb);
+		boost::archive::xml_iarchive ia(ims);
+		ia >> boost::serialization::make_nvp("Emitter", res);
+		boundle.reset(new ResourceCallbackBoundle(res));
+		std::string path;
+		ia >> boost::serialization::make_nvp("m_Texture", path);
+		if (!path.empty())
+		{
+			DoLoadTexture(boundle, path);
+		}
+		m_res = res;
+		PostBuildResource(boundle);
+	}
+};
+
+void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallback & callback)
+{
+	LoadResourceAsync(path, IORequestPtr(new EmitterIORequest(callback, path, this)), false);
+}
+
+boost::shared_ptr<Emitter> ResourceMgr::LoadEmitter(const std::string & path)
+{
+	class SyncEmitterIORequest : public EmitterIORequest
+	{
+	public:
+		SyncEmitterIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+			: EmitterIORequest(callback, path, arc)
+		{
+		}
+
+		virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+		{
+			boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = m_arc->LoadTexture(path);
+		}
+
+		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+		{
+		}
+	};
+
+	return LoadResource<Emitter>(path, IORequestPtr(new SyncEmitterIORequest(ResourceCallback(), path, this)));
+}
+
+void ResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("Emitter", emitter);
+	oa << boost::serialization::make_nvp("m_Texture", GetResourceKey(emitter->m_Texture));
+}
+
+void ResourceMgr::SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	mesh->SaveMesh(ofs);
+}
+
+void ResourceMgr::SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces)
+{
+	OgreMeshPtr mesh_sim(new OgreMesh());
+	mesh_sim->Create(mesh->SimplifyMesh(&mesh->m_Adjacency[0], MinFaces, D3DXMESHSIMP_FACE).Detach());
+	mesh_sim->m_aabb = mesh->m_aabb;
+	mesh_sim->m_Adjacency = mesh->m_Adjacency;
+	mesh_sim->m_MaterialNameList = mesh->m_MaterialNameList;
+	mesh_sim->m_VertexElems = mesh->m_VertexElems;
+	SaveMesh(path, mesh_sim);
 }

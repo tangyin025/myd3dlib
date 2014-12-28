@@ -4,10 +4,7 @@
 #include <list>
 #include "myThread.h"
 #include <boost/weak_ptr.hpp>
-#include "myMesh.h"
-#include "mySkeleton.h"
-#include "myEffect.h"
-#include "myFont.h"
+#include "mySingleton.h"
 
 namespace my
 {
@@ -310,11 +307,81 @@ namespace my
 		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
 	};
 
-	typedef std::pair<std::string, std::string> EffectMacroPair;
+	class BaseTexture;
 
-	typedef std::vector<EffectMacroPair> EffectMacroPairList;
+	class OgreMesh;
 
-	class AsynchronousResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude
+	class OgreMeshSet;
+
+	class OgreSkeletonAnimation;
+
+	class Effect;
+
+	class Font;
+
+	class Emitter;
+
+	class Material : public DeviceRelatedObjectBase
+	{
+	public:
+		boost::shared_ptr<BaseTexture> m_DiffuseTexture;
+
+		boost::shared_ptr<BaseTexture> m_NormalTexture;
+
+		boost::shared_ptr<BaseTexture> m_SpecularTexture;
+
+	public:
+		Material(void)
+		{
+		}
+
+		void OnResetDevice(void);
+
+		void OnLostDevice(void);
+
+		void OnDestroyDevice(void);
+	};
+
+	typedef boost::shared_ptr<Material> MaterialPtr;
+
+	class membuf : public std::streambuf
+	{
+	public:
+		membuf(const char * buff, size_t size)
+		{
+			char * p = const_cast<char *>(buff);
+			setg(p, p, p + size);
+		}
+	};
+
+	class ResourceCallbackBoundle
+	{
+	public:
+		DeviceRelatedObjectBasePtr m_res;
+
+		IORequest::ResourceCallbackList m_callbacks;
+
+		ResourceCallbackBoundle(DeviceRelatedObjectBasePtr res)
+			: m_res(res)
+		{
+		}
+
+		~ResourceCallbackBoundle(void)
+		{
+			IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
+			for(; callback_iter != m_callbacks.end(); callback_iter++)
+			{
+				if(*callback_iter)
+				{
+					(*callback_iter)(m_res);
+				}
+			}
+		}
+	};
+
+	typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
+
+	class ResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude
 	{
 	protected:
 		CComPtr<ID3DXEffectPool> m_EffectPool;
@@ -324,7 +391,7 @@ namespace my
 		boost::unordered_map<LPCVOID, CachePtr> m_CacheSet;
 
 	public:
-		AsynchronousResourceMgr(void)
+		ResourceMgr(void)
 		{
 		}
 
@@ -379,19 +446,19 @@ namespace my
 
 		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);
 
-		BaseTexturePtr LoadTexture(const std::string & path);
+		boost::shared_ptr<BaseTexture> LoadTexture(const std::string & path);
 
 		void LoadMeshAsync(const std::string & path, const ResourceCallback & callback);
 
-		OgreMeshPtr LoadMesh(const std::string & path);
+		boost::shared_ptr<OgreMesh> LoadMesh(const std::string & path);
 
 		void LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback);
 
-		OgreMeshSetPtr LoadMeshSet(const std::string & path);
+		boost::shared_ptr<OgreMeshSet> LoadMeshSet(const std::string & path);
 
 		void LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback);
 
-		OgreSkeletonAnimationPtr LoadSkeleton(const std::string & path);
+		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const std::string & path);
 
 		class EffectIORequest : public IORequest
 		{
@@ -402,12 +469,12 @@ namespace my
 
 			std::vector<D3DXMACRO> m_d3dmacros;
 
-			AsynchronousResourceMgr * m_arc;
+			ResourceMgr * m_arc;
 
 			CachePtr m_cache;
 
 		public:
-			EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, AsynchronousResourceMgr * arc);
+			EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, ResourceMgr * arc);
 
 			virtual void DoLoad(void);
 
@@ -418,10 +485,26 @@ namespace my
 
 		void LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback);
 
-		EffectPtr LoadEffect(const std::string & path, const std::string & macros);
+		boost::shared_ptr<Effect> LoadEffect(const std::string & path, const std::string & macros);
 
 		void LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback);
 
-		FontPtr LoadFont(const std::string & path, int height);
+		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
+
+		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
+
+		boost::shared_ptr<Material> LoadMaterial(const std::string & path);
+
+		void SaveMaterial(const std::string & path, MaterialPtr material);
+
+		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
+
+		boost::shared_ptr<Emitter> LoadEmitter(const std::string & path);
+
+		void SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter);
+
+		void SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh);
+
+		void SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces);
 	};
 }
