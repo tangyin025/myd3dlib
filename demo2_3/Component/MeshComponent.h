@@ -1,92 +1,68 @@
 #pragma once
 
 #include "myOctree.h"
+#include "RenderPipeline.h"
 
-class MeshLOD
+class MeshComponent
+	: public my::AABBComponent
+	, public RenderPipeline::IShaderSetter
 {
 public:
-	typedef std::vector<my::MaterialPtr> MaterialPtrList;
-
-	MaterialPtrList m_Materials;
-
-	my::OgreMeshPtr m_Mesh;
-
-	bool m_IsReady;
-
-public:
-	MeshLOD(void)
-		: m_IsReady(false)
+	class LOD
 	{
-	}
-
-	virtual ~MeshLOD(void)
-	{
-	}
-
-	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage, DWORD AttriId);
-};
-
-typedef boost::shared_ptr<MeshLOD> MeshLODPtr;
-
-class MeshComponent : public my::AABBComponent
-{
-public:
-	enum MeshType
-	{
-		MeshTypeStatic,
-		MeshTypeAnimation,
+	public:
+		typedef std::vector<my::MaterialPtr> MaterialPtrList;
+	
+		MaterialPtrList m_Materials;
+	
+		my::OgreMeshPtr m_Mesh;
+	
+	public:
+		LOD(void)
+		{
+		}
 	};
 
-	const MeshType m_MeshType;
+	typedef boost::shared_ptr<LOD> LODPtr;
 
-	typedef boost::unordered_map<int, MeshLODPtr> MeshLODPtrMap;
+	typedef std::vector<LODPtr> LODPtrList;
 
-	MeshLODPtrMap m_Lod;
+	LODPtrList m_lods;
+
+	DWORD m_lodId;
+
+	my::Matrix4 m_World;
 
 public:
-	MeshComponent(MeshType mesh_type)
-		: AABBComponent(my::Vector3(-1,-1,-1), my::Vector3(1,1,1))
-		, m_MeshType(mesh_type)
+	MeshComponent(void)
+		: AABBComponent(my::Vector3(-1,-1,-1),my::Vector3(1,1,1))
+		, m_lodId(0)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
-	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage) = 0;
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
 
-class StaticMeshComponent : public MeshComponent
+class SkeletonMeshComponent
+	: public MeshComponent
 {
 public:
-	my::Matrix4 m_World;
-
-public:
-	StaticMeshComponent(void)
-		: MeshComponent(MeshTypeStatic)
-		, m_World(my::Matrix4::Identity())
-	{
-	}
-
-	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage);
-};
-
-typedef boost::shared_ptr<StaticMeshComponent> StaticMeshComponentPtr;
-
-class SkeletonMeshComponent : public MeshComponent
-{
-public:
-	my::Matrix4 m_World;
-
 	my::TransformList m_DualQuats;
 
 public:
 	SkeletonMeshComponent(void)
-		: MeshComponent(MeshTypeAnimation)
-		, m_World(my::Matrix4::Identity())
+		: MeshComponent()
 	{
 	}
 
-	virtual void OnPreRender(my::Effect * shader, DWORD draw_stage);
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;

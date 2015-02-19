@@ -1,37 +1,56 @@
 #include "StdAfx.h"
 #include "MeshComponent.h"
-#include "../Game.h"
 
 using namespace my;
 
-void MeshLOD::OnPreRender(my::Effect * shader, DWORD draw_stage, DWORD AttriId)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
-	switch (draw_stage)
+	if (m_lodId >= 0 && m_lodId < m_lods.size())
 	{
-	case Game::DrawStageCBuffer:
-		shader->SetTexture("g_MeshTexture", m_Materials[AttriId]->m_DiffuseTexture);
-		shader->SetTechnique("RenderScene");
-		break;
+		LOD * lod = m_lods[m_lodId].get();
+		for (DWORD i = 0; i < lod->m_Materials.size(); i++)
+		{
+			my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeStatic, stage, lod->m_Materials[i].get());
+			if (shader)
+			{
+				pipeline->PushOpaqueMesh(lod->m_Mesh.get(), i, shader, this);
+			}
+		}
 	}
 }
 
-void StaticMeshComponent::OnPreRender(my::Effect * shader, DWORD draw_stage)
+void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	switch (draw_stage)
+	shader->SetMatrix("g_World", m_World);
+	if (m_lodId >= 0 && m_lodId < m_lods.size())
 	{
-	case Game::DrawStageCBuffer:
-		shader->SetMatrix("g_World", m_World);
-		break;
+		LOD * lod = m_lods[m_lodId].get();
+		if (AttribId < lod->m_Materials.size())
+		{
+			shader->SetTexture("g_MeshTexture", lod->m_Materials[AttribId]->m_DiffuseTexture);
+		}
 	}
 }
 
-void SkeletonMeshComponent::OnPreRender(my::Effect * shader, DWORD draw_stage)
+void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
-	switch (draw_stage)
+	if (m_lodId >= 0 && m_lodId < m_lods.size())
 	{
-	case Game::DrawStageCBuffer:
-		shader->SetMatrix("g_World", m_World);
-		shader->SetMatrixArray("g_dualquat", &m_DualQuats[0], m_DualQuats.size());
-		break;
+		LOD * lod = m_lods[m_lodId].get();
+		for (DWORD i = 0; i < lod->m_Materials.size(); i++)
+		{
+			my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeAnimation, stage, lod->m_Materials[i].get());
+			if (shader)
+			{
+				pipeline->PushOpaqueMesh(lod->m_Mesh.get(), i, shader, this);
+			}
+		}
 	}
+}
+
+void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	shader->SetMatrixArray("g_dualquat", &m_DualQuats[0], m_DualQuats.size());
+
+	MeshComponent::OnSetShader(shader, AttribId);
 }

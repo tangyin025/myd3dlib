@@ -266,7 +266,7 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
-	m_OctScene.reset(new OctRoot(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000), 1.1f));
+	//m_OctScene.reset(new OctRoot(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000), 1.1f));
 
 	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
 
@@ -321,7 +321,7 @@ void Game::OnDestroyDevice(void)
 
 	m_Camera.reset();
 
-	m_OctScene.reset();
+	//m_OctScene.reset();
 
 	m_Console.reset();
 
@@ -333,7 +333,7 @@ void Game::OnDestroyDevice(void)
 
 	m_SimpleSampleInst.reset();
 
-	m_ShaderCache.clear();
+	//m_ShaderCache.clear();
 
 	m_ParticleInst.reset();
 
@@ -376,26 +376,29 @@ void Game::OnFrameRender(
 {
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
-	struct QueryCallbackFunc
-	{
-		Game & device;
-		QueryCallbackFunc(Game & _device)
-			: device(_device)
-		{
-		}
+	//struct QueryCallbackFunc
+	//{
+	//	Game & device;
+	//	QueryCallbackFunc(Game & _device)
+	//		: device(_device)
+	//	{
+	//	}
 
-		void operator() (AABBComponent * cmp, IntersectionTests::IntersectionType type)
-		{
-			MeshComponent * mesh_cmp = static_cast<MeshComponent *>(cmp);
-			device.DrawMesh(mesh_cmp, 0);
-		}
-	};
+	//	void operator() (AABBComponent * cmp, IntersectionTests::IntersectionType type)
+	//	{
+	//		MeshComponent * mesh_cmp = static_cast<MeshComponent *>(cmp);
+	//		device.DrawMesh(mesh_cmp, 0);
+	//	}
+	//};
 
-	Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
-	m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
+	//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
+	//m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
+
+	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime);
+
+	RenderPipeline::ClearAllOpaqueMeshes();
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
@@ -740,81 +743,6 @@ PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
 	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
 }
 
-void Game::OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter)
-{
-	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
-	if (mesh_lod)
-	{
-		mesh_lod->m_Materials[i] = boost::dynamic_pointer_cast<Material>(res);
-		if (++counter->first == counter->second)
-		{
-			mesh_lod->m_IsReady = true;
-		}
-	}
-}
-
-void Game::OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod)
-{
-	MeshLODPtr mesh_lod = weak_mesh_lod.lock();
-	if (mesh_lod)
-	{
-		mesh_lod->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
-
-		if (mesh_lod->m_Mesh)
-		{
-			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
-			CounterPtr counter(new Counter(0, (int)mesh_lod->m_Materials.size()));
-			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
-			{
-				LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i, counter));
-			}
-		}
-	}
-}
-
-void Game::LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path)
-{
-	LoadMeshAsync(mesh_path, boost::bind(&Game::OnMeshLodMeshLoaded, this, _1, mesh_lod));
-}
-
-std::list<MeshComponentPtr> Game::LoadStaticMeshComponentListFromMeshSet(my::OgreMeshSetPtr mesh_set)
-{
-	std::list<MeshComponentPtr> ret;
-	OgreMeshSet::iterator mesh_iter = mesh_set->begin();
-	for (; mesh_iter != mesh_set->end(); mesh_iter++)
-	{
-		MeshComponentPtr mesh_cmp(new StaticMeshComponent());
-		mesh_cmp->Min = (*mesh_iter)->m_aabb.Min;
-		mesh_cmp->Max = (*mesh_iter)->m_aabb.Max;
-		MeshLODPtr mesh_lod(new MeshLOD());
-		mesh_lod->m_Mesh = *mesh_iter;
-
-		if (mesh_lod->m_Mesh)
-		{
-			mesh_lod->m_Materials.resize(mesh_lod->m_Mesh->m_MaterialNameList.size());
-			CounterPtr counter(new Counter(0, (int)mesh_lod->m_Materials.size()));
-			for(DWORD i = 0; i < mesh_lod->m_Mesh->m_MaterialNameList.size(); i++)
-			{
-				LoadMaterialAsync(str_printf("material/%s.xml", mesh_lod->m_Mesh->m_MaterialNameList[i].c_str()), boost::bind(&Game::OnMeshLodMaterialLoaded, this, _1, mesh_lod, i, counter));
-			}
-		}
-
-		mesh_cmp->m_Lod[0] = mesh_lod;
-		ret.push_back(mesh_cmp);
-	}
-	return ret;
-}
-
-void Game::PushMeshSetToOctScene(my::OgreMeshSetPtr mesh_set)
-{
-	std::list<MeshComponentPtr> mesh_cmp_list = LoadStaticMeshComponentListFromMeshSet(mesh_set);
-	std::list<MeshComponentPtr>::iterator mesh_cmp_iter = mesh_cmp_list.begin();
-	for (; mesh_cmp_iter != mesh_cmp_list.end(); mesh_cmp_iter++)
-	{
-		m_OctScene->PushComponent(*mesh_cmp_iter);
-	}
-}
-
 void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
 {
 	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
@@ -829,7 +757,7 @@ static size_t hash_value(const Game::ShaderKeyType & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material)
+my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const my::Material * material)
 {
 	// ! make sure hash_value(ShaderKeyType ..) is valid
 	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
@@ -844,9 +772,9 @@ my::Effect * Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw
 
 	switch (draw_stage)
 	{
-	case DrawStageCBuffer:
+	case RenderPipeline::DrawStageCBuffer:
 		{
-			std::string macros(mesh_type == MeshComponent::MeshTypeAnimation ? "VS_SKINED_DQ 1" : "");
+			std::string macros(mesh_type == RenderPipeline::MeshTypeAnimation ? "VS_SKINED_DQ 1" : "");
 			std::string path("shader/SimpleSample.fx");
 			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
 			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
@@ -855,45 +783,5 @@ my::Effect * Game::QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw
 		break;
 	}
 
-	return mesh_type == MeshComponent::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get();
-}
-
-void Game::DrawMesh(MeshComponent * mesh_cmp, int lod)
-{
-	_ASSERT(mesh_cmp);
-
-	mesh_cmp->OnPreRender(mesh_cmp->m_MeshType == MeshComponent::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get(), DrawStageCBuffer);
-
-	MeshComponent::MeshLODPtrMap::iterator lod_iter = mesh_cmp->m_Lod.find(lod);
-	if (lod_iter != mesh_cmp->m_Lod.end())
-	{
-		DrawMeshLOD(mesh_cmp->m_MeshType, lod_iter->second.get());
-	}
-}
-
-void Game::DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod)
-{
-	_ASSERT(mesh_lod);
-
-	for (DWORD i = 0; i < mesh_lod->m_Materials.size(); i++)
-	{
-		_ASSERT(mesh_lod->m_Mesh);
-
-		if (mesh_lod->m_Materials[i])
-		{
-			my::Effect * shader = QueryShader(mesh_type, DrawStageCBuffer, mesh_lod->m_Materials[i].get());
-			_ASSERT(shader);
-
-			mesh_lod->OnPreRender(shader, DrawStageCBuffer, i);
-
-			UINT passes = shader->Begin(0);
-			for (UINT p = 0; p < passes; p++)
-			{
-				shader->BeginPass(p);
-				mesh_lod->m_Mesh->DrawSubset(i);
-				shader->EndPass();
-			}
-			shader->End();
-		}
-	}
+	return mesh_type == RenderPipeline::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get();
 }

@@ -16,7 +16,7 @@ public:
 	// ========================================================================================================
 	// 骨骼动画
 	// ========================================================================================================
-	SkeletonMeshComponentPtr m_mesh;
+	SkeletonMeshComponentPtr m_mesh_cmp;
 	OgreSkeletonAnimationPtr m_skel_anim;
 	BoneList m_skel_pose;
 	BoneList m_skel_pose_heir1;
@@ -99,8 +99,16 @@ public:
 		//SaveSimplyMesh("aaa.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 400);
 		//SaveSimplyMesh("bbb.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 40);
 
-		m_mesh = SkeletonMeshComponentPtr(new SkeletonMeshComponent());
-		m_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+		m_mesh_cmp.reset(new SkeletonMeshComponent());
+		MeshComponent::LODPtr lod(new MeshComponent::LOD);
+		lod->m_Mesh = LoadMesh("mesh/sportive03_f.mesh.xml");
+		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
+		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+		}
+		m_mesh_cmp->m_lods.push_back(lod);
+		m_mesh_cmp->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
 		m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
@@ -220,9 +228,9 @@ public:
 			m_skel_pose_heir2,
 			m_skel_anim->m_boneHierarchy,
 			m_skel_anim->GetBoneIndex("Bip01"));
-		m_mesh->m_DualQuats.clear();
-		m_mesh->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
-		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh->m_DualQuats, m_skel_pose_heir2);
+		m_mesh_cmp->m_DualQuats.clear();
+		m_mesh_cmp->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh_cmp->m_DualQuats, m_skel_pose_heir2);
 
 		//// ========================================================================================================
 		//// 布料系统
@@ -262,37 +270,36 @@ public:
 		// 骨骼动画
 		// ========================================================================================================
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-		float dist_sq = -m_mesh->m_World[3].xyz.transform(m_Camera->m_View).z;
-		DWORD lod;
-		if (dist_sq < 15)
-		{
-			lod = 0;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "mesh/sportive03_f.mesh.xml");
-			}
-		}
-		else if(dist_sq < 30)
-		{
-			lod = 1;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "aaa.mesh.xml");
-			}
-		}
-		else
-		{
-			lod = 2;
-			if (!m_mesh->m_Lod[lod])
-			{
-				m_mesh->m_Lod[lod].reset(new MeshLOD());
-				LoadMeshLodAsync(m_mesh->m_Lod[lod], "bbb.mesh.xml");
-			}
-		}
-		DrawMesh(m_mesh.get(), lod);
-
+		//float dist_sq = -m_mesh_cmp->m_World[3].xyz.transform(m_Camera->m_View).z;
+		//DWORD lod;
+		//if (dist_sq < 15)
+		//{
+		//	lod = 0;
+		//	if (!m_mesh_cmp->m_Lod[lod])
+		//	{
+		//		m_mesh_cmp->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh_cmp->m_Lod[lod], "mesh/sportive03_f.mesh.xml");
+		//	}
+		//}
+		//else if(dist_sq < 30)
+		//{
+		//	lod = 1;
+		//	if (!m_mesh_cmp->m_Lod[lod])
+		//	{
+		//		m_mesh_cmp->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh_cmp->m_Lod[lod], "aaa.mesh.xml");
+		//	}
+		//}
+		//else
+		//{
+		//	lod = 2;
+		//	if (!m_mesh_cmp->m_Lod[lod])
+		//	{
+		//		m_mesh_cmp->m_Lod[lod].reset(new MeshLOD());
+		//		LoadMeshLodAsync(m_mesh_cmp->m_Lod[lod], "bbb.mesh.xml");
+		//	}
+		//}
+		//DrawMesh(m_mesh_cmp.get(), lod);
 
 		Matrix4 * mat = m_mesh_ins->LockInstanceData(2);
 		mat[0] = Matrix4::Translation(10,0,0);
@@ -310,6 +317,8 @@ public:
 			m_SimpleSampleInst->EndPass();
 		}
 		m_SimpleSampleInst->End();
+
+		m_mesh_cmp->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		//// ========================================================================================================
 		//// 布料系统

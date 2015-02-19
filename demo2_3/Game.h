@@ -3,6 +3,7 @@
 #include "Console.h"
 #include "PhysXContext.h"
 #include "Component/MeshComponent.h"
+#include "Component/RenderPipeline.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -77,6 +78,7 @@ class Game
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
+	, public RenderPipeline
 {
 public:
 	my::LuaContextPtr m_lua;
@@ -91,15 +93,7 @@ public:
 
 	my::ParticleInstancePtr m_ParticleInst;
 
-	enum DrawStage
-	{
-		DrawStageShadow,
-		DrawStageNBuffer,
-		DrawStageDBuffer,
-		DrawStageCBuffer,
-	};
-
-	typedef boost::tuple<MeshComponent::MeshType, DrawStage, const my::Material *> ShaderKeyType;
+	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const my::Material *> ShaderKeyType;
 
 	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
 
@@ -119,7 +113,7 @@ public:
 
 	my::BaseTexturePtr m_TexChecker;
 
-	my::OctRootPtr m_OctScene;
+	//my::OctRootPtr m_OctScene;
 
 	my::CameraPtr m_Camera;
 
@@ -202,25 +196,7 @@ public:
 
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 
-	typedef std::pair<int, const int> Counter;
-
-	typedef boost::shared_ptr<Counter> CounterPtr;
-
-	void OnMeshLodMaterialLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod, unsigned int i, CounterPtr counter);
-
-	void OnMeshLodMeshLoaded(my::DeviceRelatedObjectBasePtr res, boost::weak_ptr<MeshLOD> weak_mesh_lod);
-
-	void LoadMeshLodAsync(MeshLODPtr mesh_lod, const std::string & mesh_path);
-
-	std::list<MeshComponentPtr> LoadStaticMeshComponentListFromMeshSet(my::OgreMeshSetPtr mesh_set);
-
-	void PushMeshSetToOctScene(my::OgreMeshSetPtr mesh_set);
-
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
 
-	my::Effect * QueryShader(MeshComponent::MeshType mesh_type, DrawStage draw_stage, const my::Material * material);
-
-	void DrawMesh(MeshComponent * mesh_cmp, int lod);
-
-	void DrawMeshLOD(MeshComponent::MeshType mesh_type, MeshLOD * mesh_lod);
+	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const my::Material * material);
 };
