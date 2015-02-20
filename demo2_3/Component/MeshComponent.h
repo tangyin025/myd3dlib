@@ -41,6 +41,8 @@ public:
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
+typedef std::vector<MaterialPtr> MaterialPtrList;
+	
 class MeshComponent
 	: public my::AABBComponent
 	, public RenderPipeline::IShaderSetter
@@ -49,8 +51,6 @@ public:
 	class LOD
 	{
 	public:
-		typedef std::vector<MaterialPtr> MaterialPtrList;
-	
 		MaterialPtrList m_Materials;
 	
 		my::OgreMeshPtr m_Mesh;
