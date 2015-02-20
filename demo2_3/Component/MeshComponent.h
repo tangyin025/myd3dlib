@@ -2,6 +2,7 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
+#include "MeshAnimator.h"
 
 class Material
 	: public my::DeviceRelatedObjectBase
@@ -37,15 +38,29 @@ public:
 		my::Mesh * mesh,
 		DWORD AttribId,
 		RenderPipeline::IShaderSetter * setter);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<Material> MaterialPtr;
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
-	
-class MeshComponent
+
+class RenderComponent
 	: public my::AABBComponent
 	, public RenderPipeline::IShaderSetter
+{
+public:
+	RenderComponent(const my::AABB & aabb)
+		: AABBComponent(aabb)
+	{
+	}
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage) = 0;
+};
+
+class MeshComponent
+	: public RenderComponent
 {
 public:
 	class LOD
@@ -72,8 +87,8 @@ public:
 	my::Matrix4 m_World;
 
 public:
-	MeshComponent(void)
-		: AABBComponent(my::Vector3(-1,-1,-1),my::Vector3(1,1,1))
+	MeshComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
 		, m_lodId(0)
 		, m_World(my::Matrix4::Identity())
 	{
@@ -90,11 +105,11 @@ class SkeletonMeshComponent
 	: public MeshComponent
 {
 public:
-	my::TransformList m_DualQuats;
+	MeshAnimatorPtr m_Animator;
 
 public:
-	SkeletonMeshComponent(void)
-		: MeshComponent()
+	SkeletonMeshComponent(const my::AABB & aabb)
+		: MeshComponent(aabb)
 	{
 	}
 

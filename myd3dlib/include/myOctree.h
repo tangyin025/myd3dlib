@@ -21,6 +21,11 @@ namespace my
 		{
 		}
 
+		AABBComponent(const AABB & aabb)
+			: AABB(aabb)
+		{
+		}
+
 		virtual ~AABBComponent(void)
 		{
 		}

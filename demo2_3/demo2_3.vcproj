@@ -233,6 +233,14 @@
 			Name="Component"
 			>
 			<File
+				RelativePath=".\Component\MeshAnimator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\MeshAnimator.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\MeshComponent.cpp"
 				>
 			</File>

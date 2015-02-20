@@ -99,7 +99,7 @@ public:
 		//SaveSimplyMesh("aaa.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 400);
 		//SaveSimplyMesh("bbb.mesh.xml", LoadMesh("mesh/sportive03_f.mesh.xml"), 40);
 
-		m_mesh_cmp.reset(new SkeletonMeshComponent());
+		m_mesh_cmp.reset(new SkeletonMeshComponent(AABB(-1,-1,-1,1,1,1)));
 		MeshComponent::LODPtr lod(new MeshComponent::LOD);
 		lod->m_Mesh = LoadMesh("mesh/sportive03_f.mesh.xml");
 		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
@@ -109,6 +109,7 @@ public:
 		}
 		m_mesh_cmp->m_lods.push_back(lod);
 		m_mesh_cmp->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+		m_mesh_cmp->m_Animator.reset(new MeshAnimator());
 		m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
 		m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
@@ -228,9 +229,9 @@ public:
 			m_skel_pose_heir2,
 			m_skel_anim->m_boneHierarchy,
 			m_skel_anim->GetBoneIndex("Bip01"));
-		m_mesh_cmp->m_DualQuats.clear();
-		m_mesh_cmp->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
-		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh_cmp->m_DualQuats, m_skel_pose_heir2);
+		m_mesh_cmp->m_Animator->m_DualQuats.clear();
+		m_mesh_cmp->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
+		m_skel_pose_heir1.BuildDualQuaternionList(m_mesh_cmp->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
 		//// ========================================================================================================
 		//// 布料系统

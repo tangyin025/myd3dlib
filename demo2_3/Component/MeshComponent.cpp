@@ -18,6 +18,11 @@ void Material::OnQueryMesh(
 	}
 }
 
+void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	shader->SetTexture("g_MeshTexture", m_DiffuseTexture);
+}
+
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	if (m_lodId >= 0 && m_lodId < m_lods.size())
@@ -38,7 +43,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 		LOD * lod = m_lods[m_lodId].get();
 		if (AttribId < lod->m_Materials.size())
 		{
-			shader->SetTexture("g_MeshTexture", lod->m_Materials[AttribId]->m_DiffuseTexture);
+			lod->m_Materials[AttribId]->OnSetShader(shader, AttribId);
 		}
 	}
 }
@@ -57,7 +62,10 @@ void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline:
 
 void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	shader->SetMatrixArray("g_dualquat", &m_DualQuats[0], m_DualQuats.size());
+	if (m_Animator)
+	{
+		shader->SetMatrixArray("g_dualquat", m_Animator->GetDualQuats(), m_Animator->GetDualQuatsNum());
+	}
 
 	MeshComponent::OnSetShader(shader, AttribId);
 }
