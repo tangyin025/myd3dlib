@@ -321,29 +321,6 @@ namespace my
 
 	class Emitter;
 
-	class Material : public DeviceRelatedObjectBase
-	{
-	public:
-		boost::shared_ptr<BaseTexture> m_DiffuseTexture;
-
-		boost::shared_ptr<BaseTexture> m_NormalTexture;
-
-		boost::shared_ptr<BaseTexture> m_SpecularTexture;
-
-	public:
-		Material(void)
-		{
-		}
-
-		void OnResetDevice(void);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
-	};
-
-	typedef boost::shared_ptr<Material> MaterialPtr;
-
 	class membuf : public std::streambuf
 	{
 	public:
@@ -490,12 +467,6 @@ namespace my
 		void LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback);
 
 		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
-
-		void LoadMaterialAsync(const std::string & path, const ResourceCallback & callback);
-
-		boost::shared_ptr<Material> LoadMaterial(const std::string & path);
-
-		void SaveMaterial(const std::string & path, MaterialPtr material);
 
 		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
 

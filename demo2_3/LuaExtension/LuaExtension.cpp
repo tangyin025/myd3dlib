@@ -383,7 +383,13 @@ void Export2Lua(lua_State * L)
 			//.def_readonly("Edit", &Console::m_Edit)
 			//.def_readonly("Panel", &Console::m_Panel)
 
-		//, class_<MeshComponent, my::AABBComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+		, class_<Material, boost::shared_ptr<Material> >("Material")
+			.def(constructor<>())
+			.def_readwrite("DiffuseTexture", &Material::m_DiffuseTexture)
+			.def_readwrite("NormalTexture", &Material::m_NormalTexture)
+			.def_readwrite("SpecularTexture", &Material::m_SpecularTexture)
+
+		, class_<MeshComponent, my::AABBComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
 
 		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -404,6 +410,18 @@ void Export2Lua(lua_State * L)
 			//.def_readonly("OctScene", &Game::m_OctScene)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def("ExecuteCode", &Game::ExecuteCode)
+			.def("LoadMaterialAsync", &Game::LoadMaterialAsync)
+			.def("LoadMaterial", &Game::LoadMaterial)
+			.def("SaveMaterial", &Game::SaveMaterial)
+
+		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
+		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)
+		, def("res2mesh_set", &boost::dynamic_pointer_cast<my::OgreMeshSet, my::DeviceRelatedObjectBase>)
+		, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceRelatedObjectBase>)
+		, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceRelatedObjectBase>)
+		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceRelatedObjectBase>)
+		, def("res2emitter", &boost::dynamic_pointer_cast<my::Emitter, my::DeviceRelatedObjectBase>)
+		, def("res2material", &boost::dynamic_pointer_cast<Material, my::DeviceRelatedObjectBase>)
 	];
 
 	globals(L)["game"] = Game::getSingletonPtr();

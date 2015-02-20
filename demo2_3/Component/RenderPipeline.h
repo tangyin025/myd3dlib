@@ -1,5 +1,7 @@
 #pragma once
 
+class Material;
+
 class RenderPipeline
 {
 public:
@@ -30,7 +32,7 @@ public:
 	OpaqueRenderAtomList m_OpaqueList;
 
 public:
-	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, const my::Material * material) = 0;
+	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, const Material * material) = 0;
 
 	void OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float fElapsedTime);
 

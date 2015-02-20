@@ -3,6 +3,21 @@
 
 using namespace my;
 
+void Material::OnQueryMesh(
+	RenderPipeline * pipeline,
+	RenderPipeline::DrawStage stage,
+	RenderPipeline::MeshType mesh_type,
+	my::Mesh * mesh,
+	DWORD AttribId,
+	RenderPipeline::IShaderSetter * setter)
+{
+	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, this);
+	if (shader)
+	{
+		pipeline->PushOpaqueMesh(mesh, AttribId, shader, setter);
+	}
+}
+
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	if (m_lodId >= 0 && m_lodId < m_lods.size())
@@ -10,11 +25,7 @@ void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawSta
 		LOD * lod = m_lods[m_lodId].get();
 		for (DWORD i = 0; i < lod->m_Materials.size(); i++)
 		{
-			my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeStatic, stage, lod->m_Materials[i].get());
-			if (shader)
-			{
-				pipeline->PushOpaqueMesh(lod->m_Mesh.get(), i, shader, this);
-			}
+			lod->m_Materials[i]->OnQueryMesh(pipeline, stage, RenderPipeline::MeshTypeStatic, lod->m_Mesh.get(), i, this);
 		}
 	}
 }
@@ -39,11 +50,7 @@ void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline:
 		LOD * lod = m_lods[m_lodId].get();
 		for (DWORD i = 0; i < lod->m_Materials.size(); i++)
 		{
-			my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeAnimation, stage, lod->m_Materials[i].get());
-			if (shader)
-			{
-				pipeline->PushOpaqueMesh(lod->m_Mesh.get(), i, shader, this);
-			}
+			lod->m_Materials[i]->OnQueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation, lod->m_Mesh.get(), i, this);
 		}
 	}
 }

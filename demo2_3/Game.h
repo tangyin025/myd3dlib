@@ -2,8 +2,8 @@
 
 #include "Console.h"
 #include "PhysXContext.h"
-#include "Component/MeshComponent.h"
 #include "Component/RenderPipeline.h"
+#include "Component/MeshComponent.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -74,11 +74,11 @@ class Game
 	, public my::EmitterMgr
 	, public my::InputMgr
 	, public my::ResourceMgr
+	, public RenderPipeline
 	, public PhysXContext
 	, public PhysXSceneContext
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
-	, public RenderPipeline
 {
 public:
 	my::LuaContextPtr m_lua;
@@ -93,7 +93,7 @@ public:
 
 	my::ParticleInstancePtr m_ParticleInst;
 
-	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const my::Material *> ShaderKeyType;
+	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const Material *> ShaderKeyType;
 
 	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
 
@@ -188,6 +188,16 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
+	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
+
+	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const Material * material);
+
+	void LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback);
+
+	boost::shared_ptr<Material> LoadMaterial(const std::string & path);
+
+	void SaveMaterial(const std::string & path, MaterialPtr material);
+
 	void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
 
 	PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
@@ -195,8 +205,4 @@ public:
 	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
 
 	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
-
-	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
-
-	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const my::Material * material);
 };
