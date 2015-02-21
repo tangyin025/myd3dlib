@@ -35,6 +35,10 @@ namespace my
 
 		void InsertChild(int root_i, int child_i);
 
+		bool HaveSibling(int root_i, int sibling_i) const;
+
+		bool HaveChild(int root_i, int child_i) const;
+
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,
@@ -174,6 +178,19 @@ namespace my
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Matrix4 & inverseRootTransform = Matrix4::identity);
+
+		static Matrix4 & BuildSkinnedDualQuaternion(
+			Matrix4 & outDualQuaternion,
+			DWORD indices,
+			const Vector4 & weights,
+			const TransformList & dualQuaternionList);
+
+		static Vector3 & TransformVertexWithDualQuaternionList(
+			Vector3 & outPosition,
+			const Vector3 & position,
+			DWORD indices,
+			const Vector4 & weights,
+			const TransformList & dualQuaternionList);
 	};
 
 	class BoneKeyframe

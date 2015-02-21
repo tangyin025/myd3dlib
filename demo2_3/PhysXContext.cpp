@@ -118,7 +118,7 @@ public:
 	}
 };
 
-void PhysXContext::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh)
+void PhysXContext::CookTriangleMesh(my::OStreamPtr ostream, my::MeshPtr mesh)
 {
 	PxTriangleMeshDesc desc;
 	desc.points.count = mesh->GetNumVertices();
@@ -143,7 +143,7 @@ void PhysXContext::CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh
 	mesh->UnlockAttributeBuffer();
 }
 
-void PhysXContext::CookTriangleMeshToFile(std::string path, my::OgreMeshPtr mesh)
+void PhysXContext::CookTriangleMeshToFile(std::string path, my::MeshPtr mesh)
 {
 	CookTriangleMesh(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
 }
@@ -155,12 +155,14 @@ PxTriangleMesh * PhysXContext::CreateTriangleMesh(my::IStreamPtr istream)
 	return ret;
 }
 
-void PhysXContext::CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh)
+void PhysXContext::CookClothFabric(my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset)
 {
 	PxClothMeshDesc desc;
+	desc.points.data = (unsigned char *)mesh->LockVertexBuffer() + PositionOffset;
 	desc.points.count = mesh->GetNumVertices();
 	desc.points.stride = mesh->GetNumBytesPerVertex();
-	desc.points.data = mesh->LockVertexBuffer();
+
+	desc.triangles.data = mesh->LockIndexBuffer();
 	desc.triangles.count = mesh->GetNumFaces();
 	if (mesh->GetOptions() & D3DXMESH_32BIT)
 	{
@@ -171,21 +173,109 @@ void PhysXContext::CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh)
 		desc.triangles.stride = 3 * sizeof(WORD);
 		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
 	}
-	desc.triangles.data = mesh->LockIndexBuffer();
+
 	m_Cooking->cookClothFabric(desc, (PxVec3&)Gravity, PhysXOStream(ostream));
 	mesh->UnlockVertexBuffer();
 	mesh->UnlockIndexBuffer();
 }
 
-void PhysXContext::CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh)
+void PhysXContext::CookClothFabricToFile(std::string path, my::MeshPtr mesh, WORD PositionOffset)
 {
-	CookClothFabric(my::FileOStream::Open(ms2ts(path).c_str()), mesh);
+	CookClothFabric(my::FileOStream::Open(ms2ts(path).c_str()), mesh, PositionOffset);
 }
 
 PxClothFabric * PhysXContext::CreateClothFabric(my::IStreamPtr istream)
 {
 	PxClothFabric * ret = m_sdk->createClothFabric(PhysXIStream(istream));
 	return ret;
+}
+
+void PhysXContext::InitClothParticles(
+	std::vector<PxClothParticle> & particles,
+	my::MeshPtr mesh,
+	WORD PositionOffset)
+{
+	particles.resize(mesh->GetNumVertices());
+	unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
+	for(unsigned int i = 0; i < particles.size(); i++) {
+		unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
+		particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
+		particles[i].invWeight = 1 / 1.0f;
+	}
+	mesh->UnlockVertexBuffer();
+}
+
+void PhysXContext::InitClothParticles(
+	std::vector<PxClothParticle> & particles,
+	my::MeshPtr mesh,
+	WORD PositionOffset,
+	WORD IndicesOffset,
+	const my::BoneHierarchy & hierarchy,
+	DWORD root_i)
+{
+	particles.resize(mesh->GetNumVertices());
+	unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
+	for(unsigned int i = 0; i < particles.size(); i++) {
+		unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
+		particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
+		unsigned char * pIndices = (unsigned char *)(pVertex + IndicesOffset);
+		BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+		particles[i].invWeight = (
+			pIndices[0] == root_i || hierarchy.HaveChild(root_i, pIndices[0]) ||
+			pIndices[1] == root_i || hierarchy.HaveChild(root_i, pIndices[1]) ||
+			pIndices[2] == root_i || hierarchy.HaveChild(root_i, pIndices[2]) ||
+			pIndices[3] == root_i || hierarchy.HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
+	}
+	mesh->UnlockVertexBuffer();
+}
+
+bool PhysXContext::UpdateClothParticles(
+	PxCloth * cloth,
+	unsigned char * pVertices,
+	DWORD Offset,
+	DWORD Stride)
+{
+	PxClothReadData * readData = cloth->lockClothReadData();
+	if (readData)
+	{
+		std::vector<PxClothParticle> NewParticles(cloth->getNbParticles());
+		for (unsigned int i = 0; i < cloth->getNbParticles(); i++)
+		{
+			NewParticles[i].invWeight = readData->particles[i].invWeight;
+			if (0 == NewParticles[i].invWeight)
+			{
+				NewParticles[i].pos = *(PxVec3 *)(pVertices + i * Stride + Offset);
+			}
+			else
+			{
+				NewParticles[i].pos = readData->particles[i].pos;
+			}
+		}
+		readData->unlock();
+		cloth->setParticles(&NewParticles[0], NULL);
+		return true;
+	}
+	return false;
+}
+
+bool PhysXContext::ReadClothParticles(
+	my::MeshPtr mesh,
+	WORD PositionOffset,
+	const PxCloth * cloth)
+{
+	PxClothReadData * readData = cloth->lockClothReadData();
+	if (readData)
+	{
+		unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
+		for (unsigned int i = 0; i < cloth->getNbParticles(); i++)
+		{
+			unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
+			*(my::Vector3 *)(pVertex + PositionOffset) = (my::Vector3&)readData->particles[i].pos;
+		}
+		mesh->UnlockVertexBuffer();
+		readData->unlock();
+	}
+	return false;
 }
 
 void PhysXSceneContext::StepperTask::run(void)

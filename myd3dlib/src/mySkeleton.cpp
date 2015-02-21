@@ -37,6 +37,36 @@ void BoneHierarchy::InsertChild(int root_i, int child_i)
 	}
 }
 
+bool BoneHierarchy::HaveSibling(int root_i, int sibling_i) const
+{
+	if (root_i >= 0 && root_i < (int)size())
+	{
+		const_reference node = operator[](root_i);
+		if (node.m_sibling == sibling_i)
+		{
+			return true;
+		}
+
+		return HaveSibling(node.m_sibling, sibling_i);
+	}
+	return false;
+}
+
+bool BoneHierarchy::HaveChild(int root_i, int child_i) const
+{
+	if (root_i >= 0 && root_i < (int)size())
+	{
+		const_reference node = operator[](root_i);
+		if (node.m_child == child_i)
+		{
+			return true;
+		}
+
+		return HaveSibling(node.m_child, child_i);
+	}
+	return false;
+}
+
 BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 	BoneHierarchy & leafedBoneHierarchy,
 	int root_i,
@@ -375,6 +405,53 @@ TransformList & BoneList::BuildInverseHierarchyTransformList(
 	}
 
 	return inverseHierarchyTransformList;
+}
+
+Matrix4 & BoneList::BuildSkinnedDualQuaternion(
+	Matrix4 & outDualQuaternion,
+	DWORD indices,
+	const Vector4 & weights,
+	const TransformList & dualQuaternionList)
+{
+	Matrix4 m = dualQuaternionList[((unsigned char*)&indices)[0]];
+	Vector4 dq0 = m[0];
+	outDualQuaternion = m * weights.x;
+	m = dualQuaternionList[((unsigned char*)&indices)[1]];
+	Vector4 dq = m[0];
+	if (dq0.dot(dq) < 0)
+		outDualQuaternion -= m * weights.y;
+	else
+		outDualQuaternion += m * weights.y;
+	m = dualQuaternionList[((unsigned char*)&indices)[2]];
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		outDualQuaternion -= m * weights.z;
+	else
+		outDualQuaternion += m * weights.z;
+	m = dualQuaternionList[((unsigned char*)&indices)[3]];
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		outDualQuaternion -= m * weights.w;
+	else
+		outDualQuaternion += m * weights.w;
+	float length = outDualQuaternion[0].magnitude();
+	outDualQuaternion = outDualQuaternion / length;
+	return outDualQuaternion;
+}
+
+Vector3 & BoneList::TransformVertexWithDualQuaternionList(
+	Vector3 & outPosition,
+	const Vector3 & position,
+	DWORD indices,
+	const Vector4 & weights,
+	const TransformList & dualQuaternionList)
+{
+	Matrix4 dual;
+	BuildSkinnedDualQuaternion(dual, indices, weights, dualQuaternionList);
+	outPosition = position + dual[0].xyz.cross(dual[0].xyz.cross(position) + position * dual[0].w) * 2;
+	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
+	outPosition += translation;
+	return outPosition;
 }
 
 Bone BoneTrack::GetPoseBone(float time) const

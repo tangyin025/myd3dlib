@@ -40,14 +40,6 @@ float my::Random<float>(float min, float max)
 	return min + (max - min) * ((float)rand() / RAND_MAX);
 }
 
-template <typename V, typename T>
-static V & subscribe(T & t, size_t i)
-{
-	_ASSERT(i < sizeof(t) / sizeof(V));
-	
-	return ((V*)&t)[i];
-}
-
 float & Vector2::operator [](size_t i)
 {
 	return subscribe<float>(*this, i);

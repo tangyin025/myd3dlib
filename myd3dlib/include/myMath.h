@@ -74,6 +74,14 @@ namespace my
 	template <typename T>
 	T Random(T min, T max);
 
+	template <typename V, typename T>
+	static V & subscribe(T & t, size_t i)
+	{
+		_ASSERT(i < sizeof(t) / sizeof(V));
+
+		return ((V*)&t)[i];
+	}
+
 	class Vector4;
 
 	class Quaternion;
@@ -1594,6 +1602,16 @@ namespace my
 		Vector4 & operator [](size_t i);
 
 		const Vector4 & operator [](size_t i) const;
+
+		template <size_t i>
+		Vector4 column(void)
+		{
+			return Vector4(
+				subscribe<Vector4>(*this, i).x,
+				subscribe<Vector4>(*this, i).y,
+				subscribe<Vector4>(*this, i).z,
+				subscribe<Vector4>(*this, i).w);
+		}
 
 	public:
 		Matrix4 operator - (void) const

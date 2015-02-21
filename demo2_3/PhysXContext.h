@@ -111,17 +111,41 @@ public:
 
 	void OnShutdown(void);
 
-	void CookTriangleMesh(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
+	void CookTriangleMesh(my::OStreamPtr ostream, my::MeshPtr mesh);
 
-	void CookTriangleMeshToFile(std::string path, my::OgreMeshPtr mesh);
+	void CookTriangleMeshToFile(std::string path, my::MeshPtr mesh);
 
 	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
 
-	void CookClothFabric(my::OStreamPtr ostream, my::OgreMeshPtr mesh);
+	void CookClothFabric(my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset);
 
-	void CookClothFabricToFile(std::string path, my::OgreMeshPtr mesh);
+	void CookClothFabricToFile(std::string path, my::MeshPtr mesh, WORD PositionOffset);
 
 	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
+
+	static void InitClothParticles(
+		std::vector<PxClothParticle> & particles,
+		my::MeshPtr mesh,
+		WORD PositionOffset);
+
+	static void InitClothParticles(
+		std::vector<PxClothParticle> & particles,
+		my::MeshPtr mesh,
+		WORD PositionOffset,
+		WORD IndicesOffset,
+		const my::BoneHierarchy & hierarchy,
+		DWORD root_i);
+
+	static bool UpdateClothParticles(
+		PxCloth * cloth,
+		unsigned char * pVertices,
+		DWORD Offset,
+		DWORD Stride);
+
+	static bool ReadClothParticles(
+		my::MeshPtr mesh,
+		WORD PositionOffset,
+		const PxCloth * cloth);
 };
 
 class PhysXSceneContext
