@@ -32,6 +32,6 @@ game.Camera=camera
 -- end
 -- game:InsertTimer(t)
 
-game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
-	game:PushMeshSetToOctScene(res2mesh_set(res))
-end)
+-- game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
+	-- game:PushMeshSetToOctScene(res2mesh_set(res))
+-- end)

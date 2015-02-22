@@ -75,7 +75,15 @@ namespace my
 	T Random(T min, T max);
 
 	template <typename V, typename T>
-	static V & subscribe(T & t, size_t i)
+	static V & Subscribe(T & t, size_t i)
+	{
+		_ASSERT(i < sizeof(t) / sizeof(V));
+
+		return ((V*)&t)[i];
+	}
+
+	template <typename V, size_t i, typename T>
+	static V & Subscribe(T & t)
 	{
 		_ASSERT(i < sizeof(t) / sizeof(V));
 
@@ -114,9 +122,15 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i);
+		float & operator [](size_t i)
+		{
+			return Subscribe<float>(*this, i);
+		}
 
-		const float & operator [](size_t i) const;
+		const float & operator [](size_t i) const
+		{
+			return Subscribe<float>(*this, i);
+		}
 
 	public:
 		Vector2 operator - (void) const
@@ -346,9 +360,15 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i);
+		float & operator [](size_t i)
+		{
+			return Subscribe<float>(*this, i);
+		}
 
-		const float & operator [](size_t i) const;
+		const float & operator [](size_t i) const
+		{
+			return Subscribe<float>(*this, i);
+		}
 
 	public:
 		Vector3 operator - (void) const
@@ -616,9 +636,15 @@ namespace my
 		}
 
 	public:
-		float & operator [](size_t i);
+		float & operator [](size_t i)
+		{
+			return Subscribe<float>(*this, i);
+		}
 
-		const float & operator [](size_t i) const;
+		const float & operator [](size_t i) const
+		{
+			return Subscribe<float>(*this, i);
+		}
 
 	public:
 		Vector4 operator - (void) const
@@ -1599,18 +1625,36 @@ namespace my
 		}
 
 	public:
-		Vector4 & operator [](size_t i);
+		Vector4 & operator [](size_t i)
+		{
+			return Subscribe<Vector4>(*this, i);
+		}
 
-		const Vector4 & operator [](size_t i) const;
+		const Vector4 & operator [](size_t i) const
+		{
+			return Subscribe<Vector4>(*this, i);
+		}
 
 		template <size_t i>
-		Vector4 column(void)
+		Vector4 & row(void)
+		{
+			return Subscribe<Vector4, i>(*this);
+		}
+
+		template <size_t i>
+		const Vector4 & row(void) const
+		{
+			return Subscribe<Vector4, i>(*this);
+		}
+
+		template <size_t i>
+		Vector4 column(void) const
 		{
 			return Vector4(
-				subscribe<Vector4>(*this, i).x,
-				subscribe<Vector4>(*this, i).y,
-				subscribe<Vector4>(*this, i).z,
-				subscribe<Vector4>(*this, i).w);
+				Subscribe<Vector4>(*this, i).x,
+				Subscribe<Vector4>(*this, i).y,
+				Subscribe<Vector4>(*this, i).z,
+				Subscribe<Vector4>(*this, i).w);
 		}
 
 	public:
@@ -2507,9 +2551,15 @@ namespace my
 		{
 		}
 
-		Plane & operator [](size_t i);
+		Plane & operator [](size_t i)
+		{
+			return Subscribe<Plane>(*this, i);
+		}
 
-		const Plane & operator [](size_t i) const;
+		const Plane & operator [](size_t i) const
+		{
+			return Subscribe<Plane>(*this, i);
+		}
 
 		static Frustum ExtractMatrix(const Matrix4 & m)
 		{

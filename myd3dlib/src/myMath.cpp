@@ -40,16 +40,6 @@ float my::Random<float>(float min, float max)
 	return min + (max - min) * ((float)rand() / RAND_MAX);
 }
 
-float & Vector2::operator [](size_t i)
-{
-	return subscribe<float>(*this, i);
-}
-
-const float & Vector2::operator [](size_t i) const
-{
-	return subscribe<float>(*this, i);
-}
-
 Vector4 Vector2::transform(const Matrix4 & m) const
 {
 	return Vector4(x, y, 0, 1).transform(m);
@@ -89,16 +79,6 @@ const Vector2 Vector2::zero(0, 0);
 const Vector2 Vector2::unitX(1, 0);
 
 const Vector2 Vector2::unitY(0, 1);
-
-float & Vector3::operator [](size_t i)
-{
-	return subscribe<float>(*this, i);
-}
-
-const float & Vector3::operator [](size_t i) const
-{
-	return subscribe<float>(*this, i);
-}
 
 Vector4 Vector3::transform(const Matrix4 & m) const
 {
@@ -149,16 +129,6 @@ const Vector3 Vector3::unitY(0, 1, 0);
 
 const Vector3 Vector3::unitZ(0, 0, 1);
 
-float & Vector4::operator [](size_t i)
-{
-	return subscribe<float>(*this, i);
-}
-
-const float & Vector4::operator [](size_t i) const
-{
-	return subscribe<float>(*this, i);
-}
-
 Vector4 Vector4::transform(const Matrix4 & m) const
 {
 	return Vector4(
@@ -188,26 +158,6 @@ const Vector4 Vector4::unitZ(0, 0, 1, 0);
 const Vector4 Vector4::unitW(0, 0, 0, 1);
 
 const Quaternion Quaternion::identity(Quaternion::Identity());
-
-Vector4 & Matrix4::operator [](size_t i)
-{
-	return subscribe<Vector4>(*this, i);
-}
-
-const Vector4 & Matrix4::operator [](size_t i) const
-{
-	return subscribe<Vector4>(*this, i);
-}
-
-Plane & Frustum::operator [](size_t i)
-{
-	return subscribe<Plane>(*this, i);
-}
-
-const Plane & Frustum::operator [](size_t i) const
-{
-	return subscribe<Plane>(*this, i);
-}
 
 const Matrix4 Matrix4::identity(Matrix4::Identity());
 
