@@ -232,9 +232,16 @@ void PhysXContext::InitClothParticles(
 bool PhysXContext::UpdateClothParticles(
 	PxCloth * cloth,
 	unsigned char * pVertices,
-	DWORD Offset,
+	DWORD PositionOffset,
 	DWORD Stride)
 {
+	/* 这里需要传入 std::vector<PxClothParticle>，因为初始化之后这个数组就不再使用了，PxClothParticle 还需要扩展 Indices、Weights用以简化mesh->Lock
+	正好可以利用再次变换，那么这里同时也要传入 dualquat列表，用以对invWeight==0的节点进行变换，
+	变换之后会产生新的顶点列表，并写入cloth。
+	那么当OnRender的时候，还需要从cloth中读出readdata，并且再将其转换为VertexBuffer，同时计算Normal
+	计算Normal的方式可以用PxBuildSmoothNormals，参考：PhysX-3.2.3_PC_SDK_Core\Samples\SampleBase\RenderClothActor.cpp
+	*/
+
 	PxClothReadData * readData = cloth->lockClothReadData();
 	if (readData)
 	{
@@ -244,7 +251,7 @@ bool PhysXContext::UpdateClothParticles(
 			NewParticles[i].invWeight = readData->particles[i].invWeight;
 			if (0 == NewParticles[i].invWeight)
 			{
-				NewParticles[i].pos = *(PxVec3 *)(pVertices + i * Stride + Offset);
+				NewParticles[i].pos = *(PxVec3 *)(pVertices + i * Stride + PositionOffset);
 			}
 			else
 			{
@@ -361,6 +368,8 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 
 	_ASSERT(0 == m_ErrorState);
 
+	OnPxThreadSubstep(m_Timer.m_Interval);
+
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
 	{
 		m_Sync.SetEvent();
@@ -376,6 +385,10 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 	Substep(task);
 
 	task.removeReference();
+}
+
+void PhysXSceneContext::OnPxThreadSubstep(float dtime)
+{
 }
 
 void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)

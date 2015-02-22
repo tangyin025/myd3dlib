@@ -210,48 +210,8 @@ public:
 		Game::OnDestroyDevice();
 	}
 
-	virtual void OnFrameMove(
-		double fTime,
-		float fElapsedTime)
+	virtual void OnPxThreadSubstep(float fElapsedTime)
 	{
-		Game::OnFrameMove(fTime, fElapsedTime);
-
-		if (m_Camera)
-		{
-			m_Camera->OnFrameMove(fTime, fElapsedTime);
-		}
-
-		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
-
-		//// ========================================================================================================
-		//// 骨骼动画
-		//// ========================================================================================================
-		//static float anim_time = 0;
-		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
-		//m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->BuildAnimationPose(
-		//	m_skel_pose,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"),
-		//	"walk",
-		//	anim_time);
-		//m_skel_pose[m_skel_anim->GetBoneIndex("Bip01")].m_position.z = 0; // 固定根节点的z轴移动
-		//m_skel_pose_heir1.clear();
-		//m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir1,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"));
-		//m_skel_pose_heir2.clear();
-		//m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose.BuildHierarchyBoneList(
-		//	m_skel_pose_heir2,
-		//	m_skel_anim->m_boneHierarchy,
-		//	m_skel_anim->GetBoneIndex("Bip01"));
-		//m_skel_mesh->m_Animator->m_DualQuats.clear();
-		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
-		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
-
 		// ========================================================================================================
 		// 布料系统
 		// ========================================================================================================
@@ -299,6 +259,49 @@ public:
 			m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
+	}
+
+	virtual void OnFrameMove(
+		double fTime,
+		float fElapsedTime)
+	{
+		Game::OnFrameMove(fTime, fElapsedTime);
+
+		if (m_Camera)
+		{
+			m_Camera->OnFrameMove(fTime, fElapsedTime);
+		}
+
+		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
+
+		//// ========================================================================================================
+		//// 骨骼动画
+		//// ========================================================================================================
+		//static float anim_time = 0;
+		//anim_time = fmod(anim_time + fElapsedTime, m_skel_anim->GetAnimation("walk").GetTime());
+		//m_skel_pose.resize(m_skel_anim->m_boneBindPose.size());
+		//m_skel_anim->BuildAnimationPose(
+		//	m_skel_pose,
+		//	m_skel_anim->m_boneHierarchy,
+		//	m_skel_anim->GetBoneIndex("Bip01"),
+		//	"walk",
+		//	anim_time);
+		//m_skel_pose[m_skel_anim->GetBoneIndex("Bip01")].m_position.z = 0; // 固定根节点的z轴移动
+		//m_skel_pose_heir1.clear();
+		//m_skel_pose_heir1.resize(m_skel_anim->m_boneBindPose.size());
+		//m_skel_anim->m_boneBindPose.BuildHierarchyBoneList(
+		//	m_skel_pose_heir1,
+		//	m_skel_anim->m_boneHierarchy,
+		//	m_skel_anim->GetBoneIndex("Bip01"));
+		//m_skel_pose_heir2.clear();
+		//m_skel_pose_heir2.resize(m_skel_anim->m_boneBindPose.size());
+		//m_skel_pose.BuildHierarchyBoneList(
+		//	m_skel_pose_heir2,
+		//	m_skel_anim->m_boneHierarchy,
+		//	m_skel_anim->GetBoneIndex("Bip01"));
+		//m_skel_mesh->m_Animator->m_DualQuats.clear();
+		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
+		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
 		//// ========================================================================================================
 		//// 逻辑系统

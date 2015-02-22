@@ -139,7 +139,7 @@ public:
 	static bool UpdateClothParticles(
 		PxCloth * cloth,
 		unsigned char * pVertices,
-		DWORD Offset,
+		DWORD PositionOffset,
 		DWORD Stride);
 
 	static bool ReadClothParticles(
@@ -203,6 +203,8 @@ public:
 	void Substep(StepperTask & completionTask);
 
 	void SubstepDone(StepperTask * ownerTask);
+
+	virtual void OnPxThreadSubstep(float dtime);
 
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 };
