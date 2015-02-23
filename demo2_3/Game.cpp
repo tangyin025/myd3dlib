@@ -336,7 +336,7 @@ void Game::OnDestroyDevice(void)
 
 	m_SimpleSampleInst.reset();
 
-	//m_ShaderCache.clear();
+	m_ShaderCache.clear();
 
 	m_ParticleInst.reset();
 

@@ -799,7 +799,10 @@ void MeshInstance::DrawSubsetInstance(DWORD AttribId, DWORD NumInstances)
 	V(m_Device->SetVertexDeclaration(m_Decl));
 	V(m_Device->SetIndices(ib));
 	V(m_Device->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
-		m_AttribTable[AttribId].VertexStart, m_AttribTable[AttribId].VertexCount, m_AttribTable[AttribId].FaceStart, m_AttribTable[AttribId].FaceCount));
+		m_AttribTable[AttribId].VertexStart,
+		m_AttribTable[AttribId].VertexCount,
+		m_AttribTable[AttribId].FaceStart * 3,
+		m_AttribTable[AttribId].FaceCount));
 
 	V(m_Device->SetStreamSourceFreq(0,1));
 	V(m_Device->SetStreamSourceFreq(1,1));

@@ -42,6 +42,8 @@ public:
 	TransformList m_cloth_duals;
 	PxCloth * m_cloth;
 
+	DeformationMeshComponentPtr m_deform_mesh;
+
 	//// ========================================================================================================
 	//// 逻辑系统
 	//// ========================================================================================================
@@ -176,6 +178,16 @@ public:
 		//// 创建物理地面，但是布料不参与碰撞
 		//m_PxScene->addActor(*PxCreateStatic(*m_sdk, PxTransform(PxQuat(PxHalfPi, PxVec3(0,0,1))), PxPlaneGeometry(), *m_PxMaterial));
 
+		m_deform_mesh.reset(new DeformationMeshComponent(AABB(-1,-1,-1,1,1,1)));
+		OgreMeshPtr tmp = LoadMesh("mesh/sportive03_f.mesh.xml");
+		m_deform_mesh->CreateFromOgreMeshWithoutMaterials(pd3dDevice, tmp);
+		std::vector<std::string>::const_iterator mat_name_iter = tmp->m_MaterialNameList.begin();
+		for(; mat_name_iter != tmp->m_MaterialNameList.end(); mat_name_iter++)
+		{
+			m_deform_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+		}
+		m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+
 		//// ========================================================================================================
 		//// 逻辑系统
 		//// ========================================================================================================
@@ -206,6 +218,7 @@ public:
 	{
 		//// 注意顺序
 		//m_Logic->Destroy();
+		m_deform_mesh.reset();
 
 		Game::OnDestroyDevice();
 	}
@@ -356,6 +369,8 @@ public:
 		//	m_SimpleSampleSkel->EndPass();
 		//}
 		//m_SimpleSampleSkel->End();
+
+		m_deform_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

@@ -4,48 +4,6 @@
 #include "RenderPipeline.h"
 #include "MeshAnimator.h"
 
-class Material
-	: public my::DeviceRelatedObjectBase
-{
-public:
-	boost::shared_ptr<my::BaseTexture> m_DiffuseTexture;
-
-	boost::shared_ptr<my::BaseTexture> m_NormalTexture;
-
-	boost::shared_ptr<my::BaseTexture> m_SpecularTexture;
-
-public:
-	Material(void)
-	{
-	}
-
-	virtual void OnResetDevice(void)
-	{
-	}
-
-	virtual void OnLostDevice(void)
-	{
-	}
-
-	virtual void OnDestroyDevice(void)
-	{
-	}
-
-	virtual void OnQueryMesh(
-		RenderPipeline * pipeline,
-		RenderPipeline::DrawStage stage,
-		RenderPipeline::MeshType mesh_type,
-		my::Mesh * mesh,
-		DWORD AttribId,
-		RenderPipeline::IShaderSetter * setter);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-};
-
-typedef boost::shared_ptr<Material> MaterialPtr;
-
-typedef std::vector<MaterialPtr> MaterialPtrList;
-
 class RenderComponent
 	: public my::AABBComponent
 	, public RenderPipeline::IShaderSetter
@@ -119,3 +77,40 @@ public:
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
+
+class DeformationMeshComponent
+	: public RenderComponent
+{
+public:
+	MaterialPtrList m_Materials;
+
+	my::Cache m_VertexData;
+
+	std::vector<unsigned short> m_IndexData;
+
+	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+
+	my::D3DVertexElementSet m_VertexElems;
+
+	DWORD m_VertexStride;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	my::Matrix4 m_World;
+
+public:
+	DeformationMeshComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
+		, m_VertexStride(0)
+		, m_World(my::Matrix4::Identity())
+	{
+	}
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	void CreateFromOgreMeshWithoutMaterials(IDirect3DDevice9 * pd3dDevice, my::OgreMeshPtr mesh);
+};
+
+typedef boost::shared_ptr<DeformationMeshComponent> DeformationMeshComponentPtr;
