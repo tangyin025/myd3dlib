@@ -190,101 +190,6 @@ PxClothFabric * PhysXContext::CreateClothFabric(my::IStreamPtr istream)
 	return ret;
 }
 
-void PhysXContext::InitClothParticles(
-	std::vector<PxClothParticle> & particles,
-	my::MeshPtr mesh,
-	WORD PositionOffset)
-{
-	particles.resize(mesh->GetNumVertices());
-	unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
-	for(unsigned int i = 0; i < particles.size(); i++) {
-		unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
-		particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
-		particles[i].invWeight = 1 / 1.0f;
-	}
-	mesh->UnlockVertexBuffer();
-}
-
-void PhysXContext::InitClothParticles(
-	std::vector<PxClothParticle> & particles,
-	my::MeshPtr mesh,
-	WORD PositionOffset,
-	WORD IndicesOffset,
-	const my::BoneHierarchy & hierarchy,
-	DWORD root_i)
-{
-	particles.resize(mesh->GetNumVertices());
-	unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
-	for(unsigned int i = 0; i < particles.size(); i++) {
-		unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
-		particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
-		unsigned char * pIndices = (unsigned char *)(pVertex + IndicesOffset);
-		BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
-		particles[i].invWeight = (
-			pIndices[0] == root_i || hierarchy.HaveChild(root_i, pIndices[0]) ||
-			pIndices[1] == root_i || hierarchy.HaveChild(root_i, pIndices[1]) ||
-			pIndices[2] == root_i || hierarchy.HaveChild(root_i, pIndices[2]) ||
-			pIndices[3] == root_i || hierarchy.HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
-	}
-	mesh->UnlockVertexBuffer();
-}
-
-bool PhysXContext::UpdateClothParticles(
-	PxCloth * cloth,
-	unsigned char * pVertices,
-	DWORD PositionOffset,
-	DWORD Stride)
-{
-	/* 这里需要传入 std::vector<PxClothParticle>，因为初始化之后这个数组就不再使用了，PxClothParticle 还需要扩展 Indices、Weights用以简化mesh->Lock
-	正好可以利用再次变换，那么这里同时也要传入 dualquat列表，用以对invWeight==0的节点进行变换，
-	变换之后会产生新的顶点列表，并写入cloth。
-	那么当OnRender的时候，还需要从cloth中读出readdata，并且再将其转换为VertexBuffer，同时计算Normal
-	计算Normal的方式可以用PxBuildSmoothNormals，参考：PhysX-3.2.3_PC_SDK_Core\Samples\SampleBase\RenderClothActor.cpp
-	*/
-
-	PxClothReadData * readData = cloth->lockClothReadData();
-	if (readData)
-	{
-		std::vector<PxClothParticle> NewParticles(cloth->getNbParticles());
-		for (unsigned int i = 0; i < cloth->getNbParticles(); i++)
-		{
-			NewParticles[i].invWeight = readData->particles[i].invWeight;
-			if (0 == NewParticles[i].invWeight)
-			{
-				NewParticles[i].pos = *(PxVec3 *)(pVertices + i * Stride + PositionOffset);
-			}
-			else
-			{
-				NewParticles[i].pos = readData->particles[i].pos;
-			}
-		}
-		readData->unlock();
-		cloth->setParticles(&NewParticles[0], NULL);
-		return true;
-	}
-	return false;
-}
-
-bool PhysXContext::ReadClothParticles(
-	my::MeshPtr mesh,
-	WORD PositionOffset,
-	const PxCloth * cloth)
-{
-	PxClothReadData * readData = cloth->lockClothReadData();
-	if (readData)
-	{
-		unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer();
-		for (unsigned int i = 0; i < cloth->getNbParticles(); i++)
-		{
-			unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
-			*(my::Vector3 *)(pVertex + PositionOffset) = (my::Vector3&)readData->particles[i].pos;
-		}
-		mesh->UnlockVertexBuffer();
-		readData->unlock();
-	}
-	return false;
-}
-
 void PhysXSceneContext::StepperTask::run(void)
 {
 	m_PxScene->SubstepDone(this);
@@ -425,4 +330,145 @@ void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//		const PxDebugTriangle& triangle = triangles[i];
 	//	}
 	//}
+}
+
+void ClothMeshComponentLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+{
+	if (m_Mesh && !m_VertexData.empty())
+	{
+		_ASSERT(!m_IndexData.empty());
+		_ASSERT(!m_Mesh->m_AttribTable.empty());
+		_ASSERT(m_Mesh->m_Decl);
+		for (DWORD i = 0; i < m_Mesh->m_AttribTable.size(); i++)
+		{
+			if (m_Materials[i])
+			{
+				m_Materials[i]->OnQueryIndexedPrimitiveUP(pipeline, stage, RenderPipeline::MeshTypeStatic, m_Mesh->m_Decl, D3DPT_TRIANGLELIST,
+					m_Mesh->m_AttribTable[i].VertexStart,
+					m_Mesh->m_AttribTable[i].VertexCount,
+					m_Mesh->m_AttribTable[i].FaceCount,
+					&m_IndexData[m_Mesh->m_AttribTable[i].FaceStart * 3],
+					D3DFMT_INDEX16,
+					&m_VertexData[0],
+					m_Mesh->GetNumBytesPerVertex(), i, m_owner);
+			}
+		}
+	}
+}
+
+void ClothMeshComponentLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	MeshComponent::LOD::OnSetShader(shader, AttribId);
+}
+
+void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData)
+{
+	_ASSERT(m_Mesh);
+	if (m_VertexData.empty())
+	{
+		m_VertexData.resize(m_Mesh->GetNumVertices() * m_Mesh->GetNumBytesPerVertex());
+		memcpy(&m_VertexData[0], m_Mesh->LockVertexBuffer(), m_VertexData.size());
+		m_Mesh->UnlockVertexBuffer();
+
+		m_IndexData.resize(m_Mesh->GetNumFaces() * 3);
+		if (m_IndexData.size() > USHRT_MAX)
+		{
+			THROW_CUSEXCEPTION(str_printf(_T("create deformation m_Mesh with overflow index size %u"), m_IndexData.size()));
+		}
+		VOID * pIndices = m_Mesh->LockIndexBuffer();
+		for (unsigned int face_i = 0; face_i < m_Mesh->GetNumFaces(); face_i++)
+		{
+			if(m_Mesh->GetOptions() & D3DXMESH_32BIT)
+			{
+				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = (WORD)*((DWORD *)pIndices + face_i * 3 + 2);
+			}
+			else
+			{
+				m_IndexData[face_i * 3 + 0] = *((WORD *)pIndices + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = *((WORD *)pIndices + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + face_i * 3 + 2);
+			}
+		}
+		m_Mesh->UnlockIndexBuffer();
+	}
+
+	if (m_Mesh->m_AttribTable.empty())
+	{
+		DWORD submeshes = 0;
+		m_Mesh->GetAttributeTable(NULL, &submeshes);
+		m_Mesh->m_AttribTable.resize(submeshes);
+		m_Mesh->GetAttributeTable(&m_Mesh->m_AttribTable[0], &submeshes);
+	}
+
+	if (!m_Mesh->m_Decl)
+	{
+		std::vector<D3DVERTEXELEMENT9> ielist(MAX_FVF_DECL_SIZE);
+		m_Mesh->GetDeclaration(&ielist[0]);
+		HRESULT hr;
+		if (FAILED(hr = m_Mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Mesh->m_Decl)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+	}
+
+	m_particles.resize(m_Mesh->GetNumVertices());
+	unsigned char * pVertices = (unsigned char *)m_Mesh->LockVertexBuffer();
+	DWORD PositionOffset = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
+	DWORD IndicesOffset = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Offset;
+	for(unsigned int i = 0; i < m_particles.size(); i++) {
+		unsigned char * pVertex = pVertices + i * m_Mesh->GetNumBytesPerVertex();
+		m_particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
+		unsigned char * pIndices = (unsigned char *)(pVertex + IndicesOffset);
+		BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+		m_particles[i].invWeight = (
+			pIndices[0] == root_i || hierarchy.HaveChild(root_i, pIndices[0]) ||
+			pIndices[1] == root_i || hierarchy.HaveChild(root_i, pIndices[1]) ||
+			pIndices[2] == root_i || hierarchy.HaveChild(root_i, pIndices[2]) ||
+			pIndices[3] == root_i || hierarchy.HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
+	}
+	m_Mesh->UnlockVertexBuffer();
+
+	my::MemoryOStreamPtr ofs(new my::MemoryOStream);
+	px_sdk->CookClothFabric(ofs, m_Mesh,
+		m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
+
+	my::IStreamPtr ifs(new my::MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
+	physx_ptr<PxClothFabric> fabric(px_sdk->CreateClothFabric(ifs));
+	m_cloth.reset(px_sdk->m_sdk->createCloth(
+		PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &m_particles[0], collData, PxClothFlags()));
+}
+
+void ClothMeshComponentLOD::UpdateCloth(const my::TransformList & dualQuaternionList)
+{
+	_ASSERT(m_particles.size() == m_Mesh->GetNumVertices());
+	PxClothReadData * readData = m_cloth->lockClothReadData();
+	if (readData)
+	{
+		unsigned char * pVertices = &m_VertexData[0];
+		DWORD VertexStride = m_Mesh->GetNumBytesPerVertex();
+		m_NewParticles.resize(m_cloth->getNbParticles());
+		for (unsigned int i = 0; i < m_cloth->getNbParticles(); i++)
+		{
+			void * pVertex = pVertices + i * VertexStride;
+			m_NewParticles[i].invWeight = readData->particles[i].invWeight;
+			if (0 == m_NewParticles[i].invWeight)
+			{
+				my::Vector3 pos;
+				my::BoneList::TransformVertexWithDualQuaternionList(pos,
+					(my::Vector3 &)m_particles[i].pos,
+					m_Mesh->m_VertexElems.GetBlendIndices(pVertex),
+					m_Mesh->m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
+				m_NewParticles[i].pos = (PxVec3 &)pos;
+			}
+			else
+			{
+				m_NewParticles[i].pos = readData->particles[i].pos;
+			}
+			m_Mesh->m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+		}
+		readData->unlock();
+		m_cloth->setParticles(&m_NewParticles[0], NULL);
+	}
 }

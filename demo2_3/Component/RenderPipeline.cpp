@@ -140,6 +140,7 @@ void Material::OnQueryMesh(
 void Material::OnQueryIndexedPrimitiveUP(
 	RenderPipeline * pipeline,
 	RenderPipeline::DrawStage stage,
+	RenderPipeline::MeshType mesh_type,
 	IDirect3DVertexDeclaration9* pDecl,
 	D3DPRIMITIVETYPE PrimitiveType,
 	UINT MinVertexIndex,
@@ -152,7 +153,7 @@ void Material::OnQueryIndexedPrimitiveUP(
 	DWORD AttribId,
 	RenderPipeline::IShaderSetter * setter)
 {
-	my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeStatic, stage, this);
+	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, this);
 	if (shader)
 	{
 		pipeline->PushOpaqueIndexedPrimitiveUP(

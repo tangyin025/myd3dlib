@@ -35,14 +35,14 @@ public:
 	std::vector<PxClothParticle> m_cloth_particles;
 	MeshComponentPtr m_cloth_mesh;
 	OgreSkeletonAnimationPtr m_cloth_anim;
-	CachePtr m_cloth_mesh_vertices;
+	//CachePtr m_cloth_mesh_vertices;
 	BoneList m_cloth_pose;
 	BoneList m_cloth_pose_heir1;
 	BoneList m_cloth_pose_heir2;
 	TransformList m_cloth_duals;
-	PxCloth * m_cloth;
+	//PxCloth * m_cloth;
 
-	DeformationMeshComponentPtr m_deform_mesh;
+	//DeformationMeshComponentPtr m_deform_mesh;
 
 	//// ========================================================================================================
 	//// 逻辑系统
@@ -72,7 +72,7 @@ public:
 	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
 	{
 		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb));
-		MeshComponent::LODPtr lod(new MeshComponent::LOD());
+		MeshComponent::LODPtr lod(new ClothMeshComponentLOD(mesh_cmp.get()));
 		lod->m_Mesh = mesh;
 		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
@@ -152,42 +152,45 @@ public:
 		p.normal = PxVec3(0.0f, 1.0f, 0.0f);
 		p.distance = 0.0f;
 
-		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"));
-		m_cloth_mesh_vertices.reset(new Cache(
-			m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices() * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex()));
-		memcpy(&(*m_cloth_mesh_vertices)[0], m_cloth_mesh->m_lods[0]->m_Mesh->LockVertexBuffer(), m_cloth_mesh_vertices->size());
-		m_cloth_mesh->m_lods[0]->m_Mesh->UnlockVertexBuffer();
 		m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
-		InitClothParticles(
-			m_cloth_particles,
-			m_cloth_mesh->m_lods[0]->m_Mesh,
-			m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset,
-			m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Offset,
-			m_cloth_anim->m_boneHierarchy,
-			m_cloth_anim->GetBoneIndex("joint5"));
-		my::MemoryOStreamPtr ofs(new my::MemoryOStream);
-		CookClothFabric(ofs, m_cloth_mesh->m_lods[0]->m_Mesh, m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
-		IStreamPtr ifs(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
-		physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
-		m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *clothFabric, &m_cloth_particles[0], collisionData, PxClothFlags());
-		m_cloth->addCollisionPlane(p);
-		m_cloth->addCollisionConvex(0x01);
-		m_cloth->setFrictionCoefficient(1.0f);
-		m_PxScene->addActor(*m_cloth);
+
+		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"));
+		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(
+			this, m_cloth_anim->m_boneHierarchy, m_cloth_anim->GetBoneIndex("joint5"), PxClothCollisionData());
+		//m_cloth_mesh_vertices.reset(new Cache(
+		//	m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices() * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex()));
+		//memcpy(&(*m_cloth_mesh_vertices)[0], m_cloth_mesh->m_lods[0]->m_Mesh->LockVertexBuffer(), m_cloth_mesh_vertices->size());
+		//m_cloth_mesh->m_lods[0]->m_Mesh->UnlockVertexBuffer();
+		//InitClothParticles(
+		//	m_cloth_particles,
+		//	m_cloth_mesh->m_lods[0]->m_Mesh,
+		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset,
+		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Offset,
+		//	m_cloth_anim->m_boneHierarchy,
+		//	m_cloth_anim->GetBoneIndex("joint5"));
+		//my::MemoryOStreamPtr ofs(new my::MemoryOStream);
+		//CookClothFabric(ofs, m_cloth_mesh->m_lods[0]->m_Mesh, m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
+		//IStreamPtr ifs(new MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
+		//physx_ptr<PxClothFabric> clothFabric(CreateClothFabric(ifs));
+		//m_cloth = m_sdk->createCloth(PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *clothFabric, &m_cloth_particles[0], collisionData, PxClothFlags());
+		//m_cloth->addCollisionPlane(p);
+		//m_cloth->addCollisionConvex(0x01);
+		//m_cloth->setFrictionCoefficient(1.0f);
+		m_PxScene->addActor(*dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth);
 
 		//// 创建物理地面，但是布料不参与碰撞
 		//m_PxScene->addActor(*PxCreateStatic(*m_sdk, PxTransform(PxQuat(PxHalfPi, PxVec3(0,0,1))), PxPlaneGeometry(), *m_PxMaterial));
 
-		m_deform_mesh.reset(new DeformationMeshComponent(AABB(-1,-1,-1,1,1,1)));
-		OgreMeshPtr tmp = LoadMesh("mesh/sportive03_f.mesh.xml");
-		m_deform_mesh->CreateFromOgreMeshWithoutMaterials(pd3dDevice, tmp);
-		std::vector<std::string>::const_iterator mat_name_iter = tmp->m_MaterialNameList.begin();
-		for(; mat_name_iter != tmp->m_MaterialNameList.end(); mat_name_iter++)
-		{
-			m_deform_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
-		}
-		m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		AddResource("___trwrwr342423", m_deform_mesh);
+		//m_deform_mesh.reset(new DeformationMeshComponent(AABB(-1,-1,-1,1,1,1)));
+		//OgreMeshPtr tmp = LoadMesh("mesh/sportive03_f.mesh.xml");
+		//m_deform_mesh->CreateFromOgreMeshWithoutMaterials(pd3dDevice, tmp);
+		//std::vector<std::string>::const_iterator mat_name_iter = tmp->m_MaterialNameList.begin();
+		//for(; mat_name_iter != tmp->m_MaterialNameList.end(); mat_name_iter++)
+		//{
+		//	m_deform_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+		//}
+		//m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+		//AddResource("___trwrwr342423", m_deform_mesh);
 
 		//// ========================================================================================================
 		//// 逻辑系统
@@ -219,6 +222,7 @@ public:
 	{
 		//// 注意顺序
 		//m_Logic->Destroy();
+		m_cloth_mesh.reset();
 
 		Game::OnDestroyDevice();
 	}
@@ -253,25 +257,26 @@ public:
 		m_cloth_duals.resize(m_cloth_anim->m_boneBindPose.size());
 		m_cloth_pose_heir1.BuildDualQuaternionList(m_cloth_duals, m_cloth_pose_heir2);
 
-		static std::vector<Vector3> vertices;
-		vertices.resize(m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices());
-		unsigned char * pVertices = (unsigned char *)&(*m_cloth_mesh_vertices)[0];
-		for (unsigned int i = 0; i < vertices.size(); i++)
-		{
-			void * pVertex = pVertices + i * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex();
-			BoneList::TransformVertexWithDualQuaternionList(
-				vertices[i],
-				m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetPosition(pVertex),
-				m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetBlendIndices(pVertex),
-				m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetBlendWeight(pVertex),
-				m_cloth_duals);
-		}
-		UpdateClothParticles(m_cloth, (unsigned char *)&vertices[0], 0, sizeof(vertices[0]));
+		//static std::vector<Vector3> vertices;
+		//vertices.resize(m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices());
+		//unsigned char * pVertices = (unsigned char *)&(*m_cloth_mesh_vertices)[0];
+		//for (unsigned int i = 0; i < vertices.size(); i++)
+		//{
+		//	void * pVertex = pVertices + i * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex();
+		//	BoneList::TransformVertexWithDualQuaternionList(
+		//		vertices[i],
+		//		m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetPosition(pVertex),
+		//		m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetBlendIndices(pVertex),
+		//		m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.GetBlendWeight(pVertex),
+		//		m_cloth_duals);
+		//}
+		//UpdateClothParticles(m_cloth, (unsigned char *)&vertices[0], 0, sizeof(vertices[0]));
 
-		ReadClothParticles(m_cloth_mesh->m_lods[0]->m_Mesh,
-			m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
+		//ReadClothParticles(m_cloth_mesh->m_lods[0]->m_Mesh,
+		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
+		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_duals);
 	}
 
 	virtual void OnFrameMove(
@@ -370,7 +375,7 @@ public:
 		//}
 		//m_SimpleSampleSkel->End();
 
-		m_deform_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		//m_deform_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

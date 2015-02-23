@@ -1,6 +1,7 @@
 #pragma once
 
 #include "physx_ptr.hpp"
+#include "Component/MeshComponent.h"
 
 class PhysXAllocator : public PxAllocatorCallback
 {
@@ -122,30 +123,6 @@ public:
 	void CookClothFabricToFile(std::string path, my::MeshPtr mesh, WORD PositionOffset);
 
 	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
-
-	static void InitClothParticles(
-		std::vector<PxClothParticle> & particles,
-		my::MeshPtr mesh,
-		WORD PositionOffset);
-
-	static void InitClothParticles(
-		std::vector<PxClothParticle> & particles,
-		my::MeshPtr mesh,
-		WORD PositionOffset,
-		WORD IndicesOffset,
-		const my::BoneHierarchy & hierarchy,
-		DWORD root_i);
-
-	static bool UpdateClothParticles(
-		PxCloth * cloth,
-		unsigned char * pVertices,
-		DWORD PositionOffset,
-		DWORD Stride);
-
-	static bool ReadClothParticles(
-		my::MeshPtr mesh,
-		WORD PositionOffset,
-		const PxCloth * cloth);
 };
 
 class PhysXSceneContext
@@ -208,3 +185,34 @@ public:
 
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 };
+
+class ClothMeshComponentLOD
+	: public MeshComponent::LOD
+{
+public:
+	my::Cache m_VertexData;
+
+	std::vector<unsigned short> m_IndexData;
+
+	std::vector<PxClothParticle> m_particles;
+
+	std::vector<PxClothParticle> m_NewParticles;
+
+	physx_ptr<PxCloth> m_cloth;
+
+public:
+	ClothMeshComponentLOD(MeshComponent * owner)
+		: MeshComponent::LOD(owner)
+	{
+	}
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	void CreateCloth(PhysXContext * px_sdk, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData);
+
+	void UpdateCloth(const my::TransformList & dualQuaternionList);
+};
+
+typedef boost::shared_ptr<ClothMeshComponentLOD> ClothMeshComponentLODPtr;

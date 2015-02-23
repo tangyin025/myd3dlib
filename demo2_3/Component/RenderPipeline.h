@@ -136,6 +136,7 @@ public:
 	virtual void OnQueryIndexedPrimitiveUP(
 		RenderPipeline * pipeline,
 		RenderPipeline::DrawStage stage,
+		RenderPipeline::MeshType mesh_type,
 		IDirect3DVertexDeclaration9* pDecl,
 		D3DPRIMITIVETYPE PrimitiveType,
 		UINT MinVertexIndex,
