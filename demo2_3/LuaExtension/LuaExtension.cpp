@@ -389,7 +389,14 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("NormalTexture", &Material::m_NormalTexture)
 			.def_readwrite("SpecularTexture", &Material::m_SpecularTexture)
 
-		, class_<MeshComponent, my::AABBComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+		//, class_<RenderComponent, boost::shared_ptr<RenderComponent> >("RenderComponent")
+		//	.def(constructor<const my::AABB &>())
+
+		//, class_<MeshComponent, RenderComponent, boost::shared_ptr<RenderComponent> >("MeshComponent")
+		//	.def(constructor<const my::AABB &>())
+
+		//, class_<SkeletonMeshComponent, MeshComponent, boost::shared_ptr<RenderComponent> >("MeshComponent")
+		//	.def(constructor<const my::AABB &>())
 
 		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)

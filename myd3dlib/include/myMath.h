@@ -108,6 +108,12 @@ namespace my
 		{
 		}
 
+		Vector2(float _v)
+			: x(_v)
+			, y(_v)
+		{
+		}
+
 		Vector2(float _x, float _y)
 			: x(_x)
 			, y(_y)
@@ -341,6 +347,13 @@ namespace my
 			//: x(0)
 			//, y(0)
 			//, z(0)
+		{
+		}
+
+		Vector3(float _v)
+			: x(_v)
+			, y(_v)
+			, z(_v)
 		{
 		}
 
@@ -615,6 +628,14 @@ namespace my
 			//, y(0)
 			//, z(0)
 			//, w(0)
+		{
+		}
+
+		Vector4(float _v)
+			: x(_v)
+			, y(_v)
+			, z(_v)
+			, w(_v)
 		{
 		}
 
@@ -1604,6 +1625,14 @@ namespace my
 		{
 		}
 
+		Matrix4(float _v)
+			: _11(_v), _12(_v), _13(_v), _14(_v)
+			, _21(_v), _22(_v), _23(_v), _24(_v)
+			, _31(_v), _32(_v), _33(_v), _34(_v)
+			, _41(_v), _42(_v), _43(_v), _44(_v)
+		{
+		}
+
 		Matrix4(float m11, float m12, float m13, float m14,
 				float m21, float m22, float m23, float m24,
 				float m31, float m32, float m33, float m34,
@@ -2585,6 +2614,12 @@ namespace my
 		AABB(void)
 			//: Min(FLT_MIN,FLT_MIN,FLT_MIN)
 			//, Max(FLT_MAX,FLT_MAX,FLT_MAX)
+		{
+		}
+
+		AABB(float minv, float maxv)
+			: Min(minv)
+			, Max(maxv)
 		{
 		}
 
