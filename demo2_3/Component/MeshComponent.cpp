@@ -65,6 +65,19 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	MeshComponent::OnSetShader(shader, AttribId);
 }
 
+void DeformationMeshComponent::OnResetDevice(void)
+{
+}
+
+void DeformationMeshComponent::OnLostDevice(void)
+{
+}
+
+void DeformationMeshComponent::OnDestroyDevice(void)
+{
+	m_Decl.Release();
+}
+
 void DeformationMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	if (!m_VertexData.empty())
@@ -104,7 +117,7 @@ void DeformationMeshComponent::CreateFromOgreMeshWithoutMaterials(IDirect3DDevic
 	m_IndexData.resize(mesh->GetNumFaces() * 3);
 	if (m_IndexData.size() > USHRT_MAX)
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("create deformation mesh with invalid index size %u"), m_IndexData.size()));
+		THROW_CUSEXCEPTION(str_printf(_T("create deformation mesh with overflow index size %u"), m_IndexData.size()));
 	}
 	VOID * pIndices = mesh->LockIndexBuffer();
 	for (unsigned int face_i = 0; face_i < mesh->GetNumFaces(); face_i++)

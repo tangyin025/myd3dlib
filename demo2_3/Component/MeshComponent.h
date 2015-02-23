@@ -6,11 +6,24 @@
 
 class RenderComponent
 	: public my::AABBComponent
+	, public my::DeviceRelatedObjectBase
 	, public RenderPipeline::IShaderSetter
 {
 public:
 	RenderComponent(const my::AABB & aabb)
 		: AABBComponent(aabb)
+	{
+	}
+
+	virtual void OnResetDevice(void)
+	{
+	}
+
+	virtual void OnLostDevice(void)
+	{
+	}
+
+	virtual void OnDestroyDevice(void)
 	{
 	}
 
@@ -105,6 +118,12 @@ public:
 		, m_World(my::Matrix4::Identity())
 	{
 	}
+
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
 

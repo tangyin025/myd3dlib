@@ -187,6 +187,7 @@ public:
 			m_deform_mesh->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
 		}
 		m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
+		AddResource("___trwrwr342423", m_deform_mesh);
 
 		//// ========================================================================================================
 		//// Âß¼­ÏµÍ³
@@ -218,7 +219,6 @@ public:
 	{
 		//// ×¢ÒâË³Ðò
 		//m_Logic->Destroy();
-		m_deform_mesh.reset();
 
 		Game::OnDestroyDevice();
 	}
