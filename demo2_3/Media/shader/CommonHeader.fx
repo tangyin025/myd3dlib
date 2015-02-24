@@ -56,11 +56,11 @@ struct VS_OUTPUT_SHADOW
 
 struct VS_OUTPUT
 {
-	float4 Pos				: POSITION;
+	float4 PosVS			: POSITION;
 	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: TEXCOORD1;
-	float3 Tangent			: TEXCOORD2;
-	float3 Binormal			: TEXCOORD3;
+	float3 NormalWS			: TEXCOORD1;
+	float3 TangentWS		: TEXCOORD2;
+	float3 BinormalWS		: TEXCOORD3;
 };
 
 //--------------------------------------------------------------------------------------

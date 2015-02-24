@@ -49,6 +49,35 @@ public:
 	//// ========================================================================================================
 	//LogicPtr m_Logic;
 
+	void OnKeyDown(my::InputEventArg * arg)
+	{
+		KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+		PxTransform pose;
+		switch (karg.kc)
+		{
+		case VK_UP:
+			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+			pose.p.x += 1;
+			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			break;
+		case VK_DOWN:
+			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+			pose.p.x -= 1;
+			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			break;
+		case VK_LEFT:
+			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+			((Quaternion &)pose.q) *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(30));
+			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			break;
+		case VK_RIGHT:
+			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+			((Quaternion &)pose.q) *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(-30));
+			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			break;
+		}
+	}
+
 	Demo::Demo(void)
 		//: m_Logic(new Logic)
 	{
@@ -199,6 +228,8 @@ public:
 
 		ExecuteCode("dofile \"StateMain.lua\"");
 
+		Game::getSingleton().m_KeyPressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
+
 		return S_OK;
 	}
 
@@ -233,7 +264,7 @@ public:
 		// 布料系统
 		// ========================================================================================================
 		static float anim_time = 0;
-		anim_time = fmod(anim_time + fElapsedTime, m_cloth_anim->GetAnimation("clip1").GetTime());
+		//anim_time = fmod(anim_time + fElapsedTime, m_cloth_anim->GetAnimation("clip1").GetTime());
 		m_cloth_pose.resize(m_cloth_anim->m_boneBindPose.size());
 		m_cloth_anim->BuildAnimationPose(
 			m_cloth_pose,
@@ -277,6 +308,8 @@ public:
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_duals);
+		PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+		m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}
 
 	virtual void OnFrameMove(

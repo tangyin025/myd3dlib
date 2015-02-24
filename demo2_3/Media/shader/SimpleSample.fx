@@ -104,16 +104,18 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 	float4x4 g_World = float4x4(In.mat1,In.mat2,In.mat3,In.mat4);
 #endif
 #if defined(VS_SKINED_DQ)
-	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Output.Pos, Output.Normal, Output.Tangent);
-    Output.Pos = mul(Output.Pos, mul(g_World, g_ViewProj));
-    Output.Normal = mul(Output.Normal, (float3x3)g_World);
-	Output.Tangent = mul(Output.Tangent, (float3x3)g_World);
+	float4 Pos;
+	float3 Normal, Tangent;
+	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Pos, Normal, Tangent);
+    Output.PosVS = mul(Pos, mul(g_World, g_ViewProj));
+    Output.NormalWS = mul(Normal, (float3x3)g_World);
+	Output.TangentWS = mul(Tangent, (float3x3)g_World);
 #else
-    Output.Pos = mul(In.Pos, mul(g_World, g_ViewProj));
-    Output.Normal = mul(In.Normal, (float3x3)g_World);
-	Output.Tangent = mul(In.Tangent, (float3x3)g_World);
+    Output.PosVS = mul(In.Pos, mul(g_World, g_ViewProj));
+    Output.NormalWS = mul(In.Normal, (float3x3)g_World);
+	Output.TangentWS = mul(In.Tangent, (float3x3)g_World);
 #endif
-	Output.Binormal = cross(Output.Normal, Output.Tangent);
+	Output.BinormalWS = cross(Output.NormalWS, Output.TangentWS);
 	Output.Tex0 = In.Tex0;
     return Output;    
 }
@@ -124,7 +126,7 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
-    float4 color = tex2D(MeshTextureSampler, In.Tex0);
+    float4 color = tex2D(MeshTextureSampler, In.Tex0) * dot(In.NormalWS, float3(1,0,0));
     return color;
 }
 
