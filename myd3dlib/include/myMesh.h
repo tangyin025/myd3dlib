@@ -409,7 +409,23 @@ namespace my
 
 		void SaveMesh(std::ostream & ostr);
 
-		void ComputeTangentFrame(void);
+		static void ComputeNormalFrame(
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			D3DVertexElementSet & VertexElems);
+
+		static void ComputeTangentFrame(
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			D3DVertexElementSet & VertexElems);
 
 		UINT GetMaterialNum(void) const;
 

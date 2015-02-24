@@ -1088,7 +1088,10 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		//{
 		//	THROW_D3DEXCEPTION(hres);
 		//}
-		ComputeTangentFrame();
+		ComputeTangentFrame(
+			LockVertexBuffer(), GetNumVertices(), GetNumBytesPerVertex(), LockIndexBuffer(), !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);
+		UnlockVertexBuffer();
+		UnlockIndexBuffer();
 	}
 	m_Adjacency.resize(adjacency.size());
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
@@ -1208,42 +1211,125 @@ void OgreMesh::SaveMesh(std::ostream & ostr)
 	ostr << "</mesh>\n";
 }
 
-void OgreMesh::ComputeTangentFrame(void)
+void OgreMesh::ComputeNormalFrame(
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	D3DVertexElementSet & VertexElems)
 {
-	std::vector<Vector3> tan1(GetNumVertices(), Vector3::zero);
-	std::vector<Vector3> tan2(GetNumVertices(), Vector3::zero);
-	DWORD VertexStride = GetNumBytesPerVertex();
-
-	VOID * pIndices = LockIndexBuffer();
-	const VOID * pVertices = LockVertexBuffer();
-
-	for(DWORD face_i = 0; face_i < GetNumFaces(); face_i++)
+	std::vector<Vector3> FNormals(NumFaces);
+	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{
 		int i1, i2, i3;
-		if(GetOptions() & D3DXMESH_32BIT)
-		{
-			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
-			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
-			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
-		}
-		else
+		if(bIndices16)
 		{
 			i1 = *((WORD *)pIndices + face_i * 3 + 0);
 			i2 = *((WORD *)pIndices + face_i * 3 + 1);
 			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
 		}
 
 		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
 		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
 		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
 
-		const Vector3 & v1 = m_VertexElems.GetPosition(pv1);
-		const Vector3 & v2 = m_VertexElems.GetPosition(pv2);
-		const Vector3 & v3 = m_VertexElems.GetPosition(pv3);
+		const Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const Vector3 & v3 = VertexElems.GetPosition(pv3);
 
-		const Vector2 & w1 = m_VertexElems.GetTexcoord(pv1);
-		const Vector2 & w2 = m_VertexElems.GetTexcoord(pv2);
-		const Vector2 & w3 = m_VertexElems.GetTexcoord(pv3);
+		FNormals[face_i] = (v2 - v1).cross(v3 - v1);
+		_ASSERT(Vector3::zero != FNormals[face_i]);
+		FNormals[face_i].normalizeSelf();
+	}
+
+	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
+	{
+		unsigned char * pVertex = (unsigned char *)pVertices + vert_i * VertexStride;
+		VertexElems.SetNormal(pVertex, Vector3::zero);
+	}
+
+	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i1, i2, i3;
+		if(bIndices16)
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const Vector3 & v3 = VertexElems.GetPosition(pv3);
+
+		VertexElems.GetNormal(pv1) += FNormals[face_i] * Vector3::Angle(v3 - v1, v2 - v1);
+		VertexElems.GetNormal(pv2) += FNormals[face_i] * Vector3::Angle(v3 - v2, v1 - v2);
+		VertexElems.GetNormal(pv3) += FNormals[face_i] * Vector3::Angle(v1 - v3, v2 - v3);
+	}
+
+	for (unsigned int vert_i = 0; vert_i < NumVerts; vert_i++)
+	{
+		unsigned char * pVertex = (unsigned char *)pVertices + vert_i * VertexStride;
+		VertexElems.GetNormal(pVertex).normalizeSelf();
+	}
+}
+
+void OgreMesh::ComputeTangentFrame(
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	D3DVertexElementSet & VertexElems)
+{
+	std::vector<Vector3> tan1(NumVerts, Vector3::zero);
+	std::vector<Vector3> tan2(NumVerts, Vector3::zero);
+	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i1, i2, i3;
+		if(bIndices16)
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const Vector3 & v3 = VertexElems.GetPosition(pv3);
+
+		const Vector2 & w1 = VertexElems.GetTexcoord(pv1);
+		const Vector2 & w2 = VertexElems.GetTexcoord(pv2);
+		const Vector2 & w3 = VertexElems.GetTexcoord(pv3);
 
 		float x1 = v2.x - v1.x;
 		float x2 = v3.x - v1.x;
@@ -1270,18 +1356,15 @@ void OgreMesh::ComputeTangentFrame(void)
 		tan2[i3] += tdir;
 	}
 
-	for(DWORD vertex_i = 0; vertex_i < GetNumVertices(); vertex_i++)
+	for(DWORD vertex_i = 0; vertex_i < NumVerts; vertex_i++)
 	{
 		unsigned char * pVertex = (unsigned char *)pVertices + vertex_i * VertexStride;
-		const Vector3 & n = m_VertexElems.GetNormal(pVertex);
+		const Vector3 & n = VertexElems.GetNormal(pVertex);
 		const Vector3 & t = tan1[vertex_i];
 
 		// Gram-Schmidt orthogonalize
-		m_VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
+		VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
 	}
-
-	UnlockVertexBuffer();
-	UnlockIndexBuffer();
 }
 
 UINT OgreMesh::GetMaterialNum(void) const

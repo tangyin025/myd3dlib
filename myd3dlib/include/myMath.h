@@ -138,6 +138,17 @@ namespace my
 			return Subscribe<float>(*this, i);
 		}
 
+		bool operator ==(const Vector2 & rhs) const
+		{
+			return x == rhs.x
+				&& y == rhs.y;
+		}
+
+		bool operator !=(const Vector2 & rhs) const
+		{
+			return !operator ==(rhs);
+		}
+
 	public:
 		Vector2 operator - (void) const
 		{
@@ -383,6 +394,18 @@ namespace my
 			return Subscribe<float>(*this, i);
 		}
 
+		bool operator ==(const Vector3 & rhs) const
+		{
+			return x == rhs.x
+				&& y == rhs.y
+				&& z == rhs.z;
+		}
+
+		bool operator !=(const Vector3 & rhs) const
+		{
+			return !operator ==(rhs);
+		}
+
 	public:
 		Vector3 operator - (void) const
 		{
@@ -579,6 +602,13 @@ namespace my
 			return Vector3(r, acos(y / r), atan2(x, z));
 		}
 
+		static float Angle(const Vector3 & v0, const Vector3 & v1)
+		{
+			const float cos = v0.dot(v1);					// |v0|*|v1|*Cos(Angle)
+			const float sin = (v0.cross(v1)).magnitude();	// |v0|*|v1|*Sin(Angle)
+			return atan2(sin, cos);
+		}
+
 		static const Vector3 zero;
 
 		static const Vector3 unitX;
@@ -665,6 +695,19 @@ namespace my
 		const float & operator [](size_t i) const
 		{
 			return Subscribe<float>(*this, i);
+		}
+
+		bool operator ==(const Vector4 & rhs) const
+		{
+			return x == rhs.x
+				&& y == rhs.y
+				&& z == rhs.z
+				&& w == rhs.w;
+		}
+
+		bool operator !=(const Vector4 & rhs) const
+		{
+			return !operator ==(rhs);
 		}
 
 	public:

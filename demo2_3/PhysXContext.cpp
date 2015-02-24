@@ -415,12 +415,10 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHie
 
 	m_particles.resize(m_Mesh->GetNumVertices());
 	unsigned char * pVertices = (unsigned char *)m_Mesh->LockVertexBuffer();
-	DWORD PositionOffset = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
-	DWORD IndicesOffset = m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Offset;
 	for(unsigned int i = 0; i < m_particles.size(); i++) {
 		unsigned char * pVertex = pVertices + i * m_Mesh->GetNumBytesPerVertex();
-		m_particles[i].pos = *(PxVec3 *)(pVertex + PositionOffset);
-		unsigned char * pIndices = (unsigned char *)(pVertex + IndicesOffset);
+		m_particles[i].pos = (PxVec3 &)m_Mesh->m_VertexElems.GetPosition(pVertex);
+		unsigned char * pIndices = (unsigned char *)&m_Mesh->m_VertexElems.GetBlendIndices(pVertex);
 		BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
 		m_particles[i].invWeight = (
 			pIndices[0] == root_i || hierarchy.HaveChild(root_i, pIndices[0]) ||
@@ -447,9 +445,10 @@ void ClothMeshComponentLOD::UpdateCloth(const my::TransformList & dualQuaternion
 	if (readData)
 	{
 		unsigned char * pVertices = &m_VertexData[0];
-		DWORD VertexStride = m_Mesh->GetNumBytesPerVertex();
-		m_NewParticles.resize(m_cloth->getNbParticles());
-		for (unsigned int i = 0; i < m_cloth->getNbParticles(); i++)
+		const DWORD VertexStride = m_Mesh->GetNumBytesPerVertex();
+		const DWORD NbParticles = m_cloth->getNbParticles();
+		m_NewParticles.resize(NbParticles);
+		for (unsigned int i = 0; i < NbParticles; i++)
 		{
 			void * pVertex = pVertices + i * VertexStride;
 			m_NewParticles[i].invWeight = readData->particles[i].invWeight;
@@ -470,5 +469,11 @@ void ClothMeshComponentLOD::UpdateCloth(const my::TransformList & dualQuaternion
 		}
 		readData->unlock();
 		m_cloth->setParticles(&m_NewParticles[0], NULL);
+
+		my::OgreMesh::ComputeNormalFrame(
+			pVertices, NbParticles, VertexStride, &m_IndexData[0], true, m_Mesh->GetNumFaces(), m_Mesh->m_VertexElems);
+
+		my::OgreMesh::ComputeTangentFrame(
+			pVertices, NbParticles, VertexStride, &m_IndexData[0], true, m_Mesh->GetNumFaces(), m_Mesh->m_VertexElems);
 	}
 }
