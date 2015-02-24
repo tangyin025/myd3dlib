@@ -11,7 +11,14 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 		{
 			if (m_Materials[i])
 			{
-				m_Materials[i]->OnQueryMesh(pipeline, stage, mesh_type, m_Mesh.get(), i, m_owner);
+				if (!m_bInstance)
+				{
+					m_Materials[i]->OnQueryMesh(pipeline, stage, mesh_type, m_Mesh.get(), i, m_owner);
+				}
+				else
+				{
+					m_Materials[i]->OnQueryMeshInstance(pipeline, stage, mesh_type, m_Mesh.get(), i, m_owner->m_World, m_owner);
+				}
 			}
 		}
 	}

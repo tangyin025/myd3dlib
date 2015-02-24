@@ -27,15 +27,27 @@ public:
 
 	struct OpaqueMesh
 	{
-		my::Mesh * mesh;
+		my::MeshInstance * mesh;
 		DWORD AttribId;
 		my::Effect * shader;
 		IShaderSetter * setter;
+
+		bool operator ==(const OpaqueMesh & rhs) const
+		{
+			return mesh == rhs.mesh
+				&& AttribId == rhs.AttribId
+				&& shader == rhs.shader
+				&& setter == rhs.setter;
+		}
 	};
 
 	typedef std::vector<OpaqueMesh> OpaqueMeshList;
 
 	OpaqueMeshList m_OpaqueMeshList;
+
+	typedef boost::unordered_map<OpaqueMesh, my::TransformList> OpaqueMeshInstanceMap;
+
+	OpaqueMeshInstanceMap m_OpaqueMeshInstanceMap;
 
 	struct OpaqueIndexedPrimitiveUP
 	{
@@ -58,11 +70,13 @@ public:
 	OpaqueIndexedPrimitiveUPList m_OpaqueIndexedPrimitiveUPList;
 
 public:
-	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, const Material * material) = 0;
+	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material) = 0;
 
 	void OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float fElapsedTime);
 
-	void DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+
+	void DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::TransformList & worlds, my::Effect * shader, IShaderSetter * setter);
 
 	void DrawOpaqueIndexedPrimitiveUP(
 		IDirect3DDevice9 * pd3dDevice,
@@ -79,7 +93,9 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+
+	void PushOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueIndexedPrimitiveUP(
 		IDirect3DVertexDeclaration9* pDecl,
@@ -95,7 +111,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void ClearAllOpaqueMeshes(void);
+	void ClearAllOpaqueObjs(void);
 };
 
 class Material
@@ -129,8 +145,17 @@ public:
 		RenderPipeline * pipeline,
 		RenderPipeline::DrawStage stage,
 		RenderPipeline::MeshType mesh_type,
-		my::Mesh * mesh,
+		my::MeshInstance * mesh,
 		DWORD AttribId,
+		RenderPipeline::IShaderSetter * setter);
+
+	virtual void OnQueryMeshInstance(
+		RenderPipeline * pipeline,
+		RenderPipeline::DrawStage stage,
+		RenderPipeline::MeshType mesh_type,
+		my::MeshInstance * mesh,
+		DWORD AttribId,
+		const my::Matrix4 & World,
 		RenderPipeline::IShaderSetter * setter);
 
 	virtual void OnQueryIndexedPrimitiveUP(

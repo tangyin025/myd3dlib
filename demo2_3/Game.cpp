@@ -401,7 +401,7 @@ void Game::OnFrameRender(
 
 	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime);
 
-	RenderPipeline::ClearAllOpaqueMeshes();
+	RenderPipeline::ClearAllOpaqueObjs();
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
@@ -654,7 +654,7 @@ static size_t hash_value(const Game::ShaderKeyType & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const Material * material)
+my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
 {
 	// ! make sure hash_value(ShaderKeyType ..) is valid
 	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
@@ -671,7 +671,15 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 	{
 	case RenderPipeline::DrawStageCBuffer:
 		{
-			std::string macros(mesh_type == RenderPipeline::MeshTypeAnimation ? "VS_SKINED_DQ 1" : "");
+			std::string macros;
+			if (mesh_type == RenderPipeline::MeshTypeAnimation)
+			{
+				macros += "VS_SKINED_DQ 1 ";
+			}
+			if (bInstance)
+			{
+				macros += "VS_INSTANCE 1 ";
+			}
 			std::string path("shader/SimpleSample.fx");
 			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
 			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);

@@ -11,6 +11,12 @@ void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float
 		DrawOpaqueMesh(mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
 	}
 
+	OpaqueMeshInstanceMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
+	{
+		DrawOpaqueMeshInstance(mesh_inst_iter->first.mesh, mesh_inst_iter->first.AttribId, mesh_inst_iter->second, mesh_inst_iter->first.shader, mesh_inst_iter->first.setter);
+	}
+
 	OpaqueIndexedPrimitiveUPList::iterator indexed_prim_iter = m_OpaqueIndexedPrimitiveUPList.begin();
 	for (; indexed_prim_iter != m_OpaqueIndexedPrimitiveUPList.end(); indexed_prim_iter++)
 	{
@@ -31,7 +37,7 @@ void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float
 	}
 }
 
-void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -43,6 +49,34 @@ void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect 
 		shader->EndPass();
 	}
 	shader->End();
+}
+
+void RenderPipeline::DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::TransformList & worlds, my::Effect * shader, IShaderSetter * setter)
+{
+	Matrix4 * mat = mesh->LockInstanceData(worlds.size());
+	memcpy(mat, &worlds[0], worlds.size());
+	mesh->UnlockInstanceData();
+
+	shader->SetTechnique("RenderScene");
+	const UINT passes = shader->Begin(0);
+	setter->OnSetShader(shader, AttribId);
+	for (UINT p = 0; p < passes; p++)
+	{
+		shader->BeginPass(p);
+		mesh->DrawSubsetInstance(AttribId, worlds.size());
+		shader->EndPass();
+	}
+	shader->End();
+}
+
+static size_t hash_value(const RenderPipeline::OpaqueMesh & key)
+{
+	size_t seed = 0;
+	boost::hash_combine(seed, key.mesh);
+	boost::hash_combine(seed, key.AttribId);
+	boost::hash_combine(seed, key.shader);
+	boost::hash_combine(seed, key.setter);
+	return seed;
 }
 
 void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
@@ -75,7 +109,7 @@ void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	OpaqueMesh atom;
 	atom.mesh = mesh;
@@ -83,6 +117,16 @@ void RenderPipeline::PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect 
 	atom.shader = shader;
 	atom.setter = setter;
 	m_OpaqueMeshList.push_back(atom);
+}
+
+void RenderPipeline::PushOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
+{
+	OpaqueMesh atom;
+	atom.mesh = mesh;
+	atom.AttribId = AttribId;
+	atom.shader = shader;
+	atom.setter = setter;
+	m_OpaqueMeshInstanceMap[atom].push_back(World);
 }
 
 void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
@@ -116,9 +160,10 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	m_OpaqueIndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::ClearAllOpaqueMeshes(void)
+void RenderPipeline::ClearAllOpaqueObjs(void)
 {
 	m_OpaqueMeshList.clear();
+	m_OpaqueMeshInstanceMap.clear();
 	m_OpaqueIndexedPrimitiveUPList.clear();
 }
 
@@ -126,14 +171,30 @@ void Material::OnQueryMesh(
 	RenderPipeline * pipeline,
 	RenderPipeline::DrawStage stage,
 	RenderPipeline::MeshType mesh_type,
-	my::Mesh * mesh,
+	my::MeshInstance * mesh,
 	DWORD AttribId,
 	RenderPipeline::IShaderSetter * setter)
 {
-	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, this);
+	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, false, this);
 	if (shader)
 	{
 		pipeline->PushOpaqueMesh(mesh, AttribId, shader, setter);
+	}
+}
+
+void Material::OnQueryMeshInstance(
+	RenderPipeline * pipeline,
+	RenderPipeline::DrawStage stage,
+	RenderPipeline::MeshType mesh_type,
+	my::MeshInstance * mesh,
+	DWORD AttribId,
+	const my::Matrix4 & World,
+	RenderPipeline::IShaderSetter * setter)
+{
+	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, true, this);
+	if (shader)
+	{
+		pipeline->PushOpaqueMeshInstance(mesh, AttribId, World, shader, setter);
 	}
 }
 
@@ -153,7 +214,7 @@ void Material::OnQueryIndexedPrimitiveUP(
 	DWORD AttribId,
 	RenderPipeline::IShaderSetter * setter)
 {
-	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, this);
+	my::Effect * shader = pipeline->QueryShader(mesh_type, stage, false, this);
 	if (shader)
 	{
 		pipeline->PushOpaqueIndexedPrimitiveUP(

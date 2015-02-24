@@ -29,10 +29,13 @@ public:
 		MaterialPtrList m_Materials;
 	
 		my::OgreMeshPtr m_Mesh;
+
+		bool m_bInstance;
 	
 	public:
 		LOD(MeshComponent * owner)
 			: m_owner(owner)
+			, m_bInstance(false)
 		{
 		}
 

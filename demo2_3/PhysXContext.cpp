@@ -469,6 +469,7 @@ void ClothMeshComponentLOD::UpdateCloth(const my::TransformList & dualQuaternion
 		}
 		readData->unlock();
 		m_cloth->setParticles(&m_NewParticles[0], NULL);
+		m_cloth->setTargetPose(PxTransform((PxMat44 &)m_owner->m_World));
 
 		my::OgreMesh::ComputeNormalFrame(
 			pVertices, NbParticles, VertexStride, &m_IndexData[0], true, m_Mesh->GetNumFaces(), m_Mesh->m_VertexElems);

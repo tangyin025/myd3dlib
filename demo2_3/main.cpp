@@ -23,6 +23,7 @@ public:
 	//BoneList m_skel_pose_heir2;
 
 	//MeshInstancePtr m_mesh_ins;
+	MeshComponentPtr m_mesh_ins;
 
 	//// ========================================================================================================
 	//// 大场景
@@ -52,28 +53,25 @@ public:
 	void OnKeyDown(my::InputEventArg * arg)
 	{
 		KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-		PxTransform pose;
+		Vector3 scale, pos; Quaternion rot;
+		m_cloth_mesh->m_World.Decompose(scale, rot, pos);
 		switch (karg.kc)
 		{
 		case VK_UP:
-			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
-			pose.p.x += 1;
-			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			pos.x += 1;
+			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
 			break;
 		case VK_DOWN:
-			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
-			pose.p.x -= 1;
-			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			pos.x -= 1;
+			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
 			break;
 		case VK_LEFT:
-			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
-			((Quaternion &)pose.q) *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(30));
-			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(30));
+			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
 			break;
 		case VK_RIGHT:
-			pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
-			((Quaternion &)pose.q) *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(-30));
-			dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->setTargetPose(pose);
+			rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(-30));
+			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
 			break;
 		}
 	}
@@ -98,10 +96,10 @@ public:
 		}
 	}
 
-	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh)
+	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh, bool cloth)
 	{
 		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb));
-		MeshComponent::LODPtr lod(new ClothMeshComponentLOD(mesh_cmp.get()));
+		MeshComponent::LODPtr lod(cloth ? new ClothMeshComponentLOD(mesh_cmp.get()) : new MeshComponent::LOD(mesh_cmp.get()));
 		lod->m_Mesh = mesh;
 		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
@@ -149,7 +147,9 @@ public:
 
 		//m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		//m_mesh_ins->CreateInstance(pd3dDevice);
-		//AddResource("____eraweraw", m_mesh_ins);
+		m_mesh_ins = CreateMeshComponent(LoadMesh("mesh/tube.mesh.xml"), false);
+		m_mesh_ins->m_lods[0]->m_Mesh->CreateInstance(pd3dDevice);
+		m_mesh_ins->m_lods[0]->m_bInstance = true;
 
 		//// ========================================================================================================
 		//// 大场景
@@ -183,7 +183,7 @@ public:
 
 		m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
 
-		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"));
+		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"), true);
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(
 			this, m_cloth_anim->m_boneHierarchy, m_cloth_anim->GetBoneIndex("joint5"), PxClothCollisionData());
 		//m_cloth_mesh_vertices.reset(new Cache(
@@ -308,8 +308,8 @@ public:
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_duals);
-		PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
-		m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
+		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
+		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}
 
 	virtual void OnFrameMove(
@@ -373,6 +373,8 @@ public:
 		//// ========================================================================================================
 		//// 骨骼动画
 		//// ========================================================================================================
+		//m_skel_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+
 		//Matrix4 * mat = m_mesh_ins->LockInstanceData(2);
 		//mat[0] = Matrix4::Translation(10,0,0);
 		//mat[1] = Matrix4::Translation(-10,0,0);
@@ -389,8 +391,7 @@ public:
 		//	m_SimpleSampleInst->EndPass();
 		//}
 		//m_SimpleSampleInst->End();
-
-		//m_skel_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		m_mesh_ins->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		// ========================================================================================================
 		// 布料系统

@@ -190,7 +190,7 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
 
-	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, const Material * material);
+	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 
 	void LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback);
 
