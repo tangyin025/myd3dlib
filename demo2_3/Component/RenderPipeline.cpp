@@ -163,7 +163,11 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 void RenderPipeline::ClearAllOpaqueObjs(void)
 {
 	m_OpaqueMeshList.clear();
-	m_OpaqueMeshInstanceMap.clear();
+	OpaqueMeshInstanceMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
+	{
+		mesh_inst_iter->second.clear();
+	}
 	m_OpaqueIndexedPrimitiveUPList.clear();
 }
 
