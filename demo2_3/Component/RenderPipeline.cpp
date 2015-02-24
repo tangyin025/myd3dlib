@@ -2,8 +2,26 @@
 #include "RenderPipeline.h"
 
 using namespace my;
+//
+//HRESULT RenderPipeline::OnResetDevice(
+//	IDirect3DDevice9 * pd3dDevice,
+//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+//{
+//	return S_OK;
+//}
+//
+//void RenderPipeline::OnLostDevice(void)
+//{
+//}
+//
+//void RenderPipeline::OnDestroyDevice(void)
+//{
+//}
 
-void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float fElapsedTime)
+void RenderPipeline::OnFrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
 {
 	OpaqueMeshList::iterator mesh_iter = m_OpaqueMeshList.begin();
 	for (; mesh_iter != m_OpaqueMeshList.end(); mesh_iter++)
@@ -35,6 +53,14 @@ void RenderPipeline::OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float
 			indexed_prim_iter->shader,
 			indexed_prim_iter->setter);
 	}
+
+	EmitterAtomList::iterator emitter_iter = m_EmitterAtomList.begin();
+	for (; emitter_iter != m_EmitterAtomList.end(); emitter_iter++)
+	{
+		DrawEmitterAtom(emitter_iter->emitter, m_ParticleInst.get(), emitter_iter->setter);
+	}
+
+	ClearAllRenderObjs();
 }
 
 void RenderPipeline::DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -75,7 +101,7 @@ static size_t hash_value(const RenderPipeline::OpaqueMesh & key)
 	boost::hash_combine(seed, key.mesh);
 	boost::hash_combine(seed, key.AttribId);
 	boost::hash_combine(seed, key.shader);
-	boost::hash_combine(seed, key.setter);
+	//boost::hash_combine(seed, key.setter); // ! setter was not a key, the first will always be used
 	return seed;
 }
 
@@ -107,6 +133,10 @@ void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
 		shader->EndPass();
 	}
 	shader->End();
+}
+
+void RenderPipeline::DrawEmitterAtom(my::Emitter * emitter, my::ParticleInstance * pInstance, IShaderSetter * setter)
+{
 }
 
 void RenderPipeline::PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -160,7 +190,15 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	m_OpaqueIndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::ClearAllOpaqueObjs(void)
+void RenderPipeline::PushEmitter(my::Emitter * emitter, IShaderSetter * setter)
+{
+	EmitterAtom atom;
+	atom.emitter = emitter;
+	atom.setter = setter;
+	m_EmitterAtomList.push_back(atom);
+}
+
+void RenderPipeline::ClearAllRenderObjs(void)
 {
 	m_OpaqueMeshList.clear();
 	OpaqueMeshInstanceMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
@@ -169,6 +207,7 @@ void RenderPipeline::ClearAllOpaqueObjs(void)
 		mesh_inst_iter->second.clear();
 	}
 	m_OpaqueIndexedPrimitiveUPList.clear();
+	m_EmitterAtomList.clear();
 }
 
 void Material::OnQueryMesh(

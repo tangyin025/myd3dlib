@@ -87,3 +87,20 @@ public:
 };
 
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
+
+class EmitterMeshComponent
+	: public RenderComponent
+{
+public:
+	my::EmitterPtr m_Emitter;
+
+public:
+	EmitterMeshComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
+	{
+	}
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+};

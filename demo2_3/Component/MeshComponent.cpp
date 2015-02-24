@@ -69,3 +69,11 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	MeshComponent::OnSetShader(shader, AttribId);
 }
+
+void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+{
+}
+
+void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+}

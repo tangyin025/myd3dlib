@@ -69,10 +69,34 @@ public:
 
 	OpaqueIndexedPrimitiveUPList m_OpaqueIndexedPrimitiveUPList;
 
+	struct EmitterAtom
+	{
+		my::Emitter * emitter;
+		IShaderSetter * setter;
+	};
+
+	typedef std::vector<EmitterAtom> EmitterAtomList;
+
+	EmitterAtomList m_EmitterAtomList;
+
+protected:
+	my::ParticleInstancePtr m_ParticleInst;
+
 public:
 	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material) = 0;
 
-	void OnRender(IDirect3DDevice9 * pd3dDevice, double fTime, float fElapsedTime);
+	//HRESULT OnResetDevice(
+	//	IDirect3DDevice9 * pd3dDevice,
+	//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	//void OnLostDevice(void);
+
+	//void OnDestroyDevice(void);
+
+	void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
 
 	void DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
@@ -93,6 +117,8 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
+	void DrawEmitterAtom(my::Emitter * emitter, my::ParticleInstance * pInstance, IShaderSetter * setter);
+
 	void PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
@@ -111,7 +137,9 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void ClearAllOpaqueObjs(void);
+	void PushEmitter(my::Emitter * emitter, IShaderSetter * setter);
+
+	void ClearAllRenderObjs(void);
 };
 
 class Material

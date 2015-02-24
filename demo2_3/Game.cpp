@@ -400,9 +400,7 @@ void Game::OnFrameRender(
 	//Frustum frustum(Frustum::ExtractMatrix(m_Camera->m_ViewProj));
 	//m_OctScene->QueryComponent(frustum, QueryCallbackFunc(*this));
 
-	RenderPipeline::OnRender(pd3dDevice, fTime, fElapsedTime);
-
-	RenderPipeline::ClearAllOpaqueObjs();
+	RenderPipeline::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
