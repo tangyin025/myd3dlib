@@ -54,7 +54,7 @@ void RenderPipeline::DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my:
 void RenderPipeline::DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::TransformList & worlds, my::Effect * shader, IShaderSetter * setter)
 {
 	Matrix4 * mat = mesh->LockInstanceData(worlds.size());
-	memcpy(mat, &worlds[0], worlds.size());
+	memcpy(mat, &worlds[0], sizeof(Matrix4) * worlds.size());
 	mesh->UnlockInstanceData();
 
 	shader->SetTechnique("RenderScene");

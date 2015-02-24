@@ -107,11 +107,11 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 	float4 Pos;
 	float3 Normal, Tangent;
 	get_skinned_vs(g_dualquat, In.Pos, In.Normal, In.Tangent, In.BlendWeights, In.BlendIndices, Pos, Normal, Tangent);
-    Output.PosVS = mul(Pos, mul(g_World, g_ViewProj));
+    Output.PosPS = mul(Pos, mul(g_World, g_ViewProj));
     Output.NormalWS = mul(Normal, (float3x3)g_World);
 	Output.TangentWS = mul(Tangent, (float3x3)g_World);
 #else
-    Output.PosVS = mul(In.Pos, mul(g_World, g_ViewProj));
+    Output.PosPS = mul(In.Pos, mul(g_World, g_ViewProj));
     Output.NormalWS = mul(In.Normal, (float3x3)g_World);
 	Output.TangentWS = mul(In.Tangent, (float3x3)g_World);
 #endif
@@ -153,7 +153,7 @@ technique RenderScene
     pass P0
     {          
 		// FILLMODE = WIREFRAME;
-		// CullMode = NONE;
+		CullMode = NONE;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

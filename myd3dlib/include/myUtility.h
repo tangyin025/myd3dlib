@@ -248,63 +248,63 @@ namespace my
 		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
-	class EmitterMgr
-	{
-	public:
-		typedef std::set<EmitterPtr> EmitterPtrSet;
+	//class EmitterMgr
+	//{
+	//public:
+	//	typedef std::set<EmitterPtr> EmitterPtrSet;
 
-		EmitterPtrSet m_EmitterSet;
+	//	EmitterPtrSet m_EmitterSet;
 
-	public:
-		EmitterMgr(void)
-		{
-		}
+	//public:
+	//	EmitterMgr(void)
+	//	{
+	//	}
 
-		void Update(
-			double fTime,
-			float fElapsedTime);
+	//	void Update(
+	//		double fTime,
+	//		float fElapsedTime);
 
-		void Draw(
-			ParticleInstance * pInstance,
-			const Matrix4 & ViewProj,
-			const Matrix4 & View,
-			double fTime,
-			float fElapsedTime);
+	//	void Draw(
+	//		ParticleInstance * pInstance,
+	//		const Matrix4 & ViewProj,
+	//		const Matrix4 & View,
+	//		double fTime,
+	//		float fElapsedTime);
 
-		void InsertEmitter(EmitterPtr emitter);
+	//	void InsertEmitter(EmitterPtr emitter);
 
-		void RemoveEmitter(EmitterPtr emitter);
+	//	void RemoveEmitter(EmitterPtr emitter);
 
-		void RemoveAllEmitter(void);
-	};
+	//	void RemoveAllEmitter(void);
+	//};
 
-	class EffectParameterBase
-	{
-	public:
-		EffectParameterBase(void)
-		{
-		}
+	//class EffectParameterBase
+	//{
+	//public:
+	//	EffectParameterBase(void)
+	//	{
+	//	}
 
-		virtual ~EffectParameterBase(void);
+	//	virtual ~EffectParameterBase(void);
 
-		virtual void SetParameter(Effect * pEffect, const std::string & Name) const = 0;
-	};
+	//	virtual void SetParameter(Effect * pEffect, const std::string & Name) const = 0;
+	//};
 
-	typedef boost::shared_ptr<EffectParameterBase> EffectParameterBasePtr;
+	//typedef boost::shared_ptr<EffectParameterBase> EffectParameterBasePtr;
 
-	template <class T>
-	class EffectParameter : public EffectParameterBase
-	{
-	public:
-		T m_Value;
+	//template <class T>
+	//class EffectParameter : public EffectParameterBase
+	//{
+	//public:
+	//	T m_Value;
 
-		EffectParameter(const T & Value)
-			: m_Value(Value)
-		{
-		}
+	//	EffectParameter(const T & Value)
+	//		: m_Value(Value)
+	//	{
+	//	}
 
-		virtual void SetParameter(Effect * pEffect, const std::string & Name) const;
-	};
+	//	virtual void SetParameter(Effect * pEffect, const std::string & Name) const;
+	//};
 
 	class InputMgr
 	{

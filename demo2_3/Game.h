@@ -71,7 +71,7 @@ class Game
 	: public my::DxutApp
 	, public my::TimerMgr
 	, public my::DialogMgr
-	, public my::EmitterMgr
+	//, public my::EmitterMgr
 	, public my::InputMgr
 	, public my::ResourceMgr
 	, public RenderPipeline
@@ -91,7 +91,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::ParticleInstancePtr m_ParticleInst;
+	//my::ParticleInstancePtr m_ParticleInst;
 
 	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const Material *> ShaderKeyType;
 

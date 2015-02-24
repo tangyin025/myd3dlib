@@ -230,8 +230,8 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
-	m_ParticleInst.reset(new EffectParticleInstance(LoadEffect("shader/Particle.fx", "")));
-	m_ParticleInst->CreateInstance(pd3dDevice);
+	//m_ParticleInst.reset(new EffectParticleInstance(LoadEffect("shader/Particle.fx", "")));
+	//m_ParticleInst->CreateInstance(pd3dDevice);
 
 	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
 	{
@@ -289,7 +289,7 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
-	m_ParticleInst->OnResetDevice();
+	//m_ParticleInst->OnResetDevice();
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
@@ -309,7 +309,7 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_ParticleInst->OnLostDevice();
+	//m_ParticleInst->OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -338,7 +338,7 @@ void Game::OnDestroyDevice(void)
 
 	m_ShaderCache.clear();
 
-	m_ParticleInst.reset();
+	//m_ParticleInst.reset();
 
 	m_UIRender.reset();
 
@@ -348,7 +348,7 @@ void Game::OnDestroyDevice(void)
 
 	PhysXContext::OnShutdown();
 
-	RemoveAllEmitter();
+	//RemoveAllEmitter();
 
 	ResourceMgr::OnDestroyDevice();
 
@@ -369,7 +369,7 @@ void Game::OnFrameMove(
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
-	EmitterMgr::Update(fTime, fElapsedTime);
+	//EmitterMgr::Update(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -379,6 +379,7 @@ void Game::OnFrameRender(
 {
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+	m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 
 	//struct QueryCallbackFunc
@@ -405,11 +406,11 @@ void Game::OnFrameRender(
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
-	m_ParticleInst->Begin();
+	//m_ParticleInst->Begin();
 
-	EmitterMgr::Draw(m_ParticleInst.get(), m_Camera->m_ViewProj, m_Camera->m_View, fTime, fElapsedTime);
+	//EmitterMgr::Draw(m_ParticleInst.get(), m_Camera->m_ViewProj, m_Camera->m_View, fTime, fElapsedTime);
 
-	m_ParticleInst->End();
+	//m_ParticleInst->End();
 
 	m_UIRender->Begin();
 

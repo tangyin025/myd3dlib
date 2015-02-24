@@ -347,96 +347,96 @@ std::pair<Vector3, Vector3> FirstPersonCamera::CalculateRay(const Vector2 & pt, 
 {
 	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
-
-void EmitterMgr::Update(
-	double fTime,
-	float fElapsedTime)
-{
-	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
-	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
-	{
-		(*emitter_iter)->Update(fTime, fElapsedTime);
-	}
-}
-
-void EmitterMgr::Draw(
-	ParticleInstance * pInstance,
-	const Matrix4 & ViewProj,
-	const Matrix4 & View,
-	double fTime,
-	float fElapsedTime)
-{
-	pInstance->SetViewProj(ViewProj);
-
-	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
-	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
-	{
-		(*emitter_iter)->Draw(pInstance, View, fTime, fElapsedTime);
-	}
-}
-
-void EmitterMgr::InsertEmitter(EmitterPtr emitter)
-{
-	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
-
-	m_EmitterSet.insert(emitter);
-}
-
-void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
-{
-	m_EmitterSet.erase(emitter);
-}
-
-void EmitterMgr::RemoveAllEmitter(void)
-{
-	m_EmitterSet.clear();
-}
-
-EffectParameterBase::~EffectParameterBase(void)
-{
-}
-
-template <>
-void EffectParameter<bool>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetBool(Name.c_str(), m_Value);
-}
-
-template <>
-void EffectParameter<float>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetFloat(Name.c_str(), m_Value);
-}
-
-template <>
-void EffectParameter<int>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetInt(Name.c_str(), m_Value);
-}
-
-template <>
-void EffectParameter<Vector4>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetVector(Name.c_str(), m_Value);
-}
-
-template <>
-void EffectParameter<Matrix4>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetMatrix(Name.c_str(), m_Value);
-}
-
-template <>
-void EffectParameter<std::string>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetString(Name.c_str(), m_Value.c_str());
-}
-
-template <>
-void EffectParameter<BaseTexturePtr>::SetParameter(Effect * pEffect, const std::string & Name) const
-{
-	pEffect->SetTexture(Name.c_str(), m_Value);
-}
+//
+//void EmitterMgr::Update(
+//	double fTime,
+//	float fElapsedTime)
+//{
+//	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+//	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+//	{
+//		(*emitter_iter)->Update(fTime, fElapsedTime);
+//	}
+//}
+//
+//void EmitterMgr::Draw(
+//	ParticleInstance * pInstance,
+//	const Matrix4 & ViewProj,
+//	const Matrix4 & View,
+//	double fTime,
+//	float fElapsedTime)
+//{
+//	pInstance->SetViewProj(ViewProj);
+//
+//	EmitterPtrSet::iterator emitter_iter = m_EmitterSet.begin();
+//	for(; emitter_iter != m_EmitterSet.end(); emitter_iter++)
+//	{
+//		(*emitter_iter)->Draw(pInstance, View, fTime, fElapsedTime);
+//	}
+//}
+//
+//void EmitterMgr::InsertEmitter(EmitterPtr emitter)
+//{
+//	_ASSERT(m_EmitterSet.end() == m_EmitterSet.find(emitter));
+//
+//	m_EmitterSet.insert(emitter);
+//}
+//
+//void EmitterMgr::RemoveEmitter(EmitterPtr emitter)
+//{
+//	m_EmitterSet.erase(emitter);
+//}
+//
+//void EmitterMgr::RemoveAllEmitter(void)
+//{
+//	m_EmitterSet.clear();
+//}
+//
+//EffectParameterBase::~EffectParameterBase(void)
+//{
+//}
+//
+//template <>
+//void EffectParameter<bool>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetBool(Name.c_str(), m_Value);
+//}
+//
+//template <>
+//void EffectParameter<float>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetFloat(Name.c_str(), m_Value);
+//}
+//
+//template <>
+//void EffectParameter<int>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetInt(Name.c_str(), m_Value);
+//}
+//
+//template <>
+//void EffectParameter<Vector4>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetVector(Name.c_str(), m_Value);
+//}
+//
+//template <>
+//void EffectParameter<Matrix4>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetMatrix(Name.c_str(), m_Value);
+//}
+//
+//template <>
+//void EffectParameter<std::string>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetString(Name.c_str(), m_Value.c_str());
+//}
+//
+//template <>
+//void EffectParameter<BaseTexturePtr>::SetParameter(Effect * pEffect, const std::string & Name) const
+//{
+//	pEffect->SetTexture(Name.c_str(), m_Value);
+//}
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
 {

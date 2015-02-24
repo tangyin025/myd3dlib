@@ -4,6 +4,7 @@
 //--------------------------------------------------------------------------------------
 
 shared float4x4 g_World;
+shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 
 //--------------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ struct VS_OUTPUT_SHADOW
 
 struct VS_OUTPUT
 {
-	float4 PosVS			: POSITION;
+	float4 PosPS			: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float3 NormalWS			: TEXCOORD1;
 	float3 TangentWS		: TEXCOORD2;
