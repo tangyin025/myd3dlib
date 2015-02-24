@@ -263,7 +263,7 @@ public:
 		// ========================================================================================================
 		// 布料系统
 		// ========================================================================================================
-		static float anim_time = 0;
+		static float anim_time = 0.5f;
 		//anim_time = fmod(anim_time + fElapsedTime, m_cloth_anim->GetAnimation("clip1").GetTime());
 		m_cloth_pose.resize(m_cloth_anim->m_boneBindPose.size());
 		m_cloth_anim->BuildAnimationPose(
