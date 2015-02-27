@@ -11,13 +11,17 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 		{
 			if (m_Materials[i])
 			{
-				if (!m_bInstance)
+				my::Effect * shader = m_Materials[i]->QueryShader(pipeline, stage, mesh_type, m_bInstance);
+				if (shader)
 				{
-					m_Materials[i]->OnQueryMesh(pipeline, stage, mesh_type, m_Mesh.get(), i, m_owner);
-				}
-				else
-				{
-					m_Materials[i]->OnQueryMeshInstance(pipeline, stage, mesh_type, m_Mesh.get(), i, m_owner->m_World, m_owner);
+					if (m_bInstance)
+					{
+						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
+					}
+					else
+					{
+						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
+					}
 				}
 			}
 		}

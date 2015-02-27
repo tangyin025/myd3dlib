@@ -343,14 +343,18 @@ void ClothMeshComponentLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline:
 		{
 			if (m_Materials[i])
 			{
-				m_Materials[i]->OnQueryIndexedPrimitiveUP(pipeline, stage, RenderPipeline::MeshTypeStatic, m_Mesh->m_Decl, D3DPT_TRIANGLELIST,
-					m_Mesh->m_AttribTable[i].VertexStart,
-					m_Mesh->m_AttribTable[i].VertexCount,
-					m_Mesh->m_AttribTable[i].FaceCount,
-					&m_IndexData[m_Mesh->m_AttribTable[i].FaceStart * 3],
-					D3DFMT_INDEX16,
-					&m_VertexData[0],
-					m_Mesh->GetNumBytesPerVertex(), i, m_owner);
+				my::Effect * shader = m_Materials[i]->QueryShader(pipeline, stage, mesh_type, false);
+				if (shader)
+				{
+					pipeline->PushOpaqueIndexedPrimitiveUP(m_Mesh->m_Decl, D3DPT_TRIANGLELIST,
+						m_Mesh->m_AttribTable[i].VertexStart,
+						m_Mesh->m_AttribTable[i].VertexCount,
+						m_Mesh->m_AttribTable[i].FaceCount,
+						&m_IndexData[m_Mesh->m_AttribTable[i].FaceStart * 3],
+						D3DFMT_INDEX16,
+						&m_VertexData[0],
+						m_Mesh->GetNumBytesPerVertex(), i, shader, m_owner);
+				}
 			}
 		}
 	}

@@ -1105,21 +1105,21 @@ public:
 		}
 	}
 
-	static void OnTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
-	{
-		boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = boost::dynamic_pointer_cast<BaseTexture>(tex);
-	}
+	//static void OnTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
+	//{
+	//	boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = boost::dynamic_pointer_cast<BaseTexture>(tex);
+	//}
 
-	virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-	{
-		m_arc->LoadTextureAsync(path, boost::bind(&EmitterIORequest::OnTextureLoaded, boundle, _1));
-	}
+	//virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	//{
+	//	m_arc->LoadTextureAsync(path, boost::bind(&EmitterIORequest::OnTextureLoaded, boundle, _1));
+	//}
 
-	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
-	{
-		boundle->m_callbacks = m_callbacks;
-		m_callbacks.clear();
-	}
+	//virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+	//{
+	//	boundle->m_callbacks = m_callbacks;
+	//	m_callbacks.clear();
+	//}
 
 	virtual void DoLoad(void)
 	{
@@ -1136,20 +1136,20 @@ public:
 			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
 		EmitterPtr res;
-		ResourceCallbackBoundlePtr boundle;
+		//ResourceCallbackBoundlePtr boundle;
 		membuf mb((char *)&(*m_cache)[0], m_cache->size());
 		std::istream ims(&mb);
 		boost::archive::xml_iarchive ia(ims);
 		ia >> boost::serialization::make_nvp("Emitter", res);
-		boundle.reset(new ResourceCallbackBoundle(res));
-		std::string path;
-		ia >> boost::serialization::make_nvp("m_Texture", path);
-		if (!path.empty())
-		{
-			DoLoadTexture(boundle, path);
-		}
+		//boundle.reset(new ResourceCallbackBoundle(res));
+		//std::string path;
+		//ia >> boost::serialization::make_nvp("m_Texture", path);
+		//if (!path.empty())
+		//{
+		//	DoLoadTexture(boundle, path);
+		//}
 		m_res = res;
-		PostBuildResource(boundle);
+		//PostBuildResource(boundle);
 	}
 };
 
@@ -1160,25 +1160,25 @@ void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallb
 
 boost::shared_ptr<Emitter> ResourceMgr::LoadEmitter(const std::string & path)
 {
-	class SyncEmitterIORequest : public EmitterIORequest
-	{
-	public:
-		SyncEmitterIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-			: EmitterIORequest(callback, path, arc)
-		{
-		}
+	//class SyncEmitterIORequest : public EmitterIORequest
+	//{
+	//public:
+	//	SyncEmitterIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
+	//		: EmitterIORequest(callback, path, arc)
+	//	{
+	//	}
 
-		virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-		{
-			boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = m_arc->LoadTexture(path);
-		}
+	//	virtual void DoLoadTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
+	//	{
+	//		boost::dynamic_pointer_cast<Emitter>(boundle->m_res)->m_Texture = m_arc->LoadTexture(path);
+	//	}
 
-		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
-		{
-		}
-	};
+	//	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
+	//	{
+	//	}
+	//};
 
-	return LoadResource<Emitter>(path, IORequestPtr(new SyncEmitterIORequest(ResourceCallback(), path, this)));
+	return LoadResource<Emitter>(path, IORequestPtr(new EmitterIORequest(ResourceCallback(), path, this)));
 }
 
 void ResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
@@ -1186,7 +1186,7 @@ void ResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitte
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("Emitter", emitter);
-	oa << boost::serialization::make_nvp("m_Texture", GetResourceKey(emitter->m_Texture));
+	//oa << boost::serialization::make_nvp("m_Texture", GetResourceKey(emitter->m_Texture));
 }
 
 void ResourceMgr::SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh)

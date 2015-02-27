@@ -69,79 +69,79 @@ void EffectUIRender::DrawVertexList(void)
 		}
 	}
 }
-
-void EffectParticleInstance::Begin(void)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_Passes = m_ParticleEffect->Begin();
-	}
-}
-
-void EffectParticleInstance::End(void)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_ParticleEffect->End();
-		m_Passes = 0;
-	}
-}
-
-void EffectParticleInstance::SetWorld(const Matrix4 & World)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_ParticleEffect->SetMatrix("g_World", World);
-	}
-}
-
-void EffectParticleInstance::SetViewProj(const Matrix4 & ViewProj)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_ParticleEffect->SetMatrix("g_ViewProj", ViewProj);
-	}
-}
-
-void EffectParticleInstance::SetTexture(const BaseTexturePtr & Texture)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		_ASSERT(Game::getSingleton().m_WhiteTex);
-		m_ParticleEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
-	}
-}
-
-void EffectParticleInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_ParticleEffect->SetVector("g_ParticleDir", Dir);
-		m_ParticleEffect->SetVector("g_ParticleUp", Up);
-		m_ParticleEffect->SetVector("g_ParticleRight", Right);
-	}
-}
-
-void EffectParticleInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
-{
-	if (m_ParticleEffect->m_ptr)
-	{
-		m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
-	}
-}
-
-void EffectParticleInstance::DrawInstance(DWORD NumInstances)
-{
-	if(m_ParticleEffect->m_ptr && NumInstances > 0)
-	{
-		for(UINT p = 0; p < m_Passes; p++)
-		{
-			m_ParticleEffect->BeginPass(p);
-			ParticleInstance::DrawInstance(NumInstances);
-			m_ParticleEffect->EndPass();
-		}
-	}
-}
+//
+//void EffectParticleInstance::Begin(void)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_Passes = m_ParticleEffect->Begin();
+//	}
+//}
+//
+//void EffectParticleInstance::End(void)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_ParticleEffect->End();
+//		m_Passes = 0;
+//	}
+//}
+//
+//void EffectParticleInstance::SetWorld(const Matrix4 & World)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_ParticleEffect->SetMatrix("g_World", World);
+//	}
+//}
+//
+//void EffectParticleInstance::SetViewProj(const Matrix4 & ViewProj)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_ParticleEffect->SetMatrix("g_ViewProj", ViewProj);
+//	}
+//}
+//
+//void EffectParticleInstance::SetTexture(const BaseTexturePtr & Texture)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		_ASSERT(Game::getSingleton().m_WhiteTex);
+//		m_ParticleEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
+//	}
+//}
+//
+//void EffectParticleInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_ParticleEffect->SetVector("g_ParticleDir", Dir);
+//		m_ParticleEffect->SetVector("g_ParticleUp", Up);
+//		m_ParticleEffect->SetVector("g_ParticleRight", Right);
+//	}
+//}
+//
+//void EffectParticleInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
+//{
+//	if (m_ParticleEffect->m_ptr)
+//	{
+//		m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
+//	}
+//}
+//
+//void EffectParticleInstance::DrawInstance(DWORD NumInstances)
+//{
+//	if(m_ParticleEffect->m_ptr && NumInstances > 0)
+//	{
+//		for(UINT p = 0; p < m_Passes; p++)
+//		{
+//			m_ParticleEffect->BeginPass(p);
+//			ParticleInstance::DrawInstance(NumInstances);
+//			m_ParticleEffect->EndPass();
+//		}
+//	}
+//}
 
 Game::Game(void)
 {

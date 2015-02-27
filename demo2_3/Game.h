@@ -34,38 +34,38 @@ public:
 
 	virtual void DrawVertexList(void);
 };
-
-class EffectParticleInstance
-	: public my::ParticleInstance
-{
-public:
-	my::EffectPtr m_ParticleEffect;
-
-	UINT m_Passes;
-
-public:
-	EffectParticleInstance(my::EffectPtr effect)
-		: m_ParticleEffect(effect)
-		, m_Passes(0)
-	{
-	}
-
-	virtual void Begin(void);
-
-	virtual void End(void);
-
-	virtual void SetWorld(const my::Matrix4 & World);
-
-	virtual void SetViewProj(const my::Matrix4 & ViewProj);
-
-	virtual void SetTexture(const my::BaseTexturePtr & Texture);
-
-	virtual void SetDirection(const my::Vector3 & Dir, const my::Vector3 & Up, const my::Vector3 & Right);
-
-	virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row);
-
-	virtual void DrawInstance(DWORD NumInstances);
-};
+//
+//class EffectParticleInstance
+//	: public my::ParticleInstance
+//{
+//public:
+//	my::EffectPtr m_ParticleEffect;
+//
+//	UINT m_Passes;
+//
+//public:
+//	EffectParticleInstance(my::EffectPtr effect)
+//		: m_ParticleEffect(effect)
+//		, m_Passes(0)
+//	{
+//	}
+//
+//	virtual void Begin(void);
+//
+//	virtual void End(void);
+//
+//	virtual void SetWorld(const my::Matrix4 & World);
+//
+//	virtual void SetViewProj(const my::Matrix4 & ViewProj);
+//
+//	virtual void SetTexture(const my::BaseTexturePtr & Texture);
+//
+//	virtual void SetDirection(const my::Vector3 & Dir, const my::Vector3 & Up, const my::Vector3 & Right);
+//
+//	virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row);
+//
+//	virtual void DrawInstance(DWORD NumInstances);
+//};
 
 class Game
 	: public my::DxutApp

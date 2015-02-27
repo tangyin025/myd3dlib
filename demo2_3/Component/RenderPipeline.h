@@ -5,6 +5,24 @@ class Material;
 class RenderPipeline
 {
 public:
+	my::D3DVertexElementSet m_ParticleVertexElems;
+
+	my::D3DVertexElementSet m_ParticleInstanceElems;
+
+	std::vector<D3DVERTEXELEMENT9> m_ParticleVEList;
+
+	DWORD m_ParticleVertexStride;
+
+	DWORD m_ParticleInstanceStride;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_ParticleDecl;
+
+	my::VertexBuffer m_ParticleVertexBuffer;
+
+	my::IndexBuffer m_ParticleIndexBuffer;
+
+	my::VertexBuffer m_ParticleInstanceData;
+
 	enum MeshType
 	{
 		MeshTypeStatic,
@@ -72,6 +90,7 @@ public:
 	struct EmitterAtom
 	{
 		my::Emitter * emitter;
+		my::Effect * shader;
 		IShaderSetter * setter;
 	};
 
@@ -79,19 +98,20 @@ public:
 
 	EmitterAtomList m_EmitterAtomList;
 
-protected:
-	my::ParticleInstancePtr m_ParticleInst;
-
 public:
 	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material) = 0;
 
-	//HRESULT OnResetDevice(
-	//	IDirect3DDevice9 * pd3dDevice,
-	//	const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+	HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	//void OnLostDevice(void);
+	HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
-	//void OnDestroyDevice(void);
+	void OnLostDevice(void);
+
+	void OnDestroyDevice(void);
 
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
@@ -117,7 +137,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawEmitterAtom(my::Emitter * emitter, my::ParticleInstance * pInstance, IShaderSetter * setter);
+	void DrawEmitterAtom(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
@@ -137,7 +157,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void PushEmitter(my::Emitter * emitter, IShaderSetter * setter);
+	void PushEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
 
 	void ClearAllRenderObjs(void);
 };
@@ -169,38 +189,11 @@ public:
 	{
 	}
 
-	virtual void OnQueryMesh(
+	virtual my::Effect * QueryShader(
 		RenderPipeline * pipeline,
 		RenderPipeline::DrawStage stage,
 		RenderPipeline::MeshType mesh_type,
-		my::MeshInstance * mesh,
-		DWORD AttribId,
-		RenderPipeline::IShaderSetter * setter);
-
-	virtual void OnQueryMeshInstance(
-		RenderPipeline * pipeline,
-		RenderPipeline::DrawStage stage,
-		RenderPipeline::MeshType mesh_type,
-		my::MeshInstance * mesh,
-		DWORD AttribId,
-		const my::Matrix4 & World,
-		RenderPipeline::IShaderSetter * setter);
-
-	virtual void OnQueryIndexedPrimitiveUP(
-		RenderPipeline * pipeline,
-		RenderPipeline::DrawStage stage,
-		RenderPipeline::MeshType mesh_type,
-		IDirect3DVertexDeclaration9* pDecl,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT MinVertexIndex,
-		UINT NumVertices,
-		UINT PrimitiveCount,
-		CONST void* pIndexData,
-		D3DFORMAT IndexDataFormat,
-		CONST void* pVertexStreamZeroData,
-		UINT VertexStreamZeroStride,
-		DWORD AttribId,
-		RenderPipeline::IShaderSetter * setter);
+		bool bInstance);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };

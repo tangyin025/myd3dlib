@@ -94,6 +94,8 @@ class EmitterMeshComponent
 public:
 	my::EmitterPtr m_Emitter;
 
+	MaterialPtr m_Material;
+
 public:
 	EmitterMeshComponent(const my::AABB & aabb)
 		: RenderComponent(aabb)
