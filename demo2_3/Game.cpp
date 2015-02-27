@@ -680,6 +680,16 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 		return shader_iter->second.get();
 	}
 
+	if (mesh_type == RenderPipeline::MeshTypeParticle)
+	{
+		std::string macros;
+		std::string path("shader/Particle.fx");
+		std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
+		ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
+		LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+		return NULL;
+	}
+
 	switch (draw_stage)
 	{
 	case RenderPipeline::DrawStageCBuffer:

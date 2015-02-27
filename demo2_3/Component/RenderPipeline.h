@@ -27,6 +27,7 @@ public:
 	{
 		MeshTypeStatic,
 		MeshTypeAnimation,
+		MeshTypeParticle,
 	};
 
 	enum DrawStage

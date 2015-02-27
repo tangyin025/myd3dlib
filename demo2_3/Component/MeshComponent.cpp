@@ -76,8 +76,50 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
+	if (m_Emitter)
+	{
+		if (m_Material)
+		{
+			my::Effect * shader = m_Material->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, true);
+			if (shader)
+			{
+				pipeline->PushEmitter(m_Emitter.get(), shader, this);
+			}
+		}
+	}
 }
 
 void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
+	switch (m_Emitter->m_WorldType)
+	{
+	case my::Emitter::WorldTypeLocal:
+		shader->SetMatrix("g_World", Matrix4::Compose(Vector3(1,1,1), m_Emitter->m_Orientation, m_Emitter->m_Position));
+		break;
+	default:
+		shader->SetMatrix("g_World", Matrix4::identity);
+		break;
+	}
+
+	const Matrix4 View(Matrix4::Identity());
+	Vector3 Up, Right, Dir;
+	switch (m_Emitter->m_DirectionType)
+	{
+	case my::Emitter::DirectionTypeCamera:
+		Up = View.column<2>().xyz;
+		Right = View.column<1>().xyz;
+		Dir = View.column<0>().xyz;
+		break;
+
+	case my::Emitter::DirectionTypeVertical:
+		Up = Vector3(0,1,0);
+		Right = Up.cross(Vector3(View._13,View._23,View._33));
+		Dir = Right.cross(Up);
+		break;
+	}
+	shader->SetVector("g_ParticleDir", Dir);
+	shader->SetVector("g_ParticleUp", Up);
+	shader->SetVector("g_ParticleRight", Right);
+
+	m_Material->OnSetShader(shader, AttribId);
 }
