@@ -218,6 +218,11 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
+	if (FAILED(hr = RenderPipeline::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	if(!PhysXContext::OnInit())
 	{
 		THROW_CUSEXCEPTION(_T("PhysXContext::OnInit failed"));
@@ -289,6 +294,11 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
+	if (FAILED(hr = RenderPipeline::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	//m_ParticleInst->OnResetDevice();
 
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
@@ -310,6 +320,8 @@ void Game::OnLostDevice(void)
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	//m_ParticleInst->OnLostDevice();
+
+	RenderPipeline::OnLostDevice();
 
 	ResourceMgr::OnLostDevice();
 }
@@ -349,6 +361,8 @@ void Game::OnDestroyDevice(void)
 	PhysXContext::OnShutdown();
 
 	//RemoveAllEmitter();
+
+	RenderPipeline::OnDestroyDevice();
 
 	ResourceMgr::OnDestroyDevice();
 
