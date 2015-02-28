@@ -93,9 +93,9 @@ public:
 
 	//my::ParticleInstancePtr m_ParticleInst;
 
-	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const Material *> ShaderKeyType;
+	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const Material *> ShaderCacheKey;
 
-	typedef boost::unordered_map<ShaderKeyType, my::EffectPtr> ShaderCacheMap;
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
@@ -188,7 +188,7 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key);
+	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 

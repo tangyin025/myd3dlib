@@ -16,11 +16,11 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 				{
 					if (m_bInstance)
 					{
-						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
+						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
 					}
 					else
 					{
-						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
+						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
 					}
 				}
 			}
@@ -83,7 +83,7 @@ void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::
 			my::Effect * shader = m_Material->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, true);
 			if (shader)
 			{
-				pipeline->PushEmitter(m_Emitter.get(), shader, this);
+				pipeline->PushOpaqueEmitter(m_Emitter.get(), shader, this);
 			}
 		}
 	}

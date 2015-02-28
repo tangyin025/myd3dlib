@@ -33,9 +33,18 @@ HRESULT RenderPipeline::OnCreateDevice(
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
-	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
-	_ASSERT(!m_ParticleInstanceData.m_ptr);
+	offset = 0;
+	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 1);
+	offset += sizeof(Vector4);
+	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 2);
+	offset += sizeof(Vector4);
+	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 3);
+	offset += sizeof(Vector4);
+	m_MeshInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_POSITION, 4);
+	offset += sizeof(Vector4);
+
+	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
+	m_MeshInstanceStride = offset;
 	return S_OK;
 }
 
@@ -62,7 +71,10 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleIndexBuffer.Unlock();
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
-	m_ParticleInstanceData.CreateVertexBuffer(pd3dDevice, m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, 0, 0, D3DPOOL_DEFAULT);
+	m_ParticleInstanceData.CreateVertexBuffer(pd3dDevice, m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
+
+	_ASSERT(!m_MeshInstanceData.m_ptr);
+	m_MeshInstanceData.CreateVertexBuffer(pd3dDevice, m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 	return S_OK;
 }
 
@@ -71,6 +83,7 @@ void RenderPipeline::OnLostDevice(void)
 	m_ParticleVertexBuffer.OnDestroyDevice();
 	m_ParticleIndexBuffer.OnDestroyDevice();
 	m_ParticleInstanceData.OnDestroyDevice();
+	m_MeshInstanceData.OnDestroyDevice();
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -78,6 +91,13 @@ void RenderPipeline::OnDestroyDevice(void)
 	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
 	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
+	_ASSERT(!m_MeshInstanceData.m_ptr);
+
+	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
+	{
+		mesh_inst_iter->second.m_Decl.Release();
+	}
 
 	m_ParticleDecl.Release();
 }
@@ -87,19 +107,25 @@ void RenderPipeline::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	OpaqueMeshList::iterator mesh_iter = m_OpaqueMeshList.begin();
+	MeshAtomList::iterator mesh_iter = m_OpaqueMeshList.begin();
 	for (; mesh_iter != m_OpaqueMeshList.end(); mesh_iter++)
 	{
 		DrawOpaqueMesh(mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
 	}
 
-	OpaqueMeshInstanceMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
 	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
 	{
-		DrawOpaqueMeshInstance(mesh_inst_iter->first.mesh, mesh_inst_iter->first.AttribId, mesh_inst_iter->second, mesh_inst_iter->first.shader, mesh_inst_iter->first.setter);
+		DrawOpaqueMeshInstance(
+			pd3dDevice,
+			mesh_inst_iter->first.get<0>(),
+			mesh_inst_iter->first.get<1>(),
+			mesh_inst_iter->first.get<2>(),
+			mesh_inst_iter->second.setter,
+			mesh_inst_iter->second);
 	}
 
-	OpaqueIndexedPrimitiveUPList::iterator indexed_prim_iter = m_OpaqueIndexedPrimitiveUPList.begin();
+	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_OpaqueIndexedPrimitiveUPList.begin();
 	for (; indexed_prim_iter != m_OpaqueIndexedPrimitiveUPList.end(); indexed_prim_iter++)
 	{
 		DrawOpaqueIndexedPrimitiveUP(
@@ -118,16 +144,16 @@ void RenderPipeline::OnFrameRender(
 			indexed_prim_iter->setter);
 	}
 
-	EmitterAtomList::iterator emitter_iter = m_EmitterAtomList.begin();
-	for (; emitter_iter != m_EmitterAtomList.end(); emitter_iter++)
+	EmitterAtomList::iterator emitter_iter = m_QpaqueEmitterList.begin();
+	for (; emitter_iter != m_QpaqueEmitterList.end(); emitter_iter++)
 	{
-		DrawEmitterAtom(pd3dDevice, emitter_iter->emitter, emitter_iter->shader, emitter_iter->setter);
+		DrawOpaqueEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->shader, emitter_iter->setter);
 	}
 
 	ClearAllRenderObjs();
 }
 
-void RenderPipeline::DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -141,11 +167,32 @@ void RenderPipeline::DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my:
 	shader->End();
 }
 
-void RenderPipeline::DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::TransformList & worlds, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawOpaqueMeshInstance(
+	IDirect3DDevice9 * pd3dDevice,
+	my::Mesh * mesh,
+	DWORD AttribId,
+	my::Effect * shader,
+	IShaderSetter * setter,
+	MeshInstanceAtom & atom)
 {
-	Matrix4 * mat = mesh->LockInstanceData(worlds.size());
-	memcpy(mat, &worlds[0], sizeof(Matrix4) * worlds.size());
-	mesh->UnlockInstanceData();
+	_ASSERT(AttribId < atom.m_AttribTable.size());
+	const DWORD NumInstances = atom.m_TransformList.size();
+	_ASSERT(NumInstances <= MESH_INSTANCE_MAX);
+
+	Matrix4 * mat = (Matrix4 *)m_MeshInstanceData.Lock(0, NumInstances * m_MeshInstanceStride, D3DLOCK_DISCARD);
+	memcpy(mat, &atom.m_TransformList[0], NumInstances * m_MeshInstanceStride);
+	m_MeshInstanceData.Unlock();
+
+	CComPtr<IDirect3DVertexBuffer9> vb = mesh->GetVertexBuffer();
+	CComPtr<IDirect3DIndexBuffer9> ib = mesh->GetIndexBuffer();
+
+	HRESULT hr;
+	V(pd3dDevice->SetStreamSource(0, vb, 0, atom.m_VertexStride));
+	V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
+	V(pd3dDevice->SetStreamSource(1, m_MeshInstanceData.m_ptr, 0, m_MeshInstanceStride));
+	V(pd3dDevice->SetStreamSourceFreq(1, D3DSTREAMSOURCE_INSTANCEDATA | 1));
+	V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
+	V(pd3dDevice->SetIndices(ib));
 
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -153,20 +200,17 @@ void RenderPipeline::DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD Attri
 	for (UINT p = 0; p < passes; p++)
 	{
 		shader->BeginPass(p);
-		mesh->DrawSubsetInstance(AttribId, worlds.size());
+		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
+			atom.m_AttribTable[AttribId].VertexStart,
+			atom.m_AttribTable[AttribId].VertexCount,
+			atom.m_AttribTable[AttribId].FaceStart * 3,
+			atom.m_AttribTable[AttribId].FaceCount));
 		shader->EndPass();
 	}
 	shader->End();
-}
 
-static size_t hash_value(const RenderPipeline::OpaqueMesh & key)
-{
-	size_t seed = 0;
-	boost::hash_combine(seed, key.mesh);
-	boost::hash_combine(seed, key.AttribId);
-	boost::hash_combine(seed, key.shader);
-	//boost::hash_combine(seed, key.setter); // ! setter was not a key, the first will always be used
-	return seed;
+	V(pd3dDevice->SetStreamSourceFreq(0,1));
+	V(pd3dDevice->SetStreamSourceFreq(1,1));
 }
 
 void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
@@ -199,11 +243,11 @@ void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawEmitterAtom(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
-	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, 0);
+	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
 	_ASSERT(pVertices);
 	for(DWORD i = 0; i < NumInstances; i++)
 	{
@@ -241,9 +285,9 @@ void RenderPipeline::DrawEmitterAtom(IDirect3DDevice9 * pd3dDevice, my::Emitter 
 	shader->End();
 }
 
-void RenderPipeline::PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
-	OpaqueMesh atom;
+	MeshAtom atom;
 	atom.mesh = mesh;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
@@ -251,14 +295,57 @@ void RenderPipeline::PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my:
 	m_OpaqueMeshList.push_back(atom);
 }
 
-void RenderPipeline::PushOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
+namespace boost
 {
-	OpaqueMesh atom;
-	atom.mesh = mesh;
-	atom.AttribId = AttribId;
-	atom.shader = shader;
-	atom.setter = setter;
-	m_OpaqueMeshInstanceMap[atom].push_back(World);
+	static size_t hash_value(const RenderPipeline::MeshInstanceAtomKey & key)
+	{
+		size_t seed = 0;
+		boost::hash_combine(seed, key.get<0>());
+		boost::hash_combine(seed, key.get<1>());
+		boost::hash_combine(seed, key.get<2>());
+		return seed;
+	}
+}
+
+void RenderPipeline::PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
+{
+	MeshInstanceAtomKey key(mesh, AttribId, shader);
+	MeshInstanceAtomMap::iterator atom_iter = m_OpaqueMeshInstanceMap.find(key);
+	if (atom_iter == m_OpaqueMeshInstanceMap.end())
+	{
+		MeshInstanceAtom & atom = m_OpaqueMeshInstanceMap[key];
+		atom.setter = setter;
+		DWORD submeshes = 0;
+		mesh->GetAttributeTable(NULL, &submeshes);
+		atom.m_AttribTable.resize(submeshes);
+		mesh->GetAttributeTable(&atom.m_AttribTable[0], &submeshes);
+
+		atom.m_velist.resize(MAX_FVF_DECL_SIZE);
+		mesh->GetDeclaration(&atom.m_velist[0]);
+		unsigned int i = 0;
+		for (; i < atom.m_velist.size(); i++)
+		{
+			if (atom.m_velist[i].Stream == 0xff || atom.m_velist[i].Type == D3DDECLTYPE_UNUSED)
+			{
+				break;
+			}
+		}
+		if (i >= atom.m_velist.size())
+		{
+			THROW_CUSEXCEPTION(_T("invalid vertex declaration"));
+		}
+		atom.m_velist.insert(atom.m_velist.begin() + i, m_MeshIEList.begin(), m_MeshIEList.end());
+		atom.m_VertexStride = D3DXGetDeclVertexSize(&atom.m_velist[0], 0);
+		_ASSERT(m_MeshInstanceStride == D3DXGetDeclVertexSize(&atom.m_velist[0], 1));
+
+		HRESULT hr;
+		CComPtr<IDirect3DDevice9> Device = mesh->GetDevice();
+		if (FAILED(hr = Device->CreateVertexDeclaration(&atom.m_velist[0], &atom.m_Decl)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+	}
+	m_OpaqueMeshInstanceMap[key].m_TransformList.push_back(World);
 }
 
 void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
@@ -275,7 +362,7 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	my::Effect * shader,
 	IShaderSetter * setter)
 {
-	OpaqueIndexedPrimitiveUP atom;
+	IndexedPrimitiveUPAtom atom;
 	atom.pDecl = pDecl;
 	atom.PrimitiveType = PrimitiveType;
 	atom.PrimitiveCount = PrimitiveCount;
@@ -292,25 +379,25 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	m_OpaqueIndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
 {
 	EmitterAtom atom;
 	atom.emitter = emitter;
 	atom.shader = shader;
 	atom.setter = setter;
-	m_EmitterAtomList.push_back(atom);
+	m_QpaqueEmitterList.push_back(atom);
 }
 
 void RenderPipeline::ClearAllRenderObjs(void)
 {
 	m_OpaqueMeshList.clear();
-	OpaqueMeshInstanceMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
 	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
 	{
-		mesh_inst_iter->second.clear();
+		mesh_inst_iter->second.m_TransformList.clear();
 	}
 	m_OpaqueIndexedPrimitiveUPList.clear();
-	m_EmitterAtomList.clear();
+	m_QpaqueEmitterList.clear();
 }
 
 my::Effect * Material::QueryShader(

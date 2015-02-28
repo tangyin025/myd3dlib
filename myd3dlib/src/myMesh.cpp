@@ -5,8 +5,6 @@
 
 using namespace my;
 
-#define MESH_INSTANCE_MAX 1024u
-
 void D3DVertexElementSet::InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method)
 {
 	_ASSERT(Type != D3DDECLTYPE_UNUSED);

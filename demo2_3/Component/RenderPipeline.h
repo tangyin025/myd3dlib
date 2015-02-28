@@ -23,6 +23,14 @@ public:
 
 	my::VertexBuffer m_ParticleInstanceData;
 
+	my::D3DVertexElementSet m_MeshInstanceElems;
+
+	std::vector<D3DVERTEXELEMENT9> m_MeshIEList;
+
+	DWORD m_MeshInstanceStride;
+
+	my::VertexBuffer m_MeshInstanceData;
+
 	enum MeshType
 	{
 		MeshTypeStatic,
@@ -44,31 +52,35 @@ public:
 		virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
 	};
 
-	struct OpaqueMesh
+	struct MeshAtom
 	{
-		my::MeshInstance * mesh;
+		my::Mesh * mesh;
 		DWORD AttribId;
 		my::Effect * shader;
 		IShaderSetter * setter;
-
-		bool operator ==(const OpaqueMesh & rhs) const
-		{
-			return mesh == rhs.mesh
-				&& AttribId == rhs.AttribId
-				&& shader == rhs.shader
-				&& setter == rhs.setter;
-		}
 	};
 
-	typedef std::vector<OpaqueMesh> OpaqueMeshList;
+	typedef std::vector<MeshAtom> MeshAtomList;
 
-	OpaqueMeshList m_OpaqueMeshList;
+	MeshAtomList m_OpaqueMeshList;
 
-	typedef boost::unordered_map<OpaqueMesh, my::TransformList> OpaqueMeshInstanceMap;
+	struct MeshInstanceAtom
+	{
+		IShaderSetter * setter;
+		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+		std::vector<D3DVERTEXELEMENT9> m_velist;
+		DWORD m_VertexStride;
+		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+		my::TransformList m_TransformList;
+	};
 
-	OpaqueMeshInstanceMap m_OpaqueMeshInstanceMap;
+	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *> MeshInstanceAtomKey;
 
-	struct OpaqueIndexedPrimitiveUP
+	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
+
+	MeshInstanceAtomMap m_OpaqueMeshInstanceMap;
+
+	struct IndexedPrimitiveUPAtom
 	{
 		IDirect3DVertexDeclaration9* pDecl;
 		D3DPRIMITIVETYPE PrimitiveType;
@@ -84,9 +96,9 @@ public:
 		IShaderSetter * setter;
 	};
 
-	typedef std::vector<OpaqueIndexedPrimitiveUP> OpaqueIndexedPrimitiveUPList;
+	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
 
-	OpaqueIndexedPrimitiveUPList m_OpaqueIndexedPrimitiveUPList;
+	IndexedPrimitiveUPAtomList m_OpaqueIndexedPrimitiveUPList;
 
 	struct EmitterAtom
 	{
@@ -97,7 +109,7 @@ public:
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
 
-	EmitterAtomList m_EmitterAtomList;
+	EmitterAtomList m_QpaqueEmitterList;
 
 public:
 	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material) = 0;
@@ -119,9 +131,15 @@ public:
 		double fTime,
 		float fElapsedTime);
 
-	void DrawOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
-	void DrawOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::TransformList & worlds, my::Effect * shader, IShaderSetter * setter);
+	void DrawOpaqueMeshInstance(
+		IDirect3DDevice9 * pd3dDevice,
+		my::Mesh * mesh,
+		DWORD AttribId,
+		my::Effect * shader,
+		IShaderSetter * setter,
+		MeshInstanceAtom & atom);
 
 	void DrawOpaqueIndexedPrimitiveUP(
 		IDirect3DDevice9 * pd3dDevice,
@@ -138,11 +156,11 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawEmitterAtom(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
+	void DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
 
-	void PushOpaqueMesh(my::MeshInstance * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
-	void PushOpaqueMeshInstance(my::MeshInstance * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
+	void PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueIndexedPrimitiveUP(
 		IDirect3DVertexDeclaration9* pDecl,
@@ -158,7 +176,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void PushEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
+	void PushOpaqueEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
 
 	void ClearAllRenderObjs(void);
 };

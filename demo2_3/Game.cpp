@@ -4,13 +4,13 @@
 #include <boost/archive/xml_oarchive.hpp>
 #include <fstream>
 
-extern void Export2Lua(lua_State * L);
-
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
 #endif
 
 using namespace my;
+
+extern void Export2Lua(lua_State * L);
 
 void EffectUIRender::Begin(void)
 {
@@ -653,12 +653,12 @@ bool Game::ExecuteCode(const char * code) throw()
 	return true;
 }
 
-void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderKeyType key)
+void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
 {
 	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
 }
 
-static size_t hash_value(const Game::ShaderKeyType & key)
+static size_t hash_value(const Game::ShaderCacheKey & key)
 {
 	size_t seed = 0;
 	boost::hash_combine(seed, key.get<0>());
@@ -669,11 +669,8 @@ static size_t hash_value(const Game::ShaderKeyType & key)
 
 my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
 {
-	// ! make sure hash_value(ShaderKeyType ..) is valid
-	ShaderKeyType key = boost::make_tuple(mesh_type, draw_stage, material);
-
 	_ASSERT(material);
-
+	ShaderCacheKey key(mesh_type, draw_stage, material);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
