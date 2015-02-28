@@ -96,7 +96,7 @@ public:
 		}
 	}
 
-	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh, bool cloth, bool bInstance)
+	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh, bool cloth)
 	{
 		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb));
 		MeshComponent::LODPtr lod;
@@ -109,11 +109,6 @@ public:
 			lod.reset(new MeshComponent::LOD(mesh_cmp.get()));
 		}
 		lod->m_Mesh = mesh;
-		if (bInstance)
-		{
-			lod->m_Mesh->CreateInstance(Game::GetD3D9Device());
-			lod->m_bInstance = true;
-		}
 		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
 		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
 		{
@@ -160,7 +155,7 @@ public:
 
 		//m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		//m_mesh_ins->CreateInstance(pd3dDevice);
-		m_mesh_ins = CreateMeshComponent(LoadMesh("mesh/tube.mesh.xml"), false, true);
+		m_mesh_ins = CreateMeshComponent(LoadMesh("mesh/tube.mesh.xml"), false);
 
 		//// ========================================================================================================
 		//// ´ó³¡¾°
@@ -194,7 +189,7 @@ public:
 
 		m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
 
-		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"), true, false);
+		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"), true);
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(
 			this, m_cloth_anim->m_boneHierarchy, m_cloth_anim->GetBoneIndex("joint5"), PxClothCollisionData());
 		//m_cloth_mesh_vertices.reset(new Cache(

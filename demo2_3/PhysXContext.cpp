@@ -337,20 +337,20 @@ void ClothMeshComponentLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline:
 	if (m_Mesh && !m_VertexData.empty())
 	{
 		_ASSERT(!m_IndexData.empty());
-		_ASSERT(!m_Mesh->m_AttribTable.empty());
-		_ASSERT(m_Mesh->m_Decl);
-		for (DWORD i = 0; i < m_Mesh->m_AttribTable.size(); i++)
+		_ASSERT(!m_AttribTable.empty());
+		_ASSERT(m_Decl);
+		for (DWORD i = 0; i < m_AttribTable.size(); i++)
 		{
 			if (m_Materials[i])
 			{
 				my::Effect * shader = m_Materials[i]->QueryShader(pipeline, stage, mesh_type, false);
 				if (shader)
 				{
-					pipeline->PushOpaqueIndexedPrimitiveUP(m_Mesh->m_Decl, D3DPT_TRIANGLELIST,
-						m_Mesh->m_AttribTable[i].VertexStart,
-						m_Mesh->m_AttribTable[i].VertexCount,
-						m_Mesh->m_AttribTable[i].FaceCount,
-						&m_IndexData[m_Mesh->m_AttribTable[i].FaceStart * 3],
+					pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
+						m_AttribTable[i].VertexStart,
+						m_AttribTable[i].VertexCount,
+						m_AttribTable[i].FaceCount,
+						&m_IndexData[m_AttribTable[i].FaceStart * 3],
 						D3DFMT_INDEX16,
 						&m_VertexData[0],
 						m_Mesh->GetNumBytesPerVertex(), i, shader, m_owner);
@@ -398,20 +398,20 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHie
 		m_Mesh->UnlockIndexBuffer();
 	}
 
-	if (m_Mesh->m_AttribTable.empty())
+	if (m_AttribTable.empty())
 	{
 		DWORD submeshes = 0;
 		m_Mesh->GetAttributeTable(NULL, &submeshes);
-		m_Mesh->m_AttribTable.resize(submeshes);
-		m_Mesh->GetAttributeTable(&m_Mesh->m_AttribTable[0], &submeshes);
+		m_AttribTable.resize(submeshes);
+		m_Mesh->GetAttributeTable(&m_AttribTable[0], &submeshes);
 	}
 
-	if (!m_Mesh->m_Decl)
+	if (!m_Decl)
 	{
 		std::vector<D3DVERTEXELEMENT9> ielist(MAX_FVF_DECL_SIZE);
 		m_Mesh->GetDeclaration(&ielist[0]);
 		HRESULT hr;
-		if (FAILED(hr = m_Mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Mesh->m_Decl)))
+		if (FAILED(hr = m_Mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Decl)))
 		{
 			THROW_D3DEXCEPTION(hr);
 		}

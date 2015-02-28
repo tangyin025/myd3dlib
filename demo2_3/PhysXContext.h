@@ -190,6 +190,10 @@ class ClothMeshComponentLOD
 	: public MeshComponent::LOD
 {
 public:
+	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
 	my::Cache m_VertexData;
 
 	std::vector<unsigned short> m_IndexData;

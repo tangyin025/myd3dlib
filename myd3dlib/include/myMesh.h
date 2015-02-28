@@ -324,48 +324,7 @@ namespace my
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
 
-	class MeshInstance : public Mesh
-	{
-	public:
-		CComPtr<IDirect3DDevice9> m_Device;
-
-		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
-
-		D3DVertexElementSet m_InstanceElems;
-
-		std::vector<D3DVERTEXELEMENT9> m_velist;
-
-		DWORD m_VertexStride;
-
-		DWORD m_InstanceStride;
-
-		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-		VertexBuffer m_InstanceData;
-
-	public:
-		MeshInstance(void);
-
-		virtual ~MeshInstance(void);
-
-		virtual void OnResetDevice(void);
-
-		virtual void OnLostDevice(void);
-
-		virtual void OnDestroyDevice(void);
-
-		void CreateInstance(IDirect3DDevice9 * pd3dDevice);
-
-		Matrix4 * LockInstanceData(DWORD NumInstances);
-
-		void UnlockInstanceData(void);
-
-		void DrawSubsetInstance(DWORD AttribId, DWORD NumInstances);
-	};
-
-	typedef boost::shared_ptr<MeshInstance> MeshInstancePtr;
-
-	class OgreMesh : public MeshInstance
+	class OgreMesh : public Mesh
 	{
 	public:
 		D3DVertexElementSet m_VertexElems;
