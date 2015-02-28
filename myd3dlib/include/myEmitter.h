@@ -30,7 +30,7 @@ namespace my
 
 			Vector4 m_Texcoord1;
 
-			Vector4 m_Texcoord2;
+			//Vector4 m_Texcoord2;
 
 		public:
 			Particle(const Vector3 & Position, const Vector3 & Velocity)
@@ -38,7 +38,7 @@ namespace my
 				, m_Velocity(Velocity)
 				, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 				, m_Texcoord1(1,1,0,1)
-				, m_Texcoord2(0,0,0,0)
+				//, m_Texcoord2(0,0,0,0)
 			{
 			}
 		};
@@ -82,11 +82,11 @@ namespace my
 
 		Spline m_ParticleAngle;
 
-		float m_ParticleAnimFPS;
+		//float m_ParticleAnimFPS;
 
-		unsigned char m_ParticleAnimColumn;
+		//unsigned char m_ParticleAnimColumn;
 
-		unsigned char m_ParticleAnimRow;
+		//unsigned char m_ParticleAnimRow;
 
 		//BaseTexturePtr m_Texture;
 
@@ -99,9 +99,9 @@ namespace my
 			, m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_ParticleLifeTime(10)
-			, m_ParticleAnimFPS(1)
-			, m_ParticleAnimColumn(1)
-			, m_ParticleAnimRow(1)
+			//, m_ParticleAnimFPS(1)
+			//, m_ParticleAnimColumn(1)
+			//, m_ParticleAnimRow(1)
 		{
 		}
 
@@ -122,9 +122,9 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeX);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeY);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleAngle);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimFPS);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimColumn);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimRow);
+			//ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimFPS);
+			//ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimColumn);
+			//ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimRow);
 		}
 
 		void OnResetDevice(void);

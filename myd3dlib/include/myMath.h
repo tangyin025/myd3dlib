@@ -75,7 +75,7 @@ namespace my
 	T Random(T min, T max);
 
 	template <typename V, typename T>
-	static V & Subscribe(T & t, size_t i)
+	V & Subscribe(T & t, size_t i)
 	{
 		_ASSERT(i < sizeof(t) / sizeof(V));
 
@@ -83,7 +83,7 @@ namespace my
 	}
 
 	template <typename V, size_t i, typename T>
-	static V & Subscribe(T & t)
+	V & Subscribe(T & t)
 	{
 		_ASSERT(i < sizeof(t) / sizeof(V));
 
@@ -1723,10 +1723,10 @@ namespace my
 		Vector4 column(void) const
 		{
 			return Vector4(
-				Subscribe<Vector4>(*this, i).x,
-				Subscribe<Vector4>(*this, i).y,
-				Subscribe<Vector4>(*this, i).z,
-				Subscribe<Vector4>(*this, i).w);
+				Subscribe<float, i>(Subscribe<Vector4, 0>(*this)),
+				Subscribe<float, i>(Subscribe<Vector4, 1>(*this)),
+				Subscribe<float, i>(Subscribe<Vector4, 2>(*this)),
+				Subscribe<float, i>(Subscribe<Vector4, 3>(*this)));
 		}
 
 	public:

@@ -15,8 +15,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 	offset += sizeof(D3DCOLOR);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
 	offset += sizeof(Vector4);
-	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 2);
-	offset += sizeof(Vector4);
+	//m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 2);
+	//offset += sizeof(Vector4);
 
 	m_ParticleVEList = m_ParticleVertexElems.BuildVertexElementList(0);
 	std::vector<D3DVERTEXELEMENT9> IEList = m_ParticleInstanceElems.BuildVertexElementList(1);
@@ -257,7 +257,7 @@ void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitte
 		m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
 		m_ParticleInstanceElems.SetColor(pVertex, particle.m_Color);
 		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Texcoord1);
-		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, particle.m_Texcoord2);
+		//m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, particle.m_Texcoord2);
 	}
 	m_ParticleInstanceData.Unlock();
 

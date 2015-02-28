@@ -24,6 +24,7 @@ public:
 
 	//MeshInstancePtr m_mesh_ins;
 	MeshComponentPtr m_mesh_ins;
+	EmitterMeshComponentPtr m_emitter;
 
 	//// ========================================================================================================
 	//// 大场景
@@ -227,6 +228,10 @@ public:
 		//m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		//AddResource("___trwrwr342423", m_deform_mesh);
 
+		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
+		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
+		m_emitter->m_Material = LoadMaterial("material/lambert1.xml");
+
 		//// ========================================================================================================
 		//// 逻辑系统
 		//// ========================================================================================================
@@ -360,6 +365,9 @@ public:
 		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
+		if (m_emitter->m_Emitter)
+			m_emitter->m_Emitter->Update(fTime, fElapsedTime);
+
 		//// ========================================================================================================
 		//// 逻辑系统
 		//// ========================================================================================================
@@ -416,6 +424,7 @@ public:
 		//m_SimpleSampleSkel->End();
 
 		//m_deform_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		m_emitter->QueryMesh(this,  RenderPipeline::DrawStageCBuffer);
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

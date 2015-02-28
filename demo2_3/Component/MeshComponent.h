@@ -106,3 +106,6 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
+
+typedef boost::shared_ptr<EmitterMeshComponent> EmitterMeshComponentPtr;
+

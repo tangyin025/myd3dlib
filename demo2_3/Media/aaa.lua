@@ -19,7 +19,7 @@ emitter.ParticleSizeX:AddNode(0,1,0,0)
 emitter.ParticleSizeX:AddNode(10,10,0,0)
 emitter.ParticleSizeY:AddNode(0,1,0,0)
 emitter.ParticleSizeY:AddNode(10,10,0,0)
-emitter.Texture=game:LoadTexture("texture/flare.dds")
+-- emitter.Texture=game:LoadTexture("texture/flare.dds")
 game:SaveEmitter("emitter/emitter_01.xml", emitter)
 
 material=Material()
