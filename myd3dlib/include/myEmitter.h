@@ -1,7 +1,5 @@
 #pragma once
 
-//#include "myTexture.h"
-//#include "myMesh.h"
 #include "mySingleton.h"
 #include "myMath.h"
 #include "mySpline.h"
@@ -13,8 +11,6 @@
 
 namespace my
 {
-	//class ParticleInstance;
-
 	class Emitter
 		: public DeviceRelatedObjectBase
 	{
@@ -88,8 +84,6 @@ namespace my
 
 		//unsigned char m_ParticleAnimRow;
 
-		//BaseTexturePtr m_Texture;
-
 		ParticlePairList m_ParticleList;
 
 	public:
@@ -140,17 +134,6 @@ namespace my
 		virtual void Update(double fTime, float fElapsedTime);
 
 		void UpdateParticle(Particle & particle, float time, float fElapsedTime);
-
-		//DWORD BuildInstance(
-		//	ParticleInstance * pInstance,
-		//	double fTime,
-		//	float fElapsedTime);
-
-		//void Draw(
-		//	ParticleInstance * pInstance,
-		//	const Matrix4 & View,
-		//	double fTime,
-		//	float fElapsedTime);
 	};
 
 	typedef boost::shared_ptr<Emitter> EmitterPtr;
@@ -204,65 +187,4 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
-
-	//class ParticleInstance : public DeviceRelatedObjectBase
-	//{
-	//public:
-	//	HRESULT hr;
-
-	//	CComPtr<IDirect3DDevice9> m_Device;
-
-	//	D3DVertexElementSet m_VertexElems;
-
-	//	VertexBuffer m_VertexBuffer;
-
-	//	IndexBuffer m_IndexData;
-
-	//	D3DVertexElementSet m_InstanceElems;
-
-	//	VertexBuffer m_InstanceData;
-
-	//	std::vector<D3DVERTEXELEMENT9> m_velist;
-
-	//	DWORD m_VertexStride;
-
-	//	DWORD m_InstanceStride;
-
-	//	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-	//public:
-	//	ParticleInstance(void);
-
-	//	virtual ~ParticleInstance(void);
-
-	//	virtual void OnResetDevice(void);
-
-	//	virtual void OnLostDevice(void);
-
-	//	virtual void OnDestroyDevice(void);
-
-	//	void CreateInstance(IDirect3DDevice9 * pd3dDevice);
-
-	//	unsigned char * LockInstanceData(DWORD NumInstances);
-
-	//	void UnlockInstanceData(void);
-
-	//	virtual void Begin(void) = 0;
-
-	//	virtual void End(void) = 0;
-
-	//	virtual void SetWorld(const Matrix4 & World) = 0;
-
-	//	virtual void SetViewProj(const Matrix4 & ViewProj) = 0;
-
-	//	virtual void SetTexture(const BaseTexturePtr & Texture) = 0;
-
-	//	virtual void SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right) = 0;
-
-	//	virtual void SetAnimationColumnRow(unsigned char Column, unsigned char Row) = 0;
-
-	//	virtual void DrawInstance(DWORD NumInstances);
-	//};
-
-	//typedef boost::shared_ptr<ParticleInstance> ParticleInstancePtr;
 }

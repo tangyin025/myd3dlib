@@ -69,79 +69,6 @@ void EffectUIRender::DrawVertexList(void)
 		}
 	}
 }
-//
-//void EffectParticleInstance::Begin(void)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_Passes = m_ParticleEffect->Begin();
-//	}
-//}
-//
-//void EffectParticleInstance::End(void)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_ParticleEffect->End();
-//		m_Passes = 0;
-//	}
-//}
-//
-//void EffectParticleInstance::SetWorld(const Matrix4 & World)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_ParticleEffect->SetMatrix("g_World", World);
-//	}
-//}
-//
-//void EffectParticleInstance::SetViewProj(const Matrix4 & ViewProj)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_ParticleEffect->SetMatrix("g_ViewProj", ViewProj);
-//	}
-//}
-//
-//void EffectParticleInstance::SetTexture(const BaseTexturePtr & Texture)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		_ASSERT(Game::getSingleton().m_WhiteTex);
-//		m_ParticleEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
-//	}
-//}
-//
-//void EffectParticleInstance::SetDirection(const Vector3 & Dir, const Vector3 & Up, const Vector3 & Right)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_ParticleEffect->SetVector("g_ParticleDir", Dir);
-//		m_ParticleEffect->SetVector("g_ParticleUp", Up);
-//		m_ParticleEffect->SetVector("g_ParticleRight", Right);
-//	}
-//}
-//
-//void EffectParticleInstance::SetAnimationColumnRow(unsigned char Column, unsigned char Row)
-//{
-//	if (m_ParticleEffect->m_ptr)
-//	{
-//		m_ParticleEffect->SetFloatArray("g_AnimationColumnRow", &(Vector2((float)Column, (float)Row).x), 2);
-//	}
-//}
-//
-//void EffectParticleInstance::DrawInstance(DWORD NumInstances)
-//{
-//	if(m_ParticleEffect->m_ptr && NumInstances > 0)
-//	{
-//		for(UINT p = 0; p < m_Passes; p++)
-//		{
-//			m_ParticleEffect->BeginPass(p);
-//			ParticleInstance::DrawInstance(NumInstances);
-//			m_ParticleEffect->EndPass();
-//		}
-//	}
-//}
 
 Game::Game(void)
 {
@@ -235,9 +162,6 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
-	//m_ParticleInst.reset(new EffectParticleInstance(LoadEffect("shader/Particle.fx", "")));
-	//m_ParticleInst->CreateInstance(pd3dDevice);
-
 	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
@@ -299,8 +223,6 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
-	//m_ParticleInst->OnResetDevice();
-
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
@@ -318,8 +240,6 @@ HRESULT Game::OnResetDevice(
 void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	//m_ParticleInst->OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
 
@@ -350,8 +270,6 @@ void Game::OnDestroyDevice(void)
 
 	m_ShaderCache.clear();
 
-	//m_ParticleInst.reset();
-
 	m_UIRender.reset();
 
 	RemoveAllTimer();
@@ -359,8 +277,6 @@ void Game::OnDestroyDevice(void)
 	PhysXSceneContext::OnShutdown();
 
 	PhysXContext::OnShutdown();
-
-	//RemoveAllEmitter();
 
 	RenderPipeline::OnDestroyDevice();
 
@@ -382,8 +298,6 @@ void Game::OnFrameMove(
 	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
-
-	//EmitterMgr::Update(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -417,12 +331,6 @@ void Game::OnFrameRender(
 	RenderPipeline::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
-
-	//m_ParticleInst->Begin();
-
-	//EmitterMgr::Draw(m_ParticleInst.get(), m_Camera->m_ViewProj, m_Camera->m_View, fTime, fElapsedTime);
-
-	//m_ParticleInst->End();
 
 	m_UIRender->Begin();
 
