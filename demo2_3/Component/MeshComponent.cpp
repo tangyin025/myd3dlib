@@ -121,6 +121,8 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetVector("g_ParticleDir", Dir);
 	shader->SetVector("g_ParticleUp", Up);
 	shader->SetVector("g_ParticleRight", Right);
+	shader->SetFloatArray("g_AnimationColumnRow",
+		&Vector2(m_Emitter->m_ParticleAnimColumn, m_Emitter->m_ParticleAnimRow)[0], 2);
 
 	m_Material->OnSetShader(shader, AttribId);
 }

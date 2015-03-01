@@ -19,7 +19,8 @@ emitter.ParticleSizeX:AddNode(0,1,0,0)
 emitter.ParticleSizeX:AddNode(10,10,0,0)
 emitter.ParticleSizeY:AddNode(0,1,0,0)
 emitter.ParticleSizeY:AddNode(10,10,0,0)
--- emitter.Texture=game:LoadTexture("texture/flare.dds")
+emitter.ParticleAnimColumn=4
+emitter.ParticleAnimRow=4
 game:SaveEmitter("emitter/emitter_01.xml", emitter)
 
 material=Material()
@@ -64,4 +65,4 @@ material.NormalTexture=game:LoadTexture("texture/casual19_m_35_normal.png")
 material.SpecularTexture=game:LoadTexture("texture/casual19_m_35_spec.png")
 game:SaveMaterial("stone.xml", material)
 
-game:InsertEmitter(game:LoadEmitter("emitter/emitter_01.xml"))
+-- game:InsertEmitter(game:LoadEmitter("emitter/emitter_01.xml"))

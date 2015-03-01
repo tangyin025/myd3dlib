@@ -685,6 +685,10 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 			{
 				OnResourceFailed(e.what());
 			}
+			catch(const std::exception & e)
+			{
+				OnResourceFailed(str_printf(_T("%s error: %s"), ms2ts(key).c_str(), ms2ts(e.what()).c_str()));
+			}
 		}
 
 		if (request->m_res)

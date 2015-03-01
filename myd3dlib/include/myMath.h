@@ -85,7 +85,7 @@ namespace my
 	template <typename V, size_t i, typename T>
 	V & Subscribe(T & t)
 	{
-		_ASSERT(i < sizeof(t) / sizeof(V));
+		BOOST_STATIC_ASSERT(i < sizeof(t) / sizeof(V));
 
 		return ((V*)&t)[i];
 	}

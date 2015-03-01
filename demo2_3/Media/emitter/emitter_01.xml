@@ -156,6 +156,9 @@
 					<item_version>1</item_version>
 				</SplineNodePtrList>
 			</m_ParticleAngle>
+			<m_ParticleAnimFPS>1</m_ParticleAnimFPS>
+			<m_ParticleAnimColumn>4</m_ParticleAnimColumn>
+			<m_ParticleAnimRow>4</m_ParticleAnimRow>
 		</Emitter>
 		<m_Time>0</m_Time>
 		<m_SpawnInterval>0.0099999998</m_SpawnInterval>

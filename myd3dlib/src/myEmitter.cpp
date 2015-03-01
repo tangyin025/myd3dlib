@@ -70,9 +70,8 @@ void Emitter::UpdateParticle(Particle & particle, float time, float fElapsedTime
 	particle.m_Texcoord1 = Vector4(
 		m_ParticleSizeX.Interpolate(time, 1), m_ParticleSizeY.Interpolate(time, 1), m_ParticleAngle.Interpolate(time, 0), 1);
 
-	//const unsigned int AnimFrame = (unsigned int)(time * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
-	//particle.m_Texcoord2 = Vector4(
-	//	0, 0, (float)(AnimFrame / m_ParticleAnimRow), (float)(AnimFrame % m_ParticleAnimColumn));
+	const unsigned int AnimFrame = (unsigned int)(time * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
+	particle.m_Texcoord2 = Vector4((float)(AnimFrame / m_ParticleAnimRow), (float)(AnimFrame % m_ParticleAnimColumn), 0, 0);
 }
 
 BOOST_CLASS_EXPORT(SphericalEmitter)

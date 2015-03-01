@@ -10,7 +10,7 @@ float3 g_ParticleDir;
 float3 g_ParticleUp;
 float3 g_ParticleRight;
 texture g_MeshTexture;
-// float2 g_AnimationColumnRow;
+float2 g_AnimationColumnRow;
 
 //--------------------------------------------------------------------------------------
 // Texture samplers
@@ -66,8 +66,8 @@ float3 rotate_angle_axis(float3 v, float a, float3 N)
 VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0, 
 						 float4 vPos : POSITION0,
                          float4 vDiffuse : COLOR0,
-						 float4 vTexCoord1 : TEXCOORD1 )
-						 // float4 vTexCoord2 : TEXCOORD2 )
+						 float4 vTexCoord1 : TEXCOORD1,
+						 float4 vTexCoord2 : TEXCOORD2 )
 {
     VS_OUTPUT Output;
 	float4 LocalPos = float4(rotate_angle_axis(
@@ -77,8 +77,7 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
 	Output.Position = mul(LocalPos + vPos, mul(g_World, g_ViewProj));
 	
 	Output.Diffuse = vDiffuse;
-	// Output.TextureUV = (vTexCoord2.xy + vTexCoord0.xy) / g_AnimationColumnRow;
-	Output.TextureUV = vTexCoord0;
+	Output.TextureUV = (vTexCoord2.xy + vTexCoord0.xy) / g_AnimationColumnRow;
     
     return Output;    
 }
