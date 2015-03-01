@@ -116,6 +116,20 @@ namespace my
 		: public std::vector<Bone>
 	{
 	public:
+		BoneList(void)
+		{
+		}
+
+		explicit BoneList(size_type _Count)
+			: vector(_Count)
+		{
+		}
+
+		BoneList(size_t _Count, const Bone & _Val)
+			: vector(_Count, _Val)
+		{
+		}
+
 		BoneList & Increment(
 			BoneList & boneList,
 			const BoneList & rhs,
@@ -273,6 +287,8 @@ namespace my
 
 		BoneHierarchy m_boneHierarchy;
 
+		BoneIndexSet m_boneRootSet;
+
 	public:
 		OgreSkeleton(void)
 		{
@@ -298,7 +314,9 @@ namespace my
 		: public OgreSkeleton
 	{
 	public:
-		boost::unordered_map<std::string, OgreAnimation> m_animationMap;
+		typedef boost::unordered_map<std::string, OgreAnimation> OgreAnimationNameMap;
+
+		OgreAnimationNameMap m_animationMap;
 
 	public:
 		OgreSkeletonAnimation(void)

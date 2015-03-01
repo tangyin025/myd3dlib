@@ -661,6 +661,25 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			}
 		}
 	}
+
+	// find roots
+	m_boneRootSet.clear();
+	std::vector<int> boneRootRef(m_boneHierarchy.size(), 0);
+	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
+	{
+		int child_i = m_boneHierarchy[bone_i].m_child;
+		if (-1 != child_i)
+		{
+			boneRootRef[child_i]++;
+		}
+	}
+	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
+	{
+		if (0 == boneRootRef[bone_i])
+		{
+			m_boneRootSet.insert(bone_i);
+		}
+	}
 }
 
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromMemory(

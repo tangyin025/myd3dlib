@@ -158,6 +158,10 @@ public:
 		//m_mesh_ins->CreateInstance(pd3dDevice);
 		m_mesh_ins = CreateMeshComponent(LoadMesh("mesh/tube.mesh.xml"), false);
 
+		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
+		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
+		m_emitter->m_Material = LoadMaterial("material/lambert1.xml");
+
 		//// ========================================================================================================
 		//// 大场景
 		//// ========================================================================================================
@@ -227,10 +231,6 @@ public:
 		//}
 		//m_deform_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		//AddResource("___trwrwr342423", m_deform_mesh);
-
-		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
-		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
-		m_emitter->m_Material = LoadMaterial("material/lambert1.xml");
 
 		//// ========================================================================================================
 		//// 逻辑系统
@@ -406,6 +406,7 @@ public:
 		//}
 		//m_SimpleSampleInst->End();
 		m_mesh_ins->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		m_emitter->QueryMesh(this,  RenderPipeline::DrawStageCBuffer);
 
 		// ========================================================================================================
 		// 布料系统
@@ -424,7 +425,6 @@ public:
 		//m_SimpleSampleSkel->End();
 
 		//m_deform_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
-		m_emitter->QueryMesh(this,  RenderPipeline::DrawStageCBuffer);
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}
