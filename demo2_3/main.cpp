@@ -36,12 +36,13 @@ public:
 	// ========================================================================================================
 	std::vector<PxClothParticle> m_cloth_particles;
 	MeshComponentPtr m_cloth_mesh;
-	OgreSkeletonAnimationPtr m_cloth_anim;
+	MeshAnimatorPtr m_cloth_mesh_anim;
+	//OgreSkeletonAnimationPtr m_cloth_anim;
 	//CachePtr m_cloth_mesh_vertices;
-	BoneList m_cloth_pose;
-	BoneList m_cloth_pose_heir1;
-	BoneList m_cloth_pose_heir2;
-	TransformList m_cloth_duals;
+	//BoneList m_cloth_pose;
+	//BoneList m_cloth_pose_heir1;
+	//BoneList m_cloth_pose_heir2;
+	//TransformList m_cloth_duals;
 	//PxCloth * m_cloth;
 
 	//DeformationMeshComponentPtr m_deform_mesh;
@@ -97,17 +98,16 @@ public:
 		}
 	}
 
-	MeshComponentPtr CreateMeshComponent(my::OgreMeshPtr mesh, bool cloth)
+	MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, bool cloth)
 	{
-		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb));
 		MeshComponent::LODPtr lod;
 		if (cloth)
 		{
-			lod.reset(new ClothMeshComponentLOD(mesh_cmp.get()));
+			lod.reset(new ClothMeshComponentLOD(owner));
 		}
 		else
 		{
-			lod.reset(new MeshComponent::LOD(mesh_cmp.get()));
+			lod.reset(new MeshComponent::LOD(owner));
 		}
 		lod->m_Mesh = mesh;
 		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
@@ -115,8 +115,7 @@ public:
 		{
 			lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
 		}
-		mesh_cmp->m_lods.push_back(lod);
-		return mesh_cmp;
+		return lod;
 	}
 
 	virtual HRESULT OnCreateDevice(
@@ -156,7 +155,8 @@ public:
 
 		//m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		//m_mesh_ins->CreateInstance(pd3dDevice);
-		m_mesh_ins = CreateMeshComponent(LoadMesh("mesh/tube.mesh.xml"), false);
+		m_mesh_ins.reset(new MeshComponent(AABB(-1,1)));
+		m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), false));
 
 		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
 		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
@@ -192,11 +192,16 @@ public:
 		p.normal = PxVec3(0.0f, 1.0f, 0.0f);
 		p.distance = 0.0f;
 
-		m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
+		//m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
+		m_cloth_mesh_anim.reset(new SimpleMeshAnimator());
+		m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 
-		m_cloth_mesh = CreateMeshComponent(LoadMesh("mesh/cloth.mesh.xml"), true);
-		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(
-			this, m_cloth_anim->m_boneHierarchy, m_cloth_anim->GetBoneIndex("joint5"), PxClothCollisionData());
+		m_cloth_mesh.reset(new MeshComponent(AABB(-1,1)));
+		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), true));
+		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
+			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
+			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
+			PxClothCollisionData());
 		//m_cloth_mesh_vertices.reset(new Cache(
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices() * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex()));
 		//memcpy(&(*m_cloth_mesh_vertices)[0], m_cloth_mesh->m_lods[0]->m_Mesh->LockVertexBuffer(), m_cloth_mesh_vertices->size());
@@ -274,30 +279,31 @@ public:
 		// ========================================================================================================
 		// 布料系统
 		// ========================================================================================================
-		static float anim_time = 0.5f;
-		//anim_time = fmod(anim_time + fElapsedTime, m_cloth_anim->GetAnimation("clip1").GetTime());
-		m_cloth_pose.resize(m_cloth_anim->m_boneBindPose.size());
-		m_cloth_anim->BuildAnimationPose(
-			m_cloth_pose,
-			m_cloth_anim->m_boneHierarchy,
-			m_cloth_anim->GetBoneIndex("joint1"),
-			"clip1",
-			anim_time);
-		m_cloth_pose_heir1.clear();
-		m_cloth_pose_heir1.resize(m_cloth_anim->m_boneBindPose.size());
-		m_cloth_anim->m_boneBindPose.BuildHierarchyBoneList(
-			m_cloth_pose_heir1,
-			m_cloth_anim->m_boneHierarchy,
-			m_cloth_anim->GetBoneIndex("joint1"));
-		m_cloth_pose_heir2.clear();
-		m_cloth_pose_heir2.resize(m_cloth_anim->m_boneBindPose.size());
-		m_cloth_pose.BuildHierarchyBoneList(
-			m_cloth_pose_heir2,
-			m_cloth_anim->m_boneHierarchy,
-			m_cloth_anim->GetBoneIndex("joint1"));
-		m_cloth_duals.clear();
-		m_cloth_duals.resize(m_cloth_anim->m_boneBindPose.size());
-		m_cloth_pose_heir1.BuildDualQuaternionList(m_cloth_duals, m_cloth_pose_heir2);
+		//static float anim_time = 0.5f;
+		////anim_time = fmod(anim_time + fElapsedTime, m_cloth_anim->GetAnimation("clip1").GetTime());
+		//m_cloth_pose.resize(m_cloth_anim->m_boneBindPose.size());
+		//m_cloth_anim->BuildAnimationPose(
+		//	m_cloth_pose,
+		//	m_cloth_anim->m_boneHierarchy,
+		//	m_cloth_anim->GetBoneIndex("joint1"),
+		//	"clip1",
+		//	anim_time);
+		//m_cloth_pose_heir1.clear();
+		//m_cloth_pose_heir1.resize(m_cloth_anim->m_boneBindPose.size());
+		//m_cloth_anim->m_boneBindPose.BuildHierarchyBoneList(
+		//	m_cloth_pose_heir1,
+		//	m_cloth_anim->m_boneHierarchy,
+		//	m_cloth_anim->GetBoneIndex("joint1"));
+		//m_cloth_pose_heir2.clear();
+		//m_cloth_pose_heir2.resize(m_cloth_anim->m_boneBindPose.size());
+		//m_cloth_pose.BuildHierarchyBoneList(
+		//	m_cloth_pose_heir2,
+		//	m_cloth_anim->m_boneHierarchy,
+		//	m_cloth_anim->GetBoneIndex("joint1"));
+		//m_cloth_duals.clear();
+		//m_cloth_duals.resize(m_cloth_anim->m_boneBindPose.size());
+		//m_cloth_pose_heir1.BuildDualQuaternionList(m_cloth_duals, m_cloth_pose_heir2);
+		m_cloth_mesh_anim->Update(fElapsedTime);
 
 		//static std::vector<Vector3> vertices;
 		//vertices.resize(m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices());
@@ -318,7 +324,7 @@ public:
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
-		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_duals);
+		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
 		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}

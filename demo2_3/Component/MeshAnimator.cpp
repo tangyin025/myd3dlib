@@ -21,7 +21,8 @@ void SimpleMeshAnimator::Update(float fElapsedTime)
 		return;
 	}
 
-	m_Time += fElapsedTime;
+	m_Time = fmod(m_Time + fElapsedTime, m_Animation->GetAnimation(anim_iter->first).GetTime());;
+
 	my::BoneIndexSet::const_iterator root_iter = m_Animation->m_boneRootSet.begin();
 	for (; root_iter != m_Animation->m_boneRootSet.end(); root_iter++)
 	{
