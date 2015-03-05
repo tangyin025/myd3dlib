@@ -92,6 +92,23 @@ class EmitterMeshComponent
 	: public RenderComponent
 {
 public:
+	enum WorldType
+	{
+		WorldTypeWorld,
+		WorldTypeLocal,
+	};
+
+	WorldType m_WorldType;
+
+	enum DirectionType
+	{
+		DirectionTypeCamera,
+		DirectionTypeVertical,
+		DirectionTypeHorizontal,
+	};
+
+	DirectionType m_DirectionType;
+
 	my::EmitterPtr m_Emitter;
 
 	MaterialPtr m_Material;
@@ -99,6 +116,8 @@ public:
 public:
 	EmitterMeshComponent(const my::AABB & aabb)
 		: RenderComponent(aabb)
+		, m_WorldType(WorldTypeWorld)
+		, m_DirectionType(DirectionTypeCamera)
 	{
 	}
 

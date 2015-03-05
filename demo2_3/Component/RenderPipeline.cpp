@@ -264,6 +264,7 @@ void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitte
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	setter->OnSetShader(shader, 0);
+	shader->SetFloatArray("g_AnimationColumnRow", &Vector2(emitter->m_ParticleAnimColumn, emitter->m_ParticleAnimRow)[0], 2);
 	for (UINT p = 0; p < passes; p++)
 	{
 		shader->BeginPass(p);

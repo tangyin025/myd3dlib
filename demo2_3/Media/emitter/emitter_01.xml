@@ -4,8 +4,6 @@
 <Emitter class_id="0" tracking_level="0" version="1">
 	<px class_id="2" class_name="SphericalEmitter" tracking_level="1" version="0" object_id="_0">
 		<Emitter class_id="1" tracking_level="1" version="0" object_id="_1">
-			<m_WorldType>0</m_WorldType>
-			<m_DirectionType>0</m_DirectionType>
 			<m_Position class_id="3" tracking_level="0" version="0">
 				<x>0</x>
 				<y>0</y>

@@ -91,11 +91,12 @@ void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::
 
 void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	switch (m_Emitter->m_WorldType)
+	switch (m_WorldType)
 	{
-	case my::Emitter::WorldTypeLocal:
+	case WorldTypeLocal:
 		shader->SetMatrix("g_World", Matrix4::Compose(Vector3(1,1,1), m_Emitter->m_Orientation, m_Emitter->m_Position));
 		break;
+
 	default:
 		shader->SetMatrix("g_World", Matrix4::identity);
 		break;
@@ -103,15 +104,15 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	Vector3 Up, Right, Dir;
 	const Matrix4 View = shader->GetMatrix("g_View");
-	switch (m_Emitter->m_DirectionType)
+	switch (m_DirectionType)
 	{
-	case my::Emitter::DirectionTypeCamera:
+	case DirectionTypeCamera:
 		Dir = View.column<2>().xyz;
 		Up = View.column<1>().xyz;
 		Right = View.column<0>().xyz;
 		break;
 
-	case my::Emitter::DirectionTypeVertical:
+	case DirectionTypeVertical:
 		Up = Vector3(0,1,0);
 		Right = Up.cross(View.column<2>().xyz);
 		Dir = Right.cross(Up);
@@ -121,8 +122,6 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetVector("g_ParticleDir", Dir);
 	shader->SetVector("g_ParticleUp", Up);
 	shader->SetVector("g_ParticleRight", Right);
-	shader->SetFloatArray("g_AnimationColumnRow",
-		&Vector2(m_Emitter->m_ParticleAnimColumn, m_Emitter->m_ParticleAnimRow)[0], 2);
 
 	m_Material->OnSetShader(shader, AttribId);
 }

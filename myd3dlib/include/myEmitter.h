@@ -41,23 +41,6 @@ namespace my
 
 		typedef std::deque<std::pair<float, Particle> > ParticlePairList;
 
-		enum WorldType
-		{
-			WorldTypeWorld,
-			WorldTypeLocal,
-		};
-
-		WorldType m_WorldType;
-
-		enum DirectionType
-		{
-			DirectionTypeCamera,
-			DirectionTypeVertical,
-			DirectionTypeHorizontal,
-		};
-
-		DirectionType m_DirectionType;
-
 		Vector3 m_Position;
 
 		Quaternion m_Orientation;
@@ -88,9 +71,7 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_WorldType(WorldTypeWorld)
-			, m_DirectionType(DirectionTypeCamera)
-			, m_Position(0,0,0)
+			: m_Position(0,0,0)
 			, m_Orientation(Quaternion::Identity())
 			, m_ParticleLifeTime(FLT_MAX)
 			, m_ParticleAnimFPS(1)
@@ -104,8 +85,6 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_WorldType);
-			ar & BOOST_SERIALIZATION_NVP(m_DirectionType);
 			ar & BOOST_SERIALIZATION_NVP(m_Position);
 			ar & BOOST_SERIALIZATION_NVP(m_Orientation);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);

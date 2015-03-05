@@ -14,19 +14,6 @@ void ExportEmitter2Lua(lua_State * L)
 
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
 			.def(constructor<>())
-			.enum_("WorldType")
-			[
-				value("WorldTypeWorld", my::Emitter::WorldTypeWorld),
-				value("WorldTypeLocal", my::Emitter::WorldTypeLocal)
-			]
-			.def_readwrite("WorldType", &my::Emitter::m_WorldType)
-			.enum_("DirectionType")
-			[
-				value("DirectionTypeCamera", my::Emitter::DirectionTypeCamera),
-				value("DirectionTypeVertical", my::Emitter::DirectionTypeVertical),
-				value("DirectionTypeHorizontal", my::Emitter::DirectionTypeHorizontal)
-			]
-			.def_readwrite("DirectionType", &my::Emitter::m_DirectionType)
 			.def_readwrite("Position", &my::SphericalEmitter::m_Position)
 			.def_readwrite("Orientation", &my::SphericalEmitter::m_Orientation)
 			.def_readwrite("ParticleLifeTime", &my::Emitter::m_ParticleLifeTime)
