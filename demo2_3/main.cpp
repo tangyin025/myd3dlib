@@ -36,7 +36,7 @@ public:
 	// ========================================================================================================
 	std::vector<PxClothParticle> m_cloth_particles;
 	MeshComponentPtr m_cloth_mesh;
-	MeshAnimatorPtr m_cloth_mesh_anim;
+	AnimatorPtr m_cloth_mesh_anim;
 	//OgreSkeletonAnimationPtr m_cloth_anim;
 	//CachePtr m_cloth_mesh_vertices;
 	//BoneList m_cloth_pose;
@@ -98,7 +98,7 @@ public:
 		}
 	}
 
-	MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, bool cloth)
+	MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, DWORD AttribId, bool cloth)
 	{
 		MeshComponent::LODPtr lod;
 		if (cloth)
@@ -110,10 +110,9 @@ public:
 			lod.reset(new MeshComponent::LOD(owner));
 		}
 		lod->m_Mesh = mesh;
-		std::vector<std::string>::const_iterator mat_name_iter = lod->m_Mesh->m_MaterialNameList.begin();
-		for(; mat_name_iter != lod->m_Mesh->m_MaterialNameList.end(); mat_name_iter++)
+		if (AttribId < lod->m_Mesh->m_MaterialNameList.size())
 		{
-			lod->m_Materials.push_back(LoadMaterial(str_printf("material/%s.xml", mat_name_iter->c_str())));
+			lod->m_Material = LoadMaterial(str_printf("material/%s.xml", lod->m_Mesh->m_MaterialNameList[AttribId].c_str()));
 		}
 		return lod;
 	}
@@ -150,13 +149,13 @@ public:
 		//}
 		//m_skel_mesh->m_lods.push_back(lod);
 		//m_skel_mesh->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		//m_skel_mesh->m_Animator.reset(new MeshAnimator());
+		//m_skel_mesh->m_Animator.reset(new Animator());
 		//m_skel_anim = LoadSkeleton("mesh/sportive03_f.skeleton.xml");
 
 		//m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		//m_mesh_ins->CreateInstance(pd3dDevice);
 		m_mesh_ins.reset(new MeshComponent(AABB(-1,1)));
-		m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), false));
+		m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
 
 		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
 		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
@@ -193,11 +192,11 @@ public:
 		p.distance = 0.0f;
 
 		//m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
-		m_cloth_mesh_anim.reset(new SimpleMeshAnimator());
+		m_cloth_mesh_anim.reset(new SimpleAnimator());
 		m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 
 		m_cloth_mesh.reset(new MeshComponent(AABB(-1,1)));
-		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), true));
+		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
 			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),

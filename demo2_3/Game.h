@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "PhysXContext.h"
 #include "Component/RenderPipeline.h"
-#include "Component/MeshComponent.h"
+#include "Component/ActorComponent.h"
 
 class EffectUIRender
 	: public my::UIRender

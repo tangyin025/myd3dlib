@@ -1,19 +1,19 @@
 #include "stdafx.h"
-#include "MeshAnimator.h"
+#include "Animator.h"
 
 using namespace my;
 
-const my::Matrix4 * MeshAnimator::GetDualQuats(void) const
+const my::Matrix4 * Animator::GetDualQuats(void) const
 {
 	return &m_DualQuats[0];
 }
 
-UINT MeshAnimator::GetDualQuatsNum(void) const
+UINT Animator::GetDualQuatsNum(void) const
 {
 	return m_DualQuats.size();
 }
 
-void SimpleMeshAnimator::Update(float fElapsedTime)
+void SimpleAnimator::Update(float fElapsedTime)
 {
 	OgreSkeletonAnimation::OgreAnimationNameMap::const_iterator anim_iter = m_Animation->m_animationMap.begin();
 	if (anim_iter == m_Animation->m_animationMap.end())

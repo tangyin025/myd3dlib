@@ -1,6 +1,6 @@
 #pragma once
 
-class MeshAnimator
+class Animator
 {
 public:
 	my::OgreSkeletonAnimationPtr m_Animation;
@@ -8,11 +8,11 @@ public:
 	my::TransformList m_DualQuats;
 
 public:
-	MeshAnimator(void)
+	Animator(void)
 	{
 	}
 
-	virtual ~MeshAnimator(void)
+	virtual ~Animator(void)
 	{
 	}
 
@@ -25,16 +25,16 @@ public:
 	UINT GetDualQuatsNum(void) const;
 };
 
-typedef boost::shared_ptr<MeshAnimator> MeshAnimatorPtr;
+typedef boost::shared_ptr<Animator> AnimatorPtr;
 
-class SimpleMeshAnimator
-	: public MeshAnimator
+class SimpleAnimator
+	: public Animator
 {
 public:
 	float m_Time;
 
 public:
-	SimpleMeshAnimator(void)
+	SimpleAnimator(void)
 		: m_Time(0)
 	{
 	}

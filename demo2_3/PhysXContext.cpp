@@ -339,22 +339,19 @@ void ClothMeshComponentLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline:
 		_ASSERT(!m_IndexData.empty());
 		_ASSERT(!m_AttribTable.empty());
 		_ASSERT(m_Decl);
-		for (DWORD i = 0; i < m_AttribTable.size(); i++)
+		if (m_Material)
 		{
-			if (m_Materials[i])
+			my::Effect * shader = m_Material->QueryShader(pipeline, stage, mesh_type, false);
+			if (shader)
 			{
-				my::Effect * shader = m_Materials[i]->QueryShader(pipeline, stage, mesh_type, false);
-				if (shader)
-				{
-					pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
-						m_AttribTable[i].VertexStart,
-						m_AttribTable[i].VertexCount,
-						m_AttribTable[i].FaceCount,
-						&m_IndexData[m_AttribTable[i].FaceStart * 3],
-						D3DFMT_INDEX16,
-						&m_VertexData[0],
-						m_Mesh->GetNumBytesPerVertex(), i, shader, m_owner);
-				}
+				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
+					m_AttribTable[m_AttribId].VertexStart,
+					m_AttribTable[m_AttribId].VertexCount,
+					m_AttribTable[m_AttribId].FaceCount,
+					&m_IndexData[m_AttribTable[m_AttribId].FaceStart * 3],
+					D3DFMT_INDEX16,
+					&m_VertexData[0],
+					m_Mesh->GetNumBytesPerVertex(), m_AttribId, shader, m_owner);
 			}
 		}
 	}

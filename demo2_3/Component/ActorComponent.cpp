@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "MeshComponent.h"
+#include "ActorComponent.h"
 
 using namespace my;
 
@@ -7,21 +7,18 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 {
 	if (m_Mesh)
 	{
-		for (DWORD i = 0; i < m_Materials.size(); i++)
+		if (m_Material)
 		{
-			if (m_Materials[i])
+			my::Effect * shader = m_Material->QueryShader(pipeline, stage, mesh_type, m_bInstance);
+			if (shader)
 			{
-				my::Effect * shader = m_Materials[i]->QueryShader(pipeline, stage, mesh_type, m_bInstance);
-				if (shader)
+				if (m_bInstance)
 				{
-					if (m_bInstance)
-					{
-						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
-					}
-					else
-					{
-						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
-					}
+					pipeline->PushOpaqueMeshInstance(m_Mesh.get(), m_AttribId, m_owner->m_World, shader, m_owner);
+				}
+				else
+				{
+					pipeline->PushOpaqueMesh(m_Mesh.get(), m_AttribId, shader, m_owner);
 				}
 			}
 		}
@@ -30,13 +27,9 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 
 void MeshComponent::LOD::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	if (m_Mesh)
-	{
-		if (AttribId < m_Materials.size())
-		{
-			m_Materials[AttribId]->OnSetShader(shader, AttribId);
-		}
-	}
+	_ASSERT(m_Mesh);
+	_ASSERT(AttribId == m_AttribId);
+	m_Material->OnSetShader(shader, AttribId);
 }
 
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
@@ -94,7 +87,7 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	switch (m_WorldType)
 	{
 	case WorldTypeLocal:
-		shader->SetMatrix("g_World", Matrix4::Compose(Vector3(1,1,1), m_Emitter->m_Orientation, m_Emitter->m_Position));
+		shader->SetMatrix("g_World", m_World);
 		break;
 
 	default:
