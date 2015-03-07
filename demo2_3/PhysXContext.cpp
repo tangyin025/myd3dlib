@@ -332,54 +332,25 @@ void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//}
 }
 
-void ClothMeshComponentLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk,
+	my::OgreMeshPtr mesh, DWORD AttribId, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData)
 {
-	if (m_Mesh && !m_VertexData.empty())
-	{
-		_ASSERT(!m_IndexData.empty());
-		_ASSERT(!m_AttribTable.empty());
-		_ASSERT(m_Decl);
-		if (m_Material)
-		{
-			my::Effect * shader = m_Material->QueryShader(pipeline, stage, mesh_type, false);
-			if (shader)
-			{
-				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
-					m_AttribTable[m_AttribId].VertexStart,
-					m_AttribTable[m_AttribId].VertexCount,
-					m_AttribTable[m_AttribId].FaceCount,
-					&m_IndexData[m_AttribTable[m_AttribId].FaceStart * 3],
-					D3DFMT_INDEX16,
-					&m_VertexData[0],
-					m_Mesh->GetNumBytesPerVertex(), m_AttribId, shader, m_owner);
-			}
-		}
-	}
-}
-
-void ClothMeshComponentLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	MeshComponent::LOD::OnSetShader(shader, AttribId);
-}
-
-void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData)
-{
-	_ASSERT(m_Mesh);
 	if (m_VertexData.empty())
 	{
-		m_VertexData.resize(m_Mesh->GetNumVertices() * m_Mesh->GetNumBytesPerVertex());
-		memcpy(&m_VertexData[0], m_Mesh->LockVertexBuffer(), m_VertexData.size());
-		m_Mesh->UnlockVertexBuffer();
+		m_VertexStride = mesh->GetNumBytesPerVertex();
+		m_VertexData.resize(mesh->GetNumVertices() * m_VertexStride);
+		memcpy(&m_VertexData[0], mesh->LockVertexBuffer(), m_VertexData.size());
+		mesh->UnlockVertexBuffer();
 
-		m_IndexData.resize(m_Mesh->GetNumFaces() * 3);
+		m_IndexData.resize(mesh->GetNumFaces() * 3);
 		if (m_IndexData.size() > USHRT_MAX)
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("create deformation m_Mesh with overflow index size %u"), m_IndexData.size()));
+			THROW_CUSEXCEPTION(str_printf(_T("create deformation mesh with overflow index size %u"), m_IndexData.size()));
 		}
-		VOID * pIndices = m_Mesh->LockIndexBuffer();
-		for (unsigned int face_i = 0; face_i < m_Mesh->GetNumFaces(); face_i++)
+		VOID * pIndices = mesh->LockIndexBuffer();
+		for (unsigned int face_i = 0; face_i < mesh->GetNumFaces(); face_i++)
 		{
-			if(m_Mesh->GetOptions() & D3DXMESH_32BIT)
+			if(mesh->GetOptions() & D3DXMESH_32BIT)
 			{
 				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + face_i * 3 + 0);
 				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + face_i * 3 + 1);
@@ -392,34 +363,26 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHie
 				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + face_i * 3 + 2);
 			}
 		}
-		m_Mesh->UnlockIndexBuffer();
-	}
+		mesh->UnlockIndexBuffer();
 
-	if (m_AttribTable.empty())
-	{
-		DWORD submeshes = 0;
-		m_Mesh->GetAttributeTable(NULL, &submeshes);
-		m_AttribTable.resize(submeshes);
-		m_Mesh->GetAttributeTable(&m_AttribTable[0], &submeshes);
-	}
-
-	if (!m_Decl)
-	{
+		m_AttribRange = mesh->m_AttribTable[AttribId];
 		std::vector<D3DVERTEXELEMENT9> ielist(MAX_FVF_DECL_SIZE);
-		m_Mesh->GetDeclaration(&ielist[0]);
+		mesh->GetDeclaration(&ielist[0]);
 		HRESULT hr;
-		if (FAILED(hr = m_Mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Decl)))
+		if (FAILED(hr = mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Decl)))
 		{
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
 
-	m_particles.resize(m_Mesh->GetNumVertices());
-	unsigned char * pVertices = (unsigned char *)m_Mesh->LockVertexBuffer();
+	m_VertexElems = mesh->m_VertexElems;
+
+	m_particles.resize(mesh->GetNumVertices());
+	unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
 	for(unsigned int i = 0; i < m_particles.size(); i++) {
-		unsigned char * pVertex = pVertices + i * m_Mesh->GetNumBytesPerVertex();
-		m_particles[i].pos = (PxVec3 &)m_Mesh->m_VertexElems.GetPosition(pVertex);
-		unsigned char * pIndices = (unsigned char *)&m_Mesh->m_VertexElems.GetBlendIndices(pVertex);
+		unsigned char * pVertex = pVertices + i * m_VertexStride;
+		m_particles[i].pos = (PxVec3 &)m_VertexElems.GetPosition(pVertex);
+		unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
 		BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
 		m_particles[i].invWeight = (
 			pIndices[0] == root_i || hierarchy.HaveChild(root_i, pIndices[0]) ||
@@ -427,12 +390,10 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHie
 			pIndices[2] == root_i || hierarchy.HaveChild(root_i, pIndices[2]) ||
 			pIndices[3] == root_i || hierarchy.HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
 	}
-	m_Mesh->UnlockVertexBuffer();
 
 	my::MemoryOStreamPtr ofs(new my::MemoryOStream);
-	px_sdk->CookClothFabric(ofs, m_Mesh,
-		m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
-
+	px_sdk->CookClothFabric(
+		ofs, mesh, m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
 	my::IStreamPtr ifs(new my::MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
 	physx_ptr<PxClothFabric> fabric(px_sdk->CreateClothFabric(ifs));
 	m_cloth.reset(px_sdk->m_sdk->createCloth(
@@ -441,41 +402,40 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk, const my::BoneHie
 
 void ClothMeshComponentLOD::UpdateCloth(const my::TransformList & dualQuaternionList)
 {
-	_ASSERT(m_particles.size() == m_Mesh->GetNumVertices());
+	_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
 	PxClothReadData * readData = m_cloth->lockClothReadData();
 	if (readData)
 	{
 		unsigned char * pVertices = &m_VertexData[0];
-		const DWORD VertexStride = m_Mesh->GetNumBytesPerVertex();
 		const DWORD NbParticles = m_cloth->getNbParticles();
 		m_NewParticles.resize(NbParticles);
 		for (unsigned int i = 0; i < NbParticles; i++)
 		{
-			void * pVertex = pVertices + i * VertexStride;
+			void * pVertex = pVertices + i * m_VertexStride;
 			m_NewParticles[i].invWeight = readData->particles[i].invWeight;
 			if (0 == m_NewParticles[i].invWeight)
 			{
 				my::Vector3 pos;
 				my::BoneList::TransformVertexWithDualQuaternionList(pos,
 					(my::Vector3 &)m_particles[i].pos,
-					m_Mesh->m_VertexElems.GetBlendIndices(pVertex),
-					m_Mesh->m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
+					m_VertexElems.GetBlendIndices(pVertex),
+					m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
 				m_NewParticles[i].pos = (PxVec3 &)pos;
 			}
 			else
 			{
 				m_NewParticles[i].pos = readData->particles[i].pos;
 			}
-			m_Mesh->m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+			m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
 		}
 		readData->unlock();
 		m_cloth->setParticles(&m_NewParticles[0], NULL);
 		m_cloth->setTargetPose(PxTransform((PxMat44 &)m_owner->m_World));
 
 		my::OgreMesh::ComputeNormalFrame(
-			pVertices, NbParticles, VertexStride, &m_IndexData[0], true, m_Mesh->GetNumFaces(), m_Mesh->m_VertexElems);
+			pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 
 		my::OgreMesh::ComputeTangentFrame(
-			pVertices, NbParticles, VertexStride, &m_IndexData[0], true, m_Mesh->GetNumFaces(), m_Mesh->m_VertexElems);
+			pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 	}
 }

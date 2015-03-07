@@ -187,16 +187,10 @@ public:
 };
 
 class ClothMeshComponentLOD
-	: public MeshComponent::LOD
+	: public MeshComponent::IndexdPrimitiveUPLOD
 {
 public:
-	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-	my::Cache m_VertexData;
-
-	std::vector<unsigned short> m_IndexData;
+	my::D3DVertexElementSet m_VertexElems;
 
 	std::vector<PxClothParticle> m_particles;
 
@@ -206,15 +200,12 @@ public:
 
 public:
 	ClothMeshComponentLOD(MeshComponent * owner)
-		: MeshComponent::LOD(owner)
+		: MeshComponent::IndexdPrimitiveUPLOD(owner)
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-
-	void CreateCloth(PhysXContext * px_sdk, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData);
+	void CreateCloth(PhysXContext * px_sdk,
+		my::OgreMeshPtr mesh, DWORD AttribId, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData);
 
 	void UpdateCloth(const my::TransformList & dualQuaternionList);
 };

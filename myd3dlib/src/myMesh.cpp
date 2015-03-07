@@ -952,6 +952,11 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	}
 	m_Adjacency.resize(adjacency.size());
 	OptimizeInplace(D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE, &adjacency[0], &m_Adjacency[0], NULL, NULL);
+
+	DWORD AttribTblCount = 0;
+	GetAttributeTable(NULL, &AttribTblCount);
+	m_AttribTable.resize(AttribTblCount);
+	GetAttributeTable(&m_AttribTable[0], &AttribTblCount);
 }
 
 void OgreMesh::SaveMesh(std::ostream & ostr)

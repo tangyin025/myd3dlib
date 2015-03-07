@@ -335,6 +335,8 @@ namespace my
 
 		std::vector<DWORD> m_Adjacency;
 
+		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+
 	public:
 		OgreMesh(void)
 		{

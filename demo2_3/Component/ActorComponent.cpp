@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+void MeshComponent::MeshLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
 {
 	if (m_Mesh)
 	{
@@ -25,10 +25,55 @@ void MeshComponent::LOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::Dr
 	}
 }
 
-void MeshComponent::LOD::OnSetShader(my::Effect * shader, DWORD AttribId)
+void MeshComponent::MeshLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(m_Mesh);
 	_ASSERT(AttribId == m_AttribId);
+	m_Material->OnSetShader(shader, AttribId);
+}
+
+void MeshComponent::IndexdPrimitiveUPLOD::OnResetDevice(void)
+{
+}
+
+void MeshComponent::IndexdPrimitiveUPLOD::OnLostDevice(void)
+{
+}
+
+void MeshComponent::IndexdPrimitiveUPLOD::OnDestroyDevice(void)
+{
+	m_Decl.Release();
+}
+
+void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+{
+	if (!m_VertexData.empty())
+	{
+		_ASSERT(0 != m_VertexStride);
+		_ASSERT(!m_IndexData.empty());
+		if (m_Material)
+		{
+			my::Effect * shader = m_Material->QueryShader(pipeline, stage, mesh_type, false);
+			if (shader)
+			{
+				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
+					m_AttribRange.VertexStart,
+					m_AttribRange.VertexCount,
+					m_AttribRange.FaceCount,
+					&m_IndexData[m_AttribRange.FaceStart * 3],
+					D3DFMT_INDEX16,
+					&m_VertexData[0],
+					m_VertexStride,
+					m_AttribRange.AttribId, shader, m_owner);
+			}
+		}
+	}
+}
+
+void MeshComponent::IndexdPrimitiveUPLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(!m_VertexData.empty());
+	_ASSERT(AttribId == m_AttribRange.AttribId);
 	m_Material->OnSetShader(shader, AttribId);
 }
 

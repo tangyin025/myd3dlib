@@ -39,18 +39,35 @@ public:
 	{
 	public:
 		MeshComponent * m_owner;
-
-		MaterialPtr m_Material;
 	
+	public:
+		LOD(MeshComponent * owner)
+			: m_owner(owner)
+		{
+		}
+
+		virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type) = 0;
+
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+	};
+
+	typedef boost::shared_ptr<LOD> LODPtr;
+
+	class MeshLOD
+		: public LOD
+	{
+	public:
 		my::OgreMeshPtr m_Mesh;
 
 		DWORD m_AttribId;
 
 		bool m_bInstance;
-	
+
+		MaterialPtr m_Material;
+
 	public:
-		LOD(MeshComponent * owner)
-			: m_owner(owner)
+		MeshLOD(MeshComponent * owner)
+			: LOD(owner)
 			, m_AttribId(0)
 			, m_bInstance(false)
 		{
@@ -61,7 +78,42 @@ public:
 		virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 	};
 
-	typedef boost::shared_ptr<LOD> LODPtr;
+	typedef boost::shared_ptr<MeshLOD> MeshLODPtr;
+
+	class IndexdPrimitiveUPLOD
+		: public my::DeviceRelatedObjectBase
+		, public LOD
+	{
+	public:
+		D3DXATTRIBUTERANGE m_AttribRange;
+
+		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+		my::Cache m_VertexData;
+
+		DWORD m_VertexStride;
+
+		std::vector<unsigned short> m_IndexData;
+
+		MaterialPtr m_Material;
+
+	public:
+		IndexdPrimitiveUPLOD(MeshComponent * owner)
+			: LOD(owner)
+			, m_VertexStride(0)
+		{
+		}
+
+		virtual void OnResetDevice(void);
+
+		virtual void OnLostDevice(void);
+
+		virtual void OnDestroyDevice(void);
+
+		virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type);
+
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	};
 
 	typedef std::vector<LODPtr> LODPtrList;
 

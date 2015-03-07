@@ -100,19 +100,21 @@ public:
 
 	MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, DWORD AttribId, bool cloth)
 	{
-		MeshComponent::LODPtr lod;
 		if (cloth)
 		{
-			lod.reset(new ClothMeshComponentLOD(owner));
+			ClothMeshComponentLODPtr lod(new ClothMeshComponentLOD(owner));
+			if (AttribId < mesh->m_MaterialNameList.size())
+			{
+				lod->m_Material = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
+			}
+			return lod;
 		}
-		else
+
+		MeshComponent::MeshLODPtr lod(new MeshComponent::MeshLOD(owner));
+		boost::dynamic_pointer_cast<MeshComponent::MeshLOD>(lod)->m_Mesh = mesh;
+		if (AttribId < mesh->m_MaterialNameList.size())
 		{
-			lod.reset(new MeshComponent::LOD(owner));
-		}
-		lod->m_Mesh = mesh;
-		if (AttribId < lod->m_Mesh->m_MaterialNameList.size())
-		{
-			lod->m_Material = LoadMaterial(str_printf("material/%s.xml", lod->m_Mesh->m_MaterialNameList[AttribId].c_str()));
+			lod->m_Material = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
 		}
 		return lod;
 	}
@@ -198,6 +200,7 @@ public:
 		m_cloth_mesh.reset(new MeshComponent(AABB(-1,1)));
 		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
+			LoadMesh("mesh/cloth.mesh.xml"), 0,
 			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 			PxClothCollisionData());
