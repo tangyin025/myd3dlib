@@ -103,6 +103,7 @@ public:
 	struct EmitterAtom
 	{
 		my::Emitter * emitter;
+		DWORD AttribId;
 		my::Effect * shader;
 		IShaderSetter * setter;
 	};
@@ -156,7 +157,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
+	void DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
@@ -176,7 +177,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void PushOpaqueEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter);
+	void PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void ClearAllRenderObjs(void);
 };

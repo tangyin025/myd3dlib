@@ -147,7 +147,7 @@ void RenderPipeline::OnFrameRender(
 	EmitterAtomList::iterator emitter_iter = m_QpaqueEmitterList.begin();
 	for (; emitter_iter != m_QpaqueEmitterList.end(); emitter_iter++)
 	{
-		DrawOpaqueEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->shader, emitter_iter->setter);
+		DrawOpaqueEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
 	}
 
 	ClearAllRenderObjs();
@@ -243,7 +243,7 @@ void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
@@ -263,7 +263,7 @@ void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitte
 
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
-	setter->OnSetShader(shader, 0);
+	setter->OnSetShader(shader, AttribId);
 	shader->SetFloatArray("g_AnimationColumnRow", &Vector2(emitter->m_ParticleAnimColumn, emitter->m_ParticleAnimRow)[0], 2);
 	for (UINT p = 0; p < passes; p++)
 	{
@@ -380,10 +380,11 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	m_OpaqueIndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	EmitterAtom atom;
 	atom.emitter = emitter;
+	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.setter = setter;
 	m_QpaqueEmitterList.push_back(atom);

@@ -47,24 +47,24 @@ void MeshComponent::IndexdPrimitiveUPLOD::OnDestroyDevice(void)
 
 void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
 {
-	if (!m_VertexData.empty())
+	for (unsigned int i = 0; i < m_AttribTable.size(); i++)
 	{
-		_ASSERT(0 != m_VertexStride);
+		_ASSERT(!m_VertexData.empty());
 		_ASSERT(!m_IndexData.empty());
-		if (m_Material)
+		_ASSERT(0 != m_VertexStride);
+		if (m_MaterialList[i])
 		{
-			my::Effect * shader = m_Material->QueryShader(pipeline, stage, mesh_type, false);
+			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, mesh_type, false);
 			if (shader)
 			{
 				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
-					m_AttribRange.VertexStart,
-					m_AttribRange.VertexCount,
-					m_AttribRange.FaceCount,
-					&m_IndexData[m_AttribRange.FaceStart * 3],
+					m_AttribTable[i].VertexStart,
+					m_AttribTable[i].VertexCount,
+					m_AttribTable[i].FaceCount,
+					&m_IndexData[m_AttribTable[i].FaceStart * 3],
 					D3DFMT_INDEX16,
 					&m_VertexData[0],
-					m_VertexStride,
-					m_AttribRange.AttribId, shader, m_owner);
+					m_VertexStride, i, shader, m_owner);
 			}
 		}
 	}
@@ -73,8 +73,8 @@ void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, R
 void MeshComponent::IndexdPrimitiveUPLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(!m_VertexData.empty());
-	_ASSERT(AttribId == m_AttribRange.AttribId);
-	m_Material->OnSetShader(shader, AttribId);
+	_ASSERT(AttribId < m_AttribTable.size());
+	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
@@ -114,14 +114,15 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
-	if (m_Emitter)
+	_ASSERT(m_EmitterList.size() == m_MaterialList.size());
+	for (unsigned int i = 0; i < m_EmitterList.size(); i++)
 	{
-		if (m_Material)
+		if (m_MaterialList[i])
 		{
-			my::Effect * shader = m_Material->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, true);
+			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, true);
 			if (shader)
 			{
-				pipeline->PushOpaqueEmitter(m_Emitter.get(), shader, this);
+				pipeline->PushOpaqueEmitter(m_EmitterList[i].get(), i, shader, this);
 			}
 		}
 	}
@@ -161,5 +162,5 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetVector("g_ParticleUp", Up);
 	shader->SetVector("g_ParticleRight", Right);
 
-	m_Material->OnSetShader(shader, AttribId);
+	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }

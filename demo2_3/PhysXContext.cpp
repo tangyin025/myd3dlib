@@ -365,11 +365,11 @@ void ClothMeshComponentLOD::CreateCloth(PhysXContext * px_sdk,
 		}
 		mesh->UnlockIndexBuffer();
 
-		m_AttribRange = mesh->m_AttribTable[AttribId];
-		std::vector<D3DVERTEXELEMENT9> ielist(MAX_FVF_DECL_SIZE);
-		mesh->GetDeclaration(&ielist[0]);
+		m_AttribTable = mesh->m_AttribTable;
+		std::vector<D3DVERTEXELEMENT9> velist(MAX_FVF_DECL_SIZE);
+		mesh->GetDeclaration(&velist[0]);
 		HRESULT hr;
-		if (FAILED(hr = mesh->GetDevice()->CreateVertexDeclaration(&ielist[0], &m_Decl)))
+		if (FAILED(hr = mesh->GetDevice()->CreateVertexDeclaration(&velist[0], &m_Decl)))
 		{
 			THROW_D3DEXCEPTION(hr);
 		}

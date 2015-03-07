@@ -105,7 +105,8 @@ public:
 			ClothMeshComponentLODPtr lod(new ClothMeshComponentLOD(owner));
 			if (AttribId < mesh->m_MaterialNameList.size())
 			{
-				lod->m_Material = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
+				lod->m_MaterialList.resize(AttribId + 1);
+				lod->m_MaterialList[AttribId] = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
 			}
 			return lod;
 		}
@@ -160,8 +161,8 @@ public:
 		m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
 
 		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
-		m_emitter->m_Emitter = LoadEmitter("emitter/emitter_01.xml");
-		m_emitter->m_Material = LoadMaterial("material/lambert1.xml");
+		m_emitter->m_EmitterList.push_back(LoadEmitter("emitter/emitter_01.xml"));
+		m_emitter->m_MaterialList.push_back(LoadMaterial("material/lambert1.xml"));
 
 		//// ========================================================================================================
 		//// 大场景
@@ -373,8 +374,8 @@ public:
 		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
-		if (m_emitter->m_Emitter)
-			m_emitter->m_Emitter->Update(fTime, fElapsedTime);
+		for (unsigned int i = 0; i < m_emitter->m_EmitterList.size(); i++)
+			m_emitter->m_EmitterList[i]->Update(fTime, fElapsedTime);
 
 		//// ========================================================================================================
 		//// 逻辑系统

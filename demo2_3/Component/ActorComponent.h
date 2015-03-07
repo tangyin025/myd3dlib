@@ -85,7 +85,7 @@ public:
 		, public LOD
 	{
 	public:
-		D3DXATTRIBUTERANGE m_AttribRange;
+		std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
 
 		CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
@@ -95,7 +95,7 @@ public:
 
 		std::vector<unsigned short> m_IndexData;
 
-		MaterialPtr m_Material;
+		MaterialPtrList m_MaterialList;
 
 	public:
 		IndexdPrimitiveUPLOD(MeshComponent * owner)
@@ -175,9 +175,11 @@ public:
 
 	DirectionType m_DirectionType;
 
-	my::EmitterPtr m_Emitter;
+	typedef std::vector<my::EmitterPtr> EmitterPtrList;
 
-	MaterialPtr m_Material;
+	EmitterPtrList m_EmitterList;
+
+	MaterialPtrList m_MaterialList;
 
 public:
 	EmitterMeshComponent(const my::AABB & aabb)
@@ -193,4 +195,3 @@ public:
 };
 
 typedef boost::shared_ptr<EmitterMeshComponent> EmitterMeshComponentPtr;
-
