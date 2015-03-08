@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "ActorComponent.h"
+#include "RenderComponent.h"
 
 using namespace my;
 

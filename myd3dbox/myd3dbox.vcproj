@@ -300,6 +300,34 @@
 				>
 			</File>
 		</Filter>
+		<Filter
+			Name="Component"
+			>
+			<File
+				RelativePath="..\demo2_3\Component\Animator.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\Animator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\RenderComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\RenderComponent.h"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\RenderPipeline.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\RenderPipeline.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
 			>

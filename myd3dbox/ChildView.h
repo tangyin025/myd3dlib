@@ -5,8 +5,12 @@
 
 #pragma once
 
+#include "../demo2_3/Component/RenderPipeline.h"
 
-class CChildView : public CView, public my::DialogMgr
+class CChildView
+	: public CView
+	, public my::DialogMgr
+	, public RenderPipeline
 {
 protected: // create from serialization only
 	CChildView();
@@ -23,6 +27,7 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material);
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;

@@ -167,16 +167,6 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION(m_LastErrorStr);
 	}
 
-	if (!(m_SimpleSampleSkel = LoadEffect("shader/SimpleSample.fx", "VS_SKINED_DQ 1")))
-	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
-	}
-
-	if (!(m_SimpleSampleInst = LoadEffect("shader/SimpleSample.fx", "VS_INSTANCE 1")))
-	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
-	}
-
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
 		THROW_CUSEXCEPTION(m_LastErrorStr);
@@ -263,10 +253,6 @@ void Game::OnDestroyDevice(void)
 	RemoveAllDlg();
 
 	m_SimpleSample.reset();
-
-	m_SimpleSampleSkel.reset();
-
-	m_SimpleSampleInst.reset();
 
 	m_ShaderCache.clear();
 
@@ -572,51 +558,48 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	boost::hash_combine(seed, key.get<0>());
 	boost::hash_combine(seed, key.get<1>());
 	boost::hash_combine(seed, key.get<2>());
+	boost::hash_combine(seed, key.get<3>());
 	return seed;
 }
 
 my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
-	ShaderCacheKey key(mesh_type, draw_stage, material);
+
+	ShaderCacheKey key(mesh_type, draw_stage, bInstance, material);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
 		return shader_iter->second.get();
 	}
 
-	if (mesh_type == RenderPipeline::MeshTypeParticle)
+	std::string macros, path;
+	switch (mesh_type)
 	{
-		std::string macros;
-		std::string path("shader/Particle.fx");
-		std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
-		ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-		LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
-		return NULL;
-	}
-
-	switch (draw_stage)
-	{
-	case RenderPipeline::DrawStageCBuffer:
-		{
-			std::string macros;
-			if (mesh_type == RenderPipeline::MeshTypeAnimation)
-			{
-				macros += "VS_SKINED_DQ 1 ";
-			}
-			if (bInstance)
-			{
-				macros += "VS_INSTANCE 1 ";
-			}
-			std::string path("shader/SimpleSample.fx");
-			std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
-			ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-			LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
-		}
+	case RenderPipeline::MeshTypeParticle:
+		path = "shader/Particle.fx";
 		break;
+
+	case RenderPipeline::MeshTypeStatic:
+		path = "shader/SimpleSample.fx";
+		break;
+
+	case RenderPipeline::MeshTypeAnimation:
+		path = "shader/SimpleSample.fx";
+		macros += "VS_SKINED_DQ 1 ";
+		break;
+	};
+
+	if (bInstance)
+	{
+		macros += "VS_INSTANCE 1 ";
 	}
 
-	return mesh_type == RenderPipeline::MeshTypeAnimation ? m_SimpleSampleSkel.get() : m_SimpleSample.get();
+	std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
+	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
+	LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+
+	return NULL;
 }
 
 class MaterialIORequest : public IORequest

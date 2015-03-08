@@ -43,6 +43,11 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 	return CView::PreCreateWindow(cs);
 }
 
+my::Effect * CChildView::QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material)
+{
+	return NULL;
+}
+
 // CChildView drawing
 
 void CChildView::OnDraw(CDC* /*pDC*/)

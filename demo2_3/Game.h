@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "PhysXContext.h"
 #include "Component/RenderPipeline.h"
-#include "Component/ActorComponent.h"
+#include "Component/RenderComponent.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -58,17 +58,13 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, const Material *> ShaderCacheKey;
+	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, bool, const Material *> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
 	my::EffectPtr m_SimpleSample;
-
-	my::EffectPtr m_SimpleSampleSkel;
-
-	my::EffectPtr m_SimpleSampleInst;
 
 	my::FontPtr m_Font;
 

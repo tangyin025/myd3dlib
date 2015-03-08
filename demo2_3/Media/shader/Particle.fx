@@ -1,35 +1,20 @@
 
+#include "CommonHeader.fx"
+
 //--------------------------------------------------------------------------------------
 // Global variables
 //--------------------------------------------------------------------------------------
 
-shared float4x4 g_World;
-shared float4x4 g_View;
-shared float4x4 g_ViewProj;
 float3 g_ParticleDir;
 float3 g_ParticleUp;
 float3 g_ParticleRight;
-texture g_MeshTexture;
 float2 g_AnimationColumnRow;
-
-//--------------------------------------------------------------------------------------
-// Texture samplers
-//--------------------------------------------------------------------------------------
-
-sampler MeshTextureSampler = 
-sampler_state
-{
-    Texture = <g_MeshTexture>;
-    MipFilter = LINEAR;
-    MinFilter = LINEAR;
-    MagFilter = LINEAR;
-};
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------
 
-struct VS_OUTPUT
+struct VS_OUTPUT_PARTICLE
 {
     float4 Position   : POSITION;   // vertex position 
     float4 Diffuse    : COLOR0;     // vertex diffuse color (note that COLOR0 is clamped from 0..1)
@@ -63,13 +48,13 @@ float3 rotate_angle_axis(float3 v, float a, float3 N)
 // This shader computes standard transform and lighting
 //--------------------------------------------------------------------------------------
 
-VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0, 
+VS_OUTPUT_PARTICLE RenderSceneVS( float2 vTexCoord0 : TEXCOORD0, 
 						 float4 vPos : POSITION0,
                          float4 vDiffuse : COLOR0,
 						 float4 vTexCoord1 : TEXCOORD1,
 						 float4 vTexCoord2 : TEXCOORD2 )
 {
-    VS_OUTPUT Output;
+    VS_OUTPUT_PARTICLE Output;
 	float4 LocalPos = float4(rotate_angle_axis(
 		g_ParticleUp * lerp(vTexCoord1.y * 0.5, -vTexCoord1.y * 0.5, vTexCoord0.y) +
 		g_ParticleRight * lerp(-vTexCoord1.x * 0.5, vTexCoord1.x * 0.5, vTexCoord0.x), vTexCoord1.z, g_ParticleDir), 0);
@@ -87,7 +72,7 @@ VS_OUTPUT RenderSceneVS( float2 vTexCoord0 : TEXCOORD0,
 // color with diffuse material color
 //--------------------------------------------------------------------------------------
 
-float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
+float4 RenderScenePS( VS_OUTPUT_PARTICLE In ) : COLOR0
 { 
     return tex2D(MeshTextureSampler, In.TextureUV) * In.Diffuse;
 }
@@ -100,6 +85,7 @@ technique RenderScene
 {
     pass P0
     {          
+		// FILLMODE = WIREFRAME;
 		CullMode = NONE;
 		Lighting = FALSE;
 		AlphaBlendEnable = TRUE;

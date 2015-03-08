@@ -307,19 +307,19 @@
 			Name="Component"
 			>
 			<File
-				RelativePath=".\Component\ActorComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ActorComponent.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Component\Animator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\RenderComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\RenderComponent.h"
 				>
 			</File>
 			<File

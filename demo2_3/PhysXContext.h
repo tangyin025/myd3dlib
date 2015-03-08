@@ -1,7 +1,7 @@
 #pragma once
 
 #include "physx_ptr.hpp"
-#include "Component/ActorComponent.h"
+#include "Component/RenderComponent.h"
 
 class PhysXAllocator : public PxAllocatorCallback
 {
