@@ -4,6 +4,7 @@
 #include "PhysXContext.h"
 #include "Component/RenderPipeline.h"
 #include "Component/RenderComponent.h"
+#include "Component/ResourceMgrEx.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -40,7 +41,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::InputMgr
-	, public my::ResourceMgr
+	, public ResourceMgrEx
 	, public RenderPipeline
 	, public PhysXContext
 	, public PhysXSceneContext
@@ -152,12 +153,6 @@ public:
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
-
-	void LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback);
-
-	boost::shared_ptr<Material> LoadMaterial(const std::string & path);
-
-	void SaveMaterial(const std::string & path, MaterialPtr material);
 
 	void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
 

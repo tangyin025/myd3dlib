@@ -157,12 +157,15 @@ public:
 
 		//m_mesh_ins = LoadMesh("mesh/tube.mesh.xml");
 		//m_mesh_ins->CreateInstance(pd3dDevice);
-		m_mesh_ins.reset(new MeshComponent(AABB(-1,1)));
-		m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
 
-		m_emitter.reset(new EmitterMeshComponent(AABB(-1,1)));
-		m_emitter->m_EmitterList.push_back(LoadEmitter("emitter/emitter_01.xml"));
-		m_emitter->m_MaterialList.push_back(LoadMaterial("material/lambert1.xml"));
+		//m_mesh_ins.reset(new MeshComponent());
+		//m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
+		m_mesh_ins = CreateMeshComponentFromFile("mesh/tube.mesh.xml");
+
+		//m_emitter.reset(new EmitterMeshComponent());
+		//m_emitter->m_EmitterList.push_back(LoadEmitter("emitter/emitter_01.xml"));
+		//m_emitter->m_MaterialList.push_back(LoadMaterial("material/lambert1.xml"));
+		m_emitter = CreateEmitterComponentFromFile("emitter/emitter_01.xml");
 
 		//// ========================================================================================================
 		//// ´ó³¡¾°
@@ -198,7 +201,7 @@ public:
 		m_cloth_mesh_anim.reset(new SimpleAnimator());
 		m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 
-		m_cloth_mesh.reset(new MeshComponent(AABB(-1,1)));
+		m_cloth_mesh.reset(new MeshComponent());
 		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
 		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
 			LoadMesh("mesh/cloth.mesh.xml"), 0,

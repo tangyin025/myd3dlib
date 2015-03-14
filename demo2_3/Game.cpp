@@ -140,7 +140,7 @@ HRESULT Game::OnCreateDevice(
 
 	ParallelTaskManager::StartParallelThread(3);
 
-	if(FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgrEx::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -203,7 +203,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ResourceMgrEx::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -233,7 +233,7 @@ void Game::OnLostDevice(void)
 
 	RenderPipeline::OnLostDevice();
 
-	ResourceMgr::OnLostDevice();
+	ResourceMgrEx::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -266,7 +266,7 @@ void Game::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ResourceMgr::OnDestroyDevice();
+	ResourceMgrEx::OnDestroyDevice();
 
 	InputMgr::Destroy();
 
@@ -279,7 +279,7 @@ void Game::OnFrameMove(
 {
 	InputMgr::Update(fTime, fElapsedTime);
 
-	ResourceMgr::CheckRequests();
+	ResourceMgrEx::CheckRequests();
 
 	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
@@ -595,154 +595,11 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 		macros += "VS_INSTANCE 1 ";
 	}
 
-	std::string key_str = ResourceMgr::EffectIORequest::BuildKey(path, macros);
+	std::string key_str = ResourceMgrEx::EffectIORequest::BuildKey(path, macros);
 	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, IORequestPtr(new ResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, IORequestPtr(new ResourceMgrEx::EffectIORequest(callback, path, macros, this)), true);
 
 	return NULL;
-}
-
-class MaterialIORequest : public IORequest
-{
-protected:
-	std::string m_path;
-
-	ResourceMgr * m_arc;
-
-	CachePtr m_cache;
-
-public:
-	MaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-		: m_path(path)
-		, m_arc(arc)
-	{
-		if(callback)
-		{
-			m_callbacks.push_back(callback);
-		}
-	}
-
-	virtual void DoLoad(void)
-	{
-		if(m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-		}
-	}
-
-	static void OnDiffuseTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
-	{
-		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
-	}
-
-	static void OnNormalTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
-	{
-		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
-	}
-
-	static void OnSpecularTextureLoaded(ResourceCallbackBoundlePtr boundle, DeviceRelatedObjectBasePtr tex)
-	{
-		boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = boost::dynamic_pointer_cast<BaseTexture>(tex);
-	}
-
-	virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-	{
-		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnDiffuseTextureLoaded, boundle, _1));
-	}
-
-	virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-	{
-		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnNormalTextureLoaded, boundle, _1));
-	}
-
-	virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-	{
-		m_arc->LoadTextureAsync(path, boost::bind(&MaterialIORequest::OnSpecularTextureLoaded, boundle, _1));
-	}
-
-	virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
-	{
-		boundle->m_callbacks = m_callbacks;
-		m_callbacks.clear();
-	}
-
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if(!m_cache)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
-		}
-		MaterialPtr res(new Material());
-		ResourceCallbackBoundlePtr boundle(new ResourceCallbackBoundle(res));
-		membuf mb((char *)&(*m_cache)[0], m_cache->size());
-		std::istream ims(&mb);
-		boost::archive::xml_iarchive ia(ims);
-		std::string path;
-		ia >> boost::serialization::make_nvp("m_DiffuseTexture", path);
-		if (!path.empty())
-		{
-			DoLoadDiffuseTexture(boundle, path);
-		}
-		ia >> boost::serialization::make_nvp("m_NormalTexture", path);
-		if (!path.empty())
-		{
-			DoLoadNormalTexture(boundle, path);
-		}
-		ia >> boost::serialization::make_nvp("m_SpecularTexture", path);
-		if (!path.empty())
-		{
-			DoLoadSpecularTexture(boundle, path);
-		}
-		m_res = res;
-		PostBuildResource(boundle);
-	}
-};
-
-void Game::LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback)
-{
-	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)), false);
-}
-
-boost::shared_ptr<Material> Game::LoadMaterial(const std::string & path)
-{
-	class SyncMaterialIORequest : public MaterialIORequest
-	{
-	public:
-		SyncMaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-			: MaterialIORequest(callback, path, arc)
-		{
-		}
-
-		virtual void DoLoadDiffuseTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-		{
-			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_DiffuseTexture = m_arc->LoadTexture(path);
-		}
-
-		virtual void DoLoadNormalTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-		{
-			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_NormalTexture = m_arc->LoadTexture(path);
-		}
-
-		virtual void DoLoadSpecularTexture(ResourceCallbackBoundlePtr boundle, const std::string & path)
-		{
-			boost::dynamic_pointer_cast<Material>(boundle->m_res)->m_SpecularTexture = m_arc->LoadTexture(path);
-		}
-
-		virtual void PostBuildResource(ResourceCallbackBoundlePtr boundle)
-		{
-		}
-	};
-
-	return LoadResource<Material>(path, IORequestPtr(new SyncMaterialIORequest(ResourceCallback(), path, this)));
-}
-
-void Game::SaveMaterial(const std::string & path, MaterialPtr material)
-{
-	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("m_DiffuseTexture", GetResourceKey(material->m_DiffuseTexture));
-	oa << boost::serialization::make_nvp("m_NormalTexture", GetResourceKey(material->m_NormalTexture));
-	oa << boost::serialization::make_nvp("m_SpecularTexture", GetResourceKey(material->m_SpecularTexture));
 }
 
 class TriangleMeshIORequest : public my::IORequest

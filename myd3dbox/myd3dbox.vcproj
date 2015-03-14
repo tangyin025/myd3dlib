@@ -47,7 +47,7 @@
 				AdditionalOptions="-Zm124"
 				Optimization="0"
 				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -132,7 +132,7 @@
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
-				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
+				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -309,6 +309,14 @@
 			</File>
 			<File
 				RelativePath="..\demo2_3\Component\Animator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\ComponentHelper.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\ComponentHelper.h"
 				>
 			</File>
 			<File

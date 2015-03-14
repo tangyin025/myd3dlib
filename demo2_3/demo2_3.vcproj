@@ -330,6 +330,14 @@
 				RelativePath=".\Component\RenderPipeline.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Component\ResourceMgrEx.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ResourceMgrEx.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Logic"

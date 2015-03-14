@@ -4,27 +4,17 @@
 #include "RenderPipeline.h"
 #include "Animator.h"
 
-class ActorComponent
+class RenderComponent
 	: public my::AABBComponent
+	, public RenderPipeline::IShaderSetter
 {
 public:
 	my::Matrix4 m_World;
 
 public:
-	ActorComponent(const my::AABB & aabb)
-		: AABBComponent(aabb)
+	RenderComponent(void)
+		: AABBComponent(my::AABB(FLT_MIN, FLT_MAX))
 		, m_World(my::Matrix4::Identity())
-	{
-	}
-};
-
-class RenderComponent
-	: public ActorComponent
-	, public RenderPipeline::IShaderSetter
-{
-public:
-	RenderComponent(const my::AABB & aabb)
-		: ActorComponent(aabb)
 	{
 	}
 
@@ -122,8 +112,8 @@ public:
 	DWORD m_lodId;
 
 public:
-	MeshComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+	MeshComponent(void)
+		: RenderComponent()
 		, m_lodId(0)
 	{
 	}
@@ -142,8 +132,8 @@ public:
 	AnimatorPtr m_Animator;
 
 public:
-	SkeletonMeshComponent(const my::AABB & aabb)
-		: MeshComponent(aabb)
+	SkeletonMeshComponent(void)
+		: MeshComponent()
 	{
 	}
 
@@ -182,8 +172,8 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	EmitterMeshComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+	EmitterMeshComponent(void)
+		: RenderComponent()
 		, m_WorldType(WorldTypeWorld)
 		, m_DirectionType(DirectionTypeCamera)
 	{

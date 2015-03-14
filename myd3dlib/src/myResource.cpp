@@ -1114,21 +1114,27 @@ public:
 		if(m_arc->CheckPath(m_path))
 		{
 			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+			try
+			{
+				EmitterPtr res;
+				membuf mb((char *)&(*m_cache)[0], m_cache->size());
+				std::istream ims(&mb);
+				boost::archive::xml_iarchive ia(ims);
+				ia >> boost::serialization::make_nvp("Emitter", res);
+				m_res = res;
+			}
+			catch (...)
+			{
+			}
 		}
 	}
 
 	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	{
-		if(!m_cache)
+		if(!m_res)
 		{
 			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
 		}
-		EmitterPtr res;
-		membuf mb((char *)&(*m_cache)[0], m_cache->size());
-		std::istream ims(&mb);
-		boost::archive::xml_iarchive ia(ims);
-		ia >> boost::serialization::make_nvp("Emitter", res);
-		m_res = res;
 	}
 };
 

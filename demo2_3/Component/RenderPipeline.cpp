@@ -413,5 +413,5 @@ my::Effect * Material::QueryShader(
 
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	shader->SetTexture("g_MeshTexture", m_DiffuseTexture);
+	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
 }

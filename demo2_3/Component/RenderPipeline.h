@@ -186,11 +186,11 @@ class Material
 	: public my::DeviceRelatedObjectBase
 {
 public:
-	boost::shared_ptr<my::BaseTexture> m_DiffuseTexture;
+	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_DiffuseTexture;
 
-	boost::shared_ptr<my::BaseTexture> m_NormalTexture;
+	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_NormalTexture;
 
-	boost::shared_ptr<my::BaseTexture> m_SpecularTexture;
+	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_SpecularTexture;
 
 public:
 	Material(void)
@@ -207,6 +207,14 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
+	}
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_DiffuseTexture), m_DiffuseTexture.first);
+		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_NormalTexture), m_NormalTexture.first);
+		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_SpecularTexture), m_SpecularTexture.first);
 	}
 
 	virtual my::Effect * QueryShader(
