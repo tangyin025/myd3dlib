@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "ResourceMgrEx.h"
+#include "ComponentResMgr.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -7,7 +7,7 @@
 
 using namespace my;
 
-void ResourceMgrEx::OnMaterialDiffuseTextureLoaded(
+void ComponentResMgr::OnMaterialDiffuseTextureLoaded(
 	boost::weak_ptr<Material> weak_mat_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
@@ -18,7 +18,7 @@ void ResourceMgrEx::OnMaterialDiffuseTextureLoaded(
 	}
 }
 
-void ResourceMgrEx::OnMeshComponentLODMaterialLoaded(
+void ComponentResMgr::OnMeshComponentLODMaterialLoaded(
 	boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId,
@@ -32,12 +32,12 @@ void ResourceMgrEx::OnMeshComponentLODMaterialLoaded(
 		if (!lod_ptr->m_Material->m_DiffuseTexture.first.empty())
 		{
 			LoadTextureAsync(lod_ptr->m_Material->m_DiffuseTexture.first,
-				boost::bind(&ResourceMgrEx::OnMaterialDiffuseTextureLoaded, this, lod_ptr->m_Material, _1));
+				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, lod_ptr->m_Material, _1));
 		}
 	}
 }
 
-void ResourceMgrEx::OnMeshComponentLODMeshLoaded(
+void ComponentResMgr::OnMeshComponentLODMeshLoaded(
 	boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId,
@@ -53,12 +53,12 @@ void ResourceMgrEx::OnMeshComponentLODMeshLoaded(
 		if (AttribId < lod_ptr->m_Mesh->m_MaterialNameList.size())
 		{
 			LoadMaterialAsync(str_printf("material/%s.xml", lod_ptr->m_Mesh->m_MaterialNameList[AttribId].c_str()),
-				boost::bind(&ResourceMgrEx::OnMeshComponentLODMaterialLoaded, this, lod_ptr, _1, AttribId, bInstance));
+				boost::bind(&ComponentResMgr::OnMeshComponentLODMaterialLoaded, this, lod_ptr, _1, AttribId, bInstance));
 		}
 	}
 }
 
-void ResourceMgrEx::OnEmitterComponentEmitterLoaded(
+void ComponentResMgr::OnEmitterComponentEmitterLoaded(
 	boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId)
@@ -74,7 +74,7 @@ void ResourceMgrEx::OnEmitterComponentEmitterLoaded(
 	}
 }
 
-void ResourceMgrEx::OnEmitterComponentMaterialLoaded(
+void ComponentResMgr::OnEmitterComponentMaterialLoaded(
 	boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId)
@@ -91,7 +91,7 @@ void ResourceMgrEx::OnEmitterComponentMaterialLoaded(
 		if (!cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
 		{
 			LoadTextureAsync(cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
-				boost::bind(&ResourceMgrEx::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
+				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
 		}
 	}
 }
@@ -145,36 +145,36 @@ public:
 	}
 };
 
-void ResourceMgrEx::LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback)
+void ComponentResMgr::LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback)
 {
 	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)), false);
 }
 
-boost::shared_ptr<Material> ResourceMgrEx::LoadMaterial(const std::string & path)
+boost::shared_ptr<Material> ComponentResMgr::LoadMaterial(const std::string & path)
 {
 	return LoadResource<Material>(path, IORequestPtr(new MaterialIORequest(ResourceCallback(), path, this)));
 }
 
-void ResourceMgrEx::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)
+void ComponentResMgr::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponentPtr ResourceMgrEx::CreateMeshComponentFromFile(const std::string & path)
+MeshComponentPtr ComponentResMgr::CreateMeshComponentFromFile(const std::string & path)
 {
 	MeshComponentPtr ret(new MeshComponent());
 	MeshComponent::MeshLODPtr lod(new MeshComponent::MeshLOD(ret.get()));
-	LoadMeshAsync(path, boost::bind(&ResourceMgrEx::OnMeshComponentLODMeshLoaded, this, lod, _1, 0, false));
+	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnMeshComponentLODMeshLoaded, this, lod, _1, 0, false));
 	ret->m_lods.push_back(lod);
 	return ret;
 }
 
-EmitterMeshComponentPtr ResourceMgrEx::CreateEmitterComponentFromFile(const std::string & path)
+EmitterMeshComponentPtr ComponentResMgr::CreateEmitterComponentFromFile(const std::string & path)
 {
 	EmitterMeshComponentPtr ret(new EmitterMeshComponent());
-	LoadEmitterAsync(path, boost::bind(&ResourceMgrEx::OnEmitterComponentEmitterLoaded, this, ret, _1, 0));
-	LoadMaterialAsync("material/lambert1.xml", boost::bind(&ResourceMgrEx::OnEmitterComponentMaterialLoaded, this, ret, _1, 0));
+	LoadEmitterAsync(path, boost::bind(&ComponentResMgr::OnEmitterComponentEmitterLoaded, this, ret, _1, 0));
+	LoadMaterialAsync("material/lambert1.xml", boost::bind(&ComponentResMgr::OnEmitterComponentMaterialLoaded, this, ret, _1, 0));
 	return ret;
 }

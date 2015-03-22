@@ -140,7 +140,7 @@ HRESULT Game::OnCreateDevice(
 
 	ParallelTaskManager::StartParallelThread(3);
 
-	if(FAILED(hr = ResourceMgrEx::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ComponentResMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -203,7 +203,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = ResourceMgrEx::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ComponentResMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -233,7 +233,7 @@ void Game::OnLostDevice(void)
 
 	RenderPipeline::OnLostDevice();
 
-	ResourceMgrEx::OnLostDevice();
+	ComponentResMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -266,7 +266,7 @@ void Game::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ResourceMgrEx::OnDestroyDevice();
+	ComponentResMgr::OnDestroyDevice();
 
 	InputMgr::Destroy();
 
@@ -279,7 +279,7 @@ void Game::OnFrameMove(
 {
 	InputMgr::Update(fTime, fElapsedTime);
 
-	ResourceMgrEx::CheckRequests();
+	ComponentResMgr::CheckRequests();
 
 	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
@@ -595,9 +595,9 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 		macros += "VS_INSTANCE 1 ";
 	}
 
-	std::string key_str = ResourceMgrEx::EffectIORequest::BuildKey(path, macros);
+	std::string key_str = ComponentResMgr::EffectIORequest::BuildKey(path, macros);
 	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, IORequestPtr(new ResourceMgrEx::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, IORequestPtr(new ComponentResMgr::EffectIORequest(callback, path, macros, this)), true);
 
 	return NULL;
 }

@@ -3,7 +3,7 @@
 #include <myResource.h>
 #include "RenderComponent.h"
 
-class ResourceMgrEx
+class ComponentResMgr
 	: public my::ResourceMgr
 {
 protected:
@@ -34,11 +34,11 @@ protected:
 		DWORD AttribId);
 
 public:
-	ResourceMgrEx(void)
+	ComponentResMgr(void)
 	{
 	}
 
-	virtual ~ResourceMgrEx(void)
+	virtual ~ComponentResMgr(void)
 	{
 	}
 

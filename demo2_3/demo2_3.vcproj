@@ -315,6 +315,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\ComponentResMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ComponentResMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\RenderComponent.cpp"
 				>
 			</File>
@@ -328,14 +336,6 @@
 			</File>
 			<File
 				RelativePath=".\Component\RenderPipeline.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ResourceMgrEx.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ResourceMgrEx.h"
 				>
 			</File>
 		</Filter>

@@ -312,14 +312,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\ComponentHelper.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\ComponentHelper.h"
-				>
-			</File>
-			<File
 				RelativePath="..\demo2_3\Component\RenderComponent.cpp"
 				>
 			</File>

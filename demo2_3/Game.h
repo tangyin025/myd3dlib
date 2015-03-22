@@ -4,7 +4,7 @@
 #include "PhysXContext.h"
 #include "Component/RenderPipeline.h"
 #include "Component/RenderComponent.h"
-#include "Component/ResourceMgrEx.h"
+#include "Component/ComponentResMgr.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -41,7 +41,7 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::InputMgr
-	, public ResourceMgrEx
+	, public ComponentResMgr
 	, public RenderPipeline
 	, public PhysXContext
 	, public PhysXSceneContext
