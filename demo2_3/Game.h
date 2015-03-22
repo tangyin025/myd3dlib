@@ -154,11 +154,11 @@ public:
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 
-	void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
+	//void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
 
-	PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
+	//PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
 
-	void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
+	//void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
 
-	PhysXClothFabricPtr LoadClothFabric(const std::string & path);
+	//PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 };

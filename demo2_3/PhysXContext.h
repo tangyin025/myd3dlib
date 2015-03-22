@@ -111,18 +111,6 @@ public:
 	bool OnInit(void);
 
 	void OnShutdown(void);
-
-	void CookTriangleMesh(my::OStreamPtr ostream, my::MeshPtr mesh);
-
-	void CookTriangleMeshToFile(std::string path, my::MeshPtr mesh);
-
-	PxTriangleMesh * CreateTriangleMesh(my::IStreamPtr istream);
-
-	void CookClothFabric(my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset);
-
-	void CookClothFabricToFile(std::string path, my::MeshPtr mesh, WORD PositionOffset);
-
-	PxClothFabric * CreateClothFabric(my::IStreamPtr istream);
 };
 
 class PhysXSceneContext
@@ -185,29 +173,3 @@ public:
 
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 };
-
-class ClothMeshComponentLOD
-	: public MeshComponent::IndexdPrimitiveUPLOD
-{
-public:
-	my::D3DVertexElementSet m_VertexElems;
-
-	std::vector<PxClothParticle> m_particles;
-
-	std::vector<PxClothParticle> m_NewParticles;
-
-	physx_ptr<PxCloth> m_cloth;
-
-public:
-	ClothMeshComponentLOD(MeshComponent * owner)
-		: MeshComponent::IndexdPrimitiveUPLOD(owner)
-	{
-	}
-
-	void CreateCloth(PhysXContext * px_sdk,
-		my::OgreMeshPtr mesh, DWORD AttribId, const my::BoneHierarchy & hierarchy, DWORD root_i, const PxClothCollisionData& collData);
-
-	void UpdateCloth(const my::TransformList & dualQuaternionList);
-};
-
-typedef boost::shared_ptr<ClothMeshComponentLOD> ClothMeshComponentLODPtr;

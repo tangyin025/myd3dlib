@@ -77,6 +77,49 @@ void MeshComponent::IndexdPrimitiveUPLOD::OnSetShader(my::Effect * shader, DWORD
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
+void MeshComponent::ClothMeshLOD::UpdateCloth(const my::TransformList & dualQuaternionList)
+{
+	if (m_Cloth)
+	{
+		_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
+		PxClothReadData * readData = m_Cloth->lockClothReadData();
+		if (readData)
+		{
+			unsigned char * pVertices = &m_VertexData[0];
+			const DWORD NbParticles = m_Cloth->getNbParticles();
+			m_NewParticles.resize(NbParticles);
+			for (unsigned int i = 0; i < NbParticles; i++)
+			{
+				void * pVertex = pVertices + i * m_VertexStride;
+				m_NewParticles[i].invWeight = readData->particles[i].invWeight;
+				if (0 == m_NewParticles[i].invWeight)
+				{
+					my::Vector3 pos;
+					my::BoneList::TransformVertexWithDualQuaternionList(pos,
+						(my::Vector3 &)m_particles[i].pos,
+						m_VertexElems.GetBlendIndices(pVertex),
+						m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
+					m_NewParticles[i].pos = (PxVec3 &)pos;
+				}
+				else
+				{
+					m_NewParticles[i].pos = readData->particles[i].pos;
+				}
+				m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+			}
+			readData->unlock();
+			m_Cloth->setParticles(&m_NewParticles[0], NULL);
+			m_Cloth->setTargetPose(PxTransform((PxMat44 &)m_owner->m_World));
+
+			my::OgreMesh::ComputeNormalFrame(
+				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
+
+			my::OgreMesh::ComputeTangentFrame(
+				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
+		}
+	}
+}
+
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	if (m_lodId >= 0 && m_lodId < m_lods.size())

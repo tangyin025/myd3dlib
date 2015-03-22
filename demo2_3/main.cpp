@@ -98,27 +98,27 @@ public:
 		}
 	}
 
-	MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, DWORD AttribId, bool cloth)
-	{
-		if (cloth)
-		{
-			ClothMeshComponentLODPtr lod(new ClothMeshComponentLOD(owner));
-			if (AttribId < mesh->m_MaterialNameList.size())
-			{
-				lod->m_MaterialList.resize(AttribId + 1);
-				lod->m_MaterialList[AttribId] = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
-			}
-			return lod;
-		}
+	//MeshComponent::LODPtr CreateMeshComponentLOD(MeshComponent * owner, OgreMeshPtr mesh, DWORD AttribId, bool cloth)
+	//{
+	//	if (cloth)
+	//	{
+	//		ClothMeshComponentLODPtr lod(new ClothMeshComponentLOD(owner));
+	//		if (AttribId < mesh->m_MaterialNameList.size())
+	//		{
+	//			lod->m_MaterialList.resize(AttribId + 1);
+	//			lod->m_MaterialList[AttribId] = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
+	//		}
+	//		return lod;
+	//	}
 
-		MeshComponent::MeshLODPtr lod(new MeshComponent::MeshLOD(owner));
-		boost::dynamic_pointer_cast<MeshComponent::MeshLOD>(lod)->m_Mesh = mesh;
-		if (AttribId < mesh->m_MaterialNameList.size())
-		{
-			lod->m_Material = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
-		}
-		return lod;
-	}
+	//	MeshComponent::MeshLODPtr lod(new MeshComponent::MeshLOD(owner));
+	//	boost::dynamic_pointer_cast<MeshComponent::MeshLOD>(lod)->m_Mesh = mesh;
+	//	if (AttribId < mesh->m_MaterialNameList.size())
+	//	{
+	//		lod->m_Material = LoadMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[AttribId].c_str()));
+	//	}
+	//	return lod;
+	//}
 
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -180,31 +180,35 @@ public:
 		// ========================================================================================================
 		// 布料系统
 		// ========================================================================================================
-		PxClothCollisionSphere spheres[2] =
-		{
-			{PxVec3(-5.0f, 0.0f, 0.0f), 3.f},
-			{PxVec3( 5.0f, 0.0f, 0.0f), 3.f}
-		};
-		// A tapered capsule
-		PxU32 capsulePairs[] = { 0, 1 };
-		PxClothCollisionData collisionData;
-		collisionData.spheres = spheres;
-		collisionData.numSpheres = 0;
-		collisionData.pairIndexBuffer = capsulePairs;
-		collisionData.numPairs = 0;
+		//PxClothCollisionSphere spheres[2] =
+		//{
+		//	{PxVec3(-5.0f, 0.0f, 0.0f), 3.f},
+		//	{PxVec3( 5.0f, 0.0f, 0.0f), 3.f}
+		//};
+		//// A tapered capsule
+		//PxU32 capsulePairs[] = { 0, 1 };
+		//PxClothCollisionData collisionData;
+		//collisionData.spheres = spheres;
+		//collisionData.numSpheres = 0;
+		//collisionData.pairIndexBuffer = capsulePairs;
+		//collisionData.numPairs = 0;
 
-		PxClothCollisionPlane p;
-		p.normal = PxVec3(0.0f, 1.0f, 0.0f);
-		p.distance = 0.0f;
+		//PxClothCollisionPlane p;
+		//p.normal = PxVec3(0.0f, 1.0f, 0.0f);
+		//p.distance = 0.0f;
 
 		//m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
 		m_cloth_mesh_anim.reset(new SimpleAnimator());
 		m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 
-		m_cloth_mesh.reset(new MeshComponent());
-		m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
-		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
-			LoadMesh("mesh/cloth.mesh.xml"), 0,
+		//m_cloth_mesh.reset(new MeshComponent());
+		//m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
+		//dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->CreateCloth(this,
+		//	LoadMesh("mesh/cloth.mesh.xml"), 0,
+		//	m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
+		//	m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
+		//	PxClothCollisionData());
+		m_cloth_mesh = CreateClothMeshComponentFromFile(boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
 			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 			PxClothCollisionData());
@@ -227,7 +231,7 @@ public:
 		//m_cloth->addCollisionPlane(p);
 		//m_cloth->addCollisionConvex(0x01);
 		//m_cloth->setFrictionCoefficient(1.0f);
-		m_PxScene->addActor(*dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth);
+		//m_PxScene->addActor(*dynamic_pointer_cast<MeshComponent::ClothMeshLOD>(m_cloth_mesh->m_lods[0])->m_Cloth);
 
 		//// 创建物理地面，但是布料不参与碰撞
 		//m_PxScene->addActor(*PxCreateStatic(*m_sdk, PxTransform(PxQuat(PxHalfPi, PxVec3(0,0,1))), PxPlaneGeometry(), *m_PxMaterial));
@@ -330,7 +334,7 @@ public:
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
-		dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
+		dynamic_pointer_cast<MeshComponent::ClothMeshLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
 		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}

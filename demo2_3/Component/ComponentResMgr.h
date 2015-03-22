@@ -33,6 +33,19 @@ protected:
 		my::DeviceRelatedObjectBasePtr res,
 		DWORD AttribId);
 
+	void OnClothComponentLODMaterialLoaded(
+		boost::weak_ptr<MeshComponent::ClothMeshLOD> weak_lod_ptr,
+		my::DeviceRelatedObjectBasePtr res,
+		DWORD AttribId);
+
+	void OnClothComponentLODMeshLoaded(
+		boost::weak_ptr<MeshComponent::ClothMeshLOD> weak_lod_ptr,
+		my::DeviceRelatedObjectBasePtr res,
+		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
+		boost::shared_ptr<my::BoneHierarchy> hierarchy,
+		DWORD root_i,
+		boost::shared_ptr<PxClothCollisionData> collData);
+
 public:
 	ComponentResMgr(void)
 	{
@@ -41,6 +54,18 @@ public:
 	virtual ~ComponentResMgr(void)
 	{
 	}
+
+	static void CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh);
+
+	static void CookTriangleMeshToFile(PxCooking * Cooking, std::string path, my::MeshPtr mesh);
+
+	static PxTriangleMesh * CreateTriangleMesh(PxPhysics * sdk, my::IStreamPtr istream);
+
+	static void CookClothFabric(PxCooking * Cooking, const my::Vector3 & Gravity, my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset);
+
+	static void CookClothFabricToFile(PxCooking * Cooking, const my::Vector3 & Gravity, std::string path, my::MeshPtr mesh, WORD PositionOffset);
+
+	static PxClothFabric * CreateClothFabric(PxPhysics * sdk, my::IStreamPtr istream);
 
 	void LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback);
 
@@ -51,4 +76,11 @@ public:
 	MeshComponentPtr CreateMeshComponentFromFile(const std::string & path);
 
 	EmitterMeshComponentPtr CreateEmitterComponentFromFile(const std::string & path);
+
+	MeshComponentPtr CreateClothMeshComponentFromFile(
+		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
+		const std::string & path,
+		const my::BoneHierarchy & hierarchy,
+		DWORD root_i,
+		const PxClothCollisionData& collData);
 };

@@ -601,109 +601,109 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 
 	return NULL;
 }
-
-class TriangleMeshIORequest : public my::IORequest
-{
-protected:
-	std::string m_path;
-
-	Game * m_arc;
-
-	my::CachePtr m_cache;
-
-public:
-	TriangleMeshIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
-		: m_path(path)
-		, m_arc(arc)
-	{
-		if(callback)
-		{
-			m_callbacks.push_back(callback);
-		}
-	}
-
-	virtual void DoLoad(void)
-	{
-		if(m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-		}
-	}
-
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if(!m_cache)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
-		}
-		PxTriangleMesh * ptr = m_arc->CreateTriangleMesh(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
-		if (!ptr)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("CreateTriangleMesh failed")));
-		}
-		m_res.reset(new PhysXTriangleMesh(ptr));
-	}
-};
-
-void Game::LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback)
-{
-	LoadResourceAsync(path, my::IORequestPtr(new TriangleMeshIORequest(callback, path, this)), false);
-}
-
-PhysXTriangleMeshPtr Game::LoadTriangleMesh(const std::string & path)
-{
-	return LoadResource<PhysXTriangleMesh>(path, my::IORequestPtr(new TriangleMeshIORequest(my::ResourceCallback(), path, this)));
-}
-
-class ClothFabricIORequest : public my::IORequest
-{
-protected:
-	std::string m_path;
-
-	Game * m_arc;
-
-	my::CachePtr m_cache;
-
-public:
-	ClothFabricIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
-		: m_path(path)
-		, m_arc(arc)
-	{
-		if(callback)
-		{
-			m_callbacks.push_back(callback);
-		}
-	}
-
-	virtual void DoLoad(void)
-	{
-		if(m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-		}
-	}
-
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if(!m_cache)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
-		}
-		PxClothFabric * ptr = m_arc->CreateClothFabric(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
-		if (!ptr)
-		{
-			THROW_CUSEXCEPTION(str_printf(_T("CreateClothFabric failed")));
-		}
-		m_res.reset(new PhysXClothFabric(ptr));
-	}
-};
-
-void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback)
-{
-	LoadResourceAsync(path, my::IORequestPtr(new ClothFabricIORequest(callback, path, this)), false);
-}
-
-PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
-{
-	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
-}
+//
+//class TriangleMeshIORequest : public my::IORequest
+//{
+//protected:
+//	std::string m_path;
+//
+//	Game * m_arc;
+//
+//	my::CachePtr m_cache;
+//
+//public:
+//	TriangleMeshIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
+//		: m_path(path)
+//		, m_arc(arc)
+//	{
+//		if(callback)
+//		{
+//			m_callbacks.push_back(callback);
+//		}
+//	}
+//
+//	virtual void DoLoad(void)
+//	{
+//		if(m_arc->CheckPath(m_path))
+//		{
+//			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+//		}
+//	}
+//
+//	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+//	{
+//		if(!m_cache)
+//		{
+//			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+//		}
+//		PxTriangleMesh * ptr = m_arc->CreateTriangleMesh(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
+//		if (!ptr)
+//		{
+//			THROW_CUSEXCEPTION(str_printf(_T("CreateTriangleMesh failed")));
+//		}
+//		m_res.reset(new PhysXTriangleMesh(ptr));
+//	}
+//};
+//
+//void Game::LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback)
+//{
+//	LoadResourceAsync(path, my::IORequestPtr(new TriangleMeshIORequest(callback, path, this)), false);
+//}
+//
+//PhysXTriangleMeshPtr Game::LoadTriangleMesh(const std::string & path)
+//{
+//	return LoadResource<PhysXTriangleMesh>(path, my::IORequestPtr(new TriangleMeshIORequest(my::ResourceCallback(), path, this)));
+//}
+//
+//class ClothFabricIORequest : public my::IORequest
+//{
+//protected:
+//	std::string m_path;
+//
+//	Game * m_arc;
+//
+//	my::CachePtr m_cache;
+//
+//public:
+//	ClothFabricIORequest(const my::ResourceCallback & callback, const std::string & path, Game * arc)
+//		: m_path(path)
+//		, m_arc(arc)
+//	{
+//		if(callback)
+//		{
+//			m_callbacks.push_back(callback);
+//		}
+//	}
+//
+//	virtual void DoLoad(void)
+//	{
+//		if(m_arc->CheckPath(m_path))
+//		{
+//			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
+//		}
+//	}
+//
+//	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+//	{
+//		if(!m_cache)
+//		{
+//			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+//		}
+//		PxClothFabric * ptr = m_arc->CreateClothFabric(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
+//		if (!ptr)
+//		{
+//			THROW_CUSEXCEPTION(str_printf(_T("CreateClothFabric failed")));
+//		}
+//		m_res.reset(new PhysXClothFabric(ptr));
+//	}
+//};
+//
+//void Game::LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback)
+//{
+//	LoadResourceAsync(path, my::IORequestPtr(new ClothFabricIORequest(callback, path, this)), false);
+//}
+//
+//PhysXClothFabricPtr Game::LoadClothFabric(const std::string & path)
+//{
+//	return LoadResource<PhysXClothFabric>(path, my::IORequestPtr(new ClothFabricIORequest(my::ResourceCallback(), path, this)));
+//}

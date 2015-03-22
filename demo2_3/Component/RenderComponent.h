@@ -105,6 +105,32 @@ public:
 		virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 	};
 
+	typedef boost::shared_ptr<IndexdPrimitiveUPLOD> IndexdPrimitiveUPLODPtr;
+
+	class ClothMeshLOD
+		: public IndexdPrimitiveUPLOD
+	{
+	public:
+		my::D3DVertexElementSet m_VertexElems;
+
+		std::vector<PxClothParticle> m_particles;
+
+		std::vector<PxClothParticle> m_NewParticles;
+
+		PxCloth * m_Cloth;
+
+	public:
+		ClothMeshLOD(MeshComponent * owner)
+			: IndexdPrimitiveUPLOD(owner)
+			, m_Cloth(NULL)
+		{
+		}
+
+		void UpdateCloth(const my::TransformList & dualQuaternionList);
+	};
+
+	typedef boost::shared_ptr<ClothMeshLOD> ClothMeshLODPtr;
+
 	typedef std::vector<LODPtr> LODPtrList;
 
 	LODPtrList m_lods;
