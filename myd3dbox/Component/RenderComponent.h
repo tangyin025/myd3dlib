@@ -49,16 +49,13 @@ public:
 	public:
 		my::OgreMeshPtr m_Mesh;
 
-		DWORD m_AttribId;
-
 		bool m_bInstance;
 
-		MaterialPtr m_Material;
+		MaterialPtrList m_MaterialList;
 
 	public:
 		MeshLOD(MeshComponent * owner)
 			: LOD(owner)
-			, m_AttribId(0)
 			, m_bInstance(false)
 		{
 		}

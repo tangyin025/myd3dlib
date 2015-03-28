@@ -27,12 +27,16 @@ void ComponentResMgr::OnMeshComponentLODMaterialLoaded(
 	MeshComponent::MeshLODPtr lod_ptr = weak_lod_ptr.lock();
 	if (lod_ptr)
 	{
-		lod_ptr->m_Material = boost::dynamic_pointer_cast<Material>(res);
-
-		if (!lod_ptr->m_Material->m_DiffuseTexture.first.empty())
+		if (lod_ptr->m_MaterialList.size() <= AttribId)
 		{
-			LoadTextureAsync(lod_ptr->m_Material->m_DiffuseTexture.first,
-				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, lod_ptr->m_Material, _1));
+			lod_ptr->m_MaterialList.resize(AttribId + 1);
+		}
+		lod_ptr->m_MaterialList[AttribId] = boost::dynamic_pointer_cast<Material>(res);
+
+		if (!lod_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
+		{
+			LoadTextureAsync(lod_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
+				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, lod_ptr->m_MaterialList[AttribId], _1));
 		}
 	}
 }
@@ -40,20 +44,18 @@ void ComponentResMgr::OnMeshComponentLODMaterialLoaded(
 void ComponentResMgr::OnMeshComponentLODMeshLoaded(
 	boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
 	my::DeviceRelatedObjectBasePtr res,
-	DWORD AttribId,
 	bool bInstance)
 {
 	MeshComponent::MeshLODPtr lod_ptr = weak_lod_ptr.lock();
 	if (lod_ptr)
 	{
 		lod_ptr->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
-		lod_ptr->m_AttribId = AttribId;
+		lod_ptr->m_MaterialList.resize(lod_ptr->m_Mesh->m_MaterialNameList.size());
 		lod_ptr->m_bInstance = bInstance;
-
-		if (AttribId < lod_ptr->m_Mesh->m_MaterialNameList.size())
+		for (unsigned int i = 0; i < lod_ptr->m_Mesh->m_MaterialNameList.size(); i++)
 		{
-			LoadMaterialAsync(str_printf("material/%s.xml", lod_ptr->m_Mesh->m_MaterialNameList[AttribId].c_str()),
-				boost::bind(&ComponentResMgr::OnMeshComponentLODMaterialLoaded, this, lod_ptr, _1, AttribId, bInstance));
+			LoadMaterialAsync(str_printf("material/%s.xml", lod_ptr->m_Mesh->m_MaterialNameList[i].c_str()),
+				boost::bind(&ComponentResMgr::OnMeshComponentLODMaterialLoaded, this, lod_ptr, _1, i, bInstance));
 		}
 	}
 }
@@ -380,7 +382,7 @@ MeshComponentPtr ComponentResMgr::CreateMeshComponentFromFile(const std::string 
 {
 	MeshComponentPtr ret(new MeshComponent());
 	MeshComponent::MeshLODPtr lod(new MeshComponent::MeshLOD(ret.get()));
-	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnMeshComponentLODMeshLoaded, this, lod, _1, 0, false));
+	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnMeshComponentLODMeshLoaded, this, lod, _1, false));
 	ret->m_lods.push_back(lod);
 	return ret;
 }

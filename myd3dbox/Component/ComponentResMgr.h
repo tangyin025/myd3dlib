@@ -20,7 +20,6 @@ protected:
 	void OnMeshComponentLODMeshLoaded(
 		boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
 		my::DeviceRelatedObjectBasePtr res,
-		DWORD AttribId,
 		bool bInstance);
 
 	void OnEmitterComponentEmitterLoaded(
