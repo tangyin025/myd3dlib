@@ -212,6 +212,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Outliner.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -251,6 +255,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Outliner.h"
 				>
 			</File>
 			<File
@@ -342,5 +350,9 @@
 		</File>
 	</Files>
 	<Globals>
+		<Global
+			Name="RESOURCE_FILE"
+			Value="myd3dbox.rc"
+		/>
 	</Globals>
 </VisualStudioProject>
