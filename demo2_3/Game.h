@@ -2,9 +2,9 @@
 
 #include "Console.h"
 #include "PhysXContext.h"
-#include "Component/RenderPipeline.h"
-#include "Component/RenderComponent.h"
-#include "Component/ComponentResMgr.h"
+#include "../myd3dbox/Component/RenderPipeline.h"
+#include "../myd3dbox/Component/RenderComponent.h"
+#include "../myd3dbox/Component/ComponentResMgr.h"
 
 class EffectUIRender
 	: public my::UIRender

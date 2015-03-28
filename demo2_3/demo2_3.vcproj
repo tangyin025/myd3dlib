@@ -307,35 +307,35 @@
 			Name="Component"
 			>
 			<File
-				RelativePath=".\Component\Animator.cpp"
+				RelativePath="..\myd3dbox\Component\Animator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Animator.h"
+				RelativePath="..\myd3dbox\Component\Animator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ComponentResMgr.cpp"
+				RelativePath="..\myd3dbox\Component\ComponentResMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ComponentResMgr.h"
+				RelativePath="..\myd3dbox\Component\ComponentResMgr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderComponent.cpp"
+				RelativePath="..\myd3dbox\Component\RenderComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderComponent.h"
+				RelativePath="..\myd3dbox\Component\RenderComponent.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.cpp"
+				RelativePath="..\myd3dbox\Component\RenderPipeline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.h"
+				RelativePath="..\myd3dbox\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

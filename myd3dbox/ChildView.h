@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "../demo2_3/Component/RenderPipeline.h"
+#include "Component/RenderPipeline.h"
 
 class CChildView
 	: public CView

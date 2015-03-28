@@ -304,35 +304,35 @@
 			Name="Component"
 			>
 			<File
-				RelativePath="..\demo2_3\Component\Animator.cpp"
+				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\Animator.h"
+				RelativePath=".\Component\Animator.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\ComponentResMgr.cpp"
+				RelativePath=".\Component\ComponentResMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\ComponentResMgr.h"
+				RelativePath=".\Component\ComponentResMgr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\RenderComponent.cpp"
+				RelativePath=".\Component\RenderComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\RenderComponent.h"
+				RelativePath=".\Component\RenderComponent.h"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\RenderPipeline.cpp"
+				RelativePath=".\Component\RenderPipeline.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\RenderPipeline.h"
+				RelativePath=".\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

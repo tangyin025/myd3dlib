@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // main symbols
-#include "../demo2_3/Component/ComponentResMgr.h"
+#include "Component/ComponentResMgr.h"
 
 
 // CMainApp:
