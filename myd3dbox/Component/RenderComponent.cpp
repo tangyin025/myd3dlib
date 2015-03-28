@@ -9,16 +9,19 @@ void MeshComponent::MeshLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline
 	{
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
-			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, mesh_type, m_bInstance);
-			if (shader)
+			if (m_MaterialList[i])
 			{
-				if (m_bInstance)
+				my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, mesh_type, m_bInstance);
+				if (shader)
 				{
-					pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
-				}
-				else
-				{
-					pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
+					if (m_bInstance)
+					{
+						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
+					}
+					else
+					{
+						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
+					}
 				}
 			}
 		}
