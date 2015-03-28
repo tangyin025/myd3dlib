@@ -396,7 +396,7 @@ namespace my
 
 		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort);
 
-		void CheckRequests(void);
+		bool CheckRequests(void);
 
 		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
 

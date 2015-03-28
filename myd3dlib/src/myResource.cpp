@@ -651,7 +651,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadResourceAsync
 	return PushIORequestResource(key, request, abort);
 }
 
-void ResourceMgr::CheckRequests(void)
+bool ResourceMgr::CheckRequests(void)
 {
 	MutexLock lock(m_IORequestListMutex);
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
@@ -666,6 +666,7 @@ void ResourceMgr::CheckRequests(void)
 			break;
 		}
 	}
+	return !m_IORequestList.empty();
 }
 
 bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, DWORD timeout)

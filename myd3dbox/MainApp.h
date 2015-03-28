@@ -17,8 +17,9 @@
 
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
-	, public ComponentResMgr
 	, public my::Clock
+	, public ComponentResMgr
+	, public RenderPipeline
 {
 public:
 	CMainApp();
@@ -27,9 +28,23 @@ public:
 
 	my::FontPtr m_Font;
 
+	my::EffectPtr m_SimpleSample;
+
+	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, bool, const Material *> ShaderCacheKey;
+
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
+
 	BOOL CreateD3DDevice(HWND hWnd);
+
 	BOOL ResetD3DDevice(void);
+
 	void DestroyD3DDevice(void);
+
+	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
+
+	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 
 // Overrides
 public:
@@ -45,6 +60,8 @@ public:
 
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
+	virtual BOOL OnIdle(LONG lCount);
+	virtual int ExitInstance();
 };
 
 extern CMainApp theApp;

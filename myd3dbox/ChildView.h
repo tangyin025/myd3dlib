@@ -10,7 +10,6 @@
 class CChildView
 	: public CView
 	, public my::DialogMgr
-	, public RenderPipeline
 {
 protected: // create from serialization only
 	CChildView();
@@ -27,15 +26,17 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material);
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 	D3DSURFACE_DESC m_SwapChainBufferDesc;
 	my::Surface m_DepthStencil;
 
+	my::FirstPersonCamera m_Camera;
+
+	MeshComponentPtr m_mesh_cmp;
+
 	BOOL ResetD3DSwapChain(void);
-	void OnDeviceLost(void);
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
@@ -62,6 +63,8 @@ public:
 	afx_msg void OnPaint();
 	afx_msg BOOL OnEraseBkgnd(CDC* pDC);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

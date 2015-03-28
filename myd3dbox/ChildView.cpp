@@ -21,6 +21,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_PAINT()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
+	ON_WM_CREATE()
+	ON_WM_DESTROY()
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -41,11 +43,6 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 	//  the CREATESTRUCT cs
 
 	return CView::PreCreateWindow(cs);
-}
-
-my::Effect * CChildView::QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material)
-{
-	return NULL;
 }
 
 // CChildView drawing
@@ -69,6 +66,7 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	d3dpp.hDeviceWindow = m_hWnd;
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
+	m_d3dSwapChain.Release();
 	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
@@ -80,16 +78,11 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 	m_SwapChainBufferDesc = BackBuffer.GetDesc();
 
+	m_DepthStencil.OnDestroyDevice();
 	m_DepthStencil.CreateDepthStencilSurface(
 		theApp.GetD3D9Device(), m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
 	return TRUE;
-}
-
-void CChildView::OnDeviceLost(void)
-{
-	m_DepthStencil.OnDestroyDevice();
-	m_d3dSwapChain.Release();
 }
 
 void CChildView::OnFrameRender(
@@ -97,6 +90,12 @@ void CChildView::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	m_mesh_cmp->QueryMesh(&theApp, RenderPipeline::DrawStageCBuffer);
+
+	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
+	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+	theApp.OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+
 	theApp.m_UIRender->Begin();
 	theApp.m_UIRender->SetViewProj(m_ViewProj);
 	theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
@@ -185,8 +184,33 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	if(cx > 0 && cy > 0)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
-		OnDeviceLost();
 		ResetD3DSwapChain();
+		m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
+		m_Camera.OnFrameMove(0,0);
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
+}
+
+int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// TODO:  Add your specialized creation code here
+	float k=cos(D3DXToRadian(45));
+	float d=20;
+	m_Camera.m_Eye=my::Vector3(d*k*k,d*k+1,d*k*k);
+	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	m_Camera.OnFrameMove(0,0);
+
+	m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml");
+
+	return 0;
+}
+
+void CChildView::OnDestroy()
+{
+	CView::OnDestroy();
+
+	// TODO: Add your message handler code here
 }

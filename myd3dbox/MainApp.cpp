@@ -65,11 +65,19 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		return FALSE;
 	}
 
+	m_DeviceObjectsCreated = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	if(FAILED(hr = ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = ComponentResMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return FALSE;
+	}
+
+	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
@@ -77,9 +85,17 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 
 	m_UIRender.reset(new my::UIRender(m_d3dDevice));
 
-	m_Font = LoadFont("font/wqy-microhei.ttc", 13);
+	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	{
+		TRACE("LoadFont failed");
+		return FALSE;
+	}
 
-	m_DeviceObjectsCreated = true;
+	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		TRACE("LoadEffect failed");
+		return FALSE;
+	}
 
 	return TRUE;
 }
@@ -88,7 +104,7 @@ BOOL CMainApp::ResetD3DDevice(void)
 {
 	if(m_DeviceObjectsReset)
 	{
-		ResourceMgr::OnLostDevice();
+		ComponentResMgr::OnLostDevice();
 	}
 	m_DeviceObjectsReset = false;
 
@@ -98,29 +114,38 @@ BOOL CMainApp::ResetD3DDevice(void)
 		return FALSE;
 	}
 
+	m_DeviceObjectsReset = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	// ! 不会通知除my::ResourceMgr以外其他对象DeviceReset，要注意
-	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	// ! 不会通知除 ComponentResMgr 以外其他对象 DeviceReset，要注意
+	if(FAILED(hr = ComponentResMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
-	m_DeviceObjectsReset = true;
+
+	if (FAILED(hr = RenderPipeline::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return FALSE;
+	}
 
 	return TRUE;
 }
 
 void CMainApp::DestroyD3DDevice(void)
 {
+	m_UIRender.reset();
+
+	RenderPipeline::OnDestroyDevice();
+
+	ComponentResMgr::OnDestroyDevice();
+
 	if(m_DeviceObjectsCreated)
 	{
-		m_UIRender.reset();
-
-		ResourceMgr::OnDestroyDevice();
-
 		UINT references = m_d3dDevice.Detach()->Release();
 		if(references > 0)
 		{
@@ -130,6 +155,61 @@ void CMainApp::DestroyD3DDevice(void)
 		}
 		m_DeviceObjectsCreated = false;
 	}
+}
+
+void CMainApp::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
+{
+	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+}
+
+static size_t hash_value(const CMainApp::ShaderCacheKey & key)
+{
+	size_t seed = 0;
+	boost::hash_combine(seed, key.get<0>());
+	boost::hash_combine(seed, key.get<1>());
+	boost::hash_combine(seed, key.get<2>());
+	boost::hash_combine(seed, key.get<3>());
+	return seed;
+}
+
+my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
+{
+	_ASSERT(material);
+
+	ShaderCacheKey key(mesh_type, draw_stage, bInstance, material);
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	if (shader_iter != m_ShaderCache.end())
+	{
+		return shader_iter->second.get();
+	}
+
+	std::string macros, path;
+	switch (mesh_type)
+	{
+	case RenderPipeline::MeshTypeParticle:
+		path = "shader/Particle.fx";
+		break;
+
+	case RenderPipeline::MeshTypeStatic:
+		path = "shader/SimpleSample.fx";
+		break;
+
+	case RenderPipeline::MeshTypeAnimation:
+		path = "shader/SimpleSample.fx";
+		macros += "VS_SKINED_DQ 1 ";
+		break;
+	};
+
+	if (bInstance)
+	{
+		macros += "VS_INSTANCE 1 ";
+	}
+
+	std::string key_str = ComponentResMgr::EffectIORequest::BuildKey(path, macros);
+	my::ResourceCallback callback = boost::bind(&CMainApp::OnShaderLoaded, this, _1, key);
+	LoadResourceAsync(key_str, my::IORequestPtr(new ComponentResMgr::EffectIORequest(callback, path, macros, this)), true);
+
+	return NULL;
 }
 
 // CMainApp initialization
@@ -284,3 +364,21 @@ void CMainApp::SaveCustomState()
 
 
 
+
+BOOL CMainApp::OnIdle(LONG lCount)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (ComponentResMgr::CheckRequests())
+	{
+		return TRUE;
+	}
+
+	return CWinAppEx::OnIdle(lCount);
+}
+
+int CMainApp::ExitInstance()
+{
+	// TODO: Add your specialized code here and/or call the base class
+
+	return CWinAppEx::ExitInstance();
+}
