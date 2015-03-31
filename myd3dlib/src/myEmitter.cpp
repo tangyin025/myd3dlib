@@ -40,7 +40,7 @@ void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity)
 	}
 }
 
-void Emitter::Update(double fTime, float fElapsedTime)
+void Emitter::Update(float fElapsedTime)
 {
 	ParticlePairList::reverse_iterator part_iter = m_ParticleList.rbegin();
 	for(; part_iter != m_ParticleList.rend(); part_iter++)
@@ -76,9 +76,9 @@ void Emitter::UpdateParticle(Particle & particle, float time, float fElapsedTime
 
 BOOST_CLASS_EXPORT(SphericalEmitter)
 
-void SphericalEmitter::Update(double fTime, float fElapsedTime)
+void SphericalEmitter::Update(float fElapsedTime)
 {
-	Emitter::Update(fTime, fElapsedTime);
+	Emitter::Update(fElapsedTime);
 
 	m_Time += fElapsedTime;
 

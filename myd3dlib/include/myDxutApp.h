@@ -51,9 +51,7 @@ namespace my
 	class D3DContext
 		: public SingleInstance<D3DContext>
 	{
-	protected:
-		HRESULT hr;
-
+	public:
 		CComPtr<IDirect3D9> m_d3d9;
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
@@ -72,21 +70,6 @@ namespace my
 			, m_DeviceObjectsReset(false)
 		{
 		}
-
-		IDirect3DDevice9 * GetD3D9Device(void)
-		{
-			return m_d3dDevice;
-		}
-
-		const D3DSURFACE_DESC & GetD3D9BackBufferSurfaceDesc(void)
-		{
-			return m_BackBufferSurfaceDesc;
-		}
-
-		DXUTD3D9DeviceSettings GetD3D9DeviceSettings(void)
-		{
-			return m_DeviceSettings;
-		}
 	};
 
 	class DxutApp
@@ -96,6 +79,8 @@ namespace my
 		, public CD3D9Enumeration
 	{
 	protected:
+		HRESULT hr;
+
 		DxutWindowPtr m_wnd;
 
 		UINT m_FullScreenBackBufferWidthAtModeChange;

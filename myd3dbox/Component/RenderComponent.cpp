@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void MeshComponent::MeshLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
 {
 	if (m_Mesh)
 	{
@@ -16,11 +16,11 @@ void MeshComponent::MeshLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline
 				{
 					if (m_bInstance)
 					{
-						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_owner->m_World, shader, m_owner);
+						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_World, shader, this);
 					}
 					else
 					{
-						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, m_owner);
+						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, this);
 					}
 				}
 			}
@@ -28,27 +28,35 @@ void MeshComponent::MeshLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline
 	}
 }
 
-void MeshComponent::MeshLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+{
+	QueryMesh(pipeline, stage, RenderPipeline::MeshTypeStatic);
+}
+
+void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(m_Mesh);
 	_ASSERT(AttribId < m_MaterialList.size());
+	//shader->SetMatrix("g_World", m_World);
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void MeshComponent::IndexdPrimitiveUPLOD::OnResetDevice(void)
+void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
+	MeshComponent::QueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation);
 }
 
-void MeshComponent::IndexdPrimitiveUPLOD::OnLostDevice(void)
+void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
+	if (m_Animator)
+	{
+		shader->SetMatrixArray("g_dualquat", m_Animator->GetDualQuats(), m_Animator->GetDualQuatsNum());
+	}
+
+	MeshComponent::OnSetShader(shader, AttribId);
 }
 
-void MeshComponent::IndexdPrimitiveUPLOD::OnDestroyDevice(void)
-{
-	m_Decl.Release();
-}
-
-void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	for (unsigned int i = 0; i < m_AttribTable.size(); i++)
 	{
@@ -57,7 +65,7 @@ void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, R
 		_ASSERT(0 != m_VertexStride);
 		if (m_MaterialList[i])
 		{
-			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, mesh_type, false);
+			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, RenderPipeline::MeshTypeStatic, false);
 			if (shader)
 			{
 				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
@@ -67,20 +75,20 @@ void MeshComponent::IndexdPrimitiveUPLOD::QueryMesh(RenderPipeline * pipeline, R
 					&m_IndexData[m_AttribTable[i].FaceStart * 3],
 					D3DFMT_INDEX16,
 					&m_VertexData[0],
-					m_VertexStride, i, shader, m_owner);
+					m_VertexStride, i, shader, this);
 			}
 		}
 	}
 }
 
-void MeshComponent::IndexdPrimitiveUPLOD::OnSetShader(my::Effect * shader, DWORD AttribId)
+void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(!m_VertexData.empty());
 	_ASSERT(AttribId < m_AttribTable.size());
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void MeshComponent::ClothMeshLOD::UpdateCloth(const my::TransformList & dualQuaternionList)
+void ClothComponent::UpdateCloth(const my::TransformList & dualQuaternionList)
 {
 	if (m_Cloth)
 	{
@@ -112,7 +120,7 @@ void MeshComponent::ClothMeshLOD::UpdateCloth(const my::TransformList & dualQuat
 			}
 			readData->unlock();
 			m_Cloth->setParticles(&m_NewParticles[0], NULL);
-			m_Cloth->setTargetPose(PxTransform((PxMat44 &)m_owner->m_World));
+			m_Cloth->setTargetPose(PxTransform((PxMat44 &)m_World));
 
 			my::OgreMesh::ComputeNormalFrame(
 				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
@@ -123,53 +131,14 @@ void MeshComponent::ClothMeshLOD::UpdateCloth(const my::TransformList & dualQuat
 	}
 }
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
-{
-	if (m_lodId >= 0 && m_lodId < m_lods.size())
-	{
-		m_lods[m_lodId]->QueryMesh(pipeline, stage, RenderPipeline::MeshTypeStatic);
-	}
-}
-
-void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	shader->SetMatrix("g_World", m_World);
-	if (m_lodId >= 0 && m_lodId < m_lods.size())
-	{
-		m_lods[m_lodId]->OnSetShader(shader, AttribId);
-	}
-}
-
-void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
-{
-	if (m_lodId >= 0 && m_lodId < m_lods.size())
-	{
-		m_lods[m_lodId]->QueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation);
-	}
-}
-
-void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	if (m_Animator)
-	{
-		shader->SetMatrixArray("g_dualquat", m_Animator->GetDualQuats(), m_Animator->GetDualQuatsNum());
-	}
-
-	MeshComponent::OnSetShader(shader, AttribId);
-}
-
 void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
-	_ASSERT(m_EmitterList.size() == m_MaterialList.size());
-	for (unsigned int i = 0; i < m_EmitterList.size(); i++)
+	if (m_Material && m_Emitter)
 	{
-		if (m_MaterialList[i])
+		my::Effect * shader = m_Material->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, false);
+		if (shader)
 		{
-			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, true);
-			if (shader)
-			{
-				pipeline->PushOpaqueEmitter(m_EmitterList[i].get(), i, shader, this);
-			}
+			pipeline->PushOpaqueEmitter(m_Emitter.get(), 0, shader, this);
 		}
 	}
 }
@@ -208,5 +177,6 @@ void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetVector("g_ParticleUp", Up);
 	shader->SetVector("g_ParticleRight", Right);
 
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+	_ASSERT(0 == AttribId);
+	m_Material->OnSetShader(shader, AttribId);
 }

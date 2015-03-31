@@ -65,37 +65,25 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		return FALSE;
 	}
 
-	m_DeviceObjectsCreated = true;
-
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	if(FAILED(hr = ComponentResMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if (FAILED(hr = OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
-	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	m_DeviceObjectsCreated = true;
+
+	if (FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
-	m_UIRender.reset(new my::UIRender(m_d3dDevice));
-
-	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
-	{
-		TRACE("LoadFont failed");
-		return FALSE;
-	}
-
-	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
-	{
-		TRACE("LoadEffect failed");
-		return FALSE;
-	}
+	m_DeviceObjectsReset = true;
 
 	return TRUE;
 }
@@ -104,9 +92,9 @@ BOOL CMainApp::ResetD3DDevice(void)
 {
 	if(m_DeviceObjectsReset)
 	{
-		ComponentResMgr::OnLostDevice();
+		OnLostDevice();
+		m_DeviceObjectsReset = false;
 	}
-	m_DeviceObjectsReset = false;
 
 	if(FAILED(hr = m_d3dDevice->Reset(&m_DeviceSettings.pp)))
 	{
@@ -114,38 +102,33 @@ BOOL CMainApp::ResetD3DDevice(void)
 		return FALSE;
 	}
 
-	m_DeviceObjectsReset = true;
-
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
-	// ! 不会通知除 ComponentResMgr 以外其他对象 DeviceReset，要注意
-	if(FAILED(hr = ComponentResMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if (FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
 
-	if (FAILED(hr = RenderPipeline::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
-	{
-		TRACE(my::D3DException::Translate(hr));
-		return FALSE;
-	}
+	m_DeviceObjectsReset = true;
 
 	return TRUE;
 }
 
 void CMainApp::DestroyD3DDevice(void)
 {
-	m_UIRender.reset();
-
-	RenderPipeline::OnDestroyDevice();
-
-	ComponentResMgr::OnDestroyDevice();
+	if (m_DeviceObjectsReset)
+	{
+		OnLostDevice();
+		m_DeviceObjectsReset = false;
+	}
 
 	if(m_DeviceObjectsCreated)
 	{
+		OnDestroyDevice();
+
 		UINT references = m_d3dDevice.Detach()->Release();
 		if(references > 0)
 		{
@@ -300,6 +283,58 @@ BOOL CMainApp::InitInstance()
 	// call DragAcceptFiles only if there's a suffix
 	//  In an SDI app, this should occur after ProcessShellCommand
 	return TRUE;
+}
+
+
+HRESULT CMainApp::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	if(FAILED(hr = ComponentResMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
+
+	m_UIRender.reset(new my::UIRender(m_d3dDevice));
+
+	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	{
+		TRACE("LoadFont failed");
+		return S_FALSE;
+	}
+
+	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		TRACE("LoadEffect failed");
+		return S_FALSE;
+	}
+	return S_OK;
+}
+
+HRESULT CMainApp::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	// ! 不会通知除 ComponentResMgr 以外其他对象 DeviceReset，要注意
+	if(FAILED(hr = ComponentResMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
+	return S_OK;
+}
+
+void CMainApp::OnLostDevice(void)
+{
+	ComponentResMgr::OnLostDevice();
+}
+
+void CMainApp::OnDestroyDevice(void)
+{
+	m_UIRender.reset();
+
+	ComponentResMgr::OnDestroyDevice();
 }
 
 

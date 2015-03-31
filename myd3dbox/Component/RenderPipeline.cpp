@@ -93,11 +93,14 @@ void RenderPipeline::OnDestroyDevice(void)
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 
-	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
-	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
-	{
-		mesh_inst_iter->second.m_Decl.Release();
-	}
+	ClearAllRenderObjs();
+
+	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
+	//for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
+	//{
+	//	mesh_inst_iter->second.m_Decl.Release();
+	//}
+	m_OpaqueMeshInstanceMap.clear();
 
 	m_ParticleDecl.Release();
 }

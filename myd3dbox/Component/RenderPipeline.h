@@ -113,6 +113,13 @@ public:
 	EmitterAtomList m_QpaqueEmitterList;
 
 public:
+	RenderPipeline(void)
+		: m_ParticleVertexStride(0)
+		, m_ParticleInstanceStride(0)
+		, m_MeshInstanceStride(0)
+	{
+	}
+
 	virtual my::Effect * QueryShader(MeshType mesh_type, DrawStage draw_stage, bool bInstance, const Material * material) = 0;
 
 	HRESULT OnCreateDevice(

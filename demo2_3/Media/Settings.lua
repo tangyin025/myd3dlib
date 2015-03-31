@@ -190,7 +190,7 @@ end
 dlg:InsertControl(cbx_display_adapter)
 
 function RefreshDisplayAdapter()
-	local_device_settings=game:GetD3D9DeviceSettings()
+	local_device_settings=game.DeviceSettings
 	local adapter_info_list=game:GetAdapterInfoList()
 	cbx_display_adapter:RemoveAllItems()
 	cbx_display_adapter.Selected=0

@@ -16,8 +16,8 @@ void EffectUIRender::Begin(void)
 {
 	if(m_UIEffect->m_ptr)
 	{
-		const D3DSURFACE_DESC & desc = DxutApp::getSingleton().GetD3D9BackBufferSurfaceDesc();
-		m_UIEffect->SetVector("g_ScreenDim", Vector4((float)desc.Width, (float)desc.Height, 0, 0));
+		m_UIEffect->SetVector("g_ScreenDim", Vector4(
+			(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
 		m_Passes = m_UIEffect->Begin();
 	}
 }

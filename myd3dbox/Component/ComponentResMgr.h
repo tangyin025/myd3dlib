@@ -11,34 +11,32 @@ protected:
 		boost::weak_ptr<Material> weak_mat_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
-	void OnMeshComponentLODMaterialLoaded(
-		boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
+	void OnMeshComponentMaterialLoaded(
+		boost::weak_ptr<MeshComponent> weak_lod_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		DWORD AttribId,
 		bool bInstance);
 
-	void OnMeshComponentLODMeshLoaded(
-		boost::weak_ptr<MeshComponent::MeshLOD> weak_lod_ptr,
+	void OnMeshComponentMeshLoaded(
+		boost::weak_ptr<MeshComponent> weak_lod_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		bool bInstance);
 
 	void OnEmitterComponentEmitterLoaded(
 		boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
-		my::DeviceRelatedObjectBasePtr res,
-		DWORD AttribId);
+		my::DeviceRelatedObjectBasePtr res);
 
 	void OnEmitterComponentMaterialLoaded(
 		boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
+		my::DeviceRelatedObjectBasePtr res);
+
+	void OnClothComponentMaterialLoaded(
+		boost::weak_ptr<ClothComponent> weak_lod_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		DWORD AttribId);
 
-	void OnClothComponentLODMaterialLoaded(
-		boost::weak_ptr<MeshComponent::ClothMeshLOD> weak_lod_ptr,
-		my::DeviceRelatedObjectBasePtr res,
-		DWORD AttribId);
-
-	void OnClothComponentLODMeshLoaded(
-		boost::weak_ptr<MeshComponent::ClothMeshLOD> weak_lod_ptr,
+	void OnClothComponentMeshLoaded(
+		boost::weak_ptr<ClothComponent> weak_lod_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 		boost::shared_ptr<my::BoneHierarchy> hierarchy,
@@ -72,11 +70,11 @@ public:
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
-	MeshComponentPtr CreateMeshComponentFromFile(const std::string & path);
+	MeshComponentPtr CreateMeshComponentFromFile(const std::string & path, bool bInstance);
 
 	EmitterMeshComponentPtr CreateEmitterComponentFromFile(const std::string & path);
 
-	MeshComponentPtr CreateClothMeshComponentFromFile(
+	ClothComponentPtr CreateClothComponentFromFile(
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 		const std::string & path,
 		const my::BoneHierarchy & hierarchy,

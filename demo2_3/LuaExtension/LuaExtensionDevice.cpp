@@ -122,8 +122,8 @@ void ExportDevice2Lua(lua_State * L)
 				def("DXUTMultisampleTypeToString", &my::DxutApp::DXUTMultisampleTypeToString),
 				def("DXUTVertexProcessingTypeToString", &my::DxutApp::DXUTVertexProcessingTypeToString)
 			]
-			.def("GetD3D9BackBufferSurfaceDesc", &my::DxutApp::GetD3D9BackBufferSurfaceDesc)
-			.def("GetD3D9DeviceSettings", &my::DxutApp::GetD3D9DeviceSettings)
+			.def_readonly("BackBufferSurfaceDesc", &my::DxutApp::m_BackBufferSurfaceDesc)
+			.def_readonly("DeviceSettings", &my::DxutApp::m_DeviceSettings)
 			.def("ToggleFullScreen", &my::DxutApp::ToggleFullScreen)
 			.def("ToggleREF", &my::DxutApp::ToggleREF)
 			.property("SoftwareVP", &my::DxutApp::GetSoftwareVP, &my::DxutApp::SetSoftwareVP)

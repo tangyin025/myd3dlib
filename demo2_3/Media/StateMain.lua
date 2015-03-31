@@ -7,7 +7,7 @@
 -- camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
 -- camera.Distance=20
 -- camera.EventAlign=function(args)
-	-- local desc=game:GetD3D9BackBufferSurfaceDesc()
+	-- local desc=game.BackBufferSurfaceDesc
 	-- camera.Aspect=desc.Width/desc.Height
 -- end
 -- game.Camera=camera
@@ -18,7 +18,7 @@ local d=20
 camera.Eye=Vector3(d*k*k,d*k+1,d*k*k)
 camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
 camera.EventAlign=function(args)
-	local desc=game:GetD3D9BackBufferSurfaceDesc()
+	local desc=game.BackBufferSurfaceDesc
 	camera.Aspect=desc.Width/desc.Height
 end
 game.Camera=camera

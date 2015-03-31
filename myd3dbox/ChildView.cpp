@@ -67,7 +67,7 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 	m_d3dSwapChain.Release();
-	HRESULT hr = theApp.GetD3D9Device()->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
+	HRESULT hr = theApp.m_d3dDevice->CreateAdditionalSwapChain(&d3dpp, &m_d3dSwapChain);
 	if(FAILED(hr))
 	{
 		TRACE(my::D3DException::Translate(hr));
@@ -80,9 +80,14 @@ BOOL CChildView::ResetD3DSwapChain(void)
 
 	m_DepthStencil.OnDestroyDevice();
 	m_DepthStencil.CreateDepthStencilSurface(
-		theApp.GetD3D9Device(), m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
+		theApp.m_d3dDevice, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
 	return TRUE;
+}
+
+my::Effect * CChildView::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
+{
+	return theApp.QueryShader(mesh_type, draw_stage, bInstance, material);
 }
 
 void CChildView::OnFrameRender(
@@ -90,11 +95,12 @@ void CChildView::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	m_mesh_cmp->QueryMesh(&theApp, RenderPipeline::DrawStageCBuffer);
+	m_mesh_cmp->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
-	theApp.OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+
+	RenderPipeline::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 
 	theApp.m_UIRender->Begin();
 	theApp.m_UIRender->SetViewProj(m_ViewProj);
@@ -145,20 +151,17 @@ void CChildView::OnPaint()
 	// Do not call CView::OnPaint() for painting messages
 	if(m_d3dSwapChain)
 	{
-		IDirect3DDevice9 * pd3dDevice = theApp.GetD3D9Device();
-		_ASSERT(pd3dDevice);
-
 		my::Surface BackBuffer;
 		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-		V(pd3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
-		V(pd3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
+		V(theApp.m_d3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
+		V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
+		V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
 
-		if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+		if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 		{
-			OnFrameRender(pd3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+			OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
-			V(pd3dDevice->EndScene());
+			V(theApp.m_d3dDevice->EndScene());
 		}
 
 		if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
@@ -196,6 +199,16 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
+	if (FAILED(hr = RenderPipeline::OnCreateDevice(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc)))
+	{
+		return -1;
+	}
+
+	if (FAILED(hr = RenderPipeline::OnResetDevice(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc)))
+	{
+		return -1;
+	}
+
 	// TODO:  Add your specialized creation code here
 	float k=cos(D3DXToRadian(45));
 	float d=20;
@@ -203,13 +216,17 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.OnFrameMove(0,0);
 
-	m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml");
+	m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml", true);
 
 	return 0;
 }
 
 void CChildView::OnDestroy()
 {
+	RenderPipeline::OnLostDevice();
+
+	RenderPipeline::OnDestroyDevice();
+
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here

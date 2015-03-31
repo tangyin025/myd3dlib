@@ -19,10 +19,11 @@ class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
 	, public ComponentResMgr
-	, public RenderPipeline
 {
 public:
 	CMainApp();
+
+	HRESULT hr;
 
 	my::UIRenderPtr m_UIRender;
 
@@ -44,11 +45,23 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
-	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
+	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 
 // Overrides
 public:
 	virtual BOOL InitInstance();
+
+	virtual HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 // Implementation
 	UINT  m_nAppLook;

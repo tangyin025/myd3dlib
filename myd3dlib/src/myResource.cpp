@@ -678,7 +678,7 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 			// ! havent handled exception
 			try
 			{
-				request->BuildResource(D3DContext::getSingleton().GetD3D9Device());
+				request->BuildResource(D3DContext::getSingleton().m_d3dDevice);
 
 				AddResource(key, request->m_res);
 			}

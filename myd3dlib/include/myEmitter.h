@@ -110,7 +110,7 @@ namespace my
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity);
 
-		virtual void Update(double fTime, float fElapsedTime);
+		virtual void Update(float fElapsedTime);
 
 		void UpdateParticle(Particle & particle, float time, float fElapsedTime);
 	};
@@ -162,7 +162,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 		}
 
-		virtual void Update(double fTime, float fElapsedTime);
+		virtual void Update(float fElapsedTime);
 	};
 
 	typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;

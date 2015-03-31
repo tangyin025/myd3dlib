@@ -35,7 +35,7 @@ public:
 	// 布料系统
 	// ========================================================================================================
 	std::vector<PxClothParticle> m_cloth_particles;
-	MeshComponentPtr m_cloth_mesh;
+	ClothComponentPtr m_cloth_mesh;
 	AnimatorPtr m_cloth_mesh_anim;
 	//OgreSkeletonAnimationPtr m_cloth_anim;
 	//CachePtr m_cloth_mesh_vertices;
@@ -160,7 +160,7 @@ public:
 
 		//m_mesh_ins.reset(new MeshComponent());
 		//m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
-		m_mesh_ins = CreateMeshComponentFromFile("mesh/tube.mesh.xml");
+		m_mesh_ins = CreateMeshComponentFromFile("mesh/tube.mesh.xml",true);
 
 		//m_emitter.reset(new EmitterMeshComponent());
 		//m_emitter->m_EmitterList.push_back(LoadEmitter("emitter/emitter_01.xml"));
@@ -208,7 +208,7 @@ public:
 		//	m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 		//	m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 		//	PxClothCollisionData());
-		m_cloth_mesh = CreateClothMeshComponentFromFile(boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
+		m_cloth_mesh = CreateClothComponentFromFile(boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
 			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 			PxClothCollisionData());
@@ -334,7 +334,7 @@ public:
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
-		dynamic_pointer_cast<MeshComponent::ClothMeshLOD>(m_cloth_mesh->m_lods[0])->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
+		m_cloth_mesh->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
 		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}
@@ -381,8 +381,10 @@ public:
 		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
-		for (unsigned int i = 0; i < m_emitter->m_EmitterList.size(); i++)
-			m_emitter->m_EmitterList[i]->Update(fTime, fElapsedTime);
+		if (m_emitter->m_Emitter)
+		{
+			m_emitter->m_Emitter->Update(fElapsedTime);
+		}
 
 		//// ========================================================================================================
 		//// 逻辑系统
