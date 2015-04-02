@@ -19,6 +19,7 @@ class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
 	, public ComponentResMgr
+	, public RenderPipeline
 {
 public:
 	CMainApp();

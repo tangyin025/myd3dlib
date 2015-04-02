@@ -65,6 +65,8 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		return FALSE;
 	}
 
+	m_DeviceObjectsCreated = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
@@ -75,15 +77,13 @@ BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 		return FALSE;
 	}
 
-	m_DeviceObjectsCreated = true;
+	m_DeviceObjectsReset = true;
 
 	if (FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return FALSE;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	return TRUE;
 }
@@ -102,17 +102,18 @@ BOOL CMainApp::ResetD3DDevice(void)
 		return FALSE;
 	}
 
+	m_DeviceObjectsReset = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
 
 	if (FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
-		TRACE(my::D3DException::Translate(hr));
+		OnLostDevice();
+		m_DeviceObjectsReset = false;
 		return FALSE;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	return TRUE;
 }
@@ -296,6 +297,12 @@ HRESULT CMainApp::OnCreateDevice(
 		return hr;
 	}
 
+	if (FAILED(hr = RenderPipeline::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
+
 	m_UIRender.reset(new my::UIRender(m_d3dDevice));
 
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
@@ -322,17 +329,27 @@ HRESULT CMainApp::OnResetDevice(
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
 	}
+
+	if (FAILED(hr = RenderPipeline::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	{
+		TRACE(my::D3DException::Translate(hr));
+		return hr;
+	}
 	return S_OK;
 }
 
 void CMainApp::OnLostDevice(void)
 {
 	ComponentResMgr::OnLostDevice();
+
+	RenderPipeline::OnLostDevice();
 }
 
 void CMainApp::OnDestroyDevice(void)
 {
 	m_UIRender.reset();
+
+	RenderPipeline::OnDestroyDevice();
 
 	ComponentResMgr::OnDestroyDevice();
 }

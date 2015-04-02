@@ -10,7 +10,6 @@
 class CChildView
 	: public CView
 	, public my::DialogMgr
-	, public RenderPipeline
 {
 protected: // create from serialization only
 	CChildView();
@@ -38,8 +37,6 @@ protected:
 	MeshComponentPtr m_mesh_cmp;
 
 	BOOL ResetD3DSwapChain(void);
-
-	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
 
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,

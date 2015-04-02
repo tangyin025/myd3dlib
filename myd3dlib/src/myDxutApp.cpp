@@ -1816,6 +1816,8 @@ HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
+	m_DeviceObjectsCreated = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
@@ -1825,14 +1827,12 @@ HRESULT DxutApp::Create3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
-	m_DeviceObjectsCreated = true;
+	m_DeviceObjectsReset = true;
 
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	return S_OK;
 }
@@ -1850,6 +1850,8 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 		return hr;
 	}
 
+	m_DeviceObjectsReset = true;
+
 	CComPtr<IDirect3DSurface9> BackBuffer;
 	V(m_d3dDevice->GetBackBuffer(0, 0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer));
 	V(BackBuffer->GetDesc(&m_BackBufferSurfaceDesc));
@@ -1857,10 +1859,9 @@ HRESULT DxutApp::Reset3DEnvironment(DXUTD3D9DeviceSettings & deviceSettings)
 	if(FAILED(hr = OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		OnLostDevice();
+		m_DeviceObjectsReset = false;
 		return hr;
 	}
-
-	m_DeviceObjectsReset = true;
 
 	return S_OK;
 }

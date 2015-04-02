@@ -134,7 +134,7 @@ public:
 
 	void OnDestroyDevice(void);
 
-	void OnFrameRender(
+	void RenderAllObjects(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
@@ -186,7 +186,7 @@ public:
 
 	void PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
-	void ClearAllRenderObjs(void);
+	void ClearAllObjects(void);
 };
 
 class Material

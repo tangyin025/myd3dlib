@@ -85,25 +85,20 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	return TRUE;
 }
 
-my::Effect * CChildView::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
-{
-	return theApp.QueryShader(mesh_type, draw_stage, bInstance, material);
-}
-
 void CChildView::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
 {
-	m_mesh_cmp->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+	m_mesh_cmp->QueryMesh(&theApp, RenderPipeline::DrawStageCBuffer);
 
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
-	RenderPipeline::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
+	theApp.RenderAllObjects(pd3dDevice, fTime, fElapsedTime);
 
 	theApp.m_UIRender->Begin();
-	theApp.m_UIRender->SetViewProj(m_ViewProj);
+	theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 	theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
 	theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,0,0,0), my::Font::AlignLeftTop);
 	theApp.m_UIRender->End();
@@ -151,25 +146,37 @@ void CChildView::OnPaint()
 	// Do not call CView::OnPaint() for painting messages
 	if(m_d3dSwapChain)
 	{
-		my::Surface BackBuffer;
-		V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-		V(theApp.m_d3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
-		V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-		V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
-
-		if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
+		if (theApp.m_DeviceObjectsReset)
 		{
-			OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+			my::Surface BackBuffer;
+			V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
+			V(theApp.m_d3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
+			V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
+			V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
 
-			V(theApp.m_d3dDevice->EndScene());
-		}
-
-		if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
-		{
-			if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
-				theApp.ResetD3DDevice();
+				// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+
+				OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+
+				V(theApp.m_d3dDevice->EndScene());
 			}
+
+			if(FAILED(hr = m_d3dSwapChain->Present(NULL, NULL, NULL, NULL, 0)))
+			{
+				if(D3DERR_DEVICELOST == hr || D3DERR_DRIVERINTERNALERROR == hr)
+				{
+					theApp.OnLostDevice();
+					theApp.m_DeviceObjectsReset = false;
+				}
+			}
+		}
+		else if (D3DERR_DEVICENOTRESET == theApp.m_d3dDevice->TestCooperativeLevel())
+		{
+			theApp.ResetD3DDevice();
 		}
 	}
 }
@@ -199,19 +206,9 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (CView::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
-	if (FAILED(hr = RenderPipeline::OnCreateDevice(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc)))
-	{
-		return -1;
-	}
-
-	if (FAILED(hr = RenderPipeline::OnResetDevice(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc)))
-	{
-		return -1;
-	}
-
 	// TODO:  Add your specialized creation code here
 	float k=cos(D3DXToRadian(45));
-	float d=20;
+	float d=10;
 	m_Camera.m_Eye=my::Vector3(d*k*k,d*k+1,d*k*k);
 	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.OnFrameMove(0,0);
@@ -223,10 +220,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 void CChildView::OnDestroy()
 {
-	RenderPipeline::OnLostDevice();
-
-	RenderPipeline::OnDestroyDevice();
-
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here

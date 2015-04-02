@@ -93,7 +93,7 @@ void RenderPipeline::OnDestroyDevice(void)
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 
-	ClearAllRenderObjs();
+	ClearAllObjects();
 
 	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
 	//for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
@@ -105,7 +105,7 @@ void RenderPipeline::OnDestroyDevice(void)
 	m_ParticleDecl.Release();
 }
 
-void RenderPipeline::OnFrameRender(
+void RenderPipeline::RenderAllObjects(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
@@ -119,13 +119,16 @@ void RenderPipeline::OnFrameRender(
 	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
 	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
 	{
-		DrawOpaqueMeshInstance(
-			pd3dDevice,
-			mesh_inst_iter->first.get<0>(),
-			mesh_inst_iter->first.get<1>(),
-			mesh_inst_iter->first.get<2>(),
-			mesh_inst_iter->second.setter,
-			mesh_inst_iter->second);
+		if (!mesh_inst_iter->second.m_TransformList.empty())
+		{
+			DrawOpaqueMeshInstance(
+				pd3dDevice,
+				mesh_inst_iter->first.get<0>(),
+				mesh_inst_iter->first.get<1>(),
+				mesh_inst_iter->first.get<2>(),
+				mesh_inst_iter->second.setter,
+				mesh_inst_iter->second);
+		}
 	}
 
 	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_OpaqueIndexedPrimitiveUPList.begin();
@@ -153,7 +156,7 @@ void RenderPipeline::OnFrameRender(
 		DrawOpaqueEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
 	}
 
-	ClearAllRenderObjs();
+	ClearAllObjects();
 }
 
 void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -393,7 +396,7 @@ void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my
 	m_QpaqueEmitterList.push_back(atom);
 }
 
-void RenderPipeline::ClearAllRenderObjs(void)
+void RenderPipeline::ClearAllObjects(void)
 {
 	m_OpaqueMeshList.clear();
 	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
