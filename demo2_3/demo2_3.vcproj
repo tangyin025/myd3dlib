@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib PhysX3CharacterKinematicDEBUG_x86.lib Ws2_32.lib"
+				AdditionalOptions="PhysX3CHECKED_x86.lib PhysX3CommonCHECKED_x86.lib PhysX3CookingCHECKED_x86.lib PhysX3ExtensionsCHECKED.lib PhysX3CharacterKinematicCHECKED_x86.lib Ws2_32.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
@@ -195,10 +195,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\PhysXContext.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -230,14 +226,6 @@
 			</File>
 			<File
 				RelativePath=".\Game.h"
-				>
-			</File>
-			<File
-				RelativePath=".\physx_ptr.hpp"
-				>
-			</File>
-			<File
-				RelativePath=".\PhysXContext.h"
 				>
 			</File>
 			<File
@@ -320,6 +308,18 @@
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\ComponentResMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\physx_ptr.hpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\PhysXContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\PhysXContext.h"
 				>
 			</File>
 			<File

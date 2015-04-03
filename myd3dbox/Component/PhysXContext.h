@@ -1,7 +1,7 @@
 #pragma once
 
 #include "physx_ptr.hpp"
-#include "../myd3dbox/Component/RenderComponent.h"
+#include "RenderComponent.h"
 
 class PhysXAllocator : public PxAllocatorCallback
 {

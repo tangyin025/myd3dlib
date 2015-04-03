@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../physx_ptr.hpp"
+#include "../../myd3dbox/Component/physx_ptr.hpp"
 
 class Character
 	: public my::Particle

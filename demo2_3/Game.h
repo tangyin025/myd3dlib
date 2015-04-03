@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Console.h"
-#include "PhysXContext.h"
+#include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/RenderComponent.h"
 #include "../myd3dbox/Component/ComponentResMgr.h"
