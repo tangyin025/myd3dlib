@@ -84,39 +84,39 @@ void SoundBuffer::CreateSoundBufferFromMmio(
 	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &parent, NULL, MMIO_FINDRIFF))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioDescend parent failed"));
+		THROW_CUSEXCEPTION("mmioDescend parent failed");
 	}
 
 	child.fccType = mmioFOURCC('f', 'm', 't', ' ');
 	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioDescend child failed"));
+		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
 	if(sizeof(wavfmt) != mmioRead(hmmio, (HPSTR)&wavfmt, sizeof(wavfmt)))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioRead wav format failed"));
+		THROW_CUSEXCEPTION("mmioRead wav format failed");
 	}
 
 	if(WAVE_FORMAT_PCM != wavfmt.wFormatTag)
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("not wave format pcm"));
+		THROW_CUSEXCEPTION("not wave format pcm");
 	}
 
 	if(MMSYSERR_NOERROR != mmioAscend(hmmio, &child, 0))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioAscend child failed"));
+		THROW_CUSEXCEPTION("mmioAscend child failed");
 	}
 
 	child.ckid = mmioFOURCC('d', 'a', 't', 'a');
 	if(MMSYSERR_NOERROR != mmioDescend(hmmio, &child, &parent, 0))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioDescend child failed"));
+		THROW_CUSEXCEPTION("mmioDescend child failed");
 	}
 
 	DSBUFFERDESC dsbd;
@@ -147,13 +147,13 @@ void SoundBuffer::CreateSoundBufferFromMmio(
 	if(buffer1 != NULL && (LONG)bytes1 != mmioRead(hmmio, (HPSTR)buffer1, bytes1))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioRead wav buffer failed"));
+		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
 	}
 
 	if(buffer2 != NULL && (LONG)bytes2 != mmioRead(hmmio, (HPSTR)buffer2, bytes2))
 	{
 		mmioClose(hmmio, 0);
-		THROW_CUSEXCEPTION(_T("mmioRead wav buffer failed"));
+		THROW_CUSEXCEPTION("mmioRead wav buffer failed");
 	}
 
 	Unlock(buffer1, bytes1, buffer2, bytes2);
@@ -169,7 +169,7 @@ void SoundBuffer::CreateSoundBufferFromFile(
 	HMMIO hmmio;
 	if(NULL == (hmmio = mmioOpen(const_cast<TCHAR *>(pSrcFile), NULL, MMIO_READ | MMIO_ALLOCBUF)))
 	{
-		THROW_CUSEXCEPTION(_T("open wave file failed"));
+		THROW_CUSEXCEPTION("open wave file failed");
 	}
 
 	CreateSoundBufferFromMmio(pDSound, hmmio, flags);
@@ -214,7 +214,7 @@ void SoundBuffer::CreateSoundBufferFromFileInMemory(
 	HMMIO hmmio;
 	if(NULL == (hmmio = mmioOpenA(NULL, &mmioinfo, MMIO_READ)))
 	{
-		THROW_CUSEXCEPTION(_T("open wave file failed"));
+		THROW_CUSEXCEPTION("open wave file failed");
 	}
 
 	CreateSoundBufferFromMmio(pDSound, hmmio, flags);

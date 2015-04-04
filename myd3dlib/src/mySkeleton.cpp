@@ -544,19 +544,19 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 	DEFINE_XML_NODE_SIMPLE(bones, skeleton);
 	DEFINE_XML_NODE_SIMPLE(bone, bones);
 
-	int bone_i = 0;
+	size_t bone_i = 0;
 	for(; node_bone != NULL; node_bone = node_bone->next_sibling(), bone_i++)
 	{
 		DEFINE_XML_ATTRIBUTE_INT_SIMPLE(id, bone);
 		if(id != bone_i)
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("invalid bone id: %d"), id));
+			THROW_CUSEXCEPTION(str_printf("invalid bone id: %d", id));
 		}
 
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, bone);
 		if(m_boneNameMap.end() != m_boneNameMap.find(attr_name->value()))
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("bone name \"%s\"have already existed"), attr_name->value()));
+			THROW_CUSEXCEPTION(str_printf("bone name \"%s\"have already existed", attr_name->value()));
 		}
 
 		m_boneNameMap.insert(std::make_pair(attr_name->value(), id));
@@ -590,13 +590,13 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(bone, boneparent);
 		if(m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("invalid bone name: %s"), attr_bone->value()));
+			THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 		}
 
 		DEFINE_XML_ATTRIBUTE_SIMPLE(parent, boneparent);
 		if(m_boneNameMap.end() == m_boneNameMap.find(attr_parent->value()))
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("invalid bone parent name: %s"), attr_parent->value()));
+			THROW_CUSEXCEPTION(str_printf("invalid bone parent name: %s", attr_parent->value()));
 		}
 
 		m_boneHierarchy.InsertChild(
@@ -611,7 +611,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
 		if(m_animationMap.end() != m_animationMap.find(attr_name->value()))
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("animation \"%s\" have already existed"), attr_name->value()));
+			THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
 		}
 
 		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
@@ -628,7 +628,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
 			if(m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
 			{
-				THROW_CUSEXCEPTION(str_printf(_T("invalid bone name: %s"), attr_bone->value()));
+				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 			}
 
 			BoneTrack & bone_track = anim[m_boneNameMap[attr_bone->value()]];
@@ -695,7 +695,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromMemory(
 	}
 	catch(rapidxml::parse_error & e)
 	{
-		THROW_CUSEXCEPTION(ms2ts(e.what()));
+		THROW_CUSEXCEPTION(e.what());
 	}
 
 	CreateOgreSkeletonAnimation(&doc);

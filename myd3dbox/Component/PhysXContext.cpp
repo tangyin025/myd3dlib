@@ -25,7 +25,7 @@ bool PhysXContext::OnInit(void)
 {
 	if(!(m_Foundation.reset(PxCreateFoundation(PX_PHYSICS_VERSION, m_Allocator, *this)), m_Foundation))
 	{
-		THROW_CUSEXCEPTION(_T("PxCreateFoundation failed"));
+		THROW_CUSEXCEPTION("PxCreateFoundation failed");
 	}
 
 	if(!(m_sdk.reset(PxCreatePhysics(PX_PHYSICS_VERSION, *m_Foundation, PxTolerancesScale(),
@@ -36,32 +36,32 @@ bool PhysXContext::OnInit(void)
 #endif
 		NULL)), m_sdk))
 	{
-		THROW_CUSEXCEPTION(_T("PxCreatePhysics failed"));
+		THROW_CUSEXCEPTION("PxCreatePhysics failed");
 	}
 
 	if(!(m_Cooking.reset(PxCreateCooking(PX_PHYSICS_VERSION, *m_Foundation, PxCookingParams())), m_Cooking))
 	{
-		THROW_CUSEXCEPTION(_T("PxCreateCooking failed"));
+		THROW_CUSEXCEPTION("PxCreateCooking failed");
 	}
 
 	if(!PxInitExtensions(*m_sdk))
 	{
-		THROW_CUSEXCEPTION(_T("PxInitExtensions failed"));
+		THROW_CUSEXCEPTION("PxInitExtensions failed");
 	}
 
 	if(!(m_CpuDispatcher.reset(PxDefaultCpuDispatcherCreate(1, NULL)), m_CpuDispatcher))
 	{
-		THROW_CUSEXCEPTION(_T("PxDefaultCpuDispatcherCreate failed"));
+		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
 
 	if(!(m_ControllerMgr.reset(PxCreateControllerManager(*m_Foundation)), m_ControllerMgr))
 	{
-		THROW_CUSEXCEPTION(_T("PxCreateControllerManager failed"));
+		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
 
 	if(!(m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f)), m_PxMaterial))
 	{
-		THROW_CUSEXCEPTION(_T("m_sdk->createMaterial failed"));
+		THROW_CUSEXCEPTION("m_sdk->createMaterial failed");
 	}
 	return true;
 }
@@ -105,7 +105,7 @@ bool PhysXSceneContext::OnInit(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatc
 	sceneDesc.filterShader = PxDefaultSimulationFilterShader;
 	if(!(m_PxScene.reset(sdk->createScene(sceneDesc)), m_PxScene))
 	{
-		THROW_CUSEXCEPTION(_T("sdk->createScene failed"));
+		THROW_CUSEXCEPTION("sdk->createScene failed");
 	}
 
 	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);

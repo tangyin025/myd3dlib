@@ -55,7 +55,7 @@ public:
 
 	ScrInfoType m_ScrInfos;
 
-	std::wstring m_LastErrorStr;
+	std::string m_LastErrorStr;
 
 	my::UIRenderPtr m_UIRender;
 
@@ -140,7 +140,7 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing);
 
-	virtual void OnResourceFailed(const std::basic_string<TCHAR> & error_str);
+	virtual void OnResourceFailed(const std::string & error_str);
 
 	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 

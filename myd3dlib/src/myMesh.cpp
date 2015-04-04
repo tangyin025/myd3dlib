@@ -488,7 +488,7 @@ CComPtr<ID3DXMesh> Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjace
 	{
 		if (ErrorMsgs)
 		{
-			THROW_CUSEXCEPTION(ms2ts((char *)ErrorMsgs->GetBufferPointer()));
+			THROW_CUSEXCEPTION((char *)ErrorMsgs->GetBufferPointer());
 		}
 		THROW_D3DEXCEPTION(hres);
 	}
@@ -693,7 +693,7 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 	}
 	catch(rapidxml::parse_error & e)
 	{
-		THROW_CUSEXCEPTION(ms2ts(e.what()));
+		THROW_CUSEXCEPTION(e.what());
 	}
 
 	CreateMeshFromOgreXml(pd3dDevice, &doc, bComputeTangentFrame, dwMeshOptions);
@@ -733,13 +733,13 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	if((dwMeshOptions & ~D3DXMESH_32BIT) && vertexcount >= USHRT_MAX)
 	{
-		//THROW_CUSEXCEPTION(_T("facecount overflow ( >= 65535 )"));
+		//THROW_CUSEXCEPTION("facecount overflow ( >= 65535 )");
 		dwMeshOptions |= D3DXMESH_32BIT;
 	}
 
 	if(!positions)
 	{
-		THROW_CUSEXCEPTION(_T("cannot process non-position vertex"));
+		THROW_CUSEXCEPTION("cannot process non-position vertex");
 	}
 
 	m_VertexElems.InsertPositionElement(0);
@@ -759,7 +759,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	if(texture_coords > MAXBYTE)
 	{
-		THROW_CUSEXCEPTION(_T("texture coords overflow ( > 255 )"));
+		THROW_CUSEXCEPTION("texture coords overflow ( > 255 )");
 	}
 
 	for(int i = 0; i < texture_coords; i++)
@@ -856,12 +856,12 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 			if(vertexindex >= vertexcount)
 			{
-				THROW_CUSEXCEPTION(str_printf(_T("invalid vertex index: %d"), vertexindex));
+				THROW_CUSEXCEPTION(str_printf("invalid vertex index: %d", vertexindex));
 			}
 
 			if(boneindex >= 0xff)
 			{
-				THROW_CUSEXCEPTION(str_printf(_T("invalid bone index: %d"), boneindex));
+				THROW_CUSEXCEPTION(str_printf("invalid bone index: %d", boneindex));
 			}
 
 			unsigned char * pVertex = (unsigned char *)pVertices + vertexindex * offset;
@@ -881,7 +881,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 			if(i >= D3DVertexElementSet::MAX_BONE_INDICES)
 			{
-				THROW_CUSEXCEPTION(_T("too much bone assignment"));
+				THROW_CUSEXCEPTION("too much bone assignment");
 			}
 		}
 	}
@@ -899,7 +899,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		DEFINE_XML_ATTRIBUTE_SIMPLE(operationtype, submesh_iter);
 		if(usesharedvertices != bUseSharedGeometry || 0 != _stricmp(attr_operationtype->value(), "triangle_list"))
 		{
-			THROW_CUSEXCEPTION(_T("!usesharedvertices || !triangle_list"));
+			THROW_CUSEXCEPTION("!usesharedvertices || !triangle_list");
 		}
 
 		DEFINE_XML_NODE_SIMPLE(faces, submesh_iter);
@@ -1294,7 +1294,7 @@ void OgreMeshSet::CreateMeshSetFromOgreXmlInMemory(
 	}
 	catch(rapidxml::parse_error & e)
 	{
-		THROW_CUSEXCEPTION(ms2ts(e.what()));
+		THROW_CUSEXCEPTION(e.what());
 	}
 
 	CreateMeshSetFromOgreXml(pd3dDevice, &doc, bComputeTangentFrame, dwMeshSetOptions);

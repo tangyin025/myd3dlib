@@ -339,7 +339,7 @@ void RenderPipeline::PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, con
 		}
 		if (i >= atom.m_velist.size())
 		{
-			THROW_CUSEXCEPTION(_T("invalid vertex declaration"));
+			THROW_CUSEXCEPTION("invalid vertex declaration");
 		}
 		atom.m_velist.insert(atom.m_velist.begin() + i, m_MeshIEList.begin(), m_MeshIEList.end());
 		atom.m_VertexStride = D3DXGetDeclVertexSize(&atom.m_velist[0], 0);

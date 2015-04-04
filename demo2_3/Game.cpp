@@ -152,24 +152,24 @@ HRESULT Game::OnCreateDevice(
 
 	if(!PhysXContext::OnInit())
 	{
-		THROW_CUSEXCEPTION(_T("PhysXContext::OnInit failed"));
+		THROW_CUSEXCEPTION("PhysXContext::OnInit failed");
 	}
 
 	if(!PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
 	{
-		THROW_CUSEXCEPTION(_T("PhysXSceneContext::OnInit failed"));
+		THROW_CUSEXCEPTION("PhysXSceneContext::OnInit failed");
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
 	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
 	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
+		THROW_CUSEXCEPTION("create m_SimpleSample failed");
 	}
 
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
+		THROW_CUSEXCEPTION("create m_Font failed");
 	}
 
 	m_Console = ConsolePtr(new Console());
@@ -180,12 +180,12 @@ HRESULT Game::OnCreateDevice(
 
 	if (!(m_WhiteTex = LoadTexture("texture/white.bmp")))
 	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
+		THROW_CUSEXCEPTION("create m_WhiteTex failed");
 	}
 
 	if (!(m_TexChecker = LoadTexture("texture/Checker.bmp")))
 	{
-		THROW_CUSEXCEPTION(m_LastErrorStr);
+		THROW_CUSEXCEPTION("create m_TexChecker failed");
 	}
 
 	//m_OctScene.reset(new OctRoot(Vector3(-1000,-1000,-1000), Vector3(1000,1000,1000), 1.1f));
@@ -481,11 +481,13 @@ static int dostring (lua_State *L, const char *s, const char *name) {
   return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
 }
 
-void Game::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
+void Game::OnResourceFailed(const std::string & error_str)
 {
+	m_LastErrorStr = error_str;
+
 	_ASSERT(m_Console && m_Console->m_Panel);
 
-	AddLine(error_str, D3DCOLOR_ARGB(255,255,255,255));
+	AddLine(ms2ws(error_str), D3DCOLOR_ARGB(255,255,255,255));
 
 	if(m_Console && !m_Console->GetVisible())
 	{
@@ -515,11 +517,9 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
-	m_LastErrorStr = str;
-
 	if (m_Console)
 	{
-		m_Console->m_Panel->AddLine(m_LastErrorStr, Color);
+		m_Console->m_Panel->AddLine(str, Color);
 	}
 }
 
@@ -535,9 +535,9 @@ bool Game::ExecuteCode(const char * code) throw()
 {
 	if(dostring(m_lua->_state, code, "Game::ExecuteCode") && !lua_isnil(m_lua->_state, -1))
 	{
-		std::wstring msg = ms2ws(lua_tostring(m_lua->_state, -1));
+		std::string msg = lua_tostring(m_lua->_state, -1);
 		if(msg.empty())
-			msg = L"(error object is not a string)";
+			msg = "error object is not a string";
 		lua_pop(m_lua->_state, 1);
 
 		OnResourceFailed(msg);
@@ -634,12 +634,12 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 //	{
 //		if(!m_cache)
 //		{
-//			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+//			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 //		}
 //		PxTriangleMesh * ptr = m_arc->CreateTriangleMesh(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
 //		if (!ptr)
 //		{
-//			THROW_CUSEXCEPTION(str_printf(_T("CreateTriangleMesh failed")));
+//			THROW_CUSEXCEPTION(str_printf("CreateTriangleMesh failed"));
 //		}
 //		m_res.reset(new PhysXTriangleMesh(ptr));
 //	}
@@ -687,12 +687,12 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 //	{
 //		if(!m_cache)
 //		{
-//			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+//			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 //		}
 //		PxClothFabric * ptr = m_arc->CreateClothFabric(my::IStreamPtr(new my::MemoryIStream(&(*m_cache)[0], m_cache->size())));
 //		if (!ptr)
 //		{
-//			THROW_CUSEXCEPTION(str_printf(_T("CreateClothFabric failed")));
+//			THROW_CUSEXCEPTION(str_printf("CreateClothFabric failed"));
 //		}
 //		m_res.reset(new PhysXClothFabric(ptr));
 //	}

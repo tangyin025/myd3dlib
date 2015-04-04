@@ -6,7 +6,7 @@
 	{ \
 		if(!(expr)) \
 		{ \
-			THROW_CUSEXCEPTION(_T(#expr)); \
+			THROW_CUSEXCEPTION(#expr); \
 		} \
 	}
 

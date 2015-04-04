@@ -9,16 +9,16 @@ namespace my
 	class Exception
 	{
 	protected:
-		std::basic_string<TCHAR> m_file;
+		std::string m_file;
 
 		int m_line;
 
 	public:
-		Exception(LPCTSTR file, int line);
+		Exception(const char * file, int line);
 
 		virtual ~Exception(void);
 
-		virtual std::basic_string<TCHAR> what(void) const = 0;
+		virtual std::string what(void) const = 0;
 	};
 
 	class ComException : public Exception
@@ -27,15 +27,15 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		ComException(HRESULT hres, LPCTSTR file, int line)
+		ComException(HRESULT hres, const char * file, int line)
 			: Exception(file, line)
 			, m_hres(hres)
 		{
 		}
 
-		static LPCTSTR Translate(HRESULT hres) throw();
+		static const char * Translate(HRESULT hres) throw();
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 
 	class D3DException : public Exception
@@ -44,15 +44,15 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		D3DException(HRESULT hres, LPCTSTR file, int line)
+		D3DException(HRESULT hres, const char * file, int line)
 			: Exception(file, line)
 			, m_hres(hres)
 		{
 		}
 
-		static LPCTSTR Translate(HRESULT hres) throw();
+		static const char * Translate(HRESULT hres) throw();
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 
 	class DInputException : public Exception
@@ -61,15 +61,15 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		DInputException(HRESULT hres, LPCTSTR file, int line)
+		DInputException(HRESULT hres, const char * file, int line)
 			: Exception(file, line)
 			, m_hres(hres)
 		{
 		}
 
-		static LPCTSTR Translate(HRESULT hres) throw();
+		static const char * Translate(HRESULT hres) throw();
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 
 	class DSoundException : public Exception
@@ -78,15 +78,15 @@ namespace my
 		HRESULT m_hres;
 
 	public:
-		DSoundException(HRESULT hres, LPCTSTR file, int line)
+		DSoundException(HRESULT hres, const char * file, int line)
 			: Exception(file, line)
 			, m_hres(hres)
 		{
 		}
 
-		static LPCTSTR Translate(HRESULT hres) throw();
+		static const char * Translate(HRESULT hres) throw();
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 
 	class WinException : public Exception
@@ -95,39 +95,39 @@ namespace my
 		DWORD m_code;
 
 	public:
-		WinException(DWORD code, LPCTSTR file, int line)
+		WinException(DWORD code, const char * file, int line)
 			: Exception(file, line)
 			, m_code(code)
 		{
 		}
 
-		static std::basic_string<TCHAR> Translate(DWORD code) throw();
+		static std::string Translate(DWORD code) throw();
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 
 	class CustomException : public Exception
 	{
 	protected:
-		std::basic_string<TCHAR> m_desc;
+		std::string m_desc;
 
 	public:
-		CustomException(const std::basic_string<TCHAR> & desc, LPCTSTR file, int line)
+		CustomException(const std::string & desc, const char * file, int line)
 			: Exception(file, line)
 			, m_desc(desc)
 		{
 		}
 
-		virtual std::basic_string<TCHAR> what(void) const;
+		virtual std::string what(void) const;
 	};
 };
 
-#define THROW_COMEXCEPTION(hres) throw my::ComException((hres), _T(__FILE__), __LINE__)
-#define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), _T(__FILE__), __LINE__)
-#define THROW_DINPUTEXCEPTION(hres) throw my::DInputException((hres), _T(__FILE__), __LINE__)
-#define THROW_DSOUNDEXCEPTION(hres) throw my::DSoundException((hres), _T(__FILE__), __LINE__)
-#define THROW_WINEXCEPTION(code) throw my::WinException((code), _T(__FILE__), __LINE__)
-#define THROW_CUSEXCEPTION(info) throw my::CustomException((info), _T(__FILE__), __LINE__)
+#define THROW_COMEXCEPTION(hres) throw my::ComException((hres), __FILE__, __LINE__)
+#define THROW_D3DEXCEPTION(hres) throw my::D3DException((hres), __FILE__, __LINE__)
+#define THROW_DINPUTEXCEPTION(hres) throw my::DInputException((hres), __FILE__, __LINE__)
+#define THROW_DSOUNDEXCEPTION(hres) throw my::DSoundException((hres), __FILE__, __LINE__)
+#define THROW_WINEXCEPTION(code) throw my::WinException((code), __FILE__, __LINE__)
+#define THROW_CUSEXCEPTION(info) throw my::CustomException((info), __FILE__, __LINE__)
 
 #ifdef _DEBUG
 #define V(expr) _ASSERT(SUCCEEDED(hr = (expr)))
@@ -146,7 +146,7 @@ namespace my
 #define DEFINE_XML_NODE(node_v, node_p, node_s) \
 	node_v = node_p->first_node(#node_s); \
 	if(NULL == node_v) \
-		THROW_CUSEXCEPTION(_T("cannot find ") _T(#node_s))
+		THROW_CUSEXCEPTION("cannot find " #node_s)
 
 #define DEFINE_XML_NODE_SIMPLE(node_s, parent_s) \
 	rapidxml::xml_node<char> * node_##node_s; \
@@ -155,7 +155,7 @@ namespace my
 #define DEFINE_XML_ATTRIBUTE(attr_v, node_p, attr_s) \
 	attr_v = node_p->first_attribute(#attr_s); \
 	if(NULL == attr_v) \
-		THROW_CUSEXCEPTION(_T("cannot find ") _T(#attr_s))
+		THROW_CUSEXCEPTION("cannot find " #attr_s)
 
 #define DEFINE_XML_ATTRIBUTE_SIMPLE(attr_s, parent_s) \
 	rapidxml::xml_attribute<char> * attr_##attr_s; \

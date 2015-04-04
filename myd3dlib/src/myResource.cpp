@@ -26,7 +26,7 @@ ZipIStream::ZipIStream(unzFile zFile)
 	if(UNZ_OK != ret)
 	{
 		unzClose(m_zFile);
-		THROW_CUSEXCEPTION(_T("cannot get file info from zip file"));
+		THROW_CUSEXCEPTION("cannot get file info from zip file");
 	}
 }
 
@@ -46,13 +46,13 @@ CachePtr ZipIStream::GetWholeCache(void)
 	CachePtr cache(new Cache(m_zFileInfo.uncompressed_size));
 	if(0 == cache->size())
 	{
-		THROW_CUSEXCEPTION(_T("read zip file cache failed"));
+		THROW_CUSEXCEPTION("read zip file cache failed");
 	}
 
 	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
-		THROW_CUSEXCEPTION(_T("read zip file cache failed"));
+		THROW_CUSEXCEPTION("read zip file cache failed");
 	}
 	return cache;
 }
@@ -73,7 +73,7 @@ IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 	FILE * fp;
 	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 	}
 	return IStreamPtr(new FileIStream(fp));
 }
@@ -90,14 +90,14 @@ CachePtr FileIStream::GetWholeCache(void)
 	CachePtr cache(new Cache(len));
 	if(0 == cache->size())
 	{
-		THROW_CUSEXCEPTION(_T("read file cache failed"));
+		THROW_CUSEXCEPTION("read file cache failed");
 	}
 
 	fseek(m_fp, 0, SEEK_SET);
 	int ret = read(&(*cache)[0], cache->size());
 	if(ret != cache->size())
 	{
-		THROW_CUSEXCEPTION(_T("read file cache failed"));
+		THROW_CUSEXCEPTION("read file cache failed");
 	}
 	return cache;
 }
@@ -118,7 +118,7 @@ OStreamPtr FileOStream::Open(LPCTSTR pFilename)
 	FILE * fp;
 	if(0 != _tfopen_s(&fp, pFilename, _T("wb")))
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), pFilename));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 	}
 	return OStreamPtr(new FileOStream(fp));
 }
@@ -221,14 +221,14 @@ IStreamPtr ZipIStreamDir::OpenIStream(const std::string & path)
 	unzFile zFile = unzOpen(m_dir.c_str());
 	if(NULL == zFile)
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip archive: %s"), ms2ts(m_dir).c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", ms2ts(m_dir).c_str()));
 	}
 
 	int ret = unzLocateFile(zFile, ReplaceBackslash(path).c_str(), 0);
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", ms2ts(path).c_str()));
 	}
 
 	if(m_UsePassword)
@@ -242,7 +242,7 @@ IStreamPtr ZipIStreamDir::OpenIStream(const std::string & path)
 	if(UNZ_OK != ret)
 	{
 		unzClose(zFile);
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open zip file: %s"), ms2ts(path).c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", ms2ts(path).c_str()));
 	}
 	return IStreamPtr(new ZipIStream(zFile));
 }
@@ -273,7 +273,7 @@ IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
 	std::string fullPath = GetFullPath(path);
 	if(fullPath.empty())
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("cannot open file archive: %s"), ms2ts(path).c_str()));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", ms2ts(path).c_str()));
 	}
 
 	return FileIStream::Open(ms2ts(fullPath).c_str());
@@ -368,7 +368,7 @@ IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
 		}
 	}
 
-	THROW_CUSEXCEPTION(str_printf(_T("cannot find specified file: %s"), ms2ts(path).c_str()));
+	THROW_CUSEXCEPTION(str_printf("cannot find specified file: %s", ms2ts(path).c_str()));
 }
 
 AsynchronousIOMgr::AsynchronousIOMgr(void)
@@ -695,7 +695,7 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 			}
 			catch(const std::exception & e)
 			{
-				OnResourceFailed(str_printf(_T("%s error: %s"), ms2ts(key).c_str(), ms2ts(e.what()).c_str()));
+				OnResourceFailed(str_printf("%s error: %s", key.c_str(), e.what()));
 			}
 		}
 
@@ -713,7 +713,7 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 	return false;
 }
 
-void ResourceMgr::OnResourceFailed(const std::basic_string<TCHAR> & error_str)
+void ResourceMgr::OnResourceFailed(const std::string & error_str)
 {
 }
 
@@ -749,7 +749,7 @@ public:
 	{
 		if(!m_cache)
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 		D3DXIMAGE_INFO imif;
 		HRESULT hr = D3DXGetImageInfoFromFileInMemory(&(*m_cache)[0], m_cache->size(), &imif);
@@ -774,7 +774,7 @@ public:
 			}
 			break;
 		default:
-			THROW_CUSEXCEPTION(str_printf(_T("unsupported d3d texture format %u"), imif.ResourceType));
+			THROW_CUSEXCEPTION(str_printf("unsupported d3d texture format %u", imif.ResourceType));
 		}
 	}
 };
@@ -832,7 +832,7 @@ public:
 	{
 		if(!m_doc.first_node())
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 		OgreMeshPtr res(new OgreMesh());
 		res->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
@@ -893,7 +893,7 @@ public:
 	{
 		if(!m_doc.first_node())
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 		OgreMeshSetPtr res(new OgreMeshSet());
 		res->CreateMeshSetFromOgreXml(pd3dDevice, &m_doc);
@@ -954,7 +954,7 @@ public:
 	{
 		if(!m_doc.first_node())
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 		OgreSkeletonAnimationPtr res(new OgreSkeletonAnimation());
 		res->CreateOgreSkeletonAnimation(&m_doc);
@@ -1007,7 +1007,7 @@ void ResourceMgr::EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_cache)
 	{
-		THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+		THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 	}
 	EffectPtr res(new Effect());
 	m_arc->m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
@@ -1070,7 +1070,7 @@ public:
 	{
 		if(!m_cache)
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 		FontPtr res(new Font());
 		res->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
@@ -1141,7 +1141,7 @@ public:
 	{
 		if(!m_res)
 		{
-			THROW_CUSEXCEPTION(str_printf(_T("failed open %s"), ms2ts(m_path).c_str()));
+			THROW_CUSEXCEPTION(str_printf("failed open %s", ms2ts(m_path).c_str()));
 		}
 	}
 };
