@@ -2,6 +2,7 @@
 
 #include "Console.h"
 #include "../myd3dbox/Component/PhysXContext.h"
+#include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/RenderComponent.h"
 #include "../myd3dbox/Component/ComponentResMgr.h"
@@ -41,10 +42,11 @@ class Game
 	, public my::TimerMgr
 	, public my::DialogMgr
 	, public my::InputMgr
-	, public ComponentResMgr
-	, public RenderPipeline
 	, public PhysXContext
 	, public PhysXSceneContext
+	, public FModContext
+	, public ComponentResMgr
+	, public RenderPipeline
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {
@@ -153,12 +155,4 @@ public:
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
-
-	//void LoadTriangleMeshAsync(const std::string & path, const my::ResourceCallback & callback);
-
-	//PhysXTriangleMeshPtr LoadTriangleMesh(const std::string & path);
-
-	//void LoadClothFabricAsync(const std::string & path, const my::ResourceCallback & callback);
-
-	//PhysXClothFabricPtr LoadClothFabric(const std::string & path);
 };

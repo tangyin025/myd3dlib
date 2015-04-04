@@ -397,3 +397,29 @@ ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
 		boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
 	return ret;
 }
+
+FMOD::Sound * ComponentResMgr::CreateFModSound(FMOD::System * system, const std::string & path, FMOD_MODE mode)
+{
+	if (CheckPath(path))
+	{
+		CachePtr m_cache = OpenIStream(path)->GetWholeCache();
+		FMOD_CREATESOUNDEXINFO info = {0};
+		info.cbsize = sizeof(info);
+		info.length = m_cache->size();
+		FMOD_RESULT result;
+		FMOD::Sound * sound = NULL;
+		result = system->createSound((char *)&(*m_cache)[0], mode | FMOD_OPENMEMORY, &info, &sound);
+		FMOD_ERRCHECK(result);
+		return sound;
+	}
+	return NULL;
+}
+
+FMOD::Sound * ComponentResMgr::CreateFModStream(FMOD::System * system, const std::string & path, FMOD_MODE mode)
+{
+	if (CheckPath(path))
+	{
+		//system->createStream(
+	}
+	return NULL;
+}

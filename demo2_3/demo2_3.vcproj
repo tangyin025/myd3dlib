@@ -62,7 +62,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3CHECKED_x86.lib PhysX3CommonCHECKED_x86.lib PhysX3CookingCHECKED_x86.lib PhysX3ExtensionsCHECKED.lib PhysX3CharacterKinematicCHECKED_x86.lib Ws2_32.lib"
+				AdditionalOptions="PhysX3CHECKED_x86.lib PhysX3CommonCHECKED_x86.lib PhysX3CookingCHECKED_x86.lib PhysX3ExtensionsCHECKED.lib PhysX3CharacterKinematicCHECKED_x86.lib Ws2_32.lib fmodex_vc.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
@@ -140,7 +140,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PhysX3Extensions.lib PhysX3CharacterKinematic_x86.lib Ws2_32.lib"
+				AdditionalOptions="PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PhysX3Extensions.lib PhysX3CharacterKinematic_x86.lib Ws2_32.lib fmodex_vc.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
@@ -308,6 +308,14 @@
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\ComponentResMgr.h"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\FModContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\FModContext.h"
 				>
 			</File>
 			<File
