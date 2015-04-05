@@ -2,17 +2,17 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
-#include "Animator.h"
+//#include "Animator.h"
 
 class ActorComponent
-	: public my::AABBComponent
+	: public my::AABBNode
 {
 public:
 	my::Matrix4 m_World;
 
 public:
 	ActorComponent(void)
-		: AABBComponent(my::AABB(FLT_MIN,FLT_MAX))
+		: AABBNode(my::AABB(FLT_MIN,FLT_MAX))
 		, m_World(my::Matrix4::Identity())
 	{
 	}
@@ -21,6 +21,8 @@ public:
 	{
 	}
 };
+
+typedef boost::shared_ptr<ActorComponent> ActorComponentPtr;
 
 class RenderComponent
 	: public ActorComponent
@@ -34,6 +36,8 @@ public:
 
 	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage) = 0;
 };
+
+typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
 
 class MeshComponent
 	: public RenderComponent
@@ -60,25 +64,25 @@ public:
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
-
-class SkeletonMeshComponent
-	: public MeshComponent
-{
-public:
-	AnimatorPtr m_Animator;
-
-public:
-	SkeletonMeshComponent(void)
-		: MeshComponent()
-	{
-	}
-
-	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-};
-
-typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
+//
+//class SkeletonMeshComponent
+//	: public MeshComponent
+//{
+//public:
+//	AnimatorPtr m_Animator;
+//
+//public:
+//	SkeletonMeshComponent(void)
+//		: MeshComponent()
+//	{
+//	}
+//
+//	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+//
+//	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+//};
+//
+//typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
 
 class IndexdPrimitiveUPComponent
 	: public RenderComponent

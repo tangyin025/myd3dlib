@@ -312,6 +312,22 @@
 			Name="Component"
 			>
 			<File
+				RelativePath=".\Component\Actor.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Actor.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ActorComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ActorComponent.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
@@ -328,6 +344,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\FModContext.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\FModContext.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\physx_ptr.hpp"
 				>
 			</File>
@@ -337,14 +361,6 @@
 			</File>
 			<File
 				RelativePath=".\Component\PhysXContext.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\RenderComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\RenderComponent.h"
 				>
 			</File>
 			<File

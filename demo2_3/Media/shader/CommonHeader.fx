@@ -3,10 +3,7 @@
 // Global variables
 //--------------------------------------------------------------------------------------
 
-#if defined(VS_INSTANCE)
-#else
 shared float4x4 g_World;
-#endif
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 

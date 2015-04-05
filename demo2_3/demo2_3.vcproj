@@ -295,6 +295,22 @@
 			Name="Component"
 			>
 			<File
+				RelativePath="..\myd3dbox\Component\Actor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\Actor.h"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\ActorComponent.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\ActorComponent.h"
+				>
+			</File>
+			<File
 				RelativePath="..\myd3dbox\Component\Animator.cpp"
 				>
 			</File>
@@ -328,14 +344,6 @@
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\PhysXContext.h"
-				>
-			</File>
-			<File
-				RelativePath="..\myd3dbox\Component\RenderComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\myd3dbox\Component\RenderComponent.h"
 				>
 			</File>
 			<File

@@ -8,38 +8,38 @@
 
 namespace my
 {
-	class AABBComponent : public AABB
+	class AABBNode : public AABB
 	{
 	public:
-		AABBComponent(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+		AABBNode(float minx, float miny, float minz, float maxx, float maxy, float maxz)
 			: AABB(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
-		AABBComponent(const Vector3 & _Min, const Vector3 & _Max)
+		AABBNode(const Vector3 & _Min, const Vector3 & _Max)
 			: AABB(_Min, _Max)
 		{
 		}
 
-		AABBComponent(const AABB & aabb)
+		AABBNode(const AABB & aabb)
 			: AABB(aabb)
 		{
 		}
 
-		virtual ~AABBComponent(void)
+		virtual ~AABBNode(void)
 		{
 		}
 	};
 
-	typedef boost::shared_ptr<AABBComponent> AABBComponentPtr;
+	typedef boost::shared_ptr<AABBNode> AABBNodePtr;
 
-	typedef boost::function<void (AABBComponent *, IntersectionTests::IntersectionType)> QueryCallback;
+	typedef boost::function<void (AABBNode *, IntersectionTests::IntersectionType)> QueryCallback;
 
 	template <class ChildClass>
-	class OctNodeBase : public AABB
+	class OctNodeBase : public AABBNode
 	{
 	public:
-		typedef std::vector<AABBComponentPtr> AABBComponentPtrList;
+		typedef std::vector<AABBNodePtr> AABBComponentPtrList;
 
 		AABBComponentPtrList m_ComponentList;
 
@@ -49,12 +49,17 @@ namespace my
 
 	public:
 		OctNodeBase(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: AABB(minx, miny, minz, maxx, maxy, maxz)
+			: AABBNode(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
 		OctNodeBase(const Vector3 & _Min, const Vector3 & _Max)
-			: AABB(_Min, _Max)
+			: AABBNode(_Min, _Max)
+		{
+		}
+
+		OctNodeBase(const AABB & aabb)
+			: AABBNode(aabb)
 		{
 		}
 
@@ -127,7 +132,7 @@ namespace my
 			return false;
 		}
 
-		bool RemoveComponent(AABBComponentPtr comp)
+		bool RemoveComponent(AABBNodePtr comp)
 		{
 			AABBComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
 			if (comp_iter != m_ComponentList.end())
@@ -176,7 +181,14 @@ namespace my
 		{
 		}
 
-		void PushComponent(AABBComponentPtr comp, float threshold = 0.1f)
+		OctNode(const AABB & aabb, float MinBlock)
+			: OctNodeBase(aabb)
+			, m_Half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
+			, m_MinBlock(MinBlock)
+		{
+		}
+
+		void PushComponent(AABBNodePtr comp, float threshold = 0.1f)
 		{
 			if (comp->Max[Offset] < m_Half + threshold && Max[Offset] - Min[Offset] > m_MinBlock)
 			{
@@ -215,6 +227,11 @@ namespace my
 
 		OctRoot(const Vector3 & _Min, const Vector3 & _Max, float MinBlock)
 			: OctNode(_Min, _Max, MinBlock)
+		{
+		}
+
+		OctRoot(const AABB & aabb, float MinBlock)
+			: OctNode(aabb, MinBlock)
 		{
 		}
 

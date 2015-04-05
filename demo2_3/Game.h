@@ -4,7 +4,7 @@
 #include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
-#include "../myd3dbox/Component/RenderComponent.h"
+#include "../myd3dbox/Component/ActorComponent.h"
 #include "../myd3dbox/Component/ComponentResMgr.h"
 
 class EffectUIRender

@@ -1,7 +1,7 @@
 #pragma once
 
 #include <myResource.h>
-#include "RenderComponent.h"
+#include "ActorComponent.h"
 #include "FModContext.h"
 
 class ComponentResMgr

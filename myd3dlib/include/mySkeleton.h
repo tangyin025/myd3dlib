@@ -205,6 +205,8 @@ namespace my
 			DWORD indices,
 			const Vector4 & weights,
 			const TransformList & dualQuaternionList);
+
+		static Matrix4 UDQtoRM(const Matrix4 & dual);
 	};
 
 	class BoneKeyframe

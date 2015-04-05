@@ -311,7 +311,7 @@ void Game::OnFrameRender(
 	//	{
 	//	}
 
-	//	void operator() (AABBComponent * cmp, IntersectionTests::IntersectionType type)
+	//	void operator() (AABBNode * cmp, IntersectionTests::IntersectionType type)
 	//	{
 	//		MeshComponent * mesh_cmp = static_cast<MeshComponent *>(cmp);
 	//		device.DrawMesh(mesh_cmp, 0);

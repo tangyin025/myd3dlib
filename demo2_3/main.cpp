@@ -2,6 +2,7 @@
 #include "Game.h"
 //#include "Logic/MeshComponent.h"
 #include "Logic/Logic.h"
+#include "../myd3dbox/Component/Animator.h"
 
 using namespace my;
 
