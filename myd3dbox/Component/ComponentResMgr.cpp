@@ -414,12 +414,3 @@ FMOD::Sound * ComponentResMgr::CreateFModSound(FMOD::System * system, const std:
 	}
 	return NULL;
 }
-
-FMOD::Sound * ComponentResMgr::CreateFModStream(FMOD::System * system, const std::string & path, FMOD_MODE mode)
-{
-	if (CheckPath(path))
-	{
-		//system->createStream(
-	}
-	return NULL;
-}
