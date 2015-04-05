@@ -252,6 +252,17 @@ public:
 		//// ========================================================================================================
 		//m_Logic->Create();
 
+		//// ========================================================================================================
+		//// ÉùÒôÏµÍ³
+		//// ========================================================================================================
+		//FMOD::Sound      *sound1;
+		//FMOD::Channel    *channel = 0;
+		//sound1 = CreateFModSound(m_FModSystem, "sound/drumloop.wav", FMOD_HARDWARE);
+		//result = sound1->setMode(FMOD_LOOP_NORMAL);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
+		//FMOD_ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
+		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
+		//FMOD_ERRCHECK(result);
+
 		ExecuteCode("dofile \"StateMain.lua\"");
 
 		Game::getSingleton().m_KeyPressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);

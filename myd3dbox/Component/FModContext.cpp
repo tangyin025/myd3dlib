@@ -78,14 +78,6 @@ bool FModContext::OnInit(void)
     //result = m_FModSystem->setFileSystem(myopen, myclose, myread, myseek, 0, 0, 2048);
     //FMOD_ERRCHECK(result);
 
-	//FMOD::Sound      *sound1, *sound2, *sound3;
-	//FMOD::Channel    *channel = 0;
-	//result = m_FModSystem->createSound("../demo2_3/Media/sound/drumloop.wav", FMOD_HARDWARE, 0, &sound1);
-	//FMOD_ERRCHECK(result);
-	//result = sound1->setMode(FMOD_LOOP_NORMAL);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
-	//FMOD_ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
-	//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
-	//FMOD_ERRCHECK(result);
 	return true;
 }
 
