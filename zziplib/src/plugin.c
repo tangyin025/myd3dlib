@@ -29,9 +29,9 @@
 zzip_off_t
 zzip_filesize(int fd)
 {
-    struct stat st;
+    struct _stat st;
 
-    if (fstat(fd, &st) < 0)
+    if (_fstat(fd, &st) < 0)
         return -1;
 
 # if defined DEBUG && ! defined _WIN32
@@ -44,8 +44,8 @@ zzip_filesize(int fd)
 }
 
 static const struct zzip_plugin_io default_io = {
-    &open,
-    &close,
+    &_open,
+    &_close,
     &_zzip_read,
     &_zzip_lseek,
     &zzip_filesize,
