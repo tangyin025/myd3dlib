@@ -82,8 +82,4 @@ public:
 		const my::BoneHierarchy & hierarchy,
 		DWORD root_i,
 		const PxClothCollisionData& collData);
-
-	FMOD::Sound * CreateFModSound(FMOD::System * system, const std::string & path, FMOD_MODE mode);
-
-	FMOD::Sound * CreateFModStream(FMOD::System * system, const std::string & path, FMOD_MODE mode);
 };

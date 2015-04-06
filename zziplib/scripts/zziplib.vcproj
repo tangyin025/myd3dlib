@@ -2,9 +2,9 @@
 <VisualStudioProject
 	ProjectType="Visual C++"
 	Version="9.00"
-	Name="demo2_2"
-	ProjectGUID="{75F896A5-F6F2-410E-8E47-00D18993B766}"
-	RootNamespace="demo2_2"
+	Name="zziplib"
+	ProjectGUID="{5D10D16E-E3AA-4430-83DB-4A4FBB9A201D}"
+	RootNamespace="zziplib"
 	Keyword="Win32Proj"
 	TargetFrameworkVersion="196613"
 	>
@@ -20,7 +20,7 @@
 			Name="Debug|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,8 +41,8 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
-				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;BOOST_ALL_NO_LIB"
+				AdditionalIncludeDirectories="..\include;&quot;$(SolutionDir)zlib\include&quot;"
+				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,20 +60,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
-				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
-				DelayLoadDLLs=""
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -85,9 +75,6 @@
 				Name="VCFxCopTool"
 			/>
 			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
 				Name="VCPostBuildEventTool"
 			/>
 		</Configuration>
@@ -95,7 +82,7 @@
 			Name="Release|Win32"
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="1"
+			ConfigurationType="4"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -118,8 +105,8 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;BOOST_ALL_NO_LIB"
+				AdditionalIncludeDirectories="..\include;&quot;$(SolutionDir)zlib\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_DEPRECATE;_CRT_NONSTDC_NO_DEPRECATE"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="0"
@@ -136,22 +123,10 @@
 				Name="VCPreLinkEventTool"
 			/>
 			<Tool
-				Name="VCLinkerTool"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
-				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
-				DelayLoadDLLs=""
-				GenerateDebugInformation="true"
-				SubSystem="2"
-				OptimizeReferences="2"
-				EnableCOMDATFolding="2"
-				TargetMachine="1"
+				Name="VCLibrarianTool"
 			/>
 			<Tool
 				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
 			/>
 			<Tool
 				Name="VCXDCMakeTool"
@@ -161,9 +136,6 @@
 			/>
 			<Tool
 				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
 			/>
 			<Tool
 				Name="VCPostBuildEventTool"
@@ -179,7 +151,35 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath=".\main.cpp"
+				RelativePath="..\src\dir.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\err.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\fetch.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\file.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\info.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\plugin.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\stat.c"
+				>
+			</File>
+			<File
+				RelativePath="..\src\zip.c"
 				>
 			</File>
 		</Filter>
@@ -188,6 +188,74 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\include\zzip\__debug.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\__dirent.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\__hints.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\__mmap.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\_config.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\_msvc.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\conf.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\fetch.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\file.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\format.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\info.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\lib.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\plugin.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\stdint.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\types.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\zzip.h"
+				>
+			</File>
+			<File
+				RelativePath="..\include\zzip\zzip32.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"

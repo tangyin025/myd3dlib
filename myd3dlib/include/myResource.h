@@ -5,6 +5,7 @@
 #include "myThread.h"
 #include <boost/weak_ptr.hpp>
 #include "mySingleton.h"
+#include "zzip/zzip.h"
 
 namespace my
 {
@@ -20,6 +21,10 @@ namespace my
 		}
 
 		virtual int read(void * buff, unsigned read_size) = 0;
+
+		virtual long seek(long offset) = 0;
+
+		virtual long tell(void) = 0;
 
 		virtual unsigned long GetSize(void) = 0;
 
@@ -43,16 +48,18 @@ namespace my
 	class ZipIStream : public IStream
 	{
 	protected:
-		unzFile m_zFile;
-
-		unz_file_info m_zFileInfo;
+		ZZIP_FILE * m_fp;
 
 	public:
-		ZipIStream(unzFile zFile);
+		ZipIStream(ZZIP_FILE * fp);
 
 		~ZipIStream(void);
 
 		virtual int read(void * buff, unsigned read_size);
+
+		virtual long seek(long offset);
+
+		virtual long tell(void);
 
 		virtual unsigned long GetSize(void);
 	};
@@ -70,6 +77,10 @@ namespace my
 		static IStreamPtr Open(LPCTSTR pFilename);
 
 		virtual int read(void * buff, unsigned read_size);
+
+		virtual long seek(long offset);
+
+		virtual long tell(void);
 
 		virtual unsigned long GetSize(void);
 	};
@@ -94,14 +105,18 @@ namespace my
 	protected:
 		unsigned char * m_buffer;
 
-		int m_size;
+		long m_size;
 
-		int m_tell;
+		long m_tell;
 
 	public:
 		MemoryIStream(void * buffer, size_t size);
 
 		virtual int read(void * buff, unsigned read_size);
+
+		virtual long seek(long offset);
+
+		virtual long tell(void);
 
 		virtual unsigned long GetSize(void);
 	};
@@ -144,23 +159,23 @@ namespace my
 	class ZipIStreamDir : public StreamDir
 	{
 	protected:
+		ZZIP_DIR * m_zipdir;
+
 		std::string m_password;
 
 		bool m_UsePassword;
 
 	public:
-		ZipIStreamDir(const std::string & dir)
-			: StreamDir(dir)
-			, m_UsePassword(false)
-		{
-		}
+		ZipIStreamDir(const std::string & dir);
 
-		ZipIStreamDir(const std::string & dir, const std::string & password)
-			: StreamDir(dir)
-			, m_UsePassword(true)
-			, m_password(password)
-		{
-		}
+		//ZipIStreamDir(const std::string & dir, const std::string & password)
+		//	: StreamDir(dir)
+		//	, m_UsePassword(true)
+		//	, m_password(password)
+		//{
+		//}
+
+		~ZipIStreamDir(void);
 
 		static std::string ReplaceSlash(const std::string & path);
 
@@ -210,7 +225,7 @@ namespace my
 
 		void RegisterZipDir(const std::string & zip_path);
 
-		void RegisterZipDir(const std::string & zip_path, const std::string & password);
+		//void RegisterZipDir(const std::string & zip_path, const std::string & password);
 
 		void RegisterFileDir(const std::string & dir);
 
