@@ -67,10 +67,10 @@ namespace my
 	class FileIStream : public IStream
 	{
 	protected:
-		FILE * m_fp;
+		int m_fp;
 
 	public:
-		FileIStream(FILE * fp);
+		FileIStream(int fp);
 
 		~FileIStream(void);
 
@@ -88,10 +88,10 @@ namespace my
 	class FileOStream : public OStream
 	{
 	protected:
-		FILE * m_fp;
+		int m_fp;
 
 	public:
-		FileOStream(FILE * fp);
+		FileOStream(int fp);
 
 		~FileOStream(void);
 
@@ -168,13 +168,6 @@ namespace my
 	public:
 		ZipIStreamDir(const std::string & dir);
 
-		//ZipIStreamDir(const std::string & dir, const std::string & password)
-		//	: StreamDir(dir)
-		//	, m_UsePassword(true)
-		//	, m_password(password)
-		//{
-		//}
-
 		~ZipIStreamDir(void);
 
 		static std::string ReplaceSlash(const std::string & path);
@@ -224,8 +217,6 @@ namespace my
 		}
 
 		void RegisterZipDir(const std::string & zip_path);
-
-		//void RegisterZipDir(const std::string & zip_path, const std::string & password);
 
 		void RegisterFileDir(const std::string & dir);
 

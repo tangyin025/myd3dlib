@@ -66,7 +66,7 @@ unsigned long ZipIStream::GetSize(void)
 	return m_fp->usize;
 }
 
-FileIStream::FileIStream(FILE * fp)
+FileIStream::FileIStream(int fp)
 	: m_fp(fp)
 {
 	_ASSERT(NULL != m_fp);
@@ -74,13 +74,14 @@ FileIStream::FileIStream(FILE * fp)
 
 FileIStream::~FileIStream(void)
 {
-	fclose(m_fp);
+	_close(m_fp);
 }
 
 IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 {
-	FILE * fp;
-	if(0 != _tfopen_s(&fp, pFilename, _T("rb")))
+	int fp;
+	errno_t err = _tsopen_s(&fp, pFilename, _O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD);
+	if (0 != err)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 	}
@@ -89,29 +90,25 @@ IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 
 int FileIStream::read(void * buff, unsigned read_size)
 {
-	return ::fread(buff, 1, read_size, m_fp);
+	return _read(m_fp, buff, read_size);
 }
 
 long FileIStream::seek(long offset)
 {
-	return ::fseek(m_fp, offset, SEEK_SET);
+	return _lseek(m_fp, offset, SEEK_SET);
 }
 
 long FileIStream::tell(void)
 {
-	return ::ftell(m_fp);
+	return _tell(m_fp);
 }
 
 unsigned long FileIStream::GetSize(void)
 {
-	long pos = ::ftell(m_fp);
-	::fseek(m_fp, 0, SEEK_END);
-	long len = ::ftell(m_fp);
-	::fseek(m_fp, pos, SEEK_SET);
-	return len;
+	return _filelength(m_fp);
 }
 
-FileOStream::FileOStream(FILE * fp)
+FileOStream::FileOStream(int fp)
 	: m_fp(fp)
 {
 	_ASSERT(NULL != m_fp);
@@ -119,13 +116,14 @@ FileOStream::FileOStream(FILE * fp)
 
 FileOStream::~FileOStream(void)
 {
-	fclose(m_fp);
+	_close(m_fp);
 }
 
 OStreamPtr FileOStream::Open(LPCTSTR pFilename)
 {
-	FILE * fp;
-	if(0 != _tfopen_s(&fp, pFilename, _T("wb")))
+	int fp;
+	errno_t err = _tsopen_s(&fp, pFilename, _O_RDWR | _O_BINARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
+	if (0 != err)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
 	}
@@ -134,7 +132,7 @@ OStreamPtr FileOStream::Open(LPCTSTR pFilename)
 
 int FileOStream::write(const void * buff, unsigned write_size)
 {
-	return fwrite(buff, 1, write_size, m_fp);
+	return _write(m_fp, buff, write_size);
 }
 
 MemoryIStream::MemoryIStream(void * buffer, size_t size)
@@ -193,7 +191,11 @@ ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 	, m_UsePassword(false)
 {
 	int fd;
-	_sopen_s(&fd, m_dir.c_str(), O_RDONLY|O_BINARY, _SH_DENYWR, _S_IREAD);
+	errno_t err = _sopen_s(&fd, m_dir.c_str(), O_RDONLY|O_BINARY, _SH_DENYWR, _S_IREAD);
+	if (0 != err)
+	{
+		THROW_CUSEXCEPTION(str_printf("cannot open zip archive: %s", m_dir.c_str()));
+	}
 	zzip_error_t rv;
 	m_zipdir = zzip_dir_fdopen(fd, &rv);
 	if (!m_zipdir)
@@ -291,15 +293,12 @@ IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
-	CriticalSectionLock lock(m_DirListSection);
-	m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path)));
+	if (CheckPath(zip_path))
+	{
+		CriticalSectionLock lock(m_DirListSection);
+		m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path)));
+	}
 }
-//
-//void StreamDirMgr::RegisterZipDir(const std::string & zip_path, const std::string & password)
-//{
-//	CriticalSectionLock lock(m_DirListSection);
-//	m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path, password)));
-//}
 
 void StreamDirMgr::RegisterFileDir(const std::string & dir)
 {
@@ -600,6 +599,8 @@ void ResourceMgr::OnDestroyDevice(void)
 	m_Thread.CloseThread();
 
 	m_IORequestList.clear();
+
+	m_DirList.clear();
 }
 
 HRESULT ResourceMgr::Open(

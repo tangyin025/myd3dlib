@@ -125,6 +125,11 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
+		RegisterFileDir("Media");
+		RegisterZipDir("Media.zip");
+		RegisterFileDir("..\\demo2_3\\Media");
+		RegisterZipDir("..\\demo2_3\\Media.zip");
+
 		if(FAILED(hr = Game::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;

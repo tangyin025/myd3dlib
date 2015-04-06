@@ -72,11 +72,6 @@ void EffectUIRender::DrawVertexList(void)
 
 Game::Game(void)
 {
-	RegisterFileDir("Media");
-	RegisterZipDir("Media.zip");
-	RegisterFileDir("..\\demo2_3\\Media");
-	RegisterZipDir("..\\demo2_3\\Media.zip");
-
 	m_lua.reset(new LuaContext());
 
 	Export2Lua(m_lua->_state);
