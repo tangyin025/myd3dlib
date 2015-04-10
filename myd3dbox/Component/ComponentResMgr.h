@@ -14,13 +14,13 @@ protected:
 		my::DeviceRelatedObjectBasePtr res);
 
 	void OnMeshComponentMaterialLoaded(
-		boost::weak_ptr<MeshComponent> weak_lod_ptr,
+		boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		DWORD AttribId,
 		bool bInstance);
 
 	void OnMeshComponentMeshLoaded(
-		boost::weak_ptr<MeshComponent> weak_lod_ptr,
+		boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		bool bInstance);
 
@@ -33,16 +33,24 @@ protected:
 		my::DeviceRelatedObjectBasePtr res);
 
 	void OnClothComponentMaterialLoaded(
-		boost::weak_ptr<ClothComponent> weak_lod_ptr,
+		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		DWORD AttribId);
 
 	void OnClothComponentMeshLoaded(
-		boost::weak_ptr<ClothComponent> weak_lod_ptr,
+		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res,
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 		boost::shared_ptr<my::BoneHierarchy> hierarchy,
 		DWORD root_i,
+		boost::shared_ptr<PxClothCollisionData> collData);
+
+	void OnClothComponentSkeletonLoaded(
+		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
+		my::DeviceRelatedObjectBasePtr res,
+		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
+		std::string mesh_path,
+		std::string root_name,
 		boost::shared_ptr<PxClothCollisionData> collData);
 
 public:
@@ -81,8 +89,8 @@ public:
 	ClothComponentPtr CreateClothComponentFromFile(
 		Actor * owner,
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-		const std::string & path,
-		const my::BoneHierarchy & hierarchy,
-		DWORD root_i,
+		const std::string & mesh_path,
+		const std::string & skel_path,
+		const std::string & root_name,
 		const PxClothCollisionData& collData);
 };

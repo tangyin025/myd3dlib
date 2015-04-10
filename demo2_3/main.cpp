@@ -219,10 +219,8 @@ public:
 		//	m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 		//	m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 		//	PxClothCollisionData());
-		m_cloth_mesh = CreateClothComponentFromFile(m_actor.get(), boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
-			m_actor->m_Animator->m_Animation->m_boneHierarchy,
-			m_actor->m_Animator->m_Animation->GetBoneIndex("joint5"),
-			PxClothCollisionData());
+		m_cloth_mesh = CreateClothComponentFromFile(m_actor.get(),
+			boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml", "mesh/cloth.skeleton.xml", "joint5", PxClothCollisionData());
 		//m_cloth_mesh_vertices.reset(new Cache(
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices() * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex()));
 		//memcpy(&(*m_cloth_mesh_vertices)[0], m_cloth_mesh->m_lods[0]->m_Mesh->LockVertexBuffer(), m_cloth_mesh_vertices->size());

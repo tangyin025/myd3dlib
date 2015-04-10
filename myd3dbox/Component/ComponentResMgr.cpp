@@ -20,12 +20,12 @@ void ComponentResMgr::OnMaterialDiffuseTextureLoaded(
 }
 
 void ComponentResMgr::OnMeshComponentMaterialLoaded(
-	boost::weak_ptr<MeshComponent> weak_lod_ptr,
+	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId,
 	bool bInstance)
 {
-	MeshComponentPtr cmp_ptr = weak_lod_ptr.lock();
+	MeshComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		if (cmp_ptr->m_MaterialList.size() <= AttribId)
@@ -43,11 +43,11 @@ void ComponentResMgr::OnMeshComponentMaterialLoaded(
 }
 
 void ComponentResMgr::OnMeshComponentMeshLoaded(
-	boost::weak_ptr<MeshComponent> weak_lod_ptr,
+	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	bool bInstance)
 {
-	MeshComponentPtr cmp_ptr = weak_lod_ptr.lock();
+	MeshComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		cmp_ptr->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
@@ -90,11 +90,11 @@ void ComponentResMgr::OnEmitterComponentMaterialLoaded(
 }
 
 void ComponentResMgr::OnClothComponentMaterialLoaded(
-	boost::weak_ptr<ClothComponent> weak_lod_ptr,
+	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId)
 {
-	ClothComponentPtr cmp_ptr = weak_lod_ptr.lock();
+	ClothComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		if (cmp_ptr->m_MaterialList.size() <= AttribId)
@@ -112,14 +112,14 @@ void ComponentResMgr::OnClothComponentMaterialLoaded(
 }
 
 void ComponentResMgr::OnClothComponentMeshLoaded(
-	boost::weak_ptr<ClothComponent> weak_lod_ptr,
+	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 	boost::shared_ptr<my::BoneHierarchy> hierarchy,
 	DWORD root_i,
 	boost::shared_ptr<PxClothCollisionData> collData)
 {
-	ClothComponentPtr cmp_ptr = weak_lod_ptr.lock();
+	ClothComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		OgreMeshPtr mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
@@ -196,6 +196,24 @@ void ComponentResMgr::OnClothComponentMeshLoaded(
 			PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &cmp_ptr->m_particles[0], *collData, PxClothFlags()); // ! fabric->release()
 
 		PxContext.get<2>()->addActor(*cmp_ptr->m_Cloth);
+	}
+}
+
+void ComponentResMgr::OnClothComponentSkeletonLoaded(
+	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
+	my::DeviceRelatedObjectBasePtr res,
+	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
+	std::string mesh_path,
+	std::string root_name,
+	boost::shared_ptr<PxClothCollisionData> collData)
+{
+	ClothComponentPtr cmp_ptr = weak_cmp_ptr.lock();
+	if (cmp_ptr)
+	{
+		OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<OgreSkeletonAnimation>(res);
+
+		LoadMeshAsync(mesh_path, boost::bind(&ComponentResMgr::OnClothComponentMeshLoaded, this, cmp_ptr, _1, PxContext,
+			boost::shared_ptr<my::BoneHierarchy>(new my::BoneHierarchy(skel->m_boneHierarchy)), skel->GetBoneIndex(root_name), collData));
 	}
 }
 
@@ -369,16 +387,14 @@ EmitterComponentPtr ComponentResMgr::CreateEmitterComponentFromFile(Actor * owne
 ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
 	Actor * owner,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-	const std::string & path,
-	const my::BoneHierarchy & hierarchy,
-	DWORD root_i,
+	const std::string & mesh_path,
+	const std::string & skel_path,
+	const std::string & root_name,
 	const PxClothCollisionData& collData)
 {
 	ClothComponentPtr ret(new ClothComponent(owner));
-	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnClothComponentMeshLoaded, this, ret, _1, PxContext,
-		boost::shared_ptr<my::BoneHierarchy>(new my::BoneHierarchy(hierarchy)),
-		root_i,
-		boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
+	LoadSkeletonAsync(skel_path, boost::bind(&ComponentResMgr::OnClothComponentSkeletonLoaded,
+		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
 	owner->m_ComponentList.push_back(ret);
 	return ret;
 }
