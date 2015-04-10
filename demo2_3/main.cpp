@@ -359,6 +359,8 @@ public:
 		//m_cloth_mesh->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
 		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
+
+		m_actor->OnPxThreadSubstep(fElapsedTime);
 	}
 
 	virtual void OnFrameMove(

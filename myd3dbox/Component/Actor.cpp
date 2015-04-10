@@ -34,6 +34,15 @@ void Actor::Update(float fElapsedTime)
 	}
 }
 
+void Actor::OnPxThreadSubstep(float fElapsedTime)
+{
+	ClothComponentPtrList::iterator cloth_iter = m_clothes.begin();
+	for (; cloth_iter != m_clothes.end(); cloth_iter++)
+	{
+		(*cloth_iter)->OnPxThreadSubstep(fElapsedTime);
+	}
+}
+
 void Actor::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	AABBComponentPtrList::iterator cmp_iter = m_ComponentList.begin();

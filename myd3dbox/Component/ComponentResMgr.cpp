@@ -396,5 +396,6 @@ ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
 	LoadSkeletonAsync(skel_path, boost::bind(&ComponentResMgr::OnClothComponentSkeletonLoaded,
 		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
 	owner->m_ComponentList.push_back(ret);
+	owner->m_clothes.push_back(ret);
 	return ret;
 }

@@ -91,7 +91,7 @@ void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void ClothComponent::Update(float fElapsedTime)
+void ClothComponent::OnPxThreadSubstep(float fElapsedTime)
 {
 	_ASSERT(m_Owner);
 	if (m_Owner->m_Animator)

@@ -4,6 +4,8 @@
 
 class Animator;
 
+class ClothComponent;
+
 class Actor
 	: public my::OctRoot
 {
@@ -32,6 +34,10 @@ public:
 
 	boost::shared_ptr<Animator> m_Animator;
 
+	typedef std::vector<boost::shared_ptr<ClothComponent> > ClothComponentPtrList;
+
+	ClothComponentPtrList m_clothes;
+
 public:
 	Actor(void)
 		: OctRoot(my::AABB(FLT_MIN,FLT_MAX), 1.1f)
@@ -44,6 +50,8 @@ public:
 	}
 
 	virtual void Update(float fElapsedTime);
+
+	virtual void OnPxThreadSubstep(float fElapsedTime);
 
 	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
 };

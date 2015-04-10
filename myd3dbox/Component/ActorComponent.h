@@ -132,7 +132,7 @@ public:
 	{
 	}
 
-	virtual void Update(float fElapsedTime);
+	void OnPxThreadSubstep(float fElapsedTime);
 
 	void UpdateCloth(const my::TransformList & dualQuaternionList);
 };
