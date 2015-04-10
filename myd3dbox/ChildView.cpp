@@ -213,7 +213,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.OnFrameMove(0,0);
 
-	m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml", true);
+	//m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml", true);
 
 	return 0;
 }

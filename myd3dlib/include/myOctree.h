@@ -8,35 +8,35 @@
 
 namespace my
 {
-	class AABBNode : public AABB
+	class AABBComponent : public AABB
 	{
 	public:
-		AABBNode(float minx, float miny, float minz, float maxx, float maxy, float maxz)
+		AABBComponent(float minx, float miny, float minz, float maxx, float maxy, float maxz)
 			: AABB(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
-		AABBNode(const Vector3 & _Min, const Vector3 & _Max)
+		AABBComponent(const Vector3 & _Min, const Vector3 & _Max)
 			: AABB(_Min, _Max)
 		{
 		}
 
-		AABBNode(const AABB & aabb)
+		AABBComponent(const AABB & aabb)
 			: AABB(aabb)
 		{
 		}
 
-		virtual ~AABBNode(void)
+		virtual ~AABBComponent(void)
 		{
 		}
 	};
 
-	typedef boost::shared_ptr<AABBNode> AABBNodePtr;
+	typedef boost::shared_ptr<AABBComponent> AABBNodePtr;
 
-	typedef boost::function<void (AABBNode *, IntersectionTests::IntersectionType)> QueryCallback;
+	typedef boost::function<void (AABBComponent *, IntersectionTests::IntersectionType)> QueryCallback;
 
 	template <class ChildClass>
-	class OctNodeBase : public AABBNode
+	class OctNodeBase : public AABBComponent
 	{
 	public:
 		typedef std::vector<AABBNodePtr> AABBComponentPtrList;
@@ -49,17 +49,17 @@ namespace my
 
 	public:
 		OctNodeBase(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: AABBNode(minx, miny, minz, maxx, maxy, maxz)
+			: AABBComponent(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
 		OctNodeBase(const Vector3 & _Min, const Vector3 & _Max)
-			: AABBNode(_Min, _Max)
+			: AABBComponent(_Min, _Max)
 		{
 		}
 
 		OctNodeBase(const AABB & aabb)
-			: AABBNode(aabb)
+			: AABBComponent(aabb)
 		{
 		}
 

@@ -14,6 +14,7 @@ class Demo
 	: public Game
 {
 public:
+	ActorPtr m_actor;
 	//// ========================================================================================================
 	//// 骨骼动画
 	//// ========================================================================================================
@@ -25,7 +26,7 @@ public:
 
 	//MeshInstancePtr m_mesh_ins;
 	MeshComponentPtr m_mesh_ins;
-	EmitterMeshComponentPtr m_emitter;
+	EmitterComponentPtr m_emitter;
 
 	//// ========================================================================================================
 	//// 大场景
@@ -35,9 +36,9 @@ public:
 	// ========================================================================================================
 	// 布料系统
 	// ========================================================================================================
-	std::vector<PxClothParticle> m_cloth_particles;
+	//std::vector<PxClothParticle> m_cloth_particles;
 	ClothComponentPtr m_cloth_mesh;
-	AnimatorPtr m_cloth_mesh_anim;
+	//AnimatorPtr m_cloth_mesh_anim;
 	//OgreSkeletonAnimationPtr m_cloth_anim;
 	//CachePtr m_cloth_mesh_vertices;
 	//BoneList m_cloth_pose;
@@ -142,6 +143,8 @@ public:
 
 		ExecuteCode("dofile \"Hud.lua\"");
 
+		m_actor.reset(new Actor());
+
 		// ========================================================================================================
 		// 骨骼动画
 		// ========================================================================================================
@@ -166,12 +169,12 @@ public:
 
 		//m_mesh_ins.reset(new MeshComponent());
 		//m_mesh_ins->m_lods.push_back(CreateMeshComponentLOD(m_mesh_ins.get(), LoadMesh("mesh/tube.mesh.xml"), 0, false));
-		m_mesh_ins = CreateMeshComponentFromFile("mesh/tube.mesh.xml",true);
+		m_mesh_ins = CreateMeshComponentFromFile(m_actor.get(), "mesh/tube.mesh.xml",true);
 
-		//m_emitter.reset(new EmitterMeshComponent());
+		//m_emitter.reset(new EmitterComponent());
 		//m_emitter->m_EmitterList.push_back(LoadEmitter("emitter/emitter_01.xml"));
 		//m_emitter->m_MaterialList.push_back(LoadMaterial("material/lambert1.xml"));
-		m_emitter = CreateEmitterComponentFromFile("emitter/emitter_01.xml");
+		m_emitter = CreateEmitterComponentFromFile(m_actor.get(), "emitter/emitter_01.xml");
 
 		//// ========================================================================================================
 		//// 大场景
@@ -204,8 +207,10 @@ public:
 		//p.distance = 0.0f;
 
 		//m_cloth_anim = LoadSkeleton("mesh/cloth.skeleton.xml");
-		m_cloth_mesh_anim.reset(new SimpleAnimator());
-		m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
+		//m_cloth_mesh_anim.reset(new SimpleAnimator());
+		//m_cloth_mesh_anim->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
+		m_actor->m_Animator.reset(new SimpleAnimator());
+		m_actor->m_Animator->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 
 		//m_cloth_mesh.reset(new MeshComponent());
 		//m_cloth_mesh->m_lods.push_back(CreateMeshComponentLOD(m_cloth_mesh.get(), LoadMesh("mesh/cloth.mesh.xml"), 0, true));
@@ -214,9 +219,9 @@ public:
 		//	m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
 		//	m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
 		//	PxClothCollisionData());
-		m_cloth_mesh = CreateClothComponentFromFile(boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
-			m_cloth_mesh_anim->m_Animation->m_boneHierarchy,
-			m_cloth_mesh_anim->m_Animation->GetBoneIndex("joint5"),
+		m_cloth_mesh = CreateClothComponentFromFile(m_actor.get(), boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml",
+			m_actor->m_Animator->m_Animation->m_boneHierarchy,
+			m_actor->m_Animator->m_Animation->GetBoneIndex("joint5"),
 			PxClothCollisionData());
 		//m_cloth_mesh_vertices.reset(new Cache(
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices() * m_cloth_mesh->m_lods[0]->m_Mesh->GetNumBytesPerVertex()));
@@ -298,6 +303,7 @@ public:
 		//// 注意顺序
 		//m_Logic->Destroy();
 		m_cloth_mesh.reset();
+		m_actor.reset();
 
 		Game::OnDestroyDevice();
 	}
@@ -331,7 +337,7 @@ public:
 		//m_cloth_duals.clear();
 		//m_cloth_duals.resize(m_cloth_anim->m_boneBindPose.size());
 		//m_cloth_pose_heir1.BuildDualQuaternionList(m_cloth_duals, m_cloth_pose_heir2);
-		m_cloth_mesh_anim->Update(fElapsedTime);
+		//m_cloth_mesh_anim->Update(fElapsedTime);
 
 		//static std::vector<Vector3> vertices;
 		//vertices.resize(m_cloth_mesh->m_lods[0]->m_Mesh->GetNumVertices());
@@ -352,7 +358,7 @@ public:
 		//	m_cloth_mesh->m_lods[0]->m_Mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset, m_cloth);
 		//PxTransform Trans = m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1),(Quaternion&)Trans.q, (Vector3&)Trans.p);
-		m_cloth_mesh->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
+		//m_cloth_mesh->UpdateCloth(m_cloth_mesh_anim->m_DualQuats);
 		//PxTransform pose = pose = dynamic_pointer_cast<ClothMeshComponentLOD>(m_cloth_mesh->m_lods[0])->m_cloth->getGlobalPose();
 		//m_cloth_mesh->m_World = Matrix4::Compose(Vector3(1,1,1), (Quaternion &)pose.q, (Vector3 &)pose.p);
 	}
@@ -399,10 +405,11 @@ public:
 		//m_skel_mesh->m_Animator->m_DualQuats.resize(m_skel_anim->m_boneBindPose.size());
 		//m_skel_pose_heir1.BuildDualQuaternionList(m_skel_mesh->m_Animator->m_DualQuats, m_skel_pose_heir2);
 
-		if (m_emitter->m_Emitter)
-		{
-			m_emitter->m_Emitter->Update(fElapsedTime);
-		}
+		//if (m_emitter->m_Emitter)
+		//{
+		//	m_emitter->m_Emitter->Update(fElapsedTime);
+		//}
+		m_actor->Update(fElapsedTime);
 
 		//// ========================================================================================================
 		//// 逻辑系统
@@ -441,13 +448,14 @@ public:
 		//	m_SimpleSampleInst->EndPass();
 		//}
 		//m_SimpleSampleInst->End();
-		m_mesh_ins->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
-		m_emitter->QueryMesh(this,  RenderPipeline::DrawStageCBuffer);
+		//m_mesh_ins->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		//m_emitter->QueryMesh(this,  RenderPipeline::DrawStageCBuffer);
+		m_actor->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		// ========================================================================================================
 		// 布料系统
 		// ========================================================================================================
-		m_cloth_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		//m_cloth_mesh->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 		//m_SimpleSampleSkel->SetTechnique("RenderScene");
 		//UINT passes = m_SimpleSampleSkel->Begin(0);
 		//m_SimpleSampleSkel->SetTexture("g_MeshTexture", m_TexChecker);

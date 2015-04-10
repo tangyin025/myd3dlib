@@ -19,10 +19,6 @@ public:
 	virtual void Update(float fElapsedTime)
 	{
 	}
-
-	const my::Matrix4 * GetDualQuats(void) const;
-
-	UINT GetDualQuatsNum(void) const;
 };
 
 typedef boost::shared_ptr<Animator> AnimatorPtr;

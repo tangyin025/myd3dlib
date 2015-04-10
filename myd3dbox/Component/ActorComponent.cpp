@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "ActorComponent.h"
+#include "Animator.h"
 
 using namespace my;
 
@@ -40,21 +41,22 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetMatrix("g_World", m_World);
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
-//
-//void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
-//{
-//	MeshComponent::QueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation);
-//}
-//
-//void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-//{
-//	if (m_Animator)
-//	{
-//		shader->SetMatrixArray("g_dualquat", m_Animator->GetDualQuats(), m_Animator->GetDualQuatsNum());
-//	}
-//
-//	MeshComponent::OnSetShader(shader, AttribId);
-//}
+
+void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+{
+	MeshComponent::QueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation);
+}
+
+void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(m_Owner);
+	if (m_Owner->m_Animator)
+	{
+		shader->SetMatrixArray("g_dualquat", &m_Owner->m_Animator->m_DualQuats[0], m_Owner->m_Animator->m_DualQuats.size());
+	}
+
+	MeshComponent::OnSetShader(shader, AttribId);
+}
 
 void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
@@ -87,6 +89,15 @@ void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId
 	_ASSERT(AttribId < m_AttribTable.size());
 	shader->SetMatrix("g_World", m_World);
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+}
+
+void ClothComponent::Update(float fElapsedTime)
+{
+	_ASSERT(m_Owner);
+	if (m_Owner->m_Animator)
+	{
+		UpdateCloth(m_Owner->m_Animator->m_DualQuats);
+	}
 }
 
 void ClothComponent::UpdateCloth(const my::TransformList & dualQuaternionList)
@@ -132,7 +143,15 @@ void ClothComponent::UpdateCloth(const my::TransformList & dualQuaternionList)
 	}
 }
 
-void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void EmitterComponent::Update(float fElapsedTime)
+{
+	if (m_Emitter)
+	{
+		m_Emitter->Update(fElapsedTime);
+	}
+}
+
+void EmitterComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
 	if (m_Material && m_Emitter)
 	{
@@ -144,7 +163,7 @@ void EmitterMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::
 	}
 }
 
-void EmitterMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	switch (m_WorldType)
 	{

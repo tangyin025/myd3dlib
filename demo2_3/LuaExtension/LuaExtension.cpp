@@ -395,8 +395,9 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("SpecularTexture", &Material::m_SpecularTexture)
 
 		, class_<ComponentResMgr, my::ResourceMgr>("ComponentResMgr")
-			.def("LoadMaterialAsync", &ComponentResMgr::LoadMaterialAsync)
-			.def("LoadMaterial", &ComponentResMgr::LoadMaterial)
+			.def("CreateEmitter", &ComponentResMgr::CreateEmitter)
+			.def("SaveEmitter", &ComponentResMgr::SaveEmitter)
+			.def("CreateMaterial", &ComponentResMgr::CreateMaterial)
 			.def("SaveMaterial", &ComponentResMgr::SaveMaterial)
 
 		//, class_<RenderComponent, boost::shared_ptr<RenderComponent> >("RenderComponent")

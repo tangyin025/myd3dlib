@@ -3,6 +3,7 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <fstream>
 
 using namespace my;
@@ -54,17 +55,17 @@ void ComponentResMgr::OnMeshComponentMeshLoaded(
 		cmp_ptr->m_bInstance = bInstance;
 		for (unsigned int i = 0; i < cmp_ptr->m_Mesh->m_MaterialNameList.size(); i++)
 		{
-			LoadMaterialAsync(str_printf("material/%s.xml", cmp_ptr->m_Mesh->m_MaterialNameList[i].c_str()),
-				boost::bind(&ComponentResMgr::OnMeshComponentMaterialLoaded, this, cmp_ptr, _1, i, bInstance));
+			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", cmp_ptr->m_Mesh->m_MaterialNameList[i].c_str()));
+			OnMeshComponentMaterialLoaded(cmp_ptr, mat, i, bInstance);
 		}
 	}
 }
 
 void ComponentResMgr::OnEmitterComponentEmitterLoaded(
-	boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
+	boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
-	EmitterMeshComponentPtr cmp_ptr = weak_cmp_ptr.lock();
+	EmitterComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		cmp_ptr->m_Emitter = boost::dynamic_pointer_cast<Emitter>(res);
@@ -72,10 +73,10 @@ void ComponentResMgr::OnEmitterComponentEmitterLoaded(
 }
 
 void ComponentResMgr::OnEmitterComponentMaterialLoaded(
-	boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
+	boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
-	EmitterMeshComponentPtr cmp_ptr = weak_cmp_ptr.lock();
+	EmitterComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
 		cmp_ptr->m_Material = boost::dynamic_pointer_cast<Material>(res);
@@ -125,8 +126,8 @@ void ComponentResMgr::OnClothComponentMeshLoaded(
 		cmp_ptr->m_MaterialList.resize(mesh->m_MaterialNameList.size());
 		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 		{
-			LoadMaterialAsync(str_printf("material/%s.xml", mesh->m_MaterialNameList[i].c_str()),
-				boost::bind(&ComponentResMgr::OnClothComponentMaterialLoaded, this, cmp_ptr, _1, i));
+			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[i].c_str()));
+			OnClothComponentMaterialLoaded(cmp_ptr, mat, i);
 		}
 
 		if (cmp_ptr->m_VertexData.empty())
@@ -302,63 +303,41 @@ PxClothFabric * ComponentResMgr::CreateClothFabric(PxPhysics * sdk, my::IStreamP
 	return ret;
 }
 
-class MaterialIORequest : public IORequest
+boost::shared_ptr<my::Emitter> ComponentResMgr::CreateEmitter(const std::string & path)
 {
-public:
-	std::string m_path;
-
-	ResourceMgr * m_arc;
-
-	CachePtr m_cache;
-
-public:
-	MaterialIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-		: m_path(path)
-		, m_arc(arc)
+	boost::shared_ptr<my::Emitter> ret;
+	if (CheckPath(path))
 	{
-		if (callback)
-		{
-			m_callbacks.push_back(callback);
-		}
+		CachePtr cache = OpenIStream(path)->GetWholeCache();
+		membuf mb((char *)&(*cache)[0], cache->size());
+		std::istream istr(&mb);
+		boost::archive::xml_iarchive ar(istr);
+		ar >> boost::serialization::make_nvp("Emitter", ret);
+		return ret;
 	}
-
-	virtual void DoLoad(void)
-	{
-		if (m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-			try
-			{
-				MaterialPtr res;
-				membuf mb((char *)&(*m_cache)[0], m_cache->size());
-				std::istream ims(&mb);
-				boost::archive::xml_iarchive ia(ims);
-				ia >> boost::serialization::make_nvp("Material", res);
-				m_res = res;
-			}
-			catch (...)
-			{
-			}
-		}
-	}
-
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if(!m_res)
-		{
-			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-		}
-	}
-};
-
-void ComponentResMgr::LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback)
-{
-	LoadResourceAsync(path, IORequestPtr(new MaterialIORequest(callback, path, this)), false);
+	return ret;
 }
 
-boost::shared_ptr<Material> ComponentResMgr::LoadMaterial(const std::string & path)
+void ComponentResMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
 {
-	return LoadResource<Material>(path, IORequestPtr(new MaterialIORequest(ResourceCallback(), path, this)));
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("Emitter", emitter);
+}
+
+boost::shared_ptr<Material> ComponentResMgr::CreateMaterial(const std::string & path)
+{
+	MaterialPtr ret;
+	if (CheckPath(path))
+	{
+		CachePtr cache = OpenIStream(path)->GetWholeCache();
+		membuf mb((char *)&(*cache)[0], cache->size());
+		std::istream istr(&mb);
+		boost::archive::xml_iarchive ar(istr);
+		ar >> boost::serialization::make_nvp("Material", ret);
+		return ret;
+	}
+	return ret;
 }
 
 void ComponentResMgr::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)
@@ -368,32 +347,38 @@ void ComponentResMgr::SaveMaterial(const std::string & path, boost::shared_ptr<M
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponentPtr ComponentResMgr::CreateMeshComponentFromFile(const std::string & path, bool bInstance)
+MeshComponentPtr ComponentResMgr::CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
 {
-	MeshComponentPtr ret(new MeshComponent());
+	MeshComponentPtr ret(new MeshComponent(owner));
 	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
+	owner->m_ComponentList.push_back(ret);
 	return ret;
 }
 
-EmitterMeshComponentPtr ComponentResMgr::CreateEmitterComponentFromFile(const std::string & path)
+EmitterComponentPtr ComponentResMgr::CreateEmitterComponentFromFile(Actor * owner, const std::string & path)
 {
-	EmitterMeshComponentPtr ret(new EmitterMeshComponent());
-	LoadEmitterAsync(path, boost::bind(&ComponentResMgr::OnEmitterComponentEmitterLoaded, this, ret, _1));
-	LoadMaterialAsync("material/lambert1.xml", boost::bind(&ComponentResMgr::OnEmitterComponentMaterialLoaded, this, ret, _1));
+	EmitterComponentPtr ret(new EmitterComponent(owner));
+	my::EmitterPtr emt = CreateEmitter(path);
+	OnEmitterComponentEmitterLoaded(ret, emt);
+	MaterialPtr mat = CreateMaterial("material/lambert1.xml");
+	OnEmitterComponentMaterialLoaded(ret, mat);
+	owner->m_ComponentList.push_back(ret);
 	return ret;
 }
 
 ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
+	Actor * owner,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 	const std::string & path,
 	const my::BoneHierarchy & hierarchy,
 	DWORD root_i,
 	const PxClothCollisionData& collData)
 {
-	ClothComponentPtr ret(new ClothComponent());
+	ClothComponentPtr ret(new ClothComponent(owner));
 	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnClothComponentMeshLoaded, this, ret, _1, PxContext,
 		boost::shared_ptr<my::BoneHierarchy>(new my::BoneHierarchy(hierarchy)),
 		root_i,
 		boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
+	owner->m_ComponentList.push_back(ret);
 	return ret;
 }

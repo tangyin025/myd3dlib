@@ -476,12 +476,6 @@ namespace my
 
 		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
 
-		void LoadEmitterAsync(const std::string & path, const ResourceCallback & callback);
-
-		boost::shared_ptr<Emitter> LoadEmitter(const std::string & path);
-
-		void SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter);
-
 		void SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh);
 
 		void SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces);

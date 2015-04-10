@@ -25,11 +25,11 @@ protected:
 		bool bInstance);
 
 	void OnEmitterComponentEmitterLoaded(
-		boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
+		boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
 	void OnEmitterComponentMaterialLoaded(
-		boost::weak_ptr<EmitterMeshComponent> weak_cmp_ptr,
+		boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
 	void OnClothComponentMaterialLoaded(
@@ -66,17 +66,20 @@ public:
 
 	static PxClothFabric * CreateClothFabric(PxPhysics * sdk, my::IStreamPtr istream);
 
-	void LoadMaterialAsync(const std::string & path, const my::ResourceCallback & callback);
+	boost::shared_ptr<my::Emitter> CreateEmitter(const std::string & path);
 
-	boost::shared_ptr<Material> LoadMaterial(const std::string & path);
+	void SaveEmitter(const std::string & path, boost::shared_ptr<my::Emitter> emitter);
+
+	boost::shared_ptr<Material> CreateMaterial(const std::string & path);
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
-	MeshComponentPtr CreateMeshComponentFromFile(const std::string & path, bool bInstance);
+	MeshComponentPtr CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
 
-	EmitterMeshComponentPtr CreateEmitterComponentFromFile(const std::string & path);
+	EmitterComponentPtr CreateEmitterComponentFromFile(Actor * owner, const std::string & path);
 
 	ClothComponentPtr CreateClothComponentFromFile(
+		Actor * owner,
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 		const std::string & path,
 		const my::BoneHierarchy & hierarchy,

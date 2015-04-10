@@ -1,5 +1,7 @@
 #pragma once
 
+#include "RenderPipeline.h"
+
 class Animator;
 
 class Actor
@@ -11,17 +13,6 @@ public:
 	public:
 		Actor * m_Owner;
 
-		enum AttachType
-		{
-			AttachTypeWorld,
-			AttachTypeSlot,
-			AttachTypeAnimation,
-		};
-
-		AttachType m_Type;
-
-		my::Matrix4 m_Offset;
-
 		unsigned int m_SlotId;
 
 		my::Matrix4 m_World;
@@ -29,15 +20,12 @@ public:
 	public:
 		Attacher(Actor * Owner)
 			: m_Owner(Owner)
-			, m_Type(AttachTypeWorld)
-			, m_Offset(my::Matrix4::Identity())
 			, m_SlotId(0)
+			, m_World(my::Matrix4::Identity())
 		{
 		}
 
 		void UpdateWorld(void);
-
-		void OnSetShader(my::Effect * shader, DWORD AttribId);
 	};
 
 	my::Matrix4 m_World;
@@ -47,12 +35,17 @@ public:
 public:
 	Actor(void)
 		: OctRoot(my::AABB(FLT_MIN,FLT_MAX), 1.1f)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	virtual ~Actor(void)
 	{
 	}
+
+	virtual void Update(float fElapsedTime);
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

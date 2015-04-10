@@ -2,22 +2,24 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
-//#include "Animator.h"
+#include "Actor.h"
 
 class ActorComponent
-	: public my::AABBNode
+	: public my::AABBComponent
+	, public Actor::Attacher
 {
 public:
-	my::Matrix4 m_World;
-
-public:
-	ActorComponent(void)
-		: AABBNode(my::AABB(FLT_MIN,FLT_MAX))
-		, m_World(my::Matrix4::Identity())
+	ActorComponent(Actor * Owner)
+		: AABBComponent(my::AABB(FLT_MIN,FLT_MAX))
+		, Attacher(Owner)
 	{
 	}
 
 	virtual ~ActorComponent(void)
+	{
+	}
+
+	virtual void Update(float fElapsedTime)
 	{
 	}
 };
@@ -29,8 +31,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(void)
-		: ActorComponent()
+	RenderComponent(Actor * Owner)
+		: ActorComponent(Owner)
 	{
 	}
 
@@ -50,8 +52,8 @@ public:
 	bool m_bInstance;
 
 public:
-	MeshComponent(void)
-		: RenderComponent()
+	MeshComponent(Actor * Owner)
+		: RenderComponent(Owner)
 		, m_bInstance(false)
 	{
 	}
@@ -64,25 +66,22 @@ public:
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
-//
-//class SkeletonMeshComponent
-//	: public MeshComponent
-//{
-//public:
-//	AnimatorPtr m_Animator;
-//
-//public:
-//	SkeletonMeshComponent(void)
-//		: MeshComponent()
-//	{
-//	}
-//
-//	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
-//
-//	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-//};
-//
-//typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
+
+class SkeletonMeshComponent
+	: public MeshComponent
+{
+public:
+	SkeletonMeshComponent(Actor * Owner)
+		: MeshComponent(Owner)
+	{
+	}
+
+	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+};
+
+typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
 
 class IndexdPrimitiveUPComponent
 	: public RenderComponent
@@ -101,8 +100,8 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	IndexdPrimitiveUPComponent(void)
-		: RenderComponent()
+	IndexdPrimitiveUPComponent(Actor * Owner)
+		: RenderComponent(Owner)
 		, m_VertexStride(0)
 	{
 	}
@@ -127,18 +126,20 @@ public:
 	PxCloth * m_Cloth;
 
 public:
-	ClothComponent(void)
-		: IndexdPrimitiveUPComponent()
+	ClothComponent(Actor * Owner)
+		: IndexdPrimitiveUPComponent(Owner)
 		, m_Cloth(NULL)
 	{
 	}
+
+	virtual void Update(float fElapsedTime);
 
 	void UpdateCloth(const my::TransformList & dualQuaternionList);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
-class EmitterMeshComponent
+class EmitterComponent
 	: public RenderComponent
 {
 public:
@@ -164,16 +165,18 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterMeshComponent(void)
-		: RenderComponent()
+	EmitterComponent(Actor * Owner)
+		: RenderComponent(Owner)
 		, m_WorldType(WorldTypeWorld)
 		, m_DirectionType(DirectionTypeCamera)
 	{
 	}
+
+	virtual void Update(float fElapsedTime);
 
 	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
 
-typedef boost::shared_ptr<EmitterMeshComponent> EmitterMeshComponentPtr;
+typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;

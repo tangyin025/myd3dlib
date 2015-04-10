@@ -4,10 +4,6 @@
 #include "libc.h"
 #include <strstream>
 #include <boost/bind.hpp>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
 #include <zzip/file.h>
 #include <fstream>
 #include <SYS\Stat.h>
@@ -1106,72 +1102,6 @@ boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int heig
 	std::string key = FontIORequest::BuildKey(path, height);
 
 	return LoadResource<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
-}
-
-class EmitterIORequest : public IORequest
-{
-public:
-	std::string m_path;
-
-	ResourceMgr * m_arc;
-
-	CachePtr m_cache;
-
-public:
-	EmitterIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-		: m_path(path)
-		, m_arc(arc)
-	{
-		if(callback)
-		{
-			m_callbacks.push_back(callback);
-		}
-	}
-
-	virtual void DoLoad(void)
-	{
-		if(m_arc->CheckPath(m_path))
-		{
-			m_cache = m_arc->OpenIStream(m_path)->GetWholeCache();
-			try
-			{
-				EmitterPtr res;
-				membuf mb((char *)&(*m_cache)[0], m_cache->size());
-				std::istream ims(&mb);
-				boost::archive::xml_iarchive ia(ims);
-				ia >> boost::serialization::make_nvp("Emitter", res);
-				m_res = res;
-			}
-			catch (...)
-			{
-			}
-		}
-	}
-
-	virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-	{
-		if(!m_res)
-		{
-			THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-		}
-	}
-};
-
-void ResourceMgr::LoadEmitterAsync(const std::string & path, const ResourceCallback & callback)
-{
-	LoadResourceAsync(path, IORequestPtr(new EmitterIORequest(callback, path, this)), false);
-}
-
-boost::shared_ptr<Emitter> ResourceMgr::LoadEmitter(const std::string & path)
-{
-	return LoadResource<Emitter>(path, IORequestPtr(new EmitterIORequest(ResourceCallback(), path, this)));
-}
-
-void ResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
-{
-	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("Emitter", emitter);
 }
 
 void ResourceMgr::SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh)
