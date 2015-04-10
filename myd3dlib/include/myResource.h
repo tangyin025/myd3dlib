@@ -50,8 +50,10 @@ namespace my
 	protected:
 		ZZIP_FILE * m_fp;
 
+		CriticalSection & m_DirSec;
+
 	public:
-		ZipIStream(ZZIP_FILE * fp);
+		ZipIStream(ZZIP_FILE * fp, CriticalSection & DirSec);
 
 		~ZipIStream(void);
 
@@ -149,6 +151,10 @@ namespace my
 		{
 		}
 
+		static std::string ReplaceSlash(const std::string & path);
+
+		static std::string ReplaceBackslash(const std::string & path);
+
 		virtual bool CheckPath(const std::string & path) = 0;
 
 		virtual std::string GetFullPath(const std::string & path) = 0;
@@ -161,18 +167,12 @@ namespace my
 	protected:
 		ZZIP_DIR * m_zipdir;
 
-		std::string m_password;
-
-		bool m_UsePassword;
+		CriticalSection m_DirSec;
 
 	public:
 		ZipIStreamDir(const std::string & dir);
 
 		~ZipIStreamDir(void);
-
-		static std::string ReplaceSlash(const std::string & path);
-
-		static std::string ReplaceBackslash(const std::string & path);
 
 		bool CheckPath(const std::string & path);
 
@@ -204,8 +204,6 @@ namespace my
 		typedef std::vector<ResourceDirPtr> ResourceDirPtrList;
 
 		ResourceDirPtrList m_DirList;
-
-		CriticalSection m_DirListSection;
 
 	public:
 		StreamDirMgr(void)

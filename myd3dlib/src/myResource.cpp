@@ -31,34 +31,40 @@ CachePtr my::IStream::GetWholeCache(void)
 	return cache;
 }
 
-ZipIStream::ZipIStream(ZZIP_FILE * fp)
+ZipIStream::ZipIStream(ZZIP_FILE * fp, CriticalSection & DirSec)
 	: m_fp(fp)
+	, m_DirSec(DirSec)
 {
 	_ASSERT(NULL != m_fp);
 }
 
 ZipIStream::~ZipIStream(void)
 {
+	CriticalSectionLock lock(m_DirSec);
 	zzip_file_close(m_fp);
 }
 
 int ZipIStream::read(void * buff, unsigned read_size)
 {
+	CriticalSectionLock lock(m_DirSec);
 	return zzip_file_read(m_fp, buff, read_size);
 }
 
 long ZipIStream::seek(long offset)
 {
+	CriticalSectionLock lock(m_DirSec);
 	return zzip_seek(m_fp, offset, SEEK_SET);
 }
 
 long ZipIStream::tell(void)
 {
+	CriticalSectionLock lock(m_DirSec);
 	return zzip_tell(m_fp);
 }
 
 unsigned long ZipIStream::GetSize(void)
 {
+	CriticalSectionLock lock(m_DirSec);
 	return m_fp->usize;
 }
 
@@ -182,9 +188,30 @@ int MemoryOStream::write(const void * buff, unsigned write_size)
 	return write_size;
 }
 
+std::string StreamDir::ReplaceSlash(const std::string & path)
+{
+	size_t pos = 0;
+	std::string ret = path;
+	while(std::string::npos != (pos = ret.find('/', pos)))
+	{
+		ret.replace(pos++, 1, 1, '\\');
+	}
+	return ret;
+}
+
+std::string StreamDir::ReplaceBackslash(const std::string & path)
+{
+	size_t pos = 0;
+	std::string ret = path;
+	while(std::string::npos != (pos = ret.find('\\', pos)))
+	{
+		ret.replace(pos++, 1, 1, '/');
+	}
+	return ret;
+}
+
 ZipIStreamDir::ZipIStreamDir(const std::string & dir)
 	: StreamDir(dir)
-	, m_UsePassword(false)
 {
 	int fd;
 	errno_t err = _sopen_s(&fd, m_dir.c_str(), O_RDONLY|O_BINARY, _SH_DENYWR, _S_IREAD);
@@ -205,30 +232,9 @@ ZipIStreamDir::~ZipIStreamDir(void)
 	zzip_dir_close(m_zipdir);
 }
 
-std::string ZipIStreamDir::ReplaceSlash(const std::string & path)
-{
-	size_t pos = 0;
-	std::string ret = path;
-	while(std::string::npos != (pos = ret.find('/', pos)))
-	{
-		ret.replace(pos++, 1, 1, '\\');
-	}
-	return ret;
-}
-
-std::string ZipIStreamDir::ReplaceBackslash(const std::string & path)
-{
-	size_t pos = 0;
-	std::string ret = path;
-	while(std::string::npos != (pos = ret.find('\\', pos)))
-	{
-		ret.replace(pos++, 1, 1, '/');
-	}
-	return ret;
-}
-
 bool ZipIStreamDir::CheckPath(const std::string & path)
 {
+	CriticalSectionLock lock(m_DirSec);
 	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
 	if(NULL == zfile)
 	{
@@ -246,13 +252,14 @@ std::string ZipIStreamDir::GetFullPath(const std::string & path)
 
 IStreamPtr ZipIStreamDir::OpenIStream(const std::string & path)
 {
+	CriticalSectionLock lock(m_DirSec);
 	ZZIP_FILE * zfile = zzip_file_open(m_zipdir, ReplaceBackslash(path).c_str(), ZZIP_CASEINSENSITIVE);
 	if(NULL == zfile)
 	{
 		THROW_CUSEXCEPTION(str_printf("cannot open zip file: %s", path.c_str()));
 	}
 
-	return IStreamPtr(new ZipIStream(zfile));
+	return IStreamPtr(new ZipIStream(zfile, m_DirSec));
 }
 
 bool FileIStreamDir::CheckPath(const std::string & path)
@@ -291,14 +298,12 @@ void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
 	if (CheckPath(zip_path))
 	{
-		CriticalSectionLock lock(m_DirListSection);
 		m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path)));
 	}
 }
 
 void StreamDirMgr::RegisterFileDir(const std::string & dir)
 {
-	CriticalSectionLock lock(m_DirListSection);
 	m_DirList.push_back(ResourceDirPtr(new FileIStreamDir(dir)));
 }
 
@@ -309,7 +314,6 @@ bool StreamDirMgr::CheckPath(const std::string & path)
 		return PathFileExistsA(path.c_str());
 	}
 
-	CriticalSectionLock lock(m_DirListSection);
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
@@ -329,7 +333,6 @@ std::string StreamDirMgr::GetFullPath(const std::string & path)
 		return path;
 	}
 
-	CriticalSectionLock lock(m_DirListSection);
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
@@ -363,7 +366,6 @@ IStreamPtr StreamDirMgr::OpenIStream(const std::string & path)
 		return FileIStream::Open(ms2ts(path).c_str());
 	}
 
-	CriticalSectionLock lock(m_DirListSection);
 	ResourceDirPtrList::iterator dir_iter = m_DirList.begin();
 	for(; dir_iter != m_DirList.end(); dir_iter++)
 	{
