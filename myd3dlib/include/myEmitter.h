@@ -67,6 +67,8 @@ namespace my
 
 		unsigned char m_ParticleAnimRow;
 
+		std::string m_MaterialName;
+
 		ParticlePairList m_ParticleList;
 
 	public:
@@ -98,6 +100,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimFPS);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimColumn);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimRow);
+			ar & BOOST_SERIALIZATION_NVP(m_MaterialName);
 		}
 
 		void OnResetDevice(void);

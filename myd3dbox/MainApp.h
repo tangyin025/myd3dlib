@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // main symbols
-#include "Component/ComponentResMgr.h"
+#include "Component/ActorResourceMgr.h"
 
 
 // CMainApp:
@@ -18,7 +18,7 @@
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
-	, public ComponentResMgr
+	, public ActorResourceMgr
 	, public RenderPipeline
 {
 public:

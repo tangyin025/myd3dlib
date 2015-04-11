@@ -311,19 +311,19 @@
 				>
 			</File>
 			<File
+				RelativePath="..\myd3dbox\Component\ActorResourceMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\ActorResourceMgr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\myd3dbox\Component\Animator.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\Animator.h"
-				>
-			</File>
-			<File
-				RelativePath="..\myd3dbox\Component\ComponentResMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\myd3dbox\Component\ComponentResMgr.h"
 				>
 			</File>
 			<File

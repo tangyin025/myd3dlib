@@ -328,19 +328,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\ActorResourceMgr.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ActorResourceMgr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Component\Animator.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ComponentResMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ComponentResMgr.h"
 				>
 			</File>
 			<File

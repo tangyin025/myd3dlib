@@ -238,6 +238,10 @@ int DxutApp::Run(void)
 	{
 		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
 	}
+	catch(const std::exception & e)
+	{
+		MessageBox(m_wnd->m_hWnd, ms2ts(e.what()).c_str(), NULL, MB_OK);
+	}
 
 	return (int)msg.wParam;
 }

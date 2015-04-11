@@ -21,6 +21,7 @@ emitter.ParticleSizeY:AddNode(0,1,0,0)
 emitter.ParticleSizeY:AddNode(10,10,0,0)
 emitter.ParticleAnimColumn=4
 emitter.ParticleAnimRow=4
+emitter.MaterialName="lambert1"
 game:SaveEmitter("emitter/emitter_01.xml", emitter)
 
 material=Material()

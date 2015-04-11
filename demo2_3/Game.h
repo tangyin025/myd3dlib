@@ -5,7 +5,7 @@
 #include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/ActorComponent.h"
-#include "../myd3dbox/Component/ComponentResMgr.h"
+#include "../myd3dbox/Component/ActorResourceMgr.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -40,19 +40,18 @@ public:
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
+	, public my::LuaContext
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public PhysXContext
 	, public PhysXSceneContext
 	, public FModContext
-	, public ComponentResMgr
+	, public ActorResourceMgr
 	, public RenderPipeline
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {
 public:
-	my::LuaContextPtr m_lua;
-
 	typedef std::map<int, std::wstring> ScrInfoType;
 
 	ScrInfoType m_ScrInfos;

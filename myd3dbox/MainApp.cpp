@@ -189,9 +189,9 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, RenderPip
 		macros += "VS_INSTANCE 1 ";
 	}
 
-	std::string key_str = ComponentResMgr::EffectIORequest::BuildKey(path, macros);
+	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
 	my::ResourceCallback callback = boost::bind(&CMainApp::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, my::IORequestPtr(new ComponentResMgr::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, my::IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)), true);
 
 	return NULL;
 }
@@ -291,7 +291,7 @@ HRESULT CMainApp::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(FAILED(hr = ComponentResMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = ActorResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
@@ -323,8 +323,8 @@ HRESULT CMainApp::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	// ! 不会通知除 ComponentResMgr 以外其他对象 DeviceReset，要注意
-	if(FAILED(hr = ComponentResMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	// ! 不会通知除 ActorResourceMgr 以外其他对象 DeviceReset，要注意
+	if(FAILED(hr = ActorResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
@@ -340,7 +340,7 @@ HRESULT CMainApp::OnResetDevice(
 
 void CMainApp::OnLostDevice(void)
 {
-	ComponentResMgr::OnLostDevice();
+	ActorResourceMgr::OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
 }
@@ -351,7 +351,7 @@ void CMainApp::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ComponentResMgr::OnDestroyDevice();
+	ActorResourceMgr::OnDestroyDevice();
 }
 
 
@@ -420,7 +420,7 @@ void CMainApp::SaveCustomState()
 BOOL CMainApp::OnIdle(LONG lCount)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	if (ComponentResMgr::CheckRequests())
+	if (ActorResourceMgr::CheckRequests())
 	{
 		return TRUE;
 	}

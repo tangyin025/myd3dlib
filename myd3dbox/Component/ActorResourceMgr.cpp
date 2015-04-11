@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "ComponentResMgr.h"
+#include "ActorResourceMgr.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -8,7 +8,7 @@
 
 using namespace my;
 
-void ComponentResMgr::OnMaterialDiffuseTextureLoaded(
+void ActorResourceMgr::OnMaterialDiffuseTextureLoaded(
 	boost::weak_ptr<Material> weak_mat_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
@@ -19,7 +19,7 @@ void ComponentResMgr::OnMaterialDiffuseTextureLoaded(
 	}
 }
 
-void ComponentResMgr::OnMeshComponentMaterialLoaded(
+void ActorResourceMgr::OnMeshComponentMaterialLoaded(
 	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId,
@@ -37,12 +37,12 @@ void ComponentResMgr::OnMeshComponentMaterialLoaded(
 		if (!cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
 		{
 			LoadTextureAsync(cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
-				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
+				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
 		}
 	}
 }
 
-void ComponentResMgr::OnMeshComponentMeshLoaded(
+void ActorResourceMgr::OnMeshComponentMeshLoaded(
 	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	bool bInstance)
@@ -61,7 +61,7 @@ void ComponentResMgr::OnMeshComponentMeshLoaded(
 	}
 }
 
-void ComponentResMgr::OnEmitterComponentEmitterLoaded(
+void ActorResourceMgr::OnEmitterComponentEmitterLoaded(
 	boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
@@ -69,10 +69,12 @@ void ComponentResMgr::OnEmitterComponentEmitterLoaded(
 	if (cmp_ptr)
 	{
 		cmp_ptr->m_Emitter = boost::dynamic_pointer_cast<Emitter>(res);
+		MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", cmp_ptr->m_Emitter->m_MaterialName.c_str()));
+		OnEmitterComponentMaterialLoaded(cmp_ptr, mat);
 	}
 }
 
-void ComponentResMgr::OnEmitterComponentMaterialLoaded(
+void ActorResourceMgr::OnEmitterComponentMaterialLoaded(
 	boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
@@ -84,12 +86,12 @@ void ComponentResMgr::OnEmitterComponentMaterialLoaded(
 		if (!cmp_ptr->m_Material->m_DiffuseTexture.first.empty())
 		{
 			LoadTextureAsync(cmp_ptr->m_Material->m_DiffuseTexture.first,
-				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_Material, _1));
+				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_Material, _1));
 		}
 	}
 }
 
-void ComponentResMgr::OnClothComponentMaterialLoaded(
+void ActorResourceMgr::OnClothComponentMaterialLoaded(
 	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	DWORD AttribId)
@@ -106,12 +108,12 @@ void ComponentResMgr::OnClothComponentMaterialLoaded(
 		if (!cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
 		{
 			LoadTextureAsync(cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
-				boost::bind(&ComponentResMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
+				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
 		}
 	}
 }
 
-void ComponentResMgr::OnClothComponentMeshLoaded(
+void ActorResourceMgr::OnClothComponentMeshLoaded(
 	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
@@ -199,7 +201,7 @@ void ComponentResMgr::OnClothComponentMeshLoaded(
 	}
 }
 
-void ComponentResMgr::OnClothComponentSkeletonLoaded(
+void ActorResourceMgr::OnClothComponentSkeletonLoaded(
 	boost::weak_ptr<ClothComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
@@ -212,7 +214,7 @@ void ComponentResMgr::OnClothComponentSkeletonLoaded(
 	{
 		OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<OgreSkeletonAnimation>(res);
 
-		LoadMeshAsync(mesh_path, boost::bind(&ComponentResMgr::OnClothComponentMeshLoaded, this, cmp_ptr, _1, PxContext,
+		LoadMeshAsync(mesh_path, boost::bind(&ActorResourceMgr::OnClothComponentMeshLoaded, this, cmp_ptr, _1, PxContext,
 			boost::shared_ptr<my::BoneHierarchy>(new my::BoneHierarchy(skel->m_boneHierarchy)), skel->GetBoneIndex(root_name), collData));
 	}
 }
@@ -249,7 +251,7 @@ public:
 	}
 };
 
-void ComponentResMgr::CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh)
+void ActorResourceMgr::CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh)
 {
 	PxTriangleMeshDesc desc;
 	desc.points.count = mesh->GetNumVertices();
@@ -274,19 +276,19 @@ void ComponentResMgr::CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostre
 	mesh->UnlockAttributeBuffer();
 }
 
-void ComponentResMgr::CookTriangleMeshToFile(PxCooking * Cooking, std::string path, my::MeshPtr mesh)
+void ActorResourceMgr::CookTriangleMeshToFile(PxCooking * Cooking, std::string path, my::MeshPtr mesh)
 {
 	CookTriangleMesh(Cooking, my::FileOStream::Open(ms2ts(path).c_str()), mesh);
 }
 
-PxTriangleMesh * ComponentResMgr::CreateTriangleMesh(PxPhysics * sdk, my::IStreamPtr istream)
+PxTriangleMesh * ActorResourceMgr::CreateTriangleMesh(PxPhysics * sdk, my::IStreamPtr istream)
 {
 	// ! should be call at resource thread
 	PxTriangleMesh * ret = sdk->createTriangleMesh(PhysXIStream(istream));
 	return ret;
 }
 
-void ComponentResMgr::CookClothFabric(PxCooking * Cooking, const my::Vector3 & Gravity, my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset)
+void ActorResourceMgr::CookClothFabric(PxCooking * Cooking, const my::Vector3 & Gravity, my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset)
 {
 	PxClothMeshDesc desc;
 	desc.points.data = (unsigned char *)mesh->LockVertexBuffer() + PositionOffset;
@@ -310,18 +312,18 @@ void ComponentResMgr::CookClothFabric(PxCooking * Cooking, const my::Vector3 & G
 	mesh->UnlockIndexBuffer();
 }
 
-void ComponentResMgr::CookClothFabricToFile(PxCooking * Cooking, const my::Vector3 & Gravity, std::string path, my::MeshPtr mesh, WORD PositionOffset)
+void ActorResourceMgr::CookClothFabricToFile(PxCooking * Cooking, const my::Vector3 & Gravity, std::string path, my::MeshPtr mesh, WORD PositionOffset)
 {
 	CookClothFabric(Cooking, Gravity, my::FileOStream::Open(ms2ts(path).c_str()), mesh, PositionOffset);
 }
 
-PxClothFabric * ComponentResMgr::CreateClothFabric(PxPhysics * sdk, my::IStreamPtr istream)
+PxClothFabric * ActorResourceMgr::CreateClothFabric(PxPhysics * sdk, my::IStreamPtr istream)
 {
 	PxClothFabric * ret = sdk->createClothFabric(PhysXIStream(istream));
 	return ret;
 }
 
-boost::shared_ptr<my::Emitter> ComponentResMgr::CreateEmitter(const std::string & path)
+boost::shared_ptr<my::Emitter> ActorResourceMgr::CreateEmitter(const std::string & path)
 {
 	boost::shared_ptr<my::Emitter> ret;
 	if (CheckPath(path))
@@ -336,14 +338,14 @@ boost::shared_ptr<my::Emitter> ComponentResMgr::CreateEmitter(const std::string 
 	return ret;
 }
 
-void ComponentResMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
+void ActorResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("Emitter", emitter);
 }
 
-boost::shared_ptr<Material> ComponentResMgr::CreateMaterial(const std::string & path)
+boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string & path)
 {
 	MaterialPtr ret;
 	if (CheckPath(path))
@@ -358,33 +360,39 @@ boost::shared_ptr<Material> ComponentResMgr::CreateMaterial(const std::string & 
 	return ret;
 }
 
-void ComponentResMgr::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)
+void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponentPtr ComponentResMgr::CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
+MeshComponentPtr ActorResourceMgr::CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
 {
 	MeshComponentPtr ret(new MeshComponent(owner));
-	LoadMeshAsync(path, boost::bind(&ComponentResMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
+	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
 	owner->m_ComponentList.push_back(ret);
 	return ret;
 }
 
-EmitterComponentPtr ComponentResMgr::CreateEmitterComponentFromFile(Actor * owner, const std::string & path)
+SkeletonMeshComponentPtr ActorResourceMgr::CreateSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
+{
+	SkeletonMeshComponentPtr ret(new SkeletonMeshComponent(owner));
+	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
+	owner->m_ComponentList.push_back(ret);
+	return ret;
+}
+
+EmitterComponentPtr ActorResourceMgr::CreateEmitterComponentFromFile(Actor * owner, const std::string & path)
 {
 	EmitterComponentPtr ret(new EmitterComponent(owner));
 	my::EmitterPtr emt = CreateEmitter(path);
 	OnEmitterComponentEmitterLoaded(ret, emt);
-	MaterialPtr mat = CreateMaterial("material/lambert1.xml");
-	OnEmitterComponentMaterialLoaded(ret, mat);
 	owner->m_ComponentList.push_back(ret);
 	return ret;
 }
 
-ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
+ClothComponentPtr ActorResourceMgr::CreateClothComponentFromFile(
 	Actor * owner,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 	const std::string & mesh_path,
@@ -393,7 +401,7 @@ ClothComponentPtr ComponentResMgr::CreateClothComponentFromFile(
 	const PxClothCollisionData& collData)
 {
 	ClothComponentPtr ret(new ClothComponent(owner));
-	LoadSkeletonAsync(skel_path, boost::bind(&ComponentResMgr::OnClothComponentSkeletonLoaded,
+	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
 		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
 	owner->m_ComponentList.push_back(ret);
 	owner->m_clothes.push_back(ret);

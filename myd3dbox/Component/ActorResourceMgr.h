@@ -4,9 +4,9 @@
 #include "ActorComponent.h"
 #include "FModContext.h"
 
-class ComponentResMgr
+class ActorResourceMgr
 	: public my::ResourceMgr
-	, public my::SingleInstance<ComponentResMgr>
+	, public my::SingleInstance<ActorResourceMgr>
 {
 protected:
 	void OnMaterialDiffuseTextureLoaded(
@@ -54,11 +54,11 @@ protected:
 		boost::shared_ptr<PxClothCollisionData> collData);
 
 public:
-	ComponentResMgr(void)
+	ActorResourceMgr(void)
 	{
 	}
 
-	virtual ~ComponentResMgr(void)
+	virtual ~ActorResourceMgr(void)
 	{
 	}
 
@@ -83,6 +83,8 @@ public:
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
 	MeshComponentPtr CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
+
+	SkeletonMeshComponentPtr CreateSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
 
 	EmitterComponentPtr CreateEmitterComponentFromFile(Actor * owner, const std::string & path);
 

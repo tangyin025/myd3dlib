@@ -27,6 +27,7 @@ void ExportEmitter2Lua(lua_State * L)
 			.def_readwrite("ParticleAnimFPS", &my::Emitter::m_ParticleAnimFPS)
 			.def_readwrite("ParticleAnimColumn", &my::Emitter::m_ParticleAnimColumn)
 			.def_readwrite("ParticleAnimRow", &my::Emitter::m_ParticleAnimRow)
+			.def_readwrite("MaterialName", &my::Emitter::m_MaterialName)
 
 		, class_<my::SphericalEmitter, my::Emitter, boost::shared_ptr<my::Emitter> >("SphericalEmitter")
 			.def(constructor<>())

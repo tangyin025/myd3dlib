@@ -72,9 +72,7 @@ void EffectUIRender::DrawVertexList(void)
 
 Game::Game(void)
 {
-	m_lua.reset(new LuaContext());
-
-	Export2Lua(m_lua->_state);
+	Export2Lua(_state);
 }
 
 Game::~Game(void)
@@ -135,7 +133,7 @@ HRESULT Game::OnCreateDevice(
 
 	ParallelTaskManager::StartParallelThread(3);
 
-	if(FAILED(hr = ComponentResMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ActorResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -203,7 +201,7 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	if(FAILED(hr = ComponentResMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	if(FAILED(hr = ActorResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
 	}
@@ -233,7 +231,7 @@ void Game::OnLostDevice(void)
 
 	RenderPipeline::OnLostDevice();
 
-	ComponentResMgr::OnLostDevice();
+	ActorResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -268,7 +266,7 @@ void Game::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ComponentResMgr::OnDestroyDevice();
+	ActorResourceMgr::OnDestroyDevice();
 
 	InputMgr::Destroy();
 
@@ -281,7 +279,7 @@ void Game::OnFrameMove(
 {
 	InputMgr::Update(fTime, fElapsedTime);
 
-	ComponentResMgr::CheckRequests();
+	ActorResourceMgr::CheckRequests();
 
 	//m_Camera->OnFrameMove(fTime, fElapsedTime);
 
@@ -444,7 +442,7 @@ static void lstop (lua_State *L, lua_Debug *ar) {
 static void laction (int i) {
   signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
                               terminate process (default action) */
-  lua_sethook(Game::getSingleton().m_lua->_state, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
+  lua_sethook(Game::getSingleton()._state, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
 }
 
 static int docall (lua_State *L, int narg, int clear) {
@@ -537,12 +535,12 @@ void Game::puts(const std::wstring & str)
 
 bool Game::ExecuteCode(const char * code) throw()
 {
-	if(dostring(m_lua->_state, code, "Game::ExecuteCode") && !lua_isnil(m_lua->_state, -1))
+	if(dostring(_state, code, "Game::ExecuteCode") && !lua_isnil(_state, -1))
 	{
-		std::string msg = lua_tostring(m_lua->_state, -1);
+		std::string msg = lua_tostring(_state, -1);
 		if(msg.empty())
 			msg = "error object is not a string";
-		lua_pop(m_lua->_state, 1);
+		lua_pop(_state, 1);
 
 		OnResourceFailed(msg);
 
@@ -599,9 +597,9 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 		macros += "VS_INSTANCE 1 ";
 	}
 
-	std::string key_str = ComponentResMgr::EffectIORequest::BuildKey(path, macros);
+	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
 	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, IORequestPtr(new ComponentResMgr::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)), true);
 
 	return NULL;
 }
