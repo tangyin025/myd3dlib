@@ -5,6 +5,7 @@
 #pragma once
 
 #include "OutlinerWnd.h"
+#include "PropertiesWnd.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -41,6 +42,7 @@ protected:  // control bar embedded members
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 	COutlinerWnd		m_wndOutliner;
+	CPropertiesWnd    m_wndProperties;
 
 // Generated message map functions
 protected:

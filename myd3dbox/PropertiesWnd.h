@@ -12,51 +12,49 @@ public:
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
-class TreeNodeBase;
-
-class CPropertiesWnd
-	: public CDockablePane
-	, public my::SingleInstance<CPropertiesWnd>
+class CPropertiesWnd : public CDockablePane
 {
+// Construction
 public:
-	CPropertiesWnd()
-		: m_bIsPropInvalid(TRUE)
-	{
-	}
-
-	DECLARE_MESSAGE_MAP()
-public:
-	CPropertiesToolBar m_wndToolBar;
-
-	CFont m_fntPropList;
-
-	CMFCPropertyGridCtrl m_wndPropList;
-
-	//boost::weak_ptr<TreeNodeBase> m_SelectedNode;
-
-	BOOL m_bIsPropInvalid;
+	CPropertiesWnd();
 
 	void AdjustLayout();
 
-	void SetPropListFont();
+// Attributes
+public:
+	void SetVSDotNetLook(BOOL bSet)
+	{
+		m_wndPropList.SetVSDotNetLook(bSet);
+		m_wndPropList.SetGroupNameFullWidth(bSet);
+	}
 
+protected:
+	CFont m_fntPropList;
+	CComboBox m_wndObjectCombo;
+	//CPropertiesToolBar m_wndToolBar;
+	CMFCPropertyGridCtrl m_wndPropList;
+
+// Implementation
+public:
+	virtual ~CPropertiesWnd();
+
+protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
-
 	afx_msg void OnSize(UINT nType, int cx, int cy);
-
+	//afx_msg void OnExpandAllProperties();
+	//afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
+	//afx_msg void OnSortProperties();
+	//afx_msg void OnUpdateSortProperties(CCmdUI* pCmdUI);
+	//afx_msg void OnProperties1();
+	//afx_msg void OnUpdateProperties1(CCmdUI* pCmdUI);
+	//afx_msg void OnProperties2();
+	//afx_msg void OnUpdateProperties2(CCmdUI* pCmdUI);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
-
 	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);
 
-	afx_msg void OnExpandAllProperties();
+	DECLARE_MESSAGE_MAP()
 
-	afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
-
-	afx_msg void OnSortProperties();
-
-	afx_msg void OnUpdateSortProperties(CCmdUI* pCmdUI);
-
-	afx_msg LRESULT OnPropertyChanged(WPARAM wParam, LPARAM lParam);
-
-	afx_msg LRESULT OnIdleUpdateCmdUI(WPARAM wParam, LPARAM lParam);
+	void InitPropList();
+	void SetPropListFont();
 };
+
