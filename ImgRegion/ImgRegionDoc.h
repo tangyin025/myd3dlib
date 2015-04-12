@@ -1,6 +1,6 @@
 #pragma once
 
-#include "FileView.h"
+#include "../myd3dbox/DragableTreeCtrl.h"
 #include "PropertiesWnd.h"
 
 class Vector4i
@@ -298,7 +298,7 @@ public:
 
 	typedef std::pair<UINT, CImgRegionPtr> ItemDataType;
 
-	CImgRegionTreeCtrl m_TreeCtrl;
+	CDragableTreeCtrl m_TreeCtrl;
 
 	CImageList m_TreeImageList;
 

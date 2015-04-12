@@ -34,8 +34,6 @@ protected:
 
 	my::FirstPersonCamera m_Camera;
 
-	MeshComponentPtr m_mesh_cmp;
-
 	BOOL ResetD3DSwapChain(void);
 
 	void OnFrameRender(

@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "libc.h"
-#include "myException.h"
+#include <exception>
 
-#define FAILED_THROW_CUSEXCEPTION(expr) \
+#define FAILED_THROW_STDEXCEPTION(expr) \
 	{ \
 		if(!(expr)) \
 		{ \
-			THROW_CUSEXCEPTION(#expr); \
+			throw std::exception(#expr); \
 		} \
 	}
 
@@ -23,7 +23,7 @@ char * asprintf(const char * format, ...)
 	while(ret_size >= new_size)
 	{
 		new_size += DEF_INCR_SIZE;
-		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
+		FAILED_THROW_STDEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
 
 		va_list args;
 		va_start(args, format);
@@ -44,7 +44,7 @@ wchar_t * aswprintf(const wchar_t * format, ...)
 	while(ret_size >= new_size)
 	{
 		new_size += DEF_INCR_SIZE;
-		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
+		FAILED_THROW_STDEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
 
 		va_list args;
 		va_start(args, format);
@@ -65,7 +65,7 @@ char * avsprintf(const char * format, va_list args)
 	while(ret_size >= new_size)
 	{
 		new_size += DEF_INCR_SIZE;
-		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
+		FAILED_THROW_STDEXCEPTION(NULL != (buffer = (char *)realloc(buffer, new_size * sizeof(char))));
 
 		ret_size = vsnprintf_s(buffer, new_size, new_size, format, args);
 	}
@@ -83,7 +83,7 @@ wchar_t * avswprintf(const wchar_t * format, va_list args)
 	while(ret_size >= new_size)
 	{
 		new_size += DEF_INCR_SIZE;
-		FAILED_THROW_CUSEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
+		FAILED_THROW_STDEXCEPTION(NULL != (buffer = (wchar_t *)realloc(buffer, new_size * sizeof(wchar_t))));
 
 		ret_size = vswprintf_s(buffer, new_size, format, args);
 	}

@@ -90,8 +90,6 @@ void CChildView::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	m_mesh_cmp->QueryMesh(&theApp, RenderPipeline::DrawStageCBuffer);
-
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
@@ -212,8 +210,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_Camera.m_Eye=my::Vector3(d*k*k,d*k+1,d*k*k);
 	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_Camera.OnFrameMove(0,0);
-
-	//m_mesh_cmp = theApp.CreateMeshComponentFromFile("mesh/tube.mesh.xml", true);
 
 	return 0;
 }
