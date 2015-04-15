@@ -26,18 +26,17 @@ void Actor::Update(float fElapsedTime)
 		m_Animator->Update(fElapsedTime);
 	}
 
-	AABBComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
+	RenderComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
 	for (; cmp_iter != m_ComponentList.end(); cmp_iter++)
 	{
-		ActorComponent * cmp = static_cast<ActorComponent *>(cmp_iter->get());
-		cmp->Update(fElapsedTime);
+		(*cmp_iter)->Update(fElapsedTime);
 	}
 }
 
 void Actor::OnPxThreadSubstep(float fElapsedTime)
 {
-	ClothComponentPtrList::iterator cloth_iter = m_clothes.begin();
-	for (; cloth_iter != m_clothes.end(); cloth_iter++)
+	ClothComponentPtrList::iterator cloth_iter = m_Clothes.begin();
+	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
 	{
 		(*cloth_iter)->OnPxThreadSubstep(fElapsedTime);
 	}
@@ -45,10 +44,9 @@ void Actor::OnPxThreadSubstep(float fElapsedTime)
 
 void Actor::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
 {
-	AABBComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
+	RenderComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
 	for (; cmp_iter != m_ComponentList.end(); cmp_iter++)
 	{
-		RenderComponent * cmp = dynamic_cast<RenderComponent *>(cmp_iter->get());
-		cmp->QueryMesh(pipeline, stage);
+		(*cmp_iter)->QueryMesh(pipeline, stage);
 	}
 }

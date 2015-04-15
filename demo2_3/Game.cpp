@@ -12,6 +12,11 @@ using namespace my;
 
 extern void Export2Lua(lua_State * L);
 
+my::ResourceMgr * FModContext::GetResourceMgr(void)
+{
+	return Game::getSingletonPtr();
+}
+
 void EffectUIRender::Begin(void)
 {
 	if(m_UIEffect->m_ptr)
@@ -551,7 +556,7 @@ bool Game::ExecuteCode(const char * code) throw()
 
 void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
 {
-	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+	m_ShaderCache[key] = boost::dynamic_pointer_cast<my::Effect>(res);
 }
 
 static size_t hash_value(const Game::ShaderCacheKey & key)
@@ -599,7 +604,9 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 
 	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
 	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)));
+
+	m_ShaderCache.insert(std::make_pair(key, my::EffectPtr()));
 
 	return NULL;
 }

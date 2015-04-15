@@ -4,10 +4,11 @@
 
 class Animator;
 
+class RenderComponent;
+
 class ClothComponent;
 
 class Actor
-	: public my::OctRoot
 {
 public:
 	class Attacher
@@ -34,14 +35,17 @@ public:
 
 	boost::shared_ptr<Animator> m_Animator;
 
+	typedef std::vector<boost::shared_ptr<RenderComponent> > RenderComponentPtrList;
+
+	RenderComponentPtrList m_ComponentList;
+
 	typedef std::vector<boost::shared_ptr<ClothComponent> > ClothComponentPtrList;
 
-	ClothComponentPtrList m_clothes;
+	ClothComponentPtrList m_Clothes;
 
 public:
 	Actor(void)
-		: OctRoot(my::AABB(FLT_MIN,FLT_MAX), 1.1f)
-		, m_World(my::Matrix4::Identity())
+		: m_World(my::Matrix4::Identity())
 	{
 	}
 

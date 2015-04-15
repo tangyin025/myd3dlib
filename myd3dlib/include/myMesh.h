@@ -397,7 +397,7 @@ namespace my
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
 
-	class OgreMeshSet : public DeviceRelatedObject<ID3DXMesh>, public std::vector<OgreMeshPtr>
+	class OgreMeshSet : public DeviceRelatedObjectBase, public std::vector<OgreMeshPtr>
 	{
 	public:
 		OgreMeshSet(void)

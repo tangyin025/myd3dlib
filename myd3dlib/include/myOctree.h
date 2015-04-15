@@ -31,17 +31,15 @@ namespace my
 		}
 	};
 
-	typedef boost::shared_ptr<AABBComponent> AABBNodePtr;
-
 	typedef boost::function<void (AABBComponent *, IntersectionTests::IntersectionType)> QueryCallback;
 
 	template <class ChildClass>
 	class OctNodeBase : public AABBComponent
 	{
 	public:
-		typedef std::vector<AABBNodePtr> AABBComponentPtrList;
+		typedef std::vector<AABBComponent *> AABBComponentList;
 
-		AABBComponentPtrList m_ComponentList;
+		AABBComponentList m_ComponentList;
 
 		typedef boost::array<boost::shared_ptr<ChildClass>, 2> ChildArray;
 
@@ -79,10 +77,10 @@ namespace my
 
 		void QueryComponentAll(const Frustum & frustum, const QueryCallback & callback)
 		{
-			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
-				callback(comp_iter->get(), IntersectionTests::IntersectionTypeInside);
+				callback(*comp_iter, IntersectionTests::IntersectionTypeInside);
 			}
 
 			ChildArray::iterator node_iter = m_Childs.begin();
@@ -97,7 +95,7 @@ namespace my
 
 		void QueryComponentIntersected(const Frustum & frustum, const QueryCallback & callback)
 		{
-			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
 				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(*(*comp_iter), frustum);
@@ -105,7 +103,7 @@ namespace my
 				{
 				case IntersectionTests::IntersectionTypeInside:
 				case IntersectionTests::IntersectionTypeIntersect:
-					callback(comp_iter->get(), intersect_type);
+					callback(*comp_iter, intersect_type);
 					break;
 				}
 			}
@@ -132,9 +130,9 @@ namespace my
 			return false;
 		}
 
-		bool RemoveComponent(AABBNodePtr comp)
+		bool RemoveComponent(AABBComponent * comp)
 		{
-			AABBComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
+			AABBComponentList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
 			if (comp_iter != m_ComponentList.end())
 			{
 				m_ComponentList.erase(comp_iter);
@@ -188,7 +186,7 @@ namespace my
 		{
 		}
 
-		void PushComponent(AABBNodePtr comp, float threshold = 0.1f)
+		void PushComponent(AABBComponent * comp, float threshold = 0.1f)
 		{
 			if (comp->Max[Offset] < m_Half + threshold && Max[Offset] - Min[Offset] > m_MinBlock)
 			{

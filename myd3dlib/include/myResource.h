@@ -232,16 +232,17 @@ namespace my
 	public:
 		Event m_LoadEvent;
 
-		typedef std::vector<ResourceCallback> ResourceCallbackList;
+		typedef std::list<ResourceCallback> ResourceCallbackList;
 
 		ResourceCallbackList m_callbacks;
 
 		DeviceRelatedObjectBasePtr m_res;
 
 	public:
-		IORequest(void)
+		IORequest(const ResourceCallback & callback)
 			: m_LoadEvent(NULL, TRUE, FALSE, NULL)
 		{
+			m_callbacks.push_back(callback);
 		}
 
 		virtual ~IORequest(void)
@@ -275,7 +276,7 @@ namespace my
 
 		DWORD IORequestProc(void);
 
-		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request, bool abort);
+		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request);
 
 		void StartIORequestProc(void);
 
@@ -400,7 +401,7 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request, bool abort);
+		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
 
 		bool CheckRequests(void);
 
@@ -409,7 +410,7 @@ namespace my
 		template <typename T>
 		boost::shared_ptr<T> LoadResource(const std::string & key, IORequestPtr request)
 		{
-			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request, false);
+			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
 			if (req_iter != m_IORequestList.end())
 			{
 				CheckResource(req_iter->first, req_iter->second, INFINITE);

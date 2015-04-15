@@ -3,6 +3,11 @@
 #define FMOD_ERRCHECK(result) if (result != FMOD_OK) { \
 	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
 
+namespace my
+{
+	class ResourceMgr;
+}
+
 class FModContext
 {
 public:
@@ -17,6 +22,8 @@ public:
 		: m_FModSystem(NULL)
 	{
 	}
+
+	static my::ResourceMgr * GetResourceMgr(void);
 
 	bool OnInit(void);
 

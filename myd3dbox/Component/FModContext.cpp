@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "FModContext.h"
-#include "ActorResourceMgr.h"
+#include <myResource.h>
 
 FMOD_RESULT F_CALLBACK myopen(const char *name, int unicode, unsigned int *filesize, void **handle, void **userdata)
 {
 	if (name)
 	{
-		if (ActorResourceMgr::getSingleton().CheckPath(name))
+		if (FModContext::GetResourceMgr()->CheckPath(name))
 		{
-			my::IStreamPtr istr = ActorResourceMgr::getSingleton().OpenIStream(name);
+			my::IStreamPtr istr = FModContext::GetResourceMgr()->OpenIStream(name);
 			_ASSERT(istr);
 			*filesize = istr->GetSize();
 			*userdata = (void *)new my::IStreamPtr(istr);

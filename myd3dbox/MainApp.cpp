@@ -40,6 +40,11 @@ CMainApp::CMainApp()
 
 CMainApp theApp;
 
+my::ResourceMgr * FModContext::GetResourceMgr(void)
+{
+	return &theApp;
+}
+
 BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 {
 	ZeroMemory(&m_DeviceSettings, sizeof(m_DeviceSettings));
@@ -143,7 +148,7 @@ void CMainApp::DestroyD3DDevice(void)
 
 void CMainApp::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
 {
-	m_ShaderCache.insert(ShaderCacheMap::value_type(key, boost::dynamic_pointer_cast<my::Effect>(res)));
+	m_ShaderCache[key] = boost::dynamic_pointer_cast<my::Effect>(res);
 }
 
 static size_t hash_value(const CMainApp::ShaderCacheKey & key)
@@ -191,7 +196,9 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, RenderPip
 
 	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
 	my::ResourceCallback callback = boost::bind(&CMainApp::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, my::IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)), true);
+	LoadResourceAsync(key_str, my::IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)));
+
+	m_ShaderCache.insert(std::make_pair(key, my::EffectPtr()));
 
 	return NULL;
 }

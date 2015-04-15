@@ -6,7 +6,6 @@
 
 class ActorResourceMgr
 	: public my::ResourceMgr
-	, public my::SingleInstance<ActorResourceMgr>
 {
 protected:
 	void OnMaterialDiffuseTextureLoaded(
@@ -82,7 +81,11 @@ public:
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
+	MeshComponentPtr CreateMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
+
 	MeshComponentPtr CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
+
+	SkeletonMeshComponentPtr CreateSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
 
 	SkeletonMeshComponentPtr CreateSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
 
