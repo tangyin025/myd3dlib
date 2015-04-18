@@ -407,6 +407,8 @@ void Export2Lua(lua_State * L)
 
 		, class_<EmitterComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
 
+		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
+
 		, class_<ActorResourceMgr, my::ResourceMgr>("ActorResourceMgr")
 			.def("CreateEmitter", &ActorResourceMgr::CreateEmitter)
 			.def("SaveEmitter", &ActorResourceMgr::SaveEmitter)
@@ -418,6 +420,8 @@ void Export2Lua(lua_State * L)
 			.def("AddSkeletonMeshComponent", &ActorResourceMgr::AddSkeletonMeshComponent)
 			.def("AddSkeletonMeshComponentFromFile", &ActorResourceMgr::AddSkeletonMeshComponentFromFile)
 			.def("AddEmitterComponentFromFile", &ActorResourceMgr::AddEmitterComponentFromFile)
+			//.def("AddClothComponentFromFile", &ActorResourceMgr::AddClothComponentFromFile)
+			.def("CreateAnimatorFromFile", &ActorResourceMgr::CreateAnimatorFromFile)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -434,6 +438,8 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("AddActor", &Game::AddActor)
+			.def("RemoveActor", &Game::RemoveActor)
+			.def("RemoveAllActors", &Game::RemoveAllActors)
 			.def("AddClothComponentFromFile", &Game::AddClothComponentFromFile)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)

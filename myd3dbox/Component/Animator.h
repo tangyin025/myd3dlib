@@ -3,7 +3,7 @@
 class Animator
 {
 public:
-	my::OgreSkeletonAnimationPtr m_Animation;
+	my::OgreSkeletonAnimationPtr m_Skeleton;
 
 	my::TransformList m_DualQuats;
 

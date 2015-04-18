@@ -219,6 +219,19 @@ void ActorResourceMgr::OnClothComponentSkeletonLoaded(
 	}
 }
 
+void ActorResourceMgr::OnAnimatorSkeletonLoaded(
+	boost::weak_ptr<Animator> weak_ani_ptr,
+	my::DeviceRelatedObjectBasePtr res)
+{
+	AnimatorPtr ani_ptr = weak_ani_ptr.lock();
+	if (ani_ptr)
+	{
+		OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<OgreSkeletonAnimation>(res);
+
+		ani_ptr->m_Skeleton = skel;
+	}
+}
+
 class PhysXOStream : public PxOutputStream
 {
 public:
@@ -434,5 +447,13 @@ ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
 		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
 	owner->AddComponent(ret);
 	owner->m_Clothes.push_back(ret);
+	return ret;
+}
+
+AnimatorPtr ActorResourceMgr::CreateAnimatorFromFile(Actor * owner, const std::string & path)
+{
+	AnimatorPtr ret(new SimpleAnimator());
+	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
+	owner->m_Animator = ret;
 	return ret;
 }

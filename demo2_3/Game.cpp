@@ -632,7 +632,20 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 
 void Game::AddActor(ActorPtr actor)
 {
+	_ASSERT(std::find(m_Actors.begin(), m_Actors.end(), actor) == m_Actors.end());
 	m_Actors.push_back(actor);
+}
+
+void Game::RemoveActor(ActorPtr actor)
+{
+	ActorPtrList::iterator actor_iter = std::find(m_Actors.begin(), m_Actors.end(), actor);
+	_ASSERT(actor_iter != m_Actors.end());
+	m_Actors.erase(actor_iter);
+}
+
+void Game::RemoveAllActors(void)
+{
+	m_Actors.clear();
 }
 
 ClothComponentPtr Game::AddClothComponentFromFile(Actor * owner, const std::string & mesh_path, const std::string & skel_path, const std::string & root_name)

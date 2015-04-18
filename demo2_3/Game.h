@@ -161,5 +161,9 @@ public:
 
 	void AddActor(ActorPtr actor);
 
+	void RemoveActor(ActorPtr actor);
+
+	void RemoveAllActors(void);
+
 	ClothComponentPtr AddClothComponentFromFile(Actor * owner, const std::string & mesh_path, const std::string & skel_path, const std::string & root_name);
 };

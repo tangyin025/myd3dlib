@@ -2,6 +2,7 @@
 
 #include <myResource.h>
 #include "ActorComponent.h"
+#include "Animator.h"
 #include "FModContext.h"
 
 class ActorResourceMgr
@@ -52,6 +53,10 @@ protected:
 		std::string root_name,
 		boost::shared_ptr<PxClothCollisionData> collData);
 
+	void OnAnimatorSkeletonLoaded(
+		boost::weak_ptr<Animator> weak_ani_ptr,
+		my::DeviceRelatedObjectBasePtr res);
+
 public:
 	ActorResourceMgr(void)
 	{
@@ -100,4 +105,6 @@ public:
 		const std::string & skel_path,
 		const std::string & root_name,
 		const PxClothCollisionData& collData);
+
+	AnimatorPtr CreateAnimatorFromFile(Actor * owner, const std::string & path);
 };
