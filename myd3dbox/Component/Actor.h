@@ -8,7 +8,9 @@ class RenderComponent;
 
 class ClothComponent;
 
-class Actor : public my::OctRoot
+class Actor
+	: public my::DeviceRelatedObjectBase
+	, public my::OctRoot
 {
 public:
 	class Attacher
@@ -50,9 +52,15 @@ public:
 	{
 	}
 
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
+
 	virtual void Update(float fElapsedTime);
 
-	virtual void OnPxThreadSubstep(float fElapsedTime);
+	virtual void OnPxThreadSubstep(float dtime);
 
 	virtual void QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage);
 };

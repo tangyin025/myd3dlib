@@ -98,4 +98,6 @@ public:
 		const std::string & skel_path,
 		const std::string & root_name,
 		const PxClothCollisionData& collData);
+
+	void AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 };

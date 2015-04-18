@@ -1095,7 +1095,7 @@ void ResourceMgr::SaveSimplyMesh(const std::string & path, boost::shared_ptr<Ogr
 {
 	OgreMeshPtr mesh_sim(new OgreMesh());
 	mesh_sim->Create(mesh->SimplifyMesh(&mesh->m_Adjacency[0], MinFaces, D3DXMESHSIMP_FACE).Detach());
-	mesh_sim->m_aabb = mesh->m_aabb;
+	mesh_sim->m_AABB = mesh->m_AABB;
 	mesh_sim->m_Adjacency = mesh->m_Adjacency;
 	mesh_sim->m_MaterialNameList = mesh->m_MaterialNameList;
 	mesh_sim->m_VertexElems = mesh->m_VertexElems;

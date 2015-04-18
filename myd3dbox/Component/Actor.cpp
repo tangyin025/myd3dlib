@@ -19,6 +19,23 @@ void Actor::Attacher::UpdateWorld(void)
 	}
 }
 
+void Actor::OnResetDevice(void)
+{
+}
+
+void Actor::OnLostDevice(void)
+{
+}
+
+void Actor::OnDestroyDevice(void)
+{
+	ClothComponentPtrList::iterator cloth_iter = m_Clothes.begin();
+	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
+	{
+		(*cloth_iter)->m_Decl.Release();
+	}
+}
+
 void Actor::Update(float fElapsedTime)
 {
 	if (m_Animator)
@@ -45,12 +62,12 @@ void Actor::Update(float fElapsedTime)
 	QueryComponentAll(&CallBack(fElapsedTime));
 }
 
-void Actor::OnPxThreadSubstep(float fElapsedTime)
+void Actor::OnPxThreadSubstep(float dtime)
 {
 	ClothComponentPtrList::iterator cloth_iter = m_Clothes.begin();
 	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
 	{
-		(*cloth_iter)->OnPxThreadSubstep(fElapsedTime);
+		(*cloth_iter)->OnPxThreadSubstep(dtime);
 	}
 }
 

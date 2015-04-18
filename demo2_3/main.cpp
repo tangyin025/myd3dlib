@@ -98,6 +98,7 @@ public:
 		m_emitter = AddEmitterComponentFromFile(m_actor.get(), "emitter/emitter_01.xml");
 		m_cloth_mesh = AddClothComponentFromFile(m_actor.get(),
 			boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml", "mesh/cloth.skeleton.xml", "joint5", PxClothCollisionData());
+		m_Actors.push_back(m_actor);
 
 		// ========================================================================================================
 		// ÉùÒôÏµÍ³
@@ -136,19 +137,7 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
-		// ×¢ÒâË³Ðò
-		m_cloth_mesh.reset();
-		m_actor.reset();
-
 		Game::OnDestroyDevice();
-	}
-
-	virtual void OnPxThreadSubstep(float fElapsedTime)
-	{
-		// ========================================================================================================
-		// ¹Ç÷À¶¯»­
-		// ========================================================================================================
-		m_actor->OnPxThreadSubstep(fElapsedTime);
 	}
 
 	virtual void OnFrameMove(
@@ -163,11 +152,6 @@ public:
 		}
 
 		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
-
-		// ========================================================================================================
-		// ¹Ç÷À¶¯»­
-		// ========================================================================================================
-		m_actor->Update(fElapsedTime);
 	}
 
 	virtual void OnFrameRender(
@@ -175,15 +159,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 		PushGrid();
-
-		// ========================================================================================================
-		// ¹Ç÷À¶¯»­
-		// ========================================================================================================
-		m_actor->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

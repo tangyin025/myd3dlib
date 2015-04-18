@@ -423,3 +423,16 @@ ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
 	owner->m_Clothes.push_back(ret);
 	return ret;
 }
+
+void ActorResourceMgr::AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
+{
+	OgreMeshSet::iterator mesh_iter = mesh_set->begin();
+	for (; mesh_iter != mesh_set->end(); mesh_iter++)
+	{
+		MeshComponentPtr ret(new MeshComponent(owner));
+		OnMeshComponentMeshLoaded(ret, *mesh_iter, false);
+		ret->Min = (*mesh_iter)->m_AABB.Min;
+		ret->Max = (*mesh_iter)->m_AABB.Max;
+		owner->AddComponent(ret);
+	}
+}

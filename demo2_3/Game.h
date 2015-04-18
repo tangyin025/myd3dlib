@@ -76,9 +76,11 @@ public:
 
 	my::BaseTexturePtr m_TexChecker;
 
-	//my::OctRootPtr m_OctScene;
+	typedef std::vector<ActorPtr> ActorPtrList;
 
 	my::CameraPtr m_Camera;
+
+	ActorPtrList m_Actors;
 
 public:
 	Game(void);
@@ -115,6 +117,8 @@ public:
 	virtual void OnLostDevice(void);
 
 	virtual void OnDestroyDevice(void);
+
+	virtual void OnPxThreadSubstep(float dtime);
 
 	virtual void OnFrameMove(
 		double fTime,

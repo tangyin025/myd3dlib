@@ -793,8 +793,8 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 
-	m_aabb.Min = Vector3(FLT_MAX,FLT_MAX,FLT_MAX);
-	m_aabb.Max = Vector3(FLT_MIN,FLT_MIN,FLT_MIN);
+	m_AABB.Min = Vector3(FLT_MAX,FLT_MAX,FLT_MAX);
+	m_AABB.Max = Vector3(FLT_MIN,FLT_MIN,FLT_MIN);
 
 	VOID * pVertices = LockVertexBuffer();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);
@@ -810,13 +810,13 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.y, attr_tmp, node_position, y);
 			DEFINE_XML_ATTRIBUTE_FLOAT(Position.z, attr_tmp, node_position, z);
 
-			m_aabb.Min.x = Min(m_aabb.Min.x, Position.x);
-			m_aabb.Min.y = Min(m_aabb.Min.y, Position.y);
-			m_aabb.Min.z = Min(m_aabb.Min.z, Position.z);
+			m_AABB.Min.x = Min(m_AABB.Min.x, Position.x);
+			m_AABB.Min.y = Min(m_AABB.Min.y, Position.y);
+			m_AABB.Min.z = Min(m_AABB.Min.z, Position.z);
 
-			m_aabb.Max.x = Max(m_aabb.Max.x, Position.x);
-			m_aabb.Max.y = Max(m_aabb.Max.y, Position.y);
-			m_aabb.Max.z = Max(m_aabb.Max.z, Position.z);
+			m_AABB.Max.x = Max(m_AABB.Max.x, Position.x);
+			m_AABB.Max.y = Max(m_AABB.Max.y, Position.y);
+			m_AABB.Max.z = Max(m_AABB.Max.z, Position.z);
 		}
 
 		if(normals)
