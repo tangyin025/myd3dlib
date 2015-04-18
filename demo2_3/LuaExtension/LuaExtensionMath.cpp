@@ -246,7 +246,7 @@ void ExportMath2Lua(lua_State * L)
 		, class_<my::AABBComponent, my::AABB, boost::shared_ptr<my::AABBComponent> >("AABBComponent")
 
 		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
-			.def("PushComponent", &my::OctRoot::PushComponent)
-			.def("ClearComponent", &my::OctRoot::ClearComponent)
+			.def("AddComponent", &my::OctRoot::AddComponent)
+			.def("ClearComponents", &my::OctRoot::ClearComponents)
 	];
 }

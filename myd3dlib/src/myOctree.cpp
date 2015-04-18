@@ -3,7 +3,7 @@
 
 using namespace my;
 
-void OctRoot::ClearComponent(void)
+void OctRoot::ClearComponents(void)
 {
 	m_ComponentList.clear();
 

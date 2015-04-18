@@ -31,15 +31,21 @@ namespace my
 		}
 	};
 
-	typedef boost::function<void (AABBComponent *, IntersectionTests::IntersectionType)> QueryCallback;
+	typedef boost::shared_ptr<AABBComponent> AABBComponentPtr;
+
+	struct IQueryCallback
+	{
+	public:
+		virtual void operator() (AABBComponent * comp, IntersectionTests::IntersectionType) = 0;
+	};
 
 	template <class ChildClass>
 	class OctNodeBase : public AABBComponent
 	{
 	public:
-		typedef std::vector<AABBComponent *> AABBComponentList;
+		typedef std::vector<AABBComponentPtr> AABBComponentPtrList;
 
-		AABBComponentList m_ComponentList;
+		AABBComponentPtrList m_ComponentList;
 
 		typedef boost::array<boost::shared_ptr<ChildClass>, 2> ChildArray;
 
@@ -61,12 +67,12 @@ namespace my
 		{
 		}
 
-		void QueryComponent(const Frustum & frustum, const QueryCallback & callback)
+		void QueryComponent(const Frustum & frustum, IQueryCallback * callback)
 		{
 			switch(IntersectionTests::IntersectAABBAndFrustum(*this, frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
-				QueryComponentAll(frustum, callback);
+				QueryComponentAll(callback);
 				break;
 
 			case IntersectionTests::IntersectionTypeIntersect:
@@ -75,12 +81,12 @@ namespace my
 			}
 		}
 
-		void QueryComponentAll(const Frustum & frustum, const QueryCallback & callback)
+		void QueryComponentAll(IQueryCallback * callback)
 		{
-			AABBComponentList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
-				callback(*comp_iter, IntersectionTests::IntersectionTypeInside);
+				(*callback)(comp_iter->get(), IntersectionTests::IntersectionTypeInside);
 			}
 
 			ChildArray::iterator node_iter = m_Childs.begin();
@@ -88,14 +94,14 @@ namespace my
 			{
 				if (*node_iter)
 				{
-					(*node_iter)->QueryComponentAll(frustum, callback);
+					(*node_iter)->QueryComponentAll(callback);
 				}
 			}
 		}
 
-		void QueryComponentIntersected(const Frustum & frustum, const QueryCallback & callback)
+		void QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback)
 		{
-			AABBComponentList::iterator comp_iter = m_ComponentList.begin();
+			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
 				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(*(*comp_iter), frustum);
@@ -103,7 +109,7 @@ namespace my
 				{
 				case IntersectionTests::IntersectionTypeInside:
 				case IntersectionTests::IntersectionTypeIntersect:
-					callback(*comp_iter, intersect_type);
+					(*callback)(comp_iter->get(), intersect_type);
 					break;
 				}
 			}
@@ -130,9 +136,9 @@ namespace my
 			return false;
 		}
 
-		bool RemoveComponent(AABBComponent * comp)
+		bool RemoveComponent(AABBComponentPtr comp)
 		{
-			AABBComponentList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
+			AABBComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
 			if (comp_iter != m_ComponentList.end())
 			{
 				m_ComponentList.erase(comp_iter);
@@ -186,7 +192,7 @@ namespace my
 		{
 		}
 
-		void PushComponent(AABBComponent * comp, float threshold = 0.1f)
+		void AddComponent(AABBComponentPtr comp, float threshold = 0.1f)
 		{
 			if (comp->Max[Offset] < m_Half + threshold && Max[Offset] - Min[Offset] > m_MinBlock)
 			{
@@ -196,7 +202,7 @@ namespace my
 					_Max[Offset] = m_Half;
 					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(Min, _Max, m_MinBlock));
 				}
-				m_Childs[0]->PushComponent(comp, threshold);
+				m_Childs[0]->AddComponent(comp, threshold);
 			}
 			else if (comp->Min[Offset] > m_Half - threshold &&  Max[Offset] - Min[Offset] > m_MinBlock)
 			{
@@ -206,7 +212,7 @@ namespace my
 					_Min[Offset] = m_Half;
 					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(_Min, Max, m_MinBlock));
 				}
-				m_Childs[1]->PushComponent(comp, threshold);
+				m_Childs[1]->AddComponent(comp, threshold);
 			}
 			else
 			{
@@ -233,7 +239,7 @@ namespace my
 		{
 		}
 
-		void ClearComponent(void);
+		void ClearComponents(void);
 	};
 
 	typedef boost::shared_ptr<OctRoot> OctRootPtr;

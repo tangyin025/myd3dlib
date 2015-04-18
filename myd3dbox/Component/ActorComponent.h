@@ -10,7 +10,7 @@ class ActorComponent
 {
 public:
 	ActorComponent(Actor * Owner)
-		: AABBComponent(my::AABB(FLT_MIN,FLT_MAX))
+		: AABBComponent(my::AABB(-FLT_MAX,FLT_MAX))
 		, Attacher(Owner)
 	{
 	}

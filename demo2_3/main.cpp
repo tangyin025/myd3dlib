@@ -94,9 +94,9 @@ public:
 		m_actor.reset(new Actor());
 		m_actor->m_Animator.reset(new SimpleAnimator());
 		m_actor->m_Animator->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
-		m_mesh_ins = CreateMeshComponentFromFile(m_actor.get(), "mesh/tube.mesh.xml",true);
-		m_emitter = CreateEmitterComponentFromFile(m_actor.get(), "emitter/emitter_01.xml");
-		m_cloth_mesh = CreateClothComponentFromFile(m_actor.get(),
+		m_mesh_ins = AddMeshComponentFromFile(m_actor.get(), "mesh/tube.mesh.xml",true);
+		m_emitter = AddEmitterComponentFromFile(m_actor.get(), "emitter/emitter_01.xml");
+		m_cloth_mesh = AddClothComponentFromFile(m_actor.get(),
 			boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml", "mesh/cloth.skeleton.xml", "joint5", PxClothCollisionData());
 
 		// ========================================================================================================

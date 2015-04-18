@@ -367,48 +367,48 @@ void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponentPtr ActorResourceMgr::CreateMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
+MeshComponentPtr ActorResourceMgr::AddMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
 {
 	MeshComponentPtr ret(new MeshComponent(owner));
 	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	return ret;
 }
 
-MeshComponentPtr ActorResourceMgr::CreateMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
+MeshComponentPtr ActorResourceMgr::AddMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
 {
 	MeshComponentPtr ret(new MeshComponent(owner));
 	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	return ret;
 }
 
-SkeletonMeshComponentPtr ActorResourceMgr::CreateSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
+SkeletonMeshComponentPtr ActorResourceMgr::AddSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
 {
 	SkeletonMeshComponentPtr ret(new SkeletonMeshComponent(owner));
 	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	return ret;
 }
 
-SkeletonMeshComponentPtr ActorResourceMgr::CreateSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
+SkeletonMeshComponentPtr ActorResourceMgr::AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
 {
 	SkeletonMeshComponentPtr ret(new SkeletonMeshComponent(owner));
 	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	return ret;
 }
 
-EmitterComponentPtr ActorResourceMgr::CreateEmitterComponentFromFile(Actor * owner, const std::string & path)
+EmitterComponentPtr ActorResourceMgr::AddEmitterComponentFromFile(Actor * owner, const std::string & path)
 {
 	EmitterComponentPtr ret(new EmitterComponent(owner));
 	my::EmitterPtr emt = CreateEmitter(path);
 	OnEmitterComponentEmitterLoaded(ret, emt);
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	return ret;
 }
 
-ClothComponentPtr ActorResourceMgr::CreateClothComponentFromFile(
+ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
 	Actor * owner,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 	const std::string & mesh_path,
@@ -419,7 +419,7 @@ ClothComponentPtr ActorResourceMgr::CreateClothComponentFromFile(
 	ClothComponentPtr ret(new ClothComponent(owner));
 	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
 		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
-	owner->m_ComponentList.push_back(ret);
+	owner->AddComponent(ret);
 	owner->m_Clothes.push_back(ret);
 	return ret;
 }
