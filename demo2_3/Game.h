@@ -158,4 +158,8 @@ public:
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
+
+	void AddActor(ActorPtr actor);
+
+	ClothComponentPtr AddClothComponentFromFile(Actor * owner, const std::string & mesh_path, const std::string & skel_path, const std::string & root_name);
 };

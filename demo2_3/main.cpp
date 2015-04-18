@@ -22,31 +22,31 @@ public:
 	EmitterComponentPtr m_emitter;
 	ClothComponentPtr m_cloth_mesh;
 
-	void OnKeyDown(my::InputEventArg * arg)
-	{
-		KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
-		Vector3 scale, pos; Quaternion rot;
-		m_cloth_mesh->m_World.Decompose(scale, rot, pos);
-		switch (karg.kc)
-		{
-		case VK_UP:
-			pos.x += 1;
-			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
-			break;
-		case VK_DOWN:
-			pos.x -= 1;
-			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
-			break;
-		case VK_LEFT:
-			rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(30));
-			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
-			break;
-		case VK_RIGHT:
-			rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(-30));
-			m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
-			break;
-		}
-	}
+	//void OnKeyDown(my::InputEventArg * arg)
+	//{
+	//	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	//	Vector3 scale, pos; Quaternion rot;
+	//	m_cloth_mesh->m_World.Decompose(scale, rot, pos);
+	//	switch (karg.kc)
+	//	{
+	//	case VK_UP:
+	//		pos.x += 1;
+	//		m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
+	//		break;
+	//	case VK_DOWN:
+	//		pos.x -= 1;
+	//		m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
+	//		break;
+	//	case VK_LEFT:
+	//		rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(30));
+	//		m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
+	//		break;
+	//	case VK_RIGHT:
+	//		rot *= Quaternion::RotationAxis(Vector3(1,0,0), D3DXToRadian(-30));
+	//		m_cloth_mesh->m_World = Matrix4::Compose(scale, rot, pos);
+	//		break;
+	//	}
+	//}
 
 	Demo::Demo(void)
 	{
@@ -96,25 +96,24 @@ public:
 		m_actor->m_Animator->m_Animation = LoadSkeleton("mesh/cloth.skeleton.xml");
 		m_mesh_ins = AddMeshComponentFromFile(m_actor.get(), "mesh/tube.mesh.xml",true);
 		m_emitter = AddEmitterComponentFromFile(m_actor.get(), "emitter/emitter_01.xml");
-		m_cloth_mesh = AddClothComponentFromFile(m_actor.get(),
-			boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), "mesh/cloth.mesh.xml", "mesh/cloth.skeleton.xml", "joint5", PxClothCollisionData());
+		m_cloth_mesh = AddClothComponentFromFile(m_actor.get(), "mesh/cloth.mesh.xml", "mesh/cloth.skeleton.xml", "joint5");
 		m_Actors.push_back(m_actor);
 
-		// ========================================================================================================
-		// 声音系统
-		// ========================================================================================================
-		FMOD::Sound      *sound1;
-		FMOD::Channel    *channel = 0;
-		result = m_FModSystem->createSound("sound/drumloop.wav", FMOD_HARDWARE, NULL, &sound1);
-		FMOD_ERRCHECK(result);
-		result = sound1->setMode(FMOD_LOOP_NORMAL);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
-		FMOD_ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
-		result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
-		FMOD_ERRCHECK(result);
+		//// ========================================================================================================
+		//// 声音系统
+		//// ========================================================================================================
+		//FMOD::Sound      *sound1;
+		//FMOD::Channel    *channel = 0;
+		//result = m_FModSystem->createSound("sound/drumloop.wav", FMOD_HARDWARE, NULL, &sound1);
+		//FMOD_ERRCHECK(result);
+		//result = sound1->setMode(FMOD_LOOP_NORMAL);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
+		//FMOD_ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
+		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
+		//FMOD_ERRCHECK(result);
 
 		ExecuteCode("dofile \"StateMain.lua\"");
 
-		Game::getSingleton().m_KeyPressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
+		//Game::getSingleton().m_KeyPressedEvent = boost::bind(&Demo::OnKeyDown, this, _1);
 
 		return S_OK;
 	}

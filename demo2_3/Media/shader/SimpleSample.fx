@@ -103,7 +103,6 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 #if defined(VS_INSTANCE)
 	float4x4 g_World = float4x4(In.mat1,In.mat2,In.mat3,In.mat4);
 #endif
-	float3 cam_dir = -transpose(g_View)[2].xyz;
 #if defined(VS_SKINED_DQ)
 	float4 Pos;
 	float3 Normal, Tangent;
@@ -116,11 +115,6 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
     Output.NormalWS = mul(In.Normal, (float3x3)g_World);
 	Output.TangentWS = mul(In.Tangent, (float3x3)g_World);
 #endif
-	if (dot(cam_dir,Output.NormalWS) > 0)
-	{
-		Output.NormalWS = -Output.NormalWS;
-		Output.TangentWS = -Output.TangentWS;
-	}
 	Output.BinormalWS = cross(Output.NormalWS, Output.TangentWS);
 	Output.Tex0 = In.Tex0;
     return Output;    
@@ -132,7 +126,7 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
-    float4 color = tex2D(MeshTextureSampler, In.Tex0) * dot(In.NormalWS, float3(1,0,0));
+    float4 color = tex2D(MeshTextureSampler, In.Tex0) * dot(In.NormalWS, normalize(float3(1,1,0)));
     return color;
 }
 

@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="10">
-<m_DiffuseTexture>texture/Checker.bmp</m_DiffuseTexture>
-<m_NormalTexture></m_NormalTexture>
-<m_SpecularTexture></m_SpecularTexture>
+<Material class_id="0" tracking_level="0" version="1">
+	<px class_id="1" tracking_level="1" version="0" object_id="_0">
+		<m_DiffuseTexture>texture/Checker.bmp</m_DiffuseTexture>
+		<m_NormalTexture></m_NormalTexture>
+		<m_SpecularTexture></m_SpecularTexture>
+	</px>
+</Material>
 </boost_serialization>
 

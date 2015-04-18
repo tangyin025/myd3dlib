@@ -629,3 +629,14 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 
 	return NULL;
 }
+
+void Game::AddActor(ActorPtr actor)
+{
+	m_Actors.push_back(actor);
+}
+
+ClothComponentPtr Game::AddClothComponentFromFile(Actor * owner, const std::string & mesh_path, const std::string & skel_path, const std::string & root_name)
+{
+	return ActorResourceMgr::AddClothComponentFromFile(
+		owner, boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), mesh_path, skel_path, root_name, PxClothCollisionData());
+}

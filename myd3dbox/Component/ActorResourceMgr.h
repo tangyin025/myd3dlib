@@ -85,6 +85,8 @@ public:
 
 	MeshComponentPtr AddMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
 
+	void AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
+
 	SkeletonMeshComponentPtr AddSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
 
 	SkeletonMeshComponentPtr AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
@@ -98,6 +100,4 @@ public:
 		const std::string & skel_path,
 		const std::string & root_name,
 		const PxClothCollisionData& collData);
-
-	void AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 };

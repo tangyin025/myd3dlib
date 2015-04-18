@@ -394,20 +394,30 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("NormalTexture", &Material::m_NormalTexture)
 			.def_readwrite("SpecularTexture", &Material::m_SpecularTexture)
 
+		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
+			.def(constructor<>())
+
+		, class_<ActorComponent, boost::shared_ptr<ActorComponent> >("ActorComponent")
+
+		, class_<MeshComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+
+		, class_<SkeletonMeshComponent, boost::shared_ptr<SkeletonMeshComponent> >("SkeletonMeshComponent")
+
+		, class_<ClothComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
+
+		, class_<EmitterComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
+
 		, class_<ActorResourceMgr, my::ResourceMgr>("ActorResourceMgr")
 			.def("CreateEmitter", &ActorResourceMgr::CreateEmitter)
 			.def("SaveEmitter", &ActorResourceMgr::SaveEmitter)
 			.def("CreateMaterial", &ActorResourceMgr::CreateMaterial)
 			.def("SaveMaterial", &ActorResourceMgr::SaveMaterial)
-
-		//, class_<RenderComponent, boost::shared_ptr<RenderComponent> >("RenderComponent")
-		//	.def(constructor<const my::AABB &>())
-
-		//, class_<MeshComponent, RenderComponent, boost::shared_ptr<RenderComponent> >("MeshComponent")
-		//	.def(constructor<const my::AABB &>())
-
-		//, class_<SkeletonMeshComponent, MeshComponent, boost::shared_ptr<RenderComponent> >("MeshComponent")
-		//	.def(constructor<const my::AABB &>())
+			.def("AddMeshComponent", &ActorResourceMgr::AddMeshComponent)
+			.def("AddMeshComponentFromFile", &ActorResourceMgr::AddMeshComponentFromFile)
+			.def("AddMeshComponentList", &ActorResourceMgr::AddMeshComponentList)
+			.def("AddSkeletonMeshComponent", &ActorResourceMgr::AddSkeletonMeshComponent)
+			.def("AddSkeletonMeshComponentFromFile", &ActorResourceMgr::AddSkeletonMeshComponentFromFile)
+			.def("AddEmitterComponentFromFile", &ActorResourceMgr::AddEmitterComponentFromFile)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -423,6 +433,8 @@ void Export2Lua(lua_State * L)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def("ExecuteCode", &Game::ExecuteCode)
+			.def("AddActor", &Game::AddActor)
+			.def("AddClothComponentFromFile", &Game::AddClothComponentFromFile)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)
