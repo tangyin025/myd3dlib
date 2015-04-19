@@ -76,6 +76,7 @@ void EffectUIRender::DrawVertexList(void)
 }
 
 Game::Game(void)
+	: m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 {
 	Export2Lua(_state);
 }
@@ -191,8 +192,6 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_TexChecker failed");
 	}
 
-	m_Camera.reset(new Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f));
-
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	return S_OK;
@@ -220,9 +219,9 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
-	if(m_Camera->EventAlign)
+	if(m_Camera.EventAlign)
 	{
-		m_Camera->EventAlign(&EventArgs());
+		m_Camera.EventAlign(&EventArgs());
 	}
 
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
@@ -264,8 +263,6 @@ void Game::OnDestroyDevice(void)
 	ExecuteCode("collectgarbage(\"collect\")");
 
 	m_Actors.clear();
-
-	m_Camera.reset();
 
 	m_Console.reset();
 
@@ -313,13 +310,13 @@ void Game::OnFrameMove(
 
 	TimerMgr::OnFrameMove(fTime, fElapsedTime);
 
-	//m_Camera->OnFrameMove(fTime, fElapsedTime);
-
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
 	}
+
+	m_Camera.OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -333,10 +330,10 @@ void Game::OnFrameRender(
 		(*actor_iter)->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
 	}
 
-	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
-	m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
+	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
 	RenderPipeline::RenderAllObjects(pd3dDevice, fTime, fElapsedTime);
 
@@ -430,8 +427,7 @@ LRESULT Game::MsgProc(
 	}
 
 	LRESULT lr;
-	if(m_Camera
-		&& (lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing))
+	if(lr = m_Camera.MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 	{
 		return lr;
 	}

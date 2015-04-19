@@ -1,27 +1,15 @@
 -- dofile "LoadingUI.lua"
 -- dofile "Hud.lua"
 
--- -- 创建相机
--- local camera=ModelViewerCamera(math.rad(75),4/3.0,0.1,3000)
--- camera.LookAt=Vector3(0,1,0)
--- camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
--- camera.Distance=20
--- camera.EventAlign=function(args)
-	-- local desc=game.BackBufferSurfaceDesc
-	-- camera.Aspect=desc.Width/desc.Height
--- end
--- game.Camera=camera
-
-local camera=FirstPersonCamera(math.rad(75),4/3.0,0.1,3000)
+-- 设置相机
 local k=math.cos(math.rad(45))
 local d=20
-camera.Eye=Vector3(d*k*k,d*k+1,d*k*k)
-camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
-camera.EventAlign=function(args)
+game.Camera.Eye=Vector3(d*k*k,d*k+1,d*k*k)
+game.Camera.Eular=Vector3(math.rad(-45),math.rad(45),0)
+game.Camera.EventAlign=function(args)
 	local desc=game.BackBufferSurfaceDesc
-	camera.Aspect=desc.Width/desc.Height
+	game.Camera.Aspect=desc.Width/desc.Height
 end
-game.Camera=camera
 
 -- local t = Timer(1,0)
 -- t.EventTimer=function(args)

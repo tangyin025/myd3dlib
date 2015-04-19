@@ -78,7 +78,7 @@ public:
 
 	typedef std::vector<ActorPtr> ActorPtrList;
 
-	my::CameraPtr m_Camera;
+	my::FirstPersonCamera m_Camera;
 
 	ActorPtrList m_Actors;
 

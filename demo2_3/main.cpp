@@ -24,7 +24,7 @@ public:
 		D3DCOLOR Color,
 		Font::Align align = Font::AlignCenterMiddle)
 	{
-		const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
+		const Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
 		if(ptProj.z > 0.0f && ptProj.z < 1.0f)
 		{
 			const Vector2 vp = DialogMgr::GetDlgViewport();
@@ -98,11 +98,6 @@ public:
 	{
 		Game::OnFrameMove(fTime, fElapsedTime);
 
-		if (m_Camera)
-		{
-			m_Camera->OnFrameMove(fTime, fElapsedTime);
-		}
-
 		m_ScrInfos[0] = str_printf(L"%.2f", m_fFps);
 	}
 
@@ -136,11 +131,6 @@ public:
 		bool * pbNoFurtherProcessing)
 	{
 		LRESULT lr;
-		if (m_Camera && (lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing)))
-		{
-			return lr;
-		}
-
 		if(lr = Game::MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 		{
 			return lr;
@@ -151,7 +141,7 @@ public:
 		case WM_RBUTTONUP:
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			std::pair<Vector3, Vector3> ray = m_Camera->CalculateRay(
+			std::pair<Vector3, Vector3> ray = m_Camera.CalculateRay(
 				Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 			break;
 		}
