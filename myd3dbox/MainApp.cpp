@@ -161,7 +161,7 @@ static size_t hash_value(const CMainApp::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
+my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, Material::DrawStage draw_stage, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
 
@@ -175,15 +175,15 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, RenderPip
 	std::string macros, path;
 	switch (mesh_type)
 	{
-	case RenderPipeline::MeshTypeParticle:
+	case Material::MeshTypeParticle:
 		path = "shader/Particle.fx";
 		break;
 
-	case RenderPipeline::MeshTypeStatic:
+	case Material::MeshTypeStatic:
 		path = "shader/SimpleSample.fx";
 		break;
 
-	case RenderPipeline::MeshTypeAnimation:
+	case Material::MeshTypeAnimation:
 		path = "shader/SimpleSample.fx";
 		macros += "VS_SKINED_DQ 1 ";
 		break;

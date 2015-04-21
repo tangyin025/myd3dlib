@@ -8,9 +8,9 @@ using namespace my;
 void Actor::Attacher::UpdateWorld(void)
 {
 	_ASSERT(m_Owner);
-	if (m_Owner->m_Animator && m_SlotId < m_Owner->m_Animator->m_DualQuats.size())
+	if (m_AnimId < m_Owner->m_AnimatorList.size() && m_SlotId < m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats.size())
 	{
-		my::Matrix4 Slot = TransformList::UDQtoRM(m_Owner->m_Animator->m_DualQuats[m_SlotId]);
+		my::Matrix4 Slot = TransformList::UDQtoRM(m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats[m_SlotId]);
 		m_World = Slot * m_Owner->m_World;
 	}
 	else
@@ -39,9 +39,10 @@ void Actor::OnDestroyDevice(void)
 
 void Actor::Update(float fElapsedTime)
 {
-	if (m_Animator)
+	AnimatorPtrList::iterator anim_iter = m_AnimatorList.begin();
+	for (; anim_iter != m_AnimatorList.end(); anim_iter++)
 	{
-		m_Animator->Update(fElapsedTime);
+		(*anim_iter)->Update(fElapsedTime);
 	}
 
 	struct CallBack : public my::IQueryCallback
@@ -72,15 +73,15 @@ void Actor::OnPxThreadSubstep(float dtime)
 	}
 }
 
-void Actor::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void Actor::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 {
 	struct CallBack : public my::IQueryCallback
 	{
 		RenderPipeline * m_pipeline;
 
-		RenderPipeline::DrawStage m_stage;
+		Material::DrawStage m_stage;
 
-		CallBack(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+		CallBack(RenderPipeline * pipeline, Material::DrawStage stage)
 			: m_pipeline(pipeline)
 			, m_stage(stage)
 		{

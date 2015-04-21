@@ -4,7 +4,7 @@
 
 using namespace my;
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage, RenderPipeline::MeshType mesh_type)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage, Material::MeshType mesh_type)
 {
 	if (m_Mesh)
 	{
@@ -29,9 +29,9 @@ void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawSta
 	}
 }
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 {
-	QueryMesh(pipeline, stage, RenderPipeline::MeshTypeStatic);
+	QueryMesh(pipeline, stage, Material::MeshTypeStatic);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -42,23 +42,23 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 {
-	MeshComponent::QueryMesh(pipeline, stage, RenderPipeline::MeshTypeAnimation);
+	MeshComponent::QueryMesh(pipeline, stage, Material::MeshTypeAnimation);
 }
 
 void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(m_Owner);
-	if (m_Owner->m_Animator)
+	if (m_AnimId < m_Owner->m_AnimatorList.size())
 	{
-		shader->SetMatrixArray("g_dualquat", &m_Owner->m_Animator->m_DualQuats[0], m_Owner->m_Animator->m_DualQuats.size());
+		shader->SetMatrixArray("g_dualquat", &m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats[0], m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats.size());
 	}
 
 	MeshComponent::OnSetShader(shader, AttribId);
 }
 
-void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 {
 	for (unsigned int i = 0; i < m_AttribTable.size(); i++)
 	{
@@ -67,7 +67,7 @@ void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, RenderPipe
 		_ASSERT(0 != m_VertexStride);
 		if (m_MaterialList[i])
 		{
-			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, RenderPipeline::MeshTypeStatic, false);
+			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, Material::MeshTypeStatic, false);
 			if (shader)
 			{
 				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
@@ -94,9 +94,9 @@ void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId
 void ClothComponent::OnPxThreadSubstep(float fElapsedTime)
 {
 	_ASSERT(m_Owner);
-	if (m_Owner->m_Animator)
+	if (m_AnimId < m_Owner->m_AnimatorList.size())
 	{
-		UpdateCloth(m_Owner->m_Animator->m_DualQuats);
+		UpdateCloth(m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats);
 	}
 }
 
@@ -151,11 +151,11 @@ void EmitterComponent::Update(float fElapsedTime)
 	}
 }
 
-void EmitterComponent::QueryMesh(RenderPipeline * pipeline, RenderPipeline::DrawStage stage)
+void EmitterComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 {
 	if (m_Material && m_Emitter)
 	{
-		my::Effect * shader = m_Material->QueryShader(pipeline, stage, RenderPipeline::MeshTypeParticle, false);
+		my::Effect * shader = m_Material->QueryShader(pipeline, stage, Material::MeshTypeParticle, false);
 		if (shader)
 		{
 			pipeline->PushOpaqueEmitter(m_Emitter.get(), 0, shader, this);

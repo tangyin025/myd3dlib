@@ -22,7 +22,7 @@ end
 
 local actor = Actor()
 game:AddActor(actor)
-game:CreateAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
+game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
 game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
 game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
 game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")

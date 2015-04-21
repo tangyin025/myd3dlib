@@ -3,6 +3,16 @@
 
 using namespace my;
 
+my::Effect * Material::QueryShader(RenderPipeline * pipeline, DrawStage stage, MeshType mesh_type, bool bInstance)
+{
+	return pipeline->QueryShader(mesh_type, stage, bInstance, this);
+}
+
+void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
+}
+
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -406,18 +416,4 @@ void RenderPipeline::ClearAllObjects(void)
 	}
 	m_OpaqueIndexedPrimitiveUPList.clear();
 	m_QpaqueEmitterList.clear();
-}
-
-my::Effect * Material::QueryShader(
-	RenderPipeline * pipeline,
-	RenderPipeline::DrawStage stage,
-	RenderPipeline::MeshType mesh_type,
-	bool bInstance)
-{
-	return pipeline->QueryShader(mesh_type, stage, bInstance, this);
-}
-
-void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
 }

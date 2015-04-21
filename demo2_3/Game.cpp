@@ -327,7 +327,7 @@ void Game::OnFrameRender(
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*actor_iter)->QueryMesh(this, RenderPipeline::DrawStageCBuffer);
+		(*actor_iter)->QueryMesh(this, Material::DrawStageCBuffer);
 	}
 
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
@@ -584,7 +584,7 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material)
+my::Effect * Game::QueryShader(Material::MeshType mesh_type, Material::DrawStage draw_stage, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
 
@@ -598,15 +598,15 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, RenderPipelin
 	std::string macros, path;
 	switch (mesh_type)
 	{
-	case RenderPipeline::MeshTypeParticle:
+	case Material::MeshTypeParticle:
 		path = "shader/Particle.fx";
 		break;
 
-	case RenderPipeline::MeshTypeStatic:
+	case Material::MeshTypeStatic:
 		path = "shader/SimpleSample.fx";
 		break;
 
-	case RenderPipeline::MeshTypeAnimation:
+	case Material::MeshTypeAnimation:
 		path = "shader/SimpleSample.fx";
 		macros += "VS_SKINED_DQ 1 ";
 		break;

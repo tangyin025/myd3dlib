@@ -421,7 +421,7 @@ void Export2Lua(lua_State * L)
 			.def("AddSkeletonMeshComponentFromFile", &ActorResourceMgr::AddSkeletonMeshComponentFromFile)
 			.def("AddEmitterComponentFromFile", &ActorResourceMgr::AddEmitterComponentFromFile)
 			//.def("AddClothComponentFromFile", &ActorResourceMgr::AddClothComponentFromFile)
-			.def("CreateAnimatorFromFile", &ActorResourceMgr::CreateAnimatorFromFile)
+			.def("AddAnimatorFromFile", &ActorResourceMgr::AddAnimatorFromFile)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)

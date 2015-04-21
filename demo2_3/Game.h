@@ -60,7 +60,7 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	typedef boost::tuple<RenderPipeline::MeshType, RenderPipeline::DrawStage, bool, const Material *> ShaderCacheKey;
+	typedef boost::tuple<Material::MeshType, Material::DrawStage, bool, const Material *> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
@@ -157,7 +157,7 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
-	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, RenderPipeline::DrawStage draw_stage, bool bInstance, const Material * material);
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, Material::DrawStage draw_stage, bool bInstance, const Material * material);
 
 	void AddActor(ActorPtr actor);
 

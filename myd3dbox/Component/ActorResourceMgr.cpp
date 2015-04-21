@@ -450,10 +450,10 @@ ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
 	return ret;
 }
 
-AnimatorPtr ActorResourceMgr::CreateAnimatorFromFile(Actor * owner, const std::string & path)
+AnimatorPtr ActorResourceMgr::AddAnimatorFromFile(Actor * owner, const std::string & path)
 {
 	AnimatorPtr ret(new SimpleAnimator());
 	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
-	owner->m_Animator = ret;
+	owner->m_AnimatorList.push_back(ret);
 	return ret;
 }

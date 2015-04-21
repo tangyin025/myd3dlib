@@ -106,5 +106,5 @@ public:
 		const std::string & root_name,
 		const PxClothCollisionData& collData);
 
-	AnimatorPtr CreateAnimatorFromFile(Actor * owner, const std::string & path);
+	AnimatorPtr AddAnimatorFromFile(Actor * owner, const std::string & path);
 };
