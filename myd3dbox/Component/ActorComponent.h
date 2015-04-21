@@ -3,6 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Actor.h"
+#include "physx_ptr.hpp"
 
 class ActorComponent
 	: public my::AABBComponent
@@ -123,12 +124,11 @@ public:
 
 	std::vector<PxClothParticle> m_NewParticles;
 
-	PxCloth * m_Cloth;
+	physx_ptr<PxCloth> m_Cloth;
 
 public:
 	ClothComponent(Actor * Owner)
 		: IndexdPrimitiveUPComponent(Owner)
-		, m_Cloth(NULL)
 	{
 	}
 

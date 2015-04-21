@@ -193,9 +193,9 @@ void ActorResourceMgr::OnClothComponentMeshLoaded(
 			ofs, mesh, cmp_ptr->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset);
 
 		my::IStreamPtr ifs(new my::MemoryIStream(&(*ofs->m_cache)[0], ofs->m_cache->size()));
-		PxClothFabric * fabric = CreateClothFabric(PxContext.get<1>(), ifs);
-		cmp_ptr->m_Cloth = PxContext.get<1>()->createCloth(
-			PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &cmp_ptr->m_particles[0], *collData, PxClothFlags()); // ! fabric->release()
+		physx_ptr<PxClothFabric> fabric(CreateClothFabric(PxContext.get<1>(), ifs));
+		cmp_ptr->m_Cloth.reset(PxContext.get<1>()->createCloth(
+			PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &cmp_ptr->m_particles[0], *collData, PxClothFlags())); // ! fabric->release()
 
 		PxContext.get<2>()->addActor(*cmp_ptr->m_Cloth);
 	}

@@ -110,6 +110,21 @@ namespace my
 			const TransformList & rhs,
 			const BoneHierarchy & boneHierarchy,
 			int root_i);
+
+		static Matrix4 & BuildSkinnedDualQuaternion(
+			Matrix4 & outDualQuaternion,
+			DWORD indices,
+			const Vector4 & weights,
+			const TransformList & dualQuaternionList);
+
+		static Vector3 & TransformVertexWithDualQuaternionList(
+			Vector3 & outPosition,
+			const Vector3 & position,
+			DWORD indices,
+			const Vector4 & weights,
+			const TransformList & dualQuaternionList);
+
+		static Matrix4 UDQtoRM(const Matrix4 & dual);
 	};
 
 	class BoneList
@@ -192,21 +207,6 @@ namespace my
 			const BoneHierarchy & boneHierarchy,
 			int root_i,
 			const Matrix4 & inverseRootTransform = Matrix4::identity);
-
-		static Matrix4 & BuildSkinnedDualQuaternion(
-			Matrix4 & outDualQuaternion,
-			DWORD indices,
-			const Vector4 & weights,
-			const TransformList & dualQuaternionList);
-
-		static Vector3 & TransformVertexWithDualQuaternionList(
-			Vector3 & outPosition,
-			const Vector3 & position,
-			DWORD indices,
-			const Vector4 & weights,
-			const TransformList & dualQuaternionList);
-
-		static Matrix4 UDQtoRM(const Matrix4 & dual);
 	};
 
 	class BoneKeyframe

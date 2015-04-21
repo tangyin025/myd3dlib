@@ -10,7 +10,7 @@ void Actor::Attacher::UpdateWorld(void)
 	_ASSERT(m_Owner);
 	if (m_Owner->m_Animator && m_SlotId < m_Owner->m_Animator->m_DualQuats.size())
 	{
-		my::Matrix4 Slot = BoneList::UDQtoRM(m_Owner->m_Animator->m_DualQuats[m_SlotId]);
+		my::Matrix4 Slot = TransformList::UDQtoRM(m_Owner->m_Animator->m_DualQuats[m_SlotId]);
 		m_World = Slot * m_Owner->m_World;
 	}
 	else
@@ -33,6 +33,7 @@ void Actor::OnDestroyDevice(void)
 	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
 	{
 		(*cloth_iter)->m_Decl.Release();
+		(*cloth_iter)->m_Cloth.reset();
 	}
 }
 

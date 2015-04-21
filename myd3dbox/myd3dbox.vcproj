@@ -69,7 +69,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3CHECKED_x86.lib PhysX3CommonCHECKED_x86.lib PhysX3CookingCHECKED_x86.lib PhysX3ExtensionsCHECKED.lib PhysX3CharacterKinematicCHECKED_x86.lib Ws2_32.lib fmodex_vc.lib"
+				AdditionalOptions="PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib PhysX3CharacterKinematicDEBUG_x86.lib Ws2_32.lib fmodex_vc.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"

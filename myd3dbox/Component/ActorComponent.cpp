@@ -118,7 +118,7 @@ void ClothComponent::UpdateCloth(const my::TransformList & dualQuaternionList)
 				if (0 == m_NewParticles[i].invWeight)
 				{
 					my::Vector3 pos;
-					my::BoneList::TransformVertexWithDualQuaternionList(pos,
+					my::TransformList::TransformVertexWithDualQuaternionList(pos,
 						(my::Vector3 &)m_particles[i].pos,
 						m_VertexElems.GetBlendIndices(pVertex),
 						m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
