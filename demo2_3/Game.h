@@ -60,6 +60,10 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
+	my::Texture2DPtr m_ShadowRT;
+
+	my::SurfacePtr m_ShadowDS;
+
 	typedef boost::tuple<Material::MeshType, Material::DrawStage, bool, const Material *> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
@@ -79,6 +83,8 @@ public:
 	typedef std::vector<ActorPtr> ActorPtrList;
 
 	my::FirstPersonCamera m_Camera;
+
+	my::OrthoCamera m_SkyLight;
 
 	ActorPtrList m_Actors;
 

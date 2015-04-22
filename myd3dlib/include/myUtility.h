@@ -123,6 +123,40 @@ namespace my
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
 
+	class OrthoCamera
+		: public BaseCamera
+	{
+	public:
+		Vector3 m_Eye;
+
+		Vector3 m_Eular;
+
+		float m_Width;
+
+		float m_Height;
+
+		float m_Nz;
+
+		float m_Fz;
+
+		ControlEvent EventAlign;
+
+	public:
+		OrthoCamera(float Width, float Height, float Nz, float Fz)
+			: m_Eye(0,0,0)
+			, m_Eular(0,0,0)
+			, m_Width(Width)
+			, m_Height(Height)
+			, m_Nz(Nz)
+			, m_Fz(Fz)
+		{
+		}
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime);
+	};
+
 	class Camera
 		: public BaseCamera
 	{
@@ -146,13 +180,13 @@ namespace my
 		{
 		}
 
-		virtual void Camera::OnFrameMove(
+		virtual void OnFrameMove(
 			double fTime,
 			float fElapsedTime)
 		{
 		}
 		
-		virtual LRESULT Camera::MsgProc(
+		virtual LRESULT MsgProc(
 			HWND hWnd,
 			UINT uMsg,
 			WPARAM wParam,

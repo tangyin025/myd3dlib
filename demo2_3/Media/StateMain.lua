@@ -29,3 +29,8 @@ game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.
 game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
 	game:AddMeshComponentList(actor, res2mesh_set(res))
 end)
+
+-- local actor = Actor()
+-- game:AddActor(actor)
+-- game:AddAnimatorFromFile(actor,"mesh/casual19_m_highpoly.skeleton.xml")
+-- game:AddSkeletonMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)

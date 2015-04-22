@@ -73,7 +73,7 @@ void Actor::OnPxThreadSubstep(float dtime)
 	}
 }
 
-void Actor::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
+void Actor::QueryMesh(const my::Frustum & frustum, RenderPipeline * pipeline, Material::DrawStage stage)
 {
 	struct CallBack : public my::IQueryCallback
 	{
@@ -94,5 +94,5 @@ void Actor::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
 		}
 	};
 
-	QueryComponentAll(&CallBack(pipeline, stage));
+	QueryComponent(frustum, &CallBack(pipeline, stage));
 }

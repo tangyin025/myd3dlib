@@ -9,8 +9,7 @@ class RenderComponent;
 class ClothComponent;
 
 class Actor
-	: public my::DeviceRelatedObjectBase
-	, public my::OctRoot
+	: public my::OctRoot
 {
 public:
 	class Attacher
@@ -57,17 +56,17 @@ public:
 	{
 	}
 
-	virtual void OnResetDevice(void);
+	void OnResetDevice(void);
 
-	virtual void OnLostDevice(void);
+	void OnLostDevice(void);
 
-	virtual void OnDestroyDevice(void);
+	void OnDestroyDevice(void);
 
-	virtual void Update(float fElapsedTime);
+	void Update(float fElapsedTime);
 
-	virtual void OnPxThreadSubstep(float dtime);
+	void OnPxThreadSubstep(float dtime);
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage);
+	void QueryMesh(const my::Frustum & frustum, RenderPipeline * pipeline, Material::DrawStage stage);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

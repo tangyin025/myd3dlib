@@ -76,7 +76,10 @@ void EffectUIRender::DrawVertexList(void)
 }
 
 Game::Game(void)
-	: m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
+	: m_ShadowRT(new Texture2D())
+	, m_ShadowDS(new Surface())
+	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
+	, m_SkyLight(30,30,-100,100)
 {
 	Export2Lua(_state);
 }
@@ -213,6 +216,13 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
+	m_ShadowRT->CreateAdjustedTexture(
+		pd3dDevice, 1024, 1024, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+
+	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
+	m_ShadowDS->CreateDepthStencilSurface(
+		pd3dDevice, 1024, 1024, D3DFMT_D24X8);
+
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
@@ -237,15 +247,19 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	ActorResourceMgr::OnLostDevice();
+
+	RenderPipeline::OnLostDevice();
+
+	m_ShadowRT->OnDestroyDevice();
+
+	m_ShadowDS->OnDestroyDevice();
+
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
 		(*actor_iter)->OnLostDevice();
 	}
-
-	RenderPipeline::OnLostDevice();
-
-	ActorResourceMgr::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -317,6 +331,8 @@ void Game::OnFrameMove(
 	}
 
 	m_Camera.OnFrameMove(fTime, fElapsedTime);
+
+	m_SkyLight.OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -324,10 +340,11 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	Frustum frustum = Frustum::ExtractMatrix(m_Camera.m_ViewProj);
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*actor_iter)->QueryMesh(this, Material::DrawStageCBuffer);
+		(*actor_iter)->QueryMesh(frustum, this, Material::DrawStageScene);
 	}
 
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);

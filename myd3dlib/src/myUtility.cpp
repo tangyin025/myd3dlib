@@ -145,6 +145,21 @@ void TimerMgr::OnFrameMove(
 	}
 }
 
+void OrthoCamera::OnFrameMove(
+	double fTime,
+	float fElapsedTime)
+{
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
+
+	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
+
+	m_Proj = Matrix4::OrthoLH(m_Width, m_Height, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
+}
+
 void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)

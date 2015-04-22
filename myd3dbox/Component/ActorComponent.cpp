@@ -52,7 +52,11 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	_ASSERT(m_Owner);
 	if (m_AnimId < m_Owner->m_AnimatorList.size())
 	{
-		shader->SetMatrixArray("g_dualquat", &m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats[0], m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats.size());
+		const TransformList & DualQuats = m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats;
+		if (!DualQuats.empty())
+		{
+			shader->SetMatrixArray("g_dualquat", &DualQuats[0], DualQuats.size());
+		}
 	}
 
 	MeshComponent::OnSetShader(shader, AttribId);
@@ -96,7 +100,11 @@ void ClothComponent::OnPxThreadSubstep(float fElapsedTime)
 	_ASSERT(m_Owner);
 	if (m_AnimId < m_Owner->m_AnimatorList.size())
 	{
-		UpdateCloth(m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats);
+		const TransformList & DualQuats = m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats;
+		if (!DualQuats.empty())
+		{
+			UpdateCloth(DualQuats);
+		}
 	}
 }
 

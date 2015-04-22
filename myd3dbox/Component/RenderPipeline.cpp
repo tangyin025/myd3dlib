@@ -160,10 +160,10 @@ void RenderPipeline::RenderAllObjects(
 			indexed_prim_iter->setter);
 	}
 
-	EmitterAtomList::iterator emitter_iter = m_QpaqueEmitterList.begin();
-	for (; emitter_iter != m_QpaqueEmitterList.end(); emitter_iter++)
+	EmitterAtomList::iterator emitter_iter = m_EmitterList.begin();
+	for (; emitter_iter != m_EmitterList.end(); emitter_iter++)
 	{
-		DrawOpaqueEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
+		DrawEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
 	}
 
 	ClearAllObjects();
@@ -259,7 +259,7 @@ void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
@@ -403,7 +403,7 @@ void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my
 	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.setter = setter;
-	m_QpaqueEmitterList.push_back(atom);
+	m_EmitterList.push_back(atom);
 }
 
 void RenderPipeline::ClearAllObjects(void)
@@ -415,5 +415,5 @@ void RenderPipeline::ClearAllObjects(void)
 		mesh_inst_iter->second.m_TransformList.clear();
 	}
 	m_OpaqueIndexedPrimitiveUPList.clear();
-	m_QpaqueEmitterList.clear();
+	m_EmitterList.clear();
 }

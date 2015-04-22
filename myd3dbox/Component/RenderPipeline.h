@@ -16,9 +16,7 @@ public:
 	enum DrawStage
 	{
 		DrawStageShadow,
-		DrawStageNBuffer,
-		DrawStageDBuffer,
-		DrawStageCBuffer,
+		DrawStageScene,
 	};
 
 	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_DiffuseTexture;
@@ -154,7 +152,7 @@ public:
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
 
-	EmitterAtomList m_QpaqueEmitterList;
+	EmitterAtomList m_EmitterList;
 
 public:
 	RenderPipeline(void)
@@ -208,7 +206,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawOpaqueEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
