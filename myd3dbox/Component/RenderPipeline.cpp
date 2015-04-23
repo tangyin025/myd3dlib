@@ -3,11 +3,6 @@
 
 using namespace my;
 
-my::Effect * Material::QueryShader(RenderPipeline * pipeline, DrawStage stage, MeshType mesh_type, bool bInstance)
-{
-	return pipeline->QueryShader(mesh_type, stage, bInstance, this);
-}
-
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
@@ -105,33 +100,38 @@ void RenderPipeline::OnDestroyDevice(void)
 
 	ClearAllObjects();
 
-	//MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
-	//for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
-	//{
-	//	mesh_inst_iter->second.m_Decl.Release();
-	//}
-	m_OpaqueMeshInstanceMap.clear();
+	unsigned int PassID = 0;
+	for (; PassID < m_Pass.size(); PassID++)
+	{
+		//MeshInstanceAtomMap::iterator mesh_inst_iter = m_MeshInstanceMap.begin();
+		//for (; mesh_inst_iter != m_MeshInstanceMap.end(); mesh_inst_iter++)
+		//{
+		//	mesh_inst_iter->second.m_Decl.Release();
+		//}
+		m_Pass[PassID].m_MeshInstanceMap.clear();
+	}
 
 	m_ParticleDecl.Release();
 }
 
 void RenderPipeline::RenderAllObjects(
+	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
 	float fElapsedTime)
 {
-	MeshAtomList::iterator mesh_iter = m_OpaqueMeshList.begin();
-	for (; mesh_iter != m_OpaqueMeshList.end(); mesh_iter++)
+	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
+	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawOpaqueMesh(mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
+		DrawMesh(mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
 	}
 
-	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
-	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
+	MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+	for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
 	{
 		if (!mesh_inst_iter->second.m_TransformList.empty())
 		{
-			DrawOpaqueMeshInstance(
+			DrawMeshInstance(
 				pd3dDevice,
 				mesh_inst_iter->first.get<0>(),
 				mesh_inst_iter->first.get<1>(),
@@ -141,10 +141,10 @@ void RenderPipeline::RenderAllObjects(
 		}
 	}
 
-	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_OpaqueIndexedPrimitiveUPList.begin();
-	for (; indexed_prim_iter != m_OpaqueIndexedPrimitiveUPList.end(); indexed_prim_iter++)
+	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_Pass[PassID].m_IndexedPrimitiveUPList.begin();
+	for (; indexed_prim_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); indexed_prim_iter++)
 	{
-		DrawOpaqueIndexedPrimitiveUP(
+		DrawIndexedPrimitiveUP(
 			pd3dDevice,
 			indexed_prim_iter->pDecl,
 			indexed_prim_iter->PrimitiveType,
@@ -160,16 +160,30 @@ void RenderPipeline::RenderAllObjects(
 			indexed_prim_iter->setter);
 	}
 
-	EmitterAtomList::iterator emitter_iter = m_EmitterList.begin();
-	for (; emitter_iter != m_EmitterList.end(); emitter_iter++)
+	EmitterAtomList::iterator emitter_iter = m_Pass[PassID].m_EmitterList.begin();
+	for (; emitter_iter != m_Pass[PassID].m_EmitterList.end(); emitter_iter++)
 	{
 		DrawEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
 	}
-
-	ClearAllObjects();
 }
 
-void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::ClearAllObjects(void)
+{
+	unsigned int PassID = 0;
+	for (; PassID < m_Pass.size(); PassID++)
+	{
+		m_Pass[PassID].m_MeshList.clear();
+		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
+		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
+		{
+			mesh_inst_iter->second.m_TransformList.clear();
+		}
+		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
+		m_Pass[PassID].m_EmitterList.clear();
+	}
+}
+
+void RenderPipeline::DrawMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
@@ -183,7 +197,7 @@ void RenderPipeline::DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect 
 	shader->End();
 }
 
-void RenderPipeline::DrawOpaqueMeshInstance(
+void RenderPipeline::DrawMeshInstance(
 	IDirect3DDevice9 * pd3dDevice,
 	my::Mesh * mesh,
 	DWORD AttribId,
@@ -229,7 +243,7 @@ void RenderPipeline::DrawOpaqueMeshInstance(
 	V(pd3dDevice->SetStreamSourceFreq(1,1));
 }
 
-void RenderPipeline::DrawOpaqueIndexedPrimitiveUP(
+void RenderPipeline::DrawIndexedPrimitiveUP(
 	IDirect3DDevice9 * pd3dDevice,
 	IDirect3DVertexDeclaration9* pDecl,
 	D3DPRIMITIVETYPE PrimitiveType,
@@ -302,14 +316,14 @@ void RenderPipeline::DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * em
 	shader->End();
 }
 
-void RenderPipeline::PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	MeshAtom atom;
 	atom.mesh = mesh;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.setter = setter;
-	m_OpaqueMeshList.push_back(atom);
+	m_Pass[PassID].m_MeshList.push_back(atom);
 }
 
 namespace boost
@@ -324,13 +338,13 @@ namespace boost
 	}
 }
 
-void RenderPipeline::PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter)
 {
 	MeshInstanceAtomKey key(mesh, AttribId, shader);
-	MeshInstanceAtomMap::iterator atom_iter = m_OpaqueMeshInstanceMap.find(key);
-	if (atom_iter == m_OpaqueMeshInstanceMap.end())
+	MeshInstanceAtomMap::iterator atom_iter = m_Pass[PassID].m_MeshInstanceMap.find(key);
+	if (atom_iter == m_Pass[PassID].m_MeshInstanceMap.end())
 	{
-		MeshInstanceAtom & atom = m_OpaqueMeshInstanceMap[key];
+		MeshInstanceAtom & atom = m_Pass[PassID].m_MeshInstanceMap[key];
 		atom.setter = setter;
 		DWORD submeshes = 0;
 		mesh->GetAttributeTable(NULL, &submeshes);
@@ -362,10 +376,11 @@ void RenderPipeline::PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, con
 			THROW_D3DEXCEPTION(hr);
 		}
 	}
-	m_OpaqueMeshInstanceMap[key].m_TransformList.push_back(World);
+	m_Pass[PassID].m_MeshInstanceMap[key].m_TransformList.push_back(World);
 }
 
-void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
+void RenderPipeline::PushIndexedPrimitiveUP(
+	unsigned int PassID,
 	IDirect3DVertexDeclaration9* pDecl,
 	D3DPRIMITIVETYPE PrimitiveType,
 	UINT MinVertexIndex,
@@ -393,27 +408,15 @@ void RenderPipeline::PushOpaqueIndexedPrimitiveUP(
 	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.setter = setter;
-	m_OpaqueIndexedPrimitiveUPList.push_back(atom);
+	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
-void RenderPipeline::PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	EmitterAtom atom;
 	atom.emitter = emitter;
 	atom.AttribId = AttribId;
 	atom.shader = shader;
 	atom.setter = setter;
-	m_EmitterList.push_back(atom);
-}
-
-void RenderPipeline::ClearAllObjects(void)
-{
-	m_OpaqueMeshList.clear();
-	MeshInstanceAtomMap::iterator mesh_inst_iter = m_OpaqueMeshInstanceMap.begin();
-	for (; mesh_inst_iter != m_OpaqueMeshInstanceMap.end(); mesh_inst_iter++)
-	{
-		mesh_inst_iter->second.m_TransformList.clear();
-	}
-	m_OpaqueIndexedPrimitiveUPList.clear();
-	m_EmitterList.clear();
+	m_Pass[PassID].m_EmitterList.push_back(atom);
 }

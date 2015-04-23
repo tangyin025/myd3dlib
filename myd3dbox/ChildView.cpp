@@ -93,7 +93,8 @@ void CChildView::OnFrameRender(
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
-	theApp.RenderAllObjects(pd3dDevice, fTime, fElapsedTime);
+	theApp.RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	theApp.ClearAllObjects();
 
 	theApp.m_UIRender->Begin();
 	theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);

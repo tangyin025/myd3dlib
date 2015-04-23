@@ -37,7 +37,7 @@ public:
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage) = 0;
+	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -59,9 +59,9 @@ public:
 	{
 	}
 
-	void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage, Material::MeshType mesh_type);
+	void QueryMeshWithMeshType(RenderPipeline * pipeline, unsigned int PassMask, Material::MeshType mesh_type);
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage);
+	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -77,7 +77,7 @@ public:
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage);
+	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -107,7 +107,7 @@ public:
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage);
+	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -174,7 +174,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage);
+	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };

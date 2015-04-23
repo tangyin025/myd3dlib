@@ -4,24 +4,24 @@
 
 using namespace my;
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage, Material::MeshType mesh_type)
+void MeshComponent::QueryMeshWithMeshType(RenderPipeline * pipeline, unsigned int PassMask, Material::MeshType mesh_type)
 {
 	if (m_Mesh)
 	{
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
-			if (m_MaterialList[i])
+			if (m_MaterialList[i] && (Material::PassIDToMask(m_MaterialList[i]->m_PassID) & PassMask))
 			{
-				my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, mesh_type, m_bInstance);
+				my::Effect * shader = pipeline->QueryShader(mesh_type, m_bInstance, m_MaterialList[i].get());
 				if (shader)
 				{
 					if (m_bInstance)
 					{
-						pipeline->PushOpaqueMeshInstance(m_Mesh.get(), i, m_World, shader, this);
+						pipeline->PushMeshInstance(m_MaterialList[i]->m_PassID, m_Mesh.get(), i, m_World, shader, this);
 					}
 					else
 					{
-						pipeline->PushOpaqueMesh(m_Mesh.get(), i, shader, this);
+						pipeline->PushMesh(m_MaterialList[i]->m_PassID, m_Mesh.get(), i, shader, this);
 					}
 				}
 			}
@@ -29,9 +29,9 @@ void MeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage sta
 	}
 }
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
+void MeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	QueryMesh(pipeline, stage, Material::MeshTypeStatic);
+	QueryMeshWithMeshType(pipeline, PassMask, Material::MeshTypeStatic);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -42,9 +42,9 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
+void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	MeshComponent::QueryMesh(pipeline, stage, Material::MeshTypeAnimation);
+	QueryMeshWithMeshType(pipeline, PassMask, Material::MeshTypeAnimation);
 }
 
 void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -62,19 +62,19 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	MeshComponent::OnSetShader(shader, AttribId);
 }
 
-void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
+void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
 	for (unsigned int i = 0; i < m_AttribTable.size(); i++)
 	{
 		_ASSERT(!m_VertexData.empty());
 		_ASSERT(!m_IndexData.empty());
 		_ASSERT(0 != m_VertexStride);
-		if (m_MaterialList[i])
+		if (m_MaterialList[i] && (Material::PassIDToMask(m_MaterialList[i]->m_PassID) & PassMask))
 		{
-			my::Effect * shader = m_MaterialList[i]->QueryShader(pipeline, stage, Material::MeshTypeStatic, false);
+			my::Effect * shader = pipeline->QueryShader(Material::MeshTypeStatic, false, m_MaterialList[i].get());
 			if (shader)
 			{
-				pipeline->PushOpaqueIndexedPrimitiveUP(m_Decl, D3DPT_TRIANGLELIST,
+				pipeline->PushIndexedPrimitiveUP(m_MaterialList[i]->m_PassID, m_Decl, D3DPT_TRIANGLELIST,
 					m_AttribTable[i].VertexStart,
 					m_AttribTable[i].VertexCount,
 					m_AttribTable[i].FaceCount,
@@ -159,14 +159,14 @@ void EmitterComponent::Update(float fElapsedTime)
 	}
 }
 
-void EmitterComponent::QueryMesh(RenderPipeline * pipeline, Material::DrawStage stage)
+void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	if (m_Material && m_Emitter)
+	if (m_Material && m_Emitter && (Material::PassIDToMask(m_Material->m_PassID) & PassMask))
 	{
-		my::Effect * shader = m_Material->QueryShader(pipeline, stage, Material::MeshTypeParticle, false);
+		my::Effect * shader = pipeline->QueryShader(Material::MeshTypeParticle, false, m_Material.get());
 		if (shader)
 		{
-			pipeline->PushOpaqueEmitter(m_Emitter.get(), 0, shader, this);
+			pipeline->PushEmitter(m_Material->m_PassID, m_Emitter.get(), 0, shader, this);
 		}
 	}
 }

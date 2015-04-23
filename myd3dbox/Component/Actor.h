@@ -66,7 +66,7 @@ public:
 
 	void OnPxThreadSubstep(float dtime);
 
-	void QueryMesh(const my::Frustum & frustum, RenderPipeline * pipeline, Material::DrawStage stage);
+	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

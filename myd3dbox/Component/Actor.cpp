@@ -73,26 +73,27 @@ void Actor::OnPxThreadSubstep(float dtime)
 	}
 }
 
-void Actor::QueryMesh(const my::Frustum & frustum, RenderPipeline * pipeline, Material::DrawStage stage)
+void Actor::QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct CallBack : public my::IQueryCallback
 	{
 		RenderPipeline * m_pipeline;
 
-		Material::DrawStage m_stage;
+		unsigned int m_PassMask;
 
-		CallBack(RenderPipeline * pipeline, Material::DrawStage stage)
+		CallBack(RenderPipeline * pipeline, unsigned int PassMask)
 			: m_pipeline(pipeline)
-			, m_stage(stage)
+			, m_PassMask(PassMask)
 		{
 		}
 
 		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<RenderComponent *>(comp));
-			static_cast<RenderComponent *>(comp)->QueryMesh(m_pipeline, m_stage);
+
+			static_cast<RenderComponent *>(comp)->QueryMesh(m_pipeline, m_PassMask);
 		}
 	};
 
-	QueryComponent(frustum, &CallBack(pipeline, stage));
+	OctRoot::QueryComponent(frustum, &CallBack(pipeline, PassMask));
 }

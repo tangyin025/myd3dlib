@@ -104,14 +104,15 @@ namespace my
 			AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
 			for(; comp_iter != m_ComponentList.end(); comp_iter++)
 			{
-				IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(*(*comp_iter), frustum);
-				switch(intersect_type)
-				{
-				case IntersectionTests::IntersectionTypeInside:
-				case IntersectionTests::IntersectionTypeIntersect:
-					(*callback)(comp_iter->get(), intersect_type);
-					break;
-				}
+				//IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(*(*comp_iter), frustum);
+				//switch(intersect_type)
+				//{
+				//case IntersectionTests::IntersectionTypeInside:
+				//case IntersectionTests::IntersectionTypeIntersect:
+				//	(*callback)(comp_iter->get(), intersect_type);
+				//	break;
+				//}
+				(*callback)(comp_iter->get(), IntersectionTests::IntersectionTypeIntersect);
 			}
 
 			ChildArray::iterator node_iter = m_Childs.begin();

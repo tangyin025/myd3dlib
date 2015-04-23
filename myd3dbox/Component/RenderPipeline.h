@@ -13,11 +13,16 @@ public:
 		MeshTypeParticle,
 	};
 
-	enum DrawStage
+	enum PassType
 	{
-		DrawStageShadow,
-		DrawStageScene,
+		PassTypeOpaque = 0,
+		PassTypeTransparent,
+		PassTypeEmitter,
+		PassTypeLight,
+		PassTypeNum
 	};
+
+	unsigned int m_PassID;
 
 	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_DiffuseTexture;
 
@@ -27,6 +32,7 @@ public:
 
 public:
 	Material(void)
+		: m_PassID(0)
 	{
 	}
 
@@ -45,12 +51,16 @@ public:
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
+		ar & BOOST_SERIALIZATION_NVP(m_PassID);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_DiffuseTexture), m_DiffuseTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_NormalTexture), m_NormalTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_SpecularTexture), m_SpecularTexture.first);
 	}
 
-	virtual my::Effect * QueryShader(RenderPipeline * pipeline, DrawStage stage, MeshType mesh_type, bool bInstance);
+	static unsigned int PassIDToMask(unsigned int PassID)
+	{
+		_ASSERT(PassID < 32); return 1 << PassID;
+	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -104,8 +114,6 @@ public:
 
 	typedef std::vector<MeshAtom> MeshAtomList;
 
-	MeshAtomList m_OpaqueMeshList;
-
 	struct MeshInstanceAtom
 	{
 		IShaderSetter * setter;
@@ -119,8 +127,6 @@ public:
 	typedef boost::tuple<my::Mesh *, DWORD, my::Effect *> MeshInstanceAtomKey;
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
-
-	MeshInstanceAtomMap m_OpaqueMeshInstanceMap;
 
 	struct IndexedPrimitiveUPAtom
 	{
@@ -140,8 +146,6 @@ public:
 
 	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
 
-	IndexedPrimitiveUPAtomList m_OpaqueIndexedPrimitiveUPList;
-
 	struct EmitterAtom
 	{
 		my::Emitter * emitter;
@@ -152,7 +156,15 @@ public:
 
 	typedef std::vector<EmitterAtom> EmitterAtomList;
 
-	EmitterAtomList m_EmitterList;
+	struct Pass
+	{
+		MeshAtomList m_MeshList;
+		MeshInstanceAtomMap m_MeshInstanceMap;
+		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
+		EmitterAtomList m_EmitterList;
+	};
+
+	boost::array<Pass, Material::PassTypeNum> m_Pass;
 
 public:
 	RenderPipeline(void)
@@ -162,7 +174,7 @@ public:
 	{
 	}
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, Material::DrawStage draw_stage, bool bInstance, const Material * material) = 0;
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material) = 0;
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -177,13 +189,16 @@ public:
 	void OnDestroyDevice(void);
 
 	void RenderAllObjects(
+		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
 
-	void DrawOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void ClearAllObjects(void);
 
-	void DrawOpaqueMeshInstance(
+	void DrawMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+
+	void DrawMeshInstance(
 		IDirect3DDevice9 * pd3dDevice,
 		my::Mesh * mesh,
 		DWORD AttribId,
@@ -191,7 +206,7 @@ public:
 		IShaderSetter * setter,
 		MeshInstanceAtom & atom);
 
-	void DrawOpaqueIndexedPrimitiveUP(
+	void DrawIndexedPrimitiveUP(
 		IDirect3DDevice9 * pd3dDevice,
 		IDirect3DVertexDeclaration9* pDecl,
 		D3DPRIMITIVETYPE PrimitiveType,
@@ -208,11 +223,12 @@ public:
 
 	void DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
-	void PushOpaqueMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
-	void PushOpaqueMeshInstance(my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
+	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
 
-	void PushOpaqueIndexedPrimitiveUP(
+	void PushIndexedPrimitiveUP(
+		unsigned int PassID,
 		IDirect3DVertexDeclaration9* pDecl,
 		D3DPRIMITIVETYPE PrimitiveType,
 		UINT MinVertexIndex,
@@ -226,7 +242,5 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void PushOpaqueEmitter(my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
-
-	void ClearAllObjects(void);
+	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 };

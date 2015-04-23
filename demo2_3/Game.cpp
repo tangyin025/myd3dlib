@@ -344,7 +344,7 @@ void Game::OnFrameRender(
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*actor_iter)->QueryMesh(frustum, this, Material::DrawStageScene);
+		(*actor_iter)->QueryComponent(frustum, this, 0xff);
 	}
 
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
@@ -352,7 +352,8 @@ void Game::OnFrameRender(
 	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
-	RenderPipeline::RenderAllObjects(pd3dDevice, fTime, fElapsedTime);
+	RenderPipeline::RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	RenderPipeline::ClearAllObjects();
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
@@ -597,15 +598,14 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	boost::hash_combine(seed, key.get<0>());
 	boost::hash_combine(seed, key.get<1>());
 	boost::hash_combine(seed, key.get<2>());
-	boost::hash_combine(seed, key.get<3>());
 	return seed;
 }
 
-my::Effect * Game::QueryShader(Material::MeshType mesh_type, Material::DrawStage draw_stage, bool bInstance, const Material * material)
+my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
 
-	ShaderCacheKey key(mesh_type, draw_stage, bInstance, material);
+	ShaderCacheKey key(mesh_type, bInstance, material);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
