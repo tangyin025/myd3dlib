@@ -160,7 +160,7 @@ static size_t hash_value(const CMainApp::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material)
+my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
 

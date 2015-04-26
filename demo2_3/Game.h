@@ -163,7 +163,7 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material);
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 
 	void AddActor(ActorPtr actor);
 

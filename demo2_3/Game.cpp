@@ -344,7 +344,7 @@ void Game::OnFrameRender(
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*actor_iter)->QueryComponent(frustum, this, 0xff);
+		(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeShadow));
 	}
 
 	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
@@ -352,7 +352,7 @@ void Game::OnFrameRender(
 	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
 
-	RenderPipeline::RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 	RenderPipeline::ClearAllObjects();
 
 	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
@@ -601,7 +601,7 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material)
+my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material)
 {
 	_ASSERT(material);
 

@@ -3,7 +3,7 @@
 <boost_serialization signature="serialization::archive" version="10">
 <Material class_id="0" tracking_level="0" version="1">
 	<px class_id="1" tracking_level="1" version="0" object_id="_0">
-		<m_PassID>0</m_PassID>
+		<m_PassMask>1</m_PassMask>
 		<m_DiffuseTexture>texture/Checker.bmp</m_DiffuseTexture>
 		<m_NormalTexture></m_NormalTexture>
 		<m_SpecularTexture></m_SpecularTexture>

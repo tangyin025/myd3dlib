@@ -15,14 +15,15 @@ public:
 
 	enum PassType
 	{
-		PassTypeOpaque = 0,
-		PassTypeTransparent,
-		PassTypeEmitter,
-		PassTypeLight,
-		PassTypeNum
+		PassTypeShadow			= 0,
+		PassTypeNormalDepth		= 1,
+		PassTypeDiffuseSpec		= 2,
+		PassTypeTextureColor	= 3,
+		PassTypeTransparent		= 4,
+		PassTypeNum				= 5
 	};
 
-	unsigned int m_PassID;
+	unsigned int m_PassMask;
 
 	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_DiffuseTexture;
 
@@ -32,7 +33,7 @@ public:
 
 public:
 	Material(void)
-		: m_PassID(0)
+		: m_PassMask(0)
 	{
 	}
 
@@ -51,7 +52,7 @@ public:
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_PassID);
+		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_DiffuseTexture), m_DiffuseTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_NormalTexture), m_NormalTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_SpecularTexture), m_SpecularTexture.first);
@@ -174,7 +175,7 @@ public:
 	{
 	}
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material) = 0;
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material) = 0;
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,

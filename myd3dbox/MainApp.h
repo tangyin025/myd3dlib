@@ -46,7 +46,7 @@ public:
 
 	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
-	my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material);
+	my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 
 // Overrides
 public:
