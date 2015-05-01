@@ -153,7 +153,7 @@ void OrthoCamera::OnFrameMove(
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
-	m_Proj = Matrix4::OrthoLH(m_Width, m_Height, m_Nz, m_Fz);
+	m_Proj = Matrix4::OrthoRH(m_Width, m_Height, m_Nz, m_Fz);
 
 	m_ViewProj = m_View * m_Proj;
 

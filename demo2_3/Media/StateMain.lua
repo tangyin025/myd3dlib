@@ -11,6 +11,14 @@ game.Camera.EventAlign=function(args)
 	game.Camera.Aspect=desc.Width/desc.Height
 end
 
+-- 设置环境光
+game.SkyLight.Eye=Vector3(0,0,0)
+game.SkyLight.Eular=Vector3(math.rad(-45),math.rad(-45),0)
+game.SkyLight.Width=50
+game.SkyLight.Height=50
+game.SkyLight.Nz=-50
+game.SkyLight.Fz=50
+
 -- local t = Timer(1,0)
 -- t.EventTimer=function(args)
 	-- LoadingUI.pgs.Progress=LoadingUI.pgs.Progress+0.1

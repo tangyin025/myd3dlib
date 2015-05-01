@@ -234,6 +234,12 @@ HRESULT Game::OnResetDevice(
 		m_Camera.EventAlign(&EventArgs());
 	}
 
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		shader_iter->second->OnResetDevice();
+	}
+
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -254,6 +260,12 @@ void Game::OnLostDevice(void)
 	m_ShadowRT->OnDestroyDevice();
 
 	m_ShadowDS->OnDestroyDevice();
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		shader_iter->second->OnLostDevice();
+	}
 
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
@@ -340,32 +352,68 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	Frustum frustum = Frustum::ExtractMatrix(m_Camera.m_ViewProj);
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
+	V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+
+	CComPtr<IDirect3DSurface9> oldRt;
+	V(pd3dDevice->GetRenderTarget(0, &oldRt));
+	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
+	CComPtr<IDirect3DSurface9> oldDs = NULL;
+	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeShadow));
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_SkyLight.m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_SkyLight.m_Proj);
+		m_SimpleSample->SetMatrix("g_View", m_SkyLight.m_View);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLight.m_ViewProj);
+
+		Frustum frustum = Frustum::ExtractMatrix(m_SkyLight.m_ViewProj);
+		ActorPtrList::iterator actor_iter = m_Actors.begin();
+		for (; actor_iter != m_Actors.end(); actor_iter++)
+		{
+			(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeShadow));
+		}
+		RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+
+		V(m_d3dDevice->EndScene());
 	}
+	V(pd3dDevice->SetRenderTarget(0, oldRt));
+	V(pd3dDevice->SetDepthStencilSurface(oldDs));
+	oldRt.Release();
+	oldDs.Release();
 
-	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
-	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
-	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
+	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
+	{
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+		m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
+		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+		m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLight.m_View.column<2>().xyz); // ! RH -z
+		m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLight.m_ViewProj);
+		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowRT);
 
-	RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+		Frustum frustum = Frustum::ExtractMatrix(m_Camera.m_ViewProj);
+		ActorPtrList::iterator actor_iter = m_Actors.begin();
+		for (; actor_iter != m_Actors.end(); actor_iter++)
+		{
+			(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeTextureColor));
+		}
+		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
+
+		DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
+
+		m_UIRender->Begin();
+		m_UIRender->SetWorld(Matrix4::identity);
+		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
+		m_UIRender->End();
+
+		V(m_d3dDevice->EndScene());
+	}
 	RenderPipeline::ClearAllObjects();
-
-	DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
-
-	m_UIRender->Begin();
-
-	m_UIRender->SetWorld(Matrix4::identity);
-
-	m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-
-	OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
-
-	m_UIRender->End();
 }
 
 void Game::OnUIRender(
@@ -400,17 +448,7 @@ void Game::OnFrameTick(
 
 	ParallelTaskManager::DoAllParallelTasks();
 
-	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
-
-	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
-	{
-		// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
-		V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-
-		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
-
-		V(m_d3dDevice->EndScene());
-	}
+	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
 	m_FModSystem->update();
 
@@ -605,42 +643,53 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 {
 	_ASSERT(material);
 
-	ShaderCacheKey key(mesh_type, bInstance, material);
+	ShaderCacheKey key(mesh_type, bInstance, PassID);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
 		return shader_iter->second.get();
 	}
 
-	std::string macros, path;
-	switch (mesh_type)
+	struct Header
 	{
-	case Material::MeshTypeParticle:
-		path = "shader/Particle.fx";
-		break;
+		static const char * vs_header(unsigned int mesh_type)
+		{
+			switch (mesh_type)
+			{
+			case Material::MeshTypeAnimation:
+				return "MeshSkeleton.fx";
+			case Material::MeshTypeParticle:
+				return "MeshParticle.fx";
+			}
+			return "MeshStatic.fx";
+		}
 
-	case Material::MeshTypeStatic:
-		path = "shader/SimpleSample.fx";
-		break;
-
-	case Material::MeshTypeAnimation:
-		path = "shader/SimpleSample.fx";
-		macros += "VS_SKINED_DQ 1 ";
-		break;
+		static const char * ps_header(unsigned int pass_type)
+		{
+			switch (pass_type)
+			{
+			case Material::PassTypeShadow:
+				return "PassShadow.fx";
+			}
+			return "PassTextureColor.fx";
+		}
 	};
 
-	if (bInstance)
-	{
-		macros += "VS_INSTANCE 1 ";
-	}
+	std::string source = str_printf(
+		"#include \"CommonHeader.fx\"\n"
+		"#include \"%s\"\n"
+		"#include \"%s\"\n"
+		"technique RenderScene {\n"
+		"	pass P0 {\n"
+		"		CullMode = NONE;\n"
+		"		Lighting = FALSE;\n"
+		"		VertexShader = compile vs_2_0 RenderSceneVS();\n"
+		"		PixelShader  = compile ps_2_0 RenderScenePS();}}", Header::vs_header(mesh_type), Header::ps_header(PassID));
 
-	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
-	ResourceCallback callback = boost::bind(&Game::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)));
-
-	m_ShaderCache.insert(std::make_pair(key, my::EffectPtr()));
-
-	return NULL;
+	my::EffectPtr shader(new my::Effect());
+	shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), NULL, this, 0, m_EffectPool);
+	m_ShaderCache.insert(std::make_pair(key, shader));
+	return shader.get();
 }
 
 void Game::AddActor(ActorPtr actor)
