@@ -372,16 +372,22 @@ void Export2Lua(lua_State * L)
 
 		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<>())
+			.def_readwrite("World", &Actor::m_World)
 
 		, class_<ActorComponent, boost::shared_ptr<ActorComponent> >("ActorComponent")
+			.def_readwrite("World", &ActorComponent::m_World)
 
-		, class_<MeshComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+		, class_<RenderComponent, ActorComponent, boost::shared_ptr<RenderComponent> >("RenderComponent")
 
-		, class_<SkeletonMeshComponent, boost::shared_ptr<SkeletonMeshComponent> >("SkeletonMeshComponent")
+		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
 
-		, class_<ClothComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
+		, class_<SkeletonMeshComponent, MeshComponent, boost::shared_ptr<SkeletonMeshComponent> >("SkeletonMeshComponent")
 
-		, class_<EmitterComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
+		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+
+		, class_<ClothComponent, IndexdPrimitiveUPComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
+
+		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
 
 		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
 

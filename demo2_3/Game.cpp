@@ -681,8 +681,6 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 		"#include \"%s\"\n"
 		"technique RenderScene {\n"
 		"	pass P0 {\n"
-		"		CullMode = NONE;\n"
-		"		Lighting = FALSE;\n"
 		"		VertexShader = compile vs_2_0 RenderSceneVS();\n"
 		"		PixelShader  = compile ps_2_0 RenderScenePS();}}", Header::vs_header(mesh_type), Header::ps_header(PassID));
 

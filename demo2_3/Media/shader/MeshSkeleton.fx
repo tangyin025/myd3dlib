@@ -43,7 +43,7 @@ void GetSkinnedPos( VS_INPUT In,
 {
 	float2x4 dual;
 	GetSkinnedDual(In, dual);
-	oPos.xyz = Position.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, Position.xyz) + dual[0].w * Position.xyz);
+	oPos.xyz = In.Pos.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Pos.xyz) + dual[0].w * In.Pos.xyz);
 	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
 	oPos.xyz += translation;
 	oPos.w = 1;
@@ -78,5 +78,5 @@ float3 TransformNormal(VS_INPUT In)
 {
 	float3 normal;
 	GetSkinnedNormal(In, normal);
-	return mul(normal, (float3x3)g_World);
+	return normalize(mul(normal, (float3x3)g_World));
 }

@@ -106,7 +106,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		PushGrid();
+		//PushGrid();
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

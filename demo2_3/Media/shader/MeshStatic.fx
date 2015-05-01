@@ -23,5 +23,5 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
-	return mul(In.Normal, (float3x3)g_World);
+	return normalize(mul(In.Normal, (float3x3)g_World));
 }
