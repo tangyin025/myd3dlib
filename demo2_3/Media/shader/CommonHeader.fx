@@ -21,23 +21,23 @@ sampler MeshTextureSampler = sampler_state
 sampler ShadowTextureSampler = sampler_state
 {
 	Texture = <g_ShadowTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
 };
 
 sampler NormalTextureSampler = sampler_state
 {
 	Texture = <g_NormalTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
 };
 
 sampler DiffuseTextureSampler = sampler_state
 {
 	Texture = <g_DiffuseTexture>;
-	MipFilter = LINEAR;
-	MinFilter = LINEAR;
-	MagFilter = LINEAR;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
 };

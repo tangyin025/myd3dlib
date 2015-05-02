@@ -167,6 +167,8 @@ public:
 
 	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 
+	void ClearAllShaders(void);
+
 	void AddActor(ActorPtr actor);
 
 	void RemoveActor(ActorPtr actor);

@@ -726,10 +726,23 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 	D3DXMACRO end = {0};
 	macros.push_back(end);
 
-	my::EffectPtr shader(new my::Effect());
-	shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), &macros[0], this, 0, m_EffectPool);
+	EffectPtr shader(new Effect());
+	try
+	{
+		shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), &macros[0], this, 0, m_EffectPool);
+	}
+	catch (const my::Exception & e)
+	{
+		AddLine(ms2ws(e.what()), D3DCOLOR_ARGB(255,255,0,0));
+		shader.reset();
+	}
 	m_ShaderCache.insert(std::make_pair(key, shader));
 	return shader.get();
+}
+
+void Game::ClearAllShaders(void)
+{
+	m_ShaderCache.clear();
 }
 
 void Game::AddActor(ActorPtr actor)
