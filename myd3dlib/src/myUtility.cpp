@@ -108,7 +108,7 @@ void TimerMgr::InsertTimer(TimerPtr timer)
 {
 	if(timer)
 	{
-		_ASSERT(timer->m_Managed);
+		_ASSERT(!timer->m_Managed);
 
 		m_timerSet.insert(timer);
 
@@ -120,7 +120,7 @@ void TimerMgr::RemoveTimer(TimerPtr timer)
 {
 	if(timer)
 	{
-		_ASSERT(!timer->m_Managed);
+		_ASSERT(timer->m_Managed);
 
 		m_timerSet.erase(timer);
 

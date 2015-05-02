@@ -4,6 +4,7 @@ struct VS_OUTPUT
 	float4 Pos				: POSITION;
 	float4 Pos2				: TEXCOORD0;
 	float4 Light			: TEXCOORD1;
+	float4 Color			: COLOR0;
 };
 
 VS_OUTPUT RenderSceneVS( VS_INPUT In )
@@ -12,6 +13,7 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 	Output.Pos = TransformPos(In);
 	Output.Pos2 = Output.Pos;
 	Output.Light = TransformLight(In);
+	Output.Color = TransformColor(In);
 	return Output;
 }
 
@@ -28,6 +30,6 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	float3 LightVec = In.Light.xyz - PosWS.xyz;
 	float LightLen = length(LightVec);
 	LightVec = LightVec / LightLen;
-	float3 diffuse = saturate(dot(Normal.xyz, LightVec)) * saturate(1 - LightLen / In.Light.w);
-	return float4(diffuse, 0);
+	float diffuse = saturate(dot(Normal.xyz, LightVec)) * saturate(1 - LightLen / In.Light.w);
+	return float4(In.Color.xyz * diffuse, 1);
 }

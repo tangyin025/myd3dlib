@@ -245,7 +245,10 @@ HRESULT Game::OnResetDevice(
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		shader_iter->second->OnResetDevice();
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnResetDevice();
+		}
 	}
 
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
@@ -276,7 +279,10 @@ void Game::OnLostDevice(void)
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		shader_iter->second->OnLostDevice();
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnLostDevice();
+		}
 	}
 
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
@@ -423,7 +429,13 @@ void Game::OnFrameRender(
 	{
 		m_SimpleSample->SetTexture("g_NormalTexture", m_NormalRT);
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
 		RenderPipeline::RenderAllObjects(Material::PassTypeDiffuseSpec, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(m_d3dDevice->EndScene());
 	}
 
@@ -432,7 +444,6 @@ void Game::OnFrameRender(
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
 		m_SimpleSample->SetTexture("g_DiffuseTexture", m_DiffuseRT);
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
 		V(m_d3dDevice->EndScene());
 	}
