@@ -191,16 +191,7 @@ void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMas
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	switch (m_WorldType)
-	{
-	case WorldTypeLocal:
-		shader->SetMatrix("g_World", m_World);
-		break;
-
-	default:
-		shader->SetMatrix("g_World", Matrix4::identity);
-		break;
-	}
+	shader->SetMatrix("g_World", m_World);
 
 	Vector3 Up, Right, Dir;
 	const Matrix4 View = shader->GetMatrix("g_View");

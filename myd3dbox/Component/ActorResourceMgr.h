@@ -96,6 +96,8 @@ public:
 
 	SkeletonMeshComponentPtr AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
 
+	EmitterComponentPtr AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter);
+
 	EmitterComponentPtr AddEmitterComponentFromFile(Actor * owner, const std::string & path);
 
 	ClothComponentPtr AddClothComponentFromFile(

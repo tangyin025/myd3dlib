@@ -425,6 +425,14 @@ SkeletonMeshComponentPtr ActorResourceMgr::AddSkeletonMeshComponentFromFile(Acto
 	return ret;
 }
 
+EmitterComponentPtr ActorResourceMgr::AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter)
+{
+	EmitterComponentPtr ret(new EmitterComponent(owner));
+	OnEmitterComponentEmitterLoaded(ret, emitter);
+	owner->AddComponent(ret);
+	return ret;
+}
+
 EmitterComponentPtr ActorResourceMgr::AddEmitterComponentFromFile(Actor * owner, const std::string & path)
 {
 	EmitterComponentPtr ret(new EmitterComponent(owner));

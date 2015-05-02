@@ -78,6 +78,7 @@ void EffectUIRender::DrawVertexList(void)
 Game::Game(void)
 	: m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
+	, m_NormalRT(new Texture2D())
 	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 	, m_SkyLight(30,30,-100,100)
 {
@@ -223,6 +224,9 @@ HRESULT Game::OnResetDevice(
 	m_ShadowDS->CreateDepthStencilSurface(
 		pd3dDevice, 1024, 1024, D3DFMT_D24X8);
 
+	m_NormalRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
@@ -260,6 +264,8 @@ void Game::OnLostDevice(void)
 	m_ShadowRT->OnDestroyDevice();
 
 	m_ShadowDS->OnDestroyDevice();
+
+	m_NormalRT->OnDestroyDevice();
 
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
@@ -357,63 +363,78 @@ void Game::OnFrameRender(
 
 	CComPtr<IDirect3DSurface9> oldRt;
 	V(pd3dDevice->GetRenderTarget(0, &oldRt));
-	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
 	CComPtr<IDirect3DSurface9> oldDs = NULL;
 	V(pd3dDevice->GetDepthStencilSurface(&oldDs));
+
+	Frustum frustum = Frustum::ExtractMatrix(m_SkyLight.m_ViewProj);
+	ActorPtrList::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeShadow));
+	}
+
+	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_SkyLight.m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_SkyLight.m_Proj);
 		m_SimpleSample->SetMatrix("g_View", m_SkyLight.m_View);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLight.m_ViewProj);
-
-		Frustum frustum = Frustum::ExtractMatrix(m_SkyLight.m_ViewProj);
-		ActorPtrList::iterator actor_iter = m_Actors.begin();
-		for (; actor_iter != m_Actors.end(); actor_iter++)
-		{
-			(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeShadow));
-		}
 		RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
-
 		V(m_d3dDevice->EndScene());
 	}
-	V(pd3dDevice->SetRenderTarget(0, oldRt));
-	V(pd3dDevice->SetDepthStencilSurface(oldDs));
-	oldRt.Release();
-	oldDs.Release();
 
+	frustum = Frustum::ExtractMatrix(m_Camera.m_ViewProj);
+	actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		(*actor_iter)->QueryComponent(frustum, this,
+			Material::PassIDToMask(Material::PassTypeNormalDepth) |
+			Material::PassIDToMask(Material::PassTypeDiffuseSpec));
+	}
+
+	V(pd3dDevice->SetRenderTarget(0, m_NormalRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(oldDs));
 	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0));
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
 		m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 		m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+		m_SimpleSample->SetMatrix("g_InvViewProj", m_Camera.m_InverseViewProj);
 		m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLight.m_View.column<2>().xyz); // ! RH -z
 		m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLight.m_ViewProj);
 		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowRT);
+		RenderPipeline::RenderAllObjects(Material::PassTypeNormalDepth, pd3dDevice, fTime, fElapsedTime);
+		V(m_d3dDevice->EndScene());
+	}
 
-		Frustum frustum = Frustum::ExtractMatrix(m_Camera.m_ViewProj);
-		ActorPtrList::iterator actor_iter = m_Actors.begin();
-		for (; actor_iter != m_Actors.end(); actor_iter++)
-		{
-			(*actor_iter)->QueryComponent(frustum, this, Material::PassIDToMask(Material::PassTypeTextureColor));
-		}
-		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
+	V(pd3dDevice->SetRenderTarget(0, oldRt));
+	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
+	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
+	{
+		m_SimpleSample->SetTexture("g_NormalTexture", m_NormalRT);
+		pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+		RenderPipeline::RenderAllObjects(Material::PassTypeDiffuseSpec, pd3dDevice, fTime, fElapsedTime);
+		pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE);
+		V(m_d3dDevice->EndScene());
+	}
 
-		DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
+	RenderPipeline::ClearAllObjects();
+
+	pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
+	pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+
+	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
+	{
+		//DrawHelper::EndLine(m_d3dDevice, Matrix4::identity);
 
 		m_UIRender->Begin();
 		m_UIRender->SetWorld(Matrix4::identity);
 		m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 		OnUIRender(m_UIRender.get(), fTime, fElapsedTime);
 		m_UIRender->End();
-
 		V(m_d3dDevice->EndScene());
 	}
-	RenderPipeline::ClearAllObjects();
 }
 
 void Game::OnUIRender(
@@ -665,6 +686,10 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 			{
 			case Material::PassTypeShadow:
 				return "PassShadow.fx";
+			case Material::PassTypeNormalDepth:
+				return "PassNormalDepth.fx";
+			case Material::PassTypeDiffuseSpec:
+				return "PassDiffuseSpec.fx";
 			}
 			return "PassTextureColor.fx";
 		}

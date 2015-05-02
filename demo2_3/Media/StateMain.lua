@@ -30,10 +30,10 @@ game.SkyLight.Fz=50
 
 local actor = Actor()
 game:AddActor(actor)
-game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
-game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
-game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
-game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
+-- game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
+-- game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
+-- game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
+-- game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
 game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
 	game:AddMeshComponentList(actor, res2mesh_set(res))
 end)
@@ -43,3 +43,12 @@ end)
 -- game:AddAnimatorFromFile(actor,"mesh/casual19_m_highpoly.skeleton.xml")
 -- local cmp=game:AddSkeletonMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)
 -- cmp.World=Matrix4.Scaling(0.1,0.1,0.1)
+
+-- 光源
+light=SphericalEmitter()
+light.ParticleSizeX:AddNode(0,20,0,0)
+light.ParticleSizeY:AddNode(0,20,0,0)
+light.MaterialName="lightMat"
+local actor = Actor()
+game:AddActor(actor)
+game:AddEmitterComponent(actor, light).World=Matrix4.Translation(0,2.5,0)

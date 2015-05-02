@@ -64,6 +64,8 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
+	my::Texture2DPtr m_NormalRT;
+
 	typedef boost::tuple<Material::MeshType, bool, unsigned int> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;

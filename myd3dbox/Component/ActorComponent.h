@@ -143,14 +143,6 @@ class EmitterComponent
 	: public RenderComponent
 {
 public:
-	enum WorldType
-	{
-		WorldTypeWorld,
-		WorldTypeLocal,
-	};
-
-	WorldType m_WorldType;
-
 	enum DirectionType
 	{
 		DirectionTypeCamera,
@@ -167,7 +159,6 @@ public:
 public:
 	EmitterComponent(Actor * Owner)
 		: RenderComponent(Owner)
-		, m_WorldType(WorldTypeWorld)
 		, m_DirectionType(DirectionTypeCamera)
 	{
 	}
