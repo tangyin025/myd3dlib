@@ -366,6 +366,7 @@ void Game::OnFrameRender(
 {
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
 	CComPtr<IDirect3DSurface9> OldRT;
 	V(pd3dDevice->GetRenderTarget(0, &OldRT));
@@ -395,10 +396,10 @@ void Game::OnFrameRender(
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
 		(*actor_iter)->QueryComponent(frustum, this,
-			Material::PassIDToMask(Material::PassTypeNormalDepth) |
-			Material::PassIDToMask(Material::PassTypeDiffuseSpec) |
-			Material::PassIDToMask(Material::PassTypeTextureColor) |
-			Material::PassIDToMask(Material::PassTypeTransparent));
+			Material::PassIDToMask(Material::PassTypeNormalDepth)
+			| Material::PassIDToMask(Material::PassTypeDiffuseSpec)
+			| Material::PassIDToMask(Material::PassTypeTextureColor)
+			| Material::PassIDToMask(Material::PassTypeTransparent));
 	}
 
 	V(pd3dDevice->SetRenderTarget(0, m_NormalRT->GetSurfaceLevel(0)));

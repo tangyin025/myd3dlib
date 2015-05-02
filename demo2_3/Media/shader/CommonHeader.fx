@@ -3,6 +3,7 @@ shared float4x4 g_World;
 shared float4x4 g_View;
 shared float4x4 g_ViewProj;
 shared float4x4 g_InvViewProj;
+shared float2 g_ScreenDim;
 shared float3 g_SkyLightDir;
 shared float4x4 g_SkyLightViewProj;
 shared texture g_MeshTexture;

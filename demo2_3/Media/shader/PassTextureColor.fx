@@ -39,6 +39,7 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
+	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float4 Diffuse = tex2D(DiffuseTextureSampler, DiffuseTex);
     return tex2D(MeshTextureSampler, In.Tex0) * saturate(saturate(-dot(In.Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) + float4(Diffuse.xyz, 1));
 }
