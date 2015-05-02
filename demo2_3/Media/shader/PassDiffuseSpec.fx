@@ -10,16 +10,16 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 {
 	VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
-	Output.Pos2 = TransformPos(In);
-	Output.Light = float4(mul(In.Pos, g_World).xyz, In.Tex1.x * 0.5);
+	Output.Pos2 = Output.Pos;
+	Output.Light = TransformLight(In);
 	return Output;
 }
 
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 {
-	float2 xy = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
-	xy.y = 1 - xy.y;
-	float4 Normal = tex2D(NormalTextureSampler, xy);
+	float2 NormalTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
+	NormalTex.y = 1 - NormalTex.y;
+	float4 Normal = tex2D(NormalTextureSampler, NormalTex);
 	float z = Normal.w;
 	float4 PosWS = mul(float4(In.Pos2.x, In.Pos2.y, z * In.Pos2.w, In.Pos2.w), g_InvViewProj);
 	PosWS.xyz = PosWS.xyz / PosWS.www;

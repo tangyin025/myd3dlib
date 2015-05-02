@@ -25,3 +25,8 @@ float3 TransformNormal(VS_INPUT In)
 {
 	return normalize(mul(In.Normal, (float3x3)g_World));
 }
+
+float4 TransformLight(VS_INPUT In)
+{
+	return float4(0,0,0,0);
+}

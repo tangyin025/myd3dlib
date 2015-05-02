@@ -53,3 +53,8 @@ float3 TransformNormal(VS_INPUT In)
 {
 	return g_ParticleDir;
 }
+
+float4 TransformLight(VS_INPUT In)
+{
+	return float4(mul(In.Pos, g_World).xyz, In.Tex1.x * 0.5);
+}

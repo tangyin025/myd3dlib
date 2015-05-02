@@ -8,6 +8,7 @@ shared float4x4 g_SkyLightViewProj;
 shared texture g_MeshTexture;
 shared texture g_ShadowTexture;
 shared texture g_NormalTexture;
+shared texture g_DiffuseTexture;
 
 sampler MeshTextureSampler = sampler_state
 {
@@ -28,6 +29,14 @@ sampler ShadowTextureSampler = sampler_state
 sampler NormalTextureSampler = sampler_state
 {
 	Texture = <g_NormalTexture>;
+	MipFilter = LINEAR;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
+};
+
+sampler DiffuseTextureSampler = sampler_state
+{
+	Texture = <g_DiffuseTexture>;
 	MipFilter = LINEAR;
 	MinFilter = LINEAR;
 	MagFilter = LINEAR;
