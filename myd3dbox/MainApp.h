@@ -32,19 +32,11 @@ public:
 
 	my::EffectPtr m_SimpleSample;
 
-	typedef boost::tuple<Material::MeshType, bool, const Material *> ShaderCacheKey;
-
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
-
-	ShaderCacheMap m_ShaderCache;
-
 	BOOL CreateD3DDevice(HWND hWnd);
 
 	BOOL ResetD3DDevice(void);
 
 	void DestroyD3DDevice(void);
-
-	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
 
 	my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 

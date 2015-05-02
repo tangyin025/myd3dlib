@@ -625,11 +625,6 @@ bool Game::ExecuteCode(const char * code) throw()
 	return true;
 }
 
-void Game::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
-{
-	m_ShaderCache[key] = boost::dynamic_pointer_cast<my::Effect>(res);
-}
-
 static size_t hash_value(const Game::ShaderCacheKey & key)
 {
 	size_t seed = 0;
@@ -684,8 +679,12 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 		"		VertexShader = compile vs_2_0 RenderSceneVS();\n"
 		"		PixelShader  = compile ps_2_0 RenderScenePS();}}", Header::vs_header(mesh_type), Header::ps_header(PassID));
 
+	std::vector<D3DXMACRO> macros;
+	D3DXMACRO end = {0};
+	macros.push_back(end);
+
 	my::EffectPtr shader(new my::Effect());
-	shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), NULL, this, 0, m_EffectPool);
+	shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), &macros[0], this, 0, m_EffectPool);
 	m_ShaderCache.insert(std::make_pair(key, shader));
 	return shader.get();
 }

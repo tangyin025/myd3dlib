@@ -146,59 +146,8 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
-void CMainApp::OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key)
-{
-	m_ShaderCache[key] = boost::dynamic_pointer_cast<my::Effect>(res);
-}
-
-static size_t hash_value(const CMainApp::ShaderCacheKey & key)
-{
-	size_t seed = 0;
-	boost::hash_combine(seed, key.get<0>());
-	boost::hash_combine(seed, key.get<1>());
-	boost::hash_combine(seed, key.get<2>());
-	return seed;
-}
-
 my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material)
 {
-	_ASSERT(material);
-
-	ShaderCacheKey key(mesh_type, bInstance, material);
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
-	if (shader_iter != m_ShaderCache.end())
-	{
-		return shader_iter->second.get();
-	}
-
-	std::string macros, path;
-	switch (mesh_type)
-	{
-	case Material::MeshTypeParticle:
-		path = "shader/Particle.fx";
-		break;
-
-	case Material::MeshTypeStatic:
-		path = "shader/SimpleSample.fx";
-		break;
-
-	case Material::MeshTypeAnimation:
-		path = "shader/SimpleSample.fx";
-		macros += "VS_SKINED_DQ 1 ";
-		break;
-	};
-
-	if (bInstance)
-	{
-		macros += "VS_INSTANCE 1 ";
-	}
-
-	std::string key_str = ActorResourceMgr::EffectIORequest::BuildKey(path, macros);
-	my::ResourceCallback callback = boost::bind(&CMainApp::OnShaderLoaded, this, _1, key);
-	LoadResourceAsync(key_str, my::IORequestPtr(new ActorResourceMgr::EffectIORequest(callback, path, macros, this)));
-
-	m_ShaderCache.insert(std::make_pair(key, my::EffectPtr()));
-
 	return NULL;
 }
 

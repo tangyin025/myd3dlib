@@ -161,8 +161,6 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	void OnShaderLoaded(my::DeviceRelatedObjectBasePtr res, ShaderCacheKey key);
-
 	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 
 	void AddActor(ActorPtr actor);

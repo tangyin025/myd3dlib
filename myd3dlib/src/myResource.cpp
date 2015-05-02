@@ -83,10 +83,10 @@ FileIStream::~FileIStream(void)
 IStreamPtr FileIStream::Open(LPCTSTR pFilename)
 {
 	int fp;
-	errno_t err = _tsopen_s(&fp, pFilename, _O_RDONLY | _O_BINARY, _SH_DENYWR, _S_IREAD);
+	errno_t err = _tsopen_s(&fp, pFilename, _O_RDONLY | _O_BINARY, _SH_DENYWR, 0);
 	if (0 != err)
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));
 	}
 	return IStreamPtr(new FileIStream(fp));
 }
@@ -125,10 +125,10 @@ FileOStream::~FileOStream(void)
 OStreamPtr FileOStream::Open(LPCTSTR pFilename)
 {
 	int fp;
-	errno_t err = _tsopen_s(&fp, pFilename, _O_RDWR | _O_BINARY, _SH_DENYRW, _S_IREAD | _S_IWRITE);
+	errno_t err = _tsopen_s(&fp, pFilename, _O_WRONLY | _O_BINARY | _O_CREAT | _O_TRUNC, _SH_DENYRW, _S_IWRITE);
 	if (0 != err)
 	{
-		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %s", pFilename));
+		THROW_CUSEXCEPTION(str_printf("cannot open file archive: %S", pFilename));
 	}
 	return OStreamPtr(new FileOStream(fp));
 }
