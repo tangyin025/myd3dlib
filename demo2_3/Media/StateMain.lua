@@ -21,10 +21,10 @@ game.SkyLight.Fz=50
 
 local actor = Actor()
 game:AddActor(actor)
--- game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
--- game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
--- game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
--- game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
+game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
+game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
+game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
+game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
 game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
 	game:AddMeshComponentList(actor, res2mesh_set(res))
 end)
@@ -32,8 +32,8 @@ end)
 local actor = Actor()
 game:AddActor(actor)
 game:AddAnimatorFromFile(actor,"mesh/casual19_m_highpoly.skeleton.xml")
-local cmp=game:AddMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)
-cmp.World=Matrix4.Scaling(0.1,0.1,0.1)
+local cmp=game:AddSkeletonMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)
+cmp.World=Matrix4.Scaling(0.05,0.05,0.05)
 
 -- 光源
 local light={}
@@ -43,42 +43,42 @@ light[1].ParticleSizeY:AddNode(0,30,0,0)
 light[1].ParticleColorR:AddNode(0,255,0,0)
 light[1].ParticleColorG:AddNode(0,0,0,0)
 light[1].ParticleColorB:AddNode(0,0,0,0)
-light[1].MaterialName="lightMat"
+light[1].MaterialName="light1"
 light[2]=SphericalEmitter()
 light[2].ParticleSizeX:AddNode(0,30,0,0)
 light[2].ParticleSizeY:AddNode(0,30,0,0)
 light[2].ParticleColorR:AddNode(0,0,0,0)
 light[2].ParticleColorG:AddNode(0,255,0,0)
 light[2].ParticleColorB:AddNode(0,0,0,0)
-light[2].MaterialName="lightMat"
+light[2].MaterialName="light1"
 light[3]=SphericalEmitter()
 light[3].ParticleSizeX:AddNode(0,30,0,0)
 light[3].ParticleSizeY:AddNode(0,30,0,0)
 light[3].ParticleColorR:AddNode(0,0,0,0)
 light[3].ParticleColorG:AddNode(0,0,0,0)
 light[3].ParticleColorB:AddNode(0,255,0,0)
-light[3].MaterialName="lightMat"
+light[3].MaterialName="light1"
 light[4]=SphericalEmitter()
 light[4].ParticleSizeX:AddNode(0,30,0,0)
 light[4].ParticleSizeY:AddNode(0,30,0,0)
 light[4].ParticleColorR:AddNode(0,255,0,0)
 light[4].ParticleColorG:AddNode(0,255,0,0)
 light[4].ParticleColorB:AddNode(0,0,0,0)
-light[4].MaterialName="lightMat"
+light[4].MaterialName="light1"
 light[5]=SphericalEmitter()
 light[5].ParticleSizeX:AddNode(0,30,0,0)
 light[5].ParticleSizeY:AddNode(0,30,0,0)
 light[5].ParticleColorR:AddNode(0,255,0,0)
 light[5].ParticleColorG:AddNode(0,0,0,0)
 light[5].ParticleColorB:AddNode(0,255,0,0)
-light[5].MaterialName="lightMat"
+light[5].MaterialName="light1"
 light[6]=SphericalEmitter()
 light[6].ParticleSizeX:AddNode(0,30,0,0)
 light[6].ParticleSizeY:AddNode(0,30,0,0)
 light[6].ParticleColorR:AddNode(0,0,0,0)
 light[6].ParticleColorG:AddNode(0,255,0,0)
 light[6].ParticleColorB:AddNode(0,255,0,0)
-light[6].MaterialName="lightMat"
+light[6].MaterialName="light1"
 local actor = Actor()
 game:AddActor(actor)
 cmp[1]=game:AddEmitterComponent(actor, light[1])

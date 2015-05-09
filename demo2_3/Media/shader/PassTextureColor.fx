@@ -1,5 +1,3 @@
-#define SHADOW_MAP_SIZE 1024
-#define SHADOW_EPSILON 0.00110f
 
 struct VS_OUTPUT
 {

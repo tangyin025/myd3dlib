@@ -56,7 +56,10 @@ void ActorResourceMgr::OnMeshComponentMeshLoaded(
 		for (unsigned int i = 0; i < cmp_ptr->m_Mesh->m_MaterialNameList.size(); i++)
 		{
 			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", cmp_ptr->m_Mesh->m_MaterialNameList[i].c_str()));
-			OnMeshComponentMaterialLoaded(cmp_ptr, mat, i, bInstance);
+			if (mat)
+			{
+				OnMeshComponentMaterialLoaded(cmp_ptr, mat, i, bInstance);
+			}
 		}
 	}
 }
@@ -70,7 +73,10 @@ void ActorResourceMgr::OnEmitterComponentEmitterLoaded(
 	{
 		cmp_ptr->m_Emitter = boost::dynamic_pointer_cast<Emitter>(res);
 		MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", cmp_ptr->m_Emitter->m_MaterialName.c_str()));
-		OnEmitterComponentMaterialLoaded(cmp_ptr, mat);
+		if (mat)
+		{
+			OnEmitterComponentMaterialLoaded(cmp_ptr, mat);
+		}
 	}
 }
 
@@ -129,7 +135,10 @@ void ActorResourceMgr::OnClothComponentMeshLoaded(
 		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 		{
 			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", mesh->m_MaterialNameList[i].c_str()));
-			OnClothComponentMaterialLoaded(cmp_ptr, mat, i);
+			if (mat)
+			{
+				OnClothComponentMaterialLoaded(cmp_ptr, mat, i);
+			}
 		}
 
 		if (cmp_ptr->m_VertexData.empty())
@@ -338,9 +347,9 @@ PxClothFabric * ActorResourceMgr::CreateClothFabric(PxPhysics * sdk, my::IStream
 
 boost::shared_ptr<my::Emitter> ActorResourceMgr::CreateEmitter(const std::string & path)
 {
-	boost::shared_ptr<my::Emitter> ret;
-	if (CheckPath(path))
+	try
 	{
+		EmitterPtr ret;
 		CachePtr cache = OpenIStream(path)->GetWholeCache();
 		membuf mb((char *)&(*cache)[0], cache->size());
 		std::istream istr(&mb);
@@ -348,7 +357,11 @@ boost::shared_ptr<my::Emitter> ActorResourceMgr::CreateEmitter(const std::string
 		ar >> boost::serialization::make_nvp("Emitter", ret);
 		return ret;
 	}
-	return ret;
+	catch (...)
+	{
+		OnResourceFailed(str_printf("CreateEmitter failed: %s", path.c_str()));
+	}
+	return EmitterPtr();
 }
 
 void ActorResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<Emitter> emitter)
@@ -360,9 +373,9 @@ void ActorResourceMgr::SaveEmitter(const std::string & path, boost::shared_ptr<E
 
 boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string & path)
 {
-	MaterialPtr ret;
-	if (CheckPath(path))
+	try
 	{
+		MaterialPtr ret;
 		CachePtr cache = OpenIStream(path)->GetWholeCache();
 		membuf mb((char *)&(*cache)[0], cache->size());
 		std::istream istr(&mb);
@@ -370,7 +383,11 @@ boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string &
 		ar >> boost::serialization::make_nvp("Material", ret);
 		return ret;
 	}
-	return ret;
+	catch (...)
+	{
+		OnResourceFailed(str_printf("CreateMaterial failed: %s", path.c_str()));
+	}
+	return MaterialPtr();
 }
 
 void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<Material> material)

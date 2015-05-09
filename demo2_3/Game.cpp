@@ -76,7 +76,9 @@ void EffectUIRender::DrawVertexList(void)
 }
 
 Game::Game(void)
-	: m_ShadowRT(new Texture2D())
+	: SHADOW_MAP_SIZE(1024)
+	, SHADOW_EPSILON(0.001f)
+	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_NormalRT(new Texture2D())
 	, m_DiffuseRT(new Texture2D())
@@ -219,11 +221,11 @@ HRESULT Game::OnResetDevice(
 	}
 
 	m_ShadowRT->CreateAdjustedTexture(
-		pd3dDevice, 1024, 1024, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
 	m_ShadowDS->CreateDepthStencilSurface(
-		pd3dDevice, 1024, 1024, D3DFMT_D24X8);
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
 	m_NormalRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
@@ -450,7 +452,14 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
 		RenderPipeline::RenderAllObjects(Material::PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
@@ -720,19 +729,24 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 				return "PassNormalDepth.fx";
 			case Material::PassTypeDiffuseSpec:
 				return "PassDiffuseSpec.fx";
+			case Material::PassTypeTransparent:
+				return "PassTransparent.fx";
 			}
 			return "PassTextureColor.fx";
 		}
 	};
 
-	std::string source = str_printf(
-		"#include \"CommonHeader.fx\"\n"
-		"#include \"%s\"\n"
-		"#include \"%s\"\n"
-		"technique RenderScene {\n"
+	std::ostringstream oss;
+	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
+	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
+	oss << "#include \"CommonHeader.fx\"" << std::endl;
+	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
+	oss << "#include \"" << Header::ps_header(PassID) << "\"" << std::endl;
+	oss << "technique RenderScene {\n"
 		"	pass P0 {\n"
 		"		VertexShader = compile vs_2_0 RenderSceneVS();\n"
-		"		PixelShader  = compile ps_2_0 RenderScenePS();}}", Header::vs_header(mesh_type), Header::ps_header(PassID));
+		"		PixelShader  = compile ps_2_0 RenderScenePS();}}";
+	std::string source = oss.str();
 
 	std::vector<D3DXMACRO> macros;
 	D3DXMACRO end = {0};

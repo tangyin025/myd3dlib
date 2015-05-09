@@ -60,6 +60,10 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
+	unsigned int SHADOW_MAP_SIZE;
+
+	float SHADOW_EPSILON;
+
 	my::Texture2DPtr m_ShadowRT;
 
 	my::SurfacePtr m_ShadowDS;

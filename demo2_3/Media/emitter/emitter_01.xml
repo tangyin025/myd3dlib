@@ -157,7 +157,7 @@
 			<m_ParticleAnimFPS>1</m_ParticleAnimFPS>
 			<m_ParticleAnimColumn>4</m_ParticleAnimColumn>
 			<m_ParticleAnimRow>4</m_ParticleAnimRow>
-			<m_MaterialName>lambert1</m_MaterialName>
+			<m_MaterialName>particle1</m_MaterialName>
 		</Emitter>
 		<m_Time>0</m_Time>
 		<m_SpawnInterval>0.0099999998</m_SpawnInterval>
