@@ -366,6 +366,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.def(constructor<>())
+			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def_readwrite("DiffuseTexture", &Material::m_DiffuseTexture)
 			.def_readwrite("NormalTexture", &Material::m_NormalTexture)
 			.def_readwrite("SpecularTexture", &Material::m_SpecularTexture)

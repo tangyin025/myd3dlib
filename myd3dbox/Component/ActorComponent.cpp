@@ -14,7 +14,7 @@ void MeshComponent::QueryMeshWithMeshType(RenderPipeline * pipeline, unsigned in
 			{
 				for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 				{
-					if (Material::PassIDToMask(PassID) & PassMask)
+					if (Material::PassTypeToMask(PassID) & PassMask)
 					{
 						my::Effect * shader = pipeline->QueryShader(mesh_type, PassID, m_bInstance, m_MaterialList[i].get());
 						if (shader)
@@ -79,7 +79,7 @@ void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned i
 		{
 			for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 			{
-				if (Material::PassIDToMask(PassID) & PassMask)
+				if (Material::PassTypeToMask(PassID) & PassMask)
 				{
 					my::Effect * shader = pipeline->QueryShader(Material::MeshTypeStatic, PassID, false, m_MaterialList[i].get());
 					if (shader)
@@ -177,7 +177,7 @@ void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMas
 	{
 		for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 		{
-			if (Material::PassIDToMask(PassID) & PassMask)
+			if (Material::PassTypeToMask(PassID) & PassMask)
 			{
 				my::Effect * shader = pipeline->QueryShader(Material::MeshTypeParticle, PassID, false, m_Material.get());
 				if (shader)

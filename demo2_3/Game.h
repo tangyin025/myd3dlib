@@ -72,7 +72,7 @@ public:
 
 	my::Texture2DPtr m_DiffuseRT;
 
-	typedef boost::tuple<Material::MeshType, bool, unsigned int> ShaderCacheKey;
+	typedef boost::tuple<Material::MeshType, bool, unsigned int, unsigned int> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 

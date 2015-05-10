@@ -8,9 +8,10 @@ class Material
 public:
 	enum MeshType
 	{
-		MeshTypeStatic,
-		MeshTypeAnimation,
-		MeshTypeParticle,
+		MeshTypeStatic			= 0,
+		MeshTypeAnimation		= 1,
+		MeshTypeParticle		= 2,
+		MeshTypeNum
 	};
 
 	enum PassType
@@ -20,7 +21,15 @@ public:
 		PassTypeDiffuseSpec		= 2,
 		PassTypeTextureColor	= 3,
 		PassTypeTransparent		= 4,
-		PassTypeNum				= 5
+		PassTypeNum
+	};
+
+	enum TextureType
+	{
+		TextureTypeDiffuse		= 0,
+		TextureTypeNormal		= 1,
+		TextureTypeSpecular		= 2,
+		TextureTypeNum
 	};
 
 	unsigned int m_PassMask;
@@ -31,9 +40,12 @@ public:
 
 	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_SpecularTexture;
 
+	unsigned int m_TextureMask;
+
 public:
 	Material(void)
 		: m_PassMask(0)
+		, m_TextureMask(0)
 	{
 	}
 
@@ -49,6 +61,24 @@ public:
 	{
 	}
 
+	static unsigned int PassTypeToMask(unsigned int pass_type)
+	{
+		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
+	}
+
+	static unsigned int TextureTypeToMask(unsigned int texture_type)
+	{
+		_ASSERT(texture_type >= 0 && texture_type < TextureTypeNum); return 1 << texture_type;
+	}
+
+	void BuildTextureMask(void)
+	{
+		m_TextureMask = 0;
+		m_TextureMask |= m_DiffuseTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeDiffuse);
+		m_TextureMask |= m_NormalTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeNormal);
+		m_TextureMask |= m_SpecularTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeSpecular);
+	}
+
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -56,11 +86,8 @@ public:
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_DiffuseTexture), m_DiffuseTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_NormalTexture), m_NormalTexture.first);
 		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_SpecularTexture), m_SpecularTexture.first);
-	}
 
-	static unsigned int PassIDToMask(unsigned int PassID)
-	{
-		_ASSERT(PassID < 32); return 1 << PassID;
+		BuildTextureMask();
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
