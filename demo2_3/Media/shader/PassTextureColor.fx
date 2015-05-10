@@ -3,7 +3,6 @@ struct VS_OUTPUT
 {
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
-	float3 Normal			: TEXCOORD1;
 	float4 Pos2				: TEXCOORD2;
 	float4 PosLS			: TEXCOORD5;
 };
@@ -27,7 +26,6 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
     VS_OUTPUT Output;
 	Output.Pos = TransformPos(In);
 	Output.Tex0 = TransformUV(In);
-	Output.Normal = TransformNormal(In);
 	Output.Pos2 = Output.Pos;
 	Output.PosLS = mul(TransformPosWS(In), g_SkyLightViewProj);
     return Output;    
@@ -39,5 +37,6 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float4 Diffuse = tex2D(DiffuseRTSampler, DiffuseTex);
-    return tex2D(MeshTextureSampler, In.Tex0) * saturate(saturate(-dot(In.Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) + float4(Diffuse.xyz, 1));
+	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
+    return tex2D(MeshTextureSampler, In.Tex0) * saturate(saturate(-dot(Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) + float4(Diffuse.xyz, 1));
 }

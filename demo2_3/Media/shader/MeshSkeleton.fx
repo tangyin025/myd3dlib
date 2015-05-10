@@ -78,7 +78,7 @@ float3 TransformTangent(VS_INPUT In)
 	float2x4 dual;
 	GetSkinnedDual(In, dual);
 	float3 Tangent = In.Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Tangent.xyz) + dual[0].w * In.Tangent.xyz);;
-	return normalize(mul(tangent, (float3x3)g_World));
+	return normalize(mul(Tangent, (float3x3)g_World));
 }
 #endif
 

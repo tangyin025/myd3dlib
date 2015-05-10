@@ -529,7 +529,7 @@
 		</vertexbuffer>
 	</sharedgeometry>
 	<submeshes>
-		<submesh material="lambert1" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
+		<submesh material="lambert2" use32bitindexes="true" usesharedvertices="true" operationtype="triangle_list">
 			<faces count="120">
 				<face v1="0" v2="1" v3="20"/>
 				<face v1="20" v2="1" v3="21"/>

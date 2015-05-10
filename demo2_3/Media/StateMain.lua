@@ -19,6 +19,11 @@ game.SkyLight.Height=50
 game.SkyLight.Nz=-50
 game.SkyLight.Fz=50
 
+-- local actor = Actor()
+-- game:AddActor(actor)
+-- game:AddMeshComponentFromFile(actor,"mesh/plane.mesh.xml",false)
+-- game:AddMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",true).World=Matrix4.Scaling(0.05,0.05,0.05)
+
 local actor = Actor()
 game:AddActor(actor)
 game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
@@ -37,6 +42,7 @@ cmp.World=Matrix4.Scaling(0.05,0.05,0.05)
 
 -- 光源
 local light={}
+local cmp={}
 light[1]=SphericalEmitter()
 light[1].ParticleSizeX:AddNode(0,30,0,0)
 light[1].ParticleSizeY:AddNode(0,30,0,0)

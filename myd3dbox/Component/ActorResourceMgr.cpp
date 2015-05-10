@@ -19,6 +19,17 @@ void ActorResourceMgr::OnMaterialDiffuseTextureLoaded(
 	}
 }
 
+void ActorResourceMgr::OnMaterialNormalTextureLoaded(
+	boost::weak_ptr<Material> weak_mat_ptr,
+	my::DeviceRelatedObjectBasePtr res)
+{
+	MaterialPtr mat_ptr = weak_mat_ptr.lock();
+	if (mat_ptr)
+	{
+		mat_ptr->m_NormalTexture.second = boost::dynamic_pointer_cast<BaseTexture>(res);
+	}
+}
+
 void ActorResourceMgr::OnMeshComponentMaterialLoaded(
 	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
@@ -33,12 +44,6 @@ void ActorResourceMgr::OnMeshComponentMaterialLoaded(
 			cmp_ptr->m_MaterialList.resize(AttribId + 1);
 		}
 		cmp_ptr->m_MaterialList[AttribId] = boost::dynamic_pointer_cast<Material>(res);
-
-		if (!cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
-		{
-			LoadTextureAsync(cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
-				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
-		}
 	}
 }
 
@@ -88,12 +93,6 @@ void ActorResourceMgr::OnEmitterComponentMaterialLoaded(
 	if (cmp_ptr)
 	{
 		cmp_ptr->m_Material = boost::dynamic_pointer_cast<Material>(res);
-
-		if (!cmp_ptr->m_Material->m_DiffuseTexture.first.empty())
-		{
-			LoadTextureAsync(cmp_ptr->m_Material->m_DiffuseTexture.first,
-				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_Material, _1));
-		}
 	}
 }
 
@@ -110,12 +109,6 @@ void ActorResourceMgr::OnClothComponentMaterialLoaded(
 			cmp_ptr->m_MaterialList.resize(AttribId + 1);
 		}
 		cmp_ptr->m_MaterialList[AttribId] = boost::dynamic_pointer_cast<Material>(res);
-
-		if (!cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first.empty())
-		{
-			LoadTextureAsync(cmp_ptr->m_MaterialList[AttribId]->m_DiffuseTexture.first,
-				boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, cmp_ptr->m_MaterialList[AttribId], _1));
-		}
 	}
 }
 
@@ -381,6 +374,16 @@ boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string &
 		std::istream istr(&mb);
 		boost::archive::xml_iarchive ar(istr);
 		ar >> boost::serialization::make_nvp("Material", ret);
+
+		if (!ret->m_DiffuseTexture.first.empty())
+		{
+			LoadTextureAsync(ret->m_DiffuseTexture.first, boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, ret, _1));
+		}
+
+		if (!ret->m_NormalTexture.first.empty())
+		{
+			LoadTextureAsync(ret->m_NormalTexture.first, boost::bind(&ActorResourceMgr::OnMaterialNormalTextureLoaded, this, ret, _1));
+		}
 		return ret;
 	}
 	catch (...)

@@ -6,6 +6,10 @@ using namespace my;
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
+	if (m_NormalTexture.second)
+	{
+		shader->SetTexture("g_NormalTexture", m_NormalTexture.second);
+	}
 }
 
 HRESULT RenderPipeline::OnCreateDevice(

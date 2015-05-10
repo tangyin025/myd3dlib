@@ -55,10 +55,12 @@ float3 TransformNormal(VS_INPUT In)
 	return g_ParticleDir;
 }
 
+#ifdef TEXTURE_TYPE_NORMAL
 float3 TransformTangent(VS_INPUT In)
 {
 	return float3(0);
 }
+#endif
 
 float4 TransformLight(VS_INPUT In)
 {
