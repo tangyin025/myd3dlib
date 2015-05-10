@@ -17,7 +17,7 @@ float GetLigthAmount(float4 PosLS)
 	float x, y;
 	for(x = -0.0; x <= 1.0; x += 1.0)
 		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowTextureSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLS.z / PosLS.w ? 0.0f : 1.0f;
+			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLS.z / PosLS.w ? 0.0f : 1.0f;
 			
 	return LightAmount / 4;
 }
@@ -38,6 +38,6 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
-	float4 Diffuse = tex2D(DiffuseTextureSampler, DiffuseTex);
+	float4 Diffuse = tex2D(DiffuseRTSampler, DiffuseTex);
     return tex2D(MeshTextureSampler, In.Tex0) * saturate(saturate(-dot(In.Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) + float4(Diffuse.xyz, 1));
 }

@@ -420,7 +420,7 @@ void Game::OnFrameRender(
 		m_SimpleSample->SetMatrix("g_InvViewProj", m_Camera.m_InverseViewProj);
 		m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLight.m_View.column<2>().xyz); // ! RH -z
 		m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLight.m_ViewProj);
-		m_SimpleSample->SetTexture("g_ShadowTexture", m_ShadowRT);
+		m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT);
 		RenderPipeline::RenderAllObjects(Material::PassTypeNormalDepth, pd3dDevice, fTime, fElapsedTime);
 		V(m_d3dDevice->EndScene());
 	}
@@ -429,7 +429,7 @@ void Game::OnFrameRender(
 	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		m_SimpleSample->SetTexture("g_NormalTexture", m_NormalRT);
+		m_SimpleSample->SetTexture("g_NormalRT", m_NormalRT);
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
@@ -445,7 +445,7 @@ void Game::OnFrameRender(
 	V(m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
 	if(SUCCEEDED(hr = m_d3dDevice->BeginScene()))
 	{
-		m_SimpleSample->SetTexture("g_DiffuseTexture", m_DiffuseRT);
+		m_SimpleSample->SetTexture("g_DiffuseRT", m_DiffuseRT);
 		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
 		V(m_d3dDevice->EndScene());
 	}
@@ -772,6 +772,13 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 	}
 	D3DXMACRO end = {0};
 	macros.push_back(end);
+
+	CComPtr<ID3DXBuffer> buff;
+	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), &macros[0], this, &buff, NULL)))
+	{
+		OStreamPtr ostr = FileOStream::Open(str_printf(_T("shader_%u_%u_%u_%u.fx"), bInstance, mesh_type, PassID, material->m_TextureMask).c_str());
+		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
+	}
 
 	EffectPtr shader(new Effect());
 	try

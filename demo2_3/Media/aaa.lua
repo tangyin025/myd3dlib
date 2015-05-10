@@ -21,49 +21,36 @@ emitter.ParticleSizeY:AddNode(0,1,0,0)
 emitter.ParticleSizeY:AddNode(10,10,0,0)
 emitter.ParticleAnimColumn=4
 emitter.ParticleAnimRow=4
-emitter.MaterialName="lambert1"
+emitter.MaterialName="particle1"
 game:SaveEmitter("emitter/emitter_01.xml", emitter)
 
 material=Material()
+material.PassMask=11
 material.DiffuseTexture.first="texture/casual19_m_35.jpg"
 material.NormalTexture.first="texture/casual19_m_35_normal.png"
 material.SpecularTexture.first="texture/casual19_m_35_spec.png"
 game:SaveMaterial("material/casual19_m_highpolyPhong.xml", material)
 
 material=Material()
+material.PassMask=11
 material.DiffuseTexture.first="texture/sportive03_f_30_hair.jpg"
 material.NormalTexture.first="texture/sportive03_f_30_hair_normal.png"
 material.SpecularTexture.first="texture/sportive03_f_30_hair_spec.png"
 game:SaveMaterial("material/sportive03_f_highpoly_hairPhong.xml", material)
 
 material=Material()
+material.PassMask=11
 material.DiffuseTexture.first="texture/sportive03_f_30.jpg"
 material.NormalTexture.first="texture/sportive03_f_30_normal.png"
 material.SpecularTexture.first="texture/sportive03_f_30_spec.png"
 game:SaveMaterial("material/sportive03_f_highpolyPhong.xml", material)
 
 material=Material()
+material.PassMask=11
 material.DiffuseTexture.first="texture/Checker.bmp"
--- material.NormalTexture.first="texture/casual19_m_35_normal.png"
--- material.SpecularTexture.first="texture/casual19_m_35_spec.png"
 game:SaveMaterial("material/lambert1.xml", material)
-
--- material=Material()
--- material.Effect=game:LoadEffect("shader/WaterEffect.fx", EffectMacroPairList())
--- material:SetTexture("g_WaterNormalTexture",game:LoadTexture("texture/WaterNormal2.png")
--- material:SetTexture("g_CubeTexture",game:LoadTexture("texture/galileo_cross.dds"))
--- game:SaveMaterial("material/waterPhong.xml", material)
-
-material=Material()
-material.DiffuseTexture.first="texture/TileWall.dds"
-material.NormalTexture.first="texture/casual19_m_35_normal.png"
-material.SpecularTexture.first="texture/casual19_m_35_spec.png"
-game:SaveMaterial("brick.xml", material)
-
-material=Material()
-material.DiffuseTexture.first="texture/Plaster_Tileable.dds"
-material.NormalTexture.first="texture/casual19_m_35_normal.png"
-material.SpecularTexture.first="texture/casual19_m_35_spec.png"
-game:SaveMaterial("stone.xml", material)
+game:SaveMaterial("material/lambert2.xml", material)
+game:SaveMaterial("material/lambert3.xml", material)
+game:SaveMaterial("material/lambert4.xml", material)
 
 -- game:InsertEmitter(game:LoadEmitter("emitter/emitter_01.xml"))

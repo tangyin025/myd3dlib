@@ -22,7 +22,7 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	float2 NormalTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	NormalTex.y = 1 - NormalTex.y;
 	NormalTex = NormalTex + float2(0.5, 0.5) / g_ScreenDim;
-	float4 Normal = tex2D(NormalTextureSampler, NormalTex);
+	float4 Normal = tex2D(NormalRTSampler, NormalTex);
 	float z = Normal.w;
 	float4 PosWS = mul(float4(In.Pos2.x, In.Pos2.y, z * In.Pos2.w, In.Pos2.w), g_InvViewProj);
 	PosWS.xyz = PosWS.xyz / PosWS.www;

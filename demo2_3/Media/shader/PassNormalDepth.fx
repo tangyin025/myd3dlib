@@ -4,6 +4,10 @@ struct VS_OUTPUT
 	float4 Pos				: POSITION;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: TEXCOORD1;
+#ifdef TEXTURE_TYPE_NORMAL
+	float3 Tangent			: TEXCOORD2;
+	float3 Binormal			: TEXCOORD3;
+#endif
 };
 
 VS_OUTPUT RenderSceneVS( VS_INPUT In )
@@ -12,6 +16,10 @@ VS_OUTPUT RenderSceneVS( VS_INPUT In )
 	Output.Pos = TransformPos(In);
 	Output.Tex0 = Output.Pos.zw;
 	Output.Normal = TransformNormal(In);
+#ifdef TEXTURE_TYPE_NORMAL
+	Output.Tangent = TransformTangent(In);
+	Output.Binormal = cross(Output.Normal, Output.Tangent);
+#endif
 	return Output;
 }
 

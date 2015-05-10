@@ -7,6 +7,9 @@ struct VS_INPUT
 	float4 Color			: COLOR0;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: NORMAL;
+#ifdef TEXTURE_TYPE_NORMAL
+	float3 Tangent			: TANGENT;
+#endif
 	float4 BlendWeights		: BLENDWEIGHT;
 	float4 BlendIndices		: BLENDINDICES;
 };
@@ -39,29 +42,15 @@ void GetSkinnedDual( VS_INPUT In,
 	dual = dual / length;
 }
 
-void GetSkinnedPos( VS_INPUT In,
-					out float4 oPos)
-{
-	float2x4 dual;
-	GetSkinnedDual(In, dual);
-	oPos.xyz = In.Pos.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Pos.xyz) + dual[0].w * In.Pos.xyz);
-	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
-	oPos.xyz += translation;
-	oPos.w = 1;
-}
-
-void GetSkinnedNormal( VS_INPUT In,
-					   out float3 oNormal)
-{
-	float2x4 dual;
-	GetSkinnedDual(In, dual);
-	oNormal = In.Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Normal.xyz) + dual[0].w * In.Normal.xyz);
-}
-
 float4 TransformPosWS(VS_INPUT In)
 {
 	float4 pos;
-	GetSkinnedPos(In, pos);
+	float2x4 dual;
+	GetSkinnedDual(In, dual);
+	pos.xyz = In.Pos.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Pos.xyz) + dual[0].w * In.Pos.xyz);
+	float3 translation = 2.0 * (dual[0].w * dual[1].xyz - dual[1].w * dual[0].xyz + cross(dual[0].xyz, dual[1].xyz));
+	pos.xyz += translation;
+	pos.w = 1;
     return mul(pos, g_World);
 }
 
@@ -77,10 +66,21 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
-	float3 normal;
-	GetSkinnedNormal(In, normal);
+	float2x4 dual;
+	GetSkinnedDual(In, dual);
+	float3 normal = In.Normal.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Normal.xyz) + dual[0].w * In.Normal.xyz);
 	return normalize(mul(normal, (float3x3)g_World));
 }
+
+#ifdef TEXTURE_TYPE_NORMAL
+float3 TransformTangent(VS_INPUT In)
+{
+	float2x4 dual;
+	GetSkinnedDual(In, dual);
+	float3 Tangent = In.Tangent.xyz + 2.0 * cross(dual[0].xyz, cross(dual[0].xyz, In.Tangent.xyz) + dual[0].w * In.Tangent.xyz);;
+	return normalize(mul(tangent, (float3x3)g_World));
+}
+#endif
 
 float4 TransformLight(VS_INPUT In)
 {
