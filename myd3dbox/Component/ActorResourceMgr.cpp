@@ -30,6 +30,17 @@ void ActorResourceMgr::OnMaterialNormalTextureLoaded(
 	}
 }
 
+void ActorResourceMgr::OnMaterialSpecularTextureLoaded(
+	boost::weak_ptr<Material> weak_mat_ptr,
+	my::DeviceRelatedObjectBasePtr res)
+{
+	MaterialPtr mat_ptr = weak_mat_ptr.lock();
+	if (mat_ptr)
+	{
+		mat_ptr->m_SpecularTexture.second = boost::dynamic_pointer_cast<BaseTexture>(res);
+	}
+}
+
 void ActorResourceMgr::OnMeshComponentMaterialLoaded(
 	boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 	my::DeviceRelatedObjectBasePtr res,
@@ -383,6 +394,11 @@ boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string &
 		if (!ret->m_NormalTexture.first.empty())
 		{
 			LoadTextureAsync(ret->m_NormalTexture.first, boost::bind(&ActorResourceMgr::OnMaterialNormalTextureLoaded, this, ret, _1));
+		}
+
+		if (!ret->m_SpecularTexture.first.empty())
+		{
+			LoadTextureAsync(ret->m_SpecularTexture.first, boost::bind(&ActorResourceMgr::OnMaterialSpecularTextureLoaded, this, ret, _1));
 		}
 		return ret;
 	}

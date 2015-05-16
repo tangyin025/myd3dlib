@@ -94,6 +94,8 @@ public:
 
 	my::OrthoCamera m_SkyLight;
 
+	my::Vector4 m_SkyLightColor;
+
 	ActorPtrList m_Actors;
 
 public:

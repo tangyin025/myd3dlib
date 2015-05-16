@@ -30,6 +30,9 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	float3 LightVec = In.Light.xyz - PosWS.xyz;
 	float LightLen = length(LightVec);
 	LightVec = LightVec / LightLen;
-	float diffuse = saturate(dot(Normal.xyz, LightVec)) * saturate(1 - LightLen / In.Light.w);
-	return float4(In.Color.xyz * diffuse, 1);
+	float diffuse = saturate(dot(Normal.xyz, LightVec));
+	float3 View = g_Eye - PosWS.xyz;
+	float3 Ref = Reflection(Normal.xyz, View);
+	float specular = pow(saturate(dot(Ref, LightVec)), 5);
+	return float4(In.Color.xyz * diffuse, In.Color.w * specular) * saturate(1 - LightLen / In.Light.w);
 }

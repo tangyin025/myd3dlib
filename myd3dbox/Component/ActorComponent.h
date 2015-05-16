@@ -143,15 +143,6 @@ class EmitterComponent
 	: public RenderComponent
 {
 public:
-	enum DirectionType
-	{
-		DirectionTypeCamera,
-		DirectionTypeVertical,
-		DirectionTypeHorizontal,
-	};
-
-	DirectionType m_DirectionType;
-
 	my::EmitterPtr m_Emitter;
 
 	MaterialPtr m_Material;
@@ -159,7 +150,6 @@ public:
 public:
 	EmitterComponent(Actor * Owner)
 		: RenderComponent(Owner)
-		, m_DirectionType(DirectionTypeCamera)
 	{
 	}
 

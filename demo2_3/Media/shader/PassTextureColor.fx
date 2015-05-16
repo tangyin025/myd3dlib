@@ -5,6 +5,9 @@ struct VS_OUTPUT
 	float2 Tex0				: TEXCOORD0;
 	float4 Pos2				: TEXCOORD2;
 	float4 PosLS			: TEXCOORD5;
+#ifdef TEXTURE_TYPE_SPECULAR
+	float3 View				: TEXCOORD3;
+#endif
 };
 
 float GetLigthAmount(float4 PosLS)
@@ -24,10 +27,14 @@ float GetLigthAmount(float4 PosLS)
 VS_OUTPUT RenderSceneVS( VS_INPUT In )
 {
     VS_OUTPUT Output;
-	Output.Pos = TransformPos(In);
+	float4 PosWS = TransformPosWS(In);
+	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
 	Output.Pos2 = Output.Pos;
 	Output.PosLS = mul(TransformPosWS(In), g_SkyLightViewProj);
+#ifdef TEXTURE_TYPE_SPECULAR
+	Output.View = g_Eye - PosWS;
+#endif
     return Output;    
 }
 
@@ -36,7 +43,16 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
-	float4 Diffuse = tex2D(DiffuseRTSampler, DiffuseTex);
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
-    return tex2D(MeshTextureSampler, In.Tex0) * saturate(saturate(-dot(Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) + float4(Diffuse.xyz, 1));
+	float3 DiffuseSky = saturate(-dot(Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightColor.xyz;
+	float4 Diffuse = tex2D(DiffuseRTSampler, DiffuseTex);
+	Diffuse.xyz += DiffuseSky;
+	Diffuse.xyz *= tex2D(MeshTextureSampler, In.Tex0).xyz;
+#ifdef TEXTURE_TYPE_SPECULAR
+	float3 Ref = Reflection(Normal.xyz, In.View);
+	float SpecularSky = pow(saturate(dot(Ref, -g_SkyLightDir)), 5) * g_SkyLightColor.w;
+	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * (Diffuse.w + SpecularSky);
+	Diffuse.xyz += Specular;
+#endif
+    return float4(Diffuse.xyz, 1);
 }

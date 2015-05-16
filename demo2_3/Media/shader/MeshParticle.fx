@@ -1,7 +1,4 @@
 
-float3 g_ParticleDir;
-float3 g_ParticleUp;
-float3 g_ParticleRight;
 float2 g_AnimationColumnRow;
 
 struct VS_INPUT
@@ -34,9 +31,12 @@ float3 RotateAngleAxis(float3 v, float a, float3 N)
 
 float4 TransformPosWS(VS_INPUT In)
 {
+	float3 Right = float3(g_View[0][0],g_View[1][0],g_View[2][0]);
+	float3 Up = float3(g_View[0][1],g_View[1][1],g_View[2][1]);
+	float3 Dir = float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 	float4 Off = float4(RotateAngleAxis(
-		g_ParticleUp * lerp(In.Tex1.y * 0.5, -In.Tex1.y * 0.5, In.Tex0.y) + g_ParticleRight * lerp(-In.Tex1.x * 0.5, In.Tex1.x * 0.5, In.Tex0.x),
-		In.Tex1.z, g_ParticleDir), 0);
+		Up * lerp(In.Tex1.y * 0.5, -In.Tex1.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex1.x * 0.5, In.Tex1.x * 0.5, In.Tex0.x),
+		In.Tex1.z, Dir), 0);
 	return Off + mul(In.Pos, g_World);
 }
 
@@ -52,7 +52,7 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
-	return g_ParticleDir;
+	return -float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 }
 
 #ifdef TEXTURE_TYPE_NORMAL

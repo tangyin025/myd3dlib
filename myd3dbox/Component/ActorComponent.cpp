@@ -191,29 +191,7 @@ void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMas
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	shader->SetMatrix("g_World", m_World);
-
-	Vector3 Up, Right, Dir;
-	const Matrix4 View = shader->GetMatrix("g_View");
-	switch (m_DirectionType)
-	{
-	case DirectionTypeCamera:
-		Dir = View.column<2>().xyz;
-		Up = View.column<1>().xyz;
-		Right = View.column<0>().xyz;
-		break;
-
-	case DirectionTypeVertical:
-		Up = Vector3(0,1,0);
-		Right = Up.cross(View.column<2>().xyz);
-		Dir = Right.cross(Up);
-		break;
-	}
-
-	shader->SetVector("g_ParticleDir", Dir);
-	shader->SetVector("g_ParticleUp", Up);
-	shader->SetVector("g_ParticleRight", Right);
-
 	_ASSERT(0 == AttribId);
+	shader->SetMatrix("g_World", m_World);
 	m_Material->OnSetShader(shader, AttribId);
 }

@@ -10,6 +10,10 @@ void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 	{
 		shader->SetTexture("g_NormalTexture", m_NormalTexture.second);
 	}
+	if (m_SpecularTexture.second)
+	{
+		shader->SetTexture("g_SpecularTexture", m_SpecularTexture.second);
+	}
 }
 
 HRESULT RenderPipeline::OnCreateDevice(

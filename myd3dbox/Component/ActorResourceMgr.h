@@ -17,6 +17,10 @@ protected:
 		boost::weak_ptr<Material> weak_mat_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
+	void OnMaterialSpecularTextureLoaded(
+		boost::weak_ptr<Material> weak_mat_ptr,
+		my::DeviceRelatedObjectBasePtr res);
+
 	void OnMeshComponentMaterialLoaded(
 		boost::weak_ptr<MeshComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res,
