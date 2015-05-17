@@ -88,6 +88,20 @@ HRESULT RenderPipeline::OnResetDevice(
 
 	_ASSERT(!m_MeshInstanceData.m_ptr);
 	m_MeshInstanceData.CreateVertexBuffer(pd3dDevice, m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
+
+	m_ShadowRT->CreateAdjustedTexture(
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+
+	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
+	m_ShadowDS->CreateDepthStencilSurface(
+		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
+
+	m_NormalRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_DiffuseRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
 	return S_OK;
 }
 
@@ -97,6 +111,10 @@ void RenderPipeline::OnLostDevice(void)
 	m_ParticleIndexBuffer.OnDestroyDevice();
 	m_ParticleInstanceData.OnDestroyDevice();
 	m_MeshInstanceData.OnDestroyDevice();
+	m_ShadowRT->OnDestroyDevice();
+	m_ShadowDS->OnDestroyDevice();
+	m_NormalRT->OnDestroyDevice();
+	m_DiffuseRT->OnDestroyDevice();
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -120,6 +138,96 @@ void RenderPipeline::OnDestroyDevice(void)
 	}
 
 	m_ParticleDecl.Release();
+}
+
+void RenderPipeline::OnFrameRender(
+	IDirect3DDevice9 * pd3dDevice,
+	double fTime,
+	float fElapsedTime)
+{
+	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
+	HRESULT hr;
+	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+
+	CComPtr<IDirect3DSurface9> OldRT;
+	V(pd3dDevice->GetRenderTarget(0, &OldRT));
+	CComPtr<IDirect3DSurface9> OldDS = NULL;
+	V(pd3dDevice->GetDepthStencilSurface(&OldDS));
+
+	QueryComponent(Frustum::ExtractMatrix(m_SkyLight.m_ViewProj), Material::PassTypeToMask(Material::PassTypeShadow));
+
+	m_SimpleSample->SetMatrix("g_View", m_SkyLight.m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLight.m_ViewProj);
+	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->EndScene());
+	}
+
+	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), Material::PassTypeToMask(Material::PassTypeNormalDepth)
+		| Material::PassTypeToMask(Material::PassTypeDiffuseSpec)
+		| Material::PassTypeToMask(Material::PassTypeTextureColor)
+		| Material::PassTypeToMask(Material::PassTypeTransparent));
+
+	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
+	m_SimpleSample->SetMatrix("g_InvViewProj", m_Camera.m_InverseViewProj);
+	m_SimpleSample->SetVector("g_Eye", m_Camera.m_Eye);
+	m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLight.m_View.column<2>().xyz); // ! RH -z
+	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLight.m_ViewProj);
+	m_SimpleSample->SetVector("g_SkyLightColor", m_SkyLightColor);
+	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT);
+	V(pd3dDevice->SetRenderTarget(0, m_NormalRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetDepthStencilSurface(OldDS));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		RenderPipeline::RenderAllObjects(Material::PassTypeNormalDepth, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->EndScene());
+	}
+
+	m_SimpleSample->SetTexture("g_NormalRT", m_NormalRT);
+	V(pd3dDevice->SetRenderTarget(0, m_DiffuseRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
+		RenderPipeline::RenderAllObjects(Material::PassTypeDiffuseSpec, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		V(pd3dDevice->EndScene());
+	}
+
+	m_SimpleSample->SetTexture("g_DiffuseRT", m_DiffuseRT);
+	V(pd3dDevice->SetRenderTarget(0, OldRT));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->EndScene());
+	}
+
+	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
+		RenderPipeline::RenderAllObjects(Material::PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		V(pd3dDevice->EndScene());
+	}
+
+	RenderPipeline::ClearAllObjects();
 }
 
 void RenderPipeline::RenderAllObjects(

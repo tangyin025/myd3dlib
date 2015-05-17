@@ -178,7 +178,7 @@ BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/,
 	return m_wndSplitter.Create(this,
 		2, 2,               // TODO: adjust the number of rows, columns
 		CSize(10, 10),      // TODO: adjust the minimum pane size
-		pContext, WS_CHILD | WS_VISIBLE /*| WS_HSCROLL | WS_VSCROLL*/ | SPLS_DYNAMIC_SPLIT, AFX_IDW_PANE_FIRST);
+		pContext, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SPLS_DYNAMIC_SPLIT, AFX_IDW_PANE_FIRST);
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)

@@ -151,6 +151,10 @@ my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, unsigned int Pa
 	return NULL;
 }
 
+void CMainApp::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
+{
+}
+
 // CMainApp initialization
 
 BOOL CMainApp::InitInstance()

@@ -36,11 +36,6 @@ protected:
 
 	BOOL ResetD3DSwapChain(void);
 
-	void OnFrameRender(
-		IDirect3DDevice9 * pd3dDevice,
-		double fTime,
-		float fElapsedTime);
-
 // Implementation
 public:
 	virtual ~CChildView();

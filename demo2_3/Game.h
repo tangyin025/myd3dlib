@@ -60,25 +60,11 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	unsigned int SHADOW_MAP_SIZE;
-
-	float SHADOW_EPSILON;
-
-	my::Texture2DPtr m_ShadowRT;
-
-	my::SurfacePtr m_ShadowDS;
-
-	my::Texture2DPtr m_NormalRT;
-
-	my::Texture2DPtr m_DiffuseRT;
-
 	typedef boost::tuple<Material::MeshType, bool, unsigned int, unsigned int> ShaderCacheKey;
 
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
-
-	my::EffectPtr m_SimpleSample;
 
 	my::FontPtr m_Font;
 
@@ -89,12 +75,6 @@ public:
 	my::BaseTexturePtr m_TexChecker;
 
 	typedef std::vector<ActorPtr> ActorPtrList;
-
-	my::FirstPersonCamera m_Camera;
-
-	my::OrthoCamera m_SkyLight;
-
-	my::Vector4 m_SkyLightColor;
 
 	ActorPtrList m_Actors;
 
@@ -174,6 +154,8 @@ public:
 	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
 
 	void ClearAllShaders(void);
+
+	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 
 	void AddActor(ActorPtr actor);
 

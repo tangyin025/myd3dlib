@@ -85,24 +85,6 @@ BOOL CChildView::ResetD3DSwapChain(void)
 	return TRUE;
 }
 
-void CChildView::OnFrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	double fTime,
-	float fElapsedTime)
-{
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
-
-	//theApp.RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
-	theApp.ClearAllObjects();
-
-	theApp.m_UIRender->Begin();
-	theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
-	theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
-	theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,0,0,0), my::Font::AlignLeftTop);
-	theApp.m_UIRender->End();
-}
-
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	ClientToScreen(&point);
@@ -151,16 +133,20 @@ void CChildView::OnPaint()
 			V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
 			V(theApp.m_d3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
 			V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-			V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
+			//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
+
+			theApp.OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
 				// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-
-				OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
-
+				theApp.m_UIRender->Begin();
+				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
+				theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+				theApp.m_UIRender->End();
 				V(theApp.m_d3dDevice->EndScene());
 			}
 

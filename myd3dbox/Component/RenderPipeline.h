@@ -126,6 +126,26 @@ public:
 
 	my::VertexBuffer m_MeshInstanceData;
 
+	unsigned int SHADOW_MAP_SIZE;
+
+	float SHADOW_EPSILON;
+
+	my::Texture2DPtr m_ShadowRT;
+
+	my::SurfacePtr m_ShadowDS;
+
+	my::Texture2DPtr m_NormalRT;
+
+	my::Texture2DPtr m_DiffuseRT;
+
+	my::FirstPersonCamera m_Camera;
+
+	my::OrthoCamera m_SkyLight;
+
+	my::Vector4 m_SkyLightColor;
+
+	my::EffectPtr m_SimpleSample;
+
 	class IShaderSetter
 	{
 	public:
@@ -199,10 +219,21 @@ public:
 		: m_ParticleVertexStride(0)
 		, m_ParticleInstanceStride(0)
 		, m_MeshInstanceStride(0)
+		, SHADOW_MAP_SIZE(1024)
+		, SHADOW_EPSILON(0.001f)
+		, m_ShadowRT(new my::Texture2D())
+		, m_ShadowDS(new my::Surface())
+		, m_NormalRT(new my::Texture2D())
+		, m_DiffuseRT(new my::Texture2D())
+		, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
+		, m_SkyLight(30,30,-100,100)
+		, m_SkyLightColor(1,1,1,1)
 	{
 	}
 
 	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material) = 0;
+
+	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -215,6 +246,11 @@ public:
 	void OnLostDevice(void);
 
 	void OnDestroyDevice(void);
+
+	void OnFrameRender(
+		IDirect3DDevice9 * pd3dDevice,
+		double fTime,
+		float fElapsedTime);
 
 	void RenderAllObjects(
 		unsigned int PassID,

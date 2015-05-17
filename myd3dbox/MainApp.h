@@ -30,8 +30,6 @@ public:
 
 	my::FontPtr m_Font;
 
-	my::EffectPtr m_SimpleSample;
-
 	BOOL CreateD3DDevice(HWND hWnd);
 
 	BOOL ResetD3DDevice(void);
@@ -39,6 +37,8 @@ public:
 	void DestroyD3DDevice(void);
 
 	my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
+
+	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 
 // Overrides
 public:
