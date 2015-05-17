@@ -53,8 +53,9 @@ public:
 		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 		ExecuteCode("dofile \"Hud.lua\"");
-
 		ExecuteCode("dofile \"StateMain.lua\"");
+		RemoveDlg(m_Console);
+		InsertDlg(m_Console);
 
 		//// ========================================================================================================
 		//// …˘“ÙœµÕ≥

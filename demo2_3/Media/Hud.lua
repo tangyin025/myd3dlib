@@ -1,4 +1,4 @@
-dofile "Settings.lua"
+require "CommonUI.lua"
 
 module("Hud", package.seeall)
 
@@ -42,6 +42,6 @@ btn_change_device.EventClick=function(args)
 end
 dlg:InsertControl(btn_change_device)
 
-game:RemoveDlg(Settings.dlg)
 game:InsertDlg(dlg)
-game:InsertDlg(Settings.dlg)
+
+dofile "Settings.lua"

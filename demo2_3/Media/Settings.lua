@@ -1,4 +1,4 @@
-dofile "CommonUI.lua"
+require "CommonUI.lua"
 
 module("Settings",package.seeall)
 

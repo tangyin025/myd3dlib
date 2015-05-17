@@ -2281,8 +2281,8 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 {
 	ui_render->SetViewProj(m_ViewProj);
 
-	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
-	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
+	DialogPtrList::iterator dlg_iter = m_DlgList.begin();
+	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
 		ui_render->SetWorld((*dlg_iter)->m_World);
 
@@ -2313,8 +2313,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 			if (uMsg == WM_KEYDOWN)
 			{
-				DialogPtrList::iterator dlg_iter = m_DlgList.begin();
-				for(; dlg_iter != m_DlgList.end(); dlg_iter++)
+				DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+				for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 				{
 					if((*dlg_iter)->HandleKeyboard(uMsg, wParam, lParam))
 						return true;
@@ -2352,8 +2352,8 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			DialogPtrList::iterator dlg_iter = m_DlgList.begin();
-			for(; dlg_iter != m_DlgList.end(); dlg_iter++)
+			DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+			for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
 			{
 				// ! 只处理看得见的 Dialog
 				if((*dlg_iter)->GetVisible())
@@ -2388,7 +2388,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 				}
 			}
 
-			if (dlg_iter == m_DlgList.end() && Control::s_MouseOverControl)
+			if (dlg_iter == m_DlgList.rend() && Control::s_MouseOverControl)
 			{
 				Control::s_MouseOverControl->ReleaseMouseOver();
 			}

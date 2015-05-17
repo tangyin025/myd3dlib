@@ -355,7 +355,7 @@ void Export2Lua(lua_State * L)
 		//	.def_readwrite("EventKeyUp", &ConsoleEditBox::EventKeyUp)
 		//	.def_readwrite("EventKeyDown", &ConsoleEditBox::EventKeyDown)
 
-		class_<Console, my::Dialog, boost::shared_ptr<my::Control> >("Console")
+		class_<Console, my::Dialog, boost::shared_ptr<Console> >("Console")
 			//.def_readonly("Edit", &Console::m_Edit)
 			//.def_readonly("Panel", &Console::m_Panel)
 
