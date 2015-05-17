@@ -5,8 +5,8 @@
 	<px class_id="1" tracking_level="1" version="0" object_id="_0">
 		<m_PassMask>11</m_PassMask>
 		<m_DiffuseTexture>texture/casual19_m_35.jpg</m_DiffuseTexture>
-		<m_NormalTexture>texture/casual19_m_35_normal.png</m_NormalTexture>
-		<m_SpecularTexture>texture/casual19_m_35_spec.png</m_SpecularTexture>
+		<m_NormalTexture>texture/casual19_m_35_normal.dds</m_NormalTexture>
+		<m_SpecularTexture>texture/casual19_m_35_spec.dds</m_SpecularTexture>
 	</px>
 </Material>
 </boost_serialization>
