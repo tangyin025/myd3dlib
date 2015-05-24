@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "myThread.h"
 #include "myException.h"
+#include "libc.h"
 
 using namespace my;
 
@@ -124,7 +125,7 @@ void ConditionVariable::Wake(LONG lReleaseCount)
 	m_sema.Release(lReleaseCount);
 }
 
-DWORD WINAPI Thread::ThreadProc(__in LPVOID lpParameter)
+unsigned int __stdcall Thread::ThreadProc(void *  lpParameter)
 {
 	Thread * pThread = reinterpret_cast<Thread *>(lpParameter);
 
@@ -141,9 +142,9 @@ void Thread::CreateThread(DWORD dwCreationFlags)
 {
 	_ASSERT(NULL == m_handle);
 
-	if(NULL == (m_handle = ::CreateThread(NULL, 0, ThreadProc, this, dwCreationFlags, NULL)))
+	if (0 == (m_handle = (HANDLE)_beginthreadex(NULL, 0, ThreadProc, this, dwCreationFlags, NULL)))
 	{
-		THROW_WINEXCEPTION(::GetLastError());
+		THROW_CUSEXCEPTION(str_printf("CreateThread failed: %u", _doserrno));
 	}
 }
 
