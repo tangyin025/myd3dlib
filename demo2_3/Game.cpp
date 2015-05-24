@@ -343,6 +343,7 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	m_SimpleSample->SetFloat("g_Time", (float)m_fAbsoluteTime);
 	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
 	RenderPipeline::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
