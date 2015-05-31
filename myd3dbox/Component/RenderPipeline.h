@@ -1,5 +1,7 @@
 #pragma once
 
+#include <boost/serialization/nvp.hpp>
+
 class RenderPipeline;
 
 class Material
@@ -24,28 +26,91 @@ public:
 		PassTypeNum
 	};
 
-	enum TextureType
+	class ParameterValue
 	{
-		TextureTypeDiffuse		= 0,
-		TextureTypeNormal		= 1,
-		TextureTypeSpecular		= 2,
-		TextureTypeNum
+	public:
+		enum ParameterValueType
+		{
+			ParameterValueTypeUnknown,
+			ParameterValueTypeTexture,
+		};
+
+		ParameterValueType m_Type;
+
+	public:
+		ParameterValue(ParameterValueType type)
+			: m_Type(type)
+		{
+		}
+
+		virtual ~ParameterValue(void)
+		{
+		}
+
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name) = 0;
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_Type);
+		}
 	};
 
-	unsigned int m_PassMask;
+	typedef boost::shared_ptr<ParameterValue> ParameterValuePtr;
 
-	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_DiffuseTexture;
+	class ParameterValueTexture : public ParameterValue
+	{
+	public:
+		std::string m_Path;
 
-	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_NormalTexture;
+		my::Texture2DPtr m_Texture;
 
-	std::pair<std::string, boost::shared_ptr<my::BaseTexture> > m_SpecularTexture;
+	public:
+		ParameterValueTexture(void)
+			: ParameterValue(ParameterValueTypeTexture)
+		{
+		}
 
-	unsigned int m_TextureMask;
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
+			ar & BOOST_SERIALIZATION_NVP(m_Path);
+		}
+	};
+
+	typedef boost::shared_ptr<ParameterValueTexture> ParameterValueTexturePtr;
+
+	class Parameter : public std::pair<std::string, boost::shared_ptr<ParameterValue> >
+	{
+	public:
+		Parameter(void)
+		{
+		}
+
+		Parameter(const std::string & name, ParameterValuePtr value)
+			: pair(name, value)
+		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(first);
+			ar & BOOST_SERIALIZATION_NVP(second);
+		}
+	};
+
+	typedef std::vector<Parameter> ParameterList;
+
+	std::string m_Shader;
+
+	ParameterList m_Params;
 
 public:
 	Material(void)
-		: m_PassMask(0)
-		, m_TextureMask(0)
 	{
 	}
 
@@ -66,28 +131,16 @@ public:
 		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
 	}
 
-	static unsigned int TextureTypeToMask(unsigned int texture_type)
+	void AddParameter(const std::string & name, ParameterValuePtr value)
 	{
-		_ASSERT(texture_type >= 0 && texture_type < TextureTypeNum); return 1 << texture_type;
-	}
-
-	void BuildTextureMask(void)
-	{
-		m_TextureMask = 0;
-		m_TextureMask |= m_DiffuseTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeDiffuse);
-		m_TextureMask |= m_NormalTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeNormal);
-		m_TextureMask |= m_SpecularTexture.first.empty() ? 0 : TextureTypeToMask(TextureTypeSpecular);
+		m_Params.push_back(Parameter(name, value));
 	}
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
-		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_DiffuseTexture), m_DiffuseTexture.first);
-		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_NormalTexture), m_NormalTexture.first);
-		ar & boost::serialization::make_nvp(BOOST_PP_STRINGIZE(m_SpecularTexture), m_SpecularTexture.first);
-
-		BuildTextureMask();
+		ar & BOOST_SERIALIZATION_NVP(m_Shader);
+		ar & BOOST_SERIALIZATION_NVP(m_Params);
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
@@ -231,7 +284,7 @@ public:
 	{
 	}
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material) = 0;
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID) = 0;
 
 	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
 
@@ -252,6 +305,8 @@ public:
 		double fTime,
 		float fElapsedTime);
 
+	static const char * PassIDToTechnique(unsigned int PassID);
+
 	void RenderAllObjects(
 		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
@@ -260,9 +315,10 @@ public:
 
 	void ClearAllObjects(void);
 
-	void DrawMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void DrawMeshInstance(
+		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
 		my::Mesh * mesh,
 		DWORD AttribId,
@@ -271,6 +327,7 @@ public:
 		MeshInstanceAtom & atom);
 
 	void DrawIndexedPrimitiveUP(
+		unsigned int PassID,
 		IDirect3DDevice9 * pd3dDevice,
 		IDirect3DVertexDeclaration9* pDecl,
 		D3DPRIMITIVETYPE PrimitiveType,
@@ -285,7 +342,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 

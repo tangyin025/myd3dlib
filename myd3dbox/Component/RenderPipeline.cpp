@@ -1,18 +1,29 @@
 #include "stdafx.h"
 #include "RenderPipeline.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
+
+BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
+
+void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
+{
+	shader->SetTexture(name, m_Texture);
+}
+
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	shader->SetTexture("g_MeshTexture", m_DiffuseTexture.second);
-	if (m_NormalTexture.second)
+	ParameterList::iterator param_iter = m_Params.begin();
+	for (; param_iter != m_Params.end(); param_iter++)
 	{
-		shader->SetTexture("g_NormalTexture", m_NormalTexture.second);
-	}
-	if (m_SpecularTexture.second)
-	{
-		shader->SetTexture("g_SpecularTexture", m_SpecularTexture.second);
+		param_iter->second->OnSetShader(shader, AttribId, param_iter->first.c_str());
 	}
 }
 
@@ -230,6 +241,24 @@ void RenderPipeline::OnFrameRender(
 	RenderPipeline::ClearAllObjects();
 }
 
+const char * RenderPipeline::PassIDToTechnique(unsigned int PassID)
+{
+	switch (PassID)
+	{
+	case Material::PassTypeShadow:
+		return "RenderShadow";
+	case Material::PassTypeNormalDepth:
+		return "RenderNormal";
+	case Material::PassTypeDiffuseSpec:
+		return "RenderLight";
+	case Material::PassTypeTextureColor:
+		return "RenderColor";
+	case Material::PassTypeTransparent:
+		return "RenderTransparent";
+	}
+	return "";
+}
+
 void RenderPipeline::RenderAllObjects(
 	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
@@ -239,7 +268,7 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
+		DrawMesh(PassID, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
 	}
 
 	MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
@@ -248,6 +277,7 @@ void RenderPipeline::RenderAllObjects(
 		if (!mesh_inst_iter->second.m_TransformList.empty())
 		{
 			DrawMeshInstance(
+				PassID,
 				pd3dDevice,
 				mesh_inst_iter->first.get<0>(),
 				mesh_inst_iter->first.get<1>(),
@@ -261,6 +291,7 @@ void RenderPipeline::RenderAllObjects(
 	for (; indexed_prim_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); indexed_prim_iter++)
 	{
 		DrawIndexedPrimitiveUP(
+			PassID,
 			pd3dDevice,
 			indexed_prim_iter->pDecl,
 			indexed_prim_iter->PrimitiveType,
@@ -279,7 +310,7 @@ void RenderPipeline::RenderAllObjects(
 	EmitterAtomList::iterator emitter_iter = m_Pass[PassID].m_EmitterList.begin();
 	for (; emitter_iter != m_Pass[PassID].m_EmitterList.end(); emitter_iter++)
 	{
-		DrawEmitter(pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
+		DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
 	}
 }
 
@@ -299,9 +330,9 @@ void RenderPipeline::ClearAllObjects(void)
 	}
 }
 
-void RenderPipeline::DrawMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
-	shader->SetTechnique("RenderScene");
+	shader->SetTechnique(PassIDToTechnique(PassID));
 	const UINT passes = shader->Begin(0);
 	setter->OnSetShader(shader, AttribId);
 	for (UINT p = 0; p < passes; p++)
@@ -314,6 +345,7 @@ void RenderPipeline::DrawMesh(my::Mesh * mesh, DWORD AttribId, my::Effect * shad
 }
 
 void RenderPipeline::DrawMeshInstance(
+	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
 	my::Mesh * mesh,
 	DWORD AttribId,
@@ -340,7 +372,7 @@ void RenderPipeline::DrawMeshInstance(
 	V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 	V(pd3dDevice->SetIndices(ib));
 
-	shader->SetTechnique("RenderScene");
+	shader->SetTechnique(PassIDToTechnique(PassID));
 	const UINT passes = shader->Begin(0);
 	setter->OnSetShader(shader, AttribId);
 	for (UINT p = 0; p < passes; p++)
@@ -360,6 +392,7 @@ void RenderPipeline::DrawMeshInstance(
 }
 
 void RenderPipeline::DrawIndexedPrimitiveUP(
+	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
 	IDirect3DVertexDeclaration9* pDecl,
 	D3DPRIMITIVETYPE PrimitiveType,
@@ -374,7 +407,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	my::Effect * shader,
 	IShaderSetter * setter)
 {
-	shader->SetTechnique("RenderScene");
+	shader->SetTechnique(PassIDToTechnique(PassID));
 	const UINT passes = shader->Begin(0);
 	setter->OnSetShader(shader, AttribId);
 	for (UINT p = 0; p < passes; p++)
@@ -389,7 +422,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
@@ -407,7 +440,7 @@ void RenderPipeline::DrawEmitter(IDirect3DDevice9 * pd3dDevice, my::Emitter * em
 	}
 	m_ParticleInstanceData.Unlock();
 
-	shader->SetTechnique("RenderScene");
+	shader->SetTechnique(PassIDToTechnique(PassID));
 	const UINT passes = shader->Begin(0);
 	setter->OnSetShader(shader, AttribId);
 	shader->SetFloatArray("g_AnimationColumnRow", &Vector2(emitter->m_ParticleAnimColumn, emitter->m_ParticleAnimRow)[0], 2);

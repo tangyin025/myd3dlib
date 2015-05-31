@@ -10,13 +10,13 @@ void MeshComponent::QueryMeshWithMeshType(RenderPipeline * pipeline, unsigned in
 	{
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
-			if (m_MaterialList[i] && (PassMask &= m_MaterialList[i]->m_PassMask))
+			if (m_MaterialList[i])
 			{
 				for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 				{
 					if (Material::PassTypeToMask(PassID) & PassMask)
 					{
-						my::Effect * shader = pipeline->QueryShader(mesh_type, PassID, m_bInstance, m_MaterialList[i].get());
+						my::Effect * shader = pipeline->QueryShader(mesh_type, m_bInstance, m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
 							if (m_bInstance)
@@ -75,27 +75,27 @@ void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned i
 		_ASSERT(!m_VertexData.empty());
 		_ASSERT(!m_IndexData.empty());
 		_ASSERT(0 != m_VertexStride);
-		if (m_MaterialList[i] && (PassMask &= m_MaterialList[i]->m_PassMask))
-		{
-			for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
-			{
-				if (Material::PassTypeToMask(PassID) & PassMask)
-				{
-					my::Effect * shader = pipeline->QueryShader(Material::MeshTypeStatic, PassID, false, m_MaterialList[i].get());
-					if (shader)
-					{
-						pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
-							m_AttribTable[i].VertexStart,
-							m_AttribTable[i].VertexCount,
-							m_AttribTable[i].FaceCount,
-							&m_IndexData[m_AttribTable[i].FaceStart * 3],
-							D3DFMT_INDEX16,
-							&m_VertexData[0],
-							m_VertexStride, i, shader, this);
-					}
-				}
-			}
-		}
+		//if (m_MaterialList[i] && (PassMask &= m_MaterialList[i]->m_PassMask))
+		//{
+		//	for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+		//	{
+		//		if (Material::PassTypeToMask(PassID) & PassMask)
+		//		{
+		//			my::Effect * shader = pipeline->QueryShader(Material::MeshTypeStatic, PassID, false, m_MaterialList[i].get());
+		//			if (shader)
+		//			{
+		//				pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
+		//					m_AttribTable[i].VertexStart,
+		//					m_AttribTable[i].VertexCount,
+		//					m_AttribTable[i].FaceCount,
+		//					&m_IndexData[m_AttribTable[i].FaceStart * 3],
+		//					D3DFMT_INDEX16,
+		//					&m_VertexData[0],
+		//					m_VertexStride, i, shader, this);
+		//			}
+		//		}
+		//	}
+		//}
 	}
 }
 
@@ -173,20 +173,20 @@ void EmitterComponent::Update(float fElapsedTime)
 
 void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	if (m_Material && m_Emitter && (PassMask &= m_Material->m_PassMask))
-	{
-		for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
-		{
-			if (Material::PassTypeToMask(PassID) & PassMask)
-			{
-				my::Effect * shader = pipeline->QueryShader(Material::MeshTypeParticle, PassID, false, m_Material.get());
-				if (shader)
-				{
-					pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
-				}
-			}
-		}
-	}
+	//if (m_Material && m_Emitter && (PassMask &= m_Material->m_PassMask))
+	//{
+	//	for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+	//	{
+	//		if (Material::PassTypeToMask(PassID) & PassMask)
+	//		{
+	//			my::Effect * shader = pipeline->QueryShader(Material::MeshTypeParticle, PassID, false, m_Material.get());
+	//			if (shader)
+	//			{
+	//				pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
+	//			}
+	//		}
+	//	}
+	//}
 }
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

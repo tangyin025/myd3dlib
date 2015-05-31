@@ -372,7 +372,13 @@ namespace my
 
 		std::string m_EffectInclude;
 
-		boost::unordered_map<LPCVOID, CachePtr> m_CacheSet;
+		typedef boost::unordered_map<LPCVOID, CachePtr> CacheSet;
+
+		CacheSet m_CacheSet;
+
+		typedef boost::unordered_map<std::string, const char *> HeaderMap;
+
+		HeaderMap m_HeaderMap;
 
 	public:
 		ResourceMgr(void)

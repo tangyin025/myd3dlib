@@ -36,7 +36,7 @@ public:
 
 	void DestroyD3DDevice(void);
 
-	my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
+	my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 

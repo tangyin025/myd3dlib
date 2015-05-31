@@ -2,16 +2,23 @@
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
+#if INSTANCE
+	float4 Pos1				: POSITION1;
+	float4 Pos2				: POSITION2;
+	float4 Pos3				: POSITION3;
+	float4 Pos4				: POSITION4;
+#endif
 	float4 Color			: COLOR0;
 	float2 Tex0				: TEXCOORD0;
 	float3 Normal			: NORMAL;
-#ifdef TEXTURE_TYPE_NORMAL
 	float3 Tangent			: TANGENT;
-#endif
 };
 
 float4 TransformPosWS(VS_INPUT In)
 {
+#if INSTANCE
+	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
+#endif
 	return mul(In.Pos, g_World);
 }
 
@@ -27,15 +34,19 @@ float2 TransformUV(VS_INPUT In)
 
 float3 TransformNormal(VS_INPUT In)
 {
+#if INSTANCE
+	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
+#endif
 	return normalize(mul(In.Normal, (float3x3)g_World));
 }
 
-#ifdef TEXTURE_TYPE_NORMAL
 float3 TransformTangent(VS_INPUT In)
 {
+#if INSTANCE
+	float4x4 g_World = {In.Pos1, In.Pos2, In.Pos3, In.Pos4};
+#endif
 	return normalize(mul(In.Tangent, (float3x3)g_World));
 }
-#endif
 
 float4 TransformLight(VS_INPUT In)
 {

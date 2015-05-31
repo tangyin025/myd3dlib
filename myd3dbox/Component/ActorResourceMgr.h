@@ -9,16 +9,8 @@ class ActorResourceMgr
 	: public my::ResourceMgr
 {
 protected:
-	void OnMaterialDiffuseTextureLoaded(
-		boost::weak_ptr<Material> weak_mat_ptr,
-		my::DeviceRelatedObjectBasePtr res);
-
-	void OnMaterialNormalTextureLoaded(
-		boost::weak_ptr<Material> weak_mat_ptr,
-		my::DeviceRelatedObjectBasePtr res);
-
-	void OnMaterialSpecularTextureLoaded(
-		boost::weak_ptr<Material> weak_mat_ptr,
+	void OnMaterialParameterValueTextureLoaded(
+		boost::weak_ptr<Material::ParameterValueTexture> weak_value_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
 	void OnMeshComponentMaterialLoaded(

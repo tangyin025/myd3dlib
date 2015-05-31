@@ -8,36 +8,14 @@
 
 using namespace my;
 
-void ActorResourceMgr::OnMaterialDiffuseTextureLoaded(
-	boost::weak_ptr<Material> weak_mat_ptr,
+void ActorResourceMgr::OnMaterialParameterValueTextureLoaded(
+	boost::weak_ptr<Material::ParameterValueTexture> weak_value_ptr,
 	my::DeviceRelatedObjectBasePtr res)
 {
-	MaterialPtr mat_ptr = weak_mat_ptr.lock();
-	if (mat_ptr)
+	Material::ParameterValueTexturePtr value_ptr = weak_value_ptr.lock();
+	if (value_ptr)
 	{
-		mat_ptr->m_DiffuseTexture.second = boost::dynamic_pointer_cast<BaseTexture>(res);
-	}
-}
-
-void ActorResourceMgr::OnMaterialNormalTextureLoaded(
-	boost::weak_ptr<Material> weak_mat_ptr,
-	my::DeviceRelatedObjectBasePtr res)
-{
-	MaterialPtr mat_ptr = weak_mat_ptr.lock();
-	if (mat_ptr)
-	{
-		mat_ptr->m_NormalTexture.second = boost::dynamic_pointer_cast<BaseTexture>(res);
-	}
-}
-
-void ActorResourceMgr::OnMaterialSpecularTextureLoaded(
-	boost::weak_ptr<Material> weak_mat_ptr,
-	my::DeviceRelatedObjectBasePtr res)
-{
-	MaterialPtr mat_ptr = weak_mat_ptr.lock();
-	if (mat_ptr)
-	{
-		mat_ptr->m_SpecularTexture.second = boost::dynamic_pointer_cast<BaseTexture>(res);
+		value_ptr->m_Texture = boost::dynamic_pointer_cast<Texture2D>(res);
 	}
 }
 
@@ -386,19 +364,18 @@ boost::shared_ptr<Material> ActorResourceMgr::CreateMaterial(const std::string &
 		boost::archive::xml_iarchive ar(istr);
 		ar >> boost::serialization::make_nvp("Material", ret);
 
-		if (!ret->m_DiffuseTexture.first.empty())
+		Material::ParameterList::iterator param_iter = ret->m_Params.begin();
+		for (; param_iter != ret->m_Params.end(); param_iter++)
 		{
-			LoadTextureAsync(ret->m_DiffuseTexture.first, boost::bind(&ActorResourceMgr::OnMaterialDiffuseTextureLoaded, this, ret, _1));
-		}
-
-		if (!ret->m_NormalTexture.first.empty())
-		{
-			LoadTextureAsync(ret->m_NormalTexture.first, boost::bind(&ActorResourceMgr::OnMaterialNormalTextureLoaded, this, ret, _1));
-		}
-
-		if (!ret->m_SpecularTexture.first.empty())
-		{
-			LoadTextureAsync(ret->m_SpecularTexture.first, boost::bind(&ActorResourceMgr::OnMaterialSpecularTextureLoaded, this, ret, _1));
+			switch (param_iter->second->m_Type)
+			{
+			case Material::ParameterValue::ParameterValueTypeTexture:
+				{
+					Material::ParameterValueTexturePtr value = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
+					LoadTextureAsync(value->m_Path, boost::bind(&ActorResourceMgr::OnMaterialParameterValueTextureLoaded, this, value, _1));
+				}
+				break;
+			}
 		}
 		return ret;
 	}

@@ -2,6 +2,7 @@
 #include "Game.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 #include <fstream>
 
 #ifdef _DEBUG
@@ -221,9 +222,9 @@ HRESULT Game::OnResetDevice(
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		if (shader_iter->second)
+		if (shader_iter->second.get<0>())
 		{
-			shader_iter->second->OnResetDevice();
+			shader_iter->second.get<0>()->OnResetDevice();
 		}
 	}
 
@@ -252,9 +253,9 @@ void Game::OnLostDevice(void)
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		if (shader_iter->second)
+		if (shader_iter->second.get<0>())
 		{
-			shader_iter->second->OnLostDevice();
+			shader_iter->second.get<0>()->OnLostDevice();
 		}
 	}
 
@@ -575,19 +576,18 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	boost::hash_combine(seed, key.get<0>());
 	boost::hash_combine(seed, key.get<1>());
 	boost::hash_combine(seed, key.get<2>());
-	boost::hash_combine(seed, key.get<3>());
 	return seed;
 }
 
-my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material)
+my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
 {
-	_ASSERT(material && 0 != material->m_TextureMask);
+	_ASSERT(material && !material->m_Shader.empty());
 
-	ShaderCacheKey key(mesh_type, bInstance, PassID, material->m_TextureMask);
+	ShaderCacheKey key(mesh_type, bInstance, material->m_Shader);
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
-		return shader_iter->second.get();
+		return (shader_iter->second.get<1>() & Material::PassTypeToMask(PassID)) ? shader_iter->second.get<0>().get() : NULL;
 	}
 
 	struct Header
@@ -603,79 +603,46 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, unsigned int PassID
 			}
 			return "MeshStatic.fx";
 		}
-
-		static const char * ps_header(unsigned int pass_type)
-		{
-			switch (pass_type)
-			{
-			case Material::PassTypeShadow:
-				return "PassShadow.fx";
-			case Material::PassTypeNormalDepth:
-				return "PassNormalDepth.fx";
-			case Material::PassTypeDiffuseSpec:
-				return "PassDiffuseSpec.fx";
-			case Material::PassTypeTransparent:
-				return "PassTransparent.fx";
-			}
-			return "PassTextureColor.fx";
-		}
-
-		static const char * tx_macro(unsigned int texture_type)
-		{
-			switch (texture_type)
-			{
-			case Material::TextureTypeNormal:
-				return "TEXTURE_TYPE_NORMAL";
-			case Material::TextureTypeSpecular:
-				return "TEXTURE_TYPE_SPECULAR";
-			}
-			return "TEXTURE_TYPE_DIFFUSE";
-		}
 	};
 
 	std::ostringstream oss;
 	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
 	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
+	oss << "#define INSTANCE " << (unsigned int)bInstance << std::endl;
 	oss << "#include \"CommonHeader.fx\"" << std::endl;
 	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
-	oss << "#include \"" << Header::ps_header(PassID) << "\"" << std::endl;
-	oss << "technique RenderScene {\n"
-		"	pass P0 {\n"
-		"		VertexShader = compile vs_2_0 RenderSceneVS();\n"
-		"		PixelShader  = compile ps_2_0 RenderScenePS();}}";
+	oss << "#include \"" << material->m_Shader << "\"" << std::endl;
 	std::string source = oss.str();
 
-	std::vector<D3DXMACRO> macros;
-	for (unsigned int texture_type = 0; texture_type < Material::TextureTypeNum; texture_type++)
-	{
-		if (material->m_TextureMask & Material::TextureTypeToMask(texture_type))
-		{
-			D3DXMACRO macro = {Header::tx_macro(texture_type), 0};
-			macros.push_back(macro);
-		}
-	}
-	D3DXMACRO end = {0};
-	macros.push_back(end);
-
 	CComPtr<ID3DXBuffer> buff;
-	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), &macros[0], this, &buff, NULL)))
+	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), NULL, this, &buff, NULL)))
 	{
-		OStreamPtr ostr = FileOStream::Open(str_printf(_T("shader_%u_%u_%u_%u.fx"), bInstance, mesh_type, PassID, material->m_TextureMask).c_str());
+		OStreamPtr ostr = FileOStream::Open(str_printf(_T("%S_%u_%u.fx"), material->m_Shader.c_str(), mesh_type, bInstance).c_str());
 		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
 	}
 
 	EffectPtr shader(new Effect());
+	unsigned int PassMask = 0;
 	try
 	{
-		shader->CreateEffect(m_d3dDevice, source.c_str(), source.length(), &macros[0], this, 0, m_EffectPool);
+		shader->CreateEffect(m_d3dDevice, source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
+		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeShadow))) {
+			PassMask |= Material::PassTypeToMask(Material::PassTypeShadow);
+		}
+		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeNormalDepth))) {
+			PassMask |= Material::PassTypeToMask(Material::PassTypeNormalDepth);
+		}
+		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeTextureColor))) {
+			PassMask |= Material::PassTypeToMask(Material::PassTypeTextureColor);
+		}
 	}
 	catch (const my::Exception & e)
 	{
 		AddLine(ms2ws(e.what()), D3DCOLOR_ARGB(255,255,0,0));
 		shader.reset();
 	}
-	m_ShaderCache.insert(std::make_pair(key, shader));
-	return shader.get();
+	m_ShaderCache.insert(std::make_pair(key, boost::make_tuple(shader, PassMask)));
+	return PassMask & Material::PassTypeToMask(PassID) ? shader.get() : NULL;
 }
 
 void Game::ClearAllShaders(void)

@@ -609,7 +609,15 @@ HRESULT ResourceMgr::Open(
 	CachePtr cache;
 	std::string path;
 	path.resize(MAX_PATH);
-	PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
+	HeaderMap::const_iterator header_iter = m_HeaderMap.find(pFileName);
+	if (header_iter != m_HeaderMap.end())
+	{
+		path = header_iter->second;
+	}
+	else
+	{
+		PathCombineA(&path[0], m_EffectInclude.c_str(), pFileName);
+	}
 	switch(IncludeType)
 	{
 	case D3DXINC_SYSTEM:

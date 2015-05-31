@@ -1,6 +1,4 @@
 
-float2 g_AnimationColumnRow;
-
 struct VS_INPUT
 {
 	float4 Pos				: POSITION;
@@ -9,6 +7,8 @@ struct VS_INPUT
 	float4 Tex1				: TEXCOORD1;
 	float4 Tex2				: TEXCOORD2;
 };
+
+float2 g_AnimationColumnRow;
 
 float3 RotateAngleAxis(float3 v, float a, float3 N)
 {
@@ -55,12 +55,10 @@ float3 TransformNormal(VS_INPUT In)
 	return -float3(g_View[0][2],g_View[1][2],g_View[2][2]);
 }
 
-#ifdef TEXTURE_TYPE_NORMAL
 float3 TransformTangent(VS_INPUT In)
 {
 	return float3(0);
 }
-#endif
 
 float4 TransformLight(VS_INPUT In)
 {

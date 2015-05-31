@@ -60,9 +60,9 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	typedef boost::tuple<Material::MeshType, bool, unsigned int, unsigned int> ShaderCacheKey;
+	typedef boost::tuple<Material::MeshType, bool, std::string> ShaderCacheKey;
 
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+	typedef boost::unordered_map<ShaderCacheKey, boost::tuple<my::EffectPtr, unsigned int> > ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 
@@ -151,7 +151,7 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, unsigned int PassID, bool bInstance, const Material * material);
+	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 	void ClearAllShaders(void);
 

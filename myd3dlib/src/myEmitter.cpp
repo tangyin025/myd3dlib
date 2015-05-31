@@ -9,7 +9,10 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(Emitter)
+// ! must have virtual distructor or warning C4308, ref: http://stackoverflow.com/questions/26605497/boost-serialization-error-c4308-negative-integral-constant-converted-to-unsigne
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Emitter)
+
+BOOST_CLASS_EXPORT(SphericalEmitter)
 
 Emitter::~Emitter(void)
 {
@@ -73,8 +76,6 @@ void Emitter::UpdateParticle(Particle & particle, float time, float fElapsedTime
 	const unsigned int AnimFrame = (unsigned int)(time * m_ParticleAnimFPS) % ((unsigned int)m_ParticleAnimColumn * m_ParticleAnimRow);
 	particle.m_Texcoord2 = Vector4((float)(AnimFrame / m_ParticleAnimRow), (float)(AnimFrame % m_ParticleAnimColumn), 0, 0);
 }
-
-BOOST_CLASS_EXPORT(SphericalEmitter)
 
 void SphericalEmitter::Update(float fElapsedTime)
 {
