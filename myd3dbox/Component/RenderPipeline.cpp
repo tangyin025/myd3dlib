@@ -14,7 +14,7 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
 BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
 
 Material::Material(void)
-	: m_PassMask(PassMaskNone)
+	: m_PassMask(RenderPipeline::PassMaskNone)
 {
 }
 
@@ -194,7 +194,7 @@ void RenderPipeline::OnFrameRender(
 	CComPtr<IDirect3DSurface9> OldDS = NULL;
 	V(pd3dDevice->GetDepthStencilSurface(&OldDS));
 
-	QueryComponent(Frustum::ExtractMatrix(m_SkyLight.m_ViewProj), Material::PassTypeToMask(Material::PassTypeShadow));
+	QueryComponent(Frustum::ExtractMatrix(m_SkyLight.m_ViewProj), PassTypeToMask(PassTypeShadow));
 
 	m_SimpleSample->SetMatrix("g_View", m_SkyLight.m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_SkyLight.m_ViewProj);
@@ -203,14 +203,11 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(Material::PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
-	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), Material::PassTypeToMask(Material::PassTypeNormalG)
-		| Material::PassTypeToMask(Material::PassTypeLight)
-		| Material::PassTypeToMask(Material::PassTypeOpaque)
-		| Material::PassTypeToMask(Material::PassTypeTransparent));
+	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), PassTypeToMask(PassTypeNormalG) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
@@ -225,7 +222,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(Material::PassTypeNormalG, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeNormalG, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
@@ -239,7 +236,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-		RenderPipeline::RenderAllObjects(Material::PassTypeLight, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(pd3dDevice->EndScene());
@@ -250,7 +247,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
@@ -261,7 +258,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-		RenderPipeline::RenderAllObjects(Material::PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(pd3dDevice->EndScene());
@@ -584,7 +581,7 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 #include "ActorComponent.h"
 
 template <>
-void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, MeshType mesh_type, unsigned int PassMask)
 {
 	if (cmp->m_Mesh)
 	{
@@ -592,9 +589,9 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, Material:
 		{
 			if (cmp->m_MaterialList[i] && (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 			{
-				for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+				for (unsigned int PassID = 0; PassID < PassTypeNum; PassID++)
 				{
-					if (Material::PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
+					if (PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 					{
 						my::Effect * shader = QueryShader(mesh_type, cmp->m_bInstance, cmp->m_MaterialList[i].get(), PassID);
 						if (shader)
@@ -616,7 +613,7 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, Material:
 }
 
 template <>
-void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUPComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUPComponent * cmp, MeshType mesh_type, unsigned int PassMask)
 {
 	for (unsigned int i = 0; i < cmp->m_AttribTable.size(); i++)
 	{
@@ -625,9 +622,9 @@ void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUP
 		_ASSERT(0 != cmp->m_VertexStride);
 		if (cmp->m_MaterialList[i] && (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 		{
-			for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+			for (unsigned int PassID = 0; PassID < PassTypeNum; PassID++)
 			{
-				if (Material::PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
+				if (PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 				{
 					my::Effect * shader = QueryShader(mesh_type, false, cmp->m_MaterialList[i].get(), PassID);
 					if (shader)
@@ -648,15 +645,15 @@ void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUP
 }
 
 template <>
-void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, MeshType mesh_type, unsigned int PassMask)
 {
 	if (cmp->m_Material && cmp->m_Emitter && (cmp->m_Material->m_PassMask & PassMask))
 	{
-		for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+		for (unsigned int PassID = 0; PassID < PassTypeNum; PassID++)
 		{
-			if (Material::PassTypeToMask(PassID) & (cmp->m_Material->m_PassMask & PassMask))
+			if (PassTypeToMask(PassID) & (cmp->m_Material->m_PassMask & PassMask))
 			{
-				my::Effect * shader = QueryShader(Material::MeshTypeParticle, false, cmp->m_Material.get(), PassID);
+				my::Effect * shader = QueryShader(MeshTypeParticle, false, cmp->m_Material.get(), PassID);
 				if (shader)
 				{
 					PushEmitter(PassID, cmp->m_Emitter.get(), 0, shader, cmp);

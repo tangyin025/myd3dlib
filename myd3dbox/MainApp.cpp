@@ -146,7 +146,7 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
-my::Effect * CMainApp::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
+my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
 {
 	return NULL;
 }

@@ -8,32 +8,6 @@ class Material
 	: public my::DeviceRelatedObjectBase
 {
 public:
-	enum MeshType
-	{
-		MeshTypeStatic			= 0,
-		MeshTypeAnimation		= 1,
-		MeshTypeParticle		= 2,
-		MeshTypeNum
-	};
-
-	enum PassType
-	{
-		PassTypeShadow			= 0,
-		PassTypeNormalG			= 1,
-		PassTypeLight			= 2,
-		PassTypeOpaque			= 3,
-		PassTypeTransparent		= 4,
-		PassTypeNum
-	};
-
-	enum PassMask
-	{
-		PassMaskNone			= 0,
-		PassMaskLight			= 1 << PassTypeLight,
-		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeOpaque,
-		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeTransparent,
-	};
-
 	class ParameterValue
 	{
 	public:
@@ -136,11 +110,6 @@ public:
 	{
 	}
 
-	static unsigned int PassTypeToMask(unsigned int pass_type)
-	{
-		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
-	}
-
 	void AddParameter(const std::string & name, ParameterValuePtr value)
 	{
 		m_Params.push_back(Parameter(name, value));
@@ -164,6 +133,32 @@ typedef std::vector<MaterialPtr> MaterialPtrList;
 class RenderPipeline
 {
 public:
+	enum MeshType
+	{
+		MeshTypeStatic			= 0,
+		MeshTypeAnimation		= 1,
+		MeshTypeParticle		= 2,
+		MeshTypeNum
+	};
+
+	enum PassType
+	{
+		PassTypeShadow			= 0,
+		PassTypeNormalG			= 1,
+		PassTypeLight			= 2,
+		PassTypeOpaque			= 3,
+		PassTypeTransparent		= 4,
+		PassTypeNum
+	};
+
+	enum PassMask
+	{
+		PassMaskNone			= 0,
+		PassMaskLight			= 1 << PassTypeLight,
+		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeOpaque,
+		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeTransparent,
+	};
+
 	my::D3DVertexElementSet m_ParticleVertexElems;
 
 	my::D3DVertexElementSet m_ParticleInstanceElems;
@@ -276,16 +271,21 @@ public:
 		EmitterAtomList m_EmitterList;
 	};
 
-	boost::array<Pass, Material::PassTypeNum> m_Pass;
+	boost::array<Pass, PassTypeNum> m_Pass;
 
 public:
 	RenderPipeline(void);
 
 	virtual ~RenderPipeline(void);
 
-	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID) = 0;
+	virtual my::Effect * QueryShader(MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID) = 0;
 
 	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
+
+	static unsigned int PassTypeToMask(unsigned int pass_type)
+	{
+		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
+	}
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
@@ -363,5 +363,5 @@ public:
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	template <class ComponentClass>
-	void PushComponent(ComponentClass * cmp, Material::MeshType mesh_type, unsigned int PassMask);
+	void PushComponent(ComponentClass * cmp, MeshType mesh_type, unsigned int PassMask);
 };

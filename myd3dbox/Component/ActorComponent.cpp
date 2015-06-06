@@ -6,7 +6,7 @@ using namespace my;
 
 void MeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent<MeshComponent>(this, Material::MeshTypeStatic, PassMask);
+	pipeline->PushComponent<MeshComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -19,7 +19,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent<MeshComponent>(this, Material::MeshTypeAnimation, PassMask);
+	pipeline->PushComponent<MeshComponent>(this, RenderPipeline::MeshTypeAnimation, PassMask);
 }
 
 void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -39,7 +39,7 @@ void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, Material::MeshTypeStatic, PassMask);
+	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
 }
 
 void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -116,7 +116,7 @@ void EmitterComponent::Update(float fElapsedTime)
 
 void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent(this, Material::MeshTypeParticle, PassMask);
+	pipeline->PushComponent(this, RenderPipeline::MeshTypeParticle, PassMask);
 }
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

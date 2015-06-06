@@ -579,7 +579,7 @@ static size_t hash_value(const Game::ShaderCacheKey & key)
 	return seed;
 }
 
-my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
+my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
 {
 	_ASSERT(material && !material->m_Shader.empty());
 
@@ -596,9 +596,9 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, con
 		{
 			switch (mesh_type)
 			{
-			case Material::MeshTypeAnimation:
+			case RenderPipeline::MeshTypeAnimation:
 				return "MeshSkeleton.fx";
-			case Material::MeshTypeParticle:
+			case RenderPipeline::MeshTypeParticle:
 				return "MeshParticle.fx";
 			}
 			return "MeshStatic.fx";
