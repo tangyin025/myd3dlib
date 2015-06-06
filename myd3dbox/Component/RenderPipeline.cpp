@@ -569,3 +569,88 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 	atom.setter = setter;
 	m_Pass[PassID].m_EmitterList.push_back(atom);
 }
+
+#include "ActorComponent.h"
+
+template <>
+void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+{
+	if (cmp->m_Mesh)
+	{
+		for (DWORD i = 0; i < cmp->m_MaterialList.size(); i++)
+		{
+			if (cmp->m_MaterialList[i])
+			{
+				for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+				{
+					if (Material::PassTypeToMask(PassID) & PassMask)
+					{
+						my::Effect * shader = QueryShader(mesh_type, cmp->m_bInstance, cmp->m_MaterialList[i].get(), PassID);
+						if (shader)
+						{
+							if (cmp->m_bInstance)
+							{
+								PushMeshInstance(PassID, cmp->m_Mesh.get(), i, cmp->m_World, shader, cmp);
+							}
+							else
+							{
+								PushMesh(PassID, cmp->m_Mesh.get(), i, shader, cmp);
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+template <>
+void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUPComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+{
+	for (unsigned int i = 0; i < cmp->m_AttribTable.size(); i++)
+	{
+		_ASSERT(!cmp->m_VertexData.empty());
+		_ASSERT(!cmp->m_IndexData.empty());
+		_ASSERT(0 != cmp->m_VertexStride);
+		if (cmp->m_MaterialList[i])
+		{
+			for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+			{
+				if (Material::PassTypeToMask(PassID) & PassMask)
+				{
+					my::Effect * shader = QueryShader(mesh_type, false, cmp->m_MaterialList[i].get(), PassID);
+					if (shader)
+					{
+						PushIndexedPrimitiveUP(PassID, cmp->m_Decl, D3DPT_TRIANGLELIST,
+							cmp->m_AttribTable[i].VertexStart,
+							cmp->m_AttribTable[i].VertexCount,
+							cmp->m_AttribTable[i].FaceCount,
+							&cmp->m_IndexData[cmp->m_AttribTable[i].FaceStart * 3],
+							D3DFMT_INDEX16,
+							&cmp->m_VertexData[0],
+							cmp->m_VertexStride, i, shader, cmp);
+					}
+				}
+			}
+		}
+	}
+}
+
+template <>
+void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
+{
+	if (cmp->m_Material && cmp->m_Emitter)
+	{
+		for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
+		{
+			if (Material::PassTypeToMask(PassID) & PassMask)
+			{
+				my::Effect * shader = QueryShader(Material::MeshTypeParticle, false, cmp->m_Material.get(), PassID);
+				if (shader)
+				{
+					PushEmitter(PassID, cmp->m_Emitter.get(), 0, shader, cmp);
+				}
+			}
+		}
+	}
+}

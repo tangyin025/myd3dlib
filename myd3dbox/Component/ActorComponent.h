@@ -59,8 +59,6 @@ public:
 	{
 	}
 
-	void QueryMeshWithMeshType(RenderPipeline * pipeline, unsigned int PassMask, Material::MeshType mesh_type);
-
 	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);

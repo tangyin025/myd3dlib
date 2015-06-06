@@ -364,4 +364,7 @@ public:
 		IShaderSetter * setter);
 
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+
+	template <class ComponentClass>
+	void PushComponent(ComponentClass * cmp, Material::MeshType mesh_type, unsigned int PassMask);
 };
