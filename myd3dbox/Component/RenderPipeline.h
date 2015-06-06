@@ -19,9 +19,9 @@ public:
 	enum PassType
 	{
 		PassTypeShadow			= 0,
-		PassTypeNormalDepth		= 1,
-		PassTypeDiffuseSpec		= 2,
-		PassTypeTextureColor	= 3,
+		PassTypeNormalG			= 1,
+		PassTypeLight			= 2,
+		PassTypeOpaque			= 3,
 		PassTypeTransparent		= 4,
 		PassTypeNum
 	};
@@ -268,21 +268,9 @@ public:
 	boost::array<Pass, Material::PassTypeNum> m_Pass;
 
 public:
-	RenderPipeline(void)
-		: m_ParticleVertexStride(0)
-		, m_ParticleInstanceStride(0)
-		, m_MeshInstanceStride(0)
-		, SHADOW_MAP_SIZE(1024)
-		, SHADOW_EPSILON(0.001f)
-		, m_ShadowRT(new my::Texture2D())
-		, m_ShadowDS(new my::Surface())
-		, m_NormalRT(new my::Texture2D())
-		, m_DiffuseRT(new my::Texture2D())
-		, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
-		, m_SkyLight(30,30,-100,100)
-		, m_SkyLightColor(1,1,1,1)
-	{
-	}
+	RenderPipeline(void);
+
+	virtual ~RenderPipeline(void);
 
 	virtual my::Effect * QueryShader(Material::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID) = 0;
 

@@ -629,11 +629,11 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, con
 		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeShadow))) {
 			PassMask |= Material::PassTypeToMask(Material::PassTypeShadow);
 		}
-		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeNormalDepth))) {
-			PassMask |= Material::PassTypeToMask(Material::PassTypeNormalDepth);
+		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeNormalG))) {
+			PassMask |= Material::PassTypeToMask(Material::PassTypeNormalG);
 		}
-		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeTextureColor))) {
-			PassMask |= Material::PassTypeToMask(Material::PassTypeTextureColor);
+		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeOpaque))) {
+			PassMask |= Material::PassTypeToMask(Material::PassTypeOpaque);
 		}
 	}
 	catch (const my::Exception & e)

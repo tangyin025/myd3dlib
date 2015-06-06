@@ -27,6 +27,26 @@ void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 	}
 }
 
+RenderPipeline::RenderPipeline(void)
+	: m_ParticleVertexStride(0)
+	, m_ParticleInstanceStride(0)
+	, m_MeshInstanceStride(0)
+	, SHADOW_MAP_SIZE(1024)
+	, SHADOW_EPSILON(0.001f)
+	, m_ShadowRT(new Texture2D())
+	, m_ShadowDS(new Surface())
+	, m_NormalRT(new Texture2D())
+	, m_DiffuseRT(new Texture2D())
+	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
+	, m_SkyLight(30,30,-100,100)
+	, m_SkyLightColor(1,1,1,1)
+{
+}
+
+RenderPipeline::~RenderPipeline(void)
+{
+}
+
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -178,9 +198,9 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), Material::PassTypeToMask(Material::PassTypeNormalDepth)
-		| Material::PassTypeToMask(Material::PassTypeDiffuseSpec)
-		| Material::PassTypeToMask(Material::PassTypeTextureColor)
+	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), Material::PassTypeToMask(Material::PassTypeNormalG)
+		| Material::PassTypeToMask(Material::PassTypeLight)
+		| Material::PassTypeToMask(Material::PassTypeOpaque)
 		| Material::PassTypeToMask(Material::PassTypeTransparent));
 
 	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
@@ -196,7 +216,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(Material::PassTypeNormalDepth, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(Material::PassTypeNormalG, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
@@ -210,7 +230,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-		RenderPipeline::RenderAllObjects(Material::PassTypeDiffuseSpec, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(Material::PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		V(pd3dDevice->EndScene());
@@ -221,7 +241,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(Material::PassTypeTextureColor, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(Material::PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
@@ -247,11 +267,11 @@ const char * RenderPipeline::PassIDToTechnique(unsigned int PassID)
 	{
 	case Material::PassTypeShadow:
 		return "RenderShadow";
-	case Material::PassTypeNormalDepth:
+	case Material::PassTypeNormalG:
 		return "RenderNormal";
-	case Material::PassTypeDiffuseSpec:
+	case Material::PassTypeLight:
 		return "RenderLight";
-	case Material::PassTypeTextureColor:
+	case Material::PassTypeOpaque:
 		return "RenderColor";
 	case Material::PassTypeTransparent:
 		return "RenderTransparent";
