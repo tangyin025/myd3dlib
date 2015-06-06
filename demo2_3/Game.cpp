@@ -222,9 +222,9 @@ HRESULT Game::OnResetDevice(
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		if (shader_iter->second.get<0>())
+		if (shader_iter->second)
 		{
-			shader_iter->second.get<0>()->OnResetDevice();
+			shader_iter->second->OnResetDevice();
 		}
 	}
 
@@ -253,9 +253,9 @@ void Game::OnLostDevice(void)
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
 	{
-		if (shader_iter->second.get<0>())
+		if (shader_iter->second)
 		{
-			shader_iter->second.get<0>()->OnLostDevice();
+			shader_iter->second->OnLostDevice();
 		}
 	}
 
@@ -587,7 +587,7 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, con
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
 	if (shader_iter != m_ShaderCache.end())
 	{
-		return (shader_iter->second.get<1>() & Material::PassTypeToMask(PassID)) ? shader_iter->second.get<0>().get() : NULL;
+		return shader_iter->second.get();
 	}
 
 	struct Header
@@ -622,27 +622,17 @@ my::Effect * Game::QueryShader(Material::MeshType mesh_type, bool bInstance, con
 	}
 
 	EffectPtr shader(new Effect());
-	unsigned int PassMask = 0;
 	try
 	{
 		shader->CreateEffect(m_d3dDevice, source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
-		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeShadow))) {
-			PassMask |= Material::PassTypeToMask(Material::PassTypeShadow);
-		}
-		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeNormalG))) {
-			PassMask |= Material::PassTypeToMask(Material::PassTypeNormalG);
-		}
-		if (shader->GetTechniqueByName(RenderPipeline::PassIDToTechnique(Material::PassTypeOpaque))) {
-			PassMask |= Material::PassTypeToMask(Material::PassTypeOpaque);
-		}
 	}
 	catch (const my::Exception & e)
 	{
 		AddLine(ms2ws(e.what()), D3DCOLOR_ARGB(255,255,0,0));
 		shader.reset();
 	}
-	m_ShaderCache.insert(std::make_pair(key, boost::make_tuple(shader, PassMask)));
-	return PassMask & Material::PassTypeToMask(PassID) ? shader.get() : NULL;
+	m_ShaderCache.insert(std::make_pair(key, shader));
+	return shader.get();
 }
 
 void Game::ClearAllShaders(void)

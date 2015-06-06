@@ -62,7 +62,7 @@ public:
 
 	typedef boost::tuple<Material::MeshType, bool, std::string> ShaderCacheKey;
 
-	typedef boost::unordered_map<ShaderCacheKey, boost::tuple<my::EffectPtr, unsigned int> > ShaderCacheMap;
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
 
 	ShaderCacheMap m_ShaderCache;
 

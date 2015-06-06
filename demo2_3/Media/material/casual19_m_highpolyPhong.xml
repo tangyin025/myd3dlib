@@ -41,6 +41,7 @@
 				</second>
 			</item>
 		</m_Params>
+		<m_PassMask>11</m_PassMask>
 	</px>
 </Material>
 </boost_serialization>

@@ -26,6 +26,14 @@ public:
 		PassTypeNum
 	};
 
+	enum PassMask
+	{
+		PassMaskNone			= 0,
+		PassMaskLight			= 1 << PassTypeLight,
+		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeOpaque,
+		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeTransparent,
+	};
+
 	class ParameterValue
 	{
 	public:
@@ -109,10 +117,12 @@ public:
 
 	ParameterList m_Params;
 
+	unsigned int m_PassMask;
+
 public:
-	Material(void)
-	{
-	}
+	Material(void);
+
+	virtual ~Material(void);
 
 	virtual void OnResetDevice(void)
 	{
@@ -141,6 +151,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Shader);
 		ar & BOOST_SERIALIZATION_NVP(m_Params);
+		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
@@ -292,8 +303,6 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
 		float fElapsedTime);
-
-	static const char * PassIDToTechnique(unsigned int PassID);
 
 	void RenderAllObjects(
 		unsigned int PassID,

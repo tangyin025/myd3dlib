@@ -126,7 +126,8 @@ game:AddMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",true).Wo
 
 -- m=Material()
 -- m.Shader="lambert.fx"
--- m:AddParameter("g_DiffuseTexture", CreateTextureParam("texture/casual19_m_35.jpg"))
+-- m:AddParameter("g_MeshTexture", CreateTextureParam("texture/casual19_m_35.jpg"))
 -- m:AddParameter("g_NormalTexture", CreateTextureParam("texture/casual19_m_35_normal.dds"))
 -- m:AddParameter("g_SpecularTexture", CreateTextureParam("texture/casual19_m_35_spec.dds"))
+-- m.PassMask=Material.PassMaskOpaque
 -- game:SaveMaterial("material/casual19_m_highpolyPhong.xml", m)

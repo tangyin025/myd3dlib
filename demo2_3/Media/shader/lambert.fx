@@ -100,29 +100,27 @@ float4 ColorPS( COLOR_VS_OUTPUT In ) : COLOR0
     return float4(Diffuse.xyz, 1);
 }
 
-technique RenderShadow
+technique RenderScene
 {
-    pass P0
+    pass PassTypeShadow
     {          
         VertexShader = compile vs_2_0 ShadowVS();
         PixelShader  = compile ps_2_0 ShadowPS(); 
     }
-}
-
-technique RenderNormal
-{
-    pass P0
+    pass PassTypeNormalG
     {          
         VertexShader = compile vs_2_0 NormalVS();
         PixelShader  = compile ps_2_0 NormalPS(); 
     }
-}
-
-technique RenderColor
-{
-    pass P0
+    pass PassTypeLight
+    {          
+    }
+    pass PassTypeOpaque
     {          
         VertexShader = compile vs_2_0 ColorVS();
         PixelShader  = compile ps_2_0 ColorPS(); 
+    }
+    pass PassTypeTransparent
+    {          
     }
 }

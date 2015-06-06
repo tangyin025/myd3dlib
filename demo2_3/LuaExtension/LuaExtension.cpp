@@ -371,8 +371,16 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Path", &Material::ParameterValueTexture::m_Path)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
+			.enum_("PassMask")
+			[
+				value("PassMaskNone", Material::PassMaskNone),
+				value("PassMaskLight", Material::PassMaskLight),
+				value("PassMaskOpaque", Material::PassMaskOpaque),
+				value("PassMaskTransparent", Material::PassMaskTransparent)
+			]
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)
+			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def("AddParameter", &Material::AddParameter)
 
 		, class_<Actor, boost::shared_ptr<Actor> >("Actor")

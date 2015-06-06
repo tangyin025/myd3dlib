@@ -13,6 +13,15 @@ BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
 
 BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
 
+Material::Material(void)
+	: m_PassMask(PassMaskNone)
+{
+}
+
+Material::~Material(void)
+{
+}
+
 void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
 {
 	shader->SetTexture(name, m_Texture);
@@ -261,24 +270,6 @@ void RenderPipeline::OnFrameRender(
 	RenderPipeline::ClearAllObjects();
 }
 
-const char * RenderPipeline::PassIDToTechnique(unsigned int PassID)
-{
-	switch (PassID)
-	{
-	case Material::PassTypeShadow:
-		return "RenderShadow";
-	case Material::PassTypeNormalG:
-		return "RenderNormal";
-	case Material::PassTypeLight:
-		return "RenderLight";
-	case Material::PassTypeOpaque:
-		return "RenderColor";
-	case Material::PassTypeTransparent:
-		return "RenderTransparent";
-	}
-	return "";
-}
-
 void RenderPipeline::RenderAllObjects(
 	unsigned int PassID,
 	IDirect3DDevice9 * pd3dDevice,
@@ -352,12 +343,12 @@ void RenderPipeline::ClearAllObjects(void)
 
 void RenderPipeline::DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
-	shader->SetTechnique(PassIDToTechnique(PassID));
+	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
-	for (UINT p = 0; p < passes; p++)
 	{
-		shader->BeginPass(p);
+		shader->BeginPass(PassID);
 		mesh->DrawSubset(AttribId);
 		shader->EndPass();
 	}
@@ -392,12 +383,12 @@ void RenderPipeline::DrawMeshInstance(
 	V(pd3dDevice->SetVertexDeclaration(atom.m_Decl));
 	V(pd3dDevice->SetIndices(ib));
 
-	shader->SetTechnique(PassIDToTechnique(PassID));
+	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
-	for (UINT p = 0; p < passes; p++)
 	{
-		shader->BeginPass(p);
+		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
 			atom.m_AttribTable[AttribId].VertexStart,
 			atom.m_AttribTable[AttribId].VertexCount,
@@ -427,12 +418,12 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	my::Effect * shader,
 	IShaderSetter * setter)
 {
-	shader->SetTechnique(PassIDToTechnique(PassID));
+	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
-	for (UINT p = 0; p < passes; p++)
 	{
-		shader->BeginPass(p);
+		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetVertexDeclaration(pDecl));
 		V(pd3dDevice->DrawIndexedPrimitiveUP(
@@ -460,13 +451,13 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	}
 	m_ParticleInstanceData.Unlock();
 
-	shader->SetTechnique(PassIDToTechnique(PassID));
+	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
 	shader->SetFloatArray("g_AnimationColumnRow", &Vector2(emitter->m_ParticleAnimColumn, emitter->m_ParticleAnimRow)[0], 2);
-	for (UINT p = 0; p < passes; p++)
 	{
-		shader->BeginPass(p);
+		shader->BeginPass(PassID);
 		HRESULT hr;
 		V(pd3dDevice->SetStreamSource(0, m_ParticleVertexBuffer.m_ptr, 0, m_ParticleVertexStride));
 		V(pd3dDevice->SetStreamSourceFreq(0, D3DSTREAMSOURCE_INDEXEDDATA | NumInstances));
@@ -599,11 +590,11 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, Material:
 	{
 		for (DWORD i = 0; i < cmp->m_MaterialList.size(); i++)
 		{
-			if (cmp->m_MaterialList[i])
+			if (cmp->m_MaterialList[i] && (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 			{
 				for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 				{
-					if (Material::PassTypeToMask(PassID) & PassMask)
+					if (Material::PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 					{
 						my::Effect * shader = QueryShader(mesh_type, cmp->m_bInstance, cmp->m_MaterialList[i].get(), PassID);
 						if (shader)
@@ -632,11 +623,11 @@ void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUP
 		_ASSERT(!cmp->m_VertexData.empty());
 		_ASSERT(!cmp->m_IndexData.empty());
 		_ASSERT(0 != cmp->m_VertexStride);
-		if (cmp->m_MaterialList[i])
+		if (cmp->m_MaterialList[i] && (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 		{
 			for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 			{
-				if (Material::PassTypeToMask(PassID) & PassMask)
+				if (Material::PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 				{
 					my::Effect * shader = QueryShader(mesh_type, false, cmp->m_MaterialList[i].get(), PassID);
 					if (shader)
@@ -659,11 +650,11 @@ void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUP
 template <>
 void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, Material::MeshType mesh_type, unsigned int PassMask)
 {
-	if (cmp->m_Material && cmp->m_Emitter)
+	if (cmp->m_Material && cmp->m_Emitter && (cmp->m_Material->m_PassMask & PassMask))
 	{
 		for (unsigned int PassID = 0; PassID < Material::PassTypeNum; PassID++)
 		{
-			if (Material::PassTypeToMask(PassID) & PassMask)
+			if (Material::PassTypeToMask(PassID) & (cmp->m_Material->m_PassMask & PassMask))
 			{
 				my::Effect * shader = QueryShader(Material::MeshTypeParticle, false, cmp->m_Material.get(), PassID);
 				if (shader)
