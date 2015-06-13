@@ -26,46 +26,19 @@ namespace my
 
 			Vector4 m_Texcoord1;
 
-			Vector4 m_Texcoord2;
-
 		public:
-			Particle(const Vector3 & Position, const Vector3 & Velocity)
+			Particle(const Vector3 & Position, const Vector3 & Velocity, D3DCOLOR Color, const Vector2 & Size, float Angle)
 				: m_Position(Position)
 				, m_Velocity(Velocity)
-				, m_Color(D3DCOLOR_ARGB(255,255,255,255))
-				, m_Texcoord1(1,1,0,1)
-				, m_Texcoord2(0,0,0,0)
+				, m_Color(Color)
+				, m_Texcoord1(Size.x,Size.y,Angle,1)
 			{
 			}
 		};
 
 		typedef std::deque<std::pair<float, Particle> > ParticlePairList;
 
-		Vector3 m_Position;
-
-		Quaternion m_Orientation;
-
 		float m_ParticleLifeTime;
-
-		Spline m_ParticleColorA;
-
-		Spline m_ParticleColorR;
-
-		Spline m_ParticleColorG;
-
-		Spline m_ParticleColorB;
-
-		Spline m_ParticleSizeX;
-
-		Spline m_ParticleSizeY;
-
-		Spline m_ParticleAngle;
-
-		float m_ParticleAnimFPS;
-
-		unsigned char m_ParticleAnimColumn;
-
-		unsigned char m_ParticleAnimRow;
 
 		std::string m_MaterialName;
 
@@ -73,12 +46,7 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_Position(0,0,0)
-			, m_Orientation(Quaternion::Identity())
-			, m_ParticleLifeTime(FLT_MAX)
-			, m_ParticleAnimFPS(1)
-			, m_ParticleAnimColumn(1)
-			, m_ParticleAnimRow(1)
+			: m_ParticleLifeTime(FLT_MAX)
 		{
 		}
 
@@ -87,19 +55,7 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_Position);
-			ar & BOOST_SERIALIZATION_NVP(m_Orientation);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorA);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorR);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorG);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleColorB);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeX);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleSizeY);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAngle);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimFPS);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimColumn);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleAnimRow);
 			ar & BOOST_SERIALIZATION_NVP(m_MaterialName);
 		}
 
@@ -111,11 +67,9 @@ namespace my
 
 		void Reset(void);
 
-		void Spawn(const Vector3 & Position, const Vector3 & Velocity);
+		void Spawn(const Vector3 & Position, const Vector3 & Velocity, D3DCOLOR Color, const Vector2 & Size, float Angle);
 
 		virtual void Update(float fElapsedTime);
-
-		void UpdateParticle(Particle & particle, float time, float fElapsedTime);
 	};
 
 	typedef boost::shared_ptr<Emitter> EmitterPtr;

@@ -444,7 +444,6 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
 		m_ParticleInstanceElems.SetColor(pVertex, particle.m_Color);
 		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Texcoord1);
-		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, particle.m_Texcoord2);
 	}
 	m_ParticleInstanceData.Unlock();
 
@@ -452,7 +451,6 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
-	shader->SetFloatArray("g_AnimationColumnRow", &Vector2(emitter->m_ParticleAnimColumn, emitter->m_ParticleAnimRow)[0], 2);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;

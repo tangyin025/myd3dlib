@@ -1,14 +1,11 @@
 
 struct VS_INPUT
 {
+	float2 Tex0  			: TEXCOORD0;
 	float4 Pos				: POSITION;
 	float4 Color			: COLOR0;
-	float2 Tex0  			: TEXCOORD0;
 	float4 Tex1				: TEXCOORD1;
-	float4 Tex2				: TEXCOORD2;
 };
-
-float2 g_AnimationColumnRow;
 
 float3 RotateAngleAxis(float3 v, float a, float3 N)
 {
@@ -47,7 +44,7 @@ float4 TransformPos(VS_INPUT In)
 
 float2 TransformUV(VS_INPUT In)
 {
-	return (In.Tex2.xy + In.Tex0.xy) / g_AnimationColumnRow;
+	return In.Tex0.xy;
 }
 
 float3 TransformNormal(VS_INPUT In)
@@ -57,7 +54,7 @@ float3 TransformNormal(VS_INPUT In)
 
 float3 TransformTangent(VS_INPUT In)
 {
-	return float3(0);
+	return float3(0,0,0);
 }
 
 float4 TransformLight(VS_INPUT In)
