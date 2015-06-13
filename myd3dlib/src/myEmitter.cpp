@@ -66,6 +66,8 @@ void SphericalEmitter::Update(float fElapsedTime)
 
 	_ASSERT(m_SpawnInterval > 0);
 
+	float SpawnTime = fmod(m_Time, m_SpawnLoopTime);
+
 	while(m_RemainingSpawnTime >= 0)
 	{
 		Spawn(
@@ -75,9 +77,16 @@ void SphericalEmitter::Update(float fElapsedTime)
 				Random(m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
 			Vector3::SphericalToCartesian(
 				m_SpawnSpeed,
-				m_SpawnInclination.Interpolate(fmod(m_Time, m_SpawnLoopTime), 0),
-				m_SpawnAzimuth.Interpolate(fmod(m_Time, m_SpawnLoopTime), 0)),
-			D3DCOLOR_ARGB(255,255,255,255), Vector2(1,1), 0);
+				m_SpawnInclination.Interpolate(SpawnTime, 0),
+				m_SpawnAzimuth.Interpolate(SpawnTime, 0)),
+			D3DCOLOR_ARGB(
+				(unsigned char)m_SpawnColorA.Interpolate(SpawnTime, 255),
+				(unsigned char)m_SpawnColorR.Interpolate(SpawnTime, 255),
+				(unsigned char)m_SpawnColorG.Interpolate(SpawnTime, 255),
+				(unsigned char)m_SpawnColorB.Interpolate(SpawnTime, 255)),
+			Vector2(
+				m_SpawnSizeX.Interpolate(SpawnTime, 1)),
+			m_SpawnAngle.Interpolate(SpawnTime, 0));
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}

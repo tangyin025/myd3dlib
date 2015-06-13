@@ -14,7 +14,7 @@
 						<ParameterValue class_id="6" tracking_level="0" version="0">
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/white.bmp</m_Path>
+						<m_Path>texture/flare.dds</m_Path>
 					</px>
 				</second>
 			</item>

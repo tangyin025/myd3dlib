@@ -4,176 +4,24 @@
 <Emitter class_id="0" tracking_level="0" version="1">
 	<px class_id="2" class_name="SphericalEmitter" tracking_level="1" version="0" object_id="_0">
 		<Emitter class_id="1" tracking_level="1" version="0" object_id="_1">
-			<m_Position class_id="3" tracking_level="0" version="0">
-				<x>0</x>
-				<y>0</y>
-				<z>0</z>
-			</m_Position>
-			<m_Orientation class_id="4" tracking_level="0" version="0">
-				<x>0</x>
-				<y>0</y>
-				<z>0</z>
-				<w>1</w>
-			</m_Orientation>
 			<m_ParticleLifeTime>10</m_ParticleLifeTime>
-			<m_ParticleColorA class_id="5" tracking_level="0" version="0">
-				<SplineNodePtrList class_id="6" tracking_level="0" version="0">
-					<count>2</count>
-					<item_version>1</item_version>
-					<item class_id="7" tracking_level="0" version="1">
-						<px class_id="8" tracking_level="1" version="0" object_id="_2">
-							<x>0</x>
-							<y>255</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_3">
-							<x>10</x>
-							<y>0</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleColorA>
-			<m_ParticleColorR>
-				<SplineNodePtrList>
-					<count>2</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id_reference="8" object_id="_4">
-							<x>0</x>
-							<y>255</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_5">
-							<x>10</x>
-							<y>0</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleColorR>
-			<m_ParticleColorG>
-				<SplineNodePtrList>
-					<count>2</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id_reference="8" object_id="_6">
-							<x>0</x>
-							<y>255</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_7">
-							<x>10</x>
-							<y>0</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleColorG>
-			<m_ParticleColorB>
-				<SplineNodePtrList>
-					<count>2</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id_reference="8" object_id="_8">
-							<x>0</x>
-							<y>255</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_9">
-							<x>10</x>
-							<y>0</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleColorB>
-			<m_ParticleSizeX>
-				<SplineNodePtrList>
-					<count>2</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id_reference="8" object_id="_10">
-							<x>0</x>
-							<y>1</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_11">
-							<x>10</x>
-							<y>10</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleSizeX>
-			<m_ParticleSizeY>
-				<SplineNodePtrList>
-					<count>2</count>
-					<item_version>1</item_version>
-					<item>
-						<px class_id_reference="8" object_id="_12">
-							<x>0</x>
-							<y>1</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-					<item>
-						<px class_id_reference="8" object_id="_13">
-							<x>10</x>
-							<y>10</y>
-							<k0>0</k0>
-							<k>0</k>
-						</px>
-					</item>
-				</SplineNodePtrList>
-			</m_ParticleSizeY>
-			<m_ParticleAngle>
-				<SplineNodePtrList>
-					<count>0</count>
-					<item_version>1</item_version>
-				</SplineNodePtrList>
-			</m_ParticleAngle>
-			<m_ParticleAnimFPS>1</m_ParticleAnimFPS>
-			<m_ParticleAnimColumn>4</m_ParticleAnimColumn>
-			<m_ParticleAnimRow>4</m_ParticleAnimRow>
 			<m_MaterialName>particle1</m_MaterialName>
 		</Emitter>
 		<m_Time>0</m_Time>
 		<m_SpawnInterval>0.0099999998</m_SpawnInterval>
 		<m_RemainingSpawnTime>0</m_RemainingSpawnTime>
-		<m_HalfSpawnArea>
+		<m_HalfSpawnArea class_id="3" tracking_level="0" version="0">
 			<x>0</x>
 			<y>0</y>
 			<z>0</z>
 		</m_HalfSpawnArea>
 		<m_SpawnSpeed>5</m_SpawnSpeed>
-		<m_SpawnInclination>
-			<SplineNodePtrList>
+		<m_SpawnInclination class_id="4" tracking_level="0" version="0">
+			<SplineNodePtrList class_id="5" tracking_level="0" version="0">
 				<count>1</count>
 				<item_version>1</item_version>
-				<item>
-					<px class_id_reference="8" object_id="_14">
+				<item class_id="6" tracking_level="0" version="1">
+					<px class_id="7" tracking_level="1" version="0" object_id="_2">
 						<x>0</x>
 						<y>0.78539819</y>
 						<k0>0</k0>
@@ -187,7 +35,7 @@
 				<count>2</count>
 				<item_version>1</item_version>
 				<item>
-					<px class_id_reference="8" object_id="_15">
+					<px class_id_reference="7" object_id="_3">
 						<x>0</x>
 						<y>0</y>
 						<k0>5.0265484</k0>
@@ -195,7 +43,7 @@
 					</px>
 				</item>
 				<item>
-					<px class_id_reference="8" object_id="_16">
+					<px class_id_reference="7" object_id="_4">
 						<x>10</x>
 						<y>50.265484</y>
 						<k0>5.0265484</k0>
@@ -204,6 +52,48 @@
 				</item>
 			</SplineNodePtrList>
 		</m_SpawnAzimuth>
+		<m_SpawnColorA>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnColorA>
+		<m_SpawnColorR>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnColorR>
+		<m_SpawnColorG>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnColorG>
+		<m_SpawnColorB>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnColorB>
+		<m_SpawnSizeX>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnSizeX>
+		<m_SpawnSizeY>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnSizeY>
+		<m_SpawnAngle>
+			<SplineNodePtrList>
+				<count>0</count>
+				<item_version>1</item_version>
+			</SplineNodePtrList>
+		</m_SpawnAngle>
 		<m_SpawnLoopTime>5</m_SpawnLoopTime>
 	</px>
 </Emitter>

@@ -92,6 +92,20 @@ namespace my
 
 		Spline m_SpawnAzimuth;
 
+		Spline m_SpawnColorA;
+
+		Spline m_SpawnColorR;
+
+		Spline m_SpawnColorG;
+
+		Spline m_SpawnColorB;
+
+		Spline m_SpawnSizeX;
+
+		Spline m_SpawnSizeY;
+
+		Spline m_SpawnAngle;
+
 		float m_SpawnLoopTime;
 
 	public:
@@ -116,6 +130,13 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
 			ar & BOOST_SERIALIZATION_NVP(m_SpawnInclination);
 			ar & BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorA);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorR);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorG);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorB);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
+			ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 			ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 		}
 

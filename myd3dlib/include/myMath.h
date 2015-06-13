@@ -368,6 +368,13 @@ namespace my
 		{
 		}
 
+		Vector3(const Vector2 & _v, float _z)
+			: x(_v.x)
+			, y(_v.y)
+			, z(_z)
+		{
+		}
+
 		Vector3(float _x, float _y, float _z)
 			: x(_x)
 			, y(_y)
@@ -666,6 +673,14 @@ namespace my
 			, y(_v)
 			, z(_v)
 			, w(_v)
+		{
+		}
+
+		Vector4(const Vector3 & _v, float _w)
+			: x(_v.x)
+			, y(_v.y)
+			, z(_v.z)
+			, w(_w)
 		{
 		}
 

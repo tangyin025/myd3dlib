@@ -244,7 +244,7 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetTexture("g_DiffuseRT", m_DiffuseRT);
 	V(pd3dDevice->SetRenderTarget(0, OldRT));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 0, 0));
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
@@ -444,6 +444,7 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
 		m_ParticleInstanceElems.SetColor(pVertex, particle.m_Color);
 		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Texcoord1);
+		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, Vector4(particle.m_Velocity, emitter->m_ParticleList[i].first));
 	}
 	m_ParticleInstanceData.Unlock();
 

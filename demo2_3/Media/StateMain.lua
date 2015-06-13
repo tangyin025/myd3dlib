@@ -20,15 +20,15 @@ game.SkyLight.Nz=-50
 game.SkyLight.Fz=50
 game.SkyLightColor=Vector4(1,1,1,1)
 
--- -- local actor = Actor()
--- -- game:AddActor(actor)
--- -- game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
--- -- game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
--- -- game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
--- -- game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
--- -- game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
-	-- -- game:AddMeshComponentList(actor, res2mesh_set(res))
--- -- end)
+local actor = Actor()
+game:AddActor(actor)
+game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
+game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
+game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
+game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
+game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
+	game:AddMeshComponentList(actor, res2mesh_set(res))
+end)
 
 -- -- local actor = Actor()
 -- -- game:AddActor(actor)
@@ -109,35 +109,3 @@ game.SkyLightColor=Vector4(1,1,1,1)
 	-- -- cmp[6].World=Matrix4.Translation(5,2.5,5)*Matrix4.RotationY(math.rad(angle+300))
 -- -- end
 -- -- game:InsertTimer(t)
-
--- e=SphericalEmitter()
--- game:SaveEmitter("ddd.emt.xml", e)
-
-function CreateTextureParam(path)
-	param=ParameterValueTexture()
-	param.Path=path
-	return param
-end
-
--- m=Material()
--- m.Shader="lambert1.fx"
--- m.PassMask=Material.PassMaskOpaque
--- m:AddParameter("g_MeshTexture", CreateTextureParam("texture/casual19_m_35.jpg"))
--- m:AddParameter("g_NormalTexture", CreateTextureParam("texture/casual19_m_35_normal.dds"))
--- m:AddParameter("g_SpecularTexture", CreateTextureParam("texture/casual19_m_35_spec.dds"))
--- game:SaveMaterial("material/casual19_m_highpolyPhong.xml", m)
-
-m=Material()
-m.Shader="particle1.fx"
-m.PassMask=Material.PassMaskTransparent
-m:AddParameter("g_MeshTexture", CreateTextureParam("texture/white.bmp"))
-game:SaveMaterial("material/particle1.xml", m)
-
-local actor = Actor()
-game:AddActor(actor)
--- game:AddMeshComponentFromFile(actor,"mesh/plane.mesh.xml",false)
--- game:AddMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",true).World=Matrix4.Scaling(0.05,0.05,0.05)
-e=Emitter()
-e.MaterialName="particle1"
-game:AddEmitterComponent(actor,e)
-e:Spawn(Vector3(0,0,0),Vector3(0,0,0),ARGB(255,255,255,255),Vector2(1,1),0)

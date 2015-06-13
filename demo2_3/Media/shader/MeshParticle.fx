@@ -4,7 +4,8 @@ struct VS_INPUT
 	float2 Tex0  			: TEXCOORD0;
 	float4 Pos				: POSITION;
 	float4 Color			: COLOR0;
-	float4 Tex1				: TEXCOORD1;
+	float4 Tex1				: TEXCOORD1; // size_x, size_y, angle, 1
+	float4 Tex2				: TEXCOORD2; // vel_x, vel_y, vel_z, time
 };
 
 float3 RotateAngleAxis(float3 v, float a, float3 N)
@@ -34,7 +35,7 @@ float4 TransformPosWS(VS_INPUT In)
 	float4 Off = float4(RotateAngleAxis(
 		Up * lerp(In.Tex1.y * 0.5, -In.Tex1.y * 0.5, In.Tex0.y) + Right * lerp(-In.Tex1.x * 0.5, In.Tex1.x * 0.5, In.Tex0.x),
 		In.Tex1.z, Dir), 0);
-	return Off + mul(In.Pos, g_World);
+	return Off + mul(float4(In.Pos.xyz + In.Tex2.xyz * In.Tex2.w, In.Pos.w), g_World);
 }
 
 float4 TransformPos(VS_INPUT In)
