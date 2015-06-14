@@ -1,20 +1,21 @@
 
-emitter=SphericalEmitter()
-emitter.SpawnInterval=1/100
-emitter.ParticleLifeTime=10
-emitter.SpawnSpeed=5
-emitter.SpawnInclination:AddNode(0,math.rad(45),0,0)
-local Azimuth=math.rad(360)*8
-emitter.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
-emitter.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
-emitter.MaterialName="particle1"
-game:SaveEmitter("emitter/emitter_01.xml", emitter)
-
 function CreateTextureParam(path)
 	param=ParameterValueTexture()
 	param.Path=path
 	return param
 end
+
+material=Material()
+material.Shader="particle1.fx"
+material.PassMask=Material.PassMaskTransparent
+material:AddParameter("g_MeshTexture", CreateTextureParam("texture/flare.dds"))
+game:SaveMaterial("material/particle1.xml", material)
+
+material=Material()
+material.Shader="light1.fx"
+material.PassMask=Material.PassMaskLight
+material:AddParameter("g_MeshTexture", CreateTextureParam("texture/white.bmp"))
+game:SaveMaterial("material/light1.xml", material)
 
 material=Material()
 material.Shader="lambert1.fx"
@@ -51,3 +52,14 @@ game:SaveMaterial("material/lambert2.xml", material)
 game:SaveMaterial("material/lambert3.xml", material)
 game:SaveMaterial("material/lambert4.xml", material)
 game:SaveMaterial("material/lambert5.xml", material)
+
+emitter=SphericalEmitter()
+emitter.SpawnInterval=1/100
+emitter.ParticleLifeTime=10
+emitter.SpawnSpeed=5
+emitter.SpawnInclination:AddNode(0,math.rad(45),0,0)
+local Azimuth=math.rad(360)*8
+emitter.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
+emitter.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
+emitter.MaterialName="particle1"
+game:SaveEmitter("emitter/emitter_01.xml", emitter)
