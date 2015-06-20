@@ -135,7 +135,7 @@ void CChildView::OnPaint()
 			V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
 			//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
 
-			theApp.OnFrameRender(theApp.m_d3dDevice, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+			theApp.OnFrameRender(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{

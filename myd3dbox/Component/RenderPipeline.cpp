@@ -46,6 +46,8 @@ RenderPipeline::RenderPipeline(void)
 	, m_ShadowDS(new Surface())
 	, m_NormalRT(new Texture2D())
 	, m_LightRT(new Texture2D())
+	, m_OpaqueRT(new Texture2D())
+	, m_DownFilterRT(new Texture2D())
 	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 	, m_SkyLight(30,30,-100,100)
 	, m_SkyLightColor(1,1,1,1)
@@ -142,6 +144,12 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
+	m_OpaqueRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+	m_DownFilterRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
 	return S_OK;
 }
 
@@ -155,6 +163,8 @@ void RenderPipeline::OnLostDevice(void)
 	m_ShadowDS->OnDestroyDevice();
 	m_NormalRT->OnDestroyDevice();
 	m_LightRT->OnDestroyDevice();
+	m_OpaqueRT->OnDestroyDevice();
+	m_DownFilterRT->OnDestroyDevice();
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -182,6 +192,7 @@ void RenderPipeline::OnDestroyDevice(void)
 
 void RenderPipeline::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 	double fTime,
 	float fElapsedTime)
 {
@@ -243,11 +254,42 @@ void RenderPipeline::OnFrameRender(
 	}
 
 	m_SimpleSample->SetTexture("g_LightRT", m_LightRT);
-	V(pd3dDevice->SetRenderTarget(0, OldRT));
+	V(pd3dDevice->SetRenderTarget(0, m_OpaqueRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
 		RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+		V(pd3dDevice->EndScene());
+	}
+
+	V(pd3dDevice->StretchRect(m_OpaqueRT->GetSurfaceLevel(0), NULL, m_DownFilterRT->GetSurfaceLevel(0), NULL, D3DTEXF_NONE));
+
+	struct PPVERT
+	{
+		float x, y, z, rhw;
+		float tu, tv;
+	};
+
+	PPVERT vertex[4] =
+	{
+		{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
+		{-0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width - 0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
+	};
+
+	m_SimpleSample->SetTexture("g_OpaqueRT", m_OpaqueRT);
+	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
+	V(pd3dDevice->SetRenderTarget(0, OldRT));
+	if (SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	{
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		UINT passes = m_SimpleSample->Begin();
+		m_SimpleSample->BeginPass(1);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
+		m_SimpleSample->EndPass();
+		m_SimpleSample->End();
 		V(pd3dDevice->EndScene());
 	}
 

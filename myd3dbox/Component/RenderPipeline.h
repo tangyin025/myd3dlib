@@ -197,6 +197,10 @@ public:
 
 	my::Texture2DPtr m_LightRT;
 
+	my::Texture2DPtr m_OpaqueRT;
+
+	my::Texture2DPtr m_DownFilterRT;
+
 	my::FirstPersonCamera m_Camera;
 
 	my::OrthoCamera m_SkyLight;
@@ -301,6 +305,7 @@ public:
 
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		double fTime,
 		float fElapsedTime);
 

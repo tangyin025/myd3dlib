@@ -11,6 +11,8 @@ shared float4 g_SkyLightColor;
 shared texture g_ShadowRT;
 shared texture g_NormalRT;
 shared texture g_LightRT;
+shared texture g_OpaqueRT;
+shared texture g_DownFilterRT;
 shared texture g_MeshTexture;
 shared texture g_NormalTexture;
 shared texture g_SpecularTexture;
@@ -36,6 +38,22 @@ sampler NormalRTSampler = sampler_state
 sampler LightRTSampler = sampler_state
 {
 	Texture = <g_LightRT>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+};
+
+sampler OpaqueRTSampler = sampler_state
+{
+	Texture = <g_OpaqueRT>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+};
+
+sampler DownFilterRTSampler = sampler_state
+{
+	Texture = <g_DownFilterRT>;
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;

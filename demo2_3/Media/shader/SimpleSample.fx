@@ -46,6 +46,11 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
     return tex2D(MeshTextureSampler, In.TextureUV);
 }
 
+float4 RenderScenePS2( VS_OUTPUT In ) : COLOR0
+{ 
+    // Lookup mesh texture and modulate it with diffuse
+    return tex2D(DownFilterRTSampler, In.TextureUV);
+}
 
 //--------------------------------------------------------------------------------------
 // Renders scene 
@@ -56,5 +61,10 @@ technique RenderScene
     {          
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
+    }
+    pass P1
+    {          
+        VertexShader = compile vs_2_0 RenderSceneVS();
+        PixelShader  = compile ps_2_0 RenderScenePS2(); 
     }
 }
