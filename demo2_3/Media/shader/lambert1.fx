@@ -71,7 +71,7 @@ float GetLigthAmount(float4 PosLS)
 	return LightAmount / 4;
 }
 
-COLOR_VS_OUTPUT ColorVS( VS_INPUT In )
+COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 {
     COLOR_VS_OUTPUT Output;
 	float4 PosWS = TransformPosWS(In);
@@ -83,7 +83,7 @@ COLOR_VS_OUTPUT ColorVS( VS_INPUT In )
     return Output;    
 }
 
-float4 ColorPS( COLOR_VS_OUTPUT In ) : COLOR0
+float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
@@ -117,8 +117,8 @@ technique RenderScene
     }
     pass PassTypeOpaque
     {          
-        VertexShader = compile vs_2_0 ColorVS();
-        PixelShader  = compile ps_2_0 ColorPS(); 
+        VertexShader = compile vs_2_0 OpaqueVS();
+        PixelShader  = compile ps_2_0 OpaquePS(); 
     }
     pass PassTypeTransparent
     {          

@@ -201,6 +201,8 @@ public:
 
 	my::Texture2DPtr m_DownFilterRT;
 
+	my::Texture2DPtr m_DownFilterRT2;
+
 	my::FirstPersonCamera m_Camera;
 
 	my::OrthoCamera m_SkyLight;

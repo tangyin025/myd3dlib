@@ -8,6 +8,59 @@
 
 #include "CommonHeader.fx"
 
+static const int g_cKernelSize = 13;
+
+float2 PixelKernel[g_cKernelSize] =
+{
+    { -6, 0 },
+    { -5, 0 },
+    { -4, 0 },
+    { -3, 0 },
+    { -2, 0 },
+    { -1, 0 },
+    {  0, 0 },
+    {  1, 0 },
+    {  2, 0 },
+    {  3, 0 },
+    {  4, 0 },
+    {  5, 0 },
+    {  6, 0 },
+};
+
+float2 PixelKernel2[g_cKernelSize] =
+{
+    { 0, -6 },
+    { 0, -5 },
+    { 0, -4 },
+    { 0, -3 },
+    { 0, -2 },
+    { 0, -1 },
+    { 0,  0 },
+    { 0,  1 },
+    { 0,  2 },
+    { 0,  3 },
+    { 0,  4 },
+    { 0,  5 },
+    { 0,  6 },
+};
+
+static const float BlurWeights[g_cKernelSize] = 
+{
+    0.002216,
+    0.008764,
+    0.026995,
+    0.064759,
+    0.120985,
+    0.176033,
+    0.199471,
+    0.176033,
+    0.120985,
+    0.064759,
+    0.026995,
+    0.008764,
+    0.002216,
+};
+
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure
 //--------------------------------------------------------------------------------------
@@ -46,10 +99,40 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
     return tex2D(MeshTextureSampler, In.TextureUV);
 }
 
-float4 RenderScenePS2( VS_OUTPUT In ) : COLOR0
+float4 PS1( VS_OUTPUT In ) : COLOR0
 { 
-    // Lookup mesh texture and modulate it with diffuse
-    return tex2D(DownFilterRTSampler, In.TextureUV);
+    float4 Color = 0;
+
+    for (int i = 0; i < g_cKernelSize; i++)
+    {    
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernel[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+    }
+    
+    return Color;
+}
+
+float4 PS2( VS_OUTPUT In ) : COLOR0
+{ 
+    float4 Color = 0;
+
+    for (int i = 0; i < g_cKernelSize; i++)
+    {    
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernel2[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+    }
+    
+    return Color;
+}
+
+float4 DofCombine( VS_OUTPUT In ) : COLOR0
+{
+    float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV );
+
+    float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
+
+	float4 Normal = tex2D(NormalRTSampler, In.TextureUV);
+    float Blur = Normal.w;
+
+    return float4( lerp( ColorOrig, ColorBlur, saturate(abs(Blur)) ), 1.0f );
 }
 
 //--------------------------------------------------------------------------------------
@@ -64,7 +147,17 @@ technique RenderScene
     }
     pass P1
     {          
-        VertexShader = compile vs_2_0 RenderSceneVS();
-        PixelShader  = compile ps_2_0 RenderScenePS2(); 
+        VertexShader = null;
+        PixelShader  = compile ps_2_0 PS1(); 
     }
+    pass P2
+    {          
+        VertexShader = null;
+        PixelShader  = compile ps_2_0 PS2(); 
+    }
+    pass P3
+    {          
+        VertexShader = null;
+        PixelShader  = compile ps_2_0 DofCombine(); 
+	}
 }
