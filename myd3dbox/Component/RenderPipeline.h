@@ -144,7 +144,7 @@ public:
 	enum PassType
 	{
 		PassTypeShadow			= 0,
-		PassTypeNormalG			= 1,
+		PassTypeNormal			= 1,
 		PassTypeLight			= 2,
 		PassTypeOpaque			= 3,
 		PassTypeTransparent		= 4,
@@ -155,8 +155,8 @@ public:
 	{
 		PassMaskNone			= 0,
 		PassMaskLight			= 1 << PassTypeLight,
-		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeOpaque,
-		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormalG | 1 << PassTypeTransparent,
+		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
+		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeTransparent,
 	};
 
 	my::D3DVertexElementSet m_ParticleVertexElems;
@@ -195,7 +195,7 @@ public:
 
 	my::Texture2DPtr m_NormalRT;
 
-	my::Texture2DPtr m_DiffuseRT;
+	my::Texture2DPtr m_LightRT;
 
 	my::FirstPersonCamera m_Camera;
 

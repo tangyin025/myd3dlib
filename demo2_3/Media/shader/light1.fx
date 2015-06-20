@@ -42,7 +42,7 @@ technique RenderScene
     pass PassTypeShadow
     {          
     }
-    pass PassTypeNormalG
+    pass PassTypeNormal
     {          
     }
     pass PassTypeLight

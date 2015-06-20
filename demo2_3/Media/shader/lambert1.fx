@@ -90,7 +90,7 @@ float4 ColorPS( COLOR_VS_OUTPUT In ) : COLOR0
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
 	float3 DiffuseSky = saturate(-dot(Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightColor.xyz;
-	float4 Diffuse = tex2D(DiffuseRTSampler, DiffuseTex);
+	float4 Diffuse = tex2D(LightRTSampler, DiffuseTex);
 	Diffuse.xyz += DiffuseSky;
 	Diffuse.xyz *= tex2D(MeshTextureSampler, In.Tex0).xyz;
 	float3 Ref = Reflection(Normal.xyz, In.View);
@@ -107,7 +107,7 @@ technique RenderScene
         VertexShader = compile vs_2_0 ShadowVS();
         PixelShader  = compile ps_2_0 ShadowPS(); 
     }
-    pass PassTypeNormalG
+    pass PassTypeNormal
     {          
         VertexShader = compile vs_2_0 NormalVS();
         PixelShader  = compile ps_2_0 NormalPS(); 

@@ -45,7 +45,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_NormalRT(new Texture2D())
-	, m_DiffuseRT(new Texture2D())
+	, m_LightRT(new Texture2D())
 	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 	, m_SkyLight(30,30,-100,100)
 	, m_SkyLightColor(1,1,1,1)
@@ -139,7 +139,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_NormalRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
-	m_DiffuseRT->CreateTexture(
+	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
 	return S_OK;
@@ -154,7 +154,7 @@ void RenderPipeline::OnLostDevice(void)
 	m_ShadowRT->OnDestroyDevice();
 	m_ShadowDS->OnDestroyDevice();
 	m_NormalRT->OnDestroyDevice();
-	m_DiffuseRT->OnDestroyDevice();
+	m_LightRT->OnDestroyDevice();
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -207,7 +207,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), PassTypeToMask(PassTypeNormalG) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
@@ -222,12 +222,12 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::RenderAllObjects(PassTypeNormalG, pd3dDevice, fTime, fElapsedTime);
+		RenderPipeline::RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 		V(pd3dDevice->EndScene());
 	}
 
 	m_SimpleSample->SetTexture("g_NormalRT", m_NormalRT);
-	V(pd3dDevice->SetRenderTarget(0, m_DiffuseRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(0, m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -242,7 +242,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	m_SimpleSample->SetTexture("g_DiffuseRT", m_DiffuseRT);
+	m_SimpleSample->SetTexture("g_LightRT", m_LightRT);
 	V(pd3dDevice->SetRenderTarget(0, OldRT));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
