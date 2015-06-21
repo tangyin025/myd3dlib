@@ -25,27 +25,30 @@ struct NORMAL_VS_OUTPUT
 	float3 Normal			: TEXCOORD1;
 	float3 Tangent			: TEXCOORD2;
 	float3 Binormal			: TEXCOORD3;
-	float2 Depth			: TEXCOORD4;
+	float3 ViewPos			: TEXCOORD4;
 };
 
 NORMAL_VS_OUTPUT NormalVS( VS_INPUT In )
 {
 	NORMAL_VS_OUTPUT Output;
-	Output.Pos = TransformPos(In);
+	float4 PosWS = TransformPosWS(In);
+	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.Tex0 = TransformUV(In);
-	Output.Normal = TransformNormal(In);
-	Output.Tangent = TransformTangent(In);
+	Output.Normal = mul(TransformNormal(In), (float3x3)g_View);
+	Output.Tangent = mul(TransformTangent(In), (float3x3)g_View);
 	Output.Binormal = cross(Output.Normal, Output.Tangent);
-	Output.Depth = Output.Pos.zw;
+	Output.ViewPos = mul(PosWS, g_View);
 	return Output;
 }
 
-float4 NormalPS( NORMAL_VS_OUTPUT In ) : COLOR0
+void NormalPS( 	NORMAL_VS_OUTPUT In,
+				out float4 oNormal : COLOR0,
+				out float4 oPos : COLOR1 )
 {
-	float3x3 t2w = float3x3(In.Tangent, In.Binormal, In.Normal);
+	float3x3 m = float3x3(In.Tangent, In.Binormal, In.Normal);
 	float3 NormalTS = tex2D(NormalTextureSampler, In.Tex0).xyz * 2 - 1;
-	float3 Normal = mul(NormalTS, t2w);
-	return float4(Normal.x, Normal.y, Normal.z, In.Depth.x / In.Depth.y);
+	oNormal = float4(mul(NormalTS, m), 1.0);
+	oPos = float4(In.ViewPos, 1.0);
 }
 
 struct COLOR_VS_OUTPUT
@@ -66,7 +69,7 @@ float GetLigthAmount(float4 PosLS)
 	float x, y;
 	for(x = -0.0; x <= 1.0; x += 1.0)
 		for(y = -0.0; y <= 1.0; y+= 1.0)
-			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLS.z / PosLS.w ? 0.0f : 1.0f;
+			LightAmount += tex2D(ShadowRTSampler, ShadowTexC + float2(x, y) / SHADOW_MAP_SIZE) + SHADOW_EPSILON < PosLS.z / PosLS.w ? 0.0 : 1.0;
 			
 	return LightAmount / 4;
 }
@@ -79,22 +82,23 @@ COLOR_VS_OUTPUT OpaqueVS( VS_INPUT In )
 	Output.Tex0 = TransformUV(In);
 	Output.Pos2 = Output.Pos;
 	Output.PosLS = mul(TransformPosWS(In), g_SkyLightViewProj);
-	Output.View = g_Eye - PosWS;
+	Output.View = mul(g_Eye - PosWS, (float3x3)g_View);
     return Output;    
 }
 
 float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 { 
+	float3 ViewSkyLightDir = mul(g_SkyLightDir, g_View);
 	float2 DiffuseTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
-	float3 DiffuseSky = saturate(-dot(Normal, g_SkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightColor.xyz;
+	float3 DiffuseSky = saturate(-dot(Normal, ViewSkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightColor.xyz;
 	float4 Diffuse = tex2D(LightRTSampler, DiffuseTex);
 	Diffuse.xyz += DiffuseSky;
 	Diffuse.xyz *= tex2D(MeshTextureSampler, In.Tex0).xyz;
 	float3 Ref = Reflection(Normal.xyz, In.View);
-	float SpecularSky = pow(saturate(dot(Ref, -g_SkyLightDir)), 5) * g_SkyLightColor.w;
+	float SpecularSky = pow(saturate(dot(Ref, -ViewSkyLightDir)), 5) * g_SkyLightColor.w;
 	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * (Diffuse.w + SpecularSky);
 	Diffuse.xyz += Specular;
     return float4(Diffuse.xyz, 1);

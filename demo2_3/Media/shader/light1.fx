@@ -2,37 +2,39 @@
 struct LIGHT_VS_OUTPUT
 {
 	float4 Pos				: POSITION;
-	float4 Pos2				: TEXCOORD0;
+	float4 ScreenPos		: TEXCOORD0;
 	float4 Light			: TEXCOORD1;
+	float3 Eye				: TEXCOORD2;
 	float4 Color			: COLOR0;
 };
 
 LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 {
 	LIGHT_VS_OUTPUT Output;
-	Output.Pos = TransformPos(In);
-	Output.Pos2 = Output.Pos;
+	float4 PosWS = TransformPosWS(In);
+	Output.Pos = mul(PosWS, g_ViewProj);
+	Output.ScreenPos = Output.Pos;
 	Output.Light = TransformLight(In);
+	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View);
+	Output.Eye = mul(float4(g_Eye, 1.0), g_View);
 	Output.Color = TransformColor(In);
 	return Output;
 }
 
 float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 { 
-	float2 NormalTex = In.Pos2.xy / In.Pos2.w * 0.5 + 0.5;
+	float2 NormalTex = In.ScreenPos.xy / In.ScreenPos.w * 0.5 + 0.5;
 	NormalTex.y = 1 - NormalTex.y;
 	NormalTex = NormalTex + float2(0.5, 0.5) / g_ScreenDim;
-	float4 Normal = tex2D(NormalRTSampler, NormalTex);
-	float z = Normal.w;
-	float4 PosWS = mul(float4(In.Pos2.x, In.Pos2.y, z * In.Pos2.w, In.Pos2.w), g_InvViewProj);
-	PosWS.xyz = PosWS.xyz / PosWS.www;
-	PosWS.w = 1;
-	float3 LightVec = In.Light.xyz - PosWS.xyz;
+	float3 Normal = tex2D(NormalRTSampler, NormalTex).xyz;
+	float3 ViewPos = tex2D(PositionRTSampler, NormalTex).xyz;
+	float3 LightVec = In.Light.xyz - ViewPos;
 	float LightLen = length(LightVec);
+	clip(In.Light.w - LightLen);
 	LightVec = LightVec / LightLen;
-	float diffuse = saturate(dot(Normal.xyz, LightVec));
-	float3 View = g_Eye - PosWS.xyz;
-	float3 Ref = Reflection(Normal.xyz, View);
+	float diffuse = saturate(dot(Normal, LightVec));
+	float3 View = In.Eye - ViewPos;
+	float3 Ref = Reflection(Normal, View);
 	float specular = pow(saturate(dot(Ref, LightVec)), 5);
 	return float4(In.Color.xyz * diffuse, In.Color.w * specular) * saturate(1 - LightLen / In.Light.w);
 }

@@ -45,6 +45,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_NormalRT(new Texture2D())
+	, m_PositionRT(new Texture2D())
 	, m_LightRT(new Texture2D())
 	, m_OpaqueRT(new Texture2D())
 	, m_DownFilterRT(new Texture2D())
@@ -142,6 +143,9 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_NormalRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
+	m_PositionRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
 	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
@@ -166,6 +170,7 @@ void RenderPipeline::OnLostDevice(void)
 	m_ShadowRT->OnDestroyDevice();
 	m_ShadowDS->OnDestroyDevice();
 	m_NormalRT->OnDestroyDevice();
+	m_PositionRT->OnDestroyDevice();
 	m_LightRT->OnDestroyDevice();
 	m_OpaqueRT->OnDestroyDevice();
 	m_DownFilterRT->OnDestroyDevice();
@@ -234,6 +239,7 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetVector("g_SkyLightColor", m_SkyLightColor);
 	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT);
 	V(pd3dDevice->SetRenderTarget(0, m_NormalRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(1, m_PositionRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(OldDS));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
@@ -243,7 +249,9 @@ void RenderPipeline::OnFrameRender(
 	}
 
 	m_SimpleSample->SetTexture("g_NormalRT", m_NormalRT);
+	m_SimpleSample->SetTexture("g_PositionRT", m_PositionRT);
 	V(pd3dDevice->SetRenderTarget(0, m_LightRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(1, NULL));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -259,7 +267,8 @@ void RenderPipeline::OnFrameRender(
 	}
 
 	m_SimpleSample->SetTexture("g_LightRT", m_LightRT);
-	V(pd3dDevice->SetRenderTarget(0, m_OpaqueRT->GetSurfaceLevel(0)));
+	//V(pd3dDevice->SetRenderTarget(0, m_OpaqueRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(0, OldRT));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
@@ -267,57 +276,57 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->EndScene());
 	}
 
-	V(pd3dDevice->StretchRect(m_OpaqueRT->GetSurfaceLevel(0), NULL, m_DownFilterRT->GetSurfaceLevel(0), NULL, D3DTEXF_NONE));
+	////V(pd3dDevice->StretchRect(m_OpaqueRT->GetSurfaceLevel(0), NULL, m_DownFilterRT->GetSurfaceLevel(0), NULL, D3DTEXF_NONE));
 
-	struct PPVERT
-	{
-		float x, y, z, rhw;
-		float tu, tv;
-	};
+	//struct PPVERT
+	//{
+	//	float x, y, z, rhw;
+	//	float tu, tv;
+	//};
 
-	PPVERT vertex[4] =
-	{
-		{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
-		{-0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
-		{pBackBufferSurfaceDesc->Width - 0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
-		{pBackBufferSurfaceDesc->Width - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
-	};
+	//PPVERT vertex[4] =
+	//{
+	//	{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
+	//	{-0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
+	//	{pBackBufferSurfaceDesc->Width - 0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
+	//	{pBackBufferSurfaceDesc->Width - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
+	//};
 
-	PPVERT vertex4[4] =
-	{
-		{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
-		{-0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
-		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
-		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
-	};
+	//PPVERT vertex4[4] =
+	//{
+	//	{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
+	//	{-0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
+	//	{pBackBufferSurfaceDesc->Width / 4 - 0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
+	//	{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
+	//};
 
-	m_SimpleSample->SetTexture("g_OpaqueRT", m_OpaqueRT);
-	if (SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		UINT passes = m_SimpleSample->Begin();
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
-		V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT2->GetSurfaceLevel(0)));
-		m_SimpleSample->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+	////m_SimpleSample->SetTexture("g_OpaqueRT", m_OpaqueRT);
+	////if (SUCCEEDED(hr = pd3dDevice->BeginScene()))
+	////{
+	////	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	////	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+	////	UINT passes = m_SimpleSample->Begin();
+	////	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
+	////	V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT2->GetSurfaceLevel(0)));
+	////	m_SimpleSample->BeginPass(1);
+	////	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	////	m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT2);
-		V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT->GetSurfaceLevel(0)));
-		m_SimpleSample->BeginPass(2);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+	////	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT2);
+	////	V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT->GetSurfaceLevel(0)));
+	////	m_SimpleSample->BeginPass(2);
+	////	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	////	m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
-		V(pd3dDevice->SetRenderTarget(0, OldRT));
-		m_SimpleSample->BeginPass(3);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-		m_SimpleSample->End();
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-		V(pd3dDevice->EndScene());
-	}
+	////	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
+	////	V(pd3dDevice->SetRenderTarget(0, OldRT));
+	////	m_SimpleSample->BeginPass(3);
+	////	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
+	////	m_SimpleSample->EndPass();
+	////	m_SimpleSample->End();
+	////	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	////	V(pd3dDevice->EndScene());
+	////}
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{

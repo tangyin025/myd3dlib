@@ -10,6 +10,7 @@ shared float4x4 g_SkyLightViewProj;
 shared float4 g_SkyLightColor;
 shared texture g_ShadowRT;
 shared texture g_NormalRT;
+shared texture g_PositionRT;
 shared texture g_LightRT;
 shared texture g_OpaqueRT;
 shared texture g_DownFilterRT;
@@ -30,6 +31,14 @@ sampler ShadowRTSampler = sampler_state
 sampler NormalRTSampler = sampler_state
 {
 	Texture = <g_NormalRT>;
+	MipFilter = NONE;
+	MinFilter = POINT;
+	MagFilter = POINT;
+};
+
+sampler PositionRTSampler = sampler_state
+{
+	Texture = <g_PositionRT>;
 	MipFilter = NONE;
 	MinFilter = POINT;
 	MagFilter = POINT;

@@ -195,6 +195,8 @@ public:
 
 	my::Texture2DPtr m_NormalRT;
 
+	my::Texture2DPtr m_PositionRT;
+
 	my::Texture2DPtr m_LightRT;
 
 	my::Texture2DPtr m_OpaqueRT;
