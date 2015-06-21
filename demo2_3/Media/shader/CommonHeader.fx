@@ -63,9 +63,9 @@ sampler OpaqueRTSampler = sampler_state
 sampler DownFilterRTSampler = sampler_state
 {
 	Texture = <g_DownFilterRT>;
-	MipFilter = NONE;
-	MinFilter = POINT;
-	MagFilter = POINT;
+	MipFilter = Linear;
+	MinFilter = Point;
+	MagFilter = Linear;
 };
 
 sampler MeshTextureSampler = sampler_state

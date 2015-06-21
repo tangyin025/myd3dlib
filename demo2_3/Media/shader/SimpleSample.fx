@@ -10,6 +10,8 @@
 
 static const int g_cKernelSize = 13;
 
+float4 FocalPlane = float4( 0.0f, 0.0f, 0.2f, 1.0f );
+
 float2 PixelKernel[g_cKernelSize] =
 {
     { -6, 0 },
@@ -96,7 +98,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(MeshTextureSampler, In.TextureUV);
+    return tex2D(DownFilterRTSampler, In.TextureUV);
 }
 
 float4 PS1( VS_OUTPUT In ) : COLOR0
@@ -129,8 +131,7 @@ float4 DofCombine( VS_OUTPUT In ) : COLOR0
 
     float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
 
-	float4 Normal = tex2D(NormalRTSampler, In.TextureUV);
-    float Blur = Normal.w;
+    float Blur = dot( tex2D( PositionRTSampler, In.TextureUV ), FocalPlane );
 
     return float4( lerp( ColorOrig, ColorBlur, saturate(abs(Blur)) ), 1.0f );
 }
