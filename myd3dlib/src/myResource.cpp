@@ -297,7 +297,7 @@ IStreamPtr FileIStreamDir::OpenIStream(const std::string & path)
 
 void StreamDirMgr::RegisterZipDir(const std::string & zip_path)
 {
-	if (CheckPath(zip_path))
+	if (PathFileExistsA(zip_path.c_str()))
 	{
 		m_DirList.push_back(ResourceDirPtr(new ZipIStreamDir(zip_path)));
 	}
