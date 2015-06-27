@@ -10,7 +10,7 @@
 
 static const int g_cKernelSize = 13;
 
-float4 FocalPlane = float4( 0.0f, 0.0f, 0.2f, 1.0f );
+float4 g_DofParams = float4( 5.0f, 15.0f, 25.0f, 1.0f );
 
 float2 PixelKernel[g_cKernelSize] =
 {
@@ -125,15 +125,30 @@ float4 PS2( VS_OUTPUT In ) : COLOR0
     return Color;
 }
 
+float ComputeDepthBlur(float depth)
+{
+	float f;
+	if (depth < g_DofParams.y)
+	{
+		f = (g_DofParams.y - depth) / (g_DofParams.y - g_DofParams.x);
+	}
+	else
+	{
+		f = (depth - g_DofParams.y) / (g_DofParams.z - g_DofParams.y);
+		f = clamp(f, 0, g_DofParams.w);
+	}
+	return f * 0.5 + 0.5;
+}
+
 float4 DofCombine( VS_OUTPUT In ) : COLOR0
 {
     float3 ColorOrig = tex2D( OpaqueRTSampler, In.TextureUV );
 
     float3 ColorBlur = tex2D( DownFilterRTSampler, In.TextureUV );
 
-    float Blur = dot( tex2D( PositionRTSampler, In.TextureUV ), FocalPlane );
+    float Blur = ComputeDepthBlur(-tex2D( PositionRTSampler, In.TextureUV ).z);
 
-    return float4( lerp( ColorOrig, ColorBlur, saturate(abs(Blur)) ), 1.0f );
+    return float4( lerp( ColorOrig, ColorBlur, saturate(Blur) ), 1.0f );
 }
 
 //--------------------------------------------------------------------------------------

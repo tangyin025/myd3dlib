@@ -189,6 +189,8 @@ public:
 
 	float SHADOW_EPSILON;
 
+	my::Vector4 m_DofParams;
+
 	my::Texture2DPtr m_ShadowRT;
 
 	my::SurfacePtr m_ShadowDS;

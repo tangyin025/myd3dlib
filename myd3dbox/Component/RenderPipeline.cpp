@@ -42,6 +42,7 @@ RenderPipeline::RenderPipeline(void)
 	, m_MeshInstanceStride(0)
 	, SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)
+	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
 	, m_NormalRT(new Texture2D())
@@ -299,6 +300,7 @@ void RenderPipeline::OnFrameRender(
 		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
 	};
 
+	m_SimpleSample->SetVector("g_DofParams", m_DofParams);
 	m_SimpleSample->SetTexture("g_OpaqueRT", m_OpaqueRT);
 	if (SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
