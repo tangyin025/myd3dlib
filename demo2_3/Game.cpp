@@ -58,7 +58,7 @@ void EffectUIRender::SetTexture(const BaseTexturePtr & Texture)
 	if(m_UIEffect->m_ptr)
 	{
 		_ASSERT(Game::getSingleton().m_WhiteTex);
-		m_UIEffect->SetTexture("g_MeshTexture", Texture ? Texture : Game::getSingleton().m_WhiteTex);
+		m_UIEffect->SetTexture("g_MeshTexture", Texture ? Texture.get() : Game::getSingleton().m_WhiteTex.get());
 	}
 }
 
@@ -79,6 +79,14 @@ void EffectUIRender::DrawVertexList(void)
 Game::Game(void)
 {
 	Export2Lua(_state);
+	m_NormalRT.reset(new Texture2D());
+	m_PositionRT.reset(new Texture2D());
+	m_LightRT.reset(new Texture2D());
+	m_OpaqueRT.reset(new Texture2D());
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i].reset(new Texture2D());
+	}
 }
 
 Game::~Game(void)
@@ -213,6 +221,24 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
+	m_NormalRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_PositionRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_LightRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+	m_OpaqueRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i]->CreateTexture(
+			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	}
+
 	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
 	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
@@ -246,9 +272,13 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	ActorResourceMgr::OnLostDevice();
+	ActorPtrList::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		(*actor_iter)->OnLostDevice();
+	}
 
-	RenderPipeline::OnLostDevice();
+	ActorResourceMgr::OnLostDevice();
 
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
 	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
@@ -259,11 +289,16 @@ void Game::OnLostDevice(void)
 		}
 	}
 
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
+	m_NormalRT->OnDestroyDevice();
+	m_PositionRT->OnDestroyDevice();
+	m_LightRT->OnDestroyDevice();
+	m_OpaqueRT->OnDestroyDevice();
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
 	{
-		(*actor_iter)->OnLostDevice();
+		m_DownFilterRT[i]->OnDestroyDevice();
 	}
+
+	RenderPipeline::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
@@ -349,7 +384,11 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, fTime, fElapsedTime);
+		V(pd3dDevice->GetRenderTarget(0, &m_OldRT));
+		V(pd3dDevice->GetDepthStencilSurface(&m_OldDS));
+		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
+		m_OldRT.Release();
+		m_OldDS.Release();
 
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
@@ -638,6 +677,68 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 void Game::ClearAllShaders(void)
 {
 	m_ShaderCache.clear();
+}
+
+IDirect3DSurface9 * Game::GetScreenSurface(void)
+{
+	return m_OldRT;
+}
+
+IDirect3DSurface9 * Game::GetScreenDepthStencilSurface(void)
+{
+	return m_OldDS;
+}
+
+IDirect3DSurface9 * Game::GetNormalSurface(void)
+{
+	return m_NormalRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * Game::GetNormalTexture(void)
+{
+	return m_NormalRT.get();
+}
+
+IDirect3DSurface9 * Game::GetPositionSurface(void)
+{
+	return m_PositionRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * Game::GetPositionTexture(void)
+{
+	return m_PositionRT.get();
+}
+
+IDirect3DSurface9 * Game::GetLightSurface(void)
+{
+	return m_LightRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * Game::GetLightTexture(void)
+{
+	return m_LightRT.get();
+}
+
+IDirect3DSurface9 * Game::GetOpaqueSurface(void)
+{
+	return m_OpaqueRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * Game::GetOpaqueTexture(void)
+{
+	return m_OpaqueRT.get();
+}
+
+IDirect3DSurface9 * Game::GetDownFilterSurface(unsigned int i)
+{
+	_ASSERT(i < _countof(m_DownFilterRT));
+	return m_DownFilterRT[i]->GetSurfaceLevel(0);
+}
+
+my::Texture2D * Game::GetDownFilterTexture(unsigned int i)
+{
+	_ASSERT(i < _countof(m_DownFilterRT));
+	return m_DownFilterRT[i].get();
 }
 
 void Game::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)

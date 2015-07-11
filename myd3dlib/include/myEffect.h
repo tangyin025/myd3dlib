@@ -269,7 +269,7 @@ namespace my
 
 		void SetString(D3DXHANDLE hParameter, LPCSTR pString);
 
-		void SetTexture(D3DXHANDLE hParameter, const BaseTexturePtr & Texture);
+		void SetTexture(D3DXHANDLE hParameter, const BaseTexture * Texture);
 
 		void SetValue(D3DXHANDLE hParameter, LPCVOID pData, UINT Bytes);
 

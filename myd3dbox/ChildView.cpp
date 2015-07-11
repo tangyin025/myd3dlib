@@ -30,7 +30,16 @@ END_MESSAGE_MAP()
 CChildView::CChildView()
 {
 	// TODO: add construction code here
-
+	m_SwapChainBuffer.reset(new my::Surface());
+	m_DepthStencil.reset(new my::Surface());
+	m_NormalRT.reset(new my::Texture2D());
+	m_PositionRT.reset(new my::Texture2D());
+	m_LightRT.reset(new my::Texture2D());
+	m_OpaqueRT.reset(new my::Texture2D());
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i].reset(new my::Texture2D());
+	}
 }
 
 CChildView::~CChildView()
@@ -74,15 +83,106 @@ BOOL CChildView::ResetD3DSwapChain(void)
 		return FALSE;
 	}
 
-	my::Surface BackBuffer;
-	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-	m_SwapChainBufferDesc = BackBuffer.GetDesc();
+	m_SwapChainBuffer->OnDestroyDevice();
+	V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &m_SwapChainBuffer->m_ptr));
+	m_SwapChainBufferDesc = m_SwapChainBuffer->GetDesc();
 
-	m_DepthStencil.OnDestroyDevice();
-	m_DepthStencil.CreateDepthStencilSurface(
+	m_DepthStencil->OnDestroyDevice();
+	m_DepthStencil->CreateDepthStencilSurface(
 		theApp.m_d3dDevice, m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height, D3DFMT_D24X8, d3dpp.MultiSampleType, d3dpp.MultiSampleQuality);
 
+	ResetRenderTargets(theApp.m_d3dDevice, &m_SwapChainBufferDesc);
+
 	return TRUE;
+}
+
+BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	m_NormalRT->OnDestroyDevice();
+	m_NormalRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_PositionRT->OnDestroyDevice();
+	m_PositionRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
+
+	m_LightRT->OnDestroyDevice();
+	m_LightRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+	m_OpaqueRT->OnDestroyDevice();
+	m_OpaqueRT->CreateTexture(
+		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i]->OnDestroyDevice();
+		m_DownFilterRT[i]->CreateTexture(
+			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	}
+	return TRUE;
+}
+
+IDirect3DSurface9 * CChildView::GetScreenSurface(void)
+{
+	return m_SwapChainBuffer->m_ptr;
+}
+
+IDirect3DSurface9 * CChildView::GetScreenDepthStencilSurface(void)
+{
+	return m_DepthStencil->m_ptr;
+}
+
+IDirect3DSurface9 * CChildView::GetNormalSurface(void)
+{
+	return m_NormalRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * CChildView::GetNormalTexture(void)
+{
+	return m_NormalRT.get();
+}
+
+IDirect3DSurface9 * CChildView::GetPositionSurface(void)
+{
+	return m_PositionRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * CChildView::GetPositionTexture(void)
+{
+	return m_PositionRT.get();
+}
+
+IDirect3DSurface9 * CChildView::GetLightSurface(void)
+{
+	return m_LightRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * CChildView::GetLightTexture(void)
+{
+	return m_LightRT.get();
+}
+
+IDirect3DSurface9 * CChildView::GetOpaqueSurface(void)
+{
+	return m_OpaqueRT->GetSurfaceLevel(0);
+}
+
+my::Texture2D * CChildView::GetOpaqueTexture(void)
+{
+	return m_OpaqueRT.get();
+}
+
+IDirect3DSurface9 * CChildView::GetDownFilterSurface(unsigned int i)
+{
+	_ASSERT(i < _countof(m_DownFilterRT));
+	return m_DownFilterRT[i]->GetSurfaceLevel(0);
+}
+
+my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
+{
+	_ASSERT(i < _countof(m_DownFilterRT));
+	return m_DownFilterRT[i].get();
 }
 
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
@@ -129,15 +229,9 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			my::Surface BackBuffer;
-			V(m_d3dSwapChain->GetBackBuffer(0, D3DBACKBUFFER_TYPE_MONO, &BackBuffer.m_ptr));
-			V(theApp.m_d3dDevice->SetRenderTarget(0, BackBuffer.m_ptr));
-			V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil.m_ptr));
-			//V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_ARGB(0,161,161,161), 1.0f, 0));
-
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
-				theApp.OnFrameRender(theApp.m_d3dDevice, &theApp.m_BackBufferSurfaceDesc, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);

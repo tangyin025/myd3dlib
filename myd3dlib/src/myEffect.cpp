@@ -656,7 +656,7 @@ void BaseEffect::SetString(D3DXHANDLE hParameter, LPCSTR pString)
 	V(m_ptr->SetString(hParameter, pString));
 }
 
-void BaseEffect::SetTexture(D3DXHANDLE hParameter, const BaseTexturePtr & Texture)
+void BaseEffect::SetTexture(D3DXHANDLE hParameter, const BaseTexture * Texture)
 {
 	V(m_ptr->SetTexture(hParameter, Texture ? Texture->m_ptr : NULL));
 }
