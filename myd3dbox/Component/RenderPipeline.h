@@ -203,9 +203,7 @@ public:
 
 	my::Texture2DPtr m_OpaqueRT;
 
-	my::Texture2DPtr m_DownFilterRT;
-
-	my::Texture2DPtr m_DownFilterRT2;
+	my::Texture2DPtr m_DownFilterRT[2];
 
 	my::FirstPersonCamera m_Camera;
 

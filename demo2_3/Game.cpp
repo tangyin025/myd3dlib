@@ -347,10 +347,10 @@ void Game::OnFrameRender(
 	m_SimpleSample->SetFloat("g_Time", (float)m_fAbsoluteTime);
 	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
-	RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, fTime, fElapsedTime);
-
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
+		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, fTime, fElapsedTime);
+
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
 		DrawHelper::EndLine(pd3dDevice, Matrix4::identity);

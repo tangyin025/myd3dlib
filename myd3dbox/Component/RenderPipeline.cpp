@@ -49,12 +49,14 @@ RenderPipeline::RenderPipeline(void)
 	, m_PositionRT(new Texture2D())
 	, m_LightRT(new Texture2D())
 	, m_OpaqueRT(new Texture2D())
-	, m_DownFilterRT(new Texture2D())
-	, m_DownFilterRT2(new Texture2D())
 	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 	, m_SkyLight(30,30,-100,100)
 	, m_SkyLightColor(1,1,1,1)
 {
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i].reset(new Texture2D());
+	}
 }
 
 RenderPipeline::~RenderPipeline(void)
@@ -153,11 +155,11 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_OpaqueRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-	m_DownFilterRT->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-
-	m_DownFilterRT2->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i]->CreateTexture(
+			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+	}
 
 	return S_OK;
 }
@@ -174,8 +176,10 @@ void RenderPipeline::OnLostDevice(void)
 	m_PositionRT->OnDestroyDevice();
 	m_LightRT->OnDestroyDevice();
 	m_OpaqueRT->OnDestroyDevice();
-	m_DownFilterRT->OnDestroyDevice();
-	m_DownFilterRT2->OnDestroyDevice();
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i]->OnDestroyDevice();
+	}
 }
 
 void RenderPipeline::OnDestroyDevice(void)
@@ -202,13 +206,13 @@ void RenderPipeline::OnDestroyDevice(void)
 }
 
 void RenderPipeline::OnFrameRender(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-	double fTime,
-	float fElapsedTime)
+								   IDirect3DDevice9 * pd3dDevice,
+								   const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+								   double fTime,
+								   float fElapsedTime)
 {
-	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	HRESULT hr;
+	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
 	CComPtr<IDirect3DSurface9> OldRT;
@@ -223,11 +227,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		RenderPipeline::RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
-		V(pd3dDevice->EndScene());
-	}
+	RenderPipeline::RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 
 	QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
@@ -243,40 +243,37 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(1, m_PositionRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(OldDS));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		RenderPipeline::RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
-		V(pd3dDevice->EndScene());
-	}
+	RenderPipeline::RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 
 	m_SimpleSample->SetTexture("g_NormalRT", m_NormalRT);
 	m_SimpleSample->SetTexture("g_PositionRT", m_PositionRT);
 	V(pd3dDevice->SetRenderTarget(0, m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
-		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-		RenderPipeline::RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		V(pd3dDevice->EndScene());
-	}
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
+	RenderPipeline::RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
 	m_SimpleSample->SetTexture("g_LightRT", m_LightRT);
 	V(pd3dDevice->SetRenderTarget(0, m_OpaqueRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
-		V(pd3dDevice->EndScene());
-	}
+	RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
-	V(pd3dDevice->StretchRect(m_OpaqueRT->GetSurfaceLevel(0), NULL, m_DownFilterRT->GetSurfaceLevel(0), NULL, D3DTEXF_LINEAR));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
+	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
+	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
+	RenderPipeline::RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+
+	V(pd3dDevice->StretchRect(m_OpaqueRT->GetSurfaceLevel(0), NULL, m_DownFilterRT[0]->GetSurfaceLevel(0), NULL, D3DTEXF_LINEAR));
 
 	struct PPVERT
 	{
@@ -302,46 +299,29 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetVector("g_DofParams", m_DofParams);
 	m_SimpleSample->SetTexture("g_OpaqueRT", m_OpaqueRT);
-	if (SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		UINT passes = m_SimpleSample->Begin();
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+	UINT passes = m_SimpleSample->Begin();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
-		V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT2->GetSurfaceLevel(0)));
-		m_SimpleSample->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT[0]);
+	V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT[1]->GetSurfaceLevel(0)));
+	m_SimpleSample->BeginPass(1);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT2);
-		V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT->GetSurfaceLevel(0)));
-		m_SimpleSample->BeginPass(2);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT[1]);
+	V(pd3dDevice->SetRenderTarget(0, m_DownFilterRT[0]->GetSurfaceLevel(0)));
+	m_SimpleSample->BeginPass(2);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT);
-		V(pd3dDevice->SetRenderTarget(0, OldRT));
-		m_SimpleSample->BeginPass(3);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-		m_SimpleSample->End();
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-		V(pd3dDevice->EndScene());
-	}
-
-	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
-	{
-		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
-		V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
-		V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
-		V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-		RenderPipeline::RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
-		V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
-		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-		V(pd3dDevice->EndScene());
-	}
+	m_SimpleSample->SetTexture("g_DownFilterRT", m_DownFilterRT[0]);
+	V(pd3dDevice->SetRenderTarget(0, OldRT));
+	m_SimpleSample->BeginPass(3);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
+	m_SimpleSample->EndPass();
+	m_SimpleSample->End();
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 
 	RenderPipeline::ClearAllObjects();
 }
