@@ -106,8 +106,8 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//	pButton->SetMessageWnd(this);
 	//}
 
-	// Fill in some static tree view data (dummy code, nothing magic here)
-	FillClassView();
+	//// Fill in some static tree view data (dummy code, nothing magic here)
+	//FillClassView();
 
 	return 0;
 }
@@ -117,44 +117,44 @@ void COutlinerWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
-
-void COutlinerWnd::FillClassView()
-{
-	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp classes"), 0, 0);
-	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
-
-	HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
-
-	m_wndClassView.Expand(hRoot, TVE_EXPAND);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
-	m_wndClassView.Expand(hClass, TVE_EXPAND);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
-
-	hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
-	m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
-	m_wndClassView.Expand(hClass, TVE_EXPAND);
-}
+//
+//void COutlinerWnd::FillClassView()
+//{
+//	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp classes"), 0, 0);
+//	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+//
+//	HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
+//	m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
+//
+//	m_wndClassView.Expand(hRoot, TVE_EXPAND);
+//
+//	hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
+//	m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
+//
+//	hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
+//	m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
+//	m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
+//
+//	hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
+//	m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
+//	m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
+//	m_wndClassView.Expand(hClass, TVE_EXPAND);
+//
+//	hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
+//	m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
+//	m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
+//	m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
+//	m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
+//
+//	hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
+//	m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
+//	m_wndClassView.Expand(hClass, TVE_EXPAND);
+//}
 
 void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {

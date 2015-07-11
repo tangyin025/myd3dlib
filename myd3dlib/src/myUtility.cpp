@@ -17,10 +17,12 @@ void DrawHelper::EndLine(IDirect3DDevice9 * pd3dDevice, const Matrix4 & Transfor
 {
 	if (!m_vertices.empty())
 	{
-		pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE);
-		pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE);
-		pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Transform);
-		pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0]));
+		HRESULT hr;
+		V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+		V(pd3dDevice->SetTexture(0, NULL));
+		V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+		V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&Transform));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_LINELIST, m_vertices.size() / 2, &m_vertices[0], sizeof(m_vertices[0])));
 	}
 }
 

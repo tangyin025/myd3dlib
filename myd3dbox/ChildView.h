@@ -11,6 +11,7 @@ class CChildView
 	: public CView
 	, public my::DialogMgr
 	, public RenderPipeline::IRenderTarget
+	, public my::DrawHelper
 {
 protected: // create from serialization only
 	CChildView();
@@ -38,7 +39,7 @@ protected:
 	my::Texture2DPtr m_LightRT;
 	my::Texture2DPtr m_OpaqueRT;
 	my::Texture2DPtr m_DownFilterRT[2];
-	my::FirstPersonCamera m_Camera;
+	my::ModelViewerCamera m_Camera;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);

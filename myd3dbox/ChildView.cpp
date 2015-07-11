@@ -31,6 +31,7 @@ CChildView::CChildView()
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
+	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
 	m_DepthStencil.reset(new my::Surface());
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
@@ -229,15 +230,26 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
+			m_Camera.OnFrameMove(0,0);
+
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
+				DrawHelper::BeginLine();
+
+				PushGrid();
+
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+
+				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
+				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
 				theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
 				theApp.m_UIRender->End();
+
 				V(theApp.m_d3dDevice->EndScene());
 			}
 
@@ -267,12 +279,11 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	CView::OnSize(nType, cx, cy);
 
 	// TODO: Add your message handler code here
-	if(cx > 0 && cy > 0)
+	if(cx > 0 && cy > 0 && (cx != m_SwapChainBufferDesc.Width || cy != m_SwapChainBufferDesc.Height))
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		ResetD3DSwapChain();
 		m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
-		m_Camera.OnFrameMove(0,0);
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }
@@ -283,11 +294,9 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	float k=cos(D3DXToRadian(45));
-	float d=10;
-	m_Camera.m_Eye=my::Vector3(d*k*k,d*k+1,d*k*k);
-	m_Camera.m_Eular=my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	m_Camera.OnFrameMove(0,0);
+	m_Camera.m_LookAt = my::Vector3(0,0,0);
+	m_Camera.m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	m_Camera.m_Distance = 20.0f;
 
 	return 0;
 }
