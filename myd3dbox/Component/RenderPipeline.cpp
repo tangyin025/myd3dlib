@@ -235,7 +235,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
-	V(pd3dDevice->StretchRect(pRT->GetOpaqueSurface(), NULL, pRT->GetDownFilterSurface(0), NULL, D3DTEXF_LINEAR));
+	V(pd3dDevice->StretchRect(pRT->GetOpaqueSurface(), NULL, pRT->GetDownFilterSurface(0), NULL, D3DTEXF_NONE)); // ! d3dref only support none
 
 	struct PPVERT
 	{

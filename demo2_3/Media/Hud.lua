@@ -1,4 +1,4 @@
-require "CommonUI.lua"
+dofile "CommonUI.lua"
 
 module("Hud", package.seeall)
 
