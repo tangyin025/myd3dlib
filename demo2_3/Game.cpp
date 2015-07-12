@@ -321,9 +321,9 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllDlg();
 
-	m_SimpleSample.reset();
+	ClearAllShaders();
 
-	m_ShaderCache.clear();
+	m_SimpleSample.reset();
 
 	m_UIRender.reset();
 
