@@ -8,7 +8,13 @@
 class ActorResourceMgr
 	: public my::ResourceMgr
 {
-protected:
+public:
+	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
+
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
+
 	void OnMaterialParameterValueTextureLoaded(
 		boost::weak_ptr<Material::ParameterValueTexture> weak_value_ptr,
 		my::DeviceRelatedObjectBasePtr res);
@@ -65,6 +71,20 @@ public:
 	virtual ~ActorResourceMgr(void)
 	{
 	}
+
+	HRESULT OnCreateDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	HRESULT OnResetDevice(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
+	void OnLostDevice(void);
+
+	void OnDestroyDevice(void);
+
+	void ClearAllShaders(void);
 
 	static void CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh);
 

@@ -36,8 +36,6 @@ public:
 
 	void DestroyD3DDevice(void);
 
-	my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
-
 // Overrides
 public:
 	virtual BOOL InitInstance();
@@ -53,6 +51,10 @@ public:
 	virtual void OnLostDevice(void);
 
 	virtual void OnDestroyDevice(void);
+
+	virtual void OnResourceFailed(const std::string & error_str);
+
+	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 // Implementation
 	UINT  m_nAppLook;

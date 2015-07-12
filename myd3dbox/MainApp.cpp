@@ -146,11 +146,6 @@ void CMainApp::DestroyD3DDevice(void)
 	}
 }
 
-my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
-{
-	return NULL;
-}
-
 // CMainApp initialization
 
 BOOL CMainApp::InitInstance()
@@ -307,6 +302,76 @@ void CMainApp::OnDestroyDevice(void)
 	RenderPipeline::OnDestroyDevice();
 
 	ActorResourceMgr::OnDestroyDevice();
+}
+
+void CMainApp::OnResourceFailed(const std::string & error_str)
+{
+	TRACE(ms2ts(error_str).c_str());
+}
+
+static size_t hash_value(const ActorResourceMgr::ShaderCacheKey & key)
+{
+	size_t seed = 0;
+	boost::hash_combine(seed, key.get<0>());
+	boost::hash_combine(seed, key.get<1>());
+	boost::hash_combine(seed, key.get<2>());
+	return seed;
+}
+
+my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID)
+{
+	_ASSERT(material && !material->m_Shader.empty());
+
+	ShaderCacheKey key(mesh_type, bInstance, material->m_Shader);
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.find(key);
+	if (shader_iter != m_ShaderCache.end())
+	{
+		return shader_iter->second.get();
+	}
+
+	struct Header
+	{
+		static const char * vs_header(unsigned int mesh_type)
+		{
+			switch (mesh_type)
+			{
+			case RenderPipeline::MeshTypeAnimation:
+				return "MeshSkeleton.fx";
+			case RenderPipeline::MeshTypeParticle:
+				return "MeshParticle.fx";
+			}
+			return "MeshStatic.fx";
+		}
+	};
+
+	std::ostringstream oss;
+	oss << "#define SHADOW_MAP_SIZE " << SHADOW_MAP_SIZE << std::endl;
+	oss << "#define SHADOW_EPSILON " << SHADOW_EPSILON << std::endl;
+	oss << "#define INSTANCE " << (unsigned int)bInstance << std::endl;
+	oss << "#include \"CommonHeader.fx\"" << std::endl;
+	oss << "#include \"" << Header::vs_header(mesh_type) << "\"" << std::endl;
+	oss << "#include \"" << material->m_Shader << "\"" << std::endl;
+	std::string source = oss.str();
+
+	CComPtr<ID3DXBuffer> buff;
+	if (SUCCEEDED(D3DXPreprocessShader(source.c_str(), source.length(), NULL, this, &buff, NULL)))
+	{
+		my::OStreamPtr ostr = my::FileOStream::Open(str_printf(_T("%S_%u_%u.fx"), material->m_Shader.c_str(), mesh_type, bInstance).c_str());
+		ostr->write(buff->GetBufferPointer(), buff->GetBufferSize()-1);
+	}
+
+	my::EffectPtr shader(new my::Effect());
+	try
+	{
+		shader->CreateEffect(m_d3dDevice, source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
+	}
+	catch (const my::Exception & e)
+	{
+		OnResourceFailed(e.what());
+		shader.reset();
+	}
+	m_ShaderCache.insert(std::make_pair(key, shader));
+	return shader.get();
 }
 
 

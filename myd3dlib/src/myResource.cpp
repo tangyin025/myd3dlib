@@ -728,10 +728,6 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 	return false;
 }
 
-void ResourceMgr::OnResourceFailed(const std::string & error_str)
-{
-}
-
 class TextureIORequest : public IORequest
 {
 protected:

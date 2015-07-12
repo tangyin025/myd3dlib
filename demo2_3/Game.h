@@ -61,12 +61,6 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
-
-	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
-
-	ShaderCacheMap m_ShaderCache;
-
 	my::Texture2DPtr m_NormalRT;
 
 	my::Texture2DPtr m_PositionRT;
@@ -166,10 +160,6 @@ public:
 
 	bool ExecuteCode(const char * code) throw();
 
-	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
-
-	void ClearAllShaders(void);
-
 	virtual IDirect3DSurface9 * GetScreenSurface(void);
 
 	virtual IDirect3DSurface9 * GetScreenDepthStencilSurface(void);
@@ -193,6 +183,8 @@ public:
 	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int id);
 
 	virtual my::Texture2D * GetDownFilterTexture(unsigned int id);
+
+	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 

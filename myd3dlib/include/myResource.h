@@ -432,7 +432,7 @@ namespace my
 			return boost::dynamic_pointer_cast<T>(request->m_res);
 		}
 
-		virtual void OnResourceFailed(const std::string & error_str);
+		virtual void OnResourceFailed(const std::string & error_str) = 0;
 
 		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);
 

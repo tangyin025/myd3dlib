@@ -255,6 +255,64 @@ public:
 	}
 };
 
+HRESULT ActorResourceMgr::OnCreateDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	HRESULT hr;
+	if (FAILED(hr = ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+	return S_OK;
+}
+
+HRESULT ActorResourceMgr::OnResetDevice(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
+{
+	HRESULT hr;
+	if (FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnResetDevice();
+		}
+	}
+	return S_OK;
+}
+
+void ActorResourceMgr::OnLostDevice(void)
+{
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnLostDevice();
+		}
+	}
+
+	ResourceMgr::OnLostDevice();
+}
+
+void ActorResourceMgr::OnDestroyDevice(void)
+{
+	ClearAllShaders();
+	ResourceMgr::OnDestroyDevice();
+}
+
+void ActorResourceMgr::ClearAllShaders(void)
+{
+	m_ShaderCache.clear();
+}
+
 void ActorResourceMgr::CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh)
 {
 	PxTriangleMeshDesc desc;

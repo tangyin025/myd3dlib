@@ -163,6 +163,10 @@ public:
 	{
 		return 0;
 	}
+
+	virtual void OnResourceFailed(const std::string & error_str)
+	{
+	}
 };
 
 INT WINAPI wWinMain( HINSTANCE, HINSTANCE, LPWSTR, int )
