@@ -209,7 +209,7 @@ public:
 		virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
 	};
 
-	class IRenderTarget
+	class IRenderContext
 	{
 	public:
 		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
@@ -235,6 +235,8 @@ public:
 		virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i) = 0;
 
 		virtual my::Texture2D * GetDownFilterTexture(unsigned int i) = 0;
+
+		virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
 	};
 
 	struct MeshAtom
@@ -306,8 +308,6 @@ public:
 
 	virtual my::Effect * QueryShader(MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID) = 0;
 
-	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
-
 	static unsigned int PassTypeToMask(unsigned int pass_type)
 	{
 		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
@@ -328,7 +328,7 @@ public:
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-		IRenderTarget * pRT,
+		IRenderContext * pRT,
 		double fTime,
 		float fElapsedTime);
 

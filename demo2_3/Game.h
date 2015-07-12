@@ -48,7 +48,7 @@ class Game
 	, public FModContext
 	, public ActorResourceMgr
 	, public RenderPipeline
-	, public RenderPipeline::IRenderTarget
+	, public RenderPipeline::IRenderContext
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {

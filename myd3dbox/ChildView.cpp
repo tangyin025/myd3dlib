@@ -186,6 +186,10 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 	return m_DownFilterRT[i].get();
 }
 
+void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
+{
+}
+
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	ClientToScreen(&point);

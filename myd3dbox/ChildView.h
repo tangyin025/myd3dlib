@@ -10,7 +10,7 @@
 class CChildView
 	: public CView
 	, public my::DialogMgr
-	, public RenderPipeline::IRenderTarget
+	, public RenderPipeline::IRenderContext
 	, public my::DrawHelper
 {
 protected: // create from serialization only
@@ -55,6 +55,7 @@ protected:
 	virtual my::Texture2D * GetOpaqueTexture(void);
 	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i);
 	virtual my::Texture2D * GetDownFilterTexture(unsigned int i);
+	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 
 // Implementation
 public:
