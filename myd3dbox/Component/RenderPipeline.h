@@ -212,6 +212,8 @@ public:
 	class IRenderContext
 	{
 	public:
+		DWORD BkColor;
+
 		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
 
 		virtual IDirect3DSurface9 * GetScreenDepthStencilSurface(void) = 0;

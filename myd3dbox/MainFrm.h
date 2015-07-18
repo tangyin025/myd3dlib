@@ -8,6 +8,7 @@
 #include "PropertiesWnd.h"
 
 class CMainFrame : public CFrameWndEx
+	, public my::SingleInstance<CMainFrame>
 {
 	
 protected: // create from serialization only
@@ -18,6 +19,7 @@ protected: // create from serialization only
 protected:
 	CSplitterWnd m_wndSplitter;
 public:
+	BOOL m_bEatAltUp;
 
 // Operations
 public:
@@ -55,6 +57,7 @@ protected:
 
 public:
 	afx_msg void OnDestroy();
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
 };
 
 

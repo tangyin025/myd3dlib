@@ -42,6 +42,7 @@ CMainFrame::CMainFrame()
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+	m_bEatAltUp = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -337,4 +338,16 @@ void CMainFrame::OnDestroy()
 
 	// TODO: Add your message handler code here
 	theApp.DestroyD3DDevice();
+}
+
+BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	if (pMsg->message == WM_SYSKEYUP && pMsg->wParam == VK_MENU && m_bEatAltUp)
+	{
+		m_bEatAltUp = FALSE;
+		return TRUE;
+	}
+
+	return __super::PreTranslateMessage(pMsg);
 }

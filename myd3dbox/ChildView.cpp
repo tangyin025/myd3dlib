@@ -7,6 +7,7 @@
 
 #include "MainDoc.h"
 #include "ChildView.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -23,6 +24,14 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_SIZE()
 	ON_WM_CREATE()
 	ON_WM_DESTROY()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_MBUTTONDOWN()
+	ON_WM_MBUTTONUP()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_RBUTTONUP()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -41,6 +50,7 @@ CChildView::CChildView()
 	{
 		m_DownFilterRT[i].reset(new my::Texture2D());
 	}
+	m_CameraDragMode = CameraDragNone;
 }
 
 CChildView::~CChildView()
@@ -190,12 +200,6 @@ void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMa
 {
 }
 
-void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
-
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
@@ -242,6 +246,7 @@ void CChildView::OnPaint()
 
 				PushGrid();
 
+				BkColor = D3DCOLOR_ARGB(0,161,161,161);
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
@@ -310,4 +315,116 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
+}
+
+void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
+	{
+		m_CameraDragMode = CameraDragRotate;
+		m_CameraDragPos = point;
+		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
+		SetCapture();
+	}
+}
+
+void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (m_CameraDragMode == CameraDragRotate)
+	{
+		m_CameraDragMode = CameraDragNone;
+		ReleaseCapture();
+	}
+}
+
+void CChildView::OnMButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
+	{
+		m_CameraDragMode = CameraDragTrake;
+		m_CameraDragPos = point;
+		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
+		SetCapture();
+	}
+}
+
+void CChildView::OnMButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (m_CameraDragMode == CameraDragTrake)
+	{
+		m_CameraDragMode = CameraDragNone;
+		ReleaseCapture();
+	}
+}
+
+void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
+	{
+		m_CameraDragMode = CameraDragMove;
+		m_CameraDragPos = point;
+		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
+		SetCapture();
+	}
+}
+
+void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
+{
+	if (m_CameraDragMode == CameraDragMove)
+	{
+		m_CameraDragMode = CameraDragNone;
+		ReleaseCapture();
+	}
+	else
+	{
+		ClientToScreen(&point);
+		OnContextMenu(this, point);
+	}
+}
+
+void CChildView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	switch(m_CameraDragMode)
+	{
+	case CameraDragRotate:
+		{
+			m_Camera.m_Eular.x -= D3DXToRadian((point.y - m_CameraDragPos.y) * 0.5f);
+			m_Camera.m_Eular.y -= D3DXToRadian((point.x - m_CameraDragPos.x) * 0.5f);
+			m_CameraDragPos = point;
+			Invalidate();
+		}
+		break;
+
+	case CameraDragTrake:
+		{
+			my::Vector3 Right = m_Camera.m_View.column<0>().xyz;
+			my::Vector3 Up = m_Camera.m_View.column<1>().xyz;
+			m_Camera.m_LookAt += Right * (float)(m_CameraDragPos.x - point.x) * 0.03f + Up * (float)(point.y - m_CameraDragPos.y) * 0.03f;
+			m_CameraDragPos = point;
+			Invalidate();
+		}
+		break;
+
+	case CameraDragMove:
+		{
+			my::Vector3 Dir = m_Camera.m_View.column<2>().xyz;
+			m_Camera.m_LookAt += Dir * (float)(m_CameraDragPos.x - point.x) * 0.03f;
+			m_CameraDragPos = point;
+			Invalidate();
+		}
+		break;
+	}
+}
+
+BOOL CChildView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	// TODO: Add your message handler code here and/or call default
+
+	return __super::OnMouseWheel(nFlags, zDelta, pt);
 }

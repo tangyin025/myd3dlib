@@ -223,7 +223,7 @@ void RenderPipeline::OnFrameRender(
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->GetLightTexture());
 	V(pd3dDevice->SetRenderTarget(0, pRC->GetOpaqueSurface()));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_ARGB(0,45,50,170), 1.0f, 0)); // ! d3dmultisample will not work
+	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 	RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
