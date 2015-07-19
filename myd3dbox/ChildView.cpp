@@ -252,6 +252,7 @@ void CChildView::OnPaint()
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
+				m_Pivot.Draw(theApp.m_d3dDevice, &m_Camera);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -366,7 +367,7 @@ void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
 	// TODO: Add your message handler code here and/or call default
 	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
 	{
-		m_CameraDragMode = CameraDragMove;
+		m_CameraDragMode = CameraDragZoom;
 		m_CameraDragPos = point;
 		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
 		SetCapture();
@@ -375,7 +376,7 @@ void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
 {
-	if (m_CameraDragMode == CameraDragMove)
+	if (m_CameraDragMode == CameraDragZoom)
 	{
 		m_CameraDragMode = CameraDragNone;
 		ReleaseCapture();
@@ -411,10 +412,9 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		break;
 
-	case CameraDragMove:
+	case CameraDragZoom:
 		{
-			my::Vector3 Dir = m_Camera.m_View.column<2>().xyz;
-			m_Camera.m_LookAt += Dir * (float)(m_CameraDragPos.x - point.x) * 0.03f;
+			m_Camera.m_Distance += (m_CameraDragPos.x - point.x) * 0.03f;
 			m_CameraDragPos = point;
 			Invalidate();
 		}

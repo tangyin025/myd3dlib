@@ -224,6 +224,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PivotController.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\PropertiesWnd.cpp"
 				>
 			</File>
@@ -279,6 +283,10 @@
 			</File>
 			<File
 				RelativePath=".\OutlinerWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PivotController.h"
 				>
 			</File>
 			<File

@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Component/RenderPipeline.h"
+#include "PivotController.h"
 
 class CChildView
 	: public CView
@@ -50,6 +51,7 @@ protected:
 	my::ModelViewerCamera m_Camera;
 	DWORD m_CameraDragMode;
 	CPoint m_CameraDragPos;
+	PivotController m_Pivot;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
