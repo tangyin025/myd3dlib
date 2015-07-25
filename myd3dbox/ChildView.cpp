@@ -252,7 +252,7 @@ void CChildView::OnPaint()
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
-				m_Pivot.Draw(theApp.m_d3dDevice, &m_Camera);
+				m_Pivot.Draw(theApp.m_d3dDevice, &m_Camera, &m_SwapChainBufferDesc);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);

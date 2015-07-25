@@ -23,7 +23,7 @@ PivotController::~PivotController(void)
 {
 }
 
-void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera)
+void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera, const D3DSURFACE_DESC * desc)
 {
 	struct Vertex
 	{
@@ -88,7 +88,7 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 		}
 	}
 
-	UpdateScale(camera->m_View);
+	UpdateScale(camera, desc);
 
 	UpdateWorld();
 
@@ -97,10 +97,10 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * cam
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-void PivotController::UpdateScale(const my::Matrix4 & View)
+void PivotController::UpdateScale(const my::Camera * camera, const D3DSURFACE_DESC * desc)
 {
-	float z = Vector4(m_Pos, 1.0f).dot(View.column<2>());
-	m_Scale = -z * 1 / 25.0f;
+	float z = Vector4(m_Pos, 1.0f).dot(camera->m_View.column<2>());
+	m_Scale = -z * 1 / 25.0f * 1024.0f / desc->Width;
 }
 
 void PivotController::UpdateWorld(void)
