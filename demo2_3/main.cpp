@@ -142,7 +142,7 @@ public:
 		case WM_RBUTTONUP:
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			std::pair<Vector3, Vector3> ray = m_Camera.CalculateRay(
+			Ray ray = m_Camera.CalculateRay(
 				Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 			break;
 		}

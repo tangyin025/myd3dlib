@@ -167,3 +167,15 @@ Plane Plane::NormalDistance(const Vector3 & normal, float distance)
 
 	return Plane(normal.x, normal.y, normal.z, -distance);
 }
+
+Ray Ray::transform(const Matrix4 & m) const
+{
+	return Ray(p.transformCoord(m), d.transformNormal(m));
+}
+
+Ray & Ray::transformSelf(const Matrix4 & m)
+{
+	p = p.transformCoord(m);
+	d = d.transformNormal(m);
+	return *this;
+}

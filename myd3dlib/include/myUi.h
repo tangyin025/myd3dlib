@@ -207,7 +207,7 @@ namespace my
 
 		virtual void Refresh(void);
 
-		virtual bool RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld);
+		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 
 		void InsertControl(ControlPtr control);
 
@@ -754,7 +754,7 @@ namespace my
 
 		virtual void Refresh(void);
 
-		virtual bool RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld);
+		virtual bool RayToWorld(const Ray & ray, Vector2 & ptWorld);
 	};
 
 	typedef boost::shared_ptr<Dialog> DialogPtr;
@@ -786,7 +786,7 @@ namespace my
 
 		Vector2 GetDlgViewport(void) const;
 
-		std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
+		Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 
 		void Draw(UIRender * ui_render, double fTime, float fElapsedTime);
 

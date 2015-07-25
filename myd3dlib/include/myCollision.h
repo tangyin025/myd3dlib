@@ -497,7 +497,7 @@ namespace my
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
-		static std::pair<Vector3, Vector3> CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
+		static Ray CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
 
 		typedef std::pair<bool, float> TestResult;
 

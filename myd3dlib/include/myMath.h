@@ -2612,6 +2612,26 @@ namespace my
 		}
 	};
 
+	class Ray
+	{
+	public:
+		Vector3 p;
+
+		Vector3 d;
+
+	public:
+		Ray(const Vector3 & _p, const Vector3 & _d)
+			: p(_p)
+			, d(_d)
+		{
+			IS_NORMALIZED(d);
+		}
+
+		Ray transform(const Matrix4 & m) const;
+
+		Ray & transformSelf(const Matrix4 & m);
+	};
+
 	class Frustum
 	{
 	public:

@@ -196,9 +196,9 @@ namespace my
 			return 0;
 		}
 
-		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim)
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim)
 		{
-			return std::make_pair(Vector3::zero, Vector3::zero);
+			return Ray(Vector3::zero, Vector3::unitX);
 		}
 	};
 
@@ -241,7 +241,7 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
 
-		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class FirstPersonCamera
@@ -279,7 +279,7 @@ namespace my
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
 
-		virtual std::pair<Vector3, Vector3> CalculateRay(const Vector2 & pt, const CSize & dim);
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class InputMgr

@@ -327,6 +327,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		m_CameraDragPos = point;
 		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
 		SetCapture();
+		return;
+	}
+	
+	if (m_Pivot.OnLButtonDown(
+		m_Camera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	{
+		Invalidate();
+		return;
 	}
 }
 

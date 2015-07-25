@@ -223,7 +223,7 @@ LRESULT ModelViewerCamera::MsgProc(
 	return 0;
 }
 
-std::pair<Vector3, Vector3> ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+Ray ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
@@ -360,7 +360,7 @@ LRESULT FirstPersonCamera::MsgProc(
 	return 0;
 }
 
-std::pair<Vector3, Vector3> FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+Ray FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }

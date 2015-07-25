@@ -289,7 +289,7 @@ void Control::Refresh(void)
 {
 }
 
-bool Control::RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld)
+bool Control::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 {
 	if (m_Parent)
 	{
@@ -2232,15 +2232,15 @@ void Dialog::Refresh(void)
 		EventRefresh(&EventArgs());
 }
 
-bool Dialog::RayToWorld(const std::pair<Vector3, Vector3> & ray, Vector2 & ptWorld)
+bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 {
 	Vector3 dialogNormal = m_World[2].xyz.normalize();
 	float dialogDist = m_World[3].xyz.dot(dialogNormal);
-	IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.first, ray.second, Plane::NormalDistance(dialogNormal, dialogDist));
+	IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, Plane::NormalDistance(dialogNormal, dialogDist));
 
 	if (result.first)
 	{
-		Vector3 ptInt(ray.first + ray.second * result.second);
+		Vector3 ptInt(ray.p + ray.d * result.second);
 		ptWorld = ptInt.transformCoord(m_World.inverse()).xy;
 		return true;
 	}
@@ -2267,7 +2267,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
 	}
 }
 
-std::pair<Vector3, Vector3> DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
+Ray DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return IntersectionTests::CalculateRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
@@ -2340,7 +2340,7 @@ bool DialogMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		{
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			std::pair<Vector3, Vector3> ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
+			Ray ray = CalculateRay(Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 
 			if (Control::s_CaptureControl) {
 				Vector2 pt;
