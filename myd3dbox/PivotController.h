@@ -22,6 +22,12 @@ public:
 
 	my::Matrix4 m_World;
 
+	my::Vector3 m_DragPos;
+
+	my::Vector3 m_DragPt;
+
+	my::Plane m_DragPlane;
+
 public:
 	PivotController(void);
 
@@ -34,4 +40,8 @@ public:
 	void UpdateWorld(void);
 
 	bool OnLButtonDown(const my::Ray & ray);
+
+	bool OnMouseMove(const my::Ray & ray);
+
+	bool OnLButtonUp(const my::Ray & ray);
 };
