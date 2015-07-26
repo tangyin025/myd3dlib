@@ -28,6 +28,8 @@ public:
 
 	my::Plane m_DragPlane;
 
+	bool m_Captured;
+
 public:
 	PivotController(void);
 

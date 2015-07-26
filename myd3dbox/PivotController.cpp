@@ -16,6 +16,7 @@ PivotController::PivotController(void)
 	: m_Pos(0,0,0)
 	, m_PivotDragMode(PivotDragNone)
 	, m_Scale(1.0f)
+	, m_Captured(false)
 {
 }
 
@@ -117,48 +118,60 @@ bool PivotController::OnLButtonDown(const my::Ray & ray)
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		Ray local_ray = ray.transform(trans[i]);
-		IntersectionTests::TestResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0], offset + header);
+		IntersectionTests::TestResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + 0.1f, offset + header);
 		if (res.first && res.second < minT)
 		{
 			minT = res.second;
 			m_PivotDragMode = (PivotDragMode)(PivotDragMoveX + i);
 		}
 	}
-	m_DragPos = m_Pos;
-	m_DragPt = ray.p + ray.d * minT;
 	switch (m_PivotDragMode)
 	{
 	case PivotDragMoveX:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitX.cross(Vector3::unitX.cross(ray.d)).normalize();
+		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
+		m_Captured = true;
 		break;
 	case PivotDragMoveY:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitY.cross(Vector3::unitY.cross(ray.d)).normalize();
+		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
+		m_Captured = true;
 		break;
 	case PivotDragMoveZ:
+		m_DragPos = m_Pos;
+		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.d)).normalize();
+		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
+		m_Captured = true;
 		break;
 	}
-	m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 	return true;
 }
 
 bool PivotController::OnMouseMove(const my::Ray & ray)
 {
-	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
-	if(res.first)
+	if (m_Captured)
 	{
-		Vector3 pt = ray.p + ray.d * res.second;
-		switch(m_PivotDragMode)
+		IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
+		if(res.first)
 		{
-		case PivotDragMoveX:
-			m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
-			return true;
-		case PivotDragMoveY:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
-			return true;
-		case PivotDragMoveZ:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
-			return true;
+			Vector3 pt = ray.p + ray.d * res.second;
+			switch(m_PivotDragMode)
+			{
+			case PivotDragMoveX:
+				m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
+				return true;
+			case PivotDragMoveY:
+				m_Pos = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
+				return true;
+			case PivotDragMoveZ:
+				m_Pos = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+				return true;
+			}
 		}
 	}
 	return false;
@@ -171,7 +184,7 @@ bool PivotController::OnLButtonUp(const my::Ray & ray)
 	case PivotDragMoveX:
 	case PivotDragMoveY:
 	case PivotDragMoveZ:
-		m_PivotDragMode = PivotDragNone;
+		m_Captured = false;
 		return true;
 	}
 	return false;
