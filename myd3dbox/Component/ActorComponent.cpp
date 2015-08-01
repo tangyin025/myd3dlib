@@ -24,17 +24,25 @@ void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int Pa
 
 void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	_ASSERT(m_Owner);
-	if (m_AnimId < m_Owner->m_AnimatorList.size())
+	if (m_Animator && !m_Animator->m_DualQuats.empty())
 	{
-		const TransformList & DualQuats = m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats;
-		if (!DualQuats.empty())
-		{
-			shader->SetMatrixArray("g_dualquat", &DualQuats[0], DualQuats.size());
-		}
+		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
 	}
 
 	MeshComponent::OnSetShader(shader, AttribId);
+}
+
+void IndexdPrimitiveUPComponent::OnResetDevice(void)
+{
+}
+
+void IndexdPrimitiveUPComponent::OnLostDevice(void)
+{
+}
+
+void IndexdPrimitiveUPComponent::OnDestroyDevice(void)
+{
+	m_Decl.Release();
 }
 
 void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
@@ -50,16 +58,27 @@ void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
+void ClothComponent::OnResetDevice(void)
+{
+	IndexdPrimitiveUPComponent::OnResetDevice();
+}
+
+void ClothComponent::OnLostDevice(void)
+{
+	IndexdPrimitiveUPComponent::OnLostDevice();
+}
+
+void ClothComponent::OnDestroyDevice(void)
+{
+	m_Cloth.reset();
+	IndexdPrimitiveUPComponent::OnDestroyDevice();
+}
+
 void ClothComponent::OnPxThreadSubstep(float fElapsedTime)
 {
-	_ASSERT(m_Owner);
-	if (m_AnimId < m_Owner->m_AnimatorList.size())
+	if (m_Animator && !m_Animator->m_DualQuats.empty())
 	{
-		const TransformList & DualQuats = m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats;
-		if (!DualQuats.empty())
-		{
-			UpdateCloth(DualQuats);
-		}
+		UpdateCloth(m_Animator->m_DualQuats);
 	}
 }
 

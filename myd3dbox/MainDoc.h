@@ -36,6 +36,10 @@ protected:
 // Generated message map functions
 protected:
 	DECLARE_MESSAGE_MAP()
+public:
+	virtual BOOL OnOpenDocument(LPCTSTR lpszPathName);
+	virtual BOOL OnSaveDocument(LPCTSTR lpszPathName);
+	virtual void OnCloseDocument();
 };
 
 

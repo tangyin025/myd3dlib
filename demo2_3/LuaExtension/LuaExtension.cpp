@@ -383,41 +383,11 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def("AddParameter", &Material::AddParameter)
 
-		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
-			.def(constructor<>())
-			.def_readwrite("World", &Actor::m_World)
-
-		, class_<ActorComponent, boost::shared_ptr<ActorComponent> >("ActorComponent")
-			.def_readwrite("World", &ActorComponent::m_World)
-
-		, class_<RenderComponent, ActorComponent, boost::shared_ptr<RenderComponent> >("RenderComponent")
-
-		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
-
-		, class_<SkeletonMeshComponent, MeshComponent, boost::shared_ptr<SkeletonMeshComponent> >("SkeletonMeshComponent")
-
-		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
-
-		, class_<ClothComponent, IndexdPrimitiveUPComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
-
-		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
-
-		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
-
 		, class_<ActorResourceMgr, my::ResourceMgr>("ActorResourceMgr")
 			.def("CreateEmitter", &ActorResourceMgr::CreateEmitter)
 			.def("SaveEmitter", &ActorResourceMgr::SaveEmitter)
 			.def("CreateMaterial", &ActorResourceMgr::CreateMaterial)
 			.def("SaveMaterial", &ActorResourceMgr::SaveMaterial)
-			.def("AddMeshComponent", &ActorResourceMgr::AddMeshComponent)
-			.def("AddMeshComponentFromFile", &ActorResourceMgr::AddMeshComponentFromFile)
-			.def("AddMeshComponentList", &ActorResourceMgr::AddMeshComponentList)
-			.def("AddSkeletonMeshComponent", &ActorResourceMgr::AddSkeletonMeshComponent)
-			.def("AddSkeletonMeshComponentFromFile", &ActorResourceMgr::AddSkeletonMeshComponentFromFile)
-			.def("AddEmitterComponent", &ActorResourceMgr::AddEmitterComponent)
-			.def("AddEmitterComponentFromFile", &ActorResourceMgr::AddEmitterComponentFromFile)
-			//.def("AddClothComponentFromFile", &ActorResourceMgr::AddClothComponentFromFile)
-			.def("AddAnimatorFromFile", &ActorResourceMgr::AddAnimatorFromFile)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -440,7 +410,6 @@ void Export2Lua(lua_State * L)
 			.def("AddActor", &Game::AddActor)
 			.def("RemoveActor", &Game::RemoveActor)
 			.def("RemoveAllActors", &Game::RemoveAllActors)
-			.def("AddClothComponentFromFile", &Game::AddClothComponentFromFile)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)

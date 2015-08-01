@@ -8,21 +8,24 @@
 
 namespace my
 {
-	class AABBComponent : public AABB
+	class AABBComponent
 	{
 	public:
+		AABB m_aabb;
+
+	public:
 		AABBComponent(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: AABB(minx, miny, minz, maxx, maxy, maxz)
+			: m_aabb(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
 		AABBComponent(const Vector3 & _Min, const Vector3 & _Max)
-			: AABB(_Min, _Max)
+			: m_aabb(_Min, _Max)
 		{
 		}
 
 		AABBComponent(const AABB & aabb)
-			: AABB(aabb)
+			: m_aabb(aabb)
 		{
 		}
 
@@ -69,7 +72,7 @@ namespace my
 
 		void QueryComponent(const Frustum & frustum, IQueryCallback * callback)
 		{
-			switch(IntersectionTests::IntersectAABBAndFrustum(*this, frustum))
+			switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
 			{
 			case IntersectionTests::IntersectionTypeInside:
 				QueryComponentAll(callback);
@@ -195,23 +198,23 @@ namespace my
 
 		void AddComponent(AABBComponentPtr comp, float threshold = 0.1f)
 		{
-			if (comp->Max[Offset] < m_Half + threshold && Max[Offset] - Min[Offset] > m_MinBlock)
+			if (comp->m_aabb.Max[Offset] < m_Half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
-					Vector3 _Max = Max;
+					Vector3 _Max = m_aabb.Max;
 					_Max[Offset] = m_Half;
-					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(Min, _Max, m_MinBlock));
+					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(m_aabb.Min, _Max, m_MinBlock));
 				}
 				m_Childs[0]->AddComponent(comp, threshold);
 			}
-			else if (comp->Min[Offset] > m_Half - threshold &&  Max[Offset] - Min[Offset] > m_MinBlock)
+			else if (comp->m_aabb.Min[Offset] > m_Half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
-					Vector3 _Min = Min;
+					Vector3 _Min = m_aabb.Min;
 					_Min[Offset] = m_Half;
-					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(_Min, Max, m_MinBlock));
+					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(_Min, m_aabb.Max, m_MinBlock));
 				}
 				m_Childs[1]->AddComponent(comp, threshold);
 			}

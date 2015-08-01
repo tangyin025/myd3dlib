@@ -5,6 +5,8 @@
 #include "Animator.h"
 #include "FModContext.h"
 
+class Actor;
+
 class ActorResourceMgr
 	: public my::ResourceMgr
 {
@@ -105,28 +107,4 @@ public:
 	boost::shared_ptr<Material> CreateMaterial(const std::string & path);
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
-
-	MeshComponentPtr AddMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
-
-	MeshComponentPtr AddMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
-
-	void AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
-
-	SkeletonMeshComponentPtr AddSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
-
-	SkeletonMeshComponentPtr AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
-
-	EmitterComponentPtr AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter);
-
-	EmitterComponentPtr AddEmitterComponentFromFile(Actor * owner, const std::string & path);
-
-	ClothComponentPtr AddClothComponentFromFile(
-		Actor * owner,
-		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-		const std::string & mesh_path,
-		const std::string & skel_path,
-		const std::string & root_name,
-		const PxClothCollisionData& collData);
-
-	AnimatorPtr AddAnimatorFromFile(Actor * owner, const std::string & path);
 };

@@ -331,7 +331,7 @@ namespace my
 
 		std::vector<std::string> m_MaterialNameList;
 
-		AABB m_AABB;
+		AABB m_aabb;
 
 		std::vector<DWORD> m_Adjacency;
 

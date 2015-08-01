@@ -2,21 +2,24 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
-#include "Actor.h"
 #include "physx_ptr.hpp"
 
-class ActorComponent
+class Animator;
+
+class Component
 	: public my::AABBComponent
-	, public Actor::Attacher
 {
 public:
-	ActorComponent(Actor * Owner)
-		: AABBComponent(my::AABB(-FLT_MAX,FLT_MAX))
-		, Attacher(Owner)
+	my::Matrix4 m_World;
+
+public:
+	Component(const my::AABB & aabb)
+		: AABBComponent(aabb)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
-	virtual ~ActorComponent(void)
+	virtual ~Component(void)
 	{
 	}
 
@@ -25,15 +28,15 @@ public:
 	}
 };
 
-typedef boost::shared_ptr<ActorComponent> ActorComponentPtr;
+typedef boost::shared_ptr<Component> ActorComponentPtr;
 
 class RenderComponent
-	: public ActorComponent
+	: public Component
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(Actor * Owner)
-		: ActorComponent(Owner)
+	RenderComponent(const my::AABB & aabb)
+		: Component(aabb)
 	{
 	}
 
@@ -53,8 +56,8 @@ public:
 	bool m_bInstance;
 
 public:
-	MeshComponent(Actor * Owner)
-		: RenderComponent(Owner)
+	MeshComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
 		, m_bInstance(false)
 	{
 	}
@@ -70,8 +73,11 @@ class SkeletonMeshComponent
 	: public MeshComponent
 {
 public:
-	SkeletonMeshComponent(Actor * Owner)
-		: MeshComponent(Owner)
+	boost::shared_ptr<Animator> m_Animator;
+
+public:
+	SkeletonMeshComponent(const my::AABB & aabb)
+		: MeshComponent(aabb)
 	{
 	}
 
@@ -83,7 +89,8 @@ public:
 typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
 
 class IndexdPrimitiveUPComponent
-	: public RenderComponent
+	: public my::DeviceRelatedObjectBase
+	, public RenderComponent
 {
 public:
 	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
@@ -99,11 +106,17 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	IndexdPrimitiveUPComponent(Actor * Owner)
-		: RenderComponent(Owner)
+	IndexdPrimitiveUPComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
 		, m_VertexStride(0)
 	{
 	}
+
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
 
@@ -124,11 +137,19 @@ public:
 
 	physx_ptr<PxCloth> m_Cloth;
 
+	boost::shared_ptr<Animator> m_Animator;
+
 public:
-	ClothComponent(Actor * Owner)
-		: IndexdPrimitiveUPComponent(Owner)
+	ClothComponent(const my::AABB & aabb)
+		: IndexdPrimitiveUPComponent(aabb)
 	{
 	}
+
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 	void OnPxThreadSubstep(float fElapsedTime);
 
@@ -146,8 +167,8 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterComponent(Actor * Owner)
-		: RenderComponent(Owner)
+	EmitterComponent(const my::AABB & aabb)
+		: RenderComponent(aabb)
 	{
 	}
 

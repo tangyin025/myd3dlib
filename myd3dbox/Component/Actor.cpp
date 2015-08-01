@@ -1,50 +1,20 @@
 #include "stdafx.h"
 #include "Actor.h"
 #include "Animator.h"
-#include "ActorComponent.h"
 
 using namespace my;
 
-void Actor::Attacher::UpdateWorld(void)
+ComponentLevel * RenderComponentLod::GetComponentLevel(unsigned int level)
 {
-	_ASSERT(m_Owner);
-	if (m_AnimId < m_Owner->m_AnimatorList.size() && m_SlotId < m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats.size())
+	if (m_lvls.size() < level + 1)
 	{
-		my::Matrix4 Slot = TransformList::UDQtoRM(m_Owner->m_AnimatorList[m_AnimId]->m_DualQuats[m_SlotId]);
-		m_World = Slot * m_Owner->m_World;
+		m_lvls.resize(level + 1, ComponentLevelPtr(new ComponentLevel(m_aabb, 1.0f)));
 	}
-	else
-	{
-		m_World = m_Owner->m_World;
-	}
-}
-
-void Actor::OnResetDevice(void)
-{
-}
-
-void Actor::OnLostDevice(void)
-{
-}
-
-void Actor::OnDestroyDevice(void)
-{
-	ClothComponentPtrList::iterator cloth_iter = m_Clothes.begin();
-	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
-	{
-		(*cloth_iter)->m_Decl.Release();
-		(*cloth_iter)->m_Cloth.reset();
-	}
+	return m_lvls[level].get();
 }
 
 void Actor::Update(float fElapsedTime)
 {
-	AnimatorPtrList::iterator anim_iter = m_AnimatorList.begin();
-	for (; anim_iter != m_AnimatorList.end(); anim_iter++)
-	{
-		(*anim_iter)->Update(fElapsedTime);
-	}
-
 	struct CallBack : public my::IQueryCallback
 	{
 		float m_fElapsedTime;
@@ -56,21 +26,12 @@ void Actor::Update(float fElapsedTime)
 
 		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<RenderComponent *>(comp));
-			static_cast<RenderComponent *>(comp)->Update(m_fElapsedTime);
+			_ASSERT(dynamic_cast<Component *>(comp));
+			static_cast<Component *>(comp)->Update(m_fElapsedTime);
 		}
 	};
 
-	QueryComponentAll(&CallBack(fElapsedTime));
-}
-
-void Actor::OnPxThreadSubstep(float dtime)
-{
-	ClothComponentPtrList::iterator cloth_iter = m_Clothes.begin();
-	for (; cloth_iter != m_Clothes.end(); cloth_iter++)
-	{
-		(*cloth_iter)->OnPxThreadSubstep(dtime);
-	}
+	OctRoot::QueryComponentAll(&CallBack(fElapsedTime));
 }
 
 void Actor::QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
@@ -89,9 +50,11 @@ void Actor::QueryComponent(const my::Frustum & frustum, RenderPipeline * pipelin
 
 		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<RenderComponent *>(comp));
-
-			static_cast<RenderComponent *>(comp)->QueryMesh(m_pipeline, m_PassMask);
+			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(comp);
+			if (render_cmp)
+			{
+				render_cmp->QueryMesh(m_pipeline, m_PassMask);
+			}
 		}
 	};
 

@@ -245,12 +245,6 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->OnResetDevice();
-	}
-
 	if(m_Camera.EventAlign)
 	{
 		m_Camera.EventAlign(&EventArgs());
@@ -262,12 +256,6 @@ HRESULT Game::OnResetDevice(
 void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->OnLostDevice();
-	}
 
 	ActorResourceMgr::OnLostDevice();
 
@@ -288,12 +276,6 @@ void Game::OnDestroyDevice(void)
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
 	ParallelTaskManager::StopParallelThread();
-
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->OnDestroyDevice();
-	}
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
@@ -328,11 +310,6 @@ void Game::OnDestroyDevice(void)
 
 void Game::OnPxThreadSubstep(float dtime)
 {
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->OnPxThreadSubstep(dtime);
-	}
 }
 
 void Game::OnFrameMove(
@@ -744,10 +721,4 @@ void Game::RemoveActor(ActorPtr actor)
 void Game::RemoveAllActors(void)
 {
 	m_Actors.clear();
-}
-
-ClothComponentPtr Game::AddClothComponentFromFile(Actor * owner, const std::string & mesh_path, const std::string & skel_path, const std::string & root_name)
-{
-	return ActorResourceMgr::AddClothComponentFromFile(
-		owner, boost::make_tuple(m_Cooking.get(), m_sdk.get(), m_PxScene.get()), mesh_path, skel_path, root_name, PxClothCollisionData());
 }
