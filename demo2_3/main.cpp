@@ -24,7 +24,7 @@ public:
 		D3DCOLOR Color,
 		Font::Align align = Font::AlignCenterMiddle)
 	{
-		const Vector3 ptProj = pos.transformCoord(m_Camera.m_ViewProj);
+		const Vector3 ptProj = pos.transformCoord(m_Camera->m_ViewProj);
 		if(ptProj.z > 0.0f && ptProj.z < 1.0f)
 		{
 			const Vector2 vp = DialogMgr::GetDlgViewport();
@@ -69,6 +69,14 @@ public:
 		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
 		//FMOD_ERRCHECK(result);
 
+		ActorPtr actor(new Actor(my::AABB(-FLT_MAX,FLT_MAX)));
+		m_Actors.push_back(actor);
+		MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
+		MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
+		cmp->m_World = Matrix4::Scaling(0.1f,0.1f,0.1f);
+		cmp = actor->CreateComponent<MeshComponent>();
+		MeshComponentLoadMeshFromFile(cmp, "mesh/plane.mesh.xml");
+
 		return S_OK;
 	}
 
@@ -107,7 +115,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		//PushGrid();
+		PushGrid();
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}
@@ -142,7 +150,7 @@ public:
 		case WM_RBUTTONUP:
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			Ray ray = m_Camera.CalculateRay(
+			Ray ray = m_Camera->CalculateRay(
 				Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 			break;
 		}

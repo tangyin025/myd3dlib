@@ -103,6 +103,8 @@ namespace my
 	class BaseCamera
 	{
 	public:
+		Vector3 m_Eye;
+
 		Matrix4 m_View;
 
 		Matrix4 m_Proj;
@@ -113,6 +115,11 @@ namespace my
 
 	public:
 		BaseCamera(void)
+			: m_Eye(0,0,0)
+			, m_View(Matrix4::Identity())
+			, m_Proj(Matrix4::Identity())
+			, m_ViewProj(Matrix4::Identity())
+			, m_InverseViewProj(Matrix4::Identity())
 		{
 		}
 
@@ -127,8 +134,6 @@ namespace my
 		: public BaseCamera
 	{
 	public:
-		Vector3 m_Eye;
-
 		Vector3 m_Eular;
 
 		float m_Width;
@@ -143,8 +148,7 @@ namespace my
 
 	public:
 		OrthoCamera(float Width, float Height, float Nz, float Fz)
-			: m_Eye(0,0,0)
-			, m_Eular(0,0,0)
+			: m_Eular(0,0,0)
 			, m_Width(Width)
 			, m_Height(Height)
 			, m_Nz(Nz)
@@ -218,8 +222,6 @@ namespace my
 
 		CPoint m_DragPos;
 
-		Vector3 m_Eye;
-
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
 			: Camera(Fov, Aspect, Nz, Fz)
@@ -248,8 +250,6 @@ namespace my
 		: public Camera
 	{
 	public:
-		Vector3 m_Eye;
-
 		Vector3 m_Eular;
 
 		Vector3 m_LocalVel;
@@ -261,7 +261,6 @@ namespace my
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
 			: Camera(Fov, Aspect, Nz, Fz)
-			, m_Eye(0,0,0)
 			, m_Eular(0,0,0)
 			, m_LocalVel(0,0,0)
 			, m_bDrag(false)

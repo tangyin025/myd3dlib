@@ -35,7 +35,6 @@ IMPLEMENT_SERIAL(CClassViewMenuButton, CMFCToolBarMenuButton, 1)
 
 COutlinerWnd::COutlinerWnd()
 {
-	//m_nCurrSort = ID_SORTING_GROUPBYTYPE;
 }
 
 COutlinerWnd::~COutlinerWnd()
@@ -46,15 +45,8 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_WM_CREATE()
 	ON_WM_SIZE()
 	ON_WM_CONTEXTMENU()
-	//ON_COMMAND(ID_CLASS_ADD_MEMBER_FUNCTION, OnClassAddMemberFunction)
-	//ON_COMMAND(ID_CLASS_ADD_MEMBER_VARIABLE, OnClassAddMemberVariable)
-	//ON_COMMAND(ID_CLASS_DEFINITION, OnClassDefinition)
-	//ON_COMMAND(ID_CLASS_PROPERTIES, OnClassProperties)
-	//ON_COMMAND(ID_NEW_FOLDER, OnNewFolder)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
-	//ON_COMMAND_RANGE(ID_SORTING_GROUPBYTYPE, ID_SORTING_SORTBYACCESS, OnSort)
-	//ON_UPDATE_COMMAND_UI_RANGE(ID_SORTING_GROUPBYTYPE, ID_SORTING_SORTBYACCESS, OnUpdateSort)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -77,37 +69,42 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
-	//// Load images:
-	//m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_SORT);
-	//m_wndToolBar.LoadToolBar(IDR_SORT, 0, 0, TRUE /* Is locked */);
-
 	OnChangeVisualStyle();
 
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-	//m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
+	//HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp classes"), 0, 0);
+	//m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
 
-	//m_wndToolBar.SetOwner(this);
+	//HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
+	//m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
 
-	//// All commands will be routed via this control , not via the parent frame:
-	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
+	//m_wndClassView.Expand(hRoot, TVE_EXPAND);
 
-	//CMenu menuSort;
-	//menuSort.LoadMenu(IDR_POPUP_SORT);
+	//hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
+	//m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
 
-	//m_wndToolBar.ReplaceButton(ID_SORT_MENU, CClassViewMenuButton(menuSort.GetSubMenu(0)->GetSafeHmenu()));
+	//hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
+	//m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
+	//m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
 
-	//CClassViewMenuButton* pButton =  DYNAMIC_DOWNCAST(CClassViewMenuButton, m_wndToolBar.GetButton(0));
+	//hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
+	//m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
+	//m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
+	//m_wndClassView.Expand(hClass, TVE_EXPAND);
 
-	//if (pButton != NULL)
-	//{
-	//	pButton->m_bText = FALSE;
-	//	pButton->m_bImage = TRUE;
-	//	//pButton->SetImage(GetCmdMgr()->GetCmdImage(m_nCurrSort));
-	//	pButton->SetMessageWnd(this);
-	//}
+	//hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
+	//m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
+	//m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
+	//m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
+	//m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
 
-	//// Fill in some static tree view data (dummy code, nothing magic here)
-	//FillClassView();
+	//hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
+	//m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
+	//m_wndClassView.Expand(hClass, TVE_EXPAND);
 
 	return 0;
 }
@@ -117,44 +114,6 @@ void COutlinerWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 	AdjustLayout();
 }
-//
-//void COutlinerWnd::FillClassView()
-//{
-//	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp classes"), 0, 0);
-//	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
-//
-//	HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
-//	m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
-//
-//	m_wndClassView.Expand(hRoot, TVE_EXPAND);
-//
-//	hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
-//	m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
-//
-//	hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
-//	m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
-//	m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
-//
-//	hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
-//	m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
-//	m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
-//	m_wndClassView.Expand(hClass, TVE_EXPAND);
-//
-//	hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
-//	m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
-//	m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
-//	m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
-//	m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
-//
-//	hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
-//	m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
-//	m_wndClassView.Expand(hClass, TVE_EXPAND);
-//}
 
 void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
@@ -182,21 +141,6 @@ void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 	}
 
 	pWndTree->SetFocus();
-	//CMenu menu;
-	//menu.LoadMenu(IDR_POPUP_SORT);
-
-	//CMenu* pSumMenu = menu.GetSubMenu(0);
-
-	//if (AfxGetMainWnd()->IsKindOf(RUNTIME_CLASS(CMDIFrameWndEx)))
-	//{
-	//	CMFCPopupMenu* pPopupMenu = new CMFCPopupMenu;
-
-	//	if (!pPopupMenu->Create(this, point.x, point.y, (HMENU)pSumMenu->m_hMenu, FALSE, TRUE))
-	//		return;
-
-	//	((CMDIFrameWndEx*)AfxGetMainWnd())->OnShowPopupMenu(pPopupMenu);
-	//	UpdateDialogControls(this, FALSE);
-	//}
 }
 
 void COutlinerWnd::AdjustLayout()
@@ -209,64 +153,81 @@ void COutlinerWnd::AdjustLayout()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	int cyTlb = 0;//m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-
-	//m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
+	int cyTlb = 0;
 	m_wndClassView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
 }
+
+BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	if(hParent == hMoveItem || hInsertAfter == hMoveItem || m_wndClassView.FindTreeChildItem(hMoveItem, hParent))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
+HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD type, void * data, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	HTREEITEM hItem = m_wndClassView.InsertItem(lpszItem, nImage, nSelectedImage, hParent, hInsertAfter);
+	ASSERT(hItem);
+	m_wndClassView.SetItemData(hItem, (DWORD_PTR)(new TreeItemData(type, data)));
+	return hItem;
+}
+
+void COutlinerWnd::DeleteTreeItem(HTREEITEM hItem)
+{
+	ASSERT(hItem);
+	delete (TreeItemData *)m_wndClassView.GetItemData(hItem);
+
+	HTREEITEM hNextChild = NULL;
+	for (HTREEITEM hChild = m_wndClassView.GetChildItem(hItem); hChild; hChild = hNextChild)
+	{
+		hNextChild = m_wndClassView.GetNextSiblingItem(hChild);
+		DeleteTreeItem(hItem);
+	}
+
+	m_wndClassView.DeleteItem(hItem);
+}
+
+HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	if(!CanTreeItemMove(hParent, hInsertAfter, hMoveItem))
+	{
+		return NULL;
+	}
+
+	int nImage, nSelectedImage;
+	m_wndClassView.GetItemImage(hMoveItem, nImage, nSelectedImage);
+	HTREEITEM hItem = m_wndClassView.InsertItem(m_wndClassView.GetItemText(hMoveItem), nImage, nSelectedImage, hParent, hInsertAfter);
+	m_wndClassView.SetItemData(hItem, m_wndClassView.GetItemData(hMoveItem));
+
+	HTREEITEM hNextOtherChild = NULL;
+	HTREEITEM hChild = TVI_LAST;
+	for(HTREEITEM hOtherChild = m_wndClassView.GetChildItem(hMoveItem); hOtherChild; hOtherChild = hNextOtherChild)
+	{
+		hNextOtherChild = m_wndClassView.GetNextSiblingItem(hOtherChild);
+		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
+	}
+
+	m_wndClassView.DeleteItem(hMoveItem);
+	return hItem;
+}
+//
+//void COutlinerWnd::InsertActor(Actor * actor, HTREEITEM hParent, HTREEITEM hInsertAfter)
+//{
+//	HTREEITEM hItem = InsertTreeItem(_T("actor"), TreeItemTypeActor, actor, 1, 1, hParent, hInsertAfter);
+//}
+//
+//void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
+//{
+//	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 2, 2, hParent, hInsertAfter);
+//	m_Cmp2HTree[cmp] = hItem;
+//}
 
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)
 {
 	return CDockablePane::PreTranslateMessage(pMsg);
-}
-//
-//void COutlinerWnd::OnSort(UINT id)
-//{
-//	if (m_nCurrSort == id)
-//	{
-//		return;
-//	}
-//
-//	m_nCurrSort = id;
-//
-//	CClassViewMenuButton* pButton =  DYNAMIC_DOWNCAST(CClassViewMenuButton, m_wndToolBar.GetButton(0));
-//
-//	if (pButton != NULL)
-//	{
-//		pButton->SetImage(GetCmdMgr()->GetCmdImage(id));
-//		m_wndToolBar.Invalidate();
-//		m_wndToolBar.UpdateWindow();
-//	}
-//}
-//
-//void COutlinerWnd::OnUpdateSort(CCmdUI* pCmdUI)
-//{
-//	pCmdUI->SetCheck(pCmdUI->m_nID == m_nCurrSort);
-//}
-//
-//void COutlinerWnd::OnClassAddMemberFunction()
-//{
-//	AfxMessageBox(_T("Add member function..."));
-//}
-//
-//void COutlinerWnd::OnClassAddMemberVariable()
-//{
-//	// TODO: Add your command handler code here
-//}
-//
-//void COutlinerWnd::OnClassDefinition()
-//{
-//	// TODO: Add your command handler code here
-//}
-//
-//void COutlinerWnd::OnClassProperties()
-//{
-//	// TODO: Add your command handler code here
-//}
-
-void COutlinerWnd::OnNewFolder()
-{
-	AfxMessageBox(_T("New Folder..."));
 }
 
 void COutlinerWnd::OnPaint()
@@ -290,30 +251,27 @@ void COutlinerWnd::OnSetFocus(CWnd* pOldWnd)
 
 void COutlinerWnd::OnChangeVisualStyle()
 {
-	//m_ClassViewImages.DeleteImageList();
+	m_ClassViewImages.DeleteImageList();
 
-	//UINT uiBmpId = theApp.m_bHiColorIcons ? IDB_CLASS_VIEW_24 : IDB_CLASS_VIEW;
+	UINT uiBmpId = theApp.m_bHiColorIcons ? IDB_CLASS_VIEW_24 : IDB_CLASS_VIEW;
 
-	//CBitmap bmp;
-	//if (!bmp.LoadBitmap(uiBmpId))
-	//{
-	//	TRACE(_T("Can't load bitmap: %x\n"), uiBmpId);
-	//	ASSERT(FALSE);
-	//	return;
-	//}
+	CBitmap bmp;
+	if (!bmp.LoadBitmap(uiBmpId))
+	{
+		TRACE(_T("Can't load bitmap: %x\n"), uiBmpId);
+		ASSERT(FALSE);
+		return;
+	}
 
-	//BITMAP bmpObj;
-	//bmp.GetBitmap(&bmpObj);
+	BITMAP bmpObj;
+	bmp.GetBitmap(&bmpObj);
 
-	//UINT nFlags = ILC_MASK;
+	UINT nFlags = ILC_MASK;
 
-	//nFlags |= (theApp.m_bHiColorIcons) ? ILC_COLOR24 : ILC_COLOR4;
+	nFlags |= (theApp.m_bHiColorIcons) ? ILC_COLOR24 : ILC_COLOR4;
 
-	//m_ClassViewImages.Create(16, bmpObj.bmHeight, nFlags, 0, 0);
-	//m_ClassViewImages.Add(&bmp, RGB(255, 0, 0));
+	m_ClassViewImages.Create(16, bmpObj.bmHeight, nFlags, 0, 0);
+	m_ClassViewImages.Add(&bmp, RGB(255, 0, 0));
 
-	//m_wndClassView.SetImageList(&m_ClassViewImages, TVSIL_NORMAL);
-
-	////m_wndToolBar.CleanUpLockedImages();
-	//m_wndToolBar.LoadBitmap(theApp.m_bHiColorIcons ? IDB_SORT_24 : IDR_SORT, 0, 0, TRUE /* Locked */);
+	m_wndClassView.SetImageList(&m_ClassViewImages, TVSIL_NORMAL);
 }

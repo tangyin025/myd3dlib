@@ -39,6 +39,15 @@ BOOL CMainDoc::OnNewDocument()
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
+	m_Actors.clear();
+
+	ActorPtr actor(new Actor(my::AABB(-FLT_MAX,FLT_MAX)));
+	m_Actors.push_back(actor);
+	MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
+	theApp.MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
+	cmp->m_World = my::Matrix4::Scaling(0.1f,0.1f,0.1f);
+	cmp = actor->CreateComponent<MeshComponent>();
+	theApp.MeshComponentLoadMeshFromFile(cmp, "mesh/plane.mesh.xml");
 
 	return TRUE;
 }

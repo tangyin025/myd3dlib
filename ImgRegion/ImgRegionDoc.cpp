@@ -728,6 +728,16 @@ void CImgRegionDoc::Serialize(CArchive& ar)
 	}
 }
 
+BOOL CImgRegionDoc::CanItemMove(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
+{
+	if(hParent == hOtherItem || hInsertAfter == hOtherItem || m_TreeCtrl.FindTreeChildItem(hOtherItem, hParent))
+	{
+		return FALSE;
+	}
+
+	return TRUE;
+}
+
 HTREEITEM CImgRegionDoc::InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, CImgRegionPtr reg_ptr, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
 	ASSERT(m_ItemMap.find(id) == m_ItemMap.end());
@@ -775,7 +785,7 @@ void CImgRegionDoc::DeleteTreeItem(HTREEITEM hItem)
 
 HTREEITEM CImgRegionDoc::MoveTreeItem(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
 {
-	if(!m_TreeCtrl.CanItemMove(hParent, hInsertAfter, hOtherItem))
+	if(!CanItemMove(hParent, hInsertAfter, hOtherItem))
 	{
 		ASSERT(false); return hOtherItem;
 	}

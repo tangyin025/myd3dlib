@@ -87,6 +87,8 @@ Game::Game(void)
 	{
 		m_DownFilterRT[i].reset(new Texture2D());
 	}
+	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333,0.1f,3000.0f));
+	m_DofParams = Vector4(5.0f,15.0f,25.0f,1.0f);
 }
 
 Game::~Game(void)
@@ -245,9 +247,9 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
-	if(m_Camera.EventAlign)
+	if(m_Camera->EventAlign)
 	{
-		m_Camera.EventAlign(&EventArgs());
+		m_Camera->EventAlign(&EventArgs());
 	}
 
 	return S_OK;
@@ -328,7 +330,7 @@ void Game::OnFrameMove(
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	m_Camera.OnFrameMove(fTime, fElapsedTime);
+	m_Camera->OnFrameMove(fTime, fElapsedTime);
 
 	m_SkyLight.OnFrameMove(fTime, fElapsedTime);
 }
@@ -350,8 +352,8 @@ void Game::OnFrameRender(
 		m_OldRT.Release();
 		m_OldDS.Release();
 
-		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
-		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 		DrawHelper::EndLine(pd3dDevice, Matrix4::identity);
 
 		m_UIRender->Begin();
@@ -427,7 +429,7 @@ LRESULT Game::MsgProc(
 	}
 
 	LRESULT lr;
-	if(lr = m_Camera.MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 	{
 		return lr;
 	}

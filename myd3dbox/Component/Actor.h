@@ -21,7 +21,7 @@ public:
 	{
 	}
 
-	ComponentLevel * GetComponentLevel(unsigned int level);
+	ComponentLevelPtr GetComponentLevel(unsigned int level);
 };
 
 class ComponentLevel
@@ -34,11 +34,11 @@ public:
 	}
 
 	template <class CmpClass>
-	CmpClass * CreateComponent(const my::AABB & aabb = my::AABB(-FLT_MAX,FLT_MAX))
+	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb = my::AABB(-FLT_MAX,FLT_MAX))
 	{
 		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb));
 		AddComponent(ret, 0.1f);
-		return ret.get();
+		return ret;
 	}
 };
 
@@ -61,3 +61,5 @@ public:
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;
+
+typedef std::vector<ActorPtr> ActorPtrList;

@@ -11,54 +11,55 @@ game.Camera.EventAlign=function(args)
 	game.Camera.Aspect=desc.Width/desc.Height
 end
 
--- 设置环境光
-game.SkyLight.Eye=Vector3(0,0,0)
-game.SkyLight.Eular=Vector3(math.rad(-30),math.rad(0),0)
-game.SkyLight.Width=50
-game.SkyLight.Height=50
-game.SkyLight.Nz=-50
-game.SkyLight.Fz=50
-game.SkyLightColor=Vector4(0.3,0.3,0.3,0.3)
+-- -- 设置环境光
+-- game.SkyLight.Eye=Vector3(0,0,0)
+-- game.SkyLight.Eular=Vector3(math.rad(-30),math.rad(0),0)
+-- game.SkyLight.Width=50
+-- game.SkyLight.Height=50
+-- game.SkyLight.Nz=-50
+-- game.SkyLight.Fz=50
+-- -- game.SkyLightColor=Vector4(0.3,0.3,0.3,0.3)
+-- game.SkyLightColor=Vector4(1,1,1,1)
 
--- 添加模型
-local actor = Actor()
-game:AddActor(actor)
--- game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
--- game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
--- game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
--- game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
-game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
-	game:AddMeshComponentList(actor, res2mesh_set(res))
-end)
-
+-- -- 添加模型
 -- local actor = Actor()
 -- game:AddActor(actor)
--- game:AddAnimatorFromFile(actor,"mesh/casual19_m_highpoly.skeleton.xml")
--- local cmp=game:AddSkeletonMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)
--- cmp.World=Matrix4.Scaling(0.05,0.05,0.05)
+-- -- game:AddAnimatorFromFile(actor,"mesh/cloth.skeleton.xml")
+-- -- game:AddMeshComponentFromFile(actor,"mesh/tube.mesh.xml",true)
+-- -- game:AddEmitterComponentFromFile(actor,"emitter/emitter_01.xml")
+-- -- game:AddClothComponentFromFile(actor,"mesh/cloth.mesh.xml","mesh/cloth.skeleton.xml","joint5")
+-- game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
+	-- game:AddMeshComponentList(actor, res2mesh_set(res))
+-- end)
 
--- 添加光源
-local l=Emitter()
-local e=Emitter()
-l.MaterialName="light1"
-l.PassMask=Material.PassMaskLight
-e.MaterialName="particle1"
-e.PassMask=Material.PassMaskTransparent
-for i=0,359,60 do
-	local radius=10
-	l:Spawn(Vector3(radius*math.cos(math.rad(i)),0,radius*math.sin(math.rad(i))),Vector3(0,0,0),ARGB(255,255,255,255),Vector2(30,30),0)
-	e:Spawn(Vector3(radius*math.cos(math.rad(i)),0,radius*math.sin(math.rad(i))),Vector3(0,0,0),ARGB(255,255,255,255),Vector2(5,5),0)
-end
-lcmp=game:AddEmitterComponent(actor,l)
-ecmp=game:AddEmitterComponent(actor,e)
+-- -- local actor = Actor()
+-- -- game:AddActor(actor)
+-- -- game:AddAnimatorFromFile(actor,"mesh/casual19_m_highpoly.skeleton.xml")
+-- -- local cmp=game:AddSkeletonMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",false)
+-- -- cmp.World=Matrix4.Scaling(0.05,0.05,0.05)
 
-local t = Timer(0.033,0)
-local angle = 0;
-t.EventTimer=function(args)
-	angle=angle+0.5
-	game.SkyLight.Eular=Vector3(math.rad(-30),math.rad(-angle),0)
-	local trans=Matrix4.Translation(0,2.5,0)*Matrix4.RotationY(math.rad(angle))
-	lcmp.World=trans
-	ecmp.World=trans
-end
-game:InsertTimer(t)
+-- -- 添加光源
+-- local l=Emitter()
+-- local e=Emitter()
+-- l.MaterialName="light1"
+-- l.PassMask=Material.PassMaskLight
+-- e.MaterialName="particle1"
+-- e.PassMask=Material.PassMaskTransparent
+-- for i=0,359,60 do
+	-- local radius=10
+	-- l:Spawn(Vector3(radius*math.cos(math.rad(i)),0,radius*math.sin(math.rad(i))),Vector3(0,0,0),ARGB(255,255,255,255),Vector2(30,30),0)
+	-- e:Spawn(Vector3(radius*math.cos(math.rad(i)),0,radius*math.sin(math.rad(i))),Vector3(0,0,0),ARGB(255,255,255,255),Vector2(5,5),0)
+-- end
+-- lcmp=game:AddEmitterComponent(actor,l)
+-- ecmp=game:AddEmitterComponent(actor,e)
+
+-- local t = Timer(0.033,0)
+-- local angle = 0;
+-- t.EventTimer=function(args)
+	-- angle=angle+0.5
+	-- game.SkyLight.Eular=Vector3(math.rad(-30),math.rad(-angle),0)
+	-- local trans=Matrix4.Translation(0,2.5,0)*Matrix4.RotationY(math.rad(angle))
+	-- lcmp.World=trans
+	-- ecmp.World=trans
+-- end
+-- game:InsertTimer(t)

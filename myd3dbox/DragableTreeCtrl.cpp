@@ -281,13 +281,3 @@ BOOL CDragableTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
 
 	return FALSE;
 }
-
-BOOL CDragableTreeCtrl::CanItemMove(HTREEITEM hParent, HTREEITEM hInsertAfter, HTREEITEM hOtherItem)
-{
-	if(hParent == hOtherItem || hInsertAfter == hOtherItem || FindTreeChildItem(hOtherItem, hParent))
-	{
-		return FALSE;
-	}
-
-	return TRUE;
-}

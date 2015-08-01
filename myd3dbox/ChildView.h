@@ -48,7 +48,6 @@ protected:
 	my::Texture2DPtr m_LightRT;
 	my::Texture2DPtr m_OpaqueRT;
 	my::Texture2DPtr m_DownFilterRT[2];
-	my::ModelViewerCamera m_Camera;
 	DWORD m_CameraDragMode;
 	CPoint m_CameraDragPos;
 	PivotController m_Pivot;

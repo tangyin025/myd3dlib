@@ -138,7 +138,7 @@ afx_msg void CFileView::OnTvnDragchangedTree(UINT id, NMHDR *pNMHDR, LRESULT *pR
 		CImgRegionDoc * pDoc = DYNAMIC_DOWNCAST(CImgRegionDoc, pChildFrame->GetActiveDocument());
 		if(pDoc && &pDoc->m_TreeCtrl == pTreeCtrl)
 		{
-			if(pTreeCtrl->CanItemMove(pDragInfo->hDragTagParent, pDragInfo->hDragTagFront, pDragInfo->hDragItem))
+			if(pDoc->CanItemMove(pDragInfo->hDragTagParent, pDragInfo->hDragTagFront, pDragInfo->hDragItem))
 			{
 				UINT newParentID = pDragInfo->hDragTagParent ? pDoc->GetItemId(pDragInfo->hDragTagParent) : 0;
 				UINT newBeforeID = pDragInfo->hDragTagFront ? pDoc->GetItemId(pDragInfo->hDragTagFront) : 0;

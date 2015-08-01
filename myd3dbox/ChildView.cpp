@@ -198,6 +198,13 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 
 void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
 {
+	CMainDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	ActorPtrList::iterator act_iter = pDoc->m_Actors.begin();
+	for (; act_iter != pDoc->m_Actors.end(); act_iter++)
+	{
+		(*act_iter)->QueryComponent(frustum, &theApp, PassMask);
+	}
 }
 
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
@@ -238,7 +245,9 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			m_Camera.OnFrameMove(0,0);
+			m_Camera->OnFrameMove(0,0);
+			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
+			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
@@ -249,10 +258,10 @@ void CChildView::OnPaint()
 				BkColor = D3DCOLOR_ARGB(0,161,161,161);
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
-				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera.m_View);
-				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera.m_Proj);
+				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
+				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
-				m_Pivot.Draw(theApp.m_d3dDevice, &m_Camera, &m_SwapChainBufferDesc);
+				m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -293,7 +302,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		ResetD3DSwapChain();
-		m_Camera.m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
+		m_Camera->m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }
@@ -304,9 +313,12 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	m_Camera.m_LookAt = my::Vector3(0,0,0);
-	m_Camera.m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	m_Camera.m_Distance = 20.0f;
+	m_Camera.reset(new my::ModelViewerCamera(D3DXToRadian(75.0f),1.33333f,0.1f,3000.0f));
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
+
+	m_DofParams = my::Vector4(5.0f,15.0f,25.0f,0.0f);
 
 	return 0;
 }
@@ -329,7 +341,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		SetCapture();
 	}
 	else if (m_Pivot.OnLButtonDown(
-		m_Camera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
@@ -344,7 +356,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ReleaseCapture();
 	}
 	else if (m_Pivot.OnLButtonUp(
-		m_Camera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
@@ -405,8 +417,8 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 	case CameraDragRotate:
 		{
-			m_Camera.m_Eular.x -= D3DXToRadian((point.y - m_CameraDragPos.y) * 0.5f);
-			m_Camera.m_Eular.y -= D3DXToRadian((point.x - m_CameraDragPos.x) * 0.5f);
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular.x -= D3DXToRadian((point.y - m_CameraDragPos.y) * 0.5f);
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular.y -= D3DXToRadian((point.x - m_CameraDragPos.x) * 0.5f);
 			m_CameraDragPos = point;
 			Invalidate();
 		}
@@ -414,9 +426,9 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 
 	case CameraDragTrake:
 		{
-			my::Vector3 Right = m_Camera.m_View.column<0>().xyz;
-			my::Vector3 Up = m_Camera.m_View.column<1>().xyz;
-			m_Camera.m_LookAt += Right * (float)(m_CameraDragPos.x - point.x) * 0.03f + Up * (float)(point.y - m_CameraDragPos.y) * 0.03f;
+			my::Vector3 Right = m_Camera->m_View.column<0>().xyz;
+			my::Vector3 Up = m_Camera->m_View.column<1>().xyz;
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt += Right * (float)(m_CameraDragPos.x - point.x) * 0.03f + Up * (float)(point.y - m_CameraDragPos.y) * 0.03f;
 			m_CameraDragPos = point;
 			Invalidate();
 		}
@@ -424,7 +436,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 
 	case CameraDragZoom:
 		{
-			m_Camera.m_Distance += (m_CameraDragPos.x - point.x) * 0.03f;
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance += (m_CameraDragPos.x - point.x) * 0.03f;
 			m_CameraDragPos = point;
 			Invalidate();
 		}
@@ -433,7 +445,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	default:
 		{
 			if (m_Pivot.OnMouseMove(
-				m_Camera.CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+				m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 			{
 				Invalidate();
 			}

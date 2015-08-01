@@ -42,10 +42,8 @@ RenderPipeline::RenderPipeline(void)
 	, m_MeshInstanceStride(0)
 	, SHADOW_MAP_SIZE(1024)
 	, SHADOW_EPSILON(0.001f)
-	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_ShadowRT(new Texture2D())
 	, m_ShadowDS(new Surface())
-	, m_Camera(D3DXToRadian(75), 1.333333f, 0.1f, 3000.0f)
 	, m_SkyLight(30,30,-100,100)
 	, m_SkyLightColor(1,1,1,1)
 {
@@ -191,12 +189,12 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderPipeline::RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 
-	pRC->QueryComponent(Frustum::ExtractMatrix(m_Camera.m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
-	m_SimpleSample->SetMatrix("g_View", m_Camera.m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera.m_ViewProj);
-	m_SimpleSample->SetMatrix("g_InvViewProj", m_Camera.m_InverseViewProj);
-	m_SimpleSample->SetVector("g_Eye", m_Camera.m_Eye);
+	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
+	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
+	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
 	m_SimpleSample->SetVector("g_SkyLightDir", -m_SkyLight.m_View.column<2>().xyz); // ! RH -z
 	m_SimpleSample->SetMatrix("g_SkyLightViewProj", m_SkyLight.m_ViewProj);
 	m_SimpleSample->SetVector("g_SkyLightColor", m_SkyLightColor);
@@ -259,7 +257,7 @@ void RenderPipeline::OnFrameRender(
 		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
 	};
 
-	m_SimpleSample->SetVector("g_DofParams", m_DofParams);
+	m_SimpleSample->SetVector("g_DofParams", pRC->m_DofParams);
 	m_SimpleSample->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));

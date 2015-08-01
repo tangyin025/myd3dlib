@@ -4,13 +4,13 @@
 
 using namespace my;
 
-ComponentLevel * RenderComponentLod::GetComponentLevel(unsigned int level)
+ComponentLevelPtr RenderComponentLod::GetComponentLevel(unsigned int level)
 {
 	if (m_lvls.size() < level + 1)
 	{
 		m_lvls.resize(level + 1, ComponentLevelPtr(new ComponentLevel(m_aabb, 1.0f)));
 	}
-	return m_lvls[level].get();
+	return m_lvls[level];
 }
 
 void Actor::Update(float fElapsedTime)

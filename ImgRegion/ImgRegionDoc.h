@@ -348,6 +348,8 @@ public:
 	virtual void Serialize(CArchive& ar);
 
 public:
+	BOOL CanItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
+
 	HTREEITEM InsertItem(UINT id, const std::basic_string<TCHAR> & strItem, CImgRegionPtr reg_ptr, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 
 	UINT GetItemId(HTREEITEM hItem);

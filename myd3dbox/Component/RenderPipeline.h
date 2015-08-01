@@ -189,13 +189,9 @@ public:
 
 	float SHADOW_EPSILON;
 
-	my::Vector4 m_DofParams;
-
 	my::Texture2DPtr m_ShadowRT;
 
 	my::SurfacePtr m_ShadowDS;
-
-	my::FirstPersonCamera m_Camera;
 
 	my::OrthoCamera m_SkyLight;
 
@@ -213,6 +209,10 @@ public:
 	{
 	public:
 		DWORD BkColor;
+
+		my::CameraPtr m_Camera;
+
+		my::Vector4 m_DofParams;
 
 		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
 
