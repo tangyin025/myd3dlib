@@ -73,7 +73,7 @@ public:
 		m_Actors.push_back(actor);
 		MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
 		MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
-		cmp->m_World = Matrix4::Scaling(0.1f,0.1f,0.1f);
+		cmp->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
 		cmp = actor->CreateComponent<MeshComponent>();
 		MeshComponentLoadMeshFromFile(cmp, "mesh/plane.mesh.xml");
 
@@ -150,7 +150,7 @@ public:
 		case WM_RBUTTONUP:
 			CRect ClientRect;
 			GetClientRect(hWnd, &ClientRect);
-			Ray ray = m_Camera->CalculateRay(
+			Ray ray = boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->CalculateRay(
 				Vector2((short)LOWORD(lParam) + 0.5f, (short)HIWORD(lParam) + 0.5f), ClientRect.Size());
 			break;
 		}

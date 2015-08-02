@@ -44,13 +44,13 @@ public:
 
 	~PivotController(void);
 
-	void Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera, const D3DSURFACE_DESC * desc);
+	void Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc);
 
 	void DrawMoveController(IDirect3DDevice9 * pd3dDevice);
 
 	void DrawRotController(IDirect3DDevice9 * pd3dDevice);
 
-	void UpdateScale(const my::Camera * camera, const D3DSURFACE_DESC * desc);
+	void UpdateScale(const my::BaseCamera * camera, const D3DSURFACE_DESC * desc);
 
 	void UpdateWorld(void);
 

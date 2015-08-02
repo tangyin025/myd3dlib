@@ -93,12 +93,12 @@ float4 OpaquePS( COLOR_VS_OUTPUT In ) : COLOR0
 	DiffuseTex.y = 1 - DiffuseTex.y;
 	DiffuseTex = DiffuseTex + float2(0.5, 0.5) / g_ScreenDim.x;
 	float3 Normal = tex2D(NormalRTSampler, DiffuseTex);
-	float3 DiffuseSky = saturate(-dot(Normal, ViewSkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightColor.xyz;
+	float3 DiffuseSky = saturate(-dot(Normal, ViewSkyLightDir) * GetLigthAmount(In.PosLS)) * g_SkyLightDiffuse.xyz;
 	float4 Diffuse = tex2D(LightRTSampler, DiffuseTex);
-	Diffuse.xyz += DiffuseSky;
+	Diffuse.xyz += DiffuseSky + g_SkyLightAmbient.xyz;
 	Diffuse.xyz *= tex2D(MeshTextureSampler, In.Tex0).xyz;
 	float3 Ref = Reflection(Normal.xyz, In.View);
-	float SpecularSky = pow(saturate(dot(Ref, -ViewSkyLightDir)), 5) * g_SkyLightColor.w;
+	float SpecularSky = pow(saturate(dot(Ref, -ViewSkyLightDir)), 5) * g_SkyLightDiffuse.w;
 	float Specular = tex2D(SpecularTextureSampler, In.Tex0).x * (Diffuse.w + SpecularSky);
 	Diffuse.xyz += Specular;
     return float4(Diffuse.xyz, 1);

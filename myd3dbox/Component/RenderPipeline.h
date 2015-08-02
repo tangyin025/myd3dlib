@@ -193,10 +193,6 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
-	my::OrthoCamera m_SkyLight;
-
-	my::Vector4 m_SkyLightColor;
-
 	my::EffectPtr m_SimpleSample;
 
 	class IShaderSetter
@@ -210,9 +206,26 @@ public:
 	public:
 		DWORD BkColor;
 
-		my::CameraPtr m_Camera;
+		my::BaseCameraPtr m_Camera;
+
+		my::BaseCameraPtr m_SkyLightCam;
+
+		my::Vector4 m_SkyLightDiffuse;
+
+		my::Vector4 m_SkyLightAmbient;
+
+		bool m_DofEnable;
 
 		my::Vector4 m_DofParams;
+
+		IRenderContext(void)
+			: BkColor(0)
+			, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
+			, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.3f)
+			, m_DofEnable(false)
+			, m_DofParams(5.0f,15.0f,25.0f,1.0f)
+		{
+		}
 
 		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
 

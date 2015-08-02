@@ -87,8 +87,8 @@ Game::Game(void)
 	{
 		m_DownFilterRT[i].reset(new Texture2D());
 	}
-	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333,0.1f,3000.0f));
-	m_DofParams = Vector4(5.0f,15.0f,25.0f,1.0f);
+	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
+	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
 }
 
 Game::~Game(void)
@@ -247,9 +247,9 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
 
-	if(m_Camera->EventAlign)
+	if(boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->EventAlign)
 	{
-		m_Camera->EventAlign(&EventArgs());
+		boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->EventAlign(&EventArgs());
 	}
 
 	return S_OK;
@@ -330,9 +330,9 @@ void Game::OnFrameMove(
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	m_Camera->OnFrameMove(fTime, fElapsedTime);
+	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->OnFrameMove(fTime, fElapsedTime);
 
-	m_SkyLight.OnFrameMove(fTime, fElapsedTime);
+	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(fTime, fElapsedTime);
 }
 
 void Game::OnFrameRender(
@@ -429,7 +429,7 @@ LRESULT Game::MsgProc(
 	}
 
 	LRESULT lr;
-	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	if(lr = boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 	{
 		return lr;
 	}

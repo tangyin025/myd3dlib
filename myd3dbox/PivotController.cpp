@@ -16,7 +16,7 @@ PivotController::PivotController(void)
 	: m_Pos(Vector3::zero)
 	, m_Rot(Quaternion::Identity())
 	, m_PivotDragAxis(PivotDragNone)
-	, m_PivotMode(PivotModeRot)
+	, m_PivotMode(PivotModeMove)
 	, m_Scale(1.0f)
 	, m_Captured(false)
 {
@@ -26,7 +26,7 @@ PivotController::~PivotController(void)
 {
 }
 
-void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::Camera * camera, const D3DSURFACE_DESC * desc)
+void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc)
 {
 	UpdateScale(camera, desc);
 
@@ -167,7 +167,7 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice)
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-void PivotController::UpdateScale(const my::Camera * camera, const D3DSURFACE_DESC * desc)
+void PivotController::UpdateScale(const my::BaseCamera * camera, const D3DSURFACE_DESC * desc)
 {
 	float z = Vector4(m_Pos, 1.0f).dot(camera->m_View.column<2>());
 	m_Scale = -z * 1 / 25.0f * 1024.0f / desc->Width;

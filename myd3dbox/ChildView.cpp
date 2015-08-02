@@ -245,7 +245,8 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			m_Camera->OnFrameMove(0,0);
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->OnFrameMove(0,0);
+			boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(0,0);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
@@ -302,7 +303,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		ResetD3DSwapChain();
-		m_Camera->m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
+		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }
@@ -318,7 +319,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
 
-	m_DofParams = my::Vector4(5.0f,15.0f,25.0f,0.0f);
+	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
 
 	return 0;
 }
@@ -341,7 +342,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		SetCapture();
 	}
 	else if (m_Pivot.OnLButtonDown(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
@@ -356,7 +357,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ReleaseCapture();
 	}
 	else if (m_Pivot.OnLButtonUp(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
@@ -445,7 +446,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	default:
 		{
 			if (m_Pivot.OnMouseMove(
-				m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 			{
 				Invalidate();
 			}
