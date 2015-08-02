@@ -55,7 +55,7 @@ CChildView::CChildView()
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
 	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
-	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
 	m_CameraDragMode = CameraDragNone;
 }
 

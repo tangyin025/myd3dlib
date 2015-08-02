@@ -10,7 +10,7 @@ game.Camera.EventAlign=function(args)
 	local desc=game.BackBufferSurfaceDesc
 	game.Camera.Aspect=desc.Width/desc.Height
 end
-game.SkyLightCam.Eular=Vector3(math.rad(-45),math.rad(45),0)
+game.SkyLightCam.Eular=Vector3(math.rad(-45),math.rad(0),0)
 
 -- -- 设置环境光
 -- game.SkyLight.Eye=Vector3(0,0,0)

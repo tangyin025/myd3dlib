@@ -20,6 +20,8 @@ protected:
 	CSplitterWnd m_wndSplitter;
 public:
 	BOOL m_bEatAltUp;
+	COutlinerWnd		m_wndOutliner;
+	CPropertiesWnd    m_wndProperties;
 
 // Operations
 public:
@@ -43,8 +45,6 @@ protected:  // control bar embedded members
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
-	COutlinerWnd		m_wndOutliner;
-	CPropertiesWnd    m_wndProperties;
 
 // Generated message map functions
 protected:

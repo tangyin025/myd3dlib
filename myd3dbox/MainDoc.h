@@ -7,6 +7,8 @@
 
 #include "Component/Actor.h"
 
+class CMainFrame;
+
 class CMainDoc : public CDocument
 {
 protected: // create from serialization only
@@ -19,6 +21,7 @@ public:
 
 // Operations
 public:
+	CMainFrame * GetMainFrame(void);
 
 // Overrides
 public:

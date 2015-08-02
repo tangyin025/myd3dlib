@@ -1,6 +1,11 @@
 #include "StdAfx.h"
 #include "OutlinerWnd.h"
 #include "MainApp.h"
+#include "Component/Actor.h"
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
 
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {
@@ -213,17 +218,41 @@ HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTR
 	m_wndClassView.DeleteItem(hMoveItem);
 	return hItem;
 }
-//
-//void COutlinerWnd::InsertActor(Actor * actor, HTREEITEM hParent, HTREEITEM hInsertAfter)
-//{
-//	HTREEITEM hItem = InsertTreeItem(_T("actor"), TreeItemTypeActor, actor, 1, 1, hParent, hInsertAfter);
-//}
-//
-//void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
-//{
-//	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 2, 2, hParent, hInsertAfter);
-//	m_Cmp2HTree[cmp] = hItem;
-//}
+
+void COutlinerWnd::InsertActor(Actor * actor, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	HTREEITEM hItem = InsertTreeItem(_T("actor"), TreeItemTypeActor, actor, 0, 0, hParent, hInsertAfter);
+
+	struct CallBack : public my::IQueryCallback
+	{
+		COutlinerWnd * m_wnd;
+
+		HTREEITEM m_hParent;
+
+		HTREEITEM m_hInsertAfter;
+
+		CallBack(COutlinerWnd * wnd, HTREEITEM hParent, HTREEITEM hInsertAfter)
+			: m_wnd(wnd)
+			, m_hParent(hParent)
+			, m_hInsertAfter(hInsertAfter)
+		{
+		}
+
+		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Component *>(comp));
+			m_wnd->InsertComponent(static_cast<Component *>(comp), m_hParent, m_hInsertAfter);
+		}
+	};
+
+	actor->QueryComponentAll(&CallBack(this, hItem, TVI_LAST));
+}
+
+void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
+{
+	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 1, 1, hParent, hInsertAfter);
+	m_Cmp2HTree[cmp] = hItem;
+}
 
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)
 {

@@ -527,7 +527,15 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 
 void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
 {
-	_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
+	if(res_iter != m_ResourceWeakSet.end())
+	{
+		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
+		if(res)
+		{
+			_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
+		}
+	}
 
 	m_ResourceWeakSet[key] = res;
 

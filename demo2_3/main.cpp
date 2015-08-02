@@ -80,7 +80,7 @@ public:
 			my::OgreMeshSet::iterator mesh_iter = mesh_set->begin();
 			for (; mesh_iter != mesh_set->end(); mesh_iter++)
 			{
-				cmp = actor->CreateComponent<MeshComponent>();
+				cmp = actor->CreateComponent<MeshComponent>((*mesh_iter)->m_aabb);
 				MeshComponentLoadMesh(cmp, *mesh_iter, false);
 			}
 		}

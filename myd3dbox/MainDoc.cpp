@@ -4,7 +4,7 @@
 
 #include "stdafx.h"
 #include "MainApp.h"
-
+#include "MainFrm.h"
 #include "MainDoc.h"
 
 #ifdef _DEBUG
@@ -32,6 +32,26 @@ CMainDoc::~CMainDoc()
 {
 }
 
+CMainFrame * CMainDoc::GetMainFrame(void)
+{
+	POSITION pos = GetFirstViewPosition();
+	while (pos != NULL)
+	{
+		CView* pView = GetNextView(pos);
+		ASSERT_VALID(pView);
+		ASSERT(::IsWindow(pView->m_hWnd));
+		if (pView->IsWindowVisible())   // Do not count invisible windows.
+		{
+			CFrameWnd* pFrame = pView->GetParentFrame();
+			if (pFrame)
+			{
+				return DYNAMIC_DOWNCAST(CMainFrame, pFrame);
+			}
+		}
+	}
+	return NULL;
+}
+
 BOOL CMainDoc::OnNewDocument()
 {
 	if (!CDocument::OnNewDocument())
@@ -52,10 +72,14 @@ BOOL CMainDoc::OnNewDocument()
 		my::OgreMeshSet::iterator mesh_iter = mesh_set->begin();
 		for (; mesh_iter != mesh_set->end(); mesh_iter++)
 		{
-			cmp = actor->CreateComponent<MeshComponent>();
+			cmp = actor->CreateComponent<MeshComponent>((*mesh_iter)->m_aabb);
 			theApp.MeshComponentLoadMesh(cmp, *mesh_iter, false);
 		}
 	}
+
+	CMainFrame * pFrame = GetMainFrame();
+	ASSERT_VALID(pFrame);
+	pFrame->m_wndOutliner.InsertActor(actor.get());
 
 	return TRUE;
 }

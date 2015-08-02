@@ -30,6 +30,10 @@ protected:
 	typedef std::map<Component *, HTREEITEM> Cmp2HTreeMap;
 	Cmp2HTreeMap m_Cmp2HTree;
 
+// Overrides
+public:
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+
 	struct TreeItemData
 	{
 		DWORD type;
@@ -59,12 +63,8 @@ protected:
 	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD type, void * data, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 	void DeleteTreeItem(HTREEITEM hItem);
 	HTREEITEM MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
-	//void InsertActor(Actor * actor, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
-	//void InsertComponent(Component * cmp, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
-
-// Overrides
-public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	void InsertActor(Actor * actor, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+	void InsertComponent(Component * cmp, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
