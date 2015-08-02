@@ -1241,29 +1241,14 @@ const std::string & OgreMesh::GetMaterialName(DWORD AttribId) const
 
 void OgreMeshSet::OnResetDevice(void)
 {
-	iterator mesh_iter = begin();
-	for(; mesh_iter != end(); mesh_iter++)
-	{
-		(*mesh_iter)->OnResetDevice();
-	}
 }
 
 void OgreMeshSet::OnLostDevice(void)
 {
-	iterator mesh_iter = begin();
-	for(; mesh_iter != end(); mesh_iter++)
-	{
-		(*mesh_iter)->OnLostDevice();
-	}
 }
 
 void OgreMeshSet::OnDestroyDevice(void)
 {
-	iterator mesh_iter = begin();
-	for(; mesh_iter != end(); mesh_iter++)
-	{
-		(*mesh_iter)->OnDestroyDevice();
-	}
 }
 
 void OgreMeshSet::CreateMeshSetFromOgreXmlInFile(

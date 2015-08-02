@@ -461,51 +461,6 @@ void ActorResourceMgr::MeshComponentLoadMeshFromFile(MeshComponentPtr cmp, const
 	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, cmp, _1, bInstance));
 }
 //
-//MeshComponentPtr ActorResourceMgr::AddMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
-//{
-//	MeshComponentPtr ret(new MeshComponent(owner));
-//	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
-//	owner->AddComponent(ret);
-//	return ret;
-//}
-//
-//MeshComponentPtr ActorResourceMgr::AddMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
-//{
-//	MeshComponentPtr ret(new MeshComponent(owner));
-//	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
-//	owner->AddComponent(ret);
-//	return ret;
-//}
-//
-//void ActorResourceMgr::AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
-//{
-//	OgreMeshSet::iterator mesh_iter = mesh_set->begin();
-//	for (; mesh_iter != mesh_set->end(); mesh_iter++)
-//	{
-//		MeshComponentPtr ret(new MeshComponent(owner));
-//		OnMeshComponentMeshLoaded(ret, *mesh_iter, false);
-//		ret->Min = (*mesh_iter)->m_AABB.Min;
-//		ret->Max = (*mesh_iter)->m_AABB.Max;
-//		owner->AddComponent(ret);
-//	}
-//}
-//
-//SkeletonMeshComponentPtr ActorResourceMgr::AddSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
-//{
-//	SkeletonMeshComponentPtr ret(new SkeletonMeshComponent(owner));
-//	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
-//	owner->AddComponent(ret);
-//	return ret;
-//}
-//
-//SkeletonMeshComponentPtr ActorResourceMgr::AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance)
-//{
-//	SkeletonMeshComponentPtr ret(new SkeletonMeshComponent(owner));
-//	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
-//	owner->AddComponent(ret);
-//	return ret;
-//}
-//
 //EmitterComponentPtr ActorResourceMgr::AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter)
 //{
 //	EmitterComponentPtr ret(new EmitterComponent(owner));

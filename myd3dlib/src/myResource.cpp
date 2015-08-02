@@ -530,6 +530,11 @@ void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelate
 	_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
 
 	m_ResourceWeakSet[key] = res;
+
+	if (D3DContext::getSingleton().m_DeviceObjectsReset)
+	{
+		res->OnResetDevice();
+	}
 }
 
 std::string DeviceRelatedResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
@@ -697,11 +702,6 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 
 				request->BuildResource(D3DContext::getSingleton().m_d3dDevice);
 
-				if (D3DContext::getSingleton().m_DeviceObjectsReset)
-				{
-					request->m_res->OnResetDevice();
-				}
-
 				AddResource(key, request->m_res);
 			}
 			catch(const Exception & e)
@@ -860,14 +860,14 @@ class MeshSetIORequest : public IORequest
 protected:
 	std::string m_path;
 
-	StreamDirMgr * m_arc;
+	ResourceMgr * m_arc;
 
 	CachePtr m_cache;
 
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	MeshSetIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
+	MeshSetIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
 		: IORequest(callback)
 		, m_path(path)
 		, m_arc(arc)
@@ -899,6 +899,13 @@ public:
 		}
 		OgreMeshSetPtr res(new OgreMeshSet());
 		res->CreateMeshSetFromOgreXml(pd3dDevice, &m_doc);
+
+		// ! add meshes to resource manager for self isolated reset
+		OgreMeshSet::iterator mesh_iter = res->begin();
+		for (; mesh_iter != res->end(); mesh_iter++)
+		{
+			m_arc->AddResource(m_path + str_printf("%u", std::distance(res->begin(), mesh_iter)), *mesh_iter);
+		}
 		m_res = res;
 	}
 };

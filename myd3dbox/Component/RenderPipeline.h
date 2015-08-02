@@ -204,7 +204,7 @@ public:
 	class IRenderContext
 	{
 	public:
-		DWORD BkColor;
+		DWORD m_BkColor;
 
 		my::BaseCameraPtr m_Camera;
 
@@ -219,7 +219,7 @@ public:
 		my::Vector4 m_DofParams;
 
 		IRenderContext(void)
-			: BkColor(0)
+			: m_BkColor(D3DCOLOR_ARGB(255,0,0,0))
 			, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 			, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.3f)
 			, m_DofEnable(false)

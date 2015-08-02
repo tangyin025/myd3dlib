@@ -50,6 +50,12 @@ CChildView::CChildView()
 	{
 		m_DownFilterRT[i].reset(new my::Texture2D());
 	}
+	m_Camera.reset(new my::ModelViewerCamera(D3DXToRadian(75.0f),1.33333f,0.1f,3000.0f));
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
+	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
+	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	m_CameraDragMode = CameraDragNone;
 }
 
@@ -245,18 +251,15 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->OnFrameMove(0,0);
-			boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(0,0);
+			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
+			boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
-
+			DrawHelper::BeginLine();
+			PushGrid();
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
-				DrawHelper::BeginLine();
-
-				PushGrid();
-
-				BkColor = D3DCOLOR_ARGB(0,161,161,161);
+				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
@@ -314,12 +317,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	m_Camera.reset(new my::ModelViewerCamera(D3DXToRadian(75.0f),1.33333f,0.1f,3000.0f));
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
-
-	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
 
 	return 0;
 }

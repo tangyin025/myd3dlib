@@ -112,16 +112,6 @@ public:
 
 	void MeshComponentLoadMeshFromFile(MeshComponentPtr cmp, const std::string & path, bool bInstance = false);
 
-	//MeshComponentPtr AddMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
-
-	//MeshComponentPtr AddMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
-
-	//void AddMeshComponentList(Actor * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
-
-	//SkeletonMeshComponentPtr AddSkeletonMeshComponent(Actor * owner, boost::shared_ptr<my::Mesh> mesh, bool bInstance);
-
-	//SkeletonMeshComponentPtr AddSkeletonMeshComponentFromFile(Actor * owner, const std::string & path, bool bInstance);
-
 	//EmitterComponentPtr AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter);
 
 	//EmitterComponentPtr AddEmitterComponentFromFile(Actor * owner, const std::string & path);

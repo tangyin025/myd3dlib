@@ -74,8 +74,16 @@ public:
 		MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
 		MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
 		cmp->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		cmp = actor->CreateComponent<MeshComponent>();
-		MeshComponentLoadMeshFromFile(cmp, "mesh/plane.mesh.xml");
+		my::OgreMeshSetPtr mesh_set = LoadMeshSet("mesh/scene.mesh.xml");
+		if (mesh_set)
+		{
+			my::OgreMeshSet::iterator mesh_iter = mesh_set->begin();
+			for (; mesh_iter != mesh_set->end(); mesh_iter++)
+			{
+				cmp = actor->CreateComponent<MeshComponent>();
+				MeshComponentLoadMesh(cmp, *mesh_iter, false);
+			}
+		}
 
 		return S_OK;
 	}
