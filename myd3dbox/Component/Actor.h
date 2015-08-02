@@ -46,8 +46,8 @@ class Actor
 	: public ComponentLevel
 {
 public:
-	Actor(const my::AABB & aabb)
-		: ComponentLevel(aabb, 1.0f)
+	Actor(const my::AABB & aabb, float MinBlock)
+		: ComponentLevel(aabb, MinBlock)
 	{
 	}
 

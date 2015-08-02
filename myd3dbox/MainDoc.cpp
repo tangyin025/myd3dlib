@@ -61,7 +61,7 @@ BOOL CMainDoc::OnNewDocument()
 	// (SDI documents will reuse this document)
 	m_Actors.clear();
 
-	ActorPtr actor(new Actor(my::AABB(-FLT_MAX,FLT_MAX)));
+	ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
 	m_Actors.push_back(actor);
 	MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
 	theApp.MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");

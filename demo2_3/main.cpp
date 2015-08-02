@@ -69,7 +69,7 @@ public:
 		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
 		//FMOD_ERRCHECK(result);
 
-		ActorPtr actor(new Actor(my::AABB(-FLT_MAX,FLT_MAX)));
+		ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
 		m_Actors.push_back(actor);
 		MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>();
 		MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
