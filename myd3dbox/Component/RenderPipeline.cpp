@@ -185,7 +185,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	RenderPipeline::RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 
 	pRC->QueryComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
@@ -202,7 +202,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(1, pRC->GetPositionSurface()));
 	V(pd3dDevice->SetDepthStencilSurface(pRC->GetScreenDepthStencilSurface()));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
-	RenderPipeline::RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 
 	m_SimpleSample->SetTexture("g_NormalRT", pRC->GetNormalTexture());
 	m_SimpleSample->SetTexture("g_PositionRT", pRC->GetPositionTexture());
@@ -214,21 +214,21 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-	RenderPipeline::RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->GetLightTexture());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_DofEnable ? pRC->GetOpaqueSurface() : pRC->GetScreenSurface()));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
-	RenderPipeline::RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
-	RenderPipeline::RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
+	RenderAllObjects(PassTypeTransparent, pd3dDevice, fTime, fElapsedTime);
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
@@ -285,7 +285,7 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	}
 
-	RenderPipeline::ClearAllObjects();
+	ClearAllObjects();
 }
 
 void RenderPipeline::RenderAllObjects(

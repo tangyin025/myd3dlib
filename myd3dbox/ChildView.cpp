@@ -26,12 +26,7 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_DESTROY()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
-	ON_WM_MBUTTONDOWN()
-	ON_WM_MBUTTONUP()
-	ON_WM_RBUTTONDOWN()
-	ON_WM_RBUTTONUP()
 	ON_WM_MOUSEMOVE()
-	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -56,7 +51,6 @@ CChildView::CChildView()
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
 	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
-	m_CameraDragMode = CameraDragNone;
 }
 
 CChildView::~CChildView()
@@ -251,8 +245,8 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
-			boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
+			m_Camera->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
+			m_SkyLightCam->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 			DrawHelper::BeginLine();
@@ -331,15 +325,8 @@ void CChildView::OnDestroy()
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
-	{
-		m_CameraDragMode = CameraDragRotate;
-		m_CameraDragPos = point;
-		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
-		SetCapture();
-	}
-	else if (m_Pivot.OnLButtonDown(
-		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	if (m_Pivot.OnLButtonDown(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
@@ -348,113 +335,44 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if (m_CameraDragMode == CameraDragRotate)
-	{
-		m_CameraDragMode = CameraDragNone;
-		ReleaseCapture();
-	}
-	else if (m_Pivot.OnLButtonUp(
-		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	if (m_Pivot.OnLButtonUp(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		Invalidate();
 	}
 }
 
-void CChildView::OnMButtonDown(UINT nFlags, CPoint point)
-{
-	// TODO: Add your message handler code here and/or call default
-	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
-	{
-		m_CameraDragMode = CameraDragTrake;
-		m_CameraDragPos = point;
-		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
-		SetCapture();
-	}
-}
-
-void CChildView::OnMButtonUp(UINT nFlags, CPoint point)
-{
-	// TODO: Add your message handler code here and/or call default
-	if (m_CameraDragMode == CameraDragTrake)
-	{
-		m_CameraDragMode = CameraDragNone;
-		ReleaseCapture();
-	}
-}
-
-void CChildView::OnRButtonDown(UINT nFlags, CPoint point)
-{
-	// TODO: Add your message handler code here and/or call default
-	if ((GetKeyState(VK_MENU) & 0x8000) && m_CameraDragMode == CameraDragNone)
-	{
-		m_CameraDragMode = CameraDragZoom;
-		m_CameraDragPos = point;
-		CMainFrame::getSingleton().m_bEatAltUp = TRUE;
-		SetCapture();
-	}
-}
-
-void CChildView::OnRButtonUp(UINT nFlags, CPoint point)
-{
-	if (m_CameraDragMode == CameraDragZoom)
-	{
-		m_CameraDragMode = CameraDragNone;
-		ReleaseCapture();
-	}
-	else
-	{
-		ClientToScreen(&point);
-		OnContextMenu(this, point);
-	}
-}
-
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call default
-	switch(m_CameraDragMode)
+	if (m_Pivot.OnMouseMove(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
-	case CameraDragRotate:
-		{
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular.x -= D3DXToRadian((point.y - m_CameraDragPos.y) * 0.5f);
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular.y -= D3DXToRadian((point.x - m_CameraDragPos.x) * 0.5f);
-			m_CameraDragPos = point;
-			Invalidate();
-		}
-		break;
-
-	case CameraDragTrake:
-		{
-			my::Vector3 Right = m_Camera->m_View.column<0>().xyz;
-			my::Vector3 Up = m_Camera->m_View.column<1>().xyz;
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt += Right * (float)(m_CameraDragPos.x - point.x) * 0.03f + Up * (float)(point.y - m_CameraDragPos.y) * 0.03f;
-			m_CameraDragPos = point;
-			Invalidate();
-		}
-		break;
-
-	case CameraDragZoom:
-		{
-			boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance += (m_CameraDragPos.x - point.x) * 0.03f;
-			m_CameraDragPos = point;
-			Invalidate();
-		}
-		break;
-
-	default:
-		{
-			if (m_Pivot.OnMouseMove(
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-			{
-				Invalidate();
-			}
-		}
-		break;
+		Invalidate();
 	}
 }
 
-BOOL CChildView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 {
-	// TODO: Add your message handler code here and/or call default
+	// TODO: Add your specialized code here and/or call the base class
+	ASSERT(pMsg->hwnd == m_hWnd);
+	bool bNoFurtherProcessing = false;
+	m_Camera->MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam, &bNoFurtherProcessing);
+	if (bNoFurtherProcessing)
+	{
+		switch (pMsg->message)
+		{
+		case WM_LBUTTONDOWN:
+		case WM_MBUTTONDOWN:
+		case WM_RBUTTONDOWN:
+			CMainFrame::getSingleton().m_bEatAltUp = TRUE;
+			break;
 
-	return __super::OnMouseWheel(nFlags, zDelta, pt);
+		case WM_MOUSEMOVE:
+			Invalidate();
+			break;
+		}
+		return TRUE;
+	}
+
+	return __super::PreTranslateMessage(pMsg);
 }

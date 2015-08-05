@@ -10,11 +10,23 @@ class Component
 	: public my::AABBComponent
 {
 public:
+	enum ComponentType
+	{
+		ComponentTypeUnknown,
+		ComponentTypeMesh,
+		ComponentTypeCloth,
+		ComponentTypeEmitter,
+		ComponentTypeLOD,
+	};
+
+	const ComponentType m_Type;
+
 	my::Matrix4 m_World;
 
 public:
-	Component(const my::AABB & aabb)
+	Component(const my::AABB & aabb, ComponentType Type)
 		: AABBComponent(aabb)
+		, m_Type(Type)
 		, m_World(my::Matrix4::Identity())
 	{
 	}
@@ -35,8 +47,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(const my::AABB & aabb)
-		: Component(aabb)
+	RenderComponent(const my::AABB & aabb, ComponentType Type)
+		: Component(aabb, Type)
 	{
 	}
 
@@ -55,9 +67,11 @@ public:
 
 	bool m_bInstance;
 
+	boost::shared_ptr<Animator> m_Animator;
+
 public:
 	MeshComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+		: RenderComponent(aabb, ComponentTypeMesh)
 		, m_bInstance(false)
 	{
 	}
@@ -68,25 +82,6 @@ public:
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
-
-class SkeletonMeshComponent
-	: public MeshComponent
-{
-public:
-	boost::shared_ptr<Animator> m_Animator;
-
-public:
-	SkeletonMeshComponent(const my::AABB & aabb)
-		: MeshComponent(aabb)
-	{
-	}
-
-	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-};
-
-typedef boost::shared_ptr<SkeletonMeshComponent> SkeletonMeshComponentPtr;
 
 class IndexdPrimitiveUPComponent
 	: public my::DeviceRelatedObjectBase
@@ -106,8 +101,8 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	IndexdPrimitiveUPComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+	IndexdPrimitiveUPComponent(const my::AABB & aabb, ComponentType Type)
+		: RenderComponent(aabb, Type)
 		, m_VertexStride(0)
 	{
 	}
@@ -141,7 +136,7 @@ public:
 
 public:
 	ClothComponent(const my::AABB & aabb)
-		: IndexdPrimitiveUPComponent(aabb)
+		: IndexdPrimitiveUPComponent(aabb, ComponentTypeCloth)
 	{
 	}
 
@@ -168,7 +163,7 @@ public:
 
 public:
 	EmitterComponent(const my::AABB & aabb)
-		: RenderComponent(aabb)
+		: RenderComponent(aabb, ComponentTypeEmitter)
 	{
 	}
 

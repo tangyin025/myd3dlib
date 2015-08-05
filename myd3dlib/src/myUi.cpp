@@ -2269,7 +2269,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
 
 Ray DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return IntersectionTests::CalculateRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return IntersectionTests::PerspectiveRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 Vector2 DialogMgr::GetDlgViewport(void) const

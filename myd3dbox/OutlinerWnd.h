@@ -27,8 +27,6 @@ public:
 protected:
 	CDragableTreeCtrl m_wndClassView;
 	CImageList m_ClassViewImages;
-	typedef std::map<Component *, HTREEITEM> Cmp2HTreeMap;
-	Cmp2HTreeMap m_Cmp2HTree;
 
 // Overrides
 public:
@@ -36,20 +34,20 @@ public:
 
 	struct TreeItemData
 	{
-		DWORD type;
+		DWORD Type;
 
-		void * data;
+		void * Data;
 
-		TreeItemData(DWORD _type, void * _data)
-			: type(_type)
-			, data(_data)
+		TreeItemData(DWORD _Type, void * _Data)
+			: Type(_Type)
+			, Data(_Data)
 		{
 		}
 
 		template <typename T>
 		T * reinterpret_cast_data(void)
 		{
-			return reinterpret_cast<T*>(data);
+			return reinterpret_cast<T*>(Data);
 		}
 	};
 
@@ -58,6 +56,10 @@ public:
 		TreeItemTypeActor,
 		TreeItemTypeComponent,
 	};
+
+	typedef std::map<void *, HTREEITEM> Data2HTreeMap;
+
+	Data2HTreeMap m_Data2HTree;
 
 	BOOL CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
 	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD type, void * data, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);

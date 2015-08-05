@@ -162,6 +162,11 @@ void OrthoCamera::OnFrameMove(
 	m_InverseViewProj = m_ViewProj.inverse();
 }
 
+Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	return IntersectionTests::OrthoRay(m_InverseViewProj, m_View.column<2>().xyz, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
 void ModelViewerCamera::OnFrameMove(
 	double fTime,
 	float fElapsedTime)
@@ -189,35 +194,100 @@ LRESULT ModelViewerCamera::MsgProc(
 	switch(uMsg)
 	{
 	case WM_LBUTTONDOWN:
-		m_bDrag = true;
-		m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
-		SetCapture(hWnd);
-		*pbNoFurtherProcessing = true;
-		return 0;
+		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
+		{
+			m_DragMode = DragModeRotate;
+			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			::SetCapture(hWnd);
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
 
 	case WM_LBUTTONUP:
-		if(m_bDrag)
+		if(m_DragMode == DragModeRotate)
 		{
-			m_bDrag = false;
+			m_DragMode = DragModeNone;
+			::ReleaseCapture();
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_MBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
+		{
+			m_DragMode = DragModeTrake;
+			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			::SetCapture(hWnd);
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_MBUTTONUP:
+		if (m_DragMode == DragModeTrake)
+		{
+			m_DragMode = DragModeNone;
+			::ReleaseCapture();
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_RBUTTONDOWN:
+		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
+		{
+			m_DragMode = DragModeZoom;
+			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			::SetCapture(hWnd);
+			*pbNoFurtherProcessing = true;
+			return 0;
+		}
+		break;
+
+	case WM_RBUTTONUP:
+		if (m_DragMode == DragModeZoom)
+		{
+			m_DragMode = DragModeNone;
+			::ReleaseCapture();
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
 		break;
 
 	case WM_MOUSEMOVE:
-		if(m_bDrag)
 		{
-			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
-			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
-			*pbNoFurtherProcessing = true;
-			return 0;
+			CPoint pt(LOWORD(lParam),HIWORD(lParam));
+			switch (m_DragMode)
+			{
+			case DragModeRotate:
+				m_Eular.x -= D3DXToRadian((pt.y - m_DragPt.y) * 0.5f);
+				m_Eular.y -= D3DXToRadian((pt.x - m_DragPt.x) * 0.5f);
+				m_DragPt = pt;
+				*pbNoFurtherProcessing = true;
+				return 0;
+
+			case DragModeTrake:
+				{
+					Vector3 Right = m_View.column<0>().xyz;
+					Vector3 Up = m_View.column<1>().xyz;
+					m_LookAt += Right * (float)(m_DragPt.x - pt.x) * 0.03f + Up * (float)(pt.y - m_DragPt.y) * 0.03f;
+					m_DragPt = pt;
+					*pbNoFurtherProcessing = true;
+				}
+				return 0;
+
+			case DragModeZoom:
+				m_Distance += (m_DragPt.x - pt.x) * 0.03f;
+				m_DragPt = pt;
+				*pbNoFurtherProcessing = true;
+				return 0;
+			}
 		}
 		break;
 
 	case WM_MOUSEWHEEL:
-		m_Distance -= (short)HIWORD(wParam) / WHEEL_DELTA;
-		*pbNoFurtherProcessing = true;
 		return 0;
 	}
 	return 0;
@@ -225,7 +295,7 @@ LRESULT ModelViewerCamera::MsgProc(
 
 Ray ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return IntersectionTests::PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void FirstPersonCamera::OnFrameMove(
@@ -255,27 +325,28 @@ LRESULT FirstPersonCamera::MsgProc(
 	switch(uMsg)
 	{
 	case WM_LBUTTONDOWN:
-		m_bDrag = true;
-		m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
-		SetCapture(hWnd);
+		m_DragMode = 1;
+		m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+		::SetCapture(hWnd);
 		*pbNoFurtherProcessing = true;
 		return 0;
 
 	case WM_LBUTTONUP:
-		if(m_bDrag)
+		if(m_DragMode)
 		{
-			m_bDrag = false;
+			m_DragMode = 0;
+			::ReleaseCapture();
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
 		break;
 
 	case WM_MOUSEMOVE:
-		if(m_bDrag)
+		if(m_DragMode)
 		{
-			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPos.y);
-			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPos.x);
-			m_DragPos.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPt.y);
+			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPt.x);
+			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}
@@ -362,7 +433,7 @@ LRESULT FirstPersonCamera::MsgProc(
 
 Ray FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return IntersectionTests::CalculateRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return IntersectionTests::PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)

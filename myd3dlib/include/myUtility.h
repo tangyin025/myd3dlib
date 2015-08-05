@@ -126,6 +126,27 @@ namespace my
 		virtual ~BaseCamera(void)
 		{
 		}
+
+		virtual void OnFrameMove(
+			double fTime,
+			float fElapsedTime)
+		{
+		}
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing)
+		{
+			return 0;
+		}
+
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim)
+		{
+			return Ray(Vector3::zero, Vector3::unitX);
+		}
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
@@ -159,6 +180,8 @@ namespace my
 		virtual void OnFrameMove(
 			double fTime,
 			float fElapsedTime);
+
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 	};
 
 	class Camera
@@ -183,27 +206,6 @@ namespace my
 			, m_Fz(Fz)
 		{
 		}
-
-		virtual void OnFrameMove(
-			double fTime,
-			float fElapsedTime)
-		{
-		}
-		
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing)
-		{
-			return 0;
-		}
-
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim)
-		{
-			return Ray(Vector3::zero, Vector3::unitX);
-		}
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;
@@ -218,9 +220,18 @@ namespace my
 
 		float m_Distance;
 
-		bool m_bDrag;
+		enum DragMode
+		{
+			DragModeNone = 0,
+			DragModeRotate,
+			DragModeTrake,
+			DragModeMove,
+			DragModeZoom,
+		};
 
-		CPoint m_DragPos;
+		DWORD m_DragMode;
+
+		CPoint m_DragPt;
 
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
@@ -228,7 +239,7 @@ namespace my
 			, m_LookAt(0,0,0)
 			, m_Eular(0,0,0)
 			, m_Distance(0)
-			, m_bDrag(false)
+			, m_DragMode(DragModeNone)
 		{
 		}
 
@@ -254,16 +265,16 @@ namespace my
 
 		Vector3 m_LocalVel;
 
-		bool m_bDrag;
+		DWORD m_DragMode;
 
-		CPoint m_DragPos;
+		CPoint m_DragPt;
 
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
 			: Camera(Fov, Aspect, Nz, Fz)
 			, m_Eular(0,0,0)
 			, m_LocalVel(0,0,0)
-			, m_bDrag(false)
+			, m_DragMode(0)
 		{
 		}
 

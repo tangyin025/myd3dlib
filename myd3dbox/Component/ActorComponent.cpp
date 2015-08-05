@@ -13,23 +13,15 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(m_Mesh);
 	_ASSERT(AttribId < m_MaterialList.size());
+
 	shader->SetMatrix("g_World", m_World);
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
-}
 
-void SkeletonMeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
-{
-	pipeline->PushComponent<MeshComponent>(this, RenderPipeline::MeshTypeAnimation, PassMask);
-}
-
-void SkeletonMeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
 	if (m_Animator && !m_Animator->m_DualQuats.empty())
 	{
 		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
 	}
 
-	MeshComponent::OnSetShader(shader, AttribId);
+	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
 void IndexdPrimitiveUPComponent::OnResetDevice(void)

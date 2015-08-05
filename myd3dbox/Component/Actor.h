@@ -17,7 +17,7 @@ public:
 
 public:
 	RenderComponentLod(const my::AABB & aabb)
-		: RenderComponent(aabb)
+		: RenderComponent(aabb, ComponentTypeLOD)
 	{
 	}
 

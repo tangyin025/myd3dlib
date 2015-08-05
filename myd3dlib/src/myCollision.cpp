@@ -328,11 +328,20 @@ namespace my
 		return (closestPoint - point).magnitude();
 	}
 
-	Ray IntersectionTests::CalculateRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
+	Ray IntersectionTests::PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
 	{
 		Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), 1.0f);
 
 		return Ray(pos, (ptProj.transformCoord(InverseViewProj) - pos).normalize());
+	}
+
+	Ray IntersectionTests::OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, const Vector2 & pt, const Vector2 & dim)
+	{
+		_ASSERT(IS_NORMALIZED(dir));
+
+		Vector3 ptProj(Lerp(-1.0f, 1.0f, pt.x / dim.x), Lerp(1.0f, -1.0f, pt.y / dim.y), 1.0f);
+
+		return Ray(ptProj, dir);
 	}
 
 	IntersectionTests::TestResult IntersectionTests::rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value)

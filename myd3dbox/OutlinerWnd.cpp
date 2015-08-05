@@ -174,16 +174,20 @@ BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREE
 
 HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD type, void * data, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
+	ASSERT(m_Data2HTree.find(data) == m_Data2HTree.end());
 	HTREEITEM hItem = m_wndClassView.InsertItem(lpszItem, nImage, nSelectedImage, hParent, hInsertAfter);
 	ASSERT(hItem);
 	m_wndClassView.SetItemData(hItem, (DWORD_PTR)(new TreeItemData(type, data)));
+	m_Data2HTree.insert(std::make_pair(data, hItem));
 	return hItem;
 }
 
 void COutlinerWnd::DeleteTreeItem(HTREEITEM hItem)
 {
 	ASSERT(hItem);
-	delete (TreeItemData *)m_wndClassView.GetItemData(hItem);
+	TreeItemData * pItemData = (TreeItemData *)m_wndClassView.GetItemData(hItem);
+	m_Data2HTree.erase(pItemData->Data);
+	delete pItemData;
 
 	HTREEITEM hNextChild = NULL;
 	for (HTREEITEM hChild = m_wndClassView.GetChildItem(hItem); hChild; hChild = hNextChild)
@@ -251,7 +255,6 @@ void COutlinerWnd::InsertActor(Actor * actor, HTREEITEM hParent, HTREEITEM hInse
 void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
 	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 1, 1, hParent, hInsertAfter);
-	m_Cmp2HTree[cmp] = hItem;
 }
 
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)
