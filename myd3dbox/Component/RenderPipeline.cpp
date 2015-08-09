@@ -51,6 +51,19 @@ RenderPipeline::~RenderPipeline(void)
 {
 }
 
+const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
+{
+	switch (pass_type)
+	{
+	case PassTypeShadow: return "PassTypeShadow";
+	case PassTypeNormal: return "PassTypeNormal";
+	case PassTypeLight: return "PassTypeLight";
+	case PassTypeOpaque: return "PassTypeOpaque";
+	case PassTypeTransparent: return "PassTypeTransparent";
+	}
+	return "unknown pass type";
+}
+
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -294,10 +307,13 @@ void RenderPipeline::RenderAllObjects(
 	double fTime,
 	float fElapsedTime)
 {
+	m_PassDrawCall[PassID] = 0;
+
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
 		DrawMesh(PassID, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
+		m_PassDrawCall[PassID]++;
 	}
 
 	MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
@@ -313,6 +329,7 @@ void RenderPipeline::RenderAllObjects(
 				mesh_inst_iter->first.get<2>(),
 				mesh_inst_iter->second.setter,
 				mesh_inst_iter->second);
+			m_PassDrawCall[PassID]++;
 		}
 	}
 
@@ -334,12 +351,14 @@ void RenderPipeline::RenderAllObjects(
 			indexed_prim_iter->AttribId,
 			indexed_prim_iter->shader,
 			indexed_prim_iter->setter);
+		m_PassDrawCall[PassID]++;
 	}
 
 	EmitterAtomList::iterator emitter_iter = m_Pass[PassID].m_EmitterList.begin();
 	for (; emitter_iter != m_Pass[PassID].m_EmitterList.end(); emitter_iter++)
 	{
 		DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
+		m_PassDrawCall[PassID]++;
 	}
 }
 

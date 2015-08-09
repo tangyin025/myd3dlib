@@ -264,7 +264,16 @@ void CChildView::OnPaint()
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
-				theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Hello world!", my::Rectangle::LeftTop(50,50,100,100), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+				const my::Vector2 start_pt(50,10), text_size(100,100);
+				theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Pass Draw Call: ",
+					my::Rectangle::LeftTop(start_pt.x,start_pt.y,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignRightTop);
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					theApp.m_Font->DrawString(theApp.m_UIRender.get(), str_printf(L"%S: ", RenderPipeline::PassTypeToStr(PassID)).c_str(),
+						my::Rectangle::LeftTop(start_pt.x,start_pt.y+20+PassID*20,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignRightTop);
+					theApp.m_Font->DrawString(theApp.m_UIRender.get(), str_printf(L"%d", theApp.m_PassDrawCall[PassID]).c_str(),
+						my::Rectangle::LeftTop(start_pt.x+100,start_pt.y+20+PassID*20,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+				}
 				theApp.m_UIRender->End();
 
 				V(theApp.m_d3dDevice->EndScene());

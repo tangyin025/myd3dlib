@@ -316,6 +316,8 @@ public:
 
 	boost::array<Pass, PassTypeNum> m_Pass;
 
+	boost::array<int, PassTypeNum> m_PassDrawCall;
+
 public:
 	RenderPipeline(void);
 
@@ -327,6 +329,8 @@ public:
 	{
 		_ASSERT(pass_type >= 0 && pass_type < PassTypeNum); return 1 << pass_type;
 	}
+
+	static const char * PassTypeToStr(unsigned int pass_type);
 
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
