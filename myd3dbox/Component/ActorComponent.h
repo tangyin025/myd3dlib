@@ -40,7 +40,7 @@ public:
 	}
 };
 
-typedef boost::shared_ptr<Component> ActorComponentPtr;
+typedef boost::shared_ptr<Component> ComponentPtr;
 
 class RenderComponent
 	: public Component

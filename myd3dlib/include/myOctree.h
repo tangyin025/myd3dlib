@@ -42,7 +42,6 @@ namespace my
 		virtual void operator() (AABBComponent * comp, IntersectionTests::IntersectionType) = 0;
 	};
 
-	template <class ChildClass>
 	class OctNodeBase : public AABBComponent
 	{
 	public:
@@ -50,7 +49,7 @@ namespace my
 
 		AABBComponentPtrList m_ComponentList;
 
-		typedef boost::array<boost::shared_ptr<ChildClass>, 2> ChildArray;
+		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
 		ChildArray m_Childs;
 
@@ -167,9 +166,11 @@ namespace my
 	};
 
 	template <DWORD Offset>
-	class OctNode : public OctNodeBase<OctNode<(Offset + 1) % 3> >
+	class OctNode : public OctNodeBase
 	{
 	public:
+		typedef OctNode<(Offset + 1) % 3> ChildOctNode;
+
 		const float m_Half;
 
 		const float m_MinBlock;
@@ -204,9 +205,9 @@ namespace my
 				{
 					Vector3 _Max = m_aabb.Max;
 					_Max[Offset] = m_Half;
-					m_Childs[0].reset(new OctNode<(Offset + 1) % 3>(m_aabb.Min, _Max, m_MinBlock));
+					m_Childs[0].reset(new ChildOctNode(m_aabb.Min, _Max, m_MinBlock));
 				}
-				m_Childs[0]->AddComponent(comp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(comp, threshold);
 			}
 			else if (comp->m_aabb.Min[Offset] > m_Half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
 			{
@@ -214,9 +215,9 @@ namespace my
 				{
 					Vector3 _Min = m_aabb.Min;
 					_Min[Offset] = m_Half;
-					m_Childs[1].reset(new OctNode<(Offset + 1) % 3>(_Min, m_aabb.Max, m_MinBlock));
+					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.Max, m_MinBlock));
 				}
-				m_Childs[1]->AddComponent(comp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(comp, threshold);
 			}
 			else
 			{
