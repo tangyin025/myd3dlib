@@ -8,11 +8,13 @@
 
 #include "CommonHeader.fx"
 
+float4 g_WireColor = float4(0,1,0,1);
+
 static const int g_cKernelSize = 13;
 
 float4 g_DofParams = float4( 5.0f, 15.0f, 25.0f, 1.0f );
 
-float2 PixelKernel[g_cKernelSize] =
+float2 PixelKernelH[g_cKernelSize] =
 {
     { -6, 0 },
     { -5, 0 },
@@ -29,7 +31,7 @@ float2 PixelKernel[g_cKernelSize] =
     {  6, 0 },
 };
 
-float2 PixelKernel2[g_cKernelSize] =
+float2 PixelKernelV[g_cKernelSize] =
 {
     { 0, -6 },
     { 0, -5 },
@@ -82,7 +84,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(vPos, g_World);
+    Output.Position = mul(mul(vPos, g_World), g_ViewProj);
     
     // Just copy the texture coordinate through
     Output.TextureUV = vTexCoord0; 
@@ -98,28 +100,29 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(DownFilterRTSampler, In.TextureUV);
+    // return tex2D(DownFilterRTSampler, In.TextureUV);
+	return g_WireColor;
 }
 
-float4 PS1( VS_OUTPUT In ) : COLOR0
+float4 ColorBGlurH( VS_OUTPUT In ) : COLOR0
 { 
     float4 Color = 0;
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernel[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelH[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
     }
     
     return Color;
 }
 
-float4 PS2( VS_OUTPUT In ) : COLOR0
+float4 ColorBGlurV( VS_OUTPUT In ) : COLOR0
 { 
     float4 Color = 0;
 
     for (int i = 0; i < g_cKernelSize; i++)
     {    
-        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernel2[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
+        Color += tex2D( DownFilterRTSampler, In.TextureUV + PixelKernelV[i].xy / g_ScreenDim * 4 ) * BlurWeights[i];
     }
     
     return Color;
@@ -158,18 +161,19 @@ technique RenderScene
 {
     pass P0
     {          
+		FillMode = WIREFRAME;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }
     pass P1
     {          
         VertexShader = null;
-        PixelShader  = compile ps_2_0 PS1(); 
+        PixelShader  = compile ps_2_0 ColorBGlurH(); 
     }
     pass P2
     {          
         VertexShader = null;
-        PixelShader  = compile ps_2_0 PS2(); 
+        PixelShader  = compile ps_2_0 ColorBGlurV(); 
     }
     pass P3
     {          

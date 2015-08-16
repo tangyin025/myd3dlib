@@ -207,6 +207,43 @@ void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMa
 	}
 }
 
+void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
+{
+	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	COutlinerWnd::TreeItemData * pData = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_wndOutliner.GetSelectedItemData();
+	if (pData)
+	{
+		switch (pData->Type)
+		{
+		case COutlinerWnd::TreeItemTypeComponent:
+			{
+				Component * cmp = pData->reinterpret_cast_data<Component>();
+				switch (cmp->m_Type)
+				{
+				case Component::ComponentTypeMesh:
+					{
+						MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+						UINT passes = theApp.m_SimpleSample->Begin();
+						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+						{
+							theApp.m_SimpleSample->BeginPass(0);
+							mesh_cmp->m_Mesh->DrawSubset(i);
+							theApp.m_SimpleSample->EndPass();
+						}
+						theApp.m_SimpleSample->End();
+
+						PushWireAABB(mesh_cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), mesh_cmp->m_World);
+					}
+					break;
+				}
+			}
+			break;
+		}
+	}
+}
+
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
@@ -254,7 +291,13 @@ void CChildView::OnPaint()
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
 				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
+				V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+				V(theApp.m_d3dDevice->SetRenderTarget(0, GetScreenSurface()));
+				V(theApp.m_d3dDevice->SetDepthStencilSurface(GetScreenDepthStencilSurface()));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
+
+				RenderSelectedObject(theApp.m_d3dDevice);
 
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
@@ -373,7 +416,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		case WM_LBUTTONDOWN:
 		case WM_MBUTTONDOWN:
 		case WM_RBUTTONDOWN:
-			CMainFrame::getSingleton().m_bEatAltUp = TRUE;
+			(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_bEatAltUp = TRUE;
 			break;
 
 		case WM_MOUSEMOVE:

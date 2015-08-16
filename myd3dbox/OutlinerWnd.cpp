@@ -2,6 +2,7 @@
 #include "OutlinerWnd.h"
 #include "MainApp.h"
 #include "Component/Actor.h"
+#include "MainFrm.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -52,6 +53,7 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_WM_CONTEXTMENU()
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
+	ON_NOTIFY(TVN_SELCHANGED, 2, &COutlinerWnd::OnTvnSelchangedTree)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -257,6 +259,16 @@ void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM
 	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 1, 1, hParent, hInsertAfter);
 }
 
+COutlinerWnd::TreeItemData * COutlinerWnd::GetSelectedItemData()
+{
+	HTREEITEM hItem = m_wndClassView.GetSelectedItem();
+	if (hItem)
+	{
+		return (TreeItemData *)m_wndClassView.GetItemData(hItem);
+	}
+	return NULL;
+}
+
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)
 {
 	return CDockablePane::PreTranslateMessage(pMsg);
@@ -306,4 +318,13 @@ void COutlinerWnd::OnChangeVisualStyle()
 	m_ClassViewImages.Add(&bmp, RGB(255, 0, 0));
 
 	m_wndClassView.SetImageList(&m_ClassViewImages, TVSIL_NORMAL);
+}
+
+void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	CDocument * pDoc = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->GetActiveDocument();
+	if (pDoc)
+	{
+		pDoc->UpdateAllViews(NULL);
+	}
 }
