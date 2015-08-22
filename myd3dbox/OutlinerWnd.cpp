@@ -124,30 +124,31 @@ void COutlinerWnd::OnSize(UINT nType, int cx, int cy)
 
 void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	CTreeCtrl* pWndTree = (CTreeCtrl*)&m_wndClassView;
-	ASSERT_VALID(pWndTree);
+	if(m_ContextMenu.m_hMenu)
+		m_ContextMenu.DestroyMenu();
 
-	if (pWnd != pWndTree)
+	m_ContextMenu.CreatePopupMenu();
+	MENUINFO mi = {0};
+	mi.cbSize = sizeof(mi);
+	mi.fMask = MIM_STYLE;
+	mi.dwStyle = MNS_NOTIFYBYPOS;
+	m_ContextMenu.SetMenuInfo(&mi);
+
+	CPoint ptMenu = point;
+	ScreenToClient(&point);
+
+	if(m_ContextMenu.GetMenuItemCount() == 0)
 	{
-		CDockablePane::OnContextMenu(pWnd, point);
-		return;
+		MENUITEMINFO mii = {0};
+		mii.cbSize = sizeof(mii);
+		mii.fMask = MIIM_STATE | MIIM_DATA | MIIM_STRING;
+		mii.fState = MFS_DISABLED;
+		mii.dwItemData = 0;
+		mii.dwTypeData = _T("Пе");
+		m_ContextMenu.InsertMenuItem(-1, &mii, TRUE);
 	}
 
-	if (point != CPoint(-1, -1))
-	{
-		// Select clicked item:
-		CPoint ptTree = point;
-		pWndTree->ScreenToClient(&ptTree);
-
-		UINT flags = 0;
-		HTREEITEM hTreeItem = pWndTree->HitTest(ptTree, &flags);
-		if (hTreeItem != NULL)
-		{
-			pWndTree->SelectItem(hTreeItem);
-		}
-	}
-
-	pWndTree->SetFocus();
+	m_ContextMenu.TrackPopupMenu(0, ptMenu.x, ptMenu.y, pWnd);
 }
 
 void COutlinerWnd::AdjustLayout()

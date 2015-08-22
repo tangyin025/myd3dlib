@@ -27,6 +27,7 @@ public:
 protected:
 	CDragableTreeCtrl m_wndClassView;
 	CImageList m_ClassViewImages;
+	CMenu m_ContextMenu;
 
 // Overrides
 public:

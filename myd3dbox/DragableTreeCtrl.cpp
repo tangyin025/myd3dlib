@@ -12,6 +12,7 @@ BEGIN_MESSAGE_MAP(CDragableTreeCtrl, CTreeCtrl)
 	ON_WM_LBUTTONUP()
 	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CDragableTreeCtrl::OnNMCustomdraw)
 	ON_WM_KEYDOWN()
+	ON_WM_RBUTTONDOWN()
 END_MESSAGE_MAP()
 
 BOOL CDragableTreeCtrl::OnNotify(WPARAM wParam, LPARAM lParam, LRESULT* pResult)
@@ -280,4 +281,22 @@ BOOL CDragableTreeCtrl::FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild)
 	}
 
 	return FALSE;
+}
+
+void CDragableTreeCtrl::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (point != CPoint(-1, -1))
+	{
+		UINT flags = 0;
+		HTREEITEM hTreeItem = HitTest(point, &flags);
+		if (hTreeItem != NULL)
+		{
+			SelectItem(hTreeItem);
+		}
+	}
+
+	SetFocus();
+
+	//CTreeCtrl::OnRButtonDown(nFlags, point);
 }

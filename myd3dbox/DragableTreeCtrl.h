@@ -58,4 +58,6 @@ public:
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 
 	BOOL FindTreeChildItem(HTREEITEM hParent, HTREEITEM hChild);
+
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
 };
