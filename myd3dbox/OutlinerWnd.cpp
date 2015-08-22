@@ -8,6 +8,9 @@
 #define new DEBUG_NEW
 #endif
 
+#define ID_MENU_START				(40000L)
+#define ID_MENU_ADD_MESH_COMPONENT	(40001L)
+
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {
 	friend class COutlinerWnd;
@@ -54,6 +57,7 @@ BEGIN_MESSAGE_MAP(COutlinerWnd, CDockablePane)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 	ON_NOTIFY(TVN_SELCHANGED, 2, &COutlinerWnd::OnTvnSelchangedTree)
+	ON_COMMAND(ID_MENU_ADD_MESH_COMPONENT, &COutlinerWnd::OnMenuAddMeshComponent)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -124,31 +128,41 @@ void COutlinerWnd::OnSize(UINT nType, int cx, int cy)
 
 void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	if(m_ContextMenu.m_hMenu)
+	CTreeCtrl* pWndTree = (CTreeCtrl*)&m_wndClassView;
+	ASSERT_VALID(pWndTree);
+
+	if (pWnd != pWndTree)
+	{
+		CDockablePane::OnContextMenu(pWnd, point);
+		return;
+	}
+
+	TreeItemData * pData = GetSelectedItemData();
+	if (!pData)
+		return;
+
+	if (m_ContextMenu.m_hMenu)
 		m_ContextMenu.DestroyMenu();
 
-	m_ContextMenu.CreatePopupMenu();
-	MENUINFO mi = {0};
-	mi.cbSize = sizeof(mi);
-	mi.fMask = MIM_STYLE;
-	mi.dwStyle = MNS_NOTIFYBYPOS;
-	m_ContextMenu.SetMenuInfo(&mi);
+	if (m_ContextMenuAdd.m_hMenu)
+		m_ContextMenuAdd.DestroyMenu();
 
-	CPoint ptMenu = point;
-	ScreenToClient(&point);
+	m_ContextMenu.CreatePopupMenu();
+	if (pData->Type == TreeItemTypeActor)
+	{
+		m_ContextMenuAdd.CreatePopupMenu();
+		m_ContextMenuAdd.AppendMenu(MF_STRING, ID_MENU_ADD_MESH_COMPONENT, _T("Mesh Component"));
+		m_ContextMenu.AppendMenu(MF_POPUP, (UINT_PTR)m_ContextMenuAdd.operator HMENU(), _T("Add"));
+	}
 
 	if(m_ContextMenu.GetMenuItemCount() == 0)
 	{
-		MENUITEMINFO mii = {0};
-		mii.cbSize = sizeof(mii);
-		mii.fMask = MIIM_STATE | MIIM_DATA | MIIM_STRING;
-		mii.fState = MFS_DISABLED;
-		mii.dwItemData = 0;
-		mii.dwTypeData = _T("Пе");
-		m_ContextMenu.InsertMenuItem(-1, &mii, TRUE);
+		m_ContextMenu.AppendMenu(MF_DISABLED, ID_MENU_START, _T("Empty"));
 	}
 
-	m_ContextMenu.TrackPopupMenu(0, ptMenu.x, ptMenu.y, pWnd);
+	CPoint ptMenu = point;
+	ScreenToClient(&point);
+	m_ContextMenu.TrackPopupMenu(0, ptMenu.x, ptMenu.y, this);
 }
 
 void COutlinerWnd::AdjustLayout()
@@ -328,4 +342,9 @@ void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 	{
 		pDoc->UpdateAllViews(NULL);
 	}
+}
+
+void COutlinerWnd::OnMenuAddMeshComponent()
+{
+	// TODO: Add your command handler code here
 }

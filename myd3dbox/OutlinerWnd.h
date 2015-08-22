@@ -28,6 +28,7 @@ protected:
 	CDragableTreeCtrl m_wndClassView;
 	CImageList m_ClassViewImages;
 	CMenu m_ContextMenu;
+	CMenu m_ContextMenuAdd;
 
 // Overrides
 public:
@@ -80,4 +81,6 @@ protected:
 	afx_msg void OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult);
 
 	DECLARE_MESSAGE_MAP()
+public:
+	afx_msg void OnMenuAddMeshComponent();
 };
