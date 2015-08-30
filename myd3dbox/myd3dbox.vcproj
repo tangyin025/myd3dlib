@@ -352,63 +352,63 @@
 			Name="Component"
 			>
 			<File
-				RelativePath=".\Component\Actor.cpp"
+				RelativePath="..\demo2_3\Component\Actor.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Actor.h"
+				RelativePath="..\demo2_3\Component\Actor.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ActorComponent.cpp"
+				RelativePath="..\demo2_3\Component\ActorComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ActorComponent.h"
+				RelativePath="..\demo2_3\Component\ActorComponent.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ActorResourceMgr.cpp"
+				RelativePath="..\demo2_3\Component\ActorResourceMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ActorResourceMgr.h"
+				RelativePath="..\demo2_3\Component\ActorResourceMgr.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Animator.cpp"
+				RelativePath="..\demo2_3\Component\Animator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Animator.h"
+				RelativePath="..\demo2_3\Component\Animator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\FModContext.cpp"
+				RelativePath="..\demo2_3\Component\FModContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\FModContext.h"
+				RelativePath="..\demo2_3\Component\FModContext.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\physx_ptr.hpp"
+				RelativePath="..\demo2_3\Component\physx_ptr.hpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\PhysXContext.cpp"
+				RelativePath="..\demo2_3\Component\PhysXContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\PhysXContext.h"
+				RelativePath="..\demo2_3\Component\PhysXContext.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.cpp"
+				RelativePath="..\demo2_3\Component\RenderPipeline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.h"
+				RelativePath="..\demo2_3\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

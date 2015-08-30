@@ -1,12 +1,12 @@
 #pragma once
 
 #include "Console.h"
-#include "../myd3dbox/Component/PhysXContext.h"
-#include "../myd3dbox/Component/FModContext.h"
-#include "../myd3dbox/Component/RenderPipeline.h"
-#include "../myd3dbox/Component/ActorComponent.h"
-#include "../myd3dbox/Component/ActorResourceMgr.h"
-#include "../myd3dbox/Component/Actor.h"
+#include "Component/PhysXContext.h"
+#include "Component/FModContext.h"
+#include "Component/RenderPipeline.h"
+#include "Component/ActorComponent.h"
+#include "Component/ActorResourceMgr.h"
+#include "Component/Actor.h"
 
 class EffectUIRender
 	: public my::UIRender

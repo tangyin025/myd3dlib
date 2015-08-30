@@ -1,7 +1,7 @@
 #pragma once
 
 #include "DragableTreeCtrl.h"
-#include "Component/ActorComponent.h"
+#include "../demo2_3/Component/ActorComponent.h"
 
 class Actor;
 

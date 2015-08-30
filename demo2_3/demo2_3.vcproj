@@ -295,63 +295,63 @@
 			Name="Component"
 			>
 			<File
-				RelativePath="..\myd3dbox\Component\Actor.cpp"
+				RelativePath=".\Component\Actor.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\Actor.h"
+				RelativePath=".\Component\Actor.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\ActorComponent.cpp"
+				RelativePath=".\Component\ActorComponent.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\ActorComponent.h"
+				RelativePath=".\Component\ActorComponent.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\ActorResourceMgr.cpp"
+				RelativePath=".\Component\ActorResourceMgr.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\ActorResourceMgr.h"
+				RelativePath=".\Component\ActorResourceMgr.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\Animator.cpp"
+				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\Animator.h"
+				RelativePath=".\Component\Animator.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\FModContext.cpp"
+				RelativePath=".\Component\FModContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\FModContext.h"
+				RelativePath=".\Component\FModContext.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\physx_ptr.hpp"
+				RelativePath=".\Component\physx_ptr.hpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\PhysXContext.cpp"
+				RelativePath=".\Component\PhysXContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\PhysXContext.h"
+				RelativePath=".\Component\PhysXContext.h"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\RenderPipeline.cpp"
+				RelativePath=".\Component\RenderPipeline.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\RenderPipeline.h"
+				RelativePath=".\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

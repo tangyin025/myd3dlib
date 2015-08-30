@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Component/RenderPipeline.h"
+#include "../demo2_3/Component/RenderPipeline.h"
 #include "PivotController.h"
 
 class CChildView

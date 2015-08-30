@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "Component/Actor.h"
+#include "../demo2_3/Component/Actor.h"
 
 class CMainFrame;
 
