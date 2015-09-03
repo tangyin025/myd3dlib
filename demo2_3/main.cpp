@@ -69,21 +69,12 @@ public:
 		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
 		//FMOD_ERRCHECK(result);
 
-		ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
-		m_Actors.push_back(actor);
-		MeshComponentPtr cmp = actor->CreateComponent<MeshComponent>(AABB(-FLT_MAX,FLT_MAX));
-		MeshComponentLoadMeshFromFile(cmp, "mesh/casual19_m_highpoly.mesh.xml");
-		cmp->m_World = Matrix4::Scaling(0.05f,0.05f,0.05f);
-		my::OgreMeshSetPtr mesh_set = LoadMeshSet("mesh/scene.mesh.xml");
-		if (mesh_set)
-		{
-			my::OgreMeshSet::iterator mesh_iter = mesh_set->begin();
-			for (; mesh_iter != mesh_set->end(); mesh_iter++)
-			{
-				cmp = actor->CreateComponent<MeshComponent>((*mesh_iter)->m_aabb);
-				MeshComponentLoadMesh(cmp, *mesh_iter, false);
-			}
-		}
+		//ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
+		//m_Actors.push_back(actor);
+		//MeshComponent * cmp = CreateMeshComponentFromFile(actor.get(), "mesh/casual19_m_highpoly.mesh.xml", actor->m_aabb, false);
+		//cmp->m_World = my::Matrix4::Scaling(0.05f,0.05f,0.05f);
+		//my::OgreMeshSetPtr mesh_set = LoadMeshSet("mesh/scene.mesh.xml");
+		//CreateMeshComponentList(actor.get(), mesh_set);
 
 		return S_OK;
 	}

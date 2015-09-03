@@ -12,6 +12,14 @@ game.Camera.EventAlign=function(args)
 end
 game.SkyLightCam.Eular=Vector3(math.rad(-45),math.rad(0),0)
 
+local actor=Actor(AABB(-1000,1000),1)
+game:AddActor(actor)
+local cmp = game:CreateMeshComponentFromFile(actor,"mesh/casual19_m_highpoly.mesh.xml",actor.aabb,false)
+cmp.World=Matrix4.Scaling(0.05,0.05,0.05)
+game:LoadMeshSetAsync("mesh/scene.mesh.xml", function (res)
+	game:CreateMeshComponentList(actor, res2mesh_set(res))
+end)
+
 -- -- 设置环境光
 -- game.SkyLight.Eye=Vector3(0,0,0)
 -- game.SkyLight.Eular=Vector3(math.rad(-30),math.rad(0),0)

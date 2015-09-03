@@ -4,13 +4,13 @@
 
 using namespace my;
 
-ComponentLevelPtr LODComponent::GetComponentLevel(unsigned int level)
+ComponentLevel * LODComponent::GetComponentLevel(unsigned int level)
 {
 	if (m_lvls.size() < level + 1)
 	{
 		m_lvls.resize(level + 1, ComponentLevelPtr(new ComponentLevel(m_aabb, 1.0f)));
 	}
-	return m_lvls[level];
+	return m_lvls[level].get();
 }
 
 void LODComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)

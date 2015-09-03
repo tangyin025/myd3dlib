@@ -5,7 +5,7 @@
 #include "Animator.h"
 #include "FModContext.h"
 
-class Actor;
+class ComponentLevel;
 
 class ActorResourceMgr
 	: public my::ResourceMgr
@@ -108,9 +108,11 @@ public:
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
-	void MeshComponentLoadMesh(MeshComponentPtr cmp, boost::shared_ptr<my::Mesh> mesh, bool bInstance = false);
+	MeshComponent * CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, bool bInstance);
 
-	void MeshComponentLoadMeshFromFile(MeshComponentPtr cmp, const std::string & path, bool bInstance = false);
+	MeshComponent * CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, bool bInstance);
+
+	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 
 	//EmitterComponentPtr AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter);
 

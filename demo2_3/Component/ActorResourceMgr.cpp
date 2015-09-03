@@ -1,10 +1,11 @@
 #include "StdAfx.h"
-#include "ActorResourceMgr.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <fstream>
+#include "ActorResourceMgr.h"
+#include "Actor.h"
 
 using namespace my;
 
@@ -451,14 +452,27 @@ void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-void ActorResourceMgr::MeshComponentLoadMesh(MeshComponentPtr cmp, boost::shared_ptr<my::Mesh> mesh, bool bInstance)
+MeshComponent * ActorResourceMgr::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, bool bInstance)
 {
-	OnMeshComponentMeshLoaded(cmp, mesh, bInstance);
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb);
+	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
+	return ret.get();
 }
 
-void ActorResourceMgr::MeshComponentLoadMeshFromFile(MeshComponentPtr cmp, const std::string & path, bool bInstance)
+MeshComponent * ActorResourceMgr::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, bool bInstance)
 {
-	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, cmp, _1, bInstance));
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb);
+	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
+	return ret.get();
+}
+
+void ActorResourceMgr::CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
+{
+	my::OgreMeshSet::const_iterator mesh_iter = mesh_set->begin();
+	for (; mesh_iter != mesh_set->end(); mesh_iter++)
+	{
+		CreateMeshComponent(owner, *mesh_iter, (*mesh_iter)->m_aabb, false);
+	}
 }
 //
 //EmitterComponentPtr ActorResourceMgr::AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter)

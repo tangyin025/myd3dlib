@@ -1,6 +1,6 @@
 #include "stdafx.h"
-#include "../Game.h"
 #include "LuaExtension.h"
+#include "../Game.h"
 
 namespace luabind
 {
@@ -383,11 +383,36 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def("AddParameter", &Material::AddParameter)
 
+		, class_<ComponentLevel, boost::shared_ptr<ComponentLevel> >("ComponentLevel")
+			.def(constructor<const my::AABB &, float>())
+			.def_readwrite("aabb", &ComponentLevel::m_aabb)
+
+		, class_<Actor, ComponentLevel, boost::shared_ptr<Actor> >("Actor")
+			.def(constructor<const my::AABB &, float>())
+
+		, class_<Component, boost::shared_ptr<Component> >("Component")
+			.def_readwrite("World", &Component::m_World)
+
+		, class_<RenderComponent, Component, boost::shared_ptr<RenderComponent> >("RenderComponent")
+
+		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+
+		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+
+		, class_<ClothComponent, IndexdPrimitiveUPComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
+
+		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
+
+		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
+
 		, class_<ActorResourceMgr, my::ResourceMgr>("ActorResourceMgr")
 			.def("CreateEmitter", &ActorResourceMgr::CreateEmitter)
 			.def("SaveEmitter", &ActorResourceMgr::SaveEmitter)
 			.def("CreateMaterial", &ActorResourceMgr::CreateMaterial)
 			.def("SaveMaterial", &ActorResourceMgr::SaveMaterial)
+			.def("CreateMeshComponent", &ActorResourceMgr::CreateMeshComponent)
+			.def("CreateMeshComponentFromFile", &ActorResourceMgr::CreateMeshComponentFromFile)
+			.def("CreateMeshComponentList", &ActorResourceMgr::CreateMeshComponentList)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)

@@ -24,7 +24,7 @@ public:
 	{
 	}
 
-	ComponentLevelPtr GetComponentLevel(unsigned int level);
+	ComponentLevel * GetComponentLevel(unsigned int level);
 
 	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
@@ -42,6 +42,8 @@ public:
 	{
 	}
 
+	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
 	template <class CmpClass>
 	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb)
 	{
@@ -49,28 +51,6 @@ public:
 		AddComponent(ret, 0.1f);
 		return ret;
 	}
-
-	MeshComponentPtr CreateMeshComponent(const my::AABB & aabb)
-	{
-		return CreateComponent<MeshComponent>(aabb);
-	}
-
-	ClothComponentPtr CreateClothComponent(const my::AABB & aabb)
-	{
-		return CreateComponent<ClothComponent>(aabb);
-	}
-
-	EmitterComponentPtr CreateEmitterComponent(const my::AABB & aabb)
-	{
-		return CreateComponent<EmitterComponent>(aabb);
-	}
-
-	LODComponentPtr CreateLODComponent(const my::AABB & aabb)
-	{
-		return CreateComponent<LODComponent>(aabb);
-	}
-
-	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 class Actor
