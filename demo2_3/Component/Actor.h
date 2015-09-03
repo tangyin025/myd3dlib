@@ -7,7 +7,7 @@ class ComponentLevel;
 
 typedef boost::shared_ptr<ComponentLevel> ComponentLevelPtr;
 
-class RenderComponentLod
+class LODComponent
 	: public RenderComponent
 {
 public:
@@ -15,14 +15,23 @@ public:
 
 	ComponentLevelPtrList m_lvls;
 
+	unsigned int m_level;
+
 public:
-	RenderComponentLod(const my::AABB & aabb)
+	LODComponent(const my::AABB & aabb)
 		: RenderComponent(aabb, ComponentTypeLOD)
+		, m_level(0)
 	{
 	}
 
 	ComponentLevelPtr GetComponentLevel(unsigned int level);
+
+	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
+
+typedef boost::shared_ptr<LODComponent> LODComponentPtr;
 
 class ComponentLevel
 	: public my::OctRoot
@@ -34,12 +43,34 @@ public:
 	}
 
 	template <class CmpClass>
-	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb = my::AABB(-FLT_MAX,FLT_MAX))
+	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb)
 	{
 		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb));
 		AddComponent(ret, 0.1f);
 		return ret;
 	}
+
+	MeshComponentPtr CreateMeshComponent(const my::AABB & aabb)
+	{
+		return CreateComponent<MeshComponent>(aabb);
+	}
+
+	ClothComponentPtr CreateClothComponent(const my::AABB & aabb)
+	{
+		return CreateComponent<ClothComponent>(aabb);
+	}
+
+	EmitterComponentPtr CreateEmitterComponent(const my::AABB & aabb)
+	{
+		return CreateComponent<EmitterComponent>(aabb);
+	}
+
+	LODComponentPtr CreateLODComponent(const my::AABB & aabb)
+	{
+		return CreateComponent<LODComponent>(aabb);
+	}
+
+	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 class Actor
@@ -56,8 +87,6 @@ public:
 	}
 
 	void Update(float fElapsedTime);
-
-	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

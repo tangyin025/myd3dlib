@@ -4,7 +4,15 @@
 
 using namespace my;
 
-void MeshComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
+void RenderComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+{
+}
+
+void RenderComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+}
+
+void MeshComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	pipeline->PushComponent<MeshComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
 }
@@ -37,7 +45,7 @@ void IndexdPrimitiveUPComponent::OnDestroyDevice(void)
 	m_Decl.Release();
 }
 
-void IndexdPrimitiveUPComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
+void IndexdPrimitiveUPComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
 }
@@ -125,7 +133,7 @@ void EmitterComponent::Update(float fElapsedTime)
 	}
 }
 
-void EmitterComponent::QueryMesh(RenderPipeline * pipeline, unsigned int PassMask)
+void EmitterComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	pipeline->PushComponent(this, RenderPipeline::MeshTypeParticle, PassMask);
 }

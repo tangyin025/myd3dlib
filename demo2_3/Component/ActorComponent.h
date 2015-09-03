@@ -52,7 +52,9 @@ public:
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask) = 0;
+	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -76,7 +78,7 @@ public:
 	{
 	}
 
-	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -113,7 +115,7 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -169,7 +171,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void QueryMesh(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
