@@ -38,10 +38,6 @@ public:
 	virtual void Update(float fElapsedTime)
 	{
 	}
-
-	virtual void OnPxThreadSubstep(float fElapsedTime)
-	{
-	}
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -154,7 +150,7 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void OnPxThreadSubstep(float fElapsedTime);
+	virtual void Update(float fElapsedTime);
 
 	void UpdateCloth(const my::TransformList & dualQuaternionList);
 };

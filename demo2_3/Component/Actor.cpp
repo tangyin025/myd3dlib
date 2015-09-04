@@ -79,24 +79,3 @@ void Actor::Update(float fElapsedTime)
 		(*anim_iter)->Update(fElapsedTime);
 	}
 }
-
-void Actor::OnPxThreadSubstep(float fElapsedTime)
-{
-	struct CallBack : public my::IQueryCallback
-	{
-		float m_fElapsedTime;
-
-		CallBack(float fElapsedTime)
-			: m_fElapsedTime(fElapsedTime)
-		{
-		}
-
-		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Component *>(comp));
-			static_cast<Component *>(comp)->OnPxThreadSubstep(m_fElapsedTime);
-		}
-	};
-
-	OctRoot::QueryComponentAll(&CallBack(fElapsedTime));
-}

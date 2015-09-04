@@ -312,11 +312,7 @@ void Game::OnDestroyDevice(void)
 
 void Game::OnPxThreadSubstep(float dtime)
 {
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->OnPxThreadSubstep(dtime);
-	}
+	// ! take care of multi thread
 }
 
 void Game::OnFrameMove(

@@ -81,7 +81,7 @@ void ClothComponent::OnDestroyDevice(void)
 	IndexdPrimitiveUPComponent::OnDestroyDevice();
 }
 
-void ClothComponent::OnPxThreadSubstep(float fElapsedTime)
+void ClothComponent::Update(float fElapsedTime)
 {
 	if (m_Animator && !m_Animator->m_DualQuats.empty())
 	{
