@@ -118,6 +118,8 @@ public:
 
 	EmitterComponent * CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
 
+	Animator * CreateAnimatorFromFile(ComponentLevel * owner, const std::string & path);
+
 	//ClothComponentPtr AddClothComponentFromFile(
 	//	Actor * owner,
 	//	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
@@ -125,6 +127,4 @@ public:
 	//	const std::string & skel_path,
 	//	const std::string & root_name,
 	//	const PxClothCollisionData& collData);
-
-	//AnimatorPtr AddAnimatorFromFile(Actor * owner, const std::string & path);
 };

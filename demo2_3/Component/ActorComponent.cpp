@@ -14,7 +14,7 @@ void RenderComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void MeshComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent<MeshComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
+	pipeline->PushComponent<MeshComponent>(this, m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, PassMask);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -47,7 +47,7 @@ void IndexdPrimitiveUPComponent::OnDestroyDevice(void)
 
 void IndexdPrimitiveUPComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, RenderPipeline::MeshTypeStatic, PassMask);
+	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, PassMask);
 }
 
 void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

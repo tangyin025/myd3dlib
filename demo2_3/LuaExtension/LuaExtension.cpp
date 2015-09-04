@@ -398,10 +398,10 @@ void Export2Lua(lua_State * L)
 		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
 
-		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<IndexdPrimitiveUPComponent> >("IndexdPrimitiveUPComponent")
+			.def_readwrite("Animator", &ClothComponent::m_Animator)
 
 		, class_<ClothComponent, IndexdPrimitiveUPComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
-			.def_readwrite("Animator", &ClothComponent::m_Animator)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
 
@@ -417,6 +417,7 @@ void Export2Lua(lua_State * L)
 			.def("CreateMeshComponentList", &ActorResourceMgr::CreateMeshComponentList)
 			.def("CreateEmitterComponent", &ActorResourceMgr::CreateEmitterComponent)
 			.def("CreateEmitterComponentFromFile", &ActorResourceMgr::CreateEmitterComponentFromFile)
+			.def("CreateAnimatorFromFile", &ActorResourceMgr::CreateAnimatorFromFile)
 
 		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)

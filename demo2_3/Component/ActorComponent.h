@@ -69,12 +69,13 @@ public:
 
 	bool m_bInstance;
 
-	boost::shared_ptr<Animator> m_Animator;
+	Animator * m_Animator;
 
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World)
 		: RenderComponent(aabb, World, ComponentTypeMesh)
 		, m_bInstance(false)
+		, m_Animator(NULL)
 	{
 	}
 
@@ -102,10 +103,13 @@ public:
 
 	MaterialPtrList m_MaterialList;
 
+	Animator * m_Animator;
+
 public:
 	IndexdPrimitiveUPComponent(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
 		: RenderComponent(aabb, World, Type)
 		, m_VertexStride(0)
+		, m_Animator(NULL)
 	{
 	}
 
@@ -133,8 +137,6 @@ public:
 	std::vector<PxClothParticle> m_NewParticles;
 
 	physx_ptr<PxCloth> m_Cloth;
-
-	boost::shared_ptr<Animator> m_Animator;
 
 public:
 	ClothComponent(const my::AABB & aabb, const my::Matrix4 & World)

@@ -72,4 +72,10 @@ void Actor::Update(float fElapsedTime)
 	};
 
 	OctRoot::QueryComponentAll(&CallBack(fElapsedTime));
+
+	AnimatorPtrList::iterator anim_iter = m_AnimatorList.begin();
+	for (; anim_iter != m_AnimatorList.end(); anim_iter++)
+	{
+		(*anim_iter)->Update(fElapsedTime);
+	}
 }

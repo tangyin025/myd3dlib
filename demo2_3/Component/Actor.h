@@ -2,6 +2,7 @@
 
 #include "RenderPipeline.h"
 #include "ActorComponent.h"
+#include "Animator.h"
 
 class ComponentLevel;
 
@@ -37,6 +38,11 @@ class ComponentLevel
 	: public my::OctRoot
 {
 public:
+	typedef std::vector<AnimatorPtr> AnimatorPtrList;
+
+	AnimatorPtrList m_AnimatorList;
+
+public:
 	ComponentLevel(const my::AABB & aabb, float MinBlock)
 		: OctRoot(aabb, MinBlock)
 	{
@@ -47,8 +53,17 @@ public:
 	template <class CmpClass>
 	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb, const my::Matrix4 & World)
 	{
+		// ! do not call new in header file
 		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb.transform(World), World));
 		AddComponent(ret, 0.1f);
+		return ret;
+	}
+
+	template <class AniClass>
+	boost::shared_ptr<AniClass> CreateAnimator(void)
+	{
+		boost::shared_ptr<AniClass> ret(new AniClass());
+		m_AnimatorList.push_back(ret);
 		return ret;
 	}
 };
