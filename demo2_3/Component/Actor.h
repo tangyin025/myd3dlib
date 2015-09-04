@@ -18,8 +18,8 @@ public:
 	unsigned int m_level;
 
 public:
-	LODComponent(const my::AABB & aabb)
-		: RenderComponent(aabb, ComponentTypeLOD)
+	LODComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: RenderComponent(aabb, World, ComponentTypeLOD)
 		, m_level(0)
 	{
 	}
@@ -45,9 +45,9 @@ public:
 	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	template <class CmpClass>
-	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb)
+	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb, const my::Matrix4 & World)
 	{
-		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb));
+		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb.transform(World), World));
 		AddComponent(ret, 0.1f);
 		return ret;
 	}

@@ -63,8 +63,8 @@ BOOL CMainDoc::OnNewDocument()
 
 	ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
 	m_Actors.push_back(actor);
-	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(actor.get(), "mesh/casual19_m_highpoly.mesh.xml", actor->m_aabb, false);
-	cmp->m_World = my::Matrix4::Scaling(0.05f,0.05f,0.05f);
+	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(actor.get(),
+		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
 	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
 	theApp.CreateMeshComponentList(actor.get(), mesh_set);
 

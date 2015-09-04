@@ -376,7 +376,7 @@ void Game::OnUIRender(
 	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
 	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
-		m_Font->DrawString(ui_render, info_iter->second.c_str(), Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		m_Font->DrawString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 	}
 }
 

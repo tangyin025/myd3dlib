@@ -2728,5 +2728,9 @@ namespace my
 				normal.y > 0 ? Min.y : Max.y,
 				normal.z > 0 ? Min.z : Max.z);
 		}
+
+		AABB transform(const Matrix4 & m) const;
+
+		AABB & transformSelf(const Matrix4 & m);
 	};
 }

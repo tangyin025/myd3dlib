@@ -40,6 +40,8 @@ protected:
 	my::Texture2DPtr m_LightRT;
 	my::Texture2DPtr m_OpaqueRT;
 	my::Texture2DPtr m_DownFilterRT[2];
+	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
+	ScrInfoType m_ScrInfos;
 	PivotController m_Pivot;
 
 	BOOL ResetD3DSwapChain(void);

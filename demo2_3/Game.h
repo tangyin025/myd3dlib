@@ -54,7 +54,7 @@ class Game
 	, public my::DrawHelper
 {
 public:
-	typedef std::map<int, std::wstring> ScrInfoType;
+	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 
 	ScrInfoType m_ScrInfos;
 

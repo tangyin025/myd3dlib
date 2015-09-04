@@ -179,3 +179,55 @@ Ray & Ray::transformSelf(const Matrix4 & m)
 	d = d.transformNormal(m);
 	return *this;
 }
+
+AABB AABB::transform(const Matrix4 & m) const
+{
+	Vector3 v[] =
+	{
+		Vector3(Min.x,Min.y,Min.z).transformCoord(m),
+		Vector3(Min.x,Min.y,Max.z).transformCoord(m),
+		Vector3(Min.x,Max.y,Min.z).transformCoord(m),
+		Vector3(Min.x,Max.y,Max.z).transformCoord(m),
+		Vector3(Max.x,Min.y,Min.z).transformCoord(m),
+		Vector3(Max.x,Min.y,Max.z).transformCoord(m),
+		Vector3(Max.x,Max.y,Min.z).transformCoord(m),
+		Vector3(Max.x,Max.y,Max.z).transformCoord(m)
+	};
+
+	AABB ret(v[0], v[0]);
+	for (unsigned int i = 1; i < _countof(v); i++)
+	{
+		if (v[i].x < ret.Min.x)
+		{
+			ret.Min.x = v[i].x;
+		}
+		else if (v[i].x > ret.Max.x)
+		{
+			ret.Max.x = v[i].x;
+		}
+
+		if (v[i].y < ret.Min.y)
+		{
+			ret.Min.y = v[i].y;
+		}
+		else if (v[i].y > ret.Max.y)
+		{
+			ret.Max.y = v[i].y;
+		}
+
+		if (v[i].z < ret.Min.z)
+		{
+			ret.Min.z = v[i].z;
+		}
+		else if (v[i].z > ret.Max.z)
+		{
+			ret.Max.z = v[i].z;
+		}
+	}
+	return ret;
+}
+
+AABB & AABB::transformSelf(const Matrix4 & m)
+{
+	return *this = transform(m);
+}

@@ -452,26 +452,25 @@ void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponent * ActorResourceMgr::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, bool bInstance)
+MeshComponent * ActorResourceMgr::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 {
-	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb);
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
 	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
 	return ret.get();
 }
 
-MeshComponent * ActorResourceMgr::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, bool bInstance)
+MeshComponent * ActorResourceMgr::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 {
-	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb);
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
 	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
 	return ret.get();
 }
 
 void ActorResourceMgr::CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
 {
-	my::OgreMeshSet::const_iterator mesh_iter = mesh_set->begin();
-	for (; mesh_iter != mesh_set->end(); mesh_iter++)
+	for (unsigned int i = 0; i < mesh_set->size(); i++)
 	{
-		CreateMeshComponent(owner, *mesh_iter, (*mesh_iter)->m_aabb, false);
+		CreateMeshComponent(owner, (*mesh_set)[i], (*mesh_set)[i]->m_aabb, Matrix4::Identity(), false);
 	}
 }
 //

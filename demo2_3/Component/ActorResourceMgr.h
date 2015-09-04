@@ -108,9 +108,9 @@ public:
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
-	MeshComponent * CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, bool bInstance);
+	MeshComponent * CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
 
-	MeshComponent * CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, bool bInstance);
+	MeshComponent * CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
 
 	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 

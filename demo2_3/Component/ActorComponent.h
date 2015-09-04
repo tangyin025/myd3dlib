@@ -24,10 +24,10 @@ public:
 	my::Matrix4 m_World;
 
 public:
-	Component(const my::AABB & aabb, ComponentType Type)
+	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
 		: AABBComponent(aabb)
 		, m_Type(Type)
-		, m_World(my::Matrix4::Identity())
+		, m_World(World)
 	{
 	}
 
@@ -47,8 +47,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(const my::AABB & aabb, ComponentType Type)
-		: Component(aabb, Type)
+	RenderComponent(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
+		: Component(aabb, World, Type)
 	{
 	}
 
@@ -72,8 +72,8 @@ public:
 	boost::shared_ptr<Animator> m_Animator;
 
 public:
-	MeshComponent(const my::AABB & aabb)
-		: RenderComponent(aabb, ComponentTypeMesh)
+	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: RenderComponent(aabb, World, ComponentTypeMesh)
 		, m_bInstance(false)
 	{
 	}
@@ -103,8 +103,8 @@ public:
 	MaterialPtrList m_MaterialList;
 
 public:
-	IndexdPrimitiveUPComponent(const my::AABB & aabb, ComponentType Type)
-		: RenderComponent(aabb, Type)
+	IndexdPrimitiveUPComponent(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
+		: RenderComponent(aabb, World, Type)
 		, m_VertexStride(0)
 	{
 	}
@@ -137,8 +137,8 @@ public:
 	boost::shared_ptr<Animator> m_Animator;
 
 public:
-	ClothComponent(const my::AABB & aabb)
-		: IndexdPrimitiveUPComponent(aabb, ComponentTypeCloth)
+	ClothComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: IndexdPrimitiveUPComponent(aabb, World, ComponentTypeCloth)
 	{
 	}
 
@@ -164,8 +164,8 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterComponent(const my::AABB & aabb)
-		: RenderComponent(aabb, ComponentTypeEmitter)
+	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: RenderComponent(aabb, World, ComponentTypeEmitter)
 	{
 	}
 

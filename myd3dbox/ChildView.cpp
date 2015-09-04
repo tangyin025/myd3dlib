@@ -233,11 +233,17 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 							theApp.m_SimpleSample->EndPass();
 						}
 						theApp.m_SimpleSample->End();
-
-						PushWireAABB(mesh_cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), mesh_cmp->m_World);
 					}
 					break;
 				}
+				PushWireAABB(cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
+			}
+			break;
+
+		case COutlinerWnd::TreeItemTypeActor:
+			{
+				Actor * actor = pData->reinterpret_cast_data<Actor>();
+				PushWireAABB(actor->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
 			}
 			break;
 		}
@@ -297,6 +303,11 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(GetScreenDepthStencilSurface()));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					swprintf_s(&m_ScrInfos[PassID][0], m_ScrInfos[PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
+				}
+
 				RenderSelectedObject(theApp.m_d3dDevice);
 
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
@@ -307,15 +318,10 @@ void CChildView::OnPaint()
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
 				theApp.m_UIRender->SetWorld(my::Matrix4::Translation(my::Vector3(0.5f,0.5f,0)));
-				const my::Vector2 start_pt(50,10), text_size(100,100);
-				theApp.m_Font->DrawString(theApp.m_UIRender.get(), L"Pass Draw Call: ",
-					my::Rectangle::LeftTop(start_pt.x,start_pt.y,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignRightTop);
-				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
+				for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 				{
-					theApp.m_Font->DrawString(theApp.m_UIRender.get(), str_printf(L"%S: ", RenderPipeline::PassTypeToStr(PassID)).c_str(),
-						my::Rectangle::LeftTop(start_pt.x,start_pt.y+20+PassID*20,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignRightTop);
-					theApp.m_Font->DrawString(theApp.m_UIRender.get(), str_printf(L"%d", theApp.m_PassDrawCall[PassID]).c_str(),
-						my::Rectangle::LeftTop(start_pt.x+100,start_pt.y+20+PassID*20,text_size.x,text_size.y), D3DCOLOR_ARGB(255,255,255,0), my::Font::AlignLeftTop);
+					theApp.m_Font->DrawString(theApp.m_UIRender.get(), &info_iter->second[0], my::Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 				}
 				theApp.m_UIRender->End();
 
