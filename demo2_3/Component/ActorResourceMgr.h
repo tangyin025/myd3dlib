@@ -114,9 +114,9 @@ public:
 
 	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 
-	//EmitterComponentPtr AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter);
+	EmitterComponent * CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
 
-	//EmitterComponentPtr AddEmitterComponentFromFile(Actor * owner, const std::string & path);
+	EmitterComponent * CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
 
 	//ClothComponentPtr AddClothComponentFromFile(
 	//	Actor * owner,

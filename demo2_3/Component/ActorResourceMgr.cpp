@@ -473,23 +473,21 @@ void ActorResourceMgr::CreateMeshComponentList(ComponentLevel * owner, boost::sh
 		CreateMeshComponent(owner, (*mesh_set)[i], (*mesh_set)[i]->m_aabb, Matrix4::Identity(), false);
 	}
 }
-//
-//EmitterComponentPtr ActorResourceMgr::AddEmitterComponent(Actor * owner, boost::shared_ptr<my::Emitter> emitter)
-//{
-//	EmitterComponentPtr ret(new EmitterComponent(owner));
-//	OnEmitterComponentEmitterLoaded(ret, emitter);
-//	owner->AddComponent(ret);
-//	return ret;
-//}
-//
-//EmitterComponentPtr ActorResourceMgr::AddEmitterComponentFromFile(Actor * owner, const std::string & path)
-//{
-//	EmitterComponentPtr ret(new EmitterComponent(owner));
-//	my::EmitterPtr emt = CreateEmitter(path);
-//	OnEmitterComponentEmitterLoaded(ret, emt);
-//	owner->AddComponent(ret);
-//	return ret;
-//}
+
+EmitterComponent * ActorResourceMgr::CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
+	OnEmitterComponentEmitterLoaded(ret, emitter);
+	return ret.get();
+}
+
+EmitterComponent * ActorResourceMgr::CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
+	my::EmitterPtr emitter = CreateEmitter(path);
+	OnEmitterComponentEmitterLoaded(ret, emitter);
+	return ret.get();
+}
 //
 //ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
 //	Actor * owner,
