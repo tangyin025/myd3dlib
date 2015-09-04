@@ -194,4 +194,10 @@ public:
 	void RemoveActor(ActorPtr actor);
 
 	void RemoveAllActors(void);
+
+	ClothComponent * CreateClothComponentFromFile(
+		ComponentLevel * owner,
+		const std::string & mesh_path,
+		const std::string & skel_path,
+		const std::string & root_name, const my::AABB & aabb, const my::Matrix4 & World);
 };

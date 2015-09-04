@@ -82,6 +82,8 @@ public:
 	}
 
 	void Update(float fElapsedTime);
+
+	void OnPxThreadSubstep(float fElapsedTime);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

@@ -54,7 +54,14 @@ void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId
 {
 	_ASSERT(!m_VertexData.empty());
 	_ASSERT(AttribId < m_AttribTable.size());
+
 	shader->SetMatrix("g_World", m_World);
+
+	if (m_Animator && !m_Animator->m_DualQuats.empty())
+	{
+		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
+	}
+
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 

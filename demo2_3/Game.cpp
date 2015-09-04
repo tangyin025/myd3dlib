@@ -295,12 +295,6 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	PhysXSceneContext::OnShutdown();
-
-	PhysXContext::OnShutdown();
-
-	FModContext::OnShutdown();
-
 	RenderPipeline::OnDestroyDevice();
 
 	ActorResourceMgr::OnDestroyDevice();
@@ -308,10 +302,21 @@ void Game::OnDestroyDevice(void)
 	InputMgr::Destroy();
 
 	ImeEditBox::Uninitialize();
+
+	PhysXSceneContext::OnShutdown();
+
+	PhysXContext::OnShutdown();
+
+	FModContext::OnShutdown();
 }
 
 void Game::OnPxThreadSubstep(float dtime)
 {
+	ActorPtrList::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		(*actor_iter)->OnPxThreadSubstep(dtime);
+	}
 }
 
 void Game::OnFrameMove(
@@ -723,4 +728,14 @@ void Game::RemoveActor(ActorPtr actor)
 void Game::RemoveAllActors(void)
 {
 	m_Actors.clear();
+}
+
+ClothComponent * Game::CreateClothComponentFromFile(
+	ComponentLevel * owner,
+	const std::string & mesh_path,
+	const std::string & skel_path,
+	const std::string & root_name, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	return ActorResourceMgr::CreateClothComponentFromFile(owner,
+		boost::make_tuple(m_Cooking.get(), PhysXContext::m_sdk.get(), PhysXSceneContext::m_PxScene.get()), mesh_path, skel_path, root_name, PxClothCollisionData(), aabb, World);
 }

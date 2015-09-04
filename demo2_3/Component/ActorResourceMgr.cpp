@@ -489,25 +489,24 @@ EmitterComponent * ActorResourceMgr::CreateEmitterComponentFromFile(ComponentLev
 	return ret.get();
 }
 
-Animator * ActorResourceMgr::CreateAnimatorFromFile(ComponentLevel * owner, const std::string & path)
+Animator * ActorResourceMgr::CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path)
 {
 	AnimatorPtr ret = owner->CreateAnimator<SimpleAnimator>();
 	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
 	return ret.get();
 }
-//
-//ClothComponentPtr ActorResourceMgr::AddClothComponentFromFile(
-//	Actor * owner,
-//	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-//	const std::string & mesh_path,
-//	const std::string & skel_path,
-//	const std::string & root_name,
-//	const PxClothCollisionData& collData)
-//{
-//	ClothComponentPtr ret(new ClothComponent(owner));
-//	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
-//		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
-//	owner->AddComponent(ret);
-//	owner->m_Clothes.push_back(ret);
-//	return ret;
-//}
+
+ClothComponent * ActorResourceMgr::CreateClothComponentFromFile(
+	ComponentLevel * owner,
+	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
+	const std::string & mesh_path,
+	const std::string & skel_path,
+	const std::string & root_name,
+	const PxClothCollisionData& collData, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	ClothComponentPtr ret = owner->CreateComponent<ClothComponent>(aabb, World);
+	AddResource(str_printf("cloth_%s_%s_%s", mesh_path.c_str(), skel_path.c_str(), root_name.c_str()), ret);
+	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
+		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
+	return ret.get();
+}
