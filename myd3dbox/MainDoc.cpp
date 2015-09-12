@@ -59,6 +59,9 @@ BOOL CMainDoc::OnNewDocument()
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
+	CMainFrame * pFrame = GetMainFrame();
+	ASSERT_VALID(pFrame);
+	pFrame->m_wndOutliner.DeleteAllTreeItems();
 	m_Actors.clear();
 
 	ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
@@ -68,8 +71,6 @@ BOOL CMainDoc::OnNewDocument()
 	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
 	theApp.CreateMeshComponentList(actor.get(), mesh_set);
 
-	CMainFrame * pFrame = GetMainFrame();
-	ASSERT_VALID(pFrame);
 	pFrame->m_wndOutliner.InsertActor(actor.get());
 
 	return TRUE;
