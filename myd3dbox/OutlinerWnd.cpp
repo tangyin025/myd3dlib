@@ -137,9 +137,12 @@ void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 		return;
 	}
 
-	TreeItemData * pData = GetSelectedItemData();
-	if (!pData)
+	HTREEITEM hItem = m_wndClassView.GetSelectedItem();
+	if (!hItem)
 		return;
+
+	TreeItemData * pItemData = GetTreeItemData(hItem);
+	ASSERT(pItemData);
 
 	if (m_ContextMenu.m_hMenu)
 		m_ContextMenu.DestroyMenu();
@@ -148,7 +151,7 @@ void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 		m_ContextMenuAdd.DestroyMenu();
 
 	m_ContextMenu.CreatePopupMenu();
-	if (pData->Type == TreeItemTypeActor)
+	if (pItemData->Type == TreeItemTypeActor)
 	{
 		m_ContextMenuAdd.CreatePopupMenu();
 		m_ContextMenuAdd.AppendMenu(MF_STRING, ID_MENU_ADD_MESH_COMPONENT, _T("Mesh Component"));
@@ -189,13 +192,13 @@ BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREE
 	return TRUE;
 }
 
-HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD type, void * data, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
+HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD Type, void * pData, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
-	ASSERT(m_Data2HTree.find(data) == m_Data2HTree.end());
+	ASSERT(m_Data2HTree.find(pData) == m_Data2HTree.end());
 	HTREEITEM hItem = m_wndClassView.InsertItem(lpszItem, nImage, nSelectedImage, hParent, hInsertAfter);
 	ASSERT(hItem);
-	m_wndClassView.SetItemData(hItem, (DWORD_PTR)(new TreeItemData(type, data)));
-	m_Data2HTree.insert(std::make_pair(data, hItem));
+	m_wndClassView.SetItemData(hItem, (DWORD_PTR)(new TreeItemData(Type, pData)));
+	m_Data2HTree.insert(std::make_pair(pData, hItem));
 	return hItem;
 }
 
@@ -285,14 +288,9 @@ void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM
 	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 1, 1, hParent, hInsertAfter);
 }
 
-COutlinerWnd::TreeItemData * COutlinerWnd::GetSelectedItemData()
+COutlinerWnd::TreeItemData * COutlinerWnd::GetTreeItemData(HTREEITEM hItem)
 {
-	HTREEITEM hItem = m_wndClassView.GetSelectedItem();
-	if (hItem)
-	{
-		return (TreeItemData *)m_wndClassView.GetItemData(hItem);
-	}
-	return NULL;
+	return reinterpret_cast<TreeItemData *>(m_wndClassView.GetItemData(hItem));
 }
 
 HTREEITEM COutlinerWnd::GetTreeItemByData(void * pData)

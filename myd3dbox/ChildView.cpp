@@ -266,14 +266,18 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	COutlinerWnd::TreeItemData * pData = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_wndOutliner.GetSelectedItemData();
-	if (pData)
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetSelectedItem();
+	for (; hItem; hItem = TreeView_GetNextSelected(pFrame->m_wndOutliner.m_wndClassView.GetSafeHwnd(), hItem))
 	{
-		switch (pData->Type)
+		COutlinerWnd::TreeItemData * pItemData = pFrame->m_wndOutliner.GetTreeItemData(hItem);
+		ASSERT(pItemData);
+		switch (pItemData->Type)
 		{
 		case COutlinerWnd::TreeItemTypeComponent:
 			{
-				Component * cmp = pData->reinterpret_cast_data<Component>();
+				Component * cmp = pItemData->reinterpret_cast_data<Component>();
 				switch (cmp->m_Type)
 				{
 				case Component::ComponentTypeMesh:
@@ -297,7 +301,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 
 		case COutlinerWnd::TreeItemTypeActor:
 			{
-				Actor * actor = pData->reinterpret_cast_data<Actor>();
+				Actor * actor = pItemData->reinterpret_cast_data<Actor>();
 				PushWireAABB(actor->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
 			}
 			break;
