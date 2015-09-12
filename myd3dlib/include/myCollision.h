@@ -501,25 +501,23 @@ namespace my
 
 		static Ray OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, const Vector2 & pt, const Vector2 & dim);
 
-		typedef std::pair<bool, float> TestResult;
+		static RayResult rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value);
 
-		static TestResult rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value);
+		static RayResult rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb);
 
-		static TestResult rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb);
-
-		static TestResult rayAndHalfSpace(
+		static RayResult rayAndHalfSpace(
 			const Vector3 & pos,
 			const Vector3 & dir,
 			const Plane & plane);
 
 		// ! the returned second matched un-normalized ray
-		static TestResult rayAndSphere(
+		static RayResult rayAndSphere(
 			const Vector3 & pos,
 			const Vector3 & dir,
 			const Vector3 & sphereCenter,
 			const float sphereRadius);
 
-		static TestResult rayAndCylinder(
+		static RayResult rayAndCylinder(
 			const Vector3 & pos,
 			const Vector3 & dir,
 			const float cylinderRadius,
@@ -531,12 +529,11 @@ namespace my
 
 		static Vector3 calculateTriangleNormal(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
 
-		static float isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+		static bool isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
 
-		static TestResult rayAndTriangle(
+		static RayResult rayAndTriangle(
 			const Vector3 & pos,
 			const Vector3 & dir,
-			float radius,
 			const Vector3 & v0,
 			const Vector3 & v1,
 			const Vector3 & v2);

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "myMesh.h"
+#include "myCollision.h"
 #include "myResource.h"
 #include "libc.h"
 
@@ -14,7 +15,7 @@ void D3DVertexElementSet::InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3D
 	elems[Usage][UsageIndex] = D3DVertexElement(Offset, Type, Method);
 }
 
-std::vector<D3DVERTEXELEMENT9> D3DVertexElementSet::BuildVertexElementList(WORD Stream)
+std::vector<D3DVERTEXELEMENT9> D3DVertexElementSet::BuildVertexElementList(WORD Stream) const
 {
 	std::vector<D3DVERTEXELEMENT9> ret;
 	for(unsigned int Usage = 0; Usage < MAX_USAGE; Usage++)
@@ -32,7 +33,7 @@ std::vector<D3DVERTEXELEMENT9> D3DVertexElementSet::BuildVertexElementList(WORD 
 	return ret;
 }
 
-unsigned int D3DVertexElementSet::CalcTextureCoords(void)
+unsigned int D3DVertexElementSet::CalcTextureCoords(void) const
 {
 	unsigned int texture_coords = 0;
 	for(unsigned int UsageIndex = 0; UsageIndex < MAX_USAGE_INDEX; UsageIndex++)
@@ -51,7 +52,7 @@ void D3DVertexElementSet::InsertPositionElement(WORD Offset, BYTE UsageIndex, D3
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_POSITION, UsageIndex, Method);
 }
 
-Vector3 & D3DVertexElementSet::GetPosition(void * pVertex, BYTE UsageIndex)
+Vector3 & D3DVertexElementSet::GetPosition(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
@@ -70,7 +71,7 @@ void D3DVertexElementSet::InsertBlendWeightElement(WORD Offset, BYTE UsageIndex,
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex, Method);
 }
 
-Vector4 & D3DVertexElementSet::GetBlendWeight(void * pVertex, BYTE UsageIndex)
+Vector4 & D3DVertexElementSet::GetBlendWeight(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
 
@@ -89,7 +90,7 @@ void D3DVertexElementSet::InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex
 	InsertVertexElement(Offset, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_BLENDINDICES, UsageIndex, Method);
 }
 
-DWORD & D3DVertexElementSet::GetBlendIndices(void * pVertex, BYTE UsageIndex)
+DWORD & D3DVertexElementSet::GetBlendIndices(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
 
@@ -108,7 +109,7 @@ void D3DVertexElementSet::InsertNormalElement(WORD Offset, BYTE UsageIndex, D3DD
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_NORMAL, UsageIndex, Method);
 }
 
-Vector3 & D3DVertexElementSet::GetNormal(void * pVertex, BYTE UsageIndex)
+Vector3 & D3DVertexElementSet::GetNormal(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
@@ -127,7 +128,7 @@ void D3DVertexElementSet::InsertTexcoordElement(WORD Offset, BYTE UsageIndex, D3
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT2, D3DDECLUSAGE_TEXCOORD, UsageIndex, Method);
 }
 
-Vector2 & D3DVertexElementSet::GetTexcoord(void * pVertex, BYTE UsageIndex)
+Vector2 & D3DVertexElementSet::GetTexcoord(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
 
@@ -146,7 +147,7 @@ void D3DVertexElementSet::InsertTangentElement(WORD Offset, BYTE UsageIndex, D3D
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_TANGENT, UsageIndex, Method);
 }
 
-Vector3 & D3DVertexElementSet::GetTangent(void * pVertex, BYTE UsageIndex)
+Vector3 & D3DVertexElementSet::GetTangent(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
@@ -165,7 +166,7 @@ void D3DVertexElementSet::InsertBinormalElement(WORD Offset, BYTE UsageIndex, D3
 	InsertVertexElement(Offset, D3DDECLTYPE_FLOAT3, D3DDECLUSAGE_BINORMAL, UsageIndex, Method);
 }
 
-Vector3 & D3DVertexElementSet::GetBinormal(void * pVertex, BYTE UsageIndex)
+Vector3 & D3DVertexElementSet::GetBinormal(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
@@ -184,7 +185,7 @@ void D3DVertexElementSet::InsertColorElement(WORD Offset, BYTE UsageIndex, D3DDE
 	InsertVertexElement(Offset, D3DDECLTYPE_D3DCOLOR, D3DDECLUSAGE_COLOR, UsageIndex, Method);
 }
 
-D3DCOLOR & D3DVertexElementSet::GetColor(void * pVertex, BYTE UsageIndex)
+D3DCOLOR & D3DVertexElementSet::GetColor(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
 
@@ -1073,6 +1074,28 @@ void OgreMesh::SaveMesh(std::ostream & ostr)
 	ostr << "</mesh>\n";
 }
 
+void OgreMesh::ComputeDualQuaternionSkinnedVertices(
+	void * pDstVertices,
+	DWORD NumVerts,
+	DWORD DstVertexStride,
+	const D3DVertexElementSet & DstVertexElems,
+	void * pSrcVertices,
+	DWORD SrcVertexStride,
+	const D3DVertexElementSet & SrcVertexElems,
+	const my::TransformList & dualQuaternionList)
+{
+	for (unsigned int i = 0; i < NumVerts; i++)
+	{
+		unsigned char * pDstVertex = (unsigned char *)pDstVertices + i * DstVertexStride;
+		unsigned char * pSrcVertex = (unsigned char *)pSrcVertices + i * SrcVertexStride;
+		DstVertexElems.SetPosition(pDstVertex,
+			dualQuaternionList.TransformVertexWithDualQuaternionList(
+				SrcVertexElems.GetPosition(pSrcVertex),
+				SrcVertexElems.GetBlendIndices(pSrcVertex),
+				SrcVertexElems.GetBlendWeight(pSrcVertex)));
+	}
+}
+
 void OgreMesh::ComputeNormalFrame(
 	void * pVertices,
 	DWORD NumVerts,
@@ -1227,6 +1250,50 @@ void OgreMesh::ComputeTangentFrame(
 		// Gram-Schmidt orthogonalize
 		VertexElems.GetTangent(pVertex) = (t - n * n.dot(t)).normalize();
 	}
+}
+
+RayResult OgreMesh::RayTest(
+	const Ray & ray,
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	D3DVertexElementSet & VertexElems)
+{
+	RayResult ret(false, FLT_MAX);
+	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i1, i2, i3;
+		if(bIndices16)
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const Vector3 & v3 = VertexElems.GetPosition(pv3);
+
+		RayResult result = CollisionDetector::rayAndTriangle(ray.p, ray.d, v1, v2, v3);
+		if (result.first && result.second < ret.second)
+		{
+			ret = result;
+		}
+	}
+	return ret;
 }
 
 UINT OgreMesh::GetMaterialNum(void) const

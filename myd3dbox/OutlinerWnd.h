@@ -24,7 +24,7 @@ public:
 	void AdjustLayout();
 	void OnChangeVisualStyle();
 
-protected:
+public:
 	CDragableTreeCtrl m_wndClassView;
 	CImageList m_ClassViewImages;
 	CMenu m_ContextMenu;
@@ -70,6 +70,7 @@ public:
 	void InsertActor(Actor * actor, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 	void InsertComponent(Component * cmp, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 	TreeItemData * GetSelectedItemData();
+	HTREEITEM GetTreeItemByData(void * pData);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

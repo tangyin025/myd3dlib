@@ -2538,8 +2538,19 @@ namespace my
 			return *this;
 		}
 
+		static Matrix4 UDQtoRM(const Matrix4 & dual);
+
 	public:
 		static const Matrix4 identity;
+	};
+
+	class TransformList
+		: public std::vector<Matrix4>
+	{
+	public:
+		Matrix4 BuildSkinnedDualQuaternion(DWORD indices, const Vector4 & weights) const;
+
+		Vector3 TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const;
 	};
 
 	class Plane
@@ -2631,6 +2642,8 @@ namespace my
 
 		Ray & transformSelf(const Matrix4 & m);
 	};
+
+	typedef std::pair<bool, float> RayResult;
 
 	class Frustum
 	{

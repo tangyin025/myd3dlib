@@ -38,6 +38,11 @@ public:
 	virtual void Update(float fElapsedTime)
 	{
 	}
+
+	virtual my::RayResult RayTest(const my::Ray & ray) const
+	{
+		return my::RayResult(false, FLT_MAX);
+	}
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -82,6 +87,8 @@ public:
 	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual my::RayResult RayTest(const my::Ray & ray) const;
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

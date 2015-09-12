@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Component/physx_ptr.hpp"
+#include "../Component/physx_ptr.hpp"
 
 class Character
 	: public my::Particle

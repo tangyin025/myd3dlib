@@ -65,55 +65,55 @@ namespace my
 			GetVertexValue<ElementType>(pVertex, Usage, UsageIndex) = Value;
 		}
 
-		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream);
+		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream) const;
 
-		unsigned int CalcTextureCoords(void);
+		unsigned int CalcTextureCoords(void) const;
 
 		void InsertPositionElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0);
+		Vector3 & GetPosition(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex = 0) const;
 
 		void InsertBlendWeightElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector4 & GetBlendWeight(void * pVertex, BYTE UsageIndex = 0);
+		Vector4 & GetBlendWeight(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex = 0) const;
 
 		void InsertBlendIndicesElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		DWORD & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0);
+		DWORD & GetBlendIndices(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex = 0) const;
 
 		void InsertNormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetNormal(void * pVertex, BYTE UsageIndex = 0);
+		Vector3 & GetNormal(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex = 0) const;
 
 		void InsertTexcoordElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector2 & GetTexcoord(void * pVertex, BYTE UsageIndex = 0);
+		Vector2 & GetTexcoord(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex = 0) const;
 
 		void InsertTangentElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetTangent(void * pVertex, BYTE UsageIndex = 0);
+		Vector3 & GetTangent(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex = 0) const;
 
 		void InsertBinormalElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		Vector3 & GetBinormal(void * pVertex, BYTE UsageIndex = 0);
+		Vector3 & GetBinormal(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex = 0) const;
 
 		void InsertColorElement(WORD Offset, BYTE UsageIndex = 0, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
-		D3DCOLOR & GetColor(void * pVertex, BYTE UsageIndex = 0);
+		D3DCOLOR & GetColor(void * pVertex, BYTE UsageIndex = 0) const;
 
 		void SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex = 0) const;
 	};
@@ -372,6 +372,16 @@ namespace my
 
 		void SaveMesh(std::ostream & ostr);
 
+		static void ComputeDualQuaternionSkinnedVertices(
+			void * pDstVertices,
+			DWORD NumVerts,
+			DWORD DstVertexStride,
+			const D3DVertexElementSet & DstVertexElems,
+			void * pSrcVertices,
+			DWORD SrcVertexStride,
+			const D3DVertexElementSet & SrcVertexElems,
+			const my::TransformList & dualQuaternionList);
+
 		static void ComputeNormalFrame(
 			void * pVertices,
 			DWORD NumVerts,
@@ -382,6 +392,16 @@ namespace my
 			D3DVertexElementSet & VertexElems);
 
 		static void ComputeTangentFrame(
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			D3DVertexElementSet & VertexElems);
+
+		static RayResult RayTest(
+			const Ray & ray,
 			void * pVertices,
 			DWORD NumVerts,
 			DWORD VertexStride,

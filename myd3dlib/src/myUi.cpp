@@ -2236,7 +2236,7 @@ bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 {
 	Vector3 dialogNormal = m_World[2].xyz.normalize();
 	float dialogDist = m_World[3].xyz.dot(dialogNormal);
-	IntersectionTests::TestResult result = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, Plane::NormalDistance(dialogNormal, dialogDist));
+	RayResult result = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, Plane::NormalDistance(dialogNormal, dialogDist));
 
 	if (result.first)
 	{

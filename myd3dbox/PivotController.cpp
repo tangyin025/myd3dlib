@@ -199,7 +199,7 @@ bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray)
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		Ray local_ray = ray.transform(trans[i]);
-		IntersectionTests::TestResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + 0.1f, offset + header);
+		RayResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + 0.1f, offset + header);
 		if (res.first && res.second < minT)
 		{
 			minT = res.second;
@@ -214,30 +214,30 @@ bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray)
 		m_DragPlane.normal = Vector3::unitX.cross(Vector3::unitX.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
-		break;
+		return true;
 	case PivotDragAxisY:
 		m_DragPos = m_Pos;
 		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitY.cross(Vector3::unitY.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
-		break;
+		return true;
 	case PivotDragAxisZ:
 		m_DragPos = m_Pos;
 		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
-		break;
+		return true;
 	}
-	return true;
+	return false;
 }
 
 bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
 {
 	Matrix4 trans = m_World.inverse();
 	Ray local_ray = ray.transform(trans);
-	IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
+	RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
 	m_PivotDragAxis = PivotDragNone;
 	if(res.first)
 	{
@@ -267,7 +267,7 @@ bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
 			return true;
 		}
 	}
-	return true;
+	return false;
 }
 
 bool PivotController::OnMouseMove(const my::Ray & ray)
@@ -287,7 +287,7 @@ bool PivotController::OnMouseMove(const my::Ray & ray)
 
 bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray)
 {
-	IntersectionTests::TestResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
+	RayResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
 	if(res.first)
 	{
 		Vector3 pt = ray.p + ray.d * res.second;
@@ -311,7 +311,7 @@ bool PivotController::OnRotControllerMouseMove(const my::Ray & ray)
 {
 	Matrix4 trans = Matrix4::Compose(m_Scale, m_DragRot, m_Pos).inverse();
 	Ray local_ray = ray.transform(trans);
-    IntersectionTests::TestResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
+    RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
     Vector3 k;
     if(res.first)
     {

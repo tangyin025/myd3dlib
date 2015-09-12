@@ -207,6 +207,61 @@ void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMa
 	}
 }
 
+bool CChildView::OnRayTest(const my::Ray & ray)
+{
+	struct CallBack : public my::IQueryCallback
+	{
+		std::multimap<float, Component *> m_ComponentMap;
+
+		const my::Ray & m_Ray;
+
+		CallBack(const my::Ray & ray)
+			: m_Ray(ray)
+		{
+		}
+
+		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+		{
+			Component * cmp = dynamic_cast<Component *>(comp);
+			if (cmp)
+			{
+				my::RayResult res = cmp->RayTest(m_Ray);
+				if (res.first)
+				{
+					m_ComponentMap.insert(std::make_pair(res.second, cmp));
+				}
+			}
+		}
+	};
+
+	CallBack cb(ray);
+
+	my::Frustum frustum = my::Frustum::ExtractMatrix(m_Camera->m_ViewProj);
+
+	CMainDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	ActorPtrList::iterator act_iter = pDoc->m_Actors.begin();
+	for (; act_iter != pDoc->m_Actors.end(); act_iter++)
+	{
+		boost::dynamic_pointer_cast<my::OctRoot>(*act_iter)->QueryComponent(frustum, &cb);
+	}
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (!cb.m_ComponentMap.empty())
+	{
+		HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData(cb.m_ComponentMap.begin()->second);
+		if (hItem)
+		{
+			pFrame->m_wndOutliner.m_wndClassView.SelectItem(hItem);
+			return true;
+		}
+	}
+
+	pFrame->m_wndOutliner.m_wndClassView.SelectItem(NULL);
+	return false;
+}
+
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
 	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
@@ -288,6 +343,8 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
+			LARGE_INTEGER qwTime[2];
+			QueryPerformanceCounter(&qwTime[0]);
 			m_Camera->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			m_SkyLightCam->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
@@ -303,9 +360,11 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(GetScreenDepthStencilSurface()));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
+				QueryPerformanceCounter(&qwTime[1]);
+				swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"PerformanceSec: %.3f", (double)(qwTime[1].QuadPart - qwTime[0].QuadPart)/theApp.m_llQPFTicksPerSec);
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					swprintf_s(&m_ScrInfos[PassID][0], m_ScrInfos[PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
+					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
 				}
 
 				RenderSelectedObject(theApp.m_d3dDevice);
@@ -383,11 +442,20 @@ void CChildView::OnDestroy()
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if (m_Pivot.OnLButtonDown(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	if (m_Pivot.OnLButtonDown(ray))
 	{
 		Invalidate();
+		return;
 	}
+
+	if (OnRayTest(ray))
+	{
+		Invalidate();
+		return;
+	}
+
+	Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)

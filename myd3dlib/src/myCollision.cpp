@@ -302,31 +302,31 @@ namespace my
 	//	return angles += acos(t3d::vec3CosTheta(ldir, rdir));
 	//}
 
-	static float _caculateNearestDistance(
-		const Vector3 & point,
-		const Vector3 & v0,
-		const Vector3 & v1)
-	{
-		Vector3 u = v1 - v0;
+	//static float _caculateNearestDistance(
+	//	const Vector3 & point,
+	//	const Vector3 & v0,
+	//	const Vector3 & v1)
+	//{
+	//	Vector3 u = v1 - v0;
 
-		float offset = (point - v0).dot(u) / u.magnitude();
+	//	float offset = (point - v0).dot(u) / u.magnitude();
 
-		Vector3 closestPoint;
-		if(offset <= 0)
-		{
-			closestPoint = v0;
-		}
-		else if(offset >= (v1 - v0).magnitude())
-		{
-			closestPoint = v1;
-		}
-		else
-		{
-			closestPoint = v0 + u.normalize() * offset;
-		}
+	//	Vector3 closestPoint;
+	//	if(offset <= 0)
+	//	{
+	//		closestPoint = v0;
+	//	}
+	//	else if(offset >= (v1 - v0).magnitude())
+	//	{
+	//		closestPoint = v1;
+	//	}
+	//	else
+	//	{
+	//		closestPoint = v0 + u.normalize() * offset;
+	//	}
 
-		return (closestPoint - point).magnitude();
-	}
+	//	return (closestPoint - point).magnitude();
+	//}
 
 	Ray IntersectionTests::PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
 	{
@@ -344,16 +344,16 @@ namespace my
 		return Ray(ptProj, dir);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value)
+	RayResult IntersectionTests::rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value)
 	{
 		if (fabs(dir[axis_i]) < EPSILON_E6)
 		{
-			return TestResult(false, FLT_MAX);
+			return RayResult(false, FLT_MAX);
 		}
-		return TestResult(true, (value - pos[axis_i]) / dir[axis_i]);
+		return RayResult(true, (value - pos[axis_i]) / dir[axis_i]);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb)
+	RayResult IntersectionTests::rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb)
 	{
 		float tNear = FLT_MIN;
 		float tFar = FLT_MAX;
@@ -363,7 +363,7 @@ namespace my
 			{
 				if (pos[i] < aabb.Min[i] || pos[i] > aabb.Max[i])
 				{
-					return TestResult(false, FLT_MAX);
+					return RayResult(false, FLT_MAX);
 				}
 			}
 
@@ -375,13 +375,13 @@ namespace my
 
 			if (tNear > tFar || tFar < 0)
 			{
-				return TestResult(false, FLT_MAX);
+				return RayResult(false, FLT_MAX);
 			}
 		}
-		return TestResult(true, tNear > 0 ? tNear : tFar);
+		return RayResult(true, tNear > 0 ? tNear : tFar);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndHalfSpace(
+	RayResult IntersectionTests::rayAndHalfSpace(
 		const Vector3 & pos,
 		const Vector3 & dir,
 		const Plane & plane)
@@ -392,13 +392,13 @@ namespace my
 
 		if(abs(denom) < EPSILON_E6)
 		{
-			return TestResult(false, FLT_MAX);
+			return RayResult(false, FLT_MAX);
 		}
 
-		return TestResult(true, -(plane.normal.dot(pos) + plane.d) / denom);
+		return RayResult(true, -(plane.normal.dot(pos) + plane.d) / denom);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndCylinder(
+	RayResult IntersectionTests::rayAndCylinder(
 		const Vector3 & pos,
 		const Vector3 & dir,
 		const float cylinderRadius,
@@ -433,19 +433,19 @@ namespace my
 					min_t = t[i];
 				}
 			}
-			return TestResult(min_t < FLT_MAX, min_t);
+			return RayResult(min_t < FLT_MAX, min_t);
 		}
 		else if(discrm == 0)
 		{
 			t[0] = -b / (2 * a);
 			k[0] = pos + dir * t[0];
 			v[0] = (k[0].x >= 0 && k[0].x <= cylinderHeight);
-			return TestResult(v[0], t[0]);
+			return RayResult(v[0], t[0]);
 		}
-		return TestResult(false, FLT_MAX);
+		return RayResult(false, FLT_MAX);
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndSphere(
+	RayResult IntersectionTests::rayAndSphere(
 		const Vector3 & pos,
 		const Vector3 & dir,
 		const Vector3 & sphereCenter,
@@ -461,13 +461,13 @@ namespace my
 		{
 			t[0] = (-b + sqrt(discrm)) / (2 * a);
 			t[1] = (-b - sqrt(discrm)) / (2 * a);
-			return TestResult(true, Min(t[0], t[1]));
+			return RayResult(true, Min(t[0], t[1]));
 		}
 		else if(discrm == 0)
 		{
-			return TestResult(true, -b / (2 * a));
+			return RayResult(true, -b / (2 * a));
 		}
-		return TestResult(false, FLT_MAX);
+		return RayResult(false, FLT_MAX);
 	}
 
 	Vector3 IntersectionTests::calculateTriangleDirection(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
@@ -487,7 +487,7 @@ namespace my
 		return calculateTriangleDirection(v0, v1, v2).normalize();
 	}
 
-	float IntersectionTests::isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
+	bool IntersectionTests::isInsideTriangle(const Vector3 & point, const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
 	{
 		_ASSERT(isValidTriangle(v0, v1, v2));
 
@@ -498,10 +498,9 @@ namespace my
 			&& planeDir.dot(calculateTriangleDirection(point, v2, v0)) >= 0;
 	}
 
-	IntersectionTests::TestResult IntersectionTests::rayAndTriangle(
+	RayResult IntersectionTests::rayAndTriangle(
 		const Vector3 & pos,
 		const Vector3 & dir,
-		float radius,
 		const Vector3 & v0,
 		const Vector3 & v1,
 		const Vector3 & v2)
@@ -514,18 +513,14 @@ namespace my
 
 		if(denom > -EPSILON_E6)
 		{
-			return TestResult(false, FLT_MAX);
+			return RayResult(false, FLT_MAX);
 		}
 
 		float t = -(normal.dot(pos) - normal.dot(v0)) / denom;
 
 		Vector3 intersection = pos + dir * t;
 
-		return TestResult(
-			isInsideTriangle(intersection, v0, v1, v2)
-			|| abs(_caculateNearestDistance(intersection, v0, v1)) <= radius
-			|| abs(_caculateNearestDistance(intersection, v1, v2)) <= radius
-			|| abs(_caculateNearestDistance(intersection, v2, v0)) <= radius, t);
+		return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
 	}
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum)

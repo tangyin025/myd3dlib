@@ -284,6 +284,16 @@ COutlinerWnd::TreeItemData * COutlinerWnd::GetSelectedItemData()
 	return NULL;
 }
 
+HTREEITEM COutlinerWnd::GetTreeItemByData(void * pData)
+{
+	Data2HTreeMap::const_iterator item_iter = m_Data2HTree.find(pData);
+	if (item_iter != m_Data2HTree.end())
+	{
+		return item_iter->second;
+	}
+	return NULL;
+}
+
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)
 {
 	return CDockablePane::PreTranslateMessage(pMsg);

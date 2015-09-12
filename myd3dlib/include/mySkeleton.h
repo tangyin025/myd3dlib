@@ -43,6 +43,12 @@ namespace my
 			BoneHierarchy & leafedBoneHierarchy,
 			int root_i,
 			const BoneIndexSet & leafNodeIndices = BoneIndexSet());
+
+		TransformList & Transform(
+			TransformList & hierarchyTransformList,
+			const TransformList & lhs,
+			const TransformList & rhs,
+			int root_i) const;
 	};
 
 	class Bone
@@ -94,37 +100,6 @@ namespace my
 		Matrix4 BuildTransform(void) const;
 
 		Matrix4 BuildInverseTransform(void) const;
-	};
-
-	class TransformList
-		: public std::vector<Matrix4>
-	{
-	public:
-		TransformList & Transform(
-			TransformList & hierarchyTransformList,
-			const TransformList & rhs,
-			const BoneHierarchy & boneHierarchy,
-			int root_i) const;
-
-		TransformList & TransformSelf(
-			const TransformList & rhs,
-			const BoneHierarchy & boneHierarchy,
-			int root_i);
-
-		static Matrix4 & BuildSkinnedDualQuaternion(
-			Matrix4 & outDualQuaternion,
-			DWORD indices,
-			const Vector4 & weights,
-			const TransformList & dualQuaternionList);
-
-		static Vector3 & TransformVertexWithDualQuaternionList(
-			Vector3 & outPosition,
-			const Vector3 & position,
-			DWORD indices,
-			const Vector4 & weights,
-			const TransformList & dualQuaternionList);
-
-		static Matrix4 UDQtoRM(const Matrix4 & dual);
 	};
 
 	class BoneList

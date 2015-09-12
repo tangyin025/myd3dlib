@@ -90,6 +90,26 @@ BoneHierarchy & BoneHierarchy::BuildLeafedHierarchy(
 	return leafedBoneHierarchy;
 }
 
+TransformList & BoneHierarchy::Transform(
+	TransformList & hierarchyTransformList,
+	const TransformList & lhs,
+	const TransformList & rhs,
+	int root_i) const
+{
+	_ASSERT(hierarchyTransformList.size() == lhs.size());
+	_ASSERT(hierarchyTransformList.size() == rhs.size());
+
+	hierarchyTransformList[root_i] = lhs[root_i] * rhs[root_i];
+
+	int node_i = operator[](root_i).m_child;
+	for(; node_i >= 0; node_i = operator[](node_i).m_sibling)
+	{
+		Transform(hierarchyTransformList, lhs, rhs, node_i);
+	}
+
+	return hierarchyTransformList;
+}
+
 Bone Bone::Increment(const Bone & rhs) const
 {
 	return Bone(
@@ -127,123 +147,6 @@ Matrix4 Bone::BuildInverseTransform(void) const
 {
 	return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
 }
-
-TransformList & TransformList::Transform(
-	TransformList & hierarchyTransformList,
-	const TransformList & rhs,
-	const BoneHierarchy & boneHierarchy,
-	int root_i) const
-{
-	_ASSERT(hierarchyTransformList.size() == size());
-	_ASSERT(hierarchyTransformList.size() == rhs.size());
-
-	hierarchyTransformList[root_i] = operator[](root_i) * rhs[root_i];
-
-	int node_i = boneHierarchy[root_i].m_child;
-	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
-	{
-		Transform(hierarchyTransformList, rhs, boneHierarchy, node_i);
-	}
-
-	return hierarchyTransformList;
-}
-
-TransformList & TransformList::TransformSelf(
-	const TransformList & rhs,
-	const BoneHierarchy & boneHierarchy,
-	int root_i)
-{
-	_ASSERT(size() == rhs.size());
-
-	operator[](root_i) *= rhs[root_i];
-
-	int node_i = boneHierarchy[root_i].m_child;
-	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
-	{
-		TransformSelf(rhs, boneHierarchy, node_i);
-	}
-
-	return *this;
-}
-
-Matrix4 & TransformList::BuildSkinnedDualQuaternion(
-	Matrix4 & outDualQuaternion,
-	DWORD indices,
-	const Vector4 & weights,
-	const TransformList & dualQuaternionList)
-{
-	Matrix4 m = dualQuaternionList[((unsigned char*)&indices)[0]];
-	Vector4 dq0 = m[0];
-	outDualQuaternion = m * weights.x;
-	m = dualQuaternionList[((unsigned char*)&indices)[1]];
-	Vector4 dq = m[0];
-	if (dq0.dot(dq) < 0)
-		outDualQuaternion -= m * weights.y;
-	else
-		outDualQuaternion += m * weights.y;
-	m = dualQuaternionList[((unsigned char*)&indices)[2]];
-	dq = m[0];
-	if (dq0.dot(dq) < 0)
-		outDualQuaternion -= m * weights.z;
-	else
-		outDualQuaternion += m * weights.z;
-	m = dualQuaternionList[((unsigned char*)&indices)[3]];
-	dq = m[0];
-	if (dq0.dot(dq) < 0)
-		outDualQuaternion -= m * weights.w;
-	else
-		outDualQuaternion += m * weights.w;
-	float length = outDualQuaternion[0].magnitude();
-	outDualQuaternion = outDualQuaternion / length;
-	return outDualQuaternion;
-}
-
-Vector3 & TransformList::TransformVertexWithDualQuaternionList(
-	Vector3 & outPosition,
-	const Vector3 & position,
-	DWORD indices,
-	const Vector4 & weights,
-	const TransformList & dualQuaternionList)
-{
-	Matrix4 dual;
-	BuildSkinnedDualQuaternion(dual, indices, weights, dualQuaternionList);
-	outPosition = position + dual[0].xyz.cross(dual[0].xyz.cross(position) + position * dual[0].w) * 2;
-	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
-	outPosition += translation;
-	return outPosition;
-}
-
-// convert unit dual quaternion to rotation matrix
-Matrix4 TransformList::UDQtoRM(const Matrix4 & dual)
-{
-	Matrix4 m ;
-	float length = dual[0].magnitudeSq();
-	float x = dual[0].x, y = dual[0].y, z = dual[0].z, w = dual[0].w;
-	float t1 = dual[1].x, t2 = dual[1].y, t3 = dual[1].z, t0 = dual[1].w;
-
-	m[0][0] = w*w + x*x - y*y - z*z; 
-	m[1][0] = 2*x*y - 2*w*z; 
-	m[2][0] = 2*x*z + 2*w*y;
-	m[0][1] = 2*x*y + 2*w*z; 
-	m[1][1] = w*w + y*y - x*x - z*z; 
-	m[2][1] = 2*y*z - 2*w*x; 
-	m[0][2] = 2*x*z - 2*w*y; 
-	m[1][2] = 2*y*z + 2*w*x; 
-	m[2][2] = w*w + z*z - x*x - y*y;
-
-	m[3][0] = -2*t0*x + 2*t1*w - 2*t2*z + 2*t3*y ;
-	m[3][1] = -2*t0*y + 2*t1*z + 2*t2*w - 2*t3*x ;
-	m[3][2] = -2*t0*z - 2*t1*y + 2*t2*x + 2*t3*w ;
-
-	m[0][3] = 0.0 ;
-	m[1][3] = 0.0 ;
-	m[2][3] = 0.0 ;
-	m[3][3] = 1.0 ;            
-
-	m /= length ;
-
-	return m ;      
-} 
 
 BoneList & BoneList::Increment(
 	BoneList & boneList,

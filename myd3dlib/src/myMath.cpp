@@ -161,6 +161,76 @@ const Quaternion Quaternion::identity(Quaternion::Identity());
 
 const Matrix4 Matrix4::identity(Matrix4::Identity());
 
+// convert unit dual quaternion to rotation matrix
+Matrix4 Matrix4::UDQtoRM(const Matrix4 & dual)
+{
+	Matrix4 m ;
+	float length = dual[0].magnitudeSq();
+	float x = dual[0].x, y = dual[0].y, z = dual[0].z, w = dual[0].w;
+	float t1 = dual[1].x, t2 = dual[1].y, t3 = dual[1].z, t0 = dual[1].w;
+
+	m[0][0] = w*w + x*x - y*y - z*z; 
+	m[1][0] = 2*x*y - 2*w*z; 
+	m[2][0] = 2*x*z + 2*w*y;
+	m[0][1] = 2*x*y + 2*w*z; 
+	m[1][1] = w*w + y*y - x*x - z*z; 
+	m[2][1] = 2*y*z - 2*w*x; 
+	m[0][2] = 2*x*z - 2*w*y; 
+	m[1][2] = 2*y*z + 2*w*x; 
+	m[2][2] = w*w + z*z - x*x - y*y;
+
+	m[3][0] = -2*t0*x + 2*t1*w - 2*t2*z + 2*t3*y ;
+	m[3][1] = -2*t0*y + 2*t1*z + 2*t2*w - 2*t3*x ;
+	m[3][2] = -2*t0*z - 2*t1*y + 2*t2*x + 2*t3*w ;
+
+	m[0][3] = 0.0 ;
+	m[1][3] = 0.0 ;
+	m[2][3] = 0.0 ;
+	m[3][3] = 1.0 ;            
+
+	m /= length ;
+
+	return m ;      
+} 
+
+Matrix4 TransformList::BuildSkinnedDualQuaternion(DWORD indices, const Vector4 & weights) const
+{
+	Matrix4 m = operator[](((unsigned char*)&indices)[0]);
+	Vector4 dq0 = m[0];
+	Matrix4 dual = m * weights.x;
+	m = operator[](((unsigned char*)&indices)[1]);
+	Vector4 dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.y;
+	else
+		dual += m * weights.y;
+	m = operator[](((unsigned char*)&indices)[2]);
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.z;
+	else
+		dual += m * weights.z;
+	m = operator[](((unsigned char*)&indices)[3]);
+	dq = m[0];
+	if (dq0.dot(dq) < 0)
+		dual -= m * weights.w;
+	else
+		dual += m * weights.w;
+	float length = dual[0].magnitude();
+	dual = dual / length;
+	return dual;
+}
+
+
+Vector3 TransformList::TransformVertexWithDualQuaternionList(const Vector3 & position, DWORD indices, const Vector4 & weights) const
+{
+	Matrix4 dual = BuildSkinnedDualQuaternion(indices, weights);
+	Vector3 outPosition = position + dual[0].xyz.cross(dual[0].xyz.cross(position) + position * dual[0].w) * 2;
+	Vector3 translation = (dual[1].xyz * dual[0].w - dual[0].xyz * dual[1].w + dual[0].xyz.cross(dual[1].xyz)) * 2;
+	outPosition += translation;
+	return outPosition;
+}
+
 Plane Plane::NormalDistance(const Vector3 & normal, float distance)
 {
 	_ASSERT(IS_NORMALIZED(normal));
@@ -170,7 +240,7 @@ Plane Plane::NormalDistance(const Vector3 & normal, float distance)
 
 Ray Ray::transform(const Matrix4 & m) const
 {
-	return Ray(p.transformCoord(m), d.transformNormal(m));
+	return Ray(p.transformCoord(m), d.transformNormal(m).normalize());
 }
 
 Ray & Ray::transformSelf(const Matrix4 & m)
