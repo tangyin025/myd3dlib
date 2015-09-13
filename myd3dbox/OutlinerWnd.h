@@ -15,8 +15,6 @@ class CClassToolBar : public CMFCToolBar
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
-typedef boost::signals2::signal<void ()> EventSelectChanged;
-
 class COutlinerWnd : public CDockablePane
 {
 public:
