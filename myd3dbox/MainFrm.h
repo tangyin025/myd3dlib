@@ -22,6 +22,7 @@ public:
 	BOOL m_bEatAltUp;
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
+	EventSelectChanged m_EventSelectChanged;
 
 // Operations
 public:

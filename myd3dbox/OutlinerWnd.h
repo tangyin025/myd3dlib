@@ -65,8 +65,6 @@ public:
 
 	Data2HTreeMap m_Data2HTree;
 
-	EventSelectChanged m_EventSelectChanged;
-
 	BOOL CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
 	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD Type, void * pData, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 	void DeleteTreeItem(HTREEITEM hItem);

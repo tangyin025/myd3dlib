@@ -437,7 +437,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
-	CMainFrame::getSingleton().m_wndOutliner.m_EventSelectChanged.connect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
+	CMainFrame::getSingleton().m_EventSelectChanged.connect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
 
 	return 0;
 }
@@ -447,7 +447,7 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
-	CMainFrame::getSingleton().m_wndOutliner.m_EventSelectChanged.disconnect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
+	CMainFrame::getSingleton().m_EventSelectChanged.disconnect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
