@@ -62,6 +62,8 @@ protected:
 	bool OnRayTest(const my::Ray & ray);
 	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
 
+	void OnOutlinerSelectChanged(void);
+
 // Implementation
 public:
 	virtual ~CChildView();

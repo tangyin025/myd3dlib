@@ -309,6 +309,11 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	}
 }
 
+void CChildView::OnOutlinerSelectChanged(void)
+{
+	Invalidate();
+}
+
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
@@ -432,6 +437,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
+	CMainFrame::getSingleton().m_wndOutliner.m_EventSelectChanged.connect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
 
 	return 0;
 }
@@ -441,6 +447,7 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
+	CMainFrame::getSingleton().m_wndOutliner.m_EventSelectChanged.disconnect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)

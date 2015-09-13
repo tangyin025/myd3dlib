@@ -356,11 +356,7 @@ void COutlinerWnd::OnChangeVisualStyle()
 
 void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CDocument * pDoc = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->GetActiveDocument();
-	if (pDoc)
-	{
-		pDoc->UpdateAllViews(NULL);
-	}
+	m_EventSelectChanged();
 }
 
 void COutlinerWnd::OnMenuAddMeshComponent()

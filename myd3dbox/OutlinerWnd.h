@@ -15,6 +15,8 @@ class CClassToolBar : public CMFCToolBar
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
+typedef boost::signals2::signal<void ()> EventSelectChanged;
+
 class COutlinerWnd : public CDockablePane
 {
 public:
@@ -62,6 +64,8 @@ public:
 	typedef std::map<void *, HTREEITEM> Data2HTreeMap;
 
 	Data2HTreeMap m_Data2HTree;
+
+	EventSelectChanged m_EventSelectChanged;
 
 	BOOL CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
 	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD Type, void * pData, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
