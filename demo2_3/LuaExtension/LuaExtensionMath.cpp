@@ -240,8 +240,8 @@ void ExportMath2Lua(lua_State * L)
 			.def(constructor<float, float>())
 			.def(constructor<float, float, float, float, float, float>())
 			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
-			.def_readwrite("Min", &my::AABB::Min)
-			.def_readwrite("Max", &my::AABB::Max)
+			.def_readwrite("min", &my::AABB::m_min)
+			.def_readwrite("max", &my::AABB::m_max)
 
 		, class_<my::AABBComponent, my::AABB, boost::shared_ptr<my::AABBComponent> >("AABBComponent")
 

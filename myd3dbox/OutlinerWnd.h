@@ -15,6 +15,22 @@ class CClassToolBar : public CMFCToolBar
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 
+class CTC : public CMultiTree
+{
+#ifdef _DEBUG
+	//skip assert because of dual-mapped CWnd
+	//virtual void AssertValid() const {};
+	//if a non-CTC derived CTreeCtrl class is used
+	// then make sure the AssertValid doesn't call
+	// the base class
+#endif
+	//need access to m_pfnSuper
+	friend class COutlinerWnd;
+public:
+	DECLARE_MESSAGE_MAP()
+	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
+};
+
 class COutlinerWnd : public CDockablePane
 {
 public:
@@ -25,7 +41,7 @@ public:
 	void OnChangeVisualStyle();
 
 public:
-	CMultiTree m_wndClassView;
+	CTC m_wndClassView;
 	CImageList m_ClassViewImages;
 	CMenu m_ContextMenu;
 	CMenu m_ContextMenuAdd;

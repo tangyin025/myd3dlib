@@ -2697,49 +2697,101 @@ namespace my
 	class AABB
 	{
 	public:
-		Vector3 Min;
+		Vector3 m_min;
 
-		Vector3 Max;
+		Vector3 m_max;
 
 	public:
 		AABB(void)
-			//: Min(FLT_MIN,FLT_MIN,FLT_MIN)
-			//, Max(FLT_MAX,FLT_MAX,FLT_MAX)
+			//: m_min(-FLT_MAX,-FLT_MAX,-FLT_MAX)
+			//, m_max( FLT_MAX, FLT_MAX, FLT_MAX)
 		{
 		}
 
 		AABB(float minv, float maxv)
-			: Min(minv)
-			, Max(maxv)
+			: m_min(minv)
+			, m_max(maxv)
 		{
 		}
 
 		AABB(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: Min(minx, miny, minz)
-			, Max(maxx, maxy, maxz)
+			: m_min(minx, miny, minz)
+			, m_max(maxx, maxy, maxz)
 		{
 		}
 
 		AABB(const Vector3 & _Min, const Vector3 & _Max)
-			: Min(_Min)
-			, Max(_Max)
+			: m_min(_Min)
+			, m_max(_Max)
 		{
+		}
+
+		template <class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_min);
+			ar & BOOST_SERIALIZATION_NVP(m_max);
+		}
+
+	public:
+		AABB intersect(const AABB & rhs) const
+		{
+			return AABB(
+				Max(m_min.x, rhs.m_min.x),
+				Max(m_min.y, rhs.m_min.y),
+				Max(m_min.z, rhs.m_min.z),
+				Min(m_max.x, rhs.m_max.x),
+				Min(m_max.y, rhs.m_max.y),
+				Min(m_max.z, rhs.m_max.z));
+		}
+
+		AABB & intersectSelf(const AABB & rhs)
+		{
+			m_min.x = Max(m_min.x, rhs.m_min.x);
+			m_min.y = Max(m_min.y, rhs.m_min.y);
+			m_min.z = Max(m_min.z, rhs.m_min.z);
+			m_max.x = Min(m_max.x, rhs.m_max.x);
+			m_max.y = Min(m_max.y, rhs.m_max.y);
+			m_max.z = Min(m_max.z, rhs.m_max.z);
+			return *this;
+		}
+
+		AABB Union(const AABB & rhs) const
+		{
+			return AABB(
+				Min(m_min.x, rhs.m_min.x),
+				Min(m_min.y, rhs.m_min.y),
+				Min(m_min.z, rhs.m_min.z),
+				Max(m_max.x, rhs.m_max.x),
+				Max(m_max.y, rhs.m_max.y),
+				Max(m_max.z, rhs.m_max.z));
+		}
+
+		AABB & unionSelf(const AABB & rhs)
+		{
+			m_min.x = Min(m_min.x, rhs.m_min.x);
+			m_min.y = Min(m_min.y, rhs.m_min.y);
+			m_min.z = Min(m_min.z, rhs.m_min.z);
+			m_max.x = Max(m_max.x, rhs.m_max.x);
+			m_max.y = Max(m_max.y, rhs.m_max.y);
+			m_max.z = Max(m_max.z, rhs.m_max.z);
+			return *this;
 		}
 
 		Vector3 p(const Vector3 & normal) const
 		{
 			return Vector3(
-				normal.x > 0 ? Max.x : Min.x,
-				normal.y > 0 ? Max.y : Min.y,
-				normal.z > 0 ? Max.z : Min.z);
+				normal.x > 0 ? m_max.x : m_min.x,
+				normal.y > 0 ? m_max.y : m_min.y,
+				normal.z > 0 ? m_max.z : m_min.z);
 		}
 
 		Vector3 n(const Vector3 & normal) const
 		{
 			return Vector3(
-				normal.x > 0 ? Min.x : Max.x,
-				normal.y > 0 ? Min.y : Max.y,
-				normal.z > 0 ? Min.z : Max.z);
+				normal.x > 0 ? m_min.x : m_max.x,
+				normal.y > 0 ? m_min.y : m_max.y,
+				normal.z > 0 ? m_min.z : m_max.z);
 		}
 
 		AABB transform(const Matrix4 & m) const;

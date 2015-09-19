@@ -107,30 +107,30 @@ namespace my
 
 		OctNode(const AABB & aabb, float MinBlock)
 			: OctNodeBase(aabb)
-			, m_Half((aabb.Min[Offset] + aabb.Max[Offset]) * 0.5f)
+			, m_Half((aabb.m_min[Offset] + aabb.m_max[Offset]) * 0.5f)
 			, m_MinBlock(MinBlock)
 		{
 		}
 
 		void AddComponent(AABBComponentPtr comp, float threshold = 0.1f)
 		{
-			if (comp->m_aabb.Max[Offset] < m_Half + threshold && m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
+			if (comp->m_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
-					Vector3 _Max = m_aabb.Max;
+					Vector3 _Max = m_aabb.m_max;
 					_Max[Offset] = m_Half;
-					m_Childs[0].reset(new ChildOctNode(m_aabb.Min, _Max, m_MinBlock));
+					m_Childs[0].reset(new ChildOctNode(m_aabb.m_min, _Max, m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(comp, threshold);
 			}
-			else if (comp->m_aabb.Min[Offset] > m_Half - threshold &&  m_aabb.Max[Offset] - m_aabb.Min[Offset] > m_MinBlock)
+			else if (comp->m_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
-					Vector3 _Min = m_aabb.Min;
+					Vector3 _Min = m_aabb.m_min;
 					_Min[Offset] = m_Half;
-					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.Max, m_MinBlock));
+					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.m_max, m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(comp, threshold);
 			}

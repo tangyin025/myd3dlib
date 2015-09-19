@@ -35,14 +35,14 @@ void DrawHelper::PushLine(const Vector3 & v0, const Vector3 & v1, D3DCOLOR Color
 void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
 {
 	Vector3 v[8] = {
-		Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z),
-		Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z),
-		Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z),
-		Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z),
-		Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z),
-		Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z),
-		Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z),
-		Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z),
+		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z),
+		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z),
+		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z),
+		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z),
+		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z),
+		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z),
+		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z),
+		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z),
 	};
 	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
 	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);
@@ -52,14 +52,14 @@ void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
 void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform)
 {
 	Vector3 v[8] = {
-		Vector3(aabb.Min.x, aabb.Min.y, aabb.Min.z).transformCoord(Transform),
-		Vector3(aabb.Min.x, aabb.Min.y, aabb.Max.z).transformCoord(Transform),
-		Vector3(aabb.Min.x, aabb.Max.y, aabb.Max.z).transformCoord(Transform),
-		Vector3(aabb.Min.x, aabb.Max.y, aabb.Min.z).transformCoord(Transform),
-		Vector3(aabb.Max.x, aabb.Min.y, aabb.Min.z).transformCoord(Transform),
-		Vector3(aabb.Max.x, aabb.Min.y, aabb.Max.z).transformCoord(Transform),
-		Vector3(aabb.Max.x, aabb.Max.y, aabb.Max.z).transformCoord(Transform),
-		Vector3(aabb.Max.x, aabb.Max.y, aabb.Min.z).transformCoord(Transform),
+		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z).transformCoord(Transform),
+		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z).transformCoord(Transform),
+		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z).transformCoord(Transform),
+		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z).transformCoord(Transform),
+		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z).transformCoord(Transform),
+		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z).transformCoord(Transform),
+		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z).transformCoord(Transform),
+		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z).transformCoord(Transform),
 	};
 	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
 	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);

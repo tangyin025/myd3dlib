@@ -11,32 +11,35 @@
 #define ID_MENU_START				(40000L)
 #define ID_MENU_ADD_MESH_COMPONENT	(40001L)
 
-class CClassViewMenuButton : public CMFCToolBarMenuButton
+BEGIN_MESSAGE_MAP(CTC, CMultiTree)
+	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CTC::OnNMCustomdraw)
+END_MESSAGE_MAP()
+
+void CTC::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	friend class COutlinerWnd;
+	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
+    NMTVCUSTOMDRAW *pcd = (NMTVCUSTOMDRAW   *)pNMHDR;
+    switch ( pcd->nmcd.dwDrawStage )
+    {
+    case CDDS_PREPAINT: 
+        *pResult = CDRF_NOTIFYITEMDRAW;     
+        break;
 
-	DECLARE_SERIAL(CClassViewMenuButton)
+    case CDDS_ITEMPREPAINT : 
+        {
+            HTREEITEM   hItem = (HTREEITEM)pcd->nmcd.dwItemSpec;
 
-public:
-	CClassViewMenuButton(HMENU hMenu = NULL) : CMFCToolBarMenuButton((UINT)-1, hMenu, -1)
-	{
-	}
+            if ( IsSelected(hItem) )
+            {
+                pcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);    
+                pcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
+            }
 
-	virtual void OnDraw(CDC* pDC, const CRect& rect, CMFCToolBarImages* pImages, BOOL bHorz = TRUE,
-		BOOL bCustomizeMode = FALSE, BOOL bHighlight = FALSE, BOOL bDrawBorder = TRUE, BOOL bGrayDisabledButtons = TRUE)
-	{
-		pImages = CMFCToolBar::GetImages();
-
-		CAfxDrawState ds;
-		pImages->PrepareDrawImage(ds);
-
-		CMFCToolBarMenuButton::OnDraw(pDC, rect, pImages, bHorz, bCustomizeMode, bHighlight, bDrawBorder, bGrayDisabledButtons);
-
-		pImages->EndDrawImage(ds);
-	}
-};
-
-IMPLEMENT_SERIAL(CClassViewMenuButton, CMFCToolBarMenuButton, 1)
+            *pResult = CDRF_DODEFAULT;// do not set *pResult = CDRF_SKIPDEFAULT
+            break;
+        }
+    }
+}
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

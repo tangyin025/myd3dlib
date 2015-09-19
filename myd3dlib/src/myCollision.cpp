@@ -361,14 +361,14 @@ namespace my
 		{
 			if (fabs(dir[i]) < EPSILON_E6)
 			{
-				if (pos[i] < aabb.Min[i] || pos[i] > aabb.Max[i])
+				if (pos[i] < aabb.m_min[i] || pos[i] > aabb.m_max[i])
 				{
 					return RayResult(false, FLT_MAX);
 				}
 			}
 
-			float t0 = (aabb.Min[i] - pos[i]) / dir[i];
-			float t1 = (aabb.Max[i] - pos[i]) / dir[i];
+			float t0 = (aabb.m_min[i] - pos[i]) / dir[i];
+			float t1 = (aabb.m_max[i] - pos[i]) / dir[i];
 
 			tNear = Max(tNear, Min(t0, t1));
 			tFar = Min(tFar, Max(t0, t1));

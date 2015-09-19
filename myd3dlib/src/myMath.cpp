@@ -254,44 +254,44 @@ AABB AABB::transform(const Matrix4 & m) const
 {
 	Vector3 v[] =
 	{
-		Vector3(Min.x,Min.y,Min.z).transformCoord(m),
-		Vector3(Min.x,Min.y,Max.z).transformCoord(m),
-		Vector3(Min.x,Max.y,Min.z).transformCoord(m),
-		Vector3(Min.x,Max.y,Max.z).transformCoord(m),
-		Vector3(Max.x,Min.y,Min.z).transformCoord(m),
-		Vector3(Max.x,Min.y,Max.z).transformCoord(m),
-		Vector3(Max.x,Max.y,Min.z).transformCoord(m),
-		Vector3(Max.x,Max.y,Max.z).transformCoord(m)
+		Vector3(m_min.x,m_min.y,m_min.z).transformCoord(m),
+		Vector3(m_min.x,m_min.y,m_max.z).transformCoord(m),
+		Vector3(m_min.x,m_max.y,m_min.z).transformCoord(m),
+		Vector3(m_min.x,m_max.y,m_max.z).transformCoord(m),
+		Vector3(m_max.x,m_min.y,m_min.z).transformCoord(m),
+		Vector3(m_max.x,m_min.y,m_max.z).transformCoord(m),
+		Vector3(m_max.x,m_max.y,m_min.z).transformCoord(m),
+		Vector3(m_max.x,m_max.y,m_max.z).transformCoord(m)
 	};
 
 	AABB ret(v[0], v[0]);
 	for (unsigned int i = 1; i < _countof(v); i++)
 	{
-		if (v[i].x < ret.Min.x)
+		if (v[i].x < ret.m_min.x)
 		{
-			ret.Min.x = v[i].x;
+			ret.m_min.x = v[i].x;
 		}
-		else if (v[i].x > ret.Max.x)
+		else if (v[i].x > ret.m_max.x)
 		{
-			ret.Max.x = v[i].x;
-		}
-
-		if (v[i].y < ret.Min.y)
-		{
-			ret.Min.y = v[i].y;
-		}
-		else if (v[i].y > ret.Max.y)
-		{
-			ret.Max.y = v[i].y;
+			ret.m_max.x = v[i].x;
 		}
 
-		if (v[i].z < ret.Min.z)
+		if (v[i].y < ret.m_min.y)
 		{
-			ret.Min.z = v[i].z;
+			ret.m_min.y = v[i].y;
 		}
-		else if (v[i].z > ret.Max.z)
+		else if (v[i].y > ret.m_max.y)
 		{
-			ret.Max.z = v[i].z;
+			ret.m_max.y = v[i].y;
+		}
+
+		if (v[i].z < ret.m_min.z)
+		{
+			ret.m_min.z = v[i].z;
+		}
+		else if (v[i].z > ret.m_max.z)
+		{
+			ret.m_max.z = v[i].z;
 		}
 	}
 	return ret;

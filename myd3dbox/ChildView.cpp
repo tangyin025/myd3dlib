@@ -248,6 +248,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	my::AABB box(FLT_MAX,-FLT_MAX);
 	HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetFirstSelectedItem();
 	for (; hItem; hItem = pFrame->m_wndOutliner.m_wndClassView.GetNextSelectedItem(hItem))
 	{
@@ -270,7 +271,11 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 			}
 			break;
 		}
-		PushWireAABB(cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
+		box.unionSelf(cmp->m_aabb);
+	}
+	if (box.m_min.x < box.m_max.x)
+	{
+		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
 	}
 }
 
