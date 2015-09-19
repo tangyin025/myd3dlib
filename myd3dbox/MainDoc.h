@@ -17,7 +17,7 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	ActorPtrList m_Actors;
+	ActorPtr m_Actor;
 
 // Operations
 public:

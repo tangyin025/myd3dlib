@@ -204,10 +204,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DragableTreeCtrl.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MainApp.cpp"
 				>
 			</File>
@@ -217,6 +213,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\MltiTree.cpp"
 				>
 			</File>
 			<File
@@ -266,10 +266,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DragableTreeCtrl.h"
-				>
-			</File>
-			<File
 				RelativePath=".\MainApp.h"
 				>
 			</File>
@@ -279,6 +275,10 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
+				>
+			</File>
+			<File
+				RelativePath=".\MltiTree.h"
 				>
 			</File>
 			<File

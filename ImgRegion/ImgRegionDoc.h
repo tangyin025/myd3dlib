@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../myd3dbox/DragableTreeCtrl.h"
+#include "DragableTreeCtrl.h"
 #include "PropertiesWnd.h"
 
 class Vector4i

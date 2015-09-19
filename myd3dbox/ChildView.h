@@ -43,6 +43,8 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	PivotController m_Pivot;
+	typedef std::multimap<float, Component *> SelCmpMap;
+	SelCmpMap m_SelCmpMap;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);

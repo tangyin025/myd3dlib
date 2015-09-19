@@ -1,7 +1,7 @@
 #pragma once
 
-#include "DragableTreeCtrl.h"
 #include "../demo2_3/Component/ActorComponent.h"
+#include "MltiTree.h"
 
 class Actor;
 
@@ -25,7 +25,7 @@ public:
 	void OnChangeVisualStyle();
 
 public:
-	CDragableTreeCtrl m_wndClassView;
+	CMultiTree m_wndClassView;
 	CImageList m_ClassViewImages;
 	CMenu m_ContextMenu;
 	CMenu m_ContextMenuAdd;
@@ -34,44 +34,22 @@ public:
 public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 
-	struct TreeItemData
-	{
-		DWORD Type;
-
-		void * Data;
-
-		TreeItemData(DWORD _Type, void * _Data)
-			: Type(_Type)
-			, Data(_Data)
-		{
-		}
-
-		template <typename T>
-		T * reinterpret_cast_data(void)
-		{
-			return reinterpret_cast<T*>(Data);
-		}
-	};
-
-	enum TreeItemType
-	{
-		TreeItemTypeActor,
-		TreeItemTypeComponent,
-	};
-
-	typedef std::map<void *, HTREEITEM> Data2HTreeMap;
+	typedef std::map<DWORD_PTR, HTREEITEM> Data2HTreeMap;
 
 	Data2HTreeMap m_Data2HTree;
 
-	BOOL CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
-	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD Type, void * pData, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+	//BOOL CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
+	HTREEITEM InsertTreeItem(LPCTSTR strItem, DWORD_PTR pData, int nImage, int nSelectedImage, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
 	void DeleteTreeItem(HTREEITEM hItem);
 	void DeleteAllTreeItems(void);
-	HTREEITEM MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
-	void InsertActor(Actor * actor, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
+	//HTREEITEM MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter);
 	void InsertComponent(Component * cmp, HTREEITEM hParent = TVI_ROOT, HTREEITEM hInsertAfter = TVI_LAST);
-	TreeItemData * GetTreeItemData(HTREEITEM hItem);
-	HTREEITEM GetTreeItemByData(void * pData);
+	template <typename T>
+	T GetTreeItemData(HTREEITEM hItem)
+	{
+		return reinterpret_cast<T>(m_wndClassView.GetItemData(hItem));
+	}
+	HTREEITEM GetTreeItemByData(DWORD_PTR pData);
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

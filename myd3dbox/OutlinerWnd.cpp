@@ -72,7 +72,7 @@ int COutlinerWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	rectDummy.SetRectEmpty();
 
 	// Create views:
-	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
+	const DWORD dwViewStyle = WS_CHILD | WS_VISIBLE | TVS_HASLINES | TVS_LINESATROOT | TVS_HASBUTTONS | TVS_SHOWSELALWAYS | WS_CLIPSIBLINGS | WS_CLIPCHILDREN;
 
 	if (!m_wndClassView.Create(dwViewStyle, rectDummy, this, 2))
 	{
@@ -141,22 +141,22 @@ void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 	if (!hItem)
 		return;
 
-	TreeItemData * pItemData = GetTreeItemData(hItem);
-	ASSERT(pItemData);
+	//TreeItemData * pItemData = GetTreeItemData(hItem);
+	//ASSERT(pItemData);
 
-	if (m_ContextMenu.m_hMenu)
-		m_ContextMenu.DestroyMenu();
+	//if (m_ContextMenu.m_hMenu)
+	//	m_ContextMenu.DestroyMenu();
 
-	if (m_ContextMenuAdd.m_hMenu)
-		m_ContextMenuAdd.DestroyMenu();
+	//if (m_ContextMenuAdd.m_hMenu)
+	//	m_ContextMenuAdd.DestroyMenu();
 
-	m_ContextMenu.CreatePopupMenu();
-	if (pItemData->Type == TreeItemTypeActor)
-	{
-		m_ContextMenuAdd.CreatePopupMenu();
-		m_ContextMenuAdd.AppendMenu(MF_STRING, ID_MENU_ADD_MESH_COMPONENT, _T("Mesh Component"));
-		m_ContextMenu.AppendMenu(MF_POPUP, (UINT_PTR)m_ContextMenuAdd.operator HMENU(), _T("Add"));
-	}
+	//m_ContextMenu.CreatePopupMenu();
+	//if (pItemData->Type == TreeItemTypeActor)
+	//{
+	//	m_ContextMenuAdd.CreatePopupMenu();
+	//	m_ContextMenuAdd.AppendMenu(MF_STRING, ID_MENU_ADD_MESH_COMPONENT, _T("Mesh Component"));
+	//	m_ContextMenu.AppendMenu(MF_POPUP, (UINT_PTR)m_ContextMenuAdd.operator HMENU(), _T("Add"));
+	//}
 
 	if(m_ContextMenu.GetMenuItemCount() == 0)
 	{
@@ -181,23 +181,23 @@ void COutlinerWnd::AdjustLayout()
 	int cyTlb = 0;
 	m_wndClassView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
 }
+//
+//BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
+//{
+//	if(hParent == hMoveItem || hInsertAfter == hMoveItem || m_wndClassView.FindTreeChildItem(hMoveItem, hParent))
+//	{
+//		return FALSE;
+//	}
+//
+//	return TRUE;
+//}
 
-BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	if(hParent == hMoveItem || hInsertAfter == hMoveItem || m_wndClassView.FindTreeChildItem(hMoveItem, hParent))
-	{
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD Type, void * pData, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
+HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD_PTR pData, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
 	ASSERT(m_Data2HTree.find(pData) == m_Data2HTree.end());
 	HTREEITEM hItem = m_wndClassView.InsertItem(lpszItem, nImage, nSelectedImage, hParent, hInsertAfter);
 	ASSERT(hItem);
-	m_wndClassView.SetItemData(hItem, (DWORD_PTR)(new TreeItemData(Type, pData)));
+	m_wndClassView.SetItemData(hItem, pData);
 	m_Data2HTree.insert(std::make_pair(pData, hItem));
 	return hItem;
 }
@@ -205,9 +205,9 @@ HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD Type, void * pDat
 void COutlinerWnd::DeleteTreeItem(HTREEITEM hItem)
 {
 	ASSERT(hItem);
-	TreeItemData * pItemData = (TreeItemData *)m_wndClassView.GetItemData(hItem);
-	m_Data2HTree.erase(pItemData->Data);
-	delete pItemData;
+	DWORD_PTR pData = m_wndClassView.GetItemData(hItem);
+	ASSERT(pData);
+	m_Data2HTree.erase(pData);
 
 	HTREEITEM hNextChild = NULL;
 	for(HTREEITEM hChild = m_wndClassView.GetChildItem(hItem); NULL != hChild; hChild = hNextChild)
@@ -229,71 +229,37 @@ void COutlinerWnd::DeleteAllTreeItems(void)
 
 	ASSERT(m_Data2HTree.empty());
 }
-
-HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	if(!CanTreeItemMove(hParent, hInsertAfter, hMoveItem))
-	{
-		return NULL;
-	}
-
-	int nImage, nSelectedImage;
-	m_wndClassView.GetItemImage(hMoveItem, nImage, nSelectedImage);
-	HTREEITEM hItem = m_wndClassView.InsertItem(m_wndClassView.GetItemText(hMoveItem), nImage, nSelectedImage, hParent, hInsertAfter);
-	m_wndClassView.SetItemData(hItem, m_wndClassView.GetItemData(hMoveItem));
-
-	HTREEITEM hNextOtherChild = NULL;
-	HTREEITEM hChild = TVI_LAST;
-	for(HTREEITEM hOtherChild = m_wndClassView.GetChildItem(hMoveItem); hOtherChild; hOtherChild = hNextOtherChild)
-	{
-		hNextOtherChild = m_wndClassView.GetNextSiblingItem(hOtherChild);
-		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
-	}
-
-	m_wndClassView.DeleteItem(hMoveItem);
-	return hItem;
-}
-
-void COutlinerWnd::InsertActor(Actor * actor, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	HTREEITEM hItem = InsertTreeItem(_T("actor"), TreeItemTypeActor, actor, 0, 0, hParent, hInsertAfter);
-
-	struct CallBack : public my::IQueryCallback
-	{
-		COutlinerWnd * m_wnd;
-
-		HTREEITEM m_hParent;
-
-		HTREEITEM m_hInsertAfter;
-
-		CallBack(COutlinerWnd * wnd, HTREEITEM hParent, HTREEITEM hInsertAfter)
-			: m_wnd(wnd)
-			, m_hParent(hParent)
-			, m_hInsertAfter(hInsertAfter)
-		{
-		}
-
-		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Component *>(comp));
-			m_wnd->InsertComponent(static_cast<Component *>(comp), m_hParent, m_hInsertAfter);
-		}
-	};
-
-	actor->QueryComponentAll(&CallBack(this, hItem, TVI_LAST));
-}
+//
+//HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
+//{
+//	if(!CanTreeItemMove(hParent, hInsertAfter, hMoveItem))
+//	{
+//		return NULL;
+//	}
+//
+//	int nImage, nSelectedImage;
+//	m_wndClassView.GetItemImage(hMoveItem, nImage, nSelectedImage);
+//	HTREEITEM hItem = m_wndClassView.InsertItem(m_wndClassView.GetItemText(hMoveItem), nImage, nSelectedImage, hParent, hInsertAfter);
+//	m_wndClassView.SetItemData(hItem, m_wndClassView.GetItemData(hMoveItem));
+//
+//	HTREEITEM hNextOtherChild = NULL;
+//	HTREEITEM hChild = TVI_LAST;
+//	for(HTREEITEM hOtherChild = m_wndClassView.GetChildItem(hMoveItem); hOtherChild; hOtherChild = hNextOtherChild)
+//	{
+//		hNextOtherChild = m_wndClassView.GetNextSiblingItem(hOtherChild);
+//		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
+//	}
+//
+//	m_wndClassView.DeleteItem(hMoveItem);
+//	return hItem;
+//}
 
 void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
 {
-	HTREEITEM hItem = InsertTreeItem(_T("component"), TreeItemTypeComponent, cmp, 1, 1, hParent, hInsertAfter);
+	HTREEITEM hItem = InsertTreeItem(_T("component"), (DWORD_PTR)cmp, 1, 1, hParent, hInsertAfter);
 }
 
-COutlinerWnd::TreeItemData * COutlinerWnd::GetTreeItemData(HTREEITEM hItem)
-{
-	return reinterpret_cast<TreeItemData *>(m_wndClassView.GetItemData(hItem));
-}
-
-HTREEITEM COutlinerWnd::GetTreeItemByData(void * pData)
+HTREEITEM COutlinerWnd::GetTreeItemByData(DWORD_PTR pData)
 {
 	Data2HTreeMap::const_iterator item_iter = m_Data2HTree.find(pData);
 	if (item_iter != m_Data2HTree.end())

@@ -200,23 +200,20 @@ void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMa
 {
 	CMainDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	ActorPtrList::iterator act_iter = pDoc->m_Actors.begin();
-	for (; act_iter != pDoc->m_Actors.end(); act_iter++)
-	{
-		(*act_iter)->QueryComponent(frustum, &theApp, PassMask);
-	}
+	pDoc->m_Actor->QueryComponent(frustum, &theApp, PassMask);
 }
 
 bool CChildView::OnRayTest(const my::Ray & ray)
 {
 	struct CallBack : public my::IQueryCallback
 	{
-		std::multimap<float, Component *> m_ComponentMap;
+		CChildView::SelCmpMap & m_SelCmpMap;
 
 		const my::Ray & m_Ray;
 
-		CallBack(const my::Ray & ray)
-			: m_Ray(ray)
+		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray)
+			: m_SelCmpMap(cmp_map)
+			, m_Ray(ray)
 		{
 		}
 
@@ -228,38 +225,21 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 				my::RayResult res = cmp->RayTest(m_Ray);
 				if (res.first)
 				{
-					m_ComponentMap.insert(std::make_pair(res.second, cmp));
+					m_SelCmpMap.insert(std::make_pair(res.second, cmp));
 				}
 			}
 		}
 	};
 
-	CallBack cb(ray);
-
 	my::Frustum frustum = my::Frustum::ExtractMatrix(m_Camera->m_ViewProj);
+
+	m_SelCmpMap.clear();
 
 	CMainDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	ActorPtrList::iterator act_iter = pDoc->m_Actors.begin();
-	for (; act_iter != pDoc->m_Actors.end(); act_iter++)
-	{
-		boost::dynamic_pointer_cast<my::OctRoot>(*act_iter)->QueryComponent(frustum, &cb);
-	}
+	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (!cb.m_ComponentMap.empty())
-	{
-		HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData(cb.m_ComponentMap.begin()->second);
-		if (hItem)
-		{
-			pFrame->m_wndOutliner.m_wndClassView.SelectItem(hItem);
-			return true;
-		}
-	}
-
-	pFrame->m_wndOutliner.m_wndClassView.SelectItem(NULL);
-	return false;
+	return !m_SelCmpMap.empty();
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
@@ -268,44 +248,29 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetSelectedItem();
-	for (; hItem; hItem = TreeView_GetNextSelected(pFrame->m_wndOutliner.m_wndClassView.GetSafeHwnd(), hItem))
+	HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetFirstSelectedItem();
+	for (; hItem; hItem = pFrame->m_wndOutliner.m_wndClassView.GetNextSelectedItem(hItem))
 	{
-		COutlinerWnd::TreeItemData * pItemData = pFrame->m_wndOutliner.GetTreeItemData(hItem);
-		ASSERT(pItemData);
-		switch (pItemData->Type)
+		Component * cmp = pFrame->m_wndOutliner.GetTreeItemData<Component *>(hItem);
+		ASSERT(cmp);
+		switch (cmp->m_Type)
 		{
-		case COutlinerWnd::TreeItemTypeComponent:
+		case Component::ComponentTypeMesh:
 			{
-				Component * cmp = pItemData->reinterpret_cast_data<Component>();
-				switch (cmp->m_Type)
+				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+				UINT passes = theApp.m_SimpleSample->Begin();
+				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 				{
-				case Component::ComponentTypeMesh:
-					{
-						MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-						UINT passes = theApp.m_SimpleSample->Begin();
-						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-						{
-							theApp.m_SimpleSample->BeginPass(0);
-							mesh_cmp->m_Mesh->DrawSubset(i);
-							theApp.m_SimpleSample->EndPass();
-						}
-						theApp.m_SimpleSample->End();
-					}
-					break;
+					theApp.m_SimpleSample->BeginPass(0);
+					mesh_cmp->m_Mesh->DrawSubset(i);
+					theApp.m_SimpleSample->EndPass();
 				}
-				PushWireAABB(cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
-			}
-			break;
-
-		case COutlinerWnd::TreeItemTypeActor:
-			{
-				Actor * actor = pItemData->reinterpret_cast_data<Actor>();
-				PushWireAABB(actor->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
+				theApp.m_SimpleSample->End();
 			}
 			break;
 		}
+		PushWireAABB(cmp->m_aabb, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
 	}
 }
 
@@ -460,10 +425,19 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		return;
 	}
 
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	if (OnRayTest(ray))
 	{
-		Invalidate();
-		return;
+		HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)m_SelCmpMap.begin()->second);
+		if (hItem)
+		{
+			pFrame->m_wndOutliner.m_wndClassView.SelectRange(hItem, hItem, !(nFlags & (MK_CONTROL|MK_SHIFT)));
+		}
+	}
+	else
+	{
+		pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
 	}
 
 	Invalidate();
