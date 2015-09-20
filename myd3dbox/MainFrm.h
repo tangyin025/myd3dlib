@@ -23,6 +23,7 @@ public:
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
 	boost::signals2::signal<void ()> m_EventSelectChanged;
+	CRectTracker m_Tracker;
 
 // Operations
 public:

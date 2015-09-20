@@ -211,9 +211,12 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 		const my::Ray & m_Ray;
 
-		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray)
+		const CRect & m_Rect;
+
+		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray, const CRect & rect)
 			: m_SelCmpMap(cmp_map)
 			, m_Ray(ray)
+			, m_Rect(rect)
 		{
 		}
 
@@ -222,10 +225,17 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 			Component * cmp = dynamic_cast<Component *>(comp);
 			if (cmp)
 			{
-				my::RayResult res = cmp->RayTest(m_Ray);
-				if (res.first)
+				if (m_Rect.IsRectEmpty())
 				{
-					m_SelCmpMap.insert(std::make_pair(res.second, cmp));
+					my::RayResult res = cmp->RayTest(m_Ray);
+					if (res.first)
+					{
+						m_SelCmpMap.insert(std::make_pair(res.second, cmp));
+					}
+				}
+				else
+				{
+					TRACE("select rect %d,%d,%d,%d", m_Rect.left, m_Rect.top, m_Rect.right, m_Rect.bottom);
 				}
 			}
 		}
@@ -237,7 +247,7 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	CMainDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray, CMainFrame::getSingleton().m_Tracker.m_rect));
 
 	return !m_SelCmpMap.empty();
 }
@@ -432,6 +442,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
+	pFrame->m_Tracker.m_rect.NormalizeRect();
 	if (OnRayTest(ray))
 	{
 		HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)m_SelCmpMap.begin()->second);
