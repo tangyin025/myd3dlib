@@ -410,6 +410,16 @@ namespace my
 			DWORD NumFaces,
 			D3DVertexElementSet & VertexElems);
 
+		static bool FrustumTest(
+			const Frustum & frustum,
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			D3DVertexElementSet & VertexElems);
+
 		UINT GetMaterialNum(void) const;
 
 		const std::string & GetMaterialName(DWORD AttribId) const;

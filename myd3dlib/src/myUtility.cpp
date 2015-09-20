@@ -168,16 +168,16 @@ Ray BaseCamera::OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, c
 	return Ray(At, dir);
 }
 
-Frustum BaseCamera::RectangleToFrustum(const Matrix4 & InverseViewProj, const my::Rectangle & rect, const Vector2 & pt, const Vector2 & dim)
+Frustum BaseCamera::RectangleToFrustum(const Matrix4 & InverseViewProj, const my::Rectangle & rc, const Vector2 & dim)
 {
-	Vector3 nlt = ScreenToWorld(InverseViewProj, rect.LeftTop(), dim, -1.0f);
-	Vector3 nrt = ScreenToWorld(InverseViewProj, rect.RightTop(), dim, -1.0f);
-	Vector3 nlb = ScreenToWorld(InverseViewProj, rect.LeftBottom(), dim, -1.0f);
-	Vector3 nrb = ScreenToWorld(InverseViewProj, rect.RightBottom(), dim, -1.0f);
-	Vector3 flt = ScreenToWorld(InverseViewProj, rect.LeftTop(), dim, 1.0f);
-	Vector3 frt = ScreenToWorld(InverseViewProj, rect.RightTop(), dim, 1.0f);
-	Vector3 flb = ScreenToWorld(InverseViewProj, rect.LeftBottom(), dim, 1.0f);
-	Vector3 frb = ScreenToWorld(InverseViewProj, rect.RightBottom(), dim, 1.0f);
+	Vector3 nlt = ScreenToWorld(InverseViewProj, rc.LeftTop(), dim, -1.0f);
+	Vector3 nrt = ScreenToWorld(InverseViewProj, rc.RightTop(), dim, -1.0f);
+	Vector3 nlb = ScreenToWorld(InverseViewProj, rc.LeftBottom(), dim, -1.0f);
+	Vector3 nrb = ScreenToWorld(InverseViewProj, rc.RightBottom(), dim, -1.0f);
+	Vector3 flt = ScreenToWorld(InverseViewProj, rc.LeftTop(), dim, 1.0f);
+	Vector3 frt = ScreenToWorld(InverseViewProj, rc.RightTop(), dim, 1.0f);
+	Vector3 flb = ScreenToWorld(InverseViewProj, rc.LeftBottom(), dim, 1.0f);
+	Vector3 frb = ScreenToWorld(InverseViewProj, rc.RightBottom(), dim, 1.0f);
 
 	return Frustum(
 		Plane::FromTriangle(nlt,flt,frt),
@@ -206,6 +206,11 @@ void OrthoCamera::OnFrameMove(
 Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return OrthoRay(m_InverseViewProj, m_View.column<2>().xyz, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+{
+	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void ModelViewerCamera::OnFrameMove(
@@ -337,6 +342,11 @@ LRESULT ModelViewerCamera::MsgProc(
 Ray ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+Frustum ModelViewerCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+{
+	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void FirstPersonCamera::OnFrameMove(
@@ -475,6 +485,11 @@ LRESULT FirstPersonCamera::MsgProc(
 Ray FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
 	return PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+Frustum FirstPersonCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+{
+	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)

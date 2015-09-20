@@ -148,13 +148,18 @@ namespace my
 			return Ray(Vector3::zero, Vector3::unitX);
 		}
 
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim)
+		{
+			return Frustum(Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0));
+		}
+
 		static Vector3 ScreenToWorld(const Matrix4 & InverseViewProj, const Vector2 & pt, const Vector2 & dim, float z);
 
 		static Ray PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
 
 		static Ray OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, const Vector2 & pt, const Vector2 & dim);
 
-		static Frustum RectangleToFrustum(const Matrix4 & InverseViewProj, const Rectangle & rect, const Vector2 & pt, const Vector2 & dim);
+		static Frustum RectangleToFrustum(const Matrix4 & InverseViewProj, const Rectangle & rc, const Vector2 & dim);
 	};
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
@@ -190,6 +195,8 @@ namespace my
 			float fElapsedTime);
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
 	};
 
 	class Camera
@@ -263,6 +270,8 @@ namespace my
 			bool * pbNoFurtherProcessing);
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
 	};
 
 	class FirstPersonCamera
@@ -298,6 +307,8 @@ namespace my
 			bool * pbNoFurtherProcessing);
 
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
 	};
 
 	class InputMgr

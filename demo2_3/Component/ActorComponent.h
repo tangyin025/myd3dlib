@@ -43,6 +43,11 @@ public:
 	{
 		return my::RayResult(false, FLT_MAX);
 	}
+
+	virtual bool FrustumTest(const my::Frustum & frustum) const
+	{
+		return false;
+	}
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -89,6 +94,8 @@ public:
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
 	virtual my::RayResult RayTest(const my::Ray & ray) const;
+
+	virtual bool FrustumTest(const my::Frustum & frustum) const;
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

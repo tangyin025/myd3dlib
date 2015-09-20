@@ -211,12 +211,9 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 		const my::Ray & m_Ray;
 
-		const CRect & m_Rect;
-
-		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray, const CRect & rect)
+		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray)
 			: m_SelCmpMap(cmp_map)
 			, m_Ray(ray)
-			, m_Rect(rect)
 		{
 		}
 
@@ -225,17 +222,10 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 			Component * cmp = dynamic_cast<Component *>(comp);
 			if (cmp)
 			{
-				if (m_Rect.IsRectEmpty())
+				my::RayResult res = cmp->RayTest(m_Ray);
+				if (res.first)
 				{
-					my::RayResult res = cmp->RayTest(m_Ray);
-					if (res.first)
-					{
-						m_SelCmpMap.insert(std::make_pair(res.second, cmp));
-					}
-				}
-				else
-				{
-					TRACE("select rect %d,%d,%d,%d", m_Rect.left, m_Rect.top, m_Rect.right, m_Rect.bottom);
+					m_SelCmpMap.insert(std::make_pair(res.second, cmp));
 				}
 			}
 		}
@@ -247,7 +237,48 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	CMainDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
-	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray, CMainFrame::getSingleton().m_Tracker.m_rect));
+	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+
+	return !m_SelCmpMap.empty();
+}
+
+bool CChildView::OnFrustumTest(const my::Frustum & ftm)
+{
+	struct CallBack : public my::IQueryCallback
+	{
+		CChildView::SelCmpMap & m_SelCmpMap;
+
+		const my::Frustum & m_Ftm;
+
+		unsigned int id;
+
+		CallBack(CChildView::SelCmpMap & cmp_map, const my::Frustum & ftm)
+			: m_SelCmpMap(cmp_map)
+			, m_Ftm(ftm)
+			, id(0)
+		{
+		}
+
+		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+		{
+			Component * cmp = dynamic_cast<Component *>(comp);
+			if (cmp)
+			{
+				if (cmp->FrustumTest(m_Ftm))
+				{
+					m_SelCmpMap.insert(std::make_pair((float)id++, cmp));
+				}
+			}
+		}
+	};
+
+	my::Frustum frustum = my::Frustum::ExtractMatrix(m_Camera->m_ViewProj);
+
+	m_SelCmpMap.clear();
+
+	CMainDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
 
 	return !m_SelCmpMap.empty();
 }
@@ -444,20 +475,47 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	ASSERT_VALID(pFrame);
 	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
 	pFrame->m_Tracker.m_rect.NormalizeRect();
-	if (OnRayTest(ray))
-	{
-		HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)m_SelCmpMap.begin()->second);
-		if (hItem)
-		{
-			pFrame->m_wndOutliner.m_wndClassView.SelectRange(hItem, hItem, !(nFlags & (MK_CONTROL|MK_SHIFT)));
-		}
-	}
-	else
+
+	if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
 	{
 		pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
 	}
 
-	Invalidate();
+	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
+	{
+		my::Rectangle rc(pFrame->m_Tracker.m_rect.left, pFrame->m_Tracker.m_rect.top, pFrame->m_Tracker.m_rect.right, pFrame->m_Tracker.m_rect.bottom);
+		if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+		{
+			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
+			{
+				HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
+				if (hItem)
+				{
+					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
+				}
+			}
+		}
+	}
+	else
+	{
+		if (OnRayTest(ray))
+		{
+			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
+			if (hItem)
+			{
+				if (pFrame->m_wndOutliner.m_wndClassView.IsSelected(hItem))
+				{
+					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, 0, TVIS_SELECTED);
+				}
+				else
+				{
+					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
+				}
+			}
+		}
+	}
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
