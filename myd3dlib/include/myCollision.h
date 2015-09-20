@@ -497,10 +497,6 @@ namespace my
 			const CollisionBox & box0,
 			const CollisionBox & box1);
 
-		static Ray PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
-
-		static Ray OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, const Vector2 & pt, const Vector2 & dim);
-
 		static RayResult rayAndParallelPlane(const Vector3 & pos, const Vector3 & dir, size_t axis_i, float value);
 
 		static RayResult rayAndAABB(const Vector3 & pos, const Vector3 & dir, const AABB & aabb);
@@ -540,6 +536,7 @@ namespace my
 
 		enum IntersectionType
 		{
+			IntersectionTypeUnknown = 0,
 			IntersectionTypeOutside,
 			IntersectionTypeInside,
 			IntersectionTypeIntersect
@@ -548,6 +545,10 @@ namespace my
 		static IntersectionType IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum);
 
 		static IntersectionType IntersectSphereAndFrustum(const Vector3 & center, float radius, const Frustum & frustum);
+
+		static IntersectionType IntersectTriangleAndPlane(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Plane & plane);
+
+		static IntersectionType IntersectTriangleAndFrustum(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Frustum & frustum);
 	};
 
 	// /////////////////////////////////////////////////////////////////////////////////////

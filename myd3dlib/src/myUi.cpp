@@ -2,6 +2,7 @@
 #include "myUi.h"
 #include "myDxutApp.h"
 #include "myCollision.h"
+#include "myUtility.h"
 #include "ImeUi.h"
 #include "libc.h"
 
@@ -2269,7 +2270,7 @@ void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
 
 Ray DialogMgr::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return IntersectionTests::PerspectiveRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return BaseCamera::PerspectiveRay(m_InverseViewProj, m_ViewPosition, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 Vector2 DialogMgr::GetDlgViewport(void) const

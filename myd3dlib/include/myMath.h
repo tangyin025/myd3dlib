@@ -1110,6 +1110,41 @@ namespace my
 			return Vector2(l, t);
 		}
 
+		Vector2 LeftMiddle(void) const
+		{
+			return Vector2(l, Lerp(t,b,0.5f));
+		}
+
+		Vector2 LeftBottom(void) const
+		{
+			return Vector2(l, b);
+		}
+
+		Vector2 CenterTop(void) const
+		{
+			return Vector2(Lerp(l,r,0.5f), t);
+		}
+
+		Vector2 CenterMiddle(void) const
+		{
+			return Vector2(Lerp(l,r,0.5f), Lerp(t,b,0.5f));
+		}
+
+		Vector2 CenterBottom(void) const
+		{
+			return Vector2(Lerp(l,r,0.5f), b);
+		}
+
+		Vector2 RightTop(void) const
+		{
+			return Vector2(r, t);
+		}
+
+		Vector2 RightMiddle(void) const
+		{
+			return Vector2(r, Lerp(t,b,0.5f));
+		}
+
 		Vector2 RightBottom(void) const
 		{
 			return Vector2(r, b);
@@ -2590,6 +2625,10 @@ namespace my
 
 		static Plane NormalDistance(const Vector3 & normal, float distance);
 
+		static Plane NormalPosition(const Vector3 & normal, const Vector3 & pos);
+
+		static Plane FromTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2);
+
 		float magnitude(void) const
 		{
 			return sqrt(magnitudeSq());
@@ -2621,6 +2660,10 @@ namespace my
 		{
 			return a * pt.x + b * pt.y + c * pt.z + d;
 		}
+
+		Plane transform(const Matrix4 & InverseTranspose) const;
+
+		Plane & transformSelf(const Matrix4 & InverseTranspose);
 	};
 
 	class Ray
@@ -2692,6 +2735,10 @@ namespace my
 				Plane(m._13, m._23, m._33, m._43),
 				Plane(m._14 - m._13, m._24 - m._23, m._34 - m._33, m._44 - m._43));
 		}
+
+		Frustum transform(const Matrix4 & InverseTranspose) const;
+
+		Frustum & transformSelf(const Matrix4 & InverseTranspose);
 	};
 
 	class AABB

@@ -238,6 +238,30 @@ Plane Plane::NormalDistance(const Vector3 & normal, float distance)
 	return Plane(normal.x, normal.y, normal.z, -distance);
 }
 
+Plane Plane::NormalPosition(const Vector3 & normal, const Vector3 & pos)
+{
+	_ASSERT(IS_NORMALIZED(normal));
+
+	return NormalDistance(normal, pos.dot(normal));
+}
+
+Plane Plane::FromTriangle(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2)
+{
+	return NormalPosition((v1 - v0).cross(v2 - v0).normalize(), v0);
+}
+
+Plane Plane::transform(const Matrix4 & InverseTranspose) const
+{
+	Plane ret;
+	D3DXPlaneTransform((D3DXPLANE *)&ret, (D3DXPLANE *)this, (D3DXMATRIX *)&InverseTranspose);
+	return ret;
+}
+
+Plane & Plane::transformSelf(const Matrix4 & InverseTranspose)
+{
+	return *this = transform(InverseTranspose);
+}
+
 Ray Ray::transform(const Matrix4 & m) const
 {
 	return Ray(p.transformCoord(m), d.transformNormal(m).normalize());
@@ -247,6 +271,28 @@ Ray & Ray::transformSelf(const Matrix4 & m)
 {
 	p = p.transformCoord(m);
 	d = d.transformNormal(m);
+	return *this;
+}
+
+Frustum Frustum::transform(const Matrix4 & InverseTranspose) const
+{
+	return Frustum(
+		Up.transform(InverseTranspose),
+		Down.transform(InverseTranspose),
+		Left.transform(InverseTranspose),
+		Right.transform(InverseTranspose),
+		Near.transform(InverseTranspose),
+		Far.transform(InverseTranspose));
+}
+
+Frustum & Frustum::transformSelf(const Matrix4 & InverseTranspose)
+{
+	Up.transformSelf(InverseTranspose);
+	Down.transformSelf(InverseTranspose);
+	Left.transformSelf(InverseTranspose);
+	Right.transformSelf(InverseTranspose);
+	Near.transformSelf(InverseTranspose);
+	Far.transformSelf(InverseTranspose);
 	return *this;
 }
 
