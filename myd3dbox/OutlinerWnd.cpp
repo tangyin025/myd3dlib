@@ -224,13 +224,8 @@ void COutlinerWnd::DeleteTreeItem(HTREEITEM hItem)
 
 void COutlinerWnd::DeleteAllTreeItems(void)
 {
-	HTREEITEM hItem = m_wndClassView.GetRootItem();
-	for (; hItem; hItem = m_wndClassView.GetNextSiblingItem(hItem))
-	{
-		DeleteTreeItem(hItem);
-	}
-
-	ASSERT(m_Data2HTree.empty());
+	m_wndClassView.DeleteAllItems();
+	m_Data2HTree.clear();
 }
 //
 //HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)

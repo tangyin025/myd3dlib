@@ -8,6 +8,8 @@
 #include "../demo2_3/Component/RenderPipeline.h"
 #include "PivotController.h"
 
+class CMainDoc;
+
 class CChildView
 	: public CView
 	, public my::DialogMgr

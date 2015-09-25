@@ -49,7 +49,9 @@ CChildView::CChildView()
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
-	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
+	//m_Camera.reset(new my::OrthoCamera(sqrt(100*100*2.0f),1.0f,-1500,1500));
+	//boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
 }
 
@@ -437,7 +439,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		ResetD3DSwapChain();
-		boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Aspect = (float)m_SwapChainBufferDesc.Width / m_SwapChainBufferDesc.Height;
+		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }

@@ -153,6 +153,15 @@ namespace my
 			return Frustum(Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0));
 		}
 
+		virtual void OnViewportChanged(const Vector2 & Viewport)
+		{
+		}
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const
+		{
+			return 1;
+		}
+
 		static Vector3 ScreenToWorld(const Matrix4 & InverseViewProj, const Vector2 & pt, const Vector2 & dim, float z);
 
 		static Ray PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim);
@@ -170,9 +179,9 @@ namespace my
 	public:
 		Vector3 m_Eular;
 
-		float m_Width;
+		float m_Diagonal;
 
-		float m_Height;
+		float m_Aspect;
 
 		float m_Nz;
 
@@ -181,22 +190,34 @@ namespace my
 		ControlEvent EventAlign;
 
 	public:
-		OrthoCamera(float Width, float Height, float Nz, float Fz)
+		OrthoCamera(float Diagonal, float Aspect, float Nz, float Fz)
 			: m_Eular(0,0,0)
-			, m_Width(Width)
-			, m_Height(Height)
+			, m_Diagonal(Diagonal)
+			, m_Aspect(Aspect)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
 		{
+			_ASSERT(m_Aspect != 0);
 		}
 
 		virtual void OnFrameMove(
 			double fTime,
 			float fElapsedTime);
 
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing);
+
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+
+		virtual void OnViewportChanged(const Vector2 & Viewport);
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
 	class Camera
@@ -272,6 +293,10 @@ namespace my
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+
+		virtual void OnViewportChanged(const Vector2 & Viewport);
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
 	class FirstPersonCamera
@@ -309,6 +334,10 @@ namespace my
 		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
 
 		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+
+		virtual void OnViewportChanged(const Vector2 & Viewport);
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
 	class InputMgr

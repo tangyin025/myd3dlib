@@ -169,8 +169,7 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice)
 
 void PivotController::UpdateScale(const my::BaseCamera * camera, const D3DSURFACE_DESC * desc)
 {
-	float z = Vector4(m_Pos, 1.0f).dot(camera->m_View.column<2>());
-	m_Scale = -z * 1 / 25.0f * 1024.0f / desc->Width;
+	m_Scale = camera->CalculateViewportScaler(m_Pos) * 50.0f / desc->Width;
 }
 
 void PivotController::UpdateWorld(void)

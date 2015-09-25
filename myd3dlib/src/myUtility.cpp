@@ -196,21 +196,41 @@ void OrthoCamera::OnFrameMove(
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
-	m_Proj = Matrix4::OrthoRH(m_Width, m_Height, m_Nz, m_Fz);
+	m_Proj = Matrix4::OrthoRH(m_Diagonal * cos(atan2(1, m_Aspect)), m_Diagonal * sin(atan2(1, m_Aspect)), m_Nz, m_Fz);
 
 	m_ViewProj = m_View * m_Proj;
 
 	m_InverseViewProj = m_ViewProj.inverse();
 }
 
+LRESULT OrthoCamera::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
 Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return OrthoRay(m_InverseViewProj, m_View.column<2>().xyz, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return OrthoRay(m_InverseViewProj, -m_View.column<2>().xyz, pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
 {
 	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+void OrthoCamera::OnViewportChanged(const Vector2 & Viewport)
+{
+	m_Aspect = Viewport.x / Viewport.y;
+}
+
+float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
+{
+	return m_Diagonal * cos(atan2(1, m_Aspect)) * 0.5f;
 }
 
 void ModelViewerCamera::OnFrameMove(
@@ -347,6 +367,17 @@ Ray ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 Frustum ModelViewerCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
 {
 	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+void ModelViewerCamera::OnViewportChanged(const Vector2 & Viewport)
+{
+	m_Aspect = Viewport.x / Viewport.y;
+}
+
+float ModelViewerCamera::CalculateViewportScaler(Vector3 WorldPos) const
+{
+	float z = Vector4(WorldPos, 1.0f).dot(-m_View.column<2>());
+	return z * tan(m_Fov * 0.5f);
 }
 
 void FirstPersonCamera::OnFrameMove(
@@ -490,6 +521,17 @@ Ray FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 Frustum FirstPersonCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
 {
 	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+void FirstPersonCamera::OnViewportChanged(const Vector2 & Viewport)
+{
+	m_Aspect = Viewport.x / Viewport.y;
+}
+
+float FirstPersonCamera::CalculateViewportScaler(Vector3 WorldPos) const
+{
+	float z = Vector4(WorldPos, 1.0f).dot(m_View.column<2>());
+	return z * tan(m_Fov * 0.5f);
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
