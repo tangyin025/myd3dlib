@@ -468,6 +468,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	if(cx > 0 && cy > 0 && (cx != m_SwapChainBufferDesc.Width || cy != m_SwapChainBufferDesc.Height))
 	{
 		// ! 在初始化窗口时，会被反复创建多次
+		StartPerformanceCount();
 		ResetD3DSwapChain();
 		_ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
