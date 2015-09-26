@@ -110,8 +110,10 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice)
 	}
 
 	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
+	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 

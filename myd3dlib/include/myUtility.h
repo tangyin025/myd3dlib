@@ -41,9 +41,7 @@ namespace my
 
 		void PushWireAABB(const AABB & aabb, D3DCOLOR Color);
 
-		void PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform);
-
-		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0));
+		void PushGrid(float length = 12, float linesEvery = 5, unsigned subLines = 5, D3DCOLOR GridColor = D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR AxisColor = D3DCOLOR_ARGB(255,0,0,0), const Matrix4 & Transform = Matrix4::identity);
 	};
 
 	typedef boost::function<void (float)> TimerEvent;

@@ -73,6 +73,26 @@ END
 
 IDB_CLASS_VIEW_24       BITMAP                  "res\\classview_hc.bmp"
 IDB_CLASS_VIEW          BITMAP                  "res\\classview.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_POPUP_VIEW MENU 
+BEGIN
+    POPUP "View"
+    BEGIN
+        POPUP "Camera Type"
+        BEGIN
+            MENUITEM "Perspective",                 ID_CAMERATYPE_PERSPECTIVE
+            MENUITEM "Front",                       ID_CAMERATYPE_FRONT
+            MENUITEM "Side",                        ID_CAMERATYPE_SIDE
+            MENUITEM "Top",                         ID_CAMERATYPE_TOP
+        END
+    END
+END
+
 #endif    // Chinese (P.R.C.) resources
 /////////////////////////////////////////////////////////////////////////////
 
@@ -88,6 +108,14 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 
 /////////////////////////////////////////////////////////////////////////////
 //
+// Bitmap
+//
+
+IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
+IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
 // Icon
 //
 
@@ -95,14 +123,6 @@ LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
 // remains consistent on all systems.
 IDR_MAINFRAME           ICON                    "res\\myd3dbox.ico"
 IDR_aaaTYPE             ICON                    "res\\myd3dboxDoc.ico"
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Bitmap
-//
-
-IDR_MAINFRAME           BITMAP                  "res\\Toolbar.bmp"
-IDR_MAINFRAME_256       BITMAP                  "res\\Toolbar256.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

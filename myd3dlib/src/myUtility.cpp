@@ -49,41 +49,24 @@ void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color)
 	PushLine(v[0], v[4], Color); PushLine(v[1], v[5], Color); PushLine(v[2], v[6], Color); PushLine(v[3], v[7], Color);
 }
 
-void DrawHelper::PushWireAABB(const AABB & aabb, D3DCOLOR Color, const Matrix4 & Transform)
+void DrawHelper::PushGrid(float length, float linesEvery, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor, const Matrix4 & Transform)
 {
-	Vector3 v[8] = {
-		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_min.z).transformCoord(Transform),
-		Vector3(aabb.m_min.x, aabb.m_min.y, aabb.m_max.z).transformCoord(Transform),
-		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_max.z).transformCoord(Transform),
-		Vector3(aabb.m_min.x, aabb.m_max.y, aabb.m_min.z).transformCoord(Transform),
-		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_min.z).transformCoord(Transform),
-		Vector3(aabb.m_max.x, aabb.m_min.y, aabb.m_max.z).transformCoord(Transform),
-		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_max.z).transformCoord(Transform),
-		Vector3(aabb.m_max.x, aabb.m_max.y, aabb.m_min.z).transformCoord(Transform),
-	};
-	PushLine(v[0], v[1], Color); PushLine(v[1], v[2], Color); PushLine(v[2], v[3], Color); PushLine(v[3], v[0], Color);
-	PushLine(v[4], v[5], Color); PushLine(v[5], v[6], Color); PushLine(v[6], v[7], Color); PushLine(v[7], v[4], Color);
-	PushLine(v[0], v[4], Color); PushLine(v[1], v[5], Color); PushLine(v[2], v[6], Color); PushLine(v[3], v[7], Color);
-}
-
-void DrawHelper::PushGrid(float length, float linesEvery, unsigned subLines, D3DCOLOR GridColor, D3DCOLOR AxisColor)
-{
-	PushLine(Vector3(-length, 0, 0), Vector3( length, 0, 0), AxisColor);
-	PushLine(Vector3(0, 0, -length), Vector3(0, 0,  length), AxisColor);
+	PushLine(Vector3(-length, 0, 0).transformCoord(Transform), Vector3( length, 0, 0).transformCoord(Transform), AxisColor);
+	PushLine(Vector3(0, -length, 0).transformCoord(Transform), Vector3(0,  length, 0).transformCoord(Transform), AxisColor);
 
 	float stage = linesEvery / subLines;
 	for (float incre = stage; incre < length; incre += stage)
 	{
-		PushLine(Vector3(-length, 0,  incre), Vector3( length, 0,  incre), GridColor);
-		PushLine(Vector3(-length, 0, -incre), Vector3( length, 0, -incre), GridColor);
-		PushLine(Vector3( incre, 0, -length), Vector3( incre, 0,  length), GridColor);
-		PushLine(Vector3(-incre, 0, -length), Vector3(-incre, 0,  length), GridColor);
+		PushLine(Vector3(-length,  incre, 0).transformCoord(Transform), Vector3( length,  incre, 0).transformCoord(Transform), GridColor);
+		PushLine(Vector3(-length, -incre, 0).transformCoord(Transform), Vector3( length, -incre, 0).transformCoord(Transform), GridColor);
+		PushLine(Vector3( incre, -length, 0).transformCoord(Transform), Vector3( incre,  length, 0).transformCoord(Transform), GridColor);
+		PushLine(Vector3(-incre, -length, 0).transformCoord(Transform), Vector3(-incre,  length, 0).transformCoord(Transform), GridColor);
 	}
 
-	PushLine(Vector3(-length, 0,  length), Vector3( length, 0,  length), GridColor);
-	PushLine(Vector3(-length, 0, -length), Vector3( length, 0, -length), GridColor);
-	PushLine(Vector3( length, 0, -length), Vector3( length, 0,  length), GridColor);
-	PushLine(Vector3(-length, 0, -length), Vector3(-length, 0,  length), GridColor);
+	PushLine(Vector3(-length,  length, 0).transformCoord(Transform), Vector3( length,  length, 0).transformCoord(Transform), GridColor);
+	PushLine(Vector3(-length, -length, 0).transformCoord(Transform), Vector3( length, -length, 0).transformCoord(Transform), GridColor);
+	PushLine(Vector3( length, -length, 0).transformCoord(Transform), Vector3( length,  length, 0).transformCoord(Transform), GridColor);
+	PushLine(Vector3(-length, -length, 0).transformCoord(Transform), Vector3(-length,  length, 0).transformCoord(Transform), GridColor);
 }
 
 void Timer::Step(float fElapsedTime, int MaxIter)

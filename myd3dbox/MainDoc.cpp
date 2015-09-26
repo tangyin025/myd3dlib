@@ -59,34 +59,37 @@ BOOL CMainDoc::OnNewDocument()
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
-	CMainFrame * pFrame = GetMainFrame();
-	ASSERT_VALID(pFrame);
-	pFrame->m_wndOutliner.DeleteAllTreeItems();
 	m_Actor.reset(new Actor(my::AABB(-50,50), 1.0f));
 
-	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
-		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
-	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
-	theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
-
-	struct CallBack : public my::IQueryCallback
+	CMainFrame * pFrame = GetMainFrame();
+	if (pFrame)
 	{
-		CMainFrame * m_pFrame;
+		pFrame->m_wndOutliner.DeleteAllTreeItems();
 
-		CallBack(CMainFrame * pFrame)
-			: m_pFrame(pFrame)
+		MeshComponent * cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
+			"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
+		my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
+		theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
+
+		struct CallBack : public my::IQueryCallback
 		{
-		}
+			CMainFrame * m_pFrame;
 
-		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
-		{
-			Component * cmp = dynamic_cast<Component *>(comp);
-			ASSERT(cmp);
-			m_pFrame->m_wndOutliner.InsertComponent(cmp, TVI_ROOT, TVI_LAST);
-		}
-	};
+			CallBack(CMainFrame * pFrame)
+				: m_pFrame(pFrame)
+			{
+			}
 
-	boost::dynamic_pointer_cast<my::OctRoot>(m_Actor)->QueryComponentAll(&CallBack(pFrame));
+			void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+			{
+				Component * cmp = dynamic_cast<Component *>(comp);
+				ASSERT(cmp);
+				m_pFrame->m_wndOutliner.InsertComponent(cmp, TVI_ROOT, TVI_LAST);
+			}
+		};
+
+		boost::dynamic_pointer_cast<my::OctRoot>(m_Actor)->QueryComponentAll(&CallBack(pFrame));
+	}
 
 	return TRUE;
 }

@@ -19,6 +19,7 @@
 IMPLEMENT_DYNCREATE(CChildView, CView)
 
 BEGIN_MESSAGE_MAP(CChildView, CView)
+	ON_WM_CONTEXTMENU()
 	ON_WM_PAINT()
 	ON_WM_ERASEBKGND()
 	ON_WM_SIZE()
@@ -27,15 +28,27 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_CAMERATYPE_PERSPECTIVE, &CChildView::OnCameratypePerspective)
+	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_PERSPECTIVE, &CChildView::OnUpdateCameratypePerspective)
+	ON_COMMAND(ID_CAMERATYPE_FRONT, &CChildView::OnCameratypeFront)
+	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_FRONT, &CChildView::OnUpdateCameratypeFront)
+	ON_COMMAND(ID_CAMERATYPE_SIDE, &CChildView::OnCameratypeSide)
+	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_SIDE, &CChildView::OnUpdateCameratypeSide)
+	ON_COMMAND(ID_CAMERATYPE_TOP, &CChildView::OnCameratypeTop)
+	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_TOP, &CChildView::OnUpdateCameratypeTop)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
 
 CChildView::CChildView()
+	: m_CameraType(CameraTypeUnknown)
+	, m_CameraDiagonal(30.0f)
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
 	ZeroMemory(&m_SwapChainBufferDesc, sizeof(m_SwapChainBufferDesc));
+	m_SwapChainBufferDesc.Width = 100;
+	m_SwapChainBufferDesc.Height = 100;
 	m_DepthStencil.reset(new my::Surface());
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
@@ -45,14 +58,9 @@ CChildView::CChildView()
 	{
 		m_DownFilterRT[i].reset(new my::Texture2D());
 	}
-	m_Camera.reset(new my::ModelViewerCamera(D3DXToRadian(75.0f),1.33333f,0.1f,3000.0f));
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = 20.0f;
-	//m_Camera.reset(new my::OrthoCamera(sqrt(100*100*2.0f),1.0f,-1500,1500));
-	//boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
+	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
 }
 
 CChildView::~CChildView()
@@ -318,8 +326,19 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	}
 	if (box.m_min.x < box.m_max.x)
 	{
-		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255), my::Matrix4::identity);
+		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
 	}
+}
+
+void CChildView::StartPerformanceCount(void)
+{
+	QueryPerformanceCounter(&m_qwTime[0]);
+}
+
+double CChildView::EndPerformanceCount(void)
+{
+	QueryPerformanceCounter(&m_qwTime[1]);
+	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
 }
 
 void CChildView::OnOutlinerSelectChanged(void)
@@ -329,7 +348,7 @@ void CChildView::OnOutlinerSelectChanged(void)
 
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
-	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_EDIT, point.x, point.y, this, TRUE);
+	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
 }
 
 
@@ -365,14 +384,26 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			LARGE_INTEGER qwTime[2];
-			QueryPerformanceCounter(&qwTime[0]);
 			m_Camera->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			m_SkyLightCam->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 			DrawHelper::BeginLine();
-			PushGrid();
+			switch (m_CameraType)
+			{
+			case CameraTypePerspective:
+				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+				break;
+			case CameraTypeFront:
+				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::Identity());
+				break;
+			case CameraTypeSide:
+				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationY(D3DXToRadian(90)));
+				break;
+			case CameraTypeTop:
+				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+				break;
+			}
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
 				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
@@ -382,8 +413,7 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetDepthStencilSurface(GetScreenDepthStencilSurface()));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
-				QueryPerformanceCounter(&qwTime[1]);
-				swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"PerformanceSec: %.3f", (double)(qwTime[1].QuadPart - qwTime[0].QuadPart)/theApp.m_llQPFTicksPerSec);
+				swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());
 				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
 					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
@@ -439,6 +469,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 	{
 		// ! 在初始化窗口时，会被反复创建多次
 		ResetD3DSwapChain();
+		_ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
@@ -450,6 +481,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	// TODO:  Add your specialized creation code here
+	OnCameratypePerspective();
 	CMainFrame::getSingleton().m_EventSelectChanged.connect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
 
 	return 0;
@@ -469,6 +501,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 	if (m_Pivot.OnLButtonDown(ray))
 	{
+		StartPerformanceCount();
 		Invalidate();
 		return;
 	}
@@ -478,6 +511,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
+	StartPerformanceCount();
 	if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
 	{
 		pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
@@ -526,6 +560,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 	if (m_Pivot.m_Captured && m_Pivot.OnLButtonUp(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
+		StartPerformanceCount();
 		Invalidate();
 	}
 }
@@ -535,6 +570,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	if (m_Pivot.m_Captured && m_Pivot.OnMouseMove(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
+		StartPerformanceCount();
 		Invalidate();
 	}
 }
@@ -556,6 +592,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			break;
 
 		case WM_MOUSEMOVE:
+			StartPerformanceCount();
 			Invalidate();
 			break;
 		}
@@ -563,4 +600,69 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return __super::PreTranslateMessage(pMsg);
+}
+
+void CChildView::OnCameratypePerspective()
+{
+	// TODO: Add your command handler code here
+	StartPerformanceCount();
+	float fov = D3DXToRadian(75.0f);
+	m_Camera.reset(new my::ModelViewerCamera(fov, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, 0.1f, 3000.0f));
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
+	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+	m_CameraType = CameraTypePerspective;
+	Invalidate();
+}
+
+void CChildView::OnUpdateCameratypePerspective(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_CameraType == CameraTypePerspective);
+}
+
+void CChildView::OnCameratypeFront()
+{
+	StartPerformanceCount();
+	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3::zero;
+	m_CameraType = CameraTypeFront;
+	Invalidate();
+}
+
+void CChildView::OnUpdateCameratypeFront(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_CameraType == CameraTypeFront);
+}
+
+void CChildView::OnCameratypeSide()
+{
+	StartPerformanceCount();
+	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(0,D3DXToRadian(90),0);
+	m_CameraType = CameraTypeSide;
+	Invalidate();
+}
+
+void CChildView::OnUpdateCameratypeSide(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_CameraType == CameraTypeSide);
+}
+
+void CChildView::OnCameratypeTop()
+{
+	StartPerformanceCount();
+	m_Camera.reset(new my::OrthoCamera(
+		m_CameraDiagonal,m_SwapChainBufferDesc.Width/(float)m_SwapChainBufferDesc.Height,-1500,1500));
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
+	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
+	m_CameraType = CameraTypeTop;
+	Invalidate();
+}
+
+void CChildView::OnUpdateCameratypeTop(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetCheck(m_CameraType == CameraTypeTop);
 }

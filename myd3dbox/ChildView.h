@@ -33,6 +33,15 @@ public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 protected:
 
+	enum CameraType
+	{
+		CameraTypeUnknown,
+		CameraTypePerspective,
+		CameraTypeFront,
+		CameraTypeSide,
+		CameraTypeTop
+	};
+
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 	my::SurfacePtr m_SwapChainBuffer;
 	D3DSURFACE_DESC m_SwapChainBufferDesc;
@@ -47,6 +56,9 @@ protected:
 	PivotController m_Pivot;
 	typedef std::multimap<float, Component *> SelCmpMap;
 	SelCmpMap m_SelCmpMap;
+	float m_CameraDiagonal;
+	CameraType m_CameraType;
+	LARGE_INTEGER m_qwTime[2];
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
@@ -66,6 +78,8 @@ protected:
 	bool OnRayTest(const my::Ray & ray);
 	bool OnFrustumTest(const my::Frustum & ftm);
 	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
+	void StartPerformanceCount(void);
+	double EndPerformanceCount(void);
 
 	void OnOutlinerSelectChanged(void);
 
@@ -95,6 +109,14 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnCameratypePerspective();
+	afx_msg void OnUpdateCameratypePerspective(CCmdUI *pCmdUI);
+	afx_msg void OnCameratypeFront();
+	afx_msg void OnUpdateCameratypeFront(CCmdUI *pCmdUI);
+	afx_msg void OnCameratypeSide();
+	afx_msg void OnUpdateCameratypeSide(CCmdUI *pCmdUI);
+	afx_msg void OnCameratypeTop();
+	afx_msg void OnUpdateCameratypeTop(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp
