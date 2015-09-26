@@ -144,16 +144,16 @@ void COutlinerWnd::OnContextMenu(CWnd* pWnd, CPoint point)
 	if (!hItem)
 		return;
 
+	if (m_ContextMenu.m_hMenu)
+		m_ContextMenu.DestroyMenu();
+
+	if (m_ContextMenuAdd.m_hMenu)
+		m_ContextMenuAdd.DestroyMenu();
+
+	m_ContextMenu.CreatePopupMenu();
+
 	//TreeItemData * pItemData = GetTreeItemData(hItem);
 	//ASSERT(pItemData);
-
-	//if (m_ContextMenu.m_hMenu)
-	//	m_ContextMenu.DestroyMenu();
-
-	//if (m_ContextMenuAdd.m_hMenu)
-	//	m_ContextMenuAdd.DestroyMenu();
-
-	//m_ContextMenu.CreatePopupMenu();
 	//if (pItemData->Type == TreeItemTypeActor)
 	//{
 	//	m_ContextMenuAdd.CreatePopupMenu();

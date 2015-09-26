@@ -187,7 +187,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DragableTreeCtrl.cpp"
+				RelativePath="..\myd3dbox\DragableTreeCtrl.cpp"
 				>
 			</File>
 			<File
@@ -277,7 +277,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\DragableTreeCtrl.h"
+				RelativePath="..\myd3dbox\DragableTreeCtrl.h"
 				>
 			</File>
 			<File
