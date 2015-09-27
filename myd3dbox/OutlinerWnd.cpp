@@ -11,36 +11,6 @@
 #define ID_MENU_START				(40000L)
 #define ID_MENU_ADD_MESH_COMPONENT	(40001L)
 
-BEGIN_MESSAGE_MAP(CTC, CMultiTree)
-	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &CTC::OnNMCustomdraw)
-END_MESSAGE_MAP()
-
-void CTC::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
-{
-	// http://stackoverflow.com/questions/2119717/changing-the-color-of-a-selected-ctreectrl-item
-    NMTVCUSTOMDRAW *pcd = (NMTVCUSTOMDRAW   *)pNMHDR;
-    switch ( pcd->nmcd.dwDrawStage )
-    {
-    case CDDS_PREPAINT: 
-        *pResult = CDRF_NOTIFYITEMDRAW;     
-        break;
-
-    case CDDS_ITEMPREPAINT : 
-        {
-            HTREEITEM   hItem = (HTREEITEM)pcd->nmcd.dwItemSpec;
-
-            if ( IsSelected(hItem) )
-            {
-                pcd->clrText = GetSysColor(COLOR_HIGHLIGHTTEXT);    
-                pcd->clrTextBk = GetSysColor(COLOR_HIGHLIGHT);
-            }
-
-            *pResult = CDRF_DODEFAULT;// do not set *pResult = CDRF_SKIPDEFAULT
-            break;
-        }
-    }
-}
-
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
@@ -183,88 +153,6 @@ void COutlinerWnd::AdjustLayout()
 
 	int cyTlb = 0;
 	m_wndClassView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
-}
-//
-//BOOL COutlinerWnd::CanTreeItemMove(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-//{
-//	if(hParent == hMoveItem || hInsertAfter == hMoveItem || m_wndClassView.FindTreeChildItem(hMoveItem, hParent))
-//	{
-//		return FALSE;
-//	}
-//
-//	return TRUE;
-//}
-
-HTREEITEM COutlinerWnd::InsertTreeItem(LPCTSTR lpszItem, DWORD_PTR pData, int nImage, int nSelectedImage, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	ASSERT(m_Data2HTree.find(pData) == m_Data2HTree.end());
-	HTREEITEM hItem = m_wndClassView.InsertItem(lpszItem, nImage, nSelectedImage, hParent, hInsertAfter);
-	ASSERT(hItem);
-	m_wndClassView.SetItemData(hItem, pData);
-	m_Data2HTree.insert(std::make_pair(pData, hItem));
-	return hItem;
-}
-
-void COutlinerWnd::DeleteTreeItem(HTREEITEM hItem)
-{
-	ASSERT(hItem);
-	DWORD_PTR pData = m_wndClassView.GetItemData(hItem);
-	ASSERT(pData);
-	m_Data2HTree.erase(pData);
-
-	HTREEITEM hNextChild = NULL;
-	for(HTREEITEM hChild = m_wndClassView.GetChildItem(hItem); NULL != hChild; hChild = hNextChild)
-	{
-		hNextChild = m_wndClassView.GetNextSiblingItem(hChild);
-		DeleteTreeItem(hChild);
-	}
-
-	m_wndClassView.DeleteItem(hItem);
-}
-
-void COutlinerWnd::DeleteAllTreeItems(void)
-{
-	m_wndClassView.DeleteAllItems();
-	m_Data2HTree.clear();
-}
-//
-//HTREEITEM COutlinerWnd::MoveTreeItem(HTREEITEM hMoveItem, HTREEITEM hParent, HTREEITEM hInsertAfter)
-//{
-//	if(!CanTreeItemMove(hParent, hInsertAfter, hMoveItem))
-//	{
-//		return NULL;
-//	}
-//
-//	int nImage, nSelectedImage;
-//	m_wndClassView.GetItemImage(hMoveItem, nImage, nSelectedImage);
-//	HTREEITEM hItem = m_wndClassView.InsertItem(m_wndClassView.GetItemText(hMoveItem), nImage, nSelectedImage, hParent, hInsertAfter);
-//	m_wndClassView.SetItemData(hItem, m_wndClassView.GetItemData(hMoveItem));
-//
-//	HTREEITEM hNextOtherChild = NULL;
-//	HTREEITEM hChild = TVI_LAST;
-//	for(HTREEITEM hOtherChild = m_wndClassView.GetChildItem(hMoveItem); hOtherChild; hOtherChild = hNextOtherChild)
-//	{
-//		hNextOtherChild = m_wndClassView.GetNextSiblingItem(hOtherChild);
-//		hChild = MoveTreeItem(hItem, hChild, hOtherChild);
-//	}
-//
-//	m_wndClassView.DeleteItem(hMoveItem);
-//	return hItem;
-//}
-
-void COutlinerWnd::InsertComponent(Component * cmp, HTREEITEM hParent, HTREEITEM hInsertAfter)
-{
-	HTREEITEM hItem = InsertTreeItem(_T("component"), (DWORD_PTR)cmp, 1, 1, hParent, hInsertAfter);
-}
-
-HTREEITEM COutlinerWnd::GetTreeItemByData(DWORD_PTR pData)
-{
-	Data2HTreeMap::const_iterator item_iter = m_Data2HTree.find(pData);
-	if (item_iter != m_Data2HTree.end())
-	{
-		return item_iter->second;
-	}
-	return NULL;
 }
 
 BOOL COutlinerWnd::PreTranslateMessage(MSG* pMsg)

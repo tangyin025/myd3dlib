@@ -5,8 +5,6 @@
 
 #pragma once
 
-#include "../demo2_3/Component/Actor.h"
-
 class CMainFrame;
 
 class CMainDoc : public CDocument
@@ -17,7 +15,6 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	ActorPtr m_Actor;
 
 // Operations
 public:

@@ -208,9 +208,9 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 
 void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
 {
-	CMainDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	pDoc->m_Actor->QueryComponent(frustum, &theApp, PassMask);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->m_Actor->QueryComponent(frustum, &theApp, PassMask);
 }
 
 bool CChildView::OnRayTest(const my::Ray & ray)
@@ -245,9 +245,9 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	m_SelCmpMap.clear();
 
-	CMainDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	boost::dynamic_pointer_cast<my::OctRoot>(pFrame->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
 
 	return !m_SelCmpMap.empty();
 }
@@ -286,48 +286,48 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 
 	m_SelCmpMap.clear();
 
-	CMainDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	boost::dynamic_pointer_cast<my::OctRoot>(pDoc->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	boost::dynamic_pointer_cast<my::OctRoot>(pFrame->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
 
 	return !m_SelCmpMap.empty();
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	my::AABB box(FLT_MAX,-FLT_MAX);
-	HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetFirstSelectedItem();
-	for (; hItem; hItem = pFrame->m_wndOutliner.m_wndClassView.GetNextSelectedItem(hItem))
-	{
-		Component * cmp = pFrame->m_wndOutliner.GetTreeItemData<Component *>(hItem);
-		ASSERT(cmp);
-		switch (cmp->m_Type)
-		{
-		case Component::ComponentTypeMesh:
-			{
-				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-				UINT passes = theApp.m_SimpleSample->Begin();
-				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-				{
-					theApp.m_SimpleSample->BeginPass(0);
-					mesh_cmp->m_Mesh->DrawSubset(i);
-					theApp.m_SimpleSample->EndPass();
-				}
-				theApp.m_SimpleSample->End();
-			}
-			break;
-		}
-		box.unionSelf(cmp->m_aabb);
-	}
-	if (box.m_min.x < box.m_max.x)
-	{
-		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
-	}
+	//theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	//theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//my::AABB box(FLT_MAX,-FLT_MAX);
+	//HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetFirstSelectedItem();
+	//for (; hItem; hItem = pFrame->m_wndOutliner.m_wndClassView.GetNextSelectedItem(hItem))
+	//{
+	//	Component * cmp = pFrame->m_wndOutliner.GetTreeItemData<Component *>(hItem);
+	//	ASSERT(cmp);
+	//	switch (cmp->m_Type)
+	//	{
+	//	case Component::ComponentTypeMesh:
+	//		{
+	//			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+	//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+	//			UINT passes = theApp.m_SimpleSample->Begin();
+	//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+	//			{
+	//				theApp.m_SimpleSample->BeginPass(0);
+	//				mesh_cmp->m_Mesh->DrawSubset(i);
+	//				theApp.m_SimpleSample->EndPass();
+	//			}
+	//			theApp.m_SimpleSample->End();
+	//		}
+	//		break;
+	//	}
+	//	box.unionSelf(cmp->m_aabb);
+	//}
+	//if (box.m_min.x < box.m_max.x)
+	//{
+	//	PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
+	//}
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -513,44 +513,44 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
-	{
-		pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
-	}
+	//if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
+	//{
+	//	pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
+	//}
 
 	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
 	{
 		my::Rectangle rc(pFrame->m_Tracker.m_rect.left, pFrame->m_Tracker.m_rect.top, pFrame->m_Tracker.m_rect.right, pFrame->m_Tracker.m_rect.bottom);
 		if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 		{
-			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
-			{
-				HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
-				if (hItem)
-				{
-					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
-				}
-			}
+			//SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			//for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
+			//{
+			//	HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
+			//	if (hItem)
+			//	{
+			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
+			//	}
+			//}
 		}
 	}
 	else
 	{
 		if (OnRayTest(ray))
 		{
-			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
-			if (hItem)
-			{
-				if (pFrame->m_wndOutliner.m_wndClassView.IsSelected(hItem))
-				{
-					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, 0, TVIS_SELECTED);
-				}
-				else
-				{
-					pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
-				}
-			}
+			//SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			//HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
+			//if (hItem)
+			//{
+			//	if (pFrame->m_wndOutliner.m_wndClassView.IsSelected(hItem))
+			//	{
+			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, 0, TVIS_SELECTED);
+			//	}
+			//	else
+			//	{
+			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
+			//	}
+			//}
 		}
 	}
 }

@@ -6,6 +6,7 @@
 
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
+#include "../demo2_3/Component/Actor.h"
 
 class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
@@ -24,6 +25,7 @@ public:
 	CPropertiesWnd    m_wndProperties;
 	boost::signals2::signal<void ()> m_EventSelectChanged;
 	CRectTracker m_Tracker;
+	ActorPtr m_Actor;
 
 // Operations
 public:
