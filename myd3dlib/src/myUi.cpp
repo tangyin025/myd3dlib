@@ -107,7 +107,7 @@ void UIRender::Flush(void)
 	vertex_count = 0;
 }
 
-void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color)
+void UIRender::PushVertexSimple(float x, float y, float z, float u, float v, D3DCOLOR color)
 {
 	_ASSERT(vertex_count + 1 < _countof(vertex_list));
 	vertex_list[vertex_count].x = x;
@@ -119,13 +119,13 @@ void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR 
 	vertex_count++;
 }
 
-void UIRender::PushVertexUI(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type)
+void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type)
 {
 	if (vertex_count + 1 < _countof(vertex_list))
 	{
 		unsigned int vertex_start = vertex_count;
 
-		PushVertex(x, y, z, u, v, color);
+		PushVertexSimple(x, y, z, u, v, color);
 
 		UILayer & ui_layer = m_Layer[type];
 		TextureLayer & tex_layer = ui_layer[texture];
@@ -140,24 +140,24 @@ void UIRender::PushVertexUI(float x, float y, float z, float u, float v, D3DCOLO
 	}
 }
 
-void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
+void UIRender::PushRectangleSimple(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
 {
 	_ASSERT(vertex_count + 6 < _countof(vertex_list));
-	PushVertex(rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
-	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
-	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
-	PushVertex(rect.r, rect.b, 0, UvRect.r, UvRect.b, color);
-	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
-	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
+	PushVertexSimple(rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
+	PushVertexSimple(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
+	PushVertexSimple(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
+	PushVertexSimple(rect.r, rect.b, 0, UvRect.r, UvRect.b, color);
+	PushVertexSimple(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
+	PushVertexSimple(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
 }
 
-void UIRender::PushRectangleUI(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
+void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
 {
 	if (vertex_count + 6 < _countof(vertex_list))
 	{
 		unsigned int vertex_start = vertex_count;
 
-		PushRectangle(rect, UvRect, color);
+		PushRectangleSimple(rect, UvRect, color);
 
 		UILayer & ui_layer = m_Layer[type];
 		TextureLayer & tex_layer = ui_layer[texture];
@@ -172,30 +172,30 @@ void UIRender::PushRectangleUI(const my::Rectangle & rect, const my::Rectangle &
 	}
 }
 
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
+void UIRender::PushWindowSimple(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
 {
 	_ASSERT(vertex_count + 6 * 9 < _countof(vertex_list));
 	Rectangle OutUvRect((float)WindowRect.left / TextureSize.cx,  (float)WindowRect.top / TextureSize.cy, (float)WindowRect.right / TextureSize.cx, (float)WindowRect.bottom / TextureSize.cy);
 	Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
 	Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / TextureSize.cx, (float)(WindowRect.top + WindowBorder.top) / TextureSize.cy, (float)(WindowRect.right - WindowBorder.right) / TextureSize.cx, (float)(WindowRect.bottom - WindowBorder.bottom) / TextureSize.cy);
-	PushRectangle(Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
-	PushRectangle(Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
-	PushRectangle(Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
-	PushRectangle(Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color);
-	PushRectangle(Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
-	PushRectangle(Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color);
-	PushRectangle(Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color);
-	PushRectangle(Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color);
-	PushRectangle(Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
+	PushRectangleSimple(Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
+	PushRectangleSimple(Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
+	PushRectangleSimple(Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
+	PushRectangleSimple(Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color);
+	PushRectangleSimple(Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
+	PushRectangleSimple(Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color);
+	PushRectangleSimple(Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color);
+	PushRectangleSimple(Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color);
+	PushRectangleSimple(Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
 }
 
-void UIRender::PushWindowUI(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
 {
 	if (vertex_count + 6 * 9 < _countof(vertex_list))
 	{
 		unsigned int vertex_start = vertex_count;
 
-		PushWindow(rect, color, WindowRect, WindowBorder, TextureSize);
+		PushWindowSimple(rect, color, WindowRect, WindowBorder, TextureSize);
 
 		UILayer & ui_layer = m_Layer[type];
 		TextureLayer & tex_layer = ui_layer[texture];
@@ -218,11 +218,11 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 {
 	if(Image && Image->m_Texture)
 	{
-		ui_render->PushWindowUI(rect, color, Image->m_Rect, Image->m_Border, Image->m_Size, Image->m_Texture.get(), UIRender::UILayerTexture);
+		ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, Image->m_Size, Image->m_Texture.get(), UIRender::UILayerTexture);
 	}
 	else
 	{
-		ui_render->PushRectangleUI(rect, Rectangle(0,0,1,1), color, NULL, UIRender::UILayerTexture);
+		ui_render->PushRectangle(rect, Rectangle(0,0,1,1), color, NULL, UIRender::UILayerTexture);
 	}
 }
 
@@ -230,7 +230,7 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 {
 	if(m_Font)
 	{
-		m_Font->PushStringVertices(ui_render, pString, rect, TextColor, TextAlign);
+		m_Font->PushString(ui_render, pString, rect, TextColor, TextAlign);
 	}
 }
 
@@ -731,10 +731,10 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Min(TextRect.r, TextRect.l + sel_right_x),
 					TextRect.b);
 
-				ui_render->PushRectangleUI(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, NULL, UIRender::UILayerTexture);
+				ui_render->PushRectangle(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, NULL, UIRender::UILayerTexture);
 			}
 
-			Skin->m_Font->PushStringVertices(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+			Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
 			if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 			{
@@ -760,7 +760,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 				}
 
-				ui_render->PushRectangleUI(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
+				ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
 			}
 		}
 	}
@@ -1443,16 +1443,16 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		ui_render->PushRectangleUI(rc, Rectangle(0,0,1,1), m_CompWinColor, NULL, UIRender::UILayerTexture);
+		ui_render->PushRectangle(rc, Rectangle(0,0,1,1), m_CompWinColor, NULL, UIRender::UILayerTexture);
 
-		Skin->m_Font->PushStringVertices(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->PushString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
 		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
 		if(m_bCaretOn)
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			ui_render->PushRectangleUI(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
+			ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
 		}
 	}
 }
@@ -1490,9 +1490,9 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		ui_render->PushRectangleUI(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, NULL, UIRender::UILayerTexture);
+		ui_render->PushRectangle(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, NULL, UIRender::UILayerTexture);
 
-		Skin->m_Font->PushStringVertices(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->PushString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
 }
 

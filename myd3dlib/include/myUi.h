@@ -66,17 +66,17 @@ namespace my
 
 		virtual void Flush(void);
 
-		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color);
+		void PushVertexSimple(float x, float y, float z, float u, float v, D3DCOLOR color);
 
-		void PushVertexUI(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type);
+		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
+		void PushRectangleSimple(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
 
-		void PushRectangleUI(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
+		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
+		void PushWindowSimple(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 
-		void PushWindowUI(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
+		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;

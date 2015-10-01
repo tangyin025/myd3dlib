@@ -432,7 +432,7 @@ void CChildView::OnPaint()
 				ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
 				for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += theApp.m_Font->m_LineHeight)
 				{
-					theApp.m_Font->PushStringVertices(theApp.m_UIRender.get(), &info_iter->second[0], my::Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+					theApp.m_Font->PushString(theApp.m_UIRender.get(), &info_iter->second[0], my::Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 				}
 				theApp.m_UIRender->End();
 

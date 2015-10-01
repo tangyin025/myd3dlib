@@ -29,7 +29,7 @@ public:
 		{
 			const Vector2 vp = DialogMgr::GetDlgViewport();
 			const Vector2 ptVp(Lerp(0.0f, vp.x, (ptProj.x + 1) / 2), Lerp(0.0f, vp.y, (1 - ptProj.y) / 2));
-			m_Font->PushStringVertices(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
+			m_Font->PushString(m_UIRender.get(), lpszText, my::Rectangle(ptVp, ptVp), Color, align);
 		}
 	}
 
@@ -118,7 +118,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		PushGrid();
+		PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
 
 		Game::OnFrameRender(pd3dDevice, fTime, fElapsedTime);
 	}

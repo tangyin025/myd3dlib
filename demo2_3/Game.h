@@ -78,8 +78,6 @@ public:
 
 	ConsolePtr m_Console;
 
-	my::BaseTexturePtr m_WhiteTex;
-
 	my::BaseTexturePtr m_TexChecker;
 
 	typedef std::vector<ActorPtr> ActorPtrList;

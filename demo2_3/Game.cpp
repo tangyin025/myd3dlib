@@ -166,6 +166,7 @@ HRESULT Game::OnCreateDevice(
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
+
 	if (!(m_UIRender->m_TexWhite = LoadTexture("texture/white.bmp")))
 	{
 		THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
@@ -186,11 +187,6 @@ HRESULT Game::OnCreateDevice(
 	m_Console->SetVisible(false);
 
 	DialogMgr::InsertDlg(m_Console);
-
-	if (!(m_WhiteTex = LoadTexture("texture/white.bmp")))
-	{
-		THROW_CUSEXCEPTION("create m_WhiteTex failed");
-	}
 
 	if (!(m_TexChecker = LoadTexture("texture/Checker.bmp")))
 	{
@@ -373,7 +369,7 @@ void Game::OnUIRender(
 	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
 	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
-		m_Font->PushStringVertices(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		m_Font->PushString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 	}
 	ui_render->Flush();
 }

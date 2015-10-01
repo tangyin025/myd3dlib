@@ -476,7 +476,7 @@ Vector2 Font::CalculateAlignedPen(LPCWSTR pString, const my::Rectangle & rect, A
 	return pen;
 }
 
-void Font::PushStringVertices(
+void Font::PushString(
 	UIRender * ui_render,
 	LPCWSTR pString,
 	const my::Rectangle & rect,
@@ -496,8 +496,8 @@ void Font::PushStringVertices(
 			(float)info.textureRect.right / m_textureDesc.Width,
 			(float)info.textureRect.bottom / m_textureDesc.Height);
 
-		// ! frequently calling UIRender::PushVertex may obviously lose performance
-		ui_render->PushRectangleUI(
+		// ! frequently calling UIRender::PushVertexSimple may obviously lose performance
+		ui_render->PushRectangle(
 			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color, m_Texture.get(), UIRender::UILayerFont);
 
 		pen.x += info.horiAdvance;

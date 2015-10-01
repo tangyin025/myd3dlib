@@ -206,7 +206,7 @@ namespace my
 
 		Vector2 CalculateAlignedPen(LPCWSTR pString, const Rectangle & rect, Align align);
 
-		void PushStringVertices(
+		void PushString(
 			UIRender * ui_render,
 			LPCWSTR pString,
 			const Rectangle & rect,
