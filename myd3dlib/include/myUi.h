@@ -2,6 +2,7 @@
 
 #include "myFont.h"
 #include <boost/function.hpp>
+#include <boost/array.hpp>
 #include <vector>
 #include <map>
 
@@ -22,6 +23,23 @@ namespace my
 		HRESULT hr;
 
 		CComPtr<IDirect3DDevice9> m_Device;
+
+		typedef std::vector<std::pair<unsigned int, unsigned int> > TextureLayer;
+
+		typedef boost::unordered_map<BaseTexture *, TextureLayer> UILayer;
+
+		enum UILayerType
+		{
+			UILayerTexture,
+			UILayerFont,
+			UILayerTopTexture,
+			UILayerTopFont,
+			UILayerNum,
+		};
+
+		typedef boost::array<UILayer, UILayerNum> UILayerList;
+
+		UILayerList m_Layer;
 
 		CUSTOMVERTEX vertex_list[2048];
 
@@ -50,17 +68,27 @@ namespace my
 
 		virtual void ClearVertexList(void);
 
+		virtual void ClearVertexListUI(void);
+
 		virtual void DrawVertexList(void);
+
+		virtual void DrawVertexListUI(void);
 
 		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color);
 
+		void PushVertexUI(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type);
+
 		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
+
+		void PushRectangleUI(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
 		void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & UvRect);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder);
+		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 
-		void DrawWindow(const Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder);
+		void PushWindowUI(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
+
+		void DrawWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;

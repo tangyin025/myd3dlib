@@ -91,6 +91,20 @@ void UIRender::ClearVertexList(void)
 	vertex_count = 0;
 }
 
+void UIRender::ClearVertexListUI(void)
+{
+	unsigned int i = UILayerTexture;
+	for (; i < UILayerNum; i++)
+	{
+		UILayer::iterator layer_iter = m_Layer[i].begin();
+		for (; layer_iter != m_Layer[i].end(); layer_iter++)
+		{
+			layer_iter->second.clear();
+		}
+	}
+	vertex_count = 0;
+}
+
 void UIRender::DrawVertexList(void)
 {
 	if(vertex_count > 0)
@@ -100,28 +114,94 @@ void UIRender::DrawVertexList(void)
 	}
 }
 
+void UIRender::DrawVertexListUI(void)
+{
+	unsigned int i = UILayerTexture;
+	for (; i < UILayerNum; i++)
+	{
+		UILayer::iterator layer_iter = m_Layer[i].begin();
+		for (; layer_iter != m_Layer[i].end();)
+		{
+			if (!layer_iter->second.empty())
+			{
+				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
+				TextureLayer::const_iterator tex_iter = layer_iter->second.begin();
+				for (; tex_iter != layer_iter->second.end(); tex_iter++)
+				{
+					V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, (tex_iter->second - tex_iter->first) / 3, &vertex_list[tex_iter->first], sizeof(vertex_list[0])));
+				}
+				layer_iter++;
+			}
+			else
+				layer_iter = m_Layer[i].erase(layer_iter);
+		}
+	}
+}
+
 void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color)
 {
-	if(vertex_count < _countof(vertex_list))
+	_ASSERT(vertex_count + 1 < _countof(vertex_list));
+	vertex_list[vertex_count].x = x;
+	vertex_list[vertex_count].y = y;
+	vertex_list[vertex_count].z = z;
+	vertex_list[vertex_count].u = u;
+	vertex_list[vertex_count].v = v;
+	vertex_list[vertex_count].color = color;
+	vertex_count++;
+}
+
+void UIRender::PushVertexUI(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type)
+{
+	if (vertex_count + 1 < _countof(vertex_list))
 	{
-		vertex_list[vertex_count].x = x;
-		vertex_list[vertex_count].y = y;
-		vertex_list[vertex_count].z = z;
-		vertex_list[vertex_count].u = u;
-		vertex_list[vertex_count].v = v;
-		vertex_list[vertex_count].color = color;
-		vertex_count++;
+		unsigned int vertex_start = vertex_count;
+
+		PushVertex(x, y, z, u, v, color);
+
+		UILayer & ui_layer = m_Layer[type];
+		TextureLayer & tex_layer = ui_layer[texture];
+		if (!tex_layer.empty() && tex_layer.back().second == vertex_start)
+		{
+			tex_layer.back().second = vertex_count;
+		}
+		else
+		{
+			tex_layer.push_back(std::make_pair(vertex_start, vertex_count));
+		}
 	}
 }
 
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color)
 {
+	_ASSERT(vertex_count + 6 < _countof(vertex_list));
 	PushVertex(rect.l, rect.t, 0, UvRect.l, UvRect.t, color);
 	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
 	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
 	PushVertex(rect.r, rect.b, 0, UvRect.r, UvRect.b, color);
 	PushVertex(rect.l, rect.b, 0, UvRect.l, UvRect.b, color);
 	PushVertex(rect.r, rect.t, 0, UvRect.r, UvRect.t, color);
+}
+
+void UIRender::PushRectangleUI(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
+{
+	if (vertex_count + 6 < _countof(vertex_list))
+	{
+		unsigned int vertex_start = vertex_count;
+
+		PushRectangle(rect, UvRect, color);
+
+		UILayer & ui_layer = m_Layer[type];
+		TextureLayer & tex_layer = ui_layer[texture];
+		if (!tex_layer.empty() && tex_layer.back().second == vertex_start)
+		{
+			tex_layer.back().second = vertex_count;
+		}
+		else
+		{
+			tex_layer.push_back(std::make_pair(vertex_start, vertex_count));
+		}
+	}
 }
 
 void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & UvRect)
@@ -131,25 +211,48 @@ void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::
 	DrawVertexList();
 }
 
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
 {
-	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
-	Rectangle InUvRect(WindowBorder.x / WindowSize.cx, WindowBorder.y / WindowSize.cy, (WindowSize.cx - WindowBorder.z) / WindowSize.cx, (WindowSize.cy - WindowBorder.w) / WindowSize.cy);
-	PushRectangle(Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(0, 0, InUvRect.l, InUvRect.t), color);
-	PushRectangle(Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, 0, InUvRect.r, InUvRect.t), color);
-	PushRectangle(Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, 0, 1, InUvRect.t), color);
-	PushRectangle(Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(0, InUvRect.t, InUvRect.l, InUvRect.b), color);
+	_ASSERT(vertex_count + 6 * 9 < _countof(vertex_list));
+	Rectangle OutUvRect((float)WindowRect.left / TextureSize.cx,  (float)WindowRect.top / TextureSize.cy, (float)WindowRect.right / TextureSize.cx, (float)WindowRect.bottom / TextureSize.cy);
+	Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
+	Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / TextureSize.cx, (float)(WindowRect.top + WindowBorder.top) / TextureSize.cy, (float)(WindowRect.right - WindowBorder.right) / TextureSize.cx, (float)(WindowRect.bottom - WindowBorder.bottom) / TextureSize.cy);
+	PushRectangle(Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
+	PushRectangle(Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
+	PushRectangle(Rectangle(InRect.r, rect.t, rect.r, InRect.t), Rectangle(InUvRect.r, OutUvRect.t, OutUvRect.r, InUvRect.t), color);
+	PushRectangle(Rectangle(rect.l, InRect.t, InRect.l, InRect.b), Rectangle(OutUvRect.l, InUvRect.t, InUvRect.l, InUvRect.b), color);
 	PushRectangle(Rectangle(InRect.l, InRect.t, InRect.r, InRect.b), Rectangle(InUvRect.l, InUvRect.t, InUvRect.r, InUvRect.b), color);
-	PushRectangle(Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, 1, InUvRect.b), color);
-	PushRectangle(Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(0, InUvRect.b, InUvRect.l, 1), color);
-	PushRectangle(Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, 1), color);
-	PushRectangle(Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, 1, 1), color);
+	PushRectangle(Rectangle(InRect.r, InRect.t, rect.r, InRect.b), Rectangle(InUvRect.r, InUvRect.t, OutUvRect.r, InUvRect.b), color);
+	PushRectangle(Rectangle(rect.l, InRect.b, InRect.l, rect.b), Rectangle(OutUvRect.l, InUvRect.b, InUvRect.l, OutUvRect.b), color);
+	PushRectangle(Rectangle(InRect.l, InRect.b, InRect.r, rect.b), Rectangle(InUvRect.l, InUvRect.b, InUvRect.r, OutUvRect.b), color);
+	PushRectangle(Rectangle(InRect.r, InRect.b, rect.r, rect.b), Rectangle(InUvRect.r, InUvRect.b, OutUvRect.r, OutUvRect.b), color);
 }
 
-void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CSize & WindowSize, const Vector4 & WindowBorder)
+void UIRender::PushWindowUI(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
+{
+	if (vertex_count + 6 * 9 < _countof(vertex_list))
+	{
+		unsigned int vertex_start = vertex_count;
+
+		PushWindow(rect, color, WindowRect, WindowBorder, TextureSize);
+
+		UILayer & ui_layer = m_Layer[type];
+		TextureLayer & tex_layer = ui_layer[texture];
+		if (!tex_layer.empty() && tex_layer.back().second == vertex_start)
+		{
+			tex_layer.back().second = vertex_count;
+		}
+		else
+		{
+			tex_layer.push_back(std::make_pair(vertex_start, vertex_count));
+		}
+	}
+}
+
+void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
 {
 	ClearVertexList();
-	PushWindow(rect, color, WindowSize, WindowBorder);
+	PushWindow(rect, color, WindowRect, WindowBorder, TextureSize);
 	DrawVertexList();
 }
 
@@ -162,7 +265,9 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 	if(Image && Image->m_Texture)
 	{
 		ui_render->SetTexture(Image->m_Texture);
-		ui_render->DrawWindow(rect, color, CSize(Image->m_Texture->GetLevelDesc().Width, Image->m_Texture->GetLevelDesc().Height), Image->m_Border);
+		D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc(0);
+		CRect border(Image->m_Border.x, Image->m_Border.y, Image->m_Border.z, Image->m_Border.w);
+		ui_render->DrawWindow(rect, color, CRect(0, 0, desc.Width, desc.Height), border, CSize(desc.Width, desc.Height));
 	}
 	else
 	{
