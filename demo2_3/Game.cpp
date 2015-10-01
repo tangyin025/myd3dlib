@@ -88,7 +88,7 @@ Game::Game(void)
 		m_DownFilterRT[i].reset(new Texture2D());
 	}
 	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
-	m_SkyLightCam.reset(new my::OrthoCamera(30,30,-100,100));
+	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 }
 
 Game::~Game(void)
