@@ -53,24 +53,15 @@ void EffectUIRender::SetViewProj(const Matrix4 & ViewProj)
 	}
 }
 
-void EffectUIRender::SetTexture(const BaseTexturePtr & Texture)
-{
-	if(m_UIEffect->m_ptr)
-	{
-		_ASSERT(Game::getSingleton().m_WhiteTex);
-		m_UIEffect->SetTexture("g_MeshTexture", Texture ? Texture.get() : Game::getSingleton().m_WhiteTex.get());
-	}
-}
-
-void EffectUIRender::DrawVertexList(void)
+void EffectUIRender::Flush(void)
 {
 	if(m_UIEffect->m_ptr && vertex_count > 0)
 	{
+		m_UIEffect->SetMatrix("g_World", Matrix4::identity);
 		for(UINT p = 0; p < m_Passes; p++)
 		{
 			m_UIEffect->BeginPass(p);
-			V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-			V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
+			UIRender::Flush();
 			m_UIEffect->EndPass();
 		}
 	}
@@ -175,6 +166,10 @@ HRESULT Game::OnCreateDevice(
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
+	if (!(m_UIRender->m_TexWhite = LoadTexture("texture/white.bmp")))
+	{
+		THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
+	}
 
 	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
 	{
@@ -241,11 +236,13 @@ HRESULT Game::OnResetDevice(
 			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
-	Vector2 vp(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
+	Vector2 Viewport(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
 
-	DialogMgr::SetDlgViewport(vp, D3DXToRadian(75.0f));
+	Vector2 Scale(pBackBufferSurfaceDesc->Width / Viewport.x, pBackBufferSurfaceDesc->Height / Viewport.y);
 
-	m_Font->SetScale(Vector2(pBackBufferSurfaceDesc->Width / vp.x, pBackBufferSurfaceDesc->Height / vp.y));
+	DialogMgr::SetDlgViewport(Viewport, D3DXToRadian(75.0f));
+
+	m_Font->SetScale(Scale);
 
 	if(boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->EventAlign)
 	{
@@ -373,12 +370,12 @@ void Game::OnUIRender(
 {
 	DialogMgr::Draw(ui_render, fTime, fElapsedTime);
 	_ASSERT(m_Font);
-	ui_render->SetWorld(Matrix4::identity);
 	ScrInfoType::const_iterator info_iter = m_ScrInfos.begin();
 	for (int y = 5; info_iter != m_ScrInfos.end(); info_iter++, y += m_Font->m_LineHeight)
 	{
-		m_Font->DrawString(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
+		m_Font->PushStringVertices(ui_render, &info_iter->second[0], Rectangle::LeftTop(5,(float)y,500,10), D3DCOLOR_ARGB(255,255,255,0));
 	}
+	ui_render->Flush();
 }
 
 void Game::OnFrameTick(

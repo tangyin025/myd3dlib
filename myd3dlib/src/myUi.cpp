@@ -52,6 +52,7 @@ void UIRender::Begin(void)
 
 void UIRender::End(void)
 {
+	Flush();
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, State[0]));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, State[1]));
 	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, State[2]));
@@ -81,17 +82,7 @@ void UIRender::SetViewProj(const Matrix4 & ViewProj)
 	V(m_Device->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&Matrix4::identity));
 }
 
-void UIRender::SetTexture(const BaseTexturePtr & Texture)
-{
-	V(m_Device->SetTexture(0, Texture ? Texture->m_ptr : NULL));
-}
-
-void UIRender::ClearVertexList(void)
-{
-	vertex_count = 0;
-}
-
-void UIRender::ClearVertexListUI(void)
+void UIRender::Flush(void)
 {
 	unsigned int i = UILayerTexture;
 	for (; i < UILayerNum; i++)
@@ -99,44 +90,21 @@ void UIRender::ClearVertexListUI(void)
 		UILayer::iterator layer_iter = m_Layer[i].begin();
 		for (; layer_iter != m_Layer[i].end(); layer_iter++)
 		{
-			layer_iter->second.clear();
-		}
-	}
-	vertex_count = 0;
-}
-
-void UIRender::DrawVertexList(void)
-{
-	if(vertex_count > 0)
-	{
-		V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
-		V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertex_count / 3, vertex_list, sizeof(vertex_list[0])));
-	}
-}
-
-void UIRender::DrawVertexListUI(void)
-{
-	unsigned int i = UILayerTexture;
-	for (; i < UILayerNum; i++)
-	{
-		UILayer::iterator layer_iter = m_Layer[i].begin();
-		for (; layer_iter != m_Layer[i].end();)
-		{
+			// ! Device reset will lead more useless texture key
 			if (!layer_iter->second.empty())
 			{
-				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
+				V(m_Device->SetTexture(0, layer_iter->first ? layer_iter->first->m_ptr : m_TexWhite->m_ptr));
 				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 				TextureLayer::const_iterator tex_iter = layer_iter->second.begin();
 				for (; tex_iter != layer_iter->second.end(); tex_iter++)
 				{
 					V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, (tex_iter->second - tex_iter->first) / 3, &vertex_list[tex_iter->first], sizeof(vertex_list[0])));
 				}
-				layer_iter++;
+				layer_iter->second.clear();
 			}
-			else
-				layer_iter = m_Layer[i].erase(layer_iter);
 		}
 	}
+	vertex_count = 0;
 }
 
 void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color)
@@ -204,13 +172,6 @@ void UIRender::PushRectangleUI(const my::Rectangle & rect, const my::Rectangle &
 	}
 }
 
-void UIRender::DrawRectangle(const my::Rectangle & rect, DWORD color, const my::Rectangle & UvRect)
-{
-	ClearVertexList();
-	PushRectangle(rect, UvRect, color);
-	DrawVertexList();
-}
-
 void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
 {
 	_ASSERT(vertex_count + 6 * 9 < _countof(vertex_list));
@@ -249,13 +210,6 @@ void UIRender::PushWindowUI(const my::Rectangle & rect, DWORD color, const CRect
 	}
 }
 
-void UIRender::DrawWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
-{
-	ClearVertexList();
-	PushWindow(rect, color, WindowRect, WindowBorder, TextureSize);
-	DrawVertexList();
-}
-
 ControlSkin::~ControlSkin(void)
 {
 }
@@ -264,15 +218,11 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 {
 	if(Image && Image->m_Texture)
 	{
-		ui_render->SetTexture(Image->m_Texture);
-		D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc(0);
-		CRect border(Image->m_Border.x, Image->m_Border.y, Image->m_Border.z, Image->m_Border.w);
-		ui_render->DrawWindow(rect, color, CRect(0, 0, desc.Width, desc.Height), border, CSize(desc.Width, desc.Height));
+		ui_render->PushWindowUI(rect, color, Image->m_Rect, Image->m_Border, Image->m_Size, Image->m_Texture.get(), UIRender::UILayerTexture);
 	}
 	else
 	{
-		ui_render->SetTexture(BaseTexturePtr());
-		ui_render->DrawRectangle(rect, color, Rectangle(0,0,1,1));
+		ui_render->PushRectangleUI(rect, Rectangle(0,0,1,1), color, NULL, UIRender::UILayerTexture);
 	}
 }
 
@@ -280,7 +230,7 @@ void ControlSkin::DrawString(UIRender * ui_render, LPCWSTR pString, const my::Re
 {
 	if(m_Font)
 	{
-		m_Font->DrawString(ui_render, pString, rect, TextColor, TextAlign);
+		m_Font->PushStringVertices(ui_render, pString, rect, TextColor, TextAlign);
 	}
 }
 
@@ -781,11 +731,10 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					Min(TextRect.r, TextRect.l + sel_right_x),
 					TextRect.b);
 
-				ui_render->SetTexture(BaseTexturePtr());
-				ui_render->DrawRectangle(SelRect, Skin->m_SelBkColor, Rectangle(0,0,1,1));
+				ui_render->PushRectangleUI(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, NULL, UIRender::UILayerTexture);
 			}
 
-			Skin->m_Font->DrawString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+			Skin->m_Font->PushStringVertices(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
 
 			if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
 			{
@@ -811,8 +760,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 				}
 
-				ui_render->SetTexture(BaseTexturePtr());
-				ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
+				ui_render->PushRectangleUI(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
 			}
 		}
 	}
@@ -1495,18 +1443,16 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		ui_render->SetTexture(BaseTexturePtr());
-		ui_render->DrawRectangle(rc, m_CompWinColor, Rectangle(0,0,1,1));
+		ui_render->PushRectangleUI(rc, Rectangle(0,0,1,1), m_CompWinColor, NULL, UIRender::UILayerTexture);
 
-		Skin->m_Font->DrawString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->PushStringVertices(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
 		float caret_x = Skin->m_Font->CPtoX(s_CompString.c_str(), ImeUi_GetImeCursorChars());
 		if(m_bCaretOn)
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			ui_render->SetTexture(BaseTexturePtr());
-			ui_render->DrawRectangle(CaretRect, Skin->m_CaretColor, Rectangle(0,0,1,1));
+			ui_render->PushRectangleUI(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
 		}
 	}
 }
@@ -1544,10 +1490,9 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		ui_render->SetTexture(BaseTexturePtr());
-		ui_render->DrawRectangle(CandRect, m_CandidateWinColor, Rectangle(0,0,1,1));
+		ui_render->PushRectangleUI(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, NULL, UIRender::UILayerTexture);
 
-		Skin->m_Font->DrawString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
+		Skin->m_Font->PushStringVertices(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
 }
 
@@ -2340,26 +2285,23 @@ void Dialog::Refresh(void)
 
 bool Dialog::RayToWorld(const Ray & ray, Vector2 & ptWorld)
 {
-	Vector3 dialogNormal = m_World[2].xyz.normalize();
-	float dialogDist = m_World[3].xyz.dot(dialogNormal);
-	RayResult result = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, Plane::NormalDistance(dialogNormal, dialogDist));
-
+	RayResult result = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, Plane::NormalDistance(Vector3(0,0,1), 0));
 	if (result.first)
 	{
 		Vector3 ptInt(ray.p + ray.d * result.second);
-		ptWorld = ptInt.transformCoord(m_World.inverse()).xy;
+		ptWorld = ptInt.xy;
 		return true;
 	}
 	return false;
 }
 
-void DialogMgr::SetDlgViewport(const Vector2 & vp, float fov)
+void DialogMgr::SetDlgViewport(const Vector2 & Viewport, float fov)
 {
-	m_ViewPosition = Vector3(vp.x * 0.5f, vp.y * 0.5f, -vp.y * 0.5f * cot(fov / 2));
+	m_ViewPosition = Vector3(Viewport.x * 0.5f, Viewport.y * 0.5f, -Viewport.y * 0.5f * cot(fov / 2));
 
 	m_View = Matrix4::LookAtRH(m_ViewPosition, Vector3(m_ViewPosition.x, m_ViewPosition.y, 0), Vector3(0, -1, 0));
 
-	m_Proj = Matrix4::PerspectiveFovRH(fov, vp.x / vp.y, 0.1f, 3000.0f);
+	m_Proj = Matrix4::PerspectiveFovRH(fov, Viewport.x / Viewport.y, 0.1f, 3000.0f);
 
 	m_ViewProj = m_View * m_Proj;
 
@@ -2390,9 +2332,9 @@ void DialogMgr::Draw(UIRender * ui_render, double fTime, float fElapsedTime)
 	DialogPtrList::iterator dlg_iter = m_DlgList.begin();
 	for(; dlg_iter != m_DlgList.end(); dlg_iter++)
 	{
-		ui_render->SetWorld((*dlg_iter)->m_World);
-
 		(*dlg_iter)->Draw(ui_render, fElapsedTime);
+
+		ui_render->Flush();
 	}
 }
 

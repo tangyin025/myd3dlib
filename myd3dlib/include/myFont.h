@@ -214,13 +214,6 @@ namespace my
 			Align align = AlignLeftTop);
 
 		void DrawString(
-			UIRender * ui_render,
-			LPCWSTR pString,
-			const Rectangle & rect,
-			D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255),
-			Align align = AlignLeftTop);
-
-		void DrawString(
 			LPD3DXSPRITE pSprite,
 			LPCWSTR pString,
 			const Rectangle & rect,

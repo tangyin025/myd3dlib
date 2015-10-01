@@ -497,24 +497,11 @@ void Font::PushStringVertices(
 			(float)info.textureRect.bottom / m_textureDesc.Height);
 
 		// ! frequently calling UIRender::PushVertex may obviously lose performance
-		ui_render->PushRectangle(
-			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color);
+		ui_render->PushRectangleUI(
+			Rectangle::LeftTop(pen.x + info.horiBearingX, pen.y - info.horiBearingY, info.width, info.height), uv_rect, Color, m_Texture.get(), UIRender::UILayerFont);
 
 		pen.x += info.horiAdvance;
 	}
-}
-
-void Font::DrawString(
-	UIRender * ui_render,
-	LPCWSTR pString,
-	const my::Rectangle & rect,
-	D3DCOLOR Color,
-	Align align)
-{
-	ui_render->ClearVertexList();
-	PushStringVertices(ui_render, pString, rect, Color, align);
-	ui_render->SetTexture(m_Texture);
-	ui_render->DrawVertexList();
 }
 
 void Font::DrawString(

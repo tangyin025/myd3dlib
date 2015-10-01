@@ -33,9 +33,7 @@ public:
 
 	virtual void SetViewProj(const my::Matrix4 & ViewProj);
 
-	virtual void SetTexture(const my::BaseTexturePtr & Texture);
-
-	virtual void DrawVertexList(void);
+	virtual void Flush(void);
 };
 
 class Game

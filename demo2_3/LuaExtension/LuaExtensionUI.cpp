@@ -19,7 +19,7 @@ void ExportUI2Lua(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<my::BaseTexturePtr, const my::Vector4 &>())
+			.def(constructor<my::BaseTexturePtr, const my::Rectangle &, const my::Vector4 &>())
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())
@@ -129,7 +129,6 @@ void ExportUI2Lua(lua_State * L)
 
 		, class_<my::Dialog, my::Control, boost::shared_ptr<my::Dialog> >("Dialog")
 			.def(constructor<>())
-			.def_readwrite("World", &my::Dialog::m_World)
 			.def("Refresh", &my::Dialog::Refresh)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)

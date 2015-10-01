@@ -24,6 +24,8 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
+		BaseTexturePtr m_TexWhite;
+
 		typedef std::vector<std::pair<unsigned int, unsigned int> > TextureLayer;
 
 		typedef boost::unordered_map<BaseTexture *, TextureLayer> UILayer;
@@ -32,8 +34,6 @@ namespace my
 		{
 			UILayerTexture,
 			UILayerFont,
-			UILayerTopTexture,
-			UILayerTopFont,
 			UILayerNum,
 		};
 
@@ -41,7 +41,7 @@ namespace my
 
 		UILayerList m_Layer;
 
-		CUSTOMVERTEX vertex_list[2048];
+		CUSTOMVERTEX vertex_list[8192 * 3];
 
 		size_t vertex_count;
 
@@ -64,15 +64,7 @@ namespace my
 
 		virtual void SetViewProj(const Matrix4 & ViewProj);
 
-		virtual void SetTexture(const BaseTexturePtr & Texture);
-
-		virtual void ClearVertexList(void);
-
-		virtual void ClearVertexListUI(void);
-
-		virtual void DrawVertexList(void);
-
-		virtual void DrawVertexListUI(void);
+		virtual void Flush(void);
 
 		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color);
 
@@ -82,13 +74,9 @@ namespace my
 
 		void PushRectangleUI(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void DrawRectangle(const Rectangle & rect, DWORD color, const Rectangle & UvRect);
-
 		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 
 		void PushWindowUI(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
-
-		void DrawWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
@@ -108,12 +96,20 @@ namespace my
 	public:
 		BaseTexturePtr m_Texture;
 
-		Vector4 m_Border;
+		CRect m_Rect;
 
-		ControlImage(BaseTexturePtr Texture, const Vector4 & Border)
+		CRect m_Border;
+
+		CSize m_Size;
+
+		ControlImage(BaseTexturePtr Texture, const Rectangle & Rect, const Vector4 & Border)
 			: m_Texture(Texture)
-			, m_Border(Border)
+			, m_Rect((int)Rect.l, (int)Rect.t, (int)Rect.r, (int)Rect.b)
+			, m_Border((int)Border.x, (int)Border.y, (int)Border.z, (int)Border.w)
 		{
+			_ASSERT(m_Texture);
+			D3DSURFACE_DESC desc = m_Texture->GetLevelDesc(0);
+			m_Size.SetSize(desc.Width, desc.Height);
 		}
 	};
 
@@ -752,8 +748,6 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
-		Matrix4 m_World;
-
 		bool m_bMouseDrag;
 
 		Vector2 m_MouseOffset;
@@ -764,8 +758,7 @@ namespace my
 
 	public:
 		Dialog(void)
-			: m_World(Matrix4::identity)
-			, m_bMouseDrag(false)
+			: m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
 		}
@@ -810,7 +803,7 @@ namespace my
 			SetDlgViewport(Vector2(800,600), D3DXToRadian(75.0f));
 		}
 
-		void SetDlgViewport(const Vector2 & vp, float fov);
+		void SetDlgViewport(const Vector2 & Viewport, float fov);
 
 		Vector2 GetDlgViewport(void) const;
 

@@ -28,7 +28,7 @@ void MessagePanel::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 
 		float y = Rect.t;
 		for(; i != m_lend && y <= Rect.b - m_Skin->m_Font->m_LineHeight; i = MoveLineIndex(i, 1), y += m_Skin->m_Font->m_LineHeight)
 		{
-			m_Skin->m_Font->DrawString(ui_render, m_lines[i].m_Text.c_str(),
+			m_Skin->m_Font->PushStringVertices(ui_render, m_lines[i].m_Text.c_str(),
 				my::Rectangle(Rect.l, y, Rect.r, y + m_Skin->m_Font->m_LineHeight), m_lines[i].m_Color);
 		}
 	}
