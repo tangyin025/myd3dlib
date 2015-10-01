@@ -699,12 +699,12 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 	return shader.get();
 }
 
-void Game::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
+void Game::OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask)
 {
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
-		(*actor_iter)->QueryComponent(frustum, this, PassMask);
+		(*actor_iter)->OnQueryComponent(frustum, this, PassMask);
 	}
 }
 

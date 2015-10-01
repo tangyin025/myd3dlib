@@ -48,7 +48,7 @@ public:
 	{
 	}
 
-	void QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	template <class CmpClass>
 	boost::shared_ptr<CmpClass> CreateComponent(const my::AABB & aabb, const my::Matrix4 & World)

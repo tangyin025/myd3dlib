@@ -206,11 +206,11 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 	return m_DownFilterRT[i].get();
 }
 
-void CChildView::QueryComponent(const my::Frustum & frustum, unsigned int PassMask)
+void CChildView::OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_Actor->QueryComponent(frustum, &theApp, PassMask);
+	pFrame->m_Actor->OnQueryComponent(frustum, &theApp, PassMask);
 }
 
 bool CChildView::OnRayTest(const my::Ray & ray)
@@ -247,7 +247,7 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	boost::dynamic_pointer_cast<my::OctRoot>(pFrame->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+	pFrame->m_Actor->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
 
 	return !m_SelCmpMap.empty();
 }
@@ -288,7 +288,7 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	boost::dynamic_pointer_cast<my::OctRoot>(pFrame->m_Actor)->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
+	pFrame->m_Actor->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
 
 	return !m_SelCmpMap.empty();
 }

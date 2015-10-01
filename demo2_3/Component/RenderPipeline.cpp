@@ -191,7 +191,7 @@ void RenderPipeline::OnFrameRender(
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 
-	pRC->QueryComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), PassTypeToMask(PassTypeShadow));
+	pRC->OnQueryComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), PassTypeToMask(PassTypeShadow));
 
 	m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
@@ -200,7 +200,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 
-	pRC->QueryComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->OnQueryComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);

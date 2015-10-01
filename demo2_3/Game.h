@@ -187,7 +187,7 @@ public:
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
-	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
+	virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 
 	void AddActor(ActorPtr actor);
 

@@ -251,7 +251,7 @@ public:
 
 		virtual my::Texture2D * GetDownFilterTexture(unsigned int i) = 0;
 
-		virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
+		virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
 	};
 
 	struct MeshAtom

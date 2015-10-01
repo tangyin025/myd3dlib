@@ -15,10 +15,10 @@ ComponentLevel * LODComponent::GetComponentLevel(unsigned int level)
 
 void LODComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	GetComponentLevel(m_level)->QueryComponent(frustum, pipeline, PassMask);
+	GetComponentLevel(m_level)->OnQueryComponent(frustum, pipeline, PassMask);
 }
 
-void ComponentLevel::QueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void ComponentLevel::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	struct CallBack : public my::IQueryCallback
 	{
@@ -45,7 +45,7 @@ void ComponentLevel::QueryComponent(const my::Frustum & frustum, RenderPipeline 
 		}
 	};
 
-	OctRoot::QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+	QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
 void LODComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -71,7 +71,7 @@ void Actor::Update(float fElapsedTime)
 		}
 	};
 
-	OctRoot::QueryComponentAll(&CallBack(fElapsedTime));
+	QueryComponentAll(&CallBack(fElapsedTime));
 
 	AnimatorPtrList::iterator anim_iter = m_AnimatorList.begin();
 	for (; anim_iter != m_AnimatorList.end(); anim_iter++)

@@ -74,7 +74,7 @@ protected:
 	virtual my::Texture2D * GetOpaqueTexture(void);
 	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i);
 	virtual my::Texture2D * GetDownFilterTexture(unsigned int i);
-	virtual void QueryComponent(const my::Frustum & frustum, unsigned int PassMask);
+	virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask);
 	bool OnRayTest(const my::Ray & ray);
 	bool OnFrustumTest(const my::Frustum & ftm);
 	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
