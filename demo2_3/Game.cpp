@@ -55,9 +55,8 @@ void EffectUIRender::SetViewProj(const Matrix4 & ViewProj)
 
 void EffectUIRender::Flush(void)
 {
-	if(m_UIEffect->m_ptr && vertex_count > 0)
+	if(m_UIEffect->m_ptr)
 	{
-		m_UIEffect->SetMatrix("g_World", Matrix4::identity);
 		for(UINT p = 0; p < m_Passes; p++)
 		{
 			m_UIEffect->BeginPass(p);

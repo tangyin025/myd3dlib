@@ -26,9 +26,9 @@ namespace my
 
 		BaseTexturePtr m_TexWhite;
 
-		typedef std::vector<std::pair<unsigned int, unsigned int> > TextureLayer;
+		typedef std::vector<CUSTOMVERTEX> VertexList;
 
-		typedef boost::unordered_map<BaseTexture *, TextureLayer> UILayer;
+		typedef boost::unordered_map<BaseTexture *, VertexList> UILayer;
 
 		enum UILayerType
 		{
@@ -41,16 +41,11 @@ namespace my
 
 		UILayerList m_Layer;
 
-		CUSTOMVERTEX vertex_list[8192 * 3];
-
-		size_t vertex_count;
-
 		DWORD State[16];
 
 	public:
 		UIRender(IDirect3DDevice9 * pd3dDevice)
 			: m_Device(pd3dDevice)
-			, vertex_count(0)
 		{
 		}
 
@@ -66,15 +61,15 @@ namespace my
 
 		virtual void Flush(void);
 
-		void PushVertexSimple(float x, float y, float z, float u, float v, D3DCOLOR color);
+		void PushVertexSimple(VertexList & vertex_list, unsigned int start, float x, float y, float z, float u, float v, D3DCOLOR color);
 
 		void PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushRectangleSimple(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
+		void PushRectangleSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color);
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushWindowSimple(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
+		void PushWindowSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
 
 		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
 	};
@@ -748,6 +743,8 @@ namespace my
 	class Dialog : public Control
 	{
 	public:
+		Matrix4 m_World;
+
 		bool m_bMouseDrag;
 
 		Vector2 m_MouseOffset;
@@ -758,7 +755,8 @@ namespace my
 
 	public:
 		Dialog(void)
-			: m_bMouseDrag(false)
+			: m_World(Matrix4::identity)
+			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
 		}
