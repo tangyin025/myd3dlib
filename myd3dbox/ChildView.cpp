@@ -5,7 +5,6 @@
 #include "stdafx.h"
 #include "MainApp.h"
 
-#include "MainDoc.h"
 #include "ChildView.h"
 #include "MainFrm.h"
 
@@ -79,10 +78,10 @@ BOOL CChildView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CChildView::OnDraw(CDC* /*pDC*/)
 {
-	CMainDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
+	//CMainDoc* pDoc = GetDocument();
+	//ASSERT_VALID(pDoc);
+	//if (!pDoc)
+	//	return;
 
 	// TODO: add draw code for native data here
 }
@@ -365,11 +364,11 @@ void CChildView::Dump(CDumpContext& dc) const
 	CView::Dump(dc);
 }
 
-CMainDoc* CChildView::GetDocument() const // non-debug version is inline
-{
-	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
-	return (CMainDoc*)m_pDocument;
-}
+//CMainDoc* CChildView::GetDocument() const // non-debug version is inline
+//{
+//	ASSERT(m_pDocument->IsKindOf(RUNTIME_CLASS(CMainDoc)));
+//	return (CMainDoc*)m_pDocument;
+//}
 #endif //_DEBUG
 
 

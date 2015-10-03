@@ -12,7 +12,7 @@ class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
 {
 	
-protected: // create from serialization only
+public: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 

@@ -6,8 +6,6 @@
 #include "afxwinappex.h"
 #include "MainApp.h"
 #include "MainFrm.h"
-
-#include "MainDoc.h"
 #include "ChildView.h"
 
 #ifdef _DEBUG
@@ -204,28 +202,32 @@ BOOL CMainApp::InitInstance()
 		return FALSE;
 	}
 
-	// Register the application's document templates.  Document templates
-	//  serve as the connection between documents, frame windows and views
-	CSingleDocTemplate* pDocTemplate;
-	pDocTemplate = new CSingleDocTemplate(
-		IDR_MAINFRAME,
-		RUNTIME_CLASS(CMainDoc),
-		RUNTIME_CLASS(CMainFrame),       // main SDI frame window
-		RUNTIME_CLASS(CChildView));
-	if (!pDocTemplate)
+	//// Register the application's document templates.  Document templates
+	////  serve as the connection between documents, frame windows and views
+	//CSingleDocTemplate* pDocTemplate;
+	//pDocTemplate = new CSingleDocTemplate(
+	//	IDR_MAINFRAME,
+	//	RUNTIME_CLASS(CMainDoc),
+	//	RUNTIME_CLASS(CMainFrame),       // main SDI frame window
+	//	RUNTIME_CLASS(CChildView));
+	//if (!pDocTemplate)
+	//	return FALSE;
+	//AddDocTemplate(pDocTemplate);
+
+	//// Parse command line for standard shell commands, DDE, file open
+	//CCommandLineInfo cmdInfo;
+	//ParseCommandLine(cmdInfo);
+
+	//// Dispatch commands specified on the command line.  Will return FALSE if
+	//// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
+	//if (!ProcessShellCommand(cmdInfo))
+	//	return FALSE;
+
+	CMainFrame * pFrame = new CMainFrame;
+	if (!pFrame)
 		return FALSE;
-	AddDocTemplate(pDocTemplate);
-
-
-
-	// Parse command line for standard shell commands, DDE, file open
-	CCommandLineInfo cmdInfo;
-	ParseCommandLine(cmdInfo);
-
-
-	// Dispatch commands specified on the command line.  Will return FALSE if
-	// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
-	if (!ProcessShellCommand(cmdInfo))
+	m_pMainWnd = pFrame;
+	if (!pFrame->LoadFrame(IDR_MAINFRAME))
 		return FALSE;
 
 	// The one and only window has been initialized, so show and update it

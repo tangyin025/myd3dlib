@@ -212,10 +212,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MainDoc.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -275,10 +271,6 @@
 			</File>
 			<File
 				RelativePath=".\MainApp.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MainDoc.h"
 				>
 			</File>
 			<File

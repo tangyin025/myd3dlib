@@ -6,6 +6,7 @@
 #include "MainApp.h"
 
 #include "MainFrm.h"
+#include "ChildView.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -180,10 +181,13 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 BOOL CMainFrame::OnCreateClient(LPCREATESTRUCT /*lpcs*/,
 	CCreateContext* pContext)
 {
+	// C:\Program Files (x86)\Microsoft Visual Studio 9.0\VC\atlmfc\src\mfc\winsplit.cpp
+	CCreateContext param;
+	param.m_pNewViewClass = RUNTIME_CLASS(CChildView);
 	return m_wndSplitter.Create(this,
 		2, 2,               // TODO: adjust the number of rows, columns
 		CSize(10, 10),      // TODO: adjust the minimum pane size
-		pContext, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SPLS_DYNAMIC_SPLIT, AFX_IDW_PANE_FIRST);
+		&param, WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL | SPLS_DYNAMIC_SPLIT, AFX_IDW_PANE_FIRST);
 }
 
 BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)

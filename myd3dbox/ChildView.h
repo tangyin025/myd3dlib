@@ -22,7 +22,7 @@ protected: // create from serialization only
 
 // Attributes
 public:
-	CMainDoc* GetDocument() const;
+	//CMainDoc* GetDocument() const;
 
 // Operations
 public:
@@ -120,7 +120,7 @@ public:
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp
-inline CMainDoc* CChildView::GetDocument() const
-   { return reinterpret_cast<CMainDoc*>(m_pDocument); }
+//inline CMainDoc* CChildView::GetDocument() const
+//   { return reinterpret_cast<CMainDoc*>(m_pDocument); }
 #endif
 
