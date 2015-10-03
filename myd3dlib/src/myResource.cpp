@@ -533,6 +533,7 @@ void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelate
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
+			// ! OgreMeshSet will cause conflict of Mesh Resource such as "xxx.mesh.xml0"
 			_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
 		}
 	}
