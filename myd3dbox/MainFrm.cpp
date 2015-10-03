@@ -367,6 +367,8 @@ void CMainFrame::OnFileNew()
 		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
 	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
 	theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
+
+	InitialUpdateFrame(NULL, TRUE);
 }
 
 void CMainFrame::OnFileOpen()
