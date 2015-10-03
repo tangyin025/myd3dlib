@@ -18,8 +18,8 @@
 BEGIN_MESSAGE_MAP(CMainApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CMainApp::OnAppAbout)
 	// Standard file based document commands
-	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
+	//ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
+	//ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 END_MESSAGE_MAP()
 
 
@@ -214,6 +214,13 @@ BOOL CMainApp::InitInstance()
 	//	return FALSE;
 	//AddDocTemplate(pDocTemplate);
 
+	CMainFrame * pFrame = new CMainFrame;
+	if (!pFrame)
+		return FALSE;
+	m_pMainWnd = pFrame;
+	if (!pFrame->LoadFrame(IDR_MAINFRAME))
+		return FALSE;
+
 	//// Parse command line for standard shell commands, DDE, file open
 	//CCommandLineInfo cmdInfo;
 	//ParseCommandLine(cmdInfo);
@@ -222,13 +229,7 @@ BOOL CMainApp::InitInstance()
 	//// app was launched with /RegServer, /Register, /Unregserver or /Unregister.
 	//if (!ProcessShellCommand(cmdInfo))
 	//	return FALSE;
-
-	CMainFrame * pFrame = new CMainFrame;
-	if (!pFrame)
-		return FALSE;
-	m_pMainWnd = pFrame;
-	if (!pFrame->LoadFrame(IDR_MAINFRAME))
-		return FALSE;
+	pFrame->OnCmdMsg(ID_FILE_NEW, 0, NULL, NULL);
 
 	// The one and only window has been initialized, so show and update it
 	m_pMainWnd->ShowWindow(SW_SHOW);

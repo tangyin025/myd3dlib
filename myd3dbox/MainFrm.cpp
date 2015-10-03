@@ -27,6 +27,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnApplicationLook)
 	ON_UPDATE_COMMAND_UI_RANGE(ID_VIEW_APPLOOK_WIN_2000, ID_VIEW_APPLOOK_OFF_2007_AQUA, &CMainFrame::OnUpdateApplicationLook)
 	ON_WM_DESTROY()
+	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -356,4 +358,18 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 	}
 
 	return __super::PreTranslateMessage(pMsg);
+}
+
+void CMainFrame::OnFileNew()
+{
+	// TODO: Add your command handler code here
+	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
+		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
+	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
+	theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
+}
+
+void CMainFrame::OnFileOpen()
+{
+	// TODO: Add your command handler code here
 }

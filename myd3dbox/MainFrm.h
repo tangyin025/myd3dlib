@@ -62,6 +62,8 @@ protected:
 public:
 	afx_msg void OnDestroy();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnFileNew();
+	afx_msg void OnFileOpen();
 };
 
 
