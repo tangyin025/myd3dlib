@@ -246,7 +246,7 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_Actor->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+	pFrame->m_SelectionRoot->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
 
 	return !m_SelCmpMap.empty();
 }
@@ -287,46 +287,44 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_Actor->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
+	pFrame->m_SelectionRoot->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
 
 	return !m_SelCmpMap.empty();
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
-	//theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	//theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
-	//my::AABB box(FLT_MAX,-FLT_MAX);
-	//HTREEITEM hItem = pFrame->m_wndOutliner.m_wndClassView.GetFirstSelectedItem();
-	//for (; hItem; hItem = pFrame->m_wndOutliner.m_wndClassView.GetNextSelectedItem(hItem))
-	//{
-	//	Component * cmp = pFrame->m_wndOutliner.GetTreeItemData<Component *>(hItem);
-	//	ASSERT(cmp);
-	//	switch (cmp->m_Type)
-	//	{
-	//	case Component::ComponentTypeMesh:
-	//		{
-	//			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-	//			UINT passes = theApp.m_SimpleSample->Begin();
-	//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-	//			{
-	//				theApp.m_SimpleSample->BeginPass(0);
-	//				mesh_cmp->m_Mesh->DrawSubset(i);
-	//				theApp.m_SimpleSample->EndPass();
-	//			}
-	//			theApp.m_SimpleSample->End();
-	//		}
-	//		break;
-	//	}
-	//	box.unionSelf(cmp->m_aabb);
-	//}
-	//if (box.m_min.x < box.m_max.x)
-	//{
-	//	PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
-	//}
+	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	my::AABB box(FLT_MAX,-FLT_MAX);
+	CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
+	for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
+	{
+		switch ((*sel_iter)->m_Type)
+		{
+		case Component::ComponentTypeMesh:
+			{
+				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((*sel_iter));
+				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+				UINT passes = theApp.m_SimpleSample->Begin();
+				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+				{
+					theApp.m_SimpleSample->BeginPass(0);
+					mesh_cmp->m_Mesh->DrawSubset(i);
+					theApp.m_SimpleSample->EndPass();
+				}
+				theApp.m_SimpleSample->End();
+			}
+			break;
+		}
+		box.unionSelf((*sel_iter)->m_aabb);
+	}
+	if (box.m_min.x < box.m_max.x)
+	{
+		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
+	}
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -340,7 +338,7 @@ double CChildView::EndPerformanceCount(void)
 	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
 }
 
-void CChildView::OnOutlinerSelectChanged(void)
+void CChildView::OnSelectionChanged(void)
 {
 	Invalidate();
 }
@@ -482,7 +480,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	CMainFrame::getSingleton().m_EventSelectChanged.connect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
+	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this));
 
 	return 0;
 }
@@ -492,7 +490,7 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
-	CMainFrame::getSingleton().m_EventSelectChanged.disconnect(boost::bind(&CChildView::OnOutlinerSelectChanged, this));
+	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -512,45 +510,48 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
-	//if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
-	//{
-	//	pFrame->m_wndOutliner.m_wndClassView.SelectAll(FALSE);
-	//}
+	bool bSelectionChanged = false;
+	if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
+	{
+		pFrame->m_SelectionSet.clear();
+		bSelectionChanged = true;
+	}
 
 	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
 	{
 		my::Rectangle rc(pFrame->m_Tracker.m_rect.left, pFrame->m_Tracker.m_rect.top, pFrame->m_Tracker.m_rect.right, pFrame->m_Tracker.m_rect.bottom);
 		if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 		{
-			//SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			//for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
-			//{
-			//	HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
-			//	if (hItem)
-			//	{
-			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
-			//	}
-			//}
+			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
+			{
+				pFrame->m_SelectionSet.insert(cmp_iter->second);
+				bSelectionChanged = true;
+			}
 		}
 	}
 	else
 	{
 		if (OnRayTest(ray))
 		{
-			//SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			//HTREEITEM hItem = pFrame->m_wndOutliner.GetTreeItemByData((DWORD_PTR)cmp_iter->second);
-			//if (hItem)
-			//{
-			//	if (pFrame->m_wndOutliner.m_wndClassView.IsSelected(hItem))
-			//	{
-			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, 0, TVIS_SELECTED);
-			//	}
-			//	else
-			//	{
-			//		pFrame->m_wndOutliner.m_wndClassView.SetItemState(hItem, TVIS_SELECTED, TVIS_SELECTED);
-			//	}
-			//}
+			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+			CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_SelectionSet.find(cmp_iter->second);
+			if (sel_iter != pFrame->m_SelectionSet.end())
+			{
+				pFrame->m_SelectionSet.erase(sel_iter);
+				bSelectionChanged = true;
+			}
+			else
+			{
+				pFrame->m_SelectionSet.insert(cmp_iter->second);
+				bSelectionChanged = true;
+			}
 		}
+	}
+
+	if (bSelectionChanged)
+	{
+		pFrame->m_EventSelectionChanged();
 	}
 }
 

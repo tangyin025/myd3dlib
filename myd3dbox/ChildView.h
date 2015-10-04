@@ -81,7 +81,7 @@ protected:
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
 
-	void OnOutlinerSelectChanged(void);
+	void OnSelectionChanged(void);
 
 // Implementation
 public:

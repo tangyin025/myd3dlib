@@ -208,7 +208,7 @@ void COutlinerWnd::OnChangeVisualStyle()
 
 void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	CMainFrame::getSingleton().m_EventSelectChanged();
+	CMainFrame::getSingleton().m_EventSelectionChanged();
 }
 
 void COutlinerWnd::OnMenuAddMeshComponent()

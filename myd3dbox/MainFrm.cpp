@@ -64,8 +64,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// set the visual manager and style based on persisted value
 	OnApplicationLook(theApp.m_nAppLook);
 
-	m_Actor.reset(new Actor(my::AABB(-100,100), 1.0f));
-
 	if (!m_wndMenuBar.Create(this))
 	{
 		TRACE0("Failed to create menubar\n");
@@ -176,6 +174,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
+
+	m_Actor.reset(new Actor(my::AABB(-100,100), 1.0f));
+	m_SelectionRoot = m_Actor.get();
 
 	return 0;
 }
@@ -364,6 +365,9 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	m_Actor->ClearComponents();
+	m_SelectionRoot = m_Actor.get();
+	m_SelectionSet.clear();
+
 	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
 		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
 	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");

@@ -23,9 +23,12 @@ public:
 	BOOL m_bEatAltUp;
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
-	boost::signals2::signal<void ()> m_EventSelectChanged;
+	boost::signals2::signal<void ()> m_EventSelectionChanged;
 	CRectTracker m_Tracker;
 	ActorPtr m_Actor;
+	ComponentLevel * m_SelectionRoot;
+	typedef boost::unordered_set<Component *> ComponentSet;
+	ComponentSet m_SelectionSet;
 
 // Operations
 public:
