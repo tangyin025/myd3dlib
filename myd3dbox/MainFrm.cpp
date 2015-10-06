@@ -392,6 +392,10 @@ void CMainFrame::OnEditUndo()
 	// TODO: Add your command handler code here
 	m_History.Undo();
 	m_EventHistoryChanged();
+
+	m_SelectionRoot = m_Actor.get();
+	m_SelectionSet.clear();
+	m_EventSelectionChanged();
 }
 
 void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
@@ -416,8 +420,21 @@ void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	MeshComponentPtr cmp(new MeshComponent(my::AABB(-1,1), my::Matrix4::Identity()));
-	theApp.LoadMeshAsync("mesh/tube.mesh.xml", boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, &theApp, cmp, _1, false));
-	m_History.PushAndDo(HistoryStep::AddComponent(m_SelectionRoot, cmp));
-	m_EventHistoryChanged();
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK == dlg.DoModal())
+	{
+		CString strPath = dlg.GetPathName();
+		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPath));
+		if (mesh)
+		{
+			MeshComponentPtr cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity()));
+			theApp.OnMeshComponentMeshLoaded(cmp, mesh, false);
+			m_History.PushAndDo(HistoryStep::AddComponent(m_SelectionRoot, cmp));
+			m_EventHistoryChanged();
+		}
+		else
+		{
+			MessageBox(strPath, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
+		}
+	}
 }
