@@ -191,6 +191,18 @@ public:
 
 	void RemoveAllActors(void);
 
+	MeshComponentPtr CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
+
+	MeshComponentPtr CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
+
+	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
+
+	EmitterComponentPtr CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
+
+	EmitterComponentPtr CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
+
+	AnimatorPtr CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
+
 	ClothComponentPtr CreateClothComponentFromFile(
 		ComponentLevel * owner,
 		const std::string & mesh_path,

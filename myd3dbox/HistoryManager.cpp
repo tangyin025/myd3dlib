@@ -1,7 +1,7 @@
 #include "StdAfx.h"
-#include "HistroyManager.h"
+#include "HistoryManager.h"
 
-void HistroyManager::PushAndDo(HistoryStepPtr step)
+void HistoryManager::PushAndDo(HistoryStepPtr step)
 {
 	m_HistoryList.erase(m_CurrentIter, m_HistoryList.end());
 	m_HistoryList.push_back(step);
@@ -9,23 +9,29 @@ void HistroyManager::PushAndDo(HistoryStepPtr step)
 	step->Do();
 }
 
-bool HistroyManager::CanDo(void)
+void HistoryManager::ClearHistory(void)
+{
+	m_HistoryList.clear();
+	m_CurrentIter = m_HistoryList.end();
+}
+
+bool HistoryManager::CanDo(void)
 {
 	return m_CurrentIter != m_HistoryList.end();
 }
 
-void HistroyManager::Do(void)
+void HistoryManager::Do(void)
 {
 	ASSERT(CanDo());
 	(*m_CurrentIter++)->Do();
 }
 
-bool HistroyManager::CanUndo(void)
+bool HistoryManager::CanUndo(void)
 {
 	return m_CurrentIter != m_HistoryList.begin();
 }
 
-void HistroyManager::Undo(void)
+void HistoryManager::Undo(void)
 {
 	ASSERT(CanUndo());
 	(*--m_CurrentIter)->Undo();

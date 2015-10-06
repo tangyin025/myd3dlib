@@ -718,12 +718,59 @@ void Game::RemoveAllActors(void)
 	m_Actors.clear();
 }
 
+MeshComponentPtr Game::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
+{
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
+	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
+	return ret;
+}
+
+MeshComponentPtr Game::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
+{
+	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
+	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
+	return ret;
+}
+
+void Game::CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
+{
+	for (unsigned int i = 0; i < mesh_set->size(); i++)
+	{
+		CreateMeshComponent(owner, (*mesh_set)[i], (*mesh_set)[i]->m_aabb, Matrix4::Identity(), false);
+	}
+}
+
+EmitterComponentPtr Game::CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
+	OnEmitterComponentEmitterLoaded(ret, emitter);
+	return ret;
+}
+
+EmitterComponentPtr Game::CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World)
+{
+	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
+	my::EmitterPtr emitter = CreateEmitter(path);
+	OnEmitterComponentEmitterLoaded(ret, emitter);
+	return ret;
+}
+
+AnimatorPtr Game::CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path)
+{
+	AnimatorPtr ret = owner->CreateAnimator<SimpleAnimator>();
+	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
+	return ret;
+}
+
 ClothComponentPtr Game::CreateClothComponentFromFile(
 	ComponentLevel * owner,
 	const std::string & mesh_path,
 	const std::string & skel_path,
 	const std::string & root_name, const my::AABB & aabb, const my::Matrix4 & World)
 {
-	return ActorResourceMgr::CreateClothComponentFromFile(owner,
-		boost::make_tuple(m_Cooking.get(), PhysXContext::m_sdk.get(), PhysXSceneContext::m_PxScene.get()), mesh_path, skel_path, root_name, PxClothCollisionData(), aabb, World);
+	ClothComponentPtr ret = owner->CreateComponent<ClothComponent>(aabb, World);
+	AddResource(str_printf("cloth_%s_%s_%s", mesh_path.c_str(), skel_path.c_str(), root_name.c_str()), ret);
+	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
+		this, ret, _1, boost::make_tuple(m_Cooking.get(), PhysXContext::m_sdk.get(), PhysXSceneContext::m_PxScene.get()), mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData)));
+	return ret;
 }

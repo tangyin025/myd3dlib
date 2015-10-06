@@ -82,6 +82,7 @@ protected:
 	double EndPerformanceCount(void);
 
 	void OnSelectionChanged(void);
+	void OnHistoryChanged(void);
 
 // Implementation
 public:

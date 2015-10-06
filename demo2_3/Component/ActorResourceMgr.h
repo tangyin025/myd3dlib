@@ -107,24 +107,4 @@ public:
 	boost::shared_ptr<Material> CreateMaterial(const std::string & path);
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
-
-	MeshComponentPtr CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
-
-	MeshComponentPtr CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
-
-	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
-
-	EmitterComponentPtr CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
-
-	EmitterComponentPtr CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
-
-	AnimatorPtr CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
-
-	ClothComponentPtr CreateClothComponentFromFile(
-		ComponentLevel * owner,
-		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-		const std::string & mesh_path,
-		const std::string & skel_path,
-		const std::string & root_name,
-		const PxClothCollisionData& collData, const my::AABB & aabb, const my::Matrix4 & World);
 };

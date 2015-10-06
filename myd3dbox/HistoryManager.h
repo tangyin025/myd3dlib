@@ -1,8 +1,8 @@
 #pragma once
 
-#include "HistroyStep.h"
+#include "HistoryStep.h"
 
-class HistroyManager
+class HistoryManager
 {
 public:
 	typedef std::deque<HistoryStepPtr> HistoryStepList;
@@ -12,16 +12,18 @@ public:
 	HistoryStepList::iterator m_CurrentIter;
 
 public:
-	HistroyManager(void)
+	HistoryManager(void)
 		: m_CurrentIter(m_HistoryList.end())
 	{
 	}
 
-	virtual ~HistroyManager(void)
+	virtual ~HistoryManager(void)
 	{
 	}
 
 	void PushAndDo(HistoryStepPtr step);
+
+	void ClearHistory(void);
 
 	bool CanDo(void);
 

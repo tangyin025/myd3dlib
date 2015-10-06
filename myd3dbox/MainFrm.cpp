@@ -369,14 +369,15 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
+	m_History.ClearHistory();
 	m_Actor->ClearComponents();
 	m_SelectionRoot = m_Actor.get();
 	m_SelectionSet.clear();
 
-	MeshComponentPtr cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
-		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
-	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
-	theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
+	//MeshComponentPtr cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
+	//	"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
+	//my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
+	//theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
 
 	InitialUpdateFrame(NULL, TRUE);
 }
@@ -390,6 +391,7 @@ void CMainFrame::OnEditUndo()
 {
 	// TODO: Add your command handler code here
 	m_History.Undo();
+	m_EventHistoryChanged();
 }
 
 void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
@@ -402,6 +404,7 @@ void CMainFrame::OnEditRedo()
 {
 	// TODO: Add your command handler code here
 	m_History.Do();
+	m_EventHistoryChanged();
 }
 
 void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
@@ -416,4 +419,5 @@ void CMainFrame::OnComponentMesh()
 	MeshComponentPtr cmp(new MeshComponent(my::AABB(-1,1), my::Matrix4::Identity()));
 	theApp.LoadMeshAsync("mesh/tube.mesh.xml", boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, &theApp, cmp, _1, false));
 	m_History.PushAndDo(HistoryStep::AddComponent(m_SelectionRoot, cmp));
+	m_EventHistoryChanged();
 }

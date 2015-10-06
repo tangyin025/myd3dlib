@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "HistroyStep.h"
+#include "HistoryStep.h"
 
 void HistoryStep::Do(void)
 {

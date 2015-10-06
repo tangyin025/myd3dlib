@@ -7,7 +7,7 @@
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "../demo2_3/Component/Actor.h"
-#include "HistroyManager.h"
+#include "HistoryManager.h"
 
 class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
@@ -25,12 +25,13 @@ public:
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
 	CRectTracker m_Tracker;
-	HistroyManager m_History;
+	HistoryManager m_History;
 	ActorPtr m_Actor;
 	ComponentLevel * m_SelectionRoot;
 	typedef boost::unordered_set<Component *> ComponentSet;
 	ComponentSet m_SelectionSet;
 	boost::signals2::signal<void ()> m_EventSelectionChanged;
+	boost::signals2::signal<void ()> m_EventHistoryChanged;
 
 // Operations
 public:
