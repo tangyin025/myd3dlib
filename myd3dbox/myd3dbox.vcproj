@@ -208,6 +208,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HistroyManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\HistroyStep.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainApp.cpp"
 				>
 			</File>
@@ -267,6 +275,14 @@
 			</File>
 			<File
 				RelativePath=".\DragableTreeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HistroyManager.h"
+				>
+			</File>
+			<File
+				RelativePath=".\HistroyStep.h"
 				>
 			</File>
 			<File
