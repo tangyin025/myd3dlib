@@ -7,6 +7,7 @@
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "../demo2_3/Component/Actor.h"
+#include "HistroyManager.h"
 
 class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
@@ -23,12 +24,13 @@ public:
 	BOOL m_bEatAltUp;
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
-	boost::signals2::signal<void ()> m_EventSelectionChanged;
 	CRectTracker m_Tracker;
+	HistroyManager m_History;
 	ActorPtr m_Actor;
 	ComponentLevel * m_SelectionRoot;
 	typedef boost::unordered_set<Component *> ComponentSet;
 	ComponentSet m_SelectionSet;
+	boost::signals2::signal<void ()> m_EventSelectionChanged;
 
 // Operations
 public:
@@ -67,6 +69,11 @@ public:
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
+	afx_msg void OnEditUndo();
+	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
+	afx_msg void OnEditRedo();
+	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
+	afx_msg void OnComponentMesh();
 };
 
 

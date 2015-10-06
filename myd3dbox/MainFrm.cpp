@@ -29,6 +29,11 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
+	ON_COMMAND(ID_EDIT_UNDO, &CMainFrame::OnEditUndo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainFrame::OnUpdateEditUndo)
+	ON_COMMAND(ID_EDIT_REDO, &CMainFrame::OnEditRedo)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
+	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -368,7 +373,7 @@ void CMainFrame::OnFileNew()
 	m_SelectionRoot = m_Actor.get();
 	m_SelectionSet.clear();
 
-	MeshComponent * cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
+	MeshComponentPtr cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
 		"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
 	my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
 	theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
@@ -379,4 +384,36 @@ void CMainFrame::OnFileNew()
 void CMainFrame::OnFileOpen()
 {
 	// TODO: Add your command handler code here
+}
+
+void CMainFrame::OnEditUndo()
+{
+	// TODO: Add your command handler code here
+	m_History.Undo();
+}
+
+void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_History.CanUndo());
+}
+
+void CMainFrame::OnEditRedo()
+{
+	// TODO: Add your command handler code here
+	m_History.Do();
+}
+
+void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(m_History.CanDo());
+}
+
+void CMainFrame::OnComponentMesh()
+{
+	// TODO: Add your command handler code here
+	MeshComponentPtr cmp(new MeshComponent(my::AABB(-1,1), my::Matrix4::Identity()));
+	theApp.LoadMeshAsync("mesh/tube.mesh.xml", boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, &theApp, cmp, _1, false));
+	m_History.PushAndDo(HistoryStep::AddComponent(m_SelectionRoot, cmp));
 }

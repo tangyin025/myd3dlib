@@ -718,7 +718,7 @@ void Game::RemoveAllActors(void)
 	m_Actors.clear();
 }
 
-ClothComponent * Game::CreateClothComponentFromFile(
+ClothComponentPtr Game::CreateClothComponentFromFile(
 	ComponentLevel * owner,
 	const std::string & mesh_path,
 	const std::string & skel_path,

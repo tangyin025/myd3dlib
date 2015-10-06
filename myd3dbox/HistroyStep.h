@@ -2,6 +2,10 @@
 
 #include "../demo2_3/Component/Actor.h"
 
+class HistoryStep;
+
+typedef boost::shared_ptr<HistoryStep> HistoryStepPtr;
+
 class HistoryStep
 {
 public:
@@ -39,34 +43,38 @@ public:
 	void Do(void);
 
 	void Undo(void);
+
+	static HistoryStepPtr AddComponent(ComponentLevel * level, ComponentPtr cmp);
+
+	static HistoryStepPtr RemoveComponent(ComponentLevel * level, ComponentPtr cmp);
 };
 
-typedef boost::shared_ptr<HistoryStep> HistoryStepPtr;
-
-class HistroyAddComponent : public HistoryStep::Operator
+class OperatorAddComponent : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
 	ComponentPtr m_cmp;
 
-	HistroyAddComponent(ComponentLevel * level, ComponentPtr cmp)
-		: m_cmp(cmp)
+	OperatorAddComponent(ComponentLevel * level, ComponentPtr cmp)
+		: m_level(level)
+		, m_cmp(cmp)
 	{
 	}
 
 	virtual void Do(void);
 };
 
-class HistroyRemoveComponent : public HistoryStep::Operator
+class OperatorRemoveComponent : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
 	ComponentPtr m_cmp;
 
-	HistroyRemoveComponent(ComponentLevel * level, ComponentPtr cmp)
-		: m_cmp(cmp)
+	OperatorRemoveComponent(ComponentLevel * level, ComponentPtr cmp)
+		: m_level(level)
+		, m_cmp(cmp)
 	{
 	}
 

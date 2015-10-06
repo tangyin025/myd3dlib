@@ -3,8 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "physx_ptr.hpp"
-
-class Animator;
+#include "Animator.h"
 
 class Component
 	: public my::AABBComponent
@@ -79,13 +78,12 @@ public:
 
 	bool m_bInstance;
 
-	Animator * m_Animator;
+	AnimatorPtr m_Animator;
 
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World)
 		: RenderComponent(aabb, World, ComponentTypeMesh)
 		, m_bInstance(false)
-		, m_Animator(NULL)
 	{
 	}
 
@@ -117,13 +115,12 @@ public:
 
 	MaterialPtrList m_MaterialList;
 
-	Animator * m_Animator;
+	AnimatorPtr m_Animator;
 
 public:
 	IndexdPrimitiveUPComponent(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
 		: RenderComponent(aabb, World, Type)
 		, m_VertexStride(0)
-		, m_Animator(NULL)
 	{
 	}
 

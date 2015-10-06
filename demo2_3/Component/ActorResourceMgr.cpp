@@ -452,18 +452,18 @@ void ActorResourceMgr::SaveMaterial(const std::string & path, boost::shared_ptr<
 	oa << boost::serialization::make_nvp("Material", material);
 }
 
-MeshComponent * ActorResourceMgr::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
+MeshComponentPtr ActorResourceMgr::CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 {
 	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
 	OnMeshComponentMeshLoaded(ret, mesh, bInstance);
-	return ret.get();
+	return ret;
 }
 
-MeshComponent * ActorResourceMgr::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
+MeshComponentPtr ActorResourceMgr::CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 {
 	MeshComponentPtr ret = owner->CreateComponent<MeshComponent>(aabb, World);
 	LoadMeshAsync(path, boost::bind(&ActorResourceMgr::OnMeshComponentMeshLoaded, this, ret, _1, bInstance));
-	return ret.get();
+	return ret;
 }
 
 void ActorResourceMgr::CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set)
@@ -474,29 +474,29 @@ void ActorResourceMgr::CreateMeshComponentList(ComponentLevel * owner, boost::sh
 	}
 }
 
-EmitterComponent * ActorResourceMgr::CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World)
+EmitterComponentPtr ActorResourceMgr::CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World)
 {
 	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
 	OnEmitterComponentEmitterLoaded(ret, emitter);
-	return ret.get();
+	return ret;
 }
 
-EmitterComponent * ActorResourceMgr::CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World)
+EmitterComponentPtr ActorResourceMgr::CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World)
 {
 	EmitterComponentPtr ret = owner->CreateComponent<EmitterComponent>(aabb, World);
 	my::EmitterPtr emitter = CreateEmitter(path);
 	OnEmitterComponentEmitterLoaded(ret, emitter);
-	return ret.get();
+	return ret;
 }
 
-Animator * ActorResourceMgr::CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path)
+AnimatorPtr ActorResourceMgr::CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path)
 {
 	AnimatorPtr ret = owner->CreateAnimator<SimpleAnimator>();
 	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
-	return ret.get();
+	return ret;
 }
 
-ClothComponent * ActorResourceMgr::CreateClothComponentFromFile(
+ClothComponentPtr ActorResourceMgr::CreateClothComponentFromFile(
 	ComponentLevel * owner,
 	boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 	const std::string & mesh_path,
@@ -508,5 +508,5 @@ ClothComponent * ActorResourceMgr::CreateClothComponentFromFile(
 	AddResource(str_printf("cloth_%s_%s_%s", mesh_path.c_str(), skel_path.c_str(), root_name.c_str()), ret);
 	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
 		this, ret, _1, PxContext, mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData(collData))));
-	return ret.get();
+	return ret;
 }

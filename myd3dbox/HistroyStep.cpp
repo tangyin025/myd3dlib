@@ -19,12 +19,28 @@ void HistoryStep::Undo(void)
 	}
 }
 
-void HistroyAddComponent::Do(void)
+HistoryStepPtr HistoryStep::AddComponent(ComponentLevel * level, ComponentPtr cmp)
+{
+	HistoryStepPtr ret(new HistoryStep);
+	ret->m_Ops.push_back(std::make_pair(
+		OperatorPtr(new OperatorAddComponent(level, cmp)), OperatorPtr(new OperatorRemoveComponent(level, cmp))));
+	return ret;
+}
+
+HistoryStepPtr HistoryStep::RemoveComponent(ComponentLevel * level, ComponentPtr cmp)
+{
+	HistoryStepPtr ret(new HistoryStep);
+	ret->m_Ops.push_back(std::make_pair(
+		OperatorPtr(new OperatorRemoveComponent(level, cmp)), OperatorPtr(new OperatorAddComponent(level, cmp))));
+	return ret;
+}
+
+void OperatorAddComponent::Do(void)
 {
 	m_level->AddComponent(m_cmp);
 }
 
-void HistroyRemoveComponent::Do(void)
+void OperatorRemoveComponent::Do(void)
 {
 	m_level->RemoveComponent(m_cmp);
 }

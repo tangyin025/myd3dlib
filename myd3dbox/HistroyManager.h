@@ -2,7 +2,7 @@
 
 #include "HistroyStep.h"
 
-class CHistroyManager
+class HistroyManager
 {
 public:
 	typedef std::deque<HistoryStepPtr> HistoryStepList;
@@ -12,12 +12,12 @@ public:
 	HistoryStepList::iterator m_CurrentIter;
 
 public:
-	CHistroyManager(void)
+	HistroyManager(void)
 		: m_CurrentIter(m_HistoryList.end())
 	{
 	}
 
-	virtual ~CHistroyManager(void)
+	virtual ~HistroyManager(void)
 	{
 	}
 

@@ -191,7 +191,7 @@ public:
 
 	void RemoveAllActors(void);
 
-	ClothComponent * CreateClothComponentFromFile(
+	ClothComponentPtr CreateClothComponentFromFile(
 		ComponentLevel * owner,
 		const std::string & mesh_path,
 		const std::string & skel_path,

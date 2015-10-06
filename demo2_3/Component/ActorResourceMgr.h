@@ -108,19 +108,19 @@ public:
 
 	void SaveMaterial(const std::string & path, boost::shared_ptr<Material> material);
 
-	MeshComponent * CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
+	MeshComponentPtr CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
 
-	MeshComponent * CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
+	MeshComponentPtr CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
 
 	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
 
-	EmitterComponent * CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
+	EmitterComponentPtr CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
 
-	EmitterComponent * CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
+	EmitterComponentPtr CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
 
-	Animator * CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
+	AnimatorPtr CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
 
-	ClothComponent * CreateClothComponentFromFile(
+	ClothComponentPtr CreateClothComponentFromFile(
 		ComponentLevel * owner,
 		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
 		const std::string & mesh_path,
