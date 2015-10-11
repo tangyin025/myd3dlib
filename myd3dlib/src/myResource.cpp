@@ -525,7 +525,7 @@ void DeviceRelatedResourceMgr::OnDestroyDevice(void)
 	m_ResourceWeakSet.clear();
 }
 
-void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
+DeviceRelatedObjectBasePtr DeviceRelatedResourceMgr::GetResource(const std::string & key)
 {
 	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
@@ -533,10 +533,17 @@ void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelate
 		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
 		if(res)
 		{
-			// ! OgreMeshSet will cause conflict of Mesh Resource such as "xxx.mesh.xml0"
-			_ASSERT(m_ResourceWeakSet.end() == m_ResourceWeakSet.find(key));
+			return res;
 		}
+		else
+			m_ResourceWeakSet.erase(res_iter);
 	}
+	return DeviceRelatedObjectBasePtr();
+}
+
+void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
+{
+	_ASSERT(!GetResource(key));
 
 	m_ResourceWeakSet[key] = res;
 
@@ -659,22 +666,16 @@ HRESULT ResourceMgr::Close(
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadResourceAsync(const std::string & key, IORequestPtr request)
 {
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
-	if(res_iter != m_ResourceWeakSet.end())
+	DeviceRelatedObjectBasePtr res = GetResource(key);
+	if (res)
 	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			request->m_res = res;
+		request->m_res = res;
 
-			request->m_LoadEvent.SetEvent();
+		request->m_LoadEvent.SetEvent();
 
-			CheckResource(key, request, 0);
+		CheckResource(key, request, 0);
 
-			return m_IORequestList.end();
-		}
-		else
-			m_ResourceWeakSet.erase(res_iter);
+		return m_IORequestList.end();
 	}
 
 	return PushIORequestResource(key, request);
@@ -909,11 +910,21 @@ public:
 		OgreMeshSetPtr res(new OgreMeshSet());
 		res->CreateMeshSetFromOgreXml(pd3dDevice, &m_doc);
 
-		// ! add meshes to resource manager for self isolated reset
+		// ! add meshes to resource manager for self isolated device reset
 		OgreMeshSet::iterator mesh_iter = res->begin();
 		for (; mesh_iter != res->end(); mesh_iter++)
 		{
-			m_arc->AddResource(m_path + str_printf("%u", std::distance(res->begin(), mesh_iter)), *mesh_iter);
+			std::string key = str_printf("%s_%u", m_path.c_str(), std::distance(res->begin(), mesh_iter));
+			DeviceRelatedObjectBasePtr res = m_arc->GetResource(key);
+			if (res)
+			{
+				if (!(*mesh_iter = boost::dynamic_pointer_cast<OgreMesh>(res)))
+				{
+					THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
+				}
+			}
+			else
+				m_arc->AddResource(key, *mesh_iter);
 		}
 		m_res = res;
 	}

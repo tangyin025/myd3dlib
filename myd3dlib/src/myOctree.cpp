@@ -19,10 +19,10 @@ void OctNodeBase::QueryComponent(const Frustum & frustum, IQueryCallback * callb
 
 void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
 {
-	AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
-	for(; comp_iter != m_ComponentList.end(); comp_iter++)
+	AABBComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
+	for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
 	{
-		(*callback)(comp_iter->get(), IntersectionTests::IntersectionTypeInside);
+		(*callback)((*cmp_iter), IntersectionTests::IntersectionTypeInside);
 	}
 
 	ChildArray::iterator node_iter = m_Childs.begin();
@@ -37,16 +37,16 @@ void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
 
 void OctNodeBase::QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback)
 {
-	AABBComponentPtrList::iterator comp_iter = m_ComponentList.begin();
-	for(; comp_iter != m_ComponentList.end(); comp_iter++)
+	AABBComponentPtrList::iterator cmp_iter = m_ComponentList.begin();
+	for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
 	{
 		// ! performance lost when node have many pieces of object
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum((*comp_iter)->m_aabb, frustum);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum((*cmp_iter)->m_aabb, frustum);
 		switch(intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(comp_iter->get(), intersect_type);
+			(*callback)((*cmp_iter), intersect_type);
 			break;
 		}
 	}
@@ -73,19 +73,19 @@ bool OctNodeBase::HaveChildNodes(void)
 	return false;
 }
 
-bool OctNodeBase::RemoveComponent(AABBComponentPtr comp)
+bool OctNodeBase::RemoveComponent(AABBComponentPtr cmp)
 {
-	AABBComponentPtrList::iterator comp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), comp);
-	if (comp_iter != m_ComponentList.end())
+	AABBComponentPtrList::iterator cmp_iter = std::find(m_ComponentList.begin(), m_ComponentList.end(), cmp);
+	if (cmp_iter != m_ComponentList.end())
 	{
-		m_ComponentList.erase(comp_iter);
+		m_ComponentList.erase(cmp_iter);
 		return true;
 	}
 	else
 	{
 		for (unsigned int i = 0; i < m_Childs.size(); i++)
 		{
-			if (m_Childs[i] && m_Childs[i]->RemoveComponent(comp))
+			if (m_Childs[i] && m_Childs[i]->RemoveComponent(cmp))
 			{
 				if (!m_Childs[i]->HaveChildNodes() && m_Childs[i]->m_ComponentList.empty())
 				{

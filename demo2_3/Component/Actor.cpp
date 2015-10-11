@@ -35,9 +35,9 @@ void ComponentLevel::OnQueryComponent(const my::Frustum & frustum, RenderPipelin
 		{
 		}
 
-		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
+		void operator() (const AABBComponentPtr & cmp, IntersectionTests::IntersectionType)
 		{
-			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(comp);
+			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(cmp.get());
 			if (render_cmp)
 			{
 				render_cmp->OnQueryComponent(m_frustum, m_pipeline, m_PassMask);
@@ -64,10 +64,10 @@ void Actor::Update(float fElapsedTime)
 		{
 		}
 
-		void operator() (AABBComponent * comp, IntersectionTests::IntersectionType)
+		void operator() (const AABBComponentPtr & cmp, IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<Component *>(comp));
-			static_cast<Component *>(comp)->Update(m_fElapsedTime);
+			_ASSERT(dynamic_cast<Component *>(cmp.get()));
+			static_cast<Component *>(cmp.get())->Update(m_fElapsedTime);
 		}
 	};
 

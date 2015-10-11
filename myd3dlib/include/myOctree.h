@@ -39,7 +39,7 @@ namespace my
 	struct IQueryCallback
 	{
 	public:
-		virtual void operator() (AABBComponent * comp, IntersectionTests::IntersectionType) = 0;
+		virtual void operator() (const AABBComponentPtr & cmp, IntersectionTests::IntersectionType) = 0;
 	};
 
 	class OctNodeBase : public AABBComponent
@@ -77,7 +77,7 @@ namespace my
 
 		bool HaveChildNodes(void);
 
-		bool RemoveComponent(AABBComponentPtr comp);
+		bool RemoveComponent(AABBComponentPtr cmp);
 	};
 
 	template <DWORD Offset>
@@ -112,9 +112,9 @@ namespace my
 		{
 		}
 
-		void AddComponent(AABBComponentPtr comp, float threshold = 0.1f)
+		void AddComponent(AABBComponentPtr cmp, float threshold = 0.1f)
 		{
-			if (comp->m_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			if (cmp->m_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
@@ -122,9 +122,9 @@ namespace my
 					_Max[Offset] = m_Half;
 					m_Childs[0].reset(new ChildOctNode(m_aabb.m_min, _Max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(comp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, threshold);
 			}
-			else if (comp->m_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			else if (cmp->m_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
@@ -132,11 +132,11 @@ namespace my
 					_Min[Offset] = m_Half;
 					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.m_max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(comp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, threshold);
 			}
 			else
 			{
-				m_ComponentList.push_back(comp);
+				m_ComponentList.push_back(cmp);
 			}
 		}
 	};

@@ -35,6 +35,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_COMMAND(ID_COMPONENT_MESHSET, &CMainFrame::OnComponentMeshset)
+	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
+	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -392,11 +394,12 @@ void CMainFrame::OnEditUndo()
 {
 	// TODO: Add your command handler code here
 	m_History.Undo();
-	m_EventHistoryChanged();
+	EventArg arg;
+	m_EventHistoryChanged(&arg);
 
 	m_SelectionRoot = m_Actor.get();
 	m_SelectionSet.clear();
-	m_EventSelectionChanged();
+	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
@@ -409,7 +412,8 @@ void CMainFrame::OnEditRedo()
 {
 	// TODO: Add your command handler code here
 	m_History.Do();
-	m_EventHistoryChanged();
+	EventArg arg;
+	m_EventHistoryChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
@@ -433,7 +437,8 @@ void CMainFrame::OnComponentMesh()
 			theApp.OnMeshComponentMeshLoaded(cmp, mesh, false);
 			cmp_list.push_back(cmp);
 			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
-			m_EventHistoryChanged();
+			EventArg arg;
+			m_EventHistoryChanged(&arg);
 		}
 		else
 		{
@@ -460,11 +465,30 @@ void CMainFrame::OnComponentMeshset()
 				cmp_list.push_back(cmp);
 			}
 			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
-			m_EventHistoryChanged();
+			EventArg arg;
+			m_EventHistoryChanged(&arg);
 		}
 		else
 		{
 			MessageBox(strPath, _T("Load MeshSet Error"), MB_OK | MB_ICONERROR);
 		}
 	}
+}
+
+void CMainFrame::OnEditDelete()
+{
+	// TODO: Add your command handler code here
+	HistoryStep::ComponentPtrList cmp_list;
+	cmp_list.insert(cmp_list.end(), m_SelectionSet.begin(), m_SelectionSet.end());
+	ASSERT(!cmp_list.empty());
+	m_History.PushAndDo(HistoryStep::RemoveComponentList(m_SelectionRoot, cmp_list));
+	m_SelectionSet.clear();
+	EventArg arg;
+	m_EventHistoryChanged(&arg);
+}
+
+void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_SelectionSet.empty());
 }

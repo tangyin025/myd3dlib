@@ -9,6 +9,18 @@
 #include "../demo2_3/Component/Actor.h"
 #include "HistoryManager.h"
 
+struct EventArg
+{
+public:
+	EventArg(void)
+	{
+	}
+
+	virtual ~EventArg(void)
+	{
+	}
+};
+
 class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
 {
@@ -28,10 +40,11 @@ public:
 	HistoryManager m_History;
 	ActorPtr m_Actor;
 	ComponentLevel * m_SelectionRoot;
-	typedef boost::unordered_set<Component *> ComponentSet;
+	typedef boost::unordered_set<ComponentPtr> ComponentSet;
 	ComponentSet m_SelectionSet;
-	boost::signals2::signal<void ()> m_EventSelectionChanged;
-	boost::signals2::signal<void ()> m_EventHistoryChanged;
+	typedef boost::signals2::signal<void (EventArg *)> Event;
+	Event m_EventSelectionChanged;
+	Event m_EventHistoryChanged;
 
 // Operations
 public:
@@ -76,6 +89,8 @@ public:
 	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
 	afx_msg void OnComponentMesh();
 	afx_msg void OnComponentMeshset();
+	afx_msg void OnEditDelete();
+	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 };
 
 

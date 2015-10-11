@@ -226,9 +226,9 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 		{
 		}
 
-		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType)
 		{
-			Component * cmp = dynamic_cast<Component *>(comp);
+			ComponentPtr cmp = boost::dynamic_pointer_cast<Component>(aabb_cmp);
 			if (cmp)
 			{
 				my::RayResult res = cmp->RayTest(m_Ray);
@@ -268,9 +268,9 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 		{
 		}
 
-		void operator() (my::AABBComponent * comp, my::IntersectionTests::IntersectionType)
+		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType)
 		{
-			Component * cmp = dynamic_cast<Component *>(comp);
+			ComponentPtr cmp = boost::dynamic_pointer_cast<Component>(aabb_cmp);
 			if (cmp)
 			{
 				if (cmp->FrustumTest(m_Ftm))
@@ -306,7 +306,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 		{
 		case Component::ComponentTypeMesh:
 			{
-				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((*sel_iter));
+				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(sel_iter->get());
 				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
 				UINT passes = theApp.m_SimpleSample->Begin();
 				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
@@ -558,7 +558,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		pFrame->m_EventSelectionChanged();
+		EventArg arg;
+		pFrame->m_EventSelectionChanged(&arg);
 	}
 }
 

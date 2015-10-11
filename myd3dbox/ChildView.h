@@ -54,7 +54,7 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	PivotController m_Pivot;
-	typedef std::multimap<float, Component *> SelCmpMap;
+	typedef std::multimap<float, ComponentPtr> SelCmpMap;
 	SelCmpMap m_SelCmpMap;
 	float m_CameraDiagonal;
 	CameraType m_CameraType;
