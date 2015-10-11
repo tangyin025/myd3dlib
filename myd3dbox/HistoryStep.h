@@ -31,6 +31,8 @@ public:
 
 	OperatorPairList m_Ops;
 
+	typedef std::list<ComponentPtr> ComponentPtrList;
+
 public:
 	HistoryStep(void)
 	{
@@ -44,37 +46,37 @@ public:
 
 	void Undo(void);
 
-	static HistoryStepPtr AddComponent(ComponentLevel * level, ComponentPtr cmp);
+	static HistoryStepPtr AddComponentList(ComponentLevel * level, ComponentPtrList cmp_list);
 
-	static HistoryStepPtr RemoveComponent(ComponentLevel * level, ComponentPtr cmp);
+	static HistoryStepPtr RemoveComponentList(ComponentLevel * level, ComponentPtrList cmp_list);
 };
 
-class OperatorAddComponent : public HistoryStep::Operator
+class OperatorAddComponentList : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
-	ComponentPtr m_cmp;
+	HistoryStep::ComponentPtrList m_cmp_list;
 
-	OperatorAddComponent(ComponentLevel * level, ComponentPtr cmp)
+	OperatorAddComponentList(ComponentLevel * level, HistoryStep::ComponentPtrList cmp_list)
 		: m_level(level)
-		, m_cmp(cmp)
+		, m_cmp_list(cmp_list)
 	{
 	}
 
 	virtual void Do(void);
 };
 
-class OperatorRemoveComponent : public HistoryStep::Operator
+class OperatorRemoveComponentList : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
-	ComponentPtr m_cmp;
+	HistoryStep::ComponentPtrList m_cmp_list;
 
-	OperatorRemoveComponent(ComponentLevel * level, ComponentPtr cmp)
+	OperatorRemoveComponentList(ComponentLevel * level, HistoryStep::ComponentPtrList cmp_list)
 		: m_level(level)
-		, m_cmp(cmp)
+		, m_cmp_list(cmp_list)
 	{
 	}
 

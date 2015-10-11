@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_EDIT_REDO, &CMainFrame::OnEditRedo)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
+	ON_COMMAND(ID_COMPONENT_MESHSET, &CMainFrame::OnComponentMeshset)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -427,14 +428,43 @@ void CMainFrame::OnComponentMesh()
 		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPath));
 		if (mesh)
 		{
+			HistoryStep::ComponentPtrList cmp_list;
 			MeshComponentPtr cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity()));
 			theApp.OnMeshComponentMeshLoaded(cmp, mesh, false);
-			m_History.PushAndDo(HistoryStep::AddComponent(m_SelectionRoot, cmp));
+			cmp_list.push_back(cmp);
+			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
 			m_EventHistoryChanged();
 		}
 		else
 		{
 			MessageBox(strPath, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
+		}
+	}
+}
+
+void CMainFrame::OnComponentMeshset()
+{
+	// TODO: Add your command handler code here
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK == dlg.DoModal())
+	{
+		CString strPath = dlg.GetPathName();
+		my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet(ts2ms((LPCTSTR)strPath));
+		if (mesh_set)
+		{
+			HistoryStep::ComponentPtrList cmp_list;
+			for (unsigned int i = 0; i < mesh_set->size(); i++)
+			{
+				MeshComponentPtr cmp(new MeshComponent((*mesh_set)[i]->m_aabb, my::Matrix4::Identity()));
+				theApp.OnMeshComponentMeshLoaded(cmp, (*mesh_set)[i], false);
+				cmp_list.push_back(cmp);
+			}
+			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
+			m_EventHistoryChanged();
+		}
+		else
+		{
+			MessageBox(strPath, _T("Load MeshSet Error"), MB_OK | MB_ICONERROR);
 		}
 	}
 }
