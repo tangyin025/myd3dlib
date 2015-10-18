@@ -31,8 +31,6 @@ public:
 
 	OperatorPairList m_Ops;
 
-	typedef std::list<ComponentPtr> ComponentPtrList;
-
 public:
 	HistoryStep(void)
 	{
@@ -45,52 +43,48 @@ public:
 	void Do(void);
 
 	void Undo(void);
-
-	static HistoryStepPtr AddComponentList(ComponentLevel * level, ComponentPtrList cmp_list);
-
-	static HistoryStepPtr RemoveComponentList(ComponentLevel * level, ComponentPtrList cmp_list);
 };
 
-class OperatorAddComponentList : public HistoryStep::Operator
+class OperatorAddComponent : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
-	HistoryStep::ComponentPtrList m_cmp_list;
+	ComponentPtr m_cmp;
 
-	OperatorAddComponentList(ComponentLevel * level, HistoryStep::ComponentPtrList cmp_list)
+	OperatorAddComponent(ComponentLevel * level, ComponentPtr cmp)
 		: m_level(level)
-		, m_cmp_list(cmp_list)
+		, m_cmp(cmp)
 	{
 	}
 
 	virtual void Do(void);
 };
 
-class OperatorRemoveComponentList : public HistoryStep::Operator
+class OperatorRemoveComponent : public HistoryStep::Operator
 {
 public:
 	ComponentLevel * m_level;
 
-	HistoryStep::ComponentPtrList m_cmp_list;
+	ComponentPtr m_cmp;
 
-	OperatorRemoveComponentList(ComponentLevel * level, HistoryStep::ComponentPtrList cmp_list)
+	OperatorRemoveComponent(ComponentLevel * level, ComponentPtr cmp)
 		: m_level(level)
-		, m_cmp_list(cmp_list)
+		, m_cmp(cmp)
 	{
 	}
 
 	virtual void Do(void);
 };
 
-class Matrix4PropertyOperator : public HistoryStep::Operator
+class OperatorMatrix4Property : public HistoryStep::Operator
 {
 public:
 	my::Matrix4 & m_OldValue;
 
 	my::Matrix4 m_NewValue;
 
-	Matrix4PropertyOperator(my::Matrix4 & OldValue, const my::Matrix4 & NewValue)
+	OperatorMatrix4Property(my::Matrix4 & OldValue, const my::Matrix4 & NewValue)
 		: m_OldValue(OldValue)
 		, m_NewValue(NewValue)
 	{
@@ -99,14 +93,18 @@ public:
 	virtual void Do(void);
 };
 
-class ComponentWorldOperator : public Matrix4PropertyOperator
+class OperatorComponentWorld : public OperatorMatrix4Property
 {
 public:
+	ComponentLevel * m_level;
+
 	ComponentPtr m_cmp;
 
-	ComponentWorldOperator(ComponentPtr cmp, const my::Matrix4 & NewValue)
-		: Matrix4PropertyOperator(cmp->m_World, NewValue)
+	OperatorComponentWorld(ComponentLevel * level, ComponentPtr cmp, const my::Matrix4 & NewValue)
+		: OperatorMatrix4Property(cmp->m_World, NewValue)
 		, m_cmp(cmp)
 	{
 	}
+
+	virtual void Do(void);
 };

@@ -511,6 +511,13 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
+		ASSERT(m_CmpWorldOptList.empty());
+		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
+		for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
+		{
+			m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, *sel_iter, (*sel_iter)->m_World)));
+		}
+		m_PivotDragPos = pFrame->m_Pivot.m_Pos;
 		SetCapture();
 		Invalidate();
 		return;
@@ -565,18 +572,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		if (!pFrame->m_SelectionSet.empty())
-		{
-			pFrame->m_SelectionBox = my::AABB(FLT_MAX,-FLT_MAX);
-			m_CmpWorldOptList.clear();
-			CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
-			for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
-			{
-				pFrame->m_SelectionBox.unionSelf((*sel_iter)->m_aabb);
-				m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new ComponentWorldOperator(*sel_iter, (*sel_iter)->m_World)));
-			}
-			m_PivotDragPos = pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
-		}
+		pFrame->UpdateSelectionBox();
+		pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
 		EventArg arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
@@ -593,6 +590,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
+		HistoryStepPtr step(new HistoryStep);
+		ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
+		for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
+		{
+			step->m_Ops.push_back(std::make_pair(
+				HistoryStep::OperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, (*cmp_world_iter)->m_cmp, (*cmp_world_iter)->m_cmp->m_World)),
+				*cmp_world_iter));
+		}
+		m_CmpWorldOptList.clear();
 		ReleaseCapture();
 		Invalidate();
 	}

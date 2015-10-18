@@ -348,6 +348,19 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+void CMainFrame::UpdateSelectionBox(void)
+{
+	if (!m_SelectionSet.empty())
+	{
+		m_SelectionBox = my::AABB(FLT_MAX,-FLT_MAX);
+		CMainFrame::ComponentSet::const_iterator sel_iter = m_SelectionSet.begin();
+		for (; sel_iter != m_SelectionSet.end(); sel_iter++)
+		{
+			m_SelectionBox.unionSelf((*sel_iter)->m_aabb);
+		}
+	}
+}
+
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -431,11 +444,13 @@ void CMainFrame::OnComponentMesh()
 		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPath));
 		if (mesh)
 		{
-			HistoryStep::ComponentPtrList cmp_list;
 			MeshComponentPtr cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity()));
 			theApp.OnMeshComponentMeshLoaded(cmp, mesh, false);
-			cmp_list.push_back(cmp);
-			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
+			HistoryStepPtr step(new HistoryStep);
+			step->m_Ops.push_back(std::make_pair(
+				HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, cmp)),
+				HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, cmp))));
+			m_History.PushAndDo(step);
 			EventArg arg;
 			m_EventHistoryChanged(&arg);
 		}
@@ -456,14 +471,16 @@ void CMainFrame::OnComponentMeshset()
 		my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet(ts2ms((LPCTSTR)strPath));
 		if (mesh_set)
 		{
-			HistoryStep::ComponentPtrList cmp_list;
+			HistoryStepPtr step(new HistoryStep);
 			for (unsigned int i = 0; i < mesh_set->size(); i++)
 			{
 				MeshComponentPtr cmp(new MeshComponent((*mesh_set)[i]->m_aabb, my::Matrix4::Identity()));
 				theApp.OnMeshComponentMeshLoaded(cmp, (*mesh_set)[i], false);
-				cmp_list.push_back(cmp);
+				step->m_Ops.push_back(std::make_pair(
+					HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, cmp)),
+					HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, cmp))));
 			}
-			m_History.PushAndDo(HistoryStep::AddComponentList(m_SelectionRoot, cmp_list));
+			m_History.PushAndDo(step);
 			EventArg arg;
 			m_EventHistoryChanged(&arg);
 		}
@@ -477,10 +494,16 @@ void CMainFrame::OnComponentMeshset()
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	HistoryStep::ComponentPtrList cmp_list;
-	cmp_list.insert(cmp_list.end(), m_SelectionSet.begin(), m_SelectionSet.end());
-	ASSERT(!cmp_list.empty());
-	m_History.PushAndDo(HistoryStep::RemoveComponentList(m_SelectionRoot, cmp_list));
+	HistoryStepPtr step(new HistoryStep);
+	ComponentSet::iterator cmp_iter = m_SelectionSet.begin();
+	for (; cmp_iter != m_SelectionSet.end(); cmp_iter++)
+	{
+		step->m_Ops.push_back(std::make_pair(
+			HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, *cmp_iter)),
+			HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, *cmp_iter))));
+	}
+	ASSERT(!step->m_Ops.empty());
+	m_History.PushAndDo(step);
 	m_SelectionSet.clear();
 	EventArg arg;
 	m_EventHistoryChanged(&arg);

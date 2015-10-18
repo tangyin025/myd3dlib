@@ -19,42 +19,25 @@ void HistoryStep::Undo(void)
 	}
 }
 
-HistoryStepPtr HistoryStep::AddComponentList(ComponentLevel * level, ComponentPtrList cmp_list)
+void OperatorAddComponent::Do(void)
 {
-	HistoryStepPtr ret(new HistoryStep);
-	ret->m_Ops.push_back(std::make_pair(
-		OperatorPtr(new OperatorAddComponentList(level, cmp_list)), OperatorPtr(new OperatorRemoveComponentList(level, cmp_list))));
-	return ret;
+	m_level->AddComponent(m_cmp);
 }
 
-HistoryStepPtr HistoryStep::RemoveComponentList(ComponentLevel * level, ComponentPtrList cmp_list)
+void OperatorRemoveComponent::Do(void)
 {
-	HistoryStepPtr ret(new HistoryStep);
-	ret->m_Ops.push_back(std::make_pair(
-		OperatorPtr(new OperatorRemoveComponentList(level, cmp_list)), OperatorPtr(new OperatorAddComponentList(level, cmp_list))));
-	return ret;
+	bool res = m_level->RemoveComponent(m_cmp);
+	ASSERT(res);
 }
 
-void OperatorAddComponentList::Do(void)
-{
-	HistoryStep::ComponentPtrList::iterator cmp_iter = m_cmp_list.begin();
-	for (; cmp_iter != m_cmp_list.end(); cmp_iter++)
-	{
-		m_level->AddComponent(*cmp_iter);
-	}
-}
-
-void OperatorRemoveComponentList::Do(void)
-{
-	HistoryStep::ComponentPtrList::reverse_iterator cmp_iter = m_cmp_list.rbegin();
-	for (; cmp_iter != m_cmp_list.rend(); cmp_iter++)
-	{
-		bool res = m_level->RemoveComponent(*cmp_iter);
-		ASSERT(res);
-	}
-}
-
-void Matrix4PropertyOperator::Do(void)
+void OperatorMatrix4Property::Do(void)
 {
 	m_OldValue = m_NewValue;
+}
+
+void OperatorComponentWorld::Do(void)
+{
+	__super::Do();
+	m_level->RemoveComponent(m_cmp);
+	m_level->AddComponent(m_cmp);
 }

@@ -60,7 +60,7 @@ protected:
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
 
-	typedef boost::shared_ptr<ComponentWorldOperator> ComponentWorldOperatorPtr;
+	typedef boost::shared_ptr<OperatorComponentWorld> ComponentWorldOperatorPtr;
 	typedef std::vector<ComponentWorldOperatorPtr> ComponentWorldOperatorPtrList;
 	ComponentWorldOperatorPtrList m_CmpWorldOptList;
 	my::Vector3 m_PivotDragPos;
