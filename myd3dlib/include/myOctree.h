@@ -11,21 +11,7 @@ namespace my
 	class AABBComponent
 	{
 	public:
-		AABB m_aabb;
-
-	public:
-		AABBComponent(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: m_aabb(minx, miny, minz, maxx, maxy, maxz)
-		{
-		}
-
-		AABBComponent(const Vector3 & _Min, const Vector3 & _Max)
-			: m_aabb(_Min, _Max)
-		{
-		}
-
-		AABBComponent(const AABB & aabb)
-			: m_aabb(aabb)
+		AABBComponent(void)
 		{
 		}
 
@@ -36,18 +22,22 @@ namespace my
 
 	typedef boost::shared_ptr<AABBComponent> AABBComponentPtr;
 
+	typedef std::pair<AABB, AABBComponentPtr> AABBComponentPtrPair;
+
 	struct IQueryCallback
 	{
 	public:
 		virtual void operator() (const AABBComponentPtr & cmp, IntersectionTests::IntersectionType) = 0;
 	};
 
-	class OctNodeBase : public AABBComponent
+	class OctNodeBase
 	{
 	public:
-		typedef std::vector<AABBComponentPtr> AABBComponentPtrList;
+		const AABB m_aabb;
 
-		AABBComponentPtrList m_ComponentList;
+		typedef std::vector<AABBComponentPtrPair> AABBComponentPtrPairList;
+
+		AABBComponentPtrPairList m_ComponentList;
 
 		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
@@ -55,19 +45,21 @@ namespace my
 
 	public:
 		OctNodeBase(float minx, float miny, float minz, float maxx, float maxy, float maxz)
-			: AABBComponent(minx, miny, minz, maxx, maxy, maxz)
+			: m_aabb(minx, miny, minz, maxx, maxy, maxz)
 		{
 		}
 
 		OctNodeBase(const Vector3 & _Min, const Vector3 & _Max)
-			: AABBComponent(_Min, _Max)
+			: m_aabb(_Min, _Max)
 		{
 		}
 
 		OctNodeBase(const AABB & aabb)
-			: AABBComponent(aabb)
+			: m_aabb(aabb)
 		{
 		}
+
+		void QueryComponent(const Ray & ray, IQueryCallback * callback);
 
 		void QueryComponent(const Frustum & frustum, IQueryCallback * callback);
 
@@ -112,9 +104,9 @@ namespace my
 		{
 		}
 
-		void AddComponent(AABBComponentPtr cmp, float threshold = 0.1f)
+		void AddComponent(AABBComponentPtr cmp, const AABB & cmp_aabb, float threshold = 0.1f)
 		{
-			if (cmp->m_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			if (cmp_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
@@ -122,9 +114,9 @@ namespace my
 					_Max[Offset] = m_Half;
 					m_Childs[0].reset(new ChildOctNode(m_aabb.m_min, _Max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, cmp_aabb, threshold);
 			}
-			else if (cmp->m_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			else if (cmp_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
@@ -132,11 +124,11 @@ namespace my
 					_Min[Offset] = m_Half;
 					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.m_max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, cmp_aabb, threshold);
 			}
 			else
 			{
-				m_ComponentList.push_back(cmp);
+				m_ComponentList.push_back(std::make_pair(cmp_aabb, cmp));
 			}
 		}
 	};

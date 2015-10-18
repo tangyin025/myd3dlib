@@ -55,7 +55,7 @@ public:
 	{
 		// ! do not call new in header file
 		boost::shared_ptr<CmpClass> ret(new CmpClass(aabb.transform(World), World));
-		AddComponent(ret, 0.1f);
+		AddComponent(ret, aabb.transform(World), 0.1f);
 		return ret;
 	}
 

@@ -102,6 +102,7 @@ public:
 
 	OperatorComponentWorld(ComponentLevel * level, ComponentPtr cmp, const my::Matrix4 & NewValue)
 		: OperatorMatrix4Property(cmp->m_World, NewValue)
+		, m_level(level)
 		, m_cmp(cmp)
 	{
 	}

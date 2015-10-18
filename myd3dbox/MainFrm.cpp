@@ -356,7 +356,7 @@ void CMainFrame::UpdateSelectionBox(void)
 		CMainFrame::ComponentSet::const_iterator sel_iter = m_SelectionSet.begin();
 		for (; sel_iter != m_SelectionSet.end(); sel_iter++)
 		{
-			m_SelectionBox.unionSelf((*sel_iter)->m_aabb);
+			m_SelectionBox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
 		}
 	}
 }

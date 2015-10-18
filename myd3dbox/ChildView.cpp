@@ -247,7 +247,7 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_SelectionRoot->QueryComponent(frustum, &CallBack(m_SelCmpMap, ray));
+	pFrame->m_SelectionRoot->QueryComponent(ray, &CallBack(m_SelCmpMap, ray));
 
 	return !m_SelCmpMap.empty();
 }
@@ -598,6 +598,8 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 				HistoryStep::OperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, (*cmp_world_iter)->m_cmp, (*cmp_world_iter)->m_cmp->m_World)),
 				*cmp_world_iter));
 		}
+		pFrame->m_History.PushAndDo(step);
+		pFrame->UpdateSelectionBox();
 		m_CmpWorldOptList.clear();
 		ReleaseCapture();
 		Invalidate();

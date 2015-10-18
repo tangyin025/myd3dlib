@@ -385,7 +385,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<ComponentLevel, boost::shared_ptr<ComponentLevel> >("ComponentLevel")
 			.def(constructor<const my::AABB &, float>())
-			.def_readwrite("aabb", &ComponentLevel::m_aabb)
+			.def_readonly("aabb", &ComponentLevel::m_aabb)
 
 		, class_<Actor, ComponentLevel, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::AABB &, float>())

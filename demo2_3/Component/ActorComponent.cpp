@@ -36,51 +36,48 @@ my::RayResult MeshComponent::RayTest(const my::Ray & ray) const
 {
 	if (m_Mesh)
 	{
-		if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
+		my::Ray local_ray = ray.transform(m_World.inverse());
+		if (m_Animator && !m_Animator->m_DualQuats.empty())
 		{
-			my::Ray local_ray = ray.transform(m_World.inverse());
-			if (m_Animator && !m_Animator->m_DualQuats.empty())
-			{
-				std::vector<Vector3> vertices(m_Mesh->GetNumVertices());
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					m_Mesh->LockVertexBuffer(),
-					m_Mesh->GetNumBytesPerVertex(),
-					m_Mesh->m_VertexElems,
-					m_Animator->m_DualQuats);
-				my::RayResult ret = OgreMesh::RayTest(local_ray,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					m_Mesh->LockIndexBuffer(),
-					!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					m_Mesh->GetNumFaces(),
-					elems);
-				m_Mesh->UnlockVertexBuffer();
-				m_Mesh->UnlockIndexBuffer();
-				ret.second = (local_ray.d * ret.second).transformNormal(m_World).magnitude();
-				return ret;
-			}
-			else
-			{
-				my::RayResult ret = OgreMesh::RayTest(local_ray,
-					m_Mesh->LockVertexBuffer(),
-					m_Mesh->GetNumVertices(),
-					m_Mesh->GetNumBytesPerVertex(),
-					m_Mesh->LockIndexBuffer(),
-					!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					m_Mesh->GetNumFaces(),
-					m_Mesh->m_VertexElems);
-				m_Mesh->UnlockVertexBuffer();
-				m_Mesh->UnlockIndexBuffer();
-				ret.second = (local_ray.d * ret.second).transformNormal(m_World).magnitude();
-				return ret;
-			}
+			std::vector<Vector3> vertices(m_Mesh->GetNumVertices());
+			my::D3DVertexElementSet elems;
+			elems.InsertPositionElement(0);
+			OgreMesh::ComputeDualQuaternionSkinnedVertices(
+				&vertices[0],
+				vertices.size(),
+				sizeof(vertices[0]),
+				elems,
+				m_Mesh->LockVertexBuffer(),
+				m_Mesh->GetNumBytesPerVertex(),
+				m_Mesh->m_VertexElems,
+				m_Animator->m_DualQuats);
+			my::RayResult ret = OgreMesh::RayTest(local_ray,
+				&vertices[0],
+				vertices.size(),
+				sizeof(vertices[0]),
+				m_Mesh->LockIndexBuffer(),
+				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
+				m_Mesh->GetNumFaces(),
+				elems);
+			m_Mesh->UnlockVertexBuffer();
+			m_Mesh->UnlockIndexBuffer();
+			ret.second = (local_ray.d * ret.second).transformNormal(m_World).magnitude();
+			return ret;
+		}
+		else
+		{
+			my::RayResult ret = OgreMesh::RayTest(local_ray,
+				m_Mesh->LockVertexBuffer(),
+				m_Mesh->GetNumVertices(),
+				m_Mesh->GetNumBytesPerVertex(),
+				m_Mesh->LockIndexBuffer(),
+				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
+				m_Mesh->GetNumFaces(),
+				m_Mesh->m_VertexElems);
+			m_Mesh->UnlockVertexBuffer();
+			m_Mesh->UnlockIndexBuffer();
+			ret.second = (local_ray.d * ret.second).transformNormal(m_World).magnitude();
+			return ret;
 		}
 	}
 	return my::RayResult(false, FLT_MAX);
@@ -90,50 +87,46 @@ bool MeshComponent::FrustumTest(const my::Frustum & frustum) const
 {
 	if (m_Mesh)
 	{
-		IntersectionTests::IntersectionType res = IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum);
-		if (res == IntersectionTests::IntersectionTypeInside || res == IntersectionTests::IntersectionTypeIntersect)
+		my::Frustum local_ftm = frustum.transform(m_World.transpose());
+		if (m_Animator && !m_Animator->m_DualQuats.empty())
 		{
-			my::Frustum local_ftm = frustum.transform(m_World.transpose());
-			if (m_Animator && !m_Animator->m_DualQuats.empty())
-			{
-				std::vector<Vector3> vertices(m_Mesh->GetNumVertices());
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					m_Mesh->LockVertexBuffer(),
-					m_Mesh->GetNumBytesPerVertex(),
-					m_Mesh->m_VertexElems,
-					m_Animator->m_DualQuats);
-				bool ret = OgreMesh::FrustumTest(local_ftm,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					m_Mesh->LockIndexBuffer(),
-					!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					m_Mesh->GetNumFaces(),
-					elems);
-				m_Mesh->UnlockVertexBuffer();
-				m_Mesh->UnlockIndexBuffer();
-				return ret;
-			}
-			else
-			{
-				bool ret = OgreMesh::FrustumTest(local_ftm,
-					m_Mesh->LockVertexBuffer(),
-					m_Mesh->GetNumVertices(),
-					m_Mesh->GetNumBytesPerVertex(),
-					m_Mesh->LockIndexBuffer(),
-					!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
-					m_Mesh->GetNumFaces(),
-					m_Mesh->m_VertexElems);
-				m_Mesh->UnlockVertexBuffer();
-				m_Mesh->UnlockIndexBuffer();
-				return ret;
-			}
+			std::vector<Vector3> vertices(m_Mesh->GetNumVertices());
+			my::D3DVertexElementSet elems;
+			elems.InsertPositionElement(0);
+			OgreMesh::ComputeDualQuaternionSkinnedVertices(
+				&vertices[0],
+				vertices.size(),
+				sizeof(vertices[0]),
+				elems,
+				m_Mesh->LockVertexBuffer(),
+				m_Mesh->GetNumBytesPerVertex(),
+				m_Mesh->m_VertexElems,
+				m_Animator->m_DualQuats);
+			bool ret = OgreMesh::FrustumTest(local_ftm,
+				&vertices[0],
+				vertices.size(),
+				sizeof(vertices[0]),
+				m_Mesh->LockIndexBuffer(),
+				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
+				m_Mesh->GetNumFaces(),
+				elems);
+			m_Mesh->UnlockVertexBuffer();
+			m_Mesh->UnlockIndexBuffer();
+			return ret;
+		}
+		else
+		{
+			bool ret = OgreMesh::FrustumTest(local_ftm,
+				m_Mesh->LockVertexBuffer(),
+				m_Mesh->GetNumVertices(),
+				m_Mesh->GetNumBytesPerVertex(),
+				m_Mesh->LockIndexBuffer(),
+				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
+				m_Mesh->GetNumFaces(),
+				m_Mesh->m_VertexElems);
+			m_Mesh->UnlockVertexBuffer();
+			m_Mesh->UnlockIndexBuffer();
+			return ret;
 		}
 	}
 	return false;

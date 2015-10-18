@@ -20,12 +20,14 @@ public:
 
 	const ComponentType m_Type;
 
+	my::AABB m_aabb;
+
 	my::Matrix4 m_World;
 
 public:
 	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
-		: AABBComponent(aabb)
-		, m_Type(Type)
+		: m_Type(Type)
+		, m_aabb(aabb)
 		, m_World(World)
 	{
 	}

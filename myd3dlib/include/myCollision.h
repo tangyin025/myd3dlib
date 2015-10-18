@@ -539,7 +539,8 @@ namespace my
 			IntersectionTypeUnknown = 0,
 			IntersectionTypeOutside,
 			IntersectionTypeInside,
-			IntersectionTypeIntersect
+			IntersectionTypeIntersect,
+			IntersectionTypeRay,
 		};
 
 		static IntersectionType IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum);
