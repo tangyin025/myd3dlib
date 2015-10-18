@@ -33,6 +33,10 @@ public:
 
 	my::Plane m_DragPlane;
 
+	my::Vector3 m_DragDeltaPos;
+
+	my::Quaternion m_DragDeltaRot;
+
 	bool m_Captured;
 
 public:

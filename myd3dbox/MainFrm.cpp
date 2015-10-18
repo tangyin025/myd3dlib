@@ -348,22 +348,6 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
-void CMainFrame::SelectionChanged(void)
-{
-	if (!m_SelectionSet.empty())
-	{
-		m_SelectionBox = my::AABB(FLT_MAX,-FLT_MAX);
-		ComponentSet::const_iterator sel_iter = m_SelectionSet.begin();
-		for (; sel_iter != m_SelectionSet.end(); sel_iter++)
-		{
-			m_SelectionBox.unionSelf((*sel_iter)->m_aabb);
-		}
-		m_Pivot.m_Pos = m_SelectionBox.Center();
-	}
-	EventArg arg;
-	m_EventSelectionChanged(&arg);
-}
-
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();

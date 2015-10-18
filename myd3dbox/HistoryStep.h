@@ -82,3 +82,31 @@ public:
 
 	virtual void Do(void);
 };
+
+class Matrix4PropertyOperator : public HistoryStep::Operator
+{
+public:
+	my::Matrix4 & m_OldValue;
+
+	my::Matrix4 m_NewValue;
+
+	Matrix4PropertyOperator(my::Matrix4 & OldValue, const my::Matrix4 & NewValue)
+		: m_OldValue(OldValue)
+		, m_NewValue(NewValue)
+	{
+	}
+
+	virtual void Do(void);
+};
+
+class ComponentWorldOperator : public Matrix4PropertyOperator
+{
+public:
+	ComponentPtr m_cmp;
+
+	ComponentWorldOperator(ComponentPtr cmp, const my::Matrix4 & NewValue)
+		: Matrix4PropertyOperator(cmp->m_World, NewValue)
+		, m_cmp(cmp)
+	{
+	}
+};

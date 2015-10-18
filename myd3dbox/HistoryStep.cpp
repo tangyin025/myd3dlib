@@ -53,3 +53,8 @@ void OperatorRemoveComponentList::Do(void)
 		ASSERT(res);
 	}
 }
+
+void Matrix4PropertyOperator::Do(void)
+{
+	m_OldValue = m_NewValue;
+}

@@ -284,13 +284,16 @@ bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray, float Scale
 		switch(m_DragAxis)
 		{
 		case PivotDragAxisX:
-			m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
+			m_DragDeltaPos = Vector3(pt.x - m_DragPt.x, 0, 0);
+			m_Pos = m_DragPos + m_DragDeltaPos;
 			return true;
 		case PivotDragAxisY:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y + pt.y - m_DragPt.y, m_DragPos.z);
+			m_DragDeltaPos = Vector3(0, pt.y - m_DragPt.y, 0);
+			m_Pos = m_DragPos + m_DragDeltaPos;
 			return true;
 		case PivotDragAxisZ:
-			m_Pos = Vector3(m_DragPos.x, m_DragPos.y, m_DragPos.z + pt.z - m_DragPt.z);
+			m_DragDeltaPos = Vector3(0, 0, pt.z - m_DragPt.z);
+			m_Pos = m_DragPos + m_DragDeltaPos;
 			return true;
 		}
 	}
@@ -314,13 +317,16 @@ bool PivotController::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
     switch(m_DragAxis)
     {
     case PivotDragAxisX:
-        m_Rot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z)) * m_DragRot;
+		m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z));
+		m_Rot = m_DragDeltaRot * m_DragRot;
         return true;
     case PivotDragAxisY:
-        m_Rot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z)) * m_DragRot;
+        m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, 0, m_DragPt.z), Vector3(k.x, 0, k.z));
+		m_Rot = m_DragDeltaRot * m_DragRot;
         return true;
     case PivotDragAxisZ:
-        m_Rot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0)) * m_DragRot;
+        m_DragDeltaRot = Quaternion::RotationFromTo(Vector3(m_DragPt.x, m_DragPt.y, 0), Vector3(k.x, k.y, 0));
+		m_Rot = m_DragDeltaRot * m_DragRot;
         return true;
     }
     return false;

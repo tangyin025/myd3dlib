@@ -565,7 +565,20 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		pFrame->SelectionChanged();
+		if (!pFrame->m_SelectionSet.empty())
+		{
+			pFrame->m_SelectionBox = my::AABB(FLT_MAX,-FLT_MAX);
+			m_CmpWorldOptList.clear();
+			CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
+			for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
+			{
+				pFrame->m_SelectionBox.unionSelf((*sel_iter)->m_aabb);
+				m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new ComponentWorldOperator(*sel_iter, (*sel_iter)->m_World)));
+			}
+			m_PivotDragPos = pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
+		}
+		EventArg arg;
+		pFrame->m_EventSelectionChanged(&arg);
 	}
 
 	Invalidate();
@@ -593,6 +606,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
 		StartPerformanceCount();
+		ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
+		for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
+		{
+			(*cmp_world_iter)->m_cmp->m_World = (*cmp_world_iter)->m_NewValue * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+		}
 		Invalidate();
 	}
 }
