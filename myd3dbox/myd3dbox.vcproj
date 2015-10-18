@@ -224,10 +224,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\MltiTree.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\OutlinerWnd.cpp"
 				>
 			</File>
@@ -291,10 +287,6 @@
 			</File>
 			<File
 				RelativePath=".\MainFrm.h"
-				>
-			</File>
-			<File
-				RelativePath=".\MltiTree.h"
 				>
 			</File>
 			<File

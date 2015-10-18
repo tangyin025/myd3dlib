@@ -6,7 +6,6 @@
 #pragma once
 
 #include "../demo2_3/Component/RenderPipeline.h"
-#include "PivotController.h"
 
 class CMainDoc;
 
@@ -53,7 +52,7 @@ protected:
 	my::Texture2DPtr m_DownFilterRT[2];
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
-	PivotController m_Pivot;
+	float m_PivotScale;
 	typedef std::multimap<float, ComponentPtr> SelCmpMap;
 	SelCmpMap m_SelCmpMap;
 	float m_CameraDiagonal;

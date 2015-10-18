@@ -13,11 +13,10 @@ static const Matrix4 Transform[3] = {
 	Matrix4::Identity(), Matrix4::RotationZ(D3DXToRadian(90)), Matrix4::RotationY(D3DXToRadian(-90)) };
 
 PivotController::PivotController(void)
-	: m_Pos(Vector3::zero)
+	: m_Mode(PivotModeMove)
+	, m_Pos(Vector3::zero)
 	, m_Rot(Quaternion::Identity())
-	, m_PivotDragAxis(PivotDragNone)
-	, m_PivotMode(PivotModeMove)
-	, m_Scale(1.0f)
+	, m_DragAxis(PivotDragNone)
 	, m_Captured(false)
 {
 }
@@ -26,24 +25,20 @@ PivotController::~PivotController(void)
 {
 }
 
-void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc)
+void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale)
 {
-	UpdateScale(camera, desc);
-
-	UpdateWorld();
-
-	switch (m_PivotMode)
+	switch (m_Mode)
 	{
 	case PivotModeMove:
-		DrawMoveController(pd3dDevice);
+		DrawMoveController(pd3dDevice, Scale);
 		break;
 	case PivotModeRot:
-		DrawRotController(pd3dDevice);
+		DrawRotController(pd3dDevice, Scale);
 		break;
 	}
 }
 
-void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice)
+void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 {
 	struct Vertex
 	{
@@ -56,9 +51,9 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice)
 	boost::array<Vertex, pices * stage * 3> vertices;
 	const D3DCOLOR Color[3] =
 	{
-		m_PivotDragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
-		m_PivotDragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
-		m_PivotDragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
+		m_DragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
+		m_DragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
+		m_DragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
 	};
 	for (unsigned int j = 0; j < 3; j++)
 	{
@@ -113,11 +108,11 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice)
 	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice)
+void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 {
 	struct Vertex
 	{
@@ -130,9 +125,9 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice)
 	boost::array<Vertex, pices * stage * 3> vertices;
 	const D3DCOLOR Color[3] =
 	{
-		m_PivotDragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
-		m_PivotDragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
-		m_PivotDragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
+		m_DragAxis == PivotDragAxisX ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,255,0,0),
+		m_DragAxis == PivotDragAxisY ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,255,0),
+		m_DragAxis == PivotDragAxisZ ? D3DCOLOR_ARGB(255,255,255,0) : D3DCOLOR_ARGB(255,0,0,255)
 	};
 	for (unsigned int j = 0; j < 3; j++)
 	{
@@ -164,39 +159,35 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice)
 	}
 
 	HRESULT hr;
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&m_World));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-void PivotController::UpdateScale(const my::BaseCamera * camera, const D3DSURFACE_DESC * desc)
+Matrix4 PivotController::CalculateWorld(float Scale)
 {
-	m_Scale = camera->CalculateViewportScaler(m_Pos) * 50.0f / desc->Width;
+	return Matrix4::Compose(Vector3(Scale), m_Rot, m_Pos);
 }
 
-void PivotController::UpdateWorld(void)
+bool PivotController::OnLButtonDown(const my::Ray & ray, float Scale)
 {
-	m_World = Matrix4::Compose(Vector3(m_Scale), m_Rot, m_Pos);
-}
-
-bool PivotController::OnLButtonDown(const my::Ray & ray)
-{
-	switch (m_PivotMode)
+	switch (m_Mode)
 	{
 	case PivotModeMove:
-		return OnMoveControllerLButtonDown(ray);
+		return OnMoveControllerLButtonDown(ray, Scale);
 	case PivotModeRot:
-		return OnRotControllerLButtonDown(ray);
+		return OnRotControllerLButtonDown(ray, Scale);
 	}
 	return false;
 }
 
-bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray)
+bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 {
+	Matrix4 World = CalculateWorld(Scale);
 	Matrix4 trans[3] = {
-		(Transform[0] * m_World).inverse(), (Transform[1] * m_World).inverse(), (Transform[2] * m_World).inverse() };
+		(Transform[0] * World).inverse(), (Transform[1] * World).inverse(), (Transform[2] * World).inverse() };
 	float minT = FLT_MAX;
-	m_PivotDragAxis = PivotDragNone;
+	m_DragAxis = PivotDragNone;
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		Ray local_ray = ray.transform(trans[i]);
@@ -204,28 +195,26 @@ bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray)
 		if (res.first && res.second < minT)
 		{
 			minT = res.second;
-			m_PivotDragAxis = (PivotDragAxis)(PivotDragAxisX + i);
+			m_DragAxis = (PivotDragAxis)(PivotDragAxisX + i);
+			m_DragPt = (local_ray.p + local_ray.d * minT).transformCoord(Transform[i] * World);
 		}
 	}
-	switch (m_PivotDragAxis)
+	switch (m_DragAxis)
 	{
 	case PivotDragAxisX:
 		m_DragPos = m_Pos;
-		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitX.cross(Vector3::unitX.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
 		return true;
 	case PivotDragAxisY:
 		m_DragPos = m_Pos;
-		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitY.cross(Vector3::unitY.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
 		return true;
 	case PivotDragAxisZ:
 		m_DragPos = m_Pos;
-		m_DragPt = ray.p + ray.d * minT;
 		m_DragPlane.normal = Vector3::unitZ.cross(Vector3::unitZ.cross(ray.d)).normalize();
 		m_DragPlane.d = -m_DragPt.dot(m_DragPlane.normal);
 		m_Captured = true;
@@ -234,18 +223,18 @@ bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray)
 	return false;
 }
 
-bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
+bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 {
-	Matrix4 trans = m_World.inverse();
+	Matrix4 trans = CalculateWorld(Scale).inverse();
 	Ray local_ray = ray.transform(trans);
 	RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
-	m_PivotDragAxis = PivotDragNone;
+	m_DragAxis = PivotDragNone;
 	if(res.first)
 	{
 		Vector3 k = local_ray.p + local_ray.d * res.second;
 		if(k.x <= radius[0] && k.x >= -radius[0])
 		{
-			m_PivotDragAxis = PivotDragAxisX;
+			m_DragAxis = PivotDragAxisX;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
 			m_Captured = true;
@@ -253,7 +242,7 @@ bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
 		}
 		else if(k.y <= radius[0] && k.y >= -radius[0])
 		{
-			m_PivotDragAxis = PivotDragAxisY;
+			m_DragAxis = PivotDragAxisY;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
 			m_Captured = true;
@@ -261,7 +250,7 @@ bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
 		}
 		else if(k.z <= radius[0] && k.z >= -radius[0])
 		{
-			m_PivotDragAxis = PivotDragAxisZ;
+			m_DragAxis = PivotDragAxisZ;
 			m_DragPt = k;
 			m_DragRot = m_Rot;
 			m_Captured = true;
@@ -271,28 +260,28 @@ bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray)
 	return false;
 }
 
-bool PivotController::OnMouseMove(const my::Ray & ray)
+bool PivotController::OnMouseMove(const my::Ray & ray, float Scale)
 {
 	if (m_Captured)
 	{
-		switch (m_PivotMode)
+		switch (m_Mode)
 		{
 		case PivotModeMove:
-			return OnMoveControllerMouseMove(ray);
+			return OnMoveControllerMouseMove(ray, Scale);
 		case PivotModeRot:
-			return OnRotControllerMouseMove(ray);
+			return OnRotControllerMouseMove(ray, Scale);
 		}
 	}
 	return false;
 }
 
-bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray)
+bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 {
 	RayResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
 	if(res.first)
 	{
 		Vector3 pt = ray.p + ray.d * res.second;
-		switch(m_PivotDragAxis)
+		switch(m_DragAxis)
 		{
 		case PivotDragAxisX:
 			m_Pos = Vector3(m_DragPos.x + pt.x - m_DragPt.x, m_DragPos.y, m_DragPos.z);
@@ -308,9 +297,9 @@ bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray)
 	return false;
 }
 
-bool PivotController::OnRotControllerMouseMove(const my::Ray & ray)
+bool PivotController::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
 {
-	Matrix4 trans = Matrix4::Compose(m_Scale, m_DragRot, m_Pos).inverse();
+	Matrix4 trans = Matrix4::Compose(Scale, m_DragRot, m_Pos).inverse();
 	Ray local_ray = ray.transform(trans);
     RayResult res = IntersectionTests::rayAndSphere(local_ray.p, local_ray.d, Vector3::zero, offset + header);
     Vector3 k;
@@ -322,7 +311,7 @@ bool PivotController::OnRotControllerMouseMove(const my::Ray & ray)
 	{
         k = local_ray.p - local_ray.d * local_ray.p.dot(local_ray.d);
 	}
-    switch(m_PivotDragAxis)
+    switch(m_DragAxis)
     {
     case PivotDragAxisX:
         m_Rot = Quaternion::RotationFromTo(Vector3(0, m_DragPt.y, m_DragPt.z), Vector3(0, k.y, k.z)) * m_DragRot;
@@ -339,7 +328,7 @@ bool PivotController::OnRotControllerMouseMove(const my::Ray & ray)
 
 bool PivotController::OnLButtonUp(const my::Ray & ray)
 {
-	switch (m_PivotDragAxis)
+	switch (m_DragAxis)
 	{
 	case PivotDragAxisX:
 	case PivotDragAxisY:

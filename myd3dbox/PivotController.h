@@ -17,17 +17,13 @@ public:
 		PivotModeRot,
 	};
 
+	PivotMode m_Mode;
+
 	my::Vector3 m_Pos;
 
 	my::Quaternion m_Rot;
 
-	PivotDragAxis m_PivotDragAxis;
-
-	PivotMode m_PivotMode;
-
-	float m_Scale;
-
-	my::Matrix4 m_World;
+	PivotDragAxis m_DragAxis;
 
 	my::Vector3 m_DragPos;
 
@@ -44,27 +40,25 @@ public:
 
 	~PivotController(void);
 
-	void Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc);
+	void Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale);
 
-	void DrawMoveController(IDirect3DDevice9 * pd3dDevice);
+	void DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale);
 
-	void DrawRotController(IDirect3DDevice9 * pd3dDevice);
+	void DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale);
 
-	void UpdateScale(const my::BaseCamera * camera, const D3DSURFACE_DESC * desc);
+	my::Matrix4 CalculateWorld(float Scale);
 
-	void UpdateWorld(void);
+	bool OnLButtonDown(const my::Ray & ray, float Scale);
 
-	bool OnLButtonDown(const my::Ray & ray);
+	bool OnMoveControllerLButtonDown(const my::Ray & ray, float Scale);
 
-	bool OnMoveControllerLButtonDown(const my::Ray & ray);
+	bool OnRotControllerLButtonDown(const my::Ray & ray, float Scale);
 
-	bool OnRotControllerLButtonDown(const my::Ray & ray);
+	bool OnMouseMove(const my::Ray & ray, float Scale);
 
-	bool OnMouseMove(const my::Ray & ray);
+	bool OnMoveControllerMouseMove(const my::Ray & ray, float Scale);
 
-	bool OnMoveControllerMouseMove(const my::Ray & ray);
-
-	bool OnRotControllerMouseMove(const my::Ray & ray);
+	bool OnRotControllerMouseMove(const my::Ray & ray, float Scale);
 
 	bool OnLButtonUp(const my::Ray & ray);
 };

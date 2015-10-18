@@ -8,6 +8,7 @@
 #include "PropertiesWnd.h"
 #include "../demo2_3/Component/Actor.h"
 #include "HistoryManager.h"
+#include "PivotController.h"
 
 struct EventArg
 {
@@ -38,6 +39,7 @@ public:
 	CPropertiesWnd    m_wndProperties;
 	CRectTracker m_Tracker;
 	HistoryManager m_History;
+	PivotController m_Pivot;
 	ActorPtr m_Actor;
 	ComponentLevel * m_SelectionRoot;
 	typedef boost::unordered_set<ComponentPtr> ComponentSet;

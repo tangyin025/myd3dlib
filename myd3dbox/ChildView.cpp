@@ -40,7 +40,8 @@ END_MESSAGE_MAP()
 // CChildView construction/destruction
 
 CChildView::CChildView()
-	: m_CameraType(CameraTypeUnknown)
+	: m_PivotScale(1.0f)
+	, m_CameraType(CameraTypeUnknown)
 	, m_CameraDiagonal(30.0f)
 {
 	// TODO: add construction code here
@@ -426,7 +427,10 @@ void CChildView::OnPaint()
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
-				m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc);
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT_VALID(pFrame);
+				m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
+				pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -503,22 +507,23 @@ void CChildView::OnDestroy()
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (m_Pivot.OnLButtonDown(ray))
+	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
+		SetCapture();
 		Invalidate();
 		return;
 	}
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
 	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
 	StartPerformanceCount();
 	bool bSelectionChanged = false;
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)))
+	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_SelectionSet.empty())
 	{
 		pFrame->m_SelectionSet.clear();
 		bSelectionChanged = true;
@@ -526,7 +531,11 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
 	{
-		my::Rectangle rc(pFrame->m_Tracker.m_rect.left, pFrame->m_Tracker.m_rect.top, pFrame->m_Tracker.m_rect.right, pFrame->m_Tracker.m_rect.bottom);
+		my::Rectangle rc(
+			(float)pFrame->m_Tracker.m_rect.left,
+			(float)pFrame->m_Tracker.m_rect.top,
+			(float)pFrame->m_Tracker.m_rect.right,
+			(float)pFrame->m_Tracker.m_rect.bottom);
 		if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 		{
 			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
@@ -561,23 +570,30 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		EventArg arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
+
+	Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	if (m_Pivot.m_Captured && m_Pivot.OnLButtonUp(
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
+		ReleaseCapture();
 		Invalidate();
 	}
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	if (m_Pivot.m_Captured && m_Pivot.OnMouseMove(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
 		StartPerformanceCount();
 		Invalidate();
