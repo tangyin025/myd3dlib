@@ -794,8 +794,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 
 	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 
-	m_aabb.m_min = Vector3(FLT_MAX,FLT_MAX,FLT_MAX);
-	m_aabb.m_max = Vector3(FLT_MIN,FLT_MIN,FLT_MIN);
+	m_aabb = AABB(FLT_MAX,-FLT_MAX);
 
 	VOID * pVertices = LockVertexBuffer();
 	DEFINE_XML_NODE_SIMPLE(vertex, vertexbuffer);

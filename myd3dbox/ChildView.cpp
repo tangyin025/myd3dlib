@@ -299,32 +299,30 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	my::AABB box(FLT_MAX,-FLT_MAX);
-	CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
-	for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
+	if (!pFrame->m_SelectionSet.empty())
 	{
-		switch ((*sel_iter)->m_Type)
+		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
+		for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
 		{
-		case Component::ComponentTypeMesh:
+			switch ((*sel_iter)->m_Type)
 			{
-				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(sel_iter->get());
-				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-				UINT passes = theApp.m_SimpleSample->Begin();
-				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+			case Component::ComponentTypeMesh:
 				{
-					theApp.m_SimpleSample->BeginPass(0);
-					mesh_cmp->m_Mesh->DrawSubset(i);
-					theApp.m_SimpleSample->EndPass();
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(sel_iter->get());
+					theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+					UINT passes = theApp.m_SimpleSample->Begin();
+					for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+					{
+						theApp.m_SimpleSample->BeginPass(0);
+						mesh_cmp->m_Mesh->DrawSubset(i);
+						theApp.m_SimpleSample->EndPass();
+					}
+					theApp.m_SimpleSample->End();
 				}
-				theApp.m_SimpleSample->End();
+				break;
 			}
-			break;
 		}
-		box.unionSelf((*sel_iter)->m_aabb);
-	}
-	if (box.m_min.x < box.m_max.x)
-	{
-		PushWireAABB(box, D3DCOLOR_ARGB(255,255,255,255));
+		PushWireAABB(pFrame->m_SelectionBox, D3DCOLOR_ARGB(255,255,255,255));
 	}
 }
 
@@ -567,8 +565,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		EventArg arg;
-		pFrame->m_EventSelectionChanged(&arg);
+		pFrame->SelectionChanged();
 	}
 
 	Invalidate();

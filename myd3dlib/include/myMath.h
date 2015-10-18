@@ -2781,6 +2781,19 @@ namespace my
 		}
 
 	public:
+		Vector3 Center(void)
+		{
+			return Vector3(
+				Lerp(m_min.x, m_max.x, 0.5f),
+				Lerp(m_min.y, m_max.y, 0.5f),
+				Lerp(m_min.z, m_max.z, 0.5f));
+		}
+
+		Vector3 Extent(void)
+		{
+			return m_max - m_min;
+		}
+
 		AABB intersect(const AABB & rhs) const
 		{
 			return AABB(
