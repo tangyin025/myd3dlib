@@ -7,6 +7,7 @@
 #include "Component/ActorComponent.h"
 #include "Component/ActorResourceMgr.h"
 #include "Component/Actor.h"
+#include "Logic/Logic.h"
 
 class EffectUIRender
 	: public my::UIRender
@@ -83,6 +84,8 @@ public:
 	typedef std::vector<ActorPtr> ActorPtrList;
 
 	ActorPtrList m_Actors;
+
+	LogicPtr m_Logic;
 
 public:
 	Game(void);
