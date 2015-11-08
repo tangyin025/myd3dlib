@@ -385,8 +385,8 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			m_Camera->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
-			m_SkyLightCam->OnFrameMove(theApp.m_fAbsoluteTime, 0.0f);
+			m_Camera->Update(theApp.m_fAbsoluteTime, 0.0f);
+			m_SkyLightCam->Update(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 			DrawHelper::BeginLine();

@@ -118,13 +118,6 @@ public:
 		ResourceMgr::OnDestroyDevice();
 	}
 
-	void OnFrameMove(
-		double fTime,
-		float fElapsedTime)
-	{
-		CheckRequests();
-	}
-
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
@@ -147,7 +140,7 @@ public:
 
 	virtual void OnFrameTick(double fTime, float fElapsedTime)
 	{
-		OnFrameMove(fTime, fElapsedTime);
+		CheckRequests();
 
 		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 

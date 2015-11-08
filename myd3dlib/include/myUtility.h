@@ -93,7 +93,7 @@ namespace my
 
 		void RemoveAllTimer(void);
 
-		void OnFrameMove(
+		void Update(
 			double fTime,
 			float fElapsedTime);
 	};
@@ -125,7 +125,7 @@ namespace my
 		{
 		}
 
-		virtual void OnFrameMove(
+		virtual void Update(
 			double fTime,
 			float fElapsedTime)
 		{
@@ -198,7 +198,7 @@ namespace my
 			_ASSERT(m_Aspect != 0);
 		}
 
-		virtual void OnFrameMove(
+		virtual void Update(
 			double fTime,
 			float fElapsedTime);
 
@@ -277,7 +277,7 @@ namespace my
 		{
 		}
 
-		virtual void OnFrameMove(
+		virtual void Update(
 			double fTime,
 			float fElapsedTime);
 
@@ -318,7 +318,7 @@ namespace my
 		{
 		}
 
-		virtual void OnFrameMove(
+		virtual void Update(
 			double fTime,
 			float fElapsedTime);
 

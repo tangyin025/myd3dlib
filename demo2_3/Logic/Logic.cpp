@@ -64,7 +64,7 @@ void Logic::Update(float fElapsedTime)
 {
 	ModelViewerCamera * camera = dynamic_cast<ModelViewerCamera *>(Game::getSingleton().m_Camera.get());
 	camera->m_LookAt = (Vector3&)m_LocalPlayer->getPosition();
-	camera->OnFrameMove(Game::getSingleton().m_fAbsoluteTime, fElapsedTime);
+	camera->Update(Game::getSingleton().m_fAbsoluteTime, fElapsedTime);
 	m_LocalPlayer->m_LookDir = atan2f(-camera->m_View._13, -camera->m_View._33); // ! right hand inverse vector
 
 	m_FixedTickTimer.Step(fElapsedTime, 4);

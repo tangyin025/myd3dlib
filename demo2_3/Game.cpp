@@ -307,27 +307,6 @@ void Game::OnPxThreadSubstep(float dtime)
 	// ! take care of multi thread
 }
 
-void Game::OnFrameMove(
-	double fTime,
-	float fElapsedTime)
-{
-	InputMgr::Update(fTime, fElapsedTime);
-
-	ActorResourceMgr::CheckRequests();
-
-	TimerMgr::OnFrameMove(fTime, fElapsedTime);
-
-	ActorPtrList::iterator actor_iter = m_Actors.begin();
-	for (; actor_iter != m_Actors.end(); actor_iter++)
-	{
-		(*actor_iter)->Update(fElapsedTime);
-	}
-
-	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->OnFrameMove(fTime, fElapsedTime);
-
-	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->OnFrameMove(fTime, fElapsedTime);
-}
-
 void Game::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	double fTime,
@@ -379,9 +358,23 @@ void Game::OnFrameTick(
 {
 	DrawHelper::BeginLine();
 
+	CheckRequests();
+
 	PhysXSceneContext::PushRenderBuffer(this);
 
-	OnFrameMove(fTime, fElapsedTime);
+	InputMgr::Update(fTime, fElapsedTime);
+
+	TimerMgr::Update(fTime, fElapsedTime);
+
+	ActorPtrList::iterator actor_iter = m_Actors.begin();
+	for (; actor_iter != m_Actors.end(); actor_iter++)
+	{
+		(*actor_iter)->Update(fElapsedTime);
+	}
+
+	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->Update(fTime, fElapsedTime);
+
+	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
 	PhysXSceneContext::OnTickPreRender(fElapsedTime);
 

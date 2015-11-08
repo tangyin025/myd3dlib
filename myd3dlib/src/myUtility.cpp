@@ -118,7 +118,7 @@ void TimerMgr::RemoveAllTimer(void)
 	m_timerSet.clear();
 }
 
-void TimerMgr::OnFrameMove(
+void TimerMgr::Update(
 	double fTime,
 	float fElapsedTime)
 {
@@ -171,7 +171,7 @@ Frustum BaseCamera::RectangleToFrustum(const Matrix4 & InverseViewProj, const my
 		Plane::FromTriangle(frt,flt,flb));
 }
 
-void OrthoCamera::OnFrameMove(
+void OrthoCamera::Update(
 	double fTime,
 	float fElapsedTime)
 {
@@ -216,7 +216,7 @@ float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
 	return m_Diagonal * cos(atan2(1, m_Aspect)) * 0.5f;
 }
 
-void ModelViewerCamera::OnFrameMove(
+void ModelViewerCamera::Update(
 	double fTime,
 	float fElapsedTime)
 {
@@ -363,7 +363,7 @@ float ModelViewerCamera::CalculateViewportScaler(Vector3 WorldPos) const
 	return z * tan(m_Fov * 0.5f);
 }
 
-void FirstPersonCamera::OnFrameMove(
+void FirstPersonCamera::Update(
 	double fTime,
 	float fElapsedTime)
 {
