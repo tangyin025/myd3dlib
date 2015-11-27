@@ -13,6 +13,8 @@ namespace my
 
 		int m_line;
 
+		std::string m_call;
+
 	public:
 		Exception(const char * file, int line);
 

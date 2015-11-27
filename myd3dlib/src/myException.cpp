@@ -5,6 +5,7 @@
 #include <dinput.h>
 #include <dsound.h>
 #include <tchar.h>
+#include "PrintCallStack.h"
 
 using namespace my;
 
@@ -12,6 +13,19 @@ Exception::Exception(const char * file, int line)
 	: m_file(file)
 	, m_line(line)
 {
+	CONTEXT Context;
+	ZeroMemory( &Context, sizeof( Context ) );
+	Context.ContextFlags = CONTEXT_CONTROL;
+	__asm {
+	Label:
+		mov [Context.Ebp], ebp;
+		mov [Context.Esp], esp;
+		mov eax, [Label];
+		mov [Context.Eip], eax;
+	}
+	std::ostringstream osstr;
+	PrintCallStack(&Context, osstr);
+	m_call = osstr.str();
 }
 
 Exception::~Exception(void)
@@ -97,8 +111,8 @@ const char * ComException::Translate(HRESULT hres) throw()
 std::string ComException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << Translate(m_hres);
+	osstr << m_file << " (" << m_line << "): " << Translate(m_hres) << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }
 
@@ -146,8 +160,8 @@ const char * D3DException::Translate(HRESULT hres) throw()
 std::string D3DException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << Translate(m_hres);
+	osstr << m_file << " (" << m_line << "): " << Translate(m_hres) << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }
 
@@ -204,8 +218,8 @@ const char * DInputException::Translate(HRESULT hres) throw()
 std::string DInputException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << Translate(m_hres);
+	osstr << m_file << " (" << m_line << "): " << Translate(m_hres) << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }
 
@@ -246,8 +260,8 @@ const char * DSoundException::Translate(HRESULT hres) throw()
 std::string DSoundException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << Translate(m_hres);
+	osstr << m_file << " (" << m_line << "): " << Translate(m_hres) << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }
 
@@ -269,15 +283,15 @@ std::string WinException::Translate(DWORD code) throw()
 std::string WinException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << Translate(m_code);
+	osstr << m_file << " (" << m_line << "): " << Translate(m_code) << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }
 
 std::string CustomException::what(void) const
 {
 	std::ostringstream osstr;
-	osstr << m_file << " (" << m_line << "):" << std::endl;
-	osstr << m_desc;
+	osstr << m_file << " (" << m_line << "): " << m_desc << std::endl;
+	osstr << m_call;
 	return osstr.str();
 }

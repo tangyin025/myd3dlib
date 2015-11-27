@@ -4,11 +4,8 @@
 #include <boost/bind.hpp>
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
-
-#include <PxPhysicsAPI.h>
 #include <fmod.hpp>
 #include <fmod_errors.h>
-
 #include <LuaContext.h>
 #include <signal.h>
 #include <luabind/luabind.hpp>

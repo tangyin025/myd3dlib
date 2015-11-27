@@ -8,21 +8,36 @@
 
 namespace my
 {
+	class OctNodeBase;
+
 	class AABBComponent
 	{
+	protected:
+		OctNodeBase * m_OctNode;
+
 	public:
 		AABBComponent(void)
+			: m_OctNode(NULL)
 		{
 		}
 
 		virtual ~AABBComponent(void)
 		{
+			//_ASSERT(!m_OctNode);
+		}
+
+		void SetOctNode(OctNodeBase * node)
+		{
+			m_OctNode = node;
+		}
+
+		OctNodeBase * GetOctNode(void)
+		{
+			return m_OctNode;
 		}
 	};
 
 	typedef boost::shared_ptr<AABBComponent> AABBComponentPtr;
-
-	typedef std::pair<AABB, AABBComponentPtr> AABBComponentPtrPair;
 
 	struct IQueryCallback
 	{
@@ -35,9 +50,9 @@ namespace my
 	public:
 		const AABB m_aabb;
 
-		typedef std::vector<AABBComponentPtrPair> AABBComponentPtrPairList;
+		typedef boost::unordered_map<AABBComponentPtr, AABB> AABBComponentPtrMap;
 
-		AABBComponentPtrPairList m_ComponentList;
+		AABBComponentPtrMap m_ComponentList;
 
 		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
@@ -61,15 +76,19 @@ namespace my
 
 		void QueryComponent(const Ray & ray, IQueryCallback * callback);
 
+		void QueryComponent(const AABB & aabb, IQueryCallback * callback);
+
 		void QueryComponent(const Frustum & frustum, IQueryCallback * callback);
 
 		void QueryComponentAll(IQueryCallback * callback);
 
+		void QueryComponentIntersected(const AABB & aabb, IQueryCallback * callback);
+
 		void QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback);
 
-		bool HaveChildNodes(void);
-
 		bool RemoveComponent(AABBComponentPtr cmp);
+
+		void ClearComponents(void);
 	};
 
 	template <DWORD Offset>
@@ -106,6 +125,7 @@ namespace my
 
 		void AddComponent(AABBComponentPtr cmp, const AABB & cmp_aabb, float threshold = 0.1f)
 		{
+			_ASSERT(!cmp->GetOctNode());
 			if (cmp_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
@@ -128,7 +148,8 @@ namespace my
 			}
 			else
 			{
-				m_ComponentList.push_back(std::make_pair(cmp_aabb, cmp));
+				m_ComponentList.insert(std::make_pair(cmp, cmp_aabb));
+				cmp->SetOctNode(this);
 			}
 		}
 	};
@@ -150,8 +171,6 @@ namespace my
 			: OctNode(aabb, MinBlock)
 		{
 		}
-
-		void ClearComponents(void);
 	};
 
 	typedef boost::shared_ptr<OctRoot> OctRootPtr;

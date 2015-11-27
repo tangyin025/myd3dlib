@@ -2,7 +2,6 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
-#include "physx_ptr.hpp"
 #include "Animator.h"
 
 class Component
@@ -13,7 +12,6 @@ public:
 	{
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
-		ComponentTypeCloth,
 		ComponentTypeEmitter,
 		ComponentTypeLOD,
 	};
@@ -138,37 +136,6 @@ public:
 };
 
 typedef boost::shared_ptr<IndexdPrimitiveUPComponent> IndexdPrimitiveUPComponentPtr;
-
-class ClothComponent
-	: public IndexdPrimitiveUPComponent
-{
-public:
-	my::D3DVertexElementSet m_VertexElems;
-
-	std::vector<PxClothParticle> m_particles;
-
-	std::vector<PxClothParticle> m_NewParticles;
-
-	physx_ptr<PxCloth> m_Cloth;
-
-public:
-	ClothComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: IndexdPrimitiveUPComponent(aabb, World, ComponentTypeCloth)
-	{
-	}
-
-	virtual void OnResetDevice(void);
-
-	virtual void OnLostDevice(void);
-
-	virtual void OnDestroyDevice(void);
-
-	virtual void Update(float fElapsedTime);
-
-	void UpdateCloth(const my::TransformList & dualQuaternionList);
-};
-
-typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
 class EmitterComponent
 	: public RenderComponent

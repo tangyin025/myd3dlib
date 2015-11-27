@@ -150,16 +150,6 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	if(!PhysXContext::OnInit())
-	{
-		THROW_CUSEXCEPTION("PhysXContext::OnInit failed");
-	}
-
-	if(!PhysXSceneContext::OnInit(m_sdk.get(), m_CpuDispatcher.get()))
-	{
-		THROW_CUSEXCEPTION("PhysXSceneContext::OnInit failed");
-	}
-
 	if (!FModContext::OnInit())
 	{
 		THROW_CUSEXCEPTION("FModContext::OnInit failed");
@@ -296,10 +286,6 @@ void Game::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	PhysXSceneContext::OnShutdown();
-
-	PhysXContext::OnShutdown();
-
 	FModContext::OnShutdown();
 }
 
@@ -361,8 +347,6 @@ void Game::OnFrameTick(
 
 	CheckRequests();
 
-	PhysXSceneContext::PushRenderBuffer(this);
-
 	InputMgr::Update(fTime, fElapsedTime);
 
 	TimerMgr::Update(fTime, fElapsedTime);
@@ -377,8 +361,6 @@ void Game::OnFrameTick(
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
-	PhysXSceneContext::OnTickPreRender(fElapsedTime);
-
 	ParallelTaskManager::DoAllParallelTasks();
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
@@ -386,8 +368,6 @@ void Game::OnFrameTick(
 	m_FModSystem->update();
 
 	Present(NULL,NULL,NULL,NULL);
-
-	PhysXSceneContext::OnTickPostRender(fElapsedTime);
 }
 
 LRESULT Game::MsgProc(
@@ -503,26 +483,6 @@ void Game::OnResourceFailed(const std::string & error_str)
 	if(m_Console && !m_Console->GetVisible())
 	{
 		m_Console->SetVisible(true);
-	}
-}
-
-void Game::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
-{
-	switch(code)
-	{
-	case PxErrorCode::eDEBUG_INFO:
-		AddLine(ms2ws(str_printf("%s (%d) : info: %s", file, line, message)));
-		break;
-
-	case PxErrorCode::eDEBUG_WARNING:
-	case PxErrorCode::ePERF_WARNING:
-		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
-		break;
-
-	default:
-		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
-		AddLine(ms2ws(str_printf("%s, (%d) : error: %s", file, line, message)), D3DCOLOR_ARGB(255,255,0,0));
-		break;
 	}
 }
 
@@ -753,18 +713,5 @@ AnimatorPtr Game::CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std
 {
 	AnimatorPtr ret = owner->CreateAnimator<SimpleAnimator>();
 	LoadSkeletonAsync(path, boost::bind(&ActorResourceMgr::OnAnimatorSkeletonLoaded, this, ret, _1));
-	return ret;
-}
-
-ClothComponentPtr Game::CreateClothComponentFromFile(
-	ComponentLevel * owner,
-	const std::string & mesh_path,
-	const std::string & skel_path,
-	const std::string & root_name, const my::AABB & aabb, const my::Matrix4 & World)
-{
-	ClothComponentPtr ret = owner->CreateComponent<ClothComponent>(aabb, World);
-	AddResource(str_printf("cloth_%s_%s_%s", mesh_path.c_str(), skel_path.c_str(), root_name.c_str()), ret);
-	LoadSkeletonAsync(skel_path, boost::bind(&ActorResourceMgr::OnClothComponentSkeletonLoaded,
-		this, ret, _1, boost::make_tuple(m_Cooking.get(), PhysXContext::m_sdk.get(), PhysXSceneContext::m_PxScene.get()), mesh_path, root_name, boost::shared_ptr<PxClothCollisionData>(new PxClothCollisionData)));
 	return ret;
 }

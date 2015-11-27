@@ -399,9 +399,7 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
 
 		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<IndexdPrimitiveUPComponent> >("IndexdPrimitiveUPComponent")
-			.def_readwrite("Animator", &ClothComponent::m_Animator)
-
-		, class_<ClothComponent, IndexdPrimitiveUPComponent, boost::shared_ptr<ClothComponent> >("ClothComponent")
+			.def_readwrite("Animator", &IndexdPrimitiveUPComponent::m_Animator)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
 
@@ -422,8 +420,6 @@ void Export2Lua(lua_State * L)
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("RemoveDlg", &Game::RemoveDlg)
 			.def("RemoveAllDlg", &Game::RemoveAllDlg)
-			.def("CookTriangleMeshToFile", &Game::CookTriangleMeshToFile)
-			.def("CookClothFabricToFile", &Game::CookClothFabricToFile)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
@@ -442,7 +438,6 @@ void Export2Lua(lua_State * L)
 			.def("CreateEmitterComponent", &Game::CreateEmitterComponent)
 			.def("CreateEmitterComponentFromFile", &Game::CreateEmitterComponentFromFile)
 			.def("CreateSimpleAnimatorFromFile", &Game::CreateSimpleAnimatorFromFile)
-			.def("CreateClothComponentFromFile", &Game::CreateClothComponentFromFile)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)

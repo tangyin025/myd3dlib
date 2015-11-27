@@ -507,6 +507,27 @@ namespace my
 		return RayResult(isInsideTriangle(intersection, v0, v1, v2), t);
 	}
 
+	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndAABB(const AABB & lhs, const AABB & rhs)
+	{
+		IntersectionType ret = IntersectionTypeInside;
+		for (int i = 0; i < 3; i++)
+		{
+			if (lhs.m_max[i] < rhs.m_min[i])
+			{
+				return IntersectionTypeOutside;
+			}
+			else if (lhs.m_min[i] > rhs.m_max[i])
+			{
+				return IntersectionTypeOutside;
+			}
+			else if (lhs.m_max[i] > rhs.m_max[i] || lhs.m_min[i] < rhs.m_min[i])
+			{
+				ret = IntersectionTypeIntersect;
+			}
+		}
+		return ret;
+	}
+
 	IntersectionTests::IntersectionType IntersectionTests::IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum)
 	{
 		IntersectionType ret = IntersectionTypeInside;
@@ -577,27 +598,15 @@ namespace my
 
 	IntersectionTests::IntersectionType IntersectionTests::IntersectTriangleAndFrustum(const Vector3 & v0, const Vector3 & v1, const Vector3 & v2, const Frustum & frustum)
 	{
-		IntersectionType ret = IntersectionTypeUnknown;
+		IntersectionType ret = IntersectionTypeInside;
 		for (int i = 0; i < 6; i++)
 		{
 			switch (IntersectTriangleAndPlane(v0, v1, v2, frustum[i]))
 			{
 			case IntersectionTypeOutside:
 				return IntersectionTypeOutside;
-			case IntersectionTypeInside:
-				if (ret == IntersectionTypeUnknown)
-				{
-					ret = IntersectionTypeInside;
-				}
-				break;
 			case IntersectionTypeIntersect:
-				if (ret == IntersectionTypeUnknown || ret == IntersectionTypeInside)
-				{
-					ret = IntersectionTypeIntersect;
-				}
-				break;
-			default:
-				_ASSERT(false);
+				ret = IntersectionTypeIntersect;
 				break;
 			}
 		}

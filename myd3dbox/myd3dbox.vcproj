@@ -46,7 +46,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="-Zm192"
 				Optimization="0"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -69,8 +69,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib PhysX3CharacterKinematicDEBUG_x86.lib Ws2_32.lib fmodex_vc.lib"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
+				AdditionalOptions="Ws2_32.lib fmodex_vc.lib"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib dbghelp.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
 				GenerateDebugInformation="true"
@@ -131,7 +131,7 @@
 				AdditionalOptions="-Zm192"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;"
+				AdditionalIncludeDirectories="D:\Works\OpenSource\boost_1_54_0;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)myd3dlib\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG;BOOST_ALL_NO_LIB"
 				MinimalRebuild="false"
 				RuntimeLibrary="2"
@@ -154,8 +154,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalOptions="PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PhysX3Extensions.lib PhysX3CharacterKinematic_x86.lib Ws2_32.lib fmodex_vc.lib"
-				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib"
+				AdditionalOptions="Ws2_32.lib fmodex_vc.lib"
+				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib dbghelp.lib"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;"
 				GenerateDebugInformation="true"
@@ -397,18 +397,6 @@
 			</File>
 			<File
 				RelativePath="..\demo2_3\Component\FModContext.h"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\physx_ptr.hpp"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\PhysXContext.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\PhysXContext.h"
 				>
 			</File>
 			<File

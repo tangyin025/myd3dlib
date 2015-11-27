@@ -241,10 +241,7 @@ bool CChildView::OnRayTest(const my::Ray & ray)
 		}
 	};
 
-	my::Frustum frustum = my::Frustum::ExtractMatrix(m_Camera->m_ViewProj);
-
 	m_SelCmpMap.clear();
-
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	pFrame->m_SelectionRoot->QueryComponent(ray, &CallBack(m_SelCmpMap, ray));
@@ -269,7 +266,7 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 		{
 		}
 
-		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType type)
 		{
 			ComponentPtr cmp = boost::dynamic_pointer_cast<Component>(aabb_cmp);
 			if (cmp)
@@ -282,13 +279,10 @@ bool CChildView::OnFrustumTest(const my::Frustum & ftm)
 		}
 	};
 
-	my::Frustum frustum = my::Frustum::ExtractMatrix(m_Camera->m_ViewProj);
-
 	m_SelCmpMap.clear();
-
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->m_SelectionRoot->QueryComponent(frustum, &CallBack(m_SelCmpMap, ftm));
+	pFrame->m_SelectionRoot->QueryComponent(ftm, &CallBack(m_SelCmpMap, ftm));
 
 	return !m_SelCmpMap.empty();
 }

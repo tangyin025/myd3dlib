@@ -38,6 +38,8 @@ void OperatorMatrix4Property::Do(void)
 void OperatorComponentWorld::Do(void)
 {
 	__super::Do();
-	m_level->RemoveComponent(m_cmp);
+	ASSERT(m_cmp->GetOctNode());
+	bool res = m_cmp->GetOctNode()->RemoveComponent(m_cmp);
+	ASSERT(res);
 	m_level->AddComponent(m_cmp, m_cmp->m_aabb.transform(m_cmp->m_World));
 }

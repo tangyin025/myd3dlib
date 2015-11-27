@@ -543,6 +543,8 @@ namespace my
 			IntersectionTypeRay,
 		};
 
+		static IntersectionType IntersectAABBAndAABB(const AABB & lhs, const AABB & rhs);
+
 		static IntersectionType IntersectAABBAndFrustum(const AABB & aabb, const Frustum & frustum);
 
 		static IntersectionType IntersectSphereAndFrustum(const Vector3 & center, float radius, const Frustum & frustum);

@@ -40,27 +40,6 @@ public:
 		boost::weak_ptr<EmitterComponent> weak_cmp_ptr,
 		my::DeviceRelatedObjectBasePtr res);
 
-	void OnClothComponentMaterialLoaded(
-		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
-		my::DeviceRelatedObjectBasePtr res,
-		DWORD AttribId);
-
-	void OnClothComponentMeshLoaded(
-		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
-		my::DeviceRelatedObjectBasePtr res,
-		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-		boost::shared_ptr<my::BoneHierarchy> hierarchy,
-		DWORD root_i,
-		boost::shared_ptr<PxClothCollisionData> collData);
-
-	void OnClothComponentSkeletonLoaded(
-		boost::weak_ptr<ClothComponent> weak_cmp_ptr,
-		my::DeviceRelatedObjectBasePtr res,
-		boost::tuple<PxCooking *, PxPhysics *, PxScene *> PxContext,
-		std::string mesh_path,
-		std::string root_name,
-		boost::shared_ptr<PxClothCollisionData> collData);
-
 	void OnAnimatorSkeletonLoaded(
 		boost::weak_ptr<Animator> weak_ani_ptr,
 		my::DeviceRelatedObjectBasePtr res);
@@ -87,18 +66,6 @@ public:
 	void OnDestroyDevice(void);
 
 	void ClearAllShaders(void);
-
-	static void CookTriangleMesh(PxCooking * Cooking, my::OStreamPtr ostream, my::MeshPtr mesh);
-
-	static void CookTriangleMeshToFile(PxCooking * Cooking, std::string path, my::MeshPtr mesh);
-
-	static PxTriangleMesh * CreateTriangleMesh(PxPhysics * sdk, my::IStreamPtr istream);
-
-	static void CookClothFabric(PxCooking * Cooking, const my::Vector3 & Gravity, my::OStreamPtr ostream, my::MeshPtr mesh, WORD PositionOffset);
-
-	static void CookClothFabricToFile(PxCooking * Cooking, const my::Vector3 & Gravity, std::string path, my::MeshPtr mesh, WORD PositionOffset);
-
-	static PxClothFabric * CreateClothFabric(PxPhysics * sdk, my::IStreamPtr istream);
 
 	boost::shared_ptr<my::Emitter> CreateEmitter(const std::string & path);
 

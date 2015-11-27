@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Console.h"
-#include "Component/PhysXContext.h"
 #include "Component/FModContext.h"
 #include "Component/RenderPipeline.h"
 #include "Component/ActorComponent.h"
@@ -43,8 +42,6 @@ class Game
 	, public my::LuaContext
 	, public my::DialogMgr
 	, public my::InputMgr
-	, public PhysXContext
-	, public PhysXSceneContext
 	, public FModContext
 	, public ActorResourceMgr
 	, public RenderPipeline
@@ -148,8 +145,6 @@ public:
 
 	virtual void OnResourceFailed(const std::string & error_str);
 
-	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
-
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 
 	void puts(const std::wstring & str);
@@ -201,10 +196,4 @@ public:
 	EmitterComponentPtr CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
 
 	AnimatorPtr CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
-
-	ClothComponentPtr CreateClothComponentFromFile(
-		ComponentLevel * owner,
-		const std::string & mesh_path,
-		const std::string & skel_path,
-		const std::string & root_name, const my::AABB & aabb, const my::Matrix4 & World);
 };
