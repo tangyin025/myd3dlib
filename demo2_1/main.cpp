@@ -35,9 +35,9 @@ int main(int argc, char *argv[])
 
     ERRCHECK(result = FMOD::EventSystem_Create(&eventsystem));
     ERRCHECK(result = eventsystem->init(64, FMOD_INIT_NORMAL, 0, FMOD_EVENT_INIT_NORMAL));
-    ERRCHECK(result = eventsystem->setMediaPath("media\\"));
+    ERRCHECK(result = eventsystem->setMediaPath("..\\demo2_3\\Media\\Sound\\"));
     ERRCHECK(result = eventsystem->load("examples.fev", 0, 0));
-    ERRCHECK(result = eventsystem->getEvent("examples/FeatureDemonstration/Basics/SimpleEvent", FMOD_EVENT_DEFAULT, &event));
+    ERRCHECK(result = eventsystem->getEvent("examples/FeatureDemonstration/Effects/Autopitch", FMOD_EVENT_DEFAULT, &event));
 
     printf("======================================================================\n");
     printf("Press SPACE to play the event.\n");

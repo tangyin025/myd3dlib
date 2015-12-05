@@ -367,7 +367,11 @@ namespace my
 
 	typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
 
-	class ResourceMgr : public AsynchronousIOMgr, public DeviceRelatedResourceMgr, public ID3DXInclude
+	class ResourceMgr
+		: public SingleInstance<ResourceMgr>
+		, public AsynchronousIOMgr
+		, public DeviceRelatedResourceMgr
+		, public ID3DXInclude
 	{
 	protected:
 		CComPtr<ID3DXEffectPool> m_EffectPool;

@@ -13,11 +13,6 @@ using namespace my;
 
 extern void Export2Lua(lua_State * L);
 
-my::ResourceMgr * FModContext::GetResourceMgr(void)
-{
-	return Game::getSingletonPtr();
-}
-
 void EffectUIRender::Begin(void)
 {
 	if(m_UIEffect->m_ptr)
@@ -154,6 +149,10 @@ HRESULT Game::OnCreateDevice(
 	{
 		THROW_CUSEXCEPTION("FModContext::OnInit failed");
 	}
+
+	FModContext::SetMediaPath("sound\\");
+
+	FModContext::LoadEventFile("examples.fev");
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
@@ -351,6 +350,8 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
+	FModContext::OnUpdate();
+
 	ActorPtrList::iterator actor_iter = m_Actors.begin();
 	for (; actor_iter != m_Actors.end(); actor_iter++)
 	{
@@ -364,8 +365,6 @@ void Game::OnFrameTick(
 	ParallelTaskManager::DoAllParallelTasks();
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
-
-	m_FModSystem->update();
 
 	Present(NULL,NULL,NULL,NULL);
 }

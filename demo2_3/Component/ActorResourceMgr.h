@@ -53,6 +53,16 @@ public:
 	{
 	}
 
+	static ActorResourceMgr & getSingleton(void)
+	{
+		return *getSingletonPtr();
+	}
+
+	static ActorResourceMgr * getSingletonPtr(void)
+	{
+		return static_cast<ActorResourceMgr *>(ResourceMgr::getSingletonPtr());
+	}
+
 	HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);

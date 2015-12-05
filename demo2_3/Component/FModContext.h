@@ -1,31 +1,27 @@
 #pragma once
 
-#define FMOD_ERRCHECK(result) if (result != FMOD_OK) { \
-	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
-
-namespace my
-{
-	class ResourceMgr;
-}
-
 class FModContext
 {
 public:
 	FMOD_RESULT result;
 
-	FMOD::System * m_FModSystem;
-
-	unsigned int m_FModVersion;
+	FMOD::EventSystem *m_EventSystem;
 
 public:
 	FModContext(void)
-		: m_FModSystem(NULL)
+		: m_EventSystem(NULL)
 	{
 	}
 
-	static my::ResourceMgr * GetResourceMgr(void);
-
 	bool OnInit(void);
 
+	void OnUpdate(void);
+
 	void OnShutdown(void);
+
+	void SetMediaPath(const char * path);
+
+	void LoadEventFile(const char * file);
+
+	void PlaySound(const char * name);
 };

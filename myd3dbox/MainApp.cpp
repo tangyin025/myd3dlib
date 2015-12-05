@@ -38,11 +38,6 @@ CMainApp::CMainApp()
 
 CMainApp theApp;
 
-my::ResourceMgr * FModContext::GetResourceMgr(void)
-{
-	return &theApp;
-}
-
 BOOL CMainApp::CreateD3DDevice(HWND hWnd)
 {
 	ZeroMemory(&m_DeviceSettings, sizeof(m_DeviceSettings));

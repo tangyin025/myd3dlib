@@ -43,7 +43,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/tuple/tuple_comparison.hpp>
 #include <boost/signals2.hpp>
-#include <fmod.hpp>
+#include <fmod_event.hpp>
 #include <fmod_errors.h>
 #include <sstream>
 

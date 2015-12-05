@@ -10,7 +10,6 @@ namespace my
 {
 	class DxutWindow
 		: public Window
-		, public SingleInstance<DxutWindow>
 	{
 	protected:
 		bool m_Minimized;
@@ -78,7 +77,7 @@ namespace my
 		, public Application
 		, public CD3D9Enumeration
 	{
-	protected:
+	public:
 		HRESULT hr;
 
 		DxutWindowPtr m_wnd;

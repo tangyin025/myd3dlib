@@ -269,9 +269,7 @@ static int loader_Lua (lua_State *L) {
 
 static int os_exit(lua_State * L)
 {
-	HWND hwnd = my::DxutWindow::getSingleton().m_hWnd;
-	_ASSERT(NULL != hwnd);
-	SendMessage(hwnd, WM_CLOSE, 0, 0);
+	Game::getSingleton().m_wnd->SendMessage(WM_CLOSE);
 	return 0;
 }
 
@@ -438,6 +436,7 @@ void Export2Lua(lua_State * L)
 			.def("CreateEmitterComponent", &Game::CreateEmitterComponent)
 			.def("CreateEmitterComponentFromFile", &Game::CreateEmitterComponentFromFile)
 			.def("CreateSimpleAnimatorFromFile", &Game::CreateSimpleAnimatorFromFile)
+			.def("PlaySound", &Game::PlaySound)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)
