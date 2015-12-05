@@ -1,24 +1,15 @@
 ﻿/*===============================================================================================
- PlaySound Example
+ SimpleEvent Example
  Copyright (c), Firelight Technologies Pty, Ltd 2004-2011.
 
- This example shows how to simply load and play multiple sounds.  This is about the simplest
- use of FMOD.
- This makes FMOD decode the into memory when it loads.  If the sounds are big and possibly take
- up a lot of ram, then it would be better to use the FMOD_CREATESTREAM flag so that it is 
- streamed in realtime as it plays.
+ Demonstrates basic usage of FMOD's data-driven event library (fmod_event.dll)
 ===============================================================================================*/
+#include "fmod_event.hpp"
+#include "fmod_errors.h"
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <conio.h>
-
-#include "../../api/inc/fmod.hpp"
-#include "../../api/inc/fmod_errors.h"
-#ifdef _DEBUG
-#pragma comment(lib, "fmodexL_vc.lib")
-#else
-#pragma comment(lib, "fmodex_vc.lib")
-#endif
 
 void ERRCHECK(FMOD_RESULT result)
 {
@@ -29,156 +20,52 @@ void ERRCHECK(FMOD_RESULT result)
     }
 }
 
-
 int main(int argc, char *argv[])
 {
-    FMOD::System     *system;
-    FMOD::Sound      *sound1, *sound2, *sound3;
-    FMOD::Channel    *channel = 0;
-    FMOD_RESULT       result;
-    int               key = 0;
-    unsigned int      version;
+    FMOD::EventSystem *eventsystem;
+    FMOD::Event       *event;
+    FMOD_RESULT        result;
+    int                key;
 
-    /*
-        Create a System object and initialize.
-    */
-    result = FMOD::System_Create(&system);
-    ERRCHECK(result);
+    printf("======================================================================\n");
+    printf("Simple Event Example.  Copyright (c) Firelight Technologies 2004-2011.\n");
+    printf("======================================================================\n");
+    printf("This example simply plays an event created with the FMOD Designer tool.\n");
+    printf("======================================================================\n\n");
 
-    result = system->getVersion(&version);
-    ERRCHECK(result);
+    ERRCHECK(result = FMOD::EventSystem_Create(&eventsystem));
+    ERRCHECK(result = eventsystem->init(64, FMOD_INIT_NORMAL, 0, FMOD_EVENT_INIT_NORMAL));
+    ERRCHECK(result = eventsystem->setMediaPath("media\\"));
+    ERRCHECK(result = eventsystem->load("examples.fev", 0, 0));
+    ERRCHECK(result = eventsystem->getEvent("examples/FeatureDemonstration/Basics/SimpleEvent", FMOD_EVENT_DEFAULT, &event));
 
-    if (version < FMOD_VERSION)
-    {
-        printf("Error!  You are using an old version of FMOD %08x.  This program requires %08x\n", version, FMOD_VERSION);
-        return 0;
-    }
+    printf("======================================================================\n");
+    printf("Press SPACE to play the event.\n");
+    printf("Press ESC   to quit\n");
+    printf("======================================================================\n");
 
-    result = system->init(32, FMOD_INIT_NORMAL, 0);
-    ERRCHECK(result);
-
-    result = system->createSound("../demo2_3/media/sound/drumloop.wav", FMOD_HARDWARE, 0, &sound1);
-    ERRCHECK(result);
-
-    result = sound1->setMode(FMOD_LOOP_OFF);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
-    ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
-
-    result = system->createSound("../demo2_3/media/sound/jaguar.wav", FMOD_SOFTWARE, 0, &sound2);
-    ERRCHECK(result);
-
-    result = system->createSound("../demo2_3/media/sound/swish.wav", FMOD_HARDWARE, 0, &sound3);
-    ERRCHECK(result);
-
-    printf("===================================================================\n");
-    printf("PlaySound Example.  Copyright (c) Firelight Technologies 2004-2011.\n");
-    printf("===================================================================\n");
-    printf("\n");
-    printf("Press '1' to play a mono sound using hardware mixing\n");
-    printf("Press '2' to play a mono sound using software mixing\n");
-    printf("Press '3' to play a stereo sound using hardware mixing\n");
-    printf("Press 'Esc' to quit\n");
-    printf("\n");
-
-    /*
-        Main loop.
-    */
+    key = 0;
     do
     {
         if (_kbhit())
         {
             key = _getch();
 
-            switch (key)
+            if (key == ' ')
             {
-                case '1' :
-                {
-                    result = system->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
-                    ERRCHECK(result);
-                    break;
-                }
-                case '2' :
-                {
-                    result = system->playSound(FMOD_CHANNEL_FREE, sound2, false, &channel);
-                    ERRCHECK(result);
-                    break;
-                }
-                case '3' :
-                {
-                    result = system->playSound(FMOD_CHANNEL_FREE, sound3, false, &channel);
-                    ERRCHECK(result);
-                    break;
-                }
+                ERRCHECK(result = event->start());
             }
         }
 
-        system->update();
+        ERRCHECK(result = eventsystem->update());
+        Sleep(15);
 
-        {
-            unsigned int ms = 0;
-            unsigned int lenms = 0;
-            bool         playing = 0;
-            bool         paused = 0;
-            int          channelsplaying = 0;
-
-            if (channel)
-            {
-                FMOD::Sound *currentsound = 0;
-
-                result = channel->isPlaying(&playing);
-                if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ERRCHECK(result);
-                }
-
-                result = channel->getPaused(&paused);
-                if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ERRCHECK(result);
-                }
-
-                result = channel->getPosition(&ms, FMOD_TIMEUNIT_MS);
-                if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-                {
-                    ERRCHECK(result);
-                }
-               
-                channel->getCurrentSound(&currentsound);
-                if (currentsound)
-                {
-                    result = currentsound->getLength(&lenms, FMOD_TIMEUNIT_MS);
-                    if ((result != FMOD_OK) && (result != FMOD_ERR_INVALID_HANDLE) && (result != FMOD_ERR_CHANNEL_STOLEN))
-                    {
-                        ERRCHECK(result);
-                    }
-                }
-            }
-
-            system->getChannelsPlaying(&channelsplaying);
-
-            printf("Time %02d:%02d:%02d/%02d:%02d:%02d : %s : Channels Playing %2d\r", ms / 1000 / 60, ms / 1000 % 60, ms / 10 % 100, lenms / 1000 / 60, lenms / 1000 % 60, lenms / 10 % 100, paused ? "Paused " : playing ? "Playing" : "Stopped", channelsplaying);
-        }
-
-        Sleep(10);
+        FMOD_EVENT_STATE state;
+        ERRCHECK(result = event->getState(&state));
+        printf("Event is %s       \r", (state & FMOD_EVENT_STATE_PLAYING) ? "playing" : "stopped");
 
     } while (key != 27);
 
-    printf("\n");
-
-    /*
-        Shut down
-    */
-    result = sound1->release();
-    ERRCHECK(result);
-    result = sound2->release();
-    ERRCHECK(result);
-    result = sound3->release();
-    ERRCHECK(result);
-    result = system->close();
-    ERRCHECK(result);
-    result = system->release();
-    ERRCHECK(result);
-
+    ERRCHECK(result = eventsystem->release());
     return 0;
 }
-
-
