@@ -389,7 +389,7 @@ namespace my
 			void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
-			D3DVertexElementSet & VertexElems);
+			const D3DVertexElementSet & VertexElems);
 
 		static void ComputeTangentFrame(
 			void * pVertices,
@@ -398,7 +398,7 @@ namespace my
 			void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
-			D3DVertexElementSet & VertexElems);
+			const D3DVertexElementSet & VertexElems);
 
 		static RayResult RayTest(
 			const Ray & ray,
@@ -408,7 +408,7 @@ namespace my
 			void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
-			D3DVertexElementSet & VertexElems);
+			const D3DVertexElementSet & VertexElems);
 
 		static bool FrustumTest(
 			const Frustum & frustum,
@@ -418,7 +418,7 @@ namespace my
 			void * pIndices,
 			bool bIndices16,
 			DWORD NumFaces,
-			D3DVertexElementSet & VertexElems);
+			const D3DVertexElementSet & VertexElems);
 
 		UINT GetMaterialNum(void) const;
 

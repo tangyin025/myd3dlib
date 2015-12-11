@@ -214,6 +214,8 @@ public:
 
 		my::Vector4 m_SkyLightAmbient;
 
+		bool m_WireFrame;
+
 		bool m_DofEnable;
 
 		my::Vector4 m_DofParams;
@@ -222,6 +224,7 @@ public:
 			: m_BkColor(D3DCOLOR_ARGB(255,0,0,0))
 			, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 			, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.3f)
+			, m_WireFrame(false)
 			, m_DofEnable(false)
 			, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 		{

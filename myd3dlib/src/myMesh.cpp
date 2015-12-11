@@ -1102,7 +1102,7 @@ void OgreMesh::ComputeNormalFrame(
 	void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
-	D3DVertexElementSet & VertexElems)
+	const D3DVertexElementSet & VertexElems)
 {
 	std::vector<Vector3> FNormals(NumFaces);
 	for (unsigned int face_i = 0; face_i < NumFaces; face_i++)
@@ -1183,7 +1183,7 @@ void OgreMesh::ComputeTangentFrame(
 	void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
-	D3DVertexElementSet & VertexElems)
+	const D3DVertexElementSet & VertexElems)
 {
 	std::vector<Vector3> tan1(NumVerts, Vector3::zero);
 	std::vector<Vector3> tan2(NumVerts, Vector3::zero);
@@ -1259,7 +1259,7 @@ RayResult OgreMesh::RayTest(
 	void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
-	D3DVertexElementSet & VertexElems)
+	const D3DVertexElementSet & VertexElems)
 {
 	RayResult ret(false, FLT_MAX);
 	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
@@ -1303,7 +1303,7 @@ bool OgreMesh::FrustumTest(
 	void * pIndices,
 	bool bIndices16,
 	DWORD NumFaces,
-	D3DVertexElementSet & VertexElems)
+	const D3DVertexElementSet & VertexElems)
 {
 	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{

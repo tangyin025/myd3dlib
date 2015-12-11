@@ -49,7 +49,7 @@ my::RayResult MeshComponent::RayTest(const my::Ray & ray) const
 				elems,
 				m_Mesh->LockVertexBuffer(),
 				m_Mesh->GetNumBytesPerVertex(),
-				m_Mesh->m_VertexElems,
+				m_VertexElems,
 				m_Animator->m_DualQuats);
 			my::RayResult ret = OgreMesh::RayTest(local_ray,
 				&vertices[0],
@@ -73,7 +73,7 @@ my::RayResult MeshComponent::RayTest(const my::Ray & ray) const
 				m_Mesh->LockIndexBuffer(),
 				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
 				m_Mesh->GetNumFaces(),
-				m_Mesh->m_VertexElems);
+				m_VertexElems);
 			m_Mesh->UnlockVertexBuffer();
 			m_Mesh->UnlockIndexBuffer();
 			ret.second = (local_ray.d * ret.second).transformNormal(m_World).magnitude();
@@ -100,7 +100,7 @@ bool MeshComponent::FrustumTest(const my::Frustum & frustum) const
 				elems,
 				m_Mesh->LockVertexBuffer(),
 				m_Mesh->GetNumBytesPerVertex(),
-				m_Mesh->m_VertexElems,
+				m_VertexElems,
 				m_Animator->m_DualQuats);
 			bool ret = OgreMesh::FrustumTest(local_ftm,
 				&vertices[0],
@@ -123,7 +123,7 @@ bool MeshComponent::FrustumTest(const my::Frustum & frustum) const
 				m_Mesh->LockIndexBuffer(),
 				!(m_Mesh->GetOptions() & D3DXMESH_32BIT),
 				m_Mesh->GetNumFaces(),
-				m_Mesh->m_VertexElems);
+				m_VertexElems);
 			m_Mesh->UnlockVertexBuffer();
 			m_Mesh->UnlockIndexBuffer();
 			return ret;

@@ -190,6 +190,7 @@ void RenderPipeline::OnFrameRender(
 	HRESULT hr;
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
+	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
 	pRC->OnQueryComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), PassTypeToMask(PassTypeShadow));
 

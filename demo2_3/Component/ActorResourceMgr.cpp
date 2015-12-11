@@ -45,12 +45,14 @@ void ActorResourceMgr::OnMeshComponentMeshLoaded(
 	MeshComponentPtr cmp_ptr = weak_cmp_ptr.lock();
 	if (cmp_ptr)
 	{
-		cmp_ptr->m_Mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
-		cmp_ptr->m_MaterialList.resize(cmp_ptr->m_Mesh->m_MaterialNameList.size());
+		OgreMeshPtr mesh_res = boost::dynamic_pointer_cast<OgreMesh>(res);
+		cmp_ptr->m_Mesh = mesh_res;
+		cmp_ptr->m_VertexElems = mesh_res->m_VertexElems;
+		cmp_ptr->m_MaterialList.resize(mesh_res->m_MaterialNameList.size());
 		cmp_ptr->m_bInstance = bInstance;
-		for (unsigned int i = 0; i < cmp_ptr->m_Mesh->m_MaterialNameList.size(); i++)
+		for (unsigned int i = 0; i < mesh_res->m_MaterialNameList.size(); i++)
 		{
-			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", cmp_ptr->m_Mesh->m_MaterialNameList[i].c_str()));
+			MaterialPtr mat = CreateMaterial(str_printf("material/%s.xml", mesh_res->m_MaterialNameList[i].c_str()));
 			if (mat)
 			{
 				OnMeshComponentMaterialLoaded(cmp_ptr, mat, i, bInstance);

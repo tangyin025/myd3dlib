@@ -72,7 +72,9 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	my::OgreMeshPtr m_Mesh;
+	my::MeshPtr m_Mesh;
+
+	my::D3DVertexElementSet m_VertexElems;
 
 	MaterialPtrList m_MaterialList;
 
