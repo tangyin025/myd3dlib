@@ -3,12 +3,18 @@
 #include <DbgHelp.h>
 #include <sstream>
 
+static bool g_SymInitialized = false;
+
 void PrintCallStack(const CONTEXT * pContext, std::ostringstream & ostr)
 {
 	HANDLE hProcess = GetCurrentProcess();
 
-	if (!SymInitialize(hProcess, NULL, TRUE)) {
-		exit(0);
+	if (!g_SymInitialized)
+	{
+		g_SymInitialized = true;
+		if (!SymInitialize(hProcess, NULL, TRUE)) {
+			exit(0);
+		}
 	}
 
 	HANDLE hThread = GetCurrentThread();
