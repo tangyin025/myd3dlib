@@ -150,10 +150,6 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("FModContext::OnInit failed");
 	}
 
-	FModContext::SetMediaPath("sound\\");
-
-	FModContext::LoadEventFile("examples.fev");
-
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
 	if (!(m_UIRender->m_TexWhite = LoadTexture("texture/white.bmp")))

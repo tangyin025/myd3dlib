@@ -76,16 +76,6 @@ namespace my
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
 
-	class EventArgs
-	{
-	public:
-		virtual ~EventArgs(void)
-		{
-		}
-	};
-
-	typedef boost::function<void (EventArgs *)> ControlEvent;
-
 	class ControlImage
 	{
 	public:
@@ -137,6 +127,16 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
+	class EventArgs
+	{
+	public:
+		virtual ~EventArgs(void)
+		{
+		}
+	};
+
+	typedef boost::function<void (EventArgs *)> ControlEvent;
+
 	class Control;
 
 	typedef boost::shared_ptr<Control> ControlPtr;
@@ -175,6 +175,10 @@ namespace my
 		D3DCOLOR m_Color;
 
 		ControlSkinPtr m_Skin;
+
+		ControlEvent EventMouseEnter;
+
+		ControlEvent EventMouseLeave;
 
 	public:
 		Control(void)
