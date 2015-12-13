@@ -588,6 +588,7 @@ end
 
 dlg.EventRefresh=function(args)
 	RefreshDisplayAdapter()
+	game:PlaySound("aaa/untitled/15")
 end
 
 dlg.Visible=false
