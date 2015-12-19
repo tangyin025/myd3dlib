@@ -243,7 +243,7 @@ void ExportMath2Lua(lua_State * L)
 			.def_readwrite("min", &my::AABB::m_min)
 			.def_readwrite("max", &my::AABB::m_max)
 
-		, class_<my::AABBComponent, my::AABB, boost::shared_ptr<my::AABBComponent> >("AABBComponent")
+		, class_<my::OctComponent, my::AABB, boost::shared_ptr<my::OctComponent> >("OctComponent")
 
 		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
 			.def("AddComponent", &my::OctRoot::AddComponent)

@@ -5,7 +5,7 @@
 #include "Animator.h"
 
 class Component
-	: public my::AABBComponent
+	: public my::OctComponent
 {
 public:
 	enum ComponentType
@@ -13,19 +13,16 @@ public:
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
-		ComponentTypeLOD,
 	};
 
 	const ComponentType m_Type;
-
-	my::AABB m_aabb;
 
 	my::Matrix4 m_World;
 
 public:
 	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
-		: m_Type(Type)
-		, m_aabb(aabb)
+		: OctComponent(aabb)
+		, m_Type(Type)
 		, m_World(World)
 	{
 	}

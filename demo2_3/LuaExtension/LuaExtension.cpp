@@ -346,12 +346,8 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def("AddParameter", &Material::AddParameter)
 
-		, class_<ComponentLevel, boost::shared_ptr<ComponentLevel> >("ComponentLevel")
-			.def(constructor<const my::AABB &, float>())
-			.def_readonly("aabb", &ComponentLevel::m_aabb)
-
-		, class_<Actor, ComponentLevel, boost::shared_ptr<Actor> >("Actor")
-			.def(constructor<const my::AABB &, float>())
+		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
+			.def(constructor<>())
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.def_readwrite("World", &Component::m_World)

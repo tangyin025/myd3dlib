@@ -7,12 +7,12 @@ void OctNodeBase::QueryComponent(const Ray & ray, IQueryCallback * callback)
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
 	{
-		AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.begin();
-		for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
+		OctComponentSet::iterator cmp_iter = m_Components.begin();
+		for(; cmp_iter != m_Components.end(); cmp_iter++)
 		{
-			if (IntersectionTests::rayAndAABB(ray.p, ray.d, cmp_iter->second).first)
+			if (IntersectionTests::rayAndAABB(ray.p, ray.d, (*cmp_iter)->m_aabb).first)
 			{
-				(*callback)(cmp_iter->first, IntersectionTests::IntersectionTypeRay);
+				(*callback)(*cmp_iter, IntersectionTests::IntersectionTypeRay);
 			}
 		}
 
@@ -57,10 +57,10 @@ void OctNodeBase::QueryComponent(const Frustum & frustum, IQueryCallback * callb
 
 void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
 {
-	AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.begin();
-	for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
+	OctComponentSet::iterator cmp_iter = m_Components.begin();
+	for(; cmp_iter != m_Components.end(); cmp_iter++)
 	{
-		(*callback)(cmp_iter->first, IntersectionTests::IntersectionTypeInside);
+		(*callback)(*cmp_iter, IntersectionTests::IntersectionTypeInside);
 	}
 
 	ChildArray::iterator node_iter = m_Childs.begin();
@@ -75,15 +75,15 @@ void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
 
 void OctNodeBase::QueryComponentIntersected(const AABB & aabb, IQueryCallback * callback)
 {
-	AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.begin();
-	for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
+	OctComponentSet::iterator cmp_iter = m_Components.begin();
+	for(; cmp_iter != m_Components.end(); cmp_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB(cmp_iter->second, aabb);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndAABB((*cmp_iter)->m_aabb, aabb);
 		switch(intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first, intersect_type);
+			(*callback)(*cmp_iter, intersect_type);
 			break;
 		}
 	}
@@ -100,15 +100,15 @@ void OctNodeBase::QueryComponentIntersected(const AABB & aabb, IQueryCallback * 
 
 void OctNodeBase::QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback)
 {
-	AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.begin();
-	for(; cmp_iter != m_ComponentList.end(); cmp_iter++)
+	OctComponentSet::iterator cmp_iter = m_Components.begin();
+	for(; cmp_iter != m_Components.end(); cmp_iter++)
 	{
-		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum(cmp_iter->second, frustum);
+		IntersectionTests::IntersectionType intersect_type = IntersectionTests::IntersectAABBAndFrustum((*cmp_iter)->m_aabb, frustum);
 		switch(intersect_type)
 		{
 		case IntersectionTests::IntersectionTypeInside:
 		case IntersectionTests::IntersectionTypeIntersect:
-			(*callback)(cmp_iter->first, intersect_type);
+			(*callback)(*cmp_iter, intersect_type);
 			break;
 		}
 	}
@@ -123,14 +123,14 @@ void OctNodeBase::QueryComponentIntersected(const Frustum & frustum, IQueryCallb
 	}
 }
 
-bool OctNodeBase::RemoveComponent(AABBComponentPtr cmp)
+bool OctNodeBase::RemoveComponent(OctComponent * cmp)
 {
-	AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.find(cmp);
-	if (cmp_iter != m_ComponentList.end())
+	OctComponentSet::iterator cmp_iter = m_Components.find(cmp);
+	if (cmp_iter != m_Components.end())
 	{
-		_ASSERT(cmp_iter->first->GetOctNode() == this);
-		cmp_iter->first->SetOctNode(NULL);
-		m_ComponentList.erase(cmp_iter);
+		_ASSERT((*cmp_iter)->m_OctNode == this);
+		(*cmp_iter)->m_OctNode = NULL;
+		m_Components.erase(cmp_iter);
 		return true;
 	}
 
@@ -146,13 +146,13 @@ bool OctNodeBase::RemoveComponent(AABBComponentPtr cmp)
 
 void OctNodeBase::ClearComponents(void)
 {
-	AABBComponentPtrMap::iterator cmp_iter = m_ComponentList.begin();
-	if (cmp_iter != m_ComponentList.end())
+	OctComponentSet::iterator cmp_iter = m_Components.begin();
+	if (cmp_iter != m_Components.end())
 	{
-		_ASSERT(cmp_iter->first->GetOctNode() == this);
-		cmp_iter->first->SetOctNode(NULL);
+		_ASSERT((*cmp_iter)->m_OctNode == this);
+		(*cmp_iter)->m_OctNode = NULL;
 	}
-	m_ComponentList.clear();
+	m_Components.clear();
 
 	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
