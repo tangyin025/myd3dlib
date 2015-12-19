@@ -408,7 +408,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			// ! HAVENT HANDLED EXCEPTION YET
 			request->DoLoad();
 
-			// ! request will be decrease after set event, shared_ptr must be thread safe
+			// ! request list will be modified when set event, shared_ptr must be thread safe
 			request->m_LoadEvent.SetEvent();
 
 			m_IORequestListMutex.Wait(INFINITE);
