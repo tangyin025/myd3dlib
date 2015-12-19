@@ -395,6 +395,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 		{
 			if(!req_iter->second->m_LoadEvent.Wait(0))
 			{
+				_ASSERT(!req_iter->second->m_callbacks.empty());
 				break;
 			}
 		}
@@ -423,7 +424,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 	return 0;
 }
 
-AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequestResource(const std::string & key, my::IORequestPtr request)
+AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIORequest(const std::string & key, my::IORequestPtr request)
 {
 	m_IORequestListMutex.Wait(INFINITE);
 
@@ -438,8 +439,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 
 	if(req_iter != m_IORequestList.end())
 	{
-		req_iter->second->m_callbacks.insert(
-			req_iter->second->m_callbacks.end(), request->m_callbacks.begin(), request->m_callbacks.end());
+		req_iter->second->m_callbacks.insert(request->m_callbacks.begin(), request->m_callbacks.end());
 		m_IORequestListMutex.Release();
 		return req_iter;
 	}
@@ -448,6 +448,34 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake(1);
 	return --m_IORequestList.end();
+}
+
+void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResourceCallback * callback)
+{
+	m_IORequestListMutex.Wait(INFINITE);
+
+	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
+	for(; req_iter != m_IORequestList.end(); req_iter++)
+	{
+		if(req_iter->first == key)
+		{
+			break;
+		}
+	}
+
+	if(req_iter != m_IORequestList.end())
+	{
+		IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
+		if (callback_iter != req_iter->second->m_callbacks.end())
+		{
+			req_iter->second->m_callbacks.erase(callback_iter);
+			if (req_iter->second->m_callbacks.empty())
+			{
+				m_IORequestList.erase(req_iter);
+			}
+		}
+	}
+	m_IORequestListMutex.Release();
 }
 
 void AsynchronousIOMgr::StartIORequestProc(void)
@@ -678,7 +706,20 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadResourceAsync
 		return m_IORequestList.end();
 	}
 
-	return PushIORequestResource(key, request);
+	return PushIORequest(key, request);
+}
+
+void ResourceMgr::LoadResourceAndWait(const std::string & key, IORequestPtr request)
+{
+	IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
+	if (req_iter != m_IORequestList.end())
+	{
+		CheckResource(req_iter->first, req_iter->second, INFINITE);
+
+		MutexLock lock(m_IORequestListMutex);
+
+		m_IORequestList.erase(req_iter);
+	}
 }
 
 bool ResourceMgr::CheckRequests(void)
@@ -726,11 +767,12 @@ bool ResourceMgr::CheckResource(const std::string & key, IORequestPtr request, D
 
 		if (request->m_res)
 		{
-			IORequest::ResourceCallbackList::iterator callback_iter = request->m_callbacks.begin();
+			IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
 			for(; callback_iter != request->m_callbacks.end(); callback_iter++)
 			{
-				if(*callback_iter)
-					(*callback_iter)(request->m_res);
+				_ASSERT(*callback_iter);
+
+				(*callback_iter)->OnReady(request->m_res);
 			}
 		}
 		return true;
@@ -748,9 +790,8 @@ protected:
 	CachePtr m_cache;
 
 public:
-	TextureIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
-		: IORequest(callback)
-		, m_path(path)
+	TextureIORequest(const std::string & path, StreamDirMgr * arc)
+		: m_path(path)
 		, m_arc(arc)
 	{
 	}
@@ -797,14 +838,31 @@ public:
 	}
 };
 
-void ResourceMgr::LoadTextureAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadTextureAsync(const std::string & path, IResourceCallback * callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new TextureIORequest(callback, path, this)));
+	IORequestPtr request(new TextureIORequest(path, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(path, request);
 }
+
+class SimpleResourceCallback : public IResourceCallback
+{
+public:
+	DeviceRelatedObjectBasePtr m_res;
+
+	virtual void OnReady(DeviceRelatedObjectBasePtr res)
+	{
+		m_res = res;
+	}
+};
 
 boost::shared_ptr<BaseTexture> ResourceMgr::LoadTexture(const std::string & path)
 {
-	return LoadResource<BaseTexture>(path, IORequestPtr(new TextureIORequest(ResourceCallback(), path, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new TextureIORequest(path, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(path, request);
+	return boost::dynamic_pointer_cast<BaseTexture>(request->m_res);
 }
 
 class MeshIORequest : public IORequest
@@ -819,9 +877,8 @@ protected:
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	MeshIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
-		: IORequest(callback)
-		, m_path(path)
+	MeshIORequest(const std::string & path, StreamDirMgr * arc)
+		: m_path(path)
 		, m_arc(arc)
 	{
 	}
@@ -855,14 +912,20 @@ public:
 	}
 };
 
-void ResourceMgr::LoadMeshAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadMeshAsync(const std::string & path, IResourceCallback * callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new MeshIORequest(callback, path, this)));
+	IORequestPtr request(new MeshIORequest(path, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(path, request);
 }
 
 boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const std::string & path)
 {
-	return LoadResource<OgreMesh>(path, IORequestPtr(new MeshIORequest(ResourceCallback(), path, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new MeshIORequest(path, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(path, request);
+	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
 }
 
 class MeshSetIORequest : public IORequest
@@ -877,9 +940,8 @@ protected:
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	MeshSetIORequest(const ResourceCallback & callback, const std::string & path, ResourceMgr * arc)
-		: IORequest(callback)
-		, m_path(path)
+	MeshSetIORequest(const std::string & path, ResourceMgr * arc)
+		: m_path(path)
 		, m_arc(arc)
 	{
 	}
@@ -930,14 +992,20 @@ public:
 	}
 };
 
-void ResourceMgr::LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadMeshSetAsync(const std::string & path, IResourceCallback * callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new MeshSetIORequest(callback, path, this)));
+	IORequestPtr request(new MeshSetIORequest(path, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(path, request);
 }
 
 boost::shared_ptr<OgreMeshSet> ResourceMgr::LoadMeshSet(const std::string & path)
 {
-	return LoadResource<OgreMeshSet>(path, IORequestPtr(new MeshSetIORequest(ResourceCallback(), path, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new MeshSetIORequest(path, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(path, request);
+	return boost::dynamic_pointer_cast<OgreMeshSet>(request->m_res);
 }
 
 class SkeletonIORequest : public IORequest
@@ -952,9 +1020,8 @@ protected:
 	rapidxml::xml_document<char> m_doc;
 
 public:
-	SkeletonIORequest(const ResourceCallback & callback, const std::string & path, StreamDirMgr * arc)
-		: IORequest(callback)
-		, m_path(path)
+	SkeletonIORequest(const std::string & path, StreamDirMgr * arc)
+		: m_path(path)
 		, m_arc(arc)
 	{
 	}
@@ -988,19 +1055,24 @@ public:
 	}
 };
 
-void ResourceMgr::LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback)
+void ResourceMgr::LoadSkeletonAsync(const std::string & path, IResourceCallback * callback)
 {
-	LoadResourceAsync(path, IORequestPtr(new SkeletonIORequest(callback, path, this)));
+	IORequestPtr request(new SkeletonIORequest(path, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(path, request);
 }
 
 boost::shared_ptr<OgreSkeletonAnimation> ResourceMgr::LoadSkeleton(const std::string & path)
 {
-	return LoadResource<OgreSkeletonAnimation>(path, IORequestPtr(new SkeletonIORequest(ResourceCallback(), path, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new SkeletonIORequest(path, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(path, request);
+	return boost::dynamic_pointer_cast<OgreSkeletonAnimation>(request->m_res);
 }
 
-ResourceMgr::EffectIORequest::EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, ResourceMgr * arc)
-	: IORequest(callback)
-	, m_path(path)
+ResourceMgr::EffectIORequest::EffectIORequest(const std::string & path, std::string macros, ResourceMgr * arc)
+	: m_path(path)
 	, m_arc(arc)
 {
 	boost::regex_split(std::back_inserter(m_macros), macros);
@@ -1043,18 +1115,22 @@ std::string ResourceMgr::EffectIORequest::BuildKey(const std::string & path, con
 	return str_printf("%s, %s", path.c_str(), macros.c_str());
 }
 
-void ResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback)
+void ResourceMgr::LoadEffectAsync(const std::string & path, const std::string & macros, IResourceCallback * callback)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
-
-	LoadResourceAsync(key, IORequestPtr(new EffectIORequest(callback, path, macros, this)));
+	IORequestPtr request(new EffectIORequest(path, macros, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(key, request);
 }
 
 boost::shared_ptr<Effect> ResourceMgr::LoadEffect(const std::string & path, const std::string & macros)
 {
 	std::string key = EffectIORequest::BuildKey(path, macros);
-
-	return LoadResource<Effect>(key, IORequestPtr(new EffectIORequest(ResourceCallback(), path, macros, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new EffectIORequest(path, macros, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(key, request);
+	return boost::dynamic_pointer_cast<Effect>(request->m_res);
 }
 
 class FontIORequest : public IORequest
@@ -1069,9 +1145,8 @@ protected:
 	CachePtr m_cache;
 
 public:
-	FontIORequest(const ResourceCallback & callback, const std::string & path, int height, StreamDirMgr * arc)
-		: IORequest(callback)
-		, m_path(path)
+	FontIORequest(const std::string & path, int height, StreamDirMgr * arc)
+		: m_path(path)
 		, m_height(height)
 		, m_arc(arc)
 	{
@@ -1102,18 +1177,22 @@ public:
 	}
 };
 
-void ResourceMgr::LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback)
+void ResourceMgr::LoadFontAsync(const std::string & path, int height, IResourceCallback * callback)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
-
-	LoadResourceAsync(key, IORequestPtr(new FontIORequest(callback, path, height, this)));
+	IORequestPtr request(new FontIORequest(path, height, this));
+	request->m_callbacks.insert(callback);
+	LoadResourceAsync(key, request);
 }
 
 boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int height)
 {
 	std::string key = FontIORequest::BuildKey(path, height);
-
-	return LoadResource<Font>(key, IORequestPtr(new FontIORequest(ResourceCallback(), path, height, this)));
+	SimpleResourceCallback cb;
+	IORequestPtr request(new FontIORequest(path, height, this));
+	request->m_callbacks.insert(&cb);
+	LoadResourceAndWait(key, request);
+	return boost::dynamic_pointer_cast<Font>(request->m_res);
 }
 
 void ResourceMgr::SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh)

@@ -67,7 +67,19 @@ public:
 
 		//LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&Demo::foo, this, _1));
 
-		////BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
+		//BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
+
+		class AAA : public my::IResourceCallback
+		{
+		public:
+			my::DeviceRelatedObjectBasePtr m_res;
+			virtual void OnReady(my::DeviceRelatedObjectBasePtr res) {
+				m_res = res;
+			}
+		};
+		AAA aaa;
+		LoadTextureAsync("texture/galileo_cross.dds", &aaa);
+		RemoveIORequestCallback("texture/galileo_cross.dds", &aaa);
 
 		//LoadMeshAsync("mesh/sportive03_f.mesh.xml", boost::bind(&Demo::foo, this, _1));
 
@@ -81,7 +93,7 @@ public:
 
 		//LoadMaterialAsync("material/casual19_m_highpolyPhong.txt", boost::bind(&Demo::foo, this, _1));
 
-		LoadMeshSetAsync("mesh/scene1.mesh.xml", boost::bind(&Demo::foo, this, _1));
+		//LoadMeshSetAsync("mesh/scene1.mesh.xml", boost::bind(&Demo::foo, this, _1));
 
 		return S_OK;
 	}

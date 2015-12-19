@@ -225,24 +225,27 @@ namespace my
 		IStreamPtr OpenIStream(const std::string & path);
 	};
 
-	typedef boost::function<void (DeviceRelatedObjectBasePtr)> ResourceCallback;
+	class IResourceCallback
+	{
+	public:
+		virtual void OnReady(DeviceRelatedObjectBasePtr res) = 0;
+	};
 
 	class IORequest
 	{
 	public:
 		Event m_LoadEvent;
 
-		typedef std::list<ResourceCallback> ResourceCallbackList;
+		typedef std::set<IResourceCallback *> IResourceCallbackSet;
 
-		ResourceCallbackList m_callbacks;
+		IResourceCallbackSet m_callbacks;
 
 		DeviceRelatedObjectBasePtr m_res;
 
 	public:
-		IORequest(const ResourceCallback & callback)
+		IORequest(void)
 			: m_LoadEvent(NULL, TRUE, FALSE, NULL)
 		{
-			m_callbacks.push_back(callback);
 		}
 
 		virtual ~IORequest(void)
@@ -276,7 +279,9 @@ namespace my
 
 		DWORD IORequestProc(void);
 
-		IORequestPtrPairList::iterator PushIORequestResource(const std::string & key, my::IORequestPtr request);
+		IORequestPtrPairList::iterator PushIORequest(const std::string & key, my::IORequestPtr request);
+
+		void RemoveIORequestCallback(const std::string & key, IResourceCallback * callback);
 
 		void StartIORequestProc(void);
 
@@ -340,33 +345,6 @@ namespace my
 		}
 	};
 
-	class ResourceCallbackBoundle
-	{
-	public:
-		DeviceRelatedObjectBasePtr m_res;
-
-		IORequest::ResourceCallbackList m_callbacks;
-
-		ResourceCallbackBoundle(DeviceRelatedObjectBasePtr res)
-			: m_res(res)
-		{
-		}
-
-		~ResourceCallbackBoundle(void)
-		{
-			IORequest::ResourceCallbackList::const_iterator callback_iter = m_callbacks.begin();
-			for(; callback_iter != m_callbacks.end(); callback_iter++)
-			{
-				if(*callback_iter)
-				{
-					(*callback_iter)(m_res);
-				}
-			}
-		}
-	};
-
-	typedef boost::shared_ptr<ResourceCallbackBoundle> ResourceCallbackBoundlePtr;
-
 	class ResourceMgr
 		: public SingleInstance<ResourceMgr>
 		, public AsynchronousIOMgr
@@ -415,44 +393,27 @@ namespace my
 
 		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
 
+		void LoadResourceAndWait(const std::string & key, IORequestPtr request);
+
 		bool CheckRequests(void);
 
 		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
 
-		template <typename T>
-		boost::shared_ptr<T> LoadResource(const std::string & key, IORequestPtr request)
-		{
-			IORequestPtrPairList::iterator req_iter = LoadResourceAsync(key, request);
-			if (req_iter != m_IORequestList.end())
-			{
-				CheckResource(req_iter->first, req_iter->second, INFINITE);
-
-				boost::shared_ptr<T> ret = boost::dynamic_pointer_cast<T>(req_iter->second->m_res);
-
-				MutexLock lock(m_IORequestListMutex);
-
-				m_IORequestList.erase(req_iter);
-
-				return ret;
-			}
-			return boost::dynamic_pointer_cast<T>(request->m_res);
-		}
-
 		virtual void OnResourceFailed(const std::string & error_str) = 0;
 
-		void LoadTextureAsync(const std::string & path, const ResourceCallback & callback);
+		void LoadTextureAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<BaseTexture> LoadTexture(const std::string & path);
 
-		void LoadMeshAsync(const std::string & path, const ResourceCallback & callback);
+		void LoadMeshAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<OgreMesh> LoadMesh(const std::string & path);
 
-		void LoadMeshSetAsync(const std::string & path, const ResourceCallback & callback);
+		void LoadMeshSetAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<OgreMeshSet> LoadMeshSet(const std::string & path);
 
-		void LoadSkeletonAsync(const std::string & path, const ResourceCallback & callback);
+		void LoadSkeletonAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const std::string & path);
 
@@ -470,7 +431,7 @@ namespace my
 			CachePtr m_cache;
 
 		public:
-			EffectIORequest(const ResourceCallback & callback, const std::string & path, std::string macros, ResourceMgr * arc);
+			EffectIORequest(const std::string & path, std::string macros, ResourceMgr * arc);
 
 			virtual void DoLoad(void);
 
@@ -479,11 +440,11 @@ namespace my
 			static std::string BuildKey(const std::string & path, const std::string & macros);
 		};
 
-		void LoadEffectAsync(const std::string & path, const std::string & macros, const ResourceCallback & callback);
+		void LoadEffectAsync(const std::string & path, const std::string & macros, IResourceCallback * callback);
 
 		boost::shared_ptr<Effect> LoadEffect(const std::string & path, const std::string & macros);
 
-		void LoadFontAsync(const std::string & path, int height, const ResourceCallback & callback);
+		void LoadFontAsync(const std::string & path, int height, IResourceCallback * callback);
 
 		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
 
