@@ -4,7 +4,6 @@
 #include "Component/FModContext.h"
 #include "Component/RenderPipeline.h"
 #include "Component/ActorComponent.h"
-#include "Component/ActorResourceMgr.h"
 #include "Component/Actor.h"
 #include "Logic/Logic.h"
 
@@ -43,7 +42,7 @@ class Game
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public FModContext
-	, public ActorResourceMgr
+	, public my::ResourceMgr
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
 	, public my::ParallelTaskManager
@@ -75,12 +74,6 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
-
-	my::BaseTexturePtr m_TexChecker;
-
-	typedef std::vector<ActorPtr> ActorPtrList;
-
-	ActorPtrList m_Actors;
 
 	LogicPtr m_Logic;
 
@@ -178,22 +171,4 @@ public:
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 	virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask);
-
-	void AddActor(ActorPtr actor);
-
-	void RemoveActor(ActorPtr actor);
-
-	void RemoveAllActors(void);
-
-	MeshComponentPtr CreateMeshComponent(ComponentLevel * owner, boost::shared_ptr<my::Mesh> mesh, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
-
-	MeshComponentPtr CreateMeshComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World, bool bInstance);
-
-	void CreateMeshComponentList(ComponentLevel * owner, boost::shared_ptr<my::OgreMeshSet> mesh_set);
-
-	EmitterComponentPtr CreateEmitterComponent(ComponentLevel * owner, boost::shared_ptr<my::Emitter> emitter, const my::AABB & aabb, const my::Matrix4 & World);
-
-	EmitterComponentPtr CreateEmitterComponentFromFile(ComponentLevel * owner, const std::string & path, const my::AABB & aabb, const my::Matrix4 & World);
-
-	AnimatorPtr CreateSimpleAnimatorFromFile(ComponentLevel * owner, const std::string & path);
 };

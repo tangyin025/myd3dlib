@@ -43,23 +43,6 @@ namespace luabind
 	};
 
 	template <>
-	struct default_converter<my::ResourceCallback>
-		: native_converter_base<my::ResourceCallback>
-	{
-		static int compute_score(lua_State * L, int index);
-
-		my::ResourceCallback from(lua_State * L, int index);
-
-		void to(lua_State * L, my::ResourceCallback const & e);
-	};
-
-	template <>
-	struct default_converter<my::ResourceCallback const &>
-		: default_converter<my::ResourceCallback>
-	{
-	};
-
-	template <>
 	struct default_converter<my::TimerEvent>
 		: native_converter_base<my::TimerEvent>
 	{

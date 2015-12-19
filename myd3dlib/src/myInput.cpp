@@ -734,55 +734,55 @@ void Joystick::CreateJoystick(
 
 	SetDataFormat(&c_dfDIJoystick);
 
-	_ASSERT(min_x <= max_x && min_y <= max_y);
+	//_ASSERT(min_x <= max_x && min_y <= max_y);
 
-	DIPROPRANGE dipr = {sizeof(dipr), sizeof(dipr.diph)};
-	dipr.diph.dwObj = DIJOFS_X;
-	dipr.diph.dwHow = DIPH_BYOFFSET;
-	dipr.lMin = min_x;
-	dipr.lMax = max_x;
-	SetProperty(DIPROP_RANGE, &dipr.diph);
+	//DIPROPRANGE dipr = {sizeof(dipr), sizeof(dipr.diph)};
+	//dipr.diph.dwObj = DIJOFS_X;
+	//dipr.diph.dwHow = DIPH_BYOFFSET;
+	//dipr.lMin = min_x;
+	//dipr.lMax = max_x;
+	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	dipr.diph.dwObj = DIJOFS_Y;
-	dipr.diph.dwHow = DIPH_BYOFFSET;
-	dipr.lMin = min_y;
-	dipr.lMax = max_y;
-	SetProperty(DIPROP_RANGE, &dipr.diph);
+	//dipr.diph.dwObj = DIJOFS_Y;
+	//dipr.diph.dwHow = DIPH_BYOFFSET;
+	//dipr.lMin = min_y;
+	//dipr.lMax = max_y;
+	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	dipr.diph.dwObj = DIJOFS_Z;
-	dipr.diph.dwHow = DIPH_BYOFFSET;
-	dipr.lMin = min_z;
-	dipr.lMax = max_z;
-	SetProperty(DIPROP_RANGE, &dipr.diph);
+	//dipr.diph.dwObj = DIJOFS_Z;
+	//dipr.diph.dwHow = DIPH_BYOFFSET;
+	//dipr.lMin = min_z;
+	//dipr.lMax = max_z;
+	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	dipr.diph.dwObj = DIJOFS_RZ;
-	dipr.diph.dwHow = DIPH_BYOFFSET;
-	dipr.lMin = min_z;
-	dipr.lMax = max_z;
-	SetProperty(DIPROP_RANGE, &dipr.diph);
+	//dipr.diph.dwObj = DIJOFS_RZ;
+	//dipr.diph.dwHow = DIPH_BYOFFSET;
+	//dipr.lMin = min_z;
+	//dipr.lMax = max_z;
+	//SetProperty(DIPROP_RANGE, &dipr.diph);
 
-	_ASSERT(dead_zone >= 0 && dead_zone <= 100);
+	//_ASSERT(dead_zone >= 0 && dead_zone <= 100);
 
-	DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
-	dipd.diph.dwObj = DIJOFS_X;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = (DWORD)(dead_zone * 100);
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//DIPROPDWORD dipd  = {sizeof(dipd), sizeof(dipd.diph)};
+	//dipd.diph.dwObj = DIJOFS_X;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = (DWORD)(dead_zone * 100);
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_Y;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = (DWORD)(dead_zone * 100);
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_Y;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = (DWORD)(dead_zone * 100);
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_Z;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = (DWORD)(dead_zone * 100);
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_Z;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = (DWORD)(dead_zone * 100);
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
-	dipd.diph.dwObj = DIJOFS_RZ;
-	dipd.diph.dwHow = DIPH_BYOFFSET;
-	dipd.dwData = (DWORD)(dead_zone * 100);
-	SetProperty(DIPROP_DEADZONE, &dipd.diph);
+	//dipd.diph.dwObj = DIJOFS_RZ;
+	//dipd.diph.dwHow = DIPH_BYOFFSET;
+	//dipd.dwData = (DWORD)(dead_zone * 100);
+	//SetProperty(DIPROP_DEADZONE, &dipd.diph);
 
 	SetCooperativeLevel(hwnd, DISCL_FOREGROUND | DISCL_EXCLUSIVE);
 

@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "FModContext.h"
-#include "ActorResourceMgr.h"
 
 #define ERRCHECK(result) if ((result) != FMOD_OK) { \
 	throw my::CustomException(str_printf("FMOD error! (%d) %s\n", result, FMOD_ErrorString(result)), __FILE__, __LINE__); }
@@ -9,9 +8,9 @@ static FMOD_RESULT F_CALLBACK myopen(const char *name, int unicode, unsigned int
 {
 	if (name)
 	{
-		if (ActorResourceMgr::getSingleton().CheckPath(name))
+		if (my::ResourceMgr::getSingleton().CheckPath(name))
 		{
-			my::IStreamPtr istr = ActorResourceMgr::getSingleton().OpenIStream(name);
+			my::IStreamPtr istr = my::ResourceMgr::getSingleton().OpenIStream(name);
 			_ASSERT(istr);
 			*filesize = istr->GetSize();
 			*userdata = (void *)new my::IStreamPtr(istr);

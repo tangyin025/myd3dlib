@@ -376,14 +376,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\ActorResourceMgr.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\ActorResourceMgr.h"
-				>
-			</File>
-			<File
 				RelativePath="..\demo2_3\Component\Animator.cpp"
 				>
 			</File>

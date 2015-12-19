@@ -55,41 +55,6 @@ namespace luabind
 		_ASSERT(false);
 	}
 
-	int default_converter<my::ResourceCallback>::compute_score(lua_State * L, int index)
-	{
-		return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
-	}
-
-	my::ResourceCallback default_converter<my::ResourceCallback>::from(lua_State * L, int index)
-	{
-		struct InternalExceptionHandler
-		{
-			luabind::object obj;
-			InternalExceptionHandler(const luabind::object & _obj)
-				: obj(_obj)
-			{
-			}
-			void operator()(my::DeviceRelatedObjectBasePtr args)
-			{
-				try
-				{
-					obj(args);
-				}
-				catch(const luabind::error & e)
-				{
-					// ! ControlEvent事件处理是容错的，当事件处理失败后，程序继续运行
-					Game::getSingleton().AddLine(ms2ws(lua_tostring(e.state(), -1)));
-				}
-			}
-		};
-		return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
-	}
-
-	void default_converter<my::ResourceCallback>::to(lua_State * L, my::ResourceCallback const & e)
-	{
-		_ASSERT(false);
-	}
-
 	int default_converter<my::TimerEvent>::compute_score(lua_State * L, int index)
 	{
 		return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
@@ -403,13 +368,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
 
-		, class_<ActorResourceMgr, my::ResourceMgr>("ActorResourceMgr")
-			.def("CreateEmitter", &ActorResourceMgr::CreateEmitter)
-			.def("SaveEmitter", &ActorResourceMgr::SaveEmitter)
-			.def("CreateMaterial", &ActorResourceMgr::CreateMaterial)
-			.def("SaveMaterial", &ActorResourceMgr::SaveMaterial)
-
-		, class_<Game, bases<my::DxutApp, ActorResourceMgr> >("Game")
+		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
@@ -427,16 +386,6 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("DofEnable", &Game::m_DofEnable)
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def("ExecuteCode", &Game::ExecuteCode)
-			.def("ClearAllShaders", &Game::ClearAllShaders)
-			.def("AddActor", &Game::AddActor)
-			.def("RemoveActor", &Game::RemoveActor)
-			.def("RemoveAllActors", &Game::RemoveAllActors)
-			.def("CreateMeshComponent", &Game::CreateMeshComponent)
-			.def("CreateMeshComponentFromFile", &Game::CreateMeshComponentFromFile)
-			.def("CreateMeshComponentList", &Game::CreateMeshComponentList)
-			.def("CreateEmitterComponent", &Game::CreateEmitterComponent)
-			.def("CreateEmitterComponentFromFile", &Game::CreateEmitterComponentFromFile)
-			.def("CreateSimpleAnimatorFromFile", &Game::CreateSimpleAnimatorFromFile)
 			.def("PlaySound", &Game::PlaySound)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
