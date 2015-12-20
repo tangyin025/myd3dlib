@@ -4,6 +4,27 @@
 #include "RenderPipeline.h"
 #include "Animator.h"
 
+class ComponentContext
+	: public my::SingleInstance<ComponentContext>
+	, public my::OctRoot
+{
+public:
+	ComponentContext(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
+		: OctRoot(minx, miny, minz, maxx, maxy, maxz, MinBlock)
+	{
+	}
+
+	ComponentContext(const my::Vector3 & _Min, const my::Vector3 & _Max, float MinBlock)
+		: OctRoot(_Min, _Max, MinBlock)
+	{
+	}
+
+	ComponentContext(const my::AABB & aabb, float MinBlock)
+		: OctRoot(aabb, MinBlock)
+	{
+	}
+};
+
 class Component
 	: public my::OctComponent
 {
@@ -25,10 +46,15 @@ public:
 		, m_Type(Type)
 		, m_World(World)
 	{
+		ComponentContext::getSingleton().AddComponent(this, 0.1f);
 	}
 
 	virtual ~Component(void)
 	{
+		if (m_OctNode)
+		{
+			m_OctNode->RemoveComponent(this);
+		}
 	}
 
 	virtual void Update(float fElapsedTime)
