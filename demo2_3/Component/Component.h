@@ -4,6 +4,121 @@
 #include "RenderPipeline.h"
 #include "Animator.h"
 
+#include <boost/serialization/nvp.hpp>
+
+class Material
+{
+public:
+	class ParameterValue
+	{
+	public:
+		enum ParameterValueType
+		{
+			ParameterValueTypeUnknown,
+			ParameterValueTypeTexture,
+		};
+
+		ParameterValueType m_Type;
+
+	public:
+		ParameterValue(ParameterValueType type)
+			: m_Type(type)
+		{
+		}
+
+		virtual ~ParameterValue(void)
+		{
+		}
+
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name) = 0;
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_Type);
+		}
+	};
+
+	typedef boost::shared_ptr<ParameterValue> ParameterValuePtr;
+
+	class ParameterValueTexture : public ParameterValue
+	{
+	public:
+		std::string m_Path;
+
+		my::BaseTexturePtr m_Texture;
+
+	public:
+		ParameterValueTexture(void)
+			: ParameterValue(ParameterValueTypeTexture)
+		{
+		}
+
+		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
+			ar & BOOST_SERIALIZATION_NVP(m_Path);
+		}
+	};
+
+	typedef boost::shared_ptr<ParameterValueTexture> ParameterValueTexturePtr;
+
+	class Parameter : public std::pair<std::string, boost::shared_ptr<ParameterValue> >
+	{
+	public:
+		Parameter(void)
+		{
+		}
+
+		Parameter(const std::string & name, ParameterValuePtr value)
+			: pair(name, value)
+		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(first);
+			ar & BOOST_SERIALIZATION_NVP(second);
+		}
+	};
+
+	typedef std::vector<Parameter> ParameterList;
+
+	std::string m_Shader;
+
+	ParameterList m_Params;
+
+	unsigned int m_PassMask;
+
+public:
+	Material(void);
+
+	virtual ~Material(void);
+
+	void AddParameter(const std::string & name, ParameterValuePtr value)
+	{
+		m_Params.push_back(Parameter(name, value));
+	}
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_Shader);
+		ar & BOOST_SERIALIZATION_NVP(m_Params);
+		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
+	}
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+};
+
+typedef boost::shared_ptr<Material> MaterialPtr;
+
+typedef std::vector<MaterialPtr> MaterialPtrList;
+
 class ComponentContext
 	: public my::SingleInstance<ComponentContext>
 	, public my::OctRoot
@@ -36,7 +151,7 @@ public:
 		ComponentTypeEmitter,
 	};
 
-	const ComponentType m_Type;
+	ComponentType m_Type;
 
 	my::Matrix4 m_World;
 
@@ -55,6 +170,14 @@ public:
 		{
 			m_OctNode->RemoveComponent(this);
 		}
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_aabb);
+		ar & BOOST_SERIALIZATION_NVP(m_Type);
+		ar & BOOST_SERIALIZATION_NVP(m_World);
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -84,7 +207,11 @@ public:
 	{
 	}
 
-	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };
@@ -106,13 +233,25 @@ public:
 	AnimatorPtr m_Animator;
 
 public:
-	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World)
+	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(aabb, World, ComponentTypeMesh)
+		, m_bInstance(bInstance)
+	{
+	}
+
+	MeshComponent(void)
+		: RenderComponent(my::AABB(-1,1), my::Matrix4::Identity(), ComponentTypeMesh)
 		, m_bInstance(false)
 	{
 	}
 
-	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
+		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
@@ -122,45 +261,6 @@ public:
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
-
-class IndexdPrimitiveUPComponent
-	: public my::DeviceRelatedObjectBase
-	, public RenderComponent
-{
-public:
-	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
-
-	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-
-	my::Cache m_VertexData;
-
-	DWORD m_VertexStride;
-
-	std::vector<unsigned short> m_IndexData;
-
-	MaterialPtrList m_MaterialList;
-
-	AnimatorPtr m_Animator;
-
-public:
-	IndexdPrimitiveUPComponent(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
-		: RenderComponent(aabb, World, Type)
-		, m_VertexStride(0)
-	{
-	}
-
-	virtual void OnResetDevice(void);
-
-	virtual void OnLostDevice(void);
-
-	virtual void OnDestroyDevice(void);
-
-	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-};
-
-typedef boost::shared_ptr<IndexdPrimitiveUPComponent> IndexdPrimitiveUPComponentPtr;
 
 class EmitterComponent
 	: public RenderComponent
@@ -176,9 +276,20 @@ public:
 	{
 	}
 
-	virtual void Update(float fElapsedTime);
+	EmitterComponent(void)
+		: RenderComponent(my::AABB(-1,1), my::Matrix4::Identity(), ComponentTypeEmitter)
+	{
+	}
 
-	virtual void OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
+		ar & BOOST_SERIALIZATION_NVP(m_Material);
+	}
+
+	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 };

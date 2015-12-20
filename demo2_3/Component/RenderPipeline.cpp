@@ -1,40 +1,7 @@
 #include "stdafx.h"
 #include "RenderPipeline.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/export.hpp>
 
 using namespace my;
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
-
-BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
-
-Material::Material(void)
-	: m_PassMask(RenderPipeline::PassMaskNone)
-{
-}
-
-Material::~Material(void)
-{
-}
-
-void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
-{
-	shader->SetTexture(name, m_Texture.get());
-}
-
-void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	ParameterList::iterator param_iter = m_Params.begin();
-	for (; param_iter != m_Params.end(); param_iter++)
-	{
-		param_iter->second->OnSetShader(shader, AttribId, param_iter->first.c_str());
-	}
-}
 
 RenderPipeline::RenderPipeline(void)
 	: m_ParticleVertexStride(0)
@@ -192,7 +159,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
-	pRC->OnQueryComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), PassTypeToMask(PassTypeShadow));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
 	m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
@@ -201,7 +168,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 
-	pRC->OnQueryComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
+	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
 	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
@@ -334,27 +301,6 @@ void RenderPipeline::RenderAllObjects(
 		}
 	}
 
-	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_Pass[PassID].m_IndexedPrimitiveUPList.begin();
-	for (; indexed_prim_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); indexed_prim_iter++)
-	{
-		DrawIndexedPrimitiveUP(
-			PassID,
-			pd3dDevice,
-			indexed_prim_iter->pDecl,
-			indexed_prim_iter->PrimitiveType,
-			indexed_prim_iter->MinVertexIndex,
-			indexed_prim_iter->NumVertices,
-			indexed_prim_iter->PrimitiveCount,
-			indexed_prim_iter->pIndexData,
-			indexed_prim_iter->IndexDataFormat,
-			indexed_prim_iter->pVertexStreamZeroData,
-			indexed_prim_iter->VertexStreamZeroStride,
-			indexed_prim_iter->AttribId,
-			indexed_prim_iter->shader,
-			indexed_prim_iter->setter);
-		m_PassDrawCall[PassID]++;
-	}
-
 	EmitterAtomList::iterator emitter_iter = m_Pass[PassID].m_EmitterList.begin();
 	for (; emitter_iter != m_Pass[PassID].m_EmitterList.end(); emitter_iter++)
 	{
@@ -374,7 +320,6 @@ void RenderPipeline::ClearAllObjects(void)
 		{
 			mesh_inst_iter->second.m_TransformList.clear();
 		}
-		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
 		m_Pass[PassID].m_EmitterList.clear();
 	}
 }
@@ -438,37 +383,6 @@ void RenderPipeline::DrawMeshInstance(
 
 	V(pd3dDevice->SetStreamSourceFreq(0,1));
 	V(pd3dDevice->SetStreamSourceFreq(1,1));
-}
-
-void RenderPipeline::DrawIndexedPrimitiveUP(
-	unsigned int PassID,
-	IDirect3DDevice9 * pd3dDevice,
-	IDirect3DVertexDeclaration9* pDecl,
-	D3DPRIMITIVETYPE PrimitiveType,
-	UINT MinVertexIndex,
-	UINT NumVertices,
-	UINT PrimitiveCount,
-	CONST void* pIndexData,
-	D3DFORMAT IndexDataFormat,
-	CONST void* pVertexStreamZeroData,
-	UINT VertexStreamZeroStride,
-	DWORD AttribId,
-	my::Effect * shader,
-	IShaderSetter * setter)
-{
-	shader->SetTechnique("RenderScene");
-	const UINT passes = shader->Begin(0);
-	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
-	{
-		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		V(pd3dDevice->DrawIndexedPrimitiveUP(
-			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
-		shader->EndPass();
-	}
-	shader->End();
 }
 
 void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -576,38 +490,6 @@ void RenderPipeline::PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWOR
 	m_Pass[PassID].m_MeshInstanceMap[key].m_TransformList.push_back(World);
 }
 
-void RenderPipeline::PushIndexedPrimitiveUP(
-	unsigned int PassID,
-	IDirect3DVertexDeclaration9* pDecl,
-	D3DPRIMITIVETYPE PrimitiveType,
-	UINT MinVertexIndex,
-	UINT NumVertices,
-	UINT PrimitiveCount,
-	CONST void* pIndexData,
-	D3DFORMAT IndexDataFormat,
-	CONST void* pVertexStreamZeroData,
-	UINT VertexStreamZeroStride,
-	DWORD AttribId,
-	my::Effect * shader,
-	IShaderSetter * setter)
-{
-	IndexedPrimitiveUPAtom atom;
-	atom.pDecl = pDecl;
-	atom.PrimitiveType = PrimitiveType;
-	atom.PrimitiveCount = PrimitiveCount;
-	atom.MinVertexIndex = MinVertexIndex;
-	atom.NumVertices = NumVertices;
-	atom.PrimitiveCount = PrimitiveCount;
-	atom.pIndexData = pIndexData;
-	atom.IndexDataFormat = IndexDataFormat;
-	atom.pVertexStreamZeroData = pVertexStreamZeroData;
-	atom.VertexStreamZeroStride = VertexStreamZeroStride;
-	atom.AttribId = AttribId;
-	atom.shader = shader;
-	atom.setter = setter;
-	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
-}
-
 void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	EmitterAtom atom;
@@ -621,7 +503,7 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 #include "Component.h"
 
 template <>
-void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, MeshType mesh_type, unsigned int PassMask)
+void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, unsigned int PassMask)
 {
 	if (cmp->m_Mesh)
 	{
@@ -633,7 +515,7 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, MeshType 
 				{
 					if (PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = QueryShader(mesh_type, cmp->m_bInstance, cmp->m_MaterialList[i].get(), PassID);
+						my::Effect * shader = QueryShader(cmp->m_Animator ? MeshTypeAnimation : MeshTypeStatic, cmp->m_bInstance, cmp->m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
 							if (cmp->m_bInstance)
@@ -653,39 +535,7 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, MeshType 
 }
 
 template <>
-void RenderPipeline::PushComponent<IndexdPrimitiveUPComponent>(IndexdPrimitiveUPComponent * cmp, MeshType mesh_type, unsigned int PassMask)
-{
-	for (unsigned int i = 0; i < cmp->m_AttribTable.size(); i++)
-	{
-		_ASSERT(!cmp->m_VertexData.empty());
-		_ASSERT(!cmp->m_IndexData.empty());
-		_ASSERT(0 != cmp->m_VertexStride);
-		if (cmp->m_MaterialList[i] && (cmp->m_MaterialList[i]->m_PassMask & PassMask))
-		{
-			for (unsigned int PassID = 0; PassID < PassTypeNum; PassID++)
-			{
-				if (PassTypeToMask(PassID) & (cmp->m_MaterialList[i]->m_PassMask & PassMask))
-				{
-					my::Effect * shader = QueryShader(mesh_type, false, cmp->m_MaterialList[i].get(), PassID);
-					if (shader)
-					{
-						PushIndexedPrimitiveUP(PassID, cmp->m_Decl, D3DPT_TRIANGLELIST,
-							cmp->m_AttribTable[i].VertexStart,
-							cmp->m_AttribTable[i].VertexCount,
-							cmp->m_AttribTable[i].FaceCount,
-							&cmp->m_IndexData[cmp->m_AttribTable[i].FaceStart * 3],
-							D3DFMT_INDEX16,
-							&cmp->m_VertexData[0],
-							cmp->m_VertexStride, i, shader, cmp);
-					}
-				}
-			}
-		}
-	}
-}
-
-template <>
-void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, MeshType mesh_type, unsigned int PassMask)
+void RenderPipeline::PushComponent<EmitterComponent>(EmitterComponent * cmp, unsigned int PassMask)
 {
 	if (cmp->m_Material && cmp->m_Emitter && (cmp->m_Material->m_PassMask & PassMask))
 	{

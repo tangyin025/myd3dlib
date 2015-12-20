@@ -50,6 +50,12 @@ class Game
 	, public my::DrawHelper
 {
 public:
+	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
+
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
+
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 
 	ScrInfoType m_ScrInfos;
@@ -171,5 +177,5 @@ public:
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
-	virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask);
+	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };

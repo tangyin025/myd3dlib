@@ -17,6 +17,7 @@ namespace my
 
 		OctNodeBase * m_OctNode;
 
+	public:
 		AABB m_aabb;
 
 	public:
@@ -35,7 +36,7 @@ namespace my
 	struct IQueryCallback
 	{
 	public:
-		virtual void operator() (const OctComponent * cmp, IntersectionTests::IntersectionType) = 0;
+		virtual void operator() (OctComponent * cmp, IntersectionTests::IntersectionType) = 0;
 	};
 
 	class OctNodeBase

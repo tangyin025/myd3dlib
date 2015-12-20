@@ -1,20 +1,52 @@
 #include "StdAfx.h"
 #include "Component.h"
 #include "Animator.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
-void RenderComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
+
+BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(Component)
+
+BOOST_SERIALIZATION_ASSUME_ABSTRACT(RenderComponent)
+
+BOOST_CLASS_EXPORT(MeshComponent)
+
+BOOST_CLASS_EXPORT(EmitterComponent)
+
+Material::Material(void)
+	: m_PassMask(RenderPipeline::PassMaskNone)
 {
+}
+
+Material::~Material(void)
+{
+}
+
+void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
+{
+	shader->SetTexture(name, m_Texture.get());
+}
+
+void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	ParameterList::iterator param_iter = m_Params.begin();
+	for (; param_iter != m_Params.end(); param_iter++)
+	{
+		param_iter->second->OnSetShader(shader, AttribId, param_iter->first.c_str());
+	}
 }
 
 void RenderComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-}
-
-void MeshComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-{
-	pipeline->PushComponent<MeshComponent>(this, m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, PassMask);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -132,50 +164,12 @@ bool MeshComponent::FrustumTest(const my::Frustum & frustum) const
 	return false;
 }
 
-void IndexdPrimitiveUPComponent::OnResetDevice(void)
-{
-}
-
-void IndexdPrimitiveUPComponent::OnLostDevice(void)
-{
-}
-
-void IndexdPrimitiveUPComponent::OnDestroyDevice(void)
-{
-	m_Decl.Release();
-}
-
-void IndexdPrimitiveUPComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-{
-	pipeline->PushComponent<IndexdPrimitiveUPComponent>(this, m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, PassMask);
-}
-
-void IndexdPrimitiveUPComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	_ASSERT(!m_VertexData.empty());
-	_ASSERT(AttribId < m_AttribTable.size());
-
-	shader->SetMatrix("g_World", m_World);
-
-	if (m_Animator && !m_Animator->m_DualQuats.empty())
-	{
-		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
-	}
-
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
-}
-
 void EmitterComponent::Update(float fElapsedTime)
 {
 	if (m_Emitter)
 	{
 		m_Emitter->Update(fElapsedTime);
 	}
-}
-
-void EmitterComponent::OnQueryComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-{
-	pipeline->PushComponent(this, RenderPipeline::MeshTypeParticle, PassMask);
 }
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

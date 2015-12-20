@@ -350,15 +350,13 @@ void Export2Lua(lua_State * L)
 			.def(constructor<>())
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
+			.def_readwrite("aabb", &Component::m_aabb)
 			.def_readwrite("World", &Component::m_World)
 
 		, class_<RenderComponent, Component, boost::shared_ptr<RenderComponent> >("RenderComponent")
 
 		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
-
-		, class_<IndexdPrimitiveUPComponent, RenderComponent, boost::shared_ptr<IndexdPrimitiveUPComponent> >("IndexdPrimitiveUPComponent")
-			.def_readwrite("Animator", &IndexdPrimitiveUPComponent::m_Animator)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
 

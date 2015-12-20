@@ -1,134 +1,6 @@
 #pragma once
 
-#include <boost/serialization/nvp.hpp>
-
-class RenderPipeline;
-
-class Material
-	: public my::DeviceRelatedObjectBase
-{
-public:
-	class ParameterValue
-	{
-	public:
-		enum ParameterValueType
-		{
-			ParameterValueTypeUnknown,
-			ParameterValueTypeTexture,
-		};
-
-		ParameterValueType m_Type;
-
-	public:
-		ParameterValue(ParameterValueType type)
-			: m_Type(type)
-		{
-		}
-
-		virtual ~ParameterValue(void)
-		{
-		}
-
-		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name) = 0;
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(m_Type);
-		}
-	};
-
-	typedef boost::shared_ptr<ParameterValue> ParameterValuePtr;
-
-	class ParameterValueTexture : public ParameterValue
-	{
-	public:
-		std::string m_Path;
-
-		my::Texture2DPtr m_Texture;
-
-	public:
-		ParameterValueTexture(void)
-			: ParameterValue(ParameterValueTypeTexture)
-		{
-		}
-
-		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name);
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
-			ar & BOOST_SERIALIZATION_NVP(m_Path);
-		}
-	};
-
-	typedef boost::shared_ptr<ParameterValueTexture> ParameterValueTexturePtr;
-
-	class Parameter : public std::pair<std::string, boost::shared_ptr<ParameterValue> >
-	{
-	public:
-		Parameter(void)
-		{
-		}
-
-		Parameter(const std::string & name, ParameterValuePtr value)
-			: pair(name, value)
-		{
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(first);
-			ar & BOOST_SERIALIZATION_NVP(second);
-		}
-	};
-
-	typedef std::vector<Parameter> ParameterList;
-
-	std::string m_Shader;
-
-	ParameterList m_Params;
-
-	unsigned int m_PassMask;
-
-public:
-	Material(void);
-
-	virtual ~Material(void);
-
-	virtual void OnResetDevice(void)
-	{
-	}
-
-	virtual void OnLostDevice(void)
-	{
-	}
-
-	virtual void OnDestroyDevice(void)
-	{
-	}
-
-	void AddParameter(const std::string & name, ParameterValuePtr value)
-	{
-		m_Params.push_back(Parameter(name, value));
-	}
-
-	template <class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_NVP(m_Shader);
-		ar & BOOST_SERIALIZATION_NVP(m_Params);
-		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
-	}
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-};
-
-typedef boost::shared_ptr<Material> MaterialPtr;
-
-typedef std::vector<MaterialPtr> MaterialPtrList;
+class Material;
 
 class RenderPipeline
 {
@@ -254,7 +126,7 @@ public:
 
 		virtual my::Texture2D * GetDownFilterTexture(unsigned int i) = 0;
 
-		virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask) = 0;
+		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
 
 	struct MeshAtom
@@ -281,24 +153,6 @@ public:
 
 	typedef boost::unordered_map<MeshInstanceAtomKey, MeshInstanceAtom> MeshInstanceAtomMap;
 
-	struct IndexedPrimitiveUPAtom
-	{
-		IDirect3DVertexDeclaration9* pDecl;
-		D3DPRIMITIVETYPE PrimitiveType;
-		UINT MinVertexIndex;
-		UINT NumVertices;
-		UINT PrimitiveCount;
-		CONST void* pIndexData;
-		D3DFORMAT IndexDataFormat;
-		CONST void* pVertexStreamZeroData;
-		UINT VertexStreamZeroStride;
-		DWORD AttribId;
-		my::Effect * shader;
-		IShaderSetter * setter;
-	};
-
-	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
-
 	struct EmitterAtom
 	{
 		my::Emitter * emitter;
@@ -313,7 +167,6 @@ public:
 	{
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
-		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
 		EmitterAtomList m_EmitterList;
 	};
 
@@ -373,45 +226,14 @@ public:
 		IShaderSetter * setter,
 		MeshInstanceAtom & atom);
 
-	void DrawIndexedPrimitiveUP(
-		unsigned int PassID,
-		IDirect3DDevice9 * pd3dDevice,
-		IDirect3DVertexDeclaration9* pDecl,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT MinVertexIndex,
-		UINT NumVertices,
-		UINT PrimitiveCount,
-		CONST void* pIndexData,
-		D3DFORMAT IndexDataFormat,
-		CONST void* pVertexStreamZeroData,
-		UINT VertexStreamZeroStride,
-		DWORD AttribId,
-		my::Effect * shader,
-		IShaderSetter * setter);
-
 	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
 
-	void PushIndexedPrimitiveUP(
-		unsigned int PassID,
-		IDirect3DVertexDeclaration9* pDecl,
-		D3DPRIMITIVETYPE PrimitiveType,
-		UINT MinVertexIndex,
-		UINT NumVertices,
-		UINT PrimitiveCount,
-		CONST void* pIndexData,
-		D3DFORMAT IndexDataFormat,
-		CONST void* pVertexStreamZeroData,
-		UINT VertexStreamZeroStride,
-		DWORD AttribId,
-		my::Effect * shader,
-		IShaderSetter * setter);
-
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	template <class ComponentClass>
-	void PushComponent(ComponentClass * cmp, MeshType mesh_type, unsigned int PassMask);
+	void PushComponent(ComponentClass * cmp, unsigned int PassMask);
 };

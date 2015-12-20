@@ -3,6 +3,11 @@
 //#include "Logic/MeshComponent.h"
 #include "Logic/Logic.h"
 #include "Component/Animator.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <fstream>
 
 using namespace my;
 
@@ -13,6 +18,9 @@ using namespace my;
 class Demo
 	: public Game
 {
+public:
+	std::vector<ComponentPtr> m_cmps;
+
 public:
 	Demo::Demo(void)
 	{
@@ -55,24 +63,45 @@ public:
 		RemoveDlg(m_Console);
 		InsertDlg(m_Console);
 
-		//// ========================================================================================================
-		//// 声音系统
-		//// ========================================================================================================
-		//FMOD::Sound      *sound1;
-		//FMOD::Channel    *channel = 0;
-		//result = m_FModSystem->createSound("sound/drumloop.wav", FMOD_HARDWARE, NULL, &sound1);
-		//FMOD_ERRCHECK(result);
-		//result = sound1->setMode(FMOD_LOOP_NORMAL);    /* drumloop.wav has embedded loop points which automatically makes looping turn on, */
-		//FMOD_ERRCHECK(result);                           /* so turn it off here.  We could have also just put FMOD_LOOP_OFF in the above CreateSound call. */
-		//result = m_FModSystem->playSound(FMOD_CHANNEL_FREE, sound1, false, &channel);
-		//FMOD_ERRCHECK(result);
+		// ========================================================================================================
+		// 示例代码
+		// ========================================================================================================
 
-		//ActorPtr actor(new Actor(my::AABB(-50,50), 1.0f));
-		//m_Actors.push_back(actor);
-		//MeshComponent * cmp = CreateMeshComponentFromFile(actor.get(), "mesh/casual19_m_highpoly.mesh.xml", actor->m_aabb, false);
-		//cmp->m_World = my::Matrix4::Scaling(0.05f,0.05f,0.05f);
-		//my::OgreMeshSetPtr mesh_set = LoadMeshSet("mesh/scene.mesh.xml");
-		//CreateMeshComponentList(actor.get(), mesh_set);
+		OgreMeshPtr mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
+		Matrix4 World(Matrix4::Scaling(Vector3(0.05f)));
+		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb.transform(World), World, false));
+		mesh_cmp->m_Mesh = mesh;
+		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+		{
+			MaterialPtr material;
+			char buff[128];
+			sprintf_s(buff, sizeof(buff), "material/%s.xml", mesh->m_MaterialNameList[i].c_str());
+			CachePtr cache = OpenIStream(buff)->GetWholeCache();
+			membuf mb((char *)&(*cache)[0], cache->size());
+			std::istream istr(&mb);
+			boost::archive::xml_iarchive ar(istr);
+			ar >> boost::serialization::make_nvp("Material", material);
+			Material::ParameterList::iterator param_iter = material->m_Params.begin();
+			for (; param_iter != material->m_Params.end(); param_iter++)
+			{
+				switch (param_iter->second->m_Type)
+				{
+				case Material::ParameterValue::ParameterValueTypeTexture:
+					{
+						Material::ParameterValueTexturePtr param = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
+						param->m_Texture = LoadTexture(param->m_Path);
+					}
+					break;
+				}
+			}
+			mesh_cmp->m_MaterialList.push_back(material);
+		}
+		m_cmps.push_back(mesh_cmp);
+
+		//// 保存场景
+		//std::ofstream ofs("scene.component_list.xml");
+		//boost::archive::xml_oarchive oa(ofs);
+		//oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
 
 		return S_OK;
 	}
