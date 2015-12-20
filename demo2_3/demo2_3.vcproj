@@ -303,19 +303,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\Component\ActorComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Component\ActorComponent.h"
-				>
-			</File>
-			<File
 				RelativePath=".\Component\Animator.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\Component\Animator.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Component.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Component.h"
 				>
 			</File>
 			<File

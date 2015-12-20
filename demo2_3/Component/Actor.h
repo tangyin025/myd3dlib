@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderPipeline.h"
-#include "ActorComponent.h"
+#include "Component.h"
 #include "Animator.h"
 
 class Actor

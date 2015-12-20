@@ -368,19 +368,19 @@
 				>
 			</File>
 			<File
-				RelativePath="..\demo2_3\Component\ActorComponent.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\demo2_3\Component\ActorComponent.h"
-				>
-			</File>
-			<File
 				RelativePath="..\demo2_3\Component\Animator.cpp"
 				>
 			</File>
 			<File
 				RelativePath="..\demo2_3\Component\Animator.h"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\Component.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\demo2_3\Component\Component.h"
 				>
 			</File>
 			<File

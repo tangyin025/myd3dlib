@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "Component/FModContext.h"
 #include "Component/RenderPipeline.h"
-#include "Component/ActorComponent.h"
+#include "Component/Component.h"
 #include "Component/Actor.h"
 #include "Logic/Logic.h"
 

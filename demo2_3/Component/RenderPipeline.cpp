@@ -618,7 +618,7 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 	m_Pass[PassID].m_EmitterList.push_back(atom);
 }
 
-#include "ActorComponent.h"
+#include "Component.h"
 
 template <>
 void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, MeshType mesh_type, unsigned int PassMask)
