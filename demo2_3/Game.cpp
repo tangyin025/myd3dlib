@@ -62,6 +62,7 @@ void EffectUIRender::Flush(void)
 }
 
 Game::Game(void)
+	: ComponentContext(Vector3(-1000), Vector3(1000), 1.0f)
 {
 	Export2Lua(_state);
 	m_NormalRT.reset(new Texture2D());

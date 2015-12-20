@@ -41,10 +41,11 @@ class Game
 	, public my::LuaContext
 	, public my::DialogMgr
 	, public my::InputMgr
-	, public FModContext
 	, public my::ResourceMgr
+	, public ComponentContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
+	, public FModContext
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
 {
