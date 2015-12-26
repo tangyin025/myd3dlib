@@ -196,6 +196,7 @@ BOOL CMainApp::InitInstance()
 	{
 		return FALSE;
 	}
+	m_d3dThreadId = GetCurrentThreadId();
 
 	//// Register the application's document templates.  Document templates
 	////  serve as the connection between documents, frame windows and views

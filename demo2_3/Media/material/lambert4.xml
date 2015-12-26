@@ -14,7 +14,7 @@
 						<ParameterValue class_id="6" tracking_level="0" version="0">
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/wall.jpg</m_Path>
+						<m_TexturePath>texture/wall.jpg</m_TexturePath>
 					</px>
 				</second>
 			</item>
@@ -25,7 +25,7 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/wall_NM_height.DDS</m_Path>
+						<m_TexturePath>texture/wall_NM_height.DDS</m_TexturePath>
 					</px>
 				</second>
 			</item>
@@ -36,7 +36,7 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/white.bmp</m_Path>
+						<m_TexturePath>texture/white.bmp</m_TexturePath>
 					</px>
 				</second>
 			</item>

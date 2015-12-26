@@ -14,7 +14,7 @@
 						<ParameterValue class_id="6" tracking_level="0" version="0">
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/casual19_m_35.jpg</m_Path>
+						<m_TexturePath>texture/casual19_m_35.jpg</m_TexturePath>
 					</px>
 				</second>
 			</item>
@@ -25,7 +25,7 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/casual19_m_35_normal.dds</m_Path>
+						<m_TexturePath>texture/casual19_m_35_normal.dds</m_TexturePath>
 					</px>
 				</second>
 			</item>
@@ -36,7 +36,7 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_Path>texture/casual19_m_35_spec.dds</m_Path>
+						<m_TexturePath>texture/casual19_m_35_spec.dds</m_TexturePath>
 					</px>
 				</second>
 			</item>

@@ -53,6 +53,8 @@ namespace my
 	public:
 		CComPtr<IDirect3D9> m_d3d9;
 
+		DWORD m_d3dThreadId;
+
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
 
 		DXUTD3D9DeviceSettings m_DeviceSettings;
@@ -65,7 +67,8 @@ namespace my
 
 	public:
 		D3DContext(void)
-			: m_DeviceObjectsCreated(false)
+			: m_d3dThreadId(-1)
+			, m_DeviceObjectsCreated(false)
 			, m_DeviceObjectsReset(false)
 		{
 		}

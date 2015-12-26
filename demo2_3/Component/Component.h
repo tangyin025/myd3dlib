@@ -44,7 +44,7 @@ public:
 	class ParameterValueTexture : public ParameterValue
 	{
 	public:
-		std::string m_Path;
+		std::string m_TexturePath;
 
 		my::BaseTexturePtr m_Texture;
 
@@ -60,7 +60,7 @@ public:
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
-			ar & BOOST_SERIALIZATION_NVP(m_Path);
+			ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
 		}
 	};
 
@@ -222,6 +222,8 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
+	std::string m_MeshPath;
+
 	my::MeshPtr m_Mesh;
 
 	my::D3DVertexElementSet m_VertexElems;
@@ -249,6 +251,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshPath);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 	}

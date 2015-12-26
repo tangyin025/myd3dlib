@@ -331,7 +331,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<Material::ParameterValueTexture, Material::ParameterValue, boost::shared_ptr<Material::ParameterValue> >("ParameterValueTexture")
 			.def(constructor<>())
-			.def_readwrite("Path", &Material::ParameterValueTexture::m_Path)
+			.def_readwrite("TexturePath", &Material::ParameterValueTexture::m_TexturePath)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")

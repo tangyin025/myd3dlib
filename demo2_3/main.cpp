@@ -89,7 +89,7 @@ public:
 				case Material::ParameterValue::ParameterValueTypeTexture:
 					{
 						Material::ParameterValueTexturePtr param = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
-						param->m_Texture = LoadTexture(param->m_Path);
+						param->m_Texture = LoadTexture(param->m_TexturePath);
 					}
 					break;
 				}
