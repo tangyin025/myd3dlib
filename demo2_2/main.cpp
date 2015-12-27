@@ -152,7 +152,7 @@ public:
 
 	virtual void OnFrameTick(double fTime, float fElapsedTime)
 	{
-		CheckRequests();
+		CheckIORequests();
 
 		OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 

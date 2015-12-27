@@ -352,7 +352,7 @@ void Game::OnFrameTick(
 {
 	DrawHelper::BeginLine();
 
-	CheckRequests();
+	CheckIORequests();
 
 	InputMgr::Update(fTime, fElapsedTime);
 

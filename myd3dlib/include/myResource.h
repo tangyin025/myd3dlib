@@ -262,7 +262,9 @@ namespace my
 	class AsynchronousIOMgr : public StreamDirMgr
 	{
 	protected:
-		typedef std::list<std::pair<std::string, IORequestPtr> > IORequestPtrPairList;
+		typedef std::pair<std::string, IORequestPtr> IORequestPtrPair;
+
+		typedef std::list<IORequestPtrPair> IORequestPtrPairList;
 
 		IORequestPtrPairList m_IORequestList;
 
@@ -391,13 +393,13 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		IORequestPtrPairList::iterator LoadResourceAsync(const std::string & key, IORequestPtr request);
+		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request);
 
-		void LoadResourceAndWait(const std::string & key, IORequestPtr request);
+		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);
 
-		bool CheckRequests(void);
+		bool CheckIORequests(void);
 
-		bool CheckResource(const std::string & key, IORequestPtr request, DWORD timeout);
+		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
 		virtual void OnResourceFailed(const std::string & error_str) = 0;
 

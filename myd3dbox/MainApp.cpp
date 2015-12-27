@@ -440,7 +440,7 @@ void CMainApp::SaveCustomState()
 BOOL CMainApp::OnIdle(LONG lCount)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	if (ActorResourceMgr::CheckRequests())
+	if (ActorResourceMgr::CheckIORequests())
 	{
 		return TRUE;
 	}

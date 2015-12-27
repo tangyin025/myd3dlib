@@ -84,7 +84,7 @@ void Mutex::Release(void)
 MutexLock::MutexLock(Mutex & mutex)
 	: m_mutex(mutex)
 {
-	m_mutex.Wait();
+	m_mutex.Wait(INFINITE);
 }
 
 MutexLock::~MutexLock(void)
