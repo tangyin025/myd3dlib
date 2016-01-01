@@ -259,16 +259,6 @@ public:
 	virtual void Update(float fElapsedTime)
 	{
 	}
-
-	virtual my::RayResult RayTest(const my::Ray & ray) const
-	{
-		return my::RayResult(false, FLT_MAX);
-	}
-
-	virtual bool FrustumTest(const my::Frustum & frustum) const
-	{
-		return false;
-	}
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -299,8 +289,6 @@ class MeshComponent
 {
 public:
 	ResourceBundle<my::Mesh> m_MeshRes;
-
-	my::D3DVertexElementSet m_VertexElems;
 
 	MaterialPtrList m_MaterialList;
 
@@ -343,10 +331,6 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-
-	virtual my::RayResult RayTest(const my::Ray & ray) const;
-
-	virtual bool FrustumTest(const my::Frustum & frustum) const;
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
