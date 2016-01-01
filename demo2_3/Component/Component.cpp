@@ -21,14 +21,14 @@ void ResourceBundle<my::Mesh>::RequestResource(void)
 {
 	my::ResourceMgr::getSingleton().LoadMeshAsync(m_ResPath, this);
 }
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
+//
+//BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
 
 BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Component)
-
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(RenderComponent)
+//
+//BOOST_SERIALIZATION_ASSUME_ABSTRACT(Component)
+//
+//BOOST_SERIALIZATION_ASSUME_ABSTRACT(RenderComponent)
 
 BOOST_CLASS_EXPORT(MeshComponent)
 
@@ -83,6 +83,84 @@ void Material::ReleaseResource(void)
 	}
 }
 
+Component::~Component(void)
+{
+	if (m_OctNode)
+	{
+		m_OctNode->RemoveComponent(this);
+	}
+	ComponentPtrList::iterator child_iter = m_Childs.begin();
+	for (; child_iter != m_Childs.end(); child_iter++)
+	{
+		_ASSERT((*child_iter)->m_Parent == this);
+		(*child_iter)->m_Parent = NULL;
+	}
+	m_Childs.clear();
+	_ASSERT(!m_Parent);
+	// ! Derived class must ReleaseResource menually
+	_ASSERT(!IsRequested());
+}
+
+void Component::InsertChild(ComponentPtr cmp)
+{
+	_ASSERT(cmp->m_Parent == NULL);
+	m_Childs.push_back(cmp);
+	cmp->m_Parent = this;
+}
+
+void Component::RemoveChild(ComponentPtr cmp)
+{
+	_ASSERT(cmp->m_Parent == this);
+	ComponentPtrList::iterator child_iter = std::find(m_Childs.begin(), m_Childs.end(), cmp);
+	_ASSERT(child_iter != m_Childs.end());
+	(*child_iter)->m_Parent = NULL;
+	m_Childs.erase(child_iter);
+}
+
+Animator * Component::GetAnimator(void)
+{
+	if (!m_Parent)
+	{
+		return m_Animator.get();
+	}
+	return m_Parent->GetAnimator();
+}
+
+void Component::RequestResource(void)
+{
+	_ASSERT(!IsRequested());
+	m_Requested = true;
+}
+
+void Component::ReleaseResource(void)
+{
+	_ASSERT(IsRequested());
+	m_Requested = false;
+}
+
+void Component::Update(float fElapsedTime)
+{
+	if (m_Animator)
+	{
+		m_Animator->Update(fElapsedTime);
+	}
+
+	ComponentPtrList::iterator child_iter = m_Childs.begin();
+	for (; child_iter != m_Childs.end(); child_iter++)
+	{
+		(*child_iter)->Update(fElapsedTime);
+	}
+}
+
+void Component::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+{
+	ComponentPtrList::iterator child_iter = m_Childs.begin();
+	for (; child_iter != m_Childs.end(); child_iter++)
+	{
+		(*child_iter)->AddToPipeline(pipeline, PassMask);
+	}
+}
+
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
@@ -121,9 +199,11 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_Animator && !m_Animator->m_DualQuats.empty())
+	Animator * animator = GetAnimator();
+
+	if (animator && !animator->m_DualQuats.empty())
 	{
-		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
+		shader->SetMatrixArray("g_dualquat", &animator->m_DualQuats[0], animator->m_DualQuats.size());
 	}
 
 	m_Lods[m_LodId].m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
@@ -145,7 +225,7 @@ void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMa
 					{
 						if (RenderPipeline::PassTypeToMask(PassID) & (lod.m_MaterialList[i]->m_PassMask & PassMask))
 						{
-							my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, lod.m_MaterialList[i].get(), PassID);
+							my::Effect * shader = pipeline->QueryShader(GetAnimator() ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, lod.m_MaterialList[i].get(), PassID);
 							if (shader)
 							{
 								if (m_bInstance)
@@ -163,6 +243,8 @@ void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMa
 			}
 		}
 	}
+
+	Component::AddToPipeline(pipeline, PassMask);
 }
 
 void EmitterComponent::RequestResource(void)

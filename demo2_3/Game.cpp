@@ -668,16 +668,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 			_ASSERT(dynamic_cast<Component *>(oct_cmp));
 			Component * cmp = static_cast<Component *>(oct_cmp);
-			switch (cmp->m_Type)
-			{
-			case Component::ComponentTypeMesh:
-				dynamic_cast<MeshComponent *>(cmp)->AddToPipeline(m_pipeline, m_PassMask);
-				break;
-
-			case Component::ComponentTypeEmitter:
-				dynamic_cast<EmitterComponent *>(cmp)->AddToPipeline(m_pipeline, m_PassMask);
-				break;
-			}
+			cmp->AddToPipeline(m_pipeline, m_PassMask);
 		}
 	};
 
