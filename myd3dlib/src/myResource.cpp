@@ -429,6 +429,12 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 	m_IORequestListMutex.Wait(INFINITE);
 
+	IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
+	for (; callback_iter != request->m_callbacks.end(); callback_iter++)
+	{
+		(*callback_iter)->m_Requested = true;
+	}
+
 	IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 	for(; req_iter != m_IORequestList.end(); req_iter++)
 	{
@@ -460,6 +466,7 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 			if (callback_iter != req_iter->second->m_callbacks.end())
 			{
 				req_iter->second->m_callbacks.erase(callback_iter);
+				(*callback_iter)->m_Requested = false;
 				if (req_iter->second->m_callbacks.empty())
 				{
 					m_IORequestList.erase(req_iter);
@@ -713,11 +720,7 @@ void ResourceMgr::LoadIORequestAndWait(const std::string & key, IORequestPtr req
 	{
 		if (req_iter->second->m_LoadEvent.Wait(INFINITE))
 		{
-			IORequestPtrPair pair = *req_iter;
-			m_IORequestListMutex.Wait(INFINITE);
-			m_IORequestList.erase(req_iter);
-			m_IORequestListMutex.Release();
-			OnIORequestReady(pair.first, pair.second);
+			OnIORequestIteratorReady(req_iter);
 		}
 	}
 }
@@ -731,17 +734,29 @@ bool ResourceMgr::CheckIORequests(void)
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();
 		if (req_iter != m_IORequestList.end() && req_iter->second->m_LoadEvent.Wait(0))
 		{
-			IORequestPtrPair pair = *req_iter;
-			m_IORequestListMutex.Wait(INFINITE);
-			m_IORequestList.erase(req_iter);
-			m_IORequestListMutex.Release();
-			OnIORequestReady(pair.first, pair.second);
+			OnIORequestIteratorReady(req_iter);
 		}
 		else
 			break;
 	}
 
 	return m_IORequestList.empty();
+}
+
+void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
+{
+	IORequestPtrPair pair = *req_iter;
+	m_IORequestListMutex.Wait(INFINITE);
+	m_IORequestList.erase(req_iter);
+	m_IORequestListMutex.Release();
+
+	IORequest::IResourceCallbackSet::iterator callback_iter = pair.second->m_callbacks.begin();
+	for (; callback_iter != pair.second->m_callbacks.end(); callback_iter++)
+	{
+		(*callback_iter)->m_Requested = false;
+	}
+
+	OnIORequestReady(pair.first, pair.second);
 }
 
 void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request)

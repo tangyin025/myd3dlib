@@ -228,7 +228,29 @@ namespace my
 
 	class IResourceCallback
 	{
+	protected:
+		friend class AsynchronousIOMgr;
+
+		friend class ResourceMgr;
+
+		bool m_Requested;
+
 	public:
+		IResourceCallback(void)
+			: m_Requested(false)
+		{
+		}
+
+		virtual ~IResourceCallback(void)
+		{
+			_ASSERT(!IsRequested());
+		}
+
+		bool IsRequested(void) const
+		{
+			return m_Requested;
+		}
+
 		virtual void OnReady(DeviceRelatedObjectBasePtr res) = 0;
 	};
 
@@ -405,6 +427,8 @@ namespace my
 		void LoadIORequestAndWait(const std::string & key, IORequestPtr request);
 
 		bool CheckIORequests(void);
+
+		void OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter);
 
 		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
