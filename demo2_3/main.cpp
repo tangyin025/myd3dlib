@@ -110,6 +110,7 @@ public:
 		lambert1->m_Shader = "lambert1.fx";
 		lod.m_MaterialList.push_back(lambert1);
 		mesh_cmp->RequestResource();
+		m_Root.AddComponent(mesh_cmp.get());
 		m_cmps.push_back(mesh_cmp);
 
 		EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
@@ -128,6 +129,7 @@ public:
 		particle1->m_Shader = "particle1.fx";
 		emit_cmp->m_Material = particle1;
 		emit_cmp->RequestResource();
+		m_Root.AddComponent(emit_cmp.get());
 		m_cmps.push_back(emit_cmp);
 
 		// ±£´æ³¡¾°

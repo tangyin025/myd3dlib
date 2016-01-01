@@ -42,7 +42,6 @@ class Game
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public my::ResourceMgr
-	, public ComponentContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
 	, public FModContext
@@ -81,6 +80,8 @@ public:
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
+
+	my::OctRoot m_Root;
 
 	LogicPtr m_Logic;
 

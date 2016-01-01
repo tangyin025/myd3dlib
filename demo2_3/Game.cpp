@@ -63,7 +63,7 @@ void EffectUIRender::Flush(void)
 }
 
 Game::Game(void)
-	: ComponentContext(Vector3(-1000), Vector3(1000), 1.0f)
+	: m_Root(Vector3(-1000), Vector3(1000), 1.0f)
 {
 	Export2Lua(_state);
 	m_NormalRT.reset(new Texture2D());
@@ -681,7 +681,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		}
 	};
 
-	ComponentContext::QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+	m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
 void Game::SaveMaterial(const std::string & path, MaterialPtr material)

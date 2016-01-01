@@ -173,27 +173,6 @@ typedef boost::shared_ptr<Material> MaterialPtr;
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
-class ComponentContext
-	: public my::SingleInstance<ComponentContext>
-	, public my::OctRoot
-{
-public:
-	ComponentContext(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
-		: OctRoot(minx, miny, minz, maxx, maxy, maxz, MinBlock)
-	{
-	}
-
-	ComponentContext(const my::Vector3 & _Min, const my::Vector3 & _Max, float MinBlock)
-		: OctRoot(_Min, _Max, MinBlock)
-	{
-	}
-
-	ComponentContext(const my::AABB & aabb, float MinBlock)
-		: OctRoot(aabb, MinBlock)
-	{
-	}
-};
-
 class Component
 	: public my::OctComponent
 {
@@ -218,7 +197,6 @@ public:
 		, m_World(World)
 		, m_Requested(false)
 	{
-		ComponentContext::getSingleton().AddComponent(this, 0.1f);
 	}
 
 	virtual ~Component(void)
