@@ -183,9 +183,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
-	m_Actor.reset(new Actor(my::AABB(-100,100), 1.0f));
-	m_SelectionRoot = m_Actor.get();
-
 	return 0;
 }
 
@@ -348,19 +345,6 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
-void CMainFrame::UpdateSelectionBox(void)
-{
-	if (!m_SelectionSet.empty())
-	{
-		m_SelectionBox = my::AABB(FLT_MAX,-FLT_MAX);
-		CMainFrame::ComponentSet::const_iterator sel_iter = m_SelectionSet.begin();
-		for (; sel_iter != m_SelectionSet.end(); sel_iter++)
-		{
-			m_SelectionBox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
-		}
-	}
-}
-
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -385,9 +369,6 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	m_History.ClearHistory();
-	m_Actor->ClearComponents();
-	m_SelectionRoot = m_Actor.get();
-	m_SelectionSet.clear();
 
 	//MeshComponentPtr cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
 	//	"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
@@ -408,10 +389,6 @@ void CMainFrame::OnEditUndo()
 	m_History.Undo();
 	EventArg arg;
 	m_EventHistoryChanged(&arg);
-
-	m_SelectionRoot = m_Actor.get();
-	m_SelectionSet.clear();
-	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
@@ -437,80 +414,19 @@ void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK == dlg.DoModal())
-	{
-		CString strPath = dlg.GetPathName();
-		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPath));
-		if (mesh)
-		{
-			MeshComponentPtr cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity()));
-			theApp.OnMeshComponentMeshLoaded(cmp, mesh, false);
-			HistoryStepPtr step(new HistoryStep);
-			step->m_Ops.push_back(std::make_pair(
-				HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, cmp)),
-				HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, cmp))));
-			m_History.PushAndDo(step);
-			EventArg arg;
-			m_EventHistoryChanged(&arg);
-		}
-		else
-		{
-			MessageBox(strPath, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
-		}
-	}
 }
 
 void CMainFrame::OnComponentMeshset()
 {
 	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK == dlg.DoModal())
-	{
-		CString strPath = dlg.GetPathName();
-		my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet(ts2ms((LPCTSTR)strPath));
-		if (mesh_set)
-		{
-			HistoryStepPtr step(new HistoryStep);
-			for (unsigned int i = 0; i < mesh_set->size(); i++)
-			{
-				MeshComponentPtr cmp(new MeshComponent((*mesh_set)[i]->m_aabb, my::Matrix4::Identity()));
-				theApp.OnMeshComponentMeshLoaded(cmp, (*mesh_set)[i], false);
-				step->m_Ops.push_back(std::make_pair(
-					HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, cmp)),
-					HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, cmp))));
-			}
-			m_History.PushAndDo(step);
-			EventArg arg;
-			m_EventHistoryChanged(&arg);
-		}
-		else
-		{
-			MessageBox(strPath, _T("Load MeshSet Error"), MB_OK | MB_ICONERROR);
-		}
-	}
 }
 
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	HistoryStepPtr step(new HistoryStep);
-	ComponentSet::iterator cmp_iter = m_SelectionSet.begin();
-	for (; cmp_iter != m_SelectionSet.end(); cmp_iter++)
-	{
-		step->m_Ops.push_back(std::make_pair(
-			HistoryStep::OperatorPtr(new OperatorRemoveComponent(m_SelectionRoot, *cmp_iter)),
-			HistoryStep::OperatorPtr(new OperatorAddComponent(m_SelectionRoot, *cmp_iter))));
-	}
-	ASSERT(!step->m_Ops.empty());
-	m_History.PushAndDo(step);
-	m_SelectionSet.clear();
-	EventArg arg;
-	m_EventHistoryChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_SelectionSet.empty());
 }

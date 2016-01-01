@@ -18,28 +18,28 @@ void HistoryStep::Undo(void)
 		pair_iter->second->Do();
 	}
 }
-
-void OperatorAddComponent::Do(void)
-{
-	m_level->AddComponent(m_cmp, m_cmp->m_aabb.transform(m_cmp->m_World));
-}
-
-void OperatorRemoveComponent::Do(void)
-{
-	bool res = m_level->RemoveComponent(m_cmp);
-	ASSERT(res);
-}
-
-void OperatorMatrix4Property::Do(void)
-{
-	m_OldValue = m_NewValue;
-}
-
-void OperatorComponentWorld::Do(void)
-{
-	__super::Do();
-	ASSERT(m_cmp->GetOctNode());
-	bool res = m_cmp->GetOctNode()->RemoveComponent(m_cmp);
-	ASSERT(res);
-	m_level->AddComponent(m_cmp, m_cmp->m_aabb.transform(m_cmp->m_World));
-}
+//
+//void OperatorAddComponent::Do(void)
+//{
+//	m_level->AddComponent(m_cmp, m_cmp->m_aabb.transform(m_cmp->m_World));
+//}
+//
+//void OperatorRemoveComponent::Do(void)
+//{
+//	bool res = m_level->RemoveComponent(m_cmp);
+//	ASSERT(res);
+//}
+//
+//void OperatorMatrix4Property::Do(void)
+//{
+//	m_OldValue = m_NewValue;
+//}
+//
+//void OperatorComponentWorld::Do(void)
+//{
+//	__super::Do();
+//	ASSERT(m_cmp->GetOctNode());
+//	bool res = m_cmp->GetOctNode()->RemoveComponent(m_cmp);
+//	ASSERT(res);
+//	m_level->AddComponent(m_cmp, m_cmp->m_aabb.transform(m_cmp->m_World));
+//}

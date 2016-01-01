@@ -240,7 +240,7 @@ HRESULT CMainApp::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	if(FAILED(hr = ActorResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	if(FAILED(hr = my::ResourceMgr::OnCreateDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
@@ -272,8 +272,8 @@ HRESULT CMainApp::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	// ! 不会通知除 ActorResourceMgr 以外其他对象 DeviceReset，要注意
-	if(FAILED(hr = ActorResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	// ! 不会通知除 my::ResourceMgr 以外其他对象 DeviceReset，要注意
+	if(FAILED(hr = my::ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
@@ -284,14 +284,32 @@ HRESULT CMainApp::OnResetDevice(
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
 	}
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnResetDevice();
+		}
+	}
 	return S_OK;
 }
 
 void CMainApp::OnLostDevice(void)
 {
-	ActorResourceMgr::OnLostDevice();
+	my::ResourceMgr::OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
+
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnLostDevice();
+		}
+	}
 }
 
 void CMainApp::OnDestroyDevice(void)
@@ -300,7 +318,9 @@ void CMainApp::OnDestroyDevice(void)
 
 	RenderPipeline::OnDestroyDevice();
 
-	ActorResourceMgr::OnDestroyDevice();
+	m_ShaderCache.clear();
+
+	my::ResourceMgr::OnDestroyDevice();
 }
 
 void CMainApp::OnResourceFailed(const std::string & error_str)
@@ -308,7 +328,7 @@ void CMainApp::OnResourceFailed(const std::string & error_str)
 	TRACE(ms2ts(error_str).c_str());
 }
 
-static size_t hash_value(const ActorResourceMgr::ShaderCacheKey & key)
+static size_t hash_value(const CMainApp::ShaderCacheKey & key)
 {
 	size_t seed = 0;
 	boost::hash_combine(seed, key.get<0>());
@@ -440,7 +460,7 @@ void CMainApp::SaveCustomState()
 BOOL CMainApp::OnIdle(LONG lCount)
 {
 	// TODO: Add your specialized code here and/or call the base class
-	if (ActorResourceMgr::CheckIORequests())
+	if (my::ResourceMgr::CheckIORequests())
 	{
 		return TRUE;
 	}

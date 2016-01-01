@@ -206,118 +206,8 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 	return m_DownFilterRT[i].get();
 }
 
-void CChildView::OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask)
+void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_Actor->OnQueryComponent(frustum, &theApp, PassMask);
-}
-
-bool CChildView::OnRayTest(const my::Ray & ray)
-{
-	struct CallBack : public my::IQueryCallback
-	{
-		CChildView::SelCmpMap & m_SelCmpMap;
-
-		const my::Ray & m_Ray;
-
-		CallBack(CChildView::SelCmpMap & cmp_map, const my::Ray & ray)
-			: m_SelCmpMap(cmp_map)
-			, m_Ray(ray)
-		{
-		}
-
-		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType)
-		{
-			ComponentPtr cmp = boost::dynamic_pointer_cast<Component>(aabb_cmp);
-			if (cmp)
-			{
-				my::RayResult res = cmp->RayTest(m_Ray);
-				if (res.first)
-				{
-					m_SelCmpMap.insert(std::make_pair(res.second, cmp));
-				}
-			}
-		}
-	};
-
-	m_SelCmpMap.clear();
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_SelectionRoot->QueryComponent(ray, &CallBack(m_SelCmpMap, ray));
-
-	return !m_SelCmpMap.empty();
-}
-
-bool CChildView::OnFrustumTest(const my::Frustum & ftm)
-{
-	struct CallBack : public my::IQueryCallback
-	{
-		CChildView::SelCmpMap & m_SelCmpMap;
-
-		const my::Frustum & m_Ftm;
-
-		unsigned int id;
-
-		CallBack(CChildView::SelCmpMap & cmp_map, const my::Frustum & ftm)
-			: m_SelCmpMap(cmp_map)
-			, m_Ftm(ftm)
-			, id(0)
-		{
-		}
-
-		void operator() (const my::AABBComponentPtr & aabb_cmp, my::IntersectionTests::IntersectionType type)
-		{
-			ComponentPtr cmp = boost::dynamic_pointer_cast<Component>(aabb_cmp);
-			if (cmp)
-			{
-				if (cmp->FrustumTest(m_Ftm))
-				{
-					m_SelCmpMap.insert(std::make_pair((float)id++, cmp));
-				}
-			}
-		}
-	};
-
-	m_SelCmpMap.clear();
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_SelectionRoot->QueryComponent(ftm, &CallBack(m_SelCmpMap, ftm));
-
-	return !m_SelCmpMap.empty();
-}
-
-void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
-{
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (!pFrame->m_SelectionSet.empty())
-	{
-		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
-		for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
-		{
-			switch ((*sel_iter)->m_Type)
-			{
-			case Component::ComponentTypeMesh:
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(sel_iter->get());
-					theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-					UINT passes = theApp.m_SimpleSample->Begin();
-					for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-					{
-						theApp.m_SimpleSample->BeginPass(0);
-						mesh_cmp->m_Mesh->DrawSubset(i);
-						theApp.m_SimpleSample->EndPass();
-					}
-					theApp.m_SimpleSample->End();
-				}
-				break;
-			}
-		}
-		PushWireAABB(pFrame->m_SelectionBox, D3DCOLOR_ARGB(255,255,255,255));
-	}
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -414,8 +304,6 @@ void CChildView::OnPaint()
 					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
 				}
 
-				RenderSelectedObject(theApp.m_d3dDevice);
-
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
@@ -499,122 +387,15 @@ void CChildView::OnDestroy()
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
-	{
-		StartPerformanceCount();
-		ASSERT(m_CmpWorldOptList.empty());
-		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
-		for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
-		{
-			m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, *sel_iter, (*sel_iter)->m_World)));
-		}
-		m_PivotDragPos = pFrame->m_Pivot.m_Pos;
-		SetCapture();
-		Invalidate();
-		return;
-	}
-
-	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
-	pFrame->m_Tracker.m_rect.NormalizeRect();
-
-	StartPerformanceCount();
-	bool bSelectionChanged = false;
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_SelectionSet.empty())
-	{
-		pFrame->m_SelectionSet.clear();
-		bSelectionChanged = true;
-	}
-
-	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
-	{
-		my::Rectangle rc(
-			(float)pFrame->m_Tracker.m_rect.left,
-			(float)pFrame->m_Tracker.m_rect.top,
-			(float)pFrame->m_Tracker.m_rect.right,
-			(float)pFrame->m_Tracker.m_rect.bottom);
-		if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-		{
-			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
-			{
-				pFrame->m_SelectionSet.insert(cmp_iter->second);
-				bSelectionChanged = true;
-			}
-		}
-	}
-	else
-	{
-		if (OnRayTest(ray))
-		{
-			SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-			CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_SelectionSet.find(cmp_iter->second);
-			if (sel_iter != pFrame->m_SelectionSet.end())
-			{
-				pFrame->m_SelectionSet.erase(sel_iter);
-				bSelectionChanged = true;
-			}
-			else
-			{
-				pFrame->m_SelectionSet.insert(cmp_iter->second);
-				bSelectionChanged = true;
-			}
-		}
-	}
-
-	if (bSelectionChanged)
-	{
-		pFrame->UpdateSelectionBox();
-		pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
-		EventArg arg;
-		pFrame->m_EventSelectionChanged(&arg);
-	}
-
-	Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-	{
-		StartPerformanceCount();
-		HistoryStepPtr step(new HistoryStep);
-		ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
-		for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
-		{
-			step->m_Ops.push_back(std::make_pair(
-				HistoryStep::OperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, (*cmp_world_iter)->m_cmp, (*cmp_world_iter)->m_cmp->m_World)),
-				*cmp_world_iter));
-		}
-		pFrame->m_History.PushAndDo(step);
-		pFrame->UpdateSelectionBox();
-		m_CmpWorldOptList.clear();
-		ReleaseCapture();
-		Invalidate();
-	}
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
-	{
-		StartPerformanceCount();
-		ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
-		for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
-		{
-			(*cmp_world_iter)->m_cmp->m_World = (*cmp_world_iter)->m_NewValue * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
-		}
-		Invalidate();
-	}
 }
 
 BOOL CChildView::PreTranslateMessage(MSG* pMsg)

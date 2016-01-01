@@ -8,7 +8,7 @@
 #endif
 
 #include "resource.h"       // main symbols
-#include "../demo2_3/Component/ActorResourceMgr.h"
+#include "../demo2_3/Component/RenderPipeline.h"
 
 
 // CMainApp:
@@ -18,13 +18,19 @@
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
-	, public ActorResourceMgr
+	, public my::ResourceMgr
 	, public RenderPipeline
 {
 public:
 	CMainApp();
 
 	HRESULT hr;
+
+	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
+
+	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
+
+	ShaderCacheMap m_ShaderCache;
 
 	my::UIRenderPtr m_UIRender;
 

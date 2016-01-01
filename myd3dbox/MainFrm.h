@@ -40,11 +40,6 @@ public:
 	CRectTracker m_Tracker;
 	HistoryManager m_History;
 	PivotController m_Pivot;
-	ActorPtr m_Actor;
-	ComponentLevel * m_SelectionRoot;
-	typedef boost::unordered_set<ComponentPtr> ComponentSet;
-	ComponentSet m_SelectionSet;
-	my::AABB m_SelectionBox;
 	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
 	Event m_EventHistoryChanged;
@@ -57,7 +52,6 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-	void UpdateSelectionBox(void);
 
 // Implementation
 public:

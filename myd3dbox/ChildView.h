@@ -60,11 +60,6 @@ protected:
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
 
-	typedef boost::shared_ptr<OperatorComponentWorld> ComponentWorldOperatorPtr;
-	typedef std::vector<ComponentWorldOperatorPtr> ComponentWorldOperatorPtrList;
-	ComponentWorldOperatorPtrList m_CmpWorldOptList;
-	my::Vector3 m_PivotDragPos;
-
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual IDirect3DSurface9 * GetScreenSurface(void);
@@ -79,10 +74,7 @@ protected:
 	virtual my::Texture2D * GetOpaqueTexture(void);
 	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i);
 	virtual my::Texture2D * GetDownFilterTexture(unsigned int i);
-	virtual void OnQueryComponent(const my::Frustum & frustum, unsigned int PassMask);
-	bool OnRayTest(const my::Ray & ray);
-	bool OnFrustumTest(const my::Frustum & ftm);
-	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
+	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
 

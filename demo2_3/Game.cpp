@@ -196,6 +196,15 @@ HRESULT Game::OnResetDevice(
 		return hr;
 	}
 
+	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
+	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
+	{
+		if (shader_iter->second)
+		{
+			shader_iter->second->OnResetDevice();
+		}
+	}
+
 	m_NormalRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A32B32G32R32F, D3DPOOL_DEFAULT);
 
@@ -212,15 +221,6 @@ HRESULT Game::OnResetDevice(
 	{
 		m_DownFilterRT[i]->CreateTexture(
 			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-	}
-
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
-	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
-	{
-		if (shader_iter->second)
-		{
-			shader_iter->second->OnResetDevice();
-		}
 	}
 
 	Vector2 Viewport(600 * (float)pBackBufferSurfaceDesc->Width / pBackBufferSurfaceDesc->Height, 600);
@@ -245,15 +245,6 @@ void Game::OnLostDevice(void)
 
 	ResourceMgr::OnLostDevice();
 
-	m_NormalRT->OnDestroyDevice();
-	m_PositionRT->OnDestroyDevice();
-	m_LightRT->OnDestroyDevice();
-	m_OpaqueRT->OnDestroyDevice();
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
-	{
-		m_DownFilterRT[i]->OnDestroyDevice();
-	}
-
 	RenderPipeline::OnLostDevice();
 
 	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
@@ -263,6 +254,15 @@ void Game::OnLostDevice(void)
 		{
 			shader_iter->second->OnLostDevice();
 		}
+	}
+
+	m_NormalRT->OnDestroyDevice();
+	m_PositionRT->OnDestroyDevice();
+	m_LightRT->OnDestroyDevice();
+	m_OpaqueRT->OnDestroyDevice();
+	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	{
+		m_DownFilterRT[i]->OnDestroyDevice();
 	}
 }
 
