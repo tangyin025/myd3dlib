@@ -67,35 +67,47 @@ public:
 		// 示例代码
 		// ========================================================================================================
 
-		OgreMeshPtr mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
-		Matrix4 World(Matrix4::Scaling(Vector3(0.05f)));
-		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb.transform(World), World, false));
-		mesh_cmp->m_Mesh = mesh;
-		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-		{
-			MaterialPtr material;
-			char buff[128];
-			sprintf_s(buff, sizeof(buff), "material/%s.xml", mesh->m_MaterialNameList[i].c_str());
-			CachePtr cache = OpenIStream(buff)->GetWholeCache();
-			membuf mb((char *)&(*cache)[0], cache->size());
-			std::istream istr(&mb);
-			boost::archive::xml_iarchive ar(istr);
-			ar >> boost::serialization::make_nvp("Material", material);
-			Material::ParameterList::iterator param_iter = material->m_Params.begin();
-			for (; param_iter != material->m_Params.end(); param_iter++)
-			{
-				switch (param_iter->second->m_Type)
-				{
-				case Material::ParameterValue::ParameterValueTypeTexture:
-					{
-						Material::ParameterValueTexturePtr param = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
-						param->m_Res = LoadTexture(param->m_ResPath);
-					}
-					break;
-				}
-			}
-			mesh_cmp->m_MaterialList.push_back(material);
-		}
+		//OgreMeshPtr mesh = LoadMesh("mesh/casual19_m_highpoly.mesh.xml");
+		//Matrix4 World(Matrix4::Scaling(Vector3(0.05f)));
+		//MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb.transform(World), World, false));
+		//mesh_cmp->m_Mesh = mesh;
+		//for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+		//{
+		//	MaterialPtr material;
+		//	char buff[128];
+		//	sprintf_s(buff, sizeof(buff), "material/%s.xml", mesh->m_MaterialNameList[i].c_str());
+		//	CachePtr cache = OpenIStream(buff)->GetWholeCache();
+		//	membuf mb((char *)&(*cache)[0], cache->size());
+		//	std::istream istr(&mb);
+		//	boost::archive::xml_iarchive ar(istr);
+		//	ar >> boost::serialization::make_nvp("Material", material);
+		//	Material::ParameterList::iterator param_iter = material->m_Params.begin();
+		//	for (; param_iter != material->m_Params.end(); param_iter++)
+		//	{
+		//		switch (param_iter->second->m_Type)
+		//		{
+		//		case Material::ParameterValue::ParameterValueTypeTexture:
+		//			{
+		//				Material::ParameterValueTexturePtr param = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
+		//				param->m_Res = LoadTexture(param->m_ResPath);
+		//			}
+		//			break;
+		//		}
+		//	}
+		//	mesh_cmp->m_MaterialList.push_back(material);
+		//}
+		//m_cmps.push_back(mesh_cmp);
+
+		MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-10,10), my::Matrix4::Scaling(Vector3(0.05f)), false));
+		mesh_cmp->m_MeshRes.m_ResPath = "mesh/casual19_m_highpoly.mesh.xml";
+		MaterialPtr mat0(new Material());
+		mat0->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35.jpg"))));
+		mat0->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_normal.dds"))));
+		mat0->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_spec.dds"))));
+		mat0->m_PassMask = RenderPipeline::PassMaskOpaque;
+		mat0->m_Shader = "lambert1.fx";
+		mesh_cmp->m_MaterialList.push_back(mat0);
+		mesh_cmp->RequestResource();
 		m_cmps.push_back(mesh_cmp);
 
 		// 保存场景

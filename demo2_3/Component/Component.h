@@ -9,13 +9,19 @@ template <class T>
 class ResourceBundle : public my::IResourceCallback
 {
 public:
-	boost::shared_ptr<T> m_Res;
+	bool m_Ready;
 
 	std::string m_ResPath;
 
-	bool m_Ready;
+	boost::shared_ptr<T> m_Res;
 
 public:
+	ResourceBundle(const char * Path)
+		: m_Ready(false)
+		, m_ResPath(Path)
+	{
+	}
+
 	ResourceBundle(void)
 		: m_Ready(false)
 	{
@@ -42,7 +48,10 @@ public:
 
 	void ReleaseResource(void)
 	{
-		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
+		if (IsRequested())
+		{
+			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
+		}
 	}
 };
 
@@ -84,6 +93,12 @@ public:
 	class ParameterValueTexture : public ParameterValue, public ResourceBundle<my::BaseTexture>
 	{
 	public:
+		ParameterValueTexture(const char * Path)
+			: ParameterValue(ParameterValueTypeTexture)
+			, ResourceBundle(Path)
+		{
+		}
+
 		ParameterValueTexture(void)
 			: ParameterValue(ParameterValueTypeTexture)
 		{
@@ -104,12 +119,12 @@ public:
 	class Parameter : public std::pair<std::string, boost::shared_ptr<ParameterValue> >
 	{
 	public:
-		Parameter(void)
+		Parameter(const char * name, ParameterValuePtr value)
+			: pair(name, value)
 		{
 		}
 
-		Parameter(const std::string & name, ParameterValuePtr value)
-			: pair(name, value)
+		Parameter(void)
 		{
 		}
 
@@ -123,9 +138,9 @@ public:
 
 	typedef std::vector<Parameter> ParameterList;
 
-	std::string m_Shader;
-
 	ParameterList m_Params;
+
+	std::string m_Shader;
 
 	unsigned int m_PassMask;
 
@@ -134,7 +149,7 @@ public:
 
 	virtual ~Material(void);
 
-	void AddParameter(const std::string & name, ParameterValuePtr value)
+	void AddParameter(const char * name, ParameterValuePtr value)
 	{
 		m_Params.push_back(Parameter(name, value));
 	}
@@ -148,6 +163,10 @@ public:
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	void RequestResource(void);
+
+	void ReleaseResource(void);
 };
 
 typedef boost::shared_ptr<Material> MaterialPtr;
@@ -190,11 +209,14 @@ public:
 
 	my::Matrix4 m_World;
 
+	bool m_Requested;
+
 public:
 	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
 		: OctComponent(aabb)
 		, m_Type(Type)
 		, m_World(World)
+		, m_Requested(false)
 	{
 		ComponentContext::getSingleton().AddComponent(this, 0.1f);
 	}
@@ -205,6 +227,8 @@ public:
 		{
 			m_OctNode->RemoveComponent(this);
 		}
+		// ! Derived class must ReleaseResource menually
+		_ASSERT(!IsRequested());
 	}
 
 	template<class Archive>
@@ -213,6 +237,23 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
+	}
+
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
+	virtual void RequestResource(void)
+	{
+		_ASSERT(!IsRequested());
+		m_Requested = true;
+	}
+
+	virtual void ReleaseResource(void)
+	{
+		_ASSERT(IsRequested());
+		m_Requested = false;
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -257,9 +298,7 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	std::string m_MeshPath;
-
-	my::MeshPtr m_Mesh;
+	ResourceBundle<my::Mesh> m_MeshRes;
 
 	my::D3DVertexElementSet m_VertexElems;
 
@@ -282,14 +321,26 @@ public:
 	{
 	}
 
+	~MeshComponent()
+	{
+		if (IsRequested())
+		{
+			ReleaseResource();
+		}
+	}
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshPath);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 

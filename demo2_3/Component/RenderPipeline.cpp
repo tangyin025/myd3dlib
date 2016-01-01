@@ -505,7 +505,7 @@ void RenderPipeline::PushEmitter(unsigned int PassID, my::Emitter * emitter, DWO
 template <>
 void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, unsigned int PassMask)
 {
-	if (cmp->m_Mesh)
+	if (cmp->m_MeshRes.m_Res)
 	{
 		for (DWORD i = 0; i < cmp->m_MaterialList.size(); i++)
 		{
@@ -520,11 +520,11 @@ void RenderPipeline::PushComponent<MeshComponent>(MeshComponent * cmp, unsigned 
 						{
 							if (cmp->m_bInstance)
 							{
-								PushMeshInstance(PassID, cmp->m_Mesh.get(), i, cmp->m_World, shader, cmp);
+								PushMeshInstance(PassID, cmp->m_MeshRes.m_Res.get(), i, cmp->m_World, shader, cmp);
 							}
 							else
 							{
-								PushMesh(PassID, cmp->m_Mesh.get(), i, shader, cmp);
+								PushMesh(PassID, cmp->m_MeshRes.m_Res.get(), i, shader, cmp);
 							}
 						}
 					}
