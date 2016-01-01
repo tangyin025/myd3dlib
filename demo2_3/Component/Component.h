@@ -279,7 +279,9 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	}
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+
+	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -288,9 +290,25 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	ResourceBundle<my::Mesh> m_MeshRes;
+	struct LOD
+	{
+		ResourceBundle<my::Mesh> m_MeshRes;
 
-	MaterialPtrList m_MaterialList;
+		MaterialPtrList m_MaterialList;
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
+			ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
+		}
+	};
+
+	typedef std::vector<LOD> LODList;
+
+	LODList m_Lods;
+
+	unsigned int m_LodId;
 
 	bool m_bInstance;
 
@@ -299,12 +317,14 @@ public:
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(aabb, World, ComponentTypeMesh)
+		, m_LodId(0)
 		, m_bInstance(bInstance)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(my::AABB(-1,1), my::Matrix4::Identity(), ComponentTypeMesh)
+		, m_LodId(0)
 		, m_bInstance(false)
 	{
 	}
@@ -321,8 +341,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
-		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
+		ar & BOOST_SERIALIZATION_NVP(m_Lods);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 	}
 
@@ -331,6 +350,8 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -362,9 +383,15 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;

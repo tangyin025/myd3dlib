@@ -83,35 +83,41 @@ void Material::ReleaseResource(void)
 	}
 }
 
-void RenderComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-}
-
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
-	m_MeshRes.RequestResource();
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	LODList::iterator lod_iter = m_Lods.begin();
+	for (; lod_iter != m_Lods.end(); lod_iter++)
 	{
-		(*mat_iter)->RequestResource();
+		lod_iter->m_MeshRes.RequestResource();
+		MaterialPtrList::iterator mat_iter = lod_iter->m_MaterialList.begin();
+		for (; mat_iter != lod_iter->m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->RequestResource();
+		}
 	}
 }
 
 void MeshComponent::ReleaseResource(void)
 {
-	m_MeshRes.ReleaseResource();
-	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
-	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	LODList::iterator lod_iter = m_Lods.begin();
+	for (; lod_iter != m_Lods.end(); lod_iter++)
 	{
-		(*mat_iter)->ReleaseResource();
+		lod_iter->m_MeshRes.ReleaseResource();
+		MaterialPtrList::iterator mat_iter = lod_iter->m_MaterialList.begin();
+		for (; mat_iter != lod_iter->m_MaterialList.end(); mat_iter++)
+		{
+			(*mat_iter)->ReleaseResource();
+		}
 	}
 	RenderComponent::ReleaseResource();
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	_ASSERT(AttribId < m_MaterialList.size());
+	_ASSERT(m_LodId < m_Lods.size());
+
+	_ASSERT(AttribId < m_Lods[m_LodId].m_MaterialList.size());
 
 	shader->SetMatrix("g_World", m_World);
 
@@ -120,7 +126,59 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
 	}
 
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+	m_Lods[m_LodId].m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+}
+
+void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+{
+	if (m_LodId < m_Lods.size())
+	{
+		LOD & lod = m_Lods[m_LodId];
+
+		if (lod.m_MeshRes.m_Res)
+		{
+			for (DWORD i = 0; i < lod.m_MaterialList.size(); i++)
+			{
+				if (lod.m_MaterialList[i] && (lod.m_MaterialList[i]->m_PassMask & PassMask))
+				{
+					for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+					{
+						if (RenderPipeline::PassTypeToMask(PassID) & (lod.m_MaterialList[i]->m_PassMask & PassMask))
+						{
+							my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, lod.m_MaterialList[i].get(), PassID);
+							if (shader)
+							{
+								if (m_bInstance)
+								{
+									pipeline->PushMeshInstance(PassID, lod.m_MeshRes.m_Res.get(), i, m_World, shader, this);
+								}
+								else
+								{
+									pipeline->PushMesh(PassID, lod.m_MeshRes.m_Res.get(), i, shader, this);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void EmitterComponent::RequestResource(void)
+{
+	if (m_Material)
+	{
+		m_Material->RequestResource();
+	}
+}
+
+void EmitterComponent::ReleaseResource(void)
+{
+	if (m_Material)
+	{
+		m_Material->ReleaseResource();
+	}
 }
 
 void EmitterComponent::Update(float fElapsedTime)
@@ -134,6 +192,26 @@ void EmitterComponent::Update(float fElapsedTime)
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(0 == AttribId);
+
 	shader->SetMatrix("g_World", m_World);
+
 	m_Material->OnSetShader(shader, AttribId);
+}
+
+void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+{
+	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
+	{
+		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+		{
+			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+			{
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material.get(), PassID);
+				if (shader)
+				{
+					pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
+				}
+			}
+		}
+	}
 }

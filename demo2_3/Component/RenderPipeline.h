@@ -233,7 +233,4 @@ public:
 	void PushMeshInstance(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, const my::Matrix4 & World, my::Effect * shader, IShaderSetter * setter);
 
 	void PushEmitter(unsigned int PassID, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
-
-	template <class ComponentClass>
-	void PushComponent(ComponentClass * cmp, unsigned int PassMask);
 };

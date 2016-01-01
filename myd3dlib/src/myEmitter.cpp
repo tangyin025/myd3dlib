@@ -18,18 +18,6 @@ Emitter::~Emitter(void)
 {
 }
 
-void Emitter::OnResetDevice(void)
-{
-}
-
-void Emitter::OnLostDevice(void)
-{
-}
-
-void Emitter::OnDestroyDevice(void)
-{
-}
-
 void Emitter::Reset(void)
 {
 	m_ParticleList.clear();

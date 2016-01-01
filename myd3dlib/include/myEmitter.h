@@ -12,7 +12,6 @@
 namespace my
 {
 	class Emitter
-		: public DeviceRelatedObjectBase
 	{
 	public:
 		class Particle
@@ -40,8 +39,6 @@ namespace my
 
 		float m_ParticleLifeTime;
 
-		std::string m_MaterialName;
-
 		ParticlePairList m_ParticleList;
 
 	public:
@@ -56,14 +53,7 @@ namespace my
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
-			ar & BOOST_SERIALIZATION_NVP(m_MaterialName);
 		}
-
-		void OnResetDevice(void);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
 
 		void Reset(void);
 

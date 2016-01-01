@@ -5,7 +5,6 @@
 	<px class_id="2" class_name="SphericalEmitter" tracking_level="1" version="0" object_id="_0">
 		<Emitter class_id="1" tracking_level="1" version="0" object_id="_1">
 			<m_ParticleLifeTime>10</m_ParticleLifeTime>
-			<m_MaterialName>particle1</m_MaterialName>
 		</Emitter>
 		<m_Time>0</m_Time>
 		<m_SpawnInterval>0.0099999998</m_SpawnInterval>

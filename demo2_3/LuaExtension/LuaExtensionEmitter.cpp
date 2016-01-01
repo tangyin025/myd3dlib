@@ -15,7 +15,6 @@ void ExportEmitter2Lua(lua_State * L)
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
 			.def(constructor<>())
 			.def_readwrite("ParticleLifeTime", &my::Emitter::m_ParticleLifeTime)
-			.def_readwrite("MaterialName", &my::Emitter::m_MaterialName)
 			.def("Spawn", &my::Emitter::Spawn)
 
 		, class_<my::SphericalEmitter, my::Emitter, boost::shared_ptr<my::Emitter> >("SphericalEmitter")
