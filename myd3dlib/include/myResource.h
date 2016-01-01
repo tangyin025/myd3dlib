@@ -234,7 +234,11 @@ namespace my
 
 	class IORequest
 	{
-	public:
+	protected:
+		friend class AsynchronousIOMgr;
+
+		friend class ResourceMgr;
+
 		Event m_LoadEvent;
 
 		typedef std::set<IResourceCallback *> IResourceCallbackSet;
