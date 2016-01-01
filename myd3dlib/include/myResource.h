@@ -6,6 +6,7 @@
 #include <boost/weak_ptr.hpp>
 #include "mySingleton.h"
 #include "zzip/zzip.h"
+#include "rapidxml.hpp"
 
 namespace my
 {
@@ -354,6 +355,8 @@ namespace my
 		, public ID3DXInclude
 	{
 	protected:
+		friend class EffectIORequest;
+
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
 		std::string m_EffectInclude;
@@ -419,29 +422,6 @@ namespace my
 
 		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const std::string & path);
 
-		class EffectIORequest : public IORequest
-		{
-		protected:
-			std::string m_path;
-
-			std::list<std::string> m_macros;
-
-			std::vector<D3DXMACRO> m_d3dmacros;
-
-			ResourceMgr * m_arc;
-
-			CachePtr m_cache;
-
-		public:
-			EffectIORequest(const std::string & path, std::string macros, ResourceMgr * arc);
-
-			virtual void DoLoad(void);
-
-			virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
-
-			static std::string BuildKey(const std::string & path, const std::string & macros);
-		};
-
 		void LoadEffectAsync(const std::string & path, const std::string & macros, IResourceCallback * callback);
 
 		boost::shared_ptr<Effect> LoadEffect(const std::string & path, const std::string & macros);
@@ -453,5 +433,127 @@ namespace my
 		void SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh);
 
 		void SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces);
+	};
+
+	class TextureIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		CachePtr m_cache;
+
+	public:
+		TextureIORequest(const std::string & path)
+			: m_path(path)
+		{
+		}
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
+	class MeshIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		CachePtr m_cache;
+
+		rapidxml::xml_document<char> m_doc;
+
+	public:
+		MeshIORequest(const std::string & path)
+			: m_path(path)
+		{
+		}
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
+	class MeshSetIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		CachePtr m_cache;
+
+		rapidxml::xml_document<char> m_doc;
+
+	public:
+		MeshSetIORequest(const std::string & path)
+			: m_path(path)
+		{
+		}
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
+	class SkeletonIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		CachePtr m_cache;
+
+		rapidxml::xml_document<char> m_doc;
+
+	public:
+		SkeletonIORequest(const std::string & path)
+			: m_path(path)
+		{
+		}
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+	};
+
+	class EffectIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		std::list<std::string> m_macros;
+
+		std::vector<D3DXMACRO> m_d3dmacros;
+
+		CachePtr m_cache;
+
+	public:
+		EffectIORequest(const std::string & path, std::string macros);
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+
+		static std::string BuildKey(const std::string & path, const std::string & macros);
+	};
+
+	class FontIORequest : public IORequest
+	{
+	protected:
+		std::string m_path;
+
+		int m_height;
+
+		CachePtr m_cache;
+
+	public:
+		FontIORequest(const std::string & path, int height)
+			: m_path(path)
+			, m_height(height)
+		{
+		}
+
+		virtual void DoLoad(void);
+
+		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+
+		static std::string BuildKey(const std::string & path, int height);
 	};
 }
