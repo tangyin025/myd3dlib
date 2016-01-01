@@ -178,4 +178,8 @@ public:
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	void SaveMaterial(const std::string & path, MaterialPtr material);
+
+	void SaveEmitter(const std::string & path, my::EmitterPtr emitter);
 };

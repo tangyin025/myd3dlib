@@ -10,6 +10,18 @@
 
 using namespace my;
 
+template<>
+void ResourceBundle<my::BaseTexture>::RequestResource(void)
+{
+	my::ResourceMgr::getSingleton().LoadTextureAsync(m_ResPath, this);
+}
+
+template<>
+void ResourceBundle<my::Mesh>::RequestResource(void)
+{
+	my::ResourceMgr::getSingleton().LoadMeshAsync(m_ResPath, this);
+}
+
 BOOST_SERIALIZATION_ASSUME_ABSTRACT(Material::ParameterValue)
 
 BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
@@ -33,7 +45,7 @@ Material::~Material(void)
 
 void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
 {
-	shader->SetTexture(name, m_Texture.get());
+	shader->SetTexture(name, m_Res.get());
 }
 
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)

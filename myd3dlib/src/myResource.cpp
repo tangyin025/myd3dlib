@@ -432,6 +432,7 @@ AsynchronousIOMgr::IORequestPtrPairList::iterator AsynchronousIOMgr::PushIOReque
 	IORequest::IResourceCallbackSet::iterator callback_iter = request->m_callbacks.begin();
 	for (; callback_iter != request->m_callbacks.end(); callback_iter++)
 	{
+		_ASSERT(!(*callback_iter)->IsRequested());
 		(*callback_iter)->m_Requested = true;
 	}
 
@@ -466,6 +467,7 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 			if (callback_iter != req_iter->second->m_callbacks.end())
 			{
 				req_iter->second->m_callbacks.erase(callback_iter);
+				_ASSERT((*callback_iter)->IsRequested());
 				(*callback_iter)->m_Requested = false;
 				if (req_iter->second->m_callbacks.empty())
 				{
@@ -753,6 +755,7 @@ void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_it
 	IORequest::IResourceCallbackSet::iterator callback_iter = pair.second->m_callbacks.begin();
 	for (; callback_iter != pair.second->m_callbacks.end(); callback_iter++)
 	{
+		_ASSERT((*callback_iter)->IsRequested());
 		(*callback_iter)->m_Requested = false;
 	}
 

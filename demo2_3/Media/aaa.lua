@@ -1,7 +1,7 @@
 
 function CreateTextureParam(path)
 	param=ParameterValueTexture()
-	param.TexturePath=path
+	param.ResPath=path
 	return param
 end
 

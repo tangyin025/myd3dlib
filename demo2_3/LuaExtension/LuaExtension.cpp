@@ -331,7 +331,7 @@ void Export2Lua(lua_State * L)
 
 		, class_<Material::ParameterValueTexture, Material::ParameterValue, boost::shared_ptr<Material::ParameterValue> >("ParameterValueTexture")
 			.def(constructor<>())
-			.def_readwrite("TexturePath", &Material::ParameterValueTexture::m_TexturePath)
+			.def_readwrite("ResPath", &Material::ParameterValueTexture::m_ResPath)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
@@ -381,6 +381,8 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("PlaySound", &Game::PlaySound)
+			.def("SaveMaterial", &Game::SaveMaterial)
+			.def("SaveEmitter", &Game::SaveEmitter)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)

@@ -3,8 +3,48 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Animator.h"
-
 #include <boost/serialization/nvp.hpp>
+
+template <class T>
+class ResourceBundle : public my::IResourceCallback
+{
+public:
+	boost::shared_ptr<T> m_Res;
+
+	std::string m_ResPath;
+
+	bool m_Ready;
+
+public:
+	ResourceBundle(void)
+		: m_Ready(false)
+	{
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_ResPath);
+	}
+
+	virtual void OnReady(my::DeviceRelatedObjectBasePtr res)
+	{
+		m_Res = boost::dynamic_pointer_cast<T>(res);
+		m_Ready = true;
+	}
+
+	bool IsReady(void) const
+	{
+		return m_Ready;
+	}
+
+	void RequestResource(void);
+
+	void ReleaseResource(void)
+	{
+		my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
+	}
+};
 
 class Material
 {
@@ -41,13 +81,8 @@ public:
 
 	typedef boost::shared_ptr<ParameterValue> ParameterValuePtr;
 
-	class ParameterValueTexture : public ParameterValue
+	class ParameterValueTexture : public ParameterValue, public ResourceBundle<my::BaseTexture>
 	{
-	public:
-		std::string m_TexturePath;
-
-		my::BaseTexturePtr m_Texture;
-
 	public:
 		ParameterValueTexture(void)
 			: ParameterValue(ParameterValueTypeTexture)
@@ -60,7 +95,7 @@ public:
 		void serialize(Archive & ar, const unsigned int version)
 		{
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
-			ar & BOOST_SERIALIZATION_NVP(m_TexturePath);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ResourceBundle);
 		}
 	};
 

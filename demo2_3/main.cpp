@@ -89,7 +89,7 @@ public:
 				case Material::ParameterValue::ParameterValueTypeTexture:
 					{
 						Material::ParameterValueTexturePtr param = boost::dynamic_pointer_cast<Material::ParameterValueTexture>(param_iter->second);
-						param->m_Texture = LoadTexture(param->m_TexturePath);
+						param->m_Res = LoadTexture(param->m_ResPath);
 					}
 					break;
 				}
@@ -98,10 +98,10 @@ public:
 		}
 		m_cmps.push_back(mesh_cmp);
 
-		//// 保存场景
-		//std::ofstream ofs("scene.component_list.xml");
-		//boost::archive::xml_oarchive oa(ofs);
-		//oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
+		// 保存场景
+		std::ofstream ofs("scene.component_list.xml");
+		boost::archive::xml_oarchive oa(ofs);
+		oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
 
 		return S_OK;
 	}

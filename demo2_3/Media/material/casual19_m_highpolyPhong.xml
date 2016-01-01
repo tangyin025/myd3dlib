@@ -14,7 +14,9 @@
 						<ParameterValue class_id="6" tracking_level="0" version="0">
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/casual19_m_35.jpg</m_TexturePath>
+						<ResourceBundle class_id="7" tracking_level="0" version="0">
+							<m_ResPath>texture/casual19_m_35.jpg</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>
@@ -25,7 +27,9 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/casual19_m_35_normal.dds</m_TexturePath>
+						<ResourceBundle>
+							<m_ResPath>texture/casual19_m_35_normal.dds</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>
@@ -36,7 +40,9 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/casual19_m_35_spec.dds</m_TexturePath>
+						<ResourceBundle>
+							<m_ResPath>texture/casual19_m_35_spec.dds</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>

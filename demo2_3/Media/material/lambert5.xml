@@ -14,7 +14,9 @@
 						<ParameterValue class_id="6" tracking_level="0" version="0">
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/wall.jpg</m_TexturePath>
+						<ResourceBundle class_id="7" tracking_level="0" version="0">
+							<m_ResPath>texture/wall.jpg</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>
@@ -25,7 +27,9 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/wall_NM_height.DDS</m_TexturePath>
+						<ResourceBundle>
+							<m_ResPath>texture/wall_NM_height.DDS</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>
@@ -36,7 +40,9 @@
 						<ParameterValue>
 							<m_Type>1</m_Type>
 						</ParameterValue>
-						<m_TexturePath>texture/white.bmp</m_TexturePath>
+						<ResourceBundle>
+							<m_ResPath>texture/white.bmp</m_ResPath>
+						</ResourceBundle>
 					</px>
 				</second>
 			</item>

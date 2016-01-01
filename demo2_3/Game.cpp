@@ -3,6 +3,7 @@
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
 #include <fstream>
 
 #ifdef _DEBUG
@@ -681,4 +682,18 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	};
 
 	ComponentContext::QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+}
+
+void Game::SaveMaterial(const std::string & path, MaterialPtr material)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("Material", material);
+}
+
+void Game::SaveEmitter(const std::string & path, my::EmitterPtr emitter)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("Emitter", emitter);
 }
