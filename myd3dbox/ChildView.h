@@ -6,6 +6,7 @@
 #pragma once
 
 #include "../demo2_3/Component/RenderPipeline.h"
+#include "../demo2_3/Component/Component.h"
 #include "HistoryStep.h"
 
 class CMainDoc;
