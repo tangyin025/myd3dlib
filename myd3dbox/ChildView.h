@@ -55,8 +55,6 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	float m_PivotScale;
-	typedef std::multimap<float, ComponentPtr> SelCmpMap;
-	SelCmpMap m_SelCmpMap;
 	float m_CameraDiagonal;
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
