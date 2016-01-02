@@ -53,38 +53,134 @@
 		</m_SpawnAzimuth>
 		<m_SpawnColorA>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_5">
+						<x>0</x>
+						<y>255</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_6">
+						<x>10</x>
+						<y>0</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnColorA>
 		<m_SpawnColorR>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_7">
+						<x>0</x>
+						<y>255</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_8">
+						<x>10</x>
+						<y>0</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnColorR>
 		<m_SpawnColorG>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_9">
+						<x>0</x>
+						<y>255</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_10">
+						<x>10</x>
+						<y>0</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnColorG>
 		<m_SpawnColorB>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_11">
+						<x>0</x>
+						<y>255</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_12">
+						<x>10</x>
+						<y>0</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnColorB>
 		<m_SpawnSizeX>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_13">
+						<x>0</x>
+						<y>1</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_14">
+						<x>10</x>
+						<y>10</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnSizeX>
 		<m_SpawnSizeY>
 			<SplineNodePtrList>
-				<count>0</count>
+				<count>2</count>
 				<item_version>1</item_version>
+				<item>
+					<px class_id_reference="7" object_id="_15">
+						<x>0</x>
+						<y>1</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="7" object_id="_16">
+						<x>10</x>
+						<y>10</y>
+						<k0>0</k0>
+						<k>0</k>
+					</px>
+				</item>
 			</SplineNodePtrList>
 		</m_SpawnSizeY>
 		<m_SpawnAngle>

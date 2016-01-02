@@ -1,8 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-//#include "Logic/MeshComponent.h"
-#include "Logic/Logic.h"
-#include "Component/Animator.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -98,44 +95,69 @@ public:
 		//}
 		//m_cmps.push_back(mesh_cmp);
 
-		MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-10,10), my::Matrix4::Scaling(Vector3(0.05f)), false));
-		mesh_cmp->m_Lods.resize(1);
-		MeshComponent::LOD & lod = mesh_cmp->m_Lods[0];
-		lod.m_MeshRes.m_ResPath = "mesh/casual19_m_highpoly.mesh.xml";
-		MaterialPtr lambert1(new Material());
-		lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35.jpg"))));
-		lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_normal.dds"))));
-		lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_spec.dds"))));
-		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-		lambert1->m_Shader = "lambert1.fx";
-		lod.m_MaterialList.push_back(lambert1);
-		mesh_cmp->RequestResource();
-		m_Root.AddComponent(mesh_cmp.get());
-		m_cmps.push_back(mesh_cmp);
+		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-10,10), my::Matrix4::Scaling(Vector3(0.05f)), false));
+		//mesh_cmp->m_Lods.resize(1);
+		//MeshComponent::LOD & lod = mesh_cmp->m_Lods[0];
+		//lod.m_MeshRes.m_ResPath = "mesh/casual19_m_highpoly.mesh.xml";
+		//MaterialPtr lambert1(new Material());
+		//lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35.jpg"))));
+		//lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_normal.dds"))));
+		//lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_spec.dds"))));
+		//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		//lambert1->m_Shader = "lambert1.fx";
+		//lod.m_MaterialList.push_back(lambert1);
+		//SimpleAnimatorPtr anim(new SimpleAnimator());
+		//anim->m_SkeletonRes.m_ResPath = "mesh/casual19_m_highpoly.skeleton.xml";
+		//mesh_cmp->m_Animator = anim;
+		//mesh_cmp->RequestResource();
+		//m_Root.AddComponent(mesh_cmp.get());
+		//m_cmps.push_back(mesh_cmp);
 
-		EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-		SphericalEmitterPtr emit(new SphericalEmitter());
-		emit->m_SpawnInterval=1/100.0f;
-		emit->m_ParticleLifeTime=10.0f;
-		emit->m_SpawnSpeed=5;
-		emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
-		float Azimuth=D3DXToRadian(360)*8;
-		emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
-		emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
-		emit_cmp->m_Emitter = emit;
-		MaterialPtr particle1(new Material());
-		particle1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/flare.dds"))));
-		particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-		particle1->m_Shader = "particle1.fx";
-		emit_cmp->m_Material = particle1;
-		emit_cmp->RequestResource();
-		m_Root.AddComponent(emit_cmp.get());
-		m_cmps.push_back(emit_cmp);
+		//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
+		//SphericalEmitterPtr emit(new SphericalEmitter());
+		//emit->m_SpawnInterval=1/100.0f;
+		//emit->m_ParticleLifeTime=10.0f;
+		//emit->m_SpawnSpeed=5;
+		//emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
+		//float Azimuth=D3DXToRadian(360)*8;
+		//emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
+		//emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
+		//emit->m_SpawnColorA.AddNode(0,255,0,0);
+		//emit->m_SpawnColorA.AddNode(10,0,0,0);
+		//emit->m_SpawnColorR.AddNode(0,255,0,0);
+		//emit->m_SpawnColorR.AddNode(10,0,0,0);
+		//emit->m_SpawnColorG.AddNode(0,255,0,0);
+		//emit->m_SpawnColorG.AddNode(10,0,0,0);
+		//emit->m_SpawnColorB.AddNode(0,255,0,0);
+		//emit->m_SpawnColorB.AddNode(10,0,0,0);
+		//emit->m_SpawnSizeX.AddNode(0,1,0,0);
+		//emit->m_SpawnSizeX.AddNode(10,10,0,0);
+		//emit->m_SpawnSizeY.AddNode(0,1,0,0);
+		//emit->m_SpawnSizeY.AddNode(10,10,0,0);
+		//emit_cmp->m_Emitter = emit;
+		//MaterialPtr particle1(new Material());
+		//particle1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/flare.dds"))));
+		//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+		//particle1->m_Shader = "particle1.fx";
+		//emit_cmp->m_Material = particle1;
+		//emit_cmp->RequestResource();
+		//m_Root.AddComponent(emit_cmp.get());
+		//m_cmps.push_back(emit_cmp);
 
-		// 保存场景
-		std::ofstream ofs("scene.component_list.xml");
-		boost::archive::xml_oarchive oa(ofs);
-		oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
+		//// 保存场景
+		//std::ofstream ofs("scene.component_list.xml");
+		//boost::archive::xml_oarchive oa(ofs);
+		//oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
+
+		//// 读取场景
+		//std::ifstream ifs("scene.component_list.xml");
+		//boost::archive::xml_iarchive ia(ifs);
+		//ia >> boost::serialization::make_nvp("scene.component_list.xml", m_cmps);
+		//for (unsigned int i = 0; i < m_cmps.size(); i++)
+		//{
+		//	m_Root.AddComponent(m_cmps[i].get());
+		//	m_cmps[i]->RequestResource();
+		//}
 
 		return S_OK;
 	}
@@ -166,10 +188,22 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		for (unsigned int i = 0; i < m_cmps.size(); i++)
+		struct CallBack : public my::IQueryCallback
 		{
-			m_cmps[i]->Update(fElapsedTime);
-		}
+			float m_fElapsedTime;
+			CallBack(float fElapsedTime)
+				: m_fElapsedTime(fElapsedTime)
+			{
+			}
+			void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
+			{
+				_ASSERT(dynamic_cast<Component *>(oct_cmp));
+				Component * cmp = static_cast<Component *>(oct_cmp);
+				cmp->Update(m_fElapsedTime);
+			}
+		};
+
+		m_Root.QueryComponentAll(&CallBack(fElapsedTime));
 
 		PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
 

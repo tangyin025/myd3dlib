@@ -1,9 +1,59 @@
 #pragma once
 
+template <class T>
+class ResourceBundle : public my::IResourceCallback
+{
+public:
+	bool m_Ready;
+
+	std::string m_ResPath;
+
+	boost::shared_ptr<T> m_Res;
+
+public:
+	ResourceBundle(const char * Path)
+		: m_Ready(false)
+		, m_ResPath(Path)
+	{
+	}
+
+	ResourceBundle(void)
+		: m_Ready(false)
+	{
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_ResPath);
+	}
+
+	virtual void OnReady(my::DeviceRelatedObjectBasePtr res)
+	{
+		m_Res = boost::dynamic_pointer_cast<T>(res);
+		m_Ready = true;
+	}
+
+	bool IsReady(void) const
+	{
+		return m_Ready;
+	}
+
+	void RequestResource(void);
+
+	void ReleaseResource(void)
+	{
+		if (IsRequested())
+		{
+			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
+		}
+	}
+};
+
 class Animator
 {
 public:
-	my::OgreSkeletonAnimationPtr m_Skeleton;
+	ResourceBundle<my::OgreSkeletonAnimation> m_SkeletonRes;
 
 	my::TransformList m_DualQuats;
 
@@ -14,6 +64,22 @@ public:
 
 	virtual ~Animator(void)
 	{
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_SkeletonRes);
+	}
+
+	virtual void RequestResource(void)
+	{
+		m_SkeletonRes.RequestResource();
+	}
+
+	virtual void ReleaseResource(void)
+	{
+		m_SkeletonRes.ReleaseResource();
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -35,5 +101,13 @@ public:
 	{
 	}
 
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Animator);
+	}
+
 	virtual void Update(float fElapsedTime);
 };
+
+typedef boost::shared_ptr<SimpleAnimator> SimpleAnimatorPtr;

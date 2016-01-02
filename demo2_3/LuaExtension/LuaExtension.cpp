@@ -263,6 +263,12 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	lua_pushlstring(L, s.c_str(), s.length());
 }
 
+template <typename T, typename U>
+static U * shared_ptr_2_raw(boost::shared_ptr<T> ptr)
+{
+	return ptr.get();
+}
+
 using namespace luabind;
 
 void Export2Lua(lua_State * L)
@@ -306,7 +312,6 @@ void Export2Lua(lua_State * L)
 
 	module(L)
 	[
-
 		//class_<MessagePanel, my::Control, boost::shared_ptr<my::Control> >("MessagePanel")
 		//	.def_readonly("lbegin", &MessagePanel::m_lbegin)
 		//	.def_readonly("lend", &MessagePanel::m_lend)
@@ -322,16 +327,35 @@ void Export2Lua(lua_State * L)
 			//.def_readonly("Edit", &Console::m_Edit)
 			//.def_readonly("Panel", &Console::m_Panel)
 
-		//, class_<std::pair<std::string, my::BaseTexturePtr> >("MaterialTexturePair")
-		//	.def(constructor<std::string, my::BaseTexturePtr>())
-		//	.def_readwrite("first", &std::pair<std::string, my::BaseTexturePtr>::first)
-		//	.def_readwrite("second", &std::pair<std::string, my::BaseTexturePtr>::second)
+		, class_<ResourceBundle<my::BaseTexture> >("ResourceTextureBundle")
+			.def(constructor<const char *>())
+			.def(constructor<>())
+			.def_readwrite("ResPath", &ResourceBundle<my::BaseTexture>::m_ResPath)
+			.def("IsReady", &ResourceBundle<my::BaseTexture>::IsReady)
+
+		, class_<ResourceBundle<my::Mesh> >("ResourceMeshBundle")
+			.def(constructor<const char *>())
+			.def(constructor<>())
+			.def_readwrite("ResPath", &ResourceBundle<my::Mesh>::m_ResPath)
+			.def("IsReady", &ResourceBundle<my::Mesh>::IsReady)
+
+		, class_<ResourceBundle<my::OgreSkeletonAnimation> >("ResourceSkeletonBundle")
+			.def(constructor<const char *>())
+			.def(constructor<>())
+			.def_readwrite("ResPath", &ResourceBundle<my::OgreSkeletonAnimation>::m_ResPath)
+			.def("IsReady", &ResourceBundle<my::OgreSkeletonAnimation>::IsReady)
+
+		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
+			.def_readonly("SkeletonRes", &Animator::m_SkeletonRes)
+
+		, class_<SimpleAnimator, Animator, boost::shared_ptr<Animator> >("SimpleAnimator")
+			.def(constructor<>())
 
 		, class_<Material::ParameterValue, boost::shared_ptr<Material::ParameterValue> >("ParameterValue")
 
-		, class_<Material::ParameterValueTexture, Material::ParameterValue, boost::shared_ptr<Material::ParameterValue> >("ParameterValueTexture")
+		, class_<Material::ParameterValueTexture, Material::ParameterValue, ResourceBundle<my::BaseTexture>, boost::shared_ptr<Material::ParameterValue> >("ParameterValueTexture")
+			.def(constructor<const char *>())
 			.def(constructor<>())
-			.def_readwrite("ResPath", &Material::ParameterValueTexture::m_ResPath)
 
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
@@ -346,21 +370,32 @@ void Export2Lua(lua_State * L)
 			.def_readwrite("PassMask", &Material::m_PassMask)
 			.def("AddParameter", &Material::AddParameter)
 
-		, class_<Actor, boost::shared_ptr<Actor> >("Actor")
-			.def(constructor<>())
-
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.def_readwrite("aabb", &Component::m_aabb)
 			.def_readwrite("World", &Component::m_World)
+			.def("IsRequested", &Component::IsRequested)
+			.def("RequestResource", &Component::RequestResource)
+			.def("ReleaseResource", &Component::ReleaseResource)
 
-		, class_<RenderComponent, Component, boost::shared_ptr<RenderComponent> >("RenderComponent")
+		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
-		, class_<MeshComponent, RenderComponent, boost::shared_ptr<MeshComponent> >("MeshComponent")
+		, class_<MeshComponent::LOD>("MeshComponentLOD")
+			.def_readonly("MeshRes", &MeshComponent::LOD::m_MeshRes)
+			.def("AddMaterial", &MeshComponent::LOD::AddMaterial)
+
+		, class_<MeshComponent, RenderComponent, boost::shared_ptr<Component> >("MeshComponent")
+			.def(constructor<const my::AABB &, const my::Matrix4 &, bool>())
+			.def(constructor<>())
+			.def_readwrite("LodId", &MeshComponent::m_LodId)
+			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
+			.def("GetLod", &MeshComponent::GetLod)
 
-		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<EmitterComponent> >("EmitterComponent")
-
-		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
+		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
+			.def(constructor<const my::AABB &, const my::Matrix4 &>())
+			.def(constructor<>())
+			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
+			.def_readwrite("Material", &EmitterComponent::m_Material)
 
 		, class_<Game, bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -371,6 +406,7 @@ void Export2Lua(lua_State * L)
 			.def("InsertDlg", &Game::InsertDlg)
 			.def("RemoveDlg", &Game::RemoveDlg)
 			.def("RemoveAllDlg", &Game::RemoveAllDlg)
+			.def_readonly("Root", &Game::m_Root)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
@@ -392,6 +428,7 @@ void Export2Lua(lua_State * L)
 		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceRelatedObjectBase>)
 		, def("res2emitter", &boost::dynamic_pointer_cast<my::Emitter, my::DeviceRelatedObjectBase>)
 		, def("res2material", &boost::dynamic_pointer_cast<Material, my::DeviceRelatedObjectBase>)
+		, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctComponent>)
 	];
 
 	globals(L)["game"] = Game::getSingletonPtr();

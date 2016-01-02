@@ -5,56 +5,6 @@
 #include "Animator.h"
 #include <boost/serialization/nvp.hpp>
 
-template <class T>
-class ResourceBundle : public my::IResourceCallback
-{
-public:
-	bool m_Ready;
-
-	std::string m_ResPath;
-
-	boost::shared_ptr<T> m_Res;
-
-public:
-	ResourceBundle(const char * Path)
-		: m_Ready(false)
-		, m_ResPath(Path)
-	{
-	}
-
-	ResourceBundle(void)
-		: m_Ready(false)
-	{
-	}
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		ar & BOOST_SERIALIZATION_NVP(m_ResPath);
-	}
-
-	virtual void OnReady(my::DeviceRelatedObjectBasePtr res)
-	{
-		m_Res = boost::dynamic_pointer_cast<T>(res);
-		m_Ready = true;
-	}
-
-	bool IsReady(void) const
-	{
-		return m_Ready;
-	}
-
-	void RequestResource(void);
-
-	void ReleaseResource(void)
-	{
-		if (IsRequested())
-		{
-			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
-		}
-	}
-};
-
 class Material
 {
 public:
@@ -173,12 +123,6 @@ typedef boost::shared_ptr<Material> MaterialPtr;
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
-class Component;
-
-typedef boost::shared_ptr<Component> ComponentPtr;
-
-typedef std::vector<ComponentPtr> ComponentPtrList;
-
 class Component
 	: public my::OctComponent
 {
@@ -196,80 +140,64 @@ public:
 
 	bool m_Requested;
 
-	Component * m_Parent;
-
-	ComponentPtrList m_Childs;
-
-	AnimatorPtr m_Animator;
-
 public:
 	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
 		: OctComponent(aabb)
 		, m_Type(Type)
 		, m_World(World)
 		, m_Requested(false)
-		, m_Parent(NULL)
 	{
 	}
 
-	// ! boost::serialization : no appropriate default constructor available
 	Component(void)
 		: OctComponent(my::AABB(-FLT_MAX,FLT_MAX))
 		, m_Type(ComponentTypeUnknown)
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
-		, m_Parent(NULL)
 	{
 	}
 
-	virtual ~Component(void);
-
-	friend class boost::serialization::access;
-
-    template<typename Archive>  
-    void save(Archive& ar, const unsigned int version) const  
-    {  
-		ar << BOOST_SERIALIZATION_NVP(m_aabb);
-		ar << BOOST_SERIALIZATION_NVP(m_Type);
-		ar << BOOST_SERIALIZATION_NVP(m_World);
-		ar << BOOST_SERIALIZATION_NVP(m_Childs);
-    }  
-      
-    template<typename Archive>  
-    void load(Archive& ar, const unsigned int version)  
-    {  
-		ar >> BOOST_SERIALIZATION_NVP(m_aabb);
-		ar >> BOOST_SERIALIZATION_NVP(m_Type);
-		ar >> BOOST_SERIALIZATION_NVP(m_World);
-		ar >> BOOST_SERIALIZATION_NVP(m_Childs);
-		ComponentPtrList::iterator child_iter = m_Childs.begin();
-		for (; child_iter != m_Childs.end(); child_iter++)
+	virtual ~Component(void)
+	{
+		if (m_OctNode)
 		{
-			(*child_iter)->m_Parent = this;
+			m_OctNode->RemoveComponent(this);
 		}
-    }
+		// ! Derived class must ReleaseResource menually
+		_ASSERT(!IsRequested());
+	}
 
-	BOOST_SERIALIZATION_SPLIT_MEMBER();
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_NVP(m_aabb);
+		ar & BOOST_SERIALIZATION_NVP(m_Type);
+		ar & BOOST_SERIALIZATION_NVP(m_World);
+	}
 
 	bool IsRequested(void) const
 	{
 		return m_Requested;
 	}
 
-	void InsertChild(ComponentPtr cmp);
+	virtual void RequestResource(void)
+	{
+		_ASSERT(!IsRequested());
+		m_Requested = true;
+	}
 
-	void RemoveChild(ComponentPtr cmp);
+	virtual void ReleaseResource(void)
+	{
+		_ASSERT(IsRequested());
+		m_Requested = false;
+	}
 
-	Animator * GetAnimator(void);
-
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
-
-	virtual void Update(float fElapsedTime);
-
-	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void Update(float fElapsedTime)
+	{
+	}
 };
+
+typedef boost::shared_ptr<Component> ComponentPtr;
 
 class RenderComponent
 	: public Component
@@ -288,6 +216,8 @@ public:
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+
+	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -301,6 +231,11 @@ public:
 		ResourceBundle<my::Mesh> m_MeshRes;
 
 		MaterialPtrList m_MaterialList;
+
+		void AddMaterial(MaterialPtr material)
+		{
+			m_MaterialList.push_back(material);
+		}
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -317,6 +252,8 @@ public:
 	unsigned int m_LodId;
 
 	bool m_bInstance;
+
+	AnimatorPtr m_Animator;
 
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
@@ -347,11 +284,16 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Lods);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+		ar & BOOST_SERIALIZATION_NVP(m_Animator);
 	}
+
+	MeshComponent::LOD & GetLod(unsigned int Id);
 
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
