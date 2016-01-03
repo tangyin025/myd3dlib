@@ -336,6 +336,7 @@ void RenderPipeline::ClearAllObjects(void)
 	unsigned int PassID = 0;
 	for (; PassID < m_Pass.size(); PassID++)
 	{
+		m_Pass[PassID].m_IndexedPrimitiveList.clear();
 		m_Pass[PassID].m_MeshList.clear();
 		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
@@ -363,16 +364,17 @@ void RenderPipeline::DrawIndexedPrimitive(
 	my::Effect * shader,
 	IShaderSetter * setter)
 {
+	HRESULT hr;
+	V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
+	V(pd3dDevice->SetVertexDeclaration(pDecl));
+	V(pd3dDevice->SetIndices(pIB));
+
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
 	setter->OnSetShader(shader, AttribId);
 	{
 		shader->BeginPass(PassID);
-		HRESULT hr;
-		V(pd3dDevice->SetVertexDeclaration(pDecl));
-		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
-		V(pd3dDevice->SetIndices(pIB));
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
 		shader->EndPass();
 	}

@@ -663,17 +663,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<Component *>(oct_cmp));
-			Component * cmp = static_cast<Component *>(oct_cmp);
-			switch (cmp->m_Type)
+			RenderComponent * render_cmp = static_cast<RenderComponent *>(oct_cmp);
+			if (render_cmp)
 			{
-			case Component::ComponentTypeMesh:
-				dynamic_cast<MeshComponent *>(cmp)->AddToPipeline(m_pipeline, m_PassMask);
-				break;
-
-			case Component::ComponentTypeEmitter:
-				dynamic_cast<EmitterComponent *>(cmp)->AddToPipeline(m_pipeline, m_PassMask);
-				break;
+				render_cmp->AddToPipeline(m_pipeline, m_PassMask);
 			}
 		}
 	};

@@ -145,6 +145,14 @@ public:
 		//m_cmps.push_back(emit_cmp);
 
 		TerrainComponentPtr terrain_cmp(new TerrainComponent(my::AABB(-10,10),my::Matrix4::Identity()));
+		MaterialPtr lambert1(new Material());
+		lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall.jpg"))));
+		lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall_NM_height.DDS"))));
+		lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/white.bmp"))));
+		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		lambert1->m_Shader = "lambert1.fx";
+		terrain_cmp->m_Material = lambert1;
+		terrain_cmp->RequestResource();
 		m_Root.AddComponent(terrain_cmp.get());
 		m_cmps.push_back(terrain_cmp);
 
@@ -184,6 +192,7 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
+		m_cmps.clear();
 		Game::OnDestroyDevice();
 	}
 

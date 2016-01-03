@@ -322,6 +322,14 @@ public:
 	{
 	}
 
+	~EmitterComponent(void)
+	{
+		if (IsRequested())
+		{
+			ReleaseResource();
+		}
+	}
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -350,19 +358,52 @@ class TerrainComponent
 public:
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 
+	DWORD m_VertexStride;
+
 	my::VertexBuffer m_vb;
 
 	my::IndexBuffer m_ib;
 
+	unsigned int m_XDivision;
+
+	unsigned int m_ZDivision;
+
+	my::Vector3 m_PosStart;
+
+	my::Vector3 m_PosEnd;
+
+	my::Vector3 m_TexStart;
+
+	my::Vector3 m_TexEnd;
+
+	my::D3DVertexElementSet m_VertexElems;
+
+	MaterialPtr m_Material;
+
 public:
-	TerrainComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: RenderComponent(aabb, World, ComponentTypeTerrain)
+	TerrainComponent(const my::AABB & aabb, const my::Matrix4 & World);
+
+	TerrainComponent(void);
+
+	~TerrainComponent(void)
 	{
+		if (IsRequested())
+		{
+			ReleaseResource();
+		}
 	}
 
-	TerrainComponent(void)
-		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeTerrain)
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
 	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_XDivision);
+		ar & BOOST_SERIALIZATION_NVP(m_ZDivision);
+		ar & BOOST_SERIALIZATION_NVP(m_PosStart);
+		ar & BOOST_SERIALIZATION_NVP(m_PosEnd);
+		ar & BOOST_SERIALIZATION_NVP(m_TexStart);
+		ar & BOOST_SERIALIZATION_NVP(m_TexEnd);
+		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
 	virtual void OnResetDevice(void);
