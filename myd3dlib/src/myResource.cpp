@@ -603,11 +603,6 @@ void ResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePt
 	_ASSERT(!GetResource(key));
 
 	m_ResourceWeakSet[key] = res;
-
-	if (D3DContext::getSingleton().m_DeviceObjectsReset)
-	{
-		res->OnResetDevice();
-	}
 }
 
 std::string ResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
@@ -701,6 +696,11 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
 
 			request->BuildResource(D3DContext::getSingleton().m_d3dDevice);
+
+			if (request->m_res && D3DContext::getSingleton().m_DeviceObjectsReset)
+			{
+				request->m_res->OnResetDevice();
+			}
 
 			AddResource(key, request->m_res);
 		}
