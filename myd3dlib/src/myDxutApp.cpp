@@ -206,12 +206,13 @@ int DxutApp::Run(void)
 
 	try
 	{
+		_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 		m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 		if(!m_d3d9)
 		{
 			THROW_CUSEXCEPTION("cannnot create direct3d9");
 		}
-		m_d3dThreadId = GetCurrentThreadId();
 
 		CRect clientRect;
 		m_wnd->GetClientRect(&clientRect);

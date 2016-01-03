@@ -6,6 +6,8 @@ using namespace my;
 
 DeviceRelatedObjectBase::DeviceRelatedObjectBase(void)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	D3DContext::getSingleton().m_EventDeviceReset.connect(boost::bind(&DeviceRelatedObjectBase::OnResetDevice, this));
 
 	D3DContext::getSingleton().m_EventDeviceLost.connect(boost::bind(&DeviceRelatedObjectBase::OnLostDevice, this));
@@ -15,6 +17,8 @@ DeviceRelatedObjectBase::DeviceRelatedObjectBase(void)
 
 DeviceRelatedObjectBase::~DeviceRelatedObjectBase(void)
 {
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	D3DContext::getSingleton().m_EventDeviceReset.disconnect(boost::bind(&DeviceRelatedObjectBase::OnResetDevice, this));
 
 	D3DContext::getSingleton().m_EventDeviceLost.disconnect(boost::bind(&DeviceRelatedObjectBase::OnLostDevice, this));

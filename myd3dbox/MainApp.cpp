@@ -191,12 +191,13 @@ BOOL CMainApp::InitInstance()
 	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media"));
 	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media.zip"));
 
+	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
+
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)
 	{
 		return FALSE;
 	}
-	m_d3dThreadId = GetCurrentThreadId();
 
 	//// Register the application's document templates.  Document templates
 	////  serve as the connection between documents, frame windows and views

@@ -52,9 +52,9 @@ namespace my
 		: public SingleInstance<D3DContext>
 	{
 	public:
-		CComPtr<IDirect3D9> m_d3d9;
-
 		DWORD m_d3dThreadId;
+
+		CComPtr<IDirect3D9> m_d3d9;
 
 		CComPtr<IDirect3DDevice9> m_d3dDevice;
 
@@ -76,7 +76,7 @@ namespace my
 
 	public:
 		D3DContext(void)
-			: m_d3dThreadId(-1)
+			: m_d3dThreadId(::GetCurrentThreadId())
 			, m_DeviceObjectsCreated(false)
 			, m_DeviceObjectsReset(false)
 		{
