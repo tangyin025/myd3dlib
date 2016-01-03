@@ -159,15 +159,18 @@ HRESULT DxutApp::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	m_EventDeviceReset();
 	return S_OK;
 }
 
 void DxutApp::OnLostDevice(void)
 {
+	m_EventDeviceLost();
 }
 
 void DxutApp::OnDestroyDevice(void)
 {
+	m_EventDeviceDestroy();
 }
 
 void DxutApp::OnFrameTick(

@@ -272,8 +272,9 @@ HRESULT CMainApp::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	// ! 不会通知除 my::ResourceMgr 以外其他对象 DeviceReset，要注意
-	if(FAILED(hr = my::ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
+	D3DContext::m_EventDeviceReset();
+
+	if(FAILED(hr = ResourceMgr::OnResetDevice(m_d3dDevice, &m_BackBufferSurfaceDesc)))
 	{
 		TRACE(my::D3DException::Translate(hr));
 		return hr;
@@ -285,42 +286,29 @@ HRESULT CMainApp::OnResetDevice(
 		return hr;
 	}
 
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
-	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
-	{
-		if (shader_iter->second)
-		{
-			shader_iter->second->OnResetDevice();
-		}
-	}
 	return S_OK;
 }
 
 void CMainApp::OnLostDevice(void)
 {
-	my::ResourceMgr::OnLostDevice();
+	D3DContext::m_EventDeviceLost();
+
+	ResourceMgr::OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
-
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
-	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
-	{
-		if (shader_iter->second)
-		{
-			shader_iter->second->OnLostDevice();
-		}
-	}
 }
 
 void CMainApp::OnDestroyDevice(void)
 {
-	m_UIRender.reset();
+	D3DContext::m_EventDeviceDestroy();
+
+	ResourceMgr::OnDestroyDevice();
 
 	RenderPipeline::OnDestroyDevice();
 
-	m_ShaderCache.clear();
+	m_UIRender.reset();
 
-	my::ResourceMgr::OnDestroyDevice();
+	m_ShaderCache.clear();
 }
 
 void CMainApp::OnResourceFailed(const std::string & error_str)

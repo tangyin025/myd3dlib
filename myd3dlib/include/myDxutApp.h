@@ -5,6 +5,7 @@
 #include "myThread.h"
 #include <atlbase.h>
 #include "DXUTenum.h"
+#include <boost/signals2.hpp>
 
 namespace my
 {
@@ -64,6 +65,14 @@ namespace my
 		bool m_DeviceObjectsCreated;
 
 		bool m_DeviceObjectsReset;
+
+		typedef boost::signals2::signal<void (void)> Event;
+
+		Event m_EventDeviceReset;
+
+		Event m_EventDeviceLost;
+
+		Event m_EventDeviceDestroy;
 
 	public:
 		D3DContext(void)

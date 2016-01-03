@@ -129,6 +129,8 @@ HRESULT Game::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
+	DxutApp::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
+
 	ImeEditBox::Initialize(m_wnd->m_hWnd);
 
 	ImeEditBox::EnableImeSystem(false);
@@ -186,6 +188,11 @@ HRESULT Game::OnResetDevice(
 {
 	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
+	{
+		return hr;
+	}
+
 	if(FAILED(hr = ResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
@@ -194,15 +201,6 @@ HRESULT Game::OnResetDevice(
 	if (FAILED(hr = RenderPipeline::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
 		return hr;
-	}
-
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
-	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
-	{
-		if (shader_iter->second)
-		{
-			shader_iter->second->OnResetDevice();
-		}
 	}
 
 	m_NormalRT->CreateTexture(
@@ -243,23 +241,20 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	DxutApp::OnLostDevice();
+
 	ResourceMgr::OnLostDevice();
 
 	RenderPipeline::OnLostDevice();
 
-	ShaderCacheMap::iterator shader_iter = m_ShaderCache.begin();
-	for (; shader_iter != m_ShaderCache.end(); shader_iter++)
-	{
-		if (shader_iter->second)
-		{
-			shader_iter->second->OnLostDevice();
-		}
-	}
-
 	m_NormalRT->OnDestroyDevice();
+
 	m_PositionRT->OnDestroyDevice();
+
 	m_LightRT->OnDestroyDevice();
+
 	m_OpaqueRT->OnDestroyDevice();
+
 	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
 	{
 		m_DownFilterRT[i]->OnDestroyDevice();
@@ -269,6 +264,12 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	DxutApp::OnDestroyDevice();
+
+	ResourceMgr::OnDestroyDevice();
+
+	RenderPipeline::OnDestroyDevice();
 
 	ParallelTaskManager::StopParallelThread();
 
@@ -284,11 +285,7 @@ void Game::OnDestroyDevice(void)
 
 	RemoveAllTimer();
 
-	RenderPipeline::OnDestroyDevice();
-
 	m_ShaderCache.clear();
-
-	ResourceMgr::OnDestroyDevice();
 
 	InputMgr::Destroy();
 

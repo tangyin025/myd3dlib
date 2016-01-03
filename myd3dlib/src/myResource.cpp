@@ -497,117 +497,11 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_IORequestListCondition.Wake(1);
 }
 
-HRESULT DeviceRelatedResourceMgr::OnCreateDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	return S_OK;
-}
-
-HRESULT DeviceRelatedResourceMgr::OnResetDevice(
-	IDirect3DDevice9 * pd3dDevice,
-	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end();)
-	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			res->OnResetDevice();
-			res_iter++;
-		}
-		else
-		{
-			res_iter = m_ResourceWeakSet.erase(res_iter);
-		}
-	}
-	return S_OK;
-}
-
-void DeviceRelatedResourceMgr::OnLostDevice(void)
-{
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end();)
-	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			res->OnLostDevice();
-			res_iter++;
-		}
-		else
-		{
-			res_iter = m_ResourceWeakSet.erase(res_iter);
-		}
-	}
-}
-
-void DeviceRelatedResourceMgr::OnDestroyDevice(void)
-{
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
-	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			res->OnDestroyDevice();
-		}
-	}
-	m_ResourceWeakSet.clear();
-}
-
-DeviceRelatedObjectBasePtr DeviceRelatedResourceMgr::GetResource(const std::string & key)
-{
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
-	if(res_iter != m_ResourceWeakSet.end())
-	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
-		if(res)
-		{
-			return res;
-		}
-		else
-			m_ResourceWeakSet.erase(res_iter);
-	}
-	return DeviceRelatedObjectBasePtr();
-}
-
-void DeviceRelatedResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
-{
-	_ASSERT(!GetResource(key));
-
-	m_ResourceWeakSet[key] = res;
-
-	if (D3DContext::getSingleton().m_DeviceObjectsReset)
-	{
-		res->OnResetDevice();
-	}
-}
-
-std::string DeviceRelatedResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
-{
-	DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
-	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
-	{
-		if(res == res_iter->second.lock())
-		{
-			return res_iter->first;
-		}
-	}
-	return std::string();
-}
-
 HRESULT ResourceMgr::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	HRESULT hr;
-	if(FAILED(hr = DeviceRelatedResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
-
 	if(FAILED(hr = D3DXCreateEffectPool(&m_EffectPool)))
 	{
 		return hr;
@@ -622,24 +516,16 @@ HRESULT ResourceMgr::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	HRESULT hr;
-	if(FAILED(hr = DeviceRelatedResourceMgr::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
-	{
-		return hr;
-	}
 	return S_OK;
 }
 
 void ResourceMgr::OnLostDevice(void)
 {
-	DeviceRelatedResourceMgr::OnLostDevice();
 }
 
 void ResourceMgr::OnDestroyDevice(void)
 {
 	StopIORequestProc();
-
-	DeviceRelatedResourceMgr::OnDestroyDevice();
 
 	m_EffectPool.Release();
 
@@ -694,6 +580,47 @@ HRESULT ResourceMgr::Close(
 	_ASSERT(m_CacheSet.end() != m_CacheSet.find(pData));
 	m_CacheSet.erase(pData);
 	return S_OK;
+}
+
+DeviceRelatedObjectBasePtr ResourceMgr::GetResource(const std::string & key)
+{
+	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
+	if(res_iter != m_ResourceWeakSet.end())
+	{
+		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
+		if(res)
+		{
+			return res;
+		}
+		else
+			m_ResourceWeakSet.erase(res_iter);
+	}
+	return DeviceRelatedObjectBasePtr();
+}
+
+void ResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
+{
+	_ASSERT(!GetResource(key));
+
+	m_ResourceWeakSet[key] = res;
+
+	if (D3DContext::getSingleton().m_DeviceObjectsReset)
+	{
+		res->OnResetDevice();
+	}
+}
+
+std::string ResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
+{
+	DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
+	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
+	{
+		if(res == res_iter->second.lock())
+		{
+			return res_iter->first;
+		}
+	}
+	return std::string();
 }
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request)

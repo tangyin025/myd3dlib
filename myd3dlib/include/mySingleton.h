@@ -66,9 +66,9 @@ namespace my
 	class DeviceRelatedObjectBase
 	{
 	public:
-		virtual ~DeviceRelatedObjectBase(void)
-		{
-		}
+		DeviceRelatedObjectBase(void);
+
+		virtual ~DeviceRelatedObjectBase(void);
 
 		virtual void OnResetDevice(void) = 0;
 

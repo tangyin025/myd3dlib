@@ -317,39 +317,6 @@ namespace my
 		void StopIORequestProc(void);
 	};
 
-	class DeviceRelatedResourceMgr
-	{
-	protected:
-		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
-
-		typedef boost::unordered_map<std::string, DeviceRelatedObjectBaseWeakPtr> DeviceRelatedObjectBaseWeakPtrSet;
-
-		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
-
-	public:
-		DeviceRelatedResourceMgr(void)
-		{
-		}
-
-		HRESULT OnCreateDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		HRESULT OnResetDevice(
-			IDirect3DDevice9 * pd3dDevice,
-			const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
-		void OnLostDevice(void);
-
-		void OnDestroyDevice(void);
-
-		DeviceRelatedObjectBasePtr GetResource(const std::string & key);
-
-		void AddResource(const std::string & key, DeviceRelatedObjectBasePtr res);
-
-		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
-	};
-
 	class BaseTexture;
 
 	class OgreMesh;
@@ -377,11 +344,16 @@ namespace my
 	class ResourceMgr
 		: public SingleInstance<ResourceMgr>
 		, public AsynchronousIOMgr
-		, public DeviceRelatedResourceMgr
 		, public ID3DXInclude
 	{
 	protected:
 		friend class EffectIORequest;
+
+		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
+
+		typedef boost::unordered_map<std::string, DeviceRelatedObjectBaseWeakPtr> DeviceRelatedObjectBaseWeakPtrSet;
+
+		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
@@ -421,6 +393,12 @@ namespace my
 
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
+
+		DeviceRelatedObjectBasePtr GetResource(const std::string & key);
+
+		void AddResource(const std::string & key, DeviceRelatedObjectBasePtr res);
+
+		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
 
 		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request);
 
