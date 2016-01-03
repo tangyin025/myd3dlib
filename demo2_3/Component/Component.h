@@ -132,6 +132,7 @@ public:
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
+		ComponentTypeTerrain,
 	};
 
 	ComponentType m_Type;
@@ -264,7 +265,7 @@ public:
 	}
 
 	MeshComponent(void)
-		: RenderComponent(my::AABB(-1,1), my::Matrix4::Identity(), ComponentTypeMesh)
+		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeMesh)
 		, m_LodId(0)
 		, m_bInstance(false)
 	{
@@ -317,7 +318,7 @@ public:
 	}
 
 	EmitterComponent(void)
-		: RenderComponent(my::AABB(-1,1), my::Matrix4::Identity(), ComponentTypeEmitter)
+		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeEmitter)
 	{
 	}
 
@@ -328,6 +329,47 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual void Update(float fElapsedTime);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
+};
+
+typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
+
+class TerrainComponent
+	: public RenderComponent
+	, public my::DeviceRelatedObjectBase
+{
+public:
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	my::VertexBuffer m_vb;
+
+	my::IndexBuffer m_ib;
+
+public:
+	TerrainComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: RenderComponent(aabb, World, ComponentTypeTerrain)
+	{
+	}
+
+	TerrainComponent(void)
+		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeTerrain)
+	{
+	}
+
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
 
 	virtual void RequestResource(void);
 

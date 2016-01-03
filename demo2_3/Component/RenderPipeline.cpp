@@ -277,6 +277,28 @@ void RenderPipeline::RenderAllObjects(
 {
 	m_PassDrawCall[PassID] = 0;
 
+	IndexedPrimitiveAtomList::iterator prim_iter = m_Pass[PassID].m_IndexedPrimitiveList.begin();
+	for (; prim_iter != m_Pass[PassID].m_IndexedPrimitiveList.end(); prim_iter++)
+	{
+		DrawIndexedPrimitive(
+			PassID,
+			pd3dDevice,
+			prim_iter->pDecl,
+			prim_iter->pVB,
+			prim_iter->pIB,
+			prim_iter->PrimitiveType,
+			prim_iter->BaseVertexIndex,
+			prim_iter->MinVertexIndex,
+			prim_iter->NumVertices,
+			prim_iter->VertexStride,
+			prim_iter->StartIndex,
+			prim_iter->PrimitiveCount,
+			prim_iter->AttribId,
+			prim_iter->shader,
+			prim_iter->setter);
+		m_PassDrawCall[PassID]++;
+	}
+
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
@@ -322,6 +344,39 @@ void RenderPipeline::ClearAllObjects(void)
 		}
 		m_Pass[PassID].m_EmitterList.clear();
 	}
+}
+
+void RenderPipeline::DrawIndexedPrimitive(
+	unsigned int PassID,
+	IDirect3DDevice9 * pd3dDevice,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9 * pVB,
+	IDirect3DIndexBuffer9 * pIB,
+	D3DPRIMITIVETYPE PrimitiveType,
+	INT BaseVertexIndex,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT StartIndex,
+	UINT PrimitiveCount,
+	DWORD AttribId,
+	my::Effect * shader,
+	IShaderSetter * setter)
+{
+	shader->SetTechnique("RenderScene");
+	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
+	setter->OnSetShader(shader, AttribId);
+	{
+		shader->BeginPass(PassID);
+		HRESULT hr;
+		V(pd3dDevice->SetVertexDeclaration(pDecl));
+		V(pd3dDevice->SetStreamSource(0, pVB, 0, VertexStride));
+		V(pd3dDevice->SetIndices(pIB));
+		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
+		shader->EndPass();
+	}
+	shader->End();
 }
 
 void RenderPipeline::DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
@@ -425,6 +480,39 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 		shader->EndPass();
 	}
 	shader->End();
+}
+
+void RenderPipeline::PushIndexedPrimitive(
+	unsigned int PassID,
+	IDirect3DVertexDeclaration9* pDecl,
+	IDirect3DVertexBuffer9 * pVB,
+	IDirect3DIndexBuffer9 * pIB,
+	D3DPRIMITIVETYPE PrimitiveType,
+	INT BaseVertexIndex,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT VertexStride,
+	UINT StartIndex,
+	UINT PrimitiveCount,
+	DWORD AttribId,
+	my::Effect * shader,
+	IShaderSetter * setter)
+{
+	IndexedPrimitiveAtom atom;
+	atom.pDecl = pDecl;
+	atom.pVB = pVB;
+	atom.pIB = pIB;
+	atom.PrimitiveType = PrimitiveType;
+	atom.BaseVertexIndex = BaseVertexIndex;
+	atom.MinVertexIndex = MinVertexIndex;
+	atom.NumVertices = NumVertices;
+	atom.VertexStride = VertexStride;
+	atom.StartIndex = StartIndex;
+	atom.PrimitiveCount = PrimitiveCount;
+	atom.AttribId = AttribId;
+	atom.shader = shader;
+	atom.setter = setter;
+	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
 }
 
 void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)

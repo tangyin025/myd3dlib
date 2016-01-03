@@ -129,6 +129,25 @@ public:
 		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
 
+	struct IndexedPrimitiveAtom
+	{
+		IDirect3DVertexDeclaration9* pDecl;
+		IDirect3DVertexBuffer9 * pVB;
+		IDirect3DIndexBuffer9 * pIB;
+		D3DPRIMITIVETYPE PrimitiveType;
+		INT BaseVertexIndex;
+		UINT MinVertexIndex;
+		UINT NumVertices;
+		UINT VertexStride;
+		UINT StartIndex;
+		UINT PrimitiveCount;
+		DWORD AttribId;
+		my::Effect * shader;
+		IShaderSetter * setter;
+	};
+
+	typedef std::vector<IndexedPrimitiveAtom> IndexedPrimitiveAtomList;
+
 	struct MeshAtom
 	{
 		my::Mesh * mesh;
@@ -165,6 +184,7 @@ public:
 
 	struct Pass
 	{
+		IndexedPrimitiveAtomList m_IndexedPrimitiveList;
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
 		EmitterAtomList m_EmitterList;
@@ -215,6 +235,23 @@ public:
 
 	void ClearAllObjects(void);
 
+	void DrawIndexedPrimitive(
+		unsigned int PassID,
+		IDirect3DDevice9 * pd3dDevice,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9 * pVB,
+		IDirect3DIndexBuffer9 * pIB,
+		D3DPRIMITIVETYPE PrimitiveType,
+		INT BaseVertexIndex,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT StartIndex,
+		UINT PrimitiveCount,
+		DWORD AttribId,
+		my::Effect * shader,
+		IShaderSetter * setter);
+
 	void DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void DrawMeshInstance(
@@ -227,6 +264,22 @@ public:
 		MeshInstanceAtom & atom);
 
 	void DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Emitter * emitter, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+
+	void PushIndexedPrimitive(
+		unsigned int PassID,
+		IDirect3DVertexDeclaration9* pDecl,
+		IDirect3DVertexBuffer9 * pVB,
+		IDirect3DIndexBuffer9 * pIB,
+		D3DPRIMITIVETYPE PrimitiveType,
+		INT BaseVertexIndex,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT VertexStride,
+		UINT StartIndex,
+		UINT PrimitiveCount,
+		DWORD AttribId,
+		my::Effect * shader,
+		IShaderSetter * setter);
 
 	void PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 

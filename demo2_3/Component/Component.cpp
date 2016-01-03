@@ -232,3 +232,35 @@ void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int Pas
 		}
 	}
 }
+
+void TerrainComponent::OnResetDevice(void)
+{
+}
+
+void TerrainComponent::OnLostDevice(void)
+{
+}
+
+void TerrainComponent::OnDestroyDevice(void)
+{
+}
+
+void TerrainComponent::RequestResource(void)
+{
+}
+
+void TerrainComponent::ReleaseResource(void)
+{
+}
+
+void TerrainComponent::Update(float fElapsedTime)
+{
+}
+
+void TerrainComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+}
+
+void TerrainComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+{
+}
