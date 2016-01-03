@@ -527,6 +527,8 @@ void ResourceMgr::OnDestroyDevice(void)
 {
 	StopIORequestProc();
 
+	m_ResourceWeakSet.clear();
+
 	m_EffectPool.Release();
 
 	m_Thread.WaitForThreadStopped(INFINITE);
