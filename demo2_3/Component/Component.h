@@ -382,4 +382,4 @@ public:
 	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
 };
 
-typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
+typedef boost::shared_ptr<TerrainComponent> TerrainComponentPtr;

@@ -144,6 +144,10 @@ public:
 		//m_Root.AddComponent(emit_cmp.get());
 		//m_cmps.push_back(emit_cmp);
 
+		TerrainComponentPtr terrain_cmp(new TerrainComponent(my::AABB(-10,10),my::Matrix4::Identity()));
+		m_Root.AddComponent(terrain_cmp.get());
+		m_cmps.push_back(terrain_cmp);
+
 		//// ±£´æ³¡¾°
 		//std::ofstream ofs("scene.component_list.xml");
 		//boost::archive::xml_oarchive oa(ofs);
