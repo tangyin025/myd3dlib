@@ -22,6 +22,8 @@ BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
 
+BOOST_CLASS_EXPORT(TerrainComponent)
+
 Material::Material(void)
 	: m_PassMask(RenderPipeline::PassMaskNone)
 {
@@ -214,14 +216,14 @@ void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int Pas
 	}
 }
 
-TerrainComponent::TerrainComponent(const my::AABB & aabb, const my::Matrix4 & World)
-	: RenderComponent(aabb, World, ComponentTypeTerrain)
-	, m_XDivision(20)
-	, m_ZDivision(20)
-	, m_PosStart(-5,-5)
-	, m_PosEnd(5,5)
-	, m_TexStart(0,0)
-	, m_TexEnd(1,1)
+TerrainComponent::TerrainComponent(const my::Vector3 & PosStart, const my::Vector3 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World)
+	: RenderComponent(AABB(PosStart, PosEnd), World, ComponentTypeTerrain)
+	, m_PosStart(PosStart)
+	, m_PosEnd(PosEnd)
+	, m_TexStart(TexStart)
+	, m_TexEnd(TexEnd)
+	, m_XDivision(XDivision)
+	, m_ZDivision(YDivision)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
@@ -236,12 +238,12 @@ TerrainComponent::TerrainComponent(const my::AABB & aabb, const my::Matrix4 & Wo
 
 TerrainComponent::TerrainComponent(void)
 	: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeTerrain)
-	, m_XDivision(20)
-	, m_ZDivision(20)
-	, m_PosStart(-5,-5)
-	, m_PosEnd(5,5)
+	, m_PosStart(-1,0,-1)
+	, m_PosEnd(1,0,1)
 	, m_TexStart(0,0)
 	, m_TexEnd(1,1)
+	, m_XDivision(1)
+	, m_ZDivision(1)
 {
 	m_VertexElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
@@ -254,7 +256,7 @@ TerrainComponent::TerrainComponent(void)
 	m_VertexStride = offset;
 }
 
-void TerrainComponent::OnResetDevice(void)
+void TerrainComponent::CreateVertices(void)
 {
 	_ASSERT(!m_Decl);
 	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
@@ -276,7 +278,7 @@ void TerrainComponent::OnResetDevice(void)
 				Vector3 & Position = m_VertexElems.GetPosition(pVertex);
 				Position.x = (i == 0 ? m_PosStart.x : (i == m_XDivision ? m_PosEnd.x : my::Lerp(m_PosStart.x, m_PosEnd.x, (float)i / m_XDivision)));
 				Position.y = 0;
-				Position.z = (j == 0 ? m_PosStart.y : (j == m_ZDivision ? m_PosEnd.y : my::Lerp(m_PosStart.y, m_PosEnd.y, (float)j / m_ZDivision)));
+				Position.z = (j == 0 ? m_PosStart.z : (j == m_ZDivision ? m_PosEnd.z : my::Lerp(m_PosStart.z, m_PosEnd.z, (float)j / m_ZDivision)));
 
 				Vector3 & Normal = m_VertexElems.GetNormal(pVertex);
 				Normal.x = 0;
@@ -318,11 +320,27 @@ void TerrainComponent::OnResetDevice(void)
 	}
 }
 
-void TerrainComponent::OnLostDevice(void)
+void TerrainComponent::DestroyVertices(void)
 {
 	m_Decl.Release();
 	m_vb.OnDestroyDevice();
 	m_ib.OnDestroyDevice();
+}
+
+void TerrainComponent::OnResetDevice(void)
+{
+	if (!m_Decl)
+	{
+		CreateVertices();
+	}
+}
+
+void TerrainComponent::OnLostDevice(void)
+{
+	if (m_Decl)
+	{
+		DestroyVertices();
+	}
 }
 
 void TerrainComponent::OnDestroyDevice(void)
@@ -331,7 +349,11 @@ void TerrainComponent::OnDestroyDevice(void)
 
 void TerrainComponent::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	if (!m_Decl)
+	{
+		CreateVertices();
+	}
+
 	if (m_Material)
 	{
 		m_Material->RequestResource();
@@ -340,11 +362,15 @@ void TerrainComponent::RequestResource(void)
 
 void TerrainComponent::ReleaseResource(void)
 {
+	if (m_Decl)
+	{
+		DestroyVertices();
+	}
+
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
 	}
-	RenderComponent::ReleaseResource();
 }
 
 void TerrainComponent::Update(float fElapsedTime)

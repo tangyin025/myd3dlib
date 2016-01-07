@@ -345,24 +345,24 @@ public:
 
 	my::IndexBuffer m_ib;
 
-	unsigned int m_XDivision;
-
-	unsigned int m_ZDivision;
-
 	my::Vector3 m_PosStart;
 
 	my::Vector3 m_PosEnd;
 
-	my::Vector3 m_TexStart;
+	my::Vector2 m_TexStart;
 
-	my::Vector3 m_TexEnd;
+	my::Vector2 m_TexEnd;
+
+	unsigned int m_XDivision;
+
+	unsigned int m_ZDivision;
 
 	my::D3DVertexElementSet m_VertexElems;
 
 	MaterialPtr m_Material;
 
 public:
-	TerrainComponent(const my::AABB & aabb, const my::Matrix4 & World);
+	TerrainComponent(const my::Vector3 & PosStart, const my::Vector3 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World);
 
 	TerrainComponent(void);
 
@@ -378,14 +378,18 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_XDivision);
-		ar & BOOST_SERIALIZATION_NVP(m_ZDivision);
 		ar & BOOST_SERIALIZATION_NVP(m_PosStart);
 		ar & BOOST_SERIALIZATION_NVP(m_PosEnd);
 		ar & BOOST_SERIALIZATION_NVP(m_TexStart);
 		ar & BOOST_SERIALIZATION_NVP(m_TexEnd);
+		ar & BOOST_SERIALIZATION_NVP(m_XDivision);
+		ar & BOOST_SERIALIZATION_NVP(m_ZDivision);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
+
+	void CreateVertices(void);
+
+	void DestroyVertices(void);
 
 	virtual void OnResetDevice(void);
 
