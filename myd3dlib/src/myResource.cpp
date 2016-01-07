@@ -387,7 +387,7 @@ AsynchronousIOMgr::AsynchronousIOMgr(void)
 
 DWORD AsynchronousIOMgr::IORequestProc(void)
 {
-	m_IORequestListMutex.Wait();
+	m_IORequestListMutex.Wait(INFINITE);
 	while(!m_bStopped)
 	{
 		IORequestPtrPairList::iterator req_iter = m_IORequestList.begin();

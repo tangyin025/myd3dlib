@@ -82,7 +82,7 @@ namespace my
 
 		bool RemoveComponent(OctComponent * cmp);
 
-		void ClearComponents(void);
+		void ClearAllComponents(void);
 	};
 
 	template <DWORD Offset>

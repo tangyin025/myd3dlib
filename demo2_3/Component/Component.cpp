@@ -71,28 +71,15 @@ void Material::ReleaseResource(void)
 	}
 }
 
-MeshComponent::LOD & MeshComponent::GetLod(unsigned int Id)
-{
-	if (m_Lods.size() < (Id + 1))
-	{
-		m_Lods.resize(Id + 1);
-	}
-	return m_Lods[Id];
-}
-
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
 
-	LODList::iterator lod_iter = m_Lods.begin();
-	for (; lod_iter != m_Lods.end(); lod_iter++)
+	m_MeshRes.RequestResource();
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
-		lod_iter->m_MeshRes.RequestResource();
-		MaterialPtrList::iterator mat_iter = lod_iter->m_MaterialList.begin();
-		for (; mat_iter != lod_iter->m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->RequestResource();
-		}
+		(*mat_iter)->RequestResource();
 	}
 
 	if (m_Animator)
@@ -103,23 +90,19 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	LODList::iterator lod_iter = m_Lods.begin();
-	for (; lod_iter != m_Lods.end(); lod_iter++)
+	RenderComponent::ReleaseResource();
+
+	m_MeshRes.ReleaseResource();
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
-		lod_iter->m_MeshRes.ReleaseResource();
-		MaterialPtrList::iterator mat_iter = lod_iter->m_MaterialList.begin();
-		for (; mat_iter != lod_iter->m_MaterialList.end(); mat_iter++)
-		{
-			(*mat_iter)->ReleaseResource();
-		}
+		(*mat_iter)->ReleaseResource();
 	}
 
 	if (m_Animator)
 	{
 		m_Animator->ReleaseResource();
 	}
-
-	RenderComponent::ReleaseResource();
 }
 
 void MeshComponent::Update(float fElapsedTime)
@@ -132,9 +115,7 @@ void MeshComponent::Update(float fElapsedTime)
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	_ASSERT(m_LodId < m_Lods.size());
-
-	_ASSERT(AttribId < m_Lods[m_LodId].m_MaterialList.size());
+	_ASSERT(AttribId < m_MaterialList.size());
 
 	shader->SetMatrix("g_World", m_World);
 
@@ -143,36 +124,31 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
 	}
 
-	m_Lods[m_LodId].m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
 void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
 {
-	if (m_LodId < m_Lods.size())
+	if (m_MeshRes.m_Res)
 	{
-		LOD & lod = m_Lods[m_LodId];
-
-		if (lod.m_MeshRes.m_Res)
+		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
-			for (DWORD i = 0; i < lod.m_MaterialList.size(); i++)
+			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
 			{
-				if (lod.m_MaterialList[i] && (lod.m_MaterialList[i]->m_PassMask & PassMask))
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 				{
-					for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						if (RenderPipeline::PassTypeToMask(PassID) & (lod.m_MaterialList[i]->m_PassMask & PassMask))
+						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
+						if (shader)
 						{
-							my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, lod.m_MaterialList[i].get(), PassID);
-							if (shader)
+							if (m_bInstance)
 							{
-								if (m_bInstance)
-								{
-									pipeline->PushMeshInstance(PassID, lod.m_MeshRes.m_Res.get(), i, m_World, shader, this);
-								}
-								else
-								{
-									pipeline->PushMesh(PassID, lod.m_MeshRes.m_Res.get(), i, shader, this);
-								}
+								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_World, shader, this);
+							}
+							else
+							{
+								pipeline->PushMesh(PassID, m_MeshRes.m_Res.get(), i, shader, this);
 							}
 						}
 					}

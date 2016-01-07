@@ -247,7 +247,7 @@ void ExportMath2Lua(lua_State * L)
 
 		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
 			.def("AddComponent", &my::OctRoot::AddComponent)
-			.def("ClearComponents", &my::OctRoot::ClearComponents)
+			.def("ClearAllComponents", &my::OctRoot::ClearAllComponents)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)

@@ -144,7 +144,7 @@ bool OctNodeBase::RemoveComponent(OctComponent * cmp)
 	return false;
 }
 
-void OctNodeBase::ClearComponents(void)
+void OctNodeBase::ClearAllComponents(void)
 {
 	OctComponentSet::iterator cmp_iter = m_Components.begin();
 	if (cmp_iter != m_Components.end())
@@ -158,7 +158,7 @@ void OctNodeBase::ClearComponents(void)
 	{
 		if (m_Childs[i])
 		{
-			m_Childs[i]->ClearComponents();
+			m_Childs[i]->ClearAllComponents();
 			m_Childs[i].reset();
 		}
 	}

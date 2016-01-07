@@ -227,30 +227,9 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	struct LOD
-	{
-		ResourceBundle<my::Mesh> m_MeshRes;
+	ResourceBundle<my::Mesh> m_MeshRes;
 
-		MaterialPtrList m_MaterialList;
-
-		void AddMaterial(MaterialPtr material)
-		{
-			m_MaterialList.push_back(material);
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
-			ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
-		}
-	};
-
-	typedef std::vector<LOD> LODList;
-
-	LODList m_Lods;
-
-	unsigned int m_LodId;
+	MaterialPtrList m_MaterialList;
 
 	bool m_bInstance;
 
@@ -259,14 +238,12 @@ public:
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(aabb, World, ComponentTypeMesh)
-		, m_LodId(0)
 		, m_bInstance(bInstance)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeMesh)
-		, m_LodId(0)
 		, m_bInstance(false)
 	{
 	}
@@ -283,12 +260,16 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_Lods);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
+		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 		ar & BOOST_SERIALIZATION_NVP(m_Animator);
 	}
 
-	MeshComponent::LOD & GetLod(unsigned int Id);
+	void AddMaterial(MaterialPtr mat)
+	{
+		m_MaterialList.push_back(mat);
+	}
 
 	virtual void RequestResource(void);
 

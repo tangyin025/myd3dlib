@@ -277,6 +277,8 @@ void Game::OnDestroyDevice(void)
 
 	m_Console.reset();
 
+	m_Root.ClearAllComponents();
+
 	RemoveAllDlg();
 
 	m_SimpleSample.reset();

@@ -379,17 +379,13 @@ void Export2Lua(lua_State * L)
 
 		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
-		, class_<MeshComponent::LOD>("MeshComponentLOD")
-			.def_readonly("MeshRes", &MeshComponent::LOD::m_MeshRes)
-			.def("AddMaterial", &MeshComponent::LOD::AddMaterial)
-
 		, class_<MeshComponent, RenderComponent, boost::shared_ptr<Component> >("MeshComponent")
 			.def(constructor<const my::AABB &, const my::Matrix4 &, bool>())
 			.def(constructor<>())
-			.def_readwrite("LodId", &MeshComponent::m_LodId)
+			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
-			.def("GetLod", &MeshComponent::GetLod)
+			.def("AddMaterial", &MeshComponent::AddMaterial)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
 			.def(constructor<const my::AABB &, const my::Matrix4 &>())
