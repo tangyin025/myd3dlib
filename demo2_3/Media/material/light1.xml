@@ -15,7 +15,7 @@
 							<m_Type>1</m_Type>
 						</ParameterValue>
 						<ResourceBundle class_id="7" tracking_level="0" version="0">
-							<m_ResPath>texture/white.bmp</m_ResPath>
+							<m_ResPath>texture/White.dds</m_ResPath>
 						</ResourceBundle>
 					</px>
 				</second>

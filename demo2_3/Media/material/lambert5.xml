@@ -41,7 +41,7 @@
 							<m_Type>1</m_Type>
 						</ParameterValue>
 						<ResourceBundle>
-							<m_ResPath>texture/white.bmp</m_ResPath>
+							<m_ResPath>texture/White.dds</m_ResPath>
 						</ResourceBundle>
 					</px>
 				</second>

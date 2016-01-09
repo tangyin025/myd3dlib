@@ -446,8 +446,8 @@ void CMainFrame::OnComponentMesh()
 			{
 				MaterialPtr lambert1(new Material());
 				lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
-				lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
-				lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
+				lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Normal.dds"))));
+				lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/White.dds"))));
 				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
 				lambert1->m_Shader = "lambert1.fx";
 				mesh_cmp->m_MaterialList.push_back(lambert1);

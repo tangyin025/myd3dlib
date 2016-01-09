@@ -115,7 +115,7 @@ public:
 		//MaterialPtr lambert2(new Material());
 		//lambert2->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall.jpg"))));
 		//lambert2->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall_NM_height.DDS"))));
-		//lambert2->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/white.bmp"))));
+		//lambert2->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/White.dds"))));
 		//lambert2->m_PassMask = RenderPipeline::PassMaskOpaque;
 		//lambert2->m_Shader = "lambert1.fx";
 		//terrain_cmp->m_Material = lambert2;

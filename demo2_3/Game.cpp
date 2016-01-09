@@ -156,7 +156,7 @@ HRESULT Game::OnCreateDevice(
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
 
-	if (!(m_UIRender->m_TexWhite = LoadTexture("texture/white.bmp")))
+	if (!(m_UIRender->m_TexWhite = LoadTexture("texture/White.dds")))
 	{
 		THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
 	}

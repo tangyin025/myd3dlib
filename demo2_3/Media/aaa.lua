@@ -8,7 +8,7 @@ game:SaveMaterial("material/particle1.xml", material)
 material=Material()
 material.Shader="light1.fx"
 material.PassMask=Material.PassMaskLight
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/white.bmp"))
+material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/White.dds"))
 game:SaveMaterial("material/light1.xml", material)
 
 material=Material()
@@ -40,7 +40,7 @@ material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
 material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/wall.jpg"))
 material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/wall_NM_height.DDS"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/white.bmp"))
+material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/White.dds"))
 game:SaveMaterial("material/lambert1.xml", material)
 game:SaveMaterial("material/lambert2.xml", material)
 game:SaveMaterial("material/lambert3.xml", material)

@@ -76,7 +76,7 @@ material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
 material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/wall.jpg"))
 material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/wall_NM_height.DDS"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/white.bmp"))
+material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/White.dds"))
 cmp3.Material = material
 cmp3:RequestResource()
 game.Root:AddComponent(cmp2raw(cmp3),1.0)
