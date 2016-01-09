@@ -44,7 +44,6 @@ public:
 	ComponentPtrList m_cmps;
 	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
-	Event m_EventHistoryChanged;
 
 // Operations
 public:

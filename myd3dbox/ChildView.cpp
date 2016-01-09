@@ -254,11 +254,6 @@ void CChildView::OnSelectionChanged(void)
 	Invalidate();
 }
 
-void CChildView::OnHistoryChanged(void)
-{
-	Invalidate();
-}
-
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
@@ -398,7 +393,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this));
-	CMainFrame::getSingleton().m_EventHistoryChanged.connect(boost::bind(&CChildView::OnHistoryChanged, this));
 
 	return 0;
 }
@@ -409,7 +403,6 @@ void CChildView::OnDestroy()
 
 	// TODO: Add your message handler code here
 	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this));
-	CMainFrame::getSingleton().m_EventHistoryChanged.disconnect(boost::bind(&CChildView::OnHistoryChanged, this));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)

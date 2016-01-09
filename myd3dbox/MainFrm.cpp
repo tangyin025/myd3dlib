@@ -432,6 +432,35 @@ void CMainFrame::OnFileSave()
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK == dlg.DoModal())
+	{
+		CString strPathName = dlg.GetPathName();
+		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+		if (mesh)
+		{
+			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
+			mesh_cmp->m_MeshRes.m_ResPath = ts2ms((LPCTSTR)strPathName);
+			mesh_cmp->m_MeshRes.OnReady(mesh);
+			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+			{
+				MaterialPtr lambert1(new Material());
+				lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
+				lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
+				lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/Checker.bmp"))));
+				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+				lambert1->m_Shader = "lambert1.fx";
+				mesh_cmp->m_MaterialList.push_back(lambert1);
+			}
+			mesh_cmp->RequestResource();
+			m_Root.AddComponent(mesh_cmp.get());
+			m_cmps.push_back(mesh_cmp);
+		}
+		else
+		{
+			MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
+		}
+	}
 }
 
 void CMainFrame::OnEditDelete()
