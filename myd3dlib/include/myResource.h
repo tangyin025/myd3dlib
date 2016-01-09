@@ -103,40 +103,6 @@ namespace my
 		virtual int write(const void * buff, unsigned write_size);
 	};
 
-	class MemoryIStream : public IStream
-	{
-	protected:
-		unsigned char * m_buffer;
-
-		long m_size;
-
-		long m_tell;
-
-	public:
-		MemoryIStream(void * buffer, size_t size);
-
-		virtual int read(void * buff, unsigned read_size);
-
-		virtual long seek(long offset);
-
-		virtual long tell(void);
-
-		virtual unsigned long GetSize(void);
-	};
-
-	class MemoryOStream : public OStream
-	{
-	public:
-		CachePtr m_cache;
-
-	public:
-		MemoryOStream(void);
-
-		virtual int write(const void * buff, unsigned write_size);
-	};
-
-	typedef boost::shared_ptr<MemoryOStream> MemoryOStreamPtr;
-
 	class StreamDir
 	{
 	public:
@@ -331,14 +297,17 @@ namespace my
 
 	class Emitter;
 
-	class membuf : public std::streambuf
+	class IStreamBuff : public std::streambuf
 	{
+	protected:
+		IStreamPtr fptr_;
+		const std::size_t put_back_;
+		std::vector<char> buffer_;
+
 	public:
-		membuf(const char * buff, size_t size)
-		{
-			char * p = const_cast<char *>(buff);
-			setg(p, p, p + size);
-		}
+		IStreamBuff(IStreamPtr fptr, size_t buff_sz = 1024, size_t put_back = 1);
+
+		std::streambuf::int_type underflow(void);
 	};
 
 	class ResourceMgr

@@ -138,57 +138,6 @@ int FileOStream::write(const void * buff, unsigned write_size)
 	return _write(m_fp, buff, write_size);
 }
 
-MemoryIStream::MemoryIStream(void * buffer, size_t size)
-	: m_buffer((unsigned char *)buffer)
-	, m_size(size)
-	, m_tell(0)
-{
-}
-
-int MemoryIStream::read(void * buff, unsigned read_size)
-{
-	int copy_size = Min<int>(read_size, m_size - m_tell);
-	if (copy_size > 0)
-	{
-		memcpy(buff, m_buffer + m_tell, copy_size);
-		m_tell += copy_size;
-	}
-	return copy_size;
-}
-
-long MemoryIStream::seek(long offset)
-{
-	m_tell = Min<long>(m_size, offset);
-	return 0;
-}
-
-long MemoryIStream::tell(void)
-{
-	return m_tell;
-}
-
-unsigned long MemoryIStream::GetSize(void)
-{
-	return m_size;
-}
-
-MemoryOStream::MemoryOStream(void)
-	: m_cache(new Cache)
-{
-	_ASSERT(m_cache->size() == 0);
-}
-
-int MemoryOStream::write(const void * buff, unsigned write_size)
-{
-	if (write_size > 0)
-	{
-		size_t prev_size = m_cache->size();
-		m_cache->resize(prev_size + write_size);
-		memcpy(&(*m_cache)[prev_size], buff, write_size);
-	}
-	return write_size;
-}
-
 std::string StreamDir::ReplaceSlash(const std::string & path)
 {
 	size_t pos = 0;
@@ -495,6 +444,42 @@ void AsynchronousIOMgr::StopIORequestProc(void)
 	m_bStopped = true;
 	m_IORequestListMutex.Release();
 	m_IORequestListCondition.Wake(1);
+}
+
+IStreamBuff::IStreamBuff(IStreamPtr fptr, size_t buff_sz, size_t put_back)
+	: fptr_(fptr)
+	, put_back_(std::max(put_back, size_t(1)))
+	, buffer_(std::max(buff_sz, put_back_) + put_back_)
+{
+	char *end = &buffer_.front() + buffer_.size();
+	setg(end, end, end);
+}
+
+std::streambuf::int_type IStreamBuff::underflow(void)
+{
+	if (gptr() < egptr()) // buffer not exhausted
+		return traits_type::to_int_type(*gptr());
+
+	char *base = &buffer_.front();
+	char *start = base;
+
+	if (eback() == base) // true when this isn't the first fill
+	{
+		// Make arrangements for putback characters
+		std::memmove(base, egptr() - put_back_, put_back_);
+		start += put_back_;
+	}
+
+	// start is now the start of the buffer, proper.
+	// Read from fptr_ in to the provided buffer
+	size_t n = fptr_->read(start, buffer_.size() - (start - base));
+	if (n == 0)
+		return traits_type::eof();
+
+	// Set buffer pointers
+	setg(base, start, start + n);
+
+	return traits_type::to_int_type(*gptr());
 }
 
 HRESULT ResourceMgr::OnCreateDevice(
