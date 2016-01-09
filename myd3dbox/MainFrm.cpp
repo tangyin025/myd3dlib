@@ -29,10 +29,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_WM_DESTROY()
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
-	ON_COMMAND(ID_EDIT_UNDO, &CMainFrame::OnEditUndo)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_UNDO, &CMainFrame::OnUpdateEditUndo)
-	ON_COMMAND(ID_EDIT_REDO, &CMainFrame::OnEditRedo)
-	ON_UPDATE_COMMAND_UI(ID_EDIT_REDO, &CMainFrame::OnUpdateEditRedo)
+	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_COMMAND(ID_COMPONENT_MESHSET, &CMainFrame::OnComponentMeshset)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
@@ -50,6 +47,7 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
+	: m_Root(my::Vector3(-1000), my::Vector3(1000), 1.0f)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -345,11 +343,18 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+void CMainFrame::ClearAllComponents()
+{
+	m_Root.ClearAllComponents();
+	m_cmps.clear();
+}
+
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
 
 	// TODO: Add your message handler code here
+	ClearAllComponents();
 	theApp.DestroyD3DDevice();
 }
 
@@ -368,12 +373,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
-	m_History.ClearHistory();
-
-	//MeshComponentPtr cmp = theApp.CreateMeshComponentFromFile(m_Actor.get(),
-	//	"mesh/casual19_m_highpoly.mesh.xml", my::AABB(-50,50), my::Matrix4::Scaling(0.05f,0.05f,0.05f), false);
-	//my::OgreMeshSetPtr mesh_set = theApp.LoadMeshSet("mesh/scene.mesh.xml");
-	//theApp.CreateMeshComponentList(m_Actor.get(), mesh_set);
+	ClearAllComponents();
 
 	InitialUpdateFrame(NULL, TRUE);
 }
@@ -381,34 +381,12 @@ void CMainFrame::OnFileNew()
 void CMainFrame::OnFileOpen()
 {
 	// TODO: Add your command handler code here
+	ClearAllComponents();
 }
 
-void CMainFrame::OnEditUndo()
+void CMainFrame::OnFileSave()
 {
 	// TODO: Add your command handler code here
-	m_History.Undo();
-	EventArg arg;
-	m_EventHistoryChanged(&arg);
-}
-
-void CMainFrame::OnUpdateEditUndo(CCmdUI *pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_History.CanUndo());
-}
-
-void CMainFrame::OnEditRedo()
-{
-	// TODO: Add your command handler code here
-	m_History.Do();
-	EventArg arg;
-	m_EventHistoryChanged(&arg);
-}
-
-void CMainFrame::OnUpdateEditRedo(CCmdUI *pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(m_History.CanDo());
 }
 
 void CMainFrame::OnComponentMesh()

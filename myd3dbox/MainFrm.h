@@ -6,8 +6,7 @@
 
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
-#include "../demo2_3/Component/Actor.h"
-#include "HistoryManager.h"
+#include "../demo2_3/Component/Component.h"
 #include "PivotController.h"
 
 struct EventArg
@@ -38,8 +37,10 @@ public:
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
 	CRectTracker m_Tracker;
-	HistoryManager m_History;
 	PivotController m_Pivot;
+	my::OctRoot m_Root;
+	typedef std::vector<ComponentPtr> ComponentPtrList;
+	ComponentPtrList m_cmps;
 	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
 	Event m_EventHistoryChanged;
@@ -75,16 +76,14 @@ protected:
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
+	void ClearAllComponents();
 
 public:
 	afx_msg void OnDestroy();
 	virtual BOOL PreTranslateMessage(MSG* pMsg);
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
-	afx_msg void OnEditUndo();
-	afx_msg void OnUpdateEditUndo(CCmdUI *pCmdUI);
-	afx_msg void OnEditRedo();
-	afx_msg void OnUpdateEditRedo(CCmdUI *pCmdUI);
+	afx_msg void OnFileSave();
 	afx_msg void OnComponentMesh();
 	afx_msg void OnComponentMeshset();
 	afx_msg void OnEditDelete();

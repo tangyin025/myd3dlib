@@ -208,6 +208,34 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
+	struct CallBack : public my::IQueryCallback
+	{
+		const my::Frustum & frustum;
+		RenderPipeline * pipeline;
+		unsigned int PassMask;
+		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+			: frustum(_frustum)
+			, pipeline(_pipeline)
+			, PassMask(_PassMask)
+		{
+		}
+		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		{
+			RenderComponent * render_cmp = static_cast<RenderComponent *>(oct_cmp);
+			if (render_cmp)
+			{
+				if (!render_cmp->IsRequested())
+				{
+					render_cmp->RequestResource();
+				}
+				render_cmp->AddToPipeline(pipeline, PassMask);
+			}
+		}
+	};
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -387,15 +415,122 @@ void CChildView::OnDestroy()
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
+	{
+		StartPerformanceCount();
+		//ASSERT(m_CmpWorldOptList.empty());
+		//CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
+		//for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
+		//{
+		//	m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, *sel_iter, (*sel_iter)->m_World)));
+		//}
+		//m_PivotDragPos = pFrame->m_Pivot.m_Pos;
+		SetCapture();
+		Invalidate();
+		return;
+	}
+
+	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
+	pFrame->m_Tracker.m_rect.NormalizeRect();
+
+	//StartPerformanceCount();
+	//bool bSelectionChanged = false;
+	//if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_SelectionSet.empty())
+	//{
+	//	pFrame->m_SelectionSet.clear();
+	//	bSelectionChanged = true;
+	//}
+
+	//if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
+	//{
+	//	my::Rectangle rc(
+	//		(float)pFrame->m_Tracker.m_rect.left,
+	//		(float)pFrame->m_Tracker.m_rect.top,
+	//		(float)pFrame->m_Tracker.m_rect.right,
+	//		(float)pFrame->m_Tracker.m_rect.bottom);
+	//	if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	//	{
+	//		SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+	//		for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
+	//		{
+	//			pFrame->m_SelectionSet.insert(cmp_iter->second);
+	//			bSelectionChanged = true;
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	if (OnRayTest(ray))
+	//	{
+	//		SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
+	//		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_SelectionSet.find(cmp_iter->second);
+	//		if (sel_iter != pFrame->m_SelectionSet.end())
+	//		{
+	//			pFrame->m_SelectionSet.erase(sel_iter);
+	//			bSelectionChanged = true;
+	//		}
+	//		else
+	//		{
+	//			pFrame->m_SelectionSet.insert(cmp_iter->second);
+	//			bSelectionChanged = true;
+	//		}
+	//	}
+	//}
+
+	//if (bSelectionChanged)
+	//{
+	//	pFrame->UpdateSelectionBox();
+	//	pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
+	//	EventArg arg;
+	//	pFrame->m_EventSelectionChanged(&arg);
+	//}
+
+	//Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: Add your message handler code here and/or call default
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	{
+		StartPerformanceCount();
+		//HistoryStepPtr step(new HistoryStep);
+		//ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
+		//for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
+		//{
+		//	step->m_Ops.push_back(std::make_pair(
+		//		HistoryStep::OperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, (*cmp_world_iter)->m_cmp, (*cmp_world_iter)->m_cmp->m_World)),
+		//		*cmp_world_iter));
+		//}
+		//pFrame->m_History.PushAndDo(step);
+		//pFrame->UpdateSelectionBox();
+		//m_CmpWorldOptList.clear();
+		ReleaseCapture();
+		Invalidate();
+	}
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
+	{
+		StartPerformanceCount();
+		//ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
+		//for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
+		//{
+		//	(*cmp_world_iter)->m_cmp->m_World = (*cmp_world_iter)->m_NewValue * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+		//}
+		Invalidate();
+	}
 }
 
 BOOL CChildView::PreTranslateMessage(MSG* pMsg)

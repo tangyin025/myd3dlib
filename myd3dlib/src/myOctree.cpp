@@ -147,7 +147,7 @@ bool OctNodeBase::RemoveComponent(OctComponent * cmp)
 void OctNodeBase::ClearAllComponents(void)
 {
 	OctComponentSet::iterator cmp_iter = m_Components.begin();
-	if (cmp_iter != m_Components.end())
+	for (; cmp_iter != m_Components.end(); cmp_iter++)
 	{
 		_ASSERT((*cmp_iter)->m_OctNode == this);
 		(*cmp_iter)->m_OctNode = NULL;
