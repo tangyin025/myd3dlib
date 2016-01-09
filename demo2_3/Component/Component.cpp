@@ -163,6 +163,7 @@ void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMa
 void EmitterComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
+
 	if (m_Material)
 	{
 		m_Material->RequestResource();
@@ -171,11 +172,12 @@ void EmitterComponent::RequestResource(void)
 
 void EmitterComponent::ReleaseResource(void)
 {
+	RenderComponent::ReleaseResource();
+
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
 	}
-	RenderComponent::ReleaseResource();
 }
 
 void EmitterComponent::Update(float fElapsedTime)
@@ -349,6 +351,8 @@ void TerrainComponent::OnDestroyDevice(void)
 
 void TerrainComponent::RequestResource(void)
 {
+	RenderComponent::RequestResource();
+
 	if (!m_Decl)
 	{
 		CreateVertices();
@@ -362,6 +366,8 @@ void TerrainComponent::RequestResource(void)
 
 void TerrainComponent::ReleaseResource(void)
 {
+	RenderComponent::ReleaseResource();
+
 	if (m_Decl)
 	{
 		DestroyVertices();

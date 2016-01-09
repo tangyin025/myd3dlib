@@ -36,6 +36,7 @@ public:
 	BOOL m_bEatAltUp;
 	COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
+	CString m_strPathName;
 	CRectTracker m_Tracker;
 	PivotController m_Pivot;
 	my::OctRoot m_Root;
@@ -85,7 +86,6 @@ public:
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
 	afx_msg void OnComponentMesh();
-	afx_msg void OnComponentMeshset();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 };

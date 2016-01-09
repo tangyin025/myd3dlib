@@ -7,6 +7,11 @@
 
 #include "MainFrm.h"
 #include "ChildView.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <fstream>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -31,7 +36,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
-	ON_COMMAND(ID_COMPONENT_MESHSET, &CMainFrame::OnComponentMeshset)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 END_MESSAGE_MAP()
@@ -382,19 +386,50 @@ void CMainFrame::OnFileOpen()
 {
 	// TODO: Add your command handler code here
 	ClearAllComponents();
+
+	CString strPathName;
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult == IDCANCEL)
+	{
+		return;
+	}
+
+	m_strPathName = strPathName;
+	std::basic_ifstream<char> ifs(m_strPathName);
+	boost::archive::xml_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("level", m_cmps);
+	ComponentPtrList::iterator cmp_iter = m_cmps.begin();
+	for (; cmp_iter != m_cmps.end(); cmp_iter++)
+	{
+		m_Root.AddComponent(cmp_iter->get());
+	}
 }
 
 void CMainFrame::OnFileSave()
 {
 	// TODO: Add your command handler code here
+	DWORD dwAttrib = GetFileAttributes(m_strPathName);
+	if (dwAttrib & FILE_ATTRIBUTE_READONLY)
+	{
+		CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+		dlg.m_ofn.lpstrFile = m_strPathName.GetBuffer(_MAX_PATH);
+		INT_PTR nResult = dlg.DoModal();
+		m_strPathName.ReleaseBuffer();
+		if (nResult == IDCANCEL)
+		{
+			return;
+		}
+	}
+
+	std::basic_ofstream<char> ofs(m_strPathName);
+	boost::archive::xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("level", m_cmps);
 }
 
 void CMainFrame::OnComponentMesh()
-{
-	// TODO: Add your command handler code here
-}
-
-void CMainFrame::OnComponentMeshset()
 {
 	// TODO: Add your command handler code here
 }

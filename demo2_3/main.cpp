@@ -124,15 +124,15 @@ public:
 		m_cmps.push_back(terrain_cmp);
 
 		// 保存场景
-		std::ofstream ofs(GetFullPath("scene.component_list.xml").c_str());
+		std::ofstream ofs(GetFullPath("level.xml").c_str());
 		boost::archive::xml_oarchive oa(ofs);
-		oa << boost::serialization::make_nvp("scene.component_list", m_cmps);
+		oa << boost::serialization::make_nvp("level", m_cmps);
 
 		//// 读取场景
-		//IStreamBuff buff(OpenIStream("scene.component_list.xml"));
+		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
 		//boost::archive::xml_iarchive ia(istr);
-		//ia >> boost::serialization::make_nvp("scene.component_list.xml", m_cmps);
+		//ia >> boost::serialization::make_nvp("level", m_cmps);
 		//for (unsigned int i = 0; i < m_cmps.size(); i++)
 		//{
 		//	m_Root.AddComponent(m_cmps[i].get());
