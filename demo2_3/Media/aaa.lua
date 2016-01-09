@@ -15,8 +15,8 @@ material=Material()
 material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
 material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/casual19_m_35.jpg"))
-material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/casual19_m_35_normal.dds"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/casual19_m_35_spec.dds"))
+material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/casual19_m_35_normal.png"))
+material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/casual19_m_35_spec.png"))
 game:SaveMaterial("material/casual19_m_highpolyPhong.xml", material)
 
 material=Material()

@@ -28,7 +28,7 @@
 							<m_Type>1</m_Type>
 						</ParameterValue>
 						<ResourceBundle>
-							<m_ResPath>texture/casual19_m_35_normal.dds</m_ResPath>
+							<m_ResPath>texture/casual19_m_35_normal.png</m_ResPath>
 						</ResourceBundle>
 					</px>
 				</second>
@@ -41,7 +41,7 @@
 							<m_Type>1</m_Type>
 						</ParameterValue>
 						<ResourceBundle>
-							<m_ResPath>texture/casual19_m_35_spec.dds</m_ResPath>
+							<m_ResPath>texture/casual19_m_35_spec.png</m_ResPath>
 						</ResourceBundle>
 					</px>
 				</second>
