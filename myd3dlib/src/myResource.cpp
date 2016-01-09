@@ -415,9 +415,9 @@ void AsynchronousIOMgr::RemoveIORequestCallback(const std::string & key, IResour
 			IORequest::IResourceCallbackSet::iterator callback_iter = req_iter->second->m_callbacks.find(callback);
 			if (callback_iter != req_iter->second->m_callbacks.end())
 			{
-				req_iter->second->m_callbacks.erase(callback_iter);
 				_ASSERT((*callback_iter)->IsRequested());
 				(*callback_iter)->m_Requested = false;
+				req_iter->second->m_callbacks.erase(callback_iter);
 				if (req_iter->second->m_callbacks.empty())
 				{
 					m_IORequestList.erase(req_iter);

@@ -92,8 +92,6 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	RenderComponent::ReleaseResource();
-
 	m_MeshRes.ReleaseResource();
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -105,6 +103,8 @@ void MeshComponent::ReleaseResource(void)
 	{
 		m_Animator->ReleaseResource();
 	}
+
+	RenderComponent::ReleaseResource();
 }
 
 void MeshComponent::Update(float fElapsedTime)
@@ -172,12 +172,12 @@ void EmitterComponent::RequestResource(void)
 
 void EmitterComponent::ReleaseResource(void)
 {
-	RenderComponent::ReleaseResource();
-
 	if (m_Material)
 	{
 		m_Material->ReleaseResource();
 	}
+
+	RenderComponent::ReleaseResource();
 }
 
 void EmitterComponent::Update(float fElapsedTime)
@@ -366,8 +366,6 @@ void TerrainComponent::RequestResource(void)
 
 void TerrainComponent::ReleaseResource(void)
 {
-	RenderComponent::ReleaseResource();
-
 	if (m_Decl)
 	{
 		DestroyVertices();
@@ -377,6 +375,8 @@ void TerrainComponent::ReleaseResource(void)
 	{
 		m_Material->ReleaseResource();
 	}
+
+	RenderComponent::ReleaseResource();
 }
 
 void TerrainComponent::Update(float fElapsedTime)
