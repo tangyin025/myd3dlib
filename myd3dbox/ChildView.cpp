@@ -41,6 +41,7 @@ END_MESSAGE_MAP()
 
 CChildView::CChildView()
 	: m_PivotScale(1.0f)
+	, m_PivotDragPos(0,0,0)
 	, m_CameraType(CameraTypeUnknown)
 	, m_CameraDiagonal(30.0f)
 {
@@ -238,6 +239,42 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
+void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
+{
+	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (!pFrame->m_selcmps.empty())
+	{
+		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
+		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+		{
+			switch ((*sel_iter)->m_Type)
+			{
+			case Component::ComponentTypeMesh:
+				{
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
+					if (mesh_cmp->m_MeshRes.m_Res)
+					{
+						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+						UINT passes = theApp.m_SimpleSample->Begin();
+						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+						{
+							theApp.m_SimpleSample->BeginPass(0);
+							mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+							theApp.m_SimpleSample->EndPass();
+						}
+						theApp.m_SimpleSample->End();
+					}
+				}
+				break;
+			}
+		}
+		//PushWireAABB(pFrame->m_SelectionBox, D3DCOLOR_ARGB(255,255,255,255));
+	}
+}
+
 void CChildView::StartPerformanceCount(void)
 {
 	QueryPerformanceCounter(&m_qwTime[0]);
@@ -247,6 +284,211 @@ double CChildView::EndPerformanceCount(void)
 {
 	QueryPerformanceCounter(&m_qwTime[1]);
 	return (double)(m_qwTime[1].QuadPart - m_qwTime[0].QuadPart) / theApp.m_llQPFTicksPerSec;
+}
+
+bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp)
+{
+	my::Frustum local_ftm = frustum.transform(cmp->m_World.transpose());
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
+			if (!mesh)
+			{
+				return false;
+			}
+			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+			{
+				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+				my::D3DVertexElementSet elems;
+				elems.InsertPositionElement(0);
+				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					elems,
+					mesh->LockVertexBuffer(),
+					mesh->GetNumBytesPerVertex(),
+					mesh->m_VertexElems,
+					mesh_cmp->m_Animator->m_DualQuats);
+				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					mesh->LockIndexBuffer(),
+					!(mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh->GetNumFaces(),
+					elems);
+				mesh->UnlockVertexBuffer();
+				mesh->UnlockIndexBuffer();
+				return ret;
+			}
+			else
+			{
+				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+					mesh->LockVertexBuffer(),
+					mesh->GetNumVertices(),
+					mesh->GetNumBytesPerVertex(),
+					mesh->LockIndexBuffer(),
+					!(mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh->GetNumFaces(),
+					mesh->m_VertexElems);
+				mesh->UnlockVertexBuffer();
+				mesh->UnlockIndexBuffer();
+				return ret;
+			}
+		}
+		break;
+	}
+	return false;
+}
+
+bool CChildView::OverlapTestFrustumAndMesh(
+	const my::Frustum & frustum,
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	const my::D3DVertexElementSet & VertexElems)
+{
+	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i1, i2, i3;
+		if(bIndices16)
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const my::Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const my::Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const my::Vector3 & v3 = VertexElems.GetPosition(pv3);
+
+		my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v1, v2, v3, frustum);
+		if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp)
+{
+	my::Ray local_ray = ray.transform(cmp->m_World.inverse());
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
+			if (!mesh)
+			{
+				return my::RayResult(false, FLT_MAX);
+			}
+			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+			{
+				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+				my::D3DVertexElementSet elems;
+				elems.InsertPositionElement(0);
+				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					elems,
+					mesh->LockVertexBuffer(),
+					mesh->GetNumBytesPerVertex(),
+					mesh->m_VertexElems,
+					mesh_cmp->m_Animator->m_DualQuats);
+				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					mesh->LockIndexBuffer(),
+					!(mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh->GetNumFaces(),
+					elems);
+				mesh->UnlockVertexBuffer();
+				mesh->UnlockIndexBuffer();
+				return ret;
+			}
+			else
+			{
+				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
+					mesh->LockVertexBuffer(),
+					mesh->GetNumVertices(),
+					mesh->GetNumBytesPerVertex(),
+					mesh->LockIndexBuffer(),
+					!(mesh->GetOptions() & D3DXMESH_32BIT),
+					mesh->GetNumFaces(),
+					mesh->m_VertexElems);
+				mesh->UnlockVertexBuffer();
+				mesh->UnlockIndexBuffer();
+				return ret;
+			}
+		}
+		break;
+	}
+	return my::RayResult(false, FLT_MAX);
+}
+
+my::RayResult CChildView::OverlapTestRayAndMesh(
+	const my::Ray & ray,
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	bool bIndices16,
+	DWORD NumFaces,
+	const my::D3DVertexElementSet & VertexElems)
+{
+	my::RayResult ret(false, FLT_MAX);
+	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i1, i2, i3;
+		if(bIndices16)
+		{
+			i1 = *((WORD *)pIndices + face_i * 3 + 0);
+			i2 = *((WORD *)pIndices + face_i * 3 + 1);
+			i3 = *((WORD *)pIndices + face_i * 3 + 2);
+		}
+		else
+		{
+			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
+			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
+			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
+		}
+
+		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
+		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
+		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+
+		const my::Vector3 & v1 = VertexElems.GetPosition(pv1);
+		const my::Vector3 & v2 = VertexElems.GetPosition(pv2);
+		const my::Vector3 & v3 = VertexElems.GetPosition(pv3);
+
+		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v1, v2, v3);
+		if (result.first && result.second < ret.second)
+		{
+			ret = result;
+		}
+	}
+	return ret;
 }
 
 void CChildView::OnSelectionChanged(void)
@@ -326,6 +568,8 @@ void CChildView::OnPaint()
 				{
 					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
 				}
+
+				RenderSelectedObject(theApp.m_d3dDevice);
 
 				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
@@ -414,13 +658,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
-		//ASSERT(m_CmpWorldOptList.empty());
-		//CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_SelectionSet.begin();
-		//for (; sel_iter != pFrame->m_SelectionSet.end(); sel_iter++)
-		//{
-		//	m_CmpWorldOptList.push_back(ComponentWorldOperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, *sel_iter, (*sel_iter)->m_World)));
-		//}
-		//m_PivotDragPos = pFrame->m_Pivot.m_Pos;
+		m_PivotDragPos = pFrame->m_Pivot.m_Pos;
 		SetCapture();
 		Invalidate();
 		return;
@@ -429,59 +667,97 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
 	pFrame->m_Tracker.m_rect.NormalizeRect();
 
-	//StartPerformanceCount();
-	//bool bSelectionChanged = false;
-	//if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_SelectionSet.empty())
-	//{
-	//	pFrame->m_SelectionSet.clear();
-	//	bSelectionChanged = true;
-	//}
+	StartPerformanceCount();
+	bool bSelectionChanged = false;
+	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selcmps.empty())
+	{
+		pFrame->m_selcmps.clear();
+		bSelectionChanged = true;
+	}
 
-	//if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
-	//{
-	//	my::Rectangle rc(
-	//		(float)pFrame->m_Tracker.m_rect.left,
-	//		(float)pFrame->m_Tracker.m_rect.top,
-	//		(float)pFrame->m_Tracker.m_rect.right,
-	//		(float)pFrame->m_Tracker.m_rect.bottom);
-	//	if (OnFrustumTest(m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-	//	{
-	//		SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-	//		for (; cmp_iter != m_SelCmpMap.end(); cmp_iter++)
-	//		{
-	//			pFrame->m_SelectionSet.insert(cmp_iter->second);
-	//			bSelectionChanged = true;
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	if (OnRayTest(ray))
-	//	{
-	//		SelCmpMap::const_iterator cmp_iter = m_SelCmpMap.begin();
-	//		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_SelectionSet.find(cmp_iter->second);
-	//		if (sel_iter != pFrame->m_SelectionSet.end())
-	//		{
-	//			pFrame->m_SelectionSet.erase(sel_iter);
-	//			bSelectionChanged = true;
-	//		}
-	//		else
-	//		{
-	//			pFrame->m_SelectionSet.insert(cmp_iter->second);
-	//			bSelectionChanged = true;
-	//		}
-	//	}
-	//}
+	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
+	{
+		my::Rectangle rc(
+			(float)pFrame->m_Tracker.m_rect.left,
+			(float)pFrame->m_Tracker.m_rect.top,
+			(float)pFrame->m_Tracker.m_rect.right,
+			(float)pFrame->m_Tracker.m_rect.bottom);
+		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+		struct Callback : public my::IQueryCallback
+		{
+			CMainFrame::ComponentSet selcmps;
+			const my::Frustum & ftm;
+			Callback(const my::Frustum & _ftm)
+				: ftm(_ftm)
+			{
+			}
+			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+			{
+				Component * cmp = dynamic_cast<Component *>(oct_cmp);
+				if (cmp && CChildView::OverlapTestFrustumAndComponent(ftm, cmp))
+				{
+					selcmps.insert(cmp);
+				}
+			}
+		};
+		Callback cb(ftm);
+		pFrame->m_Root.QueryComponent(ftm, &cb);
+		CMainFrame::ComponentSet::iterator cmp_iter = cb.selcmps.begin();
+		for (; cmp_iter != cb.selcmps.end(); cmp_iter++)
+		{
+			pFrame->m_selcmps.insert(*cmp_iter);
+			bSelectionChanged = true;
+		}
+	}
+	else
+	{
+		struct Callback : public my::IQueryCallback
+		{
+			typedef std::map<float, Component *> ComponentMap;
+			ComponentMap selcmps;
+			const my::Ray & ray;
+			Callback(const my::Ray & _ray)
+				: ray(_ray)
+			{
+			}
+			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+			{
+				Component * cmp = dynamic_cast<Component *>(oct_cmp);
+				my::RayResult ret;
+				if (cmp && (ret = CChildView::OverlapTestRayAndComponent(ray, cmp), ret.first))
+				{
+					selcmps.insert(std::make_pair(ret.second, cmp));
+				}
+			}
+		};
+		Callback cb(ray);
+		pFrame->m_Root.QueryComponent(ray, &cb);
+		Callback::ComponentMap::iterator cmp_iter = cb.selcmps.begin();
+		if (cmp_iter != cb.selcmps.end())
+		{
+			CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.find(cmp_iter->second);
+			if (sel_iter != pFrame->m_selcmps.end())
+			{
+				pFrame->m_selcmps.erase(sel_iter);
+				bSelectionChanged = true;
+			}
+			else
+			{
+				pFrame->m_selcmps.insert(cmp_iter->second);
+				bSelectionChanged = true;
+			}
+		}
+	}
 
-	//if (bSelectionChanged)
-	//{
-	//	pFrame->UpdateSelectionBox();
-	//	pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
-	//	EventArg arg;
-	//	pFrame->m_EventSelectionChanged(&arg);
-	//}
+	if (bSelectionChanged)
+	{
+		//pFrame->UpdateSelectionBox();
+		//pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
+		EventArg arg;
+		pFrame->m_EventSelectionChanged(&arg);
+	}
 
-	//Invalidate();
+	Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)

@@ -42,6 +42,8 @@ public:
 	my::OctRoot m_Root;
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 	ComponentPtrList m_cmps;
+	typedef std::set<Component *> ComponentSet;
+	ComponentSet m_selcmps;
 	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
 

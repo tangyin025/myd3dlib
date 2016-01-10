@@ -54,6 +54,7 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	float m_PivotScale;
+	my::Vector3 m_PivotDragPos;
 	float m_CameraDiagonal;
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
@@ -73,9 +74,29 @@ protected:
 	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i);
 	virtual my::Texture2D * GetDownFilterTexture(unsigned int i);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
-
+	static bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp);
+	static bool OverlapTestFrustumAndMesh(
+		const my::Frustum & frustum,
+		void * pVertices,
+		DWORD NumVerts,
+		DWORD VertexStride,
+		void * pIndices,
+		bool bIndices16,
+		DWORD NumFaces,
+		const my::D3DVertexElementSet & VertexElems);
+	static my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp);
+	static my::RayResult OverlapTestRayAndMesh(
+		const my::Ray & ray,
+		void * pVertices,
+		DWORD NumVerts,
+		DWORD VertexStride,
+		void * pIndices,
+		bool bIndices16,
+		DWORD NumFaces,
+		const my::D3DVertexElementSet & VertexElems);
 	void OnSelectionChanged(void);
 
 // Implementation

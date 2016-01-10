@@ -400,26 +400,6 @@ namespace my
 			DWORD NumFaces,
 			const D3DVertexElementSet & VertexElems);
 
-		static RayResult RayTest(
-			const Ray & ray,
-			void * pVertices,
-			DWORD NumVerts,
-			DWORD VertexStride,
-			void * pIndices,
-			bool bIndices16,
-			DWORD NumFaces,
-			const D3DVertexElementSet & VertexElems);
-
-		static bool FrustumTest(
-			const Frustum & frustum,
-			void * pVertices,
-			DWORD NumVerts,
-			DWORD VertexStride,
-			void * pIndices,
-			bool bIndices16,
-			DWORD NumFaces,
-			const D3DVertexElementSet & VertexElems);
-
 		UINT GetMaterialNum(void) const;
 
 		const std::string & GetMaterialName(DWORD AttribId) const;
