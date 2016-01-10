@@ -25,41 +25,28 @@ public:
 	CMainApp();
 
 	HRESULT hr;
-
 	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
-
 	typedef boost::unordered_map<ShaderCacheKey, my::EffectPtr> ShaderCacheMap;
-
 	ShaderCacheMap m_ShaderCache;
-
 	my::UIRenderPtr m_UIRender;
-
 	my::FontPtr m_Font;
 
 	BOOL CreateD3DDevice(HWND hWnd);
-
 	BOOL ResetD3DDevice(void);
-
 	void DestroyD3DDevice(void);
 
 // Overrides
 public:
 	virtual BOOL InitInstance();
-
 	virtual HRESULT OnCreateDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
 	virtual HRESULT OnResetDevice(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-
 	virtual void OnLostDevice(void);
-
 	virtual void OnDestroyDevice(void);
-
 	virtual void OnResourceFailed(const std::string & error_str);
-
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
 // Implementation

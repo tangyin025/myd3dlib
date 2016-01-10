@@ -8,18 +8,7 @@
 #include "PropertiesWnd.h"
 #include "../demo2_3/Component/Component.h"
 #include "PivotController.h"
-
-struct EventArg
-{
-public:
-	EventArg(void)
-	{
-	}
-
-	virtual ~EventArg(void)
-	{
-	}
-};
+#include "EventDefine.h"
 
 class CMainFrame : public CFrameWndEx
 	, public my::SingleInstance<CMainFrame>
@@ -45,7 +34,6 @@ public:
 	typedef std::set<Component *> ComponentSet;
 	ComponentSet m_selcmps;
 	my::AABB m_selbox;
-	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
 
 // Operations

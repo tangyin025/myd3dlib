@@ -208,6 +208,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\EventDefine.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainApp.cpp"
 				>
 			</File>
@@ -263,6 +267,10 @@
 			</File>
 			<File
 				RelativePath=".\DragableTreeCtrl.h"
+				>
+			</File>
+			<File
+				RelativePath=".\EventDefine.h"
 				>
 			</File>
 			<File

@@ -66,13 +66,13 @@ namespace my
 
 		bool m_DeviceObjectsReset;
 
-		typedef boost::signals2::signal<void (void)> Event;
+		typedef boost::signals2::signal<void (void)> DeviceEvent;
 
-		Event m_EventDeviceReset;
+		DeviceEvent m_EventDeviceReset;
 
-		Event m_EventDeviceLost;
+		DeviceEvent m_EventDeviceLost;
 
-		Event m_EventDeviceDestroy;
+		DeviceEvent m_EventDeviceDestroy;
 
 	public:
 		D3DContext(void)

@@ -651,7 +651,7 @@ bool ResourceMgr::CheckIORequests(void)
 			break;
 	}
 
-	return m_IORequestList.empty();
+	return !m_IORequestList.empty();
 }
 
 void ResourceMgr::OnIORequestIteratorReady(IORequestPtrPairList::iterator req_iter)
