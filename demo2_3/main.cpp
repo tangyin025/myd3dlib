@@ -77,7 +77,7 @@ public:
 		//anim->m_SkeletonRes.m_ResPath = "mesh/casual19_m_highpoly.skeleton.xml";
 		//mesh_cmp->m_Animator = anim;
 		//mesh_cmp->RequestResource();
-		//m_Root.AddComponent(mesh_cmp.get());
+		//m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 		//m_cmps.push_back(mesh_cmp);
 
 		//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
@@ -108,7 +108,7 @@ public:
 		//particle1->m_Shader = "particle1.fx";
 		//emit_cmp->m_Material = particle1;
 		//emit_cmp->RequestResource();
-		//m_Root.AddComponent(emit_cmp.get());
+		//m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 		//m_cmps.push_back(emit_cmp);
 
 		//TerrainComponentPtr terrain_cmp(new TerrainComponent(Vector3(-10,0,-10),Vector3(10,0,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4::Identity()));
@@ -120,7 +120,7 @@ public:
 		//lambert2->m_Shader = "lambert1.fx";
 		//terrain_cmp->m_Material = lambert2;
 		//terrain_cmp->RequestResource();
-		//m_Root.AddComponent(terrain_cmp.get());
+		//m_Root.AddComponent(terrain_cmp.get(), terrain_cmp->m_aabb.transform(terrain_cmp->m_World), 0.1f);
 		//m_cmps.push_back(terrain_cmp);
 
 		//// 保存场景
@@ -128,16 +128,17 @@ public:
 		//boost::archive::xml_oarchive oa(ofs);
 		//oa << boost::serialization::make_nvp("level", m_cmps);
 
-		//// 读取场景
+		// 读取场景
+		std::ifstream istr("aaa.xml");
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
-		//boost::archive::xml_iarchive ia(istr);
-		//ia >> boost::serialization::make_nvp("level", m_cmps);
-		//for (unsigned int i = 0; i < m_cmps.size(); i++)
-		//{
-		//	m_Root.AddComponent(m_cmps[i].get());
-		//	m_cmps[i]->RequestResource();
-		//}
+		boost::archive::xml_iarchive ia(istr);
+		ia >> boost::serialization::make_nvp("level", m_cmps);
+		for (unsigned int i = 0; i < m_cmps.size(); i++)
+		{
+			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
+			m_cmps[i]->RequestResource();
+		}
 
 		return S_OK;
 	}

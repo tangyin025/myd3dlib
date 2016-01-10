@@ -137,22 +137,24 @@ public:
 
 	ComponentType m_Type;
 
+	my::AABB m_aabb;
+
 	my::Matrix4 m_World;
 
 	bool m_Requested;
 
 public:
 	Component(const my::AABB & aabb, const my::Matrix4 & World, ComponentType Type)
-		: OctComponent(aabb)
-		, m_Type(Type)
+		: m_Type(Type)
+		, m_aabb(aabb)
 		, m_World(World)
 		, m_Requested(false)
 	{
 	}
 
 	Component(void)
-		: OctComponent(my::AABB(-FLT_MAX,FLT_MAX))
-		, m_Type(ComponentTypeUnknown)
+		: m_Type(ComponentTypeUnknown)
+		, m_aabb(my::AABB(-FLT_MAX,FLT_MAX))
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 	{
@@ -171,8 +173,8 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
+		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
 	}
 
@@ -196,6 +198,8 @@ public:
 	virtual void Update(float fElapsedTime)
 	{
 	}
+
+	const my::AABB & GetOctAABB(void) const;
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;

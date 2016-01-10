@@ -271,7 +271,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 				break;
 			}
 		}
-		//PushWireAABB(pFrame->m_SelectionBox, D3DCOLOR_ARGB(255,255,255,255));
+		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
 	}
 }
 
@@ -659,6 +659,12 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		StartPerformanceCount();
 		m_PivotDragPos = pFrame->m_Pivot.m_Pos;
+		_ASSERT(m_selcmpwlds.empty());
+		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
+		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+		{
+			m_selcmpwlds.insert(std::make_pair(*sel_iter, (*sel_iter)->m_World));
+		}
 		SetCapture();
 		Invalidate();
 		return;
@@ -751,8 +757,8 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		//pFrame->UpdateSelectionBox();
-		//pFrame->m_Pivot.m_Pos = pFrame->m_SelectionBox.Center();
+		pFrame->UpdateSelBox();
+		pFrame->m_Pivot.m_Pos = pFrame->m_selbox.Center();
 		EventArg arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
@@ -769,17 +775,14 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
-		//HistoryStepPtr step(new HistoryStep);
-		//ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
-		//for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
-		//{
-		//	step->m_Ops.push_back(std::make_pair(
-		//		HistoryStep::OperatorPtr(new OperatorComponentWorld(pFrame->m_SelectionRoot, (*cmp_world_iter)->m_cmp, (*cmp_world_iter)->m_cmp->m_World)),
-		//		*cmp_world_iter));
-		//}
-		//pFrame->m_History.PushAndDo(step);
-		//pFrame->UpdateSelectionBox();
-		//m_CmpWorldOptList.clear();
+		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
+		{
+			VERIFY(pFrame->m_Root.RemoveComponent(cmp_world_iter->first));
+			pFrame->m_Root.AddComponent(cmp_world_iter->first, cmp_world_iter->first->m_aabb.transform(cmp_world_iter->first->m_World), 0.1f);
+		}
+		m_selcmpwlds.clear();
+		pFrame->UpdateSelBox();
 		ReleaseCapture();
 		Invalidate();
 	}
@@ -793,11 +796,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
 		StartPerformanceCount();
-		//ComponentWorldOperatorPtrList::iterator cmp_world_iter = m_CmpWorldOptList.begin();
-		//for (; cmp_world_iter != m_CmpWorldOptList.end(); cmp_world_iter++)
-		//{
-		//	(*cmp_world_iter)->m_cmp->m_World = (*cmp_world_iter)->m_NewValue * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
-		//}
+		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
+		{
+			cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+		}
 		Invalidate();
 	}
 }

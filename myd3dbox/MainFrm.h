@@ -44,6 +44,7 @@ public:
 	ComponentPtrList m_cmps;
 	typedef std::set<Component *> ComponentSet;
 	ComponentSet m_selcmps;
+	my::AABB m_selbox;
 	typedef boost::signals2::signal<void (EventArg *)> Event;
 	Event m_EventSelectionChanged;
 
@@ -55,6 +56,7 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+	void UpdateSelBox(void);
 
 // Implementation
 public:

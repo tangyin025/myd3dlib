@@ -73,6 +73,19 @@ void Material::ReleaseResource(void)
 	}
 }
 
+const my::AABB & Component::GetOctAABB(void) const
+{
+	if (m_OctNode)
+	{
+		OctNodeBase::OctComponentSet::const_iterator cmp_iter = m_OctNode->m_Components.find(const_cast<Component *>(this));
+		if (cmp_iter != m_OctNode->m_Components.end())
+		{
+			return cmp_iter->second;
+		}
+	}
+	return m_aabb;
+}
+
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();

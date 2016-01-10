@@ -52,6 +52,7 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 	: m_Root(my::Vector3(-1000), my::Vector3(1000), 1.0f)
+	, m_selbox(-FLT_MAX, FLT_MAX)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -347,10 +348,21 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
+void CMainFrame::UpdateSelBox(void)
+{
+	m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
+	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
+	for (; sel_iter != m_selcmps.end(); sel_iter++)
+	{
+		m_selbox.unionSelf((*sel_iter)->GetOctAABB());
+	}
+}
+
 void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();
 	m_cmps.clear();
+	m_selcmps.clear();
 }
 
 void CMainFrame::OnDestroy()
@@ -404,7 +416,7 @@ void CMainFrame::OnFileOpen()
 	ComponentPtrList::iterator cmp_iter = m_cmps.begin();
 	for (; cmp_iter != m_cmps.end(); cmp_iter++)
 	{
-		m_Root.AddComponent(cmp_iter->get());
+		m_Root.AddComponent(cmp_iter->get(), (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World), 0.1f);
 	}
 }
 
@@ -453,7 +465,7 @@ void CMainFrame::OnComponentMesh()
 				mesh_cmp->m_MaterialList.push_back(lambert1);
 			}
 			mesh_cmp->RequestResource();
-			m_Root.AddComponent(mesh_cmp.get());
+			m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 			m_cmps.push_back(mesh_cmp);
 		}
 		else

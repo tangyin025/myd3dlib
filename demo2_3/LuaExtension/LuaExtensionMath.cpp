@@ -242,6 +242,7 @@ void ExportMath2Lua(lua_State * L)
 			.def(constructor<const my::Vector3 &, const my::Vector3 &>())
 			.def_readwrite("min", &my::AABB::m_min)
 			.def_readwrite("max", &my::AABB::m_max)
+			.def("transform", &my::AABB::transform)
 
 		, class_<my::OctComponent, my::AABB, boost::shared_ptr<my::OctComponent> >("OctComponent")
 

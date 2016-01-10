@@ -18,12 +18,8 @@ namespace my
 		OctNodeBase * m_OctNode;
 
 	public:
-		AABB m_aabb;
-
-	public:
-		OctComponent(const AABB & aabb)
+		OctComponent(void)
 			: m_OctNode(NULL)
-			, m_aabb(aabb)
 		{
 		}
 
@@ -44,7 +40,7 @@ namespace my
 	public:
 		const AABB m_aabb;
 
-		typedef boost::unordered_set<OctComponent *> OctComponentSet;
+		typedef boost::unordered_map<OctComponent *, AABB> OctComponentSet;
 
 		OctComponentSet m_Components;
 
@@ -67,6 +63,8 @@ namespace my
 			: m_aabb(aabb)
 		{
 		}
+
+		bool HaveNode(const OctNodeBase * node) const;
 
 		void QueryComponent(const Ray & ray, IQueryCallback * callback);
 
@@ -117,10 +115,10 @@ namespace my
 		{
 		}
 
-		void AddComponent(OctComponent * cmp, float threshold = 0.1f)
+		void AddComponent(OctComponent * cmp, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!cmp->m_OctNode);
-			if (cmp->m_aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[0])
 				{
@@ -128,9 +126,9 @@ namespace my
 					_Max[Offset] = m_Half;
 					m_Childs[0].reset(new ChildOctNode(m_aabb.m_min, _Max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, aabb, threshold);
 			}
-			else if (cmp->m_aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
+			else if (aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
 				if (!m_Childs[1])
 				{
@@ -138,11 +136,11 @@ namespace my
 					_Min[Offset] = m_Half;
 					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.m_max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, aabb, threshold);
 			}
 			else
 			{
-				m_Components.insert(cmp);
+				m_Components.insert(std::make_pair(cmp, aabb));
 				cmp->m_OctNode = this;
 			}
 		}

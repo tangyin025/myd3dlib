@@ -54,10 +54,13 @@ protected:
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	float m_PivotScale;
-	my::Vector3 m_PivotDragPos;
 	float m_CameraDiagonal;
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
+
+	my::Vector3 m_PivotDragPos;
+	typedef std::map<Component *, my::Matrix4> ComponentWorldMap;
+	ComponentWorldMap m_selcmpwlds;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
