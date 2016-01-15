@@ -14,10 +14,16 @@ static const Matrix4 Transform[3] = {
 
 PivotController::PivotController(void)
 	: m_Mode(PivotModeMove)
-	, m_Pos(Vector3::zero)
+	, m_Pos(0,0,0)
 	, m_Rot(Quaternion::Identity())
 	, m_DragAxis(PivotDragNone)
 	, m_Captured(false)
+	, m_DragPos(0,0,0)
+	, m_DragRot(Quaternion::Identity())
+	, m_DragPt(0,0,0)
+	, m_DragPlane(Plane::NormalDistance(Vector3(1,0,0),0))
+	, m_DragDeltaPos(0,0,0)
+	, m_DragDeltaRot(Quaternion::Identity())
 {
 }
 
@@ -105,10 +111,9 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Sc
 	}
 
 	HRESULT hr;
-	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
+	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
-	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
@@ -161,6 +166,7 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Sca
 	HRESULT hr;
 	V(pd3dDevice->SetTransform(D3DTS_WORLD, (D3DMATRIX *)&CalculateWorld(Scale)));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZ | D3DFVF_DIFFUSE));
+	V(pd3dDevice->SetTexture(0, NULL));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
@@ -340,6 +346,8 @@ bool PivotController::OnLButtonUp(const my::Ray & ray)
 	case PivotDragAxisY:
 	case PivotDragAxisZ:
 		m_Captured = false;
+		m_DragDeltaPos = Vector3(0,0,0);
+		m_DragDeltaRot = Quaternion::Identity();
 		return true;
 	}
 	return false;

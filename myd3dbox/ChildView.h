@@ -7,6 +7,7 @@
 
 #include "../demo2_3/Component/RenderPipeline.h"
 #include "../demo2_3/Component/Component.h"
+#include "EventDefine.h"
 
 class CMainDoc;
 
@@ -58,7 +59,6 @@ protected:
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
 
-	my::Vector3 m_PivotDragPos;
 	typedef std::map<Component *, my::Matrix4> ComponentWorldMap;
 	ComponentWorldMap m_selcmpwlds;
 
@@ -100,7 +100,8 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
-	void OnSelectionChanged(void);
+	void OnSelectionChanged(EventArg * arg);
+	void OnPivotModeChanged(EventArg * arg);
 
 // Implementation
 public:

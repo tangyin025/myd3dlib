@@ -38,6 +38,10 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
+	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
+	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
+	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
+	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -481,6 +485,32 @@ void CMainFrame::OnEditDelete()
 }
 
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
+
+void CMainFrame::OnPivotMove()
+{
+	// TODO: Add your command handler code here
+	m_Pivot.m_Mode = PivotController::PivotModeMove;
+	EventArg arg;
+	m_EventPivotModeChanged(&arg);
+}
+
+void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+}
+
+void CMainFrame::OnPivotRotate()
+{
+	// TODO: Add your command handler code here
+	m_Pivot.m_Mode = PivotController::PivotModeRot;
+	EventArg arg;
+	m_EventPivotModeChanged(&arg);
+}
+
+void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 }

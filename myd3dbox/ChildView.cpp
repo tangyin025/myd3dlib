@@ -41,7 +41,6 @@ END_MESSAGE_MAP()
 
 CChildView::CChildView()
 	: m_PivotScale(1.0f)
-	, m_PivotDragPos(0,0,0)
 	, m_CameraType(CameraTypeUnknown)
 	, m_CameraDiagonal(30.0f)
 {
@@ -492,7 +491,12 @@ my::RayResult CChildView::OverlapTestRayAndMesh(
 	return ret;
 }
 
-void CChildView::OnSelectionChanged(void)
+void CChildView::OnSelectionChanged(EventArg * arg)
+{
+	Invalidate();
+}
+
+void CChildView::OnPivotModeChanged(EventArg * arg)
 {
 	Invalidate();
 }
@@ -572,13 +576,20 @@ void CChildView::OnPaint()
 
 				RenderSelectedObject(theApp.m_d3dDevice);
 
-				theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
-				theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
+				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
+
 				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 				ASSERT_VALID(pFrame);
-				m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
-				pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+				if (!pFrame->m_selcmps.empty())
+				{
+					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
+					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+				}
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -637,7 +648,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this));
+	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 
 	return 0;
 }
@@ -647,7 +659,8 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
-	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this));
+	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -656,10 +669,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
+	if (!pFrame->m_selcmps.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
-		m_PivotDragPos = pFrame->m_Pivot.m_Pos;
 		_ASSERT(m_selcmpwlds.empty());
 		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
@@ -759,7 +771,13 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (bSelectionChanged)
 	{
 		pFrame->UpdateSelBox();
-		pFrame->m_Pivot.m_Pos = pFrame->m_selbox.Center();
+		if (!pFrame->m_selcmps.empty())
+		{
+			my::Vector3 Pos, Scale; my::Quaternion Rot;
+			(*pFrame->m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
+			pFrame->m_Pivot.m_Pos = pFrame->m_selbox.Center();
+			pFrame->m_Pivot.m_Rot = Rot;
+		}
 		EventArg arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
@@ -800,7 +818,15 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
 		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
-			cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot);
+			switch (pFrame->m_Pivot.m_Mode)
+			{
+			case PivotController::PivotModeMove:
+				cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+				break;
+			case PivotController::PivotModeRot:
+				cmp_world_iter->first->m_World = my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot) * cmp_world_iter->second;
+				break;
+			}
 		}
 		Invalidate();
 	}

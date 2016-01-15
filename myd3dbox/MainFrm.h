@@ -35,6 +35,7 @@ public:
 	ComponentSet m_selcmps;
 	my::AABB m_selbox;
 	Event m_EventSelectionChanged;
+	Event m_EventPivotModeChanged;
 
 // Operations
 public:
@@ -79,6 +80,10 @@ public:
 	afx_msg void OnComponentMesh();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
+	afx_msg void OnPivotMove();
+	afx_msg void OnUpdatePivotMove(CCmdUI *pCmdUI);
+	afx_msg void OnPivotRotate();
+	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
 };
 
 

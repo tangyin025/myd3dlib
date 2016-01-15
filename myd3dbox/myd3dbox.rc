@@ -172,6 +172,11 @@ BEGIN
             END
         END
         MENUITEM "S&plit",                      ID_WINDOW_SPLIT
+        POPUP "Pivot"
+        BEGIN
+            MENUITEM "Move",                        ID_PIVOT_MOVE
+            MENUITEM "Rotate",                      ID_PIVOT_ROTATE
+        END
     END
     POPUP "&Help"
     BEGIN
