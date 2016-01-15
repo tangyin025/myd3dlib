@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "PivotController.h"
+#include "Pivot.h"
 
 using namespace my;
 
@@ -12,7 +12,7 @@ static const float header = 1.0f;
 static const Matrix4 Transform[3] = {
 	Matrix4::Identity(), Matrix4::RotationZ(D3DXToRadian(90)), Matrix4::RotationY(D3DXToRadian(-90)) };
 
-PivotController::PivotController(void)
+Pivot::Pivot(void)
 	: m_Mode(PivotModeMove)
 	, m_Pos(0,0,0)
 	, m_Rot(Quaternion::Identity())
@@ -27,11 +27,11 @@ PivotController::PivotController(void)
 {
 }
 
-PivotController::~PivotController(void)
+Pivot::~Pivot(void)
 {
 }
 
-void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale)
+void Pivot::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale)
 {
 	switch (m_Mode)
 	{
@@ -44,7 +44,7 @@ void PivotController::Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera *
 	}
 }
 
-void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
+void Pivot::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Scale)
 {
 	struct Vertex
 	{
@@ -117,7 +117,7 @@ void PivotController::DrawMoveController(IDirect3DDevice9 * pd3dDevice, float Sc
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
+void Pivot::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Scale)
 {
 	struct Vertex
 	{
@@ -170,12 +170,12 @@ void PivotController::DrawRotController(IDirect3DDevice9 * pd3dDevice, float Sca
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLELIST, vertices.size() / 3, &vertices[0], sizeof(Vertex)));
 }
 
-Matrix4 PivotController::CalculateWorld(float Scale)
+Matrix4 Pivot::CalculateWorld(float Scale)
 {
 	return Matrix4::Compose(Vector3(Scale), m_Rot, m_Pos);
 }
 
-bool PivotController::OnLButtonDown(const my::Ray & ray, float Scale)
+bool Pivot::OnLButtonDown(const my::Ray & ray, float Scale)
 {
 	switch (m_Mode)
 	{
@@ -187,7 +187,7 @@ bool PivotController::OnLButtonDown(const my::Ray & ray, float Scale)
 	return false;
 }
 
-bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
+bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 {
 	Matrix4 World = CalculateWorld(Scale);
 	Matrix4 trans[3] = {
@@ -229,7 +229,7 @@ bool PivotController::OnMoveControllerLButtonDown(const my::Ray & ray, float Sca
 	return false;
 }
 
-bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
+bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 {
 	Matrix4 trans = CalculateWorld(Scale).inverse();
 	Ray local_ray = ray.transform(trans);
@@ -266,7 +266,7 @@ bool PivotController::OnRotControllerLButtonDown(const my::Ray & ray, float Scal
 	return false;
 }
 
-bool PivotController::OnMouseMove(const my::Ray & ray, float Scale)
+bool Pivot::OnMouseMove(const my::Ray & ray, float Scale)
 {
 	if (m_Captured)
 	{
@@ -281,7 +281,7 @@ bool PivotController::OnMouseMove(const my::Ray & ray, float Scale)
 	return false;
 }
 
-bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
+bool Pivot::OnMoveControllerMouseMove(const my::Ray & ray, float Scale)
 {
 	RayResult res = IntersectionTests::rayAndHalfSpace(ray.p, ray.d, m_DragPlane);
 	if(res.first)
@@ -306,7 +306,7 @@ bool PivotController::OnMoveControllerMouseMove(const my::Ray & ray, float Scale
 	return false;
 }
 
-bool PivotController::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
+bool Pivot::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
 {
 	Matrix4 trans = Matrix4::Compose(Scale, m_DragRot, m_Pos).inverse();
 	Ray local_ray = ray.transform(trans);
@@ -338,7 +338,7 @@ bool PivotController::OnRotControllerMouseMove(const my::Ray & ray, float Scale)
     return false;
 }
 
-bool PivotController::OnLButtonUp(const my::Ray & ray)
+bool Pivot::OnLButtonUp(const my::Ray & ray)
 {
 	switch (m_DragAxis)
 	{

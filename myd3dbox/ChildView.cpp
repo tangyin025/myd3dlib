@@ -815,10 +815,10 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		{
 			switch (pFrame->m_Pivot.m_Mode)
 			{
-			case PivotController::PivotModeMove:
+			case Pivot::PivotModeMove:
 				cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
 				break;
-			case PivotController::PivotModeRot:
+			case Pivot::PivotModeRot:
 				cmp_world_iter->first->m_World = my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot) * cmp_world_iter->second;
 				break;
 			}
@@ -927,13 +927,13 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	switch (nChar)
 	{
 	case 'W':
-		if (pFrame->m_Pivot.m_Mode != PivotController::PivotModeMove)
+		if (pFrame->m_Pivot.m_Mode != Pivot::PivotModeMove)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_MOVE, 0, NULL, NULL);
 		}
 		return;
 	case 'E':
-		if (pFrame->m_Pivot.m_Mode != PivotController::PivotModeRot)
+		if (pFrame->m_Pivot.m_Mode != Pivot::PivotModeRot)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
 		}

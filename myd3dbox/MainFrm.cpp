@@ -369,7 +369,7 @@ void CMainFrame::UpdatePivotTransform(void)
 		my::Vector3 Pos, Scale; my::Quaternion Rot;
 		(*m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
 		m_Pivot.m_Pos = m_selbox.Center();
-		m_Pivot.m_Rot = (m_Pivot.m_Mode == PivotController::PivotModeMove ? my::Quaternion::Identity() : Rot);
+		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
 	}
 }
 
@@ -503,7 +503,7 @@ void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
-	m_Pivot.m_Mode = PivotController::PivotModeMove;
+	m_Pivot.m_Mode = Pivot::PivotModeMove;
 	UpdatePivotTransform();
 	EventArg arg;
 	m_EventPivotModeChanged(&arg);
@@ -517,7 +517,7 @@ void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
-	m_Pivot.m_Mode = PivotController::PivotModeRot;
+	m_Pivot.m_Mode = Pivot::PivotModeRot;
 	UpdatePivotTransform();
 	EventArg arg;
 	m_EventPivotModeChanged(&arg);

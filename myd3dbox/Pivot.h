@@ -1,6 +1,6 @@
 #pragma once
 
-class PivotController
+class Pivot
 {
 public:
 	enum PivotDragAxis
@@ -40,9 +40,9 @@ public:
 	bool m_Captured;
 
 public:
-	PivotController(void);
+	Pivot(void);
 
-	~PivotController(void);
+	~Pivot(void);
 
 	void Draw(IDirect3DDevice9 * pd3dDevice, const my::BaseCamera * camera, const D3DSURFACE_DESC * desc, float Scale);
 

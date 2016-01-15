@@ -7,7 +7,7 @@
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "../demo2_3/Component/Component.h"
-#include "PivotController.h"
+#include "Pivot.h"
 #include "EventDefine.h"
 
 class CMainFrame : public CFrameWndEx
@@ -27,7 +27,7 @@ public:
 	CPropertiesWnd    m_wndProperties;
 	CString m_strPathName;
 	CRectTracker m_Tracker;
-	PivotController m_Pivot;
+	Pivot m_Pivot;
 	my::OctRoot m_Root;
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 	ComponentPtrList m_cmps;
