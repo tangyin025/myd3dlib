@@ -137,6 +137,7 @@ public:
 	afx_msg void OnUpdateCameratypeSide(CCmdUI *pCmdUI);
 	afx_msg void OnCameratypeTop();
 	afx_msg void OnUpdateCameratypeTop(CCmdUI *pCmdUI);
+	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

@@ -362,6 +362,17 @@ void CMainFrame::UpdateSelBox(void)
 	}
 }
 
+void CMainFrame::UpdatePivotTransform(void)
+{
+	if (!m_selcmps.empty())
+	{
+		my::Vector3 Pos, Scale; my::Quaternion Rot;
+		(*m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
+		m_Pivot.m_Pos = m_selbox.Center();
+		m_Pivot.m_Rot = (m_Pivot.m_Mode == PivotController::PivotModeMove ? my::Quaternion::Identity() : Rot);
+	}
+}
+
 void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();
@@ -493,6 +504,7 @@ void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = PivotController::PivotModeMove;
+	UpdatePivotTransform();
 	EventArg arg;
 	m_EventPivotModeChanged(&arg);
 }
@@ -506,6 +518,7 @@ void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = PivotController::PivotModeRot;
+	UpdatePivotTransform();
 	EventArg arg;
 	m_EventPivotModeChanged(&arg);
 }

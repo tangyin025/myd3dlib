@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_SIDE, &CChildView::OnUpdateCameratypeSide)
 	ON_COMMAND(ID_CAMERATYPE_TOP, &CChildView::OnCameratypeTop)
 	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_TOP, &CChildView::OnUpdateCameratypeTop)
+	ON_WM_KEYDOWN()
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -771,13 +772,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (bSelectionChanged)
 	{
 		pFrame->UpdateSelBox();
-		if (!pFrame->m_selcmps.empty())
-		{
-			my::Vector3 Pos, Scale; my::Quaternion Rot;
-			(*pFrame->m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
-			pFrame->m_Pivot.m_Pos = pFrame->m_selbox.Center();
-			pFrame->m_Pivot.m_Rot = Rot;
-		}
+		pFrame->UpdatePivotTransform();
 		EventArg arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
@@ -922,4 +917,28 @@ void CChildView::OnCameratypeTop()
 void CChildView::OnUpdateCameratypeTop(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetCheck(m_CameraType == CameraTypeTop);
+}
+
+void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
+{
+	// TODO: Add your message handler code here and/or call default
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	switch (nChar)
+	{
+	case 'W':
+		if (pFrame->m_Pivot.m_Mode != PivotController::PivotModeMove)
+		{
+			pFrame->OnCmdMsg(ID_PIVOT_MOVE, 0, NULL, NULL);
+		}
+		return;
+	case 'E':
+		if (pFrame->m_Pivot.m_Mode != PivotController::PivotModeRot)
+		{
+			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
+		}
+		return;
+	}
+
+	__super::OnKeyDown(nChar, nRepCnt, nFlags);
 }
