@@ -267,6 +267,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 						}
 						theApp.m_SimpleSample->End();
 					}
+					PushWireAABB(mesh_cmp->GetOctAABB(), D3DCOLOR_ARGB(2555,255,0,255));
 				}
 				break;
 			}
@@ -799,7 +800,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
 		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
-			cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+			cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot);
 		}
 		Invalidate();
 	}

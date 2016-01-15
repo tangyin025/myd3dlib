@@ -200,6 +200,8 @@ public:
 	}
 
 	const my::AABB & GetOctAABB(void) const;
+
+	const my::AABB & GetComponentAABB(void) const;
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;

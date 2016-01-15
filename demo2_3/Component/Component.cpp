@@ -77,6 +77,15 @@ const my::AABB & Component::GetOctAABB(void) const
 {
 	if (m_OctNode)
 	{
+		return m_OctNode->m_aabb;
+	}
+	return m_aabb;
+}
+
+const my::AABB & Component::GetComponentAABB(void) const
+{
+	if (m_OctNode)
+	{
 		OctNodeBase::OctComponentSet::const_iterator cmp_iter = m_OctNode->m_Components.find(const_cast<Component *>(this));
 		if (cmp_iter != m_OctNode->m_Components.end())
 		{

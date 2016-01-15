@@ -354,7 +354,7 @@ void CMainFrame::UpdateSelBox(void)
 	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
 	for (; sel_iter != m_selcmps.end(); sel_iter++)
 	{
-		m_selbox.unionSelf((*sel_iter)->GetOctAABB());
+		m_selbox.unionSelf((*sel_iter)->GetComponentAABB());
 	}
 }
 
