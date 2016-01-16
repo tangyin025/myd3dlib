@@ -137,7 +137,7 @@ Vector3 BaseCamera::ScreenToWorld(const Matrix4 & InverseViewProj, const Vector2
 
 Ray BaseCamera::PerspectiveRay(const Matrix4 & InverseViewProj, const Vector3 & pos, const Vector2 & pt, const Vector2 & dim)
 {
-	Vector3 At = ScreenToWorld(InverseViewProj, pt, dim, -1.0f);
+	Vector3 At = ScreenToWorld(InverseViewProj, pt, dim, 0.0f);
 
 	return Ray(pos, (At - pos).normalize());
 }
@@ -146,17 +146,17 @@ Ray BaseCamera::OrthoRay(const Matrix4 & InverseViewProj, const Vector3 & dir, c
 {
 	_ASSERT(IS_NORMALIZED(dir));
 
-	Vector3 At = ScreenToWorld(InverseViewProj, pt, dim, -1.0f);
+	Vector3 At = ScreenToWorld(InverseViewProj, pt, dim, 0.0f);
 
 	return Ray(At, dir);
 }
 
 Frustum BaseCamera::RectangleToFrustum(const Matrix4 & InverseViewProj, const my::Rectangle & rc, const Vector2 & dim)
 {
-	Vector3 nlt = ScreenToWorld(InverseViewProj, rc.LeftTop(), dim, -1.0f);
-	Vector3 nrt = ScreenToWorld(InverseViewProj, rc.RightTop(), dim, -1.0f);
-	Vector3 nlb = ScreenToWorld(InverseViewProj, rc.LeftBottom(), dim, -1.0f);
-	Vector3 nrb = ScreenToWorld(InverseViewProj, rc.RightBottom(), dim, -1.0f);
+	Vector3 nlt = ScreenToWorld(InverseViewProj, rc.LeftTop(), dim, 0.0f);
+	Vector3 nrt = ScreenToWorld(InverseViewProj, rc.RightTop(), dim, 0.0f);
+	Vector3 nlb = ScreenToWorld(InverseViewProj, rc.LeftBottom(), dim, 0.0f);
+	Vector3 nrb = ScreenToWorld(InverseViewProj, rc.RightBottom(), dim, 0.0f);
 	Vector3 flt = ScreenToWorld(InverseViewProj, rc.LeftTop(), dim, 1.0f);
 	Vector3 frt = ScreenToWorld(InverseViewProj, rc.RightTop(), dim, 1.0f);
 	Vector3 flb = ScreenToWorld(InverseViewProj, rc.LeftBottom(), dim, 1.0f);
@@ -198,7 +198,7 @@ LRESULT OrthoCamera::MsgProc(
 
 Ray OrthoCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
 {
-	return OrthoRay(m_InverseViewProj, -m_View.column<2>().xyz, pt, Vector2((float)dim.cx, (float)dim.cy));
+	return OrthoRay(m_InverseViewProj, -m_View.column<2>().xyz.normalize(), pt, Vector2((float)dim.cx, (float)dim.cy));
 }
 
 Frustum OrthoCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
@@ -319,8 +319,8 @@ LRESULT ModelViewerCamera::MsgProc(
 
 			case DragModeTrake:
 				{
-					Vector3 Right = m_View.column<0>().xyz;
-					Vector3 Up = m_View.column<1>().xyz;
+					Vector3 Right = m_View.column<0>().xyz.normalize();
+					Vector3 Up = m_View.column<1>().xyz.normalize();
 					m_LookAt += Right * (float)(m_DragPt.x - pt.x) * 0.03f + Up * (float)(pt.y - m_DragPt.y) * 0.03f;
 					m_DragPt = pt;
 					*pbNoFurtherProcessing = true;

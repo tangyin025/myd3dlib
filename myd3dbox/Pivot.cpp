@@ -3,11 +3,13 @@
 
 using namespace my;
 
-static const float radius[2] = { 0.15f, 0.05f };
+static const float radius[2] = { 0.20f, 0.05f };
 
 static const float offset = 2.0f;
 
 static const float header = 1.0f;
+
+static const float round = 0.1f;
 
 static const Matrix4 Transform[3] = {
 	Matrix4::Identity(), Matrix4::RotationZ(D3DXToRadian(90)), Matrix4::RotationY(D3DXToRadian(-90)) };
@@ -197,7 +199,7 @@ bool Pivot::OnMoveControllerLButtonDown(const my::Ray & ray, float Scale)
 	for (unsigned int i = 0; i < _countof(trans); i++)
 	{
 		Ray local_ray = ray.transform(trans[i]);
-		RayResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + 0.1f, offset + header);
+		RayResult res = IntersectionTests::rayAndCylinder(local_ray.p, local_ray.d, radius[0] + round, offset + header);
 		if (res.first && res.second < minT)
 		{
 			minT = res.second;
@@ -238,7 +240,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 	if(res.first)
 	{
 		Vector3 k = local_ray.p + local_ray.d * res.second;
-		if(k.x <= radius[0] && k.x >= -radius[0])
+		if(fabsf(k.x) <= radius[0] + round)
 		{
 			m_DragAxis = PivotDragAxisX;
 			m_DragPt = k;
@@ -246,7 +248,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_Captured = true;
 			return true;
 		}
-		else if(k.y <= radius[0] && k.y >= -radius[0])
+		else if(fabsf(k.y) <= radius[0] + round)
 		{
 			m_DragAxis = PivotDragAxisY;
 			m_DragPt = k;
@@ -254,7 +256,7 @@ bool Pivot::OnRotControllerLButtonDown(const my::Ray & ray, float Scale)
 			m_Captured = true;
 			return true;
 		}
-		else if(k.z <= radius[0] && k.z >= -radius[0])
+		else if(fabsf(k.z) <= radius[0] + round)
 		{
 			m_DragAxis = PivotDragAxisZ;
 			m_DragPt = k;

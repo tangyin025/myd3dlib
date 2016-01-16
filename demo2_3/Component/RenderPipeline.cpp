@@ -174,7 +174,7 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
 	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
 	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetVector("g_SkyLightDir", -pRC->m_SkyLightCam->m_View.column<2>().xyz); // ! RH -z
+	m_SimpleSample->SetVector("g_SkyLightDir", -pRC->m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
 	m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
 	m_SimpleSample->SetVector("g_SkyLightDiffuse", pRC->m_SkyLightDiffuse);
 	m_SimpleSample->SetVector("g_SkyLightAmbient", pRC->m_SkyLightAmbient);
