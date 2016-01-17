@@ -117,12 +117,12 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	}
 	m_wndStatusBar.SetIndicators(indicators, sizeof(indicators)/sizeof(UINT));
 
-	if (!m_wndOutliner.Create(_T("Outliner"), this, CRect(0,0,200,200), TRUE, 3001,
-		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
-	{
-		TRACE0("Failed to create outliner\n");
-		return -1;
-	}
+	//if (!m_wndOutliner.Create(_T("Outliner"), this, CRect(0,0,200,200), TRUE, 3001,
+	//	WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI, AFX_CBRS_REGULAR_TABS, AFX_DEFAULT_DOCKING_PANE_STYLE))
+	//{
+	//	TRACE0("Failed to create outliner\n");
+	//	return -1;
+	//}
 
 	if (!m_wndProperties.Create(_T("Properties"), this, CRect(0, 0, 200, 200), TRUE, 3002,
 		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
@@ -134,15 +134,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
-	m_wndOutliner.EnableDocking(CBRS_ALIGN_ANY);
+	//m_wndOutliner.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
-	DockPane(&m_wndOutliner);
-	//DockPane(&m_wndProperties);
-	CDockablePane* pTabbedBar = NULL;
-	m_wndProperties.AttachToTabWnd(&m_wndOutliner, DM_SHOW, FALSE, &pTabbedBar);
+	//DockPane(&m_wndOutliner);
+	DockPane(&m_wndProperties);
+	//CDockablePane* pTabbedBar = NULL;
+	//m_wndProperties.AttachToTabWnd(&m_wndOutliner, DM_SHOW, FALSE, &pTabbedBar);
 
 
 	// enable Visual Studio 2005 style docking window behavior
@@ -364,12 +364,17 @@ void CMainFrame::UpdateSelBox(void)
 
 void CMainFrame::UpdatePivotTransform(void)
 {
-	if (!m_selcmps.empty())
+	if (m_selcmps.size() == 1)
 	{
 		my::Vector3 Pos, Scale; my::Quaternion Rot;
 		(*m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
-		m_Pivot.m_Pos = m_selbox.Center();
+		m_Pivot.m_Pos = Pos;
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
+	}
+	else if (!m_selcmps.empty())
+	{
+		m_Pivot.m_Pos = m_selbox.Center();
+		m_Pivot.m_Rot = my::Quaternion::Identity();
 	}
 }
 

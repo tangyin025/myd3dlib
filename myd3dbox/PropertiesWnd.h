@@ -1,6 +1,9 @@
 
 #pragma once
 
+#include "EventDefine.h"
+#include "../demo2_3/Component/Component.h"
+
 class CPropertiesToolBar : public CMFCToolBar
 {
 public:
@@ -33,6 +36,16 @@ protected:
 	CComboBox m_wndObjectCombo;
 	//CPropertiesToolBar m_wndToolBar;
 	CMFCPropertyGridCtrl m_wndPropList;
+	enum Property
+	{
+		PropertyUnknown = 0,
+		PropertyCount
+	};
+	CMFCPropertyGridProperty * m_pProp[PropertyCount];
+
+	void OnSelectionChanged(EventArg * arg);
+	void UpdateProperties(Component * cmp);
+	void UpdatePropertiesMesh(MeshComponent * cmp);
 
 // Implementation
 public:
@@ -40,6 +53,7 @@ public:
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	//afx_msg void OnExpandAllProperties();
 	//afx_msg void OnUpdateExpandAllProperties(CCmdUI* pCmdUI);
@@ -54,7 +68,8 @@ protected:
 
 	DECLARE_MESSAGE_MAP()
 
-	//void InitPropList();
+	void InitPropList();
 	void SetPropListFont();
+public:
 };
 
