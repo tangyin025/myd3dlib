@@ -9,6 +9,7 @@
 
 #include "resource.h"       // main symbols
 #include "Component/RenderPipeline.h"
+#include "Component/LuaExtension.h"
 
 
 // CMainApp:
@@ -19,6 +20,7 @@ class CMainApp : public CWinAppEx
 	, public my::D3DContext
 	, public my::Clock
 	, public my::ResourceMgr
+	, public LuaContext
 	, public RenderPipeline
 {
 public:

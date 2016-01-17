@@ -5,6 +5,7 @@
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/Component.h"
 #include "../myd3dbox/Component/Actor.h"
+#include "../myd3dbox/Component/LuaExtension.h"
 #include "Logic/Logic.h"
 
 class EffectUIRender
@@ -38,10 +39,10 @@ public:
 class Game
 	: public my::DxutApp
 	, public my::TimerMgr
-	, public my::LuaContext
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public my::ResourceMgr
+	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
 	, public FModContext

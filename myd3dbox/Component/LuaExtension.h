@@ -7,4 +7,19 @@ extern "C"
 #include <lualib.h>
 }
 
-void Export2Lua(lua_State * L);
+class LuaContext
+{
+public:
+	lua_State * m_State;
+
+public:
+	LuaContext(void);
+
+	virtual ~LuaContext(void);
+
+	void Init(void);
+
+	int docall(int narg, int clear);
+
+	int dostring(const char *s, const char *name);
+};

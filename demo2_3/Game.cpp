@@ -1,5 +1,9 @@
 #include "stdafx.h"
 #include "Game.h"
+#include <luabind/luabind.hpp>
+#include <luabind/operator.hpp>
+#include <luabind/exception_handler.hpp>
+#include <luabind/iterator_policy.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -11,8 +15,6 @@
 #endif
 
 using namespace my;
-
-extern void Export2Lua(lua_State * L);
 
 void EffectUIRender::Begin(void)
 {
@@ -212,22 +214,22 @@ static int os_exit(lua_State * L)
 Game::Game(void)
 	: m_Root(Vector3(-1000), Vector3(1000), 1.0f)
 {
-	lua_pushcfunction(_state, lua_print);
-	lua_setglobal(_state, "print");
-	lua_pushcfunction(_state, luaB_loadfile);
-	lua_setglobal(_state, "loadfile");
-	lua_pushcfunction(_state, luaB_dofile);
-	lua_setglobal(_state, "dofile");
-	lua_getglobal(_state, "package");
-	lua_getfield(_state, -1, "loaders");
-	lua_pushcfunction(_state, loader_Lua);
-	lua_rawseti(_state, -2, 2);
-	lua_getglobal(_state, "os");
-	lua_pushcclosure(_state, os_exit, 0);
-	lua_setfield(_state, -2, "exit");
-	lua_settop(_state, 0);
-	Export2Lua(_state);
-	luabind::module(_state)
+	LuaContext::Init();
+	lua_pushcfunction(m_State, lua_print);
+	lua_setglobal(m_State, "print");
+	lua_pushcfunction(m_State, luaB_loadfile);
+	lua_setglobal(m_State, "loadfile");
+	lua_pushcfunction(m_State, luaB_dofile);
+	lua_setglobal(m_State, "dofile");
+	lua_getglobal(m_State, "package");
+	lua_getfield(m_State, -1, "loaders");
+	lua_pushcfunction(m_State, loader_Lua);
+	lua_rawseti(m_State, -2, 2);
+	lua_getglobal(m_State, "os");
+	lua_pushcclosure(m_State, os_exit, 0);
+	lua_setfield(m_State, -2, "exit");
+	lua_settop(m_State, 0);
+	luabind::module(m_State)
 	[
 		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr> >("Game")
 			.def("AddTimer", &Game::AddTimer)
@@ -247,12 +249,11 @@ Game::Game(void)
 			.def_readwrite("WireFrame", &Game::m_WireFrame)
 			.def_readwrite("DofEnable", &Game::m_DofEnable)
 			.def_readwrite("DofParams", &Game::m_DofParams)
-			.def("ExecuteCode", &Game::ExecuteCode)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveMaterial", &Game::SaveMaterial)
 			.def("SaveEmitter", &Game::SaveEmitter)
 	];
-	luabind::globals(_state)["game"] = this;
+	luabind::globals(m_State)["game"] = this;
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
@@ -591,75 +592,6 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-static int traceback (lua_State *L) {
-  if (!lua_isstring(L, 1))  /* 'message' not a string? */
-    return 1;  /* keep it intact */
-  lua_getfield(L, LUA_GLOBALSINDEX, "debug");
-  if (!lua_istable(L, -1)) {
-    lua_pop(L, 1);
-    return 1;
-  }
-  lua_getfield(L, -1, "traceback");
-  if (!lua_isfunction(L, -1)) {
-    lua_pop(L, 2);
-    return 1;
-  }
-  lua_pushvalue(L, 1);  /* pass error message */
-  lua_pushinteger(L, 2);  /* skip this function and traceback */
-  lua_call(L, 2, 1);  /* call debug.traceback */
-  return 1;
-}
-
-static void lstop (lua_State *L, lua_Debug *ar) {
-  (void)ar;  /* unused arg. */
-  lua_sethook(L, NULL, 0, 0);
-  luaL_error(L, "interrupted!");
-}
-
-static void laction (int i) {
-  signal(i, SIG_DFL); /* if another SIGINT happens before lstop,
-                              terminate process (default action) */
-  lua_sethook(Game::getSingleton()._state, lstop, LUA_MASKCALL | LUA_MASKRET | LUA_MASKCOUNT, 1);
-}
-
-static int docall (lua_State *L, int narg, int clear) {
-  int status;
-  int base = lua_gettop(L) - narg;  /* function index */
-  lua_pushcfunction(L, traceback);  /* push traceback function */
-  lua_insert(L, base);  /* put it under chunk and args */
-  signal(SIGINT, laction);
-  status = lua_pcall(L, narg, (clear ? 0 : LUA_MULTRET), base);
-  signal(SIGINT, SIG_DFL);
-  lua_remove(L, base);  /* remove traceback function */
-  /* force a complete garbage collection in case of errors */
-  if (status != 0) lua_gc(L, LUA_GCCOLLECT, 0);
-  return status;
-}
-//
-//static void l_message (const char *pname, const char *msg) {
-//  //if (pname) fprintf(stderr, "%s: ", pname);
-//  //fprintf(stderr, "%s\n", msg);
-//  //fflush(stderr);
-//	Game::getSingleton().AddLine(L"");
-//	Game::getSingleton().puts(ms2ws(msg));
-//}
-//
-//static int report (lua_State *L, int status) {
-//  if (status && !lua_isnil(L, -1)) {
-//    const char *msg = lua_tostring(L, -1);
-//    if (msg == NULL) msg = "(error object is not a string)";
-//    l_message("aaa", msg);
-//    lua_pop(L, 1);
-//  }
-//  return status;
-//}
-
-static int dostring (lua_State *L, const char *s, const char *name) {
-  //int status = luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
-  //return report(L, status);
-  return luaL_loadbuffer(L, s, strlen(s), name) || docall(L, 0, 1);
-}
-
 void Game::OnResourceFailed(const std::string & error_str)
 {
 	m_LastErrorStr = error_str;
@@ -692,12 +624,12 @@ void Game::puts(const std::wstring & str)
 
 bool Game::ExecuteCode(const char * code) throw()
 {
-	if(dostring(_state, code, "Game::ExecuteCode") && !lua_isnil(_state, -1))
+	if(dostring(code, "Game::ExecuteCode") && !lua_isnil(m_State, -1))
 	{
-		std::string msg = lua_tostring(_state, -1);
+		std::string msg = lua_tostring(m_State, -1);
 		if(msg.empty())
 			msg = "error object is not a string";
-		lua_pop(_state, 1);
+		lua_pop(m_State, 1);
 
 		OnResourceFailed(msg);
 

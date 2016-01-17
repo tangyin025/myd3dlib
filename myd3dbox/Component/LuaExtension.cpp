@@ -183,10 +183,9 @@ static U * shared_ptr_2_raw(boost::shared_ptr<T> ptr)
 	return ptr.get();
 }
 
-using namespace luabind;
-
-void ExportMath2Lua(lua_State * L)
+static void ExportMath(lua_State * L)
 {
+	using namespace luabind;
 	module(L)
 	[
 		class_<my::Vector2, boost::shared_ptr<my::Vector2> >("Vector2")
@@ -473,8 +472,9 @@ static DWORD ARGB(int a, int r, int g, int b)
 	return D3DCOLOR_ARGB(a,r,g,b);
 }
 
-void ExportUI2Lua(lua_State * L)
+static void ExportUI(lua_State * L)
 {
+	using namespace luabind;
 	module(L)
 	[
 		def("ARGB", &ARGB)
@@ -603,8 +603,9 @@ void ExportUI2Lua(lua_State * L)
 	];
 }
 
-void ExportEmitter2Lua(lua_State * L)
+static void ExportEmitter(lua_State * L)
 {
+	using namespace luabind;
 	module(L)
 	[
 		class_<my::Spline, boost::shared_ptr<my::Spline> >("Spline")
@@ -637,8 +638,9 @@ void ExportEmitter2Lua(lua_State * L)
 	];
 }
 
-void ExportResource2Lua(lua_State * L)
+static void ExportResource(lua_State * L)
 {
+	using namespace luabind;
 	module(L)
 	[
 		class_<my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("BaseTexture")
@@ -782,8 +784,9 @@ void ExportResource2Lua(lua_State * L)
 	];
 }
 
-void ExportDevice2Lua(lua_State * L)
+static void ExportDevice(lua_State * L)
 {
+	using namespace luabind;
 	module(L)
 	[
 		class_<D3DSURFACE_DESC>("D3DSURFACE_DESC")
@@ -919,26 +922,9 @@ void ExportDevice2Lua(lua_State * L)
 	];
 }
 
-void Export2Lua(lua_State * L)
+static void ExportComponent(lua_State * L)
 {
-	open(L);
-
-	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
-	register_exception_handler<my::Exception>(&translate_my_exception);
-
-	//// ! 为什么不起作用
-	//set_pcall_callback(add_file_and_line);
-
-	ExportMath2Lua(L);
-
-	ExportResource2Lua(L);
-
-	ExportUI2Lua(L);
-
-	ExportEmitter2Lua(L);
-
-	ExportDevice2Lua(L);
-
+	using namespace luabind;
 	module(L)
 	[
 		class_<ResourceBundle<my::BaseTexture> >("ResourceTextureBundle")
@@ -1020,4 +1006,77 @@ void Export2Lua(lua_State * L)
 
 		, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctComponent>)
 	];
+}
+
+LuaContext::LuaContext(void)
+	: m_State(NULL)
+{
+}
+
+void LuaContext::Init(void)
+{
+	m_State = luaL_newstate();
+	luaL_openlibs(m_State);
+	luabind::open(m_State);
+
+	// ! 会导致内存泄漏，但可以重写 handle_exception_aux，加入 my::Exception的支持
+	luabind::register_exception_handler<my::Exception>(&translate_my_exception);
+
+	//// ! 为什么不起作用
+	//set_pcall_callback(add_file_and_line);
+
+	ExportMath(m_State);
+	ExportResource(m_State);
+	ExportUI(m_State);
+	ExportEmitter(m_State);
+	ExportDevice(m_State);
+	ExportComponent(m_State);
+}
+
+LuaContext::~LuaContext(void)
+{
+	if (m_State)
+	{
+		lua_close(m_State);
+	}
+}
+
+static int traceback (lua_State *L)
+{
+	if (!lua_isstring(L, 1))  /* 'message' not a string? */
+		return 1;  /* keep it intact */
+	lua_getfield(L, LUA_GLOBALSINDEX, "debug");
+	if (!lua_istable(L, -1)) {
+		lua_pop(L, 1);
+		return 1;
+	}
+	lua_getfield(L, -1, "traceback");
+	if (!lua_isfunction(L, -1)) {
+		lua_pop(L, 2);
+		return 1;
+	}
+	lua_pushvalue(L, 1);  /* pass error message */
+	lua_pushinteger(L, 2);  /* skip this function and traceback */
+	lua_call(L, 2, 1);  /* call debug.traceback */
+	return 1;
+}
+
+int LuaContext::docall(int narg, int clear)
+{
+	int status;
+	int base = lua_gettop(m_State) - narg;  /* function index */
+	lua_pushcfunction(m_State, traceback);  /* push traceback function */
+	lua_insert(m_State, base);  /* put it under chunk and args */
+	//signal(SIGINT, laction);
+	status = lua_pcall(m_State, narg, (clear ? 0 : LUA_MULTRET), base);
+	//signal(SIGINT, SIG_DFL);
+	lua_remove(m_State, base);  /* remove traceback function */
+	/* force a complete garbage collection in case of errors */
+	if (status != 0) lua_gc(m_State, LUA_GCCOLLECT, 0);
+	return status;
+}
+
+int LuaContext::dostring(const char *s, const char *name)
+{
+	return luaL_loadbuffer(m_State, s, strlen(s), name) || docall(0, 1);
 }

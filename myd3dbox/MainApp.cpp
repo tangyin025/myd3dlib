@@ -193,6 +193,8 @@ BOOL CMainApp::InitInstance()
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
+	LuaContext::Init();
+
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)
 	{
