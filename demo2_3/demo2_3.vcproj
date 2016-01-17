@@ -240,38 +240,6 @@
 			>
 		</Filter>
 		<Filter
-			Name="LuaExtension"
-			>
-			<File
-				RelativePath=".\LuaExtension\LuaExtension.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtension.h"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtensionDevice.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtensionEmitter.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtensionMath.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtensionResource.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\LuaExtension\LuaExtensionUI.cpp"
-				>
-			</File>
-		</Filter>
-		<Filter
 			Name="Net"
 			>
 			<File
@@ -324,6 +292,14 @@
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\FModContext.h"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\LuaExtension.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\LuaExtension.h"
 				>
 			</File>
 			<File

@@ -62,10 +62,197 @@ void EffectUIRender::Flush(void)
 	}
 }
 
+static int lua_print(lua_State * L)
+{
+	int n = lua_gettop(L);  /* number of arguments */
+	int i;
+	lua_getglobal(L, "tostring");
+	for (i=1; i<=n; i++) {
+		const char *s;
+		lua_pushvalue(L, -1);  /* function to be called */
+		lua_pushvalue(L, i);   /* value to print */
+		lua_call(L, 1, 1);
+		s = lua_tostring(L, -1);  /* get result */
+		if (s == NULL)
+			return luaL_error(L, LUA_QL("tostring") " must return a string to "
+			LUA_QL("print"));
+		if (i>1)
+			Game::getSingleton().puts(L"\t");
+		else
+			Game::getSingleton().AddLine(L"", D3DCOLOR_ARGB(255,255,255,255));
+		Game::getSingleton().puts(u8tows(s));
+		lua_pop(L, 1);  /* pop result */
+	}
+	return 0;
+}
+
+typedef struct LoadF {
+	int extraline;
+	//FILE *f;
+	my::IStreamPtr stream;
+	char buff[LUAL_BUFFERSIZE];
+} LoadF;
+
+static const char *getF (lua_State *L, void *ud, size_t *size) {
+	LoadF *lf = (LoadF *)ud;
+	(void)L;
+	if (lf->extraline) {
+		lf->extraline = 0;
+		*size = 1;
+		return "\n";
+	}
+	//if (feof(lf->f)) return NULL;
+	*size = lf->stream->read(lf->buff, sizeof(lf->buff));
+	return (*size > 0) ? lf->buff : NULL;
+}
+//
+//static int errfile (lua_State *L, const char *what, int fnameindex) {
+//	const char *serr = strerror(errno);
+//	const char *filename = lua_tostring(L, fnameindex) + 1;
+//	lua_pushfstring(L, "cannot %s %s: %s", what, filename, serr);
+//	lua_remove(L, fnameindex);
+//	return LUA_ERRFILE;
+//}
+
+static int luaL_loadfile (lua_State *L, const char *filename)
+{
+	LoadF lf;
+	//int status, readstatus;
+	//int c;
+	int fnameindex = lua_gettop(L) + 1;  /* index of filename on the stack */
+	lf.extraline = 0;
+	//if (filename == NULL) {
+	//	lua_pushliteral(L, "=stdin");
+	//	lf.f = stdin;
+	//}
+	//else {
+		lua_pushfstring(L, "@%s", filename);
+	//	lf.f = fopen(filename, "r");
+	//	if (lf.f == NULL) return errfile(L, "open", fnameindex);
+	//}
+	//c = getc(lf.f);
+	//if (c == '#') {  /* Unix exec. file? */
+	//	lf.extraline = 1;
+	//	while ((c = getc(lf.f)) != EOF && c != '\n') ;  /* skip first line */
+	//	if (c == '\n') c = getc(lf.f);
+	//}
+	//if (c == LUA_SIGNATURE[0] && filename) {  /* binary file? */
+	//	lf.f = freopen(filename, "rb", lf.f);  /* reopen in binary mode */
+	//	if (lf.f == NULL) return errfile(L, "reopen", fnameindex);
+	//	/* skip eventual `#!...' */
+	//	while ((c = getc(lf.f)) != EOF && c != LUA_SIGNATURE[0]) ;
+	//	lf.extraline = 0;
+	//}
+	//ungetc(c, lf.f);
+	try
+	{
+		lf.stream = Game::getSingleton().OpenIStream(filename);
+	}
+	catch(const my::Exception & e)
+	{
+		lua_pushfstring(L, e.what().c_str());
+		lua_remove(L, fnameindex);
+		return LUA_ERRFILE;
+	}
+	int status = lua_load(L, getF, &lf, lua_tostring(L, -1));
+	//readstatus = ferror(lf.f);
+	//if (filename) fclose(lf.f);  /* close file (even in case of errors) */
+	//if (readstatus) {
+	//	lua_settop(L, fnameindex);  /* ignore results from `lua_load' */
+	//	return errfile(L, "read", fnameindex);
+	//}
+	lua_remove(L, fnameindex);
+	return status;
+}
+
+static int load_aux (lua_State *L, int status) {
+	if (status == 0)  /* OK? */
+		return 1;
+	else {
+		lua_pushnil(L);
+		lua_insert(L, -2);  /* put before error message */
+		return 2;  /* return nil plus error message */
+	}
+}
+
+static int luaB_loadfile (lua_State *L) {
+	const char *fname = luaL_optstring(L, 1, NULL);
+	return load_aux(L, luaL_loadfile(L, fname));
+}
+
+static int luaB_dofile (lua_State *L) {
+	const char *fname = luaL_optstring(L, 1, NULL);
+	int n = lua_gettop(L);
+	if (luaL_loadfile(L, fname) != 0) lua_error(L);
+	lua_call(L, 0, LUA_MULTRET);
+	return lua_gettop(L) - n;
+}
+
+static void loaderror (lua_State *L, const char *filename) {
+  luaL_error(L, "error loading module " LUA_QS " from file " LUA_QS ":\n\t%s",
+                lua_tostring(L, 1), filename, lua_tostring(L, -1));
+}
+
+static int loader_Lua (lua_State *L) {
+  //const char *filename;
+  const char *name = luaL_checkstring(L, 1);
+  //filename = findfile(L, name, "path");
+  //if (filename == NULL) return 1;  /* library not found in this path */
+  if (luaL_loadfile(L, name) != 0)
+    loaderror(L, name);
+  return 1;  /* library loaded successfully */
+}
+
+static int os_exit(lua_State * L)
+{
+	Game::getSingleton().m_wnd->SendMessage(WM_CLOSE);
+	return 0;
+}
+
 Game::Game(void)
 	: m_Root(Vector3(-1000), Vector3(1000), 1.0f)
 {
+	lua_pushcfunction(_state, lua_print);
+	lua_setglobal(_state, "print");
+	lua_pushcfunction(_state, luaB_loadfile);
+	lua_setglobal(_state, "loadfile");
+	lua_pushcfunction(_state, luaB_dofile);
+	lua_setglobal(_state, "dofile");
+	lua_getglobal(_state, "package");
+	lua_getfield(_state, -1, "loaders");
+	lua_pushcfunction(_state, loader_Lua);
+	lua_rawseti(_state, -2, 2);
+	lua_getglobal(_state, "os");
+	lua_pushcclosure(_state, os_exit, 0);
+	lua_setfield(_state, -2, "exit");
+	lua_settop(_state, 0);
 	Export2Lua(_state);
+	luabind::module(_state)
+	[
+		luabind::class_<Game, luabind::bases<my::DxutApp, my::ResourceMgr> >("Game")
+			.def("AddTimer", &Game::AddTimer)
+			.def("InsertTimer", &Game::InsertTimer)
+			.def("RemoveTimer", &Game::RemoveTimer)
+			.def("RemoveAllTimer", &Game::RemoveAllTimer)
+			.property("DlgViewport", &Game::GetDlgViewport, &Game::SetDlgViewport)
+			.def("InsertDlg", &Game::InsertDlg)
+			.def("RemoveDlg", &Game::RemoveDlg)
+			.def("RemoveAllDlg", &Game::RemoveAllDlg)
+			.def_readonly("Root", &Game::m_Root)
+			.def_readonly("Console", &Game::m_Console)
+			.def_readwrite("Camera", &Game::m_Camera)
+			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
+			.def_readwrite("SkyLightDiffuse", &Game::m_SkyLightDiffuse)
+			.def_readwrite("SkyLightAmbient", &Game::m_SkyLightAmbient)
+			.def_readwrite("WireFrame", &Game::m_WireFrame)
+			.def_readwrite("DofEnable", &Game::m_DofEnable)
+			.def_readwrite("DofParams", &Game::m_DofParams)
+			.def("ExecuteCode", &Game::ExecuteCode)
+			.def("PlaySound", &Game::PlaySound)
+			.def("SaveMaterial", &Game::SaveMaterial)
+			.def("SaveEmitter", &Game::SaveEmitter)
+	];
+	luabind::globals(_state)["game"] = this;
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
