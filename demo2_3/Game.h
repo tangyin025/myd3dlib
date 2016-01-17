@@ -1,10 +1,10 @@
 #pragma once
 
 #include "Console.h"
-#include "Component/FModContext.h"
-#include "Component/RenderPipeline.h"
-#include "Component/Component.h"
-#include "Component/Actor.h"
+#include "../myd3dbox/Component/FModContext.h"
+#include "../myd3dbox/Component/RenderPipeline.h"
+#include "../myd3dbox/Component/Component.h"
+#include "../myd3dbox/Component/Actor.h"
 #include "Logic/Logic.h"
 
 class EffectUIRender

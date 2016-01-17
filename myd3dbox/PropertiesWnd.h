@@ -2,7 +2,7 @@
 #pragma once
 
 #include "EventDefine.h"
-#include "../demo2_3/Component/Component.h"
+#include "Component/Component.h"
 
 class CPropertiesToolBar : public CMFCToolBar
 {

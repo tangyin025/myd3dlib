@@ -5,8 +5,8 @@
 
 #pragma once
 
-#include "../demo2_3/Component/RenderPipeline.h"
-#include "../demo2_3/Component/Component.h"
+#include "Component/RenderPipeline.h"
+#include "Component/Component.h"
 #include "EventDefine.h"
 
 class CMainDoc;

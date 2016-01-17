@@ -295,43 +295,43 @@
 			Name="Component"
 			>
 			<File
-				RelativePath=".\Component\Actor.cpp"
+				RelativePath="..\myd3dbox\Component\Actor.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Actor.h"
+				RelativePath="..\myd3dbox\Component\Actor.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Animator.cpp"
+				RelativePath="..\myd3dbox\Component\Animator.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Animator.h"
+				RelativePath="..\myd3dbox\Component\Animator.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Component.cpp"
+				RelativePath="..\myd3dbox\Component\Component.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\Component.h"
+				RelativePath="..\myd3dbox\Component\Component.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\FModContext.cpp"
+				RelativePath="..\myd3dbox\Component\FModContext.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\FModContext.h"
+				RelativePath="..\myd3dbox\Component\FModContext.h"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.cpp"
+				RelativePath="..\myd3dbox\Component\RenderPipeline.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\Component\RenderPipeline.h"
+				RelativePath="..\myd3dbox\Component\RenderPipeline.h"
 				>
 			</File>
 		</Filter>

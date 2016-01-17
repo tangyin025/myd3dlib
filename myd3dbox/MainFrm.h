@@ -6,7 +6,7 @@
 
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
-#include "../demo2_3/Component/Component.h"
+#include "Component/Component.h"
 #include "Pivot.h"
 #include "EventDefine.h"
 
