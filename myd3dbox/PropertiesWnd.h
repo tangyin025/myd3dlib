@@ -48,6 +48,7 @@ protected:
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp);
+	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName);
 
 // Implementation
 public:

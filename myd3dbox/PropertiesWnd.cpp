@@ -118,6 +118,12 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pSpline->AddSubItem(pNode);
 }
 
+void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName)
+{
+	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, 0, TRUE);
+	pParentProp->AddSubItem(pMaterial);
+}
+
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
@@ -328,6 +334,9 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(pTerrain, TRUE, TRUE);
 
 	CMFCPropertyGridProperty * pMaterial = new CMFCPropertyGridProperty(_T("Material"));
+	CreatePropertiesMaterial(pMaterial, _T("mat0"));
+	CreatePropertiesMaterial(pMaterial, _T("mat1"));
+	CreatePropertiesMaterial(pMaterial, _T("mat2"));
 	m_wndPropList.AddProperty(pMaterial, TRUE, TRUE);
 }
 
