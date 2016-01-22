@@ -37,6 +37,7 @@ BEGIN_MESSAGE_MAP(CPropertiesWnd, CDockablePane)
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
 	ON_WM_DESTROY()
+	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -118,9 +119,9 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pSpline->AddSubItem(pNode);
 }
 
-void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName)
+void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName)
 {
-	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, 0, TRUE);
+	CMFCPropertyGridProperty * pMaterial = new CMFCPropertyGridProperty(lpszName);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Shader"), (_variant_t)_T(""), NULL, 0);
 	pMaterial->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("PassMask"), (_variant_t)0, NULL, 0);
@@ -131,7 +132,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("SpecularTexture"), (_variant_t)_T(""), NULL, 0);
 	pMaterial->AddSubItem(pProp);
-	pParentProp->AddSubItem(pMaterial);
+	pParentCtrl->AddProperty(pMaterial, TRUE, TRUE);
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -247,7 +248,7 @@ void CPropertiesWnd::InitPropList()
 
 	CMFCPropertyGridProperty * pComponent = new CMFCPropertyGridProperty(_T("Component"));
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), 0, TRUE);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("min.x"), (_variant_t)0.0f, NULL, 0);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)0.0f, NULL, 0);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("miny"), (_variant_t)0.0f, NULL, 0);
 	pAABB->AddSubItem(pProp);
@@ -290,7 +291,7 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(pComponent, TRUE, TRUE);
 
 	CMFCPropertyGridProperty * pMesh = new CMFCPropertyGridProperty(_T("Mesh"));
-	pProp = new CSimpleProp(_T("ResPath"), (_variant_t)"", NULL, 0);
+	pProp = new CSimpleProp(_T("ResourcePath"), (_variant_t)"", NULL, 0);
 	pMesh->AddSubItem(pProp);
 	m_wndPropList.AddProperty(pMesh, TRUE, TRUE);
 
@@ -343,11 +344,16 @@ void CPropertiesWnd::InitPropList()
 	pTerrain->AddSubItem(pProp);
 	m_wndPropList.AddProperty(pTerrain, TRUE, TRUE);
 
-	CMFCPropertyGridProperty * pMaterial = new CMFCPropertyGridProperty(_T("Material"));
-	CreatePropertiesMaterial(pMaterial, _T("mat0"));
-	CreatePropertiesMaterial(pMaterial, _T("mat1"));
-	CreatePropertiesMaterial(pMaterial, _T("mat2"));
-	m_wndPropList.AddProperty(pMaterial, TRUE, TRUE);
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material0"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material1"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material2"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material3"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material4"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material5"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material6"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material7"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material8"));
+	CreatePropertiesMaterial(&m_wndPropList, _T("Material9"));
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
@@ -381,4 +387,11 @@ void CPropertiesWnd::SetPropListFont()
 	m_fntPropList.CreateFontIndirect(&lf);
 
 	m_wndPropList.SetFont(&m_fntPropList);
+}
+
+afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
+{
+	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
+	ASSERT(pProp);
+	return 0;
 }
