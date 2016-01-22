@@ -4,24 +4,16 @@
 <Material class_id="0" tracking_level="0" version="1">
 	<px class_id="1" tracking_level="1" version="0" object_id="_0">
 		<m_Shader>light1.fx</m_Shader>
-		<m_Params class_id="2" tracking_level="0" version="0">
-			<count>1</count>
-			<item_version>0</item_version>
-			<item class_id="3" tracking_level="0" version="0">
-				<first>g_MeshTexture</first>
-				<second class_id="4" tracking_level="0" version="1">
-					<px class_id="5" class_name="Material::ParameterValueTexture" tracking_level="1" version="0" object_id="_1">
-						<ParameterValue class_id="6" tracking_level="0" version="0">
-							<m_Type>1</m_Type>
-						</ParameterValue>
-						<ResourceBundle class_id="7" tracking_level="0" version="0">
-							<m_ResPath>texture/White.dds</m_ResPath>
-						</ResourceBundle>
-					</px>
-				</second>
-			</item>
-		</m_Params>
 		<m_PassMask>4</m_PassMask>
+		<m_MeshTexture class_id="2" tracking_level="0" version="0">
+			<m_ResPath>texture/White.dds</m_ResPath>
+		</m_MeshTexture>
+		<m_NormalTexture>
+			<m_ResPath></m_ResPath>
+		</m_NormalTexture>
+		<m_SpecularTexture>
+			<m_ResPath></m_ResPath>
+		</m_SpecularTexture>
 	</px>
 </Material>
 </boost_serialization>

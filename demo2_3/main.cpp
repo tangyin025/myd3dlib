@@ -67,9 +67,9 @@ public:
 		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-10,10), my::Matrix4::Scaling(Vector3(0.05f)), false));
 		//mesh_cmp->m_MeshRes.m_ResPath = "mesh/casual19_m_highpoly.mesh.xml";
 		//MaterialPtr lambert1(new Material());
-		//lambert1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35.jpg"))));
-		//lambert1->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_normal.png"))));
-		//lambert1->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/casual19_m_35_spec.png"))));
+		//lambert1->m_MeshTexture.m_ResPath = "texture/casual19_m_35.jpg";
+		//lambert1->m_NormalTexture.m_ResPath = "texture/casual19_m_35_normal.png";
+		//lambert1->m_SpecularTexture.m_ResPath = "texture/casual19_m_35_spec.png";
 		//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
 		//lambert1->m_Shader = "lambert1.fx";
 		//mesh_cmp->m_MaterialList.push_back(lambert1);
@@ -103,7 +103,7 @@ public:
 		//emit->m_SpawnSizeY.AddNode(10,10,0,0);
 		//emit_cmp->m_Emitter = emit;
 		//MaterialPtr particle1(new Material());
-		//particle1->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/flare.dds"))));
+		//particle1->m_MeshTexture.m_ResPath = "texture/flare.dds";
 		//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
 		//particle1->m_Shader = "particle1.fx";
 		//emit_cmp->m_Material = particle1;
@@ -113,9 +113,9 @@ public:
 
 		//TerrainComponentPtr terrain_cmp(new TerrainComponent(AABB(-10,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4::Identity()));
 		//MaterialPtr lambert2(new Material());
-		//lambert2->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall.jpg"))));
-		//lambert2->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall_NM_height.DDS"))));
-		//lambert2->m_Params.push_back(Material::Parameter("g_SpecularTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/White.dds"))));
+		//lambert2->m_MeshTexture.m_ResPath = "texture/wall.jpg";
+		//lambert2->m_NormalTexture.m_ResPath = "texture/wall_NM_height.DDS";
+		//lambert2->m_SpecularTexture.m_ResPath = "texture/White.dds";
 		//lambert2->m_PassMask = RenderPipeline::PassMaskOpaque;
 		//lambert2->m_Shader = "lambert1.fx";
 		//terrain_cmp->m_Material = lambert2;

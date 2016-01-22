@@ -2,45 +2,45 @@
 material=Material()
 material.Shader="particle1.fx"
 material.PassMask=Material.PassMaskTransparent
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/flare.dds"))
+material.MeshTexture.ResPath="texture/flare.dds"
 game:SaveMaterial("material/particle1.xml", material)
 
 material=Material()
 material.Shader="light1.fx"
 material.PassMask=Material.PassMaskLight
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/White.dds"))
+material.MeshTexture.ResPath="texture/White.dds"
 game:SaveMaterial("material/light1.xml", material)
 
 material=Material()
 material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/casual19_m_35.jpg"))
-material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/casual19_m_35_normal.png"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/casual19_m_35_spec.png"))
+material.MeshTexture.ResPath="texture/casual19_m_35.jpg"
+material.NormalTexture.ResPath="texture/casual19_m_35_normal.png"
+material.SpecularTexture.ResPath="texture/casual19_m_35_spec.png"
 game:SaveMaterial("material/casual19_m_highpolyPhong.xml", material)
 
 material=Material()
 material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/sportive03_f_30_hair.jpg"))
-material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/sportive03_f_30_hair_normal.png"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/sportive03_f_30_hair_spec.png"))
+material.MeshTexture.ResPath="texture/sportive03_f_30_hair.jpg"
+material.NormalTexture.ResPath="texture/sportive03_f_30_hair_normal.png"
+material.SpecularTexture.ResPath="texture/sportive03_f_30_hair_spec.png"
 game:SaveMaterial("material/sportive03_f_highpoly_hairPhong.xml", material)
 
 material=Material()
 material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/sportive03_f_30.jpg"))
-material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/sportive03_f_30_normal.png"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/sportive03_f_30_spec.png"))
+material.MeshTexture.ResPath="texture/sportive03_f_30.jpg"
+material.NormalTexture.ResPath="texture/sportive03_f_30_normal.png"
+material.SpecularTexture.ResPath="texture/sportive03_f_30_spec.png"
 game:SaveMaterial("material/sportive03_f_highpolyPhong.xml", material)
 
 material=Material()
 material.Shader="lambert1.fx"
 material.PassMask=Material.PassMaskOpaque
-material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/wall.jpg"))
-material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/wall_NM_height.DDS"))
-material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/White.dds"))
+material.MeshTexture.ResPath="texture/wall.jpg"
+material.NormalTexture.ResPath="texture/wall_NM_height.DDS"
+material.SpecularTexture.ResPath="texture/White.dds"
 game:SaveMaterial("material/lambert1.xml", material)
 game:SaveMaterial("material/lambert2.xml", material)
 game:SaveMaterial("material/lambert3.xml", material)

@@ -951,12 +951,6 @@ static void ExportComponent(lua_State * L)
 		, class_<SimpleAnimator, Animator, boost::shared_ptr<Animator> >("SimpleAnimator")
 			.def(constructor<>())
 
-		, class_<Material::ParameterValue, boost::shared_ptr<Material::ParameterValue> >("ParameterValue")
-
-		, class_<Material::ParameterValueTexture, Material::ParameterValue, ResourceBundle<my::BaseTexture>, boost::shared_ptr<Material::ParameterValue> >("ParameterValueTexture")
-			.def(constructor<const char *>())
-			.def(constructor<>())
-
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
 			[
@@ -968,7 +962,9 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<>())
 			.def_readwrite("Shader", &Material::m_Shader)
 			.def_readwrite("PassMask", &Material::m_PassMask)
-			.def("AddParameter", &Material::AddParameter)
+			.def_readonly("MeshTexture", &Material::m_MeshTexture)
+			.def_readonly("NormalTexture", &Material::m_NormalTexture)
+			.def_readonly("SpecularTexture", &Material::m_SpecularTexture)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.def_readwrite("aabb", &Component::m_aabb)

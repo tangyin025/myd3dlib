@@ -10,9 +10,7 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(Material::ParameterValue)
-
-BOOST_CLASS_EXPORT(Material::ParameterValueTexture)
+BOOST_CLASS_EXPORT(Material)
 
 BOOST_CLASS_EXPORT(Component)
 
@@ -33,44 +31,43 @@ Material::~Material(void)
 {
 }
 
-void Material::ParameterValueTexture::OnSetShader(my::Effect * shader, DWORD AttribId, const char * name)
-{
-	shader->SetTexture(name, m_Res.get());
-}
-
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	ParameterList::iterator param_iter = m_Params.begin();
-	for (; param_iter != m_Params.end(); param_iter++)
+	if (!m_MeshTexture.m_ResPath.empty())
 	{
-		param_iter->second->OnSetShader(shader, AttribId, param_iter->first.c_str());
+		shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
+	}
+	if (!m_NormalTexture.m_ResPath.empty())
+	{
+		shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
+	}
+	if (!m_SpecularTexture.m_ResPath.empty())
+	{
+		shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
 	}
 }
 
 void Material::RequestResource(void)
 {
-	ParameterList::iterator param_iter = m_Params.begin();
-	for (; param_iter != m_Params.end(); param_iter++)
+	if (!m_MeshTexture.m_ResPath.empty())
 	{
-		switch(param_iter->second->m_Type)
-		{
-		case ParameterValue::ParameterValueTypeTexture:
-			boost::dynamic_pointer_cast<ParameterValueTexture>(param_iter->second)->RequestResource();
-		}
+		m_MeshTexture.RequestResource();
+	}
+	if (!m_NormalTexture.m_ResPath.empty())
+	{
+		m_NormalTexture.RequestResource();
+	}
+	if (!m_SpecularTexture.m_ResPath.empty())
+	{
+		m_SpecularTexture.RequestResource();
 	}
 }
 
 void Material::ReleaseResource(void)
 {
-	ParameterList::iterator param_iter = m_Params.begin();
-	for (; param_iter != m_Params.end(); param_iter++)
-	{
-		switch(param_iter->second->m_Type)
-		{
-		case ParameterValue::ParameterValueTypeTexture:
-			boost::dynamic_pointer_cast<ParameterValueTexture>(param_iter->second)->ReleaseResource();
-		}
-	}
+	m_MeshTexture.ReleaseResource();
+	m_NormalTexture.ReleaseResource();
+	m_SpecularTexture.ReleaseResource();
 }
 
 const my::AABB & Component::GetOctAABB(void) const

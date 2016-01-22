@@ -8,108 +8,29 @@
 class Material
 {
 public:
-	class ParameterValue
-	{
-	public:
-		enum ParameterValueType
-		{
-			ParameterValueTypeUnknown,
-			ParameterValueTypeTexture,
-		};
-
-		ParameterValueType m_Type;
-
-	public:
-		ParameterValue(ParameterValueType type)
-			: m_Type(type)
-		{
-		}
-
-		virtual ~ParameterValue(void)
-		{
-		}
-
-		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name) = 0;
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(m_Type);
-		}
-	};
-
-	typedef boost::shared_ptr<ParameterValue> ParameterValuePtr;
-
-	class ParameterValueTexture : public ParameterValue, public ResourceBundle<my::BaseTexture>
-	{
-	public:
-		ParameterValueTexture(const char * Path)
-			: ParameterValue(ParameterValueTypeTexture)
-			, ResourceBundle(Path)
-		{
-		}
-
-		ParameterValueTexture(void)
-			: ParameterValue(ParameterValueTypeTexture)
-		{
-		}
-
-		virtual void OnSetShader(my::Effect * shader, DWORD AttribId, const char * name);
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ParameterValue);
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ResourceBundle);
-		}
-	};
-
-	typedef boost::shared_ptr<ParameterValueTexture> ParameterValueTexturePtr;
-
-	class Parameter : public std::pair<std::string, boost::shared_ptr<ParameterValue> >
-	{
-	public:
-		Parameter(const char * name, ParameterValuePtr value)
-			: pair(name, value)
-		{
-		}
-
-		Parameter(void)
-		{
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(first);
-			ar & BOOST_SERIALIZATION_NVP(second);
-		}
-	};
-
-	typedef std::vector<Parameter> ParameterList;
-
-	ParameterList m_Params;
-
 	std::string m_Shader;
 
 	unsigned int m_PassMask;
+
+	ResourceBundle<my::BaseTexture> m_MeshTexture;
+
+	ResourceBundle<my::BaseTexture> m_NormalTexture;
+
+	ResourceBundle<my::BaseTexture> m_SpecularTexture;
 
 public:
 	Material(void);
 
 	virtual ~Material(void);
 
-	void AddParameter(const char * name, ParameterValuePtr value)
-	{
-		m_Params.push_back(Parameter(name, value));
-	}
-
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Shader);
-		ar & BOOST_SERIALIZATION_NVP(m_Params);
 		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
+		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
+		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);

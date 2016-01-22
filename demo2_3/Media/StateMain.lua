@@ -28,9 +28,9 @@ game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 -- local material=Material()
 -- material.Shader="lambert1.fx"
 -- material.PassMask=Material.PassMaskOpaque
--- material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/casual19_m_35.jpg"))
--- material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/casual19_m_35_normal.png"))
--- material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/casual19_m_35_spec.png"))
+-- material.MeshTexture.ResPath="texture/casual19_m_35.jpg"
+-- material.NormalTexture.ResPath="texture/casual19_m_35_normal.png"
+-- material.SpecularTexture.ResPath="texture/casual19_m_35_spec.png"
 -- cmp:AddMaterial(material)
 -- local animator = SimpleAnimator()
 -- animator.SkeletonRes.ResPath = "mesh/casual19_m_highpoly.skeleton.xml"
@@ -64,19 +64,19 @@ game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 -- local material=Material()
 -- material.Shader="particle1.fx"
 -- material.PassMask=Material.PassMaskTransparent
--- material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/flare.dds"))
+-- material.MeshTexture.ResPath="texture/flare.dds"
 -- cmp2.Material = material
 -- cmp2:RequestResource()
 -- game.Root:AddComponent(cmp2raw(cmp2),cmp2.aabb:transform(cmp2.World),0.1)
 
 -- -- 添加地形
--- local cmp3 = TerrainComponent(Vector3(-10,0,-10),Vector3(10,0,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4.Identity())
+-- local cmp3 = TerrainComponent(AABB(-10,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4.Identity())
 -- local material=Material()
 -- material.Shader="lambert1.fx"
 -- material.PassMask=Material.PassMaskOpaque
--- material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/wall.jpg"))
--- material:AddParameter("g_NormalTexture", ParameterValueTexture("texture/wall_NM_height.DDS"))
--- material:AddParameter("g_SpecularTexture", ParameterValueTexture("texture/White.dds"))
+-- material.MeshTexture.ResPath="texture/wall.jpg"
+-- material.NormalTexture.ResPath="texture/wall_NM_height.DDS"
+-- material.SpecularTexture.ResPath="texture/White.dds"
 -- cmp3.Material = material
 -- cmp3:RequestResource()
 -- game.Root:AddComponent(cmp2raw(cmp3),cmp3.aabb:transform(cmp3.World),0.1)
@@ -94,7 +94,7 @@ game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 -- local material=Material()
 -- material.Shader="light1.fx"
 -- material.PassMask=Material.PassMaskLight
--- material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/White.dds"))
+-- material.MeshTexture.ResPath="texture/White.dds"
 -- lcmp.Material=material
 -- lcmp:RequestResource()
 -- game.Root:AddComponent(cmp2raw(lcmp),lcmp.aabb:transform(lcmp.World),0.1)
@@ -103,7 +103,7 @@ game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 -- local material=Material()
 -- material.Shader="particle1.fx"
 -- material.PassMask=Material.PassMaskTransparent
--- material:AddParameter("g_MeshTexture", ParameterValueTexture("texture/flare.dds"))
+-- material.MeshTexture.ResPath="texture/flare.dds"
 -- ecmp.Material=material
 -- ecmp:RequestResource()
 -- game.Root:AddComponent(cmp2raw(ecmp),ecmp.aabb:transform(ecmp.World),0.1)
