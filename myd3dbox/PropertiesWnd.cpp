@@ -121,6 +121,16 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName)
 {
 	CMFCPropertyGridProperty * pMaterial = new CSimpleProp(lpszName, 0, TRUE);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Shader"), (_variant_t)_T(""), NULL, 0);
+	pMaterial->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("PassMask"), (_variant_t)0, NULL, 0);
+	pMaterial->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MeshTexture"), (_variant_t)_T(""), NULL, 0);
+	pMaterial->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("NormalTexture"), (_variant_t)_T(""), NULL, 0);
+	pMaterial->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("SpecularTexture"), (_variant_t)_T(""), NULL, 0);
+	pMaterial->AddSubItem(pProp);
 	pParentProp->AddSubItem(pMaterial);
 }
 
