@@ -46,6 +46,8 @@ protected:
 	void OnSelectionChanged(EventArg * arg);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
+	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName);
+	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp);
 
 // Implementation
 public:

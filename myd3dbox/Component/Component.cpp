@@ -240,10 +240,8 @@ void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int Pas
 	}
 }
 
-TerrainComponent::TerrainComponent(const my::Vector3 & PosStart, const my::Vector3 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World)
-	: RenderComponent(AABB(PosStart, PosEnd), World, ComponentTypeTerrain)
-	, m_PosStart(PosStart)
-	, m_PosEnd(PosEnd)
+TerrainComponent::TerrainComponent(const my::AABB & aabb, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World)
+	: RenderComponent(aabb, World, ComponentTypeTerrain)
 	, m_TexStart(TexStart)
 	, m_TexEnd(TexEnd)
 	, m_XDivision(XDivision)
@@ -262,8 +260,6 @@ TerrainComponent::TerrainComponent(const my::Vector3 & PosStart, const my::Vecto
 
 TerrainComponent::TerrainComponent(void)
 	: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeTerrain)
-	, m_PosStart(-1,0,-1)
-	, m_PosEnd(1,0,1)
 	, m_TexStart(0,0)
 	, m_TexEnd(1,1)
 	, m_XDivision(1)
@@ -300,9 +296,9 @@ void TerrainComponent::CreateVertices(void)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + (j * (m_XDivision + 1) + i) * m_VertexStride;
 				Vector3 & Position = m_VertexElems.GetPosition(pVertex);
-				Position.x = (i == 0 ? m_PosStart.x : (i == m_XDivision ? m_PosEnd.x : my::Lerp(m_PosStart.x, m_PosEnd.x, (float)i / m_XDivision)));
+				Position.x = (i == 0 ? m_aabb.m_min.x : (i == m_XDivision ? m_aabb.m_max.x : my::Lerp(m_aabb.m_min.x, m_aabb.m_max.x, (float)i / m_XDivision)));
 				Position.y = 0;
-				Position.z = (j == 0 ? m_PosStart.z : (j == m_ZDivision ? m_PosEnd.z : my::Lerp(m_PosStart.z, m_PosEnd.z, (float)j / m_ZDivision)));
+				Position.z = (j == 0 ? m_aabb.m_min.z : (j == m_ZDivision ? m_aabb.m_max.z : my::Lerp(m_aabb.m_min.z, m_aabb.m_max.z, (float)j / m_ZDivision)));
 
 				Vector3 & Normal = m_VertexElems.GetNormal(pVertex);
 				Normal.x = 0;

@@ -111,7 +111,7 @@ public:
 		//m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 		//m_cmps.push_back(emit_cmp);
 
-		//TerrainComponentPtr terrain_cmp(new TerrainComponent(Vector3(-10,0,-10),Vector3(10,0,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4::Identity()));
+		//TerrainComponentPtr terrain_cmp(new TerrainComponent(AABB(-10,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4::Identity()));
 		//MaterialPtr lambert2(new Material());
 		//lambert2->m_Params.push_back(Material::Parameter("g_MeshTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall.jpg"))));
 		//lambert2->m_Params.push_back(Material::Parameter("g_NormalTexture", Material::ParameterValuePtr(new Material::ParameterValueTexture("texture/wall_NM_height.DDS"))));
@@ -129,9 +129,9 @@ public:
 		//oa << boost::serialization::make_nvp("level", m_cmps);
 
 		// ¶ÁÈ¡³¡¾°
-		std::ifstream istr("aaa.xml");
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
+		std::ifstream istr("aaa.xml");
 		boost::archive::xml_iarchive ia(istr);
 		ia >> boost::serialization::make_nvp("level", m_cmps);
 		for (unsigned int i = 0; i < m_cmps.size(); i++)

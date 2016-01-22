@@ -93,6 +93,31 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
 }
 
+void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName)
+{
+	CMFCPropertyGridProperty * pSpline = new CSimpleProp(lpszName, 0, TRUE);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)0, NULL, 0);
+	pSpline->AddSubItem(pProp);
+	CreatePropertiesSplineNode(pSpline);
+	CreatePropertiesSplineNode(pSpline);
+	CreatePropertiesSplineNode(pSpline);
+	pParentProp->AddSubItem(pSpline);
+}
+
+void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline)
+{
+	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), 0, TRUE);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k0"), (_variant_t)0.0f, NULL, 0);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k"), (_variant_t)0.0f, NULL, 0);
+	pNode->AddSubItem(pProp);
+	pSpline->AddSubItem(pNode);
+}
+
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
@@ -204,120 +229,106 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.SetVSDotNetLook();
 	m_wndPropList.MarkModifiedProperties();
 
-	CMFCPropertyGridProperty * pBoundingBox = new CMFCPropertyGridProperty(_T("BoundingBox"));
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)0.0f, _T("minx"));
-	pBoundingBox->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("miny"), (_variant_t)0.0f, _T("miny"));
-	pBoundingBox->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("minz"), (_variant_t)0.0f, _T("minz"));
-	pBoundingBox->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxx"), (_variant_t)0.0f, _T("maxx"));
-	pBoundingBox->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxy"), (_variant_t)0.0f, _T("maxy"));
-	pBoundingBox->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxz"), (_variant_t)0.0f, _T("maxz"));
-	pBoundingBox->AddSubItem(pProp);
-	m_wndPropList.AddProperty(pBoundingBox, FALSE, FALSE);
+	CMFCPropertyGridProperty * pComponent = new CMFCPropertyGridProperty(_T("Component"));
+	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), 0, TRUE);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("min.x"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("miny"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("minz"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxx"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxy"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxz"), (_variant_t)0.0f, NULL, 0);
+	pAABB->AddSubItem(pProp);
+	pComponent->AddSubItem(pAABB);
 
-	CMFCPropertyGridProperty * pTrans = new CMFCPropertyGridProperty(_T("Translate"));
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, _T("x"));
-	pTrans->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, _T("y"));
-	pTrans->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, _T("z"));
-	pTrans->AddSubItem(pProp);
-	m_wndPropList.AddProperty(pTrans, FALSE, FALSE);
+	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, 0);
+	pPosition->AddSubItem(pProp);
+	pComponent->AddSubItem(pPosition);
 
-	CMFCPropertyGridProperty * pRotate = new CMFCPropertyGridProperty(_T("Rotate"));
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, _T("x"));
+	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
 	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, _T("y"));
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
 	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, _T("z"));
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, 0);
 	pRotate->AddSubItem(pProp);
-	m_wndPropList.AddProperty(pRotate, FALSE, FALSE);
+	pComponent->AddSubItem(pRotate);
 
-	CMFCPropertyGridProperty * pScale = new CMFCPropertyGridProperty(_T("Scale"));
-	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, _T("x"));
+	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
 	pScale->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, _T("y"));
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
 	pScale->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, _T("z"));
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, 0);
 	pScale->AddSubItem(pProp);
-	m_wndPropList.AddProperty(pScale, FALSE, FALSE);
+	pComponent->AddSubItem(pScale);
+	m_wndPropList.AddProperty(pComponent, TRUE, TRUE);
 
-	//CMFCPropertyGridProperty* pGroup1 = new CMFCPropertyGridProperty(_T("Appearance"));
+	CMFCPropertyGridProperty * pMesh = new CMFCPropertyGridProperty(_T("Mesh"));
+	pProp = new CSimpleProp(_T("ResPath"), (_variant_t)"", NULL, 0);
+	pMesh->AddSubItem(pProp);
+	m_wndPropList.AddProperty(pMesh, TRUE, TRUE);
 
-	//pGroup1->AddSubItem(new CMFCPropertyGridProperty(_T("3D Look"), (_variant_t) false, _T("Specifies the window's font will be non-bold and controls will have a 3D border")));
+	CMFCPropertyGridProperty * pEmitter = new CMFCPropertyGridProperty(_T("Emitter"));
+	pProp = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, 0);
+	pEmitter->AddSubItem(pProp);
+	m_wndPropList.AddProperty(pEmitter, TRUE, TRUE);
 
-	//CMFCPropertyGridProperty* pProp = new CMFCPropertyGridProperty(_T("Border"), _T("Dialog Frame"), _T("One of: None, Thin, Resizable, or Dialog Frame"));
-	//pProp->AddOption(_T("None"));
-	//pProp->AddOption(_T("Thin"));
-	//pProp->AddOption(_T("Resizable"));
-	//pProp->AddOption(_T("Dialog Frame"));
-	//pProp->AllowEdit(FALSE);
+	CMFCPropertyGridProperty * pSphericalEmitter = new CMFCPropertyGridProperty(_T("SphericalEmitter"));
+	pProp = new CSimpleProp(_T("SpawnInterval"), (_variant_t)0.0f, NULL, 0);
+	pSphericalEmitter->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pHalfSpawnArea = new CSimpleProp(_T("HalfSpawnArea"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, 0);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pSphericalEmitter->AddSubItem(pHalfSpawnArea);
+	pProp = new CSimpleProp(_T("SpawnSpeed"), (_variant_t)0.0f, NULL, 0);
+	pSphericalEmitter->AddSubItem(pProp);
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnInclination"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnAzimuth"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnColorA"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnColorR"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnColorG"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnColorB"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnSizeX"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnSizeY"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnAngle"));
+	CreatePropertiesSpline(pSphericalEmitter, _T("SpawnLoopTime"));
+	m_wndPropList.AddProperty(pSphericalEmitter, TRUE, TRUE);
 
-	//pGroup1->AddSubItem(pProp);
-	//pGroup1->AddSubItem(new CMFCPropertyGridProperty(_T("Caption"), (_variant_t) _T("About"), _T("Specifies the text that will be displayed in the window's title bar")));
+	CMFCPropertyGridProperty * pTerrain = new CMFCPropertyGridProperty(_T("Terrain"));
+	CMFCPropertyGridProperty * pTexStart = new CSimpleProp(_T("TexStart"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
+	pTexStart->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
+	pTexStart->AddSubItem(pProp);
+	pTerrain->AddSubItem(pTexStart);
+	CMFCPropertyGridProperty * pTexEnd = new CSimpleProp(_T("TexEnd"), 0, TRUE);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, 0);
+	pTexEnd->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, 0);
+	pTexEnd->AddSubItem(pProp);
+	pTerrain->AddSubItem(pTexEnd);
+	pProp = new CSimpleProp(_T("XDivision"), (_variant_t)0.0f, NULL, 0);
+	pTerrain->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ZDivision"), (_variant_t)0.0f, NULL, 0);
+	pTerrain->AddSubItem(pProp);
+	m_wndPropList.AddProperty(pTerrain, TRUE, TRUE);
 
-	//m_wndPropList.AddProperty(pGroup1);
-
-	//CMFCPropertyGridProperty* pSize = new CMFCPropertyGridProperty(_T("Window Size"), 0, TRUE);
-
-	//pProp = new CMFCPropertyGridProperty(_T("Height"), (_variant_t) 250l, _T("Specifies the window's height"));
-	//pProp->EnableSpinControl(TRUE, 50, 300);
-	//pSize->AddSubItem(pProp);
-
-	//pProp = new CMFCPropertyGridProperty( _T("Width"), (_variant_t) 150l, _T("Specifies the window's width"));
-	//pProp->EnableSpinControl(TRUE, 50, 200);
-	//pSize->AddSubItem(pProp);
-
-	//m_wndPropList.AddProperty(pSize);
-
-	//CMFCPropertyGridProperty* pGroup2 = new CMFCPropertyGridProperty(_T("Font"));
-
-	//LOGFONT lf;
-	//CFont* font = CFont::FromHandle((HFONT) GetStockObject(DEFAULT_GUI_FONT));
-	//font->GetLogFont(&lf);
-
-	//lstrcpy(lf.lfFaceName, _T("Arial"));
-
-	//pGroup2->AddSubItem(new CMFCPropertyGridFontProperty(_T("Font"), lf, CF_EFFECTS | CF_SCREENFONTS, _T("Specifies the default font for the window")));
-	//pGroup2->AddSubItem(new CMFCPropertyGridProperty(_T("Use System Font"), (_variant_t) true, _T("Specifies that the window uses MS Shell Dlg font")));
-
-	//m_wndPropList.AddProperty(pGroup2);
-
-	//CMFCPropertyGridProperty* pGroup3 = new CMFCPropertyGridProperty(_T("Misc"));
-	//pProp = new CMFCPropertyGridProperty(_T("(Name)"), _T("Application"));
-	//pProp->Enable(FALSE);
-	//pGroup3->AddSubItem(pProp);
-
-	//CMFCPropertyGridColorProperty* pColorProp = new CMFCPropertyGridColorProperty(_T("Window Color"), RGB(210, 192, 254), NULL, _T("Specifies the default window color"));
-	//pColorProp->EnableOtherButton(_T("Other..."));
-	//pColorProp->EnableAutomaticButton(_T("Default"), ::GetSysColor(COLOR_3DFACE));
-	//pGroup3->AddSubItem(pColorProp);
-
-	//static TCHAR BASED_CODE szFilter[] = _T("Icon Files(*.ico)|*.ico|All Files(*.*)|*.*||");
-	//pGroup3->AddSubItem(new CMFCPropertyGridFileProperty(_T("Icon"), TRUE, _T(""), _T("ico"), 0, szFilter, _T("Specifies the window icon")));
-
-	//pGroup3->AddSubItem(new CMFCPropertyGridFileProperty(_T("Folder"), _T("c:\\")));
-
-	//m_wndPropList.AddProperty(pGroup3);
-
-	//CMFCPropertyGridProperty* pGroup4 = new CMFCPropertyGridProperty(_T("Hierarchy"));
-
-	//CMFCPropertyGridProperty* pGroup41 = new CMFCPropertyGridProperty(_T("First sub-level"));
-	//pGroup4->AddSubItem(pGroup41);
-
-	//CMFCPropertyGridProperty* pGroup411 = new CMFCPropertyGridProperty(_T("Second sub-level"));
-	//pGroup41->AddSubItem(pGroup411);
-
-	//pGroup411->AddSubItem(new CMFCPropertyGridProperty(_T("Item 1"), (_variant_t) _T("Value 1"), _T("This is a description")));
-	//pGroup411->AddSubItem(new CMFCPropertyGridProperty(_T("Item 2"), (_variant_t) _T("Value 2"), _T("This is a description")));
-	//pGroup411->AddSubItem(new CMFCPropertyGridProperty(_T("Item 3"), (_variant_t) _T("Value 3"), _T("This is a description")));
-
-	//pGroup4->Expand(FALSE);
-	//m_wndPropList.AddProperty(pGroup4);
+	CMFCPropertyGridProperty * pMaterial = new CMFCPropertyGridProperty(_T("Material"));
+	m_wndPropList.AddProperty(pMaterial, TRUE, TRUE);
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)

@@ -351,10 +351,6 @@ public:
 
 	my::IndexBuffer m_ib;
 
-	my::Vector3 m_PosStart;
-
-	my::Vector3 m_PosEnd;
-
 	my::Vector2 m_TexStart;
 
 	my::Vector2 m_TexEnd;
@@ -368,7 +364,7 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	TerrainComponent(const my::Vector3 & PosStart, const my::Vector3 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World);
+	TerrainComponent(const my::AABB & aabb, const my::Vector2 & TexStart, const my::Vector2 & TexEnd, unsigned int XDivision, unsigned int YDivision, const my::Matrix4 & World);
 
 	TerrainComponent(void);
 
@@ -384,8 +380,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_PosStart);
-		ar & BOOST_SERIALIZATION_NVP(m_PosEnd);
 		ar & BOOST_SERIALIZATION_NVP(m_TexStart);
 		ar & BOOST_SERIALIZATION_NVP(m_TexEnd);
 		ar & BOOST_SERIALIZATION_NVP(m_XDivision);
