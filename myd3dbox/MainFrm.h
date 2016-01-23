@@ -34,6 +34,7 @@ public:
 	typedef std::set<Component *> ComponentSet;
 	ComponentSet m_selcmps;
 	my::AABB m_selbox;
+	EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;
 	Event m_EventPivotModeChanged;
 	Event m_EventCmpAttriChanged;
@@ -80,6 +81,7 @@ public:
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
 	afx_msg void OnComponentMesh();
+	afx_msg void OnComponentEmitter();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnPivotMove();

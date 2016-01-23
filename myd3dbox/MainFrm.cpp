@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
+	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -125,7 +126,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//}
 
 	if (!m_wndProperties.Create(_T("Properties"), this, CRect(0, 0, 200, 200), TRUE, 3002,
-		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
 		TRACE0("Failed to create Properties window\n");
 		return FALSE; // failed to create
@@ -190,6 +191,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
+	m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
+	m_emitter->m_Emitter.reset(new my::Emitter());
+	m_emitter->m_Material.reset(new Material());
+	m_emitter->m_Material->m_Shader = "lambert1.fx";
+	m_emitter->m_Material->m_PassMask = RenderPipeline::PassMaskOpaque;
+	m_emitter->m_Material->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	m_emitter->RequestResource();
+	//m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 	return 0;
 }
 
@@ -391,6 +400,8 @@ void CMainFrame::OnDestroy()
 
 	// TODO: Add your message handler code here
 	ClearAllComponents();
+	m_emitter->ReleaseResource();
+	m_emitter.reset();
 	theApp.DestroyD3DDevice();
 }
 
@@ -492,6 +503,41 @@ void CMainFrame::OnComponentMesh()
 			MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
 		}
 	}
+}
+
+void CMainFrame::OnComponentEmitter()
+{
+	// TODO: Add your command handler code here
+	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
+	my::SphericalEmitterPtr emit(new my::SphericalEmitter());
+	emit->m_SpawnInterval=1/100.0f;
+	emit->m_ParticleLifeTime=10.0f;
+	emit->m_SpawnSpeed=5;
+	emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
+	float Azimuth=D3DXToRadian(360)*8;
+	emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
+	emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
+	emit->m_SpawnColorA.AddNode(0,255,0,0);
+	emit->m_SpawnColorA.AddNode(10,0,0,0);
+	emit->m_SpawnColorR.AddNode(0,255,0,0);
+	emit->m_SpawnColorR.AddNode(10,0,0,0);
+	emit->m_SpawnColorG.AddNode(0,255,0,0);
+	emit->m_SpawnColorG.AddNode(10,0,0,0);
+	emit->m_SpawnColorB.AddNode(0,255,0,0);
+	emit->m_SpawnColorB.AddNode(10,0,0,0);
+	emit->m_SpawnSizeX.AddNode(0,1,0,0);
+	emit->m_SpawnSizeX.AddNode(10,10,0,0);
+	emit->m_SpawnSizeY.AddNode(0,1,0,0);
+	emit->m_SpawnSizeY.AddNode(10,10,0,0);
+	emit_cmp->m_Emitter = emit;
+	MaterialPtr particle1(new Material());
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_Shader = "particle1.fx";
+	emit_cmp->m_Material = particle1;
+	emit_cmp->RequestResource();
+	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	m_cmps.push_back(emit_cmp);
 }
 
 void CMainFrame::OnEditDelete()

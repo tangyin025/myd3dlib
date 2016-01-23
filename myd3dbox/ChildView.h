@@ -80,8 +80,8 @@ protected:
 	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
 	void StartPerformanceCount(void);
 	double EndPerformanceCount(void);
-	static bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp);
-	static bool OverlapTestFrustumAndMesh(
+	bool OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp);
+	bool OverlapTestFrustumAndMesh(
 		const my::Frustum & frustum,
 		void * pVertices,
 		DWORD NumVerts,
@@ -90,8 +90,8 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
-	static my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp);
-	static my::RayResult OverlapTestRayAndMesh(
+	my::RayResult OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp);
+	my::RayResult OverlapTestRayAndMesh(
 		const my::Ray & ray,
 		void * pVertices,
 		DWORD NumVerts,

@@ -209,15 +209,21 @@ my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
 
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
+
 	struct CallBack : public my::IQueryCallback
 	{
 		const my::Frustum & frustum;
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+		CMainFrame * pFrame;
+		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
+			, pFrame(_pFrame)
 		{
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
@@ -230,13 +236,21 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					render_cmp->RequestResource();
 				}
 				render_cmp->AddToPipeline(pipeline, PassMask);
+
+				switch (render_cmp->m_Type)
+				{
+				case Component::ComponentTypeEmitter:
+					pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(std::make_pair(0.0f,
+						my::Emitter::Particle(render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0.0f)));
+					break;
+				}
 			}
 		}
 	};
 
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame));
+
+	pFrame->m_emitter->AddToPipeline(pipeline, PassMask);
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
@@ -247,9 +261,11 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	ASSERT_VALID(pFrame);
 	if (!pFrame->m_selcmps.empty())
 	{
+		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
 		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
+			PushWireAABB((*sel_iter)->GetOctAABB(), D3DCOLOR_ARGB(2555,255,0,255));
 			switch ((*sel_iter)->m_Type)
 			{
 			case Component::ComponentTypeMesh:
@@ -267,12 +283,10 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 						}
 						theApp.m_SimpleSample->End();
 					}
-					PushWireAABB(mesh_cmp->GetOctAABB(), D3DCOLOR_ARGB(2555,255,0,255));
 				}
 				break;
 			}
 		}
-		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
 	}
 }
 
@@ -339,6 +353,27 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 				mesh->UnlockVertexBuffer();
 				mesh->UnlockIndexBuffer();
 				return ret;
+			}
+		}
+		break;
+
+	case Component::ComponentTypeEmitter:
+		{
+			m_Camera;
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
+			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
+			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
+			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+			my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
+			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+			{
+				return true;
+			}
+			result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
+			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+			{
+				return true;
 			}
 		}
 		break;
@@ -446,6 +481,27 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				ret.second = (local_ray.d * ret.second).transformNormal(cmp->m_World).magnitude();
 			}
 			return ret;
+		}
+		break;
+
+	case Component::ComponentTypeEmitter:
+		{
+			m_Camera;
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
+			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
+			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
+			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+			my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
+			if (ret.first)
+			{
+				return ret;
+			}
+			ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
+			if (ret.first)
+			{
+				return ret;
+			}
 		}
 		break;
 	}
@@ -717,20 +773,22 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			CMainFrame::ComponentSet selcmps;
 			const my::Frustum & ftm;
-			Callback(const my::Frustum & _ftm)
+			CChildView * pView;
+			Callback(const my::Frustum & _ftm, CChildView * _pView)
 				: ftm(_ftm)
+				, pView(_pView)
 			{
 			}
 			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 			{
 				Component * cmp = dynamic_cast<Component *>(oct_cmp);
-				if (cmp && CChildView::OverlapTestFrustumAndComponent(ftm, cmp))
+				if (cmp && pView->OverlapTestFrustumAndComponent(ftm, cmp))
 				{
 					selcmps.insert(cmp);
 				}
 			}
 		};
-		Callback cb(ftm);
+		Callback cb(ftm, this);
 		pFrame->m_Root.QueryComponent(ftm, &cb);
 		CMainFrame::ComponentSet::iterator cmp_iter = cb.selcmps.begin();
 		for (; cmp_iter != cb.selcmps.end(); cmp_iter++)
@@ -746,21 +804,23 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			typedef std::map<float, Component *> ComponentMap;
 			ComponentMap selcmps;
 			const my::Ray & ray;
-			Callback(const my::Ray & _ray)
+			CChildView * pView;
+			Callback(const my::Ray & _ray, CChildView * _pView)
 				: ray(_ray)
+				, pView(_pView)
 			{
 			}
 			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 			{
 				Component * cmp = dynamic_cast<Component *>(oct_cmp);
 				my::RayResult ret;
-				if (cmp && (ret = CChildView::OverlapTestRayAndComponent(ray, cmp), ret.first))
+				if (cmp && (ret = pView->OverlapTestRayAndComponent(ray, cmp), ret.first))
 				{
 					selcmps.insert(std::make_pair(ret.second, cmp));
 				}
 			}
 		};
-		Callback cb(ray);
+		Callback cb(ray, this);
 		pFrame->m_Root.QueryComponent(ray, &cb);
 		Callback::ComponentMap::iterator cmp_iter = cb.selcmps.begin();
 		if (cmp_iter != cb.selcmps.end())

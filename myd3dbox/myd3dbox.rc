@@ -147,6 +147,7 @@ BEGIN
         POPUP "&Component"
         BEGIN
             MENUITEM "&Mesh...",                    ID_COMPONENT_MESH
+            MENUITEM "&Emitter",                    ID_COMPONENT_EMITTER
         END
     END
     POPUP "&View"
