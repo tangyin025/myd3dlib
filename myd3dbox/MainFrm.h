@@ -36,6 +36,7 @@ public:
 	my::AABB m_selbox;
 	Event m_EventSelectionChanged;
 	Event m_EventPivotModeChanged;
+	Event m_EventCmpAttriChanged;
 
 // Operations
 public:

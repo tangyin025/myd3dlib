@@ -72,8 +72,15 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 	{
 		UpdateProperties(*pFrame->m_selcmps.begin());
 	}
-	else
+}
+
+void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
+{
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (!pFrame->m_selcmps.empty())
 	{
+		UpdateProperties(*pFrame->m_selcmps.begin());
 	}
 }
 
@@ -184,7 +191,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl
 	m_pProp[PropertyId]->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("SpecularTexture"), (_variant_t)_T(""), NULL, PropertyMaterialSpecularTexture);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	pParentCtrl->AddProperty(m_pProp[PropertyId], TRUE, TRUE);
+	pParentCtrl->AddProperty(m_pProp[PropertyId], FALSE, FALSE);
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -231,6 +238,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventCmpAttriChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 
 	AdjustLayout();
 	return 0;
@@ -242,6 +250,7 @@ void CPropertiesWnd::OnDestroy()
 
 	// TODO: Add your message handler code here
 	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventCmpAttriChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 }
 
 void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)
@@ -340,17 +349,17 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyComponentScaleZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyComponentScaleZ);
 	pScale->AddSubItem(m_pProp[PropertyComponentScaleZ]);
 	m_pProp[PropertyComponent]->AddSubItem(pScale);
-	m_wndPropList.AddProperty(m_pProp[PropertyComponent], TRUE, TRUE);
+	m_wndPropList.AddProperty(m_pProp[PropertyComponent], FALSE, FALSE);
 
 	m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
 	m_pProp[PropertyMeshResourcePath] = new CSimpleProp(_T("ResourcePath"), (_variant_t)"", NULL, 0);
 	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshResourcePath]);
-	m_wndPropList.AddProperty(m_pProp[PropertyMesh], TRUE, TRUE);
+	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
 	m_pProp[PropertyEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertyEmitterParticleLifeTime);
 	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyEmitterParticleLifeTime]);
-	m_wndPropList.AddProperty(m_pProp[PropertyEmitter], TRUE, TRUE);
+	m_wndPropList.AddProperty(m_pProp[PropertyEmitter], FALSE, FALSE);
 
 	m_pProp[PropertySphericalEmitter] = new CMFCPropertyGridProperty(_T("SphericalEmitter"), PropertySphericalEmitter, FALSE);
 	m_pProp[PropertySphericalEmitterSpawnInterval] = new CSimpleProp(_T("SpawnInterval"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnInterval);
@@ -375,7 +384,7 @@ void CPropertiesWnd::InitPropList()
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnLoopTime"), PropertySphericalEmitterSpawnLoopTime);
-	m_wndPropList.AddProperty(m_pProp[PropertySphericalEmitter], TRUE, TRUE);
+	m_wndPropList.AddProperty(m_pProp[PropertySphericalEmitter], FALSE, FALSE);
 
 	m_pProp[PropertyTerrain] = new CMFCPropertyGridProperty(_T("Terrain"), PropertyTerrain, FALSE);
 	CMFCPropertyGridProperty * pTexStart = new CSimpleProp(_T("TexStart"), 0, TRUE);
@@ -394,14 +403,20 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainXDivision]);
 	m_pProp[PropertyTerrainZDivision] = new CSimpleProp(_T("ZDivision"), (_variant_t)0.0f, NULL, PropertyTerrainZDivision);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainZDivision]);
-	m_wndPropList.AddProperty(m_pProp[PropertyTerrain], TRUE, TRUE);
+	m_wndPropList.AddProperty(m_pProp[PropertyTerrain], FALSE, FALSE);
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
 		TCHAR buff[128];
 		_stprintf_s(buff, _countof(buff), _T("Material%u"), i);
 		CreatePropertiesMaterial(&m_wndPropList, buff, (Property)(PropertyMaterial0 + i));
+		//m_pProp[PropertyMaterial0 + i]->Show(FALSE, FALSE);
 	}
+	//m_pProp[PropertyComponent]->Show(FALSE, FALSE);
+	//m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+	//m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+	//m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
+	//m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
@@ -439,7 +454,51 @@ void CPropertiesWnd::SetPropListFont()
 
 afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_selcmps.empty())
+	{
+		return 0;
+	}
+	Component * cmp = *pFrame->m_selcmps.begin();
+
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
+	DWORD PropertyId = pProp->GetData();
+	switch (PropertyId)
+	{
+	case PropertyComponentPosX:
+	case PropertyComponentPosY:
+	case PropertyComponentPosZ:
+	case PropertyComponentRotX:
+	case PropertyComponentRotY:
+	case PropertyComponentRotZ:
+	case PropertyComponentScaleX:
+	case PropertyComponentScaleY:
+	case PropertyComponentScaleZ:
+		{
+			my::Vector3 trans(
+				m_pProp[PropertyComponentPosX]->GetValue().fltVal,
+				m_pProp[PropertyComponentPosY]->GetValue().fltVal,
+				m_pProp[PropertyComponentPosZ]->GetValue().fltVal);
+			my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+				D3DXToRadian(m_pProp[PropertyComponentRotX]->GetValue().fltVal),
+				D3DXToRadian(m_pProp[PropertyComponentRotY]->GetValue().fltVal),
+				D3DXToRadian(m_pProp[PropertyComponentRotZ]->GetValue().fltVal)));
+			my::Vector3 scale(
+				m_pProp[PropertyComponentScaleX]->GetValue().fltVal,
+				m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
+				m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
+			cmp->m_World = my::Matrix4::Compose(scale, rot, trans);
+			VERIFY(pFrame->m_Root.RemoveComponent(cmp));
+			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(cmp->m_World), 0.1f);
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	}
 	return 0;
 }

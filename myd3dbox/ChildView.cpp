@@ -502,6 +502,11 @@ void CChildView::OnPivotModeChanged(EventArg * arg)
 	Invalidate();
 }
 
+void CChildView::OnCmpAttriChanged(EventArg * arg)
+{
+	Invalidate();
+}
+
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
@@ -651,7 +656,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnCameratypePerspective();
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-
+	CMainFrame::getSingleton().m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
 }
 
@@ -662,6 +667,7 @@ void CChildView::OnDestroy()
 	// TODO: Add your message handler code here
 	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	CMainFrame::getSingleton().m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -798,7 +804,9 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_selcmpwlds.clear();
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
-		Invalidate();
+
+		EventArg arg;
+		pFrame->m_EventCmpAttriChanged(&arg);
 	}
 }
 

@@ -102,6 +102,7 @@ protected:
 		const my::D3DVertexElementSet & VertexElems);
 	void OnSelectionChanged(EventArg * arg);
 	void OnPivotModeChanged(EventArg * arg);
+	void OnCmpAttriChanged(EventArg * arg);
 
 // Implementation
 public:

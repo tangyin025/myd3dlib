@@ -108,6 +108,7 @@ protected:
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
 
 	void OnSelectionChanged(EventArg * arg);
+	void OnCmpAttriChanged(EventArg * arg);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void UpdatePropertiesMaterial(Material * mat, Property PropertyId);
