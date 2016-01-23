@@ -402,6 +402,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
+			my::RayResult ret;
 			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
@@ -416,7 +417,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
 					mesh_cmp->m_Animator->m_DualQuats);
-				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(local_ray,
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
@@ -426,11 +427,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					elems);
 				mesh->UnlockVertexBuffer();
 				mesh->UnlockIndexBuffer();
-				return ret;
 			}
 			else
 			{
-				my::RayResult ret = OverlapTestRayAndMesh(local_ray,
+				ret = OverlapTestRayAndMesh(local_ray,
 					mesh->LockVertexBuffer(),
 					mesh->GetNumVertices(),
 					mesh->GetNumBytesPerVertex(),
@@ -440,8 +440,12 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					mesh->m_VertexElems);
 				mesh->UnlockVertexBuffer();
 				mesh->UnlockIndexBuffer();
-				return ret;
 			}
+			if (ret.first)
+			{
+				ret.second = (local_ray.d * ret.second).transformNormal(cmp->m_World).magnitude();
+			}
+			return ret;
 		}
 		break;
 	}
