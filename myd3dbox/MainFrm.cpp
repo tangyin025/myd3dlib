@@ -417,8 +417,6 @@ void CMainFrame::OnFileNew()
 void CMainFrame::OnFileOpen()
 {
 	// TODO: Add your command handler code here
-	ClearAllComponents();
-
 	CString strPathName;
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
 	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
@@ -429,6 +427,7 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 
+	ClearAllComponents();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::xml_iarchive ia(ifs);
@@ -472,16 +471,16 @@ void CMainFrame::OnComponentMesh()
 		if (mesh)
 		{
 			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
-			mesh_cmp->m_MeshRes.m_ResPath = ts2ms((LPCTSTR)strPathName);
+			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
 			mesh_cmp->m_MeshRes.OnReady(mesh);
 			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 			{
 				MaterialPtr lambert1(new Material());
 				lambert1->m_Shader = "lambert1.fx";
 				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-				lambert1->m_MeshTexture.m_ResPath = "texture/Checker.bmp";
-				lambert1->m_NormalTexture.m_ResPath = "texture/Normal.dds";
-				lambert1->m_SpecularTexture.m_ResPath = "texture/White.dds";
+				lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+				lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+				lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
 				mesh_cmp->m_MaterialList.push_back(lambert1);
 			}
 			mesh_cmp->RequestResource();

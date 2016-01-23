@@ -6,14 +6,14 @@ class ResourceBundle : public my::IResourceCallback
 public:
 	bool m_Ready;
 
-	std::string m_ResPath;
+	std::string m_Path;
 
 	boost::shared_ptr<T> m_Res;
 
 public:
 	ResourceBundle(const char * Path)
 		: m_Ready(false)
-		, m_ResPath(Path)
+		, m_Path(Path)
 	{
 	}
 
@@ -25,7 +25,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_ResPath);
+		ar & BOOST_SERIALIZATION_NVP(m_Path);
 	}
 
 	virtual void OnReady(my::DeviceRelatedObjectBasePtr res)
@@ -45,7 +45,7 @@ public:
 	{
 		if (IsRequested())
 		{
-			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_ResPath, this);
+			my::ResourceMgr::getSingleton().RemoveIORequestCallback(m_Path, this);
 		}
 	}
 };

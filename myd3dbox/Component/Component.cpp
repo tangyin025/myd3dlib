@@ -33,15 +33,15 @@ Material::~Material(void)
 
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	if (!m_MeshTexture.m_ResPath.empty())
+	if (!m_MeshTexture.m_Path.empty())
 	{
 		shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	}
-	if (!m_NormalTexture.m_ResPath.empty())
+	if (!m_NormalTexture.m_Path.empty())
 	{
 		shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
 	}
-	if (!m_SpecularTexture.m_ResPath.empty())
+	if (!m_SpecularTexture.m_Path.empty())
 	{
 		shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
 	}
@@ -49,15 +49,15 @@ void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void Material::RequestResource(void)
 {
-	if (!m_MeshTexture.m_ResPath.empty())
+	if (!m_MeshTexture.m_Path.empty())
 	{
 		m_MeshTexture.RequestResource();
 	}
-	if (!m_NormalTexture.m_ResPath.empty())
+	if (!m_NormalTexture.m_Path.empty())
 	{
 		m_NormalTexture.RequestResource();
 	}
-	if (!m_SpecularTexture.m_ResPath.empty())
+	if (!m_SpecularTexture.m_Path.empty())
 	{
 		m_SpecularTexture.RequestResource();
 	}

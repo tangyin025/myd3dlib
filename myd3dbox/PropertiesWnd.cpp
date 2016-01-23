@@ -126,7 +126,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
 	m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 
-	m_pProp[PropertyMeshResourcePath]->SetValue((_variant_t)cmp->m_MeshRes.m_ResPath.c_str());
+	m_pProp[PropertyMeshResourcePath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
@@ -146,9 +146,9 @@ void CPropertiesWnd::UpdatePropertiesMaterial(Material * mat, Property PropertyI
 	_ASSERT(PropertyId >= PropertyMaterial0 && PropertyId < PropertyMaterialEnd);
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialShader - PropertyMaterialShader)->SetValue((_variant_t)mat->m_Shader.c_str());
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialPassMask - PropertyMaterialShader)->SetValue((_variant_t)mat->m_PassMask);
-	m_pProp[PropertyId]->GetSubItem(PropertyMaterialMeshTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_MeshTexture.m_ResPath.c_str());
-	m_pProp[PropertyId]->GetSubItem(PropertyMaterialNormalTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_NormalTexture.m_ResPath.c_str());
-	m_pProp[PropertyId]->GetSubItem(PropertyMaterialSpecularTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_SpecularTexture.m_ResPath.c_str());
+	m_pProp[PropertyId]->GetSubItem(PropertyMaterialMeshTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	m_pProp[PropertyId]->GetSubItem(PropertyMaterialNormalTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	m_pProp[PropertyId]->GetSubItem(PropertyMaterialSpecularTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
