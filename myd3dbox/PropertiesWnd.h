@@ -75,7 +75,7 @@ protected:
 		PropertySphericalEmitterSpawnSizeY,
 		PropertySphericalEmitterSpawnAngle,
 		PropertySphericalEmitterSpawnLoopTime,
-		PropertySplineNode,
+		PropertySplineNodeCount,
 		PropertySplineNodeX,
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
@@ -110,9 +110,10 @@ protected:
 	void OnSelectionChanged(EventArg * arg);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
-	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName);
-	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp);
-	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName);
+	void UpdatePropertiesMaterial(Material * mat, Property PropertyId);
+	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
+	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
+	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId);
 
 // Implementation
 public:
