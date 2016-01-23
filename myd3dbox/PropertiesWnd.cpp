@@ -126,7 +126,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
 	m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 
-	m_pProp[PropertyMeshResourcePath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
+	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
@@ -352,8 +352,8 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(m_pProp[PropertyComponent], FALSE, FALSE);
 
 	m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
-	m_pProp[PropertyMeshResourcePath] = new CSimpleProp(_T("ResourcePath"), (_variant_t)"", NULL, 0);
-	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshResourcePath]);
+	m_pProp[PropertyMeshPath] = new CSimpleProp(_T("Path"), (_variant_t)"", NULL, 0);
+	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshPath]);
 	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);

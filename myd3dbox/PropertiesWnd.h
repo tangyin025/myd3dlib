@@ -56,7 +56,7 @@ protected:
 		PropertyComponentScaleY,
 		PropertyComponentScaleZ,
 		PropertyMesh,
-		PropertyMeshResourcePath,
+		PropertyMeshPath,
 		PropertyEmitter,
 		PropertyEmitterParticleLifeTime,
 		PropertySphericalEmitter,
