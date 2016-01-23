@@ -12,6 +12,32 @@ static char THIS_FILE[]=__FILE__;
 #define new DEBUG_NEW
 #endif
 
+struct PassMaskDesc
+{
+	LPCTSTR desc;
+	DWORD mask;
+};
+
+static const PassMaskDesc g_PassMaskDesc[4] =
+{
+	{_T("None"), RenderPipeline::PassMaskNone},
+	{_T("Light"), RenderPipeline::PassMaskLight},
+	{_T("Opaque"), RenderPipeline::PassMaskOpaque},
+	{_T("Transparent"), RenderPipeline::PassMaskTransparent},
+};
+
+static LPCTSTR GetPassMaskDesc(DWORD mask)
+{
+	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
+	{
+		if (g_PassMaskDesc[i].mask == mask)
+		{
+			return g_PassMaskDesc[i].desc;
+		}
+	}
+	return g_PassMaskDesc[0].desc;
+}
+
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
 
@@ -144,8 +170,9 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 void CPropertiesWnd::UpdatePropertiesMaterial(Material * mat, Property PropertyId)
 {
 	_ASSERT(PropertyId >= PropertyMaterial0 && PropertyId < PropertyMaterialEnd);
+	m_pProp[PropertyId]->Show(TRUE, FALSE);
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialShader - PropertyMaterialShader)->SetValue((_variant_t)mat->m_Shader.c_str());
-	m_pProp[PropertyId]->GetSubItem(PropertyMaterialPassMask - PropertyMaterialShader)->SetValue((_variant_t)mat->m_PassMask);
+	m_pProp[PropertyId]->GetSubItem(PropertyMaterialPassMask - PropertyMaterialShader)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialMeshTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialNormalTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialSpecularTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
@@ -183,15 +210,36 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl
 	m_pProp[PropertyId] = new CMFCPropertyGridProperty(lpszName, PropertyId, FALSE);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Shader"), (_variant_t)_T(""), NULL, PropertyMaterialShader);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("PassMask"), (_variant_t)0u, NULL, PropertyMaterialPassMask);
+	pProp = new CComboProp(_T("PassMask"), (_variant_t)g_PassMaskDesc[0].desc, NULL, PropertyMaterialPassMask);
+	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
+	{
+		pProp->AddOption(g_PassMaskDesc[i].desc, FALSE);
+	}
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("MeshTexture"), (_variant_t)_T(""), NULL, PropertyMaterialMeshTexture);
+	pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("NormalTexture"), (_variant_t)_T(""), NULL, PropertyMaterialNormalTexture);
+	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("SpecularTexture"), (_variant_t)_T(""), NULL, PropertyMaterialSpecularTexture);
+	pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
 	m_pProp[PropertyId]->AddSubItem(pProp);
 	pParentCtrl->AddProperty(m_pProp[PropertyId], FALSE, FALSE);
+}
+
+Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id)
+{
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			if (id < mesh_cmp->m_MaterialList.size())
+			{
+				return mesh_cmp->m_MaterialList[id].get();
+			}
+		}
+		break;
+	}
+	return NULL;
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -352,7 +400,7 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(m_pProp[PropertyComponent], FALSE, FALSE);
 
 	m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
-	m_pProp[PropertyMeshPath] = new CSimpleProp(_T("Path"), (_variant_t)"", NULL, 0);
+	m_pProp[PropertyMeshPath] = new CFileProp(_T("Path"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
 	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshPath]);
 	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
 
@@ -410,13 +458,7 @@ void CPropertiesWnd::InitPropList()
 		TCHAR buff[128];
 		_stprintf_s(buff, _countof(buff), _T("Material%u"), i);
 		CreatePropertiesMaterial(&m_wndPropList, buff, (Property)(PropertyMaterial0 + i));
-		//m_pProp[PropertyMaterial0 + i]->Show(FALSE, FALSE);
 	}
-	//m_pProp[PropertyComponent]->Show(FALSE, FALSE);
-	//m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-	//m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	//m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
-	//m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
@@ -467,6 +509,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
+	case PropertyComponentMinX:
+	case PropertyComponentMinY:
+	case PropertyComponentMinZ:
+	case PropertyComponentMaxX:
+	case PropertyComponentMaxY:
+	case PropertyComponentMaxZ:
 	case PropertyComponentPosX:
 	case PropertyComponentPosY:
 	case PropertyComponentPosZ:
@@ -477,6 +525,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyComponentScaleY:
 	case PropertyComponentScaleZ:
 		{
+			cmp->m_aabb.m_min.x = m_pProp[PropertyComponentMinX]->GetValue().fltVal;
+			cmp->m_aabb.m_min.y = m_pProp[PropertyComponentMinY]->GetValue().fltVal;
+			cmp->m_aabb.m_min.z = m_pProp[PropertyComponentMinZ]->GetValue().fltVal;
+			cmp->m_aabb.m_max.x = m_pProp[PropertyComponentMaxX]->GetValue().fltVal;
+			cmp->m_aabb.m_max.y = m_pProp[PropertyComponentMaxY]->GetValue().fltVal;
+			cmp->m_aabb.m_max.z = m_pProp[PropertyComponentMaxZ]->GetValue().fltVal;
 			my::Vector3 trans(
 				m_pProp[PropertyComponentPosX]->GetValue().fltVal,
 				m_pProp[PropertyComponentPosY]->GetValue().fltVal,
@@ -494,7 +548,52 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(cmp->m_World), 0.1f);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
-
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialShader:
+		{
+			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData() - PropertyMaterial0);
+			material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialPassMask:
+		{
+			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData() - PropertyMaterial0);
+			material->m_PassMask = g_PassMaskDesc[(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex].mask;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialMeshTexture:
+		{
+			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData() - PropertyMaterial0);
+			material->m_MeshTexture.ReleaseResource();
+			material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_MeshTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialNormalTexture:
+		{
+			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData() - PropertyMaterial0);
+			material->m_NormalTexture.ReleaseResource();
+			material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_NormalTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialSpecularTexture:
+		{
+			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData() - PropertyMaterial0);
+			material->m_SpecularTexture.ReleaseResource();
+			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_SpecularTexture.RequestResource();
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

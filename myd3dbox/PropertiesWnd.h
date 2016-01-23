@@ -115,6 +115,7 @@ protected:
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId);
+	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 
 // Implementation
 public:
