@@ -58,6 +58,8 @@ protected:
 	float m_CameraDiagonal;
 	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
+	BOOL m_bShowGrid;
+	BOOL m_bShowCmpHandle;
 
 	typedef std::map<Component *, my::Matrix4> ComponentWorldMap;
 	ComponentWorldMap m_selcmpwlds;
@@ -140,6 +142,10 @@ public:
 	afx_msg void OnCameratypeTop();
 	afx_msg void OnUpdateCameratypeTop(CCmdUI *pCmdUI);
 	afx_msg void OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags);
+	afx_msg void OnShowGrid();
+	afx_msg void OnUpdateShowGrid(CCmdUI *pCmdUI);
+	afx_msg void OnShowCmphandle();
+	afx_msg void OnUpdateShowCmphandle(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

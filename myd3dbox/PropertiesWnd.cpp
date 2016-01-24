@@ -327,6 +327,15 @@ Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id
 			}
 		}
 		break;
+	case Component::ComponentTypeEmitter:
+		{
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			if (id == 0)
+			{
+				return emit_cmp->m_Material.get();
+			}
+		}
+		break;
 	}
 	return NULL;
 }

@@ -36,14 +36,20 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_COMMAND(ID_CAMERATYPE_TOP, &CChildView::OnCameratypeTop)
 	ON_UPDATE_COMMAND_UI(ID_CAMERATYPE_TOP, &CChildView::OnUpdateCameratypeTop)
 	ON_WM_KEYDOWN()
+	ON_COMMAND(ID_SHOW_GRID, &CChildView::OnShowGrid)
+	ON_UPDATE_COMMAND_UI(ID_SHOW_GRID, &CChildView::OnUpdateShowGrid)
+	ON_COMMAND(ID_SHOW_CMPHANDLE, &CChildView::OnShowCmphandle)
+	ON_UPDATE_COMMAND_UI(ID_SHOW_CMPHANDLE, &CChildView::OnUpdateShowCmphandle)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
 
 CChildView::CChildView()
 	: m_PivotScale(1.0f)
-	, m_CameraType(CameraTypeUnknown)
 	, m_CameraDiagonal(30.0f)
+	, m_CameraType(CameraTypeUnknown)
+	, m_bShowGrid(TRUE)
+	, m_bShowCmpHandle(TRUE)
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
@@ -219,11 +225,13 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
 		CMainFrame * pFrame;
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame)
+		CChildView * pView;
+		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
 			, pFrame(_pFrame)
+			, pView(_pView)
 		{
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
@@ -237,18 +245,21 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 				}
 				render_cmp->AddToPipeline(pipeline, PassMask);
 
-				switch (render_cmp->m_Type)
+				if (pView->m_bShowCmpHandle)
 				{
-				case Component::ComponentTypeEmitter:
-					pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(std::make_pair(0.0f,
-						my::Emitter::Particle(render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0.0f)));
-					break;
+					switch (render_cmp->m_Type)
+					{
+					case Component::ComponentTypeEmitter:
+						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(std::make_pair(0.0f,
+							my::Emitter::Particle(render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0.0f)));
+						break;
+					}
 				}
 			}
 		}
 	};
 
-	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame));
+	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
 
 	pFrame->m_emitter->AddToPipeline(pipeline, PassMask);
 }
@@ -615,20 +626,23 @@ void CChildView::OnPaint()
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 			DrawHelper::BeginLine();
-			switch (m_CameraType)
+			if (m_bShowGrid)
 			{
-			case CameraTypePerspective:
-				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
-				break;
-			case CameraTypeFront:
-				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::Identity());
-				break;
-			case CameraTypeSide:
-				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationY(D3DXToRadian(90)));
-				break;
-			case CameraTypeTop:
-				PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
-				break;
+				switch (m_CameraType)
+				{
+				case CameraTypePerspective:
+					PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+					break;
+				case CameraTypeFront:
+					PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::Identity());
+					break;
+				case CameraTypeSide:
+					PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationY(D3DXToRadian(90)));
+					break;
+				case CameraTypeTop:
+					PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+					break;
+				}
 			}
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
@@ -1039,4 +1053,30 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	}
 
 	__super::OnKeyDown(nChar, nRepCnt, nFlags);
+}
+
+void CChildView::OnShowGrid()
+{
+	// TODO: Add your command handler code here
+	m_bShowGrid = !m_bShowGrid;
+	Invalidate();
+}
+
+void CChildView::OnUpdateShowGrid(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_bShowGrid);
+}
+
+void CChildView::OnShowCmphandle()
+{
+	// TODO: Add your command handler code here
+	m_bShowCmpHandle = !m_bShowCmpHandle;
+	Invalidate();
+}
+
+void CChildView::OnUpdateShowCmphandle(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_bShowCmpHandle);
 }

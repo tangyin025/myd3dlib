@@ -53,7 +53,6 @@ public:
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
-		ComponentTypeTerrain,
 	};
 
 	ComponentType m_Type;

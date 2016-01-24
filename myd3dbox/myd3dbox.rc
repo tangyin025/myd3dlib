@@ -90,6 +90,11 @@ BEGIN
             MENUITEM "Side",                        ID_CAMERATYPE_SIDE
             MENUITEM "Top",                         ID_CAMERATYPE_TOP
         END
+        POPUP "Show"
+        BEGIN
+            MENUITEM "Grid",                        ID_SHOW_GRID
+            MENUITEM "CmpHandle",                   ID_SHOW_CMPHANDLE
+        END
     END
 END
 

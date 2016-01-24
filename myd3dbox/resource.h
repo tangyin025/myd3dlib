@@ -43,13 +43,16 @@
 #define ID_VIEW_PIVOT                   32781
 #define ID_PIVOT_MOVE                   32782
 #define ID_PIVOT_ROTATE                 32783
+#define ID_VIEW_SHOW                    32784
+#define ID_SHOW_GRID                    32785
+#define ID_SHOW_CMPHANDLE               32786
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32784
+#define _APS_NEXT_COMMAND_VALUE         32787
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
