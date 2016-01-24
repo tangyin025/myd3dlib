@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
+	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -58,10 +59,10 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 	: m_Root(my::Vector3(-1000), my::Vector3(1000), 1.0f)
 	, m_selbox(-FLT_MAX, FLT_MAX)
+	, m_bEatAltUp(FALSE)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
-	m_bEatAltUp = FALSE;
 }
 
 CMainFrame::~CMainFrame()
@@ -190,6 +191,8 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
+
+	SetTimer(1, 33, NULL);
 
 	m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
 	m_emitter->m_Emitter.reset(new my::Emitter());
@@ -562,6 +565,7 @@ void CMainFrame::OnPivotMove()
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
@@ -576,4 +580,22 @@ void CMainFrame::OnPivotRotate()
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
+}
+
+void CMainFrame::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: Add your message handler code here and/or call default
+	if (!m_selcmps.empty())
+	{
+		ComponentSet::iterator cmp_iter = m_selcmps.begin();
+		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+		{
+			(*cmp_iter)->Update(0.033f);
+		}
+		EventArg arg;
+		m_EventSelectionPlaying(&arg);
+	}
+
+	__super::OnTimer(nIDEvent);
 }

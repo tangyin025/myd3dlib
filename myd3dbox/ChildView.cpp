@@ -557,6 +557,11 @@ void CChildView::OnSelectionChanged(EventArg * arg)
 	Invalidate();
 }
 
+void CChildView::OnSelectionPlaying(EventArg * arg)
+{
+	Invalidate();
+}
+
 void CChildView::OnPivotModeChanged(EventArg * arg)
 {
 	Invalidate();
@@ -715,6 +720,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	CMainFrame::getSingleton().m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
@@ -726,6 +732,7 @@ void CChildView::OnDestroy()
 
 	// TODO: Add your message handler code here
 	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	CMainFrame::getSingleton().m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	CMainFrame::getSingleton().m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
@@ -1012,6 +1019,22 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 		{
 			pFrame->OnCmdMsg(ID_PIVOT_ROTATE, 0, NULL, NULL);
 		}
+		return;
+	case 'F':
+		{
+			float fov = D3DXToRadian(75.0f);
+			if (!pFrame->m_selcmps.empty())
+			{
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			}
+			else
+			{
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			}
+		}
+		Invalidate();
 		return;
 	}
 

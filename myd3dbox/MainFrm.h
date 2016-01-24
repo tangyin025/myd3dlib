@@ -36,6 +36,7 @@ public:
 	my::AABB m_selbox;
 	EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;
+	Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;
 	Event m_EventCmpAttriChanged;
 
@@ -88,6 +89,7 @@ public:
 	afx_msg void OnUpdatePivotMove(CCmdUI *pCmdUI);
 	afx_msg void OnPivotRotate();
 	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 
