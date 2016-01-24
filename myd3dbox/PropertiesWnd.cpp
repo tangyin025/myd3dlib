@@ -98,6 +98,10 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 	{
 		UpdateProperties(*pFrame->m_selcmps.begin());
 	}
+	else
+	{
+		//HideAllProperties();
+	}
 }
 
 void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
@@ -107,6 +111,18 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 	if (!pFrame->m_selcmps.empty())
 	{
 		UpdateProperties(*pFrame->m_selcmps.begin());
+	}
+}
+
+void CPropertiesWnd::HideAllProperties(void)
+{
+	m_pProp[PropertyComponent]->Show(FALSE, FALSE);
+	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
+	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
+	{
+		m_pProp[PropertyMaterial0 + i]->Show(FALSE, FALSE);
 	}
 }
 
@@ -225,15 +241,30 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 {
 	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
 	m_pProp[PropertyId]->GetSubItem(0)->SetValue((_variant_t)spline->size());
-	while (m_pProp[PropertyId]->GetSubItemsCount() > 1)
+	unsigned int i = 0;
+	for (; i < spline->size(); i++)
 	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(1);
+		if ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() <= i + 1)
+		{
+			CreatePropertiesSplineNode(m_pProp[PropertyId], i);
+		}
+		UpdatePropertiesSplineNode(m_pProp[PropertyId], i, *(*spline)[i]);
+	}
+	while ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() > i + 1)
+	{
+		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(i + 1);
 		m_pProp[PropertyId]->RemoveSubItem(pProp, TRUE);
 	}
-	for (unsigned int i = 0; i < spline->size(); i++)
-	{
-		CreatePropertiesSplineNode(m_pProp[PropertyId], i, *(*spline)[i]);
-	}
+}
+
+void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode & node)
+{
+	CMFCPropertyGridProperty * pProp = pSpline->GetSubItem(NodeId + 1);
+	_ASSERT(pProp);
+	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node.x);
+	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node.y);
+	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node.k0);
+	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node.k);
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
@@ -242,23 +273,23 @@ void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentPr
 	m_pProp[PropertyId] = new CSimpleProp(lpszName, PropertyId, TRUE);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(size_t)0, NULL, PropertySplineNodeCount);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 0, my::SplineNode(0, 0, 0, 0));
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 1, my::SplineNode(0, 0, 0, 0));
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 2, my::SplineNode(0, 0, 0, 0));
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 0);
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 1);
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 2);
 	pParentProp->AddSubItem(m_pProp[PropertyId]);
 }
 
-void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode & node)
+void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId)
 {
 	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), NodeId, TRUE);
 	pSpline->AddSubItem(pNode);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)node.x, NULL, PropertySplineNodeX);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertySplineNodeX);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)node.y, NULL, PropertySplineNodeY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertySplineNodeY);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k0"), (_variant_t)node.k0, NULL, PropertySplineNodeK0);
+	pProp = new CSimpleProp(_T("k0"), (_variant_t)0.0f, NULL, PropertySplineNodeK0);
 	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k"), (_variant_t)node.k, NULL, PropertySplineNodeK);
+	pProp = new CSimpleProp(_T("k"), (_variant_t)0.0f, NULL, PropertySplineNodeK);
 	pNode->AddSubItem(pProp);
 }
 
@@ -499,6 +530,8 @@ void CPropertiesWnd::InitPropList()
 		_stprintf_s(buff, _countof(buff), _T("Material%u"), i);
 		CreatePropertiesMaterial(&m_wndPropList, buff, (Property)(PropertyMaterial0 + i));
 	}
+
+	//HideAllProperties();
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
