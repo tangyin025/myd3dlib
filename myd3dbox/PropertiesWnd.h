@@ -80,13 +80,6 @@ protected:
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
-		PropertyTerrain,
-		PropertyTerrainTexStartX,
-		PropertyTerrainTexStartY,
-		PropertyTerrainTexEndX,
-		PropertyTerrainTexEndY,
-		PropertyTerrainXDivision,
-		PropertyTerrainZDivision,
 		PropertyMaterial0,
 		PropertyMaterial1,
 		PropertyMaterial2,
@@ -111,9 +104,11 @@ protected:
 	void OnCmpAttriChanged(EventArg * arg);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
-	void UpdatePropertiesMaterial(Material * mat, Property PropertyId);
+	void UpdatePropertiesEmitter(EmitterComponent * cmp);
+	void UpdatePropertiesMaterial(Property PropertyId, Material * mat);
+	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
-	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
+	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::SplineNode & node);
 	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId);
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 

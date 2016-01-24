@@ -138,8 +138,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		UpdatePropertiesMesh(dynamic_cast<MeshComponent *>(cmp));
 		break;
 	case Component::ComponentTypeEmitter:
-		break;
-	case Component::ComponentTypeTerrain:
+		UpdatePropertiesEmitter(dynamic_cast<EmitterComponent *>(cmp));
 		break;
 	}
 	m_wndPropList.AdjustLayout();
@@ -150,7 +149,6 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	m_pProp[PropertyMesh]->Show(TRUE, FALSE);
 	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
-	m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 
 	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
 
@@ -158,7 +156,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	{
 		if (i < cmp->m_MaterialList.size() && cmp->m_MaterialList[i])
 		{
-			UpdatePropertiesMaterial(cmp->m_MaterialList[i].get(), (Property)(PropertyMaterial0 + i));
+			UpdatePropertiesMaterial((Property)(PropertyMaterial0 + i), cmp->m_MaterialList[i].get());
 		}
 		else
 		{
@@ -167,7 +165,52 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	}
 }
 
-void CPropertiesWnd::UpdatePropertiesMaterial(Material * mat, Property PropertyId)
+void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
+{
+	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+	m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
+
+	m_pProp[PropertyEmitterParticleLifeTime]->SetValue((_variant_t)cmp->m_Emitter->m_ParticleLifeTime);
+
+	my::SphericalEmitterPtr spherical_emit = boost::dynamic_pointer_cast<my::SphericalEmitter>(cmp->m_Emitter);
+	if (spherical_emit)
+	{
+		m_pProp[PropertySphericalEmitter]->Show(TRUE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnInterval]->SetValue((_variant_t)spherical_emit->m_SpawnInterval);
+		m_pProp[PropertySphericalEmitterHalfSpawnAreaX]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.x);
+		m_pProp[PropertySphericalEmitterHalfSpawnAreaY]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.y);
+		m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.z);
+		m_pProp[PropertySphericalEmitterSpawnSpeed]->SetValue((_variant_t)spherical_emit->m_SpawnSpeed);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnInclination, &spherical_emit->m_SpawnInclination);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAzimuth, &spherical_emit->m_SpawnAzimuth);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorA, &spherical_emit->m_SpawnColorA);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorR, &spherical_emit->m_SpawnColorR);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorG, &spherical_emit->m_SpawnColorG);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorB, &spherical_emit->m_SpawnColorB);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeX, &spherical_emit->m_SpawnSizeX);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeY, &spherical_emit->m_SpawnSizeY);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAngle, &spherical_emit->m_SpawnAngle);
+		m_pProp[PropertySphericalEmitterSpawnLoopTime]->SetValue((_variant_t)spherical_emit->m_SpawnLoopTime);
+	}
+	else
+	{
+		m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
+	}
+
+	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
+	{
+		if (i == 0)
+		{
+			UpdatePropertiesMaterial(PropertyMaterial0, cmp->m_Material.get());
+		}
+		else
+		{
+			m_pProp[PropertyMaterial0 + i]->Show(FALSE, FALSE);
+		}
+	}
+}
+
+void CPropertiesWnd::UpdatePropertiesMaterial(Property PropertyId, Material * mat)
 {
 	_ASSERT(PropertyId >= PropertyMaterial0 && PropertyId < PropertyMaterialEnd);
 	m_pProp[PropertyId]->Show(TRUE, FALSE);
@@ -178,30 +221,45 @@ void CPropertiesWnd::UpdatePropertiesMaterial(Material * mat, Property PropertyI
 	m_pProp[PropertyId]->GetSubItem(PropertyMaterialSpecularTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
+void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
+{
+	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
+	m_pProp[PropertyId]->GetSubItem(0)->SetValue((_variant_t)spline->size());
+	while (m_pProp[PropertyId]->GetSubItemsCount() > 1)
+	{
+		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(1);
+		m_pProp[PropertyId]->RemoveSubItem(pProp, TRUE);
+	}
+	for (unsigned int i = 0; i < spline->size(); i++)
+	{
+		CreatePropertiesSplineNode(m_pProp[PropertyId], i, *(*spline)[i]);
+	}
+}
+
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
 {
-	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnLoopTime);
+	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
 	m_pProp[PropertyId] = new CSimpleProp(lpszName, PropertyId, TRUE);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)0, NULL, PropertySplineNodeCount);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(size_t)0, NULL, PropertySplineNodeCount);
 	m_pProp[PropertyId]->AddSubItem(pProp);
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 0);
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 1);
-	CreatePropertiesSplineNode(m_pProp[PropertyId], 2);
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 0, my::SplineNode(0, 0, 0, 0));
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 1, my::SplineNode(0, 0, 0, 0));
+	CreatePropertiesSplineNode(m_pProp[PropertyId], 2, my::SplineNode(0, 0, 0, 0));
 	pParentProp->AddSubItem(m_pProp[PropertyId]);
 }
 
-void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId)
+void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode & node)
 {
 	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), NodeId, TRUE);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertySplineNodeX);
-	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertySplineNodeY);
-	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k0"), (_variant_t)0.0f, NULL, PropertySplineNodeK0);
-	pNode->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("k"), (_variant_t)0.0f, NULL, PropertySplineNodeK);
-	pNode->AddSubItem(pProp);
 	pSpline->AddSubItem(pNode);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)node.x, NULL, PropertySplineNodeX);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)node.y, NULL, PropertySplineNodeY);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k0"), (_variant_t)node.k0, NULL, PropertySplineNodeK0);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k"), (_variant_t)node.k, NULL, PropertySplineNodeK);
+	pNode->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId)
@@ -431,27 +489,9 @@ void CPropertiesWnd::InitPropList()
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX);
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
 	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnLoopTime"), PropertySphericalEmitterSpawnLoopTime);
+	m_pProp[PropertySphericalEmitterSpawnLoopTime] = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnLoopTime);
+	m_pProp[PropertySphericalEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnLoopTime]);
 	m_wndPropList.AddProperty(m_pProp[PropertySphericalEmitter], FALSE, FALSE);
-
-	m_pProp[PropertyTerrain] = new CMFCPropertyGridProperty(_T("Terrain"), PropertyTerrain, FALSE);
-	CMFCPropertyGridProperty * pTexStart = new CSimpleProp(_T("TexStart"), 0, TRUE);
-	m_pProp[PropertyTerrainTexStartX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyTerrainTexStartX);
-	pTexStart->AddSubItem(m_pProp[PropertyTerrainTexStartX]);
-	m_pProp[PropertyTerrainTexStartY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyTerrainTexStartY);
-	pTexStart->AddSubItem(m_pProp[PropertyTerrainTexStartY]);
-	m_pProp[PropertyTerrain]->AddSubItem(pTexStart);
-	CMFCPropertyGridProperty * pTexEnd = new CSimpleProp(_T("TexEnd"), 0, TRUE);
-	m_pProp[PropertyTerrainTexEndX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyTerrainTexEndX);
-	pTexEnd->AddSubItem(m_pProp[PropertyTerrainTexEndX]);
-	m_pProp[PropertyTerrainTexEndY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyTerrainTexEndY);
-	pTexEnd->AddSubItem(m_pProp[PropertyTerrainTexEndY]);
-	m_pProp[PropertyTerrain]->AddSubItem(pTexEnd);
-	m_pProp[PropertyTerrainXDivision] = new CSimpleProp(_T("XDivision"), (_variant_t)0.0f, NULL, PropertyTerrainXDivision);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainXDivision]);
-	m_pProp[PropertyTerrainZDivision] = new CSimpleProp(_T("ZDivision"), (_variant_t)0.0f, NULL, PropertyTerrainZDivision);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainZDivision]);
-	m_wndPropList.AddProperty(m_pProp[PropertyTerrain], FALSE, FALSE);
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
