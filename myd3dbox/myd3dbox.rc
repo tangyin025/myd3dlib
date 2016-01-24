@@ -148,6 +148,7 @@ BEGIN
         BEGIN
             MENUITEM "&Mesh...",                    ID_COMPONENT_MESH
             MENUITEM "&Emitter",                    ID_COMPONENT_EMITTER
+            MENUITEM "S&phericalEmitter",           ID_COMPONENT_SPHERICALEMITTER
         END
     END
     POPUP "&View"

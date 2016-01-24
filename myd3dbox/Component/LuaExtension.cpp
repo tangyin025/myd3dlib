@@ -989,15 +989,6 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 
-		, class_<TerrainComponent, RenderComponent, boost::shared_ptr<Component> >("TerrainComponent")
-			.def(constructor<const my::AABB &, const my::Vector2 &, const my::Vector2 &, unsigned int, unsigned int, const my::Matrix4 &>())
-			.def(constructor<>())
-			.def_readwrite("TexStart", &TerrainComponent::m_TexStart)
-			.def_readwrite("TexEnd", &TerrainComponent::m_TexEnd)
-			.def_readwrite("XDivision", &TerrainComponent::m_XDivision)
-			.def_readwrite("ZDivision", &TerrainComponent::m_ZDivision)
-			.def_readwrite("Material", &TerrainComponent::m_Material)
-
 		, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctComponent>)
 	];
 }

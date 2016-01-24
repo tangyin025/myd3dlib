@@ -36,13 +36,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
+	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
+	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
-	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
 	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
@@ -512,9 +513,27 @@ void CMainFrame::OnComponentEmitter()
 {
 	// TODO: Add your command handler code here
 	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-	my::SphericalEmitterPtr emit(new my::SphericalEmitter());
-	emit->m_SpawnInterval=1/100.0f;
+	my::EmitterPtr emit(new my::Emitter());
 	emit->m_ParticleLifeTime=10.0f;
+	emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0.0f);
+	emit_cmp->m_Emitter = emit;
+	MaterialPtr particle1(new Material());
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_Shader = "particle1.fx";
+	emit_cmp->m_Material = particle1;
+	emit_cmp->RequestResource();
+	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	m_cmps.push_back(emit_cmp);
+}
+
+void CMainFrame::OnComponentSphericalemitter()
+{
+	// TODO: Add your command handler code here
+	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
+	my::SphericalEmitterPtr emit(new my::SphericalEmitter());
+	emit->m_ParticleLifeTime=10.0f;
+	emit->m_SpawnInterval=1/100.0f;
 	emit->m_SpawnSpeed=5;
 	emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
 	float Azimuth=D3DXToRadian(360)*8;
@@ -534,9 +553,9 @@ void CMainFrame::OnComponentEmitter()
 	emit->m_SpawnSizeY.AddNode(10,10,0,0);
 	emit_cmp->m_Emitter = emit;
 	MaterialPtr particle1(new Material());
-	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
 	particle1->m_Shader = "particle1.fx";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
@@ -546,11 +565,29 @@ void CMainFrame::OnComponentEmitter()
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	{
+		m_Root.RemoveComponent(*cmp_iter);
+		ComponentPtrList::iterator cmp_ptr_iter = m_cmps.begin();
+		for (; cmp_ptr_iter != m_cmps.end(); cmp_ptr_iter++)
+		{
+			if (cmp_ptr_iter->get() == *cmp_iter)
+			{
+				m_cmps.erase(cmp_ptr_iter);
+				break;
+			}
+		}
+	}
+	m_selcmps.clear();
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnPivotMove()

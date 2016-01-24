@@ -69,18 +69,6 @@ game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 -- cmp2:RequestResource()
 -- game.Root:AddComponent(cmp2raw(cmp2),cmp2.aabb:transform(cmp2.World),0.1)
 
--- -- 添加地形
--- local cmp3 = TerrainComponent(AABB(-10,10),Vector2(0,0),Vector2(1,1),5,5,Matrix4.Identity())
--- local material=Material()
--- material.Shader="lambert1.fx"
--- material.PassMask=Material.PassMaskOpaque
--- material.MeshTexture.Path="texture/wall.jpg"
--- material.NormalTexture.Path="texture/wall_NM_height.DDS"
--- material.SpecularTexture.Path="texture/White.dds"
--- cmp3.Material = material
--- cmp3:RequestResource()
--- game.Root:AddComponent(cmp2raw(cmp3),cmp3.aabb:transform(cmp3.World),0.1)
-
 -- -- 添加光源
 -- local l=Emitter()
 -- local e=Emitter()

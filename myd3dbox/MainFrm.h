@@ -83,6 +83,7 @@ public:
 	afx_msg void OnFileSave();
 	afx_msg void OnComponentMesh();
 	afx_msg void OnComponentEmitter();
+	afx_msg void OnComponentSphericalemitter();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnPivotMove();
