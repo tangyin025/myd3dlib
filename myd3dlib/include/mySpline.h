@@ -34,12 +34,10 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(k);
 		}
 
-		float Interpolate(const SplineNode & rhs, float s);
+		float Interpolate(const SplineNode & rhs, float s) const;
 	};
 
-	typedef boost::shared_ptr<SplineNode> SplineNodePtr;
-
-	class Spline : public std::vector<SplineNodePtr>
+	class Spline : public std::vector<SplineNode>
 	{
 	public:
 		Spline(void)
@@ -49,12 +47,12 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & boost::serialization::make_nvp("SplineNodePtrList", boost::serialization::base_object<std::vector<SplineNodePtr> >(*this));
+			ar & boost::serialization::make_nvp("SplineNodeList", boost::serialization::base_object<std::vector<SplineNode> >(*this));
 		}
 
-		bool InsertNode(SplineNodePtr node, int begin_i, int end_i);
+		bool InsertNode(const SplineNode & node, int begin_i, int end_i);
 
-		void InsertNode(SplineNodePtr node);
+		void InsertNode(const SplineNode & node);
 
 		void AddNode(float x, float y, float k0, float k);
 

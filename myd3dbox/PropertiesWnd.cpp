@@ -248,7 +248,7 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 		{
 			CreatePropertiesSplineNode(m_pProp[PropertyId], i);
 		}
-		UpdatePropertiesSplineNode(m_pProp[PropertyId], i, *(*spline)[i]);
+		UpdatePropertiesSplineNode(m_pProp[PropertyId], i, &(*spline)[i]);
 	}
 	while ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() > i + 1)
 	{
@@ -257,14 +257,14 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 	}
 }
 
-void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode & node)
+void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node)
 {
 	CMFCPropertyGridProperty * pProp = pSpline->GetSubItem(NodeId + 1);
 	_ASSERT(pProp);
-	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node.x);
-	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node.y);
-	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node.k0);
-	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node.k);
+	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node->x);
+	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
+	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
+	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
@@ -699,18 +699,79 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case PropertySplineNodeCount:
-		{
-			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-			my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
-			EventArg arg;
-			pFrame->m_EventCmpAttriChanged(&arg);
-		}
-		break;
 	case PropertySplineNodeX:
 	case PropertySplineNodeY:
 	case PropertySplineNodeK0:
 	case PropertySplineNodeK:
 		{
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
+			CMFCPropertyGridProperty * pSpline = NULL;
+			switch (PropertyId)
+			{
+			case PropertySplineNodeCount:
+				pSpline = pProp->GetParent();
+				break;
+			case PropertySplineNodeX:
+			case PropertySplineNodeY:
+			case PropertySplineNodeK0:
+			case PropertySplineNodeK:
+				pSpline = pProp->GetParent()->GetParent();
+				break;
+			}
+			my::Spline * spline = NULL;
+			switch (pSpline->GetData())
+			{
+			case PropertySphericalEmitterSpawnInclination:
+				spline = &spherical_emit->m_SpawnInclination;
+				break;
+			case PropertySphericalEmitterSpawnAzimuth:
+				spline = &spherical_emit->m_SpawnAzimuth;
+				break;
+			case PropertySphericalEmitterSpawnColorA:
+				spline = &spherical_emit->m_SpawnColorA;
+				break;
+			case PropertySphericalEmitterSpawnColorR:
+				spline = &spherical_emit->m_SpawnColorR;
+				break;
+			case PropertySphericalEmitterSpawnColorG:
+				spline = &spherical_emit->m_SpawnColorG;
+				break;
+			case PropertySphericalEmitterSpawnColorB:
+				spline = &spherical_emit->m_SpawnColorB;
+				break;
+			case PropertySphericalEmitterSpawnSizeX:
+				spline = &spherical_emit->m_SpawnSizeX;
+				break;
+			case PropertySphericalEmitterSpawnSizeY:
+				spline = &spherical_emit->m_SpawnSizeY;
+				break;
+			case PropertySphericalEmitterSpawnAngle:
+				spline = &spherical_emit->m_SpawnAngle;
+				break;
+			}
+			switch (PropertyId)
+			{
+			case PropertySplineNodeCount:
+				spline->resize(pProp->GetValue().uintVal, my::SplineNode(0, 0, 0, 0));
+				UpdatePropertiesSpline((Property)pSpline->GetData(), spline);
+				break;
+			case PropertySplineNodeX:
+			case PropertySplineNodeY:
+			case PropertySplineNodeK0:
+			case PropertySplineNodeK:
+				{
+					CMFCPropertyGridProperty * pNode = pProp->GetParent();
+					DWORD id = pNode->GetData();
+					_ASSERT(id < spline->size());
+					my::SplineNode & node = (*spline)[id];
+					node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
+					node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
+					node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
+					node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
+				}
+				break;
+			}
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

@@ -108,7 +108,7 @@ protected:
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
 	void UpdatePropertiesMaterial(Property PropertyId, Material * mat);
 	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
-	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode & node);
+	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId);

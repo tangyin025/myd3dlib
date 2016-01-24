@@ -128,17 +128,17 @@ public:
 		//boost::archive::xml_oarchive oa(ofs);
 		//oa << boost::serialization::make_nvp("level", m_cmps);
 
-		// 读取场景
+		//// 读取场景
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
-		std::ifstream istr("aaa.xml");
-		boost::archive::xml_iarchive ia(istr);
-		ia >> boost::serialization::make_nvp("level", m_cmps);
-		for (unsigned int i = 0; i < m_cmps.size(); i++)
-		{
-			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
-			m_cmps[i]->RequestResource();
-		}
+		////std::ifstream istr("aaa.xml");
+		//boost::archive::xml_iarchive ia(istr);
+		//ia >> boost::serialization::make_nvp("level", m_cmps);
+		//for (unsigned int i = 0; i < m_cmps.size(); i++)
+		//{
+		//	m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
+		//	m_cmps[i]->RequestResource();
+		//}
 
 		return S_OK;
 	}
