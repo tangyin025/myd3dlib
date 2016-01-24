@@ -671,6 +671,50 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
+	case PropertyEmitterParticleLifeTime:
+		{
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			emit_cmp->m_Emitter->m_ParticleLifeTime = pProp->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertySphericalEmitterSpawnInterval:
+	case PropertySphericalEmitterHalfSpawnAreaX:
+	case PropertySphericalEmitterHalfSpawnAreaY:
+	case PropertySphericalEmitterHalfSpawnAreaZ:
+	case PropertySphericalEmitterSpawnSpeed:
+	case PropertySphericalEmitterSpawnLoopTime:
+		{
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
+			spherical_emit->m_SpawnInterval = m_pProp[PropertySphericalEmitterSpawnInterval]->GetValue().fltVal;
+			spherical_emit->m_HalfSpawnArea.x = m_pProp[PropertySphericalEmitterHalfSpawnAreaX]->GetValue().fltVal;
+			spherical_emit->m_HalfSpawnArea.y = m_pProp[PropertySphericalEmitterHalfSpawnAreaY]->GetValue().fltVal;
+			spherical_emit->m_HalfSpawnArea.z = m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]->GetValue().fltVal;
+			spherical_emit->m_SpawnSpeed = m_pProp[PropertySphericalEmitterSpawnSpeed]->GetValue().fltVal;
+			spherical_emit->m_SpawnLoopTime = m_pProp[PropertySphericalEmitterSpawnLoopTime]->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertySplineNodeCount:
+		{
+			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertySplineNodeX:
+	case PropertySplineNodeY:
+	case PropertySplineNodeK0:
+	case PropertySplineNodeK:
+		{
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
 	}
 	return 0;
 }
