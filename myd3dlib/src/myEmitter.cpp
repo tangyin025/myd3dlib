@@ -2,36 +2,47 @@
 #include "myEmitter.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
 using namespace my;
 
 // ! must have virtual distructor or warning C4308, ref: http://stackoverflow.com/questions/26605497/boost-serialization-error-c4308-negative-integral-constant-converted-to-unsigne
-BOOST_SERIALIZATION_ASSUME_ABSTRACT(Emitter)
+//BOOST_CLASS_EXPORT(Emitter::Particle)
+//
+//BOOST_CLASS_EXPORT(Emitter::ParticlePair)
+
+BOOST_CLASS_EXPORT(Emitter)
+
+BOOST_CLASS_EXPORT(DynamicEmitter)
 
 BOOST_CLASS_EXPORT(SphericalEmitter)
-
-Emitter::~Emitter(void)
-{
-}
-
-void Emitter::Reset(void)
-{
-	m_ParticleList.clear();
-}
 
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, D3DCOLOR Color, const Vector2 & Size, float Angle)
 {
 	if(m_ParticleList.size() < PARTICLE_INSTANCE_MAX)
 	{
-		m_ParticleList.push_back(std::make_pair(0.0f, Particle(Position, Velocity, Color, Size, Angle)));
+		m_ParticleList.push_back(ParticlePair(0.0f, Particle(Position, Velocity, Color, Size, Angle)));
 	}
 }
 
+void Emitter::Reset(void)
+{
+}
+
 void Emitter::Update(float fElapsedTime)
+{
+}
+
+void DynamicEmitter::Reset(void)
+{
+	m_ParticleList.clear();
+}
+
+void DynamicEmitter::Update(float fElapsedTime)
 {
 	ParticlePairList::reverse_iterator part_iter = m_ParticleList.rbegin();
 	for(; part_iter != m_ParticleList.rend(); part_iter++)
@@ -44,9 +55,16 @@ void Emitter::Update(float fElapsedTime)
 	}
 }
 
+void SphericalEmitter::Reset(void)
+{
+	DynamicEmitter::Reset();
+	m_Time = 0;
+	m_RemainingSpawnTime = 0;
+}
+
 void SphericalEmitter::Update(float fElapsedTime)
 {
-	Emitter::Update(fElapsedTime);
+	DynamicEmitter::Update(fElapsedTime);
 
 	m_Time += fElapsedTime;
 

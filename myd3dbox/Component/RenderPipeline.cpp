@@ -81,7 +81,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
-	m_ParticleVertexBuffer.CreateVertexBuffer(pd3dDevice, m_ParticleVertexStride * 4);
+	m_ParticleVertexBuffer.CreateVertexBuffer(pd3dDevice, m_ParticleVertexStride * 4, 0, 0, D3DPOOL_DEFAULT);
 	unsigned char * pVertices = (unsigned char *)m_ParticleVertexBuffer.Lock(0, m_ParticleVertexStride * 4);
 	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 0, Vector2(0,0));
 	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 1, Vector2(0,1));
@@ -90,7 +90,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleVertexBuffer.Unlock();
 
 	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
-	m_ParticleIndexBuffer.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * 4);
+	m_ParticleIndexBuffer.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
 	WORD * pIndices = (WORD *)m_ParticleIndexBuffer.Lock(0, sizeof(WORD) * 4);
 	pIndices[0] = 0;
 	pIndices[1] = 1;
@@ -326,8 +326,11 @@ void RenderPipeline::RenderAllObjects(
 	EmitterAtomList::iterator emitter_iter = m_Pass[PassID].m_EmitterList.begin();
 	for (; emitter_iter != m_Pass[PassID].m_EmitterList.end(); emitter_iter++)
 	{
-		DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
-		m_PassDrawCall[PassID]++;
+		if (!emitter_iter->emitter->m_ParticleList.empty())
+		{
+			DrawEmitter(PassID, pd3dDevice, emitter_iter->emitter, emitter_iter->AttribId, emitter_iter->shader, emitter_iter->setter);
+			m_PassDrawCall[PassID]++;
+		}
 	}
 }
 

@@ -119,7 +119,6 @@ void CPropertiesWnd::HideAllProperties(void)
 	m_pProp[PropertyComponent]->Show(FALSE, FALSE);
 	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
 		m_pProp[PropertyMaterial0 + i]->Show(FALSE, FALSE);
@@ -164,8 +163,6 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
 	m_pProp[PropertyMesh]->Show(TRUE, FALSE);
 	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
-
 	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
@@ -186,12 +183,20 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 	m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
 
-	m_pProp[PropertyEmitterParticleLifeTime]->SetValue((_variant_t)cmp->m_Emitter->m_ParticleLifeTime);
+	my::DynamicEmitterPtr dynamic_emit = boost::dynamic_pointer_cast<my::DynamicEmitter>(cmp->m_Emitter);
+	if (dynamic_emit)
+	{
+		m_pProp[PropertyDynamicEmitterParticleLifeTime]->Show(TRUE, FALSE);
+		m_pProp[PropertyDynamicEmitterParticleLifeTime]->SetValue((_variant_t)dynamic_emit->m_ParticleLifeTime);
+	}
+	else
+	{
+		m_pProp[PropertyDynamicEmitterParticleLifeTime]->Show(FALSE, FALSE);
+	}
 
 	my::SphericalEmitterPtr spherical_emit = boost::dynamic_pointer_cast<my::SphericalEmitter>(cmp->m_Emitter);
 	if (spherical_emit)
 	{
-		m_pProp[PropertySphericalEmitter]->Show(TRUE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnInterval]->SetValue((_variant_t)spherical_emit->m_SpawnInterval);
 		m_pProp[PropertySphericalEmitterHalfSpawnAreaX]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.x);
 		m_pProp[PropertySphericalEmitterHalfSpawnAreaY]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.y);
@@ -210,7 +215,19 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 	}
 	else
 	{
-		m_pProp[PropertySphericalEmitter]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnInterval]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterHalfSpawnArea]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnSpeed]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnInclination]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnAzimuth]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnColorA]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnColorR]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnColorG]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnColorB]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnSizeX]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnSizeY]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnAngle]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnLoopTime]->Show(FALSE, FALSE);
 	}
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
@@ -503,35 +520,32 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
-	m_pProp[PropertyEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertyEmitterParticleLifeTime);
-	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyEmitterParticleLifeTime]);
-	m_wndPropList.AddProperty(m_pProp[PropertyEmitter], FALSE, FALSE);
-
-	m_pProp[PropertySphericalEmitter] = new CMFCPropertyGridProperty(_T("SphericalEmitter"), PropertySphericalEmitter, FALSE);
+	m_pProp[PropertyDynamicEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertyDynamicEmitterParticleLifeTime);
+	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyDynamicEmitterParticleLifeTime]);
 	m_pProp[PropertySphericalEmitterSpawnInterval] = new CSimpleProp(_T("SpawnInterval"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnInterval);
-	m_pProp[PropertySphericalEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnInterval]);
-	CMFCPropertyGridProperty * pHalfSpawnArea = new CSimpleProp(_T("HalfSpawnArea"), 0, TRUE);
+	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnInterval]);
+	m_pProp[PropertySphericalEmitterHalfSpawnArea] = new CSimpleProp(_T("HalfSpawnArea"), 0, TRUE);
 	m_pProp[PropertySphericalEmitterHalfSpawnAreaX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaX);
-	pHalfSpawnArea->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaX]);
+	m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaX]);
 	m_pProp[PropertySphericalEmitterHalfSpawnAreaY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaY);
-	pHalfSpawnArea->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaY]);
+	m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaY]);
 	m_pProp[PropertySphericalEmitterHalfSpawnAreaZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaZ);
-	pHalfSpawnArea->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]);
-	m_pProp[PropertySphericalEmitter]->AddSubItem(pHalfSpawnArea);
+	m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]);
+	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnArea]);
 	m_pProp[PropertySphericalEmitterSpawnSpeed] = new CSimpleProp(_T("SpawnSpeed"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnSpeed);
-	m_pProp[PropertySphericalEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnSpeed]);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnInclination"), PropertySphericalEmitterSpawnInclination);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnAzimuth"), PropertySphericalEmitterSpawnAzimuth);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnColorR"), PropertySphericalEmitterSpawnColorR);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnColorG"), PropertySphericalEmitterSpawnColorG);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnColorB"), PropertySphericalEmitterSpawnColorB);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
-	CreatePropertiesSpline(m_pProp[PropertySphericalEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
+	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnSpeed]);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnInclination"), PropertySphericalEmitterSpawnInclination);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAzimuth"), PropertySphericalEmitterSpawnAzimuth);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorR"), PropertySphericalEmitterSpawnColorR);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorG"), PropertySphericalEmitterSpawnColorG);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorB"), PropertySphericalEmitterSpawnColorB);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
 	m_pProp[PropertySphericalEmitterSpawnLoopTime] = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnLoopTime);
-	m_pProp[PropertySphericalEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnLoopTime]);
-	m_wndPropList.AddProperty(m_pProp[PropertySphericalEmitter], FALSE, FALSE);
+	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnLoopTime]);
+	m_wndPropList.AddProperty(m_pProp[PropertyEmitter], FALSE, FALSE);
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
@@ -680,10 +694,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
-	case PropertyEmitterParticleLifeTime:
+	case PropertyDynamicEmitterParticleLifeTime:
 		{
 			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-			emit_cmp->m_Emitter->m_ParticleLifeTime = pProp->GetValue().fltVal;
+			my::DynamicEmitter * dynamic_emit = dynamic_cast<my::DynamicEmitter *>(emit_cmp->m_Emitter.get());
+			dynamic_emit->m_ParticleLifeTime = pProp->GetValue().fltVal;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

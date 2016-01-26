@@ -514,13 +514,12 @@ void CMainFrame::OnComponentEmitter()
 	// TODO: Add your command handler code here
 	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
 	my::EmitterPtr emit(new my::Emitter());
-	emit->m_ParticleLifeTime=FLT_MAX;
 	emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(10,10), 0.0f);
 	emit_cmp->m_Emitter = emit;
 	MaterialPtr particle1(new Material());
-	particle1->m_MeshTexture.m_Path = "texture/White.dds";
-	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
 	particle1->m_Shader = "particle1.fx";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
