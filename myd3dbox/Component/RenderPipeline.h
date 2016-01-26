@@ -28,7 +28,7 @@ public:
 		PassMaskNone			= 0,
 		PassMaskLight			= 1 << PassTypeLight,
 		PassMaskOpaque			= 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeOpaque,
-		PassMaskTransparent		= 1 << PassTypeShadow | 1 << PassTypeNormal | 1 << PassTypeTransparent,
+		PassMaskTransparent		= 1 << PassTypeTransparent,
 	};
 
 	my::D3DVertexElementSet m_ParticleVertexElems;
