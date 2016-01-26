@@ -39,8 +39,8 @@ HRESULT RenderPipeline::OnCreateDevice(
 
 	m_ParticleInstanceElems.InsertPositionElement(0);
 	WORD offset = sizeof(Vector3);
-	m_ParticleInstanceElems.InsertColorElement(offset);
-	offset += sizeof(D3DCOLOR);
+	m_ParticleInstanceElems.InsertNormalElement(offset);
+	offset += sizeof(Vector3);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 1);
 	offset += sizeof(Vector4);
 	m_ParticleInstanceElems.InsertVertexElement(offset, D3DDECLTYPE_FLOAT4, D3DDECLUSAGE_TEXCOORD, 2);
@@ -455,11 +455,12 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	{
 		// ! Can optimize, because all point offset are constant
 		unsigned char * pVertex = pVertices + i * m_ParticleInstanceStride;
-		const my::Emitter::Particle & particle = emitter->m_ParticleList[i].second;
-		m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
-		m_ParticleInstanceElems.SetColor(pVertex, particle.m_Color);
-		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Texcoord1);
-		m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, Vector4(particle.m_Velocity, emitter->m_ParticleList[i].first));
+		const my::Emitter::Particle & particle = emitter->m_ParticleList[i];
+		//m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
+		//m_ParticleInstanceElems.SetNormal(pVertex, particle.m_Velocity);
+		//m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Color);
+		//m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, Vector4(particle.m_Size.x, particle.m_Size.y, particle.m_Angle, particle.m_Time));
+		memcpy(pVertex, &particle, sizeof(particle));
 	}
 	m_ParticleInstanceData.Unlock();
 

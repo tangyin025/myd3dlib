@@ -50,6 +50,7 @@ namespace my
 
 	class D3DContext
 		: public SingleInstance<D3DContext>
+		, public Clock
 	{
 	public:
 		DWORD m_d3dThreadId;
@@ -85,7 +86,6 @@ namespace my
 
 	class DxutApp
 		: public D3DContext
-		, public Clock
 		, public Application
 		, public CD3D9Enumeration
 	{

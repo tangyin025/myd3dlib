@@ -137,6 +137,8 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(AttribId < m_MaterialList.size());
 
+	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
+
 	shader->SetMatrix("g_World", m_World);
 
 	if (m_Animator && !m_Animator->m_DualQuats.empty())
@@ -209,6 +211,8 @@ void EmitterComponent::Update(float fElapsedTime)
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(0 == AttribId);
+
+	shader->SetFloat("g_Time", m_Emitter->m_Time);
 
 	shader->SetMatrix("g_World", m_World);
 

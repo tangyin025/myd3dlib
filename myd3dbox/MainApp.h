@@ -18,7 +18,6 @@
 
 class CMainApp : public CWinAppEx
 	, public my::D3DContext
-	, public my::Clock
 	, public my::ResourceMgr
 	, public LuaContext
 	, public RenderPipeline

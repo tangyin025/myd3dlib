@@ -21,24 +21,32 @@ namespace my
 
 			Vector3 m_Velocity;
 
-			D3DCOLOR m_Color;
+			Vector4 m_Color;
 
-			Vector4 m_Texcoord1;
+			Vector2 m_Size;
+
+			float m_Angle;
+
+			float m_Time;
 
 		public:
-			Particle(const Vector3 & Position, const Vector3 & Velocity, D3DCOLOR Color, const Vector2 & Size, float Angle)
+			Particle(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle, float Time)
 				: m_Position(Position)
 				, m_Velocity(Velocity)
 				, m_Color(Color)
-				, m_Texcoord1(Size.x,Size.y,Angle,1)
+				, m_Size(Size)
+				, m_Angle(Angle)
+				, m_Time(Time)
 			{
 			}
 
 			Particle(void)
 				: m_Position(0,0,0)
 				, m_Velocity(0,0,0)
-				, m_Color(D3DCOLOR_ARGB(255,255,255,255))
-				, m_Texcoord1(1,1,0,1)
+				, m_Color(1,1,1,1)
+				, m_Size(1,1)
+				, m_Angle(0)
+				, m_Time(0)
 			{
 			}
 
@@ -48,37 +56,21 @@ namespace my
 				ar & BOOST_SERIALIZATION_NVP(m_Position);
 				ar & BOOST_SERIALIZATION_NVP(m_Velocity);
 				ar & BOOST_SERIALIZATION_NVP(m_Color);
-				ar & BOOST_SERIALIZATION_NVP(m_Texcoord1);
+				ar & BOOST_SERIALIZATION_NVP(m_Size);
+				ar & BOOST_SERIALIZATION_NVP(m_Angle);
+				ar & BOOST_SERIALIZATION_NVP(m_Time);
 			}
 		};
 
-		class ParticlePair : public std::pair<float, Particle>
-		{
-		public:
-			ParticlePair(float time, const Particle & particle)
-				: pair(time, particle)
-			{
-			}
+		typedef std::deque<Particle> ParticleList;
 
-			ParticlePair(void)
-				: pair(0, Particle(Vector3(0,0,0), Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), Vector2(1,1), 0))
-			{
-			}
+		ParticleList m_ParticleList;
 
-			template <class Archive>
-			void serialize(Archive & ar, const unsigned int version)
-			{
-				ar & BOOST_SERIALIZATION_NVP(first);
-				ar & BOOST_SERIALIZATION_NVP(second);
-			}
-		};
-
-		typedef std::deque<ParticlePair> ParticlePairList;
-
-		ParticlePairList m_ParticleList;
+		float m_Time;
 
 	public:
 		Emitter(void)
+			: m_Time(0)
 		{
 		}
 
@@ -92,7 +84,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
 		}
 
-		void Spawn(const Vector3 & Position, const Vector3 & Velocity, D3DCOLOR Color, const Vector2 & Size, float Angle);
+		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);
 
 		virtual void Reset(void);
 
@@ -131,8 +123,6 @@ namespace my
 		: public DynamicEmitter
 	{
 	public:
-		float m_Time;
-
 		float m_RemainingSpawnTime;
 
 		float m_SpawnInterval;
@@ -163,8 +153,7 @@ namespace my
 
 	public:
 		SphericalEmitter(void)
-			: m_Time(0)
-			, m_RemainingSpawnTime(0)
+			: m_RemainingSpawnTime(0)
 			, m_SpawnInterval(FLT_MAX)
 			, m_HalfSpawnArea(0,0,0)
 			, m_SpawnSpeed(0)

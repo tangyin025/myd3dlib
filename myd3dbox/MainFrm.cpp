@@ -425,7 +425,7 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	ClearAllComponents();
-
+	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 }
 
@@ -514,7 +514,7 @@ void CMainFrame::OnComponentEmitter()
 	// TODO: Add your command handler code here
 	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
 	my::EmitterPtr emit(new my::Emitter());
-	emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(10,10), 0.0f);
+	emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	emit_cmp->m_Emitter = emit;
 	MaterialPtr particle1(new Material());
 	particle1->m_Shader = "particle1.fx";
@@ -538,13 +538,13 @@ void CMainFrame::OnComponentSphericalemitter()
 	float Azimuth=D3DXToRadian(360)*8;
 	emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
 	emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
-	emit->m_SpawnColorA.AddNode(0,255,0,0);
+	emit->m_SpawnColorA.AddNode(0,1,0,0);
 	emit->m_SpawnColorA.AddNode(10,0,0,0);
-	emit->m_SpawnColorR.AddNode(0,255,0,0);
+	emit->m_SpawnColorR.AddNode(0,1,0,0);
 	emit->m_SpawnColorR.AddNode(10,0,0,0);
-	emit->m_SpawnColorG.AddNode(0,255,0,0);
+	emit->m_SpawnColorG.AddNode(0,1,0,0);
 	emit->m_SpawnColorG.AddNode(10,0,0,0);
-	emit->m_SpawnColorB.AddNode(0,255,0,0);
+	emit->m_SpawnColorB.AddNode(0,1,0,0);
 	emit->m_SpawnColorB.AddNode(10,0,0,0);
 	emit->m_SpawnSizeX.AddNode(0,1,0,0);
 	emit->m_SpawnSizeX.AddNode(10,10,0,0);

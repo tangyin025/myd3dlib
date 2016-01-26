@@ -250,8 +250,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					switch (render_cmp->m_Type)
 					{
 					case Component::ComponentTypeEmitter:
-						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::ParticlePair(0.0f,
-							my::Emitter::Particle(render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0.0f)));
+						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
+							render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
 						break;
 					}
 				}
