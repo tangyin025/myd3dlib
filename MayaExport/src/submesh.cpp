@@ -96,62 +96,12 @@ namespace OgreMayaExporter
 			uv.size = 2;
 			m_uvsets.push_back(uv);
 		}
-		if (!params.useSharedGeom)
-		{
-			for (int i=0; i<vertInfo.size(); i++)
-			{
-				vertex v;
-				vertexInfo vInfo = vertInfo[i];
-				// save vertex coordinates
-				v.x = points[vInfo.pointIdx].x;
-				v.y = points[vInfo.pointIdx].y;
-				v.z = points[vInfo.pointIdx].z;
-				// save vertex normal
-				if (opposite)
-				{
-					v.n.x = -normals[vInfo.normalIdx].x;
-					v.n.y = -normals[vInfo.normalIdx].y;
-					v.n.z = -normals[vInfo.normalIdx].z;
-				}
-				else
-				{
-					v.n.x = normals[vInfo.normalIdx].x;
-					v.n.y = normals[vInfo.normalIdx].y;
-					v.n.z = normals[vInfo.normalIdx].z;
-				}
-				v.n.normalize();
-				// save vertex color
-				v.r = vInfo.r;
-				v.g = vInfo.g;
-				v.b = vInfo.b;
-				v.a = vInfo.a;
-				// save vertex bone assignements
-				for (int k=0; k<vInfo.vba.size(); k++)
-				{
-					vba newVba;
-					newVba.jointIdx = vInfo.jointIds[k];
-					newVba.weight = vInfo.vba[k];
-					v.vbas.push_back(newVba);
-				}
-				// save texture coordinates
-				for (int k=0; k<vInfo.u.size(); k++)
-				{
-					texcoords newTexCoords;
-					newTexCoords.u = vInfo.u[k];
-					newTexCoords.v = vInfo.v[k];
-					newTexCoords.w = 0;
-					v.texcoords.push_back(newTexCoords);
-				}
-				// add newly created vertex to vertices list
-				m_vertices.push_back(v);
-			}
-		}
 		//iterate over faces array, to retrieve vertices info
 		for (int i=0; i<faces.size(); i++)
 		{
 			face newFace;
-			//// if we are using shared geometry, indexes refer to the vertex buffer of the whole mesh
-			//if (params.useSharedGeom)
+			// if we are using shared geometry, indexes refer to the vertex buffer of the whole mesh
+			if (params.useSharedGeom)
 			{
 				if(opposite)
 				{	// reverse order of face vertices for correct culling
@@ -166,61 +116,61 @@ namespace OgreMayaExporter
 					newFace.v[2] = faces[i].v[2];
 				}
 			}
-			//// otherwise we create a vertex buffer for this submesh
-			//else
-			//{	// faces are triangles, so retrieve index of the three vertices
-			//	for (int j=0; j<3; j++)
-			//	{
-			//		vertex v;
-			//		vertexInfo vInfo = vertInfo[faces[i].v[j]];
-			//		// save vertex coordinates
-			//		v.x = points[vInfo.pointIdx].x;
-			//		v.y = points[vInfo.pointIdx].y;
-			//		v.z = points[vInfo.pointIdx].z;
-			//		// save vertex normal
-			//		if (opposite)
-			//		{
-			//			v.n.x = -normals[vInfo.normalIdx].x;
-			//			v.n.y = -normals[vInfo.normalIdx].y;
-			//			v.n.z = -normals[vInfo.normalIdx].z;
-			//		}
-			//		else
-			//		{
-			//			v.n.x = normals[vInfo.normalIdx].x;
-			//			v.n.y = normals[vInfo.normalIdx].y;
-			//			v.n.z = normals[vInfo.normalIdx].z;
-			//		}
-			//		v.n.normalize();
-			//		// save vertex color
-			//		v.r = vInfo.r;
-			//		v.g = vInfo.g;
-			//		v.b = vInfo.b;
-			//		v.a = vInfo.a;
-			//		// save vertex bone assignements
-			//		for (int k=0; k<vInfo.vba.size(); k++)
-			//		{
-			//			vba newVba;
-			//			newVba.jointIdx = vInfo.jointIds[k];
-			//			newVba.weight = vInfo.vba[k];
-			//			v.vbas.push_back(newVba);
-			//		}
-			//		// save texture coordinates
-			//		for (int k=0; k<vInfo.u.size(); k++)
-			//		{
-			//			texcoords newTexCoords;
-			//			newTexCoords.u = vInfo.u[k];
-			//			newTexCoords.v = vInfo.v[k];
-			//			newTexCoords.w = 0;
-			//			v.texcoords.push_back(newTexCoords);
-			//		}
-			//		// add newly created vertex to vertex list
-			//		m_vertices.push_back(v);
-			//		if (opposite)	// reverse order of face vertices to get correct culling
-			//			newFace.v[2-j] = m_vertices.size() - 1;
-			//		else
-			//			newFace.v[j] = m_vertices.size() - 1;
-			//	}
-			//}
+			// otherwise we create a vertex buffer for this submesh
+			else
+			{	// faces are triangles, so retrieve index of the three vertices
+				for (int j=0; j<3; j++)
+				{
+					vertex v;
+					vertexInfo vInfo = vertInfo[faces[i].v[j]];
+					// save vertex coordinates
+					v.x = points[vInfo.pointIdx].x;
+					v.y = points[vInfo.pointIdx].y;
+					v.z = points[vInfo.pointIdx].z;
+					// save vertex normal
+					if (opposite)
+					{
+						v.n.x = -normals[vInfo.normalIdx].x;
+						v.n.y = -normals[vInfo.normalIdx].y;
+						v.n.z = -normals[vInfo.normalIdx].z;
+					}
+					else
+					{
+						v.n.x = normals[vInfo.normalIdx].x;
+						v.n.y = normals[vInfo.normalIdx].y;
+						v.n.z = normals[vInfo.normalIdx].z;
+					}
+					v.n.normalize();
+					// save vertex color
+					v.r = vInfo.r;
+					v.g = vInfo.g;
+					v.b = vInfo.b;
+					v.a = vInfo.a;
+					// save vertex bone assignements
+					for (int k=0; k<vInfo.vba.size(); k++)
+					{
+						vba newVba;
+						newVba.jointIdx = vInfo.jointIds[k];
+						newVba.weight = vInfo.vba[k];
+						v.vbas.push_back(newVba);
+					}
+					// save texture coordinates
+					for (int k=0; k<vInfo.u.size(); k++)
+					{
+						texcoords newTexCoords;
+						newTexCoords.u = vInfo.u[k];
+						newTexCoords.v = vInfo.v[k];
+						newTexCoords.w = 0;
+						v.texcoords.push_back(newTexCoords);
+					}
+					// add newly created vertex to vertex list
+					m_vertices.push_back(v);
+					if (opposite)	// reverse order of face vertices to get correct culling
+						newFace.v[2-j] = m_vertices.size() - 1;
+					else
+						newFace.v[j] = m_vertices.size() - 1;
+				}
+			}
 			m_faces.push_back(newFace);
 		}
 		// set use32bitIndexes flag
