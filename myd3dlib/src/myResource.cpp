@@ -756,22 +756,6 @@ boost::shared_ptr<OgreMesh> ResourceMgr::LoadMesh(const std::string & path)
 	return boost::dynamic_pointer_cast<OgreMesh>(request->m_res);
 }
 
-void ResourceMgr::LoadMeshSetAsync(const std::string & path, IResourceCallback * callback)
-{
-	IORequestPtr request(new MeshSetIORequest(path));
-	request->m_callbacks.insert(callback);
-	LoadIORequestAsync(path, request);
-}
-
-boost::shared_ptr<OgreMeshSet> ResourceMgr::LoadMeshSet(const std::string & path)
-{
-	SimpleResourceCallback cb;
-	IORequestPtr request(new MeshSetIORequest(path));
-	request->m_callbacks.insert(&cb);
-	LoadIORequestAndWait(path, request);
-	return boost::dynamic_pointer_cast<OgreMeshSet>(request->m_res);
-}
-
 void ResourceMgr::LoadSkeletonAsync(const std::string & path, IResourceCallback * callback)
 {
 	IORequestPtr request(new SkeletonIORequest(path));
@@ -822,23 +806,6 @@ boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int heig
 	request->m_callbacks.insert(&cb);
 	LoadIORequestAndWait(key, request);
 	return boost::dynamic_pointer_cast<Font>(request->m_res);
-}
-
-void ResourceMgr::SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh)
-{
-	std::ofstream ofs(GetFullPath(path).c_str());
-	mesh->SaveMesh(ofs);
-}
-
-void ResourceMgr::SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces)
-{
-	OgreMeshPtr mesh_sim(new OgreMesh());
-	mesh_sim->Create(mesh->SimplifyMesh(&mesh->m_Adjacency[0], MinFaces, D3DXMESHSIMP_FACE).Detach());
-	mesh_sim->m_aabb = mesh->m_aabb;
-	mesh_sim->m_Adjacency = mesh->m_Adjacency;
-	mesh_sim->m_MaterialNameList = mesh->m_MaterialNameList;
-	mesh_sim->m_VertexElems = mesh->m_VertexElems;
-	SaveMesh(path, mesh_sim);
 }
 
 void TextureIORequest::DoLoad(void)
@@ -907,51 +874,6 @@ void MeshIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 	OgreMeshPtr res(new OgreMesh());
 	res->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
-	m_res = res;
-}
-
-void MeshSetIORequest::DoLoad(void)
-{
-	if(ResourceMgr::getSingleton().CheckPath(m_path))
-	{
-		m_cache = ResourceMgr::getSingleton().OpenIStream(m_path)->GetWholeCache();
-		m_cache->push_back(0);
-		try
-		{
-			m_doc.parse<0>((char *)&(*m_cache)[0]);
-		}
-		catch(rapidxml::parse_error &)
-		{
-			m_doc.clear();
-		}
-	}
-}
-
-void MeshSetIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
-{
-	if(!m_doc.first_node())
-	{
-		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-	}
-	OgreMeshSetPtr res(new OgreMeshSet());
-	res->CreateMeshSetFromOgreXml(pd3dDevice, &m_doc);
-
-	// ! add meshes to resource manager for self isolated device reset
-	OgreMeshSet::iterator mesh_iter = res->begin();
-	for (; mesh_iter != res->end(); mesh_iter++)
-	{
-		std::string key = str_printf("%s_%u", m_path.c_str(), std::distance(res->begin(), mesh_iter));
-		DeviceRelatedObjectBasePtr res = ResourceMgr::getSingleton().GetResource(key);
-		if (res)
-		{
-			if (!(*mesh_iter = boost::dynamic_pointer_cast<OgreMesh>(res)))
-			{
-				THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
-			}
-		}
-		else
-			ResourceMgr::getSingleton().AddResource(key, *mesh_iter);
-	}
 	m_res = res;
 }
 

@@ -653,10 +653,9 @@ static void ExportResource(lua_State * L)
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
+			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
 			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
-
-		, class_<my::OgreMeshSet, boost::shared_ptr<my::OgreMeshSet> >("OgreMeshSet")
 
 		, class_<my::OgreSkeletonAnimation, boost::shared_ptr<my::OgreSkeletonAnimation> >("OgreSkeletonAnimation")
 
@@ -767,21 +766,15 @@ static void ExportResource(lua_State * L)
 		, class_<my::ResourceMgr>("ResourceMgr")
 			.def("LoadTexture", &my::ResourceMgr::LoadTexture)
 			.def("LoadMesh", &my::ResourceMgr::LoadMesh)
-			.def("LoadMeshSet", &my::ResourceMgr::LoadMeshSet)
 			.def("LoadSkeleton", &my::ResourceMgr::LoadSkeleton)
 			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
-			.def("SaveMesh", &my::ResourceMgr::SaveMesh)
-			.def("SaveSimplyMesh", &my::ResourceMgr::SaveSimplyMesh)
 
 		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
 		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)
-		, def("res2mesh_set", &boost::dynamic_pointer_cast<my::OgreMeshSet, my::DeviceRelatedObjectBase>)
 		, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceRelatedObjectBase>)
 		, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceRelatedObjectBase>)
 		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceRelatedObjectBase>)
-		, def("res2emitter", &boost::dynamic_pointer_cast<my::Emitter, my::DeviceRelatedObjectBase>)
-		, def("res2material", &boost::dynamic_pointer_cast<Material, my::DeviceRelatedObjectBase>)
 	];
 }
 

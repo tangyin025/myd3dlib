@@ -320,6 +320,34 @@ namespace my
 		void SetAttributeTable(CONST D3DXATTRIBUTERANGE * pAttribTable, DWORD cAttribTableSize);
 
 		void UnlockAttributeBuffer(void);
+
+		static void ComputeDualQuaternionSkinnedVertices(
+			void * pDstVertices,
+			DWORD NumVerts,
+			DWORD DstVertexStride,
+			const D3DVertexElementSet & DstVertexElems,
+			void * pSrcVertices,
+			DWORD SrcVertexStride,
+			const D3DVertexElementSet & SrcVertexElems,
+			const my::TransformList & dualQuaternionList);
+
+		static void ComputeNormalFrame(
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			const D3DVertexElementSet & VertexElems);
+
+		static void ComputeTangentFrame(
+			void * pVertices,
+			DWORD NumVerts,
+			DWORD VertexStride,
+			void * pIndices,
+			bool bIndices16,
+			DWORD NumFaces,
+			const D3DVertexElementSet & VertexElems);
 	};
 
 	typedef boost::shared_ptr<Mesh> MeshPtr;
@@ -370,35 +398,7 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void SaveMesh(std::ostream & ostr);
-
-		static void ComputeDualQuaternionSkinnedVertices(
-			void * pDstVertices,
-			DWORD NumVerts,
-			DWORD DstVertexStride,
-			const D3DVertexElementSet & DstVertexElems,
-			void * pSrcVertices,
-			DWORD SrcVertexStride,
-			const D3DVertexElementSet & SrcVertexElems,
-			const my::TransformList & dualQuaternionList);
-
-		static void ComputeNormalFrame(
-			void * pVertices,
-			DWORD NumVerts,
-			DWORD VertexStride,
-			void * pIndices,
-			bool bIndices16,
-			DWORD NumFaces,
-			const D3DVertexElementSet & VertexElems);
-
-		static void ComputeTangentFrame(
-			void * pVertices,
-			DWORD NumVerts,
-			DWORD VertexStride,
-			void * pIndices,
-			bool bIndices16,
-			DWORD NumFaces,
-			const D3DVertexElementSet & VertexElems);
+		void SaveOgreMesh(const std::string & path);
 
 		UINT GetMaterialNum(void) const;
 
@@ -406,39 +406,4 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<OgreMesh> OgreMeshPtr;
-
-	class OgreMeshSet : public DeviceRelatedObjectBase, public std::vector<OgreMeshPtr>
-	{
-	public:
-		OgreMeshSet(void)
-		{
-		}
-
-		virtual void OnResetDevice(void);
-
-		virtual void OnLostDevice(void);
-
-		virtual void OnDestroyDevice(void);
-
-		void CreateMeshSetFromOgreXmlInFile(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPCTSTR pFilename,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshSetOptions = D3DXMESH_MANAGED);
-
-		void CreateMeshSetFromOgreXmlInMemory(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			LPSTR pSrcData,
-			UINT srcDataLen,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshSetOptions = D3DXMESH_MANAGED);
-
-		void CreateMeshSetFromOgreXml(
-			LPDIRECT3DDEVICE9 pd3dDevice,
-			const rapidxml::xml_node<char> * node_root,
-			bool bComputeTangentFrame = true,
-			DWORD dwMeshOptions = D3DXMESH_MANAGED);
-	};
-
-	typedef boost::shared_ptr<OgreMeshSet> OgreMeshSetPtr;
 }

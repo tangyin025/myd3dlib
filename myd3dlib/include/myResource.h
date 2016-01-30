@@ -389,10 +389,6 @@ namespace my
 
 		boost::shared_ptr<OgreMesh> LoadMesh(const std::string & path);
 
-		void LoadMeshSetAsync(const std::string & path, IResourceCallback * callback);
-
-		boost::shared_ptr<OgreMeshSet> LoadMeshSet(const std::string & path);
-
 		void LoadSkeletonAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<OgreSkeletonAnimation> LoadSkeleton(const std::string & path);
@@ -404,10 +400,6 @@ namespace my
 		void LoadFontAsync(const std::string & path, int height, IResourceCallback * callback);
 
 		boost::shared_ptr<Font> LoadFont(const std::string & path, int height);
-
-		void SaveMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh);
-
-		void SaveSimplyMesh(const std::string & path, boost::shared_ptr<OgreMesh> mesh, DWORD MinFaces);
 	};
 
 	class TextureIORequest : public IORequest
@@ -439,26 +431,6 @@ namespace my
 
 	public:
 		MeshIORequest(const std::string & path)
-			: m_path(path)
-		{
-		}
-
-		virtual void DoLoad(void);
-
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
-	};
-
-	class MeshSetIORequest : public IORequest
-	{
-	protected:
-		std::string m_path;
-
-		CachePtr m_cache;
-
-		rapidxml::xml_document<char> m_doc;
-
-	public:
-		MeshSetIORequest(const std::string & path)
 			: m_path(path)
 		{
 		}
