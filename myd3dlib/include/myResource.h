@@ -217,7 +217,7 @@ namespace my
 			return m_Requested;
 		}
 
-		virtual void OnReady(DeviceRelatedObjectBasePtr res) = 0;
+		virtual void OnReady(DeviceResourceBasePtr res) = 0;
 	};
 
 	class IORequest
@@ -233,7 +233,7 @@ namespace my
 
 		IResourceCallbackSet m_callbacks;
 
-		DeviceRelatedObjectBasePtr m_res;
+		DeviceResourceBasePtr m_res;
 
 	public:
 		IORequest(void)
@@ -318,11 +318,11 @@ namespace my
 	protected:
 		friend class EffectIORequest;
 
-		typedef boost::weak_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBaseWeakPtr;
+		typedef boost::weak_ptr<DeviceResourceBase> DeviceResourceBaseWeakPtr;
 
-		typedef boost::unordered_map<std::string, DeviceRelatedObjectBaseWeakPtr> DeviceRelatedObjectBaseWeakPtrSet;
+		typedef boost::unordered_map<std::string, DeviceResourceBaseWeakPtr> DeviceResourceBaseWeakPtrSet;
 
-		DeviceRelatedObjectBaseWeakPtrSet m_ResourceWeakSet;
+		DeviceResourceBaseWeakPtrSet m_ResourceWeakSet;
 
 		CComPtr<ID3DXEffectPool> m_EffectPool;
 
@@ -363,11 +363,11 @@ namespace my
 		__declspec(nothrow) HRESULT __stdcall Close(
 			LPCVOID pData);
 
-		DeviceRelatedObjectBasePtr GetResource(const std::string & key);
+		DeviceResourceBasePtr GetResource(const std::string & key);
 
-		void AddResource(const std::string & key, DeviceRelatedObjectBasePtr res);
+		void AddResource(const std::string & key, DeviceResourceBasePtr res);
 
-		std::string GetResourceKey(DeviceRelatedObjectBasePtr res) const;
+		std::string GetResourceKey(DeviceResourceBasePtr res) const;
 
 		IORequestPtrPairList::iterator LoadIORequestAsync(const std::string & key, IORequestPtr request);
 

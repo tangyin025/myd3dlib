@@ -770,11 +770,11 @@ static void ExportResource(lua_State * L)
 			.def("LoadEffect", &my::ResourceMgr::LoadEffect)
 			.def("LoadFont", &my::ResourceMgr::LoadFont)
 
-		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceRelatedObjectBase>)
-		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceRelatedObjectBase>)
-		, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceRelatedObjectBase>)
-		, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceRelatedObjectBase>)
-		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceRelatedObjectBase>)
+		, def("res2texture", &boost::dynamic_pointer_cast<my::BaseTexture, my::DeviceResourceBase>)
+		, def("res2mesh", &boost::dynamic_pointer_cast<my::OgreMesh, my::DeviceResourceBase>)
+		, def("res2skeleton", &boost::dynamic_pointer_cast<my::OgreSkeletonAnimation, my::DeviceResourceBase>)
+		, def("res2effect", &boost::dynamic_pointer_cast<my::Effect, my::DeviceResourceBase>)
+		, def("res2font", &boost::dynamic_pointer_cast<my::Font, my::DeviceResourceBase>)
 	];
 }
 

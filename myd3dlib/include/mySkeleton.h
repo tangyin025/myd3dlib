@@ -255,7 +255,7 @@ namespace my
 	};
 
 	class OgreSkeleton
-		: public DeviceRelatedObjectBase
+		: public DeviceResourceBase
 	{
 	public:
 		boost::unordered_map<std::string, int> m_boneNameMap;

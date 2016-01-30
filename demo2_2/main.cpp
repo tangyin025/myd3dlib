@@ -1,5 +1,6 @@
 ﻿#include <myD3dLib.h>
 #include <boost/bind.hpp>
+#include <Opcode.h>
 
 using namespace my;
 
@@ -12,9 +13,9 @@ protected:
 
 	CComPtr<ID3DXSprite> m_sprite;
 
-	std::vector<DeviceRelatedObjectBasePtr> m_reses;
+	std::vector<DeviceResourceBasePtr> m_reses;
 
-	void foo(DeviceRelatedObjectBasePtr res)
+	void foo(DeviceResourceBasePtr res)
 	{
 		//Texture2DPtr tex = boost::dynamic_pointer_cast<Texture2D>(res);
 
@@ -72,8 +73,8 @@ public:
 		class AAA : public my::IResourceCallback
 		{
 		public:
-			my::DeviceRelatedObjectBasePtr m_res;
-			virtual void OnReady(my::DeviceRelatedObjectBasePtr res) {
+			my::DeviceResourceBasePtr m_res;
+			virtual void OnReady(my::DeviceResourceBasePtr res) {
 				m_res = res;
 			}
 		};

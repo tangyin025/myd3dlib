@@ -294,18 +294,14 @@ void Font::CreateFontFromFileInCache(
 
 void Font::OnResetDevice(void)
 {
-	m_Texture->OnResetDevice();
 }
 
 void Font::OnLostDevice(void)
 {
-	m_Texture->OnLostDevice();
 }
 
 void Font::OnDestroyDevice(void)
 {
-	m_Texture->OnDestroyDevice();
-
 	m_Device.Release();
 
 	if(m_face)

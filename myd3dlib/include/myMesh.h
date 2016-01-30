@@ -118,7 +118,7 @@ namespace my
 		void SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex = 0) const;
 	};
 
-	class VertexBuffer : public DeviceRelatedObject<IDirect3DVertexBuffer9>
+	class VertexBuffer : public D3DDeviceResource<IDirect3DVertexBuffer9>
 	{
 	public:
 		VertexBuffer(void)
@@ -143,7 +143,7 @@ namespace my
 
 	typedef boost::shared_ptr<VertexBuffer> VertexBufferPtr;
 
-	class IndexBuffer : public DeviceRelatedObject<IDirect3DIndexBuffer9>
+	class IndexBuffer : public D3DDeviceResource<IDirect3DIndexBuffer9>
 	{
 	public:
 		IndexBuffer(void)
@@ -168,7 +168,7 @@ namespace my
 
 	typedef boost::shared_ptr<IndexBuffer> IndexBufferPtr;
 
-	class Mesh : public DeviceRelatedObject<ID3DXMesh>
+	class Mesh : public D3DDeviceResource<ID3DXMesh>
 	{
 	public:
 		Mesh(void)

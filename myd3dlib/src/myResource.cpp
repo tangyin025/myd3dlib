@@ -569,12 +569,12 @@ HRESULT ResourceMgr::Close(
 	return S_OK;
 }
 
-DeviceRelatedObjectBasePtr ResourceMgr::GetResource(const std::string & key)
+DeviceResourceBasePtr ResourceMgr::GetResource(const std::string & key)
 {
-	DeviceRelatedObjectBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
+	DeviceResourceBaseWeakPtrSet::iterator res_iter = m_ResourceWeakSet.find(key);
 	if(res_iter != m_ResourceWeakSet.end())
 	{
-		DeviceRelatedObjectBasePtr res = res_iter->second.lock();
+		DeviceResourceBasePtr res = res_iter->second.lock();
 		if(res)
 		{
 			return res;
@@ -582,19 +582,19 @@ DeviceRelatedObjectBasePtr ResourceMgr::GetResource(const std::string & key)
 		else
 			m_ResourceWeakSet.erase(res_iter);
 	}
-	return DeviceRelatedObjectBasePtr();
+	return DeviceResourceBasePtr();
 }
 
-void ResourceMgr::AddResource(const std::string & key, DeviceRelatedObjectBasePtr res)
+void ResourceMgr::AddResource(const std::string & key, DeviceResourceBasePtr res)
 {
 	_ASSERT(!GetResource(key));
 
 	m_ResourceWeakSet[key] = res;
 }
 
-std::string ResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
+std::string ResourceMgr::GetResourceKey(DeviceResourceBasePtr res) const
 {
-	DeviceRelatedObjectBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
+	DeviceResourceBaseWeakPtrSet::const_iterator res_iter = m_ResourceWeakSet.begin();
 	for(; res_iter != m_ResourceWeakSet.end(); res_iter++)
 	{
 		if(res == res_iter->second.lock())
@@ -607,7 +607,7 @@ std::string ResourceMgr::GetResourceKey(DeviceRelatedObjectBasePtr res) const
 
 AsynchronousIOMgr::IORequestPtrPairList::iterator ResourceMgr::LoadIORequestAsync(const std::string & key, IORequestPtr request)
 {
-	DeviceRelatedObjectBasePtr res = GetResource(key);
+	DeviceResourceBasePtr res = GetResource(key);
 	if (res)
 	{
 		request->m_res = res;
@@ -723,9 +723,9 @@ void ResourceMgr::LoadTextureAsync(const std::string & path, IResourceCallback *
 class SimpleResourceCallback : public IResourceCallback
 {
 public:
-	DeviceRelatedObjectBasePtr m_res;
+	DeviceResourceBasePtr m_res;
 
-	virtual void OnReady(DeviceRelatedObjectBasePtr res)
+	virtual void OnReady(DeviceResourceBasePtr res)
 	{
 		m_res = res;
 	}

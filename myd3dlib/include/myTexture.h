@@ -9,7 +9,7 @@
 
 namespace my
 {
-	class Surface : public DeviceRelatedObject<IDirect3DSurface9>
+	class Surface : public D3DDeviceResource<IDirect3DSurface9>
 	{
 	public:
 		Surface(void)
@@ -49,7 +49,7 @@ namespace my
 
 	typedef boost::shared_ptr<Surface> SurfacePtr;
 
-	class BaseTexture : public DeviceRelatedObject<IDirect3DBaseTexture9>
+	class BaseTexture : public D3DDeviceResource<IDirect3DBaseTexture9>
 	{
 	public:
 		BaseTexture(void)

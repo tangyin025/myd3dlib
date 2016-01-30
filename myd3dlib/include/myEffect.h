@@ -78,7 +78,7 @@ namespace my
 
 	class VertexShader
 		: public ConstantTable
-		, public DeviceRelatedObject<IDirect3DVertexShader9>
+		, public D3DDeviceResource<IDirect3DVertexShader9>
 	{
 	protected:
 		HRESULT hr;
@@ -120,7 +120,7 @@ namespace my
 
 	class PixelShader
 		: public ConstantTable
-		, public DeviceRelatedObject<IDirect3DPixelShader9>
+		, public D3DDeviceResource<IDirect3DPixelShader9>
 	{
 	protected:
 		HRESULT hr;
@@ -160,7 +160,7 @@ namespace my
 
 	typedef boost::shared_ptr<PixelShader> PixelShaderPtr;
 
-	class BaseEffect : public DeviceRelatedObject<ID3DXBaseEffect>
+	class BaseEffect : public D3DDeviceResource<ID3DXBaseEffect>
 	{
 	public:
 		BaseEffect(void)

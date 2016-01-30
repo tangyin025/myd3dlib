@@ -28,7 +28,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Path);
 	}
 
-	virtual void OnReady(my::DeviceRelatedObjectBasePtr res)
+	virtual void OnReady(my::DeviceResourceBasePtr res)
 	{
 		m_Res = boost::dynamic_pointer_cast<T>(res);
 		m_Ready = true;

@@ -13,7 +13,7 @@ struct FT_FaceRec_;
 
 namespace my
 {
-	class Sprite : public DeviceRelatedObject<ID3DXSprite>
+	class Sprite : public D3DDeviceResource<ID3DXSprite>
 	{
 	public:
 		Sprite(void)
@@ -78,7 +78,7 @@ namespace my
 
 	class UIRender;
 
-	class Font : public DeviceRelatedObjectBase
+	class Font : public DeviceResourceBase
 	{
 	public:
 		class FontLibrary : public Singleton<FontLibrary>

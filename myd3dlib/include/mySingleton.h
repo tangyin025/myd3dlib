@@ -63,25 +63,31 @@ namespace my
 	template <class DerivedClass>
 	SingleInstance<DerivedClass> * SingleInstance<DerivedClass>::s_ptr(0);
 
-	class DeviceRelatedObjectBase
+	class DeviceResourceBase
 	{
 	public:
-		DeviceRelatedObjectBase(void);
+		DeviceResourceBase(void);
 
-		virtual ~DeviceRelatedObjectBase(void);
+		virtual ~DeviceResourceBase(void);
 
-		virtual void OnResetDevice(void) = 0;
+		virtual void OnResetDevice(void)
+		{
+		}
 
-		virtual void OnLostDevice(void) = 0;
+		virtual void OnLostDevice(void)
+		{
+		}
 
-		virtual void OnDestroyDevice(void) = 0;
+		virtual void OnDestroyDevice(void)
+		{
+		}
 	};
 
-	typedef boost::shared_ptr<DeviceRelatedObjectBase> DeviceRelatedObjectBasePtr;
+	typedef boost::shared_ptr<DeviceResourceBase> DeviceResourceBasePtr;
 
 	template <class DerivedClass> 
-	class DeviceRelatedObject
-		: public DeviceRelatedObjectBase
+	class D3DDeviceResource
+		: public DeviceResourceBase
 	{
 	public:
 		HRESULT hr;
@@ -89,13 +95,13 @@ namespace my
 		DerivedClass * m_ptr;
 
 	public:
-		DeviceRelatedObject(void)
+		D3DDeviceResource(void)
 			: hr(S_OK)
 			, m_ptr(NULL)
 		{
 		}
 
-		virtual ~DeviceRelatedObject(void)
+		virtual ~D3DDeviceResource(void)
 		{
 			SAFE_RELEASE(m_ptr);
 		}
