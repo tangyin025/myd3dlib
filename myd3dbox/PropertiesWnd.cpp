@@ -164,6 +164,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	m_pProp[PropertyMesh]->Show(TRUE, FALSE);
 	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
+	m_pProp[PropertyMeshInstance]->SetValue((_variant_t)cmp->m_bInstance);
 
 	for (unsigned int i = 0; i < (PropertyMaterialEnd - PropertyMaterial0); i++)
 	{
@@ -517,6 +518,8 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
 	m_pProp[PropertyMeshPath] = new CFileProp(_T("Path"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
 	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshPath]);
+	m_pProp[PropertyMeshInstance] = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshInstance);
+	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshInstance]);
 	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
@@ -690,6 +693,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_SpecularTexture.ReleaseResource();
 			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			material->m_SpecularTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMeshInstance:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_bInstance = pProp->GetValue().boolVal;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

@@ -501,6 +501,11 @@ void CMainFrame::OnComponentMesh()
 			mesh_cmp->RequestResource();
 			m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 			m_cmps.push_back(mesh_cmp);
+
+			m_selcmps.clear();
+			m_selcmps.insert(mesh_cmp.get());
+			UpdateSelBox();
+			UpdatePivotTransform();
 		}
 		else
 		{
@@ -524,6 +529,11 @@ void CMainFrame::OnComponentEmitter()
 	emit_cmp->RequestResource();
 	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 	m_cmps.push_back(emit_cmp);
+
+	m_selcmps.clear();
+	m_selcmps.insert(emit_cmp.get());
+	UpdateSelBox();
+	UpdatePivotTransform();
 }
 
 void CMainFrame::OnComponentSphericalemitter()
@@ -559,6 +569,11 @@ void CMainFrame::OnComponentSphericalemitter()
 	emit_cmp->RequestResource();
 	m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 	m_cmps.push_back(emit_cmp);
+
+	m_selcmps.clear();
+	m_selcmps.insert(emit_cmp.get());
+	UpdateSelBox();
+	UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()

@@ -57,6 +57,7 @@ protected:
 		PropertyComponentScaleZ,
 		PropertyMesh,
 		PropertyMeshPath,
+		PropertyMeshInstance,
 		PropertyEmitter,
 		PropertyDynamicEmitterParticleLifeTime,
 		PropertySphericalEmitterSpawnInterval,
