@@ -245,9 +245,9 @@ namespace my
 		{
 		}
 
-		virtual void DoLoad(void) = 0;
+		virtual void LoadResource(void) = 0;
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice) = 0;
 	};
 
 	typedef boost::shared_ptr<IORequest> IORequestPtr;
@@ -415,9 +415,9 @@ namespace my
 		{
 		}
 
-		virtual void DoLoad(void);
+		virtual void LoadResource(void);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 	};
 
 	class MeshIORequest : public IORequest
@@ -435,9 +435,9 @@ namespace my
 		{
 		}
 
-		virtual void DoLoad(void);
+		virtual void LoadResource(void);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 	};
 
 	class SkeletonIORequest : public IORequest
@@ -455,9 +455,9 @@ namespace my
 		{
 		}
 
-		virtual void DoLoad(void);
+		virtual void LoadResource(void);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 	};
 
 	class EffectIORequest : public IORequest
@@ -474,9 +474,9 @@ namespace my
 	public:
 		EffectIORequest(const std::string & path, std::string macros);
 
-		virtual void DoLoad(void);
+		virtual void LoadResource(void);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
 		static std::string BuildKey(const std::string & path, const std::string & macros);
 	};
@@ -497,9 +497,9 @@ namespace my
 		{
 		}
 
-		virtual void DoLoad(void);
+		virtual void LoadResource(void);
 
-		virtual void BuildResource(LPDIRECT3DDEVICE9 pd3dDevice);
+		virtual void CreateResource(LPDIRECT3DDEVICE9 pd3dDevice);
 
 		static std::string BuildKey(const std::string & path, int height);
 	};

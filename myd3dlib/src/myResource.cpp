@@ -356,7 +356,7 @@ DWORD AsynchronousIOMgr::IORequestProc(void)
 			m_IORequestListMutex.Release();
 
 			// ! HAVENT HANDLED EXCEPTION YET
-			request->DoLoad();
+			request->LoadResource();
 
 			// ! request list will be modified when set event, shared_ptr must be thread safe
 			request->m_LoadEvent.SetEvent();
@@ -682,7 +682,7 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		{
 			_ASSERT(D3DContext::getSingleton().m_DeviceObjectsCreated);
 
-			request->BuildResource(D3DContext::getSingleton().m_d3dDevice);
+			request->CreateResource(D3DContext::getSingleton().m_d3dDevice);
 
 			if (request->m_res && D3DContext::getSingleton().m_DeviceObjectsReset)
 			{
@@ -808,7 +808,7 @@ boost::shared_ptr<Font> ResourceMgr::LoadFont(const std::string & path, int heig
 	return boost::dynamic_pointer_cast<Font>(request->m_res);
 }
 
-void TextureIORequest::DoLoad(void)
+void TextureIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path))
 	{
@@ -816,7 +816,7 @@ void TextureIORequest::DoLoad(void)
 	}
 }
 
-void TextureIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_cache)
 	{
@@ -849,7 +849,7 @@ void TextureIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	}
 }
 
-void MeshIORequest::DoLoad(void)
+void MeshIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path))
 	{
@@ -866,7 +866,7 @@ void MeshIORequest::DoLoad(void)
 	}
 }
 
-void MeshIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_doc.first_node())
 	{
@@ -877,7 +877,7 @@ void MeshIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	m_res = res;
 }
 
-void SkeletonIORequest::DoLoad(void)
+void SkeletonIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path))
 	{
@@ -894,7 +894,7 @@ void SkeletonIORequest::DoLoad(void)
 	}
 }
 
-void SkeletonIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_doc.first_node())
 	{
@@ -922,7 +922,7 @@ EffectIORequest::EffectIORequest(const std::string & path, std::string macros)
 	m_d3dmacros.push_back(end);
 }
 
-void EffectIORequest::DoLoad(void)
+void EffectIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path))
 	{
@@ -930,7 +930,7 @@ void EffectIORequest::DoLoad(void)
 	}
 }
 
-void EffectIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_cache)
 	{
@@ -948,7 +948,7 @@ std::string EffectIORequest::BuildKey(const std::string & path, const std::strin
 	return str_printf("%s, %s", path.c_str(), macros.c_str());
 }
 
-void FontIORequest::DoLoad(void)
+void FontIORequest::LoadResource(void)
 {
 	if(ResourceMgr::getSingleton().CheckPath(m_path))
 	{
@@ -956,7 +956,7 @@ void FontIORequest::DoLoad(void)
 	}
 }
 
-void FontIORequest::BuildResource(LPDIRECT3DDEVICE9 pd3dDevice)
+void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 {
 	if(!m_cache)
 	{
