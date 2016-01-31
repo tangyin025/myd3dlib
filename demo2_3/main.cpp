@@ -113,7 +113,7 @@ public:
 		//m_cmps.push_back(emit_cmp);
 
 		//// ±£´æ³¡¾°
-		//std::ofstream ofs(GetFullPath("level.xml").c_str());
+		//std::ofstream ofs("aaa.xml");
 		//boost::archive::xml_oarchive oa(ofs);
 		//oa << boost::serialization::make_nvp("level", m_cmps);
 

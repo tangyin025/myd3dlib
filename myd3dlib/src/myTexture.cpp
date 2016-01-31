@@ -21,11 +21,11 @@ void Surface::CreateDepthStencilSurface(
 	BOOL Discard)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
-	HRESULT hres = pDevice->CreateDepthStencilSurface(
+	hr = pDevice->CreateDepthStencilSurface(
 		Width, Height, Format, MultiSample, MultisampleQuality, Discard, &pSurface, NULL);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pSurface);
@@ -39,10 +39,10 @@ void Surface::CreateOffscreenPlainSurface(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
-	HRESULT hres = pDevice->CreateOffscreenPlainSurface(Width, Height, Format, Pool, &pSurface, NULL);
-	if(FAILED(hres))
+	hr = pDevice->CreateOffscreenPlainSurface(Width, Height, Format, Pool, &pSurface, NULL);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pSurface);
@@ -138,11 +138,11 @@ void Texture2D::CreateTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	HRESULT hres = pDevice->CreateTexture(
+	hr = pDevice->CreateTexture(
 		Width, Height, MipLevels, Usage, Format, Pool, &pTexture, NULL);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pTexture);
@@ -158,11 +158,11 @@ void Texture2D::CreateAdjustedTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	HRESULT hres = D3DXCreateTexture(
+	hr = D3DXCreateTexture(
 		pDevice, Width, Height, MipLevels, Usage, Format, Pool, &pTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pTexture);
@@ -184,11 +184,11 @@ void Texture2D::CreateTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	HRESULT hres = D3DXCreateTextureFromFileEx(
+	hr = D3DXCreateTextureFromFileEx(
 		pDevice, pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pTexture);
@@ -211,11 +211,11 @@ void Texture2D::CreateTextureFromFileInMemory(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	HRESULT hres = D3DXCreateTextureFromFileInMemoryEx(
+	hr = D3DXCreateTextureFromFileInMemoryEx(
 		pDevice, pSrcData, SrcDataSize, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pTexture);
@@ -266,11 +266,11 @@ void CubeTexture::CreateCubeTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	HRESULT hres = pDevice->CreateCubeTexture(
+	hr = pDevice->CreateCubeTexture(
 		EdgeLength, Levels, Usage, Format, Pool, &pCubeTexture, NULL);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pCubeTexture);
@@ -285,11 +285,11 @@ void CubeTexture::CreateAdjustedCubeTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	HRESULT hres = D3DXCreateCubeTexture(
+	hr = D3DXCreateCubeTexture(
 		pDevice, Size, MipLevels, Usage, Format, Pool, &pCubeTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pCubeTexture);
@@ -310,11 +310,11 @@ void CubeTexture::CreateCubeTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	HRESULT hres = D3DXCreateCubeTextureFromFileEx(
+	hr = D3DXCreateCubeTextureFromFileEx(
 		pDevice, pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pCubeTexture);
@@ -336,11 +336,11 @@ void CubeTexture::CreateCubeTextureFromFileInMemory(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	HRESULT hres = D3DXCreateCubeTextureFromFileInMemoryEx(
+	hr = D3DXCreateCubeTextureFromFileInMemoryEx(
 		pDevice, pSrcData, SrcDataSize, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pCubeTexture);

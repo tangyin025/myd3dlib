@@ -298,10 +298,10 @@ void Mesh::CreateMesh(
 	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, pD3DDevice, &pMesh);
-	if(FAILED(hres))
+	hr = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, pD3DDevice, &pMesh);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -315,10 +315,10 @@ void Mesh::CreateMeshFVF(
 	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, pD3DDevice, &pMesh);
-	if(FAILED(hres))
+	hr = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, pD3DDevice, &pMesh);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -334,11 +334,11 @@ void Mesh::CreateMeshFromX(
 	DWORD * pNumMaterials)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXLoadMeshFromXA(
+	hr = D3DXLoadMeshFromXA(
 		pFilename, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -355,11 +355,11 @@ void Mesh::CreateMeshFromXInMemory(
 	DWORD * pNumMaterials)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXLoadMeshFromXInMemory(
+	hr = D3DXLoadMeshFromXInMemory(
 		Memory, SizeOfMemory, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -373,10 +373,10 @@ void Mesh::CreateBox(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -392,10 +392,10 @@ void Mesh::CreateCylinder(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -408,10 +408,10 @@ void Mesh::CreatePolygon(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -425,10 +425,10 @@ void Mesh::CreateSphere(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -439,10 +439,10 @@ void Mesh::CreateTeapot(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -457,10 +457,10 @@ void Mesh::CreateTorus(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	HRESULT hres = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
-	if(FAILED(hres))
+	hr = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pMesh);
@@ -484,14 +484,14 @@ CComPtr<ID3DXMesh> Mesh::CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjace
 {
 	CComPtr<ID3DXMesh> ret;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
-	HRESULT hres = D3DXCleanMesh(CleanType, m_ptr, pAdjacencyIn, &ret, pAdjacencyOut, &ErrorMsgs);
-	if (FAILED(hres))
+	hr = D3DXCleanMesh(CleanType, m_ptr, pAdjacencyIn, &ret, pAdjacencyOut, &ErrorMsgs);
+	if (FAILED(hr))
 	{
 		if (ErrorMsgs)
 		{
 			THROW_CUSEXCEPTION((char *)ErrorMsgs->GetBufferPointer());
 		}
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 	return ret;
 }
@@ -1117,11 +1117,11 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 		//DWORD dwOptions = D3DXTANGENT_GENERATE_IN_PLACE;
 		//if(!normals)
 		//	dwOptions |= D3DXTANGENT_CALCULATE_NORMALS;
-		//HRESULT hres = D3DXComputeTangentFrameEx(
+		//hr = D3DXComputeTangentFrameEx(
 		//	m_ptr, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLUSAGE_TANGENT, 0, D3DX_DEFAULT, 0, D3DDECLUSAGE_NORMAL, 0, dwOptions, &m_Adjacency[0], -1.01f, -0.01f, -1.01f, NULL, NULL);
-		//if(FAILED(hres))
+		//if(FAILED(hr))
 		//{
-		//	THROW_D3DEXCEPTION(hres);
+		//	THROW_D3DEXCEPTION(hr);
 		//}
 		ComputeTangentFrame(
 			LockVertexBuffer(), GetNumVertices(), GetNumBytesPerVertex(), LockIndexBuffer(), !(dwMeshOptions & D3DXMESH_32BIT), GetNumFaces(), m_VertexElems);

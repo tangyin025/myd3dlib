@@ -164,9 +164,9 @@ void VertexShader::CreateVertexShader(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShader(
+	hr = D3DXCompileShader(
 		pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(ErrorMsgs)
 		{
@@ -177,11 +177,11 @@ void VertexShader::CreateVertexShader(
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
-	hres = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
-	if(FAILED(hres))
+	hr = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
+	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pVS, pConstantTable, pDevice);
@@ -199,9 +199,9 @@ void VertexShader::CreateVertexShaderFromFile(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShaderFromFile(
+	hr = D3DXCompileShaderFromFile(
 		pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(ErrorMsgs)
 		{
@@ -212,11 +212,11 @@ void VertexShader::CreateVertexShaderFromFile(
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
-	hres = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
-	if(FAILED(hres))
+	hr = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
+	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pVS, pConstantTable, pDevice);
@@ -265,9 +265,9 @@ void PixelShader::CreatePixelShader(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShader(
+	hr = D3DXCompileShader(
 		pSrcData, srcDataLen, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(ErrorMsgs)
 		{
@@ -278,11 +278,11 @@ void PixelShader::CreatePixelShader(
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
-	hres = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
-	if(FAILED(hres))
+	hr = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
+	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pPS, pConstantTable, pDevice);
@@ -300,9 +300,9 @@ void PixelShader::CreatePixelShaderFromFile(
 	CComPtr<ID3DXBuffer> Shader;
 	CComPtr<ID3DXBuffer> ErrorMsgs;
 	LPD3DXCONSTANTTABLE pConstantTable = NULL;
-	HRESULT hres = D3DXCompileShaderFromFile(
+	hr = D3DXCompileShaderFromFile(
 		pSrcFile, pDefines, pInclude, pFunctionName, pProfile, Flags, &Shader, &ErrorMsgs, &pConstantTable);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(ErrorMsgs)
 		{
@@ -313,11 +313,11 @@ void PixelShader::CreatePixelShaderFromFile(
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
-	hres = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
-	if(FAILED(hres))
+	hr = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
+	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pPS, pConstantTable, pDevice);
@@ -692,9 +692,9 @@ void Effect::CreateEffect(
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
-	HRESULT hres = D3DXCreateEffect(
+	hr = D3DXCreateEffect(
 		pDevice, pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(CompilationErrors)
 		{
@@ -717,9 +717,9 @@ void Effect::CreateEffectFromFile(
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
-	HRESULT hres = D3DXCreateEffectFromFile(
+	hr = D3DXCreateEffectFromFile(
 		pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
-	if(FAILED(hres))
+	if(FAILED(hr))
 	{
 		if(CompilationErrors)
 		{

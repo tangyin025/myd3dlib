@@ -18,10 +18,10 @@ void Sprite::Create(ID3DXSprite * ptr)
 void Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
 {
 	LPD3DXSPRITE pSprite = NULL;
-	HRESULT hres = D3DXCreateSprite(pDevice, &pSprite);
-	if(FAILED(hres))
+	hr = D3DXCreateSprite(pDevice, &pSprite);
+	if(FAILED(hr))
 	{
-		THROW_D3DEXCEPTION(hres);
+		THROW_D3DEXCEPTION(hr);
 	}
 
 	Create(pSprite);
