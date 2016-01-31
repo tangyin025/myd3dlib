@@ -1,11 +1,12 @@
 #pragma once
 
 #include "Console.h"
-#include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/Component.h"
 #include "../myd3dbox/Component/Actor.h"
 #include "../myd3dbox/Component/LuaExtension.h"
+#include "../myd3dbox/Component/PhysXContext.h"
+#include "../myd3dbox/Component/FModContext.h"
 #include "Logic/Logic.h"
 
 class EffectUIRender
@@ -45,6 +46,8 @@ class Game
 	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
+	, public PhysXContext
+	, public PhysXSceneContext
 	, public FModContext
 	, public my::ParallelTaskManager
 	, public my::DrawHelper
@@ -122,8 +125,6 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void OnPxThreadSubstep(float dtime);
-
 	virtual void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		double fTime,
@@ -146,6 +147,10 @@ public:
 		bool * pbNoFurtherProcessing);
 
 	virtual void OnResourceFailed(const std::string & error_str);
+
+	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
+
+	virtual void OnPxThreadSubstep(float dtime);
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 

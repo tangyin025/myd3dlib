@@ -13,11 +13,11 @@ public:
 	{
 	}
 
-	bool OnInit(void);
+	bool Init(void);
 
-	void OnUpdate(void);
+	void Update(void);
 
-	void OnShutdown(void);
+	void Shutdown(void);
 
 	void SetMediaPath(const char * path);
 

@@ -60,7 +60,7 @@ static FMOD_RESULT F_CALLBACK myseek(void *handle, unsigned int pos, void *userd
     return FMOD_ERR_INVALID_PARAM;
 }
 
-bool FModContext::OnInit(void)
+bool FModContext::Init(void)
 {
     ERRCHECK(result = FMOD::EventSystem_Create(&m_EventSystem));
     ERRCHECK(result = m_EventSystem->init(64, FMOD_INIT_NORMAL, 0, FMOD_EVENT_INIT_NORMAL));
@@ -70,12 +70,12 @@ bool FModContext::OnInit(void)
 	return true;
 }
 
-void FModContext::OnUpdate(void)
+void FModContext::Update(void)
 {
 	ERRCHECK(m_EventSystem->update());
 }
 
-void FModContext::OnShutdown(void)
+void FModContext::Shutdown(void)
 {
 	ERRCHECK(result = m_EventSystem->release());
 	m_EventSystem = NULL;

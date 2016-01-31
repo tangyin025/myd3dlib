@@ -338,9 +338,19 @@ HRESULT Game::OnCreateDevice(
 		return hr;
 	}
 
-	if (!FModContext::OnInit())
+	if (!PhysXContext::Init())
 	{
-		THROW_CUSEXCEPTION("FModContext::OnInit failed");
+		THROW_CUSEXCEPTION("PhysXContext::Init failed");
+	}
+
+	if (!PhysXSceneContext::Init(m_sdk.get(), m_CpuDispatcher.get()))
+	{
+		THROW_CUSEXCEPTION("PhysXSceneContext::Init failed");
+	}
+
+	if (!FModContext::Init())
+	{
+		THROW_CUSEXCEPTION("FModContext::Init failed");
 	}
 
 	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
@@ -482,12 +492,11 @@ void Game::OnDestroyDevice(void)
 
 	ImeEditBox::Uninitialize();
 
-	FModContext::OnShutdown();
-}
+	PhysXSceneContext::Shutdown();
 
-void Game::OnPxThreadSubstep(float dtime)
-{
-	// ! take care of multi thread
+	PhysXContext::Shutdown();
+
+	FModContext::Shutdown();
 }
 
 void Game::OnFrameRender(
@@ -546,17 +555,23 @@ void Game::OnFrameTick(
 
 	TimerMgr::Update(fTime, fElapsedTime);
 
-	FModContext::OnUpdate();
+	PhysXSceneContext::PushRenderBuffer(this);
+
+	FModContext::Update();
 
 	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->Update(fTime, fElapsedTime);
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
+
+	PhysXSceneContext::TickPreRender(fElapsedTime);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
 	Present(NULL,NULL,NULL,NULL);
+
+	PhysXSceneContext::TickPostRender(fElapsedTime);
 }
 
 LRESULT Game::MsgProc(
@@ -604,6 +619,31 @@ void Game::OnResourceFailed(const std::string & error_str)
 	{
 		m_Console->SetVisible(true);
 	}
+}
+
+void Game::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	switch(code)
+	{
+	case PxErrorCode::eDEBUG_INFO:
+		AddLine(ms2ws(str_printf("%s (%d) : info: %s", file, line, message)));
+		break;
+
+	case PxErrorCode::eDEBUG_WARNING:
+	case PxErrorCode::ePERF_WARNING:
+		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
+		break;
+
+	default:
+		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
+		AddLine(ms2ws(str_printf("%s, (%d) : error: %s", file, line, message)), D3DCOLOR_ARGB(255,255,0,0));
+		break;
+	}
+}
+
+void Game::OnPxThreadSubstep(float dtime)
+{
+	// ! take care of multi thread
 }
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
