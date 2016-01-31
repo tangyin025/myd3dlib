@@ -398,7 +398,9 @@ namespace my
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
-		void SaveOgreMesh(const std::string & path);
+		void SaveOgreMesh(const char * path);
+
+		void SaveSimplifiedOgreMesh(const char * path, DWORD MinFaces);
 
 		UINT GetMaterialNum(void) const;
 

@@ -651,9 +651,12 @@ static void ExportResource(lua_State * L)
 		, class_<my::CubeTexture, my::BaseTexture, boost::shared_ptr<my::BaseTexture> >("CubeTexture")
 
 		, class_<my::Mesh, boost::shared_ptr<my::Mesh> >("Mesh")
+			.def("GetNumFaces", &my::Mesh::GetNumFaces)
+			.def("GetNumVertices", &my::Mesh::GetNumVertices)
 
 		, class_<my::OgreMesh, my::Mesh, boost::shared_ptr<my::OgreMesh> >("OgreMesh")
 			.def("SaveOgreMesh", &my::OgreMesh::SaveOgreMesh)
+			.def("SaveSimplifiedOgreMesh", &my::OgreMesh::SaveSimplifiedOgreMesh)
 			.def("GetMaterialNum", &my::OgreMesh::GetMaterialNum)
 			.def("GetMaterialName", &my::OgreMesh::GetMaterialName)
 
