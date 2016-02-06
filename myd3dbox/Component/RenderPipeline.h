@@ -148,6 +148,24 @@ public:
 
 	typedef std::vector<IndexedPrimitiveAtom> IndexedPrimitiveAtomList;
 
+	struct IndexedPrimitiveUPAtom
+	{
+		IDirect3DVertexDeclaration9* pDecl;
+		D3DPRIMITIVETYPE PrimitiveType;
+		UINT MinVertexIndex;
+		UINT NumVertices;
+		UINT PrimitiveCount;
+		CONST void* pIndexData;
+		D3DFORMAT IndexDataFormat;
+		CONST void* pVertexStreamZeroData;
+		UINT VertexStreamZeroStride;
+		DWORD AttribId;
+		my::Effect * shader;
+		IShaderSetter * setter;
+	};
+
+	typedef std::vector<IndexedPrimitiveUPAtom> IndexedPrimitiveUPAtomList;
+
 	struct MeshAtom
 	{
 		my::Mesh * mesh;
@@ -185,6 +203,7 @@ public:
 	struct Pass
 	{
 		IndexedPrimitiveAtomList m_IndexedPrimitiveList;
+		IndexedPrimitiveUPAtomList m_IndexedPrimitiveUPList;
 		MeshAtomList m_MeshList;
 		MeshInstanceAtomMap m_MeshInstanceMap;
 		EmitterAtomList m_EmitterList;
@@ -252,6 +271,22 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
+	void DrawIndexedPrimitiveUP(
+		unsigned int PassID,
+		IDirect3DDevice9 * pd3dDevice,
+		IDirect3DVertexDeclaration9* pDecl,
+		D3DPRIMITIVETYPE PrimitiveType,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT PrimitiveCount,
+		CONST void* pIndexData,
+		D3DFORMAT IndexDataFormat,
+		CONST void* pVertexStreamZeroData,
+		UINT VertexStreamZeroStride,
+		DWORD AttribId,
+		my::Effect * shader,
+		IShaderSetter * setter);
+
 	void DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void DrawMeshInstance(
@@ -277,6 +312,21 @@ public:
 		UINT VertexStride,
 		UINT StartIndex,
 		UINT PrimitiveCount,
+		DWORD AttribId,
+		my::Effect * shader,
+		IShaderSetter * setter);
+
+	void PushIndexedPrimitiveUP(
+		unsigned int PassID,
+		IDirect3DVertexDeclaration9* pDecl,
+		D3DPRIMITIVETYPE PrimitiveType,
+		UINT MinVertexIndex,
+		UINT NumVertices,
+		UINT PrimitiveCount,
+		CONST void* pIndexData,
+		D3DFORMAT IndexDataFormat,
+		CONST void* pVertexStreamZeroData,
+		UINT VertexStreamZeroStride,
 		DWORD AttribId,
 		my::Effect * shader,
 		IShaderSetter * setter);

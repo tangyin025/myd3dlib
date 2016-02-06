@@ -299,6 +299,27 @@ void RenderPipeline::RenderAllObjects(
 		m_PassDrawCall[PassID]++;
 	}
 
+	IndexedPrimitiveUPAtomList::iterator indexed_prim_iter = m_Pass[PassID].m_IndexedPrimitiveUPList.begin();
+	for (; indexed_prim_iter != m_Pass[PassID].m_IndexedPrimitiveUPList.end(); indexed_prim_iter++)
+	{
+		DrawIndexedPrimitiveUP(
+			PassID,
+			pd3dDevice,
+			indexed_prim_iter->pDecl,
+			indexed_prim_iter->PrimitiveType,
+			indexed_prim_iter->MinVertexIndex,
+			indexed_prim_iter->NumVertices,
+			indexed_prim_iter->PrimitiveCount,
+			indexed_prim_iter->pIndexData,
+			indexed_prim_iter->IndexDataFormat,
+			indexed_prim_iter->pVertexStreamZeroData,
+			indexed_prim_iter->VertexStreamZeroStride,
+			indexed_prim_iter->AttribId,
+			indexed_prim_iter->shader,
+			indexed_prim_iter->setter);
+		m_PassDrawCall[PassID]++;
+	}
+
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
@@ -340,6 +361,7 @@ void RenderPipeline::ClearAllObjects(void)
 	for (; PassID < m_Pass.size(); PassID++)
 	{
 		m_Pass[PassID].m_IndexedPrimitiveList.clear();
+		m_Pass[PassID].m_IndexedPrimitiveUPList.clear();
 		m_Pass[PassID].m_MeshList.clear();
 		MeshInstanceAtomMap::iterator mesh_inst_iter = m_Pass[PassID].m_MeshInstanceMap.begin();
 		for (; mesh_inst_iter != m_Pass[PassID].m_MeshInstanceMap.end(); mesh_inst_iter++)
@@ -379,6 +401,37 @@ void RenderPipeline::DrawIndexedPrimitive(
 	{
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
+		shader->EndPass();
+	}
+	shader->End();
+}
+
+void RenderPipeline::DrawIndexedPrimitiveUP(
+	unsigned int PassID,
+	IDirect3DDevice9 * pd3dDevice,
+	IDirect3DVertexDeclaration9* pDecl,
+	D3DPRIMITIVETYPE PrimitiveType,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT PrimitiveCount,
+	CONST void* pIndexData,
+	D3DFORMAT IndexDataFormat,
+	CONST void* pVertexStreamZeroData,
+	UINT VertexStreamZeroStride,
+	DWORD AttribId,
+	my::Effect * shader,
+	IShaderSetter * setter)
+{
+	shader->SetTechnique("RenderScene");
+	const UINT passes = shader->Begin(0);
+	_ASSERT(PassID < passes);
+	setter->OnSetShader(shader, AttribId);
+	{
+		shader->BeginPass(PassID);
+		HRESULT hr;
+		V(pd3dDevice->SetVertexDeclaration(pDecl));
+		V(pd3dDevice->DrawIndexedPrimitiveUP(
+			PrimitiveType, MinVertexIndex, NumVertices, PrimitiveCount, pIndexData, IndexDataFormat, pVertexStreamZeroData, VertexStreamZeroStride));
 		shader->EndPass();
 	}
 	shader->End();
@@ -519,6 +572,38 @@ void RenderPipeline::PushIndexedPrimitive(
 	atom.shader = shader;
 	atom.setter = setter;
 	m_Pass[PassID].m_IndexedPrimitiveList.push_back(atom);
+}
+
+void RenderPipeline::PushIndexedPrimitiveUP(
+	unsigned int PassID,
+	IDirect3DVertexDeclaration9* pDecl,
+	D3DPRIMITIVETYPE PrimitiveType,
+	UINT MinVertexIndex,
+	UINT NumVertices,
+	UINT PrimitiveCount,
+	CONST void* pIndexData,
+	D3DFORMAT IndexDataFormat,
+	CONST void* pVertexStreamZeroData,
+	UINT VertexStreamZeroStride,
+	DWORD AttribId,
+	my::Effect * shader,
+	IShaderSetter * setter)
+{
+	IndexedPrimitiveUPAtom atom;
+	atom.pDecl = pDecl;
+	atom.PrimitiveType = PrimitiveType;
+	atom.PrimitiveCount = PrimitiveCount;
+	atom.MinVertexIndex = MinVertexIndex;
+	atom.NumVertices = NumVertices;
+	atom.PrimitiveCount = PrimitiveCount;
+	atom.pIndexData = pIndexData;
+	atom.IndexDataFormat = IndexDataFormat;
+	atom.pVertexStreamZeroData = pVertexStreamZeroData;
+	atom.VertexStreamZeroStride = VertexStreamZeroStride;
+	atom.AttribId = AttribId;
+	atom.shader = shader;
+	atom.setter = setter;
+	m_Pass[PassID].m_IndexedPrimitiveUPList.push_back(atom);
 }
 
 void RenderPipeline::PushMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
