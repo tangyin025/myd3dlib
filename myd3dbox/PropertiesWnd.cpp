@@ -177,7 +177,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > i)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(i);
-		m_pProp[PropertyMaterialList]->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -245,7 +245,7 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(1);
-		m_pProp[PropertyMaterialList]->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -264,7 +264,7 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridPropert
 	while ((unsigned int)m_pProp[PropertyEmitterParticleList]->GetSubItemsCount() > i + 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyEmitterParticleList]->GetSubItem(i + 1);
-		m_pProp[PropertyEmitterParticleList]->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyEmitterParticleList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -313,7 +313,7 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 	while ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() > i + 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(i + 1);
-		m_pProp[PropertyId]->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyId])->RemoveSubItem(pProp, TRUE);
 	}
 }
 

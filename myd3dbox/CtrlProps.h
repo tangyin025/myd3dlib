@@ -1,6 +1,13 @@
 
 #pragma once
 
+class CMFCPropertyGridPropertyHelper : public CMFCPropertyGridProperty
+{
+public:
+	// ! Fix remove current selected item which is hierarchy-sub-item
+	BOOL RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete = TRUE);
+};
+
 class CSimpleProp : public CMFCPropertyGridProperty
 {
 public:

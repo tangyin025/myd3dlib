@@ -1,6 +1,54 @@
 #include "stdafx.h"
 #include "CtrlProps.h"
 
+struct CMFCPropertyGridCtrlHelper : CMFCPropertyGridCtrl
+{
+	using CMFCPropertyGridCtrl::m_pSel;
+};
+
+BOOL CMFCPropertyGridPropertyHelper::RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete/* = TRUE*/)
+{
+	ASSERT_VALID(this);
+	ASSERT_VALID(pProp);
+
+	for (POSITION pos = m_lstSubItems.GetHeadPosition(); pos != NULL;)
+	{
+		POSITION posSaved = pos;
+
+		CMFCPropertyGridProperty* pListProp = m_lstSubItems.GetNext(pos);
+		ASSERT_VALID(pListProp);
+
+		if (pListProp == pProp)
+		{
+			m_lstSubItems.RemoveAt(posSaved);
+
+			if (m_pWndList != NULL && (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel != NULL))
+			{
+				if (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel == pProp
+					|| static_cast<CMFCPropertyGridPropertyHelper *>(pProp)->IsSubItem(static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel))
+				{
+					static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel = NULL;
+				}
+			}
+
+			if (bDelete)
+			{
+				delete pProp;
+				pProp = NULL;
+			}
+
+			return TRUE;
+		}
+
+		if (pListProp->RemoveSubItem(pProp, bDelete))
+		{
+			return TRUE;
+		}
+	}
+
+	return FALSE;
+}
+
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
 	ASSERT_VALID(this);
