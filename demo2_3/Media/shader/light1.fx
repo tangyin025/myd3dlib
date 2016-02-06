@@ -5,7 +5,7 @@ struct LIGHT_VS_OUTPUT
 	float4 ScreenPos		: TEXCOORD0;
 	float4 Light			: TEXCOORD1;
 	float3 Eye				: TEXCOORD2;
-	float4 Color			: COLOR0;
+	float4 Color			: TEXCOORD3;
 };
 
 LIGHT_VS_OUTPUT LightVS( VS_INPUT In )

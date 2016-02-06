@@ -59,6 +59,25 @@ protected:
 		PropertyMeshPath,
 		PropertyMeshInstance,
 		PropertyEmitter,
+		PropertyEmitterParticleList,
+		PropertyEmitterParticleCount,
+		PropertyEmitterParticlePosition,
+		PropertyEmitterParticlePositionX,
+		PropertyEmitterParticlePositionY,
+		PropertyEmitterParticlePositionZ,
+		PropertyEmitterParticleVelocity,
+		PropertyEmitterParticleVelocityX,
+		PropertyEmitterParticleVelocityY,
+		PropertyEmitterParticleVelocityZ,
+		PropertyEmitterParticleColor,
+		PropertyEmitterParticleColorA,
+		PropertyEmitterParticleColorR,
+		PropertyEmitterParticleColorG,
+		PropertyEmitterParticleColorB,
+		PropertyEmitterParticleSize,
+		PropertyEmitterParticleSizeX,
+		PropertyEmitterParticleSizeY,
+		PropertyEmitterParticleAngle,
 		PropertyDynamicEmitterParticleLifeTime,
 		PropertySphericalEmitterSpawnInterval,
 		PropertySphericalEmitterHalfSpawnArea,
@@ -81,17 +100,7 @@ protected:
 		PropertySplineNodeY,
 		PropertySplineNodeK0,
 		PropertySplineNodeK,
-		PropertyMaterial0,
-		PropertyMaterial1,
-		PropertyMaterial2,
-		PropertyMaterial3,
-		PropertyMaterial4,
-		PropertyMaterial5,
-		PropertyMaterial6,
-		PropertyMaterial7,
-		PropertyMaterial8,
-		PropertyMaterial9,
-		PropertyMaterialEnd,
+		PropertyMaterialList,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,
 		PropertyMaterialMeshTexture,
@@ -107,12 +116,15 @@ protected:
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
-	void UpdatePropertiesMaterial(Property PropertyId, Material * mat);
+	void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
+	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
+	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
+	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
-	void CreatePropertiesMaterial(CMFCPropertyGridCtrl * pParentCtrl, LPCTSTR lpszName, Property PropertyId);
+	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 
 // Implementation
