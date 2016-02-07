@@ -3,6 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Animator.h"
+#include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
 class Material
@@ -53,6 +54,7 @@ public:
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
+		ComponentTypeRigid,
 	};
 
 	ComponentType m_Type;
@@ -174,7 +176,7 @@ public:
 	{
 	}
 
-	~MeshComponent()
+	~MeshComponent(void)
 	{
 		if (IsRequested())
 		{
@@ -257,3 +259,137 @@ public:
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
+
+class RigidComponent
+	: public Component
+{
+public:
+	typedef boost::shared_ptr<physx::PxGeometry> PxGeometryPtr;
+
+	typedef std::pair<PxGeometryPtr, physx::PxTransform> PxGeometryPtrPair;
+
+	typedef std::vector<PxGeometryPtrPair> PxGeometryPtrPairList;
+
+	PxGeometryPtrPairList m_GeometryList;
+
+	PhysXPtr<physx::PxRigidActor> m_RigidActor;
+
+public:
+	RigidComponent(const my::AABB & aabb, const my::Matrix4 & World)
+		: Component(aabb, World, ComponentTypeRigid)
+	{
+	}
+
+	RigidComponent(void)
+		: Component(my::AABB(-FLT_MAX,FLT_MAX), my::Matrix4::Identity(), ComponentTypeRigid)
+	{
+	}
+
+	~RigidComponent(void)
+	{
+		if (IsRequested())
+		{
+			ReleaseResource();
+		}
+	}
+
+	friend class boost::serialization::access;
+	
+	template<class Archive>
+    void save(Archive & ar, const unsigned int version) const
+    {
+		ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+		unsigned int Count = m_GeometryList.size();
+		ar << BOOST_SERIALIZATION_NVP(Count);
+		for (unsigned int i = 0; i < m_GeometryList.size(); i++)
+		{
+			const PxGeometryPtrPair & pair = m_GeometryList[i];
+			physx::PxGeometryType::Enum type = pair.first->getType();
+			ar << BOOST_SERIALIZATION_NVP(type);
+			switch (type)
+			{
+			case physx::PxGeometryType::eSPHERE:
+				{
+					physx::PxSphereGeometry * sphere = static_cast<physx::PxSphereGeometry *>(pair.first.get());
+					ar << boost::serialization::make_nvp("radius", sphere->radius);
+				}
+				break;
+			case physx::PxGeometryType::ePLANE:
+				{
+					physx::PxPlaneGeometry * plane = static_cast<physx::PxPlaneGeometry *>(pair.first.get());
+				}
+				break;
+			case physx::PxGeometryType::eCAPSULE:
+				{
+					physx::PxCapsuleGeometry * capsule = static_cast<physx::PxCapsuleGeometry *>(pair.first.get());
+					ar << boost::serialization::make_nvp("radius", capsule->radius);
+					ar << boost::serialization::make_nvp("halfHeight", capsule->halfHeight);
+				}
+				break;
+			case physx::PxGeometryType::eBOX:
+				{
+					physx::PxBoxGeometry * box = static_cast<physx::PxBoxGeometry *>(pair.first.get());
+					ar << boost::serialization::make_nvp("halfExtents", (my::Vector3&)box->halfExtents);
+				}
+				break;
+			}
+			ar << boost::serialization::make_nvp("q", (my::Quaternion&)pair.second.q);
+			ar << boost::serialization::make_nvp("p", (my::Vector3&)pair.second.p);
+		}
+    }
+
+    template<class Archive>
+    void load(Archive & ar, const unsigned int version)
+    {
+		ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+		unsigned int Count;
+		ar >> BOOST_SERIALIZATION_NVP(Count); m_GeometryList.resize(Count);
+		for (unsigned int i = 0; i < m_GeometryList.size(); i++)
+		{
+			PxGeometryPtrPair & pair = m_GeometryList[i];
+			physx::PxGeometryType::Enum type;
+			ar >> BOOST_SERIALIZATION_NVP(type);
+			switch (type)
+			{
+			case physx::PxGeometryType::eSPHERE:
+				{
+					physx::PxSphereGeometry * sphere = new physx::PxSphereGeometry; pair.first.reset(sphere);
+					ar >> boost::serialization::make_nvp("radius", sphere->radius);
+				}
+				break;
+			case physx::PxGeometryType::ePLANE:
+				{
+					physx::PxPlaneGeometry * plane = new physx::PxPlaneGeometry; pair.first.reset(plane);
+				}
+				break;
+			case physx::PxGeometryType::eCAPSULE:
+				{
+					physx::PxCapsuleGeometry * capsule = new physx::PxCapsuleGeometry; pair.first.reset(capsule);
+					ar >> boost::serialization::make_nvp("radius", capsule->radius);
+					ar >> boost::serialization::make_nvp("halfHeight", capsule->halfHeight);
+				}
+				break;
+			case physx::PxGeometryType::eBOX:
+				{
+					physx::PxBoxGeometry * box = new physx::PxBoxGeometry; pair.first.reset(box);
+					ar >> boost::serialization::make_nvp("halfExtents", (my::Vector3 &)box->halfExtents);
+				}
+				break;
+			}
+			ar >> boost::serialization::make_nvp("q", (my::Quaternion&)pair.second.q);
+			ar >> boost::serialization::make_nvp("p", (my::Vector3&)pair.second.p);
+		}
+    }
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+};
+
+typedef boost::shared_ptr<RigidComponent> RigidComponentPtr;

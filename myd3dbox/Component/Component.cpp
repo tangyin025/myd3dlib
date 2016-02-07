@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "Component.h"
 #include "Animator.h"
+#include "PhysXContext.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -20,6 +21,8 @@ BOOST_CLASS_EXPORT(RenderComponent)
 BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
+
+BOOST_CLASS_EXPORT(RigidComponent)
 
 Material::Material(void)
 	: m_PassMask(RenderPipeline::PassMaskNone)
@@ -238,4 +241,25 @@ void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int Pas
 			}
 		}
 	}
+}
+
+void RigidComponent::RequestResource(void)
+{
+	Component::RequestResource();
+	Vector3 pos, scale; Quaternion rot;
+	m_World.Decompose(scale, rot, pos);
+	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+	PxGeometryPtrPairList::iterator geom_iter = m_GeometryList.begin();
+	for (; geom_iter != m_GeometryList.end(); geom_iter++)
+	{
+		m_RigidActor->createShape(*geom_iter->first, *PhysXContext::getSingleton().m_PxMaterial, geom_iter->second);
+	}
+	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
+}
+
+void RigidComponent::ReleaseResource(void)
+{
+	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
+	m_RigidActor.reset();
+	Component::ReleaseResource();
 }

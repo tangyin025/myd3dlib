@@ -73,8 +73,6 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ImgRegion", "ImgRegion\ImgR
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Opcode", "Opcode\Opcode.vcproj", "{DBE44CA3-2912-4441-8D99-AA2242688AD2}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "MayaExport_fg", "MayaExport\scripts\MayaExport_fg.vcproj", "{B8E79576-F7E4-4E50-97DB-08FF62F206AD}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -167,14 +165,6 @@ Global
 		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Release|Win32.ActiveCfg = Release|Win32
 		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Release|Win32.Build.0 = Release|Win32
 		{DBE44CA3-2912-4441-8D99-AA2242688AD2}.Release|x64.ActiveCfg = Release|Win32
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.ActiveCfg = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|Win32.Build.0 = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.ActiveCfg = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Debug|x64.Build.0 = Debug|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.ActiveCfg = Release|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|Win32.Build.0 = Release|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.ActiveCfg = Release|x64
-		{B8E79576-F7E4-4E50-97DB-08FF62F206AD}.Release|x64.Build.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

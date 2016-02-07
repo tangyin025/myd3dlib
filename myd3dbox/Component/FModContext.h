@@ -1,6 +1,7 @@
 #pragma once
 
 class FModContext
+	: public my::SingleInstance<FModContext>
 {
 public:
 	FMOD_RESULT result;

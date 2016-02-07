@@ -311,6 +311,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\myd3dbox\Component\PhysXPtr.h"
+				>
+			</File>
+			<File
 				RelativePath="..\myd3dbox\Component\RenderPipeline.cpp"
 				>
 			</File>

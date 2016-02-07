@@ -400,6 +400,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\PhysXPtr.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\RenderPipeline.cpp"
 				>
 			</File>

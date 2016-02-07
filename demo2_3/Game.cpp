@@ -824,7 +824,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 
 		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
 		{
-			RenderComponent * render_cmp = static_cast<RenderComponent *>(oct_cmp);
+			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(oct_cmp);
 			if (render_cmp)
 			{
 				render_cmp->AddToPipeline(m_pipeline, m_PassMask);

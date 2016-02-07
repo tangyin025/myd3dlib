@@ -8,6 +8,7 @@ extern "C"
 }
 
 class LuaContext
+	: public my::SingleInstance<LuaContext>
 {
 public:
 	lua_State * m_State;
