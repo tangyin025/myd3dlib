@@ -96,6 +96,62 @@ public:
 
 		//LoadMeshSetAsync("mesh/scene1.mesh.xml", boost::bind(&Demo::foo, this, _1));
 
+		struct BBB
+		{
+			my::OgreMesh * mesh;
+			DWORD VertexStride;
+			void * pVertices;
+			void * pIndices;
+			static void RequestCallback(udword triangle_index, Opcode::VertexPointers& triangle, void* user_data)
+			{
+				BBB * b = (BBB *)user_data;
+				unsigned short i[3] = {
+					*((unsigned short *)b->pIndices + triangle_index * 3 + 0),
+					*((unsigned short *)b->pIndices + triangle_index * 3 + 1),
+					*((unsigned short *)b->pIndices + triangle_index * 3 + 2)};
+				void * pVertex[3] = {
+					(unsigned char *)b->pVertices + i[0] * b->VertexStride,
+					(unsigned char *)b->pVertices + i[1] * b->VertexStride,
+					(unsigned char *)b->pVertices + i[2] * b->VertexStride};
+				triangle.Vertex[0] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[0]);
+				triangle.Vertex[1] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[1]);
+				triangle.Vertex[2] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[2]);
+			}
+		};
+
+		my::OgreMeshPtr mesh = LoadMesh("mesh/Nyra.mesh.xml");
+		Opcode::MeshInterface mi;
+		mi.SetNbTriangles(mesh->GetNumFaces());
+		mi.SetNbVertices(mesh->GetNumVertices());
+		BBB b;
+		b.mesh = mesh.get();
+		b.VertexStride = mesh->GetNumBytesPerVertex();
+		b.pVertices = mesh->LockVertexBuffer();
+		b.pIndices = mesh->LockIndexBuffer();
+		mi.SetCallback(&BBB::RequestCallback, &b);
+		Opcode::OPCODECREATE opcc;
+		opcc.mIMesh = &mi;
+		Opcode::Model mdl;
+		mdl.Build(opcc);
+		mesh->UnlockVertexBuffer();
+		mesh->UnlockIndexBuffer();
+
+		struct CCC
+		{
+			static void HitCallback(const Opcode::CollisionFace& hit, void* user_data)
+			{
+				float k = hit.mDistance;
+			}
+		};
+
+		Opcode::RayCollider rc;
+		rc.SetFirstContact(true);
+		rc.SetCulling(true);
+		rc.SetHitCallback(&CCC::HitCallback);
+		CCC c;
+		rc.SetUserData(&c);
+		rc.Collide(IceMaths::Ray(IceMaths::Point(0,5,10), IceMaths::Point(0,0,-1)), mdl, NULL, NULL);
+
 		return S_OK;
 	}
 

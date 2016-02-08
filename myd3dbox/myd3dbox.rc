@@ -149,11 +149,12 @@ BEGIN
     END
     POPUP "&Create"
     BEGIN
-        POPUP "&Component"
+        POPUP "Component"
         BEGIN
-            MENUITEM "&Mesh...",                    ID_COMPONENT_MESH
-            MENUITEM "&Emitter",                    ID_COMPONENT_EMITTER
-            MENUITEM "S&phericalEmitter",           ID_COMPONENT_SPHERICALEMITTER
+            MENUITEM "Mesh...",                     ID_COMPONENT_MESH
+            MENUITEM "Emitter",                     ID_COMPONENT_EMITTER
+            MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
+            MENUITEM "RigidBody",                   ID_COMPONENT_RIGIDBODY
         END
     END
     POPUP "&View"

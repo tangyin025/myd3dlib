@@ -50,7 +50,7 @@ class PhysXSceneContext
 {
 public:
 	class StepperTask
-		: public physx::pxtask::LightCpuTask
+		: public pxtask::LightCpuTask
 	{
 	public:
 		PhysXSceneContext * m_PxScene;
@@ -73,7 +73,7 @@ public:
 
 	bool m_WaitForResults;
 
-	physx::PxU32 m_ErrorState;
+	PxU32 m_ErrorState;
 
 	PhysXPtr<PxScene> m_PxScene;
 

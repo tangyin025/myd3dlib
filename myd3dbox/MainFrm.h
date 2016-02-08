@@ -7,16 +7,27 @@
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
 #include "Component/Component.h"
+#include "Component/PhysXContext.h"
 #include "Pivot.h"
 #include "EventDefine.h"
 
 class CMainFrame : public CFrameWndEx
-	, public my::SingleInstance<CMainFrame>
+	, public PhysXSceneContext
 {
 	
 public: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
+
+	static CMainFrame & getSingleton(void)
+	{
+		return *getSingletonPtr();
+	}
+
+	static CMainFrame * getSingletonPtr(void)
+	{
+		return static_cast<CMainFrame *>(PhysXSceneContext::getSingletonPtr());
+	}
 
 // Attributes
 protected:
@@ -84,6 +95,7 @@ public:
 	afx_msg void OnComponentMesh();
 	afx_msg void OnComponentEmitter();
 	afx_msg void OnComponentSphericalemitter();
+	afx_msg void OnComponentRigidbody();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnPivotMove();

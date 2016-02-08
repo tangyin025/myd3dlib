@@ -10,6 +10,7 @@
 #include "resource.h"       // main symbols
 #include "Component/RenderPipeline.h"
 #include "Component/LuaExtension.h"
+#include "Component/PhysXContext.h"
 
 
 // CMainApp:
@@ -21,6 +22,7 @@ class CMainApp : public CWinAppEx
 	, public my::ResourceMgr
 	, public LuaContext
 	, public RenderPipeline
+	, public PhysXContext
 {
 public:
 	CMainApp();
@@ -49,6 +51,7 @@ public:
 	virtual void OnDestroyDevice(void);
 	virtual void OnResourceFailed(const std::string & error_str);
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
+	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 // Implementation
 	UINT  m_nAppLook;

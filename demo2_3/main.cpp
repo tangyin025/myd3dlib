@@ -112,28 +112,27 @@ public:
 		//m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 		//m_cmps.push_back(emit_cmp);
 
-		RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
-		rigid_cmp->m_GeometryList.push_back(std::make_pair(
-			boost::shared_ptr<physx::PxGeometry>(new physx::PxBoxGeometry(1,2,3)), physx::PxTransform::createIdentity()));
-		rigid_cmp->RequestResource();
-		m_cmps.push_back(rigid_cmp);
+		//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
+		//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *m_PxMaterial, PxTransform::createIdentity());
+		//rigid_cmp->RequestResource();
+		//m_cmps.push_back(rigid_cmp);
 
-		// 保存场景
-		std::ofstream ofs("aaa.xml");
-		boost::archive::xml_oarchive oa(ofs);
-		oa << boost::serialization::make_nvp("level", m_cmps);
+		//// 保存场景
+		//std::ofstream ofs("aaa.xml");
+		//boost::archive::xml_oarchive oa(ofs);
+		//oa << boost::serialization::make_nvp("level", m_cmps);
 
-		//// 读取场景
-		////IStreamBuff buff(OpenIStream("level.xml"));
-		////std::istream istr(&buff);
-		//std::ifstream istr("aaa.xml");
-		//boost::archive::xml_iarchive ia(istr);
-		//ia >> boost::serialization::make_nvp("level", m_cmps);
-		//for (unsigned int i = 0; i < m_cmps.size(); i++)
-		//{
-		//	m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
-		//	m_cmps[i]->RequestResource();
-		//}
+		// 读取场景
+		//IStreamBuff buff(OpenIStream("level.xml"));
+		//std::istream istr(&buff);
+		std::ifstream istr("aaa.xml");
+		boost::archive::xml_iarchive ia(istr);
+		ia >> boost::serialization::make_nvp("level", m_cmps);
+		for (unsigned int i = 0; i < m_cmps.size(); i++)
+		{
+			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
+			m_cmps[i]->RequestResource();
+		}
 
 		return S_OK;
 	}

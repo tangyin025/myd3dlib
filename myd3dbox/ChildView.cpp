@@ -236,13 +236,9 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
-			RenderComponent * render_cmp = static_cast<RenderComponent *>(oct_cmp);
+			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(oct_cmp);
 			if (render_cmp)
 			{
-				if (!render_cmp->IsRequested())
-				{
-					render_cmp->RequestResource();
-				}
 				render_cmp->AddToPipeline(pipeline, PassMask);
 
 				if (pView->m_bShowCmpHandle)
@@ -625,7 +621,9 @@ void CChildView::OnPaint()
 			m_SkyLightCam->Update(theApp.m_fAbsoluteTime, 0.0f);
 			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
+
 			DrawHelper::BeginLine();
+
 			if (m_bShowGrid)
 			{
 				switch (m_CameraType)
@@ -644,6 +642,11 @@ void CChildView::OnPaint()
 					break;
 				}
 			}
+
+			CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+			ASSERT_VALID(pFrame);
+			pFrame->PushRenderBuffer(this);
+
 			if(SUCCEEDED(hr = theApp.m_d3dDevice->BeginScene()))
 			{
 				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
@@ -666,8 +669,6 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
 
-				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-				ASSERT_VALID(pFrame);
 				if (!pFrame->m_selcmps.empty())
 				{
 					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
@@ -916,6 +917,18 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
 					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
+				break;
+			}
+
+			switch (cmp_world_iter->first->m_Type)
+			{
+			case Component::ComponentTypeRigid:
+				{
+					my::Vector3 pos, scale; my::Quaternion rot;
+					cmp_world_iter->first->m_World.Decompose(scale, rot, pos);
+					RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp_world_iter->first);
+					rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+				}
 				break;
 			}
 		}

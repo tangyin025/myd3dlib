@@ -195,6 +195,11 @@ BOOL CMainApp::InitInstance()
 
 	LuaContext::Init();
 
+	if (!PhysXContext::Init())
+	{
+		return FALSE;
+	}
+
 	m_d3d9.Attach(Direct3DCreate9(D3D_SDK_VERSION));
 	if(!m_d3d9)
 	{
@@ -384,6 +389,10 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bIns
 	return shader.get();
 }
 
+void CMainApp::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+{
+	TRACE(message);
+}
 
 
 // CAboutDlg dialog used for App About
@@ -462,6 +471,7 @@ BOOL CMainApp::OnIdle(LONG lCount)
 int CMainApp::ExitInstance()
 {
 	// TODO: Add your specialized code here and/or call the base class
+	PhysXContext::Shutdown();
 
 	return CWinAppEx::ExitInstance();
 }

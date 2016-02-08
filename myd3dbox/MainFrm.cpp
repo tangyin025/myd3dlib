@@ -38,6 +38,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
 	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
+	ON_COMMAND(ID_COMPONENT_RIGIDBODY, &CMainFrame::OnComponentRigidbody)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
@@ -76,6 +77,9 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	if (!PhysXSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
 		return -1;
 
 	BOOL bNameValid;
@@ -403,9 +407,9 @@ void CMainFrame::OnDestroy()
 	CFrameWndEx::OnDestroy();
 
 	// TODO: Add your message handler code here
-	ClearAllComponents();
-	m_emitter->ReleaseResource();
 	m_emitter.reset();
+	ClearAllComponents();
+	PhysXSceneContext::Shutdown();
 	theApp.DestroyD3DDevice();
 }
 
@@ -451,6 +455,7 @@ void CMainFrame::OnFileOpen()
 	for (; cmp_iter != m_cmps.end(); cmp_iter++)
 	{
 		m_Root.AddComponent(cmp_iter->get(), (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World), 0.1f);
+		(*cmp_iter)->RequestResource();
 	}
 }
 
@@ -576,6 +581,21 @@ void CMainFrame::OnComponentSphericalemitter()
 	UpdatePivotTransform();
 }
 
+void CMainFrame::OnComponentRigidbody()
+{
+	// TODO: Add your command handler code here
+	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
+	rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	rigid_cmp->RequestResource();
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_cmps.push_back(rigid_cmp);
+
+	m_selcmps.clear();
+	m_selcmps.insert(rigid_cmp.get());
+	UpdateSelBox();
+	UpdatePivotTransform();
+}
+
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
@@ -637,13 +657,19 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: Add your message handler code here and/or call default
+	const float fElapsedTime = 0.033f;
 	if (!m_selcmps.empty())
 	{
 		ComponentSet::iterator cmp_iter = m_selcmps.begin();
 		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 		{
-			(*cmp_iter)->Update(0.033f);
+			(*cmp_iter)->Update(fElapsedTime);
 		}
+
+		PhysXSceneContext::TickPreRender(fElapsedTime);
+
+		PhysXSceneContext::TickPostRender(fElapsedTime);
+
 		EventArg arg;
 		m_EventSelectionPlaying(&arg);
 	}
