@@ -575,7 +575,7 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.MarkModifiedProperties();
 
 	m_pProp[PropertyComponent] = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
-	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), 0, TRUE);
+	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyComponentAABB, TRUE);
 	m_pProp[PropertyComponentMinX] = new CSimpleProp(_T("minx"), (_variant_t)0.0f, NULL, PropertyComponentMinX);
 	pAABB->AddSubItem(m_pProp[PropertyComponentMinX]);
 	m_pProp[PropertyComponentMinY] = new CSimpleProp(_T("miny"), (_variant_t)0.0f, NULL, PropertyComponentMinY);
@@ -590,7 +590,7 @@ void CPropertiesWnd::InitPropList()
 	pAABB->AddSubItem(m_pProp[PropertyComponentMaxZ]);
 	m_pProp[PropertyComponent]->AddSubItem(pAABB);
 
-	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), 0, TRUE);
+	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyComponentPos, TRUE);
 	m_pProp[PropertyComponentPosX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentPosX);
 	pPosition->AddSubItem(m_pProp[PropertyComponentPosX]);
 	m_pProp[PropertyComponentPosY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentPosY);
@@ -599,7 +599,7 @@ void CPropertiesWnd::InitPropList()
 	pPosition->AddSubItem(m_pProp[PropertyComponentPosZ]);
 	m_pProp[PropertyComponent]->AddSubItem(pPosition);
 
-	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), 0, TRUE);
+	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyComponentRot, TRUE);
 	m_pProp[PropertyComponentRotX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentRotX);
 	pRotate->AddSubItem(m_pProp[PropertyComponentRotX]);
 	m_pProp[PropertyComponentRotY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentRotY);
@@ -608,7 +608,7 @@ void CPropertiesWnd::InitPropList()
 	pRotate->AddSubItem(m_pProp[PropertyComponentRotZ]);
 	m_pProp[PropertyComponent]->AddSubItem(pRotate);
 
-	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), 0, TRUE);
+	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyComponentScale, TRUE);
 	m_pProp[PropertyComponentScaleX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentScaleX);
 	pScale->AddSubItem(m_pProp[PropertyComponentScaleX]);
 	m_pProp[PropertyComponentScaleY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentScaleY);
@@ -717,18 +717,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
+	case PropertyComponentAABB:
 	case PropertyComponentMinX:
 	case PropertyComponentMinY:
 	case PropertyComponentMinZ:
 	case PropertyComponentMaxX:
 	case PropertyComponentMaxY:
 	case PropertyComponentMaxZ:
+	case PropertyComponentPos:
 	case PropertyComponentPosX:
 	case PropertyComponentPosY:
 	case PropertyComponentPosZ:
+	case PropertyComponentRot:
 	case PropertyComponentRotX:
 	case PropertyComponentRotY:
 	case PropertyComponentRotZ:
+	case PropertyComponentScale:
 	case PropertyComponentScaleX:
 	case PropertyComponentScaleY:
 	case PropertyComponentScaleZ:
@@ -842,7 +846,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshInstance:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			mesh_cmp->m_bInstance = pProp->GetValue().boolVal;
+			mesh_cmp->m_bInstance = (pProp->GetValue().boolVal != 0);
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
