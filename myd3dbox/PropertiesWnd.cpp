@@ -38,6 +38,23 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 	return g_PassMaskDesc[0].desc;
 }
 
+struct ShapeTypeDesc
+{
+	LPCTSTR desc;
+	DWORD type;
+};
+
+static const ShapeTypeDesc g_ShapeTypeDesc[PxGeometryType::eGEOMETRY_COUNT] =
+{
+	{_T("Sphere"), PxGeometryType::eSPHERE},
+	{_T("Plane"), PxGeometryType::ePLANE},
+	{_T("Capsule"), PxGeometryType::eCAPSULE},
+	{_T("Box"), PxGeometryType::eBOX},
+	{_T("ConvexMesh"), PxGeometryType::eCONVEXMESH},
+	{_T("TriangleMesh"), PxGeometryType::eTRIANGLEMESH},
+	{_T("HeightField"), PxGeometryType::eHEIGHTFIELD},
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
 
@@ -116,11 +133,11 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 
 void CPropertiesWnd::HideAllProperties(void)
 {
-	m_pProp[PropertyComponent]->Show(FALSE, FALSE);
-	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
-	m_wndPropList.AdjustLayout();
+	//m_pProp[PropertyComponent]->Show(FALSE, FALSE);
+	//m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+	//m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+	//m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
+	//m_wndPropList.AdjustLayout();
 }
 
 void CPropertiesWnd::UpdateProperties(Component * cmp)
@@ -148,10 +165,25 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeMesh:
+		m_pProp[PropertyMesh]->Show(TRUE, FALSE);
+		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
+		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
 		UpdatePropertiesMesh(dynamic_cast<MeshComponent *>(cmp));
 		break;
 	case Component::ComponentTypeEmitter:
+		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+		m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
+		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
+		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
 		UpdatePropertiesEmitter(dynamic_cast<EmitterComponent *>(cmp));
+		break;
+	case Component::ComponentTypeRigid:
+		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+		m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
+		m_pProp[PropertyRigidShapeList]->Show(TRUE, FALSE);
+		UpdatePropertiesRigid(dynamic_cast<RigidComponent *>(cmp));
 		break;
 	}
 	m_wndPropList.AdjustLayout();
@@ -159,9 +191,6 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 
 void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
-	m_pProp[PropertyMesh]->Show(TRUE, FALSE);
-	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
 	m_pProp[PropertyMeshInstance]->SetValue((_variant_t)cmp->m_bInstance);
 
@@ -183,10 +212,6 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 
 void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 {
-	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-	m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
-	m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
-
 	my::DynamicEmitterPtr dynamic_emit = boost::dynamic_pointer_cast<my::DynamicEmitter>(cmp->m_Emitter);
 	if (dynamic_emit)
 	{
@@ -249,6 +274,28 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 	}
 }
 
+void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
+{
+	unsigned int NbShapes = cmp->m_RigidActor->getNbShapes();
+	std::vector<PxShape *> shapes(NbShapes);
+	NbShapes = cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	m_pProp[PropertyRigidShapeCount]->SetValue((_variant_t)(size_t)NbShapes);
+	unsigned int i = 0;
+	for (; i < NbShapes; i++)
+	{
+		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() <= i + 1)
+		{
+			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i);
+		}
+		UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]);
+	}
+	while ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() > i + 1)
+	{
+		CMFCPropertyGridProperty * pProp = m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1);
+		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyRigidShapeList])->RemoveSubItem(pProp, TRUE);
+	}
+}
+
 void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
 {
 	m_pProp[PropertyEmitterParticleCount]->SetValue((_variant_t)particle_list.size());
@@ -278,27 +325,13 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.x);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.y);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.w);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
 	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
 	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
 	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
-}
-
-void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat)
-{
-	CMFCPropertyGridProperty * pMaterial = pParentCtrl->GetSubItem(NodeId);
-	pMaterial->GetSubItem(0)->SetValue((_variant_t)mat->m_Shader.c_str());
-	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
-	pMaterial->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)mat->m_MeshColor.x);
-	pMaterial->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)mat->m_MeshColor.y);
-	pMaterial->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)mat->m_MeshColor.z);
-	pMaterial->GetSubItem(2)->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
@@ -329,6 +362,56 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
 	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
 	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
+}
+
+void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat)
+{
+	CMFCPropertyGridProperty * pMaterial = pParentCtrl->GetSubItem(NodeId);
+	pMaterial->GetSubItem(0)->SetValue((_variant_t)mat->m_Shader.c_str());
+	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
+	pMaterial->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)mat->m_MeshColor.x);
+	pMaterial->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)mat->m_MeshColor.y);
+	pMaterial->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)mat->m_MeshColor.z);
+	pMaterial->GetSubItem(2)->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshColor.w);
+	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+}
+
+void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape)
+{
+	CMFCPropertyGridProperty * pShape = pParentCtrl->GetSubItem(NodeId + 1);
+	_ASSERT(pShape->GetData() == NodeId);
+	int type = (DYNAMIC_DOWNCAST(CComboProp, pShape->GetSubItem(0)))->m_iSelIndex;
+	int update_type = shape->getGeometryType();
+	if (type != update_type)
+	{
+		pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[update_type].desc);
+		while ((unsigned int)pShape->GetSubItemsCount() > 1)
+		{
+			CMFCPropertyGridProperty * pProp = pShape->GetSubItem(1);
+			static_cast<CMFCPropertyGridPropertyReader *>(pShape)->RemoveSubItem(pProp, TRUE);
+		}
+		switch (update_type)
+		{
+		case PxGeometryType::eBOX:
+			CreatePropertiesShapeBox(pShape);
+			break;
+		}
+	}
+	switch (update_type)
+	{
+	case PxGeometryType::eBOX:
+		UpdatePropertiesShapeBox(pShape, shape->getGeometry().box());
+		break;
+	}
+}
+
+void CPropertiesWnd::UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box)
+{
+	pShape->GetSubItem(1)->GetSubItem(0)->SetValue(box.halfExtents.x);
+	pShape->GetSubItem(1)->GetSubItem(1)->SetValue(box.halfExtents.y);
+	pShape->GetSubItem(1)->GetSubItem(2)->SetValue(box.halfExtents.z);
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
@@ -433,6 +516,33 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pProp);
 	pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
 	pMaterial->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
+{
+	TCHAR buff[128];
+	_stprintf_s(buff, _countof(buff), _T("Shape%u"), NodeId);
+	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
+	pParentCtrl->AddSubItem(pShape);
+	CMFCPropertyGridProperty * pProp = new CComboProp(_T("Type"), (_variant_t)g_ShapeTypeDesc[PxGeometryType::eBOX].desc, NULL, PropertyRigidShapeType);
+	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
+	{
+		pProp->AddOption(g_ShapeTypeDesc[i].desc, FALSE);
+	}
+	pShape->AddSubItem(pProp);
+	CreatePropertiesShapeBox(pShape);
+}
+
+void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
+{
+	CMFCPropertyGridProperty * pHalfExtents = new CSimpleProp(_T("HalfExtents"), PropertyRigidShapeBoxHalfExtents, TRUE);
+	pShape->AddSubItem(pHalfExtents);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsX);
+	pHalfExtents->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsY);
+	pHalfExtents->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsZ);
+	pHalfExtents->AddSubItem(pProp);
 }
 
 Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id)
@@ -661,9 +771,16 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(m_pProp[PropertyMaterialList], FALSE, FALSE);
 	for (unsigned int i = 0; i < 3; i++)
 	{
-		TCHAR buff[128];
-		_stprintf_s(buff, _countof(buff), _T("Material%u"), i);
 		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], i);
+	}
+
+	m_pProp[PropertyRigidShapeList] = new CMFCPropertyGridProperty(_T("ShapeList"), PropertyRigidShapeList, FALSE);
+	m_wndPropList.AddProperty(m_pProp[PropertyRigidShapeList], FALSE, FALSE);
+	m_pProp[PropertyRigidShapeCount] = new CSimpleProp(_T("Count"), (_variant_t)(size_t)0, NULL, PropertyRigidShapeCount);
+	m_pProp[PropertyRigidShapeList]->AddSubItem(m_pProp[PropertyRigidShapeCount]);
+	for (unsigned int i = 0; i < 3; i++)
+	{
+		CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i);
 	}
 
 	HideAllProperties();
@@ -1026,6 +1143,36 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			}
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyRigidShapeBoxHalfExtents:
+	case PropertyRigidShapeBoxHalfExtentsX:
+	case PropertyRigidShapeBoxHalfExtentsY:
+	case PropertyRigidShapeBoxHalfExtentsZ:
+		{
+			CMFCPropertyGridProperty * pShape = NULL;
+			switch (PropertyId)
+			{
+			case PropertyRigidShapeBoxHalfExtents:
+				pShape = pProp->GetParent();
+				break;
+			case PropertyRigidShapeBoxHalfExtentsX:
+			case PropertyRigidShapeBoxHalfExtentsY:
+			case PropertyRigidShapeBoxHalfExtentsZ:
+				pShape = pProp->GetParent()->GetParent();
+				break;
+			}
+			unsigned int i = pShape->GetData();
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			shapes[i]->setGeometry(PxBoxGeometry(PxVec3(
+				pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
+				pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal,
+				pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

@@ -115,6 +115,13 @@ protected:
 		PropertyMaterialMeshTexture,
 		PropertyMaterialNormalTexture,
 		PropertyMaterialSpecularTexture,
+		PropertyRigidShapeList,
+		PropertyRigidShapeCount,
+		PropertyRigidShapeType,
+		PropertyRigidShapeBoxHalfExtents,
+		PropertyRigidShapeBoxHalfExtentsX,
+		PropertyRigidShapeBoxHalfExtentsY,
+		PropertyRigidShapeBoxHalfExtentsZ,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -125,15 +132,20 @@ protected:
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
+	void UpdatePropertiesRigid(RigidComponent * cmp);
 	void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
 	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
-	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
+	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
+	void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
+	void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
+	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
+	void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 
 // Implementation
