@@ -1,7 +1,7 @@
 
 #pragma once
 
-class CMFCPropertyGridPropertyHelper : public CMFCPropertyGridProperty
+class CMFCPropertyGridPropertyReader : public CMFCPropertyGridProperty
 {
 public:
 	// ! Fix remove current selected item which is hierarchy-sub-item

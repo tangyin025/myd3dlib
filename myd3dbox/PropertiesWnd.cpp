@@ -177,7 +177,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > i)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(i);
-		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -211,10 +211,10 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 		m_pProp[PropertySphericalEmitterSpawnSpeed]->SetValue((_variant_t)spherical_emit->m_SpawnSpeed);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnInclination, &spherical_emit->m_SpawnInclination);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAzimuth, &spherical_emit->m_SpawnAzimuth);
-		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorA, &spherical_emit->m_SpawnColorA);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorR, &spherical_emit->m_SpawnColorR);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorG, &spherical_emit->m_SpawnColorG);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorB, &spherical_emit->m_SpawnColorB);
+		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorA, &spherical_emit->m_SpawnColorA);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeX, &spherical_emit->m_SpawnSizeX);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeY, &spherical_emit->m_SpawnSizeY);
 		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAngle, &spherical_emit->m_SpawnAngle);
@@ -227,10 +227,10 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 		m_pProp[PropertySphericalEmitterSpawnSpeed]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnInclination]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnAzimuth]->Show(FALSE, FALSE);
-		m_pProp[PropertySphericalEmitterSpawnColorA]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnColorR]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnColorG]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnColorB]->Show(FALSE, FALSE);
+		m_pProp[PropertySphericalEmitterSpawnColorA]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnSizeX]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnSizeY]->Show(FALSE, FALSE);
 		m_pProp[PropertySphericalEmitterSpawnAngle]->Show(FALSE, FALSE);
@@ -245,7 +245,7 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(1);
-		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -264,7 +264,7 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridPropert
 	while ((unsigned int)m_pProp[PropertyEmitterParticleList]->GetSubItemsCount() > i + 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyEmitterParticleList]->GetSubItem(i + 1);
-		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyEmitterParticleList])->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyEmitterParticleList])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -290,11 +290,15 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat)
 {
 	CMFCPropertyGridProperty * pMaterial = pParentCtrl->GetSubItem(NodeId);
-	pMaterial->GetSubItem(PropertyMaterialShader - PropertyMaterialShader)->SetValue((_variant_t)mat->m_Shader.c_str());
-	pMaterial->GetSubItem(PropertyMaterialPassMask - PropertyMaterialShader)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
-	pMaterial->GetSubItem(PropertyMaterialMeshTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(PropertyMaterialNormalTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(PropertyMaterialSpecularTexture - PropertyMaterialShader)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	pMaterial->GetSubItem(0)->SetValue((_variant_t)mat->m_Shader.c_str());
+	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
+	pMaterial->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)mat->m_MeshColor.x);
+	pMaterial->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)mat->m_MeshColor.y);
+	pMaterial->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)mat->m_MeshColor.z);
+	pMaterial->GetSubItem(2)->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshColor.w);
+	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
@@ -313,7 +317,7 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 	while ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() > i + 1)
 	{
 		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(i + 1);
-		static_cast<CMFCPropertyGridPropertyHelper *>(m_pProp[PropertyId])->RemoveSubItem(pProp, TRUE);
+		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyId])->RemoveSubItem(pProp, TRUE);
 	}
 }
 
@@ -353,13 +357,13 @@ void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 	CMFCPropertyGridProperty * pColor = new CSimpleProp(_T("Color"), PropertyEmitterParticleColor, TRUE);
 	pParticle->AddSubItem(pColor);
-	pProp = new CSimpleProp(_T("a"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorA);
-	pColor->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("r"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorR);
 	pColor->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("g"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorG);
 	pColor->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("b"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorB);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("a"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorA);
 	pColor->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pSize = new CSimpleProp(_T("Size"), PropertyEmitterParticleSize, TRUE);
@@ -413,6 +417,16 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 		pProp->AddOption(g_PassMaskDesc[i].desc, FALSE);
 	}
 	pMaterial->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pColor = new CSimpleProp(_T("MeshColor"), PropertyMaterialMeshColor, TRUE);
+	pMaterial->AddSubItem(pColor);
+	pProp = new CSimpleProp(_T("r"), (_variant_t)0.0f, NULL, PropertyMaterialMeshColorR);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("g"), (_variant_t)0.0f, NULL, PropertyMaterialMeshColorG);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("b"), (_variant_t)0.0f, NULL, PropertyMaterialMeshColorB);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("a"), (_variant_t)0.0f, NULL, PropertyMaterialMeshColorA);
+	pColor->AddSubItem(pProp);
 	pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
 	pMaterial->AddSubItem(pProp);
 	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
@@ -632,10 +646,10 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnSpeed]);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnInclination"), PropertySphericalEmitterSpawnInclination);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAzimuth"), PropertySphericalEmitterSpawnAzimuth);
-	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorR"), PropertySphericalEmitterSpawnColorR);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorG"), PropertySphericalEmitterSpawnColorG);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorB"), PropertySphericalEmitterSpawnColorB);
+	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
 	CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
@@ -758,6 +772,34 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData());
 			material->m_PassMask = g_PassMaskDesc[(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex].mask;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMaterialMeshColor:
+	case PropertyMaterialMeshColorA:
+	case PropertyMaterialMeshColorR:
+	case PropertyMaterialMeshColorG:
+	case PropertyMaterialMeshColorB:
+		{
+			CMFCPropertyGridProperty * pColor = NULL;
+			switch (PropertyId)
+			{
+			case PropertyMaterialMeshColor:
+				pColor = pProp;
+				break;
+			case PropertyMaterialMeshColorA:
+			case PropertyMaterialMeshColorR:
+			case PropertyMaterialMeshColorG:
+			case PropertyMaterialMeshColorB:
+				pColor = pProp->GetParent();
+				break;
+			}
+			Material * material = GetComponentMaterial(cmp, pColor->GetParent()->GetData());
+			material->m_MeshColor.x = pColor->GetSubItem(0)->GetValue().fltVal;
+			material->m_MeshColor.y = pColor->GetSubItem(1)->GetValue().fltVal;
+			material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
+			material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
@@ -931,9 +973,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			case PropertySphericalEmitterSpawnAzimuth:
 				spline = &spherical_emit->m_SpawnAzimuth;
 				break;
-			case PropertySphericalEmitterSpawnColorA:
-				spline = &spherical_emit->m_SpawnColorA;
-				break;
 			case PropertySphericalEmitterSpawnColorR:
 				spline = &spherical_emit->m_SpawnColorR;
 				break;
@@ -942,6 +981,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				break;
 			case PropertySphericalEmitterSpawnColorB:
 				spline = &spherical_emit->m_SpawnColorB;
+				break;
+			case PropertySphericalEmitterSpawnColorA:
+				spline = &spherical_emit->m_SpawnColorA;
 				break;
 			case PropertySphericalEmitterSpawnSizeX:
 				spline = &spherical_emit->m_SpawnSizeX;

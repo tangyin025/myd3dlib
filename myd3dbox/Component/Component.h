@@ -13,6 +13,8 @@ public:
 
 	unsigned int m_PassMask;
 
+	my::Vector4 m_MeshColor;
+
 	ResourceBundle<my::BaseTexture> m_MeshTexture;
 
 	ResourceBundle<my::BaseTexture> m_NormalTexture;
@@ -20,15 +22,22 @@ public:
 	ResourceBundle<my::BaseTexture> m_SpecularTexture;
 
 public:
-	Material(void);
+	Material(void)
+		: m_PassMask(RenderPipeline::PassMaskNone)
+		, m_MeshColor(1,1,1,1)
+	{
+	}
 
-	virtual ~Material(void);
+	virtual ~Material(void)
+	{
+	}
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Shader);
 		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);

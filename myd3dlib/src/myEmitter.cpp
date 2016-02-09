@@ -91,10 +91,10 @@ void SphericalEmitter::Update(float fElapsedTime)
 				m_SpawnInclination.Interpolate(SpawnTime, 0),
 				m_SpawnAzimuth.Interpolate(SpawnTime, 0)),
 			Vector4(
-				m_SpawnColorA.Interpolate(SpawnTime, 1),
 				m_SpawnColorR.Interpolate(SpawnTime, 1),
 				m_SpawnColorG.Interpolate(SpawnTime, 1),
-				m_SpawnColorB.Interpolate(SpawnTime, 1)),
+				m_SpawnColorB.Interpolate(SpawnTime, 1),
+				m_SpawnColorA.Interpolate(SpawnTime, 1)),
 			Vector2(
 				m_SpawnSizeX.Interpolate(SpawnTime, 1)),
 			m_SpawnAngle.Interpolate(SpawnTime, 0));

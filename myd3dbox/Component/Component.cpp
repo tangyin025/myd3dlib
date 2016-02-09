@@ -25,29 +25,12 @@ BOOST_CLASS_EXPORT(EmitterComponent)
 
 BOOST_CLASS_EXPORT(RigidComponent)
 
-Material::Material(void)
-	: m_PassMask(RenderPipeline::PassMaskNone)
-{
-}
-
-Material::~Material(void)
-{
-}
-
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
-	if (!m_MeshTexture.m_Path.empty())
-	{
-		shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
-	}
-	if (!m_NormalTexture.m_Path.empty())
-	{
-		shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
-	}
-	if (!m_SpecularTexture.m_Path.empty())
-	{
-		shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
-	}
+	shader->SetVector("g_MeshColor", m_MeshColor);
+	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
+	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
+	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
 }
 
 void Material::RequestResource(void)

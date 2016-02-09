@@ -29,14 +29,14 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 	float3 Normal = tex2D(NormalRTSampler, NormalTex).xyz;
 	float3 ViewPos = tex2D(PositionRTSampler, NormalTex).xyz;
 	float3 LightVec = In.Light.xyz - ViewPos;
-	float LightLen = length(LightVec);
-	clip(In.Light.w - LightLen);
-	LightVec = LightVec / LightLen;
+	float LightDist = length(LightVec);
+	clip(In.Light.w - LightDist);
+	LightVec = LightVec / LightDist;
 	float diffuse = saturate(dot(Normal, LightVec));
 	float3 View = In.Eye - ViewPos;
 	float3 Ref = Reflection(Normal, View);
 	float specular = pow(saturate(dot(Ref, LightVec)), 5);
-	return float4(In.Color.xyz * diffuse, In.Color.w * specular) * saturate(1 - LightLen / In.Light.w);
+	return float4(In.Color.xyz * diffuse, In.Color.w * specular) * saturate(1 - LightDist / In.Light.w);
 }
 
 technique RenderScene

@@ -6,7 +6,7 @@ struct CMFCPropertyGridCtrlHelper : CMFCPropertyGridCtrl
 	using CMFCPropertyGridCtrl::m_pSel;
 };
 
-BOOL CMFCPropertyGridPropertyHelper::RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete/* = TRUE*/)
+BOOL CMFCPropertyGridPropertyReader::RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete/* = TRUE*/)
 {
 	ASSERT_VALID(this);
 	ASSERT_VALID(pProp);
@@ -25,7 +25,7 @@ BOOL CMFCPropertyGridPropertyHelper::RemoveSubItem(CMFCPropertyGridProperty*& pP
 			if (m_pWndList != NULL && (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel != NULL))
 			{
 				if (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel == pProp
-					|| static_cast<CMFCPropertyGridPropertyHelper *>(pProp)->IsSubItem(static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel))
+					|| static_cast<CMFCPropertyGridPropertyReader *>(pProp)->IsSubItem(static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel))
 				{
 					static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel = NULL;
 				}
