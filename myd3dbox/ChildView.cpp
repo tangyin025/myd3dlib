@@ -384,6 +384,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			}
 		}
 		break;
+
+	case Component::ComponentTypeRigid:
+		// !
+		break;
 	}
 	return false;
 }
@@ -508,6 +512,31 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			if (ret.first)
 			{
 				return ret;
+			}
+		}
+		break;
+
+	case Component::ComponentTypeRigid:
+		{
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			_ASSERT(rigid_cmp->m_RigidActor);
+			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			for (unsigned int i = 0; i < NbShapes; i++)
+			{
+				PxRaycastHit hits[1];
+				if (PxGeometryQuery::raycast(
+					(PxVec3&)ray.p,
+					(PxVec3&)ray.d,
+					shapes[i]->getGeometry().any(),
+					PxShapeExt::getGlobalPose(*shapes[i]),
+					3000.0f,
+					PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
+					_countof(hits), hits, true))
+				{
+					return my::RayResult(true, hits[0].distance);
+				}
 			}
 		}
 		break;
