@@ -392,6 +392,7 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bIns
 void CMainApp::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
 	TRACE(message);
+	TRACE("\n");
 }
 
 

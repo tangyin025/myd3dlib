@@ -283,7 +283,7 @@ void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
 	unsigned int i = 0;
 	for (; i < NbShapes; i++)
 	{
-		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() >= i + 1
+		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() > i + 1
 			&& HIWORD(m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1)->GetData()) != shapes[i]->getGeometryType())
 		{
 			RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
@@ -894,7 +894,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMaterialPassMask:
 		{
 			Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData());
-			material->m_PassMask = g_PassMaskDesc[(DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex].mask;
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			if (i < 0 || i >= _countof(g_PassMaskDesc))
+			{
+				TRACE("Invalid PropertyMaterialPassMask index: %d\n", i);
+				break;
+			}
+			material->m_PassMask = g_PassMaskDesc[i].mask;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
@@ -1144,6 +1150,42 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
+	case PropertyRigidShapeAdd:
+		{
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			DWORD NodeId = rigid_cmp->m_RigidActor->getNbShapes();
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			PxShape * shape = NULL;
+			switch (i)
+			{
+			case PxGeometryType::eSPHERE:
+				shape = rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1.0f),
+					*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+				break;
+			case PxGeometryType::ePLANE:
+				break;
+			case PxGeometryType::eCAPSULE:
+				break;
+			case PxGeometryType::eBOX:
+				shape = rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(PxVec3(1,1,1)),
+					*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+				break;
+			case PxGeometryType::eCONVEXMESH:
+				break;
+			case PxGeometryType::eTRIANGLEMESH:
+				break;
+			case PxGeometryType::eHEIGHTFIELD:
+				break;
+			}
+			if (shape)
+			{
+				CreatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, (PxGeometryType::Enum)i);
+				UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, shape);
+			}
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
 	case PropertyRigidShapeBoxHalfExtents:
 	case PropertyRigidShapeBoxHalfExtentsX:
 	case PropertyRigidShapeBoxHalfExtentsY:
@@ -1161,15 +1203,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pShape = pProp->GetParent()->GetParent();
 				break;
 			}
-			unsigned int i = pShape->GetData();
+			unsigned int NodeId = LOWORD(pShape->GetData());
 			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
 			std::vector<PxShape *> shapes(NbShapes);
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-			shapes[i]->setGeometry(PxBoxGeometry(PxVec3(
-				pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
-				pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal,
-				pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
+			shapes[NodeId]->setGeometry(PxBoxGeometry(PxVec3(
+				pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
+				pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
+				pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal)));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
@@ -1177,13 +1219,13 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyRigidShapeSphereRadius:
 		{
 			CMFCPropertyGridProperty * pShape = pProp->GetParent();
-			unsigned int i = pShape->GetData();
+			unsigned int NodeId = LOWORD(pShape->GetData());
 			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
 			std::vector<PxShape *> shapes(NbShapes);
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-			shapes[i]->setGeometry(PxSphereGeometry(
-				pShape->GetSubItem(1)->GetValue().fltVal));
+			shapes[NodeId]->setGeometry(PxSphereGeometry(
+				pShape->GetSubItem(0)->GetValue().fltVal));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
