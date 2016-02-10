@@ -140,6 +140,15 @@ void CPropertiesWnd::HideAllProperties(void)
 	//m_wndPropList.AdjustLayout();
 }
 
+void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i)
+{
+	while ((unsigned int)pParentCtrl->GetSubItemsCount() > i)
+	{
+		CMFCPropertyGridProperty * pProp = pParentCtrl->GetSubItem(i);
+		static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
+	}
+}
+
 void CPropertiesWnd::UpdateProperties(Component * cmp)
 {
 	m_pProp[PropertyComponent]->Show(TRUE, FALSE);
@@ -203,11 +212,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 		}
 		UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], i, cmp->m_MaterialList[i].get());
 	}
-	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > i)
-	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(i);
-		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
-	}
+	RemovePropertiesFrom(m_pProp[PropertyMaterialList], i);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
@@ -267,11 +272,7 @@ void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
 		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], 0);
 	}
 	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, cmp->m_Material.get());
-	while ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() > 1)
-	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyMaterialList]->GetSubItem(1);
-		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyMaterialList])->RemoveSubItem(pProp, TRUE);
-	}
+	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
 }
 
 void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
@@ -282,17 +283,18 @@ void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
 	unsigned int i = 0;
 	for (; i < NbShapes; i++)
 	{
+		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() >= i + 1
+			&& HIWORD(m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1)->GetData()) != shapes[i]->getGeometryType())
+		{
+			RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
+		}
 		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() <= i + 1)
 		{
-			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i);
+			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]->getGeometryType());
 		}
 		UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]);
 	}
-	while ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() > i + 1)
-	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1);
-		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyRigidShapeList])->RemoveSubItem(pProp, TRUE);
-	}
+	RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
@@ -307,11 +309,7 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridPropert
 		}
 		UpdatePropertiesEmitterParticle(m_pProp[PropertyEmitterParticleList], i, particle_list[i]);
 	}
-	while ((unsigned int)m_pProp[PropertyEmitterParticleList]->GetSubItemsCount() > i + 1)
-	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyEmitterParticleList]->GetSubItem(i + 1);
-		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyEmitterParticleList])->RemoveSubItem(pProp, TRUE);
-	}
+	RemovePropertiesFrom(m_pProp[PropertyEmitterParticleList], i + 1);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle)
@@ -346,11 +344,7 @@ void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * sp
 		}
 		UpdatePropertiesSplineNode(m_pProp[PropertyId], i, &(*spline)[i]);
 	}
-	while ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() > i + 1)
-	{
-		CMFCPropertyGridProperty * pProp = m_pProp[PropertyId]->GetSubItem(i + 1);
-		static_cast<CMFCPropertyGridPropertyReader *>(m_pProp[PropertyId])->RemoveSubItem(pProp, TRUE);
-	}
+	RemovePropertiesFrom(m_pProp[PropertyId], i + 1);
 }
 
 void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node)
@@ -380,7 +374,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape)
 {
 	CMFCPropertyGridProperty * pShape = pParentCtrl->GetSubItem(NodeId + 1);
-	_ASSERT(pShape->GetData() == NodeId);
+	_ASSERT(LOWORD(pShape->GetData()) == NodeId && HIWORD(pShape->GetData()) == shape->getGeometryType());
 	int type = shape->getGeometryType();
 	switch (type)
 	{
@@ -509,13 +503,21 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pProp);
 }
 
-void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
+void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type)
 {
 	TCHAR buff[128];
 	_stprintf_s(buff, _countof(buff), _T("Shape%u"), NodeId);
-	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
+	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, MAKELONG(NodeId, type), FALSE);
 	pParentCtrl->AddSubItem(pShape);
-	CreatePropertiesShapeBox(pShape);
+	switch (type)
+	{
+	case PxGeometryType::eBOX:
+		CreatePropertiesShapeBox(pShape);
+		break;
+	case PxGeometryType::eSPHERE:
+		CreatePropertiesShapeSphere(pShape);
+		break;
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
@@ -775,7 +777,7 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyRigidShapeList]->AddSubItem(m_pProp[PropertyRigidShapeAdd]);
 	for (unsigned int i = 0; i < 3; i++)
 	{
-		CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i);
+		CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, PxGeometryType::eBOX);
 	}
 
 	HideAllProperties();
@@ -1174,18 +1176,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		break;
 	case PropertyRigidShapeSphereRadius:
 		{
-			CMFCPropertyGridProperty * pShape = NULL;
-			switch (PropertyId)
-			{
-			case PropertyRigidShapeBoxHalfExtents:
-				pShape = pProp->GetParent();
-				break;
-			case PropertyRigidShapeBoxHalfExtentsX:
-			case PropertyRigidShapeBoxHalfExtentsY:
-			case PropertyRigidShapeBoxHalfExtentsZ:
-				pShape = pProp->GetParent()->GetParent();
-				break;
-			}
+			CMFCPropertyGridProperty * pShape = pProp->GetParent();
 			unsigned int i = pShape->GetData();
 			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();

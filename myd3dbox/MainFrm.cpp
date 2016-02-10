@@ -584,16 +584,22 @@ void CMainFrame::OnComponentSphericalemitter()
 void CMainFrame::OnComponentRigidbody()
 {
 	// TODO: Add your command handler code here
-	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
+	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Translation(my::Vector3(-3,0,0))));
 	rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	rigid_cmp->RequestResource();
 	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
 	m_cmps.push_back(rigid_cmp);
 
-	m_selcmps.clear();
-	m_selcmps.insert(rigid_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	rigid_cmp.reset(new RigidComponent(my::AABB(-5,5),my::Matrix4::Translation(my::Vector3(3,0,0))));
+	rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	rigid_cmp->RequestResource();
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_cmps.push_back(rigid_cmp);
+
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()

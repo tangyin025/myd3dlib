@@ -129,6 +129,7 @@ protected:
 	void OnSelectionChanged(EventArg * arg);
 	void OnCmpAttriChanged(EventArg * arg);
 	void HideAllProperties(void);
+	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
@@ -146,7 +147,7 @@ protected:
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
-	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
+	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
 	void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
 	void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
 
