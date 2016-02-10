@@ -279,7 +279,6 @@ void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
 	unsigned int NbShapes = cmp->m_RigidActor->getNbShapes();
 	std::vector<PxShape *> shapes(NbShapes);
 	NbShapes = cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	m_pProp[PropertyRigidShapeCount]->SetValue((_variant_t)(size_t)NbShapes);
 	unsigned int i = 0;
 	for (; i < NbShapes; i++)
 	{
@@ -382,25 +381,12 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 {
 	CMFCPropertyGridProperty * pShape = pParentCtrl->GetSubItem(NodeId + 1);
 	_ASSERT(pShape->GetData() == NodeId);
-	int type = (DYNAMIC_DOWNCAST(CComboProp, pShape->GetSubItem(0)))->m_iSelIndex;
-	int update_type = shape->getGeometryType();
-	if (type != update_type)
+	int type = shape->getGeometryType();
+	switch (type)
 	{
-		pShape->GetSubItem(0)->SetValue((_variant_t)g_ShapeTypeDesc[update_type].desc);
-		while ((unsigned int)pShape->GetSubItemsCount() > 1)
-		{
-			CMFCPropertyGridProperty * pProp = pShape->GetSubItem(1);
-			static_cast<CMFCPropertyGridPropertyReader *>(pShape)->RemoveSubItem(pProp, TRUE);
-		}
-		switch (update_type)
-		{
-		case PxGeometryType::eBOX:
-			CreatePropertiesShapeBox(pShape);
-			break;
-		}
-	}
-	switch (update_type)
-	{
+	case PxGeometryType::eSPHERE:
+		UpdatePropertiesShapeSphere(pShape, shape->getGeometry().sphere());
+		break;
 	case PxGeometryType::eBOX:
 		UpdatePropertiesShapeBox(pShape, shape->getGeometry().box());
 		break;
@@ -409,9 +395,14 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 
 void CPropertiesWnd::UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box)
 {
-	pShape->GetSubItem(1)->GetSubItem(0)->SetValue(box.halfExtents.x);
-	pShape->GetSubItem(1)->GetSubItem(1)->SetValue(box.halfExtents.y);
-	pShape->GetSubItem(1)->GetSubItem(2)->SetValue(box.halfExtents.z);
+	pShape->GetSubItem(0)->GetSubItem(0)->SetValue(box.halfExtents.x);
+	pShape->GetSubItem(0)->GetSubItem(1)->SetValue(box.halfExtents.y);
+	pShape->GetSubItem(0)->GetSubItem(2)->SetValue(box.halfExtents.z);
+}
+
+void CPropertiesWnd::UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere)
+{
+	pShape->GetSubItem(0)->SetValue(sphere.radius);
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
@@ -497,7 +488,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pProp = new CComboProp(_T("PassMask"), (_variant_t)g_PassMaskDesc[0].desc, NULL, PropertyMaterialPassMask);
 	for (unsigned int i = 0; i < _countof(g_PassMaskDesc); i++)
 	{
-		pProp->AddOption(g_PassMaskDesc[i].desc, FALSE);
+		pProp->AddOption(g_PassMaskDesc[i].desc, TRUE);
 	}
 	pMaterial->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pColor = new CSimpleProp(_T("MeshColor"), PropertyMaterialMeshColor, TRUE);
@@ -524,12 +515,6 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	_stprintf_s(buff, _countof(buff), _T("Shape%u"), NodeId);
 	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
 	pParentCtrl->AddSubItem(pShape);
-	CMFCPropertyGridProperty * pProp = new CComboProp(_T("Type"), (_variant_t)g_ShapeTypeDesc[PxGeometryType::eBOX].desc, NULL, PropertyRigidShapeType);
-	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
-	{
-		pProp->AddOption(g_ShapeTypeDesc[i].desc, FALSE);
-	}
-	pShape->AddSubItem(pProp);
 	CreatePropertiesShapeBox(pShape);
 }
 
@@ -543,6 +528,12 @@ void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
 	pHalfExtents->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsZ);
 	pHalfExtents->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape)
+{
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeSphereRadius);
+	pShape->AddSubItem(pProp);
 }
 
 Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id)
@@ -776,8 +767,12 @@ void CPropertiesWnd::InitPropList()
 
 	m_pProp[PropertyRigidShapeList] = new CMFCPropertyGridProperty(_T("ShapeList"), PropertyRigidShapeList, FALSE);
 	m_wndPropList.AddProperty(m_pProp[PropertyRigidShapeList], FALSE, FALSE);
-	m_pProp[PropertyRigidShapeCount] = new CSimpleProp(_T("Count"), (_variant_t)(size_t)0, NULL, PropertyRigidShapeCount);
-	m_pProp[PropertyRigidShapeList]->AddSubItem(m_pProp[PropertyRigidShapeCount]);
+	m_pProp[PropertyRigidShapeAdd] = new CComboProp(_T("Add..."), (_variant_t)_T(""), NULL, PropertyRigidShapeAdd);
+	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
+	{
+		m_pProp[PropertyRigidShapeAdd]->AddOption(g_ShapeTypeDesc[i].desc, TRUE);
+	}
+	m_pProp[PropertyRigidShapeList]->AddSubItem(m_pProp[PropertyRigidShapeAdd]);
 	for (unsigned int i = 0; i < 3; i++)
 	{
 		CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i);
@@ -1173,6 +1168,31 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal,
 				pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal,
 				pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyRigidShapeSphereRadius:
+		{
+			CMFCPropertyGridProperty * pShape = NULL;
+			switch (PropertyId)
+			{
+			case PropertyRigidShapeBoxHalfExtents:
+				pShape = pProp->GetParent();
+				break;
+			case PropertyRigidShapeBoxHalfExtentsX:
+			case PropertyRigidShapeBoxHalfExtentsY:
+			case PropertyRigidShapeBoxHalfExtentsZ:
+				pShape = pProp->GetParent()->GetParent();
+				break;
+			}
+			unsigned int i = pShape->GetData();
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			shapes[i]->setGeometry(PxSphereGeometry(
+				pShape->GetSubItem(1)->GetValue().fltVal));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

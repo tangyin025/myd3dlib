@@ -116,12 +116,12 @@ protected:
 		PropertyMaterialNormalTexture,
 		PropertyMaterialSpecularTexture,
 		PropertyRigidShapeList,
-		PropertyRigidShapeCount,
-		PropertyRigidShapeType,
+		PropertyRigidShapeAdd,
 		PropertyRigidShapeBoxHalfExtents,
 		PropertyRigidShapeBoxHalfExtentsX,
 		PropertyRigidShapeBoxHalfExtentsY,
 		PropertyRigidShapeBoxHalfExtentsZ,
+		PropertyRigidShapeSphereRadius,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -140,12 +140,16 @@ protected:
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
 	void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
+	void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
+
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
+	void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
+
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 
 // Implementation
