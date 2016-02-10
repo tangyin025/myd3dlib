@@ -154,7 +154,13 @@ BEGIN
             MENUITEM "Mesh...",                     ID_COMPONENT_MESH
             MENUITEM "Emitter",                     ID_COMPONENT_EMITTER
             MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
-            MENUITEM "RigidBody",                   ID_COMPONENT_RIGIDBODY
+            POPUP "Rigid"
+            BEGIN
+                MENUITEM "Sphere",                      ID_RIGID_SPHERE
+                MENUITEM "Plane",                       ID_RIGID_PLANE
+                MENUITEM "Capsule",                     ID_RIGID_CAPSULE
+                MENUITEM "Box",                         ID_RIGID_BOX
+            END
         END
     END
     POPUP "&View"

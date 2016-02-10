@@ -5,6 +5,7 @@
 #include "CtrlProps.h"
 #include "Resource.h"
 #include "MainFrm.h"
+#include "MainApp.h"
 
 #ifdef _DEBUG
 #undef THIS_FILE
@@ -375,6 +376,14 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 {
 	CMFCPropertyGridProperty * pShape = pParentCtrl->GetSubItem(NodeId + 1);
 	_ASSERT(LOWORD(pShape->GetData()) == NodeId && HIWORD(pShape->GetData()) == shape->getGeometryType());
+	PxTransform pose = shape->getLocalPose();
+	my::Vector3 euler = ((my::Quaternion&)pose.q).ToEulerAngles();
+	pShape->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)pose.p.x);
+	pShape->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)pose.p.y);
+	pShape->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)pose.p.z);
+	pShape->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(euler.x));
+	pShape->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(euler.y));
+	pShape->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(euler.z));
 	int type = shape->getGeometryType();
 	switch (type)
 	{
@@ -389,14 +398,14 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 
 void CPropertiesWnd::UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box)
 {
-	pShape->GetSubItem(0)->GetSubItem(0)->SetValue(box.halfExtents.x);
-	pShape->GetSubItem(0)->GetSubItem(1)->SetValue(box.halfExtents.y);
-	pShape->GetSubItem(0)->GetSubItem(2)->SetValue(box.halfExtents.z);
+	pShape->GetSubItem(2)->GetSubItem(0)->SetValue(box.halfExtents.x);
+	pShape->GetSubItem(2)->GetSubItem(1)->SetValue(box.halfExtents.y);
+	pShape->GetSubItem(2)->GetSubItem(2)->SetValue(box.halfExtents.z);
 }
 
 void CPropertiesWnd::UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere)
 {
-	pShape->GetSubItem(0)->SetValue(sphere.radius);
+	pShape->GetSubItem(2)->SetValue(sphere.radius);
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
@@ -506,9 +515,25 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type)
 {
 	TCHAR buff[128];
-	_stprintf_s(buff, _countof(buff), _T("Shape%u"), NodeId);
+	_stprintf_s(buff, _countof(buff), _T("%u.%s"), NodeId, g_ShapeTypeDesc[type].desc);
 	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, MAKELONG(NodeId, type), FALSE);
 	pParentCtrl->AddSubItem(pShape);
+	CMFCPropertyGridProperty * pPos = new CSimpleProp(_T("Pos"), PropertyRigidShapePos, TRUE);
+	pShape->AddSubItem(pPos);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapePosX);
+	pPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapePosY);
+	pPos->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapePosZ);
+	pPos->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pRot = new CSimpleProp(_T("Rot"), PropertyRigidShapeRot, TRUE);
+	pShape->AddSubItem(pRot);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotX);
+	pRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotY);
+	pRot->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotZ);
+	pRot->AddSubItem(pProp);
 	switch (type)
 	{
 	case PxGeometryType::eBOX:
@@ -516,6 +541,8 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 		break;
 	case PxGeometryType::eSPHERE:
 		CreatePropertiesShapeSphere(pShape);
+		break;
+	case PxGeometryType::eTRIANGLEMESH:
 		break;
 	}
 }
@@ -1186,6 +1213,48 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
+	case PropertyRigidShapePos:
+	case PropertyRigidShapePosX:
+	case PropertyRigidShapePosY:
+	case PropertyRigidShapePosZ:
+	case PropertyRigidShapeRot:
+	case PropertyRigidShapeRotX:
+	case PropertyRigidShapeRotY:
+	case PropertyRigidShapeRotZ:
+		{
+			CMFCPropertyGridProperty * pShape = NULL;
+			switch (PropertyId)
+			{
+			case PropertyRigidShapePos:
+			case PropertyRigidShapeRot:
+				pShape = pProp->GetParent();
+				break;
+			case PropertyRigidShapePosX:
+			case PropertyRigidShapePosY:
+			case PropertyRigidShapePosZ:
+			case PropertyRigidShapeRotX:
+			case PropertyRigidShapeRotY:
+			case PropertyRigidShapeRotZ:
+				pShape = pProp->GetParent()->GetParent();
+				break;
+			}
+			unsigned int NodeId = LOWORD(pShape->GetData());
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+				D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
+			shapes[NodeId]->setLocalPose(PxTransform(PxVec3(
+				pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
+				pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
+				pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal), (PxQuat&)rot));
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
 	case PropertyRigidShapeBoxHalfExtents:
 	case PropertyRigidShapeBoxHalfExtentsX:
 	case PropertyRigidShapeBoxHalfExtentsY:
@@ -1209,9 +1278,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			std::vector<PxShape *> shapes(NbShapes);
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 			shapes[NodeId]->setGeometry(PxBoxGeometry(PxVec3(
-				pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
-				pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
-				pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal)));
+				pShape->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
+				pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
+				pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
@@ -1225,7 +1294,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			std::vector<PxShape *> shapes(NbShapes);
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 			shapes[NodeId]->setGeometry(PxSphereGeometry(
-				pShape->GetSubItem(0)->GetValue().fltVal));
+				pShape->GetSubItem(2)->GetValue().fltVal));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
