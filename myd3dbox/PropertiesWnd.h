@@ -125,6 +125,8 @@ protected:
 		PropertyRigidShapeRotX,
 		PropertyRigidShapeRotY,
 		PropertyRigidShapeRotZ,
+		PropertyRigidShapeCapsuleRadius,
+		PropertyRigidShapeCapsuleHalfHeight,
 		PropertyRigidShapeBoxHalfExtents,
 		PropertyRigidShapeBoxHalfExtentsX,
 		PropertyRigidShapeBoxHalfExtentsY,
@@ -150,6 +152,7 @@ protected:
 	void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
 	void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
 	void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
+	void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
@@ -158,6 +161,7 @@ protected:
 	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
 	void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
 	void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
+	void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 

@@ -390,6 +390,11 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	case PxGeometryType::eSPHERE:
 		UpdatePropertiesShapeSphere(pShape, shape->getGeometry().sphere());
 		break;
+	case PxGeometryType::ePLANE:
+		break;
+	case PxGeometryType::eCAPSULE:
+		UpdatePropertiesShapeCapsule(pShape, shape->getGeometry().capsule());
+		break;
 	case PxGeometryType::eBOX:
 		UpdatePropertiesShapeBox(pShape, shape->getGeometry().box());
 		break;
@@ -398,14 +403,20 @@ void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 
 void CPropertiesWnd::UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box)
 {
-	pShape->GetSubItem(2)->GetSubItem(0)->SetValue(box.halfExtents.x);
-	pShape->GetSubItem(2)->GetSubItem(1)->SetValue(box.halfExtents.y);
-	pShape->GetSubItem(2)->GetSubItem(2)->SetValue(box.halfExtents.z);
+	pShape->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)box.halfExtents.x);
+	pShape->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)box.halfExtents.y);
+	pShape->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)box.halfExtents.z);
 }
 
 void CPropertiesWnd::UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere)
 {
-	pShape->GetSubItem(2)->SetValue(sphere.radius);
+	pShape->GetSubItem(2)->SetValue((_variant_t)sphere.radius);
+}
+
+void CPropertiesWnd::UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule)
+{
+	pShape->GetSubItem(2)->SetValue((_variant_t)capsule.radius);
+	pShape->GetSubItem(3)->SetValue((_variant_t)capsule.halfHeight);
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
@@ -536,13 +547,16 @@ void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtr
 	pRot->AddSubItem(pProp);
 	switch (type)
 	{
-	case PxGeometryType::eBOX:
-		CreatePropertiesShapeBox(pShape);
-		break;
 	case PxGeometryType::eSPHERE:
 		CreatePropertiesShapeSphere(pShape);
 		break;
-	case PxGeometryType::eTRIANGLEMESH:
+	case PxGeometryType::ePLANE:
+		break;
+	case PxGeometryType::eCAPSULE:
+		CreatePropertiesShapeCapsule(pShape);
+		break;
+	case PxGeometryType::eBOX:
+		CreatePropertiesShapeBox(pShape);
 		break;
 	}
 }
@@ -562,6 +576,14 @@ void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
 void CPropertiesWnd::CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape)
 {
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeSphereRadius);
+	pShape->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape)
+{
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleRadius);
+	pShape->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("HalfHeight"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleHalfHeight);
 	pShape->AddSubItem(pProp);
 }
 
@@ -1190,8 +1212,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 					*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
 				break;
 			case PxGeometryType::ePLANE:
+				shape = rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(),
+					*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
 				break;
 			case PxGeometryType::eCAPSULE:
+				shape = rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f),
+					*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
 				break;
 			case PxGeometryType::eBOX:
 				shape = rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(PxVec3(1,1,1)),
@@ -1251,6 +1277,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
 				pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
 				pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal), (PxQuat&)rot));
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyRigidShapeCapsuleRadius:
+	case PropertyRigidShapeCapsuleHalfHeight:
+		{
+			CMFCPropertyGridProperty * pShape = pProp->GetParent();
+			unsigned int NodeId = LOWORD(pShape->GetData());
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			shapes[NodeId]->setGeometry(PxCapsuleGeometry(
+				pShape->GetSubItem(2)->GetValue().fltVal,
+				pShape->GetSubItem(3)->GetValue().fltVal));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
