@@ -20,8 +20,6 @@ class Demo
 public:
 	std::vector<ComponentPtr> m_cmps;
 
-	TerrainPtr m_Terrain;
-
 public:
 	Demo::Demo(void)
 	{
@@ -63,6 +61,11 @@ public:
 		ExecuteCode("dofile \"StateMain.lua\"");
 		RemoveDlg(m_Console);
 		InsertDlg(m_Console);
+
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 		// ========================================================================================================
 		// Ê¾Àý´úÂë
@@ -146,18 +149,10 @@ public:
 		std::ifstream istr("ccc.xml");
 		boost::archive::xml_iarchive ia(istr);
 		ia >> boost::serialization::make_nvp("level", m_cmps);
-		ia >> boost::serialization::make_nvp("terrain", m_Terrain);
 		for (unsigned int i = 0; i < m_cmps.size(); i++)
 		{
 			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
 			m_cmps[i]->RequestResource();
-		}
-		m_Terrain->RequestResource();
-		for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
-		{
-			TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
-			chunk->RequestResource();
-			m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
 		}
 
 		return S_OK;
@@ -182,7 +177,6 @@ public:
 	virtual void OnDestroyDevice(void)
 	{
 		m_cmps.clear();
-		m_Terrain.reset();
 		Game::OnDestroyDevice();
 	}
 

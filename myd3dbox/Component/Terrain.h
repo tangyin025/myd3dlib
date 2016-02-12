@@ -6,10 +6,11 @@
 class Terrain;
 
 class TerrainChunk
-	: public RenderComponent
+	: public my::OctComponent
 {
 public:
 	Terrain * m_Owner;
+	my::AABB m_aabb;
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
 	DWORD m_VertexStride;
 	my::VertexBuffer m_vb;
@@ -28,22 +29,14 @@ public:
 	void CreateVertices(void);
 
 	void DestroyVertices(void);
-
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-
-	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
 class Terrain
+	: public RenderComponent
 {
 public:
-	my::Matrix4 m_World;
 	DWORD m_RowChunks;
 	DWORD m_ColChunks;
 	DWORD m_ChunkRows;
@@ -52,10 +45,10 @@ public:
 	float m_RowScale;
 	float m_ColScale;
 	MaterialPtr m_Material;
-	bool m_Requested;
 	std::vector<PxHeightFieldSample> m_Samples;
 	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
 	TerrainChunkPtrList m_Chunks;
+	my::OctRoot m_Root;
 	PhysXPtr<PxHeightField> m_HeightField;
 	PhysXPtr<PxRigidActor> m_RigidActor;
 
@@ -91,6 +84,10 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

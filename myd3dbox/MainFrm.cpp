@@ -409,7 +409,6 @@ void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();
 	m_cmps.clear();
-	m_Terrain.reset();
 	m_selcmps.clear();
 }
 
@@ -494,18 +493,10 @@ void CMainFrame::OnFileOpen()
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("level", m_cmps);
-	ia >> boost::serialization::make_nvp("terrain", m_Terrain);
 	for (unsigned int i = 0; i < m_cmps.size(); i++)
 	{
 		m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
 		m_cmps[i]->RequestResource();
-	}
-	m_Terrain->RequestResource();
-	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
-	{
-		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
-		chunk->RequestResource();
-		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
 	}
 }
 
@@ -528,7 +519,6 @@ void CMainFrame::OnFileSave()
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("level", m_cmps);
-	oa << boost::serialization::make_nvp("terrain", m_Terrain);
 }
 
 void CMainFrame::OnComponentMesh()
@@ -695,21 +685,22 @@ void CMainFrame::OnRigidBox()
 void CMainFrame::OnCreateTerrain()
 {
 	// TODO: Add your command handler code here
-	m_Terrain.reset(new Terrain(my::Matrix4::Translation(-320,0,-320),5,5,64,64,1.0f,2.0f,2.0f));
+	TerrainPtr terrain(new Terrain(my::Matrix4::Translation(-320,0,-320),5,5,64,64,1.0f,2.0f,2.0f));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
 	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
 	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
 	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	m_Terrain->m_Material = lambert1;
-	m_Terrain->RequestResource();
-	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
-	{
-		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
-		chunk->RequestResource();
-		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
-	}
+	terrain->m_Material = lambert1;
+	terrain->RequestResource();
+	m_Root.AddComponent(terrain.get(), terrain->m_aabb.transform(Component::GetComponentWorld(terrain.get())), 0.1f);
+	m_cmps.push_back(terrain);
+
+	m_selcmps.clear();
+	m_selcmps.insert(terrain.get());
+	UpdateSelBox();
+	UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()

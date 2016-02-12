@@ -809,16 +809,14 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 {
 	struct CallBack : public my::IQueryCallback
 	{
-		const my::Frustum & m_frustum;
+		const my::Frustum & frustum;
+		RenderPipeline * pipeline;
+		unsigned int PassMask;
 
-		RenderPipeline * m_pipeline;
-
-		unsigned int m_PassMask;
-
-		CallBack(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-			: m_frustum(frustum)
-			, m_pipeline(pipeline)
-			, m_PassMask(PassMask)
+		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+			: frustum(_frustum)
+			, pipeline(_pipeline)
+			, PassMask(_PassMask)
 		{
 		}
 
@@ -827,7 +825,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(oct_cmp);
 			if (render_cmp)
 			{
-				render_cmp->AddToPipeline(m_pipeline, m_PassMask);
+				render_cmp->AddToPipeline(frustum, pipeline, PassMask);
 			}
 		}
 	};

@@ -239,7 +239,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(oct_cmp);
 			if (render_cmp)
 			{
-				render_cmp->AddToPipeline(pipeline, PassMask);
+				render_cmp->AddToPipeline(frustum, pipeline, PassMask);
 
 				if (pView->m_bShowCmpHandle)
 				{
@@ -260,7 +260,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
 
-	pFrame->m_emitter->AddToPipeline(pipeline, PassMask);
+	pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
@@ -528,6 +528,31 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
 			std::vector<PxShape *> shapes(NbShapes);
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+			for (unsigned int i = 0; i < NbShapes; i++)
+			{
+				PxRaycastHit hits[1];
+				if (PxGeometryQuery::raycast(
+					(PxVec3&)ray.p,
+					(PxVec3&)ray.d,
+					shapes[i]->getGeometry().any(),
+					PxShapeExt::getGlobalPose(*shapes[i]),
+					3000.0f,
+					PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
+					_countof(hits), hits, true))
+				{
+					return my::RayResult(true, hits[0].distance);
+				}
+			}
+		}
+		break;
+
+	case Component::ComponentTypeTerrain:
+		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			_ASSERT(terrain->m_RigidActor);
+			unsigned int NbShapes = terrain->m_RigidActor->getNbShapes();
+			std::vector<PxShape *> shapes(NbShapes);
+			NbShapes = terrain->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 			for (unsigned int i = 0; i < NbShapes; i++)
 			{
 				PxRaycastHit hits[1];

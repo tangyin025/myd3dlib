@@ -41,7 +41,6 @@ public:
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
 	my::OctRoot m_Root;
-	TerrainPtr m_Terrain;
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 	ComponentPtrList m_cmps;
 	typedef std::set<Component *> ComponentSet;

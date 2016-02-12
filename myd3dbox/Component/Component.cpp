@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Component.h"
+#include "Terrain.h"
 #include "Animator.h"
 #include "PhysXContext.h"
 #include <boost/archive/xml_iarchive.hpp>
@@ -78,17 +79,22 @@ const my::AABB & Component::GetComponentAABB(void) const
 	return m_aabb;
 }
 
-my::Matrix4 Component::GetComponentWorld(Component * cmp)
+my::Matrix4 Component::GetComponentWorld(const Component * cmp)
 {
 	switch (cmp->m_Type)
 	{
 	case ComponentTypeMesh:
-		return dynamic_cast<MeshComponent *>(cmp)->m_World;
+		return dynamic_cast<const MeshComponent *>(cmp)->m_World;
 	case ComponentTypeEmitter:
-		return dynamic_cast<EmitterComponent *>(cmp)->m_World;
+		return dynamic_cast<const EmitterComponent *>(cmp)->m_World;
 	case ComponentTypeRigid:
 		{
-			PxTransform pose = dynamic_cast<RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
+			PxTransform pose = dynamic_cast<const RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
+			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
+		}
+	case ComponentTypeTerrain:
+		{
+			PxTransform pose = dynamic_cast<const Terrain *>(cmp)->m_RigidActor->getGlobalPose();
 			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
 		}
 	}
@@ -110,6 +116,13 @@ void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
 			Vector3 scale, pos; Quaternion rot;
 			World.Decompose(scale, rot, pos);
 			dynamic_cast<RigidComponent *>(cmp)->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+		}
+		break;
+	case ComponentTypeTerrain:
+		{
+			Vector3 scale, pos; Quaternion rot;
+			World.Decompose(scale, rot, pos);
+			dynamic_cast<Terrain *>(cmp)->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 		}
 		break;
 	}
@@ -173,7 +186,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
-void MeshComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	if (m_MeshRes.m_Res)
 	{
@@ -246,7 +259,7 @@ void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	}
 }
 
-void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask)
+void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
 	{

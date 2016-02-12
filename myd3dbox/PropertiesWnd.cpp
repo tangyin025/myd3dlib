@@ -195,6 +195,12 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		m_pProp[PropertyRigidShapeList]->Show(TRUE, FALSE);
 		UpdatePropertiesRigid(dynamic_cast<RigidComponent *>(cmp));
 		break;
+	case Component::ComponentTypeTerrain:
+		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+		m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
+		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
+		break;
 	}
 	m_wndPropList.AdjustLayout();
 }

@@ -64,7 +64,7 @@ public:
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
 		ComponentTypeRigid,
-		ComponentTypeTerrainChunk,
+		ComponentTypeTerrain,
 	};
 
 	ComponentType m_Type;
@@ -130,7 +130,7 @@ public:
 
 	const my::AABB & GetComponentAABB(void) const;
 
-	static my::Matrix4 GetComponentWorld(Component * cmp);
+	static my::Matrix4 GetComponentWorld(const Component * cmp);
 
 	static void SetComponentWorld(Component * cmp, const my::Matrix4 & World);
 };
@@ -155,7 +155,7 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
 
-	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask) = 0;
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -221,7 +221,7 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
-	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
@@ -274,7 +274,7 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
-	virtual void AddToPipeline(RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
