@@ -322,6 +322,22 @@
 				RelativePath="..\myd3dbox\Component\RenderPipeline.h"
 				>
 			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\ResourceBundle.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\ResourceBundle.h"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\Terrain.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\Terrain.h"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Logic"

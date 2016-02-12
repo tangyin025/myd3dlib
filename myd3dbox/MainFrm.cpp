@@ -7,6 +7,7 @@
 
 #include "MainFrm.h"
 #include "ChildView.h"
+#include "Component/Terrain.h"
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
@@ -402,6 +403,7 @@ void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();
 	m_cmps.clear();
+	m_Terrain.reset();
 	m_selcmps.clear();
 }
 
@@ -434,6 +436,54 @@ void CMainFrame::OnFileNew()
 	ClearAllComponents();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
+
+	//unsigned int numRows = 5;
+	//unsigned int numCols = 5;
+	//PxHeightFieldSample* samples = (PxHeightFieldSample*)malloc(sizeof(PxHeightFieldSample)*(numRows*numCols));
+	//for (unsigned i = 0; i < numRows; i++)
+	//{
+	//	for (unsigned int j = 0; j < numCols; j++)
+	//	{
+	//		PxHeightFieldSample & sample = samples[i * numCols + j];
+	//		sample.height = 0;
+	//		sample.materialIndex0 = PxBitAndByte(0, false);
+	//		sample.materialIndex1 = PxBitAndByte(0, false);
+	//	}
+	//}
+
+	//PxHeightFieldDesc hfDesc;
+	//hfDesc.format             = PxHeightFieldFormat::eS16_TM;
+	//hfDesc.nbColumns          = numCols;
+	//hfDesc.nbRows             = numRows;
+	//hfDesc.samples.data       = samples;
+	//hfDesc.samples.stride     = sizeof(PxHeightFieldSample);
+	//PxHeightField* aHeightField = PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc);
+	//float heightScale = 1.0f;
+	//float rowScale = 3.0f;
+	//float colScale = 3.0f;
+	//PxHeightFieldGeometry hfGeom(aHeightField, PxMeshGeometryFlags(), heightScale, rowScale, colScale);
+
+	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
+	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
+	//rigid_cmp->RequestResource();
+	//m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	//m_cmps.push_back(rigid_cmp);
+
+	m_Terrain.reset(new Terrain(10,10,64,64,1.0f,1.0f,1.0f));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = "lambert1.fx";
+	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	lambert1->RequestResource();
+	m_Terrain->m_Material = lambert1;
+	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
+	{
+		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
+		chunk->RequestResource();
+		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
+	}
 }
 
 void CMainFrame::OnFileOpen()

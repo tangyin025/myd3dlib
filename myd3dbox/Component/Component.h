@@ -64,6 +64,7 @@ public:
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
 		ComponentTypeRigid,
+		ComponentTypeTerrainChunk,
 	};
 
 	ComponentType m_Type;

@@ -411,6 +411,22 @@
 				RelativePath=".\Component\RenderPipeline.h"
 				>
 			</File>
+			<File
+				RelativePath=".\Component\ResourceBundle.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\ResourceBundle.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Terrain.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Terrain.h"
+				>
+			</File>
 		</Filter>
 		<File
 			RelativePath=".\ReadMe.txt"
