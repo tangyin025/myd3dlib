@@ -162,6 +162,7 @@ BEGIN
                 MENUITEM "Box",                         ID_RIGID_BOX
             END
         END
+        MENUITEM "Terrain",                     ID_CREATE_TERRAIN
     END
     POPUP "&View"
     BEGIN

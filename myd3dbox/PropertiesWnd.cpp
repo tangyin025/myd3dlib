@@ -160,7 +160,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 	m_pProp[PropertyComponentMaxY]->SetValue((_variant_t)cmp->m_aabb.m_max.y);
 	m_pProp[PropertyComponentMaxZ]->SetValue((_variant_t)cmp->m_aabb.m_max.z);
 	my::Vector3 pos, scale; my::Quaternion rot;
-	cmp->m_World.Decompose(scale, rot, pos);
+	Component::GetComponentWorld(cmp).Decompose(scale, rot, pos);
 	m_pProp[PropertyComponentPosX]->SetValue((_variant_t)pos.x);
 	m_pProp[PropertyComponentPosY]->SetValue((_variant_t)pos.y);
 	m_pProp[PropertyComponentPosZ]->SetValue((_variant_t)pos.z);
@@ -918,14 +918,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				m_pProp[PropertyComponentScaleX]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
-			cmp->m_World = my::Matrix4::Compose(scale, rot, pos);
+			Component::SetComponentWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
 			if (Component::ComponentTypeRigid == cmp->m_Type)
 			{
 				RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 				rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 			}
 			VERIFY(pFrame->m_Root.RemoveComponent(cmp));
-			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(cmp->m_World), 0.1f);
+			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(Component::GetComponentWorld(cmp)), 0.1f);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArg arg;

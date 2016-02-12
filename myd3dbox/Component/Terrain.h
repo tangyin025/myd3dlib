@@ -18,6 +18,7 @@ public:
 	my::Vector2 m_TexStart;
 	my::Vector2 m_TexEnd;
 	my::D3DVertexElementSet m_VertexElems;
+
 public:
 	TerrainChunk(Terrain * Owner, const my::Vector2 & PosStart, const my::Vector2 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd);
 
@@ -52,8 +53,34 @@ public:
 	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
 	TerrainChunkPtrList m_Chunks;
 	MaterialPtr m_Material;
+	bool m_Requested;
+
+	void CreateChunks(void);
+
 public:
 	Terrain(DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale);
+
+	Terrain(void);
+
+	virtual ~Terrain(void);
+
+	friend class boost::serialization::access;
+	
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

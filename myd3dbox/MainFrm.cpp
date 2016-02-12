@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
 	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
 	ON_COMMAND(ID_RIGID_BOX, &CMainFrame::OnRigidBox)
+	ON_COMMAND(ID_CREATE_TERRAIN, &CMainFrame::OnCreateTerrain)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
@@ -388,7 +389,7 @@ void CMainFrame::UpdatePivotTransform(void)
 	if (m_selcmps.size() == 1)
 	{
 		my::Vector3 Pos, Scale; my::Quaternion Rot;
-		(*m_selcmps.begin())->m_World.Decompose(Scale, Rot, Pos);
+		Component::GetComponentWorld(*m_selcmps.begin()).Decompose(Scale, Rot, Pos);
 		m_Pivot.m_Pos = Pos;
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
 	}
@@ -466,24 +467,8 @@ void CMainFrame::OnFileNew()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	//m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetComponentWorld(rigid_cmp.get())), 0.1f);
 	//m_cmps.push_back(rigid_cmp);
-
-	m_Terrain.reset(new Terrain(10,10,64,64,1.0f,1.0f,1.0f));
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = "lambert1.fx";
-	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	lambert1->RequestResource();
-	m_Terrain->m_Material = lambert1;
-	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
-	{
-		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
-		chunk->RequestResource();
-		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
-	}
 }
 
 void CMainFrame::OnFileOpen()
@@ -504,11 +489,21 @@ void CMainFrame::OnFileOpen()
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("level", m_cmps);
+	ia >> boost::serialization::make_nvp("terrain", m_Terrain);
+
 	ComponentPtrList::iterator cmp_iter = m_cmps.begin();
 	for (; cmp_iter != m_cmps.end(); cmp_iter++)
 	{
-		m_Root.AddComponent(cmp_iter->get(), (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World), 0.1f);
+		m_Root.AddComponent(cmp_iter->get(), (*cmp_iter)->m_aabb.transform(Component::GetComponentWorld((*cmp_iter).get())), 0.1f);
 		(*cmp_iter)->RequestResource();
+	}
+
+	m_Terrain->m_Material->RequestResource();
+	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
+	{
+		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
+		chunk->RequestResource();
+		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
 	}
 }
 
@@ -531,6 +526,7 @@ void CMainFrame::OnFileSave()
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("level", m_cmps);
+	oa << boost::serialization::make_nvp("terrain", m_Terrain);
 }
 
 void CMainFrame::OnComponentMesh()
@@ -640,7 +636,7 @@ void CMainFrame::OnRigidSphere()
 	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetComponentWorld(rigid_cmp.get())), 0.1f);
 	m_cmps.push_back(rigid_cmp);
 
 	m_selcmps.clear();
@@ -655,7 +651,7 @@ void CMainFrame::OnRigidPlane()
 	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetComponentWorld(rigid_cmp.get())), 0.1f);
 	m_cmps.push_back(rigid_cmp);
 
 	m_selcmps.clear();
@@ -670,7 +666,7 @@ void CMainFrame::OnRigidCapsule()
 	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetComponentWorld(rigid_cmp.get())), 0.1f);
 	m_cmps.push_back(rigid_cmp);
 
 	m_selcmps.clear();
@@ -685,13 +681,33 @@ void CMainFrame::OnRigidBox()
 	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(rigid_cmp->m_World), 0.1f);
+	m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetComponentWorld(rigid_cmp.get())), 0.1f);
 	m_cmps.push_back(rigid_cmp);
 
 	m_selcmps.clear();
 	m_selcmps.insert(rigid_cmp.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
+}
+
+void CMainFrame::OnCreateTerrain()
+{
+	// TODO: Add your command handler code here
+	m_Terrain.reset(new Terrain(2,2,4,4,1.0f,1.0f,1.0f));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = "lambert1.fx";
+	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	m_Terrain->m_Material = lambert1;
+	m_Terrain->RequestResource();
+	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
+	{
+		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
+		chunk->RequestResource();
+		m_Root.AddComponent(chunk, chunk->m_aabb.transform(m_Terrain->m_World), 0.1f);
+	}
 }
 
 void CMainFrame::OnEditDelete()

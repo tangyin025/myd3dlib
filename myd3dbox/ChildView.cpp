@@ -246,8 +246,11 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 					switch (render_cmp->m_Type)
 					{
 					case Component::ComponentTypeEmitter:
-						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
-							render_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
+						{
+							EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(oct_cmp);
+							pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
+								emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
+						}
 						break;
 					}
 				}
@@ -310,12 +313,12 @@ double CChildView::EndPerformanceCount(void)
 
 bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp)
 {
-	my::Frustum local_ftm = frustum.transform(cmp->m_World.transpose());
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			my::Frustum local_ftm = frustum.transform(mesh_cmp->m_World.transpose());
 			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
 			if (!mesh)
 			{
@@ -368,6 +371,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 		{
 			m_Camera;
 			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			my::Frustum local_ftm = frustum.transform(emit_cmp->m_World.transpose());
 			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
@@ -437,12 +441,12 @@ bool CChildView::OverlapTestFrustumAndMesh(
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp)
 {
-	my::Ray local_ray = ray.transform(cmp->m_World.inverse());
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeMesh:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			my::Ray local_ray = ray.transform(mesh_cmp->m_World.inverse());
 			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
 			if (!mesh)
 			{
@@ -489,7 +493,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 			if (ret.first)
 			{
-				ret.second = (local_ray.d * ret.second).transformNormal(cmp->m_World).magnitude();
+				ret.second = (local_ray.d * ret.second).transformNormal(mesh_cmp->m_World).magnitude();
 			}
 			return ret;
 		}
@@ -499,6 +503,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 		{
 			m_Camera;
 			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+			my::Ray local_ray = ray.transform(emit_cmp->m_World.inverse());
 			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
 			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
 			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
@@ -794,7 +799,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
-			m_selcmpwlds.insert(std::make_pair(*sel_iter, (*sel_iter)->m_World));
+			m_selcmpwlds.insert(std::make_pair(*sel_iter, Component::GetComponentWorld(*sel_iter)));
 		}
 		SetCapture();
 		Invalidate();
@@ -914,7 +919,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
 			VERIFY(pFrame->m_Root.RemoveComponent(cmp_world_iter->first));
-			pFrame->m_Root.AddComponent(cmp_world_iter->first, cmp_world_iter->first->m_aabb.transform(cmp_world_iter->first->m_World), 0.1f);
+			pFrame->m_Root.AddComponent(cmp_world_iter->first, cmp_world_iter->first->m_aabb.transform(Component::GetComponentWorld(cmp_world_iter->first)), 0.1f);
 		}
 		m_selcmpwlds.clear();
 		pFrame->UpdateSelBox();
@@ -939,25 +944,14 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				cmp_world_iter->first->m_World = cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
+				Component::SetComponentWorld(cmp_world_iter->first,
+					cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos));
 				break;
 			case Pivot::PivotModeRot:
-				cmp_world_iter->first->m_World = cmp_world_iter->second
+				Component::SetComponentWorld(cmp_world_iter->first, cmp_world_iter->second
 					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
 					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
-					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
-				break;
-			}
-
-			switch (cmp_world_iter->first->m_Type)
-			{
-			case Component::ComponentTypeRigid:
-				{
-					my::Vector3 pos, scale; my::Quaternion rot;
-					cmp_world_iter->first->m_World.Decompose(scale, rot, pos);
-					RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp_world_iter->first);
-					rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
-				}
+					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
 				break;
 			}
 		}

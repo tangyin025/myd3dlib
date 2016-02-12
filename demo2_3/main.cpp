@@ -145,7 +145,7 @@ public:
 		ia >> boost::serialization::make_nvp("level", m_cmps);
 		for (unsigned int i = 0; i < m_cmps.size(); i++)
 		{
-			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(m_cmps[i]->m_World), 0.1f);
+			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
 			m_cmps[i]->RequestResource();
 		}
 

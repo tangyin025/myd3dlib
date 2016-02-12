@@ -2109,9 +2109,9 @@ namespace my
 				-a14(),  a24(), -a34(),  a44());
 		}
 
-		void Decompose(Vector3 & outScale, Quaternion & outRotation, Vector3 & outTranslation)
+		void Decompose(Vector3 & outScale, Quaternion & outRotation, Vector3 & outTranslation) const
 		{
-			D3DXMatrixDecompose((D3DXVECTOR3 *)&outScale, (D3DXQUATERNION *)&outRotation, (D3DXVECTOR3 *)&outTranslation, (D3DXMATRIX *)this);
+			D3DXMatrixDecompose((D3DXVECTOR3 *)&outScale, (D3DXQUATERNION *)&outRotation, (D3DXVECTOR3 *)&outTranslation, (const D3DXMATRIX *)this);
 		}
 
 		static Matrix4 Compose(const Vector3 & Scale, const Quaternion & Rotate, const Vector3 & Translate)

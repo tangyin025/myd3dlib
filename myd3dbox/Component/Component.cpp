@@ -78,6 +78,43 @@ const my::AABB & Component::GetComponentAABB(void) const
 	return m_aabb;
 }
 
+my::Matrix4 Component::GetComponentWorld(Component * cmp)
+{
+	switch (cmp->m_Type)
+	{
+	case ComponentTypeMesh:
+		return dynamic_cast<MeshComponent *>(cmp)->m_World;
+	case ComponentTypeEmitter:
+		return dynamic_cast<EmitterComponent *>(cmp)->m_World;
+	case ComponentTypeRigid:
+		{
+			PxTransform pose = dynamic_cast<RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
+			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
+		}
+	}
+	return Matrix4::Identity();
+}
+
+void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
+{
+	switch (cmp->m_Type)
+	{
+	case ComponentTypeMesh:
+		dynamic_cast<MeshComponent *>(cmp)->m_World = World;
+		break;
+	case ComponentTypeEmitter:
+		dynamic_cast<EmitterComponent *>(cmp)->m_World = World;
+		break;
+	case ComponentTypeRigid:
+		{
+			Vector3 scale, pos; Quaternion rot;
+			World.Decompose(scale, rot, pos);
+			dynamic_cast<RigidComponent *>(cmp)->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+		}
+		break;
+	}
+}
+
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
@@ -227,10 +264,10 @@ void EmitterComponent::AddToPipeline(RenderPipeline * pipeline, unsigned int Pas
 	}
 }
 
-void RigidComponent::CreateRigidActor(void)
+void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
 {
 	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
+	World.Decompose(scale, rot, pos);
 	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
 }
 

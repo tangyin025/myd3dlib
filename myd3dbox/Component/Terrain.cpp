@@ -1,10 +1,20 @@
 #include "StdAfx.h"
 #include "Terrain.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(Terrain)
+
 TerrainChunk::TerrainChunk(Terrain * Owner, const my::Vector2 & PosStart, const my::Vector2 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd)
-	: RenderComponent(my::AABB(Vector3(PosStart.x, -1, PosStart.y), Vector3(PosEnd.x, 1, PosEnd.y)), my::Matrix4::Identity(), ComponentTypeTerrainChunk)
+	: RenderComponent(my::AABB(Vector3(PosStart.x, -1, PosStart.y), Vector3(PosEnd.x, 1, PosEnd.y)), ComponentTypeTerrainChunk)
 	, m_Owner(Owner)
 	, m_PosStart(PosStart)
 	, m_PosEnd(PosEnd)
@@ -142,14 +152,39 @@ void TerrainChunk::AddToPipeline(RenderPipeline * pipeline, unsigned int PassMas
 }
 
 Terrain::Terrain(DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale)
-	: m_RowChunks(RowChunks)
+	: m_World(my::Matrix4::Translation(RowChunks * ChunkRows * RowScale * -0.5f, 0, ColChunks * ChunkCols * ColScale * -0.5f))
+	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkRows(ChunkRows)
 	, m_ChunkCols(ChunkCols)
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
 	, m_ColScale(ColScale)
-	, m_World(my::Matrix4::Translation(RowChunks * ChunkRows * RowScale * -0.5f, 0, ColChunks * ChunkCols * ColScale * -0.5f))
+	, m_Requested(false)
+{
+	CreateChunks();
+}
+
+Terrain::Terrain(void)
+	: m_World(my::Matrix4::Identity())
+	, m_RowChunks(0)
+	, m_ColChunks(0)
+	, m_ChunkRows(0)
+	, m_ChunkCols(0)
+	, m_HeightScale(0)
+	, m_RowScale(0)
+	, m_ColScale(0)
+	, m_Requested(false)
+{
+}
+
+Terrain::~Terrain(void)
+{
+	m_Material.reset();
+	m_Chunks.clear();
+}
+
+void Terrain::CreateChunks(void)
 {
 	m_Chunks.resize(m_RowChunks * m_ColChunks);
 	for (unsigned int i = 0; i < m_RowChunks; i++)
@@ -161,5 +196,52 @@ Terrain::Terrain(DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkC
 				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkCols * m_ColScale),
 				my::Vector2(0,0), my::Vector2(1,1)));
 		}
+	}
+}
+
+template<>
+void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_World);
+	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
+	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkRows);
+	ar << BOOST_SERIALIZATION_NVP(m_ChunkCols);
+	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
+	ar << BOOST_SERIALIZATION_NVP(m_ColScale);
+	ar << BOOST_SERIALIZATION_NVP(m_Material);
+}
+
+template<>
+void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_World);
+	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
+	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkRows);
+	ar >> BOOST_SERIALIZATION_NVP(m_ChunkCols);
+	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_ColScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_Material);
+	CreateChunks();
+}
+
+void Terrain::RequestResource(void)
+{
+	if (!m_Requested)
+	{
+		m_Material->RequestResource();
+		m_Requested = true;
+	}
+}
+
+void Terrain::ReleaseResource(void)
+{
+	if (m_Requested)
+	{
+		m_Material->ReleaseResource();
+		m_Requested = false;
 	}
 }
