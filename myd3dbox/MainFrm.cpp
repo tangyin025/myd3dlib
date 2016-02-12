@@ -87,6 +87,11 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!PhysXSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
 		return -1;
 
+	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value
 	OnApplicationLook(theApp.m_nAppLook);
@@ -490,15 +495,12 @@ void CMainFrame::OnFileOpen()
 	boost::archive::xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("level", m_cmps);
 	ia >> boost::serialization::make_nvp("terrain", m_Terrain);
-
-	ComponentPtrList::iterator cmp_iter = m_cmps.begin();
-	for (; cmp_iter != m_cmps.end(); cmp_iter++)
+	for (unsigned int i = 0; i < m_cmps.size(); i++)
 	{
-		m_Root.AddComponent(cmp_iter->get(), (*cmp_iter)->m_aabb.transform(Component::GetComponentWorld((*cmp_iter).get())), 0.1f);
-		(*cmp_iter)->RequestResource();
+		m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
+		m_cmps[i]->RequestResource();
 	}
-
-	m_Terrain->m_Material->RequestResource();
+	m_Terrain->RequestResource();
 	for (unsigned int i = 0; i < m_Terrain->m_Chunks.size(); i++)
 	{
 		TerrainChunk * chunk = m_Terrain->m_Chunks[i].get();
@@ -693,7 +695,7 @@ void CMainFrame::OnRigidBox()
 void CMainFrame::OnCreateTerrain()
 {
 	// TODO: Add your command handler code here
-	m_Terrain.reset(new Terrain(2,2,4,4,1.0f,1.0f,1.0f));
+	m_Terrain.reset(new Terrain(my::Matrix4::Translation(-320,0,-320),5,5,64,64,1.0f,2.0f,2.0f));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;

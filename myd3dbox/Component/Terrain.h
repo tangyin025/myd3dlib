@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "PhysXPtr.h"
 
 class Terrain;
 
@@ -50,15 +51,24 @@ public:
 	float m_HeightScale;
 	float m_RowScale;
 	float m_ColScale;
-	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
-	TerrainChunkPtrList m_Chunks;
 	MaterialPtr m_Material;
 	bool m_Requested;
+	std::vector<PxHeightFieldSample> m_Samples;
+	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
+	TerrainChunkPtrList m_Chunks;
+	PhysXPtr<PxHeightField> m_HeightField;
+	PhysXPtr<PxRigidActor> m_RigidActor;
 
 	void CreateChunks(void);
 
+	void CreateRigidActor(const my::Matrix4 & World);
+
+	void CreateHeightField(void);
+
+	float GetSampleHeight(float x, float z);
+
 public:
-	Terrain(DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale);
+	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale);
 
 	Terrain(void);
 
