@@ -198,8 +198,9 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 	case Component::ComponentTypeTerrain:
 		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-		m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
+		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
+		UpdatePropertiesTerrain(dynamic_cast<Terrain *>(cmp));
 		break;
 	}
 	m_wndPropList.AdjustLayout();
@@ -302,6 +303,16 @@ void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
 		UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]);
 	}
 	RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
+}
+
+void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
+{
+	if ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() <= 0)
+	{
+		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], 0);
+	}
+	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, terrain->m_Material.get());
+	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
@@ -612,6 +623,15 @@ Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id
 			if (id == 0)
 			{
 				return emit_cmp->m_Material.get();
+			}
+		}
+		break;
+	case Component::ComponentTypeTerrain:
+		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			if (id == 0)
+			{
+				return terrain->m_Material.get();
 			}
 		}
 		break;

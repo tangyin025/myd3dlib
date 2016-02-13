@@ -3,6 +3,7 @@
 
 #include "EventDefine.h"
 #include "Component/Component.h"
+#include "Component/Terrain.h"
 
 class CPropertiesToolBar : public CMFCToolBar
 {
@@ -144,6 +145,7 @@ protected:
 	void UpdatePropertiesMesh(MeshComponent * cmp);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
 	void UpdatePropertiesRigid(RigidComponent * cmp);
+	void UpdatePropertiesTerrain(Terrain * terrain);
 	void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
 	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
 	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);

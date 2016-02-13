@@ -37,6 +37,7 @@ class Terrain
 	: public RenderComponent
 {
 public:
+	my::Matrix4 m_World;
 	DWORD m_RowChunks;
 	DWORD m_ColChunks;
 	DWORD m_ChunkRows;
@@ -44,6 +45,8 @@ public:
 	float m_HeightScale;
 	float m_RowScale;
 	float m_ColScale;
+	float m_WrappedU;
+	float m_WrappedV;
 	MaterialPtr m_Material;
 	std::vector<PxHeightFieldSample> m_Samples;
 	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
@@ -61,7 +64,7 @@ public:
 	float GetSampleHeight(float x, float z);
 
 public:
-	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale);
+	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV);
 
 	Terrain(void);
 

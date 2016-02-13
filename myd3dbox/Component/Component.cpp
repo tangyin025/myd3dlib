@@ -93,10 +93,7 @@ my::Matrix4 Component::GetComponentWorld(const Component * cmp)
 			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
 		}
 	case ComponentTypeTerrain:
-		{
-			PxTransform pose = dynamic_cast<const Terrain *>(cmp)->m_RigidActor->getGlobalPose();
-			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
-		}
+		return dynamic_cast<const Terrain *>(cmp)->m_World;
 	}
 	return Matrix4::Identity();
 }
@@ -120,9 +117,11 @@ void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
 		break;
 	case ComponentTypeTerrain:
 		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			terrain->m_World = World;
 			Vector3 scale, pos; Quaternion rot;
 			World.Decompose(scale, rot, pos);
-			dynamic_cast<Terrain *>(cmp)->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+			terrain->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 		}
 		break;
 	}

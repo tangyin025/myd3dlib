@@ -123,8 +123,9 @@ void TerrainChunk::DestroyVertices(void)
 	m_ib.OnDestroyDevice();
 }
 
-Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale)
+Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
 	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(RowChunks * ChunkRows * RowScale, 1, ColChunks * ChunkCols * ColScale)), ComponentTypeTerrain)
+	, m_World(World)
 	, m_RowChunks(RowChunks)
 	, m_ColChunks(ColChunks)
 	, m_ChunkRows(ChunkRows)
@@ -132,6 +133,8 @@ Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DW
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
 	, m_ColScale(ColScale)
+	, m_WrappedU(WrappedU)
+	, m_WrappedV(WrappedV)
 	, m_Root(Vector3(-1000), Vector3(1000), 1.0f)
 {
 	PxHeightFieldSample DefaultSample;
@@ -142,19 +145,21 @@ Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DW
 	m_Samples[1 * ColChunks * ChunkCols + 1].height = 1;
 	m_Samples[1 * ColChunks * ChunkCols + 2].height = -1;
 	CreateChunks();
-	CreateRigidActor(World);
+	CreateRigidActor(m_World);
 	CreateHeightField();
 }
 
 Terrain::Terrain(void)
 	: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeTerrain)
-	, m_RowChunks(0)
-	, m_ColChunks(0)
-	, m_ChunkRows(0)
-	, m_ChunkCols(0)
-	, m_HeightScale(0)
-	, m_RowScale(0)
-	, m_ColScale(0)
+	, m_RowChunks(1)
+	, m_ColChunks(1)
+	, m_ChunkRows(1)
+	, m_ChunkCols(1)
+	, m_HeightScale(1)
+	, m_RowScale(1)
+	, m_ColScale(1)
+	, m_WrappedU(1)
+	, m_WrappedV(1)
 	, m_Root(Vector3(-1000), Vector3(1000), 1.0f)
 {
 }
@@ -181,7 +186,7 @@ void Terrain::CreateChunks(void)
 			chunk.reset(new TerrainChunk(this,
 				my::Vector2((i + 0) * m_ChunkRows * m_RowScale, (j + 0) * m_ChunkCols * m_ColScale),
 				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkCols * m_ColScale),
-				my::Vector2(0,0), my::Vector2(1,1)));
+				my::Vector2(0,0), my::Vector2(m_WrappedU,m_WrappedV)));
 			m_Root.AddComponent(chunk.get(), chunk->m_aabb, 0.1f);
 		}
 	}
@@ -230,6 +235,7 @@ template<>
 void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar << BOOST_SERIALIZATION_NVP(m_ChunkRows);
@@ -237,9 +243,9 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ColScale);
+	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
+	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	my::Matrix4 World = GetComponentWorld(this);
-	ar << BOOST_SERIALIZATION_NVP(World);
 	unsigned int Count = m_Samples.size();
 	ar << BOOST_SERIALIZATION_NVP(Count);
 	ar << boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples[0], Count * sizeof(PxHeightFieldSample)));
@@ -249,6 +255,7 @@ template<>
 void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_ChunkRows);
@@ -256,15 +263,15 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColScale);
+	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
+	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	my::Matrix4 World;
-	ar >> BOOST_SERIALIZATION_NVP(World);
 	unsigned int Count;
 	ar >> BOOST_SERIALIZATION_NVP(Count);
 	m_Samples.resize(Count);
 	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples[0], Count * sizeof(PxHeightFieldSample)));
 	CreateChunks();
-	CreateRigidActor(World);
+	CreateRigidActor(m_World);
 	CreateHeightField();
 }
 
@@ -286,9 +293,7 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
-	PxTransform pose = m_RigidActor->getGlobalPose();
-	Matrix4 World(Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p));
-	shader->SetMatrix("g_World", GetComponentWorld(this));
+	shader->SetMatrix("g_World", m_World);
 
 	m_Material->OnSetShader(shader, AttribId);
 }
@@ -332,7 +337,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeStatic, false, m_Material.get(), PassID);
 				if (shader)
 				{
-					my::Frustum loc_frustum = frustum.transform(GetComponentWorld(this).transpose());
+					my::Frustum loc_frustum = frustum.transform(m_World.transpose());
 					m_Root.QueryComponent(loc_frustum, &CallBack(pipeline, PassID, this, shader));
 				}
 			}
