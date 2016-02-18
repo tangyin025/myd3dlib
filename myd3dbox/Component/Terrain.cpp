@@ -67,6 +67,14 @@ void TerrainChunk::CreateVertices(void)
 				Position.x = (i == 0 ? m_PosStart.x : (i == m_Owner->m_ChunkRows ? m_PosEnd.x : my::Lerp(m_PosStart.x, m_PosEnd.x, (float)i / m_Owner->m_ChunkRows)));
 				Position.z = (j == 0 ? m_PosStart.y : (j == m_Owner->m_ChunkCols ? m_PosEnd.y : my::Lerp(m_PosStart.y, m_PosEnd.y, (float)j / m_Owner->m_ChunkCols)));
 				Position.y = m_Owner->GetSampleHeight(Position.x, Position.z);
+				if (Position.y < m_aabb.m_min.y)
+				{
+					m_aabb.m_min.y = Position.y;
+				}
+				else if (Position.y > m_aabb.m_max.y)
+				{
+					m_aabb.m_max.y = Position.y;
+				}
 
 				Vector3 & Normal = m_VertexElems.GetNormal(pVertex);
 				const Vector3 Dirs[4] = {
@@ -123,7 +131,7 @@ void TerrainChunk::DestroyVertices(void)
 	m_ib.OnDestroyDevice();
 }
 
-Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
+Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV, my::Texture2DPtr HeightMap)
 	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(RowChunks * ChunkRows * RowScale, 1, ColChunks * ChunkCols * ColScale)), ComponentTypeTerrain)
 	, m_World(World)
 	, m_RowChunks(RowChunks)
@@ -142,8 +150,7 @@ Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DW
 	DefaultSample.materialIndex0 = PxBitAndByte(0, false);
 	DefaultSample.materialIndex1 = PxBitAndByte(0, false);
 	m_Samples.resize(RowChunks * ChunkRows * ColChunks * ChunkCols, DefaultSample);
-	m_Samples[1 * ColChunks * ChunkCols + 1].height = 1;
-	m_Samples[1 * ColChunks * ChunkCols + 2].height = -1;
+	UpdateSamples(HeightMap);
 	CreateChunks();
 	CreateRigidActor(m_World);
 	CreateHeightField();
@@ -175,6 +182,31 @@ Terrain::~Terrain(void)
 	m_Root.ClearAllComponents();
 }
 
+void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
+{
+	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
+	if (desc.Format == D3DFMT_L8 && desc.Width >= m_RowChunks * m_ChunkRows && desc.Height >= m_ColChunks * m_ChunkCols)
+	{
+		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
+		for (unsigned int i = 0; i < m_RowChunks * m_ChunkRows; i++)
+		{
+			for (unsigned int j = 0; j < m_ColChunks * m_ChunkCols; j++)
+			{
+				m_Samples[i * m_ColChunks * m_ChunkCols + j].height = *((unsigned char *)lrc.pBits + j * lrc.Pitch + i);
+			}
+		}
+		HeightMap->UnlockRect(0);
+	}
+}
+
+float Terrain::GetSampleHeight(float x, float z)
+{
+	int row = Clamp<int>((int)(x / m_RowScale), 0, m_RowChunks * m_ChunkRows - 1);
+	int col = Clamp<int>((int)(z / m_ColScale), 0, m_ColChunks * m_ChunkCols - 1);
+	int i = row * m_ColChunks * m_ChunkCols + col;
+	return m_Samples[i].height * m_HeightScale;
+}
+
 void Terrain::CreateChunks(void)
 {
 	m_Chunks.resize(m_RowChunks * m_ColChunks);
@@ -187,6 +219,14 @@ void Terrain::CreateChunks(void)
 				my::Vector2((i + 0) * m_ChunkRows * m_RowScale, (j + 0) * m_ChunkCols * m_ColScale),
 				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkCols * m_ColScale),
 				my::Vector2(0,0), my::Vector2(m_WrappedU,m_WrappedV)));
+			if (chunk->m_aabb.m_min.y < m_aabb.m_min.y)
+			{
+				m_aabb.m_min.y = chunk->m_aabb.m_min.y;
+			}
+			else if (chunk->m_aabb.m_max.y > m_aabb.m_max.y)
+			{
+				m_aabb.m_max.y = chunk->m_aabb.m_max.y;
+			}
 			m_Root.AddComponent(chunk.get(), chunk->m_aabb, 0.1f);
 		}
 	}
@@ -197,22 +237,6 @@ void Terrain::CreateRigidActor(const my::Matrix4 & World)
 	my::Vector3 pos, scale; my::Quaternion rot;
 	World.Decompose(scale, rot, pos);
 	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-}
-
-float Terrain::GetSampleHeight(float x, float z)
-{
-	int row = (int)(x / m_RowScale);
-	if (row < 0 || row >= (int)(m_RowChunks * m_ChunkRows))
-	{
-		return 0;
-	}
-	int col = (int)(z / m_ColScale);
-	if (col < 0 || col >= (int)(m_ColChunks * m_ChunkCols))
-	{
-		return 0;
-	}
-	int i = row * m_ColChunks * m_ChunkCols + col;
-	return m_Samples[i].height * m_HeightScale;
 }
 
 void Terrain::CreateHeightField(void)

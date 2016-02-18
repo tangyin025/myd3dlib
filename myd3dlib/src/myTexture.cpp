@@ -69,12 +69,10 @@ D3DSURFACE_DESC Surface::GetDesc(void)
 	return desc;
 }
 
-D3DLOCKED_RECT Surface::LockRect(const CRect & rect, DWORD Flags)
+D3DLOCKED_RECT Surface::LockRect(const RECT *pRect, DWORD Flags)
 {
-	_ASSERT(!IsRectEmpty(&rect));
-
 	D3DLOCKED_RECT lr;
-	if(FAILED(hr = m_ptr->LockRect(&lr, &rect, Flags)))
+	if(FAILED(hr = m_ptr->LockRect(&lr, pRect, Flags)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
@@ -240,12 +238,10 @@ CComPtr<IDirect3DSurface9> Texture2D::GetSurfaceLevel(UINT Level)
 	return Surface;
 }
 
-D3DLOCKED_RECT Texture2D::LockRect(const CRect & rect, DWORD Flags, UINT Level)
+D3DLOCKED_RECT Texture2D::LockRect(const RECT *pRect, DWORD Flags, UINT Level)
 {
-	_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
-
 	D3DLOCKED_RECT LockedRect;
-	if(FAILED(hr = static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, &rect, Flags)))
+	if(FAILED(hr = static_cast<IDirect3DTexture9 *>(m_ptr)->LockRect(Level, &LockedRect, pRect, Flags)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
@@ -372,14 +368,12 @@ D3DSURFACE_DESC CubeTexture::GetLevelDesc(
 
 D3DLOCKED_RECT CubeTexture::LockRect(
 	D3DCUBEMAP_FACES FaceType,
-	const CRect & rect,
+	const RECT *pRect,
 	DWORD Flags,
 	UINT Level)
 {
-	_ASSERT(!IsRectEmpty(&rect)); // ! D3DPOOL_MANAGED unsupport locking empty rect
-
 	D3DLOCKED_RECT LockedRect;
-	if(FAILED(hr = static_cast<IDirect3DCubeTexture9 *>(m_ptr)->LockRect(FaceType, Level, &LockedRect, &rect, Flags)))
+	if(FAILED(hr = static_cast<IDirect3DCubeTexture9 *>(m_ptr)->LockRect(FaceType, Level, &LockedRect, pRect, Flags)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}

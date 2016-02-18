@@ -40,7 +40,7 @@ namespace my
 
 		D3DSURFACE_DESC GetDesc(void);
 
-		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0);
+		D3DLOCKED_RECT LockRect(const RECT *pRect, DWORD Flags = 0);
 
 		void ReleaseDC(HDC hdc);
 
@@ -137,7 +137,7 @@ namespace my
 
 		CComPtr<IDirect3DSurface9> GetSurfaceLevel(UINT Level = 0);
 
-		D3DLOCKED_RECT LockRect(const CRect & rect, DWORD Flags = 0, UINT Level = 0);
+		D3DLOCKED_RECT LockRect(const RECT *pRect, DWORD Flags = 0, UINT Level = 0);
 
 		void UnlockRect(UINT Level = 0);
 	};
@@ -209,7 +209,7 @@ namespace my
 
 		D3DLOCKED_RECT LockRect(
 			D3DCUBEMAP_FACES FaceType,
-			const CRect & rect,
+			const RECT *pRect,
 			DWORD Flags = 0,
 			UINT Level = 0);
 

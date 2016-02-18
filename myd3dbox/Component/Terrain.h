@@ -55,16 +55,18 @@ public:
 	PhysXPtr<PxHeightField> m_HeightField;
 	PhysXPtr<PxRigidActor> m_RigidActor;
 
+	void UpdateSamples(my::Texture2DPtr HeightMap);
+
+	float GetSampleHeight(float x, float z);
+
 	void CreateChunks(void);
 
 	void CreateRigidActor(const my::Matrix4 & World);
 
 	void CreateHeightField(void);
 
-	float GetSampleHeight(float x, float z);
-
 public:
-	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV);
+	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV, my::Texture2DPtr HeightMap);
 
 	Terrain(void);
 
