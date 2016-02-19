@@ -143,7 +143,7 @@ Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DW
 	, m_ColScale(ColScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(-1000), Vector3(1000), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(RowChunks * ChunkRows * RowScale, 1000, ColChunks * ChunkCols * ColScale), 1.0f)
 {
 	PxHeightFieldSample DefaultSample;
 	DefaultSample.height = 0;
@@ -167,7 +167,7 @@ Terrain::Terrain(void)
 	, m_ColScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(Vector3(-1000), Vector3(1000), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(2000,1000,2000), 1.0f)
 {
 }
 

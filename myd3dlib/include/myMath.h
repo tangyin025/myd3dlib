@@ -2841,17 +2841,17 @@ namespace my
 		Vector3 p(const Vector3 & normal) const
 		{
 			return Vector3(
-				normal.x > 0 ? m_max.x : m_min.x,
-				normal.y > 0 ? m_max.y : m_min.y,
-				normal.z > 0 ? m_max.z : m_min.z);
+				normal.x > 0 ? m_min.x : m_max.x,
+				normal.y > 0 ? m_min.y : m_max.y,
+				normal.z > 0 ? m_min.z : m_max.z);
 		}
 
 		Vector3 n(const Vector3 & normal) const
 		{
 			return Vector3(
-				normal.x > 0 ? m_min.x : m_max.x,
-				normal.y > 0 ? m_min.y : m_max.y,
-				normal.z > 0 ? m_min.z : m_max.z);
+				normal.x > 0 ? m_max.x : m_min.x,
+				normal.y > 0 ? m_max.y : m_min.y,
+				normal.z > 0 ? m_max.z : m_min.z);
 		}
 
 		AABB transform(const Matrix4 & m) const;

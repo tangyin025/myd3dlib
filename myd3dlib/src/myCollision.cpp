@@ -533,11 +533,11 @@ namespace my
 		IntersectionType ret = IntersectionTypeInside;
 		for (int i = 0; i < 6; i++)
 		{
-			if (frustum[i].DistanceToPoint(aabb.p(frustum[i].normal)) <= 0)
+			if (frustum[i].DistanceToPoint(aabb.n(frustum[i].normal)) <= 0)
 			{
 				return IntersectionTypeOutside;
 			}
-			else if (frustum[i].DistanceToPoint(aabb.n(frustum[i].normal)) < 0)
+			else if (frustum[i].DistanceToPoint(aabb.p(frustum[i].normal)) < 0)
 			{
 				ret = IntersectionTypeIntersect;
 			}
