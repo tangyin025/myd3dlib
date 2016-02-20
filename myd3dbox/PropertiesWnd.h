@@ -133,6 +133,17 @@ protected:
 		PropertyRigidShapeBoxHalfExtentsY,
 		PropertyRigidShapeBoxHalfExtentsZ,
 		PropertyRigidShapeSphereRadius,
+		PropertyTerrain,
+		PropertyTerrainRowChunks,
+		PropertyTerrainColChunks,
+		PropertyTerrainChunkRows,
+		PropertyTerrainChunkCols,
+		PropertyTerrainHeightScale,
+		PropertyTerrainRowScale,
+		PropertyTerrainColScale,
+		PropertyTerrainWrappedU,
+		PropertyTerrainWrappedV,
+		PropertyTerrainHeightMap,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

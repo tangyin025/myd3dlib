@@ -28,6 +28,8 @@ public:
 
 	void CreateVertices(void);
 
+	void UpdateVertices(void);
+
 	void DestroyVertices(void);
 };
 
@@ -48,7 +50,8 @@ public:
 	float m_WrappedU;
 	float m_WrappedV;
 	MaterialPtr m_Material;
-	std::vector<PxHeightFieldSample> m_Samples;
+	typedef std::vector<unsigned char> SampleType;
+	SampleType m_Samples;
 	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
 	TerrainChunkPtrList m_Chunks;
 	my::OctRoot m_Root;
@@ -56,6 +59,8 @@ public:
 	PhysXPtr<PxRigidActor> m_RigidActor;
 
 	void UpdateSamples(my::Texture2DPtr HeightMap);
+
+	void UpdateChunks(void);
 
 	float GetSampleHeight(float x, float z);
 
@@ -65,8 +70,12 @@ public:
 
 	void CreateHeightField(void);
 
+	void CreateShape(void);
+
+	void UpdateShape(void);
+
 public:
-	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV, my::Texture2DPtr HeightMap);
+	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV);
 
 	Terrain(void);
 

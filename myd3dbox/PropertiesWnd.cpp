@@ -179,6 +179,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
+		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 		UpdatePropertiesMesh(dynamic_cast<MeshComponent *>(cmp));
 		break;
 	case Component::ComponentTypeEmitter:
@@ -186,6 +187,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
 		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
+		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 		UpdatePropertiesEmitter(dynamic_cast<EmitterComponent *>(cmp));
 		break;
 	case Component::ComponentTypeRigid:
@@ -193,6 +195,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 		m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
 		m_pProp[PropertyRigidShapeList]->Show(TRUE, FALSE);
+		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 		UpdatePropertiesRigid(dynamic_cast<RigidComponent *>(cmp));
 		break;
 	case Component::ComponentTypeTerrain:
@@ -200,6 +203,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 		m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
+		m_pProp[PropertyTerrain]->Show(TRUE, FALSE);
 		UpdatePropertiesTerrain(dynamic_cast<Terrain *>(cmp));
 		break;
 	}
@@ -313,6 +317,15 @@ void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
 	}
 	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, terrain->m_Material.get());
 	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
+	m_pProp[PropertyTerrainRowChunks]->SetValue((_variant_t)terrain->m_RowChunks);
+	m_pProp[PropertyTerrainColChunks]->SetValue((_variant_t)terrain->m_ColChunks);
+	m_pProp[PropertyTerrainChunkRows]->SetValue((_variant_t)terrain->m_ChunkRows);
+	m_pProp[PropertyTerrainChunkCols]->SetValue((_variant_t)terrain->m_ChunkCols);
+	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
+	m_pProp[PropertyTerrainRowScale]->SetValue((_variant_t)terrain->m_RowScale);
+	m_pProp[PropertyTerrainColScale]->SetValue((_variant_t)terrain->m_ColScale);
+	m_pProp[PropertyTerrainWrappedU]->SetValue((_variant_t)terrain->m_WrappedU);
+	m_pProp[PropertyTerrainWrappedV]->SetValue((_variant_t)terrain->m_WrappedV);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
@@ -855,6 +868,38 @@ void CPropertiesWnd::InitPropList()
 		CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, PxGeometryType::eBOX);
 	}
 
+	m_pProp[PropertyTerrain] = new CMFCPropertyGridProperty(_T("Terrain"), PropertyTerrain, FALSE);
+	m_wndPropList.AddProperty(m_pProp[PropertyTerrain], FALSE, FALSE);
+	m_pProp[PropertyTerrainRowChunks] = new CSimpleProp(_T("RowChunks"), (_variant_t)(DWORD)1, NULL, PropertyTerrainRowChunks);
+	m_pProp[PropertyTerrainRowChunks]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainRowChunks]);
+	m_pProp[PropertyTerrainColChunks] = new CSimpleProp(_T("ColChunks"), (_variant_t)(DWORD)1, NULL, PropertyTerrainColChunks);
+	m_pProp[PropertyTerrainColChunks]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainColChunks]);
+	m_pProp[PropertyTerrainChunkRows] = new CSimpleProp(_T("ChunkRows"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkRows);
+	m_pProp[PropertyTerrainChunkRows]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkRows]);
+	m_pProp[PropertyTerrainChunkCols] = new CSimpleProp(_T("ChunkCols"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkCols);
+	m_pProp[PropertyTerrainChunkCols]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkCols]);
+	m_pProp[PropertyTerrainHeightScale] = new CSimpleProp(_T("HeightScale"), (_variant_t)1.0f, NULL, PropertyTerrainHeightScale);
+	m_pProp[PropertyTerrainHeightScale]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightScale]);
+	m_pProp[PropertyTerrainRowScale] = new CSimpleProp(_T("RowScale"), (_variant_t)1.0f, NULL, PropertyTerrainRowScale);
+	m_pProp[PropertyTerrainRowScale]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainRowScale]);
+	m_pProp[PropertyTerrainColScale] = new CSimpleProp(_T("ColScale"), (_variant_t)1.0f, NULL, PropertyTerrainColScale);
+	m_pProp[PropertyTerrainColScale]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainColScale]);
+	m_pProp[PropertyTerrainWrappedU] = new CSimpleProp(_T("WrappedU"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedU);
+	m_pProp[PropertyTerrainWrappedU]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedU]);
+	m_pProp[PropertyTerrainWrappedV] = new CSimpleProp(_T("WrappedV"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedV);
+	m_pProp[PropertyTerrainWrappedV]->Enable(FALSE);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedV]);
+	m_pProp[PropertyTerrainHeightMap] = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightMap]);
+
 	HideAllProperties();
 }
 
@@ -1365,6 +1410,21 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pShape->GetSubItem(2)->GetValue().fltVal));
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyTerrainHeightMap:
+		{
+			std::string path = ts2ms(pProp->GetValue().bstrVal);
+			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path));
+			if (res)
+			{
+				Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+				terrain->UpdateSamples(res);
+				VERIFY(pFrame->m_Root.RemoveComponent(cmp));
+				pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(terrain->m_World), 0.1f);
+				EventArg arg;
+				pFrame->m_EventCmpAttriChanged(&arg);
+			}
 		}
 		break;
 	}
