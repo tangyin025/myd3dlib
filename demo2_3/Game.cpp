@@ -378,6 +378,8 @@ HRESULT Game::OnCreateDevice(
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
+	m_Logic->Create();
+
 	return S_OK;
 }
 
@@ -463,6 +465,8 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+
+	m_Logic->Destroy();
 
 	DxutApp::OnDestroyDevice();
 
@@ -559,6 +563,8 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
+	m_Logic->Update(fElapsedTime);
+
 	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->Update(fTime, fElapsedTime);
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
@@ -599,11 +605,11 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	LRESULT lr;
-	if(lr = boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-	{
-		return lr;
-	}
+	//LRESULT lr;
+	//if(lr = boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	//{
+	//	return lr;
+	//}
 	return 0;
 }
 
