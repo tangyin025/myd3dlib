@@ -18,9 +18,6 @@ class Demo
 	: public Game
 {
 public:
-	std::vector<ComponentPtr> m_cmps;
-
-public:
 	Demo::Demo(void)
 	{
 	}
@@ -148,11 +145,10 @@ public:
 		//std::istream istr(&buff);
 		std::ifstream istr("ccc.xml");
 		boost::archive::xml_iarchive ia(istr);
-		ia >> boost::serialization::make_nvp("level", m_cmps);
-		for (unsigned int i = 0; i < m_cmps.size(); i++)
+		ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
+		for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
 		{
-			m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
-			m_cmps[i]->RequestResource();
+			m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_Logic->m_cmps[i].get())), 0.1f);
 		}
 
 		return S_OK;
@@ -176,7 +172,6 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
-		m_cmps.clear();
 		Game::OnDestroyDevice();
 	}
 
@@ -185,24 +180,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		struct CallBack : public my::IQueryCallback
-		{
-			float m_fElapsedTime;
-			CallBack(float fElapsedTime)
-				: m_fElapsedTime(fElapsedTime)
-			{
-			}
-			void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
-			{
-				_ASSERT(dynamic_cast<Component *>(oct_cmp));
-				Component * cmp = static_cast<Component *>(oct_cmp);
-				cmp->Update(m_fElapsedTime);
-			}
-		};
-
-		m_Root.QueryComponentAll(&CallBack(fElapsedTime));
-
-		PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), my::Matrix4::RotationX(D3DXToRadian(-90)));
+		//PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
 
 		swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"Fps: %.2f", m_fFps);
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)

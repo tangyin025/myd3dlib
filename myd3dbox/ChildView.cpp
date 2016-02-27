@@ -275,7 +275,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
-			PushWireAABB((*sel_iter)->GetOctAABB(), D3DCOLOR_ARGB(2555,255,0,255));
+			PushWireAABB(Component::GetComponentOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
 			switch ((*sel_iter)->m_Type)
 			{
 			case Component::ComponentTypeMesh:
@@ -292,6 +292,17 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 							theApp.m_SimpleSample->EndPass();
 						}
 						theApp.m_SimpleSample->End();
+					}
+				}
+				break;
+
+			case Component::ComponentTypeTerrain:
+				{
+					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
+					Terrain::TerrainChunkPtrList::const_iterator chunk_iter = terrain->m_Chunks.begin();
+					for (; chunk_iter != terrain->m_Chunks.end(); chunk_iter++)
+					{
+						PushWireAABB((*chunk_iter)->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
 					}
 				}
 				break;

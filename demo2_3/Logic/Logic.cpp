@@ -44,6 +44,51 @@ void Logic::Update(float fElapsedTime)
 	camera->m_Eular = m_LocalPlayer->m_LookAngles; // 右手系空间相机朝向-z轴
 
 	m_FixedTickTimer.Step(fElapsedTime, 4);
+
+	const PxExtendedVec3 & Pos = m_LocalPlayer->m_controller->getPosition();
+	Vector3 OutExtent(1050,1050,1050);
+	AABB OutBox(Vector3(Pos.x - OutExtent.x, Pos.y - OutExtent.y, Pos.z - OutExtent.z), Vector3(Pos.x + OutExtent.x, Pos.y + OutExtent.y, Pos.z + OutExtent.z));
+	ComponentSet::iterator cmp_iter = m_FocusCmps.begin();
+	for (; cmp_iter != m_FocusCmps.end(); )
+	{
+		if (IntersectionTests::IntersectionTypeOutside
+			== IntersectionTests::IntersectAABBAndAABB(OutBox, Component::GetComponentAABB(*cmp_iter)))
+		{
+			(*cmp_iter)->ReleaseResource();
+			cmp_iter = m_FocusCmps.erase(cmp_iter);
+		}
+		else
+			cmp_iter++;
+	}
+
+	struct CallBack : public my::IQueryCallback
+	{
+		Logic * logic;
+		CallBack(Logic * _logic)
+			: logic(_logic)
+		{
+		}
+		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Component *>(oct_cmp));
+			Component * cmp = static_cast<Component *>(oct_cmp);
+			ComponentSet::iterator cmp_iter = logic->m_FocusCmps.find(cmp);
+			if (cmp_iter == logic->m_FocusCmps.end())
+			{
+				cmp->RequestResource();
+				logic->m_FocusCmps.insert(cmp);
+			}
+		}
+	};
+
+	Vector3 InExtent(1000,1000,1000);
+	AABB InBox(Vector3(Pos.x - InExtent.x, Pos.y - InExtent.y, Pos.z - InExtent.z), Vector3(Pos.x + InExtent.x, Pos.y + InExtent.y, Pos.z + InExtent.z));
+	Game::getSingleton().m_Root.QueryComponent(InBox, &CallBack(this));
+
+	for (cmp_iter = m_FocusCmps.begin(); cmp_iter != m_FocusCmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->Update(fElapsedTime);
+	}
 }
 
 void Logic::OnFixedTick(float fElapsedTime)
@@ -53,7 +98,7 @@ void Logic::OnFixedTick(float fElapsedTime)
 
 void Logic::Destroy(void)
 {
-	m_StaticSceneActor.reset();
+	m_cmps.clear();
 	m_LocalPlayer.reset();
 
 	Game::getSingleton().m_MouseMovedEvent.clear();

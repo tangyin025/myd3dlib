@@ -126,9 +126,9 @@ public:
 	{
 	}
 
-	const my::AABB & GetOctAABB(void) const;
+	static const my::AABB & GetComponentAABB(const Component * cmp);
 
-	const my::AABB & GetComponentAABB(void) const;
+	static const my::AABB & GetComponentOctAABB(const Component * cmp);
 
 	static my::Matrix4 GetComponentWorld(const Component * cmp);
 

@@ -1,14 +1,15 @@
 #pragma once
 
 #include "Character.h"
+#include "../myd3dbox/Component/Component.h"
 
 class Logic
 {
-protected:
+public:
 	my::Timer m_FixedTickTimer;
-
-	PhysXPtr<PxRigidActor> m_StaticSceneActor;
-
+	std::vector<ComponentPtr> m_cmps;
+	typedef boost::unordered_set<Component *> ComponentSet;
+	ComponentSet m_FocusCmps;
 	CharacterPtr m_LocalPlayer;
 
 public:

@@ -57,26 +57,26 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
-const my::AABB & Component::GetOctAABB(void) const
+const my::AABB & Component::GetComponentAABB(const Component * cmp)
 {
-	if (m_OctNode)
+	if (cmp->m_OctNode)
 	{
-		return m_OctNode->m_aabb;
-	}
-	return m_aabb;
-}
-
-const my::AABB & Component::GetComponentAABB(void) const
-{
-	if (m_OctNode)
-	{
-		OctNodeBase::OctComponentSet::const_iterator cmp_iter = m_OctNode->m_Components.find(const_cast<Component *>(this));
-		if (cmp_iter != m_OctNode->m_Components.end())
+		OctNodeBase::OctComponentSet::const_iterator cmp_iter = cmp->m_OctNode->m_Components.find(const_cast<Component *>(cmp));
+		if (cmp_iter != cmp->m_OctNode->m_Components.end())
 		{
 			return cmp_iter->second;
 		}
 	}
-	return m_aabb;
+	return cmp->m_aabb;
+}
+
+const my::AABB & Component::GetComponentOctAABB(const Component * cmp)
+{
+	if (cmp->m_OctNode)
+	{
+		return cmp->m_OctNode->m_aabb;
+	}
+	return cmp->m_aabb;
 }
 
 my::Matrix4 Component::GetComponentWorld(const Component * cmp)
