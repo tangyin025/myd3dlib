@@ -11,15 +11,11 @@ class TerrainChunk
 public:
 	Terrain * m_Owner;
 	my::AABB m_aabb;
-	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
-	DWORD m_VertexStride;
 	my::VertexBuffer m_vb;
-	my::IndexBuffer m_ib;
 	my::Vector2 m_PosStart;
 	my::Vector2 m_PosEnd;
 	my::Vector2 m_TexStart;
 	my::Vector2 m_TexEnd;
-	my::D3DVertexElementSet m_VertexElems;
 
 public:
 	TerrainChunk(Terrain * Owner, const my::Vector2 & PosStart, const my::Vector2 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd);
@@ -49,12 +45,16 @@ public:
 	float m_ColScale;
 	float m_WrappedU;
 	float m_WrappedV;
-	MaterialPtr m_Material;
 	typedef std::vector<unsigned char> SampleType;
 	SampleType m_Samples;
+	my::D3DVertexElementSet m_VertexElems;
+	DWORD m_VertexStride;
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+	my::IndexBuffer m_ib;
+	MaterialPtr m_Material;
+	my::OctRoot m_Root;
 	typedef std::vector<TerrainChunkPtr> TerrainChunkPtrList;
 	TerrainChunkPtrList m_Chunks;
-	my::OctRoot m_Root;
 	PhysXPtr<PxHeightField> m_HeightField;
 	PhysXPtr<PxRigidActor> m_RigidActor;
 
@@ -73,6 +73,8 @@ public:
 	void CreateShape(void);
 
 	void UpdateShape(void);
+
+	void CreateElements(void);
 
 public:
 	Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV);
