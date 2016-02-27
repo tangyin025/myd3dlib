@@ -133,6 +133,8 @@ Terrain::~Terrain(void)
 	{
 		ReleaseResource();
 	}
+	_ASSERT(!m_Decl);
+	_ASSERT(!m_ib.m_ptr);
 	m_Root.ClearAllComponents();
 	m_Chunks.clear();
 }
