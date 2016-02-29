@@ -318,9 +318,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
 	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, terrain->m_Material.get());
 	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
 	m_pProp[PropertyTerrainRowChunks]->SetValue((_variant_t)terrain->m_RowChunks);
-	m_pProp[PropertyTerrainColChunks]->SetValue((_variant_t)terrain->m_ColChunks);
 	m_pProp[PropertyTerrainChunkRows]->SetValue((_variant_t)terrain->m_ChunkRows);
-	m_pProp[PropertyTerrainChunkCols]->SetValue((_variant_t)terrain->m_ChunkCols);
 	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
 	m_pProp[PropertyTerrainRowScale]->SetValue((_variant_t)terrain->m_RowScale);
 	m_pProp[PropertyTerrainColScale]->SetValue((_variant_t)terrain->m_ColScale);
@@ -873,15 +871,9 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyTerrainRowChunks] = new CSimpleProp(_T("RowChunks"), (_variant_t)(DWORD)1, NULL, PropertyTerrainRowChunks);
 	m_pProp[PropertyTerrainRowChunks]->Enable(FALSE);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainRowChunks]);
-	m_pProp[PropertyTerrainColChunks] = new CSimpleProp(_T("ColChunks"), (_variant_t)(DWORD)1, NULL, PropertyTerrainColChunks);
-	m_pProp[PropertyTerrainColChunks]->Enable(FALSE);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainColChunks]);
 	m_pProp[PropertyTerrainChunkRows] = new CSimpleProp(_T("ChunkRows"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkRows);
 	m_pProp[PropertyTerrainChunkRows]->Enable(FALSE);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkRows]);
-	m_pProp[PropertyTerrainChunkCols] = new CSimpleProp(_T("ChunkCols"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkCols);
-	m_pProp[PropertyTerrainChunkCols]->Enable(FALSE);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkCols]);
 	m_pProp[PropertyTerrainHeightScale] = new CSimpleProp(_T("HeightScale"), (_variant_t)1.0f, NULL, PropertyTerrainHeightScale);
 	m_pProp[PropertyTerrainHeightScale]->Enable(FALSE);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightScale]);

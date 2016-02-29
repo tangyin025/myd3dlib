@@ -68,6 +68,7 @@ CChildView::CChildView()
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
+	//m_WireFrame = true;
 }
 
 CChildView::~CChildView()
@@ -299,10 +300,12 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 			case Component::ComponentTypeTerrain:
 				{
 					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
-					Terrain::TerrainChunkPtrList::const_iterator chunk_iter = terrain->m_Chunks.begin();
-					for (; chunk_iter != terrain->m_Chunks.end(); chunk_iter++)
+					for (unsigned int i = 0; i < Terrain::ChunkArray::static_size; i++)
 					{
-						PushWireAABB((*chunk_iter)->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
+						for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
+						{
+							PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
+						}
 					}
 				}
 				break;

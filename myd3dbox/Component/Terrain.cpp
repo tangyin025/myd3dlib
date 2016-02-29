@@ -32,7 +32,7 @@ TerrainChunk::~TerrainChunk(void)
 void TerrainChunk::CreateVertices(void)
 {
 	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-	m_vb.CreateVertexBuffer(pd3dDevice, (m_Owner->m_ChunkRows + 1) * (m_Owner->m_ChunkCols + 1) * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer(pd3dDevice, (m_Owner->m_ChunkRows + 1) * (m_Owner->m_ChunkRows + 1) * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	UpdateVertices();
 }
 
@@ -43,12 +43,12 @@ void TerrainChunk::UpdateVertices(void)
 	{
 		for (unsigned int i = 0; i <= m_Owner->m_ChunkRows; i++)
 		{
-			for (unsigned int j = 0; j <= m_Owner->m_ChunkCols; j++)
+			for (unsigned int j = 0; j <= m_Owner->m_ChunkRows; j++)
 			{
-				unsigned char * pVertex = (unsigned char *)pVertices + (i * (m_Owner->m_ChunkCols + 1) + j) * m_Owner->m_VertexStride;
+				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertTable[i][j] * m_Owner->m_VertexStride;
 				Vector3 & Position = m_Owner->m_VertexElems.GetPosition(pVertex);
 				Position.x = (i == 0 ? m_PosStart.x : (i == m_Owner->m_ChunkRows ? m_PosEnd.x : my::Lerp(m_PosStart.x, m_PosEnd.x, (float)i / m_Owner->m_ChunkRows)));
-				Position.z = (j == 0 ? m_PosStart.y : (j == m_Owner->m_ChunkCols ? m_PosEnd.y : my::Lerp(m_PosStart.y, m_PosEnd.y, (float)j / m_Owner->m_ChunkCols)));
+				Position.z = (j == 0 ? m_PosStart.y : (j == m_Owner->m_ChunkRows ? m_PosEnd.y : my::Lerp(m_PosStart.y, m_PosEnd.y, (float)j / m_Owner->m_ChunkRows)));
 				Position.y = m_Owner->GetSampleHeight(Position.x, Position.z);
 				if (Position.y < m_aabb.m_min.y)
 				{
@@ -79,7 +79,7 @@ void TerrainChunk::UpdateVertices(void)
 
 				Vector2 & Texcoord = m_Owner->m_VertexElems.GetTexcoord(pVertex, 0);
 				Texcoord.x = (i == 0 ? m_TexStart.x : (i == m_Owner->m_ChunkRows ? m_TexEnd.x : my::Lerp(m_TexStart.x, m_TexEnd.x, (float)i / m_Owner->m_ChunkRows)));
-				Texcoord.y = (j == 0 ? m_TexStart.y : (j == m_Owner->m_ChunkCols ? m_TexEnd.y : my::Lerp(m_TexStart.y, m_TexEnd.y, (float)j / m_Owner->m_ChunkCols)));
+				Texcoord.y = (j == 0 ? m_TexStart.y : (j == m_Owner->m_ChunkRows ? m_TexEnd.y : my::Lerp(m_TexStart.y, m_TexEnd.y, (float)j / m_Owner->m_ChunkRows)));
 			}
 		}
 		m_vb.Unlock();
@@ -91,21 +91,65 @@ void TerrainChunk::DestroyVertices(void)
 	m_vb.OnDestroyDevice();
 }
 
-Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DWORD ChunkRows, DWORD ChunkCols, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
-	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(RowChunks * ChunkRows * RowScale, 1, ColChunks * ChunkCols * ColScale)), ComponentTypeTerrain)
+template <int N>
+unsigned int FillVert(Terrain::VertTable2D & verts, int hs, unsigned int k)
+{
+    _ASSERT((hs & (hs - 1)) == 0);
+    for (int i = 0; i < N - 1; i += hs * 2)
+    {
+        for (int j = 0; j < N - 1; j += hs * 2)
+        {
+            verts[i + hs * 0][j + hs * 1] = k++;
+            verts[i + hs * 1][j + hs * 0] = k++;
+            verts[i + hs * 1][j + hs * 1] = k++;
+            if (j + hs * 2 >= N - 1)
+            {
+                verts[i + hs * 1][j + hs * 2] = k++;
+            }
+            if (i + hs * 2 >= N - 1)
+            {
+                verts[i + hs * 2][j + hs * 1] = k++;
+            }
+        }
+    }
+
+    if (hs / 2 > 0)
+    {
+        k = FillVert<N>(verts, hs / 2, k);
+    }
+    return k;
+}
+
+template <int N>
+unsigned int FillVert(Terrain::VertTable2D & verts)
+{
+    BOOST_STATIC_ASSERT(((N - 1) & (N - 2)) == 0);
+    unsigned int k = 0;
+    verts[0][0] = k++;
+    verts[0][N - 1] = k++;
+    verts[N - 1][0] = k++;
+    verts[N - 1][N - 1] = k++;
+    return FillVert<N>(verts, (N - 1) / 2, k);
+}
+
+Terrain::VertTable2D::VertTable2D(void)
+{
+	FillVert<static_size>(*this);
+}
+
+const Terrain::VertTable2D Terrain::m_VertTable;
+
+Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
+	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_RowChunks * m_ChunkRows * ColScale)), ComponentTypeTerrain)
 	, m_World(World)
-	, m_RowChunks(RowChunks)
-	, m_ColChunks(ColChunks)
-	, m_ChunkRows(ChunkRows)
-	, m_ChunkCols(ChunkCols)
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
 	, m_ColScale(ColScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(0,-1000,0), Vector3(RowChunks * ChunkRows * RowScale, 1000, ColChunks * ChunkCols * ColScale), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1000, m_RowChunks * m_ChunkRows * ColScale), 1.0f)
 {
-	m_Samples.resize(m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkCols, 0);
+	memset(&m_Samples, 0, sizeof(m_Samples));
 	CreateElements();
 	CreateChunks();
 	CreateRigidActor(m_World);
@@ -114,10 +158,6 @@ Terrain::Terrain(const my::Matrix4 & World, DWORD RowChunks, DWORD ColChunks, DW
 
 Terrain::Terrain(void)
 	: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeTerrain)
-	, m_RowChunks(1)
-	, m_ColChunks(1)
-	, m_ChunkRows(1)
-	, m_ChunkCols(1)
 	, m_HeightScale(1)
 	, m_RowScale(1)
 	, m_ColScale(1)
@@ -136,20 +176,19 @@ Terrain::~Terrain(void)
 	_ASSERT(!m_Decl);
 	_ASSERT(!m_ib.m_ptr);
 	m_Root.ClearAllComponents();
-	m_Chunks.clear();
 }
 
 void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
 {
 	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-	if (desc.Format == D3DFMT_L8 && desc.Width >= m_RowChunks * m_ChunkRows && desc.Height >= m_ColChunks * m_ChunkCols)
+	if (desc.Format == D3DFMT_L8 && desc.Width >= Sample::static_size && desc.Height >= Sample::static_size)
 	{
 		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-		for (unsigned int i = 0; i < m_RowChunks * m_ChunkRows; i++)
+		for (unsigned int i = 0; i < Sample::static_size; i++)
 		{
-			for (unsigned int j = 0; j < m_ColChunks * m_ChunkCols; j++)
+			for (unsigned int j = 0; j < Sample::static_size; j++)
 			{
-				m_Samples[i * m_ColChunks * m_ChunkCols + j] = *((unsigned char *)lrc.pBits + j * lrc.Pitch + i);
+				m_Samples[i][j] = *((unsigned char *)lrc.pBits + j * lrc.Pitch + i);
 			}
 		}
 		HeightMap->UnlockRect(0);
@@ -160,41 +199,37 @@ void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
 
 void Terrain::UpdateChunks(void)
 {
-	for (unsigned int i = 0; i < m_RowChunks; i++)
+	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
 	{
-		for (unsigned int j = 0; j < m_ColChunks; j++)
+		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			TerrainChunkPtr & chunk = m_Chunks[i * m_ColChunks + j];
-			chunk->UpdateVertices();
-			m_Root.RemoveComponent(chunk.get());
-			m_Root.AddComponent(chunk.get(), chunk->m_aabb, 0.1f);
-			m_aabb.unionSelf(chunk->m_aabb);
+			m_Chunks[i][j]->UpdateVertices();
+			m_Root.RemoveComponent(m_Chunks[i][j].get());
+			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
+			m_aabb.unionSelf(m_Chunks[i][j]->m_aabb);
 		}
 	}
 }
 
 float Terrain::GetSampleHeight(float x, float z)
 {
-	int row = Clamp<int>((int)(x / m_RowScale), 0, m_RowChunks * m_ChunkRows - 1);
-	int col = Clamp<int>((int)(z / m_ColScale), 0, m_ColChunks * m_ChunkCols - 1);
-	int i = row * m_ColChunks * m_ChunkCols + col;
-	return m_Samples[i] * m_HeightScale;
+	int i = Clamp<int>((int)(x / m_RowScale), 0, Sample::static_size - 1);
+	int j = Clamp<int>((int)(z / m_ColScale), 0, Sample::static_size - 1);
+	return m_Samples[i][j] * m_HeightScale;
 }
 
 void Terrain::CreateChunks(void)
 {
-	m_Chunks.resize(m_RowChunks * m_ColChunks);
-	for (unsigned int i = 0; i < m_RowChunks; i++)
+	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
 	{
-		for (unsigned int j = 0; j < m_ColChunks; j++)
+		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			TerrainChunkPtr & chunk = m_Chunks[i * m_ColChunks + j];
-			chunk.reset(new TerrainChunk(this,
-				my::Vector2((i + 0) * m_ChunkRows * m_RowScale, (j + 0) * m_ChunkCols * m_ColScale),
-				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkCols * m_ColScale),
+			m_Chunks[i][j].reset(new TerrainChunk(this,
+				my::Vector2((i + 0) * m_ChunkRows * m_RowScale, (j + 0) * m_ChunkRows * m_ColScale),
+				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkRows * m_ColScale),
 				my::Vector2(0,0), my::Vector2(m_WrappedU,m_WrappedV)));
-			m_Root.AddComponent(chunk.get(), chunk->m_aabb, 0.1f);
-			m_aabb.unionSelf(chunk->m_aabb);
+			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
+			m_aabb.unionSelf(m_Chunks[i][j]->m_aabb);
 		}
 	}
 }
@@ -208,20 +243,23 @@ void Terrain::CreateRigidActor(const my::Matrix4 & World)
 
 void Terrain::CreateHeightField(void)
 {
-	std::vector<PxHeightFieldSample> Samples(m_Samples.size());
-	for (unsigned int i = 0; i < m_Samples.size(); i++)
+	std::vector<PxHeightFieldSample> Samples(Sample::static_size * Sample::static_size);
+	for (unsigned int i = 0; i < Sample::static_size; i++)
 	{
-		Samples[i].height = m_Samples[i];
-		Samples[i].materialIndex0 = PxBitAndByte(0, false);
-		Samples[i].materialIndex1 = PxBitAndByte(0, false);
+		for (unsigned int j = 0; j < Sample::static_size; j++)
+		{
+			Samples[i * Sample::static_size + j].height = m_Samples[i][j];
+			Samples[i * Sample::static_size + j].materialIndex0 = PxBitAndByte(0, false);
+			Samples[i * Sample::static_size + j].materialIndex1 = PxBitAndByte(0, false);
+		}
 	}
 
 	PxHeightFieldDesc hfDesc;
 	hfDesc.format             = PxHeightFieldFormat::eS16_TM;
-	hfDesc.nbColumns          = m_ColChunks * m_ChunkCols;
-	hfDesc.nbRows             = m_RowChunks * m_ChunkRows;
+	hfDesc.nbColumns          = Sample::static_size;
+	hfDesc.nbRows             = Sample::static_size;
 	hfDesc.samples.data       = &Samples[0];
-	hfDesc.samples.stride     = sizeof(PxHeightFieldSample);
+	hfDesc.samples.stride     = sizeof(Samples[0]);
 	m_HeightField.reset(PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc));
 }
 
@@ -264,19 +302,13 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
-	ar << BOOST_SERIALIZATION_NVP(m_RowChunks);
-	ar << BOOST_SERIALIZATION_NVP(m_ColChunks);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkRows);
-	ar << BOOST_SERIALIZATION_NVP(m_ChunkCols);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ColScale);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	unsigned int Count = m_Samples.size();
-	ar << BOOST_SERIALIZATION_NVP(Count);
-	ar << boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples[0], Count * sizeof(SampleType::value_type)));
+	ar << boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
 }
 
 template<>
@@ -284,20 +316,13 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
-	ar >> BOOST_SERIALIZATION_NVP(m_RowChunks);
-	ar >> BOOST_SERIALIZATION_NVP(m_ColChunks);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkRows);
-	ar >> BOOST_SERIALIZATION_NVP(m_ChunkCols);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	unsigned int Count;
-	ar >> BOOST_SERIALIZATION_NVP(Count);
-	m_Samples.resize(Count);
-	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples[0], Count * sizeof(SampleType::value_type)));
+	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
 	CreateElements();
 	CreateChunks();
 	CreateRigidActor(m_World);
@@ -316,22 +341,22 @@ void Terrain::RequestResource(void)
 	HRESULT hr;
 	V(pd3dDevice->CreateVertexDeclaration(&elems[0], &m_Decl));
 
-	m_ib.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * m_ChunkRows * m_ChunkCols * 6, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+	m_ib.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * m_ChunkRows * m_ChunkRows * 6, 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
 	VOID * pIndices = m_ib.Lock(0, 0, 0);
 	if (pIndices)
 	{
 		for (unsigned int i = 0; i < m_ChunkRows; i++)
 		{
-			for (unsigned int j = 0; j < m_ChunkCols; j++)
+			for (unsigned int j = 0; j < m_ChunkRows; j++)
 			{
-				int index = (i * m_ChunkCols + j) * 6;
-				*((WORD *)pIndices + index + 0) = (WORD)((i + 0) * (m_ChunkCols + 1) + (j + 0));
-				*((WORD *)pIndices + index + 1) = (WORD)((i + 0) * (m_ChunkCols + 1) + (j + 1));
-				*((WORD *)pIndices + index + 2) = (WORD)((i + 1) * (m_ChunkCols + 1) + (j + 0));
+				int index = (i * m_ChunkRows + j) * 6;
+				*((WORD *)pIndices + index + 0) = (WORD)m_VertTable[i + 0][j + 0];
+				*((WORD *)pIndices + index + 1) = (WORD)m_VertTable[i + 0][j + 1];
+				*((WORD *)pIndices + index + 2) = (WORD)m_VertTable[i + 1][j + 0];
 
-				*((WORD *)pIndices + index + 3) = (WORD)((i + 0) * (m_ChunkCols + 1) + (j + 1));
-				*((WORD *)pIndices + index + 4) = (WORD)((i + 1) * (m_ChunkCols + 1) + (j + 1));
-				*((WORD *)pIndices + index + 5) = (WORD)((i + 1) * (m_ChunkCols + 1) + (j + 0));
+				*((WORD *)pIndices + index + 3) = (WORD)m_VertTable[i + 0][j + 1];
+				*((WORD *)pIndices + index + 4) = (WORD)m_VertTable[i + 1][j + 1];
+				*((WORD *)pIndices + index + 5) = (WORD)m_VertTable[i + 1][j + 0];
 			}
 		}
 		m_ib.Unlock();
@@ -339,12 +364,11 @@ void Terrain::RequestResource(void)
 
 	m_Material->RequestResource();
 
-	for (unsigned int i = 0; i < m_RowChunks; i++)
+	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
 	{
-		for (unsigned int j = 0; j < m_ColChunks; j++)
+		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			TerrainChunkPtr & chunk = m_Chunks[i * m_ColChunks + j];
-			chunk->CreateVertices();
+			m_Chunks[i][j]->CreateVertices();
 		}
 	}
 
@@ -356,12 +380,11 @@ void Terrain::ReleaseResource(void)
 	m_Decl.Release();
 	m_ib.OnDestroyDevice();
 	m_Material->ReleaseResource();
-	for (unsigned int i = 0; i < m_RowChunks; i++)
+	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
 	{
-		for (unsigned int j = 0; j < m_ColChunks; j++)
+		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			TerrainChunkPtr & chunk = m_Chunks[i * m_ColChunks + j];
-			chunk->DestroyVertices();
+			m_Chunks[i][j]->DestroyVertices();
 		}
 	}
 	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
@@ -401,9 +424,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				chunk->m_vb.m_ptr,
 				terrain->m_ib.m_ptr,
 				D3DPT_TRIANGLELIST, 0, 0,
-				(terrain->m_ChunkRows + 1) * (terrain->m_ChunkCols + 1),
+				(terrain->m_ChunkRows + 1) * (terrain->m_ChunkRows + 1),
 				terrain->m_VertexStride, 0,
-				terrain->m_ChunkRows * terrain->m_ChunkCols * 2, 0, shader, terrain);
+				terrain->m_ChunkRows * terrain->m_ChunkRows * 2, 0, shader, terrain);
 		}
 	};
 
