@@ -327,6 +327,14 @@ unsigned int EdgeNv1(T & tri, int N, int r0, int rs, int c0, int cs)
 			tri.set(k + 1, r0, cb + cs);
 			tri.set(k + 2, r0 + rs, cb + cs);
 			k += 3;
+
+			if (i > 0)
+			{
+				tri.set(k + 0, r0, cb);
+				tri.set(k + 1, r0 + rs, cb + cs);
+				tri.set(k + 2, r0 + rs, cb);
+				k += 3;
+			}
 		}
 		else
 		{
@@ -471,6 +479,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		k += EdgeNvM(Tri((WORD *)pIndices + k), N[2], M[2], 0, step, 0, step);
 		k += EdgeNvM(TriTranspose((WORD *)pIndices + k), N[3], M[3], N[0] * step, -step, 0, step);
 		k += EdgeNvM(Tri((WORD *)pIndices + k), N[4], M[4], N[0] * step, -step, N[0] * step, -step);
+		_ASSERT(k == frag.PrimitiveCount * 3);
 		frag.ib.Unlock();
 	}
 	else
@@ -595,7 +604,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
-			unsigned char center=2, left=3, top=4, right=5, bottom=0;
+			unsigned char center=0, left=0, top=0, right=0, bottom=0;
 			const Fragment & frag = terrain->GetFragment(center, left, top, right, bottom);
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
 			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr,

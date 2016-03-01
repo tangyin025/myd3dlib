@@ -53,7 +53,7 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 1;
+	static const DWORD m_RowChunks = 8;
 
 	static const DWORD m_ChunkRows = 64;
 
