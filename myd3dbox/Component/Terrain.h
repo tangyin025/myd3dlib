@@ -13,18 +13,16 @@ public:
 
 	my::AABB m_aabb;
 
-	my::Vector2 m_PosStart;
+	int m_Row;
 
-	my::Vector2 m_PosEnd;
+	int m_Column;
 
-	my::Vector2 m_TexStart;
-
-	my::Vector2 m_TexEnd;
+	unsigned char m_lod;
 
 	my::VertexBuffer m_vb;
 
 public:
-	TerrainChunk(Terrain * Owner, const my::Vector2 & PosStart, const my::Vector2 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd);
+	TerrainChunk(Terrain * Owner, int Row, int Column);
 
 	TerrainChunk(void);
 
@@ -34,10 +32,8 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_PosStart);
-		ar & BOOST_SERIALIZATION_NVP(m_PosEnd);
-		ar & BOOST_SERIALIZATION_NVP(m_TexStart);
-		ar & BOOST_SERIALIZATION_NVP(m_TexEnd);
+		ar & BOOST_SERIALIZATION_NVP(m_Row);
+		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
 
 	void CreateVertices(void);
@@ -54,6 +50,8 @@ class Terrain
 {
 public:
 	static const DWORD m_RowChunks = 8;
+
+	static const DWORD m_ColChunks = 8;
 
 	static const DWORD m_ChunkRows = 64;
 
@@ -80,9 +78,9 @@ public:
 
 	float m_WrappedV;
 
-	typedef boost::array<unsigned char, m_RowChunks * m_ChunkRows + 1> SampleArray;
+	typedef boost::array<unsigned char, m_ColChunks * m_ChunkRows + 1> SampleArray;
 
-	typedef boost::array<SampleArray, SampleArray::static_size> SampleArray2D;
+	typedef boost::array<SampleArray, m_RowChunks * m_ChunkRows + 1> SampleArray2D;
 
 	SampleArray2D m_Samples;
 
@@ -107,9 +105,9 @@ public:
 
 	my::OctRoot m_Root;
 
-	typedef boost::array<TerrainChunkPtr, m_RowChunks> ChunkArray;
+	typedef boost::array<TerrainChunkPtr, m_ColChunks> ChunkArray;
 
-	typedef boost::array<ChunkArray, ChunkArray::static_size> ChunkArray2D;
+	typedef boost::array<ChunkArray, m_RowChunks> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
 
@@ -122,6 +120,10 @@ public:
 	void UpdateChunks(void);
 
 	float GetSampleHeight(float x, float z);
+
+	float GetSampleHeight(int i, int j);
+
+	my::Vector3 GetSamplePos(int i, int j);
 
 	void CreateRigidActor(const my::Matrix4 & World);
 

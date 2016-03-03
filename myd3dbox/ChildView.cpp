@@ -300,7 +300,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 			case Component::ComponentTypeTerrain:
 				{
 					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
-					for (unsigned int i = 0; i < Terrain::ChunkArray::static_size; i++)
+					for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
 					{
 						for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
 						{

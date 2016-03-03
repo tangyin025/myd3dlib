@@ -2748,6 +2748,8 @@ namespace my
 
 		Vector3 m_max;
 
+		static const AABB invalid;
+
 	public:
 		AABB(void)
 			//: m_min(-FLT_MAX,-FLT_MAX,-FLT_MAX)
@@ -2771,6 +2773,11 @@ namespace my
 			: m_min(_Min)
 			, m_max(_Max)
 		{
+		}
+
+		static AABB Invalid(void)
+		{
+			return AABB(FLT_MAX, -FLT_MAX);
 		}
 
 		template <class Archive>
@@ -2813,6 +2820,28 @@ namespace my
 			m_max.x = Min(m_max.x, rhs.m_max.x);
 			m_max.y = Min(m_max.y, rhs.m_max.y);
 			m_max.z = Min(m_max.z, rhs.m_max.z);
+			return *this;
+		}
+
+		AABB Union(const Vector3 & pos) const
+		{
+			return AABB(
+				Min(m_min.x, pos.x),
+				Min(m_min.y, pos.y),
+				Min(m_min.z, pos.z),
+				Max(m_max.x, pos.x),
+				Max(m_max.y, pos.y),
+				Max(m_max.z, pos.z));
+		};
+
+		AABB & unionSelf(const Vector3 & pos)
+		{
+			m_min.x = Min(m_min.x, pos.x);
+			m_min.y = Min(m_min.y, pos.y);
+			m_min.z = Min(m_min.z, pos.z);
+			m_max.x = Max(m_max.x, pos.x);
+			m_max.y = Max(m_max.y, pos.y);
+			m_max.z = Max(m_max.z, pos.z);
 			return *this;
 		}
 

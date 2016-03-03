@@ -14,23 +14,23 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Terrain)
 
-TerrainChunk::TerrainChunk(Terrain * Owner, const my::Vector2 & PosStart, const my::Vector2 & PosEnd, const my::Vector2 & TexStart, const my::Vector2 & TexEnd)
+TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 	: m_Owner(Owner)
-	, m_aabb(my::AABB(Vector3(PosStart.x, -1, PosStart.y), Vector3(PosEnd.x, 1, PosEnd.y)))
-	, m_PosStart(PosStart)
-	, m_PosEnd(PosEnd)
-	, m_TexStart(TexStart)
-	, m_TexEnd(TexEnd)
+	, m_aabb(AABB::Invalid())
+	, m_Row(Row)
+	, m_Column(Column)
+	, m_lod(0)
 {
+	m_aabb.m_min = m_Owner->GetSamplePos((m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
+	m_aabb.m_max = m_Owner->GetSamplePos((m_Row + 1) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 1) * (Terrain::VertexArray::static_size - 1));
 }
 
 TerrainChunk::TerrainChunk(void)
 	: m_Owner(NULL)
-	, m_aabb(my::AABB(0,1))
-	, m_PosStart(0,0)
-	, m_PosEnd(1,1)
-	, m_TexStart(0,0)
-	, m_TexEnd(1,1)
+	, m_aabb(AABB::Invalid())
+	, m_Row(0)
+	, m_Column(0)
+	, m_lod(0)
 {
 }
 
@@ -42,7 +42,7 @@ TerrainChunk::~TerrainChunk(void)
 void TerrainChunk::CreateVertices(void)
 {
 	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-	m_vb.CreateVertexBuffer(pd3dDevice, (m_Owner->m_ChunkRows + 1) * (m_Owner->m_ChunkRows + 1) * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer(pd3dDevice, Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	UpdateVertices();
 }
 
@@ -51,36 +51,29 @@ void TerrainChunk::UpdateVertices(void)
 	VOID * pVertices = m_vb.Lock(0, 0, 0);
 	if (pVertices)
 	{
-		for (unsigned int i = 0; i <= m_Owner->m_ChunkRows; i++)
+		m_aabb = AABB::Invalid();
+		for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
 		{
-			for (unsigned int j = 0; j <= m_Owner->m_ChunkRows; j++)
+			const int row_i = m_Row * (Terrain::VertexArray2D::static_size - 1) + i;
+			for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
 			{
 				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertTable[i][j] * m_Owner->m_VertexStride;
-				Vector3 & Position = m_Owner->m_VertexElems.GetPosition(pVertex);
-				Position.x = (i == 0 ? m_PosStart.x : (i == m_Owner->m_ChunkRows ? m_PosEnd.x : my::Lerp(m_PosStart.x, m_PosEnd.x, (float)i / m_Owner->m_ChunkRows)));
-				Position.z = (j == 0 ? m_PosStart.y : (j == m_Owner->m_ChunkRows ? m_PosEnd.y : my::Lerp(m_PosStart.y, m_PosEnd.y, (float)j / m_Owner->m_ChunkRows)));
-				Position.y = m_Owner->GetSampleHeight(Position.x, Position.z);
-				if (Position.y < m_aabb.m_min.y)
-				{
-					m_aabb.m_min.y = Position.y;
-				}
-				else if (Position.y > m_aabb.m_max.y)
-				{
-					m_aabb.m_max.y = Position.y;
-				}
+				const int col_i = m_Column * (Terrain::VertexArray::static_size - 1) + j;
+				Vector3 & Pos = m_Owner->m_VertexElems.GetPosition(pVertex);
+				Pos = m_Owner->GetSamplePos(row_i, col_i);
 
 				Vector3 & Normal = m_Owner->m_VertexElems.GetNormal(pVertex);
 				const Vector3 Dirs[4] = {
-					Vector3(Position.x, m_Owner->GetSampleHeight(Position.x, Position.z - m_Owner->m_ColScale), Position.z - m_Owner->m_ColScale) - Position,
-					Vector3(Position.x + m_Owner->m_RowScale, m_Owner->GetSampleHeight(Position.x + m_Owner->m_RowScale, Position.z), Position.z) - Position,
-					Vector3(Position.x, m_Owner->GetSampleHeight(Position.x, Position.z + m_Owner->m_ColScale), Position.z + m_Owner->m_ColScale) - Position,
-					Vector3(Position.x - m_Owner->m_RowScale, m_Owner->GetSampleHeight(Position.x - m_Owner->m_RowScale, Position.z), Position.z) - Position,
+					m_Owner->GetSamplePos(row_i, col_i - 1) - Pos,
+					m_Owner->GetSamplePos(row_i - 1, col_i) - Pos,
+					m_Owner->GetSamplePos(row_i, col_i + 1) - Pos,
+					m_Owner->GetSamplePos(row_i + 1, col_i) - Pos,
 				};
 				const Vector3 Nors[4] = {
-					Dirs[1].cross(Dirs[0]).normalize(),
-					Dirs[2].cross(Dirs[1]).normalize(),
-					Dirs[3].cross(Dirs[2]).normalize(),
-					Dirs[0].cross(Dirs[3]).normalize(),
+					Dirs[0].cross(Dirs[1]).normalize(),
+					Dirs[1].cross(Dirs[2]).normalize(),
+					Dirs[2].cross(Dirs[3]).normalize(),
+					Dirs[3].cross(Dirs[0]).normalize(),
 				};
 				Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
 
@@ -88,8 +81,10 @@ void TerrainChunk::UpdateVertices(void)
 				Tangent = Normal.cross(Dirs[2]).normalize();
 
 				Vector2 & Texcoord = m_Owner->m_VertexElems.GetTexcoord(pVertex, 0);
-				Texcoord.x = (i == 0 ? m_TexStart.x : (i == m_Owner->m_ChunkRows ? m_TexEnd.x : my::Lerp(m_TexStart.x, m_TexEnd.x, (float)i / m_Owner->m_ChunkRows)));
-				Texcoord.y = (j == 0 ? m_TexStart.y : (j == m_Owner->m_ChunkRows ? m_TexEnd.y : my::Lerp(m_TexStart.y, m_TexEnd.y, (float)j / m_Owner->m_ChunkRows)));
+				Texcoord.x = Lerp<float>(0, m_Owner->m_WrappedU, (float)i / (Terrain::VertexArray2D::static_size - 1));
+				Texcoord.y = Lerp<float>(0, m_Owner->m_WrappedV, (float)j / (Terrain::VertexArray::static_size - 1));
+
+				m_aabb.unionSelf(Pos);
 			}
 		}
 		m_vb.Unlock();
@@ -162,24 +157,21 @@ Terrain::VertexArray2D::VertexArray2D(void)
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
 Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
-	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_RowChunks * m_ChunkRows * ColScale)), ComponentTypeTerrain)
+	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_ColChunks * m_ChunkRows * ColScale)), ComponentTypeTerrain)
 	, m_World(World)
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
 	, m_ColScale(ColScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(0,-1000,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1000, m_RowChunks * m_ChunkRows * ColScale), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1000, m_ColChunks * m_ChunkRows * ColScale), 1.0f)
 {
 	memset(&m_Samples, 0, sizeof(m_Samples));
-	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			m_Chunks[i][j].reset(new TerrainChunk(this,
-				my::Vector2((i + 0) * m_ChunkRows * m_RowScale, (j + 0) * m_ChunkRows * m_ColScale),
-				my::Vector2((i + 1) * m_ChunkRows * m_RowScale, (j + 1) * m_ChunkRows * m_ColScale),
-				my::Vector2(0,0), my::Vector2(m_WrappedU,m_WrappedV)));
+			m_Chunks[i][j].reset(new TerrainChunk(this, i, j));
 			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
 		}
 	}
@@ -212,10 +204,10 @@ Terrain::~Terrain(void)
 void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
 {
 	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-	if (desc.Format == D3DFMT_L8 && desc.Width >= SampleArray::static_size && desc.Height >= SampleArray::static_size)
+	if (desc.Format == D3DFMT_L8 && desc.Width >= SampleArray2D::static_size && desc.Height >= SampleArray::static_size)
 	{
 		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-		for (unsigned int i = 0; i < SampleArray::static_size; i++)
+		for (unsigned int i = 0; i < SampleArray2D::static_size; i++)
 		{
 			for (unsigned int j = 0; j < SampleArray::static_size; j++)
 			{
@@ -230,8 +222,8 @@ void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
 
 void Terrain::UpdateChunks(void)
 {
-	m_aabb = AABB(-1,1);
-	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
+	m_aabb = AABB::Invalid();
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
@@ -245,9 +237,19 @@ void Terrain::UpdateChunks(void)
 
 float Terrain::GetSampleHeight(float x, float z)
 {
-	int i = Clamp<int>((int)(x / m_RowScale), 0, SampleArray::static_size - 1);
-	int j = Clamp<int>((int)(z / m_ColScale), 0, SampleArray::static_size - 1);
-	return m_Samples[i][j] * m_HeightScale;
+	return GetSampleHeight((int)(x / m_RowScale), (int)(z / m_ColScale));
+}
+
+float Terrain::GetSampleHeight(int i, int j)
+{
+	int _i = Clamp<int>(i, 0, SampleArray2D::static_size - 1);
+	int _j = Clamp<int>(j, 0, SampleArray::static_size - 1);
+	return m_Samples[_i][_j] * m_HeightScale;
+}
+
+my::Vector3 Terrain::GetSamplePos(int i, int j)
+{
+	return Vector3(i * m_RowScale, GetSampleHeight(i, j), j * m_ColScale);
 }
 
 void Terrain::CreateRigidActor(const my::Matrix4 & World)
@@ -259,8 +261,8 @@ void Terrain::CreateRigidActor(const my::Matrix4 & World)
 
 void Terrain::CreateHeightField(void)
 {
-	std::vector<PxHeightFieldSample> Samples(SampleArray::static_size * SampleArray::static_size);
-	for (unsigned int i = 0; i < SampleArray::static_size; i++)
+	std::vector<PxHeightFieldSample> Samples(SampleArray2D::static_size * SampleArray::static_size);
+	for (unsigned int i = 0; i < SampleArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < SampleArray::static_size; j++)
 		{
@@ -271,9 +273,9 @@ void Terrain::CreateHeightField(void)
 	}
 
 	PxHeightFieldDesc hfDesc;
-	hfDesc.format             = PxHeightFieldFormat::eS16_TM;
+	hfDesc.nbRows             = SampleArray2D::static_size;
 	hfDesc.nbColumns          = SampleArray::static_size;
-	hfDesc.nbRows             = SampleArray::static_size;
+	hfDesc.format             = PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);
 	m_HeightField.reset(PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc));
@@ -524,7 +526,7 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
 	ar >> BOOST_SERIALIZATION_NVP(m_Chunks);
-	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
@@ -551,7 +553,7 @@ void Terrain::RequestResource(void)
 
 	m_Material->RequestResource();
 
-	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
@@ -567,7 +569,7 @@ void Terrain::ReleaseResource(void)
 	m_Decl.Release();
 	m_Fragment.clear();
 	m_Material->ReleaseResource();
-	for (unsigned int i = 0; i < ChunkArray::static_size; i++)
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
@@ -604,9 +606,12 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
-			unsigned char center=0, left=0, top=0, right=0, bottom=0;
-			const Fragment & frag = terrain->GetFragment(center, left, top, right, bottom);
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+			const Fragment & frag = terrain->GetFragment(chunk->m_lod,
+				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
 			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr,
 				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, terrain);
 		}
