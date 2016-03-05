@@ -428,8 +428,10 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos)
 	struct CallBack : public my::IQueryCallback
 	{
 		CMainFrame * pFrame;
-		CallBack(CMainFrame * _pFrame)
+		const my::Vector3 & ViewedPos;
+		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos)
 			: pFrame(_pFrame)
+			, ViewedPos(_ViewedPos)
 		{
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
@@ -445,12 +447,13 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos)
 				}
 				pFrame->m_ViewedCmps.insert(cmp);
 			}
+			cmp->UpdateLod(ViewedPos);
 		}
 	};
 
 	const my::Vector3 InExtent(1000,1000,1000);
 	my::AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
-	m_Root.QueryComponent(InBox, &CallBack(this));
+	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos));
 }
 
 void CMainFrame::ClearAllComponents()

@@ -126,6 +126,10 @@ public:
 	{
 	}
 
+	virtual void UpdateLod(const my::Vector3 & ViewedPos)
+	{
+	}
+
 	static const my::AABB & GetComponentAABB(const Component * cmp);
 
 	static const my::AABB & GetComponentOctAABB(const Component * cmp);

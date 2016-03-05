@@ -868,8 +868,10 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos)
 	struct CallBack : public my::IQueryCallback
 	{
 		Game * game;
-		CallBack(Game * _game)
+		const my::Vector3 & ViewedPos;
+		CallBack(Game * _game, const my::Vector3 & _ViewedPos)
 			: game(_game)
+			, ViewedPos(_ViewedPos)
 		{
 		}
 		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
@@ -885,12 +887,13 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos)
 				}
 				game->m_ViewedCmps.insert(cmp);
 			}
+			cmp->UpdateLod(ViewedPos);
 		}
 	};
 
 	const Vector3 InExtent(1000,1000,1000);
 	AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
-	m_Root.QueryComponent(InBox, &CallBack(this));
+	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos));
 }
 
 void Game::SaveMaterial(const std::string & path, MaterialPtr material)
