@@ -246,7 +246,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeRotate;
-			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -267,7 +267,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeTrake;
-			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -288,7 +288,7 @@ LRESULT ModelViewerCamera::MsgProc(
 		if ((GetKeyState(VK_MENU) & 0x8000) && m_DragMode == DragModeNone)
 		{
 			m_DragMode = DragModeZoom;
-			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 			::SetCapture(hWnd);
 			*pbNoFurtherProcessing = true;
 			return 0;
@@ -307,7 +307,7 @@ LRESULT ModelViewerCamera::MsgProc(
 
 	case WM_MOUSEMOVE:
 		{
-			CPoint pt(LOWORD(lParam),HIWORD(lParam));
+			CPoint pt((short)LOWORD(lParam),(short)HIWORD(lParam));
 			switch (m_DragMode)
 			{
 			case DragModeRotate:
@@ -391,7 +391,7 @@ LRESULT FirstPersonCamera::MsgProc(
 	{
 	case WM_LBUTTONDOWN:
 		m_DragMode = 1;
-		m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+		m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 		::SetCapture(hWnd);
 		*pbNoFurtherProcessing = true;
 		return 0;
@@ -411,7 +411,7 @@ LRESULT FirstPersonCamera::MsgProc(
 		{
 			m_Eular.x -= D3DXToRadian(HIWORD(lParam) - m_DragPt.y);
 			m_Eular.y -= D3DXToRadian(LOWORD(lParam) - m_DragPt.x);
-			m_DragPt.SetPoint(LOWORD(lParam),HIWORD(lParam));
+			m_DragPt.SetPoint((short)LOWORD(lParam),(short)HIWORD(lParam));
 			*pbNoFurtherProcessing = true;
 			return 0;
 		}

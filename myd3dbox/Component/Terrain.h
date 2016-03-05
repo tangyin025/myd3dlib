@@ -45,6 +45,18 @@ public:
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
 
+template <int N>
+struct Quad
+{
+	enum { value = Quad<N / 2>::value + 1 };
+};
+
+template <>
+struct Quad<1>
+{
+	enum { value = 1 };
+};
+
 class Terrain
 	: public RenderComponent
 {
@@ -111,6 +123,10 @@ public:
 
 	ChunkArray2D m_Chunks;
 
+	typedef boost::array<float, Quad<m_ChunkRows>::value> LodParam;
+
+	LodParam m_LodParam;
+
 	PhysXPtr<PxHeightField> m_HeightField;
 
 	PhysXPtr<PxRigidActor> m_RigidActor;
@@ -161,6 +177,8 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
