@@ -282,14 +282,14 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 			case Component::ComponentTypeMesh:
 				{
 					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
-					if (mesh_cmp->m_MeshRes.m_Res)
+					if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
 					{
 						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
 						UINT passes = theApp.m_SimpleSample->Begin();
 						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 						{
 							theApp.m_SimpleSample->BeginPass(0);
-							mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+							mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
 							theApp.m_SimpleSample->EndPass();
 						}
 						theApp.m_SimpleSample->End();
@@ -333,7 +333,11 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			my::Frustum local_ftm = frustum.transform(mesh_cmp->m_World.transpose());
-			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
+			my::OgreMeshPtr mesh;
+			if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
+			{
+				mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
+			}
 			if (!mesh)
 			{
 				return false;
@@ -461,7 +465,11 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			my::Ray local_ray = ray.transform(mesh_cmp->m_World.inverse());
-			my::OgreMeshPtr mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_MeshRes.m_Res);
+			my::OgreMeshPtr mesh;
+			if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
+			{
+				mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
+			}
 			if (!mesh)
 			{
 				return my::RayResult(false, FLT_MAX);

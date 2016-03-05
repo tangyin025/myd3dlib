@@ -170,11 +170,38 @@ class MeshComponent
 public:
 	my::Matrix4 m_World;
 
-	ResourceBundle<my::Mesh> m_MeshRes;
+	struct LOD
+	{
+		ResourceBundle<my::Mesh> m_MeshRes;
+
+		bool m_bInstance;
+
+		LOD(const char * Path, bool bInstance)
+			: m_MeshRes(Path)
+			, m_bInstance(bInstance)
+		{
+		}
+
+		LOD(void)
+			: m_bInstance(false)
+		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
+			ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+		}
+	};
+
+	typedef std::vector<LOD> LODList;
+
+	LODList m_lods;
+
+	unsigned char m_lod;
 
 	MaterialPtrList m_MaterialList;
-
-	bool m_bInstance;
 
 	AnimatorPtr m_Animator;
 
@@ -182,14 +209,14 @@ public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(aabb, ComponentTypeMesh)
 		, m_World(World)
-		, m_bInstance(bInstance)
+		, m_lod(0)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeMesh)
 		, m_World(my::Matrix4::Identity())
-		, m_bInstance(false)
+		, m_lod(0)
 	{
 	}
 
@@ -206,9 +233,8 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
+		ar & BOOST_SERIALIZATION_NVP(m_lods);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
-		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 		ar & BOOST_SERIALIZATION_NVP(m_Animator);
 	}
 

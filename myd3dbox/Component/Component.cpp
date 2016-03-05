@@ -131,7 +131,12 @@ void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
 
-	m_MeshRes.RequestResource();
+	LODList::iterator lod_iter = m_lods.begin();
+	for (; lod_iter != m_lods.end(); lod_iter++)
+	{
+		lod_iter->m_MeshRes.RequestResource();
+	}
+
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
@@ -146,7 +151,12 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	m_MeshRes.ReleaseResource();
+	LODList::iterator lod_iter = m_lods.begin();
+	for (; lod_iter != m_lods.end(); lod_iter++)
+	{
+		lod_iter->m_MeshRes.ReleaseResource();
+	}
+
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
 	{
@@ -187,8 +197,9 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	if (m_MeshRes.m_Res)
+	if (m_lod < m_lods.size() && m_lods[m_lod].m_MeshRes.m_Res)
 	{
+		LOD & lod = m_lods[m_lod];
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
 			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
@@ -197,16 +208,16 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
+						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, lod.m_bInstance, m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
-							if (m_bInstance)
+							if (lod.m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_World, shader, this);
+								pipeline->PushMeshInstance(PassID, lod.m_MeshRes.m_Res.get(), i, m_World, shader, this);
 							}
 							else
 							{
-								pipeline->PushMesh(PassID, m_MeshRes.m_Res.get(), i, shader, this);
+								pipeline->PushMesh(PassID, lod.m_MeshRes.m_Res.get(), i, shader, this);
 							}
 						}
 					}

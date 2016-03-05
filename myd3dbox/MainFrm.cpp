@@ -583,8 +583,9 @@ void CMainFrame::OnComponentMesh()
 		if (mesh)
 		{
 			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
-			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
-			mesh_cmp->m_MeshRes.OnReady(mesh);
+			mesh_cmp->m_lods.resize(1);
+			mesh_cmp->m_lods[0].m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
+			mesh_cmp->m_lods[0].m_MeshRes.OnReady(mesh);
 			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 			{
 				MaterialPtr lambert1(new Material());

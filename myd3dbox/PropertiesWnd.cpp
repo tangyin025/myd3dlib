@@ -212,8 +212,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 
 void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
-	m_pProp[PropertyMeshPath]->SetValue((_variant_t)cmp->m_MeshRes.m_Path.c_str());
-	m_pProp[PropertyMeshInstance]->SetValue((_variant_t)cmp->m_bInstance);
+	UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], cmp);
 
 	unsigned int i = 0;
 	for (; i < cmp->m_MaterialList.size(); i++)
@@ -225,6 +224,29 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 		UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], i, cmp->m_MaterialList[i].get());
 	}
 	RemovePropertiesFrom(m_pProp[PropertyMaterialList], i);
+}
+
+void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
+{
+	pLodList->GetSubItem(0)->SetValue((_variant_t)cmp->m_lods.size());
+	unsigned int i = 0;
+	for (; i < cmp->m_lods.size(); i++)
+	{
+		if ((unsigned int)pLodList->GetSubItemsCount() <= i + 1)
+		{
+			CreatePropertiesMeshLod(pLodList, i);
+		}
+		UpdatePropertiesMeshLod(pLodList, i, cmp->m_lods[i]);
+	}
+	RemovePropertiesFrom(pLodList, i + 1);
+}
+
+void CPropertiesWnd::UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod)
+{
+	CMFCPropertyGridProperty * pNode = pParentCtrl->GetSubItem(NodeId + 1);
+	_ASSERT(pNode->GetData() == NodeId);
+	pNode->GetSubItem(0)->SetValue((_variant_t)lod.m_MeshRes.m_Path.c_str());
+	pNode->GetSubItem(1)->SetValue((_variant_t)lod.m_bInstance);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
@@ -445,6 +467,18 @@ void CPropertiesWnd::UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pSh
 {
 	pShape->GetSubItem(2)->SetValue((_variant_t)capsule.radius);
 	pShape->GetSubItem(3)->SetValue((_variant_t)capsule.halfHeight);
+}
+
+void CPropertiesWnd::CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
+{
+	TCHAR buff[128];
+	_stprintf_s(buff, _countof(buff), _T("Lod%u"), NodeId);
+	CMFCPropertyGridProperty * pNode = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
+	pParentCtrl->AddSubItem(pNode);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshLodResPath);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshLodInstance);
+	pNode->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
@@ -808,11 +842,15 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.AddProperty(m_pProp[PropertyComponent], FALSE, FALSE);
 
 	m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
-	m_pProp[PropertyMeshPath] = new CFileProp(_T("Path"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
-	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshPath]);
-	m_pProp[PropertyMeshInstance] = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshInstance);
-	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshInstance]);
 	m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
+	m_pProp[PropertyMeshLodList] = new CMFCPropertyGridProperty(_T("Lods"), PropertyMeshLodList, FALSE);
+	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshLodList]);
+	m_pProp[PropertyMeshLodCount] = new CSimpleProp(_T("LodCount"), (_variant_t)(size_t)0, NULL, PropertyMeshLodCount);
+	m_pProp[PropertyMeshLodList]->AddSubItem(m_pProp[PropertyMeshLodCount]);
+	for (unsigned int i = 0; i < 3; i++)
+	{
+		CreatePropertiesMeshLod(m_pProp[PropertyMeshLodList], i);
+	}
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
 	m_pProp[PropertyEmitterParticleList] = new CMFCPropertyGridProperty(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
@@ -1075,10 +1113,31 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
-	case PropertyMeshInstance:
+	case PropertyMeshLodCount:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			mesh_cmp->m_bInstance = (pProp->GetValue().boolVal != 0);
+			mesh_cmp->m_lods.resize(my::Clamp<unsigned int>(pProp->GetValue().uintVal, 1, 3));
+			UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], mesh_cmp);
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMeshLodResPath:
+		{
+			DWORD NodeId = pProp->GetParent()->GetData();
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_lods[NodeId].m_MeshRes.ReleaseResource();
+			mesh_cmp->m_lods[NodeId].m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			mesh_cmp->m_lods[NodeId].m_MeshRes.RequestResource();
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMeshLodInstance:
+		{
+			DWORD NodeId = pProp->GetParent()->GetData();
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_lods[NodeId].m_bInstance = pProp->GetValue().boolVal != 0;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

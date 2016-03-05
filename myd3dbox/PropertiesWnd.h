@@ -61,8 +61,11 @@ protected:
 		PropertyComponentScaleY,
 		PropertyComponentScaleZ,
 		PropertyMesh,
-		PropertyMeshPath,
-		PropertyMeshInstance,
+		PropertyMeshLodList,
+		PropertyMeshLodCount,
+		PropertyMeshLod,
+		PropertyMeshLodResPath,
+		PropertyMeshLodInstance,
 		PropertyEmitter,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
@@ -152,6 +155,8 @@ protected:
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(Component * cmp);
 	void UpdatePropertiesMesh(MeshComponent * cmp);
+	void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
+	void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
 	void UpdatePropertiesRigid(RigidComponent * cmp);
 	void UpdatePropertiesTerrain(Terrain * terrain);
@@ -165,6 +170,7 @@ protected:
 	void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
 	void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
+	void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
