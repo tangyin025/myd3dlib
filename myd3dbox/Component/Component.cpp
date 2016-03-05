@@ -179,6 +179,18 @@ void MeshComponent::Update(float fElapsedTime)
 	}
 }
 
+void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos)
+{
+	float Distance = (m_World.row<3>().xyz - ViewedPos).magnitude();
+	for (m_lod = 0; m_lod < m_lods.size(); m_lod++)
+	{
+		if (Distance < m_lods[m_lod].m_MaxDistance)
+		{
+			break;
+		}
+	}
+}
+
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(AttribId < m_MaterialList.size());

@@ -66,6 +66,7 @@ protected:
 		PropertyMeshLod,
 		PropertyMeshLodResPath,
 		PropertyMeshLodInstance,
+		PropertyMeshLodMaxDistance,
 		PropertyEmitter,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,

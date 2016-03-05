@@ -176,14 +176,18 @@ public:
 
 		bool m_bInstance;
 
-		LOD(const char * Path, bool bInstance)
+		float m_MaxDistance;
+
+		LOD(const char * Path, bool bInstance, float MaxDistance)
 			: m_MeshRes(Path)
 			, m_bInstance(bInstance)
+			, m_MaxDistance(MaxDistance)
 		{
 		}
 
 		LOD(void)
 			: m_bInstance(false)
+			, m_MaxDistance(3000.0f)
 		{
 		}
 
@@ -192,6 +196,7 @@ public:
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 			ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+			ar & BOOST_SERIALIZATION_NVP(m_MaxDistance);
 		}
 	};
 
@@ -199,7 +204,7 @@ public:
 
 	LODList m_lods;
 
-	unsigned char m_lod;
+	unsigned int m_lod;
 
 	MaterialPtrList m_MaterialList;
 
@@ -248,6 +253,8 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void Update(float fElapsedTime);
+
+	virtual void UpdateLod(const my::Vector3 & ViewedPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 

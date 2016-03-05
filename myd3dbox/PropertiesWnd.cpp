@@ -247,6 +247,7 @@ void CPropertiesWnd::UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentC
 	_ASSERT(pNode->GetData() == NodeId);
 	pNode->GetSubItem(0)->SetValue((_variant_t)lod.m_MeshRes.m_Path.c_str());
 	pNode->GetSubItem(1)->SetValue((_variant_t)lod.m_bInstance);
+	pNode->GetSubItem(2)->SetValue((_variant_t)lod.m_MaxDistance);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
@@ -478,6 +479,8 @@ void CPropertiesWnd::CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentC
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshLodResPath);
 	pNode->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshLodInstance);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("MaxDistance"), (_variant_t)0.0f, NULL, PropertyMeshLodMaxDistance);
 	pNode->AddSubItem(pProp);
 }
 
@@ -1138,6 +1141,15 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			DWORD NodeId = pProp->GetParent()->GetData();
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			mesh_cmp->m_lods[NodeId].m_bInstance = pProp->GetValue().boolVal != 0;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMeshLodMaxDistance:
+		{
+			DWORD NodeId = pProp->GetParent()->GetData();
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_lods[NodeId].m_MaxDistance = pProp->GetValue().fltVal;
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

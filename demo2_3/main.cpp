@@ -143,7 +143,7 @@ public:
 		// ¶ÁÈ¡³¡¾°
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
-		std::ifstream istr("ccc.xml");
+		std::ifstream istr("aaa.xml");
 		boost::archive::xml_iarchive ia(istr);
 		ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
 		for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
