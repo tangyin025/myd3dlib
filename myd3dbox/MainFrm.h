@@ -63,7 +63,7 @@ public:
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
-	void ResetViewedCmps(const my::Vector3 & ViewedPos);
+	void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 // Implementation
 public:

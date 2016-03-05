@@ -405,10 +405,10 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos)
+void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	const my::Vector3 OutExtent(1050,1050,1050);
-	my::AABB OutBox(ViewedPos - OutExtent, ViewedPos + OutExtent);
+	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
 	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
 	for (; cmp_iter != m_ViewedCmps.end(); )
 	{
@@ -452,7 +452,7 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos)
 	};
 
 	const my::Vector3 InExtent(1000,1000,1000);
-	my::AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
+	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
 	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos));
 }
 

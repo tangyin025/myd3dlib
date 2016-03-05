@@ -845,10 +845,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
-void Game::ResetViewedCmps(const my::Vector3 & ViewedPos)
+void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	const Vector3 OutExtent(1050,1050,1050);
-	AABB OutBox(ViewedPos - OutExtent, ViewedPos + OutExtent);
+	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
 	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
 	for (; cmp_iter != m_ViewedCmps.end(); )
 	{
@@ -892,7 +892,7 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos)
 	};
 
 	const Vector3 InExtent(1000,1000,1000);
-	AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
+	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
 	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos));
 }
 

@@ -43,7 +43,7 @@ void Logic::Update(float fElapsedTime)
 	camera->m_Eye = m_LocalPlayer->getPosition() + Dir * 5;
 	camera->m_Eular = m_LocalPlayer->m_LookAngles; // 右手系空间相机朝向-z轴
 
-	Game::getSingleton().ResetViewedCmps(m_LocalPlayer->getPosition());
+	Game::getSingleton().ResetViewedCmps(camera->m_Eye, m_LocalPlayer->getPosition());
 
 	m_FixedTickTimer.Step(fElapsedTime, 4);
 }

@@ -1006,7 +1006,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	m_Camera->MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam, &bNoFurtherProcessing);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	pFrame->ResetViewedCmps(m_Camera->m_Eye);
+	pFrame->ResetViewedCmps(m_Camera->m_Eye, boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt);
 	if (bNoFurtherProcessing)
 	{
 		switch (pMsg->message)
