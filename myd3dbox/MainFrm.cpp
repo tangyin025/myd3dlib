@@ -429,9 +429,11 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector
 	{
 		CMainFrame * pFrame;
 		const my::Vector3 & ViewedPos;
-		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos)
+		const my::Vector3 & TargetPos;
+		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
 			: pFrame(_pFrame)
 			, ViewedPos(_ViewedPos)
+			, TargetPos(_TargetPos)
 		{
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
@@ -447,13 +449,13 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector
 				}
 				pFrame->m_ViewedCmps.insert(cmp);
 			}
-			cmp->UpdateLod(ViewedPos);
+			cmp->UpdateLod(ViewedPos, TargetPos);
 		}
 	};
 
 	const my::Vector3 InExtent(1000,1000,1000);
 	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos));
+	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
 }
 
 void CMainFrame::ClearAllComponents()

@@ -179,7 +179,7 @@ void MeshComponent::Update(float fElapsedTime)
 	}
 }
 
-void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos)
+void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	float Distance = (m_World.row<3>().xyz - ViewedPos).magnitude();
 	for (m_lod = 0; m_lod < m_lods.size(); m_lod++)

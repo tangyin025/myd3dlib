@@ -126,7 +126,7 @@ public:
 	{
 	}
 
-	virtual void UpdateLod(const my::Vector3 & ViewedPos)
+	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 	{
 	}
 
@@ -254,7 +254,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void UpdateLod(const my::Vector3 & ViewedPos);
+	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
