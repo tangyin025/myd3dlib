@@ -1004,6 +1004,9 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	ASSERT(pMsg->hwnd == m_hWnd);
 	bool bNoFurtherProcessing = false;
 	m_Camera->MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam, &bNoFurtherProcessing);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	pFrame->ResetViewedCmps(m_Camera->m_Eye);
 	if (bNoFurtherProcessing)
 	{
 		switch (pMsg->message)

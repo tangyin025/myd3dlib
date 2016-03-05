@@ -565,6 +565,12 @@ void Game::OnFrameTick(
 
 	m_Logic->Update(fElapsedTime);
 
+	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
+	for (; cmp_iter != m_ViewedCmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->Update(fElapsedTime);
+	}
+
 	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->Update(fTime, fElapsedTime);
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
@@ -837,6 +843,54 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	};
 
 	m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+}
+
+void Game::ResetViewedCmps(const my::Vector3 & ViewedPos)
+{
+	const Vector3 OutExtent(1050,1050,1050);
+	AABB OutBox(ViewedPos - OutExtent, ViewedPos + OutExtent);
+	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
+	for (; cmp_iter != m_ViewedCmps.end(); )
+	{
+		if (IntersectionTests::IntersectionTypeOutside
+			== IntersectionTests::IntersectAABBAndAABB(OutBox, Component::GetComponentAABB(*cmp_iter)))
+		{
+			if ((*cmp_iter)->IsRequested())
+			{
+				(*cmp_iter)->ReleaseResource();
+			}
+			cmp_iter = m_ViewedCmps.erase(cmp_iter);
+		}
+		else
+			cmp_iter++;
+	}
+
+	struct CallBack : public my::IQueryCallback
+	{
+		Game * game;
+		CallBack(Game * _game)
+			: game(_game)
+		{
+		}
+		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Component *>(oct_cmp));
+			Component * cmp = static_cast<Component *>(oct_cmp);
+			ComponentSet::iterator cmp_iter = game->m_ViewedCmps.find(cmp);
+			if (cmp_iter == game->m_ViewedCmps.end())
+			{
+				if (!cmp->IsRequested())
+				{
+					cmp->RequestResource();
+				}
+				game->m_ViewedCmps.insert(cmp);
+			}
+		}
+	};
+
+	const Vector3 InExtent(1000,1000,1000);
+	AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
+	m_Root.QueryComponent(InBox, &CallBack(this));
 }
 
 void Game::SaveMaterial(const std::string & path, MaterialPtr material)

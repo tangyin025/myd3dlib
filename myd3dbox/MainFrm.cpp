@@ -405,6 +405,54 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
+void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos)
+{
+	const my::Vector3 OutExtent(1050,1050,1050);
+	my::AABB OutBox(ViewedPos - OutExtent, ViewedPos + OutExtent);
+	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
+	for (; cmp_iter != m_ViewedCmps.end(); )
+	{
+		if (my::IntersectionTests::IntersectionTypeOutside
+			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, Component::GetComponentAABB(*cmp_iter)))
+		{
+			if ((*cmp_iter)->IsRequested())
+			{
+				(*cmp_iter)->ReleaseResource();
+			}
+			cmp_iter = m_ViewedCmps.erase(cmp_iter);
+		}
+		else
+			cmp_iter++;
+	}
+
+	struct CallBack : public my::IQueryCallback
+	{
+		CMainFrame * pFrame;
+		CallBack(CMainFrame * _pFrame)
+			: pFrame(_pFrame)
+		{
+		}
+		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Component *>(oct_cmp));
+			Component * cmp = static_cast<Component *>(oct_cmp);
+			ComponentSet::iterator cmp_iter = pFrame->m_ViewedCmps.find(cmp);
+			if (cmp_iter == pFrame->m_ViewedCmps.end())
+			{
+				if (!cmp->IsRequested())
+				{
+					cmp->RequestResource();
+				}
+				pFrame->m_ViewedCmps.insert(cmp);
+			}
+		}
+	};
+
+	const my::Vector3 InExtent(1000,1000,1000);
+	my::AABB InBox(ViewedPos - InExtent, ViewedPos + InExtent);
+	m_Root.QueryComponent(InBox, &CallBack(this));
+}
+
 void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();

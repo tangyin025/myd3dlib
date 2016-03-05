@@ -8,8 +8,6 @@ class Logic
 public:
 	my::Timer m_FixedTickTimer;
 	std::vector<ComponentPtr> m_cmps;
-	typedef boost::unordered_set<Component *> ComponentSet;
-	ComponentSet m_FocusCmps;
 	CharacterPtr m_LocalPlayer;
 
 public:
