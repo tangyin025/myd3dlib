@@ -146,6 +146,8 @@ public:
 	afx_msg void OnUpdateShowGrid(CCmdUI *pCmdUI);
 	afx_msg void OnShowCmphandle();
 	afx_msg void OnUpdateShowCmphandle(CCmdUI *pCmdUI);
+	afx_msg void OnRendermodeWireframe();
+	afx_msg void OnUpdateRendermodeWireframe(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

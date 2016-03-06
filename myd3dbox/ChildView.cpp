@@ -40,6 +40,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_GRID, &CChildView::OnUpdateShowGrid)
 	ON_COMMAND(ID_SHOW_CMPHANDLE, &CChildView::OnShowCmphandle)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_CMPHANDLE, &CChildView::OnUpdateShowCmphandle)
+	ON_COMMAND(ID_RENDERMODE_WIREFRAME, &CChildView::OnRendermodeWireframe)
+	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_WIREFRAME, &CChildView::OnUpdateRendermodeWireframe)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -68,7 +70,6 @@ CChildView::CChildView()
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
-	//m_WireFrame = true;
 }
 
 CChildView::~CChildView()
@@ -1165,4 +1166,17 @@ void CChildView::OnUpdateShowCmphandle(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_bShowCmpHandle);
+}
+
+void CChildView::OnRendermodeWireframe()
+{
+	// TODO: Add your command handler code here
+	m_WireFrame = !m_WireFrame;
+	Invalidate();
+}
+
+void CChildView::OnUpdateRendermodeWireframe(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_WireFrame);
 }
