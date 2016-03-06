@@ -64,7 +64,7 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: m_Root(my::Vector3(-1000), my::Vector3(1000), 1.0f)
+	: m_Root(my::Vector3(-3000), my::Vector3(3000), 1.0f)
 	, m_selbox(-FLT_MAX, FLT_MAX)
 	, m_bEatAltUp(FALSE)
 {

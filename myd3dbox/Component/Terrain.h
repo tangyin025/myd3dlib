@@ -131,6 +131,8 @@ public:
 
 	PhysXPtr<PxRigidActor> m_RigidActor;
 
+	void CalcLodDistanceSq(void);
+
 	void UpdateSamples(my::Texture2DPtr HeightMap);
 
 	void UpdateChunks(void);

@@ -164,7 +164,7 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 	, m_ColScale(ColScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(0,-1000,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1000, m_ColChunks * m_ChunkRows * ColScale), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
 {
 	memset(&m_Samples, 0, sizeof(m_Samples));
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -175,10 +175,7 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
 		}
 	}
-	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
-	{
-		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
-	}
+	CalcLodDistanceSq();
 	CreateElements();
 	CreateRigidActor(m_World);
 	CreateShape();
@@ -191,7 +188,7 @@ Terrain::Terrain(void)
 	, m_ColScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(Vector3(0,-1000,0), Vector3(2000,1000,2000), 1.0f)
+	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
 {
 }
 
@@ -203,6 +200,14 @@ Terrain::~Terrain(void)
 	}
 	_ASSERT(!m_Decl);
 	m_Root.ClearAllComponents();
+}
+
+void Terrain::CalcLodDistanceSq(void)
+{
+	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
+	{
+		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+	}
 }
 
 void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
@@ -220,8 +225,6 @@ void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
 		}
 		HeightMap->UnlockRect(0);
 	}
-	UpdateChunks();
-	UpdateShape();
 }
 
 void Terrain::UpdateChunks(void)

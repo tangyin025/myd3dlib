@@ -213,7 +213,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: m_Root(Vector3(-1000), Vector3(1000), 1.0f)
+	: m_Root(Vector3(-3000), Vector3(3000), 1.0f)
 {
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
