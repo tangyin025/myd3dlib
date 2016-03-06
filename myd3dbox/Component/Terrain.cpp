@@ -19,7 +19,7 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 	, m_aabb(AABB::Invalid())
 	, m_Row(Row)
 	, m_Column(Column)
-	, m_lod(Terrain::LodParam::static_size - 1)
+	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
 	m_aabb.m_min = m_Owner->GetSamplePos((m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
 	m_aabb.m_max = m_Owner->GetSamplePos((m_Row + 1) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 1) * (Terrain::VertexArray::static_size - 1));
@@ -30,7 +30,7 @@ TerrainChunk::TerrainChunk(void)
 	, m_aabb(AABB::Invalid())
 	, m_Row(0)
 	, m_Column(0)
-	, m_lod(Terrain::LodParam::static_size - 1)
+	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
 }
 
@@ -175,9 +175,9 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
 		}
 	}
-	for (unsigned int i = 0; i < LodParam::static_size; i++)
+	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		m_LodParam[i] = Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1);
+		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
 	}
 	CreateElements();
 	CreateRigidActor(m_World);
@@ -515,7 +515,7 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
 	ar << boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
 	ar << BOOST_SERIALIZATION_NVP(m_Chunks);
-	ar << BOOST_SERIALIZATION_NVP(m_LodParam);
+	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 }
 
 template<>
@@ -531,7 +531,7 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
 	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
 	ar >> BOOST_SERIALIZATION_NVP(m_Chunks);
-	ar >> BOOST_SERIALIZATION_NVP(m_LodParam);
+	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
@@ -593,11 +593,11 @@ void Terrain::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & Targe
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			float Distance = (m_Chunks[i][j]->m_aabb.Center() - LocalTargetPos).magnitude();
+			float DistanceSq = (m_Chunks[i][j]->m_aabb.Center() - LocalTargetPos).magnitudeSq();
 			unsigned char lod = 0;
-			for (; lod < LodParam::static_size; lod++)
+			for (; lod < LodDistanceList::static_size; lod++)
 			{
-				if (Distance < m_LodParam[lod])
+				if (DistanceSq < m_LodDistanceSq[lod])
 				{
 					m_Chunks[i][j]->m_lod = lod;
 					break;

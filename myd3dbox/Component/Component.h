@@ -176,18 +176,18 @@ public:
 
 		bool m_bInstance;
 
-		float m_MaxDistance;
+		float m_MaxDistanceSq;
 
 		LOD(const char * Path, bool bInstance, float MaxDistance)
 			: m_MeshRes(Path)
 			, m_bInstance(bInstance)
-			, m_MaxDistance(MaxDistance)
+			, m_MaxDistanceSq(MaxDistance)
 		{
 		}
 
 		LOD(void)
 			: m_bInstance(false)
-			, m_MaxDistance(3000.0f)
+			, m_MaxDistanceSq(pow(3000.0f, 2))
 		{
 		}
 
@@ -196,7 +196,7 @@ public:
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 			ar & BOOST_SERIALIZATION_NVP(m_bInstance);
-			ar & BOOST_SERIALIZATION_NVP(m_MaxDistance);
+			ar & BOOST_SERIALIZATION_NVP(m_MaxDistanceSq);
 		}
 	};
 

@@ -123,9 +123,9 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::array<float, Quad<m_ChunkRows>::value> LodParam;
+	typedef boost::array<float, Quad<m_ChunkRows>::value> LodDistanceList;
 
-	LodParam m_LodParam;
+	LodDistanceList m_LodDistanceSq;
 
 	PhysXPtr<PxHeightField> m_HeightField;
 
