@@ -482,6 +482,8 @@ void Game::OnDestroyDevice(void)
 
 	m_Root.ClearAllComponents();
 
+	m_ViewedCmps.clear();
+
 	RemoveAllDlg();
 
 	m_SimpleSample.reset();

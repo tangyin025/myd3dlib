@@ -463,6 +463,7 @@ void CMainFrame::ClearAllComponents()
 	m_Root.ClearAllComponents();
 	m_cmps.clear();
 	m_selcmps.clear();
+	m_ViewedCmps.clear();
 }
 
 void CMainFrame::OnDestroy()
