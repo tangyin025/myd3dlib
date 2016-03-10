@@ -64,6 +64,8 @@ float GetLigthAmount(float4 PosLS)
 {
 	float2 ShadowTexC = PosLS.xy / PosLS.w * 0.5 + 0.5;
 	ShadowTexC.y = 1.0 - ShadowTexC.y;
+	if (ShadowTexC.x < 0 || ShadowTexC.x > 1 || ShadowTexC.y < 0 || ShadowTexC.y > 1)
+		return 1.0;
 	
 	float LightAmount = 0;
 	float x, y;
@@ -108,21 +110,21 @@ technique RenderScene
 {
     pass PassTypeShadow
     {          
-        VertexShader = compile vs_2_0 ShadowVS();
-        PixelShader  = compile ps_2_0 ShadowPS(); 
+        VertexShader = compile vs_3_0 ShadowVS();
+        PixelShader  = compile ps_3_0 ShadowPS(); 
     }
     pass PassTypeNormal
     {          
-        VertexShader = compile vs_2_0 NormalVS();
-        PixelShader  = compile ps_2_0 NormalPS(); 
+        VertexShader = compile vs_3_0 NormalVS();
+        PixelShader  = compile ps_3_0 NormalPS(); 
     }
     pass PassTypeLight
     {          
     }
     pass PassTypeOpaque
     {          
-        VertexShader = compile vs_2_0 OpaqueVS();
-        PixelShader  = compile ps_2_0 OpaquePS(); 
+        VertexShader = compile vs_3_0 OpaqueVS();
+        PixelShader  = compile ps_3_0 OpaquePS(); 
     }
     pass PassTypeTransparent
     {          

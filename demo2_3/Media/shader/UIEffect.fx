@@ -92,7 +92,7 @@ technique RenderScene
 		SrcBlend = SRCALPHA;
 		DestBlend = INVSRCALPHA;
 		ZEnable = FALSE;
-        VertexShader = compile vs_2_0 RenderSceneVS();
-        PixelShader  = compile ps_2_0 RenderScenePS(); 
+        VertexShader = compile vs_3_0 RenderSceneVS();
+        PixelShader  = compile ps_3_0 RenderScenePS(); 
     }
 }

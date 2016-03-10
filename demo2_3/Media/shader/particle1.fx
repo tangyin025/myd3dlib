@@ -36,7 +36,7 @@ technique RenderScene
     }
     pass PassTypeTransparent
     {          
-		VertexShader = compile vs_2_0 TransparentVS();
-		PixelShader  = compile ps_2_0 TransparentPS();
+		VertexShader = compile vs_3_0 TransparentVS();
+		PixelShader  = compile ps_3_0 TransparentPS();
     }
 }

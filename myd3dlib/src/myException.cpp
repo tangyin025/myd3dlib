@@ -13,18 +13,8 @@ Exception::Exception(const char * file, int line)
 	: m_file(file)
 	, m_line(line)
 {
-	CONTEXT Context;
-	ZeroMemory( &Context, sizeof( Context ) );
-	Context.ContextFlags = CONTEXT_CONTROL;
-	__asm {
-	Label:
-		mov [Context.Ebp], ebp;
-		mov [Context.Esp], esp;
-		mov eax, [Label];
-		mov [Context.Eip], eax;
-	}
 	std::ostringstream osstr;
-	PrintCallStack(&Context, osstr);
+	PrintCallStack(osstr);
 	m_call = osstr.str();
 }
 

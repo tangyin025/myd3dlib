@@ -5,7 +5,7 @@
 
 static bool g_SymInitialized = false;
 
-void PrintCallStack(const CONTEXT * pContext, std::ostringstream & ostr)
+void PrintCallStack(std::ostringstream & ostr)
 {
 	HANDLE hProcess = GetCurrentProcess();
 
@@ -19,7 +19,16 @@ void PrintCallStack(const CONTEXT * pContext, std::ostringstream & ostr)
 
 	HANDLE hThread = GetCurrentThread();
 
-	CONTEXT Context = *pContext;
+	CONTEXT Context;
+	ZeroMemory( &Context, sizeof( CONTEXT ) );
+	Context.ContextFlags = CONTEXT_CONTROL;
+	__asm {
+Label:
+		mov [Context.Ebp], ebp;
+		mov [Context.Esp], esp;
+		mov eax, [Label];
+		mov [Context.Eip], eax;
+	}
 
 	struct ReadMemoryRoutine {
 		static BOOL CALLBACK Proc(HANDLE hProcess, DWORD64 lpBaseAddress, PVOID lpBuffer, DWORD nSize, LPDWORD lpNumberOfBytesRead) {
@@ -46,9 +55,9 @@ void PrintCallStack(const CONTEXT * pContext, std::ostringstream & ostr)
 			break;
 		}
 		DWORD64 Displacement64;
-		ULONG64 buffer[(sizeof(SYMBOL_INFO) + MAX_SYM_NAME * sizeof(TCHAR) + sizeof(ULONG64) - 1) / sizeof(ULONG64)];
-		PSYMBOL_INFO pSymbol = (PSYMBOL_INFO)buffer;
-		pSymbol->SizeOfStruct = sizeof(buffer);
+		unsigned char buffer[sizeof(SYMBOL_INFO) + (MAX_SYM_NAME - 1) * sizeof(TCHAR)];
+		SYMBOL_INFO * pSymbol = (PSYMBOL_INFO)buffer;
+		pSymbol->SizeOfStruct = sizeof(SYMBOL_INFO);
 		pSymbol->MaxNameLen = MAX_SYM_NAME;
 		if (!SymFromAddr(hProcess, StackFrame.AddrPC.Offset, &Displacement64, pSymbol)) {
 			strcpy_s(pSymbol->Name, MAX_SYM_NAME, "unknown symbol name");

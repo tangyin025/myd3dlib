@@ -162,22 +162,22 @@ technique RenderScene
     pass P0
     {          
 		FillMode = WIREFRAME;
-        VertexShader = compile vs_2_0 RenderSceneVS();
-        PixelShader  = compile ps_2_0 RenderScenePS(); 
+        VertexShader = compile vs_3_0 RenderSceneVS();
+        PixelShader  = compile ps_3_0 RenderScenePS(); 
     }
     pass P1
     {          
         VertexShader = null;
-        PixelShader  = compile ps_2_0 ColorBGlurH(); 
+        PixelShader  = compile ps_3_0 ColorBGlurH(); 
     }
     pass P2
     {          
         VertexShader = null;
-        PixelShader  = compile ps_2_0 ColorBGlurV(); 
+        PixelShader  = compile ps_3_0 ColorBGlurV(); 
     }
     pass P3
     {          
         VertexShader = null;
-        PixelShader  = compile ps_2_0 DofCombine(); 
+        PixelShader  = compile ps_3_0 DofCombine(); 
 	}
 }

@@ -49,8 +49,8 @@ technique RenderScene
     }
     pass PassTypeLight
     {          
-		VertexShader = compile vs_2_0 LightVS();
-		PixelShader  = compile ps_2_0 LightPS();
+		VertexShader = compile vs_3_0 LightVS();
+		PixelShader  = compile ps_3_0 LightPS();
     }
     pass PassTypeOpaque
     {          
