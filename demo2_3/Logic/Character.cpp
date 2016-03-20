@@ -7,14 +7,12 @@ using namespace my;
 Character::Character(void)
 	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), PhysXContext::Gravity, my::Vector3(0,0,0), 1, 0.8f)
 	, m_LookAngles(0,0,0)
-	, m_MoveState(0)
-	, m_CollisionState(0)
 {
 }
 
 Character::~Character(void)
 {
-	Destroy();
+	_ASSERT(!m_controller);
 }
 
 void Character::Create(void)
@@ -32,64 +30,8 @@ void Character::Create(void)
 
 void Character::Update(float fElapsedTime)
 {
-	const float MoveSpeed = 5;
-	if (m_CollisionState & CollisionStateGround)
-	{
-		switch (m_MoveState)
-		{
-		case MoveStateFront:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(0));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(0));
-			damping = 1.0f;
-			break;
-		case MoveStateFront | MoveStateLeft:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(45));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(45));
-			damping = 1.0f;
-			break;
-		case MoveStateLeft:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(90));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(90));
-			damping = 1.0f;
-			break;
-		case MoveStateLeft | MoveStateBack:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(135));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(135));
-			damping = 1.0f;
-			break;
-		case MoveStateBack:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(180));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(180));
-			damping = 1.0f;
-			break;
-		case MoveStateBack | MoveStateRight:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(225));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(225));
-			damping = 1.0f;
-			break;
-		case MoveStateRight:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(270));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(270));
-			damping = 1.0f;
-			break;
-		case MoveStateRight | MoveStateFront:
-			velocity.x = -MoveSpeed * sin(m_LookAngles.y + D3DXToRadian(315));
-			velocity.z = -MoveSpeed * cos(m_LookAngles.y + D3DXToRadian(315));
-			damping = 1.0f;
-			break;
-		default:
-			damping = 0.000001f;
-			break;
-		}
-	}
-	else
-	{
-		damping = 0.8f;
-	}
 	addVelocity(acceleration * fElapsedTime);
-	velocity *= pow(damping, fElapsedTime);
-	//Game::getSingleton().m_ScrInfos[1] = str_printf(_T("%f, %f"), velocity.y, damping);
-	m_CollisionState = 0;
+	_stprintf_s(&Game::getSingleton().m_ScrInfos[6][0], Game::getSingleton().m_ScrInfos[6].size(), _T("%f, %f"), velocity.y, damping);
 	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
 	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
 }
@@ -99,35 +41,11 @@ void Character::Destroy(void)
 	m_controller.reset();
 }
 
-void Character::AddMoveState(MoveState state)
-{
-	m_MoveState |= state;
-}
-
-void Character::RemoveMoveState(MoveState state)
-{
-	m_MoveState &= ~state;
-}
-
-void Character::Jump(void)
-{
-	if (m_CollisionState & CollisionStateGround)
-	{
-		addVelocity(Vector3(0,5,0));
-		m_CollisionState &= ~CollisionStateGround;
-	}
-}
-
 void Character::onShapeHit(const PxControllerShapeHit& hit)
 {
 	if (hit.worldNormal.y > 0 && hit.worldNormal.y > fabs(hit.worldNormal.x) && hit.worldNormal.y > fabs(hit.worldNormal.z))
 	{
 		velocity.y = 0;
-		m_CollisionState |= CollisionStateGround;
-	}
-	else
-	{
-		m_CollisionState |= CollisionStateWall;
 	}
 }
 
@@ -152,4 +70,133 @@ PxU32 Character::getBehaviorFlags(const PxController& controller)
 PxU32 Character::getBehaviorFlags(const PxObstacle& obstacle)
 {
 	return 0;
+}
+
+void LocalPlayer::Create(void)
+{
+	Player::Create();
+
+	Game::getSingleton().m_MouseMovedEvent = boost::bind(&LocalPlayer::OnMouseMove, this, _1);
+	Game::getSingleton().m_MousePressedEvent = boost::bind(&LocalPlayer::OnMouseBtnDown, this, _1);
+	Game::getSingleton().m_MouseReleasedEvent = boost::bind(&LocalPlayer::OnMouseBtnUp, this, _1);
+	Game::getSingleton().m_KeyPressedEvent = boost::bind(&LocalPlayer::OnKeyDown, this, _1);
+	Game::getSingleton().m_KeyReleasedEvent = boost::bind(&LocalPlayer::OnKeyUp, this, _1);
+
+	if (Game::getSingleton().m_joystick)
+	{
+		Game::getSingleton().m_joystick->m_AxisMovedEvent = boost::bind(&LocalPlayer::OnJoystickAxisMove, this, _1);
+		Game::getSingleton().m_joystick->m_PovMovedEvent = boost::bind(&LocalPlayer::OnJoystickPovMove, this, _1);
+		Game::getSingleton().m_joystick->m_BtnPressedEvent = boost::bind(&LocalPlayer::OnJoystickBtnDown, this, _1);
+		Game::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&LocalPlayer::OnJoystickBtnUp, this, _1);
+	}
+}
+
+void LocalPlayer::Update(float fElapsedTime)
+{
+	Player::Update(fElapsedTime);
+}
+
+void LocalPlayer::Destroy(void)
+{
+	Game::getSingleton().m_MouseMovedEvent.clear();
+	Game::getSingleton().m_MousePressedEvent.clear();
+	Game::getSingleton().m_MouseReleasedEvent.clear();
+	Game::getSingleton().m_KeyPressedEvent.clear();
+	Game::getSingleton().m_KeyReleasedEvent.clear();
+
+	if (Game::getSingleton().m_joystick)
+	{
+		Game::getSingleton().m_joystick->m_AxisMovedEvent.clear();
+		Game::getSingleton().m_joystick->m_PovMovedEvent.clear();
+		Game::getSingleton().m_joystick->m_BtnPressedEvent.clear();
+		Game::getSingleton().m_joystick->m_BtnReleasedEvent.clear();
+	}
+
+	Player::Destroy();
+}
+
+void LocalPlayer::OnMouseMove(InputEventArg * arg)
+{
+	MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
+	if (mmarg.x != 0)
+	{
+		m_LookAngles.y += -D3DXToRadian(mmarg.x);
+	}
+	if (mmarg.y != 0)
+	{
+		m_LookAngles.x += -D3DXToRadian(mmarg.y);
+	}
+}
+
+void LocalPlayer::OnMouseBtnDown(my::InputEventArg * arg)
+{
+	MouseBtnEventArg & mbarg = *dynamic_cast<MouseBtnEventArg *>(arg);
+}
+
+void LocalPlayer::OnMouseBtnUp(my::InputEventArg * arg)
+{
+	MouseBtnEventArg & mbarg = *dynamic_cast<MouseBtnEventArg *>(arg);
+}
+
+void LocalPlayer::OnKeyDown(InputEventArg * arg)
+{
+	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	switch (karg.kc)
+	{
+	case VK_SPACE:
+		karg.handled = true;
+		break;
+	case 'W':
+		karg.handled = true;
+		break;
+	case 'A':
+		karg.handled = true;
+		break;
+	case 'S':
+		karg.handled = true;
+		break;
+	case 'D':
+		karg.handled = true;
+		break;
+	}
+}
+
+void LocalPlayer::OnKeyUp(my::InputEventArg * arg)
+{
+	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	switch (karg.kc)
+	{
+	case 'W':
+		karg.handled = true;
+		break;
+	case 'A':
+		karg.handled = true;
+		break;
+	case 'S':
+		karg.handled = true;
+		break;
+	case 'D':
+		karg.handled = true;
+		break;
+	}
+}
+
+void LocalPlayer::OnJoystickAxisMove(my::InputEventArg * arg)
+{
+	JoystickAxisEventArg & jaarg = *dynamic_cast<JoystickAxisEventArg *>(arg);
+}
+
+void LocalPlayer::OnJoystickPovMove(my::InputEventArg * arg)
+{
+	JoystickPovEventArg & jparg = *dynamic_cast<JoystickPovEventArg *>(arg);
+}
+
+void LocalPlayer::OnJoystickBtnDown(my::InputEventArg * arg)
+{
+	JoystickBtnEventArg & jbarg = *dynamic_cast<JoystickBtnEventArg *>(arg);
+}
+
+void LocalPlayer::OnJoystickBtnUp(my::InputEventArg * arg)
+{
+	JoystickBtnEventArg & jbarg = *dynamic_cast<JoystickBtnEventArg *>(arg);
 }

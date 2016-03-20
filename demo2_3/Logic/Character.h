@@ -12,40 +12,16 @@ public:
 
 	my::Vector3 m_LookAngles;
 
-	enum MoveState
-	{
-		MoveStateFront	= 0x01,
-		MoveStateBack	= 0x02,
-		MoveStateLeft	= 0x04,
-		MoveStateRight	= 0x08,
-	};
-
-	UINT m_MoveState;
-
-	enum CollisionState
-	{
-		CollisionStateGround	= 0x01,
-		CollisionStateWall		= 0x02,
-	};
-
-	UINT m_CollisionState;
-
 public:
 	Character(void);
 
 	virtual ~Character(void);
 
-	void Create(void);
+	virtual void Create(void);
 
-	void Update(float fElapsedTime);
+	virtual void Update(float fElapsedTime);
 
-	void Destroy(void);
-
-	void Jump(void);
-
-	void AddMoveState(MoveState state);
-
-	void RemoveMoveState(MoveState state);
+	virtual void Destroy(void);
 
 	virtual void onShapeHit(const PxControllerShapeHit& hit);
 
@@ -78,6 +54,30 @@ public:
 	LocalPlayer(void)
 	{
 	}
+
+	virtual void Create(void);
+
+	virtual void Update(float fElapsedTime);
+
+	virtual void Destroy(void);
+
+	void OnMouseMove(my::InputEventArg * arg);
+
+	void OnMouseBtnDown(my::InputEventArg * arg);
+
+	void OnMouseBtnUp(my::InputEventArg * arg);
+
+	void OnKeyDown(my::InputEventArg * arg);
+
+	void OnKeyUp(my::InputEventArg * arg);
+
+	void OnJoystickAxisMove(my::InputEventArg * arg);
+
+	void OnJoystickPovMove(my::InputEventArg * arg);
+
+	void OnJoystickBtnDown(my::InputEventArg * arg);
+
+	void OnJoystickBtnUp(my::InputEventArg * arg);
 };
 
 typedef boost::shared_ptr<LocalPlayer> LocalPlayerPtr;
