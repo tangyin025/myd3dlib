@@ -206,6 +206,8 @@ public:
 
 	unsigned int m_lod;
 
+	float m_lodBandSq;
+
 	MaterialPtrList m_MaterialList;
 
 	AnimatorPtr m_Animator;
@@ -215,6 +217,7 @@ public:
 		: RenderComponent(aabb, ComponentTypeMesh)
 		, m_World(World)
 		, m_lod(0)
+		, m_lodBandSq(1)
 	{
 	}
 
@@ -222,6 +225,7 @@ public:
 		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeMesh)
 		, m_World(my::Matrix4::Identity())
 		, m_lod(0)
+		, m_lodBandSq(1)
 	{
 	}
 
@@ -239,6 +243,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
 		ar & BOOST_SERIALIZATION_NVP(m_lods);
+		ar & BOOST_SERIALIZATION_NVP(m_lodBandSq);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_Animator);
 	}

@@ -542,6 +542,7 @@ void CMainFrame::OnFileOpen()
 		return;
 	}
 
+	CWaitCursor waiter;
 	ClearAllComponents();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
@@ -570,6 +571,7 @@ void CMainFrame::OnFileSave()
 		}
 	}
 
+	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("level", m_cmps);

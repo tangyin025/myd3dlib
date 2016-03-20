@@ -182,11 +182,22 @@ void MeshComponent::Update(float fElapsedTime)
 void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	float DistanceSq = (m_World.row<3>().xyz - ViewedPos).magnitudeSq();
-	for (m_lod = 0; m_lod < m_lods.size(); m_lod++)
+
+	if (m_lod > 0)
 	{
-		if (DistanceSq < m_lods[m_lod].m_MaxDistanceSq)
+		if (DistanceSq < m_lods[m_lod - 1].m_MaxDistanceSq)
 		{
-			break;
+			m_lod--;
+			return;
+		}
+	}
+
+	if (m_lod < m_lods.size() - 1)
+	{
+		if (DistanceSq > m_lods[m_lod].m_MaxDistanceSq + m_lodBandSq)
+		{
+			m_lod++;
+			return;
 		}
 	}
 }

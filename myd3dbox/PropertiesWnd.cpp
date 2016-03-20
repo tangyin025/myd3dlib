@@ -213,7 +213,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
 	UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], cmp);
-
+	m_pProp[PropertyMeshLodBand]->SetValue((_variant_t)sqrt(cmp->m_lodBandSq));
 	unsigned int i = 0;
 	for (; i < cmp->m_MaterialList.size(); i++)
 	{
@@ -854,6 +854,8 @@ void CPropertiesWnd::InitPropList()
 	{
 		CreatePropertiesMeshLod(m_pProp[PropertyMeshLodList], i);
 	}
+	m_pProp[PropertyMeshLodBand] = new CSimpleProp(_T("LodBand"), (_variant_t)0.0f, NULL, PropertyMeshLodBand);
+	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshLodBand]);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
 	m_pProp[PropertyEmitterParticleList] = new CMFCPropertyGridProperty(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
@@ -1067,6 +1069,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			mesh_cmp->m_lods[NodeId].m_MaxDistanceSq = pow(pProp->GetValue().fltVal, 2);
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
+	case PropertyMeshLodBand:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_lodBandSq = pow(pProp->GetValue().fltVal, 2);
 		}
 		break;
 	case PropertyEmitterParticleCount:
