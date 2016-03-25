@@ -176,18 +176,18 @@ public:
 
 		bool m_bInstance;
 
-		float m_MaxDistanceSq;
+		float m_MaxDistance;
 
 		LOD(const char * Path, bool bInstance, float MaxDistance)
 			: m_MeshRes(Path)
 			, m_bInstance(bInstance)
-			, m_MaxDistanceSq(MaxDistance)
+			, m_MaxDistance(MaxDistance)
 		{
 		}
 
 		LOD(void)
 			: m_bInstance(false)
-			, m_MaxDistanceSq(pow(3000.0f, 2))
+			, m_MaxDistance(pow(3000.0f, 2))
 		{
 		}
 
@@ -196,7 +196,7 @@ public:
 		{
 			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 			ar & BOOST_SERIALIZATION_NVP(m_bInstance);
-			ar & BOOST_SERIALIZATION_NVP(m_MaxDistanceSq);
+			ar & BOOST_SERIALIZATION_NVP(m_MaxDistance);
 		}
 	};
 
@@ -206,7 +206,7 @@ public:
 
 	unsigned int m_lod;
 
-	float m_lodBandSq;
+	float m_lodBand;
 
 	MaterialPtrList m_MaterialList;
 
@@ -217,7 +217,7 @@ public:
 		: RenderComponent(aabb, ComponentTypeMesh)
 		, m_World(World)
 		, m_lod(0)
-		, m_lodBandSq(1)
+		, m_lodBand(1)
 	{
 	}
 
@@ -225,7 +225,7 @@ public:
 		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeMesh)
 		, m_World(my::Matrix4::Identity())
 		, m_lod(0)
-		, m_lodBandSq(1)
+		, m_lodBand(1)
 	{
 	}
 
@@ -237,15 +237,18 @@ public:
 		}
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_World);
-		ar & BOOST_SERIALIZATION_NVP(m_lods);
-		ar & BOOST_SERIALIZATION_NVP(m_lodBandSq);
-		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
-		ar & BOOST_SERIALIZATION_NVP(m_Animator);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void AddMaterial(MaterialPtr mat)
@@ -363,7 +366,7 @@ public:
 	}
 
 	friend class boost::serialization::access;
-	
+
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;
 

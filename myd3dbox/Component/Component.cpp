@@ -127,6 +127,29 @@ void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
 	}
 }
 
+template<>
+void MeshComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_World);
+	ar << BOOST_SERIALIZATION_NVP(m_lods);
+	ar << BOOST_SERIALIZATION_NVP(m_lodBand);
+	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar << BOOST_SERIALIZATION_NVP(m_Animator);
+}
+
+template<>
+void MeshComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_World);
+	ar >> BOOST_SERIALIZATION_NVP(m_lods);
+	ar >> BOOST_SERIALIZATION_NVP(m_lodBand);
+	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
+	m_lod = m_lods.size() - 1;
+}
+
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
@@ -181,11 +204,11 @@ void MeshComponent::Update(float fElapsedTime)
 
 void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
-	float DistanceSq = (m_World.row<3>().xyz - ViewedPos).magnitudeSq();
+	float Distance = (m_World.row<3>().xyz - ViewedPos).magnitude();
 
 	if (m_lod > 0)
 	{
-		if (DistanceSq < m_lods[m_lod - 1].m_MaxDistanceSq)
+		if (Distance < m_lods[m_lod - 1].m_MaxDistance - m_lodBand)
 		{
 			m_lod--;
 			return;
@@ -194,7 +217,7 @@ void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 &
 
 	if (m_lod < m_lods.size() - 1)
 	{
-		if (DistanceSq > m_lods[m_lod].m_MaxDistanceSq + m_lodBandSq)
+		if (Distance > m_lods[m_lod].m_MaxDistance + m_lodBand)
 		{
 			m_lod++;
 			return;
