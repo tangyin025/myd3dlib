@@ -12,6 +12,8 @@ public:
 
 	my::Vector3 m_LookAngles;
 
+	my::Vector3 m_LookDir;
+
 public:
 	Character(void);
 
@@ -20,6 +22,8 @@ public:
 	virtual void Create(void);
 
 	virtual void Update(float fElapsedTime);
+
+	virtual void OnPxThreadSubstep(float dtime);
 
 	virtual void Destroy(void);
 
@@ -51,7 +55,14 @@ typedef boost::shared_ptr<Player> PlayerPtr;
 class LocalPlayer : public Player
 {
 public:
+	int m_InputLtRt;
+
+	int m_InputUpDn;
+
+public:
 	LocalPlayer(void)
+		: m_InputLtRt(0)
+		, m_InputUpDn(0)
 	{
 	}
 

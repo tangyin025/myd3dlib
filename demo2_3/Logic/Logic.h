@@ -6,8 +6,6 @@
 class Logic
 {
 public:
-	my::Timer m_FixedTickTimer;
-
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 	
 	ComponentPtrList m_cmps;
@@ -23,7 +21,7 @@ public:
 
 	void Update(float fElapsedTime);
 
-	void OnFixedTick(float fElapsedTime);
+	virtual void OnPxThreadSubstep(float dtime);
 
 	void Destroy(void);
 };

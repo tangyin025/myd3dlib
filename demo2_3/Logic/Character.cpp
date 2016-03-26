@@ -30,9 +30,14 @@ void Character::Create(void)
 
 void Character::Update(float fElapsedTime)
 {
-	addVelocity(acceleration * fElapsedTime);
-	_stprintf_s(&Game::getSingleton().m_ScrInfos[6][0], Game::getSingleton().m_ScrInfos[6].size(), _T("%f, %f"), velocity.y, damping);
-	m_controller->move((PxVec3&)(velocity * fElapsedTime), 0.001f, fElapsedTime, PxControllerFilters());
+	const Matrix4 RotM = Matrix4::RotationYawPitchRoll(m_LookAngles.y, m_LookAngles.x, m_LookAngles.z);
+	m_LookDir = RotM.row<2>().xyz;
+}
+
+void Character::OnPxThreadSubstep(float dtime)
+{
+	addVelocity(acceleration * dtime);
+	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
 	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
 }
 
@@ -94,6 +99,21 @@ void LocalPlayer::Create(void)
 void LocalPlayer::Update(float fElapsedTime)
 {
 	Player::Update(fElapsedTime);
+
+	if (m_InputLtRt != 0 || m_InputUpDn != 0)
+	{
+		const Vector3 Right(m_LookDir.z, 0, -m_LookDir.x);
+		const Vector3 Final(Vector3(
+			m_InputLtRt * Right.x + m_InputUpDn * m_LookDir.x, 0, m_InputLtRt * Right.z + m_InputUpDn * m_LookDir.z).normalize());
+		const float Speed = 5.0f;
+		velocity.x = Final.x * Speed;
+		velocity.z = Final.z * Speed;
+	}
+	else
+	{
+		velocity.x = 0;
+		velocity.z = 0;
+	}
 }
 
 void LocalPlayer::Destroy(void)
@@ -147,15 +167,19 @@ void LocalPlayer::OnKeyDown(InputEventArg * arg)
 		karg.handled = true;
 		break;
 	case 'W':
+		m_InputUpDn = -1;
 		karg.handled = true;
 		break;
 	case 'A':
+		m_InputLtRt = -1;
 		karg.handled = true;
 		break;
 	case 'S':
+		m_InputUpDn = 1;
 		karg.handled = true;
 		break;
 	case 'D':
+		m_InputLtRt = 1;
 		karg.handled = true;
 		break;
 	}
@@ -167,15 +191,19 @@ void LocalPlayer::OnKeyUp(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case 'W':
+		m_InputUpDn = 0;
 		karg.handled = true;
 		break;
 	case 'A':
+		m_InputLtRt = 0;
 		karg.handled = true;
 		break;
 	case 'S':
+		m_InputUpDn = 0;
 		karg.handled = true;
 		break;
 	case 'D':
+		m_InputLtRt = 0;
 		karg.handled = true;
 		break;
 	}

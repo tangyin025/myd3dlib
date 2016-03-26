@@ -5,10 +5,7 @@
 using namespace my;
 
 Logic::Logic(void)
-	: m_FixedTickTimer(1/60.0f)
 {
-	m_FixedTickTimer.m_EventTimer = boost::bind(&Logic::OnFixedTick, this, _1);
-	m_FixedTickTimer.m_Managed = true;
 }
 
 Logic::~Logic(void)
@@ -23,20 +20,17 @@ void Logic::Create(void)
 
 void Logic::Update(float fElapsedTime)
 {
+	m_player->Update(fElapsedTime);
+
 	FirstPersonCamera * camera = dynamic_cast<FirstPersonCamera *>(Game::getSingleton().m_Camera.get());
-	const Matrix4 RotM = Matrix4::RotationYawPitchRoll(m_player->m_LookAngles.y, m_player->m_LookAngles.x, m_player->m_LookAngles.z);
-	const Vector3 & Dir = RotM.row<2>().xyz;
-	camera->m_Eye = m_player->getPosition() + Dir * 5;
+	camera->m_Eye = m_player->getPosition() + m_player->m_LookDir * 5;
 	camera->m_Eular = m_player->m_LookAngles; // 右手系空间相机朝向-z轴
-
 	Game::getSingleton().ResetViewedCmps(camera->m_Eye, m_player->getPosition());
-
-	m_FixedTickTimer.Step(fElapsedTime, 4);
 }
 
-void Logic::OnFixedTick(float fElapsedTime)
+void Logic::OnPxThreadSubstep(float dtime)
 {
-	m_player->Update(fElapsedTime);
+	m_player->OnPxThreadSubstep(dtime);
 }
 
 void Logic::Destroy(void)

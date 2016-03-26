@@ -577,9 +577,9 @@ void Game::OnFrameTick(
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
-	PhysXSceneContext::TickPreRender(fElapsedTime);
-
 	ParallelTaskManager::DoAllParallelTasks();
+
+	PhysXSceneContext::TickPreRender(fElapsedTime);
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
@@ -658,6 +658,7 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 void Game::OnPxThreadSubstep(float dtime)
 {
 	// ! take care of multi thread
+	m_Logic->OnPxThreadSubstep(dtime);
 }
 
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
