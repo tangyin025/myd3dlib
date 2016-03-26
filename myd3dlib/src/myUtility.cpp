@@ -559,7 +559,7 @@ bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	switch(uMsg)
 	{
 	case WM_KEYDOWN:
-		if (m_KeyPressedEvent)
+		if (!(0x40000000 & lParam) && m_KeyPressedEvent)
 		{
 			KeyboardEventArg arg(wParam);
 			m_KeyPressedEvent(&arg);
@@ -567,7 +567,7 @@ bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_SYSKEYDOWN:
-		if (m_KeyPressedEvent)
+		if (!(0x40000000 & lParam) && m_KeyPressedEvent)
 		{
 			KeyboardEventArg arg(wParam);
 			m_KeyPressedEvent(&arg);
