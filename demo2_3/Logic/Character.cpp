@@ -18,8 +18,8 @@ Character::~Character(void)
 void Character::Create(void)
 {
 	PxCapsuleControllerDesc cDesc;
-	cDesc.radius = 0.3f;
-	cDesc.height = 1.5f;
+	cDesc.radius = 0.15f;
+	cDesc.height = 1.0f;
 	cDesc.position.y = 5;
 	cDesc.material = Game::getSingleton().m_PxMaterial.get();
 	cDesc.callback = this;
@@ -36,7 +36,7 @@ void Character::Update(float fElapsedTime)
 
 void Character::OnPxThreadSubstep(float dtime)
 {
-	velocity.y = Max<float>(-10.0f, velocity.y + PhysXContext::Gravity.y * dtime);
+	velocity.y = velocity.y + PhysXContext::Gravity.y * dtime;
 	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
 	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
 }
