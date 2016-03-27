@@ -93,7 +93,7 @@ public:
 		my::Vector4 m_DofParams;
 
 		IRenderContext(void)
-			: m_BkColor(D3DCOLOR_ARGB(255,0,0,0))
+			: m_BkColor(D3DCOLOR_ARGB(0,45,50,170))
 			, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 			, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
 			, m_WireFrame(false)

@@ -5,7 +5,7 @@
 using namespace my;
 
 Character::Character(void)
-	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), PhysXContext::Gravity, my::Vector3(0,0,0), 1, 0.8f)
+	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), 1, 0.8f)
 	, m_LookAngles(0,0,0)
 {
 }
@@ -36,7 +36,7 @@ void Character::Update(float fElapsedTime)
 
 void Character::OnPxThreadSubstep(float dtime)
 {
-	addVelocity(acceleration * dtime);
+	velocity.y = Max<float>(-10.0f, velocity.y + PhysXContext::Gravity.y * dtime);
 	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
 	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
 }
@@ -164,6 +164,7 @@ void LocalPlayer::OnKeyDown(InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case VK_SPACE:
+		velocity.y = 10;
 		karg.handled = true;
 		break;
 	case 'W':
@@ -191,19 +192,31 @@ void LocalPlayer::OnKeyUp(my::InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case 'W':
-		m_InputUpDn = 0;
+		if (m_InputUpDn == -1)
+		{
+			m_InputUpDn = 0;
+		}
 		karg.handled = true;
 		break;
 	case 'A':
-		m_InputLtRt = 0;
+		if (m_InputLtRt == -1)
+		{
+			m_InputLtRt = 0;
+		}
 		karg.handled = true;
 		break;
 	case 'S':
-		m_InputUpDn = 0;
+		if (m_InputUpDn == 1)
+		{
+			m_InputUpDn = 0;
+		}
 		karg.handled = true;
 		break;
 	case 'D':
-		m_InputLtRt = 0;
+		if (m_InputLtRt == 1)
+		{
+			m_InputLtRt = 0;
+		}
 		karg.handled = true;
 		break;
 	}

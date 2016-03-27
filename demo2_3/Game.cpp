@@ -516,7 +516,6 @@ void Game::OnFrameRender(
 	{
 		V(pd3dDevice->GetRenderTarget(0, &m_OldRT));
 		V(pd3dDevice->GetDepthStencilSurface(&m_OldDS));
-		m_BkColor = D3DCOLOR_ARGB(0,45,50,170);
 		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
 		m_OldRT.Release();
 		m_OldDS.Release();
