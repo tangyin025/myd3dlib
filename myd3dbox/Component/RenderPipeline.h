@@ -67,6 +67,8 @@ public:
 
 	my::EffectPtr m_SimpleSample;
 
+	my::EffectPtr m_DofEffect;
+
 	class IShaderSetter
 	{
 	public:
@@ -92,15 +94,7 @@ public:
 
 		my::Vector4 m_DofParams;
 
-		IRenderContext(void)
-			: m_BkColor(D3DCOLOR_ARGB(0,45,50,170))
-			, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
-			, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
-			, m_WireFrame(false)
-			, m_DofEnable(false)
-			, m_DofParams(5.0f,15.0f,25.0f,1.0f)
-		{
-		}
+		IRenderContext(void);
 
 		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
 
@@ -242,7 +236,7 @@ public:
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-		IRenderContext * pRT,
+		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);
 
@@ -253,6 +247,11 @@ public:
 		float fElapsedTime);
 
 	void ClearAllObjects(void);
+
+	void RenderDof(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		IRenderContext * pRC);
 
 	void DrawIndexedPrimitive(
 		unsigned int PassID,

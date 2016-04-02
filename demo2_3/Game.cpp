@@ -360,11 +360,6 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
 	}
 
-	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
-	{
-		THROW_CUSEXCEPTION("create m_SimpleSample failed");
-	}
-
 	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");

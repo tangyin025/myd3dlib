@@ -2,6 +2,15 @@
 #include "RenderPipeline.h"
 
 using namespace my;
+RenderPipeline::IRenderContext::IRenderContext(void)
+	: m_BkColor(D3DCOLOR_ARGB(0,45,50,170))
+	, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
+	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
+	, m_WireFrame(false)
+	, m_DofEnable(false)
+	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
+{
+}
 
 RenderPipeline::RenderPipeline(void)
 	: m_ParticleVertexStride(0)
@@ -73,6 +82,16 @@ HRESULT RenderPipeline::OnCreateDevice(
 
 	m_MeshIEList = m_MeshInstanceElems.BuildVertexElementList(1);
 	m_MeshInstanceStride = offset;
+
+	if (!(m_SimpleSample = my::ResourceMgr::getSingleton().LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_SimpleSample failed");
+	}
+
+	if (!(m_DofEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/DofEffect.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_DofEffect failed");
+	}
 	return S_OK;
 }
 
@@ -215,55 +234,7 @@ void RenderPipeline::OnFrameRender(
 
 	if (pRC->m_DofEnable)
 	{
-		V(pd3dDevice->StretchRect(pRC->GetOpaqueSurface(), NULL, pRC->GetDownFilterSurface(0), NULL, D3DTEXF_NONE)); // ! d3dref only support none
-
-		struct PPVERT
-		{
-			float x, y, z, rhw;
-			float tu, tv;
-		};
-
-		PPVERT vertex[4] =
-		{
-			{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
-			{-0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
-			{pBackBufferSurfaceDesc->Width - 0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
-			{pBackBufferSurfaceDesc->Width - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
-		};
-
-		PPVERT vertex4[4] =
-		{
-			{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
-			{-0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
-			{pBackBufferSurfaceDesc->Width / 4 - 0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
-			{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
-		};
-
-		m_SimpleSample->SetVector("g_DofParams", pRC->m_DofParams);
-		m_SimpleSample->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		UINT passes = m_SimpleSample->Begin();
-
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
-		V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(1)));
-		m_SimpleSample->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(1));
-		V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(0)));
-		m_SimpleSample->BeginPass(2);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
-		V(pd3dDevice->SetRenderTarget(0, pRC->GetScreenSurface()));
-		m_SimpleSample->BeginPass(3);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-		m_SimpleSample->End();
-		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+		RenderDof(pd3dDevice, pBackBufferSurfaceDesc, pRC);
 	}
 
 	ClearAllObjects();
@@ -370,6 +341,63 @@ void RenderPipeline::ClearAllObjects(void)
 		}
 		m_Pass[PassID].m_EmitterList.clear();
 	}
+}
+
+void RenderPipeline::RenderDof(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+	IRenderContext * pRC)
+{
+	HRESULT hr;
+	V(pd3dDevice->StretchRect(pRC->GetOpaqueSurface(), NULL, pRC->GetDownFilterSurface(0), NULL, D3DTEXF_NONE)); // ! d3dref only support none
+
+	struct PPVERT
+	{
+		float x, y, z, rhw;
+		float tu, tv;
+	};
+
+	PPVERT vertex[4] =
+	{
+		{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
+		{-0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width - 0.5f, pBackBufferSurfaceDesc->Height - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
+	};
+
+	PPVERT vertex4[4] =
+	{
+		{-0.5f, -0.5f, 1.0f, 1.0f, 0.0f, 0.0f},
+		{-0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 0.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, pBackBufferSurfaceDesc->Height / 4 - 0.5f, 1.0f, 1.0f, 1.0f, 1.0f},
+		{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
+	};
+
+	m_DofEffect->SetVector("g_DofParams", pRC->m_DofParams);
+	m_DofEffect->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+	UINT passes = m_DofEffect->Begin();
+
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
+	V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(1)));
+	m_DofEffect->BeginPass(0);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	m_DofEffect->EndPass();
+
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(1));
+	V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(0)));
+	m_DofEffect->BeginPass(1);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
+	m_DofEffect->EndPass();
+
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
+	V(pd3dDevice->SetRenderTarget(0, pRC->GetScreenSurface()));
+	m_DofEffect->BeginPass(2);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
+	m_DofEffect->EndPass();
+	m_DofEffect->End();
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 }
 
 void RenderPipeline::DrawIndexedPrimitive(
