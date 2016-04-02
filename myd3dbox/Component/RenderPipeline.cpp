@@ -161,8 +161,8 @@ void RenderPipeline::OnFrameRender(
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
-	m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
+	pRC->m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
+	pRC->m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
 	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
@@ -170,23 +170,23 @@ void RenderPipeline::OnFrameRender(
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
-	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
-	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
-	m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
-	m_SimpleSample->SetVector("g_SkyLightDir", -pRC->m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
-	m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
-	m_SimpleSample->SetVector("g_SkyLightDiffuse", pRC->m_SkyLightDiffuse);
-	m_SimpleSample->SetVector("g_SkyLightAmbient", pRC->m_SkyLightAmbient);
-	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());
+	pRC->m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
+	pRC->m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
+	pRC->m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
+	pRC->m_SimpleSample->SetVector("g_Eye", pRC->m_Camera->m_Eye);
+	pRC->m_SimpleSample->SetVector("g_SkyLightDir", -pRC->m_SkyLightCam->m_View.column<2>().xyz.normalize()); // ! RH -z
+	pRC->m_SimpleSample->SetMatrix("g_SkyLightViewProj", pRC->m_SkyLightCam->m_ViewProj);
+	pRC->m_SimpleSample->SetVector("g_SkyLightDiffuse", pRC->m_SkyLightDiffuse);
+	pRC->m_SimpleSample->SetVector("g_SkyLightAmbient", pRC->m_SkyLightAmbient);
+	pRC->m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->GetNormalSurface()));
 	V(pd3dDevice->SetRenderTarget(1, pRC->GetPositionSurface()));
 	V(pd3dDevice->SetDepthStencilSurface(pRC->GetScreenDepthStencilSurface()));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 
-	m_SimpleSample->SetTexture("g_NormalRT", pRC->GetNormalTexture());
-	m_SimpleSample->SetTexture("g_PositionRT", pRC->GetPositionTexture());
+	pRC->m_SimpleSample->SetTexture("g_NormalRT", pRC->GetNormalTexture());
+	pRC->m_SimpleSample->SetTexture("g_PositionRT", pRC->GetPositionTexture());
 	V(pd3dDevice->SetRenderTarget(0, pRC->GetLightSurface()));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
@@ -199,7 +199,7 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 
-	m_SimpleSample->SetTexture("g_LightRT", pRC->GetLightTexture());
+	pRC->m_SimpleSample->SetTexture("g_LightRT", pRC->GetLightTexture());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_DofEnable ? pRC->GetOpaqueSurface() : pRC->GetScreenSurface()));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
@@ -239,30 +239,30 @@ void RenderPipeline::OnFrameRender(
 			{pBackBufferSurfaceDesc->Width / 4 - 0.5f, -0.5f, 1.0f, 1.0f, 1.0f, 0.0f}
 		};
 
-		m_SimpleSample->SetVector("g_DofParams", pRC->m_DofParams);
-		m_SimpleSample->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
+		pRC->m_SimpleSample->SetVector("g_DofParams", pRC->m_DofParams);
+		pRC->m_SimpleSample->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-		UINT passes = m_SimpleSample->Begin();
+		UINT passes = pRC->m_SimpleSample->Begin();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
+		pRC->m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
 		V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(1)));
-		m_SimpleSample->BeginPass(1);
+		pRC->m_SimpleSample->BeginPass(1);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+		pRC->m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(1));
+		pRC->m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(1));
 		V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(0)));
-		m_SimpleSample->BeginPass(2);
+		pRC->m_SimpleSample->BeginPass(2);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
+		pRC->m_SimpleSample->EndPass();
 
-		m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
+		pRC->m_SimpleSample->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
 		V(pd3dDevice->SetRenderTarget(0, pRC->GetScreenSurface()));
-		m_SimpleSample->BeginPass(3);
+		pRC->m_SimpleSample->BeginPass(3);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
-		m_SimpleSample->EndPass();
-		m_SimpleSample->End();
+		pRC->m_SimpleSample->EndPass();
+		pRC->m_SimpleSample->End();
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	}
 

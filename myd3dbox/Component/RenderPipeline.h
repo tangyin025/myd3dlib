@@ -65,8 +65,6 @@ public:
 
 	my::SurfacePtr m_ShadowDS;
 
-	my::EffectPtr m_SimpleSample;
-
 	class IShaderSetter
 	{
 	public:
@@ -79,6 +77,8 @@ public:
 		DWORD m_BkColor;
 
 		my::BaseCameraPtr m_Camera;
+
+		my::EffectPtr m_SimpleSample;
 
 		my::BaseCameraPtr m_SkyLightCam;
 

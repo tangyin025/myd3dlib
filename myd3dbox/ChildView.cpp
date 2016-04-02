@@ -267,8 +267,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	if (!pFrame->m_selcmps.empty())
@@ -285,15 +285,15 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
 					if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
 					{
-						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-						UINT passes = theApp.m_SimpleSample->Begin();
+						m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+						UINT passes = m_SimpleSample->Begin();
 						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 						{
-							theApp.m_SimpleSample->BeginPass(0);
+							m_SimpleSample->BeginPass(0);
 							mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
-							theApp.m_SimpleSample->EndPass();
+							m_SimpleSample->EndPass();
 						}
-						theApp.m_SimpleSample->End();
+						m_SimpleSample->End();
 					}
 				}
 				break;
@@ -388,7 +388,6 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 
 	case Component::ComponentTypeEmitter:
 		{
-			m_Camera;
 			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
 			my::Frustum local_ftm = frustum.transform(emit_cmp->m_World.transpose());
 			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
@@ -524,7 +523,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeEmitter:
 		{
-			m_Camera;
 			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
 			my::Ray local_ray = ray.transform(emit_cmp->m_World.inverse());
 			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
@@ -701,8 +699,8 @@ void CChildView::OnPaint()
 		{
 			m_Camera->Update(theApp.m_fAbsoluteTime, 0.0f);
 			m_SkyLightCam->Update(theApp.m_fAbsoluteTime, 0.0f);
-			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
-			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
+			m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
+			m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			DrawHelper::BeginLine();
 
@@ -816,6 +814,11 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
+	if (!(m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		TRACE("LoadEffect failed");
+		return S_FALSE;
+	}
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	CMainFrame::getSingleton().m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
