@@ -267,8 +267,8 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
-	m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	if (!pFrame->m_selcmps.empty())
@@ -285,15 +285,15 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
 					if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
 					{
-						m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-						UINT passes = m_SimpleSample->Begin();
+						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+						UINT passes = theApp.m_SimpleSample->Begin();
 						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 						{
-							m_SimpleSample->BeginPass(0);
+							theApp.m_SimpleSample->BeginPass(0);
 							mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
-							m_SimpleSample->EndPass();
+							theApp.m_SimpleSample->EndPass();
 						}
-						m_SimpleSample->End();
+						theApp.m_SimpleSample->End();
 					}
 				}
 				break;
@@ -699,8 +699,8 @@ void CChildView::OnPaint()
 		{
 			m_Camera->Update(theApp.m_fAbsoluteTime, 0.0f);
 			m_SkyLightCam->Update(theApp.m_fAbsoluteTime, 0.0f);
-			m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
-			m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
+			theApp.m_SimpleSample->SetFloat("g_Time", (float)theApp.m_fAbsoluteTime);
+			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			DrawHelper::BeginLine();
 
@@ -814,11 +814,6 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	if (!(m_SimpleSample = theApp.LoadEffect("shader/SimpleSample.fx", "")))
-	{
-		TRACE("LoadEffect failed");
-		return S_FALSE;
-	}
 	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	CMainFrame::getSingleton().m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));

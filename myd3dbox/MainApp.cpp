@@ -267,6 +267,12 @@ HRESULT CMainApp::OnCreateDevice(
 		TRACE("LoadFont failed");
 		return S_FALSE;
 	}
+
+	if (!(m_SimpleSample = LoadEffect("shader/SimpleSample.fx", "")))
+	{
+		TRACE("LoadEffect failed");
+		return S_FALSE;
+	}
 	return S_OK;
 }
 
