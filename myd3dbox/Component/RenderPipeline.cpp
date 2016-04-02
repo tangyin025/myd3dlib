@@ -7,7 +7,7 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	, m_SkyLightDiffuse(1.0f,1.0f,1.0f,1.0f)
 	, m_SkyLightAmbient(0.3f,0.3f,0.3f,0.0f)
 	, m_WireFrame(false)
-	, m_DofEnable(false)
+	, m_DofEnable(true)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 {
 }
@@ -92,6 +92,11 @@ HRESULT RenderPipeline::OnCreateDevice(
 	{
 		THROW_CUSEXCEPTION("create m_DofEffect failed");
 	}
+
+	//if (!(m_FxaaEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/FXAA.fx", "")))
+	//{
+	//	THROW_CUSEXCEPTION("create m_FxaaEffect failed");
+	//}
 	return S_OK;
 }
 
@@ -174,21 +179,30 @@ void RenderPipeline::OnFrameRender(
 	float fElapsedTime)
 {
 	HRESULT hr;
+	CComPtr<IDirect3DSurface9> ScreenSurf;
+	CComPtr<IDirect3DSurface9> ScreenDepthStencilSurf;
+	V(pd3dDevice->GetRenderTarget(0, &ScreenSurf));
+	V(pd3dDevice->GetDepthStencilSurface(&ScreenDepthStencilSurf));
+
 	// ! Ogre & Apex模型都是顺时针，右手系应该是逆时针
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
 	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, pRC->m_WireFrame ? D3DFILL_WIREFRAME : D3DFILL_SOLID));
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_SkyLightCam->m_ViewProj), this, PassTypeToMask(PassTypeShadow));
 
+	CComPtr<IDirect3DSurface9> ShadowSurf = m_ShadowRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetMatrix("g_View", pRC->m_SkyLightCam->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_SkyLightCam->m_ViewProj);
-	V(pd3dDevice->SetRenderTarget(0, m_ShadowRT->GetSurfaceLevel(0)));
+	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
+	ShadowSurf.Release();
 
 	pRC->QueryRenderComponent(Frustum::ExtractMatrix(pRC->m_Camera->m_ViewProj), this, PassTypeToMask(PassTypeNormal) | PassTypeToMask(PassTypeLight) | PassTypeToMask(PassTypeOpaque) | PassTypeToMask(PassTypeTransparent));
 
+	CComPtr<IDirect3DSurface9> NormalSurf = pRC->m_NormalRT->GetSurfaceLevel(0);
+	CComPtr<IDirect3DSurface9> PositionSurf = pRC->m_PositionRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetMatrix("g_View", pRC->m_Camera->m_View);
 	m_SimpleSample->SetMatrix("g_ViewProj", pRC->m_Camera->m_ViewProj);
 	m_SimpleSample->SetMatrix("g_InvViewProj", pRC->m_Camera->m_InverseViewProj);
@@ -198,15 +212,18 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetVector("g_SkyLightDiffuse", pRC->m_SkyLightDiffuse);
 	m_SimpleSample->SetVector("g_SkyLightAmbient", pRC->m_SkyLightAmbient);
 	m_SimpleSample->SetTexture("g_ShadowRT", m_ShadowRT.get());
-	V(pd3dDevice->SetRenderTarget(0, pRC->GetNormalSurface()));
-	V(pd3dDevice->SetRenderTarget(1, pRC->GetPositionSurface()));
-	V(pd3dDevice->SetDepthStencilSurface(pRC->GetScreenDepthStencilSurface()));
+	V(pd3dDevice->SetRenderTarget(0, NormalSurf));
+	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
+	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
 	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
+	NormalSurf.Release();
+	PositionSurf.Release();
 
-	m_SimpleSample->SetTexture("g_NormalRT", pRC->GetNormalTexture());
-	m_SimpleSample->SetTexture("g_PositionRT", pRC->GetPositionTexture());
-	V(pd3dDevice->SetRenderTarget(0, pRC->GetLightSurface()));
+	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
+	m_SimpleSample->SetTexture("g_NormalRT", pRC->m_NormalRT.get());
+	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
+	V(pd3dDevice->SetRenderTarget(0, LightSurf));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -217,11 +234,14 @@ void RenderPipeline::OnFrameRender(
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+	LightSurf.Release();
 
-	m_SimpleSample->SetTexture("g_LightRT", pRC->GetLightTexture());
-	V(pd3dDevice->SetRenderTarget(0, pRC->m_DofEnable ? pRC->GetOpaqueSurface() : pRC->GetScreenSurface()));
+	CComPtr<IDirect3DSurface9> OpaqueSurf = pRC->m_OpaqueRT->GetSurfaceLevel(0);
+	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
+	V(pd3dDevice->SetRenderTarget(0, pRC->m_DofEnable ? OpaqueSurf : ScreenSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
+	OpaqueSurf.Release();
 
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
@@ -234,6 +254,7 @@ void RenderPipeline::OnFrameRender(
 
 	if (pRC->m_DofEnable)
 	{
+		V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
 		RenderDof(pd3dDevice, pBackBufferSurfaceDesc, pRC);
 	}
 
@@ -349,7 +370,11 @@ void RenderPipeline::RenderDof(
 	IRenderContext * pRC)
 {
 	HRESULT hr;
-	V(pd3dDevice->StretchRect(pRC->GetOpaqueSurface(), NULL, pRC->GetDownFilterSurface(0), NULL, D3DTEXF_NONE)); // ! d3dref only support none
+	CComPtr<IDirect3DSurface9> ScreenSurf;
+	V(pd3dDevice->GetRenderTarget(0, &ScreenSurf));
+	CComPtr<IDirect3DSurface9> OpaqueSurf = pRC->m_OpaqueRT->GetSurfaceLevel(0);
+	V(pd3dDevice->StretchRect(OpaqueSurf, NULL, pRC->m_DownFilterRT[0]->GetSurfaceLevel(0), NULL, D3DTEXF_NONE)); // ! d3dref only support none
+	OpaqueSurf.Release();
 
 	struct PPVERT
 	{
@@ -374,30 +399,37 @@ void RenderPipeline::RenderDof(
 	};
 
 	m_DofEffect->SetVector("g_DofParams", pRC->m_DofParams);
-	m_DofEffect->SetTexture("g_OpaqueRT", pRC->GetOpaqueTexture());
+	m_DofEffect->SetTexture("g_OpaqueRT", pRC->m_OpaqueRT.get());
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 	UINT passes = m_DofEffect->Begin();
 
-	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
-	V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(1)));
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT[0].get());
+	V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT[1]->GetSurfaceLevel(0)));
 	m_DofEffect->BeginPass(0);
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
 	m_DofEffect->EndPass();
 
-	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(1));
-	V(pd3dDevice->SetRenderTarget(0, pRC->GetDownFilterSurface(0)));
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT[1].get());
+	V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT[0]->GetSurfaceLevel(0)));
 	m_DofEffect->BeginPass(1);
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex4, sizeof(vertex[0])));
 	m_DofEffect->EndPass();
 
-	m_DofEffect->SetTexture("g_DownFilterRT", pRC->GetDownFilterTexture(0));
-	V(pd3dDevice->SetRenderTarget(0, pRC->GetScreenSurface()));
+	m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT[0].get());
+	V(pd3dDevice->SetRenderTarget(0, ScreenSurf));
 	m_DofEffect->BeginPass(2);
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, vertex, sizeof(vertex[0])));
 	m_DofEffect->EndPass();
 	m_DofEffect->End();
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+}
+
+void RenderPipeline::RenderFXAA(
+	IDirect3DDevice9 * pd3dDevice,
+	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+	IRenderContext * pRC)
+{
 }
 
 void RenderPipeline::DrawIndexedPrimitive(

@@ -509,11 +509,7 @@ void Game::OnFrameRender(
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))
 	{
-		V(pd3dDevice->GetRenderTarget(0, &m_OldRT));
-		V(pd3dDevice->GetDepthStencilSurface(&m_OldDS));
 		RenderPipeline::OnFrameRender(pd3dDevice, &m_BackBufferSurfaceDesc, this, fTime, fElapsedTime);
-		m_OldRT.Release();
-		m_OldDS.Release();
 
 		pd3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View);
 		pd3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj);
@@ -685,68 +681,6 @@ bool Game::ExecuteCode(const char * code) throw()
 		return false;
 	}
 	return true;
-}
-
-IDirect3DSurface9 * Game::GetScreenSurface(void)
-{
-	return m_OldRT;
-}
-
-IDirect3DSurface9 * Game::GetScreenDepthStencilSurface(void)
-{
-	return m_OldDS;
-}
-
-IDirect3DSurface9 * Game::GetNormalSurface(void)
-{
-	return m_NormalRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * Game::GetNormalTexture(void)
-{
-	return m_NormalRT.get();
-}
-
-IDirect3DSurface9 * Game::GetPositionSurface(void)
-{
-	return m_PositionRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * Game::GetPositionTexture(void)
-{
-	return m_PositionRT.get();
-}
-
-IDirect3DSurface9 * Game::GetLightSurface(void)
-{
-	return m_LightRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * Game::GetLightTexture(void)
-{
-	return m_LightRT.get();
-}
-
-IDirect3DSurface9 * Game::GetOpaqueSurface(void)
-{
-	return m_OpaqueRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * Game::GetOpaqueTexture(void)
-{
-	return m_OpaqueRT.get();
-}
-
-IDirect3DSurface9 * Game::GetDownFilterSurface(unsigned int i)
-{
-	_ASSERT(i < _countof(m_DownFilterRT));
-	return m_DownFilterRT[i]->GetSurfaceLevel(0);
-}
-
-my::Texture2D * Game::GetDownFilterTexture(unsigned int i)
-{
-	_ASSERT(i < _countof(m_DownFilterRT));
-	return m_DownFilterRT[i].get();
 }
 
 static size_t hash_value(const Game::ShaderCacheKey & key)

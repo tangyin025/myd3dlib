@@ -96,29 +96,17 @@ public:
 
 		IRenderContext(void);
 
-		virtual IDirect3DSurface9 * GetScreenSurface(void) = 0;
+		my::EffectPtr m_FxaaEffect;
 
-		virtual IDirect3DSurface9 * GetScreenDepthStencilSurface(void) = 0;
+		my::Texture2DPtr m_NormalRT;
 
-		virtual IDirect3DSurface9 * GetNormalSurface(void) = 0;
+		my::Texture2DPtr m_PositionRT;
 
-		virtual my::Texture2D * GetNormalTexture(void) = 0;
+		my::Texture2DPtr m_LightRT;
 
-		virtual IDirect3DSurface9 * GetPositionSurface(void) = 0;
+		my::Texture2DPtr m_OpaqueRT;
 
-		virtual my::Texture2D * GetPositionTexture(void) = 0;
-
-		virtual IDirect3DSurface9 * GetLightSurface(void) = 0;
-
-		virtual my::Texture2D * GetLightTexture(void) = 0;
-
-		virtual IDirect3DSurface9 * GetOpaqueSurface(void) = 0;
-
-		virtual my::Texture2D * GetOpaqueTexture(void) = 0;
-
-		virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i) = 0;
-
-		virtual my::Texture2D * GetDownFilterTexture(unsigned int i) = 0;
+		my::Texture2DPtr m_DownFilterRT[2];
 
 		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
@@ -249,6 +237,11 @@ public:
 	void ClearAllObjects(void);
 
 	void RenderDof(
+		IDirect3DDevice9 * pd3dDevice,
+		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
+		IRenderContext * pRC);
+
+	void RenderFXAA(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		IRenderContext * pRC);

@@ -27,7 +27,7 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
     VS_OUTPUT Output;
     
     // Transform the position from object space to homogeneous projection space
-    Output.Position = mul(vPos, g_World);
+    Output.Position = mul(mul(vPos, g_World), g_ViewProj);
     
     // Just copy the texture coordinate through
     Output.TextureUV = vTexCoord0; 
@@ -43,7 +43,8 @@ VS_OUTPUT RenderSceneVS( float4 vPos : POSITION,
 float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
 { 
     // Lookup mesh texture and modulate it with diffuse
-    return tex2D(MeshTextureSampler, In.TextureUV);
+    //return tex2D(MeshTextureSampler, In.TextureUV);
+	return float4(0,1,0,1);
 }
 
 
@@ -54,6 +55,7 @@ technique RenderScene
 {
     pass P0
     {          
+		FillMode = WIREFRAME;
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }

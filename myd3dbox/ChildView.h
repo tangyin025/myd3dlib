@@ -47,11 +47,6 @@ protected:
 	my::SurfacePtr m_SwapChainBuffer;
 	D3DSURFACE_DESC m_SwapChainBufferDesc;
 	my::SurfacePtr m_DepthStencil;
-	my::Texture2DPtr m_NormalRT;
-	my::Texture2DPtr m_PositionRT;
-	my::Texture2DPtr m_LightRT;
-	my::Texture2DPtr m_OpaqueRT;
-	my::Texture2DPtr m_DownFilterRT[2];
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
 	float m_PivotScale;
@@ -66,18 +61,6 @@ protected:
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
-	virtual IDirect3DSurface9 * GetScreenSurface(void);
-	virtual IDirect3DSurface9 * GetScreenDepthStencilSurface(void);
-	virtual IDirect3DSurface9 * GetNormalSurface(void);
-	virtual my::Texture2D * GetNormalTexture(void);
-	virtual IDirect3DSurface9 * GetPositionSurface(void);
-	virtual my::Texture2D * GetPositionTexture(void);
-	virtual IDirect3DSurface9 * GetLightSurface(void);
-	virtual my::Texture2D * GetLightTexture(void);
-	virtual IDirect3DSurface9 * GetOpaqueSurface(void);
-	virtual my::Texture2D * GetOpaqueTexture(void);
-	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int i);
-	virtual my::Texture2D * GetDownFilterTexture(unsigned int i);
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 	void RenderSelectedObject(IDirect3DDevice9 * pd3dDevice);
 	void StartPerformanceCount(void);

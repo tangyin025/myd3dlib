@@ -153,68 +153,6 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 	return TRUE;
 }
 
-IDirect3DSurface9 * CChildView::GetScreenSurface(void)
-{
-	return m_SwapChainBuffer->m_ptr;
-}
-
-IDirect3DSurface9 * CChildView::GetScreenDepthStencilSurface(void)
-{
-	return m_DepthStencil->m_ptr;
-}
-
-IDirect3DSurface9 * CChildView::GetNormalSurface(void)
-{
-	return m_NormalRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * CChildView::GetNormalTexture(void)
-{
-	return m_NormalRT.get();
-}
-
-IDirect3DSurface9 * CChildView::GetPositionSurface(void)
-{
-	return m_PositionRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * CChildView::GetPositionTexture(void)
-{
-	return m_PositionRT.get();
-}
-
-IDirect3DSurface9 * CChildView::GetLightSurface(void)
-{
-	return m_LightRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * CChildView::GetLightTexture(void)
-{
-	return m_LightRT.get();
-}
-
-IDirect3DSurface9 * CChildView::GetOpaqueSurface(void)
-{
-	return m_OpaqueRT->GetSurfaceLevel(0);
-}
-
-my::Texture2D * CChildView::GetOpaqueTexture(void)
-{
-	return m_OpaqueRT.get();
-}
-
-IDirect3DSurface9 * CChildView::GetDownFilterSurface(unsigned int i)
-{
-	_ASSERT(i < _countof(m_DownFilterRT));
-	return m_DownFilterRT[i]->GetSurfaceLevel(0);
-}
-
-my::Texture2D * CChildView::GetDownFilterTexture(unsigned int i)
-{
-	_ASSERT(i < _countof(m_DownFilterRT));
-	return m_DownFilterRT[i].get();
-}
-
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
@@ -732,8 +670,8 @@ void CChildView::OnPaint()
 				m_BkColor = D3DCOLOR_ARGB(0,161,161,161);
 				V(theApp.m_d3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_CW));
-				V(theApp.m_d3dDevice->SetRenderTarget(0, GetScreenSurface()));
-				V(theApp.m_d3dDevice->SetDepthStencilSurface(GetScreenDepthStencilSurface()));
+				V(theApp.m_d3dDevice->SetRenderTarget(0, m_SwapChainBuffer->m_ptr));
+				V(theApp.m_d3dDevice->SetDepthStencilSurface(m_DepthStencil->m_ptr));
 				theApp.OnFrameRender(theApp.m_d3dDevice, &m_SwapChainBufferDesc, this, theApp.m_fAbsoluteTime, theApp.m_fElapsedTime);
 
 				swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"PerformanceSec: %.3f", EndPerformanceCount());

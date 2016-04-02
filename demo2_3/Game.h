@@ -67,20 +67,6 @@ public:
 
 	my::UIRenderPtr m_UIRender;
 
-	my::Texture2DPtr m_NormalRT;
-
-	my::Texture2DPtr m_PositionRT;
-
-	my::Texture2DPtr m_LightRT;
-
-	my::Texture2DPtr m_OpaqueRT;
-
-	my::Texture2DPtr m_DownFilterRT[2];
-
-	CComPtr<IDirect3DSurface9> m_OldRT;
-
-	CComPtr<IDirect3DSurface9> m_OldDS;
-
 	my::FontPtr m_Font;
 
 	ConsolePtr m_Console;
@@ -161,30 +147,6 @@ public:
 	void puts(const std::wstring & str);
 
 	bool ExecuteCode(const char * code) throw();
-
-	virtual IDirect3DSurface9 * GetScreenSurface(void);
-
-	virtual IDirect3DSurface9 * GetScreenDepthStencilSurface(void);
-
-	virtual IDirect3DSurface9 * GetNormalSurface(void);
-
-	virtual my::Texture2D * GetNormalTexture(void);
-
-	virtual IDirect3DSurface9 * GetPositionSurface(void);
-
-	virtual my::Texture2D * GetPositionTexture(void);
-
-	virtual IDirect3DSurface9 * GetLightSurface(void);
-
-	virtual my::Texture2D * GetLightTexture(void);
-
-	virtual IDirect3DSurface9 * GetOpaqueSurface(void);
-
-	virtual my::Texture2D * GetOpaqueTexture(void);
-
-	virtual IDirect3DSurface9 * GetDownFilterSurface(unsigned int id);
-
-	virtual my::Texture2D * GetDownFilterTexture(unsigned int id);
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
