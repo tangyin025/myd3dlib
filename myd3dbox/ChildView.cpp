@@ -62,10 +62,10 @@ CChildView::CChildView()
 	m_NormalRT.reset(new my::Texture2D());
 	m_PositionRT.reset(new my::Texture2D());
 	m_LightRT.reset(new my::Texture2D());
-	m_OpaqueRT.reset(new my::Texture2D());
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_DownFilterRT[i].reset(new my::Texture2D());
+		m_OpaqueRT.m_RenderTarget[i].reset(new my::Texture2D());
+		m_DownFilterRT.m_RenderTarget[i].reset(new my::Texture2D());
 	}
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
@@ -140,14 +140,14 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-	m_OpaqueRT->OnDestroyDevice();
-	m_OpaqueRT->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_DownFilterRT[i]->OnDestroyDevice();
-		m_DownFilterRT[i]->CreateTexture(
+		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
+		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
+			pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
+		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
 			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 	return TRUE;

@@ -239,7 +239,7 @@ A. Or use FXAA_GREEN_AS_LUMA.
 #endif
 /*--------------------------------------------------------------------------*/
 #ifndef FXAA_HLSL_3
-    #define FXAA_HLSL_3 0
+    #define FXAA_HLSL_3 1
 #endif
 /*--------------------------------------------------------------------------*/
 #ifndef FXAA_HLSL_4
@@ -247,7 +247,7 @@ A. Or use FXAA_GREEN_AS_LUMA.
 #endif
 /*--------------------------------------------------------------------------*/
 #ifndef FXAA_HLSL_5
-    #define FXAA_HLSL_5 1
+    #define FXAA_HLSL_5 0
 #endif
 /*==========================================================================*/
 #ifndef FXAA_GREEN_AS_LUMA
@@ -415,7 +415,7 @@ NOTE the other tuning knobs are now in the shader function inputs!
     //  _ = the lowest digit is directly related to performance
     // _  = the highest digit is directly related to style
     // 
-    #define FXAA_QUALITY__PRESET 12
+    #define FXAA_QUALITY__PRESET 13
 #endif
 
 
@@ -2065,29 +2065,31 @@ half4 FxaaPixelShader(
 #endif
 
 
-cbuffer cbFxaa : register(b1) {
-    float4 RCPFrame : packoffset(c0);
+//--------------------------------------------------------------------------------------
+// Vertex shader output structure
+//--------------------------------------------------------------------------------------
+struct VS_OUTPUT
+{
+    float4 Position   : POSITION;   // vertex position 
+    float2 TextureUV  : TEXCOORD0;  // vertex texture coords 
 };
 
-struct FxaaVS_Output {
-    float4 Pos : SV_POSITION;
-    float2 Tex : TEXCOORD0;
+float4 RCPFrame;
+
+Texture2D    InputTexture;
+
+SamplerState InputSampler = sampler_state
+{
+	Texture = <InputTexture>;
+	MipFilter = NONE;
+	MinFilter = LINEAR;
+	MagFilter = LINEAR;
 };
 
-FxaaVS_Output FxaaVS(uint id : SV_VertexID) {
-    FxaaVS_Output Output;
-    Output.Tex = float2((id << 1) & 2, id & 2);
-    Output.Pos = float4(Output.Tex * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
-    return Output;
-}
-
-SamplerState InputSampler : register(s3);
-Texture2D    InputTexture : register(t0);
-
-float4 FxaaPS(FxaaVS_Output Input) : SV_TARGET {
-    FxaaTex InputFXAATex = { InputSampler, InputTexture };
+float4 FxaaPS(VS_OUTPUT Input) : COLOR0 {
+    FxaaTex InputFXAATex = InputSampler;
     return FxaaPixelShader(
-        Input.Tex.xy,							// FxaaFloat2 pos,
+        Input.TextureUV.xy,						// FxaaFloat2 pos,
         FxaaFloat4(0.0f, 0.0f, 0.0f, 0.0f),		// FxaaFloat4 fxaaConsolePosPos,
         InputFXAATex,							// FxaaTex tex,
         InputFXAATex,							// FxaaTex fxaaConsole360TexExpBiasNegOne,
@@ -2106,3 +2108,14 @@ float4 FxaaPS(FxaaVS_Output Input) : SV_TARGET {
     );
 }
 
+//--------------------------------------------------------------------------------------
+// Renders scene 
+//--------------------------------------------------------------------------------------
+technique RenderScene
+{
+    pass P0
+    {          
+        VertexShader = null;
+        PixelShader  = compile ps_3_0 FxaaPS(); 
+    }
+}

@@ -250,6 +250,7 @@ Game::Game(void)
 			.def_readwrite("WireFrame", &Game::m_WireFrame)
 			.def_readwrite("DofEnable", &Game::m_DofEnable)
 			.def_readwrite("DofParams", &Game::m_DofParams)
+			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveMaterial", &Game::SaveMaterial)
 			.def("SaveEmitter", &Game::SaveEmitter)
@@ -258,10 +259,10 @@ Game::Game(void)
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
-	m_OpaqueRT.reset(new Texture2D());
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_DownFilterRT[i].reset(new Texture2D());
+		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
+		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
 	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
@@ -408,12 +409,12 @@ HRESULT Game::OnResetDevice(
 	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-	m_OpaqueRT->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
-
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_DownFilterRT[i]->CreateTexture(
+		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
+			pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
+
+		m_DownFilterRT.m_RenderTarget[i]->CreateTexture(
 			pd3dDevice, pBackBufferSurfaceDesc->Width / 4, pBackBufferSurfaceDesc->Height / 4, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 	}
 
@@ -449,11 +450,11 @@ void Game::OnLostDevice(void)
 
 	m_LightRT->OnDestroyDevice();
 
-	m_OpaqueRT->OnDestroyDevice();
-
-	for (unsigned int i = 0; i < _countof(m_DownFilterRT); i++)
+	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
-		m_DownFilterRT[i]->OnDestroyDevice();
+		m_OpaqueRT.m_RenderTarget[i]->OnDestroyDevice();
+
+		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
 	}
 }
 

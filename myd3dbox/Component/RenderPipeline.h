@@ -69,10 +69,51 @@ public:
 
 	my::EffectPtr m_DofEffect;
 
+	my::EffectPtr m_FxaaEffect;
+
 	class IShaderSetter
 	{
 	public:
 		virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+	};
+
+	struct RTChain
+	{
+		typedef boost::array<my::Texture2DPtr, 2> RTArray;
+
+		RTArray m_RenderTarget;
+
+		int m_Next;
+
+		RTChain(void)
+			: m_Next(0)
+		{
+		}
+
+		void Flip(void)
+		{
+			m_Next = 1 - m_Next;
+		}
+
+		my::Texture2DPtr  GetPrevTarget(void)
+		{
+			return m_RenderTarget[1 - m_Next];
+		}
+
+		my::Texture2DPtr  GetPrevSource(void)
+		{
+			return m_RenderTarget[m_Next];
+		}
+
+		my::Texture2DPtr & GetNextTarget(void)
+		{
+			return m_RenderTarget[m_Next];
+		}
+
+		my::Texture2DPtr & GetNextSource(void)
+		{
+			return m_RenderTarget[1 - m_Next];
+		}
 	};
 
 	class IRenderContext
@@ -94,9 +135,7 @@ public:
 
 		my::Vector4 m_DofParams;
 
-		IRenderContext(void);
-
-		my::EffectPtr m_FxaaEffect;
+		bool m_FxaaEnable;
 
 		my::Texture2DPtr m_NormalRT;
 
@@ -104,9 +143,11 @@ public:
 
 		my::Texture2DPtr m_LightRT;
 
-		my::Texture2DPtr m_OpaqueRT;
+		RTChain m_OpaqueRT;
 
-		my::Texture2DPtr m_DownFilterRT[2];
+		RTChain m_DownFilterRT;
+
+		IRenderContext(void);
 
 		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
@@ -195,6 +236,16 @@ public:
 
 	boost::array<int, PassTypeNum> m_PassDrawCall;
 
+	struct QuadVertex
+	{
+		float x, y, z, rhw;
+		float u, v;
+	};
+
+	QuadVertex quad[4];
+
+	QuadVertex quadDownFilter[4];
+
 public:
 	RenderPipeline(void);
 
@@ -227,6 +278,8 @@ public:
 		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);
+
+	void UpdateQuads(const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
 	void RenderAllObjects(
 		unsigned int PassID,
