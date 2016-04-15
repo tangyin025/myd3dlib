@@ -169,7 +169,8 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 
 	_ASSERT(0 == m_ErrorState);
 
-	OnPxThreadSubstep(m_Timer.m_Interval);
+	// ! take care of multi thread
+	m_EventPxThreadSubstep(m_Timer.m_Interval);
 
 	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
 	{
@@ -186,10 +187,6 @@ void PhysXSceneContext::SubstepDone(StepperTask * ownerTask)
 	Substep(task);
 
 	task.removeReference();
-}
-
-void PhysXSceneContext::OnPxThreadSubstep(float dtime)
-{
 }
 
 void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)

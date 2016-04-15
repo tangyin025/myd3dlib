@@ -26,6 +26,8 @@ void Character::Create(void)
 	cDesc.behaviorCallback = this;
 	m_controller.reset(
 		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_PxScene.get(), cDesc));
+
+	Game::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::Update(float fElapsedTime)
@@ -36,14 +38,17 @@ void Character::Update(float fElapsedTime)
 
 void Character::OnPxThreadSubstep(float dtime)
 {
+	// 注意，多线程调用，不要在这里更新模型渲染数据数据
 	velocity.y = velocity.y + PhysXContext::Gravity.y * dtime;
 	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
-	setPosition(Vector3((float)m_controller->getPosition().x, (float)m_controller->getPosition().y, (float)m_controller->getPosition().z));
+	setPosition((Vector3&)toVec3(m_controller->getPosition()));
 }
 
 void Character::Destroy(void)
 {
 	m_controller.reset();
+
+	Game::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::onShapeHit(const PxControllerShapeHit& hit)

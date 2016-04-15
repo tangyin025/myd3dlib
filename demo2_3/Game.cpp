@@ -646,12 +646,6 @@ void Game::reportError(PxErrorCode::Enum code, const char* message, const char* 
 	}
 }
 
-void Game::OnPxThreadSubstep(float dtime)
-{
-	// ! take care of multi thread
-	m_Logic->OnPxThreadSubstep(dtime);
-}
-
 void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
 {
 	if (m_Console)

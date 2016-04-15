@@ -77,6 +77,10 @@ public:
 
 	PhysXPtr<PxScene> m_PxScene;
 
+	typedef boost::signals2::signal<void (float)> SubstepEvent;
+
+	SubstepEvent m_EventPxThreadSubstep;
+
 public:
 	PhysXSceneContext(void)
 		: m_Completion0(this)
@@ -101,8 +105,6 @@ public:
 	void Substep(StepperTask & completionTask);
 
 	void SubstepDone(StepperTask * ownerTask);
-
-	virtual void OnPxThreadSubstep(float dtime);
 
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 };

@@ -21,8 +21,6 @@ public:
 
 	void Update(float fElapsedTime);
 
-	virtual void OnPxThreadSubstep(float dtime);
-
 	void Destroy(void);
 };
 

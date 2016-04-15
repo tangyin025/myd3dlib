@@ -28,11 +28,6 @@ void Logic::Update(float fElapsedTime)
 	Game::getSingleton().ResetViewedCmps(camera->m_Eye, m_player->getPosition());
 }
 
-void Logic::OnPxThreadSubstep(float dtime)
-{
-	m_player->OnPxThreadSubstep(dtime);
-}
-
 void Logic::Destroy(void)
 {
 	m_player->Destroy();
