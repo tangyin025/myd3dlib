@@ -6,7 +6,6 @@ using namespace my;
 
 Character::Character(void)
 	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), 1, 0.8f)
-	, m_LookAngles(0,0,0)
 {
 }
 
@@ -32,8 +31,6 @@ void Character::Create(void)
 
 void Character::Update(float fElapsedTime)
 {
-	const Matrix4 RotM = Matrix4::RotationYawPitchRoll(m_LookAngles.y, m_LookAngles.x, m_LookAngles.z);
-	m_LookDir = RotM.row<2>().xyz;
 }
 
 void Character::OnPxThreadSubstep(float dtime)
@@ -82,6 +79,21 @@ PxU32 Character::getBehaviorFlags(const PxObstacle& obstacle)
 	return 0;
 }
 
+Player::Player(void)
+{
+}
+
+LocalPlayer::LocalPlayer(void)
+	: m_LookAngles(0,0,0)
+	, m_LookDir(0,0,1)
+	, m_LookDist(5)
+	, m_FaceAngle(0)
+	, m_FaceAngleInerp(0)
+	, m_InputLtRt(0)
+	, m_InputUpDn(0)
+{
+}
+
 void LocalPlayer::Create(void)
 {
 	Player::Create();
@@ -99,6 +111,20 @@ void LocalPlayer::Create(void)
 		Game::getSingleton().m_joystick->m_BtnPressedEvent = boost::bind(&LocalPlayer::OnJoystickBtnDown, this, _1);
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&LocalPlayer::OnJoystickBtnUp, this, _1);
 	}
+
+	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.05f)), false));
+	m_MeshCmp->m_lods.resize(1);
+	m_MeshCmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = "lambert1.fx";
+	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	lambert1->m_MeshColor = Vector4(1,1,1,1);
+	lambert1->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
+	lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
+	lambert1->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
+	m_MeshCmp->m_MaterialList.push_back(lambert1);
+	m_MeshCmp->RequestResource();
+	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 }
 
 void LocalPlayer::Update(float fElapsedTime)
@@ -113,12 +139,35 @@ void LocalPlayer::Update(float fElapsedTime)
 		const float Speed = 5.0f;
 		velocity.x = Final.x * Speed;
 		velocity.z = Final.z * Speed;
+		m_FaceAngle = atan2(velocity.x, velocity.z);
+		//swprintf_s(&Game::getSingleton().m_ScrInfos[6][0], 256, L"Angle: %f", D3DXToDegree(m_FaceAngle));
+		if (m_FaceAngle > m_FaceAngleInerp + D3DX_PI)
+		{
+			m_FaceAngleInerp += 2 * D3DX_PI;
+		}
+		else if (m_FaceAngle < m_FaceAngleInerp - D3DX_PI)
+		{
+			m_FaceAngleInerp -= 2 * D3DX_PI;
+		}
 	}
 	else
 	{
 		velocity.x = 0;
 		velocity.z = 0;
 	}
+
+	m_FaceAngleInerp = Lerp(m_FaceAngleInerp, m_FaceAngle, 1.0f - powf(0.8f, 30 * fElapsedTime));
+
+	const Matrix4 RotM = Matrix4::RotationYawPitchRoll(m_LookAngles.y, m_LookAngles.x, m_LookAngles.z);
+	m_LookDir = RotM.row<2>().xyz;
+
+	Quaternion rot = Quaternion::RotationYawPitchRoll(m_FaceAngleInerp,0,0);
+	Vector3 pos = getPosition() + Vector3(0,-0.75f,0);
+	m_MeshCmp->m_World = Matrix4::Compose(Vector3(0.0085f,0.0085f,0.0085f), rot, pos);
+	Game::getSingleton().m_Root.RemoveComponent(m_MeshCmp.get());
+	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
+
+	Game::getSingleton().m_SkyLightCam->m_Eye = pos;
 }
 
 void LocalPlayer::Destroy(void)
@@ -137,6 +186,8 @@ void LocalPlayer::Destroy(void)
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent.clear();
 	}
 
+	m_MeshCmp.reset();
+
 	Player::Destroy();
 }
 
@@ -150,6 +201,10 @@ void LocalPlayer::OnMouseMove(InputEventArg * arg)
 	if (mmarg.y != 0)
 	{
 		m_LookAngles.x += -D3DXToRadian(mmarg.y);
+	}
+	if (mmarg.z != 0)
+	{
+		m_LookDist += -mmarg.z;
 	}
 }
 
@@ -169,7 +224,7 @@ void LocalPlayer::OnKeyDown(InputEventArg * arg)
 	switch (karg.kc)
 	{
 	case VK_SPACE:
-		velocity.y = 10;
+		velocity.y = 5;
 		karg.handled = true;
 		break;
 	case 'W':

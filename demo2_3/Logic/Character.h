@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../myd3dbox/Component/PhysXPtr.h"
+#include "../../myd3dbox/Component/Component.h"
 
 class Character
 	: public my::Particle
@@ -9,10 +10,6 @@ class Character
 {
 public:
 	PhysXPtr<PxController> m_controller;
-
-	my::Vector3 m_LookAngles;
-
-	my::Vector3 m_LookDir;
 
 public:
 	Character(void);
@@ -45,9 +42,7 @@ typedef boost::shared_ptr<Character> CharacterPtr;
 class Player : public Character
 {
 public:
-	Player(void)
-	{
-	}
+	Player(void);
 };
 
 typedef boost::shared_ptr<Player> PlayerPtr;
@@ -55,16 +50,24 @@ typedef boost::shared_ptr<Player> PlayerPtr;
 class LocalPlayer : public Player
 {
 public:
+	my::Vector3 m_LookAngles;
+
+	my::Vector3 m_LookDir;
+
+	float m_LookDist;
+
+	float m_FaceAngle;
+
+	float m_FaceAngleInerp;
+
+	MeshComponentPtr m_MeshCmp;
+
 	int m_InputLtRt;
 
 	int m_InputUpDn;
 
 public:
-	LocalPlayer(void)
-		: m_InputLtRt(0)
-		, m_InputUpDn(0)
-	{
-	}
+	LocalPlayer(void);
 
 	virtual void Create(void);
 

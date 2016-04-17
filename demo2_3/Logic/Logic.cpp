@@ -23,7 +23,7 @@ void Logic::Update(float fElapsedTime)
 	m_player->Update(fElapsedTime);
 
 	FirstPersonCamera * camera = dynamic_cast<FirstPersonCamera *>(Game::getSingleton().m_Camera.get());
-	camera->m_Eye = m_player->getPosition() + m_player->m_LookDir * 5;
+	camera->m_Eye = m_player->getPosition() + m_player->m_LookDir * m_player->m_LookDist;
 	camera->m_Eular = m_player->m_LookAngles; // 右手系空间相机朝向-z轴
 	Game::getSingleton().ResetViewedCmps(camera->m_Eye, m_player->getPosition());
 }
