@@ -52,7 +52,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2009\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2012\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -84,110 +84,13 @@
 				OutputFile="$(OutDir)\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2009\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2012\lib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ogreExporter.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
 				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/ogreExporter.lib"
-				TargetMachine="1"
-			/>
-			<Tool
-				Name="VCALinkTool"
-			/>
-			<Tool
-				Name="VCManifestTool"
-			/>
-			<Tool
-				Name="VCXDCMakeTool"
-			/>
-			<Tool
-				Name="VCBscMakeTool"
-			/>
-			<Tool
-				Name="VCFxCopTool"
-			/>
-			<Tool
-				Name="VCAppVerifierTool"
-			/>
-			<Tool
-				Name="VCPostBuildEventTool"
-			/>
-		</Configuration>
-		<Configuration
-			Name="Release|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
-			IntermediateDirectory="$(ConfigurationName)"
-			ConfigurationType="2"
-			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
-			UseOfMFC="2"
-			ATLMinimizesCRunTimeLibraryUsage="false"
-			CharacterSet="2"
-			>
-			<Tool
-				Name="VCPreBuildEventTool"
-			/>
-			<Tool
-				Name="VCCustomBuildTool"
-			/>
-			<Tool
-				Name="VCXMLDataGeneratorTool"
-			/>
-			<Tool
-				Name="VCWebServiceProxyGeneratorTool"
-			/>
-			<Tool
-				Name="VCMIDLTool"
-				PreprocessorDefinitions="NDEBUG"
-				MkTypLibCompatible="true"
-				SuppressStartupBanner="true"
-				TargetEnvironment="1"
-				TypeLibraryName=".\Release/MayaExport_fg.tlb"
-				HeaderFileName=""
-			/>
-			<Tool
-				Name="VCCLCompilerTool"
-				Optimization="2"
-				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2009\include&quot;"
-				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
-				StringPooling="true"
-				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
-				UsePrecompiledHeader="0"
-				PrecompiledHeaderFile=".\Release/MayaExport_fg.pch"
-				AssemblerListingLocation=".\Release/"
-				ObjectFile=".\Release/"
-				ProgramDataBaseFileName=".\Release/"
-				WarningLevel="3"
-				SuppressStartupBanner="true"
-				CompileAs="0"
-			/>
-			<Tool
-				Name="VCManagedResourceCompilerTool"
-			/>
-			<Tool
-				Name="VCResourceCompilerTool"
-				PreprocessorDefinitions="NDEBUG"
-				Culture="1040"
-			/>
-			<Tool
-				Name="VCPreLinkEventTool"
-			/>
-			<Tool
-				Name="VCLinkerTool"
-				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
-				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
-				OutputFile="$(OutDir)\ogreExporter.mll"
-				LinkIncremental="1"
-				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2009\lib&quot;"
-				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
-				SubSystem="2"
-				RandomizedBaseAddress="1"
-				DataExecutionPrevention="0"
-				ImportLibrary=".\Release/ogreExporter.lib"
 				TargetMachine="1"
 			/>
 			<Tool
@@ -246,7 +149,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2009\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2012\include&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -278,7 +181,7 @@
 				OutputFile="$(OutDir)\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2009\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2012\lib&quot;"
 				GenerateDebugInformation="true"
 				ProgramDatabaseFile=".\Debug/ogreExporter.pdb"
 				SubSystem="2"
@@ -286,6 +189,103 @@
 				DataExecutionPrevention="0"
 				ImportLibrary=".\Debug/ogreExporter.lib"
 				TargetMachine="17"
+			/>
+			<Tool
+				Name="VCALinkTool"
+			/>
+			<Tool
+				Name="VCManifestTool"
+			/>
+			<Tool
+				Name="VCXDCMakeTool"
+			/>
+			<Tool
+				Name="VCBscMakeTool"
+			/>
+			<Tool
+				Name="VCFxCopTool"
+			/>
+			<Tool
+				Name="VCAppVerifierTool"
+			/>
+			<Tool
+				Name="VCPostBuildEventTool"
+			/>
+		</Configuration>
+		<Configuration
+			Name="Release|Win32"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			IntermediateDirectory="$(ConfigurationName)"
+			ConfigurationType="2"
+			InheritedPropertySheets="$(VCInstallDir)VCProjectDefaults\UpgradeFromVC71.vsprops"
+			UseOfMFC="2"
+			ATLMinimizesCRunTimeLibraryUsage="false"
+			CharacterSet="2"
+			>
+			<Tool
+				Name="VCPreBuildEventTool"
+			/>
+			<Tool
+				Name="VCCustomBuildTool"
+			/>
+			<Tool
+				Name="VCXMLDataGeneratorTool"
+			/>
+			<Tool
+				Name="VCWebServiceProxyGeneratorTool"
+			/>
+			<Tool
+				Name="VCMIDLTool"
+				PreprocessorDefinitions="NDEBUG"
+				MkTypLibCompatible="true"
+				SuppressStartupBanner="true"
+				TargetEnvironment="1"
+				TypeLibraryName=".\Release/MayaExport_fg.tlb"
+				HeaderFileName=""
+			/>
+			<Tool
+				Name="VCCLCompilerTool"
+				Optimization="2"
+				InlineFunctionExpansion="1"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2012\include&quot;"
+				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
+				StringPooling="true"
+				RuntimeLibrary="2"
+				EnableFunctionLevelLinking="true"
+				UsePrecompiledHeader="0"
+				PrecompiledHeaderFile=".\Release/MayaExport_fg.pch"
+				AssemblerListingLocation=".\Release/"
+				ObjectFile=".\Release/"
+				ProgramDataBaseFileName=".\Release/"
+				WarningLevel="3"
+				SuppressStartupBanner="true"
+				CompileAs="0"
+			/>
+			<Tool
+				Name="VCManagedResourceCompilerTool"
+			/>
+			<Tool
+				Name="VCResourceCompilerTool"
+				PreprocessorDefinitions="NDEBUG"
+				Culture="1040"
+			/>
+			<Tool
+				Name="VCPreLinkEventTool"
+			/>
+			<Tool
+				Name="VCLinkerTool"
+				AdditionalOptions="/export:initializePlugin /export:uninitializePlugin "
+				AdditionalDependencies="Foundation.lib OpenMaya.lib OpenMayaAnim.lib OpenMayaRender.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib"
+				OutputFile="$(OutDir)\ogreExporter.mll"
+				LinkIncremental="1"
+				SuppressStartupBanner="true"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2012\lib&quot;"
+				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
+				SubSystem="2"
+				RandomizedBaseAddress="1"
+				DataExecutionPrevention="0"
+				ImportLibrary=".\Release/ogreExporter.lib"
+				TargetMachine="1"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -344,7 +344,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				InlineFunctionExpansion="1"
-				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2009\include&quot;"
+				AdditionalIncludeDirectories="..\include;&quot;C:\Program Files\Autodesk\Maya2012\include&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;NT_PLUGIN;REQUIRE_IOSTREAM"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -376,7 +376,7 @@
 				OutputFile="$(OutDir)\ogreExporter.mll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
-				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2009\lib&quot;"
+				AdditionalLibraryDirectories="&quot;C:\Program Files\Autodesk\Maya2012\lib&quot;"
 				ProgramDatabaseFile=".\Release/ogreExporter.pdb"
 				SubSystem="2"
 				RandomizedBaseAddress="1"
@@ -441,16 +441,6 @@
 					/>
 				</FileConfiguration>
 				<FileConfiguration
-					Name="Release|Win32"
-					>
-					<Tool
-						Name="VCCLCompilerTool"
-						Optimization="2"
-						AdditionalIncludeDirectories=""
-						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;$(NOINHERIT)"
-					/>
-				</FileConfiguration>
-				<FileConfiguration
 					Name="Debug|x64"
 					>
 					<Tool
@@ -459,6 +449,16 @@
 						AdditionalIncludeDirectories=""
 						PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;$(NOINHERIT)"
 						BasicRuntimeChecks="3"
+					/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32"
+					>
+					<Tool
+						Name="VCCLCompilerTool"
+						Optimization="2"
+						AdditionalIncludeDirectories=""
+						PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_AFXDLL;_MBCS;NT_PLUGIN;REQUIRE_IOSTREAM;$(NOINHERIT)"
 					/>
 				</FileConfiguration>
 				<FileConfiguration
