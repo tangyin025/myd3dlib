@@ -148,6 +148,24 @@ Matrix4 Bone::BuildInverseTransform(void) const
 	return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
 }
 
+BoneList & BoneList::Copy(
+	BoneList & boneList,
+	const BoneHierarchy & boneHierarchy,
+	int root_i) const
+{
+	_ASSERT(boneList.size() == size());
+
+	boneList[root_i] = operator[](root_i);
+
+	int node_i = boneHierarchy[root_i].m_child;
+	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	{
+		Copy(boneList, boneHierarchy, node_i);
+	}
+
+	return boneList;
+}
+
 BoneList & BoneList::Increment(
 	BoneList & boneList,
 	const BoneList & rhs,
@@ -250,31 +268,6 @@ BoneList & BoneList::BuildHierarchyBoneList(
 
 	return hierarchyBoneList;
 }
-//
-//BoneList & BoneList::BuildInverseHierarchyBoneList(
-//	BoneList & inverseHierarchyBoneList,
-//	const BoneHierarchy & boneHierarchy,
-//	int root_i,
-//	const Quaternion & inverseRootRotation,
-//	const Vector3 & inverseRootPosition)
-//{
-//	_ASSERT(inverseHierarchyBoneList.size() == size());
-//	_ASSERT(inverseHierarchyBoneList.size() == boneHierarchy.size());
-//
-//	BoneHierarchy::const_reference node = boneHierarchy[root_i];
-//	const_reference bone = operator[](root_i);
-//	reference hier_bone = inverseHierarchyBoneList[root_i];
-//	hier_bone.m_rotation = inverseRootRotation * bone.m_rotation.conjugate();
-//	hier_bone.m_position = -(bone.m_position.transform(inverseRootRotation.conjugate()) - inverseRootPosition);
-//
-//	int node_i = boneHierarchy[root_i].m_child;
-//	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
-//	{
-//		BuildInverseHierarchyBoneList(inverseHierarchyBoneList, boneHierarchy, node_i, hier_bone.m_rotation, hier_bone.m_position);
-//	}
-//
-//	return inverseHierarchyBoneList;
-//}
 
 TransformList & BoneList::BuildTransformList(
 	TransformList & transformList) const
@@ -314,35 +307,6 @@ TransformList & BoneList::BuildInverseTransformList(
 	}
 
 	return inverseTransformList;
-}
-
-TransformList & BoneList::BuildDualQuaternionList(
-	TransformList & dualQuaternionList,
-	const BoneList & rhs) const
-{
-	_ASSERT(dualQuaternionList.size() == size());
-	_ASSERT(dualQuaternionList.size() == rhs.size());
-
-	for(size_t i = 0; i < size(); i++)
-	{
-		const_reference local_bone = operator [](i);
-		BoneList::const_reference trans_bone = rhs[i];
-		TransformList::reference dual = dualQuaternionList[i];
-
-		Quaternion quat = local_bone.m_rotation.conjugate() * trans_bone.m_rotation;
-		Vector3 tran = (-local_bone.m_position).transform(quat) + trans_bone.m_position;
-
-		dual._11 = quat.x ; 
-		dual._12 = quat.y ; 
-		dual._13 = quat.z ; 
-		dual._14 = quat.w ; 
-		dual._21 = 0.5f * ( tran.x * quat.w + tran.y * quat.z - tran.z * quat.y ) ; 
-		dual._22 = 0.5f * (-tran.x * quat.z + tran.y * quat.w + tran.z * quat.x ) ; 
-		dual._23 = 0.5f * ( tran.x * quat.y - tran.y * quat.x + tran.z * quat.w ) ; 
-		dual._24 = -0.5f * (tran.x * quat.x + tran.y * quat.y + tran.z * quat.z ) ; 
-	}
-
-	return dualQuaternionList;
 }
 
 TransformList & BoneList::BuildDualQuaternionList(
@@ -412,46 +376,34 @@ TransformList & BoneList::BuildDualQuaternionList(
 //	return inverseHierarchyTransformList;
 //}
 
-Bone BoneTrack::GetPoseBone(float time) const
-{
-	_ASSERT(!empty());
-
-	const_iterator key_iter = begin();
-	if(time < key_iter->m_time)
-	{
-		return *key_iter;
-	}
-
-	key_iter++;
-	for(; key_iter != end(); key_iter++)
-	{
-		if(time < key_iter->m_time)
-		{
-			const_iterator prev_key_iter = key_iter - 1;
-			return prev_key_iter->Lerp(*key_iter, (time - prev_key_iter->m_time) / (key_iter->m_time - prev_key_iter->m_time));
-		}
-	}
-
-	return back();
-}
-
-BoneList & BoneTrackList::GetPose(
+BoneList & OgreAnimation::GetPose(
 	BoneList & boneList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i,
 	float time) const
 {
-	_ASSERT(boneList.size() == size());
-	_ASSERT(boneList.size() == boneHierarchy.size());
+	_ASSERT(!empty());
 
-	boneList[root_i] = operator[](root_i).GetPoseBone(time);
-
-	int node_i = boneHierarchy[root_i].m_child;
-	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
+	const_iterator iter = begin();
+	if(time < iter->first)
 	{
-		GetPose(boneList, boneHierarchy, node_i, time);
+		iter->second.Copy(boneList, boneHierarchy, root_i);
+		return boneList;
 	}
 
+	const_iterator prev_iter = iter;
+	iter++;
+	for(; iter != end(); iter++)
+	{
+		if(time < iter->first)
+		{
+			prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
+			return boneList;
+		}
+		prev_iter = iter;
+	}
+
+	rbegin()->second.Copy(boneList, boneHierarchy, root_i);
 	return boneList;
 }
 
@@ -577,7 +529,6 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 
 		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
 		anim.m_time = length;
-		anim.resize(m_boneBindPose.size());
 
 		DEFINE_XML_NODE_SIMPLE(tracks, animation);
 		DEFINE_XML_NODE_SIMPLE(track, tracks);
@@ -589,13 +540,14 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
 			}
 
-			BoneTrack & bone_track = anim[m_boneNameMap[attr_bone->value()]];
-
 			DEFINE_XML_NODE_SIMPLE(keyframes, track);
 			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
 			for(; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
 			{
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
+				BoneList & bones = anim[time];
+				bones.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
+				Bone & bone = bones[m_boneNameMap[attr_bone->value()]];
 
 				rapidxml::xml_attribute<char> * attr_translate_x, * attr_translate_y, * attr_translate_z;
 				float translate_x, translate_y, translate_z;
@@ -614,13 +566,13 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
 				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
 
-				bone_track.push_back(
-					BoneKeyframe(Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle), Vector3(translate_x, translate_y, translate_z), time));
+				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
+				bone.m_position = Vector3(translate_x, translate_y, translate_z);
 			}
 		}
 	}
 
-	// find roots
+	// calculate root set
 	m_boneRootSet.clear();
 	std::vector<int> boneRootRef(m_boneHierarchy.size(), 0);
 	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
@@ -630,12 +582,46 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		{
 			boneRootRef[child_i]++;
 		}
+		int sibling_i = m_boneHierarchy[bone_i].m_sibling;
+		if (-1 != sibling_i)
+		{
+			boneRootRef[sibling_i]++;
+		}
 	}
 	for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
 	{
 		if (0 == boneRootRef[bone_i])
 		{
 			m_boneRootSet.insert(bone_i);
+		}
+	}
+
+	// convert animation to final bind pose
+	BoneList bind_pose(m_boneHierarchy.size());
+	my::BoneIndexSet::const_iterator root_iter = m_boneRootSet.begin();
+	for (; root_iter != m_boneRootSet.end(); root_iter++)
+	{
+		m_boneBindPose.BuildHierarchyBoneList(bind_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
+	}
+	OgreAnimationNameMap::iterator name_iter = m_animationMap.begin();
+	for (; name_iter != m_animationMap.end(); name_iter++)
+	{
+		OgreAnimation::iterator anim_iter = name_iter->second.begin();
+		for (; anim_iter != name_iter->second.end(); anim_iter++)
+		{
+			BoneList & bones = anim_iter->second;
+			BoneList anim_pose(m_boneHierarchy.size());
+			root_iter = m_boneRootSet.begin();
+			for (; root_iter != m_boneRootSet.end(); root_iter++)
+			{
+				bones.IncrementSelf(m_boneBindPose, m_boneHierarchy, *root_iter);
+				bones.BuildHierarchyBoneList(anim_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
+			}
+			for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
+			{
+				bones[bone_i].m_rotation = bind_pose[bone_i].m_rotation.conjugate() * anim_pose[bone_i].m_rotation;
+				bones[bone_i].m_position = (-bind_pose[bone_i].m_position).transform(bones[bone_i].m_rotation) + anim_pose[bone_i].m_position;
+			}
 		}
 	}
 }
@@ -685,7 +671,5 @@ BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const Bone
 {
 	_ASSERT(pose.size() >= m_boneBindPose.size());
 
-	GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
-
-	return pose.IncrementSelf(m_boneBindPose, boneHierarchy, root_i);
+	return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
 }

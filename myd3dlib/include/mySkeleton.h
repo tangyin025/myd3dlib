@@ -1,9 +1,10 @@
 #pragma once
 
 #include <vector>
+#include <map>
+#include <set>
 #include "myMath.h"
 #include <boost/unordered_map.hpp>
-#include <boost/unordered_set.hpp>
 #include <boost/shared_ptr.hpp>
 #include "mySingleton.h"
 #include "rapidxml.hpp"
@@ -25,7 +26,7 @@ namespace my
 		}
 	};
 
-	typedef boost::unordered_set<int> BoneIndexSet;
+	typedef std::set<int> BoneIndexSet;
 
 	class BoneHierarchy
 		: public std::vector<BoneHierarchyNode>
@@ -120,6 +121,11 @@ namespace my
 		{
 		}
 
+		BoneList & Copy(
+			BoneList & boneList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i) const;
+
 		BoneList & Increment(
 			BoneList & boneList,
 			const BoneList & rhs,
@@ -151,13 +157,6 @@ namespace my
 			const Quaternion & rootRotation = Quaternion(0, 0, 0, 1),
 			const Vector3 & rootPosition = Vector3::zero);
 
-		//BoneList & BuildInverseHierarchyBoneList(
-		//	BoneList & inverseHierarchyBoneList,
-		//	const BoneHierarchy & boneHierarchy,
-		//	int root_i,
-		//	const Quaternion & inverseRootRotation = Quaternion(0, 0, 0, 1),
-		//	const Vector3 & inverseRootPosition = Vector3::zero);
-
 		TransformList & BuildTransformList(
 			TransformList & transformList) const;
 
@@ -166,10 +165,6 @@ namespace my
 
 		TransformList & BuildInverseTransformList(
 			TransformList & inverseTransformList) const;
-
-		TransformList & BuildDualQuaternionList(
-			TransformList & dualQuaternionList,
-			const BoneList & rhs) const;
 
 		TransformList & BuildDualQuaternionList(
 			TransformList & dualQuaternionList) const;
@@ -187,55 +182,8 @@ namespace my
 		//	const Matrix4 & inverseRootTransform = Matrix4::identity);
 	};
 
-	class BoneKeyframe
-		: public Bone
-	{
-	public:
-		float m_time;
-
-	public:
-		BoneKeyframe(void)
-			: m_time(0)
-		{
-		}
-
-		BoneKeyframe(const Quaternion & rotation, const Vector3 & position, float time)
-			: Bone(rotation, position)
-			, m_time(time)
-		{
-		}
-
-		void SetTime(float time)
-		{
-			m_time = time;
-		}
-
-		float GetTime(void) const
-		{
-			return m_time;
-		}
-	};
-
-	class BoneTrack
-		: public std::vector<BoneKeyframe>
-	{
-	public:
-		Bone GetPoseBone(float time) const;
-	};
-
-	class BoneTrackList
-		: public std::vector<BoneTrack>
-	{
-	public:
-		BoneList & GetPose(
-			BoneList & boneList,
-			const BoneHierarchy & boneHierarchy,
-			int root_i,
-			float time) const;
-	};
-
 	class OgreAnimation
-		: public BoneTrackList
+		: public std::map<float, BoneList>
 	{
 	public:
 		float m_time;
@@ -255,6 +203,12 @@ namespace my
 		{
 			return m_time;
 		}
+
+		BoneList & GetPose(
+			BoneList & boneList,
+			const BoneHierarchy & boneHierarchy,
+			int root_i,
+			float time) const;
 	};
 
 	class OgreSkeleton
