@@ -112,7 +112,7 @@ void LocalPlayer::Create(void)
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&LocalPlayer::OnJoystickBtnUp, this, _1);
 	}
 
-	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.05f)), false));
+	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
 	m_MeshCmp->m_lods.resize(1);
 	m_MeshCmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 	MaterialPtr lambert1(new Material());
@@ -163,7 +163,7 @@ void LocalPlayer::Update(float fElapsedTime)
 
 	Quaternion rot = Quaternion::RotationYawPitchRoll(m_FaceAngleInerp,0,0);
 	Vector3 pos = getPosition() + Vector3(0,-0.75f,0);
-	m_MeshCmp->m_World = Matrix4::Compose(Vector3(0.0085f,0.0085f,0.0085f), rot, pos);
+	m_MeshCmp->m_World = Matrix4::Compose(Vector3(0.01f,0.01f,0.01f), rot, pos);
 	Game::getSingleton().m_Root.RemoveComponent(m_MeshCmp.get());
 	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 

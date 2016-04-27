@@ -151,6 +151,23 @@ public:
 			m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_Logic->m_cmps[i].get())), 0.1f);
 		}
 
+		MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
+		mesh_cmp->m_lods.resize(1);
+		mesh_cmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
+		MaterialPtr lambert1(new Material());
+		lambert1->m_Shader = "lambert1.fx";
+		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		lambert1->m_MeshColor = Vector4(1,1,1,1);
+		lambert1->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
+		lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
+		lambert1->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
+		mesh_cmp->m_MaterialList.push_back(lambert1);
+		SimpleAnimatorPtr anim(new SimpleAnimator());
+		anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
+		mesh_cmp->m_Animator = anim;
+		m_Logic->m_cmps.push_back(mesh_cmp);
+		m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+
 		return S_OK;
 	}
 

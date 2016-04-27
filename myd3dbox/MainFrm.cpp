@@ -767,6 +767,7 @@ void CMainFrame::OnEditDelete()
 	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	{
 		m_Root.RemoveComponent(*cmp_iter);
+		m_ViewedCmps.erase(*cmp_iter);
 		ComponentPtrList::iterator cmp_ptr_iter = m_cmps.begin();
 		for (; cmp_ptr_iter != m_cmps.end(); cmp_ptr_iter++)
 		{

@@ -41,6 +41,13 @@ void SimpleAnimator::Update(float fElapsedTime)
 				animPoseHier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
 		}
 		m_DualQuats.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		bindPoseHier.BuildDualQuaternionList(m_DualQuats, animPoseHier);
+		//bindPoseHier.BuildDualQuaternionList(m_DualQuats, animPoseHier);
+		BoneList finalPose(bindPoseHier.size());
+		for (size_t i = 0; i < bindPoseHier.size(); i++)
+		{
+			finalPose[i].m_rotation = bindPoseHier[i].m_rotation.conjugate() * animPoseHier[i].m_rotation;
+			finalPose[i].m_position = (-bindPoseHier[i].m_position).transform(finalPose[i].m_rotation) + animPoseHier[i].m_position;
+		}
+		finalPose.BuildDualQuaternionList(m_DualQuats);
 	}
 }
