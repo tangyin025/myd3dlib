@@ -121,7 +121,7 @@ namespace my
 		{
 		}
 
-		BoneList & Copy(
+		BoneList & CopyTo(
 			BoneList & boneList,
 			const BoneHierarchy & boneHierarchy,
 			int root_i) const;

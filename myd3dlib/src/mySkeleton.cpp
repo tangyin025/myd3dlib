@@ -148,7 +148,7 @@ Matrix4 Bone::BuildInverseTransform(void) const
 	return Matrix4::Translation(-m_position) * Matrix4::RotationQuaternion(m_rotation.conjugate());
 }
 
-BoneList & BoneList::Copy(
+BoneList & BoneList::CopyTo(
 	BoneList & boneList,
 	const BoneHierarchy & boneHierarchy,
 	int root_i) const
@@ -160,7 +160,7 @@ BoneList & BoneList::Copy(
 	int node_i = boneHierarchy[root_i].m_child;
 	for(; node_i >= 0; node_i = boneHierarchy[node_i].m_sibling)
 	{
-		Copy(boneList, boneHierarchy, node_i);
+		CopyTo(boneList, boneHierarchy, node_i);
 	}
 
 	return boneList;
@@ -384,26 +384,21 @@ BoneList & OgreAnimation::GetPose(
 {
 	_ASSERT(!empty());
 
-	const_iterator iter = begin();
-	if(time < iter->first)
+	const_iterator iter = lower_bound(time);
+	if (iter == begin() || iter->first == time)
 	{
-		iter->second.Copy(boneList, boneHierarchy, root_i);
+		iter->second.CopyTo(boneList, boneHierarchy, root_i);
 		return boneList;
 	}
 
-	const_iterator prev_iter = iter;
-	iter++;
-	for(; iter != end(); iter++)
+	if (iter == end())
 	{
-		if(time < iter->first)
-		{
-			prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
-			return boneList;
-		}
-		prev_iter = iter;
+		rbegin()->second.CopyTo(boneList, boneHierarchy, root_i);
+		return boneList;
 	}
 
-	rbegin()->second.Copy(boneList, boneHierarchy, root_i);
+	const_reverse_iterator prev_iter(iter);
+	prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
 	return boneList;
 }
 
