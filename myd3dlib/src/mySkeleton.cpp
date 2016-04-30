@@ -385,20 +385,20 @@ BoneList & OgreAnimation::GetPose(
 	_ASSERT(!empty());
 
 	const_iterator iter = lower_bound(time);
-	if (iter == begin() || iter->first == time)
+	if (iter != begin())
 	{
-		iter->second.CopyTo(boneList, boneHierarchy, root_i);
-		return boneList;
-	}
+		if (iter != end())
+		{
+			const_reverse_iterator prev_iter(iter);
+			prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
+			return boneList;
+		}
 
-	if (iter == end())
-	{
 		rbegin()->second.CopyTo(boneList, boneHierarchy, root_i);
 		return boneList;
 	}
 
-	const_reverse_iterator prev_iter(iter);
-	prev_iter->second.Lerp(boneList, iter->second, boneHierarchy, root_i, (time - prev_iter->first) / (iter->first - prev_iter->first));
+	iter->second.CopyTo(boneList, boneHierarchy, root_i);
 	return boneList;
 }
 
