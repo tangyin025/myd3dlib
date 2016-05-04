@@ -1,6 +1,12 @@
 #include "StdAfx.h"
 #include "Logic.h"
 #include "../Game.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/vector.hpp>
+#include <fstream>
 
 using namespace my;
 
@@ -14,8 +20,15 @@ Logic::~Logic(void)
 
 void Logic::Create(void)
 {
+	std::ifstream istr("aaa.xml");
+	boost::archive::xml_iarchive ia(istr);
+	ia >> boost::serialization::make_nvp("level", m_cmps);
+	for (unsigned int i = 0; i < m_cmps.size(); i++)
+	{
+		Game::getSingleton().m_Root.AddComponent(m_cmps[i].get(), m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_cmps[i].get())), 0.1f);
+	}
+
 	m_player.reset(new LocalPlayer());
-	m_player->Create();
 }
 
 void Logic::Update(float fElapsedTime)
@@ -30,7 +43,6 @@ void Logic::Update(float fElapsedTime)
 
 void Logic::Destroy(void)
 {
-	m_player->Destroy();
 	m_player.reset();
 	m_cmps.clear();
 }

@@ -186,22 +186,14 @@ namespace my
 		: public std::map<float, BoneList>
 	{
 	public:
-		float m_time;
-
-	public:
 		OgreAnimation(void)
-			: m_time(0)
 		{
-		}
-
-		void SetTime(float time)
-		{
-			m_time = time;
 		}
 
 		float GetTime(void) const
 		{
-			return m_time;
+			_ASSERT(!empty());
+			return rbegin()->first;
 		}
 
 		BoneList & GetPose(

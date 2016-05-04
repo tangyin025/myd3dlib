@@ -143,13 +143,13 @@ public:
 		// ¶ÁÈ¡³¡¾°
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
-		std::ifstream istr("aaa.xml");
-		boost::archive::xml_iarchive ia(istr);
-		ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
-		for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
-		{
-			m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_Logic->m_cmps[i].get())), 0.1f);
-		}
+		//std::ifstream istr("aaa.xml");
+		//boost::archive::xml_iarchive ia(istr);
+		//ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
+		//for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
+		//{
+		//	m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_Logic->m_cmps[i].get())), 0.1f);
+		//}
 
 		MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
 		mesh_cmp->m_lods.resize(1);
@@ -162,8 +162,13 @@ public:
 		lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
 		lambert1->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
 		mesh_cmp->m_MaterialList.push_back(lambert1);
-		SimpleAnimatorPtr anim(new SimpleAnimator());
+		AnimatorPtr anim(new Animator());
 		anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
+		AnimationNodeSequencePtr node(new AnimationNodeSequence());
+		node->m_Name = "walk";
+		node->m_Root = "Bip01";
+		anim->m_Node = node;
+		node->m_Owner = anim.get();
 		mesh_cmp->m_Animator = anim;
 		m_Logic->m_cmps.push_back(mesh_cmp);
 		m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);

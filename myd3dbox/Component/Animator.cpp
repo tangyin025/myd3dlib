@@ -9,30 +9,108 @@
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(AnimationNode)
+
+AnimationNode::AnimationNode(void)
+	: m_Owner(NULL)
+{
+}
+
+AnimationNode::~AnimationNode(void)
+{
+}
+
+void AnimationNode::SetOwner(Animator * Owner)
+{
+	m_Owner = Owner;
+}
+
+void AnimationNode::Advance(float duration)
+{
+}
+
+my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
+{
+	return pose;
+}
+
 BOOST_CLASS_EXPORT(Animator)
 
-BOOST_CLASS_EXPORT(SimpleAnimator)
+Animator::Animator(void)
+	: m_Character(NULL)
+{
+}
 
-void SimpleAnimator::Update(float fElapsedTime)
+Animator::~Animator(void)
+{
+}
+
+template<>
+void Animator::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_SkeletonRes);
+	ar << BOOST_SERIALIZATION_NVP(m_Node);
+}
+
+template<>
+void Animator::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_SkeletonRes);
+	ar >> BOOST_SERIALIZATION_NVP(m_Node);
+	m_Node->SetOwner(this);
+}
+
+void Animator::RequestResource(void)
+{
+	m_SkeletonRes.RequestResource();
+}
+
+void Animator::ReleaseResource(void)
+{
+	m_SkeletonRes.ReleaseResource();
+}
+
+void Animator::Update(float fElapsedTime)
 {
 	if (m_SkeletonRes.m_Res)
 	{
-		OgreSkeletonAnimation::OgreAnimationNameMap::const_iterator anim_iter = m_SkeletonRes.m_Res->m_animationMap.begin();
-		if (anim_iter == m_SkeletonRes.m_Res->m_animationMap.end())
-		{
-			return;
-		}
-
-		m_Time = fmod(m_Time + fElapsedTime, m_SkeletonRes.m_Res->GetAnimation(anim_iter->first).GetTime());;
-
-		BoneList animPose(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		my::BoneIndexSet::const_iterator root_iter = m_SkeletonRes.m_Res->m_boneRootSet.begin();
-		for (; root_iter != m_SkeletonRes.m_Res->m_boneRootSet.end(); root_iter++)
-		{
-			m_SkeletonRes.m_Res->BuildAnimationPose(
-				animPose, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, anim_iter->first, m_Time);
-		}
+		m_Node->Advance(fElapsedTime);
+		BoneList pose(m_SkeletonRes.m_Res->m_boneBindPose.size());
+		m_Node->GetPose(pose);
 		m_DualQuats.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		animPose.BuildDualQuaternionList(m_DualQuats);
+		pose.BuildDualQuaternionList(m_DualQuats);
 	}
+}
+
+BOOST_CLASS_EXPORT(AnimationNodeSequence)
+
+AnimationNodeSequence::AnimationNodeSequence(void)
+	: m_Time(0)
+{
+}
+
+AnimationNodeSequence::~AnimationNodeSequence(void)
+{
+}
+
+void AnimationNodeSequence::Advance(float fElapsedTime)
+{
+	if (m_Owner->m_SkeletonRes.m_Res)
+	{
+		m_Time = fmod(m_Time + fElapsedTime, m_Owner->m_SkeletonRes.m_Res->GetAnimation(m_Name).GetTime());
+	}
+}
+
+my::BoneList & AnimationNodeSequence::GetPose(my::BoneList & pose) const
+{
+	if (m_Owner->m_SkeletonRes.m_Res)
+	{
+		boost::unordered_map<std::string, int>::const_iterator root_iter = m_Owner->m_SkeletonRes.m_Res->m_boneNameMap.find(m_Root);
+		if (root_iter != m_Owner->m_SkeletonRes.m_Res->m_boneNameMap.end())
+		{
+			m_Owner->m_SkeletonRes.m_Res->BuildAnimationPose(
+				pose, m_Owner->m_SkeletonRes.m_Res->m_boneHierarchy, root_iter->second, m_Name, m_Time);
+		}
+	}
+	return pose;
 }

@@ -16,13 +16,11 @@ public:
 
 	virtual ~Character(void);
 
-	virtual void Create(void);
+	void CreateController(void);
 
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnPxThreadSubstep(float dtime);
-
-	virtual void Destroy(void);
 
 	virtual void onShapeHit(const PxControllerShapeHit& hit);
 
@@ -69,11 +67,11 @@ public:
 public:
 	LocalPlayer(void);
 
-	virtual void Create(void);
+	~LocalPlayer(void);
+
+	void CreateMeshComponent(void);
 
 	virtual void Update(float fElapsedTime);
-
-	virtual void Destroy(void);
 
 	void OnMouseMove(my::InputEventArg * arg);
 

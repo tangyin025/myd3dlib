@@ -523,7 +523,6 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		OgreAnimation & anim = m_animationMap[attr_name->value()];
 
 		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
-		anim.m_time = length;
 
 		DEFINE_XML_NODE_SIMPLE(tracks, animation);
 		DEFINE_XML_NODE_SIMPLE(track, tracks);

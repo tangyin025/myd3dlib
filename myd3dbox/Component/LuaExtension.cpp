@@ -945,9 +945,6 @@ static void ExportComponent(lua_State * L)
 		, class_<Animator, boost::shared_ptr<Animator> >("Animator")
 			.def_readonly("SkeletonRes", &Animator::m_SkeletonRes)
 
-		, class_<SimpleAnimator, Animator, boost::shared_ptr<Animator> >("SimpleAnimator")
-			.def(constructor<>())
-
 		, class_<Material, boost::shared_ptr<Material> >("Material")
 			.enum_("PassMask")
 			[

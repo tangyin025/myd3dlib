@@ -7,14 +7,17 @@ using namespace my;
 Character::Character(void)
 	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), 1, 0.8f)
 {
+	Game::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+	CreateController();
 }
 
 Character::~Character(void)
 {
-	_ASSERT(!m_controller);
+	Game::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+	m_controller.reset();
 }
 
-void Character::Create(void)
+void Character::CreateController(void)
 {
 	PxCapsuleControllerDesc cDesc;
 	cDesc.radius = 0.15f;
@@ -25,8 +28,6 @@ void Character::Create(void)
 	cDesc.behaviorCallback = this;
 	m_controller.reset(
 		Game::getSingleton().m_ControllerMgr->createController(*Game::getSingleton().m_sdk, Game::getSingleton().m_PxScene.get(), cDesc));
-
-	Game::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::Update(float fElapsedTime)
@@ -39,13 +40,6 @@ void Character::OnPxThreadSubstep(float dtime)
 	velocity.y = velocity.y + PhysXContext::Gravity.y * dtime;
 	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
 	setPosition((Vector3&)toVec3(m_controller->getPosition()));
-}
-
-void Character::Destroy(void)
-{
-	m_controller.reset();
-
-	Game::getSingleton().m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::onShapeHit(const PxControllerShapeHit& hit)
@@ -92,12 +86,6 @@ LocalPlayer::LocalPlayer(void)
 	, m_InputLtRt(0)
 	, m_InputUpDn(0)
 {
-}
-
-void LocalPlayer::Create(void)
-{
-	Player::Create();
-
 	Game::getSingleton().m_MouseMovedEvent = boost::bind(&LocalPlayer::OnMouseMove, this, _1);
 	Game::getSingleton().m_MousePressedEvent = boost::bind(&LocalPlayer::OnMouseBtnDown, this, _1);
 	Game::getSingleton().m_MouseReleasedEvent = boost::bind(&LocalPlayer::OnMouseBtnUp, this, _1);
@@ -112,9 +100,30 @@ void LocalPlayer::Create(void)
 		Game::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&LocalPlayer::OnJoystickBtnUp, this, _1);
 	}
 
-	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
-	m_MeshCmp->m_lods.resize(1);
-	m_MeshCmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
+	CreateMeshComponent();
+}
+
+LocalPlayer::~LocalPlayer(void)
+{
+	Game::getSingleton().m_MouseMovedEvent.clear();
+	Game::getSingleton().m_MousePressedEvent.clear();
+	Game::getSingleton().m_MouseReleasedEvent.clear();
+	Game::getSingleton().m_KeyPressedEvent.clear();
+	Game::getSingleton().m_KeyReleasedEvent.clear();
+
+	if (Game::getSingleton().m_joystick)
+	{
+		Game::getSingleton().m_joystick->m_AxisMovedEvent.clear();
+		Game::getSingleton().m_joystick->m_PovMovedEvent.clear();
+		Game::getSingleton().m_joystick->m_BtnPressedEvent.clear();
+		Game::getSingleton().m_joystick->m_BtnReleasedEvent.clear();
+	}
+
+	m_MeshCmp.reset();
+}
+
+void LocalPlayer::CreateMeshComponent(void)
+{
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
@@ -122,8 +131,23 @@ void LocalPlayer::Create(void)
 	lambert1->m_MeshTexture.m_Path = "texture/casual19_m_35.jpg";
 	lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
 	lambert1->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
+
+	AnimationNodeSequencePtr node(new AnimationNodeSequence());
+	node->m_Name = "walk";
+	node->m_Root = "Bip01";
+
+	AnimatorPtr anim(new Animator());
+	anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
+	anim->m_Node = node;
+	anim->m_Character = this;
+	node->SetOwner(anim.get());
+
+	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
+	m_MeshCmp->m_lods.resize(1);
+	m_MeshCmp->m_lods[0].m_MeshRes.m_Path = "mesh/casual19_m_highpoly.mesh.xml";
 	m_MeshCmp->m_MaterialList.push_back(lambert1);
-	m_MeshCmp->RequestResource();
+	m_MeshCmp->m_Animator = anim;
+
 	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 }
 
@@ -168,27 +192,6 @@ void LocalPlayer::Update(float fElapsedTime)
 	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 
 	Game::getSingleton().m_SkyLightCam->m_Eye = pos;
-}
-
-void LocalPlayer::Destroy(void)
-{
-	Game::getSingleton().m_MouseMovedEvent.clear();
-	Game::getSingleton().m_MousePressedEvent.clear();
-	Game::getSingleton().m_MouseReleasedEvent.clear();
-	Game::getSingleton().m_KeyPressedEvent.clear();
-	Game::getSingleton().m_KeyReleasedEvent.clear();
-
-	if (Game::getSingleton().m_joystick)
-	{
-		Game::getSingleton().m_joystick->m_AxisMovedEvent.clear();
-		Game::getSingleton().m_joystick->m_PovMovedEvent.clear();
-		Game::getSingleton().m_joystick->m_BtnPressedEvent.clear();
-		Game::getSingleton().m_joystick->m_BtnReleasedEvent.clear();
-	}
-
-	m_MeshCmp.reset();
-
-	Player::Destroy();
 }
 
 void LocalPlayer::OnMouseMove(InputEventArg * arg)
