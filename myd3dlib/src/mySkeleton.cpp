@@ -117,7 +117,7 @@ Bone Bone::Increment(const Bone & rhs) const
 		m_position + rhs.m_position);
 }
 
-Bone Bone::IncrementSelf(const Bone & rhs)
+Bone & Bone::IncrementSelf(const Bone & rhs)
 {
 	m_rotation *= rhs.m_rotation;
 	m_position += rhs.m_position;
@@ -131,7 +131,7 @@ Bone Bone::Lerp(const Bone & rhs, float t) const
 		m_position.lerp(rhs.m_position, t));
 }
 
-Bone Bone::LerpSelf(const Bone & rhs, float t)
+Bone & Bone::LerpSelf(const Bone & rhs, float t)
 {
 	m_rotation.slerpSelf(rhs.m_rotation, t);
 	m_position.lerpSelf(rhs.m_position, t);
@@ -539,9 +539,9 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			for(; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
 			{
 				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
-				BoneList & bones = anim[time];
-				bones.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
-				Bone & bone = bones[m_boneNameMap[attr_bone->value()]];
+				BoneList & pose = anim[time];
+				pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
+				Bone & bone = pose[m_boneNameMap[attr_bone->value()]];
 
 				rapidxml::xml_attribute<char> * attr_translate_x, * attr_translate_y, * attr_translate_z;
 				float translate_x, translate_y, translate_z;
@@ -603,18 +603,19 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 		OgreAnimation::iterator anim_iter = name_iter->second.begin();
 		for (; anim_iter != name_iter->second.end(); anim_iter++)
 		{
-			BoneList & bones = anim_iter->second;
+			BoneList & pose = anim_iter->second;
 			BoneList anim_pose(m_boneHierarchy.size());
 			root_iter = m_boneRootSet.begin();
 			for (; root_iter != m_boneRootSet.end(); root_iter++)
 			{
-				bones.IncrementSelf(m_boneBindPose, m_boneHierarchy, *root_iter);
-				bones.BuildHierarchyBoneList(anim_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
+				pose[*root_iter].m_position = Vector3::zero; // ! freeze root pose
+				pose.IncrementSelf(m_boneBindPose, m_boneHierarchy, *root_iter);
+				pose.BuildHierarchyBoneList(anim_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
 			}
 			for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
 			{
-				bones[bone_i].m_rotation = bind_pose[bone_i].m_rotation.conjugate() * anim_pose[bone_i].m_rotation;
-				bones[bone_i].m_position = (-bind_pose[bone_i].m_position).transform(bones[bone_i].m_rotation) + anim_pose[bone_i].m_position;
+				pose[bone_i].m_rotation = bind_pose[bone_i].m_rotation.conjugate() * anim_pose[bone_i].m_rotation;
+				pose[bone_i].m_position = (-bind_pose[bone_i].m_position).transform(pose[bone_i].m_rotation) + anim_pose[bone_i].m_position;
 			}
 		}
 	}
@@ -654,16 +655,12 @@ void OgreSkeletonAnimation::Clear(void)
 	m_animationMap.clear();
 }
 
-const OgreAnimation & OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
+const OgreAnimation * OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
 {
-	_ASSERT(m_animationMap.end() != m_animationMap.find(anim_name));
-
-	return m_animationMap.find(anim_name)->second;
-}
-
-BoneList & OgreSkeletonAnimation::BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const
-{
-	_ASSERT(pose.size() >= m_boneBindPose.size());
-
-	return GetAnimation(anim_name).GetPose(pose, boneHierarchy, root_i, time);
+	OgreAnimationNameMap::const_iterator anim_iter = m_animationMap.find(anim_name);
+	if (anim_iter != m_animationMap.end())
+	{
+		return &anim_iter->second;
+	}
+	return NULL;
 }

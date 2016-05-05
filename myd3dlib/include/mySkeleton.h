@@ -92,11 +92,11 @@ namespace my
 
 		Bone Increment(const Bone & rhs) const;
 
-		Bone IncrementSelf(const Bone & rhs);
+		Bone & IncrementSelf(const Bone & rhs);
 
 		Bone Lerp(const Bone & rhs, float t) const;
 
-		Bone LerpSelf(const Bone & rhs, float t);
+		Bone & LerpSelf(const Bone & rhs, float t);
 
 		Matrix4 BuildTransform(void) const;
 
@@ -261,9 +261,7 @@ namespace my
 
 		void Clear(void);
 
-		const OgreAnimation & GetAnimation(const std::string & anim_name) const;
-
-		BoneList & BuildAnimationPose(BoneList & pose, const BoneHierarchy & boneHierarchy, int root_i, const std::string & anim_name, float time) const;
+		const OgreAnimation * GetAnimation(const std::string & anim_name) const;
 	};
 
 	typedef boost::shared_ptr<OgreSkeletonAnimation> OgreSkeletonAnimationPtr;

@@ -21,7 +21,7 @@ public:
 
 	virtual void SetOwner(Animator * Owner);
 
-	virtual void Advance(float duration);
+	virtual void Advance(float fElapsedTime);
 
 	virtual my::BoneList & GetPose(my::BoneList & pose) const;
 };
@@ -95,3 +95,67 @@ public:
 };
 
 typedef boost::shared_ptr<AnimationNodeSequence> AnimationNodeSequencePtr;
+
+class AnimationNodeBlend : public AnimationNode
+{
+public:
+	typedef boost::array<AnimationNodePtr, 2> AnimationNodePtrArray;
+
+	AnimationNodePtrArray m_Childs;
+
+	float m_BlendTime;
+
+	float m_Weight;
+
+	float m_TargetWeight;
+
+	unsigned int m_ActiveChild;
+
+public:
+	AnimationNodeBlend(void);
+
+	~AnimationNodeBlend(void);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNode);
+		ar & BOOST_SERIALIZATION_NVP(m_Childs);
+		ar & BOOST_SERIALIZATION_NVP(m_BlendTime);
+		ar & BOOST_SERIALIZATION_NVP(m_Weight);
+		ar & BOOST_SERIALIZATION_NVP(m_TargetWeight);
+		ar & BOOST_SERIALIZATION_NVP(m_ActiveChild);
+	}
+
+	void SetActiveChild(unsigned int ActiveChild, float BlendTime);
+
+	virtual void SetOwner(Animator * Owner);
+
+	virtual void Advance(float fElapsedTime);
+
+	virtual my::BoneList & GetPose(my::BoneList & pose) const;
+};
+
+typedef boost::shared_ptr<AnimationNodeBlend> AnimationNodeBlendPtr;
+
+class AnimationNodeBlendBySpeed : public AnimationNodeBlend
+{
+public:
+	float m_Speed0;
+
+public:
+	AnimationNodeBlendBySpeed(void);
+
+	~AnimationNodeBlendBySpeed(void);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(AnimationNodeBlend);
+		ar & BOOST_SERIALIZATION_NVP(m_Speed0);
+	}
+
+	virtual void Advance(float fElapsedTime);
+};
+
+typedef boost::shared_ptr<AnimationNodeBlendBySpeed> AnimationNodeBlendBySpeedPtr;

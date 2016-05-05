@@ -11,6 +11,13 @@ class Character
 public:
 	PhysXPtr<PxController> m_controller;
 
+	enum HitState
+	{
+		HitStateGround	= 0x01,
+	};
+
+	unsigned int m_HitState;
+
 public:
 	Character(void);
 

@@ -6,6 +6,7 @@ using namespace my;
 
 Character::Character(void)
 	: Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector3(0,0,0), 1, 0.8f)
+	, m_HitState(0)
 {
 	Game::getSingleton().m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 	CreateController();
@@ -38,6 +39,7 @@ void Character::OnPxThreadSubstep(float dtime)
 {
 	// 注意，多线程调用，不要在这里更新模型渲染数据数据
 	velocity.y = velocity.y + PhysXContext::Gravity.y * dtime;
+	m_HitState = 0;
 	m_controller->move((PxVec3&)(velocity * dtime), 0.001f, dtime, PxControllerFilters());
 	setPosition((Vector3&)toVec3(m_controller->getPosition()));
 }
@@ -47,6 +49,7 @@ void Character::onShapeHit(const PxControllerShapeHit& hit)
 	if (hit.worldNormal.y > 0 && hit.worldNormal.y > fabs(hit.worldNormal.x) && hit.worldNormal.y > fabs(hit.worldNormal.z))
 	{
 		velocity.y = 0;
+		m_HitState |= HitStateGround;
 	}
 }
 
@@ -132,15 +135,23 @@ void LocalPlayer::CreateMeshComponent(void)
 	lambert1->m_NormalTexture.m_Path = "texture/casual19_m_35_normal.png";
 	lambert1->m_SpecularTexture.m_Path = "texture/casual19_m_35_spec.png";
 
-	AnimationNodeSequencePtr node(new AnimationNodeSequence());
-	node->m_Name = "walk";
-	node->m_Root = "Bip01";
+	AnimationNodeSequencePtr node_walk(new AnimationNodeSequence());
+	node_walk->m_Name = "walk";
+	node_walk->m_Root = "Bip01";
+
+	AnimationNodeSequencePtr node_idle(new AnimationNodeSequence());
+	node_idle->m_Name = "idle";
+	node_idle->m_Root = "Bip01";
+
+	AnimationNodeBlendBySpeedPtr node_speed(new AnimationNodeBlendBySpeed());
+	node_speed->m_Childs[0] = node_idle;
+	node_speed->m_Childs[1] = node_walk;
 
 	AnimatorPtr anim(new Animator());
 	anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
-	anim->m_Node = node;
+	anim->m_Node = node_speed;
+	anim->m_Node->SetOwner(anim.get());
 	anim->m_Character = this;
-	node->SetOwner(anim.get());
 
 	m_MeshCmp.reset(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
 	m_MeshCmp->m_lods.resize(1);
