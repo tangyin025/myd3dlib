@@ -608,7 +608,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			root_iter = m_boneRootSet.begin();
 			for (; root_iter != m_boneRootSet.end(); root_iter++)
 			{
-				pose[*root_iter].m_position = Vector3::zero; // ! freeze root pose
+				//pose[*root_iter].m_position = Vector3::zero; // ! freeze root pose
 				pose.IncrementSelf(m_boneBindPose, m_boneHierarchy, *root_iter);
 				pose.BuildHierarchyBoneList(anim_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
 			}
