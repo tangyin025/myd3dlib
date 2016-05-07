@@ -18202,6 +18202,7 @@
 			</faces>
 		</submesh>
 	</submeshes>
+	<skeletonlink name="casual19_m_highpoly.skeleton"/>
 	<boneassignments>
 		<vertexboneassignment vertexindex="0" boneindex="17" weight="1"/>
 		<vertexboneassignment vertexindex="1" boneindex="17" weight="1"/>
