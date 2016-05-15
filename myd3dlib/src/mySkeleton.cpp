@@ -589,36 +589,6 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			m_boneRootSet.insert(bone_i);
 		}
 	}
-
-	// convert animation to final bind pose
-	BoneList bind_pose(m_boneHierarchy.size());
-	my::BoneIndexSet::const_iterator root_iter = m_boneRootSet.begin();
-	for (; root_iter != m_boneRootSet.end(); root_iter++)
-	{
-		m_boneBindPose.BuildHierarchyBoneList(bind_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
-	}
-	OgreAnimationNameMap::iterator name_iter = m_animationMap.begin();
-	for (; name_iter != m_animationMap.end(); name_iter++)
-	{
-		OgreAnimation::iterator anim_iter = name_iter->second.begin();
-		for (; anim_iter != name_iter->second.end(); anim_iter++)
-		{
-			BoneList & pose = anim_iter->second;
-			BoneList anim_pose(m_boneHierarchy.size());
-			root_iter = m_boneRootSet.begin();
-			for (; root_iter != m_boneRootSet.end(); root_iter++)
-			{
-				//pose[*root_iter].m_position = Vector3::zero; // ! freeze root pose
-				pose.IncrementSelf(m_boneBindPose, m_boneHierarchy, *root_iter);
-				pose.BuildHierarchyBoneList(anim_pose, m_boneHierarchy, *root_iter, Quaternion::identity, Vector3::zero);
-			}
-			for (bone_i = 0; bone_i < m_boneHierarchy.size(); bone_i++)
-			{
-				pose[bone_i].m_rotation = bind_pose[bone_i].m_rotation.conjugate() * anim_pose[bone_i].m_rotation;
-				pose[bone_i].m_position = (-bind_pose[bone_i].m_position).transform(pose[bone_i].m_rotation) + anim_pose[bone_i].m_position;
-			}
-		}
-	}
 }
 
 void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromMemory(

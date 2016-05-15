@@ -76,10 +76,30 @@ void Animator::Update(float fElapsedTime)
 	if (m_SkeletonRes.m_Res)
 	{
 		m_Node->Advance(fElapsedTime);
-		BoneList pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
-		m_Node->GetPose(pose);
+		BoneList anim_pose(m_SkeletonRes.m_Res->m_boneBindPose.size(), Bone(Quaternion::Identity(), Vector3::zero));
+		m_Node->GetPose(anim_pose);
+		BoneList bind_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
+		BoneList anim_pose_hier(m_SkeletonRes.m_Res->m_boneBindPose.size());
+		my::BoneIndexSet::const_iterator root_iter = m_SkeletonRes.m_Res->m_boneRootSet.begin();
+		for (; root_iter != m_SkeletonRes.m_Res->m_boneRootSet.end(); root_iter++)
+		{
+			anim_pose.IncrementSelf(
+				m_SkeletonRes.m_Res->m_boneBindPose, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter);
+
+			m_SkeletonRes.m_Res->m_boneBindPose.BuildHierarchyBoneList(
+				bind_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
+
+			anim_pose.BuildHierarchyBoneList(
+				anim_pose_hier, m_SkeletonRes.m_Res->m_boneHierarchy, *root_iter, Quaternion(0,0,0,1), Vector3(0,0,0));
+		}
+		BoneList final_pose(bind_pose_hier.size());
+		for (size_t i = 0; i < bind_pose_hier.size(); i++)
+		{
+			final_pose[i].m_rotation = bind_pose_hier[i].m_rotation.conjugate() * anim_pose_hier[i].m_rotation;
+			final_pose[i].m_position = (-bind_pose_hier[i].m_position).transform(final_pose[i].m_rotation) + anim_pose_hier[i].m_position;
+		}
 		m_DualQuats.resize(m_SkeletonRes.m_Res->m_boneBindPose.size());
-		pose.BuildDualQuaternionList(m_DualQuats);
+		final_pose.BuildDualQuaternionList(m_DualQuats);
 	}
 }
 
