@@ -21,6 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\D3DSolution.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;$(BOOST_DIR);&quot;$(PHYSX_DIR)Include&quot;;&quot;$(FMOD_DIR)api\inc&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -64,7 +65,7 @@
 				AdditionalOptions="PhysX3DEBUG_x86.lib PhysX3CommonDEBUG_x86.lib PhysX3CookingDEBUG_x86.lib PhysX3ExtensionsDEBUG.lib PhysX3CharacterKinematicDEBUG_x86.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib dbghelp.lib"
 				LinkIncremental="2"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(PHYSX_DIR)Lib\win32&quot;;&quot;$(FMOD_DIR)api\lib&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\lib&quot;"
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				SubSystem="1"
@@ -97,6 +98,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
+			InheritedPropertySheets="..\D3DSolution.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -119,7 +121,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Include&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;$(BOOST_DIR);&quot;$(PHYSX_DIR)Include&quot;;&quot;$(FMOD_DIR)api\inc&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_CONSOLE;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
@@ -141,7 +143,7 @@
 				AdditionalOptions="PhysX3_x86.lib PhysX3Common_x86.lib PhysX3Cooking_x86.lib PhysX3Extensions.lib PhysX3CharacterKinematic_x86.lib Ws2_32.lib fmodex_vc.lib fmod_event.lib"
 				AdditionalDependencies="dxerr.lib dxguid.lib d3d9.lib d3dx9.lib dinput8.lib dsound.lib winmm.lib comctl32.lib imm32.lib version.lib dbghelp.lib"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="&quot;D:\Works\OpenSource\PhysX-3.2.3_PC_SDK_Core\Lib\win32&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\lib&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\lib&quot;"
+				AdditionalLibraryDirectories="&quot;$(PHYSX_DIR)Lib\win32&quot;;&quot;$(FMOD_DIR)api\lib&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\lib&quot;"
 				DelayLoadDLLs=""
 				GenerateDebugInformation="true"
 				SubSystem="1"

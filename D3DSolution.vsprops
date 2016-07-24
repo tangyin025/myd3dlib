@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="gb2312"?>
+<VisualStudioPropertySheet
+	ProjectType="Visual C++"
+	Version="8.00"
+	Name="D3DSolution"
+	>
+	<UserMacro
+		Name="BOOST_DIR"
+		Value="D:\Games\boost_1_54_0\"
+	/>
+	<UserMacro
+		Name="PHYSX_DIR"
+		Value="D:\Games\PhysX-3.2.3_PC_SDK_Core\"
+	/>
+	<UserMacro
+		Name="FMOD_DIR"
+		Value="D:\Games\fmodapi44425win-installer\"
+	/>
+</VisualStudioPropertySheet>

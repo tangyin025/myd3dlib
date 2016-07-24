@@ -21,6 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\D3DSolution.vsprops"
 			CharacterSet="1"
 			>
 			<Tool
@@ -41,7 +42,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;$(BOOST_DIR);&quot;$(FMOD_DIR)api\inc&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_LIB;BOOST_ALL_NO_LIB"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -83,6 +84,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="4"
+			InheritedPropertySheets="..\..\D3DSolution.vsprops"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -105,7 +107,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;D:\Works\OpenSource\boost_1_54_0;&quot;D:\Works\OpenSource\fmodapi44425win-installer\api\inc&quot;;&quot;D:\Works\OpenSource\fmodapi44425win-installer\fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)myd3dlib\include&quot;;$(BOOST_DIR);&quot;$(FMOD_DIR)api\inc&quot;;&quot;$(FMOD_DIR)fmoddesignerapi\api\inc&quot;;&quot;$(SolutionDir)zlib\include&quot;;&quot;$(SolutionDir)zziplib\include&quot;;&quot;$(SolutionDir)freetype\include&quot;;&quot;$(SolutionDir)lua51\include&quot;;&quot;$(SolutionDir)luabind\include&quot;;&quot;$(SolutionDir)Opcode&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_LIB;BOOST_ALL_NO_LIB"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
