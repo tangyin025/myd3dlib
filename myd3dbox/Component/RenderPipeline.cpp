@@ -274,6 +274,7 @@ void RenderPipeline::OnFrameRender(
 	}
 
 	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
+	V(pd3dDevice->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID));
 	V(pd3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
