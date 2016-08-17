@@ -16,4 +16,8 @@
 		Name="FMOD_DIR"
 		Value="D:\Games\fmodapi44425win-installer\"
 	/>
+	<UserMacro
+		Name="MAYA_DIR"
+		Value="C:\Program Files\Autodesk\Maya2009\"
+	/>
 </VisualStudioPropertySheet>
