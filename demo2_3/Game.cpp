@@ -708,6 +708,8 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 				return "MeshSkeleton.fx";
 			case RenderPipeline::MeshTypeParticle:
 				return "MeshParticle.fx";
+			case RenderPipeline::MeshTypeTerrain:
+				return "MeshTerrain.fx";
 			}
 			return "MeshStatic.fx";
 		}

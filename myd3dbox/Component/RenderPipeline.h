@@ -10,6 +10,7 @@ public:
 		MeshTypeStatic			= 0,
 		MeshTypeAnimation		= 1,
 		MeshTypeParticle		= 2,
+		MeshTypeTerrain			= 3,
 		MeshTypeNum
 	};
 

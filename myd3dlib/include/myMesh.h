@@ -54,15 +54,15 @@ namespace my
 		void InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);
 
 		template <typename ElementType>
-		ElementType & GetVertexValue(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex) const
+		ElementType * GetVertexValue(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex) const
 		{
-			return *(ElementType *)((unsigned char *)pVertex + elems[Usage][UsageIndex].Offset);
+			return (ElementType *)((unsigned char *)pVertex + elems[Usage][UsageIndex].Offset);
 		}
 
 		template <typename ElementType>
 		void SetVertexValue(void * pVertex, D3DDECLUSAGE Usage, BYTE UsageIndex, const ElementType & Value) const
 		{
-			GetVertexValue<ElementType>(pVertex, Usage, UsageIndex) = Value;
+			*GetVertexValue<ElementType>(pVertex, Usage, UsageIndex) = Value;
 		}
 
 		std::vector<D3DVERTEXELEMENT9> BuildVertexElementList(WORD Stream) const;

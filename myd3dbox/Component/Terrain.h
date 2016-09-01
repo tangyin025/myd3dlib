@@ -19,8 +19,6 @@ public:
 
 	unsigned char m_lod;
 
-	my::VertexBuffer m_vb;
-
 public:
 	TerrainChunk(Terrain * Owner, int Row, int Column);
 
@@ -36,11 +34,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
 
-	void CreateVertices(void);
-
 	void UpdateVertices(void);
-
-	void DestroyVertices(void);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -61,9 +55,9 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 8;
+	static const DWORD m_RowChunks = 1;
 
-	static const DWORD m_ColChunks = 8;
+	static const DWORD m_ColChunks = 1;
 
 	static const DWORD m_ChunkRows = 64;
 
@@ -101,6 +95,8 @@ public:
 	DWORD m_VertexStride;
 
 	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	my::VertexBuffer m_vb;
 
 	struct Fragment
 	{
@@ -179,6 +175,10 @@ public:
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void CreateVertices(void);
+
+	virtual void UpdateVertices(void);
 
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 

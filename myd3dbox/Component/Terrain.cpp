@@ -36,64 +36,21 @@ TerrainChunk::TerrainChunk(void)
 
 TerrainChunk::~TerrainChunk(void)
 {
-	_ASSERT(!m_vb.m_ptr);
-}
-
-void TerrainChunk::CreateVertices(void)
-{
-	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-	m_vb.CreateVertexBuffer(pd3dDevice, Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_Owner->m_VertexStride, 0, 0, D3DPOOL_MANAGED);
-	UpdateVertices();
 }
 
 void TerrainChunk::UpdateVertices(void)
 {
-	VOID * pVertices = m_vb.Lock(0, 0, 0);
-	if (pVertices)
+	m_aabb = AABB::Invalid();
+	for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
 	{
-		m_aabb = AABB::Invalid();
-		for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
+		const int row_i = m_Row * (Terrain::VertexArray2D::static_size - 1) + i;
+		for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
 		{
-			const int row_i = m_Row * (Terrain::VertexArray2D::static_size - 1) + i;
-			for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
-			{
-				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertTable[i][j] * m_Owner->m_VertexStride;
-				const int col_i = m_Column * (Terrain::VertexArray::static_size - 1) + j;
-				Vector3 & Pos = m_Owner->m_VertexElems.GetPosition(pVertex);
-				Pos = m_Owner->GetSamplePos(row_i, col_i);
-
-				Vector3 & Normal = m_Owner->m_VertexElems.GetNormal(pVertex);
-				const Vector3 Dirs[4] = {
-					m_Owner->GetSamplePos(row_i, col_i - 1) - Pos,
-					m_Owner->GetSamplePos(row_i - 1, col_i) - Pos,
-					m_Owner->GetSamplePos(row_i, col_i + 1) - Pos,
-					m_Owner->GetSamplePos(row_i + 1, col_i) - Pos,
-				};
-				const Vector3 Nors[4] = {
-					Dirs[0].cross(Dirs[1]).normalize(),
-					Dirs[1].cross(Dirs[2]).normalize(),
-					Dirs[2].cross(Dirs[3]).normalize(),
-					Dirs[3].cross(Dirs[0]).normalize(),
-				};
-				Normal = (Nors[0] + Nors[1] + Nors[2] + Nors[3]).normalize();
-
-				Vector3 & Tangent = m_Owner->m_VertexElems.GetTangent(pVertex);
-				Tangent = Normal.cross(Dirs[2]).normalize();
-
-				Vector2 & Texcoord = m_Owner->m_VertexElems.GetTexcoord(pVertex, 0);
-				Texcoord.x = Lerp<float>(0, m_Owner->m_WrappedU, (float)i / (Terrain::VertexArray2D::static_size - 1));
-				Texcoord.y = Lerp<float>(0, m_Owner->m_WrappedV, (float)j / (Terrain::VertexArray::static_size - 1));
-
-				m_aabb.unionSelf(Pos);
-			}
+			const int col_i = m_Column * (Terrain::VertexArray::static_size - 1) + j;
+			Vector3 Pos = m_Owner->GetSamplePos(row_i, col_i);
+			m_aabb.unionSelf(Pos);
 		}
-		m_vb.Unlock();
 	}
-}
-
-void TerrainChunk::DestroyVertices(void)
-{
-	m_vb.OnDestroyDevice();
 }
 
 template <class T, int N>
@@ -199,6 +156,7 @@ Terrain::~Terrain(void)
 		ReleaseResource();
 	}
 	_ASSERT(!m_Decl);
+	_ASSERT(!m_vb.m_ptr);
 	m_Root.ClearAllComponents();
 }
 
@@ -311,14 +269,8 @@ void Terrain::UpdateShape(void)
 
 void Terrain::CreateElements(void)
 {
-	m_VertexElems.InsertPositionElement(0);
-	WORD offset = sizeof(Vector3);
-	m_VertexElems.InsertNormalElement(offset);
-	offset += sizeof(Vector3);
-	m_VertexElems.InsertTangentElement(offset);
-	offset += sizeof(Vector3);
-	m_VertexElems.InsertTexcoordElement(offset, 0);
-	offset += sizeof(Vector2);
+	m_VertexElems.InsertVertexElement(0, D3DDECLTYPE_UBYTE4, D3DDECLUSAGE_TEXCOORD, 0, D3DDECLMETHOD_DEFAULT);
+	WORD offset = sizeof(unsigned int);
 	m_VertexStride = offset;
 }
 
@@ -562,13 +514,7 @@ void Terrain::RequestResource(void)
 
 	m_Material->RequestResource();
 
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
-	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
-		{
-			m_Chunks[i][j]->CreateVertices();
-		}
-	}
+	CreateVertices();
 
 	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
 }
@@ -576,17 +522,39 @@ void Terrain::RequestResource(void)
 void Terrain::ReleaseResource(void)
 {
 	m_Decl.Release();
+	m_vb.OnDestroyDevice();
 	m_Fragment.clear();
 	m_Material->ReleaseResource();
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
-	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
-		{
-			m_Chunks[i][j]->DestroyVertices();
-		}
-	}
 	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
 	RenderComponent::ReleaseResource();
+}
+
+void Terrain::CreateVertices(void)
+{
+	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
+	m_vb.CreateVertexBuffer(pd3dDevice, Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	UpdateVertices();
+}
+
+void Terrain::UpdateVertices(void)
+{
+	VOID * pVertices = m_vb.Lock(0, 0, 0);
+	if (pVertices)
+	{
+		for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
+		{
+			for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
+			{
+				unsigned char * pVertex = (unsigned char *)pVertices + Terrain::m_VertTable[i][j] * m_VertexStride;
+				unsigned char * pIndices = m_VertexElems.GetVertexValue<unsigned char>(pVertex, D3DDECLUSAGE_TEXCOORD, 0);
+				pIndices[0] = i;
+				pIndices[1] = j;
+				pIndices[2] = 0;
+				pIndices[3] = 0;
+			}
+		}
+		m_vb.Unlock();
+	}
 }
 
 void Terrain::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
@@ -616,6 +584,12 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
+	int Row = LOWORD(AttribId);
+
+	int Column = HIWORD(AttribId);
+
+	TerrainChunk * chunk = m_Chunks[Row][Column].get();
+
 	m_Material->OnSetShader(shader, AttribId);
 }
 
@@ -642,8 +616,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
-			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, chunk->m_vb.m_ptr,
-				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, 0, shader, terrain);
+			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
+				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, MAKELONG(chunk->m_Row, chunk->m_Column), frag.PrimitiveCount, 0, shader, terrain);
 		}
 	};
 
@@ -653,7 +627,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		{
 			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeStatic, false, m_Material.get(), PassID);
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
 				if (shader)
 				{
 					my::Frustum loc_frustum = frustum.transform(m_World.transpose());

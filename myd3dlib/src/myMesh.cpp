@@ -57,7 +57,7 @@ Vector3 & D3DVertexElementSet::GetPosition(void * pVertex, BYTE UsageIndex) cons
 {
 	_ASSERT(elems[D3DDECLUSAGE_POSITION][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
-	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex);
+	return *GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_POSITION, UsageIndex);
 }
 
 void D3DVertexElementSet::SetPosition(void * pVertex, const Vector3 & Position, BYTE UsageIndex) const
@@ -76,7 +76,7 @@ Vector4 & D3DVertexElementSet::GetBlendWeight(void * pVertex, BYTE UsageIndex) c
 {
 	_ASSERT(elems[D3DDECLUSAGE_BLENDWEIGHT][UsageIndex].Type == D3DDECLTYPE_FLOAT4);
 
-	return GetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex);
+	return *GetVertexValue<Vector4>(pVertex, D3DDECLUSAGE_BLENDWEIGHT, UsageIndex);
 }
 
 void D3DVertexElementSet::SetBlendWeight(void * pVertex, const Vector4 & BlendWeight, BYTE UsageIndex) const
@@ -95,7 +95,7 @@ DWORD & D3DVertexElementSet::GetBlendIndices(void * pVertex, BYTE UsageIndex) co
 {
 	_ASSERT(elems[D3DDECLUSAGE_BLENDINDICES][UsageIndex].Type == D3DDECLTYPE_UBYTE4);
 
-	return GetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex);
+	return *GetVertexValue<DWORD>(pVertex, D3DDECLUSAGE_BLENDINDICES, UsageIndex);
 }
 
 void D3DVertexElementSet::SetBlendIndices(void * pVertex, const DWORD & BlendIndices, BYTE UsageIndex) const
@@ -114,7 +114,7 @@ Vector3 & D3DVertexElementSet::GetNormal(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_NORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
-	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex);
+	return *GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_NORMAL, UsageIndex);
 }
 
 void D3DVertexElementSet::SetNormal(void * pVertex, const Vector3 & Normal, BYTE UsageIndex) const
@@ -133,7 +133,7 @@ Vector2 & D3DVertexElementSet::GetTexcoord(void * pVertex, BYTE UsageIndex) cons
 {
 	_ASSERT(elems[D3DDECLUSAGE_TEXCOORD][UsageIndex].Type == D3DDECLTYPE_FLOAT2);
 
-	return GetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex);
+	return *GetVertexValue<Vector2>(pVertex, D3DDECLUSAGE_TEXCOORD, UsageIndex);
 }
 
 void D3DVertexElementSet::SetTexcoord(void * pVertex, const Vector2 & Texcoord, BYTE UsageIndex) const
@@ -152,7 +152,7 @@ Vector3 & D3DVertexElementSet::GetTangent(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_TANGENT][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
-	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex);
+	return *GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_TANGENT, UsageIndex);
 }
 
 void D3DVertexElementSet::SetTangent(void * pVertex, const Vector3 & Tangent, BYTE UsageIndex) const
@@ -171,7 +171,7 @@ Vector3 & D3DVertexElementSet::GetBinormal(void * pVertex, BYTE UsageIndex) cons
 {
 	_ASSERT(elems[D3DDECLUSAGE_BINORMAL][UsageIndex].Type == D3DDECLTYPE_FLOAT3);
 
-	return GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex);
+	return *GetVertexValue<Vector3>(pVertex, D3DDECLUSAGE_BINORMAL, UsageIndex);
 }
 
 void D3DVertexElementSet::SetBinormal(void * pVertex, const Vector3 & Binormal, BYTE UsageIndex) const
@@ -190,7 +190,7 @@ D3DCOLOR & D3DVertexElementSet::GetColor(void * pVertex, BYTE UsageIndex) const
 {
 	_ASSERT(elems[D3DDECLUSAGE_COLOR][UsageIndex].Type == D3DDECLTYPE_D3DCOLOR);
 
-	return GetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex);
+	return *GetVertexValue<D3DCOLOR>(pVertex, D3DDECLUSAGE_COLOR, UsageIndex);
 }
 
 void D3DVertexElementSet::SetColor(void * pVertex, const D3DCOLOR & Color, BYTE UsageIndex) const

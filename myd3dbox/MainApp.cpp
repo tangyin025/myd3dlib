@@ -348,6 +348,8 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bIns
 				return "MeshSkeleton.fx";
 			case RenderPipeline::MeshTypeParticle:
 				return "MeshParticle.fx";
+			case RenderPipeline::MeshTypeTerrain:
+				return "MeshTerrain.fx";
 			}
 			return "MeshStatic.fx";
 		}
