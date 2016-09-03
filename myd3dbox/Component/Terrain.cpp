@@ -123,7 +123,7 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 	, m_WrappedV(WrappedV)
 	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
 {
-	memset(&m_Samples, 0, sizeof(m_Samples));
+	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
@@ -147,10 +147,12 @@ Terrain::Terrain(void)
 	, m_WrappedV(1)
 	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
 {
+	CreateHeightMap();
 }
 
 Terrain::~Terrain(void)
 {
+	m_HeightMap.OnDestroyDevice();
 	if (IsRequested())
 	{
 		ReleaseResource();
@@ -168,21 +170,16 @@ void Terrain::CalcLodDistanceSq(void)
 	}
 }
 
-void Terrain::UpdateSamples(my::Texture2DPtr HeightMap)
+void Terrain::CreateHeightMap(void)
 {
-	D3DSURFACE_DESC desc = HeightMap->GetLevelDesc(0);
-	if (desc.Format == D3DFMT_L8 && desc.Width >= SampleArray2D::static_size && desc.Height >= SampleArray::static_size)
-	{
-		D3DLOCKED_RECT lrc = HeightMap->LockRect(NULL, D3DLOCK_READONLY, 0);
-		for (unsigned int i = 0; i < SampleArray2D::static_size; i++)
-		{
-			for (unsigned int j = 0; j < SampleArray::static_size; j++)
-			{
-				m_Samples[i][j] = *((unsigned char *)lrc.pBits + j * lrc.Pitch + i);
-			}
-		}
-		HeightMap->UnlockRect(0);
-	}
+	m_HeightMap.CreateTexture(
+		my::D3DContext::getSingleton().m_d3dDevice, m_ColChunks * m_ChunkRows, m_RowChunks * m_ChunkRows, 1, 0, D3DFMT_L8);
+}
+
+void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
+{
+	UpdateChunks();
+	UpdateShape();
 }
 
 void Terrain::UpdateChunks(void)
@@ -207,9 +204,19 @@ float Terrain::GetSampleHeight(float x, float z)
 
 float Terrain::GetSampleHeight(int i, int j)
 {
-	int _i = Clamp<int>(i, 0, SampleArray2D::static_size - 1);
-	int _j = Clamp<int>(j, 0, SampleArray::static_size - 1);
-	return m_Samples[_i][_j] * m_HeightScale;
+	int _i = Clamp<int>(i, 0, m_RowChunks * m_ChunkRows);
+	int _j = Clamp<int>(j, 0, m_ColChunks * m_ChunkRows);
+	return GetSampleHeightByte(i, j) * m_HeightScale;
+}
+
+unsigned char Terrain::GetSampleHeightByte(int i, int j)
+{
+	_ASSERT(m_HeightMap.m_ptr);
+	RECT rc = { i, j, i + 1, j + 1 };
+	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(&rc, D3DLOCK_READONLY, 0);
+	unsigned char height = *(unsigned char *)lrc.pBits;
+	m_HeightMap.UnlockRect();
+	return height;
 }
 
 my::Vector3 Terrain::GetSamplePos(int i, int j)
@@ -226,20 +233,20 @@ void Terrain::CreateRigidActor(const my::Matrix4 & World)
 
 void Terrain::CreateHeightField(void)
 {
-	std::vector<PxHeightFieldSample> Samples(SampleArray2D::static_size * SampleArray::static_size);
-	for (unsigned int i = 0; i < SampleArray2D::static_size; i++)
+	std::vector<PxHeightFieldSample> Samples((m_RowChunks * m_ChunkRows + 1) * (m_ColChunks * m_ChunkRows + 1));
+	for (unsigned int i = 0; i < m_RowChunks * m_ChunkRows + 1; i++)
 	{
-		for (unsigned int j = 0; j < SampleArray::static_size; j++)
+		for (unsigned int j = 0; j < m_ColChunks * m_ChunkRows + 1; j++)
 		{
-			Samples[i * SampleArray::static_size + j].height = m_Samples[i][j];
-			Samples[i * SampleArray::static_size + j].materialIndex0 = PxBitAndByte(0, false);
-			Samples[i * SampleArray::static_size + j].materialIndex1 = PxBitAndByte(0, false);
+			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].height = GetSampleHeightByte(i, j);
+			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex0 = PxBitAndByte(0, false);
+			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex1 = PxBitAndByte(0, false);
 		}
 	}
 
 	PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows             = SampleArray2D::static_size;
-	hfDesc.nbColumns          = SampleArray::static_size;
+	hfDesc.nbRows             = m_RowChunks * m_ChunkRows + 1;
+	hfDesc.nbColumns          = m_ColChunks * m_ChunkRows + 1;
 	hfDesc.format             = PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);
@@ -468,7 +475,10 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	ar << boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
+	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, D3DLOCK_READONLY, 0);
+	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)lrc.pBits, BufferSize));
+	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect();
 	ar << BOOST_SERIALIZATION_NVP(m_Chunks);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 }
@@ -484,7 +494,12 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	ar >> boost::serialization::make_nvp("Samples", boost::serialization::binary_object((void *)&m_Samples, sizeof(m_Samples)));
+	Cache cache(m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows);
+	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)&cache[0], cache.size()));
+	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);
+	memcpy(lrc.pBits, &cache[0], cache.size());
+	m_HeightMap.UnlockRect();
 	ar >> BOOST_SERIALIZATION_NVP(m_Chunks);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -584,11 +599,15 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	int Row = LOWORD(AttribId);
+	shader->SetVector("g_TerrainScale", Vector3(m_RowScale, m_HeightScale, m_ColScale));
 
-	int Column = HIWORD(AttribId);
+	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)m_ColChunks * m_ChunkRows, (float)m_RowChunks * m_ChunkRows));
 
-	TerrainChunk * chunk = m_Chunks[Row][Column].get();
+	int ChunkId[3] = { LOWORD(AttribId), HIWORD(AttribId), m_ChunkRows };
+
+	shader->SetIntArray("g_ChunkId", ChunkId, 3);
+
+	shader->SetTexture("g_HeightTexture", &m_HeightMap);
 
 	m_Material->OnSetShader(shader, AttribId);
 }
@@ -617,7 +636,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
 			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
-				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, MAKELONG(chunk->m_Row, chunk->m_Column), frag.PrimitiveCount, 0, shader, terrain);
+				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, MAKELONG(chunk->m_Row, chunk->m_Column), shader, terrain);
 		}
 	};
 

@@ -55,11 +55,11 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 1;
+	static const DWORD m_RowChunks = 2;
 
-	static const DWORD m_ColChunks = 1;
+	static const DWORD m_ColChunks = 3;
 
-	static const DWORD m_ChunkRows = 64;
+	static const DWORD m_ChunkRows = 4;
 
 	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
 
@@ -84,11 +84,7 @@ public:
 
 	float m_WrappedV;
 
-	typedef boost::array<unsigned char, m_ColChunks * m_ChunkRows + 1> SampleArray;
-
-	typedef boost::array<SampleArray, m_RowChunks * m_ChunkRows + 1> SampleArray2D;
-
-	SampleArray2D m_Samples;
+	my::Texture2D m_HeightMap;
 
 	my::D3DVertexElementSet m_VertexElems;
 
@@ -129,13 +125,17 @@ public:
 
 	void CalcLodDistanceSq(void);
 
-	void UpdateSamples(my::Texture2DPtr HeightMap);
+	void CreateHeightMap(void);
+
+	void UpdateHeightMap(my::Texture2DPtr HeightMap);
 
 	void UpdateChunks(void);
 
 	float GetSampleHeight(float x, float z);
 
 	float GetSampleHeight(int i, int j);
+
+	unsigned char GetSampleHeightByte(int i, int j);
 
 	my::Vector3 GetSamplePos(int i, int j);
 

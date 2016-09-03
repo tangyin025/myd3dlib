@@ -1513,9 +1513,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			if (res)
 			{
 				Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-				terrain->UpdateSamples(res);
-				terrain->UpdateChunks();
-				terrain->UpdateShape();
+				terrain->UpdateHeightMap(res);
 				VERIFY(pFrame->m_Root.RemoveComponent(cmp));
 				pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(terrain->m_World), 0.1f);
 				EventArg arg;
