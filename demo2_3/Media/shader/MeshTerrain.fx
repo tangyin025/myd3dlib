@@ -25,7 +25,7 @@ float4 TransformPosWS(VS_INPUT In)
 	float4 pos = float4(
 		g_TerrainScale.x * coord.x,
 		g_TerrainScale.y * tex2Dlod(HeightTextureSampler, float4(
-			coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).r * 255,
+			coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255,
 		g_TerrainScale.z * coord.y, 1.0);
 	return mul(pos, g_World);
 }

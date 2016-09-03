@@ -166,14 +166,15 @@ void Terrain::CalcLodDistanceSq(void)
 {
 	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+		//m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+		m_LodDistanceSq[i] = FLT_MAX;
 	}
 }
 
 void Terrain::CreateHeightMap(void)
 {
 	m_HeightMap.CreateTexture(
-		my::D3DContext::getSingleton().m_d3dDevice, m_ColChunks * m_ChunkRows, m_RowChunks * m_ChunkRows, 1, 0, D3DFMT_L8);
+		my::D3DContext::getSingleton().m_d3dDevice, m_ColChunks * m_ChunkRows, m_RowChunks * m_ChunkRows, 1, 0, D3DFMT_A8R8G8B8);
 }
 
 void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
@@ -187,11 +188,14 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 			RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkRows, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkRows, SrcDesc.Height) };
 			D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
 			D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
-			for (int row = rc.top; row < rc.bottom; row ++)
+			for (int i = rc.top; i < rc.bottom; i++)
 			{
-				memcpy(
-					(unsigned char *)DstLrc.pBits + row * DstLrc.Pitch,
-					(unsigned char *)SrcLrc.pBits + row * SrcLrc.Pitch, rc.right - rc.left);
+				for (int j = rc.left; j < rc.right; j++)
+				{
+					unsigned char height = *((unsigned char *)SrcLrc.pBits + i * SrcLrc.Pitch + j);
+					D3DCOLOR * DstBits = (D3DCOLOR *)((unsigned char *)DstLrc.pBits + i * DstLrc.Pitch + j * sizeof(D3DCOLOR));
+					*DstBits = D3DCOLOR_ARGB(height,0,0,0);
+				}
 			}
 			m_HeightMap.UnlockRect();
 			HeightMap->UnlockRect();
@@ -226,7 +230,7 @@ unsigned char Terrain::GetSampleHeight(int row, int col)
 	col = Clamp<int>(col, 0, m_ColChunks * m_ChunkRows - 1);
 	RECT rc = { col, row, col + 1, row + 1 };
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(&rc, D3DLOCK_READONLY, 0);
-	unsigned char height = *(unsigned char *)lrc.pBits;
+	unsigned char height = ((unsigned char *)lrc.pBits)[3];
 	m_HeightMap.UnlockRect();
 	return height;
 }
@@ -272,7 +276,7 @@ void Terrain::CreateShape(void)
 	PxShape * shape = m_RigidActor->createShape(
 		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale, m_RowScale, m_ColScale),
 		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 }
 
 void Terrain::UpdateShape(void)
@@ -487,7 +491,7 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows * sizeof(D3DCOLOR);
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, D3DLOCK_READONLY, 0);
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)lrc.pBits, BufferSize));
 	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect();
@@ -506,7 +510,7 @@ void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & 
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	Cache cache(m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows);
+	Cache cache(m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows * sizeof(D3DCOLOR));
 	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)&cache[0], cache.size()));
 	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, D3DLOCK_READONLY, 0);

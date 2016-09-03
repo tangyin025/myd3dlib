@@ -55,11 +55,11 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 8;
+	static const DWORD m_RowChunks = 2;
 
-	static const DWORD m_ColChunks = 8;
+	static const DWORD m_ColChunks = 3;
 
-	static const DWORD m_ChunkRows = 64;
+	static const DWORD m_ChunkRows = 4;
 
 	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
 
