@@ -131,13 +131,9 @@ public:
 
 	void UpdateChunks(void);
 
-	float GetSampleHeight(float x, float z);
+	unsigned char GetSampleHeight(int row, int col);
 
-	float GetSampleHeight(int i, int j);
-
-	unsigned char GetSampleHeightByte(int i, int j);
-
-	my::Vector3 GetSamplePos(int i, int j);
+	my::Vector3 GetSamplePos(int row, int col);
 
 	void CreateRigidActor(const my::Matrix4 & World);
 

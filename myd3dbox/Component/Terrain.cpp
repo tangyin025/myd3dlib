@@ -197,31 +197,19 @@ void Terrain::UpdateChunks(void)
 	}
 }
 
-float Terrain::GetSampleHeight(float x, float z)
-{
-	return GetSampleHeight((int)(x / m_RowScale), (int)(z / m_ColScale));
-}
-
-float Terrain::GetSampleHeight(int i, int j)
-{
-	int _i = Clamp<int>(i, 0, m_RowChunks * m_ChunkRows);
-	int _j = Clamp<int>(j, 0, m_ColChunks * m_ChunkRows);
-	return GetSampleHeightByte(i, j) * m_HeightScale;
-}
-
-unsigned char Terrain::GetSampleHeightByte(int i, int j)
+unsigned char Terrain::GetSampleHeight(int row, int col)
 {
 	_ASSERT(m_HeightMap.m_ptr);
-	RECT rc = { i, j, i + 1, j + 1 };
+	RECT rc = { col, row, col + 1, row + 1 };
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(&rc, D3DLOCK_READONLY, 0);
 	unsigned char height = *(unsigned char *)lrc.pBits;
 	m_HeightMap.UnlockRect();
 	return height;
 }
 
-my::Vector3 Terrain::GetSamplePos(int i, int j)
+my::Vector3 Terrain::GetSamplePos(int row, int col)
 {
-	return Vector3(i * m_RowScale, GetSampleHeight(i, j), j * m_ColScale);
+	return Vector3(row * m_RowScale, GetSampleHeight(row, col) * m_HeightScale, col * m_ColScale);
 }
 
 void Terrain::CreateRigidActor(const my::Matrix4 & World)
@@ -238,7 +226,7 @@ void Terrain::CreateHeightField(void)
 	{
 		for (unsigned int j = 0; j < m_ColChunks * m_ChunkRows + 1; j++)
 		{
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].height = GetSampleHeightByte(i, j);
+			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].height = GetSampleHeight(i, j);
 			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex0 = PxBitAndByte(0, false);
 			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex1 = PxBitAndByte(0, false);
 		}
@@ -260,7 +248,7 @@ void Terrain::CreateShape(void)
 	PxShape * shape = m_RigidActor->createShape(
 		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale, m_RowScale, m_ColScale),
 		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 }
 
 void Terrain::UpdateShape(void)
@@ -601,7 +589,7 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetVector("g_TerrainScale", Vector3(m_RowScale, m_HeightScale, m_ColScale));
 
-	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)m_ColChunks * m_ChunkRows, (float)m_RowChunks * m_ChunkRows));
+	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)m_RowChunks * m_ChunkRows, (float)m_ColChunks * m_ChunkRows));
 
 	int ChunkId[3] = { LOWORD(AttribId), HIWORD(AttribId), m_ChunkRows };
 
