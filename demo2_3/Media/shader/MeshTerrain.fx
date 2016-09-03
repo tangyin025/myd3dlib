@@ -21,12 +21,11 @@ sampler HeightTextureSampler = sampler_state
 
 float4 TransformPosWS(VS_INPUT In)
 {
-	int3 coord = int3(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y, 0);
+	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	float height = tex2Dlod(HeightTextureSampler,
+		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255;
 	float4 pos = float4(
-		g_TerrainScale.x * coord.x,
-		g_TerrainScale.y * tex2Dlod(HeightTextureSampler, float4(
-			coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255,
-		g_TerrainScale.z * coord.y, 1.0);
+		g_TerrainScale.x * coord.x, g_TerrainScale.y * height, g_TerrainScale.z * coord.y, 1.0);
 	return mul(pos, g_World);
 }
 
@@ -38,17 +37,25 @@ float4 TransformPos(VS_INPUT In)
 float2 TransformUV(VS_INPUT In)
 {
 	return float2(
-		(float)In.Tex0.x / g_ChunkId.z * g_WrappedUV.x, (float)In.Tex0.y / g_ChunkId.z * g_WrappedUV.y);
+		(float)In.Tex0.x / g_ChunkId.z * g_WrappedUV.x,
+		(float)In.Tex0.y / g_ChunkId.z * g_WrappedUV.y);
 }
 
 float3 TransformNormal(VS_INPUT In)
 {
-	return normalize(float3(0,1,0));
+	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	float3 normal = tex2Dlod(HeightTextureSampler,
+		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).rgb * 2 - 1;
+	return normalize(mul(normal, (float3x3)g_World));
 }
 
 float3 TransformTangent(VS_INPUT In)
 {
-	return normalize(float3(1,0,0));
+	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
+	float3 normal = tex2Dlod(HeightTextureSampler,
+		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).rgb * 2 - 1;
+	float3 Tangent = cross(normal, float3(0,0,1));
+	return normalize(mul(Tangent, (float3x3)g_World));
 }
 
 float4 TransformLight(VS_INPUT In)

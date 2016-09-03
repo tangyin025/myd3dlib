@@ -55,11 +55,11 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 2;
+	static const DWORD m_RowChunks = 8;
 
-	static const DWORD m_ColChunks = 3;
+	static const DWORD m_ColChunks = 8;
 
-	static const DWORD m_ChunkRows = 4;
+	static const DWORD m_ChunkRows = 64;
 
 	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
 
@@ -129,11 +129,13 @@ public:
 
 	void UpdateHeightMap(my::Texture2DPtr HeightMap);
 
+	void UpdateHeightMapNormal(void);
+
 	void UpdateChunks(void);
 
-	unsigned char GetSampleHeight(int row, int col);
+	unsigned char GetSampleHeight(void * pBits, int pitch, int i, int j);
 
-	my::Vector3 GetSamplePos(int row, int col);
+	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
 
 	void CreateRigidActor(const my::Matrix4 & World);
 
