@@ -166,8 +166,7 @@ void Terrain::CalcLodDistanceSq(void)
 {
 	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		//m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
-		m_LodDistanceSq[i] = FLT_MAX;
+		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
 	}
 }
 
@@ -273,7 +272,7 @@ void Terrain::CreateShape(void)
 	PxShape * shape = m_RigidActor->createShape(
 		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale, m_RowScale, m_ColScale),
 		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 }
 
 void Terrain::UpdateShape(void)
