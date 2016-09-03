@@ -166,7 +166,8 @@ void Terrain::CalcLodDistanceSq(void)
 {
 	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+		//m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+		m_LodDistanceSq[i] = FLT_MAX;
 	}
 }
 
@@ -178,6 +179,28 @@ void Terrain::CreateHeightMap(void)
 
 void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 {
+	D3DSURFACE_DESC SrcDesc = HeightMap->GetLevelDesc(0);
+	switch (SrcDesc.Format)
+	{
+	case D3DFMT_A8:
+	case D3DFMT_L8:
+		{
+			RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkRows, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkRows, SrcDesc.Height) };
+			D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
+			D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
+			for (int row = rc.top; row < rc.bottom; row ++)
+			{
+				memcpy(
+					(unsigned char *)DstLrc.pBits + row * DstLrc.Pitch,
+					(unsigned char *)SrcLrc.pBits + row * SrcLrc.Pitch, rc.right - rc.left);
+			}
+			m_HeightMap.UnlockRect();
+			HeightMap->UnlockRect();
+		}
+		break;
+	default:
+		return;
+	}
 	UpdateChunks();
 	UpdateShape();
 }
@@ -200,6 +223,8 @@ void Terrain::UpdateChunks(void)
 unsigned char Terrain::GetSampleHeight(int row, int col)
 {
 	_ASSERT(m_HeightMap.m_ptr);
+	row = Clamp<int>(row, 0, m_RowChunks * m_ChunkRows - 1);
+	col = Clamp<int>(col, 0, m_ColChunks * m_ChunkRows - 1);
 	RECT rc = { col, row, col + 1, row + 1 };
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(&rc, D3DLOCK_READONLY, 0);
 	unsigned char height = *(unsigned char *)lrc.pBits;

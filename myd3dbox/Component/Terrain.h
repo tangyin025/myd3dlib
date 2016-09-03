@@ -59,7 +59,7 @@ public:
 
 	static const DWORD m_ColChunks = 3;
 
-	static const DWORD m_ChunkRows = 4;
+	static const DWORD m_ChunkRows = 8;
 
 	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
 
