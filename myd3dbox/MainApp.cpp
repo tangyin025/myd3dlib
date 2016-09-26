@@ -193,8 +193,6 @@ BOOL CMainApp::InitInstance()
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
-	LuaContext::Init();
-
 	if (!PhysXContext::Init())
 	{
 		return FALSE;

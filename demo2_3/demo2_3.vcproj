@@ -297,14 +297,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\myd3dbox\Component\LuaExtension.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\myd3dbox\Component\LuaExtension.h"
-				>
-			</File>
-			<File
 				RelativePath="..\myd3dbox\Component\PhysXContext.cpp"
 				>
 			</File>

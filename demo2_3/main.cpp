@@ -54,10 +54,10 @@ public:
 		FModContext::SetMediaPath("sound\\");
 		FModContext::LoadEventFile("aaa.fev");
 
-		ExecuteCode("dofile \"Hud.lua\"");
-		ExecuteCode("dofile \"StateMain.lua\"");
-		RemoveDlg(m_Console);
-		InsertDlg(m_Console);
+		//ExecuteCode("dofile \"Hud.lua\"");
+		//ExecuteCode("dofile \"StateMain.lua\"");
+		//RemoveDlg(m_Console);
+		//InsertDlg(m_Console);
 
 		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
 		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
