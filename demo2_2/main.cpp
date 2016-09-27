@@ -7,6 +7,7 @@ using namespace my;
 class Demo
 	: public DxutApp
 	, public ResourceMgr
+	, public DialogMgr
 {
 protected:
 	CComPtr<ID3DXFont> m_font;
@@ -15,20 +16,7 @@ protected:
 
 	std::vector<DeviceResourceBasePtr> m_reses;
 
-	void foo(DeviceResourceBasePtr res)
-	{
-		//Texture2DPtr tex = boost::dynamic_pointer_cast<Texture2D>(res);
-
-		//OgreMeshPtr mesh = boost::dynamic_pointer_cast<OgreMesh>(res);
-
-		//OgreSkeletonAnimationPtr skel = boost::dynamic_pointer_cast<OgreSkeletonAnimation>(res);
-
-		//EffectPtr eff = boost::dynamic_pointer_cast<Effect>(res);
-
-		//FontPtr fnt = boost::dynamic_pointer_cast<Font>(res);
-
-		m_reses.push_back(res);
-	}
+	my::UIRenderPtr m_UIRender;
 
 public:
 	Demo(void)
@@ -64,93 +52,16 @@ public:
 
 		ResourceMgr::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc);
 
-		//LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&Demo::foo, this, _1));
+		m_UIRender.reset(new my::UIRender(pd3dDevice));
 
-		//LoadTextureAsync("texture/galileo_cross.dds", boost::bind(&Demo::foo, this, _1));
-
-		//BaseTexturePtr tex = LoadTexture("texture/galileo_cross.dds");
-
-		class AAA : public my::IResourceCallback
+		if (!(m_UIRender->m_TexWhite = LoadTexture("texture/White.dds")))
 		{
-		public:
-			my::DeviceResourceBasePtr m_res;
-			virtual void OnReady(my::DeviceResourceBasePtr res) {
-				m_res = res;
-			}
-		};
-		AAA aaa;
-		LoadTextureAsync("texture/galileo_cross.dds", &aaa);
-		RemoveIORequestCallback("texture/galileo_cross.dds", &aaa);
+			THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
+		}
 
-		//LoadMeshAsync("mesh/sportive03_f.mesh.xml", boost::bind(&Demo::foo, this, _1));
+		DialogPtr dlg(new Dialog());
 
-		//LoadSkeletonAsync("mesh/sportive03_f.skeleton.xml", boost::bind(&Demo::foo, this, _1));
-
-		////EffectPtr eff = LoadEffect("shader/SimpleSample.fx", EffectMacroPairList());
-
-		//LoadFontAsync("font/wqy-microhei.ttc", 13, boost::bind(&Demo::foo, this, _1));
-
-		////MaterialPtr mat = LoadMaterial("material/lambert1.xml");
-
-		//LoadMaterialAsync("material/casual19_m_highpolyPhong.txt", boost::bind(&Demo::foo, this, _1));
-
-		//LoadMeshSetAsync("mesh/scene1.mesh.xml", boost::bind(&Demo::foo, this, _1));
-
-		struct BBB
-		{
-			my::OgreMesh * mesh;
-			DWORD VertexStride;
-			void * pVertices;
-			void * pIndices;
-			static void RequestCallback(udword triangle_index, Opcode::VertexPointers& triangle, void* user_data)
-			{
-				BBB * b = (BBB *)user_data;
-				unsigned short i[3] = {
-					*((unsigned short *)b->pIndices + triangle_index * 3 + 0),
-					*((unsigned short *)b->pIndices + triangle_index * 3 + 1),
-					*((unsigned short *)b->pIndices + triangle_index * 3 + 2)};
-				void * pVertex[3] = {
-					(unsigned char *)b->pVertices + i[0] * b->VertexStride,
-					(unsigned char *)b->pVertices + i[1] * b->VertexStride,
-					(unsigned char *)b->pVertices + i[2] * b->VertexStride};
-				triangle.Vertex[0] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[0]);
-				triangle.Vertex[1] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[1]);
-				triangle.Vertex[2] = (Point *)&b->mesh->m_VertexElems.GetPosition(pVertex[2]);
-			}
-		};
-
-		my::OgreMeshPtr mesh = LoadMesh("mesh/Nyra.mesh.xml");
-		Opcode::MeshInterface mi;
-		mi.SetNbTriangles(mesh->GetNumFaces());
-		mi.SetNbVertices(mesh->GetNumVertices());
-		BBB b;
-		b.mesh = mesh.get();
-		b.VertexStride = mesh->GetNumBytesPerVertex();
-		b.pVertices = mesh->LockVertexBuffer();
-		b.pIndices = mesh->LockIndexBuffer();
-		mi.SetCallback(&BBB::RequestCallback, &b);
-		Opcode::OPCODECREATE opcc;
-		opcc.mIMesh = &mi;
-		Opcode::Model mdl;
-		mdl.Build(opcc);
-		mesh->UnlockVertexBuffer();
-		mesh->UnlockIndexBuffer();
-
-		struct CCC
-		{
-			static void HitCallback(const Opcode::CollisionFace& hit, void* user_data)
-			{
-				float k = hit.mDistance;
-			}
-		};
-
-		Opcode::RayCollider rc;
-		rc.SetFirstContact(true);
-		rc.SetCulling(true);
-		rc.SetHitCallback(&CCC::HitCallback);
-		CCC c;
-		rc.SetUserData(&c);
-		rc.Collide(IceMaths::Ray(IceMaths::Point(0,5,10), IceMaths::Point(0,0,-1)), mdl, NULL, NULL);
+		DialogMgr::InsertDlg(dlg);
 
 		return S_OK;
 	}
@@ -182,6 +93,8 @@ public:
 
 	virtual void OnDestroyDevice(void)
 	{
+		m_UIRender.reset();
+
 		m_font.Release();
 
 		ResourceMgr::OnDestroyDevice();
@@ -203,6 +116,12 @@ public:
 			int len = swprintf_s(buff, _countof(buff), L"%.2f", m_fFps);
 			V(m_font->DrawTextW(m_sprite, buff, len, CRect(5,5,100,100), DT_LEFT | DT_TOP | DT_SINGLELINE, D3DXCOLOR(1.0f,1.0f,0.0f,1.0f)));
 			V(m_sprite->End());
+
+			m_UIRender->Begin();
+			m_UIRender->SetWorld(Matrix4::identity);
+			m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
+			DialogMgr::Draw(m_UIRender.get(), fTime, fElapsedTime);
+			m_UIRender->End();
 			V( pd3dDevice->EndScene() );
 		}
 	}
@@ -223,6 +142,10 @@ public:
 		LPARAM lParam,
 		bool * pbNoFurtherProcessing)
 	{
+		if((*pbNoFurtherProcessing = DialogMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
+		{
+			return 0;
+		}
 		return 0;
 	}
 

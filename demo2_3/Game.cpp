@@ -1,14 +1,11 @@
 #include "stdafx.h"
 #include "Game.h"
-#include <luabind/luabind.hpp>
-#include <luabind/operator.hpp>
-#include <luabind/exception_handler.hpp>
-#include <luabind/iterator_policy.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
+#include <sstream>
 #include <fstream>
 
 #ifdef _DEBUG
