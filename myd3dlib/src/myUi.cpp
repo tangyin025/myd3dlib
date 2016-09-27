@@ -5,6 +5,14 @@
 #include "myUtility.h"
 #include "ImeUi.h"
 #include "libc.h"
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
@@ -172,22 +180,73 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect &
 	PushWindowSimple(vertex_list, start, rect, color, WindowRect, WindowBorder, TextureSize);
 }
 
+template<>
+void ControlImage::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_TexturePath);
+	ar << BOOST_SERIALIZATION_NVP(m_Rect.left);
+	ar << BOOST_SERIALIZATION_NVP(m_Rect.top);
+	ar << BOOST_SERIALIZATION_NVP(m_Rect.right);
+	ar << BOOST_SERIALIZATION_NVP(m_Rect.bottom);
+	ar << BOOST_SERIALIZATION_NVP(m_Border.left);
+	ar << BOOST_SERIALIZATION_NVP(m_Border.top);
+	ar << BOOST_SERIALIZATION_NVP(m_Border.right);
+	ar << BOOST_SERIALIZATION_NVP(m_Border.bottom);
+}
+
+template<>
+void ControlImage::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_TexturePath);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rect.left);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rect.top);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rect.right);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rect.bottom);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border.left);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border.top);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border.right);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border.bottom);
+	m_Texture = my::ResourceMgr::getSingleton().LoadTexture(m_TexturePath);
+}
+
 ControlSkin::~ControlSkin(void)
 {
+}
+
+template<>
+void ControlSkin::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_Image);
+	ar << BOOST_SERIALIZATION_NVP(m_FontPath);
+	ar << BOOST_SERIALIZATION_NVP(m_FontHeight);
+	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
+	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
+}
+
+template<>
+void ControlSkin::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_Image);
+	ar >> BOOST_SERIALIZATION_NVP(m_FontPath);
+	ar >> BOOST_SERIALIZATION_NVP(m_FontHeight);
+	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
+	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
+	m_Font = my::ResourceMgr::getSingleton().LoadFont(m_FontPath, m_FontHeight);
 }
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
 {
 	if(Image && Image->m_Texture)
 	{
+		D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
 		if (Image->m_Border.IsRectNull())
 		{
-			Rectangle UvRect((float)Image->m_Rect.left / Image->m_Size.cx,  (float)Image->m_Rect.top / Image->m_Size.cy, (float)Image->m_Rect.right / Image->m_Size.cx, (float)Image->m_Rect.bottom / Image->m_Size.cy);
+			Rectangle UvRect((float)Image->m_Rect.left / desc.Width,  (float)Image->m_Rect.top / desc.Height, (float)Image->m_Rect.right / desc.Width, (float)Image->m_Rect.bottom / desc.Height);
 			ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture);
 		}
 		else
 		{
-			ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, Image->m_Size, Image->m_Texture.get(), UIRender::UILayerTexture);
+			ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
 		}
 	}
 	else
@@ -221,6 +280,36 @@ Control::~Control(void)
 
 	// ! must detach parent relationship
 	ClearAllControl();
+}
+
+template<>
+void Control::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_NVP(m_Childs);
+	ar << BOOST_SERIALIZATION_NVP(m_bEnabled);
+	ar << BOOST_SERIALIZATION_NVP(m_bVisible);
+	ar << BOOST_SERIALIZATION_NVP(m_nHotkey);
+	ar << BOOST_SERIALIZATION_NVP(m_Location);
+	ar << BOOST_SERIALIZATION_NVP(m_Size);
+	ar << BOOST_SERIALIZATION_NVP(m_Color);
+	ar << BOOST_SERIALIZATION_NVP(m_Skin);
+}
+
+template<>
+void Control::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
+	ar >> BOOST_SERIALIZATION_NVP(m_bEnabled);
+	ar >> BOOST_SERIALIZATION_NVP(m_bVisible);
+	ar >> BOOST_SERIALIZATION_NVP(m_nHotkey);
+	ar >> BOOST_SERIALIZATION_NVP(m_Location);
+	ar >> BOOST_SERIALIZATION_NVP(m_Size);
+	ar >> BOOST_SERIALIZATION_NVP(m_Color);
+	ar >> BOOST_SERIALIZATION_NVP(m_Skin);
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	{
+		m_Childs[i]->m_Parent = this;
+	}
 }
 
 void Control::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
@@ -2197,6 +2286,20 @@ void ComboBox::SetItemData(int index, unsigned int uData)
 UINT ComboBox::GetNumItems(void)
 {
 	return m_Items.size();
+}
+
+template<>
+void Dialog::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	ar << BOOST_SERIALIZATION_NVP(m_World);
+}
+
+template<>
+void Dialog::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+	ar >> BOOST_SERIALIZATION_NVP(m_World);
 }
 
 void Dialog::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)

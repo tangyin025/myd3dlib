@@ -1,6 +1,12 @@
 ﻿#include <myD3dLib.h>
 #include <boost/bind.hpp>
 #include <Opcode.h>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/vector.hpp>
+#include <fstream>
 
 using namespace my;
 
@@ -59,7 +65,25 @@ public:
 			THROW_CUSEXCEPTION("create m_UIRender->m_TexWhite failed");
 		}
 
-		DialogPtr dlg(new Dialog());
+		//DialogPtr dlg(new Dialog());
+		//dlg->m_Skin.reset(new ControlSkin());
+		//dlg->m_Skin->m_FontPath = "font/wqy-microhei.ttc";
+		//dlg->m_Skin->m_FontHeight = 13;
+		//dlg->m_Skin->m_Font = my::ResourceMgr::getSingleton().LoadFont(dlg->m_Skin->m_FontPath, dlg->m_Skin->m_FontHeight);
+		//dlg->m_Skin->m_Image.reset(new ControlImage());
+		//dlg->m_Skin->m_Image->m_TexturePath = "texture/CommonUI.png";
+		//dlg->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture(dlg->m_Skin->m_Image->m_TexturePath);
+		//dlg->m_Skin->m_Image->m_Rect = CRect(52,43,67,58);
+		//dlg->m_Skin->m_Image->m_Border = CRect(7,7,7,7);
+
+		//std::ofstream ostr("ui.xml");
+		//boost::archive::xml_oarchive oa(ostr);
+		//oa << boost::serialization::make_nvp("ui", dlg);
+
+		DialogPtr dlg;
+		std::ifstream istr("ui.xml");
+		boost::archive::xml_iarchive ia(istr);
+		ia >> boost::serialization::make_nvp("ui", dlg);
 
 		DialogMgr::InsertDlg(dlg);
 
@@ -96,6 +120,8 @@ public:
 		m_UIRender.reset();
 
 		m_font.Release();
+
+		RemoveAllDlg();
 
 		ResourceMgr::OnDestroyDevice();
 	}

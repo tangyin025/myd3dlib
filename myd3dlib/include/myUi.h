@@ -79,22 +79,32 @@ namespace my
 	class ControlImage
 	{
 	public:
+		std::string m_TexturePath;
+
 		BaseTexturePtr m_Texture;
 
 		CRect m_Rect;
 
 		CRect m_Border;
 
-		CSize m_Size;
-
-		ControlImage(BaseTexturePtr Texture, const Rectangle & Rect, const Vector4 & Border)
-			: m_Texture(Texture)
-			, m_Rect((int)Rect.l, (int)Rect.t, (int)Rect.r, (int)Rect.b)
-			, m_Border((int)Border.x, (int)Border.y, (int)Border.z, (int)Border.w)
+		ControlImage(void)
+			: m_Rect(0,0,100,100)
+			, m_Border(10,10,10,10)
 		{
-			_ASSERT(m_Texture);
-			D3DSURFACE_DESC desc = m_Texture->GetLevelDesc(0);
-			m_Size.SetSize(desc.Width, desc.Height);
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
 		}
 	};
 
@@ -105,6 +115,10 @@ namespace my
 	public:
 		ControlImagePtr m_Image;
 
+		std::string m_FontPath;
+
+		int m_FontHeight;
+
 		FontPtr m_Font;
 
 		D3DCOLOR m_TextColor;
@@ -113,12 +127,27 @@ namespace my
 
 	public:
 		ControlSkin(void)
-			: m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
+			: m_FontHeight(13)
+			, m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
 			, m_TextAlign(Font::AlignLeftTop)
 		{
 		}
 
 		virtual ~ControlSkin(void);
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
 
 		void DrawImage(UIRender * ui_render, ControlImagePtr Image, const Rectangle & rect, DWORD color);
 
@@ -164,8 +193,6 @@ namespace my
 
 		bool m_bHasFocus;
 
-		bool m_bIsDefault;
-
 		UINT m_nHotkey;
 
 		Vector2 m_Location;
@@ -186,7 +213,6 @@ namespace my
 			, m_bVisible(true)
 			, m_bMouseOver(false)
 			, m_bHasFocus(false)
-			, m_bIsDefault(false)
 			, m_nHotkey(0)
 			, m_Location(100, 100)
 			, m_Size(100, 100)
@@ -197,6 +223,20 @@ namespace my
 		}
 
 		virtual ~Control(void);
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
@@ -763,6 +803,18 @@ namespace my
 			, m_bMouseDrag(false)
 			, m_MouseOffset(0,0)
 		{
+		}
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset = Vector2(0,0));
