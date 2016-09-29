@@ -5,8 +5,9 @@
 #include "myUtility.h"
 #include "ImeUi.h"
 #include "libc.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
@@ -181,7 +182,7 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect &
 }
 
 template<>
-void ControlImage::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_TexturePath);
 	ar << BOOST_SERIALIZATION_NVP(m_Rect.left);
@@ -195,7 +196,7 @@ void ControlImage::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchi
 }
 
 template<>
-void ControlImage::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_TexturePath);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rect.left);
@@ -214,7 +215,7 @@ ControlSkin::~ControlSkin(void)
 }
 
 template<>
-void ControlSkin::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
 	ar << BOOST_SERIALIZATION_NVP(m_FontPath);
@@ -224,7 +225,7 @@ void ControlSkin::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchiv
 }
 
 template<>
-void ControlSkin::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Image);
 	ar >> BOOST_SERIALIZATION_NVP(m_FontPath);
@@ -283,7 +284,7 @@ Control::~Control(void)
 }
 
 template<>
-void Control::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Childs);
 	ar << BOOST_SERIALIZATION_NVP(m_bEnabled);
@@ -296,7 +297,7 @@ void Control::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 }
 
 template<>
-void Control::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	ar >> BOOST_SERIALIZATION_NVP(m_bEnabled);
@@ -2289,14 +2290,14 @@ UINT ComboBox::GetNumItems(void)
 }
 
 template<>
-void Dialog::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void Dialog::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
 }
 
 template<>
-void Dialog::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void Dialog::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);

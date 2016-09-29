@@ -1,8 +1,8 @@
 ﻿#include <myD3dLib.h>
 #include <boost/bind.hpp>
 #include <Opcode.h>
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
@@ -77,12 +77,12 @@ public:
 		//dlg->m_Skin->m_Image->m_Border = CRect(7,7,7,7);
 
 		//std::ofstream ostr("ui.xml");
-		//boost::archive::xml_oarchive oa(ostr);
+		//boost::archive::polymorphic_xml_oarchive oa(ostr);
 		//oa << boost::serialization::make_nvp("ui", dlg);
 
 		DialogPtr dlg;
 		std::ifstream istr("ui.xml");
-		boost::archive::xml_iarchive ia(istr);
+		boost::archive::polymorphic_xml_iarchive ia(istr);
 		ia >> boost::serialization::make_nvp("ui", dlg);
 
 		DialogMgr::InsertDlg(dlg);

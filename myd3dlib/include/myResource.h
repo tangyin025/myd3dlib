@@ -465,7 +465,7 @@ namespace my
 	protected:
 		std::string m_path;
 
-		std::list<std::string> m_macros;
+		std::vector<std::string> m_macros;
 
 		std::vector<D3DXMACRO> m_d3dmacros;
 

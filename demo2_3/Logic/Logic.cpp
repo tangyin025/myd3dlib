@@ -1,8 +1,8 @@
 #include "StdAfx.h"
 #include "Logic.h"
 #include "../Game.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
@@ -21,7 +21,7 @@ Logic::~Logic(void)
 void Logic::Create(void)
 {
 	std::ifstream istr("aaa.xml");
-	boost::archive::xml_iarchive ia(istr);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("level", m_cmps);
 	for (unsigned int i = 0; i < m_cmps.size(); i++)
 	{

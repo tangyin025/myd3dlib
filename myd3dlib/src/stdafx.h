@@ -13,7 +13,6 @@
 #include <boost/type_traits/is_same.hpp>
 #include <limits>
 #include <boost/static_assert.hpp>
-#include <boost/regex.hpp>
 extern "C" {
 #include <lua.h>
 #include <lauxlib.h>

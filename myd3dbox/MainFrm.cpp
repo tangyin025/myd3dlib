@@ -8,8 +8,8 @@
 #include "MainFrm.h"
 #include "ChildView.h"
 #include "Component/Terrain.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <fstream>
@@ -546,7 +546,7 @@ void CMainFrame::OnFileOpen()
 	ClearAllComponents();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
-	boost::archive::xml_iarchive ia(ifs);
+	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("level", m_cmps);
 	for (unsigned int i = 0; i < m_cmps.size(); i++)
 	{
@@ -573,7 +573,7 @@ void CMainFrame::OnFileSave()
 
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
-	boost::archive::xml_oarchive oa(ofs);
+	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("level", m_cmps);
 }
 

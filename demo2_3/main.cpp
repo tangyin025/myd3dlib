@@ -1,8 +1,8 @@
 #include "stdafx.h"
 #include "Game.h"
 #include "../myd3dbox/Component/Terrain.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/vector.hpp>
@@ -137,14 +137,14 @@ public:
 
 		//// 保存场景
 		//std::ofstream ofs("aaa.xml");
-		//boost::archive::xml_oarchive oa(ofs);
+		//boost::archive::polymorphic_oarchive oa(ofs);
 		//oa << boost::serialization::make_nvp("level", m_cmps);
 
 		// 读取场景
 		//IStreamBuff buff(OpenIStream("level.xml"));
 		//std::istream istr(&buff);
 		//std::ifstream istr("aaa.xml");
-		//boost::archive::xml_iarchive ia(istr);
+		//boost::archive::polymorphic_iarchive ia(istr);
 		//ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
 		//for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
 		//{

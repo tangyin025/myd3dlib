@@ -149,8 +149,4 @@ public:
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
-
-	void SaveMaterial(const std::string & path, MaterialPtr material);
-
-	void SaveEmitter(const std::string & path, my::EmitterPtr emitter);
 };

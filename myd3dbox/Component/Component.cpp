@@ -3,8 +3,9 @@
 #include "Terrain.h"
 #include "Animator.h"
 #include "PhysXContext.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
@@ -128,7 +129,7 @@ void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
 }
 
 template<>
-void MeshComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
@@ -139,7 +140,7 @@ void MeshComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarch
 }
 
 template<>
-void MeshComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
@@ -341,7 +342,7 @@ void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
 }
 
 template<>
-void RigidComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void RigidComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	PxDefaultMemoryOutputStream ostr;
@@ -356,7 +357,7 @@ void RigidComponent::save<boost::archive::xml_oarchive>(boost::archive::xml_oarc
 }
 
 template<>
-void RigidComponent::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void RigidComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	unsigned int BuffSize;

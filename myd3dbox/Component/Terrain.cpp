@@ -1,8 +1,9 @@
 #include "StdAfx.h"
 #include "Terrain.h"
 #include "PhysXContext.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
@@ -513,7 +514,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 }
 
 template<>
-void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & ar, const unsigned int version) const
+void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
@@ -532,7 +533,7 @@ void Terrain::save<boost::archive::xml_oarchive>(boost::archive::xml_oarchive & 
 }
 
 template<>
-void Terrain::load<boost::archive::xml_iarchive>(boost::archive::xml_iarchive & ar, const unsigned int version)
+void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);

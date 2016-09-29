@@ -1,10 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-#include <boost/archive/xml_iarchive.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
-#include <boost/serialization/deque.hpp>
 #include <sstream>
 #include <fstream>
 
@@ -820,18 +815,4 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 	const Vector3 InExtent(1000,1000,1000);
 	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
 	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
-}
-
-void Game::SaveMaterial(const std::string & path, MaterialPtr material)
-{
-	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("Material", material);
-}
-
-void Game::SaveEmitter(const std::string & path, my::EmitterPtr emitter)
-{
-	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::xml_oarchive oa(ofs);
-	oa << boost::serialization::make_nvp("Emitter", emitter);
 }

@@ -12,7 +12,7 @@
 #include "myEffect.h"
 #include "myFont.h"
 #include "myEmitter.h"
-#include <boost/function_equal.hpp>
+#include <boost/algorithm/string.hpp>
 
 using namespace my;
 
@@ -908,9 +908,9 @@ void SkeletonIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 EffectIORequest::EffectIORequest(const std::string & path, std::string macros)
 	: m_path(path)
 {
-	boost::regex_split(std::back_inserter(m_macros), macros);
+	boost::algorithm::split(m_macros, macros, boost::algorithm::is_any_of(" \t"), boost::algorithm::token_compress_on);
 
-	std::list<std::string>::const_iterator macro_iter = m_macros.begin();
+	std::vector<std::string>::const_iterator macro_iter = m_macros.begin();
 	for(; macro_iter != m_macros.end(); )
 	{
 		D3DXMACRO d3dmacro;
