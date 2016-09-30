@@ -311,6 +311,13 @@ namespace my
 		{
 		}
 
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+			ar & BOOST_SERIALIZATION_NVP(m_Text);
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 	};
 
@@ -324,6 +331,13 @@ namespace my
 	public:
 		ProgressBarSkin(void)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_ForegroundImage);
 		}
 	};
 
@@ -341,6 +355,13 @@ namespace my
 			: m_Progress(0)
 			, m_BlendProgress(0)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
+			ar & BOOST_SERIALIZATION_NVP(m_Progress);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -362,6 +383,16 @@ namespace my
 			: m_PressedOffset(0,0)
 		{
 		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_DisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_PressedImage);
+			ar & BOOST_SERIALIZATION_NVP(m_MouseOverImage);
+			ar & BOOST_SERIALIZATION_NVP(m_PressedOffset);
+		}
 	};
 
 	typedef boost::shared_ptr<ButtonSkin> ButtonSkinPtr;
@@ -378,8 +409,15 @@ namespace my
 	public:
 		Button(void)
 			: m_bPressed(false)
-			, m_BlendColor(m_Color)
+			, m_BlendColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
+			ar & BOOST_SERIALIZATION_NVP(m_bPressed);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -409,6 +447,10 @@ namespace my
 		D3DCOLOR m_SelBkColor;
 
 		D3DCOLOR m_CaretColor;
+
+		std::string m_CaretTexturePath;
+
+		BaseTexturePtr m_CaretTexture;
 
 	public:
 		EditBoxSkin(void)

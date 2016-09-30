@@ -9,53 +9,71 @@
 
 using namespace my;
 
-void EffectUIRender::Begin(void)
+class EffectUIRender
+	: public my::UIRender
 {
-	if(m_UIEffect->m_ptr)
-	{
-		m_UIEffect->SetVector("g_ScreenDim", Vector4(
-			(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
-		m_Passes = m_UIEffect->Begin();
-	}
-}
+public:
+	my::EffectPtr m_UIEffect;
 
-void EffectUIRender::End(void)
-{
-	if(m_UIEffect->m_ptr)
-	{
-		m_UIEffect->End();
-		m_Passes = 0;
-	}
-}
+	UINT m_Passes;
 
-void EffectUIRender::SetWorld(const Matrix4 & World)
-{
-	if(m_UIEffect->m_ptr)
+public:
+	EffectUIRender(IDirect3DDevice9 * pd3dDevice, my::EffectPtr effect)
+		: UIRender(pd3dDevice)
+		, m_UIEffect(effect)
+		, m_Passes(0)
 	{
-		m_UIEffect->SetMatrix("g_World", World);
+		_ASSERT(m_UIEffect);
 	}
-}
 
-void EffectUIRender::SetViewProj(const Matrix4 & ViewProj)
-{
-	if(m_UIEffect->m_ptr)
+	void Begin(void)
 	{
-		m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
-	}
-}
-
-void EffectUIRender::Flush(void)
-{
-	if(m_UIEffect->m_ptr)
-	{
-		for(UINT p = 0; p < m_Passes; p++)
+		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->BeginPass(p);
-			UIRender::Flush();
-			m_UIEffect->EndPass();
+			m_UIEffect->SetVector("g_ScreenDim", Vector4(
+				(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
+			m_Passes = m_UIEffect->Begin();
 		}
 	}
-}
+
+	void End(void)
+	{
+		if(m_UIEffect->m_ptr)
+		{
+			m_UIEffect->End();
+			m_Passes = 0;
+		}
+	}
+
+	void SetWorld(const Matrix4 & World)
+	{
+		if(m_UIEffect->m_ptr)
+		{
+			m_UIEffect->SetMatrix("g_World", World);
+		}
+	}
+
+	void SetViewProj(const Matrix4 & ViewProj)
+	{
+		if(m_UIEffect->m_ptr)
+		{
+			m_UIEffect->SetMatrix("g_ViewProj", ViewProj);
+		}
+	}
+
+	void Flush(void)
+	{
+		if(m_UIEffect->m_ptr)
+		{
+			for(UINT p = 0; p < m_Passes; p++)
+			{
+				m_UIEffect->BeginPass(p);
+				UIRender::Flush();
+				m_UIEffect->EndPass();
+			}
+		}
+	}
+};
 //
 //static int lua_print(lua_State * L)
 //{

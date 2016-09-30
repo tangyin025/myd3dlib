@@ -17,6 +17,24 @@
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(ControlImage)
+
+BOOST_CLASS_EXPORT(ControlSkin)
+
+BOOST_CLASS_EXPORT(Control)
+
+BOOST_CLASS_EXPORT(Static)
+
+BOOST_CLASS_EXPORT(ProgressBarSkin)
+
+BOOST_CLASS_EXPORT(ProgressBar)
+
+BOOST_CLASS_EXPORT(ButtonSkin)
+
+BOOST_CLASS_EXPORT(Button)
+
+BOOST_CLASS_EXPORT(Dialog)
+
 UIRender::~UIRender(void)
 {
 }
@@ -208,7 +226,10 @@ void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.top);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.right);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.bottom);
-	m_Texture = my::ResourceMgr::getSingleton().LoadTexture(m_TexturePath);
+	if (!m_TexturePath.empty())
+	{
+		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(m_TexturePath);
+	}
 }
 
 ControlSkin::~ControlSkin(void)
@@ -233,7 +254,10 @@ void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::pol
 	ar >> BOOST_SERIALIZATION_NVP(m_FontHeight);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
-	m_Font = my::ResourceMgr::getSingleton().LoadFont(m_FontPath, m_FontHeight);
+	if (!m_FontPath.empty())
+	{
+		m_Font = my::ResourceMgr::getSingleton().LoadFont(m_FontPath, m_FontHeight);
+	}
 }
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
@@ -250,10 +274,6 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 		{
 			ui_render->PushWindow(rect, color, Image->m_Rect, Image->m_Border, CSize(desc.Width, desc.Height), Image->m_Texture.get(), UIRender::UILayerTexture);
 		}
-	}
-	else
-	{
-		ui_render->PushRectangle(rect, Rectangle(0,0,1,1), color, NULL, UIRender::UILayerTexture);
 	}
 }
 
@@ -610,10 +630,11 @@ void ProgressBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 &
 {
 	if(m_bVisible)
 	{
-		ProgressBarSkinPtr Skin = boost::dynamic_pointer_cast<ProgressBarSkin>(m_Skin);
-
-		if(Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
+		if (m_Skin && m_Color & D3DCOLOR_ARGB(255,0,0,0))
 		{
+			ProgressBarSkinPtr Skin = boost::dynamic_pointer_cast<ProgressBarSkin>(m_Skin);
+			_ASSERT(Skin);
+
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
@@ -629,10 +650,11 @@ void Button::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offs
 {
 	if(m_bVisible)
 	{
-		ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
-
-		if(Skin)
+		if(m_Skin)
 		{
+			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
+			_ASSERT(Skin);
+
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			if(!m_bEnabled)
@@ -772,12 +794,20 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 {
 	if(m_bVisible)
 	{
-		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
-
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
-
-		if(Skin)
+		DWORD dwAbsoluteTime = timeGetTime();
+		if(dwAbsoluteTime - m_dwLastBlink >= m_dwBlink )
 		{
+			m_bCaretOn = !m_bCaretOn;
+			m_dwLastBlink = dwAbsoluteTime;
+		}
+
+		if(m_Skin)
+		{
+			EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+			_ASSERT(Skin);
+
+			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 			if(!m_bEnabled)
 			{
 				Skin->DrawImage(ui_render, Skin->m_DisabledImage, Rect, m_Color);
@@ -790,63 +820,56 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 			{
 				Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 			}
-		}
 
-		DWORD dwAbsoluteTime = timeGetTime();
-		if(dwAbsoluteTime - m_dwLastBlink >= m_dwBlink )
-		{
-			m_bCaretOn = !m_bCaretOn;
-			m_dwLastBlink = dwAbsoluteTime;
-		}
-
-		if(Skin && Skin->m_Font)
-		{
-			Rectangle TextRect = Rect.shrink(m_Border);
-
-			float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
-			float caret_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
-			if(m_nSelStart != m_nCaret)
+			if(Skin->m_Font)
 			{
-				float sel_start_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nSelStart);
-				float sel_left_x = __min(caret_x, sel_start_x) - x1st;
-				float sel_right_x = __max(caret_x, sel_start_x) - x1st;
+				Rectangle TextRect = Rect.shrink(m_Border);
 
-				Rectangle SelRect(
-					Max(TextRect.l, TextRect.l + sel_left_x),
-					TextRect.t,
-					Min(TextRect.r, TextRect.l + sel_right_x),
-					TextRect.b);
-
-				ui_render->PushRectangle(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, NULL, UIRender::UILayerTexture);
-			}
-
-			Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
-
-			if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
-			{
-				Rectangle CaretRect(
-					TextRect.l + caret_x - x1st - 1,
-					TextRect.t,
-					TextRect.l + caret_x - x1st + 1,
-					TextRect.b);
-
-				if(!m_bInsertMode)
+				float x1st = Skin->m_Font->CPtoX(m_Text.c_str(), m_nFirstVisible);
+				float caret_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nCaret);
+				if(m_nSelStart != m_nCaret)
 				{
-					float charWidth;
-					if(m_nCaret < (int)m_Text.length())
-					{
-						const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
-						charWidth = info.horiAdvance;
-					}
-					else
-					{
-						const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(L'_');
-						charWidth = info.horiAdvance;
-					}
-					CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
+					float sel_start_x = Skin->m_Font->CPtoX(m_Text.c_str(), m_nSelStart);
+					float sel_left_x = __min(caret_x, sel_start_x) - x1st;
+					float sel_right_x = __max(caret_x, sel_start_x) - x1st;
+
+					Rectangle SelRect(
+						Max(TextRect.l, TextRect.l + sel_left_x),
+						TextRect.t,
+						Min(TextRect.r, TextRect.l + sel_right_x),
+						TextRect.b);
+
+					ui_render->PushRectangle(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
 				}
 
-				ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
+				Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
+
+				if(m_bHasFocus && m_bCaretOn && !ImeEditBox::s_bHideCaret)
+				{
+					Rectangle CaretRect(
+						TextRect.l + caret_x - x1st - 1,
+						TextRect.t,
+						TextRect.l + caret_x - x1st + 1,
+						TextRect.b);
+
+					if(!m_bInsertMode)
+					{
+						float charWidth;
+						if(m_nCaret < (int)m_Text.length())
+						{
+							const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(m_Text[m_nCaret]);
+							charWidth = info.horiAdvance;
+						}
+						else
+						{
+							const Font::CharacterInfo & info = Skin->m_Font->GetCharacterInfo(L'_');
+							charWidth = info.horiAdvance;
+						}
+						CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
+					}
+
+					ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+				}
 			}
 		}
 	}
@@ -1527,9 +1550,11 @@ void ImeEditBox::RenderIndicator(UIRender * ui_render, float fElapsedTime, const
 
 void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
-	if(Skin && Skin->m_Font)
+	if(m_Skin && m_Skin->m_Font)
 	{
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+		_ASSERT(Skin);
+
 		s_CompString = ts2ws(ImeUi_GetCompositionString());
 
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
@@ -1545,7 +1570,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		ui_render->PushRectangle(rc, Rectangle(0,0,1,1), m_CompWinColor, NULL, UIRender::UILayerTexture);
+		ui_render->PushRectangle(rc, Rectangle(0,0,1,1), m_CompWinColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
 
 		Skin->m_Font->PushString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
@@ -1554,16 +1579,18 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, NULL, UIRender::UILayerTexture);
+			ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
 		}
 	}
 }
 
 void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)
 {
-	EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
-	if(Skin && Skin->m_Font)
+	if(m_Skin && m_Skin->m_Font)
 	{
+		EditBoxSkinPtr Skin = boost::dynamic_pointer_cast<EditBoxSkin>(m_Skin);
+		_ASSERT(Skin);
+
 		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 		Rectangle TextRect = Rect.shrink(m_Border);
@@ -1592,7 +1619,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		ui_render->PushRectangle(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, NULL, UIRender::UILayerTexture);
+		ui_render->PushRectangle(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
 
 		Skin->m_Font->PushString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
@@ -1646,12 +1673,13 @@ void ScrollBar::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & O
 
 	if(m_bVisible)
 	{
-		ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
-
-		Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
-
-		if(Skin)
+		if(m_Skin)
 		{
+			ScrollBarSkinPtr Skin = boost::dynamic_pointer_cast<ScrollBarSkin>(m_Skin);
+			_ASSERT(Skin);
+
+			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
+
 			Skin->DrawImage(ui_render, Skin->m_Image, Rect, m_Color);
 
 			Rectangle UpButtonRect(Rectangle::LeftTop(Rect.l, Rect.t, m_Size.x, m_UpDownButtonHeight));
@@ -1806,10 +1834,11 @@ void CheckBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 {
 	if(m_bVisible)
 	{
-		ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
-
-		if(Skin)
+		if(m_Skin)
 		{
+			ButtonSkinPtr Skin = boost::dynamic_pointer_cast<ButtonSkin>(m_Skin);
+			_ASSERT(Skin);
+
 			Rectangle BtnRect(Rectangle::LeftMiddle(
 				Offset.x + m_Location.x, Offset.y + m_Location.y + m_Size.y * 0.5f, m_CheckBtnSize.x, m_CheckBtnSize.y));
 
@@ -1896,10 +1925,11 @@ void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Of
 {
 	if(m_bVisible)
 	{
-		ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
-
 		if(m_Skin)
 		{
+			ComboBoxSkinPtr Skin = boost::dynamic_pointer_cast<ComboBoxSkin>(m_Skin);
+			_ASSERT(Skin);
+
 			Rectangle Rect(Rectangle::LeftTop(Offset + m_Location, m_Size));
 
 			if(!m_bEnabled)
