@@ -77,8 +77,6 @@ namespace my
 	class ControlImage
 	{
 	public:
-		std::string m_TexturePath;
-
 		BaseTexturePtr m_Texture;
 
 		CRect m_Rect;
@@ -113,10 +111,6 @@ namespace my
 	public:
 		ControlImagePtr m_Image;
 
-		std::string m_FontPath;
-
-		int m_FontHeight;
-
 		FontPtr m_Font;
 
 		D3DCOLOR m_TextColor;
@@ -125,8 +119,7 @@ namespace my
 
 	public:
 		ControlSkin(void)
-			: m_FontHeight(13)
-			, m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
+			: m_TextColor(D3DCOLOR_ARGB(255,255,255,0))
 			, m_TextAlign(Font::AlignLeftTop)
 		{
 		}
@@ -447,8 +440,6 @@ namespace my
 		D3DCOLOR m_SelBkColor;
 
 		D3DCOLOR m_CaretColor;
-
-		std::string m_CaretTexturePath;
 
 		BaseTexturePtr m_CaretTexture;
 

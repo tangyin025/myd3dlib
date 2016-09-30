@@ -14,6 +14,8 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/lexical_cast.hpp>
 
 using namespace my;
 
@@ -203,7 +205,8 @@ void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect &
 template<>
 void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_NVP(m_TexturePath);
+	std::string TexturePath = my::ResourceMgr::getSingleton().GetResourceKey(m_Texture);
+	ar << BOOST_SERIALIZATION_NVP(TexturePath);
 	ar << BOOST_SERIALIZATION_NVP(m_Rect.left);
 	ar << BOOST_SERIALIZATION_NVP(m_Rect.top);
 	ar << BOOST_SERIALIZATION_NVP(m_Rect.right);
@@ -217,7 +220,12 @@ void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 template<>
 void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_NVP(m_TexturePath);
+	std::string TexturePath;
+	ar >> BOOST_SERIALIZATION_NVP(TexturePath);
+	if (!TexturePath.empty())
+	{
+		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(TexturePath);
+	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Rect.left);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rect.top);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rect.right);
@@ -226,10 +234,6 @@ void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.top);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.right);
 	ar >> BOOST_SERIALIZATION_NVP(m_Border.bottom);
-	if (!m_TexturePath.empty())
-	{
-		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(m_TexturePath);
-	}
 }
 
 ControlSkin::~ControlSkin(void)
@@ -240,8 +244,12 @@ template<>
 void ControlSkin::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_NVP(m_Image);
-	ar << BOOST_SERIALIZATION_NVP(m_FontPath);
-	ar << BOOST_SERIALIZATION_NVP(m_FontHeight);
+	std::vector<std::string> FontSeq;
+	boost::algorithm::split(FontSeq, my::ResourceMgr::getSingleton().GetResourceKey(m_Font), boost::is_any_of(" "), boost::algorithm::token_compress_off);
+	std::string FontPath = FontSeq.size() > 1 ? FontSeq[0] : std::string();
+	int FontHeight = FontSeq.size() > 2 ? boost::lexical_cast<int>(FontSeq[1]) : 13;
+	ar << BOOST_SERIALIZATION_NVP(FontPath);
+	ar << BOOST_SERIALIZATION_NVP(FontHeight);
 	ar << BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar << BOOST_SERIALIZATION_NVP(m_TextAlign);
 }
@@ -250,14 +258,16 @@ template<>
 void ControlSkin::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_NVP(m_Image);
-	ar >> BOOST_SERIALIZATION_NVP(m_FontPath);
-	ar >> BOOST_SERIALIZATION_NVP(m_FontHeight);
+	std::string FontPath;
+	ar >> BOOST_SERIALIZATION_NVP(FontPath);
+	int FontHeight;
+	ar >> BOOST_SERIALIZATION_NVP(FontHeight);
+	if (!FontPath.empty())
+	{
+		m_Font = my::ResourceMgr::getSingleton().LoadFont(FontPath, FontHeight);
+	}
 	ar >> BOOST_SERIALIZATION_NVP(m_TextColor);
 	ar >> BOOST_SERIALIZATION_NVP(m_TextAlign);
-	if (!m_FontPath.empty())
-	{
-		m_Font = my::ResourceMgr::getSingleton().LoadFont(m_FontPath, m_FontHeight);
-	}
 }
 
 void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const my::Rectangle & rect, DWORD color)
