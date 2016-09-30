@@ -100,9 +100,10 @@ void UIRender::Flush(void)
 		for (; layer_iter != m_Layer[i].end(); layer_iter++)
 		{
 			// ! Device reset will lead more useless texture key
-			if (!layer_iter->second.empty())
+			_ASSERT(layer_iter->first);
+			if (layer_iter->first->m_ptr && !layer_iter->second.empty())
 			{
-				V(m_Device->SetTexture(0, layer_iter->first ? layer_iter->first->m_ptr : m_TexWhite->m_ptr));
+				V(m_Device->SetTexture(0, layer_iter->first->m_ptr));
 				V(m_Device->SetFVF(D3DFVF_CUSTOMVERTEX));
 				V(m_Device->DrawPrimitiveUP(D3DPT_TRIANGLELIST, layer_iter->second.size() / 3, &layer_iter->second[0], sizeof(CUSTOMVERTEX)));
 				layer_iter->second.clear();

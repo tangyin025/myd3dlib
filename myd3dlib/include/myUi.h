@@ -24,8 +24,6 @@ namespace my
 
 		CComPtr<IDirect3DDevice9> m_Device;
 
-		BaseTexturePtr m_TexWhite;
-
 		typedef std::vector<CUSTOMVERTEX> VertexList;
 
 		typedef boost::unordered_map<BaseTexture *, VertexList> UILayer;
@@ -219,7 +217,6 @@ namespace my
 			, m_Color(D3DCOLOR_ARGB(255,255,255,255))
 			, m_Parent(NULL)
 		{
-			m_Skin.reset(new ControlSkin());
 		}
 
 		virtual ~Control(void);
@@ -383,7 +380,6 @@ namespace my
 			: m_bPressed(false)
 			, m_BlendColor(m_Color)
 		{
-			m_Skin.reset(new ButtonSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -461,7 +457,6 @@ namespace my
 			, m_nSelStart(0)
 			, m_bInsertMode(true)
 		{
-			m_Skin.reset(new EditBoxSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -609,7 +604,6 @@ namespace my
 			, m_dwArrowTS(0)
 			, m_fThumbOffsetY(0)
 		{
-			m_Skin.reset(new ScrollBarSkin());
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -731,7 +725,6 @@ namespace my
 			, m_iFocused(0)
 			, m_iSelected(-1)
 		{
-			m_Skin.reset(new ComboBoxSkin());
 			OnLayout();
 		}
 
