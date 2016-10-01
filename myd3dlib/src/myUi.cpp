@@ -35,6 +35,22 @@ BOOST_CLASS_EXPORT(ButtonSkin)
 
 BOOST_CLASS_EXPORT(Button)
 
+BOOST_CLASS_EXPORT(EditBoxSkin)
+
+BOOST_CLASS_EXPORT(EditBox)
+
+BOOST_CLASS_EXPORT(ImeEditBox)
+
+BOOST_CLASS_EXPORT(ScrollBarSkin)
+
+BOOST_CLASS_EXPORT(ScrollBar)
+
+BOOST_CLASS_EXPORT(CheckBox)
+
+BOOST_CLASS_EXPORT(ComboBoxSkin)
+
+BOOST_CLASS_EXPORT(ComboBox)
+
 BOOST_CLASS_EXPORT(Dialog)
 
 UIRender::~UIRender(void)
@@ -145,6 +161,7 @@ void UIRender::PushVertexSimple(VertexList & vertex_list, unsigned int start, fl
 
 void UIRender::PushVertex(float x, float y, float z, float u, float v, D3DCOLOR color, BaseTexture * texture, UILayerType type)
 {
+	_ASSERT(texture);
 	VertexList & vertex_list = m_Layer[type][texture];
 	unsigned int start = vertex_list.size();
 	vertex_list.resize(start + 1);
@@ -163,6 +180,7 @@ void UIRender::PushRectangleSimple(VertexList & vertex_list, unsigned int start,
 
 void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type)
 {
+	_ASSERT(texture);
 	VertexList & vertex_list = m_Layer[type][texture];
 	unsigned int start = vertex_list.size();
 	vertex_list.resize(start + 6);
@@ -196,6 +214,7 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, co
 
 void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
 {
+	_ASSERT(texture);
 	VertexList & vertex_list = m_Layer[type][texture];
 	unsigned int start = vertex_list.size();
 	vertex_list.resize(start + 6 * 9);
@@ -849,7 +868,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 						Min(TextRect.r, TextRect.l + sel_right_x),
 						TextRect.b);
 
-					ui_render->PushRectangle(SelRect, Rectangle(0,0,1,1), Skin->m_SelBkColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+					Skin->DrawImage(ui_render, Skin->m_CaretImage, SelRect, Skin->m_SelBkColor);
 				}
 
 				Skin->m_Font->PushString(ui_render, m_Text.c_str() + m_nFirstVisible, TextRect, Skin->m_TextColor, Font::AlignLeftMiddle);
@@ -878,7 +897,7 @@ void EditBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Off
 						CaretRect.r = TextRect.l + caret_x - x1st + charWidth;
 					}
 
-					ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+					Skin->DrawImage(ui_render, Skin->m_CaretImage, CaretRect, Skin->m_CaretColor);
 				}
 			}
 		}
@@ -1580,7 +1599,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		if(rc.r > TextRect.r)
 			rc.offsetSelf(TextRect.l - rc.l, TextRect.Height());
 
-		ui_render->PushRectangle(rc, Rectangle(0,0,1,1), m_CompWinColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+		Skin->DrawImage(ui_render, Skin->m_CaretImage, rc, m_CompWinColor);
 
 		Skin->m_Font->PushString(ui_render, s_CompString.c_str(), rc, Skin->m_TextColor, Font::AlignLeftTop);
 
@@ -1589,7 +1608,7 @@ void ImeEditBox::RenderComposition(UIRender * ui_render, float fElapsedTime, con
 		{
 			Rectangle CaretRect(rc.l + caret_x - 1, rc.t, rc.l + caret_x + 1, rc.b);
 
-			ui_render->PushRectangle(CaretRect, Rectangle(0,0,1,1), Skin->m_CaretColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+			Skin->DrawImage(ui_render, Skin->m_CaretImage, CaretRect, Skin->m_CaretColor);
 		}
 	}
 }
@@ -1629,7 +1648,7 @@ void ImeEditBox::RenderCandidateWindow(UIRender * ui_render, float fElapsedTime,
 
 		Rectangle CandRect(Rectangle::LeftTop(CompRect.l + comp_x, CompRect.b, extent.x, (float)Skin->m_Font->m_LineHeight));
 
-		ui_render->PushRectangle(CandRect, Rectangle(0,0,1,1), m_CandidateWinColor, Skin->m_CaretTexture.get(), UIRender::UILayerTexture);
+		Skin->DrawImage(ui_render, Skin->m_CaretImage, CandRect, m_CandidateWinColor);
 
 		Skin->m_Font->PushString(ui_render, horizontalText.c_str(), CandRect, Skin->m_TextColor, Font::AlignLeftTop);
 	}
@@ -1929,6 +1948,29 @@ bool CheckBox::HandleMouse(UINT uMsg, const Vector2 & pt, WPARAM wParam, LPARAM 
 		}
 	}
 	return false;
+}
+
+template<>
+void ComboBox::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
+	ar << BOOST_SERIALIZATION_NVP(m_DropdownSize);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
+	ar << BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
+	ar << BOOST_SERIALIZATION_NVP(m_Border);
+	ar << BOOST_SERIALIZATION_NVP(m_ItemHeight);
+}
+
+template<>
+void ComboBox::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
+	ar >> BOOST_SERIALIZATION_NVP(m_DropdownSize);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarWidth);
+	ar >> BOOST_SERIALIZATION_NVP(m_ScrollbarUpDownBtnHeight);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border);
+	ar >> BOOST_SERIALIZATION_NVP(m_ItemHeight);
+	OnLayout();
 }
 
 void ComboBox::Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset)

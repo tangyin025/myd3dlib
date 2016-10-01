@@ -441,13 +441,24 @@ namespace my
 
 		D3DCOLOR m_CaretColor;
 
-		BaseTexturePtr m_CaretTexture;
+		ControlImagePtr m_CaretImage;
 
 	public:
 		EditBoxSkin(void)
 			: m_SelBkColor(D3DCOLOR_ARGB(197,0,0,0))
 			, m_CaretColor(D3DCOLOR_ARGB(255,255,255,255))
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_DisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_FocusedImage);
+			ar & BOOST_SERIALIZATION_NVP(m_SelBkColor);
+			ar & BOOST_SERIALIZATION_NVP(m_CaretColor);
+			ar & BOOST_SERIALIZATION_NVP(m_CaretImage);
 		}
 	};
 
@@ -490,6 +501,13 @@ namespace my
 			, m_nSelStart(0)
 			, m_bInsertMode(true)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Static);
+			ar & BOOST_SERIALIZATION_NVP(m_Border);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -545,6 +563,14 @@ namespace my
 		{
 		}
 
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EditBox);
+			ar & BOOST_SERIALIZATION_NVP(m_CompWinColor);
+			ar & BOOST_SERIALIZATION_NVP(m_CandidateWinColor);
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -590,6 +616,17 @@ namespace my
 	public:
 		ScrollBarSkin(void)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ControlSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_UpBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_UpBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_DownBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_DownBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ThumbBtnNormalImage);
 		}
 	};
 
@@ -639,6 +676,13 @@ namespace my
 		{
 		}
 
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Control);
+			ar & BOOST_SERIALIZATION_NVP(m_nPageSize);
+		}
+
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
 
 		virtual bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
@@ -666,6 +710,14 @@ namespace my
 			: m_CheckBtnSize(20,20)
 			, m_Checked(false)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Button);
+			ar & BOOST_SERIALIZATION_NVP(m_CheckBtnSize);
+			ar & BOOST_SERIALIZATION_NVP(m_Checked);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
@@ -699,6 +751,20 @@ namespace my
 	public:
 		ComboBoxSkin(void)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(ButtonSkin);
+			ar & BOOST_SERIALIZATION_NVP(m_DropdownImage);
+			ar & BOOST_SERIALIZATION_NVP(m_DropdownItemMouseOverImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarUpBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarDownBtnDisabledImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarThumbBtnNormalImage);
+			ar & BOOST_SERIALIZATION_NVP(m_ScrollBarImage);
 		}
 	};
 
@@ -759,6 +825,18 @@ namespace my
 			, m_iSelected(-1)
 		{
 			OnLayout();
+		}
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
 		}
 
 		virtual void Draw(UIRender * ui_render, float fElapsedTime, const Vector2 & Offset);
