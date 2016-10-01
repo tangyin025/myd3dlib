@@ -945,7 +945,7 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 
 std::string EffectIORequest::BuildKey(const std::string & path, const std::string & macros)
 {
-	return str_printf("%s, %s", path.c_str(), macros.c_str());
+	return str_printf("%s %s", path.c_str(), macros.c_str());
 }
 
 void FontIORequest::LoadResource(void)
@@ -969,5 +969,5 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 
 std::string FontIORequest::BuildKey(const std::string & path, int height)
 {
-	return str_printf("%s, %d", path.c_str(), height);
+	return str_printf("%s %d", path.c_str(), height);
 }
