@@ -132,8 +132,8 @@ public:
 		dlg->m_Skin.reset(new ControlSkin());
 		dlg->m_Skin->m_Image.reset(new ControlImage());
 		dlg->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		dlg->m_Skin->m_Image->m_Rect = CRect(154,43,156,45);
-		dlg->m_Skin->m_Image->m_Border = CRect(0,0,0,0);
+		dlg->m_Skin->m_Image->m_Rect = my::Rectangle(154,43,156,45);
+		dlg->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
 
 		ControlPtr lbl_title(new Control());
 		lbl_title->m_Location = Vector2(17,13);
@@ -142,8 +142,8 @@ public:
 		lbl_title->m_Skin.reset(new ControlSkin());
 		lbl_title->m_Skin->m_Image.reset(new ControlImage());
 		lbl_title->m_Skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		lbl_title->m_Skin->m_Image->m_Rect = CRect(0,0,256,42);
-		lbl_title->m_Skin->m_Image->m_Border = CRect(0,0,0,0);
+		lbl_title->m_Skin->m_Image->m_Rect = my::Rectangle(0,0,256,42);
+		lbl_title->m_Skin->m_Image->m_Border = Vector4(0,0,0,0);
 		dlg->InsertControl(lbl_title);
 
 		ButtonPtr btn_ok(new Button());
@@ -154,20 +154,20 @@ public:
 		btn_ok_skin->m_Font = my::ResourceMgr::getSingleton().LoadFont("font/wqy-microhei.ttc", 13);
 		btn_ok_skin->m_Image.reset(new ControlImage());
 		btn_ok_skin->m_Image->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_Image->m_Rect = CRect(52,43,68,59);
-		btn_ok_skin->m_Image->m_Border = CRect(7,7,7,7);
+		btn_ok_skin->m_Image->m_Rect = my::Rectangle(52,43,68,59);
+		btn_ok_skin->m_Image->m_Border = Vector4(7,7,7,7);
 		btn_ok_skin->m_DisabledImage.reset(new ControlImage());
 		btn_ok_skin->m_DisabledImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_DisabledImage->m_Rect = CRect(1,43,17,59);
-		btn_ok_skin->m_DisabledImage->m_Border = CRect(7,7,7,7);
+		btn_ok_skin->m_DisabledImage->m_Rect = my::Rectangle(1,43,17,59);
+		btn_ok_skin->m_DisabledImage->m_Border = Vector4(7,7,7,7);
 		btn_ok_skin->m_PressedImage.reset(new ControlImage());
 		btn_ok_skin->m_PressedImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_PressedImage->m_Rect = CRect(18,43,34,59);
-		btn_ok_skin->m_PressedImage->m_Border = CRect(7,7,7,7);
+		btn_ok_skin->m_PressedImage->m_Rect = my::Rectangle(18,43,34,59);
+		btn_ok_skin->m_PressedImage->m_Border = Vector4(7,7,7,7);
 		btn_ok_skin->m_MouseOverImage.reset(new ControlImage());
 		btn_ok_skin->m_MouseOverImage->m_Texture = my::ResourceMgr::getSingleton().LoadTexture("texture/CommonUI.png");
-		btn_ok_skin->m_MouseOverImage->m_Rect = CRect(35,43,51,59);
-		btn_ok_skin->m_MouseOverImage->m_Border = CRect(7,7,7,7);
+		btn_ok_skin->m_MouseOverImage->m_Rect = my::Rectangle(35,43,51,59);
+		btn_ok_skin->m_MouseOverImage->m_Border = Vector4(7,7,7,7);
 		btn_ok_skin->m_TextAlign = Font::AlignCenterMiddle;
 		btn_ok_skin->m_TextColor = D3DCOLOR_ARGB(255,255,255,255);
 		btn_ok_skin->m_PressedOffset = Vector2(1,2);

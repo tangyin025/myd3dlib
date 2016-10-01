@@ -67,9 +67,9 @@ namespace my
 
 		void PushRectangle(const Rectangle & rect, const Rectangle & UvRect, D3DCOLOR color, BaseTexture * texture, UILayerType type);
 
-		void PushWindowSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize);
+		void PushWindowSimple(VertexList & vertex_list, unsigned int start, const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize);
 
-		void PushWindow(const Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
+		void PushWindow(const Rectangle & rect, DWORD color, const Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type);
 	};
 
 	typedef boost::shared_ptr<UIRender> UIRenderPtr;
@@ -79,9 +79,9 @@ namespace my
 	public:
 		BaseTexturePtr m_Texture;
 
-		CRect m_Rect;
+		Rectangle m_Rect;
 
-		CRect m_Border;
+		Vector4 m_Border;
 
 		ControlImage(void)
 			: m_Rect(0,0,100,100)

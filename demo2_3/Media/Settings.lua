@@ -5,7 +5,7 @@ module("Settings",package.seeall)
 dlg=Dialog()
 dlg.Color=ARGB(150,0,0,0)
 dlg.Size=Vector2(640,480)
-dlg.Skin=CommonUI.com_lbl_skin
+dlg.Skin=CommonUI.com_dlg_skin
 dlg.EventAlign=function(args)
 	dlg.Location=(game.DlgViewport-dlg.Size)*0.5
 end
@@ -54,7 +54,11 @@ local lbl_title=Control()
 lbl_title.Location=Vector2(17,13)
 lbl_title.Size=Vector2(256,42)
 lbl_title.Color=ARGB(255,255,255,255)
-lbl_title.Skin.Image=ControlImage(game:LoadTexture("texture/CommonUI.png"),Rectangle(0,0,256,42),Vector4(0,0,0,0))
+lbl_title.Skin=ControlSkin()
+lbl_title.Skin.Image=ControlImage()
+lbl_title.Skin.Image.Texture=game:LoadTexture("texture/CommonUI.png")
+lbl_title.Skin.Image.Rect=Rectangle(0,0,256,42)
+lbl_title.Skin.Image.Border=Vector4(0,0,0,0)
 dlg:InsertControl(lbl_title)
 
 local local_device_settings=nil

@@ -187,11 +187,11 @@ void UIRender::PushRectangle(const my::Rectangle & rect, const my::Rectangle & U
 	PushRectangleSimple(vertex_list, start, rect, UvRect, color);
 }
 
-void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize)
+void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize)
 {
-	Rectangle OutUvRect((float)WindowRect.left / TextureSize.cx,  (float)WindowRect.top / TextureSize.cy, (float)WindowRect.right / TextureSize.cx, (float)WindowRect.bottom / TextureSize.cy);
-	Rectangle InRect(rect.l + WindowBorder.left, rect.t + WindowBorder.top, rect.r - WindowBorder.right, rect.b - WindowBorder.bottom);
-	Rectangle InUvRect((float)(WindowRect.left + WindowBorder.left) / TextureSize.cx, (float)(WindowRect.top + WindowBorder.top) / TextureSize.cy, (float)(WindowRect.right - WindowBorder.right) / TextureSize.cx, (float)(WindowRect.bottom - WindowBorder.bottom) / TextureSize.cy);
+	Rectangle OutUvRect(WindowRect.l / TextureSize.cx,  WindowRect.t / TextureSize.cy, WindowRect.r / TextureSize.cx, WindowRect.b / TextureSize.cy);
+	Rectangle InRect(rect.l + WindowBorder.x, rect.t + WindowBorder.y, rect.r - WindowBorder.z, rect.b - WindowBorder.w);
+	Rectangle InUvRect((WindowRect.l + WindowBorder.x) / TextureSize.cx, (WindowRect.t + WindowBorder.y) / TextureSize.cy, (WindowRect.r - WindowBorder.z) / TextureSize.cx, (WindowRect.b - WindowBorder.w) / TextureSize.cy);
 	PushRectangleSimple(vertex_list, start, Rectangle(rect.l, rect.t, InRect.l, InRect.t), Rectangle(OutUvRect.l, OutUvRect.t, InUvRect.l, InUvRect.t), color);
 	start += 6;
 	PushRectangleSimple(vertex_list, start, Rectangle(InRect.l, rect.t, InRect.r, InRect.t), Rectangle(InUvRect.l, OutUvRect.t, InUvRect.r, InUvRect.t), color);
@@ -212,7 +212,7 @@ void UIRender::PushWindowSimple(VertexList & vertex_list, unsigned int start, co
 	start += 6;
 }
 
-void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const CRect & WindowRect, const CRect & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
+void UIRender::PushWindow(const my::Rectangle & rect, DWORD color, const my::Rectangle & WindowRect, const Vector4 & WindowBorder, const CSize & TextureSize, BaseTexture * texture, UILayerType type)
 {
 	_ASSERT(texture);
 	VertexList & vertex_list = m_Layer[type][texture];
@@ -226,14 +226,8 @@ void ControlImage::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 {
 	std::string TexturePath = my::ResourceMgr::getSingleton().GetResourceKey(m_Texture);
 	ar << BOOST_SERIALIZATION_NVP(TexturePath);
-	ar << BOOST_SERIALIZATION_NVP(m_Rect.left);
-	ar << BOOST_SERIALIZATION_NVP(m_Rect.top);
-	ar << BOOST_SERIALIZATION_NVP(m_Rect.right);
-	ar << BOOST_SERIALIZATION_NVP(m_Rect.bottom);
-	ar << BOOST_SERIALIZATION_NVP(m_Border.left);
-	ar << BOOST_SERIALIZATION_NVP(m_Border.top);
-	ar << BOOST_SERIALIZATION_NVP(m_Border.right);
-	ar << BOOST_SERIALIZATION_NVP(m_Border.bottom);
+	ar << BOOST_SERIALIZATION_NVP(m_Rect);
+	ar << BOOST_SERIALIZATION_NVP(m_Border);
 }
 
 template<>
@@ -245,14 +239,8 @@ void ControlImage::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	{
 		m_Texture = my::ResourceMgr::getSingleton().LoadTexture(TexturePath);
 	}
-	ar >> BOOST_SERIALIZATION_NVP(m_Rect.left);
-	ar >> BOOST_SERIALIZATION_NVP(m_Rect.top);
-	ar >> BOOST_SERIALIZATION_NVP(m_Rect.right);
-	ar >> BOOST_SERIALIZATION_NVP(m_Rect.bottom);
-	ar >> BOOST_SERIALIZATION_NVP(m_Border.left);
-	ar >> BOOST_SERIALIZATION_NVP(m_Border.top);
-	ar >> BOOST_SERIALIZATION_NVP(m_Border.right);
-	ar >> BOOST_SERIALIZATION_NVP(m_Border.bottom);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rect);
+	ar >> BOOST_SERIALIZATION_NVP(m_Border);
 }
 
 ControlSkin::~ControlSkin(void)
@@ -294,9 +282,9 @@ void ControlSkin::DrawImage(UIRender * ui_render, ControlImagePtr Image, const m
 	if(Image && Image->m_Texture)
 	{
 		D3DSURFACE_DESC desc = Image->m_Texture->GetLevelDesc();
-		if (Image->m_Border.IsRectNull())
+		if (Image->m_Border.x == 0 && Image->m_Border.y == 0 && Image->m_Border.z == 0 && Image->m_Border.w == 0)
 		{
-			Rectangle UvRect((float)Image->m_Rect.left / desc.Width,  (float)Image->m_Rect.top / desc.Height, (float)Image->m_Rect.right / desc.Width, (float)Image->m_Rect.bottom / desc.Height);
+			Rectangle UvRect(Image->m_Rect.l / desc.Width,  Image->m_Rect.t / desc.Height, Image->m_Rect.r / desc.Width, Image->m_Rect.b / desc.Height);
 			ui_render->PushRectangle(rect, UvRect, color, Image->m_Texture.get(), UIRender::UILayerTexture);
 		}
 		else

@@ -484,7 +484,10 @@ static void ExportUI(lua_State * L)
 		, class_<my::ControlEvent>("ControlEvent")
 
 		, class_<my::ControlImage, boost::shared_ptr<my::ControlImage> >("ControlImage")
-			.def(constructor<my::BaseTexturePtr, const my::Rectangle &, const my::Vector4 &>())
+			.def(constructor<>())
+			.def_readwrite("Texture", &my::ControlImage::m_Texture)
+			.def_readwrite("Rect", &my::ControlImage::m_Rect)
+			.def_readwrite("Border", &my::ControlImage::m_Border)
 
 		, class_<my::ControlSkin, boost::shared_ptr<my::ControlSkin> >("ControlSkin")
 			.def(constructor<>())

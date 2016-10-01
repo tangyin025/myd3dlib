@@ -5,7 +5,6 @@ module("Hud", package.seeall)
 dlg=Dialog()
 dlg.Color=ARGB(0,0,0,0)
 dlg.Size=Vector2(170,170)
-dlg.Skin=CommonUI.com_lbl_skin
 dlg.EventAlign=function(args)
 	dlg.Location=Vector2(game.DlgViewport.x-170,0)
 end

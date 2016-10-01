@@ -6,6 +6,7 @@
 #include "../myd3dbox/Component/Actor.h"
 #include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/FModContext.h"
+#include "../myd3dbox/Component/LuaExtension.h"
 #include "Logic/Logic.h"
 
 class Game
@@ -14,13 +15,14 @@ class Game
 	, public my::DialogMgr
 	, public my::InputMgr
 	, public my::ResourceMgr
+	, public my::ParallelTaskManager
+	, public my::DrawHelper
+	, public LuaContext
 	, public RenderPipeline
 	, public RenderPipeline::IRenderContext
 	, public PhysXContext
 	, public PhysXSceneContext
 	, public FModContext
-	, public my::ParallelTaskManager
-	, public my::DrawHelper
 {
 public:
 	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;
@@ -114,7 +116,7 @@ public:
 
 	void puts(const std::wstring & str);
 
-	//bool ExecuteCode(const char * code) throw();
+	bool ExecuteCode(const char * code) throw();
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
