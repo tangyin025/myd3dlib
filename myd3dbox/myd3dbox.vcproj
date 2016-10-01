@@ -386,6 +386,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\LuaExtension.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\LuaExtension.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\PhysXContext.cpp"
 				>
 			</File>
