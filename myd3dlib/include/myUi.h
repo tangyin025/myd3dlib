@@ -4,6 +4,7 @@
 #include <boost/function.hpp>
 #include <boost/array.hpp>
 #include <vector>
+#include <list>
 #include <map>
 
 namespace my
@@ -164,7 +165,9 @@ namespace my
 	class Control
 	{
 	public:
-		typedef std::vector<ControlPtr> ControlPtrList;
+		std::string m_Name;
+
+		typedef std::list<ControlPtr> ControlPtrList;
 
 		ControlPtrList m_Childs;
 
@@ -269,6 +272,10 @@ namespace my
 		void ClearAllControl(void);
 
 		bool ContainsControl(Control * control);
+
+		Control * FindControl(const char * name);
+
+		Control * FindControlRecurse(const char * name);
 
 		Control * GetChildAtPoint(const Vector2 & pt) const;
 
@@ -941,7 +948,7 @@ namespace my
 	class DialogMgr
 	{
 	public:
-		typedef std::vector<DialogPtr> DialogPtrList;
+		typedef std::list<DialogPtr> DialogPtrList;
 
 		DialogPtrList m_DlgList;
 
@@ -976,5 +983,9 @@ namespace my
 		void RemoveDlg(DialogPtr dlg);
 
 		void RemoveAllDlg();
+
+		Control * FindControl(const char * name);
+
+		Control * FindControlRecurse(const char * name);
 	};
 }

@@ -507,6 +507,8 @@ static void ExportUI(lua_State * L)
 			.def("InsertControl", &my::Control::InsertControl)
 			.def("RemoveControl", &my::Control::RemoveControl)
 			.def("ClearAllControl", &my::Control::ClearAllControl)
+			.def("FindControl", &my::Control::FindControl)
+			.def("FindControlRecurse", &my::Control::FindControlRecurse)
 			.def_readwrite("EventMouseEnter", &my::Control::EventMouseEnter)
 			.def_readwrite("EventMouseLeave", &my::Control::EventMouseLeave)
 
@@ -603,6 +605,14 @@ static void ExportUI(lua_State * L)
 			.def("Refresh", &my::Dialog::Refresh)
 			.def_readwrite("EventAlign", &my::Dialog::EventAlign)
 			.def_readwrite("EventRefresh", &my::Dialog::EventRefresh)
+
+		, class_<my::DialogMgr>("DialogMgr")
+			.property("DlgViewport", &my::DialogMgr::GetDlgViewport, &my::DialogMgr::SetDlgViewport)
+			.def("InsertDlg", &my::DialogMgr::InsertDlg)
+			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
+			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
+			.def("FindControl", &my::DialogMgr::FindControl)
+			.def("FindControlRecurse", &my::DialogMgr::FindControlRecurse)
 	];
 }
 

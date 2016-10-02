@@ -9,7 +9,7 @@
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
 #include <boost/serialization/shared_ptr.hpp>
-#include <boost/serialization/vector.hpp>
+#include <boost/serialization/list.hpp>
 #include <boost/serialization/deque.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
@@ -324,6 +324,7 @@ Control::~Control(void)
 template<>
 void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_NVP(m_Name);
 	ar << BOOST_SERIALIZATION_NVP(m_Childs);
 	ar << BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar << BOOST_SERIALIZATION_NVP(m_bVisible);
@@ -337,6 +338,7 @@ void Control::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 template<>
 void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_NVP(m_Name);
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	ar >> BOOST_SERIALIZATION_NVP(m_bEnabled);
 	ar >> BOOST_SERIALIZATION_NVP(m_bVisible);
@@ -345,9 +347,10 @@ void Control::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_Size);
 	ar >> BOOST_SERIALIZATION_NVP(m_Color);
 	ar >> BOOST_SERIALIZATION_NVP(m_Skin);
-	for (unsigned int i = 0; i < m_Childs.size(); i++)
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
 	{
-		m_Childs[i]->m_Parent = this;
+		(*ctrl_iter)->m_Parent = this;
 	}
 }
 
@@ -513,6 +516,38 @@ bool Control::ContainsControl(Control * control)
 		}
 	}
 	return false;
+}
+
+Control * Control::FindControl(const char * name)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		if ((*ctrl_iter)->m_Name == name)
+		{
+			return ctrl_iter->get();
+		}
+	}
+	return NULL;
+}
+
+Control * Control::FindControlRecurse(const char * name)
+{
+	ControlPtrList::iterator ctrl_iter = m_Childs.begin();
+	for (; ctrl_iter != m_Childs.end(); ctrl_iter++)
+	{
+		if ((*ctrl_iter)->m_Name == name)
+		{
+			return ctrl_iter->get();
+		}
+
+		Control * ret = (*ctrl_iter)->FindControlRecurse(name);
+		if (ret)
+		{
+			return ret;
+		}
+	}
+	return NULL;
 }
 
 Control * Control::GetChildAtPoint(const Vector2 & pt) const
@@ -2671,4 +2706,36 @@ void DialogMgr::RemoveDlg(DialogPtr dlg)
 void DialogMgr::RemoveAllDlg()
 {
 	m_DlgList.clear();
+}
+
+Control * DialogMgr::FindControl(const char * name)
+{
+	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
+	{
+		if ((*dlg_iter)->m_Name == name)
+		{
+			return dlg_iter->get();
+		}
+	}
+	return NULL;
+}
+
+Control * DialogMgr::FindControlRecurse(const char * name)
+{
+	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
+	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
+	{
+		if ((*dlg_iter)->m_Name == name)
+		{
+			return dlg_iter->get();
+		}
+
+		Control * ret = (*dlg_iter)->FindControlRecurse(name);
+		if (ret)
+		{
+			return ret;
+		}
+	}
+	return NULL;
 }
