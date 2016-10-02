@@ -123,4 +123,8 @@ public:
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
+
+	void SaveDialog(my::DialogPtr dlg, const char * path);
+
+	my::DialogPtr LoadDialog(const char * path);
 };

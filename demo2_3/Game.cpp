@@ -6,6 +6,9 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
+#include <boost/serialization/shared_ptr.hpp>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -262,6 +265,8 @@ Game::Game(void)
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
 			.def("PlaySound", &Game::PlaySound)
+			.def("SaveDialog", &Game::SaveDialog)
+			.def("LoadDialog", &Game::LoadDialog)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -828,4 +833,21 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 	const Vector3 InExtent(1000,1000,1000);
 	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
 	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
+}
+
+void Game::SaveDialog(my::DialogPtr dlg, const char * path)
+{
+	std::ofstream ostr(path);
+	boost::archive::polymorphic_xml_oarchive oa(ostr);
+	oa << BOOST_SERIALIZATION_NVP(dlg);
+}
+
+my::DialogPtr Game::LoadDialog(const char * path)
+{
+	DialogPtr dlg;
+	IStreamBuff buff(OpenIStream(path));
+	std::istream istr(&buff);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
+	ia >> BOOST_SERIALIZATION_NVP(dlg);
+	return dlg;
 }

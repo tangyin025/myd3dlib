@@ -54,7 +54,6 @@ public:
 		FModContext::SetMediaPath("sound\\");
 		FModContext::LoadEventFile("aaa.fev");
 
-		ExecuteCode("dofile \"Hud.lua\"");
 		ExecuteCode("dofile \"StateMain.lua\"");
 		RemoveDlg(m_Console);
 		InsertDlg(m_Console);

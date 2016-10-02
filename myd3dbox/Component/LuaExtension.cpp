@@ -498,6 +498,7 @@ static void ExportUI(lua_State * L)
 
 		, class_<my::Control, boost::shared_ptr<my::Control> >("Control")
 			.def(constructor<>())
+			.def_readwrite("Name", &my::Control::m_Name)
 			.property("Enabled", &my::Control::GetEnabled, &my::Control::SetEnabled)
 			.property("Visible", &my::Control::GetVisible, &my::Control::SetVisible)
 			.def_readwrite("Location", &my::Control::m_Location)
@@ -611,8 +612,6 @@ static void ExportUI(lua_State * L)
 			.def("InsertDlg", &my::DialogMgr::InsertDlg)
 			.def("RemoveDlg", &my::DialogMgr::RemoveDlg)
 			.def("RemoveAllDlg", &my::DialogMgr::RemoveAllDlg)
-			.def("FindControl", &my::DialogMgr::FindControl)
-			.def("FindControlRecurse", &my::DialogMgr::FindControlRecurse)
 	];
 }
 

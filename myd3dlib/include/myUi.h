@@ -983,9 +983,5 @@ namespace my
 		void RemoveDlg(DialogPtr dlg);
 
 		void RemoveAllDlg();
-
-		Control * FindControl(const char * name);
-
-		Control * FindControlRecurse(const char * name);
 	};
 }

@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="10">
+<dlg class_id="0" tracking_level="0" version="1">
+	<px class_id="1" tracking_level="1" version="0" object_id="_0">
+		<Control class_id="2" tracking_level="1" version="0" object_id="_1">
+			<m_Name>Hud</m_Name>
+			<m_Childs class_id="3" tracking_level="0" version="0">
+				<count>3</count>
+				<item_version>1</item_version>
+				<item class_id="4" tracking_level="0" version="1">
+					<px class_id="5" class_name="Button" tracking_level="1" version="0" object_id="_2">
+						<Static class_id="6" tracking_level="1" version="0" object_id="_3">
+							<Control object_id="_4">
+								<m_Name>btn_toggle_fs</m_Name>
+								<m_Childs>
+									<count>0</count>
+									<item_version>1</item_version>
+								</m_Childs>
+								<m_bEnabled>1</m_bEnabled>
+								<m_bVisible>1</m_bVisible>
+								<m_nHotkey>0</m_nHotkey>
+								<m_Location class_id="7" tracking_level="0" version="0">
+									<x>35</x>
+									<y>10</y>
+								</m_Location>
+								<m_Size>
+									<x>125</x>
+									<y>22</y>
+								</m_Size>
+								<m_Color>4294967295</m_Color>
+								<m_Skin class_id="8" tracking_level="0" version="1">
+									<px class_id="10" class_name="ButtonSkin" tracking_level="1" version="0" object_id="_5">
+										<ControlSkin class_id="9" tracking_level="1" version="0" object_id="_6">
+											<m_Image class_id="11" tracking_level="0" version="1">
+												<px class_id="12" tracking_level="1" version="0" object_id="_7">
+													<TexturePath>texture/CommonUI.png</TexturePath>
+													<m_Rect class_id="13" tracking_level="0" version="0">
+														<l>52</l>
+														<t>43</t>
+														<r>67</r>
+														<b>58</b>
+													</m_Rect>
+													<m_Border class_id="14" tracking_level="0" version="0">
+														<x>7</x>
+														<y>7</y>
+														<z>7</z>
+														<w>7</w>
+													</m_Border>
+												</px>
+											</m_Image>
+											<FontPath>font/wqy-microhei.ttc</FontPath>
+											<FontHeight>13</FontHeight>
+											<m_TextColor>4294967295</m_TextColor>
+											<m_TextAlign>65552</m_TextAlign>
+										</ControlSkin>
+										<m_DisabledImage>
+											<px class_id_reference="12" object_id="_8">
+												<TexturePath>texture/CommonUI.png</TexturePath>
+												<m_Rect>
+													<l>1</l>
+													<t>43</t>
+													<r>16</r>
+													<b>58</b>
+												</m_Rect>
+												<m_Border>
+													<x>7</x>
+													<y>7</y>
+													<z>7</z>
+													<w>7</w>
+												</m_Border>
+											</px>
+										</m_DisabledImage>
+										<m_PressedImage>
+											<px class_id_reference="12" object_id="_9">
+												<TexturePath>texture/CommonUI.png</TexturePath>
+												<m_Rect>
+													<l>18</l>
+													<t>43</t>
+													<r>33</r>
+													<b>58</b>
+												</m_Rect>
+												<m_Border>
+													<x>7</x>
+													<y>7</y>
+													<z>7</z>
+													<w>7</w>
+												</m_Border>
+											</px>
+										</m_PressedImage>
+										<m_MouseOverImage>
+											<px class_id_reference="12" object_id="_10">
+												<TexturePath>texture/CommonUI.png</TexturePath>
+												<m_Rect>
+													<l>35</l>
+													<t>43</t>
+													<r>50</r>
+													<b>58</b>
+												</m_Rect>
+												<m_Border>
+													<x>7</x>
+													<y>7</y>
+													<z>7</z>
+													<w>7</w>
+												</m_Border>
+											</px>
+										</m_MouseOverImage>
+										<m_PressedOffset>
+											<x>1</x>
+											<y>2</y>
+										</m_PressedOffset>
+									</px>
+								</m_Skin>
+							</Control>
+							<m_Text>Toggle full screen</m_Text>
+						</Static>
+						<m_bPressed>0</m_bPressed>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="5" object_id="_11">
+						<Static object_id="_12">
+							<Control object_id="_13">
+								<m_Name>btn_toggle_ref</m_Name>
+								<m_Childs>
+									<count>0</count>
+									<item_version>1</item_version>
+								</m_Childs>
+								<m_bEnabled>1</m_bEnabled>
+								<m_bVisible>1</m_bVisible>
+								<m_nHotkey>114</m_nHotkey>
+								<m_Location>
+									<x>35</x>
+									<y>35</y>
+								</m_Location>
+								<m_Size>
+									<x>125</x>
+									<y>22</y>
+								</m_Size>
+								<m_Color>4294967295</m_Color>
+								<m_Skin>
+									<px class_id_reference="10" object_id_reference="_5"></px>
+								</m_Skin>
+							</Control>
+							<m_Text>Toggle REF (F3)</m_Text>
+						</Static>
+						<m_bPressed>0</m_bPressed>
+					</px>
+				</item>
+				<item>
+					<px class_id_reference="5" object_id="_14">
+						<Static object_id="_15">
+							<Control object_id="_16">
+								<m_Name>btn_change_device</m_Name>
+								<m_Childs>
+									<count>0</count>
+									<item_version>1</item_version>
+								</m_Childs>
+								<m_bEnabled>1</m_bEnabled>
+								<m_bVisible>1</m_bVisible>
+								<m_nHotkey>113</m_nHotkey>
+								<m_Location>
+									<x>35</x>
+									<y>60</y>
+								</m_Location>
+								<m_Size>
+									<x>125</x>
+									<y>22</y>
+								</m_Size>
+								<m_Color>4294967295</m_Color>
+								<m_Skin>
+									<px class_id_reference="10" object_id_reference="_5"></px>
+								</m_Skin>
+							</Control>
+							<m_Text>Change device (F2)</m_Text>
+						</Static>
+						<m_bPressed>0</m_bPressed>
+					</px>
+				</item>
+			</m_Childs>
+			<m_bEnabled>1</m_bEnabled>
+			<m_bVisible>1</m_bVisible>
+			<m_nHotkey>0</m_nHotkey>
+			<m_Location>
+				<x>100</x>
+				<y>100</y>
+			</m_Location>
+			<m_Size>
+				<x>170</x>
+				<y>170</y>
+			</m_Size>
+			<m_Color>0</m_Color>
+			<m_Skin>
+				<px class_id="-1"></px>
+			</m_Skin>
+		</Control>
+		<m_World class_id="15" tracking_level="0" version="0">
+			<_11>1</_11>
+			<_12>0</_12>
+			<_13>0</_13>
+			<_14>0</_14>
+			<_21>0</_21>
+			<_22>1</_22>
+			<_23>0</_23>
+			<_24>0</_24>
+			<_31>0</_31>
+			<_32>0</_32>
+			<_33>1</_33>
+			<_34>0</_34>
+			<_41>0</_41>
+			<_42>0</_42>
+			<_43>0</_43>
+			<_44>1</_44>
+		</m_World>
+	</px>
+</dlg>
+</boost_serialization>
+

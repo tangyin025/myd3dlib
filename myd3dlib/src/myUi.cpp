@@ -2707,35 +2707,3 @@ void DialogMgr::RemoveAllDlg()
 {
 	m_DlgList.clear();
 }
-
-Control * DialogMgr::FindControl(const char * name)
-{
-	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
-	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
-	{
-		if ((*dlg_iter)->m_Name == name)
-		{
-			return dlg_iter->get();
-		}
-	}
-	return NULL;
-}
-
-Control * DialogMgr::FindControlRecurse(const char * name)
-{
-	DialogPtrList::reverse_iterator dlg_iter = m_DlgList.rbegin();
-	for(; dlg_iter != m_DlgList.rend(); dlg_iter++)
-	{
-		if ((*dlg_iter)->m_Name == name)
-		{
-			return dlg_iter->get();
-		}
-
-		Control * ret = (*dlg_iter)->FindControlRecurse(name);
-		if (ret)
-		{
-			return ret;
-		}
-	}
-	return NULL;
-}
