@@ -22,11 +22,7 @@ void Logic::Create(void)
 {
 	std::ifstream istr("aaa.xml");
 	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> boost::serialization::make_nvp("level", m_cmps);
-	for (unsigned int i = 0; i < m_cmps.size(); i++)
-	{
-		Game::getSingleton().m_Root.AddComponent(m_cmps[i], m_cmps[i]->m_aabb.transform(Component::GetCmpWorld(m_cmps[i].get())), 0.1f);
-	}
+	ia >> boost::serialization::make_nvp("m_Root", Game::getSingleton().m_Root);
 
 	m_player.reset(new LocalPlayer());
 }
