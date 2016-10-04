@@ -69,31 +69,28 @@ public:
 
 	ComponentType m_Type;
 
-	my::AABB m_aabb;
-
 	bool m_Requested;
 
 public:
 	Component(const my::AABB & aabb, ComponentType Type)
-		: m_Type(Type)
-		, m_aabb(aabb)
+		: OctComponent(aabb)
+		, m_Type(Type)
 		, m_Requested(false)
 	{
 	}
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
-		, m_aabb(my::AABB(-FLT_MAX,FLT_MAX))
 		, m_Requested(false)
 	{
 	}
 
 	virtual ~Component(void)
 	{
-		if (m_OctNode)
-		{
-			m_OctNode->RemoveComponent(this);
-		}
+		//if (m_OctNode)
+		//{
+		//	m_OctNode->RemoveComponent(this);
+		//}
 		// ! Derived class must ReleaseResource menually
 		_ASSERT(!IsRequested());
 	}
@@ -101,8 +98,8 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 	}
 
 	bool IsRequested(void) const
@@ -130,11 +127,11 @@ public:
 	{
 	}
 
-	static const my::AABB & GetComponentAABB(const Component * cmp);
+	static const my::AABB & GetCmpBaseAABB(const Component * cmp);
 
-	static const my::AABB & GetComponentOctAABB(const Component * cmp);
+	static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
-	static my::Matrix4 GetComponentWorld(const Component * cmp);
+	static my::Matrix4 GetCmpWorld(const Component * cmp);
 
 	static void SetComponentWorld(Component * cmp, const my::Matrix4 & World);
 };
@@ -172,7 +169,7 @@ public:
 
 	struct LOD
 	{
-		ResourceBundle<my::Mesh> m_MeshRes;
+		ResourceBundle<my::OgreMesh> m_MeshRes;
 
 		bool m_bInstance;
 
@@ -275,6 +272,8 @@ class EmitterComponent
 	: public RenderComponent
 {
 public:
+	my::AABB m_BaseAABB;
+
 	my::Matrix4 m_World;
 
 	my::EmitterPtr m_Emitter;
@@ -284,12 +283,14 @@ public:
 public:
 	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & World)
 		: RenderComponent(aabb, ComponentTypeEmitter)
+		, m_BaseAABB(aabb)
 		, m_World(World)
 	{
 	}
 
 	EmitterComponent(void)
 		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeEmitter)
+		, m_BaseAABB(my::AABB::Invalid())
 		, m_World(my::Matrix4::Identity())
 	{
 	}

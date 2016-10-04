@@ -159,7 +159,7 @@ void LocalPlayer::CreateMeshComponent(void)
 	m_MeshCmp->m_MaterialList.push_back(lambert1);
 	m_MeshCmp->m_Animator = anim;
 
-	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
+	Game::getSingleton().m_Root.AddComponent(m_MeshCmp, m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 }
 
 void LocalPlayer::Update(float fElapsedTime)
@@ -199,8 +199,8 @@ void LocalPlayer::Update(float fElapsedTime)
 	Quaternion rot = Quaternion::RotationYawPitchRoll(m_FaceAngleInerp,0,0);
 	Vector3 pos = getPosition() + Vector3(0,-0.75f,0);
 	m_MeshCmp->m_World = Matrix4::Compose(Vector3(0.01f,0.01f,0.01f), rot, pos);
-	Game::getSingleton().m_Root.RemoveComponent(m_MeshCmp.get());
-	Game::getSingleton().m_Root.AddComponent(m_MeshCmp.get(), m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
+	Game::getSingleton().m_Root.RemoveComponent(m_MeshCmp);
+	Game::getSingleton().m_Root.AddComponent(m_MeshCmp, m_MeshCmp->m_aabb.transform(m_MeshCmp->m_World), 0.1f);
 
 	Game::getSingleton().m_SkyLightCam->m_Eye = pos;
 }

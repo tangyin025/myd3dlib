@@ -215,7 +215,7 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
-			PushWireAABB(Component::GetComponentOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
+			PushWireAABB(Component::GetCmpOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
 			switch ((*sel_iter)->m_Type)
 			{
 			case Component::ComponentTypeMesh:
@@ -783,7 +783,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
 		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
-			m_selcmpwlds.insert(std::make_pair(*sel_iter, Component::GetComponentWorld(*sel_iter)));
+			m_selcmpwlds.insert(std::make_pair(*sel_iter, Component::GetCmpWorld(*sel_iter)));
 		}
 		SetCapture();
 		Invalidate();
@@ -902,8 +902,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
 		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
-			VERIFY(pFrame->m_Root.RemoveComponent(cmp_world_iter->first));
-			pFrame->m_Root.AddComponent(cmp_world_iter->first, cmp_world_iter->first->m_aabb.transform(Component::GetComponentWorld(cmp_world_iter->first)), 0.1f);
+			pFrame->OnCmpPosChanged(cmp_world_iter->first);
 		}
 		m_selcmpwlds.clear();
 		pFrame->UpdateSelBox();

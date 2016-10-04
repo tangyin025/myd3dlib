@@ -393,9 +393,9 @@ static void ExportMath(lua_State * L)
 
 		, class_<my::OctComponent, my::AABB, boost::shared_ptr<my::OctComponent> >("OctComponent")
 
-		, class_<my::OctRoot, boost::shared_ptr<my::OctRoot> >("OctRoot")
-			.def("AddComponent", &my::OctRoot::AddComponent)
-			.def("ClearAllComponents", &my::OctRoot::ClearAllComponents)
+		, class_<my::OctTree, boost::shared_ptr<my::OctTree> >("OctTree")
+			.def("AddComponent", &my::OctTree::AddComponent)
+			.def("ClearAllComponents", &my::OctTree::ClearAllComponents)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)

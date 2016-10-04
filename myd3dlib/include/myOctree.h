@@ -4,22 +4,32 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 
 namespace my
 {
-	class OctComponent
+	class OctComponent : public boost::enable_shared_from_this<OctComponent>
 	{
-	protected:
+	public:
 		friend class OctNodeBase;
 
 		template <DWORD Offset> friend class OctNode;
 
+		AABB m_aabb;
+
 		OctNodeBase * m_OctNode;
 
 	public:
+		OctComponent(const my::AABB & aabb)
+			: m_aabb(aabb)
+			, m_OctNode(NULL)
+		{
+		}
+
 		OctComponent(void)
-			: m_OctNode(NULL)
+			: m_aabb(AABB::Invalid())
+			, m_OctNode(NULL)
 		{
 		}
 
@@ -27,7 +37,15 @@ namespace my
 		{
 			_ASSERT(!m_OctNode);
 		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(m_aabb);
+		}
 	};
+
+	typedef boost::shared_ptr<OctComponent> OctComponentPtr;
 
 	struct IQueryCallback
 	{
@@ -38,11 +56,11 @@ namespace my
 	class OctNodeBase
 	{
 	public:
-		const AABB m_aabb;
+		AABB m_aabb;
 
-		typedef boost::unordered_map<OctComponent *, AABB> OctComponentSet;
+		typedef std::vector<OctComponentPtr> OctComponentList;
 
-		OctComponentSet m_Components;
+		OctComponentList m_Components;
 
 		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
@@ -64,6 +82,20 @@ namespace my
 		{
 		}
 
+		OctNodeBase(void)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
+
 		bool HaveNode(const OctNodeBase * node) const;
 
 		void QueryComponent(const Ray & ray, IQueryCallback * callback);
@@ -78,7 +110,7 @@ namespace my
 
 		void QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback);
 
-		bool RemoveComponent(OctComponent * cmp);
+		bool RemoveComponent(OctComponentPtr cmp);
 
 		void ClearAllComponents(void);
 	};
@@ -89,9 +121,9 @@ namespace my
 	public:
 		typedef OctNode<(Offset + 1) % 3> ChildOctNode;
 
-		const float m_Half;
+		float m_Half;
 
-		const float m_MinBlock;
+		float m_MinBlock;
 
 	public:
 		OctNode(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
@@ -115,7 +147,31 @@ namespace my
 		{
 		}
 
-		void AddComponent(OctComponent * cmp, const AABB & aabb, float threshold = 0.1f)
+		OctNode(void)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const
+		{
+			ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
+			ar << BOOST_SERIALIZATION_NVP(m_Half);
+			ar << BOOST_SERIALIZATION_NVP(m_MinBlock);
+		}
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version)
+		{
+			ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
+			ar >> BOOST_SERIALIZATION_NVP(m_Half);
+			ar >> BOOST_SERIALIZATION_NVP(m_MinBlock);
+		}
+
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
+
+		void AddComponent(OctComponentPtr cmp, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!cmp->m_OctNode);
 			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
@@ -140,30 +196,50 @@ namespace my
 			}
 			else
 			{
-				m_Components.insert(std::make_pair(cmp, aabb));
+				m_Components.push_back(cmp);
 				cmp->m_OctNode = this;
 			}
 		}
 	};
 
-	class OctRoot : public OctNode<0>
+	class OctTree : public OctNode<0>
 	{
 	public:
-		OctRoot(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
+		OctTree(float minx, float miny, float minz, float maxx, float maxy, float maxz, float MinBlock)
 			: OctNode(minx, miny, minz, maxx, maxy, maxz, MinBlock)
 		{
 		}
 
-		OctRoot(const Vector3 & _Min, const Vector3 & _Max, float MinBlock)
+		OctTree(const Vector3 & _Min, const Vector3 & _Max, float MinBlock)
 			: OctNode(_Min, _Max, MinBlock)
 		{
 		}
 
-		OctRoot(const AABB & aabb, float MinBlock)
+		OctTree(const AABB & aabb, float MinBlock)
 			: OctNode(aabb, MinBlock)
 		{
 		}
+
+		OctTree(void)
+		{
+		}
+
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const
+		{
+			ar << boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
+		}
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version)
+		{
+			ar >> boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
+		}
+
+		BOOST_SERIALIZATION_SPLIT_MEMBER()
 	};
 
-	typedef boost::shared_ptr<OctRoot> OctRootPtr;
+	typedef boost::shared_ptr<OctTree> OctRootPtr;
 }

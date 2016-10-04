@@ -790,7 +790,7 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 	for (; cmp_iter != m_ViewedCmps.end(); )
 	{
 		if (IntersectionTests::IntersectionTypeOutside
-			== IntersectionTests::IntersectAABBAndAABB(OutBox, Component::GetComponentAABB(*cmp_iter)))
+			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
 		{
 			if ((*cmp_iter)->IsRequested())
 			{

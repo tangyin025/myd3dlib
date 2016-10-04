@@ -58,20 +58,34 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
-const my::AABB & Component::GetComponentAABB(const Component * cmp)
+const my::AABB & Component::GetCmpBaseAABB(const Component * cmp)
 {
-	if (cmp->m_OctNode)
+	switch (cmp->m_Type)
 	{
-		OctNodeBase::OctComponentSet::const_iterator cmp_iter = cmp->m_OctNode->m_Components.find(const_cast<Component *>(cmp));
-		if (cmp_iter != cmp->m_OctNode->m_Components.end())
+	case ComponentTypeMesh:
 		{
-			return cmp_iter->second;
+			const MeshComponent * mesh_cmp = dynamic_cast<const MeshComponent *>(cmp);
+			if (!mesh_cmp->m_lods.empty() && mesh_cmp->m_lods[0].m_MeshRes.m_Res)
+			{
+				return mesh_cmp->m_lods[0].m_MeshRes.m_Res->m_aabb;
+			}
 		}
+		break;
+	case ComponentTypeEmitter:
+		{
+			const EmitterComponent * emit_cmp = dynamic_cast<const EmitterComponent *>(cmp);
+			return emit_cmp->m_BaseAABB;
+		}
+		break;
+	case ComponentTypeRigid:
+		return cmp->m_aabb;
+	case ComponentTypeTerrain:
+		return dynamic_cast<const Terrain *>(cmp)->m_BaseAABB;
 	}
 	return cmp->m_aabb;
 }
 
-const my::AABB & Component::GetComponentOctAABB(const Component * cmp)
+const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
 {
 	if (cmp->m_OctNode)
 	{
@@ -80,7 +94,7 @@ const my::AABB & Component::GetComponentOctAABB(const Component * cmp)
 	return cmp->m_aabb;
 }
 
-my::Matrix4 Component::GetComponentWorld(const Component * cmp)
+my::Matrix4 Component::GetCmpWorld(const Component * cmp)
 {
 	switch (cmp->m_Type)
 	{

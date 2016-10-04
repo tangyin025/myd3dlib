@@ -160,7 +160,7 @@ void CPropertiesWnd::UpdateProperties(Component * cmp)
 	m_pProp[PropertyComponentMaxY]->SetValue((_variant_t)cmp->m_aabb.m_max.y);
 	m_pProp[PropertyComponentMaxZ]->SetValue((_variant_t)cmp->m_aabb.m_max.z);
 	my::Vector3 pos, scale; my::Quaternion rot;
-	Component::GetComponentWorld(cmp).Decompose(scale, rot, pos);
+	Component::GetCmpWorld(cmp).Decompose(scale, rot, pos);
 	m_pProp[PropertyComponentPosX]->SetValue((_variant_t)pos.x);
 	m_pProp[PropertyComponentPosY]->SetValue((_variant_t)pos.y);
 	m_pProp[PropertyComponentPosZ]->SetValue((_variant_t)pos.z);
@@ -1025,8 +1025,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 				rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 			}
-			VERIFY(pFrame->m_Root.RemoveComponent(cmp));
-			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(Component::GetComponentWorld(cmp)), 0.1f);
+			pFrame->OnCmpPosChanged(cmp);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArg arg;
@@ -1489,8 +1488,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->UpdateChunks();
 			terrain->UpdateShape();
 			terrain->CalcLodDistanceSq();
-			VERIFY(pFrame->m_Root.RemoveComponent(cmp));
-			pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(terrain->m_World), 0.1f);
+			pFrame->OnCmpPosChanged(cmp);
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
@@ -1514,8 +1512,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 				terrain->UpdateHeightMap(res);
-				VERIFY(pFrame->m_Root.RemoveComponent(cmp));
-				pFrame->m_Root.AddComponent(cmp, cmp->m_aabb.transform(terrain->m_World), 0.1f);
+				pFrame->OnCmpPosChanged(cmp);
 				EventArg arg;
 				pFrame->m_EventCmpAttriChanged(&arg);
 			}

@@ -147,7 +147,7 @@ public:
 		//ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
 		//for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
 		//{
-		//	m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetComponentWorld(m_Logic->m_cmps[i].get())), 0.1f);
+		//	m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetCmpWorld(m_Logic->m_cmps[i].get())), 0.1f);
 		//}
 
 		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));

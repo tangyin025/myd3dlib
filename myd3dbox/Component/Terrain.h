@@ -11,8 +11,6 @@ class TerrainChunk
 public:
 	Terrain * m_Owner;
 
-	my::AABB m_aabb;
-
 	int m_Row;
 
 	int m_Column;
@@ -29,7 +27,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
@@ -72,6 +70,8 @@ public:
 
 	static const VertexArray2D m_VertTable;
 
+	my::AABB m_BaseAABB;
+
 	my::Matrix4 m_World;
 
 	float m_HeightScale;
@@ -107,9 +107,9 @@ public:
 
 	MaterialPtr m_Material;
 
-	my::OctRoot m_Root;
+	my::OctTree m_Root;
 
-	typedef boost::array<TerrainChunkPtr, m_ColChunks> ChunkArray;
+	typedef boost::array<TerrainChunk *, m_ColChunks> ChunkArray;
 
 	typedef boost::array<ChunkArray, m_RowChunks> ChunkArray2D;
 

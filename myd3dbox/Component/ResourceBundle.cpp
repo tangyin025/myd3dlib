@@ -11,7 +11,7 @@ void ResourceBundle<my::BaseTexture>::RequestResource(void)
 }
 
 template<>
-void ResourceBundle<my::Mesh>::RequestResource(void)
+void ResourceBundle<my::OgreMesh>::RequestResource(void)
 {
 	_ASSERT(!m_Path.empty());
 	my::ResourceMgr::getSingleton().LoadMeshAsync(m_Path, this);

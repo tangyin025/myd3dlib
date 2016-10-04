@@ -43,7 +43,7 @@ public:
 
 	ConsolePtr m_Console;
 
-	my::OctRoot m_Root;
+	my::OctTree m_Root;
 
 	typedef boost::unordered_set<Component *> ComponentSet;
 

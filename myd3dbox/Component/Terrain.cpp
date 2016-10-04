@@ -13,11 +13,12 @@
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(TerrainChunk)
+
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 	: m_Owner(Owner)
-	, m_aabb(AABB::Invalid())
 	, m_Row(Row)
 	, m_Column(Column)
 	, m_lod(Terrain::LodDistanceList::static_size - 1)
@@ -30,7 +31,6 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 
 TerrainChunk::TerrainChunk(void)
 	: m_Owner(NULL)
-	, m_aabb(AABB::Invalid())
 	, m_Row(0)
 	, m_Column(0)
 	, m_lod(Terrain::LodDistanceList::static_size - 1)
@@ -120,6 +120,7 @@ const Terrain::VertexArray2D Terrain::m_VertTable;
 
 Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
 	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_ColChunks * m_ChunkRows * ColScale)), ComponentTypeTerrain)
+	, m_BaseAABB(m_aabb)
 	, m_World(World)
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
@@ -133,8 +134,9 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			m_Chunks[i][j].reset(new TerrainChunk(this, i, j));
-			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
+			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
+			m_Root.AddComponent(chunk, chunk->m_aabb, 0.1f);
+			m_Chunks[i][j] = chunk.get();
 		}
 	}
 	CalcLodDistanceSq();
@@ -245,15 +247,16 @@ void Terrain::UpdateHeightMapNormal(void)
 
 void Terrain::UpdateChunks(void)
 {
-	m_aabb = AABB::Invalid();
+	m_BaseAABB = AABB::Invalid();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
 			m_Chunks[i][j]->UpdateVertices();
-			m_Root.RemoveComponent(m_Chunks[i][j].get());
-			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
-			m_aabb.unionSelf(m_Chunks[i][j]->m_aabb);
+			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
+			m_Root.RemoveComponent(chunk);
+			m_Root.AddComponent(chunk, chunk->m_aabb, 0.1f);
+			m_BaseAABB.unionSelf(chunk->m_aabb);
 		}
 	}
 }
@@ -517,6 +520,7 @@ template<>
 void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_BaseAABB);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
@@ -528,7 +532,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, 0, 0);
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)lrc.pBits, BufferSize));
 	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect(0);
-	ar << BOOST_SERIALIZATION_NVP(m_Chunks);
+	ar << BOOST_SERIALIZATION_NVP(m_Root);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 }
 
@@ -536,6 +540,7 @@ template<>
 void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_BaseAABB);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
@@ -549,16 +554,22 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
 	memcpy(lrc.pBits, &cache[0], cache.size());
 	m_HeightMap.UnlockRect(0);
-	ar >> BOOST_SERIALIZATION_NVP(m_Chunks);
+	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
+	struct CallBack : public my::IQueryCallback
 	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
+		Terrain * terrain;
+		CallBack(Terrain * _terrain)
+			: terrain(_terrain)
 		{
-			m_Chunks[i][j]->m_Owner = this;
-			m_Root.AddComponent(m_Chunks[i][j].get(), m_Chunks[i][j]->m_aabb, 0.1f);
 		}
-	}
+		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		{
+			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
+		}
+	};
+	m_Root.QueryComponentAll(&CallBack(this));
 	CreateElements();
 	CreateRigidActor(m_World);
 	CreateShape();

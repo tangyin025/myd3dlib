@@ -40,11 +40,9 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	my::OctRoot m_Root;
+	my::OctTree m_Root;
 	typedef boost::unordered_set<Component *> ComponentSet;
 	ComponentSet m_ViewedCmps;
-	typedef std::vector<ComponentPtr> ComponentPtrList;
-	ComponentPtrList m_cmps;
 	ComponentSet m_selcmps;
 	my::AABB m_selbox;
 	EmitterComponentPtr m_emitter;
@@ -61,6 +59,7 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+	void OnCmpPosChanged(Component * cmp);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
