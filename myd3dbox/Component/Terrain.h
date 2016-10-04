@@ -70,10 +70,6 @@ public:
 
 	static const VertexArray2D m_VertTable;
 
-	my::AABB m_BaseAABB;
-
-	my::Matrix4 m_World;
-
 	float m_HeightScale;
 
 	float m_RowScale;

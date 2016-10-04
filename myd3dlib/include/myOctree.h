@@ -94,7 +94,11 @@ namespace my
 		template<class Archive>
 		void load(Archive & ar, const unsigned int version);
 
-		BOOST_SERIALIZATION_SPLIT_MEMBER()
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			boost::serialization::split_member(ar, *this, version);
+		}
 
 		bool HaveNode(const OctNodeBase * node) const;
 
@@ -151,25 +155,13 @@ namespace my
 		{
 		}
 
-		friend class boost::serialization::access;
-
 		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const
+		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
-			ar << BOOST_SERIALIZATION_NVP(m_Half);
-			ar << BOOST_SERIALIZATION_NVP(m_MinBlock);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
+			ar & BOOST_SERIALIZATION_NVP(m_Half);
+			ar & BOOST_SERIALIZATION_NVP(m_MinBlock);
 		}
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version)
-		{
-			ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctNodeBase);
-			ar >> BOOST_SERIALIZATION_NVP(m_Half);
-			ar >> BOOST_SERIALIZATION_NVP(m_MinBlock);
-		}
-
-		BOOST_SERIALIZATION_SPLIT_MEMBER()
 
 		void AddComponent(OctComponentPtr cmp, const AABB & aabb, float threshold = 0.1f)
 		{
@@ -224,21 +216,11 @@ namespace my
 		{
 		}
 
-		friend class boost::serialization::access;
-
 		template<class Archive>
-		void save(Archive & ar, const unsigned int version) const
+		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar << boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
+			ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
 		}
-
-		template<class Archive>
-		void load(Archive & ar, const unsigned int version)
-		{
-			ar >> boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
-		}
-
-		BOOST_SERIALIZATION_SPLIT_MEMBER()
 	};
 
 	typedef boost::shared_ptr<OctTree> OctRootPtr;

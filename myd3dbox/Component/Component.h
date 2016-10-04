@@ -69,18 +69,27 @@ public:
 
 	ComponentType m_Type;
 
+	my::AABB m_BaseAABB;
+
+	my::Matrix4 m_World;
+
 	bool m_Requested;
 
 public:
-	Component(const my::AABB & aabb, ComponentType Type)
+	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
 		: OctComponent(aabb)
 		, m_Type(Type)
+		, m_BaseAABB(aabb)
+		, m_World(World)
 		, m_Requested(false)
 	{
 	}
 
 	Component(void)
-		: m_Type(ComponentTypeUnknown)
+		: OctComponent(my::AABB::Invalid())
+		, m_Type(ComponentTypeUnknown)
+		, m_BaseAABB(my::AABB::Invalid())
+		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 	{
 	}
@@ -100,6 +109,8 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
+		ar & BOOST_SERIALIZATION_NVP(m_BaseAABB);
+		ar & BOOST_SERIALIZATION_NVP(m_World);
 	}
 
 	bool IsRequested(void) const
@@ -143,8 +154,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(const my::AABB & aabb, ComponentType Type)
-		: Component(aabb, Type)
+	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
+		: Component(Type, aabb, World)
 	{
 	}
 
@@ -165,8 +176,6 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	my::Matrix4 m_World;
-
 	struct LOD
 	{
 		ResourceBundle<my::OgreMesh> m_MeshRes;
@@ -211,16 +220,14 @@ public:
 
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
-		: RenderComponent(aabb, ComponentTypeMesh)
-		, m_World(World)
+		: RenderComponent(ComponentTypeMesh, aabb, World)
 		, m_lod(0)
 		, m_lodBand(1)
 	{
 	}
 
 	MeshComponent(void)
-		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeMesh)
-		, m_World(my::Matrix4::Identity())
+		: RenderComponent(ComponentTypeMesh, my::AABB::Invalid(), my::Matrix4::Identity())
 		, m_lod(0)
 		, m_lodBand(1)
 	{
@@ -272,26 +279,18 @@ class EmitterComponent
 	: public RenderComponent
 {
 public:
-	my::AABB m_BaseAABB;
-
-	my::Matrix4 m_World;
-
 	my::EmitterPtr m_Emitter;
 
 	MaterialPtr m_Material;
 
 public:
 	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: RenderComponent(aabb, ComponentTypeEmitter)
-		, m_BaseAABB(aabb)
-		, m_World(World)
+		: RenderComponent(ComponentTypeEmitter, aabb, World)
 	{
 	}
 
 	EmitterComponent(void)
-		: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeEmitter)
-		, m_BaseAABB(my::AABB::Invalid())
-		, m_World(my::Matrix4::Identity())
+		: RenderComponent(ComponentTypeEmitter, my::AABB::Invalid(), my::Matrix4::Identity())
 	{
 	}
 
@@ -307,7 +306,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_World);
 		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
@@ -345,13 +343,13 @@ public:
 
 public:
 	RigidComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: Component(aabb, ComponentTypeRigid)
+		: Component(ComponentTypeRigid, aabb, World)
 	{
 		CreateRigidActor(World);
 	}
 
 	RigidComponent(void)
-		: Component(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeRigid)
+		: Component(ComponentTypeRigid, my::AABB::Invalid(), my::Matrix4::Identity())
 	{
 		// ! create rigid actor from serialize
 	}

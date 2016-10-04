@@ -119,9 +119,7 @@ Terrain::VertexArray2D::VertexArray2D(void)
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
 Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
-	: RenderComponent(my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_ColChunks * m_ChunkRows * ColScale)), ComponentTypeTerrain)
-	, m_BaseAABB(m_aabb)
-	, m_World(World)
+	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_ColChunks * m_ChunkRows * ColScale)), World)
 	, m_HeightScale(HeightScale)
 	, m_RowScale(RowScale)
 	, m_ColScale(ColScale)
@@ -146,7 +144,7 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 }
 
 Terrain::Terrain(void)
-	: RenderComponent(my::AABB(-FLT_MAX,FLT_MAX), ComponentTypeTerrain)
+	: RenderComponent(ComponentTypeTerrain, my::AABB::Invalid(), my::Matrix4::Identity())
 	, m_HeightScale(1)
 	, m_RowScale(1)
 	, m_ColScale(1)
@@ -520,8 +518,6 @@ template<>
 void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar << BOOST_SERIALIZATION_NVP(m_BaseAABB);
-	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar << BOOST_SERIALIZATION_NVP(m_ColScale);
@@ -540,8 +536,6 @@ template<>
 void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar >> BOOST_SERIALIZATION_NVP(m_BaseAABB);
-	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_ColScale);

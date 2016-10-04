@@ -60,29 +60,7 @@ void Material::ReleaseResource(void)
 
 const my::AABB & Component::GetCmpBaseAABB(const Component * cmp)
 {
-	switch (cmp->m_Type)
-	{
-	case ComponentTypeMesh:
-		{
-			const MeshComponent * mesh_cmp = dynamic_cast<const MeshComponent *>(cmp);
-			if (!mesh_cmp->m_lods.empty() && mesh_cmp->m_lods[0].m_MeshRes.m_Res)
-			{
-				return mesh_cmp->m_lods[0].m_MeshRes.m_Res->m_aabb;
-			}
-		}
-		break;
-	case ComponentTypeEmitter:
-		{
-			const EmitterComponent * emit_cmp = dynamic_cast<const EmitterComponent *>(cmp);
-			return emit_cmp->m_BaseAABB;
-		}
-		break;
-	case ComponentTypeRigid:
-		return cmp->m_aabb;
-	case ComponentTypeTerrain:
-		return dynamic_cast<const Terrain *>(cmp)->m_BaseAABB;
-	}
-	return cmp->m_aabb;
+	return cmp->m_BaseAABB;
 }
 
 const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
@@ -98,36 +76,26 @@ my::Matrix4 Component::GetCmpWorld(const Component * cmp)
 {
 	switch (cmp->m_Type)
 	{
-	case ComponentTypeMesh:
-		return dynamic_cast<const MeshComponent *>(cmp)->m_World;
-	case ComponentTypeEmitter:
-		return dynamic_cast<const EmitterComponent *>(cmp)->m_World;
 	case ComponentTypeRigid:
 		{
 			PxTransform pose = dynamic_cast<const RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
 			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
 		}
-	case ComponentTypeTerrain:
-		return dynamic_cast<const Terrain *>(cmp)->m_World;
 	}
-	return Matrix4::Identity();
+	return cmp->m_World;
 }
 
 void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
 {
+	cmp->m_World = World;
 	switch (cmp->m_Type)
 	{
-	case ComponentTypeMesh:
-		dynamic_cast<MeshComponent *>(cmp)->m_World = World;
-		break;
-	case ComponentTypeEmitter:
-		dynamic_cast<EmitterComponent *>(cmp)->m_World = World;
-		break;
 	case ComponentTypeRigid:
 		{
+			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
 			Vector3 scale, pos; Quaternion rot;
 			World.Decompose(scale, rot, pos);
-			dynamic_cast<RigidComponent *>(cmp)->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+			rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 		}
 		break;
 	case ComponentTypeTerrain:
@@ -146,7 +114,6 @@ template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar << BOOST_SERIALIZATION_NVP(m_World);
 	ar << BOOST_SERIALIZATION_NVP(m_lods);
 	ar << BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
@@ -157,7 +124,6 @@ template<>
 void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_lods);
 	ar >> BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
