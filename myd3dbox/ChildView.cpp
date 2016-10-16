@@ -176,18 +176,25 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 		}
 		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
-			RenderComponent * render_cmp = dynamic_cast<RenderComponent *>(oct_cmp);
-			if (render_cmp)
+			Component * cmp = dynamic_cast<Component *>(oct_cmp);
+			if (cmp)
 			{
-				render_cmp->AddToPipeline(frustum, pipeline, PassMask);
+				if (cmp->IsRequested())
+				{
+					cmp->AddToPipeline(frustum, pipeline, PassMask);
+				}
+				else
+				{
+					cmp->RequestResource();
+				}
 
 				if (pView->m_bShowCmpHandle)
 				{
-					switch (render_cmp->m_Type)
+					switch (cmp->m_Type)
 					{
 					case Component::ComponentTypeEmitter:
 						{
-							EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(oct_cmp);
+							EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
 							pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
 								emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
 						}
@@ -927,11 +934,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				Component::SetComponentWorld(cmp_world_iter->first,
+				Component::SetCmpWorld(cmp_world_iter->first,
 					cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos));
 				break;
 			case Pivot::PivotModeRot:
-				Component::SetComponentWorld(cmp_world_iter->first, cmp_world_iter->second
+				Component::SetCmpWorld(cmp_world_iter->first, cmp_world_iter->second
 					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
 					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));

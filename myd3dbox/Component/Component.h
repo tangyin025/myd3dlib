@@ -69,7 +69,7 @@ public:
 
 	ComponentType m_Type;
 
-	my::AABB m_BaseAABB;
+	my::AABB m_aabb;
 
 	my::Matrix4 m_World;
 
@@ -77,18 +77,16 @@ public:
 
 public:
 	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
-		: OctComponent(aabb)
-		, m_Type(Type)
-		, m_BaseAABB(aabb)
+		: m_Type(Type)
+		, m_aabb(aabb)
 		, m_World(World)
 		, m_Requested(false)
 	{
 	}
 
 	Component(void)
-		: OctComponent(my::AABB::Invalid())
-		, m_Type(ComponentTypeUnknown)
-		, m_BaseAABB(my::AABB::Invalid())
+		: m_Type(ComponentTypeUnknown)
+		, m_aabb(my::AABB::Invalid())
 		, m_World(my::Matrix4::Identity())
 		, m_Requested(false)
 	{
@@ -109,7 +107,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
-		ar & BOOST_SERIALIZATION_NVP(m_BaseAABB);
+		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
 	}
 
@@ -138,13 +136,15 @@ public:
 	{
 	}
 
-	static const my::AABB & GetCmpBaseAABB(const Component * cmp);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+	{
+	}
 
 	static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
 	static my::Matrix4 GetCmpWorld(const Component * cmp);
 
-	static void SetComponentWorld(Component * cmp, const my::Matrix4 & World);
+	static void SetCmpWorld(Component * cmp, const my::Matrix4 & World);
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -166,8 +166,6 @@ public:
 	}
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
-
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;

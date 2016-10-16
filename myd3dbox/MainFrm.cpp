@@ -383,8 +383,7 @@ void CMainFrame::OnCmpPosChanged(Component * cmp)
 {
 	my::OctComponentPtr cmp_ptr = cmp->shared_from_this();
 	VERIFY(m_Root.RemoveComponent(cmp_ptr));
-	cmp_ptr->m_aabb = Component::GetCmpBaseAABB(cmp).transform(Component::GetCmpWorld(cmp));
-	m_Root.AddComponent(cmp_ptr, cmp->m_aabb, 0.1f);
+	m_Root.AddComponent(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
 }
 
 void CMainFrame::UpdateSelBox(void)
@@ -393,7 +392,7 @@ void CMainFrame::UpdateSelBox(void)
 	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
 	for (; sel_iter != m_selcmps.end(); sel_iter++)
 	{
-		m_selbox.unionSelf((*sel_iter)->m_aabb);
+		m_selbox.unionSelf((*sel_iter)->m_aabb.transform(Component::GetCmpWorld(*sel_iter)));
 	}
 }
 

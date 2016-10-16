@@ -35,13 +35,14 @@ TerrainChunk::TerrainChunk(void)
 	, m_Column(0)
 	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
+	m_aabb = AABB::Invalid();
 }
 
 TerrainChunk::~TerrainChunk(void)
 {
 }
 
-void TerrainChunk::UpdateVertices(void)
+void TerrainChunk::UpdateAABB(void)
 {
 	m_aabb = AABB::Invalid();
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
@@ -245,16 +246,16 @@ void Terrain::UpdateHeightMapNormal(void)
 
 void Terrain::UpdateChunks(void)
 {
-	m_BaseAABB = AABB::Invalid();
+	m_aabb = AABB::Invalid();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			m_Chunks[i][j]->UpdateVertices();
+			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
 			m_Root.RemoveComponent(chunk);
 			m_Root.AddComponent(chunk, chunk->m_aabb, 0.1f);
-			m_BaseAABB.unionSelf(chunk->m_aabb);
+			m_aabb.unionSelf(chunk->m_aabb);
 		}
 	}
 }
@@ -561,6 +562,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
+			chunk->m_Owner = terrain;
 		}
 	};
 	m_Root.QueryComponentAll(&CallBack(this));

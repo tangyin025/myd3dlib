@@ -153,12 +153,12 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 void CPropertiesWnd::UpdateProperties(Component * cmp)
 {
 	m_pProp[PropertyComponent]->Show(TRUE, FALSE);
-	m_pProp[PropertyComponentMinX]->SetValue((_variant_t)cmp->m_BaseAABB.m_min.x);
-	m_pProp[PropertyComponentMinY]->SetValue((_variant_t)cmp->m_BaseAABB.m_min.y);
-	m_pProp[PropertyComponentMinZ]->SetValue((_variant_t)cmp->m_BaseAABB.m_min.z);
-	m_pProp[PropertyComponentMaxX]->SetValue((_variant_t)cmp->m_BaseAABB.m_max.x);
-	m_pProp[PropertyComponentMaxY]->SetValue((_variant_t)cmp->m_BaseAABB.m_max.y);
-	m_pProp[PropertyComponentMaxZ]->SetValue((_variant_t)cmp->m_BaseAABB.m_max.z);
+	m_pProp[PropertyComponentMinX]->SetValue((_variant_t)cmp->m_aabb.m_min.x);
+	m_pProp[PropertyComponentMinY]->SetValue((_variant_t)cmp->m_aabb.m_min.y);
+	m_pProp[PropertyComponentMinZ]->SetValue((_variant_t)cmp->m_aabb.m_min.z);
+	m_pProp[PropertyComponentMaxX]->SetValue((_variant_t)cmp->m_aabb.m_max.x);
+	m_pProp[PropertyComponentMaxY]->SetValue((_variant_t)cmp->m_aabb.m_max.y);
+	m_pProp[PropertyComponentMaxZ]->SetValue((_variant_t)cmp->m_aabb.m_max.z);
 	my::Vector3 pos, scale; my::Quaternion rot;
 	Component::GetCmpWorld(cmp).Decompose(scale, rot, pos);
 	m_pProp[PropertyComponentPosX]->SetValue((_variant_t)pos.x);
@@ -1001,12 +1001,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyComponentScaleY:
 	case PropertyComponentScaleZ:
 		{
-			cmp->m_BaseAABB.m_min.x = m_pProp[PropertyComponentMinX]->GetValue().fltVal;
-			cmp->m_BaseAABB.m_min.y = m_pProp[PropertyComponentMinY]->GetValue().fltVal;
-			cmp->m_BaseAABB.m_min.z = m_pProp[PropertyComponentMinZ]->GetValue().fltVal;
-			cmp->m_BaseAABB.m_max.x = m_pProp[PropertyComponentMaxX]->GetValue().fltVal;
-			cmp->m_BaseAABB.m_max.y = m_pProp[PropertyComponentMaxY]->GetValue().fltVal;
-			cmp->m_BaseAABB.m_max.z = m_pProp[PropertyComponentMaxZ]->GetValue().fltVal;
+			cmp->m_aabb.m_min.x = m_pProp[PropertyComponentMinX]->GetValue().fltVal;
+			cmp->m_aabb.m_min.y = m_pProp[PropertyComponentMinY]->GetValue().fltVal;
+			cmp->m_aabb.m_min.z = m_pProp[PropertyComponentMinZ]->GetValue().fltVal;
+			cmp->m_aabb.m_max.x = m_pProp[PropertyComponentMaxX]->GetValue().fltVal;
+			cmp->m_aabb.m_max.y = m_pProp[PropertyComponentMaxY]->GetValue().fltVal;
+			cmp->m_aabb.m_max.z = m_pProp[PropertyComponentMaxZ]->GetValue().fltVal;
 			my::Vector3 pos(
 				m_pProp[PropertyComponentPosX]->GetValue().fltVal,
 				m_pProp[PropertyComponentPosY]->GetValue().fltVal,
@@ -1019,7 +1019,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				m_pProp[PropertyComponentScaleX]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
-			Component::SetComponentWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
+			Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
 			if (Component::ComponentTypeRigid == cmp->m_Type)
 			{
 				RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);

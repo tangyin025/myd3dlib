@@ -58,11 +58,6 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
-const my::AABB & Component::GetCmpBaseAABB(const Component * cmp)
-{
-	return cmp->m_BaseAABB;
-}
-
 const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
 {
 	if (cmp->m_OctNode)
@@ -85,7 +80,7 @@ my::Matrix4 Component::GetCmpWorld(const Component * cmp)
 	return cmp->m_World;
 }
 
-void Component::SetComponentWorld(Component * cmp, const my::Matrix4 & World)
+void Component::SetCmpWorld(Component * cmp, const my::Matrix4 & World)
 {
 	cmp->m_World = World;
 	switch (cmp->m_Type)

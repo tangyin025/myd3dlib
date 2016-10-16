@@ -16,20 +16,11 @@ namespace my
 
 		template <DWORD Offset> friend class OctNode;
 
-		AABB m_aabb;
-
 		OctNodeBase * m_OctNode;
 
 	public:
-		OctComponent(const my::AABB & aabb)
-			: m_aabb(aabb)
-			, m_OctNode(NULL)
-		{
-		}
-
 		OctComponent(void)
-			: m_aabb(AABB::Invalid())
-			, m_OctNode(NULL)
+			: m_OctNode(NULL)
 		{
 		}
 
@@ -41,7 +32,6 @@ namespace my
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		}
 	};
 
@@ -58,9 +48,9 @@ namespace my
 	public:
 		AABB m_aabb;
 
-		typedef std::vector<OctComponentPtr> OctComponentList;
+		typedef std::map<OctComponentPtr, AABB> OctComponentMap;
 
-		OctComponentList m_Components;
+		OctComponentMap m_Components;
 
 		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
@@ -188,7 +178,7 @@ namespace my
 			}
 			else
 			{
-				m_Components.push_back(cmp);
+				m_Components.insert(std::make_pair(cmp, aabb));
 				cmp->m_OctNode = this;
 			}
 		}

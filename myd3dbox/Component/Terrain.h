@@ -11,6 +11,8 @@ class TerrainChunk
 public:
 	Terrain * m_Owner;
 
+	my::AABB m_aabb;
+
 	int m_Row;
 
 	int m_Column;
@@ -28,11 +30,12 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
 
-	void UpdateVertices(void);
+	void UpdateAABB(void);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
