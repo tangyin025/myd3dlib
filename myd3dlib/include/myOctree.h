@@ -212,6 +212,4 @@ namespace my
 			ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
 		}
 	};
-
-	typedef boost::shared_ptr<OctTree> OctRootPtr;
 }

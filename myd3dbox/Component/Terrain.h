@@ -9,8 +9,6 @@ class TerrainChunk
 	: public my::OctComponent
 {
 public:
-	Terrain * m_Owner;
-
 	my::AABB m_aabb;
 
 	int m_Row;
@@ -35,7 +33,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
 
-	void UpdateAABB(void);
+	void UpdateAABB(Terrain * Owner);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
