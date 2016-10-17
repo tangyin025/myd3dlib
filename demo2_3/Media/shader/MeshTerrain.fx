@@ -4,7 +4,6 @@ struct VS_INPUT
 	uint4 Tex0				: TEXCOORD0;
 };
 
-float3 g_TerrainScale;
 float4 g_WrappedUV;
 uint3 g_ChunkId;
 Texture2D g_HeightTexture;
@@ -24,9 +23,7 @@ float4 TransformPosWS(VS_INPUT In)
 	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
 	float height = tex2Dlod(HeightTextureSampler,
 		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255;
-	float4 pos = float4(
-		g_TerrainScale.x * coord.x, g_TerrainScale.y * height, g_TerrainScale.z * coord.y, 1.0);
-	return mul(pos, g_World);
+	return mul(float4(coord.x, height, coord.y, 1.0), g_World);
 }
 
 float4 TransformPos(VS_INPUT In)

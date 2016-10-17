@@ -342,9 +342,6 @@ void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
 	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
 	m_pProp[PropertyTerrainRowChunks]->SetValue((_variant_t)terrain->m_RowChunks);
 	m_pProp[PropertyTerrainChunkRows]->SetValue((_variant_t)terrain->m_ChunkRows);
-	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
-	m_pProp[PropertyTerrainRowScale]->SetValue((_variant_t)terrain->m_RowScale);
-	m_pProp[PropertyTerrainColScale]->SetValue((_variant_t)terrain->m_ColScale);
 	m_pProp[PropertyTerrainWrappedU]->SetValue((_variant_t)terrain->m_WrappedU);
 	m_pProp[PropertyTerrainWrappedV]->SetValue((_variant_t)terrain->m_WrappedV);
 }
@@ -917,12 +914,6 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyTerrainChunkRows] = new CSimpleProp(_T("ChunkRows"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkRows);
 	m_pProp[PropertyTerrainChunkRows]->Enable(FALSE);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkRows]);
-	m_pProp[PropertyTerrainHeightScale] = new CSimpleProp(_T("HeightScale"), (_variant_t)1.0f, NULL, PropertyTerrainHeightScale);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightScale]);
-	m_pProp[PropertyTerrainRowScale] = new CSimpleProp(_T("RowScale"), (_variant_t)1.0f, NULL, PropertyTerrainRowScale);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainRowScale]);
-	m_pProp[PropertyTerrainColScale] = new CSimpleProp(_T("ColScale"), (_variant_t)1.0f, NULL, PropertyTerrainColScale);
-	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainColScale]);
 	m_pProp[PropertyTerrainWrappedU] = new CSimpleProp(_T("WrappedU"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedU);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedU]);
 	m_pProp[PropertyTerrainWrappedV] = new CSimpleProp(_T("WrappedV"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedV);
@@ -1020,10 +1011,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
 			Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
-			if (Component::ComponentTypeRigid == cmp->m_Type)
+			switch (PropertyId)
 			{
-				RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-				rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+			case PropertyComponentScale:
+			case PropertyComponentScaleX:
+			case PropertyComponentScaleY:
+			case PropertyComponentScaleZ:
+				if (Component::ComponentTypeTerrain == cmp->m_Type)
+				{
+					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+					terrain->UpdateShape();
+				}
+				break;
 			}
 			pFrame->OnCmpPosChanged(cmp);
 			pFrame->UpdateSelBox();
@@ -1473,22 +1472,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 			shapes[NodeId]->setGeometry(PxSphereGeometry(
 				pShape->GetSubItem(2)->GetValue().fltVal));
-			EventArg arg;
-			pFrame->m_EventCmpAttriChanged(&arg);
-		}
-		break;
-	case PropertyTerrainHeightScale:
-	case PropertyTerrainRowScale:
-	case PropertyTerrainColScale:
-		{
-			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
-			terrain->m_RowScale = m_pProp[PropertyTerrainRowScale]->GetValue().fltVal;
-			terrain->m_ColScale = m_pProp[PropertyTerrainColScale]->GetValue().fltVal;
-			terrain->UpdateChunks();
-			terrain->UpdateShape();
-			terrain->CalcLodDistanceSq();
-			pFrame->OnCmpPosChanged(cmp);
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

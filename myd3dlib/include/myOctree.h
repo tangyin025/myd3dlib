@@ -107,7 +107,11 @@ namespace my
 		bool RemoveComponent(OctComponentPtr cmp);
 
 		void ClearAllComponents(void);
+
+		void Compress(void);
 	};
+
+	typedef boost::shared_ptr<OctNodeBase> OctNodeBasePtr;
 
 	template <DWORD Offset>
 	class OctNode : public OctNodeBase

@@ -117,14 +117,11 @@ Terrain::VertexArray2D::VertexArray2D(void)
 
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
-Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows * RowScale, 1, m_ColChunks * m_ChunkRows * ColScale)), World)
-	, m_HeightScale(HeightScale)
-	, m_RowScale(RowScale)
-	, m_ColScale(ColScale)
+Terrain::Terrain(const my::Matrix4 & World, float WrappedU, float WrappedV)
+	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), World)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
+	, m_Root(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 255, m_ColChunks * m_ChunkRows), 1.0f)
 {
 	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -138,15 +135,12 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, f
 	}
 	CalcLodDistanceSq();
 	CreateElements();
-	CreateRigidActor(m_World);
+	CreateRigidActor();
 	CreateShape();
 }
 
 Terrain::Terrain(void)
 	: RenderComponent(ComponentTypeTerrain, my::AABB::Invalid(), my::Matrix4::Identity())
-	, m_HeightScale(1)
-	, m_RowScale(1)
-	, m_ColScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
 	, m_Root(Vector3(0,-1000,0), Vector3(3000,1000,3000), 1.0f)
@@ -170,7 +164,7 @@ void Terrain::CalcLodDistanceSq(void)
 {
 	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * m_RowScale * 0.6f, m_ChunkRows * m_ColScale * 0.6f).magnitude() * (i + 1), 2);
+		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * 0.6f, m_ChunkRows * 0.6f).magnitude() * (i + 1), 2);
 	}
 }
 
@@ -268,13 +262,13 @@ unsigned char Terrain::GetSampleHeight(void * pBits, int pitch, int i, int j)
 
 my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j)
 {
-	return Vector3(i * m_RowScale, GetSampleHeight(pBits, pitch, i, j) * m_HeightScale, j * m_ColScale);
+	return Vector3((float)i, GetSampleHeight(pBits, pitch, i, j), (float)j);
 }
 
-void Terrain::CreateRigidActor(const my::Matrix4 & World)
+void Terrain::CreateRigidActor(void)
 {
 	my::Vector3 pos, scale; my::Quaternion rot;
-	World.Decompose(scale, rot, pos);
+	m_World.Decompose(scale, rot, pos);
 	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
 }
 
@@ -306,21 +300,25 @@ void Terrain::CreateShape(void)
 {
 	CreateHeightField();
 
+	my::Vector3 pos, scale; my::Quaternion rot;
+	m_World.Decompose(scale, rot, pos);
 	PxShape * shape = m_RigidActor->createShape(
-		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale, m_RowScale, m_ColScale),
+		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), scale.y, scale.x, scale.z),
 		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 }
 
 void Terrain::UpdateShape(void)
 {
 	CreateHeightField();
 
+	my::Vector3 pos, scale; my::Quaternion rot;
+	m_World.Decompose(scale, rot, pos);
 	unsigned int NbShapes = m_RigidActor->getNbShapes();
 	std::vector<PxShape *> shapes(NbShapes);
 	NbShapes = m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 	shapes[0]->setGeometry(
-		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale, m_RowScale, m_ColScale));
+		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), scale.y, scale.x, scale.z));
 }
 
 void Terrain::CreateElements(void)
@@ -517,9 +515,6 @@ template<>
 void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar << BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar << BOOST_SERIALIZATION_NVP(m_RowScale);
-	ar << BOOST_SERIALIZATION_NVP(m_ColScale);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
@@ -535,9 +530,6 @@ template<>
 void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar >> BOOST_SERIALIZATION_NVP(m_HeightScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_RowScale);
-	ar >> BOOST_SERIALIZATION_NVP(m_ColScale);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
@@ -564,7 +556,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	};
 	m_Root.QueryComponentAll(&CallBack(this));
 	CreateElements();
-	CreateRigidActor(m_World);
+	CreateRigidActor();
 	CreateShape();
 }
 
@@ -651,8 +643,6 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
 	shader->SetMatrix("g_World", m_World);
-
-	shader->SetVector("g_TerrainScale", Vector3(m_RowScale, m_HeightScale, m_ColScale));
 
 	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)m_RowChunks * m_ChunkRows, (float)m_ColChunks * m_ChunkRows));
 

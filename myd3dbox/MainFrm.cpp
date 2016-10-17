@@ -572,6 +572,8 @@ void CMainFrame::OnFileSave()
 		}
 	}
 
+	m_Root.Compress();
+
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
@@ -736,7 +738,7 @@ void CMainFrame::OnRigidBox()
 void CMainFrame::OnCreateTerrain()
 {
 	// TODO: Add your command handler code here
-	TerrainPtr terrain(new Terrain(my::Matrix4::Translation(0,0,0),0.1f,1.0f,1.0f,1,1));
+	TerrainPtr terrain(new Terrain(my::Matrix4::identity,1,1));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;

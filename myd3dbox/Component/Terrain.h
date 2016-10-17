@@ -54,11 +54,11 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 8;
+	static const DWORD m_RowChunks = 2;
 
-	static const DWORD m_ColChunks = 8;
+	static const DWORD m_ColChunks = 2;
 
-	static const DWORD m_ChunkRows = 64;
+	static const DWORD m_ChunkRows = 4;
 
 	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
 
@@ -70,12 +70,6 @@ public:
 	};
 
 	static const VertexArray2D m_VertTable;
-
-	float m_HeightScale;
-
-	float m_RowScale;
-
-	float m_ColScale;
 
 	float m_WrappedU;
 
@@ -134,7 +128,7 @@ public:
 
 	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
 
-	void CreateRigidActor(const my::Matrix4 & World);
+	void CreateRigidActor(void);
 
 	void CreateHeightField(void);
 
@@ -147,7 +141,7 @@ public:
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
 
 public:
-	Terrain(const my::Matrix4 & World, float HeightScale, float RowScale, float ColScale, float WrappedU, float WrappedV);
+	Terrain(const my::Matrix4 & World, float WrappedU, float WrappedV);
 
 	Terrain(void);
 

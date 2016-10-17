@@ -10,6 +10,9 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/foreach.hpp>
+#include <boost/algorithm/cxx11/none_of.hpp>
+#include <boost/lambda/lambda.hpp>
 
 using namespace my;
 
@@ -216,6 +219,22 @@ void OctNodeBase::ClearAllComponents(void)
 		{
 			m_Childs[i]->ClearAllComponents();
 			m_Childs[i].reset();
+		}
+	}
+}
+
+void OctNodeBase::Compress(void)
+{
+	BOOST_FOREACH(OctNodeBasePtr & child, m_Childs)
+	{
+		if (child)
+		{
+			child->Compress();
+			if (child->m_Components.empty()
+				&& boost::algorithm::none_of(child->m_Childs, boost::lambda::_1))
+			{
+				child.reset();
+			}
 		}
 	}
 }
