@@ -307,11 +307,13 @@ void Terrain::CreateShape(void)
 	PxShape * shape = m_RigidActor->createShape(
 		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z),
 		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 }
 
 void Terrain::UpdateShape(void)
 {
+	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
+
 	CreateHeightField();
 
 	my::Vector3 pos, scale; my::Quaternion rot;
@@ -321,6 +323,8 @@ void Terrain::UpdateShape(void)
 	NbShapes = m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 	shapes[0]->setGeometry(
 		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z));
+
+	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
 }
 
 void Terrain::CreateElements(void)

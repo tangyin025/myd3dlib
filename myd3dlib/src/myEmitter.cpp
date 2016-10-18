@@ -1,5 +1,9 @@
 #include "StdAfx.h"
 #include "myEmitter.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/base_object.hpp>
 #include <boost/serialization/export.hpp>
 
 using namespace my;

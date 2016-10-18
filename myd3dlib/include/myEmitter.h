@@ -82,7 +82,6 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			//ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
 		}
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);
@@ -109,7 +108,7 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			boost::serialization::void_cast_register<DynamicEmitter, Emitter>();
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Emitter);
 			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
 		}
 
