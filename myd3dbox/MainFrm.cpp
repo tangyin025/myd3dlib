@@ -738,7 +738,7 @@ void CMainFrame::OnRigidBox()
 void CMainFrame::OnCreateTerrain()
 {
 	// TODO: Add your command handler code here
-	TerrainPtr terrain(new Terrain(my::Matrix4::identity,1,1));
+	TerrainPtr terrain(new Terrain(my::Matrix4::identity,1.0f,1.0f,1.0f));
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;

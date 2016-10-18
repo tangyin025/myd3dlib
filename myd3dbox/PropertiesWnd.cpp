@@ -342,6 +342,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
 	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
 	m_pProp[PropertyTerrainRowChunks]->SetValue((_variant_t)terrain->m_RowChunks);
 	m_pProp[PropertyTerrainChunkRows]->SetValue((_variant_t)terrain->m_ChunkRows);
+	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
 	m_pProp[PropertyTerrainWrappedU]->SetValue((_variant_t)terrain->m_WrappedU);
 	m_pProp[PropertyTerrainWrappedV]->SetValue((_variant_t)terrain->m_WrappedV);
 }
@@ -914,6 +915,8 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyTerrainChunkRows] = new CSimpleProp(_T("ChunkRows"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkRows);
 	m_pProp[PropertyTerrainChunkRows]->Enable(FALSE);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkRows]);
+	m_pProp[PropertyTerrainHeightScale] = new CSimpleProp(_T("HeightScale"), (_variant_t)1.0f, NULL, PropertyTerrainHeightScale);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightScale]);
 	m_pProp[PropertyTerrainWrappedU] = new CSimpleProp(_T("WrappedU"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedU);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedU]);
 	m_pProp[PropertyTerrainWrappedV] = new CSimpleProp(_T("WrappedV"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedV);
@@ -1476,13 +1479,24 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
+	case PropertyTerrainHeightScale:
+		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
+			terrain->UpdateChunks();
+			terrain->UpdateShape();
+			pFrame->OnCmpPosChanged(cmp);
+			pFrame->UpdateSelBox();
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
+		}
+		break;
 	case PropertyTerrainWrappedU:
 	case PropertyTerrainWrappedV:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			terrain->m_WrappedU = m_pProp[PropertyTerrainWrappedU]->GetValue().fltVal;
 			terrain->m_WrappedV = m_pProp[PropertyTerrainWrappedV]->GetValue().fltVal;
-			terrain->UpdateChunks();
 			EventArg arg;
 			pFrame->m_EventCmpAttriChanged(&arg);
 		}

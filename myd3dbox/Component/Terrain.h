@@ -71,6 +71,8 @@ public:
 
 	static const VertexArray2D m_VertTable;
 
+	float m_HeightScale;
+
 	float m_WrappedU;
 
 	float m_WrappedV;
@@ -141,7 +143,7 @@ public:
 	const Fragment & GetFragment(unsigned char center, unsigned char left, unsigned char top, unsigned char right, unsigned char bottom);
 
 public:
-	Terrain(const my::Matrix4 & World, float WrappedU, float WrappedV);
+	Terrain(const my::Matrix4 & World, float HeightScale, float WrappedU, float WrappedV);
 
 	Terrain(void);
 

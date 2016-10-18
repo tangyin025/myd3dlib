@@ -140,6 +140,7 @@ protected:
 		PropertyTerrain,
 		PropertyTerrainRowChunks,
 		PropertyTerrainChunkRows,
+		PropertyTerrainHeightScale,
 		PropertyTerrainWrappedU,
 		PropertyTerrainWrappedV,
 		PropertyTerrainHeightMap,

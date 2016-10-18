@@ -4,6 +4,7 @@ struct VS_INPUT
 	uint4 Tex0				: TEXCOORD0;
 };
 
+float g_HeightScale;
 float4 g_WrappedUV;
 uint3 g_ChunkId;
 Texture2D g_HeightTexture;
@@ -21,7 +22,7 @@ sampler HeightTextureSampler = sampler_state
 float4 TransformPosWS(VS_INPUT In)
 {
 	int2 coord = int2(g_ChunkId.x * g_ChunkId.z + In.Tex0.x, g_ChunkId.y * g_ChunkId.z + In.Tex0.y);
-	float height = tex2Dlod(HeightTextureSampler,
+	float height = g_HeightScale * tex2Dlod(HeightTextureSampler,
 		float4(coord.y / g_WrappedUV.w, coord.x / g_WrappedUV.z, 0, 0)).a * 255;
 	return mul(float4(coord.x, height, coord.y, 1.0), g_World);
 }
