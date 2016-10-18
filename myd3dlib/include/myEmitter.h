@@ -3,8 +3,8 @@
 #include "mySingleton.h"
 #include "myMath.h"
 #include "mySpline.h"
-#include <deque>
 #include <set>
+#include <boost/circular_buffer.hpp>
 #include <boost/serialization/nvp.hpp>
 
 #define PARTICLE_INSTANCE_MAX 4096u
@@ -62,7 +62,7 @@ namespace my
 			}
 		};
 
-		typedef std::deque<Particle> ParticleList;
+		typedef boost::circular_buffer<Particle> ParticleList;
 
 		ParticleList m_ParticleList;
 
@@ -70,7 +70,8 @@ namespace my
 
 	public:
 		Emitter(void)
-			: m_Time(0)
+			: m_ParticleList(PARTICLE_INSTANCE_MAX)
+			, m_Time(0)
 		{
 		}
 
@@ -81,7 +82,7 @@ namespace my
 		template <class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
+			//ar & BOOST_SERIALIZATION_NVP(m_ParticleList);
 		}
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);

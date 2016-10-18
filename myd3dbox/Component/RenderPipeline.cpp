@@ -639,18 +639,22 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 {
 	const DWORD NumInstances = emitter->m_ParticleList.size();
 	_ASSERT(NumInstances <= PARTICLE_INSTANCE_MAX);
+	_ASSERT(m_ParticleInstanceStride == sizeof(Emitter::ParticleList::value_type));
 	unsigned char * pVertices = (unsigned char *)m_ParticleInstanceData.Lock(0, m_ParticleInstanceStride * NumInstances, D3DLOCK_DISCARD);
 	_ASSERT(pVertices);
-	for(DWORD i = 0; i < NumInstances; i++)
+	Emitter::ParticleList::const_array_range array_one = emitter->m_ParticleList.array_one();
+	if (array_one.second > 0)
 	{
-		// ! Can optimize, because all point offset are constant
-		unsigned char * pVertex = pVertices + i * m_ParticleInstanceStride;
-		const my::Emitter::Particle & particle = emitter->m_ParticleList[i];
-		//m_ParticleInstanceElems.SetPosition(pVertex, particle.m_Position);
-		//m_ParticleInstanceElems.SetNormal(pVertex, particle.m_Velocity);
-		//m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 1, particle.m_Color);
-		//m_ParticleInstanceElems.SetVertexValue(pVertex, D3DDECLUSAGE_TEXCOORD, 2, Vector4(particle.m_Size.x, particle.m_Size.y, particle.m_Angle, particle.m_Time));
-		memcpy(pVertex, &particle, sizeof(particle));
+		size_t length = array_one.second * sizeof(Emitter::ParticleList::value_type);
+		memcpy(pVertices, array_one.first, length);
+		pVertices += length;
+	}
+	Emitter::ParticleList::const_array_range array_two = emitter->m_ParticleList.array_two();
+	if (array_two.second > 0)
+	{
+		size_t length = array_two.second * sizeof(Emitter::ParticleList::value_type);
+		memcpy(pVertices, array_two.first, length);
+		pVertices += length;
 	}
 	m_ParticleInstanceData.Unlock();
 

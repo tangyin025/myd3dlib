@@ -17,10 +17,7 @@ BOOST_CLASS_EXPORT(SphericalEmitter)
 
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle)
 {
-	if(m_ParticleList.size() < PARTICLE_INSTANCE_MAX)
-	{
-		m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, m_Time));
-	}
+	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, m_Time));
 }
 
 void Emitter::Reset(void)
@@ -52,7 +49,7 @@ void DynamicEmitter::Update(float fElapsedTime)
 
 	if (part_iter != m_ParticleList.begin())
 	{
-		m_ParticleList.erase(m_ParticleList.begin(), part_iter);
+		m_ParticleList.rerase(m_ParticleList.begin(), part_iter);
 	}
 }
 
