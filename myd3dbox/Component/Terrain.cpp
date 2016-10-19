@@ -10,6 +10,9 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+#include <boost/iterator/transform_iterator.hpp>
+#include <boost/lambda/lambda.hpp>
+#include <boost/lambda/casts.hpp>
 
 using namespace my;
 
@@ -525,10 +528,14 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows * sizeof(D3DCOLOR);
+	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	boost::array<unsigned char, BufferSize> buff;
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, 0, 0);
-	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)lrc.pBits, BufferSize));
+	std::copy(
+		boost::make_transform_iterator((unsigned int *)lrc.pBits, boost::lambda::_1 >> 24),
+		boost::make_transform_iterator((unsigned int *)lrc.pBits + BufferSize, boost::lambda::_1 >> 24), buff.begin());
 	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect(0);
+	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
 }
@@ -541,11 +548,13 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	Cache cache(m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows * sizeof(D3DCOLOR));
-	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object((void *)&cache[0], cache.size()));
 	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	boost::array<unsigned char, BufferSize> buff;
+	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
-	memcpy(lrc.pBits, &cache[0], cache.size());
+	std::copy(
+		boost::make_transform_iterator(buff.begin(), boost::lambda::ll_static_cast<unsigned int>(boost::lambda::_1) << 24),
+		boost::make_transform_iterator(buff.begin() + BufferSize, boost::lambda::ll_static_cast<unsigned int>(boost::lambda::_1) << 24), (unsigned int *)lrc.pBits);
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
@@ -563,6 +572,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		}
 	};
 	m_Root.QueryComponentAll(&CallBack(this));
+	UpdateHeightMapNormal();
 	CreateElements();
 	CreateRigidActor();
 	CreateShape();
