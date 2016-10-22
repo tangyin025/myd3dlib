@@ -371,29 +371,15 @@ bool CChildView::OverlapTestFrustumAndMesh(
 {
 	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{
-		int i1, i2, i3;
-		if(bIndices16)
-		{
-			i1 = *((WORD *)pIndices + face_i * 3 + 0);
-			i2 = *((WORD *)pIndices + face_i * 3 + 1);
-			i3 = *((WORD *)pIndices + face_i * 3 + 2);
-		}
-		else
-		{
-			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
-			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
-			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
-		}
+		int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
+		int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
+		int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
 
-		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
-		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
-		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+		const my::Vector3 & v0 = VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
+		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
+		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
 
-		const my::Vector3 & v1 = VertexElems.GetPosition(pv1);
-		const my::Vector3 & v2 = VertexElems.GetPosition(pv2);
-		const my::Vector3 & v3 = VertexElems.GetPosition(pv3);
-
-		my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v1, v2, v3, frustum);
+		my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v0, v1, v2, frustum);
 		if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
 		{
 			return true;
@@ -514,25 +500,51 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeTerrain:
 		{
-			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			_ASSERT(terrain->m_RigidActor);
-			unsigned int NbShapes = terrain->m_RigidActor->getNbShapes();
-			std::vector<PxShape *> shapes(NbShapes);
-			NbShapes = terrain->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-			for (unsigned int i = 0; i < NbShapes; i++)
+			struct CallBack : public my::IQueryCallback
 			{
-				PxRaycastHit hits[1];
-				if (PxGeometryQuery::raycast(
-					(PxVec3&)ray.p,
-					(PxVec3&)ray.d,
-					shapes[i]->getGeometry().any(),
-					PxShapeExt::getGlobalPose(*shapes[i]),
-					3000.0f,
-					PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
-					_countof(hits), hits, true))
+				const my::Ray & ray;
+				CChildView * pView;
+				Terrain * terrain;
+				my::RayResult ret;
+				CallBack(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
+					: ray(_ray)
+					, pView(_pView)
+					, terrain(_terrain)
+					, ret(false, FLT_MAX)
 				{
-					return my::RayResult(true, hits[0].distance);
 				}
+				void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+				{
+					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+					const Terrain::Fragment & frag = terrain->GetFragment(chunk->m_lod,
+						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+					my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
+						ray,
+						terrain,
+						chunk,
+						terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY),
+						frag.VertNum,
+						terrain->m_VertexStride,
+						const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+						frag.PrimitiveCount);
+					terrain->m_vb.Unlock();
+					const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+					if (result.first && result.second < ret.second)
+					{
+						ret = result;
+					}
+				}
+			};
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			my::Ray local_ray = ray.transform(terrain->m_World.inverse());
+			CallBack cb(local_ray, this, terrain);
+			terrain->m_Root.QueryComponent(local_ray, &cb);
+			if (cb.ret.first)
+			{
+				return cb.ret;
 			}
 		}
 		break;
@@ -553,34 +565,56 @@ my::RayResult CChildView::OverlapTestRayAndMesh(
 	my::RayResult ret(false, FLT_MAX);
 	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
 	{
-		int i1, i2, i3;
-		if(bIndices16)
-		{
-			i1 = *((WORD *)pIndices + face_i * 3 + 0);
-			i2 = *((WORD *)pIndices + face_i * 3 + 1);
-			i3 = *((WORD *)pIndices + face_i * 3 + 2);
-		}
-		else
-		{
-			i1 = *((DWORD *)pIndices + face_i * 3 + 0);
-			i2 = *((DWORD *)pIndices + face_i * 3 + 1);
-			i3 = *((DWORD *)pIndices + face_i * 3 + 2);
-		}
+		int i0 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 0) : *((DWORD *)pIndices + face_i * 3 + 0);
+		int i1 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 1) : *((DWORD *)pIndices + face_i * 3 + 1);
+		int i2 = bIndices16 ? *((WORD *)pIndices + face_i * 3 + 2) : *((DWORD *)pIndices + face_i * 3 + 2);
 
-		unsigned char * pv1 = (unsigned char *)pVertices + i1 * VertexStride;
-		unsigned char * pv2 = (unsigned char *)pVertices + i2 * VertexStride;
-		unsigned char * pv3 = (unsigned char *)pVertices + i3 * VertexStride;
+		const my::Vector3 & v0 = VertexElems.GetPosition((unsigned char *)pVertices + i0 * VertexStride);
+		const my::Vector3 & v1 = VertexElems.GetPosition((unsigned char *)pVertices + i1 * VertexStride);
+		const my::Vector3 & v2 = VertexElems.GetPosition((unsigned char *)pVertices + i2 * VertexStride);
 
-		const my::Vector3 & v1 = VertexElems.GetPosition(pv1);
-		const my::Vector3 & v2 = VertexElems.GetPosition(pv2);
-		const my::Vector3 & v3 = VertexElems.GetPosition(pv3);
-
-		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v1, v2, v3);
+		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
 		if (result.first && result.second < ret.second)
 		{
 			ret = result;
 		}
 	}
+	return ret;
+}
+
+my::RayResult CChildView::OverlapTestRayAndTerrainChunk(
+	const my::Ray & ray,
+	Terrain * terrain,
+	TerrainChunk * chunk,
+	void * pVertices,
+	DWORD NumVerts,
+	DWORD VertexStride,
+	void * pIndices,
+	DWORD NumFaces)
+{
+	my::RayResult ret(false, FLT_MAX);
+	D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, 0, 0);
+	for(unsigned int face_i = 0; face_i < NumFaces; face_i++)
+	{
+		int i0 = *((WORD *)pIndices + face_i * 3 + 0);
+		int i1 = *((WORD *)pIndices + face_i * 3 + 1);
+		int i2 = *((WORD *)pIndices + face_i * 3 + 2);
+
+		unsigned char * pv0 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i0 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+		unsigned char * pv1 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i1 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+		unsigned char * pv2 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i2 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
+
+		my::Vector3 v0 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv0[0], chunk->m_Column * terrain->m_ChunkRows + pv0[1]);
+		my::Vector3 v1 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv1[0], chunk->m_Column * terrain->m_ChunkRows + pv1[1]);
+		my::Vector3 v2 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv2[0], chunk->m_Column * terrain->m_ChunkRows + pv2[1]);
+
+		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
+		if (result.first && result.second < ret.second)
+		{
+			ret = result;
+		}
+	}
+	terrain->m_HeightMap.UnlockRect(0);
 	return ret;
 }
 

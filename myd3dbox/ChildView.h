@@ -7,6 +7,7 @@
 
 #include "Component/RenderPipeline.h"
 #include "Component/Component.h"
+#include "Component/Terrain.h"
 #include "EventDefine.h"
 
 class CMainDoc;
@@ -85,6 +86,15 @@ protected:
 		bool bIndices16,
 		DWORD NumFaces,
 		const my::D3DVertexElementSet & VertexElems);
+	my::RayResult OverlapTestRayAndTerrainChunk(
+		const my::Ray & ray,
+		Terrain * terrain,
+		TerrainChunk * chunk,
+		void * pVertices,
+		DWORD NumVerts,
+		DWORD VertexStride,
+		void * pIndices,
+		DWORD NumFaces);
 	void OnSelectionChanged(EventArg * arg);
 	void OnSelectionPlaying(EventArg * arg);
 	void OnPivotModeChanged(EventArg * arg);
