@@ -447,8 +447,8 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			if (ret.first)
 			{
 				ret.second = (local_ray.d * ret.second).transformNormal(mesh_cmp->m_World).magnitude();
+				return ret;
 			}
-			return ret;
 		}
 		break;
 
@@ -544,6 +544,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			terrain->m_Root.QueryComponent(local_ray, &cb);
 			if (cb.ret.first)
 			{
+				cb.ret.second = (local_ray.d * cb.ret.second).transformNormal(terrain->m_World).magnitude();
 				return cb.ret;
 			}
 		}
