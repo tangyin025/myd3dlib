@@ -139,8 +139,6 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float WrappedU, f
 	}
 	CalcLodDistanceSq();
 	CreateElements();
-	CreateRigidActor();
-	CreateShape();
 }
 
 Terrain::Terrain(void)
@@ -209,7 +207,6 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 	}
 	UpdateHeightMapNormal();
 	UpdateChunks();
-	UpdateShape();
 }
 
 void Terrain::UpdateHeightMapNormal(void)
@@ -268,66 +265,6 @@ unsigned char Terrain::GetSampleHeight(void * pBits, int pitch, int i, int j)
 my::Vector3 Terrain::GetSamplePos(void * pBits, int pitch, int i, int j)
 {
 	return Vector3((float)i, m_HeightScale * GetSampleHeight(pBits, pitch, i, j), (float)j);
-}
-
-void Terrain::CreateRigidActor(void)
-{
-	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
-	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-}
-
-void Terrain::CreateHeightField(void)
-{
-	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
-	std::vector<PxHeightFieldSample> Samples((m_RowChunks * m_ChunkRows + 1) * (m_ColChunks * m_ChunkRows + 1));
-	for (unsigned int i = 0; i < m_RowChunks * m_ChunkRows + 1; i++)
-	{
-		for (unsigned int j = 0; j < m_ColChunks * m_ChunkRows + 1; j++)
-		{
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].height = GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex0 = PxBitAndByte(0, false);
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex1 = PxBitAndByte(0, false);
-		}
-	}
-	m_HeightMap.UnlockRect(0);
-
-	PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows             = m_RowChunks * m_ChunkRows + 1;
-	hfDesc.nbColumns          = m_ColChunks * m_ChunkRows + 1;
-	hfDesc.format             = PxHeightFieldFormat::eS16_TM;
-	hfDesc.samples.data       = &Samples[0];
-	hfDesc.samples.stride     = sizeof(Samples[0]);
-	m_HeightField.reset(PhysXContext::getSingleton().m_sdk->createHeightField(hfDesc));
-}
-
-void Terrain::CreateShape(void)
-{
-	CreateHeightField();
-
-	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
-	PxShape * shape = m_RigidActor->createShape(
-		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z),
-		*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-}
-
-void Terrain::UpdateShape(void)
-{
-	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
-
-	CreateHeightField();
-
-	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
-	unsigned int NbShapes = m_RigidActor->getNbShapes();
-	std::vector<PxShape *> shapes(NbShapes);
-	NbShapes = m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	shapes[0]->setGeometry(
-		PxHeightFieldGeometry(m_HeightField.get(), PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z));
-
-	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
 }
 
 void Terrain::CreateElements(void)
@@ -574,8 +511,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_Root.QueryComponentAll(&CallBack(this));
 	UpdateHeightMapNormal();
 	CreateElements();
-	CreateRigidActor();
-	CreateShape();
 }
 
 void Terrain::RequestResource(void)
@@ -594,7 +529,6 @@ void Terrain::RequestResource(void)
 
 	CreateVertices();
 
-	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
 }
 
 void Terrain::ReleaseResource(void)
@@ -603,7 +537,6 @@ void Terrain::ReleaseResource(void)
 	m_vb.OnDestroyDevice();
 	m_Fragment.clear();
 	m_Material->ReleaseResource();
-	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
 	RenderComponent::ReleaseResource();
 }
 

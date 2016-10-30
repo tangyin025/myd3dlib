@@ -1014,19 +1014,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
 				m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
 			Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
-			switch (PropertyId)
-			{
-			case PropertyComponentScale:
-			case PropertyComponentScaleX:
-			case PropertyComponentScaleY:
-			case PropertyComponentScaleZ:
-				if (Component::ComponentTypeTerrain == cmp->m_Type)
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-					terrain->UpdateShape();
-				}
-				break;
-			}
 			pFrame->OnCmpPosChanged(cmp);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
@@ -1484,7 +1471,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
 			terrain->UpdateChunks();
-			terrain->UpdateShape();
 			pFrame->OnCmpPosChanged(cmp);
 			pFrame->UpdateSelBox();
 			EventArg arg;

@@ -112,10 +112,6 @@ public:
 
 	LodDistanceList m_LodDistanceSq;
 
-	PhysXPtr<PxHeightField> m_HeightField;
-
-	PhysXPtr<PxRigidActor> m_RigidActor;
-
 	void CalcLodDistanceSq(void);
 
 	void CreateHeightMap(void);
@@ -129,14 +125,6 @@ public:
 	unsigned char GetSampleHeight(void * pBits, int pitch, int i, int j);
 
 	my::Vector3 GetSamplePos(void * pBits, int pitch, int i, int j);
-
-	void CreateRigidActor(void);
-
-	void CreateHeightField(void);
-
-	void CreateShape(void);
-
-	void UpdateShape(void);
 
 	void CreateElements(void);
 

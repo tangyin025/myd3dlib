@@ -93,15 +93,6 @@ void Component::SetCmpWorld(Component * cmp, const my::Matrix4 & World)
 			rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
 		}
 		break;
-	case ComponentTypeTerrain:
-		{
-			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			terrain->m_World = World;
-			Vector3 scale, pos; Quaternion rot;
-			World.Decompose(scale, rot, pos);
-			terrain->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
-		}
-		break;
 	}
 }
 
