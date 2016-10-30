@@ -120,23 +120,23 @@ protected:
 		PropertyMaterialMeshTexture,
 		PropertyMaterialNormalTexture,
 		PropertyMaterialSpecularTexture,
-		PropertyRigidShapeList,
-		PropertyRigidShapeAdd,
-		PropertyRigidShapePos,
-		PropertyRigidShapePosX,
-		PropertyRigidShapePosY,
-		PropertyRigidShapePosZ,
-		PropertyRigidShapeRot,
-		PropertyRigidShapeRotX,
-		PropertyRigidShapeRotY,
-		PropertyRigidShapeRotZ,
-		PropertyRigidShapeCapsuleRadius,
-		PropertyRigidShapeCapsuleHalfHeight,
-		PropertyRigidShapeBoxHalfExtents,
-		PropertyRigidShapeBoxHalfExtentsX,
-		PropertyRigidShapeBoxHalfExtentsY,
-		PropertyRigidShapeBoxHalfExtentsZ,
-		PropertyRigidShapeSphereRadius,
+		//PropertyRigidShapeList,
+		//PropertyRigidShapeAdd,
+		//PropertyRigidShapePos,
+		//PropertyRigidShapePosX,
+		//PropertyRigidShapePosY,
+		//PropertyRigidShapePosZ,
+		//PropertyRigidShapeRot,
+		//PropertyRigidShapeRotX,
+		//PropertyRigidShapeRotY,
+		//PropertyRigidShapeRotZ,
+		//PropertyRigidShapeCapsuleRadius,
+		//PropertyRigidShapeCapsuleHalfHeight,
+		//PropertyRigidShapeBoxHalfExtents,
+		//PropertyRigidShapeBoxHalfExtentsX,
+		//PropertyRigidShapeBoxHalfExtentsY,
+		//PropertyRigidShapeBoxHalfExtentsZ,
+		//PropertyRigidShapeSphereRadius,
 		PropertyTerrain,
 		PropertyTerrainRowChunks,
 		PropertyTerrainChunkRows,
@@ -157,7 +157,7 @@ protected:
 	void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
 	void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	void UpdatePropertiesEmitter(EmitterComponent * cmp);
-	void UpdatePropertiesRigid(RigidComponent * cmp);
+	//void UpdatePropertiesRigid(RigidComponent * cmp);
 	void UpdatePropertiesTerrain(Terrain * terrain);
 	void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
 	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
@@ -174,10 +174,10 @@ protected:
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
-	void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
-	void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
-	void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
-	void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
+	//void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
+	//void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
+	//void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
+	//void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	Material * GetComponentMaterial(Component * cmp, unsigned int id);
 

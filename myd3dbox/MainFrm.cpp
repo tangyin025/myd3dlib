@@ -681,58 +681,58 @@ void CMainFrame::OnComponentSphericalemitter()
 
 void CMainFrame::OnRigidSphere()
 {
-	// TODO: Add your command handler code here
-	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//// TODO: Add your command handler code here
+	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
+	//rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	//rigid_cmp->RequestResource();
+	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(rigid_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidPlane()
 {
-	// TODO: Add your command handler code here
-	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//// TODO: Add your command handler code here
+	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
+	//rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	//rigid_cmp->RequestResource();
+	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(rigid_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidCapsule()
 {
-	// TODO: Add your command handler code here
-	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//// TODO: Add your command handler code here
+	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
+	//rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	//rigid_cmp->RequestResource();
+	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(rigid_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidBox()
 {
-	// TODO: Add your command handler code here
-	RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	rigid_cmp->RequestResource();
-	m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//// TODO: Add your command handler code here
+	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
+	//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
+	//rigid_cmp->RequestResource();
+	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(rigid_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnCreateTerrain()

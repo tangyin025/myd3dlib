@@ -24,8 +24,8 @@ BOOST_CLASS_EXPORT(RenderComponent)
 BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
-
-BOOST_CLASS_EXPORT(RigidComponent)
+//
+//BOOST_CLASS_EXPORT(RigidComponent)
 
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
@@ -69,31 +69,31 @@ const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
 
 my::Matrix4 Component::GetCmpWorld(const Component * cmp)
 {
-	switch (cmp->m_Type)
-	{
-	case ComponentTypeRigid:
-		{
-			PxTransform pose = dynamic_cast<const RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
-			return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
-		}
-	}
+	//switch (cmp->m_Type)
+	//{
+	//case ComponentTypeRigid:
+	//	{
+	//		PxTransform pose = dynamic_cast<const RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
+	//		return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
+	//	}
+	//}
 	return cmp->m_World;
 }
 
 void Component::SetCmpWorld(Component * cmp, const my::Matrix4 & World)
 {
 	cmp->m_World = World;
-	switch (cmp->m_Type)
-	{
-	case ComponentTypeRigid:
-		{
-			RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-			Vector3 scale, pos; Quaternion rot;
-			World.Decompose(scale, rot, pos);
-			rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
-		}
-		break;
-	}
+	//switch (cmp->m_Type)
+	//{
+	//case ComponentTypeRigid:
+	//	{
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		Vector3 scale, pos; Quaternion rot;
+	//		World.Decompose(scale, rot, pos);
+	//		rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
+	//	}
+	//	break;
+	//}
 }
 
 template<>
@@ -299,53 +299,53 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 		}
 	}
 }
-
-void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
-{
-	my::Vector3 pos, scale; my::Quaternion rot;
-	World.Decompose(scale, rot, pos);
-	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-}
-
-template<>
-void RigidComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	PxDefaultMemoryOutputStream ostr;
-	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-	m_RigidActor->collectForExport(*collection);
-	collection->addExternalRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
-	collection->setObjectRef(*m_RigidActor, (PxSerialObjectRef)SerializeRefActor);
-	collection->serialize(ostr, false);
-	unsigned int BuffSize = ostr.getSize();
-	ar << BOOST_SERIALIZATION_NVP(BuffSize);
-	ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-}
-
-template<>
-void RigidComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-	unsigned int BuffSize;
-	ar >> BOOST_SERIALIZATION_NVP(BuffSize);
-	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(BuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), BuffSize));
-	PhysXPtr<PxUserReferences> externalRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
-	externalRefs->setObjectRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
-	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
-	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), externalRefs.get());
-	m_RigidActor.reset(userRefs->getObjectFromRef((PxSerialObjectRef)SerializeRefActor)->is<PxRigidActor>());
-}
-
-void RigidComponent::RequestResource(void)
-{
-	Component::RequestResource();
-	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
-}
-
-void RigidComponent::ReleaseResource(void)
-{
-	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
-	Component::ReleaseResource();
-}
+//
+//void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
+//{
+//	my::Vector3 pos, scale; my::Quaternion rot;
+//	World.Decompose(scale, rot, pos);
+//	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+//}
+//
+//template<>
+//void RigidComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+//{
+//	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+//	PxDefaultMemoryOutputStream ostr;
+//	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+//	m_RigidActor->collectForExport(*collection);
+//	collection->addExternalRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
+//	collection->setObjectRef(*m_RigidActor, (PxSerialObjectRef)SerializeRefActor);
+//	collection->serialize(ostr, false);
+//	unsigned int BuffSize = ostr.getSize();
+//	ar << BOOST_SERIALIZATION_NVP(BuffSize);
+//	ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+//}
+//
+//template<>
+//void RigidComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+//{
+//	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+//	unsigned int BuffSize;
+//	ar >> BOOST_SERIALIZATION_NVP(BuffSize);
+//	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(BuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+//	ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), BuffSize));
+//	PhysXPtr<PxUserReferences> externalRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+//	externalRefs->setObjectRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
+//	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+//	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+//	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), externalRefs.get());
+//	m_RigidActor.reset(userRefs->getObjectFromRef((PxSerialObjectRef)SerializeRefActor)->is<PxRigidActor>());
+//}
+//
+//void RigidComponent::RequestResource(void)
+//{
+//	Component::RequestResource();
+//	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
+//}
+//
+//void RigidComponent::ReleaseResource(void)
+//{
+//	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
+//	Component::ReleaseResource();
+//}

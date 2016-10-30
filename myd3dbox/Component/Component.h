@@ -320,65 +320,65 @@ public:
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
-
-class RigidComponent
-	: public Component
-{
-public:
-	// ! deallocate the memory block when the objects within have been released by PhysX
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
-	PhysXPtr<PxRigidActor> m_RigidActor;
-
-	enum SerializeRef
-	{
-		SerializeRefNone = 0,
-		SerializeRefMaterial,
-		SerializeRefActor,
-	};
-
-	void CreateRigidActor(const my::Matrix4 & World);
-
-public:
-	RigidComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: Component(ComponentTypeRigid, aabb, World)
-	{
-		CreateRigidActor(World);
-	}
-
-	RigidComponent(void)
-		: Component(ComponentTypeRigid, my::AABB::Invalid(), my::Matrix4::Identity())
-	{
-		// ! create rigid actor from serialize
-	}
-
-	~RigidComponent(void)
-	{
-		if (IsRequested())
-		{
-			ReleaseResource();
-		}
-		m_RigidActor.reset();
-		m_SerializeBuff.reset();
-	}
-
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
-	template<class Archive>
-	void serialize(Archive & ar, const unsigned int version)
-	{
-		boost::serialization::split_member(ar, *this, version);
-	}
-
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
-};
-
-typedef boost::shared_ptr<RigidComponent> RigidComponentPtr;
+//
+//class RigidComponent
+//	: public Component
+//{
+//public:
+//	// ! deallocate the memory block when the objects within have been released by PhysX
+//	boost::shared_ptr<unsigned char> m_SerializeBuff;
+//
+//	PhysXPtr<PxRigidActor> m_RigidActor;
+//
+//	enum SerializeRef
+//	{
+//		SerializeRefNone = 0,
+//		SerializeRefMaterial,
+//		SerializeRefActor,
+//	};
+//
+//	void CreateRigidActor(const my::Matrix4 & World);
+//
+//public:
+//	RigidComponent(const my::AABB & aabb, const my::Matrix4 & World)
+//		: Component(ComponentTypeRigid, aabb, World)
+//	{
+//		CreateRigidActor(World);
+//	}
+//
+//	RigidComponent(void)
+//		: Component(ComponentTypeRigid, my::AABB::Invalid(), my::Matrix4::Identity())
+//	{
+//		// ! create rigid actor from serialize
+//	}
+//
+//	~RigidComponent(void)
+//	{
+//		if (IsRequested())
+//		{
+//			ReleaseResource();
+//		}
+//		m_RigidActor.reset();
+//		m_SerializeBuff.reset();
+//	}
+//
+//	friend class boost::serialization::access;
+//
+//	template<class Archive>
+//	void save(Archive & ar, const unsigned int version) const;
+//
+//	template<class Archive>
+//	void load(Archive & ar, const unsigned int version);
+//
+//	template<class Archive>
+//	void serialize(Archive & ar, const unsigned int version)
+//	{
+//		boost::serialization::split_member(ar, *this, version);
+//	}
+//
+//	virtual void RequestResource(void);
+//
+//	virtual void ReleaseResource(void);
+//};
+//
+//typedef boost::shared_ptr<RigidComponent> RigidComponentPtr;
