@@ -527,7 +527,6 @@ void Terrain::RequestResource(void)
 	m_Material->RequestResource();
 
 	CreateVertices();
-
 }
 
 void Terrain::ReleaseResource(void)
