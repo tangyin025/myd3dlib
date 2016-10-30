@@ -2,7 +2,7 @@
 #include "Component.h"
 #include "Terrain.h"
 #include "Animator.h"
-#include "PhysXContext.h"
+//#include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>

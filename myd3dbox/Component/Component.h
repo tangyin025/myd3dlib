@@ -3,7 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Animator.h"
-#include "PhysXPtr.h"
+//#include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
 class Material

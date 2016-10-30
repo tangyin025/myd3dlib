@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Component.h"
-#include "PhysXPtr.h"
 
 class Terrain;
 
