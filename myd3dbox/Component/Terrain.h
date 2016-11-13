@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Component.h"
+#include "PhysXPtr.h"
 
 class Terrain;
 
@@ -110,6 +111,12 @@ public:
 	typedef boost::array<float, Quad<m_ChunkRows>::value> LodDistanceList;
 
 	LodDistanceList m_LodDistanceSq;
+
+	bool m_StaticCollision;
+
+	PhysXPtr<PxHeightField> m_HeightField; // editor only
+
+	PhysXPtr<PxRigidActor> m_RigidActor; // editor only
 
 	void CalcLodDistanceSq(void);
 

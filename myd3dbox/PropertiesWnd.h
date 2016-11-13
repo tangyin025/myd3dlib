@@ -67,6 +67,7 @@ protected:
 		PropertyMeshLodInstance,
 		PropertyMeshLodMaxDistance,
 		PropertyMeshLodBand,
+		PropertyMeshStaticCollision,
 		PropertyEmitter,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
@@ -144,6 +145,7 @@ protected:
 		PropertyTerrainWrappedU,
 		PropertyTerrainWrappedV,
 		PropertyTerrainHeightMap,
+		PropertyTerrainStaticCollision,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];

@@ -100,7 +100,7 @@ class CCheckBoxProp : public CSimpleProp
 {
 public:
 	CCheckBoxProp(const CString& strName, BOOL bCheck, LPCTSTR lpszDescr = NULL, DWORD dwData = 0)
-		: CSimpleProp(strName, COleVariant((long)bCheck), lpszDescr, dwData)
+		: CSimpleProp(strName, COleVariant((VARIANT_BOOL)bCheck), lpszDescr, dwData)
 	{
 		m_rectCheck.SetRectEmpty();
 	}

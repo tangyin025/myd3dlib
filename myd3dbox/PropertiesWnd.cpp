@@ -214,6 +214,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 {
 	UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], cmp);
 	m_pProp[PropertyMeshLodBand]->SetValue((_variant_t)cmp->m_lodBand);
+	m_pProp[PropertyMeshStaticCollision]->SetValue((_variant_t)(VARIANT_BOOL)cmp->m_StaticCollision);
 	unsigned int i = 0;
 	for (; i < cmp->m_MaterialList.size(); i++)
 	{
@@ -345,6 +346,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
 	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
 	m_pProp[PropertyTerrainWrappedU]->SetValue((_variant_t)terrain->m_WrappedU);
 	m_pProp[PropertyTerrainWrappedV]->SetValue((_variant_t)terrain->m_WrappedV);
+	m_pProp[PropertyTerrainStaticCollision]->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_StaticCollision);
 }
 
 void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
@@ -854,6 +856,8 @@ void CPropertiesWnd::InitPropList()
 	}
 	m_pProp[PropertyMeshLodBand] = new CSimpleProp(_T("LodBand"), (_variant_t)0.0f, NULL, PropertyMeshLodBand);
 	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshLodBand]);
+	m_pProp[PropertyMeshStaticCollision] = new CCheckBoxProp(_T("StaticCollision"), FALSE, NULL, PropertyMeshStaticCollision);
+	m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshStaticCollision]);
 
 	m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
 	m_pProp[PropertyEmitterParticleList] = new CMFCPropertyGridProperty(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
@@ -923,6 +927,8 @@ void CPropertiesWnd::InitPropList()
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedV]);
 	m_pProp[PropertyTerrainHeightMap] = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightMap]);
+	m_pProp[PropertyTerrainStaticCollision] = new CCheckBoxProp(_T("StaticCollision"), FALSE, NULL, PropertyTerrainStaticCollision);
+	m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainStaticCollision]);
 
 	HideAllProperties();
 }
@@ -1063,6 +1069,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 			mesh_cmp->m_lodBand = pProp->GetValue().fltVal;
+		}
+		break;
+	case PropertyMeshStaticCollision:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			mesh_cmp->m_StaticCollision = pProp->GetValue().boolVal;
 		}
 		break;
 	case PropertyEmitterParticleCount:
@@ -1470,6 +1482,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 			terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
+			terrain->UpdateHeightMapNormal();
 			terrain->UpdateChunks();
 			pFrame->OnCmpPosChanged(cmp);
 			pFrame->UpdateSelBox();
@@ -1499,6 +1512,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				EventArg arg;
 				pFrame->m_EventCmpAttriChanged(&arg);
 			}
+		}
+		break;
+	case PropertyTerrainStaticCollision:
+		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			terrain->m_StaticCollision = m_pProp[PropertyTerrainStaticCollision]->GetValue().boolVal;
+			EventArg arg;
+			pFrame->m_EventCmpAttriChanged(&arg);
 		}
 		break;
 	}

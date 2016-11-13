@@ -125,6 +125,7 @@ Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float WrappedU, f
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
 	, m_Root(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows), 1.0f)
+	, m_StaticCollision(false)
 {
 	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -146,6 +147,7 @@ Terrain::Terrain(void)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
 	, m_Root(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows), 1.0f)
+	, m_StaticCollision(false)
 {
 	CreateHeightMap();
 }
@@ -474,6 +476,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
+	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
 }
 
 template<>
@@ -494,6 +497,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
+	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	struct CallBack : public my::IQueryCallback
 	{
 		Terrain * terrain;

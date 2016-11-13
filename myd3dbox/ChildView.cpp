@@ -298,7 +298,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					vertices.size(),
 					sizeof(vertices[0]),
 					elems,
-					mesh->LockVertexBuffer(),
+					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
 					mesh_cmp->m_Animator->m_DualQuats);
@@ -306,7 +306,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(),
+					mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh->GetOptions() & D3DXMESH_32BIT),
 					mesh->GetNumFaces(),
 					elems);
@@ -317,10 +317,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			else
 			{
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
-					mesh->LockVertexBuffer(),
+					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumVertices(),
 					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(),
+					mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh->GetOptions() & D3DXMESH_32BIT),
 					mesh->GetNumFaces(),
 					mesh->m_VertexElems);
@@ -416,7 +416,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					vertices.size(),
 					sizeof(vertices[0]),
 					elems,
-					mesh->LockVertexBuffer(),
+					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
 					mesh_cmp->m_Animator->m_DualQuats);
@@ -424,7 +424,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					&vertices[0],
 					vertices.size(),
 					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(),
+					mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh->GetOptions() & D3DXMESH_32BIT),
 					mesh->GetNumFaces(),
 					elems);
@@ -434,10 +434,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			else
 			{
 				ret = OverlapTestRayAndMesh(local_ray,
-					mesh->LockVertexBuffer(),
+					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumVertices(),
 					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(),
+					mesh->LockIndexBuffer(D3DLOCK_READONLY),
 					!(mesh->GetOptions() & D3DXMESH_32BIT),
 					mesh->GetNumFaces(),
 					mesh->m_VertexElems);

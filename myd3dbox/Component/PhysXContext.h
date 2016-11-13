@@ -35,6 +35,8 @@ public:
 
 	PhysXPtr<PxMaterial> m_PxMaterial;
 
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
 public:
 	PhysXContext(void)
 	{
@@ -43,6 +45,10 @@ public:
 	bool Init(void);
 
 	void Shutdown(void);
+
+	void ExportStaticCollision(my::OctTree & octRoot, const char * path);
+
+	void ImportStaticCollision(PxScene * scene, const char * path);
 };
 
 class PhysXSceneContext
@@ -101,6 +107,8 @@ public:
 	void TickPostRender(float dtime);
 
 	bool Advance(float dtime);
+
+	bool AdvanceSync(float dtime);
 
 	void Substep(StepperTask & completionTask);
 

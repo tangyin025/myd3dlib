@@ -104,6 +104,7 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 	ar << BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
+	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
 }
 
 template<>
@@ -114,6 +115,7 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 	ar >> BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
+	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	m_lod = m_lods.size() - 1;
 }
 

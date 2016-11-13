@@ -51,6 +51,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
 	ON_WM_TIMER()
+	ON_COMMAND(ID_FILE_EXPORTSTATICCOLLISION, &CMainFrame::OnFileExportstaticcollision)
+	ON_COMMAND(ID_FILE_IMPORTSTATICCOLLISION, &CMainFrame::OnFileImportstaticcollision)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -818,13 +820,47 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			(*cmp_iter)->Update(fElapsedTime);
 		}
 
-		PhysXSceneContext::TickPreRender(fElapsedTime);
+		//PhysXSceneContext::TickPreRender(fElapsedTime);
 
-		PhysXSceneContext::TickPostRender(fElapsedTime);
+		//PhysXSceneContext::TickPostRender(fElapsedTime);
 
 		EventArg arg;
 		m_EventSelectionPlaying(&arg);
 	}
 
 	__super::OnTimer(nIDEvent);
+}
+
+void CMainFrame::OnFileExportstaticcollision()
+{
+	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult == IDCANCEL)
+	{
+		return;
+	}
+
+	theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
+}
+
+void CMainFrame::OnFileImportstaticcollision()
+{
+	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult == IDCANCEL)
+	{
+		return;
+	}
+
+	theApp.ImportStaticCollision(m_PxScene.get(), ts2ms((LPCTSTR)strPathName).c_str());
+
+	AdvanceSync(0.033f);
 }

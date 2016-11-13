@@ -3,7 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Animator.h"
-//#include "PhysXPtr.h"
+#include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
 class Material
@@ -63,7 +63,7 @@ public:
 		ComponentTypeUnknown,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
-		ComponentTypeRigid,
+		//ComponentTypeRigid,
 		ComponentTypeTerrain,
 	};
 
@@ -216,11 +216,18 @@ public:
 
 	AnimatorPtr m_Animator;
 
+	bool m_StaticCollision;
+
+	PhysXPtr<PxTriangleMesh> m_TriangleMesh; // editor only
+
+	PhysXPtr<PxRigidActor> m_RigidActor; // editor only
+
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(ComponentTypeMesh, aabb, World)
 		, m_lod(0)
 		, m_lodBand(1)
+		, m_StaticCollision(false)
 	{
 	}
 
@@ -228,6 +235,7 @@ public:
 		: RenderComponent(ComponentTypeMesh, my::AABB::Invalid(), my::Matrix4::Identity())
 		, m_lod(0)
 		, m_lodBand(1)
+		, m_StaticCollision(false)
 	{
 	}
 
