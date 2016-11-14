@@ -474,6 +474,16 @@ void CMainFrame::ClearAllComponents()
 	m_ViewedCmps.clear();
 }
 
+void CMainFrame::ClearAllPhysXElements()
+{
+	// ! only single scene client can clear sdk elements
+	PhysXSceneContext::ClearAllActors();
+	theApp.ClearAllMaterials();
+	theApp.ClearAllTriangleMeshes();
+	theApp.ClearAllHeightFields();
+	PhysXSceneContext::Flush();
+}
+
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -501,6 +511,7 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	ClearAllComponents();
+	ClearAllPhysXElements();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 
@@ -552,6 +563,7 @@ void CMainFrame::OnFileOpen()
 
 	CWaitCursor waiter;
 	ClearAllComponents();
+	ClearAllPhysXElements();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
@@ -820,13 +832,11 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			(*cmp_iter)->Update(fElapsedTime);
 		}
 
-		//PhysXSceneContext::TickPreRender(fElapsedTime);
-
-		//PhysXSceneContext::TickPostRender(fElapsedTime);
-
 		EventArg arg;
 		m_EventSelectionPlaying(&arg);
 	}
+
+	PhysXSceneContext::AdvanceSync(fElapsedTime);
 
 	__super::OnTimer(nIDEvent);
 }
@@ -835,7 +845,7 @@ void CMainFrame::OnFileExportstaticcollision()
 {
 	// TODO: Add your command handler code here
 	CString strPathName;
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
 	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
 	INT_PTR nResult = dlg.DoModal();
 	strPathName.ReleaseBuffer();
@@ -861,6 +871,4 @@ void CMainFrame::OnFileImportstaticcollision()
 	}
 
 	theApp.ImportStaticCollision(m_PxScene.get(), ts2ms((LPCTSTR)strPathName).c_str());
-
-	AdvanceSync(0.033f);
 }

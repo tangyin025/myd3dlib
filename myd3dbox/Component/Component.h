@@ -220,6 +220,8 @@ public:
 
 	PhysXPtr<PxTriangleMesh> m_TriangleMesh; // editor only
 
+	PhysXPtr<PxMaterial> m_PxMaterial; // editor only
+
 	PhysXPtr<PxRigidActor> m_RigidActor; // editor only
 
 public:

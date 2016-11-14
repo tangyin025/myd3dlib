@@ -20,11 +20,13 @@ Character::~Character(void)
 
 void Character::CreateController(void)
 {
+	m_PxMaterial.reset(Game::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
 	PxCapsuleControllerDesc cDesc;
 	cDesc.radius = 0.15f;
 	cDesc.height = 1.0f;
 	cDesc.position.y = 5;
-	cDesc.material = Game::getSingleton().m_PxMaterial.get();
+	cDesc.material = m_PxMaterial.get();
 	cDesc.callback = this;
 	cDesc.behaviorCallback = this;
 	m_controller.reset(

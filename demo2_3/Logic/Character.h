@@ -9,6 +9,8 @@ class Character
 	, public PxControllerBehaviorCallback
 {
 public:
+	PhysXPtr<PxMaterial> m_PxMaterial;
+
 	PhysXPtr<PxController> m_controller;
 
 	enum HitState

@@ -33,8 +33,6 @@ public:
 
 	PhysXPtr<PxControllerManager> m_ControllerMgr;
 
-	PhysXPtr<PxMaterial> m_PxMaterial;
-
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 public:
@@ -45,6 +43,12 @@ public:
 	bool Init(void);
 
 	void Shutdown(void);
+
+	void ClearAllMaterials(void);
+
+	void ClearAllTriangleMeshes(void);
+
+	void ClearAllHeightFields(void);
 
 	void ExportStaticCollision(my::OctTree & octRoot, const char * path);
 
@@ -115,4 +119,8 @@ public:
 	void SubstepDone(StepperTask * ownerTask);
 
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
+
+	void Flush(void);
+
+	void ClearAllActors(void);
 };

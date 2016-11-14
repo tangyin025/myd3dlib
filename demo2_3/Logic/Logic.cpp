@@ -24,10 +24,10 @@ void Logic::Create(void)
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("m_Root", Game::getSingleton().m_Root);
 
-	Game::getSingleton().m_PxScene->addActor(
-		*PxCreatePlane(*PhysXContext::getSingleton().m_sdk, PxPlane(0,1,0,0), *PhysXContext::getSingleton().m_PxMaterial));
-
 	m_player.reset(new LocalPlayer());
+
+	Game::getSingleton().m_PxScene->addActor(
+		*PxCreatePlane(*PhysXContext::getSingleton().m_sdk, PxPlane(0,1,0,0), *PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f)));
 }
 
 void Logic::Update(float fElapsedTime)

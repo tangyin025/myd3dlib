@@ -116,6 +116,8 @@ public:
 
 	PhysXPtr<PxHeightField> m_HeightField; // editor only
 
+	PhysXPtr<PxMaterial> m_PxMaterial; // editor only
+
 	PhysXPtr<PxRigidActor> m_RigidActor; // editor only
 
 	void CalcLodDistanceSq(void);

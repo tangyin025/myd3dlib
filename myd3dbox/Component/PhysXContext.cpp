@@ -60,18 +60,11 @@ bool PhysXContext::Init(void)
 	{
 		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
 	}
-
-	if(!(m_PxMaterial.reset(m_sdk->createMaterial(0.5f, 0.5f, 0.1f)), m_PxMaterial))
-	{
-		THROW_CUSEXCEPTION("m_sdk->createMaterial failed");
-	}
 	return true;
 }
 
 void PhysXContext::Shutdown(void)
 {
-	m_PxMaterial.reset();
-
 	if(m_sdk)
 	{
 		PxCloseExtensions();
@@ -86,6 +79,48 @@ void PhysXContext::Shutdown(void)
 	m_sdk.reset();
 
 	m_Foundation.reset();
+}
+
+void PhysXContext::ClearAllMaterials(void)
+{
+	PxU32 numMaterials = m_sdk->getNbMaterials();
+	if (numMaterials > 0)
+	{
+		std::vector<PxMaterial *> materialList(numMaterials);
+		m_sdk->getMaterials(&materialList[0], materialList.size(), 0);
+		for (PxU32 i = 0; i < materialList.size(); i++)
+		{
+			materialList[i]->release();
+		}
+	}
+}
+
+void PhysXContext::ClearAllTriangleMeshes(void)
+{
+	PxU32 numTriangleMeshs = m_sdk->getNbTriangleMeshes();
+	if (numTriangleMeshs > 0)
+	{
+		std::vector<PxTriangleMesh *> triangleMeshList(numTriangleMeshs);
+		m_sdk->getTriangleMeshes(&triangleMeshList[0], triangleMeshList.size(), 0);
+		for (PxU32 i = 0; i < triangleMeshList.size(); i++)
+		{
+			triangleMeshList[i]->release();
+		}
+	}
+}
+
+void PhysXContext::ClearAllHeightFields(void)
+{
+	PxU32 numHeightFields = m_sdk->getNbHeightFields();
+	if (numHeightFields > 0)
+	{
+		std::vector<PxHeightField *> heightFieldList(numHeightFields);
+		m_sdk->getHeightFields(&heightFieldList[0], heightFieldList.size(), 0);
+		for (PxU32 i = 0; i < heightFieldList.size(); i++)
+		{
+			heightFieldList[i]->release();
+		}
+	}
 }
 
 void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * path)
@@ -148,14 +183,16 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 					mesh_cmp->m_TriangleMesh.reset(sdk->createTriangleMesh(readBuffer));
 					mesh_cmp->m_TriangleMesh->collectForExport(*collection);
 
+					mesh_cmp->m_PxMaterial.reset(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+					mesh_cmp->m_PxMaterial->collectForExport(*collection);
+
 					my::Vector3 pos, scale; my::Quaternion rot;
 					mesh_cmp->m_World.Decompose(scale, rot, pos);
 					mesh_cmp->m_RigidActor.reset(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
 					PxMeshScale mesh_scaling((PxVec3&)scale, PxQuat::createIdentity());
 					PxShape * shape = mesh_cmp->m_RigidActor->createShape(
 						PxTriangleMeshGeometry(mesh_cmp->m_TriangleMesh.get(), mesh_scaling),
-						*PhysXContext::getSingleton().m_PxMaterial,
-						PxTransform::createIdentity());
+						*mesh_cmp->m_PxMaterial, PxTransform::createIdentity());
 					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 					mesh_cmp->m_RigidActor->collectForExport(*collection);
 				}
@@ -191,13 +228,15 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 					terrain->m_HeightField.reset(sdk->createHeightField(hfDesc));
 					terrain->m_HeightField->collectForExport(*collection);
 
+					terrain->m_PxMaterial.reset(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+					terrain->m_PxMaterial->collectForExport(*collection);
+
 					my::Vector3 pos, scale; my::Quaternion rot;
 					terrain->m_World.Decompose(scale, rot, pos);
 					terrain->m_RigidActor.reset(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
 					PxShape * shape = terrain->m_RigidActor->createShape(
 						PxHeightFieldGeometry(terrain->m_HeightField.get(), PxMeshGeometryFlags(), terrain->m_HeightScale * scale.y, scale.x, scale.z),
-						*PhysXContext::getSingleton().m_PxMaterial,
-						PxTransform::createIdentity());
+						*terrain->m_PxMaterial, PxTransform::createIdentity());
 					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
 					terrain->m_RigidActor->collectForExport(*collection);
 				}
@@ -208,7 +247,6 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 
 	PxDefaultFileOutputStream ostr(path);
 	PhysXPtr<PxCollection> collection(m_sdk->createCollection());
-	collection->addExternalRef(*m_PxMaterial, (PxSerialObjectRef)1);
 	octRoot.QueryComponentAll(&CallBack(m_sdk.get(), m_Cooking.get(), collection.get()));
 	collection->serialize(ostr, false);
 }
@@ -219,10 +257,8 @@ void PhysXContext::ImportStaticCollision(PxScene * scene, const char * path)
 	my::IStreamPtr istr = my::ResourceMgr::getSingleton().OpenIStream(path);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(istr->GetSize(), PX_SERIAL_FILE_ALIGN), _aligned_free);
 	istr->read(m_SerializeBuff.get(), istr->GetSize());
-	PhysXPtr<PxUserReferences> externalRefs(m_sdk->createUserReferences());
-	externalRefs->setObjectRef(*m_PxMaterial, (PxSerialObjectRef)1);
 	PhysXPtr<PxCollection> collection(m_sdk->createCollection());
-	collection->deserialize(m_SerializeBuff.get(), NULL, externalRefs.get());
+	collection->deserialize(m_SerializeBuff.get(), NULL, NULL);
 	m_sdk->addCollection(*collection, *scene);
 }
 
@@ -370,4 +406,24 @@ void PhysXSceneContext::PushRenderBuffer(my::DrawHelper * drawHelper)
 	//		const PxDebugTriangle& triangle = triangles[i];
 	//	}
 	//}
+}
+
+void PhysXSceneContext::Flush(void)
+{
+	m_PxScene->flush(false);
+}
+
+void PhysXSceneContext::ClearAllActors(void)
+{
+	PxActorTypeSelectionFlags flags(PxActorTypeSelectionFlag::eRIGID_STATIC | PxActorTypeSelectionFlag::eRIGID_DYNAMIC);
+	PxU32 numActors = m_PxScene->getNbActors(flags);
+	if (numActors > 0)
+	{
+		std::vector<PxActor *> actorList(numActors);
+		m_PxScene->getActors(flags, &actorList[0], actorList.size(), 0);
+		for (PxU32 i = 0; i < actorList.size(); i++)
+		{
+			actorList[i]->release();
+		}
+	}
 }

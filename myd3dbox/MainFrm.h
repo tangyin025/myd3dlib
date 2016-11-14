@@ -87,6 +87,7 @@ protected:
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
 	void ClearAllComponents();
+	void ClearAllPhysXElements();
 
 public:
 	afx_msg void OnDestroy();
