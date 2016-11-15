@@ -474,16 +474,6 @@ void CMainFrame::ClearAllComponents()
 	m_ViewedCmps.clear();
 }
 
-void CMainFrame::ClearAllPhysXElements()
-{
-	// ! only single scene client can clear sdk elements
-	PhysXSceneContext::ClearAllActors();
-	theApp.ClearAllMaterials();
-	theApp.ClearAllTriangleMeshes();
-	theApp.ClearAllHeightFields();
-	PhysXSceneContext::Flush();
-}
-
 void CMainFrame::OnDestroy()
 {
 	CFrameWndEx::OnDestroy();
@@ -510,8 +500,11 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
+	unsigned int a= theApp.m_sdk->getNbMaterials();
 	ClearAllComponents();
-	ClearAllPhysXElements();
+	ClearAllActors();
+	ReleaseSerializeObjs();
+	a= theApp.m_sdk->getNbMaterials();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 
@@ -563,7 +556,8 @@ void CMainFrame::OnFileOpen()
 
 	CWaitCursor waiter;
 	ClearAllComponents();
-	ClearAllPhysXElements();
+	ClearAllActors();
+	ReleaseSerializeObjs();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
@@ -870,5 +864,5 @@ void CMainFrame::OnFileImportstaticcollision()
 		return;
 	}
 
-	theApp.ImportStaticCollision(m_PxScene.get(), ts2ms((LPCTSTR)strPathName).c_str());
+	ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
 }

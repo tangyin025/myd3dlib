@@ -81,48 +81,6 @@ void PhysXContext::Shutdown(void)
 	m_Foundation.reset();
 }
 
-void PhysXContext::ClearAllMaterials(void)
-{
-	PxU32 numMaterials = m_sdk->getNbMaterials();
-	if (numMaterials > 0)
-	{
-		std::vector<PxMaterial *> materialList(numMaterials);
-		m_sdk->getMaterials(&materialList[0], materialList.size(), 0);
-		for (PxU32 i = 0; i < materialList.size(); i++)
-		{
-			materialList[i]->release();
-		}
-	}
-}
-
-void PhysXContext::ClearAllTriangleMeshes(void)
-{
-	PxU32 numTriangleMeshs = m_sdk->getNbTriangleMeshes();
-	if (numTriangleMeshs > 0)
-	{
-		std::vector<PxTriangleMesh *> triangleMeshList(numTriangleMeshs);
-		m_sdk->getTriangleMeshes(&triangleMeshList[0], triangleMeshList.size(), 0);
-		for (PxU32 i = 0; i < triangleMeshList.size(); i++)
-		{
-			triangleMeshList[i]->release();
-		}
-	}
-}
-
-void PhysXContext::ClearAllHeightFields(void)
-{
-	PxU32 numHeightFields = m_sdk->getNbHeightFields();
-	if (numHeightFields > 0)
-	{
-		std::vector<PxHeightField *> heightFieldList(numHeightFields);
-		m_sdk->getHeightFields(&heightFieldList[0], heightFieldList.size(), 0);
-		for (PxU32 i = 0; i < heightFieldList.size(); i++)
-		{
-			heightFieldList[i]->release();
-		}
-	}
-}
-
 void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * path)
 {
 	struct CallBack : public my::IQueryCallback
@@ -251,17 +209,6 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 	collection->serialize(ostr, false);
 }
 
-void PhysXContext::ImportStaticCollision(PxScene * scene, const char * path)
-{
-	_ASSERT(!m_SerializeBuff);
-	my::IStreamPtr istr = my::ResourceMgr::getSingleton().OpenIStream(path);
-	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(istr->GetSize(), PX_SERIAL_FILE_ALIGN), _aligned_free);
-	istr->read(m_SerializeBuff.get(), istr->GetSize());
-	PhysXPtr<PxCollection> collection(m_sdk->createCollection());
-	collection->deserialize(m_SerializeBuff.get(), NULL, NULL);
-	m_sdk->addCollection(*collection, *scene);
-}
-
 void PhysXSceneContext::StepperTask::run(void)
 {
 	m_PxScene->SubstepDone(this);
@@ -295,7 +242,8 @@ bool PhysXSceneContext::Init(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatche
 void PhysXSceneContext::Shutdown(void)
 {
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
-
+	ClearAllActors();
+	ReleaseSerializeObjs();
 	m_PxScene.reset();
 }
 
@@ -424,6 +372,57 @@ void PhysXSceneContext::ClearAllActors(void)
 		for (PxU32 i = 0; i < actorList.size(); i++)
 		{
 			actorList[i]->release();
+		}
+	}
+}
+
+void PhysXSceneContext::ReleaseSerializeObjs(void)
+{
+	unsigned int numObjs = m_SerializeObjs.size();
+	for (unsigned int i = 0; i < numObjs; i++)
+	{
+		switch (m_SerializeObjs[i]->getConcreteType())
+		{
+		case PxConcreteType::eMATERIAL:
+			m_SerializeObjs[i]->is<PxMaterial>()->release();
+			break;
+		case PxConcreteType::eHEIGHTFIELD:
+			m_SerializeObjs[i]->is<PxHeightField>()->release();
+			break;
+		case PxConcreteType::eCONVEX_MESH:
+			m_SerializeObjs[i]->is<PxConvexMesh>()->release();
+			break;
+		case PxConcreteType::eTRIANGLE_MESH:
+			m_SerializeObjs[i]->is<PxTriangleMesh>()->release();
+			break;
+		}
+	}
+	m_SerializeObjs.clear();
+	m_SerializeBuffs.clear();
+}
+
+void PhysXSceneContext::ImportStaticCollision(const char * path)
+{
+	my::IStreamPtr istr = my::ResourceMgr::getSingleton().OpenIStream(path);
+	boost::shared_ptr<unsigned char> buff((unsigned char *)_aligned_malloc(istr->GetSize(), PX_SERIAL_FILE_ALIGN), _aligned_free);
+	istr->read(buff.get(), istr->GetSize());
+	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+	collection->deserialize(buff.get(), NULL, NULL);
+	PhysXContext::getSingleton().m_sdk->addCollection(*collection, *m_PxScene);
+	m_SerializeBuffs.push_back(buff);
+
+	PxU32 numObjs = collection->getNbObjects();
+	for(PxU32 i = 0; i < numObjs; i++)
+	{
+		PxSerializable* object = collection->getObject(i);
+		switch (object->getConcreteType())
+		{
+		case PxConcreteType::eMATERIAL:
+		case PxConcreteType::eHEIGHTFIELD:
+		case PxConcreteType::eCONVEX_MESH:
+		case PxConcreteType::eTRIANGLE_MESH:
+			m_SerializeObjs.push_back(object);
+			break;
 		}
 	}
 }

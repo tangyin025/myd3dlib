@@ -33,8 +33,6 @@ public:
 
 	PhysXPtr<PxControllerManager> m_ControllerMgr;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 public:
 	PhysXContext(void)
 	{
@@ -44,15 +42,7 @@ public:
 
 	void Shutdown(void);
 
-	void ClearAllMaterials(void);
-
-	void ClearAllTriangleMeshes(void);
-
-	void ClearAllHeightFields(void);
-
 	void ExportStaticCollision(my::OctTree & octRoot, const char * path);
-
-	void ImportStaticCollision(PxScene * scene, const char * path);
 };
 
 class PhysXSceneContext
@@ -91,6 +81,10 @@ public:
 
 	SubstepEvent m_EventPxThreadSubstep;
 
+	std::vector<boost::shared_ptr<unsigned char> > m_SerializeBuffs;
+
+	std::vector<PxSerializable *> m_SerializeObjs;
+
 public:
 	PhysXSceneContext(void)
 		: m_Completion0(this)
@@ -123,4 +117,8 @@ public:
 	void Flush(void);
 
 	void ClearAllActors(void);
+
+	void ReleaseSerializeObjs(void);
+
+	void ImportStaticCollision(const char * path);
 };
