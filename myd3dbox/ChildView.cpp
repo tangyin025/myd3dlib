@@ -42,6 +42,8 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_CMPHANDLE, &CChildView::OnUpdateShowCmphandle)
 	ON_COMMAND(ID_RENDERMODE_WIREFRAME, &CChildView::OnRendermodeWireframe)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_WIREFRAME, &CChildView::OnUpdateRendermodeWireframe)
+	ON_COMMAND(ID_SHOW_COLLISION, &CChildView::OnShowCollisiondebug)
+	ON_UPDATE_COMMAND_UI(ID_SHOW_COLLISION, &CChildView::OnUpdateShowCollisiondebug)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -794,10 +796,10 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
-	CMainFrame::getSingleton().m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	CMainFrame::getSingleton().m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	CMainFrame::getSingleton().m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
 }
 
@@ -806,10 +808,10 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	// TODO: Add your message handler code here
-	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
-	CMainFrame::getSingleton().m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	CMainFrame::getSingleton().m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	CMainFrame::getSingleton().m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -1156,4 +1158,28 @@ void CChildView::OnUpdateRendermodeWireframe(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_WireFrame);
+}
+
+void CChildView::OnShowCollisiondebug()
+{
+	// TODO: Add your command handler code here
+	PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
+	ASSERT(scene);
+	if (scene->getVisualizationParameter(PxVisualizationParameter::eSCALE) > 0)
+	{
+		scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 0.0f);
+	}
+	else
+	{
+		scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+	}
+	Invalidate();
+}
+
+void CChildView::OnUpdateShowCollisiondebug(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
+	ASSERT(scene);
+	pCmdUI->SetCheck(scene->getVisualizationParameter(PxVisualizationParameter::eSCALE) > 0);
 }

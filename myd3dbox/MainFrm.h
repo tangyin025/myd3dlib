@@ -20,16 +20,6 @@ public: // create from serialization only
 	CMainFrame();
 	DECLARE_DYNCREATE(CMainFrame)
 
-	static CMainFrame & getSingleton(void)
-	{
-		return *getSingletonPtr();
-	}
-
-	static CMainFrame * getSingletonPtr(void)
-	{
-		return static_cast<CMainFrame *>(PhysXSceneContext::getSingletonPtr());
-	}
-
 // Attributes
 protected:
 	CSplitterWnd m_wndSplitter;

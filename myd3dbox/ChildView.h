@@ -141,6 +141,8 @@ public:
 	afx_msg void OnUpdateShowCmphandle(CCmdUI *pCmdUI);
 	afx_msg void OnRendermodeWireframe();
 	afx_msg void OnUpdateRendermodeWireframe(CCmdUI *pCmdUI);
+	afx_msg void OnShowCollisiondebug();
+	afx_msg void OnUpdateShowCollisiondebug(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

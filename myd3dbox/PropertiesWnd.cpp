@@ -730,8 +730,8 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-	CMainFrame::getSingleton().m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	CMainFrame::getSingleton().m_EventCmpAttriChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 
 	AdjustLayout();
 	return 0;
@@ -742,8 +742,8 @@ void CPropertiesWnd::OnDestroy()
 	CDockablePane::OnDestroy();
 
 	// TODO: Add your message handler code here
-	CMainFrame::getSingleton().m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	CMainFrame::getSingleton().m_EventCmpAttriChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 }
 
 void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)

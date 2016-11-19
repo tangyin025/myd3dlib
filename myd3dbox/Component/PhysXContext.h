@@ -46,7 +46,6 @@ public:
 };
 
 class PhysXSceneContext
-	: public my::SingleInstance<PhysXSceneContext>
 {
 public:
 	class StepperTask
