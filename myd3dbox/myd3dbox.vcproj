@@ -370,6 +370,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Component\Character.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\Component\Character.h"
+				>
+			</File>
+			<File
 				RelativePath=".\Component\Component.cpp"
 				>
 			</File>

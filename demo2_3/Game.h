@@ -7,7 +7,6 @@
 #include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/LuaExtension.h"
-#include "Logic/Logic.h"
 
 class Game
 	: public my::DxutApp
@@ -48,8 +47,6 @@ public:
 	typedef boost::unordered_set<Component *> ComponentSet;
 
 	ComponentSet m_ViewedCmps;
-
-	LogicPtr m_Logic;
 
 public:
 	Game(void);

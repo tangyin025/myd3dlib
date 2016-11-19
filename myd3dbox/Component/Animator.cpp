@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Animator.h"
-#include "../../demo2_3/Logic/Character.h"
+#include "Character.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>

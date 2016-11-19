@@ -278,9 +278,8 @@ Game::Game(void)
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
-	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
+	m_Camera.reset(new Camera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
-	m_Logic.reset(new Logic());
 }
 
 Game::~Game(void)
@@ -383,8 +382,6 @@ HRESULT Game::OnCreateDevice(
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	m_Logic->Create();
-
 	return S_OK;
 }
 
@@ -435,9 +432,9 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Scale);
 
-	if(boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->EventAlign)
+	if(boost::static_pointer_cast<my::Camera>(m_Camera)->EventAlign)
 	{
-		boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->EventAlign(&EventArgs());
+		boost::static_pointer_cast<my::Camera>(m_Camera)->EventAlign(&EventArgs());
 	}
 
 	return S_OK;
@@ -470,8 +467,6 @@ void Game::OnLostDevice(void)
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
-
-	m_Logic->Destroy();
 
 	DxutApp::OnDestroyDevice();
 
@@ -565,15 +560,13 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	m_Logic->Update(fElapsedTime);
-
 	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
 	for (; cmp_iter != m_ViewedCmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
 	}
 
-	boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->Update(fTime, fElapsedTime);
+	boost::static_pointer_cast<my::Camera>(m_Camera)->Update(fTime, fElapsedTime);
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
@@ -613,11 +606,11 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	//LRESULT lr;
-	//if(lr = boost::static_pointer_cast<my::FirstPersonCamera>(m_Camera)->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-	//{
-	//	return lr;
-	//}
+	LRESULT lr;
+	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	{
+		return lr;
+	}
 	return 0;
 }
 

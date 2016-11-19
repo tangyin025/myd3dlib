@@ -281,6 +281,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\myd3dbox\Component\Character.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\myd3dbox\Component\Character.h"
+				>
+			</File>
+			<File
 				RelativePath="..\myd3dbox\Component\Component.cpp"
 				>
 			</File>
@@ -338,26 +346,6 @@
 			</File>
 			<File
 				RelativePath="..\myd3dbox\Component\Terrain.h"
-				>
-			</File>
-		</Filter>
-		<Filter
-			Name="Logic"
-			>
-			<File
-				RelativePath=".\Logic\Character.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Logic\Character.h"
-				>
-			</File>
-			<File
-				RelativePath=".\Logic\Logic.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\Logic\Logic.h"
 				>
 			</File>
 		</Filter>

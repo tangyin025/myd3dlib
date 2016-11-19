@@ -18,7 +18,7 @@ local local_device_settings=nil
 
 local btn_ok=dlg_settings:FindControl("btn_ok")
 btn_ok.EventClick=function(args)
-	print("Settings.btn_ok.EventClick")
+	-- print("Settings.btn_ok.EventClick")
 	assert(local_device_settings)
 	game:ChangeDevice(local_device_settings)
 	dlg_settings.Visible=false
@@ -26,7 +26,7 @@ end
 
 local btn_cancel=dlg_settings:FindControl("btn_cancel")
 btn_cancel.EventClick=function(args)
-	print("Settings.OnCancelBtnClicked")
+	-- print("Settings.OnCancelBtnClicked")
 	assert(local_device_settings)
 	dlg_settings.Visible=false
 end
@@ -164,7 +164,7 @@ end
 
 function OnAdapterChanged()
 	if IsComboBoxSelectedValid(cbx_display_adapter) then
-		print("Settings.OnAdapterChanged")
+		-- print("Settings.OnAdapterChanged")
 		assert(local_device_settings)
 		local_device_settings.AdapterOrdinal=GetComboBoxSelectedData(cbx_display_adapter)
 		
@@ -185,7 +185,7 @@ end
 
 function OnDeviceTypeChanged()
 	if IsComboBoxSelectedValid(cbx_render_device) then
-		print("Settings.OnDeviceTypeChanged")
+		-- print("Settings.OnDeviceTypeChanged")
 		assert(local_device_settings)
 		local_device_settings.DeviceType=GetComboBoxSelectedData(cbx_render_device)
 		
@@ -222,7 +222,7 @@ end
 
 function OnWindowedFullScreenChanged()
 	if chx_windowed.Checked or chx_full_screen.Checked then
-		print("Settings.OnWindowedFullScreenChanged")
+		-- print("Settings.OnWindowedFullScreenChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.Windowed=chx_windowed.Checked and 1 or 0
 		
@@ -265,7 +265,7 @@ end
 
 function OnAdapterFormatChanged()
 	if IsComboBoxSelectedValid(cbx_adapter_format) then
-		print("Settings.OnAdapterFormatChanged")
+		-- print("Settings.OnAdapterFormatChanged")
 		assert(local_device_settings)
 		local_device_settings.AdapterFormat=GetComboBoxSelectedData(cbx_adapter_format)
 		
@@ -314,7 +314,7 @@ end
 
 function OnResolutionChanged()
 	if IsComboBoxSelectedValid(cbx_resolution) then
-		print("Settings.OnResolutionChanged")
+		-- print("Settings.OnResolutionChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.BackBufferWidth=LOWORD(GetComboBoxSelectedData(cbx_resolution))
 		local_device_settings.pp.BackBufferHeight=HIWORD(GetComboBoxSelectedData(cbx_resolution))
@@ -355,7 +355,7 @@ end
 
 function OnRefreshRateChanged()
 	if IsComboBoxSelectedValid(cbx_refresh_rate) then
-		print("Settings.OnRefreshRateChanged")
+		-- print("Settings.OnRefreshRateChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.FullScreen_RefreshRateInHz=GetComboBoxSelectedData(cbx_refresh_rate)
 	end
@@ -363,7 +363,7 @@ end
 
 function OnBackBufferFormatChanged()
 	if IsComboBoxSelectedValid(cbx_back_buffer_format) then
-		print("Settings.OnBackBufferFormatChanged")
+		-- print("Settings.OnBackBufferFormatChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.BackBufferFormat=GetComboBoxSelectedData(cbx_back_buffer_format)
 		
@@ -397,7 +397,7 @@ end
 
 function OnDepthStencilBufferFormatChanged()
 	if IsComboBoxSelectedValid(cbx_depth_stencil_format) then
-		print("Settings.OnDepthStencilBufferFormatChanged")
+		-- print("Settings.OnDepthStencilBufferFormatChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.AutoDepthStencilFormat=GetComboBoxSelectedData(cbx_depth_stencil_format)
 		
@@ -427,7 +427,7 @@ end
 
 function OnMultisampleTypeChanged()
 	if IsComboBoxSelectedValid(cbx_multisample_type) then
-		print("Settings.OnMultisampleTypeChanged")
+		-- print("Settings.OnMultisampleTypeChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.MultiSampleType=GetComboBoxSelectedData(cbx_multisample_type)
 		
@@ -459,7 +459,7 @@ end
 
 function OnMultisampleQualityChanged()
 	if IsComboBoxSelectedValid(cbx_multisample_quality) then
-		print("Settings.OnMultisampleQualityChanged")
+		-- print("Settings.OnMultisampleQualityChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.MultiSampleQuality=GetComboBoxSelectedData(cbx_multisample_quality)
 	end
@@ -467,7 +467,7 @@ end
 
 function OnVertexProcessingChanged()
 	if IsComboBoxSelectedValid(cbx_vertex_processing) then
-		print("Settings.OnVertexProcessingChanged")
+		-- print("Settings.OnVertexProcessingChanged")
 		assert(local_device_settings)
 		local_device_settings.BehaviorFlags=bit.band(
 			local_device_settings.BehaviorFlags,bit.bnot(DXUTD3D9DeviceSettings.D3DCREATE_SOFTWARE_VERTEXPROCESSING))
@@ -488,7 +488,7 @@ end
 
 function OnPresentIntervalChanged()
 	if IsComboBoxSelectedValid(cbx_vertical_sync) then
-		print("Settings.OnPresentIntervalChanged")
+		-- print("Settings.OnPresentIntervalChanged")
 		assert(local_device_settings)
 		local_device_settings.pp.PresentationInterval=GetComboBoxSelectedData(cbx_vertical_sync)
 	end
