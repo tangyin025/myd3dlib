@@ -88,6 +88,12 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 		PxPhysics * sdk;
 		PxCooking * cooking;
 		PxCollection * collection;
+
+		std::map<std::string, PhysXPtr<PxTriangleMesh> > triangle_mesh_map;
+		std::vector<PhysXPtr<PxHeightField> > heightfields;
+		std::vector<PhysXPtr<PxMaterial> > materials;
+		std::vector<PhysXPtr<PxRigidStatic> > actors;
+
 		CallBack(PxPhysics * _sdk, PxCooking * _cooking, PxCollection * _collection)
 			: sdk(_sdk)
 			, cooking(_cooking)
@@ -114,45 +120,62 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 					{
 						break;
 					}
-					PxTriangleMeshDesc desc;
-					desc.points.count = mesh->GetNumVertices();
-					desc.points.stride = mesh->GetNumBytesPerVertex();
-					desc.points.data = mesh->LockVertexBuffer();
-					desc.triangles.count = mesh->GetNumFaces();
-					if (mesh->GetOptions() & D3DXMESH_32BIT)
-					{
-						desc.triangles.stride = 3 * sizeof(DWORD);
-					}
-					else
-					{
-						desc.triangles.stride = 3 * sizeof(WORD);
-						desc.flags |= PxMeshFlag::e16_BIT_INDICES;
-					}
-					desc.triangles.data = mesh->LockIndexBuffer();
-					PxDefaultMemoryOutputStream writeBuffer;
-					bool status = cooking->cookTriangleMesh(desc, writeBuffer);
-					mesh->UnlockIndexBuffer();
-					mesh->UnlockVertexBuffer();
-					if (!status)
+					std::string mesh_key = my::ResourceMgr::getSingleton().GetResourceKey(mesh);
+					if (mesh_key.empty())
 					{
 						break;
 					}
-					PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-					mesh_cmp->m_TriangleMesh.reset(sdk->createTriangleMesh(readBuffer));
-					mesh_cmp->m_TriangleMesh->collectForExport(*collection);
+					PhysXPtr<PxTriangleMesh> trianglemesh;
+					std::map<std::string, PhysXPtr<PxTriangleMesh> >::iterator triangle_mesh_iter = triangle_mesh_map.find(mesh_key);
+					if (triangle_mesh_iter != triangle_mesh_map.end())
+					{
+						trianglemesh = triangle_mesh_iter->second;
+					}
+					else
+					{
+						PxTriangleMeshDesc desc;
+						desc.points.count = mesh->GetNumVertices();
+						desc.points.stride = mesh->GetNumBytesPerVertex();
+						desc.points.data = mesh->LockVertexBuffer();
+						desc.triangles.count = mesh->GetNumFaces();
+						if (mesh->GetOptions() & D3DXMESH_32BIT)
+						{
+							desc.triangles.stride = 3 * sizeof(DWORD);
+						}
+						else
+						{
+							desc.triangles.stride = 3 * sizeof(WORD);
+							desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+						}
+						desc.triangles.data = mesh->LockIndexBuffer();
+						PxDefaultMemoryOutputStream writeBuffer;
+						bool status = cooking->cookTriangleMesh(desc, writeBuffer);
+						mesh->UnlockIndexBuffer();
+						mesh->UnlockVertexBuffer();
+						if (!status)
+						{
+							break;
+						}
+						PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+						trianglemesh.reset(sdk->createTriangleMesh(readBuffer));
+						triangle_mesh_map.insert(std::make_pair(mesh_key, trianglemesh));
+					}
+					trianglemesh->collectForExport(*collection);
 
-					mesh_cmp->m_PxMaterial.reset(sdk->createMaterial(0.5f, 0.5f, 0.5f));
-					mesh_cmp->m_PxMaterial->collectForExport(*collection);
+					PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+					material->collectForExport(*collection);
+					materials.push_back(material);
 
 					my::Vector3 pos, scale; my::Quaternion rot;
 					mesh_cmp->m_World.Decompose(scale, rot, pos);
-					mesh_cmp->m_RigidActor.reset(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+					PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
 					PxMeshScale mesh_scaling((PxVec3&)scale, PxQuat::createIdentity());
-					PxShape * shape = mesh_cmp->m_RigidActor->createShape(
-						PxTriangleMeshGeometry(mesh_cmp->m_TriangleMesh.get(), mesh_scaling),
-						*mesh_cmp->m_PxMaterial, PxTransform::createIdentity());
+					PxShape * shape = actor->createShape(
+						PxTriangleMeshGeometry(trianglemesh.get(), mesh_scaling),
+						*material, PxTransform::createIdentity());
 					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-					mesh_cmp->m_RigidActor->collectForExport(*collection);
+					actor->collectForExport(*collection);
+					actors.push_back(actor);
 				}
 				break;
 			case Component::ComponentTypeTerrain:
@@ -183,20 +206,23 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 					hfDesc.format             = PxHeightFieldFormat::eS16_TM;
 					hfDesc.samples.data       = &Samples[0];
 					hfDesc.samples.stride     = sizeof(Samples[0]);
-					terrain->m_HeightField.reset(sdk->createHeightField(hfDesc));
-					terrain->m_HeightField->collectForExport(*collection);
+					PhysXPtr<PxHeightField> heightfield(sdk->createHeightField(hfDesc));
+					heightfield->collectForExport(*collection);
+					heightfields.push_back(heightfield);
 
-					terrain->m_PxMaterial.reset(sdk->createMaterial(0.5f, 0.5f, 0.5f));
-					terrain->m_PxMaterial->collectForExport(*collection);
+					PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+					material->collectForExport(*collection);
+					materials.push_back(material);
 
 					my::Vector3 pos, scale; my::Quaternion rot;
 					terrain->m_World.Decompose(scale, rot, pos);
-					terrain->m_RigidActor.reset(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-					PxShape * shape = terrain->m_RigidActor->createShape(
-						PxHeightFieldGeometry(terrain->m_HeightField.get(), PxMeshGeometryFlags(), terrain->m_HeightScale * scale.y, scale.x, scale.z),
-						*terrain->m_PxMaterial, PxTransform::createIdentity());
+					PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+					PxShape * shape = actor->createShape(
+						PxHeightFieldGeometry(heightfield.get(), PxMeshGeometryFlags(), terrain->m_HeightScale * scale.y, scale.x, scale.z),
+						*material, PxTransform::createIdentity());
 					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-					terrain->m_RigidActor->collectForExport(*collection);
+					actor->collectForExport(*collection);
+					actors.push_back(actor);
 				}
 				break;
 			}
@@ -205,7 +231,8 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 
 	PxDefaultFileOutputStream ostr(path);
 	PhysXPtr<PxCollection> collection(m_sdk->createCollection());
-	octRoot.QueryComponentAll(&CallBack(m_sdk.get(), m_Cooking.get(), collection.get()));
+	CallBack cb(m_sdk.get(), m_Cooking.get(), collection.get());
+	octRoot.QueryComponentAll(&cb);
 	collection->serialize(ostr, false);
 }
 
