@@ -108,7 +108,7 @@ namespace my
 
 		void ClearAllComponents(void);
 
-		void Compress(void);
+		void Flush(void);
 	};
 
 	typedef boost::shared_ptr<OctNodeBase> OctNodeBasePtr;

@@ -223,13 +223,13 @@ void OctNodeBase::ClearAllComponents(void)
 	}
 }
 
-void OctNodeBase::Compress(void)
+void OctNodeBase::Flush(void)
 {
 	BOOST_FOREACH(OctNodeBasePtr & child, m_Childs)
 	{
 		if (child)
 		{
-			child->Compress();
+			child->Flush();
 			if (child->m_Components.empty()
 				&& boost::algorithm::none_of(child->m_Childs, boost::lambda::_1))
 			{

@@ -580,7 +580,7 @@ void CMainFrame::OnFileSave()
 		}
 	}
 
-	m_Root.Compress();
+	m_Root.Flush();
 
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
