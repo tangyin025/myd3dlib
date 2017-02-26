@@ -208,8 +208,8 @@ void COutlinerWnd::OnChangeVisualStyle()
 
 void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	EventArg arg;
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged(&arg);
+	//EventArg arg;
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged(&arg);
 }
 
 void COutlinerWnd::OnMenuAddMeshComponent()

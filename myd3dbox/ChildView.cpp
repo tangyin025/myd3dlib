@@ -157,109 +157,109 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
 
-	struct CallBack : public my::IQueryCallback
-	{
-		const my::Frustum & frustum;
-		RenderPipeline * pipeline;
-		unsigned int PassMask;
-		CMainFrame * pFrame;
-		CChildView * pView;
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
-			: frustum(_frustum)
-			, pipeline(_pipeline)
-			, PassMask(_PassMask)
-			, pFrame(_pFrame)
-			, pView(_pView)
-		{
-		}
-		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-		{
-			Component * cmp = dynamic_cast<Component *>(oct_cmp);
-			if (cmp)
-			{
-				if (cmp->IsRequested())
-				{
-					cmp->AddToPipeline(frustum, pipeline, PassMask);
-				}
-				else
-				{
-					cmp->RequestResource();
-				}
+	//struct CallBack : public my::IQueryCallback
+	//{
+	//	const my::Frustum & frustum;
+	//	RenderPipeline * pipeline;
+	//	unsigned int PassMask;
+	//	CMainFrame * pFrame;
+	//	CChildView * pView;
+	//	CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
+	//		: frustum(_frustum)
+	//		, pipeline(_pipeline)
+	//		, PassMask(_PassMask)
+	//		, pFrame(_pFrame)
+	//		, pView(_pView)
+	//	{
+	//	}
+	//	void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
+	//	{
+	//		Component * cmp = dynamic_cast<Component *>(oct_cmp);
+	//		if (cmp)
+	//		{
+	//			if (cmp->IsRequested())
+	//			{
+	//				cmp->AddToPipeline(frustum, pipeline, PassMask);
+	//			}
+	//			else
+	//			{
+	//				cmp->RequestResource();
+	//			}
 
-				if (pView->m_bShowCmpHandle)
-				{
-					switch (cmp->m_Type)
-					{
-					case Component::ComponentTypeEmitter:
-						{
-							EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-							pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
-								emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
-						}
-						break;
-					}
-				}
-			}
-		}
-	};
+	//			if (pView->m_bShowCmpHandle)
+	//			{
+	//				switch (cmp->m_Type)
+	//				{
+	//				case Component::ComponentTypeEmitter:
+	//					{
+	//						EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+	//						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
+	//							emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
+	//					}
+	//					break;
+	//				}
+	//			}
+	//		}
+	//	}
+	//};
 
-	pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
+	//pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
 
-	pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
+	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 {
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selcmps.empty())
-	{
-		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
-		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
-		{
-			PushWireAABB(Component::GetCmpOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
-			switch ((*sel_iter)->m_Type)
-			{
-			case Component::ComponentTypeMesh:
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
-					if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
-					{
-						theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-						UINT passes = theApp.m_SimpleSample->Begin();
-						for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-						{
-							theApp.m_SimpleSample->BeginPass(0);
-							mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
-							theApp.m_SimpleSample->EndPass();
-						}
-						theApp.m_SimpleSample->End();
-					}
-				}
-				break;
+	//theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+	//theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//if (!pFrame->m_selcmps.empty())
+	//{
+	//	PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
+	//	CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
+	//	for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+	//	{
+	//		PushWireAABB(Component::GetCmpOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
+	//		switch ((*sel_iter)->m_Type)
+	//		{
+	//		case Component::ComponentTypeMesh:
+	//			{
+	//				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
+	//				if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
+	//				{
+	//					theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+	//					UINT passes = theApp.m_SimpleSample->Begin();
+	//					for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+	//					{
+	//						theApp.m_SimpleSample->BeginPass(0);
+	//						mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
+	//						theApp.m_SimpleSample->EndPass();
+	//					}
+	//					theApp.m_SimpleSample->End();
+	//				}
+	//			}
+	//			break;
 
-			case Component::ComponentTypeTerrain:
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
-					for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
-					{
-						for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
-						{
-							PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
-						}
-					}
-				}
-				break;
-			}
-		}
-	}
+	//		case Component::ComponentTypeTerrain:
+	//			{
+	//				Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
+	//				for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
+	//				{
+	//					for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
+	//					{
+	//						PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
+	//					}
+	//				}
+	//			}
+	//			break;
+	//		}
+	//	}
+	//}
 }
 
 void CChildView::StartPerformanceCount(void)
@@ -275,89 +275,89 @@ double CChildView::EndPerformanceCount(void)
 
 bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Component * cmp)
 {
-	switch (cmp->m_Type)
-	{
-	case Component::ComponentTypeMesh:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			my::Frustum local_ftm = frustum.transform(mesh_cmp->m_World.transpose());
-			my::OgreMeshPtr mesh;
-			if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
-			{
-				mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
-			}
-			if (!mesh)
-			{
-				return false;
-			}
-			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
-			{
-				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumBytesPerVertex(),
-					mesh->m_VertexElems,
-					mesh_cmp->m_Animator->m_DualQuats);
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					elems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
-				return ret;
-			}
-			else
-			{
-				bool ret = OverlapTestFrustumAndMesh(local_ftm,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumVertices(),
-					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					mesh->m_VertexElems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
-				return ret;
-			}
-		}
-		break;
-
-	case Component::ComponentTypeEmitter:
-		{
-			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-			my::Frustum local_ftm = frustum.transform(emit_cmp->m_World.transpose());
-			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
-			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
-			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
-			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-			my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
-			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-			{
-				return true;
-			}
-			result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
-			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
-			{
-				return true;
-			}
-		}
-		break;
-
-	//case Component::ComponentTypeRigid:
-	//	// !
+	//switch (cmp->m_Type)
+	//{
+	//case Component::ComponentTypeMesh:
+	//	{
+	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+	//		my::Frustum local_ftm = frustum.transform(mesh_cmp->m_World.transpose());
+	//		my::OgreMeshPtr mesh;
+	//		if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
+	//		{
+	//			mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
+	//		}
+	//		if (!mesh)
+	//		{
+	//			return false;
+	//		}
+	//		if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+	//		{
+	//			std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+	//			my::D3DVertexElementSet elems;
+	//			elems.InsertPositionElement(0);
+	//			my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+	//				&vertices[0],
+	//				vertices.size(),
+	//				sizeof(vertices[0]),
+	//				elems,
+	//				mesh->LockVertexBuffer(D3DLOCK_READONLY),
+	//				mesh->GetNumBytesPerVertex(),
+	//				mesh->m_VertexElems,
+	//				mesh_cmp->m_Animator->m_DualQuats);
+	//			bool ret = OverlapTestFrustumAndMesh(local_ftm,
+	//				&vertices[0],
+	//				vertices.size(),
+	//				sizeof(vertices[0]),
+	//				mesh->LockIndexBuffer(D3DLOCK_READONLY),
+	//				!(mesh->GetOptions() & D3DXMESH_32BIT),
+	//				mesh->GetNumFaces(),
+	//				elems);
+	//			mesh->UnlockVertexBuffer();
+	//			mesh->UnlockIndexBuffer();
+	//			return ret;
+	//		}
+	//		else
+	//		{
+	//			bool ret = OverlapTestFrustumAndMesh(local_ftm,
+	//				mesh->LockVertexBuffer(D3DLOCK_READONLY),
+	//				mesh->GetNumVertices(),
+	//				mesh->GetNumBytesPerVertex(),
+	//				mesh->LockIndexBuffer(D3DLOCK_READONLY),
+	//				!(mesh->GetOptions() & D3DXMESH_32BIT),
+	//				mesh->GetNumFaces(),
+	//				mesh->m_VertexElems);
+	//			mesh->UnlockVertexBuffer();
+	//			mesh->UnlockIndexBuffer();
+	//			return ret;
+	//		}
+	//	}
 	//	break;
-	}
+
+	//case Component::ComponentTypeEmitter:
+	//	{
+	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+	//		my::Frustum local_ftm = frustum.transform(emit_cmp->m_World.transpose());
+	//		const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
+	//		const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
+	//		const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
+	//		const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+	//		my::IntersectionTests::IntersectionType result = my::IntersectionTests::IntersectTriangleAndFrustum(v[0], v[1], v[2], frustum);
+	//		if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+	//		{
+	//			return true;
+	//		}
+	//		result = my::IntersectionTests::IntersectTriangleAndFrustum(v[2], v[1], v[3], frustum);
+	//		if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
+	//		{
+	//			return true;
+	//		}
+	//	}
+	//	break;
+
+	////case Component::ComponentTypeRigid:
+	////	// !
+	////	break;
+	//}
 	return false;
 }
 
@@ -392,166 +392,166 @@ bool CChildView::OverlapTestFrustumAndMesh(
 
 my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Component * cmp)
 {
-	switch (cmp->m_Type)
-	{
-	case Component::ComponentTypeMesh:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-			my::Ray local_ray = ray.transform(mesh_cmp->m_World.inverse());
-			my::OgreMeshPtr mesh;
-			if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
-			{
-				mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
-			}
-			if (!mesh)
-			{
-				return my::RayResult(false, FLT_MAX);
-			}
-			my::RayResult ret;
-			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
-			{
-				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
-				my::D3DVertexElementSet elems;
-				elems.InsertPositionElement(0);
-				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					elems,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumBytesPerVertex(),
-					mesh->m_VertexElems,
-					mesh_cmp->m_Animator->m_DualQuats);
-				ret = OverlapTestRayAndMesh(local_ray,
-					&vertices[0],
-					vertices.size(),
-					sizeof(vertices[0]),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					elems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
-			}
-			else
-			{
-				ret = OverlapTestRayAndMesh(local_ray,
-					mesh->LockVertexBuffer(D3DLOCK_READONLY),
-					mesh->GetNumVertices(),
-					mesh->GetNumBytesPerVertex(),
-					mesh->LockIndexBuffer(D3DLOCK_READONLY),
-					!(mesh->GetOptions() & D3DXMESH_32BIT),
-					mesh->GetNumFaces(),
-					mesh->m_VertexElems);
-				mesh->UnlockVertexBuffer();
-				mesh->UnlockIndexBuffer();
-			}
-			if (ret.first)
-			{
-				ret.second = (local_ray.d * ret.second).transformNormal(mesh_cmp->m_World).magnitude();
-				return ret;
-			}
-		}
-		break;
-
-	case Component::ComponentTypeEmitter:
-		{
-			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-			my::Ray local_ray = ray.transform(emit_cmp->m_World.inverse());
-			const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
-			const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
-			const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
-			const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
-			my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
-			if (ret.first)
-			{
-				return ret;
-			}
-			ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
-			if (ret.first)
-			{
-				return ret;
-			}
-		}
-		break;
-
-	//case Component::ComponentTypeRigid:
+	//switch (cmp->m_Type)
+	//{
+	//case Component::ComponentTypeMesh:
 	//	{
-	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	//		_ASSERT(rigid_cmp->m_RigidActor);
-	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	//		std::vector<PxShape *> shapes(NbShapes);
-	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	//		for (unsigned int i = 0; i < NbShapes; i++)
+	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+	//		my::Ray local_ray = ray.transform(mesh_cmp->m_World.inverse());
+	//		my::OgreMeshPtr mesh;
+	//		if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
 	//		{
-	//			PxRaycastHit hits[1];
-	//			if (PxGeometryQuery::raycast(
-	//				(PxVec3&)ray.p,
-	//				(PxVec3&)ray.d,
-	//				shapes[i]->getGeometry().any(),
-	//				PxShapeExt::getGlobalPose(*shapes[i]),
-	//				3000.0f,
-	//				PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
-	//				_countof(hits), hits, true))
-	//			{
-	//				return my::RayResult(true, hits[0].distance);
-	//			}
+	//			mesh = boost::dynamic_pointer_cast<my::OgreMesh>(mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res);
+	//		}
+	//		if (!mesh)
+	//		{
+	//			return my::RayResult(false, FLT_MAX);
+	//		}
+	//		my::RayResult ret;
+	//		if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+	//		{
+	//			std::vector<my::Vector3> vertices(mesh->GetNumVertices());
+	//			my::D3DVertexElementSet elems;
+	//			elems.InsertPositionElement(0);
+	//			my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+	//				&vertices[0],
+	//				vertices.size(),
+	//				sizeof(vertices[0]),
+	//				elems,
+	//				mesh->LockVertexBuffer(D3DLOCK_READONLY),
+	//				mesh->GetNumBytesPerVertex(),
+	//				mesh->m_VertexElems,
+	//				mesh_cmp->m_Animator->m_DualQuats);
+	//			ret = OverlapTestRayAndMesh(local_ray,
+	//				&vertices[0],
+	//				vertices.size(),
+	//				sizeof(vertices[0]),
+	//				mesh->LockIndexBuffer(D3DLOCK_READONLY),
+	//				!(mesh->GetOptions() & D3DXMESH_32BIT),
+	//				mesh->GetNumFaces(),
+	//				elems);
+	//			mesh->UnlockVertexBuffer();
+	//			mesh->UnlockIndexBuffer();
+	//		}
+	//		else
+	//		{
+	//			ret = OverlapTestRayAndMesh(local_ray,
+	//				mesh->LockVertexBuffer(D3DLOCK_READONLY),
+	//				mesh->GetNumVertices(),
+	//				mesh->GetNumBytesPerVertex(),
+	//				mesh->LockIndexBuffer(D3DLOCK_READONLY),
+	//				!(mesh->GetOptions() & D3DXMESH_32BIT),
+	//				mesh->GetNumFaces(),
+	//				mesh->m_VertexElems);
+	//			mesh->UnlockVertexBuffer();
+	//			mesh->UnlockIndexBuffer();
+	//		}
+	//		if (ret.first)
+	//		{
+	//			ret.second = (local_ray.d * ret.second).transformNormal(mesh_cmp->m_World).magnitude();
+	//			return ret;
 	//		}
 	//	}
 	//	break;
 
-	case Component::ComponentTypeTerrain:
-		{
-			struct CallBack : public my::IQueryCallback
-			{
-				const my::Ray & ray;
-				CChildView * pView;
-				Terrain * terrain;
-				my::RayResult ret;
-				CallBack(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
-					: ray(_ray)
-					, pView(_pView)
-					, terrain(_terrain)
-					, ret(false, FLT_MAX)
-				{
-				}
-				void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-				{
-					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
-					const Terrain::Fragment & frag = terrain->GetFragment(chunk->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
-					my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
-						ray,
-						terrain,
-						chunk,
-						terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY),
-						frag.VertNum,
-						terrain->m_VertexStride,
-						const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
-						frag.PrimitiveCount);
-					terrain->m_vb.Unlock();
-					const_cast<my::IndexBuffer&>(frag.ib).Unlock();
-					if (result.first && result.second < ret.second)
-					{
-						ret = result;
-					}
-				}
-			};
-			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-			my::Ray local_ray = ray.transform(terrain->m_World.inverse());
-			CallBack cb(local_ray, this, terrain);
-			terrain->m_Root.QueryComponent(local_ray, &cb);
-			if (cb.ret.first)
-			{
-				cb.ret.second = (local_ray.d * cb.ret.second).transformNormal(terrain->m_World).magnitude();
-				return cb.ret;
-			}
-		}
-		break;
-	}
+	//case Component::ComponentTypeEmitter:
+	//	{
+	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
+	//		my::Ray local_ray = ray.transform(emit_cmp->m_World.inverse());
+	//		const my::Vector3 & Center = emit_cmp->m_World.row<3>().xyz;
+	//		const my::Vector3 Right = m_Camera->m_View.column<0>().xyz.normalize() * 0.5f;
+	//		const my::Vector3 Up = m_Camera->m_View.column<1>().xyz.normalize() * 0.5f;
+	//		const my::Vector3 v[4] = { Center - Right + Up, Center - Right - Up, Center + Right + Up, Center + Right - Up };
+	//		my::RayResult ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[0], v[1], v[2]);
+	//		if (ret.first)
+	//		{
+	//			return ret;
+	//		}
+	//		ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
+	//		if (ret.first)
+	//		{
+	//			return ret;
+	//		}
+	//	}
+	//	break;
+
+	////case Component::ComponentTypeRigid:
+	////	{
+	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	////		_ASSERT(rigid_cmp->m_RigidActor);
+	////		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	////		std::vector<PxShape *> shapes(NbShapes);
+	////		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	////		for (unsigned int i = 0; i < NbShapes; i++)
+	////		{
+	////			PxRaycastHit hits[1];
+	////			if (PxGeometryQuery::raycast(
+	////				(PxVec3&)ray.p,
+	////				(PxVec3&)ray.d,
+	////				shapes[i]->getGeometry().any(),
+	////				PxShapeExt::getGlobalPose(*shapes[i]),
+	////				3000.0f,
+	////				PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
+	////				_countof(hits), hits, true))
+	////			{
+	////				return my::RayResult(true, hits[0].distance);
+	////			}
+	////		}
+	////	}
+	////	break;
+
+	//case Component::ComponentTypeTerrain:
+	//	{
+	//		struct CallBack : public my::IQueryCallback
+	//		{
+	//			const my::Ray & ray;
+	//			CChildView * pView;
+	//			Terrain * terrain;
+	//			my::RayResult ret;
+	//			CallBack(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
+	//				: ray(_ray)
+	//				, pView(_pView)
+	//				, terrain(_terrain)
+	//				, ret(false, FLT_MAX)
+	//			{
+	//			}
+	//			void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
+	//			{
+	//				TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+	//				const Terrain::Fragment & frag = terrain->GetFragment(chunk->m_lod,
+	//					terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+	//					terrain->m_Chunks[my::Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+	//					terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+	//					terrain->m_Chunks[my::Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+	//				my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
+	//					ray,
+	//					terrain,
+	//					chunk,
+	//					terrain->m_vb.Lock(0, 0, D3DLOCK_READONLY),
+	//					frag.VertNum,
+	//					terrain->m_VertexStride,
+	//					const_cast<my::IndexBuffer&>(frag.ib).Lock(0, 0, D3DLOCK_READONLY),
+	//					frag.PrimitiveCount);
+	//				terrain->m_vb.Unlock();
+	//				const_cast<my::IndexBuffer&>(frag.ib).Unlock();
+	//				if (result.first && result.second < ret.second)
+	//				{
+	//					ret = result;
+	//				}
+	//			}
+	//		};
+	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+	//		my::Ray local_ray = ray.transform(terrain->m_World.inverse());
+	//		CallBack cb(local_ray, this, terrain);
+	//		terrain->m_Root.QueryComponent(local_ray, &cb);
+	//		if (cb.ret.first)
+	//		{
+	//			cb.ret.second = (local_ray.d * cb.ret.second).transformNormal(terrain->m_World).magnitude();
+	//			return cb.ret;
+	//		}
+	//	}
+	//	break;
+	//}
 	return my::RayResult(false, FLT_MAX);
 }
 
@@ -731,13 +731,13 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
 
-				if (!pFrame->m_selcmps.empty())
-				{
-					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-					pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
-					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
-				}
+				//if (!pFrame->m_selcmps.empty())
+				//{
+				//	m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
+				//	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+				//	pFrame->m_Pivot.Draw(theApp.m_d3dDevice, m_Camera.get(), &m_SwapChainBufferDesc, m_PivotScale);
+				//	V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+				//}
 
 				theApp.m_UIRender->Begin();
 				theApp.m_UIRender->SetViewProj(DialogMgr::m_ViewProj);
@@ -796,10 +796,10 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
 }
 
@@ -807,183 +807,183 @@ void CChildView::OnDestroy()
 {
 	CView::OnDestroy();
 
-	// TODO: Add your message handler code here
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	//// TODO: Add your message handler code here
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call default
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (!pFrame->m_selcmps.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
-	{
-		StartPerformanceCount();
-		_ASSERT(m_selcmpwlds.empty());
-		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
-		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
-		{
-			m_selcmpwlds.insert(std::make_pair(*sel_iter, Component::GetCmpWorld(*sel_iter)));
-		}
-		SetCapture();
-		Invalidate();
-		return;
-	}
+	//// TODO: Add your message handler code here and/or call default
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	//if (!pFrame->m_selcmps.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
+	//{
+	//	StartPerformanceCount();
+	//	_ASSERT(m_selcmpwlds.empty());
+	//	CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
+	//	for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+	//	{
+	//		m_selcmpwlds.insert(std::make_pair(*sel_iter, Component::GetCmpWorld(*sel_iter)));
+	//	}
+	//	SetCapture();
+	//	Invalidate();
+	//	return;
+	//}
 
-	pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
-	pFrame->m_Tracker.m_rect.NormalizeRect();
+	//pFrame->m_Tracker.TrackRubberBand(this, point, TRUE);
+	//pFrame->m_Tracker.m_rect.NormalizeRect();
 
-	StartPerformanceCount();
-	bool bSelectionChanged = false;
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selcmps.empty())
-	{
-		pFrame->m_selcmps.clear();
-		bSelectionChanged = true;
-	}
+	//StartPerformanceCount();
+	//bool bSelectionChanged = false;
+	//if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selcmps.empty())
+	//{
+	//	pFrame->m_selcmps.clear();
+	//	bSelectionChanged = true;
+	//}
 
-	if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
-	{
-		my::Rectangle rc(
-			(float)pFrame->m_Tracker.m_rect.left,
-			(float)pFrame->m_Tracker.m_rect.top,
-			(float)pFrame->m_Tracker.m_rect.right,
-			(float)pFrame->m_Tracker.m_rect.bottom);
-		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		struct Callback : public my::IQueryCallback
-		{
-			CMainFrame::ComponentSet selcmps;
-			const my::Frustum & ftm;
-			CChildView * pView;
-			Callback(const my::Frustum & _ftm, CChildView * _pView)
-				: ftm(_ftm)
-				, pView(_pView)
-			{
-			}
-			void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-			{
-				Component * cmp = dynamic_cast<Component *>(oct_cmp);
-				if (cmp && pView->OverlapTestFrustumAndComponent(ftm, cmp))
-				{
-					selcmps.insert(cmp);
-				}
-			}
-		};
-		Callback cb(ftm, this);
-		pFrame->m_Root.QueryComponent(ftm, &cb);
-		CMainFrame::ComponentSet::iterator cmp_iter = cb.selcmps.begin();
-		for (; cmp_iter != cb.selcmps.end(); cmp_iter++)
-		{
-			pFrame->m_selcmps.insert(*cmp_iter);
-			bSelectionChanged = true;
-		}
-	}
-	else
-	{
-		struct Callback : public my::IQueryCallback
-		{
-			typedef std::map<float, Component *> ComponentMap;
-			ComponentMap selcmps;
-			const my::Ray & ray;
-			CChildView * pView;
-			Callback(const my::Ray & _ray, CChildView * _pView)
-				: ray(_ray)
-				, pView(_pView)
-			{
-			}
-			void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-			{
-				Component * cmp = dynamic_cast<Component *>(oct_cmp);
-				my::RayResult ret;
-				if (cmp && (ret = pView->OverlapTestRayAndComponent(ray, cmp), ret.first))
-				{
-					selcmps.insert(std::make_pair(ret.second, cmp));
-				}
-			}
-		};
-		Callback cb(ray, this);
-		pFrame->m_Root.QueryComponent(ray, &cb);
-		Callback::ComponentMap::iterator cmp_iter = cb.selcmps.begin();
-		if (cmp_iter != cb.selcmps.end())
-		{
-			CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.find(cmp_iter->second);
-			if (sel_iter != pFrame->m_selcmps.end())
-			{
-				pFrame->m_selcmps.erase(sel_iter);
-				bSelectionChanged = true;
-			}
-			else
-			{
-				pFrame->m_selcmps.insert(cmp_iter->second);
-				bSelectionChanged = true;
-			}
-		}
-	}
+	//if (!pFrame->m_Tracker.m_rect.IsRectEmpty())
+	//{
+	//	my::Rectangle rc(
+	//		(float)pFrame->m_Tracker.m_rect.left,
+	//		(float)pFrame->m_Tracker.m_rect.top,
+	//		(float)pFrame->m_Tracker.m_rect.right,
+	//		(float)pFrame->m_Tracker.m_rect.bottom);
+	//	my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
+	//	struct Callback : public my::IQueryCallback
+	//	{
+	//		CMainFrame::ComponentSet selcmps;
+	//		const my::Frustum & ftm;
+	//		CChildView * pView;
+	//		Callback(const my::Frustum & _ftm, CChildView * _pView)
+	//			: ftm(_ftm)
+	//			, pView(_pView)
+	//		{
+	//		}
+	//		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
+	//		{
+	//			Component * cmp = dynamic_cast<Component *>(oct_cmp);
+	//			if (cmp && pView->OverlapTestFrustumAndComponent(ftm, cmp))
+	//			{
+	//				selcmps.insert(cmp);
+	//			}
+	//		}
+	//	};
+	//	Callback cb(ftm, this);
+	//	pFrame->m_Root.QueryComponent(ftm, &cb);
+	//	CMainFrame::ComponentSet::iterator cmp_iter = cb.selcmps.begin();
+	//	for (; cmp_iter != cb.selcmps.end(); cmp_iter++)
+	//	{
+	//		pFrame->m_selcmps.insert(*cmp_iter);
+	//		bSelectionChanged = true;
+	//	}
+	//}
+	//else
+	//{
+	//	struct Callback : public my::IQueryCallback
+	//	{
+	//		typedef std::map<float, Component *> ComponentMap;
+	//		ComponentMap selcmps;
+	//		const my::Ray & ray;
+	//		CChildView * pView;
+	//		Callback(const my::Ray & _ray, CChildView * _pView)
+	//			: ray(_ray)
+	//			, pView(_pView)
+	//		{
+	//		}
+	//		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
+	//		{
+	//			Component * cmp = dynamic_cast<Component *>(oct_cmp);
+	//			my::RayResult ret;
+	//			if (cmp && (ret = pView->OverlapTestRayAndComponent(ray, cmp), ret.first))
+	//			{
+	//				selcmps.insert(std::make_pair(ret.second, cmp));
+	//			}
+	//		}
+	//	};
+	//	Callback cb(ray, this);
+	//	pFrame->m_Root.QueryComponent(ray, &cb);
+	//	Callback::ComponentMap::iterator cmp_iter = cb.selcmps.begin();
+	//	if (cmp_iter != cb.selcmps.end())
+	//	{
+	//		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.find(cmp_iter->second);
+	//		if (sel_iter != pFrame->m_selcmps.end())
+	//		{
+	//			pFrame->m_selcmps.erase(sel_iter);
+	//			bSelectionChanged = true;
+	//		}
+	//		else
+	//		{
+	//			pFrame->m_selcmps.insert(cmp_iter->second);
+	//			bSelectionChanged = true;
+	//		}
+	//	}
+	//}
 
-	if (bSelectionChanged)
-	{
-		pFrame->UpdateSelBox();
-		pFrame->UpdatePivotTransform();
-		EventArg arg;
-		pFrame->m_EventSelectionChanged(&arg);
-	}
+	//if (bSelectionChanged)
+	//{
+	//	pFrame->UpdateSelBox();
+	//	pFrame->UpdatePivotTransform();
+	//	EventArg arg;
+	//	pFrame->m_EventSelectionChanged(&arg);
+	//}
 
-	Invalidate();
+	//Invalidate();
 }
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	// TODO: Add your message handler code here and/or call default
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-	{
-		StartPerformanceCount();
-		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
-		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
-		{
-			pFrame->OnCmpPosChanged(cmp_world_iter->first);
-		}
-		m_selcmpwlds.clear();
-		pFrame->UpdateSelBox();
-		ReleaseCapture();
+	//// TODO: Add your message handler code here and/or call default
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
+	//	m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	//{
+	//	StartPerformanceCount();
+	//	ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+	//	for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
+	//	{
+	//		pFrame->OnCmpPosChanged(cmp_world_iter->first);
+	//	}
+	//	m_selcmpwlds.clear();
+	//	pFrame->UpdateSelBox();
+	//	ReleaseCapture();
 
-		EventArg arg;
-		pFrame->m_EventCmpAttriChanged(&arg);
-	}
+	//	EventArg arg;
+	//	pFrame->m_EventCmpAttriChanged(&arg);
+	//}
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
-		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
-	{
-		StartPerformanceCount();
-		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
-		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
-		{
-			switch (pFrame->m_Pivot.m_Mode)
-			{
-			case Pivot::PivotModeMove:
-				Component::SetCmpWorld(cmp_world_iter->first,
-					cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos));
-				break;
-			case Pivot::PivotModeRot:
-				Component::SetCmpWorld(cmp_world_iter->first, cmp_world_iter->second
-					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
-					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
-					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
-				break;
-			}
-		}
-		Invalidate();
-	}
+	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	//ASSERT_VALID(pFrame);
+	//if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
+	//	m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
+	//{
+	//	StartPerformanceCount();
+	//	ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+	//	for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
+	//	{
+	//		switch (pFrame->m_Pivot.m_Mode)
+	//		{
+	//		case Pivot::PivotModeMove:
+	//			Component::SetCmpWorld(cmp_world_iter->first,
+	//				cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos));
+	//			break;
+	//		case Pivot::PivotModeRot:
+	//			Component::SetCmpWorld(cmp_world_iter->first, cmp_world_iter->second
+	//				* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
+	//				* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
+	//				* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
+	//			break;
+	//		}
+	//	}
+	//	Invalidate();
+	//}
 }
 
 BOOL CChildView::PreTranslateMessage(MSG* pMsg)
@@ -994,9 +994,9 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	m_Camera->MsgProc(pMsg->hwnd, pMsg->message, pMsg->wParam, pMsg->lParam, &bNoFurtherProcessing);
 	if (bNoFurtherProcessing)
 	{
-		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-		ASSERT_VALID(pFrame);
-		pFrame->ResetViewedCmps(m_Camera->m_Eye, boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt);
+		//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		//ASSERT_VALID(pFrame);
+		//pFrame->ResetViewedCmps(m_Camera->m_Eye, boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt);
 		switch (pMsg->message)
 		{
 		case WM_LBUTTONDOWN:
@@ -1103,16 +1103,16 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'F':
 		{
 			float fov = D3DXToRadian(75.0f);
-			if (!pFrame->m_selcmps.empty())
-			{
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
-			}
-			else
-			{
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
-			}
+			//if (!pFrame->m_selcmps.empty())
+			//{
+			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
+			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			//}
+			//else
+			//{
+			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			//}
 		}
 		Invalidate();
 		return;

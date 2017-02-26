@@ -31,15 +31,15 @@ public:
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
 	my::OctTree m_Root;
-	typedef boost::unordered_set<Component *> ComponentSet;
-	ComponentSet m_ViewedCmps;
-	ComponentSet m_selcmps;
-	my::AABB m_selbox;
-	EmitterComponentPtr m_emitter;
-	Event m_EventSelectionChanged;
-	Event m_EventSelectionPlaying;
-	Event m_EventPivotModeChanged;
-	Event m_EventCmpAttriChanged;
+	//typedef boost::unordered_set<Component *> ComponentSet;
+	//ComponentSet m_ViewedCmps;
+	//ComponentSet m_selcmps;
+	//my::AABB m_selbox;
+	//EmitterComponentPtr m_emitter;
+	//Event m_EventSelectionChanged;
+	//Event m_EventSelectionPlaying;
+	//Event m_EventPivotModeChanged;
+	//Event m_EventCmpAttriChanged;
 
 // Operations
 public:
@@ -49,10 +49,10 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-	void OnCmpPosChanged(Component * cmp);
-	void UpdateSelBox(void);
-	void UpdatePivotTransform(void);
-	void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
+	//void OnCmpPosChanged(Component * cmp);
+	//void UpdateSelBox(void);
+	//void UpdatePivotTransform(void);
+	//void ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 // Implementation
 public:

@@ -154,34 +154,34 @@ protected:
 	void OnCmpAttriChanged(EventArg * arg);
 	void HideAllProperties(void);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
-	void UpdateProperties(Component * cmp);
-	void UpdatePropertiesMesh(MeshComponent * cmp);
-	void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
-	void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
-	void UpdatePropertiesEmitter(EmitterComponent * cmp);
-	//void UpdatePropertiesRigid(RigidComponent * cmp);
-	void UpdatePropertiesTerrain(Terrain * terrain);
-	void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
-	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
-	void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
-	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
-	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
-	void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
-	void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
-	void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
-	void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
+	//void UpdateProperties(Component * cmp);
+	//void UpdatePropertiesMesh(MeshComponent * cmp);
+	//void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
+	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
+	//void UpdatePropertiesEmitter(EmitterComponent * cmp);
+	////void UpdatePropertiesRigid(RigidComponent * cmp);
+	//void UpdatePropertiesTerrain(Terrain * terrain);
+	//void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
+	//void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
+	//void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
+	//void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
+	//void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
+	//void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
+	//void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
+	//void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
+	//void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
-	void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
-	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
-	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
-	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
-	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
-	//void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
-	//void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
-	//void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
-	//void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
+	//void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
+	//void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
+	//void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
+	//void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
+	//void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
+	////void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
+	////void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
+	////void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
+	////void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
-	Material * GetComponentMaterial(Component * cmp, unsigned int id);
+	//Material * GetComponentMaterial(Component * cmp, unsigned int id);
 
 // Implementation
 public:

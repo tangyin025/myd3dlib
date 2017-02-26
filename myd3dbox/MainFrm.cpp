@@ -66,9 +66,9 @@ static UINT indicators[] =
 // CMainFrame construction/destruction
 
 CMainFrame::CMainFrame()
-	: m_Root(my::Vector3(-3000), my::Vector3(3000), 1.0f)
-	, m_selbox(-FLT_MAX, FLT_MAX)
-	, m_bEatAltUp(FALSE)
+	: m_bEatAltUp(FALSE)
+	, m_Root(my::Vector3(-3000), my::Vector3(3000), 1.0f)
+	//, m_selbox(-FLT_MAX, FLT_MAX)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -211,14 +211,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	SetTimer(1, 33, NULL);
 
-	m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
-	m_emitter->m_Emitter.reset(new my::Emitter());
-	m_emitter->m_Material.reset(new Material());
-	m_emitter->m_Material->m_Shader = "lambert1.fx";
-	m_emitter->m_Material->m_PassMask = RenderPipeline::PassMaskOpaque;
-	m_emitter->m_Material->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	m_emitter->RequestResource();
-	//m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
+	//m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
+	//m_emitter->m_Emitter.reset(new my::Emitter());
+	//m_emitter->m_Material.reset(new Material());
+	//m_emitter->m_Material->m_Shader = "lambert1.fx";
+	//m_emitter->m_Material->m_PassMask = RenderPipeline::PassMaskOpaque;
+	//m_emitter->m_Material->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	//m_emitter->RequestResource();
+	////m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 	return 0;
 }
 
@@ -380,98 +380,98 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 	return TRUE;
 }
-
-void CMainFrame::OnCmpPosChanged(Component * cmp)
-{
-	my::OctComponentPtr cmp_ptr = cmp->shared_from_this();
-	VERIFY(m_Root.RemoveComponent(cmp_ptr));
-	m_Root.AddComponent(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
-}
-
-void CMainFrame::UpdateSelBox(void)
-{
-	m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
-	for (; sel_iter != m_selcmps.end(); sel_iter++)
-	{
-		m_selbox.unionSelf((*sel_iter)->m_aabb.transform(Component::GetCmpWorld(*sel_iter)));
-	}
-}
-
-void CMainFrame::UpdatePivotTransform(void)
-{
-	if (m_selcmps.size() == 1)
-	{
-		my::Vector3 Pos, Scale; my::Quaternion Rot;
-		Component::GetCmpWorld(*m_selcmps.begin()).Decompose(Scale, Rot, Pos);
-		m_Pivot.m_Pos = Pos;
-		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
-	}
-	else if (!m_selcmps.empty())
-	{
-		m_Pivot.m_Pos = m_selbox.Center();
-		m_Pivot.m_Rot = my::Quaternion::Identity();
-	}
-}
-
-void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
-{
-	const my::Vector3 OutExtent(1050,1050,1050);
-	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
-	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
-	for (; cmp_iter != m_ViewedCmps.end(); )
-	{
-		if (my::IntersectionTests::IntersectionTypeOutside
-			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
-		{
-			if ((*cmp_iter)->IsRequested())
-			{
-				(*cmp_iter)->ReleaseResource();
-			}
-			cmp_iter = m_ViewedCmps.erase(cmp_iter);
-		}
-		else
-			cmp_iter++;
-	}
-
-	struct CallBack : public my::IQueryCallback
-	{
-		CMainFrame * pFrame;
-		const my::Vector3 & ViewedPos;
-		const my::Vector3 & TargetPos;
-		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
-			: pFrame(_pFrame)
-			, ViewedPos(_ViewedPos)
-			, TargetPos(_TargetPos)
-		{
-		}
-		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Component *>(oct_cmp));
-			Component * cmp = static_cast<Component *>(oct_cmp);
-			ComponentSet::iterator cmp_iter = pFrame->m_ViewedCmps.find(cmp);
-			if (cmp_iter == pFrame->m_ViewedCmps.end())
-			{
-				if (!cmp->IsRequested())
-				{
-					cmp->RequestResource();
-				}
-				pFrame->m_ViewedCmps.insert(cmp);
-			}
-			cmp->UpdateLod(ViewedPos, TargetPos);
-		}
-	};
-
-	const my::Vector3 InExtent(1000,1000,1000);
-	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
-}
+//
+//void CMainFrame::OnCmpPosChanged(Component * cmp)
+//{
+//	my::OctComponentPtr cmp_ptr = cmp->shared_from_this();
+//	VERIFY(m_Root.RemoveComponent(cmp_ptr));
+//	m_Root.AddComponent(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
+//}
+//
+//void CMainFrame::UpdateSelBox(void)
+//{
+//	m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
+//	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
+//	for (; sel_iter != m_selcmps.end(); sel_iter++)
+//	{
+//		m_selbox.unionSelf((*sel_iter)->m_aabb.transform(Component::GetCmpWorld(*sel_iter)));
+//	}
+//}
+//
+//void CMainFrame::UpdatePivotTransform(void)
+//{
+//	if (m_selcmps.size() == 1)
+//	{
+//		my::Vector3 Pos, Scale; my::Quaternion Rot;
+//		Component::GetCmpWorld(*m_selcmps.begin()).Decompose(Scale, Rot, Pos);
+//		m_Pivot.m_Pos = Pos;
+//		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
+//	}
+//	else if (!m_selcmps.empty())
+//	{
+//		m_Pivot.m_Pos = m_selbox.Center();
+//		m_Pivot.m_Rot = my::Quaternion::Identity();
+//	}
+//}
+//
+//void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+//{
+//	const my::Vector3 OutExtent(1050,1050,1050);
+//	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
+//	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
+//	for (; cmp_iter != m_ViewedCmps.end(); )
+//	{
+//		if (my::IntersectionTests::IntersectionTypeOutside
+//			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
+//		{
+//			if ((*cmp_iter)->IsRequested())
+//			{
+//				(*cmp_iter)->ReleaseResource();
+//			}
+//			cmp_iter = m_ViewedCmps.erase(cmp_iter);
+//		}
+//		else
+//			cmp_iter++;
+//	}
+//
+//	struct CallBack : public my::IQueryCallback
+//	{
+//		CMainFrame * pFrame;
+//		const my::Vector3 & ViewedPos;
+//		const my::Vector3 & TargetPos;
+//		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
+//			: pFrame(_pFrame)
+//			, ViewedPos(_ViewedPos)
+//			, TargetPos(_TargetPos)
+//		{
+//		}
+//		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
+//		{
+//			_ASSERT(dynamic_cast<Component *>(oct_cmp));
+//			Component * cmp = static_cast<Component *>(oct_cmp);
+//			ComponentSet::iterator cmp_iter = pFrame->m_ViewedCmps.find(cmp);
+//			if (cmp_iter == pFrame->m_ViewedCmps.end())
+//			{
+//				if (!cmp->IsRequested())
+//				{
+//					cmp->RequestResource();
+//				}
+//				pFrame->m_ViewedCmps.insert(cmp);
+//			}
+//			cmp->UpdateLod(ViewedPos, TargetPos);
+//		}
+//	};
+//
+//	const my::Vector3 InExtent(1000,1000,1000);
+//	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
+//	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
+//}
 
 void CMainFrame::ClearAllComponents()
 {
 	m_Root.ClearAllComponents();
-	m_selcmps.clear();
-	m_ViewedCmps.clear();
+	//m_selcmps.clear();
+	//m_ViewedCmps.clear();
 }
 
 void CMainFrame::OnDestroy()
@@ -479,7 +479,7 @@ void CMainFrame::OnDestroy()
 	CFrameWndEx::OnDestroy();
 
 	// TODO: Add your message handler code here
-	m_emitter.reset();
+	//m_emitter.reset();
 	ClearAllComponents();
 	PhysXSceneContext::Shutdown();
 	theApp.DestroyD3DDevice();
@@ -590,101 +590,101 @@ void CMainFrame::OnFileSave()
 
 void CMainFrame::OnComponentMesh()
 {
-	// TODO: Add your command handler code here
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK == dlg.DoModal())
-	{
-		CString strPathName = dlg.GetPathName();
-		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
-		if (mesh)
-		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
-			mesh_cmp->m_lods.resize(1);
-			mesh_cmp->m_lods[0].m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
-			mesh_cmp->m_lods[0].m_MeshRes.OnReady(mesh);
-			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-			{
-				MaterialPtr lambert1(new Material());
-				lambert1->m_Shader = "lambert1.fx";
-				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-				lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-				lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-				lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-				mesh_cmp->m_MaterialList.push_back(lambert1);
-			}
-			mesh_cmp->RequestResource();
-			m_Root.AddComponent(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+	//// TODO: Add your command handler code here
+	//CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	//if (IDOK == dlg.DoModal())
+	//{
+	//	CString strPathName = dlg.GetPathName();
+	//	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+	//	if (mesh)
+	//	{
+	//		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
+	//		mesh_cmp->m_lods.resize(1);
+	//		mesh_cmp->m_lods[0].m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
+	//		mesh_cmp->m_lods[0].m_MeshRes.OnReady(mesh);
+	//		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+	//		{
+	//			MaterialPtr lambert1(new Material());
+	//			lambert1->m_Shader = "lambert1.fx";
+	//			lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	//			lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	//			lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	//			lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	//			mesh_cmp->m_MaterialList.push_back(lambert1);
+	//		}
+	//		mesh_cmp->RequestResource();
+	//		m_Root.AddComponent(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 
-			m_selcmps.clear();
-			m_selcmps.insert(mesh_cmp.get());
-			UpdateSelBox();
-			UpdatePivotTransform();
-		}
-		else
-		{
-			MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
-		}
-	}
+	//		m_selcmps.clear();
+	//		m_selcmps.insert(mesh_cmp.get());
+	//		UpdateSelBox();
+	//		UpdatePivotTransform();
+	//	}
+	//	else
+	//	{
+	//		MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
+	//	}
+	//}
 }
 
 void CMainFrame::OnComponentEmitter()
 {
-	// TODO: Add your command handler code here
-	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-	my::EmitterPtr emit(new my::Emitter());
-	emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
-	emit_cmp->m_Emitter = emit;
-	MaterialPtr particle1(new Material());
-	particle1->m_Shader = "particle1.fx";
-	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-	emit_cmp->m_Material = particle1;
-	emit_cmp->RequestResource();
-	m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	//// TODO: Add your command handler code here
+	//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
+	//my::EmitterPtr emit(new my::Emitter());
+	//emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
+	//emit_cmp->m_Emitter = emit;
+	//MaterialPtr particle1(new Material());
+	//particle1->m_Shader = "particle1.fx";
+	//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	//emit_cmp->m_Material = particle1;
+	//emit_cmp->RequestResource();
+	//m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(emit_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(emit_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnComponentSphericalemitter()
 {
-	// TODO: Add your command handler code here
-	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-	my::SphericalEmitterPtr emit(new my::SphericalEmitter());
-	emit->m_ParticleLifeTime=10.0f;
-	emit->m_SpawnInterval=1/100.0f;
-	emit->m_SpawnSpeed=5;
-	emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
-	float Azimuth=D3DXToRadian(360)*8;
-	emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
-	emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
-	emit->m_SpawnColorA.AddNode(0,1,0,0);
-	emit->m_SpawnColorA.AddNode(10,0,0,0);
-	emit->m_SpawnColorR.AddNode(0,1,0,0);
-	emit->m_SpawnColorR.AddNode(10,0,0,0);
-	emit->m_SpawnColorG.AddNode(0,1,0,0);
-	emit->m_SpawnColorG.AddNode(10,0,0,0);
-	emit->m_SpawnColorB.AddNode(0,1,0,0);
-	emit->m_SpawnColorB.AddNode(10,0,0,0);
-	emit->m_SpawnSizeX.AddNode(0,1,0,0);
-	emit->m_SpawnSizeX.AddNode(10,10,0,0);
-	emit->m_SpawnSizeY.AddNode(0,1,0,0);
-	emit->m_SpawnSizeY.AddNode(10,10,0,0);
-	emit_cmp->m_Emitter = emit;
-	MaterialPtr particle1(new Material());
-	particle1->m_Shader = "particle1.fx";
-	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-	emit_cmp->m_Material = particle1;
-	emit_cmp->RequestResource();
-	m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	//// TODO: Add your command handler code here
+	//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
+	//my::SphericalEmitterPtr emit(new my::SphericalEmitter());
+	//emit->m_ParticleLifeTime=10.0f;
+	//emit->m_SpawnInterval=1/100.0f;
+	//emit->m_SpawnSpeed=5;
+	//emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
+	//float Azimuth=D3DXToRadian(360)*8;
+	//emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
+	//emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
+	//emit->m_SpawnColorA.AddNode(0,1,0,0);
+	//emit->m_SpawnColorA.AddNode(10,0,0,0);
+	//emit->m_SpawnColorR.AddNode(0,1,0,0);
+	//emit->m_SpawnColorR.AddNode(10,0,0,0);
+	//emit->m_SpawnColorG.AddNode(0,1,0,0);
+	//emit->m_SpawnColorG.AddNode(10,0,0,0);
+	//emit->m_SpawnColorB.AddNode(0,1,0,0);
+	//emit->m_SpawnColorB.AddNode(10,0,0,0);
+	//emit->m_SpawnSizeX.AddNode(0,1,0,0);
+	//emit->m_SpawnSizeX.AddNode(10,10,0,0);
+	//emit->m_SpawnSizeY.AddNode(0,1,0,0);
+	//emit->m_SpawnSizeY.AddNode(10,10,0,0);
+	//emit_cmp->m_Emitter = emit;
+	//MaterialPtr particle1(new Material());
+	//particle1->m_Shader = "particle1.fx";
+	//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	//emit_cmp->m_Material = particle1;
+	//emit_cmp->RequestResource();
+	//m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(emit_cmp.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(emit_cmp.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidSphere()
@@ -745,124 +745,124 @@ void CMainFrame::OnRigidBox()
 
 void CMainFrame::OnCreateTerrain()
 {
-	// TODO: Add your command handler code here
-	TerrainPtr terrain(new Terrain(my::Matrix4::identity,1.0f,1.0f,1.0f));
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = "lambert1.fx";
-	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	terrain->m_Material = lambert1;
-	terrain->RequestResource();
-	m_Root.AddComponent(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
+	//// TODO: Add your command handler code here
+	//TerrainPtr terrain(new Terrain(my::Matrix4::identity,1.0f,1.0f,1.0f));
+	//MaterialPtr lambert1(new Material());
+	//lambert1->m_Shader = "lambert1.fx";
+	//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	//lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	//lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	//lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	//terrain->m_Material = lambert1;
+	//terrain->RequestResource();
+	//m_Root.AddComponent(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(terrain.get());
-	UpdateSelBox();
-	UpdatePivotTransform();
+	//m_selcmps.clear();
+	//m_selcmps.insert(terrain.get());
+	//UpdateSelBox();
+	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()
 {
-	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
-	{
-		my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
-		m_Root.RemoveComponent(cmp);
-		m_ViewedCmps.erase(*cmp_iter);
-	}
-	m_selcmps.clear();
-	EventArg arg;
-	m_EventSelectionChanged(&arg);
+	//// TODO: Add your command handler code here
+	//ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	//for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	//{
+	//	my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
+	//	m_Root.RemoveComponent(cmp);
+	//	m_ViewedCmps.erase(*cmp_iter);
+	//}
+	//m_selcmps.clear();
+	//EventArg arg;
+	//m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
-	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	//// TODO: Add your command update UI handler code here
+	//pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnPivotMove()
 {
-	// TODO: Add your command handler code here
-	m_Pivot.m_Mode = Pivot::PivotModeMove;
-	UpdatePivotTransform();
-	EventArg arg;
-	m_EventPivotModeChanged(&arg);
+	//// TODO: Add your command handler code here
+	//m_Pivot.m_Mode = Pivot::PivotModeMove;
+	//UpdatePivotTransform();
+	//EventArg arg;
+	//m_EventPivotModeChanged(&arg);
 }
 
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
+	//// TODO: Add your command update UI handler code here
+	//pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
 {
-	// TODO: Add your command handler code here
-	m_Pivot.m_Mode = Pivot::PivotModeRot;
-	UpdatePivotTransform();
-	EventArg arg;
-	m_EventPivotModeChanged(&arg);
+	//// TODO: Add your command handler code here
+	//m_Pivot.m_Mode = Pivot::PivotModeRot;
+	//UpdatePivotTransform();
+	//EventArg arg;
+	//m_EventPivotModeChanged(&arg);
 }
 
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
-	// TODO: Add your command update UI handler code here
-	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
+	//// TODO: Add your command update UI handler code here
+	//pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
-	// TODO: Add your message handler code here and/or call default
-	const float fElapsedTime = 0.033f;
-	if (!m_selcmps.empty())
-	{
-		ComponentSet::iterator cmp_iter = m_selcmps.begin();
-		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
-		{
-			(*cmp_iter)->Update(fElapsedTime);
-		}
+	//// TODO: Add your message handler code here and/or call default
+	//const float fElapsedTime = 0.033f;
+	//if (!m_selcmps.empty())
+	//{
+	//	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	//	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	//	{
+	//		(*cmp_iter)->Update(fElapsedTime);
+	//	}
 
-		EventArg arg;
-		m_EventSelectionPlaying(&arg);
-	}
+	//	EventArg arg;
+	//	m_EventSelectionPlaying(&arg);
+	//}
 
-	PhysXSceneContext::AdvanceSync(fElapsedTime);
+	//PhysXSceneContext::AdvanceSync(fElapsedTime);
 
 	__super::OnTimer(nIDEvent);
 }
 
 void CMainFrame::OnFileExportstaticcollision()
 {
-	// TODO: Add your command handler code here
-	CString strPathName;
-	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	INT_PTR nResult = dlg.DoModal();
-	strPathName.ReleaseBuffer();
-	if (nResult == IDCANCEL)
-	{
-		return;
-	}
+	//// TODO: Add your command handler code here
+	//CString strPathName;
+	//CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	//INT_PTR nResult = dlg.DoModal();
+	//strPathName.ReleaseBuffer();
+	//if (nResult == IDCANCEL)
+	//{
+	//	return;
+	//}
 
-	theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
+	//theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
 }
 
 void CMainFrame::OnFileImportstaticcollision()
 {
-	// TODO: Add your command handler code here
-	CString strPathName;
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	INT_PTR nResult = dlg.DoModal();
-	strPathName.ReleaseBuffer();
-	if (nResult == IDCANCEL)
-	{
-		return;
-	}
+	//// TODO: Add your command handler code here
+	//CString strPathName;
+	//CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	//INT_PTR nResult = dlg.DoModal();
+	//strPathName.ReleaseBuffer();
+	//if (nResult == IDCANCEL)
+	//{
+	//	return;
+	//}
 
-	ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
+	//ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
 }
