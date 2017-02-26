@@ -9,7 +9,7 @@
 
 namespace my
 {
-	class OctComponent : public boost::enable_shared_from_this<OctComponent>
+	class OctActor : public boost::enable_shared_from_this<OctActor>
 	{
 	public:
 		friend class OctNodeBase;
@@ -19,12 +19,12 @@ namespace my
 		OctNodeBase * m_OctNode;
 
 	public:
-		OctComponent(void)
+		OctActor(void)
 			: m_OctNode(NULL)
 		{
 		}
 
-		virtual ~OctComponent(void)
+		virtual ~OctActor(void)
 		{
 			_ASSERT(!m_OctNode);
 		}
@@ -35,12 +35,12 @@ namespace my
 		}
 	};
 
-	typedef boost::shared_ptr<OctComponent> OctComponentPtr;
+	typedef boost::shared_ptr<OctActor> OctActorPtr;
 
 	struct IQueryCallback
 	{
 	public:
-		virtual void operator() (OctComponent * cmp, IntersectionTests::IntersectionType) = 0;
+		virtual void operator() (OctActor * actor, IntersectionTests::IntersectionType) = 0;
 	};
 
 	class OctNodeBase
@@ -48,9 +48,9 @@ namespace my
 	public:
 		AABB m_aabb;
 
-		typedef std::map<OctComponentPtr, AABB> OctComponentMap;
+		typedef std::map<OctActorPtr, AABB> OctActorMap;
 
-		OctComponentMap m_Components;
+		OctActorMap m_Actors;
 
 		typedef boost::array<boost::shared_ptr<OctNodeBase>, 2> ChildArray;
 
@@ -104,7 +104,7 @@ namespace my
 
 		void QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback);
 
-		bool RemoveComponent(OctComponentPtr cmp);
+		bool RemoveComponent(OctActorPtr cmp);
 
 		void ClearAllComponents(void);
 
@@ -157,7 +157,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_MinBlock);
 		}
 
-		void AddComponent(OctComponentPtr cmp, const AABB & aabb, float threshold = 0.1f)
+		void AddComponent(OctActorPtr cmp, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!cmp->m_OctNode);
 			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
@@ -182,7 +182,7 @@ namespace my
 			}
 			else
 			{
-				m_Components.insert(std::make_pair(cmp, aabb));
+				m_Actors.insert(std::make_pair(cmp, aabb));
 				cmp->m_OctNode = this;
 			}
 		}

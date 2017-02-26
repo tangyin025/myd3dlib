@@ -505,9 +505,9 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			: terrain(_terrain)
 		{
 		}
-		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * actor, my::IntersectionTests::IntersectionType)
 		{
-			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(actor);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
 		}
 	};
@@ -625,9 +625,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			, shader(_shader)
 		{
 		}
-		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * actor, my::IntersectionTests::IntersectionType)
 		{
-			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
+			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(actor);
 			const Fragment & frag = terrain->GetFragment(chunk->m_lod,
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
 				terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,

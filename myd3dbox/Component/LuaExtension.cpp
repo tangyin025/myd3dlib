@@ -142,12 +142,12 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	std::string s = e.what();
 	lua_pushlstring(L, s.c_str(), s.length());
 }
-
-template <typename T, typename U>
-static U * shared_ptr_2_raw(boost::shared_ptr<T> ptr)
-{
-	return ptr.get();
-}
+//
+//template <typename T, typename U>
+//static U * shared_ptr_2_raw(boost::shared_ptr<T> ptr)
+//{
+//	return ptr.get();
+//}
 
 static void ExportMath(lua_State * L)
 {
@@ -391,7 +391,7 @@ static void ExportMath(lua_State * L)
 			.def_readwrite("max", &my::AABB::m_max)
 			.def("transform", &my::AABB::transform)
 
-		, class_<my::OctComponent, my::AABB, boost::shared_ptr<my::OctComponent> >("OctComponent")
+		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
 
 		, class_<my::OctTree, boost::shared_ptr<my::OctTree> >("OctTree")
 			.def("AddComponent", &my::OctTree::AddComponent)
@@ -951,8 +951,8 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<const my::AABB &, const my::Matrix4 &, bool>())
 			.def(constructor<>())
 			.def_readwrite("World", &MeshComponent::m_World)
-			//.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
-			//.def_readonly("bInstance", &MeshComponent::m_bInstance)
+			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
+			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readwrite("Animator", &MeshComponent::m_Animator)
 			.def("AddMaterial", &MeshComponent::AddMaterial)
 
@@ -963,7 +963,7 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 
-		, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctComponent>)
+		//, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctActor>)
 	];
 }
 

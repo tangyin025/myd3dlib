@@ -445,7 +445,7 @@ void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector
 			, TargetPos(_TargetPos)
 		{
 		}
-		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Component *>(oct_cmp));
 			Component * cmp = static_cast<Component *>(oct_cmp);

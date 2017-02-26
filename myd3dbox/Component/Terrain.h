@@ -5,7 +5,7 @@
 class Terrain;
 
 class TerrainChunk
-	: public my::OctComponent
+	: public my::OctActor
 {
 public:
 	my::AABB m_aabb;
@@ -26,7 +26,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_Row);
 		ar & BOOST_SERIALIZATION_NVP(m_Column);

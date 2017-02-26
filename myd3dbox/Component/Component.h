@@ -54,7 +54,6 @@ typedef boost::shared_ptr<Material> MaterialPtr;
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
 class Component
-	: public my::OctComponent
 {
 public:
 	enum ComponentType
@@ -104,7 +103,6 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
 		ar & BOOST_SERIALIZATION_NVP(m_World);
@@ -128,10 +126,6 @@ public:
 	}
 
 	virtual void Update(float fElapsedTime)
-	{
-	}
-
-	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 	{
 	}
 
@@ -173,43 +167,9 @@ class MeshComponent
 	: public RenderComponent
 {
 public:
-	struct LOD
-	{
-		ResourceBundle<my::OgreMesh> m_MeshRes;
+	ResourceBundle<my::OgreMesh> m_MeshRes;
 
-		bool m_bInstance;
-
-		float m_MaxDistance;
-
-		LOD(const char * Path, bool bInstance, float MaxDistance)
-			: m_MeshRes(Path)
-			, m_bInstance(bInstance)
-			, m_MaxDistance(MaxDistance)
-		{
-		}
-
-		LOD(void)
-			: m_bInstance(false)
-			, m_MaxDistance(pow(3000.0f, 2))
-		{
-		}
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
-			ar & BOOST_SERIALIZATION_NVP(m_bInstance);
-			ar & BOOST_SERIALIZATION_NVP(m_MaxDistance);
-		}
-	};
-
-	typedef std::vector<LOD> LODList;
-
-	LODList m_lods;
-
-	unsigned int m_lod;
-
-	float m_lodBand;
+	bool m_bInstance;
 
 	MaterialPtrList m_MaterialList;
 
@@ -220,16 +180,12 @@ public:
 public:
 	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
 		: RenderComponent(ComponentTypeMesh, aabb, World)
-		, m_lod(0)
-		, m_lodBand(1)
 		, m_StaticCollision(false)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(ComponentTypeMesh, my::AABB::Invalid(), my::Matrix4::Identity())
-		, m_lod(0)
-		, m_lodBand(1)
 		, m_StaticCollision(false)
 	{
 	}
@@ -266,8 +222,6 @@ public:
 	virtual void ReleaseResource(void);
 
 	virtual void Update(float fElapsedTime);
-
-	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 

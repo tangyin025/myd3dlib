@@ -762,13 +762,13 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 		}
 
-		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
+		void operator() (OctActor * actor, IntersectionTests::IntersectionType)
 		{
-			Component * cmp = dynamic_cast<Component *>(oct_cmp);
-			if (cmp)
-			{
-				cmp->AddToPipeline(frustum, pipeline, PassMask);
-			}
+			//Component * cmp = dynamic_cast<Component *>(oct_cmp);
+			//if (cmp)
+			//{
+			//	cmp->AddToPipeline(frustum, pipeline, PassMask);
+			//}
 		}
 	};
 
@@ -806,20 +806,20 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 			, TargetPos(_TargetPos)
 		{
 		}
-		void operator() (OctComponent * oct_cmp, IntersectionTests::IntersectionType)
+		void operator() (OctActor * actor, IntersectionTests::IntersectionType)
 		{
-			_ASSERT(dynamic_cast<Component *>(oct_cmp));
-			Component * cmp = static_cast<Component *>(oct_cmp);
-			ComponentSet::iterator cmp_iter = game->m_ViewedCmps.find(cmp);
-			if (cmp_iter == game->m_ViewedCmps.end())
-			{
-				if (!cmp->IsRequested())
-				{
-					cmp->RequestResource();
-				}
-				game->m_ViewedCmps.insert(cmp);
-			}
-			cmp->UpdateLod(ViewedPos, TargetPos);
+			//_ASSERT(dynamic_cast<Component *>(oct_cmp));
+			//Component * cmp = static_cast<Component *>(oct_cmp);
+			//ComponentSet::iterator cmp_iter = game->m_ViewedCmps.find(cmp);
+			//if (cmp_iter == game->m_ViewedCmps.end())
+			//{
+			//	if (!cmp->IsRequested())
+			//	{
+			//		cmp->RequestResource();
+			//	}
+			//	game->m_ViewedCmps.insert(cmp);
+			//}
+			//cmp->UpdateLod(ViewedPos, TargetPos);
 		}
 	};
 

@@ -100,132 +100,132 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 			, collection(_collection)
 		{
 		}
-		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * actor, my::IntersectionTests::IntersectionType)
 		{
-			Component * cmp = dynamic_cast<Component *>(oct_cmp);
-			_ASSERT(cmp);
-			switch(cmp->m_Type)
-			{
-			case Component::ComponentTypeMesh:
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-					_ASSERT(mesh_cmp);
-					if (!mesh_cmp->m_StaticCollision)
-					{
-						break;
-					}
+			//Component * cmp = dynamic_cast<Component *>(oct_cmp);
+			//_ASSERT(cmp);
+			//switch(cmp->m_Type)
+			//{
+			//case Component::ComponentTypeMesh:
+			//	{
+			//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			//		_ASSERT(mesh_cmp);
+			//		if (!mesh_cmp->m_StaticCollision)
+			//		{
+			//			break;
+			//		}
 
-					my::OgreMeshPtr mesh = mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res;
-					if (!mesh)
-					{
-						break;
-					}
-					std::string mesh_key = my::ResourceMgr::getSingleton().GetResourceKey(mesh);
-					if (mesh_key.empty())
-					{
-						break;
-					}
-					PhysXPtr<PxTriangleMesh> trianglemesh;
-					std::map<std::string, PhysXPtr<PxTriangleMesh> >::iterator triangle_mesh_iter = triangle_mesh_map.find(mesh_key);
-					if (triangle_mesh_iter != triangle_mesh_map.end())
-					{
-						trianglemesh = triangle_mesh_iter->second;
-					}
-					else
-					{
-						PxTriangleMeshDesc desc;
-						desc.points.count = mesh->GetNumVertices();
-						desc.points.stride = mesh->GetNumBytesPerVertex();
-						desc.points.data = mesh->LockVertexBuffer();
-						desc.triangles.count = mesh->GetNumFaces();
-						if (mesh->GetOptions() & D3DXMESH_32BIT)
-						{
-							desc.triangles.stride = 3 * sizeof(DWORD);
-						}
-						else
-						{
-							desc.triangles.stride = 3 * sizeof(WORD);
-							desc.flags |= PxMeshFlag::e16_BIT_INDICES;
-						}
-						desc.triangles.data = mesh->LockIndexBuffer();
-						PxDefaultMemoryOutputStream writeBuffer;
-						bool status = cooking->cookTriangleMesh(desc, writeBuffer);
-						mesh->UnlockIndexBuffer();
-						mesh->UnlockVertexBuffer();
-						if (!status)
-						{
-							break;
-						}
-						PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-						trianglemesh.reset(sdk->createTriangleMesh(readBuffer));
-						triangle_mesh_map.insert(std::make_pair(mesh_key, trianglemesh));
-					}
-					trianglemesh->collectForExport(*collection);
+			//		my::OgreMeshPtr mesh = mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res;
+			//		if (!mesh)
+			//		{
+			//			break;
+			//		}
+			//		std::string mesh_key = my::ResourceMgr::getSingleton().GetResourceKey(mesh);
+			//		if (mesh_key.empty())
+			//		{
+			//			break;
+			//		}
+			//		PhysXPtr<PxTriangleMesh> trianglemesh;
+			//		std::map<std::string, PhysXPtr<PxTriangleMesh> >::iterator triangle_mesh_iter = triangle_mesh_map.find(mesh_key);
+			//		if (triangle_mesh_iter != triangle_mesh_map.end())
+			//		{
+			//			trianglemesh = triangle_mesh_iter->second;
+			//		}
+			//		else
+			//		{
+			//			PxTriangleMeshDesc desc;
+			//			desc.points.count = mesh->GetNumVertices();
+			//			desc.points.stride = mesh->GetNumBytesPerVertex();
+			//			desc.points.data = mesh->LockVertexBuffer();
+			//			desc.triangles.count = mesh->GetNumFaces();
+			//			if (mesh->GetOptions() & D3DXMESH_32BIT)
+			//			{
+			//				desc.triangles.stride = 3 * sizeof(DWORD);
+			//			}
+			//			else
+			//			{
+			//				desc.triangles.stride = 3 * sizeof(WORD);
+			//				desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+			//			}
+			//			desc.triangles.data = mesh->LockIndexBuffer();
+			//			PxDefaultMemoryOutputStream writeBuffer;
+			//			bool status = cooking->cookTriangleMesh(desc, writeBuffer);
+			//			mesh->UnlockIndexBuffer();
+			//			mesh->UnlockVertexBuffer();
+			//			if (!status)
+			//			{
+			//				break;
+			//			}
+			//			PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+			//			trianglemesh.reset(sdk->createTriangleMesh(readBuffer));
+			//			triangle_mesh_map.insert(std::make_pair(mesh_key, trianglemesh));
+			//		}
+			//		trianglemesh->collectForExport(*collection);
 
-					PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
-					material->collectForExport(*collection);
-					materials.push_back(material);
+			//		PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+			//		material->collectForExport(*collection);
+			//		materials.push_back(material);
 
-					my::Vector3 pos, scale; my::Quaternion rot;
-					mesh_cmp->m_World.Decompose(scale, rot, pos);
-					PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-					PxMeshScale mesh_scaling((PxVec3&)scale, PxQuat::createIdentity());
-					PxShape * shape = actor->createShape(
-						PxTriangleMeshGeometry(trianglemesh.get(), mesh_scaling),
-						*material, PxTransform::createIdentity());
-					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-					actor->collectForExport(*collection);
-					actors.push_back(actor);
-				}
-				break;
-			case Component::ComponentTypeTerrain:
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-					_ASSERT(terrain);
-					if (!terrain->m_StaticCollision)
-					{
-						break;
-					}
+			//		my::Vector3 pos, scale; my::Quaternion rot;
+			//		mesh_cmp->m_World.Decompose(scale, rot, pos);
+			//		PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+			//		PxMeshScale mesh_scaling((PxVec3&)scale, PxQuat::createIdentity());
+			//		PxShape * shape = actor->createShape(
+			//			PxTriangleMeshGeometry(trianglemesh.get(), mesh_scaling),
+			//			*material, PxTransform::createIdentity());
+			//		//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+			//		actor->collectForExport(*collection);
+			//		actors.push_back(actor);
+			//	}
+			//	break;
+			//case Component::ComponentTypeTerrain:
+			//	{
+			//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			//		_ASSERT(terrain);
+			//		if (!terrain->m_StaticCollision)
+			//		{
+			//			break;
+			//		}
 
-					D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, 0, 0);
-					std::vector<PxHeightFieldSample> Samples(
-						(terrain->m_RowChunks * terrain->m_ChunkRows + 1) * (terrain->m_ColChunks * terrain->m_ChunkRows + 1));
-					for (unsigned int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkRows + 1; i++)
-					{
-						for (unsigned int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkRows + 1; j++)
-						{
-							Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].height = terrain->GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
-							Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].materialIndex0 = PxBitAndByte(0, false);
-							Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].materialIndex1 = PxBitAndByte(0, false);
-						}
-					}
-					terrain->m_HeightMap.UnlockRect(0);
-					PxHeightFieldDesc hfDesc;
-					hfDesc.nbRows             = terrain->m_RowChunks * terrain->m_ChunkRows + 1;
-					hfDesc.nbColumns          = terrain->m_ColChunks * terrain->m_ChunkRows + 1;
-					hfDesc.format             = PxHeightFieldFormat::eS16_TM;
-					hfDesc.samples.data       = &Samples[0];
-					hfDesc.samples.stride     = sizeof(Samples[0]);
-					PhysXPtr<PxHeightField> heightfield(sdk->createHeightField(hfDesc));
-					heightfield->collectForExport(*collection);
-					heightfields.push_back(heightfield);
+			//		D3DLOCKED_RECT lrc = terrain->m_HeightMap.LockRect(NULL, 0, 0);
+			//		std::vector<PxHeightFieldSample> Samples(
+			//			(terrain->m_RowChunks * terrain->m_ChunkRows + 1) * (terrain->m_ColChunks * terrain->m_ChunkRows + 1));
+			//		for (unsigned int i = 0; i < terrain->m_RowChunks * terrain->m_ChunkRows + 1; i++)
+			//		{
+			//			for (unsigned int j = 0; j < terrain->m_ColChunks * terrain->m_ChunkRows + 1; j++)
+			//			{
+			//				Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].height = terrain->GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
+			//				Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].materialIndex0 = PxBitAndByte(0, false);
+			//				Samples[i * (terrain->m_ColChunks * terrain->m_ChunkRows + 1) + j].materialIndex1 = PxBitAndByte(0, false);
+			//			}
+			//		}
+			//		terrain->m_HeightMap.UnlockRect(0);
+			//		PxHeightFieldDesc hfDesc;
+			//		hfDesc.nbRows             = terrain->m_RowChunks * terrain->m_ChunkRows + 1;
+			//		hfDesc.nbColumns          = terrain->m_ColChunks * terrain->m_ChunkRows + 1;
+			//		hfDesc.format             = PxHeightFieldFormat::eS16_TM;
+			//		hfDesc.samples.data       = &Samples[0];
+			//		hfDesc.samples.stride     = sizeof(Samples[0]);
+			//		PhysXPtr<PxHeightField> heightfield(sdk->createHeightField(hfDesc));
+			//		heightfield->collectForExport(*collection);
+			//		heightfields.push_back(heightfield);
 
-					PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
-					material->collectForExport(*collection);
-					materials.push_back(material);
+			//		PhysXPtr<PxMaterial> material(sdk->createMaterial(0.5f, 0.5f, 0.5f));
+			//		material->collectForExport(*collection);
+			//		materials.push_back(material);
 
-					my::Vector3 pos, scale; my::Quaternion rot;
-					terrain->m_World.Decompose(scale, rot, pos);
-					PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-					PxShape * shape = actor->createShape(
-						PxHeightFieldGeometry(heightfield.get(), PxMeshGeometryFlags(), terrain->m_HeightScale * scale.y, scale.x, scale.z),
-						*material, PxTransform::createIdentity());
-					//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
-					actor->collectForExport(*collection);
-					actors.push_back(actor);
-				}
-				break;
-			}
+			//		my::Vector3 pos, scale; my::Quaternion rot;
+			//		terrain->m_World.Decompose(scale, rot, pos);
+			//		PhysXPtr<PxRigidStatic> actor(sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
+			//		PxShape * shape = actor->createShape(
+			//			PxHeightFieldGeometry(heightfield.get(), PxMeshGeometryFlags(), terrain->m_HeightScale * scale.y, scale.x, scale.z),
+			//			*material, PxTransform::createIdentity());
+			//		//shape->setFlag(PxShapeFlag::eVISUALIZATION, false);
+			//		actor->collectForExport(*collection);
+			//		actors.push_back(actor);
+			//	}
+			//	break;
+			//}
 		}
 	};
 

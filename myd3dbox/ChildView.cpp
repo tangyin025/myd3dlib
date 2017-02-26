@@ -176,7 +176,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 			, pView(_pView)
 		{
 		}
-		void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
 		{
 			Component * cmp = dynamic_cast<Component *>(oct_cmp);
 			if (cmp)
@@ -515,7 +515,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					, ret(false, FLT_MAX)
 				{
 				}
-				void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+				void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_cmp);
 					const Terrain::Fragment & frag = terrain->GetFragment(chunk->m_lod,
@@ -863,7 +863,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+			void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
 			{
 				Component * cmp = dynamic_cast<Component *>(oct_cmp);
 				if (cmp && pView->OverlapTestFrustumAndComponent(ftm, cmp))
@@ -894,7 +894,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 				, pView(_pView)
 			{
 			}
-			void operator() (my::OctComponent * oct_cmp, my::IntersectionTests::IntersectionType)
+			void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
 			{
 				Component * cmp = dynamic_cast<Component *>(oct_cmp);
 				my::RayResult ret;

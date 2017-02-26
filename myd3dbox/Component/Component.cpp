@@ -60,10 +60,10 @@ void Material::ReleaseResource(void)
 
 const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
 {
-	if (cmp->m_OctNode)
-	{
-		return cmp->m_OctNode->m_aabb;
-	}
+	//if (cmp->m_OctNode)
+	//{
+	//	return cmp->m_OctNode->m_aabb;
+	//}
 	return cmp->m_aabb;
 }
 
@@ -100,8 +100,6 @@ template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar << BOOST_SERIALIZATION_NVP(m_lods);
-	ar << BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
@@ -111,23 +109,16 @@ template<>
 void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar >> BOOST_SERIALIZATION_NVP(m_lods);
-	ar >> BOOST_SERIALIZATION_NVP(m_lodBand);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
 	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
-	m_lod = m_lods.size() - 1;
 }
 
 void MeshComponent::RequestResource(void)
 {
 	RenderComponent::RequestResource();
 
-	LODList::iterator lod_iter = m_lods.begin();
-	for (; lod_iter != m_lods.end(); lod_iter++)
-	{
-		lod_iter->m_MeshRes.RequestResource();
-	}
+	m_MeshRes.RequestResource();
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -143,11 +134,7 @@ void MeshComponent::RequestResource(void)
 
 void MeshComponent::ReleaseResource(void)
 {
-	LODList::iterator lod_iter = m_lods.begin();
-	for (; lod_iter != m_lods.end(); lod_iter++)
-	{
-		lod_iter->m_MeshRes.ReleaseResource();
-	}
+	m_MeshRes.ReleaseResource();
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -171,29 +158,6 @@ void MeshComponent::Update(float fElapsedTime)
 	}
 }
 
-void MeshComponent::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
-{
-	float Distance = (m_World.row<3>().xyz - ViewedPos).magnitude();
-
-	if (m_lod > 0)
-	{
-		if (Distance < m_lods[m_lod - 1].m_MaxDistance - m_lodBand)
-		{
-			m_lod--;
-			return;
-		}
-	}
-
-	if (m_lod < m_lods.size() - 1)
-	{
-		if (Distance > m_lods[m_lod].m_MaxDistance + m_lodBand)
-		{
-			m_lod++;
-			return;
-		}
-	}
-}
-
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(AttribId < m_MaterialList.size());
@@ -212,9 +176,8 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	if (m_lod < m_lods.size() && m_lods[m_lod].m_MeshRes.m_Res)
+	if (m_MeshRes.m_Res)
 	{
-		LOD & lod = m_lods[m_lod];
 		for (DWORD i = 0; i < m_MaterialList.size(); i++)
 		{
 			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
@@ -223,16 +186,16 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, lod.m_bInstance, m_MaterialList[i].get(), PassID);
+						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
-							if (lod.m_bInstance)
+							if (m_bInstance)
 							{
-								pipeline->PushMeshInstance(PassID, lod.m_MeshRes.m_Res.get(), i, m_World, shader, this);
+								pipeline->PushMeshInstance(PassID, m_MeshRes.m_Res.get(), i, m_World, shader, this);
 							}
 							else
 							{
-								pipeline->PushMesh(PassID, lod.m_MeshRes.m_Res.get(), i, shader, this);
+								pipeline->PushMesh(PassID, m_MeshRes.m_Res.get(), i, shader, this);
 							}
 						}
 					}
