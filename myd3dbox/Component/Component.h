@@ -71,14 +71,11 @@ public:
 
 	my::Matrix4 m_World;
 
-	bool m_Requested;
-
 public:
 	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
 		: m_Type(Type)
 		, m_aabb(aabb)
 		, m_World(World)
-		, m_Requested(false)
 	{
 	}
 
@@ -86,7 +83,6 @@ public:
 		: m_Type(ComponentTypeUnknown)
 		, m_aabb(my::AABB::Invalid())
 		, m_World(my::Matrix4::Identity())
-		, m_Requested(false)
 	{
 	}
 
@@ -97,7 +93,6 @@ public:
 		//	m_OctNode->RemoveComponent(this);
 		//}
 		// ! Derived class must ReleaseResource menually
-		_ASSERT(!IsRequested());
 	}
 
 	template<class Archive>
@@ -108,21 +103,12 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_World);
 	}
 
-	bool IsRequested(void) const
-	{
-		return m_Requested;
-	}
-
 	virtual void RequestResource(void)
 	{
-		_ASSERT(!IsRequested());
-		m_Requested = true;
 	}
 
 	virtual void ReleaseResource(void)
 	{
-		_ASSERT(IsRequested());
-		m_Requested = false;
 	}
 
 	virtual void Update(float fElapsedTime)
@@ -130,6 +116,10 @@ public:
 	}
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+	{
+	}
+
+	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 	{
 	}
 
@@ -192,10 +182,6 @@ public:
 
 	~MeshComponent(void)
 	{
-		if (IsRequested())
-		{
-			ReleaseResource();
-		}
 	}
 
 	friend class boost::serialization::access;
@@ -251,10 +237,6 @@ public:
 
 	~EmitterComponent(void)
 	{
-		if (IsRequested())
-		{
-			ReleaseResource();
-		}
 	}
 
 	template<class Archive>

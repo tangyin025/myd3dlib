@@ -482,7 +482,7 @@ void Game::OnDestroyDevice(void)
 
 	m_Root.ClearAllComponents();
 
-	m_ViewedCmps.clear();
+	m_ViewedActors.clear();
 
 	RemoveAllDlg();
 
@@ -560,10 +560,10 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
-	for (; cmp_iter != m_ViewedCmps.end(); cmp_iter++)
+	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 	{
-		(*cmp_iter)->Update(fElapsedTime);
+		(*actor_iter)->Update(fElapsedTime);
 	}
 
 	boost::static_pointer_cast<my::Camera>(m_Camera)->Update(fTime, fElapsedTime);
@@ -762,13 +762,11 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		{
 		}
 
-		void operator() (OctActor * actor, IntersectionTests::IntersectionType)
+		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
 		{
-			//Component * cmp = dynamic_cast<Component *>(oct_cmp);
-			//if (cmp)
-			//{
-			//	cmp->AddToPipeline(frustum, pipeline, PassMask);
-			//}
+			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			Actor * actor = static_cast<Actor *>(oct_actor);
+			actor->QueryRenderComponent(frustum, pipeline, PassMask);
 		}
 	};
 
@@ -779,8 +777,8 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 {
 	const Vector3 OutExtent(1050,1050,1050);
 	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
-	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
-	for (; cmp_iter != m_ViewedCmps.end(); )
+	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
+	for (; cmp_iter != m_ViewedActors.end(); )
 	{
 		if (IntersectionTests::IntersectionTypeOutside
 			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
@@ -789,7 +787,7 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 			{
 				(*cmp_iter)->ReleaseResource();
 			}
-			cmp_iter = m_ViewedCmps.erase(cmp_iter);
+			cmp_iter = m_ViewedActors.erase(cmp_iter);
 		}
 		else
 			cmp_iter++;
@@ -806,20 +804,20 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 			, TargetPos(_TargetPos)
 		{
 		}
-		void operator() (OctActor * actor, IntersectionTests::IntersectionType)
+		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
 		{
-			//_ASSERT(dynamic_cast<Component *>(oct_cmp));
-			//Component * cmp = static_cast<Component *>(oct_cmp);
-			//ComponentSet::iterator cmp_iter = game->m_ViewedCmps.find(cmp);
-			//if (cmp_iter == game->m_ViewedCmps.end())
-			//{
-			//	if (!cmp->IsRequested())
-			//	{
-			//		cmp->RequestResource();
-			//	}
-			//	game->m_ViewedCmps.insert(cmp);
-			//}
-			//cmp->UpdateLod(ViewedPos, TargetPos);
+			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			Actor * actor = static_cast<Actor *>(oct_actor);
+			OctActorSet::iterator actor_iter = game->m_ViewedActors.find(actor);
+			if (actor_iter == game->m_ViewedActors.end())
+			{
+				if (!actor->IsRequested())
+				{
+					actor->RequestResource();
+				}
+				game->m_ViewedActors.insert(actor);
+			}
+			actor->UpdateLod(ViewedPos, TargetPos);
 		}
 	};
 

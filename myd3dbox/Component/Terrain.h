@@ -156,9 +156,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void CreateVertices(void);
+	void CreateVertices(void);
 
-	virtual void UpdateVertices(void);
+	void UpdateVertices(void);
 
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 

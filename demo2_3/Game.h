@@ -44,9 +44,9 @@ public:
 
 	my::OctTree m_Root;
 
-	typedef boost::unordered_set<Component *> ComponentSet;
+	typedef boost::unordered_set<Actor *> OctActorSet;
 
-	ComponentSet m_ViewedCmps;
+	OctActorSet m_ViewedActors;
 
 public:
 	Game(void);

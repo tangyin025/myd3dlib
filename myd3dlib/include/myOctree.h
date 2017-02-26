@@ -40,7 +40,7 @@ namespace my
 	struct IQueryCallback
 	{
 	public:
-		virtual void operator() (OctActor * actor, IntersectionTests::IntersectionType) = 0;
+		virtual void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType) = 0;
 	};
 
 	class OctNodeBase

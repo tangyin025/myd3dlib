@@ -941,7 +941,6 @@ static void ExportComponent(lua_State * L)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
 			.def_readwrite("aabb", &Component::m_aabb)
-			.def("IsRequested", &Component::IsRequested)
 			.def("RequestResource", &Component::RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource)
 

@@ -100,7 +100,7 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 			, collection(_collection)
 		{
 		}
-		void operator() (my::OctActor * actor, my::IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 		{
 			//Component * cmp = dynamic_cast<Component *>(oct_cmp);
 			//_ASSERT(cmp);
