@@ -69,30 +69,29 @@ public:
 
 	my::AABB m_aabb;
 
+	my::Matrix4 m_Local;
+
 	my::Matrix4 m_World;
 
 public:
-	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
+	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & Local)
 		: m_Type(Type)
 		, m_aabb(aabb)
-		, m_World(World)
+		, m_Local(Local)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
 		, m_aabb(my::AABB::Invalid())
+		, m_Local(my::Matrix4::Identity())
 		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	virtual ~Component(void)
 	{
-		//if (m_OctNode)
-		//{
-		//	m_OctNode->RemoveComponent(this);
-		//}
-		// ! Derived class must ReleaseResource menually
 	}
 
 	template<class Archive>
@@ -100,34 +99,24 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_World);
+		ar & BOOST_SERIALIZATION_NVP(m_Local);
 	}
 
-	virtual void RequestResource(void)
-	{
-	}
+	virtual void RequestResource(void);
 
-	virtual void ReleaseResource(void)
-	{
-	}
+	virtual void ReleaseResource(void);
 
-	virtual void Update(float fElapsedTime)
-	{
-	}
+	virtual void Update(float fElapsedTime);
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-	{
-	}
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
-	{
-	}
+	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
-	static const my::AABB & GetCmpOctAABB(const Component * cmp);
+	//static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
-	static my::Matrix4 GetCmpWorld(const Component * cmp);
+	//static my::Matrix4 GetCmpWorld(const Component * cmp);
 
-	static void SetCmpWorld(Component * cmp, const my::Matrix4 & World);
+	//static void SetCmpWorld(Component * cmp, const my::Matrix4 & Local);
 };
 
 typedef boost::shared_ptr<Component> ComponentPtr;
@@ -137,8 +126,8 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & World)
-		: Component(Type, aabb, World)
+	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & Local)
+		: Component(Type, aabb, Local)
 	{
 	}
 
@@ -168,8 +157,8 @@ public:
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::AABB & aabb, const my::Matrix4 & World, bool bInstance)
-		: RenderComponent(ComponentTypeMesh, aabb, World)
+	MeshComponent(const my::AABB & aabb, const my::Matrix4 & Local, bool bInstance)
+		: RenderComponent(ComponentTypeMesh, aabb, Local)
 		, m_StaticCollision(false)
 	{
 	}
@@ -225,8 +214,8 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & World)
-		: RenderComponent(ComponentTypeEmitter, aabb, World)
+	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & Local)
+		: RenderComponent(ComponentTypeEmitter, aabb, Local)
 	{
 	}
 
@@ -279,7 +268,7 @@ typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 //	void CreateRigidActor(const my::Matrix4 & World);
 //
 //public:
-//	RigidComponent(const my::AABB & aabb, const my::Matrix4 & World)
+//	RigidComponent(const my::AABB & aabb, const my::Matrix4 & Local)
 //		: Component(ComponentTypeRigid, aabb, World)
 //	{
 //		CreateRigidActor(World);

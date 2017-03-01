@@ -9,6 +9,10 @@ class Actor
 public:
 	my::AABB m_aabb;
 
+	my::Matrix4 m_Local;
+
+	my::Matrix4 m_World;
+
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
@@ -28,6 +32,11 @@ public:
 
 	virtual ~Actor(void)
 	{
+		//if (m_OctNode)
+		//{
+		//	m_OctNode->RemoveComponent(this);
+		//}
+		// ! Derived class must ReleaseResource menually
 		_ASSERT(!IsRequested());
 	}
 
@@ -36,6 +45,7 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
+		ar & BOOST_SERIALIZATION_NVP(m_Local);
 		ar & BOOST_SERIALIZATION_NVP(m_Cmps);
 	}
 

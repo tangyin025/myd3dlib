@@ -119,8 +119,8 @@ Terrain::VertexArray2D::VertexArray2D(void)
 
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
-Terrain::Terrain(const my::Matrix4 & World, float HeightScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), World)
+Terrain::Terrain(const my::Matrix4 & Local, float HeightScale, float WrappedU, float WrappedV)
+	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), Local)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
