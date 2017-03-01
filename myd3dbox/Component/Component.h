@@ -69,23 +69,31 @@ public:
 
 	my::AABB m_aabb;
 
-	my::Matrix4 m_Local;
+	my::Vector3 m_Position;
+
+	my::Quaternion m_Rotation;
+
+	my::Vector3 m_Scale;
 
 	my::Matrix4 m_World;
 
 public:
-	Component(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & Local)
+	Component(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
 		, m_aabb(aabb)
-		, m_Local(Local)
+		, m_Position(Position)
+		, m_Rotation(Rotation)
+		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
-		, m_aabb(my::AABB::Invalid())
-		, m_Local(my::Matrix4::Identity())
+		, m_aabb(-1,1)
+		, m_Position(0,0,0)
+		, m_Rotation(my::Quaternion::Identity())
+		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
 	{
 	}
@@ -99,7 +107,9 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Type);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_Local);
+		ar & BOOST_SERIALIZATION_NVP(m_Position);
+		ar & BOOST_SERIALIZATION_NVP(m_Rotation);
+		ar & BOOST_SERIALIZATION_NVP(m_Scale);
 	}
 
 	virtual void RequestResource(void);
@@ -126,8 +136,13 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Matrix4 & Local)
-		: Component(Type, aabb, Local)
+	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: Component(Type, aabb, Position, Rotation, Scale)
+	{
+	}
+
+	RenderComponent(ComponentType Type)
+		: Component(Type, my::AABB(-1,1), my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 	{
 	}
 
@@ -157,14 +172,14 @@ public:
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::AABB & aabb, const my::Matrix4 & Local, bool bInstance)
-		: RenderComponent(ComponentTypeMesh, aabb, Local)
+	MeshComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bInstance)
+		: RenderComponent(ComponentTypeMesh, aabb, Position, Rotation, Scale)
 		, m_StaticCollision(false)
 	{
 	}
 
 	MeshComponent(void)
-		: RenderComponent(ComponentTypeMesh, my::AABB::Invalid(), my::Matrix4::Identity())
+		: RenderComponent(ComponentTypeMesh)
 		, m_StaticCollision(false)
 	{
 	}
@@ -214,13 +229,13 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterComponent(const my::AABB & aabb, const my::Matrix4 & Local)
-		: RenderComponent(ComponentTypeEmitter, aabb, Local)
+	EmitterComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(ComponentTypeEmitter, aabb, Position, Rotation, Scale)
 	{
 	}
 
 	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter, my::AABB::Invalid(), my::Matrix4::Identity())
+		: RenderComponent(ComponentTypeEmitter)
 	{
 	}
 

@@ -119,8 +119,8 @@ Terrain::VertexArray2D::VertexArray2D(void)
 
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
-Terrain::Terrain(const my::Matrix4 & Local, float HeightScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), Local)
+Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, float HeightScale, float WrappedU, float WrappedV)
+	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), Position, Rotation, Scale)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
@@ -142,7 +142,7 @@ Terrain::Terrain(const my::Matrix4 & Local, float HeightScale, float WrappedU, f
 }
 
 Terrain::Terrain(void)
-	: RenderComponent(ComponentTypeTerrain, my::AABB::Invalid(), my::Matrix4::Identity())
+	: RenderComponent(ComponentTypeTerrain)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)

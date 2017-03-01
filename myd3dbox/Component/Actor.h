@@ -9,7 +9,11 @@ class Actor
 public:
 	my::AABB m_aabb;
 
-	my::Matrix4 m_Local;
+	my::Vector3 m_Position;
+
+	my::Quaternion m_Rotation;
+
+	my::Vector3 m_Scale;
 
 	my::Matrix4 m_World;
 
@@ -20,13 +24,21 @@ public:
 	bool m_Requested;
 
 public:
-	Actor(const my::AABB & aabb)
+	Actor(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_aabb(aabb)
+		, m_Position(Position)
+		, m_Rotation(Rotation)
+		, m_Scale(Scale)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
 	Actor(void)
-		: m_aabb(my::AABB::Invalid())
+		: m_aabb(-1,1)
+		, m_Position(0,0,0)
+		, m_Rotation(my::Quaternion::Identity())
+		, m_Scale(1,1,1)
+		, m_World(my::Matrix4::Identity())
 	{
 	}
 
@@ -45,7 +57,9 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_Local);
+		ar & BOOST_SERIALIZATION_NVP(m_Position);
+		ar & BOOST_SERIALIZATION_NVP(m_Rotation);
+		ar & BOOST_SERIALIZATION_NVP(m_Scale);
 		ar & BOOST_SERIALIZATION_NVP(m_Cmps);
 	}
 
