@@ -46,7 +46,7 @@ public:
 	{
 		//if (m_OctNode)
 		//{
-		//	m_OctNode->RemoveComponent(this);
+		//	m_OctNode->RemoveActor(this);
 		//}
 		// ! Derived class must ReleaseResource menually
 		_ASSERT(!IsRequested());

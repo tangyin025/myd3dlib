@@ -480,7 +480,7 @@ void Game::OnDestroyDevice(void)
 
 	m_Console.reset();
 
-	m_Root.ClearAllComponents();
+	m_Root.ClearAllActor();
 
 	m_ViewedActors.clear();
 
@@ -770,7 +770,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 		}
 	};
 
-	m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask));
+	m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
 void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
@@ -823,7 +823,7 @@ void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & Ta
 
 	const Vector3 InExtent(1000,1000,1000);
 	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
+	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)

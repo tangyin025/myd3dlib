@@ -133,7 +133,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
 			TerrainChunkPtr chunk(new TerrainChunk(this, i, j));
-			m_Root.AddComponent(chunk, chunk->m_aabb, 0.1f);
+			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
 			m_Chunks[i][j] = chunk.get();
 		}
 	}
@@ -157,7 +157,7 @@ Terrain::~Terrain(void)
 	m_HeightMap.OnDestroyDevice();
 	_ASSERT(!m_Decl);
 	_ASSERT(!m_vb.m_ptr);
-	m_Root.ClearAllComponents();
+	m_Root.ClearAllActor();
 }
 
 void Terrain::CalcLodDistanceSq(void)
@@ -244,8 +244,8 @@ void Terrain::UpdateChunks(void)
 		{
 			m_Chunks[i][j]->UpdateAABB(this);
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
-			m_Root.RemoveComponent(chunk);
-			m_Root.AddComponent(chunk, chunk->m_aabb, 0.1f);
+			m_Root.RemoveActor(chunk);
+			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
 			m_aabb.unionSelf(chunk->m_aabb);
 		}
 	}
@@ -507,7 +507,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
 		}
 	};
-	m_Root.QueryComponentAll(&CallBack(this));
+	m_Root.QueryActorAll(&CallBack(this));
 	UpdateHeightMapNormal();
 	CreateElements();
 }
@@ -644,7 +644,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 				if (shader)
 				{
 					my::Frustum loc_frustum = frustum.transform(m_World.transpose());
-					m_Root.QueryComponent(loc_frustum, &CallBack(pipeline, PassID, this, shader));
+					m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
 				}
 			}
 		}

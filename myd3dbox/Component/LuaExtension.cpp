@@ -394,8 +394,8 @@ static void ExportMath(lua_State * L)
 		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
 
 		, class_<my::OctTree, boost::shared_ptr<my::OctTree> >("OctTree")
-			.def("AddComponent", &my::OctTree::AddComponent)
-			.def("ClearAllComponents", &my::OctTree::ClearAllComponents)
+			.def("AddActor", &my::OctTree::AddActor)
+			.def("ClearAllActor", &my::OctTree::ClearAllActor)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)

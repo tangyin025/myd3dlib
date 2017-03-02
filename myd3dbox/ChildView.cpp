@@ -207,7 +207,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	//	}
 	//};
 
-	//pFrame->m_Root.QueryComponent(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
+	//pFrame->m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
 
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
@@ -543,7 +543,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 	//		my::Ray local_ray = ray.transform(terrain->m_World.inverse());
 	//		CallBack cb(local_ray, this, terrain);
-	//		terrain->m_Root.QueryComponent(local_ray, &cb);
+	//		terrain->m_Root.QueryActor(local_ray, &cb);
 	//		if (cb.ret.first)
 	//		{
 	//			cb.ret.second = (local_ray.d * cb.ret.second).transformNormal(terrain->m_World).magnitude();
@@ -873,7 +873,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	//		}
 	//	};
 	//	Callback cb(ftm, this);
-	//	pFrame->m_Root.QueryComponent(ftm, &cb);
+	//	pFrame->m_Root.QueryActor(ftm, &cb);
 	//	CMainFrame::ComponentSet::iterator cmp_iter = cb.selcmps.begin();
 	//	for (; cmp_iter != cb.selcmps.end(); cmp_iter++)
 	//	{
@@ -905,7 +905,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	//		}
 	//	};
 	//	Callback cb(ray, this);
-	//	pFrame->m_Root.QueryComponent(ray, &cb);
+	//	pFrame->m_Root.QueryActor(ray, &cb);
 	//	Callback::ComponentMap::iterator cmp_iter = cb.selcmps.begin();
 	//	if (cmp_iter != cb.selcmps.end())
 	//	{

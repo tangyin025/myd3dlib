@@ -384,8 +384,8 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 //void CMainFrame::OnCmpPosChanged(Component * cmp)
 //{
 //	my::OctComponentPtr cmp_ptr = cmp->shared_from_this();
-//	VERIFY(m_Root.RemoveComponent(cmp_ptr));
-//	m_Root.AddComponent(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
+//	VERIFY(m_Root.RemoveActor(cmp_ptr));
+//	m_Root.AddActor(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
 //}
 //
 //void CMainFrame::UpdateSelBox(void)
@@ -464,12 +464,12 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 //
 //	const my::Vector3 InExtent(1000,1000,1000);
 //	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-//	m_Root.QueryComponent(InBox, &CallBack(this, ViewedPos, TargetPos));
+//	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
 //}
 
-void CMainFrame::ClearAllComponents()
+void CMainFrame::ClearAllActor()
 {
-	m_Root.ClearAllComponents();
+	m_Root.ClearAllActor();
 	//m_selcmps.clear();
 	//m_ViewedCmps.clear();
 }
@@ -480,7 +480,7 @@ void CMainFrame::OnDestroy()
 
 	// TODO: Add your message handler code here
 	//m_emitter.reset();
-	ClearAllComponents();
+	ClearAllActor();
 	PhysXSceneContext::Shutdown();
 	theApp.DestroyD3DDevice();
 }
@@ -501,7 +501,7 @@ void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
 	unsigned int a= theApp.m_sdk->getNbMaterials();
-	ClearAllComponents();
+	ClearAllActor();
 	ClearAllActors();
 	ReleaseSerializeObjs();
 	a= theApp.m_sdk->getNbMaterials();
@@ -537,7 +537,7 @@ void CMainFrame::OnFileNew()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_Root.AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 	//m_cmps.push_back(rigid_cmp);
 }
 
@@ -555,7 +555,7 @@ void CMainFrame::OnFileOpen()
 	}
 
 	CWaitCursor waiter;
-	ClearAllComponents();
+	ClearAllActor();
 	ClearAllActors();
 	ReleaseSerializeObjs();
 	m_strPathName = strPathName;
@@ -613,7 +613,7 @@ void CMainFrame::OnComponentMesh()
 	//			mesh_cmp->m_MaterialList.push_back(lambert1);
 	//		}
 	//		mesh_cmp->RequestResource();
-	//		m_Root.AddComponent(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+	//		m_Root.AddActor(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 
 	//		m_selcmps.clear();
 	//		m_selcmps.insert(mesh_cmp.get());
@@ -640,7 +640,7 @@ void CMainFrame::OnComponentEmitter()
 	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	//emit_cmp->m_Material = particle1;
 	//emit_cmp->RequestResource();
-	//m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(emit_cmp.get());
@@ -679,7 +679,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	//emit_cmp->m_Material = particle1;
 	//emit_cmp->RequestResource();
-	//m_Root.AddComponent(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(emit_cmp.get());
@@ -693,7 +693,7 @@ void CMainFrame::OnRigidSphere()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -707,7 +707,7 @@ void CMainFrame::OnRigidPlane()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -721,7 +721,7 @@ void CMainFrame::OnRigidCapsule()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -735,7 +735,7 @@ void CMainFrame::OnRigidBox()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddComponent(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -755,7 +755,7 @@ void CMainFrame::OnCreateTerrain()
 	//lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
 	//terrain->m_Material = lambert1;
 	//terrain->RequestResource();
-	//m_Root.AddComponent(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
+	//m_Root.AddActor(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(terrain.get());
@@ -770,7 +770,7 @@ void CMainFrame::OnEditDelete()
 	//for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	//{
 	//	my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
-	//	m_Root.RemoveComponent(cmp);
+	//	m_Root.RemoveActor(cmp);
 	//	m_ViewedCmps.erase(*cmp_iter);
 	//}
 	//m_selcmps.clear();

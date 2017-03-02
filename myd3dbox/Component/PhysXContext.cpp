@@ -232,7 +232,7 @@ void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * pat
 	PxDefaultFileOutputStream ostr(path);
 	PhysXPtr<PxCollection> collection(m_sdk->createCollection());
 	CallBack cb(m_sdk.get(), m_Cooking.get(), collection.get());
-	octRoot.QueryComponentAll(&cb);
+	octRoot.QueryActorAll(&cb);
 	collection->serialize(ostr, false);
 }
 

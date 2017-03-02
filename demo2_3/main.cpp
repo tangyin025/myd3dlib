@@ -81,7 +81,7 @@ public:
 		//anim->m_SkeletonRes.m_Path = "mesh/casual19_m_highpoly.skeleton.xml";
 		//mesh_cmp->m_Animator = anim;
 		//mesh_cmp->RequestResource();
-		//m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+		//m_Root.AddActor(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 		//m_cmps.push_back(mesh_cmp);
 
 		//mesh_cmp.reset(new MeshComponent(my::AABB(-10,10), my::Matrix4::Identity(), false));
@@ -95,7 +95,7 @@ public:
 		//lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
 		//mesh_cmp->m_MaterialList.push_back(lambert1);
 		//mesh_cmp->RequestResource();
-		//m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+		//m_Root.AddActor(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 		//m_cmps.push_back(mesh_cmp);
 
 		//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
@@ -126,7 +126,7 @@ public:
 		//particle1->m_Shader = "particle1.fx";
 		//emit_cmp->m_Material = particle1;
 		//emit_cmp->RequestResource();
-		//m_Root.AddComponent(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+		//m_Root.AddActor(emit_cmp.get(), emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 		//m_cmps.push_back(emit_cmp);
 
 		//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5),my::Matrix4::Identity()));
@@ -147,7 +147,7 @@ public:
 		//ia >> boost::serialization::make_nvp("level", m_Logic->m_cmps);
 		//for (unsigned int i = 0; i < m_Logic->m_cmps.size(); i++)
 		//{
-		//	m_Root.AddComponent(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetCmpWorld(m_Logic->m_cmps[i].get())), 0.1f);
+		//	m_Root.AddActor(m_Logic->m_cmps[i].get(), m_Logic->m_cmps[i]->m_aabb.transform(Component::GetCmpWorld(m_Logic->m_cmps[i].get())), 0.1f);
 		//}
 
 		//MeshComponentPtr mesh_cmp(new MeshComponent(my::AABB(-100,100), my::Matrix4::Scaling(Vector3(0.01f)), false));
@@ -170,7 +170,7 @@ public:
 		//node->m_Owner = anim.get();
 		//mesh_cmp->m_Animator = anim;
 		//m_Logic->m_cmps.push_back(mesh_cmp);
-		//m_Root.AddComponent(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+		//m_Root.AddActor(mesh_cmp.get(), mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 
 		return S_OK;
 	}

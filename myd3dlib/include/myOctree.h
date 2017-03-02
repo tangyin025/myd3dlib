@@ -92,21 +92,21 @@ namespace my
 
 		bool HaveNode(const OctNodeBase * node) const;
 
-		void QueryComponent(const Ray & ray, IQueryCallback * callback);
+		void QueryActor(const Ray & ray, IQueryCallback * callback);
 
-		void QueryComponent(const AABB & aabb, IQueryCallback * callback);
+		void QueryActor(const AABB & aabb, IQueryCallback * callback);
 
-		void QueryComponent(const Frustum & frustum, IQueryCallback * callback);
+		void QueryActor(const Frustum & frustum, IQueryCallback * callback);
 
-		void QueryComponentAll(IQueryCallback * callback);
+		void QueryActorAll(IQueryCallback * callback);
 
-		void QueryComponentIntersected(const AABB & aabb, IQueryCallback * callback);
+		void QueryActorIntersected(const AABB & aabb, IQueryCallback * callback);
 
-		void QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback);
+		void QueryActorIntersected(const Frustum & frustum, IQueryCallback * callback);
 
-		bool RemoveComponent(OctActorPtr cmp);
+		bool RemoveActor(OctActorPtr cmp);
 
-		void ClearAllComponents(void);
+		void ClearAllActor(void);
 
 		void Flush(void);
 	};
@@ -157,7 +157,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_MinBlock);
 		}
 
-		void AddComponent(OctActorPtr cmp, const AABB & aabb, float threshold = 0.1f)
+		void AddActor(OctActorPtr cmp, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!cmp->m_OctNode);
 			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
@@ -168,7 +168,7 @@ namespace my
 					_Max[Offset] = m_Half;
 					m_Childs[0].reset(new ChildOctNode(m_aabb.m_min, _Max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddComponent(cmp, aabb, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddActor(cmp, aabb, threshold);
 			}
 			else if (aabb.m_min[Offset] > m_Half - threshold &&  m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)
 			{
@@ -178,7 +178,7 @@ namespace my
 					_Min[Offset] = m_Half;
 					m_Childs[1].reset(new ChildOctNode(_Min, m_aabb.m_max, m_MinBlock));
 				}
-				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddComponent(cmp, aabb, threshold);
+				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddActor(cmp, aabb, threshold);
 			}
 			else
 			{

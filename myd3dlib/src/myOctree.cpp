@@ -67,7 +67,7 @@ bool OctNodeBase::HaveNode(const OctNodeBase * node) const
 	return false;
 }
 
-void OctNodeBase::QueryComponent(const Ray & ray, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const Ray & ray, IQueryCallback * callback)
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
 	{
@@ -85,41 +85,41 @@ void OctNodeBase::QueryComponent(const Ray & ray, IQueryCallback * callback)
 		{
 			if (*node_iter)
 			{
-				(*node_iter)->QueryComponent(ray, callback);
+				(*node_iter)->QueryActor(ray, callback);
 			}
 		}
 	}
 }
 
-void OctNodeBase::QueryComponent(const AABB & aabb, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const AABB & aabb, IQueryCallback * callback)
 {
 	switch (IntersectionTests::IntersectAABBAndAABB(m_aabb, aabb))
 	{
 	case IntersectionTests::IntersectionTypeInside:
-		QueryComponentAll(callback);
+		QueryActorAll(callback);
 		break;
 
 	case IntersectionTests::IntersectionTypeIntersect:
-		QueryComponentIntersected(aabb, callback);
+		QueryActorIntersected(aabb, callback);
 		break;
 	}
 }
 
-void OctNodeBase::QueryComponent(const Frustum & frustum, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const Frustum & frustum, IQueryCallback * callback)
 {
 	switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
 	{
 	case IntersectionTests::IntersectionTypeInside:
-		QueryComponentAll(callback);
+		QueryActorAll(callback);
 		break;
 
 	case IntersectionTests::IntersectionTypeIntersect:
-		QueryComponentIntersected(frustum, callback);
+		QueryActorIntersected(frustum, callback);
 		break;
 	}
 }
 
-void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
+void OctNodeBase::QueryActorAll(IQueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -132,12 +132,12 @@ void OctNodeBase::QueryComponentAll(IQueryCallback * callback)
 	{
 		if (*node_iter)
 		{
-			(*node_iter)->QueryComponentAll(callback);
+			(*node_iter)->QueryActorAll(callback);
 		}
 	}
 }
 
-void OctNodeBase::QueryComponentIntersected(const AABB & aabb, IQueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const AABB & aabb, IQueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -157,12 +157,12 @@ void OctNodeBase::QueryComponentIntersected(const AABB & aabb, IQueryCallback * 
 	{
 		if (*node_iter)
 		{
-			(*node_iter)->QueryComponent(aabb, callback);
+			(*node_iter)->QueryActor(aabb, callback);
 		}
 	}
 }
 
-void OctNodeBase::QueryComponentIntersected(const Frustum & frustum, IQueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const Frustum & frustum, IQueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -182,12 +182,12 @@ void OctNodeBase::QueryComponentIntersected(const Frustum & frustum, IQueryCallb
 	{
 		if (*node_iter)
 		{
-			(*node_iter)->QueryComponent(frustum, callback);
+			(*node_iter)->QueryActor(frustum, callback);
 		}
 	}
 }
 
-bool OctNodeBase::RemoveComponent(OctActorPtr cmp)
+bool OctNodeBase::RemoveActor(OctActorPtr cmp)
 {
 	if (cmp->m_OctNode)
 	{
@@ -203,7 +203,7 @@ bool OctNodeBase::RemoveComponent(OctActorPtr cmp)
 	return false;
 }
 
-void OctNodeBase::ClearAllComponents(void)
+void OctNodeBase::ClearAllActor(void)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for (; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -217,7 +217,7 @@ void OctNodeBase::ClearAllComponents(void)
 	{
 		if (m_Childs[i])
 		{
-			m_Childs[i]->ClearAllComponents();
+			m_Childs[i]->ClearAllActor();
 			m_Childs[i].reset();
 		}
 	}
