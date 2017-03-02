@@ -19,47 +19,27 @@ void Actor::RequestResource(void)
 {
 	_ASSERT(!m_Requested);
 	m_Requested = true;
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->RequestResource();
-	}
+	Component::RequestResource();
 }
 
 void Actor::ReleaseResource(void)
 {
 	_ASSERT(m_Requested);
 	m_Requested = false;
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->ReleaseResource();
-	}
+	Component::ReleaseResource();
 }
 
 void Actor::Update(float fElapsedTime)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->Update(fElapsedTime);
-	}
+	Component::Update(fElapsedTime);
 }
 
-void Actor::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask);
-	}
+	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void Actor::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->UpdateLod(ViewedPos, TargetPos);
-	}
+	Component::UpdateLod(ViewedPos, TargetPos);
 }

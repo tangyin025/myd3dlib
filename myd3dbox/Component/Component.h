@@ -4,6 +4,7 @@
 #include "RenderPipeline.h"
 #include "Animator.h"
 #include <boost/serialization/nvp.hpp>
+#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 class Material
 {
@@ -53,12 +54,18 @@ typedef boost::shared_ptr<Material> MaterialPtr;
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
+class Component;
+
+typedef boost::shared_ptr<Component> ComponentPtr;
+
 class Component
+	: public boost::enable_shared_from_this<Component>
 {
 public:
 	enum ComponentType
 	{
 		ComponentTypeUnknown,
+		ComponentTypeActor,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
 		//ComponentTypeRigid,
@@ -77,6 +84,12 @@ public:
 
 	my::Matrix4 m_World;
 
+	typedef std::vector<ComponentPtr> ComponentPtrList;
+
+	ComponentPtrList m_Cmps;
+
+	Component * m_Parent;
+
 public:
 	Component(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
@@ -85,6 +98,7 @@ public:
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
+		, m_Parent(NULL)
 	{
 	}
 
@@ -95,6 +109,7 @@ public:
 		, m_Rotation(my::Quaternion::Identity())
 		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
+		, m_Parent(NULL)
 	{
 	}
 
@@ -122,14 +137,18 @@ public:
 
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
+	void AddComponent(ComponentPtr cmp);
+
+	void RemoveComponent(ComponentPtr cmp);
+
+	void ClearAllComponent(ComponentPtr cmp);
+
 	//static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
 	//static my::Matrix4 GetCmpWorld(const Component * cmp);
 
 	//static void SetCmpWorld(Component * cmp, const my::Matrix4 & Local);
 };
-
-typedef boost::shared_ptr<Component> ComponentPtr;
 
 class RenderComponent
 	: public Component

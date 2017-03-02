@@ -60,22 +60,75 @@ void Material::ReleaseResource(void)
 
 void Component::RequestResource(void)
 {
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->RequestResource();
+	}
 }
 
 void Component::ReleaseResource(void)
 {
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->ReleaseResource();
+	}
 }
 
 void Component::Update(float fElapsedTime)
 {
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->Update(fElapsedTime);
+	}
 }
 
 void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask);
+	}
 }
 
 void Component::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->UpdateLod(ViewedPos, TargetPos);
+	}
+}
+
+void Component::AddComponent(ComponentPtr cmp)
+{
+	_ASSERT(!cmp->m_Parent);
+	m_Cmps.push_back(cmp);
+	cmp->m_Parent = this;
+}
+
+void Component::RemoveComponent(ComponentPtr cmp)
+{
+	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
+	if (cmp_iter != m_Cmps.end())
+	{
+		_ASSERT((*cmp_iter)->m_Parent == this);
+		m_Cmps.erase(cmp_iter);
+		(*cmp_iter)->m_Parent = NULL;
+	}
+}
+
+void Component::ClearAllComponent(ComponentPtr cmp)
+{
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->m_Parent = NULL;
+	}
+	m_Cmps.clear();
 }
 //
 //const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
@@ -136,7 +189,7 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 
 void MeshComponent::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	Component::RequestResource();
 
 	m_MeshRes.RequestResource();
 
@@ -167,7 +220,7 @@ void MeshComponent::ReleaseResource(void)
 		m_Animator->ReleaseResource();
 	}
 
-	RenderComponent::ReleaseResource();
+	Component::ReleaseResource();
 }
 
 void MeshComponent::Update(float fElapsedTime)
@@ -176,6 +229,8 @@ void MeshComponent::Update(float fElapsedTime)
 	{
 		m_Animator->Update(fElapsedTime);
 	}
+
+	Component::Update(fElapsedTime);
 }
 
 void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -223,11 +278,13 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 			}
 		}
 	}
+
+	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void EmitterComponent::RequestResource(void)
 {
-	RenderComponent::RequestResource();
+	Component::RequestResource();
 
 	if (m_Material)
 	{
@@ -242,7 +299,7 @@ void EmitterComponent::ReleaseResource(void)
 		m_Material->ReleaseResource();
 	}
 
-	RenderComponent::ReleaseResource();
+	Component::ReleaseResource();
 }
 
 void EmitterComponent::Update(float fElapsedTime)
@@ -251,6 +308,8 @@ void EmitterComponent::Update(float fElapsedTime)
 	{
 		m_Emitter->Update(fElapsedTime);
 	}
+
+	Component::Update(fElapsedTime);
 }
 
 void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -283,6 +342,8 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			}
 		}
 	}
+
+	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 //
 //void RigidComponent::CreateRigidActor(const my::Matrix4 & World)

@@ -5,40 +5,21 @@
 
 class Actor
 	: public my::OctActor
+	, public Component
 {
 public:
-	my::AABB m_aabb;
-
-	my::Vector3 m_Position;
-
-	my::Quaternion m_Rotation;
-
-	my::Vector3 m_Scale;
-
-	my::Matrix4 m_World;
-
-	typedef std::vector<ComponentPtr> ComponentPtrList;
-
-	ComponentPtrList m_Cmps;
-
 	bool m_Requested;
 
 public:
 	Actor(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: m_aabb(aabb)
-		, m_Position(Position)
-		, m_Rotation(Rotation)
-		, m_Scale(Scale)
-		, m_World(my::Matrix4::Identity())
+		: Component(ComponentTypeActor, aabb, Position, Rotation, Scale)
+		, m_Requested(false)
 	{
 	}
 
 	Actor(void)
-		: m_aabb(-1,1)
-		, m_Position(0,0,0)
-		, m_Rotation(my::Quaternion::Identity())
-		, m_Scale(1,1,1)
-		, m_World(my::Matrix4::Identity())
+		: Component(ComponentTypeActor, my::AABB(-1,1), my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		, m_Requested(false)
 	{
 	}
 
@@ -56,11 +37,7 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_Position);
-		ar & BOOST_SERIALIZATION_NVP(m_Rotation);
-		ar & BOOST_SERIALIZATION_NVP(m_Scale);
-		ar & BOOST_SERIALIZATION_NVP(m_Cmps);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	}
 
 	bool IsRequested(void) const
@@ -74,7 +51,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 };

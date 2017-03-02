@@ -4,12 +4,11 @@
 #include <boost/shared_ptr.hpp>
 #include <boost/array.hpp>
 #include <boost/function.hpp>
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
 #include <vector>
 
 namespace my
 {
-	class OctActor : public boost::enable_shared_from_this<OctActor>
+	class OctActor
 	{
 	public:
 		friend class OctNodeBase;
