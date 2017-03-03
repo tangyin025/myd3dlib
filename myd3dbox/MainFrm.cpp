@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
+	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
 	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
@@ -43,7 +44,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
 	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
 	ON_COMMAND(ID_RIGID_BOX, &CMainFrame::OnRigidBox)
-	ON_COMMAND(ID_CREATE_TERRAIN, &CMainFrame::OnCreateTerrain)
+	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
@@ -588,6 +589,15 @@ void CMainFrame::OnFileSave()
 	oa << BOOST_SERIALIZATION_NVP(m_Root);
 }
 
+void CMainFrame::OnCreateActor()
+{
+	// TODO: Add your command handler code here
+	ActorPtr actor(new Actor(my::AABB(-1,1),my::Vector3(0,0,0),my::Quaternion::Identity(),my::Vector3(1,1,1)));
+	actor->RequestResource();
+	actor->Update(0);
+	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
+}
+
 void CMainFrame::OnComponentMesh()
 {
 	//// TODO: Add your command handler code here
@@ -743,7 +753,7 @@ void CMainFrame::OnRigidBox()
 	//UpdatePivotTransform();
 }
 
-void CMainFrame::OnCreateTerrain()
+void CMainFrame::OnComponentTerrain()
 {
 	//// TODO: Add your command handler code here
 	//TerrainPtr terrain(new Terrain(my::Matrix4::identity,1.0f,1.0f,1.0f));

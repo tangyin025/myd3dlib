@@ -156,6 +156,7 @@ BEGIN
     END
     POPUP "&Create"
     BEGIN
+        MENUITEM "Actor",                       ID_CREATE_ACTOR
         POPUP "Component"
         BEGIN
             MENUITEM "Mesh...",                     ID_COMPONENT_MESH
@@ -168,8 +169,8 @@ BEGIN
                 MENUITEM "Capsule",                     ID_RIGID_CAPSULE
                 MENUITEM "Box",                         ID_RIGID_BOX
             END
+            MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
         END
-        MENUITEM "Terrain",                     ID_CREATE_TERRAIN
     END
     POPUP "&View"
     BEGIN

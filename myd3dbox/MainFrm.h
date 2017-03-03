@@ -84,6 +84,7 @@ public:
 	afx_msg void OnFileNew();
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
+	afx_msg void OnCreateActor();
 	afx_msg void OnComponentMesh();
 	afx_msg void OnComponentEmitter();
 	afx_msg void OnComponentSphericalemitter();
@@ -91,7 +92,7 @@ public:
 	afx_msg void OnRigidPlane();
 	afx_msg void OnRigidCapsule();
 	afx_msg void OnRigidBox();
-	afx_msg void OnCreateTerrain();
+	afx_msg void OnComponentTerrain();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnPivotMove();

@@ -25,12 +25,6 @@ public:
 
 	virtual ~Actor(void)
 	{
-		//if (m_OctNode)
-		//{
-		//	m_OctNode->RemoveActor(this);
-		//}
-		// ! Derived class must ReleaseResource menually
-		_ASSERT(!IsRequested());
 	}
 
 	template<class Archive>

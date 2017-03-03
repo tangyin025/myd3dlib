@@ -6,6 +6,7 @@
 #pragma once
 
 #include "Component/RenderPipeline.h"
+#include "Component/Actor.h"
 #include "Component/Component.h"
 #include "Component/Terrain.h"
 #include "EventDefine.h"
