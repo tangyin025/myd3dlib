@@ -60,6 +60,11 @@ void Material::ReleaseResource(void)
 
 void Component::RequestResource(void)
 {
+	if (m_Animator)
+	{
+		m_Animator->RequestResource();
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -74,10 +79,29 @@ void Component::ReleaseResource(void)
 	{
 		(*cmp_iter)->ReleaseResource();
 	}
+
+	if (m_Animator)
+	{
+		m_Animator->ReleaseResource();
+	}
 }
 
 void Component::Update(float fElapsedTime)
 {
+	if (m_DirtyFlag & DirtyFlagWorld)
+	{
+		m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+		if (m_Parent)
+		{
+			m_World = m_World * m_Parent->m_World;
+		}
+	}
+
+	if (m_Animator)
+	{
+		m_Animator->Update(fElapsedTime);
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -130,6 +154,15 @@ void Component::ClearAllComponent(ComponentPtr cmp)
 	}
 	m_Cmps.clear();
 }
+
+Animator * Component::GetHierarchyAnimator(void)
+{
+	if (m_Parent)
+	{
+		return m_Parent->GetHierarchyAnimator();
+	}
+	return m_Animator.get();
+}
 //
 //const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
 //{
@@ -173,8 +206,9 @@ template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_bAnimation);
+	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
 }
 
@@ -182,8 +216,9 @@ template<>
 void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_bAnimation);
+	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
 	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
 }
 
@@ -198,11 +233,6 @@ void MeshComponent::RequestResource(void)
 	{
 		(*mat_iter)->RequestResource();
 	}
-
-	if (m_Animator)
-	{
-		m_Animator->RequestResource();
-	}
 }
 
 void MeshComponent::ReleaseResource(void)
@@ -215,21 +245,11 @@ void MeshComponent::ReleaseResource(void)
 		(*mat_iter)->ReleaseResource();
 	}
 
-	if (m_Animator)
-	{
-		m_Animator->ReleaseResource();
-	}
-
 	Component::ReleaseResource();
 }
 
 void MeshComponent::Update(float fElapsedTime)
 {
-	if (m_Animator)
-	{
-		m_Animator->Update(fElapsedTime);
-	}
-
 	Component::Update(fElapsedTime);
 }
 
@@ -241,9 +261,13 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_Animator && !m_Animator->m_DualQuats.empty())
+	if (m_bAnimation)
 	{
-		shader->SetMatrixArray("g_dualquat", &m_Animator->m_DualQuats[0], m_Animator->m_DualQuats.size());
+		Animator * anim = GetHierarchyAnimator();
+		if (anim && !anim->m_DualQuats.empty())
+		{
+			shader->SetMatrixArray("g_dualquat", &anim->m_DualQuats[0], anim->m_DualQuats.size());
+		}
 	}
 
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
@@ -261,7 +285,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(m_Animator ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
+						my::Effect * shader = pipeline->QueryShader(m_bAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
 							if (m_bInstance)

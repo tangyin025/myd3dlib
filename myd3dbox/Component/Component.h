@@ -74,6 +74,13 @@ public:
 
 	ComponentType m_Type;
 
+	enum DirtyFlag
+	{
+		DirtyFlagWorld = 0x01,
+	};
+
+	unsigned int m_DirtyFlag;
+
 	my::AABB m_aabb;
 
 	my::Vector3 m_Position;
@@ -84,6 +91,8 @@ public:
 
 	my::Matrix4 m_World;
 
+	AnimatorPtr m_Animator;
+
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
@@ -93,6 +102,7 @@ public:
 public:
 	Component(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
+		, m_DirtyFlag(0)
 		, m_aabb(aabb)
 		, m_Position(Position)
 		, m_Rotation(Rotation)
@@ -104,6 +114,7 @@ public:
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
+		, m_DirtyFlag(0)
 		, m_aabb(-1,1)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
@@ -125,6 +136,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Position);
 		ar & BOOST_SERIALIZATION_NVP(m_Rotation);
 		ar & BOOST_SERIALIZATION_NVP(m_Scale);
+		ar & BOOST_SERIALIZATION_NVP(m_Animator);
 	}
 
 	virtual void RequestResource(void);
@@ -142,6 +154,8 @@ public:
 	void RemoveComponent(ComponentPtr cmp);
 
 	void ClearAllComponent(ComponentPtr cmp);
+
+	Animator * GetHierarchyAnimator(void);
 
 	//static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
@@ -182,23 +196,27 @@ class MeshComponent
 public:
 	ResourceBundle<my::OgreMesh> m_MeshRes;
 
+	bool m_bAnimation;
+
 	bool m_bInstance;
 
 	MaterialPtrList m_MaterialList;
 
-	AnimatorPtr m_Animator;
-
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bInstance)
+	MeshComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bAnimation, bool bInstance)
 		: RenderComponent(ComponentTypeMesh, aabb, Position, Rotation, Scale)
+		, m_bAnimation(bAnimation)
+		, m_bInstance(bInstance)
 		, m_StaticCollision(false)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(ComponentTypeMesh)
+		, m_bAnimation(false)
+		, m_bInstance(false)
 		, m_StaticCollision(false)
 	{
 	}
