@@ -381,13 +381,13 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 	return TRUE;
 }
-//
-//void CMainFrame::OnCmpPosChanged(Component * cmp)
-//{
-//	my::OctComponentPtr cmp_ptr = cmp->shared_from_this();
-//	VERIFY(m_Root.RemoveActor(cmp_ptr));
-//	m_Root.AddActor(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
-//}
+
+void CMainFrame::OnActorPosChanged(Actor * actor)
+{
+	my::OctActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
+	VERIFY(m_Root.RemoveActor(actor_ptr));
+	m_Root.AddActor(actor_ptr, actor->m_aabb.transform(actor->m_World), 0.1f);
+}
 
 void CMainFrame::OnSelActorsChanged(void)
 {
@@ -795,30 +795,30 @@ void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 
 void CMainFrame::OnPivotMove()
 {
-	//// TODO: Add your command handler code here
-	//m_Pivot.m_Mode = Pivot::PivotModeMove;
-	//EventArg arg;
-	//m_EventPivotModeChanged(&arg);
+	// TODO: Add your command handler code here
+	m_Pivot.m_Mode = Pivot::PivotModeMove;
+	EventArg arg;
+	m_EventPivotModeChanged(&arg);
 }
 
 void CMainFrame::OnUpdatePivotMove(CCmdUI *pCmdUI)
 {
-	//// TODO: Add your command update UI handler code here
-	//pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeMove);
 }
 
 void CMainFrame::OnPivotRotate()
 {
-	//// TODO: Add your command handler code here
-	//m_Pivot.m_Mode = Pivot::PivotModeRot;
-	//EventArg arg;
-	//m_EventPivotModeChanged(&arg);
+	// TODO: Add your command handler code here
+	m_Pivot.m_Mode = Pivot::PivotModeRot;
+	EventArg arg;
+	m_EventPivotModeChanged(&arg);
 }
 
 void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
-	//// TODO: Add your command update UI handler code here
-	//pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)

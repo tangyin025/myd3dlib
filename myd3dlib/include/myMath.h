@@ -1367,16 +1367,14 @@ namespace my
 		{
 			struct
 			{
-				float x, y, z;
+				float x, y, z, w;
 			};
 
 			struct
 			{
-				Vector3 v;
+				Vector3 xyz;
 			};
 		};
-
-		float w;
 
 	public:
 		Quaternion(void)

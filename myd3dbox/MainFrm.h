@@ -38,8 +38,8 @@ public:
 	//EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;
 	//Event m_EventSelectionPlaying;
-	//Event m_EventPivotModeChanged;
-	//Event m_EventCmpAttriChanged;
+	Event m_EventPivotModeChanged;
+	Event m_EventCmpAttriChanged;
 
 // Operations
 public:
@@ -49,7 +49,7 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-	//void OnCmpPosChanged(Component * cmp);
+	void OnActorPosChanged(Actor * actor);
 	void OnSelActorsChanged(void);
 	void ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 

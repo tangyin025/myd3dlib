@@ -1020,7 +1020,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//			m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
 	//			m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
 	//		Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
-	//		pFrame->OnCmpPosChanged(cmp);
+	//		pFrame->OnActorPosChanged(cmp);
 	//		pFrame->OnSelActorsChanged();
 	//		EventArg arg;
 	//		pFrame->m_EventCmpAttriChanged(&arg);
@@ -1483,7 +1483,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
 	//		terrain->UpdateHeightMapNormal();
 	//		terrain->UpdateChunks();
-	//		pFrame->OnCmpPosChanged(cmp);
+	//		pFrame->OnActorPosChanged(cmp);
 	//		pFrame->OnSelActorsChanged();
 	//		EventArg arg;
 	//		pFrame->m_EventCmpAttriChanged(&arg);
@@ -1507,7 +1507,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		{
 	//			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 	//			terrain->UpdateHeightMap(res);
-	//			pFrame->OnCmpPosChanged(cmp);
+	//			pFrame->OnActorPosChanged(cmp);
 	//			EventArg arg;
 	//			pFrame->m_EventCmpAttriChanged(&arg);
 	//		}

@@ -839,8 +839,8 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	OnCameratypePerspective();
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
 }
 
@@ -851,8 +851,8 @@ void CChildView::OnDestroy()
 	//// TODO: Add your message handler code here
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -863,13 +863,14 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 	if (!pFrame->m_selacts.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
-		//StartPerformanceCount();
-		//_ASSERT(m_selactwlds.empty());
-		//CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selacts.begin();
-		//for (; sel_iter != pFrame->m_selacts.end(); sel_iter++)
-		//{
-		//	m_selactwlds.insert(std::make_pair(*sel_iter, Component::GetCmpWorld(*sel_iter)));
-		//}
+		StartPerformanceCount();
+		_ASSERT(m_selactwlds.empty());
+		CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selacts.begin();
+		for (; sel_iter != pFrame->m_selacts.end(); sel_iter++)
+		{
+			m_selactwlds[*sel_iter][0] = my::Vector4((*sel_iter)->m_Position, 0);
+			m_selactwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
+		}
 		SetCapture();
 		Invalidate();
 		return;
@@ -974,54 +975,58 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 {
-	//// TODO: Add your message handler code here and/or call default
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
-	//if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
-	//	m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
-	//{
-	//	StartPerformanceCount();
-	//	ActorWorldMap::iterator cmp_world_iter = m_selactwlds.begin();
-	//	for (; cmp_world_iter != m_selactwlds.end(); cmp_world_iter++)
-	//	{
-	//		pFrame->OnCmpPosChanged(cmp_world_iter->first);
-	//	}
-	//	m_selactwlds.clear();
-	//	pFrame->OnSelActorsChanged();
-	//	ReleaseCapture();
+	// TODO: Add your message handler code here and/or call default
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnLButtonUp(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
+	{
+		StartPerformanceCount();
+		ActorWorldMap::iterator actor_world_iter = m_selactwlds.begin();
+		for (; actor_world_iter != m_selactwlds.end(); actor_world_iter++)
+		{
+			pFrame->OnActorPosChanged(actor_world_iter->first);
+		}
+		m_selactwlds.clear();
+		pFrame->OnSelActorsChanged();
+		ReleaseCapture();
 
-	//	EventArg arg;
-	//	pFrame->m_EventCmpAttriChanged(&arg);
-	//}
+		EventArg arg;
+		pFrame->m_EventCmpAttriChanged(&arg);
+	}
 }
 
 void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 {
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
-	//if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
-	//	m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
-	//{
-	//	StartPerformanceCount();
-	//	ActorWorldMap::iterator cmp_world_iter = m_selactwlds.begin();
-	//	for (; cmp_world_iter != m_selactwlds.end(); cmp_world_iter++)
-	//	{
-	//		switch (pFrame->m_Pivot.m_Mode)
-	//		{
-	//		case Pivot::PivotModeMove:
-	//			Component::SetCmpWorld(cmp_world_iter->first,
-	//				cmp_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos));
-	//			break;
-	//		case Pivot::PivotModeRot:
-	//			Component::SetCmpWorld(cmp_world_iter->first, cmp_world_iter->second
-	//				* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
-	//				* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
-	//				* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
-	//			break;
-	//		}
-	//	}
-	//	Invalidate();
-	//}
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
+		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
+	{
+		StartPerformanceCount();
+		ActorWorldMap::iterator actor_world_iter = m_selactwlds.begin();
+		for (; actor_world_iter != m_selactwlds.end(); actor_world_iter++)
+		{
+			switch (pFrame->m_Pivot.m_Mode)
+			{
+			case Pivot::PivotModeMove:
+				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
+				actor_world_iter->first->m_DirtyFlag |= Actor::DirtyFlagWorld;
+				actor_world_iter->first->Update(0);
+				break;
+			case Pivot::PivotModeRot:
+				//Component::SetCmpWorld(actor_world_iter->first, actor_world_iter->second
+				//	* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
+				//	* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
+				//	* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
+				actor_world_iter->first->m_Rotation = (my::Quaternion &)actor_world_iter->second[1] * pFrame->m_Pivot.m_DragDeltaRot;
+				actor_world_iter->first->m_DirtyFlag |= Actor::DirtyFlagWorld;
+				actor_world_iter->first->Update(0);
+				break;
+			}
+		}
+		Invalidate();
+	}
 }
 
 BOOL CChildView::PreTranslateMessage(MSG* pMsg)

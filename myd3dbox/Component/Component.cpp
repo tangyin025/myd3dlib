@@ -90,6 +90,7 @@ void Component::Update(float fElapsedTime)
 {
 	if (m_DirtyFlag & DirtyFlagWorld)
 	{
+		m_DirtyFlag &= ~DirtyFlagWorld;
 		m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 		if (m_Parent)
 		{
