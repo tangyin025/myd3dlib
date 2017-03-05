@@ -840,7 +840,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 	return 0;
 }
 
@@ -852,7 +852,7 @@ void CChildView::OnDestroy()
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
-	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
 }
 
 void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
@@ -992,7 +992,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ReleaseCapture();
 
 		EventArg arg;
-		pFrame->m_EventCmpAttriChanged(&arg);
+		pFrame->m_EventAttributeChanged(&arg);
 	}
 }
 
@@ -1011,16 +1011,10 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			{
 			case Pivot::PivotModeMove:
 				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
-				actor_world_iter->first->m_DirtyFlag |= Actor::DirtyFlagWorld;
 				actor_world_iter->first->Update(0);
 				break;
 			case Pivot::PivotModeRot:
-				//Component::SetCmpWorld(actor_world_iter->first, actor_world_iter->second
-				//	* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
-				//	* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
-				//	* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
 				actor_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)actor_world_iter->second[1];
-				actor_world_iter->first->m_DirtyFlag |= Actor::DirtyFlagWorld;
 				actor_world_iter->first->Update(0);
 				break;
 			}

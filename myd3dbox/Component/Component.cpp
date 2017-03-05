@@ -58,6 +58,37 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
+template<>
+void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar << BOOST_SERIALIZATION_NVP(m_Type);
+	ar << BOOST_SERIALIZATION_NVP(m_aabb);
+	ar << BOOST_SERIALIZATION_NVP(m_Position);
+	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
+	ar << BOOST_SERIALIZATION_NVP(m_Scale);
+	ar << BOOST_SERIALIZATION_NVP(m_Animator);
+	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
+}
+
+template<>
+void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
+	ar >> BOOST_SERIALIZATION_NVP(m_Type);
+	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
+	ar >> BOOST_SERIALIZATION_NVP(m_Position);
+	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
+	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
+	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
+	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->m_Parent = this;
+	}
+}
+
 void Component::RequestResource(void)
 {
 	if (m_Animator)
@@ -88,14 +119,10 @@ void Component::ReleaseResource(void)
 
 void Component::Update(float fElapsedTime)
 {
-	if (m_DirtyFlag & DirtyFlagWorld)
+	m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+	if (m_Parent)
 	{
-		m_DirtyFlag &= ~DirtyFlagWorld;
-		m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-		if (m_Parent)
-		{
-			m_World = m_World * m_Parent->m_World;
-		}
+		m_World = m_World * m_Parent->m_World;
 	}
 
 	if (m_Animator)
@@ -202,26 +229,6 @@ Animator * Component::GetHierarchyAnimator(void)
 //	//	break;
 //	//}
 //}
-
-template<>
-void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar << BOOST_SERIALIZATION_NVP(m_bAnimation);
-	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
-	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
-}
-
-template<>
-void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-	ar >> BOOST_SERIALIZATION_NVP(m_bAnimation);
-	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
-	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
-}
 
 void MeshComponent::RequestResource(void)
 {

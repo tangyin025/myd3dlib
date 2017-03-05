@@ -15,6 +15,18 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Actor)
 
+template<>
+void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+}
+
+template<>
+void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+}
+
 void Actor::RequestResource(void)
 {
 	_ASSERT(!m_Requested);

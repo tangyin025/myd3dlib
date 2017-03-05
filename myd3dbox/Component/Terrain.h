@@ -6,7 +6,6 @@ class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
-	, public boost::enable_shared_from_this<TerrainChunk>
 {
 public:
 	my::AABB m_aabb;

@@ -731,7 +731,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 
 	AdjustLayout();
 	return 0;
@@ -743,7 +743,7 @@ void CPropertiesWnd::OnDestroy()
 
 	//// TODO: Add your message handler code here
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 }
 
 void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)
@@ -1023,7 +1023,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->OnActorPosChanged(cmp);
 	//		pFrame->OnSelActorsChanged();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMeshLodCount:
@@ -1032,7 +1032,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		mesh_cmp->m_lods.resize(my::Clamp<unsigned int>(pProp->GetValue().uintVal, 1, 3));
 	//		UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], mesh_cmp);
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMeshLodResPath:
@@ -1043,7 +1043,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		mesh_cmp->m_lods[NodeId].m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
 	//		mesh_cmp->m_lods[NodeId].m_MeshRes.RequestResource();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMeshLodInstance:
@@ -1052,7 +1052,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 	//		mesh_cmp->m_lods[NodeId].m_bInstance = pProp->GetValue().boolVal != 0;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMeshLodMaxDistance:
@@ -1061,7 +1061,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
 	//		mesh_cmp->m_lods[NodeId].m_MaxDistance = pProp->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMeshLodBand:
@@ -1083,7 +1083,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//			my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
 	//		UpdatePropertiesEmitterParticleList(m_pProp[PropertyEmitterParticleList], emit_cmp->m_Emitter->m_ParticleList);
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyEmitterParticlePosition:
@@ -1146,7 +1146,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		particle.m_Size.y = pParticle->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
 	//		particle.m_Angle = pParticle->GetSubItem(4)->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyDynamicEmitterParticleLifeTime:
@@ -1155,7 +1155,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		my::DynamicEmitter * dynamic_emit = dynamic_cast<my::DynamicEmitter *>(emit_cmp->m_Emitter.get());
 	//		dynamic_emit->m_ParticleLifeTime = pProp->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertySphericalEmitterSpawnInterval:
@@ -1174,7 +1174,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		spherical_emit->m_SpawnSpeed = m_pProp[PropertySphericalEmitterSpawnSpeed]->GetValue().fltVal;
 	//		spherical_emit->m_SpawnLoopTime = m_pProp[PropertySphericalEmitterSpawnLoopTime]->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertySplineNodeCount:
@@ -1252,7 +1252,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//			break;
 	//		}
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialShader:
@@ -1260,7 +1260,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		Material * material = GetComponentMaterial(cmp, pProp->GetParent()->GetData());
 	//		material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialPassMask:
@@ -1274,7 +1274,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		}
 	//		material->m_PassMask = g_PassMaskDesc[i].mask;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialMeshColor:
@@ -1302,7 +1302,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
 	//		material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialMeshTexture:
@@ -1312,7 +1312,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 	//		material->m_MeshTexture.RequestResource();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialNormalTexture:
@@ -1322,7 +1322,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 	//		material->m_NormalTexture.RequestResource();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyMaterialSpecularTexture:
@@ -1332,7 +1332,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 	//		material->m_SpecularTexture.RequestResource();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	////case PropertyRigidShapeAdd:
@@ -1372,7 +1372,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	////			UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, shape);
 	////		}
 	////		EventArg arg;
-	////		pFrame->m_EventCmpAttriChanged(&arg);
+	////		pFrame->m_EventAttributeChanged(&arg);
 	////	}
 	////	break;
 	////case PropertyRigidShapePos:
@@ -1414,7 +1414,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	////			pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
 	////			pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal), (PxQuat&)rot));
 	////		EventArg arg;
-	////		pFrame->m_EventCmpAttriChanged(&arg);
+	////		pFrame->m_EventAttributeChanged(&arg);
 	////	}
 	////	break;
 	////case PropertyRigidShapeCapsuleRadius:
@@ -1430,7 +1430,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	////			pShape->GetSubItem(2)->GetValue().fltVal,
 	////			pShape->GetSubItem(3)->GetValue().fltVal));
 	////		EventArg arg;
-	////		pFrame->m_EventCmpAttriChanged(&arg);
+	////		pFrame->m_EventAttributeChanged(&arg);
 	////	}
 	////	break;
 	////case PropertyRigidShapeBoxHalfExtents:
@@ -1460,7 +1460,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	////			pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
 	////			pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
 	////		EventArg arg;
-	////		pFrame->m_EventCmpAttriChanged(&arg);
+	////		pFrame->m_EventAttributeChanged(&arg);
 	////	}
 	////	break;
 	////case PropertyRigidShapeSphereRadius:
@@ -1474,7 +1474,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	////		shapes[NodeId]->setGeometry(PxSphereGeometry(
 	////			pShape->GetSubItem(2)->GetValue().fltVal));
 	////		EventArg arg;
-	////		pFrame->m_EventCmpAttriChanged(&arg);
+	////		pFrame->m_EventAttributeChanged(&arg);
 	////	}
 	////	break;
 	//case PropertyTerrainHeightScale:
@@ -1486,7 +1486,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->OnActorPosChanged(cmp);
 	//		pFrame->OnSelActorsChanged();
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyTerrainWrappedU:
@@ -1496,7 +1496,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		terrain->m_WrappedU = m_pProp[PropertyTerrainWrappedU]->GetValue().fltVal;
 	//		terrain->m_WrappedV = m_pProp[PropertyTerrainWrappedV]->GetValue().fltVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//case PropertyTerrainHeightMap:
@@ -1509,7 +1509,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//			terrain->UpdateHeightMap(res);
 	//			pFrame->OnActorPosChanged(cmp);
 	//			EventArg arg;
-	//			pFrame->m_EventCmpAttriChanged(&arg);
+	//			pFrame->m_EventAttributeChanged(&arg);
 	//		}
 	//	}
 	//	break;
@@ -1518,7 +1518,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
 	//		terrain->m_StaticCollision = m_pProp[PropertyTerrainStaticCollision]->GetValue().boolVal;
 	//		EventArg arg;
-	//		pFrame->m_EventCmpAttriChanged(&arg);
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
 	//}

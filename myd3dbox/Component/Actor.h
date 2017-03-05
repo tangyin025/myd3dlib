@@ -4,8 +4,7 @@
 #include "Component.h"
 
 class Actor
-	: public my::OctActor
-	, public Component
+	: public Component
 {
 public:
 	bool m_Requested;
@@ -27,11 +26,18 @@ public:
 	{
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	bool IsRequested(void) const

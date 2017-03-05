@@ -39,7 +39,7 @@ public:
 	Event m_EventSelectionChanged;
 	//Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;
-	Event m_EventCmpAttriChanged;
+	Event m_EventAttributeChanged;
 
 // Operations
 public:

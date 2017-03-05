@@ -4,7 +4,6 @@
 #include "RenderPipeline.h"
 #include "Animator.h"
 #include <boost/serialization/nvp.hpp>
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 class Material
 {
@@ -59,7 +58,7 @@ class Component;
 typedef boost::shared_ptr<Component> ComponentPtr;
 
 class Component
-	: public boost::enable_shared_from_this<Component>
+	: public my::OctActor
 {
 public:
 	enum ComponentType
@@ -73,13 +72,6 @@ public:
 	};
 
 	ComponentType m_Type;
-
-	enum DirtyFlag
-	{
-		DirtyFlagWorld = 0x01,
-	};
-
-	unsigned int m_DirtyFlag;
 
 	my::AABB m_aabb;
 
@@ -102,7 +94,6 @@ public:
 public:
 	Component(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
-		, m_DirtyFlag(0)
 		, m_aabb(aabb)
 		, m_Position(Position)
 		, m_Rotation(Rotation)
@@ -114,7 +105,6 @@ public:
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
-		, m_DirtyFlag(0)
 		, m_aabb(-1,1)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
@@ -128,15 +118,18 @@ public:
 	{
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_NVP(m_Type);
-		ar & BOOST_SERIALIZATION_NVP(m_aabb);
-		ar & BOOST_SERIALIZATION_NVP(m_Position);
-		ar & BOOST_SERIALIZATION_NVP(m_Rotation);
-		ar & BOOST_SERIALIZATION_NVP(m_Scale);
-		ar & BOOST_SERIALIZATION_NVP(m_Animator);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	virtual void RequestResource(void);
@@ -225,18 +218,15 @@ public:
 	{
 	}
 
-	friend class boost::serialization::access;
-
-	template<class Archive>
-	void save(Archive & ar, const unsigned int version) const;
-
-	template<class Archive>
-	void load(Archive & ar, const unsigned int version);
-
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		boost::serialization::split_member(ar, *this, version);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
+		ar & BOOST_SERIALIZATION_NVP(m_bAnimation);
+		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
+		ar & BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	}
 
 	void AddMaterial(MaterialPtr mat)

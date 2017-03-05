@@ -461,6 +461,7 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 				pFrame->m_ViewedActors.insert(actor);
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);
+			actor->Update(0); // ! 居然需要一次单帧update，是否有冗余操作
 		}
 	};
 
@@ -605,40 +606,42 @@ void CMainFrame::OnCreateActor()
 
 void CMainFrame::OnComponentMesh()
 {
-	//// TODO: Add your command handler code here
-	//CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	//if (IDOK == dlg.DoModal())
-	//{
-	//	CString strPathName = dlg.GetPathName();
-	//	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
-	//	if (mesh)
-	//	{
-	//		MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Matrix4::Identity(), false));
-	//		mesh_cmp->m_lods.resize(1);
-	//		mesh_cmp->m_lods[0].m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
-	//		mesh_cmp->m_lods[0].m_MeshRes.OnReady(mesh);
-	//		for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-	//		{
-	//			MaterialPtr lambert1(new Material());
-	//			lambert1->m_Shader = "lambert1.fx";
-	//			lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	//			lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	//			lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	//			lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	//			mesh_cmp->m_MaterialList.push_back(lambert1);
-	//		}
-	//		mesh_cmp->RequestResource();
-	//		m_Root.AddActor(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
+	// TODO: Add your command handler code here
+	_ASSERT(!m_selacts.empty());
+	Actor * actor = *m_selacts.begin();
 
-	//		m_selacts.clear();
-	//		m_selacts.insert(mesh_cmp.get());
-	//		OnSelActorsChanged();
-	//	}
-	//	else
-	//	{
-	//		MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
-	//	}
-	//}
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK == dlg.DoModal())
+	{
+		CString strPathName = dlg.GetPathName();
+		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+		if (mesh)
+		{
+			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1), false, false));
+			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
+			mesh_cmp->m_MeshRes.OnReady(mesh);
+			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+			{
+				MaterialPtr lambert1(new Material());
+				lambert1->m_Shader = "lambert1.fx";
+				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+				lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+				lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+				lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+				mesh_cmp->m_MaterialList.push_back(lambert1);
+			}
+			mesh_cmp->RequestResource();
+			actor->AddComponent(mesh_cmp);
+			actor->Update(0);
+
+			EventArg arg;
+			m_EventAttributeChanged(&arg);
+		}
+		else
+		{
+			MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
+		}
+	}
 }
 
 void CMainFrame::OnComponentEmitter()
