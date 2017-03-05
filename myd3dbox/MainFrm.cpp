@@ -402,10 +402,8 @@ void CMainFrame::OnSelActorsChanged(void)
 
 		if (m_selacts.size() == 1)
 		{
-			my::Vector3 Pos, Scale; my::Quaternion Rot;
-			(*m_selacts.begin())->m_World.Decompose(Scale, Rot, Pos);
-			m_Pivot.m_Pos = Pos;
-			m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
+			m_Pivot.m_Pos = (*m_selacts.begin())->m_Position;
+			m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selacts.begin())->m_Rotation);
 		}
 		else if (!m_selacts.empty())
 		{

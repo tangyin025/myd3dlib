@@ -1019,7 +1019,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				//	* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
 				//	* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
 				//	* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos));
-				actor_world_iter->first->m_Rotation = (my::Quaternion &)actor_world_iter->second[1] * pFrame->m_Pivot.m_DragDeltaRot;
+				actor_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)actor_world_iter->second[1];
 				actor_world_iter->first->m_DirtyFlag |= Actor::DirtyFlagWorld;
 				actor_world_iter->first->Update(0);
 				break;
