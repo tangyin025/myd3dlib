@@ -399,24 +399,24 @@ void CMainFrame::OnSelActorsChanged(void)
 		{
 			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
 		}
+
+		if (m_selacts.size() == 1)
+		{
+			my::Vector3 Pos, Scale; my::Quaternion Rot;
+			(*m_selacts.begin())->m_World.Decompose(Scale, Rot, Pos);
+			m_Pivot.m_Pos = Pos;
+			m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
+		}
+		else if (!m_selacts.empty())
+		{
+			m_Pivot.m_Pos = m_selbox.Center();
+			m_Pivot.m_Rot = my::Quaternion::Identity();
+		}
 	}
+
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
 }
-//
-//void CMainFrame::UpdatePivotTransform(void)
-//{
-//	if (m_selacts.size() == 1)
-//	{
-//		my::Vector3 Pos, Scale; my::Quaternion Rot;
-//		Component::GetCmpWorld(*m_selacts.begin()).Decompose(Scale, Rot, Pos);
-//		m_Pivot.m_Pos = Pos;
-//		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
-//	}
-//	else if (!m_selacts.empty())
-//	{
-//		m_Pivot.m_Pos = m_selbox.Center();
-//		m_Pivot.m_Rot = my::Quaternion::Identity();
-//	}
-//}
 
 void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
@@ -635,7 +635,6 @@ void CMainFrame::OnComponentMesh()
 	//		m_selacts.clear();
 	//		m_selacts.insert(mesh_cmp.get());
 	//		OnSelActorsChanged();
-	//		UpdatePivotTransform();
 	//	}
 	//	else
 	//	{
@@ -662,7 +661,6 @@ void CMainFrame::OnComponentEmitter()
 	//m_selacts.clear();
 	//m_selacts.insert(emit_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnComponentSphericalemitter()
@@ -701,7 +699,6 @@ void CMainFrame::OnComponentSphericalemitter()
 	//m_selacts.clear();
 	//m_selacts.insert(emit_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidSphere()
@@ -715,7 +712,6 @@ void CMainFrame::OnRigidSphere()
 	//m_selacts.clear();
 	//m_selacts.insert(rigid_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidPlane()
@@ -729,7 +725,6 @@ void CMainFrame::OnRigidPlane()
 	//m_selacts.clear();
 	//m_selacts.insert(rigid_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidCapsule()
@@ -743,7 +738,6 @@ void CMainFrame::OnRigidCapsule()
 	//m_selacts.clear();
 	//m_selacts.insert(rigid_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnRigidBox()
@@ -757,7 +751,6 @@ void CMainFrame::OnRigidBox()
 	//m_selacts.clear();
 	//m_selacts.insert(rigid_cmp.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnComponentTerrain()
@@ -777,7 +770,6 @@ void CMainFrame::OnComponentTerrain()
 	//m_selacts.clear();
 	//m_selacts.insert(terrain.get());
 	//OnSelActorsChanged();
-	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()
@@ -805,7 +797,6 @@ void CMainFrame::OnPivotMove()
 {
 	//// TODO: Add your command handler code here
 	//m_Pivot.m_Mode = Pivot::PivotModeMove;
-	//UpdatePivotTransform();
 	//EventArg arg;
 	//m_EventPivotModeChanged(&arg);
 }
@@ -820,7 +811,6 @@ void CMainFrame::OnPivotRotate()
 {
 	//// TODO: Add your command handler code here
 	//m_Pivot.m_Mode = Pivot::PivotModeRot;
-	//UpdatePivotTransform();
 	//EventArg arg;
 	//m_EventPivotModeChanged(&arg);
 }

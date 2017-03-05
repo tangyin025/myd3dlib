@@ -796,7 +796,7 @@ int CChildView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	// TODO:  Add your specialized creation code here
 	OnCameratypePerspective();
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.connect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.connect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.connect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
@@ -808,7 +808,7 @@ void CChildView::OnDestroy()
 	CView::OnDestroy();
 
 	//// TODO: Add your message handler code here
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CChildView::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionPlaying.disconnect(boost::bind(&CChildView::OnSelectionPlaying, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventPivotModeChanged.disconnect(boost::bind(&CChildView::OnPivotModeChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCmpAttriChanged.disconnect(boost::bind(&CChildView::OnCmpAttriChanged, this, _1));
@@ -926,7 +926,6 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	//if (bSelectionChanged)
 	//{
 	//	pFrame->OnSelActorsChanged();
-	//	pFrame->UpdatePivotTransform();
 	//	EventArg arg;
 	//	pFrame->m_EventSelectionChanged(&arg);
 	//}

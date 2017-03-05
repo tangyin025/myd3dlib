@@ -1022,7 +1022,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
 	//		pFrame->OnCmpPosChanged(cmp);
 	//		pFrame->OnSelActorsChanged();
-	//		pFrame->UpdatePivotTransform();
 	//		EventArg arg;
 	//		pFrame->m_EventCmpAttriChanged(&arg);
 	//	}
