@@ -58,8 +58,8 @@ protected:
 	BOOL m_bShowGrid;
 	BOOL m_bShowCmpHandle;
 
-	typedef std::map<Component *, my::Matrix4> ComponentWorldMap;
-	ComponentWorldMap m_selcmpwlds;
+	//typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
+	//ActorWorldMap m_selactwlds;
 
 	BOOL ResetD3DSwapChain(void);
 	BOOL ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
