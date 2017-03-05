@@ -773,7 +773,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
-void Game::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	const Vector3 OutExtent(1050,1050,1050);
 	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);

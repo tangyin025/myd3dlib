@@ -112,9 +112,9 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 {
 	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	//ASSERT_VALID(pFrame);
-	//if (!pFrame->m_selcmps.empty())
+	//if (!pFrame->m_selacts.empty())
 	//{
-	//	UpdateProperties(*pFrame->m_selcmps.begin());
+	//	UpdateProperties(*pFrame->m_selacts.begin());
 	//}
 	//else
 	//{
@@ -126,9 +126,9 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 {
 	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	//ASSERT_VALID(pFrame);
-	//if (!pFrame->m_selcmps.empty())
+	//if (!pFrame->m_selacts.empty())
 	//{
-	//	UpdateProperties(*pFrame->m_selcmps.begin());
+	//	UpdateProperties(*pFrame->m_selacts.begin());
 	//}
 }
 
@@ -970,11 +970,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	//ASSERT_VALID(pFrame);
-	//if (pFrame->m_selcmps.empty())
+	//if (pFrame->m_selacts.empty())
 	//{
 	//	return 0;
 	//}
-	//Component * cmp = *pFrame->m_selcmps.begin();
+	//Component * cmp = *pFrame->m_selacts.begin();
 
 	//CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	//ASSERT(pProp);
@@ -1021,7 +1021,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//			m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
 	//		Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
 	//		pFrame->OnCmpPosChanged(cmp);
-	//		pFrame->UpdateSelBox();
+	//		pFrame->OnSelActorsChanged();
 	//		pFrame->UpdatePivotTransform();
 	//		EventArg arg;
 	//		pFrame->m_EventCmpAttriChanged(&arg);
@@ -1485,7 +1485,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		terrain->UpdateHeightMapNormal();
 	//		terrain->UpdateChunks();
 	//		pFrame->OnCmpPosChanged(cmp);
-	//		pFrame->UpdateSelBox();
+	//		pFrame->OnSelActorsChanged();
 	//		EventArg arg;
 	//		pFrame->m_EventCmpAttriChanged(&arg);
 	//	}

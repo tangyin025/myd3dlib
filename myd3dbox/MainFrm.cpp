@@ -69,7 +69,7 @@ static UINT indicators[] =
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
 	, m_Root(my::Vector3(-3000), my::Vector3(3000), 1.0f)
-	//, m_selbox(-FLT_MAX, FLT_MAX)
+	, m_selbox(-1, 1)
 {
 	// TODO: add member initialization code here
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
@@ -388,91 +388,94 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 //	VERIFY(m_Root.RemoveActor(cmp_ptr));
 //	m_Root.AddActor(cmp_ptr, cmp->m_aabb.transform(Component::GetCmpWorld(cmp)), 0.1f);
 //}
-//
-//void CMainFrame::UpdateSelBox(void)
-//{
-//	m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-//	ComponentSet::const_iterator sel_iter = m_selcmps.begin();
-//	for (; sel_iter != m_selcmps.end(); sel_iter++)
-//	{
-//		m_selbox.unionSelf((*sel_iter)->m_aabb.transform(Component::GetCmpWorld(*sel_iter)));
-//	}
-//}
+
+void CMainFrame::OnSelActorsChanged(void)
+{
+	if (!m_selacts.empty())
+	{
+		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
+		ActorSet::const_iterator sel_iter = m_selacts.begin();
+		for (; sel_iter != m_selacts.end(); sel_iter++)
+		{
+			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
+		}
+	}
+}
 //
 //void CMainFrame::UpdatePivotTransform(void)
 //{
-//	if (m_selcmps.size() == 1)
+//	if (m_selacts.size() == 1)
 //	{
 //		my::Vector3 Pos, Scale; my::Quaternion Rot;
-//		Component::GetCmpWorld(*m_selcmps.begin()).Decompose(Scale, Rot, Pos);
+//		Component::GetCmpWorld(*m_selacts.begin()).Decompose(Scale, Rot, Pos);
 //		m_Pivot.m_Pos = Pos;
 //		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : Rot);
 //	}
-//	else if (!m_selcmps.empty())
+//	else if (!m_selacts.empty())
 //	{
 //		m_Pivot.m_Pos = m_selbox.Center();
 //		m_Pivot.m_Rot = my::Quaternion::Identity();
 //	}
 //}
-//
-//void CMainFrame::ResetViewedCmps(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
-//{
-//	const my::Vector3 OutExtent(1050,1050,1050);
-//	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
-//	ComponentSet::iterator cmp_iter = m_ViewedCmps.begin();
-//	for (; cmp_iter != m_ViewedCmps.end(); )
-//	{
-//		if (my::IntersectionTests::IntersectionTypeOutside
-//			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
-//		{
-//			if ((*cmp_iter)->IsRequested())
-//			{
-//				(*cmp_iter)->ReleaseResource();
-//			}
-//			cmp_iter = m_ViewedCmps.erase(cmp_iter);
-//		}
-//		else
-//			cmp_iter++;
-//	}
-//
-//	struct CallBack : public my::IQueryCallback
-//	{
-//		CMainFrame * pFrame;
-//		const my::Vector3 & ViewedPos;
-//		const my::Vector3 & TargetPos;
-//		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
-//			: pFrame(_pFrame)
-//			, ViewedPos(_ViewedPos)
-//			, TargetPos(_TargetPos)
-//		{
-//		}
-//		void operator() (my::OctActor * oct_cmp, my::IntersectionTests::IntersectionType)
-//		{
-//			_ASSERT(dynamic_cast<Component *>(oct_cmp));
-//			Component * cmp = static_cast<Component *>(oct_cmp);
-//			ComponentSet::iterator cmp_iter = pFrame->m_ViewedCmps.find(cmp);
-//			if (cmp_iter == pFrame->m_ViewedCmps.end())
-//			{
-//				if (!cmp->IsRequested())
-//				{
-//					cmp->RequestResource();
-//				}
-//				pFrame->m_ViewedCmps.insert(cmp);
-//			}
-//			cmp->UpdateLod(ViewedPos, TargetPos);
-//		}
-//	};
-//
-//	const my::Vector3 InExtent(1000,1000,1000);
-//	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-//	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
-//}
+
+void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+{
+	const my::Vector3 OutExtent(1050,1050,1050);
+	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
+	ActorSet::iterator cmp_iter = m_ViewedActors.begin();
+	for (; cmp_iter != m_ViewedActors.end(); )
+	{
+		if (my::IntersectionTests::IntersectionTypeOutside
+			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
+		{
+			if ((*cmp_iter)->IsRequested())
+			{
+				(*cmp_iter)->ReleaseResource();
+			}
+			cmp_iter = m_ViewedActors.erase(cmp_iter);
+		}
+		else
+			cmp_iter++;
+	}
+
+	struct CallBack : public my::IQueryCallback
+	{
+		CMainFrame * pFrame;
+		const my::Vector3 & ViewedPos;
+		const my::Vector3 & TargetPos;
+		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
+			: pFrame(_pFrame)
+			, ViewedPos(_ViewedPos)
+			, TargetPos(_TargetPos)
+		{
+		}
+		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+		{
+			_ASSERT(dynamic_cast<Actor *>(oct_actor));
+			Actor * actor = static_cast<Actor *>(oct_actor);
+			ActorSet::iterator cmp_iter = pFrame->m_ViewedActors.find(actor);
+			if (cmp_iter == pFrame->m_ViewedActors.end())
+			{
+				if (!actor->IsRequested())
+				{
+					actor->RequestResource();
+				}
+				pFrame->m_ViewedActors.insert(actor);
+			}
+			actor->UpdateLod(ViewedPos, TargetPos);
+		}
+	};
+
+	const my::Vector3 InExtent(1000,1000,1000);
+	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
+	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
+}
 
 void CMainFrame::ClearAllActor()
 {
 	m_Root.ClearAllActor();
-	//m_selcmps.clear();
-	//m_ViewedCmps.clear();
+	m_selacts.clear();
+	m_ViewedActors.clear();
 }
 
 void CMainFrame::OnDestroy()
@@ -596,6 +599,10 @@ void CMainFrame::OnCreateActor()
 	actor->RequestResource();
 	actor->Update(0);
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
+
+	m_selacts.clear();
+	m_selacts.insert(actor.get());
+	OnSelActorsChanged();
 }
 
 void CMainFrame::OnComponentMesh()
@@ -625,9 +632,9 @@ void CMainFrame::OnComponentMesh()
 	//		mesh_cmp->RequestResource();
 	//		m_Root.AddActor(mesh_cmp, mesh_cmp->m_aabb.transform(mesh_cmp->m_World), 0.1f);
 
-	//		m_selcmps.clear();
-	//		m_selcmps.insert(mesh_cmp.get());
-	//		UpdateSelBox();
+	//		m_selacts.clear();
+	//		m_selacts.insert(mesh_cmp.get());
+	//		OnSelActorsChanged();
 	//		UpdatePivotTransform();
 	//	}
 	//	else
@@ -652,9 +659,9 @@ void CMainFrame::OnComponentEmitter()
 	//emit_cmp->RequestResource();
 	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(emit_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(emit_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -691,9 +698,9 @@ void CMainFrame::OnComponentSphericalemitter()
 	//emit_cmp->RequestResource();
 	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(emit_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(emit_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -705,9 +712,9 @@ void CMainFrame::OnRigidSphere()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(rigid_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -719,9 +726,9 @@ void CMainFrame::OnRigidPlane()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(rigid_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -733,9 +740,9 @@ void CMainFrame::OnRigidCapsule()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(rigid_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -747,9 +754,9 @@ void CMainFrame::OnRigidBox()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(rigid_cmp.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
@@ -767,23 +774,23 @@ void CMainFrame::OnComponentTerrain()
 	//terrain->RequestResource();
 	//m_Root.AddActor(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(terrain.get());
-	//UpdateSelBox();
+	//m_selacts.clear();
+	//m_selacts.insert(terrain.get());
+	//OnSelActorsChanged();
 	//UpdatePivotTransform();
 }
 
 void CMainFrame::OnEditDelete()
 {
 	//// TODO: Add your command handler code here
-	//ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	//for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	//ActorSet::iterator cmp_iter = m_selacts.begin();
+	//for (; cmp_iter != m_selacts.end(); cmp_iter++)
 	//{
 	//	my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
 	//	m_Root.RemoveActor(cmp);
-	//	m_ViewedCmps.erase(*cmp_iter);
+	//	m_ViewedActors.erase(*cmp_iter);
 	//}
-	//m_selcmps.clear();
+	//m_selacts.clear();
 	//EventArg arg;
 	//m_EventSelectionChanged(&arg);
 }
@@ -791,7 +798,7 @@ void CMainFrame::OnEditDelete()
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	//// TODO: Add your command update UI handler code here
-	//pCmdUI->Enable(!m_selcmps.empty());
+	//pCmdUI->Enable(!m_selacts.empty());
 }
 
 void CMainFrame::OnPivotMove()
@@ -828,10 +835,10 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
 	//const float fElapsedTime = 0.033f;
-	//if (!m_selcmps.empty())
+	//if (!m_selacts.empty())
 	//{
-	//	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	//	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	//	ActorSet::iterator cmp_iter = m_selacts.begin();
+	//	for (; cmp_iter != m_selacts.end(); cmp_iter++)
 	//	{
 	//		(*cmp_iter)->Update(fElapsedTime);
 	//	}
