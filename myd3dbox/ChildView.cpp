@@ -157,57 +157,57 @@ BOOL CChildView::ResetRenderTargets(IDirect3DDevice9 * pd3dDevice, const D3DSURF
 
 void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
 
-	//struct CallBack : public my::IQueryCallback
-	//{
-	//	const my::Frustum & frustum;
-	//	RenderPipeline * pipeline;
-	//	unsigned int PassMask;
-	//	CMainFrame * pFrame;
-	//	CChildView * pView;
-	//	CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
-	//		: frustum(_frustum)
-	//		, pipeline(_pipeline)
-	//		, PassMask(_PassMask)
-	//		, pFrame(_pFrame)
-	//		, pView(_pView)
-	//	{
-	//	}
-	//	void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
-	//	{
-	//		Component * cmp = dynamic_cast<Component *>(oct_cmp);
-	//		if (cmp)
-	//		{
-	//			if (cmp->IsRequested())
-	//			{
-	//				cmp->AddToPipeline(frustum, pipeline, PassMask);
-	//			}
-	//			else
-	//			{
-	//				cmp->RequestResource();
-	//			}
+	struct CallBack : public my::IQueryCallback
+	{
+		const my::Frustum & frustum;
+		RenderPipeline * pipeline;
+		unsigned int PassMask;
+		CMainFrame * pFrame;
+		CChildView * pView;
+		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
+			: frustum(_frustum)
+			, pipeline(_pipeline)
+			, PassMask(_PassMask)
+			, pFrame(_pFrame)
+			, pView(_pView)
+		{
+		}
+		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+		{
+			Actor * actor = dynamic_cast<Actor *>(oct_actor);
+			if (actor)
+			{
+				if (actor->IsRequested())
+				{
+					actor->AddToPipeline(frustum, pipeline, PassMask);
+				}
+				else
+				{
+					actor->RequestResource();
+				}
 
-	//			if (pView->m_bShowCmpHandle)
-	//			{
-	//				switch (cmp->m_Type)
-	//				{
-	//				case Component::ComponentTypeEmitter:
-	//					{
-	//						EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//						pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
-	//							emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
-	//					}
-	//					break;
-	//				}
-	//			}
-	//		}
-	//	}
-	//};
+				//if (pView->m_bShowCmpHandle)
+				//{
+				//	switch (actor->m_Type)
+				//	{
+				//	case Component::ComponentTypeEmitter:
+				//		{
+				//			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(actor);
+				//			pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
+				//				emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
+				//		}
+				//		break;
+				//	}
+				//}
+			}
+		}
+	};
 
-	//pFrame->m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
+	pFrame->m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
 
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
