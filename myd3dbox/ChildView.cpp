@@ -967,7 +967,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	if (bSelectionChanged)
 	{
-		pFrame->OnSelActorsChanged();
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
+		EventArg arg;
+		pFrame->m_EventSelectionChanged(&arg);
 	}
 
 	Invalidate();
@@ -988,7 +991,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 			pFrame->OnActorPosChanged(actor_world_iter->first);
 		}
 		m_selactwlds.clear();
-		pFrame->OnSelActorsChanged();
+		pFrame->UpdateSelBox();
 		ReleaseCapture();
 
 		EventArg arg;

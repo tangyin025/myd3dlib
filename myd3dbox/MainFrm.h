@@ -6,7 +6,7 @@
 
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
-#include "Component/Component.h"
+#include "Component/Actor.h"
 #include "Component/PhysXContext.h"
 #include "Component/Terrain.h"
 #include "Pivot.h"
@@ -50,7 +50,8 @@ public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 	void OnActorPosChanged(Actor * actor);
-	void OnSelActorsChanged(void);
+	void UpdateSelBox(void);
+	void UpdatePivotTransform(void);
 	void ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 // Implementation

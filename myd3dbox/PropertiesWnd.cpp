@@ -110,16 +110,20 @@ void CPropertiesWnd::AdjustLayout()
 
 void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 {
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
-	//if (!pFrame->m_selacts.empty())
-	//{
-	//	UpdateProperties(*pFrame->m_selacts.begin());
-	//}
-	//else
-	//{
-	//	HideAllProperties();
-	//}
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (!pFrame->m_selacts.empty())
+	{
+		CMFCPropertyGridProperty * pProp = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
+		CreateProperties(pProp, *pFrame->m_selacts.begin());
+		m_wndPropList.AddProperty(pProp, FALSE, FALSE);
+		m_wndPropList.AdjustLayout();
+	}
+	else
+	{
+		m_wndPropList.RemoveAll();
+		m_wndPropList.AdjustLayout();
+	}
 }
 
 void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
@@ -469,6 +473,29 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 //	pShape->GetSubItem(2)->SetValue((_variant_t)capsule.radius);
 //	pShape->GetSubItem(3)->SetValue((_variant_t)capsule.halfHeight);
 //}
+
+void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
+{
+	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyComponentPos, TRUE);
+	pParentCtrl->AddSubItem(pPosition);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)cmp->m_Position.y, NULL, PropertyComponentPosY);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Position.z, NULL, PropertyComponentPosZ);
+	pPosition->AddSubItem(pProp);
+
+	if (!cmp->m_Cmps.empty())
+	{
+		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
+		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
+		{
+			pProp = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
+			pParentCtrl->AddSubItem(pProp);
+			CreateProperties(pProp, cmp_iter->get());
+		}
+	}
+}
 //
 //void CPropertiesWnd::CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
 //{
@@ -730,7 +757,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 
 	AdjustLayout();
@@ -742,7 +769,7 @@ void CPropertiesWnd::OnDestroy()
 	CDockablePane::OnDestroy();
 
 	//// TODO: Add your message handler code here
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 }
 
@@ -930,7 +957,7 @@ void CPropertiesWnd::InitPropList()
 	//m_pProp[PropertyTerrainStaticCollision] = new CCheckBoxProp(_T("StaticCollision"), FALSE, NULL, PropertyTerrainStaticCollision);
 	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainStaticCollision]);
 
-	HideAllProperties();
+	//HideAllProperties();
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
