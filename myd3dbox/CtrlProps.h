@@ -6,6 +6,9 @@ class CMFCPropertyGridPropertyReader : public CMFCPropertyGridProperty
 public:
 	// ! Fix remove current selected item which is hierarchy-sub-item
 	BOOL RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete = TRUE);
+
+	// overwrite protected method
+	using CMFCPropertyGridProperty::FindSubItemByData;
 };
 
 class CSimpleProp : public CMFCPropertyGridProperty

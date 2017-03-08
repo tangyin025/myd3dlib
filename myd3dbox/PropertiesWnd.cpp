@@ -114,9 +114,7 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 	ASSERT_VALID(pFrame);
 	if (!pFrame->m_selacts.empty())
 	{
-		CMFCPropertyGridProperty * pProp = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
-		CreateProperties(pProp, *pFrame->m_selacts.begin());
-		m_wndPropList.AddProperty(pProp, FALSE, FALSE);
+		UpdateProperties(NULL, 0, *pFrame->m_selacts.begin());
 		m_wndPropList.AdjustLayout();
 	}
 	else
@@ -128,8 +126,14 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 
 void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 {
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CMainFrame::ActorSet::iterator actor_iter = pFrame->m_selacts.begin();
+	if (actor_iter != pFrame->m_selacts.end())
+	{
+		UpdateProperties(NULL, 0, *actor_iter);
+		m_wndPropList.Invalidate();
+	}
 	//if (!pFrame->m_selacts.empty())
 	//{
 	//	UpdateProperties(*pFrame->m_selacts.begin());
@@ -153,9 +157,32 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 		static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
 	}
 }
-//
-//void CPropertiesWnd::UpdateProperties(Component * cmp)
-//{
+
+void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp)
+{
+	CMFCPropertyGridProperty * pComponent = NULL;
+	if (pParentCtrl)
+	{
+		if (i < pParentCtrl->GetSubItemsCount())
+		{
+			pComponent = pParentCtrl->GetSubItem(i);
+		}
+	}
+	else
+	{
+		if (i < m_wndPropList.GetPropertyCount())
+		{
+			pComponent = m_wndPropList.GetProperty(i);
+		}
+	}
+	if (!pComponent)
+	{
+		CreateProperties(pParentCtrl, i, cmp);
+		return;
+	}
+	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Position.x);
+	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Position.y);
+	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
 //	m_pProp[PropertyComponent]->Show(TRUE, FALSE);
 //	m_pProp[PropertyComponentMinX]->SetValue((_variant_t)cmp->m_aabb.m_min.x);
 //	m_pProp[PropertyComponentMinY]->SetValue((_variant_t)cmp->m_aabb.m_min.y);
@@ -212,7 +239,16 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 //		break;
 //	}
 //	m_wndPropList.AdjustLayout();
-//}
+
+	if (!cmp->m_Cmps.empty())
+	{
+		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
+		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
+		{
+			UpdateProperties(pComponent, 1 + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
+}
 //
 //void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
 //{
@@ -474,10 +510,29 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 //	pShape->GetSubItem(3)->SetValue((_variant_t)capsule.halfHeight);
 //}
 
-void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Component * cmp)
+void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp)
 {
+	CMFCPropertyGridProperty * pComponent = NULL;
+	if (pParentCtrl)
+	{
+		while (i >= pParentCtrl->GetSubItemsCount())
+		{
+			pComponent = new CSimpleProp(_T("Component"), PropertyComponent, FALSE);
+			pParentCtrl->AddSubItem(pComponent);
+		}
+	}
+	else
+	{
+		while (i >= m_wndPropList.GetPropertyCount())
+		{
+			pComponent = new CSimpleProp(_T("Component"), PropertyComponent, FALSE);
+			m_wndPropList.AddProperty(pComponent);
+		}
+	}
+	ASSERT(pComponent);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyComponentPos, TRUE);
-	pParentCtrl->AddSubItem(pPosition);
+	pComponent->AddSubItem(pPosition);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
 	pPosition->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)cmp->m_Position.y, NULL, PropertyComponentPosY);
@@ -490,9 +545,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, Co
 		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
 		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
 		{
-			pProp = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
-			pParentCtrl->AddSubItem(pProp);
-			CreateProperties(pProp, cmp_iter->get());
+			CreateProperties(pComponent, 1 + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
 		}
 	}
 }
@@ -758,7 +811,7 @@ int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//// All commands will be routed via this control , not via the parent frame:
 	//m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.connect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.connect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 
 	AdjustLayout();
 	return 0;
@@ -770,7 +823,7 @@ void CPropertiesWnd::OnDestroy()
 
 	//// TODO: Add your message handler code here
 	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged.disconnect(boost::bind(&CPropertiesWnd::OnSelectionChanged, this, _1));
-	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventAttributeChanged.disconnect(boost::bind(&CPropertiesWnd::OnCmpAttriChanged, this, _1));
 }
 
 void CPropertiesWnd::OnSize(UINT nType, int cx, int cy)
