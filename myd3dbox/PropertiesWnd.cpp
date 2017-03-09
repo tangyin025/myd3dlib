@@ -132,12 +132,8 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 	if (actor_iter != pFrame->m_selacts.end())
 	{
 		UpdateProperties(NULL, 0, *actor_iter);
-		m_wndPropList.Invalidate();
+		m_wndPropList.AdjustLayout();
 	}
-	//if (!pFrame->m_selacts.empty())
-	//{
-	//	UpdateProperties(*pFrame->m_selacts.begin());
-	//}
 }
 
 void CPropertiesWnd::HideAllProperties(void)
@@ -151,10 +147,21 @@ void CPropertiesWnd::HideAllProperties(void)
 
 void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i)
 {
-	while ((unsigned int)pParentCtrl->GetSubItemsCount() > i)
+	if (pParentCtrl)
 	{
-		CMFCPropertyGridProperty * pProp = pParentCtrl->GetSubItem(i);
-		static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
+		while ((unsigned int)pParentCtrl->GetSubItemsCount() > i)
+		{
+			CMFCPropertyGridProperty * pProp = pParentCtrl->GetSubItem(i);
+			static_cast<CMFCPropertyGridPropertyReader *>(pParentCtrl)->RemoveSubItem(pProp, TRUE);
+		}
+	}
+	else
+	{
+		while ((unsigned int)m_wndPropList.GetPropertyCount() > i)
+		{
+			CMFCPropertyGridProperty * pProp = m_wndPropList.GetProperty(i);
+			m_wndPropList.DeleteProperty(pProp, FALSE, FALSE);
+		}
 	}
 }
 
@@ -175,8 +182,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 			pComponent = m_wndPropList.GetProperty(i);
 		}
 	}
-	if (!pComponent)
+	if (!pComponent || pComponent->GetData() != PropertyComponent || pComponent->GetValue().ulVal != (DWORD_PTR)cmp)
 	{
+		RemovePropertiesFrom(pParentCtrl, i);
 		CreateProperties(pParentCtrl, i, cmp);
 		return;
 	}
@@ -245,7 +253,7 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
 		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
 		{
-			UpdateProperties(pComponent, 1 + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			UpdateProperties(pComponent, GetComponentAttrCount(cmp) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
 		}
 	}
 }
@@ -545,7 +553,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
 		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
 		{
-			CreateProperties(pComponent, 1 + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			CreateProperties(pComponent, GetComponentAttrCount(cmp) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
 		}
 	}
 }
@@ -766,6 +774,22 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 //	}
 //	return NULL;
 //}
+
+unsigned int CPropertiesWnd::GetComponentAttrCount(Component * cmp)
+{
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeActor:
+		return 1;
+	case Component::ComponentTypeMesh:
+		return 1;
+	case Component::ComponentTypeEmitter:
+		return 1;
+	case Component::ComponentTypeTerrain:
+		return 1;
+	}
+	return 0;
+}
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {

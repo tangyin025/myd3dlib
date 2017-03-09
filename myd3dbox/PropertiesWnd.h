@@ -42,25 +42,25 @@ protected:
 		PropertyUnknown = 0,
 		PropertyActor,
 		PropertyComponent,
-		PropertyComponentAABB,
-		PropertyComponentMinX,
-		PropertyComponentMinY,
-		PropertyComponentMinZ,
-		PropertyComponentMaxX,
-		PropertyComponentMaxY,
-		PropertyComponentMaxZ,
+		//PropertyComponentAABB,
+		//PropertyComponentMinX,
+		//PropertyComponentMinY,
+		//PropertyComponentMinZ,
+		//PropertyComponentMaxX,
+		//PropertyComponentMaxY,
+		//PropertyComponentMaxZ,
 		PropertyComponentPos,
 		PropertyComponentPosX,
 		PropertyComponentPosY,
 		PropertyComponentPosZ,
-		PropertyComponentRot,
-		PropertyComponentRotX,
-		PropertyComponentRotY,
-		PropertyComponentRotZ,
-		PropertyComponentScale,
-		PropertyComponentScaleX,
-		PropertyComponentScaleY,
-		PropertyComponentScaleZ,
+		//PropertyComponentRot,
+		//PropertyComponentRotX,
+		//PropertyComponentRotY,
+		//PropertyComponentRotZ,
+		//PropertyComponentScale,
+		//PropertyComponentScaleX,
+		//PropertyComponentScaleY,
+		//PropertyComponentScaleZ,
 		//PropertyMesh,
 		//PropertyMeshLodList,
 		//PropertyMeshLodCount,
@@ -184,6 +184,7 @@ protected:
 	////void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	//Material * GetComponentMaterial(Component * cmp, unsigned int id);
+	static unsigned int GetComponentAttrCount(Component * cmp);
 
 // Implementation
 public:
