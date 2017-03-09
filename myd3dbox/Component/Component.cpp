@@ -183,13 +183,26 @@ void Component::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-Animator * Component::GetHierarchyAnimator(void)
+Component * Component::GetTopParent(void)
 {
 	if (m_Parent)
 	{
-		return m_Parent->GetHierarchyAnimator();
+		return m_Parent->GetTopParent();
 	}
-	return m_Animator.get();
+	return this;
+}
+
+Animator * Component::GetAnimator(void)
+{
+	if (m_Animator)
+	{
+		return m_Animator.get();
+	}
+	if (m_Parent)
+	{
+		return m_Parent->GetAnimator();
+	}
+	return NULL;
 }
 //
 //const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
@@ -271,7 +284,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	if (m_bAnimation)
 	{
-		Animator * anim = GetHierarchyAnimator();
+		Animator * anim = GetAnimator();
 		if (anim && !anim->m_DualQuats.empty())
 		{
 			shader->SetMatrixArray("g_dualquat", &anim->m_DualQuats[0], anim->m_DualQuats.size());

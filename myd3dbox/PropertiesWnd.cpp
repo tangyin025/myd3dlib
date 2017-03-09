@@ -530,7 +530,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		}
 	}
 	ASSERT(pComponent);
-	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyComponentPos, TRUE);
 	pComponent->AddSubItem(pPosition);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
@@ -1048,19 +1048,19 @@ void CPropertiesWnd::SetPropListFont()
 
 afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
-	//CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	//ASSERT_VALID(pFrame);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	//if (pFrame->m_selacts.empty())
 	//{
 	//	return 0;
 	//}
 	//Component * cmp = *pFrame->m_selacts.begin();
 
-	//CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
-	//ASSERT(pProp);
-	//DWORD PropertyId = pProp->GetData();
-	//switch (PropertyId)
-	//{
+	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
+	ASSERT(pProp);
+	DWORD PropertyId = pProp->GetData();
+	switch (PropertyId)
+	{
 	//case PropertyComponentAABB:
 	//case PropertyComponentMinX:
 	//case PropertyComponentMinY:
@@ -1068,10 +1068,10 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//case PropertyComponentMaxX:
 	//case PropertyComponentMaxY:
 	//case PropertyComponentMaxZ:
-	//case PropertyComponentPos:
-	//case PropertyComponentPosX:
-	//case PropertyComponentPosY:
-	//case PropertyComponentPosZ:
+	case PropertyComponentPos:
+	case PropertyComponentPosX:
+	case PropertyComponentPosY:
+	case PropertyComponentPosZ:
 	//case PropertyComponentRot:
 	//case PropertyComponentRotX:
 	//case PropertyComponentRotY:
@@ -1080,32 +1080,50 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//case PropertyComponentScaleX:
 	//case PropertyComponentScaleY:
 	//case PropertyComponentScaleZ:
-	//	{
-	//		cmp->m_aabb.m_min.x = m_pProp[PropertyComponentMinX]->GetValue().fltVal;
-	//		cmp->m_aabb.m_min.y = m_pProp[PropertyComponentMinY]->GetValue().fltVal;
-	//		cmp->m_aabb.m_min.z = m_pProp[PropertyComponentMinZ]->GetValue().fltVal;
-	//		cmp->m_aabb.m_max.x = m_pProp[PropertyComponentMaxX]->GetValue().fltVal;
-	//		cmp->m_aabb.m_max.y = m_pProp[PropertyComponentMaxY]->GetValue().fltVal;
-	//		cmp->m_aabb.m_max.z = m_pProp[PropertyComponentMaxZ]->GetValue().fltVal;
-	//		my::Vector3 pos(
-	//			m_pProp[PropertyComponentPosX]->GetValue().fltVal,
-	//			m_pProp[PropertyComponentPosY]->GetValue().fltVal,
-	//			m_pProp[PropertyComponentPosZ]->GetValue().fltVal);
-	//		my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
-	//			D3DXToRadian(m_pProp[PropertyComponentRotX]->GetValue().fltVal),
-	//			D3DXToRadian(m_pProp[PropertyComponentRotY]->GetValue().fltVal),
-	//			D3DXToRadian(m_pProp[PropertyComponentRotZ]->GetValue().fltVal)));
-	//		my::Vector3 scale(
-	//			m_pProp[PropertyComponentScaleX]->GetValue().fltVal,
-	//			m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
-	//			m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
-	//		Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
-	//		pFrame->OnActorPosChanged(cmp);
-	//		pFrame->OnSelActorsChanged();
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
+		{
+			Component * cmp = NULL;
+			CMFCPropertyGridProperty * pPosition = NULL;
+			if (PropertyId == PropertyComponentPos)
+			{
+				cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+				pPosition = pProp->GetParent()->GetSubItem(0);
+			}
+			else
+			{
+				cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+				pPosition = pProp->GetParent()->GetParent()->GetSubItem(0);
+			}
+			cmp->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
+			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
+			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
+			//cmp->m_aabb.m_min.x = m_pProp[PropertyComponentMinX]->GetValue().fltVal;
+			//cmp->m_aabb.m_min.y = m_pProp[PropertyComponentMinY]->GetValue().fltVal;
+			//cmp->m_aabb.m_min.z = m_pProp[PropertyComponentMinZ]->GetValue().fltVal;
+			//cmp->m_aabb.m_max.x = m_pProp[PropertyComponentMaxX]->GetValue().fltVal;
+			//cmp->m_aabb.m_max.y = m_pProp[PropertyComponentMaxY]->GetValue().fltVal;
+			//cmp->m_aabb.m_max.z = m_pProp[PropertyComponentMaxZ]->GetValue().fltVal;
+			//my::Vector3 pos(
+			//	m_pProp[PropertyComponentPosX]->GetValue().fltVal,
+			//	m_pProp[PropertyComponentPosY]->GetValue().fltVal,
+			//	m_pProp[PropertyComponentPosZ]->GetValue().fltVal);
+			//my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+			//	D3DXToRadian(m_pProp[PropertyComponentRotX]->GetValue().fltVal),
+			//	D3DXToRadian(m_pProp[PropertyComponentRotY]->GetValue().fltVal),
+			//	D3DXToRadian(m_pProp[PropertyComponentRotZ]->GetValue().fltVal)));
+			//my::Vector3 scale(
+			//	m_pProp[PropertyComponentScaleX]->GetValue().fltVal,
+			//	m_pProp[PropertyComponentScaleY]->GetValue().fltVal,
+			//	m_pProp[PropertyComponentScaleZ]->GetValue().fltVal);
+			//Component::SetCmpWorld(cmp, my::Matrix4::Compose(scale, rot, pos));
+			Actor * actor = dynamic_cast<Actor *>(cmp->GetTopParent());
+			actor->Update(0);
+			pFrame->OnActorPosChanged(actor);
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	//case PropertyMeshLodCount:
 	//	{
 	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
@@ -1601,6 +1619,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
-	//}
+	}
 	return 0;
 }

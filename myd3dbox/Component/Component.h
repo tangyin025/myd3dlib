@@ -148,7 +148,9 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
-	Animator * GetHierarchyAnimator(void);
+	Component * GetTopParent(void);
+
+	Animator * GetAnimator(void);
 
 	//static const my::AABB & GetCmpOctAABB(const Component * cmp);
 
