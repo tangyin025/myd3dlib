@@ -11,13 +11,13 @@ public:
 
 public:
 	Actor(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: Component(ComponentTypeActor, aabb, Position, Rotation, Scale)
+		: Component(ComponentTypeComponent, aabb, Position, Rotation, Scale)
 		, m_Requested(false)
 	{
 	}
 
 	Actor(void)
-		: Component(ComponentTypeActor, my::AABB(-1,1), my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: Component(ComponentTypeComponent, my::AABB(-1,1), my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_Requested(false)
 	{
 	}

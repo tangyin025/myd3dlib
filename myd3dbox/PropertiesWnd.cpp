@@ -211,16 +211,17 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 //	m_pProp[PropertyComponentScaleY]->SetValue((_variant_t)scale.y);
 //	m_pProp[PropertyComponentScaleZ]->SetValue((_variant_t)scale.z);
 //
-//	switch (cmp->m_Type)
-//	{
-//	case Component::ComponentTypeMesh:
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
 //		m_pProp[PropertyMesh]->Show(TRUE, FALSE);
 //		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
 //		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
 //		//m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
 //		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
 //		UpdatePropertiesMesh(dynamic_cast<MeshComponent *>(cmp));
-//		break;
+		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
+		break;
 //	case Component::ComponentTypeEmitter:
 //		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 //		m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
@@ -245,7 +246,7 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 //		m_pProp[PropertyTerrain]->Show(TRUE, FALSE);
 //		UpdatePropertiesTerrain(dynamic_cast<Terrain *>(cmp));
 //		break;
-//	}
+	}
 //	m_wndPropList.AdjustLayout();
 
 	if (!cmp->m_Cmps.empty())
@@ -253,27 +254,36 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
 		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
 		{
-			UpdateProperties(pComponent, GetComponentAttrCount(cmp) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			UpdateProperties(pComponent, GetComponentAttrCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
 		}
 	}
 }
-//
-//void CPropertiesWnd::UpdatePropertiesMesh(MeshComponent * cmp)
-//{
-//	UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], cmp);
-//	m_pProp[PropertyMeshLodBand]->SetValue((_variant_t)cmp->m_lodBand);
-//	m_pProp[PropertyMeshStaticCollision]->SetValue((_variant_t)(VARIANT_BOOL)cmp->m_StaticCollision);
-//	unsigned int i = 0;
-//	for (; i < cmp->m_MaterialList.size(); i++)
-//	{
-//		if ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() <= i)
-//		{
-//			CreatePropertiesMaterial(m_pProp[PropertyMaterialList], i);
-//		}
-//		UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], i, cmp->m_MaterialList[i].get());
-//	}
-//	RemovePropertiesFrom(m_pProp[PropertyMaterialList], i);
-//}
+
+void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
+{
+	//UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], cmp);
+	//m_pProp[PropertyMeshLodBand]->SetValue((_variant_t)cmp->m_lodBand);
+	//m_pProp[PropertyMeshStaticCollision]->SetValue((_variant_t)(VARIANT_BOOL)cmp->m_StaticCollision);
+	//unsigned int i = 0;
+	//for (; i < cmp->m_MaterialList.size(); i++)
+	//{
+	//	if ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() <= i)
+	//	{
+	//		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], i);
+	//	}
+	//	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], i, cmp->m_MaterialList[i].get());
+	//}
+	//RemovePropertiesFrom(m_pProp[PropertyMaterialList], i);
+
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty * pMeshPath = pComponent->GetSubItem(PropId++);
+	if (!pMeshPath || pMeshPath->GetData() != PropertyMeshPath)
+	{
+		CreatePropertiesMesh(pComponent, mesh_cmp);
+		return;
+	}
+	pMeshPath->SetValue(ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
+}
 //
 //void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
 //{
@@ -548,14 +558,33 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Position.z, NULL, PropertyComponentPosZ);
 	pPosition->AddSubItem(pProp);
 
+	switch (cmp->m_Type)
+	{
+	case Component::ComponentTypeMesh:
+		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
+		break;
+	}
+
 	if (!cmp->m_Cmps.empty())
 	{
 		Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
 		for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
 		{
-			CreateProperties(pComponent, GetComponentAttrCount(cmp) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+			CreateProperties(pComponent, GetComponentAttrCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), cmp_iter), cmp_iter->get());
 		}
 	}
+}
+
+void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	while ((unsigned int)pComponent->GetSubItemsCount() > PropId)
+	{
+		CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+		static_cast<CMFCPropertyGridPropertyReader *>(pComponent)->RemoveSubItem(pProp, TRUE);
+	}
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
+	pComponent->AddSubItem(pProp);
 }
 //
 //void CPropertiesWnd::CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
@@ -775,11 +804,11 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 //	return NULL;
 //}
 
-unsigned int CPropertiesWnd::GetComponentAttrCount(Component * cmp)
+unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type)
 {
-	switch (cmp->m_Type)
+	switch (type)
 	{
-	case Component::ComponentTypeActor:
+	case Component::ComponentTypeComponent:
 		return 1;
 	case Component::ComponentTypeMesh:
 		return 1;

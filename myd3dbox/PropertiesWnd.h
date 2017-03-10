@@ -62,6 +62,7 @@ protected:
 		//PropertyComponentScaleY,
 		//PropertyComponentScaleZ,
 		//PropertyMesh,
+		PropertyMeshPath,
 		//PropertyMeshLodList,
 		//PropertyMeshLodCount,
 		//PropertyMeshLodResPath,
@@ -156,7 +157,7 @@ protected:
 	void HideAllProperties(void);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
-	//void UpdatePropertiesMesh(MeshComponent * cmp);
+	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	//void UpdatePropertiesEmitter(EmitterComponent * cmp);
@@ -173,6 +174,7 @@ protected:
 	//void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
+	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	//void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	//void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	//void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
@@ -184,7 +186,7 @@ protected:
 	////void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	//Material * GetComponentMaterial(Component * cmp, unsigned int id);
-	static unsigned int GetComponentAttrCount(Component * cmp);
+	static unsigned int GetComponentAttrCount(Component::ComponentType type);
 
 // Implementation
 public:

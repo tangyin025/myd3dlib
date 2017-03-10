@@ -278,7 +278,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	my::Frustum local_ftm = frustum.transform(cmp->m_World.transpose());
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
+	case Component::ComponentTypeComponent:
 		{
 			if (cmp->m_Cmps.empty())
 			{
@@ -418,7 +418,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	my::Ray local_ray = ray.transform(cmp->m_World.inverse());
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeActor:
+	case Component::ComponentTypeComponent:
 		{
 			if (cmp->m_Cmps.empty())
 			{
