@@ -218,11 +218,11 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selacts.empty())
+	if (!pFrame->m_selcmps.empty())
 	{
 		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-	//	CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selacts.begin();
-	//	for (; sel_iter != pFrame->m_selacts.end(); sel_iter++)
+	//	CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
+	//	for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 	//	{
 	//		PushWireAABB(Component::GetCmpOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
 	//		switch ((*sel_iter)->m_Type)
@@ -278,7 +278,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	my::Frustum local_ftm = frustum.transform(cmp->m_World.transpose());
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeComponent:
+	case Component::ComponentTypeActor:
 		{
 			if (cmp->m_Cmps.empty())
 			{
@@ -418,7 +418,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	my::Ray local_ray = ray.transform(cmp->m_World.inverse());
 	switch (cmp->m_Type)
 	{
-	case Component::ComponentTypeComponent:
+	case Component::ComponentTypeActor:
 		{
 			if (cmp->m_Cmps.empty())
 			{
@@ -772,7 +772,7 @@ void CChildView::OnPaint()
 				V(theApp.m_d3dDevice->SetRenderState(D3DRS_LIGHTING, FALSE));
 				DrawHelper::EndLine(theApp.m_d3dDevice, my::Matrix4::identity);
 
-				if (!pFrame->m_selacts.empty())
+				if (!pFrame->m_selcmps.empty())
 				{
 					m_PivotScale = m_Camera->CalculateViewportScaler(pFrame->m_Pivot.m_Pos) * 50.0f / m_SwapChainBufferDesc.Width;
 					V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
@@ -861,15 +861,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	my::Ray ray = m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-	if (!pFrame->m_selacts.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
+	if (!pFrame->m_selcmps.empty() && pFrame->m_Pivot.OnLButtonDown(ray, m_PivotScale))
 	{
 		StartPerformanceCount();
-		_ASSERT(m_selactwlds.empty());
-		CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selacts.begin();
-		for (; sel_iter != pFrame->m_selacts.end(); sel_iter++)
+		_ASSERT(m_selcmpwlds.empty());
+		CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.begin();
+		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
 		{
-			m_selactwlds[*sel_iter][0] = my::Vector4((*sel_iter)->m_Position, 0);
-			m_selactwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
+			m_selcmpwlds[*sel_iter][0] = my::Vector4((*sel_iter)->m_Position, 0);
+			m_selcmpwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
 		}
 		SetCapture();
 		Invalidate();
@@ -881,9 +881,9 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	StartPerformanceCount();
 	bool bSelectionChanged = false;
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selacts.empty())
+	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selcmps.empty())
 	{
-		pFrame->m_selacts.clear();
+		pFrame->m_selcmps.clear();
 		bSelectionChanged = true;
 	}
 
@@ -897,7 +897,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
 		struct Callback : public my::IQueryCallback
 		{
-			CMainFrame::ActorSet selacts;
+			CMainFrame::ComponentSet selacts;
 			const my::Frustum & ftm;
 			CChildView * pView;
 			Callback(const my::Frustum & _ftm, CChildView * _pView)
@@ -916,10 +916,10 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		};
 		Callback cb(ftm, this);
 		pFrame->m_Root.QueryActor(ftm, &cb);
-		CMainFrame::ActorSet::iterator cmp_iter = cb.selacts.begin();
+		CMainFrame::ComponentSet::iterator cmp_iter = cb.selacts.begin();
 		for (; cmp_iter != cb.selacts.end(); cmp_iter++)
 		{
-			pFrame->m_selacts.insert(*cmp_iter);
+			pFrame->m_selcmps.insert(*cmp_iter);
 			bSelectionChanged = true;
 		}
 	}
@@ -951,15 +951,15 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
 		if (cmp_iter != cb.selacts.end())
 		{
-			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selacts.find(cmp_iter->second);
-			if (sel_iter != pFrame->m_selacts.end())
+			CMainFrame::ComponentSet::iterator sel_iter = pFrame->m_selcmps.find(cmp_iter->second);
+			if (sel_iter != pFrame->m_selcmps.end())
 			{
-				pFrame->m_selacts.erase(sel_iter);
+				pFrame->m_selcmps.erase(sel_iter);
 				bSelectionChanged = true;
 			}
 			else
 			{
-				pFrame->m_selacts.insert(cmp_iter->second);
+				pFrame->m_selcmps.insert(cmp_iter->second);
 				bSelectionChanged = true;
 			}
 		}
@@ -985,12 +985,15 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height))))
 	{
 		StartPerformanceCount();
-		ActorWorldMap::iterator actor_world_iter = m_selactwlds.begin();
-		for (; actor_world_iter != m_selactwlds.end(); actor_world_iter++)
+		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
-			pFrame->OnActorPosChanged(actor_world_iter->first);
+			if (cmp_world_iter->first->m_Type == Component::ComponentTypeActor)
+			{
+				pFrame->OnActorPosChanged(dynamic_cast<Actor *>(cmp_world_iter->first));
+			}
 		}
-		m_selactwlds.clear();
+		m_selcmpwlds.clear();
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
 
@@ -1007,18 +1010,18 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
 		StartPerformanceCount();
-		ActorWorldMap::iterator actor_world_iter = m_selactwlds.begin();
-		for (; actor_world_iter != m_selactwlds.end(); actor_world_iter++)
+		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
+		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
-				actor_world_iter->first->Update(0);
+				cmp_world_iter->first->m_Position = cmp_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
+				cmp_world_iter->first->Update(0);
 				break;
 			case Pivot::PivotModeRot:
-				actor_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)actor_world_iter->second[1];
-				actor_world_iter->first->Update(0);
+				cmp_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)cmp_world_iter->second[1];
+				cmp_world_iter->first->Update(0);
 				break;
 			}
 		}
@@ -1143,7 +1146,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'F':
 		{
 			float fov = D3DXToRadian(75.0f);
-			//if (!pFrame->m_selacts.empty())
+			//if (!pFrame->m_selcmps.empty())
 			//{
 			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
 			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;

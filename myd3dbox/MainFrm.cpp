@@ -391,11 +391,11 @@ void CMainFrame::OnActorPosChanged(Actor * actor)
 
 void CMainFrame::UpdateSelBox(void)
 {
-	if (!m_selacts.empty())
+	if (!m_selcmps.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		ActorSet::const_iterator sel_iter = m_selacts.begin();
-		for (; sel_iter != m_selacts.end(); sel_iter++)
+		ComponentSet::const_iterator sel_iter = m_selcmps.begin();
+		for (; sel_iter != m_selcmps.end(); sel_iter++)
 		{
 			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
 		}
@@ -404,12 +404,12 @@ void CMainFrame::UpdateSelBox(void)
 
 void CMainFrame::UpdatePivotTransform(void)
 {
-	if (m_selacts.size() == 1)
+	if (m_selcmps.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selacts.begin())->m_Position;
-		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selacts.begin())->m_Rotation);
+		m_Pivot.m_Pos = (*m_selcmps.begin())->m_Position;
+		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selcmps.begin())->m_Rotation);
 	}
-	else if (!m_selacts.empty())
+	else if (!m_selcmps.empty())
 	{
 		m_Pivot.m_Pos = m_selbox.Center();
 		m_Pivot.m_Rot = my::Quaternion::Identity();
@@ -473,7 +473,7 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 void CMainFrame::ClearAllActor()
 {
 	m_Root.ClearAllActor();
-	m_selacts.clear();
+	m_selcmps.clear();
 	m_ViewedActors.clear();
 }
 
@@ -599,8 +599,8 @@ void CMainFrame::OnCreateActor()
 	actor->Update(0);
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
-	m_selacts.clear();
-	m_selacts.insert(actor.get());
+	m_selcmps.clear();
+	m_selcmps.insert(actor.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
 	EventArg arg;
@@ -610,8 +610,8 @@ void CMainFrame::OnCreateActor()
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	_ASSERT(!m_selacts.empty());
-	Actor * actor = *m_selacts.begin();
+	_ASSERT(!m_selcmps.empty());
+	Component * cmp = *m_selcmps.begin();
 
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
 	if (IDOK == dlg.DoModal())
@@ -634,8 +634,8 @@ void CMainFrame::OnComponentMesh()
 				mesh_cmp->m_MaterialList.push_back(lambert1);
 			}
 			mesh_cmp->RequestResource();
-			actor->AddComponent(mesh_cmp);
-			actor->Update(0);
+			cmp->AddComponent(mesh_cmp);
+			cmp->Update(0);
 
 			EventArg arg;
 			m_EventAttributeChanged(&arg);
@@ -662,8 +662,8 @@ void CMainFrame::OnComponentEmitter()
 	//emit_cmp->RequestResource();
 	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(emit_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(emit_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -703,8 +703,8 @@ void CMainFrame::OnComponentSphericalemitter()
 	//emit_cmp->RequestResource();
 	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(emit_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(emit_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -719,8 +719,8 @@ void CMainFrame::OnRigidSphere()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(rigid_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -735,8 +735,8 @@ void CMainFrame::OnRigidPlane()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(rigid_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -751,8 +751,8 @@ void CMainFrame::OnRigidCapsule()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(rigid_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -767,8 +767,8 @@ void CMainFrame::OnRigidBox()
 	//rigid_cmp->RequestResource();
 	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(rigid_cmp.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -789,8 +789,8 @@ void CMainFrame::OnComponentTerrain()
 	//terrain->RequestResource();
 	//m_Root.AddActor(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
 
-	//m_selacts.clear();
-	//m_selacts.insert(terrain.get());
+	//m_selcmps.clear();
+	//m_selcmps.insert(terrain.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -800,14 +800,14 @@ void CMainFrame::OnComponentTerrain()
 void CMainFrame::OnEditDelete()
 {
 	//// TODO: Add your command handler code here
-	//ActorSet::iterator cmp_iter = m_selacts.begin();
-	//for (; cmp_iter != m_selacts.end(); cmp_iter++)
+	//ActorSet::iterator cmp_iter = m_selcmps.begin();
+	//for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	//{
 	//	my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
 	//	m_Root.RemoveActor(cmp);
 	//	m_ViewedActors.erase(*cmp_iter);
 	//}
-	//m_selacts.clear();
+	//m_selcmps.clear();
 	//EventArg arg;
 	//m_EventSelectionChanged(&arg);
 }
@@ -815,7 +815,7 @@ void CMainFrame::OnEditDelete()
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	//// TODO: Add your command update UI handler code here
-	//pCmdUI->Enable(!m_selacts.empty());
+	//pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnPivotMove()
@@ -850,10 +850,10 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
 	//const float fElapsedTime = 0.033f;
-	//if (!m_selacts.empty())
+	//if (!m_selcmps.empty())
 	//{
-	//	ActorSet::iterator cmp_iter = m_selacts.begin();
-	//	for (; cmp_iter != m_selacts.end(); cmp_iter++)
+	//	ActorSet::iterator cmp_iter = m_selcmps.begin();
+	//	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	//	{
 	//		(*cmp_iter)->Update(fElapsedTime);
 	//	}

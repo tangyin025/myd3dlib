@@ -64,7 +64,7 @@ public:
 	enum ComponentType
 	{
 		ComponentTypeUnknown,
-		ComponentTypeComponent,
+		ComponentTypeActor,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
 		//ComponentTypeRigid,

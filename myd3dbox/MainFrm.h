@@ -33,7 +33,8 @@ public:
 	my::OctTree m_Root;
 	typedef boost::unordered_set<Actor *> ActorSet;
 	ActorSet m_ViewedActors;
-	ActorSet m_selacts;
+	typedef boost::unordered_set<Component *> ComponentSet;
+	ComponentSet m_selcmps;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;

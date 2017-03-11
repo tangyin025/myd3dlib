@@ -112,9 +112,9 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selacts.empty())
+	if (!pFrame->m_selcmps.empty())
 	{
-		UpdateProperties(NULL, 0, *pFrame->m_selacts.begin());
+		UpdateProperties(NULL, 0, *pFrame->m_selcmps.begin());
 		m_wndPropList.AdjustLayout();
 	}
 	else
@@ -128,10 +128,10 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMainFrame::ActorSet::iterator actor_iter = pFrame->m_selacts.begin();
-	if (actor_iter != pFrame->m_selacts.end())
+	CMainFrame::ComponentSet::iterator cmp_iter = pFrame->m_selcmps.begin();
+	if (cmp_iter != pFrame->m_selcmps.end())
 	{
-		UpdateProperties(NULL, 0, *actor_iter);
+		UpdateProperties(NULL, 0, *cmp_iter);
 		m_wndPropList.AdjustLayout();
 	}
 }
@@ -689,7 +689,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 {
 	switch (type)
 	{
-	case Component::ComponentTypeComponent:
+	case Component::ComponentTypeActor:
 		return 1;
 	case Component::ComponentTypeMesh:
 		return 1;
@@ -984,11 +984,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	//if (pFrame->m_selacts.empty())
+	//if (pFrame->m_selcmps.empty())
 	//{
 	//	return 0;
 	//}
-	//Component * cmp = *pFrame->m_selacts.begin();
+	//Component * cmp = *pFrame->m_selcmps.begin();
 
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
