@@ -157,7 +157,6 @@ protected:
 	void HideAllProperties(void);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
-	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	//void UpdatePropertiesEmitter(EmitterComponent * cmp);
@@ -173,8 +172,6 @@ protected:
 	//void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
 	//void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
-	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
-	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	//void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	//void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	//void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
