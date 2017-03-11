@@ -1,6 +1,9 @@
 #pragma once
 
-class Actor;
+#include "DragableTreeCtrl.h"
+#include <boost/unordered_map.hpp>
+
+class Component;
 
 class CClassToolBar : public CMFCToolBar
 {
@@ -22,7 +25,7 @@ public:
 	void OnChangeVisualStyle();
 
 public:
-	CTreeCtrl m_wndClassView;
+	CDragableTreeCtrl m_wndClassView;
 	CImageList m_ClassViewImages;
 	CMenu m_ContextMenu;
 	CMenu m_ContextMenuAdd;

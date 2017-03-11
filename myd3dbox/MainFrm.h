@@ -25,7 +25,7 @@ protected:
 	CSplitterWnd m_wndSplitter;
 public:
 	BOOL m_bEatAltUp;
-	COutlinerWnd		m_wndOutliner;
+	//COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
 	CString m_strPathName;
 	CRectTracker m_Tracker;
