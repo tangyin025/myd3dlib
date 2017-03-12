@@ -38,23 +38,23 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 	}
 	return g_PassMaskDesc[0].desc;
 }
-
-struct ShapeTypeDesc
-{
-	LPCTSTR desc;
-	DWORD type;
-};
-
-static const ShapeTypeDesc g_ShapeTypeDesc[PxGeometryType::eGEOMETRY_COUNT] =
-{
-	{_T("Sphere"), PxGeometryType::eSPHERE},
-	{_T("Plane"), PxGeometryType::ePLANE},
-	{_T("Capsule"), PxGeometryType::eCAPSULE},
-	{_T("Box"), PxGeometryType::eBOX},
-	{_T("ConvexMesh"), PxGeometryType::eCONVEXMESH},
-	{_T("TriangleMesh"), PxGeometryType::eTRIANGLEMESH},
-	{_T("HeightField"), PxGeometryType::eHEIGHTFIELD},
-};
+//
+//struct ShapeTypeDesc
+//{
+//	LPCTSTR desc;
+//	DWORD type;
+//};
+//
+//static const ShapeTypeDesc g_ShapeTypeDesc[PxGeometryType::eGEOMETRY_COUNT] =
+//{
+//	{_T("Sphere"), PxGeometryType::eSPHERE},
+//	{_T("Plane"), PxGeometryType::ePLANE},
+//	{_T("Capsule"), PxGeometryType::eCAPSULE},
+//	{_T("Box"), PxGeometryType::eBOX},
+//	{_T("ConvexMesh"), PxGeometryType::eCONVEXMESH},
+//	{_T("TriangleMesh"), PxGeometryType::eTRIANGLEMESH},
+//	{_T("HeightField"), PxGeometryType::eHEIGHTFIELD},
+//};
 
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
@@ -275,13 +275,16 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	//RemovePropertiesFrom(m_pProp[PropertyMaterialList], i);
 
 	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
-	CMFCPropertyGridProperty * pMeshPath = pComponent->GetSubItem(PropId++);
-	if (!pMeshPath || pMeshPath->GetData() != PropertyMeshPath)
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyMeshResPath)
 	{
 		CreatePropertiesMesh(pComponent, mesh_cmp);
 		return;
 	}
-	pMeshPath->SetValue(ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)mesh_cmp->m_bAnimation);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_StaticCollision);
 }
 //
 //void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
@@ -617,7 +620,13 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 		static_cast<CMFCPropertyGridPropertyReader *>(pComponent)->RemoveSubItem(pProp, TRUE);
 	}
-	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshPath);
+	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Animation"), (_variant_t)mesh_cmp->m_bAnimation, NULL, PropertyMeshAnimation);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("StaticCollision"), (_variant_t)mesh_cmp->m_StaticCollision, NULL, PropertyMeshStaticCollision);
 	pComponent->AddSubItem(pProp);
 }
 //
@@ -627,9 +636,9 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 //	_stprintf_s(buff, _countof(buff), _T("Lod%u"), NodeId);
 //	CMFCPropertyGridProperty * pNode = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
 //	pParentCtrl->AddSubItem(pNode);
-//	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshLodResPath);
+//	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 //	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshLodInstance);
+//	pProp = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshInstance);
 //	pNode->AddSubItem(pProp);
 //	pProp = new CSimpleProp(_T("MaxDistance"), (_variant_t)0.0f, NULL, PropertyMeshLodMaxDistance);
 //	pNode->AddSubItem(pProp);
@@ -845,7 +854,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeActor:
 		return 4;
 	case Component::ComponentTypeMesh:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 1;
+		return GetComponentAttrCount(Component::ComponentTypeActor) + 4;
 	case Component::ComponentTypeEmitter:
 		return GetComponentAttrCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeTerrain:
@@ -1213,56 +1222,40 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	//case PropertyMeshLodCount:
-	//	{
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_lods.resize(my::Clamp<unsigned int>(pProp->GetValue().uintVal, 1, 3));
-	//		UpdatePropertiesMeshLodList(m_pProp[PropertyMeshLodList], mesh_cmp);
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMeshLodResPath:
-	//	{
-	//		DWORD NodeId = pProp->GetParent()->GetData();
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_lods[NodeId].m_MeshRes.ReleaseResource();
-	//		mesh_cmp->m_lods[NodeId].m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
-	//		mesh_cmp->m_lods[NodeId].m_MeshRes.RequestResource();
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMeshLodInstance:
-	//	{
-	//		DWORD NodeId = pProp->GetParent()->GetData();
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_lods[NodeId].m_bInstance = pProp->GetValue().boolVal != 0;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMeshLodMaxDistance:
-	//	{
-	//		DWORD NodeId = pProp->GetParent()->GetData();
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_lods[NodeId].m_MaxDistance = pProp->GetValue().fltVal;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyMeshLodBand:
-	//	{
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_lodBand = pProp->GetValue().fltVal;
-	//	}
-	//	break;
-	//case PropertyMeshStaticCollision:
-	//	{
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		mesh_cmp->m_StaticCollision = pProp->GetValue().boolVal;
-	//	}
-	//	break;
+	case PropertyMeshResPath:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+			mesh_cmp->m_MeshRes.ReleaseResource();
+			mesh_cmp->m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			mesh_cmp->m_MeshRes.RequestResource();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMeshAnimation:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+			mesh_cmp->m_bAnimation = pProp->GetValue().boolVal != 0;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMeshInstance:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+			mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMeshStaticCollision:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+			mesh_cmp->m_StaticCollision = pProp->GetValue().boolVal != 0;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	//case PropertyEmitterParticleCount:
 	//	{
 	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
