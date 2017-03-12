@@ -540,34 +540,51 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
 game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
--- 添加特效
-local cmp = SphericalEmitterComponent(AABB(-10,10),Vector3(0,0,0),Quaternion(0,0,0,1),Vector3(1,1,1))
-cmp.Emitter = Emitter()
-cmp.SpawnInterval=1/100
-cmp.ParticleLifeTime=10
-cmp.SpawnSpeed=5
-cmp.SpawnInclination:AddNode(0,math.rad(45),0,0)
-local Azimuth=math.rad(360)*8
-cmp.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
-cmp.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
-cmp.SpawnColorA:AddNode(0,1,0,0)
-cmp.SpawnColorA:AddNode(10,0,0,0)
-cmp.SpawnColorR:AddNode(0,1,0,0)
-cmp.SpawnColorR:AddNode(10,0,0,0)
-cmp.SpawnColorG:AddNode(0,1,0,0)
-cmp.SpawnColorG:AddNode(10,0,0,0)
-cmp.SpawnColorB:AddNode(0,1,0,0)
-cmp.SpawnColorB:AddNode(10,0,0,0)
-cmp.SpawnSizeX:AddNode(0,1,0,0)
-cmp.SpawnSizeX:AddNode(10,10,0,0)
-cmp.SpawnSizeY:AddNode(0,1,0,0)
-cmp.SpawnSizeY:AddNode(10,10,0,0)
-local material=Material()
-material.Shader="particle1.fx"
-material.PassMask=Material.PassMaskTransparent
-material.MeshTexture.Path="texture/flare.dds"
-cmp.Material = material
-cmp:RequestResource()
-local actor = Actor()
-actor:AddComponent(cmp)
+-- -- 添加特效
+-- local cmp = SphericalEmitterComponent(AABB(-10,10),Vector3(0,0,0),Quaternion(0,0,0,1),Vector3(1,1,1))
+-- cmp.Emitter = Emitter()
+-- cmp.SpawnInterval=1/100
+-- cmp.ParticleLifeTime=10
+-- cmp.SpawnSpeed=5
+-- cmp.SpawnInclination:AddNode(0,math.rad(45),0,0)
+-- local Azimuth=math.rad(360)*8
+-- cmp.SpawnAzimuth:AddNode(0,0,Azimuth/10,Azimuth/10)
+-- cmp.SpawnAzimuth:AddNode(10,Azimuth,Azimuth/10,Azimuth/10)
+-- cmp.SpawnColorA:AddNode(0,1,0,0)
+-- cmp.SpawnColorA:AddNode(10,0,0,0)
+-- cmp.SpawnColorR:AddNode(0,1,0,0)
+-- cmp.SpawnColorR:AddNode(10,0,0,0)
+-- cmp.SpawnColorG:AddNode(0,1,0,0)
+-- cmp.SpawnColorG:AddNode(10,0,0,0)
+-- cmp.SpawnColorB:AddNode(0,1,0,0)
+-- cmp.SpawnColorB:AddNode(10,0,0,0)
+-- cmp.SpawnSizeX:AddNode(0,1,0,0)
+-- cmp.SpawnSizeX:AddNode(10,10,0,0)
+-- cmp.SpawnSizeY:AddNode(0,1,0,0)
+-- cmp.SpawnSizeY:AddNode(10,10,0,0)
+-- local material=Material()
+-- material.Shader="particle1.fx"
+-- material.PassMask=Material.PassMaskTransparent
+-- material.MeshTexture.Path="texture/flare.dds"
+-- cmp.Material = material
+-- cmp:RequestResource()
+-- local actor = Actor()
+-- actor:AddComponent(cmp)
+-- game.Root:AddActor(cmp2oct(actor),actor.aabb:transform(actor.World),0.1)
+
+-- local cmp = EmitterComponent(AABB(-10,10),Vector3(0,0,0),Quaternion(0,0,0,1),Vector3(1,1,1))
+-- cmp.Emitter = Emitter()
+-- cmp.Emitter:Spawn(Vector3(0,0,0),Vector3(0,0,0),Vector4(1,1,1,1),Vector2(1,1),0)
+-- local material=Material()
+-- material.Shader="particle1.fx"
+-- material.PassMask=Material.PassMaskTransparent
+-- material.MeshTexture.Path="texture/flare.dds"
+-- cmp.Material = material
+-- cmp:RequestResource()
+-- local actor = Actor()
+-- actor:AddComponent(cmp)
+-- game.Root:AddActor(cmp2oct(actor),actor.aabb:transform(actor.World),0.1)
+-- game:SaveComponent(actor,"aabbcc.xml")
+
+local actor = game:LoadComponent("aabbcc.xml")
 game.Root:AddActor(cmp2oct(actor),actor.aabb:transform(actor.World),0.1)

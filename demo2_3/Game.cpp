@@ -267,6 +267,8 @@ Game::Game(void)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
 			.def("LoadDialog", &Game::LoadDialog)
+			.def("SaveComponent", &Game::SaveComponent)
+			.def("LoadComponent", &Game::LoadComponent)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -843,4 +845,21 @@ my::DialogPtr Game::LoadDialog(const char * path)
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> BOOST_SERIALIZATION_NVP(dlg);
 	return dlg;
+}
+
+void Game::SaveComponent(ComponentPtr cmp, const char * path)
+{
+	std::ofstream ostr(path);
+	boost::archive::polymorphic_xml_oarchive oa(ostr);
+	oa << BOOST_SERIALIZATION_NVP(cmp);
+}
+
+ComponentPtr Game::LoadComponent(const char * path)
+{
+	ComponentPtr cmp;
+	IStreamBuff buff(OpenIStream(path));
+	std::istream istr(&buff);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
+	ia >> BOOST_SERIALIZATION_NVP(cmp);
+	return cmp;
 }

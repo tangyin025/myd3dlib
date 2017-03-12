@@ -328,13 +328,13 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 //	if (dynamic_emit)
 //	{
 //		m_pProp[PropertyEmitterParticleList]->Show(FALSE, FALSE);
-//		m_pProp[PropertyDynamicEmitterParticleLifeTime]->Show(TRUE, FALSE);
-//		m_pProp[PropertyDynamicEmitterParticleLifeTime]->SetValue((_variant_t)dynamic_emit->m_ParticleLifeTime);
+//		m_pProp[PropertySphericalEmitterParticleLifeTime]->Show(TRUE, FALSE);
+//		m_pProp[PropertySphericalEmitterParticleLifeTime]->SetValue((_variant_t)dynamic_emit->m_ParticleLifeTime);
 //	}
 //	else
 //	{
 //		m_pProp[PropertyEmitterParticleList]->Show(TRUE, FALSE);
-//		m_pProp[PropertyDynamicEmitterParticleLifeTime]->Show(FALSE, FALSE);
+//		m_pProp[PropertySphericalEmitterParticleLifeTime]->Show(FALSE, FALSE);
 //		UpdatePropertiesEmitterParticleList(m_pProp[PropertyEmitterParticleList], cmp->m_Emitter->m_ParticleList);
 //	}
 //
@@ -1045,8 +1045,8 @@ void CPropertiesWnd::InitPropList()
 	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyEmitterParticleList]);
 	//m_pProp[PropertyEmitterParticleCount] = new CSimpleProp(_T("ParticleCount"), (_variant_t)(size_t)0, NULL, PropertyEmitterParticleCount);
 	//m_pProp[PropertyEmitterParticleList]->AddSubItem(m_pProp[PropertyEmitterParticleCount]);
-	//m_pProp[PropertyDynamicEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertyDynamicEmitterParticleLifeTime);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyDynamicEmitterParticleLifeTime]);
+	//m_pProp[PropertySphericalEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertySphericalEmitterParticleLifeTime);
+	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterParticleLifeTime]);
 	//m_pProp[PropertySphericalEmitterSpawnInterval] = new CSimpleProp(_T("SpawnInterval"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnInterval);
 	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnInterval]);
 	//m_pProp[PropertySphericalEmitterHalfSpawnArea] = new CSimpleProp(_T("HalfSpawnArea"), 0, TRUE);
@@ -1337,7 +1337,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
-	//case PropertyDynamicEmitterParticleLifeTime:
+	//case PropertySphericalEmitterParticleLifeTime:
 	//	{
 	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
 	//		my::DynamicEmitter * dynamic_emit = dynamic_cast<my::DynamicEmitter *>(emit_cmp->m_Emitter.get());

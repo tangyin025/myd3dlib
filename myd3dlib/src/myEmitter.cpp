@@ -15,6 +15,20 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Emitter)
 
+template<>
+void Emitter::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	boost::serialization::stl::save_collection<boost::archive::polymorphic_oarchive, boost::circular_buffer<Particle> >(ar, m_ParticleList);
+}
+
+template<>
+void Emitter::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	boost::serialization::stl::load_collection<boost::archive::polymorphic_iarchive, boost::circular_buffer<Particle>,
+		boost::serialization::stl::archive_input_seq<boost::archive::polymorphic_iarchive, boost::circular_buffer<Particle> >,
+		boost::serialization::stl::no_reserve_imp<boost::circular_buffer<Particle> > >(ar, m_ParticleList);
+}
+
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle)
 {
 	m_ParticleList.push_back(Particle(Position, Velocity, Color, Size, Angle, m_Time));

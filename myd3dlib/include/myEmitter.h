@@ -79,9 +79,18 @@ namespace my
 		{
 		}
 
-		template <class Archive>
+		friend class boost::serialization::access;
+
+		template<class Archive>
+		void save(Archive & ar, const unsigned int version) const;
+
+		template<class Archive>
+		void load(Archive & ar, const unsigned int version);
+
+		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
 		{
+			boost::serialization::split_member(ar, *this, version);
 		}
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);

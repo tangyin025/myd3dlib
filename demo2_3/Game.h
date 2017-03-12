@@ -124,4 +124,8 @@ public:
 	void SaveDialog(my::DialogPtr dlg, const char * path);
 
 	my::DialogPtr LoadDialog(const char * path);
+
+	void SaveComponent(ComponentPtr cmp, const char * path);
+
+	ComponentPtr LoadComponent(const char * path);
 };
