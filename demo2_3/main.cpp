@@ -201,7 +201,7 @@ public:
 		double fTime,
 		float fElapsedTime)
 	{
-		//PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
+		PushGrid(12, 5, 5, D3DCOLOR_ARGB(255,127,127,127), D3DCOLOR_ARGB(255,0,0,0), Matrix4::RotationX(D3DXToRadian(-90)));
 
 		swprintf_s(&m_ScrInfos[0][0], m_ScrInfos[0].size(), L"Fps: %.2f", m_fFps);
 		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)

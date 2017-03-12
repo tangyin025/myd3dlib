@@ -4,7 +4,7 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
-#include "Component.h"
+#include "Actor.h"
 
 namespace luabind
 {
@@ -142,12 +142,6 @@ static void translate_my_exception(lua_State* L, my::Exception const & e)
 	std::string s = e.what();
 	lua_pushlstring(L, s.c_str(), s.length());
 }
-//
-//template <typename T, typename U>
-//static U * shared_ptr_2_raw(boost::shared_ptr<T> ptr)
-//{
-//	return ptr.get();
-//}
 
 static void ExportMath(lua_State * L)
 {
@@ -395,6 +389,7 @@ static void ExportMath(lua_State * L)
 
 		, class_<my::OctTree, boost::shared_ptr<my::OctTree> >("OctTree")
 			.def("AddActor", &my::OctTree::AddActor)
+			.def("RemoveActor", &my::OctTree::RemoveActor)
 			.def("ClearAllActor", &my::OctTree::ClearAllActor)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
@@ -594,26 +589,6 @@ static void ExportEmitter(lua_State * L)
 		, class_<my::Emitter, boost::shared_ptr<my::Emitter> >("Emitter")
 			.def(constructor<>())
 			.def("Spawn", &my::Emitter::Spawn)
-
-		//, class_<my::DynamicEmitter, my::Emitter, boost::shared_ptr<my::Emitter> >("DynamicEmitter")
-		//	.def(constructor<>())
-		//	.def_readwrite("ParticleLifeTime", &my::DynamicEmitter::m_ParticleLifeTime)
-
-		//, class_<my::SphericalEmitter, my::DynamicEmitter, boost::shared_ptr<my::Emitter> >("SphericalEmitter")
-		//	.def(constructor<>())
-		//	.def_readwrite("SpawnInterval", &my::SphericalEmitter::m_SpawnInterval)
-		//	.def_readwrite("HalfSpawnArea", &my::SphericalEmitter::m_HalfSpawnArea)
-		//	.def_readwrite("SpawnSpeed", &my::SphericalEmitter::m_SpawnSpeed)
-		//	.def_readwrite("SpawnInclination", &my::SphericalEmitter::m_SpawnInclination)
-		//	.def_readwrite("SpawnAzimuth", &my::SphericalEmitter::m_SpawnAzimuth)
-		//	.def_readwrite("SpawnColorR", &my::SphericalEmitter::m_SpawnColorR)
-		//	.def_readwrite("SpawnColorG", &my::SphericalEmitter::m_SpawnColorG)
-		//	.def_readwrite("SpawnColorB", &my::SphericalEmitter::m_SpawnColorB)
-		//	.def_readwrite("SpawnColorA", &my::SphericalEmitter::m_SpawnColorA)
-		//	.def_readwrite("SpawnSizeX", &my::SphericalEmitter::m_SpawnSizeX)
-		//	.def_readwrite("SpawnSizeY", &my::SphericalEmitter::m_SpawnSizeY)
-		//	.def_readwrite("SpawnAngle", &my::SphericalEmitter::m_SpawnAngle)
-		//	.def_readwrite("SpawnLoopTime", &my::SphericalEmitter::m_SpawnLoopTime)
 	];
 }
 
@@ -944,8 +919,12 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Position", &Component::m_Position)
 			.def_readwrite("Rotation", &Component::m_Rotation)
 			.def_readwrite("Scale", &Component::m_Scale)
+			.def_readwrite("World", &Component::m_World)
 			.def("RequestResource", &Component::RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource)
+			.def("AddComponent", &Component::AddComponent)
+			.def("RemoveComponent", &Component::RemoveComponent)
+			.def("ClearAllComponent", &Component::ClearAllComponent)
 
 		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
@@ -964,7 +943,31 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
 			.def_readwrite("Material", &EmitterComponent::m_Material)
 
-		//, def("cmp2raw", &shared_ptr_2_raw<Component, my::OctActor>)
+		, class_<SphericalEmitterComponent, RenderComponent, boost::shared_ptr<Component> >("SphericalEmitterComponent")
+			.def(constructor<const my::AABB &, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
+			.def(constructor<>())
+			.def_readwrite("ParticleLifeTime", &SphericalEmitterComponent::m_ParticleLifeTime)
+			.def_readwrite("SpawnInterval", &SphericalEmitterComponent::m_SpawnInterval)
+			.def_readwrite("HalfSpawnArea", &SphericalEmitterComponent::m_HalfSpawnArea)
+			.def_readwrite("SpawnSpeed", &SphericalEmitterComponent::m_SpawnSpeed)
+			.def_readwrite("SpawnInclination", &SphericalEmitterComponent::m_SpawnInclination)
+			.def_readwrite("SpawnAzimuth", &SphericalEmitterComponent::m_SpawnAzimuth)
+			.def_readwrite("SpawnColorR", &SphericalEmitterComponent::m_SpawnColorR)
+			.def_readwrite("SpawnColorG", &SphericalEmitterComponent::m_SpawnColorG)
+			.def_readwrite("SpawnColorB", &SphericalEmitterComponent::m_SpawnColorB)
+			.def_readwrite("SpawnColorA", &SphericalEmitterComponent::m_SpawnColorA)
+			.def_readwrite("SpawnSizeX", &SphericalEmitterComponent::m_SpawnSizeX)
+			.def_readwrite("SpawnSizeY", &SphericalEmitterComponent::m_SpawnSizeY)
+			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
+			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
+			.def_readwrite("Emitter", &SphericalEmitterComponent::m_Emitter)
+			.def_readwrite("Material", &SphericalEmitterComponent::m_Material)
+
+		, class_<Actor, Component, boost::shared_ptr<Component> >("Actor")
+			.def(constructor<const my::AABB &, const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
+			.def(constructor<>())
+
+		, def("cmp2oct", &boost::static_pointer_cast<my::OctActor, Component>)
 	];
 }
 
