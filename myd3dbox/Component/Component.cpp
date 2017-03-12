@@ -204,44 +204,6 @@ Animator * Component::GetAnimator(void)
 	}
 	return NULL;
 }
-//
-//const my::AABB & Component::GetCmpOctAABB(const Component * cmp)
-//{
-//	//if (cmp->m_OctNode)
-//	//{
-//	//	return cmp->m_OctNode->m_aabb;
-//	//}
-//	return cmp->m_aabb;
-//}
-//
-//my::Matrix4 Component::GetCmpWorld(const Component * cmp)
-//{
-//	//switch (cmp->m_Type)
-//	//{
-//	//case ComponentTypeRigid:
-//	//	{
-//	//		PxTransform pose = dynamic_cast<const RigidComponent *>(cmp)->m_RigidActor->getGlobalPose();
-//	//		return Matrix4::Compose(Vector3(1,1,1), (Quaternion&)pose.q, (Vector3&)pose.p);
-//	//	}
-//	//}
-//	return cmp->m_World;
-//}
-//
-//void Component::SetCmpWorld(Component * cmp, const my::Matrix4 & World)
-//{
-//	cmp->m_World = World;
-//	//switch (cmp->m_Type)
-//	//{
-//	//case ComponentTypeRigid:
-//	//	{
-//	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-//	//		Vector3 scale, pos; Quaternion rot;
-//	//		World.Decompose(scale, rot, pos);
-//	//		rigid_cmp->m_RigidActor->setGlobalPose(PxTransform((PxVec3&)pos, (PxQuat&)rot));
-//	//	}
-//	//	break;
-//	//}
-//}
 
 void MeshComponent::RequestResource(void)
 {

@@ -151,12 +151,6 @@ public:
 	Component * GetTopParent(void);
 
 	Animator * GetAnimator(void);
-
-	//static const my::AABB & GetCmpOctAABB(const Component * cmp);
-
-	//static my::Matrix4 GetCmpWorld(const Component * cmp);
-
-	//static void SetCmpWorld(Component * cmp, const my::Matrix4 & Local);
 };
 
 class RenderComponent
