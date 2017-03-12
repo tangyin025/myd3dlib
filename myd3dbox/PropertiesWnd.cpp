@@ -213,22 +213,11 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeMesh:
-//		m_pProp[PropertyMesh]->Show(TRUE, FALSE);
-//		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-//		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
-//		//m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
-//		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
-//		UpdatePropertiesMesh(dynamic_cast<MeshComponent *>(cmp));
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
-//	case Component::ComponentTypeEmitter:
-//		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-//		m_pProp[PropertyEmitter]->Show(TRUE, FALSE);
-//		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
-//		//m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
-//		m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
-//		UpdatePropertiesEmitter(dynamic_cast<EmitterComponent *>(cmp));
-//		break;
+	case Component::ComponentTypeEmitter:
+		UpdatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
+		break;
 //	//case Component::ComponentTypeRigid:
 //	//	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 //	//	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
@@ -296,6 +285,27 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
 	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
 	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+}
+
+void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyEmitterParticleList)
+	{
+		CreatePropertiesEmitter(pComponent, emit_cmp);
+		return;
+	}
+	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
+	{
+		if ((unsigned int)pProp->GetSubItemsCount() <= i + 1)
+		{
+			CreatePropertiesEmitterParticle(pProp, i, emit_cmp);
+			continue;
+		}
+		UpdatePropertiesEmitterParticle(pProp, i, emit_cmp);
+	}
+	RemovePropertiesFrom(pProp, emit_cmp->m_Emitter->m_ParticleList.size() + 1);
 }
 //
 //void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
@@ -434,25 +444,26 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 //	}
 //	RemovePropertiesFrom(m_pProp[PropertyEmitterParticleList], i + 1);
 //}
-//
-//void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle)
-//{
-//	CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
-//	_ASSERT(pParticle);
-//	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle.m_Position.x);
-//	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle.m_Position.y);
-//	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle.m_Position.z);
-//	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
-//	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
-//	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
-//	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
-//	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
-//	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
-//	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
-//	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
-//	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
-//	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
-//}
+
+void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp)
+{
+	CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
+	_ASSERT(pParticle);
+	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle.m_Position.x);
+	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle.m_Position.y);
+	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle.m_Position.z);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
+	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
+	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
+	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
+}
 //
 //void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
 //{
@@ -597,6 +608,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
+	case Component::ComponentTypeEmitter:
+		CreatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
+		break;
 	}
 
 	if (!cmp->m_Cmps.empty())
@@ -680,52 +694,65 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 //	pProp = new CSimpleProp(_T("MaxDistance"), (_variant_t)0.0f, NULL, PropertyMeshLodMaxDistance);
 //	pNode->AddSubItem(pProp);
 //}
-//
-//void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId)
-//{
-//	TCHAR buff[128];
-//	_stprintf_s(buff, _countof(buff), _T("Particle%u"), NodeId);
-//	CMFCPropertyGridProperty * pParticle = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
-//	pParentProp->AddSubItem(pParticle);
-//	CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyEmitterParticlePosition, TRUE);
-//	pParticle->AddSubItem(pPosition);
-//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyEmitterParticlePositionX);
-//	pPosition->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyEmitterParticlePositionY);
-//	pPosition->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyEmitterParticlePositionZ);
-//	pPosition->AddSubItem(pProp);
-//
-//	CMFCPropertyGridProperty * pVelocity = new CSimpleProp(_T("Velocity"), PropertyEmitterParticleVelocity, TRUE);
-//	pParticle->AddSubItem(pVelocity);
-//	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyEmitterParticleVelocityX);
-//	pVelocity->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyEmitterParticleVelocityY);
-//	pVelocity->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyEmitterParticleVelocityZ);
-//	pVelocity->AddSubItem(pProp);
-//
-//	CMFCPropertyGridProperty * pColor = new CSimpleProp(_T("Color"), PropertyEmitterParticleColor, TRUE);
-//	pParticle->AddSubItem(pColor);
-//	pProp = new CSimpleProp(_T("r"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorR);
-//	pColor->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("g"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorG);
-//	pColor->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("b"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorB);
-//	pColor->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("a"), (_variant_t)0.0f, NULL, PropertyEmitterParticleColorA);
-//	pColor->AddSubItem(pProp);
-//
-//	CMFCPropertyGridProperty * pSize = new CSimpleProp(_T("Size"), PropertyEmitterParticleSize, TRUE);
-//	pParticle->AddSubItem(pSize);
-//	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyEmitterParticleSizeX);
-//	pSize->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyEmitterParticleSizeY);
-//	pSize->AddSubItem(pProp);
-//
-//	pProp = new CSimpleProp(_T("Angle"), (_variant_t)0.0f, NULL, PropertyEmitterParticleAngle);
-//	pParticle->AddSubItem(pProp);
-//}
+
+void CPropertiesWnd::CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
+{
+	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
+	pComponent->AddSubItem(pParticleList);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)(size_t)emit_cmp->m_Emitter->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
+	pParticleList->AddSubItem(pProp);
+	for (unsigned int i = 0; i < emit_cmp->m_Emitter->m_ParticleList.size(); i++)
+	{
+		CreatePropertiesEmitterParticle(pParticleList, i, emit_cmp);
+	}
+}
+
+void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp)
+{
+	TCHAR buff[128];
+	_stprintf_s(buff, _countof(buff), _T("Particle%u"), NodeId);
+	CMFCPropertyGridProperty * pParticle = new CSimpleProp(buff, NodeId, FALSE);
+	pParentProp->AddSubItem(pParticle);
+	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyEmitterParticlePosition, TRUE);
+	pParticle->AddSubItem(pPosition);
+	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Position.x, NULL, PropertyEmitterParticlePositionX);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Position.y, NULL, PropertyEmitterParticlePositionY);
+	pPosition->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)particle.m_Position.z, NULL, PropertyEmitterParticlePositionZ);
+	pPosition->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pVelocity = new CMFCPropertyGridProperty(_T("Velocity"), PropertyEmitterParticleVelocity, TRUE);
+	pParticle->AddSubItem(pVelocity);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Velocity.x, NULL, PropertyEmitterParticleVelocityX);
+	pVelocity->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Velocity.y, NULL, PropertyEmitterParticleVelocityY);
+	pVelocity->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)particle.m_Velocity.z, NULL, PropertyEmitterParticleVelocityZ);
+	pVelocity->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pColor = new CMFCPropertyGridProperty(_T("Color"), PropertyEmitterParticleColor, TRUE);
+	pParticle->AddSubItem(pColor);
+	pProp = new CSimpleProp(_T("r"), (_variant_t)particle.m_Color.x, NULL, PropertyEmitterParticleColorR);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("g"), (_variant_t)particle.m_Color.y, NULL, PropertyEmitterParticleColorG);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("b"), (_variant_t)particle.m_Color.z, NULL, PropertyEmitterParticleColorB);
+	pColor->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("a"), (_variant_t)particle.m_Color.w, NULL, PropertyEmitterParticleColorA);
+	pColor->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pSize = new CMFCPropertyGridProperty(_T("Size"), PropertyEmitterParticleSize, TRUE);
+	pParticle->AddSubItem(pSize);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Angle, NULL, PropertyEmitterParticleSizeX);
+	pSize->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Time, NULL, PropertyEmitterParticleSizeY);
+	pSize->AddSubItem(pProp);
+
+	pProp = new CMFCPropertyGridProperty(_T("Angle"), (_variant_t)0.0f, NULL, PropertyEmitterParticleAngle);
+	pParticle->AddSubItem(pProp);
+}
 //
 //void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
 //{
@@ -861,7 +888,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeMesh:
 		return GetComponentAttrCount(Component::ComponentTypeActor) + 5;
 	case Component::ComponentTypeEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeActor);
+		return GetComponentAttrCount(Component::ComponentTypeActor) + 1;
 	case Component::ComponentTypeTerrain:
 		return GetComponentAttrCount(Component::ComponentTypeActor);
 	}
@@ -1264,79 +1291,79 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	//case PropertyEmitterParticleCount:
-	//	{
-	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//		emit_cmp->m_Emitter->m_ParticleList.resize(pProp->GetValue().uintVal,
-	//			my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
-	//		UpdatePropertiesEmitterParticleList(m_pProp[PropertyEmitterParticleList], emit_cmp->m_Emitter->m_ParticleList);
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyEmitterParticlePosition:
-	//case PropertyEmitterParticlePositionX:
-	//case PropertyEmitterParticlePositionY:
-	//case PropertyEmitterParticlePositionZ:
-	//case PropertyEmitterParticleVelocity:
-	//case PropertyEmitterParticleVelocityX:
-	//case PropertyEmitterParticleVelocityY:
-	//case PropertyEmitterParticleVelocityZ:
-	//case PropertyEmitterParticleColor:
-	//case PropertyEmitterParticleColorA:
-	//case PropertyEmitterParticleColorR:
-	//case PropertyEmitterParticleColorG:
-	//case PropertyEmitterParticleColorB:
-	//case PropertyEmitterParticleSize:
-	//case PropertyEmitterParticleSizeX:
-	//case PropertyEmitterParticleSizeY:
-	//case PropertyEmitterParticleAngle:
-	//	{
-	//		CMFCPropertyGridProperty * pParticle = NULL;
-	//		switch (PropertyId)
-	//		{
-	//		case PropertyEmitterParticlePositionX:
-	//		case PropertyEmitterParticlePositionY:
-	//		case PropertyEmitterParticlePositionZ:
-	//		case PropertyEmitterParticleVelocityX:
-	//		case PropertyEmitterParticleVelocityY:
-	//		case PropertyEmitterParticleVelocityZ:
-	//		case PropertyEmitterParticleColorA:
-	//		case PropertyEmitterParticleColorR:
-	//		case PropertyEmitterParticleColorG:
-	//		case PropertyEmitterParticleColorB:
-	//		case PropertyEmitterParticleSizeX:
-	//		case PropertyEmitterParticleSizeY:
-	//			pParticle = pProp->GetParent()->GetParent();
-	//			break;
-	//		case PropertyEmitterParticlePosition:
-	//		case PropertyEmitterParticleVelocity:
-	//		case PropertyEmitterParticleColor:
-	//		case PropertyEmitterParticleSize:
-	//		case PropertyEmitterParticleAngle:
-	//			pParticle = pProp->GetParent();
-	//			break;
-	//		}
-	//		DWORD NodeId = pParticle->GetData();
-	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//		my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
-	//		particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
-	//		particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
-	//		particle.m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
-	//		particle.m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
-	//		particle.m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
-	//		particle.m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
-	//		particle.m_Color.x = pParticle->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
-	//		particle.m_Color.y = pParticle->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
-	//		particle.m_Color.z = pParticle->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
-	//		particle.m_Color.w = pParticle->GetSubItem(2)->GetSubItem(3)->GetValue().fltVal;
-	//		particle.m_Size.x = pParticle->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-	//		particle.m_Size.y = pParticle->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
-	//		particle.m_Angle = pParticle->GetSubItem(4)->GetValue().fltVal;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
+	case PropertyEmitterParticleCount:
+		{
+			EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
+			emit_cmp->m_Emitter->m_ParticleList.resize(pProp->GetValue().uintVal,
+				my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
+			UpdatePropertiesEmitter(pProp->GetParent()->GetParent(), emit_cmp);
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyEmitterParticlePosition:
+	case PropertyEmitterParticlePositionX:
+	case PropertyEmitterParticlePositionY:
+	case PropertyEmitterParticlePositionZ:
+	case PropertyEmitterParticleVelocity:
+	case PropertyEmitterParticleVelocityX:
+	case PropertyEmitterParticleVelocityY:
+	case PropertyEmitterParticleVelocityZ:
+	case PropertyEmitterParticleColor:
+	case PropertyEmitterParticleColorA:
+	case PropertyEmitterParticleColorR:
+	case PropertyEmitterParticleColorG:
+	case PropertyEmitterParticleColorB:
+	case PropertyEmitterParticleSize:
+	case PropertyEmitterParticleSizeX:
+	case PropertyEmitterParticleSizeY:
+	case PropertyEmitterParticleAngle:
+		{
+			CMFCPropertyGridProperty * pParticle = NULL;
+			switch (PropertyId)
+			{
+			case PropertyEmitterParticlePositionX:
+			case PropertyEmitterParticlePositionY:
+			case PropertyEmitterParticlePositionZ:
+			case PropertyEmitterParticleVelocityX:
+			case PropertyEmitterParticleVelocityY:
+			case PropertyEmitterParticleVelocityZ:
+			case PropertyEmitterParticleColorA:
+			case PropertyEmitterParticleColorR:
+			case PropertyEmitterParticleColorG:
+			case PropertyEmitterParticleColorB:
+			case PropertyEmitterParticleSizeX:
+			case PropertyEmitterParticleSizeY:
+				pParticle = pProp->GetParent()->GetParent();
+				break;
+			case PropertyEmitterParticlePosition:
+			case PropertyEmitterParticleVelocity:
+			case PropertyEmitterParticleColor:
+			case PropertyEmitterParticleSize:
+			case PropertyEmitterParticleAngle:
+				pParticle = pProp->GetParent();
+				break;
+			}
+			DWORD NodeId = pParticle->GetData();
+			EmitterComponent * emit_cmp = (EmitterComponent *)pParticle->GetParent()->GetParent()->GetValue().ulVal;
+			my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+			particle.m_Position.x = pParticle->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal;
+			particle.m_Position.y = pParticle->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal;
+			particle.m_Position.z = pParticle->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal;
+			particle.m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
+			particle.m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
+			particle.m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
+			particle.m_Color.x = pParticle->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
+			particle.m_Color.y = pParticle->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
+			particle.m_Color.z = pParticle->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
+			particle.m_Color.w = pParticle->GetSubItem(2)->GetSubItem(3)->GetValue().fltVal;
+			particle.m_Size.x = pParticle->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
+			particle.m_Size.y = pParticle->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
+			particle.m_Angle = pParticle->GetSubItem(4)->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	//case PropertySphericalEmitterParticleLifeTime:
 	//	{
 	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);

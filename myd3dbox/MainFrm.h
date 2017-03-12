@@ -38,7 +38,7 @@ public:
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;
-	//Event m_EventSelectionPlaying;
+	Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;
 	Event m_EventAttributeChanged;
 

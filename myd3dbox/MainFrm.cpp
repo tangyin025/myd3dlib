@@ -610,8 +610,11 @@ void CMainFrame::OnCreateActor()
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	_ASSERT(!m_selcmps.empty());
-	Component * cmp = *m_selcmps.begin();
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
 
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
 	if (IDOK == dlg.DoModal())
@@ -634,8 +637,8 @@ void CMainFrame::OnComponentMesh()
 				mesh_cmp->m_MaterialList.push_back(lambert1);
 			}
 			mesh_cmp->RequestResource();
-			cmp->AddComponent(mesh_cmp);
-			cmp->Update(0);
+			(*cmp_iter)->AddComponent(mesh_cmp);
+			(*cmp_iter)->Update(0);
 
 			EventArg arg;
 			m_EventAttributeChanged(&arg);
@@ -649,25 +652,27 @@ void CMainFrame::OnComponentMesh()
 
 void CMainFrame::OnComponentEmitter()
 {
-	//// TODO: Add your command handler code here
-	//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-	//my::EmitterPtr emit(new my::Emitter());
-	//emit->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
-	//emit_cmp->m_Emitter = emit;
-	//MaterialPtr particle1(new Material());
-	//particle1->m_Shader = "particle1.fx";
-	//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-	//emit_cmp->m_Material = particle1;
-	//emit_cmp->RequestResource();
-	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(emit_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
+	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-1,1), my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	emit_cmp->m_Emitter.reset(new my::Emitter());
+	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
+	MaterialPtr particle1(new Material());
+	particle1->m_Shader = "particle1.fx";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	emit_cmp->m_Material = particle1;
+	emit_cmp->RequestResource();
+	(*cmp_iter)->AddComponent(emit_cmp);
+	(*cmp_iter)->Update(0);
+
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnComponentSphericalemitter()
@@ -850,17 +855,17 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
 	const float fElapsedTime = 0.033f;
-	//if (!m_selcmps.empty())
-	//{
-	//	ActorSet::iterator cmp_iter = m_selcmps.begin();
-	//	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
-	//	{
-	//		(*cmp_iter)->Update(fElapsedTime);
-	//	}
+	if (!m_selcmps.empty())
+	{
+		ComponentSet::iterator cmp_iter = m_selcmps.begin();
+		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+		{
+			(*cmp_iter)->Update(fElapsedTime);
+		}
 
-	//	EventArg arg;
-	//	m_EventSelectionPlaying(&arg);
-	//}
+		EventArg arg;
+		m_EventSelectionPlaying(&arg);
+	}
 
 	PhysXSceneContext::AdvanceSync(fElapsedTime);
 
