@@ -849,7 +849,7 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
-	//const float fElapsedTime = 0.033f;
+	const float fElapsedTime = 0.033f;
 	//if (!m_selcmps.empty())
 	//{
 	//	ActorSet::iterator cmp_iter = m_selcmps.begin();
@@ -862,39 +862,39 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	//	m_EventSelectionPlaying(&arg);
 	//}
 
-	//PhysXSceneContext::AdvanceSync(fElapsedTime);
+	PhysXSceneContext::AdvanceSync(fElapsedTime);
 
 	__super::OnTimer(nIDEvent);
 }
 
 void CMainFrame::OnFileExportstaticcollision()
 {
-	//// TODO: Add your command handler code here
-	//CString strPathName;
-	//CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	//INT_PTR nResult = dlg.DoModal();
-	//strPathName.ReleaseBuffer();
-	//if (nResult == IDCANCEL)
-	//{
-	//	return;
-	//}
+	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult == IDCANCEL)
+	{
+		return;
+	}
 
-	//theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
+	theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
 }
 
 void CMainFrame::OnFileImportstaticcollision()
 {
-	//// TODO: Add your command handler code here
-	//CString strPathName;
-	//CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	//INT_PTR nResult = dlg.DoModal();
-	//strPathName.ReleaseBuffer();
-	//if (nResult == IDCANCEL)
-	//{
-	//	return;
-	//}
+	// TODO: Add your command handler code here
+	CString strPathName;
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	INT_PTR nResult = dlg.DoModal();
+	strPathName.ReleaseBuffer();
+	if (nResult == IDCANCEL)
+	{
+		return;
+	}
 
-	//ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
+	ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
 }
