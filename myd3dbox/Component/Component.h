@@ -67,6 +67,7 @@ public:
 		ComponentTypeActor,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
+		ComponentTypeSphericalEmitter,
 		//ComponentTypeRigid,
 		ComponentTypeTerrain,
 	};
@@ -270,7 +271,6 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
@@ -286,6 +286,102 @@ public:
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
+
+class SphericalEmitterComponent
+	: public RenderComponent
+{
+public:
+	float m_ParticleLifeTime;
+
+	float m_RemainingSpawnTime;
+
+	float m_SpawnInterval;
+
+	my::Vector3 m_HalfSpawnArea;
+
+	float m_SpawnSpeed;
+
+	my::Spline m_SpawnInclination;
+
+	my::Spline m_SpawnAzimuth;
+
+	my::Spline m_SpawnColorR;
+
+	my::Spline m_SpawnColorG;
+
+	my::Spline m_SpawnColorB;
+
+	my::Spline m_SpawnColorA;
+
+	my::Spline m_SpawnSizeX;
+
+	my::Spline m_SpawnSizeY;
+
+	my::Spline m_SpawnAngle;
+
+	float m_SpawnLoopTime;
+
+	my::EmitterPtr m_Emitter;
+
+	MaterialPtr m_Material;
+
+public:
+	SphericalEmitterComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(ComponentTypeSphericalEmitter, aabb, Position, Rotation, Scale)
+		, m_ParticleLifeTime(FLT_MAX)
+		, m_RemainingSpawnTime(0)
+		, m_SpawnInterval(FLT_MAX)
+		, m_HalfSpawnArea(0,0,0)
+		, m_SpawnSpeed(0)
+		, m_SpawnLoopTime(5)
+	{
+	}
+
+	SphericalEmitterComponent(void)
+		: RenderComponent(ComponentTypeSphericalEmitter)
+		, m_ParticleLifeTime(FLT_MAX)
+		, m_RemainingSpawnTime(0)
+		, m_SpawnInterval(FLT_MAX)
+		, m_HalfSpawnArea(0,0,0)
+		, m_SpawnSpeed(0)
+		, m_SpawnLoopTime(5)
+	{
+	}
+
+	~SphericalEmitterComponent(void)
+	{
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
+		ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnInclination);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorR);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorG);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorB);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnColorA);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
+		ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
+		ar & BOOST_SERIALIZATION_NVP(m_Material);
+	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual void Update(float fElapsedTime);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+};
 //
 //class RigidComponent
 //	: public Component

@@ -86,104 +86,10 @@ namespace my
 
 		void Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle);
 
-		virtual void Reset(void);
+		void RemoveDeadParticle(float fParticleLifeTime);
 
-		virtual void Update(float fElapsedTime);
+		void Update(float fElapsedTime);
 	};
 
 	typedef boost::shared_ptr<Emitter> EmitterPtr;
-
-	class DynamicEmitter
-		: public Emitter
-	{
-	public:
-		float m_ParticleLifeTime;
-
-	public:
-		DynamicEmitter(void)
-			: m_ParticleLifeTime(FLT_MAX)
-		{
-		}
-
-		template <class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Emitter);
-			ar & BOOST_SERIALIZATION_NVP(m_ParticleLifeTime);
-		}
-
-		virtual void Reset(void);
-
-		virtual void Update(float fElapsedTime);
-	};
-
-	typedef boost::shared_ptr<DynamicEmitter> DynamicEmitterPtr;
-
-	class SphericalEmitter
-		: public DynamicEmitter
-	{
-	public:
-		float m_RemainingSpawnTime;
-
-		float m_SpawnInterval;
-
-		Vector3 m_HalfSpawnArea;
-
-		float m_SpawnSpeed;
-
-		Spline m_SpawnInclination;
-
-		Spline m_SpawnAzimuth;
-
-		Spline m_SpawnColorR;
-
-		Spline m_SpawnColorG;
-
-		Spline m_SpawnColorB;
-
-		Spline m_SpawnColorA;
-
-		Spline m_SpawnSizeX;
-
-		Spline m_SpawnSizeY;
-
-		Spline m_SpawnAngle;
-
-		float m_SpawnLoopTime;
-
-	public:
-		SphericalEmitter(void)
-			: m_RemainingSpawnTime(0)
-			, m_SpawnInterval(FLT_MAX)
-			, m_HalfSpawnArea(0,0,0)
-			, m_SpawnSpeed(0)
-			, m_SpawnLoopTime(5)
-		{
-		}
-
-		template <class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(DynamicEmitter);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
-			ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnInclination);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnAzimuth);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorR);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorG);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorB);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnColorA);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeX);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
-			ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
-		}
-
-		virtual void Reset(void);
-
-		virtual void Update(float fElapsedTime);
-	};
-
-	typedef boost::shared_ptr<SphericalEmitter> SphericalEmitterPtr;
 }

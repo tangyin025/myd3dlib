@@ -352,6 +352,98 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
+
+void SphericalEmitterComponent::RequestResource(void)
+{
+	Component::RequestResource();
+
+	if (m_Material)
+	{
+		m_Material->RequestResource();
+	}
+}
+
+void SphericalEmitterComponent::ReleaseResource(void)
+{
+	if (m_Material)
+	{
+		m_Material->ReleaseResource();
+	}
+
+	Component::ReleaseResource();
+}
+
+void SphericalEmitterComponent::Update(float fElapsedTime)
+{
+	m_Emitter->Update(fElapsedTime);
+
+	m_Emitter->RemoveDeadParticle(m_ParticleLifeTime);
+
+	m_RemainingSpawnTime += fElapsedTime;
+
+	_ASSERT(m_SpawnInterval > 0);
+
+	float SpawnTime = fmod(m_Emitter->m_Time, m_SpawnLoopTime);
+
+	while(m_RemainingSpawnTime >= 0)
+	{
+		m_Emitter->Spawn(
+			Vector3(
+				Random(m_HalfSpawnArea.x, m_HalfSpawnArea.x),
+				Random(m_HalfSpawnArea.y, m_HalfSpawnArea.y),
+				Random(m_HalfSpawnArea.z, m_HalfSpawnArea.z)),
+			Vector3::SphericalToCartesian(
+				m_SpawnSpeed,
+				m_SpawnInclination.Interpolate(SpawnTime, 0),
+				m_SpawnAzimuth.Interpolate(SpawnTime, 0)),
+			Vector4(
+				m_SpawnColorR.Interpolate(SpawnTime, 1),
+				m_SpawnColorG.Interpolate(SpawnTime, 1),
+				m_SpawnColorB.Interpolate(SpawnTime, 1),
+				m_SpawnColorA.Interpolate(SpawnTime, 1)),
+			Vector2(
+				m_SpawnSizeX.Interpolate(SpawnTime, 1)),
+			m_SpawnAngle.Interpolate(SpawnTime, 0));
+
+		m_RemainingSpawnTime -= m_SpawnInterval;
+	}
+
+	Component::Update(fElapsedTime);
+}
+
+void SphericalEmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(0 == AttribId);
+
+	shader->SetFloat("g_Time", m_Emitter->m_Time);
+
+	shader->SetMatrix("g_World", m_World);
+
+	if (m_Material)
+	{
+		m_Material->OnSetShader(shader, AttribId);
+	}
+}
+
+void SphericalEmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+{
+	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
+	{
+		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+		{
+			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+			{
+				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material.get(), PassID);
+				if (shader)
+				{
+					pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
+				}
+			}
+		}
+	}
+
+	Component::AddToPipeline(frustum, pipeline, PassMask);
+}
 //
 //void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
 //{
