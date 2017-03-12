@@ -65,6 +65,17 @@ protected:
 		PropertyMeshAnimation,
 		PropertyMeshInstance,
 		PropertyMeshStaticCollision,
+		PropertyMaterialList,
+		PropertyMaterialShader,
+		PropertyMaterialPassMask,
+		PropertyMaterialMeshColor,
+		PropertyMaterialMeshColorR,
+		PropertyMaterialMeshColorG,
+		PropertyMaterialMeshColorB,
+		PropertyMaterialMeshColorA,
+		PropertyMaterialMeshTexture,
+		PropertyMaterialNormalTexture,
+		PropertyMaterialSpecularTexture,
 		//PropertyEmitter,
 		//PropertyEmitterParticleList,
 		//PropertyEmitterParticleCount,
@@ -107,17 +118,6 @@ protected:
 		//PropertySplineNodeY,
 		//PropertySplineNodeK0,
 		//PropertySplineNodeK,
-		//PropertyMaterialList,
-		//PropertyMaterialShader,
-		//PropertyMaterialPassMask,
-		//PropertyMaterialMeshColor,
-		//PropertyMaterialMeshColorR,
-		//PropertyMaterialMeshColorG,
-		//PropertyMaterialMeshColorB,
-		//PropertyMaterialMeshColorA,
-		//PropertyMaterialMeshTexture,
-		//PropertyMaterialNormalTexture,
-		//PropertyMaterialSpecularTexture,
 		////PropertyRigidShapeList,
 		////PropertyRigidShapeAdd,
 		////PropertyRigidShapePos,
@@ -153,6 +153,7 @@ protected:
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * cmp);
+	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	//void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	//void UpdatePropertiesEmitter(EmitterComponent * cmp);
@@ -162,7 +163,6 @@ protected:
 	//void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, const my::Emitter::Particle & particle);
 	//void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
 	//void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
-	//void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	//void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
 	//void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
 	//void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
@@ -170,11 +170,11 @@ protected:
 
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
+	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	//void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	//void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId);
 	//void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
 	//void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
-	//void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	////void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
 	////void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
 	////void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
