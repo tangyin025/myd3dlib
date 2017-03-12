@@ -11,6 +11,11 @@ public:
 	using CMFCPropertyGridProperty::FindSubItemByData;
 };
 
+struct CMFCPropertyGridCtrlReader : CMFCPropertyGridCtrl
+{
+	using CMFCPropertyGridCtrl::m_pSel;
+};
+
 class CSimpleProp : public CMFCPropertyGridProperty
 {
 public:

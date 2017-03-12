@@ -157,10 +157,10 @@ protected:
 	//void UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp);
 	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
+	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
 	////void UpdatePropertiesRigid(RigidComponent * cmp);
 	//void UpdatePropertiesTerrain(Terrain * terrain);
 	//void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
-	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
 	//void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
 	//void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
 	//void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);

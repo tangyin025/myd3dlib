@@ -1,11 +1,6 @@
 #include "stdafx.h"
 #include "CtrlProps.h"
 
-struct CMFCPropertyGridCtrlHelper : CMFCPropertyGridCtrl
-{
-	using CMFCPropertyGridCtrl::m_pSel;
-};
-
 BOOL CMFCPropertyGridPropertyReader::RemoveSubItem(CMFCPropertyGridProperty*& pProp, BOOL bDelete/* = TRUE*/)
 {
 	ASSERT_VALID(this);
@@ -22,12 +17,12 @@ BOOL CMFCPropertyGridPropertyReader::RemoveSubItem(CMFCPropertyGridProperty*& pP
 		{
 			m_lstSubItems.RemoveAt(posSaved);
 
-			if (m_pWndList != NULL && (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel != NULL))
+			if (m_pWndList != NULL && (static_cast<CMFCPropertyGridCtrlReader *>(m_pWndList)->m_pSel != NULL))
 			{
-				if (static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel == pProp
-					|| static_cast<CMFCPropertyGridPropertyReader *>(pProp)->IsSubItem(static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel))
+				if (static_cast<CMFCPropertyGridCtrlReader *>(m_pWndList)->m_pSel == pProp
+					|| static_cast<CMFCPropertyGridPropertyReader *>(pProp)->IsSubItem(static_cast<CMFCPropertyGridCtrlReader *>(m_pWndList)->m_pSel))
 				{
-					static_cast<CMFCPropertyGridCtrlHelper *>(m_pWndList)->m_pSel = NULL;
+					static_cast<CMFCPropertyGridCtrlReader *>(m_pWndList)->m_pSel = NULL;
 				}
 			}
 

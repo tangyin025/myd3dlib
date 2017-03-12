@@ -306,6 +306,27 @@ void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pCompone
 		UpdatePropertiesEmitterParticle(pProp, i, emit_cmp);
 	}
 	RemovePropertiesFrom(pProp, emit_cmp->m_Emitter->m_ParticleList.size() + 1);
+	UpdatePropertiesMaterial(pComponent, PropId + 1, emit_cmp->m_Material.get());
+}
+
+void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp)
+{
+	CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
+	_ASSERT(pParticle);
+	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
+	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle.m_Position.x);
+	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle.m_Position.y);
+	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle.m_Position.z);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
+	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
+	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
+	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
+	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
+	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
 }
 //
 //void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
@@ -444,26 +465,6 @@ void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pCompone
 //	}
 //	RemovePropertiesFrom(m_pProp[PropertyEmitterParticleList], i + 1);
 //}
-
-void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp)
-{
-	CMFCPropertyGridProperty * pParticle = pParentProp->GetSubItem(NodeId + 1);
-	_ASSERT(pParticle);
-	my::Emitter::Particle & particle = emit_cmp->m_Emitter->m_ParticleList[NodeId];
-	CMFCPropertyGridProperty * pProp = pParticle->GetSubItem(0)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionX); pProp->SetValue((_variant_t)particle.m_Position.x);
-	pProp = pParticle->GetSubItem(0)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionY); pProp->SetValue((_variant_t)particle.m_Position.y);
-	pProp = pParticle->GetSubItem(0)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticlePositionZ); pProp->SetValue((_variant_t)particle.m_Position.z);
-	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
-	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
-	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
-	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
-	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
-	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
-}
 //
 //void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
 //{
@@ -705,6 +706,7 @@ void CPropertiesWnd::CreatePropertiesEmitter(CMFCPropertyGridProperty * pCompone
 	{
 		CreatePropertiesEmitterParticle(pParticleList, i, emit_cmp);
 	}
+	CreatePropertiesMaterial(pComponent, 0, emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp)
@@ -888,7 +890,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeMesh:
 		return GetComponentAttrCount(Component::ComponentTypeActor) + 5;
 	case Component::ComponentTypeEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 1;
+		return GetComponentAttrCount(Component::ComponentTypeActor) + 2;
 	case Component::ComponentTypeTerrain:
 		return GetComponentAttrCount(Component::ComponentTypeActor);
 	}
@@ -1291,6 +1293,86 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
+	case PropertyMaterialShader:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialPassMask:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			if (i < 0 || i >= _countof(g_PassMaskDesc))
+			{
+				TRACE("Invalid PropertyMaterialPassMask index: %d\n", i);
+				break;
+			}
+			material->m_PassMask = g_PassMaskDesc[i].mask;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialMeshColor:
+	case PropertyMaterialMeshColorA:
+	case PropertyMaterialMeshColorR:
+	case PropertyMaterialMeshColorG:
+	case PropertyMaterialMeshColorB:
+		{
+			CMFCPropertyGridProperty * pColor = NULL;
+			switch (PropertyId)
+			{
+			case PropertyMaterialMeshColor:
+				pColor = pProp;
+				break;
+			case PropertyMaterialMeshColorA:
+			case PropertyMaterialMeshColorR:
+			case PropertyMaterialMeshColorG:
+			case PropertyMaterialMeshColorB:
+				pColor = pProp->GetParent();
+				break;
+			}
+			Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
+			material->m_MeshColor.x = pColor->GetSubItem(0)->GetValue().fltVal;
+			material->m_MeshColor.y = pColor->GetSubItem(1)->GetValue().fltVal;
+			material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
+			material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialMeshTexture:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_MeshTexture.ReleaseResource();
+			material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_MeshTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialNormalTexture:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_NormalTexture.ReleaseResource();
+			material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_NormalTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialSpecularTexture:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_SpecularTexture.ReleaseResource();
+			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
+			material->m_SpecularTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	case PropertyEmitterParticleCount:
 		{
 			EmitterComponent * emit_cmp = (EmitterComponent *)pProp->GetParent()->GetParent()->GetValue().ulVal;
@@ -1470,86 +1552,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
-	case PropertyMaterialShader:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialPassMask:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			if (i < 0 || i >= _countof(g_PassMaskDesc))
-			{
-				TRACE("Invalid PropertyMaterialPassMask index: %d\n", i);
-				break;
-			}
-			material->m_PassMask = g_PassMaskDesc[i].mask;
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialMeshColor:
-	case PropertyMaterialMeshColorA:
-	case PropertyMaterialMeshColorR:
-	case PropertyMaterialMeshColorG:
-	case PropertyMaterialMeshColorB:
-		{
-			CMFCPropertyGridProperty * pColor = NULL;
-			switch (PropertyId)
-			{
-			case PropertyMaterialMeshColor:
-				pColor = pProp;
-				break;
-			case PropertyMaterialMeshColorA:
-			case PropertyMaterialMeshColorR:
-			case PropertyMaterialMeshColorG:
-			case PropertyMaterialMeshColorB:
-				pColor = pProp->GetParent();
-				break;
-			}
-			Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
-			material->m_MeshColor.x = pColor->GetSubItem(0)->GetValue().fltVal;
-			material->m_MeshColor.y = pColor->GetSubItem(1)->GetValue().fltVal;
-			material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
-			material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialMeshTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_MeshTexture.ReleaseResource();
-			material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_MeshTexture.RequestResource();
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialNormalTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_NormalTexture.ReleaseResource();
-			material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_NormalTexture.RequestResource();
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
-	case PropertyMaterialSpecularTexture:
-		{
-			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
-			material->m_SpecularTexture.ReleaseResource();
-			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
-			material->m_SpecularTexture.RequestResource();
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
 	////case PropertyRigidShapeAdd:
 	////	{
 	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
