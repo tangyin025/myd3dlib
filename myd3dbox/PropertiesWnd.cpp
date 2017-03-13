@@ -218,6 +218,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeEmitter:
 		UpdatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
 		break;
+	case Component::ComponentTypeSphericalEmitter:
+		UpdatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
+		break;
 //	//case Component::ComponentTypeRigid:
 //	//	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
 //	//	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
@@ -253,6 +256,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyMeshResPath)
 	{
+		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesMesh(pComponent, mesh_cmp);
 		return;
 	}
@@ -293,6 +297,7 @@ void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pCompone
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyEmitterParticleList)
 	{
+		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesEmitter(pComponent, emit_cmp);
 		return;
 	}
@@ -327,6 +332,61 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
 	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
 	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
+}
+
+void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertySphericalEmitterParticleLifeTime)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesSphericalEmitter(pComponent, sphe_emit_cmp);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)sphe_emit_cmp->m_ParticleLifeTime);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnInterval);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y);
+	pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->SetValue((_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnSpeed);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 4), &sphe_emit_cmp->m_SpawnInclination);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 5), &sphe_emit_cmp->m_SpawnAzimuth);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 6), &sphe_emit_cmp->m_SpawnColorR);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 7), &sphe_emit_cmp->m_SpawnColorG);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 8), &sphe_emit_cmp->m_SpawnColorB);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 9), &sphe_emit_cmp->m_SpawnColorA);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 10), &sphe_emit_cmp->m_SpawnSizeX);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnSizeY);
+	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnAngle);
+	pComponent->GetSubItem(PropId + 13)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
+}
+
+void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
+{
+	_ASSERT(pSpline->GetData() >= PropertySphericalEmitterSpawnInclination && pSpline->GetData() <= PropertySphericalEmitterSpawnAngle);
+	_ASSERT(pSpline->GetValue().ulVal == (DWORD_PTR)spline);
+	pSpline->GetSubItem(0)->SetValue((_variant_t)spline->size());
+	unsigned int i = 0;
+	for (; i < spline->size(); i++)
+	{
+		if ((unsigned int)pSpline->GetSubItemsCount() <= i + 1)
+		{
+			CreatePropertiesSplineNode(pSpline, i, &(*spline)[i]);
+		}
+		UpdatePropertiesSplineNode(pSpline, i, &(*spline)[i]);
+	}
+	RemovePropertiesFrom(pSpline, i + 1);
+}
+
+void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node)
+{
+	CMFCPropertyGridProperty * pProp = pSpline->GetSubItem(NodeId + 1);
+	_ASSERT(pProp);
+	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node->x);
+	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
+	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
+	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
 }
 //
 //void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
@@ -466,32 +526,6 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 //	RemovePropertiesFrom(m_pProp[PropertyEmitterParticleList], i + 1);
 //}
 //
-//void CPropertiesWnd::UpdatePropertiesSpline(Property PropertyId, my::Spline * spline)
-//{
-//	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
-//	m_pProp[PropertyId]->GetSubItem(0)->SetValue((_variant_t)spline->size());
-//	unsigned int i = 0;
-//	for (; i < spline->size(); i++)
-//	{
-//		if ((unsigned int)m_pProp[PropertyId]->GetSubItemsCount() <= i + 1)
-//		{
-//			CreatePropertiesSplineNode(m_pProp[PropertyId], i);
-//		}
-//		UpdatePropertiesSplineNode(m_pProp[PropertyId], i, &(*spline)[i]);
-//	}
-//	RemovePropertiesFrom(m_pProp[PropertyId], i + 1);
-//}
-//
-//void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node)
-//{
-//	CMFCPropertyGridProperty * pProp = pSpline->GetSubItem(NodeId + 1);
-//	_ASSERT(pProp);
-//	pProp->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->SetValue((_variant_t)node->x);
-//	pProp->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->SetValue((_variant_t)node->y);
-//	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
-//	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
-//}
-//
 //void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape)
 //{
 //	CMFCPropertyGridProperty * pShape = pParentCtrl->GetSubItem(NodeId + 1);
@@ -611,6 +645,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		break;
 	case Component::ComponentTypeEmitter:
 		CreatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
+		break;
+	case Component::ComponentTypeSphericalEmitter:
+		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
 		break;
 	}
 
@@ -755,32 +792,63 @@ void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 	pProp = new CMFCPropertyGridProperty(_T("Angle"), (_variant_t)0.0f, NULL, PropertyEmitterParticleAngle);
 	pParticle->AddSubItem(pProp);
 }
-//
-//void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId)
-//{
-//	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
-//	m_pProp[PropertyId] = new CSimpleProp(lpszName, PropertyId, TRUE);
-//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(size_t)0, NULL, PropertySplineNodeCount);
-//	m_pProp[PropertyId]->AddSubItem(pProp);
-//	CreatePropertiesSplineNode(m_pProp[PropertyId], 0);
-//	CreatePropertiesSplineNode(m_pProp[PropertyId], 1);
-//	CreatePropertiesSplineNode(m_pProp[PropertyId], 2);
-//	pParentProp->AddSubItem(m_pProp[PropertyId]);
-//}
-//
-//void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId)
-//{
-//	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), NodeId, TRUE);
-//	pSpline->AddSubItem(pNode);
-//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertySplineNodeX);
-//	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertySplineNodeY);
-//	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("k0"), (_variant_t)0.0f, NULL, PropertySplineNodeK0);
-//	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("k"), (_variant_t)0.0f, NULL, PropertySplineNodeK);
-//	pNode->AddSubItem(pProp);
-//}
+
+void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
+{
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("SpawnInterval"), (_variant_t)sphe_emit_cmp->m_SpawnInterval, NULL, PropertySphericalEmitterSpawnInterval);
+	pComponent->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pHalfSpawnArea = new CSimpleProp(_T("HalfSpawnArea"), PropertySphericalEmitterHalfSpawnArea, TRUE);
+	pComponent->AddSubItem(pHalfSpawnArea);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)sphe_emit_cmp->m_HalfSpawnArea.x, NULL, PropertySphericalEmitterHalfSpawnAreaX);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)sphe_emit_cmp->m_HalfSpawnArea.y, NULL, PropertySphericalEmitterHalfSpawnAreaY);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)sphe_emit_cmp->m_HalfSpawnArea.z, NULL, PropertySphericalEmitterHalfSpawnAreaZ);
+	pHalfSpawnArea->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("SpawnSpeed"), (_variant_t)sphe_emit_cmp->m_SpawnSpeed, NULL, PropertySphericalEmitterSpawnSpeed);
+	pComponent->AddSubItem(pProp);
+	CreatePropertiesSpline(pComponent, _T("SpawnInclination"), PropertySphericalEmitterSpawnInclination, &sphe_emit_cmp->m_SpawnInclination);
+	CreatePropertiesSpline(pComponent, _T("SpawnAzimuth"), PropertySphericalEmitterSpawnAzimuth, &sphe_emit_cmp->m_SpawnAzimuth);
+	CreatePropertiesSpline(pComponent, _T("SpawnColorR"), PropertySphericalEmitterSpawnColorR, &sphe_emit_cmp->m_SpawnColorR);
+	CreatePropertiesSpline(pComponent, _T("SpawnColorG"), PropertySphericalEmitterSpawnColorG, &sphe_emit_cmp->m_SpawnColorG);
+	CreatePropertiesSpline(pComponent, _T("SpawnColorB"), PropertySphericalEmitterSpawnColorB, &sphe_emit_cmp->m_SpawnColorB);
+	CreatePropertiesSpline(pComponent, _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA, &sphe_emit_cmp->m_SpawnColorA);
+	CreatePropertiesSpline(pComponent, _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX, &sphe_emit_cmp->m_SpawnSizeX);
+	CreatePropertiesSpline(pComponent, _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY, &sphe_emit_cmp->m_SpawnSizeY);
+	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
+	pProp = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)sphe_emit_cmp->m_SpawnLoopTime, NULL, PropertySphericalEmitterSpawnLoopTime);
+	pComponent->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
+{
+	_ASSERT(PropertyId >= PropertySphericalEmitterSpawnInclination && PropertyId <= PropertySphericalEmitterSpawnAngle);
+	CMFCPropertyGridProperty * pSpline = new CSimpleProp(lpszName, PropertyId, TRUE);
+	pParentProp->AddSubItem(pSpline);
+	pSpline->SetValue((_variant_t)(DWORD_PTR)spline);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Count"), (_variant_t)(size_t)spline->size(), NULL, PropertySplineNodeCount);
+	pSpline->AddSubItem(pProp);
+	for (unsigned int i = 0; i < spline->size(); i++)
+	{
+		CreatePropertiesSplineNode(pSpline, i, &(*spline)[i]);
+	}
+}
+
+void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, my::SplineNode * node)
+{
+	CMFCPropertyGridProperty * pNode = new CSimpleProp(_T("Node"), NodeId, TRUE);
+	pSpline->AddSubItem(pNode);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)node->x, NULL, PropertySplineNodeX);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)node->y, NULL, PropertySplineNodeY);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k0"), (_variant_t)node->k0, NULL, PropertySplineNodeK0);
+	pNode->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("k"), (_variant_t)node->k, NULL, PropertySplineNodeK);
+	pNode->AddSubItem(pProp);
+}
 ////
 ////void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type)
 ////{
@@ -891,6 +959,8 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 		return GetComponentAttrCount(Component::ComponentTypeActor) + 5;
 	case Component::ComponentTypeEmitter:
 		return GetComponentAttrCount(Component::ComponentTypeActor) + 2;
+	case Component::ComponentTypeSphericalEmitter:
+		return GetComponentAttrCount(Component::ComponentTypeActor) + 14;
 	case Component::ComponentTypeTerrain:
 		return GetComponentAttrCount(Component::ComponentTypeActor);
 	}
@@ -1446,112 +1516,87 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	//case PropertySphericalEmitterParticleLifeTime:
-	//	{
-	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//		my::DynamicEmitter * dynamic_emit = dynamic_cast<my::DynamicEmitter *>(emit_cmp->m_Emitter.get());
-	//		dynamic_emit->m_ParticleLifeTime = pProp->GetValue().fltVal;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertySphericalEmitterSpawnInterval:
-	//case PropertySphericalEmitterHalfSpawnAreaX:
-	//case PropertySphericalEmitterHalfSpawnAreaY:
-	//case PropertySphericalEmitterHalfSpawnAreaZ:
-	//case PropertySphericalEmitterSpawnSpeed:
-	//case PropertySphericalEmitterSpawnLoopTime:
-	//	{
-	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//		my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
-	//		spherical_emit->m_SpawnInterval = m_pProp[PropertySphericalEmitterSpawnInterval]->GetValue().fltVal;
-	//		spherical_emit->m_HalfSpawnArea.x = m_pProp[PropertySphericalEmitterHalfSpawnAreaX]->GetValue().fltVal;
-	//		spherical_emit->m_HalfSpawnArea.y = m_pProp[PropertySphericalEmitterHalfSpawnAreaY]->GetValue().fltVal;
-	//		spherical_emit->m_HalfSpawnArea.z = m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]->GetValue().fltVal;
-	//		spherical_emit->m_SpawnSpeed = m_pProp[PropertySphericalEmitterSpawnSpeed]->GetValue().fltVal;
-	//		spherical_emit->m_SpawnLoopTime = m_pProp[PropertySphericalEmitterSpawnLoopTime]->GetValue().fltVal;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertySplineNodeCount:
-	//case PropertySplineNodeX:
-	//case PropertySplineNodeY:
-	//case PropertySplineNodeK0:
-	//case PropertySplineNodeK:
-	//	{
-	//		EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-	//		my::SphericalEmitter * spherical_emit = dynamic_cast<my::SphericalEmitter *>(emit_cmp->m_Emitter.get());
-	//		CMFCPropertyGridProperty * pSpline = NULL;
-	//		switch (PropertyId)
-	//		{
-	//		case PropertySplineNodeCount:
-	//			pSpline = pProp->GetParent();
-	//			break;
-	//		case PropertySplineNodeX:
-	//		case PropertySplineNodeY:
-	//		case PropertySplineNodeK0:
-	//		case PropertySplineNodeK:
-	//			pSpline = pProp->GetParent()->GetParent();
-	//			break;
-	//		}
-	//		my::Spline * spline = NULL;
-	//		switch (pSpline->GetData())
-	//		{
-	//		case PropertySphericalEmitterSpawnInclination:
-	//			spline = &spherical_emit->m_SpawnInclination;
-	//			break;
-	//		case PropertySphericalEmitterSpawnAzimuth:
-	//			spline = &spherical_emit->m_SpawnAzimuth;
-	//			break;
-	//		case PropertySphericalEmitterSpawnColorR:
-	//			spline = &spherical_emit->m_SpawnColorR;
-	//			break;
-	//		case PropertySphericalEmitterSpawnColorG:
-	//			spline = &spherical_emit->m_SpawnColorG;
-	//			break;
-	//		case PropertySphericalEmitterSpawnColorB:
-	//			spline = &spherical_emit->m_SpawnColorB;
-	//			break;
-	//		case PropertySphericalEmitterSpawnColorA:
-	//			spline = &spherical_emit->m_SpawnColorA;
-	//			break;
-	//		case PropertySphericalEmitterSpawnSizeX:
-	//			spline = &spherical_emit->m_SpawnSizeX;
-	//			break;
-	//		case PropertySphericalEmitterSpawnSizeY:
-	//			spline = &spherical_emit->m_SpawnSizeY;
-	//			break;
-	//		case PropertySphericalEmitterSpawnAngle:
-	//			spline = &spherical_emit->m_SpawnAngle;
-	//			break;
-	//		}
-	//		switch (PropertyId)
-	//		{
-	//		case PropertySplineNodeCount:
-	//			spline->resize(pProp->GetValue().uintVal, my::SplineNode(0, 0, 0, 0));
-	//			UpdatePropertiesSpline((Property)pSpline->GetData(), spline);
-	//			break;
-	//		case PropertySplineNodeX:
-	//		case PropertySplineNodeY:
-	//		case PropertySplineNodeK0:
-	//		case PropertySplineNodeK:
-	//			{
-	//				CMFCPropertyGridProperty * pNode = pProp->GetParent();
-	//				DWORD id = pNode->GetData();
-	//				_ASSERT(id < spline->size());
-	//				my::SplineNode & node = (*spline)[id];
-	//				node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
-	//				node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
-	//				node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
-	//				node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
-	//			}
-	//			break;
-	//		}
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
+	case PropertySphericalEmitterParticleLifeTime:
+	case PropertySphericalEmitterSpawnInterval:
+	case PropertySphericalEmitterHalfSpawnArea:
+	case PropertySphericalEmitterHalfSpawnAreaX:
+	case PropertySphericalEmitterHalfSpawnAreaY:
+	case PropertySphericalEmitterHalfSpawnAreaZ:
+	case PropertySphericalEmitterSpawnSpeed:
+	case PropertySphericalEmitterSpawnLoopTime:
+		{
+			CMFCPropertyGridProperty * pComponent = NULL;
+			switch (PropertyId)
+			{
+			case PropertySphericalEmitterHalfSpawnAreaX:
+			case PropertySphericalEmitterHalfSpawnAreaY:
+			case PropertySphericalEmitterHalfSpawnAreaZ:
+				pComponent = pProp->GetParent()->GetParent();
+				break;
+			default:
+				pComponent = pProp->GetParent();
+				break;
+			}
+			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
+			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+			sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 0)->GetValue().fltVal;
+			sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 1)->GetValue().fltVal;
+			sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
+			sphe_emit_cmp->m_HalfSpawnArea.y = pComponent->GetSubItem(PropId + 2)->GetSubItem(1)->GetValue().fltVal;
+			sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
+			sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
+			sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 13)->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertySplineNodeCount:
+	case PropertySplineNodeX:
+	case PropertySplineNodeY:
+	case PropertySplineNodeK0:
+	case PropertySplineNodeK:
+		{
+			CMFCPropertyGridProperty * pSpline = NULL;
+			switch (PropertyId)
+			{
+			case PropertySplineNodeCount:
+				pSpline = pProp->GetParent();
+				break;
+			case PropertySplineNodeX:
+			case PropertySplineNodeY:
+			case PropertySplineNodeK0:
+			case PropertySplineNodeK:
+				pSpline = pProp->GetParent()->GetParent();
+				break;
+			}
+			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pSpline->GetParent()->GetValue().ulVal;
+			my::Spline * spline = (my::Spline *)pSpline->GetValue().ulVal;
+			switch (PropertyId)
+			{
+			case PropertySplineNodeCount:
+				spline->resize(pProp->GetValue().uintVal, my::SplineNode(0, 0, 0, 0));
+				UpdatePropertiesSpline(pSpline, spline);
+				break;
+			case PropertySplineNodeX:
+			case PropertySplineNodeY:
+			case PropertySplineNodeK0:
+			case PropertySplineNodeK:
+				{
+					CMFCPropertyGridProperty * pNode = pProp->GetParent();
+					DWORD id = pNode->GetData();
+					_ASSERT(id < spline->size());
+					my::SplineNode & node = (*spline)[id];
+					node.x = pNode->GetSubItem(PropertySplineNodeX - PropertySplineNodeX)->GetValue().fltVal;
+					node.y = pNode->GetSubItem(PropertySplineNodeY - PropertySplineNodeX)->GetValue().fltVal;
+					node.k0 = pNode->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->GetValue().fltVal;
+					node.k = pNode->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->GetValue().fltVal;
+				}
+				break;
+			}
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	////case PropertyRigidShapeAdd:
 	////	{
 	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);

@@ -95,29 +95,28 @@ protected:
 		PropertyEmitterParticleSizeX,
 		PropertyEmitterParticleSizeY,
 		PropertyEmitterParticleAngle,
-		PropertySphericalEmitter,
-		//PropertySphericalEmitterParticleLifeTime,
-		//PropertySphericalEmitterSpawnInterval,
-		//PropertySphericalEmitterHalfSpawnArea,
-		//PropertySphericalEmitterHalfSpawnAreaX,
-		//PropertySphericalEmitterHalfSpawnAreaY,
-		//PropertySphericalEmitterHalfSpawnAreaZ,
-		//PropertySphericalEmitterSpawnSpeed,
-		//PropertySphericalEmitterSpawnInclination,
-		//PropertySphericalEmitterSpawnAzimuth,
-		//PropertySphericalEmitterSpawnColorR,
-		//PropertySphericalEmitterSpawnColorG,
-		//PropertySphericalEmitterSpawnColorB,
-		//PropertySphericalEmitterSpawnColorA,
-		//PropertySphericalEmitterSpawnSizeX,
-		//PropertySphericalEmitterSpawnSizeY,
-		//PropertySphericalEmitterSpawnAngle,
-		//PropertySphericalEmitterSpawnLoopTime,
-		//PropertySplineNodeCount,
-		//PropertySplineNodeX,
-		//PropertySplineNodeY,
-		//PropertySplineNodeK0,
-		//PropertySplineNodeK,
+		PropertySphericalEmitterParticleLifeTime,
+		PropertySphericalEmitterSpawnInterval,
+		PropertySphericalEmitterHalfSpawnArea,
+		PropertySphericalEmitterHalfSpawnAreaX,
+		PropertySphericalEmitterHalfSpawnAreaY,
+		PropertySphericalEmitterHalfSpawnAreaZ,
+		PropertySphericalEmitterSpawnSpeed,
+		PropertySphericalEmitterSpawnInclination,
+		PropertySphericalEmitterSpawnAzimuth,
+		PropertySphericalEmitterSpawnColorR,
+		PropertySphericalEmitterSpawnColorG,
+		PropertySphericalEmitterSpawnColorB,
+		PropertySphericalEmitterSpawnColorA,
+		PropertySphericalEmitterSpawnSizeX,
+		PropertySphericalEmitterSpawnSizeY,
+		PropertySphericalEmitterSpawnAngle,
+		PropertySphericalEmitterSpawnLoopTime,
+		PropertySplineNodeCount,
+		PropertySplineNodeX,
+		PropertySplineNodeY,
+		PropertySplineNodeK0,
+		PropertySplineNodeK,
 		////PropertyRigidShapeList,
 		////PropertyRigidShapeAdd,
 		////PropertyRigidShapePos,
@@ -158,11 +157,12 @@ protected:
 	//void UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod);
 	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
+	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
+	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
+	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
 	////void UpdatePropertiesRigid(RigidComponent * cmp);
 	//void UpdatePropertiesTerrain(Terrain * terrain);
 	//void UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list);
-	//void UpdatePropertiesSpline(Property PropertyId, my::Spline * spline);
-	//void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, const my::SplineNode * node);
 	//void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape);
 	//void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
 	//void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
@@ -174,8 +174,9 @@ protected:
 	//void CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId);
 	void CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
-	//void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId);
-	//void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId);
+	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
+	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
+	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, DWORD NodeId, my::SplineNode * node);
 	////void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type);
 	////void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
 	////void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);

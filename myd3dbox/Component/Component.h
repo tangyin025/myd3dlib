@@ -383,6 +383,8 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
+
+typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPtr;
 //
 //class RigidComponent
 //	: public Component

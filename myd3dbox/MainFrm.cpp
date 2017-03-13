@@ -678,42 +678,44 @@ void CMainFrame::OnComponentEmitter()
 void CMainFrame::OnComponentSphericalemitter()
 {
 	//// TODO: Add your command handler code here
-	//EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-10,10), my::Matrix4::Identity()));
-	//my::SphericalEmitterPtr emit(new my::SphericalEmitter());
-	//emit->m_ParticleLifeTime=10.0f;
-	//emit->m_SpawnInterval=1/100.0f;
-	//emit->m_SpawnSpeed=5;
-	//emit->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
-	//float Azimuth=D3DXToRadian(360)*8;
-	//emit->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
-	//emit->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
-	//emit->m_SpawnColorA.AddNode(0,1,0,0);
-	//emit->m_SpawnColorA.AddNode(10,0,0,0);
-	//emit->m_SpawnColorR.AddNode(0,1,0,0);
-	//emit->m_SpawnColorR.AddNode(10,0,0,0);
-	//emit->m_SpawnColorG.AddNode(0,1,0,0);
-	//emit->m_SpawnColorG.AddNode(10,0,0,0);
-	//emit->m_SpawnColorB.AddNode(0,1,0,0);
-	//emit->m_SpawnColorB.AddNode(10,0,0,0);
-	//emit->m_SpawnSizeX.AddNode(0,1,0,0);
-	//emit->m_SpawnSizeX.AddNode(10,10,0,0);
-	//emit->m_SpawnSizeY.AddNode(0,1,0,0);
-	//emit->m_SpawnSizeY.AddNode(10,10,0,0);
-	//emit_cmp->m_Emitter = emit;
-	//MaterialPtr particle1(new Material());
-	//particle1->m_Shader = "particle1.fx";
-	//particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	//particle1->m_MeshTexture.m_Path = "texture/flare.dds";
-	//emit_cmp->m_Material = particle1;
-	//emit_cmp->RequestResource();
-	//m_Root.AddActor(emit_cmp, emit_cmp->m_aabb.transform(emit_cmp->m_World), 0.1f);
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(emit_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::AABB(-1,1), my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	sphe_emit_cmp->m_Emitter.reset(new my::Emitter());
+	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
+	sphe_emit_cmp->m_SpawnInterval=1/100.0f;
+	sphe_emit_cmp->m_SpawnSpeed=5;
+	sphe_emit_cmp->m_SpawnInclination.AddNode(0,D3DXToRadian(45),0,0);
+	float Azimuth=D3DXToRadian(360)*8;
+	sphe_emit_cmp->m_SpawnAzimuth.AddNode(0,0,Azimuth/10,Azimuth/10);
+	sphe_emit_cmp->m_SpawnAzimuth.AddNode(10,Azimuth,Azimuth/10,Azimuth/10);
+	sphe_emit_cmp->m_SpawnColorA.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnColorA.AddNode(10,0,0,0);
+	sphe_emit_cmp->m_SpawnColorR.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnColorR.AddNode(10,0,0,0);
+	sphe_emit_cmp->m_SpawnColorG.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnColorG.AddNode(10,0,0,0);
+	sphe_emit_cmp->m_SpawnColorB.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnColorB.AddNode(10,0,0,0);
+	sphe_emit_cmp->m_SpawnSizeX.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnSizeX.AddNode(10,10,0,0);
+	sphe_emit_cmp->m_SpawnSizeY.AddNode(0,1,0,0);
+	sphe_emit_cmp->m_SpawnSizeY.AddNode(10,10,0,0);
+	MaterialPtr particle1(new Material());
+	particle1->m_Shader = "particle1.fx";
+	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
+	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	sphe_emit_cmp->m_Material = particle1;
+	sphe_emit_cmp->RequestResource();
+	(*cmp_iter)->AddComponent(sphe_emit_cmp);
+	(*cmp_iter)->Update(0);
+
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnRigidSphere()
