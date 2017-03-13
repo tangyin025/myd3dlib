@@ -1,16 +1,18 @@
 myd3dlib
 ====
-A fast and lightweight direct3d based game engine, include client and scene editor
+A fast and lightweight direct3d based game engine, including client and editor
 
 features
 ----
 direct3d renderer<br>
 deferred lighting<br>
 gpu particle system (lighting pass)<br>
-delayed load resource manager<br>
+delay loaded resource manager<br>
 octtree scene<br>
 terrain lod manager<br>
-embeded physical engine for fase collision test<br>
+embeded physical engine for fast collision test<br>
+lua script for both ui and scene objects<br>
+MFC scene editor<br>
 
 3rd party dependencies
 ----
