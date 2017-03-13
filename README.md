@@ -4,19 +4,19 @@ A fast and lightweight direct3d based game engine, include client and scene edit
 
 features
 ----
-direct3d renderer
-deferred lighting
-gpu particle system (lighting pass)
-delayed load resource manager
-octtree scene
-terrain lod manager
-embeded physical engine for fase collision test
+direct3d renderer<br>
+deferred lighting<br>
+gpu particle system (lighting pass)<br>
+delayed load resource manager<br>
+octtree scene<br>
+terrain lod manager<br>
+embeded physical engine for fase collision test<br>
 
 3rd party dependencies
 ----
-NVIDIA® PhysX® SDK 3.2.3
-FMOD Ex 4.44.25
-boost 1.54.0
+NVIDIA® PhysX® SDK 3.2.3<br>
+FMOD Ex 4.44.25<br>
+boost 1.54.0<br>
 
 screenshots
 ----
