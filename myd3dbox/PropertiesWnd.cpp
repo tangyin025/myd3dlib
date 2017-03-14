@@ -136,15 +136,6 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 	}
 }
 
-void CPropertiesWnd::HideAllProperties(void)
-{
-	//m_pProp[PropertyComponent]->Show(FALSE, FALSE);
-	//m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-	//m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-	//m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
-	//m_wndPropList.AdjustLayout();
-}
-
 void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i)
 {
 	if (pParentCtrl)
@@ -221,22 +212,17 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeSphericalEmitter:
 		UpdatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
 		break;
-//	//case Component::ComponentTypeRigid:
-//	//	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-//	//	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-//	//	m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
-//	//	m_pProp[PropertyRigidShapeList]->Show(TRUE, FALSE);
-//	//	m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
-//	//	UpdatePropertiesRigid(dynamic_cast<RigidComponent *>(cmp));
-//	//	break;
-//	case Component::ComponentTypeTerrain:
-//		m_pProp[PropertyMesh]->Show(FALSE, FALSE);
-//		m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
-//		m_pProp[PropertyMaterialList]->Show(TRUE, FALSE);
-//		//m_pProp[PropertyRigidShapeList]->Show(FALSE, FALSE);
-//		m_pProp[PropertyTerrain]->Show(TRUE, FALSE);
-//		UpdatePropertiesTerrain(dynamic_cast<Terrain *>(cmp));
-//		break;
+	case Component::ComponentTypeTerrain:
+		UpdatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
+		break;
+	//case Component::ComponentTypeRigid:
+	//	m_pProp[PropertyMesh]->Show(FALSE, FALSE);
+	//	m_pProp[PropertyEmitter]->Show(FALSE, FALSE);
+	//	m_pProp[PropertyMaterialList]->Show(FALSE, FALSE);
+	//	m_pProp[PropertyRigidShapeList]->Show(TRUE, FALSE);
+	//	m_pProp[PropertyTerrain]->Show(FALSE, FALSE);
+	//	UpdatePropertiesRigid(dynamic_cast<RigidComponent *>(cmp));
+	//	break;
 	}
 //	m_wndPropList.AdjustLayout();
 
@@ -360,6 +346,7 @@ void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 11), &sphe_emit_cmp->m_SpawnSizeY);
 	UpdatePropertiesSpline(pComponent->GetSubItem(PropId + 12), &sphe_emit_cmp->m_SpawnAngle);
 	pComponent->GetSubItem(PropId + 13)->SetValue((_variant_t)sphe_emit_cmp->m_SpawnLoopTime);
+	UpdatePropertiesMaterial(pComponent, PropId + 14, sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline)
@@ -388,142 +375,47 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pProp->GetSubItem(PropertySplineNodeK0 - PropertySplineNodeX)->SetValue((_variant_t)node->k0);
 	pProp->GetSubItem(PropertySplineNodeK - PropertySplineNodeX)->SetValue((_variant_t)node->k);
 }
+
+void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyTerrainRowChunks)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesTerrain(pComponent, terrain);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ChunkRows);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_HeightScale);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_WrappedU);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_WrappedV);
+	pComponent->GetSubItem(PropId + 5);
+	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_StaticCollision);
+	UpdatePropertiesMaterial(pComponent, PropId + 7, terrain->m_Material.get());
+}
 //
-//void CPropertiesWnd::UpdatePropertiesMeshLodList(CMFCPropertyGridProperty * pLodList, MeshComponent * cmp)
+//void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
 //{
-//	pLodList->GetSubItem(0)->SetValue((_variant_t)cmp->m_lods.size());
+//	unsigned int NbShapes = cmp->m_RigidActor->getNbShapes();
+//	std::vector<PxShape *> shapes(NbShapes);
+//	NbShapes = cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
 //	unsigned int i = 0;
-//	for (; i < cmp->m_lods.size(); i++)
+//	for (; i < NbShapes; i++)
 //	{
-//		if ((unsigned int)pLodList->GetSubItemsCount() <= i + 1)
+//		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() > i + 1
+//			&& HIWORD(m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1)->GetData()) != shapes[i]->getGeometryType())
 //		{
-//			CreatePropertiesMeshLod(pLodList, i);
+//			RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
 //		}
-//		UpdatePropertiesMeshLod(pLodList, i, cmp->m_lods[i]);
-//	}
-//	RemovePropertiesFrom(pLodList, i + 1);
-//}
-//
-//void CPropertiesWnd::UpdatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, MeshComponent::LOD & lod)
-//{
-//	CMFCPropertyGridProperty * pNode = pParentCtrl->GetSubItem(NodeId + 1);
-//	_ASSERT(pNode->GetData() == NodeId);
-//	pNode->GetSubItem(0)->SetValue((_variant_t)lod.m_MeshRes.m_Path.c_str());
-//	pNode->GetSubItem(1)->SetValue((_variant_t)lod.m_bInstance);
-//	pNode->GetSubItem(2)->SetValue((_variant_t)lod.m_MaxDistance);
-//}
-//
-//void CPropertiesWnd::UpdatePropertiesEmitter(EmitterComponent * cmp)
-//{
-//	my::DynamicEmitterPtr dynamic_emit = boost::dynamic_pointer_cast<my::DynamicEmitter>(cmp->m_Emitter);
-//	if (dynamic_emit)
-//	{
-//		m_pProp[PropertyEmitterParticleList]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterParticleLifeTime]->Show(TRUE, FALSE);
-//		m_pProp[PropertySphericalEmitterParticleLifeTime]->SetValue((_variant_t)dynamic_emit->m_ParticleLifeTime);
-//	}
-//	else
-//	{
-//		m_pProp[PropertyEmitterParticleList]->Show(TRUE, FALSE);
-//		m_pProp[PropertySphericalEmitterParticleLifeTime]->Show(FALSE, FALSE);
-//		UpdatePropertiesEmitterParticleList(m_pProp[PropertyEmitterParticleList], cmp->m_Emitter->m_ParticleList);
-//	}
-//
-//	my::SphericalEmitterPtr spherical_emit = boost::dynamic_pointer_cast<my::SphericalEmitter>(cmp->m_Emitter);
-//	if (spherical_emit)
-//	{
-//		m_pProp[PropertySphericalEmitterSpawnInterval]->SetValue((_variant_t)spherical_emit->m_SpawnInterval);
-//		m_pProp[PropertySphericalEmitterHalfSpawnAreaX]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.x);
-//		m_pProp[PropertySphericalEmitterHalfSpawnAreaY]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.y);
-//		m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]->SetValue((_variant_t)spherical_emit->m_HalfSpawnArea.z);
-//		m_pProp[PropertySphericalEmitterSpawnSpeed]->SetValue((_variant_t)spherical_emit->m_SpawnSpeed);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnInclination, &spherical_emit->m_SpawnInclination);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAzimuth, &spherical_emit->m_SpawnAzimuth);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorR, &spherical_emit->m_SpawnColorR);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorG, &spherical_emit->m_SpawnColorG);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorB, &spherical_emit->m_SpawnColorB);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnColorA, &spherical_emit->m_SpawnColorA);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeX, &spherical_emit->m_SpawnSizeX);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnSizeY, &spherical_emit->m_SpawnSizeY);
-//		UpdatePropertiesSpline(PropertySphericalEmitterSpawnAngle, &spherical_emit->m_SpawnAngle);
-//		m_pProp[PropertySphericalEmitterSpawnLoopTime]->SetValue((_variant_t)spherical_emit->m_SpawnLoopTime);
-//	}
-//	else
-//	{
-//		m_pProp[PropertySphericalEmitterSpawnInterval]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterHalfSpawnArea]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnSpeed]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnInclination]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnAzimuth]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnColorR]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnColorG]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnColorB]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnColorA]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnSizeX]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnSizeY]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnAngle]->Show(FALSE, FALSE);
-//		m_pProp[PropertySphericalEmitterSpawnLoopTime]->Show(FALSE, FALSE);
-//	}
-//
-//	if ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() <= 0)
-//	{
-//		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], 0);
-//	}
-//	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, cmp->m_Material.get());
-//	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
-//}
-////
-////void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
-////{
-////	unsigned int NbShapes = cmp->m_RigidActor->getNbShapes();
-////	std::vector<PxShape *> shapes(NbShapes);
-////	NbShapes = cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-////	unsigned int i = 0;
-////	for (; i < NbShapes; i++)
-////	{
-////		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() > i + 1
-////			&& HIWORD(m_pProp[PropertyRigidShapeList]->GetSubItem(i + 1)->GetData()) != shapes[i]->getGeometryType())
-////		{
-////			RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
-////		}
-////		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() <= i + 1)
-////		{
-////			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]->getGeometryType());
-////		}
-////		UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]);
-////	}
-////	RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
-////}
-//
-//void CPropertiesWnd::UpdatePropertiesTerrain(Terrain * terrain)
-//{
-//	if ((unsigned int)m_pProp[PropertyMaterialList]->GetSubItemsCount() <= 0)
-//	{
-//		CreatePropertiesMaterial(m_pProp[PropertyMaterialList], 0);
-//	}
-//	UpdatePropertiesMaterial(m_pProp[PropertyMaterialList], 0, terrain->m_Material.get());
-//	RemovePropertiesFrom(m_pProp[PropertyMaterialList], 1);
-//	m_pProp[PropertyTerrainRowChunks]->SetValue((_variant_t)terrain->m_RowChunks);
-//	m_pProp[PropertyTerrainChunkRows]->SetValue((_variant_t)terrain->m_ChunkRows);
-//	m_pProp[PropertyTerrainHeightScale]->SetValue((_variant_t)terrain->m_HeightScale);
-//	m_pProp[PropertyTerrainWrappedU]->SetValue((_variant_t)terrain->m_WrappedU);
-//	m_pProp[PropertyTerrainWrappedV]->SetValue((_variant_t)terrain->m_WrappedV);
-//	m_pProp[PropertyTerrainStaticCollision]->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_StaticCollision);
-//}
-//
-//void CPropertiesWnd::UpdatePropertiesEmitterParticleList(CMFCPropertyGridProperty * pParticleList, const my::Emitter::ParticleList & particle_list)
-//{
-//	m_pProp[PropertyEmitterParticleCount]->SetValue((_variant_t)particle_list.size());
-//	unsigned int i = 0;
-//	for (; i < particle_list.size(); i++)
-//	{
-//		if ((unsigned int)m_pProp[PropertyEmitterParticleList]->GetSubItemsCount() <= i + 1)
+//		if ((unsigned int)m_pProp[PropertyRigidShapeList]->GetSubItemsCount() <= i + 1)
 //		{
-//			CreatePropertiesEmitterParticle(m_pProp[PropertyEmitterParticleList], i);
+//			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]->getGeometryType());
 //		}
-//		UpdatePropertiesEmitterParticle(m_pProp[PropertyEmitterParticleList], i, particle_list[i]);
+//		UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], i, shapes[i]);
 //	}
-//	RemovePropertiesFrom(m_pProp[PropertyEmitterParticleList], i + 1);
+//	RemovePropertiesFrom(m_pProp[PropertyRigidShapeList], i + 1);
 //}
 //
 //void CPropertiesWnd::UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxShape * shape)
@@ -649,6 +541,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeSphericalEmitter:
 		CreatePropertiesSphericalEmitter(pComponent, dynamic_cast<SphericalEmitterComponent *>(cmp));
 		break;
+	case Component::ComponentTypeTerrain:
+		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
+		break;
 	}
 
 	if (!cmp->m_Cmps.empty())
@@ -664,19 +559,14 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
 	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
-	while ((unsigned int)pComponent->GetSubItemsCount() > PropId)
-	{
-		CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-		static_cast<CMFCPropertyGridPropertyReader *>(pComponent)->RemoveSubItem(pProp, TRUE);
-	}
-
+	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Animation"), (_variant_t)mesh_cmp->m_bAnimation, NULL, PropertyMeshAnimation);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("StaticCollision"), (_variant_t)mesh_cmp->m_StaticCollision, NULL, PropertyMeshStaticCollision);
+	pProp = new CCheckBoxProp(_T("StaticCollision"), (_variant_t)mesh_cmp->m_StaticCollision, NULL, PropertyMeshStaticCollision);
 	pComponent->AddSubItem(pProp);
 	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
@@ -718,23 +608,11 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pProp = new CFileProp(_T("SpecularTexture"), TRUE, (_variant_t)ms2ts(mat->m_SpecularTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialSpecularTexture);
 	pMaterial->AddSubItem(pProp);
 }
-//
-//void CPropertiesWnd::CreatePropertiesMeshLod(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId)
-//{
-//	TCHAR buff[128];
-//	_stprintf_s(buff, _countof(buff), _T("Lod%u"), NodeId);
-//	CMFCPropertyGridProperty * pNode = new CMFCPropertyGridProperty(buff, NodeId, FALSE);
-//	pParentCtrl->AddSubItem(pNode);
-//	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
-//	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("Instance"), (_variant_t)false, NULL, PropertyMeshInstance);
-//	pNode->AddSubItem(pProp);
-//	pProp = new CSimpleProp(_T("MaxDistance"), (_variant_t)0.0f, NULL, PropertyMeshLodMaxDistance);
-//	pNode->AddSubItem(pProp);
-//}
 
 void CPropertiesWnd::CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleCount"), (_variant_t)(size_t)emit_cmp->m_Emitter->m_ParticleList.size(), NULL, PropertyEmitterParticleCount);
@@ -795,6 +673,8 @@ void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("SpawnInterval"), (_variant_t)sphe_emit_cmp->m_SpawnInterval, NULL, PropertySphericalEmitterSpawnInterval);
@@ -820,6 +700,7 @@ void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty *
 	CreatePropertiesSpline(pComponent, _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle, &sphe_emit_cmp->m_SpawnAngle);
 	pProp = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)sphe_emit_cmp->m_SpawnLoopTime, NULL, PropertySphericalEmitterSpawnLoopTime);
 	pComponent->AddSubItem(pProp);
+	CreatePropertiesMaterial(pComponent, 0, sphe_emit_cmp->m_Material.get());
 }
 
 void CPropertiesWnd::CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline)
@@ -849,104 +730,92 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 	pProp = new CSimpleProp(_T("k"), (_variant_t)node->k, NULL, PropertySplineNodeK);
 	pNode->AddSubItem(pProp);
 }
-////
-////void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type)
-////{
-////	TCHAR buff[128];
-////	_stprintf_s(buff, _countof(buff), _T("%u.%s"), NodeId, g_ShapeTypeDesc[type].desc);
-////	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, MAKELONG(NodeId, type), FALSE);
-////	pParentCtrl->AddSubItem(pShape);
-////	CMFCPropertyGridProperty * pPos = new CSimpleProp(_T("Pos"), PropertyRigidShapePos, TRUE);
-////	pShape->AddSubItem(pPos);
-////	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapePosX);
-////	pPos->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapePosY);
-////	pPos->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapePosZ);
-////	pPos->AddSubItem(pProp);
-////	CMFCPropertyGridProperty * pRot = new CSimpleProp(_T("Rot"), PropertyRigidShapeRot, TRUE);
-////	pShape->AddSubItem(pRot);
-////	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotX);
-////	pRot->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotY);
-////	pRot->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotZ);
-////	pRot->AddSubItem(pProp);
-////	switch (type)
-////	{
-////	case PxGeometryType::eSPHERE:
-////		CreatePropertiesShapeSphere(pShape);
-////		break;
-////	case PxGeometryType::ePLANE:
-////		break;
-////	case PxGeometryType::eCAPSULE:
-////		CreatePropertiesShapeCapsule(pShape);
-////		break;
-////	case PxGeometryType::eBOX:
-////		CreatePropertiesShapeBox(pShape);
-////		break;
-////	}
-////}
-////
-////void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
-////{
-////	CMFCPropertyGridProperty * pHalfExtents = new CSimpleProp(_T("HalfExtents"), PropertyRigidShapeBoxHalfExtents, TRUE);
-////	pShape->AddSubItem(pHalfExtents);
-////	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsX);
-////	pHalfExtents->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsY);
-////	pHalfExtents->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsZ);
-////	pHalfExtents->AddSubItem(pProp);
-////}
-////
-////void CPropertiesWnd::CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape)
-////{
-////	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeSphereRadius);
-////	pShape->AddSubItem(pProp);
-////}
-////
-////void CPropertiesWnd::CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape)
-////{
-////	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleRadius);
-////	pShape->AddSubItem(pProp);
-////	pProp = new CSimpleProp(_T("HalfHeight"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleHalfHeight);
-////	pShape->AddSubItem(pProp);
-////}
+
+void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ChunkRows"), (_variant_t)terrain->m_ChunkRows, NULL, PropertyTerrainChunkRows);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("WrappedU"), (_variant_t)terrain->m_WrappedU, NULL, PropertyTerrainWrappedU);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("WrappedV"), (_variant_t)terrain->m_WrappedV, NULL, PropertyTerrainWrappedV);
+	pComponent->AddSubItem(pProp);
+	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
+	pComponent->AddSubItem(pProp);
+	pProp = new CCheckBoxProp(_T("StaticCollision"), terrain->m_StaticCollision, NULL, PropertyTerrainStaticCollision);
+	pComponent->AddSubItem(pProp);
+	CreatePropertiesMaterial(pComponent, 0, terrain->m_Material.get());
+}
 //
-//Material * CPropertiesWnd::GetComponentMaterial(Component * cmp, unsigned int id)
+//void CPropertiesWnd::CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, PxGeometryType::Enum type)
 //{
-//	switch (cmp->m_Type)
+//	TCHAR buff[128];
+//	_stprintf_s(buff, _countof(buff), _T("%u.%s"), NodeId, g_ShapeTypeDesc[type].desc);
+//	CMFCPropertyGridProperty * pShape = new CMFCPropertyGridProperty(buff, MAKELONG(NodeId, type), FALSE);
+//	pParentCtrl->AddSubItem(pShape);
+//	CMFCPropertyGridProperty * pPos = new CSimpleProp(_T("Pos"), PropertyRigidShapePos, TRUE);
+//	pShape->AddSubItem(pPos);
+//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapePosX);
+//	pPos->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapePosY);
+//	pPos->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapePosZ);
+//	pPos->AddSubItem(pProp);
+//	CMFCPropertyGridProperty * pRot = new CSimpleProp(_T("Rot"), PropertyRigidShapeRot, TRUE);
+//	pShape->AddSubItem(pRot);
+//	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotX);
+//	pRot->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotY);
+//	pRot->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeRotZ);
+//	pRot->AddSubItem(pProp);
+//	switch (type)
 //	{
-//	case Component::ComponentTypeMesh:
-//		{
-//			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-//			if (id < mesh_cmp->m_MaterialList.size())
-//			{
-//				return mesh_cmp->m_MaterialList[id].get();
-//			}
-//		}
+//	case PxGeometryType::eSPHERE:
+//		CreatePropertiesShapeSphere(pShape);
 //		break;
-//	case Component::ComponentTypeEmitter:
-//		{
-//			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(cmp);
-//			if (id == 0)
-//			{
-//				return emit_cmp->m_Material.get();
-//			}
-//		}
+//	case PxGeometryType::ePLANE:
 //		break;
-//	case Component::ComponentTypeTerrain:
-//		{
-//			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-//			if (id == 0)
-//			{
-//				return terrain->m_Material.get();
-//			}
-//		}
+//	case PxGeometryType::eCAPSULE:
+//		CreatePropertiesShapeCapsule(pShape);
+//		break;
+//	case PxGeometryType::eBOX:
+//		CreatePropertiesShapeBox(pShape);
 //		break;
 //	}
-//	return NULL;
+//}
+//
+//void CPropertiesWnd::CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape)
+//{
+//	CMFCPropertyGridProperty * pHalfExtents = new CSimpleProp(_T("HalfExtents"), PropertyRigidShapeBoxHalfExtents, TRUE);
+//	pShape->AddSubItem(pHalfExtents);
+//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsX);
+//	pHalfExtents->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsY);
+//	pHalfExtents->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyRigidShapeBoxHalfExtentsZ);
+//	pHalfExtents->AddSubItem(pProp);
+//}
+//
+//void CPropertiesWnd::CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape)
+//{
+//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeSphereRadius);
+//	pShape->AddSubItem(pProp);
+//}
+//
+//void CPropertiesWnd::CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape)
+//{
+//	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleRadius);
+//	pShape->AddSubItem(pProp);
+//	pProp = new CSimpleProp(_T("HalfHeight"), (_variant_t)0.0f, NULL, PropertyRigidShapeCapsuleHalfHeight);
+//	pShape->AddSubItem(pProp);
 //}
 
 unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type)
@@ -962,7 +831,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeSphericalEmitter:
 		return GetComponentAttrCount(Component::ComponentTypeActor) + 14;
 	case Component::ComponentTypeTerrain:
-		return GetComponentAttrCount(Component::ComponentTypeActor);
+		return GetComponentAttrCount(Component::ComponentTypeActor) + 8;
 	}
 	return 0;
 }
@@ -1079,138 +948,6 @@ void CPropertiesWnd::InitPropList()
 	m_wndPropList.EnableDescriptionArea();
 	m_wndPropList.SetVSDotNetLook();
 	m_wndPropList.MarkModifiedProperties();
-
-	//m_pProp[PropertyComponent] = new CMFCPropertyGridProperty(_T("Component"), PropertyComponent, FALSE);
-	//CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyComponentAABB, TRUE);
-	//m_pProp[PropertyComponentMinX] = new CSimpleProp(_T("minx"), (_variant_t)0.0f, NULL, PropertyComponentMinX);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMinX]);
-	//m_pProp[PropertyComponentMinY] = new CSimpleProp(_T("miny"), (_variant_t)0.0f, NULL, PropertyComponentMinY);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMinY]);
-	//m_pProp[PropertyComponentMinZ] = new CSimpleProp(_T("minz"), (_variant_t)0.0f, NULL, PropertyComponentMinZ);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMinZ]);
-	//m_pProp[PropertyComponentMaxX] = new CSimpleProp(_T("maxx"), (_variant_t)0.0f, NULL, PropertyComponentMaxX);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMaxX]);
-	//m_pProp[PropertyComponentMaxY] = new CSimpleProp(_T("maxy"), (_variant_t)0.0f, NULL, PropertyComponentMaxY);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMaxY]);
-	//m_pProp[PropertyComponentMaxZ] = new CSimpleProp(_T("maxz"), (_variant_t)0.0f, NULL, PropertyComponentMaxZ);
-	//pAABB->AddSubItem(m_pProp[PropertyComponentMaxZ]);
-	//m_pProp[PropertyComponent]->AddSubItem(pAABB);
-
-	//CMFCPropertyGridProperty * pPosition = new CSimpleProp(_T("Position"), PropertyComponentPos, TRUE);
-	//m_pProp[PropertyComponentPosX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentPosX);
-	//pPosition->AddSubItem(m_pProp[PropertyComponentPosX]);
-	//m_pProp[PropertyComponentPosY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentPosY);
-	//pPosition->AddSubItem(m_pProp[PropertyComponentPosY]);
-	//m_pProp[PropertyComponentPosZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyComponentPosZ);
-	//pPosition->AddSubItem(m_pProp[PropertyComponentPosZ]);
-	//m_pProp[PropertyComponent]->AddSubItem(pPosition);
-
-	//CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyComponentRot, TRUE);
-	//m_pProp[PropertyComponentRotX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentRotX);
-	//pRotate->AddSubItem(m_pProp[PropertyComponentRotX]);
-	//m_pProp[PropertyComponentRotY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentRotY);
-	//pRotate->AddSubItem(m_pProp[PropertyComponentRotY]);
-	//m_pProp[PropertyComponentRotZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyComponentRotZ);
-	//pRotate->AddSubItem(m_pProp[PropertyComponentRotZ]);
-	//m_pProp[PropertyComponent]->AddSubItem(pRotate);
-
-	//CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyComponentScale, TRUE);
-	//m_pProp[PropertyComponentScaleX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertyComponentScaleX);
-	//pScale->AddSubItem(m_pProp[PropertyComponentScaleX]);
-	//m_pProp[PropertyComponentScaleY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertyComponentScaleY);
-	//pScale->AddSubItem(m_pProp[PropertyComponentScaleY]);
-	//m_pProp[PropertyComponentScaleZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertyComponentScaleZ);
-	//pScale->AddSubItem(m_pProp[PropertyComponentScaleZ]);
-	//m_pProp[PropertyComponent]->AddSubItem(pScale);
-	//m_wndPropList.AddProperty(m_pProp[PropertyComponent], FALSE, FALSE);
-
-	//m_pProp[PropertyMesh] = new CMFCPropertyGridProperty(_T("Mesh"), PropertyMesh, FALSE);
-	//m_wndPropList.AddProperty(m_pProp[PropertyMesh], FALSE, FALSE);
-	//m_pProp[PropertyMeshLodList] = new CMFCPropertyGridProperty(_T("Lods"), PropertyMeshLodList, FALSE);
-	//m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshLodList]);
-	//m_pProp[PropertyMeshLodCount] = new CSimpleProp(_T("LodCount"), (_variant_t)(size_t)0, NULL, PropertyMeshLodCount);
-	//m_pProp[PropertyMeshLodList]->AddSubItem(m_pProp[PropertyMeshLodCount]);
-	//for (unsigned int i = 0; i < 3; i++)
-	//{
-	//	CreatePropertiesMeshLod(m_pProp[PropertyMeshLodList], i);
-	//}
-	//m_pProp[PropertyMeshLodBand] = new CSimpleProp(_T("LodBand"), (_variant_t)0.0f, NULL, PropertyMeshLodBand);
-	//m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshLodBand]);
-	//m_pProp[PropertyMeshStaticCollision] = new CCheckBoxProp(_T("StaticCollision"), FALSE, NULL, PropertyMeshStaticCollision);
-	//m_pProp[PropertyMesh]->AddSubItem(m_pProp[PropertyMeshStaticCollision]);
-
-	//m_pProp[PropertyEmitter] = new CMFCPropertyGridProperty(_T("Emitter"), PropertyEmitter, FALSE);
-	//m_pProp[PropertyEmitterParticleList] = new CMFCPropertyGridProperty(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertyEmitterParticleList]);
-	//m_pProp[PropertyEmitterParticleCount] = new CSimpleProp(_T("ParticleCount"), (_variant_t)(size_t)0, NULL, PropertyEmitterParticleCount);
-	//m_pProp[PropertyEmitterParticleList]->AddSubItem(m_pProp[PropertyEmitterParticleCount]);
-	//m_pProp[PropertySphericalEmitterParticleLifeTime] = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)0.0f, NULL, PropertySphericalEmitterParticleLifeTime);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterParticleLifeTime]);
-	//m_pProp[PropertySphericalEmitterSpawnInterval] = new CSimpleProp(_T("SpawnInterval"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnInterval);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnInterval]);
-	//m_pProp[PropertySphericalEmitterHalfSpawnArea] = new CSimpleProp(_T("HalfSpawnArea"), 0, TRUE);
-	//m_pProp[PropertySphericalEmitterHalfSpawnAreaX] = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaX);
-	//m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaX]);
-	//m_pProp[PropertySphericalEmitterHalfSpawnAreaY] = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaY);
-	//m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaY]);
-	//m_pProp[PropertySphericalEmitterHalfSpawnAreaZ] = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, PropertySphericalEmitterHalfSpawnAreaZ);
-	//m_pProp[PropertySphericalEmitterHalfSpawnArea]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnAreaZ]);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterHalfSpawnArea]);
-	//m_pProp[PropertySphericalEmitterSpawnSpeed] = new CSimpleProp(_T("SpawnSpeed"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnSpeed);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnSpeed]);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnInclination"), PropertySphericalEmitterSpawnInclination);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAzimuth"), PropertySphericalEmitterSpawnAzimuth);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorR"), PropertySphericalEmitterSpawnColorR);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorG"), PropertySphericalEmitterSpawnColorG);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorB"), PropertySphericalEmitterSpawnColorB);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnColorA"), PropertySphericalEmitterSpawnColorA);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeX"), PropertySphericalEmitterSpawnSizeX);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnSizeY"), PropertySphericalEmitterSpawnSizeY);
-	//CreatePropertiesSpline(m_pProp[PropertyEmitter], _T("SpawnAngle"), PropertySphericalEmitterSpawnAngle);
-	//m_pProp[PropertySphericalEmitterSpawnLoopTime] = new CSimpleProp(_T("SpawnLoopTime"), (_variant_t)0.0f, NULL, PropertySphericalEmitterSpawnLoopTime);
-	//m_pProp[PropertyEmitter]->AddSubItem(m_pProp[PropertySphericalEmitterSpawnLoopTime]);
-	//m_wndPropList.AddProperty(m_pProp[PropertyEmitter], FALSE, FALSE);
-
-	//m_pProp[PropertyMaterialList] = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
-	//m_wndPropList.AddProperty(m_pProp[PropertyMaterialList], FALSE, FALSE);
-	//for (unsigned int i = 0; i < 3; i++)
-	//{
-	//	CreatePropertiesMaterial(m_pProp[PropertyMaterialList], i);
-	//}
-
-	////m_pProp[PropertyRigidShapeList] = new CMFCPropertyGridProperty(_T("ShapeList"), PropertyRigidShapeList, FALSE);
-	////m_wndPropList.AddProperty(m_pProp[PropertyRigidShapeList], FALSE, FALSE);
-	////m_pProp[PropertyRigidShapeAdd] = new CComboProp(_T("Add..."), (_variant_t)_T(""), NULL, PropertyRigidShapeAdd);
-	////for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
-	////{
-	////	m_pProp[PropertyRigidShapeAdd]->AddOption(g_ShapeTypeDesc[i].desc, TRUE);
-	////}
-	////m_pProp[PropertyRigidShapeList]->AddSubItem(m_pProp[PropertyRigidShapeAdd]);
-	////for (unsigned int i = 0; i < 3; i++)
-	////{
-	////	CreatePropertiesShape(m_pProp[PropertyRigidShapeList], i, PxGeometryType::eBOX);
-	////}
-
-	//m_pProp[PropertyTerrain] = new CMFCPropertyGridProperty(_T("Terrain"), PropertyTerrain, FALSE);
-	//m_wndPropList.AddProperty(m_pProp[PropertyTerrain], FALSE, FALSE);
-	//m_pProp[PropertyTerrainRowChunks] = new CSimpleProp(_T("RowChunks"), (_variant_t)(DWORD)1, NULL, PropertyTerrainRowChunks);
-	//m_pProp[PropertyTerrainRowChunks]->Enable(FALSE);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainRowChunks]);
-	//m_pProp[PropertyTerrainChunkRows] = new CSimpleProp(_T("ChunkRows"), (_variant_t)(DWORD)1, NULL, PropertyTerrainChunkRows);
-	//m_pProp[PropertyTerrainChunkRows]->Enable(FALSE);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainChunkRows]);
-	//m_pProp[PropertyTerrainHeightScale] = new CSimpleProp(_T("HeightScale"), (_variant_t)1.0f, NULL, PropertyTerrainHeightScale);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightScale]);
-	//m_pProp[PropertyTerrainWrappedU] = new CSimpleProp(_T("WrappedU"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedU);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedU]);
-	//m_pProp[PropertyTerrainWrappedV] = new CSimpleProp(_T("WrappedV"), (_variant_t)1.0f, NULL, PropertyTerrainWrappedV);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainWrappedV]);
-	//m_pProp[PropertyTerrainHeightMap] = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainHeightMap]);
-	//m_pProp[PropertyTerrainStaticCollision] = new CCheckBoxProp(_T("StaticCollision"), FALSE, NULL, PropertyTerrainStaticCollision);
-	//m_pProp[PropertyTerrain]->AddSubItem(m_pProp[PropertyTerrainStaticCollision]);
-
-	//HideAllProperties();
 }
 
 void CPropertiesWnd::OnSetFocus(CWnd* pOldWnd)
@@ -1597,188 +1334,186 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	////case PropertyRigidShapeAdd:
-	////	{
-	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	////		DWORD NodeId = rigid_cmp->m_RigidActor->getNbShapes();
-	////		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-	////		PxShape * shape = NULL;
-	////		switch (i)
-	////		{
-	////		case PxGeometryType::eSPHERE:
-	////			shape = rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1.0f),
-	////				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	////			break;
-	////		case PxGeometryType::ePLANE:
-	////			shape = rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(),
-	////				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	////			break;
-	////		case PxGeometryType::eCAPSULE:
-	////			shape = rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f),
-	////				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	////			break;
-	////		case PxGeometryType::eBOX:
-	////			shape = rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(PxVec3(1,1,1)),
-	////				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
-	////			break;
-	////		case PxGeometryType::eCONVEXMESH:
-	////			break;
-	////		case PxGeometryType::eTRIANGLEMESH:
-	////			break;
-	////		case PxGeometryType::eHEIGHTFIELD:
-	////			break;
-	////		}
-	////		if (shape)
-	////		{
-	////			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, (PxGeometryType::Enum)i);
-	////			UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, shape);
-	////		}
-	////		EventArg arg;
-	////		pFrame->m_EventAttributeChanged(&arg);
-	////	}
-	////	break;
-	////case PropertyRigidShapePos:
-	////case PropertyRigidShapePosX:
-	////case PropertyRigidShapePosY:
-	////case PropertyRigidShapePosZ:
-	////case PropertyRigidShapeRot:
-	////case PropertyRigidShapeRotX:
-	////case PropertyRigidShapeRotY:
-	////case PropertyRigidShapeRotZ:
-	////	{
-	////		CMFCPropertyGridProperty * pShape = NULL;
-	////		switch (PropertyId)
-	////		{
-	////		case PropertyRigidShapePos:
-	////		case PropertyRigidShapeRot:
-	////			pShape = pProp->GetParent();
-	////			break;
-	////		case PropertyRigidShapePosX:
-	////		case PropertyRigidShapePosY:
-	////		case PropertyRigidShapePosZ:
-	////		case PropertyRigidShapeRotX:
-	////		case PropertyRigidShapeRotY:
-	////		case PropertyRigidShapeRotZ:
-	////			pShape = pProp->GetParent()->GetParent();
-	////			break;
-	////		}
-	////		unsigned int NodeId = LOWORD(pShape->GetData());
-	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	////		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	////		std::vector<PxShape *> shapes(NbShapes);
-	////		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	////		my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
-	////			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal),
-	////			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal),
-	////			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
-	////		shapes[NodeId]->setLocalPose(PxTransform(PxVec3(
-	////			pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
-	////			pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
-	////			pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal), (PxQuat&)rot));
-	////		EventArg arg;
-	////		pFrame->m_EventAttributeChanged(&arg);
-	////	}
-	////	break;
-	////case PropertyRigidShapeCapsuleRadius:
-	////case PropertyRigidShapeCapsuleHalfHeight:
-	////	{
-	////		CMFCPropertyGridProperty * pShape = pProp->GetParent();
-	////		unsigned int NodeId = LOWORD(pShape->GetData());
-	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	////		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	////		std::vector<PxShape *> shapes(NbShapes);
-	////		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	////		shapes[NodeId]->setGeometry(PxCapsuleGeometry(
-	////			pShape->GetSubItem(2)->GetValue().fltVal,
-	////			pShape->GetSubItem(3)->GetValue().fltVal));
-	////		EventArg arg;
-	////		pFrame->m_EventAttributeChanged(&arg);
-	////	}
-	////	break;
-	////case PropertyRigidShapeBoxHalfExtents:
-	////case PropertyRigidShapeBoxHalfExtentsX:
-	////case PropertyRigidShapeBoxHalfExtentsY:
-	////case PropertyRigidShapeBoxHalfExtentsZ:
-	////	{
-	////		CMFCPropertyGridProperty * pShape = NULL;
-	////		switch (PropertyId)
-	////		{
-	////		case PropertyRigidShapeBoxHalfExtents:
-	////			pShape = pProp->GetParent();
-	////			break;
-	////		case PropertyRigidShapeBoxHalfExtentsX:
-	////		case PropertyRigidShapeBoxHalfExtentsY:
-	////		case PropertyRigidShapeBoxHalfExtentsZ:
-	////			pShape = pProp->GetParent()->GetParent();
-	////			break;
-	////		}
-	////		unsigned int NodeId = LOWORD(pShape->GetData());
-	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	////		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	////		std::vector<PxShape *> shapes(NbShapes);
-	////		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	////		shapes[NodeId]->setGeometry(PxBoxGeometry(PxVec3(
-	////			pShape->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
-	////			pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
-	////			pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
-	////		EventArg arg;
-	////		pFrame->m_EventAttributeChanged(&arg);
-	////	}
-	////	break;
-	////case PropertyRigidShapeSphereRadius:
-	////	{
-	////		CMFCPropertyGridProperty * pShape = pProp->GetParent();
-	////		unsigned int NodeId = LOWORD(pShape->GetData());
-	////		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	////		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	////		std::vector<PxShape *> shapes(NbShapes);
-	////		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	////		shapes[NodeId]->setGeometry(PxSphereGeometry(
-	////			pShape->GetSubItem(2)->GetValue().fltVal));
-	////		EventArg arg;
-	////		pFrame->m_EventAttributeChanged(&arg);
-	////	}
-	////	break;
-	//case PropertyTerrainHeightScale:
+	case PropertyTerrainHeightScale:
+		{
+			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+			terrain->m_HeightScale = pProp->GetValue().fltVal;
+			terrain->UpdateHeightMapNormal();
+			terrain->UpdateChunks();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyTerrainWrappedU:
+	case PropertyTerrainWrappedV:
+		{
+			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
+			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyTerrainHeightMap:
+		{
+			std::string path = ts2ms(pProp->GetValue().bstrVal);
+			my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path));
+			if (res)
+			{
+				Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+				terrain->UpdateHeightMap(res);
+				EventArg arg;
+				pFrame->m_EventAttributeChanged(&arg);
+			}
+		}
+		break;
+	case PropertyTerrainStaticCollision:
+		{
+			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
+			terrain->m_StaticCollision = pProp->GetValue().boolVal;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	//case PropertyRigidShapeAdd:
 	//	{
-	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-	//		terrain->m_HeightScale = m_pProp[PropertyTerrainHeightScale]->GetValue().fltVal;
-	//		terrain->UpdateHeightMapNormal();
-	//		terrain->UpdateChunks();
-	//		pFrame->OnActorPosChanged(cmp);
-	//		pFrame->OnSelActorsChanged();
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyTerrainWrappedU:
-	//case PropertyTerrainWrappedV:
-	//	{
-	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-	//		terrain->m_WrappedU = m_pProp[PropertyTerrainWrappedU]->GetValue().fltVal;
-	//		terrain->m_WrappedV = m_pProp[PropertyTerrainWrappedV]->GetValue().fltVal;
-	//		EventArg arg;
-	//		pFrame->m_EventAttributeChanged(&arg);
-	//	}
-	//	break;
-	//case PropertyTerrainHeightMap:
-	//	{
-	//		std::string path = ts2ms(pProp->GetValue().bstrVal);
-	//		my::Texture2DPtr res = boost::dynamic_pointer_cast<my::Texture2D>(theApp.LoadTexture(path));
-	//		if (res)
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		DWORD NodeId = rigid_cmp->m_RigidActor->getNbShapes();
+	//		int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+	//		PxShape * shape = NULL;
+	//		switch (i)
 	//		{
-	//			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-	//			terrain->UpdateHeightMap(res);
-	//			pFrame->OnActorPosChanged(cmp);
-	//			EventArg arg;
-	//			pFrame->m_EventAttributeChanged(&arg);
+	//		case PxGeometryType::eSPHERE:
+	//			shape = rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1.0f),
+	//				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+	//			break;
+	//		case PxGeometryType::ePLANE:
+	//			shape = rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(),
+	//				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+	//			break;
+	//		case PxGeometryType::eCAPSULE:
+	//			shape = rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f),
+	//				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+	//			break;
+	//		case PxGeometryType::eBOX:
+	//			shape = rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(PxVec3(1,1,1)),
+	//				*PhysXContext::getSingleton().m_PxMaterial, PxTransform::createIdentity());
+	//			break;
+	//		case PxGeometryType::eCONVEXMESH:
+	//			break;
+	//		case PxGeometryType::eTRIANGLEMESH:
+	//			break;
+	//		case PxGeometryType::eHEIGHTFIELD:
+	//			break;
 	//		}
+	//		if (shape)
+	//		{
+	//			CreatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, (PxGeometryType::Enum)i);
+	//			UpdatePropertiesShape(m_pProp[PropertyRigidShapeList], NodeId, shape);
+	//		}
+	//		EventArg arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}
 	//	break;
-	//case PropertyTerrainStaticCollision:
+	//case PropertyRigidShapePos:
+	//case PropertyRigidShapePosX:
+	//case PropertyRigidShapePosY:
+	//case PropertyRigidShapePosZ:
+	//case PropertyRigidShapeRot:
+	//case PropertyRigidShapeRotX:
+	//case PropertyRigidShapeRotY:
+	//case PropertyRigidShapeRotZ:
 	//	{
-	//		Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-	//		terrain->m_StaticCollision = m_pProp[PropertyTerrainStaticCollision]->GetValue().boolVal;
+	//		CMFCPropertyGridProperty * pShape = NULL;
+	//		switch (PropertyId)
+	//		{
+	//		case PropertyRigidShapePos:
+	//		case PropertyRigidShapeRot:
+	//			pShape = pProp->GetParent();
+	//			break;
+	//		case PropertyRigidShapePosX:
+	//		case PropertyRigidShapePosY:
+	//		case PropertyRigidShapePosZ:
+	//		case PropertyRigidShapeRotX:
+	//		case PropertyRigidShapeRotY:
+	//		case PropertyRigidShapeRotZ:
+	//			pShape = pProp->GetParent()->GetParent();
+	//			break;
+	//		}
+	//		unsigned int NodeId = LOWORD(pShape->GetData());
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	//		std::vector<PxShape *> shapes(NbShapes);
+	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	//		my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+	//			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal),
+	//			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal),
+	//			D3DXToRadian(pShape->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal)));
+	//		shapes[NodeId]->setLocalPose(PxTransform(PxVec3(
+	//			pShape->GetSubItem(0)->GetSubItem(0)->GetValue().fltVal,
+	//			pShape->GetSubItem(0)->GetSubItem(1)->GetValue().fltVal,
+	//			pShape->GetSubItem(0)->GetSubItem(2)->GetValue().fltVal), (PxQuat&)rot));
+	//		EventArg arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyRigidShapeCapsuleRadius:
+	//case PropertyRigidShapeCapsuleHalfHeight:
+	//	{
+	//		CMFCPropertyGridProperty * pShape = pProp->GetParent();
+	//		unsigned int NodeId = LOWORD(pShape->GetData());
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	//		std::vector<PxShape *> shapes(NbShapes);
+	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	//		shapes[NodeId]->setGeometry(PxCapsuleGeometry(
+	//			pShape->GetSubItem(2)->GetValue().fltVal,
+	//			pShape->GetSubItem(3)->GetValue().fltVal));
+	//		EventArg arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyRigidShapeBoxHalfExtents:
+	//case PropertyRigidShapeBoxHalfExtentsX:
+	//case PropertyRigidShapeBoxHalfExtentsY:
+	//case PropertyRigidShapeBoxHalfExtentsZ:
+	//	{
+	//		CMFCPropertyGridProperty * pShape = NULL;
+	//		switch (PropertyId)
+	//		{
+	//		case PropertyRigidShapeBoxHalfExtents:
+	//			pShape = pProp->GetParent();
+	//			break;
+	//		case PropertyRigidShapeBoxHalfExtentsX:
+	//		case PropertyRigidShapeBoxHalfExtentsY:
+	//		case PropertyRigidShapeBoxHalfExtentsZ:
+	//			pShape = pProp->GetParent()->GetParent();
+	//			break;
+	//		}
+	//		unsigned int NodeId = LOWORD(pShape->GetData());
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	//		std::vector<PxShape *> shapes(NbShapes);
+	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	//		shapes[NodeId]->setGeometry(PxBoxGeometry(PxVec3(
+	//			pShape->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal,
+	//			pShape->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal,
+	//			pShape->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal)));
+	//		EventArg arg;
+	//		pFrame->m_EventAttributeChanged(&arg);
+	//	}
+	//	break;
+	//case PropertyRigidShapeSphereRadius:
+	//	{
+	//		CMFCPropertyGridProperty * pShape = pProp->GetParent();
+	//		unsigned int NodeId = LOWORD(pShape->GetData());
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	//		std::vector<PxShape *> shapes(NbShapes);
+	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	//		shapes[NodeId]->setGeometry(PxSphereGeometry(
+	//			pShape->GetSubItem(2)->GetValue().fltVal));
 	//		EventArg arg;
 	//		pFrame->m_EventAttributeChanged(&arg);
 	//	}

@@ -784,24 +784,27 @@ void CMainFrame::OnRigidBox()
 
 void CMainFrame::OnComponentTerrain()
 {
-	//// TODO: Add your command handler code here
-	//TerrainPtr terrain(new Terrain(my::Matrix4::identity,1.0f,1.0f,1.0f));
-	//MaterialPtr lambert1(new Material());
-	//lambert1->m_Shader = "lambert1.fx";
-	//lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	//lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	//lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	//lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	//terrain->m_Material = lambert1;
-	//terrain->RequestResource();
-	//m_Root.AddActor(terrain, terrain->m_aabb.transform(Component::GetCmpWorld(terrain.get())), 0.1f);
+	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(terrain.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
+	TerrainPtr terrain(new Terrain(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1),1.0f,1.0f,1.0f));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = "lambert1.fx";
+	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	terrain->m_Material = lambert1;
+	terrain->RequestResource();
+	(*cmp_iter)->AddComponent(terrain);
+	(*cmp_iter)->Update(0);
+
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnEditDelete()

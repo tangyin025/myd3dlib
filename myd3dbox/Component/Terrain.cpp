@@ -154,10 +154,10 @@ Terrain::Terrain(void)
 
 Terrain::~Terrain(void)
 {
-	m_HeightMap.OnDestroyDevice();
-	_ASSERT(!m_Decl);
-	_ASSERT(!m_vb.m_ptr);
-	m_Root.ClearAllActor();
+	//m_HeightMap.OnDestroyDevice();
+	//_ASSERT(!m_Decl);
+	//_ASSERT(!m_vb.m_ptr);
+	//m_Root.ClearAllActor();
 }
 
 void Terrain::CalcLodDistanceSq(void)
