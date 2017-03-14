@@ -4,13 +4,13 @@ A fast and lightweight direct3d based game engine, including client and editor
 
 features
 ----
-direct3d renderer<br>
+direct3d9 renderer<br>
 deferred lighting<br>
-gpu particle system (lighting pass)<br>
+gpu particle system (stateless)<br>
 delay loaded resource manager<br>
 octtree scene<br>
-terrain lod manager<br>
-embeded physical engine for fast collision test<br>
+terrain lod<br>
+fast collision test<br>
 lua script for both ui and scene objects<br>
 MFC scene editor<br>
 
