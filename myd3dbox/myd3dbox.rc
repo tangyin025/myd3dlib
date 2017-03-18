@@ -162,6 +162,7 @@ BEGIN
             MENUITEM "Mesh...",                     ID_COMPONENT_MESH
             MENUITEM "Emitter",                     ID_COMPONENT_EMITTER
             MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
+            MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
             POPUP "Rigid"
             BEGIN
                 MENUITEM "Sphere",                      ID_RIGID_SPHERE
@@ -169,7 +170,6 @@ BEGIN
                 MENUITEM "Capsule",                     ID_RIGID_CAPSULE
                 MENUITEM "Box",                         ID_RIGID_BOX
             END
-            MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
         END
     END
     POPUP "&View"

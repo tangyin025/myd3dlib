@@ -38,13 +38,17 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
 	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_EMITTER, &CMainFrame::OnUpdateComponentEmitter)
 	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnUpdateComponentSphericalemitter)
+	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_TERRAIN, &CMainFrame::OnUpdateComponentTerrain)
 	ON_COMMAND(ID_RIGID_SPHERE, &CMainFrame::OnRigidSphere)
 	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
 	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
 	ON_COMMAND(ID_RIGID_BOX, &CMainFrame::OnRigidBox)
-	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
@@ -650,6 +654,12 @@ void CMainFrame::OnComponentMesh()
 	}
 }
 
+void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
+}
+
 void CMainFrame::OnComponentEmitter()
 {
 	// TODO: Add your command handler code here
@@ -672,7 +682,13 @@ void CMainFrame::OnComponentEmitter()
 	(*cmp_iter)->Update(0);
 
 	EventArg arg;
-	m_EventSelectionChanged(&arg);
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentEmitter(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnComponentSphericalemitter()
@@ -715,7 +731,44 @@ void CMainFrame::OnComponentSphericalemitter()
 	(*cmp_iter)->Update(0);
 
 	EventArg arg;
-	m_EventSelectionChanged(&arg);
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
+}
+
+void CMainFrame::OnComponentTerrain()
+{
+	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
+
+	TerrainPtr terrain(new Terrain(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1),1.0f,1.0f,1.0f));
+	MaterialPtr lambert1(new Material());
+	lambert1->m_Shader = "lambert1.fx";
+	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	terrain->m_Material = lambert1;
+	terrain->RequestResource();
+	(*cmp_iter)->AddComponent(terrain);
+	(*cmp_iter)->Update(0);
+
+	EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnRigidSphere()
@@ -782,50 +835,35 @@ void CMainFrame::OnRigidBox()
 	//m_EventSelectionChanged(&arg);
 }
 
-void CMainFrame::OnComponentTerrain()
+void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
 	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	{
-		return;
+		if ((*cmp_iter)->m_Parent)
+		{
+			(*cmp_iter)->m_Parent->RemoveComponent(
+				boost::dynamic_pointer_cast<Component>((*cmp_iter)->shared_from_this()));
+		}
+		else
+		{
+			ASSERT((*cmp_iter)->m_Type == Component::ComponentTypeActor);
+			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
+			m_Root.RemoveActor(
+				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
+			m_ViewedActors.erase(actor);
+		}
 	}
-
-	TerrainPtr terrain(new Terrain(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1),1.0f,1.0f,1.0f));
-	MaterialPtr lambert1(new Material());
-	lambert1->m_Shader = "lambert1.fx";
-	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-	terrain->m_Material = lambert1;
-	terrain->RequestResource();
-	(*cmp_iter)->AddComponent(terrain);
-	(*cmp_iter)->Update(0);
-
+	m_selcmps.clear();
 	EventArg arg;
 	m_EventSelectionChanged(&arg);
 }
 
-void CMainFrame::OnEditDelete()
-{
-	//// TODO: Add your command handler code here
-	//ActorSet::iterator cmp_iter = m_selcmps.begin();
-	//for (; cmp_iter != m_selcmps.end(); cmp_iter++)
-	//{
-	//	my::OctComponentPtr cmp = (*cmp_iter)->shared_from_this();
-	//	m_Root.RemoveActor(cmp);
-	//	m_ViewedActors.erase(*cmp_iter);
-	//}
-	//m_selcmps.clear();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
-}
-
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
-	//// TODO: Add your command update UI handler code here
-	//pCmdUI->Enable(!m_selcmps.empty());
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
 }
 
 void CMainFrame::OnPivotMove()
