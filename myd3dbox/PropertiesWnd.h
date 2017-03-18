@@ -2,7 +2,7 @@
 #pragma once
 
 #include "EventDefine.h"
-#include "Component/Component.h"
+#include "Component/Actor.h"
 #include "Component/Terrain.h"
 
 class CPropertiesToolBar : public CMFCToolBar
@@ -40,15 +40,7 @@ protected:
 	enum Property
 	{
 		PropertyUnknown = 0,
-		PropertyActor,
 		PropertyComponent,
-		PropertyComponentAABB,
-		PropertyComponentMinX,
-		PropertyComponentMinY,
-		PropertyComponentMinZ,
-		PropertyComponentMaxX,
-		PropertyComponentMaxY,
-		PropertyComponentMaxZ,
 		PropertyComponentPos,
 		PropertyComponentPosX,
 		PropertyComponentPosY,
@@ -61,6 +53,13 @@ protected:
 		PropertyComponentScaleX,
 		PropertyComponentScaleY,
 		PropertyComponentScaleZ,
+		PropertyActorAABB,
+		PropertyActorMinX,
+		PropertyActorMinY,
+		PropertyActorMinZ,
+		PropertyActorMaxX,
+		PropertyActorMaxY,
+		PropertyActorMaxZ,
 		PropertyMeshResPath,
 		PropertyMeshAnimation,
 		PropertyMeshInstance,
@@ -149,6 +148,7 @@ protected:
 	void OnCmpAttriChanged(EventArg * arg);
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
+	void UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
 	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * cmp);
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
@@ -164,6 +164,7 @@ protected:
 	//void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
+	void CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
 	void CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);

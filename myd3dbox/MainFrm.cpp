@@ -401,7 +401,11 @@ void CMainFrame::UpdateSelBox(void)
 		ComponentSet::const_iterator sel_iter = m_selcmps.begin();
 		for (; sel_iter != m_selcmps.end(); sel_iter++)
 		{
-			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
+			if ((*sel_iter)->m_Type == Component::ComponentTypeActor)
+			{
+				Actor * actor = dynamic_cast<Actor *>(*sel_iter);
+				m_selbox.unionSelf(actor->m_aabb.transform(actor->m_World));
+			}
 		}
 	}
 }
@@ -598,7 +602,7 @@ void CMainFrame::OnFileSave()
 void CMainFrame::OnCreateActor()
 {
 	// TODO: Add your command handler code here
-	ActorPtr actor(new Actor(my::AABB(-1,1),my::Vector3(0,0,0),my::Quaternion::Identity(),my::Vector3(1,1,1)));
+	ActorPtr actor(new Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
 	actor->Update(0);
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
@@ -627,7 +631,7 @@ void CMainFrame::OnComponentMesh()
 		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
 		if (mesh)
 		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(mesh->m_aabb, my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1), false, false));
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1), false, false));
 			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
 			mesh_cmp->m_MeshRes.OnReady(mesh);
 			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
@@ -669,7 +673,7 @@ void CMainFrame::OnComponentEmitter()
 		return;
 	}
 
-	EmitterComponentPtr emit_cmp(new EmitterComponent(my::AABB(-1,1), my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	EmitterComponentPtr emit_cmp(new EmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
 	emit_cmp->m_Emitter.reset(new my::Emitter());
 	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
@@ -700,7 +704,7 @@ void CMainFrame::OnComponentSphericalemitter()
 		return;
 	}
 
-	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::AABB(-1,1), my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	SphericalEmitterComponentPtr sphe_emit_cmp(new SphericalEmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
 	sphe_emit_cmp->m_Emitter.reset(new my::Emitter());
 	sphe_emit_cmp->m_ParticleLifeTime=10.0f;
 	sphe_emit_cmp->m_SpawnInterval=1/100.0f;

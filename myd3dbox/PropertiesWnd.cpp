@@ -181,28 +181,24 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		return;
 	}
 
-	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)cmp->m_aabb.m_min.x);
-	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)cmp->m_aabb.m_min.y);
-	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_aabb.m_min.z);
-	pComponent->GetSubItem(0)->GetSubItem(3)->SetValue((_variant_t)cmp->m_aabb.m_max.x);
-	pComponent->GetSubItem(0)->GetSubItem(4)->SetValue((_variant_t)cmp->m_aabb.m_max.y);
-	pComponent->GetSubItem(0)->GetSubItem(5)->SetValue((_variant_t)cmp->m_aabb.m_max.z);
-
-	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Position.x);
-	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Position.y);
-	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
+	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Position.x);
+	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Position.y);
+	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
 
 	my::Vector3 angle = cmp->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)angle.x);
-	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)angle.y);
-	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)angle.z);
+	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)angle.x);
+	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)angle.y);
+	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)angle.z);
 
-	pComponent->GetSubItem(3)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Scale.x);
-	pComponent->GetSubItem(3)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Scale.y);
-	pComponent->GetSubItem(3)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Scale.z);
+	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Scale.x);
+	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Scale.y);
+	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Scale.z);
 
 	switch (cmp->m_Type)
 	{
+	case Component::ComponentTypeActor:
+		UpdatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
+		break;
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
@@ -236,9 +232,27 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	}
 }
 
+void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyActorAABB)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesActor(pComponent, actor);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+}
+
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyMeshResPath)
 	{
@@ -279,7 +293,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 
 void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyEmitterParticleList)
 	{
@@ -322,7 +336,7 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertySphericalEmitterParticleLifeTime)
 	{
@@ -378,7 +392,7 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 
 void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyTerrainRowChunks)
 	{
@@ -487,24 +501,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	ASSERT(pComponent);
 	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp); // ! only worked on 32bit system
 
-	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyComponentAABB, TRUE);
-	pComponent->AddSubItem(pAABB);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)cmp->m_aabb.m_min.x, NULL, PropertyComponentMinX);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("miny"), (_variant_t)cmp->m_aabb.m_min.y, NULL, PropertyComponentMinY);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("minz"), (_variant_t)cmp->m_aabb.m_min.z, NULL, PropertyComponentMinZ);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxx"), (_variant_t)cmp->m_aabb.m_max.x, NULL, PropertyComponentMaxX);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxy"), (_variant_t)cmp->m_aabb.m_max.y, NULL, PropertyComponentMaxY);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxz"), (_variant_t)cmp->m_aabb.m_max.z, NULL, PropertyComponentMaxZ);
-	pAABB->AddSubItem(pProp);
-
 	CMFCPropertyGridProperty * pPosition = new CMFCPropertyGridProperty(_T("Position"), PropertyComponentPos, TRUE);
 	pComponent->AddSubItem(pPosition);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)cmp->m_Position.x, NULL, PropertyComponentPosX);
 	pPosition->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)cmp->m_Position.y, NULL, PropertyComponentPosY);
 	pPosition->AddSubItem(pProp);
@@ -532,6 +531,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 
 	switch (cmp->m_Type)
 	{
+	case Component::ComponentTypeActor:
+		CreatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
+		break;
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
@@ -556,9 +558,29 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	}
 }
 
+void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
+{
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
+	pComponent->AddSubItem(pAABB);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("miny"), (_variant_t)actor->m_aabb.m_min.y, NULL, PropertyActorMinY);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("minz"), (_variant_t)actor->m_aabb.m_min.z, NULL, PropertyActorMinZ);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxx"), (_variant_t)actor->m_aabb.m_max.x, NULL, PropertyActorMaxX);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxy"), (_variant_t)actor->m_aabb.m_max.y, NULL, PropertyActorMaxY);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
+	pAABB->AddSubItem(pProp);
+}
+
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 	pComponent->AddSubItem(pProp);
@@ -611,7 +633,7 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 
 void CPropertiesWnd::CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
@@ -662,18 +684,18 @@ void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 	CMFCPropertyGridProperty * pSize = new CMFCPropertyGridProperty(_T("Size"), PropertyEmitterParticleSize, TRUE);
 	pParticle->AddSubItem(pSize);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Angle, NULL, PropertyEmitterParticleSizeX);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)particle.m_Size.x, NULL, PropertyEmitterParticleSizeX);
 	pSize->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Time, NULL, PropertyEmitterParticleSizeY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)particle.m_Size.y, NULL, PropertyEmitterParticleSizeY);
 	pSize->AddSubItem(pProp);
 
-	pProp = new CMFCPropertyGridProperty(_T("Angle"), (_variant_t)0.0f, NULL, PropertyEmitterParticleAngle);
+	pProp = new CMFCPropertyGridProperty(_T("Angle"), (_variant_t)particle.m_Angle, NULL, PropertyEmitterParticleAngle);
 	pParticle->AddSubItem(pProp);
 }
 
 void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pProp);
@@ -733,7 +755,7 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 
 void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
 	pProp->Enable(FALSE);
@@ -822,16 +844,18 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 {
 	switch (type)
 	{
+	case Component::ComponentTypeComponent:
+		return 3;
 	case Component::ComponentTypeActor:
-		return 4;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeMesh:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 5;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 5;
 	case Component::ComponentTypeEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 2;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 14;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 14;
 	case Component::ComponentTypeTerrain:
-		return GetComponentAttrCount(Component::ComponentTypeActor) + 8;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 8;
 	}
 	return 0;
 }
@@ -998,13 +1022,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
-	case PropertyComponentAABB:
-	case PropertyComponentMinX:
-	case PropertyComponentMinY:
-	case PropertyComponentMinZ:
-	case PropertyComponentMaxX:
-	case PropertyComponentMaxY:
-	case PropertyComponentMaxZ:
 	case PropertyComponentPos:
 	case PropertyComponentPosX:
 	case PropertyComponentPosY:
@@ -1019,33 +1036,24 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyComponentScaleZ:
 		{
 			Component * cmp = NULL;
-			CMFCPropertyGridProperty * pAABB = NULL, * pPosition = NULL, * pRotation = NULL, * pScale = NULL;
+			CMFCPropertyGridProperty * pPosition = NULL, * pRotation = NULL, * pScale = NULL;
 			switch (PropertyId)
 			{
-			case PropertyComponentAABB:
 			case PropertyComponentPos:
 			case PropertyComponentRot:
 			case PropertyComponentScale:
 				cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
-				pAABB = pProp->GetParent()->GetSubItem(0);
-				pPosition = pProp->GetParent()->GetSubItem(1);
-				pRotation = pProp->GetParent()->GetSubItem(2);
-				pScale = pProp->GetParent()->GetSubItem(3);
+				pPosition = pProp->GetParent()->GetSubItem(0);
+				pRotation = pProp->GetParent()->GetSubItem(1);
+				pScale = pProp->GetParent()->GetSubItem(2);
 				break;
 			default:
 				cmp = (Component *)pProp->GetParent()->GetParent()->GetValue().ulVal;
-				pAABB = pProp->GetParent()->GetParent()->GetSubItem(0);
-				pPosition = pProp->GetParent()->GetParent()->GetSubItem(1);
-				pRotation = pProp->GetParent()->GetParent()->GetSubItem(2);
-				pScale = pProp->GetParent()->GetParent()->GetSubItem(3);
+				pPosition = pProp->GetParent()->GetParent()->GetSubItem(0);
+				pRotation = pProp->GetParent()->GetParent()->GetSubItem(1);
+				pScale = pProp->GetParent()->GetParent()->GetSubItem(2);
 				break;
 			}
-			cmp->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
-			cmp->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
-			cmp->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
-			cmp->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
-			cmp->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
-			cmp->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
 			cmp->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
 			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
@@ -1059,6 +1067,43 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			Actor * actor = dynamic_cast<Actor *>(cmp->GetTopParent());
 			actor->Update(0);
+			pFrame->OnActorPosChanged(actor);
+			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorAABB:
+	case PropertyActorMinX:
+	case PropertyActorMinY:
+	case PropertyActorMinZ:
+	case PropertyActorMaxX:
+	case PropertyActorMaxY:
+	case PropertyActorMaxZ:
+		{
+			CMFCPropertyGridProperty * pAABB = NULL;
+			switch (PropertyId)
+			{
+			case PropertyActorAABB:
+				pAABB = pProp;
+				break;
+			case PropertyActorMinX:
+			case PropertyActorMinY:
+			case PropertyActorMinZ:
+			case PropertyActorMaxX:
+			case PropertyActorMaxY:
+			case PropertyActorMaxZ:
+				pAABB = pProp->GetParent();
+				break;
+			}
+			Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
+			actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
+			actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
+			actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
+			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
+			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
+			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
@@ -1275,7 +1320,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
-			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 			sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 0)->GetValue().fltVal;
 			sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 1)->GetValue().fltVal;
 			sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
@@ -1347,7 +1392,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainWrappedU:
 	case PropertyTerrainWrappedV:
 		{
-			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeActor);
+			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
 			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;

@@ -280,9 +280,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	{
 	case Component::ComponentTypeActor:
 		{
-			if (cmp->m_Cmps.empty())
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			if (actor->m_Cmps.empty())
 			{
-				my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(cmp->m_aabb, local_ftm);
+				my::IntersectionTests::IntersectionType intersect_type = my::IntersectionTests::IntersectAABBAndFrustum(actor->m_aabb, local_ftm);
 				if (intersect_type != my::IntersectionTests::IntersectionTypeOutside)
 				{
 					return true;
@@ -420,12 +421,13 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	{
 	case Component::ComponentTypeActor:
 		{
-			if (cmp->m_Cmps.empty())
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			if (actor->m_Cmps.empty())
 			{
-				my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, cmp->m_aabb);
+				my::RayResult ret = my::IntersectionTests::rayAndAABB(local_ray.p, local_ray.d, actor->m_aabb);
 				if (ret.first)
 				{
-					ret.second = (local_ray.d * ret.second).transformNormal(cmp->m_World).magnitude();
+					ret.second = (local_ray.d * ret.second).transformNormal(actor->m_World).magnitude();
 					return ret;
 				}
 			}

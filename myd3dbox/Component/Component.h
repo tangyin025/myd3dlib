@@ -64,17 +64,16 @@ public:
 	enum ComponentType
 	{
 		ComponentTypeUnknown,
+		ComponentTypeComponent,
 		ComponentTypeActor,
 		ComponentTypeMesh,
 		ComponentTypeEmitter,
 		ComponentTypeSphericalEmitter,
-		//ComponentTypeRigid,
 		ComponentTypeTerrain,
+		//ComponentTypeRigid,
 	};
 
 	ComponentType m_Type;
-
-	my::AABB m_aabb;
 
 	my::Vector3 m_Position;
 
@@ -93,9 +92,8 @@ public:
 	Component * m_Parent;
 
 public:
-	Component(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
-		, m_aabb(aabb)
 		, m_Position(Position)
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
@@ -106,7 +104,6 @@ public:
 
 	Component(void)
 		: m_Type(ComponentTypeUnknown)
-		, m_aabb(-1,1)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
 		, m_Scale(1,1,1)
@@ -159,13 +156,13 @@ class RenderComponent
 	, public RenderPipeline::IShaderSetter
 {
 public:
-	RenderComponent(ComponentType Type, const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: Component(Type, aabb, Position, Rotation, Scale)
+	RenderComponent(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: Component(Type, Position, Rotation, Scale)
 	{
 	}
 
 	RenderComponent(ComponentType Type)
-		: Component(Type, my::AABB(-1,1), my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: Component(Type, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 	{
 	}
 
@@ -195,8 +192,8 @@ public:
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bAnimation, bool bInstance)
-		: RenderComponent(ComponentTypeMesh, aabb, Position, Rotation, Scale)
+	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bAnimation, bool bInstance)
+		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
 		, m_bAnimation(bAnimation)
 		, m_bInstance(bInstance)
 		, m_StaticCollision(false)
@@ -253,8 +250,8 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	EmitterComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeEmitter, aabb, Position, Rotation, Scale)
+	EmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(ComponentTypeEmitter, Position, Rotation, Scale)
 	{
 	}
 
@@ -327,8 +324,8 @@ public:
 	MaterialPtr m_Material;
 
 public:
-	SphericalEmitterComponent(const my::AABB & aabb, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeSphericalEmitter, aabb, Position, Rotation, Scale)
+	SphericalEmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(ComponentTypeSphericalEmitter, Position, Rotation, Scale)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
@@ -405,8 +402,8 @@ typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPt
 //	void CreateRigidActor(const my::Matrix4 & World);
 //
 //public:
-//	RigidComponent(const my::AABB & aabb, const my::Matrix4 & Local)
-//		: Component(ComponentTypeRigid, aabb, World)
+//	RigidComponent(const my::Matrix4 & Local)
+//		: Component(ComponentTypeRigid, World)
 //	{
 //		CreateRigidActor(World);
 //	}

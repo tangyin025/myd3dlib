@@ -63,7 +63,6 @@ void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polym
 {
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
-	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Position);
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
@@ -76,7 +75,6 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
-	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Position);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);

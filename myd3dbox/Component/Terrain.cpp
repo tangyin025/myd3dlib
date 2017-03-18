@@ -120,7 +120,7 @@ Terrain::VertexArray2D::VertexArray2D(void)
 const Terrain::VertexArray2D Terrain::m_VertTable;
 
 Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, float HeightScale, float WrappedU, float WrappedV)
-	: RenderComponent(ComponentTypeTerrain, my::AABB(Vector3(0,-1,0), Vector3(m_RowChunks * m_ChunkRows, 1, m_ColChunks * m_ChunkRows)), Position, Rotation, Scale)
+	: RenderComponent(ComponentTypeTerrain, Position, Rotation, Scale)
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
@@ -237,7 +237,6 @@ void Terrain::UpdateHeightMapNormal(void)
 
 void Terrain::UpdateChunks(void)
 {
-	m_aabb = AABB::Invalid();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
@@ -246,7 +245,6 @@ void Terrain::UpdateChunks(void)
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
 			m_Root.RemoveActor(chunk);
 			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
-			m_aabb.unionSelf(chunk->m_aabb);
 		}
 	}
 }
