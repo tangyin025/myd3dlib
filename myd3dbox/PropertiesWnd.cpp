@@ -263,7 +263,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)mesh_cmp->m_bAnimation);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_bInstance);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)mesh_cmp->m_StaticCollision);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_StaticCollision);
 	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 4);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 	{
@@ -486,7 +486,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	{
 		while (i >= pParentCtrl->GetSubItemsCount())
 		{
-			pComponent = new CSimpleProp(_T("Component"), PropertyComponent, FALSE);
+			pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
 			pParentCtrl->AddSubItem(pComponent);
 		}
 	}
@@ -494,7 +494,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	{
 		while (i >= m_wndPropList.GetPropertyCount())
 		{
-			pComponent = new CSimpleProp(_T("Component"), PropertyComponent, FALSE);
+			pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
 			m_wndPropList.AddProperty(pComponent);
 		}
 	}
@@ -858,6 +858,26 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 		return GetComponentAttrCount(Component::ComponentTypeComponent) + 8;
 	}
 	return 0;
+}
+
+LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
+{
+	switch (type)
+	{
+	case Component::ComponentTypeComponent:
+		return _T("Component");
+	case Component::ComponentTypeActor:
+		return _T("Actor");
+	case Component::ComponentTypeMesh:
+		return _T("Mesh");
+	case Component::ComponentTypeEmitter:
+		return _T("Emitter");
+	case Component::ComponentTypeSphericalEmitter:
+		return _T("SphericalEmitter");
+	case Component::ComponentTypeTerrain:
+		return _T("Terrain");
+	}
+	return _T("Unknown");
 }
 
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)

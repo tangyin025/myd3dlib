@@ -179,6 +179,7 @@ protected:
 	//void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	static unsigned int GetComponentAttrCount(Component::ComponentType type);
+	static LPCTSTR GetComponentTypeName(Component::ComponentType type);
 
 // Implementation
 public:
