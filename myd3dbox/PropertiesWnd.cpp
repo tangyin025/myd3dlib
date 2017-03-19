@@ -151,7 +151,7 @@ void CPropertiesWnd::RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl
 		while ((unsigned int)m_wndPropList.GetPropertyCount() > i)
 		{
 			CMFCPropertyGridProperty * pProp = m_wndPropList.GetProperty(i);
-			m_wndPropList.DeleteProperty(pProp, FALSE, FALSE);
+			static_cast<CMFCPropertyGridCtrlReader &>(m_wndPropList).DeleteProperty(pProp, FALSE, FALSE);
 		}
 	}
 }
@@ -174,13 +174,15 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		}
 	}
 
-	if (!pComponent || pComponent->GetData() != PropertyComponent || pComponent->GetValue().ulVal != (DWORD_PTR)cmp)
+	if (!pComponent || pComponent->GetData() != PropertyComponent)
 	{
 		RemovePropertiesFrom(pParentCtrl, i);
 		CreateProperties(pParentCtrl, i, cmp);
 		return;
 	}
 
+	pComponent->SetName(GetComponentTypeName(cmp->m_Type), FALSE);
+	pComponent->SetValue((_variant_t)(DWORD_PTR)cmp);
 	pComponent->GetSubItem(0)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Position.x);
 	pComponent->GetSubItem(0)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Position.y);
 	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
@@ -230,6 +232,7 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 			UpdateProperties(pComponent, GetComponentAttrCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
 		}
 	}
+	RemovePropertiesFrom(pComponent, GetComponentAttrCount(cmp->m_Type) + cmp->m_Cmps.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
@@ -495,7 +498,7 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		while (i >= m_wndPropList.GetPropertyCount())
 		{
 			pComponent = new CSimpleProp(GetComponentTypeName(cmp->m_Type), PropertyComponent, FALSE);
-			m_wndPropList.AddProperty(pComponent);
+			m_wndPropList.AddProperty(pComponent, FALSE, FALSE);
 		}
 	}
 	ASSERT(pComponent);

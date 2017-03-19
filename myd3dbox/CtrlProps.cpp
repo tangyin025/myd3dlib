@@ -44,6 +44,62 @@ BOOL CMFCPropertyGridPropertyReader::RemoveSubItem(CMFCPropertyGridProperty*& pP
 	return FALSE;
 }
 
+BOOL CMFCPropertyGridCtrlReader::DeleteProperty(CMFCPropertyGridProperty*& pProp, BOOL bRedraw, BOOL bAdjustLayout)
+{
+	ASSERT_VALID(this);
+	ASSERT_VALID(pProp);
+
+	BOOL bFound = FALSE;
+
+	for (POSITION pos = m_lstProps.GetHeadPosition(); pos != NULL;)
+	{
+		POSITION posSaved = pos;
+
+		CMFCPropertyGridProperty* pListProp = m_lstProps.GetNext(pos);
+		ASSERT_VALID(pListProp);
+
+		if (pListProp == pProp) // Top level property
+		{
+			bFound = TRUE;
+
+			m_lstProps.RemoveAt(posSaved);
+			break;
+		}
+
+		if (pListProp->RemoveSubItem(pProp, FALSE))
+		{
+			bFound = TRUE;
+			break;
+		}
+	}
+
+	if (!bFound)
+	{
+		return FALSE;
+	}
+
+	if (m_pSel != NULL && (m_pSel == pProp || static_cast<CMFCPropertyGridPropertyReader *>(pProp)->IsSubItem(m_pSel)))
+	{
+		m_pSel = NULL;
+	}
+
+	delete pProp;
+	pProp = NULL;
+
+	if (bAdjustLayout)
+	{
+		AdjustLayout();
+		return TRUE;
+	}
+
+	if (bRedraw && GetSafeHwnd() != NULL)
+	{
+		RedrawWindow();
+	}
+
+	return TRUE;
+}
+
 void CSimpleProp::SetValue(const COleVariant& varValue)
 {
 	ASSERT_VALID(this);

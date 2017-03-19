@@ -9,10 +9,15 @@ public:
 
 	// overwrite protected method
 	using CMFCPropertyGridProperty::FindSubItemByData;
+
+	using CMFCPropertyGridProperty::IsSubItem;
 };
 
-struct CMFCPropertyGridCtrlReader : CMFCPropertyGridCtrl
+class CMFCPropertyGridCtrlReader : CMFCPropertyGridCtrl
 {
+public:
+	BOOL DeleteProperty(CMFCPropertyGridProperty*& pProp, BOOL bRedraw, BOOL bAdjustLayout);
+
 	using CMFCPropertyGridCtrl::m_pSel;
 };
 
