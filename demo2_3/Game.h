@@ -132,4 +132,8 @@ public:
 	void SaveComponent(ComponentPtr cmp, const char * path);
 
 	ComponentPtr LoadComponent(const char * path);
+
+	void ImportScene(const char * path);
+
+	void ImportStaticCollision(const char * path);
 };

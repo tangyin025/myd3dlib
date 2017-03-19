@@ -271,6 +271,8 @@ Game::Game(void)
 			.def("LoadMaterial", &Game::LoadMaterial)
 			.def("SaveComponent", &Game::SaveComponent)
 			.def("LoadComponent", &Game::LoadComponent)
+			.def("ImportScene", &Game::ImportScene)
+			.def("ImportStaticCollision", &Game::ImportStaticCollision)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -881,4 +883,20 @@ ComponentPtr Game::LoadComponent(const char * path)
 	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> BOOST_SERIALIZATION_NVP(cmp);
 	return cmp;
+}
+
+void Game::ImportScene(const char * path)
+{
+	m_Root.ClearAllActor();
+
+	std::ifstream ifs(GetFullPath(path).c_str());
+	boost::archive::polymorphic_xml_iarchive ia(ifs);
+	ia >> BOOST_SERIALIZATION_NVP(m_Root);
+}
+
+void Game::ImportStaticCollision(const char * path)
+{
+	PhysXSceneContext::ClearAllActors();
+
+	PhysXSceneContext::ImportStaticCollision(path);
 }
