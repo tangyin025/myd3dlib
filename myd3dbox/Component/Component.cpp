@@ -24,6 +24,8 @@ BOOST_CLASS_EXPORT(RenderComponent)
 BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(EmitterComponent)
+
+BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 //
 //BOOST_CLASS_EXPORT(RigidComponent)
 

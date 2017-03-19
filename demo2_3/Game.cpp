@@ -267,6 +267,8 @@ Game::Game(void)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
 			.def("LoadDialog", &Game::LoadDialog)
+			.def("SaveMaterial", &Game::SaveMaterial)
+			.def("LoadMaterial", &Game::LoadMaterial)
 			.def("SaveComponent", &Game::SaveComponent)
 			.def("LoadComponent", &Game::LoadComponent)
 	];
@@ -832,7 +834,7 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
 {
-	std::ofstream ostr(path);
+	std::ofstream ostr(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_oarchive oa(ostr);
 	oa << BOOST_SERIALIZATION_NVP(dlg);
 }
@@ -847,9 +849,26 @@ my::DialogPtr Game::LoadDialog(const char * path)
 	return dlg;
 }
 
+void Game::SaveMaterial(MaterialPtr mat, const std::string & path)
+{
+	std::ofstream ofs(GetFullPath(path).c_str());
+	boost::archive::xml_oarchive oa(ofs);
+	oa << BOOST_SERIALIZATION_NVP(mat);
+}
+
+MaterialPtr Game::LoadMaterial(const char * path)
+{
+	MaterialPtr mat;
+	IStreamBuff buff(OpenIStream(path));
+	std::istream istr(&buff);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
+	ia >> BOOST_SERIALIZATION_NVP(mat);
+	return mat;
+}
+
 void Game::SaveComponent(ComponentPtr cmp, const char * path)
 {
-	std::ofstream ostr(path);
+	std::ofstream ostr(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_oarchive oa(ostr);
 	oa << BOOST_SERIALIZATION_NVP(cmp);
 }

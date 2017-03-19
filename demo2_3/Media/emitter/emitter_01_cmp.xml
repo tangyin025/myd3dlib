@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<!DOCTYPE boost_serialization>
+<boost_serialization signature="serialization::archive" version="10">
+<cmp class_id="0" tracking_level="0" version="1">
+	<px class_id="2" class_name="SphericalEmitterComponent" tracking_level="1" version="0" object_id="_0">
+		<RenderComponent class_id="3" tracking_level="0" version="0">
+			<Component class_id="1" tracking_level="1" version="0" object_id="_1">
+				<OctActor class_id="4" tracking_level="1" version="0" object_id="_2"></OctActor>
+				<m_Type>5</m_Type>
+				<m_Position class_id="5" tracking_level="0" version="0">
+					<x>0</x>
+					<y>0</y>
+					<z>0</z>
+				</m_Position>
+				<m_Rotation class_id="6" tracking_level="0" version="0">
+					<x>0</x>
+					<y>0</y>
+					<z>0</z>
+					<w>1</w>
+				</m_Rotation>
+				<m_Scale>
+					<x>1</x>
+					<y>1</y>
+					<z>1</z>
+				</m_Scale>
+				<m_Animator class_id="7" tracking_level="0" version="1">
+					<px class_id="-1"></px>
+				</m_Animator>
+				<m_Cmps class_id="9" tracking_level="0" version="0">
+					<count>0</count>
+					<item_version>1</item_version>
+				</m_Cmps>
+			</Component>
+		</RenderComponent>
+		<m_SpawnInterval>0.0099999998</m_SpawnInterval>
+		<m_HalfSpawnArea>
+			<x>0</x>
+			<y>0</y>
+			<z>0</z>
+		</m_HalfSpawnArea>
+		<m_SpawnSpeed>5</m_SpawnSpeed>
+		<m_SpawnInclination class_id="10" tracking_level="0" version="0">
+			<SplineNodeList class_id="11" tracking_level="0" version="0">
+				<count>1</count>
+				<item_version>0</item_version>
+				<item class_id="12" tracking_level="0" version="0">
+					<x>0</x>
+					<y>0.78539819</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnInclination>
+		<m_SpawnAzimuth>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>0</y>
+					<k0>5.0265484</k0>
+					<k>5.0265484</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>50.265484</y>
+					<k0>5.0265484</k0>
+					<k>5.0265484</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnAzimuth>
+		<m_SpawnColorR>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>0</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnColorR>
+		<m_SpawnColorG>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>0</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnColorG>
+		<m_SpawnColorB>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>0</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnColorB>
+		<m_SpawnColorA>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>0</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnColorA>
+		<m_SpawnSizeX>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>10</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnSizeX>
+		<m_SpawnSizeY>
+			<SplineNodeList>
+				<count>2</count>
+				<item_version>0</item_version>
+				<item>
+					<x>0</x>
+					<y>1</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+				<item>
+					<x>10</x>
+					<y>10</y>
+					<k0>0</k0>
+					<k>0</k>
+				</item>
+			</SplineNodeList>
+		</m_SpawnSizeY>
+		<m_SpawnAngle>
+			<SplineNodeList>
+				<count>0</count>
+				<item_version>0</item_version>
+			</SplineNodeList>
+		</m_SpawnAngle>
+		<m_SpawnLoopTime>5</m_SpawnLoopTime>
+		<m_Material class_id="13" tracking_level="0" version="1">
+			<px class_id="14" tracking_level="1" version="0" object_id="_3">
+				<m_Shader>particle1.fx</m_Shader>
+				<m_PassMask>16</m_PassMask>
+				<m_MeshColor class_id="15" tracking_level="0" version="0">
+					<x>1</x>
+					<y>1</y>
+					<z>1</z>
+					<w>1</w>
+				</m_MeshColor>
+				<m_MeshTexture class_id="16" tracking_level="0" version="0">
+					<m_Path>texture/flare.dds</m_Path>
+				</m_MeshTexture>
+				<m_NormalTexture>
+					<m_Path></m_Path>
+				</m_NormalTexture>
+				<m_SpecularTexture>
+					<m_Path></m_Path>
+				</m_SpecularTexture>
+			</px>
+		</m_Material>
+	</px>
+</cmp>
+</boost_serialization>
+

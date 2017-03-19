@@ -1,11 +1,17 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
 <boost_serialization signature="serialization::archive" version="10">
-<Material class_id="0" tracking_level="0" version="1">
+<mat class_id="0" tracking_level="0" version="1">
 	<px class_id="1" tracking_level="1" version="0" object_id="_0">
 		<m_Shader>lambert1.fx</m_Shader>
 		<m_PassMask>11</m_PassMask>
-		<m_MeshTexture class_id="2" tracking_level="0" version="0">
+		<m_MeshColor class_id="2" tracking_level="0" version="0">
+			<x>1</x>
+			<y>1</y>
+			<z>1</z>
+			<w>1</w>
+		</m_MeshColor>
+		<m_MeshTexture class_id="3" tracking_level="0" version="0">
 			<m_Path>texture/wall.jpg</m_Path>
 		</m_MeshTexture>
 		<m_NormalTexture>
@@ -15,6 +21,6 @@
 			<m_Path>texture/White.dds</m_Path>
 		</m_SpecularTexture>
 	</px>
-</Material>
+</mat>
 </boost_serialization>
 
