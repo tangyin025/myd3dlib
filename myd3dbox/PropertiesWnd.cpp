@@ -1088,9 +1088,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
-			Actor * actor = dynamic_cast<Actor *>(cmp->GetTopParent());
-			actor->Update(0);
-			pFrame->OnActorPosChanged(actor);
+			cmp->UpdateWorld();
+			pFrame->OnActorPosChanged(dynamic_cast<Actor *>(cmp->GetTopParent()));
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArg arg;

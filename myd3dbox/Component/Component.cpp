@@ -119,12 +119,6 @@ void Component::ReleaseResource(void)
 
 void Component::Update(float fElapsedTime)
 {
-	m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
-	if (m_Parent)
-	{
-		m_World = m_World * m_Parent->m_World;
-	}
-
 	if (m_Animator)
 	{
 		m_Animator->Update(fElapsedTime);
@@ -134,6 +128,21 @@ void Component::Update(float fElapsedTime)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
+	}
+}
+
+void Component::UpdateWorld(void)
+{
+	m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+	if (m_Parent)
+	{
+		m_World = m_World * m_Parent->m_World;
+	}
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->UpdateWorld();
 	}
 }
 

@@ -136,6 +136,8 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	void UpdateWorld(void);
+
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);

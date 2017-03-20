@@ -466,10 +466,10 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 				{
 					actor->RequestResource();
 				}
+				actor->UpdateWorld();
 				pFrame->m_ViewedActors.insert(actor);
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);
-			actor->Update(0); // ! 居然需要一次单帧update，是否有冗余操作
 		}
 	};
 
@@ -604,7 +604,7 @@ void CMainFrame::OnCreateActor()
 	// TODO: Add your command handler code here
 	ActorPtr actor(new Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
-	actor->Update(0);
+	actor->UpdateWorld();
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
 	m_selcmps.clear();
@@ -646,7 +646,7 @@ void CMainFrame::OnComponentMesh()
 			}
 			mesh_cmp->RequestResource();
 			(*cmp_iter)->AddComponent(mesh_cmp);
-			(*cmp_iter)->Update(0);
+			mesh_cmp->UpdateWorld();
 
 			EventArg arg;
 			m_EventAttributeChanged(&arg);
@@ -683,7 +683,7 @@ void CMainFrame::OnComponentEmitter()
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	(*cmp_iter)->AddComponent(emit_cmp);
-	(*cmp_iter)->Update(0);
+	emit_cmp->UpdateWorld();
 
 	EventArg arg;
 	m_EventAttributeChanged(&arg);
@@ -732,7 +732,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
 	(*cmp_iter)->AddComponent(sphe_emit_cmp);
-	(*cmp_iter)->Update(0);
+	sphe_emit_cmp->UpdateWorld();
 
 	EventArg arg;
 	m_EventAttributeChanged(&arg);
@@ -763,7 +763,7 @@ void CMainFrame::OnComponentTerrain()
 	terrain->m_Material = lambert1;
 	terrain->RequestResource();
 	(*cmp_iter)->AddComponent(terrain);
-	(*cmp_iter)->Update(0);
+	terrain->UpdateWorld();
 
 	EventArg arg;
 	m_EventAttributeChanged(&arg);
