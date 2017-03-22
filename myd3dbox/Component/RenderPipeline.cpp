@@ -98,6 +98,11 @@ HRESULT RenderPipeline::OnCreateDevice(
 	{
 		THROW_CUSEXCEPTION("create m_FxaaEffect failed");
 	}
+
+	if (!(m_SsaoEffect = my::ResourceMgr::getSingleton().LoadEffect("shader/SSAO.fx", "")))
+	{
+		THROW_CUSEXCEPTION("create m_SsaoEffect failed");
+	}
 	return S_OK;
 }
 
@@ -239,8 +244,22 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	LightSurf.Release();
 
+	CComPtr<IDirect3DSurface9> SsaoSurf = pRC->m_SsaoRT->GetSurfaceLevel(0);
+	V(pd3dDevice->SetRenderTarget(0, SsaoSurf));
+	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	Vector2 dim(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
+	m_SsaoEffect->SetFloatArray("g_dim", &dim.x, 2);
+	m_SsaoEffect->Begin();
+	m_SsaoEffect->BeginPass(0);
+	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+	m_SsaoEffect->EndPass();
+	m_SsaoEffect->End();
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+
 	CComPtr<IDirect3DSurface9> OpaqueSurf = pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0);
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
+	m_SimpleSample->SetTexture("g_SsaoRT", pRC->m_SsaoRT.get());
 	V(pd3dDevice->SetRenderTarget(0, OpaqueSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);

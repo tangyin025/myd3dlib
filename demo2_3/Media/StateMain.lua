@@ -542,7 +542,7 @@ game.SkyLightCam.Height=50
 game.SkyLightCam.Nz=-50
 game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
-game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
+-- game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
 -- local actor = game:LoadComponent("aabbcc.xml")
 -- game.Root:AddActor(cmp2oct(actor),actor.aabb:transform(actor.World),0.1)

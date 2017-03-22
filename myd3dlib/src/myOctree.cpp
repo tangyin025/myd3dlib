@@ -187,16 +187,16 @@ void OctNodeBase::QueryActorIntersected(const Frustum & frustum, IQueryCallback 
 	}
 }
 
-bool OctNodeBase::RemoveActor(OctActorPtr cmp)
+bool OctNodeBase::RemoveActor(OctActorPtr actor)
 {
-	if (cmp->m_OctNode)
+	if (actor->m_OctNode)
 	{
-		_ASSERT(HaveNode(cmp->m_OctNode));
-		OctActorMap::iterator cmp_iter = cmp->m_OctNode->m_Actors.find(cmp);
-		if (cmp_iter != cmp->m_OctNode->m_Actors.end())
+		_ASSERT(HaveNode(actor->m_OctNode));
+		OctActorMap::iterator cmp_iter = actor->m_OctNode->m_Actors.find(actor);
+		if (cmp_iter != actor->m_OctNode->m_Actors.end())
 		{
-			cmp->m_OctNode->m_Actors.erase(cmp_iter);
-			cmp->m_OctNode = NULL;
+			actor->m_OctNode->m_Actors.erase(cmp_iter);
+			actor->m_OctNode = NULL;
 			return true;
 		}
 	}

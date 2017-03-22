@@ -72,6 +72,8 @@ public:
 
 	my::EffectPtr m_FxaaEffect;
 
+	my::EffectPtr m_SsaoEffect;
+
 	class IShaderSetter
 	{
 	public:
@@ -143,6 +145,8 @@ public:
 		my::Texture2DPtr m_PositionRT;
 
 		my::Texture2DPtr m_LightRT;
+
+		my::Texture2DPtr m_SsaoRT;
 
 		RTChain m_OpaqueRT;
 
