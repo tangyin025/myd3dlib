@@ -41,6 +41,37 @@ const char * RenderPipeline::PassTypeToStr(unsigned int pass_type)
 	return "unknown pass type";
 }
 
+void RenderPipeline::UpdateQuad(QuadVertex * quad, const my::Vector2 & dim)
+{
+	quad[0].x = -0.5f;
+	quad[0].y = -0.5f;
+	quad[0].z = 1.0f;
+	quad[0].rhw = 1.0f;
+	quad[0].u = 0.0f;
+	quad[0].v = 0.0f;
+
+	quad[1].x = -0.5f;
+	quad[1].y = dim.y - 0.5f;
+	quad[1].z = 1.0f;
+	quad[1].rhw = 1.0f;
+	quad[1].u = 0.0f;
+	quad[1].v = 1.0f;
+
+	quad[2].x = dim.x - 0.5f;
+	quad[2].y = dim.y - 0.5f;
+	quad[2].z = 1.0f;
+	quad[2].rhw = 1.0f;
+	quad[2].u = 1.0f;
+	quad[2].v = 1.0f;
+
+	quad[3].x = dim.x - 0.5f;
+	quad[3].y = -0.5f;
+	quad[3].z = 1.0f;
+	quad[3].rhw = 1.0f;
+	quad[3].u = 1.0f;
+	quad[3].v = 0.0f;
+}
+
 HRESULT RenderPipeline::OnCreateDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
@@ -177,65 +208,6 @@ void RenderPipeline::OnDestroyDevice(void)
 	m_ParticleDecl.Release();
 }
 
-void RenderPipeline::UpdateQuads(const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
-{
-	quad[0].x = -0.5f;
-	quad[0].y = -0.5f;
-	quad[0].z = 1.0f;
-	quad[0].rhw = 1.0f;
-	quad[0].u = 0.0f;
-	quad[0].v = 0.0f;
-
-	quad[1].x = -0.5f;
-	quad[1].y = pBackBufferSurfaceDesc->Height - 0.5f;
-	quad[1].z = 1.0f;
-	quad[1].rhw = 1.0f;
-	quad[1].u = 0.0f;
-	quad[1].v = 1.0f;
-
-	quad[2].x = pBackBufferSurfaceDesc->Width - 0.5f;
-	quad[2].y = pBackBufferSurfaceDesc->Height - 0.5f;
-	quad[2].z = 1.0f;
-	quad[2].rhw = 1.0f;
-	quad[2].u = 1.0f;
-	quad[2].v = 1.0f;
-
-	quad[3].x = pBackBufferSurfaceDesc->Width - 0.5f;
-	quad[3].y = -0.5f;
-	quad[3].z = 1.0f;
-	quad[3].rhw = 1.0f;
-	quad[3].u = 1.0f;
-	quad[3].v = 0.0f;
-
-	quadDownFilter[0].x = -0.5f;
-	quadDownFilter[0].y = -0.5f;
-	quadDownFilter[0].z = 1.0f;
-	quadDownFilter[0].rhw = 1.0f;
-	quadDownFilter[0].u = 0.0f;
-	quadDownFilter[0].v = 0.0f;
-
-	quadDownFilter[1].x = -0.5f;
-	quadDownFilter[1].y = pBackBufferSurfaceDesc->Height / 4 - 0.5f;
-	quadDownFilter[1].z = 1.0f;
-	quadDownFilter[1].rhw = 1.0f;
-	quadDownFilter[1].u = 0.0f;
-	quadDownFilter[1].v = 1.0f;
-
-	quadDownFilter[2].x = pBackBufferSurfaceDesc->Width / 4 - 0.5f;
-	quadDownFilter[2].y = pBackBufferSurfaceDesc->Height / 4 - 0.5f;
-	quadDownFilter[2].z = 1.0f;
-	quadDownFilter[2].rhw = 1.0f;
-	quadDownFilter[2].u = 1.0f;
-	quadDownFilter[2].v = 1.0f;
-
-	quadDownFilter[3].x = pBackBufferSurfaceDesc->Width / 4 - 0.5f;
-	quadDownFilter[3].y = -0.5f;
-	quadDownFilter[3].z = 1.0f;
-	quadDownFilter[3].rhw = 1.0f;
-	quadDownFilter[3].u = 1.0f;
-	quadDownFilter[3].v = 0.0f;
-}
-
 void RenderPipeline::OnFrameRender(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
@@ -243,7 +215,11 @@ void RenderPipeline::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
-	UpdateQuads(pBackBufferSurfaceDesc);
+	QuadVertex quad[4];
+	UpdateQuad(quad, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height));
+
+	QuadVertex quad_quat[4];
+	UpdateQuad(quad_quat, Vector2((float)pBackBufferSurfaceDesc->Width, (float)pBackBufferSurfaceDesc->Height) / 4.0f);
 
 	HRESULT hr;
 	CComPtr<IDirect3DSurface9> ScreenSurf;
@@ -359,14 +335,14 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		UINT passes = m_DofEffect->Begin();
 		m_DofEffect->BeginPass(0);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quadDownFilter, sizeof(quad[0])));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
 		m_DofEffect->SetTexture("g_DownFilterRT", pRC->m_DownFilterRT.GetNextSource().get());
 		V(pd3dDevice->SetRenderTarget(0, pRC->m_DownFilterRT.GetNextTarget()->GetSurfaceLevel(0)));
 		m_DofEffect->BeginPass(1);
-		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quadDownFilter, sizeof(quad[0])));
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad_quat, sizeof(quad[0])));
 		m_DofEffect->EndPass();
 		pRC->m_DownFilterRT.Flip();
 
