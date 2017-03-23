@@ -277,14 +277,14 @@ public:
 
 	void OnDestroyDevice(void);
 
+	void UpdateQuads(const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
+
 	void OnFrameRender(
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
 		IRenderContext * pRC,
 		double fTime,
 		float fElapsedTime);
-
-	void UpdateQuads(const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 
 	void RenderAllObjects(
 		unsigned int PassID,
@@ -293,16 +293,6 @@ public:
 		float fElapsedTime);
 
 	void ClearAllObjects(void);
-
-	void RenderDof(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-		IRenderContext * pRC);
-
-	void RenderFXAA(
-		IDirect3DDevice9 * pd3dDevice,
-		const D3DSURFACE_DESC * pBackBufferSurfaceDesc,
-		IRenderContext * pRC);
 
 	void DrawIndexedPrimitive(
 		unsigned int PassID,
