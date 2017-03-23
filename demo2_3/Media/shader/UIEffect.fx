@@ -1,25 +1,5 @@
 
-//--------------------------------------------------------------------------------------
-// Global variables
-//--------------------------------------------------------------------------------------
-
-shared float4x4 g_World;
-shared float4x4 g_ViewProj;
-float2 g_ScreenDim;
-texture g_MeshTexture;
-
-//--------------------------------------------------------------------------------------
-// Texture samplers
-//--------------------------------------------------------------------------------------
-
-sampler MeshTextureSampler = 
-sampler_state
-{
-    Texture = <g_MeshTexture>;
-    MipFilter = LINEAR;
-    MinFilter = LINEAR;
-    MagFilter = LINEAR;
-};
+#include "CommonHeader.fx"
 
 //--------------------------------------------------------------------------------------
 // Vertex shader output structure

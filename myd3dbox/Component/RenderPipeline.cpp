@@ -249,7 +249,6 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 	Vector2 dim(pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height);
-	m_SsaoEffect->SetFloatArray("g_dim", &dim.x, 2);
 	m_SsaoEffect->Begin();
 	m_SsaoEffect->BeginPass(0);
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));

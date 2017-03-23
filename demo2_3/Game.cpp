@@ -37,8 +37,6 @@ public:
 	{
 		if(m_UIEffect->m_ptr)
 		{
-			m_UIEffect->SetVector("g_ScreenDim", Vector4(
-				(float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Width, (float)DxutApp::getSingleton().m_BackBufferSurfaceDesc.Height, 0, 0));
 			m_Passes = m_UIEffect->Begin();
 		}
 	}
@@ -522,6 +520,7 @@ void Game::OnFrameRender(
 	double fTime,
 	float fElapsedTime)
 {
+	m_SimpleSample->SetFloat("g_Time", (float)m_fAbsoluteTime);
 	m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&Vector2((float)m_BackBufferSurfaceDesc.Width, (float)m_BackBufferSurfaceDesc.Height), 2);
 
 	if(SUCCEEDED(hr = pd3dDevice->BeginScene()))

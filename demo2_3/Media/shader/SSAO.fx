@@ -1,8 +1,6 @@
 
 #include "CommonHeader.fx"
 
-float2 g_dim;
-
 float2 offs[4] =
 {
 	{1,0},
@@ -32,10 +30,10 @@ float4 MainPS(VS_OUTPUT In) : COLOR0
 	float3 n = tex2D(NormalRTSampler, In.TextureUV).xyz;
 	for (int i = 0; i< 4;i++)
 	{
-		ao += doAmbientOcclusion(In.TextureUV,offs[i]*20/g_dim/p.z,p,n);
-		ao += doAmbientOcclusion(In.TextureUV,offs[i]*40/g_dim/p.z,p,n);
-		ao += doAmbientOcclusion(In.TextureUV,offs[i]*60/g_dim/p.z,p,n);
-		ao += doAmbientOcclusion(In.TextureUV,offs[i]*80/g_dim/p.z,p,n);
+		ao += doAmbientOcclusion(In.TextureUV,offs[i]*20/g_ScreenDim/p.z,p,n);
+		ao += doAmbientOcclusion(In.TextureUV,offs[i]*40/g_ScreenDim/p.z,p,n);
+		ao += doAmbientOcclusion(In.TextureUV,offs[i]*60/g_ScreenDim/p.z,p,n);
+		ao += doAmbientOcclusion(In.TextureUV,offs[i]*80/g_ScreenDim/p.z,p,n);
 	}
 	return 1.0 - ao / 16;
 }
