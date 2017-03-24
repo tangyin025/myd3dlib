@@ -10,7 +10,7 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	, m_DofEnable(false)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_FxaaEnable(false)
-	, m_SsaoEnable(true)
+	, m_SsaoEnable(false)
 {
 }
 

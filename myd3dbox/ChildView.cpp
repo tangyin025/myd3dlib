@@ -44,6 +44,12 @@ BEGIN_MESSAGE_MAP(CChildView, CView)
 	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_WIREFRAME, &CChildView::OnUpdateRendermodeWireframe)
 	ON_COMMAND(ID_SHOW_COLLISION, &CChildView::OnShowCollisiondebug)
 	ON_UPDATE_COMMAND_UI(ID_SHOW_COLLISION, &CChildView::OnUpdateShowCollisiondebug)
+	ON_COMMAND(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnRendermodeDepthoffield)
+	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_DEPTHOFFIELD, &CChildView::OnUpdateRendermodeDepthoffield)
+	ON_COMMAND(ID_RENDERMODE_FXAA, &CChildView::OnRendermodeFxaa)
+	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_FXAA, &CChildView::OnUpdateRendermodeFxaa)
+	ON_COMMAND(ID_RENDERMODE_SSAO, &CChildView::OnRendermodeSsao)
+	ON_UPDATE_COMMAND_UI(ID_RENDERMODE_SSAO, &CChildView::OnUpdateRendermodeSsao)
 END_MESSAGE_MAP()
 
 // CChildView construction/destruction
@@ -1229,4 +1235,43 @@ void CChildView::OnUpdateShowCollisiondebug(CCmdUI *pCmdUI)
 	PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
 	ASSERT(scene);
 	pCmdUI->SetCheck(scene->getVisualizationParameter(PxVisualizationParameter::eSCALE) > 0);
+}
+
+void CChildView::OnRendermodeDepthoffield()
+{
+	// TODO: Add your command handler code here
+	m_DofEnable = !m_DofEnable;
+	Invalidate();
+}
+
+void CChildView::OnUpdateRendermodeDepthoffield(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_DofEnable);
+}
+
+void CChildView::OnRendermodeFxaa()
+{
+	// TODO: Add your command handler code here
+	m_FxaaEnable = !m_FxaaEnable;
+	Invalidate();
+}
+
+void CChildView::OnUpdateRendermodeFxaa(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_FxaaEnable);
+}
+
+void CChildView::OnRendermodeSsao()
+{
+	// TODO: Add your command handler code here
+	m_SsaoEnable = !m_SsaoEnable;
+	Invalidate();
+}
+
+void CChildView::OnUpdateRendermodeSsao(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->SetCheck(m_SsaoEnable);
 }
