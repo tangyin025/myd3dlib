@@ -140,13 +140,13 @@ public:
 
 		bool m_FxaaEnable;
 
+		bool m_SsaoEnable;
+
 		my::Texture2DPtr m_NormalRT;
 
 		my::Texture2DPtr m_PositionRT;
 
 		my::Texture2DPtr m_LightRT;
-
-		my::Texture2DPtr m_SsaoRT;
 
 		RTChain m_OpaqueRT;
 

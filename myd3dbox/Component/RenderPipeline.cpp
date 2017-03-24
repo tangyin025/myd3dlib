@@ -10,6 +10,7 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	, m_DofEnable(false)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_FxaaEnable(false)
+	, m_SsaoEnable(true)
 {
 }
 
@@ -263,36 +264,37 @@ void RenderPipeline::OnFrameRender(
 	NormalSurf.Release();
 	PositionSurf.Release();
 
-	CComPtr<IDirect3DSurface9> LightSurf = pRC->m_LightRT->GetSurfaceLevel(0);
 	m_SimpleSample->SetTexture("g_NormalRT", pRC->m_NormalRT.get());
 	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
-	V(pd3dDevice->SetRenderTarget(0, LightSurf));
+	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
-	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, 0, 0, 0));
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	if (pRC->m_SsaoEnable)
+	{
+		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		m_SsaoEffect->Begin();
+		m_SsaoEffect->BeginPass(0);
+		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
+		m_SsaoEffect->EndPass();
+		m_SsaoEffect->End();
+	}
+	else
+	{
+		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
+			pRC->m_SkyLightAmbient.x, pRC->m_SkyLightAmbient.y, pRC->m_SkyLightAmbient.z, pRC->m_SkyLightAmbient.w), 0, 0));
+	}
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
 	V(pd3dDevice->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_ONE));
 	RenderAllObjects(PassTypeLight, pd3dDevice, fTime, fElapsedTime);
-	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
-	LightSurf.Release();
-
-	CComPtr<IDirect3DSurface9> SsaoSurf = pRC->m_SsaoRT->GetSurfaceLevel(0);
-	V(pd3dDevice->SetRenderTarget(0, SsaoSurf));
-	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
-	m_SsaoEffect->Begin();
-	m_SsaoEffect->BeginPass(0);
-	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-	m_SsaoEffect->EndPass();
-	m_SsaoEffect->End();
 
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
-	m_SimpleSample->SetTexture("g_SsaoRT", pRC->m_SsaoRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
 	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
 	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));

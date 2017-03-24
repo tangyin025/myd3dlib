@@ -262,6 +262,7 @@ Game::Game(void)
 			.def_readwrite("DofEnable", &Game::m_DofEnable)
 			.def_readwrite("DofParams", &Game::m_DofParams)
 			.def_readwrite("FxaaEnable", &Game::m_FxaaEnable)
+			.def_readwrite("SsaoEnable", &Game::m_SsaoEnable)
 			.def("PlaySound", &Game::PlaySound)
 			.def("SaveDialog", &Game::SaveDialog)
 			.def("LoadDialog", &Game::LoadDialog)
@@ -277,7 +278,6 @@ Game::Game(void)
 	m_NormalRT.reset(new Texture2D());
 	m_PositionRT.reset(new Texture2D());
 	m_LightRT.reset(new Texture2D());
-	m_SsaoRT.reset(new Texture2D());
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
@@ -420,9 +420,6 @@ HRESULT Game::OnResetDevice(
 	m_LightRT->CreateTexture(
 		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_A8R8G8B8, D3DPOOL_DEFAULT);
 
-	m_SsaoRT->CreateTexture(
-		pd3dDevice, pBackBufferSurfaceDesc->Width, pBackBufferSurfaceDesc->Height, 1, D3DUSAGE_RENDERTARGET, D3DFMT_L8, D3DPOOL_DEFAULT);
-
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
 		m_OpaqueRT.m_RenderTarget[i]->CreateTexture(
@@ -463,8 +460,6 @@ void Game::OnLostDevice(void)
 	m_PositionRT->OnDestroyDevice();
 
 	m_LightRT->OnDestroyDevice();
-
-	m_SsaoRT->OnDestroyDevice();
 
 	for (unsigned int i = 0; i < RenderPipeline::RTChain::RTArray::static_size; i++)
 	{
