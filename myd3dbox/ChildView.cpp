@@ -220,57 +220,51 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
+void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp)
 {
-	theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
-	theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
-	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
-	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selcmps.empty())
+	switch (cmp->m_Type)
 	{
-		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
-		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+	case Component::ComponentTypeActor:
 		{
-			switch ((*sel_iter)->m_Type)
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			PushWireAABB(actor->m_OctNode->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
+		}
+		break;
+	//case Component::ComponentTypeMesh:
+	//	{
+	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+	//		if (mesh_cmp->m_MeshRes.m_Res)
+	//		{
+	//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+	//			UINT passes = theApp.m_SimpleSample->Begin();
+	//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+	//			{
+	//				theApp.m_SimpleSample->BeginPass(0);
+	//				mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+	//				theApp.m_SimpleSample->EndPass();
+	//			}
+	//			theApp.m_SimpleSample->End();
+	//		}
+	//	}
+	//	break;
+	case Component::ComponentTypeTerrain:
+		{
+			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
 			{
-			case Component::ComponentTypeActor:
+				for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
 				{
-					Actor * actor = dynamic_cast<Actor *>(*sel_iter);
-					PushWireAABB(actor->m_OctNode->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
+					PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
 				}
-				break;
-			//case Component::ComponentTypeMesh:
-			//	{
-			//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
-			//		if (mesh_cmp->m_MeshRes.m_Res)
-			//		{
-			//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-			//			UINT passes = theApp.m_SimpleSample->Begin();
-			//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-			//			{
-			//				theApp.m_SimpleSample->BeginPass(0);
-			//				mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
-			//				theApp.m_SimpleSample->EndPass();
-			//			}
-			//			theApp.m_SimpleSample->End();
-			//		}
-			//	}
-			//	break;
-			case Component::ComponentTypeTerrain:
-				{
-					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
-					for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
-					{
-						for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
-						{
-							PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
-						}
-					}
-				}
-				break;
 			}
 		}
+		break;
+	}
+
+	Component::ComponentPtrList::iterator cmp_iter = cmp->m_Cmps.begin();
+	for (; cmp_iter != cmp->m_Cmps.end(); cmp_iter++)
+	{
+		RenderSelectedComponent(pd3dDevice, cmp_iter->get());
 	}
 }
 
@@ -778,7 +772,17 @@ void CChildView::OnPaint()
 					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
 				}
 
-				RenderSelectedObject(theApp.m_d3dDevice);
+				if (!pFrame->m_selcmps.empty())
+				{
+					theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);
+					theApp.m_SimpleSample->SetMatrix("g_ViewProj", m_Camera->m_ViewProj);
+					PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
+					CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
+					for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+					{
+						RenderSelectedComponent(theApp.m_d3dDevice, *sel_iter);
+					}
+				}
 
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_VIEW, (D3DMATRIX *)&m_Camera->m_View));
 				V(theApp.m_d3dDevice->SetTransform(D3DTS_PROJECTION, (D3DMATRIX *)&m_Camera->m_Proj));
@@ -1159,16 +1163,16 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 	case 'F':
 		{
 			float fov = D3DXToRadian(75.0f);
-			//if (!pFrame->m_selcmps.empty())
-			//{
-			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
-			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
-			//}
-			//else
-			//{
-			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-			//	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
-			//}
+			if (!pFrame->m_selcmps.empty())
+			{
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			}
+			else
+			{
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+			}
 		}
 		Invalidate();
 		return;
