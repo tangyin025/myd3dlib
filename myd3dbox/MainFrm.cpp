@@ -466,7 +466,6 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 				{
 					actor->RequestResource();
 				}
-				actor->UpdateWorld();
 				pFrame->m_ViewedActors.insert(actor);
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);

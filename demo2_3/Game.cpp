@@ -822,7 +822,6 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 				{
 					actor->RequestResource();
 				}
-				actor->UpdateWorld();
 				game->m_ViewedActors.insert(actor);
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);
