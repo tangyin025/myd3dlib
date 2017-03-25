@@ -297,7 +297,7 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
 	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId + 0);
 	if (!pProp || pProp->GetData() != PropertyEmitterParticleList)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
@@ -856,7 +856,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeEmitter:
 		return GetComponentAttrCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 14;
+		return GetComponentAttrCount(Component::ComponentTypeComponent) + 15;
 	case Component::ComponentTypeTerrain:
 		return GetComponentAttrCount(Component::ComponentTypeComponent) + 8;
 	}
