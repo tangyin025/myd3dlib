@@ -2778,6 +2778,13 @@ namespace my
 			return AABB(FLT_MAX, -FLT_MAX);
 		}
 
+		bool IsValid(void) const
+		{
+			return m_min.x < m_max.x
+				&& m_min.y < m_max.y
+				&& m_min.z < m_max.z;
+		}
+
 		template <class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{

@@ -57,6 +57,8 @@ class Component;
 
 typedef boost::shared_ptr<Component> ComponentPtr;
 
+class Actor;
+
 class Component
 	: public my::OctActor
 {
@@ -136,7 +138,11 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	my::Matrix4 CalculateWorld(void) const;
+
 	void UpdateWorld(void);
+
+	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
@@ -148,7 +154,7 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
-	Component * GetTopParent(void);
+	Actor * GetTopParent(void);
 
 	Animator * GetAnimator(void);
 };
@@ -238,6 +244,8 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
+	virtual my::AABB CalculateAABB(void) const;
+
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
@@ -281,6 +289,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
@@ -379,6 +389,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };

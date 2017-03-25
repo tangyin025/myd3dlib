@@ -48,6 +48,15 @@ void Actor::Update(float fElapsedTime)
 	Component::Update(fElapsedTime);
 }
 
+void Actor::UpdateAABB(void)
+{
+	m_aabb = Component::CalculateAABB();
+	if (!m_aabb.IsValid())
+	{
+		m_aabb.unionSelf(AABB(m_aabb.Center() - 1, m_aabb.Center() + 1));
+	}
+}
+
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	Component::AddToPipeline(frustum, pipeline, PassMask);

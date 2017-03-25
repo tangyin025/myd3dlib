@@ -8,6 +8,8 @@ class TerrainChunk
 	: public my::OctActor
 {
 public:
+	Terrain * m_Owner;
+
 	my::AABB m_aabb;
 
 	int m_Row;
@@ -32,7 +34,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Column);
 	}
 
-	void UpdateAABB(Terrain * Owner);
+	void UpdateAABB(void);
 };
 
 typedef boost::shared_ptr<TerrainChunk> TerrainChunkPtr;
@@ -163,6 +165,8 @@ public:
 	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };

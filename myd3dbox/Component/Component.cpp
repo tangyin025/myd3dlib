@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Component.h"
+#include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"
 //#include "PhysXContext.h"
@@ -133,9 +134,14 @@ void Component::Update(float fElapsedTime)
 	}
 }
 
+my::Matrix4 Component::CalculateWorld(void) const
+{
+	return my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+}
+
 void Component::UpdateWorld(void)
 {
-	m_World = my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
+	m_World = CalculateWorld();
 	if (m_Parent)
 	{
 		m_World = m_World * m_Parent->m_World;
@@ -146,6 +152,17 @@ void Component::UpdateWorld(void)
 	{
 		(*cmp_iter)->UpdateWorld();
 	}
+}
+
+my::AABB Component::CalculateAABB(void) const
+{
+	AABB ret = AABB::Invalid();
+	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		ret.unionSelf((*cmp_iter)->CalculateAABB().transform((*cmp_iter)->CalculateWorld()));
+	}
+	return ret;
 }
 
 void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
@@ -194,13 +211,14 @@ void Component::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-Component * Component::GetTopParent(void)
+Actor * Component::GetTopParent(void)
 {
 	if (m_Parent)
 	{
 		return m_Parent->GetTopParent();
 	}
-	return this;
+	_ASSERT(m_Type == ComponentTypeActor);
+	return dynamic_cast<Actor *>(this);
 }
 
 Animator * Component::GetAnimator(void)
@@ -265,6 +283,16 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	}
 
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+}
+
+my::AABB MeshComponent::CalculateAABB(void) const
+{
+	AABB ret = RenderComponent::CalculateAABB();
+	if (m_MeshRes.m_Res)
+	{
+		ret.unionSelf(m_MeshRes.m_Res->m_aabb);
+	}
+	return ret;
 }
 
 void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
@@ -342,6 +370,13 @@ void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	{
 		m_Material->OnSetShader(shader, AttribId);
 	}
+}
+
+my::AABB EmitterComponent::CalculateAABB(void) const
+{
+	AABB ret = RenderComponent::CalculateAABB();
+	ret.unionSelf(my::AABB(-1,1));
+	return ret;
 }
 
 void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
@@ -434,6 +469,13 @@ void SphericalEmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	{
 		m_Material->OnSetShader(shader, AttribId);
 	}
+}
+
+my::AABB SphericalEmitterComponent::CalculateAABB(void) const
+{
+	AABB ret = RenderComponent::CalculateAABB();
+	ret.unionSelf(my::AABB(-1,1));
+	return ret;
 }
 
 void SphericalEmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)

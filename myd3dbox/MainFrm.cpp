@@ -647,6 +647,11 @@ void CMainFrame::OnComponentMesh()
 			(*cmp_iter)->AddComponent(mesh_cmp);
 			mesh_cmp->UpdateWorld();
 
+			Actor * actor = (*cmp_iter)->GetTopParent();
+			actor->UpdateAABB();
+			OnActorPosChanged(actor);
+			UpdateSelBox();
+
 			EventArg arg;
 			m_EventAttributeChanged(&arg);
 		}
@@ -683,6 +688,11 @@ void CMainFrame::OnComponentEmitter()
 	emit_cmp->RequestResource();
 	(*cmp_iter)->AddComponent(emit_cmp);
 	emit_cmp->UpdateWorld();
+
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
 
 	EventArg arg;
 	m_EventAttributeChanged(&arg);
@@ -733,6 +743,11 @@ void CMainFrame::OnComponentSphericalemitter()
 	(*cmp_iter)->AddComponent(sphe_emit_cmp);
 	sphe_emit_cmp->UpdateWorld();
 
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
+
 	EventArg arg;
 	m_EventAttributeChanged(&arg);
 }
@@ -763,6 +778,11 @@ void CMainFrame::OnComponentTerrain()
 	terrain->RequestResource();
 	(*cmp_iter)->AddComponent(terrain);
 	terrain->UpdateWorld();
+
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
 
 	EventArg arg;
 	m_EventAttributeChanged(&arg);

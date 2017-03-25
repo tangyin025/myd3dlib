@@ -20,18 +20,20 @@ BOOST_CLASS_EXPORT(TerrainChunk)
 BOOST_CLASS_EXPORT(Terrain)
 
 TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
-	: m_Row(Row)
+	: m_Owner(Owner)
+	, m_Row(Row)
 	, m_Column(Column)
 	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
-	D3DLOCKED_RECT lrc = Owner->m_HeightMap.LockRect(NULL, 0, 0);
-	m_aabb.m_min = Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
-	m_aabb.m_max = Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 1) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 1) * (Terrain::VertexArray::static_size - 1));
-	Owner->m_HeightMap.UnlockRect(0);
+	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
+	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
+	m_aabb.m_max = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 1) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 1) * (Terrain::VertexArray::static_size - 1));
+	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
 TerrainChunk::TerrainChunk(void)
-	: m_Row(0)
+	: m_Owner(NULL)
+	, m_Row(0)
 	, m_Column(0)
 	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
@@ -42,21 +44,21 @@ TerrainChunk::~TerrainChunk(void)
 {
 }
 
-void TerrainChunk::UpdateAABB(Terrain * Owner)
+void TerrainChunk::UpdateAABB(void)
 {
 	m_aabb = AABB::Invalid();
-	D3DLOCKED_RECT lrc = Owner->m_HeightMap.LockRect(NULL, 0, 0);
+	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
 	for (unsigned int i = 0; i < Terrain::VertexArray2D::static_size; i++)
 	{
 		const int row_i = m_Row * (Terrain::VertexArray2D::static_size - 1) + i;
 		for (unsigned int j = 0; j < Terrain::VertexArray::static_size; j++)
 		{
 			const int col_i = m_Column * (Terrain::VertexArray::static_size - 1) + j;
-			Vector3 Pos = Owner->GetSamplePos(lrc.pBits, lrc.Pitch, row_i, col_i);
+			Vector3 Pos = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, row_i, col_i);
 			m_aabb.unionSelf(Pos);
 		}
 	}
-	Owner->m_HeightMap.UnlockRect(0);
+	m_Owner->m_HeightMap.UnlockRect(0);
 }
 
 template <class T, int N>
@@ -241,7 +243,7 @@ void Terrain::UpdateChunks(void)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
-			m_Chunks[i][j]->UpdateAABB(this);
+			m_Chunks[i][j]->UpdateAABB();
 			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
 			m_Root.RemoveActor(chunk);
 			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
@@ -503,6 +505,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			terrain->m_Chunks[chunk->m_Row][chunk->m_Column] = chunk;
+			chunk->m_Owner = terrain;
 		}
 	};
 	m_Root.QueryActorAll(&CallBack(this));
@@ -602,6 +605,20 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 	shader->SetTexture("g_HeightTexture", &m_HeightMap);
 
 	m_Material->OnSetShader(shader, AttribId);
+}
+
+my::AABB Terrain::CalculateAABB(void) const
+{
+	AABB ret = RenderComponent::CalculateAABB();
+	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
+	{
+		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
+		{
+			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
+			ret.unionSelf(chunk->m_aabb);
+		}
+	}
+	return ret;
 }
 
 void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
