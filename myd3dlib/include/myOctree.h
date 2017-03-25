@@ -77,6 +77,10 @@ namespace my
 		{
 		}
 
+		virtual ~OctNodeBase(void)
+		{
+		}
+
 		friend class boost::serialization::access;
 
 		template<class Archive>
