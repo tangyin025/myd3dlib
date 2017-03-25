@@ -229,44 +229,48 @@ void CChildView::RenderSelectedObject(IDirect3DDevice9 * pd3dDevice)
 	if (!pFrame->m_selcmps.empty())
 	{
 		PushWireAABB(pFrame->m_selbox, D3DCOLOR_ARGB(255,255,255,255));
-	//	CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
-	//	for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
-	//	{
-	//		PushWireAABB(Component::GetCmpOctAABB((*sel_iter)), D3DCOLOR_ARGB(255,255,0,255));
-	//		switch ((*sel_iter)->m_Type)
-	//		{
-	//		case Component::ComponentTypeMesh:
-	//			{
-	//				MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
-	//				if (mesh_cmp->m_lod < mesh_cmp->m_lods.size() && mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res)
-	//				{
-	//					theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-	//					UINT passes = theApp.m_SimpleSample->Begin();
-	//					for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-	//					{
-	//						theApp.m_SimpleSample->BeginPass(0);
-	//						mesh_cmp->m_lods[mesh_cmp->m_lod].m_MeshRes.m_Res->DrawSubset(i);
-	//						theApp.m_SimpleSample->EndPass();
-	//					}
-	//					theApp.m_SimpleSample->End();
-	//				}
-	//			}
-	//			break;
-
-	//		case Component::ComponentTypeTerrain:
-	//			{
-	//				Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
-	//				for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
-	//				{
-	//					for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
-	//					{
-	//						PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
-	//					}
-	//				}
-	//			}
-	//			break;
-	//		}
-	//	}
+		CMainFrame::ComponentSet::const_iterator sel_iter = pFrame->m_selcmps.begin();
+		for (; sel_iter != pFrame->m_selcmps.end(); sel_iter++)
+		{
+			switch ((*sel_iter)->m_Type)
+			{
+			case Component::ComponentTypeActor:
+				{
+					Actor * actor = dynamic_cast<Actor *>(*sel_iter);
+					PushWireAABB(actor->m_OctNode->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
+				}
+				break;
+			//case Component::ComponentTypeMesh:
+			//	{
+			//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(*sel_iter);
+			//		if (mesh_cmp->m_MeshRes.m_Res)
+			//		{
+			//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+			//			UINT passes = theApp.m_SimpleSample->Begin();
+			//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+			//			{
+			//				theApp.m_SimpleSample->BeginPass(0);
+			//				mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+			//				theApp.m_SimpleSample->EndPass();
+			//			}
+			//			theApp.m_SimpleSample->End();
+			//		}
+			//	}
+			//	break;
+			case Component::ComponentTypeTerrain:
+				{
+					Terrain * terrain = dynamic_cast<Terrain *>(*sel_iter);
+					for (unsigned int i = 0; i < Terrain::ChunkArray2D::static_size; i++)
+					{
+						for (unsigned int j = 0; j < Terrain::ChunkArray::static_size; j++)
+						{
+							PushWireAABB(terrain->m_Chunks[i][j]->m_aabb.transform(terrain->m_World), D3DCOLOR_ARGB(255,255,0,255));
+						}
+					}
+				}
+				break;
+			}
+		}
 	}
 }
 
