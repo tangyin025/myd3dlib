@@ -3,7 +3,7 @@
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"
-//#include "PhysXContext.h"
+#include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -221,11 +221,80 @@ Actor * Component::GetTopParent(void)
 	return dynamic_cast<Actor *>(this);
 }
 
+namespace boost { 
+	namespace serialization {
+		template<class Archive>
+		inline void serialize(
+			Archive & ar,
+			PxClothParticle & t,
+			const unsigned int file_version
+			){
+				ar & BOOST_SERIALIZATION_NVP(t.pos.x);
+				ar & BOOST_SERIALIZATION_NVP(t.pos.y);
+				ar & BOOST_SERIALIZATION_NVP(t.pos.z);
+				ar & BOOST_SERIALIZATION_NVP(t.invWeight);
+		}
+	}
+}
+
+template<>
+void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_MeshRes);
+	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
+	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
+	ar << BOOST_SERIALIZATION_NVP(m_bUseCloth);
+	if (m_bUseCloth)
+	{
+		PxDefaultMemoryOutputStream ostr;
+		PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+		m_Cloth->collectForExport(*collection);
+		collection->setObjectRef(*m_Cloth, (PxSerialObjectRef)1234);
+		collection->serialize(ostr, false);
+		unsigned int BuffSize = ostr.getSize();
+		ar << BOOST_SERIALIZATION_NVP(BuffSize);
+		ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+		ar << BOOST_SERIALIZATION_NVP(m_particles);
+	}
+	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
+}
+
+template<>
+void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_MeshRes);
+	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
+	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
+	ar >> BOOST_SERIALIZATION_NVP(m_bUseCloth);
+	if (m_bUseCloth)
+	{
+		unsigned int BuffSize;
+		ar >> BOOST_SERIALIZATION_NVP(BuffSize);
+		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(BuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+		ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), BuffSize));
+		PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+		PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+		collection->deserialize(m_SerializeBuff.get(), userRefs.get(), NULL);
+		m_Cloth.reset(userRefs->getObjectFromRef((PxSerialObjectRef)1234)->is<PxCloth>());
+		ar >> BOOST_SERIALIZATION_NVP(m_particles);
+	}
+	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
+}
+
 void MeshComponent::RequestResource(void)
 {
 	Component::RequestResource();
 
 	m_MeshRes.RequestResource();
+
+	if (m_bUseCloth && m_Cloth)
+	{
+		PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_Cloth);
+	}
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)
@@ -237,6 +306,11 @@ void MeshComponent::RequestResource(void)
 void MeshComponent::ReleaseResource(void)
 {
 	m_MeshRes.ReleaseResource();
+
+	if (m_bUseCloth && m_Cloth)
+	{
+		PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_Cloth);
+	}
 
 	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
 	for (; mat_iter != m_MaterialList.end(); mat_iter++)

@@ -196,11 +196,13 @@ public:
 
 	bool m_bUseCloth;
 
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
+	PhysXPtr<PxCloth> m_Cloth;
+
 	std::vector<PxClothParticle> m_particles;
 
 	std::vector<PxClothParticle> m_NewParticles;
-
-	PhysXPtr<PxCloth> m_Cloth;
 
 	MaterialPtrList m_MaterialList;
 
@@ -229,16 +231,18 @@ public:
 	{
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
-		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
-		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
-		ar & BOOST_SERIALIZATION_NVP(m_bUseAnimation);
-		ar & BOOST_SERIALIZATION_NVP(m_bUseCloth);
-		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
-		ar & BOOST_SERIALIZATION_NVP(m_StaticCollision);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	void AddMaterial(MaterialPtr mat)
