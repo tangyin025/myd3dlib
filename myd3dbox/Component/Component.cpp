@@ -221,19 +221,6 @@ Actor * Component::GetTopParent(void)
 	return dynamic_cast<Actor *>(this);
 }
 
-Animator * Component::GetAnimator(void)
-{
-	if (m_Animator)
-	{
-		return m_Animator.get();
-	}
-	if (m_Parent)
-	{
-		return m_Parent->GetAnimator();
-	}
-	return NULL;
-}
-
 void MeshComponent::RequestResource(void)
 {
 	Component::RequestResource();
@@ -273,12 +260,11 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_bAnimation)
+	if (m_bAnimation && m_Parent && m_Parent->m_Animator)
 	{
-		Animator * anim = GetAnimator();
-		if (anim && !anim->m_DualQuats.empty())
+		if (!m_Parent->m_Animator->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray("g_dualquat", &anim->m_DualQuats[0], anim->m_DualQuats.size());
+			shader->SetMatrixArray("g_dualquat", &m_Parent->m_Animator->m_DualQuats[0], m_Parent->m_Animator->m_DualQuats.size());
 		}
 	}
 

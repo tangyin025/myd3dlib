@@ -155,8 +155,6 @@ public:
 	void ClearAllComponent(ComponentPtr cmp);
 
 	Actor * GetTopParent(void);
-
-	Animator * GetAnimator(void);
 };
 
 class RenderComponent
@@ -191,27 +189,27 @@ class MeshComponent
 public:
 	ResourceBundle<my::OgreMesh> m_MeshRes;
 
-	bool m_bAnimation;
-
 	bool m_bInstance;
+
+	bool m_bAnimation;
 
 	MaterialPtrList m_MaterialList;
 
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bAnimation, bool bInstance)
+	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bInstance, bool bAnimation)
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
-		, m_bAnimation(bAnimation)
 		, m_bInstance(bInstance)
+		, m_bAnimation(bAnimation)
 		, m_StaticCollision(false)
 	{
 	}
 
 	MeshComponent(void)
 		: RenderComponent(ComponentTypeMesh)
-		, m_bAnimation(false)
 		, m_bInstance(false)
+		, m_bAnimation(false)
 		, m_StaticCollision(false)
 	{
 	}
@@ -225,8 +223,8 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
-		ar & BOOST_SERIALIZATION_NVP(m_bAnimation);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
+		ar & BOOST_SERIALIZATION_NVP(m_bAnimation);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	}
