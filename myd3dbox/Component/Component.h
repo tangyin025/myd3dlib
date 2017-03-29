@@ -191,7 +191,7 @@ public:
 
 	bool m_bInstance;
 
-	bool m_bAnimation;
+	bool m_bUseAnimation;
 
 	MaterialPtrList m_MaterialList;
 
@@ -201,7 +201,7 @@ public:
 	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bInstance, bool bAnimation)
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
 		, m_bInstance(bInstance)
-		, m_bAnimation(bAnimation)
+		, m_bUseAnimation(bAnimation)
 		, m_StaticCollision(false)
 	{
 	}
@@ -209,7 +209,7 @@ public:
 	MeshComponent(void)
 		: RenderComponent(ComponentTypeMesh)
 		, m_bInstance(false)
-		, m_bAnimation(false)
+		, m_bUseAnimation(false)
 		, m_StaticCollision(false)
 	{
 	}
@@ -224,7 +224,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
-		ar & BOOST_SERIALIZATION_NVP(m_bAnimation);
+		ar & BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	}

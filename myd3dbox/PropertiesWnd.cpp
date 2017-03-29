@@ -264,8 +264,8 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		return;
 	}
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)mesh_cmp->m_bAnimation);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_StaticCollision);
 	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 4);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
@@ -587,9 +587,9 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Animation"), (_variant_t)mesh_cmp->m_bAnimation, NULL, PropertyMeshAnimation);
+	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
+	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("StaticCollision"), (_variant_t)mesh_cmp->m_StaticCollision, NULL, PropertyMeshStaticCollision);
 	pComponent->AddSubItem(pProp);
@@ -1145,18 +1145,18 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			//pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyMeshAnimation:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			mesh_cmp->m_bAnimation = pProp->GetValue().boolVal != 0;
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
 	case PropertyMeshInstance:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 			mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMeshUseAnimation:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
+			mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

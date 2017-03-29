@@ -260,7 +260,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_bAnimation && m_Parent && m_Parent->m_Animator)
+	if (m_bUseAnimation && m_Parent && m_Parent->m_Animator)
 	{
 		if (!m_Parent->m_Animator->m_DualQuats.empty())
 		{
@@ -293,7 +293,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 				{
 					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
 					{
-						my::Effect * shader = pipeline->QueryShader(m_bAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
+						my::Effect * shader = pipeline->QueryShader(m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, m_bInstance, m_MaterialList[i].get(), PassID);
 						if (shader)
 						{
 							if (m_bInstance)
