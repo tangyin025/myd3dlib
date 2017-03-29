@@ -129,6 +129,8 @@ const Vector3 Vector3::unitY(0, 1, 0);
 
 const Vector3 Vector3::unitZ(0, 0, 1);
 
+const Vector3 Vector3::Gravity(0.0f, -9.81f, 0.0f);
+
 Vector4 Vector4::transform(const Matrix4 & m) const
 {
 	return Vector4(

@@ -886,6 +886,67 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
 	return _T("Unknown");
 }
 
+void CPropertiesWnd::CreateMeshComponentCloth(MeshComponent * mesh_cmp)
+{
+	my::OgreMeshPtr mesh = mesh_cmp->m_MeshRes.m_Res;
+	if (mesh)
+	{
+		if (mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type != D3DDECLTYPE_UBYTE4)
+		{
+			TRACE0("mesh->m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type != D3DDECLTYPE_UBYTE4\n");
+			return;
+		}
+		mesh_cmp->m_particles.resize(mesh->GetNumVertices());
+		unsigned char * pVertices = (unsigned char *)mesh->LockVertexBuffer(D3DLOCK_READONLY);
+		for(unsigned int i = 0; i < mesh_cmp->m_particles.size(); i++) {
+			unsigned char * pVertex = pVertices + i * mesh->GetNumBytesPerVertex();
+			mesh_cmp->m_particles[i].pos = (PxVec3 &)mesh->m_VertexElems.GetPosition(pVertex);
+			unsigned char * pIndices = (unsigned char *)&mesh->m_VertexElems.GetBlendIndices(pVertex);
+			BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+			//mesh_cmp->m_particles[i].invWeight = (
+			//	pIndices[0] == root_i || hierarchy->HaveChild(root_i, pIndices[0]) ||
+			//	pIndices[1] == root_i || hierarchy->HaveChild(root_i, pIndices[1]) ||
+			//	pIndices[2] == root_i || hierarchy->HaveChild(root_i, pIndices[2]) ||
+			//	pIndices[3] == root_i || hierarchy->HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
+			mesh_cmp->m_particles[i].invWeight = 1;
+		}
+
+		PxClothMeshDesc desc;
+		desc.points.data = pVertices + mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
+		desc.points.count = mesh->GetNumVertices();
+		desc.points.stride = mesh->GetNumBytesPerVertex();
+		desc.triangles.data = mesh->LockIndexBuffer();
+		desc.triangles.count = mesh->GetNumFaces();
+		if (mesh->GetOptions() & D3DXMESH_32BIT)
+		{
+			desc.triangles.stride = 3 * sizeof(DWORD);
+		}
+		else
+		{
+			desc.triangles.stride = 3 * sizeof(WORD);
+			desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+		}
+
+		PxDefaultMemoryOutputStream writeBuffer;
+		bool status = theApp.m_Cooking->cookClothFabric(desc, (PxVec3&)my::Vector3::Gravity, writeBuffer);
+		mesh->UnlockVertexBuffer();
+		mesh->UnlockIndexBuffer();
+		if (!status)
+		{
+			TRACE0("theApp.m_Cooking->cookClothFabric failed\n");
+			return;
+		}
+		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		PhysXPtr<PxClothFabric> fabric(theApp.m_sdk->createClothFabric(readBuffer));
+		mesh_cmp->m_Cloth.reset(theApp.m_sdk->createCloth(
+			PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &mesh_cmp->m_particles[0], PxClothCollisionData(), PxClothFlags())); // ! fabric->release()
+
+		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+		ASSERT_VALID(pFrame);
+		pFrame->m_PxScene->addActor(*mesh_cmp->m_Cloth);
+	}
+}
+
 int CPropertiesWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
 	if (CDockablePane::OnCreate(lpCreateStruct) == -1)
@@ -1168,6 +1229,17 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 			mesh_cmp->m_bUseCloth = pProp->GetValue().boolVal != 0;
+			if (mesh_cmp->m_bUseCloth)
+			{
+				CreateMeshComponentCloth(mesh_cmp);
+			}
+			else
+			{
+				ASSERT(mesh_cmp->m_Cloth);
+				pFrame->m_PxScene->removeActor(*mesh_cmp->m_Cloth);
+				mesh_cmp->m_Cloth.reset();
+				mesh_cmp->m_particles.clear();
+			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

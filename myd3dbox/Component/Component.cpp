@@ -273,7 +273,7 @@ void MeshComponent::Update(float fElapsedTime)
 					}
 					else
 					{
-						m_NewParticles[i].pos = (PxVec3 &)m_particles;
+						m_NewParticles[i].pos = m_particles[i].pos;
 					}
 				}
 				else

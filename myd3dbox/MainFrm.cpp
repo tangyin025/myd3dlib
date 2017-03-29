@@ -921,6 +921,8 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
 	const float fElapsedTime = 0.033f;
+	PhysXSceneContext::AdvanceSync(fElapsedTime);
+
 	if (!m_selcmps.empty())
 	{
 		ComponentSet::iterator cmp_iter = m_selcmps.begin();
@@ -932,8 +934,6 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 		EventArg arg;
 		m_EventSelectionPlaying(&arg);
 	}
-
-	PhysXSceneContext::AdvanceSync(fElapsedTime);
 
 	__super::OnTimer(nIDEvent);
 }
