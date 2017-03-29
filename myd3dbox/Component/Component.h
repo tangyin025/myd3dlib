@@ -3,6 +3,7 @@
 #include "myOctree.h"
 #include "RenderPipeline.h"
 #include "Animator.h"
+#include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
 class Material
@@ -193,15 +194,24 @@ public:
 
 	bool m_bUseAnimation;
 
+	bool m_bUseCloth;
+
+	std::vector<PxClothParticle> m_particles;
+
+	std::vector<PxClothParticle> m_NewParticles;
+
+	PhysXPtr<PxCloth> m_Cloth;
+
 	MaterialPtrList m_MaterialList;
 
 	bool m_StaticCollision;
 
 public:
-	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, bool bInstance, bool bAnimation)
+	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
-		, m_bInstance(bInstance)
-		, m_bUseAnimation(bAnimation)
+		, m_bInstance(false)
+		, m_bUseAnimation(false)
+		, m_bUseCloth(false)
 		, m_StaticCollision(false)
 	{
 	}
@@ -210,6 +220,7 @@ public:
 		: RenderComponent(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
+		, m_bUseCloth(false)
 		, m_StaticCollision(false)
 	{
 	}
@@ -225,6 +236,7 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_MeshRes);
 		ar & BOOST_SERIALIZATION_NVP(m_bInstance);
 		ar & BOOST_SERIALIZATION_NVP(m_bUseAnimation);
+		ar & BOOST_SERIALIZATION_NVP(m_bUseCloth);
 		ar & BOOST_SERIALIZATION_NVP(m_MaterialList);
 		ar & BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	}

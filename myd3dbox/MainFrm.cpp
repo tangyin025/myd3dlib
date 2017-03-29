@@ -630,7 +630,7 @@ void CMainFrame::OnComponentMesh()
 		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
 		if (mesh)
 		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1), false, false));
+			MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
 			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
 			mesh_cmp->m_MeshRes.OnReady(mesh);
 			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
