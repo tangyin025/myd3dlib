@@ -934,7 +934,6 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readonly("UseAnimation", &MeshComponent::m_bUseAnimation)
-			.def_readonly("UseCloth", &MeshComponent::m_bUseCloth)
 			.def_readonly("StaticCollision", &MeshComponent::m_StaticCollision)
 			.def("AddMaterial", &MeshComponent::AddMaterial)
 

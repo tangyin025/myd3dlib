@@ -194,16 +194,6 @@ public:
 
 	bool m_bUseAnimation;
 
-	bool m_bUseCloth;
-
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
-	PhysXPtr<PxCloth> m_Cloth;
-
-	std::vector<PxClothParticle> m_particles;
-
-	std::vector<PxClothParticle> m_NewParticles;
-
 	MaterialPtrList m_MaterialList;
 
 	bool m_StaticCollision;
@@ -213,7 +203,6 @@ public:
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
-		, m_bUseCloth(false)
 		, m_StaticCollision(false)
 	{
 	}
@@ -222,7 +211,6 @@ public:
 		: RenderComponent(ComponentTypeMesh)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
-		, m_bUseCloth(false)
 		, m_StaticCollision(false)
 	{
 	}

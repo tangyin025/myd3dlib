@@ -63,7 +63,6 @@ protected:
 		PropertyMeshResPath,
 		PropertyMeshInstance,
 		PropertyMeshUseAnimation,
-		PropertyMeshUseCloth,
 		PropertyMeshStaticCollision,
 		PropertyMaterialList,
 		PropertyMaterialShader,
@@ -181,7 +180,6 @@ protected:
 
 	static unsigned int GetComponentAttrCount(Component::ComponentType type);
 	static LPCTSTR GetComponentTypeName(Component::ComponentType type);
-	void CreateMeshComponentCloth(MeshComponent * mesh_cmp);
 
 // Implementation
 public:
