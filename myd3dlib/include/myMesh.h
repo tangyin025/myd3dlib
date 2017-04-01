@@ -33,6 +33,14 @@ namespace my
 			, Method(_Method)
 		{
 		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(Offset);
+			ar & BOOST_SERIALIZATION_NVP(Type);
+			ar & BOOST_SERIALIZATION_NVP(Method);
+		}
 	};
 
 	class D3DVertexElementSet
@@ -49,6 +57,12 @@ namespace my
 	public:
 		D3DVertexElementSet(void)
 		{
+		}
+
+		template<class Archive>
+		void serialize(Archive & ar, const unsigned int version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(elems);
 		}
 
 		void InsertVertexElement(WORD Offset, D3DDECLTYPE Type, D3DDECLUSAGE Usage, BYTE UsageIndex, D3DDECLMETHOD Method = D3DDECLMETHOD_DEFAULT);

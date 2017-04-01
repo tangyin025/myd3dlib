@@ -70,6 +70,7 @@ public:
 		ComponentTypeComponent,
 		ComponentTypeActor,
 		ComponentTypeMesh,
+		ComponentTypeCloth,
 		ComponentTypeEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
@@ -233,11 +234,6 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void AddMaterial(MaterialPtr mat)
-	{
-		m_MaterialList.push_back(mat);
-	}
-
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
@@ -252,6 +248,81 @@ public:
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;
+
+class ClothComponent
+	: public RenderComponent
+	, public my::DeviceResourceBase
+{
+public:
+	std::vector<D3DXATTRIBUTERANGE> m_AttribTable;
+
+	CComPtr<IDirect3DVertexDeclaration9> m_Decl;
+
+	std::vector<unsigned char> m_VertexData;
+
+	DWORD m_VertexStride;
+
+	std::vector<unsigned short> m_IndexData;
+
+	bool m_bUseAnimation;
+
+	MaterialPtrList m_MaterialList;
+
+	my::D3DVertexElementSet m_VertexElems;
+
+	std::vector<PxClothParticle> m_particles;
+
+	std::vector<PxClothParticle> m_NewParticles;
+
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
+	PhysXPtr<PxCloth> m_Cloth;
+
+public:
+	ClothComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(ComponentTypeCloth, Position, Rotation, Scale)
+		, m_bUseAnimation(false)
+	{
+	}
+
+	ClothComponent(void)
+		: RenderComponent(ComponentTypeCloth)
+		, m_bUseAnimation(false)
+	{
+	}
+
+	~ClothComponent(void)
+	{
+	}
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		boost::serialization::split_member(ar, *this, version);
+	}
+
+	void CreateFromMesh(my::OgreMeshPtr mesh);
+
+	virtual void OnResetDevice(void);
+
+	virtual void OnLostDevice(void);
+
+	virtual void OnDestroyDevice(void);
+
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	virtual void Update(float fElapsedTime);
+
+	void UpdateCloth(void);
+};
 
 class EmitterComponent
 	: public RenderComponent

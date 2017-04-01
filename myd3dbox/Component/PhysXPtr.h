@@ -22,11 +22,22 @@ public:
     {
     }
 
+	//PhysXPtr(PhysXPtr const & r)
+	//	: shared_ptr(r)
+	//{
+	//}
+
     template<class Y>
     explicit PhysXPtr( Y * p )
 		: shared_ptr<Y>(p, PhysXDeleter<Y>())
     {
     }
+
+	//PhysXPtr & operator=(PhysXPtr const & r) // never throws
+	//{
+	//	shared_ptr::operator =(r);
+	//	return *this;
+	//}
 
 	void reset() BOOST_NOEXCEPT
 	{

@@ -935,7 +935,6 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readonly("UseAnimation", &MeshComponent::m_bUseAnimation)
 			.def_readonly("StaticCollision", &MeshComponent::m_StaticCollision)
-			.def("AddMaterial", &MeshComponent::AddMaterial)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())

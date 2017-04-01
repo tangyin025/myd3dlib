@@ -337,6 +337,278 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
+namespace boost { 
+	namespace serialization {
+		template<class Archive>
+		inline void serialize(Archive & ar, D3DXATTRIBUTERANGE & t, const unsigned int file_version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(t.AttribId);
+			ar & BOOST_SERIALIZATION_NVP(t.FaceStart);
+			ar & BOOST_SERIALIZATION_NVP(t.FaceCount);
+			ar & BOOST_SERIALIZATION_NVP(t.VertexStart);
+			ar & BOOST_SERIALIZATION_NVP(t.VertexCount);
+		}
+
+		template<class Archive>
+		inline void serialize(Archive & ar, PxClothParticle & t, const unsigned int file_version)
+		{
+			ar & BOOST_SERIALIZATION_NVP(t.pos.x);
+			ar & BOOST_SERIALIZATION_NVP(t.pos.y);
+			ar & BOOST_SERIALIZATION_NVP(t.pos.z);
+			ar & BOOST_SERIALIZATION_NVP(t.invWeight);
+		}
+	}
+}
+
+template<>
+void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar << BOOST_SERIALIZATION_NVP(m_AttribTable);
+	unsigned int VertexSize = m_VertexData.size();
+	ar << BOOST_SERIALIZATION_NVP(VertexSize);
+	ar << boost::serialization::make_nvp("m_VertexData", boost::serialization::binary_object((void *)&m_VertexData[0], VertexSize));
+	ar << BOOST_SERIALIZATION_NVP(m_VertexStride);
+	unsigned int IndexSize = m_IndexData.size() * sizeof(unsigned short);
+	ar << BOOST_SERIALIZATION_NVP(IndexSize);
+	ar << boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
+	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
+	ar << BOOST_SERIALIZATION_NVP(m_particles);
+
+	PxSerialObjectRef fabric_ref = (PxSerialObjectRef)m_Cloth->getFabric();
+	PxSerialObjectRef cloth_ref = (PxSerialObjectRef)m_Cloth.get();
+	ar << BOOST_SERIALIZATION_NVP(fabric_ref);
+	ar << BOOST_SERIALIZATION_NVP(cloth_ref);
+	PxDefaultMemoryOutputStream ostr;
+	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+	m_Cloth->collectForExport(*collection);
+	collection->addExternalRef(*m_Cloth->getFabric(), (PxSerialObjectRef)fabric_ref);
+	collection->setObjectRef(*m_Cloth, (PxSerialObjectRef)cloth_ref);
+	collection->serialize(ostr, false);
+	unsigned int ClothSize = ostr.getSize();
+	ar << BOOST_SERIALIZATION_NVP(ClothSize);
+	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+	ar << BOOST_SERIALIZATION_NVP(m_particles);
+}
+
+template<>
+void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+	ar >> BOOST_SERIALIZATION_NVP(m_AttribTable);
+	unsigned int VertexSize;
+	ar >> BOOST_SERIALIZATION_NVP(VertexSize);
+	m_VertexData.resize(VertexSize);
+	ar >> boost::serialization::make_nvp("m_VertexData", boost::serialization::binary_object((void *)&m_VertexData[0], VertexSize));
+	ar >> BOOST_SERIALIZATION_NVP(m_VertexStride);
+	unsigned int IndexSize;
+	ar >> BOOST_SERIALIZATION_NVP(IndexSize);
+	m_IndexData.resize(IndexSize / sizeof(unsigned short));
+	ar >> boost::serialization::make_nvp("m_IndexData", boost::serialization::binary_object((void *)&m_IndexData[0], IndexSize));
+	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
+	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
+	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
+	ar >> BOOST_SERIALIZATION_NVP(m_particles);
+
+	PxSerialObjectRef fabric_ref;
+	PxSerialObjectRef cloth_ref;
+	ar >> BOOST_SERIALIZATION_NVP(fabric_ref);
+	ar >> BOOST_SERIALIZATION_NVP(cloth_ref);
+	unsigned int ClothSize;
+	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
+	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
+	PhysXPtr<PxUserReferences> externalRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+	externalRefs->setObjectRef(*PhysXContext::getSingleton().m_SerializeUserRefs->getObjectFromRef(fabric_ref), fabric_ref);
+	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), externalRefs.get());
+	m_Cloth.reset(userRefs->getObjectFromRef(fabric_ref)->is<PxCloth>());
+}
+
+void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
+{
+	if (m_VertexData.empty())
+	{
+		m_VertexStride = mesh->GetNumBytesPerVertex();
+		m_VertexData.resize(mesh->GetNumVertices() * m_VertexStride);
+		memcpy(&m_VertexData[0], mesh->LockVertexBuffer(), m_VertexData.size());
+		mesh->UnlockVertexBuffer();
+
+		m_IndexData.resize(mesh->GetNumFaces() * 3);
+		if (m_IndexData.size() > USHRT_MAX)
+		{
+			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %u", m_IndexData.size()));
+		}
+		VOID * pIndices = mesh->LockIndexBuffer();
+		for (unsigned int face_i = 0; face_i < mesh->GetNumFaces(); face_i++)
+		{
+			if(mesh->GetOptions() & D3DXMESH_32BIT)
+			{
+				m_IndexData[face_i * 3 + 0] = (WORD)*((DWORD *)pIndices + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = (WORD)*((DWORD *)pIndices + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = (WORD)*((DWORD *)pIndices + face_i * 3 + 2);
+			}
+			else
+			{
+				m_IndexData[face_i * 3 + 0] = *((WORD *)pIndices + face_i * 3 + 0);
+				m_IndexData[face_i * 3 + 1] = *((WORD *)pIndices + face_i * 3 + 1);
+				m_IndexData[face_i * 3 + 2] = *((WORD *)pIndices + face_i * 3 + 2);
+			}
+		}
+		mesh->UnlockIndexBuffer();
+
+		m_AttribTable = mesh->m_AttribTable;
+		std::vector<D3DVERTEXELEMENT9> velist(MAX_FVF_DECL_SIZE);
+		mesh->GetDeclaration(&velist[0]);
+		HRESULT hr;
+		if (FAILED(hr = mesh->GetDevice()->CreateVertexDeclaration(&velist[0], &m_Decl)))
+		{
+			THROW_D3DEXCEPTION(hr);
+		}
+
+		m_VertexElems = mesh->m_VertexElems;
+
+		m_particles.resize(mesh->GetNumVertices());
+		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
+		for(unsigned int i = 0; i < m_particles.size(); i++) {
+			unsigned char * pVertex = pVertices + i * m_VertexStride;
+			m_particles[i].pos = (PxVec3 &)m_VertexElems.GetPosition(pVertex);
+			unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
+			BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+			//m_particles[i].invWeight = (
+			//	pIndices[0] == root_i || hierarchy->HaveChild(root_i, pIndices[0]) ||
+			//	pIndices[1] == root_i || hierarchy->HaveChild(root_i, pIndices[1]) ||
+			//	pIndices[2] == root_i || hierarchy->HaveChild(root_i, pIndices[2]) ||
+			//	pIndices[3] == root_i || hierarchy->HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
+			m_particles[i].invWeight = 1.0f;
+		}
+
+		m_Cloth.reset(PhysXContext::getSingleton().CreateClothFromMesh(mesh, &m_particles[0]));
+	}
+}
+
+void ClothComponent::OnResetDevice(void)
+{
+}
+
+void ClothComponent::OnLostDevice(void)
+{
+}
+
+void ClothComponent::OnDestroyDevice(void)
+{
+	m_Decl.Release();
+
+	m_Cloth.reset();
+}
+
+void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	_ASSERT(!m_VertexData.empty());
+	_ASSERT(AttribId < m_MaterialList.size());
+
+	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
+
+	shader->SetMatrix("g_World", m_World);
+
+	if (m_bUseAnimation && m_Parent && m_Parent->m_Animator)
+	{
+		if (!m_Parent->m_Animator->m_DualQuats.empty())
+		{
+			shader->SetMatrixArray("g_dualquat", &m_Parent->m_Animator->m_DualQuats[0], m_Parent->m_Animator->m_DualQuats.size());
+		}
+	}
+
+	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+}
+
+void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+{
+	if (!m_VertexData.empty())
+	{
+		for (unsigned int i = 0; i < m_AttribTable.size(); i++)
+		{
+			_ASSERT(!m_VertexData.empty());
+			_ASSERT(!m_IndexData.empty());
+			_ASSERT(0 != m_VertexStride);
+			if (m_MaterialList[i] && (m_MaterialList[i]->m_PassMask & PassMask))
+			{
+				for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+				{
+					if (RenderPipeline::PassTypeToMask(PassID) & (m_MaterialList[i]->m_PassMask & PassMask))
+					{
+						my::Effect * shader = pipeline->QueryShader(
+							m_bUseAnimation ? RenderPipeline::MeshTypeAnimation : RenderPipeline::MeshTypeStatic, false, m_MaterialList[i].get(), PassID);
+						if (shader)
+						{
+							pipeline->PushIndexedPrimitiveUP(PassID, m_Decl, D3DPT_TRIANGLELIST,
+								m_AttribTable[i].VertexStart,
+								m_AttribTable[i].VertexCount,
+								m_AttribTable[i].FaceCount,
+								&m_IndexData[m_AttribTable[i].FaceStart * 3],
+								D3DFMT_INDEX16,
+								&m_VertexData[0],
+								m_VertexStride, i, shader, this);
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+void ClothComponent::Update(float fElapsedTime)
+{
+	UpdateCloth();
+}
+
+void ClothComponent::UpdateCloth(void)
+{
+	if (m_Cloth)
+	{
+		_ASSERT(m_particles.size() == m_VertexData.size() / m_VertexStride);
+		PxClothReadData * readData = m_Cloth->lockClothReadData();
+		if (readData)
+		{
+			unsigned char * pVertices = &m_VertexData[0];
+			const DWORD NbParticles = m_Cloth->getNbParticles();
+			m_NewParticles.resize(NbParticles);
+			for (unsigned int i = 0; i < NbParticles; i++)
+			{
+				void * pVertex = pVertices + i * m_VertexStride;
+				m_NewParticles[i].invWeight = readData->particles[i].invWeight;
+				if (0 == m_NewParticles[i].invWeight)
+				{
+					//my::Vector3 pos;
+					//my::TransformList::TransformVertexWithDualQuaternionList(pos,
+					//	(my::Vector3 &)m_particles[i].pos,
+					//	m_VertexElems.GetBlendIndices(pVertex),
+					//	m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
+					//m_NewParticles[i].pos = (PxVec3 &)pos;
+					m_NewParticles[i].pos = m_particles[i].pos;
+				}
+				else
+				{
+					m_NewParticles[i].pos = readData->particles[i].pos;
+				}
+				m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
+			}
+			readData->unlock();
+			m_Cloth->setParticles(&m_NewParticles[0], NULL);
+			m_Cloth->setTargetPose(PxTransform((PxMat44 &)m_World));
+
+			my::OgreMesh::ComputeNormalFrame(
+				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
+
+			my::OgreMesh::ComputeTangentFrame(
+				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
+		}
+	}
+}
+
 void EmitterComponent::RequestResource(void)
 {
 	Component::RequestResource();

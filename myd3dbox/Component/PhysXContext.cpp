@@ -2,6 +2,15 @@
 #include "PhysXContext.h"
 #include "Component.h"
 #include "Terrain.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/deque.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 const my::Vector3 PhysXContext::Gravity(0.0f, -9.81f, 0.0f);
 
@@ -79,6 +88,69 @@ void PhysXContext::Shutdown(void)
 	m_sdk.reset();
 
 	m_Foundation.reset();
+}
+
+template<>
+void PhysXContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	PxDefaultMemoryOutputStream ostr;
+	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+	PxSerializableList::const_iterator obj_iter = m_SerializeObjs.begin();
+	for (; obj_iter != m_SerializeObjs.end(); obj_iter++)
+	{
+		(*obj_iter)->collectForExport(*collection);
+		collection->setObjectRef(*(*obj_iter), (PxSerialObjectRef)(*obj_iter));
+	}
+	collection->serialize(ostr, false);
+	unsigned int SerializableSize = ostr.getSize();
+	ar << BOOST_SERIALIZATION_NVP(SerializableSize);
+	ar << boost::serialization::make_nvp("m_SerializeObjs", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+}
+
+template<>
+void PhysXContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	unsigned int SerializableSize;
+	ar >> BOOST_SERIALIZATION_NVP(SerializableSize);
+	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(SerializableSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+	ar >> boost::serialization::make_nvp("m_SerializeObjs", boost::serialization::binary_object(m_SerializeBuff.get(), SerializableSize));
+	m_SerializeUserRefs.reset(PhysXContext::getSingleton().m_sdk->createUserReferences());
+	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
+	collection->deserialize(m_SerializeBuff.get(), m_SerializeUserRefs.get(), NULL);
+}
+
+PxCloth * PhysXContext::CreateClothFromMesh(my::OgreMeshPtr mesh, const PxClothParticle* particles)
+{
+	PxClothMeshDesc desc;
+	desc.points.data = (unsigned char *)mesh->LockVertexBuffer(0) + mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
+	desc.points.count = mesh->GetNumVertices();
+	desc.points.stride = mesh->GetNumBytesPerVertex();
+	desc.triangles.data = mesh->LockIndexBuffer();
+	desc.triangles.count = mesh->GetNumFaces();
+	if (mesh->GetOptions() & D3DXMESH_32BIT)
+	{
+		desc.triangles.stride = 3 * sizeof(DWORD);
+	}
+	else
+	{
+		desc.triangles.stride = 3 * sizeof(WORD);
+		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+	}
+
+	PxDefaultMemoryOutputStream writeBuffer;
+	bool status = PhysXContext::getSingleton().m_Cooking->cookClothFabric(desc, (PxVec3&)my::Vector3::Gravity, writeBuffer);
+	mesh->UnlockVertexBuffer();
+	mesh->UnlockIndexBuffer();
+	if (!status)
+	{
+		return NULL;
+	}
+
+	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+	PxClothFabric * fabric(PhysXContext::getSingleton().m_sdk->createClothFabric(readBuffer));
+	m_SerializeObjs.push_back(fabric);
+	return PhysXContext::getSingleton().m_sdk->createCloth(
+		PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, particles, PxClothCollisionData(), PxClothFlags());
 }
 
 void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * path)
