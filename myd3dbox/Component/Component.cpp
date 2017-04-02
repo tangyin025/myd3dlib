@@ -645,6 +645,22 @@ void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
 }
 
+my::AABB ClothComponent::CalculateAABB(void) const
+{
+	AABB ret = RenderComponent::CalculateAABB();
+	if (!m_VertexData.empty())
+	{
+		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
+		const unsigned int NumVertices = m_VertexData.size() / m_VertexStride;
+		for (unsigned int i = 0; i < NumVertices; i++)
+		{
+			unsigned char * pVertex = pVertices + i * m_VertexStride;
+			ret.unionSelf(m_VertexElems.GetPosition(pVertex));
+		}
+	}
+	return ret;
+}
+
 void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	if (!m_VertexData.empty())

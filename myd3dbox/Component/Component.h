@@ -340,6 +340,8 @@ public:
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
+	virtual my::AABB CalculateAABB(void) const;
+
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void Update(float fElapsedTime);

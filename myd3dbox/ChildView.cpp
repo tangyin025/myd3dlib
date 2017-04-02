@@ -306,7 +306,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			{
 				return false;
 			}
-			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+			if (mesh_cmp->m_bUseAnimation
+				&& mesh_cmp->m_Parent
+				&& mesh_cmp->m_Parent->m_Animator
+				&& !mesh_cmp->m_Parent->m_Animator->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -319,7 +322,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
-					mesh_cmp->m_Animator->m_DualQuats);
+					mesh_cmp->m_Parent->m_Animator->m_DualQuats);
 				bool ret = OverlapTestFrustumAndMesh(local_ftm,
 					&vertices[0],
 					vertices.size(),
@@ -371,6 +374,61 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 			if (result == my::IntersectionTests::IntersectionTypeInside || result == my::IntersectionTests::IntersectionTypeIntersect)
 			{
 				return true;
+			}
+		}
+		break;
+
+	case Component::ComponentTypeCloth:
+		{
+			ClothComponent * cloth_cmp = dynamic_cast<ClothComponent *>(cmp);
+			if (cloth_cmp->m_VertexData.empty())
+			{
+				return false;
+			}
+			if (cloth_cmp->m_bUseAnimation
+				&& cloth_cmp->m_Parent
+				&& cloth_cmp->m_Parent->m_Animator
+				&& !cloth_cmp->m_Parent->m_Animator->m_DualQuats.empty())
+			{
+				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
+				my::D3DVertexElementSet elems;
+				elems.InsertPositionElement(0);
+				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					elems,
+					&cloth_cmp->m_VertexData[0],
+					cloth_cmp->m_VertexStride,
+					cloth_cmp->m_VertexElems,
+					cloth_cmp->m_Parent->m_Animator->m_DualQuats);
+				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					&cloth_cmp->m_IndexData[0],
+					true,
+					cloth_cmp->m_IndexData.size() / 3,
+					elems);
+				if (ret)
+				{
+					return true;
+				}
+			}
+			else
+			{
+				bool ret = OverlapTestFrustumAndMesh(local_ftm,
+					&cloth_cmp->m_VertexData[0],
+					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
+					cloth_cmp->m_VertexStride,
+					&cloth_cmp->m_IndexData[0],
+					true,
+					cloth_cmp->m_IndexData.size() / 3,
+					cloth_cmp->m_VertexElems);
+				if (ret)
+				{
+					return true;
+				}
 			}
 		}
 		break;
@@ -449,7 +507,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				return my::RayResult(false, FLT_MAX);
 			}
 			my::RayResult ret;
-			if (mesh_cmp->m_Animator && !mesh_cmp->m_Animator->m_DualQuats.empty())
+			if (mesh_cmp->m_bUseAnimation
+				&& mesh_cmp->m_Parent
+				&& mesh_cmp->m_Parent->m_Animator
+				&& !mesh_cmp->m_Parent->m_Animator->m_DualQuats.empty())
 			{
 				std::vector<my::Vector3> vertices(mesh->GetNumVertices());
 				my::D3DVertexElementSet elems;
@@ -462,7 +523,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 					mesh->LockVertexBuffer(D3DLOCK_READONLY),
 					mesh->GetNumBytesPerVertex(),
 					mesh->m_VertexElems,
-					mesh_cmp->m_Animator->m_DualQuats);
+					mesh_cmp->m_Parent->m_Animator->m_DualQuats);
 				ret = OverlapTestRayAndMesh(local_ray,
 					&vertices[0],
 					vertices.size(),
@@ -510,6 +571,59 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			ret = my::IntersectionTests::rayAndTriangle(ray.p, ray.d, v[2], v[1], v[3]);
 			if (ret.first)
 			{
+				return ret;
+			}
+		}
+		break;
+
+	case Component::ComponentTypeCloth:
+		{
+			ClothComponent * cloth_cmp = dynamic_cast<ClothComponent *>(cmp);
+			if (cloth_cmp->m_VertexData.empty())
+			{
+				return my::RayResult(false, FLT_MAX);
+			}
+			my::RayResult ret;
+			if (cloth_cmp->m_bUseAnimation
+				&& cloth_cmp->m_Parent
+				&& cloth_cmp->m_Parent->m_Animator
+				&& !cloth_cmp->m_Parent->m_Animator->m_DualQuats.empty())
+			{
+				std::vector<my::Vector3> vertices(cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride);
+				my::D3DVertexElementSet elems;
+				elems.InsertPositionElement(0);
+				my::OgreMesh::ComputeDualQuaternionSkinnedVertices(
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					elems,
+					&cloth_cmp->m_VertexData[0],
+					cloth_cmp->m_VertexStride,
+					cloth_cmp->m_VertexElems,
+					cloth_cmp->m_Parent->m_Animator->m_DualQuats);
+				ret = OverlapTestRayAndMesh(local_ray,
+					&vertices[0],
+					vertices.size(),
+					sizeof(vertices[0]),
+					&cloth_cmp->m_IndexData[0],
+					true,
+					cloth_cmp->m_IndexData.size() / 3,
+					elems);
+			}
+			else
+			{
+				ret = OverlapTestRayAndMesh(local_ray,
+					&cloth_cmp->m_VertexData[0],
+					cloth_cmp->m_VertexData.size() / cloth_cmp->m_VertexStride,
+					cloth_cmp->m_VertexStride,
+					&cloth_cmp->m_IndexData[0],
+					true,
+					cloth_cmp->m_IndexData.size() / 3,
+					cloth_cmp->m_VertexElems);
+			}
+			if (ret.first)
+			{
+				ret.second = (local_ray.d * ret.second).transformNormal(cloth_cmp->m_World).magnitude();
 				return ret;
 			}
 		}
