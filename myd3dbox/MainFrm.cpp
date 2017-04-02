@@ -939,10 +939,10 @@ void CMainFrame::OnEditDelete()
 		{
 			ASSERT((*cmp_iter)->m_Type == Component::ComponentTypeActor);
 			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
-			m_Root.RemoveActor(
-				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
 			actor->OnLeavePxScene(m_PxScene.get());
 			m_ViewedActors.erase(actor);
+			m_Root.RemoveActor(
+				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
 		}
 	}
 	m_selcmps.clear();
