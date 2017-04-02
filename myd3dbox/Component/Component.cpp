@@ -24,6 +24,8 @@ BOOST_CLASS_EXPORT(RenderComponent)
 
 BOOST_CLASS_EXPORT(MeshComponent)
 
+BOOST_CLASS_EXPORT(ClothComponent)
+
 BOOST_CLASS_EXPORT(EmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
@@ -94,6 +96,8 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 
 void Component::RequestResource(void)
 {
+	m_Requested = true;
+
 	if (m_Animator)
 	{
 		m_Animator->RequestResource();
@@ -108,6 +112,8 @@ void Component::RequestResource(void)
 
 void Component::ReleaseResource(void)
 {
+	m_Requested = false;
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -117,6 +123,24 @@ void Component::ReleaseResource(void)
 	if (m_Animator)
 	{
 		m_Animator->ReleaseResource();
+	}
+}
+
+void Component::OnEnterPxScene(PxScene * scene)
+{
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->OnEnterPxScene(scene);
+	}
+}
+
+void Component::OnLeavePxScene(PxScene * scene)
+{
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->OnLeavePxScene(scene);
 	}
 }
 
@@ -377,15 +401,9 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 
-	PxSerialObjectRef fabric_ref = (PxSerialObjectRef)m_Cloth->getFabric();
-	PxSerialObjectRef cloth_ref = (PxSerialObjectRef)m_Cloth.get();
-	ar << BOOST_SERIALIZATION_NVP(fabric_ref);
-	ar << BOOST_SERIALIZATION_NVP(cloth_ref);
 	PxDefaultMemoryOutputStream ostr;
 	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
 	m_Cloth->collectForExport(*collection);
-	collection->addExternalRef(*m_Cloth->getFabric(), (PxSerialObjectRef)fabric_ref);
-	collection->setObjectRef(*m_Cloth, (PxSerialObjectRef)cloth_ref);
 	collection->serialize(ostr, false);
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
@@ -412,20 +430,37 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 
-	PxSerialObjectRef fabric_ref;
-	PxSerialObjectRef cloth_ref;
-	ar >> BOOST_SERIALIZATION_NVP(fabric_ref);
-	ar >> BOOST_SERIALIZATION_NVP(cloth_ref);
 	unsigned int ClothSize;
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	PhysXPtr<PxUserReferences> externalRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
-	externalRefs->setObjectRef(*PhysXContext::getSingleton().m_SerializeUserRefs->getObjectFromRef(fabric_ref), fabric_ref);
 	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
 	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), externalRefs.get());
-	m_Cloth.reset(userRefs->getObjectFromRef(fabric_ref)->is<PxCloth>());
+	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), NULL);
+	ar >> BOOST_SERIALIZATION_NVP(m_particles);
+	const unsigned int numObjs = collection->getNbObjects();
+	for (unsigned int i = 0; i < numObjs; i++)
+	{
+		PxSerializable * obj = collection->getObject(i);
+		switch (obj->getConcreteType())
+		{
+		case PxConcreteType::eCLOTH_FABRIC:
+			m_Fabric.reset(obj->is<PxClothFabric>());
+			break;
+		case PxConcreteType::eCLOTH:
+			m_Cloth.reset(obj->is<PxCloth>());
+			break;
+		}
+	}
+
+	std::vector<D3DVERTEXELEMENT9> velist = m_VertexElems.BuildVertexElementList(0);
+	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
+	velist.push_back(ve_end);
+	HRESULT hr;
+	if (FAILED(hr = D3DContext::getSingleton().m_d3dDevice->CreateVertexDeclaration(&velist[0], &m_Decl)))
+	{
+		THROW_D3DEXCEPTION(hr);
+	}
 }
 
 void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
@@ -490,6 +525,48 @@ void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
 	}
 }
 
+void ClothComponent::RequestResource(void)
+{
+	RenderComponent::RequestResource();
+
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	{
+		(*mat_iter)->RequestResource();
+	}
+}
+
+void ClothComponent::ReleaseResource(void)
+{
+	MaterialPtrList::iterator mat_iter = m_MaterialList.begin();
+	for (; mat_iter != m_MaterialList.end(); mat_iter++)
+	{
+		(*mat_iter)->ReleaseResource();
+	}
+
+	RenderComponent::ReleaseResource();
+}
+
+void ClothComponent::OnEnterPxScene(PxScene * scene)
+{
+	RenderComponent::OnEnterPxScene(scene);
+
+	if (m_Cloth)
+	{
+		scene->addActor(*m_Cloth);
+	}
+}
+
+void ClothComponent::OnLeavePxScene(PxScene * scene)
+{
+	RenderComponent::OnLeavePxScene(scene);
+
+	if (m_Cloth)
+	{
+		scene->removeActor(*m_Cloth);
+	}
+}
+
 void ClothComponent::OnResetDevice(void)
 {
 }
@@ -502,7 +579,17 @@ void ClothComponent::OnDestroyDevice(void)
 {
 	m_Decl.Release();
 
-	m_Cloth.reset();
+	if (m_Cloth)
+	{
+		if (IsRequested())
+		{
+			PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_Cloth);
+		}
+		m_Fabric.reset();
+		m_Cloth.reset();
+	}
+
+	m_SerializeBuff.reset();
 }
 
 void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

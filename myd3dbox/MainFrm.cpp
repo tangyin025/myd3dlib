@@ -45,6 +45,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnUpdateComponentSphericalemitter)
 	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_TERRAIN, &CMainFrame::OnUpdateComponentTerrain)
+	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CLOTH, &CMainFrame::OnUpdateComponentCloth)
 	ON_COMMAND(ID_RIGID_SPHERE, &CMainFrame::OnRigidSphere)
 	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
 	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
@@ -438,6 +440,7 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 			{
 				(*cmp_iter)->ReleaseResource();
 			}
+			(*cmp_iter)->OnLeavePxScene(m_PxScene.get());
 			cmp_iter = m_ViewedActors.erase(cmp_iter);
 		}
 		else
@@ -467,6 +470,7 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 					actor->RequestResource();
 				}
 				pFrame->m_ViewedActors.insert(actor);
+				actor->OnEnterPxScene(pFrame->m_PxScene.get());
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);
 		}
@@ -571,6 +575,7 @@ void CMainFrame::OnFileOpen()
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
 	ia >> BOOST_SERIALIZATION_NVP(m_Root);
 }
 
@@ -595,6 +600,7 @@ void CMainFrame::OnFileSave()
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
+	oa << boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
 	oa << BOOST_SERIALIZATION_NVP(m_Root);
 }
 
@@ -603,6 +609,7 @@ void CMainFrame::OnCreateActor()
 	// TODO: Add your command handler code here
 	ActorPtr actor(new Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
+	actor->OnEnterPxScene(m_PxScene.get());
 	actor->UpdateWorld();
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
@@ -624,42 +631,43 @@ void CMainFrame::OnComponentMesh()
 	}
 
 	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK == dlg.DoModal())
+	if (IDOK != dlg.DoModal())
 	{
-		CString strPathName = dlg.GetPathName();
-		my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
-		if (mesh)
-		{
-			MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
-			mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
-			mesh_cmp->m_MeshRes.OnReady(mesh);
-			for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-			{
-				MaterialPtr lambert1(new Material());
-				lambert1->m_Shader = "lambert1.fx";
-				lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-				lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-				lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-				lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-				mesh_cmp->m_MaterialList.push_back(lambert1);
-			}
-			mesh_cmp->RequestResource();
-			(*cmp_iter)->AddComponent(mesh_cmp);
-			mesh_cmp->UpdateWorld();
-
-			Actor * actor = (*cmp_iter)->GetTopParent();
-			actor->UpdateAABB();
-			OnActorPosChanged(actor);
-			UpdateSelBox();
-
-			EventArg arg;
-			m_EventAttributeChanged(&arg);
-		}
-		else
-		{
-			MessageBox(strPathName, _T("Load Mesh Error"), MB_OK | MB_ICONERROR);
-		}
+		return;
 	}
+
+	CString strPathName = dlg.GetPathName();
+	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+	if (!mesh)
+	{
+		return;
+	}
+
+	MeshComponentPtr mesh_cmp(new MeshComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	mesh_cmp->m_MeshRes.m_Path = ts2ms((LPCTSTR)strPathName);
+	mesh_cmp->m_MeshRes.OnReady(mesh);
+	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+	{
+		MaterialPtr lambert1(new Material());
+		lambert1->m_Shader = "lambert1.fx";
+		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+		mesh_cmp->m_MaterialList.push_back(lambert1);
+	}
+	mesh_cmp->RequestResource();
+	mesh_cmp->OnEnterPxScene(m_PxScene.get());
+	(*cmp_iter)->AddComponent(mesh_cmp);
+	mesh_cmp->UpdateWorld();
+
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
+
+	EventArg arg;
+	m_EventAttributeChanged(&arg);
 }
 
 void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
@@ -686,6 +694,7 @@ void CMainFrame::OnComponentEmitter()
 	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
+	emit_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(emit_cmp);
 	emit_cmp->UpdateWorld();
 
@@ -740,6 +749,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
+	sphe_emit_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(sphe_emit_cmp);
 	sphe_emit_cmp->UpdateWorld();
 
@@ -776,6 +786,7 @@ void CMainFrame::OnComponentTerrain()
 	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
 	terrain->m_Material = lambert1;
 	terrain->RequestResource();
+	terrain->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(terrain);
 	terrain->UpdateWorld();
 
@@ -789,6 +800,61 @@ void CMainFrame::OnComponentTerrain()
 }
 
 void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
+}
+
+void CMainFrame::OnComponentCloth()
+{
+	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
+
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK != dlg.DoModal())
+	{
+		return;
+	}
+
+	CString strPathName = dlg.GetPathName();
+	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+	if (!mesh)
+	{
+		return;
+	}
+
+	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	cloth_cmp->CreateFromMesh(mesh);
+	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+	{
+		MaterialPtr lambert1(new Material());
+		lambert1->m_Shader = "lambert1.fx";
+		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+		cloth_cmp->m_MaterialList.push_back(lambert1);
+	}
+	cloth_cmp->RequestResource();
+	cloth_cmp->OnEnterPxScene(m_PxScene.get());
+	(*cmp_iter)->AddComponent(cloth_cmp);
+	cloth_cmp->UpdateWorld();
+
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
+
+	EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selcmps.empty());
@@ -875,6 +941,7 @@ void CMainFrame::OnEditDelete()
 			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
 			m_Root.RemoveActor(
 				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
+			actor->OnLeavePxScene(m_PxScene.get());
 			m_ViewedActors.erase(actor);
 		}
 	}

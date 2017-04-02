@@ -794,6 +794,7 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 			{
 				(*cmp_iter)->ReleaseResource();
 			}
+			(*cmp_iter)->OnLeavePxScene(m_PxScene.get());
 			cmp_iter = m_ViewedActors.erase(cmp_iter);
 		}
 		else
@@ -823,6 +824,7 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 					actor->RequestResource();
 				}
 				game->m_ViewedActors.insert(actor);
+				actor->OnEnterPxScene(game->m_PxScene.get());
 			}
 			actor->UpdateLod(ViewedPos, TargetPos);
 		}

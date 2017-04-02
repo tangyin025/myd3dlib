@@ -94,6 +94,8 @@ public:
 	afx_msg void OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentTerrain();
 	afx_msg void OnUpdateComponentTerrain(CCmdUI *pCmdUI);
+	afx_msg void OnComponentCloth();
+	afx_msg void OnUpdateComponentCloth(CCmdUI *pCmdUI);
 	afx_msg void OnRigidSphere();
 	afx_msg void OnRigidPlane();
 	afx_msg void OnRigidCapsule();

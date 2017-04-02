@@ -85,6 +85,8 @@ void PhysXContext::Shutdown(void)
 
 	m_Cooking.reset();
 
+	m_SerializeUserRefs.reset();
+
 	m_sdk.reset();
 
 	m_Foundation.reset();
@@ -99,7 +101,6 @@ void PhysXContext::save<boost::archive::polymorphic_oarchive>(boost::archive::po
 	for (; obj_iter != m_SerializeObjs.end(); obj_iter++)
 	{
 		(*obj_iter)->collectForExport(*collection);
-		collection->setObjectRef(*(*obj_iter), (PxSerialObjectRef)(*obj_iter));
 	}
 	collection->serialize(ostr, false);
 	unsigned int SerializableSize = ostr.getSize();
@@ -147,8 +148,7 @@ PxCloth * PhysXContext::CreateClothFromMesh(my::OgreMeshPtr mesh, const PxClothP
 	}
 
 	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	PxClothFabric * fabric(PhysXContext::getSingleton().m_sdk->createClothFabric(readBuffer));
-	m_SerializeObjs.push_back(fabric);
+	PhysXPtr<PxClothFabric> fabric(PhysXContext::getSingleton().m_sdk->createClothFabric(readBuffer));
 	return PhysXContext::getSingleton().m_sdk->createCloth(
 		PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, particles, PxClothCollisionData(), PxClothFlags());
 }

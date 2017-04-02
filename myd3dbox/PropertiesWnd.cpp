@@ -847,8 +847,6 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 {
 	switch (type)
 	{
-	case Component::ComponentTypeComponent:
-		return 3;
 	case Component::ComponentTypeActor:
 		return GetComponentAttrCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeMesh:
@@ -860,7 +858,7 @@ unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type
 	case Component::ComponentTypeTerrain:
 		return GetComponentAttrCount(Component::ComponentTypeComponent) + 8;
 	}
-	return 0;
+	return 3;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)

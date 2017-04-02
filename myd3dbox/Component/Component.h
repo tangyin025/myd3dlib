@@ -95,6 +95,8 @@ public:
 
 	Component * m_Parent;
 
+	bool m_Requested;
+
 public:
 	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
@@ -103,6 +105,7 @@ public:
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
 		, m_Parent(NULL)
+		, m_Requested(false)
 	{
 	}
 
@@ -113,6 +116,7 @@ public:
 		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
 		, m_Parent(NULL)
+		, m_Requested(false)
 	{
 	}
 
@@ -134,9 +138,18 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	bool IsRequested(void) const
+	{
+		return m_Requested;
+	}
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
+
+	virtual void OnEnterPxScene(PxScene * scene);
+
+	virtual void OnLeavePxScene(PxScene * scene);
 
 	virtual void Update(float fElapsedTime);
 
@@ -276,6 +289,8 @@ public:
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
+	PhysXPtr<PxClothFabric> m_Fabric;
+
 	PhysXPtr<PxCloth> m_Cloth;
 
 public:
@@ -309,6 +324,14 @@ public:
 
 	void CreateFromMesh(my::OgreMeshPtr mesh);
 
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual void OnEnterPxScene(PxScene * scene);
+
+	virtual void OnLeavePxScene(PxScene * scene);
+
 	virtual void OnResetDevice(void);
 
 	virtual void OnLostDevice(void);
@@ -323,6 +346,8 @@ public:
 
 	void UpdateCloth(void);
 };
+
+typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;
 
 class EmitterComponent
 	: public RenderComponent

@@ -33,8 +33,6 @@ public:
 
 	PhysXPtr<PxControllerManager> m_ControllerMgr;
 
-	std::vector<boost::shared_ptr<unsigned char> > m_SerializeBuffs;
-
 	typedef std::vector<PxSerializable *> PxSerializableList;
 
 	PxSerializableList m_SerializeObjs;

@@ -166,6 +166,7 @@ BEGIN
             MENUITEM "Emitter",                     ID_COMPONENT_EMITTER
             MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
             MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
+            MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
             POPUP "Rigid"
             BEGIN
                 MENUITEM "Sphere",                      ID_RIGID_SPHERE
