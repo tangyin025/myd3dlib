@@ -216,7 +216,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
 
-	SetTimer(1, 33, NULL);
+	SetTimer(1, 16, NULL);
 
 	//m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
 	//m_emitter->m_Emitter.reset(new my::Emitter());
@@ -829,7 +829,7 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
-	cloth_cmp->CreateClothFromMesh(mesh, 0);
+	cloth_cmp->CreateClothFromMesh(mesh, 1);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr lambert1(new Material());
@@ -989,7 +989,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 	//// TODO: Add your message handler code here and/or call default
 	if (!m_selcmps.empty())
 	{
-		const float fElapsedTime = 0.033f;
+		const float fElapsedTime = 0.016f;
 		PhysXSceneContext::AdvanceSync(fElapsedTime);
 
 		ComponentSet::iterator cmp_iter = m_selcmps.begin();
