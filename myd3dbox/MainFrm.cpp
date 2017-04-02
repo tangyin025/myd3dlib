@@ -987,11 +987,11 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
-	const float fElapsedTime = 0.033f;
-	PhysXSceneContext::AdvanceSync(fElapsedTime);
-
 	if (!m_selcmps.empty())
 	{
+		const float fElapsedTime = 0.033f;
+		PhysXSceneContext::AdvanceSync(fElapsedTime);
+
 		ComponentSet::iterator cmp_iter = m_selcmps.begin();
 		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 		{
