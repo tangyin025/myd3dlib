@@ -829,7 +829,7 @@ void CMainFrame::OnComponentCloth()
 	}
 
 	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
-	cloth_cmp->CreateClothFromMesh(mesh);
+	cloth_cmp->CreateClothFromMesh(mesh, 0);
 	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
 	{
 		MaterialPtr lambert1(new Material());

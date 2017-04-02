@@ -463,7 +463,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	}
 }
 
-void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
+void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone_id)
 {
 	if (m_VertexData.empty())
 	{
@@ -496,6 +496,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 		mesh->UnlockIndexBuffer();
 
 		m_AttribTable = mesh->m_AttribTable;
+		m_VertexElems = mesh->m_VertexElems;
 		std::vector<D3DVERTEXELEMENT9> velist(MAX_FVF_DECL_SIZE);
 		mesh->GetDeclaration(&velist[0]);
 		HRESULT hr;
@@ -504,21 +505,25 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 			THROW_D3DEXCEPTION(hr);
 		}
 
-		m_VertexElems = mesh->m_VertexElems;
-
 		m_particles.resize(mesh->GetNumVertices());
 		unsigned char * pVertices = (unsigned char *)&m_VertexData[0];
 		for(unsigned int i = 0; i < m_particles.size(); i++) {
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
 			m_particles[i].pos = (PxVec3 &)m_VertexElems.GetPosition(pVertex);
-			//unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
-			//BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
-			//m_particles[i].invWeight = (
-			//	pIndices[0] == root_i || hierarchy->HaveChild(root_i, pIndices[0]) ||
-			//	pIndices[1] == root_i || hierarchy->HaveChild(root_i, pIndices[1]) ||
-			//	pIndices[2] == root_i || hierarchy->HaveChild(root_i, pIndices[2]) ||
-			//	pIndices[3] == root_i || hierarchy->HaveChild(root_i, pIndices[3])) ? 1 / 1.0f : 0.0f;
-			m_particles[i].invWeight = 1.0f;
+			if (m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
+			{
+				BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+				_ASSERT(m_VertexElems.elems[D3DDECLUSAGE_BLENDWEIGHT][0].Type == D3DDECLTYPE_FLOAT4);
+				unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
+				my::Vector4 & Weights = m_VertexElems.GetBlendWeight(pVertex);
+				m_particles[i].invWeight = 0;
+				for (unsigned int j = 0; j < D3DVertexElementSet::MAX_BONE_INDICES; j++)
+				{
+					m_particles[i].invWeight += (pIndices[j] == bone_id ? Weights[j] : 0);
+				}
+			}
+			else
+				m_particles[i].invWeight = 1.0f;
 		}
 
 		PxClothMeshDesc desc;
