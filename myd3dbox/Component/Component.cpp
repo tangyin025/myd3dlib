@@ -463,7 +463,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	}
 }
 
-void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
+void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh)
 {
 	if (m_VertexData.empty())
 	{
@@ -511,8 +511,8 @@ void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
 		for(unsigned int i = 0; i < m_particles.size(); i++) {
 			unsigned char * pVertex = pVertices + i * m_VertexStride;
 			m_particles[i].pos = (PxVec3 &)m_VertexElems.GetPosition(pVertex);
-			unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
-			BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
+			//unsigned char * pIndices = (unsigned char *)&m_VertexElems.GetBlendIndices(pVertex);
+			//BOOST_STATIC_ASSERT(4 == my::D3DVertexElementSet::MAX_BONE_INDICES);
 			//m_particles[i].invWeight = (
 			//	pIndices[0] == root_i || hierarchy->HaveChild(root_i, pIndices[0]) ||
 			//	pIndices[1] == root_i || hierarchy->HaveChild(root_i, pIndices[1]) ||
@@ -521,7 +521,35 @@ void ClothComponent::CreateFromMesh(my::OgreMeshPtr mesh)
 			m_particles[i].invWeight = 1.0f;
 		}
 
-		m_Cloth.reset(PhysXContext::getSingleton().CreateClothFromMesh(mesh, &m_particles[0]));
+		PxClothMeshDesc desc;
+		desc.points.data = (unsigned char *)mesh->LockVertexBuffer(0) + mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
+		desc.points.count = mesh->GetNumVertices();
+		desc.points.stride = mesh->GetNumBytesPerVertex();
+		desc.triangles.data = mesh->LockIndexBuffer();
+		desc.triangles.count = mesh->GetNumFaces();
+		if (mesh->GetOptions() & D3DXMESH_32BIT)
+		{
+			desc.triangles.stride = 3 * sizeof(DWORD);
+		}
+		else
+		{
+			desc.triangles.stride = 3 * sizeof(WORD);
+			desc.flags |= PxMeshFlag::e16_BIT_INDICES;
+		}
+
+		PxDefaultMemoryOutputStream writeBuffer;
+		bool status = PhysXContext::getSingleton().m_Cooking->cookClothFabric(desc, (PxVec3&)my::Vector3::Gravity, writeBuffer);
+		mesh->UnlockVertexBuffer();
+		mesh->UnlockIndexBuffer();
+		if (!status)
+		{
+			return;
+		}
+
+		PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		PhysXPtr<PxClothFabric> fabric(PhysXContext::getSingleton().m_sdk->createClothFabric(readBuffer));
+		m_Cloth.reset(PhysXContext::getSingleton().m_sdk->createCloth(
+			PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, &m_particles[0], PxClothCollisionData(), PxClothFlags()));
 	}
 }
 

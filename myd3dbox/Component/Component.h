@@ -322,7 +322,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void CreateFromMesh(my::OgreMeshPtr mesh);
+	void CreateClothFromMesh(my::OgreMeshPtr mesh);
 
 	virtual void RequestResource(void);
 

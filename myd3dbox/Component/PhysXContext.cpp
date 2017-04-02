@@ -85,8 +85,6 @@ void PhysXContext::Shutdown(void)
 
 	m_Cooking.reset();
 
-	m_SerializeUserRefs.reset();
-
 	m_sdk.reset();
 
 	m_Foundation.reset();
@@ -115,42 +113,9 @@ void PhysXContext::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 	ar >> BOOST_SERIALIZATION_NVP(SerializableSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(SerializableSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_SerializeObjs", boost::serialization::binary_object(m_SerializeBuff.get(), SerializableSize));
-	m_SerializeUserRefs.reset(PhysXContext::getSingleton().m_sdk->createUserReferences());
 	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-	collection->deserialize(m_SerializeBuff.get(), m_SerializeUserRefs.get(), NULL);
-}
-
-PxCloth * PhysXContext::CreateClothFromMesh(my::OgreMeshPtr mesh, const PxClothParticle* particles)
-{
-	PxClothMeshDesc desc;
-	desc.points.data = (unsigned char *)mesh->LockVertexBuffer(0) + mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
-	desc.points.count = mesh->GetNumVertices();
-	desc.points.stride = mesh->GetNumBytesPerVertex();
-	desc.triangles.data = mesh->LockIndexBuffer();
-	desc.triangles.count = mesh->GetNumFaces();
-	if (mesh->GetOptions() & D3DXMESH_32BIT)
-	{
-		desc.triangles.stride = 3 * sizeof(DWORD);
-	}
-	else
-	{
-		desc.triangles.stride = 3 * sizeof(WORD);
-		desc.flags |= PxMeshFlag::e16_BIT_INDICES;
-	}
-
-	PxDefaultMemoryOutputStream writeBuffer;
-	bool status = PhysXContext::getSingleton().m_Cooking->cookClothFabric(desc, (PxVec3&)my::Vector3::Gravity, writeBuffer);
-	mesh->UnlockVertexBuffer();
-	mesh->UnlockIndexBuffer();
-	if (!status)
-	{
-		return NULL;
-	}
-
-	PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	PhysXPtr<PxClothFabric> fabric(PhysXContext::getSingleton().m_sdk->createClothFabric(readBuffer));
-	return PhysXContext::getSingleton().m_sdk->createCloth(
-		PxTransform(PxVec3(0,0,0), PxQuat(0,0,0,1)), *fabric, particles, PxClothCollisionData(), PxClothFlags());
+	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
+	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), NULL);
 }
 
 void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * path)

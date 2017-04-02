@@ -39,8 +39,6 @@ public:
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
-	PhysXPtr<PxUserReferences> m_SerializeUserRefs;
-
 public:
 	PhysXContext(void)
 	{
@@ -61,8 +59,6 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
-
-	PxCloth * CreateClothFromMesh(my::OgreMeshPtr mesh, const PxClothParticle* particles);
 
 	void ExportStaticCollision(my::OctTree & octRoot, const char * path);
 };
