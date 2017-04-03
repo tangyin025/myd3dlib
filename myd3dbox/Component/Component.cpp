@@ -712,25 +712,31 @@ void ClothComponent::UpdateCloth(void)
 			unsigned char * pVertices = &m_VertexData[0];
 			const DWORD NbParticles = m_Cloth->getNbParticles();
 			m_NewParticles.resize(NbParticles);
-			for (unsigned int i = 0; i < NbParticles; i++)
+			if (m_bUseAnimation
+				&& m_Parent && m_Parent->m_Animator && !m_Parent->m_Animator->m_DualQuats.empty()
+				&& m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
-				void * pVertex = pVertices + i * m_VertexStride;
-				m_NewParticles[i].invWeight = readData->particles[i].invWeight;
-				if (0 == m_NewParticles[i].invWeight)
+				for (unsigned int i = 0; i < NbParticles; i++)
 				{
-					//my::Vector3 pos;
-					//my::TransformList::TransformVertexWithDualQuaternionList(pos,
-					//	(my::Vector3 &)m_particles[i].pos,
-					//	m_VertexElems.GetBlendIndices(pVertex),
-					//	m_VertexElems.GetBlendWeight(pVertex), dualQuaternionList);
-					//m_NewParticles[i].pos = (PxVec3 &)pos;
-					m_NewParticles[i].pos = m_particles[i].pos;
+					void * pVertex = pVertices + i * m_VertexStride;
+					m_NewParticles[i].invWeight = readData->particles[i].invWeight;
+					my::Vector3 pos = m_Parent->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
+						(my::Vector3 &)m_particles[i].pos,
+						m_VertexElems.GetBlendIndices(pVertex),
+						m_VertexElems.GetBlendWeight(pVertex));
+					m_NewParticles[i].pos = (PxVec3 &)pos.lerp((Vector3 &)readData->particles[i].pos, m_NewParticles[i].invWeight);
+					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
 				}
-				else
+			}
+			else
+			{
+				for (unsigned int i = 0; i < NbParticles; i++)
 				{
+					void * pVertex = pVertices + i * m_VertexStride;
+					m_NewParticles[i].invWeight = readData->particles[i].invWeight;
 					m_NewParticles[i].pos = readData->particles[i].pos;
+					m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
 				}
-				m_VertexElems.SetPosition(pVertex, (my::Vector3 &)m_NewParticles[i].pos);
 			}
 			readData->unlock();
 			m_Cloth->setParticles(&m_NewParticles[0], NULL);
