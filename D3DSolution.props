@@ -1,0 +1,29 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets">
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros">
+    <BOOST_DIR>D:\Works\OpenSource\boost_1_54_0\</BOOST_DIR>
+    <PHYSX_DIR>D:\Works\OpenSource\PhysX-3.3\PhysXSDK\</PHYSX_DIR>
+    <FMOD_DIR>D:\Works\OpenSource\fmodapi44425win-installer\</FMOD_DIR>
+    <MAYA_DIR>C:\Program Files\Autodesk\Maya2009\</MAYA_DIR>
+  </PropertyGroup>
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="BOOST_DIR">
+      <Value>$(BOOST_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="PHYSX_DIR">
+      <Value>$(PHYSX_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="FMOD_DIR">
+      <Value>$(FMOD_DIR)</Value>
+    </BuildMacro>
+    <BuildMacro Include="MAYA_DIR">
+      <Value>$(MAYA_DIR)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>

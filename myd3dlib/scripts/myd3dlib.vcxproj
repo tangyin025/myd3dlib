@@ -1,0 +1,144 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{1F5CF866-21B8-4F4B-B9D1-6159003E468F}</ProjectGuid>
+    <RootNamespace>myd3dlib</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\D3DSolution.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\D3DSolution.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(SolutionDir)myd3dlib\include;$(BOOST_DIR);$(FMOD_DIR)api\inc;$(FMOD_DIR)fmoddesignerapi\api\inc;$(SolutionDir)zlib\include;$(SolutionDir)zziplib\include;$(SolutionDir)freetype\include;$(SolutionDir)lua51\include;$(SolutionDir)luabind\include;$(SolutionDir)Opcode;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;BOOST_ALL_NO_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader>Use</PrecompiledHeader>
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\DXUTenum.cpp" />
+    <ClCompile Include="..\src\ImeUi.cpp" />
+    <ClCompile Include="..\src\libc.cpp" />
+    <ClCompile Include="..\src\myCollision.cpp" />
+    <ClCompile Include="..\src\myDxutApp.cpp" />
+    <ClCompile Include="..\src\myEffect.cpp" />
+    <ClCompile Include="..\src\myEmitter.cpp" />
+    <ClCompile Include="..\src\myException.cpp" />
+    <ClCompile Include="..\src\myFont.cpp" />
+    <ClCompile Include="..\src\myInput.cpp" />
+    <ClCompile Include="..\src\myMath.cpp" />
+    <ClCompile Include="..\src\myMesh.cpp" />
+    <ClCompile Include="..\src\myOctree.cpp" />
+    <ClCompile Include="..\src\myPhysics.cpp" />
+    <ClCompile Include="..\src\myResource.cpp" />
+    <ClCompile Include="..\src\mySingleton.cpp" />
+    <ClCompile Include="..\src\mySkeleton.cpp" />
+    <ClCompile Include="..\src\mySound.cpp" />
+    <ClCompile Include="..\src\mySpline.cpp" />
+    <ClCompile Include="..\src\myTask.cpp" />
+    <ClCompile Include="..\src\myTexture.cpp" />
+    <ClCompile Include="..\src\myThread.cpp" />
+    <ClCompile Include="..\src\myUi.cpp" />
+    <ClCompile Include="..\src\myUtility.cpp" />
+    <ClCompile Include="..\src\PrintCallStack.cpp" />
+    <ClCompile Include="..\src\stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\include\DXUTenum.h" />
+    <ClInclude Include="..\include\ImeUi.h" />
+    <ClInclude Include="..\include\libc.h" />
+    <ClInclude Include="..\include\myCollision.h" />
+    <ClInclude Include="..\include\myD3dLib.h" />
+    <ClInclude Include="..\include\myDxutApp.h" />
+    <ClInclude Include="..\include\myEffect.h" />
+    <ClInclude Include="..\include\myEmitter.h" />
+    <ClInclude Include="..\include\myException.h" />
+    <ClInclude Include="..\include\myFont.h" />
+    <ClInclude Include="..\include\myInput.h" />
+    <ClInclude Include="..\include\myMath.h" />
+    <ClInclude Include="..\include\myMesh.h" />
+    <ClInclude Include="..\include\myOctree.h" />
+    <ClInclude Include="..\include\myPhysics.h" />
+    <ClInclude Include="..\include\myResource.h" />
+    <ClInclude Include="..\include\mySingleton.h" />
+    <ClInclude Include="..\include\mySkeleton.h" />
+    <ClInclude Include="..\include\mySound.h" />
+    <ClInclude Include="..\include\mySpline.h" />
+    <ClInclude Include="..\include\myTask.h" />
+    <ClInclude Include="..\include\myTexture.h" />
+    <ClInclude Include="..\include\myThread.h" />
+    <ClInclude Include="..\include\myUi.h" />
+    <ClInclude Include="..\include\myUtility.h" />
+    <ClInclude Include="..\include\PrintCallStack.h" />
+    <ClInclude Include="..\include\rapidxml.hpp" />
+    <ClInclude Include="..\include\rapidxml_print.hpp" />
+    <ClInclude Include="..\src\stdafx.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

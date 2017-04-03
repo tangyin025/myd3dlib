@@ -1,0 +1,123 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{97882A3E-FE4E-4CFF-9863-517FFD484289}</ProjectGuid>
+    <RootNamespace>libboost_serialization</RootNamespace>
+    <Keyword>Win32Proj</Keyword>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <PlatformToolset>v110</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\D3DSolution.props" />
+  </ImportGroup>
+  <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\D3DSolution.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <_ProjectFileVersion>11.0.50727.1</_ProjectFileVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <OutDir>$(SolutionDir)$(Configuration)\</OutDir>
+    <IntDir>$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <MinimalRebuild>true</MinimalRebuild>
+      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <Optimization>MaxSpeed</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <AdditionalIncludeDirectories>$(BOOST_DIR);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_LIB;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <PrecompiledHeader />
+      <WarningLevel>Level3</WarningLevel>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\archive_exception.cpp" />
+    <ClCompile Include="..\src\basic_archive.cpp" />
+    <ClCompile Include="..\src\basic_iarchive.cpp" />
+    <ClCompile Include="..\src\basic_iserializer.cpp" />
+    <ClCompile Include="..\src\basic_oarchive.cpp" />
+    <ClCompile Include="..\src\basic_oserializer.cpp" />
+    <ClCompile Include="..\src\basic_pointer_iserializer.cpp" />
+    <ClCompile Include="..\src\basic_pointer_oserializer.cpp" />
+    <ClCompile Include="..\src\basic_serializer_map.cpp" />
+    <ClCompile Include="..\src\basic_text_iprimitive.cpp" />
+    <ClCompile Include="..\src\basic_text_oprimitive.cpp" />
+    <ClCompile Include="..\src\basic_text_wiprimitive.cpp" />
+    <ClCompile Include="..\src\basic_text_woprimitive.cpp" />
+    <ClCompile Include="..\src\basic_xml_archive.cpp" />
+    <ClCompile Include="..\src\binary_iarchive.cpp" />
+    <ClCompile Include="..\src\binary_oarchive.cpp" />
+    <ClCompile Include="..\src\binary_wiarchive.cpp" />
+    <ClCompile Include="..\src\binary_woarchive.cpp" />
+    <ClCompile Include="..\src\codecvt_null.cpp" />
+    <ClCompile Include="..\src\extended_type_info.cpp" />
+    <ClCompile Include="..\src\extended_type_info_no_rtti.cpp" />
+    <ClCompile Include="..\src\extended_type_info_typeid.cpp" />
+    <ClCompile Include="..\src\polymorphic_iarchive.cpp" />
+    <ClCompile Include="..\src\polymorphic_oarchive.cpp" />
+    <ClCompile Include="..\src\shared_ptr_helper.cpp" />
+    <ClCompile Include="..\src\stl_port.cpp" />
+    <ClCompile Include="..\src\text_iarchive.cpp" />
+    <ClCompile Include="..\src\text_oarchive.cpp" />
+    <ClCompile Include="..\src\text_wiarchive.cpp" />
+    <ClCompile Include="..\src\text_woarchive.cpp" />
+    <ClCompile Include="..\src\utf8_codecvt_facet.cpp" />
+    <ClCompile Include="..\src\void_cast.cpp" />
+    <ClCompile Include="..\src\xml_archive_exception.cpp" />
+    <ClCompile Include="..\src\xml_grammar.cpp" />
+    <ClCompile Include="..\src\xml_iarchive.cpp" />
+    <ClCompile Include="..\src\xml_oarchive.cpp" />
+    <ClCompile Include="..\src\xml_wgrammar.cpp" />
+    <ClCompile Include="..\src\xml_wiarchive.cpp" />
+    <ClCompile Include="..\src\xml_woarchive.cpp" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>
