@@ -58,10 +58,10 @@ public:
 		RemoveDlg(m_Console);
 		InsertDlg(m_Console);
 
-		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-		m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
+		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 		// ========================================================================================================
 		// Ê¾Àý´úÂë

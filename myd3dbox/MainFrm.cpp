@@ -96,10 +96,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	if (!PhysXSceneContext::Init(theApp.m_sdk.get(), theApp.m_CpuDispatcher.get()))
 		return -1;
 
-	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
-	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_SHAPES, 1);
-	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
-	m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
+	m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
 	BOOL bNameValid;
 	// set the visual manager and style based on persisted value

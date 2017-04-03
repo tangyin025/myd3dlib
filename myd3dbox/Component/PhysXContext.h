@@ -2,7 +2,7 @@
 
 #include "PhysXPtr.h"
 
-class PhysXAllocator : public PxAllocatorCallback
+class PhysXAllocator : public physx::PxAllocatorCallback
 {
 public:
 	PhysXAllocator(void)
@@ -16,28 +16,28 @@ public:
 
 class PhysXContext
 	: public my::SingleInstance<PhysXContext>
-	, public PxErrorCallback
+	, public physx::PxErrorCallback
 {
 public:
 	static const my::Vector3 Gravity;
 
 	PhysXAllocator m_Allocator;
 
-	PhysXPtr<PxFoundation> m_Foundation;
+	PhysXPtr<physx::PxFoundation> m_Foundation;
 
-	PhysXPtr<PxPhysics> m_sdk;
+	PhysXPtr<physx::PxPhysics> m_sdk;
 
-	PhysXPtr<PxCooking> m_Cooking;
+	PhysXPtr<physx::PxCooking> m_Cooking;
 
-	PhysXPtr<PxDefaultCpuDispatcher> m_CpuDispatcher;
+	PhysXPtr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	PhysXPtr<PxControllerManager> m_ControllerMgr;
+	//PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
 
-	typedef std::vector<PxSerializable *> PxSerializableList;
+	//typedef std::vector<physx::PxSerializable *> PxSerializableList;
 
-	PxSerializableList m_SerializeObjs;
+	//PxSerializableList m_SerializeObjs;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
+	//boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 public:
 	PhysXContext(void)
@@ -68,7 +68,7 @@ class PhysXSceneContext
 {
 public:
 	class StepperTask
-		: public pxtask::LightCpuTask
+		: public physx::PxLightCpuTask
 	{
 	public:
 		PhysXSceneContext * m_PxScene;
@@ -91,17 +91,17 @@ public:
 
 	bool m_WaitForResults;
 
-	PxU32 m_ErrorState;
+	physx::PxU32 m_ErrorState;
 
-	PhysXPtr<PxScene> m_PxScene;
+	PhysXPtr<physx::PxScene> m_PxScene;
 
 	typedef boost::signals2::signal<void (float)> SubstepEvent;
 
 	SubstepEvent m_EventPxThreadSubstep;
 
-	std::vector<boost::shared_ptr<unsigned char> > m_SerializeBuffs;
+	//std::vector<boost::shared_ptr<unsigned char> > m_SerializeBuffs;
 
-	std::vector<PxSerializable *> m_SerializeObjs;
+	//std::vector<PxSerializable *> m_SerializeObjs;
 
 public:
 	PhysXSceneContext(void)
@@ -114,7 +114,7 @@ public:
 	{
 	}
 
-	bool Init(PxPhysics * sdk, PxDefaultCpuDispatcher * dispatcher);
+	bool Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatcher * dispatcher);
 
 	void Shutdown(void);
 

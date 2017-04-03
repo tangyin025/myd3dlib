@@ -1337,15 +1337,15 @@ void CChildView::OnUpdateRendermodeWireframe(CCmdUI *pCmdUI)
 void CChildView::OnShowCollisiondebug()
 {
 	// TODO: Add your command handler code here
-	PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
+	physx::PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
 	ASSERT(scene);
-	if (scene->getVisualizationParameter(PxVisualizationParameter::eSCALE) > 0)
+	if (scene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0)
 	{
-		scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 0.0f);
+		scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 0.0f);
 	}
 	else
 	{
-		scene->setVisualizationParameter(PxVisualizationParameter::eSCALE, 1.0f);
+		scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
 	}
 	Invalidate();
 }
@@ -1353,9 +1353,9 @@ void CChildView::OnShowCollisiondebug()
 void CChildView::OnUpdateShowCollisiondebug(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
+	physx::PxScene * scene = (DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_PxScene.get();
 	ASSERT(scene);
-	pCmdUI->SetCheck(scene->getVisualizationParameter(PxVisualizationParameter::eSCALE) > 0);
+	pCmdUI->SetCheck(scene->getVisualizationParameter(physx::PxVisualizationParameter::eSCALE) > 0);
 }
 
 void CChildView::OnRendermodeDepthoffield()

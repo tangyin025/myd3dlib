@@ -147,9 +147,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PxScene * scene);
+	virtual void OnEnterPxScene(physx::PxScene * scene);
 
-	virtual void OnLeavePxScene(PxScene * scene);
+	virtual void OnLeavePxScene(physx::PxScene * scene);
 
 	virtual void Update(float fElapsedTime);
 
@@ -283,15 +283,15 @@ public:
 
 	my::D3DVertexElementSet m_VertexElems;
 
-	std::vector<PxClothParticle> m_particles;
+	std::vector<physx::PxClothParticle> m_particles;
 
-	std::vector<PxClothParticle> m_NewParticles;
+	std::vector<physx::PxClothParticle> m_NewParticles;
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
-	PhysXPtr<PxClothFabric> m_Fabric;
+	PhysXPtr<physx::PxClothFabric> m_Fabric;
 
-	PhysXPtr<PxCloth> m_Cloth;
+	PhysXPtr<physx::PxCloth> m_Cloth;
 
 public:
 	ClothComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
@@ -328,9 +328,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PxScene * scene);
+	virtual void OnEnterPxScene(physx::PxScene * scene);
 
-	virtual void OnLeavePxScene(PxScene * scene);
+	virtual void OnLeavePxScene(physx::PxScene * scene);
 
 	virtual void OnResetDevice(void);
 

@@ -49,7 +49,7 @@ public:
 	virtual void OnDestroyDevice(void);
 	virtual void OnResourceFailed(const std::string & error_str);
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
-	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
+	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 // Implementation
 	UINT  m_nAppLook;

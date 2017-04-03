@@ -635,16 +635,16 @@ void Game::OnResourceFailed(const std::string & error_str)
 	}
 }
 
-void Game::reportError(PxErrorCode::Enum code, const char* message, const char* file, int line)
+void Game::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
 	switch(code)
 	{
-	case PxErrorCode::eDEBUG_INFO:
+	case physx::PxErrorCode::eDEBUG_INFO:
 		AddLine(ms2ws(str_printf("%s (%d) : info: %s", file, line, message)));
 		break;
 
-	case PxErrorCode::eDEBUG_WARNING:
-	case PxErrorCode::ePERF_WARNING:
+	case physx::PxErrorCode::eDEBUG_WARNING:
+	case physx::PxErrorCode::ePERF_WARNING:
 		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
 		break;
 
@@ -892,6 +892,7 @@ void Game::ImportScene(const char * path)
 
 	std::ifstream ifs(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
+	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
 	ia >> BOOST_SERIALIZATION_NVP(m_Root);
 }
 

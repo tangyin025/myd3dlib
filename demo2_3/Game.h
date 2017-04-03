@@ -107,7 +107,7 @@ public:
 
 	virtual void OnResourceFailed(const std::string & error_str);
 
-	virtual void reportError(PxErrorCode::Enum code, const char* message, const char* file, int line);
+	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 
 	void AddLine(const std::wstring & str, D3DCOLOR Color = D3DCOLOR_ARGB(255,255,255,255));
 
