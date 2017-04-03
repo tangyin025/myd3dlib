@@ -24,3 +24,4 @@ screenshots
 ----
 ![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test.jpg/1)
 ![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test2.jpg/1)
+![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/cloth.jpg/1)
