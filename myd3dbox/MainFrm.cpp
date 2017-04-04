@@ -516,7 +516,6 @@ void CMainFrame::OnFileNew()
 	// TODO: Add your command handler code here
 	unsigned int a= theApp.m_sdk->getNbMaterials();
 	ClearAllActor();
-	ClearAllActors();
 	ReleaseSerializeObjs();
 	a= theApp.m_sdk->getNbMaterials();
 	m_strPathName.Empty();
@@ -570,7 +569,6 @@ void CMainFrame::OnFileOpen()
 
 	CWaitCursor waiter;
 	ClearAllActor();
-	ClearAllActors();
 	ReleaseSerializeObjs();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);

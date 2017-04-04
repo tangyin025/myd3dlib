@@ -898,7 +898,7 @@ void Game::ImportScene(const char * path)
 
 void Game::ImportStaticCollision(const char * path)
 {
-	PhysXSceneContext::ClearAllActors();
+	ReleaseSerializeObjs();
 
 	PhysXSceneContext::ImportStaticCollision(path);
 }

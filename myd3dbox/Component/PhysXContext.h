@@ -33,12 +33,6 @@ public:
 
 	//PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
 
-	//typedef std::vector<physx::PxSerializable *> PxSerializableList;
-
-	//PxSerializableList m_SerializeObjs;
-
-	//boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 public:
 	PhysXContext(void)
 	{
@@ -99,9 +93,9 @@ public:
 
 	SubstepEvent m_EventPxThreadSubstep;
 
-	//std::vector<boost::shared_ptr<unsigned char> > m_SerializeBuffs;
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
-	//std::vector<PxSerializable *> m_SerializeObjs;
+	PhysXPtr<physx::PxCollection> m_collection;
 
 public:
 	PhysXSceneContext(void)
@@ -133,8 +127,6 @@ public:
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 
 	void Flush(void);
-
-	void ClearAllActors(void);
 
 	void ReleaseSerializeObjs(void);
 
