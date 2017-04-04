@@ -39,14 +39,14 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
+	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CLOTH, &CMainFrame::OnUpdateComponentCloth)
 	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_EMITTER, &CMainFrame::OnUpdateComponentEmitter)
 	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnUpdateComponentSphericalemitter)
 	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_TERRAIN, &CMainFrame::OnUpdateComponentTerrain)
-	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
-	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CLOTH, &CMainFrame::OnUpdateComponentCloth)
 	ON_COMMAND(ID_RIGID_SPHERE, &CMainFrame::OnRigidSphere)
 	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
 	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
@@ -674,6 +674,61 @@ void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
 	pCmdUI->Enable(!m_selcmps.empty());
 }
 
+void CMainFrame::OnComponentCloth()
+{
+	// TODO: Add your command handler code here
+	ComponentSet::iterator cmp_iter = m_selcmps.begin();
+	if (cmp_iter == m_selcmps.end())
+	{
+		return;
+	}
+
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
+	if (IDOK != dlg.DoModal())
+	{
+		return;
+	}
+
+	CString strPathName = dlg.GetPathName();
+	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
+	if (!mesh)
+	{
+		return;
+	}
+
+	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	cloth_cmp->CreateClothFromMesh(mesh, 1);
+	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
+	{
+		MaterialPtr lambert1(new Material());
+		lambert1->m_Shader = "lambert1.fx";
+		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
+		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
+		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
+		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+		cloth_cmp->m_MaterialList.push_back(lambert1);
+	}
+	cloth_cmp->RequestResource();
+	cloth_cmp->OnEnterPxScene(m_PxScene.get());
+	(*cmp_iter)->AddComponent(cloth_cmp);
+	cloth_cmp->UpdateWorld();
+
+	Actor * actor = (*cmp_iter)->GetTopParent();
+	actor->UpdateAABB();
+	OnActorPosChanged(actor);
+	UpdateSelBox();
+
+	EventArg arg;
+	m_EventAttributeChanged(&arg);
+}
+
+void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
+{
+	// TODO: Add your command update UI handler code here
+	pCmdUI->Enable(!m_selcmps.empty());
+}
+
 void CMainFrame::OnComponentEmitter()
 {
 	// TODO: Add your command handler code here
@@ -798,61 +853,6 @@ void CMainFrame::OnComponentTerrain()
 }
 
 void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
-{
-	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
-}
-
-void CMainFrame::OnComponentCloth()
-{
-	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
-	{
-		return;
-	}
-
-
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, this);
-	if (IDOK != dlg.DoModal())
-	{
-		return;
-	}
-
-	CString strPathName = dlg.GetPathName();
-	my::OgreMeshPtr mesh = theApp.LoadMesh(ts2ms((LPCTSTR)strPathName));
-	if (!mesh)
-	{
-		return;
-	}
-
-	ClothComponentPtr cloth_cmp(new ClothComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
-	cloth_cmp->CreateClothFromMesh(mesh, 1);
-	for (unsigned int i = 0; i < mesh->m_MaterialNameList.size(); i++)
-	{
-		MaterialPtr lambert1(new Material());
-		lambert1->m_Shader = "lambert1.fx";
-		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
-		cloth_cmp->m_MaterialList.push_back(lambert1);
-	}
-	cloth_cmp->RequestResource();
-	cloth_cmp->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(cloth_cmp);
-	cloth_cmp->UpdateWorld();
-
-	Actor * actor = (*cmp_iter)->GetTopParent();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
-	UpdateSelBox();
-
-	EventArg arg;
-	m_EventAttributeChanged(&arg);
-}
-
-void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selcmps.empty());

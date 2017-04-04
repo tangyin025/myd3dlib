@@ -88,14 +88,14 @@ public:
 	afx_msg void OnCreateActor();
 	afx_msg void OnComponentMesh();
 	afx_msg void OnUpdateComponentMesh(CCmdUI *pCmdUI);
+	afx_msg void OnComponentCloth();
+	afx_msg void OnUpdateComponentCloth(CCmdUI *pCmdUI);
 	afx_msg void OnComponentEmitter();
 	afx_msg void OnUpdateComponentEmitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentSphericalemitter();
 	afx_msg void OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentTerrain();
 	afx_msg void OnUpdateComponentTerrain(CCmdUI *pCmdUI);
-	afx_msg void OnComponentCloth();
-	afx_msg void OnUpdateComponentCloth(CCmdUI *pCmdUI);
 	afx_msg void OnRigidSphere();
 	afx_msg void OnRigidPlane();
 	afx_msg void OnRigidCapsule();
