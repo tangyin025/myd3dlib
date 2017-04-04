@@ -75,6 +75,7 @@ protected:
 		PropertyMaterialMeshTexture,
 		PropertyMaterialNormalTexture,
 		PropertyMaterialSpecularTexture,
+		PropertyClothSceneCollision,
 		PropertyEmitterParticleList,
 		PropertyEmitterParticleCount,
 		PropertyEmitterParticlePosition,

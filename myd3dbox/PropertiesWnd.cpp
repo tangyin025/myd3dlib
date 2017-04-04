@@ -300,12 +300,15 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId);
-	if (!pMaterialList || pMaterialList->GetData() != PropertyMaterialList)
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyClothSceneCollision)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesCloth(pComponent, cloth_cmp);
 	}
+	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)(VARIANT_BOOL)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION));
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 1);
 	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
@@ -664,7 +667,10 @@ void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
+	physx::PxClothFlags flags = cloth_cmp->m_Cloth->getClothFlags();
+	CMFCPropertyGridProperty * pProp = new CCheckBoxProp(_T("SceneCollision"), (_variant_t)flags.isSet(physx::PxClothFlag::eSCENE_COLLISION), NULL, PropertyClothSceneCollision);
+	pComponent->AddSubItem(pProp);
+	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
 	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
 	{
@@ -890,7 +896,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	case Component::ComponentTypeCloth:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeEmitter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeSphericalEmitter:
@@ -1283,6 +1289,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_SpecularTexture.ReleaseResource();
 			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			material->m_SpecularTexture.RequestResource();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyClothSceneCollision:
+		{
+			ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
+			cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal);
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
