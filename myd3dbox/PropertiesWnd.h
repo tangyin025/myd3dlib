@@ -149,8 +149,9 @@ protected:
 	void RemovePropertiesFrom(CMFCPropertyGridProperty * pParentCtrl, DWORD i);
 	void UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DWORD i, Component * cmp);
 	void UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
-	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * cmp);
+	void UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
+	void UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
 	void UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
@@ -167,6 +168,7 @@ protected:
 	void CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
 	void CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp);
 	void CreatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, DWORD NodeId, Material * mat);
+	void CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp);
 	void CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp);
 	void CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * pParentProp, DWORD NodeId, EmitterComponent * emit_cmp);
 	void CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp);
@@ -178,7 +180,7 @@ protected:
 	//void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
 	//void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
-	static unsigned int GetComponentAttrCount(Component::ComponentType type);
+	static unsigned int GetComponentPropCount(Component::ComponentType type);
 	static LPCTSTR GetComponentTypeName(Component::ComponentType type);
 
 // Implementation

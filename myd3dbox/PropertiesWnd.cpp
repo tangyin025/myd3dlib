@@ -204,6 +204,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
+	case Component::ComponentTypeCloth:
+		UpdatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
+		break;
 	case Component::ComponentTypeEmitter:
 		UpdatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
 		break;
@@ -229,15 +232,15 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		Component::ComponentPtrList::iterator m_selcmps = cmp->m_Cmps.begin();
 		for (; m_selcmps != cmp->m_Cmps.end(); m_selcmps++)
 		{
-			UpdateProperties(pComponent, GetComponentAttrCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
+			UpdateProperties(pComponent, GetComponentPropCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
 		}
 	}
-	RemovePropertiesFrom(pComponent, GetComponentAttrCount(cmp->m_Type) + cmp->m_Cmps.size());
+	RemovePropertiesFrom(pComponent, GetComponentPropCount(cmp->m_Type) + cmp->m_Cmps.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyActorAABB)
 	{
@@ -255,7 +258,7 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyMeshResPath)
 	{
@@ -294,9 +297,29 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
+void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId);
+	if (!pMaterialList || pMaterialList->GetData() != PropertyMaterialList)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesCloth(pComponent, cloth_cmp);
+	}
+	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
+	{
+		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
+		{
+			CreatePropertiesMaterial(pMaterialList, i, cloth_cmp->m_MaterialList[i].get());
+			continue;
+		}
+		UpdatePropertiesMaterial(pMaterialList, i, cloth_cmp->m_MaterialList[i].get());
+	}
+}
+
 void CPropertiesWnd::UpdatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId + 0);
 	if (!pProp || pProp->GetData() != PropertyEmitterParticleList)
 	{
@@ -339,7 +362,7 @@ void CPropertiesWnd::UpdatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertySphericalEmitterParticleLifeTime)
 	{
@@ -395,7 +418,7 @@ void CPropertiesWnd::UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 
 void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
 	if (!pProp || pProp->GetData() != PropertyTerrainRowChunks)
 	{
@@ -540,6 +563,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
+	case Component::ComponentTypeCloth:
+		CreatePropertiesCloth(pComponent, dynamic_cast<ClothComponent *>(cmp));
+		break;
 	case Component::ComponentTypeEmitter:
 		CreatePropertiesEmitter(pComponent, dynamic_cast<EmitterComponent *>(cmp));
 		break;
@@ -556,14 +582,14 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, DW
 		Component::ComponentPtrList::iterator m_selcmps = cmp->m_Cmps.begin();
 		for (; m_selcmps != cmp->m_Cmps.end(); m_selcmps++)
 		{
-			CreateProperties(pComponent, GetComponentAttrCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
+			CreateProperties(pComponent, GetComponentPropCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
 		}
 	}
 }
 
 void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
 	pComponent->AddSubItem(pAABB);
@@ -583,7 +609,7 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CFileProp(_T("ResPath"), TRUE, (_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMeshResPath);
 	pComponent->AddSubItem(pProp);
@@ -634,9 +660,21 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->AddSubItem(pProp);
 }
 
+void CPropertiesWnd::CreatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
+	pComponent->AddSubItem(pProp);
+	for (unsigned int i = 0; i < cloth_cmp->m_MaterialList.size(); i++)
+	{
+		CreatePropertiesMaterial(pProp, i, cloth_cmp->m_MaterialList[i].get());
+	}
+}
+
 void CPropertiesWnd::CreatePropertiesEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pParticleList = new CSimpleProp(_T("ParticleList"), PropertyEmitterParticleList, FALSE);
 	pComponent->AddSubItem(pParticleList);
@@ -698,7 +736,7 @@ void CPropertiesWnd::CreatePropertiesEmitterParticle(CMFCPropertyGridProperty * 
 
 void CPropertiesWnd::CreatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("ParticleLifeTime"), (_variant_t)sphe_emit_cmp->m_ParticleLifeTime, NULL, PropertySphericalEmitterParticleLifeTime);
 	pComponent->AddSubItem(pProp);
@@ -758,7 +796,7 @@ void CPropertiesWnd::CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpli
 
 void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain)
 {
-	unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
 	pProp->Enable(FALSE);
@@ -843,20 +881,22 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 //	pShape->AddSubItem(pProp);
 //}
 
-unsigned int CPropertiesWnd::GetComponentAttrCount(Component::ComponentType type)
+unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type)
 {
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeMesh:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+	case Component::ComponentTypeCloth:
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 2;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeSphericalEmitter:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 15;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 15;
 	case Component::ComponentTypeTerrain:
-		return GetComponentAttrCount(Component::ComponentTypeComponent) + 8;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	}
 	return 3;
 }
@@ -865,12 +905,12 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
 {
 	switch (type)
 	{
-	case Component::ComponentTypeComponent:
-		return _T("Component");
 	case Component::ComponentTypeActor:
 		return _T("Actor");
 	case Component::ComponentTypeMesh:
 		return _T("Mesh");
+	case Component::ComponentTypeCloth:
+		return _T("Cloth");
 	case Component::ComponentTypeEmitter:
 		return _T("Emitter");
 	case Component::ComponentTypeSphericalEmitter:
@@ -1342,7 +1382,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				break;
 			}
 			SphericalEmitterComponent * sphe_emit_cmp = (SphericalEmitterComponent *)pComponent->GetValue().ulVal;
-			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 			sphe_emit_cmp->m_ParticleLifeTime = pComponent->GetSubItem(PropId + 0)->GetValue().fltVal;
 			sphe_emit_cmp->m_SpawnInterval = pComponent->GetSubItem(PropId + 1)->GetValue().fltVal;
 			sphe_emit_cmp->m_HalfSpawnArea.x = pComponent->GetSubItem(PropId + 2)->GetSubItem(0)->GetValue().fltVal;
@@ -1418,7 +1458,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainWrappedU:
 	case PropertyTerrainWrappedV:
 		{
-			unsigned int PropId = GetComponentAttrCount(Component::ComponentTypeComponent);
+			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
 			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
