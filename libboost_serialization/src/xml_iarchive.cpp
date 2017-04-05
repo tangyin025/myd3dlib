@@ -13,16 +13,7 @@
 #endif
 
 #define BOOST_ARCHIVE_SOURCE
-
-// the following works around an issue between spirit 1.61 and borland.
-// it turns out the the certain spirit stuff must be defined before
-// certain parts of mpl.  including this here makes sure that happens
-#include <boost/config.hpp>
-#include <boost/detail/workaround.hpp>
-#if BOOST_WORKAROUND(__BORLANDC__, <= 0x560 )
-#include <boost/archive/impl/basic_xml_grammar.hpp>
-#endif
-
+#include <boost/serialization/config.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/archive/detail/archive_serializer_map.hpp>
 
@@ -33,10 +24,6 @@
 
 namespace boost {
 namespace archive {
-
-template class detail::archive_serializer_map<naked_xml_iarchive>;
-template class basic_xml_iarchive<naked_xml_iarchive> ;
-template class xml_iarchive_impl<naked_xml_iarchive> ;
 
 template class detail::archive_serializer_map<xml_iarchive>;
 template class basic_xml_iarchive<xml_iarchive> ;

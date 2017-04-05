@@ -13,6 +13,7 @@
 #endif
 
 #define BOOST_ARCHIVE_SOURCE
+#include <boost/serialization/config.hpp>
 #include <boost/archive/text_iarchive.hpp>
 #include <boost/archive/detail/archive_serializer_map.hpp>
 
@@ -23,10 +24,6 @@
 
 namespace boost {
 namespace archive {
-
-template class detail::archive_serializer_map<naked_text_iarchive>;
-template class basic_text_iarchive<naked_text_iarchive> ;
-template class text_iarchive_impl<naked_text_iarchive> ;
 
 template class detail::archive_serializer_map<text_iarchive>;
 template class basic_text_iarchive<text_iarchive> ;

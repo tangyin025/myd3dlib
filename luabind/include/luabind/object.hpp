@@ -537,24 +537,24 @@ namespace detail
   };
 
 // Needed because of some strange ADL issues.
-
-#define LUABIND_OPERATOR_ADL_WKND(op) \
-  inline bool operator op( \
-      basic_iterator<basic_access> const& x \
-    , basic_iterator<basic_access> const& y) \
-  { \
-      return boost::operator op(x, y); \
-  } \
- \
-  inline bool operator op( \
-      basic_iterator<raw_access> const& x \
-    , basic_iterator<raw_access> const& y) \
-  { \
-      return boost::operator op(x, y); \
-  }
-
-  LUABIND_OPERATOR_ADL_WKND(==)
-  LUABIND_OPERATOR_ADL_WKND(!=)
+//
+//#define LUABIND_OPERATOR_ADL_WKND(op) \
+//  inline bool operator op( \
+//      basic_iterator<basic_access> const& x \
+//    , basic_iterator<basic_access> const& y) \
+//  { \
+//      return boost::operator op(x, y); \
+//  } \
+// \
+//  inline bool operator op( \
+//      basic_iterator<raw_access> const& x \
+//    , basic_iterator<raw_access> const& y) \
+//  { \
+//      return boost::operator op(x, y); \
+//  }
+//
+//  LUABIND_OPERATOR_ADL_WKND(==)
+//  LUABIND_OPERATOR_ADL_WKND(!=)
 
 #undef LUABIND_OPERATOR_ADL_WKND
  

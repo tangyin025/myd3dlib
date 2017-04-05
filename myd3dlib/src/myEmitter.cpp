@@ -24,9 +24,12 @@ void Emitter::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 template<>
 void Emitter::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	boost::serialization::stl::load_collection<boost::archive::polymorphic_iarchive, boost::circular_buffer<Particle>,
-		boost::serialization::stl::archive_input_seq<boost::archive::polymorphic_iarchive, boost::circular_buffer<Particle> >,
-		boost::serialization::stl::no_reserve_imp<boost::circular_buffer<Particle> > >(ar, m_ParticleList);
+	boost::serialization::item_version_type item_version(0);
+	boost::serialization::collection_size_type count;
+	ar >> BOOST_SERIALIZATION_NVP(count);
+	ar >> BOOST_SERIALIZATION_NVP(item_version);
+	m_ParticleList.resize(count);
+	boost::serialization::stl::collection_load_impl(ar, m_ParticleList, count, item_version);
 }
 
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle)
