@@ -19,8 +19,6 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(ControlImage)
-
 BOOST_CLASS_EXPORT(ControlSkin)
 
 BOOST_CLASS_EXPORT(Control)
