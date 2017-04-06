@@ -16,12 +16,11 @@ MFC scene editor<br>
 
 3rd party dependencies
 ----
-NVIDIA® PhysX® SDK 3.2.3<br>
+NVIDIA® PhysX® SDK 3.3<br>
 FMOD Ex 4.44.25<br>
-boost 1.54.0<br>
+boost 1.63.0<br>
 
 screenshots
 ----
 ![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test.jpg/1)
 ![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/test2.jpg/1)
-![](https://a.fsdn.com/con/app/proj/myd3dlib/screenshots/cloth.jpg/1)
