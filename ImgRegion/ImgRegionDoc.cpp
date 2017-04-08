@@ -144,7 +144,7 @@ void CImgRegion::CreateProperties(CPropertiesWnd * pPropertiesWnd)
 
 void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
 {
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(long)m_Locked);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocked]->SetValue((_variant_t)(VARIANT_BOOL)m_Locked);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationX]->SetValue((_variant_t)m_Location.x);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemLocationY]->SetValue((_variant_t)m_Location.y);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemSizeW]->SetValue((_variant_t)m_Size.cx);
@@ -175,7 +175,7 @@ void CImgRegion::UpdateProperties(CPropertiesWnd * pPropertiesWnd)
 
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemText]->SetValue((_variant_t)m_Text);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextAlign]->SetValue((_variant_t)TextAlignDesc[m_TextAlign]);
-	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextWrap]->SetValue((_variant_t)(long)m_TextWrap);
+	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextWrap]->SetValue((_variant_t)(VARIANT_BOOL)m_TextWrap);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextOffX]->SetValue((_variant_t)m_TextOff.x);
 	pPropertiesWnd->m_pProp[CPropertiesWnd::PropertyItemTextOffY]->SetValue((_variant_t)m_TextOff.y);
 }
