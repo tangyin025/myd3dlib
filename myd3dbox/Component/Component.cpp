@@ -86,6 +86,10 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
+	if (m_Animator)
+	{
+		m_Animator->m_Cmp = this;
+	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)

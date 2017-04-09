@@ -39,7 +39,7 @@ my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 BOOST_CLASS_EXPORT(Animator)
 
 Animator::Animator(void)
-	: m_Character(NULL)
+	: m_Cmp(NULL)
 {
 }
 
@@ -227,7 +227,7 @@ AnimationNodeBlendBySpeed::~AnimationNodeBlendBySpeed(void)
 
 void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
 {
-	//if (m_Owner->m_Character->getVelocity().magnitudeSq() < m_Speed0)
+	//if (m_Owner->m_Cmp->getVelocity().magnitudeSq() < m_Speed0)
 	//{
 	//	if (m_ActiveChild != 0)
 	//	{

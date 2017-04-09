@@ -24,8 +24,4 @@ template<>
 void Character::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Actor);
-	if (m_Animator)
-	{
-		m_Animator->m_Character = this;
-	}
 }
