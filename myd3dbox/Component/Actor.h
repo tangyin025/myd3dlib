@@ -9,6 +9,13 @@ class Actor
 public:
 	my::AABB m_aabb;
 
+protected:
+	Actor(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
+		: Component(Type, Position, Rotation, Scale)
+		, m_aabb(aabb)
+	{
+	}
+
 public:
 	Actor(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Component(ComponentTypeActor, Position, Rotation, Scale)

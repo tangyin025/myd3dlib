@@ -66,9 +66,9 @@ class Component
 public:
 	enum ComponentType
 	{
-		ComponentTypeUnknown,
 		ComponentTypeComponent,
 		ComponentTypeActor,
+		ComponentTypeCharacter,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
 		ComponentTypeEmitter,
@@ -97,7 +97,7 @@ public:
 
 	bool m_Requested;
 
-public:
+protected:
 	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
 		, m_Position(Position)
@@ -109,8 +109,9 @@ public:
 	{
 	}
 
+public:
 	Component(void)
-		: m_Type(ComponentTypeUnknown)
+		: m_Type(ComponentTypeComponent)
 		, m_Position(0,0,0)
 		, m_Rotation(my::Quaternion::Identity())
 		, m_Scale(1,1,1)
@@ -176,17 +177,13 @@ class RenderComponent
 	: public Component
 	, public RenderPipeline::IShaderSetter
 {
-public:
+protected:
 	RenderComponent(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: Component(Type, Position, Rotation, Scale)
 	{
 	}
 
-	RenderComponent(ComponentType Type)
-		: Component(Type, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
-	{
-	}
-
+public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -222,7 +219,7 @@ public:
 	}
 
 	MeshComponent(void)
-		: RenderComponent(ComponentTypeMesh)
+		: RenderComponent(ComponentTypeMesh, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
 		, m_StaticCollision(false)
@@ -301,7 +298,7 @@ public:
 	}
 
 	ClothComponent(void)
-		: RenderComponent(ComponentTypeCloth)
+		: RenderComponent(ComponentTypeCloth, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_bUseAnimation(false)
 	{
 	}
@@ -366,7 +363,7 @@ public:
 	}
 
 	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter)
+		: RenderComponent(ComponentTypeEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 	{
 	}
 
@@ -448,7 +445,7 @@ public:
 	}
 
 	SphericalEmitterComponent(void)
-		: RenderComponent(ComponentTypeSphericalEmitter)
+		: RenderComponent(ComponentTypeSphericalEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)

@@ -227,20 +227,20 @@ AnimationNodeBlendBySpeed::~AnimationNodeBlendBySpeed(void)
 
 void AnimationNodeBlendBySpeed::Advance(float fElapsedTime)
 {
-	if (m_Owner->m_Character->getVelocity().magnitudeSq() < m_Speed0)
-	{
-		if (m_ActiveChild != 0)
-		{
-			SetActiveChild(0, 0.3f);
-		}
-	}
-	else
-	{
-		if (m_ActiveChild != 1)
-		{
-			SetActiveChild(1, 0.3f);
-		}
-	}
+	//if (m_Owner->m_Character->getVelocity().magnitudeSq() < m_Speed0)
+	//{
+	//	if (m_ActiveChild != 0)
+	//	{
+	//		SetActiveChild(0, 0.3f);
+	//	}
+	//}
+	//else
+	//{
+	//	if (m_ActiveChild != 1)
+	//	{
+	//		SetActiveChild(1, 0.3f);
+	//	}
+	//}
 
 	AnimationNodeBlend::Advance(fElapsedTime);
 }

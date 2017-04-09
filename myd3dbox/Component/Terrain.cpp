@@ -144,7 +144,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 }
 
 Terrain::Terrain(void)
-	: RenderComponent(ComponentTypeTerrain)
+	: RenderComponent(ComponentTypeTerrain, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
