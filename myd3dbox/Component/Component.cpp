@@ -162,23 +162,19 @@ void Component::Update(float fElapsedTime)
 	}
 }
 
-my::Matrix4 Component::CalculateWorld(void) const
+my::Matrix4 Component::CalculateLocal(void) const
 {
 	return my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 }
 
-void Component::UpdateWorld(void)
+void Component::UpdateWorld(const my::Matrix4 & World)
 {
-	m_World = CalculateWorld();
-	if (m_Parent)
-	{
-		m_World = m_World * m_Parent->m_World;
-	}
+	m_World = CalculateLocal() * World;
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->UpdateWorld();
+		(*cmp_iter)->UpdateWorld(m_World);
 	}
 }
 
@@ -188,7 +184,7 @@ my::AABB Component::CalculateAABB(void) const
 	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		ret.unionSelf((*cmp_iter)->CalculateAABB().transform((*cmp_iter)->CalculateWorld()));
+		ret.unionSelf((*cmp_iter)->CalculateAABB().transform((*cmp_iter)->CalculateLocal()));
 	}
 	return ret;
 }

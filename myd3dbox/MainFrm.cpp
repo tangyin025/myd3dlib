@@ -608,7 +608,7 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
 	actor->OnEnterPxScene(m_PxScene.get());
-	actor->UpdateWorld();
+	actor->UpdateWorld(my::Matrix4::identity);
 	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
 	m_selcmps.clear();
@@ -657,7 +657,7 @@ void CMainFrame::OnComponentMesh()
 	mesh_cmp->RequestResource();
 	mesh_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(mesh_cmp);
-	mesh_cmp->UpdateWorld();
+	mesh_cmp->UpdateWorld(my::Matrix4::identity);
 
 	Actor * actor = (*cmp_iter)->GetTopParent();
 	actor->UpdateAABB();
@@ -712,7 +712,7 @@ void CMainFrame::OnComponentCloth()
 	cloth_cmp->RequestResource();
 	cloth_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(cloth_cmp);
-	cloth_cmp->UpdateWorld();
+	cloth_cmp->UpdateWorld(my::Matrix4::identity);
 
 	Actor * actor = (*cmp_iter)->GetTopParent();
 	actor->UpdateAABB();
@@ -749,7 +749,7 @@ void CMainFrame::OnComponentEmitter()
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(emit_cmp);
-	emit_cmp->UpdateWorld();
+	emit_cmp->UpdateWorld(my::Matrix4::identity);
 
 	Actor * actor = (*cmp_iter)->GetTopParent();
 	actor->UpdateAABB();
@@ -804,7 +804,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(sphe_emit_cmp);
-	sphe_emit_cmp->UpdateWorld();
+	sphe_emit_cmp->UpdateWorld(my::Matrix4::identity);
 
 	Actor * actor = (*cmp_iter)->GetTopParent();
 	actor->UpdateAABB();
@@ -841,7 +841,7 @@ void CMainFrame::OnComponentTerrain()
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(m_PxScene.get());
 	(*cmp_iter)->AddComponent(terrain);
-	terrain->UpdateWorld();
+	terrain->UpdateWorld(my::Matrix4::identity);
 
 	Actor * actor = (*cmp_iter)->GetTopParent();
 	actor->UpdateAABB();

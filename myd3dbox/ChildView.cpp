@@ -1148,11 +1148,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			{
 			case Pivot::PivotModeMove:
 				cmp_world_iter->first->m_Position = cmp_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
-				cmp_world_iter->first->UpdateWorld();
+				cmp_world_iter->first->UpdateWorld(my::Matrix4::identity);
 				break;
 			case Pivot::PivotModeRot:
 				cmp_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)cmp_world_iter->second[1];
-				cmp_world_iter->first->UpdateWorld();
+				cmp_world_iter->first->UpdateWorld(my::Matrix4::identity);
 				break;
 			}
 		}

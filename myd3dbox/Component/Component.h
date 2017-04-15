@@ -153,9 +153,9 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	my::Matrix4 CalculateWorld(void) const;
+	my::Matrix4 CalculateLocal(void) const;
 
-	void UpdateWorld(void);
+	void UpdateWorld(const my::Matrix4 & World);
 
 	virtual my::AABB CalculateAABB(void) const;
 
