@@ -70,7 +70,7 @@ public:
 		ComponentTypeActor,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
-		ComponentTypeEmitter,
+		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
 		//ComponentTypeRigid,
@@ -355,21 +355,13 @@ public:
 
 	MaterialPtr m_Material;
 
+protected:
+	EmitterComponent(ComponentType type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: RenderComponent(type, Position, Rotation, Scale)
+	{
+	}
+
 public:
-	EmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeEmitter, Position, Rotation, Scale)
-	{
-	}
-
-	EmitterComponent(void)
-		: RenderComponent(ComponentTypeEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
-	{
-	}
-
-	~EmitterComponent(void)
-	{
-	}
-
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -393,8 +385,38 @@ public:
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;
 
+class StaticEmitterComponent
+	: public EmitterComponent
+{
+public:
+	StaticEmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+		: EmitterComponent(ComponentTypeStaticEmitter, Position, Rotation, Scale)
+	{
+	}
+
+	StaticEmitterComponent(void)
+		: EmitterComponent(ComponentTypeStaticEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+	{
+	}
+
+	~StaticEmitterComponent(void)
+	{
+	}
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
+		ar & boost::serialization::make_nvp("ParticleList", m_Emitter->m_ParticleList);
+	}
+
+	virtual void Update(float fElapsedTime);
+};
+
+typedef boost::shared_ptr<StaticEmitterComponent> StaticEmitterComponentPtr;
+
 class SphericalEmitterComponent
-	: public RenderComponent
+	: public EmitterComponent
 {
 public:
 	float m_ParticleLifeTime;
@@ -427,13 +449,9 @@ public:
 
 	float m_SpawnLoopTime;
 
-	my::EmitterPtr m_Emitter;
-
-	MaterialPtr m_Material;
-
 public:
 	SphericalEmitterComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
-		: RenderComponent(ComponentTypeSphericalEmitter, Position, Rotation, Scale)
+		: EmitterComponent(ComponentTypeSphericalEmitter, Position, Rotation, Scale)
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
@@ -444,7 +462,7 @@ public:
 	}
 
 	SphericalEmitterComponent(void)
-		: RenderComponent(ComponentTypeSphericalEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+		: EmitterComponent(ComponentTypeSphericalEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_ParticleLifeTime(FLT_MAX)
 		, m_RemainingSpawnTime(0)
 		, m_SpawnInterval(FLT_MAX)
@@ -461,7 +479,7 @@ public:
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(RenderComponent);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnInterval);
 		ar & BOOST_SERIALIZATION_NVP(m_HalfSpawnArea);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnSpeed);
@@ -475,20 +493,9 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnSizeY);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
-		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
 
-	virtual void RequestResource(void);
-
-	virtual void ReleaseResource(void);
-
 	virtual void Update(float fElapsedTime);
-
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
-
-	virtual my::AABB CalculateAABB(void) const;
-
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 };
 
 typedef boost::shared_ptr<SphericalEmitterComponent> SphericalEmitterComponentPtr;

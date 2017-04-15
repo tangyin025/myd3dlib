@@ -16,20 +16,20 @@ using namespace my;
 BOOST_CLASS_EXPORT(Emitter)
 
 template<>
-void Emitter::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+void boost::serialization::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const my::Emitter::ParticleList &t, const unsigned int version)
 {
-	boost::serialization::stl::save_collection<boost::archive::polymorphic_oarchive, boost::circular_buffer<Particle> >(ar, m_ParticleList);
+	boost::serialization::stl::save_collection<boost::archive::polymorphic_oarchive, boost::circular_buffer<Emitter::Particle> >(ar, t);
 }
 
 template<>
-void Emitter::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+void boost::serialization::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, my::Emitter::ParticleList &t, const unsigned int version)
 {
 	boost::serialization::item_version_type item_version(0);
 	boost::serialization::collection_size_type count;
 	ar >> BOOST_SERIALIZATION_NVP(count);
 	ar >> BOOST_SERIALIZATION_NVP(item_version);
-	m_ParticleList.resize(count);
-	boost::serialization::stl::collection_load_impl(ar, m_ParticleList, count, item_version);
+	t.resize(count);
+	boost::serialization::stl::collection_load_impl(ar, t, count, item_version);
 }
 
 void Emitter::Spawn(const Vector3 & Position, const Vector3 & Velocity, const Vector4 & Color, const Vector2 & Size, float Angle)

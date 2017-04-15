@@ -37,7 +37,7 @@
 #define ID_CAMERATYPE_TOP               32775
 #define ID_CREATE_COMPONENT             32776
 #define ID_COMPONENT_MESH               32777
-#define ID_COMPONENT_EMITTER            32778
+#define ID_COMPONENT_STATICEMITTER            32778
 #define ID_COMPONENT_SPHERICALEMITTER   32779
 #define ID_EDIT_DELETE                  32780
 #define ID_VIEW_PIVOT                   32781

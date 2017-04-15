@@ -26,7 +26,7 @@ BOOST_CLASS_EXPORT(MeshComponent)
 
 BOOST_CLASS_EXPORT(ClothComponent)
 
-BOOST_CLASS_EXPORT(EmitterComponent)
+BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 //
@@ -813,29 +813,14 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void SphericalEmitterComponent::RequestResource(void)
+void StaticEmitterComponent::Update(float fElapsedTime)
 {
-	Component::RequestResource();
-
-	if (m_Material)
-	{
-		m_Material->RequestResource();
-	}
-}
-
-void SphericalEmitterComponent::ReleaseResource(void)
-{
-	if (m_Material)
-	{
-		m_Material->ReleaseResource();
-	}
-
-	Component::ReleaseResource();
+	EmitterComponent::Update(fElapsedTime);
 }
 
 void SphericalEmitterComponent::Update(float fElapsedTime)
 {
-	m_Emitter->Update(fElapsedTime);
+	EmitterComponent::Update(fElapsedTime);
 
 	m_Emitter->RemoveDeadParticle(m_ParticleLifeTime);
 
@@ -867,49 +852,6 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}
-
-	Component::Update(fElapsedTime);
-}
-
-void SphericalEmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
-{
-	_ASSERT(0 == AttribId);
-
-	shader->SetFloat("g_Time", m_Emitter->m_Time);
-
-	shader->SetMatrix("g_World", m_World);
-
-	if (m_Material)
-	{
-		m_Material->OnSetShader(shader, AttribId);
-	}
-}
-
-my::AABB SphericalEmitterComponent::CalculateAABB(void) const
-{
-	AABB ret = RenderComponent::CalculateAABB();
-	ret.unionSelf(my::AABB(-1,1));
-	return ret;
-}
-
-void SphericalEmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
-{
-	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
-	{
-		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
-		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
-			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeParticle, false, m_Material.get(), PassID);
-				if (shader)
-				{
-					pipeline->PushEmitter(PassID, m_Emitter.get(), 0, shader, this);
-				}
-			}
-		}
-	}
-
-	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 //
 //void RigidComponent::CreateRigidActor(const my::Matrix4 & World)

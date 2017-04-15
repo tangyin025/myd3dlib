@@ -90,8 +90,8 @@ public:
 	afx_msg void OnUpdateComponentMesh(CCmdUI *pCmdUI);
 	afx_msg void OnComponentCloth();
 	afx_msg void OnUpdateComponentCloth(CCmdUI *pCmdUI);
-	afx_msg void OnComponentEmitter();
-	afx_msg void OnUpdateComponentEmitter(CCmdUI *pCmdUI);
+	afx_msg void OnComponentStaticEmitter();
+	afx_msg void OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentSphericalemitter();
 	afx_msg void OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentTerrain();

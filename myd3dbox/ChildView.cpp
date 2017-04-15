@@ -202,7 +202,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 				//{
 				//	switch (actor->m_Type)
 				//	{
-				//	case Component::ComponentTypeEmitter:
+				//	case Component::ComponentTypeStaticEmitter:
 				//		{
 				//			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(actor);
 				//			pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
@@ -358,7 +358,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 		}
 		break;
 
-	case Component::ComponentTypeEmitter:
+	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
 			const my::Vector3 & Center = cmp->m_World.row<3>().xyz;
@@ -556,7 +556,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 		}
 		break;
 
-	case Component::ComponentTypeEmitter:
+	case Component::ComponentTypeStaticEmitter:
 	case Component::ComponentTypeSphericalEmitter:
 		{
 			const my::Vector3 & Center = cmp->m_World.row<3>().xyz;

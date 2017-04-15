@@ -41,8 +41,8 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
 	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_CLOTH, &CMainFrame::OnUpdateComponentCloth)
-	ON_COMMAND(ID_COMPONENT_EMITTER, &CMainFrame::OnComponentEmitter)
-	ON_UPDATE_COMMAND_UI(ID_COMPONENT_EMITTER, &CMainFrame::OnUpdateComponentEmitter)
+	ON_COMMAND(ID_COMPONENT_STATICEMITTER, &CMainFrame::OnComponentStaticEmitter)
+	ON_UPDATE_COMMAND_UI(ID_COMPONENT_STATICEMITTER, &CMainFrame::OnUpdateComponentStaticEmitter)
 	ON_COMMAND(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnComponentSphericalemitter)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnUpdateComponentSphericalemitter)
 	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
@@ -729,7 +729,7 @@ void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 	pCmdUI->Enable(!m_selcmps.empty());
 }
 
-void CMainFrame::OnComponentEmitter()
+void CMainFrame::OnComponentStaticEmitter()
 {
 	// TODO: Add your command handler code here
 	ComponentSet::iterator cmp_iter = m_selcmps.begin();
@@ -738,7 +738,7 @@ void CMainFrame::OnComponentEmitter()
 		return;
 	}
 
-	EmitterComponentPtr emit_cmp(new EmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
+	StaticEmitterComponentPtr emit_cmp(new StaticEmitterComponent(my::Vector3::zero, my::Quaternion::identity, my::Vector3(1,1,1)));
 	emit_cmp->m_Emitter.reset(new my::Emitter());
 	emit_cmp->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0.0f);
 	MaterialPtr particle1(new Material());
@@ -760,7 +760,7 @@ void CMainFrame::OnComponentEmitter()
 	m_EventAttributeChanged(&arg);
 }
 
-void CMainFrame::OnUpdateComponentEmitter(CCmdUI *pCmdUI)
+void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selcmps.empty());

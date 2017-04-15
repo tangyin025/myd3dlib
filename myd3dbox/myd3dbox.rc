@@ -160,7 +160,7 @@ BEGIN
         BEGIN
             MENUITEM "Mesh...",                     ID_COMPONENT_MESH
             MENUITEM "Cloth...",                    ID_COMPONENT_CLOTH
-            MENUITEM "Emitter",                     ID_COMPONENT_EMITTER
+            MENUITEM "StaticEmitter",               ID_COMPONENT_STATICEMITTER
             MENUITEM "SphericalEmitter",            ID_COMPONENT_SPHERICALEMITTER
             MENUITEM "Terrain",                     ID_COMPONENT_TERRAIN
             POPUP "Rigid"
