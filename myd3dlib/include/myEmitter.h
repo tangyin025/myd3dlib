@@ -99,7 +99,7 @@ namespace boost {
 		template<class Archive>
 		inline void serialize(Archive & ar, my::Emitter::ParticleList & t, const unsigned int version)
 		{
-			boost::serialization::split_free(ar, t, file_version);
+			boost::serialization::split_free(ar, t, version);
 		}
 
 		template<class Archive>
