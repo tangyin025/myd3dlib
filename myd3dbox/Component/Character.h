@@ -1,9 +1,17 @@
 #pragma once
 
-class Character
+#include "Actor.h"
+
+class Character : public Actor
 {
 public:
+	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
+		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
+	{
+	}
+
 	Character(void)
+		: Actor(ComponentTypeCharacter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
 	{
 	}
 

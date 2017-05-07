@@ -37,6 +37,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
+	ON_COMMAND(ID_CREATE_CHARACTER, &CMainFrame::OnCreateCharacter)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_MESH, &CMainFrame::OnUpdateComponentMesh)
 	ON_COMMAND(ID_COMPONENT_CLOTH, &CMainFrame::OnComponentCloth)
@@ -403,7 +404,7 @@ void CMainFrame::UpdateSelBox(void)
 		ComponentSet::const_iterator sel_iter = m_selcmps.begin();
 		for (; sel_iter != m_selcmps.end(); sel_iter++)
 		{
-			if ((*sel_iter)->m_Type == Component::ComponentTypeActor)
+			if (Component::IsTopParent((*sel_iter)->m_Type))
 			{
 				Actor * actor = dynamic_cast<Actor *>(*sel_iter);
 				m_selbox.unionSelf(actor->m_aabb.transform(actor->m_World));
@@ -613,6 +614,23 @@ void CMainFrame::OnCreateActor()
 
 	m_selcmps.clear();
 	m_selcmps.insert(actor.get());
+	UpdateSelBox();
+	UpdatePivotTransform();
+	EventArg arg;
+	m_EventSelectionChanged(&arg);
+}
+
+void CMainFrame::OnCreateCharacter()
+{
+	// TODO: Add your command handler code here
+	CharacterPtr character(new Character(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	character->RequestResource();
+	character->OnEnterPxScene(m_PxScene.get());
+	character->UpdateWorld(my::Matrix4::identity);
+	m_Root.AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
+
+	m_selcmps.clear();
+	m_selcmps.insert(character.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
 	EventArg arg;
@@ -928,19 +946,19 @@ void CMainFrame::OnEditDelete()
 	ComponentSet::iterator cmp_iter = m_selcmps.begin();
 	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
 	{
-		if ((*cmp_iter)->m_Parent)
+		if (Component::IsTopParent((*cmp_iter)->m_Type))
 		{
-			(*cmp_iter)->m_Parent->RemoveComponent(
-				boost::dynamic_pointer_cast<Component>((*cmp_iter)->shared_from_this()));
-		}
-		else
-		{
-			ASSERT((*cmp_iter)->m_Type == Component::ComponentTypeActor);
 			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
 			actor->OnLeavePxScene(m_PxScene.get());
 			m_ViewedActors.erase(actor);
 			m_Root.RemoveActor(
 				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
+		}
+		else
+		{
+			ASSERT((*cmp_iter)->m_Parent);
+			(*cmp_iter)->m_Parent->RemoveComponent(
+				boost::dynamic_pointer_cast<Component>((*cmp_iter)->shared_from_this()));
 		}
 	}
 	m_selcmps.clear();

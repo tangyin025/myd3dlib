@@ -235,13 +235,19 @@ void Component::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
+bool Component::IsTopParent(ComponentType type)
+{
+	return type == ComponentTypeActor
+		|| type == ComponentTypeCharacter;
+}
+
 Actor * Component::GetTopParent(void)
 {
 	if (m_Parent)
 	{
 		return m_Parent->GetTopParent();
 	}
-	_ASSERT(m_Type == ComponentTypeActor);
+	_ASSERT(IsTopParent(m_Type));
 	return dynamic_cast<Actor *>(this);
 }
 

@@ -156,6 +156,7 @@ BEGIN
     POPUP "&Create"
     BEGIN
         MENUITEM "Actor",                       ID_CREATE_ACTOR
+        MENUITEM "Character",                   ID_CREATE_CHARACTER
         POPUP "Component"
         BEGIN
             MENUITEM "Mesh...",                     ID_COMPONENT_MESH

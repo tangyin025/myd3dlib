@@ -230,6 +230,12 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			PushWireAABB(actor->m_OctNode->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
 		}
 		break;
+	case Component::ComponentTypeCharacter:
+		{
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			PushWireAABB(actor->m_OctNode->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
+		}
+		break;
 	//case Component::ComponentTypeMesh:
 	//	{
 	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
@@ -285,6 +291,7 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
+	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
 			if (actor->m_Cmps.empty())
@@ -484,6 +491,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
+	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
 			if (actor->m_Cmps.empty())
@@ -1119,7 +1127,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ComponentWorldMap::iterator cmp_world_iter = m_selcmpwlds.begin();
 		for (; cmp_world_iter != m_selcmpwlds.end(); cmp_world_iter++)
 		{
-			if (cmp_world_iter->first->m_Type == Component::ComponentTypeActor)
+			if (Component::IsTopParent(cmp_world_iter->first->m_Type))
 			{
 				pFrame->OnActorPosChanged(dynamic_cast<Actor *>(cmp_world_iter->first));
 			}

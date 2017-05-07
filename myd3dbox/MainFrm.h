@@ -86,6 +86,7 @@ public:
 	afx_msg void OnFileOpen();
 	afx_msg void OnFileSave();
 	afx_msg void OnCreateActor();
+	afx_msg void OnCreateCharacter();
 	afx_msg void OnComponentMesh();
 	afx_msg void OnUpdateComponentMesh(CCmdUI *pCmdUI);
 	afx_msg void OnComponentCloth();

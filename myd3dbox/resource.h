@@ -37,7 +37,7 @@
 #define ID_CAMERATYPE_TOP               32775
 #define ID_CREATE_COMPONENT             32776
 #define ID_COMPONENT_MESH               32777
-#define ID_COMPONENT_STATICEMITTER            32778
+#define ID_COMPONENT_STATICEMITTER      32778
 #define ID_COMPONENT_SPHERICALEMITTER   32779
 #define ID_EDIT_DELETE                  32780
 #define ID_VIEW_PIVOT                   32781
@@ -61,13 +61,14 @@
 #define ID_RENDERMODE_FXAA              32799
 #define ID_RENDERMODE_SSAO              32800
 #define ID_COMPONENT_CLOTH              32801
+#define ID_CREATE_CHARACTER             32802
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32802
+#define _APS_NEXT_COMMAND_VALUE         32803
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

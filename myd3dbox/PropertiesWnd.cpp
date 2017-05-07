@@ -201,6 +201,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	case Component::ComponentTypeActor:
 		UpdatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
 		break;
+	case Component::ComponentTypeCharacter:
+		UpdatePropertiesCharacter(pComponent, dynamic_cast<Character *>(cmp));
+		break;
 	case Component::ComponentTypeMesh:
 		UpdatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
@@ -254,6 +257,24 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+}
+
+void CPropertiesWnd::UpdatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
+	if (!pProp || pProp->GetData() != PropertyActorAABB)
+	{
+		RemovePropertiesFrom(pComponent, PropId);
+		CreatePropertiesCharacter(pComponent, character);
+		return;
+	}
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)character->m_aabb.m_min.x);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)character->m_aabb.m_min.y);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)character->m_aabb.m_min.z);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)character->m_aabb.m_max.x);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)character->m_aabb.m_max.y);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)character->m_aabb.m_max.z);
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -563,6 +584,9 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	case Component::ComponentTypeActor:
 		CreatePropertiesActor(pComponent, dynamic_cast<Actor *>(cmp));
 		break;
+	case Component::ComponentTypeCharacter:
+		CreatePropertiesCharacter(pComponent, dynamic_cast<Character *>(cmp));
+		break;
 	case Component::ComponentTypeMesh:
 		CreatePropertiesMesh(pComponent, dynamic_cast<MeshComponent *>(cmp));
 		break;
@@ -607,6 +631,26 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pProp = new CSimpleProp(_T("maxy"), (_variant_t)actor->m_aabb.m_max.y, NULL, PropertyActorMaxY);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
+	pAABB->AddSubItem(pProp);
+}
+
+void CPropertiesWnd::CreatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
+{
+	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
+	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
+	pComponent->AddSubItem(pAABB);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)character->m_aabb.m_min.x, NULL, PropertyActorMinX);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("miny"), (_variant_t)character->m_aabb.m_min.y, NULL, PropertyActorMinY);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("minz"), (_variant_t)character->m_aabb.m_min.z, NULL, PropertyActorMinZ);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxx"), (_variant_t)character->m_aabb.m_max.x, NULL, PropertyActorMaxX);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxy"), (_variant_t)character->m_aabb.m_max.y, NULL, PropertyActorMaxY);
+	pAABB->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("maxz"), (_variant_t)character->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
 }
 
@@ -893,6 +937,8 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	{
 	case Component::ComponentTypeActor:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+	case Component::ComponentTypeCharacter:
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
 	case Component::ComponentTypeCloth:
@@ -913,6 +959,8 @@ LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
 	{
 	case Component::ComponentTypeActor:
 		return _T("Actor");
+	case Component::ComponentTypeCharacter:
+		return _T("Character");
 	case Component::ComponentTypeMesh:
 		return _T("Mesh");
 	case Component::ComponentTypeCloth:

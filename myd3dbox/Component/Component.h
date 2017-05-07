@@ -68,6 +68,7 @@ public:
 	{
 		ComponentTypeComponent,
 		ComponentTypeActor,
+		ComponentTypeCharacter,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
 		ComponentTypeStaticEmitter,
@@ -169,6 +170,8 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
+	static bool IsTopParent(ComponentType type);
+
 	Actor * GetTopParent(void);
 };
 
@@ -225,7 +228,7 @@ public:
 	{
 	}
 
-	~MeshComponent(void)
+	virtual ~MeshComponent(void)
 	{
 	}
 
@@ -302,7 +305,7 @@ public:
 	{
 	}
 
-	~ClothComponent(void)
+	virtual ~ClothComponent(void)
 	{
 	}
 
@@ -399,7 +402,7 @@ public:
 	{
 	}
 
-	~StaticEmitterComponent(void)
+	virtual ~StaticEmitterComponent(void)
 	{
 	}
 
@@ -472,7 +475,7 @@ public:
 	{
 	}
 
-	~SphericalEmitterComponent(void)
+	virtual ~SphericalEmitterComponent(void)
 	{
 	}
 
