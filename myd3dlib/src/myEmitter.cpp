@@ -12,8 +12,8 @@ using namespace my;
 //BOOST_CLASS_EXPORT(Emitter::Particle)
 //
 //BOOST_CLASS_EXPORT(Emitter::ParticlePair)
-
-BOOST_CLASS_EXPORT(Emitter)
+//
+//BOOST_CLASS_EXPORT(Emitter)
 
 template<>
 void boost::serialization::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const my::Emitter::ParticleList &t, const unsigned int version)
