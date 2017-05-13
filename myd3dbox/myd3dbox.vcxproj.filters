@@ -78,6 +78,9 @@
     <ClCompile Include="Component\Terrain.cpp">
       <Filter>Component</Filter>
     </ClCompile>
+    <ClCompile Include="Component\World.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h">
@@ -147,6 +150,9 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="Component\Terrain.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\World.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>

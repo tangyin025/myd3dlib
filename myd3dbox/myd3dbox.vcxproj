@@ -123,6 +123,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="ChildView.cpp" />
+    <ClCompile Include="Component\World.cpp" />
     <ClCompile Include="CtrlProps.cpp" />
     <ClCompile Include="DragableTreeCtrl.cpp" />
     <ClCompile Include="EventDefine.cpp" />
@@ -148,6 +149,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h" />
+    <ClInclude Include="Component\World.h" />
     <ClInclude Include="CtrlProps.h" />
     <ClInclude Include="DragableTreeCtrl.h" />
     <ClInclude Include="EventDefine.h" />

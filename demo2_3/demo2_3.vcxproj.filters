@@ -69,6 +69,9 @@
     <ClCompile Include="..\myd3dbox\Component\Terrain.cpp">
       <Filter>Component</Filter>
     </ClCompile>
+    <ClCompile Include="..\myd3dbox\Component\World.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Console.h">
@@ -117,6 +120,9 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="..\myd3dbox\Component\Terrain.h">
+      <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="..\myd3dbox\Component\World.h">
       <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
