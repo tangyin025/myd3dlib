@@ -154,7 +154,7 @@ public:
 
 		IRenderContext(void);
 
-		virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
+		virtual void QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask) = 0;
 	};
 
 	struct IndexedPrimitiveAtom
