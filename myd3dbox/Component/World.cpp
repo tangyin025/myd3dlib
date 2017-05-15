@@ -30,7 +30,7 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const CPoint & offse
 	CPoint new_level_id = level_id + offset;
 	if (new_level_id.x >= 0 && new_level_id.x < m_Dim && new_level_id.y >= 0 && new_level_id.y < m_Dim)
 	{
-		Frustum loc_frustum = frustum.transform(Matrix4::Translation(offset.x * 512.0f, offset.y * 512.0f, 0).transpose());
+		Frustum loc_frustum = frustum.transform(Matrix4::Translation(offset.x * 512.0f, 0, offset.y * 512.0f).transpose());
 		m_levels[new_level_id.y * m_Dim + new_level_id.x].QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
 	}
 }

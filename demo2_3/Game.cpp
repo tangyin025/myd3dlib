@@ -788,7 +788,7 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 	for (; cmp_iter != m_ViewedActors.end(); )
 	{
 		if (IntersectionTests::IntersectionTypeOutside
-			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
+			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World)))
 		{
 			if ((*cmp_iter)->IsRequested())
 			{
