@@ -43,9 +43,16 @@ void OctNodeBase::load<boost::archive::polymorphic_iarchive>(boost::archive::pol
 	ar >> BOOST_SERIALIZATION_NVP(m_Actors);
 	ar >> BOOST_SERIALIZATION_NVP(m_Childs);
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
-	for(; cmp_iter != m_Actors.end(); cmp_iter++)
+	for (; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
 		cmp_iter->first->m_Node = this;
+	}
+	for (unsigned int i = 0; i < ChildArray::static_size; i++)
+	{
+		if (m_Childs[i])
+		{
+			m_Childs[i]->m_Parent = this;
+		}
 	}
 }
 

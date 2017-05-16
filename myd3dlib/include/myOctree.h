@@ -47,6 +47,8 @@ namespace my
 	class OctNodeBase
 	{
 	public:
+		OctNodeBase * m_Parent;
+
 		AABB m_aabb;
 
 		typedef std::map<OctActorPtr, AABB> OctActorMap;
@@ -57,16 +59,20 @@ namespace my
 
 		ChildArray m_Childs;
 
-	public:
-		OctNodeBase(const AABB & aabb)
-			: m_aabb(aabb)
+	protected:
+		OctNodeBase(OctNodeBase * Parent, const AABB & aabb)
+			: m_Parent(Parent)
+			, m_aabb(aabb)
 		{
 		}
 
 		OctNodeBase(void)
+			: m_Parent(NULL)
+			, m_aabb(AABB::Invalid())
 		{
 		}
 
+	public:
 		virtual ~OctNodeBase(void)
 		{
 		}
@@ -114,21 +120,28 @@ namespace my
 	public:
 		typedef OctNode<(Offset + 1) % 3> ChildOctNode;
 
+		template <DWORD> friend class OctNode;
+
 		float m_Half;
 
 		float m_MinBlock;
 
-	public:
-		OctNode(const AABB & aabb, float MinBlock)
-			: OctNodeBase(aabb)
+	protected:
+		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
+			: OctNodeBase(Parent, aabb)
 			, m_Half((aabb.m_min[Offset] + aabb.m_max[Offset]) * 0.5f)
 			, m_MinBlock(MinBlock)
 		{
 		}
 
 		OctNode(void)
+			: m_Half(0)
+			, m_MinBlock(0)
 		{
 		}
+
+	public:
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
@@ -147,7 +160,7 @@ namespace my
 				{
 					Vector3 _Max = m_aabb.m_max;
 					_Max[Offset] = m_Half;
-					m_Childs[0].reset(new ChildOctNode(AABB(m_aabb.m_min, _Max), m_MinBlock));
+					m_Childs[0].reset(new ChildOctNode(this, AABB(m_aabb.m_min, _Max), m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[0])->AddActor(actor, aabb, threshold);
 			}
@@ -157,7 +170,7 @@ namespace my
 				{
 					Vector3 _Min = m_aabb.m_min;
 					_Min[Offset] = m_Half;
-					m_Childs[1].reset(new ChildOctNode(AABB(_Min, m_aabb.m_max), m_MinBlock));
+					m_Childs[1].reset(new ChildOctNode(this, AABB(_Min, m_aabb.m_max), m_MinBlock));
 				}
 				boost::static_pointer_cast<ChildOctNode>(m_Childs[1])->AddActor(actor, aabb, threshold);
 			}
@@ -171,15 +184,18 @@ namespace my
 
 	class OctTree : public OctNode<0>
 	{
-	public:
-		OctTree(const AABB & aabb, float MinBlock)
-			: OctNode(aabb, MinBlock)
-		{
-		}
-
+	protected:
 		OctTree(void)
 		{
 		}
+
+	public:
+		OctTree(const AABB & aabb, float MinBlock)
+			: OctNode(NULL, aabb, MinBlock)
+		{
+		}
+
+		friend class boost::serialization::access;
 
 		template<class Archive>
 		void serialize(Archive & ar, const unsigned int version)
