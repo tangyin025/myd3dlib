@@ -126,7 +126,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows), 1.0f)
+	, m_Root(AABB(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
 	, m_StaticCollision(false)
 {
 	CreateHeightMap();
@@ -148,7 +148,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows), 1.0f)
+	, m_Root(AABB(Vector3(0,0,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
 	, m_StaticCollision(false)
 {
 	CreateHeightMap();

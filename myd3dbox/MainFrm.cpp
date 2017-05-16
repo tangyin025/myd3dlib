@@ -75,7 +75,7 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
-	, m_Root(my::Vector3(-3000), my::Vector3(3000), 1.0f)
+	, m_Root(my::AABB(my::Vector3(-3000), my::Vector3(3000)), 1.0f)
 	, m_selbox(-1, 1)
 {
 	// TODO: add member initialization code here

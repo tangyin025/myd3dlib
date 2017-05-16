@@ -45,7 +45,7 @@ void OctNodeBase::load<boost::archive::polymorphic_iarchive>(boost::archive::pol
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
-		cmp_iter->first->m_OctNode = this;
+		cmp_iter->first->m_Node = this;
 	}
 }
 
@@ -189,14 +189,14 @@ void OctNodeBase::QueryActorIntersected(const Frustum & frustum, IQueryCallback 
 
 bool OctNodeBase::RemoveActor(OctActorPtr actor)
 {
-	if (actor->m_OctNode)
+	if (actor->m_Node)
 	{
-		_ASSERT(HaveNode(actor->m_OctNode));
-		OctActorMap::iterator cmp_iter = actor->m_OctNode->m_Actors.find(actor);
-		if (cmp_iter != actor->m_OctNode->m_Actors.end())
+		_ASSERT(HaveNode(actor->m_Node));
+		OctActorMap::iterator cmp_iter = actor->m_Node->m_Actors.find(actor);
+		if (cmp_iter != actor->m_Node->m_Actors.end())
 		{
-			actor->m_OctNode->m_Actors.erase(cmp_iter);
-			actor->m_OctNode = NULL;
+			actor->m_Node->m_Actors.erase(cmp_iter);
+			actor->m_Node = NULL;
 			return true;
 		}
 	}
@@ -208,8 +208,8 @@ void OctNodeBase::ClearAllActor(void)
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for (; cmp_iter != m_Actors.end(); cmp_iter++)
 	{
-		_ASSERT(cmp_iter->first->m_OctNode == this);
-		cmp_iter->first->m_OctNode = NULL;
+		_ASSERT(cmp_iter->first->m_Node == this);
+		cmp_iter->first->m_Node = NULL;
 	}
 	m_Actors.clear();
 
