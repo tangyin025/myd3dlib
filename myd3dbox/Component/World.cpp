@@ -36,19 +36,19 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const CPoint & offse
 	}
 }
 
-void WorldL::QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	_QueryRenderComponent(level_id, CPoint(-1, -1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 0, -1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 1, -1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint(-1, -1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 0, -1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 1, -1), frustum, pipeline, PassMask);
 
-	_QueryRenderComponent(level_id, CPoint(-1,  0), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 0,  0), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 1,  0), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint(-1,  0), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 0,  0), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 1,  0), frustum, pipeline, PassMask);
 
-	_QueryRenderComponent(level_id, CPoint(-1,  1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 0,  1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(level_id, CPoint( 1,  1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint(-1,  1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 0,  1), frustum, pipeline, PassMask);
+	_QueryRenderComponent(m_level_id, CPoint( 1,  1), frustum, pipeline, PassMask);
 }
 
 void WorldL::_ResetViewedActors(const CPoint & level_id, const CPoint & offset, const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
@@ -92,14 +92,14 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const CPoint & offset, 
 	}
 }
 
-void WorldL::ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+void WorldL::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
 {
 	const Vector3 OutExtent(1050, 1050, 1050);
 	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
 	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
 	for (; cmp_iter != m_ViewedActors.end(); )
 	{
-		// ! all components world should be updated according to level_id
+		// ! all components world should be updated according to m_level_id
 		if (IntersectionTests::IntersectionTypeOutside
 			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World)))
 		{
@@ -114,15 +114,15 @@ void WorldL::ResetViewedActors(const CPoint & level_id, const my::Vector3 & View
 			cmp_iter++;
 	}
 
-	_ResetViewedActors(level_id, CPoint(-1, -1), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 0, -1), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 1, -1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint(-1, -1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 0, -1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 1, -1), ViewedPos, TargetPos);
 
-	_ResetViewedActors(level_id, CPoint(-1,  0), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 0,  0), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 1,  0), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint(-1,  0), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 0,  0), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 1,  0), ViewedPos, TargetPos);
 
-	_ResetViewedActors(level_id, CPoint(-1,  1), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 0,  1), ViewedPos, TargetPos);
-	_ResetViewedActors(level_id, CPoint( 1,  1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint(-1,  1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 0,  1), ViewedPos, TargetPos);
+	_ResetViewedActors(m_level_id, CPoint( 1,  1), ViewedPos, TargetPos);
 }

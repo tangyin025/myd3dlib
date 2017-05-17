@@ -111,8 +111,6 @@ namespace my
 
 		Matrix4 m_InverseViewProj;
 
-		CPoint m_LevelId;
-
 	public:
 		BaseCamera(void)
 			: m_Eye(0,0,0)
@@ -120,7 +118,6 @@ namespace my
 			, m_Proj(Matrix4::Identity())
 			, m_ViewProj(Matrix4::Identity())
 			, m_InverseViewProj(Matrix4::Identity())
-			, m_LevelId(0, 0)
 		{
 		}
 

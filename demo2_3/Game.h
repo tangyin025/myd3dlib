@@ -117,7 +117,7 @@ public:
 
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 
-	virtual void QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
 
