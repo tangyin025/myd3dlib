@@ -162,7 +162,7 @@ public:
 
 	void UpdateVertices(void);
 
-	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
+	virtual void UpdateLod(const my::Vector3 & TargetPos);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 

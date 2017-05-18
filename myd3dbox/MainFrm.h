@@ -53,7 +53,7 @@ public:
 	void OnActorPosChanged(Actor * actor);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
-	void ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
+	void ResetViewedActors(const my::Vector3 & TargetPos);
 
 // Implementation
 public:

@@ -198,12 +198,12 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 	}
 }
 
-void Component::UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+void Component::UpdateLod(const my::Vector3 & TargetPos)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->UpdateLod(ViewedPos, TargetPos);
+		(*cmp_iter)->UpdateLod(TargetPos);
 	}
 }
 

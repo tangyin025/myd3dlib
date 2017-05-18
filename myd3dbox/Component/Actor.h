@@ -57,7 +57,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	virtual void UpdateLod(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos);
+	virtual void UpdateLod(const my::Vector3 & TargetPos);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

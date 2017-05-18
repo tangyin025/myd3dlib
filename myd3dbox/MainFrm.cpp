@@ -427,7 +427,7 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+void CMainFrame::ResetViewedActors(const my::Vector3 & TargetPos)
 {
 	const my::Vector3 OutExtent(1050,1050,1050);
 	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
@@ -451,11 +451,9 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 	struct CallBack : public my::IQueryCallback
 	{
 		CMainFrame * pFrame;
-		const my::Vector3 & ViewedPos;
 		const my::Vector3 & TargetPos;
-		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
+		CallBack(CMainFrame * _pFrame, const my::Vector3 & _TargetPos)
 			: pFrame(_pFrame)
-			, ViewedPos(_ViewedPos)
 			, TargetPos(_TargetPos)
 		{
 		}
@@ -473,13 +471,13 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vect
 				pFrame->m_ViewedActors.insert(actor);
 				actor->OnEnterPxScene(pFrame->m_PxScene.get());
 			}
-			actor->UpdateLod(ViewedPos, TargetPos);
+			actor->UpdateLod(TargetPos);
 		}
 	};
 
 	const my::Vector3 InExtent(1000,1000,1000);
 	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
+	m_Root.QueryActor(InBox, &CallBack(this, TargetPos));
 }
 
 void CMainFrame::ClearAllActor()

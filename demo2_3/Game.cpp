@@ -575,7 +575,7 @@ void Game::OnFrameTick(
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
-	ResetViewedActors(m_Camera->m_Eye, m_Camera->m_Eye);
+	ResetViewedActors(m_Camera->m_Eye);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -780,7 +780,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
-void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & TargetPos)
+void Game::ResetViewedActors(const my::Vector3 & TargetPos)
 {
 	const Vector3 OutExtent(1050,1050,1050);
 	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
@@ -804,11 +804,9 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 	struct CallBack : public my::IQueryCallback
 	{
 		Game * game;
-		const my::Vector3 & ViewedPos;
 		const my::Vector3 & TargetPos;
-		CallBack(Game * _game, const my::Vector3 & _ViewedPos, const my::Vector3 & _TargetPos)
+		CallBack(Game * _game, const my::Vector3 & _TargetPos)
 			: game(_game)
-			, ViewedPos(_ViewedPos)
 			, TargetPos(_TargetPos)
 		{
 		}
@@ -826,13 +824,13 @@ void Game::ResetViewedActors(const my::Vector3 & ViewedPos, const my::Vector3 & 
 				game->m_ViewedActors.insert(actor);
 				actor->OnEnterPxScene(game->m_PxScene.get());
 			}
-			actor->UpdateLod(ViewedPos, TargetPos);
+			actor->UpdateLod(TargetPos);
 		}
 	};
 
 	const Vector3 InExtent(1000,1000,1000);
 	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, ViewedPos, TargetPos));
+	m_Root.QueryActor(InBox, &CallBack(this, TargetPos));
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
