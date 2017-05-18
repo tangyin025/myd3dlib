@@ -62,7 +62,7 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void Actor::UpdateLod(const my::Vector3 & TargetPos)
+void Actor::UpdateLod(const my::Vector3 & ViewPos)
 {
-	Component::UpdateLod(TargetPos);
+	Component::UpdateLod(ViewPos);
 }

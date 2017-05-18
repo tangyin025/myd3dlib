@@ -162,7 +162,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	virtual void UpdateLod(const my::Vector3 & TargetPos);
+	virtual void UpdateLod(const my::Vector3 & ViewPos);
 
 	void AddComponent(ComponentPtr cmp);
 

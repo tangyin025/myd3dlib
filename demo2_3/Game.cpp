@@ -780,10 +780,10 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
 }
 
-void Game::ResetViewedActors(const my::Vector3 & TargetPos)
+void Game::ResetViewedActors(const my::Vector3 & ViewPos)
 {
 	const Vector3 OutExtent(1050,1050,1050);
-	AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
+	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
 	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
 	for (; cmp_iter != m_ViewedActors.end(); )
 	{
@@ -804,10 +804,10 @@ void Game::ResetViewedActors(const my::Vector3 & TargetPos)
 	struct CallBack : public my::IQueryCallback
 	{
 		Game * game;
-		const my::Vector3 & TargetPos;
-		CallBack(Game * _game, const my::Vector3 & _TargetPos)
+		const my::Vector3 & ViewPos;
+		CallBack(Game * _game, const my::Vector3 & _ViewPos)
 			: game(_game)
-			, TargetPos(_TargetPos)
+			, ViewPos(_ViewPos)
 		{
 		}
 		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
@@ -824,13 +824,13 @@ void Game::ResetViewedActors(const my::Vector3 & TargetPos)
 				game->m_ViewedActors.insert(actor);
 				actor->OnEnterPxScene(game->m_PxScene.get());
 			}
-			actor->UpdateLod(TargetPos);
+			actor->UpdateLod(ViewPos);
 		}
 	};
 
 	const Vector3 InExtent(1000,1000,1000);
-	AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, TargetPos));
+	AABB InBox(ViewPos - InExtent, ViewPos + InExtent);
+	m_Root.QueryActor(InBox, &CallBack(this, ViewPos));
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)

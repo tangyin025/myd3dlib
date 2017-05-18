@@ -427,10 +427,10 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedActors(const my::Vector3 & TargetPos)
+void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos)
 {
 	const my::Vector3 OutExtent(1050,1050,1050);
-	my::AABB OutBox(TargetPos - OutExtent, TargetPos + OutExtent);
+	my::AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
 	ActorSet::iterator cmp_iter = m_ViewedActors.begin();
 	for (; cmp_iter != m_ViewedActors.end(); )
 	{
@@ -451,10 +451,10 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & TargetPos)
 	struct CallBack : public my::IQueryCallback
 	{
 		CMainFrame * pFrame;
-		const my::Vector3 & TargetPos;
-		CallBack(CMainFrame * _pFrame, const my::Vector3 & _TargetPos)
+		const my::Vector3 & ViewPos;
+		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewPos)
 			: pFrame(_pFrame)
-			, TargetPos(_TargetPos)
+			, ViewPos(_ViewPos)
 		{
 		}
 		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
@@ -471,13 +471,13 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & TargetPos)
 				pFrame->m_ViewedActors.insert(actor);
 				actor->OnEnterPxScene(pFrame->m_PxScene.get());
 			}
-			actor->UpdateLod(TargetPos);
+			actor->UpdateLod(ViewPos);
 		}
 	};
 
 	const my::Vector3 InExtent(1000,1000,1000);
-	my::AABB InBox(TargetPos - InExtent, TargetPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, TargetPos));
+	my::AABB InBox(ViewPos - InExtent, ViewPos + InExtent);
+	m_Root.QueryActor(InBox, &CallBack(this, ViewPos));
 }
 
 void CMainFrame::ClearAllActor()

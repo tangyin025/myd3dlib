@@ -567,9 +567,9 @@ void Terrain::UpdateVertices(void)
 	}
 }
 
-void Terrain::UpdateLod(const my::Vector3 & TargetPos)
+void Terrain::UpdateLod(const my::Vector3 & ViewPos)
 {
-	const my::Vector3 LocalTargetPos = TargetPos.transform(m_World.inverse()).xyz;
+	const my::Vector3 LocalTargetPos = ViewPos.transform(m_World.inverse()).xyz;
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)

@@ -119,7 +119,7 @@ public:
 
 	virtual void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void ResetViewedActors(const my::Vector3 & TargetPos);
+	void ResetViewedActors(const my::Vector3 & ViewPos);
 
 	void SaveDialog(my::DialogPtr dlg, const char * path);
 
