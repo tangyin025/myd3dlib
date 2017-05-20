@@ -55,7 +55,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void ExportStaticCollision(OctTree & octRoot, const char * path);
+	void ExportStaticCollision(Octree & octRoot, const char * path);
 };
 
 class PhysXSceneContext

@@ -3,15 +3,15 @@
 class Actor;
 class RenderPipeline;
 
-class OctTree : public my::OctNode<0>
+class Octree : public my::OctNode<0>
 {
 protected:
-	OctTree(void)
+	Octree(void)
 	{
 	}
 
 public:
-	OctTree(const my::AABB & aabb, float MinBlock)
+	Octree(const my::AABB & aabb, float MinBlock)
 		: OctNode(NULL, aabb, MinBlock)
 	{
 	}
@@ -32,7 +32,7 @@ public:
 
 	CPoint m_LevelId;
 
-	typedef std::vector<OctTree> OctTreeList;
+	typedef std::vector<Octree> OctTreeList;
 
 	OctTreeList m_levels;
 
@@ -54,7 +54,7 @@ public:
 		BOOST_SERIALIZATION_NVP(m_levels);
 	}
 
-	OctTree & GetLevel(const CPoint & level_id)
+	Octree & GetLevel(const CPoint & level_id)
 	{
 		return m_levels[level_id.y * m_Dim + level_id.x];
 	}

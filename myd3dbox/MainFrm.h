@@ -30,7 +30,7 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	OctTree m_Root;
+	Octree m_Root;
 	typedef boost::unordered_set<Actor *> ActorSet;
 	ActorSet m_ViewedActors;
 	typedef boost::unordered_set<Component *> ComponentSet;

@@ -15,13 +15,13 @@
 
 using namespace my;
 
-BOOST_CLASS_EXPORT(OctTree)
+BOOST_CLASS_EXPORT(Octree)
 
 void WorldL::CreateLevels(int x, int y)
 {
 	m_Dim = x;
 	m_levels.resize(x * y,
-		OctTree(AABB(Vector3(0,-3000,0), Vector3(Terrain::m_RowChunks * Terrain::m_ChunkRows, 3000, Terrain::m_ColChunks * Terrain::m_ChunkRows)), 1.0f));
+		Octree(AABB(Vector3(0,-3000,0), Vector3(Terrain::m_RowChunks * Terrain::m_ChunkRows, 3000, Terrain::m_ColChunks * Terrain::m_ChunkRows)), 1.0f));
 }
 
 void WorldL::ClearAllLevels(void)

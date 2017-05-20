@@ -42,7 +42,7 @@ public:
 
 	ConsolePtr m_Console;
 
-	OctTree m_Root;
+	Octree m_Root;
 
 	typedef boost::unordered_set<Actor *> OctActorSet;
 
