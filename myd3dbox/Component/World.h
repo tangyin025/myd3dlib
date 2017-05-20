@@ -39,6 +39,11 @@ public:
 		BOOST_SERIALIZATION_NVP(m_levels);
 	}
 
+	my::OctTree & GetLevel(const CPoint & level_id)
+	{
+		return m_levels[level_id.y * m_Dim + level_id.x];
+	}
+
 	void _QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);

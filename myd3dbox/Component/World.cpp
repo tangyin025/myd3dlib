@@ -32,7 +32,7 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & 
 	{
 		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
 		Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
-		m_levels[level_id.y * m_Dim + level_id.x].QueryActor(loc_frustum, &CallBack(loc_frustum, pipeline, PassMask));
+		GetLevel(level_id).QueryActor(loc_frustum, &CallBack(loc_frustum, pipeline, PassMask));
 	}
 }
 
@@ -88,7 +88,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 		const Vector3 InExtent(1000, 1000, 1000);
 		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
 		AABB InBox(ViewPos + Offset - InExtent, ViewPos + Offset + InExtent);
-		m_levels[level_id.y * m_Dim + level_id.x].QueryActor(InBox, &CallBack(this, Offset, ViewPos));
+		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos));
 	}
 }
 
