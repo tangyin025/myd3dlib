@@ -102,7 +102,7 @@ void PhysXContext::load<boost::archive::polymorphic_iarchive>(boost::archive::po
 {
 }
 
-void PhysXContext::ExportStaticCollision(my::OctTree & octRoot, const char * path)
+void PhysXContext::ExportStaticCollision(OctTree & octRoot, const char * path)
 {
 	struct CallBack : public my::IQueryCallback
 	{

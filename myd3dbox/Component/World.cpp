@@ -1,19 +1,46 @@
 #include "StdAfx.h"
 #include "World.h"
 #include "Actor.h"
+#include "Terrain.h"
 #include "PhysXContext.h"
+#include <boost/archive/polymorphic_iarchive.hpp>
+#include <boost/archive/polymorphic_oarchive.hpp>
+#include <boost/serialization/string.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/map.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/binary_object.hpp>
+#include <boost/serialization/export.hpp>
 
 using namespace my;
 
+BOOST_CLASS_EXPORT(OctTree)
+
+void WorldL::CreateLevels(int x, int y)
+{
+	m_Dim = x;
+	m_levels.resize(x * y,
+		OctTree(AABB(Vector3(0,-3000,0), Vector3(Terrain::m_RowChunks * Terrain::m_ChunkRows, 3000, Terrain::m_ColChunks * Terrain::m_ChunkRows)), 1.0f));
+}
+
+void WorldL::ClearAllLevels(void)
+{
+	m_ViewedActors.clear();
+	m_levels.clear();
+	m_Dim = 0;
+	m_LevelId.SetPoint(0,0);
+}
+
 void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct CallBack : public my::IQueryCallback
+	struct CallBack : public IQueryCallback
 	{
-		const my::Frustum & frustum;
+		const Frustum & frustum;
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
 
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+		CallBack(const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
 			: frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
@@ -53,12 +80,12 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 
 void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos)
 {
-	struct CallBack : public my::IQueryCallback
+	struct CallBack : public IQueryCallback
 	{
 		WorldL * world;
-		const my::Vector3 & Offset;
-		const my::Vector3 & ViewPos;
-		CallBack(WorldL * _world, const my::Vector3 & _Offset, const my::Vector3 & _ViewPos)
+		const Vector3 & Offset;
+		const Vector3 & ViewPos;
+		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos)
 			: world(_world)
 			, Offset(_Offset)
 			, ViewPos(_ViewPos)

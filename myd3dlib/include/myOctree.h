@@ -127,13 +127,6 @@ namespace my
 		float m_MinBlock;
 
 	protected:
-		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
-			: OctNodeBase(Parent, aabb)
-			, m_Half((aabb.m_min[Offset] + aabb.m_max[Offset]) * 0.5f)
-			, m_MinBlock(MinBlock)
-		{
-		}
-
 		OctNode(void)
 			: m_Half(0)
 			, m_MinBlock(0)
@@ -141,6 +134,13 @@ namespace my
 		}
 
 	public:
+		OctNode(OctNodeBase * Parent, const AABB & aabb, float MinBlock)
+			: OctNodeBase(Parent, aabb)
+			, m_Half((aabb.m_min[Offset] + aabb.m_max[Offset]) * 0.5f)
+			, m_MinBlock(MinBlock)
+		{
+		}
+
 		friend class boost::serialization::access;
 
 		template<class Archive>
@@ -179,28 +179,6 @@ namespace my
 				m_Actors.insert(std::make_pair(actor, aabb));
 				actor->m_Node = this;
 			}
-		}
-	};
-
-	class OctTree : public OctNode<0>
-	{
-	protected:
-		OctTree(void)
-		{
-		}
-
-	public:
-		OctTree(const AABB & aabb, float MinBlock)
-			: OctNode(NULL, aabb, MinBlock)
-		{
-		}
-
-		friend class boost::serialization::access;
-
-		template<class Archive>
-		void serialize(Archive & ar, const unsigned int version)
-		{
-			ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< OctNode<0> >(*this));
 		}
 	};
 }

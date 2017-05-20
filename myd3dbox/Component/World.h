@@ -3,6 +3,28 @@
 class Actor;
 class RenderPipeline;
 
+class OctTree : public my::OctNode<0>
+{
+protected:
+	OctTree(void)
+	{
+	}
+
+public:
+	OctTree(const my::AABB & aabb, float MinBlock)
+		: OctNode(NULL, aabb, MinBlock)
+	{
+	}
+
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< my::OctNode<0> >(*this));
+	}
+};
+
 class WorldL
 {
 public:
@@ -10,7 +32,7 @@ public:
 
 	CPoint m_LevelId;
 
-	typedef std::vector<my::OctTree> OctTreeList;
+	typedef std::vector<OctTree> OctTreeList;
 
 	OctTreeList m_levels;
 
@@ -19,13 +41,6 @@ public:
 	OctActorSet m_ViewedActors;
 
 public:
-	WorldL(int Dim)
-		: m_Dim(Dim)
-		, m_LevelId(0,0)
-		, m_levels(m_Dim * m_Dim, my::OctTree(my::AABB(0, 512), 0.1f))
-	{
-	}
-
 	WorldL(void)
 		: m_Dim(0)
 		, m_LevelId(0,0)
@@ -39,10 +54,14 @@ public:
 		BOOST_SERIALIZATION_NVP(m_levels);
 	}
 
-	my::OctTree & GetLevel(const CPoint & level_id)
+	OctTree & GetLevel(const CPoint & level_id)
 	{
 		return m_levels[level_id.y * m_Dim + level_id.x];
 	}
+
+	void CreateLevels(int x, int y);
+
+	void ClearAllLevels(void);
 
 	void _QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 

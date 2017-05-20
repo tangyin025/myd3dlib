@@ -1,6 +1,7 @@
 #pragma once
 
 #include "PhysXPtr.h"
+#include "World.h"
 
 class PhysXAllocator : public physx::PxAllocatorCallback
 {
@@ -54,7 +55,7 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	void ExportStaticCollision(my::OctTree & octRoot, const char * path);
+	void ExportStaticCollision(OctTree & octRoot, const char * path);
 };
 
 class PhysXSceneContext

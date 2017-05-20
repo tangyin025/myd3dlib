@@ -26,8 +26,6 @@ BOOST_CLASS_EXPORT_GUID(OctNode<1>, "OctNode1")
 
 BOOST_CLASS_EXPORT_GUID(OctNode<2>, "OctNode2")
 
-BOOST_CLASS_EXPORT(OctTree)
-
 template<>
 void OctNodeBase::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
