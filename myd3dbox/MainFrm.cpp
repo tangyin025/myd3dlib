@@ -554,7 +554,13 @@ void CMainFrame::OnFileSave()
 void CMainFrame::OnCreateActor()
 {
 	// TODO: Add your command handler code here
-	ActorPtr actor(new Actor(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	my::Vector3 Pos(0,0,0);
+	if (pView)
+	{
+		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
+	}
+	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
 	actor->OnEnterPxScene(m_PxScene.get());
 	actor->UpdateWorld(my::Matrix4::identity);
@@ -571,7 +577,13 @@ void CMainFrame::OnCreateActor()
 void CMainFrame::OnCreateCharacter()
 {
 	// TODO: Add your command handler code here
-	CharacterPtr character(new Character(my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, GetActiveView());
+	my::Vector3 Pos(0,0,0);
+	if (pView)
+	{
+		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
+	}
+	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	character->RequestResource();
 	character->OnEnterPxScene(m_PxScene.get());
 	character->UpdateWorld(my::Matrix4::identity);
