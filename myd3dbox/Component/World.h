@@ -79,6 +79,8 @@ public:
 		return CPoint(0, 0);
 	}
 
+	void ChangeLevelId(const CPoint & new_id);
+
 	void CreateLevels(int dimension);
 
 	void ClearAllLevels(void);

@@ -15,6 +15,8 @@
 
 using namespace my;
 
+#define LEVEL_SIZE (512.0f)
+
 BOOST_CLASS_EXPORT(Octree)
 
 template<>
@@ -35,12 +37,24 @@ void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 	}
 }
 
+void WorldL::ChangeLevelId(const CPoint & new_id)
+{
+	if (m_LevelId != new_id)
+	{
+		OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
+		for (; cmp_iter != m_ViewedActors.end(); )
+		{
+			CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->GetTopParent()));
+			Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
+			(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
+		}
+	}
+}
+
 void WorldL::CreateLevels(int dimension)
 {
 	m_Dimension = dimension;
-	AABB level_bound(
-		Vector3(-(float)Terrain::m_RowChunks * Terrain::m_ChunkRows, -3000, -(float)Terrain::m_ColChunks * Terrain::m_ChunkRows),
-		Vector3((float)Terrain::m_RowChunks * Terrain::m_ChunkRows * 2, 3000, (float)Terrain::m_ColChunks * Terrain::m_ChunkRows * 2));
+	AABB level_bound(Vector3(-LEVEL_SIZE, -3000, -LEVEL_SIZE), Vector3(LEVEL_SIZE * 2, 3000, LEVEL_SIZE * 2));
 	m_levels.resize(m_Dimension * m_Dimension, Octree(this, level_bound, 1.0f));
 }
 
@@ -77,7 +91,7 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & 
 
 	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
 	{
-		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
+		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
 		Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
 		GetLevel(level_id).QueryActor(loc_frustum, &CallBack(loc_frustum, pipeline, PassMask));
 	}
@@ -131,7 +145,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
 	{
 		const Vector3 InExtent(1000, 1000, 1000);
-		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
+		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
 		AABB InBox(ViewPos + Offset - InExtent, ViewPos + Offset + InExtent);
 		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos));
 	}
