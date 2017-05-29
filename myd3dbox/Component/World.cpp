@@ -44,7 +44,7 @@ void WorldL::ChangeLevelId(const CPoint & new_id)
 		OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
 		for (; cmp_iter != m_ViewedActors.end(); )
 		{
-			CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->GetTopParent()));
+			CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
 			Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
 			(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
 		}

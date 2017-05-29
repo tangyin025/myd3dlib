@@ -228,7 +228,7 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: m_Root(AABB(Vector3(-3000), Vector3(3000)), 1.0f)
+	: m_Root(NULL, AABB(Vector3(-3000), Vector3(3000)), 1.0f)
 {
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);

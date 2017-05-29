@@ -675,7 +675,7 @@ void CMainFrame::OnComponentMesh()
 	(*cmp_iter)->AddComponent(mesh_cmp);
 	mesh_cmp->UpdateWorld(my::Matrix4::identity);
 
-	Actor * actor = (*cmp_iter)->GetTopParent();
+	Actor * actor = (*cmp_iter)->GetTopActor();
 	actor->UpdateAABB();
 	OnActorPosChanged(actor);
 	UpdateSelBox();
@@ -730,7 +730,7 @@ void CMainFrame::OnComponentCloth()
 	(*cmp_iter)->AddComponent(cloth_cmp);
 	cloth_cmp->UpdateWorld(my::Matrix4::identity);
 
-	Actor * actor = (*cmp_iter)->GetTopParent();
+	Actor * actor = (*cmp_iter)->GetTopActor();
 	actor->UpdateAABB();
 	OnActorPosChanged(actor);
 	UpdateSelBox();
@@ -767,7 +767,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	(*cmp_iter)->AddComponent(emit_cmp);
 	emit_cmp->UpdateWorld(my::Matrix4::identity);
 
-	Actor * actor = (*cmp_iter)->GetTopParent();
+	Actor * actor = (*cmp_iter)->GetTopActor();
 	actor->UpdateAABB();
 	OnActorPosChanged(actor);
 	UpdateSelBox();
@@ -822,7 +822,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	(*cmp_iter)->AddComponent(sphe_emit_cmp);
 	sphe_emit_cmp->UpdateWorld(my::Matrix4::identity);
 
-	Actor * actor = (*cmp_iter)->GetTopParent();
+	Actor * actor = (*cmp_iter)->GetTopActor();
 	actor->UpdateAABB();
 	OnActorPosChanged(actor);
 	UpdateSelBox();
@@ -859,7 +859,7 @@ void CMainFrame::OnComponentTerrain()
 	(*cmp_iter)->AddComponent(terrain);
 	terrain->UpdateWorld(my::Matrix4::identity);
 
-	Actor * actor = (*cmp_iter)->GetTopParent();
+	Actor * actor = (*cmp_iter)->GetTopActor();
 	actor->UpdateAABB();
 	OnActorPosChanged(actor);
 	UpdateSelBox();

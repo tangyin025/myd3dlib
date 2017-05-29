@@ -172,7 +172,7 @@ public:
 
 	static bool IsTopParent(ComponentType type);
 
-	Actor * GetTopParent(void);
+	Actor * GetTopActor(void);
 };
 
 class RenderComponent

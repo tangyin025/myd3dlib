@@ -93,6 +93,8 @@ namespace my
 
 		bool HaveNode(const OctNodeBase * node) const;
 
+		OctNodeBase * GetTopNode(void);
+
 		void QueryActor(const Ray & ray, IQueryCallback * callback);
 
 		void QueryActor(const AABB & aabb, IQueryCallback * callback);

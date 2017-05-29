@@ -71,6 +71,15 @@ bool OctNodeBase::HaveNode(const OctNodeBase * node) const
 	return false;
 }
 
+OctNodeBase * OctNodeBase::GetTopNode(void)
+{
+	if (!m_Parent)
+	{
+		return this;
+	}
+	return m_Parent->GetTopNode();
+}
+
 void OctNodeBase::QueryActor(const Ray & ray, IQueryCallback * callback)
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)

@@ -1181,7 +1181,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			cmp->UpdateWorld(my::Matrix4::identity);
-			Actor * actor = cmp->GetTopParent();
+			Actor * actor = cmp->GetTopActor();
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1509,7 +1509,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->m_HeightScale = pProp->GetValue().fltVal;
 			terrain->UpdateHeightMapNormal();
 			terrain->UpdateChunks();
-			Actor * actor = terrain->GetTopParent();
+			Actor * actor = terrain->GetTopActor();
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1536,7 +1536,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 				terrain->UpdateHeightMap(res);
-				Actor * actor = terrain->GetTopParent();
+				Actor * actor = terrain->GetTopActor();
 				actor->UpdateAABB();
 				pFrame->OnActorPosChanged(actor);
 				pFrame->UpdateSelBox();

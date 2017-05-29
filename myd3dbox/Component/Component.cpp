@@ -241,11 +241,11 @@ bool Component::IsTopParent(ComponentType type)
 		|| type == ComponentTypeCharacter;
 }
 
-Actor * Component::GetTopParent(void)
+Actor * Component::GetTopActor(void)
 {
 	if (m_Parent)
 	{
-		return m_Parent->GetTopParent();
+		return m_Parent->GetTopActor();
 	}
 	_ASSERT(IsTopParent(m_Type));
 	return dynamic_cast<Actor *>(this);
