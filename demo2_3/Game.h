@@ -42,11 +42,7 @@ public:
 
 	ConsolePtr m_Console;
 
-	Octree m_Root;
-
-	typedef boost::unordered_set<Actor *> OctActorSet;
-
-	OctActorSet m_ViewedActors;
+	WorldL m_WorldL;
 
 public:
 	Game(void);

@@ -168,55 +168,7 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
-
-	struct CallBack : public my::IQueryCallback
-	{
-		const my::Frustum & frustum;
-		RenderPipeline * pipeline;
-		unsigned int PassMask;
-		CMainFrame * pFrame;
-		CChildView * pView;
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, CMainFrame * _pFrame, CChildView * _pView)
-			: frustum(_frustum)
-			, pipeline(_pipeline)
-			, PassMask(_PassMask)
-			, pFrame(_pFrame)
-			, pView(_pView)
-		{
-		}
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
-		{
-			Actor * actor = dynamic_cast<Actor *>(oct_actor);
-			if (actor)
-			{
-				if (actor->IsRequested())
-				{
-					actor->AddToPipeline(frustum, pipeline, PassMask);
-				}
-				else
-				{
-					actor->RequestResource();
-				}
-
-				//if (pView->m_bShowCmpHandle)
-				//{
-				//	switch (actor->m_Type)
-				//	{
-				//	case Component::ComponentTypeStaticEmitter:
-				//		{
-				//			EmitterComponent * emit_cmp = dynamic_cast<EmitterComponent *>(actor);
-				//			pFrame->m_emitter->m_Emitter->m_ParticleList.push_back(my::Emitter::Particle(
-				//				emit_cmp->m_World.row<3>().xyz, my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(1,1), 0.0f, 0.0f));
-				//		}
-				//		break;
-				//	}
-				//}
-			}
-		}
-	};
-
-	pFrame->m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask, pFrame, this));
-
+	pFrame->m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
@@ -1054,7 +1006,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ftm, this);
-		pFrame->m_Root.QueryActor(ftm, &cb);
+		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).QueryActor(ftm, &cb);
 		CMainFrame::ComponentSet::iterator cmp_iter = cb.selacts.begin();
 		for (; cmp_iter != cb.selacts.end(); cmp_iter++)
 		{
@@ -1086,7 +1038,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ray, this);
-		pFrame->m_Root.QueryActor(ray, &cb);
+		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).QueryActor(ray, &cb);
 		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
 		if (cmp_iter != cb.selacts.end())
 		{

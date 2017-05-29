@@ -95,6 +95,8 @@ namespace my
 
 		OctNodeBase * GetTopNode(void);
 
+		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f) = 0;
+
 		void QueryActor(const Ray & ray, IQueryCallback * callback);
 
 		void QueryActor(const AABB & aabb, IQueryCallback * callback);
@@ -153,7 +155,7 @@ namespace my
 			ar & BOOST_SERIALIZATION_NVP(m_MinBlock);
 		}
 
-		void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f)
+		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f)
 		{
 			_ASSERT(!actor->m_Node);
 			if (aabb.m_max[Offset] < m_Half + threshold && m_aabb.m_max[Offset] - m_aabb.m_min[Offset] > m_MinBlock)

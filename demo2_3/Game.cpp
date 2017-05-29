@@ -228,7 +228,6 @@ static int os_exit(lua_State * L)
 }
 
 Game::Game(void)
-	: m_Root(NULL, AABB(Vector3(-3000), Vector3(3000)), 1.0f)
 {
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
@@ -252,7 +251,7 @@ Game::Game(void)
 			.def("InsertTimer", &Game::InsertTimer)
 			.def("RemoveTimer", &Game::RemoveTimer)
 			.def("RemoveAllTimer", &Game::RemoveAllTimer)
-			.def_readonly("Root", &Game::m_Root)
+			//.def_readonly("Root", &Game::m_Root)
 			.def_readonly("Console", &Game::m_Console)
 			.def_readwrite("Camera", &Game::m_Camera)
 			.def_readwrite("SkyLightCam", &Game::m_SkyLightCam)
@@ -485,9 +484,7 @@ void Game::OnDestroyDevice(void)
 
 	m_Console.reset();
 
-	m_Root.ClearAllActor();
-
-	m_ViewedActors.clear();
+	m_WorldL.ClearAllLevels();
 
 	RemoveAllDlg();
 
@@ -565,8 +562,8 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
+	WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
+	for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
 	}
@@ -756,81 +753,12 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct CallBack : public my::IQueryCallback
-	{
-		const my::Frustum & frustum;
-		RenderPipeline * pipeline;
-		unsigned int PassMask;
-
-		CallBack(const my::Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
-			: frustum(_frustum)
-			, pipeline(_pipeline)
-			, PassMask(_PassMask)
-		{
-		}
-
-		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			actor->AddToPipeline(frustum, pipeline, PassMask);
-		}
-	};
-
-	m_Root.QueryActor(frustum, &CallBack(frustum, pipeline, PassMask));
+	m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
 }
 
 void Game::ResetViewedActors(const my::Vector3 & ViewPos)
 {
-	const Vector3 OutExtent(1050,1050,1050);
-	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
-	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
-	for (; cmp_iter != m_ViewedActors.end(); )
-	{
-		if (IntersectionTests::IntersectionTypeOutside
-			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World)))
-		{
-			if ((*cmp_iter)->IsRequested())
-			{
-				(*cmp_iter)->ReleaseResource();
-			}
-			(*cmp_iter)->OnLeavePxScene(m_PxScene.get());
-			cmp_iter = m_ViewedActors.erase(cmp_iter);
-		}
-		else
-			cmp_iter++;
-	}
-
-	struct CallBack : public my::IQueryCallback
-	{
-		Game * game;
-		const my::Vector3 & ViewPos;
-		CallBack(Game * _game, const my::Vector3 & _ViewPos)
-			: game(_game)
-			, ViewPos(_ViewPos)
-		{
-		}
-		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			OctActorSet::iterator actor_iter = game->m_ViewedActors.find(actor);
-			if (actor_iter == game->m_ViewedActors.end())
-			{
-				if (!actor->IsRequested())
-				{
-					actor->RequestResource();
-				}
-				game->m_ViewedActors.insert(actor);
-				actor->OnEnterPxScene(game->m_PxScene.get());
-			}
-			actor->UpdateLod(ViewPos);
-		}
-	};
-
-	const Vector3 InExtent(1000,1000,1000);
-	AABB InBox(ViewPos - InExtent, ViewPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, ViewPos));
+	m_WorldL.ResetViewedActors(ViewPos);
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)
@@ -886,17 +814,17 @@ ComponentPtr Game::LoadComponent(const char * path)
 
 void Game::ImportScene(const char * path)
 {
-	m_Root.ClearAllActor();
+	m_WorldL.ClearAllLevels();
 
 	std::ifstream ifs(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
-	ia >> BOOST_SERIALIZATION_NVP(m_Root);
+	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
 }
 
 void Game::ImportStaticCollision(const char * path)
 {
-	ReleaseSerializeObjs();
+	//ReleaseSerializeObjs();
 
-	PhysXSceneContext::ImportStaticCollision(path);
+	//PhysXSceneContext::ImportStaticCollision(path);
 }

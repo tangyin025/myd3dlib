@@ -75,7 +75,6 @@ static UINT indicators[] =
 
 CMainFrame::CMainFrame()
 	: m_bEatAltUp(FALSE)
-	, m_Root(NULL, my::AABB(my::Vector3(-3000), my::Vector3(3000)), 1.0f)
 	, m_selbox(-1, 1)
 {
 	// TODO: add member initialization code here
@@ -392,8 +391,9 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 void CMainFrame::OnActorPosChanged(Actor * actor)
 {
 	my::OctActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
-	VERIFY(m_Root.RemoveActor(actor_ptr));
-	m_Root.AddActor(actor_ptr, actor->m_aabb.transform(actor->m_World), 0.1f);
+	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
+	VERIFY(Root->RemoveActor(actor_ptr));
+	Root->AddActor(actor_ptr, actor->m_aabb.transform(actor->m_World), 0.1f);
 }
 
 void CMainFrame::UpdateSelBox(void)
@@ -429,62 +429,13 @@ void CMainFrame::UpdatePivotTransform(void)
 
 void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos)
 {
-	const my::Vector3 OutExtent(1050,1050,1050);
-	my::AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
-	ActorSet::iterator cmp_iter = m_ViewedActors.begin();
-	for (; cmp_iter != m_ViewedActors.end(); )
-	{
-		if (my::IntersectionTests::IntersectionTypeOutside
-			== my::IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb))
-		{
-			if ((*cmp_iter)->IsRequested())
-			{
-				(*cmp_iter)->ReleaseResource();
-			}
-			(*cmp_iter)->OnLeavePxScene(m_PxScene.get());
-			cmp_iter = m_ViewedActors.erase(cmp_iter);
-		}
-		else
-			cmp_iter++;
-	}
-
-	struct CallBack : public my::IQueryCallback
-	{
-		CMainFrame * pFrame;
-		const my::Vector3 & ViewPos;
-		CallBack(CMainFrame * _pFrame, const my::Vector3 & _ViewPos)
-			: pFrame(_pFrame)
-			, ViewPos(_ViewPos)
-		{
-		}
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			ActorSet::iterator cmp_iter = pFrame->m_ViewedActors.find(actor);
-			if (cmp_iter == pFrame->m_ViewedActors.end())
-			{
-				if (!actor->IsRequested())
-				{
-					actor->RequestResource();
-				}
-				pFrame->m_ViewedActors.insert(actor);
-				actor->OnEnterPxScene(pFrame->m_PxScene.get());
-			}
-			actor->UpdateLod(ViewPos);
-		}
-	};
-
-	const my::Vector3 InExtent(1000,1000,1000);
-	my::AABB InBox(ViewPos - InExtent, ViewPos + InExtent);
-	m_Root.QueryActor(InBox, &CallBack(this, ViewPos));
+	m_WorldL.ResetViewedActors(ViewPos);
 }
 
 void CMainFrame::ClearAllActor()
 {
-	m_Root.ClearAllActor();
+	m_WorldL.ClearAllLevels();
 	m_selcmps.clear();
-	m_ViewedActors.clear();
 }
 
 void CMainFrame::OnDestroy()
@@ -519,6 +470,7 @@ void CMainFrame::OnFileNew()
 	a= theApp.m_sdk->getNbMaterials();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
+	m_WorldL.CreateLevels(10);
 
 	//unsigned int numRows = 5;
 	//unsigned int numCols = 5;
@@ -549,7 +501,7 @@ void CMainFrame::OnFileNew()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 	//m_cmps.push_back(rigid_cmp);
 }
 
@@ -573,7 +525,7 @@ void CMainFrame::OnFileOpen()
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
-	ia >> BOOST_SERIALIZATION_NVP(m_Root);
+	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
 }
 
 void CMainFrame::OnFileSave()
@@ -592,13 +544,11 @@ void CMainFrame::OnFileSave()
 		}
 	}
 
-	m_Root.Flush();
-
 	CWaitCursor waiter;
 	std::basic_ofstream<char> ofs(m_strPathName);
 	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << boost::serialization::make_nvp("PhysXContext", (PhysXContext &)theApp);
-	oa << BOOST_SERIALIZATION_NVP(m_Root);
+	oa << BOOST_SERIALIZATION_NVP(m_WorldL);
 }
 
 void CMainFrame::OnCreateActor()
@@ -608,7 +558,7 @@ void CMainFrame::OnCreateActor()
 	actor->RequestResource();
 	actor->OnEnterPxScene(m_PxScene.get());
 	actor->UpdateWorld(my::Matrix4::identity);
-	m_Root.AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
+	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
 	m_selcmps.clear();
 	m_selcmps.insert(actor.get());
@@ -625,7 +575,7 @@ void CMainFrame::OnCreateCharacter()
 	character->RequestResource();
 	character->OnEnterPxScene(m_PxScene.get());
 	character->UpdateWorld(my::Matrix4::identity);
-	m_Root.AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
+	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
 
 	m_selcmps.clear();
 	m_selcmps.insert(character.get());
@@ -880,7 +830,7 @@ void CMainFrame::OnRigidSphere()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -896,7 +846,7 @@ void CMainFrame::OnRigidPlane()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -912,7 +862,7 @@ void CMainFrame::OnRigidCapsule()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -928,7 +878,7 @@ void CMainFrame::OnRigidBox()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_Root.AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
 	//m_selcmps.clear();
 	//m_selcmps.insert(rigid_cmp.get());
@@ -948,8 +898,8 @@ void CMainFrame::OnEditDelete()
 		{
 			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
 			actor->OnLeavePxScene(m_PxScene.get());
-			m_ViewedActors.erase(actor);
-			m_Root.RemoveActor(
+			m_WorldL.m_ViewedActors.erase(actor);
+			m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor(
 				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
 		}
 		else
@@ -1022,31 +972,31 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 void CMainFrame::OnFileExportstaticcollision()
 {
 	// TODO: Add your command handler code here
-	CString strPathName;
-	CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	INT_PTR nResult = dlg.DoModal();
-	strPathName.ReleaseBuffer();
-	if (nResult == IDCANCEL)
-	{
-		return;
-	}
+	//CString strPathName;
+	//CFileDialog dlg(FALSE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	//INT_PTR nResult = dlg.DoModal();
+	//strPathName.ReleaseBuffer();
+	//if (nResult == IDCANCEL)
+	//{
+	//	return;
+	//}
 
-	theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
+	//theApp.ExportStaticCollision(m_Root, ts2ms((LPCTSTR)strPathName).c_str());
 }
 
 void CMainFrame::OnFileImportstaticcollision()
 {
 	// TODO: Add your command handler code here
-	CString strPathName;
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
-	dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
-	INT_PTR nResult = dlg.DoModal();
-	strPathName.ReleaseBuffer();
-	if (nResult == IDCANCEL)
-	{
-		return;
-	}
+	//CString strPathName;
+	//CFileDialog dlg(TRUE, NULL, NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, 0);
+	//dlg.m_ofn.lpstrFile = strPathName.GetBuffer(_MAX_PATH);
+	//INT_PTR nResult = dlg.DoModal();
+	//strPathName.ReleaseBuffer();
+	//if (nResult == IDCANCEL)
+	//{
+	//	return;
+	//}
 
-	ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
+	//ImportStaticCollision(ts2ms((LPCTSTR)strPathName).c_str());
 }

@@ -54,7 +54,7 @@ void WorldL::ChangeLevelId(const CPoint & new_id)
 void WorldL::CreateLevels(int dimension)
 {
 	m_Dimension = dimension;
-	AABB level_bound(Vector3(-LEVEL_SIZE, -3000, -LEVEL_SIZE), Vector3(LEVEL_SIZE * 2, 3000, LEVEL_SIZE * 2));
+	AABB level_bound(Vector3(-LEVEL_SIZE, -LEVEL_SIZE, -LEVEL_SIZE), Vector3(LEVEL_SIZE * 2, LEVEL_SIZE * 2, LEVEL_SIZE * 2));
 	m_levels.resize(m_Dimension * m_Dimension, Octree(this, level_bound, 1.0f));
 }
 

@@ -30,9 +30,7 @@ public:
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
-	Octree m_Root;
-	typedef boost::unordered_set<Actor *> ActorSet;
-	ActorSet m_ViewedActors;
+	WorldL m_WorldL;
 	typedef boost::unordered_set<Component *> ComponentSet;
 	ComponentSet m_selcmps;
 	my::AABB m_selbox;
