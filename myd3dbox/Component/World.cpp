@@ -17,19 +17,38 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Octree)
 
-void WorldL::CreateLevels(int x, int y)
+template<>
+void WorldL::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	m_Dim = x;
-	m_levels.resize(x * y, Octree(AABB(
-		Vector3(-Terrain::m_RowChunks * Terrain::m_ChunkRows, -3000, Terrain::m_ColChunks * Terrain::m_ChunkRows),
-		Vector3(Terrain::m_RowChunks * Terrain::m_ChunkRows * 2, 3000, Terrain::m_ColChunks * Terrain::m_ChunkRows * 2)), 1.0f));
+	ar << BOOST_SERIALIZATION_NVP(m_Dimension);
+	ar << BOOST_SERIALIZATION_NVP(m_levels);
+}
+
+template<>
+void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	ar >> BOOST_SERIALIZATION_NVP(m_Dimension);
+	ar >> BOOST_SERIALIZATION_NVP(m_levels);
+	for (unsigned int i = 0; i < m_levels.size(); i++)
+	{
+		m_levels[i].m_World = this;
+	}
+}
+
+void WorldL::CreateLevels(int dimension)
+{
+	m_Dimension = dimension;
+	AABB level_bound(
+		Vector3(-(float)Terrain::m_RowChunks * Terrain::m_ChunkRows, -3000, -(float)Terrain::m_ColChunks * Terrain::m_ChunkRows),
+		Vector3((float)Terrain::m_RowChunks * Terrain::m_ChunkRows * 2, 3000, (float)Terrain::m_ColChunks * Terrain::m_ChunkRows * 2));
+	m_levels.resize(m_Dimension * m_Dimension, Octree(this, level_bound, 1.0f));
 }
 
 void WorldL::ClearAllLevels(void)
 {
 	m_ViewedActors.clear();
 	m_levels.clear();
-	m_Dim = 0;
+	m_Dimension = 0;
 	m_LevelId.SetPoint(0,0);
 }
 
@@ -56,7 +75,7 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & 
 		}
 	};
 
-	if (level_id.x >= 0 && level_id.x < m_Dim && level_id.y >= 0 && level_id.y < m_Dim)
+	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
 	{
 		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
 		Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
@@ -69,11 +88,9 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 	_QueryRenderComponent(m_LevelId + CPoint(-1, -1), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 0, -1), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 1, -1), frustum, pipeline, PassMask);
-
 	_QueryRenderComponent(m_LevelId + CPoint(-1,  0), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 0,  0), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 1,  0), frustum, pipeline, PassMask);
-
 	_QueryRenderComponent(m_LevelId + CPoint(-1,  1), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 0,  1), frustum, pipeline, PassMask);
 	_QueryRenderComponent(m_LevelId + CPoint( 1,  1), frustum, pipeline, PassMask);
@@ -111,7 +128,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 		}
 	};
 
-	if (level_id.x >= 0 && level_id.x < m_Dim && level_id.y >= 0 && level_id.y < m_Dim)
+	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
 	{
 		const Vector3 InExtent(1000, 1000, 1000);
 		Vector3 Offset((level_id.x - m_LevelId.x) * 512.0f, 0, (level_id.y - m_LevelId.y) * 512.0f);
@@ -145,11 +162,9 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos)
 	_ResetViewedActors(m_LevelId + CPoint(-1, -1), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 0, -1), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 1, -1), ViewPos);
-
 	_ResetViewedActors(m_LevelId + CPoint(-1,  0), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 0,  0), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 1,  0), ViewPos);
-
 	_ResetViewedActors(m_LevelId + CPoint(-1,  1), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 0,  1), ViewPos);
 	_ResetViewedActors(m_LevelId + CPoint( 1,  1), ViewPos);

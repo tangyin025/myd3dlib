@@ -10,7 +10,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
-#include <boost/foreach.hpp>
 #include <boost/algorithm/cxx11/none_of.hpp>
 #include <boost/lambda/lambda.hpp>
 
@@ -230,15 +229,15 @@ void OctNodeBase::ClearAllActor(void)
 
 void OctNodeBase::Flush(void)
 {
-	BOOST_FOREACH(OctNodeBasePtr & child, m_Childs)
+	for (unsigned int i = 0; i < m_Childs.size(); i++)
 	{
-		if (child)
+		if (m_Childs[i])
 		{
-			child->Flush();
-			if (child->m_Actors.empty()
-				&& boost::algorithm::none_of(child->m_Childs, boost::lambda::_1))
+			m_Childs[i]->Flush();
+			if (m_Childs[i]->m_Actors.empty()
+				&& boost::algorithm::none_of(m_Childs[i]->m_Childs, boost::lambda::_1))
 			{
-				child.reset();
+				m_Childs[i].reset();
 			}
 		}
 	}

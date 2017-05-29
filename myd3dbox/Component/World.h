@@ -2,21 +2,24 @@
 
 class Actor;
 class RenderPipeline;
+class WorldL;
 
 class Octree : public my::OctNode<0>
 {
-protected:
-	Octree(void)
-	{
-	}
+public:
+	WorldL * m_World;
 
 public:
-	Octree(const my::AABB & aabb, float MinBlock)
-		: OctNode(NULL, aabb, MinBlock)
+	Octree(void)
+		: m_World(NULL)
 	{
 	}
 
-	friend class boost::serialization::access;
+	Octree(WorldL * world, const my::AABB & aabb, float MinBlock)
+		: m_World(world)
+		, OctNode(NULL, aabb, MinBlock)
+	{
+	}
 
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
@@ -28,13 +31,13 @@ public:
 class WorldL
 {
 public:
-	int m_Dim;
+	int m_Dimension;
 
 	CPoint m_LevelId;
 
-	typedef std::vector<Octree> OctTreeList;
+	typedef std::vector<Octree> OctreeList;
 
-	OctTreeList m_levels;
+	OctreeList m_levels;
 
 	typedef boost::unordered_set<Actor *> OctActorSet;
 
@@ -42,24 +45,41 @@ public:
 
 public:
 	WorldL(void)
-		: m_Dim(0)
+		: m_Dimension(0)
 		, m_LevelId(0,0)
 	{
 	}
 
+	friend class boost::serialization::access;
+
+	template<class Archive>
+	void save(Archive & ar, const unsigned int version) const;
+
+	template<class Archive>
+	void load(Archive & ar, const unsigned int version);
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		BOOST_SERIALIZATION_NVP(m_Dim);
-		BOOST_SERIALIZATION_NVP(m_levels);
+		boost::serialization::split_member(ar, *this, version);
 	}
 
 	Octree & GetLevel(const CPoint & level_id)
 	{
-		return m_levels[level_id.y * m_Dim + level_id.x];
+		return m_levels[level_id.y * m_Dimension + level_id.x];
 	}
 
-	void CreateLevels(int x, int y);
+	CPoint GetLevelId(const Octree * level_ptr)
+	{
+		int dis = (level_ptr - &m_levels[0]) / sizeof(OctreeList::value_type);
+		if (dis < m_Dimension * m_Dimension)
+		{
+			return CPoint(dis % m_Dimension, dis / m_Dimension);
+		}
+		return CPoint(0, 0);
+	}
+
+	void CreateLevels(int dimension);
 
 	void ClearAllLevels(void);
 
