@@ -1553,7 +1553,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainStaticCollision:
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->m_StaticCollision = pProp->GetValue().boolVal;
+			bool StaticCollision = pProp->GetValue().boolVal;
+			terrain->ResetStaticCollision(StaticCollision);
+			if (terrain->IsRequested())
+			{
+				terrain->OnEnterPxScene(PhysXSceneContext::getSingleton().m_PxScene.get());
+			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

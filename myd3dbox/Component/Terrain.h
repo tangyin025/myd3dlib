@@ -115,6 +115,16 @@ public:
 
 	bool m_StaticCollision;
 
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
+	PhysXPtr<physx::PxHeightField> m_PxHeightField;
+
+	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+
+	PhysXPtr<physx::PxRigidActor> m_RigidActor;
+
+	PhysXPtr<physx::PxShape> m_PxShape;
+
 	void CalcLodDistanceSq(void);
 
 	void CreateHeightMap(void);
@@ -158,6 +168,10 @@ public:
 
 	virtual void ReleaseResource(void);
 
+	virtual void OnEnterPxScene(physx::PxScene * scene);
+
+	virtual void OnLeavePxScene(physx::PxScene * scene);
+
 	void CreateVertices(void);
 
 	void UpdateVertices(void);
@@ -169,6 +183,8 @@ public:
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	void ResetStaticCollision(bool StaticCollision);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
