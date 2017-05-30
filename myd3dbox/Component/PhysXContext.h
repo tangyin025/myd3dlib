@@ -54,8 +54,6 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
-
-	void ExportStaticCollision(Octree & octRoot, const char * path);
 };
 
 class PhysXSceneContext
@@ -94,10 +92,6 @@ public:
 
 	SubstepEvent m_EventPxThreadSubstep;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
-
-	PhysXPtr<physx::PxCollection> m_collection;
-
 public:
 	PhysXSceneContext(void)
 		: m_Completion0(this)
@@ -128,8 +122,4 @@ public:
 	void PushRenderBuffer(my::DrawHelper * drawHelper);
 
 	void Flush(void);
-
-	void ReleaseSerializeObjs(void);
-
-	void ImportStaticCollision(const char * path);
 };

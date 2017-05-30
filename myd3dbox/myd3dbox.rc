@@ -136,8 +136,6 @@ BEGIN
         MENUITEM "&Open...\tCtrl+O",            ID_FILE_OPEN
         MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE
         MENUITEM "Save &As...",                 ID_FILE_SAVE_AS
-        MENUITEM "Export Static Collision...",  ID_FILE_EXPORTSTATICCOLLISION
-        MENUITEM "Import Static Collision...",  ID_FILE_IMPORTSTATICCOLLISION
         MENUITEM SEPARATOR
         MENUITEM "Recent File",                 ID_FILE_MRU_FILE1, GRAYED
         MENUITEM SEPARATOR

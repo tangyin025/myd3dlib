@@ -106,8 +106,6 @@ public:
 	afx_msg void OnPivotRotate();
 	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
-	afx_msg void OnFileExportstaticcollision();
-	afx_msg void OnFileImportstaticcollision();
 };
 
 
