@@ -211,6 +211,16 @@ public:
 
 	bool m_StaticCollision;
 
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
+	PhysXPtr<physx::PxTriangleMesh> m_PxTriangleMesh;
+
+	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+
+	PhysXPtr<physx::PxRigidActor> m_RigidActor;
+
+	PhysXPtr<physx::PxShape> m_PxShape;
+
 public:
 	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
@@ -250,6 +260,10 @@ public:
 
 	virtual void ReleaseResource(void);
 
+	virtual void OnEnterPxScene(physx::PxScene * scene);
+
+	virtual void OnLeavePxScene(physx::PxScene * scene);
+
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
@@ -257,6 +271,8 @@ public:
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+
+	void ResetStaticCollision(bool StaticCollision);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

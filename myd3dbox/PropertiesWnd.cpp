@@ -1256,7 +1256,12 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyMeshStaticCollision:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			mesh_cmp->m_StaticCollision = pProp->GetValue().boolVal != 0;
+			bool StaticCollision = pProp->GetValue().boolVal;
+			mesh_cmp->ResetStaticCollision(StaticCollision);
+			if (mesh_cmp->IsRequested())
+			{
+				mesh_cmp->OnEnterPxScene(PhysXSceneContext::getSingleton().m_PxScene.get());
+			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
