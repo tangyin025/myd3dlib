@@ -110,17 +110,19 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 	_QueryRenderComponent(m_LevelId + CPoint( 1,  1), frustum, pipeline, PassMask);
 }
 
-void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos)
+void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, physx::PxScene * scene)
 {
 	struct CallBack : public IQueryCallback
 	{
 		WorldL * world;
 		const Vector3 & Offset;
 		const Vector3 & ViewPos;
-		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos)
+		physx::PxScene * scene;
+		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, physx::PxScene * _scene)
 			: world(_world)
 			, Offset(_Offset)
 			, ViewPos(_ViewPos)
+			, scene(_scene)
 		{
 		}
 		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
@@ -136,7 +138,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 					actor->RequestResource();
 				}
 				world->m_ViewedActors.insert(actor);
-				actor->OnEnterPxScene(PhysXSceneContext::getSingleton().m_PxScene.get());
+				actor->OnEnterPxScene(scene);
 			}
 			actor->UpdateLod(ViewPos);
 		}
@@ -147,11 +149,11 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 		const Vector3 InExtent(1000, 1000, 1000);
 		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
 		AABB InBox(ViewPos + Offset - InExtent, ViewPos + Offset + InExtent);
-		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos));
+		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos, scene));
 	}
 }
 
-void WorldL::ResetViewedActors(const my::Vector3 & ViewPos)
+void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene)
 {
 	const Vector3 OutExtent(1050, 1050, 1050);
 	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
@@ -166,20 +168,20 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos)
 			{
 				(*cmp_iter)->ReleaseResource();
 			}
-			(*cmp_iter)->OnLeavePxScene(PhysXSceneContext::getSingleton().m_PxScene.get());
+			(*cmp_iter)->OnLeavePxScene(scene);
 			cmp_iter = m_ViewedActors.erase(cmp_iter);
 		}
 		else
 			cmp_iter++;
 	}
 
-	_ResetViewedActors(m_LevelId + CPoint(-1, -1), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 0, -1), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 1, -1), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint(-1,  0), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 0,  0), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 1,  0), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint(-1,  1), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 0,  1), ViewPos);
-	_ResetViewedActors(m_LevelId + CPoint( 1,  1), ViewPos);
+	_ResetViewedActors(m_LevelId + CPoint(-1, -1), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 0, -1), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 1, -1), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint(-1,  0), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 0,  0), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 1,  0), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint(-1,  1), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 0,  1), ViewPos, scene);
+	_ResetViewedActors(m_LevelId + CPoint( 1,  1), ViewPos, scene);
 }

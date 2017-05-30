@@ -728,18 +728,6 @@ void ClothComponent::OnLostDevice(void)
 void ClothComponent::OnDestroyDevice(void)
 {
 	m_Decl.Release();
-
-	if (m_Cloth)
-	{
-		if (IsRequested())
-		{
-			PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_Cloth);
-		}
-		m_Fabric.reset();
-		m_Cloth.reset();
-	}
-
-	m_SerializeBuff.reset();
 }
 
 void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)

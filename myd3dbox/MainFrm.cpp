@@ -425,9 +425,9 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos)
+void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene)
 {
-	m_WorldL.ResetViewedActors(ViewPos);
+	m_WorldL.ResetViewedActors(ViewPos, scene);
 }
 
 void CMainFrame::ClearAllActor()

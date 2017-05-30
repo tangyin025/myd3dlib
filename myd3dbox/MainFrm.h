@@ -51,7 +51,7 @@ public:
 	void OnActorPosChanged(Actor * actor);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
-	void ResetViewedActors(const my::Vector3 & ViewPos);
+	void ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene);
 
 // Implementation
 public:

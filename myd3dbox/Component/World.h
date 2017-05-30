@@ -89,7 +89,7 @@ public:
 
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos);
+	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, physx::PxScene * scene);
 
-	void ResetViewedActors(const my::Vector3 & ViewPos);
+	void ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene);
 };
