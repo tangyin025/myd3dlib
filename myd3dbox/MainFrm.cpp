@@ -396,29 +396,25 @@ void CMainFrame::OnActorPosChanged(Actor * actor)
 
 void CMainFrame::UpdateSelBox(void)
 {
-	if (!m_selcmps.empty())
+	if (!m_selactors.empty())
 	{
 		m_selbox = my::AABB(FLT_MAX, -FLT_MAX);
-		ComponentSet::const_iterator sel_iter = m_selcmps.begin();
-		for (; sel_iter != m_selcmps.end(); sel_iter++)
+		ActorSet::const_iterator sel_iter = m_selactors.begin();
+		for (; sel_iter != m_selactors.end(); sel_iter++)
 		{
-			if (Component::IsTopParent((*sel_iter)->m_Type))
-			{
-				Actor * actor = dynamic_cast<Actor *>(*sel_iter);
-				m_selbox.unionSelf(actor->m_aabb.transform(actor->m_World));
-			}
+			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
 		}
 	}
 }
 
 void CMainFrame::UpdatePivotTransform(void)
 {
-	if (m_selcmps.size() == 1)
+	if (m_selactors.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selcmps.begin())->m_Position;
-		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selcmps.begin())->m_Rotation);
+		m_Pivot.m_Pos = (*m_selactors.begin())->m_Position;
+		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
 	}
-	else if (!m_selcmps.empty())
+	else if (!m_selactors.empty())
 	{
 		m_Pivot.m_Pos = m_selbox.Center();
 		m_Pivot.m_Rot = my::Quaternion::Identity();
@@ -433,7 +429,7 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene *
 void CMainFrame::ClearAllActor()
 {
 	m_WorldL.ClearAllLevels();
-	m_selcmps.clear();
+	m_selactors.clear();
 }
 
 void CMainFrame::OnDestroy()
@@ -562,8 +558,8 @@ void CMainFrame::OnCreateActor()
 	actor->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(actor.get());
+	m_selactors.clear();
+	m_selactors.insert(actor.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
 	EventArg arg;
@@ -585,8 +581,8 @@ void CMainFrame::OnCreateCharacter()
 	character->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
 
-	m_selcmps.clear();
-	m_selcmps.insert(character.get());
+	m_selactors.clear();
+	m_selactors.insert(character.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
 	EventArg arg;
@@ -596,8 +592,8 @@ void CMainFrame::OnCreateCharacter()
 void CMainFrame::OnComponentMesh()
 {
 	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
 		return;
 	}
@@ -630,12 +626,10 @@ void CMainFrame::OnComponentMesh()
 	}
 	mesh_cmp->RequestResource();
 	mesh_cmp->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(mesh_cmp);
-	mesh_cmp->UpdateWorld(my::Matrix4::identity);
-
-	Actor * actor = (*cmp_iter)->GetTopActor();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
+	(*actor_iter)->AddComponent(mesh_cmp);
+	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateAABB();
+	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArg arg;
@@ -645,14 +639,14 @@ void CMainFrame::OnComponentMesh()
 void CMainFrame::OnUpdateComponentMesh(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnComponentCloth()
 {
 	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
 		return;
 	}
@@ -685,12 +679,10 @@ void CMainFrame::OnComponentCloth()
 	}
 	cloth_cmp->RequestResource();
 	cloth_cmp->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(cloth_cmp);
-	cloth_cmp->UpdateWorld(my::Matrix4::identity);
-
-	Actor * actor = (*cmp_iter)->GetTopActor();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
+	(*actor_iter)->AddComponent(cloth_cmp);
+	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateAABB();
+	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArg arg;
@@ -700,14 +692,14 @@ void CMainFrame::OnComponentCloth()
 void CMainFrame::OnUpdateComponentCloth(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnComponentStaticEmitter()
 {
 	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
 		return;
 	}
@@ -722,12 +714,10 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(emit_cmp);
-	emit_cmp->UpdateWorld(my::Matrix4::identity);
-
-	Actor * actor = (*cmp_iter)->GetTopActor();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
+	(*actor_iter)->AddComponent(emit_cmp);
+	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateAABB();
+	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArg arg;
@@ -737,14 +727,14 @@ void CMainFrame::OnComponentStaticEmitter()
 void CMainFrame::OnUpdateComponentStaticEmitter(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnComponentSphericalemitter()
 {
 	//// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
 		return;
 	}
@@ -777,12 +767,10 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(sphe_emit_cmp);
-	sphe_emit_cmp->UpdateWorld(my::Matrix4::identity);
-
-	Actor * actor = (*cmp_iter)->GetTopActor();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
+	(*actor_iter)->AddComponent(sphe_emit_cmp);
+	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateAABB();
+	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArg arg;
@@ -792,14 +780,14 @@ void CMainFrame::OnComponentSphericalemitter()
 void CMainFrame::OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnComponentTerrain()
 {
 	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	if (cmp_iter == m_selcmps.end())
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	if (actor_iter == m_selactors.end())
 	{
 		return;
 	}
@@ -814,12 +802,10 @@ void CMainFrame::OnComponentTerrain()
 	terrain->m_Material = lambert1;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(m_PxScene.get());
-	(*cmp_iter)->AddComponent(terrain);
-	terrain->UpdateWorld(my::Matrix4::identity);
-
-	Actor * actor = (*cmp_iter)->GetTopActor();
-	actor->UpdateAABB();
-	OnActorPosChanged(actor);
+	(*actor_iter)->AddComponent(terrain);
+	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateAABB();
+	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArg arg;
@@ -829,7 +815,7 @@ void CMainFrame::OnComponentTerrain()
 void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnRigidSphere()
@@ -840,8 +826,8 @@ void CMainFrame::OnRigidSphere()
 	//rigid_cmp->RequestResource();
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
+	//m_selactors.clear();
+	//m_selactors.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -856,8 +842,8 @@ void CMainFrame::OnRigidPlane()
 	//rigid_cmp->RequestResource();
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
+	//m_selactors.clear();
+	//m_selactors.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -872,8 +858,8 @@ void CMainFrame::OnRigidCapsule()
 	//rigid_cmp->RequestResource();
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
+	//m_selactors.clear();
+	//m_selactors.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -888,8 +874,8 @@ void CMainFrame::OnRigidBox()
 	//rigid_cmp->RequestResource();
 	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 
-	//m_selcmps.clear();
-	//m_selcmps.insert(rigid_cmp.get());
+	//m_selactors.clear();
+	//m_selactors.insert(rigid_cmp.get());
 	//UpdateSelBox();
 	//UpdatePivotTransform();
 	//EventArg arg;
@@ -899,25 +885,14 @@ void CMainFrame::OnRigidBox()
 void CMainFrame::OnEditDelete()
 {
 	// TODO: Add your command handler code here
-	ComponentSet::iterator cmp_iter = m_selcmps.begin();
-	for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		if (Component::IsTopParent((*cmp_iter)->m_Type))
-		{
-			Actor * actor = dynamic_cast<Actor *>(*cmp_iter);
-			actor->OnLeavePxScene(m_PxScene.get());
-			m_WorldL.m_ViewedActors.erase(actor);
-			m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor(
-				boost::dynamic_pointer_cast<Actor>(actor->shared_from_this()));
-		}
-		else
-		{
-			ASSERT((*cmp_iter)->m_Parent);
-			(*cmp_iter)->m_Parent->RemoveComponent(
-				boost::dynamic_pointer_cast<Component>((*cmp_iter)->shared_from_this()));
-		}
+		(*actor_iter)->OnLeavePxScene(m_PxScene.get());
+		m_WorldL.m_ViewedActors.erase(*actor_iter);
+		m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor((*actor_iter)->shared_from_this());
 	}
-	m_selcmps.clear();
+	m_selactors.clear();
 	EventArg arg;
 	m_EventSelectionChanged(&arg);
 }
@@ -925,7 +900,7 @@ void CMainFrame::OnEditDelete()
 void CMainFrame::OnUpdateEditDelete(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
-	pCmdUI->Enable(!m_selcmps.empty());
+	pCmdUI->Enable(!m_selactors.empty());
 }
 
 void CMainFrame::OnPivotMove()
@@ -959,15 +934,15 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 {
 	//// TODO: Add your message handler code here and/or call default
-	if (!m_selcmps.empty())
+	if (!m_selactors.empty())
 	{
 		const float fElapsedTime = 0.016f;
 		PhysXSceneContext::AdvanceSync(fElapsedTime);
 
-		ComponentSet::iterator cmp_iter = m_selcmps.begin();
-		for (; cmp_iter != m_selcmps.end(); cmp_iter++)
+		ActorSet::iterator actor_iter = m_selactors.begin();
+		for (; actor_iter != m_selactors.end(); actor_iter++)
 		{
-			(*cmp_iter)->Update(fElapsedTime);
+			(*actor_iter)->Update(fElapsedTime);
 		}
 
 		EventArg arg;

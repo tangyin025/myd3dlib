@@ -9,6 +9,12 @@ class Actor
 public:
 	my::AABB m_aabb;
 
+	AnimatorPtr m_Animator;
+
+	typedef std::vector<ComponentPtr> ComponentPtrList;
+
+	ComponentPtrList m_Cmps;
+
 protected:
 	Actor(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Component(Type, Position, Rotation, Scale)
@@ -51,13 +57,27 @@ public:
 
 	virtual void ReleaseResource(void);
 
+	virtual void OnEnterPxScene(physx::PxScene * scene);
+
+	virtual void OnLeavePxScene(physx::PxScene * scene);
+
 	virtual void Update(float fElapsedTime);
 
+	virtual my::AABB CalculateAABB(void) const;
+
 	void UpdateAABB(void);
+
+	virtual void UpdateWorld(const my::Matrix4 & World);
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
+
+	void AddComponent(ComponentPtr cmp);
+
+	void RemoveComponent(ComponentPtr cmp);
+
+	void ClearAllComponent(ComponentPtr cmp);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

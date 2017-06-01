@@ -72,8 +72,6 @@ void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polym
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar << BOOST_SERIALIZATION_NVP(m_Scale);
 	ar << BOOST_SERIALIZATION_NVP(m_World);
-	ar << BOOST_SERIALIZATION_NVP(m_Animator);
-	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 }
 
 template<>
@@ -85,81 +83,28 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
-	ar >> BOOST_SERIALIZATION_NVP(m_Animator);
-	if (m_Animator)
-	{
-		m_Animator->m_Cmp = this;
-	}
-	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->m_Parent = this;
-	}
 }
 
 void Component::RequestResource(void)
 {
 	m_Requested = true;
-
-	if (m_Animator)
-	{
-		m_Animator->RequestResource();
-	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->RequestResource();
-	}
 }
 
 void Component::ReleaseResource(void)
 {
 	m_Requested = false;
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->ReleaseResource();
-	}
-
-	if (m_Animator)
-	{
-		m_Animator->ReleaseResource();
-	}
 }
 
 void Component::OnEnterPxScene(physx::PxScene * scene)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnEnterPxScene(scene);
-	}
 }
 
 void Component::OnLeavePxScene(physx::PxScene * scene)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->OnLeavePxScene(scene);
-	}
 }
 
 void Component::Update(float fElapsedTime)
 {
-	if (m_Animator)
-	{
-		m_Animator->Update(fElapsedTime);
-	}
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->Update(fElapsedTime);
-	}
 }
 
 my::Matrix4 Component::CalculateLocal(void) const
@@ -170,85 +115,19 @@ my::Matrix4 Component::CalculateLocal(void) const
 void Component::UpdateWorld(const my::Matrix4 & World)
 {
 	m_World = CalculateLocal() * World;
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->UpdateWorld(m_World);
-	}
 }
 
 my::AABB Component::CalculateAABB(void) const
 {
-	AABB ret = AABB::Invalid();
-	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		ret.unionSelf((*cmp_iter)->CalculateAABB().transform((*cmp_iter)->CalculateLocal()));
-	}
-	return ret;
+	return AABB::Invalid();
 }
 
 void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask);
-	}
 }
 
 void Component::UpdateLod(const my::Vector3 & ViewPos)
 {
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->UpdateLod(ViewPos);
-	}
-}
-
-void Component::AddComponent(ComponentPtr cmp)
-{
-	_ASSERT(!cmp->m_Parent);
-	m_Cmps.push_back(cmp);
-	cmp->m_Parent = this;
-}
-
-void Component::RemoveComponent(ComponentPtr cmp)
-{
-	ComponentPtrList::iterator cmp_iter = std::find(m_Cmps.begin(), m_Cmps.end(), cmp);
-	if (cmp_iter != m_Cmps.end())
-	{
-		_ASSERT((*cmp_iter)->m_Parent == this);
-		m_Cmps.erase(cmp_iter);
-		(*cmp_iter)->m_Parent = NULL;
-	}
-}
-
-void Component::ClearAllComponent(ComponentPtr cmp)
-{
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->m_Parent = NULL;
-	}
-	m_Cmps.clear();
-}
-
-bool Component::IsTopParent(ComponentType type)
-{
-	return type == ComponentTypeActor
-		|| type == ComponentTypeCharacter;
-}
-
-Actor * Component::GetTopActor(void)
-{
-	if (m_Parent)
-	{
-		return m_Parent->GetTopActor();
-	}
-	_ASSERT(IsTopParent(m_Type));
-	return dynamic_cast<Actor *>(this);
 }
 
 template<>
@@ -375,11 +254,11 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_bUseAnimation && m_Parent && m_Parent->m_Animator)
+	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
-		if (!m_Parent->m_Animator->m_DualQuats.empty())
+		if (!m_Actor->m_Animator->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray("g_dualquat", &m_Parent->m_Animator->m_DualQuats[0], m_Parent->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
 
@@ -739,11 +618,11 @@ void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetMatrix("g_World", m_World);
 
-	if (m_bUseAnimation && m_Parent && m_Parent->m_Animator)
+	if (m_bUseAnimation && m_Actor && m_Actor->m_Animator)
 	{
-		if (!m_Parent->m_Animator->m_DualQuats.empty())
+		if (!m_Actor->m_Animator->m_DualQuats.empty())
 		{
-			shader->SetMatrixArray("g_dualquat", &m_Parent->m_Animator->m_DualQuats[0], m_Parent->m_Animator->m_DualQuats.size());
+			shader->SetMatrixArray("g_dualquat", &m_Actor->m_Animator->m_DualQuats[0], m_Actor->m_Animator->m_DualQuats.size());
 		}
 	}
 
@@ -818,14 +697,14 @@ void ClothComponent::UpdateCloth(void)
 			const DWORD NbParticles = m_Cloth->getNbParticles();
 			m_NewParticles.resize(NbParticles);
 			if (m_bUseAnimation
-				&& m_Parent && m_Parent->m_Animator && !m_Parent->m_Animator->m_DualQuats.empty()
+				&& m_Actor && m_Actor->m_Animator && !m_Actor->m_Animator->m_DualQuats.empty()
 				&& m_VertexElems.elems[D3DDECLUSAGE_BLENDINDICES][0].Type == D3DDECLTYPE_UBYTE4)
 			{
 				for (unsigned int i = 0; i < NbParticles; i++)
 				{
 					void * pVertex = pVertices + i * m_VertexStride;
 					m_NewParticles[i].invWeight = readData->particles[i].invWeight;
-					my::Vector3 pos = m_Parent->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
+					my::Vector3 pos = m_Actor->m_Animator->m_DualQuats.TransformVertexWithDualQuaternionList(
 						(my::Vector3 &)m_particles[i].pos,
 						m_VertexElems.GetBlendIndices(pVertex),
 						m_VertexElems.GetBlendWeight(pVertex));

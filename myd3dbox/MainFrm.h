@@ -31,8 +31,8 @@ public:
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
 	WorldL m_WorldL;
-	typedef boost::unordered_set<Component *> ComponentSet;
-	ComponentSet m_selcmps;
+	typedef boost::unordered_set<Actor *> ActorSet;
+	ActorSet m_selactors;
 	my::AABB m_selbox;
 	//EmitterComponentPtr m_emitter;
 	Event m_EventSelectionChanged;

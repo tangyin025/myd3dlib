@@ -87,13 +87,7 @@ public:
 
 	my::Matrix4 m_World;
 
-	AnimatorPtr m_Animator;
-
-	typedef std::vector<ComponentPtr> ComponentPtrList;
-
-	ComponentPtrList m_Cmps;
-
-	Component * m_Parent;
+	Actor * m_Actor;
 
 	bool m_Requested;
 
@@ -104,7 +98,7 @@ protected:
 		, m_Rotation(Rotation)
 		, m_Scale(Scale)
 		, m_World(my::Matrix4::Identity())
-		, m_Parent(NULL)
+		, m_Actor(NULL)
 		, m_Requested(false)
 	{
 	}
@@ -116,7 +110,7 @@ public:
 		, m_Rotation(my::Quaternion::Identity())
 		, m_Scale(1,1,1)
 		, m_World(my::Matrix4::Identity())
-		, m_Parent(NULL)
+		, m_Actor(NULL)
 		, m_Requested(false)
 	{
 	}
@@ -156,23 +150,13 @@ public:
 
 	my::Matrix4 CalculateLocal(void) const;
 
-	void UpdateWorld(const my::Matrix4 & World);
+	virtual void UpdateWorld(const my::Matrix4 & World);
 
 	virtual my::AABB CalculateAABB(void) const;
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
-
-	void AddComponent(ComponentPtr cmp);
-
-	void RemoveComponent(ComponentPtr cmp);
-
-	void ClearAllComponent(ComponentPtr cmp);
-
-	static bool IsTopParent(ComponentType type);
-
-	Actor * GetTopActor(void);
 };
 
 class RenderComponent

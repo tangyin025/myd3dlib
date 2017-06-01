@@ -112,9 +112,9 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	if (!pFrame->m_selcmps.empty())
+	if (!pFrame->m_selactors.empty())
 	{
-		UpdateProperties(NULL, 0, *pFrame->m_selcmps.begin());
+		UpdateProperties(NULL, 0, *pFrame->m_selactors.begin());
 		m_wndPropList.AdjustLayout();
 	}
 	else
@@ -128,10 +128,10 @@ void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CMainFrame::ComponentSet::iterator cmp_iter = pFrame->m_selcmps.begin();
-	if (cmp_iter != pFrame->m_selcmps.end())
+	CMainFrame::ActorSet::iterator actor_iter = pFrame->m_selactors.begin();
+	if (actor_iter != pFrame->m_selactors.end())
 	{
-		UpdateProperties(NULL, 0, *cmp_iter);
+		UpdateProperties(NULL, 0, *actor_iter);
 		m_wndPropList.AdjustLayout();
 	}
 }
@@ -229,16 +229,6 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	//	break;
 	}
 //	m_wndPropList.AdjustLayout();
-
-	if (!cmp->m_Cmps.empty())
-	{
-		Component::ComponentPtrList::iterator m_selcmps = cmp->m_Cmps.begin();
-		for (; m_selcmps != cmp->m_Cmps.end(); m_selcmps++)
-		{
-			UpdateProperties(pComponent, GetComponentPropCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
-		}
-	}
-	RemovePropertiesFrom(pComponent, GetComponentPropCount(cmp->m_Type) + cmp->m_Cmps.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
@@ -257,6 +247,15 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	if (!actor->m_Cmps.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+		{
+			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
+	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + actor->m_Cmps.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
@@ -275,6 +274,15 @@ void CPropertiesWnd::UpdatePropertiesCharacter(CMFCPropertyGridProperty * pCompo
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)character->m_aabb.m_max.x);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)character->m_aabb.m_max.y);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)character->m_aabb.m_max.z);
+	if (!character->m_Cmps.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = character->m_Cmps.begin();
+		for (; cmp_iter != character->m_Cmps.end(); cmp_iter++)
+		{
+			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(character->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
+	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + character->m_Cmps.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -301,6 +309,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 		}
 		UpdatePropertiesMaterial(pMaterialList, i, mesh_cmp->m_MaterialList[i].get());
 	}
+	RemovePropertiesFrom(pMaterialList, mesh_cmp->m_MaterialList.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParentCtrl, int NodeId, Material * mat)
@@ -339,6 +348,7 @@ void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent
 		}
 		UpdatePropertiesMaterial(pMaterialList, i, cloth_cmp->m_MaterialList[i].get());
 	}
+	RemovePropertiesFrom(pMaterialList, cloth_cmp->m_MaterialList.size());
 }
 
 void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pComponent, EmitterComponent * emit_cmp)
@@ -360,7 +370,7 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitter(CMFCPropertyGridProperty * pC
 		}
 		UpdatePropertiesStaticEmitterParticle(pProp, i, emit_cmp);
 	}
-	RemovePropertiesFrom(pProp, emit_cmp->m_Emitter->m_ParticleList.size() + 1);
+	RemovePropertiesFrom(pProp, 1 + emit_cmp->m_Emitter->m_ParticleList.size());
 	UpdatePropertiesMaterial(pComponent, PropId + 1, emit_cmp->m_Material.get());
 }
 
@@ -603,15 +613,6 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 		CreatePropertiesTerrain(pComponent, dynamic_cast<Terrain *>(cmp));
 		break;
 	}
-
-	if (!cmp->m_Cmps.empty())
-	{
-		Component::ComponentPtrList::iterator m_selcmps = cmp->m_Cmps.begin();
-		for (; m_selcmps != cmp->m_Cmps.end(); m_selcmps++)
-		{
-			CreateProperties(pComponent, GetComponentPropCount(cmp->m_Type) + std::distance(cmp->m_Cmps.begin(), m_selcmps), m_selcmps->get());
-		}
-	}
 }
 
 void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor)
@@ -632,6 +633,14 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
+	if (!actor->m_Cmps.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
+		for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
+		{
+			CreateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(actor->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
@@ -652,6 +661,14 @@ void CPropertiesWnd::CreatePropertiesCharacter(CMFCPropertyGridProperty * pCompo
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)character->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
+	if (!character->m_Cmps.empty())
+	{
+		Actor::ComponentPtrList::iterator cmp_iter = character->m_Cmps.begin();
+		for (; cmp_iter != character->m_Cmps.end(); cmp_iter++)
+		{
+			CreateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeCharacter) + std::distance(character->m_Cmps.begin(), cmp_iter), cmp_iter->get());
+		}
+	}
 }
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -1126,11 +1143,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	//if (pFrame->m_selcmps.empty())
+	//if (pFrame->m_selactors.empty())
 	//{
 	//	return 0;
 	//}
-	//Component * cmp = *pFrame->m_selcmps.begin();
+	//Component * cmp = *pFrame->m_selactors.begin();
 
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
@@ -1181,7 +1198,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			cmp->UpdateWorld(my::Matrix4::identity);
-			Actor * actor = cmp->GetTopActor();
+			Actor * actor = cmp->m_Actor;
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1514,7 +1531,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->m_HeightScale = pProp->GetValue().fltVal;
 			terrain->UpdateHeightMapNormal();
 			terrain->UpdateChunks();
-			Actor * actor = terrain->GetTopActor();
+			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1541,7 +1558,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 				terrain->UpdateHeightMap(res);
-				Actor * actor = terrain->GetTopActor();
+				Actor * actor = terrain->m_Actor;
 				actor->UpdateAABB();
 				pFrame->OnActorPosChanged(actor);
 				pFrame->UpdateSelBox();

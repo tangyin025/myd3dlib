@@ -919,12 +919,8 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("Rotation", &Component::m_Rotation)
 			.def_readwrite("Scale", &Component::m_Scale)
 			.def_readwrite("World", &Component::m_World)
-			.def_readwrite("Animator", &Component::m_Animator)
 			.def("RequestResource", &Component::RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource)
-			.def("AddComponent", &Component::AddComponent)
-			.def("RemoveComponent", &Component::RemoveComponent)
-			.def("ClearAllComponent", &Component::ClearAllComponent)
 
 		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
@@ -966,6 +962,10 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def(constructor<>())
 			.def_readwrite("aabb", &Actor::m_aabb)
+			.def_readwrite("Animator", &Actor::m_Animator)
+			.def("AddComponent", &Actor::AddComponent)
+			.def("RemoveComponent", &Actor::RemoveComponent)
+			.def("ClearAllComponent", &Actor::ClearAllComponent)
 
 		, def("cmp2oct", &boost::static_pointer_cast<my::OctActor, Component>)
 	];
