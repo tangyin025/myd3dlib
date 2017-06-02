@@ -967,7 +967,7 @@ static void ExportComponent(lua_State * L)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 
-		, def("cmp2oct", &boost::static_pointer_cast<my::OctActor, Component>)
+		//, def("cmp2oct", &boost::static_pointer_cast<my::OctActor, Component>)
 	];
 }
 

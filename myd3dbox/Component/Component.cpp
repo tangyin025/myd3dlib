@@ -66,7 +66,6 @@ void Material::ReleaseResource(void)
 template<>
 void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
-	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar << BOOST_SERIALIZATION_NVP(m_Type);
 	ar << BOOST_SERIALIZATION_NVP(m_Position);
 	ar << BOOST_SERIALIZATION_NVP(m_Rotation);
@@ -77,7 +76,6 @@ void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polym
 template<>
 void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
-	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar >> BOOST_SERIALIZATION_NVP(m_Type);
 	ar >> BOOST_SERIALIZATION_NVP(m_Position);
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);

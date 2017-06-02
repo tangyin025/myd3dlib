@@ -61,7 +61,6 @@ typedef boost::shared_ptr<Component> ComponentPtr;
 class Actor;
 
 class Component
-	: public my::OctActor
 {
 public:
 	enum ComponentType

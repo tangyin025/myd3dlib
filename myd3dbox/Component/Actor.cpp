@@ -18,6 +18,7 @@ BOOST_CLASS_EXPORT(Actor)
 template<>
 void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
+	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
@@ -27,6 +28,7 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 template<>
 void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
 {
+	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(OctActor);
 	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar >> BOOST_SERIALIZATION_NVP(m_aabb);
 	ar >> BOOST_SERIALIZATION_NVP(m_Animator);

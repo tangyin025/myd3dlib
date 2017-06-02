@@ -4,7 +4,8 @@
 #include "Component.h"
 
 class Actor
-	: public Component
+	: public my::OctActor
+	, public Component
 {
 public:
 	my::AABB m_aabb;
