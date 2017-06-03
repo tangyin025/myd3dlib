@@ -5,6 +5,8 @@
 class Character : public Actor
 {
 public:
+	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+
 	PhysXPtr<physx::PxController> m_Controller;
 
 public:

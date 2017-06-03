@@ -9,7 +9,7 @@ struct PhysXDeleter
 
     void operator()(T * x) const
     {
-		x->release();
+		_ASSERT(x); x->release();
     }
 };
 

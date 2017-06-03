@@ -553,10 +553,10 @@ void CMainFrame::OnCreateActor()
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
-	actor->RequestResource();
-	actor->OnEnterPxScene(this);
 	actor->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
+	actor->RequestResource();
+	actor->OnEnterPxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(actor.get());
@@ -576,10 +576,10 @@ void CMainFrame::OnCreateCharacter()
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
-	character->RequestResource();
-	character->OnEnterPxScene(this);
 	character->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
+	character->RequestResource();
+	character->OnEnterPxScene(this);
 
 	m_selactors.clear();
 	m_selactors.insert(character.get());

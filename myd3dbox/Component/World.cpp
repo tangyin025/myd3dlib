@@ -134,9 +134,9 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 				if (!actor->IsRequested())
 				{
 					actor->RequestResource();
+					actor->OnEnterPxScene(scene);
 				}
 				world->m_ViewedActors.insert(actor);
-				actor->OnEnterPxScene(scene);
 			}
 			actor->UpdateLod(ViewPos);
 		}
@@ -165,8 +165,8 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			if ((*cmp_iter)->IsRequested())
 			{
 				(*cmp_iter)->ReleaseResource();
+				(*cmp_iter)->OnLeavePxScene(scene);
 			}
-			(*cmp_iter)->OnLeavePxScene(scene);
 			cmp_iter = m_ViewedActors.erase(cmp_iter);
 		}
 		else

@@ -10,6 +10,7 @@
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
 #include "World.h"
+#include "PhysXContext.h"
 
 using namespace my;
 
@@ -47,13 +48,22 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 		(level_id.x - level->m_World->m_LevelId.x) * WorldL::LEVEL_SIZE, 0,
 		(level_id.y - level->m_World->m_LevelId.y) * WorldL::LEVEL_SIZE);
 
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 2.0f;
+	desc.radius = 1.0f;
+	desc.material = m_PxMaterial.get();
 	desc.position = physx::PxExtendedVec3(m_Position.x + Offset.x, m_Position.y, m_Position.z + Offset.z);
+	m_Controller.reset(scene->m_ControllerMgr->createController(desc));
 }
 
 void Character::OnLeavePxScene(PhysXSceneContext * scene)
 {
+	m_Controller.reset();
+
+	m_PxMaterial.reset();
+
 	Actor::OnLeavePxScene(scene);
 }
 
