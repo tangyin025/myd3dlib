@@ -15,8 +15,6 @@
 
 using namespace my;
 
-#define LEVEL_SIZE (512.0f)
-
 BOOST_CLASS_EXPORT(Octree)
 
 template<>
@@ -110,15 +108,15 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 	_QueryRenderComponent(m_LevelId + CPoint( 1,  1), frustum, pipeline, PassMask);
 }
 
-void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, physx::PxScene * scene)
+void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	struct CallBack : public IQueryCallback
 	{
 		WorldL * world;
 		const Vector3 & Offset;
 		const Vector3 & ViewPos;
-		physx::PxScene * scene;
-		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, physx::PxScene * _scene)
+		PhysXSceneContext * scene;
+		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
 			: world(_world)
 			, Offset(_Offset)
 			, ViewPos(_ViewPos)
@@ -153,7 +151,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 	}
 }
 
-void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene)
+void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	const Vector3 OutExtent(1050, 1050, 1050);
 	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);

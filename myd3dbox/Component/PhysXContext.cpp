@@ -66,11 +66,6 @@ bool PhysXContext::Init(void)
 	{
 		THROW_CUSEXCEPTION("PxDefaultCpuDispatcherCreate failed");
 	}
-
-	//if(!(m_ControllerMgr.reset(PxCreateControllerManager(*m_Foundation)), m_ControllerMgr))
-	//{
-	//	THROW_CUSEXCEPTION("PxCreateControllerManager failed");
-	//}
 	return true;
 }
 
@@ -80,8 +75,6 @@ void PhysXContext::Shutdown(void)
 	{
 		PxCloseExtensions();
 	}
-
-	//m_ControllerMgr.reset();
 
 	m_CpuDispatcher.reset();
 
@@ -129,12 +122,18 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_FNORMALS, 1);
 	//m_PxScene->setVisualizationParameter(PxVisualizationParameter::eCOLLISION_AABBS, 1);
 
+	if(!(m_ControllerMgr.reset(PxCreateControllerManager(*m_PxScene)), m_ControllerMgr))
+	{
+		THROW_CUSEXCEPTION("PxCreateControllerManager failed");
+	}
+
 	return true;
 }
 
 void PhysXSceneContext::Shutdown(void)
 {
 	//_ASSERT(!m_PxScene || 0 == m_PxScene->getNbActors(PxActorTypeSelectionFlags(0xff)));
+	m_ControllerMgr.reset();
 	m_PxScene.reset();
 }
 

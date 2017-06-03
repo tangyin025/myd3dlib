@@ -1277,7 +1277,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			mesh_cmp->ResetStaticCollision(StaticCollision);
 			if (mesh_cmp->IsRequested())
 			{
-				mesh_cmp->OnEnterPxScene(pFrame->m_PxScene.get());
+				mesh_cmp->OnEnterPxScene(pFrame);
 			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
@@ -1574,7 +1574,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->ResetStaticCollision(StaticCollision);
 			if (terrain->IsRequested())
 			{
-				terrain->OnEnterPxScene(pFrame->m_PxScene.get());
+				terrain->OnEnterPxScene(pFrame);
 			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);

@@ -58,9 +58,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(physx::PxScene * scene);
+	virtual void OnEnterPxScene(PhysXSceneContext * scene);
 
-	virtual void OnLeavePxScene(physx::PxScene * scene);
+	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
 	virtual void Update(float fElapsedTime);
 

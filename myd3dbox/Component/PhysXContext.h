@@ -32,8 +32,6 @@ public:
 
 	PhysXPtr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
-	//PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
-
 public:
 	PhysXContext(void)
 	{
@@ -90,6 +88,8 @@ public:
 	typedef boost::signals2::signal<void (float)> SubstepEvent;
 
 	SubstepEvent m_EventPxThreadSubstep;
+
+	PhysXPtr<physx::PxControllerManager> m_ControllerMgr;
 
 public:
 	PhysXSceneContext(void)

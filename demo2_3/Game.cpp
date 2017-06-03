@@ -571,7 +571,7 @@ void Game::OnFrameTick(
 
 	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
 
-	ResetViewedActors(m_Camera->m_Eye, m_PxScene.get());
+	ResetViewedActors(m_Camera->m_Eye, this);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -755,7 +755,7 @@ void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pi
 	m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
 }
 
-void Game::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene)
+void Game::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	m_WorldL.ResetViewedActors(ViewPos, scene);
 }

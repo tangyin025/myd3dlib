@@ -583,21 +583,21 @@ void Terrain::ReleaseResource(void)
 	RenderComponent::ReleaseResource();
 }
 
-void Terrain::OnEnterPxScene(physx::PxScene * scene)
+void Terrain::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	RenderComponent::OnEnterPxScene(scene);
 
 	if (m_RigidActor)
 	{
-		scene->addActor(*m_RigidActor);
+		scene->m_PxScene->addActor(*m_RigidActor);
 	}
 }
 
-void Terrain::OnLeavePxScene(physx::PxScene * scene)
+void Terrain::OnLeavePxScene(PhysXSceneContext * scene)
 {
 	if (m_RigidActor)
 	{
-		scene->removeActor(*m_RigidActor);
+		scene->m_PxScene->removeActor(*m_RigidActor);
 	}
 
 	RenderComponent::OnLeavePxScene(scene);

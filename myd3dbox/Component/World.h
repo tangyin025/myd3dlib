@@ -3,6 +3,7 @@
 class Actor;
 class RenderPipeline;
 class WorldL;
+class PhysXSceneContext;
 
 class Octree : public my::OctNode<0>
 {
@@ -31,6 +32,8 @@ public:
 class WorldL
 {
 public:
+	static const int LEVEL_SIZE = 512;
+
 	int m_Dimension;
 
 	CPoint m_LevelId;
@@ -89,7 +92,7 @@ public:
 
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, physx::PxScene * scene);
+	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 
-	void ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene);
+	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 };

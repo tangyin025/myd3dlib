@@ -60,6 +60,8 @@ typedef boost::shared_ptr<Component> ComponentPtr;
 
 class Actor;
 
+class PhysXSceneContext;
+
 class Component
 {
 public:
@@ -141,9 +143,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(physx::PxScene * scene);
+	virtual void OnEnterPxScene(PhysXSceneContext * scene);
 
-	virtual void OnLeavePxScene(physx::PxScene * scene);
+	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
 	virtual void Update(float fElapsedTime);
 
@@ -241,9 +243,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(physx::PxScene * scene);
+	virtual void OnEnterPxScene(PhysXSceneContext * scene);
 
-	virtual void OnLeavePxScene(physx::PxScene * scene);
+	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
 	virtual void Update(float fElapsedTime);
 
@@ -324,9 +326,9 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(physx::PxScene * scene);
+	virtual void OnEnterPxScene(PhysXSceneContext * scene);
 
-	virtual void OnLeavePxScene(physx::PxScene * scene);
+	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
 	virtual void OnResetDevice(void);
 

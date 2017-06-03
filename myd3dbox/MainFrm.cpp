@@ -421,7 +421,7 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, physx::PxScene * scene)
+void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	m_WorldL.ResetViewedActors(ViewPos, scene);
 }
@@ -554,7 +554,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->RequestResource();
-	actor->OnEnterPxScene(m_PxScene.get());
+	actor->OnEnterPxScene(this);
 	actor->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 
@@ -577,7 +577,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	character->RequestResource();
-	character->OnEnterPxScene(m_PxScene.get());
+	character->OnEnterPxScene(this);
 	character->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
 
@@ -625,7 +625,7 @@ void CMainFrame::OnComponentMesh()
 		mesh_cmp->m_MaterialList.push_back(lambert1);
 	}
 	mesh_cmp->RequestResource();
-	mesh_cmp->OnEnterPxScene(m_PxScene.get());
+	mesh_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
@@ -678,7 +678,7 @@ void CMainFrame::OnComponentCloth()
 		cloth_cmp->m_MaterialList.push_back(lambert1);
 	}
 	cloth_cmp->RequestResource();
-	cloth_cmp->OnEnterPxScene(m_PxScene.get());
+	cloth_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
@@ -713,7 +713,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
-	emit_cmp->OnEnterPxScene(m_PxScene.get());
+	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
@@ -766,7 +766,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
-	sphe_emit_cmp->OnEnterPxScene(m_PxScene.get());
+	sphe_emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
@@ -801,7 +801,7 @@ void CMainFrame::OnComponentTerrain()
 	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
 	terrain->m_Material = lambert1;
 	terrain->RequestResource();
-	terrain->OnEnterPxScene(m_PxScene.get());
+	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
@@ -888,7 +888,7 @@ void CMainFrame::OnEditDelete()
 	ActorSet::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
-		(*actor_iter)->OnLeavePxScene(m_PxScene.get());
+		(*actor_iter)->OnLeavePxScene(this);
 		m_WorldL.m_ViewedActors.erase(*actor_iter);
 		m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor((*actor_iter)->shared_from_this());
 	}

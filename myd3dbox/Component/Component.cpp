@@ -93,11 +93,11 @@ void Component::ReleaseResource(void)
 	m_Requested = false;
 }
 
-void Component::OnEnterPxScene(physx::PxScene * scene)
+void Component::OnEnterPxScene(PhysXSceneContext * scene)
 {
 }
 
-void Component::OnLeavePxScene(physx::PxScene * scene)
+void Component::OnLeavePxScene(PhysXSceneContext * scene)
 {
 }
 
@@ -219,21 +219,21 @@ void MeshComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void MeshComponent::OnEnterPxScene(physx::PxScene * scene)
+void MeshComponent::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	RenderComponent::OnEnterPxScene(scene);
 
 	if (m_RigidActor)
 	{
-		scene->addActor(*m_RigidActor);
+		scene->m_PxScene->addActor(*m_RigidActor);
 	}
 }
 
-void MeshComponent::OnLeavePxScene(physx::PxScene * scene)
+void MeshComponent::OnLeavePxScene(PhysXSceneContext * scene)
 {
 	if (m_RigidActor)
 	{
-		scene->removeActor(*m_RigidActor);
+		scene->m_PxScene->removeActor(*m_RigidActor);
 	}
 
 	RenderComponent::OnLeavePxScene(scene);
@@ -573,21 +573,21 @@ void ClothComponent::ReleaseResource(void)
 	RenderComponent::ReleaseResource();
 }
 
-void ClothComponent::OnEnterPxScene(physx::PxScene * scene)
+void ClothComponent::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	RenderComponent::OnEnterPxScene(scene);
 
 	if (m_Cloth)
 	{
-		scene->addActor(*m_Cloth);
+		scene->m_PxScene->addActor(*m_Cloth);
 	}
 }
 
-void ClothComponent::OnLeavePxScene(physx::PxScene * scene)
+void ClothComponent::OnLeavePxScene(PhysXSceneContext * scene)
 {
 	if (m_Cloth)
 	{
-		scene->removeActor(*m_Cloth);
+		scene->m_PxScene->removeActor(*m_Cloth);
 	}
 
 	RenderComponent::OnLeavePxScene(scene);

@@ -80,7 +80,7 @@ void Actor::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void Actor::OnEnterPxScene(physx::PxScene * scene)
+void Actor::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	Component::OnEnterPxScene(scene);
 
@@ -91,7 +91,7 @@ void Actor::OnEnterPxScene(physx::PxScene * scene)
 	}
 }
 
-void Actor::OnLeavePxScene(physx::PxScene * scene)
+void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

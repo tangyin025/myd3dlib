@@ -5,6 +5,9 @@
 class Character : public Actor
 {
 public:
+	PhysXPtr<physx::PxController> m_Controller;
+
+public:
 	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
 	{
@@ -32,6 +35,16 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	virtual void RequestResource(void);
+
+	virtual void ReleaseResource(void);
+
+	virtual void OnEnterPxScene(PhysXSceneContext * scene);
+
+	virtual void OnLeavePxScene(PhysXSceneContext * scene);
+
+	virtual void Update(float fElapsedTime);
 };
 
 typedef boost::shared_ptr<Character> CharacterPtr;

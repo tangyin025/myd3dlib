@@ -1124,7 +1124,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		pFrame->ResetViewedActors(boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame->m_PxScene.get());
+		pFrame->ResetViewedActors(boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
 		switch (pMsg->message)
 		{
 		case WM_LBUTTONDOWN:
