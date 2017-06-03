@@ -270,7 +270,6 @@ Game::Game(void)
 			.def("SaveComponent", &Game::SaveComponent)
 			.def("LoadComponent", &Game::LoadComponent)
 			.def("ImportScene", &Game::ImportScene)
-			.def("ImportStaticCollision", &Game::ImportStaticCollision)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -820,11 +819,4 @@ void Game::ImportScene(const char * path)
 	boost::archive::polymorphic_xml_iarchive ia(ifs);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
 	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
-}
-
-void Game::ImportStaticCollision(const char * path)
-{
-	//ReleaseSerializeObjs();
-
-	//PhysXSceneContext::ImportStaticCollision(path);
 }
