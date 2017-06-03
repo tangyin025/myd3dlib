@@ -123,8 +123,6 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_RigidActor;
 
-	PhysXPtr<physx::PxShape> m_PxShape;
-
 	void CalcLodDistanceSq(void);
 
 	void CreateHeightMap(void);

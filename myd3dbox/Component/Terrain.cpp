@@ -550,7 +550,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 				m_RigidActor.reset(obj->is<physx::PxRigidStatic>());
 				break;
 			case physx::PxConcreteType::eSHAPE:
-				m_PxShape.reset(obj->is<physx::PxShape>());
+				obj->is<physx::PxShape>()->release();
 				break;
 			}
 		}
@@ -738,7 +738,6 @@ void Terrain::ResetStaticCollision(bool StaticCollision)
 		m_PxHeightField.reset();
 		m_PxMaterial.reset();
 		m_RigidActor.reset();
-		m_PxShape.reset();
 		m_SerializeBuff.reset();
 		return;
 	}
@@ -775,8 +774,8 @@ void Terrain::ResetStaticCollision(bool StaticCollision)
 	my::Vector3 pos, scale; my::Quaternion rot;
 	m_World.Decompose(scale, rot, pos);
 	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
-	m_PxShape.reset(m_RigidActor->createShape(
+	physx::PxShape * shape = m_RigidActor->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z),
-		*m_PxMaterial, physx::PxTransform::createIdentity()));
-	//m_PxShape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+		*m_PxMaterial, physx::PxTransform::createIdentity());
+	//shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
 }

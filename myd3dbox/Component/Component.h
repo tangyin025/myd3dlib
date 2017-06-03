@@ -202,8 +202,6 @@ public:
 
 	PhysXPtr<physx::PxRigidActor> m_RigidActor;
 
-	PhysXPtr<physx::PxShape> m_PxShape;
-
 public:
 	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
