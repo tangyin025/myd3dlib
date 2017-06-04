@@ -75,7 +75,7 @@ protected:
 	afx_msg void OnApplicationLook(UINT id);
 	afx_msg void OnUpdateApplicationLook(CCmdUI* pCmdUI);
 	DECLARE_MESSAGE_MAP()
-	void ClearAllActor();
+	void ClearFileContext();
 
 public:
 	afx_msg void OnDestroy();

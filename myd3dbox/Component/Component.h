@@ -198,8 +198,6 @@ public:
 
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
-	PhysXPtr<physx::PxTriangleMesh> m_PxTriangleMesh;
-
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
 
 	PhysXPtr<physx::PxRigidActor> m_RigidActor;

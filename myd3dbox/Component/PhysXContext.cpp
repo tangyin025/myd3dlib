@@ -69,8 +69,68 @@ bool PhysXContext::Init(void)
 	return true;
 }
 
+template<>
+void PhysXContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
+{
+	const_cast<PhysXContext *>(this)->m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
+	const_cast<PhysXContext *>(this)->m_Collection.reset(PxCreateCollection());
+	TriangleMeshMap::const_iterator tri_mesh_iter = m_TriangleMeshes.begin();
+	for (; tri_mesh_iter != m_TriangleMeshes.end(); tri_mesh_iter++)
+	{
+		m_Collection->add(*tri_mesh_iter->second);
+	}
+	physx::PxDefaultMemoryOutputStream ostr;
+	physx::PxSerialization::createSerialObjectIds(*m_Collection, physx::PxSerialObjectId(1));
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *m_Collection, *m_Registry);
+	unsigned int StreamBuffSize = ostr.getSize();
+	ar << BOOST_SERIALIZATION_NVP(StreamBuffSize);
+	ar << boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+	tri_mesh_iter = m_TriangleMeshes.begin();
+	for (; tri_mesh_iter != m_TriangleMeshes.end(); tri_mesh_iter++)
+	{
+		std::string key = tri_mesh_iter->first;
+		ar << BOOST_SERIALIZATION_NVP(key);
+		physx::PxSerialObjectId id = m_Collection->getId(*tri_mesh_iter->second);
+		ar << BOOST_SERIALIZATION_NVP(id);
+	}
+}
+
+template<>
+void PhysXContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
+{
+	unsigned int StreamBuffSize;
+	ar >> BOOST_SERIALIZATION_NVP(StreamBuffSize);
+	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(StreamBuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+	ar >> boost::serialization::make_nvp("StreamBuff", boost::serialization::binary_object(m_SerializeBuff.get(), StreamBuffSize));
+	m_Registry.reset(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
+	m_Collection.reset(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *m_Registry, NULL));
+	const unsigned int numObjs = m_Collection->getNbObjects();
+	for (unsigned int i = 0; i < numObjs; i++)
+	{
+		std::string key;
+		ar >> BOOST_SERIALIZATION_NVP(key);
+		physx::PxSerialObjectId id;
+		ar >> BOOST_SERIALIZATION_NVP(id);
+		PhysXPtr<physx::PxTriangleMesh> triangle_mesh(m_Collection->find(id)->is<physx::PxTriangleMesh>());
+		m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
+	}
+}
+
+void PhysXContext::ClearSerializedObjs(void)
+{
+	m_TriangleMeshes.clear();
+
+	m_Collection.reset();
+
+	m_Registry.reset();
+
+	m_SerializeBuff.reset();
+}
+
 void PhysXContext::Shutdown(void)
 {
+	ClearSerializedObjs();
+
 	if(m_sdk)
 	{
 		PxCloseExtensions();
@@ -83,16 +143,6 @@ void PhysXContext::Shutdown(void)
 	m_sdk.reset();
 
 	m_Foundation.reset();
-}
-
-template<>
-void PhysXContext::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-{
-}
-
-template<>
-void PhysXContext::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-{
 }
 
 void PhysXSceneContext::StepperTask::run(void)

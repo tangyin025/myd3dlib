@@ -140,12 +140,11 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 
 	if (m_StaticCollision)
 	{
-		PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
 		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
 		collection->add(*m_RigidActor);
-		physx::PxSerialization::complete(*collection, *registry);
+		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *registry);
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 		unsigned int RigidActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(RigidActorSize);
 		ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -168,17 +167,16 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 		ar >> BOOST_SERIALIZATION_NVP(RigidActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(RigidActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), RigidActorSize));
-		PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
-		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(),*registry,NULL));
+		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
 			physx::PxBase * obj = &collection->getObject(i);
 			switch (obj->getConcreteType())
 			{
-			case physx::PxConcreteType::eTRIANGLE_MESH:
-				m_PxTriangleMesh.reset(obj->is<physx::PxTriangleMesh>());
-				break;
+			//case physx::PxConcreteType::eTRIANGLE_MESH:
+			//	m_PxTriangleMesh.reset(obj->is<physx::PxTriangleMesh>());
+			//	break;
 			case physx::PxConcreteType::eMATERIAL:
 				m_PxMaterial.reset(obj->is<physx::PxMaterial>());
 				break;
@@ -312,7 +310,6 @@ void MeshComponent::ResetStaticCollision(bool StaticCollision)
 	if (!StaticCollision)
 	{
 		m_StaticCollision = false;
-		m_PxTriangleMesh.reset();
 		m_PxMaterial.reset();
 		m_RigidActor.reset();
 		m_SerializeBuff.reset();
@@ -324,32 +321,48 @@ void MeshComponent::ResetStaticCollision(bool StaticCollision)
 		return;
 	}
 
-	m_StaticCollision = true;
-	physx::PxTriangleMeshDesc desc;
-	desc.points.count = m_MeshRes.m_Res->GetNumVertices();
-	desc.points.stride = m_MeshRes.m_Res->GetNumBytesPerVertex();
-	desc.points.data = m_MeshRes.m_Res->LockVertexBuffer();
-	desc.triangles.count = m_MeshRes.m_Res->GetNumFaces();
-	if (m_MeshRes.m_Res->GetOptions() & D3DXMESH_32BIT)
-	{
-		desc.triangles.stride = 3 * sizeof(DWORD);
-	}
-	else
-	{
-		desc.triangles.stride = 3 * sizeof(WORD);
-		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-	}
-	desc.triangles.data = m_MeshRes.m_Res->LockIndexBuffer();
-	physx::PxDefaultMemoryOutputStream writeBuffer;
-	bool status = PhysXContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
-	m_MeshRes.m_Res->UnlockIndexBuffer();
-	m_MeshRes.m_Res->UnlockVertexBuffer();
-	if (!status)
+	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_MeshRes.m_Res);
+	if (key.empty())
 	{
 		return;
 	}
-	physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-	m_PxTriangleMesh.reset(PhysXContext::getSingleton().m_sdk->createTriangleMesh(readBuffer));
+
+	m_StaticCollision = true;
+	PhysXPtr<physx::PxTriangleMesh> triangle_mesh;
+	PhysXContext::TriangleMeshMap::iterator tri_mesh_iter = PhysXContext::getSingleton().m_TriangleMeshes.find(key);
+	if (tri_mesh_iter != PhysXContext::getSingleton().m_TriangleMeshes.end())
+	{
+		triangle_mesh = tri_mesh_iter->second;
+	}
+	else
+	{
+		physx::PxTriangleMeshDesc desc;
+		desc.points.count = m_MeshRes.m_Res->GetNumVertices();
+		desc.points.stride = m_MeshRes.m_Res->GetNumBytesPerVertex();
+		desc.points.data = m_MeshRes.m_Res->LockVertexBuffer();
+		desc.triangles.count = m_MeshRes.m_Res->GetNumFaces();
+		if (m_MeshRes.m_Res->GetOptions() & D3DXMESH_32BIT)
+		{
+			desc.triangles.stride = 3 * sizeof(DWORD);
+		}
+		else
+		{
+			desc.triangles.stride = 3 * sizeof(WORD);
+			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
+		}
+		desc.triangles.data = m_MeshRes.m_Res->LockIndexBuffer();
+		physx::PxDefaultMemoryOutputStream writeBuffer;
+		bool status = PhysXContext::getSingleton().m_Cooking->cookTriangleMesh(desc, writeBuffer);
+		m_MeshRes.m_Res->UnlockIndexBuffer();
+		m_MeshRes.m_Res->UnlockVertexBuffer();
+		if (!status)
+		{
+			return;
+		}
+		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+		triangle_mesh.reset(PhysXContext::getSingleton().m_sdk->createTriangleMesh(readBuffer));
+		PhysXContext::getSingleton().m_TriangleMeshes.insert(std::make_pair(key, triangle_mesh));
+	}
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
@@ -358,7 +371,7 @@ void MeshComponent::ResetStaticCollision(bool StaticCollision)
 	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
 	physx::PxMeshScale mesh_scaling((physx::PxVec3&)scale, physx::PxQuat::createIdentity());
 	physx::PxShape * shape = m_RigidActor->createShape(
-		physx::PxTriangleMeshGeometry(m_PxTriangleMesh.get(), mesh_scaling),
+		physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling),
 		*m_PxMaterial, physx::PxTransform::createIdentity());
 	//shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
 }
@@ -403,12 +416,11 @@ void ClothComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::
 	ar << BOOST_SERIALIZATION_NVP(m_VertexElems);
 	ar << BOOST_SERIALIZATION_NVP(m_particles);
 
-	PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
 	PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
 	collection->add(*m_Cloth);
-	physx::PxSerialization::complete(*collection, *registry);
+	physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 	physx::PxDefaultMemoryOutputStream ostr;
-	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *registry);
+	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 	unsigned int ClothSize = ostr.getSize();
 	ar << BOOST_SERIALIZATION_NVP(ClothSize);
 	ar << boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -438,8 +450,7 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	ar >> BOOST_SERIALIZATION_NVP(ClothSize);
 	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(ClothSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 	ar >> boost::serialization::make_nvp("m_Cloth", boost::serialization::binary_object(m_SerializeBuff.get(), ClothSize));
-	PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
-	PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(),*registry,NULL));
+	PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
 	ar >> BOOST_SERIALIZATION_NVP(m_particles);
 	const unsigned int numObjs = collection->getNbObjects();
 	for (unsigned int i = 0; i < numObjs; i++)

@@ -814,6 +814,7 @@ ComponentPtr Game::LoadComponent(const char * path)
 void Game::ImportScene(const char * path)
 {
 	m_WorldL.ClearAllLevels();
+	PhysXContext::ClearSerializedObjs();
 
 	std::ifstream ifs(GetFullPath(path).c_str());
 	boost::archive::polymorphic_xml_iarchive ia(ifs);

@@ -32,14 +32,22 @@ public:
 
 	PhysXPtr<physx::PxDefaultCpuDispatcher> m_CpuDispatcher;
 
+	typedef std::map<std::string, PhysXPtr<physx::PxTriangleMesh> > TriangleMeshMap;
+
+	TriangleMeshMap m_TriangleMeshes;
+
+	PhysXPtr<physx::PxSerializationRegistry> m_Registry;
+
+	PhysXPtr<physx::PxCollection> m_Collection;
+
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
 public:
 	PhysXContext(void)
 	{
 	}
 
 	bool Init(void);
-
-	void Shutdown(void);
 
 	template<class Archive>
 	void save(Archive & ar, const unsigned int version) const;
@@ -52,6 +60,10 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	void ClearSerializedObjs(void);
+
+	void Shutdown(void);
 };
 
 class PhysXSceneContext

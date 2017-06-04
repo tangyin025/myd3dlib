@@ -426,10 +426,11 @@ void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContex
 	m_WorldL.ResetViewedActors(ViewPos, scene);
 }
 
-void CMainFrame::ClearAllActor()
+void CMainFrame::ClearFileContext()
 {
 	m_WorldL.ClearAllLevels();
 	m_selactors.clear();
+	theApp.ClearSerializedObjs();
 }
 
 void CMainFrame::OnDestroy()
@@ -438,7 +439,7 @@ void CMainFrame::OnDestroy()
 
 	// TODO: Add your message handler code here
 	//m_emitter.reset();
-	ClearAllActor();
+	ClearFileContext();
 	PhysXSceneContext::Shutdown();
 	theApp.DestroyD3DDevice();
 }
@@ -458,9 +459,7 @@ BOOL CMainFrame::PreTranslateMessage(MSG* pMsg)
 void CMainFrame::OnFileNew()
 {
 	// TODO: Add your command handler code here
-	unsigned int a= theApp.m_sdk->getNbMaterials();
-	ClearAllActor();
-	a= theApp.m_sdk->getNbMaterials();
+	ClearFileContext();
 	m_strPathName.Empty();
 	InitialUpdateFrame(NULL, TRUE);
 	m_WorldL.CreateLevels(10);
@@ -512,7 +511,7 @@ void CMainFrame::OnFileOpen()
 	}
 
 	CWaitCursor waiter;
-	ClearAllActor();
+	ClearFileContext();
 	m_strPathName = strPathName;
 	std::basic_ifstream<char> ifs(m_strPathName);
 	boost::archive::polymorphic_xml_iarchive ia(ifs);

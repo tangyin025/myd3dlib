@@ -477,12 +477,11 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 
 	if (m_StaticCollision)
 	{
-		PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
 		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
 		collection->add(*m_RigidActor);
-		physx::PxSerialization::complete(*collection, *registry);
+		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *registry);
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
 		unsigned int RigidActorSize = ostr.getSize();
 		ar << BOOST_SERIALIZATION_NVP(RigidActorSize);
 		ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
@@ -532,8 +531,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		ar >> BOOST_SERIALIZATION_NVP(RigidActorSize);
 		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(RigidActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
 		ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), RigidActorSize));
-		PhysXPtr<physx::PxSerializationRegistry> registry(physx::PxSerialization::createSerializationRegistry(*PhysXContext::getSingleton().m_sdk));
-		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(),*registry,NULL));
+		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
 		const unsigned int numObjs = collection->getNbObjects();
 		for (unsigned int i = 0; i < numObjs; i++)
 		{
