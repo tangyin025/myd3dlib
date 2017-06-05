@@ -196,11 +196,13 @@ public:
 
 	bool m_StaticCollision;
 
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
+	//boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
 
-	PhysXPtr<physx::PxRigidActor> m_RigidActor;
+	//PhysXPtr<physx::PxRigidActor> m_RigidActor;
+
+	PhysXPtr<physx::PxShape> m_PxShape;
 
 public:
 	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)

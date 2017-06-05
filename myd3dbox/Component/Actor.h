@@ -8,6 +8,13 @@ class Actor
 	, public Component
 {
 public:
+	enum RigidType
+	{
+		RigidTypeNone = 0,
+		RigidTypeStatic,
+		RigidTypeDynamic,
+	};
+
 	my::AABB m_aabb;
 
 	AnimatorPtr m_Animator;
@@ -15,6 +22,12 @@ public:
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
+
+	RigidType m_RigidType;
+
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
+	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
 protected:
 	Actor(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
@@ -73,6 +86,8 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
+
+	void CreateRigidBody(RigidType type);
 
 	void AddComponent(ComponentPtr cmp);
 

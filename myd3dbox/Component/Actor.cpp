@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "Actor.h"
 #include "Animator.h"
+#include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
 #include <boost/serialization/string.hpp>
@@ -23,6 +24,35 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
+	ar << BOOST_SERIALIZATION_NVP(m_RigidType);
+
+	if (m_RigidType != RigidTypeNone)
+	{
+		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
+		collection->add(*m_PxActor, physx::PxConcreteType::eRIGID_STATIC << 24 | 0);
+		for (unsigned int i = 0; i < m_Cmps.size(); i++)
+		{
+			switch (m_Cmps[i]->m_Type)
+			{
+			case ComponentTypeMesh:
+				{
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_Cmps[i].get());
+					if (mesh_cmp->m_PxShape)
+					{
+						collection->add(*mesh_cmp->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
+						collection->add(*mesh_cmp->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
+					}
+				}
+				break;
+			}
+		}
+		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+		physx::PxDefaultMemoryOutputStream ostr;
+		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
+		unsigned int PxActorSize = ostr.getSize();
+		ar << BOOST_SERIALIZATION_NVP(PxActorSize);
+		ar << boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
+	}
 }
 
 template<>
@@ -41,6 +71,50 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	for(; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->m_Actor = this;
+	}
+	ar >> BOOST_SERIALIZATION_NVP(m_RigidType);
+
+	if (m_RigidType != RigidTypeNone)
+	{
+		unsigned int PxActorSize;
+		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
+		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(PxActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
+		ar >> boost::serialization::make_nvp("m_PxActor", boost::serialization::binary_object(m_SerializeBuff.get(), PxActorSize));
+		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
+		const unsigned int numObjs = collection->getNbObjects();
+		for (unsigned int i = 0; i < numObjs; i++)
+		{
+			physx::PxBase * obj = &collection->getObject(i);
+			physx::PxSerialObjectId id = collection->getId(*obj);
+			physx::PxConcreteType::Enum type = physx::PxConcreteType::Enum((id & 0xff000000) >> 24);
+			_ASSERT(obj->getConcreteType() == type);
+			unsigned int index = id & 0x00ffffff;
+			switch (obj->getConcreteType())
+			{
+			case physx::PxConcreteType::eMATERIAL:
+				switch (m_Cmps[index]->m_Type)
+				{
+				case ComponentTypeMesh:
+					dynamic_cast<MeshComponent *>(m_Cmps[index].get())->m_PxMaterial.reset(obj->is<physx::PxMaterial>());
+					break;
+				}
+				break;
+			case physx::PxConcreteType::eRIGID_STATIC:
+				m_PxActor.reset(obj->is<physx::PxRigidStatic>());
+				break;
+			case physx::PxConcreteType::eSHAPE:
+				switch (m_Cmps[index]->m_Type)
+				{
+				case ComponentTypeMesh:
+					dynamic_cast<MeshComponent *>(m_Cmps[index].get())->m_PxShape.reset(obj->is<physx::PxShape>());
+					break;
+				}
+				break;
+			default:
+				_ASSERT(false);
+				break;
+			}
+		}
 	}
 }
 
@@ -89,10 +163,20 @@ void Actor::OnEnterPxScene(PhysXSceneContext * scene)
 	{
 		(*cmp_iter)->OnEnterPxScene(scene);
 	}
+
+	if (m_PxActor)
+	{
+		scene->m_PxScene->addActor(*m_PxActor);
+	}
 }
 
 void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 {
+	if (m_PxActor)
+	{
+		scene->m_PxScene->removeActor(*m_PxActor, false);
+	}
+
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
@@ -168,6 +252,30 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->UpdateLod(ViewPos);
+	}
+}
+
+void Actor::CreateRigidBody(RigidType type)
+{
+	if (m_RigidType == type)
+	{
+		return;
+	}
+
+	m_RigidType = type;
+	my::Vector3 pos, scale; my::Quaternion rot;
+	m_World.Decompose(scale, rot, pos);
+	switch (type)
+	{
+	case RigidTypeNone:
+		m_PxActor.reset();
+		break;
+	case RigidTypeStatic:
+		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
+		break;
+	case RigidTypeDynamic:
+		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
+		break;
 	}
 }
 
