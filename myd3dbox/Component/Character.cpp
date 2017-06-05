@@ -53,13 +53,19 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 2.0f;
 	desc.radius = 1.0f;
-	desc.material = m_PxMaterial.get();
 	desc.position = physx::PxExtendedVec3(m_Position.x + Offset.x, m_Position.y, m_Position.z + Offset.z);
+	desc.material = m_PxMaterial.get();
+	desc.reportCallback = this;
+	desc.behaviorCallback = this;
 	m_Controller.reset(scene->m_ControllerMgr->createController(desc));
+
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::OnLeavePxScene(PhysXSceneContext * scene)
 {
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+
 	m_Controller.reset();
 
 	m_PxMaterial.reset();
@@ -70,4 +76,39 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
+}
+
+void Character::OnPxThreadSubstep(float dtime)
+{
+
+}
+
+void Character::onShapeHit(const physx::PxControllerShapeHit& hit)
+{
+
+}
+
+void Character::onControllerHit(const physx::PxControllersHit& hit)
+{
+
+}
+
+void Character::onObstacleHit(const physx::PxControllerObstacleHit& hit)
+{
+
+}
+
+physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
+{
+	return physx::PxControllerBehaviorFlags();
+}
+
+physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxController& controller)
+{
+	return physx::PxControllerBehaviorFlags();
+}
+
+physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxObstacle& obstacle)
+{
+	return physx::PxControllerBehaviorFlags();
 }

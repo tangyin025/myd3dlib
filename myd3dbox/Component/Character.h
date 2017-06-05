@@ -2,7 +2,10 @@
 
 #include "Actor.h"
 
-class Character : public Actor
+class Character
+	: public Actor
+	, public physx::PxUserControllerHitReport
+	, public physx::PxControllerBehaviorCallback
 {
 public:
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
@@ -47,6 +50,20 @@ public:
 	virtual void OnLeavePxScene(PhysXSceneContext * scene);
 
 	virtual void Update(float fElapsedTime);
+
+	virtual void OnPxThreadSubstep(float dtime);
+
+	virtual void onShapeHit(const physx::PxControllerShapeHit& hit);
+
+	virtual void onControllerHit(const physx::PxControllersHit& hit);
+
+	virtual void onObstacleHit(const physx::PxControllerObstacleHit& hit);
+
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor);
+
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxController& controller);
+
+	virtual physx::PxControllerBehaviorFlags getBehaviorFlags(const physx::PxObstacle& obstacle);
 };
 
 typedef boost::shared_ptr<Character> CharacterPtr;
