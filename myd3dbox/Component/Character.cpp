@@ -58,10 +58,14 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
 	m_Controller.reset(scene->m_ControllerMgr->createController(desc));
+
+	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
 
 void Character::OnLeavePxScene(PhysXSceneContext * scene)
 {
+	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
+
 	m_Controller.reset();
 
 	m_PxMaterial.reset();
@@ -72,6 +76,11 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
+}
+
+void Character::OnPxThreadSubstep(float dtime)
+{
+
 }
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)

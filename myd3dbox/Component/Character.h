@@ -51,6 +51,8 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
+	virtual void OnPxThreadSubstep(float dtime);
+
 	virtual void onShapeHit(const physx::PxControllerShapeHit& hit);
 
 	virtual void onControllerHit(const physx::PxControllersHit& hit);
