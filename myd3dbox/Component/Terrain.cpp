@@ -728,9 +728,9 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::ResetStaticCollision(bool StaticCollision)
+void Terrain::CreatePxShape(bool bCreateShape)
 {
-	if (!StaticCollision)
+	if (!bCreateShape)
 	{
 		m_StaticCollision = false;
 		m_PxHeightField.reset();

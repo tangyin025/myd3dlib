@@ -261,7 +261,7 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos)
 	}
 }
 
-void Actor::CreateRigidBody(physx::PxActorType::Enum ActorType)
+void Actor::CreatePxActor(physx::PxActorType::Enum ActorType)
 {
 	if (m_PxActor && m_PxActor->getType() == ActorType)
 	{

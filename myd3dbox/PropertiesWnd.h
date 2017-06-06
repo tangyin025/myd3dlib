@@ -63,7 +63,7 @@ protected:
 		PropertyMeshResPath,
 		PropertyMeshInstance,
 		PropertyMeshUseAnimation,
-		PropertyMeshStaticCollision,
+		PropertyMeshCreateShape,
 		PropertyMaterialList,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,

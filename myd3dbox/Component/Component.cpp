@@ -262,9 +262,9 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void MeshComponent::ResetStaticCollision(bool StaticCollision)
+void MeshComponent::CreatePxShape(bool bCreateShape)
 {
-	if (!StaticCollision)
+	if (!bCreateShape)
 	{
 		if (m_Actor && m_Actor->m_PxActor)
 		{

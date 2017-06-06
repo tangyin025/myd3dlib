@@ -681,7 +681,7 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
 	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("StaticCollision"), (_variant_t)(bool)mesh_cmp->m_PxShape, NULL, PropertyMeshStaticCollision);
+	pProp = new CCheckBoxProp(_T("CreateShape"), (_variant_t)(bool)mesh_cmp->m_PxShape, NULL, PropertyMeshCreateShape);
 	pComponent->AddSubItem(pProp);
 	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
@@ -879,7 +879,7 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("StaticCollision"), terrain->m_StaticCollision, NULL, PropertyTerrainStaticCollision);
+	pProp = new CCheckBoxProp(_T("CreateShape"), terrain->m_StaticCollision, NULL, PropertyTerrainStaticCollision);
 	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, 0, terrain->m_Material.get());
 }
@@ -1270,11 +1270,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyMeshStaticCollision:
+	case PropertyMeshCreateShape:
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			bool StaticCollision = pProp->GetValue().boolVal;
-			mesh_cmp->ResetStaticCollision(StaticCollision);
+			bool bCreateShape = pProp->GetValue().boolVal;
+			mesh_cmp->CreatePxShape(bCreateShape);
 			if (mesh_cmp->IsRequested())
 			{
 				mesh_cmp->OnEnterPxScene(pFrame);
@@ -1570,8 +1570,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyTerrainStaticCollision:
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			bool StaticCollision = pProp->GetValue().boolVal;
-			terrain->ResetStaticCollision(StaticCollision);
+			bool bCreateShape = pProp->GetValue().boolVal;
+			terrain->CreatePxShape(bCreateShape);
 			if (terrain->IsRequested())
 			{
 				terrain->OnEnterPxScene(pFrame);

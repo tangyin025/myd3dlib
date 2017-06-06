@@ -78,7 +78,7 @@ public:
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
 
-	void CreateRigidBody(physx::PxActorType::Enum ActorType);
+	void CreatePxActor(physx::PxActorType::Enum ActorType);
 
 	void AddComponent(ComponentPtr cmp);
 
