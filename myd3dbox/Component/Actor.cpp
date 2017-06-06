@@ -35,18 +35,10 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 		collection->add(*m_PxActor, physx::PxConcreteType::eRIGID_STATIC << 24 | 0);
 		for (unsigned int i = 0; i < m_Cmps.size(); i++)
 		{
-			switch (m_Cmps[i]->m_Type)
+			if (m_Cmps[i]->m_PxShape)
 			{
-			case ComponentTypeMesh:
-				{
-					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(m_Cmps[i].get());
-					if (mesh_cmp->m_PxShape)
-					{
-						collection->add(*mesh_cmp->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
-						collection->add(*mesh_cmp->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
-					}
-				}
-				break;
+				collection->add(*m_Cmps[i]->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
+				collection->add(*m_Cmps[i]->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
 			}
 		}
 		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
@@ -96,25 +88,13 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 			switch (obj->getConcreteType())
 			{
 			case physx::PxConcreteType::eMATERIAL:
-				switch (m_Cmps[index]->m_Type)
-				{
-				case ComponentTypeMesh:
-					dynamic_cast<MeshComponent *>(m_Cmps[index].get())->m_PxMaterial.reset(obj->is<physx::PxMaterial>());
-					break;
-				}
+				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>());
 				break;
 			case physx::PxConcreteType::eRIGID_STATIC:
 				m_PxActor.reset(obj->is<physx::PxRigidStatic>());
 				break;
 			case physx::PxConcreteType::eSHAPE:
-				switch (m_Cmps[index]->m_Type)
-				{
-				case ComponentTypeMesh:
-					dynamic_cast<MeshComponent *>(m_Cmps[index].get())->m_PxShape.reset(obj->is<physx::PxShape>());
-					//physx::Cm::RefCountable * ref = (physx::Cm::RefCountable *)((unsigned char *)obj + 0xc);
-					//ref->incRefCount();
-					break;
-				}
+				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>());
 				break;
 			default:
 				_ASSERT(false);

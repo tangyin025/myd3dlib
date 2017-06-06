@@ -728,7 +728,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreatePxShape(bool bCreateShape)
+void Terrain::CreateMeshShape(bool bCreateShape)
 {
 	if (!bCreateShape)
 	{

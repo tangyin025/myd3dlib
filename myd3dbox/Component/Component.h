@@ -92,6 +92,10 @@ public:
 
 	bool m_Requested;
 
+	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+
+	PhysXPtr<physx::PxShape> m_PxShape;
+
 protected:
 	Component(ComponentType Type, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 		: m_Type(Type)
@@ -158,6 +162,16 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
+
+	void CreateBoxShape(float hx, float hy, float hz);
+
+	void CreateCapsuleShape(float radius, float halfHeight);
+
+	void CreatePlaneShape(void);
+
+	void CreateSphereShape(float radius);
+
+	void ClearShape(void);
 };
 
 class RenderComponent
@@ -193,10 +207,6 @@ public:
 	bool m_bUseAnimation;
 
 	MaterialPtrList m_MaterialList;
-
-	PhysXPtr<physx::PxMaterial> m_PxMaterial;
-
-	PhysXPtr<physx::PxShape> m_PxShape;
 
 public:
 	MeshComponent(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
@@ -247,7 +257,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void CreatePxShape(bool bCreateShape);
+	void CreateMeshShape(void);
 };
 
 typedef boost::shared_ptr<MeshComponent> MeshComponentPtr;

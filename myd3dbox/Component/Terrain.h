@@ -182,7 +182,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void CreatePxShape(bool bCreateShape);
+	void CreateMeshShape(bool bCreateShape);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;

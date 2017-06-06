@@ -38,23 +38,18 @@ static LPCTSTR GetPassMaskDesc(DWORD mask)
 	}
 	return g_PassMaskDesc[0].desc;
 }
-//
-//struct ShapeTypeDesc
-//{
-//	LPCTSTR desc;
-//	DWORD type;
-//};
-//
-//static const ShapeTypeDesc g_ShapeTypeDesc[PxGeometryType::eGEOMETRY_COUNT] =
-//{
-//	{_T("Sphere"), PxGeometryType::eSPHERE},
-//	{_T("Plane"), PxGeometryType::ePLANE},
-//	{_T("Capsule"), PxGeometryType::eCAPSULE},
-//	{_T("Box"), PxGeometryType::eBOX},
-//	{_T("ConvexMesh"), PxGeometryType::eCONVEXMESH},
-//	{_T("TriangleMesh"), PxGeometryType::eTRIANGLEMESH},
-//	{_T("HeightField"), PxGeometryType::eHEIGHTFIELD},
-//};
+
+static LPCTSTR g_ShapeTypeDesc[physx::PxGeometryType::eGEOMETRY_COUNT + 1] =
+{
+	_T("Sphere"),
+	_T("Plane"),
+	_T("Capsule"),
+	_T("Box"),
+	_T("ConvexMesh"),
+	_T("TriangleMesh"),
+	_T("HeightField"),
+	_T("None")
+};
 
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
@@ -196,6 +191,8 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Scale.y);
 	pComponent->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Scale.z);
 
+	pComponent->GetSubItem(3)->SetValue((_variant_t)g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT]);
+
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
@@ -298,8 +295,7 @@ void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)ms2ts(mesh_cmp->m_MeshRes.m_Path).c_str());
 	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bInstance);
 	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)(VARIANT_BOOL)mesh_cmp->m_bUseAnimation);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)(VARIANT_BOOL)(bool)mesh_cmp->m_PxShape);
-	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 4);
+	CMFCPropertyGridProperty * pMaterialList = pComponent->GetSubItem(PropId + 3);
 	for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
 	{
 		if ((unsigned int)pMaterialList->GetSubItemsCount() <= i)
@@ -589,6 +585,13 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Scale.z, NULL, PropertyComponentScaleZ);
 	pScale->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pShape = new CComboProp(_T("Shape"), g_ShapeTypeDesc[cmp->m_PxShape ? cmp->m_PxShape->getGeometryType() : physx::PxGeometryType::eGEOMETRY_COUNT], NULL, PropertyComponentShape);
+	for (unsigned int i = 0; i < _countof(g_ShapeTypeDesc); i++)
+	{
+		pShape->AddOption(g_ShapeTypeDesc[i], TRUE);
+	}
+	pComponent->AddSubItem(pShape);
+
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
@@ -680,8 +683,6 @@ void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent,
 	pProp = new CCheckBoxProp(_T("Instance"), (_variant_t)mesh_cmp->m_bInstance, NULL, PropertyMeshInstance);
 	pComponent->AddSubItem(pProp);
 	pProp = new CCheckBoxProp(_T("UseAnimation"), (_variant_t)mesh_cmp->m_bUseAnimation, NULL, PropertyMeshUseAnimation);
-	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("CreateShape"), (_variant_t)(bool)mesh_cmp->m_PxShape, NULL, PropertyMeshCreateShape);
 	pComponent->AddSubItem(pProp);
 	pProp = new CMFCPropertyGridProperty(_T("MaterialList"), PropertyMaterialList, FALSE);
 	pComponent->AddSubItem(pProp);
@@ -957,7 +958,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
 	case Component::ComponentTypeMesh:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 5;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeCloth:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeStaticEmitter:
@@ -967,7 +968,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	case Component::ComponentTypeTerrain:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 8;
 	}
-	return 3;
+	return 4;
 }
 
 LPCTSTR CPropertiesWnd::GetComponentTypeName(Component::ComponentType type)
@@ -1207,6 +1208,44 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
+	case PropertyComponentShape:
+		{
+			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			ASSERT(i >= 0 && i < _countof(g_ShapeTypeDesc));
+			switch (i)
+			{
+			case physx::PxGeometryType::eSPHERE:
+				cmp->CreateSphereShape(1.0f);
+				break;
+			case physx::PxGeometryType::ePLANE:
+				cmp->CreatePlaneShape();
+				break;
+			case physx::PxGeometryType::eCAPSULE:
+				cmp->CreateCapsuleShape(1.0f, 1.0f);
+				break;
+			case physx::PxGeometryType::eBOX:
+				cmp->CreateBoxShape(1.0f, 1.0f, 1.0f);
+				break;
+			case physx::PxGeometryType::eCONVEXMESH:
+				break;
+			case physx::PxGeometryType::eTRIANGLEMESH:
+				if (cmp->m_Type == Component::ComponentTypeMesh)
+				{
+					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+					mesh_cmp->CreateMeshShape();
+				}
+				break;
+			case physx::PxGeometryType::eHEIGHTFIELD:
+				break;
+			default:
+				cmp->ClearShape();
+				break;
+			}
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	case PropertyActorAABB:
 	case PropertyActorMinX:
 	case PropertyActorMinY:
@@ -1270,19 +1309,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
-	case PropertyMeshCreateShape:
-		{
-			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
-			bool bCreateShape = pProp->GetValue().boolVal;
-			mesh_cmp->CreatePxShape(bCreateShape);
-			if (mesh_cmp->IsRequested())
-			{
-				mesh_cmp->OnEnterPxScene(pFrame);
-			}
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
-		}
-		break;
 	case PropertyMaterialShader:
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
@@ -1295,11 +1321,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
-			if (i < 0 || i >= _countof(g_PassMaskDesc))
-			{
-				TRACE("Invalid PropertyMaterialPassMask index: %d\n", i);
-				break;
-			}
+			ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
 			material->m_PassMask = g_PassMaskDesc[i].mask;
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
@@ -1571,7 +1593,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			bool bCreateShape = pProp->GetValue().boolVal;
-			terrain->CreatePxShape(bCreateShape);
+			terrain->CreateMeshShape(bCreateShape);
 			if (terrain->IsRequested())
 			{
 				terrain->OnEnterPxScene(pFrame);

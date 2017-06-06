@@ -128,6 +128,39 @@ void Component::UpdateLod(const my::Vector3 & ViewPos)
 {
 }
 
+void Component::CreateBoxShape(float hx, float hy, float hz)
+{
+}
+
+void Component::CreateCapsuleShape(float radius, float halfHeight)
+{
+}
+
+void Component::CreatePlaneShape(void)
+{
+}
+
+void Component::CreateSphereShape(float radius)
+{
+}
+
+void Component::ClearShape(void)
+{
+	if (!m_PxShape)
+	{
+		return;
+	}
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	m_Actor->m_PxActor->detachShape(*m_PxShape, true);
+	m_PxShape.reset();
+	m_PxMaterial.reset();
+}
+
 template<>
 void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -262,19 +295,8 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void MeshComponent::CreatePxShape(bool bCreateShape)
+void MeshComponent::CreateMeshShape(void)
 {
-	if (!bCreateShape)
-	{
-		if (m_Actor && m_Actor->m_PxActor)
-		{
-			m_Actor->m_PxActor->detachShape(*m_PxShape, true);
-		}
-		m_PxMaterial.reset();
-		m_PxShape.reset();
-		return;
-	}
-
 	if (!m_MeshRes.m_Res)
 	{
 		return;
