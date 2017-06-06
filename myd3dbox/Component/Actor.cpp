@@ -11,6 +11,7 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
+//#include "D:/Games/PhysX-3.3/PhysXSDK/Source/Common/src/CmRefCountable.h"
 
 using namespace my;
 
@@ -107,6 +108,8 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 				{
 				case ComponentTypeMesh:
 					dynamic_cast<MeshComponent *>(m_Cmps[index].get())->m_PxShape.reset(obj->is<physx::PxShape>());
+					//physx::Cm::RefCountable * ref = (physx::Cm::RefCountable *)((unsigned char *)obj + 0xc);
+					//ref->incRefCount();
 					break;
 				}
 				break;

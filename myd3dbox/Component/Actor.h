@@ -15,6 +15,8 @@ public:
 		RigidTypeDynamic,
 	};
 
+	boost::shared_ptr<unsigned char> m_SerializeBuff;
+
 	my::AABB m_aabb;
 
 	AnimatorPtr m_Animator;
@@ -24,8 +26,6 @@ public:
 	ComponentPtrList m_Cmps;
 
 	RigidType m_RigidType;
-
-	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
