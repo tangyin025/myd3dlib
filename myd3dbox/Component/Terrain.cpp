@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "Terrain.h"
+#include "Actor.h"
 #include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -128,7 +129,6 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
 	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
-	, m_StaticCollision(false)
 {
 	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -150,7 +150,6 @@ Terrain::Terrain(void)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
 	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
-	, m_StaticCollision(false)
 {
 	CreateHeightMap();
 }
@@ -473,19 +472,6 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
 	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
-	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
-
-	if (m_StaticCollision)
-	{
-		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
-		collection->add(*m_RigidActor);
-		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
-		physx::PxDefaultMemoryOutputStream ostr;
-		physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
-		unsigned int RigidActorSize = ostr.getSize();
-		ar << BOOST_SERIALIZATION_NVP(RigidActorSize);
-		ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	}
 }
 
 template<>
@@ -506,7 +492,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
-	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
 	struct CallBack : public my::IQueryCallback
 	{
 		Terrain * terrain;
@@ -524,35 +509,6 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_Root.QueryActorAll(&CallBack(this));
 	UpdateHeightMapNormal();
 	CreateElements();
-
-	if (m_StaticCollision)
-	{
-		unsigned int RigidActorSize;
-		ar >> BOOST_SERIALIZATION_NVP(RigidActorSize);
-		m_SerializeBuff.reset((unsigned char *)_aligned_malloc(RigidActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-		ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), RigidActorSize));
-		PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
-		const unsigned int numObjs = collection->getNbObjects();
-		for (unsigned int i = 0; i < numObjs; i++)
-		{
-			physx::PxBase * obj = &collection->getObject(i);
-			switch (obj->getConcreteType())
-			{
-			case physx::PxConcreteType::eHEIGHTFIELD:
-				m_PxHeightField.reset(obj->is<physx::PxHeightField>());
-				break;
-			case physx::PxConcreteType::eMATERIAL:
-				m_PxMaterial.reset(obj->is<physx::PxMaterial>());
-				break;
-			case physx::PxConcreteType::eRIGID_STATIC:
-				m_RigidActor.reset(obj->is<physx::PxRigidStatic>());
-				break;
-			case physx::PxConcreteType::eSHAPE:
-				obj->is<physx::PxShape>()->release();
-				break;
-			}
-		}
-	}
 }
 
 void Terrain::RequestResource(void)
@@ -579,26 +535,6 @@ void Terrain::ReleaseResource(void)
 	m_Fragment.clear();
 	m_Material->ReleaseResource();
 	RenderComponent::ReleaseResource();
-}
-
-void Terrain::OnEnterPxScene(PhysXSceneContext * scene)
-{
-	RenderComponent::OnEnterPxScene(scene);
-
-	if (m_RigidActor)
-	{
-		scene->m_PxScene->addActor(*m_RigidActor);
-	}
-}
-
-void Terrain::OnLeavePxScene(PhysXSceneContext * scene)
-{
-	if (m_RigidActor)
-	{
-		scene->m_PxScene->removeActor(*m_RigidActor);
-	}
-
-	RenderComponent::OnLeavePxScene(scene);
 }
 
 void Terrain::CreateVertices(void)
@@ -728,24 +664,13 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateMeshShape(bool bCreateShape)
+void Terrain::CreateHeightFieldShape(void)
 {
-	if (!bCreateShape)
-	{
-		m_StaticCollision = false;
-		m_PxHeightField.reset();
-		m_PxMaterial.reset();
-		m_RigidActor.reset();
-		m_SerializeBuff.reset();
-		return;
-	}
-
 	if (!m_HeightMap.m_ptr)
 	{
 		return;
 	}
 
-	m_StaticCollision = true;
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
 	std::vector<physx::PxHeightFieldSample> Samples(
 		(m_RowChunks * m_ChunkRows + 1) * (m_ColChunks * m_ChunkRows + 1));
@@ -769,11 +694,10 @@ void Terrain::CreateMeshShape(bool bCreateShape)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
-	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
-	physx::PxShape * shape = m_RigidActor->createShape(
-		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * scale.y, scale.x, scale.z),
-		*m_PxMaterial, physx::PxTransform::createIdentity());
-	//shape->setFlag(physx::PxShapeFlag::eVISUALIZATION, false);
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Scale.y, m_Scale.x, m_Scale.z),
+		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }

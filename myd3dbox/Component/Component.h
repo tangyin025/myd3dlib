@@ -245,10 +245,6 @@ public:
 
 	virtual void ReleaseResource(void);
 
-	virtual void OnEnterPxScene(PhysXSceneContext * scene);
-
-	virtual void OnLeavePxScene(PhysXSceneContext * scene);
-
 	virtual void Update(float fElapsedTime);
 
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);

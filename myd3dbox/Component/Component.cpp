@@ -207,26 +207,6 @@ void MeshComponent::ReleaseResource(void)
 	Component::ReleaseResource();
 }
 
-void MeshComponent::OnEnterPxScene(PhysXSceneContext * scene)
-{
-	RenderComponent::OnEnterPxScene(scene);
-
-	//if (m_RigidActor)
-	//{
-	//	scene->m_PxScene->addActor(*m_RigidActor);
-	//}
-}
-
-void MeshComponent::OnLeavePxScene(PhysXSceneContext * scene)
-{
-	//if (m_RigidActor)
-	//{
-	//	scene->m_PxScene->removeActor(*m_RigidActor);
-	//}
-
-	RenderComponent::OnLeavePxScene(scene);
-}
-
 void MeshComponent::Update(float fElapsedTime)
 {
 	Component::Update(fElapsedTime);

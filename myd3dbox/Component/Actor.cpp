@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Actor.h"
+#include "Terrain.h"
 #include "Animator.h"
 #include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -11,7 +12,6 @@
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
-//#include "D:/Games/PhysX-3.3/PhysXSDK/Source/Common/src/CmRefCountable.h"
 
 using namespace my;
 
@@ -39,6 +39,10 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 			{
 				collection->add(*m_Cmps[i]->m_PxMaterial, physx::PxConcreteType::eMATERIAL << 24 | i);
 				collection->add(*m_Cmps[i]->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
+				if (m_Cmps[i]->m_Type == Component::ComponentTypeTerrain)
+				{
+					collection->add(*boost::dynamic_pointer_cast<Terrain>(m_Cmps[i])->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
+				}
 			}
 		}
 		physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
@@ -95,6 +99,10 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 				break;
 			case physx::PxConcreteType::eSHAPE:
 				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>());
+				break;
+			case physx::PxConcreteType::eHEIGHTFIELD:
+				_ASSERT(m_Cmps[index]->m_Type == Component::ComponentTypeTerrain);
+				boost::dynamic_pointer_cast<Terrain>(m_Cmps[i])->m_PxHeightField.reset(obj->is<physx::PxHeightField>());
 				break;
 			default:
 				_ASSERT(false);

@@ -123,7 +123,6 @@ protected:
 		PropertyTerrainWrappedU,
 		PropertyTerrainWrappedV,
 		PropertyTerrainHeightMap,
-		PropertyTerrainStaticCollision,
 		//PropertyRigidShapeList,
 		//PropertyRigidShapeAdd,
 		//PropertyRigidShapePos,

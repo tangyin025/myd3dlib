@@ -462,8 +462,7 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_WrappedU);
 	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_WrappedV);
 	pComponent->GetSubItem(PropId + 5);
-	pComponent->GetSubItem(PropId + 6)->SetValue((_variant_t)(VARIANT_BOOL)terrain->m_StaticCollision);
-	UpdatePropertiesMaterial(pComponent, PropId + 7, terrain->m_Material.get());
+	UpdatePropertiesMaterial(pComponent, PropId + 6, terrain->m_Material.get());
 }
 //
 //void CPropertiesWnd::UpdatePropertiesRigid(RigidComponent * cmp)
@@ -880,8 +879,6 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 	pComponent->AddSubItem(pProp);
 	pProp = new CFileProp(_T("HeightMap"), TRUE, (_variant_t)_T(""), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyTerrainHeightMap);
 	pComponent->AddSubItem(pProp);
-	pProp = new CCheckBoxProp(_T("CreateShape"), terrain->m_StaticCollision, NULL, PropertyTerrainStaticCollision);
-	pComponent->AddSubItem(pProp);
 	CreatePropertiesMaterial(pComponent, 0, terrain->m_Material.get());
 }
 //
@@ -1237,6 +1234,11 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			case physx::PxGeometryType::eHEIGHTFIELD:
+				if (cmp->m_Type == Component::ComponentTypeTerrain)
+				{
+					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+					terrain->CreateHeightFieldShape();
+				}
 				break;
 			default:
 				cmp->ClearShape();
@@ -1587,19 +1589,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				EventArg arg;
 				pFrame->m_EventAttributeChanged(&arg);
 			}
-		}
-		break;
-	case PropertyTerrainStaticCollision:
-		{
-			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			bool bCreateShape = pProp->GetValue().boolVal;
-			terrain->CreateMeshShape(bCreateShape);
-			if (terrain->IsRequested())
-			{
-				terrain->OnEnterPxScene(pFrame);
-			}
-			EventArg arg;
-			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
 	//case PropertyRigidShapeAdd:
