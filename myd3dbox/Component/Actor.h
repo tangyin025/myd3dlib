@@ -8,13 +8,6 @@ class Actor
 	, public Component
 {
 public:
-	enum RigidType
-	{
-		RigidTypeNone = 0,
-		RigidTypeStatic,
-		RigidTypeDynamic,
-	};
-
 	boost::shared_ptr<unsigned char> m_SerializeBuff;
 
 	my::AABB m_aabb;
@@ -24,8 +17,6 @@ public:
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 
 	ComponentPtrList m_Cmps;
-
-	RigidType m_RigidType;
 
 	PhysXPtr<physx::PxRigidActor> m_PxActor;
 
@@ -87,7 +78,7 @@ public:
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
 
-	void CreateRigidBody(RigidType type);
+	void CreateRigidBody(physx::PxActorType::Enum ActorType);
 
 	void AddComponent(ComponentPtr cmp);
 

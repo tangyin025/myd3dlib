@@ -930,7 +930,6 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readonly("UseAnimation", &MeshComponent::m_bUseAnimation)
-			.def_readonly("StaticCollision", &MeshComponent::m_StaticCollision)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)

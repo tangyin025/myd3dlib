@@ -194,13 +194,7 @@ public:
 
 	MaterialPtrList m_MaterialList;
 
-	bool m_StaticCollision;
-
-	//boost::shared_ptr<unsigned char> m_SerializeBuff;
-
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
-
-	//PhysXPtr<physx::PxRigidActor> m_RigidActor;
 
 	PhysXPtr<physx::PxShape> m_PxShape;
 
@@ -209,7 +203,6 @@ public:
 		: RenderComponent(ComponentTypeMesh, Position, Rotation, Scale)
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
-		, m_StaticCollision(false)
 	{
 	}
 
@@ -217,7 +210,6 @@ public:
 		: RenderComponent(ComponentTypeMesh, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
 		, m_bInstance(false)
 		, m_bUseAnimation(false)
-		, m_StaticCollision(false)
 	{
 	}
 

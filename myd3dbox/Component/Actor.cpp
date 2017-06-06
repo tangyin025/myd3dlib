@@ -25,11 +25,13 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
-	ar << BOOST_SERIALIZATION_NVP(m_RigidType);
+	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
+	ar << BOOST_SERIALIZATION_NVP(ActorType);
 
-	if (m_RigidType != RigidTypeNone)
+	if (m_PxActor)
 	{
 		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
+		m_PxActor->getType();
 		collection->add(*m_PxActor, physx::PxConcreteType::eRIGID_STATIC << 24 | 0);
 		for (unsigned int i = 0; i < m_Cmps.size(); i++)
 		{
@@ -73,9 +75,10 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	{
 		(*cmp_iter)->m_Actor = this;
 	}
-	ar >> BOOST_SERIALIZATION_NVP(m_RigidType);
+	physx::PxActorType::Enum ActorType;
+	ar >> BOOST_SERIALIZATION_NVP(ActorType);
 
-	if (m_RigidType != RigidTypeNone)
+	if (ActorType == physx::PxActorType::eRIGID_STATIC || ActorType == physx::PxActorType::eRIGID_DYNAMIC)
 	{
 		unsigned int PxActorSize;
 		ar >> BOOST_SERIALIZATION_NVP(PxActorSize);
@@ -258,26 +261,25 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos)
 	}
 }
 
-void Actor::CreateRigidBody(RigidType type)
+void Actor::CreateRigidBody(physx::PxActorType::Enum ActorType)
 {
-	if (m_RigidType == type)
+	if (m_PxActor && m_PxActor->getType() == ActorType)
 	{
 		return;
 	}
 
-	m_RigidType = type;
 	my::Vector3 pos, scale; my::Quaternion rot;
 	m_World.Decompose(scale, rot, pos);
-	switch (type)
+	switch (ActorType)
 	{
-	case RigidTypeNone:
-		m_PxActor.reset();
-		break;
-	case RigidTypeStatic:
+	case physx::PxActorType::eRIGID_STATIC:
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
 		break;
-	case RigidTypeDynamic:
+	case physx::PxActorType::eRIGID_DYNAMIC:
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
+		break;
+	default:
+		m_PxActor.reset();
 		break;
 	}
 }

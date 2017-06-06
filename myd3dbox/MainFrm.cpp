@@ -554,7 +554,7 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld(my::Matrix4::identity);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
-	actor->CreateRigidBody(Actor::RigidTypeStatic);
+	actor->CreateRigidBody(physx::PxActorType::eRIGID_STATIC);
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 

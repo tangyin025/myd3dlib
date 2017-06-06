@@ -136,19 +136,6 @@ void MeshComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::p
 	ar << BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar << BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar << BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar << BOOST_SERIALIZATION_NVP(m_StaticCollision);
-
-	//if (m_StaticCollision)
-	//{
-	//	PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
-	//	collection->add(*m_RigidActor);
-	//	physx::PxSerialization::complete(*collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
-	//	physx::PxDefaultMemoryOutputStream ostr;
-	//	physx::PxSerialization::serializeCollectionToBinary(ostr, *collection, *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get());
-	//	unsigned int RigidActorSize = ostr.getSize();
-	//	ar << BOOST_SERIALIZATION_NVP(RigidActorSize);
-	//	ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-	//}
 }
 
 template<>
@@ -159,36 +146,6 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
-	ar >> BOOST_SERIALIZATION_NVP(m_StaticCollision);
-
-	//if (m_StaticCollision)
-	//{
-	//	unsigned int RigidActorSize;
-	//	ar >> BOOST_SERIALIZATION_NVP(RigidActorSize);
-	//	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(RigidActorSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-	//	ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), RigidActorSize));
-	//	PhysXPtr<physx::PxCollection> collection(physx::PxSerialization::createCollectionFromBinary(m_SerializeBuff.get(), *PhysXContext::getSingleton().m_Registry, PhysXContext::getSingleton().m_Collection.get()));
-	//	const unsigned int numObjs = collection->getNbObjects();
-	//	for (unsigned int i = 0; i < numObjs; i++)
-	//	{
-	//		physx::PxBase * obj = &collection->getObject(i);
-	//		switch (obj->getConcreteType())
-	//		{
-	//		//case physx::PxConcreteType::eTRIANGLE_MESH:
-	//		//	m_PxTriangleMesh.reset(obj->is<physx::PxTriangleMesh>());
-	//		//	break;
-	//		case physx::PxConcreteType::eMATERIAL:
-	//			m_PxMaterial.reset(obj->is<physx::PxMaterial>());
-	//			break;
-	//		case physx::PxConcreteType::eRIGID_STATIC:
-	//			m_RigidActor.reset(obj->is<physx::PxRigidStatic>());
-	//			break;
-	//		case physx::PxConcreteType::eSHAPE:
-	//			obj->is<physx::PxShape>()->release();
-	//			break;
-	//		}
-	//	}
-	//}
 }
 
 void MeshComponent::RequestResource(void)
@@ -309,19 +266,14 @@ void MeshComponent::ResetStaticCollision(bool StaticCollision)
 {
 	if (!StaticCollision)
 	{
-		m_StaticCollision = false;
 		if (m_Actor && m_Actor->m_PxActor)
 		{
 			m_Actor->m_PxActor->detachShape(*m_PxShape, true);
 		}
 		m_PxMaterial.reset();
-	//	m_RigidActor.reset();
-	//	m_SerializeBuff.reset();
 		m_PxShape.reset();
 		return;
 	}
-
-	m_StaticCollision = true;
 
 	if (!m_MeshRes.m_Res)
 	{
