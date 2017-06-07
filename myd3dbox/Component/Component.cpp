@@ -171,6 +171,12 @@ void Component::CreatePlaneShape(void)
 		return;
 	}
 
+	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		return;
+	}
+
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(

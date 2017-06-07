@@ -1122,6 +1122,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Actor * actor = dynamic_cast<Actor *>(cmp);
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
+			actor->ClearRigidActor();
 			actor->CreateRigidActor((physx::PxActorType::Enum)i);
 			if (actor->IsRequested())
 			{

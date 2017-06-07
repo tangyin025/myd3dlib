@@ -171,7 +171,7 @@ public:
 
 	void CreateSphereShape(float radius);
 
-	void ClearShape(void);
+	virtual void ClearShape(void);
 };
 
 class RenderComponent

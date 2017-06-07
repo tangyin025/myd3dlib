@@ -249,18 +249,20 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos)
 	}
 }
 
-void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
+void Actor::ClearRigidActor(void)
 {
-	if (m_PxActor && m_PxActor->getType() == ActorType)
-	{
-		return;
-	}
-
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->ClearShape();
 	}
+
+	m_PxActor.reset();
+}
+
+void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
+{
+	_ASSERT(!m_PxActor);
 
 	my::Vector3 pos, scale; my::Quaternion rot;
 	m_World.Decompose(scale, rot, pos);
@@ -271,9 +273,6 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
-		break;
-	default:
-		m_PxActor.reset();
 		break;
 	}
 }

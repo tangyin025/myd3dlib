@@ -714,3 +714,10 @@ void Terrain::CreateHeightFieldShape(void)
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
+
+void Terrain::ClearShape(void)
+{
+	RenderComponent::ClearShape();
+
+	m_PxHeightField.reset();
+}

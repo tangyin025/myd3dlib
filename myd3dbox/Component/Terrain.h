@@ -171,6 +171,8 @@ public:
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void CreateHeightFieldShape(void);
+
+	virtual void ClearShape(void);
 };
 
 typedef boost::shared_ptr<Terrain> TerrainPtr;
