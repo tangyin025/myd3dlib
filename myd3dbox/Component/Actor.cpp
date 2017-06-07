@@ -249,11 +249,17 @@ void Actor::UpdateLod(const my::Vector3 & ViewPos)
 	}
 }
 
-void Actor::CreatePxActor(physx::PxActorType::Enum ActorType)
+void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 {
 	if (m_PxActor && m_PxActor->getType() == ActorType)
 	{
 		return;
+	}
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->ClearShape();
 	}
 
 	my::Vector3 pos, scale; my::Quaternion rot;

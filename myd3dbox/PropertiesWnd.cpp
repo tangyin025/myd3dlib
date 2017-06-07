@@ -51,6 +51,17 @@ static LPCTSTR g_ShapeTypeDesc[physx::PxGeometryType::eGEOMETRY_COUNT + 1] =
 	_T("None")
 };
 
+static LPCTSTR g_ActorTypeDesc[physx::PxActorType::eACTOR_COUNT + 1] =
+{
+	_T("RigidStatic"),
+	_T("RigidDynamic"),
+	_T("ParticleSystem"),
+	_T("ParticleFluid"),
+	_T("ArticulationLink"),
+	_T("Cloth"),
+	_T("None")
+};
+
 /////////////////////////////////////////////////////////////////////////////
 // CResourceViewBar
 
@@ -244,6 +255,7 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -257,29 +269,7 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 
 void CPropertiesWnd::UpdatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyActorAABB)
-	{
-		RemovePropertiesFrom(pComponent, PropId);
-		CreatePropertiesCharacter(pComponent, character);
-		return;
-	}
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)character->m_aabb.m_min.x);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)character->m_aabb.m_min.y);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)character->m_aabb.m_min.z);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)character->m_aabb.m_max.x);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)character->m_aabb.m_max.y);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)character->m_aabb.m_max.z);
-	if (!character->m_Cmps.empty())
-	{
-		Actor::ComponentPtrList::iterator cmp_iter = character->m_Cmps.begin();
-		for (; cmp_iter != character->m_Cmps.end(); cmp_iter++)
-		{
-			UpdateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + std::distance(character->m_Cmps.begin(), cmp_iter), cmp_iter->get());
-		}
-	}
-	RemovePropertiesFrom(pComponent, GetComponentPropCount(Component::ComponentTypeActor) + character->m_Cmps.size());
+	UpdatePropertiesActor(pComponent, character);
 }
 
 void CPropertiesWnd::UpdatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -635,6 +625,12 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("maxz"), (_variant_t)actor->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
 	pAABB->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pRigidActor = new CComboProp(_T("RigidActor"), g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT], NULL, PropertyActorRigidActor);
+	for (unsigned int i = 0; i < _countof(g_ActorTypeDesc); i++)
+	{
+		pRigidActor->AddOption(g_ActorTypeDesc[i], TRUE);
+	}
+	pComponent->AddSubItem(pRigidActor);
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -647,30 +643,7 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 
 void CPropertiesWnd::CreatePropertiesCharacter(CMFCPropertyGridProperty * pComponent, Character * character)
 {
-	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
-	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
-	pComponent->AddSubItem(pAABB);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)character->m_aabb.m_min.x, NULL, PropertyActorMinX);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("miny"), (_variant_t)character->m_aabb.m_min.y, NULL, PropertyActorMinY);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("minz"), (_variant_t)character->m_aabb.m_min.z, NULL, PropertyActorMinZ);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxx"), (_variant_t)character->m_aabb.m_max.x, NULL, PropertyActorMaxX);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxy"), (_variant_t)character->m_aabb.m_max.y, NULL, PropertyActorMaxY);
-	pAABB->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("maxz"), (_variant_t)character->m_aabb.m_max.z, NULL, PropertyActorMaxZ);
-	pAABB->AddSubItem(pProp);
-	if (!character->m_Cmps.empty())
-	{
-		Actor::ComponentPtrList::iterator cmp_iter = character->m_Cmps.begin();
-		for (; cmp_iter != character->m_Cmps.end(); cmp_iter++)
-		{
-			CreateProperties(pComponent, GetComponentPropCount(Component::ComponentTypeCharacter) + std::distance(character->m_Cmps.begin(), cmp_iter), cmp_iter->get());
-		}
-	}
+	CreatePropertiesActor(pComponent, character);
 }
 
 void CPropertiesWnd::CreatePropertiesMesh(CMFCPropertyGridProperty * pComponent, MeshComponent * mesh_cmp)
@@ -951,9 +924,9 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
 	case Component::ComponentTypeCharacter:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 1;
+		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
 		return GetComponentPropCount(Component::ComponentTypeComponent) + 4;
 	case Component::ComponentTypeCloth:
@@ -1281,6 +1254,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
+			EventArg arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyActorRigidActor:
+		{
+			Component * cmp = (Component *)pProp->GetParent()->GetValue().ulVal;
+			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
+			ASSERT(i >= 0 && i < _countof(g_ActorTypeDesc));
+			actor->CreateRigidActor((physx::PxActorType::Enum)i);
+			if (actor->IsRequested())
+			{
+				actor->OnEnterPxScene(pFrame);
+			}
 			EventArg arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

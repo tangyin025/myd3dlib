@@ -61,6 +61,7 @@ protected:
 		PropertyActorMaxX,
 		PropertyActorMaxY,
 		PropertyActorMaxZ,
+		PropertyActorRigidActor,
 		PropertyMeshResPath,
 		PropertyMeshInstance,
 		PropertyMeshUseAnimation,

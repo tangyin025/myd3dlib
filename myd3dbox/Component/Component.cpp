@@ -151,12 +151,11 @@ void Component::ClearShape(void)
 		return;
 	}
 
-	if (!m_Actor || !m_Actor->m_PxActor)
+	if (m_Actor && m_Actor->m_PxActor)
 	{
-		return;
+		m_Actor->m_PxActor->detachShape(*m_PxShape, true);
 	}
 
-	m_Actor->m_PxActor->detachShape(*m_PxShape, true);
 	m_PxShape.reset();
 	m_PxMaterial.reset();
 }
@@ -289,6 +288,12 @@ void MeshComponent::CreateMeshShape(void)
 	}
 
 	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
 	{
 		return;
 	}
