@@ -666,6 +666,19 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 
 void Terrain::CreateHeightFieldShape(void)
 {
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
+		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		return;
+	}
+
 	if (!m_HeightMap.m_ptr)
 	{
 		return;

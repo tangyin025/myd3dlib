@@ -124,23 +124,6 @@ protected:
 		PropertyTerrainWrappedU,
 		PropertyTerrainWrappedV,
 		PropertyTerrainHeightMap,
-		//PropertyRigidShapeList,
-		//PropertyRigidShapeAdd,
-		//PropertyRigidShapePos,
-		//PropertyRigidShapePosX,
-		//PropertyRigidShapePosY,
-		//PropertyRigidShapePosZ,
-		//PropertyRigidShapeRot,
-		//PropertyRigidShapeRotX,
-		//PropertyRigidShapeRotY,
-		//PropertyRigidShapeRotZ,
-		//PropertyRigidShapeCapsuleRadius,
-		//PropertyRigidShapeCapsuleHalfHeight,
-		//PropertyRigidShapeBoxHalfExtents,
-		//PropertyRigidShapeBoxHalfExtentsX,
-		//PropertyRigidShapeBoxHalfExtentsY,
-		//PropertyRigidShapeBoxHalfExtentsZ,
-		//PropertyRigidShapeSphereRadius,
 		PropertyCount
 	};
 	CMFCPropertyGridProperty * m_pProp[PropertyCount];
@@ -160,11 +143,6 @@ protected:
 	void UpdatePropertiesSpline(CMFCPropertyGridProperty * pSpline, my::Spline * spline);
 	void UpdatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, const my::SplineNode * node);
 	void UpdatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
-	//void UpdatePropertiesRigid(RigidComponent * cmp);
-	//void UpdatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, int NodeId, PxShape * shape);
-	//void UpdatePropertiesShapeBox(CMFCPropertyGridProperty * pShape, PxBoxGeometry & box);
-	//void UpdatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape, PxSphereGeometry & sphere);
-	//void UpdatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape, PxCapsuleGeometry & capsule);
 
 	void CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp);
 	void CreatePropertiesActor(CMFCPropertyGridProperty * pComponent, Actor * actor);
@@ -178,10 +156,6 @@ protected:
 	void CreatePropertiesSpline(CMFCPropertyGridProperty * pParentProp, LPCTSTR lpszName, Property PropertyId, my::Spline * spline);
 	void CreatePropertiesSplineNode(CMFCPropertyGridProperty * pSpline, int NodeId, my::SplineNode * node);
 	void CreatePropertiesTerrain(CMFCPropertyGridProperty * pComponent, Terrain * terrain);
-	//void CreatePropertiesShape(CMFCPropertyGridProperty * pParentCtrl, int NodeId, PxGeometryType::Enum type);
-	//void CreatePropertiesShapeBox(CMFCPropertyGridProperty * pShape);
-	//void CreatePropertiesShapeSphere(CMFCPropertyGridProperty * pShape);
-	//void CreatePropertiesShapeCapsule(CMFCPropertyGridProperty * pShape);
 
 	static unsigned int GetComponentPropCount(Component::ComponentType type);
 	static LPCTSTR GetComponentTypeName(Component::ComponentType type);

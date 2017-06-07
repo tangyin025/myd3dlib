@@ -29,8 +29,6 @@ BOOST_CLASS_EXPORT(ClothComponent)
 BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
-//
-//BOOST_CLASS_EXPORT(RigidComponent)
 
 void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
@@ -130,18 +128,74 @@ void Component::UpdateLod(const my::Vector3 & ViewPos)
 
 void Component::CreateBoxShape(float hx, float hy, float hz)
 {
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
 void Component::CreateCapsuleShape(float radius, float halfHeight)
 {
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
 void Component::CreatePlaneShape(void)
 {
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
 void Component::CreateSphereShape(float radius)
 {
+	_ASSERT(!m_PxShape);
+
+	if (!m_Actor || !m_Actor->m_PxActor)
+	{
+		return;
+	}
+
+	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
+	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
+		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
 void Component::ClearShape(void)
@@ -276,16 +330,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 
 void MeshComponent::CreateMeshShape(void)
 {
-	if (!m_MeshRes.m_Res)
-	{
-		return;
-	}
-
-	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_MeshRes.m_Res);
-	if (key.empty())
-	{
-		return;
-	}
+	_ASSERT(!m_PxShape);
 
 	if (!m_Actor || !m_Actor->m_PxActor)
 	{
@@ -294,6 +339,17 @@ void MeshComponent::CreateMeshShape(void)
 
 	if (m_Actor->m_PxActor->getType() == physx::PxActorType::eRIGID_DYNAMIC
 		&& !m_Actor->m_PxActor->isRigidBody()->getRigidBodyFlags().isSet(physx::PxRigidBodyFlag::eKINEMATIC))
+	{
+		return;
+	}
+
+	if (!m_MeshRes.m_Res)
+	{
+		return;
+	}
+
+	std::string key = my::ResourceMgr::getSingleton().GetResourceKey(m_MeshRes.m_Res);
+	if (key.empty())
 	{
 		return;
 	}
@@ -823,53 +879,3 @@ void SphericalEmitterComponent::Update(float fElapsedTime)
 		m_RemainingSpawnTime -= m_SpawnInterval;
 	}
 }
-//
-//void RigidComponent::CreateRigidActor(const my::Matrix4 & World)
-//{
-//	my::Vector3 pos, scale; my::Quaternion rot;
-//	World.Decompose(scale, rot, pos);
-//	m_RigidActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(PxTransform((PxVec3&)pos, (PxQuat&)rot)));
-//}
-//
-//template<>
-//void RigidComponent::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
-//{
-//	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-//	PxDefaultMemoryOutputStream ostr;
-//	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-//	m_RigidActor->collectForExport(*collection);
-//	collection->addExternalRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
-//	collection->setObjectRef(*m_RigidActor, (PxSerialObjectRef)SerializeRefActor);
-//	collection->serialize(ostr, false);
-//	unsigned int BuffSize = ostr.getSize();
-//	ar << BOOST_SERIALIZATION_NVP(BuffSize);
-//	ar << boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(ostr.getData(), ostr.getSize()));
-//}
-//
-//template<>
-//void RigidComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorphic_iarchive & ar, const unsigned int version)
-//{
-//	ar >> BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
-//	unsigned int BuffSize;
-//	ar >> BOOST_SERIALIZATION_NVP(BuffSize);
-//	m_SerializeBuff.reset((unsigned char *)_aligned_malloc(BuffSize, PX_SERIAL_FILE_ALIGN), _aligned_free);
-//	ar >> boost::serialization::make_nvp("m_RigidActor", boost::serialization::binary_object(m_SerializeBuff.get(), BuffSize));
-//	PhysXPtr<PxUserReferences> externalRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
-//	externalRefs->setObjectRef(*PhysXContext::getSingleton().m_PxMaterial, (PxSerialObjectRef)SerializeRefMaterial);
-//	PhysXPtr<PxUserReferences> userRefs(PhysXContext::getSingleton().m_sdk->createUserReferences());
-//	PhysXPtr<PxCollection> collection(PhysXContext::getSingleton().m_sdk->createCollection());
-//	collection->deserialize(m_SerializeBuff.get(), userRefs.get(), externalRefs.get());
-//	m_RigidActor.reset(userRefs->getObjectFromRef((PxSerialObjectRef)SerializeRefActor)->is<PxRigidActor>());
-//}
-//
-//void RigidComponent::RequestResource(void)
-//{
-//	Component::RequestResource();
-//	PhysXSceneContext::getSingleton().m_PxScene->addActor(*m_RigidActor);
-//}
-//
-//void RigidComponent::ReleaseResource(void)
-//{
-//	PhysXSceneContext::getSingleton().m_PxScene->removeActor(*m_RigidActor);
-//	Component::ReleaseResource();
-//}
