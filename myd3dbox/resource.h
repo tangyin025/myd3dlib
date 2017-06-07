@@ -46,27 +46,23 @@
 #define ID_VIEW_SHOW                    32784
 #define ID_SHOW_GRID                    32785
 #define ID_SHOW_CMPHANDLE               32786
-#define ID_RIGID_SPHERE                 32787
-#define ID_RIGID_PLANE                  32788
-#define ID_RIGID_CAPSULE                32789
-#define ID_RIGID_BOX                    32790
-#define ID_COMPONENT_TERRAIN            32791
-#define ID_VIEW_RENDERMODE              32792
-#define ID_RENDERMODE_WIREFRAME         32793
-#define ID_SHOW_COLLISION               32794
-#define ID_CREATE_ACTOR                 32795
-#define ID_RENDERMODE_DEPTHOFFIELD      32796
-#define ID_RENDERMODE_FXAA              32797
-#define ID_RENDERMODE_SSAO              32798
-#define ID_COMPONENT_CLOTH              32799
-#define ID_CREATE_CHARACTER             32800
+#define ID_COMPONENT_TERRAIN            32787
+#define ID_VIEW_RENDERMODE              32788
+#define ID_RENDERMODE_WIREFRAME         32789
+#define ID_SHOW_COLLISION               32790
+#define ID_CREATE_ACTOR                 32791
+#define ID_RENDERMODE_DEPTHOFFIELD      32792
+#define ID_RENDERMODE_FXAA              32793
+#define ID_RENDERMODE_SSAO              32794
+#define ID_COMPONENT_CLOTH              32795
+#define ID_CREATE_CHARACTER             32896
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        310
-#define _APS_NEXT_COMMAND_VALUE         32801
+#define _APS_NEXT_COMMAND_VALUE         32897
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif

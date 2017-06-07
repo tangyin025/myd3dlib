@@ -48,10 +48,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_SPHERICALEMITTER, &CMainFrame::OnUpdateComponentSphericalemitter)
 	ON_COMMAND(ID_COMPONENT_TERRAIN, &CMainFrame::OnComponentTerrain)
 	ON_UPDATE_COMMAND_UI(ID_COMPONENT_TERRAIN, &CMainFrame::OnUpdateComponentTerrain)
-	ON_COMMAND(ID_RIGID_SPHERE, &CMainFrame::OnRigidSphere)
-	ON_COMMAND(ID_RIGID_PLANE, &CMainFrame::OnRigidPlane)
-	ON_COMMAND(ID_RIGID_CAPSULE, &CMainFrame::OnRigidCapsule)
-	ON_COMMAND(ID_RIGID_BOX, &CMainFrame::OnRigidBox)
 	ON_COMMAND(ID_EDIT_DELETE, &CMainFrame::OnEditDelete)
 	ON_UPDATE_COMMAND_UI(ID_EDIT_DELETE, &CMainFrame::OnUpdateEditDelete)
 	ON_COMMAND(ID_PIVOT_MOVE, &CMainFrame::OnPivotMove)
@@ -815,70 +811,6 @@ void CMainFrame::OnUpdateComponentTerrain(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->Enable(!m_selactors.empty());
-}
-
-void CMainFrame::OnRigidSphere()
-{
-	//// TODO: Add your command handler code here
-	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	//rigid_cmp->m_RigidActor->createShape(PxSphereGeometry(1), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
-
-	//m_selactors.clear();
-	//m_selactors.insert(rigid_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
-}
-
-void CMainFrame::OnRigidPlane()
-{
-	//// TODO: Add your command handler code here
-	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	//rigid_cmp->m_RigidActor->createShape(PxPlaneGeometry(), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
-
-	//m_selactors.clear();
-	//m_selactors.insert(rigid_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
-}
-
-void CMainFrame::OnRigidCapsule()
-{
-	//// TODO: Add your command handler code here
-	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	//rigid_cmp->m_RigidActor->createShape(PxCapsuleGeometry(1.0f, 1.0f), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
-
-	//m_selactors.clear();
-	//m_selactors.insert(rigid_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
-}
-
-void CMainFrame::OnRigidBox()
-{
-	//// TODO: Add your command handler code here
-	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
-	//rigid_cmp->m_RigidActor->createShape(PxBoxGeometry(1,1,1), *theApp.m_PxMaterial, PxTransform::createIdentity());
-	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp, rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
-
-	//m_selactors.clear();
-	//m_selactors.insert(rigid_cmp.get());
-	//UpdateSelBox();
-	//UpdatePivotTransform();
-	//EventArg arg;
-	//m_EventSelectionChanged(&arg);
 }
 
 void CMainFrame::OnEditDelete()

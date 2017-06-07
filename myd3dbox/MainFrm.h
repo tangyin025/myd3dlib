@@ -95,10 +95,6 @@ public:
 	afx_msg void OnUpdateComponentSphericalemitter(CCmdUI *pCmdUI);
 	afx_msg void OnComponentTerrain();
 	afx_msg void OnUpdateComponentTerrain(CCmdUI *pCmdUI);
-	afx_msg void OnRigidSphere();
-	afx_msg void OnRigidPlane();
-	afx_msg void OnRigidCapsule();
-	afx_msg void OnRigidBox();
 	afx_msg void OnEditDelete();
 	afx_msg void OnUpdateEditDelete(CCmdUI *pCmdUI);
 	afx_msg void OnPivotMove();
