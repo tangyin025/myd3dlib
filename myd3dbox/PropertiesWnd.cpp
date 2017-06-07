@@ -1196,7 +1196,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			cmp->UpdateWorld(my::Matrix4::identity);
-			Actor * actor = cmp->m_Actor;
+			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();

@@ -958,6 +958,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		{
 			m_selactorwlds[*sel_iter][0] = my::Vector4((*sel_iter)->m_Position, 0);
 			m_selactorwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
+			m_selactorwlds[*sel_iter][2] = my::Vector4((*sel_iter)->m_Scale, 1);
 		}
 		SetCapture();
 		Invalidate();
@@ -1105,8 +1106,19 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 				actor_world_iter->first->UpdateWorld(my::Matrix4::identity);
 				break;
 			case Pivot::PivotModeRot:
-				actor_world_iter->first->m_Rotation = pFrame->m_Pivot.m_DragDeltaRot * (my::Quaternion &)actor_world_iter->second[1];
-				actor_world_iter->first->UpdateWorld(my::Matrix4::identity);
+				{
+					my::Matrix4 mat = my::Matrix4::Compose(actor_world_iter->second[2].xyz, (my::Quaternion&)actor_world_iter->second[1], actor_world_iter->second[0].xyz)
+						* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
+						* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_Rot.inverse() * pFrame->m_Pivot.m_DragDeltaRot * pFrame->m_Pivot.m_Rot)
+						* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
+					mat.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
+					actor_world_iter->first->m_World = mat;
+					Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
+					for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
+					{
+						(*cmp_iter)->UpdateWorld(mat);
+					}
+				}
 				break;
 			}
 		}
