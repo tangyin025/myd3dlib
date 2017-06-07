@@ -1104,6 +1104,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			case Pivot::PivotModeMove:
 				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
 				actor_world_iter->first->UpdateWorld(my::Matrix4::identity);
+				actor_world_iter->first->UpdateRigidActorPose();
 				break;
 			case Pivot::PivotModeRot:
 				{
@@ -1118,6 +1119,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 					{
 						(*cmp_iter)->UpdateWorld(mat);
 					}
+					actor_world_iter->first->UpdateRigidActorPose();
 				}
 				break;
 			}

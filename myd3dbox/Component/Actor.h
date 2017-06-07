@@ -74,6 +74,8 @@ public:
 
 	virtual void UpdateWorld(const my::Matrix4 & World);
 
+	void UpdateRigidActorPose(void);
+
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);

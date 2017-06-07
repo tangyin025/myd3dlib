@@ -1027,8 +1027,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
-			cmp->UpdateWorld(my::Matrix4::identity);
 			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
+			actor->UpdateWorld(my::Matrix4::identity);
+			actor->UpdateRigidActorPose();
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1046,16 +1047,16 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			switch (i)
 			{
 			case physx::PxGeometryType::eSPHERE:
-				cmp->CreateSphereShape(1.0f);
+				cmp->CreateSphereShape(1.0f, cmp->m_Position, cmp->m_Rotation);
 				break;
 			case physx::PxGeometryType::ePLANE:
-				cmp->CreatePlaneShape();
+				cmp->CreatePlaneShape(cmp->m_Position, cmp->m_Rotation);
 				break;
 			case physx::PxGeometryType::eCAPSULE:
-				cmp->CreateCapsuleShape(1.0f, 1.0f);
+				cmp->CreateCapsuleShape(1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
 				break;
 			case physx::PxGeometryType::eBOX:
-				cmp->CreateBoxShape(1.0f, 1.0f, 1.0f);
+				cmp->CreateBoxShape(1.0f, 1.0f, 1.0f, cmp->m_Position, cmp->m_Rotation);
 				break;
 			case physx::PxGeometryType::eCONVEXMESH:
 				break;
@@ -1063,14 +1064,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				if (cmp->m_Type == Component::ComponentTypeMesh)
 				{
 					MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-					mesh_cmp->CreateMeshShape();
+					mesh_cmp->CreateTriangleMeshShape(cmp->m_Position, cmp->m_Rotation, cmp->m_Scale);
 				}
 				break;
 			case physx::PxGeometryType::eHEIGHTFIELD:
 				if (cmp->m_Type == Component::ComponentTypeTerrain)
 				{
 					Terrain * terrain = dynamic_cast<Terrain *>(cmp);
-					terrain->CreateHeightFieldShape();
+					terrain->CreateHeightFieldShape(cmp->m_Position, cmp->m_Rotation);
 				}
 				break;
 			}

@@ -170,7 +170,7 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void CreateHeightFieldShape(void);
+	void CreateHeightFieldShape(const my::Vector3 & Position, const my::Quaternion & Rotation);
 
 	virtual void ClearShape(void);
 };

@@ -664,7 +664,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 	}
 }
 
-void Terrain::CreateHeightFieldShape(void)
+void Terrain::CreateHeightFieldShape(const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);
 
@@ -710,7 +710,8 @@ void Terrain::CreateHeightFieldShape(void)
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxHeightFieldGeometry(m_PxHeightField.get(), physx::PxMeshGeometryFlags(), m_HeightScale * m_Scale.y, m_Scale.x, m_Scale.z),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }

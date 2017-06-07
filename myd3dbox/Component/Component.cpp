@@ -126,7 +126,7 @@ void Component::UpdateLod(const my::Vector3 & ViewPos)
 {
 }
 
-void Component::CreateBoxShape(float hx, float hy, float hz)
+void Component::CreateBoxShape(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);
 
@@ -139,12 +139,13 @@ void Component::CreateBoxShape(float hx, float hy, float hz)
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxBoxGeometry(hx, hy, hz), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateCapsuleShape(float radius, float halfHeight)
+void Component::CreateCapsuleShape(float radius, float halfHeight, const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);
 
@@ -157,12 +158,13 @@ void Component::CreateCapsuleShape(float radius, float halfHeight)
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxCapsuleGeometry(radius, halfHeight), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreatePlaneShape(void)
+void Component::CreatePlaneShape(const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);
 
@@ -181,12 +183,13 @@ void Component::CreatePlaneShape(void)
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxPlaneGeometry(), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
 
-void Component::CreateSphereShape(float radius)
+void Component::CreateSphereShape(float radius, const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);
 
@@ -199,7 +202,8 @@ void Component::CreateSphereShape(float radius)
 
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxSphereGeometry(radius), *m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
@@ -334,7 +338,7 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
-void MeshComponent::CreateMeshShape(void)
+void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
 	_ASSERT(!m_PxShape);
 
@@ -398,11 +402,12 @@ void MeshComponent::CreateMeshShape(void)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	physx::PxMeshScale mesh_scaling((physx::PxVec3&)m_Scale, (physx::PxQuat&)m_Rotation);
+	physx::PxMeshScale mesh_scaling((physx::PxVec3&)Scale, (physx::PxQuat&)Rotation);
 	m_PxShape.reset(PhysXContext::getSingleton().m_sdk->createShape(
 		physx::PxTriangleMeshGeometry(triangle_mesh.get(), mesh_scaling, physx::PxMeshGeometryFlags()),
 		*m_PxMaterial, false, physx::PxShapeFlag::eVISUALIZATION | physx::PxShapeFlag::eSCENE_QUERY_SHAPE | physx::PxShapeFlag::eSIMULATION_SHAPE));
-	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)m_Position, (physx::PxQuat&)m_Rotation));
+
+	m_PxShape->setLocalPose(physx::PxTransform((physx::PxVec3&)Position, (physx::PxQuat&)Rotation));
 
 	m_Actor->m_PxActor->attachShape(*m_PxShape);
 }
@@ -770,7 +775,7 @@ void ClothComponent::UpdateCloth(void)
 			my::OgreMesh::ComputeTangentFrame(
 				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 		}
-		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44 &)m_World));
+		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44&)m_World));
 	}
 }
 

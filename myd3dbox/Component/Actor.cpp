@@ -227,6 +227,14 @@ void Actor::UpdateWorld(const my::Matrix4 & World)
 	}
 }
 
+void Actor::UpdateRigidActorPose(void)
+{
+	if (m_PxActor)
+	{
+		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxMat44&)m_World));
+	}
+}
+
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	Component::AddToPipeline(frustum, pipeline, PassMask);
