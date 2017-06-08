@@ -399,8 +399,10 @@ bool CChildView::OverlapTestFrustumAndComponent(const my::Frustum & frustum, Com
 		}
 		break;
 
+	case Component::ComponentTypeTerrain:
+		break;
+
 	//case Component::ComponentTypeRigid:
-	//	// !
 	//	break;
 	}
 	return false;
@@ -596,31 +598,6 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 		}
 		break;
 
-	//case Component::ComponentTypeRigid:
-	//	{
-	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
-	//		_ASSERT(rigid_cmp->m_RigidActor);
-	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
-	//		std::vector<PxShape *> shapes(NbShapes);
-	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
-	//		for (unsigned int i = 0; i < NbShapes; i++)
-	//		{
-	//			PxRaycastHit hits[1];
-	//			if (PxGeometryQuery::raycast(
-	//				(PxVec3&)ray.p,
-	//				(PxVec3&)ray.d,
-	//				shapes[i]->getGeometry().any(),
-	//				PxShapeExt::getGlobalPose(*shapes[i]),
-	//				3000.0f,
-	//				PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
-	//				_countof(hits), hits, true))
-	//			{
-	//				return my::RayResult(true, hits[0].distance);
-	//			}
-	//		}
-	//	}
-	//	break;
-
 	case Component::ComponentTypeTerrain:
 		{
 			struct CallBack : public my::IQueryCallback
@@ -662,6 +639,10 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				}
 			};
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);
+			if (!terrain->m_vb.m_ptr)
+			{
+				return my::RayResult(false, FLT_MAX);
+			}
 			CallBack cb(local_ray, this, terrain);
 			terrain->m_Root.QueryActor(local_ray, &cb);
 			if (cb.ret.first)
@@ -671,6 +652,31 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			}
 		}
 		break;
+
+	//case Component::ComponentTypeRigid:
+	//	{
+	//		RigidComponent * rigid_cmp = dynamic_cast<RigidComponent *>(cmp);
+	//		_ASSERT(rigid_cmp->m_RigidActor);
+	//		unsigned int NbShapes = rigid_cmp->m_RigidActor->getNbShapes();
+	//		std::vector<PxShape *> shapes(NbShapes);
+	//		NbShapes = rigid_cmp->m_RigidActor->getShapes(&shapes[0], shapes.size(), 0);
+	//		for (unsigned int i = 0; i < NbShapes; i++)
+	//		{
+	//			PxRaycastHit hits[1];
+	//			if (PxGeometryQuery::raycast(
+	//				(PxVec3&)ray.p,
+	//				(PxVec3&)ray.d,
+	//				shapes[i]->getGeometry().any(),
+	//				PxShapeExt::getGlobalPose(*shapes[i]),
+	//				3000.0f,
+	//				PxSceneQueryFlags(PxSceneQueryFlag::eDISTANCE),
+	//				_countof(hits), hits, true))
+	//			{
+	//				return my::RayResult(true, hits[0].distance);
+	//			}
+	//		}
+	//	}
+	//	break;
 	}
 	return my::RayResult(false, FLT_MAX);
 }

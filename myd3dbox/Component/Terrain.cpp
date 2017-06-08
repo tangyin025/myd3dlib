@@ -647,17 +647,20 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		}
 	};
 
-	if (m_Material && (m_Material->m_PassMask & PassMask))
+	if (m_vb.m_ptr)
 	{
-		for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
+		if (m_Material && (m_Material->m_PassMask & PassMask))
 		{
-			if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
+			for (unsigned int PassID = 0; PassID < RenderPipeline::PassTypeNum; PassID++)
 			{
-				my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
-				if (shader)
+				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					my::Frustum loc_frustum = frustum.transform(m_World.transpose());
-					m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
+					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
+					if (shader)
+					{
+						my::Frustum loc_frustum = frustum.transform(m_World.transpose());
+						m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
+					}
 				}
 			}
 		}
