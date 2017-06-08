@@ -55,13 +55,13 @@ class Terrain
 	: public RenderComponent
 {
 public:
-	static const DWORD m_RowChunks = 8;
+	static const int ROW_CHUNKS = 8;
 
-	static const DWORD m_ColChunks = 8;
+	static const int COL_CHUNKS = 8;
 
-	static const DWORD m_ChunkRows = 64;
+	static const int CHUNK_SIZE = 64;
 
-	typedef boost::array<unsigned short, m_ChunkRows + 1> VertexArray;
+	typedef boost::array<unsigned short, CHUNK_SIZE + 1> VertexArray;
 
 	class VertexArray2D
 		: public boost::array<VertexArray, VertexArray::static_size>
@@ -103,13 +103,13 @@ public:
 
 	my::OctNode<0> m_Root;
 
-	typedef boost::array<TerrainChunk *, m_ColChunks> ChunkArray;
+	typedef boost::array<TerrainChunk *, COL_CHUNKS> ChunkArray;
 
-	typedef boost::array<ChunkArray, m_RowChunks> ChunkArray2D;
+	typedef boost::array<ChunkArray, ROW_CHUNKS> ChunkArray2D;
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::array<float, Quad<m_ChunkRows>::value> LodDistanceList;
+	typedef boost::array<float, Quad<CHUNK_SIZE>::value> LodDistanceList;
 
 	LodDistanceList m_LodDistanceSq;
 

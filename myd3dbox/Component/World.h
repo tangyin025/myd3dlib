@@ -34,6 +34,10 @@ class WorldL
 public:
 	static const int LEVEL_SIZE = 512;
 
+	static const int VIEWED_DIST = 1000;
+
+	static const int VIEWED_THRESHOLD = 50;
+
 	int m_Dimension;
 
 	CPoint m_LevelId;

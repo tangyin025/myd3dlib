@@ -144,7 +144,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 
 	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
 	{
-		const Vector3 InExtent(1000, 1000, 1000);
+		const Vector3 InExtent(VIEWED_DIST);
 		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
 		AABB InBox(ViewPos + Offset - InExtent, ViewPos + Offset + InExtent);
 		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos, scene));
@@ -153,7 +153,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 
 void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
-	const Vector3 OutExtent(1050, 1050, 1050);
+	const Vector3 OutExtent(VIEWED_DIST + VIEWED_THRESHOLD);
 	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
 	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
 	for (; cmp_iter != m_ViewedActors.end(); )

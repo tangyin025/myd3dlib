@@ -128,7 +128,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 	, m_HeightScale(HeightScale)
 	, m_WrappedU(WrappedU)
 	, m_WrappedV(WrappedV)
-	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
+	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
 {
 	CreateHeightMap();
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
@@ -149,7 +149,7 @@ Terrain::Terrain(void)
 	, m_HeightScale(1)
 	, m_WrappedU(1)
 	, m_WrappedV(1)
-	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(m_RowChunks * m_ChunkRows, 3000, m_ColChunks * m_ChunkRows)), 1.0f)
+	, m_Root(NULL, AABB(Vector3(0,-3000,0), Vector3(ROW_CHUNKS * CHUNK_SIZE, 3000, COL_CHUNKS * CHUNK_SIZE)), 1.0f)
 {
 	CreateHeightMap();
 }
@@ -166,14 +166,14 @@ void Terrain::CalcLodDistanceSq(void)
 {
 	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
 	{
-		m_LodDistanceSq[i] = pow(Vector2(m_ChunkRows * 0.6f, m_ChunkRows * 0.6f).magnitude() * (i + 1), 2);
+		m_LodDistanceSq[i] = pow(Vector2(CHUNK_SIZE * 0.6f, CHUNK_SIZE * 0.6f).magnitude() * (i + 1), 2);
 	}
 }
 
 void Terrain::CreateHeightMap(void)
 {
 	m_HeightMap.CreateTexture(
-		my::D3DContext::getSingleton().m_d3dDevice, m_ColChunks * m_ChunkRows, m_RowChunks * m_ChunkRows, 1, 0, D3DFMT_A8R8G8B8);
+		my::D3DContext::getSingleton().m_d3dDevice, COL_CHUNKS * CHUNK_SIZE, ROW_CHUNKS * CHUNK_SIZE, 1, 0, D3DFMT_A8R8G8B8);
 	UpdateHeightMapNormal();
 }
 
@@ -185,7 +185,7 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 	case D3DFMT_A8:
 	case D3DFMT_L8:
 		{
-			RECT rc = { 0, 0, my::Min<LONG>(m_ColChunks * m_ChunkRows, SrcDesc.Width), my::Min<LONG>(m_RowChunks * m_ChunkRows, SrcDesc.Height) };
+			RECT rc = { 0, 0, my::Min<LONG>(COL_CHUNKS * CHUNK_SIZE, SrcDesc.Width), my::Min<LONG>(ROW_CHUNKS * CHUNK_SIZE, SrcDesc.Height) };
 			D3DLOCKED_RECT SrcLrc = HeightMap->LockRect(&rc, 0, 0);
 			D3DLOCKED_RECT DstLrc = m_HeightMap.LockRect(&rc, 0, 0);
 			for (int i = rc.top; i < rc.bottom; i++)
@@ -211,9 +211,9 @@ void Terrain::UpdateHeightMap(my::Texture2DPtr HeightMap)
 void Terrain::UpdateHeightMapNormal(void)
 {
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
-	for (int i = 0; i < m_RowChunks * m_ChunkRows; i++)
+	for (int i = 0; i < ROW_CHUNKS * CHUNK_SIZE; i++)
 	{
-		for (int j = 0; j < m_ColChunks * m_ChunkRows; j++)
+		for (int j = 0; j < COL_CHUNKS * CHUNK_SIZE; j++)
 		{
 			D3DCOLOR * Bits = (D3DCOLOR *)((unsigned char *)lrc.pBits + i * lrc.Pitch + j * sizeof(D3DCOLOR));
 			Vector3 Pos = GetSamplePos(lrc.pBits, lrc.Pitch, i, j);
@@ -253,8 +253,8 @@ void Terrain::UpdateChunks(void)
 
 unsigned char Terrain::GetSampleHeight(void * pBits, int pitch, int i, int j)
 {
-	i = Clamp<int>(i, 0, m_RowChunks * m_ChunkRows - 1);
-	j = Clamp<int>(j, 0, m_ColChunks * m_ChunkRows - 1);
+	i = Clamp<int>(i, 0, ROW_CHUNKS * CHUNK_SIZE - 1);
+	j = Clamp<int>(j, 0, COL_CHUNKS * CHUNK_SIZE - 1);
 	D3DCOLOR * Bits = (D3DCOLOR *)((unsigned char *)pBits + i * pitch + j * sizeof(D3DCOLOR));
 	return GetCValue(*Bits);
 }
@@ -412,11 +412,11 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 	if (left > center || top > center || right > center || bottom > center)
 	{
 		const int N[] = {
-			m_ChunkRows >> center,
-			m_ChunkRows >> Max(center, left),
-			m_ChunkRows >> Max(center, top),
-			m_ChunkRows >> Max(center, right),
-			m_ChunkRows >> Max(center, bottom)
+			CHUNK_SIZE >> center,
+			CHUNK_SIZE >> Max(center, left),
+			CHUNK_SIZE >> Max(center, top),
+			CHUNK_SIZE >> Max(center, right),
+			CHUNK_SIZE >> Max(center, bottom)
 		};
 		const int M[] = {
 			N[0] / N[0],
@@ -442,7 +442,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 	}
 	else
 	{
-		const int N = m_ChunkRows >> center;
+		const int N = CHUNK_SIZE >> center;
 		frag.VertNum = (N + 1) * (N + 1);
 		frag.PrimitiveCount = N * N * 2;
 		frag.ib.CreateIndexBuffer(pd3dDevice, frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
@@ -462,7 +462,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar << BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar << BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
 	D3DLOCKED_RECT lrc = const_cast<my::Texture2D&>(m_HeightMap).LockRect(NULL, 0, 0);
 	std::copy(
@@ -482,7 +482,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedU);
 	ar >> BOOST_SERIALIZATION_NVP(m_WrappedV);
 	ar >> BOOST_SERIALIZATION_NVP(m_Material);
-	const DWORD BufferSize = m_RowChunks * m_ChunkRows * m_ColChunks * m_ChunkRows;
+	const DWORD BufferSize = ROW_CHUNKS * CHUNK_SIZE * COL_CHUNKS * CHUNK_SIZE;
 	boost::array<unsigned char, BufferSize> buff;
 	ar >> boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
@@ -594,9 +594,9 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetFloat("g_HeightScale", m_HeightScale);
 
-	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)m_RowChunks * m_ChunkRows, (float)m_ColChunks * m_ChunkRows));
+	shader->SetVector("g_WrappedUV", Vector4(m_WrappedU, m_WrappedV, (float)ROW_CHUNKS * CHUNK_SIZE, (float)COL_CHUNKS * CHUNK_SIZE));
 
-	int ChunkId[3] = { LOWORD(AttribId), HIWORD(AttribId), m_ChunkRows };
+	int ChunkId[3] = { LOWORD(AttribId), HIWORD(AttribId), CHUNK_SIZE };
 
 	shader->SetIntArray("g_ChunkId", ChunkId, 3);
 
@@ -686,20 +686,20 @@ void Terrain::CreateHeightFieldShape(const my::Vector3 & Position, const my::Qua
 
 	D3DLOCKED_RECT lrc = m_HeightMap.LockRect(NULL, 0, 0);
 	std::vector<physx::PxHeightFieldSample> Samples(
-		(m_RowChunks * m_ChunkRows + 1) * (m_ColChunks * m_ChunkRows + 1));
-	for (unsigned int i = 0; i < m_RowChunks * m_ChunkRows + 1; i++)
+		(ROW_CHUNKS * CHUNK_SIZE + 1) * (COL_CHUNKS * CHUNK_SIZE + 1));
+	for (unsigned int i = 0; i < ROW_CHUNKS * CHUNK_SIZE + 1; i++)
 	{
-		for (unsigned int j = 0; j < m_ColChunks * m_ChunkRows + 1; j++)
+		for (unsigned int j = 0; j < COL_CHUNKS * CHUNK_SIZE + 1; j++)
 		{
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].height = GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex0 = physx::PxBitAndByte(0, false);
-			Samples[i * (m_ColChunks * m_ChunkRows + 1) + j].materialIndex1 = physx::PxBitAndByte(0, false);
+			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].height = GetSampleHeight(lrc.pBits, lrc.Pitch, i, j);
+			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].materialIndex0 = physx::PxBitAndByte(0, false);
+			Samples[i * (COL_CHUNKS * CHUNK_SIZE + 1) + j].materialIndex1 = physx::PxBitAndByte(0, false);
 		}
 	}
 	m_HeightMap.UnlockRect(0);
 	physx::PxHeightFieldDesc hfDesc;
-	hfDesc.nbRows             = m_RowChunks * m_ChunkRows + 1;
-	hfDesc.nbColumns          = m_ColChunks * m_ChunkRows + 1;
+	hfDesc.nbRows             = ROW_CHUNKS * CHUNK_SIZE + 1;
+	hfDesc.nbColumns          = COL_CHUNKS * CHUNK_SIZE + 1;
 	hfDesc.format             = physx::PxHeightFieldFormat::eS16_TM;
 	hfDesc.samples.data       = &Samples[0];
 	hfDesc.samples.stride     = sizeof(Samples[0]);

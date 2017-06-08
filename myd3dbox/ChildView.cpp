@@ -727,9 +727,9 @@ my::RayResult CChildView::OverlapTestRayAndTerrainChunk(
 		unsigned char * pv1 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i1 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
 		unsigned char * pv2 = terrain->m_VertexElems.GetVertexValue<unsigned char>((unsigned char *)pVertices + i2 * VertexStride, D3DDECLUSAGE_TEXCOORD, 0);
 
-		my::Vector3 v0 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv0[0], chunk->m_Column * terrain->m_ChunkRows + pv0[1]);
-		my::Vector3 v1 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv1[0], chunk->m_Column * terrain->m_ChunkRows + pv1[1]);
-		my::Vector3 v2 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->m_ChunkRows + pv2[0], chunk->m_Column * terrain->m_ChunkRows + pv2[1]);
+		my::Vector3 v0 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->CHUNK_SIZE + pv0[0], chunk->m_Column * terrain->CHUNK_SIZE + pv0[1]);
+		my::Vector3 v1 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->CHUNK_SIZE + pv1[0], chunk->m_Column * terrain->CHUNK_SIZE + pv1[1]);
+		my::Vector3 v2 = terrain->GetSamplePos(lrc.pBits, lrc.Pitch, chunk->m_Row * terrain->CHUNK_SIZE + pv2[0], chunk->m_Column * terrain->CHUNK_SIZE + pv2[1]);
 
 		my::RayResult result = my::CollisionDetector::rayAndTriangle(ray.p, ray.d, v0, v1, v2);
 		if (result.first && result.second < ret.second)

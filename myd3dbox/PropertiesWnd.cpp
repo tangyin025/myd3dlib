@@ -438,13 +438,14 @@ void CPropertiesWnd::UpdatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 		CreatePropertiesTerrain(pComponent, terrain);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->m_RowChunks);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->m_ChunkRows);
-	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->m_HeightScale);
-	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_WrappedU);
-	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_WrappedV);
-	pComponent->GetSubItem(PropId + 5);
-	UpdatePropertiesMaterial(pComponent, PropId + 6, terrain->m_Material.get());
+	pComponent->GetSubItem(PropId + 0)->SetValue((_variant_t)terrain->ROW_CHUNKS);
+	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)terrain->COL_CHUNKS);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)terrain->CHUNK_SIZE);
+	pComponent->GetSubItem(PropId + 3)->SetValue((_variant_t)terrain->m_HeightScale);
+	pComponent->GetSubItem(PropId + 4)->SetValue((_variant_t)terrain->m_WrappedU);
+	pComponent->GetSubItem(PropId + 5)->SetValue((_variant_t)terrain->m_WrappedV);
+	pComponent->GetSubItem(PropId + 6);
+	UpdatePropertiesMaterial(pComponent, PropId + 7, terrain->m_Material.get());
 }
 
 void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, int i, Component * cmp)
@@ -761,10 +762,13 @@ void CPropertiesWnd::CreatePropertiesTerrain(CMFCPropertyGridProperty * pCompone
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->m_RowChunks, NULL, PropertyTerrainRowChunks);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("RowChunks"), (_variant_t)terrain->ROW_CHUNKS, NULL, PropertyTerrainRowChunks);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("ChunkRows"), (_variant_t)terrain->m_ChunkRows, NULL, PropertyTerrainChunkRows);
+	pProp = new CSimpleProp(_T("ColChunks"), (_variant_t)terrain->COL_CHUNKS, NULL, PropertyTerrainColChunks);
+	pProp->Enable(FALSE);
+	pComponent->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("ChunkSize"), (_variant_t)terrain->CHUNK_SIZE, NULL, PropertyTerrainChunkSize);
 	pProp->Enable(FALSE);
 	pComponent->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("HeightScale"), (_variant_t)terrain->m_HeightScale, NULL, PropertyTerrainHeightScale);
