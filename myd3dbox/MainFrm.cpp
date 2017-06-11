@@ -153,18 +153,28 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return FALSE; // failed to create
 	}
 
+	if (!m_wndEnvironment.Create(_T("Environment"), this, CRect(0, 0, 200, 200), TRUE, 3003,
+		WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("Failed to create Environment window\n");
+		return FALSE; // failed to create
+	}
+
 	// TODO: Delete these five lines if you don't want the toolbar and menubar to be dockable
 	m_wndMenuBar.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndToolBar.EnableDocking(CBRS_ALIGN_ANY);
 	//m_wndOutliner.EnableDocking(CBRS_ALIGN_ANY);
 	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+	m_wndEnvironment.EnableDocking(CBRS_ALIGN_ANY);
 	EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndMenuBar);
 	DockPane(&m_wndToolBar);
 	//DockPane(&m_wndOutliner);
 	DockPane(&m_wndProperties);
-	//CDockablePane* pTabbedBar = NULL;
+	DockPane(&m_wndEnvironment);
+	CDockablePane* pTabbedBar = NULL;
 	//m_wndProperties.AttachToTabWnd(&m_wndOutliner, DM_SHOW, FALSE, &pTabbedBar);
+	m_wndEnvironment.AttachToTabWnd(&m_wndProperties, DM_SHOW, FALSE, &pTabbedBar);
 
 
 	// enable Visual Studio 2005 style docking window behavior

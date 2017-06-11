@@ -84,6 +84,9 @@
     <ClCompile Include="ShapeDlg.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="EnvironmentWnd.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h">
@@ -159,6 +162,9 @@
       <Filter>Component</Filter>
     </ClInclude>
     <ClInclude Include="ShapeDlg.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="EnvironmentWnd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

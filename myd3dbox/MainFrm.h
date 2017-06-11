@@ -6,6 +6,7 @@
 
 #include "OutlinerWnd.h"
 #include "PropertiesWnd.h"
+#include "EnvironmentWnd.h"
 #include "Component/Actor.h"
 #include "Component/PhysXContext.h"
 #include "Component/Terrain.h"
@@ -27,6 +28,7 @@ public:
 	BOOL m_bEatAltUp;
 	//COutlinerWnd		m_wndOutliner;
 	CPropertiesWnd    m_wndProperties;
+	CEnvironmentWnd		m_wndEnvironment;
 	CString m_strPathName;
 	CRectTracker m_Tracker;
 	Pivot m_Pivot;
