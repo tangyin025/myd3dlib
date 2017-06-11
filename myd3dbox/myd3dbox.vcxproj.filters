@@ -81,6 +81,9 @@
     <ClCompile Include="Component\World.cpp">
       <Filter>Component</Filter>
     </ClCompile>
+    <ClCompile Include="ShapeDlg.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h">
@@ -154,6 +157,9 @@
     </ClInclude>
     <ClInclude Include="Component\World.h">
       <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="ShapeDlg.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

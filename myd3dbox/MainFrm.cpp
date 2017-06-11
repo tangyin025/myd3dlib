@@ -7,6 +7,7 @@
 
 #include "MainFrm.h"
 #include "ChildView.h"
+#include "ShapeDlg.h"
 #include "Component/Terrain.h"
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
@@ -36,6 +37,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_COMMAND(ID_FILE_NEW, &CMainFrame::OnFileNew)
 	ON_COMMAND(ID_FILE_OPEN, &CMainFrame::OnFileOpen)
 	ON_COMMAND(ID_FILE_SAVE, &CMainFrame::OnFileSave)
+	ON_COMMAND(ID_FILE_SAVE_AS, &CMainFrame::OnFileSaveAs)
 	ON_COMMAND(ID_CREATE_ACTOR, &CMainFrame::OnCreateActor)
 	ON_COMMAND(ID_CREATE_CHARACTER, &CMainFrame::OnCreateCharacter)
 	ON_COMMAND(ID_COMPONENT_MESH, &CMainFrame::OnComponentMesh)
@@ -538,6 +540,13 @@ void CMainFrame::OnFileSave()
 	oa << BOOST_SERIALIZATION_NVP(m_WorldL);
 }
 
+void CMainFrame::OnFileSaveAs()
+{
+	// TODO: Add your command handler code here
+	CShapeDlg dlg;
+	dlg.DoModal();
+}
+
 void CMainFrame::OnCreateActor()
 {
 	// TODO: Add your command handler code here
@@ -882,3 +891,4 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 
 	__super::OnTimer(nIDEvent);
 }
+
