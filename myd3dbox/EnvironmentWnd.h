@@ -9,6 +9,30 @@ class CEnvironmentWnd : public CDockablePane
 {
 	DECLARE_DYNAMIC(CEnvironmentWnd)
 
+	enum Property
+	{
+		PropertyCamera,
+	};
+
+	enum CameraProperty
+	{
+		CameraPropertyLevelId,
+		CameraPropertyLookAt,
+	};
+
+	enum LevelIdProperty
+	{
+		LevelIdPropertyX,
+		LevelIdPropertyY,
+	};
+
+	enum Vector3Property
+	{
+		Vector3PropertyX,
+		Vector3PropertyY,
+		Vector3PropertyZ,
+	};
+
 public:
 	CEnvironmentWnd();
 	virtual ~CEnvironmentWnd();

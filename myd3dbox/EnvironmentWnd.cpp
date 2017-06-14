@@ -3,6 +3,7 @@
 
 #include "stdafx.h"
 #include "EnvironmentWnd.h"
+#include "CtrlProps.h"
 
 
 // CEnvironmentWnd
@@ -73,6 +74,24 @@ void CEnvironmentWnd::InitPropList()
 	m_wndPropList.EnableDescriptionArea();
 	m_wndPropList.SetVSDotNetLook();
 	m_wndPropList.MarkModifiedProperties();
+
+	CMFCPropertyGridProperty * pCamera = new CSimpleProp(_T("Camera"), PropertyCamera, FALSE);
+	m_wndPropList.AddProperty(pCamera);
+	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), CameraPropertyLevelId, TRUE);
+	pCamera->AddSubItem(pLevelId);
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0l, NULL, LevelIdPropertyX);
+	pLevelId->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0l, NULL, LevelIdPropertyY);
+	pLevelId->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pLookAt = new CSimpleProp(_T("LookAt"), CameraPropertyLookAt, TRUE);
+	pCamera->AddSubItem(pLookAt);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
+	pLookAt->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, Vector3PropertyY);
+	pLookAt->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
+	pLookAt->AddSubItem(pProp);
 }
 
 // CEnvironmentWnd message handlers
