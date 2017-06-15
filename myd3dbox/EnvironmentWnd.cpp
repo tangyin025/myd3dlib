@@ -4,6 +4,8 @@
 #include "stdafx.h"
 #include "EnvironmentWnd.h"
 #include "CtrlProps.h"
+#include "MainFrm.h"
+#include "ChildView.h"
 
 
 // CEnvironmentWnd
@@ -22,6 +24,7 @@ CEnvironmentWnd::~CEnvironmentWnd()
 
 BEGIN_MESSAGE_MAP(CEnvironmentWnd, CDockablePane)
 	ON_WM_CREATE()
+	ON_WM_DESTROY()
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
@@ -93,6 +96,40 @@ void CEnvironmentWnd::InitPropList()
 	pLookAt->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pLookAt->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pEular = new CSimpleProp(_T("Eular"), CameraPropertyEular, TRUE);
+	pCamera->AddSubItem(pEular);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
+	pEular->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, Vector3PropertyY);
+	pEular->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
+	pEular->AddSubItem(pProp);
+}
+
+void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
+{
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+	ASSERT_VALID(pView);
+
+	CMFCPropertyGridProperty * pCamera = m_wndPropList.GetProperty(PropertyCamera);
+	ASSERT_VALID(pCamera);
+	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.x);
+	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.y);
+
+	my::Vector3 LookAt = (pView->m_CameraType == CChildView::CameraTypePerspective ? boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt : pView->m_Camera->m_Eye);
+	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)LookAt.x);
+	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)LookAt.y);
+	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)LookAt.z);
+
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.x));
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.y));
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.z));
+
+	m_wndPropList.Invalidate(FALSE);
 }
 
 // CEnvironmentWnd message handlers
@@ -112,11 +149,21 @@ int CEnvironmentWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // fail to create
 	}
 
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.connect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, _1));
+
 	SetPropListFont();
 	InitPropList();
 	AdjustLayout();
 
 	return 0;
+}
+
+void CEnvironmentWnd::OnDestroy()
+{
+	CDockablePane::OnDestroy();
+
+	// TODO: Add your message handler code here
+	(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventCameraPropChanged.disconnect(boost::bind(&CEnvironmentWnd::OnCameraPropChanged, this, _1));
 }
 
 void CEnvironmentWnd::OnSize(UINT nType, int cx, int cy)

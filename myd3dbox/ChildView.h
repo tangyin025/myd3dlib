@@ -34,7 +34,6 @@ public:
 public:
 	virtual void OnDraw(CDC* pDC);  // overridden to draw this view
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
-protected:
 
 	enum CameraType
 	{
@@ -44,6 +43,12 @@ protected:
 		CameraTypeSide,
 		CameraTypeTop
 	};
+	float m_PivotScale;
+	float m_CameraDiagonal;
+	CameraType m_CameraType;
+	BOOL m_bShowGrid;
+	BOOL m_bShowCmpHandle;
+protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;
 	my::SurfacePtr m_SwapChainBuffer;
@@ -51,12 +56,7 @@ protected:
 	my::SurfacePtr m_DepthStencil;
 	typedef std::map<int, boost::array<wchar_t, 256> > ScrInfoType;
 	ScrInfoType m_ScrInfos;
-	float m_PivotScale;
-	float m_CameraDiagonal;
-	CameraType m_CameraType;
 	LARGE_INTEGER m_qwTime[2];
-	BOOL m_bShowGrid;
-	BOOL m_bShowCmpHandle;
 
 	typedef std::map<Actor *, my::Matrix4> ActorWorldMap;
 	ActorWorldMap m_selactorwlds;
@@ -96,10 +96,10 @@ protected:
 		DWORD VertexStride,
 		void * pIndices,
 		DWORD NumFaces);
-	void OnSelectionChanged(EventArg * arg);
-	void OnSelectionPlaying(EventArg * arg);
-	void OnPivotModeChanged(EventArg * arg);
-	void OnCmpAttriChanged(EventArg * arg);
+	void OnSelectionChanged(EventArgs * arg);
+	void OnSelectionPlaying(EventArgs * arg);
+	void OnPivotModeChanged(EventArgs * arg);
+	void OnCmpAttriChanged(EventArgs * arg);
 
 // Implementation
 public:

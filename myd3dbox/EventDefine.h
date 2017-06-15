@@ -1,15 +1,15 @@
 #pragma once
 
-struct EventArg
+struct EventArgs
 {
 public:
-	EventArg(void)
+	EventArgs(void)
 	{
 	}
 
-	virtual ~EventArg(void)
+	virtual ~EventArgs(void)
 	{
 	}
 };
 
-typedef boost::signals2::signal<void (EventArg *)> Event;
+typedef boost::signals2::signal<void (EventArgs *)> Event;

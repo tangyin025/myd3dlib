@@ -208,7 +208,7 @@ void COutlinerWnd::OnChangeVisualStyle()
 
 void COutlinerWnd::OnTvnSelchangedTree(NMHDR *pNMHDR, LRESULT *pResult)
 {
-	//EventArg arg;
+	//EventArgs arg;
 	//(DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd()))->m_EventSelectionChanged(&arg);
 }
 

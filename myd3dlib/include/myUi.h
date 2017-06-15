@@ -148,15 +148,15 @@ namespace my
 
 	typedef boost::shared_ptr<ControlSkin> ControlSkinPtr;
 
-	class EventArgs
+	class ControlEventArgs
 	{
 	public:
-		virtual ~EventArgs(void)
+		virtual ~ControlEventArgs(void)
 		{
 		}
 	};
 
-	typedef boost::function<void (EventArgs *)> ControlEvent;
+	typedef boost::function<void (ControlEventArgs *)> ControlEvent;
 
 	class Control;
 

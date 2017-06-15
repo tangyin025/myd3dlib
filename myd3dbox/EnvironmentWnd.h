@@ -1,6 +1,7 @@
 #pragma once
 #include "afxpropertygridctrl.h"
 #include "afxwin.h"
+#include "EventDefine.h"
 
 
 // CEnvironmentWnd
@@ -18,6 +19,7 @@ class CEnvironmentWnd : public CDockablePane
 	{
 		CameraPropertyLevelId,
 		CameraPropertyLookAt,
+		CameraPropertyEular,
 	};
 
 	enum LevelIdProperty
@@ -44,8 +46,10 @@ protected:
 	void AdjustLayout(void);
 	void SetPropListFont(void);
 	void InitPropList(void);
+	void OnCameraPropChanged(EventArgs * arg);
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnDestroy();
 	afx_msg void OnSize(UINT nType, int cx, int cy);
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg void OnSettingChange(UINT uFlags, LPCTSTR lpszSection);

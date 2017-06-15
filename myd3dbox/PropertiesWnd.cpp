@@ -114,7 +114,7 @@ void CPropertiesWnd::AdjustLayout()
 	m_wndPropList.SetWindowPos(NULL, rectClient.left, rectClient.top + cyCmb + cyTlb, rectClient.Width(), rectClient.Height() -(cyCmb+cyTlb), SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
+void CPropertiesWnd::OnSelectionChanged(EventArgs * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -130,7 +130,7 @@ void CPropertiesWnd::OnSelectionChanged(EventArg * arg)
 	}
 }
 
-void CPropertiesWnd::OnCmpAttriChanged(EventArg * arg)
+void CPropertiesWnd::OnCmpAttriChanged(EventArgs * arg)
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
@@ -194,9 +194,9 @@ void CPropertiesWnd::UpdateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	pComponent->GetSubItem(0)->GetSubItem(2)->SetValue((_variant_t)cmp->m_Position.z);
 
 	my::Vector3 angle = cmp->m_Rotation.ToEulerAngles();
-	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)angle.x);
-	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)angle.y);
-	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)angle.z);
+	pComponent->GetSubItem(1)->GetSubItem(0)->SetValue((_variant_t)D3DXToDegree(angle.x));
+	pComponent->GetSubItem(1)->GetSubItem(1)->SetValue((_variant_t)D3DXToDegree(angle.y));
+	pComponent->GetSubItem(1)->GetSubItem(2)->SetValue((_variant_t)D3DXToDegree(angle.z));
 
 	pComponent->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)cmp->m_Scale.x);
 	pComponent->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)cmp->m_Scale.y);
@@ -479,14 +479,14 @@ void CPropertiesWnd::CreateProperties(CMFCPropertyGridProperty * pParentCtrl, in
 	pProp = new CSimpleProp(_T("z"), (_variant_t)cmp->m_Position.z, NULL, PropertyComponentPosZ);
 	pPosition->AddSubItem(pProp);
 
-	my::Vector3 engle = cmp->m_Rotation.ToEulerAngles();
+	my::Vector3 angle = cmp->m_Rotation.ToEulerAngles();
 	CMFCPropertyGridProperty * pRotate = new CSimpleProp(_T("Rotate"), PropertyComponentRot, TRUE);
 	pComponent->AddSubItem(pRotate);
-	pProp = new CSimpleProp(_T("x"), (_variant_t)engle.x, NULL, PropertyComponentRotX);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)D3DXToDegree(angle.x), NULL, PropertyComponentRotX);
 	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("y"), (_variant_t)engle.y, NULL, PropertyComponentRotY);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)D3DXToDegree(angle.y), NULL, PropertyComponentRotY);
 	pRotate->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("z"), (_variant_t)engle.z, NULL, PropertyComponentRotZ);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)D3DXToDegree(angle.z), NULL, PropertyComponentRotZ);
 	pRotate->AddSubItem(pProp);
 
 	CMFCPropertyGridProperty * pScale = new CSimpleProp(_T("Scale"), PropertyComponentScale, TRUE);
@@ -1024,9 +1024,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
 			my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
-				pRotation->GetSubItem(0)->GetValue().fltVal,
-				pRotation->GetSubItem(1)->GetValue().fltVal,
-				pRotation->GetSubItem(2)->GetValue().fltVal));
+				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
+				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
+				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
 			cmp->m_Rotation = rot;
 			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
@@ -1038,7 +1038,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1079,7 +1079,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			}
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1116,7 +1116,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1133,7 +1133,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			{
 				actor->OnEnterPxScene(pFrame);
 			}
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1143,7 +1143,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			//mesh_cmp->m_MeshRes.ReleaseResource();
 			//mesh_cmp->m_MeshRes.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			//mesh_cmp->m_MeshRes.RequestResource();
-			//EventArg arg;
+			//EventArgs arg;
 			//pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1151,7 +1151,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 			mesh_cmp->m_bInstance = pProp->GetValue().boolVal != 0;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1159,7 +1159,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>((Component *)pProp->GetParent()->GetValue().ulVal);
 			mesh_cmp->m_bUseAnimation = pProp->GetValue().boolVal != 0;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1167,7 +1167,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
 			material->m_Shader = ts2ms(pProp->GetValue().bstrVal);
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1177,7 +1177,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			int i = (DYNAMIC_DOWNCAST(CComboProp, pProp))->m_iSelIndex;
 			ASSERT(i >= 0 && i < _countof(g_PassMaskDesc));
 			material->m_PassMask = g_PassMaskDesc[i].mask;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1205,7 +1205,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_MeshColor.y = pColor->GetSubItem(1)->GetValue().fltVal;
 			material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
 			material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1215,7 +1215,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_MeshTexture.ReleaseResource();
 			material->m_MeshTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			material->m_MeshTexture.RequestResource();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1225,7 +1225,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_NormalTexture.ReleaseResource();
 			material->m_NormalTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			material->m_NormalTexture.RequestResource();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1235,7 +1235,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			material->m_SpecularTexture.ReleaseResource();
 			material->m_SpecularTexture.m_Path = ts2ms(pProp->GetValue().bstrVal);
 			material->m_SpecularTexture.RequestResource();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1243,7 +1243,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			ClothComponent * cloth_cmp = (ClothComponent *)pProp->GetParent()->GetValue().ulVal;
 			cloth_cmp->m_Cloth->setClothFlag(physx::PxClothFlag::eSCENE_COLLISION, pProp->GetValue().boolVal);
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1253,7 +1253,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			emit_cmp->m_Emitter->m_ParticleList.resize(pProp->GetValue().uintVal,
 				my::Emitter::Particle(my::Vector3(0,0,0), my::Vector3(0,0,0), my::Vector4(1,1,1,1), my::Vector2(10,10), 0, 0));
 			UpdatePropertiesStaticEmitter(pProp->GetParent()->GetParent(), emit_cmp);
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1316,7 +1316,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			particle.m_Size.x = pParticle->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
 			particle.m_Size.y = pParticle->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
 			particle.m_Angle = pParticle->GetSubItem(4)->GetValue().fltVal;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1350,7 +1350,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			sphe_emit_cmp->m_HalfSpawnArea.z = pComponent->GetSubItem(PropId + 2)->GetSubItem(2)->GetValue().fltVal;
 			sphe_emit_cmp->m_SpawnSpeed = pComponent->GetSubItem(PropId + 3)->GetValue().fltVal;
 			sphe_emit_cmp->m_SpawnLoopTime = pComponent->GetSubItem(PropId + 13)->GetValue().fltVal;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1397,7 +1397,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				}
 				break;
 			}
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1411,7 +1411,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->UpdateAABB();
 			pFrame->OnActorPosChanged(actor);
 			pFrame->UpdateSelBox();
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1422,7 +1422,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
 			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
 			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
-			EventArg arg;
+			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
@@ -1438,7 +1438,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				actor->UpdateAABB();
 				pFrame->OnActorPosChanged(actor);
 				pFrame->UpdateSelBox();
-				EventArg arg;
+				EventArgs arg;
 				pFrame->m_EventAttributeChanged(&arg);
 			}
 		}

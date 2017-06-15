@@ -576,7 +576,7 @@ void CMainFrame::OnCreateActor()
 	m_selactors.insert(actor.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
-	EventArg arg;
+	EventArgs arg;
 	m_EventSelectionChanged(&arg);
 }
 
@@ -599,7 +599,7 @@ void CMainFrame::OnCreateCharacter()
 	m_selactors.insert(character.get());
 	UpdateSelBox();
 	UpdatePivotTransform();
-	EventArg arg;
+	EventArgs arg;
 	m_EventSelectionChanged(&arg);
 }
 
@@ -646,7 +646,7 @@ void CMainFrame::OnComponentMesh()
 	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
-	EventArg arg;
+	EventArgs arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -699,7 +699,7 @@ void CMainFrame::OnComponentCloth()
 	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
-	EventArg arg;
+	EventArgs arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -734,7 +734,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
-	EventArg arg;
+	EventArgs arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -787,7 +787,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
-	EventArg arg;
+	EventArgs arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -822,7 +822,7 @@ void CMainFrame::OnComponentTerrain()
 	OnActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
-	EventArg arg;
+	EventArgs arg;
 	m_EventAttributeChanged(&arg);
 }
 
@@ -843,7 +843,7 @@ void CMainFrame::OnEditDelete()
 		m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
-	EventArg arg;
+	EventArgs arg;
 	m_EventSelectionChanged(&arg);
 }
 
@@ -857,7 +857,7 @@ void CMainFrame::OnPivotMove()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = Pivot::PivotModeMove;
-	EventArg arg;
+	EventArgs arg;
 	m_EventPivotModeChanged(&arg);
 }
 
@@ -871,7 +871,7 @@ void CMainFrame::OnPivotRotate()
 {
 	// TODO: Add your command handler code here
 	m_Pivot.m_Mode = Pivot::PivotModeRot;
-	EventArg arg;
+	EventArgs arg;
 	m_EventPivotModeChanged(&arg);
 }
 
@@ -895,7 +895,7 @@ void CMainFrame::OnTimer(UINT_PTR nIDEvent)
 			(*actor_iter)->Update(fElapsedTime);
 		}
 
-		EventArg arg;
+		EventArgs arg;
 		m_EventSelectionPlaying(&arg);
 	}
 

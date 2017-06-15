@@ -435,9 +435,9 @@ HRESULT Game::OnResetDevice(
 
 	m_Font->SetScale(Scale);
 
-	if(boost::static_pointer_cast<my::Camera>(m_Camera)->EventAlign)
+	if(m_Camera->EventAlign)
 	{
-		boost::static_pointer_cast<my::Camera>(m_Camera)->EventAlign(&EventArgs());
+		m_Camera->EventAlign(&ControlEventArgs());
 	}
 
 	return S_OK;
@@ -567,9 +567,9 @@ void Game::OnFrameTick(
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	boost::static_pointer_cast<my::Camera>(m_Camera)->Update(fTime, fElapsedTime);
+	m_Camera->Update(fTime, fElapsedTime);
 
-	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->Update(fTime, fElapsedTime);
+	m_SkyLightCam->Update(fTime, fElapsedTime);
 
 	ResetViewedActors(m_Camera->m_Eye, this);
 

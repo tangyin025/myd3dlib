@@ -41,6 +41,7 @@ public:
 	Event m_EventSelectionPlaying;
 	Event m_EventPivotModeChanged;
 	Event m_EventAttributeChanged;
+	Event m_EventCameraPropChanged;
 
 // Operations
 public:

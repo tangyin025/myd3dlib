@@ -171,15 +171,13 @@ namespace my
 
 	typedef boost::shared_ptr<BaseCamera> BaseCameraPtr;
 
-	class OrthoCamera
+	class Camera
 		: public BaseCamera
 	{
 	public:
-		Vector3 m_Eular;
-
-		float m_Diagonal;
-
 		float m_Aspect;
+
+		Vector3 m_Eular;
 
 		float m_Nz;
 
@@ -188,12 +186,27 @@ namespace my
 		ControlEvent EventAlign;
 
 	public:
-		OrthoCamera(float Diagonal, float Aspect, float Nz, float Fz)
-			: m_Eular(0,0,0)
-			, m_Diagonal(Diagonal)
-			, m_Aspect(Aspect)
+		Camera(float Aspect, float Nz, float Fz)
+			: m_Aspect(Aspect)
+			, m_Eular(0,0,0)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
+		{
+		}
+	};
+
+	typedef boost::shared_ptr<Camera> CameraPtr;
+
+	class OrthoCamera
+		: public Camera
+	{
+	public:
+		float m_Diagonal;
+
+	public:
+		OrthoCamera(float Diagonal, float Aspect, float Nz, float Fz)
+			: Camera(Aspect, Nz, Fz)
+			, m_Diagonal(Diagonal)
 		{
 			_ASSERT(m_Aspect != 0);
 		}
@@ -218,39 +231,13 @@ namespace my
 		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
-	class Camera
-		: public BaseCamera
-	{
-	public:
-		float m_Fov;
-
-		float m_Aspect;
-
-		float m_Nz;
-
-		float m_Fz;
-
-		ControlEvent EventAlign;
-
-	public:
-		Camera(float Fov, float Aspect, float Nz, float Fz)
-			: m_Fov(Fov)
-			, m_Aspect(Aspect)
-			, m_Nz(Nz)
-			, m_Fz(Fz)
-		{
-		}
-	};
-
-	typedef boost::shared_ptr<Camera> CameraPtr;
-
 	class ModelViewerCamera
 		: public Camera
 	{
 	public:
-		Vector3 m_LookAt;
+		float m_Fov;
 
-		Vector3 m_Eular;
+		Vector3 m_LookAt;
 
 		float m_Distance;
 
@@ -269,9 +256,9 @@ namespace my
 
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fov, Aspect, Nz, Fz)
+			: Camera(Aspect, Nz, Fz)
+			, m_Fov(Fov)
 			, m_LookAt(0,0,0)
-			, m_Eular(0,0,0)
 			, m_Distance(0)
 			, m_DragMode(DragModeNone)
 		{
@@ -301,7 +288,7 @@ namespace my
 		: public Camera
 	{
 	public:
-		Vector3 m_Eular;
+		float m_Fov;
 
 		Vector3 m_LocalVel;
 
@@ -311,8 +298,8 @@ namespace my
 
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Fov, Aspect, Nz, Fz)
-			, m_Eular(0,0,0)
+			: Camera(Aspect, Nz, Fz)
+			, m_Fov(Fov)
 			, m_LocalVel(0,0,0)
 			, m_DragMode(0)
 		{

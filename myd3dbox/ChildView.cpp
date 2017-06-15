@@ -76,7 +76,7 @@ CChildView::CChildView()
 		m_DownFilterRT.m_RenderTarget[i].reset(new my::Texture2D());
 	}
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
-	boost::static_pointer_cast<my::OrthoCamera>(m_SkyLightCam)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
+	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
 	m_SkyLightAmbient=my::Vector4(0.5,0.5,0.5,0);
 	m_SkyLightDiffuse=my::Vector4(0.5,0.5,0.5,0.5);
@@ -747,22 +747,22 @@ my::RayResult CChildView::OverlapTestRayAndTerrainChunk(
 	return ret;
 }
 
-void CChildView::OnSelectionChanged(EventArg * arg)
+void CChildView::OnSelectionChanged(EventArgs * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnSelectionPlaying(EventArg * arg)
+void CChildView::OnSelectionPlaying(EventArgs * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnPivotModeChanged(EventArg * arg)
+void CChildView::OnPivotModeChanged(EventArgs * arg)
 {
 	Invalidate();
 }
 
-void CChildView::OnCmpAttriChanged(EventArg * arg)
+void CChildView::OnCmpAttriChanged(EventArgs * arg)
 {
 	Invalidate();
 }
@@ -1064,7 +1064,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
-		EventArg arg;
+		EventArgs arg;
 		pFrame->m_EventSelectionChanged(&arg);
 	}
 
@@ -1089,7 +1089,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		pFrame->UpdateSelBox();
 		ReleaseCapture();
 
-		EventArg arg;
+		EventArgs arg;
 		pFrame->m_EventAttributeChanged(&arg);
 	}
 }
@@ -1144,7 +1144,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		pFrame->ResetViewedActors(boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
+		pFrame->ResetViewedActors(boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
 		switch (pMsg->message)
 		{
 		case WM_LBUTTONDOWN:
@@ -1156,6 +1156,15 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		case WM_MOUSEMOVE:
 			StartPerformanceCount();
 			Invalidate();
+			break;
+
+		case WM_LBUTTONUP:
+		case WM_MBUTTONUP:
+		case WM_RBUTTONUP:
+			{
+				EventArgs arg;
+				pFrame->m_EventCameraPropChanged(&arg);
+			}
 			break;
 		}
 		return TRUE;
@@ -1170,8 +1179,8 @@ void CChildView::OnCameratypePerspective()
 	StartPerformanceCount();
 	float fov = D3DXToRadian(75.0f);
 	m_Camera.reset(new my::ModelViewerCamera(fov, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, 0.1f, 3000.0f));
+	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
 	m_CameraType = CameraTypePerspective;
 	Invalidate();
@@ -1187,8 +1196,8 @@ void CChildView::OnCameratypeFront()
 {
 	StartPerformanceCount();
 	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3::zero;
+	m_Camera->m_Eye = my::Vector3::zero;
+	m_Camera->m_Eular = my::Vector3::zero;
 	m_CameraType = CameraTypeFront;
 	Invalidate();
 }
@@ -1202,8 +1211,8 @@ void CChildView::OnCameratypeSide()
 {
 	StartPerformanceCount();
 	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(0,D3DXToRadian(90),0);
+	m_Camera->m_Eye = my::Vector3::zero;
+	m_Camera->m_Eular = my::Vector3(0,D3DXToRadian(90),0);
 	m_CameraType = CameraTypeSide;
 	Invalidate();
 }
@@ -1218,8 +1227,8 @@ void CChildView::OnCameratypeTop()
 	StartPerformanceCount();
 	m_Camera.reset(new my::OrthoCamera(
 		m_CameraDiagonal,m_SwapChainBufferDesc.Width/(float)m_SwapChainBufferDesc.Height,-1500,1500));
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eye = my::Vector3::zero;
-	boost::static_pointer_cast<my::OrthoCamera>(m_Camera)->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
+	m_Camera->m_Eye = my::Vector3::zero;
+	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
 	m_CameraType = CameraTypeTop;
 	Invalidate();
 }
@@ -1253,13 +1262,13 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			float fov = D3DXToRadian(75.0f);
 			if (!pFrame->m_selactors.empty())
 			{
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
+				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
 			}
 			else
 			{
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-				boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
 			}
 		}
 		Invalidate();

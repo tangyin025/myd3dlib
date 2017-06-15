@@ -124,9 +124,9 @@ public:
 	public:
 		DWORD m_BkColor;
 
-		my::BaseCameraPtr m_Camera;
+		my::CameraPtr m_Camera;
 
-		my::BaseCameraPtr m_SkyLightCam;
+		my::CameraPtr m_SkyLightCam;
 
 		my::Vector4 m_SkyLightDiffuse;
 

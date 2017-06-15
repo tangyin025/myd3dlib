@@ -59,7 +59,7 @@ namespace luabind
 					: obj(_obj)
 				{
 				}
-				void operator()(my::EventArgs * args)
+				void operator()(my::ControlEventArgs * args)
 				{
 					obj(args);
 				}
@@ -398,22 +398,17 @@ static void ExportMath(lua_State * L)
 			.def_readonly("ViewProj", &my::BaseCamera::m_ViewProj)
 			.def_readonly("InverseViewProj", &my::BaseCamera::m_InverseViewProj)
 
+			, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
+			.def_readwrite("Aspect", &my::Camera::m_Aspect)
+			.def_readwrite("Nz", &my::Camera::m_Nz)
+			.def_readwrite("Fz", &my::Camera::m_Fz)
+			.def_readwrite("EventAlign", &my::Camera::EventAlign)
+
 		, class_<my::OrthoCamera, my::BaseCamera, boost::shared_ptr<my::OrthoCamera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("Eye", &my::OrthoCamera::m_Eye)
 			.def_readwrite("Eular", &my::OrthoCamera::m_Eular)
 			.def_readwrite("Diagonal", &my::OrthoCamera::m_Diagonal)
-			.def_readwrite("Aspect", &my::OrthoCamera::m_Aspect)
-			.def_readwrite("Nz", &my::OrthoCamera::m_Nz)
-			.def_readwrite("Fz", &my::OrthoCamera::m_Fz)
-
-		, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
-			.def(constructor<float, float, float, float>())
-			.def_readwrite("Fov", &my::Camera::m_Fov)
-			.def_readwrite("Aspect", &my::Camera::m_Aspect)
-			.def_readwrite("Nz", &my::Camera::m_Nz)
-			.def_readwrite("Fz", &my::Camera::m_Fz)
-			.def_readwrite("EventAlign", &my::Camera::EventAlign)
 
 		, class_<my::ModelViewerCamera, my::Camera, boost::shared_ptr<my::Camera> >("ModelViewerCamera")
 			.def(constructor<float, float, float, float>())
@@ -440,7 +435,7 @@ static void ExportUI(lua_State * L)
 	[
 		def("ARGB", &ARGB)
 
-		, class_<my::EventArgs, boost::shared_ptr<my::EventArgs> >("EventArgs")
+		, class_<my::ControlEventArgs, boost::shared_ptr<my::ControlEventArgs> >("ControlEventArgs")
 
 		, class_<my::ControlEvent>("ControlEvent")
 
