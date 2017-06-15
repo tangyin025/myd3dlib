@@ -25,6 +25,7 @@ BEGIN_MESSAGE_MAP(CEnvironmentWnd, CDockablePane)
 	ON_WM_SIZE()
 	ON_WM_SETFOCUS()
 	ON_WM_SETTINGCHANGE()
+	ON_REGISTERED_MESSAGE(AFX_WM_PROPERTY_CHANGED, OnPropertyChanged)
 END_MESSAGE_MAP()
 
 void CEnvironmentWnd::AdjustLayout(void)
@@ -140,4 +141,12 @@ void CEnvironmentWnd::OnSettingChange(UINT uFlags, LPCTSTR lpszSection)
 
 	// TODO: Add your message handler code here
 	SetPropListFont();
+}
+
+LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
+{
+	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
+	ASSERT(pProp);
+	DWORD PropertyId = pProp->GetData();
+	return 0l;
 }
