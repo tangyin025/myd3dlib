@@ -80,7 +80,7 @@ void CEnvironmentWnd::InitPropList()
 	m_wndPropList.MarkModifiedProperties();
 
 	CMFCPropertyGridProperty * pCamera = new CSimpleProp(_T("Camera"), PropertyCamera, FALSE);
-	m_wndPropList.AddProperty(pCamera);
+	m_wndPropList.AddProperty(pCamera, FALSE, FALSE);
 	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), CameraPropertyLevelId, TRUE);
 	pCamera->AddSubItem(pLevelId);
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)0l, NULL, LevelIdPropertyX);
@@ -105,6 +105,8 @@ void CEnvironmentWnd::InitPropList()
 	pEular->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEular->AddSubItem(pProp);
+
+	m_wndPropList.AdjustLayout();
 }
 
 void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
