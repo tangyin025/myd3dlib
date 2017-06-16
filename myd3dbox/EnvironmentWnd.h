@@ -47,6 +47,7 @@ protected:
 	void SetPropListFont(void);
 	void InitPropList(void);
 	void OnCameraPropChanged(EventArgs * arg);
+	static CMFCPropertyGridProperty * GetTopProp(CMFCPropertyGridProperty * pProp);
 public:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnDestroy();

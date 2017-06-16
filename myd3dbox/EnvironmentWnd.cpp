@@ -5,6 +5,7 @@
 #include "EnvironmentWnd.h"
 #include "CtrlProps.h"
 #include "MainFrm.h"
+#include "MainApp.h"
 #include "ChildView.h"
 
 
@@ -134,6 +135,15 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	m_wndPropList.Invalidate(FALSE);
 }
 
+CMFCPropertyGridProperty * CEnvironmentWnd::GetTopProp(CMFCPropertyGridProperty * pProp)
+{
+	if (pProp->GetParent())
+	{
+		return GetTopProp(pProp->GetParent());
+	}
+	return pProp;
+}
+
 // CEnvironmentWnd message handlers
 
 int CEnvironmentWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
@@ -196,6 +206,41 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
+
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+
+	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
+	ASSERT_VALID(pView);
+
+	pProp = GetTopProp(pProp);
 	DWORD PropertyId = pProp->GetData();
+	switch (PropertyId)
+	{
+	case PropertyCamera:
+		{
+			if (pView->m_CameraType == CChildView::CameraTypePerspective)
+			{
+				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
+				model_view_camera->m_LookAt = my::Vector3(
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
+			}
+			else
+			{
+				pView->m_Camera->m_Eye = my::Vector3(
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->GetValue().fltVal,
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->GetValue().fltVal,
+					pProp->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal);
+			}
+			pView->m_Camera->m_Eular = my::Vector3(
+				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+		}
+		break;
+	}
+	pView->Invalidate();
 	return 0l;
 }
