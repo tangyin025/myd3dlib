@@ -32,11 +32,11 @@ public:
 class WorldL
 {
 public:
-	static const int LEVEL_SIZE = 512;
+	static const int LEVEL_SIZE = 16;
 
-	static const int VIEWED_DIST = 1000;
+	static const int VIEWED_DIST = 10;
 
-	static const int VIEWED_THRESHOLD = 50;
+	static const int VIEWED_THRESHOLD = 1;
 
 	int m_Dimension;
 
