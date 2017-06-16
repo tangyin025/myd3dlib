@@ -125,9 +125,7 @@ namespace my
 		{
 		}
 
-		virtual void Update(
-			double fTime,
-			float fElapsedTime)
+		virtual void UpdateViewProj(void)
 		{
 		}
 
@@ -211,9 +209,7 @@ namespace my
 			_ASSERT(m_Aspect != 0);
 		}
 
-		virtual void Update(
-			double fTime,
-			float fElapsedTime);
+		virtual void UpdateViewProj(void);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
@@ -264,9 +260,7 @@ namespace my
 		{
 		}
 
-		virtual void Update(
-			double fTime,
-			float fElapsedTime);
+		virtual void UpdateViewProj(void);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,
@@ -305,9 +299,7 @@ namespace my
 		{
 		}
 
-		virtual void Update(
-			double fTime,
-			float fElapsedTime);
+		virtual void UpdateViewProj(void);
 
 		virtual LRESULT MsgProc(
 			HWND hWnd,

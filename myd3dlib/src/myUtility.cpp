@@ -171,9 +171,7 @@ Frustum BaseCamera::RectangleToFrustum(const Matrix4 & InverseViewProj, const my
 		Plane::FromTriangle(frt,flt,flb));
 }
 
-void OrthoCamera::Update(
-	double fTime,
-	float fElapsedTime)
+void OrthoCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
@@ -216,9 +214,7 @@ float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
 	return m_Diagonal * cos(atan2(1, m_Aspect)) * 0.5f;
 }
 
-void ModelViewerCamera::Update(
-	double fTime,
-	float fElapsedTime)
+void ModelViewerCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
@@ -363,13 +359,11 @@ float ModelViewerCamera::CalculateViewportScaler(Vector3 WorldPos) const
 	return z * tan(m_Fov * 0.5f);
 }
 
-void FirstPersonCamera::Update(
-	double fTime,
-	float fElapsedTime)
+void FirstPersonCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
-	m_Eye += (m_LocalVel * 5.0f * fElapsedTime).transform(Rotation).xyz;
+	//m_Eye += (m_LocalVel * 5.0f * fElapsedTime).transform(Rotation).xyz;
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 

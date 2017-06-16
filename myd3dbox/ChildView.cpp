@@ -805,8 +805,8 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			m_Camera->Update(theApp.m_fAbsoluteTime, 0.0f);
-			m_SkyLightCam->Update(theApp.m_fAbsoluteTime, 0.0f);
+			m_Camera->UpdateViewProj();
+			m_SkyLightCam->UpdateViewProj();
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			DrawHelper::BeginLine();

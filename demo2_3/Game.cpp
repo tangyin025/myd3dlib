@@ -567,9 +567,9 @@ void Game::OnFrameTick(
 		(*actor_iter)->Update(fElapsedTime);
 	}
 
-	m_Camera->Update(fTime, fElapsedTime);
+	m_Camera->UpdateViewProj();
 
-	m_SkyLightCam->Update(fTime, fElapsedTime);
+	m_SkyLightCam->UpdateViewProj();
 
 	ResetViewedActors(m_Camera->m_Eye, this);
 
