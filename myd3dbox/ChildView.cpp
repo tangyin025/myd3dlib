@@ -7,6 +7,8 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
+#include <boost/archive/polymorphic_xml_iarchive.hpp>
+#include <boost/archive/polymorphic_xml_oarchive.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -60,6 +62,7 @@ CChildView::CChildView()
 	, m_CameraType(CameraTypeUnknown)
 	, m_bShowGrid(TRUE)
 	, m_bShowCmpHandle(TRUE)
+	, m_bCopyActors(FALSE)
 {
 	// TODO: add construction code here
 	m_SwapChainBuffer.reset(new my::Surface());
@@ -966,6 +969,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			m_selactorwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
 			m_selactorwlds[*sel_iter][2] = my::Vector4((*sel_iter)->m_Scale, 1);
 		}
+		m_bCopyActors = (nFlags & MK_SHIFT) ? TRUE : FALSE;
 		SetCapture();
 		Invalidate();
 		return;
@@ -976,7 +980,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 
 	StartPerformanceCount();
 	bool bSelectionChanged = false;
-	if (!(nFlags & (MK_CONTROL|MK_SHIFT)) && !pFrame->m_selactors.empty())
+	if (!(nFlags & MK_SHIFT) && !pFrame->m_selactors.empty())
 	{
 		pFrame->m_selactors.clear();
 		bSelectionChanged = true;
@@ -1101,6 +1105,32 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 	if (pFrame->m_Pivot.m_Captured && pFrame->m_Pivot.OnMouseMove(
 		m_Camera->CalculateRay(my::Vector2((float)point.x, (float)point.y), CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height)), m_PivotScale))
 	{
+		if (m_bCopyActors)
+		{
+			m_bCopyActors = FALSE;
+			CMainFrame::ActorSet new_acts;
+			CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
+			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
+			{
+				std::basic_stringbuf<char> buff;
+				{
+					std::ostream ostr(&buff);
+					boost::archive::polymorphic_xml_oarchive oa(ostr);
+					oa << boost::serialization::make_nvp("actor", *sel_iter);
+				}
+				ActorPtr new_actor(new Actor());
+				std::istream istr(&buff);
+				boost::archive::polymorphic_xml_iarchive ia(istr);
+				ia >> boost::serialization::make_nvp("actor", *new_actor);
+
+				pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
+				new_actor->RequestResource();
+				new_actor->OnEnterPxScene(pFrame);
+				pFrame->m_WorldL.m_ViewedActors.insert(new_actor.get());
+
+				new_acts.insert(new_actor.get());
+			}
+		}
 		StartPerformanceCount();
 		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)

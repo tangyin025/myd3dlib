@@ -48,6 +48,7 @@ public:
 	CameraType m_CameraType;
 	BOOL m_bShowGrid;
 	BOOL m_bShowCmpHandle;
+	BOOL m_bCopyActors;
 protected:
 
 	CComPtr<IDirect3DSwapChain9> m_d3dSwapChain;

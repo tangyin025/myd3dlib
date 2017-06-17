@@ -780,7 +780,7 @@ my::DialogPtr Game::LoadDialog(const char * path)
 void Game::SaveMaterial(MaterialPtr mat, const std::string & path)
 {
 	std::ofstream ofs(GetFullPath(path).c_str());
-	boost::archive::xml_oarchive oa(ofs);
+	boost::archive::polymorphic_xml_oarchive oa(ofs);
 	oa << BOOST_SERIALIZATION_NVP(mat);
 }
 
