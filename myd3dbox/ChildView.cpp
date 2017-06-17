@@ -1282,16 +1282,27 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 			float fov = D3DXToRadian(75.0f);
 			if (!pFrame->m_selactors.empty())
 			{
-				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
-				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				switch (m_CameraType)
+				{
+				case CChildView::CameraTypePerspective:
+					boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = pFrame->m_selbox.Center();
+					boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+					break;
+				}
 			}
 			else
 			{
-				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
-				boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+				switch (m_CameraType)
+				{
+				case CChildView::CameraTypePerspective:
+					boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
+					boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+					break;
+				}
 			}
+			m_Camera->UpdateViewProj();
+			Invalidate();
 		}
-		Invalidate();
 		return;
 	}
 
