@@ -143,7 +143,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 	{
 		const Vector3 InExtent(VIEWED_DIST);
 		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-		AABB InBox(ViewPos + Offset - InExtent, ViewPos + Offset + InExtent);
+		AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
 		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos, scene));
 	}
 }
