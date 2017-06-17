@@ -35,17 +35,14 @@ void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 	}
 }
 
-void WorldL::ChangeLevelId(const CPoint & new_id)
+void WorldL::UpdateViewedActorsWorld(void)
 {
-	if (m_LevelId != new_id)
+	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
+	for (; cmp_iter != m_ViewedActors.end(); cmp_iter++)
 	{
-		OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
-		for (; cmp_iter != m_ViewedActors.end(); )
-		{
-			CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
-			Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-			(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
-		}
+		CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
+		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
+		(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
 	}
 }
 
@@ -182,4 +179,24 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	_ResetViewedActors(m_LevelId + CPoint(-1,  1), ViewPos, scene);
 	_ResetViewedActors(m_LevelId + CPoint( 0,  1), ViewPos, scene);
 	_ResetViewedActors(m_LevelId + CPoint( 1,  1), ViewPos, scene);
+}
+
+void WorldL::ResetLevelId(const CPoint & offset, PhysXSceneContext * scene)
+{
+	m_LevelId += offset;
+	UpdateViewedActorsWorld();
+	scene->m_PxScene->shiftOrigin(physx::PxVec3(offset.x * LEVEL_SIZE, 0, offset.y * LEVEL_SIZE));
+}
+
+bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)
+{
+	CPoint offset((int)floor(ViewPos.x / LEVEL_SIZE), (int)floor(ViewPos.z / LEVEL_SIZE));
+	if (offset.x != 0 || offset.y != 0)
+	{
+		ResetLevelId(offset, scene);
+		ViewPos.x = my::Round(ViewPos.x, 0.0f, (float)LEVEL_SIZE);
+		ViewPos.z = my::Round(ViewPos.z, 0.0f, (float)LEVEL_SIZE);
+		return true;
+	}
+	return false;
 }

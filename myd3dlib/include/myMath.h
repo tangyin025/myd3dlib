@@ -62,7 +62,7 @@ namespace my
 	template <typename T>
 	T Clamp(T v, T min, T max)
 	{
-		return min > v ? min : (max < v ? max : v);
+		return v < min ? min : (v < max ? v : max);
 	}
 
 	template <typename T>

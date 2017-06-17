@@ -73,7 +73,7 @@ public:
 
 	Octree & GetLevel(const CPoint & level_id)
 	{
-		return m_levels[level_id.y * m_Dimension + level_id.x];
+		return m_levels[my::Clamp<int>(level_id.y, 0, m_Dimension) * m_Dimension + my::Clamp<int>(level_id.x, 0, m_Dimension)];
 	}
 
 	CPoint GetLevelId(const Octree * level_ptr)
@@ -86,7 +86,7 @@ public:
 		return CPoint(0, 0);
 	}
 
-	void ChangeLevelId(const CPoint & new_id);
+	void UpdateViewedActorsWorld(void);
 
 	void CreateLevels(int dimension);
 
@@ -99,4 +99,8 @@ public:
 	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
+
+	void ResetLevelId(const CPoint & offset, PhysXSceneContext * scene);
+
+	bool ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene);
 };

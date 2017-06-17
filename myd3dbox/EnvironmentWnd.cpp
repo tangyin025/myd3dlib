@@ -206,19 +206,24 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 {
 	CMFCPropertyGridProperty * pProp = (CMFCPropertyGridProperty *)lParam;
 	ASSERT(pProp);
-
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-
 	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
 	ASSERT_VALID(pView);
-
 	pProp = GetTopProp(pProp);
 	DWORD PropertyId = pProp->GetData();
 	switch (PropertyId)
 	{
 	case PropertyCamera:
 		{
+			CPoint new_level_id(
+				pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->GetValue().intVal,
+				pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->GetValue().intVal);
+			if (new_level_id != pFrame->m_WorldL.m_LevelId)
+			{
+				pFrame->m_WorldL.ResetLevelId(new_level_id - pFrame->m_WorldL.m_LevelId, pFrame);
+			}
+
 			if (pView->m_CameraType == CChildView::CameraTypePerspective)
 			{
 				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(pView->m_Camera.get());
@@ -238,6 +243,7 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+			pView->m_Camera->UpdateViewProj();
 		}
 		break;
 	}

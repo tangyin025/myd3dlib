@@ -77,6 +77,7 @@ CChildView::CChildView()
 	}
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 	m_SkyLightCam->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(0),0);
+	m_SkyLightCam->UpdateViewProj();
 	ZeroMemory(&m_qwTime, sizeof(m_qwTime));
 	m_SkyLightAmbient=my::Vector4(0.5,0.5,0.5,0);
 	m_SkyLightDiffuse=my::Vector4(0.5,0.5,0.5,0.5);
@@ -805,8 +806,6 @@ void CChildView::OnPaint()
 	{
 		if (theApp.m_DeviceObjectsReset)
 		{
-			m_Camera->UpdateViewProj();
-			m_SkyLightCam->UpdateViewProj();
 			theApp.m_SimpleSample->SetFloatArray("g_ScreenDim", (float *)&my::Vector2((float)m_SwapChainBufferDesc.Width, (float)m_SwapChainBufferDesc.Height), 2);
 
 			DrawHelper::BeginLine();
@@ -920,6 +919,7 @@ void CChildView::OnSize(UINT nType, int cx, int cy)
 		ResetD3DSwapChain();
 		_ASSERT(m_Camera);
 		m_Camera->OnViewportChanged(my::Vector2((float)cx, (float)cy) * 0.1f);
+		m_Camera->UpdateViewProj();
 		DialogMgr::SetDlgViewport(my::Vector2((float)cx, (float)cy), D3DXToRadian(75.0f));
 	}
 }
@@ -1144,7 +1144,6 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 	{
 		CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 		ASSERT_VALID(pFrame);
-		pFrame->ResetViewedActors(boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
 		switch (pMsg->message)
 		{
 		case WM_LBUTTONDOWN:
@@ -1154,16 +1153,33 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 			break;
 
 		case WM_MOUSEMOVE:
-			StartPerformanceCount();
-			Invalidate();
+			{
+				m_Camera->UpdateViewProj();
+				if (m_CameraType == CameraTypePerspective)
+				{
+					pFrame->ResetViewedActors(boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
+				}
+				StartPerformanceCount();
+				Invalidate();
+				EventArgs arg;
+				pFrame->m_EventCameraPropChanged(&arg);
+			}
 			break;
 
 		case WM_LBUTTONUP:
 		case WM_MBUTTONUP:
 		case WM_RBUTTONUP:
+			if (m_CameraType == CameraTypePerspective)
 			{
-				EventArgs arg;
-				pFrame->m_EventCameraPropChanged(&arg);
+				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+				if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
+				{
+					model_view_camera->UpdateViewProj();
+					StartPerformanceCount();
+					Invalidate();
+					EventArgs arg;
+					pFrame->m_EventCameraPropChanged(&arg);
+				}
 			}
 			break;
 		}
@@ -1182,6 +1198,7 @@ void CChildView::OnCameratypePerspective()
 	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-45),D3DXToRadian(45),0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt = my::Vector3(0,0,0);
 	boost::static_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_Distance = cot(fov / 2) * m_CameraDiagonal * 0.5f;
+	m_Camera->UpdateViewProj();
 	m_CameraType = CameraTypePerspective;
 	Invalidate();
 }
@@ -1198,6 +1215,7 @@ void CChildView::OnCameratypeFront()
 	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
 	m_Camera->m_Eye = my::Vector3::zero;
 	m_Camera->m_Eular = my::Vector3::zero;
+	m_Camera->UpdateViewProj();
 	m_CameraType = CameraTypeFront;
 	Invalidate();
 }
@@ -1213,6 +1231,7 @@ void CChildView::OnCameratypeSide()
 	m_Camera.reset(new my::OrthoCamera(m_CameraDiagonal, m_SwapChainBufferDesc.Width / (float)m_SwapChainBufferDesc.Height, -1500, 1500));
 	m_Camera->m_Eye = my::Vector3::zero;
 	m_Camera->m_Eular = my::Vector3(0,D3DXToRadian(90),0);
+	m_Camera->UpdateViewProj();
 	m_CameraType = CameraTypeSide;
 	Invalidate();
 }
@@ -1229,6 +1248,7 @@ void CChildView::OnCameratypeTop()
 		m_CameraDiagonal,m_SwapChainBufferDesc.Width/(float)m_SwapChainBufferDesc.Height,-1500,1500));
 	m_Camera->m_Eye = my::Vector3::zero;
 	m_Camera->m_Eular = my::Vector3(D3DXToRadian(-90),0,0);
+	m_Camera->UpdateViewProj();
 	m_CameraType = CameraTypeTop;
 	Invalidate();
 }
