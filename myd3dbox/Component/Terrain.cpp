@@ -658,7 +658,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
 					if (shader)
 					{
-						my::Frustum loc_frustum = frustum.transform(m_World.transpose());
+						// ! do not use m_World for level offset
+						my::Frustum loc_frustum = frustum.transform(Matrix4::Compose(m_Scale, m_Rotation, m_Position).transpose());
 						m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
 					}
 				}
