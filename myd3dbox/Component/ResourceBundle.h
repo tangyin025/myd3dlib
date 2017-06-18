@@ -29,6 +29,12 @@ public:
 		m_Res = boost::dynamic_pointer_cast<T>(res);
 	}
 
+	ResourceBundle & operator = (const ResourceBundle<T> & rhs)
+	{
+		m_Path = rhs.m_Path;
+		return *this;
+	}
+
 	void RequestResource(void);
 
 	void ReleaseResource(void)

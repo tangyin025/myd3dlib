@@ -30,12 +30,21 @@ BOOST_CLASS_EXPORT(StaticEmitterComponent)
 
 BOOST_CLASS_EXPORT(SphericalEmitterComponent)
 
-void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+void Material::CopyFrom(const Material & rhs)
 {
-	shader->SetVector("g_MeshColor", m_MeshColor);
-	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
-	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
-	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
+	m_Shader = rhs.m_Shader;
+	m_PassMask = rhs.m_PassMask;
+	m_MeshColor = rhs.m_MeshColor;
+	m_MeshTexture = rhs.m_MeshTexture;
+	m_NormalTexture = rhs.m_NormalTexture;
+	m_SpecularTexture = rhs.m_SpecularTexture;
+}
+
+MaterialPtr Material::Clone(void) const
+{
+	MaterialPtr ret(new Material());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void Material::RequestResource(void)
@@ -61,6 +70,14 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
+void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+{
+	shader->SetVector("g_MeshColor", m_MeshColor);
+	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
+	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
+	shader->SetTexture("g_SpecularTexture", m_SpecularTexture.m_Res.get());
+}
+
 template<>
 void Component::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -79,6 +96,22 @@ void Component::load<boost::archive::polymorphic_iarchive>(boost::archive::polym
 	ar >> BOOST_SERIALIZATION_NVP(m_Rotation);
 	ar >> BOOST_SERIALIZATION_NVP(m_Scale);
 	ar >> BOOST_SERIALIZATION_NVP(m_World);
+}
+
+void Component::CopyFrom(const Component & rhs)
+{
+	m_Type = rhs.m_Type;
+	m_Position = rhs.m_Position;
+	m_Rotation = rhs.m_Rotation;
+	m_Scale = rhs.m_Scale;
+	m_World = rhs.m_World;
+}
+
+ComponentPtr Component::Clone(void) const
+{
+	ComponentPtr ret(new Component());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void Component::RequestResource(void)
@@ -242,6 +275,26 @@ void MeshComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::p
 	ar >> BOOST_SERIALIZATION_NVP(m_bInstance);
 	ar >> BOOST_SERIALIZATION_NVP(m_bUseAnimation);
 	ar >> BOOST_SERIALIZATION_NVP(m_MaterialList);
+}
+
+void MeshComponent::CopyFrom(const MeshComponent & rhs)
+{
+	RenderComponent::CopyFrom(rhs);
+	m_MeshRes = rhs.m_MeshRes;
+	m_bInstance = rhs.m_bInstance;
+	m_bUseAnimation = rhs.m_bUseAnimation;
+	m_MaterialList.resize(rhs.m_MaterialList.size());
+	for (unsigned int i = 0; i < rhs.m_MaterialList.size(); i++)
+	{
+		m_MaterialList[i] = rhs.m_MaterialList[i]->Clone();
+	}
+}
+
+ComponentPtr MeshComponent::Clone(void) const
+{
+	MeshComponentPtr ret(new MeshComponent());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void MeshComponent::RequestResource(void)
@@ -513,6 +566,18 @@ void ClothComponent::load<boost::archive::polymorphic_iarchive>(boost::archive::
 	}
 }
 
+void ClothComponent::CopyFrom(const ClothComponent & rhs)
+{
+	RenderComponent::CopyFrom(rhs);
+}
+
+ComponentPtr ClothComponent::Clone(void) const
+{
+	ClothComponentPtr ret(new ClothComponent());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone_id)
 {
 	if (m_VertexData.empty())
@@ -779,6 +844,18 @@ void ClothComponent::UpdateCloth(void)
 	}
 }
 
+void EmitterComponent::CopyFrom(const EmitterComponent & rhs)
+{
+	RenderComponent::CopyFrom(rhs);
+}
+
+ComponentPtr EmitterComponent::Clone(void) const
+{
+	EmitterComponentPtr ret(new EmitterComponent());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void EmitterComponent::RequestResource(void)
 {
 	Component::RequestResource();
@@ -850,9 +927,33 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
+void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)
+{
+	EmitterComponent::CopyFrom(rhs);
+}
+
+ComponentPtr StaticEmitterComponent::Clone(void) const
+{
+	StaticEmitterComponentPtr ret(new StaticEmitterComponent());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void StaticEmitterComponent::Update(float fElapsedTime)
 {
 	EmitterComponent::Update(fElapsedTime);
+}
+
+void SphericalEmitterComponent::CopyFrom(const SphericalEmitterComponent & rhs)
+{
+	EmitterComponent::CopyFrom(rhs);
+}
+
+ComponentPtr SphericalEmitterComponent::Clone(void) const
+{
+	SphericalEmitterComponentPtr ret(new SphericalEmitterComponent());
+	ret->CopyFrom(*this);
+	return ret;
 }
 
 void SphericalEmitterComponent::Update(float fElapsedTime)

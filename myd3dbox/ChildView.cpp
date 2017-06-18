@@ -7,8 +7,6 @@
 
 #include "ChildView.h"
 #include "MainFrm.h"
-#include <boost/archive/polymorphic_xml_iarchive.hpp>
-#include <boost/archive/polymorphic_xml_oarchive.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -1112,22 +1110,11 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			CMainFrame::ActorSet::const_iterator sel_iter = pFrame->m_selactors.begin();
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
-				std::basic_stringbuf<char> buff;
-				{
-					std::ostream ostr(&buff);
-					boost::archive::polymorphic_xml_oarchive oa(ostr);
-					oa << boost::serialization::make_nvp("actor", *sel_iter);
-				}
-				ActorPtr new_actor(new Actor());
-				std::istream istr(&buff);
-				boost::archive::polymorphic_xml_iarchive ia(istr);
-				ia >> boost::serialization::make_nvp("actor", *new_actor);
-
+				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
 				pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				pFrame->m_WorldL.m_ViewedActors.insert(new_actor.get());
-
 				new_acts.insert(new_actor.get());
 			}
 		}

@@ -6,6 +6,10 @@
 #include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 
+class Material;
+
+typedef boost::shared_ptr<Material> MaterialPtr;
+
 class Material
 {
 public:
@@ -43,14 +47,16 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_SpecularTexture);
 	}
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	void CopyFrom(const Material & rhs);
+
+	virtual MaterialPtr Clone(void) const;
 
 	void RequestResource(void);
 
 	void ReleaseResource(void);
-};
 
-typedef boost::shared_ptr<Material> MaterialPtr;
+	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+};
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
 
@@ -72,6 +78,7 @@ public:
 		ComponentTypeCharacter,
 		ComponentTypeMesh,
 		ComponentTypeCloth,
+		ComponentTypeEmitter,
 		ComponentTypeStaticEmitter,
 		ComponentTypeSphericalEmitter,
 		ComponentTypeTerrain,
@@ -142,6 +149,10 @@ public:
 	{
 		return m_Requested;
 	}
+
+	void CopyFrom(const Component & rhs);
+
+	virtual ComponentPtr Clone(void) const;
 
 	virtual void RequestResource(void);
 
@@ -241,6 +252,10 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	void CopyFrom(const MeshComponent & rhs);
+
+	virtual ComponentPtr Clone(void) const;
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);
@@ -318,6 +333,10 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	void CopyFrom(const ClothComponent & rhs);
+
+	virtual ComponentPtr Clone(void) const;
+
 	void CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone_id);
 
 	virtual void RequestResource(void);
@@ -362,6 +381,11 @@ protected:
 	}
 
 public:
+	EmitterComponent(void)
+		: RenderComponent(ComponentTypeEmitter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1))
+	{
+	}
+
 	template<class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
@@ -369,6 +393,10 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_Emitter);
 		ar & BOOST_SERIALIZATION_NVP(m_Material);
 	}
+
+	void CopyFrom(const EmitterComponent & rhs);
+
+	virtual ComponentPtr Clone(void) const;
 
 	virtual void RequestResource(void);
 
@@ -409,6 +437,10 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(EmitterComponent);
 		ar & boost::serialization::make_nvp("ParticleList", m_Emitter->m_ParticleList);
 	}
+
+	void CopyFrom(const StaticEmitterComponent & rhs);
+
+	virtual ComponentPtr Clone(void) const;
 
 	virtual void Update(float fElapsedTime);
 };
@@ -494,6 +526,10 @@ public:
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnAngle);
 		ar & BOOST_SERIALIZATION_NVP(m_SpawnLoopTime);
 	}
+
+	void CopyFrom(const SphericalEmitterComponent & rhs);
+
+	virtual ComponentPtr Clone(void) const;
 
 	virtual void Update(float fElapsedTime);
 };

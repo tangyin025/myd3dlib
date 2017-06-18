@@ -58,6 +58,10 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	void CopyFrom(const Actor & rhs);
+
+	virtual ComponentPtr Clone(void) const;
+
 	virtual void RequestResource(void);
 
 	virtual void ReleaseResource(void);

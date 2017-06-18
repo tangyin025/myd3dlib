@@ -112,6 +112,24 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	}
 }
 
+void Actor::CopyFrom(const Actor & rhs)
+{
+	Component::CopyFrom(rhs);
+	m_aabb = rhs.m_aabb;
+	m_Cmps.resize(rhs.m_Cmps.size());
+	for (unsigned int i = 0; i < rhs.m_Cmps.size(); i++)
+	{
+		m_Cmps[i] = rhs.m_Cmps[i]->Clone();
+	}
+}
+
+ComponentPtr Actor::Clone(void) const
+{
+	ActorPtr ret(new Actor());
+	ret->CopyFrom(*this);
+	return ret;
+}
+
 void Actor::RequestResource(void)
 {
 	_ASSERT(!m_Requested);
