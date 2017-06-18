@@ -87,7 +87,7 @@ public:
 		return CPoint(0, 0);
 	}
 
-	void AddActor(boost::shared_ptr<Actor> actor);
+	//void AddActor(boost::shared_ptr<Actor> actor);
 
 	void UpdateViewedActorsWorld(void);
 
