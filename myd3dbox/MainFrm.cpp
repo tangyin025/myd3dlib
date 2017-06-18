@@ -396,10 +396,9 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 
 void CMainFrame::OnActorPosChanged(Actor * actor)
 {
-	my::OctActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
-	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
-	VERIFY(Root->RemoveActor(actor_ptr));
-	Root->AddActor(actor_ptr, actor->m_aabb.transform(actor->m_World), 0.1f);
+	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
+	VERIFY(actor_ptr->m_Node->RemoveActor(actor_ptr));
+	m_WorldL.AddActor(actor_ptr);
 }
 
 void CMainFrame::UpdateSelBox(void)

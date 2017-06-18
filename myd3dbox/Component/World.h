@@ -73,18 +73,21 @@ public:
 
 	Octree & GetLevel(const CPoint & level_id)
 	{
-		return m_levels[my::Clamp<int>(level_id.y, 0, m_Dimension) * m_Dimension + my::Clamp<int>(level_id.x, 0, m_Dimension)];
+		int i = my::Clamp<int>(level_id.y, 0, m_Dimension) * m_Dimension + my::Clamp<int>(level_id.x, 0, m_Dimension);
+		return m_levels[i];
 	}
 
 	CPoint GetLevelId(const Octree * level_ptr)
 	{
-		int dis = (level_ptr - &m_levels[0]) / sizeof(OctreeList::value_type);
-		if (dis < m_Dimension * m_Dimension)
+		int i = level_ptr - &m_levels[0];
+		if (i >= 0 && i < m_Dimension * m_Dimension)
 		{
-			return CPoint(dis % m_Dimension, dis / m_Dimension);
+			return CPoint(i % m_Dimension, i / m_Dimension);
 		}
 		return CPoint(0, 0);
 	}
+
+	void AddActor(boost::shared_ptr<Actor> actor);
 
 	void UpdateViewedActorsWorld(void);
 
