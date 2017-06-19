@@ -34,25 +34,6 @@ void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 		m_levels[i].m_World = this;
 	}
 }
-//
-//void WorldL::AddActor(boost::shared_ptr<Actor> actor)
-//{
-//	CPoint level_id = m_LevelId;
-//	if (actor->m_Position.x < 0 || actor->m_Position.x > LEVEL_SIZE)
-//	{
-//		int offset = (int)floor(actor->m_Position.x / LEVEL_SIZE);
-//		level_id.x = Clamp<int>(level_id.x + offset, 0, m_Dimension);
-//		actor->m_Position.x -= LEVEL_SIZE * (level_id.x - m_LevelId.x);
-//	}
-//	if (actor->m_Position.z < 0 || actor->m_Position.z > LEVEL_SIZE)
-//	{
-//		int offset = (int)floor(actor->m_Position.z / LEVEL_SIZE);
-//		level_id.y = Clamp<int>(level_id.y + offset, 0, m_Dimension);
-//		actor->m_Position.z -= LEVEL_SIZE * (level_id.y - m_LevelId.y);
-//	}
-//	Matrix4 World = Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
-//	GetLevel(level_id).AddActor(actor, actor->m_aabb.transform(World), 0.1f);
-//}
 
 void WorldL::UpdateViewedActorsWorld(void)
 {

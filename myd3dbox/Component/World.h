@@ -87,8 +87,6 @@ public:
 		return CPoint(0, 0);
 	}
 
-	//void AddActor(boost::shared_ptr<Actor> actor);
-
 	void UpdateViewedActorsWorld(void);
 
 	void CreateLevels(int dimension);

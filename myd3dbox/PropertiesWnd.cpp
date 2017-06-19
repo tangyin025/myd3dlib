@@ -235,19 +235,24 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	CMFCPropertyGridProperty * pProp = pComponent->GetSubItem(PropId);
-	if (!pProp || pProp->GetData() != PropertyActorAABB)
+	if (!pProp || pProp->GetData() != PropertyActorLevelId)
 	{
 		RemovePropertiesFrom(pComponent, PropId);
 		CreatePropertiesActor(pComponent, actor);
 		return;
 	}
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
-	pComponent->GetSubItem(PropId + 0)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
-	pComponent->GetSubItem(PropId + 1)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)level_id.x);
+	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)level_id.y);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(1)->SetValue((_variant_t)actor->m_aabb.m_min.y);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(2)->SetValue((_variant_t)actor->m_aabb.m_min.z);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(3)->SetValue((_variant_t)actor->m_aabb.m_max.x);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(4)->SetValue((_variant_t)actor->m_aabb.m_max.y);
+	pComponent->GetSubItem(PropId + 1)->GetSubItem(5)->SetValue((_variant_t)actor->m_aabb.m_max.z);
+	pComponent->GetSubItem(PropId + 2)->SetValue((_variant_t)g_ActorTypeDesc[actor->m_PxActor ? actor->m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT]);
 	if (!actor->m_Cmps.empty())
 	{
 		Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
@@ -535,9 +540,18 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 {
 	unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 	RemovePropertiesFrom(pComponent, PropId);
+	CMFCPropertyGridProperty * pLevelId = new CSimpleProp(_T("LevelId"), PropertyActorLevelId, TRUE);
+	pComponent->AddSubItem(pLevelId);
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)level_id.x, NULL, PropertyActorLevelIdX);
+	pLevelId->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)level_id.y, NULL, PropertyActorLevelIdY);
+	pLevelId->AddSubItem(pProp);
 	CMFCPropertyGridProperty * pAABB = new CSimpleProp(_T("AABB"), PropertyActorAABB, TRUE);
 	pComponent->AddSubItem(pAABB);
-	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
+	pProp = new CSimpleProp(_T("minx"), (_variant_t)actor->m_aabb.m_min.x, NULL, PropertyActorMinX);
 	pAABB->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("miny"), (_variant_t)actor->m_aabb.m_min.y, NULL, PropertyActorMinY);
 	pAABB->AddSubItem(pProp);
@@ -787,7 +801,7 @@ unsigned int CPropertiesWnd::GetComponentPropCount(Component::ComponentType type
 	switch (type)
 	{
 	case Component::ComponentTypeActor:
-		return GetComponentPropCount(Component::ComponentTypeComponent) + 2;
+		return GetComponentPropCount(Component::ComponentTypeComponent) + 3;
 	case Component::ComponentTypeCharacter:
 		return GetComponentPropCount(Component::ComponentTypeActor);
 	case Component::ComponentTypeMesh:
@@ -1083,6 +1097,33 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			pFrame->m_EventAttributeChanged(&arg);
 		}
 		break;
+	case PropertyActorLevelId:
+	case PropertyActorLevelIdX:
+	case PropertyActorLevelIdY:
+		{
+			CMFCPropertyGridProperty * pLevelId = NULL;
+			if (PropertyId == PropertyActorLevelId)
+			{
+				pLevelId = pProp;
+			}
+			else
+			{
+				pLevelId = pProp->GetParent();
+			}
+			Component * cmp = (Component *)pLevelId->GetParent()->GetValue().ulVal;
+			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
+			Actor * actor = dynamic_cast<Actor *>(cmp);
+			CPoint level_id(pLevelId->GetSubItem(0)->GetValue().intVal, pProp->GetSubItem(1)->GetValue().intVal);
+			ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
+			actor->m_Node->RemoveActor(actor_ptr);
+			my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
+			pFrame->m_WorldL.GetLevel(level_id).AddActor(actor_ptr, actor->m_aabb.transform(World), 0.1f);
+			my::Vector3 Offset((level_id.x - pFrame->m_WorldL.m_LevelId.x) * WorldL::LEVEL_SIZE, 0, (level_id.y - pFrame->m_WorldL.m_LevelId.y) * WorldL::LEVEL_SIZE);
+			actor->UpdateWorld(my::Matrix4::Translation(Offset));
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
 	case PropertyActorAABB:
 	case PropertyActorMinX:
 	case PropertyActorMinY:
@@ -1106,7 +1147,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pAABB = pProp->GetParent();
 				break;
 			}
-			Actor * actor = (Actor *)pAABB->GetParent()->GetValue().ulVal;
+			Component * cmp = (Component *)pAABB->GetParent()->GetValue().ulVal;
+			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
+			Actor * actor = dynamic_cast<Actor *>(cmp);
 			actor->m_aabb.m_min.x = pAABB->GetSubItem(0)->GetValue().fltVal;
 			actor->m_aabb.m_min.y = pAABB->GetSubItem(1)->GetValue().fltVal;
 			actor->m_aabb.m_min.z = pAABB->GetSubItem(2)->GetValue().fltVal;
