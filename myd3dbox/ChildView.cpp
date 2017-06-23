@@ -1174,29 +1174,17 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 				m_Camera->UpdateViewProj();
 				if (m_CameraType == CameraTypePerspective)
 				{
-					pFrame->ResetViewedActors(boost::dynamic_pointer_cast<my::ModelViewerCamera>(m_Camera)->m_LookAt, pFrame);
+					my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+					if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
+					{
+						model_view_camera->UpdateViewProj();
+					}
+					pFrame->ResetViewedActors(model_view_camera->m_LookAt, pFrame);
 				}
 				StartPerformanceCount();
 				Invalidate();
 				EventArgs arg;
 				pFrame->m_EventCameraPropChanged(&arg);
-			}
-			break;
-
-		case WM_LBUTTONUP:
-		case WM_MBUTTONUP:
-		case WM_RBUTTONUP:
-			if (m_CameraType == CameraTypePerspective)
-			{
-				my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-				if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
-				{
-					model_view_camera->UpdateViewProj();
-					StartPerformanceCount();
-					Invalidate();
-					EventArgs arg;
-					pFrame->m_EventCameraPropChanged(&arg);
-				}
 			}
 			break;
 		}
