@@ -455,12 +455,26 @@ void CMainApp::SaveCustomState()
 BOOL CMainApp::OnIdle(LONG lCount)
 {
 	// TODO: Add your specialized code here and/or call the base class
+	Clock::UpdateClock();
+
+	BOOL bContinue = FALSE;
 	if (my::ResourceMgr::CheckIORequests())
 	{
-		return TRUE;
+		bContinue = TRUE;
 	}
 
-	return CWinAppEx::OnIdle(lCount);
+	if (CWinAppEx::OnIdle(lCount))
+	{
+		bContinue = TRUE;
+	}
+
+	float fElapsedTime = my::Min(0.016f, m_fElapsedTime);
+	if ((DYNAMIC_DOWNCAST(CMainFrame, m_pMainWnd))->OnFrameTick(fElapsedTime))
+	{
+		bContinue = TRUE;
+	}
+
+	return bContinue;
 }
 
 int CMainApp::ExitInstance()

@@ -56,7 +56,6 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
-	ON_WM_TIMER()
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -221,8 +220,6 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//lstBasicCommands.AddTail(ID_VIEW_APPLOOK_OFF_2007_AQUA);
 
 	//CMFCToolBar::SetBasicCommands(lstBasicCommands);
-
-	SetTimer(1, 16, NULL);
 
 	//m_emitter.reset(new EmitterComponent(my::AABB(FLT_MAX, -FLT_MAX), my::Matrix4::Identity()));
 	//m_emitter->m_Emitter.reset(new my::Emitter());
@@ -432,6 +429,26 @@ void CMainFrame::UpdatePivotTransform(void)
 void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	m_WorldL.ResetViewedActors(ViewPos, scene);
+}
+
+BOOL CMainFrame::OnFrameTick(float fElapsedTime)
+{
+	if (m_selactors.empty())
+	{
+		return FALSE;
+	}
+
+	PhysXSceneContext::AdvanceSync(fElapsedTime);
+
+	ActorSet::iterator actor_iter = m_selactors.begin();
+	for (; actor_iter != m_selactors.end(); actor_iter++)
+	{
+		(*actor_iter)->Update(fElapsedTime);
+	}
+
+	EventArgs arg;
+	m_EventSelectionPlaying(&arg);
+	return TRUE;
 }
 
 void CMainFrame::ClearFileContext()
@@ -879,26 +896,5 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
-}
-
-void CMainFrame::OnTimer(UINT_PTR nIDEvent)
-{
-	//// TODO: Add your message handler code here and/or call default
-	if (!m_selactors.empty())
-	{
-		const float fElapsedTime = 0.016f;
-		PhysXSceneContext::AdvanceSync(fElapsedTime);
-
-		ActorSet::iterator actor_iter = m_selactors.begin();
-		for (; actor_iter != m_selactors.end(); actor_iter++)
-		{
-			(*actor_iter)->Update(fElapsedTime);
-		}
-
-		EventArgs arg;
-		m_EventSelectionPlaying(&arg);
-	}
-
-	__super::OnTimer(nIDEvent);
 }
 

@@ -55,6 +55,7 @@ public:
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
+	BOOL OnFrameTick(float fElapsedTime);
 
 // Implementation
 public:
@@ -105,7 +106,6 @@ public:
 	afx_msg void OnUpdatePivotMove(CCmdUI *pCmdUI);
 	afx_msg void OnPivotRotate();
 	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
-	afx_msg void OnTimer(UINT_PTR nIDEvent);
 };
 
 
