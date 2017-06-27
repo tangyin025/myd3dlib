@@ -39,7 +39,7 @@ my::BoneList & AnimationNode::GetPose(my::BoneList & pose) const
 BOOST_CLASS_EXPORT(Animator)
 
 Animator::Animator(void)
-	: m_Cmp(NULL)
+	: m_Actor(NULL)
 {
 }
 

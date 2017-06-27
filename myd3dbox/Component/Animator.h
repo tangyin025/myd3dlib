@@ -28,12 +28,12 @@ public:
 
 typedef boost::shared_ptr<AnimationNode> AnimationNodePtr;
 
-class Component;
+class Actor;
 
 class Animator
 {
 public:
-	Component * m_Cmp;
+	Actor * m_Actor;
 
 	ResourceBundle<my::OgreSkeletonAnimation> m_SkeletonRes;
 
