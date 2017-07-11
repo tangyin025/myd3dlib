@@ -38,15 +38,15 @@ namespace my
 
 	typedef boost::shared_ptr<OctActor> OctActorPtr;
 
-	struct IQueryCallback
-	{
-	public:
-		virtual void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType) = 0;
-	};
-
 	class OctNodeBase
 	{
 	public:
+		struct QueryCallback
+		{
+		public:
+			virtual void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType) = 0;
+		};
+
 		OctNodeBase * m_Parent;
 
 		AABB m_aabb;
@@ -97,17 +97,17 @@ namespace my
 
 		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f) = 0;
 
-		void QueryActor(const Ray & ray, IQueryCallback * callback);
+		void QueryActor(const Ray & ray, QueryCallback * callback);
 
-		void QueryActor(const AABB & aabb, IQueryCallback * callback);
+		void QueryActor(const AABB & aabb, QueryCallback * callback);
 
-		void QueryActor(const Frustum & frustum, IQueryCallback * callback);
+		void QueryActor(const Frustum & frustum, QueryCallback * callback);
 
-		void QueryActorAll(IQueryCallback * callback);
+		void QueryActorAll(QueryCallback * callback);
 
-		void QueryActorIntersected(const AABB & aabb, IQueryCallback * callback);
+		void QueryActorIntersected(const AABB & aabb, QueryCallback * callback);
 
-		void QueryActorIntersected(const Frustum & frustum, IQueryCallback * callback);
+		void QueryActorIntersected(const Frustum & frustum, QueryCallback * callback);
 
 		bool RemoveActor(OctActorPtr actor);
 

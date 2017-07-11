@@ -492,7 +492,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
-	struct CallBack : public my::IQueryCallback
+	struct CallBack : public my::OctNodeBase::QueryCallback
 	{
 		Terrain * terrain;
 		CallBack(Terrain * _terrain)
@@ -567,7 +567,7 @@ void Terrain::UpdateVertices(void)
 
 void Terrain::UpdateLod(const my::Vector3 & ViewPos)
 {
-	const my::Vector3 LocalTargetPos = ViewPos.transform(m_World.inverse()).xyz;
+	const Vector3 LocalTargetPos = ViewPos.transform(m_World.inverse()).xyz;
 	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
 	{
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
@@ -621,13 +621,13 @@ my::AABB Terrain::CalculateAABB(void) const
 
 void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct CallBack : public my::IQueryCallback
+	struct CallBack : public my::OctNodeBase::QueryCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassID;
 		Terrain * terrain;
-		my::Effect * shader;
-		CallBack(RenderPipeline * _pipeline, unsigned int _PassID, Terrain * _terrain, my::Effect * _shader)
+		Effect * shader;
+		CallBack(RenderPipeline * _pipeline, unsigned int _PassID, Terrain * _terrain, Effect * _shader)
 			: pipeline(_pipeline)
 			, PassID(_PassID)
 			, terrain(_terrain)
@@ -655,11 +655,11 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 			{
 				if (RenderPipeline::PassTypeToMask(PassID) & (m_Material->m_PassMask & PassMask))
 				{
-					my::Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
+					Effect * shader = pipeline->QueryShader(RenderPipeline::MeshTypeTerrain, false, m_Material.get(), PassID);
 					if (shader)
 					{
 						// ! do not use m_World for level offset
-						my::Frustum loc_frustum = frustum.transform(Matrix4::Compose(m_Scale, m_Rotation, m_Position).transpose());
+						Frustum loc_frustum = frustum.transform(Matrix4::Compose(m_Scale, m_Rotation, m_Position).transpose());
 						m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
 					}
 				}

@@ -80,7 +80,7 @@ OctNodeBase * OctNodeBase::GetTopNode(void)
 	return m_Parent->GetTopNode();
 }
 
-void OctNodeBase::QueryActor(const Ray & ray, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const Ray & ray, QueryCallback * callback)
 {
 	if (IntersectionTests::rayAndAABB(ray.p, ray.d, m_aabb).first)
 	{
@@ -104,7 +104,7 @@ void OctNodeBase::QueryActor(const Ray & ray, IQueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActor(const AABB & aabb, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const AABB & aabb, QueryCallback * callback)
 {
 	switch (IntersectionTests::IntersectAABBAndAABB(m_aabb, aabb))
 	{
@@ -118,7 +118,7 @@ void OctNodeBase::QueryActor(const AABB & aabb, IQueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActor(const Frustum & frustum, IQueryCallback * callback)
+void OctNodeBase::QueryActor(const Frustum & frustum, QueryCallback * callback)
 {
 	switch(IntersectionTests::IntersectAABBAndFrustum(m_aabb, frustum))
 	{
@@ -132,7 +132,7 @@ void OctNodeBase::QueryActor(const Frustum & frustum, IQueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActorAll(IQueryCallback * callback)
+void OctNodeBase::QueryActorAll(QueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -150,7 +150,7 @@ void OctNodeBase::QueryActorAll(IQueryCallback * callback)
 	}
 }
 
-void OctNodeBase::QueryActorIntersected(const AABB & aabb, IQueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const AABB & aabb, QueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)
@@ -175,7 +175,7 @@ void OctNodeBase::QueryActorIntersected(const AABB & aabb, IQueryCallback * call
 	}
 }
 
-void OctNodeBase::QueryActorIntersected(const Frustum & frustum, IQueryCallback * callback)
+void OctNodeBase::QueryActorIntersected(const Frustum & frustum, QueryCallback * callback)
 {
 	OctActorMap::iterator cmp_iter = m_Actors.begin();
 	for(; cmp_iter != m_Actors.end(); cmp_iter++)

@@ -63,7 +63,7 @@ void WorldL::ClearAllLevels(void)
 
 void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct CallBack : public IQueryCallback
+	struct CallBack : public my::OctNodeBase::QueryCallback
 	{
 		const Frustum & frustum;
 		RenderPipeline * pipeline;
@@ -76,7 +76,7 @@ void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & 
 		{
 		}
 
-		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);
@@ -107,7 +107,7 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 
 void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
-	struct CallBack : public IQueryCallback
+	struct CallBack : public my::OctNodeBase::QueryCallback
 	{
 		WorldL * world;
 		const Vector3 & Offset;
@@ -120,7 +120,7 @@ void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & Vie
 			, scene(_scene)
 		{
 		}
-		void operator() (OctActor * oct_actor, IntersectionTests::IntersectionType)
+		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 		{
 			_ASSERT(dynamic_cast<Actor *>(oct_actor));
 			Actor * actor = static_cast<Actor *>(oct_actor);

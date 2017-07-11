@@ -602,7 +602,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeTerrain:
 		{
-			struct CallBack : public my::IQueryCallback
+			struct CallBack : public my::OctNodeBase::QueryCallback
 			{
 				const my::Ray & ray;
 				CChildView * pView;
@@ -992,7 +992,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			(float)pFrame->m_Tracker.m_rect.right,
 			(float)pFrame->m_Tracker.m_rect.bottom);
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		struct Callback : public my::IQueryCallback
+		struct Callback : public my::OctNodeBase::QueryCallback
 		{
 			CMainFrame::ActorSet selacts;
 			const my::Frustum & ftm;
@@ -1022,7 +1022,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		struct Callback : public my::IQueryCallback
+		struct Callback : public my::OctNodeBase::QueryCallback
 		{
 			typedef std::map<float, Actor *> ActorMap;
 			ActorMap selacts;
