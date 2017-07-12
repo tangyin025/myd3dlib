@@ -1117,7 +1117,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 			actor->m_Node->RemoveActor(actor_ptr);
 			my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
-			pFrame->m_WorldL.GetLevel(level_id).AddActor(actor_ptr, actor->m_aabb.transform(World), 0.1f);
+			pFrame->m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World), 0.1f);
 			my::Vector3 Offset((level_id.x - pFrame->m_WorldL.m_LevelId.x) * WorldL::LEVEL_SIZE, 0, (level_id.y - pFrame->m_WorldL.m_LevelId.y) * WorldL::LEVEL_SIZE);
 			actor->UpdateWorld(my::Matrix4::Translation(Offset));
 			EventArgs arg;

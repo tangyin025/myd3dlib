@@ -77,23 +77,17 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
-	Octree & GetLevel(const CPoint & level_id)
+	Octree * GetLevel(const CPoint & level_id)
 	{
-		int i = my::Clamp<int>(level_id.y, 0, m_Dimension) * m_Dimension + my::Clamp<int>(level_id.x, 0, m_Dimension);
-		return m_levels[i];
+		return &m_levels[my::Clamp<int>(level_id.y, 0, m_Dimension - 1) * m_Dimension + my::Clamp<int>(level_id.x, 0, m_Dimension - 1)];
 	}
 
 	CPoint GetLevelId(const Octree * level_ptr)
 	{
 		int i = level_ptr - &m_levels[0];
-		if (i >= 0 && i < m_Dimension * m_Dimension)
-		{
-			return CPoint(i % m_Dimension, i / m_Dimension);
-		}
-		return CPoint(0, 0);
+		_ASSERT(i >= 0 && i < m_Dimension * m_Dimension);
+		return CPoint(i % m_Dimension, i / m_Dimension);
 	}
-
-	void UpdateViewedActorsWorld(void);
 
 	void CreateLevels(long dimension);
 
@@ -104,6 +98,8 @@ public:
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
+
+	void UpdateViewedActorsWorld(void);
 
 	void ResetLevelId(const CPoint & offset, PhysXSceneContext * scene);
 

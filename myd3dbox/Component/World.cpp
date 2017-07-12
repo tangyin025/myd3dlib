@@ -35,17 +35,6 @@ void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 	}
 }
 
-void WorldL::UpdateViewedActorsWorld(void)
-{
-	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
-	for (; cmp_iter != m_ViewedActors.end(); cmp_iter++)
-	{
-		CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
-		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-		(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
-	}
-}
-
 void WorldL::CreateLevels(long dimension)
 {
 	m_Dimension = dimension;
@@ -68,7 +57,7 @@ void WorldL::QueryLevel(const CPoint & level_id, QueryCallback * callback)
 		for (long j = Max(0L, level_id.y - 1); j <= Min(m_Dimension - 1, level_id.y + 1); j++)
 		{
 			CPoint id(i, j);
-			(*callback)(&GetLevel(id), id);
+			(*callback)(GetLevel(id), id);
 		}
 	}
 }
@@ -193,6 +182,17 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	};
 
 	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene));
+}
+
+void WorldL::UpdateViewedActorsWorld(void)
+{
+	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
+	for (; cmp_iter != m_ViewedActors.end(); cmp_iter++)
+	{
+		CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
+		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
+		(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
+	}
 }
 
 void WorldL::ResetLevelId(const CPoint & offset, PhysXSceneContext * scene)

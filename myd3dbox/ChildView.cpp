@@ -1012,7 +1012,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ftm, this);
-		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).QueryActor(ftm, &cb);
+		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->QueryActor(ftm, &cb);
 		CMainFrame::ActorSet::iterator actor_iter = cb.selacts.begin();
 		for (; actor_iter != cb.selacts.end(); actor_iter++)
 		{
@@ -1044,7 +1044,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 		};
 		Callback cb(ray, this);
-		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).QueryActor(ray, &cb);
+		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->QueryActor(ray, &cb);
 		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
 		if (cmp_iter != cb.selacts.end())
 		{
@@ -1111,7 +1111,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId).AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
+				pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				pFrame->m_WorldL.m_ViewedActors.insert(new_actor.get());

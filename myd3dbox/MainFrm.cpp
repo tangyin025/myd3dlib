@@ -518,7 +518,7 @@ void CMainFrame::OnFileNew()
 	//RigidComponentPtr rigid_cmp(new RigidComponent(my::AABB(-5,5), my::Matrix4::Identity()));
 	//rigid_cmp->m_RigidActor->createShape(hfGeom, *theApp.m_PxMaterial, PxTransform::createIdentity());
 	//rigid_cmp->RequestResource();
-	//m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
+	//m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(rigid_cmp.get(), rigid_cmp->m_aabb.transform(Component::GetCmpWorld(rigid_cmp.get())), 0.1f);
 	//m_cmps.push_back(rigid_cmp);
 }
 
@@ -585,7 +585,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	actor->UpdateWorld(my::Matrix4::identity);
-	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
+	m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(actor, actor->m_aabb.transform(actor->m_World), 0.1f);
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 
@@ -608,7 +608,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	character->UpdateWorld(my::Matrix4::identity);
-	m_WorldL.GetLevel(m_WorldL.m_LevelId).AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
+	m_WorldL.GetLevel(m_WorldL.m_LevelId)->AddActor(character, character->m_aabb.transform(character->m_World), 0.1f);
 	character->RequestResource();
 	character->OnEnterPxScene(this);
 
@@ -857,7 +857,7 @@ void CMainFrame::OnEditDelete()
 	{
 		(*actor_iter)->OnLeavePxScene(this);
 		m_WorldL.m_ViewedActors.erase(*actor_iter);
-		m_WorldL.GetLevel(m_WorldL.m_LevelId).RemoveActor((*actor_iter)->shared_from_this());
+		m_WorldL.GetLevel(m_WorldL.m_LevelId)->RemoveActor((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
 	EventArgs arg;
