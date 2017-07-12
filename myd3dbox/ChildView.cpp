@@ -602,13 +602,13 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 
 	case Component::ComponentTypeTerrain:
 		{
-			struct CallBack : public my::OctNodeBase::QueryCallback
+			struct Callback : public my::OctNodeBase::QueryCallback
 			{
 				const my::Ray & ray;
 				CChildView * pView;
 				Terrain * terrain;
 				my::RayResult ret;
-				CallBack(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
+				Callback(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
 					: ray(_ray)
 					, pView(_pView)
 					, terrain(_terrain)
@@ -645,7 +645,7 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
-			CallBack cb(local_ray, this, terrain);
+			Callback cb(local_ray, this, terrain);
 			terrain->m_Root.QueryActor(local_ray, &cb);
 			if (cb.ret.first)
 			{

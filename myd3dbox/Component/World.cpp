@@ -46,7 +46,7 @@ void WorldL::UpdateViewedActorsWorld(void)
 	}
 }
 
-void WorldL::CreateLevels(int dimension)
+void WorldL::CreateLevels(long dimension)
 {
 	m_Dimension = dimension;
 	AABB level_bound(Vector3(-LEVEL_SIZE, -LEVEL_SIZE, -LEVEL_SIZE), Vector3(LEVEL_SIZE * 2, LEVEL_SIZE * 2, LEVEL_SIZE * 2));
@@ -61,91 +61,61 @@ void WorldL::ClearAllLevels(void)
 	m_LevelId.SetPoint(0,0);
 }
 
-void WorldL::_QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void WorldL::QueryLevel(const CPoint & level_id, QueryCallback * callback)
 {
-	struct CallBack : public my::OctNodeBase::QueryCallback
+	for (long i = Max(0L, level_id.x - 1); i <= Min(m_Dimension - 1, level_id.x + 1); i++)
 	{
-		const Frustum & frustum;
-		RenderPipeline * pipeline;
-		unsigned int PassMask;
-
-		CallBack(const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
-			: frustum(_frustum)
-			, pipeline(_pipeline)
-			, PassMask(_PassMask)
+		for (long j = Max(0L, level_id.y - 1); j <= Min(m_Dimension - 1, level_id.y + 1); j++)
 		{
+			CPoint id(i, j);
+			(*callback)(&GetLevel(id), id);
 		}
-
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
-		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			actor->AddToPipeline(frustum, pipeline, PassMask);
-		}
-	};
-
-	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
-	{
-		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-		Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
-		GetLevel(level_id).QueryActor(loc_frustum, &CallBack(loc_frustum, pipeline, PassMask));
 	}
 }
 
 void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	_QueryRenderComponent(m_LevelId + CPoint(-1, -1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 0, -1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 1, -1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint(-1,  0), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 0,  0), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 1,  0), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint(-1,  1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 0,  1), frustum, pipeline, PassMask);
-	_QueryRenderComponent(m_LevelId + CPoint( 1,  1), frustum, pipeline, PassMask);
-}
-
-void WorldL::_ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene)
-{
-	struct CallBack : public my::OctNodeBase::QueryCallback
+	struct Callback : public QueryCallback
 	{
 		WorldL * world;
-		const Vector3 & Offset;
-		const Vector3 & ViewPos;
-		PhysXSceneContext * scene;
-		CallBack(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+		const Frustum & frustum;
+		RenderPipeline * pipeline;
+		unsigned int PassMask;
+		Callback(WorldL * _world, const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
 			: world(_world)
-			, Offset(_Offset)
-			, ViewPos(_ViewPos)
-			, scene(_scene)
+			, frustum(_frustum)
+			, pipeline(_pipeline)
+			, PassMask(_PassMask)
 		{
 		}
-		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+		void operator () (Octree * level, const CPoint & level_id)
 		{
-			_ASSERT(dynamic_cast<Actor *>(oct_actor));
-			Actor * actor = static_cast<Actor *>(oct_actor);
-			OctActorSet::iterator actor_iter = world->m_ViewedActors.find(actor);
-			if (actor_iter == world->m_ViewedActors.end())
+			struct Callback : public my::OctNodeBase::QueryCallback
 			{
-				actor->UpdateWorld(Matrix4::Translation(Offset));
-				if (!actor->IsRequested())
+				const Frustum & frustum;
+				RenderPipeline * pipeline;
+				unsigned int PassMask;
+				Callback(const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+					: frustum(_frustum)
+					, pipeline(_pipeline)
+					, PassMask(_PassMask)
 				{
-					actor->RequestResource();
-					actor->OnEnterPxScene(scene);
 				}
-				world->m_ViewedActors.insert(actor);
-			}
-			actor->UpdateLod(ViewPos);
+				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+				{
+					_ASSERT(dynamic_cast<Actor *>(oct_actor));
+					Actor * actor = static_cast<Actor *>(oct_actor);
+					actor->AddToPipeline(frustum, pipeline, PassMask);
+				}
+			};
+
+			Vector3 Offset((level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
+			Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
+			level->QueryActor(loc_frustum, &Callback(loc_frustum, pipeline, PassMask));
 		}
 	};
 
-	if (level_id.x >= 0 && level_id.x < m_Dimension && level_id.y >= 0 && level_id.y < m_Dimension)
-	{
-		const Vector3 InExtent(VIEWED_DIST);
-		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-		AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
-		GetLevel(level_id).QueryActor(InBox, &CallBack(this, Offset, ViewPos, scene));
-	}
+	QueryLevel(m_LevelId, &Callback(this, frustum, pipeline, PassMask));
 }
 
 void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
@@ -170,15 +140,59 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			cmp_iter++;
 	}
 
-	_ResetViewedActors(m_LevelId + CPoint(-1, -1), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 0, -1), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 1, -1), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint(-1,  0), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 0,  0), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 1,  0), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint(-1,  1), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 0,  1), ViewPos, scene);
-	_ResetViewedActors(m_LevelId + CPoint( 1,  1), ViewPos, scene);
+	struct Callback : public QueryCallback
+	{
+		WorldL * world;
+		const Vector3 & ViewPos;
+		PhysXSceneContext * scene;
+		Callback(WorldL * _world, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+			: world(_world)
+			, ViewPos(_ViewPos)
+			, scene(_scene)
+		{
+		}
+		void operator () (Octree * level, const CPoint & level_id)
+		{
+			struct Callback : public my::OctNodeBase::QueryCallback
+			{
+				WorldL * world;
+				const Vector3 & Offset;
+				const Vector3 & ViewPos;
+				PhysXSceneContext * scene;
+				Callback(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+					: world(_world)
+					, Offset(_Offset)
+					, ViewPos(_ViewPos)
+					, scene(_scene)
+				{
+				}
+				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+				{
+					_ASSERT(dynamic_cast<Actor *>(oct_actor));
+					Actor * actor = static_cast<Actor *>(oct_actor);
+					OctActorSet::iterator actor_iter = world->m_ViewedActors.find(actor);
+					if (actor_iter == world->m_ViewedActors.end())
+					{
+						actor->UpdateWorld(Matrix4::Translation(Offset));
+						if (!actor->IsRequested())
+						{
+							actor->RequestResource();
+							actor->OnEnterPxScene(scene);
+						}
+						world->m_ViewedActors.insert(actor);
+					}
+					actor->UpdateLod(ViewPos);
+				}
+			};
+
+			const Vector3 InExtent(WorldL::VIEWED_DIST);
+			Vector3 Offset((level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
+			AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
+			level->QueryActor(InBox, &Callback(world, Offset, ViewPos, scene));
+		}
+	};
+
+	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene));
 }
 
 void WorldL::ResetLevelId(const CPoint & offset, PhysXSceneContext * scene)

@@ -492,10 +492,10 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
 	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
-	struct CallBack : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNodeBase::QueryCallback
 	{
 		Terrain * terrain;
-		CallBack(Terrain * _terrain)
+		Callback(Terrain * _terrain)
 			: terrain(_terrain)
 		{
 		}
@@ -506,7 +506,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 			chunk->m_Owner = terrain;
 		}
 	};
-	m_Root.QueryActorAll(&CallBack(this));
+	m_Root.QueryActorAll(&Callback(this));
 	UpdateHeightMapNormal();
 	CreateElements();
 }
@@ -621,13 +621,13 @@ my::AABB Terrain::CalculateAABB(void) const
 
 void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	struct CallBack : public my::OctNodeBase::QueryCallback
+	struct Callback : public my::OctNodeBase::QueryCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassID;
 		Terrain * terrain;
 		Effect * shader;
-		CallBack(RenderPipeline * _pipeline, unsigned int _PassID, Terrain * _terrain, Effect * _shader)
+		Callback(RenderPipeline * _pipeline, unsigned int _PassID, Terrain * _terrain, Effect * _shader)
 			: pipeline(_pipeline)
 			, PassID(_PassID)
 			, terrain(_terrain)
@@ -660,7 +660,7 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					{
 						// ! do not use m_World for level offset
 						Frustum loc_frustum = frustum.transform(Matrix4::Compose(m_Scale, m_Rotation, m_Position).transpose());
-						m_Root.QueryActor(loc_frustum, &CallBack(pipeline, PassID, this, shader));
+						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, this, shader));
 					}
 				}
 			}

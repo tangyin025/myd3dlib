@@ -38,7 +38,13 @@ public:
 
 	static const int VIEWED_THRESHOLD = 1;
 
-	int m_Dimension;
+	struct QueryCallback
+	{
+	public:
+		virtual void operator() (Octree * level, const CPoint & level_id) = 0;
+	};
+
+	long m_Dimension;
 
 	CPoint m_LevelId;
 
@@ -89,15 +95,13 @@ public:
 
 	void UpdateViewedActorsWorld(void);
 
-	void CreateLevels(int dimension);
+	void CreateLevels(long dimension);
 
 	void ClearAllLevels(void);
 
-	void _QueryRenderComponent(const CPoint & level_id, const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	void QueryLevel(const CPoint & level_id, QueryCallback * callback);
 
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
-
-	void _ResetViewedActors(const CPoint & level_id, const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 
