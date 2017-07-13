@@ -101,6 +101,7 @@ protected:
 	void OnSelectionPlaying(EventArgs * arg);
 	void OnPivotModeChanged(EventArgs * arg);
 	void OnCmpAttriChanged(EventArgs * arg);
+	void PostCameraViewChanged(void);
 
 // Implementation
 public:

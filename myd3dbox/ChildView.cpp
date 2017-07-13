@@ -769,6 +769,25 @@ void CChildView::OnCmpAttriChanged(EventArgs * arg)
 	Invalidate();
 }
 
+void CChildView::PostCameraViewChanged(void)
+{
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
+	if (m_CameraType == CameraTypePerspective)
+	{
+		my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+		if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
+		{
+			model_view_camera->UpdateViewProj();
+		}
+		pFrame->ResetViewedActors(model_view_camera->m_LookAt, pFrame);
+	}
+	StartPerformanceCount();
+	Invalidate();
+	EventArgs arg;
+	pFrame->m_EventCameraPropChanged(&arg);
+}
+
 void CChildView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	theApp.GetContextMenuManager()->ShowPopupMenu(IDR_POPUP_VIEW, point.x, point.y, this, TRUE);
@@ -1207,19 +1226,7 @@ BOOL CChildView::PreTranslateMessage(MSG* pMsg)
 		case WM_MOUSEMOVE:
 			{
 				m_Camera->UpdateViewProj();
-				if (m_CameraType == CameraTypePerspective)
-				{
-					my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
-					if (pFrame->m_WorldL.ResetLevelId(model_view_camera->m_LookAt, pFrame))
-					{
-						model_view_camera->UpdateViewProj();
-					}
-					pFrame->ResetViewedActors(model_view_camera->m_LookAt, pFrame);
-				}
-				StartPerformanceCount();
-				Invalidate();
-				EventArgs arg;
-				pFrame->m_EventCameraPropChanged(&arg);
+				PostCameraViewChanged();
 			}
 			break;
 		}
@@ -1341,7 +1348,7 @@ void CChildView::OnKeyDown(UINT nChar, UINT nRepCnt, UINT nFlags)
 				}
 			}
 			m_Camera->UpdateViewProj();
-			Invalidate();
+			PostCameraViewChanged();
 		}
 		return;
 	}
