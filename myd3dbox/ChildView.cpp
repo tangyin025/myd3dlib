@@ -1139,7 +1139,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
-			pFrame->OnActorPosChanged(actor_world_iter->first);
+			pFrame->PostActorPosChanged(actor_world_iter->first);
 		}
 		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();

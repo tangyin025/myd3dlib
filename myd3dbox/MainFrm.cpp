@@ -391,7 +391,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
-void CMainFrame::OnActorPosChanged(Actor * actor)
+void CMainFrame::PostActorPosChanged(Actor * actor)
 {
 	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
@@ -660,7 +660,7 @@ void CMainFrame::OnComponentMesh()
 	(*actor_iter)->AddComponent(mesh_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
-	OnActorPosChanged(*actor_iter);
+	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -713,7 +713,7 @@ void CMainFrame::OnComponentCloth()
 	(*actor_iter)->AddComponent(cloth_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
-	OnActorPosChanged(*actor_iter);
+	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -748,7 +748,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	(*actor_iter)->AddComponent(emit_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
-	OnActorPosChanged(*actor_iter);
+	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -801,7 +801,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
-	OnActorPosChanged(*actor_iter);
+	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -836,7 +836,7 @@ void CMainFrame::OnComponentTerrain()
 	(*actor_iter)->AddComponent(terrain);
 	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
 	(*actor_iter)->UpdateAABB();
-	OnActorPosChanged(*actor_iter);
+	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
 
 	EventArgs arg;

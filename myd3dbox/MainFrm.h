@@ -51,7 +51,7 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
-	void OnActorPosChanged(Actor * actor);
+	void PostActorPosChanged(Actor * actor);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
