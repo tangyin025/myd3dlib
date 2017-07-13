@@ -992,61 +992,96 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 			(float)pFrame->m_Tracker.m_rect.right,
 			(float)pFrame->m_Tracker.m_rect.bottom);
 		my::Frustum ftm = m_Camera->CalculateFrustum(rc, CSize(m_SwapChainBufferDesc.Width, m_SwapChainBufferDesc.Height));
-		struct Callback : public my::OctNodeBase::QueryCallback
+		struct Callback : public WorldL::QueryCallback
 		{
-			CMainFrame::ActorSet selacts;
+			CMainFrame::ActorSet & selacts;
 			const my::Frustum & ftm;
 			CChildView * pView;
-			Callback(const my::Frustum & _ftm, CChildView * _pView)
-				: ftm(_ftm)
+			Callback(CMainFrame::ActorSet & _selacts, const my::Frustum & _ftm, CChildView * _pView)
+				: selacts(_selacts)
+				, ftm(_ftm)
 				, pView(_pView)
 			{
 			}
-			void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+			void operator() (Octree * level, const CPoint & level_id)
 			{
-				Actor * actor = dynamic_cast<Actor *>(oct_actor);
-				if (actor && pView->OverlapTestFrustumAndComponent(ftm, actor))
+				struct Callback : public my::OctNodeBase::QueryCallback
 				{
-					selacts.insert(actor);
-				}
+					CMainFrame::ActorSet & selacts;
+					const my::Frustum & ftm;
+					CChildView * pView;
+					Callback(CMainFrame::ActorSet & _selacts, const my::Frustum & _ftm, CChildView * _pView)
+						: selacts(_selacts)
+						, ftm(_ftm)
+						, pView(_pView)
+					{
+					}
+					void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+					{
+						Actor * actor = dynamic_cast<Actor *>(oct_actor);
+						if (actor && pView->OverlapTestFrustumAndComponent(ftm, actor))
+						{
+							selacts.insert(actor);
+						}
+					}
+				};
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT_VALID(pFrame);
+				my::Vector3 Offset((float)(level_id.x - pFrame->m_WorldL.m_LevelId.x) * WorldL::LEVEL_SIZE, 0, (float)(level_id.y - pFrame->m_WorldL.m_LevelId.y) * WorldL::LEVEL_SIZE);
+				my::Frustum local_ftm = ftm.transform(my::Matrix4::Translation(Offset).transpose());
+				level->QueryActor(local_ftm, &Callback(selacts, ftm, pView));
 			}
 		};
-		Callback cb(ftm, this);
-		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->QueryActor(ftm, &cb);
-		CMainFrame::ActorSet::iterator actor_iter = cb.selacts.begin();
-		for (; actor_iter != cb.selacts.end(); actor_iter++)
-		{
-			pFrame->m_selactors.insert(*actor_iter);
-			bSelectionChanged = true;
-		}
+		pFrame->m_WorldL.QueryLevel(pFrame->m_WorldL.m_LevelId, &Callback(pFrame->m_selactors, ftm, this));
 	}
 	else
 	{
-		struct Callback : public my::OctNodeBase::QueryCallback
+		typedef std::map<float, Actor *> ActorMap;
+		ActorMap selacts;
+		struct Callback : public WorldL::QueryCallback
 		{
-			typedef std::map<float, Actor *> ActorMap;
-			ActorMap selacts;
+			ActorMap & selacts;
 			const my::Ray & ray;
 			CChildView * pView;
-			Callback(const my::Ray & _ray, CChildView * _pView)
-				: ray(_ray)
+			Callback(ActorMap & _selacts, const my::Ray & _ray, CChildView * _pView)
+				: selacts(_selacts)
+				, ray(_ray)
 				, pView(_pView)
 			{
 			}
-			void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+			void operator() (Octree * level, const CPoint & level_id)
 			{
-				Actor * actor = dynamic_cast<Actor *>(oct_actor);
-				my::RayResult ret;
-				if (actor && (ret = pView->OverlapTestRayAndComponent(ray, actor), ret.first))
+				struct Callback : public my::OctNodeBase::QueryCallback
 				{
-					selacts.insert(std::make_pair(ret.second, actor));
-				}
+					ActorMap & selacts;
+					const my::Ray & ray;
+					CChildView * pView;
+					Callback(ActorMap & _selacts, const my::Ray & _ray, CChildView * _pView)
+						: selacts(_selacts)
+						, ray(_ray)
+						, pView(_pView)
+					{
+					}
+					void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
+					{
+						Actor * actor = dynamic_cast<Actor *>(oct_actor);
+						my::RayResult ret;
+						if (actor && (ret = pView->OverlapTestRayAndComponent(ray, actor), ret.first))
+						{
+							selacts.insert(std::make_pair(ret.second, actor));
+						}
+					}
+				};
+				CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+				ASSERT_VALID(pFrame);
+				my::Vector3 Offset((float)(level_id.x - pFrame->m_WorldL.m_LevelId.x) * WorldL::LEVEL_SIZE, 0, (float)(level_id.y - pFrame->m_WorldL.m_LevelId.y) * WorldL::LEVEL_SIZE);
+				my::Ray local_ray(ray.p - Offset, ray.d);
+				level->QueryActor(local_ray, &Callback(selacts, ray, pView));
 			}
 		};
-		Callback cb(ray, this);
-		pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->QueryActor(ray, &cb);
-		Callback::ActorMap::iterator cmp_iter = cb.selacts.begin();
-		if (cmp_iter != cb.selacts.end())
+		pFrame->m_WorldL.QueryLevel(pFrame->m_WorldL.m_LevelId, &Callback(selacts, ray, this));
+		ActorMap::iterator cmp_iter = selacts.begin();
+		if (cmp_iter != selacts.end())
 		{
 			CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.find(cmp_iter->second);
 			if (sel_iter != pFrame->m_selactors.end())
