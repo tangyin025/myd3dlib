@@ -982,9 +982,7 @@ void CChildView::OnLButtonDown(UINT nFlags, CPoint point)
 		CMainFrame::ActorSet::iterator sel_iter = pFrame->m_selactors.begin();
 		for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 		{
-			m_selactorwlds[*sel_iter][0] = my::Vector4((*sel_iter)->m_Position, 0);
-			m_selactorwlds[*sel_iter][1] = (my::Vector4&)(*sel_iter)->m_Rotation;
-			m_selactorwlds[*sel_iter][2] = my::Vector4((*sel_iter)->m_Scale, 1);
+			m_selactorwlds[*sel_iter] = (*sel_iter)->m_World;
 		}
 		m_bCopyActors = (nFlags & MK_SHIFT) ? TRUE : FALSE;
 		SetCapture();
@@ -1179,26 +1177,19 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			switch (pFrame->m_Pivot.m_Mode)
 			{
 			case Pivot::PivotModeMove:
-				actor_world_iter->first->m_Position = actor_world_iter->second[0].xyz + pFrame->m_Pivot.m_DragDeltaPos;
-				actor_world_iter->first->UpdateWorld(my::Matrix4::identity);
-				actor_world_iter->first->UpdateRigidActorPose();
+				actor_world_iter->first->m_World = actor_world_iter->second * my::Matrix4::Translation(pFrame->m_Pivot.m_DragDeltaPos);
 				break;
 			case Pivot::PivotModeRot:
-				{
-					my::Matrix4 mat = my::Matrix4::Compose(actor_world_iter->second[2].xyz, (my::Quaternion&)actor_world_iter->second[1], actor_world_iter->second[0].xyz)
-						* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
-						* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot)
-						* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
-					mat.Decompose(actor_world_iter->first->m_Scale, actor_world_iter->first->m_Rotation, actor_world_iter->first->m_Position);
-					actor_world_iter->first->m_World = mat;
-					Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
-					for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
-					{
-						(*cmp_iter)->UpdateWorld(mat);
-					}
-					actor_world_iter->first->UpdateRigidActorPose();
-				}
+				actor_world_iter->first->m_World = actor_world_iter->second
+					* my::Matrix4::Translation(-pFrame->m_Pivot.m_Pos)
+					* my::Matrix4::RotationQuaternion(pFrame->m_Pivot.m_DragDeltaRot)
+					* my::Matrix4::Translation(pFrame->m_Pivot.m_Pos);
 				break;
+			}
+			Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
+			for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
+			{
+				(*cmp_iter)->UpdateWorld(actor_world_iter->first->m_World);
 			}
 		}
 		Invalidate();
