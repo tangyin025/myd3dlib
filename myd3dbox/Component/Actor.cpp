@@ -31,8 +31,7 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	if (m_PxActor)
 	{
 		PhysXPtr<physx::PxCollection> collection(PxCreateCollection());
-		m_PxActor->getType();
-		collection->add(*m_PxActor, physx::PxConcreteType::eRIGID_STATIC << 24 | 0);
+		collection->add(*m_PxActor, m_PxActor->getConcreteType() << 24 | 0);
 		for (unsigned int i = 0; i < m_Cmps.size(); i++)
 		{
 			if (m_Cmps[i]->m_PxShape)
@@ -95,7 +94,12 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 				m_Cmps[index]->m_PxMaterial.reset(obj->is<physx::PxMaterial>());
 				break;
 			case physx::PxConcreteType::eRIGID_STATIC:
+				_ASSERT(!m_PxActor);
 				m_PxActor.reset(obj->is<physx::PxRigidStatic>());
+				break;
+			case physx::PxConcreteType::eRIGID_DYNAMIC:
+				_ASSERT(!m_PxActor);
+				m_PxActor.reset(obj->is<physx::PxRigidDynamic>());
 				break;
 			case physx::PxConcreteType::eSHAPE:
 				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>());
