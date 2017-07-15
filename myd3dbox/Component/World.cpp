@@ -195,21 +195,40 @@ void WorldL::UpdateViewedActorsWorld(void)
 	}
 }
 
-void WorldL::ResetLevelId(const CPoint & offset, PhysXSceneContext * scene)
+void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 {
-	m_LevelId += offset;
+	_ASSERT(level_id.x >= 0 && level_id.x < m_Dimension);
+	_ASSERT(level_id.y >= 0 && level_id.y < m_Dimension);
+	CPoint level_off = level_id - m_LevelId;
+	m_LevelId = level_id;
 	UpdateViewedActorsWorld();
-	scene->m_PxScene->shiftOrigin(physx::PxVec3(offset.x * LEVEL_SIZE, 0, offset.y * LEVEL_SIZE));
+	scene->m_PxScene->shiftOrigin(physx::PxVec3(level_off.x * LEVEL_SIZE, 0, level_off.y * LEVEL_SIZE));
 }
 
 bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
-	CPoint offset((int)floor(ViewPos.x / LEVEL_SIZE), (int)floor(ViewPos.z / LEVEL_SIZE));
-	if (offset.x != 0 || offset.y != 0)
+	CPoint level_off((long)floor(ViewPos.x / LEVEL_SIZE), (long)floor(ViewPos.z / LEVEL_SIZE));
+	if (level_off.x < 0)
 	{
-		ResetLevelId(offset, scene);
-		ViewPos.x = my::Round(ViewPos.x, 0.0f, (float)LEVEL_SIZE);
-		ViewPos.z = my::Round(ViewPos.z, 0.0f, (float)LEVEL_SIZE);
+		level_off.x = Max(level_off.x, 0 - m_LevelId.x);
+	}
+	else if (level_off.x > 0)
+	{
+		level_off.x = Min(level_off.x, m_Dimension - m_LevelId.x - 1);
+	}
+	if (level_off.y < 0)
+	{
+		level_off.y = Max(level_off.y, 0 - m_LevelId.x);
+	}
+	else if (level_off.y > 0)
+	{
+		level_off.y = Min(level_off.y, m_Dimension - m_LevelId.x - 1);
+	}
+	if (level_off.x != 0 || level_off.y != 0)
+	{
+		ResetLevelId(m_LevelId + level_off, scene);
+		ViewPos.x -= level_off.x * LEVEL_SIZE;
+		ViewPos.z -= level_off.y * LEVEL_SIZE;
 		return true;
 	}
 	return false;

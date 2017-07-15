@@ -217,11 +217,11 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyCamera:
 		{
 			CPoint new_level_id(
-				pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->GetValue().intVal,
-				pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->GetValue().intVal);
+				my::Clamp<long>(pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
+				my::Clamp<long>(pProp->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
 			if (new_level_id != pFrame->m_WorldL.m_LevelId)
 			{
-				pFrame->m_WorldL.ResetLevelId(new_level_id - pFrame->m_WorldL.m_LevelId, pFrame);
+				pFrame->m_WorldL.ResetLevelId(new_level_id, pFrame);
 			}
 
 			if (pView->m_CameraType == CChildView::CameraTypePerspective)

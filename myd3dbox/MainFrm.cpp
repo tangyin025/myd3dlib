@@ -400,24 +400,38 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 	CPoint level_off(0, 0);
 	if (actor->m_Position.x < 0)
 	{
-		level_off.x = -1;
-		actor->m_Position.x = my::Clamp<float>(actor->m_Position.x + WorldL::LEVEL_SIZE, 0, WorldL::LEVEL_SIZE);
+		if (m_WorldL.m_LevelId.x > 0)
+		{
+			level_off.x = -1;
+			actor->m_Position.x += WorldL::LEVEL_SIZE;
+		}
 	}
 	else if (actor->m_Position.x >= WorldL::LEVEL_SIZE)
 	{
-		level_off.x = 1;
-		actor->m_Position.x = my::Clamp<float>(actor->m_Position.x - WorldL::LEVEL_SIZE, 0, WorldL::LEVEL_SIZE);
+		if (m_WorldL.m_LevelId.x < m_WorldL.m_Dimension - 1)
+		{
+			level_off.x = 1;
+			actor->m_Position.x -= WorldL::LEVEL_SIZE;
+		}
 	}
+	actor->m_Position.x = my::Clamp<float>(actor->m_Position.x, 0, WorldL::LEVEL_SIZE);
 	if (actor->m_Position.z < 0)
 	{
-		level_off.y = -1;
-		actor->m_Position.z = my::Clamp<float>(actor->m_Position.z + WorldL::LEVEL_SIZE, 0, WorldL::LEVEL_SIZE);
+		if (m_WorldL.m_LevelId.y > 0)
+		{
+			level_off.y = -1;
+			actor->m_Position.z += WorldL::LEVEL_SIZE;
+		}
 	}
 	else if (actor->m_Position.z >= WorldL::LEVEL_SIZE)
 	{
-		level_off.y = 1;
-		actor->m_Position.z = my::Clamp<float>(actor->m_Position.z - WorldL::LEVEL_SIZE, 0, WorldL::LEVEL_SIZE);
+		if (m_WorldL.m_LevelId.y < m_WorldL.m_Dimension - 1)
+		{
+			level_off.y = 1;
+			actor->m_Position.z -= WorldL::LEVEL_SIZE;
+		}
 	}
+	actor->m_Position.z = my::Clamp<float>(actor->m_Position.z, 0, WorldL::LEVEL_SIZE);
 	my::Matrix4 local_world = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId + level_off)->AddActor(actor_ptr, actor->m_aabb.transform(local_world));
 	actor->UpdateWorld(my::Matrix4::Translation((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE));
