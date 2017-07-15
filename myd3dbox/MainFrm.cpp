@@ -896,7 +896,7 @@ void CMainFrame::OnEditDelete()
 	{
 		(*actor_iter)->OnLeavePxScene(this);
 		m_WorldL.m_ViewedActors.erase(*actor_iter);
-		m_WorldL.GetLevel(m_WorldL.m_LevelId)->RemoveActor((*actor_iter)->shared_from_this());
+		(*actor_iter)->m_Node->GetTopNode()->RemoveActor((*actor_iter)->shared_from_this());
 	}
 	m_selactors.clear();
 	EventArgs arg;

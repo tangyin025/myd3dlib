@@ -163,6 +163,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 					if (actor_iter == world->m_ViewedActors.end())
 					{
 						actor->UpdateWorld(Matrix4::Translation(Offset));
+						actor->UpdateRigidActorPose();
 						if (!actor->IsRequested())
 						{
 							actor->RequestResource();
@@ -218,11 +219,11 @@ bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)
 	}
 	if (level_off.y < 0)
 	{
-		level_off.y = Max(level_off.y, 0 - m_LevelId.x);
+		level_off.y = Max(level_off.y, 0 - m_LevelId.y);
 	}
 	else if (level_off.y > 0)
 	{
-		level_off.y = Min(level_off.y, m_Dimension - m_LevelId.x - 1);
+		level_off.y = Min(level_off.y, m_Dimension - m_LevelId.y - 1);
 	}
 	if (level_off.x != 0 || level_off.y != 0)
 	{
