@@ -222,15 +222,26 @@ bool PhysXSceneContext::Advance(float dtime)
 	return true;
 }
 
-void PhysXSceneContext::AdvanceSync(float dtime)
+bool PhysXSceneContext::AdvanceSync(float dtime)
 {
-	m_PxScene->simulate(dtime, NULL, 0, 0, true);
+	m_Timer.m_RemainingTime = my::Min(0.1f, m_Timer.m_RemainingTime + dtime);
+
+	if(m_Timer.m_RemainingTime < m_Timer.m_Interval)
+	{
+		return false;
+	}
+
+	m_Timer.m_RemainingTime -= m_Timer.m_Interval;
+
+	m_PxScene->simulate(m_Timer.m_Interval, NULL, 0, 0, true);
 
 	m_PxScene->fetchResults(true, &m_ErrorState);
 
 	_ASSERT(0 == m_ErrorState);
 
 	m_EventPxThreadSubstep(dtime);
+
+	return true;
 }
 
 void PhysXSceneContext::Substep(StepperTask & completionTask)

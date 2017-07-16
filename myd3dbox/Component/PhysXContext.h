@@ -124,7 +124,7 @@ public:
 
 	bool Advance(float dtime);
 
-	void AdvanceSync(float dtime);
+	bool AdvanceSync(float dtime);
 
 	void Substep(StepperTask & completionTask);
 
