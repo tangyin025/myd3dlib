@@ -220,6 +220,11 @@ void Actor::Update(float fElapsedTime)
 
 my::AABB Actor::CalculateAABB(void) const
 {
+	if (m_Cmps.empty())
+	{
+		return AABB(-1, 1);
+	}
+
 	AABB ret = Component::CalculateAABB();
 	ComponentPtrList::const_iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

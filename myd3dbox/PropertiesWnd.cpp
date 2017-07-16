@@ -1048,7 +1048,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
 			actor->UpdateWorld(my::Matrix4::identity);
 			actor->UpdateRigidActorPose();
-			actor->UpdateAABB();
 			pFrame->PostActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
