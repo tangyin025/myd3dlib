@@ -103,6 +103,8 @@ public:
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 
+	my::Matrix4 CalculateActorParentWorld(Actor * actor);
+
 	void UpdateViewedActorsWorld(void);
 
 	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);

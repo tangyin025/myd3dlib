@@ -181,6 +181,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
+	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
 			CPoint actor_level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
@@ -191,12 +192,6 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			{
 				RenderSelectedComponent(pd3dDevice, cmp_iter->get());
 			}
-		}
-		break;
-	case Component::ComponentTypeCharacter:
-		{
-			Actor * actor = dynamic_cast<Actor *>(cmp);
-			PushWireAABB(actor->m_Node->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
 		}
 		break;
 	//case Component::ComponentTypeMesh:

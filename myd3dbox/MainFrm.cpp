@@ -430,9 +430,9 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 			actor->m_Position.z -= WorldL::LEVEL_SIZE;
 		}
 	}
-	actor->m_Position.x = my::Clamp<float>(actor->m_Position.x, 0, WorldL::LEVEL_SIZE);
-	actor->m_Position.y = my::Clamp<float>(actor->m_Position.y, -WorldL::LEVEL_SIZE, WorldL::LEVEL_SIZE);
-	actor->m_Position.z = my::Clamp<float>(actor->m_Position.z, 0, WorldL::LEVEL_SIZE);
+	actor->m_Position.x = my::Clamp<float>(actor->m_Position.x, 0, (float)WorldL::LEVEL_SIZE);
+	actor->m_Position.y = my::Clamp<float>(actor->m_Position.y, (float)-WorldL::LEVEL_SIZE, (float)WorldL::LEVEL_SIZE);
+	actor->m_Position.z = my::Clamp<float>(actor->m_Position.z, 0, (float)WorldL::LEVEL_SIZE);
 
 	my::Matrix4 local_world = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId + level_off)->AddActor(actor_ptr, actor->m_aabb.transform(local_world));
@@ -451,7 +451,10 @@ void CMainFrame::UpdateSelBox(void)
 		ActorSet::const_iterator sel_iter = m_selactors.begin();
 		for (; sel_iter != m_selactors.end(); sel_iter++)
 		{
-			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
+			CPoint actor_level_id = m_WorldL.GetLevelId(dynamic_cast<Octree *>((*sel_iter)->m_Node->GetTopNode()));
+			CPoint level_off = actor_level_id - m_WorldL.m_LevelId;
+			my::Matrix4 world = my::Matrix4::Compose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position + my::Vector3((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE));
+			m_selbox.unionSelf((*sel_iter)->m_aabb.transform(world));
 		}
 	}
 }
@@ -460,7 +463,7 @@ void CMainFrame::UpdatePivotTransform(void)
 {
 	if (m_selactors.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selactors.begin())->m_World[3].xyz;
+		m_Pivot.m_Pos = (*m_selactors.begin())->m_Position.transformCoord(m_WorldL.CalculateActorParentWorld(*m_selactors.begin()));
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
 	}
 	else if (!m_selactors.empty())

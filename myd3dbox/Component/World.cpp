@@ -111,22 +111,22 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 {
 	const Vector3 OutExtent(VIEWED_DIST + VIEWED_THRESHOLD);
 	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
-	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
-	for (; cmp_iter != m_ViewedActors.end(); )
+	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); )
 	{
 		// ! all components world should be updated according to m_LevelId
 		if (IntersectionTests::IntersectionTypeOutside
-			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*cmp_iter)->m_aabb.transform((*cmp_iter)->m_World)))
+			== IntersectionTests::IntersectAABBAndAABB(OutBox, (*actor_iter)->m_aabb.transform((*actor_iter)->m_World)))
 		{
-			if ((*cmp_iter)->IsRequested())
+			if ((*actor_iter)->IsRequested())
 			{
-				(*cmp_iter)->ReleaseResource();
-				(*cmp_iter)->OnLeavePxScene(scene);
+				(*actor_iter)->ReleaseResource();
+				(*actor_iter)->OnLeavePxScene(scene);
 			}
-			cmp_iter = m_ViewedActors.erase(cmp_iter);
+			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
 		else
-			cmp_iter++;
+			actor_iter++;
 	}
 
 	struct Callback : public QueryCallback
@@ -185,14 +185,19 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene));
 }
 
+my::Matrix4 WorldL::CalculateActorParentWorld(Actor * actor)
+{
+	CPoint level_id = GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+	Vector3 Offset((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
+	return Matrix4::Translation(Offset);
+}
+
 void WorldL::UpdateViewedActorsWorld(void)
 {
-	OctActorSet::iterator cmp_iter = m_ViewedActors.begin();
-	for (; cmp_iter != m_ViewedActors.end(); cmp_iter++)
+	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 	{
-		CPoint level_id = GetLevelId(dynamic_cast<Octree *>((*cmp_iter)->m_Node->GetTopNode()));
-		Vector3 Offset((level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - m_LevelId.y) * LEVEL_SIZE);
-		(*cmp_iter)->UpdateWorld(Matrix4::Translation(Offset));
+		(*actor_iter)->UpdateWorld(CalculateActorParentWorld(*actor_iter));
 	}
 }
 
