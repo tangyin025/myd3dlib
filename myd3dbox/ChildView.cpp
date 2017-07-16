@@ -176,12 +176,16 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 
 void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Component * cmp)
 {
+	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
+	ASSERT_VALID(pFrame);
 	switch (cmp->m_Type)
 	{
 	case Component::ComponentTypeActor:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
-			PushWireAABB(actor->m_Node->m_aabb, D3DCOLOR_ARGB(255,255,0,255));
+			CPoint actor_level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+			CPoint level_off = actor_level_id - pFrame->m_WorldL.m_LevelId;
+			PushWireAABB(actor->m_Node->m_aabb.transform(my::Matrix4::Translation((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE)), D3DCOLOR_ARGB(255,255,0,255));
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
@@ -781,6 +785,8 @@ void CChildView::PostCameraViewChanged(void)
 			model_view_camera->UpdateViewProj();
 		}
 		pFrame->ResetViewedActors(model_view_camera->m_LookAt, pFrame);
+		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
 	}
 	StartPerformanceCount();
 	Invalidate();

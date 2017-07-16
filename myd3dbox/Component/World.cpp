@@ -38,7 +38,7 @@ void WorldL::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorp
 void WorldL::CreateLevels(long dimension)
 {
 	m_Dimension = dimension;
-	AABB level_bound(Vector3(-LEVEL_SIZE, -LEVEL_SIZE, -LEVEL_SIZE), Vector3(LEVEL_SIZE * 2, LEVEL_SIZE * 2, LEVEL_SIZE * 2));
+	AABB level_bound(-LEVEL_EDGE, -LEVEL_SIZE - LEVEL_EDGE, -LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE, LEVEL_SIZE + LEVEL_EDGE);
 	m_levels.resize(m_Dimension * m_Dimension, Octree(this, level_bound, 1.0f));
 }
 
@@ -98,7 +98,7 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 				}
 			};
 
-			Vector3 Offset((level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
+			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
 			level->QueryActor(loc_frustum, &Callback(loc_frustum, pipeline, PassMask));
 		}
@@ -176,7 +176,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			};
 
 			const Vector3 InExtent(WorldL::VIEWED_DIST);
-			Vector3 Offset((level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
+			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
 			level->QueryActor(InBox, &Callback(world, Offset, ViewPos, scene));
 		}
@@ -203,7 +203,7 @@ void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 	CPoint level_off = level_id - m_LevelId;
 	m_LevelId = level_id;
 	UpdateViewedActorsWorld();
-	scene->m_PxScene->shiftOrigin(physx::PxVec3(level_off.x * LEVEL_SIZE, 0, level_off.y * LEVEL_SIZE));
+	scene->m_PxScene->shiftOrigin(physx::PxVec3((float)level_off.x * LEVEL_SIZE, 0, (float)level_off.y * LEVEL_SIZE));
 }
 
 bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)

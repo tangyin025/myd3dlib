@@ -414,7 +414,6 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 			actor->m_Position.x -= WorldL::LEVEL_SIZE;
 		}
 	}
-	actor->m_Position.x = my::Clamp<float>(actor->m_Position.x, 0, WorldL::LEVEL_SIZE);
 	if (actor->m_Position.z < 0)
 	{
 		if (m_WorldL.m_LevelId.y > 0)
@@ -431,11 +430,17 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 			actor->m_Position.z -= WorldL::LEVEL_SIZE;
 		}
 	}
+	actor->m_Position.x = my::Clamp<float>(actor->m_Position.x, 0, WorldL::LEVEL_SIZE);
+	actor->m_Position.y = my::Clamp<float>(actor->m_Position.y, -WorldL::LEVEL_SIZE, WorldL::LEVEL_SIZE);
 	actor->m_Position.z = my::Clamp<float>(actor->m_Position.z, 0, WorldL::LEVEL_SIZE);
+
 	my::Matrix4 local_world = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	m_WorldL.GetLevel(m_WorldL.m_LevelId + level_off)->AddActor(actor_ptr, actor->m_aabb.transform(local_world));
 	actor->UpdateWorld(my::Matrix4::Translation((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE));
 	actor->UpdateRigidActorPose();
+
+	UpdateSelBox();
+	UpdatePivotTransform();
 }
 
 void CMainFrame::UpdateSelBox(void)
@@ -455,7 +460,7 @@ void CMainFrame::UpdatePivotTransform(void)
 {
 	if (m_selactors.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selactors.begin())->m_Position;
+		m_Pivot.m_Pos = (*m_selactors.begin())->m_World[3].xyz;
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
 	}
 	else if (!m_selactors.empty())

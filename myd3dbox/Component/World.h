@@ -34,6 +34,8 @@ class WorldL
 public:
 	static const int LEVEL_SIZE = 16;
 
+	static const int LEVEL_EDGE = 1;
+
 	static const int VIEWED_DIST = 10;
 
 	static const int VIEWED_THRESHOLD = 1;
