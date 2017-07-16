@@ -779,7 +779,7 @@ void CChildView::PostCameraViewChanged(void)
 		{
 			model_view_camera->UpdateViewProj();
 		}
-		pFrame->ResetViewedActors(model_view_camera->m_LookAt, pFrame);
+		pFrame->m_WorldL.ResetViewedActors(model_view_camera->m_LookAt, pFrame, 10, 1);
 		pFrame->UpdateSelBox();
 		pFrame->UpdatePivotTransform();
 	}

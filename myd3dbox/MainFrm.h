@@ -54,7 +54,6 @@ public:
 	void PostActorPosChanged(Actor * actor);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
-	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
 	BOOL OnFrameTick(float fElapsedTime);
 
 // Implementation

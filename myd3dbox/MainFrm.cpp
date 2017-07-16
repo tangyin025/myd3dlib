@@ -473,11 +473,6 @@ void CMainFrame::UpdatePivotTransform(void)
 	}
 }
 
-void CMainFrame::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
-{
-	m_WorldL.ResetViewedActors(ViewPos, scene);
-}
-
 BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 {
 	if (m_selactors.empty())

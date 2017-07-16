@@ -107,9 +107,9 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 	QueryLevel(m_LevelId, &Callback(this, frustum, pipeline, PassMask));
 }
 
-void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
+void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene, float ViewDist, float ViewThreshold)
 {
-	const Vector3 OutExtent(VIEWED_DIST + VIEWED_THRESHOLD);
+	const Vector3 OutExtent(ViewDist + ViewThreshold);
 	AABB OutBox(ViewPos - OutExtent, ViewPos + OutExtent);
 	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != m_ViewedActors.end(); )
@@ -134,10 +134,12 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 		WorldL * world;
 		const Vector3 & ViewPos;
 		PhysXSceneContext * scene;
-		Callback(WorldL * _world, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+		float ViewDist;
+		Callback(WorldL * _world, const Vector3 & _ViewPos, PhysXSceneContext * _scene, float _ViewDist)
 			: world(_world)
 			, ViewPos(_ViewPos)
 			, scene(_scene)
+			, ViewDist(_ViewDist)
 		{
 		}
 		void operator () (Octree * level, const CPoint & level_id)
@@ -175,14 +177,14 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 				}
 			};
 
-			const Vector3 InExtent(WorldL::VIEWED_DIST);
+			const Vector3 InExtent(ViewDist);
 			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
 			level->QueryActor(InBox, &Callback(world, Offset, ViewPos, scene));
 		}
 	};
 
-	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene));
+	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene, ViewDist));
 }
 
 my::Matrix4 WorldL::CalculateActorParentWorld(Actor * actor)

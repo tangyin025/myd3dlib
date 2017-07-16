@@ -571,7 +571,7 @@ void Game::OnFrameTick(
 
 	m_SkyLightCam->UpdateViewProj();
 
-	ResetViewedActors(m_Camera->m_Eye, this);
+	m_WorldL.ResetViewedActors(m_Camera->m_Eye, this, 1000, 10);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
@@ -753,11 +753,6 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
-}
-
-void Game::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene)
-{
-	m_WorldL.ResetViewedActors(ViewPos, scene);
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)

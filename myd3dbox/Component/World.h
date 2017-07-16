@@ -36,10 +36,6 @@ public:
 
 	static const int LEVEL_EDGE = 1;
 
-	static const int VIEWED_DIST = 10;
-
-	static const int VIEWED_THRESHOLD = 1;
-
 	struct QueryCallback
 	{
 	public:
@@ -101,7 +97,7 @@ public:
 
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
-	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene);
+	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene, float ViewDist, float ViewThreshold);
 
 	my::Matrix4 CalculateActorParentWorld(Actor * actor);
 
