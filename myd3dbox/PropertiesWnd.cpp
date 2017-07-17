@@ -1112,7 +1112,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			Component * cmp = (Component *)pLevelId->GetParent()->GetValue().ulVal;
 			ASSERT(cmp->m_Type == Component::ComponentTypeActor || cmp->m_Type == Component::ComponentTypeCharacter);
 			Actor * actor = dynamic_cast<Actor *>(cmp);
-			CPoint level_id(pLevelId->GetSubItem(0)->GetValue().intVal, pProp->GetSubItem(1)->GetValue().intVal);
+			CPoint level_id(
+				my::Clamp<long>(pLevelId->GetSubItem(0)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
+				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
 			ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 			actor->m_Node->RemoveActor(actor_ptr);
 			my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);

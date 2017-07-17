@@ -1164,7 +1164,9 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				pFrame->m_WorldL.GetLevel(pFrame->m_WorldL.m_LevelId)->AddActor(new_actor, new_actor->m_aabb.transform(new_actor->m_World), 0.1f);
+				CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>((*sel_iter)->m_Node->GetTopNode()));
+				my::Matrix4 World = my::Matrix4::Compose(new_actor->m_Scale, new_actor->m_Rotation, new_actor->m_Position);
+				pFrame->m_WorldL.GetLevel(level_id)->AddActor(new_actor, new_actor->m_aabb.transform(World), 0.1f);
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				pFrame->m_WorldL.m_ViewedActors.insert(new_actor.get());

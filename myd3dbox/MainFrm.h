@@ -51,6 +51,7 @@ public:
 	virtual BOOL OnCreateClient(LPCREATESTRUCT lpcs, CCreateContext* pContext);
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
+	void CalculateSafeLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos);
 	void PostActorPosChanged(Actor * actor);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);

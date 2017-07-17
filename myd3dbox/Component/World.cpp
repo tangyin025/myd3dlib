@@ -205,8 +205,6 @@ void WorldL::UpdateViewedActorsWorld(void)
 
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 {
-	_ASSERT(level_id.x >= 0 && level_id.x < m_Dimension);
-	_ASSERT(level_id.y >= 0 && level_id.y < m_Dimension);
 	CPoint level_off = level_id - m_LevelId;
 	m_LevelId = level_id;
 	UpdateViewedActorsWorld();
@@ -216,22 +214,6 @@ void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 bool WorldL::ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene)
 {
 	CPoint level_off((long)floor(ViewPos.x / LEVEL_SIZE), (long)floor(ViewPos.z / LEVEL_SIZE));
-	if (level_off.x < 0)
-	{
-		level_off.x = Max(level_off.x, 0 - m_LevelId.x);
-	}
-	else if (level_off.x > 0)
-	{
-		level_off.x = Min(level_off.x, m_Dimension - m_LevelId.x - 1);
-	}
-	if (level_off.y < 0)
-	{
-		level_off.y = Max(level_off.y, 0 - m_LevelId.y);
-	}
-	else if (level_off.y > 0)
-	{
-		level_off.y = Min(level_off.y, m_Dimension - m_LevelId.y - 1);
-	}
 	if (level_off.x != 0 || level_off.y != 0)
 	{
 		ResetLevelId(m_LevelId + level_off, scene);
