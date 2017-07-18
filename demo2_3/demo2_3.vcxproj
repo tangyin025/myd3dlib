@@ -99,11 +99,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\myd3dbox\Component\Controller.cpp" />
     <ClCompile Include="..\myd3dbox\Component\World.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="PlayerController.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
@@ -122,10 +122,10 @@
     <ClCompile Include="..\myd3dbox\Component\Terrain.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\myd3dbox\Component\Controller.h" />
     <ClInclude Include="..\myd3dbox\Component\World.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
-    <ClInclude Include="PlayerController.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />
     <ClInclude Include="Net\SocketAPI.h" />

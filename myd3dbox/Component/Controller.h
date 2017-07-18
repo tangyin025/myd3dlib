@@ -1,8 +1,34 @@
 #pragma once
 
-#include "../myd3dbox/component/character.h"
+#include "character.h"
+
+class Controller;
+
+typedef boost::shared_ptr<Controller> ControllerPtr;
+
+class ControllerMgr
+{
+public:
+	typedef std::set<ControllerPtr> ControllerPtrSet;
+
+	ControllerPtrSet m_controllers;
+
+public:
+	ControllerMgr(void)
+	{
+	}
+};
+
+class Controller
+{
+public:
+	Controller(void);
+
+	virtual ~Controller(void);
+};
 
 class PlayerController
+	: public Controller
 {
 public:
 	PlayerController(void);

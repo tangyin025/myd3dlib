@@ -87,6 +87,9 @@
     <ClCompile Include="EnvironmentWnd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Component\Controller.cpp">
+      <Filter>Component</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ChildView.h">
@@ -166,6 +169,9 @@
     </ClInclude>
     <ClInclude Include="EnvironmentWnd.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Component\Controller.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

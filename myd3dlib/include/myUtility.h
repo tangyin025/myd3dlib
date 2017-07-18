@@ -318,6 +318,7 @@ namespace my
 	};
 
 	class InputMgr
+		: public SingleInstance<InputMgr>
 	{
 	public:
 		struct JoystickEnumDesc

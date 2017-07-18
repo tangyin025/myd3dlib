@@ -72,8 +72,8 @@
     <ClCompile Include="..\myd3dbox\Component\World.cpp">
       <Filter>Component</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerController.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="..\myd3dbox\Component\Controller.cpp">
+      <Filter>Component</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -128,8 +128,8 @@
     <ClInclude Include="..\myd3dbox\Component\World.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="PlayerController.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="..\myd3dbox\Component\Controller.h">
+      <Filter>Component</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
