@@ -27,6 +27,8 @@ public:
 	{
 		ar & boost::serialization::make_nvp("OctNode0", boost::serialization::base_object< my::OctNode<0> >(*this));
 	}
+
+	CPoint GetId(void) const;
 };
 
 class WorldL
@@ -99,7 +101,7 @@ public:
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene, float ViewDist, float ViewThreshold);
 
-	my::Matrix4 CalculateActorParentWorld(Actor * actor);
+	my::Matrix4 CalculateLevelOffsetWorld(const CPoint & level_id);
 
 	void UpdateViewedActorsWorld(void);
 
@@ -107,3 +109,8 @@ public:
 
 	bool ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene);
 };
+
+inline CPoint Octree::GetId(void) const
+{
+	return m_World->GetLevelId(this);
+}

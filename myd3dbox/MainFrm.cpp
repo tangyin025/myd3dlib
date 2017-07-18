@@ -430,7 +430,7 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
 	my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
-	actor->UpdateWorld(m_WorldL.CalculateActorParentWorld(actor));
+	actor->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
 	actor->UpdateRigidActorPose();
 
 	UpdateSelBox();
@@ -457,7 +457,7 @@ void CMainFrame::UpdatePivotTransform(void)
 {
 	if (m_selactors.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selactors.begin())->m_Position.transformCoord(m_WorldL.CalculateActorParentWorld(*m_selactors.begin()));
+		m_Pivot.m_Pos = (*m_selactors.begin())->m_World[3].xyz;
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
 	}
 	else if (!m_selactors.empty())
@@ -624,7 +624,7 @@ void CMainFrame::OnCreateActor()
 	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
 	my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	m_WorldL.GetLevel(level_id)->AddActor(actor, actor->m_aabb.transform(World), 0.1f);
-	actor->UpdateWorld(m_WorldL.CalculateActorParentWorld(actor.get()));
+	actor->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 
@@ -650,7 +650,7 @@ void CMainFrame::OnCreateCharacter()
 	CalculateSafeLevelIdAndPos(level_id, character->m_Position, character->m_Position);
 	my::Matrix4 World = my::Matrix4::Compose(character->m_Scale, character->m_Rotation, character->m_Position);
 	m_WorldL.GetLevel(level_id)->AddActor(character, character->m_aabb.transform(World), 0.1f);
-	character->UpdateWorld(m_WorldL.CalculateActorParentWorld(character.get()));
+	character->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
 	character->RequestResource();
 	character->OnEnterPxScene(this);
 

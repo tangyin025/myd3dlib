@@ -3,6 +3,8 @@
 #include "myOctree.h"
 #include "Component.h"
 
+class Octree;
+
 class Actor
 	: public my::OctActor
 	, public Component
@@ -57,6 +59,8 @@ public:
 	{
 		boost::serialization::split_member(ar, *this, version);
 	}
+
+	Octree * GetLevel(void);
 
 	void CopyFrom(const Actor & rhs);
 

@@ -187,11 +187,9 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene, ViewDist));
 }
 
-my::Matrix4 WorldL::CalculateActorParentWorld(Actor * actor)
+my::Matrix4 WorldL::CalculateLevelOffsetWorld(const CPoint & level_id)
 {
-	CPoint level_id = GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
-	Vector3 Offset((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
-	return Matrix4::Translation(Offset);
+	return Matrix4::Translation(Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE));
 }
 
 void WorldL::UpdateViewedActorsWorld(void)
@@ -199,7 +197,7 @@ void WorldL::UpdateViewedActorsWorld(void)
 	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
 	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
 	{
-		(*actor_iter)->UpdateWorld(CalculateActorParentWorld(*actor_iter));
+		(*actor_iter)->UpdateWorld(CalculateLevelOffsetWorld((*actor_iter)->GetLevel()->GetId()));
 	}
 }
 

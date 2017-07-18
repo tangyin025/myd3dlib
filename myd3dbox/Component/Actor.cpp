@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"
+#include "World.h"
 #include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
 #include <boost/archive/polymorphic_oarchive.hpp>
@@ -114,6 +115,11 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 			}
 		}
 	}
+}
+
+Octree * Actor::GetLevel(void)
+{
+	return dynamic_cast<Octree *>(m_Node->GetTopNode());
 }
 
 void Actor::CopyFrom(const Actor & rhs)
