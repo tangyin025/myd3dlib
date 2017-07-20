@@ -4,7 +4,7 @@
 #include <luabind/operator.hpp>
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
-#include "Actor.h"
+#include "Character.h"
 #include "World.h"
 
 namespace luabind
@@ -995,6 +995,10 @@ static void ExportComponent(lua_State * L)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
+
+		, class_<Character, Actor, boost::shared_ptr<Actor> >("Character")
+			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
+			.def(constructor<>())
 
 		, class_<Octree, boost::shared_ptr<Octree> >("Octree")
 			.def("AddActor", &Octree::AddActor)
