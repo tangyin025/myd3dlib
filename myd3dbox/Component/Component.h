@@ -166,7 +166,7 @@ public:
 
 	my::Matrix4 CalculateLocal(void) const;
 
-	virtual void UpdateWorld(const my::Matrix4 & World);
+	virtual void UpdateWorld(const my::Matrix4 & Parent);
 
 	virtual my::AABB CalculateAABB(void) const;
 

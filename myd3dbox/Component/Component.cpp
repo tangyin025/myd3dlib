@@ -141,9 +141,9 @@ my::Matrix4 Component::CalculateLocal(void) const
 	return my::Matrix4::Compose(m_Scale, m_Rotation, m_Position);
 }
 
-void Component::UpdateWorld(const my::Matrix4 & World)
+void Component::UpdateWorld(const my::Matrix4 & Parent)
 {
-	m_World = CalculateLocal() * World;
+	m_World = CalculateLocal() * Parent;
 }
 
 my::AABB Component::CalculateAABB(void) const

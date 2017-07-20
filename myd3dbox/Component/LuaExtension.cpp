@@ -5,6 +5,7 @@
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
 #include "Actor.h"
+#include "World.h"
 
 namespace luabind
 {
@@ -386,11 +387,6 @@ static void ExportMath(lua_State * L)
 			.def("transform", &my::AABB::transform)
 
 		, class_<my::OctActor, boost::shared_ptr<my::OctActor> >("OctActor")
-
-		//, class_<my::Octree, boost::shared_ptr<my::Octree> >("Octree")
-		//	.def("AddActor", &my::Octree::AddActor)
-		//	.def("RemoveActor", &my::Octree::RemoveActor)
-		//	.def("ClearAllActor", &my::Octree::ClearAllActor)
 
 		, class_<my::BaseCamera, boost::shared_ptr<my::BaseCamera> >("BaseCamera")
 			.def_readonly("View", &my::BaseCamera::m_View)
@@ -910,12 +906,36 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("SpecularTexture", &Material::m_SpecularTexture)
 
 		, class_<Component, boost::shared_ptr<Component> >("Component")
+			.enum_("ComponentType")
+			[
+				value("ComponentTypeComponent", Component::ComponentTypeComponent),
+				value("ComponentTypeActor", Component::ComponentTypeActor),
+				value("ComponentTypeCharacter", Component::ComponentTypeCharacter),
+				value("ComponentTypeMesh", Component::ComponentTypeMesh),
+				value("ComponentTypeCloth", Component::ComponentTypeCloth),
+				value("ComponentTypeEmitter", Component::ComponentTypeEmitter),
+				value("ComponentTypeStaticEmitter", Component::ComponentTypeStaticEmitter),
+				value("ComponentTypeSphericalEmitter", Component::ComponentTypeSphericalEmitter),
+				value("ComponentTypeTerrain", Component::ComponentTypeTerrain)
+			]
+			.def_readonly("Type", &Component::m_Type)
 			.def_readwrite("Position", &Component::m_Position)
 			.def_readwrite("Rotation", &Component::m_Rotation)
 			.def_readwrite("Scale", &Component::m_Scale)
 			.def_readwrite("World", &Component::m_World)
+			.def_readonly("Actor", &Component::m_Actor)
 			.def("RequestResource", &Component::RequestResource)
 			.def("ReleaseResource", &Component::ReleaseResource)
+			.def("IsRequested", &Component::IsRequested)
+			.def("Clone", &Component::Clone)
+			.def("CalculateLocal", &Component::CalculateLocal)
+			.def("UpdateWorld", &Component::UpdateWorld)
+			.def("CalculateAABB", &Component::CalculateAABB)
+			.def("CreateBoxShape", &Component::CreateBoxShape)
+			.def("CreateCapsuleShape", &Component::CreateCapsuleShape)
+			.def("CreatePlaneShape", &Component::CreatePlaneShape)
+			.def("CreateSphereShape", &Component::CreateSphereShape)
+			.def("ClearShape", &Component::ClearShape)
 
 		, class_<RenderComponent, Component, boost::shared_ptr<Component> >("RenderComponent")
 
@@ -925,6 +945,12 @@ static void ExportComponent(lua_State * L)
 			.def_readonly("MeshRes", &MeshComponent::m_MeshRes)
 			.def_readonly("bInstance", &MeshComponent::m_bInstance)
 			.def_readonly("UseAnimation", &MeshComponent::m_bUseAnimation)
+			.def_readonly("CreateTriangleMeshShape", &MeshComponent::CreateTriangleMeshShape)
+
+		, class_<ClothComponent, RenderComponent, boost::shared_ptr<Component> >("ClothComponent")
+			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &>())
+			.def(constructor<>())
+			.def("CreateClothFromMesh", &ClothComponent::CreateClothFromMesh)
 
 		, class_<EmitterComponent, RenderComponent, boost::shared_ptr<Component> >("EmitterComponent")
 			.def_readwrite("Emitter", &EmitterComponent::m_Emitter)
@@ -952,16 +978,30 @@ static void ExportComponent(lua_State * L)
 			.def_readwrite("SpawnAngle", &SphericalEmitterComponent::m_SpawnAngle)
 			.def_readwrite("SpawnLoopTime", &SphericalEmitterComponent::m_SpawnLoopTime)
 
-		, class_<Actor, Component, boost::shared_ptr<Component> >("Actor")
+		, class_<Actor, my::OctActor, Component, boost::shared_ptr<Actor> >("Actor")
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def(constructor<>())
 			.def_readwrite("aabb", &Actor::m_aabb)
 			.def_readwrite("Animator", &Actor::m_Animator)
+			.def("UpdateAABB", &Actor::UpdateAABB)
+			.def("UpdateRigidActorPose", &Actor::UpdateRigidActorPose)
+			.def("ClearRigidActor", &Actor::ClearRigidActor)
+			.enum_("ActorType")
+			[
+				value("eRIGID_STATIC", physx::PxActorType::eRIGID_STATIC),
+				value("eRIGID_DYNAMIC", physx::PxActorType::eRIGID_DYNAMIC)
+			]
+			.def("CreateRigidActor", &Actor::CreateRigidActor)
 			.def("AddComponent", &Actor::AddComponent)
 			.def("RemoveComponent", &Actor::RemoveComponent)
 			.def("ClearAllComponent", &Actor::ClearAllComponent)
 
-		//, def("cmp2oct", &boost::static_pointer_cast<my::OctActor, Component>)
+		, class_<Octree, boost::shared_ptr<Octree> >("Octree")
+			.def("AddActor", &Octree::AddActor)
+			.def("RemoveActor", &Octree::RemoveActor)
+			.def("ClearAllActor", &Octree::ClearAllActor)
+
+		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 	];
 }
 

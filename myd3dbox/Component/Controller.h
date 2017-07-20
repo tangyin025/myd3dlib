@@ -22,6 +22,9 @@ public:
 class Controller
 {
 public:
+	CharacterPtr m_character;
+
+public:
 	Controller(void);
 
 	virtual ~Controller(void);
