@@ -3,11 +3,39 @@
 
 using namespace my;
 
+void ControllerMgr::AddController(ControllerPtr controller)
+{
+	m_controllers.insert(controller);
+}
+
+void ControllerMgr::RemoveController(ControllerPtr controller)
+{
+	m_controllers.erase(controller);
+}
+
+void ControllerMgr::ClearAllControllers(void)
+{
+	m_controllers.clear();
+}
+
+void ControllerMgr::Update(float fElapsedTime)
+{
+	ControllerPtrSet::iterator controller_iter = m_controllers.begin();
+	for (; controller_iter != m_controllers.end(); controller_iter++)
+	{
+		(*controller_iter)->Update(fElapsedTime);
+	}
+}
+
 Controller::Controller(void)
 {
 }
 
 Controller::~Controller(void)
+{
+}
+
+void Controller::Update(float fElapsedTime)
 {
 }
 

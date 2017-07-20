@@ -17,6 +17,14 @@ public:
 	ControllerMgr(void)
 	{
 	}
+
+	void AddController(ControllerPtr controller);
+
+	void RemoveController(ControllerPtr controller);
+
+	void ClearAllControllers(void);
+
+	void Update(float fElapsedTime);
 };
 
 class Controller
@@ -28,6 +36,8 @@ public:
 	Controller(void);
 
 	virtual ~Controller(void);
+
+	void Update(float fElapsedTime);
 };
 
 class PlayerController
