@@ -1000,10 +1000,10 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def(constructor<>())
 
-		, class_<Octree, boost::shared_ptr<Octree> >("Octree")
-			.def("AddActor", &Octree::AddActor)
-			.def("RemoveActor", &Octree::RemoveActor)
-			.def("ClearAllActor", &Octree::ClearAllActor)
+		//, class_<Octree, boost::shared_ptr<Octree> >("Octree")
+		//	.def("AddActor", &Octree::AddActor)
+		//	.def("RemoveActor", &Octree::RemoveActor)
+		//	.def("ClearAllActor", &Octree::ClearAllActor)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 	];

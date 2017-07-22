@@ -73,6 +73,11 @@ PlayerController::~PlayerController(void)
 	}
 }
 
+void PlayerController::Update(float fElapsedTime)
+{
+	Controller::Update(fElapsedTime);
+}
+
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
 {
 	MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);

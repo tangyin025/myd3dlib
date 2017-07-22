@@ -3,7 +3,7 @@
 #include "Console.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
 #include "../myd3dbox/Component/Component.h"
-#include "../myd3dbox/Component/Actor.h"
+#include "../myd3dbox/Component/Controller.h"
 #include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/FModContext.h"
 #include "../myd3dbox/Component/LuaExtension.h"
@@ -22,6 +22,7 @@ class Game
 	, public PhysXContext
 	, public PhysXSceneContext
 	, public FModContext
+	, public ControllerMgr
 {
 public:
 	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;

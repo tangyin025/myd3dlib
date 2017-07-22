@@ -37,7 +37,7 @@ public:
 
 	virtual ~Controller(void);
 
-	void Update(float fElapsedTime);
+	virtual void Update(float fElapsedTime);
 };
 
 class PlayerController
@@ -47,6 +47,8 @@ public:
 	PlayerController(void);
 
 	virtual ~PlayerController(void);
+
+	virtual void Update(float fElapsedTime);
 
 	void OnMouseMove(my::InputEventArg * arg);
 
