@@ -76,6 +76,12 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
+
+	m_Velocity += m_Acceleration * fElapsedTime;
+
+	m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
+
+	m_Position = (Vector3&)toVec3(m_controller->getPosition());
 }
 
 void Character::OnPxThreadSubstep(float dtime)
