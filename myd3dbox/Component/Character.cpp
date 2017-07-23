@@ -81,9 +81,13 @@ void Character::Update(float fElapsedTime)
 
 	m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
 
-	m_Position = (Vector3&)toVec3(m_Controller->getPosition());
-
-	UpdateWorld();
+	Vector3 Position = (Vector3&)toVec3(m_Controller->getPosition());
+	m_World = Matrix4::Compose(m_Scale, m_Rotation, Position);
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
+	{
+		(*cmp_iter)->UpdateWorld();
+	}
 }
 
 void Character::OnPxThreadSubstep(float dtime)
