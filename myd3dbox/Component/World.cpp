@@ -147,12 +147,10 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{
 				WorldL * world;
-				const Vector3 & Offset;
 				const Vector3 & ViewPos;
 				PhysXSceneContext * scene;
-				Callback(WorldL * _world, const Vector3 & _Offset, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+				Callback(WorldL * _world, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
 					: world(_world)
-					, Offset(_Offset)
 					, ViewPos(_ViewPos)
 					, scene(_scene)
 				{
@@ -164,7 +162,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 					OctActorSet::iterator actor_iter = world->m_ViewedActors.find(actor);
 					if (actor_iter == world->m_ViewedActors.end())
 					{
-						actor->UpdateWorld(Matrix4::Translation(Offset));
+						actor->UpdateWorld();
 						actor->UpdateRigidActorPose();
 						if (!actor->IsRequested())
 						{
@@ -180,7 +178,7 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			const Vector3 InExtent(ViewDist);
 			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
-			level->QueryActor(InBox, &Callback(world, Offset, ViewPos, scene));
+			level->QueryActor(InBox, &Callback(world, ViewPos, scene));
 		}
 	};
 
@@ -192,20 +190,15 @@ my::Matrix4 WorldL::CalculateLevelOffsetWorld(const CPoint & level_id)
 	return Matrix4::Translation(Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE));
 }
 
-void WorldL::UpdateViewedActorsWorld(void)
-{
-	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
-	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
-	{
-		(*actor_iter)->UpdateWorld(CalculateLevelOffsetWorld((*actor_iter)->GetLevel()->GetId()));
-	}
-}
-
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 {
 	CPoint level_off = level_id - m_LevelId;
 	m_LevelId = level_id;
-	UpdateViewedActorsWorld();
+	OctActorSet::iterator actor_iter = m_ViewedActors.begin();
+	for (; actor_iter != m_ViewedActors.end(); actor_iter++)
+	{
+		(*actor_iter)->UpdateWorld();
+	}
 	scene->m_PxScene->shiftOrigin(physx::PxVec3((float)level_off.x * LEVEL_SIZE, 0, (float)level_off.y * LEVEL_SIZE));
 }
 

@@ -103,8 +103,6 @@ public:
 
 	my::Matrix4 CalculateLevelOffsetWorld(const CPoint & level_id);
 
-	void UpdateViewedActorsWorld(void);
-
 	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);
 
 	bool ResetLevelId(my::Vector3 & ViewPos, PhysXSceneContext * scene);

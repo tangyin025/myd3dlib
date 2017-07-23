@@ -428,9 +428,9 @@ void CMainFrame::PostActorPosChanged(Actor * actor)
 	actor->m_World.Decompose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	CPoint level_id;
 	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
-	my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
+	my::Matrix4 World = actor->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
-	actor->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
+	actor->UpdateWorld();
 	actor->UpdateRigidActorPose();
 
 	UpdateSelBox();
@@ -622,9 +622,9 @@ void CMainFrame::OnCreateActor()
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	CPoint level_id;
 	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
-	my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
+	my::Matrix4 World = actor->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(actor, actor->m_aabb.transform(World), 0.1f);
-	actor->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
+	actor->UpdateWorld();
 	actor->RequestResource();
 	actor->OnEnterPxScene(this);
 
@@ -648,9 +648,9 @@ void CMainFrame::OnCreateCharacter()
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	CPoint level_id;
 	CalculateSafeLevelIdAndPos(level_id, character->m_Position, character->m_Position);
-	my::Matrix4 World = my::Matrix4::Compose(character->m_Scale, character->m_Rotation, character->m_Position);
+	my::Matrix4 World = character->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(character, character->m_aabb.transform(World), 0.1f);
-	character->UpdateWorld(m_WorldL.CalculateLevelOffsetWorld(level_id));
+	character->UpdateWorld();
 	character->RequestResource();
 	character->OnEnterPxScene(this);
 
@@ -700,7 +700,7 @@ void CMainFrame::OnComponentMesh()
 	mesh_cmp->RequestResource();
 	mesh_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
-	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
 	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
@@ -753,7 +753,7 @@ void CMainFrame::OnComponentCloth()
 	cloth_cmp->RequestResource();
 	cloth_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
-	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
 	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
@@ -788,7 +788,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
-	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
 	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
@@ -841,7 +841,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
-	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
 	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();
@@ -876,7 +876,7 @@ void CMainFrame::OnComponentTerrain()
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
-	(*actor_iter)->UpdateWorld(my::Matrix4::identity);
+	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
 	PostActorPosChanged(*actor_iter);
 	UpdateSelBox();

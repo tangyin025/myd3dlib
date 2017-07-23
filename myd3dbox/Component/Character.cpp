@@ -83,7 +83,7 @@ void Character::Update(float fElapsedTime)
 
 	m_Position = (Vector3&)toVec3(m_Controller->getPosition());
 
-	UpdateWorld(Matrix4::Identity());
+	UpdateWorld();
 }
 
 void Character::OnPxThreadSubstep(float dtime)

@@ -1192,7 +1192,7 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			Actor::ComponentPtrList::iterator cmp_iter = actor_world_iter->first->m_Cmps.begin();
 			for (; cmp_iter != actor_world_iter->first->m_Cmps.end(); cmp_iter++)
 			{
-				(*cmp_iter)->UpdateWorld(actor_world_iter->first->m_World);
+				(*cmp_iter)->UpdateWorld();
 			}
 		}
 		Invalidate();

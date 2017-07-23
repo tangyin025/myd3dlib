@@ -1046,7 +1046,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
 			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
-			actor->UpdateWorld(my::Matrix4::identity);
+			actor->UpdateWorld();
 			actor->UpdateRigidActorPose();
 			pFrame->PostActorPosChanged(actor);
 			pFrame->UpdateSelBox();
@@ -1117,10 +1117,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
 			ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 			actor->m_Node->RemoveActor(actor_ptr);
-			my::Matrix4 World = my::Matrix4::Compose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
+			my::Matrix4 World = actor->CalculateLocal();
 			pFrame->m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World), 0.1f);
-			my::Vector3 Offset((level_id.x - pFrame->m_WorldL.m_LevelId.x) * WorldL::LEVEL_SIZE, 0, (level_id.y - pFrame->m_WorldL.m_LevelId.y) * WorldL::LEVEL_SIZE);
-			actor->UpdateWorld(my::Matrix4::Translation(Offset));
+			actor->UpdateWorld();
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}

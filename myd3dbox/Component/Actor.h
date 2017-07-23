@@ -80,7 +80,7 @@ public:
 
 	void UpdateAABB(void);
 
-	virtual void UpdateWorld(const my::Matrix4 & World);
+	virtual void UpdateWorld(void);
 
 	void UpdateRigidActorPose(void);
 

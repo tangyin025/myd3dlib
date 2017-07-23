@@ -249,14 +249,14 @@ void Actor::UpdateAABB(void)
 	}
 }
 
-void Actor::UpdateWorld(const my::Matrix4 & World)
+void Actor::UpdateWorld(void)
 {
-	Component::UpdateWorld(World);
+	m_World = CalculateLocal() * GetLevel()->m_World->CalculateLevelOffsetWorld(GetLevel()->GetId());
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->UpdateWorld(m_World);
+		(*cmp_iter)->UpdateWorld();
 	}
 }
 
