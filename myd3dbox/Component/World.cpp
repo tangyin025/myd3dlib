@@ -185,9 +185,9 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene, ViewDist));
 }
 
-my::Matrix4 WorldL::CalculateLevelOffsetWorld(const CPoint & level_id)
+my::Vector3 WorldL::CalculateLevelOffset(const CPoint & level_id)
 {
-	return Matrix4::Translation(Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE));
+	return Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
 }
 
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)

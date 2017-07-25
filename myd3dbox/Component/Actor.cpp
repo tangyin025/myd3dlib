@@ -251,7 +251,7 @@ void Actor::UpdateAABB(void)
 
 void Actor::UpdateWorld(void)
 {
-	m_World = CalculateLocal() * GetLevel()->m_World->CalculateLevelOffsetWorld(GetLevel()->GetId());
+	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
