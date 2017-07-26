@@ -79,15 +79,11 @@ void Character::Update(float fElapsedTime)
 
 	m_Velocity += m_Acceleration * fElapsedTime;
 
-	m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
+	physx::PxControllerCollisionFlags flags = m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
 
-	Vector3 Position = (Vector3&)toVec3(m_Controller->getPosition());
-	m_World = Matrix4::Compose(m_Scale, m_Rotation, Position);
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->UpdateWorld();
-	}
+	m_Position = (Vector3&)toVec3(m_Controller->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+
+	UpdateWorld();
 }
 
 void Character::OnPxThreadSubstep(float dtime)

@@ -210,8 +210,6 @@ void Actor::OnLeavePxScene(PhysXSceneContext * scene)
 
 void Actor::Update(float fElapsedTime)
 {
-	Component::Update(fElapsedTime);
-
 	if (m_Animator)
 	{
 		m_Animator->Update(fElapsedTime);
@@ -221,6 +219,14 @@ void Actor::Update(float fElapsedTime)
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
 		(*cmp_iter)->Update(fElapsedTime);
+	}
+
+	if (m_PxActor && m_PxActor->isRigidDynamic())
+	{
+		physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
+		m_Position = (Vector3 &)pose.p - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+		m_Rotation = (Quaternion &)pose.q;
+		UpdateWorld();
 	}
 }
 
