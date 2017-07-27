@@ -97,10 +97,12 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 			case physx::PxConcreteType::eRIGID_STATIC:
 				_ASSERT(!m_PxActor);
 				m_PxActor.reset(obj->is<physx::PxRigidStatic>());
+				m_PxActor->userData = this;
 				break;
 			case physx::PxConcreteType::eRIGID_DYNAMIC:
 				_ASSERT(!m_PxActor);
 				m_PxActor.reset(obj->is<physx::PxRigidDynamic>());
+				m_PxActor->userData = this;
 				break;
 			case physx::PxConcreteType::eSHAPE:
 				m_Cmps[index]->m_PxShape.reset(obj->is<physx::PxShape>());
@@ -221,13 +223,13 @@ void Actor::Update(float fElapsedTime)
 		(*cmp_iter)->Update(fElapsedTime);
 	}
 
-	if (m_PxActor && m_PxActor->isRigidDynamic())
-	{
-		physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
-		m_Position = (Vector3 &)pose.p - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
-		m_Rotation = (Quaternion &)pose.q;
-		UpdateWorld();
-	}
+	//if (m_PxActor && m_PxActor->isRigidDynamic())
+	//{
+	//	physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
+	//	m_Position = (Vector3 &)pose.p - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+	//	m_Rotation = (Quaternion &)pose.q;
+	//	UpdateWorld();
+	//}
 }
 
 my::AABB Actor::CalculateAABB(void) const
@@ -322,6 +324,7 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
 		break;
 	}
+	m_PxActor->userData = this;
 }
 
 void Actor::AddComponent(ComponentPtr cmp)

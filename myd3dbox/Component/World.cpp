@@ -190,6 +190,46 @@ my::Vector3 WorldL::CalculateLevelOffset(const CPoint & level_id)
 	return Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
 }
 
+void WorldL::CalculateLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
+{
+	CPoint level_off((long)floor(origin_pos.x / LEVEL_SIZE), (long)floor(origin_pos.z / LEVEL_SIZE));
+	if (level_off.x < 0)
+	{
+		level_off.x = Max(0 - m_LevelId.x, level_off.x);
+		pos.x = origin_pos.x + level_off.x * LEVEL_SIZE;
+	}
+	else if (level_off.x > 0)
+	{
+		level_off.x = Min(m_Dimension - m_LevelId.x - 1, level_off.x);
+		pos.x = origin_pos.x - level_off.x * LEVEL_SIZE;
+	}
+	if (level_off.y < 0)
+	{
+		level_off.y = Max(0 - m_LevelId.y, level_off.y);
+		pos.z = origin_pos.z + level_off.y * LEVEL_SIZE;
+	}
+	else if (level_off.y > 0)
+	{
+		level_off.y = Min(m_Dimension - m_LevelId.y - 1, level_off.y);
+		pos.z = origin_pos.z - level_off.y * LEVEL_SIZE;
+	}
+	level_id = m_LevelId + level_off;
+	pos.y = origin_pos.y;
+}
+
+void WorldL::ChangeActorPos(Actor * actor, const my::Vector3 & pos)
+{
+	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
+	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
+	Root->RemoveActor(actor_ptr);
+
+	CPoint level_id;
+	CalculateLevelIdAndPos(level_id, actor->m_Position, pos);
+	my::Matrix4 World = actor->CalculateLocal();
+	GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
+	actor->UpdateWorld();
+}
+
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)
 {
 	CPoint level_off = level_id - m_LevelId;

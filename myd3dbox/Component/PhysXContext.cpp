@@ -162,6 +162,7 @@ bool PhysXSceneContext::Init(physx::PxPhysics * sdk, physx::PxDefaultCpuDispatch
 	sceneDesc.gravity = (physx::PxVec3&)PhysXContext::Gravity;
 	sceneDesc.cpuDispatcher = dispatcher;
 	sceneDesc.filterShader = physx::PxDefaultSimulationFilterShader;
+	sceneDesc.flags |= physx::PxSceneFlag::eENABLE_ACTIVETRANSFORMS;
 	if(!(m_PxScene.reset(sdk->createScene(sceneDesc)), m_PxScene))
 	{
 		THROW_CUSEXCEPTION("sdk->createScene failed");

@@ -474,12 +474,21 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 		return FALSE;
 	}
 
-	PhysXSceneContext::AdvanceSync(fElapsedTime);
-
 	ActorSet::iterator actor_iter = m_selactors.begin();
 	for (; actor_iter != m_selactors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
+	}
+
+	PhysXSceneContext::AdvanceSync(fElapsedTime);
+
+	physx::PxU32 nbActiveTransforms;
+	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
+	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
+	{
+		Actor * actor = (Actor *)activeTransforms[i].userData;
+		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
+		m_WorldL.ChangeActorPos(actor, (my::Vector3 &)activeTransforms[i].actor2World.p);
 	}
 
 	EventArgs arg;

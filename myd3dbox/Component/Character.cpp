@@ -81,9 +81,9 @@ void Character::Update(float fElapsedTime)
 
 	physx::PxControllerCollisionFlags flags = m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
 
-	m_Position = (Vector3&)toVec3(m_Controller->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+	//m_Position = (Vector3&)toVec3(m_Controller->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
 
-	UpdateWorld();
+	//UpdateWorld();
 }
 
 void Character::OnPxThreadSubstep(float dtime)

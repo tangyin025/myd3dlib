@@ -582,6 +582,15 @@ void Game::OnFrameTick(
 	Present(NULL,NULL,NULL,NULL);
 
 	PhysXSceneContext::TickPostRender(fElapsedTime);
+
+	physx::PxU32 nbActiveTransforms;
+	const physx::PxActiveTransform* activeTransforms = m_PxScene->getActiveTransforms(nbActiveTransforms);
+	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
+	{
+		Actor * actor = (Actor *)activeTransforms[i].userData;
+		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
+		m_WorldL.ChangeActorPos(actor, (my::Vector3 &)activeTransforms[i].actor2World.p);
+	}
 }
 
 LRESULT Game::MsgProc(
