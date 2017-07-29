@@ -488,7 +488,7 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
 		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
-		m_WorldL.ChangeActorPos(actor, (my::Vector3 &)activeTransforms[i].actor2World.p);
+		m_WorldL.ChangeActorPose(actor, (my::Vector3 &)activeTransforms[i].actor2World.p);
 	}
 
 	EventArgs arg;

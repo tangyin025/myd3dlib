@@ -190,7 +190,7 @@ my::Vector3 WorldL::CalculateLevelOffset(const CPoint & level_id)
 	return Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
 }
 
-void WorldL::CalculateLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
+void WorldL::CalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
 {
 	CPoint level_off((long)floor(origin_pos.x / LEVEL_SIZE), (long)floor(origin_pos.z / LEVEL_SIZE));
 	if (level_off.x < 0)
@@ -217,14 +217,16 @@ void WorldL::CalculateLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const 
 	pos.y = origin_pos.y;
 }
 
-void WorldL::ChangeActorPos(Actor * actor, const my::Vector3 & pos)
+void WorldL::ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
 	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
 	Root->RemoveActor(actor_ptr);
 
 	CPoint level_id;
-	CalculateLevelIdAndPos(level_id, actor->m_Position, pos);
+	CalculateLevelIdAndPosition(level_id, actor->m_Position, Position);
+	actor->m_Rotation = Rotation;
+	actor->m_Scale = Scale;
 	my::Matrix4 World = actor->CalculateLocal();
 	GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
 	actor->UpdateWorld();

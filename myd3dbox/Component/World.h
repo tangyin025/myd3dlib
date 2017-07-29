@@ -103,9 +103,9 @@ public:
 
 	my::Vector3 CalculateLevelOffset(const CPoint & level_id);
 
-	void CalculateLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos);
+	void CalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos);
 
-	void ChangeActorPos(Actor * actor, const my::Vector3 & pos);
+	void ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 
 	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);
 
