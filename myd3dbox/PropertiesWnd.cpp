@@ -1034,21 +1034,21 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pScale = pProp->GetParent()->GetParent()->GetSubItem(2);
 				break;
 			}
-			cmp->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
-			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
-			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
-			my::Quaternion rot = my::Quaternion::RotationEulerAngles(my::Vector3(
+			my::Vector3 Position(
+				pPosition->GetSubItem(0)->GetValue().fltVal,
+				pPosition->GetSubItem(1)->GetValue().fltVal,
+				pPosition->GetSubItem(2)->GetValue().fltVal);
+			my::Quaternion Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
 				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
-			cmp->m_Rotation = rot;
-			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
-			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
-			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
+			my::Vector3 Scale(
+				pScale->GetSubItem(0)->GetValue().fltVal,
+				pScale->GetSubItem(1)->GetValue().fltVal,
+				pScale->GetSubItem(2)->GetValue().fltVal);
 			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
-			actor->UpdateWorld();
+			pFrame->SafeChangeActorPose(actor, Position, Rotation, Scale);
 			actor->UpdateRigidActorPose();
-			pFrame->PostActorPosChanged(actor);
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1115,11 +1115,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			CPoint level_id(
 				my::Clamp<long>(pLevelId->GetSubItem(0)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1),
 				my::Clamp<long>(pLevelId->GetSubItem(1)->GetValue().intVal, 0, pFrame->m_WorldL.m_Dimension - 1));
-			ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
-			actor->m_Node->RemoveActor(actor_ptr);
-			my::Matrix4 World = actor->CalculateLocal();
-			pFrame->m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World), 0.1f);
-			actor->UpdateWorld();
+			pFrame->m_WorldL.OnActorPoseChanged(actor, level_id);
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
@@ -1156,7 +1152,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			actor->m_aabb.m_max.x = pAABB->GetSubItem(3)->GetValue().fltVal;
 			actor->m_aabb.m_max.y = pAABB->GetSubItem(4)->GetValue().fltVal;
 			actor->m_aabb.m_max.z = pAABB->GetSubItem(5)->GetValue().fltVal;
-			pFrame->PostActorPosChanged(actor);
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
 			EventArgs arg;
@@ -1452,8 +1448,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			terrain->UpdateChunks();
 			Actor * actor = terrain->m_Actor;
 			actor->UpdateAABB();
-			pFrame->PostActorPosChanged(actor);
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
 			pFrame->UpdateSelBox();
+			pFrame->UpdatePivotTransform();
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
@@ -1479,8 +1476,9 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				terrain->UpdateHeightMap(res);
 				Actor * actor = terrain->m_Actor;
 				actor->UpdateAABB();
-				pFrame->PostActorPosChanged(actor);
+				pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
 				pFrame->UpdateSelBox();
+				pFrame->UpdatePivotTransform();
 				EventArgs arg;
 				pFrame->m_EventAttributeChanged(&arg);
 			}

@@ -391,7 +391,7 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
-void CMainFrame::CalculateSafeLevelIdAndPos(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
+void CMainFrame::SafeCalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
 {
 	CPoint level_off((long)floor(origin_pos.x / WorldL::LEVEL_SIZE), (long)floor(origin_pos.z / WorldL::LEVEL_SIZE));
 	level_id = m_WorldL.m_LevelId + level_off;
@@ -420,21 +420,13 @@ void CMainFrame::CalculateSafeLevelIdAndPos(CPoint & level_id, my::Vector3 & pos
 	}
 }
 
-void CMainFrame::PostActorPosChanged(Actor * actor)
+void CMainFrame::SafeChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
-	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
-	VERIFY(Root->RemoveActor(actor_ptr));
-	actor->m_World.Decompose(actor->m_Scale, actor->m_Rotation, actor->m_Position);
 	CPoint level_id;
-	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
-	my::Matrix4 World = actor->CalculateLocal();
-	m_WorldL.GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
-	actor->UpdateWorld();
-	actor->UpdateRigidActorPose();
-
-	UpdateSelBox();
-	UpdatePivotTransform();
+	SafeCalculateLevelIdAndPosition(level_id, actor->m_Position, Position);
+	actor->m_Rotation = Rotation;
+	actor->m_Scale = Scale;
+	m_WorldL.OnActorPoseChanged(actor, level_id);
 }
 
 void CMainFrame::UpdateSelBox(void)
@@ -487,8 +479,7 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		actor->m_Rotation = (my::Quaternion &)activeTransforms[i].actor2World.q;
-		m_WorldL.ChangeActorPose(actor, (my::Vector3 &)activeTransforms[i].actor2World.p);
+		m_WorldL.ChangeActorPose(actor, (my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, my::Vector3(1,1,1));
 	}
 
 	EventArgs arg;
@@ -630,7 +621,7 @@ void CMainFrame::OnCreateActor()
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	CPoint level_id;
-	CalculateSafeLevelIdAndPos(level_id, actor->m_Position, actor->m_Position);
+	SafeCalculateLevelIdAndPosition(level_id, actor->m_Position, actor->m_Position);
 	my::Matrix4 World = actor->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(actor, actor->m_aabb.transform(World), 0.1f);
 	actor->UpdateWorld();
@@ -656,7 +647,7 @@ void CMainFrame::OnCreateCharacter()
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
 	CPoint level_id;
-	CalculateSafeLevelIdAndPos(level_id, character->m_Position, character->m_Position);
+	SafeCalculateLevelIdAndPosition(level_id, character->m_Position, character->m_Position);
 	my::Matrix4 World = character->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(character, character->m_aabb.transform(World), 0.1f);
 	character->UpdateWorld();
@@ -709,9 +700,8 @@ void CMainFrame::OnComponentMesh()
 	mesh_cmp->RequestResource();
 	mesh_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(mesh_cmp);
-	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
-	PostActorPosChanged(*actor_iter);
+	m_WorldL.OnActorPoseChanged(*actor_iter, (*actor_iter)->GetLevel()->GetId());
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -762,9 +752,8 @@ void CMainFrame::OnComponentCloth()
 	cloth_cmp->RequestResource();
 	cloth_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(cloth_cmp);
-	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
-	PostActorPosChanged(*actor_iter);
+	m_WorldL.OnActorPoseChanged(*actor_iter, (*actor_iter)->GetLevel()->GetId());
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -797,9 +786,8 @@ void CMainFrame::OnComponentStaticEmitter()
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(emit_cmp);
-	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
-	PostActorPosChanged(*actor_iter);
+	m_WorldL.OnActorPoseChanged(*actor_iter, (*actor_iter)->GetLevel()->GetId());
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -850,9 +838,8 @@ void CMainFrame::OnComponentSphericalemitter()
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(sphe_emit_cmp);
-	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
-	PostActorPosChanged(*actor_iter);
+	m_WorldL.OnActorPoseChanged(*actor_iter, (*actor_iter)->GetLevel()->GetId());
 	UpdateSelBox();
 
 	EventArgs arg;
@@ -885,9 +872,8 @@ void CMainFrame::OnComponentTerrain()
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);
 	(*actor_iter)->AddComponent(terrain);
-	(*actor_iter)->UpdateWorld();
 	(*actor_iter)->UpdateAABB();
-	PostActorPosChanged(*actor_iter);
+	m_WorldL.OnActorPoseChanged(*actor_iter, (*actor_iter)->GetLevel()->GetId());
 	UpdateSelBox();
 
 	EventArgs arg;

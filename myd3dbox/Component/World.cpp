@@ -217,19 +217,22 @@ void WorldL::CalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, c
 	pos.y = origin_pos.y;
 }
 
-void WorldL::ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void WorldL::OnActorPoseChanged(Actor * actor, const CPoint & level_id)
 {
 	ActorPtr actor_ptr = boost::dynamic_pointer_cast<Actor>(actor->shared_from_this());
 	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
 	Root->RemoveActor(actor_ptr);
+	GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(actor->CalculateLocal()));
+	actor->UpdateWorld();
+}
 
+void WorldL::ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+{
 	CPoint level_id;
 	CalculateLevelIdAndPosition(level_id, actor->m_Position, Position);
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
-	my::Matrix4 World = actor->CalculateLocal();
-	GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(World));
-	actor->UpdateWorld();
+	OnActorPoseChanged(actor, level_id);
 }
 
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)

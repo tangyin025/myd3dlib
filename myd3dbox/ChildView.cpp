@@ -1138,10 +1138,14 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		ActorWorldMap::iterator actor_world_iter = m_selactorwlds.begin();
 		for (; actor_world_iter != m_selactorwlds.end(); actor_world_iter++)
 		{
-			pFrame->PostActorPosChanged(actor_world_iter->first);
+			my::Vector3 Position, Scale; my::Quaternion Rotation;
+			actor_world_iter->first->m_World.Decompose(Scale, Rotation, Position);
+			pFrame->SafeChangeActorPose(actor_world_iter->first, Position, Rotation, Scale);
+			actor_world_iter->first->UpdateRigidActorPose();
 		}
 		m_selactorwlds.clear();
 		pFrame->UpdateSelBox();
+		pFrame->UpdatePivotTransform();
 		ReleaseCapture();
 
 		EventArgs arg;
