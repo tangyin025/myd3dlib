@@ -57,7 +57,11 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
+	desc.userData = this;
 	m_Controller.reset(scene->m_ControllerMgr->createController(desc));
+
+	physx::PxActor * actor = m_Controller->getActor();
+	actor->userData = this;
 
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 }
