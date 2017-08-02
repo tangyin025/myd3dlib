@@ -555,6 +555,10 @@ void Game::OnFrameTick(
 
 	InputMgr::Update(fTime, fElapsedTime);
 
+	m_Camera->UpdateViewProj();
+
+	m_SkyLightCam->UpdateViewProj();
+
 	TimerMgr::Update(fTime, fElapsedTime);
 
 	PhysXSceneContext::PushRenderBuffer(this);
@@ -566,10 +570,6 @@ void Game::OnFrameTick(
 	{
 		(*actor_iter)->Update(fElapsedTime);
 	}
-
-	m_Camera->UpdateViewProj();
-
-	m_SkyLightCam->UpdateViewProj();
 
 	m_WorldL.ResetViewedActors(m_Camera->m_Eye, this, 1000, 10);
 

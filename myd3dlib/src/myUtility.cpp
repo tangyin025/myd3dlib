@@ -363,7 +363,7 @@ void FirstPersonCamera::UpdateViewProj(void)
 {
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_Eular.y, m_Eular.x, m_Eular.z);
 
-	//m_Eye += (m_LocalVel * 5.0f * fElapsedTime).transform(Rotation).xyz;
+	m_Eye += (m_LocalVel * 5.0f * D3DContext::getSingleton().m_fElapsedTime).transform(Rotation).xyz;
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
