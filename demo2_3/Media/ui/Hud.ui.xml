@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <!DOCTYPE boost_serialization>
-<boost_serialization signature="serialization::archive" version="10">
+<boost_serialization signature="serialization::archive" version="14">
 <dlg class_id="0" tracking_level="0" version="1">
 	<px class_id="1" tracking_level="1" version="0" object_id="_0">
 		<Control class_id="2" tracking_level="1" version="0" object_id="_1">
@@ -21,12 +21,12 @@
 								<m_bVisible>1</m_bVisible>
 								<m_nHotkey>0</m_nHotkey>
 								<m_Location class_id="7" tracking_level="0" version="0">
-									<x>35</x>
-									<y>10</y>
+									<x>3.500000000e+01</x>
+									<y>1.000000000e+01</y>
 								</m_Location>
 								<m_Size>
-									<x>125</x>
-									<y>22</y>
+									<x>1.250000000e+02</x>
+									<y>2.200000000e+01</y>
 								</m_Size>
 								<m_Color>4294967295</m_Color>
 								<m_Skin class_id="8" tracking_level="0" version="1">
@@ -36,16 +36,16 @@
 												<px class_id="12" tracking_level="1" version="0" object_id="_7">
 													<TexturePath>texture/CommonUI.png</TexturePath>
 													<m_Rect class_id="13" tracking_level="0" version="0">
-														<l>52</l>
-														<t>43</t>
-														<r>67</r>
-														<b>58</b>
+														<l>5.200000000e+01</l>
+														<t>4.300000000e+01</t>
+														<r>6.700000000e+01</r>
+														<b>5.800000000e+01</b>
 													</m_Rect>
 													<m_Border class_id="14" tracking_level="0" version="0">
-														<x>7</x>
-														<y>7</y>
-														<z>7</z>
-														<w>7</w>
+														<x>7.000000000e+00</x>
+														<y>7.000000000e+00</y>
+														<z>7.000000000e+00</z>
+														<w>7.000000000e+00</w>
 													</m_Border>
 												</px>
 											</m_Image>
@@ -58,16 +58,16 @@
 											<px class_id_reference="12" object_id="_8">
 												<TexturePath>texture/CommonUI.png</TexturePath>
 												<m_Rect>
-													<l>1</l>
-													<t>43</t>
-													<r>16</r>
-													<b>58</b>
+													<l>1.000000000e+00</l>
+													<t>4.300000000e+01</t>
+													<r>1.600000000e+01</r>
+													<b>5.800000000e+01</b>
 												</m_Rect>
 												<m_Border>
-													<x>7</x>
-													<y>7</y>
-													<z>7</z>
-													<w>7</w>
+													<x>7.000000000e+00</x>
+													<y>7.000000000e+00</y>
+													<z>7.000000000e+00</z>
+													<w>7.000000000e+00</w>
 												</m_Border>
 											</px>
 										</m_DisabledImage>
@@ -75,16 +75,16 @@
 											<px class_id_reference="12" object_id="_9">
 												<TexturePath>texture/CommonUI.png</TexturePath>
 												<m_Rect>
-													<l>18</l>
-													<t>43</t>
-													<r>33</r>
-													<b>58</b>
+													<l>1.800000000e+01</l>
+													<t>4.300000000e+01</t>
+													<r>3.300000000e+01</r>
+													<b>5.800000000e+01</b>
 												</m_Rect>
 												<m_Border>
-													<x>7</x>
-													<y>7</y>
-													<z>7</z>
-													<w>7</w>
+													<x>7.000000000e+00</x>
+													<y>7.000000000e+00</y>
+													<z>7.000000000e+00</z>
+													<w>7.000000000e+00</w>
 												</m_Border>
 											</px>
 										</m_PressedImage>
@@ -92,22 +92,22 @@
 											<px class_id_reference="12" object_id="_10">
 												<TexturePath>texture/CommonUI.png</TexturePath>
 												<m_Rect>
-													<l>35</l>
-													<t>43</t>
-													<r>50</r>
-													<b>58</b>
+													<l>3.500000000e+01</l>
+													<t>4.300000000e+01</t>
+													<r>5.000000000e+01</r>
+													<b>5.800000000e+01</b>
 												</m_Rect>
 												<m_Border>
-													<x>7</x>
-													<y>7</y>
-													<z>7</z>
-													<w>7</w>
+													<x>7.000000000e+00</x>
+													<y>7.000000000e+00</y>
+													<z>7.000000000e+00</z>
+													<w>7.000000000e+00</w>
 												</m_Border>
 											</px>
 										</m_MouseOverImage>
 										<m_PressedOffset>
-											<x>1</x>
-											<y>2</y>
+											<x>1.000000000e+00</x>
+											<y>2.000000000e+00</y>
 										</m_PressedOffset>
 									</px>
 								</m_Skin>
@@ -130,12 +130,12 @@
 								<m_bVisible>1</m_bVisible>
 								<m_nHotkey>114</m_nHotkey>
 								<m_Location>
-									<x>35</x>
-									<y>35</y>
+									<x>3.500000000e+01</x>
+									<y>3.500000000e+01</y>
 								</m_Location>
 								<m_Size>
-									<x>125</x>
-									<y>22</y>
+									<x>1.250000000e+02</x>
+									<y>2.200000000e+01</y>
 								</m_Size>
 								<m_Color>4294967295</m_Color>
 								<m_Skin>
@@ -160,12 +160,12 @@
 								<m_bVisible>1</m_bVisible>
 								<m_nHotkey>113</m_nHotkey>
 								<m_Location>
-									<x>35</x>
-									<y>60</y>
+									<x>3.500000000e+01</x>
+									<y>6.000000000e+01</y>
 								</m_Location>
 								<m_Size>
-									<x>125</x>
-									<y>22</y>
+									<x>1.250000000e+02</x>
+									<y>2.200000000e+01</y>
 								</m_Size>
 								<m_Color>4294967295</m_Color>
 								<m_Skin>
@@ -182,12 +182,12 @@
 			<m_bVisible>1</m_bVisible>
 			<m_nHotkey>0</m_nHotkey>
 			<m_Location>
-				<x>100</x>
-				<y>100</y>
+				<x>1.000000000e+02</x>
+				<y>1.000000000e+02</y>
 			</m_Location>
 			<m_Size>
-				<x>170</x>
-				<y>170</y>
+				<x>1.700000000e+02</x>
+				<y>1.700000000e+02</y>
 			</m_Size>
 			<m_Color>0</m_Color>
 			<m_Skin>
@@ -195,22 +195,22 @@
 			</m_Skin>
 		</Control>
 		<m_World class_id="15" tracking_level="0" version="0">
-			<_11>1</_11>
-			<_12>0</_12>
-			<_13>0</_13>
-			<_14>0</_14>
-			<_21>0</_21>
-			<_22>1</_22>
-			<_23>0</_23>
-			<_24>0</_24>
-			<_31>0</_31>
-			<_32>0</_32>
-			<_33>1</_33>
-			<_34>0</_34>
-			<_41>0</_41>
-			<_42>0</_42>
-			<_43>0</_43>
-			<_44>1</_44>
+			<_11>1.000000000e+00</_11>
+			<_12>0.000000000e+00</_12>
+			<_13>0.000000000e+00</_13>
+			<_14>0.000000000e+00</_14>
+			<_21>0.000000000e+00</_21>
+			<_22>1.000000000e+00</_22>
+			<_23>0.000000000e+00</_23>
+			<_24>0.000000000e+00</_24>
+			<_31>0.000000000e+00</_31>
+			<_32>0.000000000e+00</_32>
+			<_33>1.000000000e+00</_33>
+			<_34>0.000000000e+00</_34>
+			<_41>0.000000000e+00</_41>
+			<_42>0.000000000e+00</_42>
+			<_43>0.000000000e+00</_43>
+			<_44>1.000000000e+00</_44>
 		</m_World>
 	</px>
 </dlg>
