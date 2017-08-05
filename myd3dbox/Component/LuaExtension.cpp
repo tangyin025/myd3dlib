@@ -117,6 +117,44 @@ namespace luabind
 		: default_converter<my::TimerEvent>
 	{
 	};
+
+	template <>
+	struct default_converter<ActorEvent>
+		: native_converter_base<ActorEvent>
+	{
+		static int compute_score(lua_State * L, int index)
+		{
+			return lua_type(L, index) == LUA_TFUNCTION ? 0 : -1;
+		}
+
+		ActorEvent from(lua_State * L, int index)
+		{
+			struct InternalExceptionHandler
+			{
+				luabind::object obj;
+				InternalExceptionHandler(const luabind::object & _obj)
+					: obj(_obj)
+				{
+				}
+				void operator()(Actor * actor)
+				{
+					obj(actor);
+				}
+			};
+			return InternalExceptionHandler(luabind::object(luabind::from_stack(L, index)));
+		}
+
+		void to(lua_State * L, ActorEvent const & e)
+		{
+			_ASSERT(false);
+		}
+	};
+
+	template <>
+	struct default_converter<ActorEvent const &>
+		: default_converter<ActorEvent>
+	{
+	};
 }
 
 static int add_file_and_line(lua_State * L)
@@ -1004,6 +1042,10 @@ static void ExportComponent(lua_State * L)
 		//	.def("AddActor", &Octree::AddActor)
 		//	.def("RemoveActor", &Octree::RemoveActor)
 		//	.def("ClearAllActor", &Octree::ClearAllActor)
+
+		, class_<WorldL>("WorldL")
+			.def_readwrite("EventEnterAoe", &WorldL::m_EventEnterAoe)
+			.def_readwrite("EventLeaveAoe", &WorldL::m_EventLeaveAoe)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 	];
