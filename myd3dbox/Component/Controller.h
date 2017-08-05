@@ -1,7 +1,5 @@
 #pragma once
 
-#include "character.h"
-
 class Controller;
 
 typedef boost::shared_ptr<Controller> ControllerPtr;
@@ -27,13 +25,15 @@ public:
 	void Update(float fElapsedTime);
 };
 
+class Character;
+
 class Controller
 {
 public:
-	CharacterPtr m_character;
+	Character * m_character;
 
 public:
-	Controller(void);
+	Controller(Character * character);
 
 	virtual ~Controller(void);
 
@@ -44,7 +44,7 @@ class PlayerController
 	: public Controller
 {
 public:
-	PlayerController(void);
+	PlayerController(Character * character);
 
 	virtual ~PlayerController(void);
 

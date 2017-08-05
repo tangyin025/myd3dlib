@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "Game.h"
+#include "../myd3dbox/Component/Actor.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
