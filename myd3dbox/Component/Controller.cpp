@@ -27,8 +27,8 @@ void ControllerMgr::Update(float fElapsedTime)
 	}
 }
 
-Controller::Controller(Character * character)
-	: m_character(character)
+Controller::Controller(Actor * actor)
+	: m_Actor(actor)
 {
 }
 
@@ -40,8 +40,8 @@ void Controller::Update(float fElapsedTime)
 {
 }
 
-PlayerController::PlayerController(Character * character)
-	: Controller(character)
+PlayerController::PlayerController(Actor * actor)
+	: Controller(actor)
 {
 	InputMgr::getSingleton().m_MouseMovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
 	InputMgr::getSingleton().m_MousePressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);

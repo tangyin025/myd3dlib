@@ -25,15 +25,15 @@ public:
 	void Update(float fElapsedTime);
 };
 
-class Character;
+class Actor;
 
 class Controller
 {
 public:
-	Character * m_character;
+	Actor * m_Actor;
 
 public:
-	Controller(Character * character);
+	Controller(Actor * actor);
 
 	virtual ~Controller(void);
 
@@ -44,7 +44,7 @@ class PlayerController
 	: public Controller
 {
 public:
-	PlayerController(Character * character);
+	PlayerController(Actor * actor);
 
 	virtual ~PlayerController(void);
 

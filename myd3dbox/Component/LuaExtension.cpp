@@ -1044,8 +1044,8 @@ static void ExportComponent(lua_State * L)
 		//	.def("ClearAllActor", &Octree::ClearAllActor)
 
 		, class_<WorldL>("WorldL")
-			.def_readwrite("EventEnterAoe", &WorldL::m_EventEnterAoe)
-			.def_readwrite("EventLeaveAoe", &WorldL::m_EventLeaveAoe)
+			.def_readwrite("EventActorEnter", &WorldL::m_EventActorEnter)
+			.def_readwrite("EventActorLeave", &WorldL::m_EventActorLeave)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
 	];

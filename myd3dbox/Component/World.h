@@ -58,9 +58,9 @@ public:
 
 	OctActorSet m_ViewedActors;
 
-	ActorEvent m_EventEnterAoe;
+	ActorEvent m_EventActorEnter;
 
-	ActorEvent m_EventLeaveAoe;
+	ActorEvent m_EventActorLeave;
 
 public:
 	WorldL(void)
