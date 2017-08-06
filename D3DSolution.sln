@@ -23,6 +23,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "zziplib", "zziplib\scripts\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luabind", "luabind\scripts\luabind.vcxproj", "{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libboost_program_options", "libboost_program_options\scripts\libboost_program_options.vcxproj", "{79940869-B99A-42B6-9E8E-D683614C630A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -97,6 +99,12 @@ Global
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Release|Win32.ActiveCfg = Release|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Release|Win32.Build.0 = Release|Win32
 		{8F8C0F3C-BAEC-48FF-900A-33C045BB395F}.Release|x64.ActiveCfg = Release|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Debug|Win32.ActiveCfg = Debug|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Debug|Win32.Build.0 = Debug|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Debug|x64.ActiveCfg = Debug|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Release|Win32.ActiveCfg = Release|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Release|Win32.Build.0 = Release|Win32
+		{79940869-B99A-42B6-9E8E-D683614C630A}.Release|x64.ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
