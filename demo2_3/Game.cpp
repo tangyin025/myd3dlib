@@ -10,6 +10,7 @@
 #include <boost/archive/polymorphic_xml_iarchive.hpp>
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
+#include <boost/program_options.hpp>
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
@@ -230,6 +231,16 @@ static int os_exit(lua_State * L)
 
 Game::Game(void)
 {
+	boost::program_options::options_description desc("Options");
+	desc.add_options()
+		("width,W", boost::program_options::value<UINT>(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
+		("height,H", boost::program_options::value<UINT>(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		;
+
+	boost::program_options::variables_map vm;
+	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
+	boost::program_options::notify(vm);
+
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
 	lua_setglobal(m_State, "print");
