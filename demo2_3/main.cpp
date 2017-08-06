@@ -41,11 +41,6 @@ public:
 		IDirect3DDevice9 * pd3dDevice,
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 	{
-		RegisterFileDir("Media");
-		RegisterZipDir("Media.zip");
-		RegisterFileDir("..\\demo2_3\\Media");
-		RegisterZipDir("..\\demo2_3\\Media.zip");
-
 		if(FAILED(hr = Game::OnCreateDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 		{
 			return hr;
@@ -55,11 +50,11 @@ public:
 		// Ê¾Àý´úÂë
 		// ========================================================================================================
 
-		FModContext::SetMediaPath("sound\\");
-		FModContext::LoadEventFile("aaa.fev");
-		ExecuteCode("dofile \"Main.lua\"");
-		RemoveDlg(m_Console);
-		InsertDlg(m_Console);
+		//FModContext::SetMediaPath("sound\\");
+		//FModContext::LoadEventFile("sound\\aaa.fev");
+		//ExecuteCode("dofile \"Main.lua\"");
+		//RemoveDlg(m_Console);
+		//InsertDlg(m_Console);
 
 		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0f);
 		m_PxScene->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_SHAPES, 1);

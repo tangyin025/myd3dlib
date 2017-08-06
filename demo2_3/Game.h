@@ -2,7 +2,7 @@
 
 #include "Console.h"
 #include "../myd3dbox/Component/RenderPipeline.h"
-#include "../myd3dbox/Component/Component.h"
+#include "../myd3dbox/Component/Character.h"
 #include "../myd3dbox/Component/Controller.h"
 #include "../myd3dbox/Component/PhysXContext.h"
 #include "../myd3dbox/Component/FModContext.h"
@@ -44,6 +44,14 @@ public:
 	ConsolePtr m_Console;
 
 	WorldL m_WorldL;
+
+	std::string m_InitFont;
+
+	std::string m_InitUIEffect;
+
+	std::string m_InitSound;
+
+	std::string m_InitScript;
 
 public:
 	Game(void);

@@ -40,6 +40,8 @@ public:
 	virtual void Update(float fElapsedTime);
 };
 
+typedef boost::shared_ptr<Controller> ControllerPtr;
+
 class PlayerController
 	: public Controller
 {
@@ -68,3 +70,5 @@ public:
 
 	void OnJoystickBtnUp(my::InputEventArg * arg);
 };
+
+typedef boost::shared_ptr<PlayerController> PlayerControllerPtr;

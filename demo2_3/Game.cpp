@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "Game.h"
-#include "../myd3dbox/Component/Actor.h"
 #include <sstream>
 #include <fstream>
 #include <luabind/luabind.hpp>
@@ -232,14 +231,32 @@ static int os_exit(lua_State * L)
 Game::Game(void)
 {
 	boost::program_options::options_description desc("Options");
+	std::vector<std::string> path_list;
 	desc.add_options()
-		("width,W", boost::program_options::value<UINT>(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
-		("height,H", boost::program_options::value<UINT>(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
+		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
+		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
+		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
+		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
+		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
+		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		;
-
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
+
+	if (path_list.empty())
+	{
+		path_list.push_back("Media");
+		path_list.push_back("..\\demo2_3\\Media");
+	}
+
+	std::vector<std::string>::const_iterator path_iter = path_list.begin();
+	for (; path_iter != path_list.end(); path_iter++)
+	{
+		ResourceMgr::RegisterFileDir(*path_iter);
+		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
+	}
 
 	LuaContext::Init();
 	lua_pushcfunction(m_State, lua_print);
@@ -382,16 +399,20 @@ HRESULT Game::OnCreateDevice(
 		THROW_CUSEXCEPTION("FModContext::Init failed");
 	}
 
-	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect("shader/UIEffect.fx", "")));
-
-	if (!(m_Font = LoadFont("font/wqy-microhei.ttc", 13)))
+	if (!(m_Font = LoadFont(m_InitFont, 13)))
 	{
 		THROW_CUSEXCEPTION("create m_Font failed");
 	}
 
+	m_UIRender.reset(new EffectUIRender(pd3dDevice, LoadEffect(m_InitUIEffect, "")));
+
 	m_Console = ConsolePtr(new Console());
 
 	m_Console->SetVisible(false);
+
+	FModContext::LoadEventFile(m_InitSound.c_str());
+
+	ExecuteCode(m_InitScript.c_str());
 
 	DialogMgr::InsertDlg(m_Console);
 
