@@ -123,7 +123,10 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 				(*actor_iter)->ReleaseResource();
 				(*actor_iter)->OnLeavePxScene(scene);
 			}
-			m_EventActorLeave(*actor_iter);
+			if (m_EventActorLeave)
+			{
+				m_EventActorLeave(*actor_iter);
+			}
 			actor_iter = m_ViewedActors.erase(actor_iter);
 		}
 		else
@@ -171,7 +174,10 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 							actor->OnEnterPxScene(scene);
 						}
 						world->m_ViewedActors.insert(actor);
-						world->m_EventActorEnter(actor);
+						if (world->m_EventActorEnter)
+						{
+							world->m_EventActorEnter(actor);
+						}
 					}
 					actor->UpdateLod(ViewPos);
 				}

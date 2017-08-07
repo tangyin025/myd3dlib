@@ -239,6 +239,7 @@ Game::Game(void)
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
+		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
 		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		;
 	boost::program_options::variables_map vm;
@@ -415,6 +416,12 @@ HRESULT Game::OnCreateDevice(
 	ExecuteCode(m_InitScript.c_str());
 
 	DialogMgr::InsertDlg(m_Console);
+
+	IStreamBuff buff(OpenIStream(m_InitScene));
+	std::istream istr(&buff);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
+	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
+	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 

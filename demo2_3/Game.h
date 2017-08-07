@@ -53,6 +53,8 @@ public:
 
 	std::string m_InitScript;
 
+	std::string m_InitScene;
+
 public:
 	Game(void);
 

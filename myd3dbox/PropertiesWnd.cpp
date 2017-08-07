@@ -1034,20 +1034,19 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				pScale = pProp->GetParent()->GetParent()->GetSubItem(2);
 				break;
 			}
-			my::Vector3 Position(
-				pPosition->GetSubItem(0)->GetValue().fltVal,
-				pPosition->GetSubItem(1)->GetValue().fltVal,
-				pPosition->GetSubItem(2)->GetValue().fltVal);
-			my::Quaternion Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
+			cmp->m_Position.x = pPosition->GetSubItem(0)->GetValue().fltVal;
+			cmp->m_Position.y = pPosition->GetSubItem(1)->GetValue().fltVal;
+			cmp->m_Position.z = pPosition->GetSubItem(2)->GetValue().fltVal;
+			cmp->m_Rotation = my::Quaternion::RotationEulerAngles(my::Vector3(
 				D3DXToRadian(pRotation->GetSubItem(0)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(1)->GetValue().fltVal),
 				D3DXToRadian(pRotation->GetSubItem(2)->GetValue().fltVal)));
-			my::Vector3 Scale(
-				pScale->GetSubItem(0)->GetValue().fltVal,
-				pScale->GetSubItem(1)->GetValue().fltVal,
-				pScale->GetSubItem(2)->GetValue().fltVal);
+			cmp->m_Scale.x = pScale->GetSubItem(0)->GetValue().fltVal;
+			cmp->m_Scale.y = pScale->GetSubItem(1)->GetValue().fltVal;
+			cmp->m_Scale.z = pScale->GetSubItem(2)->GetValue().fltVal;
 			Actor * actor = cmp->m_Actor ? cmp->m_Actor : dynamic_cast<Actor *>(cmp);
-			pFrame->SafeChangeActorPose(actor, Position, Rotation, Scale);
+			actor->UpdateAABB();
+			pFrame->m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
 			actor->UpdateRigidActorPose();
 			pFrame->UpdateSelBox();
 			pFrame->UpdatePivotTransform();
