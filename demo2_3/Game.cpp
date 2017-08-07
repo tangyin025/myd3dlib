@@ -299,7 +299,7 @@ Game::Game(void)
 			.def("LoadMaterial", &Game::LoadMaterial)
 			.def("SaveComponent", &Game::SaveComponent)
 			.def("LoadComponent", &Game::LoadComponent)
-			.def("ImportScene", &Game::ImportScene)
+			.def("LoadScene", &Game::LoadScene)
 	];
 	luabind::globals(m_State)["game"] = this;
 
@@ -417,11 +417,7 @@ HRESULT Game::OnCreateDevice(
 
 	DialogMgr::InsertDlg(m_Console);
 
-	IStreamBuff buff(OpenIStream(m_InitScene));
-	std::istream istr(&buff);
-	boost::archive::polymorphic_xml_iarchive ia(istr);
-	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
-	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
+	LoadScene(m_InitScene.c_str());
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
@@ -854,13 +850,14 @@ ComponentPtr Game::LoadComponent(const char * path)
 	return cmp;
 }
 
-void Game::ImportScene(const char * path)
+void Game::LoadScene(const char * path)
 {
 	m_WorldL.ClearAllLevels();
 	PhysXContext::ClearSerializedObjs();
 
-	std::ifstream ifs(GetFullPath(path).c_str());
-	boost::archive::polymorphic_xml_iarchive ia(ifs);
+	IStreamBuff buff(OpenIStream(path));
+	std::istream istr(&buff);
+	boost::archive::polymorphic_xml_iarchive ia(istr);
 	ia >> boost::serialization::make_nvp("PhysXContext", (PhysXContext &)*this);
 	ia >> BOOST_SERIALIZATION_NVP(m_WorldL);
 }

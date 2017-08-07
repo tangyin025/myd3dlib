@@ -138,5 +138,5 @@ public:
 
 	ComponentPtr LoadComponent(const char * path);
 
-	void ImportScene(const char * path);
+	void LoadScene(const char * path);
 };
