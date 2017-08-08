@@ -238,8 +238,8 @@ Game::Game(void)
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
 		("uieffect", boost::program_options::value(&m_InitUIEffect)->default_value("shader/UIEffect.fx"), "UI Effect")
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
-		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
+		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
 		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		;
 	boost::program_options::variables_map vm;
@@ -413,11 +413,11 @@ HRESULT Game::OnCreateDevice(
 
 	FModContext::LoadEventFile(m_InitSound.c_str());
 
+	LoadScene(m_InitScene.c_str());
+
 	ExecuteCode(m_InitScript.c_str());
 
 	DialogMgr::InsertDlg(m_Console);
-
-	LoadScene(m_InitScene.c_str());
 
 	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
 
