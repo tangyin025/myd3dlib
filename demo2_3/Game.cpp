@@ -240,6 +240,9 @@ Game::Game(void)
 		("sound", boost::program_options::value(&m_InitSound)->default_value("sound\\aaa.fev"), "Sound")
 		("scene", boost::program_options::value(&m_InitScene)->default_value("scene01.xml"), "Scene")
 		("script", boost::program_options::value(&m_InitScript)->default_value("dofile 'Main.lua'"), "Script")
+		("positionx", boost::program_options::value(&m_InitPosition.x)->default_value(0.0f), "Position.x")
+		("positiony", boost::program_options::value(&m_InitPosition.y)->default_value(0.0f), "Position.y")
+		("positionz", boost::program_options::value(&m_InitPosition.z)->default_value(0.0f), "Position.z")
 		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		;
 	boost::program_options::variables_map vm;
@@ -415,6 +418,10 @@ HRESULT Game::OnCreateDevice(
 
 	LoadScene(m_InitScene.c_str());
 
+	m_Player.reset(new Character(m_InitPosition, Quaternion::identity, Vector3(1,1,1), AABB(-1,1)));
+
+	m_WorldL.GetLevel(CPoint(0, 0))->AddActor(m_Player, m_Player->m_aabb.transform(m_Player->CalculateLocal()));
+
 	ExecuteCode(m_InitScript.c_str());
 
 	DialogMgr::InsertDlg(m_Console);
@@ -483,12 +490,6 @@ void Game::OnLostDevice(void)
 {
 	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	DxutApp::OnLostDevice();
-
-	ResourceMgr::OnLostDevice();
-
-	RenderPipeline::OnLostDevice();
-
 	m_NormalRT->OnDestroyDevice();
 
 	m_PositionRT->OnDestroyDevice();
@@ -501,25 +502,25 @@ void Game::OnLostDevice(void)
 
 		m_DownFilterRT.m_RenderTarget[i]->OnDestroyDevice();
 	}
+
+	RenderPipeline::OnLostDevice();
+
+	ResourceMgr::OnLostDevice();
+
+	DxutApp::OnLostDevice();
 }
 
 void Game::OnDestroyDevice(void)
 {
 	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
 
-	DxutApp::OnDestroyDevice();
-
-	ResourceMgr::OnDestroyDevice();
-
-	RenderPipeline::OnDestroyDevice();
-
-	ParallelTaskManager::StopParallelThread();
-
 	ExecuteCode("collectgarbage(\"collect\")");
 
-	m_Console.reset();
+	m_Player.reset();
 
 	m_WorldL.ClearAllLevels();
+
+	m_Console.reset();
 
 	RemoveAllDlg();
 
@@ -531,15 +532,23 @@ void Game::OnDestroyDevice(void)
 
 	m_ShaderCache.clear();
 
-	InputMgr::Destroy();
-
 	ImeEditBox::Uninitialize();
+
+	FModContext::Shutdown();
 
 	PhysXSceneContext::Shutdown();
 
 	PhysXContext::Shutdown();
 
-	FModContext::Shutdown();
+	RenderPipeline::OnDestroyDevice();
+
+	ParallelTaskManager::StopParallelThread();
+
+	ResourceMgr::OnDestroyDevice();
+
+	InputMgr::Destroy();
+
+	DxutApp::OnDestroyDevice();
 }
 
 void Game::OnFrameRender(

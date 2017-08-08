@@ -45,6 +45,8 @@ public:
 
 	WorldL m_WorldL;
 
+	CharacterPtr m_Player;
+
 	std::string m_InitFont;
 
 	std::string m_InitUIEffect;
@@ -54,6 +56,8 @@ public:
 	std::string m_InitScene;
 
 	std::string m_InitScript;
+
+	my::Vector3 m_InitPosition;
 
 public:
 	Game(void);
