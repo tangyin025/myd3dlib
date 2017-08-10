@@ -31,8 +31,6 @@ public:
 	CPoint GetId(void) const;
 };
 
-typedef boost::function<void (Actor *)> ActorEvent;
-
 class WorldL
 {
 public:
@@ -57,10 +55,6 @@ public:
 	typedef boost::unordered_set<Actor *> OctActorSet;
 
 	OctActorSet m_ViewedActors;
-
-	ActorEvent m_EventActorEnter;
-
-	ActorEvent m_EventActorLeave;
 
 public:
 	WorldL(void)
