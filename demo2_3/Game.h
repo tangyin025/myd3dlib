@@ -22,7 +22,6 @@ class Game
 	, public PhysXContext
 	, public PhysXSceneContext
 	, public FModContext
-	, public ControllerMgr
 {
 public:
 	typedef boost::tuple<RenderPipeline::MeshType, bool, std::string> ShaderCacheKey;

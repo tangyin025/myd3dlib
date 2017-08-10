@@ -2,7 +2,7 @@
 
 #include "myOctree.h"
 #include "RenderPipeline.h"
-#include "Animator.h"
+#include "ResourceBundle.h"
 #include "PhysXPtr.h"
 #include <boost/serialization/nvp.hpp>
 

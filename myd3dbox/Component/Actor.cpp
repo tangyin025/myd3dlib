@@ -2,6 +2,7 @@
 #include "Actor.h"
 #include "Terrain.h"
 #include "Animator.h"
+#include "Controller.h"
 #include "World.h"
 #include "PhysXContext.h"
 #include <boost/archive/polymorphic_iarchive.hpp>
@@ -25,6 +26,7 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 	ar << BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	ar << BOOST_SERIALIZATION_NVP(m_aabb);
 	ar << BOOST_SERIALIZATION_NVP(m_Animator);
+	ar << BOOST_SERIALIZATION_NVP(m_Controller);
 	ar << BOOST_SERIALIZATION_NVP(m_Cmps);
 	physx::PxActorType::Enum ActorType = m_PxActor ? m_PxActor->getType() : physx::PxActorType::eACTOR_COUNT;
 	ar << BOOST_SERIALIZATION_NVP(ActorType);
@@ -64,6 +66,11 @@ void Actor::load<boost::archive::polymorphic_iarchive>(boost::archive::polymorph
 	if (m_Animator)
 	{
 		m_Animator->m_Actor = this;
+	}
+	ar >> BOOST_SERIALIZATION_NVP(m_Controller);
+	if (m_Controller)
+	{
+		m_Controller->m_Actor = this;
 	}
 	ar >> BOOST_SERIALIZATION_NVP(m_Cmps);
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
@@ -215,6 +222,11 @@ void Actor::Update(float fElapsedTime)
 	if (m_Animator)
 	{
 		m_Animator->Update(fElapsedTime);
+	}
+
+	if (m_Controller)
+	{
+		m_Controller->Update(fElapsedTime);
 	}
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

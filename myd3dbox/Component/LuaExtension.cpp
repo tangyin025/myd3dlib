@@ -5,6 +5,8 @@
 #include <luabind/exception_handler.hpp>
 #include <luabind/iterator_policy.hpp>
 #include "Character.h"
+#include "Animator.h"
+#include "Controller.h"
 #include "World.h"
 
 namespace luabind

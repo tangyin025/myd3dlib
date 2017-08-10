@@ -3,32 +3,8 @@
 
 using namespace my;
 
-void ControllerMgr::AddController(ControllerPtr controller)
-{
-	m_controllers.insert(controller);
-}
-
-void ControllerMgr::RemoveController(ControllerPtr controller)
-{
-	m_controllers.erase(controller);
-}
-
-void ControllerMgr::ClearAllControllers(void)
-{
-	m_controllers.clear();
-}
-
-void ControllerMgr::Update(float fElapsedTime)
-{
-	ControllerPtrSet::iterator controller_iter = m_controllers.begin();
-	for (; controller_iter != m_controllers.end(); controller_iter++)
-	{
-		(*controller_iter)->Update(fElapsedTime);
-	}
-}
-
-Controller::Controller(Actor * actor)
-	: m_Actor(actor)
+Controller::Controller(void)
+	: m_Actor(NULL)
 {
 }
 
@@ -40,8 +16,7 @@ void Controller::Update(float fElapsedTime)
 {
 }
 
-PlayerController::PlayerController(Actor * actor)
-	: Controller(actor)
+PlayerController::PlayerController(void)
 {
 	InputMgr::getSingleton().m_MouseMovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
 	InputMgr::getSingleton().m_MousePressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);

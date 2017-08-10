@@ -3,6 +3,10 @@
 #include "myOctree.h"
 #include "Component.h"
 
+class Animator;
+
+class Controller;
+
 class Octree;
 
 class Actor
@@ -14,7 +18,9 @@ public:
 
 	my::AABB m_aabb;
 
-	AnimatorPtr m_Animator;
+	boost::shared_ptr<Animator> m_Animator;
+
+	boost::shared_ptr<Controller> m_Controller;
 
 	typedef std::vector<ComponentPtr> ComponentPtrList;
 

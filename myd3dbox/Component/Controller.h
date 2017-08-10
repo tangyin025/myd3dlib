@@ -1,30 +1,5 @@
 #pragma once
 
-class Controller;
-
-typedef boost::shared_ptr<Controller> ControllerPtr;
-
-class ControllerMgr
-{
-public:
-	typedef std::set<ControllerPtr> ControllerPtrSet;
-
-	ControllerPtrSet m_controllers;
-
-public:
-	ControllerMgr(void)
-	{
-	}
-
-	void AddController(ControllerPtr controller);
-
-	void RemoveController(ControllerPtr controller);
-
-	void ClearAllControllers(void);
-
-	void Update(float fElapsedTime);
-};
-
 class Actor;
 
 class Controller
@@ -33,9 +8,14 @@ public:
 	Actor * m_Actor;
 
 public:
-	Controller(Actor * actor);
+	Controller(void);
 
 	virtual ~Controller(void);
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+	}
 
 	virtual void Update(float fElapsedTime);
 };
@@ -46,9 +26,15 @@ class PlayerController
 	: public Controller
 {
 public:
-	PlayerController(Actor * actor);
+	PlayerController(void);
 
 	virtual ~PlayerController(void);
+
+	template <class Archive>
+	void serialize(Archive & ar, const unsigned int version)
+	{
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Controller);
+	}
 
 	virtual void Update(float fElapsedTime);
 

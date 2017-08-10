@@ -58,9 +58,9 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	desc.reportCallback = this;
 	desc.behaviorCallback = this;
 	desc.userData = this;
-	m_Controller.reset(scene->m_ControllerMgr->createController(desc));
+	m_PxController.reset(scene->m_ControllerMgr->createController(desc));
 
-	physx::PxActor * actor = m_Controller->getActor();
+	physx::PxActor * actor = m_PxController->getActor();
 	actor->userData = this;
 
 	scene->m_EventPxThreadSubstep.connect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
@@ -70,7 +70,7 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 {
 	scene->m_EventPxThreadSubstep.disconnect(boost::bind(&Character::OnPxThreadSubstep, this, _1));
 
-	m_Controller.reset();
+	m_PxController.reset();
 
 	m_PxMaterial.reset();
 
@@ -83,9 +83,9 @@ void Character::Update(float fElapsedTime)
 
 	m_Velocity += m_Acceleration * fElapsedTime;
 
-	physx::PxControllerCollisionFlags flags = m_Controller->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
+	physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
 
-	//m_Position = (Vector3&)toVec3(m_Controller->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+	//m_Position = (Vector3&)toVec3(m_PxController->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
 
 	//UpdateWorld();
 }
