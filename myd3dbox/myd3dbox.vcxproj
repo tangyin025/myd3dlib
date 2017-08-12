@@ -144,7 +144,6 @@
     <ClCompile Include="Component\Character.cpp" />
     <ClCompile Include="Component\Component.cpp" />
     <ClCompile Include="Component\FModContext.cpp" />
-    <ClCompile Include="Component\LuaExtension.cpp" />
     <ClCompile Include="Component\PhysXContext.cpp" />
     <ClCompile Include="Component\RenderPipeline.cpp" />
     <ClCompile Include="Component\ResourceBundle.cpp" />
@@ -172,7 +171,6 @@
     <ClInclude Include="Component\Character.h" />
     <ClInclude Include="Component\Component.h" />
     <ClInclude Include="Component\FModContext.h" />
-    <ClInclude Include="Component\LuaExtension.h" />
     <ClInclude Include="Component\PhysXContext.h" />
     <ClInclude Include="Component\PhysXPtr.h" />
     <ClInclude Include="Component\RenderPipeline.h" />
@@ -201,17 +199,8 @@
     <ProjectReference Include="..\freetype\scripts\freetype.vcxproj">
       <Project>{ab3a72ec-552c-41bd-9d73-761d2419d4d1}</Project>
     </ProjectReference>
-    <ProjectReference Include="..\libboost_program_options\scripts\libboost_program_options.vcxproj">
-      <Project>{79940869-b99a-42b6-9e8e-d683614c630a}</Project>
-    </ProjectReference>
     <ProjectReference Include="..\libboost_serialization\scripts\libboost_serialization.vcxproj">
       <Project>{97882a3e-fe4e-4cff-9863-517ffd484289}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\lua51\scripts\lua51.vcxproj">
-      <Project>{198a862b-2908-48a8-8654-5d6b4583e441}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\luabind\scripts\luabind.vcxproj">
-      <Project>{8f8c0f3c-baec-48ff-900a-33c045bb395f}</Project>
     </ProjectReference>
     <ProjectReference Include="..\myd3dlib\scripts\myd3dlib.vcxproj">
       <Project>{1f5cf866-21b8-4f4b-b9d1-6159003e468f}</Project>

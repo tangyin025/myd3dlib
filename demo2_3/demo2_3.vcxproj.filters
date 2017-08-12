@@ -54,9 +54,6 @@
     <ClCompile Include="..\myd3dbox\Component\FModContext.cpp">
       <Filter>Component</Filter>
     </ClCompile>
-    <ClCompile Include="..\myd3dbox\Component\LuaExtension.cpp">
-      <Filter>Component</Filter>
-    </ClCompile>
     <ClCompile Include="..\myd3dbox\Component\PhysXContext.cpp">
       <Filter>Component</Filter>
     </ClCompile>
@@ -74,6 +71,9 @@
     </ClCompile>
     <ClCompile Include="..\myd3dbox\Component\Controller.cpp">
       <Filter>Component</Filter>
+    </ClCompile>
+    <ClCompile Include="LuaExtension.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -107,9 +107,6 @@
     <ClInclude Include="..\myd3dbox\Component\FModContext.h">
       <Filter>Component</Filter>
     </ClInclude>
-    <ClInclude Include="..\myd3dbox\Component\LuaExtension.h">
-      <Filter>Component</Filter>
-    </ClInclude>
     <ClInclude Include="..\myd3dbox\Component\PhysXContext.h">
       <Filter>Component</Filter>
     </ClInclude>
@@ -130,6 +127,9 @@
     </ClInclude>
     <ClInclude Include="..\myd3dbox\Component\Controller.h">
       <Filter>Component</Filter>
+    </ClInclude>
+    <ClInclude Include="LuaExtension.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

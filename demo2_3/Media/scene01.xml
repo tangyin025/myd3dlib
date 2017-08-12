@@ -109,12 +109,15 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 														<m_Animator class_id="19" tracking_level="0" version="1">
 															<px class_id="-1"></px>
 														</m_Animator>
-														<m_Cmps class_id="21" tracking_level="0" version="0">
+														<m_Controller class_id="21" tracking_level="0" version="1">
+															<px class_id="-1"></px>
+														</m_Controller>
+														<m_Cmps class_id="23" tracking_level="0" version="0">
 															<count>1</count>
 															<item_version>1</item_version>
-															<item class_id="22" tracking_level="0" version="1">
-																<px class_id="23" class_name="MeshComponent" tracking_level="1" version="0" object_id="_6">
-																	<RenderComponent class_id="24" tracking_level="0" version="0">
+															<item class_id="24" tracking_level="0" version="1">
+																<px class_id="25" class_name="MeshComponent" tracking_level="1" version="0" object_id="_6">
+																	<RenderComponent class_id="26" tracking_level="0" version="0">
 																		<Component object_id="_7">
 																			<m_Type>3</m_Type>
 																			<m_Position>
@@ -153,25 +156,25 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 																			</m_World>
 																		</Component>
 																	</RenderComponent>
-																	<m_MeshRes class_id="25" tracking_level="0" version="0">
-																		<m_Path>mesh\Cone.mesh.xml</m_Path>
+																	<m_MeshRes class_id="27" tracking_level="0" version="0">
+																		<m_Path>E:\Works\VC++\D3DSolution\myd3dlib\demo2_3\Media\mesh\Cone.mesh.xml</m_Path>
 																	</m_MeshRes>
 																	<m_bInstance>0</m_bInstance>
 																	<m_bUseAnimation>0</m_bUseAnimation>
-																	<m_MaterialList class_id="26" tracking_level="0" version="0">
+																	<m_MaterialList class_id="28" tracking_level="0" version="0">
 																		<count>1</count>
 																		<item_version>1</item_version>
-																		<item class_id="27" tracking_level="0" version="1">
-																			<px class_id="28" tracking_level="1" version="0" object_id="_8">
+																		<item class_id="29" tracking_level="0" version="1">
+																			<px class_id="30" tracking_level="1" version="0" object_id="_8">
 																				<m_Shader>lambert1.fx</m_Shader>
 																				<m_PassMask>11</m_PassMask>
-																				<m_MeshColor class_id="29" tracking_level="0" version="0">
+																				<m_MeshColor class_id="31" tracking_level="0" version="0">
 																					<x>1.000000000e+000</x>
 																					<y>1.000000000e+000</y>
 																					<z>1.000000000e+000</z>
 																					<w>1.000000000e+000</w>
 																				</m_MeshColor>
-																				<m_MeshTexture class_id="30" tracking_level="0" version="0">
+																				<m_MeshTexture class_id="32" tracking_level="0" version="0">
 																					<m_Path>texture/Checker.bmp</m_Path>
 																				</m_MeshTexture>
 																				<m_NormalTexture>
@@ -191,14 +194,14 @@ AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==
 														<m_PxActor>
 U0VCRAAEAwMAAAAA7h8zAVdfMzIBAAAAAAAAAAAAAAADAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAAI
 AM3NQAAAAAcAzc0QAQAABgDNzYABAAAAAAAAAAAAAAAAAAAAAAAAAwAAAAAAAAgAAAAAAAAAAM3N
-zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAACgDAoIAAAA
-gAEAAABQCiAIAAAAgAIAAACgLiYIAAAAgAAAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAACA0uVj
-CAADAAAAAADk0uVjAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMygLiYIAAAAAM3Nzc3N
-zc3NgHDmYwcAAwAAAAAAQHHmYwMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
+zc0AAAAHAAAAAAEAAADNzc3NAAAABgAAAAACAAAAzc3NzQAAAAAAAAAAAAAAAAMAAABQfL0HAAAA
+gAIAAADQqr0HAAAAgAAAAABgQtYHAAAAgAEAAAABAAAAAAAAAAEAAAAAAAAAAAAAAAAAAACA0h1i
+CAADAAAAAADk0h1iAgAAAM3Nzc3Nzc3Nzc3NzQAAAD8AAAA/AAAAPwAAAMzQqr0HAAAAAM3Nzc3N
+zc3NgHAeYgcAAwAAAAAAQHEeYgMAAAAAAAAAzc3Nzc3Nzc0AAAAAAAAAAgAAAADNzc3NAAAAAAAA
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAPQENT/0BDU/AAAAAAAAAAAAAAAACtej
 PAvNAAABAAAAzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3Nzc3N
-zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzQAZ5mMGAAMAsAuXBQAAAAAA
-AAAAoAwKCAEAAQECAAAAAQABAQAAAADNzc3Nzc3NzUDpgwUAAACFAAAAAM3Nzc3/////PDWEBQEA
+zc3Nzc3Nzc0AAAAAAc3Nzc3Nzc3Nzc3NAAAAAADNzc3Nzc3Nzc3NzQAZHmIGAAMAGHlQBQAAAAAA
+AAAAYELWBwEAAQECAAAAAQABAQAAAADNzc3Nzc3NzbAvRgUAAACFAAAAAM3Nzc3/////bLVGBQEA
 AAAAAM3NAAAAAAAAAAAAAAAAAACAPwAAAAAAAAAAAAAAAADNzc0AAAAAAAAAAAAAAAAAAAAAAAAA
 AA==
 														</m_PxActor>

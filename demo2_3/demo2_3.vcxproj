@@ -103,6 +103,7 @@
     <ClCompile Include="..\myd3dbox\Component\World.cpp" />
     <ClCompile Include="Console.cpp" />
     <ClCompile Include="Game.cpp" />
+    <ClCompile Include="LuaExtension.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -115,7 +116,6 @@
     <ClCompile Include="..\myd3dbox\Component\Character.cpp" />
     <ClCompile Include="..\myd3dbox\Component\Component.cpp" />
     <ClCompile Include="..\myd3dbox\Component\FModContext.cpp" />
-    <ClCompile Include="..\myd3dbox\Component\LuaExtension.cpp" />
     <ClCompile Include="..\myd3dbox\Component\PhysXContext.cpp" />
     <ClCompile Include="..\myd3dbox\Component\RenderPipeline.cpp" />
     <ClCompile Include="..\myd3dbox\Component\ResourceBundle.cpp" />
@@ -126,6 +126,7 @@
     <ClInclude Include="..\myd3dbox\Component\World.h" />
     <ClInclude Include="Console.h" />
     <ClInclude Include="Game.h" />
+    <ClInclude Include="LuaExtension.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="Net\Socket.h" />
     <ClInclude Include="Net\SocketAPI.h" />
@@ -134,7 +135,6 @@
     <ClInclude Include="..\myd3dbox\Component\Character.h" />
     <ClInclude Include="..\myd3dbox\Component\Component.h" />
     <ClInclude Include="..\myd3dbox\Component\FModContext.h" />
-    <ClInclude Include="..\myd3dbox\Component\LuaExtension.h" />
     <ClInclude Include="..\myd3dbox\Component\PhysXContext.h" />
     <ClInclude Include="..\myd3dbox\Component\PhysXPtr.h" />
     <ClInclude Include="..\myd3dbox\Component\RenderPipeline.h" />

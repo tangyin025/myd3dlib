@@ -8,8 +8,6 @@ class Character
 	, public physx::PxControllerBehaviorCallback
 {
 public:
-	my::Vector3 m_Face;
-
 	my::Vector3 m_Acceleration;
 
 	my::Vector3 m_Velocity;
@@ -21,7 +19,6 @@ public:
 public:
 	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)
 		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
-		, m_Face(0,0,0)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
 	{
@@ -29,7 +26,6 @@ public:
 
 	Character(void)
 		: Actor(ComponentTypeCharacter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
-		, m_Face(0,0,0)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
 	{
