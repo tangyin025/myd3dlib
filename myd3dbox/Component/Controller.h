@@ -26,6 +26,21 @@ class PlayerController
 	: public Controller
 {
 public:
+	my::Vector3 m_LookAngles;
+
+	my::Vector3 m_LookDir;
+
+	float m_LookDist;
+
+	float m_FaceAngle;
+
+	float m_FaceAngleInerp;
+
+	int m_InputLtRt;
+
+	int m_InputUpDn;
+
+public:
 	PlayerController(void);
 
 	virtual ~PlayerController(void);
