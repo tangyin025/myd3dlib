@@ -226,7 +226,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	//m_emitter->m_Material.reset(new Material());
 	//m_emitter->m_Material->m_Shader = "lambert1.fx";
 	//m_emitter->m_Material->m_PassMask = RenderPipeline::PassMaskOpaque;
-	//m_emitter->m_Material->m_MeshTexture.m_Path = "texture/Checker.bmp";
+	//m_emitter->m_Material->m_MeshTexture.m_Path = theApp.default_mesh_texture;
 	//m_emitter->RequestResource();
 	////m_emitter->m_Emitter->Spawn(my::Vector3(0,0,0), my::Vector3(0,0,0), D3DCOLOR_ARGB(255,255,255,255), my::Vector2(1,1), 0);
 	return 0;
@@ -692,9 +692,9 @@ void CMainFrame::OnComponentMesh()
 		MaterialPtr lambert1(new Material());
 		lambert1->m_Shader = "lambert1.fx";
 		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+		lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+		lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
+		lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 		mesh_cmp->m_MaterialList.push_back(lambert1);
 	}
 	mesh_cmp->RequestResource();
@@ -744,9 +744,9 @@ void CMainFrame::OnComponentCloth()
 		MaterialPtr lambert1(new Material());
 		lambert1->m_Shader = "lambert1.fx";
 		lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-		lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-		lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-		lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+		lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+		lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
+		lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 		cloth_cmp->m_MaterialList.push_back(lambert1);
 	}
 	cloth_cmp->RequestResource();
@@ -781,7 +781,7 @@ void CMainFrame::OnComponentStaticEmitter()
 	MaterialPtr particle1(new Material());
 	particle1->m_Shader = "particle1.fx";
 	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	particle1->m_MeshTexture.m_Path = theApp.default_particle_texture;
 	emit_cmp->m_Material = particle1;
 	emit_cmp->RequestResource();
 	emit_cmp->OnEnterPxScene(this);
@@ -833,7 +833,7 @@ void CMainFrame::OnComponentSphericalemitter()
 	MaterialPtr particle1(new Material());
 	particle1->m_Shader = "particle1.fx";
 	particle1->m_PassMask = RenderPipeline::PassMaskTransparent;
-	particle1->m_MeshTexture.m_Path = "texture/flare.dds";
+	particle1->m_MeshTexture.m_Path = theApp.default_particle_texture;
 	sphe_emit_cmp->m_Material = particle1;
 	sphe_emit_cmp->RequestResource();
 	sphe_emit_cmp->OnEnterPxScene(this);
@@ -865,9 +865,9 @@ void CMainFrame::OnComponentTerrain()
 	MaterialPtr lambert1(new Material());
 	lambert1->m_Shader = "lambert1.fx";
 	lambert1->m_PassMask = RenderPipeline::PassMaskOpaque;
-	lambert1->m_MeshTexture.m_Path = "texture/Checker.bmp";
-	lambert1->m_NormalTexture.m_Path = "texture/Normal.dds";
-	lambert1->m_SpecularTexture.m_Path = "texture/White.dds";
+	lambert1->m_MeshTexture.m_Path = theApp.default_mesh_texture;
+	lambert1->m_NormalTexture.m_Path = theApp.default_normal_texture;
+	lambert1->m_SpecularTexture.m_Path = theApp.default_specular_texture;
 	terrain->m_Material = lambert1;
 	terrain->RequestResource();
 	terrain->OnEnterPxScene(this);

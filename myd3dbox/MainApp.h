@@ -32,6 +32,12 @@ public:
 	my::UIRenderPtr m_UIRender;
 	my::FontPtr m_Font;
 
+	// cfg
+	std::string default_mesh_texture;
+	std::string default_normal_texture;
+	std::string default_specular_texture;
+	std::string default_particle_texture;
+
 	BOOL CreateD3DDevice(HWND hWnd);
 	BOOL ResetD3DDevice(void);
 	void DestroyD3DDevice(void);

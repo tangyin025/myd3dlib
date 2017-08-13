@@ -233,6 +233,7 @@ Game::Game(void)
 	boost::program_options::options_description desc("Options");
 	std::vector<std::string> path_list;
 	desc.add_options()
+		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		("width", boost::program_options::value(&m_WindowBackBufferWidthAtModeChange)->default_value(800), "Width")
 		("height", boost::program_options::value(&m_WindowBackBufferHeightAtModeChange)->default_value(600), "Height")
 		("font", boost::program_options::value(&m_InitFont)->default_value("font/wqy-microhei.ttc"), "Font")
@@ -243,18 +244,15 @@ Game::Game(void)
 		("positionx", boost::program_options::value(&m_InitPosition.x)->default_value(0.0f), "Position.x")
 		("positiony", boost::program_options::value(&m_InitPosition.y)->default_value(0.0f), "Position.y")
 		("positionz", boost::program_options::value(&m_InitPosition.z)->default_value(0.0f), "Position.z")
-		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
 		;
 	boost::program_options::variables_map vm;
 	boost::program_options::store(boost::program_options::parse_command_line(__argc, __targv, desc), vm);
 	boost::program_options::notify(vm);
-
 	if (path_list.empty())
 	{
 		path_list.push_back("Media");
 		path_list.push_back("..\\demo2_3\\Media");
 	}
-
 	std::vector<std::string>::const_iterator path_iter = path_list.begin();
 	for (; path_iter != path_list.end(); path_iter++)
 	{

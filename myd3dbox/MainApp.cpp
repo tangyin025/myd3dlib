@@ -7,6 +7,7 @@
 #include "MainApp.h"
 #include "MainFrm.h"
 #include "ChildView.h"
+#include <boost/program_options.hpp>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -182,14 +183,33 @@ BOOL CMainApp::InitInstance()
 	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
 		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
-	char CurrDir[MAX_PATH];
-	GetCurrentDirectoryA(_countof(CurrDir), CurrDir);
+	char buff[MAX_PATH];
+	GetModuleFileNameA(NULL, buff, _countof(buff));
+	std::string cfg_file(PathFindFileNameA(buff), PathFindExtensionA(buff));
 
-	char BuffDir[MAX_PATH];
-	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "Media"));
-	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "Media.zip"));
-	RegisterFileDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media"));
-	RegisterZipDir(PathCombineA(BuffDir, CurrDir, "..\\demo2_3\\Media.zip"));
+	boost::program_options::options_description desc("Options");
+	std::vector<std::string> path_list;
+	desc.add_options()
+		("path", boost::program_options::value<std::vector<std::string> >(&path_list), "Path")
+		("default_mesh_texture", boost::program_options::value(&default_mesh_texture)->default_value("texture/Checker.bmp"), "Default mesh texture")
+		("default_normal_texture", boost::program_options::value(&default_normal_texture)->default_value("texture/Normal.dds"), "Default normal texture")
+		("default_specular_texture", boost::program_options::value(&default_specular_texture)->default_value("texture/White.dds"), "Default specular texture")
+		("default_particle_texture", boost::program_options::value(&default_particle_texture)->default_value("texture/flare.dds"), "Default particle texture")
+		;
+	boost::program_options::variables_map vm;
+	boost::program_options::store(boost::program_options::parse_config_file<char>((cfg_file + ".cfg").c_str(), desc, true), vm);
+	boost::program_options::notify(vm);
+	if (path_list.empty())
+	{
+		path_list.push_back("Media");
+		path_list.push_back("..\\demo2_3\\Media");
+	}
+	std::vector<std::string>::const_iterator path_iter = path_list.begin();
+	for (; path_iter != path_list.end(); path_iter++)
+	{
+		ResourceMgr::RegisterFileDir(*path_iter);
+		ResourceMgr::RegisterZipDir(*path_iter + ".zip");
+	}
 
 	_ASSERT(GetCurrentThreadId() == D3DContext::getSingleton().m_d3dThreadId);
 
