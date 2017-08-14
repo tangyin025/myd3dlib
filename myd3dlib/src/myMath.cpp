@@ -123,6 +123,8 @@ Vector3 Vector3::transform(const Quaternion & q) const
 
 const Vector3 Vector3::zero(0, 0, 0);
 
+const Vector3 Vector3::one(1, 1, 1);
+
 const Vector3 Vector3::unitX(1, 0, 0);
 
 const Vector3 Vector3::unitY(0, 1, 0);

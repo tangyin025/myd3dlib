@@ -618,6 +618,8 @@ namespace my
 
 		static const Vector3 zero;
 
+		static const Vector3 one;
+
 		static const Vector3 unitX;
 
 		static const Vector3 unitY;
@@ -2117,6 +2119,11 @@ namespace my
 		static Matrix4 Compose(const Vector3 & Scale, const Quaternion & Rotate, const Vector3 & Translate)
 		{
 			return Scaling(Scale) * RotationQuaternion(Rotate) * Translation(Translate);
+		}
+
+		static Matrix4 Compose(const Vector3 & Scale, const Vector3 & ypr, const Vector3 & Translate)
+		{
+			return Scaling(Scale) * RotationYawPitchRoll(ypr.x, ypr.y, ypr.z) * Translation(Translate);
 		}
 
 		float determinant(void) const
