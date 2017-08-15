@@ -859,3 +859,175 @@ void Joystick::Capture(void)
 		}
 	}
 }
+
+void InputMgr::Create(HINSTANCE hinst, HWND hwnd)
+{
+	m_input.reset(new Input);
+	m_input->CreateInput(hinst);
+
+	m_keyboard.reset(new Keyboard);
+	m_keyboard->CreateKeyboard(m_input->m_ptr, hwnd);
+
+	m_mouse.reset(new Mouse);
+	m_mouse->CreateMouse(m_input->m_ptr, hwnd);
+
+	JoystickEnumDesc desc;
+	desc.input = m_input->m_ptr;
+	desc.hwnd = hwnd;
+	desc.min_x = -255;
+	desc.max_x =  255;
+	desc.min_y = -255;
+	desc.max_y =  255;
+	desc.min_z = -255;
+	desc.max_z =  255;
+	desc.dead_zone = 10;
+	m_input->EnumDevices(DI8DEVCLASS_GAMECTRL, JoystickFinderCallback, &desc, DIEDFL_ATTACHEDONLY);
+	m_joystick = desc.joystick;
+
+	//::GetCursorPos(&m_MousePos);
+	//::ScreenToClient(hwnd, &m_MousePos);
+}
+
+void InputMgr::Destroy(void)
+{
+	m_keyboard.reset();
+	m_mouse.reset();
+	m_joystick.reset();
+	m_input.reset();
+}
+
+void InputMgr::Update(double fTime, float fElapsedTime)
+{
+	m_keyboard->Capture();
+
+	m_mouse->Capture();
+
+	if (m_joystick)
+	{
+		m_joystick->Capture();
+	}
+}
+//
+//bool InputMgr::MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+//{
+//	switch(uMsg)
+//	{
+//	case WM_KEYDOWN:
+//		if (!(0x40000000 & lParam) && m_KeyPressedEvent)
+//		{
+//			KeyboardEventArg arg(wParam);
+//			m_KeyPressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_SYSKEYDOWN:
+//		if (!(0x40000000 & lParam) && m_KeyPressedEvent)
+//		{
+//			KeyboardEventArg arg(wParam);
+//			m_KeyPressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_KEYUP:
+//		if (m_KeyReleasedEvent)
+//		{
+//			KeyboardEventArg arg(wParam);
+//			m_KeyReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_SYSKEYUP:
+//		if (m_KeyReleasedEvent)
+//		{
+//			KeyboardEventArg arg(wParam);
+//			m_KeyReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MOUSEMOVE:
+//		if (m_MouseMovedEvent)
+//		{
+//			CPoint OldMousePos(m_MousePos);
+//			m_MousePos.SetPoint(LOWORD(lParam), HIWORD(lParam));
+//			MouseMoveEventArg arg(m_MousePos.x - OldMousePos.x, m_MousePos.y - OldMousePos.y, 0);
+//			m_MouseMovedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_LBUTTONDOWN:
+//		if (m_MousePressedEvent)
+//		{
+//			MouseBtnEventArg arg(0);
+//			m_MousePressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_LBUTTONUP:
+//		if (m_MouseReleasedEvent)
+//		{
+//			MouseBtnEventArg arg(0);
+//			m_MouseReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MBUTTONDOWN:
+//		if (m_MousePressedEvent)
+//		{
+//			MouseBtnEventArg arg(2);
+//			m_MousePressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MBUTTONUP:
+//		if (m_MouseReleasedEvent)
+//		{
+//			MouseBtnEventArg arg(2);
+//			m_MouseReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_RBUTTONDOWN:
+//		if (m_MousePressedEvent)
+//		{
+//			MouseBtnEventArg arg(1);
+//			m_MousePressedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_RBUTTONUP:
+//		if (m_MouseReleasedEvent)
+//		{
+//			MouseBtnEventArg arg(1);
+//			m_MouseReleasedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	case WM_MOUSEWHEEL:
+//		if (m_MouseMovedEvent)
+//		{
+//			MouseMoveEventArg arg(0, 0, (short)HIWORD(wParam) / WHEEL_DELTA);
+//			m_MouseMovedEvent(&arg);
+//			return arg.handled;
+//		}
+//		break;
+//	}
+//	return false;
+//}
+
+BOOL CALLBACK InputMgr::JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef)
+{
+	_ASSERT(lpddi && pvRef);
+
+	if(lpddi->dwDevType & DI8DEVTYPE_JOYSTICK)
+	{
+		JoystickEnumDesc * desc = static_cast<JoystickEnumDesc *>(pvRef);
+		JoystickPtr joystick(new Joystick);
+		joystick->CreateJoystick(
+			desc->input, desc->hwnd, lpddi->guidInstance, desc->min_x, desc->max_x, desc->min_y, desc->max_y, desc->min_z, desc->max_z, desc->dead_zone);
+		_ASSERT(!desc->joystick);
+		desc->joystick = joystick;
+		return DIENUM_STOP;
+	}
+
+	return DIENUM_CONTINUE;
+}

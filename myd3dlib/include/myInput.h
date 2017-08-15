@@ -5,6 +5,7 @@
 #include <dinput.h>
 #include <atlbase.h>
 #include <boost/function.hpp>
+#include "mySingleton.h"
 
 namespace my
 {
@@ -457,4 +458,45 @@ namespace my
 	};
 
 	typedef boost::shared_ptr<Joystick> JoystickPtr;
+
+	class InputMgr : public SingleInstance<InputMgr>
+	{
+	public:
+		struct JoystickEnumDesc
+		{
+			LPDIRECTINPUT8 input;
+			HWND hwnd;
+			LONG min_x;
+			LONG max_x;
+			LONG min_y;
+			LONG max_y;
+			LONG min_z;
+			LONG max_z;
+			float dead_zone;
+			JoystickPtr joystick;
+		};
+
+		InputPtr m_input;
+
+		KeyboardPtr m_keyboard;
+
+		MousePtr m_mouse;
+
+		JoystickPtr m_joystick;
+
+	public:
+		InputMgr(void)
+		{
+		}
+
+		void Create(HINSTANCE hinst, HWND hwnd);
+
+		void Destroy(void);
+
+		void Update(double fTime, float fElapsedTime);
+
+		//bool MsgProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+
+		static BOOL CALLBACK JoystickFinderCallback(LPCDIDEVICEINSTANCE lpddi, LPVOID pvRef);
+	};
 }

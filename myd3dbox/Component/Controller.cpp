@@ -20,12 +20,11 @@ void Controller::Update(float fElapsedTime)
 PlayerController::PlayerController(void)
 	: m_LookAngle(0,0,0)
 {
-	InputMgr::getSingleton().m_MouseMovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
-	InputMgr::getSingleton().m_MousePressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);
-	InputMgr::getSingleton().m_MouseReleasedEvent = boost::bind(&PlayerController::OnMouseBtnUp, this, _1);
-	InputMgr::getSingleton().m_KeyPressedEvent = boost::bind(&PlayerController::OnKeyDown, this, _1);
-	InputMgr::getSingleton().m_KeyReleasedEvent = boost::bind(&PlayerController::OnKeyUp, this, _1);
-
+	InputMgr::getSingleton().m_mouse->m_MovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
+	InputMgr::getSingleton().m_mouse->m_PressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);
+	InputMgr::getSingleton().m_mouse->m_ReleasedEvent = boost::bind(&PlayerController::OnMouseBtnUp, this, _1);
+	InputMgr::getSingleton().m_keyboard->m_PressedEvent = boost::bind(&PlayerController::OnKeyDown, this, _1);
+	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent = boost::bind(&PlayerController::OnKeyUp, this, _1);
 	if (InputMgr::getSingleton().m_joystick)
 	{
 		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent = boost::bind(&PlayerController::OnJoystickAxisMove, this, _1);
@@ -37,12 +36,11 @@ PlayerController::PlayerController(void)
 
 PlayerController::~PlayerController(void)
 {
-	InputMgr::getSingleton().m_MouseMovedEvent.clear();
-	InputMgr::getSingleton().m_MousePressedEvent.clear();
-	InputMgr::getSingleton().m_MouseReleasedEvent.clear();
-	InputMgr::getSingleton().m_KeyPressedEvent.clear();
-	InputMgr::getSingleton().m_KeyReleasedEvent.clear();
-
+	InputMgr::getSingleton().m_mouse->m_MovedEvent.clear();
+	InputMgr::getSingleton().m_mouse->m_PressedEvent.clear();
+	InputMgr::getSingleton().m_mouse->m_ReleasedEvent.clear();
+	InputMgr::getSingleton().m_keyboard->m_PressedEvent.clear();
+	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent.clear();
 	if (InputMgr::getSingleton().m_joystick)
 	{
 		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent.clear();

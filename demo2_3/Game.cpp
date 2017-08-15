@@ -662,11 +662,6 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	if((*pbNoFurtherProcessing = InputMgr::MsgProc(hWnd, uMsg, wParam, lParam)))
-	{
-		return 0;
-	}
-
 	//LRESULT lr;
 	//if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
 	//{
