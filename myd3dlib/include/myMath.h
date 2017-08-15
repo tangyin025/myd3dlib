@@ -2123,7 +2123,7 @@ namespace my
 
 		static Matrix4 Compose(const Vector3 & Scale, const Vector3 & ypr, const Vector3 & Translate)
 		{
-			return Scaling(Scale) * RotationYawPitchRoll(ypr.x, ypr.y, ypr.z) * Translation(Translate);
+			return Scaling(Scale) * RotationYawPitchRoll(ypr.y, ypr.x, ypr.z) * Translation(Translate);
 		}
 
 		float determinant(void) const
