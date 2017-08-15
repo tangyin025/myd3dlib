@@ -177,7 +177,7 @@ void OrthoCamera::UpdateViewProj(void)
 
 	m_View = (Rotation * Matrix4::Translation(m_Eye)).inverse();
 
-	m_Proj = Matrix4::OrthoRH(m_Diagonal * cos(atan2(1, m_Aspect)), m_Diagonal * sin(atan2(1, m_Aspect)), m_Nz, m_Fz);
+	m_Proj = Matrix4::OrthoRH(m_Diagonal * cosf(atan2f(1, m_Aspect)), m_Diagonal * sinf(atan2f(1, m_Aspect)), m_Nz, m_Fz);
 
 	m_ViewProj = m_View * m_Proj;
 
@@ -211,7 +211,49 @@ void OrthoCamera::OnViewportChanged(const Vector2 & Viewport)
 
 float OrthoCamera::CalculateViewportScaler(Vector3 WorldPos) const
 {
-	return m_Diagonal * cos(atan2(1, m_Aspect)) * 0.5f;
+	return m_Diagonal * cosf(atan2f(1, m_Aspect)) * 0.5f;
+}
+
+void PerspectiveCamera::UpdateViewProj(void)
+{
+	m_View = Matrix4::Compose(Vector3::one, m_Eular, m_Eye).inverse();
+
+	m_Proj = Matrix4::PerspectiveFovRH(m_Fov, m_Aspect, m_Nz, m_Fz);
+
+	m_ViewProj = m_View * m_Proj;
+
+	m_InverseViewProj = m_ViewProj.inverse();
+}
+
+LRESULT PerspectiveCamera::MsgProc(
+	HWND hWnd,
+	UINT uMsg,
+	WPARAM wParam,
+	LPARAM lParam,
+	bool * pbNoFurtherProcessing)
+{
+	return 0;
+}
+
+Ray PerspectiveCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
+{
+	return PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+Frustum PerspectiveCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
+{
+	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
+}
+
+void PerspectiveCamera::OnViewportChanged(const Vector2 & Viewport)
+{
+	m_Aspect = Viewport.x / Viewport.y;
+}
+
+float PerspectiveCamera::CalculateViewportScaler(Vector3 WorldPos) const
+{
+	float z = Vector4(WorldPos, 1.0f).dot(-m_View.column<2>());
+	return z * tan(m_Fov * 0.5f);
 }
 
 void ModelViewerCamera::UpdateViewProj(void)
@@ -336,27 +378,6 @@ LRESULT ModelViewerCamera::MsgProc(
 		return 0;
 	}
 	return 0;
-}
-
-Ray ModelViewerCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
-{
-	return PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
-}
-
-Frustum ModelViewerCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
-{
-	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
-}
-
-void ModelViewerCamera::OnViewportChanged(const Vector2 & Viewport)
-{
-	m_Aspect = Viewport.x / Viewport.y;
-}
-
-float ModelViewerCamera::CalculateViewportScaler(Vector3 WorldPos) const
-{
-	float z = Vector4(WorldPos, 1.0f).dot(-m_View.column<2>());
-	return z * tan(m_Fov * 0.5f);
 }
 
 void FirstPersonCamera::UpdateViewProj(void)
@@ -488,27 +509,6 @@ LRESULT FirstPersonCamera::MsgProc(
 		break;
 	}
 	return 0;
-}
-
-Ray FirstPersonCamera::CalculateRay(const Vector2 & pt, const CSize & dim)
-{
-	return PerspectiveRay(m_InverseViewProj, m_Eye, pt, Vector2((float)dim.cx, (float)dim.cy));
-}
-
-Frustum FirstPersonCamera::CalculateFrustum(const my::Rectangle & rc, const CSize & dim)
-{
-	return RectangleToFrustum(m_InverseViewProj, rc, Vector2((float)dim.cx, (float)dim.cy));
-}
-
-void FirstPersonCamera::OnViewportChanged(const Vector2 & Viewport)
-{
-	m_Aspect = Viewport.x / Viewport.y;
-}
-
-float FirstPersonCamera::CalculateViewportScaler(Vector3 WorldPos) const
-{
-	float z = Vector4(WorldPos, 1.0f).dot(m_View.column<2>());
-	return z * tan(m_Fov * 0.5f);
 }
 
 void InputMgr::Create(HINSTANCE hinst, HWND hwnd)

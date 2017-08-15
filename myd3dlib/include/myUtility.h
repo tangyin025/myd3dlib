@@ -101,8 +101,6 @@ namespace my
 	class BaseCamera
 	{
 	public:
-		Vector3 m_Eye;
-
 		Matrix4 m_View;
 
 		Matrix4 m_Proj;
@@ -113,8 +111,7 @@ namespace my
 
 	public:
 		BaseCamera(void)
-			: m_Eye(0,0,0)
-			, m_View(Matrix4::Identity())
+			: m_View(Matrix4::Identity())
 			, m_Proj(Matrix4::Identity())
 			, m_ViewProj(Matrix4::Identity())
 			, m_InverseViewProj(Matrix4::Identity())
@@ -123,39 +120,6 @@ namespace my
 
 		virtual ~BaseCamera(void)
 		{
-		}
-
-		virtual void UpdateViewProj(void)
-		{
-		}
-
-		virtual LRESULT MsgProc(
-			HWND hWnd,
-			UINT uMsg,
-			WPARAM wParam,
-			LPARAM lParam,
-			bool * pbNoFurtherProcessing)
-		{
-			return 0;
-		}
-
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim)
-		{
-			return Ray(Vector3::zero, Vector3::unitX);
-		}
-
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim)
-		{
-			return Frustum(Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0),Plane(1,0,0,0));
-		}
-
-		virtual void OnViewportChanged(const Vector2 & Viewport)
-		{
-		}
-
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const
-		{
-			return 1;
 		}
 
 		static Vector3 ScreenToWorld(const Matrix4 & InverseViewProj, const Vector2 & pt, const Vector2 & dim, float z);
@@ -175,6 +139,8 @@ namespace my
 	public:
 		float m_Aspect;
 
+		Vector3 m_Eye;
+
 		Vector3 m_Eular;
 
 		float m_Nz;
@@ -186,17 +152,34 @@ namespace my
 	public:
 		Camera(float Aspect, float Nz, float Fz)
 			: m_Aspect(Aspect)
+			, m_Eye(0,0,0)
 			, m_Eular(0,0,0)
 			, m_Nz(Nz)
 			, m_Fz(Fz)
 		{
 		}
+
+		virtual void UpdateViewProj(void) = 0;
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing) = 0;
+
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim) = 0;
+
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim) = 0;
+
+		virtual void OnViewportChanged(const Vector2 & Viewport) = 0;
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const = 0;
 	};
 
 	typedef boost::shared_ptr<Camera> CameraPtr;
 
-	class OrthoCamera
-		: public Camera
+	class OrthoCamera : public Camera
 	{
 	public:
 		float m_Diagonal;
@@ -227,12 +210,39 @@ namespace my
 		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
-	class ModelViewerCamera
-		: public Camera
+	class PerspectiveCamera : public Camera
 	{
 	public:
 		float m_Fov;
 
+	public:
+		PerspectiveCamera(float Fov, float Aspect, float Nz, float Fz)
+			: Camera(Aspect, Nz, Fz)
+			, m_Fov(Fov)
+		{
+		}
+
+		virtual void UpdateViewProj(void);
+
+		virtual LRESULT MsgProc(
+			HWND hWnd,
+			UINT uMsg,
+			WPARAM wParam,
+			LPARAM lParam,
+			bool * pbNoFurtherProcessing);
+
+		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
+
+		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
+
+		virtual void OnViewportChanged(const Vector2 & Viewport);
+
+		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
+	};
+
+	class ModelViewerCamera : public PerspectiveCamera
+	{
+	public:
 		Vector3 m_LookAt;
 
 		float m_Distance;
@@ -252,8 +262,7 @@ namespace my
 
 	public:
 		ModelViewerCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Aspect, Nz, Fz)
-			, m_Fov(Fov)
+			: PerspectiveCamera(Fov, Aspect, Nz, Fz)
 			, m_LookAt(0,0,0)
 			, m_Distance(0)
 			, m_DragMode(DragModeNone)
@@ -268,22 +277,11 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
-
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
-
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
-
-		virtual void OnViewportChanged(const Vector2 & Viewport);
-
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
-	class FirstPersonCamera
-		: public Camera
+	class FirstPersonCamera : public PerspectiveCamera
 	{
 	public:
-		float m_Fov;
-
 		Vector3 m_LocalVel;
 
 		DWORD m_DragMode;
@@ -292,8 +290,7 @@ namespace my
 
 	public:
 		FirstPersonCamera(float Fov = D3DXToRadian(75.0f), float Aspect = 1.333333f, float Nz = 0.1f, float Fz = 3000.0f)
-			: Camera(Aspect, Nz, Fz)
-			, m_Fov(Fov)
+			: PerspectiveCamera(Fov, Aspect, Nz, Fz)
 			, m_LocalVel(0,0,0)
 			, m_DragMode(0)
 		{
@@ -307,18 +304,9 @@ namespace my
 			WPARAM wParam,
 			LPARAM lParam,
 			bool * pbNoFurtherProcessing);
-
-		virtual Ray CalculateRay(const Vector2 & pt, const CSize & dim);
-
-		virtual Frustum CalculateFrustum(const Rectangle & rc, const CSize & dim);
-
-		virtual void OnViewportChanged(const Vector2 & Viewport);
-
-		virtual float CalculateViewportScaler(Vector3 WorldPos) const;
 	};
 
-	class InputMgr
-		: public SingleInstance<InputMgr>
+	class InputMgr : public SingleInstance<InputMgr>
 	{
 	public:
 		struct JoystickEnumDesc
