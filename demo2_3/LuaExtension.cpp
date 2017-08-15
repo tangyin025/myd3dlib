@@ -396,28 +396,30 @@ static void ExportMath(lua_State * L)
 			.def_readonly("ViewProj", &my::BaseCamera::m_ViewProj)
 			.def_readonly("InverseViewProj", &my::BaseCamera::m_InverseViewProj)
 
-			, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
+		, class_<my::Camera, my::BaseCamera, boost::shared_ptr<my::Camera> >("Camera")
 			.def_readwrite("Aspect", &my::Camera::m_Aspect)
+			.def_readwrite("Eye", &my::Camera::m_Eye)
+			.def_readwrite("Eular", &my::Camera::m_Eular)
 			.def_readwrite("Nz", &my::Camera::m_Nz)
 			.def_readwrite("Fz", &my::Camera::m_Fz)
 			.def_readwrite("EventAlign", &my::Camera::EventAlign)
 
-		, class_<my::OrthoCamera, my::BaseCamera, boost::shared_ptr<my::OrthoCamera> >("OrthoCamera")
+		, class_<my::OrthoCamera, my::Camera, boost::shared_ptr<my::Camera> >("OrthoCamera")
 			.def(constructor<float, float, float, float>())
-			.def_readwrite("Eye", &my::OrthoCamera::m_Eye)
-			.def_readwrite("Eular", &my::OrthoCamera::m_Eular)
 			.def_readwrite("Diagonal", &my::OrthoCamera::m_Diagonal)
+
+		, class_<my::PerspectiveCamera, my::Camera, boost::shared_ptr<my::Camera> >("PerspectiveCamera")
+			.def(constructor<float, float, float, float>())
+			.def_readwrite("Fov", &my::PerspectiveCamera::m_Fov)
 
 		, class_<my::ModelViewerCamera, my::Camera, boost::shared_ptr<my::Camera> >("ModelViewerCamera")
 			.def(constructor<float, float, float, float>())
 			.def_readwrite("LookAt", &my::ModelViewerCamera::m_LookAt)
-			.def_readwrite("Eular", &my::ModelViewerCamera::m_Eular)
 			.def_readwrite("Distance", &my::ModelViewerCamera::m_Distance)
 
 		, class_<my::FirstPersonCamera, my::Camera, boost::shared_ptr<my::Camera> >("FirstPersonCamera")
 			.def(constructor<float, float, float, float>())
-			.def_readwrite("Eye", &my::FirstPersonCamera::m_Eye)
-			.def_readwrite("Eular", &my::FirstPersonCamera::m_Eular)
+			.def_readwrite("LocalVel", &my::FirstPersonCamera::m_LocalVel)
 	];
 }
 

@@ -313,7 +313,7 @@ Game::Game(void)
 		m_OpaqueRT.m_RenderTarget[i].reset(new Texture2D());
 		m_DownFilterRT.m_RenderTarget[i].reset(new Texture2D());
 	}
-	m_Camera.reset(new FirstPersonCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
+	m_Camera.reset(new PerspectiveCamera(D3DXToRadian(75.0f),1.333333f,0.1f,3000.0f));
 	m_SkyLightCam.reset(new my::OrthoCamera(sqrt(30*30*2.0f),1.0f,-100,100));
 }
 
@@ -662,11 +662,11 @@ LRESULT Game::MsgProc(
 		return 0;
 	}
 
-	LRESULT lr;
-	if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
-	{
-		return lr;
-	}
+	//LRESULT lr;
+	//if(lr = m_Camera->MsgProc(hWnd, uMsg, wParam, lParam, pbNoFurtherProcessing) || *pbNoFurtherProcessing)
+	//{
+	//	return lr;
+	//}
 	return 0;
 }
 
