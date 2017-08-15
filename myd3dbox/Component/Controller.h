@@ -26,6 +26,7 @@ class PlayerController
 	: public Controller
 {
 public:
+	my::Vector3 m_LookAngle;
 
 public:
 	PlayerController(void);

@@ -600,6 +600,11 @@ void Game::OnFrameTick(
 
 	InputMgr::Update(fTime, fElapsedTime);
 
+	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(m_Camera.get());
+	PlayerController * player_controller = static_cast<PlayerController *>(m_Player->m_Controller.get());
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(player_controller->m_LookAngle.y, player_controller->m_LookAngle.x, player_controller->m_LookAngle.z);
+	camera->m_Eular = player_controller->m_LookAngle;
+	camera->m_Eye = m_Player->m_Position + Rotation[2].xyz * 10;
 	m_Camera->UpdateViewProj();
 
 	m_SkyLightCam->UpdateViewProj();

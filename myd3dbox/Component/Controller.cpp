@@ -18,6 +18,7 @@ void Controller::Update(float fElapsedTime)
 }
 
 PlayerController::PlayerController(void)
+	: m_LookAngle(0,0,0)
 {
 	InputMgr::getSingleton().m_MouseMovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
 	InputMgr::getSingleton().m_MousePressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);
@@ -59,6 +60,14 @@ void PlayerController::Update(float fElapsedTime)
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
 {
 	MouseMoveEventArg & mmarg = *dynamic_cast<MouseMoveEventArg *>(arg);
+	if (mmarg.x != 0)
+	{
+		m_LookAngle.y += -D3DXToRadian(mmarg.x);
+	}
+	if (mmarg.y != 0)
+	{
+		m_LookAngle.x += -D3DXToRadian(mmarg.y);
+	}
 }
 
 void PlayerController::OnMouseBtnDown(my::InputEventArg * arg)
