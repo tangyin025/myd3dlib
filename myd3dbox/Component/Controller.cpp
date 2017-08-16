@@ -20,33 +20,33 @@ void Controller::Update(float fElapsedTime)
 PlayerController::PlayerController(void)
 	: m_LookAngle(0,0,0)
 {
-	InputMgr::getSingleton().m_mouse->m_MovedEvent = boost::bind(&PlayerController::OnMouseMove, this, _1);
-	InputMgr::getSingleton().m_mouse->m_PressedEvent = boost::bind(&PlayerController::OnMouseBtnDown, this, _1);
-	InputMgr::getSingleton().m_mouse->m_ReleasedEvent = boost::bind(&PlayerController::OnMouseBtnUp, this, _1);
-	InputMgr::getSingleton().m_keyboard->m_PressedEvent = boost::bind(&PlayerController::OnKeyDown, this, _1);
-	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent = boost::bind(&PlayerController::OnKeyUp, this, _1);
+	InputMgr::getSingleton().m_mouse->m_MovedEvent.connect(boost::bind(&PlayerController::OnMouseMove, this, _1));
+	InputMgr::getSingleton().m_mouse->m_PressedEvent.connect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));
+	InputMgr::getSingleton().m_mouse->m_ReleasedEvent.connect(boost::bind(&PlayerController::OnMouseBtnUp, this, _1));
+	InputMgr::getSingleton().m_keyboard->m_PressedEvent.connect(boost::bind(&PlayerController::OnKeyDown, this, _1));
+	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent.connect(boost::bind(&PlayerController::OnKeyUp, this, _1));
 	if (InputMgr::getSingleton().m_joystick)
 	{
-		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent = boost::bind(&PlayerController::OnJoystickAxisMove, this, _1);
-		InputMgr::getSingleton().m_joystick->m_PovMovedEvent = boost::bind(&PlayerController::OnJoystickPovMove, this, _1);
-		InputMgr::getSingleton().m_joystick->m_BtnPressedEvent = boost::bind(&PlayerController::OnJoystickBtnDown, this, _1);
-		InputMgr::getSingleton().m_joystick->m_BtnReleasedEvent = boost::bind(&PlayerController::OnJoystickBtnUp, this, _1);
+		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent.connect(boost::bind(&PlayerController::OnJoystickAxisMove, this, _1));
+		InputMgr::getSingleton().m_joystick->m_PovMovedEvent.connect(boost::bind(&PlayerController::OnJoystickPovMove, this, _1));
+		InputMgr::getSingleton().m_joystick->m_BtnPressedEvent.connect(boost::bind(&PlayerController::OnJoystickBtnDown, this, _1));
+		InputMgr::getSingleton().m_joystick->m_BtnReleasedEvent.connect(boost::bind(&PlayerController::OnJoystickBtnUp, this, _1));
 	}
 }
 
 PlayerController::~PlayerController(void)
 {
-	InputMgr::getSingleton().m_mouse->m_MovedEvent.clear();
-	InputMgr::getSingleton().m_mouse->m_PressedEvent.clear();
-	InputMgr::getSingleton().m_mouse->m_ReleasedEvent.clear();
-	InputMgr::getSingleton().m_keyboard->m_PressedEvent.clear();
-	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent.clear();
+	InputMgr::getSingleton().m_mouse->m_MovedEvent.disconnect(boost::bind(&PlayerController::OnMouseMove, this, _1));
+	InputMgr::getSingleton().m_mouse->m_PressedEvent.disconnect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));
+	InputMgr::getSingleton().m_mouse->m_ReleasedEvent.disconnect(boost::bind(&PlayerController::OnMouseBtnUp, this, _1));
+	InputMgr::getSingleton().m_keyboard->m_PressedEvent.disconnect(boost::bind(&PlayerController::OnKeyDown, this, _1));
+	InputMgr::getSingleton().m_keyboard->m_ReleasedEvent.disconnect(boost::bind(&PlayerController::OnKeyUp, this, _1));
 	if (InputMgr::getSingleton().m_joystick)
 	{
-		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent.clear();
-		InputMgr::getSingleton().m_joystick->m_PovMovedEvent.clear();
-		InputMgr::getSingleton().m_joystick->m_BtnPressedEvent.clear();
-		InputMgr::getSingleton().m_joystick->m_BtnReleasedEvent.clear();
+		InputMgr::getSingleton().m_joystick->m_AxisMovedEvent.disconnect(boost::bind(&PlayerController::OnJoystickAxisMove, this, _1));
+		InputMgr::getSingleton().m_joystick->m_PovMovedEvent.disconnect(boost::bind(&PlayerController::OnJoystickPovMove, this, _1));
+		InputMgr::getSingleton().m_joystick->m_BtnPressedEvent.disconnect(boost::bind(&PlayerController::OnJoystickBtnDown, this, _1));
+		InputMgr::getSingleton().m_joystick->m_BtnReleasedEvent.disconnect(boost::bind(&PlayerController::OnJoystickBtnUp, this, _1));
 	}
 }
 

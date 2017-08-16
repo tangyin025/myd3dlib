@@ -4,7 +4,7 @@
 #define DIRECTINPUT_VERSION 0x0800
 #include <dinput.h>
 #include <atlbase.h>
-#include <boost/function.hpp>
+#include <boost/signals2.hpp>
 #include "mySingleton.h"
 
 namespace my
@@ -60,6 +60,22 @@ namespace my
 
 	typedef boost::shared_ptr<Input> InputPtr;
 
+	struct InputEventArg
+	{
+	public:
+		bool handled;
+
+	public:
+		InputEventArg(void)
+			: handled(false)
+		{
+		}
+
+		virtual ~InputEventArg(void)
+		{
+		}
+	};
+
 	class InputDevice
 	{
 	public:
@@ -68,6 +84,8 @@ namespace my
 		friend Input;
 
 		IDirectInputDevice8 * m_ptr;
+
+		typedef boost::signals2::signal<void (InputEventArg * arg)> InputEvent;
 
 	public:
 		InputDevice(void);
@@ -243,24 +261,6 @@ namespace my
 		KC_MAIL        = 0xEC,    // Mail
 		KC_MEDIASELECT = 0xED     // Media Select
 	};
-
-	struct InputEventArg
-	{
-	public:
-		bool handled;
-
-	public:
-		InputEventArg(void)
-			: handled(false)
-		{
-		}
-
-		virtual ~InputEventArg(void)
-		{
-		}
-	};
-
-	typedef boost::function<void (InputEventArg * arg)> InputEvent;
 
 	struct KeyboardEventArg : public InputEventArg
 	{

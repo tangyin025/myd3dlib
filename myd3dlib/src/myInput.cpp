@@ -598,17 +598,11 @@ void Keyboard::Capture(void)
 		m_State[kc] = static_cast<BYTE>(diBuff[i].dwData);
 		if (diBuff[i].dwData & 0x80)
 		{
-			if (m_PressedEvent)
-			{
-				m_PressedEvent(&KeyboardEventArg(kc));
-			}
+			m_PressedEvent(&KeyboardEventArg(kc));
 		}
 		else
 		{
-			if (m_ReleasedEvent)
-			{
-				m_ReleasedEvent(&KeyboardEventArg(kc));
-			}
+			m_ReleasedEvent(&KeyboardEventArg(kc));
 		}
 	}
 }
@@ -653,30 +647,21 @@ void Mouse::Capture(void)
 		{
 			if (!(OldState.rgbButtons[i] & 0x80))
 			{
-				if (m_PressedEvent)
-				{
-					m_PressedEvent(&MouseBtnEventArg(i));
-				}
+				m_PressedEvent(&MouseBtnEventArg(i));
 			}
 		}
 		else
 		{
 			if (OldState.rgbButtons[i] & 0x80)
 			{
-				if (m_ReleasedEvent)
-				{
-					m_ReleasedEvent(&MouseBtnEventArg(i));
-				}
+				m_ReleasedEvent(&MouseBtnEventArg(i));
 			}
 		}
 	}
 
 	if (m_State.lX || m_State.lY || m_State.lZ)
 	{
-		if (m_MovedEvent)
-		{
-			m_MovedEvent(&MouseMoveEventArg(m_State.lX, m_State.lY, m_State.lZ));
-		}
+		m_MovedEvent(&MouseMoveEventArg(m_State.lX, m_State.lY, m_State.lZ));
 	}
 }
 
@@ -793,10 +778,7 @@ void Joystick::CheckAxis(LONG value, JoystickAxis axis)
 {
 	if (value)
 	{
-		if (m_AxisMovedEvent)
-		{
-			m_AxisMovedEvent(&JoystickAxisEventArg(axis, value));
-		}
+		m_AxisMovedEvent(&JoystickAxisEventArg(axis, value));
 	}
 }
 
@@ -828,10 +810,7 @@ void Joystick::Capture(void)
 	{
 		if (LOWORD(m_State.rgdwPOV[i]) != 0xFFFF)
 		{
-			if (m_PovMovedEvent)
-			{
-				m_PovMovedEvent(&JoystickPovEventArg(i, (JoystickPov)m_State.rgdwPOV[i]));
-			}
+			m_PovMovedEvent(&JoystickPovEventArg(i, (JoystickPov)m_State.rgdwPOV[i]));
 		}
 	}
 
@@ -841,20 +820,14 @@ void Joystick::Capture(void)
 		{
 			if (!(OldState.rgbButtons[i] & 0x80))
 			{
-				if (m_BtnPressedEvent)
-				{
-					m_BtnPressedEvent(&JoystickBtnEventArg(i));
-				}
+				m_BtnPressedEvent(&JoystickBtnEventArg(i));
 			}
 		}
 		else
 		{
 			if (OldState.rgbButtons[i] & 0x80)
 			{
-				if (m_BtnReleasedEvent)
-				{
-					m_BtnReleasedEvent(&JoystickBtnEventArg(i));
-				}
+				m_BtnReleasedEvent(&JoystickBtnEventArg(i));
 			}
 		}
 	}
