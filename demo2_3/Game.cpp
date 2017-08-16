@@ -10,6 +10,7 @@
 #include <boost/archive/polymorphic_xml_oarchive.hpp>
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/program_options.hpp>
+#include "PlayerController.h"
 
 #ifdef _DEBUG
 #define new new( _CLIENT_BLOCK, __FILE__, __LINE__ )
