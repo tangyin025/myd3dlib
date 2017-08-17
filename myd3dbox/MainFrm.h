@@ -52,7 +52,7 @@ public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
 	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = NULL, CCreateContext* pContext = NULL);
 	void SafeAdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos);
-	void SafeChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+	void SafeChangeActorPose(Actor * actor, CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 	void UpdateSelBox(void);
 	void UpdatePivotTransform(void);
 	BOOL OnFrameTick(float fElapsedTime);

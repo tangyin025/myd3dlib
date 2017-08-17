@@ -107,7 +107,7 @@ public:
 
 	void OnActorPoseChanged(Actor * actor, const CPoint & level_id);
 
-	void ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+	void ChangeActorPose(Actor * actor, CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 
 	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);
 

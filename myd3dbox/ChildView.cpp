@@ -1141,7 +1141,7 @@ void CChildView::OnLButtonUp(UINT nFlags, CPoint point)
 		{
 			my::Vector3 Position, Scale; my::Quaternion Rotation;
 			actor_world_iter->first->m_World.Decompose(Scale, Rotation, Position);
-			pFrame->SafeChangeActorPose(actor_world_iter->first, Position, Rotation, Scale);
+			pFrame->SafeChangeActorPose(actor_world_iter->first, pFrame->m_WorldL.m_LevelId, Position, Rotation, Scale);
 			actor_world_iter->first->UpdateRigidActorPose();
 		}
 		m_selactorwlds.clear();

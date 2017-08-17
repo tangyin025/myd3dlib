@@ -228,14 +228,13 @@ void WorldL::OnActorPoseChanged(Actor * actor, const CPoint & level_id)
 	actor->UpdateWorld();
 }
 
-void WorldL::ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void WorldL::ChangeActorPose(Actor * actor, CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	CPoint level_id = m_LevelId;
+	AdjustLevelIdAndPosition(LevelId, Position);
 	actor->m_Position = Position;
-	AdjustLevelIdAndPosition(level_id, actor->m_Position);
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
-	OnActorPoseChanged(actor, level_id);
+	OnActorPoseChanged(actor, LevelId);
 }
 
 void WorldL::ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene)

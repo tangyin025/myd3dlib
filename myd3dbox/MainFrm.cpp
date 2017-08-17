@@ -417,17 +417,16 @@ void CMainFrame::SafeAdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & p
 		pos.z = WorldL::LEVEL_SIZE;
 		level_id.y = m_WorldL.m_Dimension - 1;
 	}
-	pos.y = pos.y;
+	pos.y = my::Clamp<float>(pos.y, (float)-WorldL::LEVEL_SIZE, (float)WorldL::LEVEL_SIZE);
 }
 
-void CMainFrame::SafeChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void CMainFrame::SafeChangeActorPose(Actor * actor, CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	CPoint level_id = m_WorldL.m_LevelId;
+	SafeAdjustLevelIdAndPosition(LevelId, Position);
 	actor->m_Position = Position;
-	SafeAdjustLevelIdAndPosition(level_id, actor->m_Position);
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
-	m_WorldL.OnActorPoseChanged(actor, level_id);
+	m_WorldL.OnActorPoseChanged(actor, LevelId);
 }
 
 void CMainFrame::UpdateSelBox(void)
@@ -480,7 +479,7 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		m_WorldL.ChangeActorPose(actor, (my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, my::Vector3(1,1,1));
+		m_WorldL.ChangeActorPose(actor, m_WorldL.m_LevelId, (my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, my::Vector3(1,1,1));
 	}
 
 	EventArgs arg;
