@@ -22,5 +22,15 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
 -- game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
--- local actor = game:LoadComponent("aabbcc.xml")
--- game.Root:AddActor(cmp2oct(actor),actor.aabb:transform(actor.World),0.1)
+game.Player.Acceleration=Vector3(0,-1.98,0)
+local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
+local lambert1=Material()
+lambert1.Shader="lambert1.fx"
+lambert1.PassMask=Material.PassMaskOpaque
+lambert1.MeshTexture.Path="texture/Checker.bmp"
+lambert1.NormalTexture.Path="texture/Normal.dds"
+lambert1.SpecularTexture.Path="texture/White.dds"
+local cmp=ClothComponent()
+cmp:CreateClothFromMesh(mesh,1)
+cmp:AddMaterial(lambert1)
+game.Player:AddComponent(cmp)

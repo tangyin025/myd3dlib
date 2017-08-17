@@ -80,17 +80,26 @@ void Character::OnLeavePxScene(PhysXSceneContext * scene)
 void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
+}
 
-	if (m_PxController)
+void Character::UpdateWorld(void)
+{
+	m_World = Matrix4::Compose(m_Scale, Quaternion::identity, m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
+
+	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
+	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		m_Velocity += m_Acceleration * fElapsedTime;
-		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
+		(*cmp_iter)->UpdateWorld();
 	}
 }
 
 void Character::OnPxThreadSubstep(float dtime)
 {
-
+	if (m_PxController)
+	{
+		m_Velocity += m_Acceleration * dtime;
+		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * dtime, 0.001f, dtime, physx::PxControllerFilters());
+	}
 }
 
 void Character::onShapeHit(const physx::PxControllerShapeHit& hit)

@@ -252,6 +252,11 @@ public:
 		boost::serialization::split_member(ar, *this, version);
 	}
 
+	void AddMaterial(MaterialPtr material)
+	{
+		m_MaterialList.push_back(material);
+	}
+
 	void CopyFrom(const MeshComponent & rhs);
 
 	virtual ComponentPtr Clone(void) const;
@@ -331,6 +336,11 @@ public:
 	void serialize(Archive & ar, const unsigned int version)
 	{
 		boost::serialization::split_member(ar, *this, version);
+	}
+
+	void AddMaterial(MaterialPtr material)
+	{
+		m_MaterialList.push_back(material);
 	}
 
 	void CopyFrom(const ClothComponent & rhs);
