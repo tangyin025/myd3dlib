@@ -609,6 +609,7 @@ void Game::OnFrameTick(
 	camera->m_Eye = ViewPos + Rotation[2].xyz * 10;
 	m_Camera->UpdateViewProj();
 
+	m_SkyLightCam->m_Eye = ViewPos;
 	m_SkyLightCam->UpdateViewProj();
 
 	TimerMgr::Update(fTime, fElapsedTime);
