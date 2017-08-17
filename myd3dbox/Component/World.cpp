@@ -190,31 +190,33 @@ my::Vector3 WorldL::CalculateLevelOffset(const CPoint & level_id)
 	return Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
 }
 
-void WorldL::CalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
+void WorldL::AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos)
 {
-	CPoint level_off((long)floor(origin_pos.x / LEVEL_SIZE), (long)floor(origin_pos.z / LEVEL_SIZE));
-	if (level_off.x < 0)
+	CPoint level_off((long)floor(pos.x / LEVEL_SIZE), (long)floor(pos.z / LEVEL_SIZE));
+	pos.x -= level_off.x * LEVEL_SIZE;
+	pos.z -= level_off.y * LEVEL_SIZE;
+	level_id = level_id + level_off;
+	if (level_id.x < 0)
 	{
-		level_off.x = Max(0 - m_LevelId.x, level_off.x);
-		pos.x = origin_pos.x + level_off.x * LEVEL_SIZE;
+		pos.x -= -level_id.x * LEVEL_SIZE;
+		level_id.x = 0;
 	}
-	else if (level_off.x > 0)
+	else if (level_id.x >= m_Dimension)
 	{
-		level_off.x = Min(m_Dimension - m_LevelId.x - 1, level_off.x);
-		pos.x = origin_pos.x - level_off.x * LEVEL_SIZE;
+		pos.x += (level_id.x - m_Dimension + 1) * LEVEL_SIZE;
+		level_id.x = m_Dimension - 1;
 	}
-	if (level_off.y < 0)
+	if (level_id.y < 0)
 	{
-		level_off.y = Max(0 - m_LevelId.y, level_off.y);
-		pos.z = origin_pos.z + level_off.y * LEVEL_SIZE;
+		pos.z -= -level_id.y * LEVEL_SIZE;
+		level_id.y = 0;
 	}
-	else if (level_off.y > 0)
+	else if (level_id.y >= m_Dimension)
 	{
-		level_off.y = Min(m_Dimension - m_LevelId.y - 1, level_off.y);
-		pos.z = origin_pos.z - level_off.y * LEVEL_SIZE;
+		pos.z += (level_id.y - m_Dimension + 1) * LEVEL_SIZE;
+		level_id.y = m_Dimension - 1;
 	}
-	level_id = m_LevelId + level_off;
-	pos.y = origin_pos.y;
+	pos.y = pos.y;
 }
 
 void WorldL::OnActorPoseChanged(Actor * actor, const CPoint & level_id)
@@ -228,8 +230,9 @@ void WorldL::OnActorPoseChanged(Actor * actor, const CPoint & level_id)
 
 void WorldL::ChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	CPoint level_id;
-	CalculateLevelIdAndPosition(level_id, actor->m_Position, Position);
+	CPoint level_id = m_LevelId;
+	actor->m_Position = Position;
+	AdjustLevelIdAndPosition(level_id, actor->m_Position);
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
 	OnActorPoseChanged(actor, level_id);

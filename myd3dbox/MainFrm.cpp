@@ -391,39 +391,40 @@ BOOL CMainFrame::LoadFrame(UINT nIDResource, DWORD dwDefaultStyle, CWnd* pParent
 	return TRUE;
 }
 
-void CMainFrame::SafeCalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos)
+void CMainFrame::SafeAdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos)
 {
-	CPoint level_off((long)floor(origin_pos.x / WorldL::LEVEL_SIZE), (long)floor(origin_pos.z / WorldL::LEVEL_SIZE));
-	level_id = m_WorldL.m_LevelId + level_off;
-	pos.x = my::Round<float>(origin_pos.x, 0, (float)WorldL::LEVEL_SIZE);
-	pos.y = my::Clamp<float>(origin_pos.y, (float)-WorldL::LEVEL_SIZE, (float)WorldL::LEVEL_SIZE);
-	pos.z = my::Round<float>(origin_pos.z, 0, (float)WorldL::LEVEL_SIZE);
+	CPoint level_off((long)floor(pos.x / WorldL::LEVEL_SIZE), (long)floor(pos.z / WorldL::LEVEL_SIZE));
+	pos.x -= level_off.x * WorldL::LEVEL_SIZE;
+	pos.z -= level_off.y * WorldL::LEVEL_SIZE;
+	level_id = level_id + level_off;
 	if (level_id.x < 0)
 	{
-		level_id.x = 0;
 		pos.x = 0;
+		level_id.x = 0;
 	}
-	else if (level_id.x > m_WorldL.m_Dimension - 1)
+	else if (level_id.x >= m_WorldL.m_Dimension)
 	{
-		level_id.x = m_WorldL.m_Dimension - 1;
 		pos.x = WorldL::LEVEL_SIZE;
+		level_id.x = m_WorldL.m_Dimension - 1;
 	}
 	if (level_id.y < 0)
 	{
-		level_id.y = 0;
 		pos.z = 0;
+		level_id.y = 0;
 	}
-	else if (level_id.y > m_WorldL.m_Dimension - 1)
+	else if (level_id.y >= m_WorldL.m_Dimension)
 	{
-		level_id.y = m_WorldL.m_Dimension - 1;
 		pos.z = WorldL::LEVEL_SIZE;
+		level_id.y = m_WorldL.m_Dimension - 1;
 	}
+	pos.y = pos.y;
 }
 
 void CMainFrame::SafeChangeActorPose(Actor * actor, const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	CPoint level_id;
-	SafeCalculateLevelIdAndPosition(level_id, actor->m_Position, Position);
+	CPoint level_id = m_WorldL.m_LevelId;
+	actor->m_Position = Position;
+	SafeAdjustLevelIdAndPosition(level_id, actor->m_Position);
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
 	m_WorldL.OnActorPoseChanged(actor, level_id);
@@ -620,8 +621,8 @@ void CMainFrame::OnCreateActor()
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
 	ActorPtr actor(new Actor(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
-	CPoint level_id;
-	SafeCalculateLevelIdAndPosition(level_id, actor->m_Position, actor->m_Position);
+	CPoint level_id = m_WorldL.m_LevelId;
+	SafeAdjustLevelIdAndPosition(level_id, actor->m_Position);
 	my::Matrix4 World = actor->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(actor, actor->m_aabb.transform(World), 0.1f);
 	actor->UpdateWorld();
@@ -646,8 +647,8 @@ void CMainFrame::OnCreateCharacter()
 		Pos = boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt;
 	}
 	CharacterPtr character(new Character(Pos, my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1)));
-	CPoint level_id;
-	SafeCalculateLevelIdAndPosition(level_id, character->m_Position, character->m_Position);
+	CPoint level_id = m_WorldL.m_LevelId;
+	SafeAdjustLevelIdAndPosition(level_id, character->m_Position);
 	my::Matrix4 World = character->CalculateLocal();
 	m_WorldL.GetLevel(level_id)->AddActor(character, character->m_aabb.transform(World), 0.1f);
 	character->UpdateWorld();

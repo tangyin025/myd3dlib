@@ -103,7 +103,7 @@ public:
 
 	my::Vector3 CalculateLevelOffset(const CPoint & level_id);
 
-	void CalculateLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos, const my::Vector3 & origin_pos);
+	void AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos);
 
 	void OnActorPoseChanged(Actor * actor, const CPoint & level_id);
 

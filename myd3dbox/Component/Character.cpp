@@ -81,13 +81,11 @@ void Character::Update(float fElapsedTime)
 {
 	Actor::Update(fElapsedTime);
 
-	m_Velocity += m_Acceleration * fElapsedTime;
-
-	physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
-
-	//m_Position = (Vector3&)toVec3(m_PxController->getPosition()) - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
-
-	//UpdateWorld();
+	if (m_PxController)
+	{
+		m_Velocity += m_Acceleration * fElapsedTime;
+		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * fElapsedTime, 0.001f, fElapsedTime, physx::PxControllerFilters());
+	}
 }
 
 void Character::OnPxThreadSubstep(float dtime)
