@@ -616,13 +616,13 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
+	m_WorldL.ResetViewedActors(m_Player->m_Position, this, 1000, 10);
+
 	WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
 	for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
 	{
 		(*actor_iter)->Update(fElapsedTime);
 	}
-
-	m_WorldL.ResetViewedActors(m_Camera->m_Eye, this, 1000, 10);
 
 	ParallelTaskManager::DoAllParallelTasks();
 
