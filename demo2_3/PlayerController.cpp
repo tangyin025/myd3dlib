@@ -6,6 +6,7 @@ using namespace my;
 
 PlayerController::PlayerController(void)
 	: m_LookAngle(0,0,0)
+	, m_MoveAxis(0,0)
 {
 	Game::getSingleton().m_mouse->m_MovedEvent.connect(boost::bind(&PlayerController::OnMouseMove, this, _1));
 	Game::getSingleton().m_mouse->m_PressedEvent.connect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));
@@ -40,6 +41,21 @@ PlayerController::~PlayerController(void)
 void PlayerController::Update(float fElapsedTime)
 {
 	Controller::Update(fElapsedTime);
+
+	Character * character = dynamic_cast<Character *>(m_Actor);
+	float move_step_sq = m_MoveAxis.magnitudeSq();
+	if (move_step_sq > 0.01f)
+	{
+		m_FaceAngle = m_LookAngle.y + atan2f(m_MoveAxis.y, m_MoveAxis.x);
+		const float speed = 5.0f;
+		character->m_Velocity.x = speed * cosf(m_FaceAngle);
+		character->m_Velocity.z = speed * sinf(m_FaceAngle);
+	}
+	else
+	{
+		character->m_Velocity.x = 0.0f;
+		character->m_Velocity.z = 0.0f;
+	}
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
@@ -70,20 +86,19 @@ void PlayerController::OnKeyDown(my::InputEventArg * arg)
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
 	switch (karg.kc)
 	{
-	case VK_SPACE:
-		karg.handled = true;
+	case KC_SPACE:
 		break;
-	case 'W':
-		karg.handled = true;
+	case KC_W:
+		m_MoveAxis.y = 1.0f;
 		break;
-	case 'A':
-		karg.handled = true;
+	case KC_A:
+		m_MoveAxis.x = 1.0f;
 		break;
-	case 'S':
-		karg.handled = true;
+	case KC_S:
+		m_MoveAxis.y = -1.0f;
 		break;
-	case 'D':
-		karg.handled = true;
+	case KC_D:
+		m_MoveAxis.x = -1.0f;
 		break;
 	}
 }
@@ -93,17 +108,29 @@ void PlayerController::OnKeyUp(my::InputEventArg * arg)
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
 	switch (karg.kc)
 	{
-	case 'W':
-		karg.handled = true;
+	case KC_W:
+		if (m_MoveAxis.y > 0)
+		{
+			m_MoveAxis.y = 0;
+		}
 		break;
-	case 'A':
-		karg.handled = true;
+	case KC_A:
+		if (m_MoveAxis.x > 0)
+		{
+			m_MoveAxis.x = 0;
+		}
 		break;
-	case 'S':
-		karg.handled = true;
+	case KC_S:
+		if (m_MoveAxis.y < 0)
+		{
+			m_MoveAxis.y = 0;
+		}
 		break;
-	case 'D':
-		karg.handled = true;
+	case KC_D:
+		if (m_MoveAxis.x < 0)
+		{
+			m_MoveAxis.x = 0;
+		}
 		break;
 	}
 }

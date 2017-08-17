@@ -8,6 +8,10 @@ class PlayerController
 public:
 	my::Vector3 m_LookAngle;
 
+	my::Vector2 m_MoveAxis;
+
+	float m_FaceAngle;
+
 public:
 	PlayerController(void);
 
