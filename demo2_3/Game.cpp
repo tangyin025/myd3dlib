@@ -604,8 +604,9 @@ void Game::OnFrameTick(
 	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(m_Camera.get());
 	PlayerController * player_controller = static_cast<PlayerController *>(m_Player->m_Controller.get());
 	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(player_controller->m_LookAngle.y, player_controller->m_LookAngle.x, player_controller->m_LookAngle.z);
+	Vector3 ViewPos = m_Player->m_Position + m_WorldL.CalculateLevelOffset(m_Player->GetLevel()->GetId());
 	camera->m_Eular = player_controller->m_LookAngle;
-	camera->m_Eye = m_Player->m_Position + Rotation[2].xyz * 10;
+	camera->m_Eye = ViewPos + Rotation[2].xyz * 10;
 	m_Camera->UpdateViewProj();
 
 	m_SkyLightCam->UpdateViewProj();
@@ -616,7 +617,7 @@ void Game::OnFrameTick(
 
 	FModContext::Update();
 
-	m_WorldL.ResetViewedActors(m_Player->m_Position, this, 1000, 10);
+	m_WorldL.ResetViewedActors(ViewPos, this, 1000, 10);
 
 	WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
 	for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)

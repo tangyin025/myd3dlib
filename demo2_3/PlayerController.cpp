@@ -42,14 +42,15 @@ void PlayerController::Update(float fElapsedTime)
 {
 	Controller::Update(fElapsedTime);
 
+	_ASSERT(m_Actor->m_Type == Component::ComponentTypeCharacter);
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	float move_step_sq = m_MoveAxis.magnitudeSq();
 	if (move_step_sq > 0.01f)
 	{
-		m_FaceAngle = m_LookAngle.y + atan2f(m_MoveAxis.y, m_MoveAxis.x);
+		m_FaceAngle = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
 		const float speed = 5.0f;
-		character->m_Velocity.x = speed * cosf(m_FaceAngle);
-		character->m_Velocity.z = speed * sinf(m_FaceAngle);
+		character->m_Velocity.x = -speed * sinf(m_FaceAngle);
+		character->m_Velocity.z = -speed * cosf(m_FaceAngle);
 	}
 	else
 	{
@@ -84,9 +85,12 @@ void PlayerController::OnMouseBtnUp(my::InputEventArg * arg)
 void PlayerController::OnKeyDown(my::InputEventArg * arg)
 {
 	KeyboardEventArg & karg = *dynamic_cast<KeyboardEventArg *>(arg);
+	_ASSERT(m_Actor->m_Type == Component::ComponentTypeCharacter);
+	Character * character = dynamic_cast<Character *>(m_Actor);
 	switch (karg.kc)
 	{
 	case KC_SPACE:
+		character->m_Velocity.y = 5.0f;
 		break;
 	case KC_W:
 		m_MoveAxis.y = 1.0f;
