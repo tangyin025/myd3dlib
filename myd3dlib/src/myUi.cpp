@@ -78,6 +78,7 @@ void UIRender::Begin(void)
 	V(m_Device->SetRenderState(D3DRS_CULLMODE, D3DCULL_NONE));
 	V(m_Device->SetRenderState(D3DRS_LIGHTING, FALSE));
 	V(m_Device->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
+	V(m_Device->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(m_Device->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCALPHA));
 	V(m_Device->SetRenderState(D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA));
 	V(m_Device->SetRenderState(D3DRS_ZENABLE, FALSE));
