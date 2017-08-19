@@ -588,7 +588,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 		mesh->UnlockVertexBuffer();
 
 		m_IndexData.resize(mesh->GetNumFaces() * 3);
-		if (m_IndexData.size() > USHRT_MAX)
+		if (mesh->GetNumVertices() > USHRT_MAX)
 		{
 			THROW_CUSEXCEPTION(str_printf("create deformation mesh with overflow index size %u", m_IndexData.size()));
 		}
@@ -642,24 +642,17 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 		}
 
 		physx::PxClothMeshDesc desc;
-		desc.points.data = (unsigned char *)mesh->LockVertexBuffer(0) + mesh->m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
+		desc.points.data = &m_VertexData[0] + m_VertexElems.elems[D3DDECLUSAGE_POSITION][0].Offset;
 		desc.points.count = mesh->GetNumVertices();
 		desc.points.stride = mesh->GetNumBytesPerVertex();
-		desc.triangles.data = mesh->LockIndexBuffer();
+		desc.triangles.data = &m_IndexData[0];
 		desc.triangles.count = mesh->GetNumFaces();
-		if (mesh->GetOptions() & D3DXMESH_32BIT)
-		{
-			desc.triangles.stride = 3 * sizeof(DWORD);
-		}
-		else
-		{
-			desc.triangles.stride = 3 * sizeof(WORD);
-			desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
-		}
+		desc.triangles.stride = 3 * sizeof(unsigned short);
+		desc.flags |= physx::PxMeshFlag::e16_BIT_INDICES;
 		PhysXPtr<physx::PxClothFabric> fabric(PxClothFabricCreate(
 			*PhysXContext::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true));
 		m_Cloth.reset(PhysXContext::getSingleton().m_sdk->createCloth(
-			physx::PxTransform::createIdentity(), *fabric, &m_particles[0], physx::PxClothFlags()));
+			physx::PxTransform((physx::PxMat44&)m_World), *fabric, &m_particles[0], physx::PxClothFlags()));
 	}
 }
 

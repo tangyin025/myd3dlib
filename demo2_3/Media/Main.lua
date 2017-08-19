@@ -22,7 +22,7 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
 -- game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
-game.Player.Acceleration=Vector3(0,-1.98,0)
+game.Player.Acceleration=Vector3(0,-9.8,0)
 local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
 local lambert1=Material()
 lambert1.Shader="lambert1.fx"
