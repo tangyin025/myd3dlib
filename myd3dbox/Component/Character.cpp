@@ -84,7 +84,7 @@ void Character::Update(float fElapsedTime)
 
 void Character::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, Quaternion::identity, m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
+	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_FaceAngle, 0, 0), m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

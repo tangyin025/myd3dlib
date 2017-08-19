@@ -10,7 +10,7 @@ public:
 
 	my::Vector2 m_MoveAxis;
 
-	float m_FaceAngle;
+	float m_MoveAngle;
 
 public:
 	PlayerController(void);

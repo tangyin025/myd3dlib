@@ -47,16 +47,17 @@ void PlayerController::Update(float fElapsedTime)
 	float move_step_sq = m_MoveAxis.magnitudeSq();
 	if (move_step_sq > 0.01f)
 	{
-		m_FaceAngle = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
+		m_MoveAngle = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
 		const float speed = 5.0f;
-		character->m_Velocity.x = -speed * sinf(m_FaceAngle);
-		character->m_Velocity.z = -speed * cosf(m_FaceAngle);
+		character->m_Velocity.x = -speed * sinf(m_MoveAngle);
+		character->m_Velocity.z = -speed * cosf(m_MoveAngle);
 	}
 	else
 	{
 		character->m_Velocity.x = 0.0f;
 		character->m_Velocity.z = 0.0f;
 	}
+	character->m_FaceAngle = Lerp(character->m_FaceAngle, m_MoveAngle, 1.0f - powf(0.8f, 30 * fElapsedTime));
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
