@@ -437,10 +437,7 @@ void CMainFrame::UpdateSelBox(void)
 		ActorSet::const_iterator sel_iter = m_selactors.begin();
 		for (; sel_iter != m_selactors.end(); sel_iter++)
 		{
-			CPoint actor_level_id = m_WorldL.GetLevelId(dynamic_cast<Octree *>((*sel_iter)->m_Node->GetTopNode()));
-			CPoint level_off = actor_level_id - m_WorldL.m_LevelId;
-			my::Matrix4 world = my::Matrix4::Compose((*sel_iter)->m_Scale, (*sel_iter)->m_Rotation, (*sel_iter)->m_Position + my::Vector3((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE));
-			m_selbox.unionSelf((*sel_iter)->m_aabb.transform(world));
+			m_selbox.unionSelf((*sel_iter)->m_aabb.transform((*sel_iter)->m_World));
 		}
 	}
 }

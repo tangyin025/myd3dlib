@@ -238,7 +238,7 @@ void Actor::Update(float fElapsedTime)
 	//if (m_PxActor && m_PxActor->isRigidDynamic())
 	//{
 	//	physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
-	//	m_Position = (Vector3 &)pose.p - GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId());
+	//	m_Position = (Vector3 &)pose.p - GetLevel()->CalculateOffset(GetLevel()->m_World->m_LevelId);
 	//	m_Rotation = (Quaternion &)pose.q;
 	//	UpdateWorld();
 	//}
@@ -271,7 +271,7 @@ void Actor::UpdateAABB(void)
 
 void Actor::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
+	m_World = Matrix4::Compose(m_Scale, m_Rotation, m_Position + GetLevel()->CalculateOffset(GetLevel()->m_World->m_LevelId));
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

@@ -42,13 +42,9 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 {
 	Actor::OnEnterPxScene(scene);
 
-	Octree * level = dynamic_cast<Octree *>(m_Node->GetTopNode());
-	CPoint level_id = level->m_World->GetLevelId(level);
-	Vector3 Offset(
-		(level_id.x - level->m_World->m_LevelId.x) * WorldL::LEVEL_SIZE, 0,
-		(level_id.y - level->m_World->m_LevelId.y) * WorldL::LEVEL_SIZE);
-
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
+
+	Vector3 Offset = GetLevel()->CalculateOffset(GetLevel()->m_World->m_LevelId);
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 2.0f;
@@ -84,7 +80,7 @@ void Character::Update(float fElapsedTime)
 
 void Character::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_FaceAngle, 0, 0), m_Position + GetLevel()->m_World->CalculateLevelOffset(GetLevel()->GetId()));
+	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_FaceAngle, 0, 0), m_Position + GetLevel()->CalculateOffset(GetLevel()->m_World->m_LevelId));
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

@@ -185,9 +185,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
-			CPoint actor_level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
-			CPoint level_off = actor_level_id - pFrame->m_WorldL.m_LevelId;
-			PushWireAABB(actor->m_Node->m_aabb.transform(my::Matrix4::Translation((float)level_off.x * WorldL::LEVEL_SIZE, 0, (float)level_off.y * WorldL::LEVEL_SIZE)), D3DCOLOR_ARGB(255,255,0,255));
+			PushWireAABB(actor->m_Node->m_aabb.transform(my::Matrix4::Translation(actor->GetLevel()->CalculateOffset(pFrame->m_WorldL.m_LevelId))), D3DCOLOR_ARGB(255,255,0,255));
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
@@ -1169,9 +1167,8 @@ void CChildView::OnMouseMove(UINT nFlags, CPoint point)
 			for (; sel_iter != pFrame->m_selactors.end(); sel_iter++)
 			{
 				ActorPtr new_actor = boost::dynamic_pointer_cast<Actor>((*sel_iter)->Clone());
-				CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>((*sel_iter)->m_Node->GetTopNode()));
-				my::Matrix4 World = my::Matrix4::Compose(new_actor->m_Scale, new_actor->m_Rotation, new_actor->m_Position);
-				pFrame->m_WorldL.GetLevel(level_id)->AddActor(new_actor, new_actor->m_aabb.transform(World), 0.1f);
+				CPoint level_id = (*sel_iter)->GetLevel()->GetId();
+				pFrame->m_WorldL.GetLevel(level_id)->AddActor(new_actor, new_actor->m_aabb.transform(new_actor->CalculateLocal()), 0.1f);
 				new_actor->RequestResource();
 				new_actor->OnEnterPxScene(pFrame);
 				pFrame->m_WorldL.m_ViewedActors.insert(new_actor.get());

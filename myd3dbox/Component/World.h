@@ -29,6 +29,8 @@ public:
 	}
 
 	CPoint GetId(void) const;
+
+	my::Vector3 CalculateOffset(const CPoint & BaseLevelId) const;
 };
 
 class WorldL
@@ -100,8 +102,6 @@ public:
 	void QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	void ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene, float ViewDist, float ViewThreshold);
-
-	my::Vector3 CalculateLevelOffset(const CPoint & level_id);
 
 	void AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos);
 

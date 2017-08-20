@@ -17,6 +17,12 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Octree)
 
+my::Vector3 Octree::CalculateOffset(const CPoint & BaseLevelId) const
+{
+	CPoint level_id = GetId();
+	return Vector3((float)(level_id.x - BaseLevelId.x) * WorldL::LEVEL_SIZE, 0, (float)(level_id.y - BaseLevelId.y) * WorldL::LEVEL_SIZE);
+}
+
 template<>
 void WorldL::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorphic_oarchive & ar, const unsigned int version) const
 {
@@ -183,11 +189,6 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 	};
 
 	QueryLevel(m_LevelId, &Callback(this, ViewPos, scene, ViewDist));
-}
-
-my::Vector3 WorldL::CalculateLevelOffset(const CPoint & level_id)
-{
-	return Vector3((float)(level_id.x - m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - m_LevelId.y) * LEVEL_SIZE);
 }
 
 void WorldL::AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos)

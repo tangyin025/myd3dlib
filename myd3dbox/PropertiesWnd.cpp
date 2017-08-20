@@ -243,7 +243,7 @@ void CPropertiesWnd::UpdatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	}
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+	CPoint level_id = actor->GetLevel()->GetId();
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(0)->SetValue((_variant_t)level_id.x);
 	pComponent->GetSubItem(PropId + 0)->GetSubItem(1)->SetValue((_variant_t)level_id.y);
 	pComponent->GetSubItem(PropId + 1)->GetSubItem(0)->SetValue((_variant_t)actor->m_aabb.m_min.x);
@@ -544,7 +544,7 @@ void CPropertiesWnd::CreatePropertiesActor(CMFCPropertyGridProperty * pComponent
 	pComponent->AddSubItem(pLevelId);
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-	CPoint level_id = pFrame->m_WorldL.GetLevelId(dynamic_cast<Octree *>(actor->m_Node->GetTopNode()));
+	CPoint level_id = actor->GetLevel()->GetId();
 	CMFCPropertyGridProperty * pProp = new CSimpleProp(_T("x"), (_variant_t)level_id.x, NULL, PropertyActorLevelIdX);
 	pLevelId->AddSubItem(pProp);
 	pProp = new CSimpleProp(_T("y"), (_variant_t)level_id.y, NULL, PropertyActorLevelIdY);
