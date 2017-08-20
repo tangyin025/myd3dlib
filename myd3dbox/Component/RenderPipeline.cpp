@@ -11,6 +11,10 @@ RenderPipeline::IRenderContext::IRenderContext(void)
 	, m_DofParams(5.0f,15.0f,25.0f,1.0f)
 	, m_FxaaEnable(false)
 	, m_SsaoEnable(false)
+	, m_SsaoBias(0.2f)
+	, m_SsaoIntensity(5.0f)
+	, m_SsaoRadius(100.0f)
+	, m_SsaoScale(10.0f)
 {
 }
 
@@ -273,6 +277,10 @@ void RenderPipeline::OnFrameRender(
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
+		m_SsaoEffect->SetFloat("g_bias", pRC->m_SsaoBias);
+		m_SsaoEffect->SetFloat("g_intensity", pRC->m_SsaoIntensity);
+		m_SsaoEffect->SetFloat("g_sample_rad", pRC->m_SsaoRadius);
+		m_SsaoEffect->SetFloat("g_scale", pRC->m_SsaoScale);
 		m_SsaoEffect->Begin();
 		m_SsaoEffect->BeginPass(0);
 		V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));

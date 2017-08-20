@@ -142,6 +142,14 @@ public:
 
 		bool m_SsaoEnable;
 
+		float m_SsaoBias;
+
+		float m_SsaoIntensity;
+
+		float m_SsaoRadius;
+
+		float m_SsaoScale;
+
 		my::Texture2DPtr m_NormalRT;
 
 		my::Texture2DPtr m_PositionRT;

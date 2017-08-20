@@ -107,6 +107,17 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEular->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pSSAO = new CSimpleProp(_T("SSAO"), PropertySSAO, FALSE);
+	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
+	pProp = new CSimpleProp(_T("Bias"), (_variant_t)0.0f, NULL, SSAOPropertyBias);
+	pSSAO->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Intensity"), (_variant_t)0.0f, NULL, SSAOPropertyIntensity);
+	pSSAO->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Radius"), (_variant_t)0.0f, NULL, SSAOPropertyRadius);
+	pSSAO->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("Scale"), (_variant_t)0.0f, NULL, SSAOPropertyScale);
+	pSSAO->AddSubItem(pProp);
+
 	m_wndPropList.AdjustLayout();
 }
 
@@ -131,6 +142,12 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.x));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.z));
+
+	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
+	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)pView->m_SsaoBias);
+	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)pView->m_SsaoIntensity);
+	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)pView->m_SsaoRadius);
+	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)pView->m_SsaoScale);
 
 	m_wndPropList.Invalidate(FALSE);
 }
@@ -244,6 +261,15 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 			pView->m_Camera->UpdateViewProj();
+		}
+		break;
+
+	case PropertySSAO:
+		{
+			pView->m_SsaoBias = pProp->GetSubItem(SSAOPropertyBias)->GetValue().fltVal;
+			pView->m_SsaoIntensity = pProp->GetSubItem(SSAOPropertyIntensity)->GetValue().fltVal;
+			pView->m_SsaoRadius = pProp->GetSubItem(SSAOPropertyRadius)->GetValue().fltVal;
+			pView->m_SsaoScale = pProp->GetSubItem(SSAOPropertyScale)->GetValue().fltVal;
 		}
 		break;
 	}
