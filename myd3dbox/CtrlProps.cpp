@@ -224,7 +224,7 @@ CWnd* CSliderProp::CreateInPlaceEdit(CRect rectEdit, BOOL& bDefaultFormat)
 	CRect rectSlider(CPoint(rectEdit.right-120,rectEdit.bottom),CSize(120,30));
 
 	pWndSlider->Create(TBS_HORZ | TBS_TOP | WS_VISIBLE | WS_CHILD, rectSlider, m_pWndList, AFX_PROPLIST_ID_INPLACE);
-	pWndSlider->SetRange(0,255);
+	pWndSlider->SetRange(0, RANGE);
 	pWndSlider->SetPos(m_varValue.lVal);
 
 	bDefaultFormat = TRUE;

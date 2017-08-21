@@ -66,6 +66,9 @@ public:
 class CSliderProp : public CSimpleProp
 {
 public:
+	static const long RANGE = 255l;
+
+public:
 	CSliderProp(const CString& strName, const COleVariant& varValue, LPCTSTR lpszDescr = NULL, DWORD_PTR dwData = 0)
 		: CSimpleProp(strName, varValue, lpszDescr, dwData)
 	{
