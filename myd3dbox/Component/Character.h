@@ -12,7 +12,7 @@ public:
 
 	my::Vector3 m_Velocity;
 
-	float m_FaceAngle;
+	float m_Orientation;
 
 	PhysXPtr<physx::PxMaterial> m_PxMaterial;
 
@@ -23,7 +23,7 @@ public:
 		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
-		, m_FaceAngle(0)
+		, m_Orientation(0)
 	{
 	}
 
@@ -31,7 +31,7 @@ public:
 		: Actor(ComponentTypeCharacter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
-		, m_FaceAngle(0)
+		, m_Orientation(0)
 	{
 	}
 

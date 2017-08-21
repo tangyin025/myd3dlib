@@ -7,6 +7,7 @@ using namespace my;
 PlayerController::PlayerController(void)
 	: m_LookAngle(0,0,0)
 	, m_MoveAxis(0,0)
+	, m_MoveOrientation(0)
 {
 	Game::getSingleton().m_mouse->m_MovedEvent.connect(boost::bind(&PlayerController::OnMouseMove, this, _1));
 	Game::getSingleton().m_mouse->m_PressedEvent.connect(boost::bind(&PlayerController::OnMouseBtnDown, this, _1));
@@ -45,19 +46,29 @@ void PlayerController::Update(float fElapsedTime)
 	_ASSERT(m_Actor->m_Type == Component::ComponentTypeCharacter);
 	Character * character = dynamic_cast<Character *>(m_Actor);
 	float move_step_sq = m_MoveAxis.magnitudeSq();
+	const float Speed = 5.0f;
 	if (move_step_sq > 0.01f)
 	{
-		m_MoveAngle = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
-		const float speed = 5.0f;
-		character->m_Velocity.x = -speed * sinf(m_MoveAngle);
-		character->m_Velocity.z = -speed * cosf(m_MoveAngle);
+		m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
+		character->m_Velocity.x = -Speed * sinf(m_MoveOrientation);
+		character->m_Velocity.z = -Speed * cosf(m_MoveOrientation);
 	}
 	else
 	{
 		character->m_Velocity.x = 0.0f;
 		character->m_Velocity.z = 0.0f;
 	}
-	character->m_FaceAngle = Lerp(character->m_FaceAngle, m_MoveAngle, 1.0f - powf(0.8f, 30 * fElapsedTime));
+
+	float Delta = fmod(m_MoveOrientation - character->m_Orientation + D3DX_PI, 2 * D3DX_PI) - D3DX_PI;
+	const float Rotation = 0.5f * D3DX_PI * fElapsedTime;
+	if (Delta > 0)
+	{
+		character->m_Orientation += Min(Delta, Rotation);
+	}
+	else
+	{
+		character->m_Orientation += Max(Delta, -Rotation);
+	}
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)
