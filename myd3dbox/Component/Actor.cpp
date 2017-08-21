@@ -284,7 +284,8 @@ void Actor::UpdateRigidActorPose(void)
 {
 	if (m_PxActor)
 	{
-		m_PxActor->setGlobalPose(physx::PxTransform((physx::PxMat44&)m_World));
+		m_PxActor->setGlobalPose(physx::PxTransform(
+			(physx::PxVec3&)(m_Position + GetLevel()->CalculateOffset(GetLevel()->m_World->m_LevelId)), (physx::PxQuat&)m_Rotation));
 	}
 }
 
