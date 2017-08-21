@@ -30,7 +30,7 @@ public:
 
 	CPoint GetId(void) const;
 
-	my::Vector3 CalculateOffset(const CPoint & BaseLevelId) const;
+	my::Vector3 GetOffset(const CPoint & BaseLevelId) const;
 };
 
 class WorldL

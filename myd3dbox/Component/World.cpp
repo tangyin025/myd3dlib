@@ -17,7 +17,7 @@ using namespace my;
 
 BOOST_CLASS_EXPORT(Octree)
 
-my::Vector3 Octree::CalculateOffset(const CPoint & BaseLevelId) const
+my::Vector3 Octree::GetOffset(const CPoint & BaseLevelId) const
 {
 	CPoint level_id = GetId();
 	return Vector3((float)(level_id.x - BaseLevelId.x) * WorldL::LEVEL_SIZE, 0, (float)(level_id.y - BaseLevelId.y) * WorldL::LEVEL_SIZE);

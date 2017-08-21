@@ -185,7 +185,7 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 	case Component::ComponentTypeCharacter:
 		{
 			Actor * actor = dynamic_cast<Actor *>(cmp);
-			PushWireAABB(actor->m_Node->m_aabb.transform(my::Matrix4::Translation(actor->GetLevel()->CalculateOffset(pFrame->m_WorldL.m_LevelId))), D3DCOLOR_ARGB(255,255,0,255));
+			PushWireAABB(actor->m_Node->m_aabb.transform(my::Matrix4::Translation(actor->GetLevel()->GetOffset(pFrame->m_WorldL.m_LevelId))), D3DCOLOR_ARGB(255,255,0,255));
 			Actor::ComponentPtrList::iterator cmp_iter = actor->m_Cmps.begin();
 			for (; cmp_iter != actor->m_Cmps.end(); cmp_iter++)
 			{
