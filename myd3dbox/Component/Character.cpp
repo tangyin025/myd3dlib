@@ -44,7 +44,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	Vector3 Offset = GetLevel()->GetOffset(GetLevel()->m_World->m_LevelId);
+	Vector3 Offset = GetWorldOffset();
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 2.0f;
@@ -80,7 +80,7 @@ void Character::Update(float fElapsedTime)
 
 void Character::UpdateWorld(void)
 {
-	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), m_Position + GetLevel()->GetOffset(GetLevel()->m_World->m_LevelId));
+	m_World = Matrix4::Compose(m_Scale, Quaternion::RotationYawPitchRoll(m_Orientation, 0, 0), GetWorldPosition());
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)

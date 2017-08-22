@@ -71,6 +71,15 @@ bool OctNodeBase::HaveNode(const OctNodeBase * node) const
 	return false;
 }
 
+const OctNodeBase * OctNodeBase::GetTopNode(void) const
+{
+	if (!m_Parent)
+	{
+		return this;
+	}
+	return m_Parent->GetTopNode();
+}
+
 OctNodeBase * OctNodeBase::GetTopNode(void)
 {
 	if (!m_Parent)

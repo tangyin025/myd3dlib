@@ -93,6 +93,8 @@ namespace my
 
 		bool HaveNode(const OctNodeBase * node) const;
 
+		const OctNodeBase * GetTopNode(void) const;
+
 		OctNodeBase * GetTopNode(void);
 
 		virtual void AddActor(OctActorPtr actor, const AABB & aabb, float threshold = 0.1f) = 0;
