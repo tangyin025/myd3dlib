@@ -446,7 +446,7 @@ void CMainFrame::UpdatePivotTransform(void)
 {
 	if (m_selactors.size() == 1)
 	{
-		m_Pivot.m_Pos = (*m_selactors.begin())->m_World[3].xyz;
+		m_Pivot.m_Pos = (*m_selactors.begin())->GetWorldPosition();
 		m_Pivot.m_Rot = (m_Pivot.m_Mode == Pivot::PivotModeMove ? my::Quaternion::Identity() : (*m_selactors.begin())->m_Rotation);
 	}
 	else if (!m_selactors.empty())
