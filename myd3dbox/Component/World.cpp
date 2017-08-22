@@ -106,7 +106,7 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 
 			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
-			level->QueryActor(loc_frustum, &Callback(loc_frustum, pipeline, PassMask));
+			level->QueryActor(loc_frustum, &Callback(frustum, pipeline, PassMask));
 		}
 	};
 

@@ -1459,8 +1459,8 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		{
 			unsigned int PropId = GetComponentPropCount(Component::ComponentTypeComponent);
 			Terrain * terrain = (Terrain *)pProp->GetParent()->GetValue().ulVal;
-			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 3)->GetValue().fltVal;
-			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
+			terrain->m_WrappedU = pProp->GetParent()->GetSubItem(PropId + 4)->GetValue().fltVal;
+			terrain->m_WrappedV = pProp->GetParent()->GetSubItem(PropId + 5)->GetValue().fltVal;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
