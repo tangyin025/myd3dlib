@@ -652,7 +652,7 @@ void ClothComponent::CreateClothFromMesh(my::OgreMeshPtr mesh, unsigned int bone
 		PhysXPtr<physx::PxClothFabric> fabric(PxClothFabricCreate(
 			*PhysXContext::getSingleton().m_sdk, desc, (physx::PxVec3&)my::Vector3::Gravity, true));
 		m_Cloth.reset(PhysXContext::getSingleton().m_sdk->createCloth(
-			physx::PxTransform((physx::PxMat44&)m_World), *fabric, &m_particles[0], physx::PxClothFlags()));
+			physx::PxTransform::createIdentity(), *fabric, &m_particles[0], physx::PxClothFlags()));
 	}
 }
 
