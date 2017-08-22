@@ -336,15 +336,15 @@ void Actor::CreateRigidActor(physx::PxActorType::Enum ActorType)
 {
 	_ASSERT(!m_PxActor);
 
-	my::Vector3 pos, scale; my::Quaternion rot;
-	m_World.Decompose(scale, rot, pos);
 	switch (ActorType)
 	{
 	case physx::PxActorType::eRIGID_STATIC:
-		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
+		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidStatic(
+			physx::PxTransform((physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation)));
 		break;
 	case physx::PxActorType::eRIGID_DYNAMIC:
-		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(physx::PxTransform((physx::PxVec3&)pos, (physx::PxQuat&)rot)));
+		m_PxActor.reset(PhysXContext::getSingleton().m_sdk->createRigidDynamic(
+			physx::PxTransform((physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation)));
 		break;
 	}
 	m_PxActor->userData = this;
