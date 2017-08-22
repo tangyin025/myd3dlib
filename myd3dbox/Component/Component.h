@@ -372,6 +372,8 @@ public:
 	virtual void Update(float fElapsedTime);
 
 	void UpdateCloth(void);
+
+	virtual void UpdateWorld(void);
 };
 
 typedef boost::shared_ptr<ClothComponent> ClothComponentPtr;

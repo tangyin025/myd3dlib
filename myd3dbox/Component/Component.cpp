@@ -833,6 +833,15 @@ void ClothComponent::UpdateCloth(void)
 			my::OgreMesh::ComputeTangentFrame(
 				pVertices, NbParticles, m_VertexStride, &m_IndexData[0], true, m_IndexData.size() / 3, m_VertexElems);
 		}
+	}
+}
+
+void ClothComponent::UpdateWorld(void)
+{
+	RenderComponent::UpdateWorld();
+
+	if (m_Cloth)
+	{
 		m_Cloth->setTargetPose(physx::PxTransform((physx::PxMat44&)m_World));
 	}
 }
