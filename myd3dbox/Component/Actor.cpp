@@ -131,14 +131,9 @@ Octree * Actor::GetLevel(void) const
 	return dynamic_cast<Octree *>(m_Node->GetTopNode());
 }
 
-my::Vector3 Actor::GetWorldOffset(void) const
-{
-	return GetLevel()->GetOffset(GetLevel()->m_World->m_LevelId);
-}
-
 my::Vector3 Actor::GetWorldPosition(void) const
 {
-	return m_Position + GetWorldOffset();
+	return m_Position + GetLevel()->GetOffset();
 }
 
 void Actor::CopyFrom(const Actor & rhs)
@@ -248,7 +243,7 @@ void Actor::Update(float fElapsedTime)
 	//if (m_PxActor && m_PxActor->isRigidDynamic())
 	//{
 	//	physx::PxTransform pose = m_PxActor->is<physx::PxRigidDynamic>()->getGlobalPose();
-	//	m_Position = (Vector3 &)pose.p - GetWorldOffset();
+	//	m_Position = (Vector3 &)pose.p - GetLevel()->GetOffset();
 	//	m_Rotation = (Quaternion &)pose.q;
 	//	UpdateWorld();
 	//}

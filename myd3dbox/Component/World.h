@@ -30,7 +30,7 @@ public:
 
 	CPoint GetId(void) const;
 
-	my::Vector3 GetOffset(const CPoint & BaseLevelId) const;
+	my::Vector3 GetOffset(void) const;
 };
 
 class WorldL
@@ -93,6 +93,11 @@ public:
 		return CPoint(i % m_Dimension, i / m_Dimension);
 	}
 
+	static my::Vector3 CalculateOffset(const CPoint & level0, const CPoint & level1)
+	{
+		return my::Vector3((float)(level1.x - level0.x) * LEVEL_SIZE, 0, (float)(level1.y - level0.y) * LEVEL_SIZE);
+	}
+
 	void CreateLevels(long dimension);
 
 	void ClearAllLevels(void);
@@ -115,4 +120,9 @@ public:
 inline CPoint Octree::GetId(void) const
 {
 	return m_World->GetLevelId(this);
+}
+
+inline my::Vector3 Octree::GetOffset(void) const
+{
+	return WorldL::CalculateOffset(m_World->m_LevelId, GetId());
 }

@@ -70,8 +70,6 @@ public:
 
 	Octree * GetLevel(void) const;
 
-	my::Vector3 GetWorldOffset(void) const;
-
 	my::Vector3 GetWorldPosition(void) const;
 
 	void CopyFrom(const Actor & rhs);

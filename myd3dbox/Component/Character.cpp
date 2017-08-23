@@ -44,7 +44,7 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 
 	m_PxMaterial.reset(PhysXContext::getSingleton().m_sdk->createMaterial(0.5f, 0.5f, 0.5f));
 
-	Vector3 Offset = GetWorldOffset();
+	Vector3 Offset = GetLevel()->GetOffset();
 
 	physx::PxCapsuleControllerDesc desc;
 	desc.height = 2.0f;
