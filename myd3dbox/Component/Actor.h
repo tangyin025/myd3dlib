@@ -106,7 +106,7 @@ public:
 
 	void ClearAllComponent(ComponentPtr cmp);
 
-	void ChangePose(my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+	void ChangePose(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 
 	void UpdateRigidActorPose(void);
 };

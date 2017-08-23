@@ -422,10 +422,12 @@ void CMainFrame::SafeAdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & p
 
 void CMainFrame::SafeChangeActorPose(Actor * actor, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	actor->m_Position = Position - actor->GetLevel()->GetOffset();
+	CPoint level_id = actor->GetLevel()->GetId();
+	SafeAdjustLevelIdAndPosition(level_id, Position);
+	actor->m_Position = Position;
 	actor->m_Rotation = Rotation;
 	actor->m_Scale = Scale;
-	m_WorldL.OnActorPoseChanged(actor, actor->GetLevel()->GetId());
+	m_WorldL.OnActorPoseChanged(actor, level_id);
 }
 
 void CMainFrame::UpdateSelBox(void)

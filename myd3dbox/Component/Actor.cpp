@@ -364,7 +364,7 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-void Actor::ChangePose(my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void Actor::ChangePose(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
 	m_Position = Position - GetLevel()->GetOffset();
 	m_Rotation = Rotation;
