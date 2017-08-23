@@ -94,8 +94,6 @@ public:
 
 	virtual void UpdateWorld(void);
 
-	void UpdateRigidActorPose(void);
-
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
@@ -109,6 +107,10 @@ public:
 	void RemoveComponent(ComponentPtr cmp);
 
 	void ClearAllComponent(ComponentPtr cmp);
+
+	void ChangePose(CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
+
+	void UpdateRigidActorPose(void);
 };
 
 typedef boost::shared_ptr<Actor> ActorPtr;

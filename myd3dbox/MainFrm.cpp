@@ -476,7 +476,7 @@ BOOL CMainFrame::OnFrameTick(float fElapsedTime)
 	for (physx::PxU32 i = 0; i < nbActiveTransforms; ++i)
 	{
 		Actor * actor = (Actor *)activeTransforms[i].userData;
-		m_WorldL.ChangeActorPose(actor, m_WorldL.m_LevelId, (my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, my::Vector3(1,1,1));
+		actor->ChangePose(m_WorldL.m_LevelId, (my::Vector3 &)activeTransforms[i].actor2World.p, (my::Quaternion &)activeTransforms[i].actor2World.q, my::Vector3(1,1,1));
 	}
 
 	EventArgs arg;

@@ -290,15 +290,6 @@ void Actor::UpdateWorld(void)
 	}
 }
 
-void Actor::UpdateRigidActorPose(void)
-{
-	if (m_PxActor)
-	{
-		m_PxActor->setGlobalPose(physx::PxTransform(
-			(physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation));
-	}
-}
-
 void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
 	Component::AddToPipeline(frustum, pipeline, PassMask);
@@ -376,4 +367,22 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 		(*cmp_iter)->m_Actor = NULL;
 	}
 	m_Cmps.clear();
+}
+
+void Actor::ChangePose(CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+{
+	GetLevel()->m_World->AdjustLevelIdAndPosition(LevelId, Position);
+	m_Position = Position;
+	m_Rotation = Rotation;
+	m_Scale = Scale;
+	GetLevel()->m_World->OnActorPoseChanged(this, LevelId);
+}
+
+void Actor::UpdateRigidActorPose(void)
+{
+	if (m_PxActor)
+	{
+		m_PxActor->setGlobalPose(physx::PxTransform(
+			(physx::PxVec3&)GetWorldPosition(), (physx::PxQuat&)m_Rotation));
+	}
 }
