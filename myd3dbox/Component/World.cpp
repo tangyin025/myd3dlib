@@ -214,11 +214,12 @@ void WorldL::AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos)
 	pos.y = pos.y;
 }
 
-void WorldL::OnActorPoseChanged(Actor * actor, const CPoint & level_id)
+void WorldL::OnActorPoseChanged(Actor * actor, CPoint level_id)
 {
 	ActorPtr actor_ptr = actor->shared_from_this();
 	my::OctNodeBase * Root = actor_ptr->m_Node->GetTopNode();
 	Root->RemoveActor(actor_ptr);
+	AdjustLevelIdAndPosition(level_id, actor_ptr->m_Position);
 	GetLevel(level_id)->AddActor(actor_ptr, actor->m_aabb.transform(actor->CalculateLocal()));
 	actor->UpdateWorld();
 }

@@ -110,7 +110,7 @@ public:
 
 	void AdjustLevelIdAndPosition(CPoint & level_id, my::Vector3 & pos);
 
-	void OnActorPoseChanged(Actor * actor, const CPoint & level_id);
+	void OnActorPoseChanged(Actor * actor, CPoint level_id);
 
 	void ResetLevelId(const CPoint & level_id, PhysXSceneContext * scene);
 

@@ -364,13 +364,12 @@ void Actor::ClearAllComponent(ComponentPtr cmp)
 	m_Cmps.clear();
 }
 
-void Actor::ChangePose(CPoint LevelId, my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
+void Actor::ChangePose(my::Vector3 Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
 {
-	GetLevel()->m_World->AdjustLevelIdAndPosition(LevelId, Position);
-	m_Position = Position;
+	m_Position = Position - GetLevel()->GetOffset();
 	m_Rotation = Rotation;
 	m_Scale = Scale;
-	GetLevel()->m_World->OnActorPoseChanged(this, LevelId);
+	GetLevel()->m_World->OnActorPoseChanged(this, GetLevel()->GetId());
 }
 
 void Actor::UpdateRigidActorPose(void)
