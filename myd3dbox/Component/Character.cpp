@@ -110,8 +110,8 @@ void Character::OnPxThreadSubstep(float dtime)
 			}
 			else
 			{
-				m_Velocity.x = m_Velocity.x - m_Velocity.x / magnitude * step;
-				m_Velocity.z = m_Velocity.z - m_Velocity.z / magnitude * step;
+				m_Velocity.x -= m_Velocity.x / magnitude * step;
+				m_Velocity.z -= m_Velocity.z / magnitude * step;
 			}
 		}
 		physx::PxControllerCollisionFlags flags = m_PxController->move((physx::PxVec3&)m_Velocity * dtime, 0.001f, dtime, physx::PxControllerFilters());
