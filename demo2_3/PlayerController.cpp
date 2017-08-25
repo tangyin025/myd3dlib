@@ -50,13 +50,13 @@ void PlayerController::Update(float fElapsedTime)
 	if (move_step_sq > 0.01f)
 	{
 		m_MoveOrientation = m_LookAngle.y + atan2f(m_MoveAxis.x, m_MoveAxis.y);
-		character->m_Velocity.x = -Speed * sinf(m_MoveOrientation);
-		character->m_Velocity.z = -Speed * cosf(m_MoveOrientation);
+		character->m_Acceleration.x = -Speed * sinf(m_MoveOrientation);
+		character->m_Acceleration.z = -Speed * cosf(m_MoveOrientation);
 	}
 	else
 	{
-		character->m_Velocity.x = 0.0f;
-		character->m_Velocity.z = 0.0f;
+		character->m_Acceleration.x = 0.0f;
+		character->m_Acceleration.z = 0.0f;
 	}
 
 	float Delta = fmod(m_MoveOrientation - character->m_Orientation + D3DX_PI, 2 * D3DX_PI) - D3DX_PI;
@@ -64,10 +64,12 @@ void PlayerController::Update(float fElapsedTime)
 	if (Delta > 0)
 	{
 		character->m_Orientation += Min(Delta, Rotation);
+		character->UpdateWorld();
 	}
 	else
 	{
 		character->m_Orientation += Max(Delta, -Rotation);
+		character->UpdateWorld();
 	}
 }
 
