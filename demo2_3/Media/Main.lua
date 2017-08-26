@@ -10,7 +10,6 @@ game.Camera.EventAlign=function(args)
 	local desc=game.BackBufferSurfaceDesc
 	game.Camera.Aspect=desc.Width/desc.Height
 end
-game.SkyLightCam.Eular=Vector3(math.rad(-45),math.rad(0),0)
 
 -- 设置环境光
 game.SkyLightCam.Eye=Vector3(0,0,0)
@@ -22,7 +21,9 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
 -- game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
-game.Player.Acceleration=Vector3(0,-9.8,0)
+game.Player.MaxVelocity=10.0
+game.Player.Resistance=50.0
+-- toCharacterController(game.Player.Controller).RotationSpeed=3.14*10--crash client
 local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
 local lambert1=Material()
 lambert1.Shader="lambert1.fx"

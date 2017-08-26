@@ -1010,9 +1010,17 @@ static void ExportComponent(lua_State * L)
 			.def(constructor<const my::Vector3 &, const my::Quaternion &, const my::Vector3 &, const my::AABB &>())
 			.def(constructor<>())
 			.def_readwrite("Acceleration", &Character::m_Acceleration)
+			.def_readwrite("Velocity", &Character::m_Velocity)
+			.def_readwrite("MaxVelocity", &Character::m_MaxVelocity)
+			.def_readwrite("Resistance", &Character::m_Resistance)
+			.def_readwrite("Orientation", &Character::m_Orientation)
 
 		, class_<Controller, boost::shared_ptr<Controller> >("Controller")
-			.def(constructor<>())
+
+		, class_<CharacterController, Controller, boost::shared_ptr<Controller> >("CharacterController")
+			.def_readwrite("MoveOrientation", &CharacterController::m_MoveOrientation)
+			.def_readonly("MoveAcceleration", &CharacterController::m_MoveAcceleration)
+			.def_readwrite("RotationSpeed", &CharacterController::m_RotationSpeed)
 
 		//, class_<Octree, boost::shared_ptr<Octree> >("Octree")
 		//	.def("AddActor", &Octree::AddActor)
@@ -1024,6 +1032,7 @@ static void ExportComponent(lua_State * L)
 		//	.def_readwrite("EventActorLeave", &WorldL::m_EventActorLeave)
 
 		, def("actor2oct", &boost::dynamic_pointer_cast<my::OctActor, Actor>)
+		, def("toCharacterController", &boost::dynamic_pointer_cast<CharacterController, Controller>)
 	];
 }
 

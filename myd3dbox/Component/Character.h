@@ -8,6 +8,10 @@ class Character
 	, public physx::PxControllerBehaviorCallback
 {
 public:
+	PhysXPtr<physx::PxMaterial> m_PxMaterial;
+
+	PhysXPtr<physx::PxController> m_PxController;
+
 	my::Vector3 m_Acceleration;
 
 	my::Vector3 m_Velocity;
@@ -17,10 +21,6 @@ public:
 	float m_Resistance;
 
 	float m_Orientation;
-
-	PhysXPtr<physx::PxMaterial> m_PxMaterial;
-
-	PhysXPtr<physx::PxController> m_PxController;
 
 public:
 	Character(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale, const my::AABB & aabb)

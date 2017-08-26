@@ -2,25 +2,22 @@
 
 #include "../myd3dbox/Component/Controller.h"
 
-class PlayerController
-	: public Controller
+class PlayerController : public CharacterController
 {
 public:
 	my::Vector3 m_LookAngle;
 
 	my::Vector2 m_MoveAxis;
 
-	float m_MoveOrientation;
-
 public:
 	PlayerController(void);
 
-	virtual ~PlayerController(void);
+	~PlayerController(void);
 
 	template <class Archive>
 	void serialize(Archive & ar, const unsigned int version)
 	{
-		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Controller);
+		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(CharacterController);
 	}
 
 	virtual void Update(float fElapsedTime);
@@ -43,5 +40,3 @@ public:
 
 	void OnJoystickBtnUp(my::InputEventArg * arg);
 };
-
-typedef boost::shared_ptr<PlayerController> PlayerControllerPtr;

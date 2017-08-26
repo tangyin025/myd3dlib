@@ -47,8 +47,8 @@ void Character::OnEnterPxScene(PhysXSceneContext * scene)
 	Vector3 Offset = GetLevel()->GetOffset();
 
 	physx::PxCapsuleControllerDesc desc;
-	desc.height = 2.0f;
-	desc.radius = 1.0f;
+	desc.height = 1.7f;
+	desc.radius = 0.5f;
 	desc.position = physx::PxExtendedVec3(m_Position.x + Offset.x, m_Position.y, m_Position.z + Offset.z);
 	desc.material = m_PxMaterial.get();
 	desc.reportCallback = this;
