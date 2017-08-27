@@ -21,9 +21,9 @@ game.SkyLightCam.Fz=50
 game.SkyLightDiffuse=Vector4(1.0,1.0,1.0,1.0)
 -- game.SkyLightAmbient=Vector4(0.0,0.0,0.0,0.0)
 
-game.Player.MaxVelocity=10.0
-game.Player.Resistance=50.0
--- toCharacterController(game.Player.Controller).RotationSpeed=3.14*10--crash client
+-- game.Player.MaxVelocity=10.0
+-- game.Player.Resistance=50.0
+-- toCharacterController(game.Player.Controller).RotationSpeed=3.14*3--crash client
 local mesh=game:LoadMesh("mesh/cloth.mesh.xml")
 local lambert1=Material()
 lambert1.Shader="lambert1.fx"
