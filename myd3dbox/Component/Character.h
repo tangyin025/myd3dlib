@@ -27,8 +27,8 @@ public:
 		: Actor(ComponentTypeCharacter, Position, Rotation, Scale, aabb)
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
-		, m_MaxVelocity(1)
-		, m_Resistance(1)
+		, m_MaxVelocity(10)
+		, m_Resistance(50)
 		, m_Orientation(0)
 	{
 	}
@@ -37,8 +37,8 @@ public:
 		: Actor(ComponentTypeCharacter, my::Vector3(0,0,0), my::Quaternion::Identity(), my::Vector3(1,1,1), my::AABB(-1,1))
 		, m_Acceleration(0,0,0)
 		, m_Velocity(0,0,0)
-		, m_MaxVelocity(1)
-		, m_Resistance(1)
+		, m_MaxVelocity(10)
+		, m_Resistance(50)
 		, m_Orientation(0)
 	{
 	}

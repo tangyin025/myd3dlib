@@ -43,7 +43,7 @@ public:
 	CharacterController(void)
 		: m_MoveOrientation(0)
 		, m_MoveAcceleration(0)
-		, m_RotationSpeed(D3DX_PI)
+		, m_RotationSpeed(D3DX_PI*3)
 	{
 	}
 
