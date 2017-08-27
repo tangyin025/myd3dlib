@@ -135,15 +135,15 @@ void Character::onObstacleHit(const physx::PxControllerObstacleHit& hit)
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxShape& shape, const physx::PxActor& actor)
 {
-	return physx::PxControllerBehaviorFlags();
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxController& controller)
 {
-	return physx::PxControllerBehaviorFlags();
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
 
 physx::PxControllerBehaviorFlags Character::getBehaviorFlags(const physx::PxObstacle& obstacle)
 {
-	return physx::PxControllerBehaviorFlags();
+	return physx::PxControllerBehaviorFlag::eCCT_USER_DEFINED_RIDE;
 }
