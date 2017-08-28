@@ -27,11 +27,7 @@
 #include <boost/ref.hpp> // detail::push()
 #include <boost/mpl/bool.hpp> // value_wrapper_traits specializations
 #include <boost/mpl/apply_wrap.hpp>
-#ifdef LUABIND_CPP0x
-# include <tuple>
-#else
-# include <boost/tuple/tuple.hpp>
-#endif
+#include <boost/tuple/tuple.hpp>
 #include <boost/optional.hpp>
 
 #include <luabind/nil.hpp>
@@ -46,9 +42,7 @@
 
 #include <boost/iterator/iterator_facade.hpp> // iterator
 
-#ifndef LUABIND_CPP0x
 #include <boost/preprocessor/iteration/iterate.hpp>
-#endif
 #include <boost/utility/enable_if.hpp>
 
 namespace luabind {
@@ -281,19 +275,6 @@ LUABIND_BINARY_OP_DEF(<, lua_lessthan)
   public:
       ~object_interface() {}
 
-# ifdef LUABIND_CPP0x
-
-      template <class... Args>
-      call_proxy<
-          Derived, std::tuple<Args const*...>
-      > operator()(Args const& ...args)
-      {
-          typedef std::tuple<Args const*...> arguments;
-          return call_proxy<Derived, arguments>(derived(), arguments(&args...));
-      }
-
-# else
-
       call_proxy<Derived, boost::tuples::tuple<> > operator()();
 
       template<class A0>
@@ -328,8 +309,6 @@ LUABIND_BINARY_OP_DEF(<, lua_lessthan)
       #define BOOST_PP_ITERATION_PARAMS_1 (3, \
           (3, LUABIND_MAX_ARITY, <luabind/detail/object_call.hpp>))
       #include BOOST_PP_ITERATE()
-
-# endif // LUABIND_CPP0x
 
       operator safe_bool_type*() const
       {
@@ -558,7 +537,7 @@ namespace detail
   };
 
 // Needed because of some strange ADL issues.
-
+//
 //#define LUABIND_OPERATOR_ADL_WKND(op) \
 //  inline bool operator op( \
 //      basic_iterator<basic_access> const& x \
@@ -576,8 +555,8 @@ namespace detail
 //
 //  LUABIND_OPERATOR_ADL_WKND(==)
 //  LUABIND_OPERATOR_ADL_WKND(!=)
-//
-//#undef LUABIND_OPERATOR_ADL_WKND
+
+#undef LUABIND_OPERATOR_ADL_WKND
  
 } // namespace detail
 
@@ -984,10 +963,12 @@ namespace detail
 
       typename mpl::apply_wrap2<converter_generator, T, lua_to_cpp>::type cv;
 
+#ifndef LUABIND_NO_ERROR_CHECKING
       if (cv.match(interpreter, LUABIND_DECORATE_TYPE(T), -1) < 0)
       {
           return ErrorPolicy::handle_error(interpreter, typeid(T));
       }
+#endif
 
       return cv.apply(interpreter, LUABIND_DECORATE_TYPE(T), -1);
   }
@@ -1085,37 +1066,6 @@ namespace detail
   template<int Index>
   struct push_args_from_tuple
   {
-# ifdef LUABIND_CPP0x
-
-      template <class Args, class Policies, class N, class E>
-      static void push_args(
-          lua_State* L, Args const& args, Policies const& policies, N, E)
-      {
-          convert_to_lua_p<N::value + 1>(L, *std::get<N::value>(args), policies);
-          push_args(
-              L, args, policies, std::integral_constant<int, N::value + 1>(), E());
-      }
-
-      template <class Args, class Policies, class E>
-      static void push_args(lua_State* L, Args const&, Policies const&, E, E)
-      {}
-
-      template <class... Args, class Policies = null_type>
-      static void apply(
-          lua_State* L, std::tuple<Args...> const& args
-        , Policies const policies = Policies())
-      {
-          push_args(
-              L
-            , args
-            , policies
-            , std::integral_constant<int, 0>()
-            , std::integral_constant<int, sizeof...(Args)>()
-          );
-      }
-
-# else // LUABIND_CPP0x
-
       template<class H, class T, class Policies>
       inline static void apply(lua_State* L, const boost::tuples::cons<H, T>& x, const Policies& p) 
       {
@@ -1134,8 +1084,6 @@ namespace detail
       inline static void apply(lua_State*, const boost::tuples::null_type&, const Policies&) {}
 
       inline static void apply(lua_State*, const boost::tuples::null_type&) {}
-
-# endif // LUABIND_CPP0x
   };
 
 } // namespace detail
@@ -1191,11 +1139,7 @@ namespace adl
 
           detail::push_args_from_tuple<1>::apply(interpreter, arguments, Policies());
 
-# ifdef LUABIND_CPP0x
-          if (detail::pcall(interpreter, std::tuple_size<Arguments>::value, 1))
-# else
           if (detail::pcall(interpreter, boost::tuples::length<Arguments>::value, 1))
-# endif
           {
 #ifndef LUABIND_NO_EXCEPTIONS
               throw luabind::error(interpreter);
@@ -1217,8 +1161,6 @@ namespace adl
       Arguments arguments;
   };
 
-# ifndef LUABIND_CPP0x
-
   template<class Derived>
   call_proxy<Derived, boost::tuples::tuple<> >
   object_interface<Derived>::operator()()
@@ -1228,8 +1170,6 @@ namespace adl
         , boost::tuples::tuple<>()
       );
   }
-
-# endif
 
   // Simple value_wrapper adaptor with the sole purpose of helping with
   // overload resolution. Use this as a function parameter type instead

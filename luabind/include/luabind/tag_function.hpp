@@ -7,17 +7,15 @@
 # ifndef LUABIND_TAG_FUNCTION_081129_HPP
 #  define LUABIND_TAG_FUNCTION_081129_HPP
 
-#  ifndef LUABIND_CPP0x
-#   if LUABIND_MAX_ARITY <= 8
-#    include <boost/mpl/vector/vector10.hpp>
-#   else
-#    include <boost/mpl/vector/vector50.hpp>
-#   endif
-#   include <boost/preprocessor/cat.hpp>
-#   include <boost/preprocessor/iterate.hpp>
-#   include <boost/preprocessor/repetition/enum_params.hpp>
-#   include <boost/preprocessor/repetition/enum_trailing_params.hpp>
+#  if LUABIND_MAX_ARITY <= 8
+#   include <boost/mpl/vector/vector10.hpp>
+#  else
+#   include <boost/mpl/vector/vector50.hpp>
 #  endif
+#  include <boost/preprocessor/cat.hpp>
+#  include <boost/preprocessor/iterate.hpp>
+#  include <boost/preprocessor/repetition/enum_params.hpp>
+#  include <boost/preprocessor/repetition/enum_trailing_params.hpp>
 
 namespace luabind {
 
@@ -40,28 +38,6 @@ namespace detail
       return Signature();
   }
 
-  template <class Function>
-  struct signature_from_function;
-
-#  ifdef LUABIND_CPP0x
-
-  template <class... Args, class F, class Policies>
-  int invoke(
-      lua_State* L, function_object const& self, invoke_context& ctx
-    , tagged_function<vector<Args...>, F> const& tagged
-    , vector<Args...>, Policies const& policies)
-  {
-      return invoke(L, self, ctx, tagged.f, vector<Args...>(), policies);
-  }
-
-  template <class R, class... Args>
-  struct signature_from_function<R(Args...)>
-  {
-      typedef vector<R, Args...> type;
-  };
-
-#  else // LUABIND_CPP0x
-
   template <class Signature, class F, class Policies>
   int invoke(
       lua_State* L, function_object const& self, invoke_context& ctx
@@ -71,11 +47,12 @@ namespace detail
       return invoke(L, self, ctx, tagged.f, Signature(), policies);
   }
 
-#   define BOOST_PP_ITERATION_PARAMS_1 \
+  template <class Function>
+  struct signature_from_function;
+
+#  define BOOST_PP_ITERATION_PARAMS_1 \
   (3, (0, LUABIND_MAX_ARITY, <luabind/tag_function.hpp>))
 #  include BOOST_PP_ITERATE()
-
-# endif // LUABIND_CPP0x
 
 } // namespace detail
 

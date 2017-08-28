@@ -47,7 +47,7 @@ namespace luabind { namespace detail
     inline void adjust_backref_ownership(void*, mpl::false_)
     {}
 
-	template <class Pointer, class Direction = lua_to_cpp>
+	template<class Direction = lua_to_cpp>
     struct adopt_pointer : pointer_converter
 	{
 		typedef adopt_pointer type;
@@ -83,20 +83,8 @@ namespace luabind { namespace detail
 		void converter_postcall(lua_State*, T, int) {}
 	};
 
-    template <class Pointer, class T>
-    struct pointer_or_default
-    {
-        typedef Pointer type;
-    };
-
-    template <class T>
-    struct pointer_or_default<void, T>
-    {
-        typedef std::auto_ptr<T> type;
-    };
-
-	template <class Pointer>
-	struct adopt_pointer<Pointer, cpp_to_lua>
+	template<>
+	struct adopt_pointer<cpp_to_lua>
 	{
 		typedef adopt_pointer type;
 
@@ -115,14 +103,12 @@ namespace luabind { namespace detail
 			if (luabind::move_back_reference(L, ptr))
 				return;
 
-            typedef typename pointer_or_default<Pointer, T>::type
-                pointer_type;
-
-            make_instance(L, pointer_type(ptr));
+            make_instance(L, std::auto_ptr<T>(ptr));
 		}
 	};
 
-	template <int N, class Pointer = void>
+	template<int N>
+//	struct adopt_policy : converter_policy_tag
 	struct adopt_policy : conversion_policy<N>
 	{
 //		BOOST_STATIC_CONSTANT(int, index = N);
@@ -136,11 +122,7 @@ namespace luabind { namespace detail
 		struct apply
 		{
 			typedef luabind::detail::is_nonconst_pointer<T> is_nonconst_p;
-			typedef typename boost::mpl::if_<
-                is_nonconst_p
-              , adopt_pointer<Pointer, Direction>
-              , only_accepts_nonconst_pointers
-            >::type type;
+			typedef typename boost::mpl::if_<is_nonconst_p, adopt_pointer<Direction>, only_accepts_nonconst_pointers>::type type;
 		};
 	};
 
@@ -154,13 +136,6 @@ namespace luabind
 	{ 
 		return detail::policy_cons<detail::adopt_policy<N>, detail::null_type>(); 
 	}
-
-    template <class Pointer, int N>
-    detail::policy_cons<detail::adopt_policy<N, Pointer>, detail::null_type>
-    adopt(LUABIND_PLACEHOLDER_ARG(N))
-    {
-        return detail::policy_cons<detail::adopt_policy<N, Pointer>, detail::null_type>();
-    }
 }
 
 #endif // LUABIND_ADOPT_POLICY_HPP_INCLUDE
