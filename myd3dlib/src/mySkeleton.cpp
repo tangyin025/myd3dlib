@@ -508,63 +508,7 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimation(
 			m_boneNameMap[attr_parent->value()], m_boneNameMap[attr_bone->value()]);
 	}
 
-	DEFINE_XML_NODE_SIMPLE(animations, skeleton);
-	DEFINE_XML_NODE_SIMPLE(animation, animations);
-
-	for(; node_animation != NULL; node_animation = node_animation->next_sibling())
-	{
-		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
-		if(m_animationMap.end() != m_animationMap.find(attr_name->value()))
-		{
-			THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
-		}
-
-		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
-		OgreAnimation & anim = m_animationMap[attr_name->value()];
-
-		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
-
-		DEFINE_XML_NODE_SIMPLE(tracks, animation);
-		DEFINE_XML_NODE_SIMPLE(track, tracks);
-		for(; node_track != NULL; node_track = node_track->next_sibling())
-		{
-			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
-			if(m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
-			{
-				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
-			}
-
-			DEFINE_XML_NODE_SIMPLE(keyframes, track);
-			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
-			for(; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
-			{
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
-				BoneList & pose = anim[time];
-				pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0,0,0)));
-				Bone & bone = pose[m_boneNameMap[attr_bone->value()]];
-
-				rapidxml::xml_attribute<char> * attr_translate_x, * attr_translate_y, * attr_translate_z;
-				float translate_x, translate_y, translate_z;
-				DEFINE_XML_NODE_SIMPLE(translate, keyframe);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
-				DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
-
-				DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
-				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
-
-				rapidxml::xml_attribute<char> * attr_axis_x, * attr_axis_y, * attr_axis_z;
-				float axis_x, axis_y, axis_z;
-				DEFINE_XML_NODE_SIMPLE(axis, rotate);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
-				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
-
-				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
-				bone.m_position = Vector3(translate_x, translate_y, translate_z);
-			}
-		}
-	}
+	AddOgreSkeletonAnimation(node_root);
 
 	// calculate root set
 	m_boneRootSet.clear();
@@ -616,6 +560,101 @@ void OgreSkeletonAnimation::CreateOgreSkeletonAnimationFromFile(
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 	CreateOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
+}
+
+void OgreSkeletonAnimation::AddOgreSkeletonAnimation(
+	const rapidxml::xml_node<char> * node_root)
+{
+	DEFINE_XML_NODE_SIMPLE(skeleton, root);
+	DEFINE_XML_NODE_SIMPLE(animations, skeleton);
+	DEFINE_XML_NODE_SIMPLE(animation, animations);
+
+	for (; node_animation != NULL; node_animation = node_animation->next_sibling())
+	{
+		DEFINE_XML_ATTRIBUTE_SIMPLE(name, animation);
+		if (m_animationMap.end() != m_animationMap.find(attr_name->value()))
+		{
+			THROW_CUSEXCEPTION(str_printf("animation \"%s\" have already existed", attr_name->value()));
+		}
+
+		m_animationMap.insert(std::make_pair(attr_name->value(), OgreAnimation()));
+		OgreAnimation & anim = m_animationMap[attr_name->value()];
+
+		DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(length, animation);
+
+		DEFINE_XML_NODE_SIMPLE(tracks, animation);
+		DEFINE_XML_NODE_SIMPLE(track, tracks);
+		for (; node_track != NULL; node_track = node_track->next_sibling())
+		{
+			DEFINE_XML_ATTRIBUTE_SIMPLE(bone, track);
+			if (m_boneNameMap.end() == m_boneNameMap.find(attr_bone->value()))
+			{
+				THROW_CUSEXCEPTION(str_printf("invalid bone name: %s", attr_bone->value()));
+			}
+
+			DEFINE_XML_NODE_SIMPLE(keyframes, track);
+			DEFINE_XML_NODE_SIMPLE(keyframe, keyframes);
+			for (; node_keyframe != NULL; node_keyframe = node_keyframe->next_sibling())
+			{
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(time, keyframe);
+				BoneList & pose = anim[time];
+				pose.resize(m_boneHierarchy.size(), Bone(Quaternion::Identity(), Vector3(0, 0, 0)));
+				Bone & bone = pose[m_boneNameMap[attr_bone->value()]];
+
+				rapidxml::xml_attribute<char> * attr_translate_x, *attr_translate_y, *attr_translate_z;
+				float translate_x, translate_y, translate_z;
+				DEFINE_XML_NODE_SIMPLE(translate, keyframe);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_x, attr_translate_x, node_translate, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_y, attr_translate_y, node_translate, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(translate_z, attr_translate_z, node_translate, z);
+
+				DEFINE_XML_NODE_SIMPLE(rotate, keyframe);
+				DEFINE_XML_ATTRIBUTE_FLOAT_SIMPLE(angle, rotate);
+
+				rapidxml::xml_attribute<char> * attr_axis_x, *attr_axis_y, *attr_axis_z;
+				float axis_x, axis_y, axis_z;
+				DEFINE_XML_NODE_SIMPLE(axis, rotate);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_x, attr_axis_x, node_axis, x);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_y, attr_axis_y, node_axis, y);
+				DEFINE_XML_ATTRIBUTE_FLOAT(axis_z, attr_axis_z, node_axis, z);
+
+				bone.m_rotation = Quaternion::RotationAxis(Vector3(axis_x, axis_y, axis_z), angle);
+				bone.m_position = Vector3(translate_x, translate_y, translate_z);
+			}
+		}
+	}
+}
+
+void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromMemory(
+	LPSTR pSrcData,
+	UINT srcDataLen)
+{
+	_ASSERT(0 == pSrcData[srcDataLen - 1]);
+
+	rapidxml::xml_document<char> doc;
+	try
+	{
+		doc.parse<0>(pSrcData);
+	}
+	catch (rapidxml::parse_error & e)
+	{
+		THROW_CUSEXCEPTION(e.what());
+	}
+
+	AddOgreSkeletonAnimation(&doc);
+}
+
+void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(
+	LPCTSTR pFilename)
+{
+	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
+	cache->push_back(0);
+	AddOgreSkeletonAnimationFromMemory((char *)&(*cache)[0], cache->size());
+}
+
+void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
+{
+
 }
 
 void OgreSkeletonAnimation::Clear(void)

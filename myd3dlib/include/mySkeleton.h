@@ -259,6 +259,18 @@ namespace my
 		void CreateOgreSkeletonAnimationFromFile(
 			LPCTSTR pFilename);
 
+		void AddOgreSkeletonAnimation(
+			const rapidxml::xml_node<char> * node_root);
+
+		void AddOgreSkeletonAnimationFromMemory(
+			LPSTR pSrcData,
+			UINT srcDataLen);
+
+		void AddOgreSkeletonAnimationFromFile(
+			LPCTSTR pFilename);
+
+		void SaveOgreSkeletonAnimation(const char * path);
+
 		void Clear(void);
 
 		const OgreAnimation * GetAnimation(const std::string & anim_name) const;
