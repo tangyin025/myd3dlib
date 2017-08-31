@@ -43,7 +43,11 @@ void Actor::save<boost::archive::polymorphic_oarchive>(boost::archive::polymorph
 				collection->add(*m_Cmps[i]->m_PxShape, physx::PxConcreteType::eSHAPE << 24 | i);
 				if (m_Cmps[i]->m_Type == Component::ComponentTypeTerrain)
 				{
-					collection->add(*boost::dynamic_pointer_cast<Terrain>(m_Cmps[i])->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
+					Terrain * terrain = dynamic_cast<Terrain *>(m_Cmps[i].get());
+					if (terrain->m_PxHeightField)
+					{
+						collection->add(*->m_PxHeightField, physx::PxConcreteType::eHEIGHTFIELD << 24 | i);
+					}
 				}
 			}
 		}
