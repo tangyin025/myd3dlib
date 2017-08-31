@@ -50,7 +50,16 @@ void PlayerController::Update(float fElapsedTime)
 	{
 		m_MoveAcceleration = 0;
 	}
+
 	CharacterController::Update(fElapsedTime);
+
+	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(Game::getSingleton().m_Camera.get());
+	Character * character = dynamic_cast<Character *>(m_Actor);
+	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(m_LookAngle.y, m_LookAngle.x, m_LookAngle.z);
+	Vector3 ViewPos = character->GetWorldPosition();
+	camera->m_Eular = m_LookAngle;
+	camera->m_Eye = ViewPos + Rotation[2].xyz * 10;
+	Game::getSingleton().m_SkyLightCam->m_Eye = ViewPos;
 }
 
 void PlayerController::OnMouseMove(my::InputEventArg * arg)

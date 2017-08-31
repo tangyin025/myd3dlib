@@ -603,24 +603,13 @@ void Game::OnFrameTick(
 
 	InputMgr::Update(fTime, fElapsedTime);
 
-	PerspectiveCamera * camera = static_cast<PerspectiveCamera *>(m_Camera.get());
-	PlayerController * player_controller = static_cast<PlayerController *>(m_Player->m_Controller.get());
-	Matrix4 Rotation = Matrix4::RotationYawPitchRoll(player_controller->m_LookAngle.y, player_controller->m_LookAngle.x, player_controller->m_LookAngle.z);
-	Vector3 ViewPos = m_Player->GetWorldPosition();
-	camera->m_Eular = player_controller->m_LookAngle;
-	camera->m_Eye = ViewPos + Rotation[2].xyz * 10;
-	m_Camera->UpdateViewProj();
-
-	m_SkyLightCam->m_Eye = ViewPos;
-	m_SkyLightCam->UpdateViewProj();
-
 	TimerMgr::Update(fTime, fElapsedTime);
 
 	PhysXSceneContext::PushRenderBuffer(this);
 
 	FModContext::Update();
 
-	m_WorldL.ResetViewedActors(ViewPos, this, 1000, 10);
+	m_WorldL.ResetViewedActors(m_Player->GetWorldPosition(), this, 1000, 10);
 
 	WorldL::OctActorSet::iterator actor_iter = m_WorldL.m_ViewedActors.begin();
 	for (; actor_iter != m_WorldL.m_ViewedActors.end(); actor_iter++)
@@ -631,6 +620,10 @@ void Game::OnFrameTick(
 	ParallelTaskManager::DoAllParallelTasks();
 
 	PhysXSceneContext::TickPreRender(fElapsedTime);
+
+	m_SkyLightCam->UpdateViewProj();
+
+	m_Camera->UpdateViewProj();
 
 	OnFrameRender(m_d3dDevice, fTime, fElapsedTime);
 
