@@ -244,9 +244,9 @@ namespace my
 		: public OgreSkeleton
 	{
 	public:
-		typedef boost::unordered_map<std::string, OgreAnimation> OgreAnimationNameMap;
+		typedef boost::unordered_map<std::string, OgreAnimation> OgreAnimationMap;
 
-		OgreAnimationNameMap m_animationMap;
+		OgreAnimationMap m_animationMap;
 
 	public:
 		OgreSkeletonAnimation(void)

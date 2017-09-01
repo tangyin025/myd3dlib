@@ -697,6 +697,38 @@ void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 		}
 	}
 	ofs << "\t</bonehierarchy>\n";
+	ofs << "\t<animations>\n";
+	OgreAnimationMap::const_iterator anim_iter = m_animationMap.begin();
+	for (; anim_iter != m_animationMap.end(); anim_iter++)
+	{
+		ofs << "\t\t<animation name=\"" << anim_iter->first << "\" length=\"" << anim_iter->second.GetTime() << "\">\n";
+		ofs << "\t\t\t<tracks>\n";
+		BoneNameMap::const_iterator name_iter = m_boneNameMap.begin();
+		for (; name_iter != m_boneNameMap.end(); name_iter++)
+		{
+			ofs << "\t\t\t\t<track bone=\"" << name_iter->first << "\">\n";
+			ofs << "\t\t\t\t\t<keyframes>\n";
+			OgreAnimation::const_iterator frame_iter = anim_iter->second.begin();
+			for (; frame_iter != anim_iter->second.end(); frame_iter++)
+			{
+				ofs << "\t\t\t\t\t\t<keyframe time=\"" << frame_iter->first << "\">\n";
+				const Bone & bone = frame_iter->second[name_iter->second];
+				ofs << "\t\t\t\t\t\t\t<translate x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
+				Vector3 axis; float angle;
+				bone.m_rotation.ToAxisAngle(axis, angle);
+				ofs << "\t\t\t\t\t\t\t<rotation angle=\"" << angle << "\">\n";
+				ofs << "\t\t\t\t\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
+				ofs << "\t\t\t\t\t\t\t</rotation>\n";
+				ofs << "\t\t\t\t\t\t\t<scale x=\"1\" y=\"1\" z=\"1\"/>\n";
+				ofs << "\t\t\t\t\t\t</keyframe>\n";
+			}
+			ofs << "\t\t\t\t\t</keyframes>\n";
+			ofs << "\t\t\t\t</track>\n";
+		}
+		ofs << "\t\t\t</tracks>\n";
+		ofs << "\t\t</animation>\n";
+	}
+	ofs << "\t</animations>\n";
 	ofs << "</skeleton>\n";
 }
 
@@ -709,7 +741,7 @@ void OgreSkeletonAnimation::Clear(void)
 
 const OgreAnimation * OgreSkeletonAnimation::GetAnimation(const std::string & anim_name) const
 {
-	OgreAnimationNameMap::const_iterator anim_iter = m_animationMap.find(anim_name);
+	OgreAnimationMap::const_iterator anim_iter = m_animationMap.find(anim_name);
 	if (anim_iter != m_animationMap.end())
 	{
 		return &anim_iter->second;
