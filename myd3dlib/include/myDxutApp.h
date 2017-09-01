@@ -75,6 +75,10 @@ namespace my
 
 		DeviceEvent m_EventDeviceDestroy;
 
+		typedef boost::signals2::signal<void(const char *)> LogEvent;
+
+		LogEvent m_EventLog;
+
 	public:
 		D3DContext(void)
 			: m_d3dThreadId(::GetCurrentThreadId())

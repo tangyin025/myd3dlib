@@ -330,11 +330,11 @@ void CMainApp::OnDestroyDevice(void)
 
 	m_ShaderCache.clear();
 }
-
-void CMainApp::OnResourceFailed(const std::string & error_str)
-{
-	TRACE(ms2ts(error_str).c_str());
-}
+//
+//void CMainApp::OnResourceFailed(const std::string & error_str)
+//{
+//	TRACE(ms2ts(error_str).c_str());
+//}
 
 static size_t hash_value(const CMainApp::ShaderCacheKey & key)
 {
@@ -396,7 +396,7 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bIns
 	}
 	catch (const my::Exception & e)
 	{
-		OnResourceFailed(e.what());
+		m_EventLog(e.what().c_str());
 		shader.reset();
 	}
 	m_ShaderCache.insert(std::make_pair(key, shader));

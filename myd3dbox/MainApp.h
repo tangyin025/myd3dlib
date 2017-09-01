@@ -53,7 +53,7 @@ public:
 		const D3DSURFACE_DESC * pBackBufferSurfaceDesc);
 	virtual void OnLostDevice(void);
 	virtual void OnDestroyDevice(void);
-	virtual void OnResourceFailed(const std::string & error_str);
+	//virtual void OnResourceFailed(const std::string & error_str);
 	virtual my::Effect * QueryShader(RenderPipeline::MeshType mesh_type, bool bInstance, const Material * material, unsigned int PassID);
 	virtual void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line);
 

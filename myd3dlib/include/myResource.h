@@ -379,8 +379,6 @@ namespace my
 
 		void OnIORequestReady(const std::string & key, IORequestPtr request);
 
-		virtual void OnResourceFailed(const std::string & error_str) = 0;
-
 		void LoadTextureAsync(const std::string & path, IResourceCallback * callback);
 
 		boost::shared_ptr<BaseTexture> LoadTexture(const std::string & path);

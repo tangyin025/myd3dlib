@@ -693,11 +693,11 @@ void ResourceMgr::OnIORequestReady(const std::string & key, IORequestPtr request
 		}
 		catch(const Exception & e)
 		{
-			OnResourceFailed(e.what());
+			D3DContext::getSingleton().m_EventLog(e.what().c_str());
 		}
 		catch(const std::exception & e)
 		{
-			OnResourceFailed(str_printf("%s error: %s", key.c_str(), e.what()));
+			D3DContext::getSingleton().m_EventLog(str_printf("%s error: %s", key.c_str(), e.what()).c_str());
 		}
 	}
 

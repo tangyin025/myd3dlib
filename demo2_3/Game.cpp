@@ -99,7 +99,7 @@ static int lua_print(lua_State * L)
 		if (i>1)
 			Game::getSingleton().puts(L"\t");
 		else
-			Game::getSingleton().AddLine(L"", D3DCOLOR_ARGB(255,255,255,255));
+			Game::getSingleton().puts(L"\n");
 		Game::getSingleton().puts(u8tows(s));
 		lua_pop(L, 1);  /* pop result */
 	}
@@ -429,7 +429,7 @@ HRESULT Game::OnCreateDevice(
 
 	DialogMgr::InsertDlg(m_Console);
 
-	AddLine(L"Game::OnCreateDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_EventLog("Game::OnCreateDevice");
 
 	return S_OK;
 }
@@ -438,7 +438,7 @@ HRESULT Game::OnResetDevice(
 	IDirect3DDevice9 * pd3dDevice,
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
-	AddLine(L"Game::OnResetDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_EventLog("Game::OnResetDevice");
 
 	if (FAILED(hr = DxutApp::OnResetDevice(pd3dDevice, pBackBufferSurfaceDesc)))
 	{
@@ -491,7 +491,7 @@ HRESULT Game::OnResetDevice(
 
 void Game::OnLostDevice(void)
 {
-	AddLine(L"Game::OnLostDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_EventLog("Game::OnLostDevice");
 
 	m_NormalRT->OnDestroyDevice();
 
@@ -515,7 +515,7 @@ void Game::OnLostDevice(void)
 
 void Game::OnDestroyDevice(void)
 {
-	AddLine(L"Game::OnDestroyDevice", D3DCOLOR_ARGB(255,255,255,0));
+	m_EventLog("Game::OnDestroyDevice");
 
 	ExecuteCode("collectgarbage(\"collect\")");
 
@@ -668,45 +668,22 @@ LRESULT Game::MsgProc(
 	return 0;
 }
 
-void Game::OnResourceFailed(const std::string & error_str)
-{
-	m_LastErrorStr = error_str;
-
-	_ASSERT(m_Console && m_Console->m_Panel);
-
-	AddLine(ms2ws(error_str), D3DCOLOR_ARGB(255,255,255,255));
-
-	if(m_Console && !m_Console->GetVisible())
-	{
-		m_Console->SetVisible(true);
-	}
-}
-
 void Game::reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line)
 {
 	switch(code)
 	{
 	case physx::PxErrorCode::eDEBUG_INFO:
-		AddLine(ms2ws(str_printf("%s (%d) : info: %s", file, line, message)));
+		m_EventLog(str_printf("%s (%d) : info: %s", file, line, message).c_str());
 		break;
 
 	case physx::PxErrorCode::eDEBUG_WARNING:
 	case physx::PxErrorCode::ePERF_WARNING:
-		AddLine(ms2ws(str_printf("%s (%d) : warning: %s", file, line, message)), D3DCOLOR_ARGB(255,255,255,0));
+		m_EventLog(str_printf("%s (%d) : warning: %s", file, line, message).c_str());
 		break;
 
 	default:
-		OutputDebugStringA(str_printf("%s (%d) : error: %s\n", file, line, message).c_str());
-		AddLine(ms2ws(str_printf("%s, (%d) : error: %s", file, line, message)), D3DCOLOR_ARGB(255,255,0,0));
+		m_EventLog(str_printf("%s, (%d) : error: %s", file, line, message).c_str());
 		break;
-	}
-}
-
-void Game::AddLine(const std::wstring & str, D3DCOLOR Color)
-{
-	if (m_Console)
-	{
-		m_Console->m_Panel->AddLine(str, Color);
 	}
 }
 
@@ -727,7 +704,7 @@ bool Game::ExecuteCode(const char * code) throw()
 			msg = "error object is not a string";
 		lua_pop(m_State, 1);
 
-		OnResourceFailed(msg);
+		m_EventLog(msg.c_str());
 
 		return false;
 	}
@@ -794,7 +771,7 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 	}
 	catch (const my::Exception & e)
 	{
-		OnResourceFailed(e.what());
+		m_EventLog(e.what().c_str());
 		shader.reset();
 	}
 	m_ShaderCache.insert(std::make_pair(key, shader));

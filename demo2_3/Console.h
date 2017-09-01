@@ -94,6 +94,8 @@ public:
 	void OnEventKeyUp(my::ControlEventArgs * args);
 
 	void OnEventKeyDown(my::ControlEventArgs * args);
+
+	void OnEventLog(const char * str);
 };
 
 typedef boost::shared_ptr<Console> ConsolePtr;

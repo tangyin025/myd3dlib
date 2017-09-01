@@ -125,7 +125,7 @@ void MessagePanel::AddLine(const std::wstring & str, D3DCOLOR Color)
 	if(m_Skin && m_Skin->m_Font)
 	{
 		_push_enter(Color);
-		puts(str.c_str());
+		puts(str);
 	}
 }
 
@@ -254,10 +254,12 @@ Console::Console(void)
 	InsertControl(m_Panel);
 
 	m_strIter = m_strList.end();
+	Game::getSingleton().m_EventLog.connect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
 Console::~Console(void)
 {
+	Game::getSingleton().m_EventLog.disconnect(boost::bind(&Console::OnEventLog, this, _1));
 }
 
 void Console::OnEventAlign(ControlEventArgs * args)
@@ -294,4 +296,9 @@ void Console::OnEventKeyDown(ControlEventArgs * args)
 	{
 		m_Edit->SetText(*++m_strIter);
 	}
+}
+
+void Console::OnEventLog(const char * str)
+{
+	m_Panel->AddLine(ms2ts(str));
 }
