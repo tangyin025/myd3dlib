@@ -2,6 +2,7 @@
 #include "mySkeleton.h"
 #include "libc.h"
 #include "myResource.h"
+#include <fstream>
 
 using namespace my;
 
@@ -52,7 +53,7 @@ bool BoneHierarchy::HaveSibling(int root_i, int sibling_i) const
 	return false;
 }
 
-bool BoneHierarchy::HaveChild(int root_i, int child_i) const
+bool BoneHierarchy::IsChild(int root_i, int child_i) const
 {
 	if (root_i >= 0 && root_i < (int)size())
 	{
@@ -430,6 +431,19 @@ int OgreSkeleton::GetBoneIndex(const std::string & bone_name) const
 	return m_boneNameMap.find(bone_name)->second;
 }
 
+const char * OgreSkeleton::FindBoneName(int node_i) const
+{
+	BoneNameMap::const_iterator name_iter = m_boneNameMap.begin();
+	for (; name_iter != m_boneNameMap.end(); name_iter++)
+	{
+		if (name_iter->second == node_i)
+		{
+			return name_iter->first.c_str();
+		}
+	}
+	return "";
+}
+
 BoneHierarchy & OgreSkeleton::BuildLeafedHierarchy(
 	BoneHierarchy & leafedBoneHierarchy,
 	int root_i,
@@ -654,7 +668,36 @@ void OgreSkeletonAnimation::AddOgreSkeletonAnimationFromFile(
 
 void OgreSkeletonAnimation::SaveOgreSkeletonAnimation(const char * path)
 {
-
+	std::ofstream ofs(path);
+	ofs << "<skeleton>\n";
+	ofs << "\t<bones>\n";
+	for (unsigned int i = 0; i < m_boneBindPose.size(); i++)
+	{
+		ofs << "\t\t<bone id=\"" << i << "\" name=\"" << FindBoneName(i) << "\">\n";
+		const Bone & bone = m_boneBindPose[i];
+		ofs << "\t\t\t<position x=\"" << bone.m_position.x << "\" y=\"" << bone.m_position.y << "\" z=\"" << bone.m_position.x << "\"/>\n";
+		Vector3 axis; float angle;
+		bone.m_rotation.ToAxisAngle(axis, angle);
+		ofs << "\t\t\t<rotation angle=\"" << angle << "\">\n";
+		ofs << "\t\t\t\t<axis x=\"" << axis.x << "\" y=\"" << axis.y << "\" z=\"" << axis.z << "\"/>\n";
+		ofs << "\t\t\t</rotation>\n";
+		ofs << "\t\t</bone>\n";
+	}
+	ofs << "\t</bones>\n";
+	ofs << "\t<bonehierarchy>\n";
+	BoneNameMap::const_iterator name_iter = m_boneNameMap.begin();
+	for (; name_iter != m_boneNameMap.end(); name_iter++)
+	{
+		for (unsigned int i = 0; i < m_boneHierarchy.size(); i++)
+		{
+			if (m_boneHierarchy.IsChild(i, name_iter->second))
+			{
+				ofs << "\t\t<boneparent bone=\"" << name_iter->first << "\" parent=\"" << FindBoneName(i) << "\"/>\n";
+			}
+		}
+	}
+	ofs << "\t</bonehierarchy>\n";
+	ofs << "</skeleton>\n";
 }
 
 void OgreSkeletonAnimation::Clear(void)

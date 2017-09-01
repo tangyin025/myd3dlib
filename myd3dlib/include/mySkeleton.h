@@ -38,7 +38,7 @@ namespace my
 
 		bool HaveSibling(int root_i, int sibling_i) const;
 
-		bool HaveChild(int root_i, int child_i) const;
+		bool IsChild(int root_i, int child_i) const;
 
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
@@ -207,7 +207,9 @@ namespace my
 		: public DeviceResourceBase
 	{
 	public:
-		boost::unordered_map<std::string, int> m_boneNameMap;
+		typedef boost::unordered_map<std::string, int> BoneNameMap;
+		
+		BoneNameMap m_boneNameMap;
 
 		BoneList m_boneBindPose;
 
@@ -229,6 +231,8 @@ namespace my
 		void Clear(void);
 
 		int GetBoneIndex(const std::string & bone_name) const;
+
+		const char * FindBoneName(int node_i) const;
 
 		BoneHierarchy & BuildLeafedHierarchy(
 			BoneHierarchy & leafedBoneHierarchy,
