@@ -95,12 +95,30 @@ void Character::OnPxThreadSubstep(float dtime)
 	{
 		m_Velocity += m_Acceleration * dtime;
 		float magnitude = sqrt(m_Velocity.x * m_Velocity.x + m_Velocity.z * m_Velocity.z);
-		if (magnitude > m_MaxVelocity)
+		if (m_Acceleration.x != 0 || m_Acceleration.z != 0)
 		{
-			m_Velocity.x = m_Velocity.x / magnitude * m_MaxVelocity;
-			m_Velocity.z = m_Velocity.z / magnitude * m_MaxVelocity;
+			if (magnitude > 0)
+			{
+				if (magnitude > m_MaxVelocity)
+				{
+					m_Velocity.x = m_Velocity.x / magnitude * m_MaxVelocity;
+					m_Velocity.z = m_Velocity.z / magnitude * m_MaxVelocity;
+				}
+				float TargetOrientation = atan2f(m_Velocity.x, m_Velocity.z);
+				float Delta = fmod(TargetOrientation - m_Orientation + D3DX_PI, 2 * D3DX_PI) - D3DX_PI;
+				const float Rotation = D3DX_PI * 3 * dtime;
+				if (Delta > 0)
+				{
+					m_Orientation += Min(Delta, Rotation);
+				}
+				else
+				{
+					m_Orientation += Max(Delta, -Rotation);
+				}
+				UpdateWorld();
+			}
 		}
-		else if (magnitude > 0 && m_Acceleration.x == 0 && m_Acceleration.z == 0)
+		else
 		{
 			float step = m_Resistance * dtime;
 			if (magnitude < step)

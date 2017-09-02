@@ -22,17 +22,4 @@ void CharacterController::Update(float fElapsedTime)
 		character->m_Acceleration.y = -9.8f;
 		character->m_Acceleration.z = 0.0f;
 	}
-
-	float Delta = fmod(m_MoveOrientation - character->m_Orientation + D3DX_PI, 2 * D3DX_PI) - D3DX_PI;
-	const float Rotation = m_RotationSpeed * fElapsedTime;
-	if (Delta > 0)
-	{
-		character->m_Orientation += Min(Delta, Rotation);
-		character->UpdateWorld();
-	}
-	else
-	{
-		character->m_Orientation += Max(Delta, -Rotation);
-		character->UpdateWorld();
-	}
 }
