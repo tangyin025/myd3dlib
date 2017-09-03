@@ -147,7 +147,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	const D3DSURFACE_DESC * pBackBufferSurfaceDesc)
 {
 	_ASSERT(!m_ParticleVertexBuffer.m_ptr);
-	m_ParticleVertexBuffer.CreateVertexBuffer(pd3dDevice, m_ParticleVertexStride * 4, 0, 0, D3DPOOL_DEFAULT);
+	m_ParticleVertexBuffer.CreateVertexBuffer(m_ParticleVertexStride * 4, 0, 0, D3DPOOL_DEFAULT);
 	unsigned char * pVertices = (unsigned char *)m_ParticleVertexBuffer.Lock(0, m_ParticleVertexStride * 4);
 	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 0, Vector2(0,0));
 	m_ParticleVertexElems.SetTexcoord(pVertices + m_ParticleVertexStride * 1, Vector2(0,1));
@@ -156,7 +156,7 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleVertexBuffer.Unlock();
 
 	_ASSERT(!m_ParticleIndexBuffer.m_ptr);
-	m_ParticleIndexBuffer.CreateIndexBuffer(pd3dDevice, sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
+	m_ParticleIndexBuffer.CreateIndexBuffer(sizeof(WORD) * 4, 0, D3DFMT_INDEX16, D3DPOOL_DEFAULT);
 	WORD * pIndices = (WORD *)m_ParticleIndexBuffer.Lock(0, sizeof(WORD) * 4);
 	pIndices[0] = 0;
 	pIndices[1] = 1;
@@ -165,17 +165,15 @@ HRESULT RenderPipeline::OnResetDevice(
 	m_ParticleIndexBuffer.Unlock();
 
 	_ASSERT(!m_ParticleInstanceData.m_ptr);
-	m_ParticleInstanceData.CreateVertexBuffer(pd3dDevice, m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
+	m_ParticleInstanceData.CreateVertexBuffer(m_ParticleInstanceStride * PARTICLE_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 
 	_ASSERT(!m_MeshInstanceData.m_ptr);
-	m_MeshInstanceData.CreateVertexBuffer(pd3dDevice, m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
+	m_MeshInstanceData.CreateVertexBuffer(m_MeshInstanceStride * MESH_INSTANCE_MAX, D3DUSAGE_DYNAMIC, 0, D3DPOOL_DEFAULT);
 
-	m_ShadowRT->CreateAdjustedTexture(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
+	m_ShadowRT->CreateAdjustedTexture(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 1, D3DUSAGE_RENDERTARGET, D3DFMT_R32F, D3DPOOL_DEFAULT);
 
 	// ! 所有的 render target必须使用具有相同 multisample的 depth stencil
-	m_ShadowDS->CreateDepthStencilSurface(
-		pd3dDevice, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
+	m_ShadowDS->CreateDepthStencilSurface(SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, D3DFMT_D24X8);
 
 	return S_OK;
 }

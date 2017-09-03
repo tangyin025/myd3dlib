@@ -19,7 +19,6 @@ namespace my
 		void Create(IDirect3DSurface9 * ptr);
 
 		void CreateDepthStencilSurface(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
 			D3DFORMAT Format,
@@ -28,7 +27,6 @@ namespace my
 			BOOL Discard = TRUE);
 
 		void CreateOffscreenPlainSurface(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
 			D3DFORMAT Format,
@@ -83,7 +81,6 @@ namespace my
 		}
 
 		void CreateTexture(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
 			UINT MipLevels = 0,
@@ -92,7 +89,6 @@ namespace my
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
 		void CreateAdjustedTexture(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Width,
 			UINT Height,
 			UINT MipLevels = D3DX_DEFAULT,
@@ -101,7 +97,6 @@ namespace my
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
 		void CreateTextureFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCTSTR pSrcFile,
 			UINT Width = D3DX_DEFAULT_NONPOW2,
 			UINT Height = D3DX_DEFAULT_NONPOW2,
@@ -116,7 +111,6 @@ namespace my
 			PALETTEENTRY * pPalette = NULL);
 
 		void CreateTextureFromFileInMemory(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataSize,
 			UINT Width = D3DX_DEFAULT_NONPOW2,
@@ -152,7 +146,6 @@ namespace my
 		}
 
 		void CreateCubeTexture(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT EdgeLength,
 			UINT Levels = 0,
 			DWORD Usage = 0,
@@ -160,7 +153,6 @@ namespace my
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
 		void CreateAdjustedCubeTexture(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Size,
 			UINT MipLevels = D3DX_DEFAULT,
 			DWORD Usage = 0,
@@ -168,7 +160,6 @@ namespace my
 			D3DPOOL Pool = D3DPOOL_MANAGED);
 
 		void CreateCubeTextureFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCTSTR pSrcFile,
 			UINT Size = D3DX_DEFAULT,
 			UINT MipLevels = D3DX_DEFAULT,
@@ -182,7 +173,6 @@ namespace my
 			PALETTEENTRY * pPalette = NULL);
 
 		void CreateCubeTextureFromFileInMemory(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataSize,
 			UINT Size = D3DX_DEFAULT,

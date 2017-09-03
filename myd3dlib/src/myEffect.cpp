@@ -3,6 +3,7 @@
 #include "myException.h"
 #include "libc.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 
 using namespace my;
 
@@ -11,13 +12,11 @@ ConstantTable::~ConstantTable(void)
 	SAFE_RELEASE(m_pConstantTable);
 }
 
-void ConstantTable::Create(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+void ConstantTable::Create(ID3DXConstantTable * pConstantTable)
 {
-	_ASSERT(!m_pConstantTable && !m_Device);
+	_ASSERT(!m_pConstantTable);
 
 	m_pConstantTable = pConstantTable;
-
-	m_Device = pDevice;
 }
 
 LPVOID ConstantTable::GetBufferPointer(void)
@@ -64,95 +63,94 @@ UINT ConstantTable::GetSamplerIndex(D3DXHANDLE hConstant)
 
 void ConstantTable::SetBool(D3DXHANDLE hConstant, BOOL b)
 {
-	V(m_pConstantTable->SetBool(m_Device, hConstant, b));
+	V(m_pConstantTable->SetBool(my::D3DContext::getSingleton().m_d3dDevice, hConstant, b));
 }
 
 void ConstantTable::SetBoolArray(D3DXHANDLE hConstant, CONST BOOL* pB, UINT Count)
 {
-	V(m_pConstantTable->SetBoolArray(m_Device, hConstant, pB, Count));
+	V(m_pConstantTable->SetBoolArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, pB, Count));
 }
 
 void ConstantTable::SetDefaults(void)
 {
-	V(m_pConstantTable->SetDefaults(m_Device));
+	V(m_pConstantTable->SetDefaults(my::D3DContext::getSingleton().m_d3dDevice));
 }
 
 void ConstantTable::SetFloat(D3DXHANDLE hConstant, FLOAT f)
 {
-	V(m_pConstantTable->SetFloat(m_Device, hConstant, f));
+	V(m_pConstantTable->SetFloat(my::D3DContext::getSingleton().m_d3dDevice, hConstant, f));
 }
 
 void ConstantTable::SetFloatArray(D3DXHANDLE hConstant, CONST FLOAT * pf, UINT Count)
 {
-	V(m_pConstantTable->SetFloatArray(m_Device, hConstant, pf, Count));
+	V(m_pConstantTable->SetFloatArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, pf, Count));
 }
 
 void ConstantTable::SetInt(D3DXHANDLE hConstant, INT n)
 {
-	V(m_pConstantTable->SetInt(m_Device, hConstant, n));
+	V(m_pConstantTable->SetInt(my::D3DContext::getSingleton().m_d3dDevice, hConstant, n));
 }
 
 void ConstantTable::SetIntArray(D3DXHANDLE hConstant, CONST INT * pn, UINT Count)
 {
-	V(m_pConstantTable->SetIntArray(m_Device, hConstant, pn, Count));
+	V(m_pConstantTable->SetIntArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, pn, Count));
 }
 
 void ConstantTable::SetMatrix(D3DXHANDLE hConstant, const Matrix4 & Matrix)
 {
-	V(m_pConstantTable->SetMatrix(m_Device, hConstant, (D3DXMATRIX *)&Matrix));
+	V(m_pConstantTable->SetMatrix(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXMATRIX *)&Matrix));
 }
 
 void ConstantTable::SetMatrixArray(D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
 {
-	V(m_pConstantTable->SetMatrixArray(m_Device, hConstant, (D3DXMATRIX *)pMatrix, Count));
+	V(m_pConstantTable->SetMatrixArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXMATRIX *)pMatrix, Count));
 }
 
 void ConstantTable::SetMatrixPointerArray(D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
 {
-	V(m_pConstantTable->SetMatrixPointerArray(m_Device, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
+	V(m_pConstantTable->SetMatrixPointerArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
 }
 
 void ConstantTable::SetMatrixTranspose(D3DXHANDLE hConstant, const Matrix4 & Matrix)
 {
-	V(m_pConstantTable->SetMatrixTranspose(m_Device, hConstant, (D3DXMATRIX *)&Matrix));
+	V(m_pConstantTable->SetMatrixTranspose(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXMATRIX *)&Matrix));
 }
 
 void ConstantTable::SetMatrixTransposeArray(D3DXHANDLE hConstant, const Matrix4 * pMatrix, UINT Count)
 {
-	V(m_pConstantTable->SetMatrixTransposeArray(m_Device, hConstant, (D3DXMATRIX *)pMatrix, Count));
+	V(m_pConstantTable->SetMatrixTransposeArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXMATRIX *)pMatrix, Count));
 }
 
 void ConstantTable::SetMatrixTransposePointerArray(D3DXHANDLE hConstant, const Matrix4 ** ppMatrix, UINT Count)
 {
-	V(m_pConstantTable->SetMatrixTransposePointerArray(m_Device, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
+	V(m_pConstantTable->SetMatrixTransposePointerArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (const D3DXMATRIX **)ppMatrix, Count));
 }
 
 void ConstantTable::SetValue(D3DXHANDLE hConstant, LPCVOID pData, UINT Bytes)
 {
-	V(m_pConstantTable->SetValue(m_Device, hConstant, pData, Bytes));
+	V(m_pConstantTable->SetValue(my::D3DContext::getSingleton().m_d3dDevice, hConstant, pData, Bytes));
 }
 
 void ConstantTable::SetVector(D3DXHANDLE hConstant, const Vector4 & Vector)
 {
-	V(m_pConstantTable->SetVector(m_Device, hConstant, (D3DXVECTOR4 *)&Vector));
+	V(m_pConstantTable->SetVector(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXVECTOR4 *)&Vector));
 }
 
 void ConstantTable::SetVectorArray(D3DXHANDLE hConstant, const Vector4 * pVector, UINT Count)
 {
-	V(m_pConstantTable->SetVectorArray(m_Device, hConstant, (D3DXVECTOR4 *)pVector, Count));
+	V(m_pConstantTable->SetVectorArray(my::D3DContext::getSingleton().m_d3dDevice, hConstant, (D3DXVECTOR4 *)pVector, Count));
 }
 
-void VertexShader::Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+void VertexShader::Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable)
 {
 	_ASSERT(!m_ptr);
 
 	m_ptr = ptr;
 
-	ConstantTable::Create(pConstantTable, pDevice);
+	ConstantTable::Create(pConstantTable);
 }
 
 void VertexShader::CreateVertexShader(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
 	LPCSTR pFunctionName,
@@ -177,18 +175,17 @@ void VertexShader::CreateVertexShader(
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
-	hr = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
 	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	Create(pVS, pConstantTable, pDevice);
+	Create(pVS, pConstantTable);
 }
 
 void VertexShader::CreateVertexShaderFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
@@ -212,14 +209,14 @@ void VertexShader::CreateVertexShaderFromFile(
 	}
 
 	LPDIRECT3DVERTEXSHADER9 pVS = NULL;
-	hr = pDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexShader((DWORD *)Shader->GetBufferPointer(), &pVS);
 	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	Create(pVS, pConstantTable, pDevice);
+	Create(pVS, pConstantTable);
 }
 
 void VertexShader::OnDestroyDevice(void)
@@ -227,8 +224,6 @@ void VertexShader::OnDestroyDevice(void)
 	SAFE_RELEASE(m_pConstantTable);
 
 	SAFE_RELEASE(m_ptr);
-
-	m_Device.Release();
 }
 
 CComPtr<IDirect3DDevice9> VertexShader::GetDevice(void)
@@ -243,17 +238,16 @@ void VertexShader::GetFunction(void * pData, UINT * pSizeOfData)
 	V(m_ptr->GetFunction(pData, pSizeOfData));
 }
 
-void PixelShader::Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice)
+void PixelShader::Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable)
 {
 	_ASSERT(!m_ptr);
 
 	m_ptr = ptr;
 
-	ConstantTable::Create(pConstantTable, pDevice);
+	ConstantTable::Create(pConstantTable);
 }
 
 void PixelShader::CreatePixelShader(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pSrcData,
 	UINT srcDataLen,
 	LPCSTR pFunctionName,
@@ -278,18 +272,17 @@ void PixelShader::CreatePixelShader(
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
-	hr = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
 	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	Create(pPS, pConstantTable, pDevice);
+	Create(pPS, pConstantTable);
 }
 
 void PixelShader::CreatePixelShaderFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	LPCSTR pFunctionName,
 	LPCSTR pProfile,
@@ -313,14 +306,14 @@ void PixelShader::CreatePixelShaderFromFile(
 	}
 
 	LPDIRECT3DPIXELSHADER9 pPS = NULL;
-	hr = pDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreatePixelShader((DWORD *)Shader->GetBufferPointer(), &pPS);
 	if(FAILED(hr))
 	{
 		SAFE_RELEASE(pConstantTable);
 		THROW_D3DEXCEPTION(hr);
 	}
 
-	Create(pPS, pConstantTable, pDevice);
+	Create(pPS, pConstantTable);
 }
 
 void PixelShader::OnDestroyDevice(void)
@@ -328,8 +321,6 @@ void PixelShader::OnDestroyDevice(void)
 	SAFE_RELEASE(m_pConstantTable);
 
 	SAFE_RELEASE(m_ptr);
-
-	m_Device.Release();
 }
 
 CComPtr<IDirect3DDevice9> PixelShader::GetDevice(void)
@@ -682,7 +673,6 @@ void BaseEffect::SetVectorArray(D3DXHANDLE hParameter, const Vector4 * pVector, 
 }
 
 void Effect::CreateEffect(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataLen,
 	CONST D3DXMACRO * pDefines,
@@ -692,8 +682,8 @@ void Effect::CreateEffect(
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
-	hr = D3DXCreateEffect(
-		pDevice, pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
+	hr = D3DXCreateEffect(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcData, SrcDataLen, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 	if(FAILED(hr))
 	{
 		if(CompilationErrors)
@@ -708,7 +698,6 @@ void Effect::CreateEffect(
 }
 
 void Effect::CreateEffectFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	CONST D3DXMACRO * pDefines,
 	LPD3DXINCLUDE pInclude,
@@ -717,8 +706,8 @@ void Effect::CreateEffectFromFile(
 {
 	LPD3DXEFFECT pEffect = NULL;
 	CComPtr<ID3DXBuffer> CompilationErrors;
-	hr = D3DXCreateEffectFromFile(
-		pDevice, pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
+	hr = D3DXCreateEffectFromFile(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcFile, pDefines, pInclude, Flags, pPool, &pEffect, &CompilationErrors);
 	if(FAILED(hr))
 	{
 		if(CompilationErrors)
@@ -764,10 +753,10 @@ void Effect::BeginPass(UINT Pass)
 	V(static_cast<ID3DXEffect *>(m_ptr)->BeginPass(Pass));
 }
 
-CComPtr<ID3DXEffect> Effect::CloneEffect(LPDIRECT3DDEVICE9 pDevice)
+CComPtr<ID3DXEffect> Effect::CloneEffect(void)
 {
 	CComPtr<ID3DXEffect> Effect;
-	V(static_cast<ID3DXEffect *>(m_ptr)->CloneEffect(pDevice, &Effect));
+	V(static_cast<ID3DXEffect *>(m_ptr)->CloneEffect(my::D3DContext::getSingleton().m_d3dDevice, &Effect));
 	return Effect;
 }
 

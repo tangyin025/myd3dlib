@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "myTexture.h"
 #include "myException.h"
+#include "myDxutApp.h"
 
 using namespace my;
 
@@ -12,7 +13,6 @@ void Surface::Create(IDirect3DSurface9 * ptr)
 }
 
 void Surface::CreateDepthStencilSurface(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	D3DFORMAT Format,
@@ -21,7 +21,7 @@ void Surface::CreateDepthStencilSurface(
 	BOOL Discard)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
-	hr = pDevice->CreateDepthStencilSurface(
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateDepthStencilSurface(
 		Width, Height, Format, MultiSample, MultisampleQuality, Discard, &pSurface, NULL);
 	if(FAILED(hr))
 	{
@@ -32,14 +32,13 @@ void Surface::CreateDepthStencilSurface(
 }
 
 void Surface::CreateOffscreenPlainSurface(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	D3DFORMAT Format,
 	D3DPOOL Pool)
 {
 	LPDIRECT3DSURFACE9 pSurface = NULL;
-	hr = pDevice->CreateOffscreenPlainSurface(Width, Height, Format, Pool, &pSurface, NULL);
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateOffscreenPlainSurface(Width, Height, Format, Pool, &pSurface, NULL);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -127,7 +126,6 @@ DWORD BaseTexture::SetLOD(DWORD LODNew)
 }
 
 void Texture2D::CreateTexture(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	UINT MipLevels,
@@ -136,7 +134,7 @@ void Texture2D::CreateTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	hr = pDevice->CreateTexture(
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateTexture(
 		Width, Height, MipLevels, Usage, Format, Pool, &pTexture, NULL);
 	if(FAILED(hr))
 	{
@@ -147,7 +145,6 @@ void Texture2D::CreateTexture(
 }
 
 void Texture2D::CreateAdjustedTexture(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Width,
 	UINT Height,
 	UINT MipLevels,
@@ -156,8 +153,8 @@ void Texture2D::CreateAdjustedTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	hr = D3DXCreateTexture(
-		pDevice, Width, Height, MipLevels, Usage, Format, Pool, &pTexture);
+	hr = D3DXCreateTexture(my::D3DContext::getSingleton().m_d3dDevice,
+		Width, Height, MipLevels, Usage, Format, Pool, &pTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -167,7 +164,6 @@ void Texture2D::CreateAdjustedTexture(
 }
 
 void Texture2D::CreateTextureFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	UINT Width,
 	UINT Height,
@@ -182,8 +178,8 @@ void Texture2D::CreateTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	hr = D3DXCreateTextureFromFileEx(
-		pDevice, pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
+	hr = D3DXCreateTextureFromFileEx(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcFile, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -193,7 +189,6 @@ void Texture2D::CreateTextureFromFile(
 }
 
 void Texture2D::CreateTextureFromFileInMemory(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
 	UINT Width,
@@ -209,8 +204,8 @@ void Texture2D::CreateTextureFromFileInMemory(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DTEXTURE9 pTexture = NULL;
-	hr = D3DXCreateTextureFromFileInMemoryEx(
-		pDevice, pSrcData, SrcDataSize, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
+	hr = D3DXCreateTextureFromFileInMemoryEx(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcData, SrcDataSize, Width, Height, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -254,7 +249,6 @@ void Texture2D::UnlockRect(UINT Level)
 }
 
 void CubeTexture::CreateCubeTexture(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT EdgeLength,
 	UINT Levels,
 	DWORD Usage,
@@ -262,7 +256,7 @@ void CubeTexture::CreateCubeTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	hr = pDevice->CreateCubeTexture(
+	hr = my::D3DContext::getSingleton().m_d3dDevice->CreateCubeTexture(
 		EdgeLength, Levels, Usage, Format, Pool, &pCubeTexture, NULL);
 	if(FAILED(hr))
 	{
@@ -273,7 +267,6 @@ void CubeTexture::CreateCubeTexture(
 }
 
 void CubeTexture::CreateAdjustedCubeTexture(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Size,
 	UINT MipLevels,
 	DWORD Usage,
@@ -281,8 +274,8 @@ void CubeTexture::CreateAdjustedCubeTexture(
 	D3DPOOL Pool)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	hr = D3DXCreateCubeTexture(
-		pDevice, Size, MipLevels, Usage, Format, Pool, &pCubeTexture);
+	hr = D3DXCreateCubeTexture(my::D3DContext::getSingleton().m_d3dDevice,
+		Size, MipLevels, Usage, Format, Pool, &pCubeTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -292,7 +285,6 @@ void CubeTexture::CreateAdjustedCubeTexture(
 }
 
 void CubeTexture::CreateCubeTextureFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCTSTR pSrcFile,
 	UINT Size,
 	UINT MipLevels,
@@ -306,8 +298,8 @@ void CubeTexture::CreateCubeTextureFromFile(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	hr = D3DXCreateCubeTextureFromFileEx(
-		pDevice, pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
+	hr = D3DXCreateCubeTextureFromFileEx(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcFile, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -317,7 +309,6 @@ void CubeTexture::CreateCubeTextureFromFile(
 }
 
 void CubeTexture::CreateCubeTextureFromFileInMemory(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCVOID pSrcData,
 	UINT SrcDataSize,
 	UINT Size,
@@ -332,8 +323,8 @@ void CubeTexture::CreateCubeTextureFromFileInMemory(
 	PALETTEENTRY * pPalette)
 {
 	LPDIRECT3DCUBETEXTURE9 pCubeTexture = NULL;
-	hr = D3DXCreateCubeTextureFromFileInMemoryEx(
-		pDevice, pSrcData, SrcDataSize, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
+	hr = D3DXCreateCubeTextureFromFileInMemoryEx(my::D3DContext::getSingleton().m_d3dDevice,
+		pSrcData, SrcDataSize, Size, MipLevels, Usage, Format, Pool, Filter, MipFilter, ColorKey, pSrcInfo, pPalette, &pCubeTexture);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);

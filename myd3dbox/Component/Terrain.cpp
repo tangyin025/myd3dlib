@@ -172,8 +172,7 @@ void Terrain::CalcLodDistanceSq(void)
 
 void Terrain::CreateHeightMap(void)
 {
-	m_HeightMap.CreateTexture(
-		my::D3DContext::getSingleton().m_d3dDevice, COL_CHUNKS * CHUNK_SIZE, ROW_CHUNKS * CHUNK_SIZE, 1, 0, D3DFMT_A8R8G8B8);
+	m_HeightMap.CreateTexture(COL_CHUNKS * CHUNK_SIZE, ROW_CHUNKS * CHUNK_SIZE, 1, 0, D3DFMT_A8R8G8B8);
 	UpdateHeightMapNormal();
 }
 
@@ -407,7 +406,6 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
         }
     };
 
-	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
 	Fragment & frag = m_Fragment[id];
 	if (left > center || top > center || right > center || bottom > center)
 	{
@@ -428,7 +426,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		frag.VertNum = (N[0] + 1) * (N[0] + 1);
 		frag.PrimitiveCount = (N[0] - 2) * (N[0] - 2) * 2
 			+ N[1] * (M[1] + 1) + N[2] * (M[2] + 1) + N[3] * (M[3] + 1) + N[4] * (M[4] + 1) - 8;
-		frag.ib.CreateIndexBuffer(pd3dDevice, frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		unsigned int k = 0;
 		const int step = 1 << center;
@@ -445,7 +443,7 @@ const Terrain::Fragment & Terrain::GetFragment(unsigned char center, unsigned ch
 		const int N = CHUNK_SIZE >> center;
 		frag.VertNum = (N + 1) * (N + 1);
 		frag.PrimitiveCount = N * N * 2;
-		frag.ib.CreateIndexBuffer(pd3dDevice, frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
+		frag.ib.CreateIndexBuffer(frag.PrimitiveCount * 3 * sizeof(WORD), 0, D3DFMT_INDEX16, D3DPOOL_MANAGED);
 		VOID * pIndices = frag.ib.Lock(0, 0, 0);
 		const int step = 1 << center;
 		unsigned int k = FillNvM(Tri((WORD *)pIndices), N, N, 0, step, 0, step);
@@ -539,8 +537,7 @@ void Terrain::ReleaseResource(void)
 
 void Terrain::CreateVertices(void)
 {
-	IDirect3DDevice9 * pd3dDevice = D3DContext::getSingleton().m_d3dDevice;
-	m_vb.CreateVertexBuffer(pd3dDevice, Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
+	m_vb.CreateVertexBuffer(Terrain::VertexArray2D::static_size * Terrain::VertexArray::static_size * m_VertexStride, 0, 0, D3DPOOL_MANAGED);
 	UpdateVertices();
 }
 

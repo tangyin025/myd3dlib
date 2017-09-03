@@ -2,6 +2,7 @@
 #include "myMesh.h"
 #include "myCollision.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #include "libc.h"
 #include <fstream>
 
@@ -208,14 +209,13 @@ void VertexBuffer::Create(IDirect3DVertexBuffer9 * ptr)
 }
 
 void VertexBuffer::CreateVertexBuffer(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Length,
 	DWORD Usage,
 	DWORD FVF,
 	D3DPOOL Pool)
 {
 	IDirect3DVertexBuffer9 * pVB;
-	if(FAILED(hr = pDevice->CreateVertexBuffer(Length, Usage, FVF, Pool, &pVB, 0)))
+	if(FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateVertexBuffer(Length, Usage, FVF, Pool, &pVB, 0)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
@@ -250,14 +250,13 @@ void IndexBuffer::Create(IDirect3DIndexBuffer9 * ptr)
 }
 
 void IndexBuffer::CreateIndexBuffer(
-	LPDIRECT3DDEVICE9 pDevice,
 	UINT Length,
 	DWORD Usage,
 	D3DFORMAT Format,
 	D3DPOOL Pool)
 {
 	IDirect3DIndexBuffer9 * pIB;
-	if(FAILED(hr = pDevice->CreateIndexBuffer(Length, Usage, Format, Pool, &pIB, 0)))
+	if(FAILED(hr = my::D3DContext::getSingleton().m_d3dDevice->CreateIndexBuffer(Length, Usage, Format, Pool, &pIB, 0)))
 	{
 		THROW_D3DEXCEPTION(hr);
 	}
@@ -292,14 +291,13 @@ void Mesh::Create(ID3DXMesh * pMesh)
 }
 
 void Mesh::CreateMesh(
-	LPDIRECT3DDEVICE9 pD3DDevice,
 	DWORD NumFaces,
 	DWORD NumVertices,
 	CONST LPD3DVERTEXELEMENT9 pDeclaration,
 	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, pD3DDevice, &pMesh);
+	hr = D3DXCreateMesh(NumFaces, NumVertices, Options, pDeclaration, my::D3DContext::getSingleton().m_d3dDevice, &pMesh);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -309,14 +307,13 @@ void Mesh::CreateMesh(
 }
 
 void Mesh::CreateMeshFVF(
-	LPDIRECT3DDEVICE9 pD3DDevice,
 	DWORD NumFaces,
 	DWORD NumVertices,
 	DWORD FVF,
 	DWORD Options)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, pD3DDevice, &pMesh);
+	hr = D3DXCreateMeshFVF(NumFaces, NumVertices, Options, FVF, my::D3DContext::getSingleton().m_d3dDevice, &pMesh);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -326,7 +323,6 @@ void Mesh::CreateMeshFVF(
 }
 
 void Mesh::CreateMeshFromX(
-	LPDIRECT3DDEVICE9 pD3DDevice,
 	LPCSTR pFilename,
 	DWORD Options,
 	LPD3DXBUFFER * ppAdjacency,
@@ -336,7 +332,7 @@ void Mesh::CreateMeshFromX(
 {
 	LPD3DXMESH pMesh = NULL;
 	hr = D3DXLoadMeshFromXA(
-		pFilename, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
+		pFilename, Options, my::D3DContext::getSingleton().m_d3dDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -346,7 +342,6 @@ void Mesh::CreateMeshFromX(
 }
 
 void Mesh::CreateMeshFromXInMemory(
-	LPDIRECT3DDEVICE9 pD3DDevice,
 	LPCVOID Memory,
 	DWORD SizeOfMemory,
 	DWORD Options,
@@ -357,7 +352,7 @@ void Mesh::CreateMeshFromXInMemory(
 {
 	LPD3DXMESH pMesh = NULL;
 	hr = D3DXLoadMeshFromXInMemory(
-		Memory, SizeOfMemory, Options, pD3DDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
+		Memory, SizeOfMemory, Options, my::D3DContext::getSingleton().m_d3dDevice, ppAdjacency, ppMaterials, ppEffectInstances, pNumMaterials, &pMesh);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -367,14 +362,13 @@ void Mesh::CreateMeshFromXInMemory(
 }
 
 void Mesh::CreateBox(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	FLOAT Width,
 	FLOAT Height,
 	FLOAT Depth,
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateBox(pd3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
+	hr = D3DXCreateBox(my::D3DContext::getSingleton().m_d3dDevice, Width, Height, Depth, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -384,7 +378,6 @@ void Mesh::CreateBox(
 }
 
 void Mesh::CreateCylinder(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	FLOAT Radius1,
 	FLOAT Radius2,
 	FLOAT Length,
@@ -393,7 +386,7 @@ void Mesh::CreateCylinder(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateCylinder(pd3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
+	hr = D3DXCreateCylinder(my::D3DContext::getSingleton().m_d3dDevice, Radius1, Radius2, Length, Slices, Stacks, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -403,13 +396,12 @@ void Mesh::CreateCylinder(
 }
 
 void Mesh::CreatePolygon(
-	LPDIRECT3DDEVICE9 pDevice,
 	FLOAT Length,
 	UINT Sides,
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreatePolygon(pDevice, Length, Sides, &pMesh, ppAdjacency);
+	hr = D3DXCreatePolygon(my::D3DContext::getSingleton().m_d3dDevice, Length, Sides, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -419,14 +411,13 @@ void Mesh::CreatePolygon(
 }
 
 void Mesh::CreateSphere(
-	LPDIRECT3DDEVICE9 pDevice,
 	FLOAT Radius,
 	UINT Slices,
 	UINT Stacks,
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateSphere(pDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
+	hr = D3DXCreateSphere(my::D3DContext::getSingleton().m_d3dDevice, Radius, Slices, Stacks, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -436,11 +427,10 @@ void Mesh::CreateSphere(
 }
 
 void Mesh::CreateTeapot(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateTeapot(pDevice, &pMesh, ppAdjacency);
+	hr = D3DXCreateTeapot(my::D3DContext::getSingleton().m_d3dDevice, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -450,7 +440,6 @@ void Mesh::CreateTeapot(
 }
 
 void Mesh::CreateTorus(
-	LPDIRECT3DDEVICE9 pDevice,
 	FLOAT InnerRadius,
 	FLOAT OuterRadius,
 	UINT Sides,
@@ -458,7 +447,7 @@ void Mesh::CreateTorus(
 	LPD3DXBUFFER * ppAdjacency)
 {
 	LPD3DXMESH pMesh = NULL;
-	hr = D3DXCreateTorus(pDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
+	hr = D3DXCreateTorus(my::D3DContext::getSingleton().m_d3dDevice, InnerRadius, OuterRadius, Sides, Rings, &pMesh, ppAdjacency);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -467,17 +456,17 @@ void Mesh::CreateTorus(
 	Create(pMesh);
 }
 
-CComPtr<ID3DXMesh> Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice)
+CComPtr<ID3DXMesh> Mesh::CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration)
 {
 	CComPtr<ID3DXMesh> ret;
-	V(m_ptr->CloneMesh(Options, pDeclaration, pDevice, &ret));
+	V(m_ptr->CloneMesh(Options, pDeclaration, my::D3DContext::getSingleton().m_d3dDevice, &ret));
 	return ret;
 }
 
-CComPtr<ID3DXMesh> Mesh::CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice)
+CComPtr<ID3DXMesh> Mesh::CloneMeshFVF(DWORD Options, DWORD FVF)
 {
 	CComPtr<ID3DXMesh> ret;
-	V(m_ptr->CloneMeshFVF(Options, FVF, pDevice, &ret));
+	V(m_ptr->CloneMeshFVF(Options, FVF, my::D3DContext::getSingleton().m_d3dDevice, &ret));
 	return ret;
 }
 
@@ -846,7 +835,6 @@ void Mesh::ComputeTangentFrame(
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInFile(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPCTSTR pFilename,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
@@ -854,11 +842,10 @@ void OgreMesh::CreateMeshFromOgreXmlInFile(
 	CachePtr cache = FileIStream::Open(pFilename)->GetWholeCache();
 	cache->push_back(0);
 
-	CreateMeshFromOgreXmlInMemory(pd3dDevice, (char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlInMemory((char *)&(*cache)[0], cache->size(), bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlInMemory(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	LPSTR pSrcData,
 	UINT srcDataLen,
 	bool bComputeTangentFrame,
@@ -876,11 +863,10 @@ void OgreMesh::CreateMeshFromOgreXmlInMemory(
 		THROW_CUSEXCEPTION(e.what());
 	}
 
-	CreateMeshFromOgreXml(pd3dDevice, &doc, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXml(&doc, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXml(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	const rapidxml::xml_node<char> * node_root,
 	bool bComputeTangentFrame,
 	DWORD dwMeshOptions)
@@ -891,11 +877,10 @@ void OgreMesh::CreateMeshFromOgreXml(
 	rapidxml::xml_node<char> * node_submesh = node_submeshes->first_node("submesh");
 	rapidxml::xml_node<char> * node_boneassignments = node_mesh->first_node("boneassignments");
 
-	CreateMeshFromOgreXmlNodes(pd3dDevice, node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
+	CreateMeshFromOgreXmlNodes(node_sharedgeometry, node_boneassignments, node_submesh, true, bComputeTangentFrame, dwMeshOptions);
 }
 
 void OgreMesh::CreateMeshFromOgreXmlNodes(
-	LPDIRECT3DDEVICE9 pd3dDevice,
 	const rapidxml::xml_node<char> * node_geometry,
 	const rapidxml::xml_node<char> * node_boneassignments,
 	const rapidxml::xml_node<char> * node_submesh,
@@ -971,7 +956,7 @@ void OgreMesh::CreateMeshFromOgreXmlNodes(
 	D3DVERTEXELEMENT9 ve_end = D3DDECL_END();
 	velist.push_back(ve_end);
 
-	CreateMesh(pd3dDevice, facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
+	CreateMesh(facecount, vertexcount, (D3DVERTEXELEMENT9 *)&velist[0], dwMeshOptions);
 
 	m_aabb = AABB(FLT_MAX,-FLT_MAX);
 

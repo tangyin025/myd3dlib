@@ -142,7 +142,6 @@ namespace my
 		void Create(IDirect3DVertexBuffer9 * ptr);
 
 		void CreateVertexBuffer(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Length,
 			DWORD Usage = 0,
 			DWORD FVF = 0,
@@ -167,7 +166,6 @@ namespace my
 		void Create(IDirect3DIndexBuffer9 * ptr);
 
 		void CreateIndexBuffer(
-			LPDIRECT3DDEVICE9 pDevice,
 			UINT Length,
 			DWORD Usage = 0,
 			D3DFORMAT Format = D3DFMT_INDEX16,
@@ -192,21 +190,18 @@ namespace my
 		void Create(ID3DXMesh * pMesh);
 
 		void CreateMesh(
-			LPDIRECT3DDEVICE9 pD3DDevice,
 			DWORD NumFaces,
 			DWORD NumVertices,
 			CONST LPD3DVERTEXELEMENT9 pDeclaration,
 			DWORD Options = D3DXMESH_MANAGED);
 
 		void CreateMeshFVF(
-			LPDIRECT3DDEVICE9 pD3DDevice,
 			DWORD NumFaces,
 			DWORD NumVertices,
 			DWORD FVF,
 			DWORD Options = D3DXMESH_MANAGED);
 
 		void CreateMeshFromX(
-			LPDIRECT3DDEVICE9 pD3DDevice,
 			LPCSTR pFilename,
 			DWORD Options = D3DXMESH_MANAGED,
 			LPD3DXBUFFER * ppAdjacency = NULL,
@@ -215,7 +210,6 @@ namespace my
 			DWORD * pNumMaterials = NULL);
 
 		void CreateMeshFromXInMemory(
-			LPDIRECT3DDEVICE9 pD3DDevice,
 			LPCVOID Memory,
 			DWORD SizeOfMemory,
 			DWORD Options = D3DXMESH_MANAGED,
@@ -225,14 +219,12 @@ namespace my
 			DWORD * pNumMaterials = NULL);
 
 		void CreateBox(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			FLOAT Width = 1.0f,
 			FLOAT Height = 1.0f,
 			FLOAT Depth = 1.0f,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
 		void CreateCylinder(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			FLOAT Radius1 = 1.0f,
 			FLOAT Radius2 = 1.0f,
 			FLOAT Length = 2.0f,
@@ -241,33 +233,29 @@ namespace my
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
 		void CreatePolygon(
-			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT Length = 1.0f,
 			UINT Sides = 5,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
 		void CreateSphere(
-			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT Radius = 1.0f,
 			UINT Slices = 20,
 			UINT Stacks = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
 		void CreateTeapot(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
 		void CreateTorus(
-			LPDIRECT3DDEVICE9 pDevice,
 			FLOAT InnerRadius = 0.5f,
 			FLOAT OuterRadius = 1.5f,
 			UINT Sides = 20,
 			UINT Rings = 20,
 			LPD3DXBUFFER * ppAdjacency = NULL);
 
-		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration, LPDIRECT3DDEVICE9 pDevice);
+		CComPtr<ID3DXMesh> CloneMesh(DWORD Options, CONST D3DVERTEXELEMENT9 * pDeclaration);
 
-		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF, LPDIRECT3DDEVICE9 pDevice);
+		CComPtr<ID3DXMesh> CloneMeshFVF(DWORD Options, DWORD FVF);
 
 		CComPtr<ID3DXMesh> CleanMesh(D3DXCLEANTYPE CleanType, const DWORD *pAdjacencyIn, DWORD *pAdjacencyOut);
 
@@ -385,26 +373,22 @@ namespace my
 		}
 
 		void CreateMeshFromOgreXmlInFile(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPCTSTR pFilename,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXmlInMemory(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			LPSTR pSrcData,
 			UINT srcDataLen,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXml(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			const rapidxml::xml_node<char> * node_root,
 			bool bComputeTangentFrame = true,
 			DWORD dwMeshOptions = D3DXMESH_MANAGED);
 
 		void CreateMeshFromOgreXmlNodes(
-			LPDIRECT3DDEVICE9 pd3dDevice,
 			const rapidxml::xml_node<char> * node_geometry,
 			const rapidxml::xml_node<char> * node_boneassignments,
 			const rapidxml::xml_node<char> * node_submesh,

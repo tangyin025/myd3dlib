@@ -833,14 +833,14 @@ void TextureIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	case D3DRTYPE_TEXTURE:
 		{
 			Texture2DPtr res(new Texture2D());
-			res->CreateTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+			res->CreateTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
 			m_res = res;
 		}
 		break;
 	case D3DRTYPE_CUBETEXTURE:
 		{
 			CubeTexturePtr res(new CubeTexture());
-			res->CreateCubeTextureFromFileInMemory(pd3dDevice, &(*m_cache)[0], m_cache->size());
+			res->CreateCubeTextureFromFileInMemory(&(*m_cache)[0], m_cache->size());
 			m_res = res;
 		}
 		break;
@@ -873,7 +873,7 @@ void MeshIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 	OgreMeshPtr res(new OgreMesh());
-	res->CreateMeshFromOgreXml(pd3dDevice, &m_doc);
+	res->CreateMeshFromOgreXml(&m_doc);
 	m_res = res;
 }
 
@@ -939,7 +939,7 @@ void EffectIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 	EffectPtr res(new Effect());
 	ResourceMgr::getSingleton().m_EffectInclude = ZipIStreamDir::ReplaceSlash(m_path);
 	PathRemoveFileSpecA(&ResourceMgr::getSingleton().m_EffectInclude[0]);
-	res->CreateEffect(pd3dDevice, &(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
+	res->CreateEffect(&(*m_cache)[0], m_cache->size(), &m_d3dmacros[0], ResourceMgr::getSingletonPtr(), 0, ResourceMgr::getSingleton().m_EffectPool);
 	m_res = res;
 }
 
@@ -963,7 +963,7 @@ void FontIORequest::CreateResource(LPDIRECT3DDEVICE9 pd3dDevice)
 		THROW_CUSEXCEPTION(str_printf("failed open %s", m_path.c_str()));
 	}
 	FontPtr res(new Font());
-	res->CreateFontFromFileInCache(pd3dDevice, m_cache, m_height);
+	res->CreateFontFromFileInCache(m_cache, m_height);
 	m_res = res;
 }
 

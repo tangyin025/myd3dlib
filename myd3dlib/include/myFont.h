@@ -22,7 +22,7 @@ namespace my
 
 		void Create(ID3DXSprite * ptr);
 
-		void CreateSprite(LPDIRECT3DDEVICE9 pDevice);
+		void CreateSprite(void);
 
 		virtual void OnResetDevice(void);
 
@@ -126,8 +126,6 @@ namespace my
 
 		HRESULT hr;
 
-		CComPtr<IDirect3DDevice9> m_Device;
-
 		const int FONT_PIXEL_GAP;
 
 		boost::shared_ptr<std::vector<unsigned char> > m_cache;
@@ -155,23 +153,20 @@ namespace my
 
 		void SetScale(const Vector2 & Scale);
 
-		void Create(FT_FaceRec_ * face, int height, LPDIRECT3DDEVICE9 pDevice);
+		void Create(FT_FaceRec_ * face, int height);
 
 		void CreateFontFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pFilename,
 			int height,
 			long face_index = 0);
 
 		void CreateFontFromFileInMemory(
-			LPDIRECT3DDEVICE9 pDevice,
 			const void * file_base,
 			long file_size,
 			int height,
 			long face_index = 0);
 
 		void CreateFontFromFileInCache(
-			LPDIRECT3DDEVICE9 pDevice,
 			boost::shared_ptr<std::vector<unsigned char> > cache_ptr,
 			int height,
 			long face_index = 0);

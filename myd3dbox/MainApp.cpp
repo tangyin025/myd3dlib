@@ -392,7 +392,7 @@ my::Effect * CMainApp::QueryShader(RenderPipeline::MeshType mesh_type, bool bIns
 	my::EffectPtr shader(new my::Effect());
 	try
 	{
-		shader->CreateEffect(m_d3dDevice, source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
+		shader->CreateEffect(source.c_str(), source.size(), NULL, this, 0, m_EffectPool);
 	}
 	catch (const my::Exception & e)
 	{

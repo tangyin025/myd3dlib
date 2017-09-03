@@ -4,6 +4,7 @@
 #include FT_FREETYPE_H
 #include "myUI.h"
 #include "myResource.h"
+#include "myDxutApp.h"
 #include "libc.h"
 
 using namespace my;
@@ -15,10 +16,10 @@ void Sprite::Create(ID3DXSprite * ptr)
 	m_ptr = ptr;
 }
 
-void Sprite::CreateSprite(LPDIRECT3DDEVICE9 pDevice)
+void Sprite::CreateSprite(void)
 {
 	LPD3DXSPRITE pSprite = NULL;
-	hr = D3DXCreateSprite(pDevice, &pSprite);
+	hr = D3DXCreateSprite(my::D3DContext::getSingleton().m_d3dDevice, &pSprite);
 	if(FAILED(hr))
 	{
 		THROW_D3DEXCEPTION(hr);
@@ -228,13 +229,11 @@ void Font::SetScale(const Vector2 & Scale)
 	m_characterMap.clear();
 }
 
-void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
+void Font::Create(FT_Face face, int height)
 {
-	_ASSERT(!m_face && !m_Device);
+	_ASSERT(!m_face);
 
 	m_face = face;
-
-	m_Device = pDevice;
 
 	m_Height = height;
 
@@ -246,7 +245,6 @@ void Font::Create(FT_Face face, int height, LPDIRECT3DDEVICE9 pDevice)
 }
 
 void Font::CreateFontFromFile(
-	LPDIRECT3DDEVICE9 pDevice,
 	LPCSTR pFilename,
 	int height,
 	long face_index)
@@ -258,11 +256,10 @@ void Font::CreateFontFromFile(
 		THROW_CUSEXCEPTION("FT_New_Face failed");
 	}
 
-	Create(face, height, pDevice);
+	Create(face, height);
 }
 
 void Font::CreateFontFromFileInMemory(
-	LPDIRECT3DDEVICE9 pDevice,
 	const void * file_base,
 	long file_size,
 	int height,
@@ -271,11 +268,10 @@ void Font::CreateFontFromFileInMemory(
 	CachePtr cache(new Cache(file_size));
 	memcpy(&(*cache)[0], file_base, cache->size());
 
-	CreateFontFromFileInCache(pDevice, cache, height, face_index);
+	CreateFontFromFileInCache(cache, height, face_index);
 }
 
 void Font::CreateFontFromFileInCache(
-	LPDIRECT3DDEVICE9 pDevice,
 	CachePtr cache_ptr,
 	int height,
 	long face_index)
@@ -287,7 +283,7 @@ void Font::CreateFontFromFileInCache(
 		THROW_CUSEXCEPTION("FT_New_Memory_Face failed");
 	}
 
-	Create(face, height, pDevice);
+	Create(face, height);
 
 	m_cache = cache_ptr;
 }
@@ -302,8 +298,6 @@ void Font::OnLostDevice(void)
 
 void Font::OnDestroyDevice(void)
 {
-	m_Device.Release();
-
 	if(m_face)
 	{
 		FT_Done_Face(m_face);
@@ -315,7 +309,7 @@ void Font::CreateFontTexture(UINT Width, UINT Height)
 {
 	m_Texture.reset(new Texture2D());
 
-	m_Texture->CreateTexture(m_Device, Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
+	m_Texture->CreateTexture(Width, Height, 1, 0, D3DFMT_A8R8G8B8, D3DPOOL_MANAGED);
 
 	m_textureDesc = m_Texture->GetLevelDesc();
 }
@@ -514,12 +508,12 @@ void Font::DrawString(
 	{
 		const CharacterInfo & info = GetCharacterInfo(c);
 
-		V(m_Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
-
-		V(m_Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
-		V(m_Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
-		V(m_Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
-
+		CComPtr<IDirect3DDevice9> Device;
+		pSprite->GetDevice(&Device);
+		V(Device->SetTextureStageState(0, D3DTSS_COLORARG1, D3DTA_ALPHAREPLICATE));
+		V(Device->SetSamplerState(0, D3DSAMP_MAGFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MINFILTER, D3DTEXF_POINT));
+		V(Device->SetSamplerState(0, D3DSAMP_MIPFILTER, D3DTEXF_NONE));
 		V(pSprite->Draw(
 			(IDirect3DTexture9 *)m_Texture->m_ptr,
 			&info.textureRect,

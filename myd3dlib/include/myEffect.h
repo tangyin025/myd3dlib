@@ -16,8 +16,6 @@ namespace my
 
 		ID3DXConstantTable * m_pConstantTable;
 
-		CComPtr<IDirect3DDevice9> m_Device;
-
 	public:
 		ConstantTable(void)
 		{
@@ -25,7 +23,7 @@ namespace my
 
 		virtual ~ConstantTable(void);
 
-		void Create(ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice);
+		void Create(ID3DXConstantTable * pConstantTable);
 
 		LPVOID GetBufferPointer(void);
 
@@ -88,10 +86,9 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice);
+		void Create(IDirect3DVertexShader9 * ptr, ID3DXConstantTable * pConstantTable);
 
 		void CreateVertexShader(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
 			LPCSTR pFunctionName,
@@ -101,7 +98,6 @@ namespace my
 			DWORD Flags = 0);
 
 		void CreateVertexShaderFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCTSTR pSrcFile,
 			LPCSTR pFunctionName,
 			LPCSTR pProfile,
@@ -130,10 +126,9 @@ namespace my
 		{
 		}
 
-		void Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable, LPDIRECT3DDEVICE9 pDevice);
+		void Create(IDirect3DPixelShader9 * ptr, ID3DXConstantTable * pConstantTable);
 
 		void CreatePixelShader(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCSTR pSrcData,
 			UINT srcDataLen,
 			LPCSTR pFunctionName,
@@ -143,7 +138,6 @@ namespace my
 			DWORD Flags = 0);
 
 		void CreatePixelShaderFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCTSTR pSrcFile,
 			LPCSTR pFunctionName,
 			LPCSTR pProfile,
@@ -288,7 +282,6 @@ namespace my
 		}
 
 		void CreateEffect(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCVOID pSrcData,
 			UINT SrcDataLen,
 			CONST D3DXMACRO * pDefines = NULL,
@@ -297,7 +290,6 @@ namespace my
 			LPD3DXEFFECTPOOL pPool = NULL);
 
 		void CreateEffectFromFile(
-			LPDIRECT3DDEVICE9 pDevice,
 			LPCTSTR pSrcFile,
 			CONST D3DXMACRO * pDefines = NULL,
 			LPD3DXINCLUDE pInclude = NULL,
@@ -316,7 +308,7 @@ namespace my
 
 		void BeginPass(UINT Pass);
 
-		CComPtr<ID3DXEffect> CloneEffect(LPDIRECT3DDEVICE9 pDevice);
+		CComPtr<ID3DXEffect> CloneEffect(void);
 
 		void CommitChanges(void);
 
