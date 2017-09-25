@@ -92,7 +92,7 @@ public:
 
 	virtual void UpdateWorld(void);
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
 

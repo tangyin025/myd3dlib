@@ -50,7 +50,7 @@ struct Quad
 template <>
 struct Quad<1>
 {
-	enum { value = 1 };
+	enum { value = 0 };
 };
 
 class Terrain
@@ -111,13 +111,19 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::array<float, Quad<CHUNK_SIZE>::value> LodDistanceList;
+	typedef boost::array<float, Quad<CHUNK_SIZE>::value + 1> LodDistanceList;
 
 	LodDistanceList m_LodDistanceSq;
+
+	typedef std::map<float, unsigned int> LodMap;
+
+	LodMap m_LodMap;
 
 	PhysXPtr<physx::PxHeightField> m_PxHeightField;
 
 	void CalcLodDistanceSq(void);
+
+	unsigned int CalculateLod(unsigned int i, unsigned int j, const my::Vector3 & LocalViewPos);
 
 	void CreateHeightMap(void);
 
@@ -170,7 +176,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
 	void CreateHeightFieldShape(const my::Vector3 & Position, const my::Quaternion & Rotation);
 

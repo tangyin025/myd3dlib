@@ -168,6 +168,24 @@ void Terrain::CalcLodDistanceSq(void)
 	{
 		m_LodDistanceSq[i] = pow(Vector2(CHUNK_SIZE * 0.6f, CHUNK_SIZE * 0.6f).magnitude() * (i + 1), 2);
 	}
+
+	for (unsigned int i = 0; i <= Quad<CHUNK_SIZE>::value; i++)
+	{
+		m_LodMap.insert(std::make_pair(pow(Vector2(CHUNK_SIZE * 0.6f, CHUNK_SIZE * 0.6f).magnitude() * (i + 1), 2), i));
+	}
+}
+
+unsigned int Terrain::CalculateLod(unsigned int i, unsigned int j, const my::Vector3 & LocalViewPos)
+{
+	float DistanceSq = Vector2(
+		(i + 0.5f) * CHUNK_SIZE - LocalViewPos.x,
+		(j + 0.5f) * CHUNK_SIZE - LocalViewPos.z).magnitudeSq();
+	LodMap::const_iterator lod_iter = m_LodMap.lower_bound(DistanceSq);
+	if (lod_iter != m_LodMap.end())
+	{
+		return lod_iter->second;
+	}
+	return Quad<CHUNK_SIZE>::value;
 }
 
 void Terrain::CreateHeightMap(void)
@@ -615,17 +633,19 @@ my::AABB Terrain::CalculateAABB(void) const
 	return ret;
 }
 
-void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 	struct Callback : public my::OctNodeBase::QueryCallback
 	{
 		RenderPipeline * pipeline;
 		unsigned int PassID;
+		const Vector3 & LocalViewPos;
 		Terrain * terrain;
 		Effect * shader;
-		Callback(RenderPipeline * _pipeline, unsigned int _PassID, Terrain * _terrain, Effect * _shader)
+		Callback(RenderPipeline * _pipeline, unsigned int _PassID, const Vector3 & _LocalViewPos, Terrain * _terrain, Effect * _shader)
 			: pipeline(_pipeline)
 			, PassID(_PassID)
+			, LocalViewPos(_LocalViewPos)
 			, terrain(_terrain)
 			, shader(_shader)
 		{
@@ -634,10 +654,14 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
 			const Fragment & frag = terrain->GetFragment(chunk->m_lod,
-				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+				//terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				//terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				//terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
+				//terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
+				terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
 			pipeline->PushIndexedPrimitive(PassID, terrain->m_Decl, terrain->m_vb.m_ptr,
 				frag.ib.m_ptr, D3DPT_TRIANGLELIST, 0, 0, frag.VertNum, terrain->m_VertexStride, 0, frag.PrimitiveCount, MAKELONG(chunk->m_Row, chunk->m_Column), shader, terrain);
 		}
@@ -656,7 +680,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 					{
 						// ! do not use m_World for level offset
 						Frustum loc_frustum = frustum.transform(m_World.transpose());
-						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, this, shader));
+						Vector3 loc_viewpos = ViewPos.transformCoord(m_World.inverse());
+						m_Root.QueryActor(loc_frustum, &Callback(pipeline, PassID, loc_viewpos, this, shader));
 					}
 				}
 			}

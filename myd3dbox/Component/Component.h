@@ -170,7 +170,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
 	virtual void UpdateLod(const my::Vector3 & ViewPos);
 
@@ -271,7 +271,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
 	void CreateTriangleMeshShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale);
 };
@@ -367,7 +367,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
 	virtual void Update(float fElapsedTime);
 
@@ -420,7 +420,7 @@ public:
 
 	virtual my::AABB CalculateAABB(void) const;
 
-	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask);
+	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 };
 
 typedef boost::shared_ptr<EmitterComponent> EmitterComponentPtr;

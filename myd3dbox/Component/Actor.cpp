@@ -289,14 +289,14 @@ void Actor::UpdateWorld(void)
 	}
 }
 
-void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
-	Component::AddToPipeline(frustum, pipeline, PassMask);
+	Component::AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
 	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
 	{
-		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask);
+		(*cmp_iter)->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 	}
 }
 

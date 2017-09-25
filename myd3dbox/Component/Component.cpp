@@ -151,7 +151,7 @@ my::AABB Component::CalculateAABB(void) const
 	return AABB::Invalid();
 }
 
-void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 }
 
@@ -357,7 +357,7 @@ my::AABB MeshComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 	if (m_MeshRes.m_Res)
 	{
@@ -387,8 +387,6 @@ void MeshComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * 
 			}
 		}
 	}
-
-	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void MeshComponent::CreateTriangleMeshShape(const my::Vector3 & Position, const my::Quaternion & Rotation, const my::Vector3 & Scale)
@@ -747,7 +745,7 @@ my::AABB ClothComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void ClothComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 	if (!m_VertexData.empty())
 	{
@@ -909,7 +907,7 @@ my::AABB EmitterComponent::CalculateAABB(void) const
 	return ret;
 }
 
-void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 	if (m_Material && m_Emitter && (m_Material->m_PassMask & PassMask))
 	{
@@ -925,8 +923,6 @@ void EmitterComponent::AddToPipeline(const my::Frustum & frustum, RenderPipeline
 			}
 		}
 	}
-
-	Component::AddToPipeline(frustum, pipeline, PassMask);
 }
 
 void StaticEmitterComponent::CopyFrom(const StaticEmitterComponent & rhs)

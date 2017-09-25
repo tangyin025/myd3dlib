@@ -780,7 +780,7 @@ my::Effect * Game::QueryShader(RenderPipeline::MeshType mesh_type, bool bInstanc
 
 void Game::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
 {
-	m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
+	m_WorldL.AddToPipeline(frustum, pipeline, PassMask, m_Player->GetWorldPosition());
 }
 
 void Game::SaveDialog(my::DialogPtr dlg, const char * path)

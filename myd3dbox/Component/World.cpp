@@ -62,7 +62,7 @@ void WorldL::QueryLevel(const CPoint & level_id, QueryCallback * callback)
 	}
 }
 
-void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask)
+void WorldL::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos)
 {
 	struct Callback : public QueryCallback
 	{
@@ -70,11 +70,13 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 		const Frustum & frustum;
 		RenderPipeline * pipeline;
 		unsigned int PassMask;
-		Callback(WorldL * _world, const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+		const Vector3 & ViewPos;
+		Callback(WorldL * _world, const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _ViewPos)
 			: world(_world)
 			, frustum(_frustum)
 			, pipeline(_pipeline)
 			, PassMask(_PassMask)
+			, ViewPos(_ViewPos)
 		{
 		}
 		void operator () (Octree * level, const CPoint & level_id)
@@ -84,27 +86,29 @@ void WorldL::QueryRenderComponent(const my::Frustum & frustum, RenderPipeline * 
 				const Frustum & frustum;
 				RenderPipeline * pipeline;
 				unsigned int PassMask;
-				Callback(const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask)
+				const Vector3 & ViewPos;
+				Callback(const Frustum & _frustum, RenderPipeline * _pipeline, unsigned int _PassMask, const Vector3 & _ViewPos)
 					: frustum(_frustum)
 					, pipeline(_pipeline)
 					, PassMask(_PassMask)
+					, ViewPos(_ViewPos)
 				{
 				}
 				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 				{
 					_ASSERT(dynamic_cast<Actor *>(oct_actor));
 					Actor * actor = static_cast<Actor *>(oct_actor);
-					actor->AddToPipeline(frustum, pipeline, PassMask);
+					actor->AddToPipeline(frustum, pipeline, PassMask, ViewPos);
 				}
 			};
 
 			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			Frustum loc_frustum = frustum.transform(Matrix4::Translation(Offset).transpose());
-			level->QueryActor(loc_frustum, &Callback(frustum, pipeline, PassMask));
+			level->QueryActor(loc_frustum, &Callback(frustum, pipeline, PassMask, ViewPos));
 		}
 	};
 
-	QueryLevel(m_LevelId, &Callback(this, frustum, pipeline, PassMask));
+	QueryLevel(m_LevelId, &Callback(this, frustum, pipeline, PassMask, ViewPos));
 }
 
 void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * scene, float ViewDist, float ViewThreshold)

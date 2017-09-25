@@ -170,8 +170,9 @@ void CChildView::QueryRenderComponent(const my::Frustum & frustum, RenderPipelin
 {
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
+	my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
 	//pFrame->m_emitter->m_Emitter->m_ParticleList.clear();
-	pFrame->m_WorldL.QueryRenderComponent(frustum, pipeline, PassMask);
+	pFrame->m_WorldL.AddToPipeline(frustum, pipeline, PassMask, model_view_camera->m_LookAt);
 	//pFrame->m_emitter->AddToPipeline(frustum, pipeline, PassMask);
 }
 
