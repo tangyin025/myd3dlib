@@ -605,12 +605,14 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{
 				const my::Ray & ray;
+				const my::Vector3 & LocalViewPos;
 				CChildView * pView;
 				Terrain * terrain;
 				my::RayResult ret;
-				Callback(const my::Ray & _ray, CChildView * _pView, Terrain * _terrain)
+				Callback(const my::Ray & _ray, const my::Vector3 & _LocalViewPos, CChildView * _pView, Terrain * _terrain)
 					: ray(_ray)
 					, pView(_pView)
+					, LocalViewPos(_LocalViewPos)
 					, terrain(_terrain)
 					, ret(false, FLT_MAX)
 				{
@@ -618,11 +620,12 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 				void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 				{
 					TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-					const Terrain::Fragment & frag = terrain->GetFragment(chunk->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-						terrain->m_Chunks[my::Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][my::Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+					const Terrain::Fragment & frag = terrain->GetFragment(
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column, LocalViewPos),
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
+						terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
+						terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
+						terrain->CalculateLod(chunk->m_Row + 1, chunk->m_Column, LocalViewPos));
 					my::RayResult result = pView->OverlapTestRayAndTerrainChunk(
 						ray,
 						terrain,
@@ -645,7 +648,9 @@ my::RayResult CChildView::OverlapTestRayAndComponent(const my::Ray & ray, Compon
 			{
 				return my::RayResult(false, FLT_MAX);
 			}
-			Callback cb(local_ray, this, terrain);
+			my::ModelViewerCamera * model_view_camera = dynamic_cast<my::ModelViewerCamera *>(m_Camera.get());
+			my::Vector3 loc_viewpos = model_view_camera->m_LookAt.transformCoord(terrain->m_World.inverse());
+			Callback cb(local_ray, loc_viewpos, this, terrain);
 			terrain->m_Root.QueryActor(local_ray, &cb);
 			if (cb.ret.first)
 			{

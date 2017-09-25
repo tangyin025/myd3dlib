@@ -18,8 +18,6 @@ public:
 
 	int m_Column;
 
-	unsigned char m_lod;
-
 public:
 	TerrainChunk(Terrain * Owner, int Row, int Column);
 
@@ -111,19 +109,15 @@ public:
 
 	ChunkArray2D m_Chunks;
 
-	typedef boost::array<float, Quad<CHUNK_SIZE>::value + 1> LodDistanceList;
-
-	LodDistanceList m_LodDistanceSq;
-
 	typedef std::map<float, unsigned int> LodMap;
 
 	LodMap m_LodMap;
 
 	PhysXPtr<physx::PxHeightField> m_PxHeightField;
 
-	void CalcLodDistanceSq(void);
+	void InitLodMap(void);
 
-	unsigned int CalculateLod(unsigned int i, unsigned int j, const my::Vector3 & LocalViewPos);
+	unsigned int CalculateLod(int i, int j, const my::Vector3 & LocalViewPos);
 
 	void CreateHeightMap(void);
 

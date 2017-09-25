@@ -8,6 +8,7 @@
 #include <boost/serialization/shared_ptr.hpp>
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/deque.hpp>
+#include <boost/serialization/map.hpp>
 #include <boost/serialization/base_object.hpp>
 #include <boost/serialization/binary_object.hpp>
 #include <boost/serialization/export.hpp>
@@ -25,7 +26,6 @@ TerrainChunk::TerrainChunk(Terrain * Owner, int Row, int Column)
 	: m_Owner(Owner)
 	, m_Row(Row)
 	, m_Column(Column)
-	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
 	D3DLOCKED_RECT lrc = m_Owner->m_HeightMap.LockRect(NULL, 0, 0);
 	m_aabb.m_min = m_Owner->GetSamplePos(lrc.pBits, lrc.Pitch, (m_Row + 0) * (Terrain::VertexArray2D::static_size - 1), (m_Column + 0) * (Terrain::VertexArray::static_size - 1));
@@ -37,7 +37,6 @@ TerrainChunk::TerrainChunk(void)
 	: m_Owner(NULL)
 	, m_Row(0)
 	, m_Column(0)
-	, m_lod(Terrain::LodDistanceList::static_size - 1)
 {
 	m_aabb = AABB::Invalid();
 }
@@ -140,7 +139,7 @@ Terrain::Terrain(const my::Vector3 & Position, const my::Quaternion & Rotation, 
 			m_Chunks[i][j] = chunk.get();
 		}
 	}
-	CalcLodDistanceSq();
+	InitLodMap();
 	CreateElements();
 }
 
@@ -162,20 +161,15 @@ Terrain::~Terrain(void)
 	//m_Root.ClearAllActor();
 }
 
-void Terrain::CalcLodDistanceSq(void)
+void Terrain::InitLodMap(void)
 {
-	for (unsigned int i = 0; i < LodDistanceList::static_size; i++)
-	{
-		m_LodDistanceSq[i] = pow(Vector2(CHUNK_SIZE * 0.6f, CHUNK_SIZE * 0.6f).magnitude() * (i + 1), 2);
-	}
-
 	for (unsigned int i = 0; i <= Quad<CHUNK_SIZE>::value; i++)
 	{
 		m_LodMap.insert(std::make_pair(pow(Vector2(CHUNK_SIZE * 0.6f, CHUNK_SIZE * 0.6f).magnitude() * (i + 1), 2), i));
 	}
 }
 
-unsigned int Terrain::CalculateLod(unsigned int i, unsigned int j, const my::Vector3 & LocalViewPos)
+unsigned int Terrain::CalculateLod(int i, int j, const my::Vector3 & LocalViewPos)
 {
 	float DistanceSq = Vector2(
 		(i + 0.5f) * CHUNK_SIZE - LocalViewPos.x,
@@ -487,7 +481,7 @@ void Terrain::save<boost::archive::polymorphic_oarchive>(boost::archive::polymor
 	const_cast<my::Texture2D&>(m_HeightMap).UnlockRect(0);
 	ar << boost::serialization::make_nvp("HeightMap", boost::serialization::binary_object(&buff[0], buff.size()));
 	ar << BOOST_SERIALIZATION_NVP(m_Root);
-	ar << BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
+	ar << BOOST_SERIALIZATION_NVP(m_LodMap);
 }
 
 template<>
@@ -507,7 +501,7 @@ void Terrain::load<boost::archive::polymorphic_iarchive>(boost::archive::polymor
 		boost::make_transform_iterator(buff.begin() + BufferSize, boost::lambda::ll_static_cast<unsigned int>(boost::lambda::_1) << 24), (unsigned int *)lrc.pBits);
 	m_HeightMap.UnlockRect(0);
 	ar >> BOOST_SERIALIZATION_NVP(m_Root);
-	ar >> BOOST_SERIALIZATION_NVP(m_LodDistanceSq);
+	ar >> BOOST_SERIALIZATION_NVP(m_LodMap);
 	struct Callback : public my::OctNodeBase::QueryCallback
 	{
 		Terrain * terrain;
@@ -582,23 +576,6 @@ void Terrain::UpdateVertices(void)
 
 void Terrain::UpdateLod(const my::Vector3 & ViewPos)
 {
-	const Vector3 LocalTargetPos = ViewPos.transform(m_World.inverse()).xyz;
-	for (unsigned int i = 0; i < ChunkArray2D::static_size; i++)
-	{
-		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
-		{
-			float DistanceSq = (m_Chunks[i][j]->m_aabb.Center() - LocalTargetPos).magnitudeSq();
-			unsigned char lod = 0;
-			for (; lod < LodDistanceList::static_size; lod++)
-			{
-				if (DistanceSq < m_LodDistanceSq[lod])
-				{
-					m_Chunks[i][j]->m_lod = lod;
-					break;
-				}
-			}
-		}
-	}
 }
 
 void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
@@ -653,11 +630,8 @@ void Terrain::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeli
 		void operator() (my::OctActor * oct_actor, my::IntersectionTests::IntersectionType)
 		{
 			TerrainChunk * chunk = dynamic_cast<TerrainChunk *>(oct_actor);
-			const Fragment & frag = terrain->GetFragment(chunk->m_lod,
-				//terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column - 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				//terrain->m_Chunks[Clamp<int>(chunk->m_Row - 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				//terrain->m_Chunks[Clamp<int>(chunk->m_Row, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column + 1, 0, Terrain::ChunkArray::static_size - 1)]->m_lod,
-				//terrain->m_Chunks[Clamp<int>(chunk->m_Row + 1, 0, Terrain::ChunkArray2D::static_size - 1)][Clamp<int>(chunk->m_Column, 0, Terrain::ChunkArray::static_size - 1)]->m_lod);
+			const Fragment & frag = terrain->GetFragment(
+				terrain->CalculateLod(chunk->m_Row, chunk->m_Column, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Column - 1, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row - 1, chunk->m_Column, LocalViewPos),
 				terrain->CalculateLod(chunk->m_Row, chunk->m_Column + 1, LocalViewPos),
