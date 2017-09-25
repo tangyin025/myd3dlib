@@ -300,17 +300,6 @@ void Actor::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline
 	}
 }
 
-void Actor::UpdateLod(const my::Vector3 & ViewPos)
-{
-	Component::UpdateLod(ViewPos);
-
-	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();
-	for (; cmp_iter != m_Cmps.end(); cmp_iter++)
-	{
-		(*cmp_iter)->UpdateLod(ViewPos);
-	}
-}
-
 void Actor::ClearRigidActor(void)
 {
 	ComponentPtrList::iterator cmp_iter = m_Cmps.begin();

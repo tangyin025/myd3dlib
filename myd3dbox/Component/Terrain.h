@@ -164,8 +164,6 @@ public:
 
 	void UpdateVertices(void);
 
-	virtual void UpdateLod(const my::Vector3 & ViewPos);
-
 	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;

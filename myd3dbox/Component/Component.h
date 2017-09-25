@@ -172,8 +172,6 @@ public:
 
 	virtual void AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipeline, unsigned int PassMask, const my::Vector3 & ViewPos);
 
-	virtual void UpdateLod(const my::Vector3 & ViewPos);
-
 	void CreateBoxShape(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation);
 
 	void CreateCapsuleShape(float radius, float halfHeight, const my::Vector3 & Position, const my::Quaternion & Rotation);

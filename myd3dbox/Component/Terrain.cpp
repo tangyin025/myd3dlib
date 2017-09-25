@@ -574,10 +574,6 @@ void Terrain::UpdateVertices(void)
 	}
 }
 
-void Terrain::UpdateLod(const my::Vector3 & ViewPos)
-{
-}
-
 void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 {
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);

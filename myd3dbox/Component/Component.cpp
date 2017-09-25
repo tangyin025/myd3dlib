@@ -155,10 +155,6 @@ void Component::AddToPipeline(const my::Frustum & frustum, RenderPipeline * pipe
 {
 }
 
-void Component::UpdateLod(const my::Vector3 & ViewPos)
-{
-}
-
 void Component::CreateBoxShape(float hx, float hy, float hz, const my::Vector3 & Position, const my::Quaternion & Rotation)
 {
 	_ASSERT(!m_PxShape);

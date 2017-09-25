@@ -151,11 +151,9 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 			struct Callback : public my::OctNodeBase::QueryCallback
 			{
 				WorldL * world;
-				const Vector3 & ViewPos;
 				PhysXSceneContext * scene;
-				Callback(WorldL * _world, const Vector3 & _ViewPos, PhysXSceneContext * _scene)
+				Callback(WorldL * _world, PhysXSceneContext * _scene)
 					: world(_world)
-					, ViewPos(_ViewPos)
 					, scene(_scene)
 				{
 				}
@@ -175,14 +173,13 @@ void WorldL::ResetViewedActors(const my::Vector3 & ViewPos, PhysXSceneContext * 
 						}
 						world->m_ViewedActors.insert(actor);
 					}
-					actor->UpdateLod(ViewPos);
 				}
 			};
 
 			const Vector3 InExtent(ViewDist);
 			Vector3 Offset((float)(level_id.x - world->m_LevelId.x) * LEVEL_SIZE, 0, (float)(level_id.y - world->m_LevelId.y) * LEVEL_SIZE);
 			AABB InBox(ViewPos - Offset - InExtent, ViewPos - Offset + InExtent);
-			level->QueryActor(InBox, &Callback(world, ViewPos, scene));
+			level->QueryActor(InBox, &Callback(world, scene));
 		}
 	};
 
