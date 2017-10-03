@@ -195,23 +195,25 @@ void CChildView::RenderSelectedComponent(IDirect3DDevice9 * pd3dDevice, Componen
 			}
 		}
 		break;
-	//case Component::ComponentTypeMesh:
-	//	{
-	//		MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
-	//		if (mesh_cmp->m_MeshRes.m_Res)
-	//		{
-	//			theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
-	//			UINT passes = theApp.m_SimpleSample->Begin();
-	//			for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
-	//			{
-	//				theApp.m_SimpleSample->BeginPass(0);
-	//				mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
-	//				theApp.m_SimpleSample->EndPass();
-	//			}
-	//			theApp.m_SimpleSample->End();
-	//		}
-	//	}
-	//	break;
+	case Component::ComponentTypeMesh:
+		{
+			MeshComponent * mesh_cmp = dynamic_cast<MeshComponent *>(cmp);
+			if (mesh_cmp->m_MeshRes.m_Res)
+			{
+				theApp.m_SimpleSample->SetMatrix("g_World", mesh_cmp->m_World);
+				theApp.m_SimpleSample->SetVector("g_MeshColor", my::Vector4(0,1,0,1));
+				theApp.m_SimpleSample->SetTechnique("RenderSceneWireColor");
+				UINT passes = theApp.m_SimpleSample->Begin();
+				for (unsigned int i = 0; i < mesh_cmp->m_MaterialList.size(); i++)
+				{
+					theApp.m_SimpleSample->BeginPass(0);
+					mesh_cmp->m_MeshRes.m_Res->DrawSubset(i);
+					theApp.m_SimpleSample->EndPass();
+				}
+				theApp.m_SimpleSample->End();
+			}
+		}
+		break;
 	case Component::ComponentTypeTerrain:
 		{
 			Terrain * terrain = dynamic_cast<Terrain *>(cmp);

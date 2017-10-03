@@ -14,7 +14,7 @@ LIGHT_VS_OUTPUT LightVS( VS_INPUT In )
 	float4 PosWS = TransformPosWS(In);
 	Output.Pos = mul(PosWS, g_ViewProj);
 	Output.ScreenPos = Output.Pos;
-	Output.Light = TransformLight(In);
+	Output.Light = TransformLightWS(In);
 	Output.Light.xyz = mul(float4(Output.Light.xyz, 1.0), g_View);
 	Output.Eye = mul(float4(g_Eye, 1.0), g_View);
 	Output.Color = TransformColor(In);

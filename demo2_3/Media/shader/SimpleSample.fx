@@ -46,6 +46,10 @@ float4 RenderScenePS( VS_OUTPUT In ) : COLOR0
     return tex2D(MeshTextureSampler, In.TextureUV);
 }
 
+float4 RenderScenePSColor( VS_OUTPUT In ) : COLOR0
+{
+	return g_MeshColor;
+}
 
 //--------------------------------------------------------------------------------------
 // Renders scene 
@@ -57,4 +61,17 @@ technique RenderScene
         VertexShader = compile vs_2_0 RenderSceneVS();
         PixelShader  = compile ps_2_0 RenderScenePS(); 
     }
+}
+
+technique RenderSceneWireColor
+{
+	pass P0
+	{
+		FILLMODE=WIREFRAME;
+		CULLMODE=CW;
+		SLOPESCALEDEPTHBIAS=0;
+		DEPTHBIAS=0;
+        VertexShader = compile vs_2_0 RenderSceneVS();
+        PixelShader  = compile ps_2_0 RenderScenePSColor(); 
+	}
 }

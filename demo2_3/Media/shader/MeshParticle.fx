@@ -58,7 +58,7 @@ float3 TransformTangent(VS_INPUT In)
 	return float3(0,0,0);
 }
 
-float4 TransformLight(VS_INPUT In)
+float4 TransformLightWS(VS_INPUT In)
 {
 	return float4(mul(In.Pos, g_World).xyz, In.Tex2.x * 0.5);
 }
