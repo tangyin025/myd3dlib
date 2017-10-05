@@ -111,6 +111,26 @@ void CEnvironmentWnd::InitPropList()
 	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
 	pEular->AddSubItem(pProp);
 
+	CMFCPropertyGridProperty * pSkyLight = new CSimpleProp(_T("SkyLight"), PropertySkyLight, FALSE);
+	m_wndPropList.AddProperty(pSkyLight, FALSE, FALSE);
+	CMFCPropertyGridProperty * pSkyLightDir = new CSimpleProp(_T("Dir"), SkyLightPropertyDir, TRUE);
+	pSkyLight->AddSubItem(pSkyLightDir);
+	pProp = new CSimpleProp(_T("x"), (_variant_t)0.0f, NULL, Vector3PropertyX);
+	pSkyLightDir->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("y"), (_variant_t)0.0f, NULL, Vector3PropertyY);
+	pSkyLightDir->AddSubItem(pProp);
+	pProp = new CSimpleProp(_T("z"), (_variant_t)0.0f, NULL, Vector3PropertyZ);
+	pSkyLightDir->AddSubItem(pProp);
+
+	COLORREF color = RGB(255,255,255);
+	CColorProp * pSkyLightDiffuse = new CColorProp(_T("Diffuse"), color, NULL, NULL, SkyLightPropertyDiffuse);
+	pSkyLightDiffuse->EnableOtherButton(_T("Other..."));
+	pSkyLight->AddSubItem(pSkyLightDiffuse);
+
+	CColorProp * pSkyLightAmbient = new CColorProp(_T("Ambient"), color, NULL, NULL, SkyLightPropertyAmbient);
+	pSkyLightAmbient->EnableOtherButton(_T("Other..."));
+	pSkyLight->AddSubItem(pSkyLightAmbient);
+
 	CMFCPropertyGridProperty * pSSAO = new CSimpleProp(_T("SSAO"), PropertySSAO, FALSE);
 	m_wndPropList.AddProperty(pSSAO, FALSE, FALSE);
 	pProp = new CSliderProp(_T("Bias"), (_variant_t)0l, NULL, SSAOPropertyBias);
@@ -146,6 +166,23 @@ void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.x));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
 	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
+
+	CMFCPropertyGridProperty * pSkyLight = m_wndPropList.GetProperty(PropertySkyLight);
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.x));
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.y));
+	pSkyLight->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_SkyLightCam->m_Eular.z));
+
+	COLORREF color = RGB(
+		camera_prop_arg->pView->m_SkyLightDiffuse.x * 255,
+		camera_prop_arg->pView->m_SkyLightDiffuse.y * 255,
+		camera_prop_arg->pView->m_SkyLightDiffuse.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyDiffuse)))->SetColor((_variant_t)color);
+
+	color = RGB(
+		camera_prop_arg->pView->m_SkyLightAmbient.x * 255,
+		camera_prop_arg->pView->m_SkyLightAmbient.y * 255,
+		camera_prop_arg->pView->m_SkyLightAmbient.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pSkyLight->GetSubItem(SkyLightPropertyAmbient)))->SetColor((_variant_t)color);
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
 	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoBias/SSAO_BIAS_RANGE*CSliderProp::RANGE));
@@ -265,6 +302,22 @@ LRESULT CEnvironmentWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
 				D3DXToRadian(pProp->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
 			pView->m_Camera->UpdateViewProj();
+		}
+		break;
+
+	case PropertySkyLight:
+		{
+			pView->m_SkyLightCam->m_Eular = my::Vector3(
+				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyX)->GetValue().fltVal),
+				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyY)->GetValue().fltVal),
+				D3DXToRadian(pProp->GetSubItem(SkyLightPropertyDir)->GetSubItem(Vector3PropertyZ)->GetValue().fltVal));
+			pView->m_SkyLightCam->UpdateViewProj();
+
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyDiffuse)))->GetColor();
+			pView->m_SkyLightDiffuse.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
+
+			color = (DYNAMIC_DOWNCAST(CColorProp, pProp->GetSubItem(SkyLightPropertyAmbient)))->GetColor();
+			pView->m_SkyLightAmbient.xyz = my::Vector3(GetRValue(color) / 255.0f, GetGValue(color) / 255.0f, GetBValue(color) / 255.0f);
 		}
 		break;
 
