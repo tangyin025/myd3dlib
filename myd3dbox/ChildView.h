@@ -151,6 +151,7 @@ public:
 	afx_msg void OnUpdateRendermodeFxaa(CCmdUI *pCmdUI);
 	afx_msg void OnRendermodeSsao();
 	afx_msg void OnUpdateRendermodeSsao(CCmdUI *pCmdUI);
+	virtual void OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView);
 };
 
 #ifndef _DEBUG  // debug version in ChildView.cpp

@@ -3,6 +3,7 @@
 #include "afxwin.h"
 #include "EventDefine.h"
 
+class CChildView;
 
 // CEnvironmentWnd
 
@@ -42,6 +43,17 @@ class CEnvironmentWnd : public CDockablePane
 		Vector3PropertyX,
 		Vector3PropertyY,
 		Vector3PropertyZ,
+	};
+
+	struct CameraPropEventArgs : public EventArgs
+	{
+	public:
+		CChildView * pView;
+
+		CameraPropEventArgs(CChildView * _pView)
+			: pView(_pView)
+		{
+		}
 	};
 
 public:

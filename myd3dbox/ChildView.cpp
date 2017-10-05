@@ -793,7 +793,7 @@ void CChildView::PostCameraViewChanged(void)
 	}
 	StartPerformanceCount();
 	Invalidate();
-	EventArgs arg;
+	CEnvironmentWnd::CameraPropEventArgs arg(this);
 	pFrame->m_EventCameraPropChanged(&arg);
 }
 
@@ -1461,4 +1461,12 @@ void CChildView::OnUpdateRendermodeSsao(CCmdUI *pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 	pCmdUI->SetCheck(m_SsaoEnable);
+}
+
+void CChildView::OnActivateView(BOOL bActivate, CView* pActivateView, CView* pDeactiveView)
+{
+	// TODO: Add your specialized code here and/or call the base class
+	PostCameraViewChanged();
+
+	__super::OnActivateView(bActivate, pActivateView, pDeactiveView);
 }

@@ -127,31 +127,31 @@ void CEnvironmentWnd::InitPropList()
 
 void CEnvironmentWnd::OnCameraPropChanged(EventArgs * arg)
 {
+	CameraPropEventArgs * camera_prop_arg = dynamic_cast<CameraPropEventArgs *>(arg);
+	ASSERT(camera_prop_arg);
+
 	CMainFrame * pFrame = DYNAMIC_DOWNCAST(CMainFrame, AfxGetMainWnd());
 	ASSERT_VALID(pFrame);
-
-	CChildView * pView = DYNAMIC_DOWNCAST(CChildView, pFrame->GetActiveView());
-	ASSERT_VALID(pView);
 
 	CMFCPropertyGridProperty * pCamera = m_wndPropList.GetProperty(PropertyCamera);
 	ASSERT_VALID(pCamera);
 	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyX)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.x);
 	pCamera->GetSubItem(CameraPropertyLevelId)->GetSubItem(LevelIdPropertyY)->SetValue((_variant_t)pFrame->m_WorldL.m_LevelId.y);
 
-	my::Vector3 LookAt = (pView->m_CameraType == CChildView::CameraTypePerspective ? boost::dynamic_pointer_cast<my::ModelViewerCamera>(pView->m_Camera)->m_LookAt : pView->m_Camera->m_Eye);
+	my::Vector3 LookAt = (camera_prop_arg->pView->m_CameraType == CChildView::CameraTypePerspective ? boost::dynamic_pointer_cast<my::ModelViewerCamera>(camera_prop_arg->pView->m_Camera)->m_LookAt : camera_prop_arg->pView->m_Camera->m_Eye);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)LookAt.x);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)LookAt.y);
 	pCamera->GetSubItem(CameraPropertyLookAt)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)LookAt.z);
 
-	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.x));
-	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.y));
-	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(pView->m_Camera->m_Eular.z));
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyX)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.x));
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyY)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.y));
+	pCamera->GetSubItem(CameraPropertyEular)->GetSubItem(Vector3PropertyZ)->SetValue((_variant_t)D3DXToDegree(camera_prop_arg->pView->m_Camera->m_Eular.z));
 
 	CMFCPropertyGridProperty * pSSAO = m_wndPropList.GetProperty(PropertySSAO);
-	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(pView->m_SsaoBias/SSAO_BIAS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(pView->m_SsaoIntensity/SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(pView->m_SsaoRadius/SSAO_RADIUS_RANGE*CSliderProp::RANGE));
-	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(pView->m_SsaoScale/SSAO_SCALE_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyBias)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoBias/SSAO_BIAS_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyIntensity)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoIntensity/SSAO_INTENSITY_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyRadius)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoRadius/SSAO_RADIUS_RANGE*CSliderProp::RANGE));
+	pSSAO->GetSubItem(SSAOPropertyScale)->SetValue((_variant_t)(long)(camera_prop_arg->pView->m_SsaoScale/SSAO_SCALE_RANGE*CSliderProp::RANGE));
 
 	m_wndPropList.Invalidate(FALSE);
 }
