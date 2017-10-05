@@ -301,13 +301,12 @@ void CPropertiesWnd::UpdatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 	pMaterial->SetValue((_variant_t)(DWORD_PTR)mat);
 	pMaterial->GetSubItem(0)->SetValue((_variant_t)mat->m_Shader.c_str());
 	pMaterial->GetSubItem(1)->SetValue((_variant_t)GetPassMaskDesc(mat->m_PassMask));
-	pMaterial->GetSubItem(2)->GetSubItem(0)->SetValue((_variant_t)mat->m_MeshColor.x);
-	pMaterial->GetSubItem(2)->GetSubItem(1)->SetValue((_variant_t)mat->m_MeshColor.y);
-	pMaterial->GetSubItem(2)->GetSubItem(2)->SetValue((_variant_t)mat->m_MeshColor.z);
-	pMaterial->GetSubItem(2)->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshColor.w);
-	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
-	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
-	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
+	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
+	(DYNAMIC_DOWNCAST(CColorProp, pMaterial->GetSubItem(2)))->SetColor(color);
+	pMaterial->GetSubItem(3)->SetValue((_variant_t)mat->m_MeshColor.w);
+	pMaterial->GetSubItem(4)->SetValue((_variant_t)mat->m_MeshTexture.m_Path.c_str());
+	pMaterial->GetSubItem(5)->SetValue((_variant_t)mat->m_NormalTexture.m_Path.c_str());
+	pMaterial->GetSubItem(6)->SetValue((_variant_t)mat->m_SpecularTexture.m_Path.c_str());
 }
 
 void CPropertiesWnd::UpdatePropertiesCloth(CMFCPropertyGridProperty * pComponent, ClothComponent * cloth_cmp)
@@ -368,13 +367,12 @@ void CPropertiesWnd::UpdatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pProp = pParticle->GetSubItem(1)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityX); pProp->SetValue((_variant_t)particle.m_Velocity.x);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityY); pProp->SetValue((_variant_t)particle.m_Velocity.y);
 	pProp = pParticle->GetSubItem(1)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleVelocityZ); pProp->SetValue((_variant_t)particle.m_Velocity.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorR); pProp->SetValue((_variant_t)particle.m_Color.x);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorG); pProp->SetValue((_variant_t)particle.m_Color.y);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorB); pProp->SetValue((_variant_t)particle.m_Color.z);
-	pProp = pParticle->GetSubItem(2)->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorA); pProp->SetValue((_variant_t)particle.m_Color.w);
-	pProp = pParticle->GetSubItem(3)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
-	pProp = pParticle->GetSubItem(3)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
-	pProp = pParticle->GetSubItem(4); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
+	COLORREF color = RGB(particle.m_Color.x * 255, particle.m_Color.y * 255, particle.m_Color.z * 255);
+	pProp = pParticle->GetSubItem(2); _ASSERT(pProp->GetData() == PropertyEmitterParticleColor); (DYNAMIC_DOWNCAST(CColorProp, pProp))->SetColor(color);
+	pProp = pParticle->GetSubItem(3); _ASSERT(pProp->GetData() == PropertyEmitterParticleColorAlpha); pProp->SetValue((_variant_t)particle.m_Color.w);
+	pProp = pParticle->GetSubItem(4)->GetSubItem(0); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeX); pProp->SetValue((_variant_t)particle.m_Size.x);
+	pProp = pParticle->GetSubItem(4)->GetSubItem(1); _ASSERT(pProp->GetData() == PropertyEmitterParticleSizeY); pProp->SetValue((_variant_t)particle.m_Size.y);
+	pProp = pParticle->GetSubItem(5); _ASSERT(pProp->GetData() == PropertyEmitterParticleAngle); pProp->SetValue((_variant_t)particle.m_Angle);
 }
 
 void CPropertiesWnd::UpdatePropertiesSphericalEmitter(CMFCPropertyGridProperty * pComponent, SphericalEmitterComponent * sphe_emit_cmp)
@@ -617,16 +615,12 @@ void CPropertiesWnd::CreatePropertiesMaterial(CMFCPropertyGridProperty * pParent
 		pProp->AddOption(g_PassMaskDesc[i].desc, TRUE);
 	}
 	pMaterial->AddSubItem(pProp);
-	CMFCPropertyGridProperty * pColor = new CSimpleProp(_T("MeshColor"), PropertyMaterialMeshColor, TRUE);
+	COLORREF color = RGB(mat->m_MeshColor.x * 255, mat->m_MeshColor.y * 255, mat->m_MeshColor.z * 255);
+	CColorProp * pColor = new CColorProp(_T("MeshColor"), color, NULL, NULL, PropertyMaterialMeshColor);
+	pColor->EnableOtherButton(_T("Other..."));
 	pMaterial->AddSubItem(pColor);
-	pProp = new CSimpleProp(_T("r"), (_variant_t)mat->m_MeshColor.x, NULL, PropertyMaterialMeshColorR);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("g"), (_variant_t)mat->m_MeshColor.y, NULL, PropertyMaterialMeshColorG);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("b"), (_variant_t)mat->m_MeshColor.z, NULL, PropertyMaterialMeshColorB);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("a"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorA);
-	pColor->AddSubItem(pProp);
+	CMFCPropertyGridProperty * pColorAlpha = new CSimpleProp(_T("MeshColorAlpha"), (_variant_t)mat->m_MeshColor.w, NULL, PropertyMaterialMeshColorAlpha);
+	pMaterial->AddSubItem(pColorAlpha);
 	pProp = new CFileProp(_T("MeshTexture"), TRUE, (_variant_t)ms2ts(mat->m_MeshTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialMeshTexture);
 	pMaterial->AddSubItem(pProp);
 	pProp = new CFileProp(_T("NormalTexture"), TRUE, (_variant_t)ms2ts(mat->m_NormalTexture.m_Path).c_str(), NULL, OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, NULL, NULL, PropertyMaterialNormalTexture);
@@ -690,16 +684,13 @@ void CPropertiesWnd::CreatePropertiesStaticEmitterParticle(CMFCPropertyGridPrope
 	pProp = new CSimpleProp(_T("z"), (_variant_t)particle.m_Velocity.z, NULL, PropertyEmitterParticleVelocityZ);
 	pVelocity->AddSubItem(pProp);
 
-	CMFCPropertyGridProperty * pColor = new CMFCPropertyGridProperty(_T("Color"), PropertyEmitterParticleColor, TRUE);
+	COLORREF color = RGB(particle.m_Color.x * 255, particle.m_Color.y * 255, particle.m_Color.z * 255);
+	CColorProp * pColor = new CColorProp(_T("Color"), color, NULL, NULL, PropertyEmitterParticleColor);
+	pColor->EnableOtherButton(_T("Other..."));
 	pParticle->AddSubItem(pColor);
-	pProp = new CSimpleProp(_T("r"), (_variant_t)particle.m_Color.x, NULL, PropertyEmitterParticleColorR);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("g"), (_variant_t)particle.m_Color.y, NULL, PropertyEmitterParticleColorG);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("b"), (_variant_t)particle.m_Color.z, NULL, PropertyEmitterParticleColorB);
-	pColor->AddSubItem(pProp);
-	pProp = new CSimpleProp(_T("a"), (_variant_t)particle.m_Color.w, NULL, PropertyEmitterParticleColorA);
-	pColor->AddSubItem(pProp);
+
+	CMFCPropertyGridProperty * pAlpha = new CSimpleProp(_T("Alpha"), particle.m_Color.w, NULL, PropertyEmitterParticleColorAlpha);
+	pParticle->AddSubItem(pAlpha);
 
 	CMFCPropertyGridProperty * pSize = new CMFCPropertyGridProperty(_T("Size"), PropertyEmitterParticleSize, TRUE);
 	pParticle->AddSubItem(pSize);
@@ -1220,29 +1211,22 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case PropertyMaterialMeshColor:
-	case PropertyMaterialMeshColorA:
-	case PropertyMaterialMeshColorR:
-	case PropertyMaterialMeshColorG:
-	case PropertyMaterialMeshColorB:
 		{
-			CMFCPropertyGridProperty * pColor = NULL;
-			switch (PropertyId)
-			{
-			case PropertyMaterialMeshColor:
-				pColor = pProp;
-				break;
-			case PropertyMaterialMeshColorA:
-			case PropertyMaterialMeshColorR:
-			case PropertyMaterialMeshColorG:
-			case PropertyMaterialMeshColorB:
-				pColor = pProp->GetParent();
-				break;
-			}
+			CColorProp * pColor = DYNAMIC_DOWNCAST(CColorProp, pProp);
+			ASSERT(pColor);
+			COLORREF color = pColor->GetColor();
 			Material * material = (Material *)pColor->GetParent()->GetValue().ulVal;
-			material->m_MeshColor.x = pColor->GetSubItem(0)->GetValue().fltVal;
-			material->m_MeshColor.y = pColor->GetSubItem(1)->GetValue().fltVal;
-			material->m_MeshColor.z = pColor->GetSubItem(2)->GetValue().fltVal;
-			material->m_MeshColor.w = pColor->GetSubItem(3)->GetValue().fltVal;
+			material->m_MeshColor.x = GetRValue(color) / 255.0f;
+			material->m_MeshColor.y = GetGValue(color) / 255.0f;
+			material->m_MeshColor.z = GetBValue(color) / 255.0f;
+			EventArgs arg;
+			pFrame->m_EventAttributeChanged(&arg);
+		}
+		break;
+	case PropertyMaterialMeshColorAlpha:
+		{
+			Material * material = (Material *)pProp->GetParent()->GetValue().ulVal;
+			material->m_MeshColor.w = pProp->GetValue().fltVal;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
@@ -1304,10 +1288,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 	case PropertyEmitterParticleVelocityY:
 	case PropertyEmitterParticleVelocityZ:
 	case PropertyEmitterParticleColor:
-	case PropertyEmitterParticleColorA:
-	case PropertyEmitterParticleColorR:
-	case PropertyEmitterParticleColorG:
-	case PropertyEmitterParticleColorB:
+	case PropertyEmitterParticleColorAlpha:
 	case PropertyEmitterParticleSize:
 	case PropertyEmitterParticleSizeX:
 	case PropertyEmitterParticleSizeY:
@@ -1322,10 +1303,6 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			case PropertyEmitterParticleVelocityX:
 			case PropertyEmitterParticleVelocityY:
 			case PropertyEmitterParticleVelocityZ:
-			case PropertyEmitterParticleColorA:
-			case PropertyEmitterParticleColorR:
-			case PropertyEmitterParticleColorG:
-			case PropertyEmitterParticleColorB:
 			case PropertyEmitterParticleSizeX:
 			case PropertyEmitterParticleSizeY:
 				pParticle = pProp->GetParent()->GetParent();
@@ -1333,6 +1310,7 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			case PropertyEmitterParticlePosition:
 			case PropertyEmitterParticleVelocity:
 			case PropertyEmitterParticleColor:
+			case PropertyEmitterParticleColorAlpha:
 			case PropertyEmitterParticleSize:
 			case PropertyEmitterParticleAngle:
 				pParticle = pProp->GetParent();
@@ -1347,13 +1325,14 @@ afx_msg LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam, LPARAM lParam)
 			particle.m_Velocity.x = pParticle->GetSubItem(1)->GetSubItem(0)->GetValue().fltVal;
 			particle.m_Velocity.y = pParticle->GetSubItem(1)->GetSubItem(1)->GetValue().fltVal;
 			particle.m_Velocity.z = pParticle->GetSubItem(1)->GetSubItem(2)->GetValue().fltVal;
-			particle.m_Color.x = pParticle->GetSubItem(2)->GetSubItem(0)->GetValue().fltVal;
-			particle.m_Color.y = pParticle->GetSubItem(2)->GetSubItem(1)->GetValue().fltVal;
-			particle.m_Color.z = pParticle->GetSubItem(2)->GetSubItem(2)->GetValue().fltVal;
-			particle.m_Color.w = pParticle->GetSubItem(2)->GetSubItem(3)->GetValue().fltVal;
-			particle.m_Size.x = pParticle->GetSubItem(3)->GetSubItem(0)->GetValue().fltVal;
-			particle.m_Size.y = pParticle->GetSubItem(3)->GetSubItem(1)->GetValue().fltVal;
-			particle.m_Angle = pParticle->GetSubItem(4)->GetValue().fltVal;
+			COLORREF color = (DYNAMIC_DOWNCAST(CColorProp, pParticle->GetSubItem(2)))->GetColor();
+			particle.m_Color.x = GetRValue(color) / 255.0f;
+			particle.m_Color.y = GetGValue(color) / 255.0f;
+			particle.m_Color.z = GetBValue(color) / 255.0f;
+			particle.m_Color.w = pParticle->GetSubItem(3)->GetValue().fltVal;
+			particle.m_Size.x = pParticle->GetSubItem(4)->GetSubItem(0)->GetValue().fltVal;
+			particle.m_Size.y = pParticle->GetSubItem(4)->GetSubItem(1)->GetValue().fltVal;
+			particle.m_Angle = pParticle->GetSubItem(5)->GetValue().fltVal;
 			EventArgs arg;
 			pFrame->m_EventAttributeChanged(&arg);
 		}
