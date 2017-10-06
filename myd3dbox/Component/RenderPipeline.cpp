@@ -274,10 +274,10 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	if (pRC->m_SsaoEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
+		V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 		V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 		m_SsaoEffect->SetFloat("g_bias", pRC->m_SsaoBias);
 		m_SsaoEffect->SetFloat("g_intensity", pRC->m_SsaoIntensity);
@@ -294,6 +294,8 @@ void RenderPipeline::OnFrameRender(
 		V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, D3DCOLOR_COLORVALUE(
 			pRC->m_SkyLightAmbient.x, pRC->m_SkyLightAmbient.y, pRC->m_SkyLightAmbient.z, pRC->m_SkyLightAmbient.w), 0, 0));
 	}
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
