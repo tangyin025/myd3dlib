@@ -877,6 +877,8 @@ void CChildView::OnPaint()
 					swprintf_s(&m_ScrInfos[1+PassID][0], m_ScrInfos[1+PassID].size(), L"%S: %d", RenderPipeline::PassTypeToStr(PassID), theApp.m_PassDrawCall[PassID]);
 				}
 
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+				V(theApp.m_d3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 				if (!pFrame->m_selactors.empty())
 				{
 					theApp.m_SimpleSample->SetMatrix("g_View", m_Camera->m_View);

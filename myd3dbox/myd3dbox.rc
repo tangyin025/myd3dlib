@@ -226,6 +226,7 @@ BEGIN
             MENUITEM "Move",                        ID_PIVOT_MOVE
             MENUITEM "Rotate",                      ID_PIVOT_ROTATE
         END
+        MENUITEM "&Clear Shader",               ID_VIEW_CLEARSHADER
     END
     POPUP "&Help"
     BEGIN

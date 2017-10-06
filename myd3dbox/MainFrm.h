@@ -106,6 +106,7 @@ public:
 	afx_msg void OnUpdatePivotMove(CCmdUI *pCmdUI);
 	afx_msg void OnPivotRotate();
 	afx_msg void OnUpdatePivotRotate(CCmdUI *pCmdUI);
+	afx_msg void OnViewClearshader();
 };
 
 

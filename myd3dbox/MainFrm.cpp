@@ -56,6 +56,7 @@ BEGIN_MESSAGE_MAP(CMainFrame, CFrameWndEx)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_MOVE, &CMainFrame::OnUpdatePivotMove)
 	ON_COMMAND(ID_PIVOT_ROTATE, &CMainFrame::OnPivotRotate)
 	ON_UPDATE_COMMAND_UI(ID_PIVOT_ROTATE, &CMainFrame::OnUpdatePivotRotate)
+	ON_COMMAND(ID_VIEW_CLEARSHADER, &CMainFrame::OnViewClearshader)
 END_MESSAGE_MAP()
 
 static UINT indicators[] =
@@ -933,3 +934,10 @@ void CMainFrame::OnUpdatePivotRotate(CCmdUI *pCmdUI)
 	pCmdUI->SetCheck(m_Pivot.m_Mode == Pivot::PivotModeRot);
 }
 
+void CMainFrame::OnViewClearshader()
+{
+	// TODO: Add your command handler code here
+	theApp.m_ShaderCache.clear();
+	EventArgs arg;
+	m_EventAttributeChanged(&arg);
+}

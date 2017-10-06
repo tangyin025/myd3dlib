@@ -242,6 +242,8 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(0, ShadowSurf));
 	V(pd3dDevice->SetDepthStencilSurface(m_ShadowDS->m_ptr));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	RenderAllObjects(PassTypeShadow, pd3dDevice, fTime, fElapsedTime);
 	ShadowSurf.Release();
 
@@ -262,6 +264,8 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetRenderTarget(1, PositionSurf));
 	V(pd3dDevice->SetDepthStencilSurface(ScreenDepthStencilSurf));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0x00ffffff, 1.0f, 0));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, TRUE));
 	RenderAllObjects(PassTypeNormal, pd3dDevice, fTime, fElapsedTime);
 	NormalSurf.Release();
 	PositionSurf.Release();
@@ -270,7 +274,7 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
-	//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	if (pRC->m_SsaoEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
@@ -299,11 +303,9 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetTexture("g_LightRT", pRC->m_LightRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_OpaqueRT.GetNextTarget()->GetSurfaceLevel(0)));
 	V(pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET, pRC->m_BkColor, 1.0f, 0)); // ! d3dmultisample will not work
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE));
 	RenderAllObjects(PassTypeOpaque, pd3dDevice, fTime, fElapsedTime);
 
-	V(pd3dDevice->SetRenderState(D3DRS_ZWRITEENABLE, FALSE));
 	V(pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, TRUE));
 	V(pd3dDevice->SetRenderState(D3DRS_BLENDOP, D3DBLENDOP_ADD));
 	V(pd3dDevice->SetRenderState(D3DRS_SRCBLEND, D3DBLEND_SRCCOLOR));
@@ -375,7 +377,6 @@ void RenderPipeline::OnFrameRender(
 	V(pd3dDevice->SetTexture(0, pRC->m_OpaqueRT.GetNextSource()->m_ptr));
 	V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
 	V(pd3dDevice->DrawPrimitiveUP(D3DPT_TRIANGLEFAN, 2, quad, sizeof(quad[0])));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, TRUE));
 
 	ClearAllObjects();
 }

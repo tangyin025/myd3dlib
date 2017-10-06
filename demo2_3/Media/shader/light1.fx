@@ -30,7 +30,6 @@ float4 LightPS( LIGHT_VS_OUTPUT In ) : COLOR0
 	float3 ViewPos = tex2D(PositionRTSampler, NormalTex).xyz;
 	float3 LightVec = In.Light.xyz - ViewPos;
 	float LightDist = length(LightVec);
-	clip(In.Light.w - LightDist);
 	LightVec = LightVec / LightDist;
 	float diffuse = saturate(dot(Normal, LightVec));
 	float3 View = In.Eye - ViewPos;
