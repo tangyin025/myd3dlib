@@ -164,7 +164,7 @@ public:
 
 	void UpdateVertices(void);
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;
 

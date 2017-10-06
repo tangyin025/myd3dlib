@@ -17,6 +17,10 @@ public:
 
 	unsigned int m_PassMask;
 
+	DWORD m_CullMode;
+
+	BOOL m_ZEnable;
+
 	my::Vector4 m_MeshColor;
 
 	ResourceBundle<my::BaseTexture> m_MeshTexture;
@@ -28,6 +32,8 @@ public:
 public:
 	Material(void)
 		: m_PassMask(RenderPipeline::PassMaskNone)
+		, m_CullMode(D3DCULL_CW)
+		, m_ZEnable(TRUE)
 		, m_MeshColor(1,1,1,1)
 	{
 	}
@@ -41,6 +47,8 @@ public:
 	{
 		ar & BOOST_SERIALIZATION_NVP(m_Shader);
 		ar & BOOST_SERIALIZATION_NVP(m_PassMask);
+		ar & BOOST_SERIALIZATION_NVP(m_CullMode);
+		ar & BOOST_SERIALIZATION_NVP(m_ZEnable);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshColor);
 		ar & BOOST_SERIALIZATION_NVP(m_MeshTexture);
 		ar & BOOST_SERIALIZATION_NVP(m_NormalTexture);
@@ -55,7 +63,7 @@ public:
 
 	void ReleaseResource(void);
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 };
 
 typedef std::vector<MaterialPtr> MaterialPtrList;
@@ -200,7 +208,7 @@ public:
 		ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Component);
 	}
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId) = 0;
 };
 
 typedef boost::shared_ptr<RenderComponent> RenderComponentPtr;
@@ -265,7 +273,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -361,7 +369,7 @@ public:
 
 	virtual void OnDestroyDevice(void);
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;
 
@@ -414,7 +422,7 @@ public:
 
 	virtual void Update(float fElapsedTime);
 
-	virtual void OnSetShader(my::Effect * shader, DWORD AttribId);
+	virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId);
 
 	virtual my::AABB CalculateAABB(void) const;
 

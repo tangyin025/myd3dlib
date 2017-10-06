@@ -71,6 +71,8 @@ protected:
 		PropertyMaterialList,
 		PropertyMaterialShader,
 		PropertyMaterialPassMask,
+		PropertyMaterialCullMode,
+		PropertyMaterialZEnable,
 		PropertyMaterialMeshColor,
 		PropertyMaterialMeshColorAlpha,
 		PropertyMaterialMeshTexture,

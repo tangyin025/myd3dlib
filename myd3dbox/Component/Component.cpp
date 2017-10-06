@@ -70,8 +70,11 @@ void Material::ReleaseResource(void)
 	m_SpecularTexture.ReleaseResource();
 }
 
-void Material::OnSetShader(my::Effect * shader, DWORD AttribId)
+void Material::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
+	HRESULT hr;
+	V(pd3dDevice->SetRenderState(D3DRS_CULLMODE, m_CullMode));
+	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, m_ZEnable));
 	shader->SetVector("g_MeshColor", m_MeshColor);
 	shader->SetTexture("g_MeshTexture", m_MeshTexture.m_Res.get());
 	shader->SetTexture("g_NormalTexture", m_NormalTexture.m_Res.get());
@@ -324,7 +327,7 @@ void MeshComponent::Update(float fElapsedTime)
 	Component::Update(fElapsedTime);
 }
 
-void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+void MeshComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(AttribId < m_MaterialList.size());
 
@@ -340,7 +343,7 @@ void MeshComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 		}
 	}
 
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+	m_MaterialList[AttribId]->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 my::AABB MeshComponent::CalculateAABB(void) const
@@ -705,7 +708,7 @@ void ClothComponent::OnDestroyDevice(void)
 	m_Decl.Release();
 }
 
-void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+void ClothComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(!m_VertexData.empty());
 	_ASSERT(AttribId < m_MaterialList.size());
@@ -722,7 +725,7 @@ void ClothComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 		}
 	}
 
-	m_MaterialList[AttribId]->OnSetShader(shader, AttribId);
+	m_MaterialList[AttribId]->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 my::AABB ClothComponent::CalculateAABB(void) const
@@ -882,7 +885,7 @@ void EmitterComponent::Update(float fElapsedTime)
 	Component::Update(fElapsedTime);
 }
 
-void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
+void EmitterComponent::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 	_ASSERT(0 == AttribId);
 
@@ -892,7 +895,7 @@ void EmitterComponent::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	if (m_Material)
 	{
-		m_Material->OnSetShader(shader, AttribId);
+		m_Material->OnSetShader(pd3dDevice, shader, AttribId);
 	}
 }
 

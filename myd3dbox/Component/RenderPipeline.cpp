@@ -270,7 +270,7 @@ void RenderPipeline::OnFrameRender(
 	m_SimpleSample->SetTexture("g_PositionRT", pRC->m_PositionRT.get());
 	V(pd3dDevice->SetRenderTarget(0, pRC->m_LightRT->GetSurfaceLevel(0)));
 	V(pd3dDevice->SetRenderTarget(1, NULL));
-	V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
+	//V(pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE));
 	if (pRC->m_SsaoEnable)
 	{
 		V(pd3dDevice->SetFVF(D3DFVF_XYZRHW | D3DFVF_TEX1));
@@ -434,7 +434,7 @@ void RenderPipeline::RenderAllObjects(
 	MeshAtomList::iterator mesh_iter = m_Pass[PassID].m_MeshList.begin();
 	for (; mesh_iter != m_Pass[PassID].m_MeshList.end(); mesh_iter++)
 	{
-		DrawMesh(PassID, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
+		DrawMesh(PassID, pd3dDevice, mesh_iter->mesh, mesh_iter->AttribId, mesh_iter->shader, mesh_iter->setter);
 		m_PassDrawCall[PassID]++;
 	}
 
@@ -508,7 +508,7 @@ void RenderPipeline::DrawIndexedPrimitive(
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
+	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(PrimitiveType, BaseVertexIndex, MinVertexIndex, NumVertices, StartIndex, PrimitiveCount));
@@ -536,7 +536,7 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
+	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;
@@ -548,12 +548,12 @@ void RenderPipeline::DrawIndexedPrimitiveUP(
 	shader->End();
 }
 
-void RenderPipeline::DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
+void RenderPipeline::DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter)
 {
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
+	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		mesh->DrawSubset(AttribId);
@@ -593,7 +593,7 @@ void RenderPipeline::DrawMeshInstance(
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
+	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		V(pd3dDevice->DrawIndexedPrimitive(D3DPT_TRIANGLELIST, 0,
@@ -635,7 +635,7 @@ void RenderPipeline::DrawEmitter(unsigned int PassID, IDirect3DDevice9 * pd3dDev
 	shader->SetTechnique("RenderScene");
 	const UINT passes = shader->Begin(0);
 	_ASSERT(PassID < passes);
-	setter->OnSetShader(shader, AttribId);
+	setter->OnSetShader(pd3dDevice, shader, AttribId);
 	{
 		shader->BeginPass(PassID);
 		HRESULT hr;

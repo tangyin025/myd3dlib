@@ -574,7 +574,7 @@ void Terrain::UpdateVertices(void)
 	}
 }
 
-void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
+void Terrain::OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId)
 {
 	shader->SetFloat("g_Time", (float)D3DContext::getSingleton().m_fAbsoluteTime);
 
@@ -590,7 +590,7 @@ void Terrain::OnSetShader(my::Effect * shader, DWORD AttribId)
 
 	shader->SetTexture("g_HeightTexture", &m_HeightMap);
 
-	m_Material->OnSetShader(shader, AttribId);
+	m_Material->OnSetShader(pd3dDevice, shader, AttribId);
 }
 
 my::AABB Terrain::CalculateAABB(void) const

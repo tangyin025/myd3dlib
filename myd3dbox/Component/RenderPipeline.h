@@ -77,7 +77,7 @@ public:
 	class IShaderSetter
 	{
 	public:
-		virtual void OnSetShader(my::Effect * shader, DWORD AttribId) = 0;
+		virtual void OnSetShader(IDirect3DDevice9 * pd3dDevice, my::Effect * shader, DWORD AttribId) = 0;
 	};
 
 	struct RTChain
@@ -331,7 +331,7 @@ public:
 		my::Effect * shader,
 		IShaderSetter * setter);
 
-	void DrawMesh(unsigned int PassID, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
+	void DrawMesh(unsigned int PassID, IDirect3DDevice9 * pd3dDevice, my::Mesh * mesh, DWORD AttribId, my::Effect * shader, IShaderSetter * setter);
 
 	void DrawMeshInstance(
 		unsigned int PassID,
