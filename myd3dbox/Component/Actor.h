@@ -2,7 +2,6 @@
 
 #include "myOctree.h"
 #include "Component.h"
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 class Animator;
 
@@ -13,7 +12,6 @@ class Octree;
 class Actor
 	: public my::OctActor
 	, public Component
-	, public boost::enable_shared_from_this<Actor>
 {
 public:
 	boost::shared_ptr<unsigned char> m_SerializeBuff;

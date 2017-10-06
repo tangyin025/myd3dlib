@@ -1,13 +1,11 @@
 #pragma once
 
 #include "Component.h"
-#include <boost/smart_ptr/enable_shared_from_this.hpp>
 
 class Terrain;
 
 class TerrainChunk
 	: public my::OctActor
-	, public boost::enable_shared_from_this<TerrainChunk>
 {
 public:
 	Terrain * m_Owner;

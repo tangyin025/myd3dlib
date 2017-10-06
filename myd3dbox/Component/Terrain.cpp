@@ -255,7 +255,7 @@ void Terrain::UpdateChunks(void)
 		for (unsigned int j = 0; j < ChunkArray::static_size; j++)
 		{
 			m_Chunks[i][j]->UpdateAABB();
-			TerrainChunkPtr chunk = m_Chunks[i][j]->shared_from_this();
+			TerrainChunkPtr chunk = boost::dynamic_pointer_cast<TerrainChunk>(m_Chunks[i][j]->shared_from_this());
 			m_Root.RemoveActor(chunk);
 			m_Root.AddActor(chunk, chunk->m_aabb, 0.1f);
 		}
